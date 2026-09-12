@@ -18,11 +18,11 @@ Astra must never automatically begin another improvement round after completing 
 
 For every Jira Task/Subtask implementation, use this workflow:
 
-**Implement → Build/Test → Run/Inspect → Self-Critique → Score → Recommendations → STOP**
+**Implement → Build/Test → Run/Inspect → Self-Critique → Score → Recommendation(s) if FAIL → STOP**
 
 For every completed Jira Story, use this workflow:
 
-**Integrate Tasks → Build/Test → Run/Inspect → Story Self-Critique → Score → Recommendations → STOP**
+**Integrate Tasks → Build/Test → Run/Inspect → Story Self-Critique → Score → Recommendation(s) if FAIL → STOP**
 
 After either critique, Astra must wait for explicit human instruction.
 
@@ -144,7 +144,7 @@ Before performing a Story critique:
 
 Then perform:
 
-**Story Verification → Story Self-Critique → Score → Recommendations → STOP**
+**Story Verification → Story Self-Critique → Score → Recommendation(s) if FAIL → STOP**
 
 The same:
 
@@ -424,7 +424,7 @@ Include:
 
 **Overall Score: X.X / 10**
 
-**Quality Assessment: FAIL (<6) / PASS (≥6)**
+**Quality Assessment: FAIL (<6) / PASS (>=6)**
 
 ### Category Scores
 
@@ -445,6 +445,8 @@ Briefly state what was actually:
 - Integration-tested.
 
 Clearly distinguish VERIFIED, INFERRED, and UNVERIFIED findings where necessary.
+
+For a **FAIL** score below 6.0, also include:
 
 ### Problems Found
 
@@ -474,29 +476,40 @@ State which issues should be prioritized and why.
 
 Do not assume another round will be authorized.
 
+For a **PASS** score of 6.0 or higher, Problems Found, Suggested Improvement, and Recommended Next Round sections are not required. Do not invent improvement work to populate them.
+
 ### Verification Limitations
 
 State anything that could not be directly tested or observed.
 
 ---
 
-# Mandatory Recommendation
+# Threshold-Based Recommendation Rule
 
-Every critique round must provide at least one meaningful recommendation when a legitimate improvement can be identified.
+Apply this rule exactly:
 
-This applies even when the implementation scores above 6.
+```text
+Score < 6.0  → recommendation required
+Score >= 6.0 → PASS, no recommendation required
+```
 
-For example:
+If the overall score is below 6.0:
 
-- A score of 6.3 may still include a recommendation.
-- A score of 8.1 may still include a recommendation.
-- A passing score does not mean improvement opportunities must be omitted.
+- The implementation is **FAIL**.
+- Provide at least one meaningful recommendation.
+- Every required recommendation must be evidence-based, relevant to the current Jira scope, and specific enough to act on.
+- Stop after reporting the score, problems, and recommendations.
+- Do not automatically implement any recommendation. The human decides whether another improvement round occurs.
 
-Do not invent meaningless criticism merely to satisfy this rule.
+If the overall score is 6.0 or higher:
 
-If no meaningful in-scope improvement exists, explicitly state that no material in-scope recommendation was identified and explain why.
+- The implementation is **PASS**.
+- No recommendation is required, and recommendations should normally be omitted.
+- Do not search for or invent minor criticism, polish ideas, or low-value improvements merely to generate a recommendation.
+- Stop after reporting the passing score and relevant verification results.
+- The human may still explicitly request additional work or another critique round.
 
-The human decides whether any recommendation should be implemented.
+The mandatory human gate applies regardless of the score.
 
 ---
 
@@ -547,11 +560,11 @@ Examples of valid authorization:
 
 For a Task:
 
-**Approved Fixes → Implement → Build/Test → Run/Inspect → Self-Critique → New Score → Recommendations → STOP**
+**Approved Fixes → Implement → Build/Test → Run/Inspect → Self-Critique → New Score → Recommendation(s) if FAIL → STOP**
 
 For a Story:
 
-**Approved Corrective Work → Jira Task/Task Branch → Implement → Task Critique → Task PR → Merge to Story → Story Verification → Story Self-Critique → New Score → Recommendations → STOP**
+**Approved Corrective Work → Jira Task/Task Branch → Implement → Task Critique → Task PR → Merge to Story → Story Verification → Story Self-Critique → New Score → Recommendation(s) if FAIL → STOP**
 
 Human authorization for Round 2 does **not** automatically authorize Round 3.
 
@@ -597,7 +610,7 @@ Astra rebuilds, tests, and critiques the implementation.
 
 **Score: 5.8/10**
 
-Additional weaknesses are identified.
+Astra reports at least one meaningful recommendation based on the identified weaknesses.
 
 **STOP — Await human decision.**
 
@@ -666,7 +679,7 @@ Build/Test/Inspect
         ↓
 Task Critique
         ↓
-Score + Recommendations
+Score + Recommendation(s) if FAIL
         ↓
 STOP
         ↓
@@ -704,7 +717,7 @@ Full Story verification
         ↓
 Story Critique
         ↓
-Score + Recommendations
+Score + Recommendation(s) if FAIL
         ↓
 STOP
         ↓
@@ -738,16 +751,15 @@ The human reviewer has final authority.
 The human may decide that:
 
 - 5.7 is acceptable for the milestone.
-- 6.2 still needs another round.
-- 8.0 still has one improvement worth implementing.
-- One recommendation should be implemented but another should not.
+- A passing score still needs another round or specific additional work.
+- One recommendation from a failing critique should be implemented but another should not.
 - An identified issue belongs in another Jira Task.
 - A Story issue requires a corrective Task.
 - An issue should be deferred.
 - The implementation should be reverted or redesigned.
 - No additional round is necessary.
 
-Astra provides evidence and recommendations.
+Astra provides evidence and the recommendations required for a failing score.
 
 **The human makes the decision.**
 
@@ -779,7 +791,7 @@ A solid implementation appropriate for the current Trackstorm milestone begins a
 
 After every Task implementation, Story integration, or human-authorized improvement round:
 
-**Critique → Score → Recommend → STOP**
+**Critique → Score → Recommendation(s) if FAIL → STOP**
 
 Never automatically:
 

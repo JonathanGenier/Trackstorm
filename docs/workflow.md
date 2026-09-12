@@ -205,7 +205,7 @@ Build/Test/Inspect
         ↓
 Mandatory Task Critique
         ↓
-Score + Recommendations
+Score + Recommendation(s) if FAIL
         ↓
 STOP
         ↓
@@ -227,8 +227,8 @@ Follow these rules:
 1. Before implementation and again before the mandatory Task critique, confirm the Task branch is synchronized with its parent Story branch. Changes flow only from `main` into Story and then from Story into Task.
 2. Implement only the current Task/Subtask and include its required tests and documentation.
 3. Run `./check.ps1`, all Jira-required integration checks, and inspect the complete diff.
-4. Perform the mandatory Task critique in `docs/critique.md`, present the score and recommendations, and stop for the human decision.
-5. Do not make critique-driven changes or begin another critique round without explicit human authorization. Each authorized round repeats implementation, verification, critique, scoring, recommendations, and the mandatory stop, subject to the three-round limit.
+4. Perform the mandatory Task critique in `docs/critique.md`. If the score is below 6.0, present at least one meaningful recommendation; if the score is 6.0 or higher, report PASS and no recommendation is required. Then stop for the human decision.
+5. Do not make critique-driven changes or begin another critique round without explicit human authorization. Each authorized round repeats implementation, verification, critique, scoring, any recommendations required for a failing score, and the mandatory stop, subject to the three-round limit.
 6. Do not create the final Task PR until the critique process is complete and the human reviewer explicitly accepts the Task for PR creation.
 7. After acceptance, perform final verification without making additional implementation changes, commit all intended changes, and push the Task branch. If synchronization or implementation changes become necessary, repeat the applicable verification and critique process and obtain renewed human acceptance before PR creation.
 8. Create exactly one GitHub Pull Request from the Task branch to its parent Story branch. Never target `main` from a Task branch.
@@ -260,7 +260,7 @@ Full Story verification
         ↓
 Mandatory Story Critique
         ↓
-Score + Recommendations
+Score + Recommendation(s) if FAIL
         ↓
 STOP
         ↓
@@ -280,7 +280,7 @@ Create Story PR → main
 Follow these rules:
 
 1. Confirm every required Task PR is merged, update the Story branch from `main`, and perform full Story verification against the integrated acceptance criteria.
-2. Perform the mandatory Story critique in `docs/critique.md`, present the score and recommendations, and stop for the human decision.
+2. Perform the mandatory Story critique in `docs/critique.md`. If the score is below 6.0, present at least one meaningful recommendation; if the score is 6.0 or higher, report PASS and no recommendation is required. Then stop for the human decision.
 3. Do not apply Story critique fixes directly to the Story branch. Every approved implementation fix requires an appropriate Jira Task/Subtask, a Task branch created from the current Story branch, a Task critique, and exactly one Task PR back into the Story branch.
 4. After corrective Task PRs are merged, perform another Story critique round only when the human explicitly authorizes it, subject to the three-round limit.
 5. Do not create the final Story PR until the critique process is complete and the human reviewer explicitly accepts the Story for PR creation.
