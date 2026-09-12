@@ -39,4 +39,12 @@ dotnet build Trackstorm.sln -c Release -warnaserror
 dotnet test code/Tests/Trackstorm.Core.Tests.csproj -c Release --no-build
 ```
 
-`check.ps1` also verifies formatting and both Debug and Release configurations. The Godot project starts at `scenes/main.tscn`, a deliberately empty scene with no autoloads or gameplay dependencies.
+`check.ps1` also verifies formatting and both Debug and Release configurations. The Godot project starts at `scenes/main.tscn`, which captures logical player input on fixed updates without a vehicle or gameplay dependencies. See `docs/features.md` for controls, remapping and the input contract.
+
+Run the focused native input integration checks with the installed Godot .NET executable:
+
+```powershell
+./check-input.ps1 -GodotPath "C:/path/to/Godot_console.exe"
+```
+
+This builds Debug, imports the project, injects keyboard/gamepad events into a dedicated verification scene, and smoke-tests the main scene. It fails on runtime errors/warnings or missing test completion. Core tests remain independent of Godot.
