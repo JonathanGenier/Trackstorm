@@ -213,3 +213,61 @@ main
 ```
 
 Preserve this hierarchy throughout development.
+
+## Task Pull Request Completion
+
+When a Jira Task/Subtask implementation is complete:
+
+1. Confirm the Task branch is up to date with its parent Story branch.
+2. Run `./check.ps1` and all Task-specific tests/integration checks.
+3. Review the complete diff and ensure the branch contains only work for the current Jira Task.
+4. Commit all intended Task changes.
+5. Push the Task branch to GitHub.
+6. Create exactly one GitHub Pull Request:
+   - **Source:** the Task branch.
+   - **Target:** the parent Story branch.
+   - Never target `main` from a Task branch.
+
+7. The PR title should include the Jira key and Task summary.
+8. The PR description should include:
+   - Jira issue key.
+   - Summary of what was implemented.
+   - Tests/checks performed.
+   - Any assumptions, limitations, or unresolved risks.
+
+9. Do not mark the Jira Task complete merely because implementation is finished locally. The Task is ready for review only after its GitHub PR has been created successfully.
+
+Example:
+
+```text
+main
+└── story/TS-7-arcade-vehicle
+    └── task/TS-8-fixed-step-movement
+          │
+          └── PR → story/TS-7-arcade-vehicle
+```
+
+After creating the PR, report the PR number and URL.
+
+## Creating the Task Pull Request
+
+When implementation and verification for a Jira Task/Subtask are complete:
+
+1. Confirm the Task branch is synchronized with its parent Story branch.
+2. Run `./check.ps1` and all Jira-required integration checks.
+3. Inspect the complete diff and confirm only the current Jira Task is included.
+4. Commit all intended changes.
+5. Push the Task branch to GitHub.
+6. Create exactly one GitHub Pull Request:
+   - Source: the current Task branch.
+   - Target: the parent Story branch.
+   - Never target `main` from a Task branch.
+7. Use the Jira key in the PR title.
+8. The PR description must include:
+   - Jira issue key.
+   - Summary of implementation.
+   - Tests and verification performed.
+   - Assumptions, limitations, or unresolved risks.
+9. After successfully creating the PR, report its number and URL.
+
+Do not consider the Task ready for review until the GitHub PR has been created successfully.
