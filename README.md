@@ -39,4 +39,4 @@ dotnet build Trackstorm.sln -c Release -warnaserror
 dotnet test code/Tests/Trackstorm.Core.Tests.csproj -c Release --no-build
 ```
 
-`check.ps1` also verifies formatting and both Debug and Release configurations. The Godot project starts at `scenes/main.tscn`, a deliberately empty scene with no autoloads or gameplay dependencies.
+`check.ps1` also verifies formatting and both Debug and Release configurations. The Godot project starts at `scenes/main.tscn`, whose Client-owned bootstrap converts local input and schedules the engine-independent Core simulation at a fixed rate. Core receives logical input and explicit step calls, never Godot frame delta or runtime types.
