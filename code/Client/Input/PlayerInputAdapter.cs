@@ -49,11 +49,14 @@ internal sealed class PlayerInputAdapter
     /// <summary>Suppresses capture while focus is lost; observing suppression releases held controls.</summary>
     public bool Enabled { get; set; } = true;
 
+    /// <summary>Suppresses gameplay while settings are open, independently of application focus.</summary>
+    public bool GameplaySuppressed { get; set; }
+
     /// <summary>Samples aggregate digital state; preserves press/release transitions until capture.</summary>
     public void Observe()
     {
         InputButtons held = InputButtons.None;
-        if (Enabled)
+        if (Enabled && !GameplaySuppressed)
         {
             foreach ((InputAction action, InputButtons button) in DigitalActions)
             {
@@ -73,11 +76,12 @@ internal sealed class PlayerInputAdapter
     public InputFrame Capture(ulong tick)
     {
         Observe();
-        float steering = Enabled ? Bindings.Strength(InputAction.SteerRight, DeadZone) - Bindings.Strength(InputAction.SteerLeft, DeadZone) : 0;
+        bool active = Enabled && !GameplaySuppressed;
+        float steering = active ? Bindings.Strength(InputAction.SteerRight, DeadZone) - Bindings.Strength(InputAction.SteerLeft, DeadZone) : 0;
         return _capture.Capture(
             tick,
             InputAxis.QuantizeSteering(InputAxis.Normalize(steering, inverted: InvertSteering)),
-            InputAxis.QuantizePedal(Enabled ? Bindings.Strength(InputAction.Accelerate, DeadZone) : 0),
-            InputAxis.QuantizePedal(Enabled ? Bindings.Strength(InputAction.Brake, DeadZone) : 0));
+            InputAxis.QuantizePedal(active ? Bindings.Strength(InputAction.Accelerate, DeadZone) : 0),
+            InputAxis.QuantizePedal(active ? Bindings.Strength(InputAction.Brake, DeadZone) : 0));
     }
 }

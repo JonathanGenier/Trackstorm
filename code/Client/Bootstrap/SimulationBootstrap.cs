@@ -1,5 +1,6 @@
 using Godot;
 using Trackstorm.Client.Input;
+using Trackstorm.Client.Settings;
 using Trackstorm.Core.Input;
 using Trackstorm.Core.Simulation;
 
@@ -28,6 +29,12 @@ public sealed partial class SimulationBootstrap : Node
         _playerInput = GetNode<PlayerInput>("PlayerInput");
         _playerInput.FrameCaptured += OnFrameCaptured;
         Engine.PhysicsTicksPerSecond = _configuration.TicksPerSecond;
+        var settings = new PlayerSettingsController { Name = "PlayerSettings" };
+        settings.Initialize(_playerInput.Adapter, ProjectSettings.GlobalizePath("user://player-settings.json"));
+        AddChild(settings);
+        var panel = new SettingsPanel { Name = "SettingsPanel" };
+        panel.Initialize(settings, _playerInput.Adapter);
+        settings.AddChild(panel);
     }
 
     /// <inheritdoc />

@@ -23,6 +23,19 @@ internal sealed class PlayerInputBindings : IDisposable
             _bindings[action] = [];
         }
 
+        RestoreDefaults(gamepadDevice);
+    }
+
+    /// <summary>Stable names avoid overwriting Godot's built-in UI actions.</summary>
+    /// <param name="action">Logical action.</param>
+    /// <returns>The namespaced Godot action name.</returns>
+    public static StringName Name(InputAction action) => $"trackstorm_{action}";
+
+    /// <summary>Restores the input system's keyboard/gamepad defaults without adding another InputMap owner.</summary>
+    /// <param name="gamepadDevice">Assigned nonnegative gamepad ID.</param>
+    public void RestoreDefaults(int gamepadDevice = 0)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(gamepadDevice);
         Set(InputAction.Accelerate, Key.W, Axis(JoyAxis.TriggerRight, 1, gamepadDevice));
         Set(InputAction.Brake, Key.S, Axis(JoyAxis.TriggerLeft, 1, gamepadDevice));
         Set(InputAction.SteerLeft, Key.A, Axis(JoyAxis.LeftX, -1, gamepadDevice));
@@ -39,10 +52,10 @@ internal sealed class PlayerInputBindings : IDisposable
         Set(InputAction.Pause, Key.P, Button(JoyButton.Start, gamepadDevice));
     }
 
-    /// <summary>Stable names avoid overwriting Godot's built-in UI actions.</summary>
-    /// <param name="action">Logical action.</param>
-    /// <returns>The namespaced Godot action name.</returns>
-    public static StringName Name(InputAction action) => $"trackstorm_{action}";
+    /// <summary>Returns caller-owned copies for settings capture and presentation.</summary>
+    /// <param name="action">Logical action to inspect.</param>
+    /// <returns>Native events that the caller must dispose.</returns>
+    public InputEvent[] CopyBindings(InputAction action) => _bindings[action].Select(binding => (InputEvent)binding.Duplicate()).ToArray();
 
     /// <summary>Atomically validates and replaces an action's bindings; empty unbinds. Shared bindings are intentional and permitted.</summary>
     /// <param name="action">Action to remap.</param>
@@ -132,5 +145,12 @@ internal sealed class PlayerInputBindings : IDisposable
 
     private static InputEventJoypadButton Button(JoyButton button, int device) => new() { ButtonIndex = button, Device = device };
 
-    private void Set(InputAction action, Key key, InputEvent gamepad) => Replace(action, new InputEventKey { PhysicalKeycode = key }, gamepad);
+    private void Set(InputAction action, Key key, InputEvent gamepad)
+    {
+        using (gamepad)
+        {
+            using var keyboard = new InputEventKey { PhysicalKeycode = key };
+            Replace(action, keyboard, gamepad);
+        }
+    }
 }
