@@ -1,0 +1,23 @@
+# Godot 4+
+/android/
+.import/
+.export/
+.godot/
+*.translation
+*.uid
+mono_crash.*.json
+godot_crash_*.log
+
+# Visual Studio and .NET
+.vs/
+.mono/
+data_*/
+bin/
+obj/
+*.user
+*.userprefs
+*.sln.DotSettings
+
+# Operating-system files
+.DS_Store
+Thumbs.db

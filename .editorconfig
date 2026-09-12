@@ -1,0 +1,69 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+
+# Prefer file-scoped namespaces and unqualified member access.
+dotnet_style_namespace_declarations = file_scoped:suggestion
+dotnet_style_qualification_for_namespace = false:suggestion
+
+# Require XML documentation to identify intentional APIs without policing prose.
+dotnet_diagnostic.SA1600.severity = warning
+dotnet_diagnostic.SA1601.severity = warning
+dotnet_diagnostic.SA1602.severity = warning
+dotnet_diagnostic.SA1604.severity = warning
+dotnet_diagnostic.SA1623.severity = none
+dotnet_diagnostic.SA1629.severity = none
+dotnet_diagnostic.SA1642.severity = none
+dotnet_diagnostic.SA1652.severity = none
+
+# Preserve structural conventions.
+dotnet_diagnostic.SA1201.severity = warning
+dotnet_diagnostic.SA1202.severity = warning
+dotnet_diagnostic.SA1204.severity = warning
+dotnet_diagnostic.SA1400.severity = warning
+dotnet_diagnostic.SA1401.severity = warning
+dotnet_diagnostic.SA1402.severity = warning
+dotnet_diagnostic.SA1503.severity = warning
+
+# Private fields use an underscore prefix; this qualification is not required.
+dotnet_diagnostic.SA1309.severity = none
+dotnet_diagnostic.SA1101.severity = none
+
+# Regions are allowed for navigation.
+dotnet_diagnostic.SA1124.severity = none
+
+# Formatting is delegated to dotnet format.
+dotnet_diagnostic.SA1000.severity = none
+dotnet_diagnostic.SA1002.severity = none
+dotnet_diagnostic.SA1009.severity = none
+dotnet_diagnostic.SA1011.severity = none
+dotnet_diagnostic.SA1028.severity = none
+dotnet_diagnostic.SA1111.severity = none
+dotnet_diagnostic.SA1200.severity = none
+dotnet_diagnostic.SA1208.severity = none
+dotnet_diagnostic.SA1413.severity = none
+dotnet_diagnostic.SA1505.severity = none
+dotnet_diagnostic.SA1507.severity = none
+dotnet_diagnostic.SA1508.severity = none
+dotnet_diagnostic.SA1512.severity = none
+dotnet_diagnostic.SA1514.severity = none
+dotnet_diagnostic.SA1515.severity = none
+dotnet_diagnostic.SA1516.severity = none
+dotnet_diagnostic.SA1517.severity = none
+dotnet_diagnostic.SA1518.severity = none
+
+# File headers are not required.
+dotnet_diagnostic.SA1633.severity = none
+dotnet_diagnostic.SA1636.severity = none
+
+[*.{csproj,props,sln,tscn,godot,yml,yaml,md,ps1}]
+indent_style = space
+indent_size = 2
