@@ -1,66 +1,128 @@
 ## Jira, Branching, and Pull Request Workflow
 
-Trackstorm uses a strict Jira-to-Git workflow. Follow it for every change unless the current Jira issue explicitly states otherwise.
+Trackstorm uses a strict Jira-to-Git workflow. Follow it for every change unless the assigned Jira issue explicitly states otherwise.
 
-### Branch hierarchy
+The canonical rule is:
+
+```text
+1 Story = complete Story scope + all required child Tasks/Subtasks = 1 Story branch = 1 Pull Request
+```
+
+A Story is the primary implementation assignment and Git delivery unit. Tasks/Subtasks decompose the Story into implementation instructions, acceptance criteria, dependencies, sequencing, asset and testing requirements, and progress checkpoints. They are not independent Git delivery units.
+
+The complete model is:
+
+```text
+Jira Story TS-X
+│
+├── Child Task/Subtask A
+├── Child Task/Subtask B
+├── Child Task/Subtask C
+└── Child Task/Subtask ...
+        │
+        ▼
+ALL implemented on:
+story/TS-X-short-name
+        │
+        ▼
+Integrated Story verification
+        │
+        ▼
+Story critique
+        │
+        ▼
+Human acceptance
+        │
+        ▼
+ONE PR → main
+```
+
+In short:
+
+- Story = implementation assignment.
+- Tasks/Subtasks = implementation instructions and checkpoints inside the Story.
+- Story branch = workspace for the entire Story.
+- Story PR = delivery and GitHub review unit.
+
+## Story Assignment Behavior
+
+When a Story is assigned for implementation, all required child Tasks/Subtasks are part of that assignment and must be implemented before the Story is considered complete. Do not require the human to assign each child separately.
+
+For a full Story assignment:
+
+1. Read the complete Story.
+2. Retrieve and read all Tasks/Subtasks belonging to it.
+3. Combine the Story and child acceptance criteria, identify dependencies, and choose a sensible implementation order.
+4. Create or checkout the Story branch from the appropriate `main` state.
+5. Implement every required child issue directly on the Story branch.
+6. Verify each child's requirements while progressing and record its completion.
+7. Continue automatically to the next required child issue.
+8. After all child work is complete, verify the Story as one integrated feature.
+9. Update `docs/features.md` wherever implemented feature behavior changed.
+10. Run all required build, test, integration, runtime, asset/license, and repository checks.
+11. Perform the mandatory integrated Story critique described in `docs/critique.md`, present the score and findings, and stop for the human decision.
+12. Create the single Story PR targeting `main` only after explicit human acceptance.
+
+Completing a child Task/Subtask during full Story implementation does not require a human stop or a Git PR. Verify it, record its completion, and continue to the next required child issue. The original Story assignment already authorizes all required child work.
+
+## Branch and Pull Request Rules
+
+The Git hierarchy is:
 
 ```text
 main
 └── story/TS-X-short-name
-    ├── task/TS-Y-short-name
-    ├── task/TS-Z-short-name
-    └── ...
 ```
 
-### Story branches
+Child issues such as TS-Y and TS-Z are implemented directly on `story/TS-X-short-name`. The child hierarchy exists in Jira, not as additional Git branches.
 
-- One Jira Story corresponds to exactly one Story branch.
+- One Jira Story corresponds to exactly one Story branch and one final Pull Request.
 - Create the Story branch from `main`.
-- Before starting or resuming work on a Story, update the Story branch from the latest `main`.
+- Before starting or resuming Story work, update the Story branch from the latest `main`.
 - Do not develop Story implementation directly on `main`.
-- All Tasks/Subtasks belonging to the Story must branch from the Story branch.
-- When the Story branch changes, active child Task branches must be updated from the Story branch as appropriate.
-- After every required Task is merged, the Story must be verified and critiqued as a whole, then explicitly accepted by the human reviewer before its PR is created.
-- The Story PR targets `main`.
+- Implement and commit all Story and child work on the Story branch.
+- The Story PR targets `main` and is the single GitHub review and merge unit.
+- Never create a `task/TS-X-...` or `subtask/TS-X-...` branch.
+- Never create a Task/Subtask Pull Request or an intermediate PR targeting the Story branch.
+- Never give a child issue an independent GitHub review or merge workflow.
 
-### Task branches
+## Working Directly on One Task/Subtask
 
-- One Jira Task/Subtask corresponds to exactly one Task branch and exactly one pull request.
-- Create the Task branch from its parent Story branch.
-- Never create a Task branch directly from `main`.
-- Before starting or resuming Task work, synchronize with the current parent Story branch.
-- If the Story branch changes while the Task is in progress, update the Task branch from the Story branch before final verification.
-- Do not merge or rebase `main` directly into a Task branch. Changes flow through:
+If the human explicitly assigns only a specific Task/Subtask rather than the complete Story:
 
-```text
-main
-  ↓
-Story branch
-  ↓
-Task branch
-```
+1. Identify its parent Story.
+2. Read enough of the parent Story to understand branch, dependency, and integration context.
+3. Checkout the parent Story branch.
+4. Implement only the assigned child issue on that Story branch.
+5. Verify and record that child's requirements and completion.
+6. Do not implement sibling issues automatically.
+7. Do not create a child branch or Pull Request, and do not merge anything independently.
 
-- A Task PR always targets its parent Story branch.
-- Do not combine multiple Jira Tasks into one Task branch or PR.
-- Do not include unrelated cleanup, refactors, features, assets, or fixes in the Task PR.
+The individual assignment narrows implementation scope but does not change the Story-only Git model.
 
-### Scope discipline
+## Scope Discipline
 
-The current Jira Task/Subtask or Story, as applicable, defines the implementation scope.
+The assigned Story defines the authorized overall scope. Its Tasks/Subtasks define how that scope is decomposed. If the human explicitly assigns only one child issue, that child defines the authorized implementation scope.
 
-Implement only what is required to satisfy that issue's deliverables, acceptance criteria, tests, and integration checks.
+While implementing a child issue:
+
+- Satisfy that child's deliverables and acceptance criteria.
+- Preserve clear traceability between the Jira requirements and the implementation.
+- Avoid unrelated cleanup, refactors, features, assets, or fixes.
+- Avoid implementing sibling requirements early unless dependency order technically requires it.
+- Include the child's required tests, integration checks, documentation, and asset/license work.
+
+During a full Story assignment, this child-level discipline does not reduce the overall authorization: continue through every required child issue until the complete Story is implemented.
 
 Do not:
 
-- Implement adjacent Tasks early.
 - Implement future Story requirements speculatively.
-- Perform unrelated refactors because they appear beneficial.
 - Rename or reorganize unrelated code.
 - Introduce abstractions solely for hypothetical future use.
-- Add dependencies, plugins, or assets not required by the current Task.
+- Add dependencies, plugins, or assets not required by the assigned scope.
 - Change authoritative architecture rules for convenience.
 
-If work outside the Task appears necessary, report it as a dependency, risk, or recommended follow-up rather than silently expanding the PR.
+If work outside the assigned Story or explicitly assigned child appears necessary, report it as a dependency, risk, or recommended follow-up rather than silently expanding the Story branch and PR.
 
 ## Core and Client Data Flow
 
@@ -90,54 +152,54 @@ Client may request actions from Core and present Core state.
 
 Client must not independently decide authoritative gameplay outcomes such as:
 
-- Damage
-- Healing
-- Health
-- Inventory ownership
-- Item consumption
-- Kill attribution
-- Score changes
-- Death
-- Respawn
-- Spawn availability
-- Match state
-- Match winner
-- Authoritative configuration
+- Damage.
+- Healing.
+- Health.
+- Inventory ownership.
+- Item consumption.
+- Kill attribution.
+- Score changes.
+- Death.
+- Respawn.
+- Spawn availability.
+- Match state.
+- Match winner.
+- Authoritative configuration.
 
 Core-owned public contracts must remain engine-independent. Do not expose Godot runtime types through Core APIs. Convert Godot-specific types at the Client/Core boundary.
 
 ## Testing Requirements
 
-Tests required by a Jira Task are part of that Task and must be included in the same PR.
+Tests required by a Jira Task/Subtask are part of that child issue and must be implemented on the Story branch and delivered in the Story PR.
 
 Authoritative Core behavior should have deterministic NUnit coverage when practical.
 
 Tests should cover relevant:
 
-- Normal behavior
-- Failure behavior
-- Boundary values
-- Validation
-- State transitions
-- Invariants
-- Serialization or network-facing data where introduced
-- Deterministic behavior where required
+- Normal behavior.
+- Failure behavior.
+- Boundary values.
+- Validation.
+- State transitions.
+- Invariants.
+- Serialization or network-facing data where introduced.
+- Deterministic behavior where required.
 
-Do not defer required tests to a later cleanup Task unless the Jira issue explicitly instructs this.
+Do not defer required tests to a later child issue unless the Jira requirements explicitly assign them there.
 
 Tests must not depend on uncontrolled:
 
-- Wall-clock time
-- Randomness
-- Network access
-- Shared mutable state
-- Godot runtime state when testing pure Core behavior
+- Wall-clock time.
+- Randomness.
+- Network access.
+- Shared mutable state.
+- Godot runtime state when testing pure Core behavior.
 
 ## Dependencies and Third-Party Assets
 
-Do not introduce a new package, plugin, library, asset pack, model, texture, material, audio source, font, or other third-party dependency unless it is required by the current Jira Task.
+Do not introduce a new package, plugin, library, asset pack, model, texture, material, audio source, font, or other third-party dependency unless it is required by the assigned Story or explicitly assigned child issue.
 
-When a Task requires a third-party dependency or asset:
+When the assigned scope requires a third-party dependency or asset:
 
 - Use the source specified in Jira when one is provided.
 - Record the source URL.
@@ -187,10 +249,11 @@ Document the resulting feature, not the implementation process. Preserve system 
 Do not use `docs/features.md` for:
 
 - Jira acceptance criteria.
-- Task status.
+- Task/Subtask status or completion logs.
+- Branch names.
 - PR history.
 - Commit history.
-- Critique scores.
+- Critique scores or history.
 - Temporary TODOs.
 - Development diary entries.
 
@@ -198,116 +261,89 @@ Do not leave stale feature documentation. Feature work is not complete if its co
 
 Before feature-related work is considered complete, compare the resulting implementation with the relevant `docs/features.md` section and confirm that behavior, design reasoning, ownership, invariants, configuration, interactions, assumptions, and intentional limitations remain synchronized.
 
-## Verification Before Completion
+## Child Task/Subtask Verification
 
-Before declaring a Task complete:
+Before recording a child issue complete on the Story branch:
 
-1. Re-read the Jira Task and verify every required deliverable and acceptance criterion.
-2. Confirm the branch contains only work belonging to the current Task.
-3. Run the repository verification script from the repository root:
+1. Re-read the child issue and verify every required deliverable and acceptance criterion.
+2. Confirm the implementation is on the parent Story branch and traceable to the assigned scope.
+3. Run the unit, integration, runtime, asset/license, architecture, and documentation checks required by that child.
+4. Inspect the relevant diff and verify no unrelated or generated artifacts were added.
+5. Record the child's completion and verification evidence.
+
+During a full Story assignment, successful child verification leads directly to the next required child issue. It does not trigger a mandatory human gate, a final Git review, or a Pull Request.
+
+If only one child issue was explicitly assigned, perform the applicable Task critique described in `docs/critique.md` and stop for the human decision. Keep the work on the Story branch; no child Pull Request follows.
+
+## Story Verification Before Completion
+
+After all required child issues are implemented and verified:
+
+1. Re-read the complete Story and every required child issue.
+2. Verify all Story and child deliverables and acceptance criteria.
+3. Update the Story branch from `main` and resolve integration conflicts correctly.
+4. Run the repository verification script from the repository root:
 
 ```powershell
 ./check.ps1
 ```
 
-4. Run any additional Task-specific integration checks required by Jira.
-5. Inspect the complete Git diff.
-6. Verify no unrelated files or generated artifacts were added.
-7. Verify the Core/Client dependency direction remains valid.
-8. Report any assumptions, known limitations, unresolved risks, or follow-up work.
+5. Run every additional integration, gameplay, network, runtime, visual, UI, audio, physics, asset/license, or other check required by the Story and its children.
+6. Compare feature-related implementation with `docs/features.md` and synchronize it where needed.
+7. Inspect the complete Story diff against `main`.
+8. Verify no unrelated files or generated artifacts were added.
+9. Verify the Core/Client dependency direction remains valid.
+10. Report assumptions, known limitations, unresolved risks, and unperformed verification.
 
-Do not consider a Task complete if required checks fail.
+Do not consider the Story complete if required checks fail.
 
 ## Diff Hygiene
 
-Before submitting a PR, inspect all changed files.
+Before critique and again before submitting the Story PR, inspect all changed files.
 
 Do not commit accidental or unrelated files such as:
 
-- Godot-generated cache/import data that belongs in `.gitignore`
-- IDE-specific files
-- Temporary files
-- Build output
-- Debug dumps
-- Local configuration
-- Unrelated formatting changes
-- Unrequested assets
-- Experimental code
-- Commented-out abandoned implementations
+- Godot-generated cache/import data that belongs in `.gitignore`.
+- IDE-specific files.
+- Temporary files.
+- Build output.
+- Debug dumps.
+- Local configuration.
+- Unrelated formatting changes.
+- Unrequested assets.
+- Experimental code.
+- Commented-out abandoned implementations.
 
-Every changed file should be explainable by the current Jira issue.
+Every changed file should be explainable by the assigned Story or explicitly assigned child issue.
 
-## Task Completion and Pull Request
+## Child Task/Subtask Completion
 
-One Jira Task/Subtask equals one Task branch and exactly one Pull Request. The Task branch must come from its parent Story branch, must never update directly from `main`, and its PR must target the parent Story branch.
-
-The mandatory Task lifecycle is:
+A child Task/Subtask is complete when its requirements are implemented and verified on the Story branch. During a full Story assignment, use this lifecycle:
 
 ```text
-Story branch updated
+Implement child Task/Subtask on Story branch
         ↓
-Task branch created/updated
+Verify requirements
         ↓
-Implement
+Record completion
         ↓
-Build/Test/Inspect
-        ↓
-Mandatory Task Critique
-        ↓
-Score + Recommendation(s) if FAIL
-        ↓
-STOP
-        ↓
-Human decision
-        ↓
-Optional human-authorized improvement rounds
-        ↓
-Human accepts Task
-        ↓
-Final verification
-        ↓
-Push Task branch
-        ↓
-Create Task PR → Story branch
+Continue Story implementation
 ```
 
-Follow these rules:
-
-1. Before implementation and again before the mandatory Task critique, confirm the Task branch is synchronized with its parent Story branch. Changes flow only from `main` into Story and then from Story into Task.
-2. Implement only the current Task/Subtask and include its required tests and documentation.
-3. Run `./check.ps1`, all Jira-required integration checks, and inspect the complete diff.
-4. Perform the mandatory Task critique in `docs/critique.md`. If the score is below 6.0, present at least one meaningful recommendation; if the score is 6.0 or higher, report PASS and no recommendation is required. Then stop for the human decision.
-5. Do not make critique-driven changes or begin another critique round without explicit human authorization. Each authorized round repeats implementation, verification, critique, scoring, any recommendations required for a failing score, and the mandatory stop, subject to the three-round limit.
-6. Do not create the final Task PR until the critique process is complete and the human reviewer explicitly accepts the Task for PR creation.
-7. After acceptance, perform final verification without making additional implementation changes, commit all intended changes, and push the Task branch. If synchronization or implementation changes become necessary, repeat the applicable verification and critique process and obtain renewed human acceptance before PR creation.
-8. Create exactly one GitHub Pull Request from the Task branch to its parent Story branch. Never target `main` from a Task branch.
-9. Include the Jira key and Task summary in the PR title. Include the Jira key, implementation summary, tests and checks, assumptions, limitations, and unresolved risks in the PR description.
-10. After the PR is created successfully, report its number and URL.
-
-Example:
-
-```text
-main
-└── story/TS-7-arcade-vehicle
-    └── task/TS-8-fixed-step-movement
-          │
-          └── PR → story/TS-7-arcade-vehicle
-```
+Do not stop for human authorization merely to move between required children already included in the assigned Story. Do not create or request child-level branches, PRs, reviews, or merges.
 
 ## Story Completion and Pull Request
 
-Story completion begins only after all required Task PRs have been merged into the Story branch. The Story critique evaluates the integrated Story, and the final Story PR targets `main`.
-
-The mandatory Story lifecycle is:
+Story completion begins only after all required Tasks/Subtasks have been implemented and verified on the Story branch. The mandatory lifecycle is:
 
 ```text
-All required Task PRs merged
+All required Tasks/Subtasks implemented and verified on the Story branch
         ↓
 Story branch updated from main
         ↓
-Full Story verification
+Full integrated Story verification
         ↓
-Mandatory Story Critique
+Mandatory Story critique
         ↓
 Score + Recommendation(s) if FAIL
         ↓
@@ -315,7 +351,7 @@ STOP
         ↓
 Human decision
         ↓
-Optional corrective Task PRs
+Optional human-authorized corrective work on the Story branch
         ↓
 Optional human-authorized Story critique rounds
         ↓
@@ -323,16 +359,17 @@ Human accepts Story
         ↓
 Final Story verification
         ↓
-Create Story PR → main
+Create one Story PR → main
 ```
 
 Follow these rules:
 
-1. Confirm every required Task PR is merged, update the Story branch from `main`, and perform full Story verification against the integrated acceptance criteria.
-2. Perform the mandatory Story critique in `docs/critique.md`. If the score is below 6.0, present at least one meaningful recommendation; if the score is 6.0 or higher, report PASS and no recommendation is required. Then stop for the human decision.
-3. Do not apply Story critique fixes directly to the Story branch. Every approved implementation fix requires an appropriate Jira Task/Subtask, a Task branch created from the current Story branch, a Task critique, and exactly one Task PR back into the Story branch.
-4. After corrective Task PRs are merged, perform another Story critique round only when the human explicitly authorizes it, subject to the three-round limit.
-5. Do not create the final Story PR until the critique process is complete and the human reviewer explicitly accepts the Story for PR creation.
-6. After acceptance, perform final Story verification without making additional implementation changes. If corrective implementation changes become necessary, route them through the Task workflow and obtain renewed Story acceptance before PR creation.
-7. Create the GitHub Pull Request from the Story branch to `main`. Include the Jira key, integrated Story summary, verification performed, assumptions, limitations, and unresolved risks.
-8. After the PR is created successfully, report its number and URL.
+1. Confirm every required child issue is implemented and verified on the Story branch, then perform full Story verification against the integrated Story and child acceptance criteria.
+2. Perform the mandatory Story critique in `docs/critique.md`. If the score is below 6.0, present at least one meaningful recommendation; if the score is 6.0 or higher, report PASS and no recommendation is required. Stop for the human decision.
+3. Do not make critique-driven changes or begin another critique round without explicit human authorization.
+4. Apply authorized corrective work directly on the existing Story branch. Create or use a Jira Task/Subtask for traceability when useful, but never create a corrective child branch or child PR.
+5. After authorized corrective work is implemented and verified, perform another Story critique round only when the human explicitly authorizes it, subject to the three-round limit.
+6. Do not create the Story PR until the critique process is complete and the human reviewer explicitly accepts the Story for PR creation.
+7. After acceptance, perform final Story verification without making additional implementation changes. If corrective implementation changes become necessary, make only authorized changes on the Story branch, repeat the applicable verification and Story critique process, and obtain renewed Story acceptance before PR creation.
+8. Create exactly one GitHub Pull Request from the Story branch to `main`. Include the Jira key, integrated Story summary, verification performed, assumptions, limitations, and unresolved risks.
+9. After the PR is created successfully, report its number and URL.

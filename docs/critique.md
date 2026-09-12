@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Every Jira Task/Subtask implementation and every completed Jira Story in Trackstorm must undergo a structured self-critique before the work is considered ready for human acceptance.
+Every completed Jira Story in Trackstorm must undergo a structured self-critique before the work is considered ready for human acceptance. An explicitly assigned individual Task/Subtask also receives an applicable Task critique, but child issues completed as part of an already-authorized full Story assignment are verified as implementation checkpoints without inserting mandatory human stops between them.
 
 Astra must evaluate its own implementation as though it were an independent professional game-development team reviewing work submitted by another developer.
 
@@ -16,13 +16,15 @@ Astra must never automatically begin another improvement round after completing 
 
 # Core Workflow
 
-For every Jira Task/Subtask implementation, use this workflow:
+For an explicitly assigned individual Jira Task/Subtask, use this workflow:
 
 **Implement → Build/Test → Run/Inspect → Self-Critique → Score → Recommendation(s) if FAIL → STOP**
 
-For every completed Jira Story, use this workflow:
+For a full Jira Story assignment, use this workflow:
 
-**Integrate Tasks → Build/Test → Run/Inspect → Story Self-Critique → Score → Recommendation(s) if FAIL → STOP**
+**Implement and Verify All Child Work → Integrated Build/Test → Run/Inspect → Story Self-Critique → Score → Recommendation(s) if FAIL → STOP**
+
+During full Story implementation, completing a normal child Task/Subtask does not trigger a mandatory critique stop. Verify it, record its completion, and continue to the next required child issue. The human-gated stop occurs after the integrated Story critique unless another explicit human-gated condition applies.
 
 After either critique, Astra must wait for explicit human instruction.
 
@@ -105,7 +107,11 @@ Never inflate, manipulate, or round a score simply to reach 6.
 
 # Mandatory Task Critique
 
-Whenever Astra completes a meaningful Jira Task/Subtask implementation, Astra must immediately perform **one self-critique round** before the Task is considered ready for human acceptance.
+Whenever Astra completes a meaningful Jira Task/Subtask that the human explicitly assigned on its own, Astra must immediately perform **one self-critique round** before that individual assignment is considered ready for human acceptance.
+
+This Task critique does not create or authorize a child branch or Pull Request. The work remains on the parent Story branch.
+
+When Astra is implementing a complete Story, normal child Tasks/Subtasks receive requirement verification and internal quality inspection as they are completed, but not a mandatory human-gated critique cycle. Continue through all required child work and perform the mandatory integrated Story critique after the Story is complete.
 
 Astra should mentally separate itself from the implementation.
 
@@ -125,7 +131,7 @@ A Task critique evaluates the Task implementation itself, including its tests, r
 
 # Mandatory Story Critique
 
-Every completed Jira Story requires its own critique after all required Task PRs have been merged into the Story branch.
+Every completed Jira Story requires its own critique after all required Tasks/Subtasks have been implemented and verified on the Story branch.
 
 The Story critique evaluates the **integrated Story as a whole**, not merely the quality of the individual Tasks.
 
@@ -133,7 +139,7 @@ A Story may contain individually acceptable Tasks that produce integration probl
 
 Before performing a Story critique:
 
-1. Confirm all required Task PRs are merged into the Story branch.
+1. Confirm all required Tasks/Subtasks are implemented and verified on the Story branch.
 2. Update the Story branch from the latest `main`.
 3. Resolve any integration conflicts correctly.
 4. Run `./check.ps1`.
@@ -157,30 +163,27 @@ apply to Story critiques.
 
 ## Story Critique Fixes
 
-If a Story critique discovers implementation changes that should be made, do **not** modify the Story branch directly.
+If a Story critique discovers implementation changes that should be made, stop after presenting the critique and wait for explicit human authorization.
 
-Create or use an appropriate Jira Task/Subtask for the corrective work.
+After authorization, implement the corrective work directly on the existing Story branch. Create or use an appropriate Jira Task/Subtask for traceability when useful, but the corrective child issue is not a Git delivery unit.
 
-The corrective work follows the standard branch hierarchy:
+The branch remains:
 
 ```text
 main
 └── story/TS-X-short-name
-    ├── task/TS-Y-original-task
-    └── task/TS-Z-story-critique-fix
 ```
 
-The corrective Task:
+Authorized corrective work:
 
-- Branches from the current Story branch.
+- Is committed directly to the current Story branch.
 - Contains only the authorized corrective work.
-- Follows the normal Task workflow.
-- Receives its own Task critique.
-- Produces exactly one PR back into the Story branch.
+- Is built, tested, inspected, and validated as applicable.
+- Does not receive a corrective Task/Subtask branch, Pull Request, independent GitHub review, or merge.
 
-After the corrective Task PR is merged, Astra may perform the next Story critique round **only if the human authorized another Story critique round**.
+After the corrective work is verified, Astra may perform the next Story critique round **only if the human authorized another Story critique round**.
 
-Never bypass the Jira Task/branch/PR structure by applying Story critique fixes directly to the Story branch.
+The Story still receives exactly one final PR to `main`, after the critique process is complete and the human explicitly accepts the Story for PR creation.
 
 ---
 
@@ -392,9 +395,9 @@ Critique the implementation within the scope of the current Jira issue.
 
 Remember:
 
-**1 Jira Story = 1 Story Branch.**
+**1 Story = the complete Story scope and all required child Tasks/Subtasks = 1 Story branch = 1 PR.**
 
-**1 Jira Task/Subtask = 1 Task Branch off the Story Branch = 1 PR.**
+**Tasks/Subtasks are implementation and specification units performed on the parent Story branch. They never receive their own branch or PR.**
 
 The critique does not authorize unrelated feature development or broad refactoring.
 
@@ -404,7 +407,7 @@ If Astra discovers an improvement outside the current Jira scope, report it sepa
 
 Do not implement it without human approval.
 
-A Story critique may identify work that requires a new corrective Task. That recommendation does not authorize Astra to create or implement the corrective Task unless the human approves it.
+A Story critique may identify work that would benefit from a new corrective Task/Subtask for traceability. That recommendation does not authorize Astra to create or implement it unless the human approves the corrective work. When approved, the work remains on the Story branch and receives no child PR.
 
 ---
 
@@ -537,7 +540,7 @@ This applies even if:
 - Astra believes the solution is obvious.
 - Another critique round would probably improve the score.
 - A Story integration problem appears severe.
-- A Task PR has not yet been created.
+- An explicitly assigned child issue remains on the Story branch without a child PR, as required.
 - The implementation already passes every automated test.
 
 The human is the gate between rounds.
@@ -558,13 +561,13 @@ Examples of valid authorization:
 
 > "Proceed with all in-scope recommendations."
 
-For a Task:
+For an explicitly assigned individual Task/Subtask:
 
 **Approved Fixes → Implement → Build/Test → Run/Inspect → Self-Critique → New Score → Recommendation(s) if FAIL → STOP**
 
 For a Story:
 
-**Approved Corrective Work → Jira Task/Task Branch → Implement → Task Critique → Task PR → Merge to Story → Story Verification → Story Self-Critique → New Score → Recommendation(s) if FAIL → STOP**
+**Approved Corrective Work on Story Branch → Build/Test → Story Verification → Story Self-Critique → New Score → Recommendation(s) if FAIL → STOP**
 
 Human authorization for Round 2 does **not** automatically authorize Round 3.
 
@@ -662,18 +665,16 @@ Score the quality of the resulting implementation.
 
 ---
 
-# Task Completion and Pull Request Timing
+# Individual Task/Subtask Critique Timing
 
-The critique occurs **before the Task is considered accepted for PR completion**.
+When the human explicitly assigns only one Task/Subtask, the critique occurs after that child is implemented and verified on the parent Story branch.
 
-Recommended Task lifecycle:
+Recommended individual child lifecycle:
 
 ```text
-Story branch updated
+Parent Story branch checked out
         ↓
-Task branch created/updated
-        ↓
-Implement
+Implement only the assigned Task/Subtask
         ↓
 Build/Test/Inspect
         ↓
@@ -687,16 +688,12 @@ Human decision
         ↓
 Optional authorized improvement round(s)
         ↓
-Human accepts Task
-        ↓
-Final verification
-        ↓
-Push Task branch
-        ↓
-Create Task PR → Story branch
+Human accepts the individual assignment
 ```
 
-Do not create additional implementation changes after the human accepts the final critique unless separately authorized.
+Do not create a Task/Subtask branch or PR. Do not automatically implement siblings. Do not make additional implementation changes after the human accepts the final critique unless separately authorized.
+
+During a full Story assignment, this human-gated child lifecycle does not apply: verify each normal child, record completion, and continue until the integrated Story critique.
 
 Follow `docs/workflow.md` for exact branch and PR requirements.
 
@@ -704,12 +701,12 @@ Follow `docs/workflow.md` for exact branch and PR requirements.
 
 # Story Completion and Pull Request Timing
 
-The Story critique occurs after all required Task PRs are merged into the Story branch and before the Story is considered ready to merge into `main`.
+The Story critique occurs after all required Tasks/Subtasks are implemented and verified on the Story branch and before the Story is considered ready for its single PR to `main`.
 
 Recommended Story lifecycle:
 
 ```text
-All required Task PRs merged
+All required Tasks/Subtasks implemented and verified on the Story branch
         ↓
 Story branch updated from main
         ↓
@@ -723,11 +720,7 @@ STOP
         ↓
 Human decision
         ↓
-Optional corrective Task(s)
-        ↓
-Corrective Task critique(s)
-        ↓
-Corrective Task PR(s) → Story branch
+Optional human-authorized corrective work on the Story branch
         ↓
 Optional authorized next Story critique round
         ↓
@@ -738,7 +731,7 @@ Final Story verification
 Story PR → main
 ```
 
-Do not apply Story critique fixes directly to the Story branch.
+Do not apply Story critique fixes until the human authorizes them. Once authorized, apply them directly to the existing Story branch; a corrective Jira child may be used for traceability, but it receives no branch or PR.
 
 ---
 
@@ -789,7 +782,7 @@ A solid implementation appropriate for the current Trackstorm milestone begins a
 
 **6 / 10**
 
-After every Task implementation, Story integration, or human-authorized improvement round:
+After every explicitly assigned individual Task/Subtask implementation, completed integrated Story, or human-authorized improvement round:
 
 **Critique → Score → Recommendation(s) if FAIL → STOP**
 
