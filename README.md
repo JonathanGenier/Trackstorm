@@ -1,6 +1,6 @@
 # Trackstorm
 
-Trackstorm is a Godot 4.7.1 C# project targeting .NET 10. This repository currently contains the project foundation only; gameplay is intentionally deferred to later work.
+Trackstorm is a Godot 4.7.2 C# project targeting .NET 10. This repository currently contains the project foundation only; gameplay is intentionally deferred to later work.
 
 ## Solution layout
 
@@ -10,6 +10,21 @@ Trackstorm is a Godot 4.7.1 C# project targeting .NET 10. This repository curren
 - `Trackstorm.sln` groups the Client, Core, and Core test projects.
 
 The only production project reference is `Trackstorm.Client -> Trackstorm.Core`. Core has no reference to Client or Godot, and no Shared layer is used. Types needed by both production layers belong in Core.
+
+## Module boundaries
+
+The foundation reserves responsibility without creating empty frameworks:
+
+| Area | Owner and boundary |
+| --- | --- |
+| Vehicle simulation | Core owns future authoritative vehicle rules and state; Client owns Godot physics/runtime adaptation and presentation. |
+| Input | Core owns logical, serialized per-tick input; Client owns device polling, bindings, and Godot InputMap integration. |
+| Settings | Core owns validated gameplay-affecting configuration; Client owns settings UI and platform persistence adapters. |
+| Networking transport | Core exposes only the plain-C# transport gateway and opaque messages; native APIs and implementations stay outside Core. |
+| Replicated gameplay state | Core owns game-specific state messages and serialization separately from transport delivery. |
+| Items, spawning, and match state | Core will own their authoritative state, validation, and deterministic rules when introduced. |
+| UI and audio | Client owns presentation and feedback derived from Core state/results. |
+| Dev Mode | Client owns developer controls and overlays; any authoritative data or mutations still pass through Core contracts. |
 
 ## Ownership conventions
 
@@ -39,12 +54,13 @@ dotnet build Trackstorm.sln -c Release -warnaserror
 dotnet test code/Tests/Trackstorm.Core.Tests.csproj -c Release --no-build
 ```
 
-`check.ps1` also verifies formatting and both Debug and Release configurations. The Godot project starts at `scenes/main.tscn`, which captures logical player input on fixed updates without a vehicle or gameplay dependencies. See `docs/features.md` for controls, remapping and the input contract.
+`check.ps1` also verifies formatting and both Debug and Release configurations. The Godot project starts at `scenes/main.tscn`; its Client-owned bootstrap captures one logical input frame and invokes one engine-independent Core simulation step per fixed tick. See `docs/features.md` for the fixed-step, input, transport, and replication contracts.
 
-Run the focused native input integration checks with the installed Godot .NET executable:
+Run the GdUnit4 Client test and focused native-input integration checks with the installed Godot 4.7.2 .NET executable:
 
 ```powershell
+./check-gdunit.ps1 -GodotPath "C:/path/to/Godot_console.exe"
 ./check-input.ps1 -GodotPath "C:/path/to/Godot_console.exe"
 ```
 
-This builds Debug, imports the project, injects keyboard/gamepad events into a dedicated verification scene, and smoke-tests the main scene. It fails on runtime errors/warnings or missing test completion. Core tests remain independent of Godot.
+These checks import the enabled GdUnit4 plugin, run the Godot-side Client suite, inject keyboard/gamepad events into a dedicated verification scene, and smoke-test the main scene. Core tests remain independent of Godot.

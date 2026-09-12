@@ -67,3 +67,10 @@ dotnet_diagnostic.SA1636.severity = none
 [*.{csproj,props,sln,tscn,godot,yml,yaml,md,ps1}]
 indent_style = space
 indent_size = 2
+
+# Vendored dependencies retain their upstream source and analyzer policy.
+[addons/gdUnit4/**/*.cs]
+generated_code = true
+dotnet_diagnostic.SA1204.severity = none
+dotnet_diagnostic.SA1600.severity = none
+dotnet_diagnostic.SA1601.severity = none

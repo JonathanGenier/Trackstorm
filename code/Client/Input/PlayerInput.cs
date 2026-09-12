@@ -9,7 +9,7 @@ public sealed partial class PlayerInput : Node
     private PlayerInputAdapter? _adapter;
     private ulong _tick;
 
-    /// <summary>Consumers receive only Core input; future simulation scheduling can call the adapter directly.</summary>
+    /// <summary>Consumers receive only Core input after capture and before the next fixed tick.</summary>
     public event Action<InputFrame>? FrameCaptured;
 
     /// <summary>Most recently captured frame; neutral before the first fixed update.</summary>
