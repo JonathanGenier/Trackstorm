@@ -20,7 +20,7 @@ main
 - Do not develop Story implementation directly on `main`.
 - All Tasks/Subtasks belonging to the Story must branch from the Story branch.
 - When the Story branch changes, active child Task branches must be updated from the Story branch as appropriate.
-- After every required Task is merged, the Story must be verified as a whole before its PR is merged into `main`.
+- After every required Task is merged, the Story must be verified and critiqued as a whole, then explicitly accepted by the human reviewer before its PR is created.
 - The Story PR targets `main`.
 
 ### Task branches
@@ -46,9 +46,9 @@ Task branch
 
 ### Scope discipline
 
-The current Jira Task defines the implementation scope.
+The current Jira Task/Subtask or Story, as applicable, defines the implementation scope.
 
-Implement only what is required to satisfy that Task's deliverables, acceptance criteria, tests, and integration checks.
+Implement only what is required to satisfy that issue's deliverables, acceptance criteria, tests, and integration checks.
 
 Do not:
 
@@ -186,56 +186,54 @@ Do not commit accidental or unrelated files such as:
 - Experimental code
 - Commented-out abandoned implementations
 
-Every changed file should be explainable by the current Jira Task.
+Every changed file should be explainable by the current Jira issue.
 
-## Pull Request Completion Rule
+## Task Completion and Pull Request
 
-A Task is complete only when its implementation, required tests, documentation changes, dependency metadata, and Jira acceptance criteria are satisfied in its single Task PR.
+One Jira Task/Subtask equals one Task branch and exactly one Pull Request. The Task branch must come from its parent Story branch, must never update directly from `main`, and its PR must target the parent Story branch.
 
-The expected lifecycle is:
+The mandatory Task lifecycle is:
 
 ```text
-main
-  ↓
-Story branch
-  ↓
-Task branch
-  ↓
-Task PR
-  ↓
-Story branch
-  ↓
-Story verification
-  ↓
-Story PR
-  ↓
-main
+Story branch updated
+        ↓
+Task branch created/updated
+        ↓
+Implement
+        ↓
+Build/Test/Inspect
+        ↓
+Mandatory Task Critique
+        ↓
+Score + Recommendations
+        ↓
+STOP
+        ↓
+Human decision
+        ↓
+Optional human-authorized improvement rounds
+        ↓
+Human accepts Task
+        ↓
+Final verification
+        ↓
+Push Task branch
+        ↓
+Create Task PR → Story branch
 ```
 
-Preserve this hierarchy throughout development.
+Follow these rules:
 
-## Task Pull Request Completion
-
-When a Jira Task/Subtask implementation is complete:
-
-1. Confirm the Task branch is up to date with its parent Story branch.
-2. Run `./check.ps1` and all Task-specific tests/integration checks.
-3. Review the complete diff and ensure the branch contains only work for the current Jira Task.
-4. Commit all intended Task changes.
-5. Push the Task branch to GitHub.
-6. Create exactly one GitHub Pull Request:
-   - **Source:** the Task branch.
-   - **Target:** the parent Story branch.
-   - Never target `main` from a Task branch.
-
-7. The PR title should include the Jira key and Task summary.
-8. The PR description should include:
-   - Jira issue key.
-   - Summary of what was implemented.
-   - Tests/checks performed.
-   - Any assumptions, limitations, or unresolved risks.
-
-9. Do not mark the Jira Task complete merely because implementation is finished locally. The Task is ready for review only after its GitHub PR has been created successfully.
+1. Before implementation and again before the mandatory Task critique, confirm the Task branch is synchronized with its parent Story branch. Changes flow only from `main` into Story and then from Story into Task.
+2. Implement only the current Task/Subtask and include its required tests and documentation.
+3. Run `./check.ps1`, all Jira-required integration checks, and inspect the complete diff.
+4. Perform the mandatory Task critique in `docs/critique.md`, present the score and recommendations, and stop for the human decision.
+5. Do not make critique-driven changes or begin another critique round without explicit human authorization. Each authorized round repeats implementation, verification, critique, scoring, recommendations, and the mandatory stop, subject to the three-round limit.
+6. Do not create the final Task PR until the critique process is complete and the human reviewer explicitly accepts the Task for PR creation.
+7. After acceptance, perform final verification without making additional implementation changes, commit all intended changes, and push the Task branch. If synchronization or implementation changes become necessary, repeat the applicable verification and critique process and obtain renewed human acceptance before PR creation.
+8. Create exactly one GitHub Pull Request from the Task branch to its parent Story branch. Never target `main` from a Task branch.
+9. Include the Jira key and Task summary in the PR title. Include the Jira key, implementation summary, tests and checks, assumptions, limitations, and unresolved risks in the PR description.
+10. After the PR is created successfully, report its number and URL.
 
 Example:
 
@@ -247,27 +245,45 @@ main
           └── PR → story/TS-7-arcade-vehicle
 ```
 
-After creating the PR, report the PR number and URL.
+## Story Completion and Pull Request
 
-## Creating the Task Pull Request
+Story completion begins only after all required Task PRs have been merged into the Story branch. The Story critique evaluates the integrated Story, and the final Story PR targets `main`.
 
-When implementation and verification for a Jira Task/Subtask are complete:
+The mandatory Story lifecycle is:
 
-1. Confirm the Task branch is synchronized with its parent Story branch.
-2. Run `./check.ps1` and all Jira-required integration checks.
-3. Inspect the complete diff and confirm only the current Jira Task is included.
-4. Commit all intended changes.
-5. Push the Task branch to GitHub.
-6. Create exactly one GitHub Pull Request:
-   - Source: the current Task branch.
-   - Target: the parent Story branch.
-   - Never target `main` from a Task branch.
-7. Use the Jira key in the PR title.
-8. The PR description must include:
-   - Jira issue key.
-   - Summary of implementation.
-   - Tests and verification performed.
-   - Assumptions, limitations, or unresolved risks.
-9. After successfully creating the PR, report its number and URL.
+```text
+All required Task PRs merged
+        ↓
+Story branch updated from main
+        ↓
+Full Story verification
+        ↓
+Mandatory Story Critique
+        ↓
+Score + Recommendations
+        ↓
+STOP
+        ↓
+Human decision
+        ↓
+Optional corrective Task PRs
+        ↓
+Optional human-authorized Story critique rounds
+        ↓
+Human accepts Story
+        ↓
+Final Story verification
+        ↓
+Create Story PR → main
+```
 
-Do not consider the Task ready for review until the GitHub PR has been created successfully.
+Follow these rules:
+
+1. Confirm every required Task PR is merged, update the Story branch from `main`, and perform full Story verification against the integrated acceptance criteria.
+2. Perform the mandatory Story critique in `docs/critique.md`, present the score and recommendations, and stop for the human decision.
+3. Do not apply Story critique fixes directly to the Story branch. Every approved implementation fix requires an appropriate Jira Task/Subtask, a Task branch created from the current Story branch, a Task critique, and exactly one Task PR back into the Story branch.
+4. After corrective Task PRs are merged, perform another Story critique round only when the human explicitly authorizes it, subject to the three-round limit.
+5. Do not create the final Story PR until the critique process is complete and the human reviewer explicitly accepts the Story for PR creation.
+6. After acceptance, perform final Story verification without making additional implementation changes. If corrective implementation changes become necessary, route them through the Task workflow and obtain renewed Story acceptance before PR creation.
+7. Create the GitHub Pull Request from the Story branch to `main`. Include the Jira key, integrated Story summary, verification performed, assumptions, limitations, and unresolved risks.
+8. After the PR is created successfully, report its number and URL.

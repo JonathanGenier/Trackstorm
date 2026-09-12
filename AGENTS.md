@@ -6,7 +6,7 @@ Follow:
 - `docs/workflow.md` for Jira, branch, pull request, synchronization, and completion workflow.
 - `docs/critique.md` for the mandatory self-critique, scoring, recommendation, and human-gated improvement process.
 
-Keep every change scoped to the current Jira Task.
+Keep every change scoped to the current Jira issue: Task/Subtask or Story, as applicable.
 
 The solution has two production areas:
 
@@ -28,8 +28,9 @@ Before completing any Task or Story:
 - Satisfy the Jira acceptance criteria.
 - Follow the branch/PR rules in `docs/workflow.md`.
 - Run `./check.ps1`.
-- Run required Task-specific integration checks.
+- Run all integration checks required by the current Jira Task/Subtask or Story.
 - Inspect the complete diff.
 - Report assumptions, limitations, or unresolved risks.
 - Execute the mandatory critique process in `docs/critique.md`.
 - Do not continue into another critique/improvement round without explicit human authorization.
+- Do not create the final Task or Story Pull Request until the mandatory critique process is complete and the human reviewer has explicitly accepted the work for PR creation.
