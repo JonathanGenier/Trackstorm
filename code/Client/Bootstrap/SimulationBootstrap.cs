@@ -1,4 +1,6 @@
 using Godot;
+using Trackstorm.Client.Input;
+using Trackstorm.Core.Input;
 using Trackstorm.Core.Simulation;
 
 namespace Trackstorm.Client.Bootstrap;
@@ -11,36 +13,34 @@ public sealed partial class SimulationBootstrap : Node
     private readonly SimulationConfiguration _configuration =
         new(SimulationConfiguration.DefaultTicksPerSecond);
 
-    private double _accumulatedSeconds;
+    private PlayerInput _playerInput = null!;
     private Simulation _simulation = null!;
 
     /// <summary>
     /// Gets the latest authoritative tick observed from Core.
     /// </summary>
-    public long CurrentSimulationTick => _simulation.State.Tick;
+    public ulong CurrentSimulationTick => _simulation.State.Tick;
 
     /// <inheritdoc />
     public override void _Ready()
     {
         _simulation = new Simulation(_configuration);
+        _playerInput = GetNode<PlayerInput>("PlayerInput");
+        _playerInput.FrameCaptured += OnFrameCaptured;
+        Engine.PhysicsTicksPerSecond = _configuration.TicksPerSecond;
     }
 
     /// <inheritdoc />
-    public override void _Process(double delta)
+    public override void _ExitTree()
     {
-        LogicalInput logicalInput = CaptureLogicalInput();
-        double secondsPerTick = 1.0 / _configuration.TicksPerSecond;
-
-        _accumulatedSeconds += delta;
-        while (_accumulatedSeconds >= secondsPerTick)
+        if (_playerInput is not null)
         {
-            _simulation.Step(logicalInput);
-            _accumulatedSeconds -= secondsPerTick;
+            _playerInput.FrameCaptured -= OnFrameCaptured;
         }
     }
 
-    private static LogicalInput CaptureLogicalInput()
+    private void OnFrameCaptured(InputFrame input)
     {
-        return new LogicalInput(Input.IsActionPressed("ui_accept"));
+        _simulation.Step(input);
     }
 }

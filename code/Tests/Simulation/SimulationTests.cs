@@ -1,3 +1,4 @@
+using Trackstorm.Core.Input;
 using Trackstorm.Core.Simulation;
 
 namespace Trackstorm.Core.Tests.Simulation;
@@ -16,7 +17,7 @@ internal sealed class SimulationTests
     {
         var simulation = CreateSimulation();
 
-        SimulationState state = simulation.Step(new LogicalInput(false));
+        SimulationState state = simulation.Step(CreateInput(1));
 
         Assert.That(state.Tick, Is.EqualTo(1));
     }
@@ -29,9 +30,9 @@ internal sealed class SimulationTests
     {
         var simulation = CreateSimulation();
 
-        simulation.Step(new LogicalInput(false));
-        simulation.Step(new LogicalInput(true));
-        SimulationState state = simulation.Step(new LogicalInput(false));
+        simulation.Step(CreateInput(1));
+        simulation.Step(CreateInput(2, InputButtons.Drift));
+        SimulationState state = simulation.Step(CreateInput(3));
 
         Assert.That(state.Tick, Is.EqualTo(3));
     }
@@ -43,7 +44,7 @@ internal sealed class SimulationTests
     public void Step_RecordsConsumedLogicalInput()
     {
         var simulation = CreateSimulation();
-        var input = new LogicalInput(true);
+        InputFrame input = CreateInput(1, InputButtons.UseItem);
 
         SimulationState state = simulation.Step(input);
 
@@ -58,15 +59,15 @@ internal sealed class SimulationTests
     {
         var first = CreateSimulation();
         var second = CreateSimulation();
-        LogicalInput[] inputs =
+        InputFrame[] inputs =
         [
-            new LogicalInput(false),
-            new LogicalInput(true),
-            new LogicalInput(true),
-            new LogicalInput(false),
+            CreateInput(1),
+            CreateInput(2, InputButtons.Drift),
+            CreateInput(3, InputButtons.Drift | InputButtons.UseItem),
+            CreateInput(4),
         ];
 
-        foreach (LogicalInput input in inputs)
+        foreach (InputFrame input in inputs)
         {
             first.Step(input);
             second.Step(input);
@@ -84,6 +85,28 @@ internal sealed class SimulationTests
         Assert.That(
             () => new Trackstorm.Core.Simulation.Simulation(null!),
             Throws.ArgumentNullException);
+    }
+
+    /// <summary>
+    /// Verifies that duplicate, skipped, and out-of-order input ticks cannot alter state.
+    /// </summary>
+    [Test]
+    public void Step_WithNonSequentialInputTick_ThrowsWithoutChangingState()
+    {
+        var simulation = CreateSimulation();
+        SimulationState firstState = simulation.Step(CreateInput(1));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(() => simulation.Step(CreateInput(1)), Throws.ArgumentException);
+            Assert.That(() => simulation.Step(CreateInput(3)), Throws.ArgumentException);
+            Assert.That(simulation.State, Is.EqualTo(firstState));
+        });
+    }
+
+    private static InputFrame CreateInput(ulong tick, InputButtons held = InputButtons.None)
+    {
+        return new InputFrame(tick, 0, 0, 0, held, InputButtons.None, InputButtons.None);
     }
 
     private static Trackstorm.Core.Simulation.Simulation CreateSimulation()

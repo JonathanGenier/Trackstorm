@@ -1,6 +1,11 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://code/Client/Bootstrap/SimulationBootstrap.cs" id="1_simulation"]
 
+[ext_resource type="Script" path="res://code/Client/Input/PlayerInput.cs" id="1_input"]
+
 [node name="Main" type="Node"]
 script = ExtResource("1_simulation")
+
+[node name="PlayerInput" type="Node" parent="."]
+script = ExtResource("1_input")

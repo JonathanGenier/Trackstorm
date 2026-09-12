@@ -1,12 +1,14 @@
 # Godot 4+
 /android/
 .import/
+*.import
 .export/
 .godot/
 *.translation
 *.uid
 mono_crash.*.json
 godot_crash_*.log
+/reports/
 
 # Visual Studio and .NET
 .vs/

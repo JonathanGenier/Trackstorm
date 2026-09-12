@@ -9,6 +9,15 @@ namespace Trackstorm.Core.Tests.Simulation;
 internal sealed class SimulationConfigurationTests
 {
     /// <summary>
+    /// Verifies the configured foundation default remains 60 fixed steps per second.
+    /// </summary>
+    [Test]
+    public void DefaultTicksPerSecond_IsSixty()
+    {
+        Assert.That(SimulationConfiguration.DefaultTicksPerSecond, Is.EqualTo(60));
+    }
+
+    /// <summary>
     /// Verifies that positive fixed-step rates are accepted.
     /// </summary>
     [Test]
