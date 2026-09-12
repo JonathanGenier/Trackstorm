@@ -1,801 +1,163 @@
-# Astra Self-Critique & Human-Gated Quality Review
+# Astra Self-Critique and Human-Gated Quality Review
 
-## Purpose
+This document owns quality evaluation, scoring, critique output, and human-authorized improvement rounds. Use `docs/standards.md` for Trackstorm architecture, testing, and code-quality requirements and `docs/workflow.md` for Jira scope, verification, branch, and Pull Request policy.
 
-Every completed Jira Story in Trackstorm must undergo a structured self-critique before the work is considered ready for human acceptance. An explicitly assigned individual Task/Subtask also receives an applicable Task critique, but child issues completed as part of an already-authorized full Story assignment are verified as implementation checkpoints without inserting mandatory human stops between them.
+## Applicability
 
-Astra must evaluate its own implementation as though it were an independent professional game-development team reviewing work submitted by another developer.
+- Every completed Jira Story receives a Story critique after all required children are implemented and verified on the Story branch.
+- A meaningful Task/Subtask explicitly assigned on its own receives an individual Task critique after its scoped work is verified on the parent Story branch.
+- A child completed during an already-authorized full Story assignment is an internal checkpoint, not a mandatory human-gated critique. Verify it and continue to the next required child.
 
-The purpose is to expose weaknesses, technical problems, gameplay issues, missing polish, integration problems, architectural violations, and meaningful opportunities for improvement.
+A Story critique evaluates the integrated Story rather than merely aggregating child results. It must examine whether the children work together as one coherent feature and whether the complete Story and child acceptance criteria are satisfied.
 
-**Astra critiques. The human decides whether Astra proceeds with suggested improvements.**
-
-Astra must never automatically begin another improvement round after completing a critique.
-
----
-
-# Core Workflow
-
-For an explicitly assigned individual Jira Task/Subtask, use this workflow:
-
-**Implement → Build/Test → Run/Inspect → Self-Critique → Score → Recommendation(s) if FAIL → STOP**
-
-For a full Jira Story assignment, use this workflow:
-
-**Implement and Verify All Child Work → Integrated Build/Test → Run/Inspect → Story Self-Critique → Score → Recommendation(s) if FAIL → STOP**
-
-During full Story implementation, completing a normal child Task/Subtask does not trigger a mandatory critique stop. Verify it, record its completion, and continue to the next required child issue. The human-gated stop occurs after the integrated Story critique unless another explicit human-gated condition applies.
-
-After either critique, Astra must wait for explicit human instruction.
-
-The human may:
-
-- Accept the implementation as-is.
-- Ask Astra to fix selected critique items.
-- Ask Astra to fix all reasonable in-scope critique items.
-- Reject a suggested improvement.
-- Request another critique round.
-- Request additional work or clarification.
-
-Astra must **not automatically continue** from critique into another improvement round.
-
----
-
-# Quality Scale
-
-Score the implementation from **0.0–10.0**.
-
-### 0–2 — Broken
-
-Fundamentally incomplete, unstable, unusable, or incorrect.
-
-Examples:
-
-- Build failures.
-- Crashes.
-- Major missing functionality.
-- Severe regressions.
-- Fundamentally incorrect behavior.
-
-### 3–4 — Poor
-
-The implementation partially works but significant problems remain.
-
-### ~5 — Merely Functional
-
-**A feature that merely works should receive approximately 5/10.**
-
-Compilation, passing tests, or technically satisfying acceptance criteria does not automatically justify a score above 5.
-
-A 5/10 implementation may be completely functional while still lacking refinement, robustness, usability, game feel, integration quality, or polish.
-
-### 6–7 — Solid
-
-Reliable, coherent, tested, appropriately integrated, and suitable for the current Trackstorm milestone.
-
-**6.0/10 is considered a passing implementation.**
-
-### 8–9 — Highly Polished
-
-Professional, intentional, refined, robust, and difficult to substantially improve without additional scope.
-
-### 10 — Exceptional
-
-Reserve 10/10 for implementations where meaningful improvements are extremely difficult to identify within the intended scope.
-
-Never use 10/10 casually.
-
----
-
-# Passing Score
-
-The Trackstorm quality target is:
-
-**6.0 / 10**
-
-This score is informational for the human reviewer.
-
-A score below 6 does **not** authorize Astra to automatically modify the implementation.
-
-Likewise, reaching or exceeding 6 does not prevent the human from requesting additional improvements.
-
-**The human controls whether another round occurs.**
-
-Never inflate, manipulate, or round a score simply to reach 6.
-
----
-
-# Mandatory Task Critique
-
-Whenever Astra completes a meaningful Jira Task/Subtask that the human explicitly assigned on its own, Astra must immediately perform **one self-critique round** before that individual assignment is considered ready for human acceptance.
-
-This Task critique does not create or authorize a child branch or Pull Request. The work remains on the parent Story branch.
-
-When Astra is implementing a complete Story, normal child Tasks/Subtasks receive requirement verification and internal quality inspection as they are completed, but not a mandatory human-gated critique cycle. Continue through all required child work and perform the mandatory integrated Story critique after the Story is complete.
-
-Astra should mentally separate itself from the implementation.
-
-Assume another developer wrote the code.
-
-Ask:
-
-> "If another developer submitted this implementation to a professional game-development team, what would I criticize?"
-
-Do not defend previous implementation decisions.
-
-Search for weaknesses.
-
-A Task critique evaluates the Task implementation itself, including its tests, runtime behavior, architectural placement, integration boundaries, and compliance with the Jira acceptance criteria.
-
----
-
-# Mandatory Story Critique
-
-Every completed Jira Story requires its own critique after all required Tasks/Subtasks have been implemented and verified on the Story branch.
-
-The Story critique evaluates the **integrated Story as a whole**, not merely the quality of the individual Tasks.
-
-A Story may contain individually acceptable Tasks that produce integration problems when combined. The Story critique exists to detect those issues.
-
-Before performing a Story critique:
-
-1. Confirm all required Tasks/Subtasks are implemented and verified on the Story branch.
-2. Update the Story branch from the latest `main`.
-3. Resolve any integration conflicts correctly.
-4. Run `./check.ps1`.
-5. Run all Story-relevant integration, gameplay, network, runtime, visual, UI, audio, physics, or other checks.
-6. Inspect the complete Story diff against `main`.
-7. Test interactions between the Tasks that make up the Story.
-8. Confirm the Story acceptance criteria are satisfied as an integrated feature.
-
-Then perform:
-
-**Story Verification → Story Self-Critique → Score → Recommendation(s) if FAIL → STOP**
-
-The same:
-
-- 0–10 scoring system.
-- 6.0 passing threshold.
-- Human approval gate.
-- Maximum three critique rounds.
-
-apply to Story critiques.
-
-## Story Critique Fixes
-
-If a Story critique discovers implementation changes that should be made, stop after presenting the critique and wait for explicit human authorization.
-
-After authorization, implement the corrective work directly on the existing Story branch. Create or use an appropriate Jira Task/Subtask for traceability when useful, but the corrective child issue is not a Git delivery unit.
-
-The branch remains:
+## Required Sequence
 
 ```text
-main
-└── story/TS-X-short-name
+Implement
+    ↓
+Verify
+    ↓
+Critique
+    ↓
+Score
+    ↓
+Recommendation(s) if FAIL
+    ↓
+STOP
+    ↓
+Human decision
 ```
 
-Authorized corrective work:
+Verification must precede critique. Complete the applicable checks in `docs/workflow.md`, then review the implementation as though another professional game-development team submitted it. Search for real weaknesses; do not defend prior decisions or treat compilation, passing tests, effort, or acceptance-criteria compliance alone as proof of high quality.
 
-- Is committed directly to the current Story branch.
-- Contains only the authorized corrective work.
-- Is built, tested, inspected, and validated as applicable.
-- Does not receive a corrective Task/Subtask branch, Pull Request, independent GitHub review, or merge.
+## Evidence Requirements
 
-After the corrective work is verified, Astra may perform the next Story critique round **only if the human authorized another Story critique round**.
+Base findings on direct evidence wherever possible. Depending on the work, build and test the project; inspect the complete diff; launch and exercise Trackstorm; inspect warnings; test normal, boundary, failure, rapid/repeated, and integration behavior; and observe relevant gameplay, physics, networking, UI, visual, audio, or performance behavior.
 
-The Story still receives exactly one final PR to `main`, after the critique process is complete and the human explicitly accepts the Story for PR creation.
+Runtime behavior must be tested when relevant and technically possible. Never claim that something was run, played, viewed, heard, network-tested, or otherwise observed when it was not.
 
----
+Label evidence when the distinction matters:
 
-# Verify Before Critiquing
+- **VERIFIED** — directly tested or observed.
+- **INFERRED** — concluded from code or design inspection but not directly exercised.
+- **UNVERIFIED** — could not be meaningfully tested in the current environment.
 
-The critique must be based on actual evidence wherever possible.
+Report verification limitations explicitly. An unverified area may reduce the score when it creates material uncertainty.
 
-Depending on the work:
+## Quality Scale
 
-1. Build the project.
-2. Run relevant automated tests.
-3. Launch Trackstorm.
-4. Exercise the implemented feature.
-5. Inspect runtime behavior.
-6. Test normal usage.
-7. Test relevant edge cases.
-8. Test rapid/repeated interactions when appropriate.
-9. Inspect errors and warnings.
-10. Check interactions with related systems.
-11. Inspect the complete diff.
-12. Confirm Jira acceptance criteria.
-13. Confirm architecture and dependency rules.
+Score the resulting implementation from **0.0–10.0**:
 
-For gameplay work, play/test the feature when the environment permits.
+| Score | Standard |
+| --- | --- |
+| 0–2 | **Broken:** fundamentally incomplete, unstable, unusable, or incorrect; examples include build failures, crashes, major omissions, or severe regressions. |
+| 3–4 | **Poor:** partially functional but significant problems remain. |
+| ~5 | **Merely functional:** may compile, pass tests, and meet acceptance criteria but lacks enough robustness, integration quality, usability, game feel, or polish to be solid. |
+| 6–7 | **Solid:** reliable, coherent, tested, appropriately integrated, and suitable for the current milestone. **6.0 is passing.** |
+| 8–9 | **Highly polished:** professional, intentional, refined, robust, and difficult to improve substantially without added scope. |
+| 10 | **Exceptional:** meaningful in-scope improvements are extremely difficult to identify. This score is rare. |
 
-For visual work, inspect the rendered result.
+The score advises the human; it does not authorize changes or remove the human gate. Never inflate, round, or manipulate a score to reach 6.0. Score the current result, not effort, change volume, test count, or critique-round number. A later round may score lower if it introduces regressions or reveals previously missed problems.
 
-For physics work, observe the actual simulation.
+## Review Categories
 
-For UI work, inspect the UI at runtime.
+Score only categories materially relevant to the work. Evaluate each against Jira requirements, `docs/standards.md`, current feature intent, and observed behavior.
 
-For audio work, verify playback when technically possible.
+- **Functionality:** required behavior, acceptance criteria, validation, failure paths, and completeness.
+- **Gameplay / Fun:** clarity, enjoyment, satisfaction, pacing, and suitability for Trackstorm.
+- **Controls / Responsiveness:** predictable input, latency, feedback, and intentional handling.
+- **Vehicle / Movement Feel:** weight, momentum, acceleration, braking, steering, grip, sliding, collisions, recovery, and speed perception.
+- **Physics:** stability, clipping, tunneling, jitter, impulses, consistency, and exploitable behavior.
+- **Networking:** authority, synchronization, prediction, reconciliation, interpolation, latency, packet order, disconnects, and peer consistency.
+- **Camera:** framing, smoothing, responsiveness, visibility, obstruction, orientation, and speed perception.
+- **Visual Quality:** models, materials, textures, lighting, scale, composition, readability, hierarchy, and cohesion.
+- **Animation / Motion:** transitions, timing, interpolation, procedural motion, impact, and continuity.
+- **VFX / Feedback:** whether important actions and events are clearly communicated.
+- **Audio:** timing, impact, volume, layering, repetition, spatialization, and gameplay usefulness.
+- **UI / UX:** readability, hierarchy, screen usage, discoverability, feedback, flow, and friction.
+- **Game Feel / Juice:** anticipation, impact and recovery, particles, motion, camera and audio response; more effects do not automatically mean better feel.
+- **Performance:** frame time, allocations, processing, physics cost, resource use, networking scale, and obvious scalability risks.
+- **Stability:** crashes, exceptions, warnings, invalid state, lifecycle, initialization, cleanup, and consistency.
+- **Code Quality:** readability, maintainability, naming, complexity, duplication, coupling, unnecessary abstraction, and consistency.
+- **Testing / Reliability:** regression protection, edge cases, boundaries, failure behavior, state transitions, invariants, and determinism.
+- **Architecture:** compliance with the ownership and dependency requirements in `docs/standards.md`.
+- **Integration:** interaction between components and, especially for Stories, between all child implementations.
 
-For networking work, test the relevant host/client behavior and adverse network conditions when technically possible.
+## Critique Output
 
-For Story critiques, test the integrated behavior between child Tasks rather than assuming individual Task verification is sufficient.
+Use the appropriate heading:
 
-Never pretend something was tested when it was not.
-
-Clearly distinguish:
-
-**VERIFIED** — directly tested or observed.
-
-**INFERRED** — conclusion based on code/design inspection.
-
-**UNVERIFIED** — could not meaningfully test in the current environment.
-
----
-
-# Review Categories
-
-Only score categories materially relevant to the implementation.
-
-Possible categories include:
-
-### Functionality
-
-Does it correctly satisfy the Jira requirements and acceptance criteria?
-
-### Gameplay / Fun
-
-Is the implemented gameplay enjoyable, satisfying, understandable, and appropriate for Trackstorm?
-
-### Controls / Responsiveness
-
-Are inputs responsive, predictable, and intentional?
-
-### Vehicle / Movement Feel
-
-Evaluate weight, momentum, acceleration, braking, steering, grip, sliding, collision response, recovery, and sense of speed.
-
-### Physics
-
-Look for instability, clipping, tunneling, jitter, unrealistic impulses, inconsistent collisions, and exploitable behavior.
-
-### Networking
-
-Evaluate authority, synchronization, prediction, reconciliation, interpolation, latency behavior, packet-order handling, disconnect behavior, and consistency between peers.
-
-### Camera
-
-Evaluate framing, smoothing, responsiveness, visibility, obstruction, orientation, and perception of speed.
-
-### Visual Quality
-
-Evaluate models, materials, textures, lighting, scale, composition, readability, visual hierarchy, and cohesion.
-
-### Animation / Motion
-
-Evaluate transitions, timing, interpolation, procedural motion, impact motion, and visual continuity.
-
-### VFX / Feedback
-
-Determine whether important events such as hits, damage, weapons, pickups, boosts, destruction, and kills are clearly communicated.
-
-### Audio
-
-Evaluate timing, impact, volume, layering, repetition, spatialization, and usefulness as gameplay feedback.
-
-### UI / UX
-
-Evaluate readability, hierarchy, screen usage, discoverability, feedback, interaction flow, and unnecessary friction.
-
-### Game Feel / Juice
-
-Evaluate impact feedback, particles, camera response, audio response, timing, hit reactions, motion, anticipation, and recovery.
-
-More effects do not automatically mean better game feel.
-
-### Performance
-
-Look for frame-time problems, unnecessary allocations, excessive processing, expensive physics operations, resource misuse, network scaling problems, and obvious scalability issues.
-
-### Stability
-
-Look for crashes, exceptions, warnings, invalid states, lifecycle problems, initialization issues, cleanup failures, and inconsistent state.
-
-### Code Quality
-
-Evaluate readability, maintainability, naming, complexity, duplication, coupling, unnecessary abstraction, and consistency.
-
-### Testing / Reliability
-
-Evaluate unit tests, edge cases, regression protection, state transitions, boundary conditions, failure paths, and deterministic behavior.
-
-### Architecture
-
-Ensure the implementation respects Trackstorm's Core/Client separation and dependency rules.
-
-### Integration
-
-For Story critiques especially, evaluate whether separately implemented Tasks work together correctly as one coherent feature.
-
----
-
-# Trackstorm Architecture
-
-## Trackstorm.Core
-
-Core contains authoritative game/domain behavior that should be:
-
-- Serializable where required.
-- Deterministic where practical.
-- Multiplayer/synchronization-friendly.
-- Independent from Godot.
-- Independently unit-testable.
-- Usable without rendering or a scene tree.
-
-Core includes, as applicable:
-
-- Gameplay state.
-- Gameplay rules.
-- Validation.
-- Calculations.
-- Data structures.
-- Simulation logic.
-- Synchronization-relevant state.
-- Multiplayer authority rules.
-- Configuration affecting gameplay.
-- State machines.
-- Serialization/network contracts.
-
-Core must never reference:
-
-- Trackstorm.Client.
-- Godot.
-- Nodes.
-- Scenes.
-- Rendering.
-- UI.
-- Camera.
-- Audio.
-- Local device input.
-- Scene-tree lifecycle.
-
-Core-owned public contracts must not expose Godot runtime types.
-
-## Trackstorm.Client
-
-Client handles Godot-facing responsibilities such as:
-
-- Rendering.
-- Scenes and Nodes.
-- VFX.
-- Audio.
-- UI.
-- Camera.
-- Presentation.
-- Local device input capture.
-- Interpolation presentation.
-- Godot lifecycle behavior.
-- Runtime adapters.
-
-Client may request actions from Core and render Core state.
-
-Client must not independently own or decide authoritative gameplay outcomes.
-
-During every critique ask:
-
-> "Did I place each responsibility in the correct layer?"
-
-Do not place gameplay logic in Client simply because doing so is convenient.
-
----
-
-# Scope Discipline
-
-Critique the implementation within the scope of the current Jira issue.
-
-Remember:
-
-**1 Story = the complete Story scope and all required child Tasks/Subtasks = 1 Story branch = 1 PR.**
-
-**Tasks/Subtasks are implementation and specification units performed on the parent Story branch. They never receive their own branch or PR.**
-
-The critique does not authorize unrelated feature development or broad refactoring.
-
-If Astra discovers an improvement outside the current Jira scope, report it separately as an:
-
-**Out-of-Scope Recommendation**
-
-Do not implement it without human approval.
-
-A Story critique may identify work that would benefit from a new corrective Task/Subtask for traceability. That recommendation does not authorize Astra to create or implement it unless the human approves the corrective work. When approved, the work remains on the Story branch and receives no child PR.
-
----
-
-# Critique Output
-
-After implementation and verification, Astra must produce:
-
-## Astra Self-Critique — Task Round X
+```text
+Astra Self-Critique — Task Round X
+```
 
 or:
 
-## Astra Self-Critique — Story Round X
-
-depending on the current review level.
-
-Include:
-
-**Overall Score: X.X / 10**
-
-**Quality Assessment: FAIL (<6) / PASS (>=6)**
-
-### Category Scores
-
-List only materially relevant categories and their scores.
-
-### What Was Verified
-
-Briefly state what was actually:
-
-- Built.
-- Tested.
-- Run.
-- Played.
-- Inspected.
-- Network-tested.
-- Visually inspected.
-- Audibly verified.
-- Integration-tested.
-
-Clearly distinguish VERIFIED, INFERRED, and UNVERIFIED findings where necessary.
-
-For a **FAIL** score below 6.0, also include:
-
-### Problems Found
-
-For each meaningful issue provide:
-
-**Problem:** What is wrong.
-
-**Evidence:** What testing, observation, or code inspection exposed it.
-
-**Severity:** Critical / High / Medium / Low.
-
-**Impact:** Why it matters technically or to the player.
-
-**Suggested Improvement:** What Astra recommends changing.
-
-**Scope:** In Scope / Out of Scope.
-
-For Story critiques, also state:
-
-**Corrective Work Type:** Existing Task / New Corrective Task / No Code Change Required.
-
-### Recommended Next Round
-
-Explain what Astra would change if authorized to perform another round.
-
-State which issues should be prioritized and why.
-
-Do not assume another round will be authorized.
-
-For a **PASS** score of 6.0 or higher, Problems Found, Suggested Improvement, and Recommended Next Round sections are not required. Do not invent improvement work to populate them.
-
-### Verification Limitations
-
-State anything that could not be directly tested or observed.
-
----
-
-# Threshold-Based Recommendation Rule
-
-Apply this rule exactly:
-
 ```text
-Score < 6.0  → recommendation required
-Score >= 6.0 → PASS, no recommendation required
+Astra Self-Critique — Story Round X
 ```
 
-If the overall score is below 6.0:
+Always include:
 
-- The implementation is **FAIL**.
-- Provide at least one meaningful recommendation.
-- Every required recommendation must be evidence-based, relevant to the current Jira scope, and specific enough to act on.
-- Stop after reporting the score, problems, and recommendations.
-- Do not automatically implement any recommendation. The human decides whether another improvement round occurs.
+- **Overall Score: X.X / 10**
+- **Quality Assessment: FAIL (<6.0) / PASS (>=6.0)**
+- **Category Scores:** only materially relevant categories.
+- **What Was Verified:** concise evidence, including VERIFIED / INFERRED / UNVERIFIED labels where useful.
+- **Verification Limitations:** anything not directly tested or observed.
 
-If the overall score is 6.0 or higher:
+For a **FAIL** below 6.0, include at least one meaningful, evidence-based recommendation. For each material problem state:
 
-- The implementation is **PASS**.
-- No recommendation is required, and recommendations should normally be omitted.
-- Do not search for or invent minor criticism, polish ideas, or low-value improvements merely to generate a recommendation.
-- Stop after reporting the passing score and relevant verification results.
-- The human may still explicitly request additional work or another critique round.
+- **Problem:** what is wrong.
+- **Evidence:** what exposed it.
+- **Severity:** Critical / High / Medium / Low.
+- **Impact:** why it matters technically or to the player.
+- **Suggested Improvement:** a specific corrective action.
+- **Scope:** In Scope / Out of Scope.
+- For a Story, **Corrective Work Type:** Existing Task / New Corrective Task / No Code Change Required.
 
-The mandatory human gate applies regardless of the score.
+Also include **Recommended Next Round**, prioritizing what should change if the human authorizes another round. An out-of-scope finding must be labeled **Out-of-Scope Recommendation** and must not be implemented without approval.
 
----
+For a **PASS** at or above 6.0, problems, suggestions, and a recommended next round are not required and should normally be omitted. Do not invent low-value criticism merely to populate those sections.
 
-# Mandatory Stop
-
-**After presenting the critique, STOP.**
-
-Do not implement suggested improvements.
-
-Do not begin another critique round.
-
-Do not modify code based on your own recommendations.
-
-Do not create corrective Tasks automatically.
-
-Do not create unrelated follow-up work automatically.
-
-Wait for explicit human approval.
-
-This applies even if:
-
-- The score is below 6.
-- The implementation failed the quality assessment.
-- A problem appears easy to fix.
-- Astra believes the solution is obvious.
-- Another critique round would probably improve the score.
-- A Story integration problem appears severe.
-- An explicitly assigned child issue remains on the Story branch without a child PR, as required.
-- The implementation already passes every automated test.
-
-The human is the gate between rounds.
-
----
-
-# Human-Authorized Improvement Round
-
-If the human explicitly authorizes another round, Astra may proceed.
-
-Examples of valid authorization:
-
-> "Proceed with Round 2."
-
-> "Fix the issues you identified and critique again."
-
-> "Fix items 1 and 3, then rerun the critique."
-
-> "Proceed with all in-scope recommendations."
-
-For an explicitly assigned individual Task/Subtask:
-
-**Approved Fixes → Implement → Build/Test → Run/Inspect → Self-Critique → New Score → Recommendation(s) if FAIL → STOP**
-
-For a Story:
-
-**Approved Corrective Work on Story Branch → Build/Test → Story Verification → Story Self-Critique → New Score → Recommendation(s) if FAIL → STOP**
-
-Human authorization for Round 2 does **not** automatically authorize Round 3.
-
-Every improvement round requires separate human approval.
-
----
-
-# Maximum Three Critique Rounds
-
-A Task may have at most:
-
-**3 Task critique rounds.**
-
-A Story may independently have at most:
-
-**3 Story critique rounds.**
-
-Task critique rounds and Story critique rounds are counted separately.
-
-Example Task:
-
-### Task Round 1
-
-Implementation completed.
-
-Astra tests and critiques it.
-
-**Score: 4.9/10**
-
-Astra recommends several improvements.
-
-**STOP — Await human decision.**
-
-Human:
-
-> "Proceed with Task Round 2 and address the in-scope recommendations."
-
-### Task Round 2
-
-Astra implements approved improvements.
-
-Astra rebuilds, tests, and critiques the implementation.
-
-**Score: 5.8/10**
-
-Astra reports at least one meaningful recommendation based on the identified weaknesses.
-
-**STOP — Await human decision.**
-
-Human:
-
-> "Proceed with Task Round 3."
-
-### Task Round 3
-
-Astra performs the approved improvements.
-
-Astra rebuilds, tests, and performs the final Task critique.
-
-**Score: 6.4/10 — PASS**
-
-**STOP.**
-
-No Task Round 4 exists.
-
-A Story follows the same three-round maximum independently.
-
----
-
-# Scores Must Be Independent
-
-Do not assume a later round deserves a higher score.
-
-For example, this is valid:
-
-**Round 1: 5.1**
-
-**Round 2: 5.7**
-
-**Round 3: 5.4**
-
-A later round may expose regressions or previously unnoticed weaknesses.
-
-Score what currently exists.
-
-Do not score effort.
-
-Do not score the number of changes made.
-
-Do not score how many tests were added.
-
-Do not reward a later round simply because it is later.
-
-Score the quality of the resulting implementation.
-
----
-
-# Individual Task/Subtask Critique Timing
-
-When the human explicitly assigns only one Task/Subtask, the critique occurs after that child is implemented and verified on the parent Story branch.
-
-Recommended individual child lifecycle:
+The threshold rule is exact:
 
 ```text
-Parent Story branch checked out
-        ↓
-Implement only the assigned Task/Subtask
-        ↓
-Build/Test/Inspect
-        ↓
-Task Critique
-        ↓
-Score + Recommendation(s) if FAIL
-        ↓
-STOP
-        ↓
-Human decision
-        ↓
-Optional authorized improvement round(s)
-        ↓
-Human accepts the individual assignment
+Score < 6.0  → FAIL; meaningful recommendation(s) required
+Score >= 6.0 → PASS; recommendation not required
 ```
 
-Do not create a Task/Subtask branch or PR. Do not automatically implement siblings. Do not make additional implementation changes after the human accepts the final critique unless separately authorized.
+## Mandatory Human Gate
 
-During a full Story assignment, this human-gated child lifecycle does not apply: verify each normal child, record completion, and continue until the integrated Story critique.
+**After presenting any critique, STOP and wait for explicit human instruction.**
 
-Follow `docs/workflow.md` for exact branch and PR requirements.
+Do not implement recommendations, begin another critique round, create corrective Jira issues, make unrelated changes, or proceed merely because a fix appears obvious. This rule applies regardless of score, test status, severity, or whether the human is likely to approve the recommendation.
 
----
+The human may accept the work as-is, select or reject recommendations, request clarification, authorize specific corrective work, request another critique round, defer an issue, or reject/redesign the implementation. A passing score does not prevent additional human-requested work, and a failing score does not prevent the human from accepting the result for the milestone.
 
-# Story Completion and Pull Request Timing
+PR timing and the Story-only delivery model remain governed by `docs/workflow.md`.
 
-The Story critique occurs after all required Tasks/Subtasks are implemented and verified on the Story branch and before the Story is considered ready for its single PR to `main`.
+## Human-Authorized Improvement Rounds
 
-Recommended Story lifecycle:
+Each improvement round requires separate, explicit human authorization. Authorization for Round 2 does not authorize Round 3.
+
+After authorization:
 
 ```text
-All required Tasks/Subtasks implemented and verified on the Story branch
+Implement only approved corrections
         ↓
-Story branch updated from main
+Re-run applicable verification
         ↓
-Full Story verification
+Critique the current result independently
         ↓
-Story Critique
+New score + recommendation(s) if FAIL
         ↓
-Score + Recommendation(s) if FAIL
-        ↓
-STOP
-        ↓
-Human decision
-        ↓
-Optional human-authorized corrective work on the Story branch
-        ↓
-Optional authorized next Story critique round
-        ↓
-Human accepts Story
-        ↓
-Final Story verification
-        ↓
-Story PR → main
+STOP for the next human decision
 ```
 
-Do not apply Story critique fixes until the human authorizes them. Once authorized, apply them directly to the existing Story branch; a corrective Jira child may be used for traceability, but it receives no branch or PR.
+Story corrections remain on the existing Story branch. A corrective Jira Task/Subtask may be useful for traceability, but it never receives a branch or PR. Follow `docs/workflow.md` for scope and delivery rules.
 
----
+An explicitly assigned individual Task/Subtask may have at most **3 Task critique rounds**. A Story may independently have at most **3 Story critique rounds**. No fourth round exists at either level.
 
-# Human Authority
+## Review Integrity
 
-The score is advisory.
-
-The human reviewer has final authority.
-
-The human may decide that:
-
-- 5.7 is acceptable for the milestone.
-- A passing score still needs another round or specific additional work.
-- One recommendation from a failing critique should be implemented but another should not.
-- An identified issue belongs in another Jira Task.
-- A Story issue requires a corrective Task.
-- An issue should be deferred.
-- The implementation should be reverted or redesigned.
-- No additional round is necessary.
-
-Astra provides evidence and the recommendations required for a failing score.
-
-**The human makes the decision.**
-
----
-
-# Prime Directive
-
-**Astra is reviewing Astra.**
-
-Treat your own implementation as if another developer submitted it.
-
-Do not defend your work.
-
-Do not reward yourself because it compiles.
-
-Do not reward yourself because tests pass.
-
-Do not search for reasons to reach 6.
-
-Search for real problems.
-
-A merely functional implementation is approximately:
-
-**5 / 10**
-
-A solid implementation appropriate for the current Trackstorm milestone begins at approximately:
-
-**6 / 10**
-
-After every explicitly assigned individual Task/Subtask implementation, completed integrated Story, or human-authorized improvement round:
-
-**Critique → Score → Recommendation(s) if FAIL → STOP**
-
-Never automatically:
-
-**Critique → Fix → Critique**
-
-The human controls that transition.
-
-**Maximum: 3 critique rounds per Task.**
-
-**Maximum: 3 critique rounds per Story.**
-
-The objective is not to achieve a particular score.
-
-The objective is to give the human reviewer an accurate assessment of Trackstorm's quality and allow the human to decide whether additional polish, corrective work, or integration changes are worth the cost and scope.
+Treat your own work as another developer's submission. Do not search for reasons to pass, reward effort, or assume a later round deserves a higher score. The objective is an accurate, evidence-based assessment that lets the human decide whether further quality work is worth its scope and cost.
