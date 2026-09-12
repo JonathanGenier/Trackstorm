@@ -5,6 +5,7 @@ Follow:
 - `docs/standards.md` for architecture, coding, testing, and review standards.
 - `docs/workflow.md` for Jira, branch, pull request, synchronization, and completion workflow.
 - `docs/critique.md` for the mandatory self-critique, scoring, recommendation, and human-gated improvement process.
+- `docs/features.md` as the living reference for implemented Trackstorm features, including their behavior, architecture, design reasoning, invariants, interactions, and intentional limitations.
 
 Keep every change scoped to the current Jira issue: Task/Subtask or Story, as applicable.
 
@@ -23,12 +24,17 @@ Core must never reference Client or Godot. Do not introduce a Shared layer.
 
 Core tests live in `Trackstorm.Core.Tests` and must run without Godot. Add deterministic tests when authoritative behavior changes.
 
+Whenever work adds, changes, or removes a feature, update `docs/features.md` in the same change: add new feature documentation, update existing documentation, or remove/revise obsolete documentation. Also update affected architecture, design reasoning, invariants, configuration, ownership, interactions, and intentional limitations. Do not leave stale feature documentation.
+
+`docs/features.md` documents the current system and why it works that way. It is not a Jira backlog, task history, PR log, critique log, or commit history.
+
 Before completing any Task or Story:
 
 - Satisfy the Jira acceptance criteria.
 - Follow the branch/PR rules in `docs/workflow.md`.
 - Run `./check.ps1`.
 - Run all integration checks required by the current Jira Task/Subtask or Story.
+- For feature-related work, compare the resulting implementation with the relevant `docs/features.md` section and confirm they agree.
 - Inspect the complete diff.
 - Report assumptions, limitations, or unresolved risks.
 - Execute the mandatory critique process in `docs/critique.md`.

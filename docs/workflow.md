@@ -149,6 +149,55 @@ When a Task requires a third-party dependency or asset:
 
 Core must not gain a Godot or presentation dependency through a convenience package.
 
+## Feature Documentation
+
+`docs/features.md` is mandatory living documentation for implemented Trackstorm features. It preserves durable system knowledge so future developers and agents can understand what a feature does, how it works at a useful system level, and why important decisions were made.
+
+Whenever a Jira Task/Subtask, Story, or other authorized change affects a feature, review the relevant `docs/features.md` section and update it in the same change. Apply this lifecycle:
+
+```text
+Feature added
+    ↓
+Add documentation
+
+Feature modified
+    ↓
+Update documentation
+
+Feature removed
+    ↓
+Remove or revise documentation
+```
+
+Feature documentation should capture the durable context relevant to the feature:
+
+- Purpose.
+- Current behavior.
+- System-level implementation.
+- Design reasoning.
+- Core/Client responsibility ownership.
+- Important invariants.
+- Important assumptions.
+- Relevant configuration or tunable behavior.
+- Interactions with other features or systems.
+- Intentional limitations or tradeoffs.
+
+Document the resulting feature, not the implementation process. Preserve system intent and context rather than cataloging every class, method, or low-level detail; source code remains the source of truth for low-level implementation details.
+
+Do not use `docs/features.md` for:
+
+- Jira acceptance criteria.
+- Task status.
+- PR history.
+- Commit history.
+- Critique scores.
+- Temporary TODOs.
+- Development diary entries.
+
+Do not leave stale feature documentation. Feature work is not complete if its corresponding documentation is missing, stale, or contradicts the implementation.
+
+Before feature-related work is considered complete, compare the resulting implementation with the relevant `docs/features.md` section and confirm that behavior, design reasoning, ownership, invariants, configuration, interactions, assumptions, and intentional limitations remain synchronized.
+
 ## Verification Before Completion
 
 Before declaring a Task complete:
