@@ -51,6 +51,22 @@ public sealed class HostVehicleSession
         return id;
     }
 
+    /// <summary>Uses a lobby-owned stable identity for an already admitted connected player.</summary>
+    /// <param name="peer">Actual transport peer.</param>
+    /// <param name="playerId">Stable session player identity.</param>
+    public void JoinPlayer(ulong peer, ulong playerId)
+    {
+        if (peer == 0 || playerId <= 1 || _peers.ContainsKey(peer) || World.State.Vehicles.Any(vehicle => vehicle.VehicleId == playerId) || _peers.Count == 7)
+        {
+            throw new ArgumentException("Invalid lobby vehicle assignment.");
+        }
+
+        int slot = Enumerable.Range(1, 7).First(candidate => _peers.Values.All(entry => entry.SpawnSlot != candidate));
+        World.JoinVehicle(playerId, new(), new(), Spawn(slot));
+        _peers.Add(peer, (playerId, new HostInputBuffer(), slot));
+        _nextVehicle = Math.Max(_nextVehicle, playerId);
+    }
+
     /// <summary>Releases gameplay ownership; stale input can no longer target the departed vehicle.</summary>
     /// <param name="peer">Departed transport identity.</param>
     public void Leave(ulong peer)

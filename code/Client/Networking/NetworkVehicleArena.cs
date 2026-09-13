@@ -102,9 +102,10 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <param name="gateway">Active transport.</param>
     /// <param name="session">Nonzero host generation, or zero for a joining client.</param>
     /// <param name="serverPeer">Client's actual transport server identity.</param>
-    internal void Initialize(ITransportGateway gateway, ulong session, ulong serverPeer)
+    /// <param name="lobby">Optional admitted development lobby.</param>
+    internal void Initialize(ITransportGateway gateway, ulong session, ulong serverPeer, LobbyNetworkDriver? lobby = null)
     {
-        _driver = new VehicleNetworkDriver(gateway, session, serverPeer);
+        _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby);
         _driver.RosterChanged += SynchronizeBodies;
         _driver.LocalCorrected += state => _bodies[state.VehicleId].Apply(state.Movement.Physics, true);
     }
@@ -114,6 +115,11 @@ internal sealed partial class NetworkVehicleArena : Node3D
     internal void Advance(InputFrame input)
     {
         _driver.Advance(input, state => _bodies[state.VehicleId].Observe(state));
+        if (!_driver.IsActive)
+        {
+            return;
+        }
+
         if (_driver.Host is not null)
         {
             foreach (VehicleSnapshot state in _driver.Host.World.State.Vehicles)
