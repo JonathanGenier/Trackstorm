@@ -11,7 +11,7 @@ class FixedUpdateObserver:
 		completed.emit()
 
 
-func test_main_scene_composes_fixed_step_simulation() -> void:
+func test_main_scene_composes_lobby_without_advancing_gameplay() -> void:
 	var packed_scene := load("res://scenes/main.tscn") as PackedScene
 	assert_object(packed_scene).is_not_null()
 	var main_scene := auto_free(packed_scene.instantiate()) as Node
@@ -21,6 +21,7 @@ func test_main_scene_composes_fixed_step_simulation() -> void:
 	)
 	assert_object(main_scene.get_node_or_null("PlayerInput")).is_not_null()
 	assert_int(Engine.physics_ticks_per_second).is_equal(60)
+	assert_object(main_scene.get_node_or_null("DevelopmentSession")).is_not_null()
 	assert_int(main_scene.get("CurrentSimulationTick")).is_equal(0)
 
 	var observer := auto_free(FixedUpdateObserver.new()) as FixedUpdateObserver
@@ -28,6 +29,6 @@ func test_main_scene_composes_fixed_step_simulation() -> void:
 	add_child(observer)
 
 	await observer.completed
-	assert_int(main_scene.get("CurrentSimulationTick")).is_equal(1)
+	assert_int(main_scene.get("CurrentSimulationTick")).is_equal(0)
 	await observer.completed
-	assert_int(main_scene.get("CurrentSimulationTick")).is_equal(2)
+	assert_int(main_scene.get("CurrentSimulationTick")).is_equal(0)

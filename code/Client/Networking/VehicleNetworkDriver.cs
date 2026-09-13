@@ -1,6 +1,7 @@
 using Trackstorm.Core.Input;
 using Trackstorm.Core.Networking.Replication;
 using Trackstorm.Core.Networking.Transport;
+using Trackstorm.Core.Sessions;
 using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Client.Networking;
@@ -11,6 +12,7 @@ internal sealed class VehicleNetworkDriver
     private readonly ITransportGateway _gateway;
     private readonly ulong _serverPeer;
     private readonly HashSet<ulong> _assigned = new();
+    private readonly LobbyNetworkDriver? _lobby;
     private InputHistory? _inputs;
     private ulong _session;
     private double _snapshotAge;
@@ -19,8 +21,10 @@ internal sealed class VehicleNetworkDriver
     /// <param name="gateway">Caller-owned transport.</param>
     /// <param name="hostSession">Nonzero host generation, or zero for a client.</param>
     /// <param name="serverPeer">Client's actual transport server identity.</param>
-    internal VehicleNetworkDriver(ITransportGateway gateway, ulong hostSession, ulong serverPeer = 0)
+    /// <param name="lobby">Optional authoritative lobby which has entered an arena.</param>
+    internal VehicleNetworkDriver(ITransportGateway gateway, ulong hostSession, ulong serverPeer = 0, LobbyNetworkDriver? lobby = null)
     {
+        _lobby = lobby;
         _gateway = gateway;
         _serverPeer = serverPeer;
         _session = hostSession;
@@ -28,6 +32,30 @@ internal sealed class VehicleNetworkDriver
         {
             Host = new HostVehicleSession(hostSession);
             LocalVehicleId = 1;
+        }
+
+        if (lobby is not null)
+        {
+            if (lobby.State?.Phase != SessionPhase.Arena)
+            {
+                throw new ArgumentException("Vehicle gameplay requires an active arena.");
+            }
+
+            _session = lobby.State.Match;
+            LocalVehicleId = lobby.LocalPlayerId;
+            if (Host is not null)
+            {
+                foreach (var peer in lobby.Authority!.Peers)
+                {
+                    Host.JoinPlayer(peer.Key, peer.Value);
+                    _assigned.Add(peer.Key);
+                }
+            }
+            else
+            {
+                History = new SnapshotHistory(_session);
+                _inputs = new InputHistory();
+            }
         }
     }
 
@@ -55,6 +83,8 @@ internal sealed class VehicleNetworkDriver
     internal int ReceivedSnapshots { get; private set; }
     /// <summary>Explicit stopped-session diagnostic, empty during normal operation.</summary>
     internal string Failure { get; private set; } = string.Empty;
+    /// <summary>Whether this arena generation still belongs to the live lobby.</summary>
+    internal bool IsActive => _lobby is null || (_lobby.Failure.Length == 0 && _lobby.State?.Phase == SessionPhase.Arena && _lobby.State.Match == _session);
     /// <summary>Current local gameplay state, independent of render smoothing.</summary>
     internal VehicleSnapshot? LocalState => Host?.World.GetVehicle(1) ?? Prediction?.State;
 
@@ -63,7 +93,19 @@ internal sealed class VehicleNetworkDriver
     /// <param name="observe">Synchronous native or deterministic test collision seam.</param>
     internal void Advance(InputFrame input, Func<VehicleSnapshot, VehicleObservation> observe)
     {
-        _gateway.Poll();
+        if (_lobby is not null)
+        {
+            _lobby.Pump(1.0 / HostVehicleSession.TickRate, message => Receive(message, observe));
+            if (_lobby.Failure.Length > 0 || _lobby.State?.Phase != SessionPhase.Arena || _lobby.State.Match != _session)
+            {
+                return;
+            }
+        }
+        else
+        {
+            _gateway.Poll();
+        }
+
         if (Host is not null)
         {
             SynchronizePeers();
@@ -77,7 +119,7 @@ internal sealed class VehicleNetworkDriver
             }
         }
 
-        while (_gateway.TryReceive(out TransportMessage message))
+        while (_lobby is null && _gateway.TryReceive(out TransportMessage message))
         {
             Receive(message, observe);
         }
@@ -126,6 +168,11 @@ internal sealed class VehicleNetworkDriver
     private void SynchronizePeers()
     {
         var connected = _gateway.Connections.Where(peer => peer.Value == TransportConnectionState.Connected).Select(peer => peer.Key).ToHashSet();
+        if (_lobby is not null)
+        {
+            connected.IntersectWith(_lobby.Authority!.Peers.Keys);
+        }
+
         foreach (ulong peer in _assigned.Except(connected).ToArray())
         {
             Host!.Leave(peer);
@@ -134,6 +181,11 @@ internal sealed class VehicleNetworkDriver
 
         foreach (ulong peer in connected.Except(_assigned))
         {
+            if (_lobby is not null)
+            {
+                continue;
+            }
+
             ulong vehicle = Host!.Join(peer);
             if (vehicle == 0)
             {
