@@ -5,19 +5,7 @@
 1. Sign in to the [Epic Developer Portal](https://dev.epicgames.com/portal) with the product owner's Epic account, create/select the Trackstorm organization and product, and review/accept the applicable EOS Game Services agreement. Only the product administrator needs portal access.
 2. In **Product Settings → Sandboxes**, create/select a sandbox reserved for development and a deployment named for development testing. Keep future production sandbox/deployment/client configuration separate. Record the Product ID, Sandbox ID and Deployment ID from this product; all three must belong together.
 3. In **Product Settings → Clients**, create a dedicated **untrusted game client** and a custom client policy with **User required** checked. Leave optional feature actions disabled for this identity-only foundation. The current [client-policy reference](https://dev.epicgames.com/docs/epic-online-services/eos-fundamentals/client-and-client-policy/client-policy-reference#connect) lists privileged account-query actions under Connect; these require a trusted server and are not needed for local Device ID login. It does not list a `createUser` policy action. Do not grant trusted-server permissions to make a login work. Follow the [client-policy setup guide](https://dev.epicgames.com/docs/epic-online-services/eos-fundamentals/client-and-client-policy/client-policy-guide), apply the policy to the client, and copy its client ID and client secret. Do not enable EAS, EAC, social, storage, commerce, lobbies or P2P for this foundation. The identity-only policy must still be validated by the real login check below against your product.
-4. Create `eos.development.local.json` at the repository root (ignored by Git), or outside the repository and set `TRACKSTORM_EOS_CONFIG` to its absolute path. The file is deliberately not auto-packaged. Use this schema with your actual portal values; empty values fail validation:
-
-   ```json
-   {
-     "Environment": "development",
-     "DeploymentName": "dev-testers",
-     "ProductId": "",
-     "SandboxId": "",
-     "DeploymentId": "",
-     "ClientId": "",
-     "ClientSecret": ""
-   }
-   ```
+4. Copy `eos.development.example.json` to `eos.development.local.json` at the repository root (ignored by Git), or place the local copy outside the repository and set `TRACKSTORM_EOS_CONFIG` to its absolute path. The local file is deliberately not auto-packaged. Replace every empty identifier/credential with its matching portal value; empty values fail validation. `DeploymentName` is a safe diagnostic label and may use letters, digits, hyphens and underscores.
 
 5. Run `./setup-eos.ps1`, then `./check.ps1`. To use an already downloaded, exact official release, pass `-ArchivePath <zip>`. Setup validates SHA-256 and only extracts necessary files; it installs no services. Launch Godot with `-- --eos`, or the exported game with `--eos`. EOS login starts automatically; the development panel has login and logout buttons for repeated checks. Launch without `--eos` for ordinary Direct-IP development.
 
