@@ -16,6 +16,7 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - run: ./setup-eos.ps1
       - run: dotnet restore Trackstorm.sln
       - run: dotnet format Trackstorm.sln --verify-no-changes --no-restore
       - run: dotnet build Trackstorm.sln -c Release --warnaserror --no-restore

@@ -14,10 +14,13 @@
     <Compile Remove="code/Core/**/*.cs" />
     <Compile Remove="code/Tests/**/*.cs" />
     <Compile Remove="code/TransportTests/**/*.cs" />
+    <Compile Remove="third_party/**/*.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="code/Core/Trackstorm.Core.csproj" />
+    <ProjectReference Include="third_party/eos/Epic.OnlineServices.csproj" />
+    <Content Include="docs/licenses/eos/README.md" Link="licenses/eos/README.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
   <Import Project="code/Client/Networking/GameNetworkingSockets.props" />
 </Project>

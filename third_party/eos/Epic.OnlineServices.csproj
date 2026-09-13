@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>Epic.OnlineServices</AssemblyName>
+    <DefineConstants>$(DefineConstants);EOS_PLATFORM_WINDOWS_64</DefineConstants>
+    <Nullable>disable</Nullable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <RunAnalyzers>false</RunAnalyzers>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EosSdkRoot>$(MSBuildThisFileDirectory)../../.godot/eos-sdk/SDK</EosSdkRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Remove="StyleCop.Analyzers" />
+    <Compile Include="$(EosSdkRoot)/Source/**/*.cs" />
+    <Compile Include="CallbackCleanup.cs" />
+    <None Include="$(EosSdkRoot)/Bin/EOSSDK-Win64-Shipping.dll" Link="EOSSDK-Win64-Shipping.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="$(MSBuildThisFileDirectory)../../.godot/eos-sdk/ThirdPartyNotices/ThirdPartySoftwareNotice.txt" Link="licenses/eos/ThirdPartySoftwareNotice.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="RequireOfficialEosSdk" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(EosSdkRoot)/Source/Generated/Version/VersionInterface.cs') Or !Exists('$(EosSdkRoot)/Bin/EOSSDK-Win64-Shipping.dll')" Text="EOS SDK is missing. Run ./setup-eos.ps1 to acquire the pinned official C# SDK. See docs/eos-development.md." />
+  </Target>
+</Project>

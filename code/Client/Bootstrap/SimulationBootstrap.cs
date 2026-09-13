@@ -1,6 +1,7 @@
 using Godot;
 using Trackstorm.Client.Input;
 using Trackstorm.Client.Networking;
+using Trackstorm.Client.Online;
 using Trackstorm.Client.Settings;
 using Trackstorm.Client.Vehicles;
 using Trackstorm.Core.Input;
@@ -29,6 +30,12 @@ public sealed partial class SimulationBootstrap : Node
     /// <inheritdoc />
     public override void _Ready()
     {
+        if (OS.GetCmdlineUserArgs().Contains("--eos-check"))
+        {
+            AddChild(new Trackstorm.Client.Verification.EosIntegrationChecks());
+            return;
+        }
+
         _playerInput = GetNode<PlayerInput>("PlayerInput");
         _playerInput.FrameCaptured += OnFrameCaptured;
         Engine.PhysicsTicksPerSecond = _configuration.TicksPerSecond;
@@ -39,6 +46,11 @@ public sealed partial class SimulationBootstrap : Node
         panel.Initialize(settings, _playerInput.Adapter);
         settings.AddChild(panel);
         _settingsPanel = panel;
+        if (OS.GetCmdlineUserArgs().Contains("--eos"))
+        {
+            AddChild(new EosIdentityNode { Name = "EosIdentity" });
+        }
+
         string[] networkArguments = OS.GetCmdlineUserArgs().Where(argument => argument.StartsWith("--transport-host=", StringComparison.Ordinal) || argument.StartsWith("--transport-connect=", StringComparison.Ordinal)).ToArray();
         if (networkArguments.Length > 1)
         {
