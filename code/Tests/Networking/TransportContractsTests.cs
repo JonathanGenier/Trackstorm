@@ -34,8 +34,40 @@ internal sealed class TransportContractsTests
     {
         private TransportMessage? _message;
 
+        public event Action<TransportConnectionChange>? ConnectionChanged
+        {
+            add { }
+            remove { }
+        }
+
+        public bool IsListening => false;
+
+        public IReadOnlyDictionary<ulong, TransportConnectionState> Connections => new Dictionary<ulong, TransportConnectionState>();
+
         /// <inheritdoc/>
         public TransportConnectionState ConnectionState => TransportConnectionState.Connected;
+
+        public void Listen(string address) => throw new NotSupportedException();
+
+        public ulong Connect(string address) => throw new NotSupportedException();
+
+        public void Disconnect(ulong peerId) => throw new NotSupportedException();
+
+        public void Poll()
+        {
+        }
+
+        public void Stop()
+        {
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public TransportStatistics GetStatistics(ulong peerId) => default;
+
+        public void ConfigureSimulation(NetworkSimulation simulation) => throw new NotSupportedException();
 
         /// <inheritdoc/>
         public void Send(TransportMessage message)

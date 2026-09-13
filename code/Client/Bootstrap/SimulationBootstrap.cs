@@ -1,5 +1,6 @@
 using Godot;
 using Trackstorm.Client.Input;
+using Trackstorm.Client.Networking;
 using Trackstorm.Client.Settings;
 using Trackstorm.Client.Vehicles;
 using Trackstorm.Core.Input;
@@ -18,6 +19,7 @@ public sealed partial class SimulationBootstrap : Node
     private PlayerInput _playerInput = null!;
     private VehicleArena _arena = null!;
     private SettingsPanel _settingsPanel = null!;
+    private NetworkTransportNode? _network;
 
     /// <summary>
     /// Gets the latest authoritative tick observed from Core.
@@ -39,6 +41,27 @@ public sealed partial class SimulationBootstrap : Node
         _settingsPanel = panel;
         _arena = new VehicleArena { Name = "VehicleArena" };
         AddChild(_arena);
+        string[] networkArguments = OS.GetCmdlineUserArgs().Where(argument => argument.StartsWith("--transport-host=", StringComparison.Ordinal) || argument.StartsWith("--transport-connect=", StringComparison.Ordinal)).ToArray();
+        if (networkArguments.Length > 1)
+        {
+            throw new ArgumentException("Specify exactly one transport host or connect endpoint.");
+        }
+
+        if (networkArguments.Length == 1)
+        {
+            _network = new NetworkTransportNode { Name = "NetworkTransport" };
+            AddChild(_network);
+            string argument = networkArguments[0];
+            string endpoint = argument[(argument.IndexOf('=') + 1)..];
+            if (argument.StartsWith("--transport-host=", StringComparison.Ordinal))
+            {
+                _network.Gateway.Listen(endpoint);
+            }
+            else
+            {
+                _network.Gateway.Connect(endpoint);
+            }
+        }
     }
 
     /// <inheritdoc />
@@ -53,6 +76,7 @@ public sealed partial class SimulationBootstrap : Node
     private void OnFrameCaptured(InputFrame input)
     {
         _arena.Advance(input);
-        _settingsPanel.SetVehicleTelemetry(_arena.Player.Snapshot.Speed);
+        int? ping = _network?.Gateway.Connections.Keys.Select(peer => _network.Gateway.GetStatistics(peer).PingMilliseconds).FirstOrDefault();
+        _settingsPanel.SetVehicleTelemetry(_arena.Player.Snapshot.Speed, ping);
     }
 }
