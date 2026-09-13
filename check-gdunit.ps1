@@ -36,13 +36,12 @@ if ($LASTEXITCODE -ne 0 -or $version -notmatch '^4\.7\.2.*mono') {
     throw "Godot 4.7.2 .NET is required; found '$version'."
 }
 
-Invoke-Godot "GdUnit4 plugin import" @(
-    '--headless',
-    '--editor',
-    '--path', $PSScriptRoot,
-    '--import',
-    '--quit'
-)
+Write-Host "`n>> Client build"
+dotnet build (Join-Path $PSScriptRoot 'Trackstorm.Client.csproj') -c Debug -warnaserror
+if ($LASTEXITCODE -ne 0) { throw 'Client verification build failed.' }
+
+Write-Host "`n>> GdUnit4 plugin import"
+& (Join-Path $PSScriptRoot 'import-godot.ps1') -GodotPath $resolvedGodotPath
 
 Invoke-Godot "GdUnit4 Client tests" @(
     '--headless',

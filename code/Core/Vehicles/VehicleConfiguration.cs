@@ -3,6 +3,11 @@ namespace Trackstorm.Core.Vehicles;
 /// <summary>Validated arcade tuning shared by local, replay, and future authority drivers.</summary>
 public sealed record VehicleConfiguration
 {
+    /// <summary>Hard-surface baseline; identity multipliers preserve ordinary driving.</summary>
+    public SurfaceModifiers Concrete { get; init; } = new(1, 1, 1);
+    /// <summary>Soft ground has less grip/acceleration and greater resistance.</summary>
+    public SurfaceModifiers Mud { get; init; } = new(0.55f, 3, 0.6f);
+
     /// <summary>Fixed frequency; independent of rendering.</summary>
     public int TicksPerSecond { get; init; } = 60;
     /// <summary>Body mass in kilograms.</summary>
@@ -37,6 +42,16 @@ public sealed record VehicleConfiguration
     public float MaximumPhysicsSpeed { get; init; } = 65;
     /// <summary>Safety bound on angular velocity.</summary>
     public float MaximumAngularSpeed { get; init; } = 8;
+
+    /// <summary>Resolves explicit surface tuning without engine or mutable state.</summary>
+    /// <param name="surface">Supported surface identifier.</param>
+    /// <returns>Configured handling multipliers.</returns>
+    public SurfaceModifiers ResolveSurface(SurfaceType surface) => surface switch
+    {
+        SurfaceType.Concrete => Concrete,
+        SurfaceType.Mud => Mud,
+        _ => throw new ArgumentOutOfRangeException(nameof(surface)),
+    };
 
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()

@@ -21,6 +21,6 @@ function Invoke-GodotCheck {
 
 dotnet build Trackstorm.sln -c Debug -warnaserror
 if ($LASTEXITCODE -ne 0) { throw "Input verification build failed." }
-Invoke-GodotCheck -Arguments @('--editor', '--import')
+& (Join-Path $PSScriptRoot 'import-godot.ps1') -GodotPath $GodotPath
 Invoke-GodotCheck -Arguments @('res://scenes/verification/input_checks.tscn', '--quit-after', '600') -ExpectedOutput 'Input integration passed:'
 Invoke-GodotCheck -Arguments @('--quit-after', '5')

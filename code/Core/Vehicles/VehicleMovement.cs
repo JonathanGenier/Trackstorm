@@ -56,8 +56,9 @@ public sealed class VehicleMovement
     /// <param name="observed">Collision-resolved pose and velocities.</param>
     /// <param name="groundNormal">Unit support normal, or zero while airborne.</param>
     /// <param name="driveEnabled">Authority-controlled drive permission.</param>
+    /// <param name="surface">Fixed-step supporting surface identifier.</param>
     /// <returns>Next movement snapshot and commanded velocities.</returns>
-    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true)
+    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete)
     {
         if (input.Tick != checked(State.Tick + 1))
         {
@@ -71,8 +72,12 @@ public sealed class VehicleMovement
         }
 
         VehicleConfiguration c = Configuration;
+        SurfaceModifiers detected = c.ResolveSurface(surface);
         float dt = 1f / c.TicksPerSecond;
         bool grounded = groundNormal.Y >= 0.55f;
+        SurfaceType currentSurface = grounded ? surface : State.CurrentSurface;
+        SurfaceModifiers modifiers = grounded ? detected : new SurfaceModifiers(1, 1, 1);
+        float acceleration = c.Acceleration * modifiers.Acceleration;
         Vector3 forward = Vector3.Transform(-Vector3.UnitZ, observed.Orientation);
         Vector3 right = Vector3.Transform(Vector3.UnitX, observed.Orientation);
         Vector3 up = Vector3.Transform(Vector3.UnitY, observed.Orientation);
@@ -103,24 +108,29 @@ public sealed class VehicleMovement
         {
             target = longitudinal > 0 ? Math.Max(0, longitudinal - (c.Braking * brake * dt))
                 : throttle > 0 ? Math.Min(0, longitudinal + (c.Braking * throttle * dt))
-                : Math.Max(-c.ReverseSpeed, longitudinal - (c.ReverseAcceleration * brake * dt));
+                : Math.Max(-c.ReverseSpeed, longitudinal - (c.ReverseAcceleration * modifiers.Acceleration * brake * dt));
         }
         else if (throttle > 0 || boostTicks > 0)
         {
             float cap = c.ForwardSpeed + (boostTicks > 0 ? c.BoostSpeed : 0);
             target = longitudinal < 0 ? Math.Min(0, longitudinal + (c.Braking * throttle * dt))
-                : longitudinal < cap ? Math.Min(cap, longitudinal + (((c.Acceleration * throttle) + (boostTicks > 0 ? c.Acceleration : 0)) * dt))
+                : longitudinal < cap ? Math.Min(cap, longitudinal + (((acceleration * throttle) + (boostTicks > 0 ? acceleration : 0)) * dt))
                 : Math.Max(cap, longitudinal - (3 * dt));
         }
         else if (grounded)
         {
-            target *= MathF.Exp(-0.35f * dt);
+            target *= MathF.Exp(-0.35f * modifiers.Drag * dt);
+        }
+
+        if (grounded && (throttle > 0 || brake > 0 || boostTicks > 0))
+        {
+            target *= MathF.Exp(-0.35f * Math.Max(0, modifiers.Drag - 1) * dt);
         }
 
         velocity += forward * ((target - longitudinal) * authority);
         if (grounded)
         {
-            velocity -= right * (Vector3.Dot(velocity, right) * (1 - MathF.Exp(-(drifting ? c.DriftGrip : c.Grip) * dt)));
+            velocity -= right * (Vector3.Dot(velocity, right) * (1 - MathF.Exp(-(drifting ? c.DriftGrip : c.Grip) * modifiers.Grip * dt)));
         }
 
         velocity -= Vector3.UnitY * (c.Gravity * dt);
@@ -133,7 +143,7 @@ public sealed class VehicleMovement
         angular.X *= damping;
         angular.Z *= damping;
         var physics = new VehiclePhysicsState(observed.Position, observed.Orientation, Limit(velocity, c.MaximumPhysicsSpeed), Limit(angular, c.MaximumAngularSpeed));
-        State = new VehicleState(input.Tick, physics, grounded, drifting, driftTicks, boostTicks);
+        State = new VehicleState(input.Tick, physics, grounded, drifting, driftTicks, boostTicks, currentSurface);
         return State;
     }
 
@@ -141,7 +151,7 @@ public sealed class VehicleMovement
     /// <param name="state">Validated saved snapshot.</param>
     public void Restore(VehicleState state)
     {
-        _ = new VehicleState(state.Tick, state.Physics, state.Grounded, state.Drifting, state.DriftTicks, state.BoostTicks);
+        _ = new VehicleState(state.Tick, state.Physics, state.Grounded, state.Drifting, state.DriftTicks, state.BoostTicks, state.CurrentSurface);
         if (state.DriftTicks > MathF.Ceiling(Configuration.DriftChargeSeconds * Configuration.TicksPerSecond) || state.BoostTicks > MathF.Ceiling(Configuration.BoostSeconds * Configuration.TicksPerSecond))
         {
             throw new ArgumentException("Snapshot timers exceed this vehicle's tuning.", nameof(state));

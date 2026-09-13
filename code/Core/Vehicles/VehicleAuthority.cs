@@ -71,7 +71,7 @@ internal sealed class VehicleAuthority
         }
 
         health.Repair(request.Repair);
-        VehicleState next = movement.Step(request.Input, observed.Physics, observed.Support, !health.State.Destroyed);
+        VehicleState next = movement.Step(request.Input, observed.Physics, observed.Support, !health.State.Destroyed, observed.Surface);
         var snapshot = new VehicleSnapshot(previous.VehicleId, request.Reset.HasValue ? checked(previous.LifeId + 1) : previous.LifeId, next, health.State, observed.Physics, request.Effects);
         return new VehicleStepResult(snapshot, request.Effects, events, request.Reset.HasValue);
     }

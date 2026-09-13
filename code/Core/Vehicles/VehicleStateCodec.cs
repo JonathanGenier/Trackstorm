@@ -3,20 +3,20 @@ using System.Numerics;
 
 namespace Trackstorm.Core.Vehicles;
 
-/// <summary>Explicit version-one movement snapshot encoding, independent of engine and CLR layouts.</summary>
+/// <summary>Explicit version-two movement snapshot encoding, independent of engine and CLR layouts.</summary>
 public static class VehicleStateCodec
 {
-    /// <summary>Version, tick, thirteen floats, flags and two integer timers.</summary>
-    public const int SerializedSize = 70;
+    /// <summary>Version, tick, thirteen floats, flags, two integer timers and surface ID.</summary>
+    public const int SerializedSize = 71;
 
     /// <summary>Encodes a validated snapshot with little-endian IEEE floats and integers.</summary>
     /// <param name="state">Movement snapshot.</param>
-    /// <returns>Exactly one version-one snapshot.</returns>
+    /// <returns>Exactly one version-two snapshot.</returns>
     public static byte[] Encode(VehicleState state)
     {
-        _ = new VehicleState(state.Tick, state.Physics, state.Grounded, state.Drifting, state.DriftTicks, state.BoostTicks);
+        _ = new VehicleState(state.Tick, state.Physics, state.Grounded, state.Drifting, state.DriftTicks, state.BoostTicks, state.CurrentSurface);
         byte[] bytes = new byte[SerializedSize];
-        bytes[0] = 1;
+        bytes[0] = 2;
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(1), state.Tick);
         Vector3 p = state.Physics.Position;
         Quaternion q = state.Physics.Orientation;
@@ -31,6 +31,7 @@ public static class VehicleStateCodec
         bytes[61] = (byte)((state.Grounded ? 1 : 0) | (state.Drifting ? 2 : 0));
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(62), state.DriftTicks);
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(66), state.BoostTicks);
+        bytes[70] = (byte)state.CurrentSurface;
         return bytes;
     }
 
@@ -39,9 +40,9 @@ public static class VehicleStateCodec
     /// <returns>Validated movement state.</returns>
     public static VehicleState Decode(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != SerializedSize || bytes[0] != 1 || (bytes[61] & ~3) != 0)
+        if (bytes.Length != SerializedSize || bytes[0] != 2 || (bytes[61] & ~3) != 0)
         {
-            throw new ArgumentException("Expected one version-one movement snapshot.", nameof(bytes));
+            throw new ArgumentException("Expected one version-two movement snapshot.", nameof(bytes));
         }
 
         float[] values = new float[13];
@@ -51,6 +52,6 @@ public static class VehicleStateCodec
         }
 
         var physics = new VehiclePhysicsState(new Vector3(values[0], values[1], values[2]), new Quaternion(values[3], values[4], values[5], values[6]), new Vector3(values[7], values[8], values[9]), new Vector3(values[10], values[11], values[12]));
-        return new VehicleState(BinaryPrimitives.ReadUInt64LittleEndian(bytes[1..]), physics, (bytes[61] & 1) != 0, (bytes[61] & 2) != 0, BinaryPrimitives.ReadInt32LittleEndian(bytes[62..]), BinaryPrimitives.ReadInt32LittleEndian(bytes[66..]));
+        return new VehicleState(BinaryPrimitives.ReadUInt64LittleEndian(bytes[1..]), physics, (bytes[61] & 1) != 0, (bytes[61] & 2) != 0, BinaryPrimitives.ReadInt32LittleEndian(bytes[62..]), BinaryPrimitives.ReadInt32LittleEndian(bytes[66..]), (SurfaceType)bytes[70]);
     }
 }

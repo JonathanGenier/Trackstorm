@@ -9,7 +9,8 @@ public sealed class VehicleObservation
     /// <param name="physics">Solved pose and velocities.</param>
     /// <param name="support">Unit support normal, or zero.</param>
     /// <param name="contacts">Contact observations; copied rather than retaining the caller's collection.</param>
-    public VehicleObservation(VehiclePhysicsState physics, Vector3 support, IEnumerable<VehicleContact>? contacts = null)
+    /// <param name="surface">Detected supporting surface; ignored while airborne.</param>
+    public VehicleObservation(VehiclePhysicsState physics, Vector3 support, IEnumerable<VehicleContact>? contacts = null, SurfaceType surface = SurfaceType.Concrete)
     {
         _ = new VehiclePhysicsState(physics.Position, physics.Orientation, physics.LinearVelocity, physics.AngularVelocity);
         if (!VehiclePhysicsState.IsFinite(support) || (support != Vector3.Zero && Math.Abs(support.LengthSquared() - 1) > 0.001f))
@@ -23,11 +24,19 @@ public sealed class VehicleObservation
             _ = new VehicleContact(contact.RelativeVelocity, contact.Normal, contact.Impulse, contact.OtherVehicleId);
         }
 
+        if (!Enum.IsDefined(surface))
+        {
+            throw new ArgumentOutOfRangeException(nameof(surface));
+        }
+
+        Surface = surface;
         Physics = physics;
         Support = support;
         Contacts = Array.AsReadOnly(copy);
     }
 
+    /// <summary>Supporting surface from the fixed-step adapter.</summary>
+    public SurfaceType Surface { get; }
     /// <summary>Latest collision-solved native body data.</summary>
     public VehiclePhysicsState Physics { get; }
     /// <summary>Support observation, without a hidden Client grounding timer.</summary>
