@@ -14,6 +14,8 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     private bool _initialized;
     /// <summary>Host-assigned identity used only to attribute contact observations.</summary>
     internal ulong VehicleId { get; init; }
+    /// <summary>Only authoritative forward steps may apply native prop impulses.</summary>
+    internal bool PushProps { get; init; }
     /// <summary>Presentation-only correction memory.</summary>
     internal CorrectionSmoothing Smoothing { get; } = new();
     /// <summary>Displayed position for the local chase camera.</summary>
@@ -57,6 +59,8 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         var transform = new Transform3D(new Basis(orientation), VehicleBody.ToGodot(state.Position));
         Vector3 remaining = velocity / 60;
         Vector3 support = Vector3.Zero;
+        SurfaceType surface = SurfaceType.Concrete;
+        var pushed = new HashSet<ulong>();
         var contacts = new List<VehicleContact>();
         using var parameters = new PhysicsTestMotionParameters3D { Margin = 0.005f, MaxCollisions = 4, RecoveryAsCollision = true };
         using var result = new PhysicsTestMotionResult3D();
@@ -77,10 +81,17 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                 Vector3 normal = result.GetCollisionNormal(i).Normalized();
                 Vector3 relative = velocity - result.GetColliderVelocity(i);
                 var other = result.GetCollider(i) as NetworkVehicleBody;
+                if (PushProps && result.GetCollider(i) is RigidBody3D prop && !prop.Freeze && pushed.Add(prop.GetInstanceId()))
+                {
+                    float closing = Math.Max(0, -relative.Dot(normal));
+                    prop.ApplyCentralImpulse(-normal * Math.Min(1800, closing * prop.Mass));
+                }
+
                 contacts.Add(new VehicleContact(VehicleBody.ToCore(relative), VehicleBody.ToCore(normal), 0, other?.VehicleId ?? 0));
                 if (normal.Y >= 0.55f)
                 {
                     support = normal;
+                    surface = (result.GetCollider(i) as SurfaceBody)?.Surface ?? SurfaceType.Concrete;
                 }
 
                 if (velocity.Dot(normal) < 0)
@@ -100,17 +111,18 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
             }
         }
 
-        if (support == Vector3.Zero && velocity.Y <= 1)
+        if (velocity.Y <= 1)
         {
             using var ray = PhysicsRayQueryParameters3D.Create(transform.Origin, transform.Origin + (Vector3.Down * 0.62f), CollisionMask, new Godot.Collections.Array<Rid> { GetRid() });
             var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
             if (hit.Count > 0 && hit["normal"].AsVector3().Y >= 0.55f)
             {
                 support = hit["normal"].AsVector3().Normalized();
+                surface = (hit["collider"].AsGodotObject() as SurfaceBody)?.Surface ?? SurfaceType.Concrete;
             }
         }
 
-        return new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts);
+        return new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts, surface);
     }
 
     /// <summary>Reconstructs the collision proxy immediately; rendering retains its own correction offset.</summary>

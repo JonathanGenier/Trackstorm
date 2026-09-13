@@ -12,8 +12,15 @@ public sealed partial class VehicleArena : Node3D
     private readonly Label _health = new();
     private readonly Label _title = new() { Text = "LOCAL VEHICLE ARENA" };
     private readonly Label _instructions = new() { Text = "Drive / brake / steer with your bindings. Hold drift through a turn, then release for boost.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+    private readonly List<VehicleBody> _vehicles = new();
     private MeshInstance3D? _blast;
     private float _blastSeconds;
+    private Arenas.CombatArena? _layout;
+
+    /// <summary>Retains the focused ramp/surface fixture for existing movement regression tests.</summary>
+    internal bool LegacyTestLayout { get; init; }
+    /// <summary>All eight production practice vehicles, or two in the focused fixture.</summary>
+    internal IReadOnlyList<VehicleBody> Vehicles => _vehicles;
 
     /// <summary>The sole gameplay simulation, shared by every native adapter.</summary>
     internal Trackstorm.Core.Simulation.Simulation Simulation { get; } = new(new Trackstorm.Core.Simulation.SimulationConfiguration(60));
@@ -40,39 +47,65 @@ public sealed partial class VehicleArena : Node3D
             }
         });
         AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-55, -25, 0), LightEnergy = 1.4f, ShadowEnabled = true });
-        // Coplanar, non-overlapping floor tiles keep the mud boundary free of physical steps.
-        AddStatic(new Vector3(4, 1, 80), new Vector3(-38, -0.5f, 0), new Color("303b4b"));
-        AddStatic(new Vector3(68, 1, 80), new Vector3(6, -0.5f, 0), new Color("303b4b"));
-        AddStatic(new Vector3(8, 1, 32), new Vector3(-32, -0.5f, 24), new Color("303b4b"));
-        AddStatic(new Vector3(8, 1, 32), new Vector3(-32, -0.5f, -24), new Color("303b4b"));
-        AddStatic(new Vector3(8, 1, 16), new Vector3(-32, -0.5f, 0), new Color("755039"), SurfaceType.Mud);
-        AddStatic(new Vector3(1, 4, 80), new Vector3(-40, 1.5f, 0), new Color("bf6d39"));
-        AddStatic(new Vector3(1, 4, 80), new Vector3(40, 1.5f, 0), new Color("bf6d39"));
-        AddStatic(new Vector3(80, 4, 1), new Vector3(0, 1.5f, -40), new Color("bf6d39"));
-        AddStatic(new Vector3(80, 4, 1), new Vector3(0, 1.5f, 40), new Color("bf6d39"));
-        StaticBody3D ramp = AddStatic(new Vector3(8, 0.4f, 12), new Vector3(0, 0.95f, -5), new Color("607789"));
-        ramp.Rotation = new Vector3(0.2f, 0, 0);
-        AddStatic(new Vector3(5, 2, 5), new Vector3(-15, 1, -10), new Color("7b879a"));
-        for (int z = -32; z <= 32; z += 8)
+        if (LegacyTestLayout)
         {
-            AddChild(VehicleBody.Box(new Vector3(0.15f, 0.02f, 3), new Vector3(-5, 0.02f, z), new Color("e4be60")));
-            AddChild(VehicleBody.Box(new Vector3(0.15f, 0.02f, 3), new Vector3(5, 0.02f, z), new Color("e4be60")));
+            // Coplanar, non-overlapping floor tiles keep the mud boundary free of physical steps.
+            AddStatic(new Vector3(4, 1, 80), new Vector3(-38, -0.5f, 0), new Color("303b4b"));
+            AddStatic(new Vector3(68, 1, 80), new Vector3(6, -0.5f, 0), new Color("303b4b"));
+            AddStatic(new Vector3(8, 1, 32), new Vector3(-32, -0.5f, 24), new Color("303b4b"));
+            AddStatic(new Vector3(8, 1, 32), new Vector3(-32, -0.5f, -24), new Color("303b4b"));
+            AddStatic(new Vector3(8, 1, 16), new Vector3(-32, -0.5f, 0), new Color("755039"), SurfaceType.Mud);
+            AddStatic(new Vector3(1, 4, 80), new Vector3(-40, 1.5f, 0), new Color("bf6d39"));
+            AddStatic(new Vector3(1, 4, 80), new Vector3(40, 1.5f, 0), new Color("bf6d39"));
+            AddStatic(new Vector3(80, 4, 1), new Vector3(0, 1.5f, -40), new Color("bf6d39"));
+            AddStatic(new Vector3(80, 4, 1), new Vector3(0, 1.5f, 40), new Color("bf6d39"));
+            StaticBody3D ramp = AddStatic(new Vector3(8, 0.4f, 12), new Vector3(0, 0.95f, -5), new Color("607789"));
+            ramp.Rotation = new Vector3(0.2f, 0, 0);
+            AddStatic(new Vector3(5, 2, 5), new Vector3(-15, 1, -10), new Color("7b879a"));
+            for (int z = -32; z <= 32; z += 8)
+            {
+                AddChild(VehicleBody.Box(new Vector3(0.15f, 0.02f, 3), new Vector3(-5, 0.02f, z), new Color("e4be60")));
+                AddChild(VehicleBody.Box(new Vector3(0.15f, 0.02f, 3), new Vector3(5, 0.02f, z), new Color("e4be60")));
+            }
+
+            Player = new VehicleBody { Name = "PlayerVehicle", Position = new Vector3(0, 1, 20), VehicleId = 1 };
+            Target = new VehicleBody { Name = "TargetVehicle", Position = new Vector3(12, 1, -15), VehicleId = 2, Paint = new Color("f28b46") };
+            _vehicles.AddRange(new[] { Player, Target });
+        }
+        else
+        {
+            _layout = new Arenas.CombatArena { Name = "PrototypeArena" };
+            AddChild(_layout);
+            _title.Text = "PROTOTYPE COMBAT ARENA · 8 VEHICLES";
+            for (int slot = 0; slot < Core.Arenas.ArenaConfiguration.SpawnCount; slot++)
+            {
+                var spawn = Core.Arenas.PrototypeArena.Configuration.Spawn(slot);
+                _vehicles.Add(new VehicleBody { Name = $"Vehicle{slot + 1}", VehicleId = (ulong)slot + 1, Position = VehicleBody.ToGodot(spawn.Position), Quaternion = VehicleBody.ToGodot(spawn.Orientation), Paint = Color.FromHsv(slot * 0.12f, 0.45f, 0.7f) });
+            }
+
+            Player = _vehicles[0];
+            Target = _vehicles[1];
         }
 
-        Player = new VehicleBody { Name = "PlayerVehicle", Position = new Vector3(0, 1, 20), VehicleId = 1 };
-        Target = new VehicleBody { Name = "TargetVehicle", Position = new Vector3(12, 1, -15), VehicleId = 2, Paint = new Color("f28b46") };
-        foreach (VehicleBody vehicle in new[] { Player, Target })
+        foreach (VehicleBody vehicle in _vehicles)
         {
-            Simulation.AddVehicle(vehicle.VehicleId, vehicle.Configuration, vehicle.DamageConfiguration, new VehiclePhysicsState(VehicleBody.ToCore(vehicle.Position), System.Numerics.Quaternion.Identity, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero));
+            Simulation.AddVehicle(vehicle.VehicleId, vehicle.Configuration, vehicle.DamageConfiguration, new VehiclePhysicsState(VehicleBody.ToCore(vehicle.Position), new System.Numerics.Quaternion(vehicle.Quaternion.X, vehicle.Quaternion.Y, vehicle.Quaternion.Z, vehicle.Quaternion.W), System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero));
             vehicle.Initialize(Simulation);
+            AddChild(vehicle);
         }
 
-        AddChild(Player);
-        AddChild(Target);
-        Crate = new RigidBody3D { Name = "MovableCrate", Position = new Vector3(12, 1.2f, 5), Mass = 150, ContinuousCd = true };
-        Crate.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(1.8f, 1.8f, 1.8f) } });
-        Crate.AddChild(VehicleBody.Box(new Vector3(1.8f, 1.8f, 1.8f), Vector3.Zero, new Color("ddba5b")));
-        AddChild(Crate);
+        if (LegacyTestLayout)
+        {
+            Crate = new RigidBody3D { Name = "MovableCrate", Position = new Vector3(12, 1.2f, 5), Mass = 150, ContinuousCd = true };
+            Crate.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(1.8f, 1.8f, 1.8f) } });
+            Crate.AddChild(VehicleBody.Box(new Vector3(1.8f, 1.8f, 1.8f), Vector3.Zero, new Color("ddba5b")));
+            AddChild(Crate);
+        }
+        else
+        {
+            Crate = _layout!.Props[0];
+        }
+
         AddChild(_camera);
         _camera.Position = new Vector3(0, 8, 32);
         var layer = new CanvasLayer { Layer = 1 };
@@ -88,7 +121,7 @@ public sealed partial class VehicleArena : Node3D
         panel.AddChild(_instructions);
         var actions = new HBoxContainer();
         panel.AddChild(actions);
-        var reset = new Button { Text = "Reset vehicles", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        var reset = new Button { Text = LegacyTestLayout ? "Reset vehicles" : "Reset arena", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         reset.Pressed += ResetVehicles;
         actions.AddChild(reset);
         var explode = new Button { Text = "Detonate nearby", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, TooltipText = "Damage and push nearby vehicles with an explosion." };
@@ -129,23 +162,29 @@ public sealed partial class VehicleArena : Node3D
     internal void Advance(InputFrame input)
     {
         var neutral = new InputFrame(input.Tick, 0, 0, 0, InputButtons.None, InputButtons.None, InputButtons.None);
-        IReadOnlyList<VehicleStepResult> results = Simulation.Step(input, new[] { Player.Capture(input), Target.Capture(neutral) });
-        Player.Apply(results[0]);
-        Target.Apply(results[1]);
-        Player.Publish();
-        Target.Publish();
+        IReadOnlyList<VehicleStepResult> results = Simulation.Step(input, _vehicles.Select(vehicle => vehicle.Capture(vehicle == Player ? input : neutral)).ToArray());
+        for (int index = 0; index < _vehicles.Count; index++)
+        {
+            _vehicles[index].Apply(results[index]);
+        }
+
+        foreach (VehicleBody vehicle in _vehicles)
+        {
+            vehicle.Publish();
+        }
     }
 
     /// <summary>Local authority demonstration of the item-independent Core explosion helper.</summary>
     /// <param name="center">World-space blast center.</param>
     internal void Explode(Vector3 center)
     {
-        foreach (VehicleBody vehicle in new[] { Player, Target })
+        foreach (VehicleBody vehicle in _vehicles)
         {
             DamageEffect effect = VehicleDamageMath.Explosion(VehicleBody.ToCore(center), VehicleBody.ToCore(vehicle.GlobalPosition), 8, 55, 15000, new System.Numerics.Vector3(0.7f, 0.25f, -0.6f));
             vehicle.ApplyEffect(effect, new DamageContext("explosion", Player.VehicleId, "local-arena-blast"));
         }
 
+        _layout?.Explode(center);
         _blast?.QueueFree();
         _blast = new MeshInstance3D
         {
@@ -168,6 +207,17 @@ public sealed partial class VehicleArena : Node3D
 
     private void ResetVehicles()
     {
+        if (!LegacyTestLayout)
+        {
+            _layout!.ResetProps();
+            for (int slot = 0; slot < _vehicles.Count; slot++)
+            {
+                _vehicles[slot].ResetBody(Core.Arenas.PrototypeArena.Configuration.Spawn(slot));
+            }
+
+            return;
+        }
+
         Player.ResetBody(new VehiclePhysicsState(new System.Numerics.Vector3(0, 1, 20), System.Numerics.Quaternion.Identity, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero));
         Target.ResetBody(new VehiclePhysicsState(new System.Numerics.Vector3(12, 1, -15), System.Numerics.Quaternion.Identity, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero));
     }

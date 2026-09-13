@@ -30,7 +30,7 @@ public sealed partial class VehicleIntegrationChecks : Node
         {
             _output = OS.GetCmdlineUserArgs().Single(value => value.StartsWith("--vehicle-output=", StringComparison.Ordinal))[17..];
             _visual = DisplayServer.GetName() != "headless";
-            _arena = new VehicleArena();
+            _arena = new VehicleArena { LegacyTestLayout = true };
             AddChild(_arena);
             _input = new Trackstorm.Client.Input.PlayerInput();
             AddChild(_input);

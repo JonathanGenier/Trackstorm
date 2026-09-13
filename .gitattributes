@@ -1,2 +1,5 @@
 # Normalize line endings for all files Git considers text.
 * text=auto eol=lf
+
+# Preserve verbatim upstream license bytes and their recorded source checksums.
+assets/arena/kenney/**/License.txt -text -whitespace

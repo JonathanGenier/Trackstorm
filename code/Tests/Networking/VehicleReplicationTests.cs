@@ -120,7 +120,7 @@ internal sealed class VehicleReplicationTests
         Assert.That(host.Receive(1, 99, [new(2, Drive())]), Is.False);
         Assert.That(host.Join(8), Is.EqualTo(9));
         Assert.That(host.World.GetVehicle(9).Movement.Tick, Is.EqualTo(1));
-        Assert.That(host.World.GetVehicle(9).Movement.Physics.Position.X, Is.EqualTo(-15), "A fresh identity reuses the departed spawn slot, not the host slot.");
+        Assert.That(host.World.GetVehicle(9).Movement.Physics.Position, Is.EqualTo(Trackstorm.Core.Arenas.PrototypeArena.Configuration.Players[1].Position), "A fresh identity reuses the departed spawn slot, not the host slot.");
         host.Step(default, Observe);
         Assert.That(host.Snapshot().Vehicles.Count, Is.EqualTo(8));
     }

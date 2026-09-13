@@ -14,6 +14,8 @@ public static class VehicleNetworkCodec
     public const byte Inputs = 2;
     /// <summary>Unreliable full vehicle snapshot message kind.</summary>
     public const byte Snapshot = 3;
+    /// <summary>Full authoritative prototype prop publication.</summary>
+    public const byte Props = 4;
     private const int MaximumBytes = 16384;
 
     /// <summary>Checks the protocol header before routing a bounded payload.</summary>
@@ -21,13 +23,48 @@ public static class VehicleNetworkCodec
     /// <returns>Recognized message kind.</returns>
     public static byte Kind(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || bytes[0] != 0x54 || bytes[1] != 0x53 || bytes[2] != 1 || bytes[3] is < Welcome or > Snapshot)
+        if (bytes.Length is < 4 or > MaximumBytes || bytes[0] != 0x54 || bytes[1] != 0x53 || bytes[2] != 1 || bytes[3] is < Welcome or > Props)
         {
             throw new ArgumentException("Invalid vehicle network header.");
         }
 
         return bytes[3];
     }
+
+    /// <summary>Encodes a complete, bounded host prop observation.</summary>
+    /// <param name="snapshot">Complete host publication.</param>
+    /// <returns>Versioned bounded bytes.</returns>
+    public static byte[] EncodeProps(Arenas.ArenaPropSnapshot snapshot) => Write(Props, writer =>
+    {
+        writer.Write(snapshot.Session);
+        writer.Write(snapshot.Tick);
+        foreach (VehiclePhysicsState body in snapshot.Bodies)
+        {
+            WriteVector(writer, body.Position);
+            writer.Write(body.Orientation.X);
+            writer.Write(body.Orientation.Y);
+            writer.Write(body.Orientation.Z);
+            writer.Write(body.Orientation.W);
+            WriteVector(writer, body.LinearVelocity);
+            WriteVector(writer, body.AngularVelocity);
+        }
+    });
+
+    /// <summary>Rejects malformed, nonfinite, excessive or incomplete prop state.</summary>
+    /// <param name="bytes">Complete publication bytes.</param>
+    /// <returns>Validated copied prop state.</returns>
+    public static Arenas.ArenaPropSnapshot DecodeProps(ReadOnlySpan<byte> bytes) => Read(bytes, Props, reader =>
+    {
+        ulong session = reader.ReadUInt64();
+        ulong tick = reader.ReadUInt64();
+        var bodies = new VehiclePhysicsState[3];
+        for (int index = 0; index < bodies.Length; index++)
+        {
+            bodies[index] = new VehiclePhysicsState(ReadVector(reader), new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()), ReadVector(reader), ReadVector(reader));
+        }
+
+        return new Arenas.ArenaPropSnapshot(session, tick, bodies);
+    });
 
     /// <summary>Encodes a reliable assignment without granting authority to a client-chosen identity.</summary>
     /// <param name="session">Host generation.</param>
