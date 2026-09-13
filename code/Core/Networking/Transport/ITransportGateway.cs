@@ -3,12 +3,47 @@ namespace Trackstorm.Core.Networking.Transport;
 /// <summary>
 /// Defines the engine-independent boundary implemented by a native transport adapter outside Core.
 /// </summary>
-public interface ITransportGateway
+public interface ITransportGateway : IDisposable
 {
-    /// <summary>
-    /// Gets the current transport connection state.
-    /// </summary>
+    /// <summary>Raised from Poll after native callbacks return; failures include a stable reason.</summary>
+    event Action<TransportConnectionChange>? ConnectionChanged;
+
+    /// <summary>Gets whether this gateway is listening for incoming peers.</summary>
+    bool IsListening { get; }
+
+    /// <summary>Gets a detached snapshot of connecting and connected peers.</summary>
+    IReadOnlyDictionary<ulong, TransportConnectionState> Connections { get; }
+
+    /// <summary>Gets the aggregate peer state; IsListening independently reports host availability.</summary>
     TransportConnectionState ConnectionState { get; }
+
+    /// <summary>Starts a host on a numeric IPv4/IPv6 address and port.</summary>
+    /// <param name="address">The local endpoint including its port.</param>
+    void Listen(string address);
+
+    /// <summary>Starts a client connection to a numeric IPv4/IPv6 address and port, returning a local peer ID.</summary>
+    /// <param name="address">The remote endpoint including its port.</param>
+    /// <returns>The new local peer identity.</returns>
+    ulong Connect(string address);
+
+    /// <summary>Closes one peer and releases its slot.</summary>
+    /// <param name="peerId">The local identity of the peer to close.</param>
+    void Disconnect(ulong peerId);
+
+    /// <summary>Pumps native callbacks, bounded receives and lifecycle events on the owning thread.</summary>
+    void Poll();
+
+    /// <summary>Stops the session and releases all peers and the listener; the gateway can be reused.</summary>
+    void Stop();
+
+    /// <summary>Returns the current diagnostics or unavailable values for an inactive peer.</summary>
+    /// <param name="peerId">The local peer identity.</param>
+    /// <returns>Current sampled statistics with null for unavailable values.</returns>
+    TransportStatistics GetStatistics(ulong peerId);
+
+    /// <summary>Configures process-wide outbound network simulation. All gateways in this process are affected.</summary>
+    /// <param name="simulation">The validated packet simulation settings.</param>
+    void ConfigureSimulation(NetworkSimulation simulation);
 
     /// <summary>
     /// Sends one opaque payload to its specified remote peer.
