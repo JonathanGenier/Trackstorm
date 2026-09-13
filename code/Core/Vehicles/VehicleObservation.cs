@@ -1,0 +1,37 @@
+using System.Numerics;
+
+namespace Trackstorm.Core.Vehicles;
+
+/// <summary>Immutable solved physics and support/contact observations at the start of one Core step.</summary>
+public sealed class VehicleObservation
+{
+    /// <summary>Validates and copies native observations before they can affect gameplay.</summary>
+    /// <param name="physics">Solved pose and velocities.</param>
+    /// <param name="support">Unit support normal, or zero.</param>
+    /// <param name="contacts">Contact observations; copied rather than retaining the caller's collection.</param>
+    public VehicleObservation(VehiclePhysicsState physics, Vector3 support, IEnumerable<VehicleContact>? contacts = null)
+    {
+        _ = new VehiclePhysicsState(physics.Position, physics.Orientation, physics.LinearVelocity, physics.AngularVelocity);
+        if (!VehiclePhysicsState.IsFinite(support) || (support != Vector3.Zero && Math.Abs(support.LengthSquared() - 1) > 0.001f))
+        {
+            throw new ArgumentException("Support must be a unit normal or zero.", nameof(support));
+        }
+
+        VehicleContact[] copy = contacts?.ToArray() ?? [];
+        foreach (VehicleContact contact in copy)
+        {
+            _ = new VehicleContact(contact.RelativeVelocity, contact.Normal, contact.Impulse, contact.OtherVehicleId);
+        }
+
+        Physics = physics;
+        Support = support;
+        Contacts = Array.AsReadOnly(copy);
+    }
+
+    /// <summary>Latest collision-solved native body data.</summary>
+    public VehiclePhysicsState Physics { get; }
+    /// <summary>Support observation, without a hidden Client grounding timer.</summary>
+    public Vector3 Support { get; }
+    /// <summary>Raw contact observations for Core decisions.</summary>
+    public IReadOnlyList<VehicleContact> Contacts { get; }
+}

@@ -5,15 +5,13 @@ using Numerics = System.Numerics;
 
 namespace Trackstorm.Client.Vehicles;
 
-/// <summary>Native collision adapter around Core movement; standard force integration is disabled.</summary>
+/// <summary>Native observation/command adapter around the single Core simulation; standard force integration is disabled.</summary>
 public sealed partial class VehicleBody : RigidBody3D
 {
-    private readonly Queue<(DamageEffect Effect, DamageContext Context)> _effects = new();
+    private readonly List<VehicleEffectRequest> _effects = new();
     private readonly VehicleFeedback _feedback = new();
-    private InputFrame _input;
-    private VehicleMovement _movement = null!;
     private VehiclePhysicsState? _reset;
-    private VehicleHealth _health = null!;
+    private Trackstorm.Core.Simulation.Simulation _simulation = null!;
 
     /// <summary>Publishes the exact fixed-step snapshot before native collision solving.</summary>
     internal event Action<VehicleState>? Advanced;
@@ -29,9 +27,11 @@ public sealed partial class VehicleBody : RigidBody3D
     /// <summary>Optional deterministic input source used by replay and verification.</summary>
     internal Func<ulong, InputFrame>? InputSource { get; set; }
     /// <summary>Core-owned movement state, independent of visual interpolation.</summary>
-    internal VehicleState State => _movement.State;
+    internal VehicleState State => Snapshot.Movement;
+    /// <summary>Read-only aggregate owned by the single Core simulation.</summary>
+    internal VehicleSnapshot Snapshot => _simulation.GetVehicle(VehicleId);
     /// <summary>Serializable Core health snapshot for HUD and future networking.</summary>
-    internal VehicleDamageState DamageState => _health.State;
+    internal VehicleDamageState DamageState => Snapshot.Damage;
     /// <summary>Observed presentation submissions, not proof of audible output.</summary>
     internal int FeedbackCueCount => _feedback.CueCount;
 
@@ -74,84 +74,6 @@ public sealed partial class VehicleBody : RigidBody3D
             }
         }
 
-        _movement = new VehicleMovement(Configuration, Observe(GlobalTransform, LinearVelocity, AngularVelocity));
-        _health = new VehicleHealth(DamageConfiguration);
-    }
-
-    /// <inheritdoc/>
-    public override void _IntegrateForces(PhysicsDirectBodyState3D body)
-    {
-        bool resetting = _reset.HasValue;
-        if (_reset is VehiclePhysicsState reset)
-        {
-            body.Transform = new Transform3D(new Basis(ToGodot(reset.Orientation)), ToGodot(reset.Position));
-            body.LinearVelocity = ToGodot(reset.LinearVelocity);
-            body.AngularVelocity = ToGodot(reset.AngularVelocity);
-            _movement = new VehicleMovement(Configuration, reset);
-            _health.Reset();
-            _feedback.Reset();
-            _reset = null;
-            ResetPhysicsInterpolation();
-        }
-
-        ulong tick = checked(_movement.State.Tick + 1);
-        while (_effects.TryDequeue(out var request))
-        {
-            DamageEvent? outcome = _health.ApplyDamage(request.Effect.Damage, request.Context, tick);
-            body.ApplyImpulse(ToGodot(request.Effect.Impulse), ToGodot(request.Effect.Offset));
-            if (outcome is not null || request.Effect.Impulse != Numerics.Vector3.Zero)
-            {
-                _feedback.Present(request.Context.Source == "explosion", _health.State.Destroyed);
-            }
-        }
-
-        Vector3 support = Vector3.Zero;
-        float severity = 0;
-        DamageContext? collision = null;
-        for (int contact = 0; !resetting && contact < body.GetContactCount(); contact++)
-        {
-            // Godot contact normals refer to the local body but are expressed in world space.
-            Vector3 normal = body.GetContactLocalNormal(contact);
-            if (normal.Y >= 0.55f)
-            {
-                support += normal;
-            }
-
-            Vector3 relative = body.GetContactLocalVelocityAtPosition(contact) - body.GetContactColliderVelocityAtPosition(contact);
-            float observed = VehicleDamageMath.CollisionSeverity(ToCore(relative), ToCore(normal.Normalized()), body.GetContactImpulse(contact).Length(), Configuration.Mass);
-            if (observed > severity)
-            {
-                severity = observed;
-                var other = body.GetContactColliderObject(contact) as VehicleBody;
-                collision = new DamageContext("collision", other?.VehicleId ?? 0, other is null ? "world-or-prop" : "vehicle");
-            }
-        }
-
-        if (collision is not null && _health.ApplyCollision(severity, collision, tick) is not null)
-        {
-            _feedback.Present(false, _health.State.Destroyed);
-        }
-
-        // Bridge tiny solver separation gaps, but never preserve ground control during a real upward launch.
-        if (support.IsZeroApprox() && body.LinearVelocity.Y <= 1)
-        {
-            using var ray = PhysicsRayQueryParameters3D.Create(body.Transform.Origin, body.Transform.Origin + (Vector3.Down * 0.6f), CollisionMask, new Godot.Collections.Array<Rid> { GetRid() });
-            Godot.Collections.Dictionary hit = body.GetSpaceState().IntersectRay(ray);
-            if (hit.Count > 0)
-            {
-                Vector3 normal = hit["normal"].AsVector3();
-                if (normal.Y >= 0.55f)
-                {
-                    support = normal;
-                }
-            }
-        }
-
-        InputFrame input = InputSource?.Invoke(tick) ?? new InputFrame(tick, _input.Steering, _input.Accelerate, _input.Brake, _input.Held, _input.Pressed, _input.Released);
-        VehicleState state = _movement.Step(input, Observe(body.Transform, body.LinearVelocity, body.AngularVelocity), ToCore(support.IsZeroApprox() ? Vector3.Zero : support.Normalized()), !_health.State.Destroyed);
-        body.LinearVelocity = ToGodot(state.Physics.LinearVelocity);
-        body.AngularVelocity = ToGodot(state.Physics.AngularVelocity);
-        Advanced?.Invoke(state);
     }
 
     /// <summary>Converts a native vector at the engine boundary.</summary>
@@ -181,11 +103,87 @@ public sealed partial class VehicleBody : RigidBody3D
         MaterialOverride = new StandardMaterial3D { AlbedoColor = color, Roughness = 0.7f },
     };
 
-    /// <summary>Copies the latest fixed-tick logical input; no device polling occurs in this adapter.</summary>
-    /// <param name="input">Local or replay input.</param>
-    internal void SubmitInput(InputFrame input) => _input = input;
+    /// <summary>Connects this reconstructable native body to an already registered Core aggregate.</summary>
+    /// <param name="simulation">Single simulation owner shared by the arena.</param>
+    internal void Initialize(Trackstorm.Core.Simulation.Simulation simulation) => _simulation = simulation;
 
-    /// <summary>Queues a body reset to execute inside the native integration callback.</summary>
+    /// <summary>Captures native observations during the arena's fixed callback, without deciding gameplay outcomes.</summary>
+    /// <param name="input">Next ordered logical input from the coordinator.</param>
+    /// <returns>Plain-data observations and unprocessed requests.</returns>
+    internal VehicleStepRequest Capture(InputFrame input)
+    {
+        PhysicsDirectBodyState3D body = PhysicsServer3D.BodyGetDirectState(GetRid());
+        Vector3 support = Vector3.Zero;
+        var contacts = new List<VehicleContact>();
+        for (int contact = 0; contact < body.GetContactCount(); contact++)
+        {
+            // Godot contact normals refer to the local body but are expressed in world space.
+            Vector3 normal = body.GetContactLocalNormal(contact);
+            if (normal.Y >= 0.55f)
+            {
+                support += normal;
+            }
+
+            Vector3 relative = body.GetContactLocalVelocityAtPosition(contact) - body.GetContactColliderVelocityAtPosition(contact);
+            var other = body.GetContactColliderObject(contact) as VehicleBody;
+            contacts.Add(new VehicleContact(ToCore(relative), ToCore(normal.Normalized()), body.GetContactImpulse(contact).Length(), other?.VehicleId ?? 0));
+        }
+
+        // Bridge tiny solver separation gaps, but never preserve ground control during a real upward launch.
+        if (support.IsZeroApprox() && body.LinearVelocity.Y <= 1)
+        {
+            using var ray = PhysicsRayQueryParameters3D.Create(body.Transform.Origin, body.Transform.Origin + (Vector3.Down * 0.6f), CollisionMask, new Godot.Collections.Array<Rid> { GetRid() });
+            Godot.Collections.Dictionary hit = body.GetSpaceState().IntersectRay(ray);
+            if (hit.Count > 0)
+            {
+                Vector3 normal = hit["normal"].AsVector3();
+                if (normal.Y >= 0.55f)
+                {
+                    support = normal;
+                }
+            }
+        }
+
+        var observation = new VehicleObservation(Observe(body.Transform, body.LinearVelocity, body.AngularVelocity), ToCore(support.IsZeroApprox() ? Vector3.Zero : support.Normalized()), contacts);
+        return new VehicleStepRequest(VehicleId, InputSource?.Invoke(input.Tick) ?? input, observation, _effects, _reset);
+    }
+
+    /// <summary>Applies an accepted Core result at the native fixed boundary; no health or movement rules live here.</summary>
+    /// <param name="result">Commands and presentation outcomes committed by Core.</param>
+    internal void Apply(VehicleStepResult result)
+    {
+        PhysicsDirectBodyState3D body = PhysicsServer3D.BodyGetDirectState(GetRid());
+        VehiclePhysicsState commands = result.Snapshot.Movement.Physics;
+        if (result.Reset)
+        {
+            body.Transform = new Transform3D(new Basis(ToGodot(commands.Orientation)), ToGodot(commands.Position));
+            ResetPhysicsInterpolation();
+            _feedback.Reset();
+        }
+
+        body.LinearVelocity = ToGodot(commands.LinearVelocity);
+        body.AngularVelocity = ToGodot(commands.AngularVelocity);
+        foreach (VehicleEffectRequest request in result.Effects)
+        {
+            body.ApplyImpulse(ToGodot(request.Effect.Impulse), ToGodot(request.Effect.Offset));
+        }
+
+        if (result.DamageEvents.Count > 0 || result.Effects.Any(request => request.Effect.Impulse != Numerics.Vector3.Zero))
+        {
+            // Coalesce one tick's damage/impulse cues so a single blast does not play twice.
+            bool blast = result.DamageEvents.Any(outcome => outcome.Attribution.Source == "explosion") ||
+                result.Effects.Any(request => request.Attribution.Source == "explosion" && request.Effect.Impulse != Numerics.Vector3.Zero);
+            _feedback.Present(blast, result.Snapshot.Damage.Destroyed);
+        }
+
+        _effects.Clear();
+        _reset = null;
+    }
+
+    /// <summary>Publishes only after all bodies have received the same committed global step.</summary>
+    internal void Publish() => Advanced?.Invoke(State);
+
+    /// <summary>Queues a new-life request for the next coordinated Core/native fixed step.</summary>
     /// <param name="physics">Explicit new pose and velocities.</param>
     internal void ResetBody(VehiclePhysicsState physics)
     {
@@ -199,7 +197,7 @@ public sealed partial class VehicleBody : RigidBody3D
     internal void ApplyEffect(DamageEffect effect, DamageContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
-        _effects.Enqueue((effect, context));
+        _effects.Add(new VehicleEffectRequest(effect, context));
     }
 
     private static VehiclePhysicsState Observe(Transform3D transform, Vector3 velocity, Vector3 angular)

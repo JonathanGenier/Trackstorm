@@ -40,6 +40,6 @@ public readonly record struct VehicleState
     public int DriftTicks { get; }
     /// <summary>Boost ticks remaining.</summary>
     public int BoostTicks { get; }
-    /// <summary>Unconverted total speed in metres per second.</summary>
-    public float Speed => Physics.LinearVelocity.Length();
+    /// <summary>Total commanded velocity magnitude for physics diagnostics, not player travel telemetry.</summary>
+    public float CommandSpeed => Physics.LinearVelocity.Length();
 }

@@ -35,7 +35,14 @@ internal sealed class VehicleStateCodecTests
         bytes[61] = 0;
         BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(9), float.NaN);
         Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes));
+        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(9), float.PositiveInfinity);
+        Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes));
+        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(9), float.NegativeInfinity);
+        Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes));
         BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(9), 0);
+        BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(66), -1);
+        Assert.Throws<ArgumentOutOfRangeException>(() => VehicleStateCodec.Decode(bytes));
+        BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(66), 0);
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(62), 5);
         Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes));
     }

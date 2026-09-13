@@ -19,6 +19,11 @@ public readonly record struct SimulationStateMessage
     /// <param name="state">The authoritative state to replicate.</param>
     public SimulationStateMessage(SimulationState state)
     {
+        if (state.Vehicles.Count != 0)
+        {
+            throw new ArgumentException("The legacy version-one envelope carries tick/input only; encode vehicle aggregates explicitly.", nameof(state));
+        }
+
         State = state;
     }
 

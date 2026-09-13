@@ -15,6 +15,9 @@ public sealed partial class VehicleArena : Node3D
     private MeshInstance3D? _blast;
     private float _blastSeconds;
 
+    /// <summary>The sole gameplay simulation, shared by every native adapter.</summary>
+    internal Trackstorm.Core.Simulation.Simulation Simulation { get; } = new(new Trackstorm.Core.Simulation.SimulationConfiguration(60));
+
     /// <summary>Controllable local vehicle.</summary>
     internal VehicleBody Player { get; private set; } = null!;
     /// <summary>Second physical vehicle for collision checks.</summary>
@@ -53,6 +56,12 @@ public sealed partial class VehicleArena : Node3D
 
         Player = new VehicleBody { Name = "PlayerVehicle", Position = new Vector3(0, 1, 20), VehicleId = 1 };
         Target = new VehicleBody { Name = "TargetVehicle", Position = new Vector3(12, 1, -15), VehicleId = 2, Paint = new Color("f28b46") };
+        foreach (VehicleBody vehicle in new[] { Player, Target })
+        {
+            Simulation.AddVehicle(vehicle.VehicleId, vehicle.Configuration, vehicle.DamageConfiguration, new VehiclePhysicsState(VehicleBody.ToCore(vehicle.Position), System.Numerics.Quaternion.Identity, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero));
+            vehicle.Initialize(Simulation);
+        }
+
         AddChild(Player);
         AddChild(Target);
         Crate = new RigidBody3D { Name = "MovableCrate", Position = new Vector3(12, 1.2f, 5), Mass = 150, ContinuousCd = true };
@@ -109,9 +118,17 @@ public sealed partial class VehicleArena : Node3D
         }
     }
 
-    /// <summary>Routes only logical input into the local body adapter.</summary>
+    /// <summary>Collects all native observations, advances Core once, then applies the complete accepted batch.</summary>
     /// <param name="input">Current fixed-step frame.</param>
-    internal void SubmitInput(InputFrame input) => Player.SubmitInput(input);
+    internal void Advance(InputFrame input)
+    {
+        var neutral = new InputFrame(input.Tick, 0, 0, 0, InputButtons.None, InputButtons.None, InputButtons.None);
+        IReadOnlyList<VehicleStepResult> results = Simulation.Step(input, new[] { Player.Capture(input), Target.Capture(neutral) });
+        Player.Apply(results[0]);
+        Target.Apply(results[1]);
+        Player.Publish();
+        Target.Publish();
+    }
 
     /// <summary>Local authority demonstration of the item-independent Core explosion helper.</summary>
     /// <param name="center">World-space blast center.</param>

@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Text.Json.Serialization;
 
 namespace Trackstorm.Core.Vehicles;
 
@@ -9,6 +10,7 @@ public readonly record struct DamageEffect
     /// <param name="damage">Nonnegative HP request.</param>
     /// <param name="impulse">World-space linear impulse in newton seconds.</param>
     /// <param name="offset">World-space application offset from the body origin.</param>
+    [JsonConstructor]
     public DamageEffect(float damage, Vector3 impulse, Vector3 offset)
     {
         if (!float.IsFinite(damage) || damage < 0 || !VehiclePhysicsState.IsFinite(impulse) || !VehiclePhysicsState.IsFinite(offset) ||
