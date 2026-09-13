@@ -22,10 +22,12 @@ internal sealed partial class SettingsPanel : CanvasLayer
     private InputAction? _capture;
     private PlayerSettings? _preview;
     private double _seconds;
+    private SettingsHud _hud = null!;
 
     /// <inheritdoc/>
     public override void _Ready()
     {
+        Layer = 2;
         var root = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
         AddChild(root);
         root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
@@ -36,6 +38,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
         open.Pressed += () => SetOpen(!_panel.Visible);
         var hud = new SettingsHud { Name = "Diagnostics", Position = new Vector2(24, 84), MouseFilter = Control.MouseFilterEnum.Ignore };
         hud.Initialize(_settings);
+        _hud = hud;
         _background.AddChild(hud);
         root.AddChild(_panel);
         _panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("24272d"), CornerRadiusTopLeft = 8, CornerRadiusTopRight = 8, CornerRadiusBottomLeft = 8, CornerRadiusBottomRight = 8 });
@@ -241,6 +244,10 @@ internal sealed partial class SettingsPanel : CanvasLayer
         _settings = settings;
         _input = input;
     }
+
+    /// <summary>Connects authoritative vehicle speed to the existing preference-aware HUD.</summary>
+    /// <param name="metresPerSecond">Unconverted Core speed.</param>
+    internal void SetVehicleTelemetry(float metresPerSecond) => _hud.SetTelemetry(metresPerSecond, null);
 
     private static void Heading(VBoxContainer parent, string text, int size = 20)
     {
