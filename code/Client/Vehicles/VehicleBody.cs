@@ -114,6 +114,9 @@ public sealed partial class VehicleBody : RigidBody3D
     {
         PhysicsDirectBodyState3D body = PhysicsServer3D.BodyGetDirectState(GetRid());
         Vector3 support = Vector3.Zero;
+        SurfaceType surface = SurfaceType.Concrete;
+        float closestSupport = float.PositiveInfinity;
+        ulong supportId = ulong.MaxValue;
         var contacts = new List<VehicleContact>();
         for (int contact = 0; contact < body.GetContactCount(); contact++)
         {
@@ -122,6 +125,16 @@ public sealed partial class VehicleBody : RigidBody3D
             if (normal.Y >= 0.55f)
             {
                 support += normal;
+                Vector3 offset = body.GetContactLocalPosition(contact) - body.Transform.Origin;
+                float distance = (offset.X * offset.X) + (offset.Z * offset.Z);
+                GodotObject collider = body.GetContactColliderObject(contact);
+                ulong id = collider?.GetInstanceId() ?? 0;
+                if (distance < closestSupport || (distance == closestSupport && id < supportId))
+                {
+                    closestSupport = distance;
+                    supportId = id;
+                    surface = collider is SurfaceBody ground ? ground.Surface : SurfaceType.Concrete;
+                }
             }
 
             Vector3 relative = body.GetContactLocalVelocityAtPosition(contact) - body.GetContactColliderVelocityAtPosition(contact);
@@ -129,8 +142,9 @@ public sealed partial class VehicleBody : RigidBody3D
             contacts.Add(new VehicleContact(ToCore(relative), ToCore(normal.Normalized()), body.GetContactImpulse(contact).Length(), other?.VehicleId ?? 0));
         }
 
+        // Prefer the center's surface while retaining native contact normals for existing slope handling.
         // Bridge tiny solver separation gaps, but never preserve ground control during a real upward launch.
-        if (support.IsZeroApprox() && body.LinearVelocity.Y <= 1)
+        if (!support.IsZeroApprox() || body.LinearVelocity.Y <= 1)
         {
             using var ray = PhysicsRayQueryParameters3D.Create(body.Transform.Origin, body.Transform.Origin + (Vector3.Down * 0.6f), CollisionMask, new Godot.Collections.Array<Rid> { GetRid() });
             Godot.Collections.Dictionary hit = body.GetSpaceState().IntersectRay(ray);
@@ -139,12 +153,17 @@ public sealed partial class VehicleBody : RigidBody3D
                 Vector3 normal = hit["normal"].AsVector3();
                 if (normal.Y >= 0.55f)
                 {
-                    support = normal;
+                    if (support.IsZeroApprox())
+                    {
+                        support = normal;
+                    }
+
+                    surface = hit["collider"].AsGodotObject() is SurfaceBody ground ? ground.Surface : SurfaceType.Concrete;
                 }
             }
         }
 
-        var observation = new VehicleObservation(Observe(body.Transform, body.LinearVelocity, body.AngularVelocity), ToCore(support.IsZeroApprox() ? Vector3.Zero : support.Normalized()), contacts);
+        var observation = new VehicleObservation(Observe(body.Transform, body.LinearVelocity, body.AngularVelocity), ToCore(support.IsZeroApprox() ? Vector3.Zero : support.Normalized()), contacts, surface);
         return new VehicleStepRequest(VehicleId, InputSource?.Invoke(input.Tick) ?? input, observation, _effects, _reset);
     }
 

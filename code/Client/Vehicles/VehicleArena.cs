@@ -40,7 +40,12 @@ public sealed partial class VehicleArena : Node3D
             }
         });
         AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-55, -25, 0), LightEnergy = 1.4f, ShadowEnabled = true });
-        AddStatic(new Vector3(80, 1, 80), new Vector3(0, -0.5f, 0), new Color("303b4b"));
+        // Coplanar, non-overlapping floor tiles keep the mud boundary free of physical steps.
+        AddStatic(new Vector3(4, 1, 80), new Vector3(-38, -0.5f, 0), new Color("303b4b"));
+        AddStatic(new Vector3(68, 1, 80), new Vector3(6, -0.5f, 0), new Color("303b4b"));
+        AddStatic(new Vector3(8, 1, 32), new Vector3(-32, -0.5f, 24), new Color("303b4b"));
+        AddStatic(new Vector3(8, 1, 32), new Vector3(-32, -0.5f, -24), new Color("303b4b"));
+        AddStatic(new Vector3(8, 1, 16), new Vector3(-32, -0.5f, 0), new Color("755039"), SurfaceType.Mud);
         AddStatic(new Vector3(1, 4, 80), new Vector3(-40, 1.5f, 0), new Color("bf6d39"));
         AddStatic(new Vector3(1, 4, 80), new Vector3(40, 1.5f, 0), new Color("bf6d39"));
         AddStatic(new Vector3(80, 4, 1), new Vector3(0, 1.5f, -40), new Color("bf6d39"));
@@ -103,6 +108,7 @@ public sealed partial class VehicleArena : Node3D
         _title.Visible = !compact;
         _instructions.Visible = !compact;
         _status.Text = state.BoostTicks > 0 ? "BOOST" : state.Drifting ? "DRIFT — hold your turn to charge" : state.Grounded ? "GROUNDED" : "AIRBORNE";
+        _status.Text += $"  •  {state.CurrentSurface}";
         VehicleDamageState health = Player.DamageState;
         _health.Text = health.Destroyed ? "DESTROYED — reset vehicles to drive again" : $"HP  {health.CurrentHP:0} / {health.MaxHP:0}     Target HP  {Target.DamageState.CurrentHP:0} / {Target.DamageState.MaxHP:0}";
         _health.Modulate = health.Destroyed ? new Color("ff906b") : Colors.White;
@@ -151,9 +157,9 @@ public sealed partial class VehicleArena : Node3D
         AddChild(_blast);
     }
 
-    private StaticBody3D AddStatic(Vector3 size, Vector3 position, Color color)
+    private StaticBody3D AddStatic(Vector3 size, Vector3 position, Color color, SurfaceType surface = SurfaceType.Concrete)
     {
-        var body = new StaticBody3D { Position = position };
+        var body = new SurfaceBody { Position = position, Surface = surface };
         body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size } });
         body.AddChild(VehicleBody.Box(size, Vector3.Zero, color));
         AddChild(body);

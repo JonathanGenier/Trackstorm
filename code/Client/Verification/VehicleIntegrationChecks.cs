@@ -50,6 +50,7 @@ public sealed partial class VehicleIntegrationChecks : Node
             await VerifyDamageAndExplosions();
             await VerifySpeedTelemetry();
             await VerifyNativeInput();
+            await VerifySurfaces();
             _input.FrameCaptured -= Advance;
             _settings.QueueFree();
             _input.QueueFree();
@@ -231,6 +232,50 @@ public sealed partial class VehicleIntegrationChecks : Node
         await RunDrive(new Vector3(-20, 0.5f, 20), Vector3.Zero, 60, tick => Frame(tick, throttle: 65535));
         Check(!_arena.Player.DamageState.Destroyed && _arena.Player.DamageState.CurrentHP == 100 && _arena.Player.State.CommandSpeed > 5, "explicit reset restores health and driving");
         Check(_arena.Player.Snapshot.LifeId == life + 1 && _arena.Simulation.State.Tick == globalTick + 60 && _arena.Simulation.State.Vehicles.All(vehicle => vehicle.Movement.Tick == globalTick + 60), "reset starts one new Core life while both vehicles retain the global clock");
+    }
+
+    private async Task VerifySurfaces()
+    {
+        List<VehicleState> baseline = await RunDrive(new Vector3(-22, 0.5f, 7), Vector3.Zero, 90, tick => Frame(tick, throttle: 65535));
+        List<VehicleState> mud = await RunDrive(new Vector3(-32, 0.5f, 7), Vector3.Zero, 90, tick => Frame(tick, throttle: 65535));
+        Check(mud.Skip(3).All(state => state.CurrentSurface == SurfaceType.Mud), "native support identifies the mud tile");
+        Check(mud.Last().CommandSpeed < baseline.Last().CommandSpeed * 0.7f, "mud acceleration and resistance clearly reduce native speed");
+        GD.Print($"Surface speed after 90 ticks: Concrete={baseline.Last().CommandSpeed:F2}, Mud={mud.Last().CommandSpeed:F2}");
+        await Screenshot("mud");
+
+        bool reversing = false;
+        List<VehicleState> crossings = await RunDrive(new Vector3(-32, 0.5f, 20), Vector3.Zero, 1200, tick =>
+        {
+            if (_arena.Player.Position.Z < -18)
+            {
+                reversing = true;
+            }
+
+            if (_arena.Player.Position.Z > 18)
+            {
+                reversing = false;
+            }
+
+            return reversing ? Frame(tick, brake: 65535) : Frame(tick, throttle: 65535);
+        });
+        int transitions = crossings.Zip(crossings.Skip(1)).Count(pair => pair.First.CurrentSurface != pair.Second.CurrentSurface);
+        Check(transitions >= 4, "repeated native driving crosses Concrete and Mud in both directions");
+        Check(crossings.Any(state => state.CurrentSurface == SurfaceType.Concrete && state.Physics.Position.Z < -12 && -state.Physics.LinearVelocity.Z > 13), "leaving mud restores baseline acceleration");
+        Check(crossings.All(state => VehiclePhysicsState.IsFinite(state.Physics.Position) && state.CommandSpeed <= 65.001f && state.Physics.AngularVelocity.Length() <= 8.001f && state.Physics.Position.Y is > 0.3f and < 0.8f), "coplanar repeated transitions remain supported and bounded without launches");
+        Check(crossings.Zip(crossings.Skip(1)).Where(pair => pair.First.CurrentSurface != pair.Second.CurrentSurface).All(pair => Numerics.Vector3.Distance(pair.First.Physics.LinearVelocity, pair.Second.Physics.LinearVelocity) < 1), "surface selection introduces no velocity impulse");
+        File.WriteAllText(_output + ".surfaces.json", System.Text.Json.JsonSerializer.Serialize(crossings.SelectMany(state => new[] { state.Physics.Position.X, state.Physics.Position.Y, state.Physics.Position.Z, state.Physics.LinearVelocity.X, state.Physics.LinearVelocity.Y, state.Physics.LinearVelocity.Z, (float)state.CurrentSurface }).ToArray()));
+        GD.Print($"Surface crossings: {transitions}; peak speed={crossings.Max(state => state.CommandSpeed):F2}");
+
+        List<VehicleState> drift = await RunDrive(new Vector3(-32, 0.5f, 12), new Vector3(0, 0, -18), 110, tick => Frame(tick, throttle: 65535, steering: 8000, drift: tick <= 70));
+        Check(drift.Any(state => state.Drifting && state.CurrentSurface == SurfaceType.Mud), "drift continues when entering native mud support");
+        Check(drift.Any(state => state.CurrentSurface == SurfaceType.Concrete && state.BoostTicks > 0), "drift release after a surface crossing produces the existing boost");
+        Check(drift.All(state => state.CommandSpeed <= 65.001f && VehiclePhysicsState.IsFinite(state.Physics.Position)), "drift across surfaces remains bounded");
+        await Screenshot("surface-drift");
+
+        List<VehicleState> landing = await RunDrive(new Vector3(-32, 4, 0), Vector3.Zero, 120, tick => Frame(tick, drift: true, steering: 8000));
+        Check(landing.Take(15).All(state => !state.Grounded && !state.Drifting), "air above mud does not acquire surface grip or drift support");
+        Check(landing.TakeLast(30).All(state => state.Grounded && state.CurrentSurface == SurfaceType.Mud), "landing selects mud on the actual supporting collider");
+        await Screenshot("mud-landing");
     }
 
     private async Task VerifySpeedTelemetry()

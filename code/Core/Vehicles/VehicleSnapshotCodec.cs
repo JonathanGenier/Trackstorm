@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace Trackstorm.Core.Vehicles;
 
-/// <summary>Version-one complete aggregate envelope; the existing 70-byte movement format remains unchanged.</summary>
+/// <summary>Version-one complete aggregate envelope; nested version-two movement payloads include surface state.</summary>
 public static class VehicleSnapshotCodec
 {
     private static readonly JsonSerializerOptions Options = new() { IncludeFields = true, MaxDepth = 16 };
@@ -41,7 +41,7 @@ public static class VehicleSnapshotCodec
             Document document = JsonSerializer.Deserialize<Document>(bytes[1..], Options) ?? throw new ArgumentException("Missing vehicle aggregate.");
             VehicleState movement = VehicleStateCodec.Decode(document.Movement);
             VehicleState observed = VehicleStateCodec.Decode(document.Observed);
-            if (observed.Tick != movement.Tick || observed.Grounded || observed.Drifting || observed.DriftTicks != 0 || observed.BoostTicks != 0 || document.Effects is null)
+            if (observed.Tick != movement.Tick || observed.Grounded || observed.Drifting || observed.DriftTicks != 0 || observed.BoostTicks != 0 || observed.CurrentSurface != SurfaceType.Concrete || document.Effects is null)
             {
                 throw new ArgumentException("Malformed solved-state envelope.");
             }

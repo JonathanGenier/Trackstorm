@@ -10,7 +10,8 @@ public readonly record struct VehicleState
     /// <param name="drifting">Whether a valid drift is active.</param>
     /// <param name="driftTicks">Accumulated valid drift duration.</param>
     /// <param name="boostTicks">Remaining boost duration.</param>
-    public VehicleState(ulong tick, VehiclePhysicsState physics, bool grounded, bool drifting, int driftTicks, int boostTicks)
+    /// <param name="currentSurface">Current support surface, retained during flight.</param>
+    public VehicleState(ulong tick, VehiclePhysicsState physics, bool grounded, bool drifting, int driftTicks, int boostTicks, SurfaceType currentSurface = SurfaceType.Concrete)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(driftTicks);
         ArgumentOutOfRangeException.ThrowIfNegative(boostTicks);
@@ -20,6 +21,12 @@ public readonly record struct VehicleState
             throw new ArgumentException("An inactive drift cannot retain charge.");
         }
 
+        if (!Enum.IsDefined(currentSurface))
+        {
+            throw new ArgumentOutOfRangeException(nameof(currentSurface));
+        }
+
+        CurrentSurface = currentSurface;
         Tick = tick;
         Physics = physics;
         Grounded = grounded;
@@ -28,6 +35,8 @@ public readonly record struct VehicleState
         BoostTicks = boostTicks;
     }
 
+    /// <summary>Last supported surface; airborne movement applies no surface effects.</summary>
+    public SurfaceType CurrentSurface { get; }
     /// <summary>Movement decision tick.</summary>
     public ulong Tick { get; }
     /// <summary>Body state for presentation and reconciliation.</summary>

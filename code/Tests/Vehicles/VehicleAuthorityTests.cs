@@ -202,8 +202,8 @@ internal sealed class VehicleAuthorityTests
         Assert.That(bytes[0], Is.EqualTo(1));
         JsonObject json = JsonNode.Parse(Encoding.UTF8.GetString(bytes[1..]))!.AsObject();
         byte[] movement = Convert.FromBase64String(json["Movement"]!.GetValue<string>());
-        Assert.That(movement.Length, Is.EqualTo(70));
-        Assert.That(movement[0], Is.EqualTo(1));
+        Assert.That(movement.Length, Is.EqualTo(71));
+        Assert.That(movement[0], Is.EqualTo(2));
         Assert.That(VehicleSnapshotCodec.Encode(VehicleSnapshotCodec.Decode(bytes)), Is.EqualTo(bytes));
         byte[] wrongVersion = (byte[])bytes.Clone();
         wrongVersion[0] = 2;

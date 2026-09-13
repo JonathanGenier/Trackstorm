@@ -24,6 +24,14 @@ for ($index = 0; $index -lt $first.Count; $index++) {
     if ([Math]::Abs($first[$index] - $second[$index]) -gt 0.02) { throw "Fixed-step replay diverged across render rates at component $index." }
 }
 Write-Host 'Fixed-step replay matched across 30 and 144 render FPS (0.02 tolerance).'
+$surfaceFirst = Get-Content (Join-Path $outputDirectory 'fps-30.surfaces.json') | ConvertFrom-Json
+$surfaceSecond = Get-Content (Join-Path $outputDirectory 'fps-144.surfaces.json') | ConvertFrom-Json
+if ($surfaceFirst.Count -ne 8400 -or $surfaceSecond.Count -ne $surfaceFirst.Count) { throw 'Surface replay traces are incomplete.' }
+for ($index = 0; $index -lt $surfaceFirst.Count; $index++) {
+    if ([Math]::Abs($surfaceFirst[$index] - $surfaceSecond[$index]) -gt 0.02) { throw "Surface replay diverged across render rates at component $index." }
+}
+Write-Host 'Surface replay matched across 30 and 144 render FPS (0.02 tolerance).'
+
 if ($Visual) {
     $outputPath = Join-Path $outputDirectory 'visual'
     $output = & $GodotPath --path $PSScriptRoot --fixed-fps 60 res://scenes/verification/vehicle_checks.tscn --quit-after 12000 -- "--vehicle-output=$outputPath" 2>&1

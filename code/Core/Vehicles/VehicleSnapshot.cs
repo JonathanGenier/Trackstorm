@@ -13,7 +13,7 @@ public sealed record VehicleSnapshot
     public VehicleSnapshot(ulong vehicleId, ulong lifeId, VehicleState movement, VehicleDamageState damage, VehiclePhysicsState observedPhysics, IEnumerable<VehicleEffectRequest>? effects = null)
     {
         ArgumentNullException.ThrowIfNull(damage);
-        _ = new VehicleState(movement.Tick, movement.Physics, movement.Grounded, movement.Drifting, movement.DriftTicks, movement.BoostTicks);
+        _ = new VehicleState(movement.Tick, movement.Physics, movement.Grounded, movement.Drifting, movement.DriftTicks, movement.BoostTicks, movement.CurrentSurface);
         _ = new VehiclePhysicsState(observedPhysics.Position, observedPhysics.Orientation, observedPhysics.LinearVelocity, observedPhysics.AngularVelocity);
         if (vehicleId == 0 || lifeId == 0 || damage.LastDamage?.Tick > movement.Tick ||
             observedPhysics.Position != movement.Physics.Position || observedPhysics.Orientation != movement.Physics.Orientation ||
