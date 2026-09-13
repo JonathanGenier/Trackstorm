@@ -76,7 +76,7 @@ public sealed partial class SimulationBootstrap : Node
     private void OnFrameCaptured(InputFrame input)
     {
         _arena.Advance(input);
-        int? ping = _network?.Gateway.Connections.Keys.Select(peer => _network.Gateway.GetStatistics(peer).PingMilliseconds).FirstOrDefault();
+        int? ping = TransportDiagnostics.GetPing(_network?.Gateway);
         _settingsPanel.SetVehicleTelemetry(_arena.Player.Snapshot.Speed, ping);
     }
 }
