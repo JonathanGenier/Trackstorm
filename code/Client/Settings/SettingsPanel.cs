@@ -247,7 +247,8 @@ internal sealed partial class SettingsPanel : CanvasLayer
 
     /// <summary>Connects authoritative vehicle speed to the existing preference-aware HUD.</summary>
     /// <param name="metresPerSecond">Unconverted Core speed.</param>
-    internal void SetVehicleTelemetry(float metresPerSecond) => _hud.SetTelemetry(metresPerSecond, null);
+    /// <param name="pingMilliseconds">Sampled transport ping, or null while offline or unavailable.</param>
+    internal void SetVehicleTelemetry(float metresPerSecond, int? pingMilliseconds = null) => _hud.SetTelemetry(metresPerSecond, pingMilliseconds);
 
     private static void Heading(VBoxContainer parent, string text, int size = 20)
     {

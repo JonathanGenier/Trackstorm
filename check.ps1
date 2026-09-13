@@ -33,12 +33,20 @@ Invoke-Check "Debug Core tests" {
     dotnet test code/Tests/Trackstorm.Core.Tests.csproj -c Debug --no-build
 }
 
+Invoke-Check "Debug transport conversion tests" {
+    dotnet test code/TransportTests/Trackstorm.Transport.Tests.csproj -c Debug --no-build --filter 'TestCategory!=Native'
+}
+
 Invoke-Check "Release build and analyzers" {
     dotnet build Trackstorm.sln -c Release --no-restore -warnaserror
 }
 
 Invoke-Check "Release Core tests" {
     dotnet test code/Tests/Trackstorm.Core.Tests.csproj -c Release --no-build
+}
+
+Invoke-Check "Release transport conversion tests" {
+    dotnet test code/TransportTests/Trackstorm.Transport.Tests.csproj -c Release --no-build --filter 'TestCategory!=Native'
 }
 
 Write-Host "`nAll checks passed."

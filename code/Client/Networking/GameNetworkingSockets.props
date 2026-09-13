@@ -1,0 +1,14 @@
+<Project>
+  <ItemGroup>
+    <PackageReference Include="GnsSharp.Gns.Win64" Version="0.1.0-alpha.14" />
+    <PackageDownload Include="GameNetworkingSockets.redist" Version="[1.6.0]" />
+    <None Include="$(NuGetPackageRoot)gamenetworkingsockets.redist/1.6.0/build/native/bin/x64/Release/GameNetworkingSockets.dll;
+                   $(NuGetPackageRoot)gamenetworkingsockets.redist/1.6.0/build/native/bin/x64/Release/libcrypto-3-x64.dll;
+                   $(NuGetPackageRoot)gamenetworkingsockets.redist/1.6.0/build/native/bin/x64/Release/libprotobuf.dll;
+                   $(NuGetPackageRoot)gamenetworkingsockets.redist/1.6.0/build/native/bin/x64/Release/libprotobuf-lite.dll;
+                   $(NuGetPackageRoot)gamenetworkingsockets.redist/1.6.0/build/native/bin/x64/Release/abseil_dll.dll"
+          Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="$(MSBuildThisFileDirectory)../../../docs/licenses/transport/*"
+             Link="licenses/transport/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -10,6 +10,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trackstorm.Core", "code\Cor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trackstorm.Core.Tests", "code\Tests\Trackstorm.Core.Tests.csproj", "{D5220933-5583-4CD6-9BBE-866A708F6FB7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TransportTests", "TransportTests", "{B346C561-5C22-3E8B-312D-64349D127F6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trackstorm.Transport.Tests", "code\TransportTests\Trackstorm.Transport.Tests.csproj", "{F7774A9F-BB0B-49D7-BD6F-F13A4EECB7CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +46,14 @@ Global
 		{D5220933-5583-4CD6-9BBE-866A708F6FB7}.ExportRelease|Any CPU.Build.0 = Release|Any CPU
 		{D5220933-5583-4CD6-9BBE-866A708F6FB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5220933-5583-4CD6-9BBE-866A708F6FB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7774A9F-BB0B-49D7-BD6F-F13A4EECB7CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7774A9F-BB0B-49D7-BD6F-F13A4EECB7CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7774A9F-BB0B-49D7-BD6F-F13A4EECB7CC}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7774A9F-BB0B-49D7-BD6F-F13A4EECB7CC}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{F7774A9F-BB0B-49D7-BD6F-F13A4EECB7CC}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7774A9F-BB0B-49D7-BD6F-F13A4EECB7CC}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
+		{F7774A9F-BB0B-49D7-BD6F-F13A4EECB7CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7774A9F-BB0B-49D7-BD6F-F13A4EECB7CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,6 +61,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{6E7703A1-9863-4FC6-B0F7-335481ED79F0} = {8685C9FC-E8B9-45F9-92EA-21E026231A47}
 		{D5220933-5583-4CD6-9BBE-866A708F6FB7} = {8685C9FC-E8B9-45F9-92EA-21E026231A47}
+		{B346C561-5C22-3E8B-312D-64349D127F6F} = {8685C9FC-E8B9-45F9-92EA-21E026231A47}
+		{F7774A9F-BB0B-49D7-BD6F-F13A4EECB7CC} = {B346C561-5C22-3E8B-312D-64349D127F6F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70C887D6-25C9-445C-81CF-6D8DB43436CC}
