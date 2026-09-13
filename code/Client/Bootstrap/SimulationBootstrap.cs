@@ -17,14 +17,15 @@ public sealed partial class SimulationBootstrap : Node
         new(SimulationConfiguration.DefaultTicksPerSecond);
 
     private PlayerInput _playerInput = null!;
-    private VehicleArena _arena = null!;
+    private VehicleArena? _arena;
+    private NetworkVehicleArena? _networkArena;
     private SettingsPanel _settingsPanel = null!;
     private NetworkTransportNode? _network;
 
     /// <summary>
     /// Gets the latest authoritative tick observed from Core.
     /// </summary>
-    public ulong CurrentSimulationTick => _arena.Simulation.State.Tick;
+    public ulong CurrentSimulationTick => _networkArena?.Driver.Latest?.Tick ?? _arena?.Simulation.State.Tick ?? 0;
 
     /// <inheritdoc />
     public override void _Ready()
@@ -39,8 +40,6 @@ public sealed partial class SimulationBootstrap : Node
         panel.Initialize(settings, _playerInput.Adapter);
         settings.AddChild(panel);
         _settingsPanel = panel;
-        _arena = new VehicleArena { Name = "VehicleArena" };
-        AddChild(_arena);
         string[] networkArguments = OS.GetCmdlineUserArgs().Where(argument => argument.StartsWith("--transport-host=", StringComparison.Ordinal) || argument.StartsWith("--transport-connect=", StringComparison.Ordinal)).ToArray();
         if (networkArguments.Length > 1)
         {
@@ -53,14 +52,26 @@ public sealed partial class SimulationBootstrap : Node
             AddChild(_network);
             string argument = networkArguments[0];
             string endpoint = argument[(argument.IndexOf('=') + 1)..];
+            ulong session = 0;
+            ulong serverPeer = 0;
             if (argument.StartsWith("--transport-host=", StringComparison.Ordinal))
             {
                 _network.Gateway.Listen(endpoint);
+                session = BitConverter.ToUInt64(System.Security.Cryptography.RandomNumberGenerator.GetBytes(8)) | 1;
             }
             else
             {
-                _network.Gateway.Connect(endpoint);
+                serverPeer = _network.Gateway.Connect(endpoint);
             }
+
+            _networkArena = new NetworkVehicleArena { Name = "NetworkVehicleArena" };
+            _networkArena.Initialize(_network.Gateway, session, serverPeer);
+            AddChild(_networkArena);
+        }
+        else
+        {
+            _arena = new VehicleArena { Name = "VehicleArena" };
+            AddChild(_arena);
         }
     }
 
@@ -75,8 +86,9 @@ public sealed partial class SimulationBootstrap : Node
 
     private void OnFrameCaptured(InputFrame input)
     {
-        _arena.Advance(input);
+        _arena?.Advance(input);
+        _networkArena?.Advance(input);
         int? ping = TransportDiagnostics.GetPing(_network?.Gateway);
-        _settingsPanel.SetVehicleTelemetry(_arena.Player.Snapshot.Speed, ping);
+        _settingsPanel.SetVehicleTelemetry(_networkArena?.LocalState?.Speed ?? _arena?.Player.Snapshot.Speed ?? 0, ping);
     }
 }
