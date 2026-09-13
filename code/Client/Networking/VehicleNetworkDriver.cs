@@ -63,6 +63,12 @@ internal sealed class VehicleNetworkDriver
     internal event Action<WorldSnapshot>? RosterChanged;
     /// <summary>Signals authoritative correction before the next local prediction.</summary>
     internal event Action<VehicleSnapshot>? LocalCorrected;
+    /// <summary>Reconstructs frozen client collision bodies before prediction.</summary>
+    internal event Action<Trackstorm.Core.Arenas.ArenaPropSnapshot>? PropsReceived;
+    /// <summary>Authoritative native prop observation seam, absent in flat-ground vehicle unit tests.</summary>
+    internal Func<IReadOnlyList<VehiclePhysicsState>>? ObserveProps { get; set; }
+    /// <summary>Latest accepted complete prop publication.</summary>
+    internal Trackstorm.Core.Arenas.ArenaPropSnapshot? PropSnapshot { get; private set; }
     /// <summary>Host gameplay owner, or null on clients.</summary>
     internal HostVehicleSession? Host { get; }
     /// <summary>Client prediction, created only after reliable assignment and a valid snapshot.</summary>
@@ -137,9 +143,20 @@ internal sealed class VehicleNetworkDriver
             if (Host.World.State.Tick % HostVehicleSession.SnapshotInterval == 0)
             {
                 byte[] payload = VehicleNetworkCodec.EncodeSnapshot(Latest);
+                byte[]? props = null;
+                if (ObserveProps is not null)
+                {
+                    PropSnapshot = new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, Host.World.State.Tick, ObserveProps());
+                    props = VehicleNetworkCodec.EncodeProps(PropSnapshot);
+                }
+
                 foreach (ulong peer in _assigned)
                 {
                     _gateway.Send(new TransportMessage(peer, payload, TransportDelivery.Unreliable));
+                    if (props is not null)
+                    {
+                        _gateway.Send(new TransportMessage(peer, props, TransportDelivery.Unreliable));
+                    }
                 }
             }
         }
@@ -222,6 +239,17 @@ internal sealed class VehicleNetworkDriver
 
             if (Host is null && message.RemotePeerId == _serverPeer)
             {
+                if (kind == VehicleNetworkCodec.Props && message.Delivery == TransportDelivery.Unreliable && _session != 0)
+                {
+                    var props = VehicleNetworkCodec.DecodeProps(message.Payload.Span);
+                    if (props.Session == _session && (PropSnapshot is null || props.Tick > PropSnapshot.Tick))
+                    {
+                        PropSnapshot = props;
+                        PropsReceived?.Invoke(props);
+                        return;
+                    }
+                }
+
                 if (kind == VehicleNetworkCodec.Welcome && message.Delivery == TransportDelivery.Reliable && _session == 0)
                 {
                     var assignment = VehicleNetworkCodec.DecodeWelcome(message.Payload.Span);

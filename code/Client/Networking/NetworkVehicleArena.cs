@@ -15,6 +15,10 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private readonly Label _diagnostics = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly RemoteInterpolation _interpolation = new();
     private VehicleNetworkDriver _driver = null!;
+    private Arenas.CombatArena _layout = null!;
+
+    /// <summary>Shared authored layout for runtime verification.</summary>
+    internal Arenas.CombatArena Layout => _layout;
 
     /// <summary>Production session driver exposed to the runtime verification harness.</summary>
     internal VehicleNetworkDriver Driver => _driver;
@@ -38,14 +42,17 @@ internal sealed partial class NetworkVehicleArena : Node3D
             }
         });
         AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-55, -25, 0), LightEnergy = 1.4f, ShadowEnabled = true });
-        AddStatic(new Vector3(80, 1, 80), new Vector3(0, -0.5f, 0), new Color("303b4b"));
-        AddStatic(new Vector3(1, 4, 80), new Vector3(-40, 1.5f, 0), new Color("bf6d39"));
-        AddStatic(new Vector3(1, 4, 80), new Vector3(40, 1.5f, 0), new Color("bf6d39"));
-        AddStatic(new Vector3(80, 4, 1), new Vector3(0, 1.5f, -40), new Color("bf6d39"));
-        AddStatic(new Vector3(80, 4, 1), new Vector3(0, 1.5f, 40), new Color("bf6d39"));
-        StaticBody3D ramp = AddStatic(new Vector3(8, 0.4f, 12), new Vector3(0, 0.95f, -5), new Color("607789"));
-        ramp.Rotation = new Vector3(0.2f, 0, 0);
-        AddStatic(new Vector3(5, 2, 5), new Vector3(-15, 1, -10), new Color("7b879a"));
+        _layout = new Arenas.CombatArena { Name = "PrototypeArena", Replica = _driver.Host is null };
+        AddChild(_layout);
+        _driver.ObserveProps = () => _layout.Props.Select(prop => new VehiclePhysicsState(VehicleBody.ToCore(prop.GlobalPosition), new System.Numerics.Quaternion(prop.Quaternion.X, prop.Quaternion.Y, prop.Quaternion.Z, prop.Quaternion.W), VehicleBody.ToCore(prop.LinearVelocity), VehicleBody.ToCore(prop.AngularVelocity))).ToArray();
+        _driver.PropsReceived += snapshot =>
+        {
+            for (int index = 0; index < snapshot.Bodies.Count; index++)
+            {
+                VehiclePhysicsState state = snapshot.Bodies[index];
+                _layout.Props[index].GlobalTransform = new Transform3D(new Basis(VehicleBody.ToGodot(state.Orientation)), VehicleBody.ToGodot(state.Position));
+            }
+        };
         AddChild(_camera);
         _camera.Position = new Vector3(0, 24, 38);
         _camera.LookAt(Vector3.Zero);
@@ -81,14 +88,14 @@ internal sealed partial class NetworkVehicleArena : Node3D
         {
             Vector3 target = local.VisualPosition;
             Vector3 desired = target + new Vector3(0, 8, 13);
-            desired.X = Math.Clamp(desired.X, -34, 34);
-            desired.Z = Math.Clamp(desired.Z, -34, 34);
+            desired.X = Math.Clamp(desired.X, -56, 56);
+            desired.Z = Math.Clamp(desired.Z, -46, 46);
             _camera.GlobalPosition = _camera.GlobalPosition.Lerp(desired, 1 - MathF.Exp(-6 * (float)delta));
             _camera.LookAt(target);
         }
 
         string role = _driver.Host is null ? "CLIENT" : "HOST";
-        string status = _driver.Failure.Length > 0 ? _driver.Failure : _driver.LocalState is null ? "Connecting…" : $"HP {_driver.LocalState.Damage.CurrentHP:0} / {_driver.LocalState.Damage.MaxHP:0}   {(_driver.LocalState.Movement.BoostTicks > 0 ? "BOOST" : _driver.LocalState.Movement.Drifting ? "DRIFT" : _driver.LocalState.Movement.Grounded ? "GROUNDED" : "AIRBORNE")}";
+        string status = _driver.Failure.Length > 0 ? _driver.Failure : _driver.LocalState is null ? "Connecting…" : $"HP {_driver.LocalState.Damage.CurrentHP:0} / {_driver.LocalState.Damage.MaxHP:0}   {_driver.LocalState.Movement.CurrentSurface}   {(_driver.LocalState.Movement.BoostTicks > 0 ? "BOOST" : _driver.LocalState.Movement.Drifting ? "DRIFT" : _driver.LocalState.Movement.Grounded ? "GROUNDED" : "AIRBORNE")}";
         string formattedSnapshotAge = FormatSnapshotAge(_driver.SnapshotAge);
         _diagnostics.Text = $"{role}   {_bodies.Count}/8 vehicles   {status}\nPrediction error  {_driver.Prediction?.PredictionError ?? 0:0.000} m   Snapshot age  {formattedSnapshotAge}   Interpolation  {InterpolationDelay:0} ms\nLast acknowledged input  {_driver.Prediction?.History.LastAcknowledged ?? 0}   Corrections ≥3m  {local?.Smoothing.HardSnaps ?? 0}";
     }
@@ -148,7 +155,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             ulong id = vehicle.State.VehicleId;
             if (!_bodies.TryGetValue(id, out var body))
             {
-                body = new NetworkVehicleBody { Name = $"Vehicle{id}", VehicleId = id };
+                body = new NetworkVehicleBody { Name = $"Vehicle{id}", VehicleId = id, PushProps = _driver.Host is not null };
                 AddChild(body);
                 _bodies.Add(id, body);
                 body.Apply(vehicle.State.Movement.Physics);
@@ -160,12 +167,4 @@ internal sealed partial class NetworkVehicleArena : Node3D
         }
     }
 
-    private StaticBody3D AddStatic(Vector3 size, Vector3 position, Color color)
-    {
-        var body = new StaticBody3D { Position = position };
-        body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size } });
-        body.AddChild(VehicleBody.Box(size, Vector3.Zero, color));
-        AddChild(body);
-        return body;
-    }
 }

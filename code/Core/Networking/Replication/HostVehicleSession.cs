@@ -100,5 +100,5 @@ public sealed class HostVehicleSession
     /// <returns>Immutable authoritative snapshot.</returns>
     public WorldSnapshot Snapshot() => new(SessionId, World.State.Tick, World.State.Vehicles.Select(state => new ReplicatedVehicle(state, _peers.Values.FirstOrDefault(entry => entry.Vehicle == state.VehicleId).Inputs?.LastAcknowledged ?? 0)));
 
-    private static VehiclePhysicsState Spawn(int slot) => new(new Vector3(-21 + (slot * 6), 1, 20), Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+    private static VehiclePhysicsState Spawn(int slot) => Arenas.PrototypeArena.Configuration.Spawn(slot);
 }

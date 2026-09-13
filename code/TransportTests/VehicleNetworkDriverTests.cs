@@ -111,6 +111,48 @@ internal sealed class VehicleNetworkDriverTests
         Assert.That(gateway.Sent.Count, Is.EqualTo(InputHistory.Capacity));
     }
 
+    /// <summary>Only newer complete publications from the connected host and current generation are accepted.</summary>
+    [Test]
+    public void PropPublicationsRespectAuthorityGenerationAndOrdering()
+    {
+        using var gateway = ConnectedGateway();
+        var driver = new VehicleNetworkDriver(gateway, 0, ServerPeer);
+        gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeWelcome(Session, 2), TransportDelivery.Reliable));
+        driver.Advance(default, Observe);
+        var body = new VehiclePhysicsState(Vector3.One, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        byte[] Payload(ulong session, ulong tick) => VehicleNetworkCodec.EncodeProps(new Trackstorm.Core.Arenas.ArenaPropSnapshot(session, tick, new[] { body, body, body }));
+        int publications = 0;
+        driver.PropsReceived += _ => publications++;
+        gateway.Receive(new TransportMessage(ServerPeer, Payload(Session, 30), TransportDelivery.Unreliable));
+        driver.Advance(default, Observe);
+        Assert.That(driver.PropSnapshot!.Tick, Is.EqualTo(30));
+        gateway.Receive(new TransportMessage(ServerPeer, Payload(Session, 29), TransportDelivery.Unreliable));
+        gateway.Receive(new TransportMessage(ServerPeer, Payload(Session, 30), TransportDelivery.Unreliable));
+        gateway.Receive(new TransportMessage(ServerPeer, Payload(Session + 1, 31), TransportDelivery.Unreliable));
+        gateway.Receive(new TransportMessage(ServerPeer + 1, Payload(Session, 31), TransportDelivery.Unreliable));
+        gateway.Receive(new TransportMessage(ServerPeer, Payload(Session, 31), TransportDelivery.Reliable));
+        driver.Advance(default, Observe);
+        Assert.That(publications, Is.EqualTo(1));
+        Assert.That(driver.PropSnapshot.Tick, Is.EqualTo(30));
+        Assert.That(driver.RejectedPackets, Is.EqualTo(5));
+        gateway.Receive(new TransportMessage(ServerPeer, Payload(Session, 32), TransportDelivery.Unreliable));
+        driver.Advance(default, Observe);
+        Assert.That(publications, Is.EqualTo(2));
+
+        using var hostGateway = ConnectedGateway();
+        var host = new VehicleNetworkDriver(hostGateway, Session) { ObserveProps = () => new[] { body, body, body } };
+        for (int index = 0; index < 3; index++)
+        {
+            host.Advance(default, Observe);
+        }
+
+        Assert.That(hostGateway.Sent.Count(message => VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Props), Is.EqualTo(1));
+        hostGateway.Receive(new TransportMessage(ServerPeer, Payload(Session, 100), TransportDelivery.Unreliable));
+        host.Advance(default, Observe);
+        Assert.That(host.RejectedPackets, Is.EqualTo(1));
+        Assert.That(host.PropSnapshot!.Tick, Is.EqualTo(3));
+    }
+
     private static DriverGateway ConnectedGateway() => new(ServerPeer, TransportConnectionState.Connected);
 
     private static SequencedInput[] DecodeLastInputs(DriverGateway gateway) => VehicleNetworkCodec.DecodeInputs(gateway.Sent[^1].Payload.Span).Inputs;

@@ -1,0 +1,162 @@
+[
+  {
+    "path": "assets/arena/kenney/city/building-a.glb",
+    "url": "https://kenney.nl/assets/city-kit-industrial",
+    "sha256": "0E6EF8EB1E1BDBB9D06B5496B5DAF3066E00EAF74B3FCD61B74072116A1C86CF"
+  },
+  {
+    "path": "assets/arena/kenney/city/chimney-large.glb",
+    "url": "https://kenney.nl/assets/city-kit-industrial",
+    "sha256": "FD88D6C971FFB27F5EE5B0DF9F7C23AC82F9B6D32E85D3E2066F90A62F92F59F"
+  },
+  {
+    "path": "assets/arena/kenney/city/License.txt",
+    "url": "https://kenney.nl/assets/city-kit-industrial",
+    "sha256": "60A8C5C31191256EC9779DC18745DEA6D69C46F4B29703459CE064C1765A59EA"
+  },
+  {
+    "path": "assets/arena/kenney/city/shipping-container-a.glb",
+    "url": "https://kenney.nl/assets/city-kit-industrial",
+    "sha256": "7B2D5CA874C8E659EE6CFD1614F0470B70410B2DDC7620AC83B8954DEDEB861D"
+  },
+  {
+    "path": "assets/arena/kenney/city/Textures/colormap.png",
+    "url": "https://kenney.nl/assets/city-kit-industrial",
+    "sha256": "950F4F891EBD05A2AFFAC810E6EEB0FEA1511BC39039B65A3CBF2E17D17BC6A2"
+  },
+  {
+    "path": "assets/arena/kenney/factory/License.txt",
+    "url": "https://kenney.nl/assets/factory-kit",
+    "sha256": "61E86565DD297E143AD631594980EDA0A17FC81A4CD7C6D71ACF2F5E0CAD30B6"
+  },
+  {
+    "path": "assets/arena/kenney/factory/machine.glb",
+    "url": "https://kenney.nl/assets/factory-kit",
+    "sha256": "A39E3042BCB7789274428357383317D70E1C31906E5301C99E7D9E90AC584863"
+  },
+  {
+    "path": "assets/arena/kenney/factory/Textures/colormap.png",
+    "url": "https://kenney.nl/assets/factory-kit",
+    "sha256": "35D7BD6900DDE0208429EEAEC87FA17FBF024ED59F3F4EAB54BC92802EBA9DD7"
+  },
+  {
+    "path": "assets/arena/kenney/racing/License.txt",
+    "url": "https://kenney.nl/assets/racing-kit",
+    "sha256": "905627DF4313A9EB7FA9337129E572979EF51CC3857C8D2942E57AE84736096C"
+  },
+  {
+    "path": "assets/arena/kenney/racing/ramp.glb",
+    "url": "https://kenney.nl/assets/racing-kit",
+    "sha256": "A6F2C0E4F01FDED7F9020CBA4A0EB304D3724A9086071B52D5AE7E2B63D47253"
+  },
+  {
+    "path": "assets/arena/polyhaven/asphalt_04/asphalt_04_diff_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_04/asphalt_04_diff_1k.jpg",
+    "sha256": "837A78BB1E94864C221F847C85480484E953A9EE958772481DD2C501E18DEF2E"
+  },
+  {
+    "path": "assets/arena/polyhaven/asphalt_04/asphalt_04_nor_gl_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_04/asphalt_04_nor_gl_1k.jpg",
+    "sha256": "18B91C2A6D83A8FBAA8D7FE84E80A66BD6451E4EC2774A09BF4429498C8F3912"
+  },
+  {
+    "path": "assets/arena/polyhaven/asphalt_04/asphalt_04_rough_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_04/asphalt_04_rough_1k.jpg",
+    "sha256": "0E91A8117A8EC8C89E210DCD680186E66058B92028E89A858CC2FBDE4BBFE6DA"
+  },
+  {
+    "path": "assets/arena/polyhaven/Barrel_01/Barrel_01_1k.gltf",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/Barrel_01/Barrel_01_1k.gltf",
+    "sha256": "E084945DEDD6A3379C6F3E97842CAC89DF7169797707E123A5E5B42C135D6888"
+  },
+  {
+    "path": "assets/arena/polyhaven/Barrel_01/Barrel_01.bin",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/Barrel_01/Barrel_01.bin",
+    "sha256": "FE8369C1AC796059B62A091C0DB7367DC420AA2CEE212672E48F991F4208DA98"
+  },
+  {
+    "path": "assets/arena/polyhaven/Barrel_01/textures/Barrel_01_explosive_arm_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/Barrel_01/Barrel_01_explosive_arm_1k.jpg",
+    "sha256": "EAB507DF7719F0E7A3615BD22BB7BC0C09FED83BFC44E72A51451F8069C2D374"
+  },
+  {
+    "path": "assets/arena/polyhaven/Barrel_01/textures/Barrel_01_explosive_diff_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/Barrel_01/Barrel_01_explosive_diff_1k.jpg",
+    "sha256": "A7E5A7B03BBE0C9C56BF1AC09B24121A5D19148428E9E6EAC326C803FC297098"
+  },
+  {
+    "path": "assets/arena/polyhaven/Barrel_01/textures/Barrel_01_explosive_nor_gl_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/Barrel_01/Barrel_01_explosive_nor_gl_1k.jpg",
+    "sha256": "FA4750D64C6F568C8DE3E36BC631348710329CF2D6D9C8C87BD2E47A96BC4FCB"
+  },
+  {
+    "path": "assets/arena/polyhaven/concrete_road_barrier/concrete_road_barrier_1k.gltf",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/concrete_road_barrier/concrete_road_barrier_1k.gltf",
+    "sha256": "C371E87D303FFF3F0C9FBE88520F7837514364E5C66AAC3244E115FFA673D061"
+  },
+  {
+    "path": "assets/arena/polyhaven/concrete_road_barrier/concrete_road_barrier.bin",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/concrete_road_barrier/concrete_road_barrier.bin",
+    "sha256": "64A4F9BC6E4AF64D714A252C3C13428C430A60569DEBA3D52CA6B7DD3AA70D8C"
+  },
+  {
+    "path": "assets/arena/polyhaven/concrete_road_barrier/textures/concrete_road_barrier_arm_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/concrete_road_barrier/concrete_road_barrier_arm_1k.jpg",
+    "sha256": "B940847648012F2DB8C24B16E07AD1E39B3BD33EA493203364DECA209606E4B4"
+  },
+  {
+    "path": "assets/arena/polyhaven/concrete_road_barrier/textures/concrete_road_barrier_diff_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/concrete_road_barrier/concrete_road_barrier_diff_1k.jpg",
+    "sha256": "88B2D79829FFEC7B11AC4D9C8554328F30B665D2C17F634197FDE4F1CA8696FE"
+  },
+  {
+    "path": "assets/arena/polyhaven/concrete_road_barrier/textures/concrete_road_barrier_nor_gl_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/concrete_road_barrier/concrete_road_barrier_nor_gl_1k.jpg",
+    "sha256": "C1072F51FF5C3D7158F0FBB0AA26E82B816B745B9F03639C4816832AF2B37C52"
+  },
+  {
+    "path": "assets/arena/polyhaven/concrete/concrete_diff_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete/concrete_diff_1k.jpg",
+    "sha256": "046C0E2AEBE31E6043A6BC074E779F6A345F1D823D0CA1C69446C5CABADEFA8A"
+  },
+  {
+    "path": "assets/arena/polyhaven/concrete/concrete_nor_gl_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete/concrete_nor_gl_1k.jpg",
+    "sha256": "298A0E93040C9D76D239A894BDF28A9787755EA5F22BAA068FFA8075369EE428"
+  },
+  {
+    "path": "assets/arena/polyhaven/concrete/concrete_rough_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete/concrete_rough_1k.jpg",
+    "sha256": "0DC74E17295160CF2FC214BF22A57FDDC68F261E2CBACEBB706F5B3FA5D07458"
+  },
+  {
+    "path": "assets/arena/polyhaven/rusty_metal_05/rusty_metal_05_diff_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_metal_05/rusty_metal_05_diff_1k.jpg",
+    "sha256": "C48E9064EF1A1A1F745C605669ADFAC9391980C31A68F4F06808A2AB25AEACA8"
+  },
+  {
+    "path": "assets/arena/polyhaven/rusty_metal_05/rusty_metal_05_nor_gl_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_metal_05/rusty_metal_05_nor_gl_1k.jpg",
+    "sha256": "065502CB4AB8F403AC59B42C081A0833277842F71032D692D387F8B3EE21AE97"
+  },
+  {
+    "path": "assets/arena/polyhaven/rusty_metal_05/rusty_metal_05_rough_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_metal_05/rusty_metal_05_rough_1k.jpg",
+    "sha256": "8B68979E2E2A75FEDB366564DB09873346895853BC70B0E441757900457C68BF"
+  },
+  {
+    "path": "assets/arena/polyhaven/rusty_metal_sheet/rusty_metal_sheet_diff_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_metal_sheet/rusty_metal_sheet_diff_1k.jpg",
+    "sha256": "ECFACDEA466B43162B63867B419576B7D35D34EA37C96969CF05E5A07FAEB705"
+  },
+  {
+    "path": "assets/arena/polyhaven/rusty_metal_sheet/rusty_metal_sheet_nor_gl_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_metal_sheet/rusty_metal_sheet_nor_gl_1k.jpg",
+    "sha256": "473E8EC4079A8BE8C9BEF59DF8D95F61FD43F9961F4EC42421F21DEE07713A5D"
+  },
+  {
+    "path": "assets/arena/polyhaven/rusty_metal_sheet/rusty_metal_sheet_rough_1k.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_metal_sheet/rusty_metal_sheet_rough_1k.jpg",
+    "sha256": "8D40E8422A234ECC036AD17BE6669F9544E66C9A80816E159B9A5A7AC06A4A65"
+  }
+]

@@ -24,6 +24,7 @@ public sealed partial class NetworkVehicleChecks : Node
     private bool _captured;
     private bool _started;
     private ulong _startupMilliseconds;
+    private bool _propsLaunched;
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -87,6 +88,12 @@ public sealed partial class NetworkVehicleChecks : Node
         }
 
         _seconds += delta;
+        if (!_propsLaunched && driver.Host is not null && _seconds > 7)
+        {
+            _propsLaunched = true;
+            _arena.Layout.Explode(_arena.Layout.Props[0].GlobalPosition + new Vector3(-2, 0, 0));
+        }
+
         uint? ack = driver.Prediction?.History.LastAcknowledged;
         int? pending = driver.Prediction?.History.Pending.Count;
         short steering = _seconds is > 1 and < 6 ? (short)18000 : (short)0;
@@ -155,6 +162,9 @@ public sealed partial class NetworkVehicleChecks : Node
         _errors.Sort();
         float p99 = _errors.Count > 0 ? _errors[(int)((_errors.Count - 1) * 0.99)] : 0;
         var position = driver.LocalState!.Movement.Physics.Position;
+        var props = driver.PropSnapshot;
+        float propTravel = props is null ? 0 : System.Numerics.Vector3.Distance(props.Bodies[0].Position, new System.Numerics.Vector3(-8, 1, -6));
+        float propReplicaError = props is null ? float.PositiveInfinity : props.Bodies.Select((body, index) => _arena.Layout.Props[index].GlobalPosition.DistanceTo(Vehicles.VehicleBody.ToGodot(body.Position))).Max();
         var report = new
         {
             Host = driver.Host is not null,
@@ -172,6 +182,10 @@ public sealed partial class NetworkVehicleChecks : Node
             LastAcknowledged = driver.Prediction?.History.LastAcknowledged ?? 0,
             Position = new[] { position.X, position.Y, position.Z },
             HP = driver.LocalState.Damage.CurrentHP,
+            PropTick = props?.Tick,
+            PropTravel = propTravel,
+            PropReplicaError = propReplicaError,
+            PropPositions = props?.Bodies.Select(body => new[] { body.Position.X, body.Position.Y, body.Position.Z }).ToArray(),
         };
         string json = JsonSerializer.Serialize(report);
         if (_output.Length > 0)
@@ -180,7 +194,7 @@ public sealed partial class NetworkVehicleChecks : Node
         }
 
         GD.Print(json);
-        if (_largestRoster != _players || driver.LocalState.Movement.Tick < 600 || (driver.Host is null && (driver.ReceivedSnapshots < 100 || _immediate < 100 || p99 >= 3)))
+        if (props is null || propTravel < 0.5f || (driver.Host is null && propReplicaError > 0.01f) || _largestRoster != _players || driver.LocalState.Movement.Tick < 600 || (driver.Host is null && (driver.ReceivedSnapshots < 100 || _immediate < 100 || p99 >= 3)))
         {
             throw new InvalidOperationException("Network vehicle runtime acceptance checks failed; inspect the recorded metrics.");
         }
