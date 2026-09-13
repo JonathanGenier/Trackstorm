@@ -1,6 +1,7 @@
 using Godot;
 using Trackstorm.Client.Input;
 using Trackstorm.Client.Settings;
+using Trackstorm.Client.Vehicles;
 using Trackstorm.Core.Input;
 using Trackstorm.Core.Simulation;
 
@@ -15,17 +16,17 @@ public sealed partial class SimulationBootstrap : Node
         new(SimulationConfiguration.DefaultTicksPerSecond);
 
     private PlayerInput _playerInput = null!;
-    private Simulation _simulation = null!;
+    private VehicleArena _arena = null!;
+    private SettingsPanel _settingsPanel = null!;
 
     /// <summary>
     /// Gets the latest authoritative tick observed from Core.
     /// </summary>
-    public ulong CurrentSimulationTick => _simulation.State.Tick;
+    public ulong CurrentSimulationTick => _arena.Simulation.State.Tick;
 
     /// <inheritdoc />
     public override void _Ready()
     {
-        _simulation = new Simulation(_configuration);
         _playerInput = GetNode<PlayerInput>("PlayerInput");
         _playerInput.FrameCaptured += OnFrameCaptured;
         Engine.PhysicsTicksPerSecond = _configuration.TicksPerSecond;
@@ -35,6 +36,9 @@ public sealed partial class SimulationBootstrap : Node
         var panel = new SettingsPanel { Name = "SettingsPanel" };
         panel.Initialize(settings, _playerInput.Adapter);
         settings.AddChild(panel);
+        _settingsPanel = panel;
+        _arena = new VehicleArena { Name = "VehicleArena" };
+        AddChild(_arena);
     }
 
     /// <inheritdoc />
@@ -48,6 +52,7 @@ public sealed partial class SimulationBootstrap : Node
 
     private void OnFrameCaptured(InputFrame input)
     {
-        _simulation.Step(input);
+        _arena.Advance(input);
+        _settingsPanel.SetVehicleTelemetry(_arena.Player.Snapshot.Speed);
     }
 }
