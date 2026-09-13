@@ -65,6 +65,32 @@ public sealed class Simulation
     /// <returns>Latest committed state.</returns>
     public VehicleSnapshot GetVehicle(ulong vehicleId) => _vehicles[vehicleId].Snapshot;
 
+    /// <summary>Registers a joining vehicle at the current fixed boundary without rewinding the world.</summary>
+    /// <param name="vehicleId">New identity; the session must never reuse departed identities.</param>
+    /// <param name="movement">Movement tuning matching the world rate.</param>
+    /// <param name="damage">Health tuning.</param>
+    /// <param name="initial">Spawn pose and velocities.</param>
+    public void JoinVehicle(ulong vehicleId, VehicleConfiguration movement, DamageConfiguration damage, VehiclePhysicsState initial)
+    {
+        if (_vehicles.ContainsKey(vehicleId) || movement.TicksPerSecond != Configuration.TicksPerSecond)
+        {
+            throw new ArgumentException("Joining vehicles require unique identities and matching rates.");
+        }
+
+        var authority = new VehicleAuthority(vehicleId, movement, damage, initial);
+        authority.Commit(new VehicleSnapshot(vehicleId, 1, new VehicleState(State.Tick, initial, false, false, 0, 0), authority.Snapshot.Damage, initial));
+        _vehicles.Add(vehicleId, authority);
+        State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot));
+    }
+
+    /// <summary>Removes a departed vehicle at a fixed boundary.</summary>
+    /// <param name="vehicleId">Departed identity.</param>
+    public void LeaveVehicle(ulong vehicleId)
+    {
+        _vehicles.Remove(vehicleId);
+        State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot));
+    }
+
     /// <summary>Advances every vehicle and the global clock atomically from one ordered batch.</summary>
     /// <param name="input">Next global input tick.</param>
     /// <param name="requests">Exactly one observation/input request for every registered vehicle.</param>

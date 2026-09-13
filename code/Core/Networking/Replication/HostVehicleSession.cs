@@ -1,0 +1,88 @@
+using System.Numerics;
+using Trackstorm.Core.Input;
+using Trackstorm.Core.Simulation;
+using Trackstorm.Core.Vehicles;
+
+namespace Trackstorm.Core.Networking.Replication;
+
+/// <summary>Owns gameplay peer assignment, validated inputs and the authoritative 60 Hz vehicle world.</summary>
+public sealed class HostVehicleSession
+{
+    /// <summary>Shared fixed physics frequency.</summary>
+    public const int TickRate = 60;
+    /// <summary>Snapshots at 20 Hz, below the simulation frequency.</summary>
+    public const int SnapshotInterval = 3;
+    private readonly Dictionary<ulong, (ulong Vehicle, HostInputBuffer Inputs, int SpawnSlot)> _peers = new();
+    private ulong _nextVehicle = 1;
+
+    /// <summary>Starts one host vehicle in a caller-identified session.</summary>
+    /// <param name="sessionId">Nonzero identity supplied by the outer session lifetime.</param>
+    public HostVehicleSession(ulong sessionId)
+    {
+        ArgumentOutOfRangeException.ThrowIfZero(sessionId);
+        SessionId = sessionId;
+        World.AddVehicle(1, new(), new(), Spawn(0));
+    }
+
+    /// <summary>Caller-provided session generation.</summary>
+    public ulong SessionId { get; }
+    /// <summary>Sole host gameplay owner, using the existing aggregate simulation path.</summary>
+    public Simulation.Simulation World { get; } = new(new SimulationConfiguration(TickRate));
+
+    /// <summary>Assigns a unique gameplay identity only after the transport reports a connected peer.</summary>
+    /// <param name="peer">Transport identity scoped to the caller's live gateway.</param>
+    /// <returns>Assigned vehicle identity, or zero when the eight-player session is full.</returns>
+    public ulong Join(ulong peer)
+    {
+        if (_peers.TryGetValue(peer, out var existing))
+        {
+            return existing.Vehicle;
+        }
+
+        if (_peers.Count == 7)
+        {
+            return 0;
+        }
+
+        ulong id = checked(++_nextVehicle);
+        int spawnSlot = Enumerable.Range(1, 7).First(slot => _peers.Values.All(entry => entry.SpawnSlot != slot));
+        World.JoinVehicle(id, new(), new(), Spawn(spawnSlot));
+        _peers.Add(peer, (id, new HostInputBuffer(), spawnSlot));
+        return id;
+    }
+
+    /// <summary>Releases gameplay ownership; stale input can no longer target the departed vehicle.</summary>
+    /// <param name="peer">Departed transport identity.</param>
+    public void Leave(ulong peer)
+    {
+        if (_peers.Remove(peer, out var entry))
+        {
+            World.LeaveVehicle(entry.Vehicle);
+        }
+    }
+
+    /// <summary>Routes input solely by the established sender mapping, never a client-claimed player ID.</summary>
+    /// <param name="peer">Actual transport sender.</param>
+    /// <param name="session">Negotiated session generation.</param>
+    /// <param name="inputs">Bounded redundant command window.</param>
+    /// <returns>Whether the input passed ownership and ordering validation.</returns>
+    public bool Receive(ulong peer, ulong session, IReadOnlyList<SequencedInput> inputs) => session == SessionId && _peers.TryGetValue(peer, out var entry) && entry.Inputs.Receive(inputs);
+
+    /// <summary>Advances all active vehicles once using caller-supplied collision observations.</summary>
+    /// <param name="local">Current host input.</param>
+    /// <param name="observe">Native collision solver or deterministic test seam.</param>
+    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe)
+    {
+        ulong tick = checked(World.State.Tick + 1);
+        var inputs = _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.Consume(tick));
+        InputFrame hostInput = new SequencedInput(0, local).AtTick(tick);
+        inputs.Add(1, hostInput);
+        World.Step(hostInput, World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray());
+    }
+
+    /// <summary>Captures the complete active roster and per-owner input confirmations.</summary>
+    /// <returns>Immutable authoritative snapshot.</returns>
+    public WorldSnapshot Snapshot() => new(SessionId, World.State.Tick, World.State.Vehicles.Select(state => new ReplicatedVehicle(state, _peers.Values.FirstOrDefault(entry => entry.Vehicle == state.VehicleId).Inputs?.LastAcknowledged ?? 0)));
+
+    private static VehiclePhysicsState Spawn(int slot) => new(new Vector3(-21 + (slot * 6), 1, 20), Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+}
