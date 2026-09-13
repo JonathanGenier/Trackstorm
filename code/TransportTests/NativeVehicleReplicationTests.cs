@@ -112,7 +112,7 @@ internal sealed class NativeVehicleReplicationTests
             {
                 Assert.That(client.ReceivedSnapshots, Is.GreaterThan(100));
                 Assert.That(client.RejectedPackets, Is.GreaterThan(0), "Injected stale snapshot must be rejected.");
-                Assert.That(client.SnapshotAge, Is.LessThan(0.5));
+                Assert.That(client.SnapshotAge, Is.Not.Null.And.LessThan(0.5));
                 Assert.That(client.Latest!.Vehicles.Count, Is.EqualTo(players));
                 Assert.That(client.Prediction!.History.Pending.Count, Is.LessThan(60));
                 float divergence = Vector3.Distance(client.LocalState!.Movement.Physics.Position, host.Host.World.GetVehicle(client.LocalVehicleId).Movement.Physics.Position);

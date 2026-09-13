@@ -23,6 +23,32 @@ public sealed class PredictedVehicle
         _lastSnapshotTick = initial.State.Movement.Tick;
     }
 
+    /// <summary>Initializes from authority and adopts inputs retained while that first snapshot was in flight.</summary>
+    /// <param name="initial">Assigned local vehicle.</param>
+    /// <param name="history">Existing sequenced input history created after reliable assignment.</param>
+    /// <param name="observe">Synchronous replay-capable external collision seam.</param>
+    public PredictedVehicle(ReplicatedVehicle initial, InputHistory history, Func<VehicleSnapshot, VehicleObservation> observe)
+    {
+        ArgumentNullException.ThrowIfNull(history);
+        ArgumentNullException.ThrowIfNull(observe);
+        if (!history.CanAcknowledge(initial.AcknowledgedInput))
+        {
+            throw new ArgumentException("The authoritative acknowledgement is outside the retained input history.", nameof(initial));
+        }
+
+        _vehicle = initial.State.VehicleId;
+        _world.AddVehicle(_vehicle, new(), new(), initial.State.ObservedPhysics);
+        History = history;
+        Restore(initial.State);
+        History.Acknowledge(initial.AcknowledgedInput);
+        foreach (SequencedInput input in History.Pending)
+        {
+            Step(input, observe);
+        }
+
+        _lastSnapshotTick = initial.State.Movement.Tick;
+    }
+
     /// <summary>Bounded outstanding commands.</summary>
     public InputHistory History { get; }
     /// <summary>Latest predicted simulation state; render smoothing never mutates this state.</summary>

@@ -60,9 +60,9 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
-        if (_driver.History is not null)
+        if (_driver.History is not null && _driver.SnapshotAge is double clientSnapshotAge)
         {
-            _interpolation.Advance(_driver.History, delta, _driver.SnapshotAge);
+            _interpolation.Advance(_driver.History, delta, clientSnapshotAge);
         }
 
         foreach (var pair in _bodies)
@@ -89,8 +89,14 @@ internal sealed partial class NetworkVehicleArena : Node3D
 
         string role = _driver.Host is null ? "CLIENT" : "HOST";
         string status = _driver.Failure.Length > 0 ? _driver.Failure : _driver.LocalState is null ? "Connecting…" : $"HP {_driver.LocalState.Damage.CurrentHP:0} / {_driver.LocalState.Damage.MaxHP:0}   {(_driver.LocalState.Movement.BoostTicks > 0 ? "BOOST" : _driver.LocalState.Movement.Drifting ? "DRIFT" : _driver.LocalState.Movement.Grounded ? "GROUNDED" : "AIRBORNE")}";
-        _diagnostics.Text = $"{role}   {_bodies.Count}/8 vehicles   {status}\nPrediction error  {_driver.Prediction?.PredictionError ?? 0:0.000} m   Snapshot age  {_driver.SnapshotAge * 1000:0} ms   Interpolation  {InterpolationDelay:0} ms\nLast acknowledged input  {_driver.Prediction?.History.LastAcknowledged ?? 0}   Corrections ≥3m  {local?.Smoothing.HardSnaps ?? 0}";
+        string formattedSnapshotAge = FormatSnapshotAge(_driver.SnapshotAge);
+        _diagnostics.Text = $"{role}   {_bodies.Count}/8 vehicles   {status}\nPrediction error  {_driver.Prediction?.PredictionError ?? 0:0.000} m   Snapshot age  {formattedSnapshotAge}   Interpolation  {InterpolationDelay:0} ms\nLast acknowledged input  {_driver.Prediction?.History.LastAcknowledged ?? 0}   Corrections ≥3m  {local?.Smoothing.HardSnaps ?? 0}";
     }
+
+    /// <summary>Formats client authority freshness without assigning that metric to a host.</summary>
+    /// <param name="seconds">Elapsed client snapshot time, or null when not applicable.</param>
+    /// <returns>HUD-ready diagnostic value.</returns>
+    internal static string FormatSnapshotAge(double? seconds) => seconds is double age ? $"{age * 1000:0} ms" : "N/A";
 
     /// <summary>Binds a caller-owned transport before scene entry.</summary>
     /// <param name="gateway">Active transport.</param>

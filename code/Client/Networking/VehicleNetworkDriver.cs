@@ -11,7 +11,9 @@ internal sealed class VehicleNetworkDriver
     private readonly ITransportGateway _gateway;
     private readonly ulong _serverPeer;
     private readonly HashSet<ulong> _assigned = new();
+    private InputHistory? _inputs;
     private ulong _session;
+    private double _snapshotAge;
 
     /// <summary>Creates a host or connects a client driver to an already-open transport.</summary>
     /// <param name="gateway">Caller-owned transport.</param>
@@ -43,8 +45,10 @@ internal sealed class VehicleNetworkDriver
     internal WorldSnapshot? Latest { get; private set; }
     /// <summary>Host-assigned local vehicle identity.</summary>
     internal ulong LocalVehicleId { get; private set; }
-    /// <summary>Seconds since a valid snapshot arrived, measured on fixed time.</summary>
-    internal double SnapshotAge { get; private set; }
+    /// <summary>Seconds since a valid snapshot arrived on a client, or null when this host-owned metric is not applicable.</summary>
+    internal double? SnapshotAge => Host is null ? _snapshotAge : null;
+    /// <summary>Sequenced commands retained after assignment, including before prediction can be initialized.</summary>
+    internal InputHistory? Inputs => Prediction?.History ?? _inputs;
     /// <summary>Observed protocol rejection count.</summary>
     internal int RejectedPackets { get; private set; }
     /// <summary>Accepted authoritative snapshot count.</summary>
@@ -60,14 +64,17 @@ internal sealed class VehicleNetworkDriver
     internal void Advance(InputFrame input, Func<VehicleSnapshot, VehicleObservation> observe)
     {
         _gateway.Poll();
-        SnapshotAge += 1.0 / HostVehicleSession.TickRate;
         if (Host is not null)
         {
             SynchronizePeers();
         }
-        else if (!_gateway.Connections.TryGetValue(_serverPeer, out var state) || state == TransportConnectionState.Disconnected)
+        else
         {
-            Failure = "Host disconnected; reconnect to start a new session.";
+            _snapshotAge += 1.0 / HostVehicleSession.TickRate;
+            if (!_gateway.Connections.TryGetValue(_serverPeer, out var state) || state == TransportConnectionState.Disconnected)
+            {
+                Failure = "Host disconnected; reconnect to start a new session.";
+            }
         }
 
         while (_gateway.TryReceive(out TransportMessage message))
@@ -94,17 +101,25 @@ internal sealed class VehicleNetworkDriver
                 }
             }
         }
-        else if (Prediction is not null)
+        else if (Inputs is InputHistory inputs)
         {
-            if (Prediction.History.IsFull)
+            if (inputs.IsFull)
             {
                 Failure = "Host acknowledgements stalled; reconnect to resynchronize.";
                 _gateway.Disconnect(_serverPeer);
                 return;
             }
 
-            Prediction.Predict(input, observe);
-            _gateway.Send(new TransportMessage(_serverPeer, VehicleNetworkCodec.EncodeInputs(_session, Prediction.History.GetRedundancy()), TransportDelivery.Unreliable));
+            if (Prediction is null)
+            {
+                inputs.Add(input);
+            }
+            else
+            {
+                Prediction.Predict(input, observe);
+            }
+
+            _gateway.Send(new TransportMessage(_serverPeer, VehicleNetworkCodec.EncodeInputs(_session, inputs.GetRedundancy()), TransportDelivery.Unreliable));
         }
     }
 
@@ -161,6 +176,7 @@ internal sealed class VehicleNetworkDriver
                     _session = assignment.Session;
                     LocalVehicleId = assignment.Vehicle;
                     History = new SnapshotHistory(_session);
+                    _inputs = new InputHistory();
                     return;
                 }
 
@@ -168,13 +184,14 @@ internal sealed class VehicleNetworkDriver
                 {
                     WorldSnapshot snapshot = VehicleNetworkCodec.DecodeSnapshot(message.Payload.Span);
                     ReplicatedVehicle? local = snapshot.Vehicles.SingleOrDefault(vehicle => vehicle.State.VehicleId == LocalVehicleId);
-                    if (local is not null && (Prediction is null || Prediction.History.CanAcknowledge(local.AcknowledgedInput)) && History.Add(snapshot))
+                    if (local is not null && Inputs is InputHistory inputs && inputs.CanAcknowledge(local.AcknowledgedInput) && History.Add(snapshot))
                     {
                         Latest = snapshot;
                         RosterChanged?.Invoke(snapshot);
                         if (Prediction is null)
                         {
-                            Prediction = new PredictedVehicle(local);
+                            Prediction = new PredictedVehicle(local, inputs, observe);
+                            _inputs = null;
                         }
                         else if (Prediction.Reconcile(local, observe))
                         {
@@ -185,7 +202,7 @@ internal sealed class VehicleNetworkDriver
                             RejectedPackets++;
                         }
 
-                        SnapshotAge = 0;
+                        _snapshotAge = 0;
                         ReceivedSnapshots++;
                         return;
                     }
