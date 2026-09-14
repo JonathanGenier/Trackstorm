@@ -1,4 +1,5 @@
 using Trackstorm.Core.Input;
+using Trackstorm.Core.Items;
 using Trackstorm.Core.Networking.Replication;
 using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Sessions;
@@ -16,6 +17,9 @@ internal sealed class VehicleNetworkDriver
     private InputHistory? _inputs;
     private ulong _session;
     private double _snapshotAge;
+    private ulong _itemPublication;
+    private ulong _publishedItemRevision = ulong.MaxValue;
+    private int _publishedPeerCount = -1;
 
     /// <summary>Creates a host or connects a client driver to an already-open transport.</summary>
     /// <param name="gateway">Caller-owned transport.</param>
@@ -65,10 +69,18 @@ internal sealed class VehicleNetworkDriver
     internal event Action<VehicleSnapshot>? LocalCorrected;
     /// <summary>Reconstructs frozen client collision bodies before prediction.</summary>
     internal event Action<Trackstorm.Core.Arenas.ArenaPropSnapshot>? PropsReceived;
+    /// <summary>Reliable item and outcome presentation callback.</summary>
+    internal event Action<ItemPublication>? ItemsReceived;
     /// <summary>Authoritative native prop observation seam, absent in flat-ground vehicle unit tests.</summary>
     internal Func<IReadOnlyList<VehiclePhysicsState>>? ObserveProps { get; set; }
     /// <summary>Latest accepted complete prop publication.</summary>
     internal Trackstorm.Core.Arenas.ArenaPropSnapshot? PropSnapshot { get; private set; }
+    /// <summary>Native swept collision query, host only.</summary>
+    internal Func<MissileState, System.Numerics.Vector3, float?>? CollideMissile { get; set; }
+    /// <summary>Latest complete reliable item state.</summary>
+    internal ItemPublication? ItemState { get; private set; }
+    /// <summary>Current local slot; no predicted consumption.</summary>
+    internal ItemSlot? LocalItem => (Host?.Items.Slots ?? ItemState?.Slots)?.SingleOrDefault(slot => slot.Vehicle == LocalVehicleId);
     /// <summary>Host gameplay owner, or null on clients.</summary>
     internal HostVehicleSession? Host { get; }
     /// <summary>Client prediction, created only after reliable assignment and a valid snapshot.</summary>
@@ -138,8 +150,27 @@ internal sealed class VehicleNetworkDriver
         if (Host is not null)
         {
             RosterChanged?.Invoke(Host.Snapshot());
-            Host.Step(input, observe);
+            if ((input.Pressed & InputButtons.UseItem) != 0)
+            {
+                RequestItemUse();
+            }
+
+            Host.Step(input, observe, CollideMissile);
             Latest = Host.Snapshot();
+            if (_publishedItemRevision != Host.Items.Revision || _publishedPeerCount != _assigned.Count)
+            {
+                ItemState = new ItemPublication(++_itemPublication, Latest, Host.Items.Slots, Host.Items.Missiles, Host.Items.Events);
+                byte[] items = ItemCodec.EncodeState(ItemState);
+                foreach (ulong peer in _assigned)
+                {
+                    _gateway.Send(new TransportMessage(peer, items, TransportDelivery.Reliable));
+                }
+
+                _publishedItemRevision = Host.Items.Revision;
+                _publishedPeerCount = _assigned.Count;
+                ItemsReceived?.Invoke(ItemState);
+            }
+
             if (Host.World.State.Tick % HostVehicleSession.SnapshotInterval == 0)
             {
                 byte[] payload = VehicleNetworkCodec.EncodeSnapshot(Latest);
@@ -162,6 +193,11 @@ internal sealed class VehicleNetworkDriver
         }
         else if (Inputs is InputHistory inputs)
         {
+            if ((input.Pressed & InputButtons.UseItem) != 0)
+            {
+                RequestItemUse();
+            }
+
             if (inputs.IsFull)
             {
                 Failure = "Host acknowledgements stalled; reconnect to resynchronize.";
@@ -180,6 +216,25 @@ internal sealed class VehicleNetworkDriver
 
             _gateway.Send(new TransportMessage(_serverPeer, VehicleNetworkCodec.EncodeInputs(_session, inputs.GetRedundancy()), TransportDelivery.Unreliable));
         }
+    }
+
+    /// <summary>Submits the local slot capability reliably; never creates a predicted item effect.</summary>
+    /// <returns>Whether queued locally or sent to the host.</returns>
+    internal bool RequestItemUse()
+    {
+        ItemSlot? slot = LocalItem;
+        if (!IsActive || Failure.Length > 0 || slot is null || slot.Item == HeldItem.None)
+        {
+            return false;
+        }
+
+        if (Host is not null)
+        {
+            return Host.UseItem(0, _session, slot.Life, slot.Token);
+        }
+
+        _gateway.Send(new TransportMessage(_serverPeer, ItemCodec.EncodeUse(_session, slot.Life, slot.Token), TransportDelivery.Reliable));
+        return true;
     }
 
     private void SynchronizePeers()
@@ -215,6 +270,35 @@ internal sealed class VehicleNetworkDriver
         }
     }
 
+    private bool AcceptSnapshot(WorldSnapshot snapshot, Func<VehicleSnapshot, VehicleObservation> observe)
+    {
+        ReplicatedVehicle? local = snapshot.Vehicles.SingleOrDefault(vehicle => vehicle.State.VehicleId == LocalVehicleId);
+        if (local is null || Inputs is not InputHistory inputs || !inputs.CanAcknowledge(local.AcknowledgedInput) || History is null || !History.Add(snapshot))
+        {
+            return false;
+        }
+
+        Latest = snapshot;
+        RosterChanged?.Invoke(snapshot);
+        if (Prediction is null)
+        {
+            Prediction = new PredictedVehicle(local, inputs, observe);
+            _inputs = null;
+        }
+        else if (Prediction.Reconcile(local, observe))
+        {
+            LocalCorrected?.Invoke(Prediction.State);
+        }
+        else
+        {
+            RejectedPackets++;
+        }
+
+        _snapshotAge = 0;
+        ReceivedSnapshots++;
+        return true;
+    }
+
     private void Receive(TransportMessage message, Func<VehicleSnapshot, VehicleObservation> observe)
     {
         if (!_gateway.Connections.TryGetValue(message.RemotePeerId, out var connection) || connection != TransportConnectionState.Connected)
@@ -225,6 +309,41 @@ internal sealed class VehicleNetworkDriver
 
         try
         {
+            if (ItemCodec.IsItem(message.Payload.Span))
+            {
+                if (message.Delivery != TransportDelivery.Reliable)
+                {
+                    throw new ArgumentException("Items require reliable delivery.");
+                }
+
+                if (Host is not null)
+                {
+                    var request = ItemCodec.DecodeUse(message.Payload.Span);
+                    if (!Host.UseItem(message.RemotePeerId, request.Session, request.Life, request.Token))
+                    {
+                        RejectedPackets++;
+                    }
+
+                    return;
+                }
+
+                if (message.RemotePeerId != _serverPeer || History is null)
+                {
+                    throw new ArgumentException("Only the assigned host can publish item outcomes.");
+                }
+
+                ItemPublication publication = ItemCodec.DecodeState(message.Payload.Span);
+                if (publication.World.Session != _session || publication.Revision <= (ItemState?.Revision ?? 0))
+                {
+                    throw new ArgumentException("Stale item publication.");
+                }
+
+                ItemState = publication;
+                AcceptSnapshot(publication.World, observe);
+                ItemsReceived?.Invoke(publication);
+                return;
+            }
+
             byte kind = VehicleNetworkCodec.Kind(message.Payload.Span);
             if (Host is not null && kind == VehicleNetworkCodec.Inputs && message.Delivery == TransportDelivery.Unreliable)
             {
@@ -263,27 +382,8 @@ internal sealed class VehicleNetworkDriver
                 if (kind == VehicleNetworkCodec.Snapshot && message.Delivery == TransportDelivery.Unreliable && History is not null)
                 {
                     WorldSnapshot snapshot = VehicleNetworkCodec.DecodeSnapshot(message.Payload.Span);
-                    ReplicatedVehicle? local = snapshot.Vehicles.SingleOrDefault(vehicle => vehicle.State.VehicleId == LocalVehicleId);
-                    if (local is not null && Inputs is InputHistory inputs && inputs.CanAcknowledge(local.AcknowledgedInput) && History.Add(snapshot))
+                    if (AcceptSnapshot(snapshot, observe))
                     {
-                        Latest = snapshot;
-                        RosterChanged?.Invoke(snapshot);
-                        if (Prediction is null)
-                        {
-                            Prediction = new PredictedVehicle(local, inputs, observe);
-                            _inputs = null;
-                        }
-                        else if (Prediction.Reconcile(local, observe))
-                        {
-                            LocalCorrected?.Invoke(Prediction.State);
-                        }
-                        else
-                        {
-                            RejectedPackets++;
-                        }
-
-                        _snapshotAge = 0;
-                        ReceivedSnapshots++;
                         return;
                     }
                 }
