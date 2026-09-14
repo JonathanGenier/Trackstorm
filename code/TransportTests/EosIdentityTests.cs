@@ -9,6 +9,61 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class EosIdentityTests
 {
+    /// <summary>The embedded client configuration is complete, exact and valid without a JSON file.</summary>
+    [Test]
+    public void CreatesEmbeddedClientConfigurationWithoutAFile()
+    {
+        EosConfiguration configuration = EosClientConfiguration.Resolve(overridePath: null);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(configuration.Environment, Is.EqualTo("development"));
+            Assert.That(configuration.DeploymentName, Is.EqualTo("live-deployment"));
+            Assert.That(configuration.ProductId, Is.EqualTo("47d0843c277f4b11bce0e633b7ced6e9"));
+            Assert.That(configuration.SandboxId, Is.EqualTo("6c0a33a5748841e09204957d28e6bb84"));
+            Assert.That(configuration.DeploymentId, Is.EqualTo("dea3c60b4f30486688fbf674c9e57c2b"));
+            Assert.That(configuration.ClientId, Is.EqualTo("xyza7891VzsMsnNdYcYraBkYrS4ZheUn"));
+            Assert.That(
+                Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(configuration.ClientSecret))),
+                Is.EqualTo("22C46FA9E4F06CE7B50CBB27549A3CF47B8D538B1042AE59367C6818E2D78245"));
+            Assert.DoesNotThrow(configuration.Validate);
+        });
+    }
+
+    /// <summary>An explicit environment-variable file replaces the embedded configuration.</summary>
+    [Test]
+    [NonParallelizable]
+    public void ExplicitEnvironmentOverrideWins()
+    {
+        string path = Path.GetTempFileName();
+        string? original = System.Environment.GetEnvironmentVariable("TRACKSTORM_EOS_CONFIG");
+        try
+        {
+            File.WriteAllText(path, JsonSerializer.Serialize(Configuration()));
+            System.Environment.SetEnvironmentVariable("TRACKSTORM_EOS_CONFIG", path);
+
+            EosConfiguration configuration = EosClientConfiguration.Resolve();
+
+            Assert.That(configuration.DeploymentName, Is.EqualTo("unit-test"));
+        }
+        finally
+        {
+            System.Environment.SetEnvironmentVariable("TRACKSTORM_EOS_CONFIG", original);
+            File.Delete(path);
+        }
+    }
+
+    /// <summary>An explicitly configured invalid override identifies the variable and failing path.</summary>
+    [Test]
+    public void InvalidExplicitOverrideIsActionable()
+    {
+        string path = Path.Combine(Path.GetTempPath(), $"missing-eos-{Guid.NewGuid():N}.json");
+
+        var error = Assert.Throws<InvalidOperationException>(() => EosClientConfiguration.Resolve(path));
+
+        Assert.That(error!.Message, Does.Contain("TRACKSTORM_EOS_CONFIG").And.Contain(path).And.Contain("could not be loaded"));
+    }
+
     /// <summary>Invalid configuration cannot reach EOS or leak submitted values in its error.</summary>
     /// <param name="property">Configuration field to invalidate.</param>
     /// <param name="value">Invalid input, which must not be echoed.</param>

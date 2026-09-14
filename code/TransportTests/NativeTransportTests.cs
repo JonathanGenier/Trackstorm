@@ -203,6 +203,24 @@ internal sealed class NativeTransportTests
         Assert.That(host.Connections, Is.Empty);
     }
 
+    /// <summary>A real occupied UDP port stays owned by its socket and reports the native bind error.</summary>
+    [Test]
+    public void OccupiedListenerReportsBindErrorAndCanRecoverAfterOwnerCloses()
+    {
+        using var owner = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        owner.ExclusiveAddressUse = true;
+        owner.Bind(new IPEndPoint(IPAddress.Loopback, 0));
+        string address = owner.LocalEndPoint!.ToString()!;
+        GameNetworkingSocketsTransport host = Create();
+        var error = Assert.Throws<InvalidOperationException>(() => host.Listen(address));
+        Assert.That(error!.Message, Does.Contain(address).And.Contain("Failed to bind socket.").And.Contain("0x00002740"));
+        Assert.That(host.IsListening, Is.False);
+        Assert.That(host.Connections, Is.Empty);
+        owner.Close();
+        host.Listen(address);
+        Assert.That(host.IsListening, Is.True);
+    }
+
     private static string AvailableAddress()
     {
         string ip = Environment.GetEnvironmentVariable("TRACKSTORM_TEST_ADDRESS") ?? "127.0.0.1";

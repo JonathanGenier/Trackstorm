@@ -46,9 +46,11 @@ public sealed partial class SimulationBootstrap : Node
         panel.Initialize(settings, _playerInput.Adapter);
         settings.AddChild(panel);
         _settingsPanel = panel;
-        if (OS.GetCmdlineUserArgs().Contains("--eos"))
+        EosIdentityNode? online = null;
+        if (!OS.GetCmdlineUserArgs().Contains("--local-practice"))
         {
-            AddChild(new EosIdentityNode { Name = "EosIdentity" });
+            online = new EosIdentityNode { Name = "EosIdentity" };
+            AddChild(online);
         }
 
         string[] networkArguments = OS.GetCmdlineUserArgs().Where(argument => argument.StartsWith("--transport-host=", StringComparison.Ordinal) || argument.StartsWith("--transport-connect=", StringComparison.Ordinal)).ToArray();
@@ -64,7 +66,7 @@ public sealed partial class SimulationBootstrap : Node
         }
         else
         {
-            _session = new DevelopmentSession { Name = "DevelopmentSession" };
+            _session = new DevelopmentSession { Name = "DevelopmentSession", OnlineCoordinator = () => online?.Coordinator, OnlineStatus = () => online?.Status ?? EosLobbyStatus.Unavailable, OnlineLogin = () => online?.Login(), OnlineLogout = () => online?.Logout() };
             AddChild(_session);
             if (networkArguments.Length == 1)
             {

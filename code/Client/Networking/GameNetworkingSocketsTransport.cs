@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using GnsSharp;
 using Trackstorm.Core.Networking.Transport;
@@ -11,6 +12,7 @@ public sealed class GameNetworkingSocketsTransport : ITransportGateway
     public const int MaximumPayloadBytes = 64 * 1024;
 
     private const int MaximumQueuedMessages = 256;
+    private const int ListenerReleaseMilliseconds = 100;
     private readonly int _threadId = Environment.CurrentManagedThreadId;
     private readonly TransportConnections _connections = new();
     private readonly Dictionary<ulong, HSteamNetConnection> _handles = [];
@@ -20,6 +22,9 @@ public sealed class GameNetworkingSocketsTransport : ITransportGateway
     private readonly FnSteamNetConnectionStatusChanged _callback;
     private readonly int _timeoutMilliseconds;
     private HSteamListenSocket _listener;
+    private string? _listenAddress;
+    private string? _closedListenAddress;
+    private long _listenerClosedAt;
     private bool _disposed;
     private bool _polling;
 
@@ -55,11 +60,27 @@ public sealed class GameNetworkingSocketsTransport : ITransportGateway
     {
         EnsureIdle();
         SteamNetworkingIPAddr endpoint = ParseAddress(address);
-        _listener = Sockets.CreateListenSocketIP(in endpoint, Configuration());
+        string canonicalAddress = endpoint.ToString();
+        SteamNetworkingConfigValue_t[] configuration = Configuration();
+        _listener = GnsRuntime.CreateListener(in endpoint, configuration, out string? error);
+        // GNS 1.6 closes the raw UDP socket on its service thread, not in RunCallbacks.
+        // Yield only for a confirmed WSAEADDRINUSE immediately after our own same-endpoint close.
+        // The deadline starts at Stop, so repeated Listen calls cannot extend the release window.
+        while (!IsListening && canonicalAddress == _closedListenAddress
+            && error == "Cannot create listen socket.  Failed to bind socket.  Error code 0x00002740."
+            && Stopwatch.GetElapsedTime(_listenerClosedAt).TotalMilliseconds < ListenerReleaseMilliseconds)
+        {
+            Thread.Sleep(1);
+            _listener = GnsRuntime.CreateListener(in endpoint, configuration, out error);
+        }
+
         if (!IsListening)
         {
-            throw new InvalidOperationException("Could not listen on the requested address and port.");
+            throw new InvalidOperationException($"Could not listen on {endpoint}: {error ?? "Native listener creation returned an invalid handle without a diagnostic."}");
         }
+
+        _listenAddress = canonicalAddress;
+        _closedListenAddress = null;
     }
 
     /// <inheritdoc/>
@@ -190,8 +211,15 @@ public sealed class GameNetworkingSocketsTransport : ITransportGateway
 
         if (IsListening)
         {
-            Sockets.CloseListenSocket(_listener);
+            if (!Sockets.CloseListenSocket(_listener))
+            {
+                throw new InvalidOperationException("Native listener close failed; listener ownership has been retained.");
+            }
+
             _listener = HSteamListenSocket.Invalid;
+            _closedListenAddress = _listenAddress;
+            _listenerClosedAt = Stopwatch.GetTimestamp();
+            _listenAddress = null;
         }
 
         // Drain queued callbacks while their delegate is rooted, before reuse or final release.

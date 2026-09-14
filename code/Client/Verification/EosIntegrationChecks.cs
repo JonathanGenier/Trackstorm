@@ -43,9 +43,17 @@ public sealed partial class EosIntegrationChecks : Node
             EosProcessRuntime.Release();
             if (OS.GetCmdlineUserArgs().Contains("--eos-authenticate"))
             {
-                string path = System.Environment.GetEnvironmentVariable("TRACKSTORM_EOS_CONFIG") ??
-                    System.IO.Path.Combine(OS.HasFeature("editor") ? ProjectSettings.GlobalizePath("res://") : System.IO.Path.GetDirectoryName(OS.GetExecutablePath())!, "eos.development.local.json");
-                _configuration = EosConfiguration.Load(path);
+                try
+                {
+                    _configuration = EosClientConfiguration.Resolve();
+                }
+                catch (InvalidOperationException exception)
+                {
+                    GD.Print($"EOS configuration failure: {exception.Message}");
+                    Fail();
+                    return;
+                }
+
                 _identity = new(() => new EosSdkPlatform());
                 StartCycle();
             }
@@ -58,7 +66,7 @@ public sealed partial class EosIntegrationChecks : Node
                     throw new InvalidOperationException("Missing EOS configuration was not handled safely.");
                 }
 
-                Finish("native SDK initialization/version and missing configuration verified; authentication NOT tested");
+                Finish("native SDK initialization/version and invalid configuration handling verified; authentication NOT tested");
             }
         }
         catch (Exception exception)

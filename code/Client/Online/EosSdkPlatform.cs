@@ -8,6 +8,7 @@ namespace Trackstorm.Client.Online;
 internal sealed class EosSdkPlatform : IEosPlatform
 {
     private readonly Queue<Action> _callbacks = new();
+    private readonly EosPendingHandles _lobbyHandles = new();
     private PlatformInterface? _platform;
     private ConnectInterface? _connect;
     private ProductUserId? _user;
@@ -15,6 +16,7 @@ internal sealed class EosSdkPlatform : IEosPlatform
     private ulong _statusNotification;
     private bool _leased;
     private bool _disposed;
+    private EosLobbyProvider? _lobbyProvider;
 
     /// <summary>Validates configuration and starts an owned platform; duplicate startup is ignored.</summary>
     /// <param name="configuration">Validated development environment and restricted client configuration.</param>
@@ -129,6 +131,7 @@ internal sealed class EosSdkPlatform : IEosPlatform
         }
 
         _disposed = true;
+        _lobbyProvider?.Dispose();
         if (_expirationNotification != 0)
         {
             _connect!.RemoveNotifyAuthExpiration(_expirationNotification);
@@ -139,6 +142,9 @@ internal sealed class EosSdkPlatform : IEosPlatform
             _connect!.RemoveNotifyLoginStatusChanged(_statusNotification);
         }
 
+        // Caller-owned lobby handles must be released while their platform is still valid.
+        // Platform release then cancels their queued callbacks after the native objects are gone.
+        _lobbyHandles.Dispose();
         _platform?.Release();
         _platform = null;
         _connect = null;
@@ -151,6 +157,20 @@ internal sealed class EosSdkPlatform : IEosPlatform
             EosProcessRuntime.Release();
             _leased = false;
         }
+    }
+
+    /// <summary>Creates coordination on this authenticated platform; no second runtime or identity is created.</summary>
+    /// <returns>A provider tied to this platform's callback queue.</returns>
+    internal IOnlineLobbyProvider CreateLobbyProvider()
+    {
+        if (_disposed || _user is null || _platform is null)
+        {
+            throw new InvalidOperationException("EOS authentication is required.");
+        }
+
+        _lobbyProvider?.Dispose();
+        _lobbyProvider = new EosLobbyProvider(_platform.GetLobbyInterface(), _user, this, callback => _callbacks.Enqueue(callback), _lobbyHandles);
+        return _lobbyProvider;
     }
 
     private static string Failure(string operation, Result result) => $"EOS {operation} failed ({result}). Check Internet access, development deployment and Connect client-policy permissions; see docs/eos-development.md.";
