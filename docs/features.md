@@ -279,6 +279,14 @@ Development launches pass `-- --transport-host=0.0.0.0:27020` or `-- --transport
 
 Native transports are runtime and platform concerns, while message meaning, validation, and synchronization-relevant state are authoritative game concerns. Keeping an opaque byte seam between them prevents Core from acquiring Godot or native APIs and lets deterministic serialization be tested without a socket. A concrete transport can change without moving replication rules out of Core.
 
+### Native Listener Reuse
+
+The pinned GameNetworkingSockets 1.6.0 library defers raw UDP socket destruction to its service thread. `CloseListenSocket` invalidates the listener before that thread necessarily releases the OS port; `RunCallbacks` only dispatches notifications and is not a socket-release barrier. See the pinned [raw socket close implementation](https://github.com/ValveSoftware/GameNetworkingSockets/blob/v1.6.0/src/steamnetworkingsockets/clientlib/steamnetworkingsockets_socketthread.cpp).
+
+For immediate reuse of the same endpoint on the same gateway, `Listen` retries only the native bind diagnostic for Windows `WSAEADDRINUSE` (`0x2740`). Each attempt yields for 1 ms outside native calls so the service thread can finish deferred destruction. The recovery window is capped at 100 ms from the successful listener close, not restarted by subsequent calls. This is a short scheduling allowance, not a guaranteed OS release deadline; exhausted recovery still throws. Initial binds, different endpoints, unknown diagnostics, and other native errors fail without retry. No socket-sharing flags or alternate ports are used. Native creation diagnostics are captured synchronously on the calling thread and included in the exception; background output is not logged. The process owner roots the diagnostic delegate across all gateways and native shutdown.
+
+`RepeatedHostJoinAndStopReleasesListenerAndPeers` retains one port across all twelve cycles. A separate native test holds a real exclusive UDP socket, checks the bind diagnostic and absent listener state, then verifies recovery once that owner closes. The test helper's ephemeral-port reservation has a release-to-bind race with other processes; it is not a reservation that production can rely on, and unrelated occupancy is not treated as our deferred close.
+
 ### Architecture and Module Ownership
 
 `Trackstorm.Core` owns:
@@ -314,7 +322,7 @@ Client `VehicleNetworkDriver` routes versioned vehicle protocol payloads over `I
 
 ### Intentional Limitations / Tradeoffs
 
-The packaged native adapter currently targets Windows x64. [Dependency provenance and licenses](licenses/transport/README.md) record the pinned binary pairing. Native DLLs and notices copy to build/publish output; Godot uses its application base directory to resolve native dependencies. Other platforms need their corresponding bindings and native binaries. There is no matchmaking, automatic retry or authenticated Internet player identity. The development lobby below owns session identity and admission over this transport. The vehicle loop supplies prediction and reconciliation, but does not implement full-world rollback or future combat/match events. This is a development IP transport, not an Internet session service.
+The packaged native adapter currently targets Windows x64. [Dependency provenance and licenses](licenses/transport/README.md) record the pinned binary pairing. Native DLLs and notices copy to build/publish output; Godot uses its application base directory to resolve native dependencies. Other platforms need their corresponding bindings and native binaries. There is no matchmaking, automatic connection retry or authenticated Internet player identity. The development lobby below owns session identity and admission over this transport. The vehicle loop supplies prediction and reconciliation, but does not implement full-world rollback or future combat/match events. This is a development IP transport, not an Internet session service.
 
 `check.ps1` verifies Core contracts and transport flag/error conversions in Debug and Release. `check-transport.ps1 -GodotPath <Godot .NET executable>` additionally runs native UDP tests for host plus seven clients, excess admission, bidirectional payloads, reliable ordering during unreliable loss, sampled diagnostics, initial/established timeouts, queue overflow and repeated reconnect/host cycles. It then runs production Godot nodes through three creation/poll/message/removal cycles. `TRACKSTORM_TEST_ADDRESS` can select a local IPv4 LAN interface instead of loopback for native tests. These checks do not establish cross-machine firewall behavior, long-session memory stability, export-template packaging or non-Windows compatibility.
 

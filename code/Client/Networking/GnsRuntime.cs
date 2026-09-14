@@ -7,6 +7,11 @@ namespace Trackstorm.Client.Networking;
 internal static class GnsRuntime
 {
     private static readonly object Gate = new();
+    private static readonly FSteamNetworkingSocketsDebugOutput DebugOutput = OnDebugOutput;
+    [ThreadStatic]
+    private static bool _capturingListenError;
+    [ThreadStatic]
+    private static string? _listenError;
     private static int _references;
     private static int _threadId;
     private static IntPtr _library;
@@ -42,9 +47,31 @@ internal static class GnsRuntime
                 }
 
                 _threadId = Environment.CurrentManagedThreadId;
+                ISteamNetworkingUtils.User!.SetDebugOutputFunction(ESteamNetworkingSocketsDebugOutputType.Error, DebugOutput);
             }
 
             _references++;
+        }
+    }
+
+    /// <summary>Captures the synchronous native creation error; background diagnostics cannot contaminate it.</summary>
+    /// <param name="endpoint">Validated local endpoint.</param>
+    /// <param name="configuration">Per-listener options.</param>
+    /// <param name="error">Native creation diagnostic, if supplied.</param>
+    /// <returns>The native listener handle, or Invalid.</returns>
+    internal static HSteamListenSocket CreateListener(in SteamNetworkingIPAddr endpoint, SteamNetworkingConfigValue_t[] configuration, out string? error)
+    {
+        _listenError = null;
+        _capturingListenError = true;
+        try
+        {
+            return ISteamNetworkingSockets.User!.CreateListenSocketIP(in endpoint, configuration);
+        }
+        finally
+        {
+            error = _listenError;
+            _capturingListenError = false;
+            _listenError = null;
         }
     }
 
@@ -60,6 +87,15 @@ internal static class GnsRuntime
                 // Keep the single module mapping alive: P/Invoke caches function addresses. Kill
                 // releases sockets/threads; unloading the DLL would invalidate subsequent Init calls.
             }
+        }
+    }
+
+    private static void OnDebugOutput(ESteamNetworkingSocketsDebugOutputType type, string message)
+    {
+        // Do not call native APIs or user handlers from this callback. Native spew may hold its global lock.
+        if (_capturingListenError && message.StartsWith("Cannot create listen socket.", StringComparison.Ordinal))
+        {
+            _listenError = message.Trim();
         }
     }
 }
