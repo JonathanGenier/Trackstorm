@@ -74,3 +74,7 @@ generated_code = true
 dotnet_diagnostic.SA1204.severity = none
 dotnet_diagnostic.SA1600.severity = none
 dotnet_diagnostic.SA1601.severity = none
+
+# Official EOS SDK source is acquired unchanged; Trackstorm adapters retain normal analysis.
+[.godot/eos-sdk/**/*.cs]
+generated_code = true

@@ -9,6 +9,7 @@
 mono_crash.*.json
 godot_crash_*.log
 /reports/
+/eos.*.local.json
 
 # Visual Studio and .NET
 .vs/
@@ -23,3 +24,6 @@ obj/
 # Operating-system files
 .DS_Store
 Thumbs.db
+
+# Local/exported game releases
+/Releases/

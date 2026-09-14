@@ -382,6 +382,28 @@ Core NUnit tests cover eight-player capacity, duplicate/invalid/retired IDs, sen
 
 The lobby harness uses eight real sockets and eight isolated native worlds in one process. Separate-process vehicle checks remain in `check-network-vehicles.ps1`; transport impairment/capacity tests remain in `check-transport.ps1`. These local checks do not establish cross-machine firewall/NAT behavior, cross-platform compatibility, hostile Internet security, long-session soak stability or subjective controller ergonomics. Transitions converge through reliable delivery; peers are not promised to load/render on exactly the same wall-clock frame, and there is no loading barrier or countdown. The prototype arena and host-controlled return are intentional development limitations, not a full competitive match service.
 
+## EOS Runtime and Online Identity
+
+### Behavior and Development Authentication
+
+Launch with `--eos` to enable the Client-owned EOS development identity panel alongside the existing Direct-IP flow. Without this option, no EOS platform or authentication is started. The panel loads explicit development configuration, starts Connect login, shows initialized/connect state and a hashed PUID fingerprint, and offers login/logout. Missing configuration or native dependencies report actionable errors. EOS availability never gates the current GameNetworkingSockets session menu or gameplay.
+
+The official EOS Connect Device ID flow creates/reuses a credential for the local Windows user and logs in with a null external token. It creates a product user only when Device ID login returns the appropriate new-user continuation. Different PCs/profiles provide independent credentials, supporting the five-tester workflow and the eight-player target without shared developer accounts, Epic accounts, the Developer Authentication Tool or a custom anonymous backend. Repeated processes under one OS profile are not distinct testers. The generic display-name metadata is not identity. Device ID is a development pseudo-account and cannot recover from loss of its OS credential store; no storefront persistence or account-linking flow is implemented.
+
+### Ownership, Lifecycle and Identity Boundaries
+
+`Client.Online.EosIdentityService` owns a replaceable `IEosPlatform`. The official `EosSdkPlatform` initializes a platform, ticks on Godot's main thread, translates Connect results, and releases handles and notifications on stop/disposal. Native callbacks enqueue work, which runs only after native Tick returns. Generation and state guards reject late/duplicate completions after cancellation, replacement or disposal. Login/logout have a monotonic 60-second deadline. Logout clears the published identity immediately and uses Connect Logout before releasing the platform. Cancellation during login releases the platform directly. Pending managed callback registrations are removed only after native platform release. Expired/lost authentication clears identity and requires explicit login.
+
+`EosProcessRuntime` initializes the SDK once and permits one platform owner at a time. Repeated platform/login/logout/release cycles preserve this process initialization. SDK shutdown at application exit is terminal, as required by Epic's API contract; attempts to start EOS after shutdown are rejected. Full initialization/shutdown cycles therefore use separate application processes.
+
+`OnlineProductUserId`, Core's session `PlayerId`, transport peer IDs, names and addresses remain separate. The PUID wrapper has no implicit conversion to a numeric session ID. No EOS types or dependencies enter Core, serialization or existing transport-neutral contracts. The existing lobby authority continues to assign gameplay identities. `IEosPlatform` and `OnlineProductUserId` are the minimal Client boundary around the current Device ID flow. Storefront credential acquisition, account linking and other authentication providers are outside this foundation and require their own reviewed design.
+
+### Configuration, Dependencies and Limits
+
+Only an explicit development environment is supported. Real settings live in an ignored local file, loaded from an explicit environment-variable path or next to the application. They are not auto-exported or logged. Diagnostics expose validated environment labels, safe result codes and a PUID fingerprint. The SDK manages the local Device ID secret; logout does not delete it. Production requires separate configuration and policy review.
+
+The pinned official C# SDK is compiled outside Core; the Windows x64 native DLL and third-party notices copy into build/publish output. See [EOS dependency provenance](licenses/eos/README.md) and [developer/tester setup](eos-development.md) for version, licensing, policy, prerequisites and verification. A fresh checkout runs `setup-eos.ps1` to acquire the verified official archive. EAS is unnecessary because Connect supplies Game Services identity without an Epic-account login. Overlays, RTC and EAC are disabled/unused. EOS lobbies, P2P, reconnect, host migration, matchmaking, storefront SDKs and social services remain outside this foundation. No EOS identity is yet bound to an admitted Direct-IP peer.
+
 ## Authoring Template
 
 The following template is authoring guidance, not an implemented Trackstorm feature. Copy it under **Implemented Features**, remove sections that do not apply, and replace all guidance text with verified details about the current system.
