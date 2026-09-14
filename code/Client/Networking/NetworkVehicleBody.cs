@@ -12,6 +12,9 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     private VehiclePhysicsState _previous;
     private VehiclePhysicsState _current;
     private bool _initialized;
+    private ShaderMaterial _damageMaterial = null!;
+    private float _previousHP = 100;
+    private float _flash;
     /// <summary>Host-assigned identity used only to attribute contact observations.</summary>
     internal ulong VehicleId { get; init; }
     /// <summary>Only authoritative forward steps may apply native prop impulses.</summary>
@@ -30,7 +33,11 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         AddChild(_visual);
         _visual.TopLevel = true;
         Color paint = Color.FromHsv((VehicleId * 0.13f) % 1, 0.7f, 0.9f);
-        _visual.AddChild(VehicleBody.Box(new Vector3(2, 0.7f, 3.6f), Vector3.Zero, paint));
+        _damageMaterial = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/items/materials/DamageFlash.gdshader") };
+        _damageMaterial.SetShaderParameter("paint", paint);
+        var chassis = VehicleBody.Box(new Vector3(2, 0.7f, 3.6f), Vector3.Zero, paint);
+        chassis.MaterialOverride = _damageMaterial;
+        _visual.AddChild(chassis);
         _visual.AddChild(VehicleBody.Box(new Vector3(1.5f, 0.55f, 1.65f), new Vector3(0, 0.55f, 0.15f), new Color("172435")));
         _visual.AddChild(VehicleBody.Box(new Vector3(1.5f, 0.12f, 0.1f), new Vector3(0, 0.12f, -1.82f), new Color("ecfbff")));
         foreach (float x in new[] { -1.02f, 1.02f })
@@ -42,6 +49,25 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         }
     }
 
+    /// <inheritdoc/>
+    public override void _Process(double delta)
+    {
+        _flash = Math.Max(0, _flash - ((float)delta * 5));
+        _damageMaterial.SetShaderParameter("flash", _flash);
+    }
+
+    /// <summary>Drives a shader parameter only from accepted health outcomes.</summary>
+    /// <param name="damage">Host-owned HP state.</param>
+    internal void PresentDamage(VehicleDamageState damage)
+    {
+        if (damage.CurrentHP < _previousHP)
+        {
+            _flash = 1;
+        }
+
+        _previousHP = damage.CurrentHP;
+    }
+
     /// <summary>Resolves the preceding Core command through bounded native sweep/slide queries.</summary>
     /// <param name="snapshot">Complete pre-solver command boundary.</param>
     /// <returns>Solved numeric physics/support/contact observations for the next Core step.</returns>
@@ -50,6 +76,16 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         VehiclePhysicsState state = snapshot.Movement.Physics;
         Vector3 velocity = VehicleBody.ToGodot(state.LinearVelocity);
         Vector3 angular = VehicleBody.ToGodot(state.AngularVelocity);
+        foreach (var effect in snapshot.Effects)
+        {
+            velocity += VehicleBody.ToGodot(effect.Effect.Impulse) / 900;
+        }
+
+        if (velocity.Length() > 65)
+        {
+            velocity = velocity.Normalized() * 65;
+        }
+
         Quaternion orientation = VehicleBody.ToGodot(state.Orientation);
         if (angular.LengthSquared() > 0.000001f)
         {

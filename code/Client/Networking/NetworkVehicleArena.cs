@@ -1,6 +1,7 @@
 using Godot;
 using Trackstorm.Client.Vehicles;
 using Trackstorm.Core.Input;
+using Trackstorm.Core.Items;
 using Trackstorm.Core.Networking.Replication;
 using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Vehicles;
@@ -14,6 +15,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private readonly Camera3D _camera = new() { Current = true, Fov = 65 };
     private readonly Label _diagnostics = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly RemoteInterpolation _interpolation = new();
+    private readonly Items.ItemPresentation _items = new();
+    private readonly Label _itemLabel = new();
     private VehicleNetworkDriver _driver = null!;
     private Arenas.CombatArena _layout = null!;
 
@@ -44,6 +47,31 @@ internal sealed partial class NetworkVehicleArena : Node3D
         AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-55, -25, 0), LightEnergy = 1.4f, ShadowEnabled = true });
         _layout = new Arenas.CombatArena { Name = "PrototypeArena", Replica = _driver.Host is null };
         AddChild(_layout);
+        AddChild(_items);
+        _driver.CollideMissile = CollideMissile;
+        _driver.ItemsReceived += publication =>
+        {
+            _items.Apply(publication);
+            foreach (var vehicle in publication.World.Vehicles)
+            {
+                if (_bodies.TryGetValue(vehicle.State.VehicleId, out var body))
+                {
+                    body.PresentDamage(vehicle.State.Damage);
+                }
+            }
+
+            if (_driver.Host is not null)
+            {
+                foreach (var impact in publication.Events.Where(outcome => outcome.Impact))
+                {
+                    foreach (var prop in _layout.Props)
+                    {
+                        var effect = _driver.Host.Items.Explosion(impact.Position, VehicleBody.ToCore(prop.GlobalPosition));
+                        prop.ApplyCentralImpulse(VehicleBody.ToGodot(effect.Impulse));
+                    }
+                }
+            }
+        };
         _driver.ObserveProps = () => _layout.Props.Select(prop => new VehiclePhysicsState(VehicleBody.ToCore(prop.GlobalPosition), new System.Numerics.Quaternion(prop.Quaternion.X, prop.Quaternion.Y, prop.Quaternion.Z, prop.Quaternion.W), VehicleBody.ToCore(prop.LinearVelocity), VehicleBody.ToCore(prop.AngularVelocity))).ToArray();
         _driver.PropsReceived += snapshot =>
         {
@@ -62,6 +90,23 @@ internal sealed partial class NetworkVehicleArena : Node3D
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("172235"), ContentMarginLeft = 12, ContentMarginRight = 12, ContentMarginTop = 8, ContentMarginBottom = 8 });
         layer.AddChild(panel);
         panel.AddChild(_diagnostics);
+        var itemPanel = new VBoxContainer { AnchorTop = 1, AnchorBottom = 1, OffsetLeft = 24, OffsetTop = -126, OffsetRight = 460, OffsetBottom = -20 };
+        layer.AddChild(itemPanel);
+        itemPanel.AddChild(_itemLabel);
+        var use = new Button { Text = "Use held item" };
+        use.Pressed += () => _driver.RequestItemUse();
+        itemPanel.AddChild(use);
+        if (_driver.Host is not null)
+        {
+            var grants = new HBoxContainer();
+            itemPanel.AddChild(grants);
+            foreach (HeldItem item in new[] { HeldItem.Wrench, HeldItem.Missile })
+            {
+                var grant = new Button { Text = $"Dev: give {item} to empty slots" };
+                grant.Pressed += () => GrantItems(item);
+                grants.AddChild(grant);
+            }
+        }
     }
 
     /// <inheritdoc/>
@@ -94,6 +139,12 @@ internal sealed partial class NetworkVehicleArena : Node3D
             _camera.LookAt(target);
         }
 
+        foreach (var pair in _bodies)
+        {
+            _items.Follow(pair.Key, pair.Value.VisualPosition);
+        }
+
+        _itemLabel.Text = $"HELD ITEM: {_driver.LocalItem?.Item ?? HeldItem.None}";
         string role = _driver.Host is null ? "CLIENT" : "HOST";
         string status = _driver.Failure.Length > 0 ? _driver.Failure : _driver.LocalState is null ? "Connecting…" : $"HP {_driver.LocalState.Damage.CurrentHP:0} / {_driver.LocalState.Damage.MaxHP:0}   {_driver.LocalState.Movement.CurrentSurface}   {(_driver.LocalState.Movement.BoostTicks > 0 ? "BOOST" : _driver.LocalState.Movement.Drifting ? "DRIFT" : _driver.LocalState.Movement.Grounded ? "GROUNDED" : "AIRBORNE")}";
         string formattedSnapshotAge = FormatSnapshotAge(_driver.SnapshotAge);
@@ -138,6 +189,35 @@ internal sealed partial class NetworkVehicleArena : Node3D
         {
             _bodies[state.VehicleId].Apply(state.Movement.Physics);
         }
+    }
+
+    /// <summary>Development acquisition seam; only the host may fill empty living slots.</summary>
+    /// <param name="item">One of the two supported items.</param>
+    internal void GrantItems(HeldItem item)
+    {
+        if (_driver.Host is not null)
+        {
+            foreach (var vehicle in _driver.Host.World.State.Vehicles)
+            {
+                _driver.Host.Items.Grant(_driver.Host.World, vehicle.VehicleId, item);
+            }
+        }
+    }
+
+    private float? CollideMissile(MissileState missile, System.Numerics.Vector3 end)
+    {
+        var exclude = new Godot.Collections.Array<Rid>();
+        if (_bodies.TryGetValue(missile.Owner, out var owner))
+        {
+            exclude.Add(owner.GetRid());
+        }
+
+        Vector3 start = VehicleBody.ToGodot(missile.Position);
+        Vector3 finish = VehicleBody.ToGodot(end);
+        using var ray = PhysicsRayQueryParameters3D.Create(start, finish, 3, exclude);
+        ray.HitFromInside = true;
+        var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
+        return hit.Count == 0 ? null : Math.Clamp(start.DistanceTo(hit["position"].AsVector3()) / start.DistanceTo(finish), 0, 1);
     }
 
     private void SynchronizeBodies(WorldSnapshot snapshot)

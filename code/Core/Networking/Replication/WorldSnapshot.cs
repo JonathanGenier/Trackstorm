@@ -10,7 +10,7 @@ public sealed class WorldSnapshot
     public WorldSnapshot(ulong session, ulong tick, IEnumerable<ReplicatedVehicle> vehicles)
     {
         ReplicatedVehicle[] copy = vehicles.ToArray();
-        if (session == 0 || copy.Length is < 1 or > 8 || copy.Any(vehicle => vehicle is null || vehicle.State.Movement.Tick != tick || vehicle.State.Effects.Count != 0) || copy.Select(vehicle => vehicle.State.VehicleId).Distinct().Count() != copy.Length)
+        if (session == 0 || copy.Length is < 1 or > 8 || copy.Any(vehicle => vehicle is null || vehicle.State.Movement.Tick != tick || vehicle.State.Effects.Count > 64) || copy.Select(vehicle => vehicle.State.VehicleId).Distinct().Count() != copy.Length)
         {
             throw new ArgumentException("Invalid vehicle snapshot roster, tick or session.");
         }

@@ -40,6 +40,11 @@ internal sealed partial class VehicleFeedback : Node3D
         _explosion.Dispose();
     }
 
+    /// <summary>Creates an original PCM cue for other presentation-only combat effects.</summary>
+    /// <param name="explosion">Whether to synthesize the longer blast cue.</param>
+    /// <returns>A caller-owned audio resource.</returns>
+    internal static AudioStreamWav CreateCue(bool explosion) => Tone(explosion);
+
     /// <summary>Receives the owned chassis material and its normal paint.</summary>
     /// <param name="material">Visual surface only.</param>
     /// <param name="paint">Undamaged body color.</param>
