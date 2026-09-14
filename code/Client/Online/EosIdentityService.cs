@@ -170,6 +170,11 @@ internal sealed class EosIdentityService : IDisposable
         State = OnlineIdentityState.Disposed;
     }
 
+    /// <summary>Creates the Client-only lobby adapter from the current authenticated native runtime.</summary>
+    /// <returns>A provider tied to the current platform lifetime.</returns>
+    internal IOnlineLobbyProvider CreateLobbyProvider() => State == OnlineIdentityState.LoggedIn && _platform is EosSdkPlatform sdk
+        ? sdk.CreateLobbyProvider() : throw new InvalidOperationException("EOS authentication is required.");
+
     private void Fail(string reason)
     {
         Stop();

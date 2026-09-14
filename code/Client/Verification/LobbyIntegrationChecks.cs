@@ -94,7 +94,7 @@ public sealed partial class LobbyIntegrationChecks : Node
     private static void Click(DevelopmentSession session, string text)
     {
         session._Process(0);
-        Button button = session.FindChildren("*", "Button", true, false).Cast<Button>().First(candidate => candidate.Text == text);
+        Button button = session.FindChildren("*", "Button", true, false).Cast<Button>().First(candidate => candidate.Text == text && candidate.IsVisibleInTree());
         Require(!button.Disabled, $"UI action is enabled: {text}");
         button.EmitSignal(BaseButton.SignalName.Pressed);
     }
@@ -220,9 +220,9 @@ public sealed partial class LobbyIntegrationChecks : Node
 
     private void OpenThroughUi(DevelopmentSession session, bool host, string name)
     {
-        LineEdit[] entries = session.FindChildren("*", "LineEdit", true, false).Cast<LineEdit>().ToArray();
-        entries[0].Text = name;
-        entries[1].Text = _endpoint;
+        session.FindChildren("*", "CheckButton", true, false).Cast<CheckButton>().Single(button => button.Text == "Developer fallback: Direct-IP / LAN").ButtonPressed = true;
+        session.FindChildren("PlayerName", "LineEdit", true, false).Cast<LineEdit>().Single().Text = name;
+        session.FindChildren("DirectAddress", "LineEdit", true, false).Cast<LineEdit>().Single().Text = _endpoint;
         Click(session, host ? "Host Game" : "Join Game by address");
     }
 

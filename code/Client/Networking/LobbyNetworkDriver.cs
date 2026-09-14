@@ -8,6 +8,8 @@ internal sealed class LobbyNetworkDriver
 {
     private readonly ITransportGateway _gateway;
     private readonly string _name;
+    private readonly Func<ulong, bool>? _admission;
+    private readonly ulong _expectedSession;
     private readonly LobbyReplica _replica = new();
     private bool _joined;
     private ulong _published;
@@ -18,10 +20,14 @@ internal sealed class LobbyNetworkDriver
     /// <param name="session">Host lifetime, zero on a client.</param>
     /// <param name="serverPeer">Client's actual server connection.</param>
     /// <param name="name">Local name request.</param>
-    internal LobbyNetworkDriver(ITransportGateway gateway, ulong session, ulong serverPeer, string name)
+    /// <param name="admission">Optional online admission gate; direct-IP retains development admission.</param>
+    /// <param name="expectedSession">Online clients require this discovered session lifetime; zero retains development behavior.</param>
+    internal LobbyNetworkDriver(ITransportGateway gateway, ulong session, ulong serverPeer, string name, Func<ulong, bool>? admission = null, ulong expectedSession = 0)
     {
         _gateway = gateway;
         _name = name;
+        _admission = admission;
+        _expectedSession = expectedSession;
         ServerPeer = serverPeer;
         if (session != 0)
         {
@@ -138,7 +144,7 @@ internal sealed class LobbyNetworkDriver
                 var intent = LobbyCodec.DecodeCommand(message.Payload.Span);
                 if (intent.Command == LobbyCommand.Join)
                 {
-                    if (Authority.Join(message.RemotePeerId, intent.Name) == 0)
+                    if ((_admission is not null && !_admission(message.RemotePeerId)) || Authority.Join(message.RemotePeerId, intent.Name) == 0)
                     {
                         _gateway.Disconnect(message.RemotePeerId);
                     }
@@ -154,6 +160,11 @@ internal sealed class LobbyNetworkDriver
             else if (message.RemotePeerId == ServerPeer)
             {
                 var publication = LobbyCodec.DecodeState(message.Payload.Span);
+                if (_expectedSession != 0 && publication.State.Session != _expectedSession)
+                {
+                    throw new ArgumentException("Lobby publication does not match the discovered online session.");
+                }
+
                 if (!_replica.Accept(publication.State, publication.Player, message.RemotePeerId, ServerPeer))
                 {
                     throw new ArgumentException("Rejected stale or reassigned session state.");

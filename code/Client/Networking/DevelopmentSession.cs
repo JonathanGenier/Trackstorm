@@ -1,5 +1,7 @@
 using Godot;
+using Trackstorm.Client.Online;
 using Trackstorm.Core.Input;
+using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Sessions;
 
 namespace Trackstorm.Client.Networking;
@@ -7,8 +9,8 @@ namespace Trackstorm.Client.Networking;
 /// <summary>Development Host/Join and lobby presentation reconstructed from authoritative Core state.</summary>
 internal sealed partial class DevelopmentSession : CanvasLayer
 {
-    private readonly LineEdit _name = new() { Text = "Player", PlaceholderText = "Display name", MaxLength = 96 };
-    private readonly LineEdit _address = new() { Text = "127.0.0.1:27020", PlaceholderText = "IP:port or [IPv6]:port" };
+    private readonly LineEdit _name = new() { Name = "PlayerName", Text = "Player", PlaceholderText = "Display name", MaxLength = 96 };
+    private readonly LineEdit _address = new() { Name = "DirectAddress", Text = "127.0.0.1:27020", PlaceholderText = "IP:port or [IPv6]:port" };
     private readonly Label _status = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly Label _roster = new();
     private readonly Button _host = new() { Text = "Host Game" };
@@ -17,19 +19,26 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private readonly Button _start = new() { Text = "Start Match (host only)" };
     private readonly Button _leave = new() { Text = "Leave session" };
     private readonly Button _return = new() { Text = "End session / Return to lobby" };
+    private readonly CheckButton _debug = new() { Text = "Developer fallback: Direct-IP / LAN" };
     private NetworkTransportNode? _transport;
+    private ITransportGateway? _gateway;
+    private bool _onlineTransport;
     private LobbyNetworkDriver? _lobby;
     private NetworkVehicleArena? _arena;
     private VBoxContainer _menu = null!;
     private string _message = "Host a lobby or join an address. Up to 8 players; everyone must be ready.";
     private ulong _arenaGeneration;
+    private OnlineLobbyPanel _online = null!;
+
+    /// <summary>Authenticated online coordinator supplied by application composition.</summary>
+    internal Func<OnlineLobbyCoordinator?> OnlineCoordinator { get; set; } = () => null;
 
     /// <summary>Production lobby exposed for runtime integration verification.</summary>
     internal LobbyNetworkDriver? Lobby => _lobby;
     /// <summary>Active arena, absent while assembling the lobby.</summary>
     internal NetworkVehicleArena? Arena => _arena;
     /// <summary>Current sampled peer latency.</summary>
-    internal int? Ping => TransportDiagnostics.GetPing(_transport?.Gateway);
+    internal int? Ping => TransportDiagnostics.GetPing(_gateway);
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -37,13 +46,23 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         Layer = 1;
         var root = new Control { AnchorRight = 1, AnchorBottom = 1, MouseFilter = Control.MouseFilterEnum.Ignore };
         AddChild(root);
-        var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -250, OffsetRight = 250, OffsetTop = -260, OffsetBottom = 260 };
+        var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -300, OffsetRight = 300, OffsetTop = -300, OffsetBottom = 340 };
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("172235"), ContentMarginLeft = 24, ContentMarginRight = 24, ContentMarginTop = 18, ContentMarginBottom = 18 });
         root.AddChild(panel);
         _menu = new VBoxContainer();
         _menu.AddThemeConstantOverride("separation", 8);
         panel.AddChild(_menu);
-        _menu.AddChild(new Label { Text = "TRACKSTORM · DEVELOPMENT LOBBY", HorizontalAlignment = HorizontalAlignment.Center });
+        _menu.AddChild(new Label { Text = "TRACKSTORM · MULTIPLAYER", HorizontalAlignment = HorizontalAlignment.Center });
+        _online = new OnlineLobbyPanel { Coordinator = () => OnlineCoordinator() };
+        _menu.AddChild(_online);
+        _menu.AddChild(_debug);
+        _debug.Toggled += enabled =>
+        {
+            if (enabled)
+            {
+                OnlineCoordinator()?.Leave();
+            }
+        };
         _menu.AddChild(_name);
         _menu.AddChild(_address);
         _menu.AddChild(_host);
@@ -83,11 +102,13 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <param name="name">Requested local name.</param>
     internal void Open(bool host, string address, string name)
     {
+        _debug.ButtonPressed = true;
         Leave();
         try
         {
             _transport = new NetworkTransportNode { Name = "SessionTransport" };
             AddChild(_transport);
+            _gateway = _transport.Gateway;
             ulong peer = 0;
             ulong session = 0;
             if (host)
@@ -116,6 +137,11 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <param name="input">Captured local input.</param>
     internal void Advance(InputFrame input)
     {
+        if (_onlineTransport && OnlineCoordinator()?.Active is null)
+        {
+            Leave();
+        }
+
         if (_lobby is null)
         {
             return;
@@ -147,7 +173,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         {
             _arenaGeneration = _lobby.State.Match;
             _arena = new NetworkVehicleArena { Name = "SessionArena" };
-            _arena.Initialize(_transport!.Gateway, _lobby.Authority is null ? 0 : _arenaGeneration, _lobby.ServerPeer, _lobby);
+            _arena.Initialize(_gateway!, _lobby.Authority is null ? 0 : _arenaGeneration, _lobby.ServerPeer, _lobby);
             AddChild(_arena);
         }
     }
@@ -157,6 +183,13 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     {
         RemoveArena();
         _lobby = null;
+        if (_onlineTransport)
+        {
+            OnlineCoordinator()?.Leave();
+            _onlineTransport = false;
+        }
+
+        _gateway = null;
         if (_transport is not null)
         {
             RemoveChild(_transport);
@@ -165,6 +198,28 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         }
 
         _message = "Host a lobby or join an address. Everyone must be ready before starting.";
+    }
+
+    /// <summary>Enters the existing lobby and arena presentation using separately established online transport.</summary>
+    /// <param name="gateway">Caller-owned authenticated gateway supplied by the transport integration.</param>
+    /// <param name="serverPeer">Connected server peer for a client, zero for a host.</param>
+    /// <param name="name">Requested gameplay display name.</param>
+    /// <returns>The admission binding used by the authenticated transport adapter.</returns>
+    internal OnlineSessionBinding OpenOnline(ITransportGateway gateway, ulong serverPeer, string name)
+    {
+        if (_lobby is not null || _transport is not null)
+        {
+            throw new InvalidOperationException("Leave the current gameplay session before attaching online transport.");
+        }
+
+        var coordinator = OnlineCoordinator() ?? throw new InvalidOperationException("Online services unavailable.");
+        var binding = coordinator.AttachTransport(gateway, serverPeer, name);
+        _gateway = gateway;
+        _lobby = binding.Driver;
+        _onlineTransport = true;
+        _debug.ButtonPressed = false;
+        _message = "Online transport connected. Everyone must be ready to start.";
+        return binding;
     }
 
     private void RemoveArena()
@@ -184,10 +239,13 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         ((Control)_menu.GetParent()).Visible = !arena;
         ((Control)_return.GetParent()).Visible = arena;
         _return.Visible = _lobby?.Authority is not null;
-        _name.Visible = !active;
-        _address.Visible = !active;
-        _host.Visible = !active;
-        _join.Visible = !active;
+        _online.Visible = !arena && !_debug.ButtonPressed;
+        _debug.Visible = !active;
+        _status.Visible = active || _debug.ButtonPressed;
+        _name.Visible = !active && _debug.ButtonPressed;
+        _address.Visible = !active && _debug.ButtonPressed;
+        _host.Visible = !active && _debug.ButtonPressed;
+        _join.Visible = !active && _debug.ButtonPressed;
         _leave.Visible = active;
         _ready.Visible = _lobby?.State is not null && !arena;
         _start.Visible = _lobby?.Authority is not null && !arena;
