@@ -142,8 +142,10 @@ internal sealed class EosSdkPlatform : IEosPlatform
             _connect!.RemoveNotifyLoginStatusChanged(_statusNotification);
         }
 
-        _platform?.Release();
+        // Caller-owned lobby handles must be released while their platform is still valid.
+        // Platform release then cancels their queued callbacks after the native objects are gone.
         _lobbyHandles.Dispose();
+        _platform?.Release();
         _platform = null;
         _connect = null;
         _user = null;

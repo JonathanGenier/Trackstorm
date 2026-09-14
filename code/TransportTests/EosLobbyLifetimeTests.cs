@@ -6,7 +6,7 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class EosLobbyLifetimeTests
 {
-    /// <summary>A completed operation releases once; canceled operations remain owned until platform teardown.</summary>
+    /// <summary>A completed operation releases once; canceled operations remain owned until pre-platform teardown.</summary>
     [Test]
     public void PendingHandlesSurviveConsumerCancellationAndReleaseExactlyOnce()
     {
@@ -18,11 +18,11 @@ internal sealed class EosLobbyLifetimeTests
         completed.Dispose();
         completed.Dispose();
         Assert.That(events, Is.EqualTo(new[] { "completed" }));
+        handles.Dispose();
         events.Add("platform released");
         handles.Dispose();
-        handles.Dispose();
         canceled.Dispose();
-        Assert.That(events, Is.EqualTo(new[] { "completed", "platform released", "canceled" }));
+        Assert.That(events, Is.EqualTo(new[] { "completed", "canceled", "platform released" }));
         Assert.Throws<ObjectDisposedException>(() => handles.Retain(() => events.Add("invalid")));
     }
 
