@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Trackstorm.Client.Online;
 
-/// <summary>Explicit development-only EOS settings; credentials are never rendered by diagnostics.</summary>
+/// <summary>Validated EOS settings; credentials are never rendered by diagnostics.</summary>
 internal sealed class EosConfiguration
 {
     /// <summary>Gets the explicit deployment environment; only development is enabled.</summary>
@@ -27,8 +27,8 @@ internal sealed class EosConfiguration
     /// <summary>Gets the restricted game-client credential; never log it.</summary>
     public string ClientSecret { get; init; } = string.Empty;
 
-    /// <summary>Reads and validates local configuration without exposing file contents in errors.</summary>
-    /// <param name="path">Local configuration file path.</param>
+    /// <summary>Reads and validates an override file without exposing its contents in errors.</summary>
+    /// <param name="path">Override configuration file path.</param>
     /// <returns>The validated configuration.</returns>
     public static EosConfiguration Load(string path)
     {
@@ -46,9 +46,9 @@ internal sealed class EosConfiguration
             configuration.Validate();
             return configuration;
         }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException or ArgumentException or NotSupportedException)
         {
-            throw new InvalidOperationException("Cannot read EOS configuration. Supply a valid eos.development.local.json; see docs/eos-development.md.");
+            throw new InvalidOperationException("Cannot read the EOS configuration override. Supply a readable JSON file; see docs/eos-development.md.");
         }
     }
 

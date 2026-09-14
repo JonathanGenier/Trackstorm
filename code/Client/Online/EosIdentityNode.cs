@@ -70,7 +70,7 @@ public sealed partial class EosIdentityNode : Node
         EosProcessRuntime.Shutdown();
     }
 
-    /// <summary>Loads editor/export configuration and starts an explicit login or retry.</summary>
+    /// <summary>Resolves embedded/override configuration and starts an explicit login or retry.</summary>
     internal void Login()
     {
         if (_identity.State is OnlineIdentityState.LoggingIn or OnlineIdentityState.LoggedIn or OnlineIdentityState.LoggingOut || _logoutRequested)
@@ -78,16 +78,14 @@ public sealed partial class EosIdentityNode : Node
             return;
         }
 
-        string path = System.Environment.GetEnvironmentVariable("TRACKSTORM_EOS_CONFIG") ??
-            System.IO.Path.Combine(OS.HasFeature("editor") ? ProjectSettings.GlobalizePath("res://") : System.IO.Path.GetDirectoryName(OS.GetExecutablePath())!, "eos.development.local.json");
         EosConfiguration configuration;
         try
         {
-            configuration = EosConfiguration.Load(path);
+            configuration = EosClientConfiguration.Resolve();
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException exception)
         {
-            _failure = new EosLobbyStatus($"EOS: Configuration missing/invalid. Create or correct {path} using eos.development.example.json, then retry login.", "EOS configuration is missing or invalid.", CanRetry: true);
+            _failure = new EosLobbyStatus($"EOS: Configuration invalid. {exception.Message} Correct the embedded values or explicit override, then retry login.", "EOS configuration is invalid.", CanRetry: true);
             Status = _failure;
             return;
         }

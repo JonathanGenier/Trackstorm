@@ -12,7 +12,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
     {
         EosLobbyStatus.Initializing,
         EosLobbyStatus.FromIdentity(OnlineIdentityState.LoggingIn, false, true, null),
-        new("EOS: Configuration missing/invalid. Create or correct C:/Trackstorm/eos.development.local.json using eos.development.example.json, then retry login.", "EOS configuration is missing or invalid.", CanRetry: true),
+        new("EOS: Configuration invalid. Correct the embedded values or explicit TRACKSTORM_EOS_CONFIG override, then retry login.", "EOS configuration is invalid.", CanRetry: true),
         EosLobbyStatus.FromIdentity(OnlineIdentityState.Failed, false, true, "Check deployment and retry login."),
         EosLobbyStatus.FromIdentity(OnlineIdentityState.Failed, false, false, "Run setup-eos.ps1."),
         EosLobbyStatus.FromIdentity(OnlineIdentityState.Stopped, false, false, null),
