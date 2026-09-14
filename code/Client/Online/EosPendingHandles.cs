@@ -6,7 +6,7 @@ internal sealed class EosPendingHandles : IDisposable
     private readonly HashSet<Lease> _pending = new();
     private bool _disposed;
 
-    /// <summary>Releases canceled handles after Platform.Release, before process Shutdown.</summary>
+    /// <summary>Releases pending caller-owned handles while the platform is valid, before Platform.Release.</summary>
     public void Dispose()
     {
         _disposed = true;
