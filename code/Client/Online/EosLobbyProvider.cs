@@ -11,7 +11,7 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
     private readonly ProductUserId _user;
     private readonly object _callbackOwner;
     private readonly Action<Action> _enqueue;
-    private readonly HashSet<LobbySearch> _searches = new();
+    private readonly EosPendingHandles _handles;
     private readonly HashSet<EosLobbyWatch> _watches = new();
     private bool _disposed;
 
@@ -20,12 +20,14 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
     /// <param name="user">Authenticated native product user.</param>
     /// <param name="callbackOwner">Platform owner used for native callback cleanup.</param>
     /// <param name="enqueue">Main-thread queue drained after native platform Tick.</param>
-    internal EosLobbyProvider(LobbyInterface lobbies, ProductUserId user, object callbackOwner, Action<Action> enqueue)
+    /// <param name="handles">Platform-owned pending native resources.</param>
+    internal EosLobbyProvider(LobbyInterface lobbies, ProductUserId user, object callbackOwner, Action<Action> enqueue, EosPendingHandles handles)
     {
         _lobbies = lobbies;
         _user = user;
         _callbackOwner = callbackOwner;
         _enqueue = enqueue;
+        _handles = handles;
     }
 
     /// <inheritdoc />
@@ -129,6 +131,8 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
                 return;
             }
 
+            var lease = _handles.Retain(details.Release);
+            bool started = false;
             try
             {
                 var lobby = Read(details);
@@ -142,7 +146,7 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
                 _lobbies.JoinLobby(ref options, _callbackOwner, (ref JoinLobbyCallbackInfo info) =>
                 {
                     Result result = info.ResultCode;
-                    Dispatch(() =>
+                    Dispatch(lease, () =>
                     {
                         var joined = result == Result.Success ? ReadCurrent(id) : null;
                         if (result == Result.Success && joined is null)
@@ -156,10 +160,14 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
                         }
                     });
                 });
+                started = true;
             }
             finally
             {
-                details.Release();
+                if (!started)
+                {
+                    lease.Dispose();
+                }
             }
         });
     }
@@ -212,6 +220,7 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
     /// <inheritdoc />
     public IDisposable Watch(string id, Action<OnlineLobby?> changed)
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
         var watch = new EosLobbyWatch(_lobbies, _user, _callbackOwner, id, _enqueue, () => ReadCurrent(id), changed);
         _watches.Add(watch);
         watch.Removed = () => _watches.Remove(watch);
@@ -232,12 +241,8 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
             watch.Dispose();
         }
 
-        foreach (var search in _searches)
-        {
-            search.Release();
-        }
-
-        _searches.Clear();
+        // In-flight handles belong to the platform, not this logical provider.
+        // Queued completions release them even when consumer delivery is canceled.
     }
 
     private static string? Attribute(LobbyDetails details, string key)
@@ -288,11 +293,20 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
         _ => $"EOS lobby service failure ({result}). Check connectivity and Lobby client-policy permissions; refresh or retry.",
     };
 
-    private void Dispatch(Action action) => _enqueue(() =>
+    private void Dispatch(Action action) => Dispatch(null, action);
+
+    private void Dispatch(IDisposable? handle, Action action) => _enqueue(() =>
     {
-        if (!_disposed)
+        try
         {
-            action();
+            if (!_disposed)
+            {
+                action();
+            }
+        }
+        finally
+        {
+            handle?.Dispose();
         }
     });
 
@@ -348,26 +362,21 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
             return;
         }
 
-        _searches.Add(search);
-        var find = new LobbySearchFindOptions { LocalUserId = _user };
-        search.Find(ref find, _callbackOwner, (ref LobbySearchFindCallbackInfo info) =>
+        var lease = _handles.Retain(search.Release);
+        try
         {
-            Result found = info.ResultCode;
-            Dispatch(() =>
+            var find = new LobbySearchFindOptions { LocalUserId = _user };
+            search.Find(ref find, _callbackOwner, (ref LobbySearchFindCallbackInfo info) =>
             {
-                try
-                {
-                    completed(found == Result.Success ? search : null, found == Result.Success ? null : Failure(found));
-                }
-                finally
-                {
-                    if (_searches.Remove(search))
-                    {
-                        search.Release();
-                    }
-                }
+                Result found = info.ResultCode;
+                Dispatch(lease, () => completed(found == Result.Success ? search : null, found == Result.Success ? null : Failure(found)));
             });
-        });
+        }
+        catch
+        {
+            lease.Dispose();
+            throw;
+        }
     }
 
     private void Write(OnlineLobby lobby, bool initial, Action<OnlineLobby?, string?> completed, bool availability = false)
@@ -393,6 +402,8 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
             return;
         }
 
+        var lease = _handles.Retain(modification.Release);
+        bool started = false;
         try
         {
             var attributes = new Dictionary<string, string>();
@@ -437,16 +448,20 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
             _lobbies.UpdateLobby(ref update, _callbackOwner, (ref UpdateLobbyCallbackInfo info) =>
             {
                 Result updated = info.ResultCode;
-                Dispatch(() =>
+                Dispatch(lease, () =>
                 {
                     var currentLobby = updated == Result.Success ? ReadCurrent(lobby.Id) : null;
                     completed(currentLobby, updated == Result.Success ? currentLobby is null ? "Lobby metadata unavailable. Refresh and retry." : null : Failure(updated));
                 });
             });
+            started = true;
         }
         finally
         {
-            modification.Release();
+            if (!started)
+            {
+                lease.Dispose();
+            }
         }
     }
 }

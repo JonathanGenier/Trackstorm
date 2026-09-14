@@ -66,7 +66,7 @@ public sealed partial class SimulationBootstrap : Node
         }
         else
         {
-            _session = new DevelopmentSession { Name = "DevelopmentSession", OnlineCoordinator = () => online?.Coordinator };
+            _session = new DevelopmentSession { Name = "DevelopmentSession", OnlineCoordinator = () => online?.Coordinator, OnlineStatus = () => online?.Status ?? EosLobbyStatus.Unavailable, OnlineLogin = () => online?.Login(), OnlineLogout = () => online?.Logout() };
             AddChild(_session);
             if (networkArguments.Length == 1)
             {

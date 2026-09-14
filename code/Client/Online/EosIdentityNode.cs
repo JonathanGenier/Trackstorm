@@ -2,38 +2,24 @@ using Godot;
 
 namespace Trackstorm.Client.Online;
 
-/// <summary>Opt-in development identity controls; application ownership is independent of Direct-IP sessions.</summary>
-public sealed partial class EosIdentityNode : CanvasLayer
+/// <summary>Application-owned EOS identity; the multiplayer panel presents its status and controls.</summary>
+public sealed partial class EosIdentityNode : Node
 {
     private readonly EosIdentityService _identity = new(() => new EosSdkPlatform());
-    private Label _status = null!;
-    private string? _configurationError;
+    private EosLobbyStatus? _failure;
+    private bool _authenticationStarted;
     private bool _logoutRequested;
 
     /// <summary>Current authenticated membership coordinator, absent when EOS is unavailable.</summary>
     internal OnlineLobbyCoordinator? Coordinator { get; private set; }
 
+    /// <summary>Single source for the multiplayer authentication presentation.</summary>
+    internal EosLobbyStatus Status { get; private set; } = EosLobbyStatus.Initializing;
+
     /// <inheritdoc />
     public override void _Ready()
     {
         ProcessMode = ProcessModeEnum.Always;
-        Layer = 20;
-        var box = new VBoxContainer { Position = new Vector2(12, 12), CustomMinimumSize = new Vector2(240, 0) };
-        _status = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        box.AddChild(_status);
-        var controls = new HBoxContainer();
-        var login = new Button { Text = "EOS dev login" };
-        var logout = new Button { Text = "EOS logout" };
-        login.Pressed += Login;
-        logout.Pressed += () =>
-        {
-            Coordinator?.Leave();
-            _logoutRequested = true;
-        };
-        controls.AddChild(login);
-        controls.AddChild(logout);
-        box.AddChild(controls);
-        AddChild(box);
         Login();
     }
 
@@ -46,9 +32,17 @@ public sealed partial class EosIdentityNode : CanvasLayer
             Coordinator?.Dispose();
             Coordinator = null;
         }
-        else if (Coordinator is null && !_logoutRequested)
+        else if (Coordinator is null && !_logoutRequested && _failure is null)
         {
-            Coordinator = new OnlineLobbyCoordinator(_identity.CreateLobbyProvider(), _identity.ProductUserId!);
+            try
+            {
+                Coordinator = new OnlineLobbyCoordinator(_identity.CreateLobbyProvider(), _identity.ProductUserId!);
+            }
+            catch (InvalidOperationException)
+            {
+                _identity.Stop();
+                _failure = new EosLobbyStatus("EOS unavailable. Lobby services could not start; retry login.", "EOS lobby services unavailable.", CanRetry: true);
+            }
         }
 
         Coordinator?.Tick();
@@ -60,7 +54,11 @@ public sealed partial class EosIdentityNode : CanvasLayer
             _logoutRequested = false;
         }
 
-        _status.Text = $"SDK initialized: {EosProcessRuntime.Initialized}\n" + (_configurationError ?? _identity.Diagnostics);
+        Status = _failure ?? EosLobbyStatus.FromIdentity(_identity.State, Coordinator is not null, _authenticationStarted, _identity.Failure);
+        if (_logoutRequested)
+        {
+            Status = new EosLobbyStatus("EOS: Closing lobby before sign-out…", "Wait for lobby cleanup.");
+        }
     }
 
     /// <inheritdoc />
@@ -68,24 +66,44 @@ public sealed partial class EosIdentityNode : CanvasLayer
     {
         Coordinator?.Dispose();
         _identity.Dispose();
-        // The bootstrap is the application root. No SDK calls are permitted after this terminal shutdown.
+        // No SDK calls are permitted after this terminal application shutdown.
         EosProcessRuntime.Shutdown();
     }
 
-    private void Login()
+    /// <summary>Loads editor/export configuration and starts an explicit login or retry.</summary>
+    internal void Login()
     {
+        if (_identity.State is OnlineIdentityState.LoggingIn or OnlineIdentityState.LoggedIn or OnlineIdentityState.LoggingOut || _logoutRequested)
+        {
+            return;
+        }
+
+        string path = System.Environment.GetEnvironmentVariable("TRACKSTORM_EOS_CONFIG") ??
+            System.IO.Path.Combine(OS.HasFeature("editor") ? ProjectSettings.GlobalizePath("res://") : System.IO.Path.GetDirectoryName(OS.GetExecutablePath())!, "eos.development.local.json");
+        EosConfiguration configuration;
         try
         {
-            string path = System.Environment.GetEnvironmentVariable("TRACKSTORM_EOS_CONFIG") ??
-                System.IO.Path.Combine(OS.HasFeature("editor") ? ProjectSettings.GlobalizePath("res://") : System.IO.Path.GetDirectoryName(OS.GetExecutablePath())!, "eos.development.local.json");
-            var configuration = EosConfiguration.Load(path);
-            _configurationError = null;
-            _identity.Start(configuration);
-            _identity.Login();
+            configuration = EosConfiguration.Load(path);
         }
-        catch (InvalidOperationException exception)
+        catch (InvalidOperationException)
         {
-            _configurationError = exception.Message;
+            _failure = new EosLobbyStatus($"EOS: Configuration missing/invalid. Create or correct {path} using eos.development.example.json, then retry login.", "EOS configuration is missing or invalid.", CanRetry: true);
+            Status = _failure;
+            return;
         }
+
+        _failure = null;
+        _authenticationStarted = false;
+        Status = EosLobbyStatus.Initializing;
+        _identity.Start(configuration);
+        _authenticationStarted = _identity.State == OnlineIdentityState.Ready;
+        _identity.Login();
+    }
+
+    /// <summary>Closes membership before ending the current identity, or cancels pending login.</summary>
+    internal void Logout()
+    {
+        Coordinator?.Leave();
+        _logoutRequested = true;
     }
 }

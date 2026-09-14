@@ -229,6 +229,8 @@ internal sealed class OnlineLobbyTests
             Assert.That(host.Active, Is.Null);
             Assert.That(client.Active, Is.Null);
             Assert.That(service.Watches.Count, Is.Zero);
+            Assert.That(host.Browser.Rows.Any(row => row.Id == id), Is.False);
+            Assert.That(client.Browser.Rows.Any(row => row.Id == id), Is.False);
             host.Create("Replacement", LobbyAccess.Locked, "new-code");
             late(null);
             Assert.That(host.Active!.Name, Is.EqualTo("Replacement"));

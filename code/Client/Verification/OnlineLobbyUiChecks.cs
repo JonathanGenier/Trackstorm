@@ -8,17 +8,30 @@ namespace Trackstorm.Client.Verification;
 public sealed partial class OnlineLobbyUiChecks : Node
 {
     private readonly UiProvider _provider = new();
+    private readonly EosLobbyStatus[] _identityStates =
+    {
+        EosLobbyStatus.Initializing,
+        EosLobbyStatus.FromIdentity(OnlineIdentityState.LoggingIn, false, true, null),
+        new("EOS: Configuration missing/invalid. Create or correct C:/Trackstorm/eos.development.local.json using eos.development.example.json, then retry login.", "EOS configuration is missing or invalid.", CanRetry: true),
+        EosLobbyStatus.FromIdentity(OnlineIdentityState.Failed, false, true, "Check deployment and retry login."),
+        EosLobbyStatus.FromIdentity(OnlineIdentityState.Failed, false, false, "Run setup-eos.ps1."),
+        EosLobbyStatus.FromIdentity(OnlineIdentityState.Stopped, false, false, null),
+        EosLobbyStatus.FromIdentity(OnlineIdentityState.LoggedIn, false, true, null),
+    };
+
     private OnlineLobbyCoordinator _coordinator = null!;
     private DevelopmentSession _session = null!;
     private double _elapsed;
-    private int _stage;
+    private int _stage = -7;
+    private bool _online;
+    private int _loginRequests;
 
     /// <inheritdoc />
     public override void _Ready()
     {
         Engine.MaxFps = 60;
         _coordinator = new OnlineLobbyCoordinator(_provider, new OnlineProductUserId(new string('1', 32)));
-        _session = new DevelopmentSession { OnlineCoordinator = () => _coordinator };
+        _session = new DevelopmentSession { OnlineCoordinator = () => _online ? _coordinator : null, OnlineStatus = () => _online ? EosLobbyStatus.Connected : _identityStates[_stage + 7], OnlineLogin = () => _loginRequests++ };
         AddChild(_session);
     }
 
@@ -34,9 +47,35 @@ public sealed partial class OnlineLobbyUiChecks : Node
         _elapsed = 0;
         try
         {
+            if (_stage < 0)
+            {
+                var expected = _identityStates[_stage + 7];
+                Require(Controls<Button>().Single(button => button.IsVisibleInTree() && button.Text == "Host Game").Disabled, "Unauthenticated Host Game was enabled.");
+                Require(Controls<Label>().Single(label => label.Name == "EosState").Text == expected.Text, "EOS state not shown in multiplayer panel.");
+                Require(Controls<Label>().Single(label => label.Name == "HostReason").Text.Length > 0, "Disabled Host Game has no reason.");
+                Require(Controls<Button>().Any(button => button.IsVisibleInTree() && button.Text.Contains("Direct-IP", StringComparison.Ordinal)), "Developer fallback is not visible.");
+                Require(!Controls<LineEdit>().Any(edit => edit.IsVisibleInTree() && edit.Name == "DirectAddress"), "IP field shown before fallback selection.");
+                if (expected.CanRetry)
+                {
+                    int before = _loginRequests;
+                    Press("EOS dev login");
+                    Require(_loginRequests == before + 1, "Retry did not reach the identity owner.");
+                }
+
+                if (_stage == -5)
+                {
+                    Capture("configuration-missing");
+                }
+
+                _stage++;
+                _online = _stage == 0;
+                return;
+            }
+
             switch (_stage++)
             {
                 case 0:
+                    Require(!Controls<Button>().Single(button => button.IsVisibleInTree() && button.Text == "Host Game").Disabled, "Host Game did not enable after authentication and coordinator creation.");
                     Require(Controls<Label>().Any(label => label.Text == "LOCKED"), "Locked row missing.");
                     Require(!Controls<LineEdit>().Any(edit => edit.IsVisibleInTree() && edit.PlaceholderText.Contains("IP:", StringComparison.Ordinal)), "IP field visible in normal flow.");
                     Capture("browser");

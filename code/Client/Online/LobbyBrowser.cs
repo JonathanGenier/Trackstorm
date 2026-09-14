@@ -27,6 +27,10 @@ internal sealed class LobbyBrowser
     /// <param name="lobby">Current client-only lobby metadata.</param>
     internal void Update(OnlineLobby lobby) => _lobbies[lobby.Id] = lobby;
 
+    /// <summary>Drops a departed membership snapshot until a fresh discovery result arrives.</summary>
+    /// <param name="id">Logical lobby identity whose cached membership is obsolete.</param>
+    internal void Remove(string id) => _lobbies.Remove(id);
+
     /// <summary>Resolves the latest discovery result by its logical identity.</summary>
     /// <param name="id">Logical EOS lobby identity.</param>
     /// <returns>The validated result, or an explicit failure/absence.</returns>

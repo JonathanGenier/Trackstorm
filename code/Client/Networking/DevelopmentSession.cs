@@ -33,6 +33,13 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <summary>Authenticated online coordinator supplied by application composition.</summary>
     internal Func<OnlineLobbyCoordinator?> OnlineCoordinator { get; set; } = () => null;
 
+    /// <summary>Authentication state supplied by application composition.</summary>
+    internal Func<EosLobbyStatus> OnlineStatus { get; set; } = () => EosLobbyStatus.Unavailable;
+    /// <summary>Explicit login/retry action supplied by the identity owner.</summary>
+    internal Action OnlineLogin { get; set; } = () => { };
+    /// <summary>Explicit logout action supplied by the identity owner.</summary>
+    internal Action OnlineLogout { get; set; } = () => { };
+
     /// <summary>Production lobby exposed for runtime integration verification.</summary>
     internal LobbyNetworkDriver? Lobby => _lobby;
     /// <summary>Active arena, absent while assembling the lobby.</summary>
@@ -46,16 +53,19 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         Layer = 1;
         var root = new Control { AnchorRight = 1, AnchorBottom = 1, MouseFilter = Control.MouseFilterEnum.Ignore };
         AddChild(root);
-        var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -300, OffsetRight = 300, OffsetTop = -300, OffsetBottom = 340 };
+        var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -300, OffsetRight = 300, OffsetTop = -330, OffsetBottom = 330 };
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("172235"), ContentMarginLeft = 24, ContentMarginRight = 24, ContentMarginTop = 18, ContentMarginBottom = 18 });
         root.AddChild(panel);
         _menu = new VBoxContainer();
         _menu.AddThemeConstantOverride("separation", 8);
-        panel.AddChild(_menu);
+        var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        panel.AddChild(scroll);
+        _menu.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        scroll.AddChild(_menu);
         _menu.AddChild(new Label { Text = "TRACKSTORM · MULTIPLAYER", HorizontalAlignment = HorizontalAlignment.Center });
-        _online = new OnlineLobbyPanel { Coordinator = () => OnlineCoordinator() };
-        _menu.AddChild(_online);
+        _online = new OnlineLobbyPanel { Coordinator = () => OnlineCoordinator(), IdentityStatus = () => OnlineStatus(), Login = () => OnlineLogin(), Logout = () => OnlineLogout() };
         _menu.AddChild(_debug);
+        _menu.AddChild(_online);
         _debug.Toggled += enabled =>
         {
             if (enabled)
@@ -236,7 +246,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     {
         bool active = _lobby is not null;
         bool arena = _lobby?.State?.Phase == SessionPhase.Arena;
-        ((Control)_menu.GetParent()).Visible = !arena;
+        _menu.GetParent<ScrollContainer>().GetParent<Control>().Visible = !arena;
         ((Control)_return.GetParent()).Visible = arena;
         _return.Visible = _lobby?.Authority is not null;
         _online.Visible = !arena && !_debug.ButtonPressed;

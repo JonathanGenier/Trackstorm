@@ -299,6 +299,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         Status = _pendingMembership is null ? "Left lobby." : "Canceling online membership…";
         if (old is not null)
         {
+            Browser.Remove(old.Id);
             long epoch = Begin(destroy ? "Closing lobby…" : "Leaving lobby…");
             _provider.Leave(old.Id, destroy, failure =>
             {

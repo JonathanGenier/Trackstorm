@@ -8,6 +8,7 @@ namespace Trackstorm.Client.Online;
 internal sealed class EosSdkPlatform : IEosPlatform
 {
     private readonly Queue<Action> _callbacks = new();
+    private readonly EosPendingHandles _lobbyHandles = new();
     private PlatformInterface? _platform;
     private ConnectInterface? _connect;
     private ProductUserId? _user;
@@ -142,6 +143,7 @@ internal sealed class EosSdkPlatform : IEosPlatform
         }
 
         _platform?.Release();
+        _lobbyHandles.Dispose();
         _platform = null;
         _connect = null;
         _user = null;
@@ -165,7 +167,7 @@ internal sealed class EosSdkPlatform : IEosPlatform
         }
 
         _lobbyProvider?.Dispose();
-        _lobbyProvider = new EosLobbyProvider(_platform.GetLobbyInterface(), _user, this, callback => _callbacks.Enqueue(callback));
+        _lobbyProvider = new EosLobbyProvider(_platform.GetLobbyInterface(), _user, this, callback => _callbacks.Enqueue(callback), _lobbyHandles);
         return _lobbyProvider;
     }
 

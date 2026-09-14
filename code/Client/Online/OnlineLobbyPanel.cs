@@ -5,6 +5,10 @@ namespace Trackstorm.Client.Online;
 /// <summary>Unified public/locked browser; only whitelisted row data reaches the UI.</summary>
 internal sealed partial class OnlineLobbyPanel : VBoxContainer
 {
+    private readonly Label _identity = new() { Name = "EosState", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+    private readonly Label _hostReason = new() { Name = "HostReason", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+    private readonly Button _login = new() { Text = "EOS dev login / Retry" };
+    private readonly Button _logout = new() { Text = "EOS logout" };
     private readonly LineEdit _search = new() { PlaceholderText = "Search lobbies", MaxLength = 48 };
     private readonly LineEdit _name = new() { PlaceholderText = "Lobby name (1–48 characters)", MaxLength = 96 };
     private readonly CheckButton _locked = new() { Text = "Locked / Private" };
@@ -24,9 +28,25 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
     /// <summary>Returns the current authenticated coordinator, or absence while offline.</summary>
     internal Func<OnlineLobbyCoordinator?> Coordinator { get; set; } = () => null;
 
+    /// <summary>Authentication presentation from the application identity owner.</summary>
+    internal Func<EosLobbyStatus> IdentityStatus { get; set; } = () => EosLobbyStatus.Unavailable;
+
+    /// <summary>Requests explicit authentication or retry.</summary>
+    internal Action Login { get; set; } = () => { };
+
+    /// <summary>Requests logout after membership cleanup.</summary>
+    internal Action Logout { get; set; } = () => { };
+
     /// <inheritdoc />
     public override void _Ready()
     {
+        AddChild(_identity);
+        var identityControls = new HBoxContainer();
+        identityControls.AddChild(_login);
+        identityControls.AddChild(_logout);
+        AddChild(identityControls);
+        _login.Pressed += () => Login();
+        _logout.Pressed += () => Logout();
         AddChild(_search);
         var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(0, 160), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         _rows.SizeFlagsHorizontal = SizeFlags.ExpandFill;
@@ -39,6 +59,7 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
         AddChild(_locked);
         AddChild(_credential);
         AddChild(_host);
+        AddChild(_hostReason);
         AddChild(_rename);
         AddChild(_leave);
         AddChild(_status);
@@ -71,6 +92,10 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
     public override void _Process(double delta)
     {
         var coordinator = Coordinator();
+        var identity = IdentityStatus();
+        _identity.Text = identity.Text;
+        _login.Visible = identity.CanRetry;
+        _logout.Visible = identity.CanLogout;
         if (!ReferenceEquals(_previous, coordinator))
         {
             _selected = null;
@@ -91,7 +116,9 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
         _refresh.Visible = !active;
         _refresh.Disabled = coordinator is null || busy;
         _host.Visible = !active;
-        _host.Disabled = coordinator is null || busy;
+        _host.Disabled = !identity.Online || coordinator is null || coordinator.CanLeave;
+        _hostReason.Visible = _host.Visible && _host.Disabled;
+        _hostReason.Text = coordinator?.CanLeave == true ? coordinator.Status : identity.HostReason.Length > 0 ? identity.HostReason : "Initializing EOS lobby services…";
         _locked.Visible = !active;
         _credential.Visible = !active && _locked.ButtonPressed;
         _name.Visible = !active || coordinator?.IsHost == true;
@@ -100,7 +127,7 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
         _leave.Visible = coordinator?.CanLeave == true;
         _joinCredential.Visible = _submit.Visible = !active && _selected is not null;
         _submit.Disabled = busy || coordinator is null;
-        _status.Text = coordinator is null ? "Authenticating / online services unavailable. Use EOS login above, or select the developer fallback." :
+        _status.Text = coordinator is null ? string.Empty :
             (active ? $"{coordinator.Active!.Name} · {coordinator.Active.Members}/8 · {coordinator.Active.Access}\n" : string.Empty) + coordinator.Status;
         var rows = coordinator?.Browser.Rows.ToArray() ?? Array.Empty<LobbyRow>();
         if (!_rendered.SequenceEqual(rows))
