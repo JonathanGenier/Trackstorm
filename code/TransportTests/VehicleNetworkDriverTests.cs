@@ -146,11 +146,42 @@ internal sealed class VehicleNetworkDriverTests
             host.Advance(default, Observe);
         }
 
-        Assert.That(hostGateway.Sent.Count(message => VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Props), Is.EqualTo(1));
+        Assert.That(hostGateway.Sent.Count(message => !Trackstorm.Core.Items.ItemCodec.IsItem(message.Payload.Span) && VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Props), Is.EqualTo(1));
         hostGateway.Receive(new TransportMessage(ServerPeer, Payload(Session, 100), TransportDelivery.Unreliable));
         host.Advance(default, Observe);
         Assert.That(host.RejectedPackets, Is.EqualTo(1));
         Assert.That(host.PropSnapshot!.Tick, Is.EqualTo(3));
+    }
+
+    /// <summary>Clients accept item state only reliably from the established host in the current generation.</summary>
+    [Test]
+    public void ItemPublicationsRejectForgedStaleAndUnreliableState()
+    {
+        using var gateway = ConnectedGateway();
+        var driver = new VehicleNetworkDriver(gateway, 0, ServerPeer);
+        gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeWelcome(Session, 2), TransportDelivery.Reliable));
+        driver.Advance(default, Observe);
+        var host = new HostVehicleSession(Session);
+        host.Join(ServerPeer);
+        host.Items.Grant(host.World, 2, Trackstorm.Core.Items.HeldItem.Wrench);
+        host.Step(default, Observe);
+        byte[] payload = Trackstorm.Core.Items.ItemCodec.EncodeState(new Trackstorm.Core.Items.ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, host.Items.Events));
+        int events = 0;
+        driver.ItemsReceived += _ => events++;
+        gateway.Receive(new TransportMessage(ServerPeer + 1, payload, TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, payload, TransportDelivery.Unreliable));
+        driver.Advance(default, Observe);
+        Assert.That(driver.ItemState, Is.Null);
+        gateway.Receive(new TransportMessage(ServerPeer, payload, TransportDelivery.Reliable));
+        driver.Advance(default, Observe);
+        Assert.That(driver.LocalItem!.Item, Is.EqualTo(Trackstorm.Core.Items.HeldItem.Wrench));
+        Assert.That(driver.RequestItemUse(), Is.True);
+        Assert.That(gateway.Sent[^1].Delivery, Is.EqualTo(TransportDelivery.Reliable));
+        Assert.That(driver.LocalItem.Item, Is.EqualTo(Trackstorm.Core.Items.HeldItem.Wrench), "Request cannot predict authoritative consumption.");
+        gateway.Receive(new TransportMessage(ServerPeer, payload, TransportDelivery.Reliable));
+        driver.Advance(default, Observe);
+        Assert.That(events, Is.EqualTo(1));
+        Assert.That(driver.RejectedPackets, Is.EqualTo(3));
     }
 
     private static DriverGateway ConnectedGateway() => new(ServerPeer, TransportConnectionState.Connected);

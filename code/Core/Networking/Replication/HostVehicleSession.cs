@@ -1,5 +1,6 @@
 using System.Numerics;
 using Trackstorm.Core.Input;
+using Trackstorm.Core.Items;
 using Trackstorm.Core.Simulation;
 using Trackstorm.Core.Vehicles;
 
@@ -17,10 +18,12 @@ public sealed class HostVehicleSession
 
     /// <summary>Starts one host vehicle in a caller-identified session.</summary>
     /// <param name="sessionId">Nonzero identity supplied by the outer session lifetime.</param>
-    public HostVehicleSession(ulong sessionId)
+    /// <param name="itemConfiguration">Optional authoritative item tuning.</param>
+    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null)
     {
         ArgumentOutOfRangeException.ThrowIfZero(sessionId);
         SessionId = sessionId;
+        Items = new ItemAuthority(itemConfiguration);
         World.AddVehicle(1, new(), new(), Spawn(0));
     }
 
@@ -28,6 +31,21 @@ public sealed class HostVehicleSession
     public ulong SessionId { get; }
     /// <summary>Sole host gameplay owner, using the existing aggregate simulation path.</summary>
     public Simulation.Simulation World { get; } = new(new SimulationConfiguration(TickRate));
+
+    /// <summary>Match-scoped item gameplay authority.</summary>
+    public ItemAuthority Items { get; }
+
+    /// <summary>Resolves a use request using actual sender ownership.</summary>
+    /// <param name="peer">Transport sender; zero is the local host.</param>
+    /// <param name="session">Arena generation.</param>
+    /// <param name="life">Vehicle life.</param>
+    /// <param name="token">Issued slot token.</param>
+    /// <returns>Whether accepted for the next fixed step.</returns>
+    public bool UseItem(ulong peer, ulong session, ulong life, ulong token)
+    {
+        ulong vehicle = peer == 0 ? 1 : _peers.TryGetValue(peer, out var entry) ? entry.Vehicle : 0;
+        return session == SessionId && vehicle != 0 && Items.RequestUse(World, vehicle, life, token);
+    }
 
     /// <summary>Assigns a unique gameplay identity only after the transport reports a connected peer.</summary>
     /// <param name="peer">Transport identity scoped to the caller's live gateway.</param>
@@ -87,13 +105,14 @@ public sealed class HostVehicleSession
     /// <summary>Advances all active vehicles once using caller-supplied collision observations.</summary>
     /// <param name="local">Current host input.</param>
     /// <param name="observe">Native collision solver or deterministic test seam.</param>
-    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe)
+    /// <param name="collide">Optional host projectile collision seam.</param>
+    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null)
     {
         ulong tick = checked(World.State.Tick + 1);
         var inputs = _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.Consume(tick));
         InputFrame hostInput = new SequencedInput(0, local).AtTick(tick);
         inputs.Add(1, hostInput);
-        World.Step(hostInput, World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray());
+        Items.Step(World, hostInput, World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray(), collide ?? ((_, _) => null));
     }
 
     /// <summary>Captures the complete active roster and per-owner input confirmations.</summary>

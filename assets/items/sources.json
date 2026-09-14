@@ -1,0 +1,27 @@
+{
+  "weaponPack": {
+    "source": "https://opengameart.org/content/weapon-pack",
+    "download": "https://opengameart.org/sites/default/files/weaponPack_assets.zip",
+    "author": "Kenney Vleugels and Casper Jorissen (Kenney.nl)",
+    "license": "CC0-1.0",
+    "version": "2016-01-20",
+    "archiveSha256": "048aab5f585e9dfc146ba70e49fa0c0007b536ed7335c5f67928472088f039b3",
+    "adaptation": "Original ammo_rocket mesh, native material override and presentation scaling/rotation. Original author mirror approved because old Kenney page is unavailable. Removed unsupported OBJ ambient Ka lines from MTL; colors and geometry unchanged. Text line endings normalized to LF and trailing whitespace removed; upstream licenses preserved verbatim."
+  },
+  "particlePack": {
+    "source": "https://kenney.nl/assets/particle-pack",
+    "version": "1.1 (archive license; website release list says 1.0)",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "archiveSha256": "b631d4b07f7002549fdcf155f01141ad482f79f3440e4e301eed49ce5f1d8958"
+  },
+  "files": {
+    "kenney/particles/fire_01.png": "9727a9743ac6ab8dd4dd79f5fc5b0266290efae45f4d4452279eb5e4bcf3a978",
+    "kenney/particles/License.txt": "f9e70b81d8cc07c4e07c9f2eff1d94fd371a06070b18cb67c651c41158ec2975",
+    "kenney/particles/smoke_01.png": "e8724c219e8d35859167fc0a7e207e13c72ccf0c29704909b9bb3d3dc71c6cf7",
+    "kenney/particles/spark_01.png": "5902da3a324cad0a4b5a88ce1e3c9cc18fee50922c358ce93d8c9f1ad7708f0a",
+    "kenney/weapons/ammo_rocket.mtl": "8c182076da112ca0a45ed36d08891022218b36038809271515765d5f9159a1ee",
+    "kenney/weapons/ammo_rocket.obj": "e6cd37d567dab6030595b606382411301458ee8037ddca44f55dd33a5b226976",
+    "kenney/weapons/License.txt": "39993d9912dcb38dedfb5e3f64453b2bce6da7d19ecbc1831b1f5957a8b32140"
+  }
+}

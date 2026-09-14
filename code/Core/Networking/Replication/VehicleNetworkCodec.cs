@@ -23,7 +23,7 @@ public static class VehicleNetworkCodec
     /// <returns>Recognized message kind.</returns>
     public static byte Kind(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || bytes[0] != 0x54 || bytes[1] != 0x53 || bytes[2] != 1 || bytes[3] is < Welcome or > Props)
+        if (bytes.Length is < 4 or > MaximumBytes || bytes[0] != 0x54 || bytes[1] != 0x53 || bytes[2] != 2 || bytes[3] is < Welcome or > Props)
         {
             throw new ArgumentException("Invalid vehicle network header.");
         }
@@ -153,6 +153,22 @@ public static class VehicleNetworkCodec
             writer.Write(VehicleStateCodec.Encode(state.Movement));
             WriteVector(writer, state.ObservedPhysics.LinearVelocity);
             WriteVector(writer, state.ObservedPhysics.AngularVelocity);
+            if (state.Effects.Count > 64)
+            {
+                throw new ArgumentException("Excessive effects.");
+            }
+
+            writer.Write((byte)state.Effects.Count);
+            foreach (var effect in state.Effects)
+            {
+                writer.Write(effect.Effect.Damage);
+                WriteVector(writer, effect.Effect.Impulse);
+                WriteVector(writer, effect.Effect.Offset);
+                writer.Write(effect.Attribution.Source);
+                writer.Write(effect.Attribution.InstigatorId);
+                writer.Write(effect.Attribution.Context);
+            }
+
             writer.Write(state.Damage.MaxHP);
             writer.Write(state.Damage.CurrentHP);
             writer.Write(state.Damage.LastDamage is not null);
@@ -196,11 +212,23 @@ public static class VehicleNetworkCodec
             uint ack = reader.ReadUInt32();
             VehicleState movement = VehicleStateCodec.Decode(reader.ReadBytes(VehicleStateCodec.SerializedSize));
             var observed = new VehiclePhysicsState(movement.Physics.Position, movement.Physics.Orientation, ReadVector(reader), ReadVector(reader));
+            byte effectCount = reader.ReadByte();
+            if (effectCount > 64)
+            {
+                throw new ArgumentException("Excessive effects.");
+            }
+
+            var effects = new VehicleEffectRequest[effectCount];
+            for (int effectIndex = 0; effectIndex < effects.Length; effectIndex++)
+            {
+                effects[effectIndex] = new VehicleEffectRequest(new DamageEffect(reader.ReadSingle(), ReadVector(reader), ReadVector(reader)), new DamageContext(reader.ReadString(), reader.ReadUInt64(), reader.ReadString()));
+            }
+
             float maxHP = reader.ReadSingle();
             float hp = reader.ReadSingle();
             DamageEvent? damage = ReadFlag(reader) ? new DamageEvent(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadSingle(), new DamageContext(reader.ReadString(), reader.ReadUInt64(), reader.ReadString()), ReadFlag(reader)) : null;
             ulong? collision = ReadFlag(reader) ? reader.ReadUInt64() : null;
-            var state = new VehicleSnapshot(id, life, movement, new VehicleDamageState(maxHP, hp, damage, collision), observed);
+            var state = new VehicleSnapshot(id, life, movement, new VehicleDamageState(maxHP, hp, damage, collision), observed, effects);
             // Reject snapshots that cannot be restored under the negotiated fixed tuning.
             new VehicleMovement(new(), observed).Restore(movement);
             if (maxHP != new DamageConfiguration().MaxHP)
@@ -218,7 +246,7 @@ public static class VehicleNetworkCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, new UTF8Encoding(false, true), true);
-        writer.Write(new byte[] { 0x54, 0x53, 1, kind });
+        writer.Write(new byte[] { 0x54, 0x53, 2, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
