@@ -104,11 +104,13 @@ public sealed class VehicleMovement
 
             float forceScale = c.ReferenceMass / c.Mass;
             stopping = Math.Min(stopping * forceScale, Math.Abs(longitudinal) / dt);
-            float handbrakeStop = Math.Min(c.HandbrakeBraking * handbrake * forceScale, Math.Max(0, (Math.Abs(longitudinal) / dt) - stopping));
+            // Mechanical braking ends on release; the saved handbrake state still restores lateral grip progressively.
+            float brakeApplication = handbrakeTarget > 0 ? handbrake : 0;
+            float handbrakeStop = Math.Min(c.HandbrakeBraking * brakeApplication * forceScale, Math.Max(0, (Math.Abs(longitudinal) / dt) - stopping));
             float frontLong = -Math.Sign(longitudinal) * stopping * 0.65f;
             float driveAcceleration = Math.Clamp(drive * forceScale, -Math.Max(0, c.ReverseSpeed + longitudinal) / dt, Math.Max(0, c.ForwardSpeed - longitudinal) / dt);
             // A locked rear axle cannot transmit engine drive against its handbrake.
-            float rearLong = (driveAcceleration * (1 - handbrake)) - (Math.Sign(longitudinal) * ((stopping * 0.35f) + handbrakeStop));
+            float rearLong = (driveAcceleration * (1 - brakeApplication)) - (Math.Sign(longitudinal) * ((stopping * 0.35f) + handbrakeStop));
             float halfAxle = c.Wheelbase / 2;
             // Load transfer changes the traction budget; tire demands generate both translation and yaw.
             float frontLoad = Math.Clamp(0.5f - (State.LongitudinalAcceleration * c.LoadHeight / (c.Gravity * c.Wheelbase)), 0.2f, 0.8f);
@@ -133,7 +135,8 @@ public sealed class VehicleMovement
             float frontDemand = -frontSideSpeed * response * 0.5f;
             float rearDemand = -rearSideSpeed * response * 0.5f;
             (float frontForce, float frontDrive, float frontSaturation) = Tire(frontDemand, frontLong, frontCapacity);
-            (float rearForce, float rearDrive, float rearSaturation) = Tire(rearDemand, rearLong, rearCapacity, 1 - (handbrake * (1 - c.HandbrakeGrip)));
+            float driveReserve = driveAcceleration != 0 && handbrakeTarget == 0 ? c.DriveTractionReserve : 0;
+            (float rearForce, float rearDrive, float rearSaturation) = Tire(rearDemand, rearLong, rearCapacity, 1 - (handbrake * (1 - c.HandbrakeGrip)), driveReserve);
             frontSlip = frontSaturation;
             rearSlip = rearSaturation;
             longAcceleration = frontDrive + rearDrive;
@@ -205,7 +208,7 @@ public sealed class VehicleMovement
         State = state;
     }
 
-    private static (float Side, float Drive, float Slip) Tire(float lateral, float longitudinal, float capacity, float lateralFraction = 1)
+    private static (float Side, float Drive, float Slip) Tire(float lateral, float longitudinal, float capacity, float lateralFraction = 1, float driveReserve = 0)
     {
         float demand = MathF.Sqrt((lateral * lateral) + (longitudinal * longitudinal));
         if (demand < 0.00001f)
@@ -221,6 +224,18 @@ public sealed class VehicleMovement
         // Smooth saturation avoids a grip/drift switch and couples acceleration/braking to cornering.
         float ratio = demand / capacity;
         float scale = MathF.Tanh(ratio) / ratio;
-        return (lateral * scale * lateralFraction, longitudinal * scale, Math.Clamp(1 - (scale * lateralFraction), 0, 1));
+        float drive = longitudinal * scale;
+        float side = lateral * scale;
+        if (driveReserve > 0)
+        {
+            // Allocate propulsion inside the same friction circle, never above pedal demand or pure longitudinal traction.
+            float availableDrive = capacity * MathF.Tanh(Math.Abs(longitudinal) / capacity);
+            drive = Math.Sign(longitudinal) * Math.Max(Math.Abs(drive), Math.Min(capacity * driveReserve, availableDrive));
+            float remainingSide = MathF.Sqrt(Math.Max(0, (capacity * capacity) - (drive * drive)));
+            side = Math.Clamp(side, -remainingSide, remainingSide);
+        }
+
+        float lateralScale = Math.Abs(lateral) > 0.00001f ? Math.Abs(side / lateral) : scale;
+        return (side * lateralFraction, drive, Math.Clamp(1 - (lateralScale * lateralFraction), 0, 1));
     }
 }

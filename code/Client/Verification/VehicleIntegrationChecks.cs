@@ -48,6 +48,7 @@ public sealed partial class VehicleIntegrationChecks : Node
             await VerifyBrakingAndInvalidDrift();
             await VerifyCorneringAndRecovery();
             await VerifyResponsiveHandbrake();
+            await VerifyPowerThroughSlide();
             await VerifyPhysicalInteractions();
             await VerifyDamageAndExplosions();
             await VerifySpeedTelemetry();
@@ -203,6 +204,53 @@ public sealed partial class VehicleIntegrationChecks : Node
         await Screenshot("handbrake-recovery");
     }
 
+    private async Task VerifyPowerThroughSlide()
+    {
+        foreach (float speed in new[] { 6f, 16f })
+        {
+            foreach (int heldTicks in new[] { 6, 45 })
+            {
+                foreach (int throttleDelay in new[] { -6, 0, 6 })
+                {
+                    int release = 12 + heldTicks;
+                    int powered = release + Math.Max(0, throttleDelay);
+                    List<VehicleState> states = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -speed), heldTicks == 45 ? 180 : 90, tick => Frame(
+                        tick,
+                        throttle: (int)tick > release + throttleDelay ? (ushort)65535 : (ushort)0,
+                        steering: (int)tick <= release ? (short)12000 : (int)tick <= release + 20 ? (short)-7000 : (short)0,
+                        drift: tick > 12 && (int)tick <= release));
+                    VehicleState first = states[powered];
+                    float side = Math.Abs(Numerics.Vector3.Dot(first.Physics.LinearVelocity, Numerics.Vector3.Transform(Numerics.Vector3.UnitX, first.Physics.Orientation)));
+                    float yaw = Math.Abs(first.Physics.AngularVelocity.Y);
+                    float finalSide = Math.Abs(Numerics.Vector3.Dot(states.Last().Physics.LinearVelocity, Numerics.Vector3.Transform(Numerics.Vector3.UnitX, states.Last().Physics.Orientation)));
+                    GD.Print($"Power out: entry={speed}, held={heldTicks}, throttle delay={throttleDelay}, acceleration={first.LongitudinalAcceleration:F3}, side={side:F3}, yaw={yaw:F3}, recovery={first.Handbrake:F3}, final side={finalSide:F3}, peak speed={states.Max(state => state.CommandSpeed):F3}, peak yaw={states.Max(state => Math.Abs(state.Physics.AngularVelocity.Y)):F3}");
+                    Check(first.Grounded && first.LongitudinalAcceleration > 2 && first.Handbrake is > 0 and < 1, "first available powered tick accelerates during progressive handbrake recovery");
+                    VehicleState before = states[powered - 1];
+                    Check(Numerics.Vector3.Distance(first.Physics.LinearVelocity, before.Physics.LinearVelocity) < 0.5f && Math.Abs(first.Physics.AngularVelocity.Y - before.Physics.AngularVelocity.Y) < 0.3f, "propulsion changes momentum and yaw progressively without a snap");
+                    if (speed == 16 && heldTicks == 45 && throttleDelay <= 0)
+                    {
+                        Check(first.Drifting && side > 1 && yaw > 0.1f, "forward propulsion starts while the faster sustained slide remains active");
+                    }
+
+                    Check(states.Last().Handbrake == 0 && finalSide < 1 && states.All(state => state.CommandSpeed < 30 && Math.Abs(state.Physics.AngularVelocity.Y) < 2), "powered recovery remains controlled and returns progressively to grip");
+                    File.WriteAllLines($"{_output}.power-{speed}-{heldTicks}-{throttleDelay}.csv", states.Select((state, index) => $"{index},{state.Physics.Position},{state.Physics.LinearVelocity},{state.Physics.AngularVelocity.Y},{state.Handbrake},{state.LongitudinalAcceleration},{state.RearSlip}"));
+                }
+            }
+        }
+
+        foreach (float speed in new[] { 0f, 4f, 12f })
+        {
+            List<VehicleState> acceleration = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -speed), 90, tick => Frame(tick, throttle: 65535));
+            GD.Print($"Acceleration: entry={speed}, final={acceleration.Last().CommandSpeed:F3}");
+            Check(acceleration.Take(6).Any(state => state.Grounded && state.LongitudinalAcceleration > 4) && acceleration.Last().CommandSpeed > speed + 8, "standing/low/cruising speed throttle produces immediate sustained acceleration");
+        }
+
+        List<VehicleState> braking = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -12), 90, tick => Frame(tick, brake: tick <= 30 ? (ushort)65535 : (ushort)0, throttle: tick > 30 ? (ushort)65535 : (ushort)0));
+        GD.Print($"Brake recovery: first drive={braking[30].LongitudinalAcceleration:F3}, before={braking[29].CommandSpeed:F3}, after={braking.Last().CommandSpeed:F3}");
+        Check(braking[30].LongitudinalAcceleration > 2 && braking.Last().CommandSpeed > braking[29].CommandSpeed + 5, "throttle immediately rebuilds speed after service braking");
+        await Screenshot("power-recovery");
+    }
+
     private async Task VerifyPhysicalInteractions()
     {
         _arena.Target.ResetBody(new VehiclePhysicsState(new Numerics.Vector3(22, 1, -5), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero));
@@ -211,6 +259,10 @@ public sealed partial class VehicleIntegrationChecks : Node
         GD.Print($"Collision HP: player={_arena.Player.DamageState.CurrentHP:F2}, target={_arena.Target.DamageState.CurrentHP:F2}");
         Check(_arena.Player.DamageState.CurrentHP < 100 && _arena.Target.DamageState.CurrentHP < 100, "hard vehicle contact damages both vehicles");
         Check(_arena.Player.DamageState.LastDamage?.Attribution.InstigatorId == 2 && _arena.Target.DamageState.LastDamage?.Attribution.InstigatorId == 1, "both collision victims retain other vehicle attribution");
+        float postCollisionSpeed = _arena.Player.Snapshot.Speed;
+        _arena.Player.InputSource = tick => Frame(tick, throttle: 65535);
+        List<VehicleState> collisionRecovery = await ObserveTicks(45);
+        Check(collisionRecovery.Any(state => state.LongitudinalAcceleration > 2) && _arena.Player.Snapshot.Speed > postCollisionSpeed + 1, "throttle rebuilds speed after a real vehicle collision");
         _arena.Crate.Position = new Vector3(12, 1, 5);
         _arena.Crate.LinearVelocity = Vector3.Zero;
         await RunDrive(new Vector3(12, 1, 15), new Vector3(0, 0, -20), 90, tick => Frame(tick));

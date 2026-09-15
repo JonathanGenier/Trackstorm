@@ -13,7 +13,7 @@ public sealed record VehicleConfiguration
     /// <summary>Body mass in kilograms.</summary>
     public float Mass { get; init; } = 900;
     /// <summary>Forward acceleration in metres per second squared.</summary>
-    public float Acceleration { get; init; } = 8;
+    public float Acceleration { get; init; } = 9;
     /// <summary>Braking deceleration.</summary>
     public float Braking { get; init; } = 14;
     /// <summary>Residual opposing speed snapped to rest before reversing, in m/s.</summary>
@@ -36,6 +36,8 @@ public sealed record VehicleConfiguration
     public float Wheelbase { get; init; } = 2.3f;
     /// <summary>Tire friction coefficient; combined demands share this budget.</summary>
     public float TireFriction { get; init; } = 1.35f;
+    /// <summary>Rear traction share available to propulsion despite lateral saturation; zero disables allocation.</summary>
+    public float DriveTractionReserve { get; init; } = 0.55f;
     /// <summary>Effective center-of-mass height for longitudinal/lateral load transfer.</summary>
     public float LoadHeight { get; init; } = 0.45f;
     /// <summary>Rear braking deceleration at reference mass.</summary>
@@ -86,6 +88,11 @@ public sealed record VehicleConfiguration
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(DriveTractionReserve) || DriveTractionReserve < 0 || DriveTractionReserve > 1)
+        {
+            throw new ArgumentException("Drive traction reserve must be a finite fraction.");
+        }
+
         if (TicksPerSecond is < 30 or > 240 || new[] { StopSpeed, SuspensionLength, WheelSpring, WheelDamping, Mass, Acceleration, Braking, ReverseAcceleration, ForwardSpeed, ReverseSpeed, Grip, SteeringAngle, SteeringSpeed, SteeringResponse, Wheelbase, TireFriction, LoadHeight, HandbrakeBraking, HandbrakeGrip, HandbrakeResponse, TractionRecovery, CoastDrag, ReferenceMass, SuspensionSpring, SuspensionDamping, ChassisCompliance, MaximumChassisTilt, Gravity, MaximumPhysicsSpeed, MaximumAngularSpeed }.Any(value => !float.IsFinite(value) || value <= 0 || value > 10000) || SuspensionLength > 1 || HandbrakeGrip > 1 || SteeringAngle > 1 || MaximumChassisTilt > 0.5f || !float.IsFinite(StabilityDamping) || StabilityDamping < 0 || StabilityDamping > 1 || ForwardSpeed > MaximumPhysicsSpeed || ReverseSpeed > ForwardSpeed)
         {
             throw new ArgumentException("Vehicle tuning requires finite positive values and consistent speed/grip limits.");

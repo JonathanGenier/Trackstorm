@@ -279,6 +279,85 @@ internal sealed class VehicleMovementTests
         Assert.That(Math.Abs(held.State.LateralAcceleration), Is.GreaterThan(Math.Abs(locked.LateralAcceleration)));
     }
 
+    /// <summary>Release restores propulsion on the first tick while sideways momentum, yaw and grip recovery persist.</summary>
+    /// <param name="speed">Forward entry speed.</param>
+    /// <param name="delay">Ticks after release before throttle.</param>
+    [TestCase(6f, 0)]
+    [TestCase(16f, 0)]
+    [TestCase(24f, 0)]
+    [TestCase(16f, 6)]
+    public void ReleasedHandbrakePowersThroughRemainingSlip(float speed, int delay)
+    {
+        var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(5, 0, -speed), new Vector3(0, 0.7f, 0));
+        var movement = new VehicleMovement(new(), body);
+        movement.Restore(new VehicleState(0, body, true, true, 0, 1));
+        VehicleState held = movement.Step(Frame(1, throttle: 65535, drift: true), body, Vector3.UnitY);
+        Assert.That(held.LongitudinalAcceleration, Is.LessThan(0));
+        for (int index = 0; index < delay; index++)
+        {
+            movement.Step(Frame(movement.State.Tick + 1), body, Vector3.UnitY);
+        }
+
+        VehicleState released = movement.Step(Frame(movement.State.Tick + 1, throttle: 65535), body, Vector3.UnitY);
+        Assert.That(released.LongitudinalAcceleration, Is.GreaterThan(2));
+        Assert.That(-released.Physics.LinearVelocity.Z, Is.GreaterThan(speed));
+        Assert.That(released.Physics.LinearVelocity.X, Is.GreaterThan(4.7f));
+        Assert.That(released.Physics.AngularVelocity.Y, Is.GreaterThan(0.5f));
+        Assert.That(released.Handbrake, Is.InRange(0.3f, 0.99f));
+        Assert.That(released.Drifting, Is.True);
+    }
+
+    /// <summary>Propulsion remains analog and bounded by the supported axle even with extreme lateral demand.</summary>
+    /// <param name="surface">Surface traction modifiers.</param>
+    /// <param name="reverse">Whether the brake pedal requests reverse propulsion.</param>
+    [TestCase(SurfaceType.Concrete, false)]
+    [TestCase(SurfaceType.Mud, false)]
+    [TestCase(SurfaceType.Concrete, true)]
+    public void SlidingDriveRespectsPedalAndFrictionBudget(SurfaceType surface, bool reverse)
+    {
+        var tuning = new VehicleConfiguration();
+        var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(20, 0, reverse ? 5 : -5), Vector3.Zero);
+        float previous = 0;
+        foreach (ushort pedal in new ushort[] { 0, 500, 4000, 16000, 65535 })
+        {
+            VehicleState state = new VehicleMovement(tuning, body).Step(Frame(1, throttle: reverse ? (ushort)0 : pedal, brake: reverse ? pedal : (ushort)0), body, Vector3.UnitY, surface: surface);
+            float drive = Math.Abs(state.LongitudinalAcceleration);
+            float capacity = tuning.TireFriction * tuning.Gravity * tuning.ResolveSurface(surface).Grip / 2;
+            float yaw = state.Physics.AngularVelocity.Y / MathF.Exp(-tuning.StabilityDamping / 60);
+            float rearSide = (state.LateralAcceleration + (yaw * 60 * tuning.Wheelbase * 2 / 3)) / 2;
+            Assert.That(drive, Is.GreaterThanOrEqualTo(previous));
+            Assert.That((drive * drive) + (rearSide * rearSide), Is.LessThanOrEqualTo((capacity * capacity) + 0.0001f));
+            Assert.That(drive, Is.LessThanOrEqualTo((reverse ? tuning.ReverseAcceleration : tuning.Acceleration * tuning.ResolveSurface(surface).Acceleration) * pedal / 65535f));
+            previous = drive;
+        }
+
+        Assert.That(previous, Is.GreaterThan(1.5f));
+        VehicleState unsupported = new VehicleMovement(tuning, body).Step(Frame(1, throttle: 65535), body, Vector3.UnitY, wheels: new WheelSupport(Vector4.Zero));
+        Assert.That(unsupported.LongitudinalAcceleration, Is.Zero);
+    }
+
+    /// <summary>A measured engine increase improves launch without changing speed caps or unrelated tuning.</summary>
+    [Test]
+    public void AccelerationIncreaseIsModestAndPreservesLimits()
+    {
+        VehicleMovement current = Create();
+        var previous = new VehicleMovement(current.Configuration with { Acceleration = 8 }, current.State.Physics);
+        for (int tick = 0; tick < 90; tick++)
+        {
+            GroundStep(current, throttle: 65535);
+            GroundStep(previous, throttle: 65535);
+        }
+
+        float ratio = current.State.CommandSpeed / previous.State.CommandSpeed;
+        TestContext.WriteLine($"90-tick acceleration: previous={previous.State.CommandSpeed:F3}, current={current.State.CommandSpeed:F3}, gain={(ratio - 1) * 100:F2}%");
+        Assert.That(ratio, Is.InRange(1.03f, 1.10f));
+        Assert.That(current.Configuration.ForwardSpeed, Is.EqualTo(previous.Configuration.ForwardSpeed));
+        foreach (float invalid in new[] { -0.01f, 1.01f, float.NaN, float.PositiveInfinity })
+        {
+            Assert.Throws<ArgumentException>(() => new VehicleConfiguration { DriveTractionReserve = invalid }.Validate());
+        }
+    }
+
     private static VehicleMovement Create(float speed = 0) => new(new VehicleConfiguration(), new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(0, 0, -speed), Vector3.Zero));
 
     private static InputFrame Frame(ulong tick, ushort throttle = 0, ushort brake = 0, short steering = 0, bool drift = false) => new(tick, steering, throttle, brake, drift ? InputButtons.Drift : InputButtons.None, InputButtons.None, InputButtons.None);
