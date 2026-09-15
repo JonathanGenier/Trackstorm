@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://code/Client/Input/PlayerInput.cs" id="1_input"]
 
 [node name="Main" type="Node"]
+physics_interpolation_mode = 2
 script = ExtResource("1_simulation")
 
 [node name="PlayerInput" type="Node" parent="."]
