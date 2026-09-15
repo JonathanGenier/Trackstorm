@@ -137,7 +137,7 @@ internal sealed class VehicleLifecycleTests
             VehicleSnapshot network = VehicleNetworkCodec.DecodeSnapshot(VehicleNetworkCodec.EncodeSnapshot(host.Snapshot())).Vehicles.Single().State;
             Assert.That(VehicleSnapshotCodec.Encode(aggregate), Is.EqualTo(VehicleSnapshotCodec.Encode(state)));
             Assert.That(VehicleSnapshotCodec.Encode(network), Is.EqualTo(VehicleSnapshotCodec.Encode(state)));
-            host.World.Restore(new SimulationState(state.Movement.Tick, Drive(state.Movement.Tick), [aggregate]));
+            host.World.Restore(new SimulationState(state.Movement.Tick, Drive(state.Movement.Tick), [aggregate], host.World.State.Match));
             if (phase == 0)
             {
                 Step(host.World, items);

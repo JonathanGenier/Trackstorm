@@ -15,12 +15,19 @@ public sealed class Simulation
     /// <param name="configuration">The fixed-step simulation configuration.</param>
     /// <param name="respawn">Optional authoritative respawning; absent for isolated movement/replay fixtures.</param>
     /// <param name="arena">Validated spawn contract, defaulting to the production arena.</param>
-    public Simulation(SimulationConfiguration configuration, RespawnConfiguration? respawn = null, Arenas.ArenaConfiguration? arena = null)
+    /// <param name="match">Optional authoritative match rules; enabled in multiplayer arenas.</param>
+    public Simulation(SimulationConfiguration configuration, RespawnConfiguration? respawn = null, Arenas.ArenaConfiguration? arena = null, Matches.MatchConfiguration? match = null)
     {
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         respawn?.Validate();
         Respawn = respawn;
         Arena = arena ?? Arenas.PrototypeArena.Configuration;
+        match?.Validate();
+        MatchRules = match;
+        if (match is not null)
+        {
+            State = new SimulationState(0, default, match: new Matches.MatchState(0, 0, match.KillTarget, Matches.MatchPhase.Waiting, null, null, []));
+        }
     }
 
     /// <summary>
@@ -31,6 +38,8 @@ public sealed class Simulation
     public RespawnConfiguration? Respawn { get; }
     /// <summary>Validated configured arena markers.</summary>
     public Arenas.ArenaConfiguration Arena { get; }
+    /// <summary>Optional Core-owned match rules.</summary>
+    public Matches.MatchConfiguration? MatchRules { get; }
     /// <summary>Committed lifecycle boundaries for scoring and other observers; never emitted by rejected batches.</summary>
     public IReadOnlyList<VehicleSnapshot> LifecycleChanges { get; private set; } = Array.Empty<VehicleSnapshot>();
 
@@ -67,8 +76,10 @@ public sealed class Simulation
             throw new ArgumentException("Vehicles require unique identities and matching rates before simulation starts.");
         }
 
-        _vehicles.Add(vehicleId, new VehicleAuthority(vehicleId, movement, damage, initial));
-        State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot));
+        var authority = new VehicleAuthority(vehicleId, movement, damage, initial);
+        Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Join(State.Match, State.Tick, vehicleId);
+        _vehicles.Add(vehicleId, authority);
+        State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot), match);
     }
 
     /// <summary>Reads an immutable aggregate; callers cannot mutate the private authority owner.</summary>
@@ -90,8 +101,9 @@ public sealed class Simulation
 
         var authority = new VehicleAuthority(vehicleId, movement, damage, initial);
         authority.Commit(new VehicleSnapshot(vehicleId, 1, new VehicleState(State.Tick, initial, false, false, 0, 0), authority.Snapshot.Damage, initial));
+        Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Join(State.Match, State.Tick, vehicleId);
         _vehicles.Add(vehicleId, authority);
-        State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot));
+        State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot), match);
     }
 
     /// <summary>Removes a departed vehicle at a fixed boundary.</summary>
@@ -99,7 +111,7 @@ public sealed class Simulation
     public void LeaveVehicle(ulong vehicleId)
     {
         _vehicles.Remove(vehicleId);
-        State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot));
+        State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot), State.Match);
     }
 
     /// <summary>Advances every vehicle and the global clock atomically from one ordered batch.</summary>
@@ -129,7 +141,8 @@ public sealed class Simulation
         }).ToArray();
         VehicleSnapshot[] transitions = candidates.Select(result => result.Snapshot)
             .Where(state => state.Lifecycle != _vehicles[state.VehicleId].Snapshot.Lifecycle || state.LifeId != _vehicles[state.VehicleId].Snapshot.LifeId).ToArray();
-        var next = new SimulationState(nextTick, input, candidates.Select(result => result.Snapshot));
+        Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Advance(State.Match, MatchRules!, nextTick, candidates.Select(result => result.Snapshot).ToArray());
+        var next = new SimulationState(nextTick, input, candidates.Select(result => result.Snapshot), match);
         foreach (VehicleStepResult result in candidates)
         {
             _vehicles[result.Snapshot.VehicleId].Commit(result.Snapshot);
@@ -145,6 +158,12 @@ public sealed class Simulation
     /// <param name="state">Complete synchronization boundary; all registered vehicles must be present.</param>
     public void Restore(SimulationState state)
     {
+        if ((state.Match is null) != (MatchRules is null) || (state.Match is not null &&
+            (state.Match.KillTarget != MatchRules!.KillTarget || (state.Match.Phase != Matches.MatchPhase.Finished && state.Vehicles.Any(vehicle => !state.Match.Players.Any(player => player.Player == vehicle.VehicleId))))))
+        {
+            throw new ArgumentException("Restoration requires the complete configured match state.", nameof(state));
+        }
+
         if (state.Vehicles.Count != _vehicles.Count || state.Vehicles.Any(vehicle => !_vehicles.ContainsKey(vehicle.VehicleId)))
         {
             throw new ArgumentException("Restoration requires exactly the registered vehicle set.", nameof(state));
