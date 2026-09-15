@@ -1,5 +1,6 @@
 using Trackstorm.Core.Input;
 using Trackstorm.Core.Items;
+using Trackstorm.Core.Matches;
 using Trackstorm.Core.Networking.Replication;
 using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Sessions;
@@ -22,6 +23,7 @@ internal sealed class VehicleNetworkDriver
     private bool _rosterChanged = true;
     private ulong? _lastLifecycleTick;
     private ulong _publishedSpawnRevision = ulong.MaxValue;
+    private ulong _publishedMatchRevision = ulong.MaxValue;
 
     /// <summary>Creates a host or connects a client driver to an already-open transport.</summary>
     /// <param name="gateway">Caller-owned transport.</param>
@@ -75,6 +77,10 @@ internal sealed class VehicleNetworkDriver
     internal event Action<ItemPublication>? ItemsReceived;
     /// <summary>Ordered reliable lifecycle boundaries, including ones superseded by newer movement snapshots.</summary>
     internal event Action<WorldSnapshot>? LifecycleReceived;
+    /// <summary>Once-per-revision authoritative totals, score deltas and phase/winner changes.</summary>
+    internal event Action<MatchState>? MatchReceived;
+    /// <summary>Latest reliable match state, independent of movement snapshot ordering.</summary>
+    internal MatchState? Match { get; private set; }
     /// <summary>Authoritative native prop observation seam, absent in flat-ground vehicle unit tests.</summary>
     internal Func<IReadOnlyList<VehiclePhysicsState>>? ObserveProps { get; set; }
     /// <summary>Latest accepted complete prop publication.</summary>
@@ -171,6 +177,24 @@ internal sealed class VehicleNetworkDriver
             }
 
             Latest = Host.Snapshot();
+            MatchState match = Host.World.State.Match!;
+            if (_rosterChanged || match.Revision != _publishedMatchRevision)
+            {
+                byte[] payload = MatchCodec.Encode(_session, match);
+                foreach (ulong peer in _assigned)
+                {
+                    Send(new TransportMessage(peer, payload, TransportDelivery.Reliable));
+                }
+
+                if (Match is null || Match.Revision != match.Revision)
+                {
+                    Match = match;
+                    MatchReceived?.Invoke(match);
+                }
+
+                _publishedMatchRevision = match.Revision;
+            }
+
             if (_rosterChanged || Host.World.LifecycleChanges.Count > 0)
             {
                 byte[] lifecycle = VehicleNetworkCodec.EncodeSnapshot(Latest);
@@ -361,6 +385,25 @@ internal sealed class VehicleNetworkDriver
 
         try
         {
+            if (MatchCodec.IsMatch(message.Payload.Span))
+            {
+                if (Host is not null || message.RemotePeerId != _serverPeer || History is null || message.Delivery != TransportDelivery.Reliable)
+                {
+                    throw new ArgumentException("Only the assigned host can publish reliable match state.");
+                }
+
+                var publication = MatchCodec.Decode(message.Payload.Span);
+                if (publication.Session != _session || (Match is not null &&
+                    (publication.State.Revision <= Match.Revision || publication.State.Tick < Match.Tick || Match.Phase == MatchPhase.Finished)))
+                {
+                    throw new ArgumentException("Stale or terminal match publication.");
+                }
+
+                Match = publication.State;
+                MatchReceived?.Invoke(Match);
+                return;
+            }
+
             if (ItemCodec.IsItem(message.Payload.Span))
             {
                 if (message.Delivery != TransportDelivery.Reliable)

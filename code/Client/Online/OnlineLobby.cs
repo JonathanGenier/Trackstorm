@@ -4,7 +4,7 @@ namespace Trackstorm.Client.Online;
 internal sealed record OnlineLobby(string Id, string Name, OnlineProductUserId Owner, ulong Session, LobbyAccess Access, int Members, int Capacity, string Protocol, bool Open, LobbyCredential? Credential)
 {
     /// <summary>Indexed build/protocol compatibility bucket for this lobby schema.</summary>
-    internal const string CurrentProtocol = "trackstorm-lobby-3";
+    internal const string CurrentProtocol = "trackstorm-lobby-4";
 
     /// <summary>Online members available to the authenticated transport admission boundary.</summary>
     internal IReadOnlyList<OnlineProductUserId> MemberIds { get; init; } = Array.Empty<OnlineProductUserId>();

@@ -12,13 +12,14 @@ using Numerics = System.Numerics;
 
 namespace Trackstorm.Client.Verification;
 
-/// <summary>Eight native UDP peers repeatedly kill and respawn a remote player through real missile and wall queries.</summary>
-public sealed partial class DeathRespawnIntegrationChecks : Node
+/// <summary>Eight native UDP peers complete first-to-five through real missile/ram deaths, then verify the frozen result through another death and respawn.</summary>
+public sealed partial class MatchIntegrationChecks : Node
 {
     private readonly List<GameNetworkingSocketsTransport> _gateways = new();
     private readonly List<NetworkVehicleArena> _arenas = new();
     private readonly List<List<VehicleSnapshot>> _boundaries = new();
     private readonly List<string> _evidence = new();
+    private readonly int[] _finishes = new int[8];
     private string _output = string.Empty;
     private SubViewport _view = null!;
     private double _elapsed;
@@ -31,13 +32,14 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
     private bool _finished;
     private int _cleanupFrames;
     private bool _captured;
+    private Core.Matches.MatchState? _final;
 
     /// <inheritdoc/>
     public override void _Ready()
     {
         Engine.PhysicsTicksPerSecond = 60;
         Engine.MaxFps = 60;
-        _output = OS.GetCmdlineUserArgs().FirstOrDefault(arg => arg.StartsWith("--death-output=", StringComparison.Ordinal))?[15..] ?? ProjectSettings.GlobalizePath("res://.godot/death-checks");
+        _output = OS.GetCmdlineUserArgs().FirstOrDefault(arg => arg.StartsWith("--match-output=", StringComparison.Ordinal))?[15..] ?? ProjectSettings.GlobalizePath("res://.godot/match-checks");
         System.IO.Directory.CreateDirectory(_output);
         using var reservation = new UdpClient(new IPEndPoint(IPAddress.Loopback, 0));
         string endpoint = $"127.0.0.1:{((IPEndPoint)reservation.Client.LocalEndPoint!).Port}";
@@ -50,7 +52,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
             if (index == 0)
             {
                 gateway.Listen(TransportEndpoint.DirectIp(endpoint));
-                if (OS.GetCmdlineUserArgs().Contains("--death-impaired"))
+                if (OS.GetCmdlineUserArgs().Contains("--match-impaired"))
                 {
                     gateway.ConfigureSimulation(new Core.Networking.Transport.NetworkSimulation(30, 5, 2, 0, 0));
                 }
@@ -74,9 +76,17 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
             }
 
             var arena = new NetworkVehicleArena();
-            arena.Initialize(gateway, index == 0 ? 240ul : 0, server);
+            arena.Initialize(gateway, index == 0 ? 260ul : 0, server);
             viewport.AddChild(arena);
             _arenas.Add(arena);
+            int peerIndex = index;
+            arena.Driver.MatchReceived += match =>
+            {
+                if (match.Phase == Core.Matches.MatchPhase.Finished)
+                {
+                    _finishes[peerIndex]++;
+                }
+            };
             var outcomes = new List<VehicleSnapshot>();
             _boundaries.Add(outcomes);
             arena.Driver.LifecycleReceived += snapshot =>
@@ -114,7 +124,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
                 Require(arena.Driver.Failure.Length == 0, arena.Driver.Failure);
             }
 
-            Require(_elapsed - _started < 20, $"Death stage {_stage}, cycle {_cycle} timed out.");
+            Require(_elapsed - _started < 20, $"Match stage {_stage}, cycle {_cycle} timed out.");
             Scenario();
         }
         catch (Exception exception)
@@ -138,7 +148,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
         HostVehicleSession host = _arenas[0].Driver.Host!;
         switch (_stage)
         {
-            case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Driver.LocalState is not null):
+            case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Driver.LocalState is not null && arena.Driver.Match?.Phase == Core.Matches.MatchPhase.Active):
                 _victim = _arenas[1].Driver.LocalVehicleId;
                 Prepare();
                 break;
@@ -159,12 +169,37 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
             case 2 when _boundaries.All(outcomes => outcomes.Any(state => state.LifeId == _life && state.Lifecycle == VehicleLifecycle.Dead)):
                 VehicleSnapshot death = _boundaries[0].Single(state => state.LifeId == _life && state.Lifecycle == VehicleLifecycle.Dead);
                 _deadline = death.RespawnAtTick!.Value;
-                Require(death.Damage.LastDamage!.Attribution.Source == (_cycle % 2 == 0 ? "missile" : "collision"), "Production damage source causes the death.");
+                Require(death.Damage.LastDamage!.Attribution.Source == (_cycle % 2 == 0 ? "missile" : "collision"), "Production damage source causes the scored death.");
                 foreach (var arena in _arenas)
                 {
                     VehicleSnapshot state = arena.Driver.Latest!.Vehicles.Single(vehicle => vehicle.State.VehicleId == _victim).State;
                     Require(!state.CanInteract && state.Damage.CurrentHP == 0, "Every peer agrees on zero HP and inactivity.");
                     Require(arena.Bodies[_victim].CollisionLayer == 0 && !arena.Bodies[_victim].IsPresented, "Inactive native bodies are hidden and non-colliding.");
+                }
+
+                Require(death.Damage.LastDamage!.Attribution.InstigatorId == _arenas[2].Driver.LocalVehicleId, "Real missile/ram credits the remote shooter.");
+                ulong shooter = _arenas[2].Driver.LocalVehicleId;
+                foreach (var arena in _arenas)
+                {
+                    var match = arena.Driver.Match!;
+                    Require(match.Players.Single(player => player.Player == shooter).Kills == Math.Min(5, _cycle + 1), "Every peer has the same killer total.");
+                    Require(match.Players.Single(player => player.Player == _victim).Deaths == Math.Min(5, _cycle + 1), "Every peer has the same victim total.");
+                    Require(match.Players.Where(player => player.Player != shooter).All(player => player.Kills == 0), "No bystander receives a kill.");
+                    if (_cycle >= 4)
+                    {
+                        Require(match.Phase == Core.Matches.MatchPhase.Finished && match.Winner == shooter && match.Players.Single(player => player.Player == shooter).Wins == 1, "All peers finish with one authoritative winner.");
+                        Require(_finishes.All(count => count == 1), "Each peer presents the finished boundary exactly once.");
+                    }
+                }
+
+                if (_cycle == 4)
+                {
+                    _final = host.World.State.Match;
+                }
+
+                if (_cycle == 5)
+                {
+                    Require(ReferenceEquals(_final, host.World.State.Match), "Post-finish lethal combat cannot mutate the result.");
                 }
 
                 Require(host.Items.Slots.All(slot => slot.Vehicle != _victim), "Held item cleared in the lethal batch.");
@@ -215,13 +250,18 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
             case 4 when _elapsed - _started > 0.25:
                 // Capture after the renderer has presented the new life, before arranging the next scenario.
                 Capture($"respawn-{_cycle}.png");
-                string evidence = $"Cycle {_cycle + 1}: {(_cycle % 2 == 0 ? "missile" : "collision")} death, all eight peers Dead/Respawning/Alive, respawn tick {_deadline}, reset physics/HP/items/VFX verified.";
+                if (_cycle >= 4)
+                {
+                    Require(ReferenceEquals(_final, host.World.State.Match), "Respawning cannot alter final match state.");
+                }
+
+                string evidence = $"Cycle {_cycle + 1}: {(_cycle % 2 == 0 ? "missile" : "collision")} death, all eight peers agree on scores, winner and Dead/Respawning/Alive, respawn tick {_deadline}, reset physics/HP/items/VFX verified.";
                 _evidence.Add(evidence);
                 GD.Print(evidence);
-                if (++_cycle == 4)
+                if (++_cycle == 6)
                 {
                     System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
-                    GD.Print("Death/respawn integration passed.");
+                    GD.Print("Match integration passed.");
                     Cleanup();
                 }
                 else
@@ -248,11 +288,11 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
             VehiclePhysicsState pose = host.World.Arena.Spawn((int)(state.VehicleId - 1));
             if (state.VehicleId == _victim)
             {
-                pose = new VehiclePhysicsState(_cycle % 2 == 0 ? new Numerics.Vector3(-40, 0.6f, -5) : new Numerics.Vector3(-57.5f, 0.6f, -35), Numerics.Quaternion.Identity, _cycle % 2 == 0 ? Numerics.Vector3.Zero : new Numerics.Vector3(-60, 0, 0), Numerics.Vector3.Zero);
+                pose = new VehiclePhysicsState(new Numerics.Vector3(-40, 0.6f, -5), Numerics.Quaternion.Identity, _cycle % 2 == 0 ? Numerics.Vector3.Zero : new Numerics.Vector3(0, 0, 20), Numerics.Vector3.Zero);
             }
             else if (state.VehicleId == shooter)
             {
-                pose = new VehiclePhysicsState(new Numerics.Vector3(-40, 0.6f, 5), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
+                pose = new VehiclePhysicsState(new Numerics.Vector3(-40, 0.6f, _cycle % 2 == 0 ? 5 : 1), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
             }
 
             return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(100, state.VehicleId == _victim ? 20 : 100, null, null), pose);

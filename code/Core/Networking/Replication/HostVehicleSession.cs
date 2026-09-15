@@ -20,11 +20,12 @@ public sealed class HostVehicleSession
     /// <param name="sessionId">Nonzero identity supplied by the outer session lifetime.</param>
     /// <param name="itemConfiguration">Optional authoritative item tuning.</param>
     /// <param name="respawnConfiguration">Optional host lifecycle tuning.</param>
-    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null)
+    /// <param name="matchConfiguration">Optional match tuning; scoring always uses the shared simulation.</param>
+    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null)
     {
         ArgumentOutOfRangeException.ThrowIfZero(sessionId);
         SessionId = sessionId;
-        World = new Simulation.Simulation(new SimulationConfiguration(TickRate), respawnConfiguration ?? new());
+        World = new Simulation.Simulation(new SimulationConfiguration(TickRate), respawnConfiguration ?? new(), match: matchConfiguration ?? new());
         Items = new ItemAuthority(itemConfiguration);
         World.AddVehicle(1, new(), new(), Spawn(0));
     }
@@ -76,7 +77,7 @@ public sealed class HostVehicleSession
             return existing.Vehicle;
         }
 
-        if (_peers.Count == 7)
+        if (_peers.Count == 7 || World.State.Match!.Players.Count >= Matches.MatchState.MaximumPlayers)
         {
             return 0;
         }

@@ -19,6 +19,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private readonly VehicleDestructionEffects _destruction = new();
     private readonly Items.ItemSpawnPresentation _pickups = new();
     private readonly Label _itemLabel = new();
+    private readonly Label _matchLabel = new();
     private VehicleNetworkDriver _driver = null!;
     private Arenas.CombatArena _layout = null!;
     private ulong _cameraLife;
@@ -116,7 +117,10 @@ internal sealed partial class NetworkVehicleArena : Node3D
         var panel = new PanelContainer { AnchorRight = 1, OffsetLeft = 190, OffsetTop = 24, OffsetRight = -24, OffsetBottom = 24, GrowVertical = Control.GrowDirection.End, MouseFilter = Control.MouseFilterEnum.Ignore };
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("172235"), ContentMarginLeft = 12, ContentMarginRight = 12, ContentMarginTop = 8, ContentMarginBottom = 8 });
         layer.AddChild(panel);
-        panel.AddChild(_diagnostics);
+        var status = new VBoxContainer();
+        panel.AddChild(status);
+        status.AddChild(_matchLabel);
+        status.AddChild(_diagnostics);
         var itemPanel = new VBoxContainer { AnchorTop = 1, AnchorBottom = 1, OffsetLeft = 24, OffsetTop = -126, OffsetRight = 460, OffsetBottom = -20 };
         layer.AddChild(itemPanel);
         itemPanel.AddChild(_itemLabel);
@@ -139,6 +143,14 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        if (_driver.Match is { } match)
+        {
+            string phase = match.Phase == Core.Matches.MatchPhase.Finished ? $"FINISHED — Player {match.Winner} wins!"
+                : match.Phase == Core.Matches.MatchPhase.Countdown ? $"COUNTDOWN — {Math.Ceiling(Math.Max(0, (double)match.CountdownAtTick!.Value - (_driver.Latest?.Tick ?? 0)) / HostVehicleSession.TickRate):0}"
+                : match.Phase == Core.Matches.MatchPhase.Waiting ? "WAITING FOR PLAYERS" : $"FIRST TO {match.KillTarget}";
+            _matchLabel.Text = phase + "\n" + string.Join("   ", match.Players.Where(player => _bodies.ContainsKey(player.Player) || player.Player == match.Winner).Select(player => $"P{player.Player}: {player.Kills} K / {player.Deaths} D"));
+        }
+
         if (_driver.History is not null && _driver.SnapshotAge is double clientSnapshotAge)
         {
             _interpolation.Advance(_driver.History, delta, clientSnapshotAge);
