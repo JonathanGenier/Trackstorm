@@ -35,6 +35,23 @@ public sealed class HostVehicleSession
     /// <summary>Match-scoped item gameplay authority.</summary>
     public ItemAuthority Items { get; }
 
+    /// <summary>Registered arena spawns, absent until a layout is attached.</summary>
+    public ItemSpawnAuthority? Spawns { get; private set; }
+
+    /// <summary>Registers actual scene markers once before simulation.</summary>
+    /// <param name="arena">Validated scene contract.</param>
+    /// <param name="configuration">Optional host tuning.</param>
+    /// <param name="selector">Optional deterministic selector.</param>
+    public void RegisterSpawns(Arenas.ArenaConfiguration arena, ItemSpawnConfiguration? configuration = null, Func<HeldItem>? selector = null)
+    {
+        if (World.State.Tick != 0 || Spawns is not null)
+        {
+            throw new InvalidOperationException("Spawn registration must precede simulation and occur only once.");
+        }
+
+        Spawns = new ItemSpawnAuthority(arena, Items, configuration, selector);
+    }
+
     /// <summary>Resolves a use request using actual sender ownership.</summary>
     /// <param name="peer">Transport sender; zero is the local host.</param>
     /// <param name="session">Arena generation.</param>
@@ -113,6 +130,7 @@ public sealed class HostVehicleSession
         InputFrame hostInput = new SequencedInput(0, local).AtTick(tick);
         inputs.Add(1, hostInput);
         Items.Step(World, hostInput, World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray(), collide ?? ((_, _) => null));
+        Spawns?.Advance(World);
     }
 
     /// <summary>Captures the complete active roster and per-owner input confirmations.</summary>

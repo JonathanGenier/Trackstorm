@@ -3,7 +3,7 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-one reliable item protocol. Requests carry no claimed player or outcome.</summary>
+/// <summary>Bounded version-two reliable item protocol. Requests carry no claimed player or outcome.</summary>
 public static class ItemCodec
 {
     /// <summary>Recognizes only this protocol's magic; complete decode remains mandatory.</summary>
@@ -51,6 +51,19 @@ public static class ItemCodec
         byte[] world = VehicleNetworkCodec.EncodeSnapshot(state.World);
         writer.Write(world.Length);
         writer.Write(world);
+        writer.Write((byte)state.Spawns.Count);
+        foreach (var spawn in state.Spawns)
+        {
+            byte[] id = System.Text.Encoding.UTF8.GetBytes(spawn.Id);
+            writer.Write((byte)id.Length);
+            writer.Write(id);
+            writer.Write(spawn.Available);
+            writer.Write(spawn.NextActivationTick);
+            writer.Write(spawn.ClaimedBy);
+            writer.Write(spawn.Token);
+            writer.Write((byte)spawn.Item);
+        }
+
         writer.Write((byte)state.Slots.Count);
         foreach (var slot in state.Slots)
         {
@@ -94,6 +107,15 @@ public static class ItemCodec
         }
 
         WorldSnapshot world = VehicleNetworkCodec.DecodeSnapshot(reader.ReadBytes(length));
+        var spawns = new ItemSpawnState[Count(reader, 8)];
+        for (int i = 0; i < spawns.Length; i++)
+        {
+            int idLength = Count(reader, 128);
+            string id = new System.Text.UTF8Encoding(false, true).GetString(reader.ReadBytes(idLength));
+            bool available = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid availability flag.") };
+            spawns[i] = new(id, available, reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), (HeldItem)reader.ReadByte());
+        }
+
         var slots = new ItemSlot[Count(reader, 8)];
         for (int i = 0; i < slots.Length; i++)
         {
@@ -117,14 +139,14 @@ public static class ItemCodec
             events[i] = new(token, owner, item, position, impact);
         }
 
-        return new ItemPublication(revision, world, slots, missiles, events);
+        return new ItemPublication(revision, world, slots, missiles, events, spawns);
     });
 
     private static byte[] Write(byte kind, Action<BinaryWriter> encode)
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 1, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 2, kind });
         encode(writer);
         if (stream.Length > 32768)
         {
@@ -136,7 +158,7 @@ public static class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 1 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 2 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }
