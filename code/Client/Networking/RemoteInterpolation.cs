@@ -61,6 +61,14 @@ internal sealed class RemoteInterpolation
         return previous?.ObservedPhysics;
     }
 
+    /// <summary>Discards the presentation cursor at a fresh authoritative resume boundary.</summary>
+    internal void Reset()
+    {
+        _initialized = false;
+        RenderTick = 0;
+        DelayMilliseconds = 0;
+    }
+
     /// <summary>Advances a smooth clock without resetting it on each jittered packet arrival.</summary>
     /// <param name="history">Ordered snapshot data.</param>
     /// <param name="seconds">Render elapsed time.</param>

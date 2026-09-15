@@ -33,6 +33,24 @@ internal sealed partial class VehicleDestructionEffects : Node3D
         }
     }
 
+    /// <summary>Seeds current lives without replaying historical deaths after reconnection.</summary>
+    /// <param name="vehicles">Fresh authoritative checkpoint.</param>
+    internal void Reseed(IEnumerable<VehicleSnapshot> vehicles)
+    {
+        _deaths.Clear();
+        foreach (var state in vehicles.Where(state => !state.CanInteract))
+        {
+            _deaths[state.VehicleId] = state.LifeId;
+        }
+
+        foreach (var burst in _bursts)
+        {
+            burst.Node.QueueFree();
+        }
+
+        _bursts.Clear();
+    }
+
     /// <summary>Consumes committed boundaries once per vehicle life, independently of movement packet arrival.</summary>
     /// <param name="vehicles">Complete confirmed roster.</param>
     internal void Apply(IEnumerable<VehicleSnapshot> vehicles)

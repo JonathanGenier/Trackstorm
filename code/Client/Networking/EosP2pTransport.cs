@@ -19,7 +19,7 @@ internal sealed class EosP2pTransport : ITransportGateway
     private readonly int _thread = Environment.CurrentManagedThreadId;
     private readonly TransportConnections _connections = new();
     private readonly Dictionary<ulong, Peer> _peers = new();
-    private readonly Queue<(OnlineProductUserId Identity, TransportConnectionState State, TransportDisconnectReason Reason)> _callbacks = new();
+    private readonly Queue<(OnlineProductUserId Identity, TransportConnectionState State, TransportDisconnectReason Reason, ulong Peer)> _callbacks = new();
     private readonly Queue<TransportConnectionChange> _changes = new();
     private readonly Queue<TransportMessage> _messages = new();
     private readonly byte[] _send = new byte[1170];
@@ -190,7 +190,10 @@ internal sealed class EosP2pTransport : ITransportGateway
             _overflow = false;
             for (int i = 0; i < ReceiveBudget && _callbacks.TryDequeue(out var callback); i++)
             {
-                OnChange(callback.Identity, callback.State, callback.Reason);
+                if (callback.State != TransportConnectionState.Disconnected || callback.Peer == (FindPeer(callback.Identity)?.Id ?? 0))
+                {
+                    OnChange(callback.Identity, callback.State, callback.Reason);
+                }
             }
 
             for (int i = 0; i < ReceiveBudget && _session is not null && ReadPacket(out var identity, out int length, out var delivery); i++)
@@ -310,7 +313,7 @@ internal sealed class EosP2pTransport : ITransportGateway
                     return;
                 }
 
-                _callbacks.Enqueue((identity, state, reason));
+                _callbacks.Enqueue((identity, state, reason, FindPeer(identity)?.Id ?? 0));
             });
         }
         catch

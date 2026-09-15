@@ -57,6 +57,97 @@ internal sealed class EosP2pTransportTests
         Assert.That(client.State.Phase, Is.EqualTo(SessionPhase.Lobby));
     }
 
+    /// <summary>Real EOS framing carries repeated authenticated rebinds without replacing gameplay identity or history.</summary>
+    [Test]
+    public void ReconnectsLobbyAndArenaWithOneVehicleAndFreshCheckpoint()
+    {
+        using var pair = new Pair();
+        var host = new LobbyNetworkDriver(pair.Host, pair.Lobby.Session, 0, "Host", _ => true, identity: _ => "authenticated-client");
+        var client = new LobbyNetworkDriver(pair.Client, 0, pair.Server, "Client", expectedSession: pair.Lobby.Session)
+        {
+            Reconnect = () =>
+            {
+                pair.Client.Stop();
+                return pair.Client.Connect(EosP2pTransport.Endpoint(pair.Lobby, pair.HostId));
+            }
+        };
+        for (int i = 0; i < 10; i++)
+        {
+            host.Pump(1.0 / 60);
+            client.Pump(1.0 / 60);
+        }
+
+        ulong player = client.LocalPlayerId;
+        client.Request(LobbyCommand.Ready, true);
+        host.Pump(1.0 / 60);
+        pair.Host.Disconnect(host.Authority!.Peers.Keys.Single());
+        pair.Client.Disconnect(client.ServerPeer);
+        for (int i = 0; i < 100; i++)
+        {
+            host.Pump(1.0 / 60);
+            client.Pump(1.0 / 60);
+        }
+
+        Assert.That(client.ResumeStatus, Is.EqualTo("Resume succeeded"));
+        Assert.That(client.Generation, Is.EqualTo(2));
+        Assert.That(client.LocalPlayerId, Is.EqualTo(player));
+        Assert.That(client.State!.Players.Single(p => p.Id == player).Ready, Is.False);
+        host.Request(LobbyCommand.Ready, true);
+        client.Request(LobbyCommand.Ready, true);
+        host.Pump(1.0 / 60);
+        Assert.That(host.Request(LobbyCommand.Start), Is.True);
+        client.Pump(1.0 / 60);
+        var authority = new VehicleNetworkDriver(pair.Host, host.State!.Match, lobby: host);
+        var replica = new VehicleNetworkDriver(pair.Client, 0, client.ServerPeer, client);
+        authority.Host!.RegisterSpawns(Trackstorm.Core.Arenas.PrototypeArena.Configuration);
+        authority.Host.Items.Grant(authority.Host.World, player, Trackstorm.Core.Items.HeldItem.Wrench);
+        // This is a new arena after a lobby-only resume, so its initial state is ordinary replication.
+        for (int i = 0; i < 20; i++)
+        {
+            authority.Advance(default, Observe);
+            replica.Advance(default, Observe);
+        }
+
+        int resyncs = 0;
+        replica.Resynchronized += _ => resyncs++;
+        for (int cycle = 0; cycle < 4; cycle++)
+        {
+            ulong oldPeer = host.Authority.Peers.Keys.Single();
+            ulong generation = client.Generation;
+            pair.Host.Disconnect(oldPeer);
+            pair.Client.Disconnect(client.ServerPeer);
+            for (int i = 0; i < 110; i++)
+            {
+                authority.Advance(default, Observe);
+                replica.Advance(default, Observe);
+            }
+
+            Assert.That(client.Failure, Is.Empty);
+            Assert.That(replica.Failure, Is.Empty);
+            Assert.That(replica.LocalVehicleId, Is.EqualTo(player));
+            Assert.That(authority.Host.World.State.Vehicles.Count, Is.EqualTo(2));
+            Assert.That(client.Generation, Is.EqualTo(generation + 1));
+            Assert.That(replica.LocalItem!.Item, Is.EqualTo(Trackstorm.Core.Items.HeldItem.Wrench));
+            Assert.That(replica.ItemState!.Spawns.Count, Is.EqualTo(8));
+            Assert.That(replica.Match!.Players.Count, Is.EqualTo(2));
+            Assert.That(replica.Prediction, Is.Not.Null);
+            Assert.That(replica.History!.Snapshots.All(s => s.Tick > (ulong)(cycle * 110)), Is.True);
+            Assert.That(authority.Host.Receive(oldPeer, host.State.Match, [new Trackstorm.Core.Networking.Replication.SequencedInput(1, default)]), Is.False);
+            int rejected = host.RejectedPackets;
+            pair.Client.Send(new(client.ServerPeer, ConnectionEnvelope.Encode(host.State.Session, generation, [1, 2, 3]), TransportDelivery.Unreliable));
+            authority.Advance(default, Observe);
+            Assert.That(host.RejectedPackets, Is.GreaterThan(rejected));
+            rejected = client.RejectedPackets;
+            pair.Host.Send(new(host.Authority.Peers.Keys.Single(), ConnectionEnvelope.Encode(host.State.Session, generation, [1, 2, 3]), TransportDelivery.Reliable));
+            replica.Advance(default, Observe);
+            Assert.That(client.RejectedPackets, Is.GreaterThan(rejected), "Old-generation snapshots and acknowledgements never reach a decoder.");
+        }
+
+        Assert.That(resyncs, Is.EqualTo(4));
+        Assert.That(pair.Host.Connections.Count, Is.EqualTo(1));
+        Assert.That(pair.Client.Connections.Count, Is.EqualTo(1));
+    }
+
     /// <summary>Independent production prop messages cannot suppress earlier vehicle snapshots or their acknowledgements.</summary>
     [Test]
     public void ReversedProductionVehicleAndPropMessagesBothAdvance()
@@ -592,7 +683,12 @@ internal sealed class EosP2pTransportTests
             return true;
         }
 
-        public void Close(OnlineProductUserId peer) => Closed.Add(peer);
+        public void Close(OnlineProductUserId peer)
+        {
+            _accepted.Remove(peer);
+            Closed.Add(peer);
+        }
+
         public void Stop()
         {
             _accepted.Clear();

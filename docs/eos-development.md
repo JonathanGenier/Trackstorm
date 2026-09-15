@@ -84,6 +84,19 @@ Record the build, number of independent PCs, elapsed measurement interval, relia
 
 Export Windows Desktop to an ignored output folder. Confirm the export contains `Epic.OnlineServices.dll`, `EOSSDK-Win64-Shipping.dll`, the EOS provenance README and third-party notices. Run `--eos-check --eos-authenticate --eos-p2p-check` from the export, then repeat the normal multiplayer flow on a clean second PC without Godot. No additional P2P-specific native binary is introduced beyond the existing official EOS runtime. Microsoft VC++ runtime requirements still apply.
 
+## Reconnection and resume checks
+
+`./check-reconnect.ps1 -GodotPath <exe>` exercises the production lobby/vehicle drivers over real local GNS sockets with an authenticated-subject test seam. It verifies Ready reset, stable identity, three arena resumes without replacing the native vehicle, current item/spawn/match state, cleared prediction history, and grace expiry. Add `-Visual` for a rendered arena capture. Client tests additionally exercise the EOS framing and authenticated admission with a fake provider. Neither establishes remote EOS reconnect behavior.
+
+Use two independent PCs/profiles on the same build for the remaining EOS checks. Keep the host running throughout; host migration is unsupported.
+
+1. Join a Public lobby, Ready both players, interrupt the client's network briefly and restore it within the default 30-second host grace. Confirm the same player ID/slot returns, Ready resets, and no duplicate roster entry appears. Repeat with a Locked lobby; the retained authenticated player should resume without entering the code again.
+2. Start an arena. Record the client's vehicle, HP, item and scores. Interrupt networking, let the host continue, and restore it within grace. Confirm connection-interrupted/reconnecting/resume-succeeded feedback, one vehicle, current HP and item state, current pickups/missiles, correct match timer/scores, and no old damage or pickup effects. Repeat while dead and confirm the host's existing respawn deadline applies. Repeat several cycles.
+3. Quit and restart the client on the same Windows profile within grace. Confirm the saved locator restores the same identity/session, including a match hidden from search. Repeat across a Wi-Fi/network change that changes the client's route or public IP. Record the actual network conditions; a local socket test is not evidence of this result.
+4. Stay offline beyond grace. Confirm the host releases the slot/vehicle once, stale resume fails, and the client returns to a clear failure/menu state. Close the host and confirm bounded failure without host migration. Explicitly Leave while connected and verify immediate slot release, cleared saved locator and no automatic resume on restart.
+
+The saved locator contains routing hints and the last acknowledged generation, never credentials. Authentication still uses the SDK-managed identity. A crash after host acceptance but before persisting its new generation may safely reject resume. Authentication expiry/loss uses the existing explicit-login flow; transport interruption does not change that policy. Report separate-PC, changed-network and real EOS process-restart results individually until verified.
+
 ## Automated separate-device gameplay check
 
 An exported build accepts `-- --eos-multiplayer-check --eos-test-host` to host a real test, or omits `--eos-test-host` to discover and join it. `check-eos-multiplayer.ps1 -Executable <export.exe> -HostPlayer` launches the host; run the same script without `-HostPlayer` on a separate Windows PC. Both use the same `-Name` and `-Players` (2–8). Each process uses its normal device identity and embedded development configuration. This does not create fake identities or change authentication.

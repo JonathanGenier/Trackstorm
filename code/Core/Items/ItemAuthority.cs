@@ -33,6 +33,23 @@ public sealed class ItemAuthority
     /// <summary>Only the last committed step's presentation outcomes.</summary>
     public IReadOnlyList<ItemEvent> Events { get; private set; } = Array.Empty<ItemEvent>();
 
+    /// <summary>Discards an uncommitted use when its transport owner is suspended.</summary>
+    /// <param name="vehicle">Authoritative player identity.</param>
+    public void CancelPending(ulong vehicle) => _pending.Remove(vehicle);
+
+    /// <summary>Removes departed ownership before a checkpoint can observe an absent vehicle.</summary>
+    /// <param name="vehicle">Finalized departing player.</param>
+    public void RemovePlayer(ulong vehicle)
+    {
+        _pending.Remove(vehicle);
+        bool changed = _slots.Remove(vehicle);
+        changed |= _missiles.RemoveAll(missile => missile.Owner == vehicle) > 0;
+        if (changed)
+        {
+            Revision++;
+        }
+    }
+
     /// <summary>Grants an item only to an empty, active, living slot. Called by host acquisition/dev controls.</summary>
     /// <param name="world">Authoritative vehicle world.</param>
     /// <param name="vehicle">Recipient identity.</param>

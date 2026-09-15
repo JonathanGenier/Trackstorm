@@ -14,6 +14,7 @@ public sealed class HostVehicleSession
     /// <summary>Snapshots at 20 Hz, below the simulation frequency.</summary>
     public const int SnapshotInterval = 3;
     private readonly Dictionary<ulong, (ulong Vehicle, HostInputBuffer Inputs, int SpawnSlot)> _peers = new();
+    private readonly Dictionary<ulong, (HostInputBuffer Inputs, int SpawnSlot)> _disconnected = new();
     private readonly DamageConfiguration _damageConfiguration;
     private ulong _nextVehicle = 1;
 
@@ -81,13 +82,13 @@ public sealed class HostVehicleSession
             return existing.Vehicle;
         }
 
-        if (_peers.Count == 7 || World.State.Match!.Players.Count >= Matches.MatchState.MaximumPlayers)
+        if (_peers.Count + _disconnected.Count == 7 || World.State.Match!.Players.Count >= Matches.MatchState.MaximumPlayers)
         {
             return 0;
         }
 
         ulong id = checked(++_nextVehicle);
-        int spawnSlot = Enumerable.Range(1, 7).First(slot => _peers.Values.All(entry => entry.SpawnSlot != slot));
+        int spawnSlot = Enumerable.Range(1, 7).First(slot => _peers.Values.All(entry => entry.SpawnSlot != slot) && _disconnected.Values.All(entry => entry.SpawnSlot != slot));
         World.JoinVehicle(id, new(), _damageConfiguration, Spawn(spawnSlot));
         _peers.Add(peer, (id, new HostInputBuffer(), spawnSlot));
         return id;
@@ -98,12 +99,12 @@ public sealed class HostVehicleSession
     /// <param name="playerId">Stable session player identity.</param>
     public void JoinPlayer(ulong peer, ulong playerId)
     {
-        if (peer == 0 || playerId <= 1 || _peers.ContainsKey(peer) || World.State.Vehicles.Any(vehicle => vehicle.VehicleId == playerId) || _peers.Count == 7)
+        if (peer == 0 || playerId <= 1 || _peers.ContainsKey(peer) || World.State.Vehicles.Any(vehicle => vehicle.VehicleId == playerId) || _peers.Count + _disconnected.Count == 7)
         {
             throw new ArgumentException("Invalid lobby vehicle assignment.");
         }
 
-        int slot = Enumerable.Range(1, 7).First(candidate => _peers.Values.All(entry => entry.SpawnSlot != candidate));
+        int slot = Enumerable.Range(1, 7).First(candidate => _peers.Values.All(entry => entry.SpawnSlot != candidate) && _disconnected.Values.All(entry => entry.SpawnSlot != candidate));
         World.JoinVehicle(playerId, new(), _damageConfiguration, Spawn(slot));
         _peers.Add(peer, (playerId, new HostInputBuffer(), slot));
         _nextVehicle = Math.Max(_nextVehicle, playerId);
@@ -116,6 +117,44 @@ public sealed class HostVehicleSession
         if (_peers.Remove(peer, out var entry))
         {
             World.LeaveVehicle(entry.Vehicle);
+            Items.RemovePlayer(entry.Vehicle);
+        }
+    }
+
+    /// <summary>Retires input ownership while keeping the entire vehicle, inventory and match authority alive.</summary>
+    /// <param name="peer">Lost transport peer.</param>
+    public void Suspend(ulong peer)
+    {
+        if (_peers.Remove(peer, out var entry))
+        {
+            _disconnected.Add(entry.Vehicle, (new HostInputBuffer(entry.Inputs.LastAcknowledged), entry.SpawnSlot));
+            Items.CancelPending(entry.Vehicle);
+        }
+    }
+
+    /// <summary>Rebinds an existing suspended vehicle after lobby authorization, without respawning it.</summary>
+    /// <param name="peer">New transport peer.</param>
+    /// <param name="player">Stable lobby player.</param>
+    /// <returns>Whether the existing vehicle was rebound.</returns>
+    public bool ResumePlayer(ulong peer, ulong player)
+    {
+        if (peer == 0 || _peers.ContainsKey(peer) || !_disconnected.Remove(player, out var entry))
+        {
+            return false;
+        }
+
+        _peers.Add(peer, (player, entry.Inputs, entry.SpawnSlot));
+        return true;
+    }
+
+    /// <summary>Finalizes an expired reservation once; score history remains owned by the match.</summary>
+    /// <param name="player">Expired lobby identity.</param>
+    public void ExpirePlayer(ulong player)
+    {
+        if (_disconnected.Remove(player))
+        {
+            World.LeaveVehicle(player);
+            Items.RemovePlayer(player);
         }
     }
 
@@ -145,6 +184,11 @@ public sealed class HostVehicleSession
     {
         ulong tick = checked(World.State.Tick + 1);
         var inputs = _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.Consume(tick));
+        foreach (ulong player in _disconnected.Keys)
+        {
+            inputs.Add(player, new InputFrame(tick, 0, 0, 0, 0, 0, 0));
+        }
+
         InputFrame hostInput = new SequencedInput(0, local).AtTick(tick);
         inputs.Add(1, hostInput);
         var previous = World.State.Vehicles.ToDictionary(state => state.VehicleId);
@@ -163,7 +207,7 @@ public sealed class HostVehicleSession
 
     /// <summary>Captures the complete active roster and per-owner input confirmations.</summary>
     /// <returns>Immutable authoritative snapshot.</returns>
-    public WorldSnapshot Snapshot() => new(SessionId, World.State.Tick, World.State.Vehicles.Select(state => new ReplicatedVehicle(state, _peers.Values.FirstOrDefault(entry => entry.Vehicle == state.VehicleId).Inputs?.LastAcknowledged ?? 0)));
+    public WorldSnapshot Snapshot() => new(SessionId, World.State.Tick, World.State.Vehicles.Select(state => new ReplicatedVehicle(state, _peers.Values.FirstOrDefault(entry => entry.Vehicle == state.VehicleId).Inputs?.LastAcknowledged ?? _disconnected.GetValueOrDefault(state.VehicleId).Inputs?.LastAcknowledged ?? 0)));
 
     private static VehiclePhysicsState Spawn(int slot) => Arenas.PrototypeArena.Configuration.Spawn(slot);
 }

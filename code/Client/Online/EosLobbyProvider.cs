@@ -84,6 +84,8 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
             AllowInvites = false,
             PresenceEnabled = false,
             EnableRTCRoom = false,
+            EnableJoinById = true,
+            RejoinAfterKickRequiresInvite = true,
         };
         _lobbies.CreateLobby(ref options, _callbackOwner, (ref CreateLobbyCallbackInfo info) =>
         {
@@ -174,6 +176,34 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
 
     /// <inheritdoc />
     public void Update(OnlineLobby lobby, Action<OnlineLobby?, string?> completed) => Write(lobby, false, completed);
+
+    /// <inheritdoc />
+    public void Resume(string id, Action<OnlineLobby?, string?> completed)
+    {
+        if (_disposed)
+        {
+            completed(null, "Session unavailable");
+            return;
+        }
+
+        var current = ReadCurrent(id);
+        if (current?.MemberIds.Contains(new OnlineProductUserId(_user.ToString())) == true)
+        {
+            completed(current, null);
+            return;
+        }
+
+        var options = new JoinLobbyByIdOptions { LocalUserId = _user, LobbyId = id, PresenceEnabled = false };
+        _lobbies.JoinLobbyById(ref options, _callbackOwner, (ref JoinLobbyByIdCallbackInfo info) =>
+        {
+            Result result = info.ResultCode;
+            Dispatch(() =>
+            {
+                var lobby = result is Result.Success or Result.AlreadyPending ? ReadCurrent(id) : null;
+                completed(lobby, lobby is null ? "Session unavailable" : null);
+            });
+        });
+    }
 
     /// <inheritdoc />
     public void SetJoinable(string id, bool open, Action<OnlineLobby?, string?> completed)
