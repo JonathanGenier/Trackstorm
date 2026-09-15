@@ -40,6 +40,44 @@ Authorized scope: investigate/fix the two round-1 recommendations and package Wi
 
 Counters and peak timings span the whole process/test, including admission and startup; the host waited about 529 seconds overall for the tester, so its total duration must not be used as an arena packet-rate denominator. Peak times include cold initialization and were not isolated steady-state profiles. The 399 client snapshots over 19.983 arena seconds are approximately 20 received snapshots/s. The host consumed about 1,200 client datagrams during gameplay, consistent with 60 Hz inputs; handshake/control packets are included in the cumulative counters. EOS sampled RTT and route remain unavailable.
 
-This establishes separate-PC local-network interoperability. **Separate residential Internet connectivity remains UNVERIFIED**, as do four/five independent testers, CGNAT/double-NAT/proxy routing and long-duration load. A cellular hotspot test was proposed, but no separate-network result has been supplied. The new two-PC evidence addresses the initial SDK-interoperability uncertainty; it does not waive the remaining Jira physical acceptance criteria. Repeated real solo host lifecycle tests and fake peer lifecycle tests remain recorded in round 1; a repeated automated remote cycle has not yet been recorded.
+This two-PC run establishes local-network interoperability. The later four-PC run below adds Internet evidence. Repeated real solo host lifecycle tests and fake peer lifecycle tests remain recorded in round 1; repeated cycles with the same remote four-PC roster have not yet been recorded.
+
+## Subsequent four-PC Internet verification — 2026-09-14
+
+**VERIFIED host result:** release 0.0.0.5 hosted `Trackstorm monitored test` with `-Players 4`: one automated host and three human clients playing normally. The host completed discovery/connect/Ready/Start, 20 seconds in the arena, Return acknowledgements and leave. Its result reports `Passed: true`, Stage 4 and four players. The monitored launcher returned native exit code 0; standard error was empty. Local evidence: `.godot/ts44-four-player-monitored/eos-host-result.json`, `eos-host.log` and `eos-host-errors.log`.
+
+**Tester-reported topology and experience:** the user confirmed that all three human clients used separate Internet connections and that nobody appeared to lag. One client took longer to load into the game. Client loading durations, hardware, frame times and connection setup timings were not collected, so the cause of that delay is unknown. No claim about client correction statistics follows from the host's zero-valued correction fields.
+
+| Host measurement | Value |
+| --- | --- |
+| Arena / whole test duration | 20.000 s / 191.833 s |
+| Sent / received datagrams | 2,445 / 3,220 |
+| Reliable / unreliable sent datagrams | 45 / 2,400 |
+| Sent bytes | 1,005,402 |
+| Mean / peak sent datagram | 411.2 B / 725 B |
+| Peak gateway Poll | 7.0953 ms |
+| Peak SDK Tick | 15.9003 ms |
+| Client snapshots / corrections | Not collected from human clients |
+| RTT / route | Unavailable |
+
+Counters cover the full test, including control traffic and waiting. They are not isolated arena packet-rate measurements. Peak costs include startup and do not establish steady-state frame time. The successful short session does not establish long-duration stability.
+
+### Current acceptance coverage
+
+| Requirement | Current evidence and boundary |
+| --- | --- |
+| EOS gameplay across separate Internet connections | Four-PC flow passed on the host; the three human clients' separate connections were confirmed by the user. Residential connection type and NAT topology were not measured. |
+| Four/five independent PCs | Four PCs exercised: three human clients and one automated host. This is not evidence of four/five human testers or a five-PC run. |
+| Discovery, admission, Ready/Start, arena, Return and leave | Completed through real EOS in the two-PC LAN and four-PC Internet runs. |
+| Reliable lobby and unreliable vehicle transport | Real peer traffic and completed control/gameplay flow verified; four-PC host totals recorded above. |
+| Normal flow without IP or router configuration | Production EOS browser flow requires no IP or port. Human clients joined the named lobby; router settings were not independently inspected. |
+| Capacity, bounds, stale traffic and cleanup | Automated gateway/driver coverage and local runtime evidence remain applicable. Four-player Internet completion verifies one remote cleanup cycle, not a leak soak. |
+| Direct-IP regression and impaired vehicle behavior | Native suite and local production lobby checks passed; eight-process impairment scenario passed twice after corrections. Physical multi-PC Direct-IP LAN testing remains unverified. |
+| Windows dependencies on remote PCs | Release ran successfully for three human clients. Clean-machine dependency inventories were not collected. |
+| Remaining physical measurements | Repeated four-PC cycles, long-duration load, eight-PC EOS performance, CGNAT/double-NAT/proxy paths and human-client correction/frame-time measurements remain unverified. |
+
+### Delivery status
+
+The last integrated critique remains Story Round 2, **6.3/10 PASS**; this section adds physical verification evidence and does not constitute another critique or waive unmet acceptance requirements. On resumption, `origin/main` was fetched and remained at `d6f39a4`, already an ancestor of this Story branch. Jira refresh returned an access error (app not installed); this coverage uses the complete requirements read earlier and their recorded mapping. No game code or release binary changed during this evidence update, so the previously completed build/runtime checks and ZIP hash still apply. Final Story acceptance and PR creation remain subject to the repository's explicit human acceptance gate.
 
 Official EOS SDK 1.19.1.2 generated `P2PInterface.AcceptConnection` documentation was inspected: explicit accept/request initiates peer notification, the remote must subscribe and accept, and establishment is reported when packet communication is ready. `SendPacketOptions.DisableAutoAcceptConnection` requires explicit acceptance. The current adapter follows that documented sequence. The official web P2P page was requested but returned no readable content; no third-party search result was used as implementation authority.
