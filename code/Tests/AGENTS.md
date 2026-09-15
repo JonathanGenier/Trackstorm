@@ -1,3 +1,3 @@
-# Core Test Agent Instructions
+# Core Test Agent Routing
 
-Tests target Core directly and must not require Godot or a scene tree. Use NUnit, deterministic inputs, isolated fixtures, and behavior-focused assertions. Test important success, failure, boundary, and invariant cases without coupling to private implementation details.
+Apply [test engineering standards](../../docs/standards.md#tests). Read the tested system's contracts through the [feature index](../../docs/features/README.md) and use [workflow verification](../../docs/workflow.md#verification) for completion checks.

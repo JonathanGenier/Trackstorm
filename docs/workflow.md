@@ -1,141 +1,97 @@
 # Jira Assignment and Delivery Workflow
 
-This document owns Jira assignment interpretation, scope, Git, verification, and delivery. `docs/standards.md` owns engineering and testing; `docs/critique.md` owns quality review; `docs/features.md` owns implemented feature behavior.
+This document owns assignment interpretation, Git delivery, feature-document maintenance and completion verification. [Engineering standards](standards.md) own code and test design; [critique](critique.md) owns quality review and its human gates; the [feature index](features/README.md) routes to current system behavior.
 
-## Jira Is the Source of Truth for Assigned Work
+## Authority and approved requirement changes
 
-For implementation work, Jira defines all specified behavior, deliverables, acceptance criteria, feature constraints, dependencies, sequencing, tests, runtime or other verification, and required assets, sources, versions, licenses, and attribution.
+Jira is the persistent source of truth for what assigned work must accomplish: behavior, deliverables, acceptance criteria, constraints, dependencies, sequencing, feature-specific tests and verification, and required assets, sources, versions, licenses and attribution. Repository instructions define how Trackstorm is engineered, tested, documented, reviewed and delivered.
 
-Read and respect the complete assigned Jira scope. Do not silently omit, simplify, replace, reinterpret, or defer a requirement. Repository documentation defines how Trackstorm is engineered, reviewed, and delivered; Jira defines what the assigned work must accomplish.
+Read the complete assigned description, required children, comments and explicit clarifications before implementation. Never silently omit, simplify, replace or defer a requirement.
 
-If Jira appears to conflict with a repository architecture, workflow, security, licensing, or engineering invariant, report the conflict clearly. Preserve the stricter invariant and wait for the human to resolve the conflict rather than silently choosing an interpretation.
+An explicit human-approved requirement change during implementation overrides stale Jira content until Jira is updated. Identify the approved change and affected criteria, preserve unaffected requirements, and update Jira to reflect the decision before closing the work. Suggestions, brainstorming and unapproved alternatives do not change active scope.
 
-## Assignment Interpretation
+If Jira or an approved change appears to conflict with an architecture, workflow, security, licensing or engineering invariant, report the conflict and preserve the stricter invariant until the human explicitly resolves it. Do not infer an exception.
+
+## Assignment interpretation
 
 ### Complete Story assignment
 
-When assigned a Story:
-
-1. Read the complete Story and retrieve every required child Task/Subtask.
-2. Read all child requirements and acceptance criteria before implementation.
-3. Treat the Story plus its required children as the complete authorized scope.
-4. Determine dependencies and a sensible implementation order.
-5. Implement and verify every required child on the Story branch.
-6. Continue automatically between normal child issues; no separate human request is required.
-7. Complete integrated Story verification and critique only after all required child work is complete.
-
-A Story assignment is not permission to implement only the Story description while ignoring its children.
+Read the Story and every required child Task/Subtask in full. Determine dependencies and implementation order, then implement and verify all required children on the Story branch. Each child is a traceable checkpoint; continue after successful verification without a separate human stop. Perform integrated Story verification and critique only after the complete scope is satisfied.
 
 ### Individual Task/Subtask assignment
 
-When the human explicitly assigns only one Task/Subtask:
+Read the assigned child and enough of its parent Story to understand context and dependencies. Use the parent Story branch, implement only the assigned child, verify it, then perform the individual critique defined in [critique](critique.md). Do not implement siblings automatically.
 
-1. Identify its parent Story and read enough of it to understand context and dependencies.
-2. Checkout the parent Story branch.
-3. Implement and verify only the assigned child scope.
-4. Do not automatically implement sibling issues.
-5. Perform the applicable individual critique from `docs/critique.md` and stop for the human decision.
+If the assignment and Jira issue type/parent disagree, identify the discrepancy. An explicit human assignment can establish the intended work unit and branch without changing Jira metadata; do not invent a parent or create child delivery branches. Use the agreed delivery unit for verification and critique.
 
-An individual child assignment narrows implementation scope; it does not change the Story-only Git model.
-
-## Story-Only Git Delivery
-
-The canonical rule is:
+## Story-only Git delivery
 
 ```text
-1 Story
-= complete Story scope + all required child Tasks/Subtasks
-= 1 Story branch
-= 1 final Pull Request to main
+1 Story = complete Story scope + all required child Tasks/Subtasks
+        = 1 Story branch = 1 final PR to main
 ```
 
-The delivery path is:
+- Use the explicitly human-assigned Story branch name. Do not rename it to satisfy a naming pattern. If no branch is assigned, resolve the intended Story branch before implementation.
+- Create a new Story branch from `main`; never implement directly on `main`.
+- Before starting/resuming implementation, synchronize with the latest `main`.
+- Implement and commit all child checkpoints and authorized corrections directly on that branch. Tasks/Subtasks never receive separate branches, PRs or independent Git reviews/merges.
+- The only delivery PR is the final integrated Story PR to `main`, after verification, critique and explicit human acceptance.
 
-```text
-Jira Story and all required children
-        ↓
-story/TS-X-short-name
-        ↓
-Integrated verification
-        ↓
-Story critique
-        ↓
-Human acceptance
-        ↓
-ONE Story PR → main
-```
+## Scope discipline
 
-- Create the Story branch from `main`; do not implement Story work directly on `main`.
-- Before starting or resuming work, synchronize the Story branch with the latest `main`.
-- Implement and commit all Story and child work directly on the Story branch.
-- Never create `task/TS-X-...` or `subtask/TS-X-...` branches.
-- Never create Task/Subtask Pull Requests, intermediate PRs to the Story branch, or independent child reviews and merges.
-- The final Story PR is the only GitHub delivery and review unit and targets `main`.
+Keep each child's work traceable to its requirements, including documentation, assets and verification. Avoid unrelated cleanup, refactors, renames, dependencies or speculative abstractions. Implement siblings in dependency order. Report work outside the assignment as a dependency, risk or follow-up instead of expanding scope silently.
 
-## Scope and Child Progression
+## Dependencies, assets and licenses
 
-Keep each child implementation traceable to its Jira requirements even though all children share one branch. While working on a child:
+Introduce third-party packages, plugins, libraries, models, textures, materials, audio, fonts or other assets only when required by the assigned scope. Use the specified source without substitution; prefer an existing dependency/asset when it satisfies the requirement.
 
-- Satisfy its deliverables, acceptance criteria, tests, documentation, and asset/license requirements.
-- Avoid unrelated cleanup, refactors, renames, reorganizations, dependencies, assets, or speculative abstractions.
-- Avoid implementing sibling requirements early unless required by dependency order.
-- Report work outside the assigned scope as a dependency, risk, or follow-up instead of silently expanding the Story.
+[THIRD_PARTY.md](../THIRD_PARTY.md) is the canonical registry. For additions or changes, record or link source URL, pinned version/selection, license, required attribution and provenance metadata there. Detailed notices and asset manifests may remain in their existing locations, with the registry identifying their authority. Follow applicable redistribution conditions and preserve required notices. Dependencies must respect [engineering standards](standards.md).
 
-During a full Story assignment, completing a child is an internal checkpoint: implement it on the Story branch, verify and record its requirements, then continue. Do not insert a mandatory human stop, final Git review, branch, or PR between normal children; the Story assignment already authorizes all required child work.
+## Feature documentation
 
-## Dependencies, Assets, and Licenses
+Inspect [the feature index](features/README.md) and the relevant system documents before feature work. Keep every materially affected feature document synchronized with the resulting implementation in the same change:
 
-Introduce a third-party package, plugin, library, model, texture, material, audio source, font, or other asset only when required by the assigned scope.
+- Added feature: create the appropriate system document and index entry, or extend an existing document when it is part of that system.
+- Changed feature: update every materially affected document and integration link.
+- Completely removed feature: remove its document and index entry; if a document also covers surviving behavior, remove only the obsolete content.
+- Renamed, merged or split feature: reorganize documents and index entries to match the resulting systems, repairing incoming links.
 
-When third-party material is required:
+Organize documents by durable implemented systems, not Jira Stories. Each document describes applicable current behavior, architecture/ownership, invariants, assumptions, design rationale, configuration, integrations and intentional limitations. Preserve why non-obvious decisions exist. Use source inspection to correct stale current-system claims; Jira status alone does not prove implementation.
 
-- Use the Jira-specified source when one is provided; do not silently substitute another.
-- Prefer an existing project dependency or asset when it already satisfies the requirement.
-- Record the source URL, version when applicable, license, and required attribution or provenance metadata.
-- Keep convenience dependencies from violating the architecture in `docs/standards.md`.
-
-## Feature Documentation
-
-When work adds, changes, or removes a feature, locate and update the relevant sections of `docs/features.md` in the same change. Ensure the resulting behavior and durable design context agree with the implementation. Do not add Jira progress, child completion logs, branch names, PR or commit history, critique history, or temporary TODOs.
+Use a descriptive title and only relevant sections from that list; omit empty headings. Link related systems instead of duplicating their contracts. Generic engineering/process rules belong in their owning policy document, not feature pages. Do not include Jira progress, branch/PR/commit history, critique history or temporary implementation notes. Historical results belong in [verification evidence](verification/README.md).
 
 ## Verification
 
-Apply the engineering and testing requirements in `docs/standards.md`. Jira may require additional feature-specific checks; those checks are part of the assigned scope.
+Engineering and test-design requirements are in [standards](standards.md). Feature documents identify relevant harnesses; Jira can require additional feature-specific checks.
 
 ### Child checkpoint
 
-Before recording a child issue complete:
+Before recording a child complete:
 
-1. Re-read it and verify every deliverable and acceptance criterion.
-2. Run its required unit, integration, runtime, architecture, documentation, and asset/license checks.
-3. Inspect the relevant changes for scope, regressions, warnings, and accidental artifacts.
-4. Record what was verified and anything inferred or unverified.
-
-During a complete Story assignment, a successful child checkpoint leads to the next required child without a human gate.
+1. Re-read its requirements and verify every deliverable and acceptance criterion.
+2. Run required unit, integration, runtime, architecture, documentation and asset/license checks.
+3. Inspect changes for scope, regressions, warnings and accidental artifacts.
+4. Record evidence and anything inferred or unverified, then continue according to the assignment interpretation above.
 
 ### Integrated Story verification
 
-After all required children are complete:
+After completing all required children:
 
-1. Re-read the Story and every required child; verify all acceptance criteria.
-2. Synchronize the Story branch with the latest `main` and resolve integration conflicts correctly.
-3. Run `./check.ps1` from the repository root.
-4. Run every additional Jira-required or technically applicable integration, gameplay, network, runtime, visual, UI, audio, physics, and asset/license check.
-5. Exercise and inspect actual runtime behavior when relevant and technically possible; do not substitute code inspection for required observation.
-6. Confirm the architecture and testing standards in `docs/standards.md` remain satisfied.
-7. For feature changes, compare the implementation with the relevant `docs/features.md` sections and synchronize them.
-8. Inspect the complete Story diff against `main` for correctness, unrelated changes, generated files, build output, local configuration, debug artifacts, and stale identifiers.
-9. Report assumptions, limitations, unresolved risks, and checks or behavior that could not be verified.
+1. Re-read the Story, children and approved changes; verify every applicable requirement.
+2. Synchronize the branch with latest `main` and resolve integration conflicts.
+3. Run `./check.ps1` from the root: restore, formatting verification, Debug/Release builds with warnings as errors, Core tests and non-native Client/transport tests.
+4. Run additional applicable or Jira-required gameplay, network, integration, runtime, visual, UI, audio, physics and asset/license checks. Exercise actual runtime behavior when relevant and technically possible; do not substitute inspection for required observation. Run the minimal Godot project when settings, scenes or Client integration change.
+5. Confirm engineering standards, including dependency direction and absence of a Shared layer.
+6. Verify affected feature documentation against code; check links, index coverage and obsolete references.
+7. Inspect the complete Story diff against `main` for correctness, dead paths, stale identifiers, unrelated changes, generated files, build output, local configuration and debug artifacts.
+8. Report assumptions, limitations, unresolved risks and unverified behavior.
 
-Do not consider the Story complete while required checks fail.
+Historical reports under `docs/verification/` do not replace these checks. Required checks must pass before the work is complete.
 
-## Critique, Human Gate, and Final PR
+## Critique and final PR
 
-After integrated verification, perform the Story quality review in `docs/critique.md` and stop for the human decision.
+After integrated verification, perform the applicable review in [critique](critique.md), which owns scoring, round limits and the mandatory stop for a human decision. Authorized corrections stay on the existing branch and require applicable re-verification.
 
-- Do not make critique-driven changes or begin another critique round without explicit human authorization.
-- Apply authorized corrective work directly on the existing Story branch. A Jira child may be useful for traceability, but it receives no branch or PR.
-- Re-run applicable verification after corrective work and perform another critique only when authorized, subject to the limit in `docs/critique.md`.
-- Do not create the Story PR until the critique process is complete and the human explicitly accepts the Story for PR creation.
-- After acceptance, perform final verification without new implementation changes. If changes become necessary, re-verify, repeat the applicable critique process, and obtain renewed acceptance.
-- Create exactly one Story PR from the Story branch to `main`. Include the Jira key, integrated Story summary, verification evidence, assumptions, limitations, and unresolved risks, then report the PR number and URL.
+Only after explicit human acceptance for PR creation, perform final verification without new implementation changes. If changes become necessary, re-verify, repeat the applicable authorized critique process and obtain renewed acceptance.
+
+Create exactly one final PR to `main`. Include the Jira key, integrated summary, verification evidence, assumptions, limitations and unresolved risks, then report its number and URL.
