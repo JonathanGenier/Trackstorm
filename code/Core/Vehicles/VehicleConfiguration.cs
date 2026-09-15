@@ -13,7 +13,7 @@ public sealed record VehicleConfiguration
     /// <summary>Body mass in kilograms.</summary>
     public float Mass { get; init; } = 900;
     /// <summary>Forward acceleration in metres per second squared.</summary>
-    public float Acceleration { get; init; } = 9;
+    public float Acceleration { get; init; } = 11;
     /// <summary>Braking deceleration.</summary>
     public float Braking { get; init; } = 14;
     /// <summary>Residual opposing speed snapped to rest before reversing, in m/s.</summary>

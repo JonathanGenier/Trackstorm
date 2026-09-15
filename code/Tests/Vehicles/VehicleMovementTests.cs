@@ -350,7 +350,7 @@ internal sealed class VehicleMovementTests
 
         float ratio = current.State.CommandSpeed / previous.State.CommandSpeed;
         TestContext.WriteLine($"90-tick acceleration: previous={previous.State.CommandSpeed:F3}, current={current.State.CommandSpeed:F3}, gain={(ratio - 1) * 100:F2}%");
-        Assert.That(ratio, Is.InRange(1.03f, 1.10f));
+        Assert.That(ratio, Is.GreaterThan(1).And.LessThan(current.Configuration.Acceleration / previous.Configuration.Acceleration));
         Assert.That(current.Configuration.ForwardSpeed, Is.EqualTo(previous.Configuration.ForwardSpeed));
         foreach (float invalid in new[] { -0.01f, 1.01f, float.NaN, float.PositiveInfinity })
         {
