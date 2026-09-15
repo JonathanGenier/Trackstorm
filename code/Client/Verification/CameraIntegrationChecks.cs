@@ -27,6 +27,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
             void Follow() => camera.Follow(Transform3D.Identity, state, 1f / 60);
             Follow();
             Transform3D neutral = camera.GlobalTransform;
+            ulong inputTick = 0;
             foreach (int direction in new[] { -1, 1 })
             {
                 using var axis = new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = direction };
@@ -34,22 +35,32 @@ public sealed partial class CameraIntegrationChecks : Node3D
                 Godot.Input.ParseInputEvent(axis);
                 Godot.Input.ParseInputEvent(key);
                 Godot.Input.FlushBufferedEvents();
-                Require(input.Adapter.Capture(1).Steering == direction * 32767, "Steering still reaches vehicle input");
+                int initialSteering = input.Adapter.Capture(++inputTick).Steering;
+                Require(initialSteering * direction > 0 && Math.Abs(initialSteering) < 32767, "Progressive steering reaches vehicle input");
                 Require(Godot.Input.GetJoyAxis(0, JoyAxis.RightX) == direction, "Right stick remains available");
                 for (int i = 0; i < 120; i++)
                 {
                     using var mouse = new InputEventMouseMotion { ScreenRelative = new Vector2(direction * 50, 0) };
                     Godot.Input.ParseInputEvent(mouse);
                     Godot.Input.FlushBufferedEvents();
+                    input.Adapter.Capture(++inputTick);
                     Follow();
                 }
 
+                Require(input.Adapter.Capture(++inputTick).Steering == direction * 32767, "Held steering reaches full vehicle input");
                 Require(camera.GlobalTransform.IsEqualApprox(neutral), "Mouse, right stick and steering alone do not move or rotate camera");
                 using var release = new InputEventKey { PhysicalKeycode = key.PhysicalKeycode, Pressed = false };
                 using var releasedAxis = new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0 };
                 Godot.Input.ParseInputEvent(release);
                 Godot.Input.ParseInputEvent(releasedAxis);
                 Godot.Input.FlushBufferedEvents();
+                for (int i = 0; i < 120; i++)
+                {
+                    input.Adapter.Capture(++inputTick);
+                    Follow();
+                }
+
+                Require(input.Adapter.Capture(++inputTick).Steering == 0, "Released steering returns to neutral");
             }
 
             foreach (float yaw in new[] { -1f, 1f, 3.13f, -3.13f, 0f })

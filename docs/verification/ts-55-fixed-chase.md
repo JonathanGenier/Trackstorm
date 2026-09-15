@@ -43,3 +43,15 @@ Initial test formatting/line-ending diagnostics were corrected. A native settlin
 - Inertia responds to measured velocity changes, so network corrections may produce a restrained, bounded positional response. No additional impaired-WAN or cross-platform test was run.
 - The camera has fixed FOV. Current gains are defaults exposed for tuning; a live Inspector tuning session was not performed.
 - The useful next review is a focused driving playtest of acceleration-to-braking and rapid left/right/sliding transitions, followed by specifically authorized tuning if needed. No automatic next improvement round or PR creation is authorized.
+
+## Post-PR Main Synchronization
+
+At the user's request, merged `origin/main` at `438c223` into the Story branch after PR #20 was created. The merge was conflict-free. TS-54 introduces progressive keyboard steering, so the native camera check now verifies partial initial steering, full held steering, and return to neutral while preserving the fixed-camera input assertions. Production camera behavior was unchanged by this test adjustment.
+
+- `./check.ps1`: PASS; Debug/Release builds without warnings, 230 Core tests and 100 Client/transport tests per configuration.
+- Native camera integration: PASS. Native input integration: PASS, 149 assertions.
+- `check-vehicle.ps1`: PASS, 116 assertions at each of 30 and 144 FPS; movement and surface replays match within 0.02.
+- `check-network-vehicles.ps1 -NoBuild`: PASS; 318 client snapshots, 650 immediate frames, p99 correction 0.021139 m, maximum 0.918774 m, zero large corrections and zero prop replica error.
+- Diff whitespace validation: PASS. Local logs: `ts55-main-sync-check.log`, `ts55-main-sync-vehicle.log`, `ts55-main-sync-network.log` under ignored `.godot/`.
+
+This synchronization did not repeat rendered driving, hands-on comfort assessment, or the eight-peer death/respawn suite. Earlier evidence remains historical; the limitations above still apply.
