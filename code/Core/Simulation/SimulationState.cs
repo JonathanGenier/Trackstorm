@@ -18,13 +18,20 @@ public readonly record struct SimulationState
     /// <exception cref="ArgumentException">
     /// Thrown when the state and logical-input ticks do not match.
     /// </exception>
-    public SimulationState(ulong tick, InputFrame lastInput, IEnumerable<VehicleSnapshot>? vehicles = null)
+    /// <param name="match">Optional complete match authority boundary.</param>
+    public SimulationState(ulong tick, InputFrame lastInput, IEnumerable<VehicleSnapshot>? vehicles = null, Matches.MatchState? match = null)
     {
         if (tick != lastInput.Tick)
         {
             throw new ArgumentException("Authoritative state and logical input must identify the same tick.", nameof(lastInput));
         }
 
+        if (match is not null && match.Tick > tick)
+        {
+            throw new ArgumentException("Match state cannot come from a future simulation tick.");
+        }
+
+        Match = match;
         Tick = tick;
         LastInput = lastInput;
         VehicleSnapshot[] copy = vehicles?.ToArray() ?? [];
@@ -48,4 +55,6 @@ public readonly record struct SimulationState
 
     /// <summary>Complete vehicle gameplay aggregates; no Client-owned health or movement progression.</summary>
     public IReadOnlyList<VehicleSnapshot> Vehicles => _vehicles ?? Array.Empty<VehicleSnapshot>();
+    /// <summary>Match scores, lifecycle and duplicate protections, absent in isolated practice/replay worlds.</summary>
+    public Matches.MatchState? Match { get; }
 }

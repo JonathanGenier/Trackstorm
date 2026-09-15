@@ -35,7 +35,7 @@ internal sealed class ItemAuthorityTests
     {
         var host = new HostVehicleSession(99, new ItemConfiguration { WrenchHeal = 7 });
         var state = host.World.GetVehicle(1);
-        host.World.Restore(new SimulationState(0, default, new[] { new VehicleSnapshot(1, 1, state.Movement, new VehicleDamageState(100, 50, null, null), state.ObservedPhysics) }));
+        host.World.Restore(new SimulationState(0, default, new[] { new VehicleSnapshot(1, 1, state.Movement, new VehicleDamageState(100, 50, null, null), state.ObservedPhysics) }, host.World.State.Match));
         host.Items.Grant(host.World, 1, HeldItem.Wrench);
         host.UseItem(0, 99, 1, host.Items.Slots.Single().Token);
         host.Step(default, Observe);
@@ -97,7 +97,7 @@ internal sealed class ItemAuthorityTests
         var items = new ItemAuthority(new ItemConfiguration { MissileSpeed = 60, MissileLifetimeTicks = 3 });
         var state = world.GetVehicle(1);
         var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitY, 0.7f), new Vector3(20, 0, 0), Vector3.Zero);
-        world.Restore(new SimulationState(0, default, new[] { new VehicleSnapshot(1, 1, new VehicleState(0, pose, false, false, 0, 0), state.Damage, pose) }));
+        world.Restore(new SimulationState(0, default, new[] { new VehicleSnapshot(1, 1, new VehicleState(0, pose, false, false, 0, 0), state.Damage, pose) }, world.State.Match));
         items.Grant(world, 1, HeldItem.Missile);
         items.RequestUse(world, 1, 1, items.Slots.Single().Token);
         Step(items, world);
@@ -146,7 +146,7 @@ internal sealed class ItemAuthorityTests
             var pose = new VehiclePhysicsState(new Vector3(state.VehicleId == 1 ? 0 : 4, 0, 0), Quaternion.Identity, Vector3.Zero, Vector3.Zero);
             return new VehicleSnapshot(state.VehicleId, 1, new VehicleState(0, pose, false, false, 0, 0), state.Damage, pose);
         });
-        host.World.Restore(new SimulationState(0, default, states));
+        host.World.Restore(new SimulationState(0, default, states, host.World.State.Match));
         host.Items.Grant(host.World, 1, HeldItem.Missile);
         host.UseItem(0, 99, 1, host.Items.Slots.Single().Token);
         host.Step(default, Observe, (_, _) => 0);
@@ -251,7 +251,7 @@ internal sealed class ItemAuthorityTests
     {
         var host = new HostVehicleSession(99);
         var state = host.World.GetVehicle(1);
-        host.World.Restore(new SimulationState(0, default, new[] { new VehicleSnapshot(1, 1, state.Movement, new VehicleDamageState(100, hp, null, null), state.ObservedPhysics) }));
+        host.World.Restore(new SimulationState(0, default, new[] { new VehicleSnapshot(1, 1, state.Movement, new VehicleDamageState(100, hp, null, null), state.ObservedPhysics) }, host.World.State.Match));
         return host;
     }
 

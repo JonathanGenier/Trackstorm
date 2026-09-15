@@ -199,6 +199,6 @@ internal sealed class ItemSpawnTests
         Vector3 position = PrototypeArena.Configuration.Items.Single(spawn => spawn.Id == marker).Position + offset;
         var pose = new VehiclePhysicsState(position, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
         var states = world.State.Vehicles.Select(state => state.VehicleId != id ? state : new VehicleSnapshot(id, state.LifeId, new VehicleState(world.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(100, hp, null, null), pose));
-        world.Restore(new SimulationState(world.State.Tick, world.State.LastInput, states));
+        world.Restore(new SimulationState(world.State.Tick, world.State.LastInput, states, world.State.Match));
     }
 }

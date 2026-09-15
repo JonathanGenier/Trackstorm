@@ -1,6 +1,7 @@
 using System.Numerics;
 using Trackstorm.Client.Networking;
 using Trackstorm.Core.Input;
+using Trackstorm.Core.Matches;
 using Trackstorm.Core.Networking.Replication;
 using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Vehicles;
@@ -146,7 +147,7 @@ internal sealed class VehicleNetworkDriverTests
             host.Advance(default, Observe);
         }
 
-        Assert.That(hostGateway.Sent.Count(message => !Trackstorm.Core.Items.ItemCodec.IsItem(message.Payload.Span) && VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Props), Is.EqualTo(1));
+        Assert.That(hostGateway.Sent.Count(message => !Trackstorm.Core.Items.ItemCodec.IsItem(message.Payload.Span) && !MatchCodec.IsMatch(message.Payload.Span) && VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Props), Is.EqualTo(1));
         hostGateway.Receive(new TransportMessage(ServerPeer, Payload(Session, 100), TransportDelivery.Unreliable));
         host.Advance(default, Observe);
         Assert.That(host.RejectedPackets, Is.EqualTo(1));
@@ -250,7 +251,7 @@ internal sealed class VehicleNetworkDriverTests
         gateway.Sent.Clear();
         host.Advance(default, state => state.VehicleId == 2
             ? new VehicleObservation(state.ObservedPhysics, Vector3.UnitY, [new VehicleContact(-Vector3.UnitX * 100, Vector3.UnitX, 0, 0)]) : Observe(state));
-        TransportMessage death = gateway.Sent.Single(message => VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Snapshot);
+        TransportMessage death = gateway.Sent.Single(message => !MatchCodec.IsMatch(message.Payload.Span) && VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Snapshot);
         Assert.That(death.Delivery, Is.EqualTo(TransportDelivery.Reliable));
         Assert.That(VehicleNetworkCodec.DecodeSnapshot(death.Payload.Span).Vehicles.Single(vehicle => vehicle.State.VehicleId == 2).State.Lifecycle, Is.EqualTo(VehicleLifecycle.Dead));
         gateway.Sent.Clear();
@@ -271,8 +272,75 @@ internal sealed class VehicleNetworkDriverTests
         host.Advance(default, Observe);
         var replacement = gateway.Sent.Where(message => message.RemotePeerId == ServerPeer + 1 && message.Delivery == TransportDelivery.Reliable).ToArray();
         Assert.That(replacement.Any(message => Trackstorm.Core.Items.ItemCodec.IsItem(message.Payload.Span)), Is.True);
-        TransportMessage lifecycle = replacement.Single(message => !Trackstorm.Core.Items.ItemCodec.IsItem(message.Payload.Span) && VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Snapshot);
+        TransportMessage lifecycle = replacement.Single(message => !Trackstorm.Core.Items.ItemCodec.IsItem(message.Payload.Span) && !MatchCodec.IsMatch(message.Payload.Span) && VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Snapshot);
         Assert.That(VehicleNetworkCodec.DecodeSnapshot(lifecycle.Payload.Span).Vehicles.Select(vehicle => vehicle.State.VehicleId), Is.EqualTo(new ulong[] { 1, 3 }));
+    }
+
+    /// <summary>Scores use reliable host authority and independent revisions, even after newer movement arrives.</summary>
+    [Test]
+    public void MatchPublicationsRejectForgedStaleUnreliableAndPostFinishState()
+    {
+        using var gateway = ConnectedGateway();
+        gateway.ConnectPeer(77);
+        var client = new VehicleNetworkDriver(gateway, 0, ServerPeer);
+        gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeWelcome(Session, 2), TransportDelivery.Reliable));
+        int callbacks = 0;
+        client.MatchReceived += _ => callbacks++;
+        client.Advance(default, Observe);
+        var active = new MatchState(1, 1, 5, MatchPhase.Active, null, null, [new PlayerScore(1, 0, 0, 0, 0), new PlayerScore(2, 0, 0, 0, 0)]);
+        byte[] payload = MatchCodec.Encode(Session, active);
+        gateway.Receive(new TransportMessage(77, payload, TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, payload, TransportDelivery.Unreliable));
+        gateway.Receive(new TransportMessage(ServerPeer, MatchCodec.Encode(Session + 1, active), TransportDelivery.Reliable));
+        client.Advance(default, Observe);
+        Assert.That(client.Match, Is.Null);
+        Assert.That(callbacks, Is.Zero);
+        gateway.Receive(new TransportMessage(ServerPeer, payload, TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, payload, TransportDelivery.Reliable));
+        client.Advance(default, Observe);
+        Assert.That(callbacks, Is.EqualTo(1));
+        var host = new HostVehicleSession(Session);
+        host.Join(ServerPeer);
+        for (int tick = 0; tick < 10; tick++)
+        {
+            host.Step(default, Observe);
+        }
+
+        gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeSnapshot(host.Snapshot()), TransportDelivery.Unreliable));
+        var final = new MatchState(2, 2, 5, MatchPhase.Finished, null, 1, [new PlayerScore(1, 5, 0, 1, 0), new PlayerScore(2, 0, 5, 0, 5)], [new ScoredDeath(2, 5, 1)]);
+        gateway.Receive(new TransportMessage(ServerPeer, MatchCodec.Encode(Session, final), TransportDelivery.Reliable));
+        client.Advance(default, Observe);
+        Assert.That(client.Latest!.Tick, Is.GreaterThan(client.Match!.Tick));
+        Assert.That(client.Match.Winner, Is.EqualTo(1));
+        Assert.That(callbacks, Is.EqualTo(2));
+        var replaced = new MatchState(3, 3, 5, MatchPhase.Finished, null, 2, [new PlayerScore(1, 0, 5, 0, 5), new PlayerScore(2, 5, 0, 1, 0)]);
+        gateway.Receive(new TransportMessage(ServerPeer, MatchCodec.Encode(Session, replaced), TransportDelivery.Reliable));
+        client.Advance(default, Observe);
+        Assert.That(client.Match.Winner, Is.EqualTo(1));
+        Assert.That(callbacks, Is.EqualTo(2));
+    }
+
+    /// <summary>The host rejects client score claims and sends current totals to a replacement peer reliably.</summary>
+    [Test]
+    public void HostOwnsMatchAndReliablyInitializesJoiningPlayers()
+    {
+        using var gateway = ConnectedGateway();
+        var host = new VehicleNetworkDriver(gateway, Session);
+        host.Advance(default, Observe);
+        var publication = gateway.Sent.Single(message => MatchCodec.IsMatch(message.Payload.Span));
+        Assert.That(publication.Delivery, Is.EqualTo(TransportDelivery.Reliable));
+        Assert.That(MatchCodec.Decode(publication.Payload.Span).State.Players.Count, Is.EqualTo(2));
+        MatchState before = host.Match!;
+        gateway.Receive(new TransportMessage(ServerPeer, publication.Payload, TransportDelivery.Reliable));
+        host.Advance(default, Observe);
+        Assert.That(host.Match, Is.SameAs(before));
+        Assert.That(host.RejectedPackets, Is.GreaterThan(0));
+        gateway.Sent.Clear();
+        gateway.Disconnect(ServerPeer);
+        gateway.ConnectPeer(77);
+        host.Advance(default, Observe);
+        Assert.That(gateway.Sent.Any(message => message.RemotePeerId == 77 && message.Delivery == TransportDelivery.Reliable && MatchCodec.IsMatch(message.Payload.Span)), Is.True);
+        Assert.That(host.Match!.Players.Select(player => player.Player), Is.EqualTo(new ulong[] { 1, 2, 3 }));
     }
 
     private static DriverGateway ConnectedGateway() => new(ServerPeer, TransportConnectionState.Connected);

@@ -327,7 +327,7 @@ public sealed partial class ItemIntegrationChecks : Node
             var pose = new VehiclePhysicsState(position, Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
             return new VehicleSnapshot(vehicle.VehicleId, vehicle.LifeId, new VehicleState(world.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(vehicle.Damage.MaxHP, hp, null, null), pose);
         }).ToArray();
-        world.Restore(new SimulationState(world.State.Tick, world.State.LastInput, states));
+        world.Restore(new SimulationState(world.State.Tick, world.State.LastInput, states, world.State.Match));
     }
 
     private void Next(string message)
