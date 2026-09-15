@@ -99,6 +99,35 @@ internal sealed class VehicleReplicationTests
         Assert.That(host.LastAcknowledged, Is.EqualTo(5));
     }
 
+    /// <summary>A delivery burst cannot leave controls permanently seconds behind, including sequence wrap.</summary>
+    /// <param name="origin">Initial stream identity.</param>
+    [TestCase(0u)]
+    [TestCase(uint.MaxValue - 40)]
+    public void HostRetiresBacklogWithoutExtraSimulationTicks(uint origin)
+    {
+        var host = new HostInputBuffer(origin);
+        var history = new InputHistory(origin);
+        for (int i = 0; i < 80; i++)
+        {
+            history.Add(Drive((short)i));
+            Assert.That(host.Receive(history.GetRedundancy()), Is.True);
+        }
+
+        InputFrame frame = host.Consume(1);
+        Assert.That(frame.Tick, Is.EqualTo(1));
+        Assert.That(frame.Steering, Is.EqualTo(74));
+        Assert.That(host.LastAcknowledged, Is.EqualTo(unchecked(origin + 75)));
+        Assert.That(history.Acknowledge(host.LastAcknowledged), Is.True);
+        Assert.That(history.Pending.Count, Is.EqualTo(5));
+        for (ulong tick = 2; tick <= 6; tick++)
+        {
+            Assert.That(host.Consume(tick).Steering, Is.EqualTo(73 + (int)tick));
+        }
+
+        Assert.That(host.LastAcknowledged, Is.EqualTo(unchecked(origin + 80)));
+        Assert.That(host.Receive([new(unchecked(origin + 1), Drive())]), Is.False);
+    }
+
     /// <summary>Only established senders drive their assigned vehicle; full sessions cannot accept a ninth player.</summary>
     [Test]
     public void HostOwnershipAdmissionDepartureAndJoinAtCurrentTick()

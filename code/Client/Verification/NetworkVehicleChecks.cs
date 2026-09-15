@@ -10,6 +10,7 @@ namespace Trackstorm.Client.Verification;
 public sealed partial class NetworkVehicleChecks : Node
 {
     private readonly List<float> _errors = new();
+    private readonly List<object> _largeCorrectionDetails = new();
     private GameNetworkingSocketsTransport _gateway = null!;
     private NetworkVehicleArena _arena = null!;
     private double _seconds;
@@ -59,7 +60,15 @@ public sealed partial class NetworkVehicleChecks : Node
 
         _arena = new NetworkVehicleArena();
         _arena.Initialize(_gateway, host.Length > 0 ? 12345ul : 0, peer);
-        _arena.Driver.LocalCorrected += _ => _errors.Add(_arena.Driver.Prediction!.PredictionError);
+        _arena.Driver.LocalCorrected += state =>
+        {
+            var prediction = _arena.Driver.Prediction!;
+            _errors.Add(prediction.PredictionError);
+            if (prediction.PredictionError >= 1 && _largeCorrectionDetails.Count < 128)
+            {
+                _largeCorrectionDetails.Add(new { Seconds = _seconds, Error = prediction.PredictionError, Tick = state.Movement.Tick, Ack = prediction.History.LastAcknowledged, Pending = prediction.History.Pending.Count, HP = state.Damage.CurrentHP, Position = state.Movement.Physics.Position.ToString(), Speed = state.Speed });
+            }
+        };
         AddChild(_arena);
     }
 
@@ -179,6 +188,7 @@ public sealed partial class NetworkVehicleChecks : Node
             ErrorMaximum = _errors.Count > 0 ? _errors.Max() : 0,
             InterpolationDelay = _arena.InterpolationDelay,
             LargeCorrections = _errors.Count(error => error >= 3),
+            CorrectionDetails = _largeCorrectionDetails,
             LastAcknowledged = driver.Prediction?.History.LastAcknowledged ?? 0,
             Position = new[] { position.X, position.Y, position.Z },
             HP = driver.LocalState.Damage.CurrentHP,

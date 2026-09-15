@@ -5,6 +5,8 @@ namespace Trackstorm.Core.Networking.Replication;
 /// <summary>Validates redundant input windows and consumes at most one command per host tick.</summary>
 public sealed class HostInputBuffer
 {
+    /// <summary>At most 100 ms of queued controls; excess backlog is retired, never simulated as extra ticks.</summary>
+    public const int MaximumQueuedInputs = 6;
     private readonly Dictionary<uint, SequencedInput> _pending = new();
     private uint _newestPacket;
     private int _missingTicks;
@@ -58,6 +60,18 @@ public sealed class HostInputBuffer
     /// <returns>One command, briefly held controls without repeated edges, or neutral input after 250 ms silence.</returns>
     public InputFrame Consume(ulong tick)
     {
+        if (_pending.Count > MaximumQueuedInputs)
+        {
+            uint[] oldest = _pending.Keys.OrderBy(sequence => unchecked(sequence - LastAcknowledged)).Take(_pending.Count - MaximumQueuedInputs).ToArray();
+            foreach (uint sequence in oldest)
+            {
+                _pending.Remove(sequence);
+                LastAcknowledged = sequence;
+            }
+
+            _missingTicks = 0;
+        }
+
         uint next = unchecked(LastAcknowledged + 1);
         if (!_pending.ContainsKey(next))
         {
