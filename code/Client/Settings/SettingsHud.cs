@@ -22,6 +22,8 @@ internal sealed partial class SettingsHud : VBoxContainer
 
     /// <summary>Rendered speed including preferred units.</summary>
     internal string SpeedText => _speed.Text;
+    /// <summary>A combat speedometer replaces the duplicate diagnostics speed while playing.</summary>
+    internal bool SpeedVisible { set => _speed.Visible = value; }
 
     /// <inheritdoc/>
     public override void _Process(double delta) => _fps.Text = $"FPS  {Engine.GetFramesPerSecond()}";
@@ -53,10 +55,9 @@ internal sealed partial class SettingsHud : VBoxContainer
 
     private void Refresh()
     {
-        bool mph = _settings.Current.SpeedUnit == SpeedUnit.MilesPerHour;
-        string unit = mph ? "mph" : "km/h";
+        string unit = Hud.CombatHudView.UnitSuffix(_settings.Current.SpeedUnit);
         string speed = _metresPerSecond is double value && double.IsFinite(value)
-            ? (value * (mph ? 2.2369362920544 : 3.6)).ToString("0.0", CultureInfo.InvariantCulture) : "—";
+            ? Hud.CombatHudView.ConvertSpeed(value, _settings.Current.SpeedUnit).ToString("0.0", CultureInfo.InvariantCulture) : "—";
         _speed.Text = $"Speed  {speed} {unit}";
         _fps.Visible = _settings.Current.ShowFps;
         _ping.Visible = _settings.Current.ShowPing;

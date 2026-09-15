@@ -1,0 +1,42 @@
+{
+  "font": "Godot bundled fallback font; no new font dependency.",
+  "assets": [
+    {
+      "sourceName": "Hud Life.png",
+      "sha256": "70544774bf263dcf39e423349136f97a07a954bdf51d581b333155c8891628ff",
+      "provenance": "Project-supplied PNG approved for Trackstorm implementation in TS-31; downloaded at native dimensions via Atlassian image CDN (PNG encoding can differ from attachment bytes).",
+      "license": "Project-supplied approved implementation asset; no third-party license asserted.",
+      "source": "https://jonathangenier.atlassian.net/rest/api/3/attachment/content/10004",
+      "file": "Health.png"
+    },
+    {
+      "sourceName": "Hud Speed.png",
+      "sha256": "41bab5e6acbbadc8c455e506dac4b5aafcf514413de9ceebce1f88a3b39b133f",
+      "provenance": "Project-supplied PNG approved for Trackstorm implementation in TS-31; downloaded at native dimensions via Atlassian image CDN (PNG encoding can differ from attachment bytes).",
+      "license": "Project-supplied approved implementation asset; no third-party license asserted.",
+      "source": "https://jonathangenier.atlassian.net/rest/api/3/attachment/content/10005",
+      "file": "Speed.png"
+    },
+    {
+      "sourceName": "Hud Weapon.png",
+      "sha256": "8f7bc7c998eaa13128af850599f8a14de5d665bf6d3d91bf078a68455b8aa14e",
+      "provenance": "Project-supplied PNG approved for Trackstorm implementation in TS-31; downloaded at native dimensions via Atlassian image CDN (PNG encoding can differ from attachment bytes).",
+      "license": "Project-supplied approved implementation asset; no third-party license asserted.",
+      "source": "https://jonathangenier.atlassian.net/rest/api/3/attachment/content/10006",
+      "file": "Item.png"
+    },
+    {
+      "sourceName": "Timer.png",
+      "sha256": "9348d28aa213f6dc1d1cf06dd1409452a8628258ae2f81496e5af7e0dd6a0765",
+      "provenance": "Project-supplied PNG approved for Trackstorm implementation in TS-31; downloaded at native dimensions via Atlassian image CDN (PNG encoding can differ from attachment bytes).",
+      "license": "Project-supplied approved implementation asset; no third-party license asserted.",
+      "source": "https://jonathangenier.atlassian.net/rest/api/3/attachment/content/10003",
+      "file": "Timer.png"
+    }
+  ],
+  "compositionReference": "https://jonathangenier.atlassian.net/rest/api/3/attachment/content/10002",
+  "originalWork": [
+    "Wrench.svg and Missile.svg are project-created silhouettes.",
+    "Component.gdshader preserves the source textures and masks example values at runtime."
+  ]
+}

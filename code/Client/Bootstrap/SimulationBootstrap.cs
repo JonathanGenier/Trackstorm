@@ -52,6 +52,14 @@ public sealed partial class SimulationBootstrap : Node
         panel.Initialize(settings, _playerInput.Adapter);
         settings.AddChild(panel);
         _settingsPanel = panel;
+        var combatHud = new Hud.CombatHud
+        {
+            Name = "CombatHud",
+            Vehicle = () => _session?.Arena?.LocalState ?? _arena?.Player.Snapshot,
+            Slot = () => _session?.Arena?.Driver.LocalItem,
+            Units = () => settings.Current.SpeedUnit,
+        };
+        AddChild(combatHud);
         EosIdentityNode? online = null;
         if (!OS.GetCmdlineUserArgs().Contains("--local-practice"))
         {
@@ -99,5 +107,6 @@ public sealed partial class SimulationBootstrap : Node
         _session?.Advance(input);
         int? ping = _session?.Ping;
         _settingsPanel.SetVehicleTelemetry(_session?.Arena?.LocalState?.Speed ?? _arena?.Player.Snapshot.Speed ?? 0, ping);
+        _settingsPanel.SetCombatHudVisible(_session?.Arena?.LocalState is not null || _arena is not null);
     }
 }

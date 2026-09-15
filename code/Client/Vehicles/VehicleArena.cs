@@ -96,6 +96,11 @@ public sealed partial class VehicleArena : Node3D
 
         foreach (VehicleBody vehicle in _vehicles)
         {
+            if (!LegacyTestLayout)
+            {
+                vehicle.DamageConfiguration = new DamageConfiguration { MaxHP = 1000 };
+            }
+
             Simulation.AddVehicle(vehicle.VehicleId, vehicle.Configuration, vehicle.DamageConfiguration, new VehiclePhysicsState(VehicleBody.ToCore(vehicle.Position), new System.Numerics.Quaternion(vehicle.Quaternion.X, vehicle.Quaternion.Y, vehicle.Quaternion.Z, vehicle.Quaternion.W), System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero));
             vehicle.Initialize(Simulation);
             AddChild(vehicle);
@@ -117,9 +122,14 @@ public sealed partial class VehicleArena : Node3D
         _camera.Position = new Vector3(0, 8, 32);
         var layer = new CanvasLayer { Layer = 1 };
         AddChild(layer);
-        var backdrop = new PanelContainer { AnchorRight = 1, OffsetLeft = 190, OffsetTop = 22, OffsetRight = -24, OffsetBottom = 22, GrowVertical = Control.GrowDirection.End };
+        var tools = new VBoxContainer { Position = new Vector2(24, 150) };
+        layer.AddChild(tools);
+        var toggle = new Button { Text = "Arena tools", ToggleMode = true };
+        tools.AddChild(toggle);
+        var backdrop = new PanelContainer { Visible = false, CustomMinimumSize = new Vector2(360, 0) };
+        toggle.Toggled += visible => backdrop.Visible = visible;
         backdrop.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("172235"), ContentMarginLeft = 10, ContentMarginRight = 10, ContentMarginTop = 8, ContentMarginBottom = 8 });
-        layer.AddChild(backdrop);
+        tools.AddChild(backdrop);
         var panel = new VBoxContainer();
         backdrop.AddChild(panel);
         panel.AddChild(_title);
