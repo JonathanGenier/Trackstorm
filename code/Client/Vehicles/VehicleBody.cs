@@ -112,6 +112,11 @@ public sealed partial class VehicleBody : RigidBody3D
     /// <returns>Plain-data observations and unprocessed requests.</returns>
     internal VehicleStepRequest Capture(InputFrame input)
     {
+        if (!Snapshot.CanInteract && !_reset.HasValue)
+        {
+            return new VehicleStepRequest(VehicleId, input, new VehicleObservation(Snapshot.Movement.Physics, Numerics.Vector3.Zero));
+        }
+
         PhysicsDirectBodyState3D body = PhysicsServer3D.BodyGetDirectState(GetRid());
         Vector3 support = Vector3.Zero;
         SurfaceType surface = SurfaceType.Concrete;
@@ -173,6 +178,10 @@ public sealed partial class VehicleBody : RigidBody3D
     {
         PhysicsDirectBodyState3D body = PhysicsServer3D.BodyGetDirectState(GetRid());
         VehiclePhysicsState commands = result.Snapshot.Movement.Physics;
+        CollisionLayer = result.Snapshot.CanInteract ? 1u : 0u;
+        CollisionMask = result.Snapshot.CanInteract ? 1u : 0u;
+        Freeze = !result.Snapshot.CanInteract;
+        Visible = result.Snapshot.CanInteract;
         if (result.Reset)
         {
             body.Transform = new Transform3D(new Basis(ToGodot(commands.Orientation)), ToGodot(commands.Position));

@@ -19,7 +19,8 @@ internal sealed class VehicleNetworkDriver
     private double _snapshotAge;
     private ulong _itemPublication;
     private ulong _publishedItemRevision = ulong.MaxValue;
-    private int _publishedPeerCount = -1;
+    private bool _rosterChanged = true;
+    private ulong? _lastLifecycleTick;
 
     /// <summary>Creates a host or connects a client driver to an already-open transport.</summary>
     /// <param name="gateway">Caller-owned transport.</param>
@@ -71,6 +72,8 @@ internal sealed class VehicleNetworkDriver
     internal event Action<Trackstorm.Core.Arenas.ArenaPropSnapshot>? PropsReceived;
     /// <summary>Reliable item and outcome presentation callback.</summary>
     internal event Action<ItemPublication>? ItemsReceived;
+    /// <summary>Ordered reliable lifecycle boundaries, including ones superseded by newer movement snapshots.</summary>
+    internal event Action<WorldSnapshot>? LifecycleReceived;
     /// <summary>Authoritative native prop observation seam, absent in flat-ground vehicle unit tests.</summary>
     internal Func<IReadOnlyList<VehiclePhysicsState>>? ObserveProps { get; set; }
     /// <summary>Latest accepted complete prop publication.</summary>
@@ -157,7 +160,18 @@ internal sealed class VehicleNetworkDriver
 
             Host.Step(input, observe, CollideMissile);
             Latest = Host.Snapshot();
-            if (_publishedItemRevision != Host.Items.Revision || _publishedPeerCount != _assigned.Count)
+            if (_rosterChanged || Host.World.LifecycleChanges.Count > 0)
+            {
+                byte[] lifecycle = VehicleNetworkCodec.EncodeSnapshot(Latest);
+                foreach (ulong peer in _assigned)
+                {
+                    Send(new TransportMessage(peer, lifecycle, TransportDelivery.Reliable));
+                }
+
+                LifecycleReceived?.Invoke(Latest);
+            }
+
+            if (_publishedItemRevision != Host.Items.Revision || _rosterChanged)
             {
                 ItemState = new ItemPublication(++_itemPublication, Latest, Host.Items.Slots, Host.Items.Missiles, Host.Items.Events);
                 byte[] items = ItemCodec.EncodeState(ItemState);
@@ -167,10 +181,10 @@ internal sealed class VehicleNetworkDriver
                 }
 
                 _publishedItemRevision = Host.Items.Revision;
-                _publishedPeerCount = _assigned.Count;
                 ItemsReceived?.Invoke(ItemState);
             }
 
+            _rosterChanged = false;
             if (Host.World.State.Tick % HostVehicleSession.SnapshotInterval == 0)
             {
                 byte[] payload = VehicleNetworkCodec.EncodeSnapshot(Latest);
@@ -214,7 +228,7 @@ internal sealed class VehicleNetworkDriver
                 Prediction.Predict(input, observe);
             }
 
-            Send(new TransportMessage(_serverPeer, VehicleNetworkCodec.EncodeInputs(_session, inputs.GetRedundancy()), TransportDelivery.Unreliable));
+            Send(new TransportMessage(_serverPeer, VehicleNetworkCodec.EncodeInputs(_session, inputs.GetRedundancy(), LocalState?.LifeId ?? 1), TransportDelivery.Unreliable));
         }
     }
 
@@ -223,7 +237,7 @@ internal sealed class VehicleNetworkDriver
     internal bool RequestItemUse()
     {
         ItemSlot? slot = LocalItem;
-        if (!IsActive || Failure.Length > 0 || slot is null || slot.Item == HeldItem.None)
+        if (!IsActive || Failure.Length > 0 || LocalState?.CanInteract != true || slot is null || slot.Item == HeldItem.None)
         {
             return false;
         }
@@ -273,6 +287,7 @@ internal sealed class VehicleNetworkDriver
         {
             Host!.Leave(peer);
             _assigned.Remove(peer);
+            _rosterChanged = true;
         }
 
         foreach (ulong peer in connected.Except(_assigned))
@@ -290,6 +305,7 @@ internal sealed class VehicleNetworkDriver
             }
 
             _assigned.Add(peer);
+            _rosterChanged = true;
             Send(new TransportMessage(peer, VehicleNetworkCodec.EncodeWelcome(_session, vehicle), TransportDelivery.Reliable));
         }
     }
@@ -372,7 +388,7 @@ internal sealed class VehicleNetworkDriver
             if (Host is not null && kind == VehicleNetworkCodec.Inputs && message.Delivery == TransportDelivery.Unreliable)
             {
                 var inputs = VehicleNetworkCodec.DecodeInputs(message.Payload.Span);
-                if (!Host.Receive(message.RemotePeerId, inputs.Session, inputs.Inputs))
+                if (!Host.Receive(message.RemotePeerId, inputs.Session, inputs.Inputs, inputs.Life))
                 {
                     RejectedPackets++;
                 }
@@ -403,9 +419,23 @@ internal sealed class VehicleNetworkDriver
                     return;
                 }
 
-                if (kind == VehicleNetworkCodec.Snapshot && message.Delivery == TransportDelivery.Unreliable && History is not null)
+                if (kind == VehicleNetworkCodec.Snapshot && History is not null)
                 {
                     WorldSnapshot snapshot = VehicleNetworkCodec.DecodeSnapshot(message.Payload.Span);
+                    if (message.Delivery == TransportDelivery.Reliable && snapshot.Session == _session &&
+                        (!_lastLifecycleTick.HasValue || snapshot.Tick > _lastLifecycleTick.Value))
+                    {
+                        _lastLifecycleTick = snapshot.Tick;
+                        AcceptSnapshot(snapshot, observe);
+                        LifecycleReceived?.Invoke(snapshot);
+                        return;
+                    }
+
+                    if (message.Delivery != TransportDelivery.Unreliable)
+                    {
+                        throw new ArgumentException("Stale lifecycle publication.");
+                    }
+
                     if (AcceptSnapshot(snapshot, observe))
                     {
                         return;

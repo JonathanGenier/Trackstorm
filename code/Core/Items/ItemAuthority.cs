@@ -41,7 +41,7 @@ public sealed class ItemAuthority
     public bool Grant(Simulation.Simulation world, ulong vehicle, HeldItem item)
     {
         VehicleSnapshot? state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
-        if (state is null || state.Damage.Destroyed || item is not (HeldItem.Wrench or HeldItem.Missile) ||
+        if (state is null || !state.CanInteract || item is not (HeldItem.Wrench or HeldItem.Missile) ||
             (_slots.TryGetValue(vehicle, out var previous) && previous.Life == state.LifeId && previous.Item != HeldItem.None))
         {
             return false;
@@ -61,7 +61,7 @@ public sealed class ItemAuthority
     public bool RequestUse(Simulation.Simulation world, ulong vehicle, ulong life, ulong token)
     {
         VehicleSnapshot? state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
-        return state is not null && !state.Damage.Destroyed && state.LifeId == life &&
+        return state is not null && state.CanInteract && state.LifeId == life &&
             _slots.TryGetValue(vehicle, out var slot) && slot.Life == life && slot.Token == token && slot.Item != HeldItem.None &&
             _pending.TryAdd(vehicle, token);
     }
@@ -81,7 +81,7 @@ public sealed class ItemAuthority
         foreach (var pair in slots.ToArray())
         {
             VehicleSnapshot? state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == pair.Key);
-            if (state is null || state.Damage.Destroyed || state.LifeId != pair.Value.Life || requests.Any(request => request.VehicleId == pair.Key && request.Reset.HasValue))
+            if (state is null || (!state.CanInteract && (world.Respawn?.ClearHeldItemOnDeath ?? true)) || state.LifeId != pair.Value.Life || requests.Any(request => request.VehicleId == pair.Key && request.Reset.HasValue))
             {
                 slots.Remove(pair.Key);
             }
@@ -89,7 +89,7 @@ public sealed class ItemAuthority
 
         foreach (var pair in _pending.OrderBy(pair => pair.Key))
         {
-            if (!slots.TryGetValue(pair.Key, out var slot) || slot.Token != pair.Value || slot.Item == HeldItem.None)
+            if (!slots.TryGetValue(pair.Key, out var slot) || !world.GetVehicle(pair.Key).CanInteract || slot.Token != pair.Value || slot.Item == HeldItem.None)
             {
                 continue;
             }
@@ -120,6 +120,11 @@ public sealed class ItemAuthority
         var advanced = new List<MissileState>();
         foreach (MissileState missile in missiles)
         {
+            if (!world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract))
+            {
+                continue;
+            }
+
             Vector3 end = missile.Position + (missile.Velocity / 60);
             float? hit = collide(missile, end);
             if (hit is float fraction)
@@ -147,6 +152,20 @@ public sealed class ItemAuthority
         }
 
         world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, request.Observation, effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId))).ToArray());
+        foreach (var pair in slots.ToArray())
+        {
+            VehicleSnapshot state = world.GetVehicle(pair.Key);
+            if (!state.CanInteract && (world.Respawn?.ClearHeldItemOnDeath ?? true))
+            {
+                slots.Remove(pair.Key);
+            }
+            else if (state.LifeId != pair.Value.Life)
+            {
+                slots[pair.Key] = new ItemSlot(pair.Key, state.LifeId, checked(++_token), pair.Value.Item);
+            }
+        }
+
+        advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract));
         bool changed = !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) || missiles.Count > 0;
         _slots.Clear();
         foreach (var pair in slots)

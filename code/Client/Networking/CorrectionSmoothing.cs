@@ -16,6 +16,13 @@ internal sealed class CorrectionSmoothing
     /// <summary>Observed large-correction count for diagnostics.</summary>
     internal int HardSnaps { get; private set; }
 
+    /// <summary>Discards correction offsets at an authoritative new-life boundary.</summary>
+    internal void Reset()
+    {
+        Offset = Vector3.Zero;
+        Rotation = Quaternion.Identity;
+    }
+
     /// <summary>Preserves the visible pose for small corrections and snaps large discontinuities.</summary>
     /// <param name="before">Old predicted position including existing visual offset.</param>
     /// <param name="after">New predicted position.</param>

@@ -16,15 +16,21 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private readonly Label _diagnostics = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly RemoteInterpolation _interpolation = new();
     private readonly Items.ItemPresentation _items = new();
+    private readonly VehicleDestructionEffects _destruction = new();
     private readonly Label _itemLabel = new();
     private VehicleNetworkDriver _driver = null!;
     private Arenas.CombatArena _layout = null!;
+    private ulong _cameraLife;
 
     /// <summary>Shared authored layout for runtime verification.</summary>
     internal Arenas.CombatArena Layout => _layout;
 
     /// <summary>Production session driver exposed to the runtime verification harness.</summary>
     internal VehicleNetworkDriver Driver => _driver;
+    /// <summary>Presentation diagnostics for native lifecycle checks.</summary>
+    internal VehicleDestructionEffects Destruction => _destruction;
+    /// <summary>Native bodies for participation/reset integration checks.</summary>
+    internal IReadOnlyDictionary<ulong, NetworkVehicleBody> Bodies => _bodies;
     /// <summary>Current local gameplay snapshot for settings telemetry.</summary>
     internal VehicleSnapshot? LocalState => _driver.LocalState;
     /// <summary>Measured render-buffer delay for diagnostics and runtime checks.</summary>
@@ -48,18 +54,12 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _layout = new Arenas.CombatArena { Name = "PrototypeArena", Replica = _driver.Host is null };
         AddChild(_layout);
         AddChild(_items);
+        AddChild(_destruction);
+        _driver.LifecycleReceived += snapshot => _destruction.Apply(snapshot.Vehicles.Select(vehicle => vehicle.State));
         _driver.CollideMissile = CollideMissile;
         _driver.ItemsReceived += publication =>
         {
             _items.Apply(publication);
-            foreach (var vehicle in publication.World.Vehicles)
-            {
-                if (_bodies.TryGetValue(vehicle.State.VehicleId, out var body))
-                {
-                    body.PresentDamage(vehicle.State.Damage);
-                }
-            }
-
             if (_driver.Host is not null)
             {
                 foreach (var impact in publication.Events.Where(outcome => outcome.Impact))
@@ -123,7 +123,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             {
                 pair.Value.PresentLocal((float)delta);
             }
-            else if (_driver.History is not null && RemoteInterpolation.Sample(_driver.History, pair.Key, _interpolation.RenderTick) is VehiclePhysicsState remote)
+            else if (_driver.History is not null && RemoteInterpolation.Sample(_driver.History, pair.Key, _interpolation.RenderTick, _driver.Latest?.Vehicles.Single(vehicle => vehicle.State.VehicleId == pair.Key).State.LifeId) is VehiclePhysicsState remote)
             {
                 pair.Value.PresentRemote(remote);
             }
@@ -135,18 +135,20 @@ internal sealed partial class NetworkVehicleArena : Node3D
             Vector3 desired = target + new Vector3(0, 8, 13);
             desired.X = Math.Clamp(desired.X, -56, 56);
             desired.Z = Math.Clamp(desired.Z, -46, 46);
-            _camera.GlobalPosition = _camera.GlobalPosition.Lerp(desired, 1 - MathF.Exp(-6 * (float)delta));
+            ulong life = _driver.LocalState?.LifeId ?? 0;
+            _camera.GlobalPosition = life != _cameraLife ? desired : _camera.GlobalPosition.Lerp(desired, 1 - MathF.Exp(-6 * (float)delta));
+            _cameraLife = life;
             _camera.LookAt(target);
         }
 
         foreach (var pair in _bodies)
         {
-            _items.Follow(pair.Key, pair.Value.VisualPosition);
+            _items.Follow(pair.Key, pair.Value.VisualPosition, _driver.Latest?.Vehicles.SingleOrDefault(vehicle => vehicle.State.VehicleId == pair.Key)?.State.CanInteract == true);
         }
 
-        _itemLabel.Text = $"HELD ITEM: {_driver.LocalItem?.Item ?? HeldItem.None}";
+        _itemLabel.Text = $"HELD ITEM: {(_driver.LocalState?.CanInteract == true ? _driver.LocalItem?.Item ?? HeldItem.None : HeldItem.None)}";
         string role = _driver.Host is null ? "CLIENT" : "HOST";
-        string status = _driver.Failure.Length > 0 ? _driver.Failure : _driver.LocalState is null ? "Connecting…" : $"HP {_driver.LocalState.Damage.CurrentHP:0} / {_driver.LocalState.Damage.MaxHP:0}   {_driver.LocalState.Movement.CurrentSurface}   {(_driver.LocalState.Movement.BoostTicks > 0 ? "BOOST" : _driver.LocalState.Movement.Drifting ? "DRIFT" : _driver.LocalState.Movement.Grounded ? "GROUNDED" : "AIRBORNE")}";
+        string status = _driver.Failure.Length > 0 ? _driver.Failure : _driver.LocalState is null ? "Connecting…" : $"HP {_driver.LocalState.Damage.CurrentHP:0} / {_driver.LocalState.Damage.MaxHP:0}   {_driver.LocalState.Lifecycle}   {_driver.LocalState.Movement.CurrentSurface}   {(_driver.LocalState.Movement.BoostTicks > 0 ? "BOOST" : _driver.LocalState.Movement.Drifting ? "DRIFT" : _driver.LocalState.Movement.Grounded ? "GROUNDED" : "AIRBORNE")}";
         string formattedSnapshotAge = FormatSnapshotAge(_driver.SnapshotAge);
         _diagnostics.Text = $"{role}   {_bodies.Count}/8 vehicles   {status}\nPrediction error  {_driver.Prediction?.PredictionError ?? 0:0.000} m   Snapshot age  {formattedSnapshotAge}   Interpolation  {InterpolationDelay:0} ms\nLast acknowledged input  {_driver.Prediction?.History.LastAcknowledged ?? 0}   Corrections ≥3m  {local?.Smoothing.HardSnaps ?? 0}";
     }
@@ -165,7 +167,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     {
         _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby);
         _driver.RosterChanged += SynchronizeBodies;
-        _driver.LocalCorrected += state => _bodies[state.VehicleId].Apply(state.Movement.Physics, true);
+        _driver.LocalCorrected += state => _bodies[state.VehicleId].Apply(state, true);
     }
 
     /// <summary>Advances production networking and simulation once per captured physics input.</summary>
@@ -182,12 +184,12 @@ internal sealed partial class NetworkVehicleArena : Node3D
         {
             foreach (VehicleSnapshot state in _driver.Host.World.State.Vehicles)
             {
-                _bodies[state.VehicleId].Apply(state.Movement.Physics);
+                _bodies[state.VehicleId].Apply(state);
             }
         }
         else if (_driver.LocalState is VehicleSnapshot state)
         {
-            _bodies[state.VehicleId].Apply(state.Movement.Physics);
+            _bodies[state.VehicleId].Apply(state);
         }
     }
 
@@ -238,12 +240,14 @@ internal sealed partial class NetworkVehicleArena : Node3D
                 body = new NetworkVehicleBody { Name = $"Vehicle{id}", VehicleId = id, PushProps = _driver.Host is not null };
                 AddChild(body);
                 _bodies.Add(id, body);
-                body.Apply(vehicle.State.Movement.Physics);
+                body.Apply(vehicle.State);
             }
             else if (_driver.Host is not null || id != _driver.LocalVehicleId)
             {
-                body.Apply(vehicle.State.Movement.Physics);
+                body.Apply(vehicle.State);
             }
+
+            body.SynchronizeLifecycle(vehicle.State);
         }
     }
 

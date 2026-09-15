@@ -19,10 +19,12 @@ public sealed class HostVehicleSession
     /// <summary>Starts one host vehicle in a caller-identified session.</summary>
     /// <param name="sessionId">Nonzero identity supplied by the outer session lifetime.</param>
     /// <param name="itemConfiguration">Optional authoritative item tuning.</param>
-    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null)
+    /// <param name="respawnConfiguration">Optional host lifecycle tuning.</param>
+    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null)
     {
         ArgumentOutOfRangeException.ThrowIfZero(sessionId);
         SessionId = sessionId;
+        World = new Simulation.Simulation(new SimulationConfiguration(TickRate), respawnConfiguration ?? new());
         Items = new ItemAuthority(itemConfiguration);
         World.AddVehicle(1, new(), new(), Spawn(0));
     }
@@ -30,7 +32,7 @@ public sealed class HostVehicleSession
     /// <summary>Caller-provided session generation.</summary>
     public ulong SessionId { get; }
     /// <summary>Sole host gameplay owner, using the existing aggregate simulation path.</summary>
-    public Simulation.Simulation World { get; } = new(new SimulationConfiguration(TickRate));
+    public Simulation.Simulation World { get; }
 
     /// <summary>Match-scoped item gameplay authority.</summary>
     public ItemAuthority Items { get; }
@@ -100,7 +102,18 @@ public sealed class HostVehicleSession
     /// <param name="session">Negotiated session generation.</param>
     /// <param name="inputs">Bounded redundant command window.</param>
     /// <returns>Whether the input passed ownership and ordering validation.</returns>
-    public bool Receive(ulong peer, ulong session, IReadOnlyList<SequencedInput> inputs) => session == SessionId && _peers.TryGetValue(peer, out var entry) && entry.Inputs.Receive(inputs);
+    /// <param name="life">Observed life generation; zero is reserved for trusted in-process callers.</param>
+    public bool Receive(ulong peer, ulong session, IReadOnlyList<SequencedInput> inputs, ulong life = 0)
+    {
+        if (session != SessionId || !_peers.TryGetValue(peer, out var entry))
+        {
+            return false;
+        }
+
+        VehicleSnapshot state = World.GetVehicle(entry.Vehicle);
+        return entry.Inputs.Receive(!state.CanInteract || (life != 0 && life != state.LifeId)
+            ? inputs.Select(input => new SequencedInput(input.Sequence, default)).ToArray() : inputs);
+    }
 
     /// <summary>Advances all active vehicles once using caller-supplied collision observations.</summary>
     /// <param name="local">Current host input.</param>
@@ -112,7 +125,16 @@ public sealed class HostVehicleSession
         var inputs = _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.Consume(tick));
         InputFrame hostInput = new SequencedInput(0, local).AtTick(tick);
         inputs.Add(1, hostInput);
+        var previous = World.State.Vehicles.ToDictionary(state => state.VehicleId);
         Items.Step(World, hostInput, World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray(), collide ?? ((_, _) => null));
+        foreach (var peer in _peers.Values)
+        {
+            VehicleSnapshot state = World.GetVehicle(peer.Vehicle);
+            if (state.LifeId != previous[peer.Vehicle].LifeId || state.Lifecycle != previous[peer.Vehicle].Lifecycle)
+            {
+                peer.Inputs.NeutralizePending();
+            }
+        }
     }
 
     /// <summary>Captures the complete active roster and per-owner input confirmations.</summary>

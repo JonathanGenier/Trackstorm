@@ -193,9 +193,18 @@ public sealed partial class ArenaIntegrationChecks : Node3D
 
         foreach (Vector3 obstacle in new[] { new Vector3(-17, 0.6f, 0), new Vector3(17, 0.6f, 0), new Vector3(0, 0.6f, -16), new Vector3(0, 0.6f, 16) })
         {
-            var physics = Physics(obstacle + new Vector3(0, 0, 8), new Vector3(0, 0, -600));
-            proxy.Apply(physics);
-            var observation = proxy.Observe(WithPhysics(simulation.GetVehicle(99), physics));
+            var physics = Physics(obstacle + new Vector3(0, 0, 8), new Vector3(0, 0, -60));
+            VehicleObservation observation;
+            // Production bounds every sweep to 65 m/s; traverse the approach over real fixed steps.
+            int steps = 0;
+            do
+            {
+                proxy.Apply(physics);
+                observation = proxy.Observe(WithPhysics(simulation.GetVehicle(99), physics));
+                physics = observation.Physics;
+            }
+            while (observation.Contacts.Count == 0 && ++steps < 12);
+
             Check(observation.Contacts.Count > 0 && observation.Physics.Position.Z > obstacle.Z + 1, $"Network sweep collides predictably with fixed obstacle at {obstacle}.");
         }
 

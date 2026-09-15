@@ -48,6 +48,35 @@ internal sealed partial class ItemPresentation : Node3D
         _blast.Dispose();
     }
 
+    /// <summary>Builds a presentation-only emitter using the already acquired CC0 Particle Pack.</summary>
+    /// <param name="texture">Acquired texture stem.</param>
+    /// <param name="burst">One-shot emission or continuous trail.</param>
+    /// <param name="lifetime">Particle lifetime in presentation seconds.</param>
+    /// <returns>Caller-owned native emitter.</returns>
+    internal static GpuParticles3D Particles(string texture, bool burst, float lifetime)
+    {
+        var material = new StandardMaterial3D
+        {
+            Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+            ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+            BillboardMode = BaseMaterial3D.BillboardModeEnum.Enabled,
+            AlbedoTexture = GD.Load<Texture2D>($"res://assets/items/kenney/particles/{texture}.png"),
+            AlbedoColor = texture == "smoke_01" ? new Color(0.3f, 0.32f, 0.35f, 0.5f) : new Color(1, 0.35f, 0.05f),
+        };
+        return new GpuParticles3D
+        {
+            Amount = burst ? 24 : 16,
+            Lifetime = lifetime,
+            OneShot = burst,
+            Explosiveness = burst ? 1 : 0,
+            LocalCoords = false,
+            VisibilityAabb = new Aabb(new Vector3(-12, -12, -12), new Vector3(24, 24, 24)),
+            ProcessMaterial = new ParticleProcessMaterial { Direction = Vector3.Up, Spread = 180, InitialVelocityMin = burst ? 2 : 0.1f, InitialVelocityMax = burst ? 7 : 0.5f, Gravity = new Vector3(0, 0.5f, 0), ScaleMin = 0.15f, ScaleMax = burst ? 1.4f : 0.4f },
+            DrawPass1 = new QuadMesh { Size = Vector2.One, Material = material },
+            Emitting = true,
+        };
+    }
+
     /// <summary>Consumes a new reliable publication exactly once.</summary>
     /// <param name="state">Accepted authority state.</param>
     internal void Apply(ItemPublication state)
@@ -107,11 +136,13 @@ internal sealed partial class ItemPresentation : Node3D
     /// <summary>Follows displayed vehicles without feeding render poses into authority.</summary>
     /// <param name="vehicle">Stable ID.</param>
     /// <param name="position">Displayed vehicle position.</param>
-    internal void Follow(ulong vehicle, Vector3 position)
+    /// <param name="active">Whether the authoritative vehicle may show a held item.</param>
+    internal void Follow(ulong vehicle, Vector3 position, bool active = true)
     {
         if (_held.TryGetValue(vehicle, out var node))
         {
             node.Position = position + new Vector3(0, 2.2f, 0);
+            node.Visible = active;
         }
     }
 
@@ -137,27 +168,4 @@ internal sealed partial class ItemPresentation : Node3D
         return root;
     }
 
-    private static GpuParticles3D Particles(string texture, bool burst, float lifetime)
-    {
-        var material = new StandardMaterial3D
-        {
-            Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
-            ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
-            BillboardMode = BaseMaterial3D.BillboardModeEnum.Enabled,
-            AlbedoTexture = GD.Load<Texture2D>($"res://assets/items/kenney/particles/{texture}.png"),
-            AlbedoColor = texture == "smoke_01" ? new Color(0.3f, 0.32f, 0.35f, 0.5f) : new Color(1, 0.35f, 0.05f),
-        };
-        return new GpuParticles3D
-        {
-            Amount = burst ? 24 : 16,
-            Lifetime = lifetime,
-            OneShot = burst,
-            Explosiveness = burst ? 1 : 0,
-            LocalCoords = false,
-            VisibilityAabb = new Aabb(new Vector3(-12, -12, -12), new Vector3(24, 24, 24)),
-            ProcessMaterial = new ParticleProcessMaterial { Direction = Vector3.Up, Spread = 180, InitialVelocityMin = burst ? 2 : 0.1f, InitialVelocityMax = burst ? 7 : 0.5f, Gravity = new Vector3(0, 0.5f, 0), ScaleMin = 0.15f, ScaleMax = burst ? 1.4f : 0.4f },
-            DrawPass1 = new QuadMesh { Size = Vector2.One, Material = material },
-            Emitting = true,
-        };
-    }
 }
