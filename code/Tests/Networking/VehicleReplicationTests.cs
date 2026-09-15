@@ -9,6 +9,21 @@ namespace Trackstorm.Core.Tests.Networking;
 [TestFixture]
 internal sealed class VehicleReplicationTests
 {
+    /// <summary>Lifecycle contact filtering and movement-only prediction retain the same wheel observations.</summary>
+    [Test]
+    public void HostAndPredictionPreserveWheelSupport()
+    {
+        var host = new HostVehicleSession(99);
+        var wheels = new WheelSupport(new Vector4(0.12f, 0.08f, 0.06f, 0.1f));
+        VehicleObservation Supported(VehicleSnapshot state) => new(state.Movement.Physics, Vector3.UnitY, wheels: wheels);
+        host.Step(Drive(), Supported);
+        var prediction = new PredictedVehicle(host.Snapshot().Vehicles.Single());
+        prediction.Predict(Drive(12000), Supported);
+        host.Step(Drive(12000), Supported);
+        Assert.That(host.World.GetVehicle(1).Movement.Wheels, Is.EqualTo(wheels));
+        Assert.That(prediction.State.Movement, Is.EqualTo(host.World.GetVehicle(1).Movement));
+    }
+
     /// <summary>Serial arithmetic distinguishes wrap, equality, stale values and ambiguity.</summary>
     /// <param name="candidate">Potentially newer identity.</param>
     /// <param name="previous">Reference identity.</param>
@@ -199,7 +214,7 @@ internal sealed class VehicleReplicationTests
         host.Step(Drive(), Observe);
         WorldSnapshot expected = host.Snapshot();
         byte[] bytes = VehicleNetworkCodec.EncodeSnapshot(expected);
-        Assert.That(bytes.Length, Is.LessThan(1200));
+        Assert.That(bytes.Length, Is.LessThan(1400));
         WorldSnapshot decoded = VehicleNetworkCodec.DecodeSnapshot(bytes);
         Assert.That(decoded.Tick, Is.EqualTo(expected.Tick));
         Assert.That(decoded.Session, Is.EqualTo(99));
@@ -263,7 +278,7 @@ internal sealed class VehicleReplicationTests
     public void SnapshotPreservesGameplayMemory()
     {
         var physics = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(2, 0, -10), Vector3.UnitY);
-        var movement = new VehicleState(100, physics, true, true, 20, 10);
+        var movement = new VehicleState(100, physics, true, true, 0.2f, 1);
         var damage = new VehicleDamageState(100, 80, new DamageEvent(2, 99, 20, new DamageContext("collision", 7, "vehicle"), false), 99);
         var state = new VehicleSnapshot(2, 3, movement, damage, physics);
         var snapshot = new WorldSnapshot(99, 100, [new(state, 15)]);

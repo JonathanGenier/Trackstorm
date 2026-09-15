@@ -105,7 +105,7 @@ public sealed class PredictedVehicle
             physics = observation.Physics;
             var predictor = new VehicleMovement(new(), physics);
             predictor.Restore(previous.Movement);
-            movement = predictor.Step(frame, physics, observation.Support, true, observation.Surface);
+            movement = predictor.Step(frame, physics, observation.Support, true, observation.Surface, observation.Wheels);
         }
         else
         {

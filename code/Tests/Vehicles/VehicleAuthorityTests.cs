@@ -128,15 +128,15 @@ internal sealed class VehicleAuthorityTests
         Assert.That(results[0].Reset, Is.True);
         Assert.That(fresh.LifeId, Is.EqualTo(dead.LifeId + 1));
         Assert.That(fresh.Movement.Tick, Is.EqualTo(3));
-        Assert.That(fresh.Movement.DriftTicks, Is.Zero);
-        Assert.That(fresh.Movement.BoostTicks, Is.Zero);
+        Assert.That(fresh.Movement.SteeringAngle, Is.EqualTo(new VehicleConfiguration().SteeringResponse / 60).Within(0.000001f));
+        Assert.That(fresh.Movement.Handbrake, Is.Zero);
         Assert.That(fresh.Damage.CurrentHP, Is.EqualTo(100));
         Assert.That(fresh.Damage.LastDamage, Is.Null);
         Assert.That(fresh.Damage.LastCollisionTick, Is.Null);
         Assert.That(simulation.State.Vehicles.All(vehicle => vehicle.Movement.Tick == 3), Is.True);
     }
 
-    /// <summary>Serialized restoration needs no Client timers and reproduces charged release, cooldown and expiry.</summary>
+    /// <summary>Serialized restoration reproduces handbrake recovery, collision cooldown and accepted effects.</summary>
     [Test]
     public void RestoredAggregate_ReplaysMovementDamageAndAcceptedImpulses()
     {
@@ -148,7 +148,7 @@ internal sealed class VehicleAuthorityTests
             original.Step(input, [Request(1, input, physics, contacts: tick == 44 ? [Contact(9, 2)] : null, effects: tick == 45 ? [Effect(5)] : null), Request(2, input, physics)]);
         }
 
-        Assert.That(original.GetVehicle(1).Movement.DriftTicks, Is.GreaterThanOrEqualTo(39));
+        Assert.That(original.GetVehicle(1).Movement.Handbrake, Is.EqualTo(1));
         VehicleSnapshot[] decoded = original.State.Vehicles.Select(vehicle => VehicleSnapshotCodec.Decode(VehicleSnapshotCodec.Encode(vehicle))).ToArray();
         Assert.That(decoded[0].Effects.Single().Effect, Is.EqualTo(Effect(5).Effect));
         Assert.That(decoded[0].Effects.Single().Attribution, Is.EqualTo(Effect(5).Attribution));
@@ -163,7 +163,7 @@ internal sealed class VehicleAuthorityTests
             restored.Step(input, requests);
             if (tick == 46)
             {
-                Assert.That(restored.GetVehicle(1).Movement.BoostTicks, Is.GreaterThan(0));
+                Assert.That(restored.GetVehicle(1).Movement.Handbrake, Is.GreaterThan(0));
                 Assert.That(restored.GetVehicle(1).Damage, Is.EqualTo(decoded[0].Damage), "restoration must not reapply previous damage or bypass cooldown");
                 Assert.That(restored.GetVehicle(1).Effects, Is.Empty);
             }
@@ -175,18 +175,18 @@ internal sealed class VehicleAuthorityTests
             }
         }
 
-        Assert.That(restored.GetVehicle(1).Movement.BoostTicks, Is.Zero);
+        Assert.That(restored.GetVehicle(1).Movement.Handbrake, Is.Zero);
     }
 
     /// <summary>Invalid configuration-specific memory on the final vehicle leaves the whole world untouched.</summary>
     [Test]
-    public void Restore_InvalidTimerDoesNotPartiallyRestore()
+    public void Restore_InvalidSteeringDoesNotPartiallyRestore()
     {
         CoreSimulation simulation = Create();
         SimulationState before = simulation.State;
         VehicleSnapshot first = simulation.GetVehicle(1);
         VehicleSnapshot second = simulation.GetVehicle(2);
-        var invalid = new VehicleSnapshot(2, 1, new VehicleState(0, second.Movement.Physics, true, true, int.MaxValue, 0), second.Damage, second.ObservedPhysics);
+        var invalid = new VehicleSnapshot(2, 1, new VehicleState(0, second.Movement.Physics, true, true, 0.9f, 0), second.Damage, second.ObservedPhysics);
         var changed = new VehicleSnapshot(1, 2, first.Movement, first.Damage, first.ObservedPhysics);
         Assert.Throws<ArgumentException>(() => simulation.Restore(new SimulationState(0, default, [changed, invalid])));
         Assert.That(simulation.State, Is.EqualTo(before));
@@ -202,8 +202,8 @@ internal sealed class VehicleAuthorityTests
         Assert.That(bytes[0], Is.EqualTo(2));
         JsonObject json = JsonNode.Parse(Encoding.UTF8.GetString(bytes[1..]))!.AsObject();
         byte[] movement = Convert.FromBase64String(json["Movement"]!.GetValue<string>());
-        Assert.That(movement.Length, Is.EqualTo(71));
-        Assert.That(movement[0], Is.EqualTo(2));
+        Assert.That(movement.Length, Is.EqualTo(VehicleStateCodec.SerializedSize));
+        Assert.That(movement[0], Is.EqualTo(3));
         Assert.That(VehicleSnapshotCodec.Encode(VehicleSnapshotCodec.Decode(bytes)), Is.EqualTo(bytes));
         byte[] wrongVersion = (byte[])bytes.Clone();
         wrongVersion[0] = 1;

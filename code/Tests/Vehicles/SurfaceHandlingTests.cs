@@ -55,18 +55,18 @@ internal sealed class SurfaceHandlingTests
         VehicleState restored = movement.Step(Frame(3), Physics(new Vector3(5, 0, -10)), Vector3.UnitY);
         Assert.That(mud.Physics.LinearVelocity.X, Is.GreaterThan(concrete.Physics.LinearVelocity.X));
         Assert.That(-mud.Physics.LinearVelocity.Z, Is.LessThan(-concrete.Physics.LinearVelocity.Z));
-        Assert.That(-mud.Physics.LinearVelocity.Z, Is.EqualTo((10 + (14 * 0.6f / 60)) * MathF.Exp(-0.7f / 60)).Within(0.00001));
-        Assert.That(restored.Physics, Is.EqualTo(concrete.Physics));
+
+        Assert.That(restored.Physics.LinearVelocity.X, Is.LessThan(mud.Physics.LinearVelocity.X));
         Assert.That(restored.CurrentSurface, Is.EqualTo(SurfaceType.Concrete));
         var reverse = new InputFrame(4, 0, 0, 65535, InputButtons.None, InputButtons.None, InputButtons.None);
         Assert.That(
             movement.Step(reverse, Physics(), Vector3.UnitY, surface: SurfaceType.Mud).Physics.LinearVelocity.Z,
-            Is.EqualTo((8 * 0.6f / 60) * MathF.Exp(-0.7f / 60)).Within(0.00001));
+            Is.InRange(0.001f, 8 * 0.6f / 60));
     }
 
     /// <summary>Nondefault surface tuning controls coasting, ordinary grip and drift grip through the same response.</summary>
     [Test]
-    public void CustomTuning_ComposesCoastingAndDriftGrip()
+    public void CustomTuning_ComposesCoastingAndTireGrip()
     {
         var tuning = new VehicleConfiguration { Concrete = new(0.4f, 2, 0.3f), Mud = new(0.2f, 4, 0.1f) };
         foreach (SurfaceType surface in Enum.GetValues<SurfaceType>())
@@ -77,16 +77,26 @@ internal sealed class SurfaceHandlingTests
                 var movement = new VehicleMovement(tuning, Physics());
                 var input = new InputFrame(1, 18000, 0, 0, drift ? InputButtons.Drift : InputButtons.None, InputButtons.None, InputButtons.None);
                 VehicleState result = movement.Step(input, Physics(new Vector3(5, 0, -18)), Vector3.UnitY, surface: surface);
-                Assert.That(-result.Physics.LinearVelocity.Z, Is.EqualTo(18 * MathF.Exp(-0.35f * modifiers.Drag / 60)).Within(0.00001));
-                float grip = drift ? tuning.DriftGrip : tuning.Grip;
-                Assert.That(result.Physics.LinearVelocity.X, Is.EqualTo(5 * MathF.Exp(-grip * modifiers.Grip / 60)).Within(0.00001));
+                float coastingSpeed = 18 * MathF.Exp(-tuning.CoastDrag * modifiers.Drag / tuning.TicksPerSecond);
+                if (drift)
+                {
+                    Assert.That(-result.Physics.LinearVelocity.Z, Is.LessThan(coastingSpeed));
+                }
+                else
+                {
+                    Assert.That(-result.Physics.LinearVelocity.Z, Is.EqualTo(coastingSpeed).Within(0.00001f));
+                }
+
+                Assert.That(result.Physics.LinearVelocity.X, Is.InRange(4.8f, 5f));
+                Assert.That(result.FrontSlip, Is.InRange(0, 1));
+                Assert.That(result.RearSlip, Is.InRange(0, 1));
             }
         }
     }
 
-    /// <summary>Surface changes preserve valid drift charge; flight clears drift and ignores retained surface handling.</summary>
+    /// <summary>Surface changes preserve handbrake recovery; flight ignores retained surface handling.</summary>
     [Test]
-    public void DriftAndFlight_UseExistingStateMachineAcrossSurfaces()
+    public void HandbrakeAndFlight_RemainContinuousAcrossSurfaces()
     {
         var movement = new VehicleMovement(new(), Physics());
         VehiclePhysicsState observed = Physics(new Vector3(0, 0, -18));
@@ -95,8 +105,8 @@ internal sealed class SurfaceHandlingTests
             movement.Step(Frame(tick, true), observed, Vector3.UnitY, surface: tick < 20 ? SurfaceType.Concrete : SurfaceType.Mud);
         }
 
-        Assert.That(movement.State.DriftTicks, Is.EqualTo(39));
-        Assert.That(movement.Step(Frame(46), observed, Vector3.UnitY, surface: SurfaceType.Mud).BoostTicks, Is.EqualTo(54));
+        Assert.That(movement.State.Handbrake, Is.EqualTo(1));
+        Assert.That(movement.Step(Frame(46), observed, Vector3.UnitY, surface: SurfaceType.Mud).Handbrake, Is.InRange(0.9f, 0.99f));
         VehicleState beforeFlight = movement.State;
         var comparison = new VehicleMovement(new(), observed);
         comparison.Restore(beforeFlight);
@@ -104,7 +114,7 @@ internal sealed class SurfaceHandlingTests
         Assert.That(comparison.Step(Frame(47, true), observed, Vector3.Zero, surface: SurfaceType.Mud), Is.EqualTo(flight));
         Assert.That(flight.CurrentSurface, Is.EqualTo(SurfaceType.Mud));
         Assert.That(flight.Grounded || flight.Drifting, Is.False);
-        Assert.That(flight.DriftTicks, Is.Zero);
+        Assert.That(flight.Handbrake, Is.EqualTo(1));
         Assert.That(movement.Step(Frame(48), observed, Vector3.UnitY).CurrentSurface, Is.EqualTo(SurfaceType.Concrete));
     }
 

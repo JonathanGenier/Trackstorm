@@ -195,7 +195,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
                         Require(Enumerable.Range(0, 8).Any(slot => spawn.ObservedPhysics == host.World.Arena.Spawn(slot)), "All peers receive a configured spawn and zero linear/angular velocity.");
                         Require(spawn.ObservedPhysics == _boundaries[0].First(state => state.LifeId == _life + 1 && state.CanInteract).ObservedPhysics, "Peers agree on the selected spawn.");
                         Require(spawn.Damage.CurrentHP == spawn.Damage.MaxHP && spawn.Damage.LastDamage is null && spawn.Damage.LastCollisionTick is null, "Full HP and clean damage memory.");
-                        Require(spawn.Movement.DriftTicks == 0 && spawn.Movement.BoostTicks == 0 && !spawn.Movement.Grounded && spawn.Movement.CurrentSurface == SurfaceType.Concrete && spawn.Effects.Count == 0, "Clean transient movement/physics state.");
+                        Require(spawn.Movement.SteeringAngle == 0 && spawn.Movement.Handbrake == 0 && spawn.Movement.Wheels == default && spawn.Movement.FrontSlip == 0 && spawn.Movement.RearSlip == 0 && !spawn.Movement.Grounded && spawn.Movement.CurrentSurface == SurfaceType.Concrete && spawn.Effects.Count == 0, "Clean transient movement/physics state.");
                         Require(outcomes.Count(state => state.LifeId == _life && state.Lifecycle == VehicleLifecycle.Dead) == 1, "Exactly one reliable death per life.");
                         Require(outcomes.Any(state => state.LifeId == _life && state.Lifecycle == VehicleLifecycle.Respawning), "Waiting lifecycle reliably observed.");
                     }

@@ -21,6 +21,10 @@ internal sealed class PlayerInputAdapter
 
     private readonly InputFrameCapture _capture = new();
     private float _deadZone = 0.15f;
+    private float _throttle;
+    private float _brake;
+    private float _steering;
+    private bool _itemNeedsRelease;
 
     /// <summary>Creates an adapter around the Client-owned mapping.</summary>
     /// <param name="bindings">The single local player's bindings.</param>
@@ -28,6 +32,15 @@ internal sealed class PlayerInputAdapter
     {
         Bindings = bindings;
     }
+
+    /// <summary>Digital intent rates; shaping happens before frame recording.</summary>
+    public DrivingInputShaping Shaping { get; set; } = new();
+
+    /// <summary>Fixed capture interval matching the native physics scheduler.</summary>
+    public float CaptureInterval { get; set; } = 1f / 60;
+
+    /// <summary>Local remappable camera intent; camera behavior is owned by presentation.</summary>
+    public Godot.Vector2 CameraIntent => Enabled && !GameplaySuppressed ? new(Bindings.Strength(InputAction.CameraRight, DeadZone) - Bindings.Strength(InputAction.CameraLeft, DeadZone), Bindings.Strength(InputAction.CameraDown, DeadZone) - Bindings.Strength(InputAction.CameraUp, DeadZone)) : Godot.Vector2.Zero;
 
     /// <summary>Runtime remapping entry point.</summary>
     public PlayerInputBindings Bindings { get; }
@@ -56,11 +69,26 @@ internal sealed class PlayerInputAdapter
     public void Observe()
     {
         InputButtons held = InputButtons.None;
+        if (!Enabled || GameplaySuppressed)
+        {
+            _itemNeedsRelease = true;
+        }
+
         if (Enabled && !GameplaySuppressed)
         {
             foreach ((InputAction action, InputButtons button) in DigitalActions)
             {
-                if (Bindings.Strength(action, DeadZone) > 0.5f)
+                float strength = Bindings.Strength(action, DeadZone);
+                if (action == InputAction.UseItem)
+                {
+                    _itemNeedsRelease &= strength > 0.5f;
+                    if (_itemNeedsRelease)
+                    {
+                        continue;
+                    }
+                }
+
+                if (strength > 0.5f)
                 {
                     held |= button;
                 }
@@ -77,11 +105,27 @@ internal sealed class PlayerInputAdapter
     {
         Observe();
         bool active = Enabled && !GameplaySuppressed;
-        float steering = active ? Bindings.Strength(InputAction.SteerRight, DeadZone) - Bindings.Strength(InputAction.SteerLeft, DeadZone) : 0;
-        return _capture.Capture(
+        if (!active)
+        {
+            _throttle = _brake = _steering = 0;
+        }
+        else
+        {
+            float throttle = Bindings.Strength(InputAction.Accelerate, DeadZone, false);
+            float brake = Bindings.Strength(InputAction.Brake, DeadZone, false);
+            float steering = Bindings.Strength(InputAction.SteerRight, DeadZone, false) - Bindings.Strength(InputAction.SteerLeft, DeadZone, false);
+            _throttle = DrivingInputShaping.Approach(_throttle, throttle, throttle > _throttle ? Shaping.ThrottleRise : Shaping.ThrottleRelease, CaptureInterval);
+            _brake = DrivingInputShaping.Approach(_brake, brake, Shaping.BrakeRise, CaptureInterval);
+            float steeringRate = steering == 0 ? Shaping.SteeringReturn : steering * _steering < 0 ? Shaping.SteeringReversal : Shaping.SteeringRise;
+            _steering = DrivingInputShaping.Approach(_steering, steering, steeringRate, CaptureInterval);
+        }
+
+        float analogSteering = active ? Bindings.Strength(InputAction.SteerRight, DeadZone, true) - Bindings.Strength(InputAction.SteerLeft, DeadZone, true) : 0;
+        InputFrame frame = _capture.Capture(
             tick,
-            InputAxis.QuantizeSteering(InputAxis.Normalize(steering, inverted: InvertSteering)),
-            InputAxis.QuantizePedal(active ? Bindings.Strength(InputAction.Accelerate, DeadZone) : 0),
-            InputAxis.QuantizePedal(active ? Bindings.Strength(InputAction.Brake, DeadZone) : 0));
+            InputAxis.QuantizeSteering(InputAxis.Normalize(Math.Abs(analogSteering) > Math.Abs(_steering) ? analogSteering : _steering, inverted: InvertSteering)),
+            InputAxis.QuantizePedal(active ? Math.Max(_throttle, Bindings.Strength(InputAction.Accelerate, DeadZone, true)) : 0),
+            InputAxis.QuantizePedal(active ? Math.Max(_brake, Bindings.Strength(InputAction.Brake, DeadZone, true)) : 0));
+        return active ? frame : new InputFrame(tick, 0, 0, 0, InputButtons.None, InputButtons.None, frame.Released);
     }
 }

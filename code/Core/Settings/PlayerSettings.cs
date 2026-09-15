@@ -52,6 +52,9 @@ public sealed record PlayerSettings
     /// <summary>Opaque Client-owned binding tokens per logical action. Missing means defaults; empty means unbound.</summary>
     public IReadOnlyDictionary<InputAction, IReadOnlyList<string>> Bindings => _bindings;
 
+    /// <summary>Client binding-default revision; zero identifies saves predating default migration tracking.</summary>
+    public int BindingDefaultsVersion { get; init; } = 1;
+
     /// <summary>Copies an override without exposing mutable collections or interpreting native binding tokens.</summary>
     /// <param name="action">Existing logical action.</param>
     /// <param name="tokens">Serialized bindings supplied by Client.</param>

@@ -52,6 +52,14 @@ internal sealed class PlayerSettingsTests
         Assert.That(PlayerSettingsJson.Serialize(PlayerSettingsJson.Deserialize(json)), Is.EqualTo(json));
     }
 
+    /// <summary>Old saves are identifiable without changing their custom bindings; current saves retain the migration marker.</summary>
+    [Test]
+    public void BindingDefaultsRevisionDistinguishesLegacySaves()
+    {
+        Assert.That(PlayerSettingsJson.Deserialize("{\"version\":1}").BindingDefaultsVersion, Is.Zero);
+        Assert.That(PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(new PlayerSettings())).BindingDefaultsVersion, Is.EqualTo(1));
+    }
+
     /// <summary>Malformed or unsupported documents restore defaults.</summary>
     /// <param name="json">Invalid persisted document.</param>
     [TestCase(null)]

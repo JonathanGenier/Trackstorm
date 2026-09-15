@@ -6,7 +6,7 @@ public enum InputButtons : ushort
 {
     /// <summary>No controls.</summary>
     None = 0,
-    /// <summary>Drift.</summary>
+    /// <summary>Physical handbrake intent; stable bit/name retained for existing recorded inputs.</summary>
     Drift = 1,
     /// <summary>Use item.</summary>
     UseItem = 2,

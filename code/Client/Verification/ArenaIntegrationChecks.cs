@@ -111,9 +111,18 @@ public sealed partial class ArenaIntegrationChecks : Node3D
         {
             Vector3 start = (direction * (direction.X == 0 ? 40 : 50)) + Vector3.Up;
             player.ResetBody(Physics(start, direction * 55));
-            await Frames(70);
-            Check(Math.Abs(player.GlobalPosition.X) < 60 && Math.Abs(player.GlobalPosition.Z) < 50, $"Native boundary {direction} contains a 55 m/s impact.");
-            Check(direction.X == 0 ? Math.Abs(player.GlobalPosition.Z) > 46 : Math.Abs(player.GlobalPosition.X) > 56, $"Vehicle actually reaches boundary {direction}.");
+            float furthest = 0;
+            bool contained = true;
+            for (int frame = 0; frame < 70; frame++)
+            {
+                await Frames(1);
+                furthest = Math.Max(furthest, player.GlobalPosition.Dot(direction));
+                contained &= Math.Abs(player.GlobalPosition.X) < 60 && Math.Abs(player.GlobalPosition.Z) < 50;
+            }
+
+            GD.Print($"Boundary {direction}: furthest={furthest:F2}, final={player.GlobalPosition}");
+            Check(contained, $"Native boundary {direction} contains the entire 55 m/s impact trajectory.");
+            Check(furthest > (direction.X == 0 ? 46 : 56), $"Vehicle actually reaches boundary {direction}.");
             player.ResetBody(Physics(start, direction * 35));
             await Frames(2);
             player.ApplyEffect(new DamageEffect(0, VehicleBody.ToCore((direction * 12000) + (Vector3.Up * 15000)), Numerics.Vector3.Zero), new DamageContext("explosion", 1, "arena-boundary-check"));
