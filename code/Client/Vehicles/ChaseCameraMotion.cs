@@ -40,7 +40,7 @@ internal sealed class ChaseCameraMotion
 
     /// <summary>Advances bounded positional inertia and feedback in presentation time.</summary>
     /// <param name="delta">Elapsed render seconds.</param>
-    /// <param name="heading">Actual smoothed vehicle heading in radians.</param>
+    /// <param name="heading">Displayed vehicle heading in radians, or the last usable fallback.</param>
     /// <param name="longitudinalGain">Rearward metres per forward acceleration.</param>
     /// <param name="lateralGain">Outside-turn metres per lateral acceleration.</param>
     /// <param name="slipGain">Metres per sideways speed.</param>

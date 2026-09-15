@@ -24,9 +24,6 @@ public sealed partial class VehicleChaseCamera : Camera3D
     /// <summary>Position convergence rate per second.</summary>
     [Export(PropertyHint.Range, "0.1,30,0.1")]
     public float PositionDamping { get; set; } = 8;
-    /// <summary>Convergence rate toward actual vehicle heading, per second.</summary>
-    [Export(PropertyHint.Range, "0.1,30,0.1")]
-    public float RotationDamping { get; set; } = 7;
     /// <summary>Rearward metres per forward acceleration in metres per second squared.</summary>
     [Export(PropertyHint.Range, "0,0.2,0.001")]
     public float LongitudinalInertia { get; set; } = 0.045f;
@@ -90,14 +87,13 @@ public sealed partial class VehicleChaseCamera : Camera3D
     {
         bool reset = !_initialized || state.VehicleId != _vehicle || state.LifeId != _life;
         Vector3 forward = -pose.Basis.Z;
-        // Retain heading near vertical and while overturned; never inherit chassis pitch or roll.
-        float heading = pose.Basis.Y.Y > 0.15f && new Vector2(forward.X, forward.Z).LengthSquared() > 0.1f
+        // Retain heading for invalid, near-vertical or overturned orientations; never inherit chassis pitch or roll.
+        float heading = pose.Basis.IsFinite() && pose.Basis.Y.Y > 0.15f && new Vector2(forward.X, forward.Z).LengthSquared() > 0.1f
             ? MathF.Atan2(-forward.X, -forward.Z) : _heading;
         if (reset)
         {
             _motion.Reset(state.ObservedPhysics.LinearVelocity);
             _motionTick = state.Movement.Tick;
-            _heading = heading;
             _anchor = pose.Origin;
             _vehicle = state.VehicleId;
             _life = state.LifeId;
@@ -117,7 +113,8 @@ public sealed partial class VehicleChaseCamera : Camera3D
             _motionTick = state.Movement.Tick;
         }
 
-        _heading = MathF.IEEERemainder(Mathf.LerpAngle(_heading, heading, ChaseCameraMotion.Blend(RotationDamping, delta)), Mathf.Tau);
+        // The displayed pose already includes practice/network interpolation. Do not add yaw lag.
+        _heading = heading;
         _motion.Advance(delta, _heading, LongitudinalInertia, LateralInertia, SidewaysInertia, MaximumLongitudinalInertia, MaximumLateralInertia, PositionDamping, ShakeDecay);
         // Horizontal position follows the interpolated vehicle, with only bounded local inertia.
         // Vertical damping absorbs bumps; neither inertia nor shake changes the heading or aim.

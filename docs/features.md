@@ -236,7 +236,7 @@ Core NUnit coverage checks digital shaping, analog conditioning, mass/drive/brak
 
 ### Behavior and Orientation
 
-Practice and network gameplay share Client.Vehicles.VehicleChaseCamera. The camera follows the local vehicle behind its actual heading, with a level horizon and a fixed downward viewing angle. Heading damping absorbs rapid chassis changes; near-vertical or overturned poses retain the last usable heading. New vehicle identities and life generations reset follow and feedback memory immediately.
+Practice and network gameplay share Client.Vehicles.VehicleChaseCamera. Camera yaw follows the already-interpolated/displayed vehicle heading directly on every update, with a level horizon and a fixed downward viewing angle. There is no additional rotational smoothing or independent yaw catch-up period. Invalid, near-vertical or overturned orientations retain the last usable heading; a usable displayed heading is adopted immediately on recovery. Positional inertia provides motion and weight. New vehicle identities and life generations reset follow and feedback memory immediately.
 
 The driving camera has no mouse, right-stick or steering-input dependency. These inputs are not sampled, consumed or assigned replacement behavior by the camera. Steering alone cannot rotate the camera. Only changes in actual vehicle heading change chase yaw. Aim is independent of lateral inertia and shake, so positional weight cannot introduce additional orbit or look-at yaw.
 
@@ -250,13 +250,13 @@ Local contacts above the configurable severity threshold produce a small vertica
 
 ### Tuning and Architecture
 
-The ChaseCamera node exposes Inspector properties for follow distance/height (11 m / 5 m), position/heading damping (8/s / 7/s), longitudinal/lateral acceleration gains (0.045 / 0.025 metres per m/s²), sideways-speed gain (0.015 metres per m/s), maximum inertia offsets, collision/damage gains, contact threshold, shake decay and maximum vertical shake (0.12 m). Live Remote Inspector tuning is supported; scene-authored instances can save exported values. Current arenas instantiate shared defaults.
+The ChaseCamera node exposes Inspector properties for follow distance/height (11 m / 5 m), position damping (8/s), longitudinal/lateral acceleration gains (0.045 / 0.025 metres per m/s²), sideways-speed gain (0.015 metres per m/s), maximum inertia offsets, collision/damage gains, contact threshold, shake decay and maximum vertical shake (0.12 m). Live Remote Inspector tuning is supported; scene-authored instances can save exported values. Current arenas instantiate shared defaults.
 
 Practice native bodies use Godot physics interpolation; the camera reads their interpolated pose. Network vehicles retain explicit pose interpolation/correction smoothing; the camera reads the visual pose after presentation updates. Automatic interpolation is disabled for the render-updated camera. Camera state remains entirely in Client, outside Core, input frames, prediction history and network payloads. Physics and vehicle input behavior are unchanged.
 
 ### Verification and Limits
 
-Pure Client tests cover acceleration/braking direction and smooth transitions, lateral turn/slip response, bounds, settling, rotated reference frames, 30/60/144 FPS consistency, life resets and shake decay. The native camera_checks.tscn harness injects mouse, right-stick and steering events and checks unchanged camera pose at fixed vehicle state, heading alignment across wraparound, positional inertia without aim changes, settling, damage deduplication and life/airborne recovery. Existing driving, network and lifecycle harnesses exercise both gameplay paths.
+Pure Client tests cover acceleration/braking direction and smooth transitions, lateral turn/slip response, bounds, settling, rotated reference frames, 30/60/144 FPS consistency, life resets and shake decay. The native camera_checks.tscn harness injects mouse, right-stick and steering events and checks unchanged camera pose at fixed vehicle state, one-update heading alignment across large turns and wraparound at 30/60/144 FPS, retained bounded lateral inertia during an immediate heading change, unstable-orientation fallback and immediate recovery, settling, collision feedback, damage deduplication and life/airborne recovery. Existing driving, network and lifecycle harnesses exercise both gameplay paths.
 
 Synthetic inputs and screenshots do not establish subjective driving comfort or motion polish. The prototype still has no camera obstruction avoidance; nearby structures can obscure the vehicle. Spectator, replay, interior and replicated cameras are not implemented.
 

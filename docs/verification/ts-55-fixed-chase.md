@@ -1,5 +1,7 @@
 # TS-55 Fixed Chase Correction — Round 2 Evidence
 
+Historical Round 2 evidence. Its heading interpolation was removed by the [direct-heading correction](ts-55-direct-heading.md), which describes current behavior and verification. Jira now contains the approved fixed-camera requirements; the mismatch described below existed at the time of Round 2.
+
 ## Authorized Direction
 
 Read TS-55 completely in Jira and repeated the complete child query before changes. Jira still specifies mouse/right-stick look and steering anticipation; it has no children, comments, linked dependencies or attachments. The user's explicit correction replaces those particular requirements with fixed chase orientation and motion-based positional inertia. All other Story requirements remain applicable. Jira was not edited and the Story is not marked complete.
@@ -12,7 +14,7 @@ Work remains on `ts-55-jg`. Both initial and final main fetches confirmed `origi
 | --- | --- |
 | No mouse/right-stick camera control | Removed camera input callbacks, polling, ownership lookup, sensitivity properties and manual-look memory. Native injected input leaves camera transform unchanged in both directions. Right-stick values remain available through Godot input. |
 | No steering-driven independent yaw | Removed steering arguments and stored input from both camera integrations. Native checks prove steering input still reaches vehicle controls but cannot affect a fixed-state camera. |
-| Actual vehicle orientation determines camera direction | Smoothed heading comes only from the displayed pose. Fixed pitch and heading define camera basis; inertia and shake do not feed look-at rotation. Native heading tests include both turns and ±π wraparound. |
+| Actual vehicle orientation determines camera direction | Round 2 checked eventual alignment only. Current yaw follows the displayed heading directly; the Round 3 one-update regression supersedes this insufficient convergence check. Fixed pitch and heading define camera basis; inertia and shake do not feed look-at rotation. |
 | Smooth acceleration/braking weight | Measured velocity changes sampled using physics-tick time produce bounded fore/aft offsets, with continuous exponential damping. Pure tests check sign, smooth transition and return to neutral; native checks inspect camera position and actual snapshot sampling. |
 | Lateral turn/drift weight without yaw | Lateral acceleration and actual sideways velocity drive an outside-turn offset, capped at 0.4 m by default. Tests verify both directions, slip response, bounds and unchanged native camera aim. No drift-button dependency. |
 | Settling and stable recovery | Pure tests compare 30/60/144 FPS results and verify reset behavior. Native checks verify settling within 1 mm and 0.001 degrees, finite transforms under tilted/spinning poses, and new-life resets. |

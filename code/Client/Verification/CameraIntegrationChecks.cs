@@ -63,19 +63,29 @@ public sealed partial class CameraIntegrationChecks : Node3D
                 Require(input.Adapter.Capture(++inputTick).Steering == 0, "Released steering returns to neutral");
             }
 
-            foreach (float yaw in new[] { -1f, 1f, 3.13f, -3.13f, 0f })
+            foreach (int fps in new[] { 30, 60, 144 })
             {
-                var pose = new Transform3D(Basis.FromEuler(new Vector3(0, yaw, 0)), Vector3.Zero);
-                for (int i = 0; i < 240; i++)
+                foreach (float yaw in new[] { -1f, 1f, 3.13f, -3.13f, 0f })
                 {
-                    camera.Follow(pose, state, 1f / 60);
+                    var pose = new Transform3D(Basis.FromEuler(new Vector3(0, yaw, 0)), Vector3.Zero);
+                    camera.Follow(pose, state, 1f / fps);
+                    RequireHeading(camera, yaw);
+                    Basis immediateAim = camera.GlobalBasis;
+                    camera.Follow(pose, state, 1f / fps);
+                    Require(camera.GlobalBasis.IsEqualApprox(immediateAim), "No rotational catch-up on the following frame");
                 }
-
-                Vector3 facing = -camera.GlobalBasis.Z;
-                float actualYaw = MathF.Atan2(-facing.X, -facing.Z);
-                Require(Math.Abs(Mathf.AngleDifference(actualYaw, yaw)) < 0.001f, "Actual heading determines camera yaw");
             }
 
+            camera.Follow(new Transform3D(Basis.FromEuler(new Vector3(0, 1, 0)), Vector3.Zero), state, 1f / 60);
+            foreach (Basis unstable in new[] { Basis.FromEuler(new Vector3(Mathf.Pi / 2, -1, 0)), Basis.FromEuler(new Vector3(0, -1, Mathf.Pi)), new Basis(Vector3.Zero, Vector3.Zero, Vector3.Zero), new Basis(new Vector3(float.NaN, 0, 0), Vector3.Up, Vector3.Back) })
+            {
+                camera.Follow(new Transform3D(unstable, Vector3.Zero), state, 1f / 60);
+                RequireHeading(camera, 1);
+                Require(camera.GlobalTransform.IsFinite(), "Unstable orientation retains finite camera pose");
+            }
+
+            Follow();
+            RequireHeading(camera, 0);
             for (int i = 0; i < 240; i++)
             {
                 Follow();
@@ -104,6 +114,13 @@ public sealed partial class CameraIntegrationChecks : Node3D
             }
 
             Require(camera.Position.X > 0.3f && camera.GlobalBasis.IsEqualApprox(fixedAim), "Left turn creates outside weight without yaw");
+            float lateralBeforeTurn = camera.Motion.Offset.X;
+            var turnedPose = new Transform3D(Basis.FromEuler(new Vector3(0, Mathf.Pi / 2, 0)), Vector3.Zero);
+            camera.Follow(turnedPose, state, 1f / 60);
+            RequireHeading(camera, Mathf.Pi / 2);
+            Require(camera.Motion.Offset.X > 0 && camera.Motion.Offset.X < lateralBeforeTurn, "Lateral inertia damps independently of immediate heading change");
+            Require(Math.Abs(camera.Motion.Offset.X) <= camera.MaximumLateralInertia, "Lateral inertia remains bounded during heading change");
+            Require(Math.Abs(camera.GlobalPosition.Dot(turnedPose.Basis.X) - camera.Motion.Offset.X) < 0.00001f, "Camera retains lateral positional weight in the displayed vehicle frame");
             camera.Motion.ObserveVelocity(System.Numerics.Vector3.Zero, 1);
             camera.Motion.ObserveVelocity(System.Numerics.Vector3.Zero, 1);
             for (int i = 0; i < 240; i++)
@@ -113,6 +130,16 @@ public sealed partial class CameraIntegrationChecks : Node3D
 
             Require(camera.GlobalPosition.DistanceTo(neutral.Origin) < 0.001f && camera.GlobalBasis.Z.DistanceTo(neutral.Basis.Z) < 0.00001f, "Camera settles within one millimetre and 0.001 degrees of normal chase pose");
             var physics = state.Movement.Physics;
+            var contact = new VehicleContact(new System.Numerics.Vector3(-23, 0, 0), System.Numerics.Vector3.UnitX, 0, 0);
+            camera.ObserveCollision(new VehicleObservation(physics, System.Numerics.Vector3.UnitY, new[] { contact }), 900);
+            Follow();
+            Require(camera.Motion.Shake > 0 && camera.GlobalBasis.IsEqualApprox(fixedAim), "Collision feedback preserves camera orientation");
+            for (int i = 0; i < 240; i++)
+            {
+                Follow();
+            }
+
+            Require(camera.Motion.Shake == 0, "Collision feedback decays to neutral");
             var damageInput = new Core.Input.InputFrame(1, 0, 0, 0, 0, 0, 0);
             simulation.Step(damageInput, new[] { new VehicleStepRequest(1, damageInput, new VehicleObservation(physics, System.Numerics.Vector3.UnitY), new[] { new VehicleEffectRequest(new DamageEffect(20, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero), new DamageContext("missile", 2, "camera-check")) }) });
             state = simulation.GetVehicle(1);
@@ -164,5 +191,12 @@ public sealed partial class CameraIntegrationChecks : Node3D
         {
             throw new InvalidOperationException(message);
         }
+    }
+
+    private static void RequireHeading(VehicleChaseCamera camera, float yaw)
+    {
+        Vector3 facing = -camera.GlobalBasis.Z;
+        float actualYaw = MathF.Atan2(-facing.X, -facing.Z);
+        Require(Math.Abs(Mathf.AngleDifference(actualYaw, yaw)) < 0.00001f, "Camera yaw matches displayed heading within 0.001 degrees after one update");
     }
 }
