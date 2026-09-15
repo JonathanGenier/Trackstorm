@@ -1,0 +1,25 @@
+# In-Match Combat HUD
+
+## Behavior and Layout
+
+During a production practice or network arena, the HUD shows a bottom-left standing badge and current/max HP, a bottom-right speedometer and held-item slot, and a top-center timer. Standing intentionally displays `--`; timer intentionally displays `--:--`. Neither component creates scoring, ranking, tie rules or a gameplay clock. The HUD disappears when the local vehicle is unavailable or the arena closes.
+
+Health uses the actual `VehicleSnapshot.Damage.CurrentHP / MaxHP`. Production Release 0.0.1 vehicles spawn with 1000 HP; future capacities require no HUD formula changes. The red segmented health bar decreases and increases immediately with the committed health fraction. Speed uses `VehicleSnapshot.Speed`, the existing observed horizontal speed in metres per second, and the current local unit preference. Only the number converts to km/h or mph. The red arc fills at 200 km/h (55.555… m/s) in either setting, and clamps at full above that speed. This is a visual scale, not a new physical speed cap.
+
+Empty, Wrench and Missile have distinct slot presentations. Item identity comes from the existing confirmed slot, matched to the local vehicle and life; dead/respawning vehicles and unavailable or mismatched slots show Empty. There is no predicted pickup or item consumption. Existing remappable item inputs and the Use held item button keep their actions. Existing arena diagnostics and grant/reset controls are grouped under Arena tools to keep the combat composition clear; session buttons are above the lower HUD. The settings diagnostics omit their duplicate speed line while combat speed is visible; independent FPS/ping preferences still apply.
+
+## Presentation Ownership and Assets
+
+`Client.Hud.CombatHudView` is a detached pure Client projection, unit-tested without Godot. `CombatHud` owns the native component Controls, labels and materials. The bootstrap supplies functions reading the current local practice snapshot or network driver's local snapshot, confirmed item slot and preference service. Render refreshes never call gameplay mutation APIs or persistence. Session replacement is naturally reflected by these providers; the HUD holds no vehicle authority or inventory lifecycle.
+
+The four project-supplied component PNGs provide the actual distressed metal frames. `assets/hud/sources.json` records their Jira sources and acquired hashes. The assembled scene reference guides placement and is never used as a fullscreen overlay. A small canvas shader masks the baked example numbers, Q prompt and machine gun using dark steel sampled from the supplied health texture, and drives the authored red gauge cells from normalized fractions. Native labels supply current values. Original project SVG silhouettes represent Wrench and Missile; there is no new external font or icon dependency. Text is cleaner than the baked distressed reference typography, and the slot intentionally replaces the reference's unsupported .50 CAL item.
+
+The components use a 1280×720 design coordinate system, uniform scaling bounded by both viewport dimensions, and independent bottom-left, bottom-right and top-center placement. This preserves aspect ratios and margins on the settings-supported sizes down to 640×360, plus taller and ultrawide viewports. The composition uses a slightly taller speedometer from the supplied standalone component; it never stretches the full screen artwork.
+
+## Capacity Integration and Verification
+
+`HostVehicleSession` accepts explicit health configuration and applies it to host and joining players. The existing network snapshot already carries MaxHP; the decoder validates its bounded value rather than requiring the generic 100 HP default. Prediction reconstructs its health capacity from that authoritative spawn boundary. Capacity remains fixed for that registered vehicle; this change does not add runtime vehicle-type switching. The wire layout and physics/input units are unchanged. Mixed old/new builds should not share a match: older decoders reject the 1000 HP production state.
+
+Core tests exercise configured capacities through join, wire round-trip and prediction. Pure Client tests cover unit conversion, 200 km/h normalization, current/max formatting, future capacities, all item mappings, identity/life gating, placeholders and non-mutating state projection. `check-hud.ps1 -GodotPath <Godot .NET executable>` renders native HUD state transitions, checks labels/materials and rendered fill pixels, verifies unit changes and out-of-match hiding, and saves images for nine viewport sizes under `.godot/hud-checks`. The existing eight-peer item and pickup harnesses also assert that the HUD follows confirmed replicated HP/ownership through use and acquisition. These are local-machine integration checks, not a separate-PC or Internet multiplayer soak.
+
+[Feature index](README.md)

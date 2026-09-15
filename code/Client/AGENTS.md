@@ -1,3 +1,3 @@
-# Client Agent Instructions
+# Client Agent Routing
 
-Client owns Godot integration, presentation, local input capture, UI, camera, audio, animation, effects, and interpolation. Client may depend on Core and use intentional Core APIs, but must not duplicate authoritative rules or become a second source of game state. Keep Client objects reconstructable from Core state where practical.
+Apply [Client engineering standards](../../docs/standards.md#client). Use the [feature index](../../docs/features/README.md) for the affected presentation/runtime systems and their Core contracts. EOS changes also require [EOS development setup](../../docs/eos-development.md); native dependencies and assets route through the [third-party registry](../../THIRD_PARTY.md).
