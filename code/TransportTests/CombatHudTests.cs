@@ -1,0 +1,83 @@
+using System.Numerics;
+using Trackstorm.Client.Hud;
+using Trackstorm.Core.Items;
+using Trackstorm.Core.Settings;
+using Trackstorm.Core.Vehicles;
+
+namespace Trackstorm.Transport.Tests;
+
+/// <summary>Pure Client presentation checks, without a Godot scene tree.</summary>
+[TestFixture]
+internal sealed class CombatHudTests
+{
+    /// <summary>Units change numbers, never the common visual scale.</summary>
+    [Test]
+    public void SpeedUnitsAndVisualScale()
+    {
+        foreach (SpeedUnit unit in Enum.GetValues<SpeedUnit>())
+        {
+            Assert.That(CombatHudView.ConvertSpeed(0, unit), Is.Zero);
+            Assert.That(CombatHudView.NormalizeSpeed(0), Is.Zero);
+            Assert.That(CombatHudView.NormalizeSpeed(100 / 3.6), Is.EqualTo(0.5).Within(1e-10));
+            Assert.That(CombatHudView.NormalizeSpeed(200 / 3.6), Is.EqualTo(1).Within(1e-10));
+            Assert.That(CombatHudView.NormalizeSpeed(80), Is.EqualTo(1));
+        }
+
+        Assert.That(CombatHudView.ConvertSpeed(10, SpeedUnit.KilometresPerHour), Is.EqualTo(36));
+        Assert.That(CombatHudView.ConvertSpeed(10, SpeedUnit.MilesPerHour), Is.EqualTo(22.3693629).Within(1e-6));
+        Assert.That(CombatHudView.UnitSuffix(SpeedUnit.KilometresPerHour), Is.EqualTo("km/h"));
+        Assert.That(CombatHudView.UnitSuffix(SpeedUnit.MilesPerHour), Is.EqualTo("mph"));
+        Assert.That(CombatHudView.NormalizeSpeed(double.NaN), Is.Zero);
+        Assert.That(CombatHudView.NormalizeSpeed(-1), Is.Zero);
+    }
+
+    /// <summary>Health always uses actual capacity, including zero and future vehicles.</summary>
+    [Test]
+    public void HealthFormattingAndNormalization()
+    {
+        Assert.That(CombatHudView.FormatHealth(0, 1000), Is.EqualTo("0/1000"));
+        Assert.That(CombatHudView.FormatHealth(850, 1000), Is.EqualTo("850/1000"));
+        Assert.That(CombatHudView.FormatHealth(1000, 1000), Is.EqualTo("1000/1000"));
+        Assert.That(CombatHudView.NormalizeHealth(0, 1000), Is.Zero);
+        Assert.That(CombatHudView.NormalizeHealth(1000, 1000), Is.EqualTo(1));
+        Assert.That(CombatHudView.NormalizeHealth(750, 1500), Is.EqualTo(0.5));
+        Assert.That(CombatHudView.NormalizeHealth(1500, 1000), Is.EqualTo(1));
+        Assert.That(CombatHudView.NormalizeHealth(1, 0), Is.Zero);
+    }
+
+    /// <summary>Source identity, life and health are untouched across live projections.</summary>
+    [Test]
+    public void SnapshotChangesAndItemMappingAreReadOnly()
+    {
+        VehicleSnapshot initial = State(850, 1000, 10);
+        foreach (HeldItem item in new[] { HeldItem.None, HeldItem.Wrench, HeldItem.Missile })
+        {
+            var slot = new ItemSlot(1, 1, 7, item);
+            CombatHudView view = CombatHudView.From(initial, slot, SpeedUnit.KilometresPerHour);
+            Assert.That(view.Item, Is.EqualTo(item));
+            Assert.That(view.ItemName, Is.EqualTo(item == HeldItem.None ? "EMPTY" : item.ToString().ToUpperInvariant()));
+            Assert.That(view.Standing, Is.EqualTo("--"));
+            Assert.That(view.Timer, Is.EqualTo("--:--"));
+            Assert.That(view.HealthFill, Is.EqualTo(0.85));
+            Assert.That(view.Speed, Is.EqualTo("36"));
+            Assert.That(slot.Item, Is.EqualTo(item));
+        }
+
+        Assert.That(CombatHudView.From(initial, new ItemSlot(2, 1, 1, HeldItem.Missile), 0).Item, Is.EqualTo(HeldItem.None));
+        Assert.That(CombatHudView.From(initial, new ItemSlot(1, 2, 1, HeldItem.Wrench), 0).Item, Is.EqualTo(HeldItem.None));
+        Assert.That(CombatHudView.From(State(0, 1000, 0), new ItemSlot(1, 1, 1, HeldItem.Wrench), 0).Item, Is.EqualTo(HeldItem.None));
+        var changed = CombatHudView.From(State(375, 1500, 200 / 3.6f), new ItemSlot(1, 1, 8, HeldItem.Missile), SpeedUnit.MilesPerHour);
+        Assert.That(changed.Health, Is.EqualTo("375/1500"));
+        Assert.That(changed.HealthFill, Is.EqualTo(0.25));
+        Assert.That(changed.Speed, Is.EqualTo("124"));
+        Assert.That(changed.SpeedFill, Is.EqualTo(1).Within(1e-6));
+        Assert.That(initial.Damage.CurrentHP, Is.EqualTo(850));
+        Assert.That(initial.Speed, Is.EqualTo(10));
+    }
+
+    private static VehicleSnapshot State(float hp, float max, float speed)
+    {
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(speed, 0, 0), Vector3.Zero);
+        return new VehicleSnapshot(1, 1, new VehicleState(0, pose, false, false, 0, 0), new VehicleDamageState(max, hp, null, null), pose);
+    }
+}

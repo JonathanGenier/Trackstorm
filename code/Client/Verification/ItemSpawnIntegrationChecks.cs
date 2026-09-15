@@ -16,6 +16,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
 {
     private readonly List<GameNetworkingSocketsTransport> _gateways = new();
     private readonly List<NetworkVehicleArena> _arenas = new();
+    private readonly List<Hud.CombatHud> _huds = new();
     private readonly List<string> _evidence = new();
     private string _output = string.Empty;
     private SubViewport _view = null!;
@@ -72,6 +73,9 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
             arena.Initialize(gateway, index == 0 ? 88ul : 0, server);
             viewport.AddChild(arena);
             _arenas.Add(arena);
+            var hud = new Hud.CombatHud { Vehicle = () => arena.LocalState, Slot = () => arena.Driver.LocalItem };
+            viewport.AddChild(hud);
+            _huds.Add(hud);
         }
     }
 
@@ -99,6 +103,14 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
 
             Require(_elapsed - _started < 25, $"Pickup stage {_stage} timed out.");
             Scenario();
+            foreach (var hud in _huds)
+            {
+                hud.Refresh();
+                if (hud.Vehicle() is VehicleSnapshot state)
+                {
+                    Require(hud.Displayed!.Item == (state.CanInteract ? hud.Slot()?.Item ?? HeldItem.None : HeldItem.None), "HUD shows confirmed pickup/use ownership.");
+                }
+            }
         }
         catch (Exception exception)
         {
