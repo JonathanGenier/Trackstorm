@@ -16,9 +16,15 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private readonly Label _diagnostics = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly RemoteInterpolation _interpolation = new();
     private readonly Items.ItemPresentation _items = new();
+    private readonly Items.ItemSpawnPresentation _pickups = new();
     private readonly Label _itemLabel = new();
     private VehicleNetworkDriver _driver = null!;
     private Arenas.CombatArena _layout = null!;
+
+    /// <summary>Host pickup tuning supplied before scene entry.</summary>
+    internal ItemSpawnConfiguration SpawnConfiguration { get; init; } = new();
+    /// <summary>Replicated pickup presentation for runtime verification.</summary>
+    internal Items.ItemSpawnPresentation Pickups => _pickups;
 
     /// <summary>Shared authored layout for runtime verification.</summary>
     internal Arenas.CombatArena Layout => _layout;
@@ -48,10 +54,31 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _layout = new Arenas.CombatArena { Name = "PrototypeArena", Replica = _driver.Host is null };
         AddChild(_layout);
         AddChild(_items);
+        var markers = _layout.ValidateScene();
+        _driver.Host?.RegisterSpawns(markers, SpawnConfiguration);
+        AddChild(_pickups);
+        _pickups.Initialize(markers);
+        _driver.ObservePickups = () =>
+        {
+            var contacts = new List<(string Spawn, ulong Vehicle)>();
+            foreach (var marker in _layout.GetNode<Node3D>("ItemSpawns").GetChildren().OfType<Marker3D>())
+            {
+                foreach (var pair in _bodies)
+                {
+                    if (pair.Value.GlobalPosition.DistanceSquaredTo(marker.GlobalPosition) <= SpawnConfiguration.PickupRadius * SpawnConfiguration.PickupRadius)
+                    {
+                        contacts.Add((marker.Name.ToString(), pair.Key));
+                    }
+                }
+            }
+
+            return contacts;
+        };
         _driver.CollideMissile = CollideMissile;
         _driver.ItemsReceived += publication =>
         {
             _items.Apply(publication);
+            _pickups.Apply(publication);
             foreach (var vehicle in publication.World.Vehicles)
             {
                 if (_bodies.TryGetValue(vehicle.State.VehicleId, out var body))

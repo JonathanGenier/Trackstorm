@@ -12,7 +12,8 @@ public sealed class ItemPublication
     /// <param name="slots">At most one slot per active player.</param>
     /// <param name="missiles">Bounded active projectiles.</param>
     /// <param name="events">This step's launch/repair/impact effects.</param>
-    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events)
+    /// <param name="spawns">Complete configured spawn state.</param>
+    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null)
     {
         var inventory = slots.ToArray();
         var projectiles = missiles.ToArray();
@@ -26,12 +27,26 @@ public sealed class ItemPublication
             throw new ArgumentException("Invalid item publication.");
         }
 
+        var pickups = spawns?.ToArray() ?? Array.Empty<ItemSpawnState>();
+        if (pickups.Length is not (0 or 8) || pickups.Select(spawn => spawn.Id).Distinct(StringComparer.Ordinal).Count() != pickups.Length ||
+            pickups.Any(spawn => string.IsNullOrWhiteSpace(spawn.Id) || spawn.Id != spawn.Id.Trim() || System.Text.Encoding.UTF8.GetByteCount(spawn.Id) > 128 ||
+                (spawn.Token == 0 ? spawn.ClaimedBy != 0 || spawn.Item != HeldItem.None || spawn.NextActivationTick != 0 || !spawn.Available :
+                spawn.ClaimedBy == 0 || spawn.Item is not (HeldItem.Wrench or HeldItem.Missile) || spawn.NextActivationTick == 0) ||
+                (spawn.Available ? spawn.NextActivationTick > world.Tick : spawn.NextActivationTick <= world.Tick)))
+        {
+            throw new ArgumentException("Invalid spawn publication.");
+        }
+
+        Spawns = Array.AsReadOnly(pickups);
         Revision = revision;
         World = world;
         Slots = Array.AsReadOnly(inventory);
         Missiles = Array.AsReadOnly(projectiles);
         Events = Array.AsReadOnly(outcomes);
     }
+
+    /// <summary>Complete marker state and last claim.</summary>
+    public IReadOnlyList<ItemSpawnState> Spawns { get; }
 
     /// <summary>Monotonic delivery identity.</summary>
     public ulong Revision { get; }
