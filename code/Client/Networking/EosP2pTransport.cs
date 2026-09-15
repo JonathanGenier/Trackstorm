@@ -176,6 +176,7 @@ internal sealed class EosP2pTransport : ITransportGateway
             for (int i = 0; i < count; i++)
             {
                 var peer = _peers[_iteration[i]];
+                peer.Unreliable.Expire();
                 if (_overflow || lobby?.MemberIds.Contains(peer.Identity) != true)
                 {
                     Close(peer.Id, _overflow ? TransportDisconnectReason.ReceiveOverflow : TransportDisconnectReason.RemoteRequest);
@@ -328,7 +329,7 @@ internal sealed class EosP2pTransport : ITransportGateway
             return null;
         }
 
-        var peer = new Peer(id, identity, _time.GetTimestamp());
+        var peer = new Peer(id, identity, _time.GetTimestamp(), _time);
         _peers.Add(id, peer);
         _changes.Enqueue(new(id, TransportConnectionState.Connecting, TransportDisconnectReason.None, "Connecting through EOS…"));
         return peer;
@@ -439,7 +440,7 @@ internal sealed class EosP2pTransport : ITransportGateway
             return;
         }
 
-        var payload = (delivery == TransportDelivery.Reliable ? peer.Reliable : peer.Unreliable).Receive(packet, delivery == TransportDelivery.Reliable);
+        var payload = delivery == TransportDelivery.Reliable ? peer.Reliable.Receive(packet, true) : peer.Unreliable.Receive(packet);
         if (payload is null)
         {
             return;
@@ -544,7 +545,7 @@ internal sealed class EosP2pTransport : ITransportGateway
         }
     }
 
-    private sealed class Peer(ulong id, OnlineProductUserId identity, long started)
+    private sealed class Peer(ulong id, OnlineProductUserId identity, long started, TimeProvider time)
     {
         internal ulong Id { get; } = id;
         internal OnlineProductUserId Identity { get; } = identity;
@@ -555,6 +556,6 @@ internal sealed class EosP2pTransport : ITransportGateway
         internal uint ReliableSequence { get; set; }
         internal uint UnreliableSequence { get; set; }
         internal EosPacketAssembly Reliable { get; } = new();
-        internal EosPacketAssembly Unreliable { get; } = new();
+        internal EosUnreliableWindow Unreliable { get; } = new(time);
     }
 }

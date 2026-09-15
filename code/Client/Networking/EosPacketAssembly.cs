@@ -2,7 +2,7 @@ using System.Buffers.Binary;
 
 namespace Trackstorm.Client.Networking;
 
-/// <summary>One bounded assembly per delivery stream; unreliable replacement abandons incomplete older messages.</summary>
+/// <summary>One reusable bounded message assembly with stable ownership on completion.</summary>
 internal sealed class EosPacketAssembly
 {
     /// <summary>Maximum completed payload accepted by either delivery stream.</summary>
@@ -17,6 +17,16 @@ internal sealed class EosPacketAssembly
     private ulong _fragments;
     private bool _started;
     private bool _complete;
+
+    /// <summary>Retires the message before a receive-window slot is reused; old bytes cannot complete without new fragments.</summary>
+    internal void Reset()
+    {
+        _started = false;
+        _complete = false;
+        _sequence = 0;
+        _length = 0;
+        _fragments = 0;
+    }
 
     /// <summary>Validates and copies a fragment, returning a stable payload only on completion.</summary>
     /// <param name="packet">Complete framed packet, including its header.</param>

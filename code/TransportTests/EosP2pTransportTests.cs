@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Numerics;
 using Epic.OnlineServices.P2P;
 using Trackstorm.Client.Networking;
@@ -56,6 +57,29 @@ internal sealed class EosP2pTransportTests
         Assert.That(client.State.Phase, Is.EqualTo(SessionPhase.Lobby));
     }
 
+    /// <summary>Independent production prop messages cannot suppress earlier vehicle snapshots or their acknowledgements.</summary>
+    [Test]
+    public void ReversedProductionVehicleAndPropMessagesBothAdvance()
+    {
+        using var pair = new Pair();
+        pair.Pump();
+        var body = new VehiclePhysicsState(Vector3.One, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        var host = new VehicleNetworkDriver(pair.Host, 17) { ObserveProps = () => new[] { body, body, body } };
+        var client = new VehicleNetworkDriver(pair.Client, 0, pair.Server);
+        for (int tick = 0; tick < 30; tick++)
+        {
+            host.Advance(default, Observe);
+            pair.ClientWire.ReverseUnreliable();
+            client.Advance(default, Observe);
+        }
+
+        Assert.That(client.PropSnapshot?.Tick, Is.EqualTo(30));
+        Assert.That(client.ReceivedSnapshots, Is.EqualTo(11), "Ten periodic snapshots plus the initial reliable item snapshot must arrive.");
+        Assert.That(client.Latest!.Tick, Is.EqualTo(30));
+        Assert.That(client.Inputs!.LastAcknowledged, Is.GreaterThan(24));
+        Assert.That(client.Failure, Is.Empty);
+    }
+
     /// <summary>Large payloads retain ownership and unreliable loss never blocks reliable delivery.</summary>
     [Test]
     public void FragmentsReordersDropsAndBoundsPayloads()
@@ -89,15 +113,158 @@ internal sealed class EosP2pTransportTests
         Assert.Throws<ArgumentOutOfRangeException>(() => pair.Client.Send(new(pair.Server, new byte[65537])));
     }
 
-    /// <summary>Receive work and callback queues remain bounded even under a hostile producer.</summary>
+    /// <summary>Independent maximum-sized unordered messages can interleave, duplicate and complete in reverse order.</summary>
     [Test]
-    public void BoundsPollAndDisconnectsOnUnconsumedQueueOverflow()
+    public void InterleavesMaximumUnreliableMessagesExactlyOnce()
+    {
+        using var pair = new Pair();
+        pair.Pump();
+        byte[] first = Enumerable.Range(0, EosPacketAssembly.MaximumPayload).Select(i => (byte)i).ToArray();
+        byte[] second = first.Select(value => (byte)(value ^ 255)).ToArray();
+        var a = CaptureUnreliable(pair, first);
+        var b = CaptureUnreliable(pair, second);
+        // A third, incomplete message must not block either assembly or reliable control.
+        var lost = CaptureUnreliable(pair, new byte[4000]);
+        pair.HostWire.Packets.Enqueue(lost[0]);
+        pair.Client.Send(new(pair.Server, new byte[] { 7 }, TransportDelivery.Reliable));
+        pair.Client.Send(new(pair.Server, new byte[] { 8 }, TransportDelivery.Reliable));
+        for (int i = a.Length - 1; i >= 0; i--)
+        {
+            pair.HostWire.Packets.Enqueue(b[i]);
+            pair.HostWire.Packets.Enqueue(a[i]);
+            pair.HostWire.Packets.Enqueue(b[i]);
+            pair.HostWire.Packets.Enqueue(a[i]);
+        }
+
+        pair.Host.Poll();
+        Assert.That(pair.Host.TryReceive(out var control1), Is.True);
+        Assert.That(control1.Payload.ToArray(), Is.EqualTo(new byte[] { 7 }));
+        Assert.That(pair.Host.TryReceive(out var control2), Is.True);
+        Assert.That(control2.Payload.ToArray(), Is.EqualTo(new byte[] { 8 }));
+        Assert.That(pair.Host.TryReceive(out var completedB), Is.True);
+        Assert.That(completedB.Payload.ToArray(), Is.EqualTo(second));
+        Assert.That(pair.Host.TryReceive(out var completedA), Is.True);
+        Assert.That(completedA.Payload.ToArray(), Is.EqualTo(first));
+        Assert.That(pair.Host.TryReceive(out _), Is.False);
+        // Reuse every slot; consumers must retain their original published memory.
+        for (int i = 0; i < EosUnreliableWindow.Capacity; i++)
+        {
+            pair.Client.Send(new(pair.Server, new byte[] { 9 }, TransportDelivery.Unreliable));
+        }
+
+        pair.Host.Poll();
+        Assert.That(completedA.Payload.ToArray(), Is.EqualTo(first));
+        Assert.That(completedB.Payload.ToArray(), Is.EqualTo(second));
+        Assert.That(pair.Host.ConnectionState, Is.EqualTo(TransportConnectionState.Connected));
+    }
+
+    /// <summary>Accepts the oldest in-window message across wrap, but cannot resurrect evicted or ambiguous serials.</summary>
+    /// <param name="origin">First serial, including a range crossing uint wrap.</param>
+    [TestCase(1u)]
+    [TestCase(uint.MaxValue - 7)]
+    public void UnreliableWindowRejectsEvictedDuplicatesAndHandlesWrap(uint origin)
+    {
+        using var pair = new Pair();
+        pair.Pump();
+        var oldest = CaptureUnreliable(pair, new byte[2000], origin);
+        var newest = CaptureUnreliable(pair, new byte[] { 16 }, unchecked(origin + 15));
+        pair.HostWire.Packets.Enqueue(newest[0]);
+        foreach (var packet in oldest)
+        {
+            pair.HostWire.Packets.Enqueue(packet);
+        }
+
+        pair.Host.Poll();
+        Assert.That(pair.Host.TryReceive(out var recent), Is.True);
+        Assert.That(recent.Payload.ToArray(), Is.EqualTo(new byte[] { 16 }));
+        Assert.That(pair.Host.TryReceive(out var late), Is.True);
+        Assert.That(late.Payload.Length, Is.EqualTo(2000), "Fifteen-behind sequence is still inside the window.");
+        var edge = CaptureUnreliable(pair, new byte[] { 17 }, unchecked(origin + 16));
+        pair.HostWire.Packets.Enqueue(edge[0]);
+        foreach (var packet in oldest.Concat(newest).Concat(edge))
+        {
+            pair.HostWire.Packets.Enqueue(packet);
+        }
+
+        var ambiguous = CaptureUnreliable(pair, new byte[] { 99 }, unchecked(origin + 16 + 0x80000000u));
+        pair.HostWire.Packets.Enqueue(ambiguous[0]);
+        pair.Host.Poll();
+        Assert.That(pair.Host.TryReceive(out var next), Is.True);
+        Assert.That(next.Payload.ToArray(), Is.EqualTo(new byte[] { 17 }));
+        Assert.That(pair.Host.TryReceive(out _), Is.False, "Duplicates, sixteen-behind and half-range serials must be discarded.");
+    }
+
+    /// <summary>A stream of missing fragments evicts bounded old work while reliable and later unreliable messages progress.</summary>
+    [Test]
+    public void EvictsIncompleteUnreliableAssembliesWithoutBlockingProgress()
+    {
+        using var pair = new Pair();
+        pair.Pump();
+        var lost = CaptureUnreliable(pair, new byte[2000]);
+        pair.HostWire.Packets.Enqueue(lost[0]);
+        pair.Host.Poll();
+        for (int i = 0; i < EosUnreliableWindow.Capacity * 4; i++)
+        {
+            var incomplete = CaptureUnreliable(pair, new byte[2000]);
+            pair.HostWire.Packets.Enqueue(incomplete[0]);
+            pair.Host.Poll();
+            Assert.That(pair.Host.TryReceive(out _), Is.False);
+        }
+
+        foreach (var packet in lost)
+        {
+            pair.HostWire.Packets.Enqueue(packet);
+        }
+
+        pair.Client.Send(new(pair.Server, new byte[] { 5 }, TransportDelivery.Reliable));
+        pair.Client.Send(new(pair.Server, new byte[] { 6 }, TransportDelivery.Unreliable));
+        pair.Host.Poll();
+        Assert.That(pair.Host.TryReceive(out var reliable), Is.True);
+        Assert.That(reliable.Payload.ToArray(), Is.EqualTo(new byte[] { 5 }));
+        Assert.That(pair.Host.TryReceive(out var unreliable), Is.True);
+        Assert.That(unreliable.Payload.ToArray(), Is.EqualTo(new byte[] { 6 }));
+        Assert.That(pair.Host.TryReceive(out _), Is.False);
+        Assert.That(pair.Host.ConnectionState, Is.EqualTo(TransportConnectionState.Connected));
+    }
+
+    /// <summary>Idle polling expires incomplete work at its original deadline and retains duplicate tombstones.</summary>
+    [Test]
+    public void ExpiresIncompleteMessagesWithoutAllowingLateRestart()
+    {
+        using var pair = new Pair();
+        pair.Pump();
+        var lost = CaptureUnreliable(pair, new byte[2000]);
+        pair.HostWire.Packets.Enqueue(lost[0]);
+        pair.Host.Poll();
+        pair.Clock.Advance(0.5);
+        pair.HostWire.Packets.Enqueue(lost[0]);
+        pair.Host.Poll();
+        pair.Clock.Advance(0.5);
+        pair.Host.Poll();
+        foreach (var packet in lost.Reverse().Concat(lost))
+        {
+            pair.HostWire.Packets.Enqueue(packet);
+        }
+
+        pair.Host.Poll();
+        Assert.That(pair.Host.TryReceive(out _), Is.False, "Late fragments and retries cannot extend or restart expired work.");
+        pair.Client.Send(new(pair.Server, new byte[] { 1 }, TransportDelivery.Unreliable));
+        pair.Host.Poll();
+        Assert.That(pair.Host.TryReceive(out var fresh), Is.True);
+        Assert.That(fresh.Payload.ToArray(), Is.EqualTo(new byte[] { 1 }));
+    }
+
+    /// <summary>Receive work and callback queues remain bounded even under a hostile producer.</summary>
+    /// <param name="delivery">Stream producing completed messages faster than the consumer drains them.</param>
+    [TestCase(TransportDelivery.Reliable)]
+    [TestCase(TransportDelivery.Unreliable)]
+    public void BoundsPollAndDisconnectsOnUnconsumedQueueOverflow(TransportDelivery delivery)
     {
         using var pair = new Pair();
         pair.Pump();
         for (int i = 0; i < 300; i++)
         {
-            pair.Client.Send(new(pair.Server, new byte[] { 1 }));
+            pair.Client.Send(new(pair.Server, new byte[] { 1 }, delivery));
         }
 
         int before = pair.HostWire.Reads;
@@ -156,9 +323,12 @@ internal sealed class EosP2pTransportTests
 
     /// <summary>Measures production framing and vehicle replication with deterministic in-memory delivery.</summary>
     /// <param name="players">Total players including the host.</param>
-    [TestCase(2)]
-    [TestCase(8)]
-    public void MeasuresVehicleTrafficThroughEosFraming(int players)
+    /// <param name="reorderMixed">Reverse independent vehicle/prop datagrams on every publication.</param>
+    [TestCase(2, false)]
+    [TestCase(8, false)]
+    [TestCase(2, true)]
+    [TestCase(8, true)]
+    public void MeasuresVehicleTrafficThroughEosFraming(int players, bool reorderMixed)
     {
         var routes = new Dictionary<OnlineProductUserId, Wire>();
         var gateways = new List<EosP2pTransport>();
@@ -175,6 +345,11 @@ internal sealed class EosP2pTransportTests
             gateways.Add(hostGateway);
             hostGateway.Listen(EosP2pTransport.Endpoint(lobby, Id(1)));
             var host = new VehicleNetworkDriver(hostGateway, 91);
+            if (reorderMixed)
+            {
+                host.ObserveProps = () => Enumerable.Repeat(new VehiclePhysicsState(new Vector3(host.Host!.World.State.Tick, 1, 0), Quaternion.Identity, Vector3.Zero, Vector3.Zero), 3).ToArray();
+            }
+
             var clients = new List<VehicleNetworkDriver>();
             foreach (var member in members.Skip(1))
             {
@@ -186,15 +361,35 @@ internal sealed class EosP2pTransportTests
             for (int tick = 0; tick < 600; tick++)
             {
                 host.Advance(default, Observe);
+                if (reorderMixed)
+                {
+                    foreach (var member in members.Skip(1))
+                    {
+                        routes[member].ReverseUnreliable();
+                    }
+                }
+
                 foreach (var client in clients)
                 {
                     client.Advance(new InputFrame(0, 0, 20000, 0, 0, 0, 0), Observe);
                     Assert.That(client.Failure, Is.Empty);
+                    if (reorderMixed && tick >= 12)
+                    {
+                        Assert.That(client.Latest!.Tick, Is.GreaterThanOrEqualTo((ulong)(tick - 2)));
+                        Assert.That(client.PropSnapshot!.Tick, Is.EqualTo(client.Latest.Tick));
+                        Assert.That(client.Inputs!.LastAcknowledged, Is.GreaterThanOrEqualTo((uint)(tick - 5)));
+                        Assert.That(client.Inputs.Pending.Count, Is.LessThanOrEqualTo(4), "Reordering unrelated publications must not stall acknowledgements.");
+                    }
                 }
             }
 
             Assert.That(host.Host!.World.State.Vehicles.Count, Is.EqualTo(players));
             Assert.That(clients.All(client => client.ReceivedSnapshots > 150 && client.Latest!.Vehicles.Count == players), Is.True);
+            if (reorderMixed)
+            {
+                Assert.That(clients.All(client => client.PropSnapshot!.Tick == 600 && client.Latest!.Tick == 600 && client.ReceivedSnapshots >= 200), Is.True);
+            }
+
             TestContext.WriteLine($"FAKE NATIVE, 10 simulated seconds, players={players}; host sent={hostGateway.SentPackets}, received={hostGateway.ReceivedPackets}, mean packet={hostGateway.SentBytes / (double)hostGateway.SentPackets:F1}B, peak={hostGateway.PeakPacketBytes}B, peak gateway poll={hostGateway.PeakPollMilliseconds:F3}ms; RTT/loss and SDK Tick NOT measured");
         }
         finally
@@ -207,16 +402,23 @@ internal sealed class EosP2pTransportTests
     }
 
     /// <summary>Replacing a connection rejects previous nonces, while member departure removes the active slot.</summary>
-    [Test]
-    public void RepeatedCyclesRejectOldPacketsAndMemberDeparture()
+    /// <param name="delivery">Stream whose incomplete and completed state must not survive a connection.</param>
+    [TestCase(TransportDelivery.Reliable)]
+    [TestCase(TransportDelivery.Unreliable)]
+    public void RepeatedCyclesRejectOldPacketsAndMemberDeparture(TransportDelivery delivery)
     {
         using var pair = new Pair();
         for (int cycle = 0; cycle < 4; cycle++)
         {
             pair.Pump();
             Assert.That(pair.Host.ConnectionState, Is.EqualTo(TransportConnectionState.Connected));
-            pair.Client.Send(new(pair.Server, new byte[] { 3 }));
-            var old = pair.HostWire.Packets.Peek();
+            pair.Client.Send(new(pair.Server, new byte[2000], delivery));
+            var first = pair.HostWire.Packets.Dequeue();
+            var old = pair.HostWire.Packets.Dequeue();
+            pair.HostWire.Packets.Enqueue(first);
+            pair.Host.Poll();
+            Assert.That(pair.Host.TryReceive(out _), Is.False);
+            pair.Host.Disconnect(pair.Host.Connections.Keys.Single());
             pair.Client.Stop();
             pair.Host.Stop();
             pair.Host.Listen(EosP2pTransport.Endpoint(pair.Lobby, pair.HostId));
@@ -225,6 +427,10 @@ internal sealed class EosP2pTransportTests
             pair.HostWire.Packets.Enqueue(old);
             pair.Host.Poll();
             Assert.That(pair.Host.TryReceive(out _), Is.False);
+            pair.Client.Send(new(pair.Server, new byte[] { 3 }, delivery));
+            pair.Host.Poll();
+            Assert.That(pair.Host.TryReceive(out var fresh), Is.True);
+            Assert.That(fresh.Payload.ToArray(), Is.EqualTo(new byte[] { 3 }));
         }
 
         pair.Lobby = pair.Lobby with { MemberIds = new[] { pair.HostId }, Members = 1 };
@@ -262,12 +468,36 @@ internal sealed class EosP2pTransportTests
 
     private static OnlineProductUserId Id(int value) => new(value.ToString("x32"));
 
+    private static (OnlineProductUserId Peer, byte[] Bytes, TransportDelivery Delivery)[] CaptureUnreliable(Pair pair, byte[] payload, uint? sequence = null)
+    {
+        // Drain only packets emitted by this send. Inject serials on the fake wire, retaining real framing and nonces.
+        var pending = pair.HostWire.Packets.ToArray();
+        pair.HostWire.Packets.Clear();
+        pair.Client.Send(new(pair.Server, payload, TransportDelivery.Unreliable));
+        var packets = pair.HostWire.Packets.ToArray();
+        pair.HostWire.Packets.Clear();
+        foreach (var packet in pending)
+        {
+            pair.HostWire.Packets.Enqueue(packet);
+        }
+
+        if (sequence is uint serial)
+        {
+            foreach (var packet in packets)
+            {
+                BinaryPrimitives.WriteUInt32LittleEndian(packet.Bytes.AsSpan(17), serial);
+            }
+        }
+
+        return packets;
+    }
+
     private sealed class Clock : TimeProvider
     {
         private long _ticks;
         public override long TimestampFrequency => TimeSpan.TicksPerSecond;
         public override long GetTimestamp() => _ticks;
-        internal void Advance() => _ticks += TimeSpan.TicksPerSecond * 13;
+        internal void Advance(double seconds = 13) => _ticks += (long)(TimeSpan.TicksPerSecond * seconds);
     }
 
     private sealed class Pair : IDisposable
@@ -374,6 +604,17 @@ internal sealed class EosP2pTransportTests
         {
             Disposals++;
             Stop();
+        }
+
+        internal void ReverseUnreliable()
+        {
+            var packets = Packets.ToArray();
+            var reversed = new Queue<(OnlineProductUserId Peer, byte[] Bytes, TransportDelivery Delivery)>(packets.Where(packet => packet.Delivery == TransportDelivery.Unreliable).Reverse());
+            Packets.Clear();
+            foreach (var packet in packets)
+            {
+                Packets.Enqueue(packet.Delivery == TransportDelivery.Unreliable ? reversed.Dequeue() : packet);
+            }
         }
     }
 }
