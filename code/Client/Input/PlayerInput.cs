@@ -22,7 +22,6 @@ public sealed partial class PlayerInput : Node
     public override void _Ready()
     {
         _adapter = new PlayerInputAdapter(new PlayerInputBindings());
-        AddToGroup("local_player_input");
         ProcessMode = ProcessModeEnum.Always;
     }
 

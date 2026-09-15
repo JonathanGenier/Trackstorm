@@ -1,5 +1,4 @@
 using Godot;
-using Trackstorm.Client.Input;
 using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Client.Vehicles;
@@ -14,9 +13,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     private ulong _damageSequence;
     private float _heading;
     private Vector3 _anchor;
-    private Vector3 _position;
-    private float _mouse;
-    private PlayerInput? _input;
+    private ulong _motionTick;
 
     /// <summary>Horizontal chase distance in metres.</summary>
     [Export(PropertyHint.Range, "2,25,0.1")]
@@ -27,30 +24,24 @@ public sealed partial class VehicleChaseCamera : Camera3D
     /// <summary>Position convergence rate per second.</summary>
     [Export(PropertyHint.Range, "0.1,30,0.1")]
     public float PositionDamping { get; set; } = 8;
-    /// <summary>Heading, look and aim convergence rate per second.</summary>
+    /// <summary>Convergence rate toward actual vehicle heading, per second.</summary>
     [Export(PropertyHint.Range, "0.1,30,0.1")]
     public float RotationDamping { get; set; } = 7;
-    /// <summary>Normalized steering contribution multiplier.</summary>
+    /// <summary>Rearward metres per forward acceleration in metres per second squared.</summary>
+    [Export(PropertyHint.Range, "0,0.2,0.001")]
+    public float LongitudinalInertia { get; set; } = 0.045f;
+    /// <summary>Outside-turn metres per lateral acceleration.</summary>
+    [Export(PropertyHint.Range, "0,0.1,0.001")]
+    public float LateralInertia { get; set; } = 0.025f;
+    /// <summary>Additional lateral weight from actual sideways velocity, including drift.</summary>
+    [Export(PropertyHint.Range, "0,0.1,0.001")]
+    public float SidewaysInertia { get; set; } = 0.015f;
+    /// <summary>Maximum fore/aft inertia displacement in metres.</summary>
+    [Export(PropertyHint.Range, "0,2,0.01")]
+    public float MaximumLongitudinalInertia { get; set; } = 0.7f;
+    /// <summary>Maximum lateral inertia displacement in metres.</summary>
     [Export(PropertyHint.Range, "0,1,0.01")]
-    public float SteeringInfluence { get; set; } = 1;
-    /// <summary>Maximum steering anticipation in degrees.</summary>
-    [Export(PropertyHint.Range, "0,20,0.1")]
-    public float SteeringMaximumDegrees { get; set; } = 10;
-    /// <summary>Mouse degrees per screen pixel.</summary>
-    [Export(PropertyHint.Range, "0,2,0.01")]
-    public float MouseSensitivity { get; set; } = 0.12f;
-    /// <summary>Right stick degrees per second at full deflection.</summary>
-    [Export(PropertyHint.Range, "0,180,1")]
-    public float StickSensitivity { get; set; } = 65;
-    /// <summary>Maximum combined steering and manual look in degrees.</summary>
-    [Export(PropertyHint.Range, "0,45,0.1")]
-    public float MaximumLookDegrees { get; set; } = 20;
-    /// <summary>Seconds without manual input before recentering.</summary>
-    [Export(PropertyHint.Range, "0,2,0.01")]
-    public float RecenterDelay { get; set; } = 0.25f;
-    /// <summary>Manual look recenter convergence rate per second.</summary>
-    [Export(PropertyHint.Range, "0.1,20,0.1")]
-    public float RecenterDamping { get; set; } = 4;
+    public float MaximumLateralInertia { get; set; } = 0.4f;
     /// <summary>Bounded impact feedback gain.</summary>
     [Export(PropertyHint.Range, "0,1,0.01")]
     public float CollisionShakeStrength { get; set; } = 0.55f;
@@ -73,18 +64,8 @@ public sealed partial class VehicleChaseCamera : Camera3D
     /// <inheritdoc/>
     public override void _Ready()
     {
+        TopLevel = true;
         PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off;
-        _input = GetTree().GetFirstNodeInGroup("local_player_input") as PlayerInput;
-    }
-
-    /// <inheritdoc/>
-    public override void _UnhandledInput(InputEvent @event)
-    {
-        // Unhandled motion leaves menus and settings in charge of their own pointer input.
-        if (@event is InputEventMouseMotion mouse && InputActive())
-        {
-            _mouse += mouse.ScreenRelative.X;
-        }
     }
 
     /// <summary>Coalesces existing native contacts into presentation feedback.</summary>
@@ -101,12 +82,11 @@ public sealed partial class VehicleChaseCamera : Camera3D
         _motion.Collision(severity, CollisionThreshold, CollisionShakeStrength);
     }
 
-    /// <summary>Combines displayed pose, local look and accepted damage in render time.</summary>
+    /// <summary>Combines vehicle heading, measured positional inertia and accepted damage.</summary>
     /// <param name="pose">Interpolated displayed pose.</param>
     /// <param name="state">Aggregate for identity and damage.</param>
-    /// <param name="steering">Normalized local steering intent.</param>
     /// <param name="delta">Elapsed presentation seconds.</param>
-    internal void Follow(Transform3D pose, VehicleSnapshot state, float steering, float delta)
+    internal void Follow(Transform3D pose, VehicleSnapshot state, float delta)
     {
         bool reset = !_initialized || state.VehicleId != _vehicle || state.LifeId != _life;
         Vector3 forward = -pose.Basis.Z;
@@ -115,8 +95,8 @@ public sealed partial class VehicleChaseCamera : Camera3D
             ? MathF.Atan2(-forward.X, -forward.Z) : _heading;
         if (reset)
         {
-            _motion.Reset();
-            _mouse = 0;
+            _motion.Reset(state.ObservedPhysics.LinearVelocity);
+            _motionTick = state.Movement.Tick;
             _heading = heading;
             _anchor = pose.Origin;
             _vehicle = state.VehicleId;
@@ -131,28 +111,23 @@ public sealed partial class VehicleChaseCamera : Camera3D
             _motion.Impulse(strength * Math.Clamp(damage.Amount / 50, 0, 1));
         }
 
-        bool active = InputActive();
-        float stick = active ? _input!.Adapter.CameraLookStrength() : 0;
-        _motion.Advance(delta, steering * SteeringInfluence, active ? _mouse * MouseSensitivity : 0, stick * StickSensitivity, SteeringMaximumDegrees, MaximumLookDegrees, RotationDamping, RecenterDelay, RecenterDamping, ShakeDecay);
-        _mouse = 0;
-        _heading = Mathf.LerpAngle(_heading, heading, ChaseCameraMotion.Blend(RotationDamping, delta));
-        _anchor = _anchor.Lerp(pose.Origin, ChaseCameraMotion.Blend(PositionDamping, delta));
-        float yaw = _heading - Mathf.DegToRad(_motion.LookAngle);
-        Vector3 desired = _anchor + (new Vector3(MathF.Sin(yaw), 0, MathF.Cos(yaw)) * Math.Max(2, FollowDistance)) + (Vector3.Up * Math.Max(1, CameraHeight));
-        _position = reset ? desired : _position.Lerp(desired, ChaseCameraMotion.Blend(PositionDamping, delta));
-        GlobalPosition = _position + (Vector3.Up * _motion.ShakeOffset * MaximumShakeMetres);
-        Quaternion target = Basis.LookingAt((_anchor + (Vector3.Up * 0.5f)) - GlobalPosition, Vector3.Up).GetRotationQuaternion();
-        Quaternion = reset ? target : Quaternion.Slerp(target, ChaseCameraMotion.Blend(RotationDamping, delta));
-        _initialized = true;
-    }
-
-    private bool InputActive()
-    {
-        if (_input is null || !GodotObject.IsInstanceValid(_input))
+        if (state.Movement.Tick > _motionTick)
         {
-            _input = GetTree().GetFirstNodeInGroup("local_player_input") as PlayerInput;
+            _motion.ObserveVelocity(state.ObservedPhysics.LinearVelocity, (state.Movement.Tick - _motionTick) / (float)Engine.PhysicsTicksPerSecond);
+            _motionTick = state.Movement.Tick;
         }
 
-        return _input is not null && _input.Adapter.Enabled && !_input.Adapter.GameplaySuppressed && !GetTree().Paused;
+        _heading = MathF.IEEERemainder(Mathf.LerpAngle(_heading, heading, ChaseCameraMotion.Blend(RotationDamping, delta)), Mathf.Tau);
+        _motion.Advance(delta, _heading, LongitudinalInertia, LateralInertia, SidewaysInertia, MaximumLongitudinalInertia, MaximumLateralInertia, PositionDamping, ShakeDecay);
+        // Horizontal position follows the interpolated vehicle, with only bounded local inertia.
+        // Vertical damping absorbs bumps; neither inertia nor shake changes the heading or aim.
+        _anchor = new Vector3(pose.Origin.X, Mathf.Lerp(_anchor.Y, pose.Origin.Y, ChaseCameraMotion.Blend(PositionDamping, delta)), pose.Origin.Z);
+        Vector3 backward = new(MathF.Sin(_heading), 0, MathF.Cos(_heading));
+        Vector3 right = new(MathF.Cos(_heading), 0, -MathF.Sin(_heading));
+        float distance = Math.Max(2, FollowDistance);
+        float height = Math.Max(1, CameraHeight);
+        GlobalPosition = _anchor + (backward * (distance + _motion.Offset.Y)) + (right * _motion.Offset.X) + (Vector3.Up * (height + (_motion.ShakeOffset * MaximumShakeMetres)));
+        GlobalBasis = Basis.FromEuler(new Vector3(-MathF.Atan2(height - 0.5f, distance), _heading, 0));
+        _initialized = true;
     }
 }

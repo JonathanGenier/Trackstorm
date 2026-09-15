@@ -21,7 +21,6 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private readonly Label _itemLabel = new();
     private VehicleNetworkDriver _driver = null!;
     private Arenas.CombatArena _layout = null!;
-    private float _steering;
     private ulong _collisionLife;
     private ulong _collisionTick;
 
@@ -164,7 +163,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         {
             if (_driver.LocalState is VehicleSnapshot cameraState)
             {
-                _camera.Follow(local.VisualTransform, cameraState, _steering, (float)delta);
+                _camera.Follow(local.VisualTransform, cameraState, (float)delta);
             }
         }
 
@@ -201,7 +200,6 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <param name="input">Immediately captured local logical input.</param>
     internal void Advance(InputFrame input)
     {
-        _steering = input.Steering / 32767f;
         _driver.Advance(input, state =>
         {
             VehicleObservation observation = _bodies[state.VehicleId].Observe(state);

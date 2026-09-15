@@ -84,10 +84,4 @@ internal sealed class PlayerInputAdapter
             InputAxis.QuantizePedal(active ? Bindings.Strength(InputAction.Accelerate, DeadZone) : 0),
             InputAxis.QuantizePedal(active ? Bindings.Strength(InputAction.Brake, DeadZone) : 0));
     }
-
-    /// <summary>Local-only right stick axis, using the existing assigned device, focus gate and dead zone.</summary>
-    /// <returns>Conditioned look axis in [-1, 1].</returns>
-    internal float CameraLookStrength() => Enabled && !GameplaySuppressed
-        ? InputAxis.Normalize(Godot.Input.GetJoyAxis(Bindings.GamepadDevice, Godot.JoyAxis.RightX), DeadZone) : 0;
-
 }

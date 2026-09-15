@@ -14,7 +14,6 @@ public sealed partial class VehicleArena : Node3D
     private readonly Label _instructions = new() { Text = "Drive / brake / steer with your bindings. Hold drift through a turn, then release for boost.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly List<VehicleBody> _vehicles = new();
     private readonly VehicleDestructionEffects _destruction = new();
-    private float _steering;
     private MeshInstance3D? _blast;
     private float _blastSeconds;
     private Arenas.CombatArena? _layout;
@@ -142,7 +141,7 @@ public sealed partial class VehicleArena : Node3D
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
-        _camera.Follow(Player.GetGlobalTransformInterpolated(), Player.Snapshot, _steering, (float)delta);
+        _camera.Follow(Player.GetGlobalTransformInterpolated(), Player.Snapshot, (float)delta);
         VehicleState state = Player.State;
         bool compact = GetViewport().GetVisibleRect().Size.Y < 500;
         _title.Visible = !compact;
@@ -168,7 +167,6 @@ public sealed partial class VehicleArena : Node3D
     /// <param name="input">Current fixed-step frame.</param>
     internal void Advance(InputFrame input)
     {
-        _steering = input.Steering / 32767f;
         var neutral = new InputFrame(input.Tick, 0, 0, 0, InputButtons.None, InputButtons.None, InputButtons.None);
         var requests = _vehicles.Select(vehicle => vehicle.Capture(vehicle == Player ? input : neutral)).ToArray();
         _camera.ObserveCollision(requests[0].Observation, Player.Configuration.Mass);

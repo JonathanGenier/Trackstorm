@@ -1,5 +1,7 @@
 # TS-55 Camera Verification
 
+Historical Round 1 evidence. The manual-look and steering-anticipation implementation below was superseded by the explicitly requested [fixed chase correction](ts-55-fixed-chase.md).
+
 ## Scope and Branch
 
 - Jira Story: [TS-55 — AAA-style third-person vehicle camera](https://cosmoscasino.atlassian.net/browse/TS-55).

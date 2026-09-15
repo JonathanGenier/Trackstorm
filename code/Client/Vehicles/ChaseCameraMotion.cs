@@ -1,21 +1,24 @@
+using System.Numerics;
+
 namespace Trackstorm.Client.Vehicles;
 
 /// <summary>Deterministic presentation math, driven exclusively by caller-supplied render time.</summary>
 internal sealed class ChaseCameraMotion
 {
-    private float _manual;
-    private float _idle;
+    private const float CollisionCooldownSeconds = 0.15f;
+    private const float FullCollisionSpeed = 20;
+    private const float ShakeFrequency = 43;
+    private Vector3 _acceleration;
+    private Vector3 _velocity;
     private float _phase;
     private float _collisionCooldown;
 
-    /// <summary>Smoothed steering anticipation in degrees.</summary>
-    internal float SteeringAngle { get; private set; }
-    /// <summary>Final clamped horizontal offset in degrees.</summary>
-    internal float LookAngle { get; private set; }
+    /// <summary>Local lateral (X) and rearward (Y) displacement in metres.</summary>
+    internal Vector2 Offset { get; private set; }
     /// <summary>Bounded nonnegative feedback envelope.</summary>
     internal float Shake { get; private set; }
     /// <summary>Zero-centred deterministic oscillation scaled by the envelope.</summary>
-    internal float ShakeOffset => MathF.Sin(_phase * 43) * Shake;
+    internal float ShakeOffset => MathF.Sin(_phase * ShakeFrequency) * Shake;
 
     /// <summary>Frame-rate independent exponential interpolation weight.</summary>
     /// <param name="rate">Convergence rate per second.</param>
@@ -23,35 +26,37 @@ internal sealed class ChaseCameraMotion
     /// <returns>Interpolation weight in [0, 1].</returns>
     internal static float Blend(float rate, float delta) => 1 - MathF.Exp(-Math.Max(0, rate) * Math.Max(0, delta));
 
-    /// <summary>Advances presentation controls without simulation state.</summary>
-    /// <param name="delta">Elapsed seconds.</param>
-    /// <param name="steering">Normalized steering intent.</param>
-    /// <param name="mouseDegrees">Mouse displacement in degrees.</param>
-    /// <param name="stickDegreesPerSecond">Signed analog look rate.</param>
-    /// <param name="steeringMaximum">Steering limit in degrees.</param>
-    /// <param name="maximum">Combined angle limit in degrees.</param>
-    /// <param name="rotationDamping">Look convergence rate.</param>
-    /// <param name="recenterDelay">Idle seconds before recentering.</param>
-    /// <param name="recenterDamping">Recenter convergence rate.</param>
-    /// <param name="shakeDecay">Feedback decay rate.</param>
-    internal void Advance(float delta, float steering, float mouseDegrees, float stickDegreesPerSecond, float steeringMaximum, float maximum, float rotationDamping, float recenterDelay, float recenterDamping, float shakeDecay)
+    /// <summary>Samples measured motion once per new physics snapshot, independent of render rate.</summary>
+    /// <param name="velocity">Observed world velocity in metres per second.</param>
+    /// <param name="seconds">Elapsed physics time between samples.</param>
+    internal void ObserveVelocity(Vector3 velocity, float seconds)
+    {
+        if (seconds > 0)
+        {
+            _acceleration = (velocity - _velocity) / seconds;
+            _velocity = velocity;
+        }
+    }
+
+    /// <summary>Advances bounded positional inertia and feedback in presentation time.</summary>
+    /// <param name="delta">Elapsed render seconds.</param>
+    /// <param name="heading">Actual smoothed vehicle heading in radians.</param>
+    /// <param name="longitudinalGain">Rearward metres per forward acceleration.</param>
+    /// <param name="lateralGain">Outside-turn metres per lateral acceleration.</param>
+    /// <param name="slipGain">Metres per sideways speed.</param>
+    /// <param name="maximumLongitudinal">Maximum absolute fore/aft displacement.</param>
+    /// <param name="maximumLateral">Maximum absolute sideways displacement.</param>
+    /// <param name="damping">Offset convergence rate per second.</param>
+    /// <param name="shakeDecay">Feedback envelope decay rate.</param>
+    internal void Advance(float delta, float heading, float longitudinalGain, float lateralGain, float slipGain, float maximumLongitudinal, float maximumLateral, float damping, float shakeDecay)
     {
         delta = Math.Max(0, delta);
-        maximum = Math.Max(0, maximum);
-        steeringMaximum = Math.Max(0, steeringMaximum);
-        SteeringAngle += ((Math.Clamp(steering, -1, 1) * steeringMaximum) - SteeringAngle) * Blend(rotationDamping, delta);
-        SteeringAngle = Math.Clamp(SteeringAngle, -steeringMaximum, steeringMaximum);
-        bool manual = mouseDegrees != 0 || stickDegreesPerSecond != 0;
-        _idle = manual ? 0 : _idle + delta;
-        _manual = Math.Clamp(_manual + mouseDegrees + (stickDegreesPerSecond * delta), -maximum, maximum);
-        if (!manual && _idle > recenterDelay)
-        {
-            _manual *= 1 - Blend(recenterDamping, Math.Min(delta, _idle - recenterDelay));
-        }
-
-        float target = Math.Clamp(SteeringAngle + _manual, -maximum, maximum);
-        LookAngle += (target - LookAngle) * Blend(rotationDamping, delta);
-        LookAngle = Math.Clamp(LookAngle, -maximum, maximum);
+        var right = new Vector3(MathF.Cos(heading), 0, -MathF.Sin(heading));
+        var backward = new Vector3(MathF.Sin(heading), 0, MathF.Cos(heading));
+        float rearward = -Vector3.Dot(_acceleration, backward) * longitudinalGain;
+        float lateral = -(Vector3.Dot(_acceleration, right) * lateralGain) - (Vector3.Dot(_velocity, right) * slipGain);
+        var target = new Vector2(Math.Clamp(lateral, -maximumLateral, maximumLateral), Math.Clamp(rearward, -maximumLongitudinal, maximumLongitudinal));
+        Offset = Vector2.Lerp(Offset, target, Blend(damping, delta));
         Shake *= 1 - Blend(shakeDecay, delta);
         if (Shake < 0.0001f)
         {
@@ -81,14 +86,17 @@ internal sealed class ChaseCameraMotion
             return;
         }
 
-        Impulse(Math.Clamp((severity - threshold) / 20, 0, 1) * strength);
-        _collisionCooldown = 0.15f;
+        Impulse(Math.Clamp((severity - threshold) / FullCollisionSpeed, 0, 1) * strength);
+        _collisionCooldown = CollisionCooldownSeconds;
     }
 
     /// <summary>Clears all presentation memory on a new vehicle life.</summary>
-    internal void Reset()
+    /// <param name="velocity">Initial measured velocity, preventing a spawn impulse.</param>
+    internal void Reset(Vector3 velocity = default)
     {
-        _manual = _idle = _phase = _collisionCooldown = 0;
-        SteeringAngle = LookAngle = Shake = 0;
+        _phase = _collisionCooldown = Shake = 0;
+        _velocity = velocity;
+        _acceleration = Vector3.Zero;
+        Offset = Vector2.Zero;
     }
 }
