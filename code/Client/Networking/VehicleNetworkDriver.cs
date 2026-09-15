@@ -21,6 +21,7 @@ internal sealed class VehicleNetworkDriver
     private ulong _publishedItemRevision = ulong.MaxValue;
     private bool _rosterChanged = true;
     private ulong? _lastLifecycleTick;
+    private ulong _publishedSpawnRevision = ulong.MaxValue;
 
     /// <summary>Creates a host or connects a client driver to an already-open transport.</summary>
     /// <param name="gateway">Caller-owned transport.</param>
@@ -80,6 +81,8 @@ internal sealed class VehicleNetworkDriver
     internal Trackstorm.Core.Arenas.ArenaPropSnapshot? PropSnapshot { get; private set; }
     /// <summary>Native swept collision query, host only.</summary>
     internal Func<MissileState, System.Numerics.Vector3, float?>? CollideMissile { get; set; }
+    /// <summary>Host native proximity candidates; Core revalidates each contact.</summary>
+    internal Func<IReadOnlyList<(string Spawn, ulong Vehicle)>>? ObservePickups { get; set; }
     /// <summary>Latest complete reliable item state.</summary>
     internal ItemPublication? ItemState { get; private set; }
     /// <summary>Current local slot; no predicted consumption.</summary>
@@ -159,6 +162,14 @@ internal sealed class VehicleNetworkDriver
             }
 
             Host.Step(input, observe, CollideMissile);
+            if (Host.Spawns is not null && ObservePickups is not null)
+            {
+                foreach (var contact in ObservePickups().Distinct().OrderBy(contact => contact.Spawn, StringComparer.Ordinal).ThenBy(contact => contact.Vehicle))
+                {
+                    Host.Spawns.TryPickup(Host.World, contact.Spawn, contact.Vehicle);
+                }
+            }
+
             Latest = Host.Snapshot();
             if (_rosterChanged || Host.World.LifecycleChanges.Count > 0)
             {
@@ -171,15 +182,16 @@ internal sealed class VehicleNetworkDriver
                 LifecycleReceived?.Invoke(Latest);
             }
 
-            if (_publishedItemRevision != Host.Items.Revision || _rosterChanged)
+            if (_publishedSpawnRevision != (Host.Spawns?.Revision ?? 0) || _publishedItemRevision != Host.Items.Revision || _rosterChanged)
             {
-                ItemState = new ItemPublication(++_itemPublication, Latest, Host.Items.Slots, Host.Items.Missiles, Host.Items.Events);
+                ItemState = new ItemPublication(++_itemPublication, Latest, Host.Items.Slots, Host.Items.Missiles, Host.Items.Events, Host.Spawns?.States);
                 byte[] items = ItemCodec.EncodeState(ItemState);
                 foreach (ulong peer in _assigned)
                 {
                     Send(new TransportMessage(peer, items, TransportDelivery.Reliable));
                 }
 
+                _publishedSpawnRevision = Host.Spawns?.Revision ?? 0;
                 _publishedItemRevision = Host.Items.Revision;
                 ItemsReceived?.Invoke(ItemState);
             }

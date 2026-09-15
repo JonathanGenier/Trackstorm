@@ -163,9 +163,10 @@ internal sealed class VehicleNetworkDriverTests
         driver.Advance(default, Observe);
         var host = new HostVehicleSession(Session);
         host.Join(ServerPeer);
+        host.RegisterSpawns(Trackstorm.Core.Arenas.PrototypeArena.Configuration);
         host.Items.Grant(host.World, 2, Trackstorm.Core.Items.HeldItem.Wrench);
         host.Step(default, Observe);
-        byte[] payload = Trackstorm.Core.Items.ItemCodec.EncodeState(new Trackstorm.Core.Items.ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, host.Items.Events));
+        byte[] payload = Trackstorm.Core.Items.ItemCodec.EncodeState(new Trackstorm.Core.Items.ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, host.Items.Events, host.Spawns!.States));
         int events = 0;
         driver.ItemsReceived += _ => events++;
         gateway.Receive(new TransportMessage(ServerPeer + 1, payload, TransportDelivery.Reliable));
@@ -174,6 +175,7 @@ internal sealed class VehicleNetworkDriverTests
         Assert.That(driver.ItemState, Is.Null);
         gateway.Receive(new TransportMessage(ServerPeer, payload, TransportDelivery.Reliable));
         driver.Advance(default, Observe);
+        Assert.That(driver.ItemState!.Spawns, Is.EqualTo(host.Spawns!.States));
         Assert.That(driver.LocalItem!.Item, Is.EqualTo(Trackstorm.Core.Items.HeldItem.Wrench));
         Assert.That(driver.RequestItemUse(), Is.True);
         Assert.That(gateway.Sent[^1].Delivery, Is.EqualTo(TransportDelivery.Reliable));

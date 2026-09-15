@@ -10,7 +10,7 @@ internal sealed partial class ItemPresentation : Node3D
     private readonly AudioStreamWav _launch = VehicleFeedback.CreateCue(false);
     private readonly AudioStreamWav _blast = VehicleFeedback.CreateCue(true);
     private readonly Dictionary<ulong, Node3D> _missiles = new();
-    private readonly Dictionary<ulong, Node3D> _held = new();
+    private readonly Dictionary<ulong, (Node3D Node, HeldItem Item)> _held = new();
     private readonly List<(Node3D Node, float Age, float Lifetime)> _bursts = new();
 
     /// <inheritdoc/>
@@ -101,9 +101,9 @@ internal sealed partial class ItemPresentation : Node3D
             node.Quaternion = new Quaternion(Vector3.Forward, VehicleBody.ToGodot(missile.Velocity).Normalized());
         }
 
-        foreach (ulong id in _held.Keys.Except(state.Slots.Where(slot => slot.Item != HeldItem.None).Select(slot => slot.Vehicle)).ToArray())
+        foreach (ulong id in _held.Keys.Except(state.Slots.Where(slot => slot.Item != HeldItem.None && _held.TryGetValue(slot.Vehicle, out var held) && held.Item == slot.Item).Select(slot => slot.Vehicle)).ToArray())
         {
-            _held[id].QueueFree();
+            _held[id].Node.QueueFree();
             _held.Remove(id);
         }
 
@@ -112,7 +112,7 @@ internal sealed partial class ItemPresentation : Node3D
             Node3D node = slot.Item == HeldItem.Missile ? Rocket(true) : Wrench();
             AddChild(node);
             node.Position = VehicleBody.ToGodot(state.World.Vehicles.Single(vehicle => vehicle.State.VehicleId == slot.Vehicle).State.Movement.Physics.Position) + new Vector3(0, 2.2f, 0);
-            _held.Add(slot.Vehicle, node);
+            _held.Add(slot.Vehicle, (node, slot.Item));
         }
 
         foreach (var outcome in state.Events)
@@ -141,8 +141,8 @@ internal sealed partial class ItemPresentation : Node3D
     {
         if (_held.TryGetValue(vehicle, out var node))
         {
-            node.Position = position + new Vector3(0, 2.2f, 0);
-            node.Visible = active;
+            node.Node.Position = position + new Vector3(0, 2.2f, 0);
+            node.Node.Visible = active;
         }
     }
 

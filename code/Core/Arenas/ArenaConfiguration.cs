@@ -77,7 +77,7 @@ public sealed class ArenaConfiguration
     public Vector3 Maximum { get; }
     /// <summary>Stable slot order used by the host.</summary>
     public IReadOnlyList<ArenaSpawn> Players { get; }
-    /// <summary>Accessible future pickup locations; no inventory is created.</summary>
+    /// <summary>Stable pickup locations registered by the network arena.</summary>
     public IReadOnlyList<ArenaSpawn> Items { get; }
     /// <summary>Authored supporting surface identifiers.</summary>
     public IReadOnlyList<SurfaceType> Surfaces { get; }

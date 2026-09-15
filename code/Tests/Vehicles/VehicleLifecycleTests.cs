@@ -234,6 +234,38 @@ internal sealed class VehicleLifecycleTests
         Assert.That(host.World.GetVehicle(2).Movement.Physics.LinearVelocity.Length(), Is.GreaterThan(0));
     }
 
+    /// <summary>The live pickup authority rejects both inactive phases before selecting an item or consuming a marker.</summary>
+    [Test]
+    public void DeadAndRespawningPlayersCannotClaimLivePickups()
+    {
+        World world = Create();
+        var items = new ItemAuthority();
+        int selections = 0;
+        var spawns = new ItemSpawnAuthority(world.Arena, items, selector: () =>
+        {
+            selections++;
+            return HeldItem.Wrench;
+        });
+        ArenaSpawn marker = world.Arena.Items[0];
+        var pose = new VehiclePhysicsState(marker.Position, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        VehicleSnapshot initial = world.GetVehicle(1);
+        world.Restore(new SimulationState(0, default, [new VehicleSnapshot(1, 1, new VehicleState(0, pose, false, false, 0, 0), initial.Damage, pose)]));
+        Step(world, items, 120);
+        for (int i = 0; i < 4; i++)
+        {
+            spawns.Advance(world);
+            Assert.That(world.GetVehicle(1).Movement.Physics.Position, Is.EqualTo(marker.Position));
+            Assert.That(spawns.TryPickup(world, marker.Id, 1), Is.False);
+            Assert.That(spawns.States.Single(state => state.Id == marker.Id).Available, Is.True);
+            Assert.That(spawns.Revision, Is.Zero);
+            Assert.That(items.Slots, Is.Empty);
+            Assert.That(selections, Is.Zero);
+            Step(world, items);
+        }
+
+        Assert.That(world.GetVehicle(1).CanInteract, Is.True);
+    }
+
     private static World Create(bool clear = true, ulong delay = 4)
     {
         var world = new World(new SimulationConfiguration(60), new RespawnConfiguration { DelayTicks = delay, ClearHeldItemOnDeath = clear });
