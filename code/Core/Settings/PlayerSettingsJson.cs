@@ -26,6 +26,7 @@ public static class PlayerSettingsJson
             showPing = settings.ShowPing,
             invertSteering = settings.InvertSteering,
             deadZone = settings.DeadZone,
+            bindingDefaultsVersion = settings.BindingDefaultsVersion,
             bindings = settings.Bindings.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
         });
     }
@@ -63,6 +64,7 @@ public static class PlayerSettingsJson
                 ShowPing = Boolean(root, "showPing"),
                 InvertSteering = Boolean(root, "invertSteering"),
                 DeadZone = Number(root, "deadZone", 0.15),
+                BindingDefaultsVersion = Math.Max(0, Integer(root, "bindingDefaultsVersion", 0)),
             };
             if (root.TryGetProperty("bindings", out JsonElement bindings) && bindings.ValueKind == JsonValueKind.Object)
             {

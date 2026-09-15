@@ -8,14 +8,14 @@ namespace Trackstorm.Core.Tests.Vehicles;
 [TestFixture]
 internal sealed class VehicleStateCodecTests
 {
-    /// <summary>Position, orientation, velocities, flags and timers round trip exactly.</summary>
+    /// <summary>Physics, flags, steering, handbrake, tire loads and wheel compression round trip exactly.</summary>
     [Test]
     public void Snapshot_RoundTripsEveryField()
     {
         var physics = new VehiclePhysicsState(new Vector3(1, 2, 3), Quaternion.CreateFromAxisAngle(Vector3.UnitY, 0.7f), new Vector3(-4, 5, 6), new Vector3(0.1f, 0.2f, 0.3f));
-        var state = new VehicleState(9876, physics, true, true, 25, 30, SurfaceType.Mud);
+        var state = new VehicleState(9876, physics, true, true, 0.25f, 0.7f, SurfaceType.Mud, 0.3f, 0.8f, -4, 5, 0.4f, new WheelSupport(new Vector4(0.1f, 0.2f, 0.3f, 0.4f)));
         byte[] bytes = VehicleStateCodec.Encode(state);
-        Assert.That(bytes.Length, Is.EqualTo(71));
+        Assert.That(bytes.Length, Is.EqualTo(107));
         Assert.That(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(1)), Is.EqualTo(9876));
         Assert.That(VehicleStateCodec.Decode(bytes), Is.EqualTo(state));
     }
@@ -27,9 +27,9 @@ internal sealed class VehicleStateCodecTests
         var physics = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
         byte[] bytes = VehicleStateCodec.Encode(new VehicleState(0, physics, false, false, 0, 0));
         Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes.AsSpan(1)));
-        bytes[0] = 3;
+        bytes[0] = 4;
         Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes));
-        bytes[0] = 2;
+        bytes[0] = 3;
         bytes[61] = 128;
         Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes));
         bytes[61] = 0;
@@ -40,10 +40,10 @@ internal sealed class VehicleStateCodecTests
         BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(9), float.NegativeInfinity);
         Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes));
         BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(9), 0);
-        BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(66), -1);
-        Assert.Throws<ArgumentOutOfRangeException>(() => VehicleStateCodec.Decode(bytes));
+        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(66), -1);
+        Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes));
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(66), 0);
-        BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(62), 5);
+        BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(62), 5);
         Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes));
     }
 }

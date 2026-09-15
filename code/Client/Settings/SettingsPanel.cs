@@ -125,7 +125,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
                 RefreshBindings();
             };
             controls.AddChild(clear);
-            Row(column, action == InputAction.Brake ? "Brake / reverse" : System.Text.RegularExpressions.Regex.Replace(action.ToString(), "([a-z])([A-Z])", "$1 $2"), controls);
+            Row(column, action == InputAction.Brake ? "Brake / reverse" : action == InputAction.Drift ? "Handbrake" : System.Text.RegularExpressions.Regex.Replace(action.ToString(), "([a-z])([A-Z])", "$1 $2"), controls);
         }
 
         RefreshBindings();
@@ -171,6 +171,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
         InputEvent? candidate = @event switch
         {
             InputEventKey key when key.Pressed && !key.Echo && !key.CtrlPressed && !key.AltPressed && !key.ShiftPressed && !key.MetaPressed && key.PhysicalKeycode != Key.None => new InputEventKey { PhysicalKeycode = key.PhysicalKeycode },
+            InputEventMouseButton mouse when mouse.Pressed && !mouse.CtrlPressed && !mouse.AltPressed && !mouse.ShiftPressed && !mouse.MetaPressed => new InputEventMouseButton { ButtonIndex = mouse.ButtonIndex },
             InputEventJoypadButton button when button.Pressed => new InputEventJoypadButton { Device = button.Device, ButtonIndex = button.ButtonIndex },
             InputEventJoypadMotion axis when Math.Abs(axis.AxisValue) > 0.6 => new InputEventJoypadMotion { Device = axis.Device, Axis = axis.Axis, AxisValue = Math.Sign(axis.AxisValue) },
             _ => null,
@@ -186,7 +187,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
             InputEvent[] existing = _input.Bindings.CopyBindings(action);
             try
             {
-                _input.Bindings.Replace(action, [.. existing.Where(binding => (binding is InputEventKey) != (candidate is InputEventKey)), candidate]);
+                _input.Bindings.Replace(action, [.. existing.Where(binding => (binding is InputEventKey or InputEventMouseButton) != (candidate is InputEventKey or InputEventMouseButton)), candidate]);
             }
             finally
             {

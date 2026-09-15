@@ -40,8 +40,10 @@ internal sealed class PlayerInputBindings : IDisposable
         Set(InputAction.Brake, Key.S, Axis(JoyAxis.TriggerLeft, 1, gamepadDevice));
         Set(InputAction.SteerLeft, Key.A, Axis(JoyAxis.LeftX, -1, gamepadDevice));
         Set(InputAction.SteerRight, Key.D, Axis(JoyAxis.LeftX, 1, gamepadDevice));
-        Set(InputAction.Drift, Key.Space, Button(JoyButton.A, gamepadDevice));
-        Set(InputAction.UseItem, Key.E, Button(JoyButton.X, gamepadDevice));
+        Set(InputAction.Drift, Key.Space, Button(JoyButton.B, gamepadDevice));
+        using var mouse = new InputEventMouseButton { ButtonIndex = MouseButton.Left };
+        using var itemButton = Button(JoyButton.A, gamepadDevice);
+        Replace(InputAction.UseItem, mouse, itemButton);
         Set(InputAction.Leaderboard, Key.Tab, Button(JoyButton.Back, gamepadDevice));
         Set(InputAction.MenuUp, Key.Up, Button(JoyButton.DpadUp, gamepadDevice));
         Set(InputAction.MenuDown, Key.Down, Button(JoyButton.DpadDown, gamepadDevice));
@@ -50,6 +52,14 @@ internal sealed class PlayerInputBindings : IDisposable
         Set(InputAction.MenuAccept, Key.Enter, Button(JoyButton.A, gamepadDevice));
         Set(InputAction.MenuCancel, Key.Escape, Button(JoyButton.B, gamepadDevice));
         Set(InputAction.Pause, Key.P, Button(JoyButton.Start, gamepadDevice));
+        using var left = Axis(JoyAxis.RightX, -1, gamepadDevice);
+        using var right = Axis(JoyAxis.RightX, 1, gamepadDevice);
+        using var up = Axis(JoyAxis.RightY, -1, gamepadDevice);
+        using var down = Axis(JoyAxis.RightY, 1, gamepadDevice);
+        Replace(InputAction.CameraLeft, left);
+        Replace(InputAction.CameraRight, right);
+        Replace(InputAction.CameraUp, up);
+        Replace(InputAction.CameraDown, down);
     }
 
     /// <summary>Returns caller-owned copies for settings capture and presentation.</summary>
@@ -73,6 +83,7 @@ internal sealed class PlayerInputBindings : IDisposable
             bool valid = binding switch
             {
                 InputEventKey key => key.PhysicalKeycode != Key.None && key.Keycode == Key.None && !key.CtrlPressed && !key.AltPressed && !key.ShiftPressed && !key.MetaPressed,
+                InputEventMouseButton mouse => mouse.ButtonIndex is >= MouseButton.Left and <= MouseButton.Xbutton2 && !mouse.CtrlPressed && !mouse.AltPressed && !mouse.ShiftPressed && !mouse.MetaPressed,
                 InputEventJoypadButton button => button.Device >= 0 && button.ButtonIndex >= 0 && button.ButtonIndex < JoyButton.Max,
                 InputEventJoypadMotion axis => axis.Device >= 0 && axis.Axis >= 0 && axis.Axis < JoyAxis.Max && Math.Abs(axis.AxisValue) == 1,
                 _ => false,
@@ -107,15 +118,22 @@ internal sealed class PlayerInputBindings : IDisposable
     /// <summary>Resolves every physical binding individually so releasing one cannot cancel another held binding.</summary>
     /// <param name="action">Logical action to resolve.</param>
     /// <param name="deadZone">Neutral magnitude applied only to analog bindings.</param>
+    /// <param name="analog">Optional analog/digital filter before intent shaping.</param>
     /// <returns>The strongest binding's normalized nonnegative value.</returns>
-    public float Strength(InputAction action, float deadZone)
+    public float Strength(InputAction action, float deadZone, bool? analog = null)
     {
         float strength = 0;
         foreach (InputEvent binding in _bindings[action])
         {
+            if (analog.HasValue && (binding is InputEventJoypadMotion) != analog.Value)
+            {
+                continue;
+            }
+
             float value = binding switch
             {
                 InputEventKey key => Godot.Input.IsPhysicalKeyPressed(key.PhysicalKeycode) ? 1 : 0,
+                InputEventMouseButton mouse => Godot.Input.IsMouseButtonPressed(mouse.ButtonIndex) ? 1 : 0,
                 InputEventJoypadButton button => Godot.Input.IsJoyButtonPressed(button.Device, button.ButtonIndex) ? 1 : 0,
                 InputEventJoypadMotion axis => Math.Max(0, InputAxis.Normalize(Godot.Input.GetJoyAxis(axis.Device, axis.Axis), deadZone) * axis.AxisValue),
                 _ => 0,

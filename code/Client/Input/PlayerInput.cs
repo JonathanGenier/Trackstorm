@@ -21,7 +21,7 @@ public sealed partial class PlayerInput : Node
     /// <inheritdoc/>
     public override void _Ready()
     {
-        _adapter = new PlayerInputAdapter(new PlayerInputBindings());
+        _adapter = new PlayerInputAdapter(new PlayerInputBindings()) { CaptureInterval = 1f / Engine.PhysicsTicksPerSecond };
         ProcessMode = ProcessModeEnum.Always;
     }
 

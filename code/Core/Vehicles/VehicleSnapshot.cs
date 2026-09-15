@@ -6,7 +6,7 @@ public sealed record VehicleSnapshot
     /// <summary>Combines identity, life, solved observations, movement commands/memory and health.</summary>
     /// <param name="vehicleId">Stable vehicle identity.</param>
     /// <param name="lifeId">Explicit life generation; reset increments it without rewinding global time.</param>
-    /// <param name="movement">Movement commands and deterministic timers at the global tick.</param>
+    /// <param name="movement">Movement commands and complete handling memory at the global tick.</param>
     /// <param name="damage">Health, attribution and collision memory.</param>
     /// <param name="observedPhysics">Solved native state before this tick's movement/effect commands.</param>
     /// <param name="effects">Accepted one-shot native effects belonging to this command boundary.</param>
@@ -15,11 +15,11 @@ public sealed record VehicleSnapshot
     public VehicleSnapshot(ulong vehicleId, ulong lifeId, VehicleState movement, VehicleDamageState damage, VehiclePhysicsState observedPhysics, IEnumerable<VehicleEffectRequest>? effects = null, VehicleLifecycle? lifecycle = null, ulong? respawnAtTick = null)
     {
         ArgumentNullException.ThrowIfNull(damage);
-        _ = new VehicleState(movement.Tick, movement.Physics, movement.Grounded, movement.Drifting, movement.DriftTicks, movement.BoostTicks, movement.CurrentSurface);
+        movement.Validate();
         _ = new VehiclePhysicsState(observedPhysics.Position, observedPhysics.Orientation, observedPhysics.LinearVelocity, observedPhysics.AngularVelocity);
         if (vehicleId == 0 || lifeId == 0 || damage.LastDamage?.Tick > movement.Tick ||
             observedPhysics.Position != movement.Physics.Position || observedPhysics.Orientation != movement.Physics.Orientation ||
-            (damage.Destroyed && (movement.Drifting || movement.BoostTicks != 0)))
+            (damage.Destroyed && movement.Handbrake != 0))
         {
             throw new ArgumentException("Incoherent authoritative vehicle snapshot.");
         }

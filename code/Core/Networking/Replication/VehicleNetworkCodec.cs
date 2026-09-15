@@ -5,7 +5,7 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Networking.Replication;
 
-/// <summary>Version-three binary gameplay messages with life-scoped inputs and authoritative lifecycle state.</summary>
+/// <summary>Version-four binary gameplay messages with life-scoped inputs and authoritative lifecycle state.</summary>
 public static class VehicleNetworkCodec
 {
     /// <summary>Reliable session assignment message kind.</summary>
@@ -23,7 +23,7 @@ public static class VehicleNetworkCodec
     /// <returns>Recognized message kind.</returns>
     public static byte Kind(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || bytes[0] != 0x54 || bytes[1] != 0x53 || bytes[2] != 3 || bytes[3] is < Welcome or > Props)
+        if (bytes.Length is < 4 or > MaximumBytes || bytes[0] != 0x54 || bytes[1] != 0x53 || bytes[2] != 4 || bytes[3] is < Welcome or > Props)
         {
             throw new ArgumentException("Invalid vehicle network header.");
         }
@@ -259,7 +259,7 @@ public static class VehicleNetworkCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, new UTF8Encoding(false, true), true);
-        writer.Write(new byte[] { 0x54, 0x53, 3, kind });
+        writer.Write(new byte[] { 0x54, 0x53, 4, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {

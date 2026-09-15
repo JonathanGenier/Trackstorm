@@ -86,7 +86,7 @@ internal sealed class VehicleAuthority
         }
 
         health.Repair(request.Repair);
-        VehicleState next = movement.Step(request.Input, observed.Physics, observed.Support, !health.State.Destroyed, observed.Surface);
+        VehicleState next = movement.Step(request.Input, observed.Physics, observed.Support, !health.State.Destroyed, observed.Surface, observed.Wheels);
         IReadOnlyList<VehicleEffectRequest> acceptedEffects = health.State.Destroyed ? Array.Empty<VehicleEffectRequest>() : request.Effects;
         if (health.State.Destroyed)
         {

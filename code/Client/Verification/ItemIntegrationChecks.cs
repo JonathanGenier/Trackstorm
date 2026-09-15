@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using Godot;
+using Trackstorm.Client.Input;
 using Trackstorm.Client.Networking;
 using Trackstorm.Core.Input;
 using Trackstorm.Core.Items;
@@ -30,12 +31,20 @@ public sealed partial class ItemIntegrationChecks : Node
     private float _propPeakSpeed;
     private bool _finished;
     private int _cleanupFrames;
+    private PlayerInput _input = null!;
 
     /// <inheritdoc/>
     public override void _Ready()
     {
         Engine.PhysicsTicksPerSecond = 60;
         Engine.MaxFps = 60;
+        _input = new PlayerInput();
+        AddChild(_input);
+        _input.SetPhysicsProcess(false);
+        var legacy = new Core.Settings.PlayerSettings { BindingDefaultsVersion = 0 }
+            .WithBindings(InputAction.UseItem, new[] { "key:69", "button:0:2" })
+            .WithBindings(InputAction.Drift, new[] { "key:32", "button:0:0" });
+        InputBindingPreferences.Apply(_input.Adapter, legacy);
         _output = OS.GetCmdlineUserArgs().FirstOrDefault(arg => arg.StartsWith("--item-output=", StringComparison.Ordinal))?[14..] ?? ProjectSettings.GlobalizePath("res://.godot/item-checks");
         System.IO.Directory.CreateDirectory(_output);
         using var reservation = new UdpClient(new IPEndPoint(IPAddress.Loopback, 0));
@@ -109,7 +118,7 @@ public sealed partial class ItemIntegrationChecks : Node
             _elapsed += delta;
             foreach (var arena in _arenas)
             {
-                arena.Advance(default);
+                arena.Advance(arena == _arenas[1] ? _input.Adapter.Capture(0) : default);
                 Require(arena.Driver.Failure.Length == 0, arena.Driver.Failure);
             }
 
@@ -167,9 +176,16 @@ public sealed partial class ItemIntegrationChecks : Node
                 Next("Damaged Wrench outcomes match on all eight peers.");
                 break;
             case 5 when _arenas[1].Driver.LocalItem?.Token == _token && _elapsed - _started > 0.5:
-                var input = new InputFrame(0, 0, 0, 0, 0, InputButtons.UseItem, 0);
+                ItemInput(true);
+                if (_scenario == 2)
+                {
+                    ItemInput(false);
+                }
+
+                InputFrame input = _input.Adapter.Capture(0);
+                Require((input.Pressed & InputButtons.UseItem) != 0 && (input.Held & InputButtons.Drift) == 0, "Physical item press reaches its semantic action without handbrake.");
                 _arenas[1].Advance(input);
-                _arenas[1].Driver.RequestItemUse();
+                Require((_input.Adapter.Capture(0).Pressed & InputButtons.UseItem) == 0, "One physical press produces only one command edge.");
                 Require(host.Items.Missiles.Count == 0, "Remote input cannot create a host projectile synchronously.");
                 Next($"Remote client requested missile scenario {_scenario}; host owns creation.");
                 break;
@@ -203,6 +219,13 @@ public sealed partial class ItemIntegrationChecks : Node
                 }
 
                 Capture($"impact-{_scenario}.png");
+                ItemInput(false);
+                _input.Adapter.Capture(0);
+                ItemInput(true);
+                _arenas[1].Advance(_input.Adapter.Capture(0));
+                Require(!_arenas[1].Driver.RequestItemUse(), "Clicking without a held item safely rejects use.");
+                ItemInput(false);
+                _input.Adapter.Capture(0);
                 _evidence.Add($"Scenario {_scenario}: one remote launch/impact on every peer at {impacts[0].Position}; host-only damage/impulse.");
                 _scenario++;
                 if (_scenario < 4)
@@ -225,10 +248,28 @@ public sealed partial class ItemIntegrationChecks : Node
 
     private bool AllHeld(HeldItem item) => _arenas.All(arena => arena.Driver.ItemState?.Slots.Count == 8 && arena.Driver.ItemState.Slots.All(slot => slot.Item == item));
 
+    private void ItemInput(bool pressed)
+    {
+        using InputEvent input = _scenario == 1
+            ? new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.A, Pressed = pressed }
+            : new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = pressed };
+        Godot.Input.ParseInputEvent(input);
+        Godot.Input.FlushBufferedEvents();
+    }
+
     private void UseAll()
     {
         foreach (var arena in _arenas)
         {
+            if (arena == _arenas[0])
+            {
+                ItemInput(true);
+                ItemInput(false);
+                arena.Advance(_input.Adapter.Capture(0));
+                Require(arena.Driver.LocalItem?.Item == HeldItem.None, "Host LMB tap consumes the equipped Wrench through authority.");
+                continue;
+            }
+
             Require(arena.Driver.RequestItemUse(), "Valid item request submitted.");
             arena.Driver.RequestItemUse();
         }

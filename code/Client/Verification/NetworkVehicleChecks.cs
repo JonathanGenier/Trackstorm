@@ -19,7 +19,7 @@ public sealed partial class NetworkVehicleChecks : Node
     private int _largestRoster;
     private int _immediate;
     private int _driftFrames;
-    private int _boostFrames;
+    private int _handbrakeFrames;
     private string _output = string.Empty;
     private bool _done;
     private bool _captured;
@@ -124,9 +124,9 @@ public sealed partial class NetworkVehicleChecks : Node
                 _driftFrames++;
             }
 
-            if (driver.LocalState?.Movement.BoostTicks > 0)
+            if (driver.LocalState?.Movement.Handbrake > 0)
             {
-                _boostFrames++;
+                _handbrakeFrames++;
             }
 
             if (driver.Failure.Length > 0 && _seconds < _duration - 2)
@@ -183,7 +183,7 @@ public sealed partial class NetworkVehicleChecks : Node
             Snapshots = driver.ReceivedSnapshots,
             ImmediateFrames = _immediate,
             DriftFrames = _driftFrames,
-            BoostFrames = _boostFrames,
+            HandbrakeFrames = _handbrakeFrames,
             ErrorP99 = p99,
             ErrorMaximum = _errors.Count > 0 ? _errors.Max() : 0,
             InterpolationDelay = _arena.InterpolationDelay,

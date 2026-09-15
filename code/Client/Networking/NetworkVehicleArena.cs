@@ -175,7 +175,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
 
         _itemLabel.Text = $"HELD ITEM: {(_driver.LocalState?.CanInteract == true ? _driver.LocalItem?.Item ?? HeldItem.None : HeldItem.None)}";
         string role = _driver.Host is null ? "CLIENT" : "HOST";
-        string status = _driver.Failure.Length > 0 ? _driver.Failure : _driver.LocalState is null ? "Connecting…" : $"HP {_driver.LocalState.Damage.CurrentHP:0} / {_driver.LocalState.Damage.MaxHP:0}   {_driver.LocalState.Lifecycle}   {_driver.LocalState.Movement.CurrentSurface}   {(_driver.LocalState.Movement.BoostTicks > 0 ? "BOOST" : _driver.LocalState.Movement.Drifting ? "DRIFT" : _driver.LocalState.Movement.Grounded ? "GROUNDED" : "AIRBORNE")}";
+        string status = _driver.Failure.Length > 0 ? _driver.Failure : _driver.LocalState is null ? "Connecting…" : $"HP {_driver.LocalState.Damage.CurrentHP:0} / {_driver.LocalState.Damage.MaxHP:0}   {_driver.LocalState.Lifecycle}   {_driver.LocalState.Movement.CurrentSurface}   {(_driver.LocalState.Movement.Handbrake > 0 ? "HANDBRAKE" : _driver.LocalState.Movement.Drifting ? "SLIDING" : _driver.LocalState.Movement.Grounded ? "GROUNDED" : "AIRBORNE")}";
         string formattedSnapshotAge = FormatSnapshotAge(_driver.SnapshotAge);
         _diagnostics.Text = $"{role}   {_bodies.Count}/8 vehicles   {status}\nPrediction error  {_driver.Prediction?.PredictionError ?? 0:0.000} m   Snapshot age  {formattedSnapshotAge}   Interpolation  {InterpolationDelay:0} ms\nLast acknowledged input  {_driver.Prediction?.History.LastAcknowledged ?? 0}   Corrections ≥3m  {local?.Smoothing.HardSnaps ?? 0}";
     }

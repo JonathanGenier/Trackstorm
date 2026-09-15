@@ -133,13 +133,24 @@ public sealed partial class SettingsIntegrationChecks : Node
         Check(settings.Bindings[InputAction.Accelerate].SequenceEqual(new[] { "key:74", "button:2:3", "axis:2:2:-1" }), "all supported binding types and exact device IDs survive");
         Check(settings.Bindings[InputAction.Pause].Count == 0, "explicit unbind survives restart");
         SendKey(Key.J, true);
-        Check(_player.Adapter.Capture(1).Accelerate == ushort.MaxValue, "restored physical key drives logical input");
+        Check(_player.Adapter.Capture(1).Accelerate is > 0 and < ushort.MaxValue, "restored physical key drives progressive logical input");
+        for (ulong tick = 2; tick <= 31; tick++)
+        {
+            _player.Adapter.Capture(tick);
+        }
+
+        Check(_player.Adapter.Capture(32).Accelerate == ushort.MaxValue, "restored key reaches full throttle");
         SendKey(Key.J, false);
+        for (ulong tick = 33; tick <= 62; tick++)
+        {
+            _player.Adapter.Capture(tick);
+        }
+
         SendKey(Key.W, true);
-        Check(_player.Adapter.Capture(2).Accelerate == 0, "replaced default key stays removed");
+        Check(_player.Adapter.Capture(63).Accelerate == 0, "replaced default key stays removed");
         SendKey(Key.W, false);
         SendKey(Key.D, true);
-        Check(_player.Adapter.Capture(3).Steering == -32767, "restored inversion affects signed steering");
+        Check(_player.Adapter.Capture(64).Steering is < 0 and > -32767, "restored inversion affects signed steering");
         SendKey(Key.D, false);
     }
 

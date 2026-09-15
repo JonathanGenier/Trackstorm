@@ -21,7 +21,7 @@ internal sealed class VehicleLifecycleTests
         var items = new ItemAuthority();
         Assert.That(items.Grant(world, 1, HeldItem.Missile), Is.True);
         var start = world.GetVehicle(1);
-        var charged = new VehicleState(0, start.ObservedPhysics, true, true, 20, 10, SurfaceType.Mud);
+        var charged = new VehicleState(0, start.ObservedPhysics, true, true, 0.4f, 1, SurfaceType.Mud, 0.5f, 0.8f, 2, 3, 0.2f, new WheelSupport(new Vector4(0.1f)));
         world.Restore(new SimulationState(0, default, [new VehicleSnapshot(1, 1, charged, start.Damage, start.ObservedPhysics)]));
         Step(world, items, 120);
         VehicleSnapshot dead = world.GetVehicle(1);
@@ -88,7 +88,7 @@ internal sealed class VehicleLifecycleTests
             Assert.That(alive.LifeId, Is.EqualTo(cycle + 2));
             Assert.That(alive.Damage.CurrentHP, Is.EqualTo(120));
             Assert.That(alive.Damage.LastDamage, Is.Null);
-            Assert.That(alive.Movement.DriftTicks + alive.Movement.BoostTicks, Is.Zero);
+            Assert.That(alive.Movement, Is.EqualTo(new VehicleState(alive.Movement.Tick, alive.Movement.Physics, false, false, 0, 0)));
             Assert.That(items.Missiles, Is.Empty);
             Assert.That(items.RequestUse(world, 1, old.Life, old.Token), Is.False);
             if (!clear)
