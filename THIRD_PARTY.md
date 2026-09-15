@@ -1,4 +1,22 @@
-# Third-Party Dependencies
+# Third-Party Provenance and Licensing Registry
+
+This is the canonical entry point for repository dependency and asset provenance/licensing. The records below either contain the provenance or identify the authoritative detailed record. Preserve original license notices and manifests in their linked locations; a summary here does not replace their terms. [Workflow](docs/workflow.md#dependencies-assets-and-licenses) owns the maintenance procedure.
+
+## Registry routes
+
+| Dependency / asset area | Authoritative record |
+| --- | --- |
+| GdUnit4 plugin | [Record below](#gdunit4) and [original MIT notice](addons/gdUnit4/LICENSE) |
+| GNS binding, native transport and bundled dependencies | [Transport provenance, pinned versions, hashes and license notices](docs/licenses/transport/README.md); package selection in [GameNetworkingSockets.props](code/Client/Networking/GameNetworkingSockets.props) |
+| Official EOS SDK | [EOS provenance, hashes, agreement and redistribution requirements](docs/licenses/eos/README.md); verified acquisition in [setup-eos.ps1](setup-eos.ps1) |
+| Arena models/textures | [Record below](#prototype-arena-assets) and [source manifest](assets/arena/sources.json) |
+| Item models/particles | [Record below](#item-combat-assets) and [source manifest](assets/items/sources.json) |
+| HUD reference/component images | [HUD manifest](assets/hud/sources.json), including supplied asset sources, hashes and approval provenance; these are project-supplied assets and no third-party license is asserted |
+| Godot .NET SDK | Version selection in [Client project](Trackstorm.Client.csproj); [upstream source/license](https://github.com/godotengine/godot) |
+| StyleCop analyzers | Version selection in [Directory.Build.props](Directory.Build.props); [upstream source/license](https://github.com/DotNetAnalyzers/StyleCopAnalyzers) |
+| NUnit, NUnit3TestAdapter and Microsoft.NET.Test.Sdk | Version selections in [Core tests](code/Tests/Trackstorm.Core.Tests.csproj) and [Client/transport tests](code/TransportTests/Trackstorm.Transport.Tests.csproj); upstream source/license: [NUnit](https://github.com/nunit/nunit), [adapter](https://github.com/nunit/nunit3-vs-adapter), [test SDK](https://github.com/microsoft/vstest) |
+
+Restored NuGet package metadata supplies the license declaration for the selected package version, including transitive dependencies. Review that metadata when changing package versions; the source links above are discovery routes, not substitutes for pinned package notices. Godot and .NET are development/runtime prerequisites; this registry does not assert a new license for their bundled components.
 
 ## GdUnit4
 
