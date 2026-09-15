@@ -10,7 +10,9 @@ public sealed record VehicleSnapshot
     /// <param name="damage">Health, attribution and collision memory.</param>
     /// <param name="observedPhysics">Solved native state before this tick's movement/effect commands.</param>
     /// <param name="effects">Accepted one-shot native effects belonging to this command boundary.</param>
-    public VehicleSnapshot(ulong vehicleId, ulong lifeId, VehicleState movement, VehicleDamageState damage, VehiclePhysicsState observedPhysics, IEnumerable<VehicleEffectRequest>? effects = null)
+    /// <param name="lifecycle">Participation state; omitted snapshots infer Alive/Dead from HP.</param>
+    /// <param name="respawnAtTick">Host deadline, retained throughout the inactive life.</param>
+    public VehicleSnapshot(ulong vehicleId, ulong lifeId, VehicleState movement, VehicleDamageState damage, VehiclePhysicsState observedPhysics, IEnumerable<VehicleEffectRequest>? effects = null, VehicleLifecycle? lifecycle = null, ulong? respawnAtTick = null)
     {
         ArgumentNullException.ThrowIfNull(damage);
         movement.Validate();
@@ -22,6 +24,15 @@ public sealed record VehicleSnapshot
             throw new ArgumentException("Incoherent authoritative vehicle snapshot.");
         }
 
+        Lifecycle = lifecycle ?? (damage.Destroyed ? VehicleLifecycle.Dead : VehicleLifecycle.Alive);
+        if (!Enum.IsDefined(Lifecycle) || (Lifecycle == VehicleLifecycle.Alive) == damage.Destroyed ||
+            (Lifecycle == VehicleLifecycle.Alive && respawnAtTick.HasValue) ||
+            (respawnAtTick.HasValue && (damage.LastDamage is null || respawnAtTick.Value <= damage.LastDamage.Tick)))
+        {
+            throw new ArgumentException("Incoherent vehicle lifecycle.");
+        }
+
+        RespawnAtTick = respawnAtTick;
         VehicleId = vehicleId;
         LifeId = lifeId;
         Movement = movement;
@@ -40,6 +51,12 @@ public sealed record VehicleSnapshot
     public ulong VehicleId { get; }
     /// <summary>Life generation, distinct from the global movement tick.</summary>
     public ulong LifeId { get; }
+    /// <summary>Authoritative lifecycle; Client presentation cannot advance it.</summary>
+    public VehicleLifecycle Lifecycle { get; }
+    /// <summary>Absolute global tick at which authority starts the next life.</summary>
+    public ulong? RespawnAtTick { get; }
+    /// <summary>Single participation gate shared by movement, items and damage.</summary>
+    public bool CanInteract => Lifecycle == VehicleLifecycle.Alive;
     /// <summary>Core movement state and commanded velocities.</summary>
     public VehicleState Movement { get; }
     /// <summary>Core health, damage and replay state.</summary>

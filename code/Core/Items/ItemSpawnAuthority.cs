@@ -66,7 +66,7 @@ public sealed class ItemSpawnAuthority
         }
 
         var player = world.State.Vehicles.SingleOrDefault(state => state.VehicleId == vehicle);
-        if (player is null || player.Damage.Destroyed ||
+        if (player is null || !player.CanInteract ||
             Vector3.DistanceSquared(player.Movement.Physics.Position, _markers[id].Position) > Configuration.PickupRadius * Configuration.PickupRadius ||
             _items.Slots.Any(slot => slot.Vehicle == vehicle && slot.Life == player.LifeId && slot.Item != HeldItem.None))
         {

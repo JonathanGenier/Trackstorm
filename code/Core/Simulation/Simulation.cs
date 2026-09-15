@@ -13,15 +13,26 @@ public sealed class Simulation
     /// Initializes a new instance of the <see cref="Simulation"/> class.
     /// </summary>
     /// <param name="configuration">The fixed-step simulation configuration.</param>
-    public Simulation(SimulationConfiguration configuration)
+    /// <param name="respawn">Optional authoritative respawning; absent for isolated movement/replay fixtures.</param>
+    /// <param name="arena">Validated spawn contract, defaulting to the production arena.</param>
+    public Simulation(SimulationConfiguration configuration, RespawnConfiguration? respawn = null, Arenas.ArenaConfiguration? arena = null)
     {
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        respawn?.Validate();
+        Respawn = respawn;
+        Arena = arena ?? Arenas.PrototypeArena.Configuration;
     }
 
     /// <summary>
     /// Gets the fixed-step configuration used by this simulation.
     /// </summary>
     public SimulationConfiguration Configuration { get; }
+    /// <summary>Host lifecycle tuning; null disables automatic respawn in isolated fixtures.</summary>
+    public RespawnConfiguration? Respawn { get; }
+    /// <summary>Validated configured arena markers.</summary>
+    public Arenas.ArenaConfiguration Arena { get; }
+    /// <summary>Committed lifecycle boundaries for scoring and other observers; never emitted by rejected batches.</summary>
+    public IReadOnlyList<VehicleSnapshot> LifecycleChanges { get; private set; } = Array.Empty<VehicleSnapshot>();
 
     /// <summary>
     /// Gets the current authoritative simulation state.
@@ -106,7 +117,18 @@ public sealed class Simulation
             throw new ArgumentException("The input frame must target the next simulation tick.", nameof(input));
         }
 
-        VehicleStepResult[] candidates = requests.OrderBy(request => request.VehicleId).Select(request => _vehicles[request.VehicleId].Prepare(request)).ToArray();
+        bool Participates(ulong id) => !_vehicles.TryGetValue(id, out var vehicle) || vehicle.Snapshot.CanInteract;
+        var reserved = State.Vehicles.ToDictionary(vehicle => vehicle.VehicleId);
+        VehicleStepResult[] candidates = requests.OrderBy(request => request.VehicleId).Select(request =>
+        {
+            var observation = new VehicleObservation(request.Observation.Physics, request.Observation.Support, request.Observation.Contacts.Where(contact => Participates(contact.OtherVehicleId)), request.Observation.Surface, request.Observation.Wheels);
+            var filtered = new VehicleStepRequest(request.VehicleId, request.Input, observation, request.Effects.Where(effect => Participates(effect.Attribution.InstigatorId)), request.Reset, request.Repair);
+            VehicleStepResult candidate = _vehicles[request.VehicleId].Prepare(filtered, Respawn, Arena, reserved.Values.ToArray());
+            reserved[request.VehicleId] = candidate.Snapshot;
+            return candidate;
+        }).ToArray();
+        VehicleSnapshot[] transitions = candidates.Select(result => result.Snapshot)
+            .Where(state => state.Lifecycle != _vehicles[state.VehicleId].Snapshot.Lifecycle || state.LifeId != _vehicles[state.VehicleId].Snapshot.LifeId).ToArray();
         var next = new SimulationState(nextTick, input, candidates.Select(result => result.Snapshot));
         foreach (VehicleStepResult result in candidates)
         {
@@ -114,6 +136,8 @@ public sealed class Simulation
         }
 
         State = next;
+        LifecycleChanges = Array.AsReadOnly(transitions);
+
         return Array.AsReadOnly(candidates);
     }
 
@@ -137,5 +161,6 @@ public sealed class Simulation
         }
 
         State = state;
+        LifecycleChanges = Array.Empty<VehicleSnapshot>();
     }
 }

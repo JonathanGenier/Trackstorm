@@ -28,9 +28,24 @@ internal sealed class VehicleAuthority
     /// <summary>Evaluates a candidate without mutating the published aggregate.</summary>
     /// <param name="request">This global tick's inputs and observations.</param>
     /// <returns>Complete candidate state and commands.</returns>
-    internal VehicleStepResult Prepare(VehicleStepRequest request)
+    /// <param name="respawn">Host respawn policy, or null in isolated fixtures.</param>
+    /// <param name="arena">Validated spawn contract.</param>
+    /// <param name="vehicles">Authoritative roster with earlier candidate respawns reserved.</param>
+    internal VehicleStepResult Prepare(VehicleStepRequest request, RespawnConfiguration? respawn, Arenas.ArenaConfiguration arena, IReadOnlyList<VehicleSnapshot> vehicles)
     {
         VehicleSnapshot previous = Snapshot;
+        if (!request.Reset.HasValue && !previous.CanInteract)
+        {
+            VehiclePhysicsState? spawn = respawn is not null && previous.RespawnAtTick is ulong deadline && request.Input.Tick >= deadline
+                ? arena.SelectRespawn(previous.VehicleId, checked(previous.LifeId + 1), vehicles) : null;
+            bool ready = spawn.HasValue;
+            ulong life = ready ? checked(previous.LifeId + 1) : previous.LifeId;
+            VehiclePhysicsState pose = ready ? spawn!.Value
+                : new VehiclePhysicsState(previous.Movement.Physics.Position, previous.Movement.Physics.Orientation, Vector3.Zero, Vector3.Zero);
+            var state = new VehicleSnapshot(previous.VehicleId, life, new VehicleState(request.Input.Tick, pose, false, false, 0, 0), ready ? new VehicleHealth(_damageConfiguration).State : previous.Damage, pose, lifecycle: ready ? VehicleLifecycle.Alive : VehicleLifecycle.Respawning, respawnAtTick: ready ? null : previous.RespawnAtTick);
+            return new VehicleStepResult(state, Array.Empty<VehicleEffectRequest>(), new List<DamageEvent>(), ready);
+        }
+
         VehicleObservation observed = request.Reset is VehiclePhysicsState reset ? new VehicleObservation(reset, Vector3.Zero) : request.Observation;
         var movement = new VehicleMovement(_movementConfiguration, observed.Physics);
         var health = new VehicleHealth(_damageConfiguration);
@@ -72,8 +87,15 @@ internal sealed class VehicleAuthority
 
         health.Repair(request.Repair);
         VehicleState next = movement.Step(request.Input, observed.Physics, observed.Support, !health.State.Destroyed, observed.Surface, observed.Wheels);
-        var snapshot = new VehicleSnapshot(previous.VehicleId, request.Reset.HasValue ? checked(previous.LifeId + 1) : previous.LifeId, next, health.State, observed.Physics, request.Effects);
-        return new VehicleStepResult(snapshot, request.Effects, events, request.Reset.HasValue);
+        IReadOnlyList<VehicleEffectRequest> acceptedEffects = health.State.Destroyed ? Array.Empty<VehicleEffectRequest>() : request.Effects;
+        if (health.State.Destroyed)
+        {
+            var stationary = new VehiclePhysicsState(observed.Physics.Position, observed.Physics.Orientation, Vector3.Zero, Vector3.Zero);
+            next = new VehicleState(request.Input.Tick, stationary, false, false, 0, 0);
+        }
+
+        var snapshot = new VehicleSnapshot(previous.VehicleId, request.Reset.HasValue ? checked(previous.LifeId + 1) : previous.LifeId, next, health.State, observed.Physics, acceptedEffects, respawnAtTick: health.State.Destroyed && respawn is not null ? checked(request.Input.Tick + respawn.DelayTicks) : null);
+        return new VehicleStepResult(snapshot, acceptedEffects, events, request.Reset.HasValue);
     }
 
     /// <summary>Checks restoration against the registered tuning without changing state.</summary>

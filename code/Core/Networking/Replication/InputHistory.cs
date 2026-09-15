@@ -46,6 +46,15 @@ public sealed class InputHistory
     /// <returns>At most four distinct retained inputs.</returns>
     public SequencedInput[] GetRedundancy() => _pending.TakeLast(Redundancy).ToArray();
 
+    /// <summary>Retires old-life controls while preserving sequence acknowledgements and retransmission.</summary>
+    public void NeutralizePending()
+    {
+        for (int i = 0; i < _pending.Count; i++)
+        {
+            _pending[i] = new SequencedInput(_pending[i].Sequence, new InputFrame(_pending[i].Frame.Tick, 0, 0, 0, 0, 0, 0));
+        }
+    }
+
     /// <summary>Checks confirmation ordering without removing any replay state.</summary>
     /// <param name="sequence">Proposed host confirmation.</param>
     /// <returns>Whether the acknowledgement belongs to this history's confirmed/pending range.</returns>

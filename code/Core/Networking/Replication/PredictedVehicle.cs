@@ -74,6 +74,11 @@ public sealed class PredictedVehicle
         }
 
         Vector3 before = State.Movement.Physics.Position;
+        if (State.LifeId != authoritative.State.LifeId || State.Lifecycle != authoritative.State.Lifecycle)
+        {
+            History.NeutralizePending();
+        }
+
         Restore(authoritative.State);
         History.Acknowledge(authoritative.AcknowledgedInput);
         foreach (SequencedInput input in History.Pending)
@@ -91,6 +96,24 @@ public sealed class PredictedVehicle
     private void Step(SequencedInput input, Func<VehicleSnapshot, VehicleObservation> observe)
     {
         InputFrame frame = input.AtTick(checked(_world.State.Tick + 1));
-        _world.Step(frame, [new VehicleStepRequest(_vehicle, frame, observe(State))]);
+        VehicleSnapshot previous = State;
+        VehiclePhysicsState physics;
+        VehicleState movement;
+        if (previous.CanInteract)
+        {
+            VehicleObservation observation = observe(previous);
+            physics = observation.Physics;
+            var predictor = new VehicleMovement(new(), physics);
+            predictor.Restore(previous.Movement);
+            movement = predictor.Step(frame, physics, observation.Support, true, observation.Surface, observation.Wheels);
+        }
+        else
+        {
+            physics = new VehiclePhysicsState(previous.Movement.Physics.Position, previous.Movement.Physics.Orientation, Vector3.Zero, Vector3.Zero);
+            movement = new VehicleState(frame.Tick, physics, false, false, 0, 0);
+        }
+
+        // Prediction owns movement only: collision observations cannot kill, heal or respawn a player.
+        Restore(new VehicleSnapshot(_vehicle, previous.LifeId, movement, previous.Damage, physics, lifecycle: previous.Lifecycle, respawnAtTick: previous.RespawnAtTick));
     }
 }

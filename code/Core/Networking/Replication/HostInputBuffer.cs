@@ -23,6 +23,16 @@ public sealed class HostInputBuffer
     /// <summary>Last command consumed or explicitly retired after a loss gap.</summary>
     public uint LastAcknowledged { get; private set; }
 
+    /// <summary>Clears buffered and held controls at a lifecycle boundary without rewinding ordering.</summary>
+    public void NeutralizePending()
+    {
+        _held = default;
+        foreach (uint sequence in _pending.Keys.ToArray())
+        {
+            _pending[sequence] = new SequencedInput(sequence, default);
+        }
+    }
+
     /// <summary>Accepts only ordered, bounded windows newer than the last accepted packet.</summary>
     /// <param name="inputs">Current and recent commands in ascending sequence order.</param>
     /// <returns>False for malformed, stale, duplicate or excessive-future input.</returns>

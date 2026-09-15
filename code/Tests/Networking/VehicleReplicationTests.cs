@@ -9,6 +9,21 @@ namespace Trackstorm.Core.Tests.Networking;
 [TestFixture]
 internal sealed class VehicleReplicationTests
 {
+    /// <summary>Lifecycle contact filtering and movement-only prediction retain the same wheel observations.</summary>
+    [Test]
+    public void HostAndPredictionPreserveWheelSupport()
+    {
+        var host = new HostVehicleSession(99);
+        var wheels = new WheelSupport(new Vector4(0.12f, 0.08f, 0.06f, 0.1f));
+        VehicleObservation Supported(VehicleSnapshot state) => new(state.Movement.Physics, Vector3.UnitY, wheels: wheels);
+        host.Step(Drive(), Supported);
+        var prediction = new PredictedVehicle(host.Snapshot().Vehicles.Single());
+        prediction.Predict(Drive(12000), Supported);
+        host.Step(Drive(12000), Supported);
+        Assert.That(host.World.GetVehicle(1).Movement.Wheels, Is.EqualTo(wheels));
+        Assert.That(prediction.State.Movement, Is.EqualTo(host.World.GetVehicle(1).Movement));
+    }
+
     /// <summary>Serial arithmetic distinguishes wrap, equality, stale values and ambiguity.</summary>
     /// <param name="candidate">Potentially newer identity.</param>
     /// <param name="previous">Reference identity.</param>
@@ -226,7 +241,8 @@ internal sealed class VehicleReplicationTests
         var decoded = VehicleNetworkCodec.DecodeInputs(packet);
         Assert.That(decoded.Session, Is.EqualTo(99));
         Assert.That(decoded.Inputs, Is.EqualTo(inputs));
-        packet[12] = 255;
+        Assert.That(decoded.Life, Is.EqualTo(1));
+        packet[20] = 255;
         Assert.Throws<ArgumentException>(() => VehicleNetworkCodec.DecodeInputs(packet));
     }
 

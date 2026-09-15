@@ -17,6 +17,8 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     private ShaderMaterial _damageMaterial = null!;
     private float _previousHP = 100;
     private float _flash;
+    private ulong _life;
+    private bool _lifeCorrectionPending;
     /// <summary>Host-assigned identity used only to attribute contact observations.</summary>
     internal ulong VehicleId { get; init; }
     /// <summary>Only authoritative forward steps may apply native prop impulses.</summary>
@@ -25,6 +27,8 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     internal CorrectionSmoothing Smoothing { get; } = new();
     /// <summary>Displayed position for the local chase camera.</summary>
     internal Vector3 VisualPosition => _visual.GlobalPosition;
+    /// <summary>Visibility of the vehicle presentation, independent of collision state.</summary>
+    internal bool IsPresented => _visual.Visible;
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -77,6 +81,11 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     /// <returns>Solved numeric physics/support/contact observations for the next Core step.</returns>
     internal VehicleObservation Observe(VehicleSnapshot snapshot)
     {
+        if (!snapshot.CanInteract)
+        {
+            return new VehicleObservation(snapshot.Movement.Physics, Numerics.Vector3.Zero);
+        }
+
         VehiclePhysicsState state = snapshot.Movement.Physics;
         Vector3 velocity = VehicleBody.ToGodot(state.LinearVelocity);
         Vector3 angular = VehicleBody.ToGodot(state.AngularVelocity);
@@ -204,6 +213,43 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         _initialized = true;
         GlobalTransform = new Transform3D(new Basis(VehicleBody.ToGodot(state.Orientation)), VehicleBody.ToGodot(state.Position));
         ConstantLinearVelocity = VehicleBody.ToGodot(state.LinearVelocity);
+        ConstantAngularVelocity = VehicleBody.ToGodot(state.AngularVelocity);
+    }
+
+    /// <summary>Applies the existing complete aggregate to native and presentation state.</summary>
+    /// <param name="state">Current authority or movement-only prediction.</param>
+    /// <param name="correction">Whether replacing the current prediction.</param>
+    internal void Apply(VehicleSnapshot state, bool correction = false)
+    {
+        SynchronizeLifecycle(state);
+        Apply(state.Movement.Physics, correction && !_lifeCorrectionPending);
+        PresentHandling(state.Movement);
+        if (correction)
+        {
+            _lifeCorrectionPending = false;
+        }
+    }
+
+    /// <summary>Reconstructs participation and resets visual memory when the authoritative life changes.</summary>
+    /// <param name="state">Freshest accepted aggregate, never an old reliable outcome.</param>
+    internal void SynchronizeLifecycle(VehicleSnapshot state)
+    {
+        if (_life != state.LifeId)
+        {
+            _life = state.LifeId;
+            _initialized = false;
+            _lifeCorrectionPending = true;
+            Smoothing.Reset();
+            _flash = 0;
+            _previousHP = state.Damage.CurrentHP;
+            Apply(state.Movement.Physics);
+            PresentRemote(state.Movement.Physics);
+        }
+
+        CollisionLayer = state.CanInteract ? 2u : 0u;
+        CollisionMask = state.CanInteract ? 3u : 0u;
+        _visual.Visible = state.CanInteract;
+        PresentDamage(state.Damage);
     }
 
     /// <summary>Applies a render-time remote pose directly without feeding it into gameplay state.</summary>

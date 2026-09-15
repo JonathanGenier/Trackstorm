@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace Trackstorm.Core.Vehicles;
 
-/// <summary>Version-one complete aggregate envelope; nested version-three movement payloads include handling state.</summary>
+/// <summary>Version-two complete aggregate envelope including authoritative lifecycle and deadline.</summary>
 public static class VehicleSnapshotCodec
 {
     private static readonly JsonSerializerOptions Options = new() { IncludeFields = true, MaxDepth = 16 };
@@ -14,26 +14,26 @@ public static class VehicleSnapshotCodec
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         var observed = new VehicleState(snapshot.Movement.Tick, snapshot.ObservedPhysics, false, false, 0, 0);
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new Document(snapshot.VehicleId, snapshot.LifeId, VehicleStateCodec.Encode(snapshot.Movement), VehicleStateCodec.Encode(observed), snapshot.Damage, snapshot.Effects.ToArray()), Options);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new Document(snapshot.VehicleId, snapshot.LifeId, VehicleStateCodec.Encode(snapshot.Movement), VehicleStateCodec.Encode(observed), snapshot.Damage, snapshot.Effects.ToArray(), snapshot.Lifecycle, snapshot.RespawnAtTick), Options);
         if (json.Length > 65535)
         {
             throw new ArgumentException("Vehicle aggregate exceeds the supported envelope size.", nameof(snapshot));
         }
 
         byte[] bytes = new byte[json.Length + 1];
-        bytes[0] = 1;
+        bytes[0] = 2;
         json.CopyTo(bytes, 1);
         return bytes;
     }
 
     /// <summary>Rejects unknown versions, oversized/truncated payloads and invalid nested gameplay state.</summary>
-    /// <param name="bytes">One version-one aggregate envelope.</param>
+    /// <param name="bytes">One version-two aggregate envelope.</param>
     /// <returns>Validated vehicle state, independent of any native object.</returns>
     public static VehicleSnapshot Decode(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length is < 2 or > 65536 || bytes[0] != 1)
+        if (bytes.Length is < 2 or > 65536 || bytes[0] != 2)
         {
-            throw new ArgumentException("Expected a bounded version-one vehicle aggregate.", nameof(bytes));
+            throw new ArgumentException("Expected a bounded version-two vehicle aggregate.", nameof(bytes));
         }
 
         try
@@ -46,7 +46,7 @@ public static class VehicleSnapshotCodec
                 throw new ArgumentException("Malformed solved-state envelope.");
             }
 
-            return new VehicleSnapshot(document.VehicleId, document.LifeId, movement, document.Damage, observed.Physics, document.Effects);
+            return new VehicleSnapshot(document.VehicleId, document.LifeId, movement, document.Damage, observed.Physics, document.Effects, document.Lifecycle, document.RespawnAtTick);
         }
         catch (JsonException exception)
         {
@@ -54,5 +54,5 @@ public static class VehicleSnapshotCodec
         }
     }
 
-    private sealed record Document(ulong VehicleId, ulong LifeId, byte[] Movement, byte[] Observed, VehicleDamageState Damage, VehicleEffectRequest[] Effects);
+    private sealed record Document(ulong VehicleId, ulong LifeId, byte[] Movement, byte[] Observed, VehicleDamageState Damage, VehicleEffectRequest[] Effects, VehicleLifecycle Lifecycle, ulong? RespawnAtTick);
 }
