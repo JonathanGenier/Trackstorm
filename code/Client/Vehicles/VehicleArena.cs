@@ -13,6 +13,7 @@ public sealed partial class VehicleArena : Node3D
     private readonly Label _title = new() { Text = "LOCAL VEHICLE ARENA" };
     private readonly Label _instructions = new() { Text = "Drive / brake / steer with your bindings. Hold drift through a turn, then release for boost.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly List<VehicleBody> _vehicles = new();
+    private readonly VehicleDestructionEffects _destruction = new();
     private MeshInstance3D? _blast;
     private float _blastSeconds;
     private Arenas.CombatArena? _layout;
@@ -23,7 +24,7 @@ public sealed partial class VehicleArena : Node3D
     internal IReadOnlyList<VehicleBody> Vehicles => _vehicles;
 
     /// <summary>The sole gameplay simulation, shared by every native adapter.</summary>
-    internal Trackstorm.Core.Simulation.Simulation Simulation { get; } = new(new Trackstorm.Core.Simulation.SimulationConfiguration(60));
+    internal Trackstorm.Core.Simulation.Simulation Simulation { get; private set; } = new(new Trackstorm.Core.Simulation.SimulationConfiguration(60));
 
     /// <summary>Controllable local vehicle.</summary>
     internal VehicleBody Player { get; private set; } = null!;
@@ -35,6 +36,12 @@ public sealed partial class VehicleArena : Node3D
     /// <inheritdoc/>
     public override void _Ready()
     {
+        if (!LegacyTestLayout)
+        {
+            Simulation = new Trackstorm.Core.Simulation.Simulation(new Trackstorm.Core.Simulation.SimulationConfiguration(60), new RespawnConfiguration());
+        }
+
+        AddChild(_destruction);
         AddChild(new WorldEnvironment
         {
             Environment = new Godot.Environment
@@ -143,7 +150,7 @@ public sealed partial class VehicleArena : Node3D
         _status.Text = state.BoostTicks > 0 ? "BOOST" : state.Drifting ? "DRIFT — hold your turn to charge" : state.Grounded ? "GROUNDED" : "AIRBORNE";
         _status.Text += $"  •  {state.CurrentSurface}";
         VehicleDamageState health = Player.DamageState;
-        _health.Text = health.Destroyed ? "DESTROYED — reset vehicles to drive again" : $"HP  {health.CurrentHP:0} / {health.MaxHP:0}     Target HP  {Target.DamageState.CurrentHP:0} / {Target.DamageState.MaxHP:0}";
+        _health.Text = health.Destroyed ? (LegacyTestLayout ? "DESTROYED — reset vehicles to drive again" : $"{Player.Snapshot.Lifecycle.ToString().ToUpperInvariant()} — returning to arena") : $"HP  {health.CurrentHP:0} / {health.MaxHP:0}     Target HP  {Target.DamageState.CurrentHP:0} / {Target.DamageState.MaxHP:0}";
         _health.Modulate = health.Destroyed ? new Color("ff906b") : Colors.White;
         if (_blast is not null)
         {
@@ -163,6 +170,7 @@ public sealed partial class VehicleArena : Node3D
     {
         var neutral = new InputFrame(input.Tick, 0, 0, 0, InputButtons.None, InputButtons.None, InputButtons.None);
         IReadOnlyList<VehicleStepResult> results = Simulation.Step(input, _vehicles.Select(vehicle => vehicle.Capture(vehicle == Player ? input : neutral)).ToArray());
+        _destruction.Apply(Simulation.State.Vehicles);
         for (int index = 0; index < _vehicles.Count; index++)
         {
             _vehicles[index].Apply(results[index]);
@@ -178,6 +186,11 @@ public sealed partial class VehicleArena : Node3D
     /// <param name="center">World-space blast center.</param>
     internal void Explode(Vector3 center)
     {
+        if (!Player.Snapshot.CanInteract)
+        {
+            return;
+        }
+
         foreach (VehicleBody vehicle in _vehicles)
         {
             DamageEffect effect = VehicleDamageMath.Explosion(VehicleBody.ToCore(center), VehicleBody.ToCore(vehicle.GlobalPosition), 8, 55, 15000, new System.Numerics.Vector3(0.7f, 0.25f, -0.6f));

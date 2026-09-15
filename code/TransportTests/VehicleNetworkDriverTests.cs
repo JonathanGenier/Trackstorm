@@ -205,6 +205,76 @@ internal sealed class VehicleNetworkDriverTests
         Assert.That(host.Host.World.State.Tick, Is.EqualTo(7));
     }
 
+    /// <summary>Reliable lifecycle events survive newer unreliable poses without rewinding gameplay or duplicating hooks.</summary>
+    [Test]
+    public void DelayedReliableDeathDoesNotRewindRespawn()
+    {
+        using var gateway = ConnectedGateway();
+        var client = new VehicleNetworkDriver(gateway, 0, ServerPeer);
+        var authority = new HostVehicleSession(Session, respawnConfiguration: new RespawnConfiguration { DelayTicks = 2 });
+        authority.Join(ServerPeer);
+        var boundaries = new List<WorldSnapshot>();
+        client.LifecycleReceived += boundaries.Add;
+        gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeWelcome(Session, 2), TransportDelivery.Reliable));
+        authority.Step(default, state => state.VehicleId == 2
+            ? new VehicleObservation(state.ObservedPhysics, Vector3.UnitY, [new VehicleContact(-Vector3.UnitX * 100, Vector3.UnitX, 0, 0)]) : Observe(state));
+        byte[] death = VehicleNetworkCodec.EncodeSnapshot(authority.Snapshot());
+        authority.Step(default, Observe);
+        byte[] waiting = VehicleNetworkCodec.EncodeSnapshot(authority.Snapshot());
+        authority.Step(default, Observe);
+        byte[] respawn = VehicleNetworkCodec.EncodeSnapshot(authority.Snapshot());
+        gateway.Receive(new TransportMessage(ServerPeer, respawn, TransportDelivery.Unreliable));
+        client.Advance(default, Observe);
+        ulong latest = client.Latest!.Tick;
+        gateway.Receive(new TransportMessage(ServerPeer, death, TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, waiting, TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, respawn, TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, death, TransportDelivery.Reliable));
+        client.Advance(default, Observe);
+        Assert.That(boundaries.Select(world => world.Vehicles.Single(vehicle => vehicle.State.VehicleId == 2).State.Lifecycle), Is.EqualTo(new[] { VehicleLifecycle.Dead, VehicleLifecycle.Respawning, VehicleLifecycle.Alive }));
+        Assert.That(client.Latest.Tick, Is.EqualTo(latest));
+        Assert.That(client.LocalState!.LifeId, Is.EqualTo(2));
+        Assert.That(client.LocalState.CanInteract, Is.True);
+        gateway.Receive(new TransportMessage(ServerPeer + 1, death, TransportDelivery.Reliable));
+        client.Advance(default, Observe);
+        Assert.That(boundaries.Count, Is.EqualTo(3));
+    }
+
+    /// <summary>Collision deaths publish reliably even when no inventory changes and the tick misses snapshot cadence.</summary>
+    [Test]
+    public void HostPublishesEveryLifecycleBoundaryReliably()
+    {
+        using var gateway = ConnectedGateway();
+        var host = new VehicleNetworkDriver(gateway, Session);
+        host.Advance(default, Observe);
+        gateway.Sent.Clear();
+        host.Advance(default, state => state.VehicleId == 2
+            ? new VehicleObservation(state.ObservedPhysics, Vector3.UnitY, [new VehicleContact(-Vector3.UnitX * 100, Vector3.UnitX, 0, 0)]) : Observe(state));
+        TransportMessage death = gateway.Sent.Single(message => VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Snapshot);
+        Assert.That(death.Delivery, Is.EqualTo(TransportDelivery.Reliable));
+        Assert.That(VehicleNetworkCodec.DecodeSnapshot(death.Payload.Span).Vehicles.Single(vehicle => vehicle.State.VehicleId == 2).State.Lifecycle, Is.EqualTo(VehicleLifecycle.Dead));
+        gateway.Sent.Clear();
+        host.Advance(default, Observe);
+        Assert.That(gateway.Sent.Any(message => message.Delivery == TransportDelivery.Reliable && VehicleNetworkCodec.DecodeSnapshot(message.Payload.Span).Vehicles.Single(vehicle => vehicle.State.VehicleId == 2).State.Lifecycle == VehicleLifecycle.Respawning), Is.True);
+    }
+
+    /// <summary>A same-tick leave/join still reliably initializes the new peer despite unchanged roster size.</summary>
+    [Test]
+    public void ReplacementPeerReceivesReliableCurrentLifecycleAndItems()
+    {
+        using var gateway = ConnectedGateway();
+        var host = new VehicleNetworkDriver(gateway, Session);
+        host.Advance(default, Observe);
+        gateway.Sent.Clear();
+        gateway.Disconnect(ServerPeer);
+        gateway.ConnectPeer(ServerPeer + 1);
+        host.Advance(default, Observe);
+        var replacement = gateway.Sent.Where(message => message.RemotePeerId == ServerPeer + 1 && message.Delivery == TransportDelivery.Reliable).ToArray();
+        Assert.That(replacement.Any(message => Trackstorm.Core.Items.ItemCodec.IsItem(message.Payload.Span)), Is.True);
+        TransportMessage lifecycle = replacement.Single(message => !Trackstorm.Core.Items.ItemCodec.IsItem(message.Payload.Span) && VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Snapshot);
+        Assert.That(VehicleNetworkCodec.DecodeSnapshot(lifecycle.Payload.Span).Vehicles.Select(vehicle => vehicle.State.VehicleId), Is.EqualTo(new ulong[] { 1, 3 }));
+    }
+
     private static DriverGateway ConnectedGateway() => new(ServerPeer, TransportConnectionState.Connected);
 
     private static SequencedInput[] DecodeLastInputs(DriverGateway gateway) => VehicleNetworkCodec.DecodeInputs(gateway.Sent[^1].Payload.Span).Inputs;
@@ -284,5 +354,6 @@ internal sealed class VehicleNetworkDriverTests
         public TransportStatistics GetStatistics(ulong peerId) => default;
 
         internal void Receive(TransportMessage message) => _received.Enqueue(message);
+        internal void ConnectPeer(ulong peer) => _connections.Add(peer, TransportConnectionState.Connected);
     }
 }

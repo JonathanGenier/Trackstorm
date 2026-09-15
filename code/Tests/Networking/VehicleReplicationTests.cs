@@ -226,7 +226,8 @@ internal sealed class VehicleReplicationTests
         var decoded = VehicleNetworkCodec.DecodeInputs(packet);
         Assert.That(decoded.Session, Is.EqualTo(99));
         Assert.That(decoded.Inputs, Is.EqualTo(inputs));
-        packet[12] = 255;
+        Assert.That(decoded.Life, Is.EqualTo(1));
+        packet[20] = 255;
         Assert.Throws<ArgumentException>(() => VehicleNetworkCodec.DecodeInputs(packet));
     }
 

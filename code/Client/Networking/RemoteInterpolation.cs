@@ -20,7 +20,8 @@ internal sealed class RemoteInterpolation
     /// <param name="vehicleId">Remote gameplay identity.</param>
     /// <param name="tick">Presentation cursor.</param>
     /// <returns>A presentation-only physics pose, or null if the vehicle has no retained sample.</returns>
-    internal static VehiclePhysicsState? Sample(SnapshotHistory history, ulong vehicleId, double tick)
+    /// <param name="lifeId">Optional current visible life; excludes stale poses after a reliable respawn.</param>
+    internal static VehiclePhysicsState? Sample(SnapshotHistory history, ulong vehicleId, double tick, ulong? lifeId = null)
     {
         if (!double.IsFinite(tick))
         {
@@ -31,7 +32,7 @@ internal sealed class RemoteInterpolation
         foreach (WorldSnapshot world in history.Snapshots)
         {
             VehicleSnapshot? current = world.Vehicles.FirstOrDefault(vehicle => vehicle.State.VehicleId == vehicleId)?.State;
-            if (current is null)
+            if (current is null || (lifeId.HasValue && current.LifeId != lifeId.Value))
             {
                 continue;
             }

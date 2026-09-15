@@ -5,14 +5,14 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Networking.Replication;
 
-/// <summary>Versioned binary gameplay messages, separate from future reliable combat events.</summary>
+/// <summary>Version-three binary gameplay messages with life-scoped inputs and authoritative lifecycle state.</summary>
 public static class VehicleNetworkCodec
 {
     /// <summary>Reliable session assignment message kind.</summary>
     public const byte Welcome = 1;
     /// <summary>Unreliable redundant input message kind.</summary>
     public const byte Inputs = 2;
-    /// <summary>Unreliable full vehicle snapshot message kind.</summary>
+    /// <summary>Full vehicle snapshot; reliable on lifecycle boundaries and unreliable for periodic movement.</summary>
     public const byte Snapshot = 3;
     /// <summary>Full authoritative prototype prop publication.</summary>
     public const byte Props = 4;
@@ -23,7 +23,7 @@ public static class VehicleNetworkCodec
     /// <returns>Recognized message kind.</returns>
     public static byte Kind(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || bytes[0] != 0x54 || bytes[1] != 0x53 || bytes[2] != 2 || bytes[3] is < Welcome or > Props)
+        if (bytes.Length is < 4 or > MaximumBytes || bytes[0] != 0x54 || bytes[1] != 0x53 || bytes[2] != 3 || bytes[3] is < Welcome or > Props)
         {
             throw new ArgumentException("Invalid vehicle network header.");
         }
@@ -97,7 +97,8 @@ public static class VehicleNetworkCodec
     /// <param name="session">Negotiated host generation.</param>
     /// <param name="inputs">Ordered recent inputs.</param>
     /// <returns>Unreliable input payload.</returns>
-    public static byte[] EncodeInputs(ulong session, IReadOnlyList<SequencedInput> inputs) => Write(Inputs, writer =>
+    /// <param name="life">Life observed when capturing the input window.</param>
+    public static byte[] EncodeInputs(ulong session, IReadOnlyList<SequencedInput> inputs, ulong life = 1) => Write(Inputs, writer =>
     {
         if (session == 0 || inputs.Count is < 1 or > InputHistory.Redundancy)
         {
@@ -105,6 +106,8 @@ public static class VehicleNetworkCodec
         }
 
         writer.Write(session);
+        ArgumentOutOfRangeException.ThrowIfZero(life);
+        writer.Write(life);
         writer.Write((byte)inputs.Count);
         foreach (SequencedInput input in inputs)
         {
@@ -118,11 +121,12 @@ public static class VehicleNetworkCodec
     /// <summary>Decodes bounded input; host ordering and sender validation remain mandatory.</summary>
     /// <param name="bytes">Complete input payload.</param>
     /// <returns>Session and input window.</returns>
-    public static (ulong Session, SequencedInput[] Inputs) DecodeInputs(ReadOnlySpan<byte> bytes) => Read(bytes, Inputs, reader =>
+    public static (ulong Session, SequencedInput[] Inputs, ulong Life) DecodeInputs(ReadOnlySpan<byte> bytes) => Read(bytes, Inputs, reader =>
     {
         ulong session = reader.ReadUInt64();
+        ulong life = reader.ReadUInt64();
         byte count = reader.ReadByte();
-        if (session == 0 || count is < 1 or > InputHistory.Redundancy)
+        if (session == 0 || life == 0 || count is < 1 or > InputHistory.Redundancy)
         {
             throw new ArgumentException("Invalid input window size.");
         }
@@ -133,7 +137,7 @@ public static class VehicleNetworkCodec
             inputs[i] = new SequencedInput(reader.ReadUInt32(), InputFrame.Read(reader.ReadBytes(InputFrame.SerializedSize)));
         }
 
-        return (session, inputs);
+        return (session, inputs, life);
     });
 
     /// <summary>Encodes all active vehicles compactly, retaining replay-critical collision and movement memory.</summary>
@@ -149,6 +153,13 @@ public static class VehicleNetworkCodec
             VehicleSnapshot state = vehicle.State;
             writer.Write(state.VehicleId);
             writer.Write(state.LifeId);
+            writer.Write((byte)state.Lifecycle);
+            writer.Write(state.RespawnAtTick.HasValue);
+            if (state.RespawnAtTick is ulong deadline)
+            {
+                writer.Write(deadline);
+            }
+
             writer.Write(vehicle.AcknowledgedInput);
             writer.Write(VehicleStateCodec.Encode(state.Movement));
             WriteVector(writer, state.ObservedPhysics.LinearVelocity);
@@ -209,6 +220,8 @@ public static class VehicleNetworkCodec
         {
             ulong id = reader.ReadUInt64();
             ulong life = reader.ReadUInt64();
+            var lifecycle = (VehicleLifecycle)reader.ReadByte();
+            ulong? deadline = ReadFlag(reader) ? reader.ReadUInt64() : null;
             uint ack = reader.ReadUInt32();
             VehicleState movement = VehicleStateCodec.Decode(reader.ReadBytes(VehicleStateCodec.SerializedSize));
             var observed = new VehiclePhysicsState(movement.Physics.Position, movement.Physics.Orientation, ReadVector(reader), ReadVector(reader));
@@ -228,7 +241,7 @@ public static class VehicleNetworkCodec
             float hp = reader.ReadSingle();
             DamageEvent? damage = ReadFlag(reader) ? new DamageEvent(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadSingle(), new DamageContext(reader.ReadString(), reader.ReadUInt64(), reader.ReadString()), ReadFlag(reader)) : null;
             ulong? collision = ReadFlag(reader) ? reader.ReadUInt64() : null;
-            var state = new VehicleSnapshot(id, life, movement, new VehicleDamageState(maxHP, hp, damage, collision), observed, effects);
+            var state = new VehicleSnapshot(id, life, movement, new VehicleDamageState(maxHP, hp, damage, collision), observed, effects, lifecycle, deadline);
             // Reject snapshots that cannot be restored under the negotiated fixed tuning.
             new VehicleMovement(new(), observed).Restore(movement);
             if (maxHP != new DamageConfiguration().MaxHP)
@@ -246,7 +259,7 @@ public static class VehicleNetworkCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, new UTF8Encoding(false, true), true);
-        writer.Write(new byte[] { 0x54, 0x53, 2, kind });
+        writer.Write(new byte[] { 0x54, 0x53, 3, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
