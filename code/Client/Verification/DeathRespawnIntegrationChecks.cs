@@ -255,7 +255,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
                 pose = new VehiclePhysicsState(new Numerics.Vector3(-40, 0.6f, 5), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
             }
 
-            return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(100, state.VehicleId == _victim ? 20 : 100, null, null), pose);
+            return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(state.Damage.MaxHP, state.VehicleId == _victim ? 20 : state.Damage.MaxHP, null, null), pose);
         }).ToArray();
         host.World.Restore(new SimulationState(host.World.State.Tick, host.World.State.LastInput, states, host.World.State.Match));
         Require(host.Items.Grant(host.World, _victim, HeldItem.Wrench), "Victim holds an item before death.");

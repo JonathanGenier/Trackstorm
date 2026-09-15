@@ -14,6 +14,7 @@ public sealed class HostVehicleSession
     /// <summary>Snapshots at 20 Hz, below the simulation frequency.</summary>
     public const int SnapshotInterval = 3;
     private readonly Dictionary<ulong, (ulong Vehicle, HostInputBuffer Inputs, int SpawnSlot)> _peers = new();
+    private readonly DamageConfiguration _damageConfiguration;
     private ulong _nextVehicle = 1;
 
     /// <summary>Starts one host vehicle in a caller-identified session.</summary>
@@ -21,13 +22,16 @@ public sealed class HostVehicleSession
     /// <param name="itemConfiguration">Optional authoritative item tuning.</param>
     /// <param name="respawnConfiguration">Optional host lifecycle tuning.</param>
     /// <param name="matchConfiguration">Optional match tuning; scoring always uses the shared simulation.</param>
-    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null)
+    /// <param name="damageConfiguration">Vehicle health tuning for this arena.</param>
+    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null, DamageConfiguration? damageConfiguration = null)
     {
         ArgumentOutOfRangeException.ThrowIfZero(sessionId);
         SessionId = sessionId;
+        _damageConfiguration = damageConfiguration ?? new();
+        _damageConfiguration.Validate();
         World = new Simulation.Simulation(new SimulationConfiguration(TickRate), respawnConfiguration ?? new(), match: matchConfiguration ?? new());
         Items = new ItemAuthority(itemConfiguration);
-        World.AddVehicle(1, new(), new(), Spawn(0));
+        World.AddVehicle(1, new(), _damageConfiguration, Spawn(0));
     }
 
     /// <summary>Caller-provided session generation.</summary>
@@ -84,7 +88,7 @@ public sealed class HostVehicleSession
 
         ulong id = checked(++_nextVehicle);
         int spawnSlot = Enumerable.Range(1, 7).First(slot => _peers.Values.All(entry => entry.SpawnSlot != slot));
-        World.JoinVehicle(id, new(), new(), Spawn(spawnSlot));
+        World.JoinVehicle(id, new(), _damageConfiguration, Spawn(spawnSlot));
         _peers.Add(peer, (id, new HostInputBuffer(), spawnSlot));
         return id;
     }
@@ -100,7 +104,7 @@ public sealed class HostVehicleSession
         }
 
         int slot = Enumerable.Range(1, 7).First(candidate => _peers.Values.All(entry => entry.SpawnSlot != candidate));
-        World.JoinVehicle(playerId, new(), new(), Spawn(slot));
+        World.JoinVehicle(playerId, new(), _damageConfiguration, Spawn(slot));
         _peers.Add(peer, (playerId, new HostInputBuffer(), slot));
         _nextVehicle = Math.Max(_nextVehicle, playerId);
     }

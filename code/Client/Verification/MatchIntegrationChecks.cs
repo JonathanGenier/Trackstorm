@@ -79,6 +79,11 @@ public sealed partial class MatchIntegrationChecks : Node
             arena.Initialize(gateway, index == 0 ? 260ul : 0, server);
             viewport.AddChild(arena);
             _arenas.Add(arena);
+            if (index == 1)
+            {
+                viewport.AddChild(new Hud.CombatHud { Vehicle = () => arena.LocalState, Slot = () => arena.Driver.LocalItem });
+            }
+
             int peerIndex = index;
             arena.Driver.MatchReceived += match =>
             {
@@ -295,7 +300,7 @@ public sealed partial class MatchIntegrationChecks : Node
                 pose = new VehiclePhysicsState(new Numerics.Vector3(-40, 0.6f, _cycle % 2 == 0 ? 5 : 1), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
             }
 
-            return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(100, state.VehicleId == _victim ? 20 : 100, null, null), pose);
+            return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(state.Damage.MaxHP, state.VehicleId == _victim ? 20 : state.Damage.MaxHP, null, null), pose);
         }).ToArray();
         host.World.Restore(new SimulationState(host.World.State.Tick, host.World.State.LastInput, states, host.World.State.Match));
         Require(host.Items.Grant(host.World, _victim, HeldItem.Wrench), "Victim holds an item before death.");

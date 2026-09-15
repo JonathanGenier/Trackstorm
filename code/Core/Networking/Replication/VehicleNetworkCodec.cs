@@ -244,10 +244,7 @@ public static class VehicleNetworkCodec
             var state = new VehicleSnapshot(id, life, movement, new VehicleDamageState(maxHP, hp, damage, collision), observed, effects, lifecycle, deadline);
             // Reject snapshots that cannot be restored under the negotiated fixed tuning.
             new VehicleMovement(new(), observed).Restore(movement);
-            if (maxHP != new DamageConfiguration().MaxHP)
-            {
-                throw new ArgumentException("Unsupported network health tuning.");
-            }
+            new DamageConfiguration { MaxHP = maxHP }.Validate();
 
             vehicles[i] = new ReplicatedVehicle(state, ack);
         }

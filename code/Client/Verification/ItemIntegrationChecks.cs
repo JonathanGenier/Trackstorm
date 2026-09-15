@@ -17,6 +17,7 @@ public sealed partial class ItemIntegrationChecks : Node
 {
     private readonly List<GameNetworkingSocketsTransport> _gateways = new();
     private readonly List<NetworkVehicleArena> _arenas = new();
+    private readonly List<Hud.CombatHud> _huds = new();
     private readonly List<List<ItemEvent>> _events = new();
     private readonly List<Dictionary<ulong, ItemPublication>> _outcomes = new();
     private readonly List<string> _evidence = new();
@@ -85,6 +86,9 @@ public sealed partial class ItemIntegrationChecks : Node
             arena.Initialize(gateway, index == 0 ? 88ul : 0, server);
             viewport.AddChild(arena);
             _arenas.Add(arena);
+            var hud = new Hud.CombatHud { Vehicle = () => arena.LocalState, Slot = () => arena.Driver.LocalItem };
+            viewport.AddChild(hud);
+            _huds.Add(hud);
             var events = new List<ItemEvent>();
             _events.Add(events);
             var outcomes = new Dictionary<ulong, ItemPublication>();
@@ -129,6 +133,16 @@ public sealed partial class ItemIntegrationChecks : Node
             }
 
             Scenario();
+            foreach (var hud in _huds)
+            {
+                hud.Refresh();
+                if (hud.Vehicle() is VehicleSnapshot state)
+                {
+                    Require(hud.HealthText == Hud.CombatHudView.FormatHealth(state.Damage.CurrentHP, state.Damage.MaxHP), "HUD receives replicated health immediately.");
+                    Require(Math.Abs(hud.HealthFill - Hud.CombatHudView.NormalizeHealth(state.Damage.CurrentHP, state.Damage.MaxHP)) < 0.00001, "HUD replicated health fill.");
+                    Require(hud.Displayed!.Item == (state.CanInteract ? hud.Slot()?.Item ?? HeldItem.None : HeldItem.None), "HUD confirmed inventory follows pickup/use.");
+                }
+            }
         }
         catch (Exception exception)
         {
@@ -160,7 +174,7 @@ public sealed partial class ItemIntegrationChecks : Node
                 Next("All eight use Wrench at full HP, including repeated requests.");
                 break;
             case 2 when AllHeld(HeldItem.None):
-                Require(host.World.State.Vehicles.All(vehicle => vehicle.Damage.CurrentHP == 100), "Full HP Wrench heals zero.");
+                Require(host.World.State.Vehicles.All(vehicle => vehicle.Damage.CurrentHP == vehicle.Damage.MaxHP), "Full HP Wrench heals zero.");
                 Require(_events.All(events => events.Count(outcome => outcome.Item == HeldItem.Wrench) == 8), "Exactly eight repair outcomes on every peer.");
                 SetWorld(40);
                 _arenas[0].GrantItems(HeldItem.Wrench);
@@ -311,7 +325,7 @@ public sealed partial class ItemIntegrationChecks : Node
             }
 
             var pose = new VehiclePhysicsState(position, Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
-            return new VehicleSnapshot(vehicle.VehicleId, vehicle.LifeId, new VehicleState(world.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(100, hp, null, null), pose);
+            return new VehicleSnapshot(vehicle.VehicleId, vehicle.LifeId, new VehicleState(world.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(vehicle.Damage.MaxHP, hp, null, null), pose);
         }).ToArray();
         world.Restore(new SimulationState(world.State.Tick, world.State.LastInput, states, world.State.Match));
     }

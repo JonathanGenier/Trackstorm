@@ -30,7 +30,8 @@ internal sealed class VehicleNetworkDriver
     /// <param name="hostSession">Nonzero host generation, or zero for a client.</param>
     /// <param name="serverPeer">Client's actual transport server identity.</param>
     /// <param name="lobby">Optional authoritative lobby which has entered an arena.</param>
-    internal VehicleNetworkDriver(ITransportGateway gateway, ulong hostSession, ulong serverPeer = 0, LobbyNetworkDriver? lobby = null)
+    /// <param name="damageConfiguration">Optional arena vehicle capacity.</param>
+    internal VehicleNetworkDriver(ITransportGateway gateway, ulong hostSession, ulong serverPeer = 0, LobbyNetworkDriver? lobby = null, DamageConfiguration? damageConfiguration = null)
     {
         _lobby = lobby;
         _gateway = gateway;
@@ -38,7 +39,7 @@ internal sealed class VehicleNetworkDriver
         _session = hostSession;
         if (hostSession != 0)
         {
-            Host = new HostVehicleSession(hostSession);
+            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration);
             LocalVehicleId = 1;
         }
 

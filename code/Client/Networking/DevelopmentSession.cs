@@ -84,7 +84,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _menu.AddChild(_ready);
         _menu.AddChild(_start);
         _menu.AddChild(_leave);
-        var matchBar = new HBoxContainer { AnchorTop = 1, AnchorBottom = 1, OffsetLeft = 24, OffsetTop = -55, OffsetBottom = -16 };
+        var matchBar = new HBoxContainer { Position = new Vector2(24, 72) };
         root.AddChild(matchBar);
         matchBar.AddChild(_return);
         var exitArena = new Button { Text = "Leave session" };

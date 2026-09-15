@@ -19,7 +19,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private readonly VehicleDestructionEffects _destruction = new();
     private readonly Items.ItemSpawnPresentation _pickups = new();
     private readonly Label _itemLabel = new();
-    private readonly Label _matchLabel = new();
+    private readonly Label _matchLabel = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private VehicleNetworkDriver _driver = null!;
     private Arenas.CombatArena _layout = null!;
     private ulong _cameraLife;
@@ -114,19 +114,26 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _camera.LookAt(Vector3.Zero);
         var layer = new CanvasLayer();
         AddChild(layer);
-        var panel = new PanelContainer { AnchorRight = 1, OffsetLeft = 190, OffsetTop = 24, OffsetRight = -24, OffsetBottom = 24, GrowVertical = Control.GrowDirection.End, MouseFilter = Control.MouseFilterEnum.Ignore };
+        var matchPanel = new PanelContainer { AnchorRight = 1, OffsetLeft = 24, OffsetRight = -24, OffsetTop = 90, MouseFilter = Control.MouseFilterEnum.Ignore };
+        layer.AddChild(matchPanel);
+        matchPanel.AddChild(_matchLabel);
+        var tools = new VBoxContainer { Position = new Vector2(24, 190) };
+        layer.AddChild(tools);
+        var toggle = new Button { Text = "Arena tools", ToggleMode = true };
+        tools.AddChild(toggle);
+        var content = new VBoxContainer { Visible = false };
+        tools.AddChild(content);
+        toggle.Toggled += visible => content.Visible = visible;
+        var panel = new PanelContainer { CustomMinimumSize = new Vector2(360, 0), MouseFilter = Control.MouseFilterEnum.Ignore };
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("172235"), ContentMarginLeft = 12, ContentMarginRight = 12, ContentMarginTop = 8, ContentMarginBottom = 8 });
-        layer.AddChild(panel);
-        var status = new VBoxContainer();
-        panel.AddChild(status);
-        status.AddChild(_matchLabel);
-        status.AddChild(_diagnostics);
-        var itemPanel = new VBoxContainer { AnchorTop = 1, AnchorBottom = 1, OffsetLeft = 24, OffsetTop = -126, OffsetRight = 460, OffsetBottom = -20 };
-        layer.AddChild(itemPanel);
+        content.AddChild(panel);
+        panel.AddChild(_diagnostics);
+        var itemPanel = new VBoxContainer();
+        content.AddChild(itemPanel);
         itemPanel.AddChild(_itemLabel);
         var use = new Button { Text = "Use held item" };
         use.Pressed += () => _driver.RequestItemUse();
-        itemPanel.AddChild(use);
+        tools.AddChild(use);
         if (_driver.Host is not null)
         {
             var grants = new HBoxContainer();
@@ -204,7 +211,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <param name="lobby">Optional admitted development lobby.</param>
     internal void Initialize(ITransportGateway gateway, ulong session, ulong serverPeer, LobbyNetworkDriver? lobby = null)
     {
-        _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby);
+        _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby, new DamageConfiguration { MaxHP = 1000 });
         _driver.RosterChanged += SynchronizeBodies;
         _driver.LocalCorrected += state => _bodies[state.VehicleId].Apply(state, true);
     }
