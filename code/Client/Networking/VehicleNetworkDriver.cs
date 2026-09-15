@@ -163,7 +163,7 @@ internal sealed class VehicleNetworkDriver
                 byte[] items = ItemCodec.EncodeState(ItemState);
                 foreach (ulong peer in _assigned)
                 {
-                    _gateway.Send(new TransportMessage(peer, items, TransportDelivery.Reliable));
+                    Send(new TransportMessage(peer, items, TransportDelivery.Reliable));
                 }
 
                 _publishedItemRevision = Host.Items.Revision;
@@ -183,10 +183,10 @@ internal sealed class VehicleNetworkDriver
 
                 foreach (ulong peer in _assigned)
                 {
-                    _gateway.Send(new TransportMessage(peer, payload, TransportDelivery.Unreliable));
+                    Send(new TransportMessage(peer, payload, TransportDelivery.Unreliable));
                     if (props is not null)
                     {
-                        _gateway.Send(new TransportMessage(peer, props, TransportDelivery.Unreliable));
+                        Send(new TransportMessage(peer, props, TransportDelivery.Unreliable));
                     }
                 }
             }
@@ -214,7 +214,7 @@ internal sealed class VehicleNetworkDriver
                 Prediction.Predict(input, observe);
             }
 
-            _gateway.Send(new TransportMessage(_serverPeer, VehicleNetworkCodec.EncodeInputs(_session, inputs.GetRedundancy()), TransportDelivery.Unreliable));
+            Send(new TransportMessage(_serverPeer, VehicleNetworkCodec.EncodeInputs(_session, inputs.GetRedundancy()), TransportDelivery.Unreliable));
         }
     }
 
@@ -233,8 +233,32 @@ internal sealed class VehicleNetworkDriver
             return Host.UseItem(0, _session, slot.Life, slot.Token);
         }
 
-        _gateway.Send(new TransportMessage(_serverPeer, ItemCodec.EncodeUse(_session, slot.Life, slot.Token), TransportDelivery.Reliable));
-        return true;
+        return Send(new TransportMessage(_serverPeer, ItemCodec.EncodeUse(_session, slot.Life, slot.Token), TransportDelivery.Reliable));
+    }
+
+    private bool Send(TransportMessage message)
+    {
+        if (!_gateway.Connections.TryGetValue(message.RemotePeerId, out var state) || state != TransportConnectionState.Connected)
+        {
+            return false;
+        }
+
+        try
+        {
+            _gateway.Send(message);
+            return true;
+        }
+        catch (InvalidOperationException)
+        {
+            // Native closure can race the preceding Poll, including during a multi-packet publication.
+            _gateway.Disconnect(message.RemotePeerId);
+            if (Host is null)
+            {
+                Failure = "Host connection ended while sending; rejoin the lobby.";
+            }
+
+            return false;
+        }
     }
 
     private void SynchronizePeers()
@@ -266,7 +290,7 @@ internal sealed class VehicleNetworkDriver
             }
 
             _assigned.Add(peer);
-            _gateway.Send(new TransportMessage(peer, VehicleNetworkCodec.EncodeWelcome(_session, vehicle), TransportDelivery.Reliable));
+            Send(new TransportMessage(peer, VehicleNetworkCodec.EncodeWelcome(_session, vehicle), TransportDelivery.Reliable));
         }
     }
 

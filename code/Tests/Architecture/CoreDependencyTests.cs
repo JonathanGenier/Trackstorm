@@ -13,6 +13,8 @@ internal sealed class CoreDependencyTests
         "Trackstorm.Client",
         "Godot",
         "GameNetworkingSockets",
+        "GnsSharp",
+        "Epic.OnlineServices",
     ];
 
     /// <summary>

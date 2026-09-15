@@ -37,6 +37,7 @@ public sealed partial class EosIdentityNode : Node
             try
             {
                 Coordinator = new OnlineLobbyCoordinator(_identity.CreateLobbyProvider(), _identity.ProductUserId!);
+                Coordinator.TransportFactory = credential => _identity.CreateTransport(Coordinator, credential);
             }
             catch (InvalidOperationException)
             {

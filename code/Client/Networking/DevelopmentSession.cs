@@ -23,10 +23,12 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private NetworkTransportNode? _transport;
     private ITransportGateway? _gateway;
     private bool _onlineTransport;
+    private EosP2pTransport? _ownedOnline;
+    private string? _transportFailure;
     private LobbyNetworkDriver? _lobby;
     private NetworkVehicleArena? _arena;
     private VBoxContainer _menu = null!;
-    private string _message = "Host a lobby or join an address. Up to 8 players; everyone must be ready.";
+    private string _message = "Choose or host a game. Up to 8 players; everyone must be ready.";
     private ulong _arenaGeneration;
     private OnlineLobbyPanel _online = null!;
 
@@ -106,6 +108,19 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <inheritdoc/>
     public override void _Process(double delta) => Render();
 
+    /// <inheritdoc/>
+    public override void _ExitTree()
+    {
+        if (_onlineTransport)
+        {
+            OnlineCoordinator()?.Leave();
+        }
+
+        _ownedOnline?.Dispose();
+        _ownedOnline = null;
+        _gateway = null;
+    }
+
     /// <summary>Creates a listener or connects through the existing production transport.</summary>
     /// <param name="host">Whether to host.</param>
     /// <param name="address">Numeric IP and port.</param>
@@ -123,12 +138,12 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             ulong session = 0;
             if (host)
             {
-                _transport.Gateway.Listen(address);
+                _transport.Gateway.Listen(TransportEndpoint.DirectIp(address));
                 session = (BitConverter.ToUInt64(System.Security.Cryptography.RandomNumberGenerator.GetBytes(8)) >> 1) | 1;
             }
             else
             {
-                peer = _transport.Gateway.Connect(address);
+                peer = _transport.Gateway.Connect(TransportEndpoint.DirectIp(address));
             }
 
             _lobby = new LobbyNetworkDriver(_transport.Gateway, session, peer, name);
@@ -147,6 +162,41 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <param name="input">Captured local input.</param>
     internal void Advance(InputFrame input)
     {
+        if (_lobby is null && !_debug.ButtonPressed && OnlineCoordinator() is { Active: not null, TransportFactory: not null } coordinator)
+        {
+            try
+            {
+                var lobby = coordinator.Active;
+                _ownedOnline = coordinator.CreateTransport();
+                ulong peer = 0;
+                if (coordinator.IsHost)
+                {
+                    _ownedOnline.Listen(EosP2pTransport.Endpoint(lobby, coordinator.Identity));
+                }
+                else
+                {
+                    peer = _ownedOnline.Connect(EosP2pTransport.Endpoint(lobby, lobby.Owner));
+                }
+
+                var binding = OpenOnline(_ownedOnline, peer, _name.Text);
+                _ownedOnline.Authorize = binding.AuthorizePeer;
+                _ownedOnline.ConnectionChanged += change =>
+                {
+                    _message = change.Detail;
+                    if (change.State == TransportConnectionState.Disconnected && (!coordinator.IsHost || change.RemotePeerId == 0))
+                    {
+                        _transportFailure = change.Detail;
+                    }
+                };
+            }
+            catch (Exception exception) when (exception is InvalidOperationException or ArgumentException)
+            {
+                Leave();
+                coordinator.Leave();
+                _message = exception.Message;
+            }
+        }
+
         if (_onlineTransport && OnlineCoordinator()?.Active is null)
         {
             Leave();
@@ -166,9 +216,9 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             _arena.Advance(input);
         }
 
-        if (_lobby.Failure.Length > 0 || _arena?.Driver.Failure.Length > 0)
+        if (_transportFailure is not null || _lobby.Failure.Length > 0 || _arena?.Driver.Failure.Length > 0)
         {
-            string failure = _lobby.Failure.Length > 0 ? _lobby.Failure : _arena!.Driver.Failure;
+            string failure = _transportFailure ?? (_lobby.Failure.Length > 0 ? _lobby.Failure : _arena!.Driver.Failure);
             Leave();
             _message = failure;
             return;
@@ -200,6 +250,9 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         }
 
         _gateway = null;
+        _ownedOnline?.Dispose();
+        _ownedOnline = null;
+        _transportFailure = null;
         if (_transport is not null)
         {
             RemoveChild(_transport);
@@ -207,7 +260,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             _transport = null;
         }
 
-        _message = "Host a lobby or join an address. Everyone must be ready before starting.";
+        _message = "Choose or host a game. Everyone must be ready before starting.";
     }
 
     /// <summary>Enters the existing lobby and arena presentation using separately established online transport.</summary>
@@ -251,8 +304,8 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _return.Visible = _lobby?.Authority is not null;
         _online.Visible = !arena && !_debug.ButtonPressed;
         _debug.Visible = !active;
-        _status.Visible = active || _debug.ButtonPressed;
-        _name.Visible = !active && _debug.ButtonPressed;
+        _status.Visible = true;
+        _name.Visible = !active;
         _address.Visible = !active && _debug.ButtonPressed;
         _host.Visible = !active && _debug.ButtonPressed;
         _join.Visible = !active && _debug.ButtonPressed;
@@ -260,7 +313,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _ready.Visible = _lobby?.State is not null && !arena;
         _start.Visible = _lobby?.Authority is not null && !arena;
         _start.Disabled = _lobby?.State?.CanStart != true;
-        _status.Text = _message;
+        _status.Text = _gateway is null ? _message : $"{_gateway.Name}: {_gateway.ConnectionState}\n{_message}";
         _roster.Text = _lobby?.State is not LobbySnapshot state ? string.Empty : $"{state.Players.Count}/8 connected\n" + string.Join("\n", state.Players.Select(player => $"{(player.Ready ? "✓ READY" : "○ WAITING")}   {player.Name}  #{player.Id}{(player.Id == 1 ? " · HOST" : string.Empty)}{(player.Id == _lobby.LocalPlayerId ? " · YOU" : string.Empty)}"));
         _ready.Text = _lobby?.State?.Players.Single(player => player.Id == _lobby.LocalPlayerId).Ready == true ? "Unready" : "Ready";
     }

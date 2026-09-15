@@ -8,6 +8,7 @@ internal sealed class OnlineProductUserId : IEquatable<OnlineProductUserId>
 {
     private readonly string _value;
 
+
     /// <summary>Constructs a distinct online identity from a validated SDK result.</summary>
     /// <param name="value">Canonical Product User ID returned by EOS.</param>
     public OnlineProductUserId(string value)
@@ -19,6 +20,9 @@ internal sealed class OnlineProductUserId : IEquatable<OnlineProductUserId>
 
         _value = value.ToLowerInvariant();
     }
+
+    /// <summary>Canonical identity for Client transport routing only; never use in diagnostics.</summary>
+    internal string Value => _value;
 
     /// <inheritdoc />
     public bool Equals(OnlineProductUserId? other) => other is not null && _value == other._value;

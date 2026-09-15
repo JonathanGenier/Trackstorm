@@ -175,6 +175,13 @@ internal sealed class EosIdentityService : IDisposable
     internal IOnlineLobbyProvider CreateLobbyProvider() => State == OnlineIdentityState.LoggedIn && _platform is EosSdkPlatform sdk
         ? sdk.CreateLobbyProvider() : throw new InvalidOperationException("EOS authentication is required.");
 
+    /// <summary>Creates gameplay transport on the current authenticated platform.</summary>
+    /// <param name="coordinator">Active membership owner.</param>
+    /// <param name="credential">Transient client access code.</param>
+    /// <returns>Owned gameplay gateway.</returns>
+    internal Networking.EosP2pTransport CreateTransport(OnlineLobbyCoordinator coordinator, string? credential) => State == OnlineIdentityState.LoggedIn && _platform is EosSdkPlatform sdk
+        ? sdk.CreateTransport(coordinator, credential) : throw new InvalidOperationException("EOS authentication is required.");
+
     private void Fail(string reason)
     {
         Stop();

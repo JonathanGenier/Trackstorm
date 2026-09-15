@@ -184,6 +184,25 @@ internal sealed class VehicleNetworkDriverTests
         Assert.That(driver.RejectedPackets, Is.EqualTo(3));
     }
 
+    /// <summary>A native close between Poll and Send removes that peer without terminating host simulation.</summary>
+    [Test]
+    public void HostSurvivesNativeSendClosure()
+    {
+        var gateway = ConnectedGateway();
+        var host = new VehicleNetworkDriver(gateway, 99);
+        host.Advance(default, Observe);
+        gateway.FailSend = true;
+        for (int tick = 0; tick < 6; tick++)
+        {
+            host.Advance(default, Observe);
+        }
+
+        Assert.That(host.Failure, Is.Empty);
+        Assert.That(gateway.DisconnectedPeers, Is.EqualTo(new[] { ServerPeer }));
+        Assert.That(host.Host!.World.State.Vehicles.Count, Is.EqualTo(1));
+        Assert.That(host.Host.World.State.Tick, Is.EqualTo(7));
+    }
+
     private static DriverGateway ConnectedGateway() => new(ServerPeer, TransportConnectionState.Connected);
 
     private static SequencedInput[] DecodeLastInputs(DriverGateway gateway) => VehicleNetworkCodec.DecodeInputs(gateway.Sent[^1].Payload.Span).Inputs;
@@ -223,6 +242,7 @@ internal sealed class VehicleNetworkDriverTests
         public TransportConnectionState ConnectionState => _connections.Values.FirstOrDefault();
         internal List<TransportMessage> Sent { get; } = [];
         internal List<ulong> DisconnectedPeers { get; } = [];
+        internal bool FailSend { get; set; }
 
         public void Disconnect(ulong peerId)
         {
@@ -230,14 +250,23 @@ internal sealed class VehicleNetworkDriverTests
             _connections[peerId] = TransportConnectionState.Disconnected;
         }
 
-        public void Send(TransportMessage message) => Sent.Add(message);
+        public void Send(TransportMessage message)
+        {
+            if (FailSend)
+            {
+                throw new InvalidOperationException("Native peer closed before send.");
+            }
+
+            Sent.Add(message);
+        }
+
         public bool TryReceive(out TransportMessage message) => _received.TryDequeue(out message);
         public void Dispose()
         {
         }
 
-        public void Listen(string address) => throw new NotSupportedException();
-        public ulong Connect(string address) => throw new NotSupportedException();
+        public void Listen(TransportEndpoint endpoint) => throw new NotSupportedException();
+        public ulong Connect(TransportEndpoint endpoint) => throw new NotSupportedException();
         public void Poll()
         {
         }

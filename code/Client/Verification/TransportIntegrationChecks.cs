@@ -77,8 +77,8 @@ public sealed partial class TransportIntegrationChecks : Node
         _client = new NetworkTransportNode();
         AddChild(_host);
         AddChild(_client);
-        _host.Gateway.Listen("127.0.0.1:27932");
-        _peer = _client.Gateway.Connect("127.0.0.1:27932");
+        _host.Gateway.Listen(TransportEndpoint.DirectIp("127.0.0.1:27932"));
+        _peer = _client.Gateway.Connect(TransportEndpoint.DirectIp("127.0.0.1:27932"));
         _sent = false;
     }
 }

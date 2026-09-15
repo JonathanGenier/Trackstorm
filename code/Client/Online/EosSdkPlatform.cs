@@ -1,6 +1,7 @@
 using Epic.OnlineServices;
 using Epic.OnlineServices.Connect;
 using Epic.OnlineServices.Platform;
+using Trackstorm.Client.Networking;
 
 namespace Trackstorm.Client.Online;
 
@@ -17,6 +18,7 @@ internal sealed class EosSdkPlatform : IEosPlatform
     private bool _leased;
     private bool _disposed;
     private EosLobbyProvider? _lobbyProvider;
+    private EosP2pTransport? _transport;
 
     /// <summary>Validates configuration and starts an owned platform; duplicate startup is ignored.</summary>
     /// <param name="configuration">Validated development environment and restricted client configuration.</param>
@@ -131,6 +133,7 @@ internal sealed class EosSdkPlatform : IEosPlatform
         }
 
         _disposed = true;
+        _transport?.Dispose();
         _lobbyProvider?.Dispose();
         if (_expirationNotification != 0)
         {
@@ -171,6 +174,22 @@ internal sealed class EosSdkPlatform : IEosPlatform
         _lobbyProvider?.Dispose();
         _lobbyProvider = new EosLobbyProvider(_platform.GetLobbyInterface(), _user, this, callback => _callbacks.Enqueue(callback), _lobbyHandles);
         return _lobbyProvider;
+    }
+
+    /// <summary>Replaces the packet gateway while retaining the authenticated platform and identity.</summary>
+    /// <param name="coordinator">Active membership owner.</param>
+    /// <param name="credential">Transient client access code.</param>
+    /// <returns>Gateway released before its parent platform.</returns>
+    internal EosP2pTransport CreateTransport(OnlineLobbyCoordinator coordinator, string? credential)
+    {
+        if (_disposed || _user is null || _platform is null)
+        {
+            throw new InvalidOperationException("EOS authentication is required.");
+        }
+
+        _transport?.Dispose();
+        _transport = new EosP2pTransport(new EosP2pSdk(_platform.GetP2PInterface(), _user), coordinator.Identity, () => coordinator.Active, credential);
+        return _transport;
     }
 
     private static string Failure(string operation, Result result) => $"EOS {operation} failed ({result}). Check Internet access, development deployment and Connect client-policy permissions; see docs/eos-development.md.";

@@ -30,6 +30,12 @@ public sealed partial class SimulationBootstrap : Node
     /// <inheritdoc />
     public override void _Ready()
     {
+        if (OS.GetCmdlineUserArgs().Contains("--eos-multiplayer-check"))
+        {
+            AddChild(new Trackstorm.Client.Verification.EosMultiplayerChecks());
+            return;
+        }
+
         if (OS.GetCmdlineUserArgs().Contains("--eos-check"))
         {
             AddChild(new Trackstorm.Client.Verification.EosIntegrationChecks());

@@ -79,7 +79,7 @@ internal sealed class LobbyNetworkDriver
 
             if (State is null && _joiningSeconds > 15)
             {
-                Failure = "Lobby admission timed out. Leave and check the address.";
+                Failure = "Lobby admission timed out. Check connectivity and rejoin the session.";
                 _gateway.Disconnect(ServerPeer);
             }
         }

@@ -4,6 +4,7 @@ using Godot;
 using Trackstorm.Client.Networking;
 using Trackstorm.Core.Input;
 using Trackstorm.Core.Items;
+using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Simulation;
 using Trackstorm.Core.Vehicles;
 using Numerics = System.Numerics;
@@ -47,7 +48,7 @@ public sealed partial class ItemIntegrationChecks : Node
             ulong server = 0;
             if (index == 0)
             {
-                gateway.Listen(endpoint);
+                gateway.Listen(TransportEndpoint.DirectIp(endpoint));
                 if (OS.GetCmdlineUserArgs().Contains("--item-impaired"))
                 {
                     gateway.ConfigureSimulation(new Core.Networking.Transport.NetworkSimulation(30, 5, 2, 0, 0));
@@ -55,7 +56,7 @@ public sealed partial class ItemIntegrationChecks : Node
             }
             else
             {
-                server = gateway.Connect(endpoint);
+                server = gateway.Connect(TransportEndpoint.DirectIp(endpoint));
             }
 
             var viewport = new SubViewport { Size = new Vector2I(1280, 720), OwnWorld3D = true, RenderTargetUpdateMode = index == 1 ? SubViewport.UpdateMode.Always : SubViewport.UpdateMode.Disabled };
