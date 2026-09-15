@@ -8,13 +8,16 @@ public sealed partial class NetworkTransportNode : Node
 {
     private ITransportGateway? _gateway;
 
+    /// <summary>Explicit composition of the owned gateway before the node enters the scene tree.</summary>
+    public Func<ITransportGateway> Factory { get; set; } = () => new GameNetworkingSocketsTransport();
+
     /// <summary>Gets the transport-neutral gateway after this node enters the scene tree.</summary>
     public ITransportGateway Gateway => _gateway ?? throw new InvalidOperationException("The transport node is not ready.");
 
     /// <inheritdoc/>
     public override void _Ready()
     {
-        _gateway = new GameNetworkingSocketsTransport();
+        _gateway = Factory();
         _gateway.ConnectionChanged += LogConnection;
     }
 

@@ -22,6 +22,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     private long? _pendingMembership;
     private long _completedMembership;
     private bool _disposed;
+    private string? _joinCredential;
 
     /// <summary>Creates one owner-thread coordination lifetime with an injectable monotonic clock.</summary>
     /// <param name="provider">Owned coordination adapter.</param>
@@ -33,6 +34,9 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         Identity = identity;
         _time = time ?? TimeProvider.System;
     }
+
+    /// <summary>Production packet composition; absent in browser-only verification.</summary>
+    internal Func<string?, Networking.EosP2pTransport>? TransportFactory { get; set; }
 
     /// <summary>Authenticated local online identity, distinct from gameplay PlayerId.</summary>
     internal OnlineProductUserId Identity { get; }
@@ -60,6 +64,20 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         Leave();
         _disposed = true;
         _provider.Dispose();
+    }
+
+    /// <summary>Transfers the transient join credential into the owned packet connection.</summary>
+    /// <returns>New gateway tied to the current platform.</returns>
+    internal Networking.EosP2pTransport CreateTransport()
+    {
+        try
+        {
+            return TransportFactory?.Invoke(_joinCredential) ?? throw new InvalidOperationException("Online gameplay transport unavailable. Retry login.");
+        }
+        finally
+        {
+            _joinCredential = null;
+        }
     }
 
     /// <summary>Refreshes compatible lobbies without accepting an obsolete search completion.</summary>
@@ -151,6 +169,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
 
         long epoch = Begin("Joining lobby…");
+        _joinCredential = credential;
         _pendingMembership = epoch;
         _provider.Join(id, (joined, failure) =>
         {
@@ -204,7 +223,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         });
     }
 
-    /// <summary>TS-44 supplies a connected authenticated gateway; fake gateways exercise this boundary today.</summary>
+    /// <summary>Attaches the session-scoped authenticated packet gateway to existing lobby authority.</summary>
     /// <param name="gateway">Separately supplied authenticated packet gateway.</param>
     /// <param name="serverPeer">Established server peer on clients, zero for a host.</param>
     /// <param name="playerName">Requested local gameplay display name.</param>
@@ -276,6 +295,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Invalidates local membership and releases or destroys the associated online lobby.</summary>
     internal void Leave()
     {
+        _joinCredential = null;
         if (_closing is not null && Busy)
         {
             return;
@@ -362,6 +382,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         Busy = false;
         if (lobby is null || failure is not null)
         {
+            _joinCredential = null;
             if (lobby is not null)
             {
                 _closing = lobby;
@@ -401,7 +422,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             return;
         }
 
-        Status = "Online lobby joined. Gameplay connection is not available in this build.";
+        Status = "Online lobby joined. Connecting gameplay…";
     }
 
     private void ApplyUpdate(OnlineLobby lobby)

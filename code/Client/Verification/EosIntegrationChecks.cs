@@ -1,6 +1,8 @@
 using Epic.OnlineServices.Version;
 using Godot;
+using Trackstorm.Client.Networking;
 using Trackstorm.Client.Online;
+using Trackstorm.Core.Sessions;
 
 namespace Trackstorm.Client.Verification;
 
@@ -11,6 +13,11 @@ public sealed partial class EosIntegrationChecks : Node
     private EosConfiguration? _configuration;
     private OnlineProductUserId? _firstIdentity;
     private int _cycles;
+    private OnlineLobbyCoordinator? _lobby;
+    private EosP2pTransport? _transport;
+    private DevelopmentSession? _gameplay;
+    private int _p2pFrames;
+    private bool _p2pLeaving;
 
     /// <inheritdoc />
     public override void _Ready()
@@ -94,6 +101,11 @@ public sealed partial class EosIntegrationChecks : Node
             }
             else if (_identity.State == OnlineIdentityState.LoggedIn)
             {
+                if (OS.GetCmdlineUserArgs().Contains("--eos-p2p-check") && !CheckP2pCycle())
+                {
+                    return;
+                }
+
                 if (_firstIdentity is not null && !_firstIdentity.Equals(_identity.ProductUserId))
                 {
                     throw new InvalidOperationException("Device identity changed across platform cycles.");
@@ -108,7 +120,7 @@ public sealed partial class EosIntegrationChecks : Node
             {
                 if (_cycles == 3)
                 {
-                    Finish("three real platform/login/logout cycles with stable identity");
+                    Finish("three real platform/login/logout cycles with stable identity" + (OS.GetCmdlineUserArgs().Contains("--eos-p2p-check") ? "; real lobby/P2P notification/listen/stop and solo Ready/Start/arena/Return cycles, remote traffic NOT tested" : string.Empty));
                 }
                 else
                 {
@@ -125,6 +137,8 @@ public sealed partial class EosIntegrationChecks : Node
     /// <inheritdoc />
     public override void _ExitTree()
     {
+        _transport?.Dispose();
+        _lobby?.Dispose();
         _identity?.Dispose();
         EosProcessRuntime.Shutdown();
     }
@@ -133,6 +147,91 @@ public sealed partial class EosIntegrationChecks : Node
     {
         _identity!.Start(_configuration!);
         _identity.Login();
+    }
+
+    private bool CheckP2pCycle()
+    {
+        if (_lobby is null)
+        {
+            _lobby = new OnlineLobbyCoordinator(_identity!.CreateLobbyProvider(), _identity.ProductUserId!);
+            _lobby.Create("Trackstorm P2P verification", LobbyAccess.Public, null);
+        }
+
+        _lobby.Tick();
+        if (_p2pLeaving)
+        {
+            if (_lobby.Busy)
+            {
+                return false;
+            }
+
+            if (_lobby.CanLeave)
+            {
+                throw new InvalidOperationException("EOS verification lobby cleanup failed.");
+            }
+
+            _lobby.Dispose();
+            _lobby = null;
+            _p2pLeaving = false;
+            _p2pFrames = 0;
+            return true;
+        }
+
+        if (_lobby.Active is null)
+        {
+            if (!_lobby.Busy)
+            {
+                throw new InvalidOperationException("EOS verification lobby creation failed.");
+            }
+
+            return false;
+        }
+
+        if (_transport is null)
+        {
+            _transport = _identity!.CreateTransport(_lobby, null);
+            _transport.Listen(EosP2pTransport.Endpoint(_lobby.Active, _lobby.Identity));
+            _gameplay = new DevelopmentSession { OnlineCoordinator = () => _lobby, OnlineStatus = () => EosLobbyStatus.Connected };
+            AddChild(_gameplay);
+            _transport.Authorize = _gameplay.OpenOnline(_transport, 0, "Host").AuthorizePeer;
+        }
+
+        _gameplay!.Advance(default);
+        if (_p2pFrames == 0)
+        {
+            if (!_gameplay.Lobby!.Request(LobbyCommand.Ready, true) || !_gameplay.Lobby.Request(LobbyCommand.Start))
+            {
+                throw new InvalidOperationException("EOS host could not enter the arena through lobby authority.");
+            }
+        }
+
+        if (++_p2pFrames < 20)
+        {
+            return false;
+        }
+
+        if (_gameplay.Arena is null || !_gameplay.Lobby!.Request(LobbyCommand.Return))
+        {
+            throw new InvalidOperationException("EOS host arena/return integration failed.");
+        }
+
+        _gameplay.Advance(default);
+        if (_gameplay.Arena is not null)
+        {
+            throw new InvalidOperationException("EOS arena did not return to the lobby.");
+        }
+
+        _gameplay.Leave();
+        RemoveChild(_gameplay);
+        _gameplay.QueueFree();
+        _gameplay = null;
+        _transport.Stop();
+        _transport.Stop();
+        _transport.Dispose();
+        _transport = null;
+        _p2pLeaving = true;
+        _lobby.Leave();
+        return false;
     }
 
     private void Finish(string evidence)

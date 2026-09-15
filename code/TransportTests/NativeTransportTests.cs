@@ -37,13 +37,13 @@ internal sealed class NativeTransportTests
     {
         GameNetworkingSocketsTransport host = Create();
         string address = AvailableAddress();
-        host.Listen(address);
+        host.Listen(TransportEndpoint.DirectIp(address));
         var clients = new List<GameNetworkingSocketsTransport>();
         for (int i = 0; i < 7; i++)
         {
             GameNetworkingSocketsTransport client = Create();
             clients.Add(client);
-            client.Connect(address);
+            client.Connect(TransportEndpoint.DirectIp(address));
         }
 
         PumpUntil(() => host.Connections.Count == 7 && clients.All(c => c.ConnectionState == TransportConnectionState.Connected));
@@ -53,7 +53,7 @@ internal sealed class NativeTransportTests
             GameNetworkingSocketsTransport excess = Create();
             var events = new List<TransportConnectionChange>();
             excess.ConnectionChanged += events.Add;
-            excess.Connect(address);
+            excess.Connect(TransportEndpoint.DirectIp(address));
             PumpUntil(() => events.Any(e => e.Reason == TransportDisconnectReason.SessionFull));
             Assert.That(excess.Connections, Is.Empty);
             Assert.That(host.Connections.Count, Is.EqualTo(7));
@@ -94,7 +94,7 @@ internal sealed class NativeTransportTests
         ulong oldPeer = clients[0].Connections.Keys.Single();
         clients[0].Disconnect(oldPeer);
         PumpUntil(() => host.Connections.Count == 6);
-        ulong newPeer = clients[0].Connect(address);
+        ulong newPeer = clients[0].Connect(TransportEndpoint.DirectIp(address));
         PumpUntil(() => host.Connections.Count == 7 && clients[0].ConnectionState == TransportConnectionState.Connected);
         Assert.That(newPeer, Is.GreaterThan(oldPeer));
         Assert.Throws<InvalidOperationException>(() => clients[0].Send(new(oldPeer, new byte[] { 1 })));
@@ -107,8 +107,8 @@ internal sealed class NativeTransportTests
         GameNetworkingSocketsTransport host = Create();
         GameNetworkingSocketsTransport client = Create();
         string address = AvailableAddress();
-        host.Listen(address);
-        ulong peer = client.Connect(address);
+        host.Listen(TransportEndpoint.DirectIp(address));
+        ulong peer = client.Connect(TransportEndpoint.DirectIp(address));
         PumpUntil(() => client.ConnectionState == TransportConnectionState.Connected && host.ConnectionState == TransportConnectionState.Connected);
         client.ConfigureSimulation(new(30, 10, 25, 20, 50));
         var reliable = new List<int>();
@@ -144,13 +144,13 @@ internal sealed class NativeTransportTests
         GameNetworkingSocketsTransport client = Create(1000);
         var events = new List<TransportConnectionChange>();
         client.ConnectionChanged += events.Add;
-        client.Connect(AvailableAddress());
+        client.Connect(TransportEndpoint.DirectIp(AvailableAddress()));
         PumpUntil(() => events.Any(e => e.Reason == TransportDisconnectReason.Timeout));
         Assert.That(client.Connections, Is.Empty);
         GameNetworkingSocketsTransport host = Create(1000);
         string address = AvailableAddress();
-        host.Listen(address);
-        client.Connect(address);
+        host.Listen(TransportEndpoint.DirectIp(address));
+        client.Connect(TransportEndpoint.DirectIp(address));
         PumpUntil(() => client.ConnectionState == TransportConnectionState.Connected && host.ConnectionState == TransportConnectionState.Connected);
         events.Clear();
         client.ConfigureSimulation(new(lossPercent: 100));
@@ -167,8 +167,8 @@ internal sealed class NativeTransportTests
         string address = AvailableAddress();
         for (int cycle = 0; cycle < 12; cycle++)
         {
-            host.Listen(address);
-            client.Connect(address);
+            host.Listen(TransportEndpoint.DirectIp(address));
+            client.Connect(TransportEndpoint.DirectIp(address));
             PumpUntil(() => client.ConnectionState == TransportConnectionState.Connected && host.ConnectionState == TransportConnectionState.Connected);
             host.Stop();
             PumpUntil(() => client.Connections.Count == 0);
@@ -184,12 +184,12 @@ internal sealed class NativeTransportTests
     {
         GameNetworkingSocketsTransport host = Create();
         GameNetworkingSocketsTransport client = Create();
-        Assert.Throws<ArgumentException>(() => client.Connect("not-an-address"));
+        Assert.Throws<ArgumentException>(() => client.Connect(TransportEndpoint.DirectIp("not-an-address")));
         Assert.Throws<InvalidOperationException>(() => client.Send(new(1, new byte[] { 1 })));
         string address = AvailableAddress();
-        host.Listen(address);
-        ulong peer = client.Connect(address);
-        Assert.Throws<InvalidOperationException>(() => host.Connect(address));
+        host.Listen(TransportEndpoint.DirectIp(address));
+        ulong peer = client.Connect(TransportEndpoint.DirectIp(address));
+        Assert.Throws<InvalidOperationException>(() => host.Connect(TransportEndpoint.DirectIp(address)));
         PumpUntil(() => client.ConnectionState == TransportConnectionState.Connected && host.ConnectionState == TransportConnectionState.Connected);
         Assert.Throws<ArgumentOutOfRangeException>(() => client.Send(new(peer, new byte[GameNetworkingSocketsTransport.MaximumPayloadBytes + 1])));
         var events = new List<TransportConnectionChange>();
@@ -212,12 +212,12 @@ internal sealed class NativeTransportTests
         owner.Bind(new IPEndPoint(IPAddress.Loopback, 0));
         string address = owner.LocalEndPoint!.ToString()!;
         GameNetworkingSocketsTransport host = Create();
-        var error = Assert.Throws<InvalidOperationException>(() => host.Listen(address));
+        var error = Assert.Throws<InvalidOperationException>(() => host.Listen(TransportEndpoint.DirectIp(address)));
         Assert.That(error!.Message, Does.Contain(address).And.Contain("Failed to bind socket.").And.Contain("0x00002740"));
         Assert.That(host.IsListening, Is.False);
         Assert.That(host.Connections, Is.Empty);
         owner.Close();
-        host.Listen(address);
+        host.Listen(TransportEndpoint.DirectIp(address));
         Assert.That(host.IsListening, Is.True);
     }
 

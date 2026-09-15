@@ -20,6 +20,7 @@ internal sealed class OnlineSessionBinding : IDisposable
     {
         _coordinator = coordinator;
         _gateway = gateway;
+        _gateway.ConnectionChanged += OnConnectionChanged;
         var lobby = coordinator.Active ?? throw new InvalidOperationException("An online lobby is required before transport attachment.");
         Driver = new LobbyNetworkDriver(gateway, coordinator.IsHost ? lobby.Session : 0, serverPeer, playerName, peer => !_disposed && _authorized.ContainsKey(peer), lobby.Session);
     }
@@ -67,6 +68,7 @@ internal sealed class OnlineSessionBinding : IDisposable
         }
 
         _disposed = true;
+        _gateway.ConnectionChanged -= OnConnectionChanged;
         _authorized.Clear();
         _gateway.Stop();
     }
@@ -103,6 +105,14 @@ internal sealed class OnlineSessionBinding : IDisposable
                 _gateway.Disconnect(peer.Key);
                 _authorized.Remove(peer.Key);
             }
+        }
+    }
+
+    private void OnConnectionChanged(TransportConnectionChange change)
+    {
+        if (change.State == TransportConnectionState.Disconnected)
+        {
+            _authorized.Remove(change.RemotePeerId);
         }
     }
 

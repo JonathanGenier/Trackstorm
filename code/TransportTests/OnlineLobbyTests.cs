@@ -607,8 +607,8 @@ internal sealed class OnlineLobbyTests
         public bool IsListening => true;
         public IReadOnlyDictionary<ulong, TransportConnectionState> Connections => _connections;
         public TransportConnectionState ConnectionState => TransportConnectionState.Connected;
-        public void Listen(string address) => throw new NotSupportedException();
-        public ulong Connect(string address) => throw new NotSupportedException();
+        public void Listen(TransportEndpoint endpoint) => throw new NotSupportedException();
+        public ulong Connect(TransportEndpoint endpoint) => throw new NotSupportedException();
         public void Disconnect(ulong peerId) => _connections[peerId] = TransportConnectionState.Disconnected;
         public void Poll()
         {

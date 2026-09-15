@@ -50,11 +50,11 @@ public sealed partial class NetworkVehicleChecks : Node
         ulong peer = 0;
         if (host.Length > 0)
         {
-            _gateway.Listen(host);
+            _gateway.Listen(TransportEndpoint.DirectIp(host));
         }
         else
         {
-            peer = _gateway.Connect(Value("--network-check-client"));
+            peer = _gateway.Connect(TransportEndpoint.DirectIp(Value("--network-check-client")));
         }
 
         _arena = new NetworkVehicleArena();

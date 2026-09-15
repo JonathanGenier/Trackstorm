@@ -17,14 +17,20 @@ public interface ITransportGateway : IDisposable
     /// <summary>Gets the aggregate peer state; IsListening independently reports host availability.</summary>
     TransportConnectionState ConnectionState { get; }
 
-    /// <summary>Starts a host on a numeric IPv4/IPv6 address and port.</summary>
-    /// <param name="address">The local endpoint including its port.</param>
-    void Listen(string address);
+    /// <summary>Gets the active adapter's presentation-safe name.</summary>
+    string Name => "Unknown transport";
 
-    /// <summary>Starts a client connection to a numeric IPv4/IPv6 address and port, returning a local peer ID.</summary>
-    /// <param name="address">The remote endpoint including its port.</param>
+    /// <summary>Gets optional capabilities; unavailable metrics remain null.</summary>
+    TransportCapabilities Capabilities => TransportCapabilities.None;
+
+    /// <summary>Starts a host using the selected provider's endpoint.</summary>
+    /// <param name="endpoint">Local endpoint and optional session context.</param>
+    void Listen(TransportEndpoint endpoint);
+
+    /// <summary>Starts a client connection through the selected provider, returning a local peer ID.</summary>
+    /// <param name="endpoint">Remote endpoint and optional session context.</param>
     /// <returns>The new local peer identity.</returns>
-    ulong Connect(string address);
+    ulong Connect(TransportEndpoint endpoint);
 
     /// <summary>Closes one peer and releases its slot.</summary>
     /// <param name="peerId">The local identity of the peer to close.</param>

@@ -53,16 +53,21 @@ public sealed class GameNetworkingSocketsTransport : ITransportGateway
         ? TransportConnectionState.Connected
         : _connections.Count != 0 ? TransportConnectionState.Connecting : TransportConnectionState.Disconnected;
 
+    /// <inheritdoc/>
+    public string Name => "Direct-IP";
+    /// <inheritdoc/>
+    public TransportCapabilities Capabilities => TransportCapabilities.Ping | TransportCapabilities.ConnectionQuality | TransportCapabilities.NetworkSimulation;
+
     private static ISteamNetworkingSockets Sockets => ISteamNetworkingSockets.User!;
 
     /// <inheritdoc/>
-    public void Listen(string address)
+    public void Listen(TransportEndpoint endpoint)
     {
         EnsureIdle();
-        SteamNetworkingIPAddr endpoint = ParseAddress(address);
-        string canonicalAddress = endpoint.ToString();
+        SteamNetworkingIPAddr nativeEndpoint = ParseAddress(DirectAddress(endpoint));
+        string canonicalAddress = nativeEndpoint.ToString();
         SteamNetworkingConfigValue_t[] configuration = Configuration();
-        _listener = GnsRuntime.CreateListener(in endpoint, configuration, out string? error);
+        _listener = GnsRuntime.CreateListener(in nativeEndpoint, configuration, out string? error);
         // GNS 1.6 closes the raw UDP socket on its service thread, not in RunCallbacks.
         // Yield only for a confirmed WSAEADDRINUSE immediately after our own same-endpoint close.
         // The deadline starts at Stop, so repeated Listen calls cannot extend the release window.
@@ -71,12 +76,12 @@ public sealed class GameNetworkingSocketsTransport : ITransportGateway
             && Stopwatch.GetElapsedTime(_listenerClosedAt).TotalMilliseconds < ListenerReleaseMilliseconds)
         {
             Thread.Sleep(1);
-            _listener = GnsRuntime.CreateListener(in endpoint, configuration, out error);
+            _listener = GnsRuntime.CreateListener(in nativeEndpoint, configuration, out error);
         }
 
         if (!IsListening)
         {
-            throw new InvalidOperationException($"Could not listen on {endpoint}: {error ?? "Native listener creation returned an invalid handle without a diagnostic."}");
+            throw new InvalidOperationException($"Could not listen on {nativeEndpoint}: {error ?? "Native listener creation returned an invalid handle without a diagnostic."}");
         }
 
         _listenAddress = canonicalAddress;
@@ -84,11 +89,11 @@ public sealed class GameNetworkingSocketsTransport : ITransportGateway
     }
 
     /// <inheritdoc/>
-    public ulong Connect(string address)
+    public ulong Connect(TransportEndpoint endpoint)
     {
         EnsureIdle();
-        SteamNetworkingIPAddr endpoint = ParseAddress(address);
-        HSteamNetConnection handle = Sockets.ConnectByIPAddress(in endpoint, Configuration());
+        SteamNetworkingIPAddr nativeEndpoint = ParseAddress(DirectAddress(endpoint));
+        HSteamNetConnection handle = Sockets.ConnectByIPAddress(in nativeEndpoint, Configuration());
         if (handle == HSteamNetConnection.Invalid)
         {
             throw new InvalidOperationException("Could not create the outgoing connection.");
@@ -243,6 +248,7 @@ public sealed class GameNetworkingSocketsTransport : ITransportGateway
         GnsRuntime.Release();
     }
 
+    private static string DirectAddress(TransportEndpoint endpoint) => endpoint.Session is null ? endpoint.Address : throw new ArgumentException("Direct-IP requires an IP endpoint.", nameof(endpoint));
     private static SteamNetworkingIPAddr ParseAddress(string address)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(address);

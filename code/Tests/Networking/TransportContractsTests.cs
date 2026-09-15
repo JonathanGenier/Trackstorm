@@ -8,6 +8,19 @@ namespace Trackstorm.Core.Tests.Networking;
 [TestFixture]
 internal sealed class TransportContractsTests
 {
+    /// <summary>Online targets carry plain opaque values without imposing IP syntax or provider types.</summary>
+    [Test]
+    public void EndpointDistinguishesDirectAndSessionTargets()
+    {
+        var peer = TransportEndpoint.PeerSession("peer", "session");
+        Assert.That(peer, Is.EqualTo(TransportEndpoint.PeerSession("peer", "session")));
+        Assert.That(peer, Is.Not.EqualTo(TransportEndpoint.DirectIp("peer")));
+        Assert.That(peer, Is.Not.EqualTo(TransportEndpoint.PeerSession("peer", "another")));
+        Assert.Throws<ArgumentException>(() => TransportEndpoint.PeerSession(string.Empty, "session"));
+        Assert.Throws<ArgumentException>(() => TransportEndpoint.PeerSession("peer", " "));
+        Assert.Throws<ArgumentException>(() => TransportEndpoint.DirectIp(new string('a', 257)));
+    }
+
     /// <summary>
     /// Verifies that a transport adapter can exchange opaque Core messages without native types.
     /// </summary>
@@ -47,9 +60,9 @@ internal sealed class TransportContractsTests
         /// <inheritdoc/>
         public TransportConnectionState ConnectionState => TransportConnectionState.Connected;
 
-        public void Listen(string address) => throw new NotSupportedException();
+        public void Listen(TransportEndpoint endpoint) => throw new NotSupportedException();
 
-        public ulong Connect(string address) => throw new NotSupportedException();
+        public ulong Connect(TransportEndpoint endpoint) => throw new NotSupportedException();
 
         public void Disconnect(ulong peerId) => throw new NotSupportedException();
 

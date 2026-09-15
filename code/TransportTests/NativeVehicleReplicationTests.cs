@@ -37,7 +37,7 @@ internal sealed class NativeVehicleReplicationTests
             int port = ((IPEndPoint)reservation.Client.LocalEndPoint!).Port;
             reservation.Close();
             string endpoint = $"127.0.0.1:{port}";
-            hostGateway.Listen(endpoint);
+            hostGateway.Listen(TransportEndpoint.DirectIp(endpoint));
             hostGateway.ConfigureSimulation(new NetworkSimulation(latency, jitter, loss, 0, 0));
             var host = new VehicleNetworkDriver(hostGateway, 99);
             var clients = new List<VehicleNetworkDriver>();
@@ -46,7 +46,7 @@ internal sealed class NativeVehicleReplicationTests
             {
                 var gateway = new GameNetworkingSocketsTransport();
                 gateways.Add(gateway);
-                var client = new VehicleNetworkDriver(gateway, 0, gateway.Connect(endpoint));
+                var client = new VehicleNetworkDriver(gateway, 0, gateway.Connect(TransportEndpoint.DirectIp(endpoint)));
                 client.LocalCorrected += _ => errors.Add(client.Prediction!.PredictionError);
                 clients.Add(client);
             }

@@ -236,8 +236,8 @@ internal sealed class VehicleNetworkDriverTests
         {
         }
 
-        public void Listen(string address) => throw new NotSupportedException();
-        public ulong Connect(string address) => throw new NotSupportedException();
+        public void Listen(TransportEndpoint endpoint) => throw new NotSupportedException();
+        public ulong Connect(TransportEndpoint endpoint) => throw new NotSupportedException();
         public void Poll()
         {
         }
