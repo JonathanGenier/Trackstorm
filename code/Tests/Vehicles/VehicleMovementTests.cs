@@ -78,7 +78,7 @@ internal sealed class VehicleMovementTests
         VehicleMovement high = Create(40);
         VehicleMovement analog = Create(2);
         GroundStep(low, steering: 32767);
-        Assert.That(low.State.SteeringAngle, Is.InRange(0.01f, 0.05f));
+        Assert.That(low.State.SteeringAngle, Is.InRange(0.08f, 0.12f));
         for (int index = 0; index < 60; index++)
         {
             low.Step(Frame(low.State.Tick + 1, steering: 32767), Create(2).State.Physics, Vector3.UnitY);
@@ -144,8 +144,8 @@ internal sealed class VehicleMovementTests
         var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(5, 0, -25), Vector3.Zero);
         VehicleState a = coast.Step(Frame(1, steering: 32767), body, Vector3.UnitY);
         VehicleState b = drive.Step(Frame(1, throttle: 65535, steering: 32767), body, Vector3.UnitY);
-        Assert.That(a.Physics.LinearVelocity.X, Is.GreaterThan(4.8f));
-        Assert.That(Math.Abs(a.LateralAcceleration), Is.LessThanOrEqualTo(1.05f * 9.81f));
+        Assert.That(a.Physics.LinearVelocity.X, Is.GreaterThanOrEqualTo(5 - (coast.Configuration.TireFriction * coast.Configuration.Gravity / 60)));
+        Assert.That(Math.Abs(a.LateralAcceleration), Is.LessThanOrEqualTo(coast.Configuration.TireFriction * coast.Configuration.Gravity));
         Assert.That(b.RearSlip, Is.GreaterThan(a.RearSlip));
         Assert.That(a.FrontSlip, Is.InRange(0.01f, 1f));
         Assert.That(b.Physics.LinearVelocity.X, Is.GreaterThan(a.Physics.LinearVelocity.X));
@@ -242,6 +242,41 @@ internal sealed class VehicleMovementTests
         body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(0.01f, 0, -10), Vector3.Zero);
         VehicleState grip = new VehicleMovement(tuning, body).Step(Frame(1), body, Vector3.UnitY);
         Assert.That(grip.Physics.LinearVelocity.X, Is.InRange(0, 0.01f));
+    }
+
+    /// <summary>Handbrake keeps front authority, retains rear friction, and blocks drive from cancelling rear braking.</summary>
+    [Test]
+    public void HandbrakePreservesFrontGripAndRecoversRearTraction()
+    {
+        var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(5, 0, -14), Vector3.Zero);
+        VehicleMovement held = Create();
+        VehicleMovement powered = Create();
+        held.Restore(new VehicleState(0, body, true, false, 0, 1));
+        powered.Restore(held.State);
+        VehicleState normal = Create().Step(Frame(1), body, Vector3.UnitY);
+        VehicleState locked = held.Step(Frame(1, drift: true), body, Vector3.UnitY);
+        VehicleState throttle = powered.Step(Frame(1, throttle: 65535, drift: true), body, Vector3.UnitY);
+        float FrontForce(VehicleState state)
+        {
+            float yaw = state.Physics.AngularVelocity.Y / MathF.Exp(-held.Configuration.StabilityDamping / 60);
+            float difference = yaw * 60 * held.Configuration.Wheelbase * 2 / 3;
+            return (state.LateralAcceleration - difference) / 2;
+        }
+
+        Assert.That(FrontForce(locked), Is.EqualTo(FrontForce(normal)).Within(0.0001f));
+        Assert.That(Math.Abs(FrontForce(locked)), Is.GreaterThan(4));
+        Assert.That(Math.Abs(locked.LateralAcceleration - FrontForce(locked)), Is.GreaterThan(2));
+        Assert.That(throttle.LongitudinalAcceleration, Is.EqualTo(locked.LongitudinalAcceleration));
+        Assert.That(locked.LongitudinalAcceleration, Is.LessThan(-1));
+        VehicleState release = held.Step(Frame(2), body, Vector3.UnitY);
+        Assert.That(release.Handbrake, Is.InRange(0.8f, 0.99f));
+        for (ulong tick = 3; tick <= 17; tick++)
+        {
+            held.Step(Frame(tick), body, Vector3.UnitY);
+        }
+
+        Assert.That(held.State.Handbrake, Is.Zero);
+        Assert.That(Math.Abs(held.State.LateralAcceleration), Is.GreaterThan(Math.Abs(locked.LateralAcceleration)));
     }
 
     private static VehicleMovement Create(float speed = 0) => new(new VehicleConfiguration(), new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(0, 0, -speed), Vector3.Zero));

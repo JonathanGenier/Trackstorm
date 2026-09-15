@@ -25,6 +25,7 @@ public sealed partial class InputIntegrationChecks : Node
             AddChild(_player);
             _player.SetPhysicsProcess(false);
             VerifyRequiredDefaults();
+            VerifyLegacyDefaults();
             GD.Print($"Connected physical gamepads before synthetic input: {Godot.Input.GetConnectedJoypads().Count}");
             VerifyEveryDefaultBinding();
             VerifyAnalogAndIndependentLeaderboard();
@@ -92,6 +93,29 @@ public sealed partial class InputIntegrationChecks : Node
         _player.Adapter.Bindings.Replace(InputAction.UseItem);
         InputBindingPreferences.Apply(_player.Adapter, Trackstorm.Core.Settings.PlayerSettingsJson.Deserialize(Trackstorm.Core.Settings.PlayerSettingsJson.Serialize(saved)));
         Check(InputMap.ActionHasEvent(PlayerInputBindings.Name(InputAction.UseItem), new InputEventMouseButton { ButtonIndex = MouseButton.Left }), "mouse remapping survives preference serialization");
+    }
+
+    private void VerifyLegacyDefaults()
+    {
+        var legacy = new Trackstorm.Core.Settings.PlayerSettings { BindingDefaultsVersion = 0 }
+            .WithBindings(InputAction.UseItem, new[] { "key:69", "button:0:2" })
+            .WithBindings(InputAction.Drift, new[] { "key:32", "button:0:0" });
+        InputBindingPreferences.Apply(_player.Adapter, legacy);
+        var migrated = InputBindingPreferences.Capture(_player.Adapter, legacy);
+        Check(migrated.Bindings[InputAction.UseItem].Contains("mouse:1") && migrated.Bindings[InputAction.UseItem].Contains("button:0:0"), "old saved defaults migrate to LMB/A");
+        Check(migrated.Bindings[InputAction.Drift].Contains("button:0:1"), "old saved handbrake defaults migrate to B");
+        var custom = legacy.WithBindings(InputAction.UseItem, new[] { "key:74" });
+        InputBindingPreferences.Apply(_player.Adapter, custom);
+        Check(InputBindingPreferences.Capture(_player.Adapter, custom).Bindings[InputAction.UseItem].SequenceEqual(new[] { "key:74" }), "custom item remap survives migration");
+        custom = legacy.WithBindings(InputAction.UseItem, Array.Empty<string>());
+        InputBindingPreferences.Apply(_player.Adapter, custom);
+        Check(_player.Adapter.Bindings.CopyBindings(InputAction.UseItem).Length == 0, "explicit unbind survives migration");
+        _player.Adapter.Bindings.RestoreDefaults();
+        InputBindingPreferences.Apply(_player.Adapter, migrated);
+        Check(InputBindingPreferences.Capture(_player.Adapter, migrated).Bindings[InputAction.UseItem].SequenceEqual(migrated.Bindings[InputAction.UseItem]), "migrated preferences are stable on restart");
+        InputBindingPreferences.Apply(_player.Adapter, legacy with { BindingDefaultsVersion = 1 });
+        Check(InputBindingPreferences.Capture(_player.Adapter, migrated).Bindings[InputAction.UseItem].Contains("key:69"), "deliberately restoring old bindings after migration survives restart");
+        _player.Adapter.Bindings.RestoreDefaults();
     }
 
     private void VerifyEveryDefaultBinding()

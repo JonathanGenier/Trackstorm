@@ -25,27 +25,27 @@ public sealed record VehicleConfiguration
     /// <summary>Reverse drive limit.</summary>
     public float ReverseSpeed { get; init; } = 11;
     /// <summary>Lateral grip response per second.</summary>
-    public float Grip { get; init; } = 9;
+    public float Grip { get; init; } = 12;
     /// <summary>Maximum low-speed wheel angle in radians.</summary>
     public float SteeringAngle { get; init; } = 0.6f;
     /// <summary>Speed in m/s at which wheel authority starts calming substantially.</summary>
-    public float SteeringSpeed { get; init; } = 18;
+    public float SteeringSpeed { get; init; } = 22;
     /// <summary>Wheel angle transition rate in radians per second.</summary>
-    public float SteeringResponse { get; init; } = 2.5f;
+    public float SteeringResponse { get; init; } = 6;
     /// <summary>Distance between axle centers in metres.</summary>
     public float Wheelbase { get; init; } = 2.3f;
     /// <summary>Tire friction coefficient; combined demands share this budget.</summary>
-    public float TireFriction { get; init; } = 1.05f;
+    public float TireFriction { get; init; } = 1.35f;
     /// <summary>Effective center-of-mass height for longitudinal/lateral load transfer.</summary>
     public float LoadHeight { get; init; } = 0.45f;
     /// <summary>Rear braking deceleration at reference mass.</summary>
     public float HandbrakeBraking { get; init; } = 12;
     /// <summary>Rear lateral grip fraction with the handbrake fully engaged.</summary>
-    public float HandbrakeGrip { get; init; } = 0.12f;
+    public float HandbrakeGrip { get; init; } = 0.6f;
     /// <summary>Handbrake application response per second.</summary>
     public float HandbrakeResponse { get; init; } = 12;
     /// <summary>Handbrake release response per second, permitting gradual traction recovery.</summary>
-    public float TractionRecovery { get; init; } = 3;
+    public float TractionRecovery { get; init; } = 5;
     /// <summary>Rolling resistance per second.</summary>
     public float CoastDrag { get; init; } = 0.12f;
     /// <summary>Reference mass for engine and brake forces, so heavier tuning retains inertia.</summary>
@@ -59,7 +59,7 @@ public sealed record VehicleConfiguration
     /// <summary>Maximum load-induced chassis tilt in radians.</summary>
     public float MaximumChassisTilt { get; init; } = 0.16f;
     /// <summary>Weak yaw damping; never targets a commanded yaw or drift angle.</summary>
-    public float StabilityDamping { get; init; } = 0.15f;
+    public float StabilityDamping { get; init; } = 0.65f;
     /// <summary>Fully extended suspension ray length in metres.</summary>
     public float SuspensionLength { get; init; } = 0.8f;
     /// <summary>Vertical spring stiffness per unit sprung mass.</summary>

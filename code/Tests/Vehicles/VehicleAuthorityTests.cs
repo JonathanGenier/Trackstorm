@@ -128,7 +128,7 @@ internal sealed class VehicleAuthorityTests
         Assert.That(results[0].Reset, Is.True);
         Assert.That(fresh.LifeId, Is.EqualTo(dead.LifeId + 1));
         Assert.That(fresh.Movement.Tick, Is.EqualTo(3));
-        Assert.That(fresh.Movement.SteeringAngle, Is.EqualTo(new VehicleConfiguration().SteeringResponse / 60));
+        Assert.That(fresh.Movement.SteeringAngle, Is.EqualTo(new VehicleConfiguration().SteeringResponse / 60).Within(0.000001f));
         Assert.That(fresh.Movement.Handbrake, Is.Zero);
         Assert.That(fresh.Damage.CurrentHP, Is.EqualTo(100));
         Assert.That(fresh.Damage.LastDamage, Is.Null);

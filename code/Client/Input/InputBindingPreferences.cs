@@ -26,7 +26,7 @@ internal static class InputBindingPreferences
     /// <returns>Snapshot containing current input preferences.</returns>
     public static PlayerSettings Capture(PlayerInputAdapter adapter, PlayerSettings settings)
     {
-        settings = settings with { InvertSteering = adapter.InvertSteering, DeadZone = adapter.DeadZone };
+        settings = settings with { InvertSteering = adapter.InvertSteering, DeadZone = adapter.DeadZone, BindingDefaultsVersion = 1 };
         foreach (InputAction action in Enum.GetValues<InputAction>())
         {
             InputEvent[] bindings = adapter.Bindings.CopyBindings(action);
@@ -53,8 +53,19 @@ internal static class InputBindingPreferences
     {
         adapter.InvertSteering = settings.InvertSteering;
         adapter.DeadZone = (float)settings.DeadZone;
+        // Older saves captured every default as an override, even when only HUD settings changed.
+        // Migrate only the intact old item/handbrake pair; any custom pair remains authoritative.
+        bool legacyDrivingDefaults = settings.BindingDefaultsVersion == 0 && settings.Bindings.TryGetValue(InputAction.UseItem, out var item)
+            && item.Order(StringComparer.Ordinal).SequenceEqual(new[] { "button:0:2", "key:69" })
+            && settings.Bindings.TryGetValue(InputAction.Drift, out var handbrake)
+            && handbrake.Order(StringComparer.Ordinal).SequenceEqual(new[] { "button:0:0", "key:32" });
         foreach ((InputAction action, IReadOnlyList<string> tokens) in settings.Bindings)
         {
+            if (legacyDrivingDefaults && action is InputAction.UseItem or InputAction.Drift)
+            {
+                continue;
+            }
+
             var events = new List<InputEvent>();
             try
             {

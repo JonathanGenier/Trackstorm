@@ -47,6 +47,7 @@ public sealed partial class VehicleIntegrationChecks : Node
             await VerifyReverseAndDrift();
             await VerifyBrakingAndInvalidDrift();
             await VerifyCorneringAndRecovery();
+            await VerifyResponsiveHandbrake();
             await VerifyPhysicalInteractions();
             await VerifyDamageAndExplosions();
             await VerifySpeedTelemetry();
@@ -165,6 +166,8 @@ public sealed partial class VehicleIntegrationChecks : Node
         float lowRadius = Numerics.Vector3.Distance(low.First().Physics.Position, low.Last().Physics.Position) / Math.Max(0.001f, lowYaw);
         float fastRadius = Numerics.Vector3.Distance(fast.First().Physics.Position, fast.Last().Physics.Position) / Math.Max(0.001f, fastYaw);
         GD.Print($"Cornering: low radius={lowRadius:F2}m; fast radius={fastRadius:F2}m; front slip={fast.Max(state => state.FrontSlip):F2}");
+        GD.Print($"Steering onset: first wheel={low[0].SteeringAngle:F3}rad; yaw at 100ms={low[5].Physics.AngularVelocity.Y:F3}rad/s");
+        Check(low[0].SteeringAngle > 0.08f && Math.Abs(low[5].Physics.AngularVelocity.Y) > 0.1f, "steering starts on the first fixed tick and produces physical yaw within 100ms");
         Check(lowYaw > 0.15f && fastRadius > lowRadius * 1.5f, "fast entry runs a wider line than low-speed steering");
         Check(fast.Max(state => state.FrontSlip) > 0.1f, "high-speed steering has measurable front traction saturation");
         List<VehicleState> lane = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -20), 60, tick => Frame(tick, steering: tick <= 30 ? (short)10000 : (short)-10000));
@@ -177,6 +180,27 @@ public sealed partial class VehicleIntegrationChecks : Node
         Check(handbrake.Last().CommandSpeed < 10 && handbrake.Any(state => Math.Abs(state.Physics.AngularVelocity.Y) > 0.3f), "prolonged turning handbrake scrubs speed and rotates the rear");
         Check(slide.All(state => state.CommandSpeed < 20), "recovery does not add a drift boost");
         await Screenshot("cornering");
+    }
+
+    private async Task VerifyResponsiveHandbrake()
+    {
+        foreach (float speed in new[] { 6f, 16f })
+        {
+            List<VehicleState> straight = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -speed), 90, tick => Frame(tick, throttle: 65535, drift: true));
+            Check(straight.Last().CommandSpeed < speed * 0.7f && straight.All(state => Math.Abs(state.Physics.AngularVelocity.Y) < 0.1f), "straight handbrake slows without manufacturing rotation, even with throttle");
+            foreach (ulong heldTicks in new[] { 6ul, 45ul })
+            {
+                List<VehicleState> turn = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -speed), 180, tick => Frame(tick, throttle: tick > heldTicks + 30 ? (ushort)15000 : (ushort)0, steering: tick <= heldTicks ? (short)12000 : tick <= heldTicks + 20 ? (short)-7000 : (short)0, drift: tick <= heldTicks));
+                float side = Math.Abs(Numerics.Vector3.Dot(turn.Last().Physics.LinearVelocity, Numerics.Vector3.Transform(Numerics.Vector3.UnitX, turn.Last().Physics.Orientation)));
+                float peakYaw = turn.Max(state => Math.Abs(state.Physics.AngularVelocity.Y));
+                File.WriteAllLines($"{_output}.handbrake-{speed}-{heldTicks}.csv", turn.Select((state, index) => $"{index},{state.Physics.Position},{state.Physics.LinearVelocity},{state.Physics.AngularVelocity.Y},{state.Handbrake},{state.FrontSlip},{state.RearSlip}"));
+                GD.Print($"Handbrake recovery: entry={speed}, held={heldTicks}, peak yaw={peakYaw:F2}, final side={side:F3}, speed={turn.Last().CommandSpeed:F2}");
+                Check(peakYaw is > 0.1f and < 2 && side < 1 && turn.Last().Handbrake == 0, "tap/sustained turning handbrake retains control and settles after release with countersteering/throttle");
+                Check(turn.Skip((int)heldTicks).Any(state => state.Handbrake > 0 && state.Handbrake < 1), "handbrake recovery remains progressive");
+            }
+        }
+
+        await Screenshot("handbrake-recovery");
     }
 
     private async Task VerifyPhysicalInteractions()

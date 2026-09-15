@@ -107,7 +107,8 @@ public sealed class VehicleMovement
             float handbrakeStop = Math.Min(c.HandbrakeBraking * handbrake * forceScale, Math.Max(0, (Math.Abs(longitudinal) / dt) - stopping));
             float frontLong = -Math.Sign(longitudinal) * stopping * 0.65f;
             float driveAcceleration = Math.Clamp(drive * forceScale, -Math.Max(0, c.ReverseSpeed + longitudinal) / dt, Math.Max(0, c.ForwardSpeed - longitudinal) / dt);
-            float rearLong = driveAcceleration - (Math.Sign(longitudinal) * ((stopping * 0.35f) + handbrakeStop));
+            // A locked rear axle cannot transmit engine drive against its handbrake.
+            float rearLong = (driveAcceleration * (1 - handbrake)) - (Math.Sign(longitudinal) * ((stopping * 0.35f) + handbrakeStop));
             float halfAxle = c.Wheelbase / 2;
             // Load transfer changes the traction budget; tire demands generate both translation and yaw.
             float frontLoad = Math.Clamp(0.5f - (State.LongitudinalAcceleration * c.LoadHeight / (c.Gravity * c.Wheelbase)), 0.2f, 0.8f);

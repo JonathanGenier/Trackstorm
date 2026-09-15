@@ -4,17 +4,17 @@ namespace Trackstorm.Core.Input;
 public sealed record DrivingInputShaping
 {
     /// <summary>Throttle rise per second.</summary>
-    public float ThrottleRise { get; init; } = 4;
+    public float ThrottleRise { get; init; } = 10;
     /// <summary>Throttle release per second.</summary>
-    public float ThrottleRelease { get; init; } = 7;
+    public float ThrottleRelease { get; init; } = 14;
     /// <summary>Brake rise per second.</summary>
-    public float BrakeRise { get; init; } = 8;
+    public float BrakeRise { get; init; } = 18;
     /// <summary>Steering rise per second.</summary>
-    public float SteeringRise { get; init; } = 5;
+    public float SteeringRise { get; init; } = 20;
     /// <summary>Steering return per second.</summary>
-    public float SteeringReturn { get; init; } = 7;
+    public float SteeringReturn { get; init; } = 24;
     /// <summary>Steering reversal per second.</summary>
-    public float SteeringReversal { get; init; } = 9;
+    public float SteeringReversal { get; init; } = 30;
 
     /// <summary>Moves toward bounded intent without overshoot; finite rates and a fixed timestep are required.</summary>
     /// <param name="current">Previous shaped intent.</param>
