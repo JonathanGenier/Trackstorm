@@ -1,26 +1,36 @@
 namespace Trackstorm.Core.Vehicles;
 
-/// <summary>Serializable pre-solver snapshot: observed pose, next velocities, and all movement state-machine memory.</summary>
+/// <summary>Serializable pre-solver snapshot: observed pose, next velocities, and all movement memory and feedback.</summary>
 public readonly record struct VehicleState
 {
     /// <summary>Constructs a movement snapshot suitable for explicit restoration.</summary>
     /// <param name="tick">Last completed movement decision tick.</param>
     /// <param name="physics">Observed pose and commanded velocities.</param>
     /// <param name="grounded">Whether support was observed this tick.</param>
-    /// <param name="drifting">Whether a valid drift is active.</param>
-    /// <param name="driftTicks">Accumulated valid drift duration.</param>
-    /// <param name="boostTicks">Remaining boost duration.</param>
+    /// <param name="drifting">Whether measurable lateral sliding is present.</param>
+    /// <param name="steeringAngle">Current front-wheel angle in radians.</param>
+    /// <param name="handbrake">Rear handbrake application, zero through one.</param>
     /// <param name="currentSurface">Current support surface, retained during flight.</param>
-    public VehicleState(ulong tick, VehiclePhysicsState physics, bool grounded, bool drifting, int driftTicks, int boostTicks, SurfaceType currentSurface = SurfaceType.Concrete)
+    /// <param name="frontSlip">Front traction saturation.</param>
+    /// <param name="rearSlip">Rear traction saturation.</param>
+    /// <param name="longitudinalAcceleration">Longitudinal tire acceleration.</param>
+    /// <param name="lateralAcceleration">Lateral tire acceleration.</param>
+    /// <param name="landingIntensity">Landing feedback.</param>
+    /// <param name="wheels">Per-wheel compression for presentation and replay diagnostics.</param>
+    public VehicleState(ulong tick, VehiclePhysicsState physics, bool grounded, bool drifting, float steeringAngle, float handbrake, SurfaceType currentSurface = SurfaceType.Concrete, float frontSlip = 0, float rearSlip = 0, float longitudinalAcceleration = 0, float lateralAcceleration = 0, float landingIntensity = 0, WheelSupport wheels = default)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(driftTicks);
-        ArgumentOutOfRangeException.ThrowIfNegative(boostTicks);
         _ = new VehiclePhysicsState(physics.Position, physics.Orientation, physics.LinearVelocity, physics.AngularVelocity);
-        if (!drifting && driftTicks != 0)
+        if (new[] { steeringAngle, handbrake, frontSlip, rearSlip, longitudinalAcceleration, lateralAcceleration, landingIntensity }.Any(value => !float.IsFinite(value)) || Math.Abs(steeringAngle) > 1 || handbrake is < 0 or > 1 || frontSlip is < 0 or > 1 || rearSlip is < 0 or > 1 || landingIntensity is < 0 or > 1 || Math.Abs(longitudinalAcceleration) > 1000 || Math.Abs(lateralAcceleration) > 1000)
         {
-            throw new ArgumentException("An inactive drift cannot retain charge.");
+            throw new ArgumentException("Invalid handling state.");
         }
 
+        Wheels = new WheelSupport(wheels.Compression);
+        FrontSlip = frontSlip;
+        RearSlip = rearSlip;
+        LongitudinalAcceleration = longitudinalAcceleration;
+        LateralAcceleration = lateralAcceleration;
+        LandingIntensity = landingIntensity;
         if (!Enum.IsDefined(currentSurface))
         {
             throw new ArgumentOutOfRangeException(nameof(currentSurface));
@@ -31,8 +41,8 @@ public readonly record struct VehicleState
         Physics = physics;
         Grounded = grounded;
         Drifting = drifting;
-        DriftTicks = driftTicks;
-        BoostTicks = boostTicks;
+        SteeringAngle = steeringAngle;
+        Handbrake = handbrake;
     }
 
     /// <summary>Last supported surface; airborne movement applies no surface effects.</summary>
@@ -43,12 +53,27 @@ public readonly record struct VehicleState
     public VehiclePhysicsState Physics { get; }
     /// <summary>Ground contact supplied by the physics adapter.</summary>
     public bool Grounded { get; }
-    /// <summary>Valid active drift.</summary>
+    /// <summary>Observed sliding feedback; never a mode that controls physics.</summary>
     public bool Drifting { get; }
-    /// <summary>Continuous valid drift ticks.</summary>
-    public int DriftTicks { get; }
-    /// <summary>Boost ticks remaining.</summary>
-    public int BoostTicks { get; }
+    /// <summary>Current front-wheel angle in radians.</summary>
+    public float SteeringAngle { get; }
+    /// <summary>Rear handbrake application, zero through one.</summary>
+    public float Handbrake { get; }
+    /// <summary>Front axle traction saturation, zero through one.</summary>
+    public float FrontSlip { get; }
+    /// <summary>Rear axle traction saturation, zero through one.</summary>
+    public float RearSlip { get; }
+    /// <summary>Signed tire acceleration along the chassis, in m/s squared.</summary>
+    public float LongitudinalAcceleration { get; }
+    /// <summary>Signed tire acceleration across the chassis, in m/s squared.</summary>
+    public float LateralAcceleration { get; }
+    /// <summary>Landing compression impulse intensity; decays after contact.</summary>
+    public float LandingIntensity { get; }
+    /// <summary>Individual spring compression in metres.</summary>
+    public WheelSupport Wheels { get; }
     /// <summary>Total commanded velocity magnitude for physics diagnostics, not player travel telemetry.</summary>
     public float CommandSpeed => Physics.LinearVelocity.Length();
+    /// <summary>Revalidates all portable state fields at aggregate boundaries.</summary>
+    public void Validate() => _ = new VehicleState(Tick, Physics, Grounded, Drifting, SteeringAngle, Handbrake, CurrentSurface, FrontSlip, RearSlip, LongitudinalAcceleration, LateralAcceleration, LandingIntensity, Wheels);
+
 }

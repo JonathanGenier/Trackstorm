@@ -199,7 +199,7 @@ internal sealed class VehicleReplicationTests
         host.Step(Drive(), Observe);
         WorldSnapshot expected = host.Snapshot();
         byte[] bytes = VehicleNetworkCodec.EncodeSnapshot(expected);
-        Assert.That(bytes.Length, Is.LessThan(1200));
+        Assert.That(bytes.Length, Is.LessThan(1400));
         WorldSnapshot decoded = VehicleNetworkCodec.DecodeSnapshot(bytes);
         Assert.That(decoded.Tick, Is.EqualTo(expected.Tick));
         Assert.That(decoded.Session, Is.EqualTo(99));
@@ -262,7 +262,7 @@ internal sealed class VehicleReplicationTests
     public void SnapshotPreservesGameplayMemory()
     {
         var physics = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(2, 0, -10), Vector3.UnitY);
-        var movement = new VehicleState(100, physics, true, true, 20, 10);
+        var movement = new VehicleState(100, physics, true, true, 0.2f, 1);
         var damage = new VehicleDamageState(100, 80, new DamageEvent(2, 99, 20, new DamageContext("collision", 7, "vehicle"), false), 99);
         var state = new VehicleSnapshot(2, 3, movement, damage, physics);
         var snapshot = new WorldSnapshot(99, 100, [new(state, 15)]);

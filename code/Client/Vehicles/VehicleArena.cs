@@ -11,7 +11,7 @@ public sealed partial class VehicleArena : Node3D
     private readonly Label _status = new();
     private readonly Label _health = new();
     private readonly Label _title = new() { Text = "LOCAL VEHICLE ARENA" };
-    private readonly Label _instructions = new() { Text = "Drive / brake / steer with your bindings. Hold drift through a turn, then release for boost.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+    private readonly Label _instructions = new() { Text = "W/S drive and brake, A/D steer, Space handbrake. Brake before corners; release the handbrake to regain grip.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly List<VehicleBody> _vehicles = new();
     private MeshInstance3D? _blast;
     private float _blastSeconds;
@@ -140,7 +140,7 @@ public sealed partial class VehicleArena : Node3D
         bool compact = GetViewport().GetVisibleRect().Size.Y < 500;
         _title.Visible = !compact;
         _instructions.Visible = !compact;
-        _status.Text = state.BoostTicks > 0 ? "BOOST" : state.Drifting ? "DRIFT — hold your turn to charge" : state.Grounded ? "GROUNDED" : "AIRBORNE";
+        _status.Text = state.Handbrake > 0 ? "HANDBRAKE" : state.Drifting ? "SLIDING" : state.Grounded ? "GROUNDED" : "AIRBORNE";
         _status.Text += $"  •  {state.CurrentSurface}";
         VehicleDamageState health = Player.DamageState;
         _health.Text = health.Destroyed ? "DESTROYED — reset vehicles to drive again" : $"HP  {health.CurrentHP:0} / {health.MaxHP:0}     Target HP  {Target.DamageState.CurrentHP:0} / {Target.DamageState.MaxHP:0}";

@@ -11,7 +11,7 @@ public enum InputAction
     SteerLeft,
     /// <summary>Positive steering.</summary>
     SteerRight,
-    /// <summary>Drift control.</summary>
+    /// <summary>Physical handbrake; stable identifier retained for saved bindings.</summary>
     Drift,
     /// <summary>Use the equipped item.</summary>
     UseItem,
@@ -31,4 +31,12 @@ public enum InputAction
     MenuCancel,
     /// <summary>Request the pause menu.</summary>
     Pause,
+    /// <summary>Local camera look left.</summary>
+    CameraLeft,
+    /// <summary>Local camera look right.</summary>
+    CameraRight,
+    /// <summary>Local camera look up.</summary>
+    CameraUp,
+    /// <summary>Local camera look down.</summary>
+    CameraDown,
 }

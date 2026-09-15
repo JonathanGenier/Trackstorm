@@ -8,6 +8,8 @@ namespace Trackstorm.Client.Networking;
 /// <summary>Synchronous Godot collision observation seam usable by both host steps and prediction replay.</summary>
 internal sealed partial class NetworkVehicleBody : StaticBody3D
 {
+    private readonly VehicleConfiguration _configuration = new();
+    private readonly List<Node3D> _wheels = new();
     private readonly Node3D _visual = new();
     private VehiclePhysicsState _previous;
     private VehiclePhysicsState _current;
@@ -40,11 +42,13 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         _visual.AddChild(chassis);
         _visual.AddChild(VehicleBody.Box(new Vector3(1.5f, 0.55f, 1.65f), new Vector3(0, 0.55f, 0.15f), new Color("172435")));
         _visual.AddChild(VehicleBody.Box(new Vector3(1.5f, 0.12f, 0.1f), new Vector3(0, 0.12f, -1.82f), new Color("ecfbff")));
-        foreach (float x in new[] { -1.02f, 1.02f })
+        foreach (float z in new[] { -1.15f, 1.15f })
         {
-            foreach (float z in new[] { -1.15f, 1.15f })
+            foreach (float x in new[] { -1.02f, 1.02f })
             {
-                _visual.AddChild(VehicleBody.Box(new Vector3(0.3f, 0.75f, 0.75f), new Vector3(x, -0.1f, z), new Color("10131a")));
+                var wheel = VehicleBody.Box(new Vector3(0.3f, 0.75f, 0.75f), new Vector3(x, -0.1f, z), new Color("10131a"));
+                _visual.AddChild(wheel);
+                _wheels.Add(wheel);
             }
         }
     }
@@ -78,7 +82,8 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         Vector3 angular = VehicleBody.ToGodot(state.AngularVelocity);
         foreach (var effect in snapshot.Effects)
         {
-            velocity += VehicleBody.ToGodot(effect.Effect.Impulse) / 900;
+            velocity += VehicleBody.ToGodot(effect.Effect.Impulse) / _configuration.Mass;
+            angular += VehicleBody.ToGodot(Numerics.Vector3.Cross(effect.Effect.Offset, effect.Effect.Impulse)) / (_configuration.Mass * _configuration.Wheelbase * _configuration.Wheelbase / 3);
         }
 
         if (velocity.Length() > 65)
@@ -130,6 +135,18 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                     surface = (result.GetCollider(i) as SurfaceBody)?.Surface ?? SurfaceType.Concrete;
                 }
 
+                if (normal.Y < 0.55f)
+                {
+                    float closing = Math.Max(0, -relative.Dot(normal));
+                    Vector3 deltaVelocity = normal * closing;
+                    Vector3 lever = result.GetCollisionPoint(i) - transform.Origin;
+                    float inertiaPerMass = _configuration.Wheelbase * _configuration.Wheelbase / 3;
+                    // Sweep bodies retain contact lever-arm rotation instead of silently discarding the impact torque.
+                    angular += lever.Cross(deltaVelocity) / inertiaPerMass;
+                    angular = VehicleBody.ToGodot(VehicleMovement.Limit(VehicleBody.ToCore(angular), _configuration.MaximumAngularSpeed));
+                    velocity += deltaVelocity;
+                }
+
                 if (velocity.Dot(normal) < 0)
                 {
                     velocity = velocity.Slide(normal);
@@ -158,8 +175,19 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
             }
         }
 
-        return new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts, surface);
+        var suspension = WheelSuspension.Observe(this, transform, _configuration);
+        if (!suspension.Normal.IsZeroApprox())
+        {
+            support = suspension.Normal;
+            surface = suspension.Surface;
+        }
+
+        return new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts, surface, suspension.Wheels);
     }
+
+    /// <summary>Applies visible steering and independent spring travel from accepted state.</summary>
+    /// <param name="state">Accepted or predicted handling.</param>
+    internal void PresentHandling(VehicleState state) => WheelSuspension.Present(_wheels, state, _configuration.SuspensionLength, 0.375f);
 
     /// <summary>Reconstructs the collision proxy immediately; rendering retains its own correction offset.</summary>
     /// <param name="state">Predicted or authoritative physics.</param>

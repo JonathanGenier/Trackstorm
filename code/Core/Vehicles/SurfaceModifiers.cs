@@ -4,9 +4,9 @@ namespace Trackstorm.Core.Vehicles;
 public readonly record struct SurfaceModifiers
 {
     /// <summary>Rejects nonfinite, negative or excessive multipliers before simulation.</summary>
-    /// <param name="grip">Normal and drift lateral grip multiplier.</param>
+    /// <param name="grip">Combined tire traction multiplier.</param>
     /// <param name="drag">Coasting drag multiplier; values above one add resistance under power too.</param>
-    /// <param name="acceleration">Forward, reverse and boost acceleration multiplier.</param>
+    /// <param name="acceleration">Forward and reverse engine-force multiplier.</param>
     public SurfaceModifiers(float grip, float drag, float acceleration)
     {
         if (!float.IsFinite(grip) || !float.IsFinite(drag) || !float.IsFinite(acceleration) ||

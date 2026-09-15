@@ -13,6 +13,7 @@ internal static class InputBindingPreferences
     /// <returns>A readable physical control label.</returns>
     public static string Describe(InputEvent binding) => binding switch
     {
+        InputEventMouseButton mouse => $"Mouse {mouse.ButtonIndex}",
         InputEventKey key => OS.GetKeycodeString(key.PhysicalKeycode),
         InputEventJoypadButton button => $"Pad {button.Device + 1}: {button.ButtonIndex}",
         InputEventJoypadMotion axis => $"Pad {axis.Device + 1}: {axis.Axis} {(axis.AxisValue < 0 ? "−" : "+")}",
@@ -85,6 +86,7 @@ internal static class InputBindingPreferences
 
     private static string Encode(InputEvent binding) => binding switch
     {
+        InputEventMouseButton mouse => FormattableString.Invariant($"mouse:{(int)mouse.ButtonIndex}"),
         InputEventKey key => FormattableString.Invariant($"key:{(long)key.PhysicalKeycode}"),
         InputEventJoypadButton button => FormattableString.Invariant($"button:{button.Device}:{(int)button.ButtonIndex}"),
         InputEventJoypadMotion axis => FormattableString.Invariant($"axis:{axis.Device}:{(int)axis.Axis}:{(int)axis.AxisValue}"),
@@ -106,6 +108,11 @@ internal static class InputBindingPreferences
         if (parts is ["key", _] && values[0] > 0 && Enum.IsDefined((Key)values[0]))
         {
             return new InputEventKey { PhysicalKeycode = (Key)values[0] };
+        }
+
+        if (parts is ["mouse", _] && values[0] >= (int)MouseButton.Left && values[0] <= (int)MouseButton.Xbutton2)
+        {
+            return new InputEventMouseButton { ButtonIndex = (MouseButton)values[0] };
         }
 
         if (values.Length >= 2 && values[0] is >= 0 and <= int.MaxValue)

@@ -21,22 +21,6 @@ public sealed class VehicleMovement
     /// <summary>Latest pre-solver snapshot.</summary>
     public VehicleState State { get; private set; }
 
-    /// <summary>Speed-sensitive yaw rate. Steering is normalized; reversing reverses steering direction.</summary>
-    /// <param name="steering">Signed normalized input.</param>
-    /// <param name="forwardSpeed">Signed longitudinal speed.</param>
-    /// <param name="maximumRate">Configured peak yaw rate.</param>
-    /// <returns>Target world-up yaw rate.</returns>
-    public static float Steering(float steering, float forwardSpeed, float maximumRate)
-    {
-        if (!float.IsFinite(steering) || !float.IsFinite(forwardSpeed) || !float.IsFinite(maximumRate) || maximumRate < 0)
-        {
-            throw new ArgumentException("Steering requires finite inputs and a nonnegative rate.");
-        }
-
-        float speed = Math.Abs(forwardSpeed);
-        return -Math.Clamp(steering, -1, 1) * Math.Sign(forwardSpeed) * maximumRate * Math.Min(speed / 4, 1) / (1 + (speed / 45));
-    }
-
     /// <summary>Bounds external velocity without changing direction.</summary>
     /// <param name="value">Finite vector.</param>
     /// <param name="maximum">Positive magnitude bound.</param>
@@ -57,8 +41,9 @@ public sealed class VehicleMovement
     /// <param name="groundNormal">Unit support normal, or zero while airborne.</param>
     /// <param name="driveEnabled">Authority-controlled drive permission.</param>
     /// <param name="surface">Fixed-step supporting surface identifier.</param>
+    /// <param name="wheels">Optional independent spring observations.</param>
     /// <returns>Next movement snapshot and commanded velocities.</returns>
-    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete)
+    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null)
     {
         if (input.Tick != checked(State.Tick + 1))
         {
@@ -77,73 +62,132 @@ public sealed class VehicleMovement
         bool grounded = groundNormal.Y >= 0.55f;
         SurfaceType currentSurface = grounded ? surface : State.CurrentSurface;
         SurfaceModifiers modifiers = grounded ? detected : new SurfaceModifiers(1, 1, 1);
-        float acceleration = c.Acceleration * modifiers.Acceleration;
         Vector3 forward = Vector3.Transform(-Vector3.UnitZ, observed.Orientation);
         Vector3 right = Vector3.Transform(Vector3.UnitX, observed.Orientation);
         Vector3 up = Vector3.Transform(Vector3.UnitY, observed.Orientation);
         Vector3 velocity = Limit(observed.LinearVelocity, c.MaximumPhysicsSpeed);
+        Vector3 angular = Limit(observed.AngularVelocity, c.MaximumAngularSpeed);
         float longitudinal = Vector3.Dot(velocity, forward);
-        float steering = driveEnabled ? input.Steering / 32767f : 0;
-        bool held = driveEnabled && (input.Held & InputButtons.Drift) != 0;
-        bool validDrift = grounded && longitudinal >= c.DriftMinimumSpeed && Math.Abs(steering) >= 0.2f;
-        bool drifting = held && validDrift;
-        int chargeNeeded = (int)MathF.Ceiling(c.DriftChargeSeconds * c.TicksPerSecond);
-        int driftTicks = drifting ? Math.Min(State.DriftTicks + 1, chargeNeeded) : 0;
-        int boostTicks = Math.Max(0, State.BoostTicks - 1);
-        if (driveEnabled && !held && State.Drifting && State.DriftTicks >= chargeNeeded && validDrift)
-        {
-            boostTicks = (int)MathF.Ceiling(c.BoostSeconds * c.TicksPerSecond);
-        }
-
-        if (!driveEnabled)
-        {
-            boostTicks = 0;
-        }
-
+        float lateral = Vector3.Dot(velocity, right);
+        float steerIntent = driveEnabled ? input.Steering / 32767f : 0;
+        float wheelLimit = c.SteeringAngle / (1 + MathF.Pow(Math.Abs(longitudinal) / c.SteeringSpeed, 2));
+        float wheel = DrivingInputShaping.Approach(State.SteeringAngle, steerIntent * wheelLimit, c.SteeringResponse, dt);
+        float handbrakeTarget = driveEnabled && (input.Held & InputButtons.Drift) != 0 ? 1 : 0;
+        float handbrake = driveEnabled ? DrivingInputShaping.Approach(State.Handbrake, handbrakeTarget, handbrakeTarget > State.Handbrake ? c.HandbrakeResponse : c.TractionRecovery, dt) : 0;
         float throttle = driveEnabled ? input.Accelerate / 65535f : 0;
         float brake = driveEnabled ? input.Brake / 65535f : 0;
-        float target = longitudinal;
-        float authority = grounded ? 1 : 0.12f;
-        if (brake > 0)
-        {
-            target = longitudinal > 0 ? Math.Max(0, longitudinal - (c.Braking * brake * dt))
-                : throttle > 0 ? Math.Min(0, longitudinal + (c.Braking * throttle * dt))
-                : Math.Max(-c.ReverseSpeed, longitudinal - (c.ReverseAcceleration * modifiers.Acceleration * brake * dt));
-        }
-        else if (throttle > 0 || boostTicks > 0)
-        {
-            float cap = c.ForwardSpeed + (boostTicks > 0 ? c.BoostSpeed : 0);
-            target = longitudinal < 0 ? Math.Min(0, longitudinal + (c.Braking * throttle * dt))
-                : longitudinal < cap ? Math.Min(cap, longitudinal + (((acceleration * throttle) + (boostTicks > 0 ? acceleration : 0)) * dt))
-                : Math.Max(cap, longitudinal - (3 * dt));
-        }
-        else if (grounded)
-        {
-            target *= MathF.Exp(-0.35f * modifiers.Drag * dt);
-        }
-
-        if (grounded && (throttle > 0 || brake > 0 || boostTicks > 0))
-        {
-            target *= MathF.Exp(-0.35f * Math.Max(0, modifiers.Drag - 1) * dt);
-        }
-
-        velocity += forward * ((target - longitudinal) * authority);
+        float longAcceleration = 0;
+        float sideAcceleration = 0;
+        float frontSlip = 0;
+        float rearSlip = 0;
         if (grounded)
         {
-            velocity -= right * (Vector3.Dot(velocity, right) * (1 - MathF.Exp(-(drifting ? c.DriftGrip : c.Grip) * modifiers.Grip * dt)));
+            // Pedals brake opposing motion to zero before allowing a direction reversal on a later tick.
+            float drive = 0;
+            float stopping = 0;
+            if (longitudinal > 0 && brake > 0)
+            {
+                stopping = brake * c.Braking;
+            }
+            else if (longitudinal < 0 && throttle > 0)
+            {
+                stopping = throttle * c.Braking;
+            }
+            else if (throttle > 0)
+            {
+                drive = Math.Min(c.Acceleration * throttle * modifiers.Acceleration, Math.Max(0, c.ForwardSpeed - longitudinal) / dt);
+            }
+            else if (brake > 0)
+            {
+                drive = -Math.Min(c.ReverseAcceleration * brake * modifiers.Acceleration, Math.Max(0, c.ReverseSpeed + longitudinal) / dt);
+            }
+
+            float forceScale = c.ReferenceMass / c.Mass;
+            stopping = Math.Min(stopping * forceScale, Math.Abs(longitudinal) / dt);
+            float handbrakeStop = Math.Min(c.HandbrakeBraking * handbrake * forceScale, Math.Max(0, (Math.Abs(longitudinal) / dt) - stopping));
+            float frontLong = -Math.Sign(longitudinal) * stopping * 0.65f;
+            float driveAcceleration = Math.Clamp(drive * forceScale, -Math.Max(0, c.ReverseSpeed + longitudinal) / dt, Math.Max(0, c.ForwardSpeed - longitudinal) / dt);
+            float rearLong = driveAcceleration - (Math.Sign(longitudinal) * ((stopping * 0.35f) + handbrakeStop));
+            float halfAxle = c.Wheelbase / 2;
+            // Load transfer changes the traction budget; tire demands generate both translation and yaw.
+            float frontLoad = Math.Clamp(0.5f - (State.LongitudinalAcceleration * c.LoadHeight / (c.Gravity * c.Wheelbase)), 0.2f, 0.8f);
+            float supportedFraction = 1;
+            if (wheels is WheelSupport tireSupport)
+            {
+                System.Numerics.Vector4 compression = tireSupport.Compression;
+                float total = compression.X + compression.Y + compression.Z + compression.W;
+                supportedFraction = ((compression.X > 0 ? 1 : 0) + (compression.Y > 0 ? 1 : 0) + (compression.Z > 0 ? 1 : 0) + (compression.W > 0 ? 1 : 0)) / 4f;
+                if (total > 0)
+                {
+                    frontLoad = Math.Clamp((frontLoad + ((compression.X + compression.Y) / total)) / 2, 0.1f, 0.9f);
+                }
+            }
+
+            float totalGrip = c.TireFriction * c.Gravity * modifiers.Grip * supportedFraction;
+            float frontCapacity = totalGrip * frontLoad;
+            float rearCapacity = totalGrip * (1 - frontLoad);
+            float frontSideSpeed = lateral - (angular.Y * halfAxle) - (longitudinal * MathF.Tan(wheel));
+            float rearSideSpeed = lateral + (angular.Y * halfAxle);
+            float response = Math.Min(c.Grip * forceScale, 1 / dt);
+            float frontDemand = -frontSideSpeed * response * 0.5f;
+            float rearDemand = -rearSideSpeed * response * 0.5f;
+            (float frontForce, float frontDrive, float frontSaturation) = Tire(frontDemand, frontLong, frontCapacity);
+            (float rearForce, float rearDrive, float rearSaturation) = Tire(rearDemand, rearLong, rearCapacity, 1 - (handbrake * (1 - c.HandbrakeGrip)));
+            frontSlip = frontSaturation;
+            rearSlip = rearSaturation;
+            longAcceleration = frontDrive + rearDrive;
+            sideAcceleration = frontForce + rearForce;
+            velocity += ((forward * longAcceleration) + (right * sideAcceleration)) * dt;
+            float nextLongitudinal = Vector3.Dot(velocity, forward);
+            if (((brake > 0 && longitudinal > 0) || (throttle > 0 && longitudinal < 0)) && Math.Abs(nextLongitudinal) < c.StopSpeed)
+            {
+                velocity -= forward * nextLongitudinal;
+            }
+
+            float coast = throttle == 0 && brake == 0 ? modifiers.Drag : Math.Max(0, modifiers.Drag - 1);
+            velocity -= forward * (Vector3.Dot(velocity, forward) * (1 - MathF.Exp(-c.CoastDrag * coast * dt)));
+            float inertiaPerMass = c.Wheelbase * c.Wheelbase / 3;
+            angular.Y += halfAxle * (rearForce - frontForce) / inertiaPerMass * dt;
+            angular.Y *= MathF.Exp(-c.StabilityDamping * dt);
+        }
+
+        // Chassis load response acts on the physical body, using the same forces that consume tire grip.
+        Vector3 desiredUp = grounded ? groundNormal : Vector3.UnitY;
+        if (grounded)
+        {
+            desiredUp -= forward * Math.Clamp(longAcceleration * c.ChassisCompliance, -c.MaximumChassisTilt, c.MaximumChassisTilt);
+            desiredUp -= right * Math.Clamp(sideAcceleration * c.ChassisCompliance, -c.MaximumChassisTilt, c.MaximumChassisTilt);
+        }
+
+        Vector3 spring = Vector3.Cross(up, Vector3.Normalize(desiredUp));
+        angular += spring * (grounded ? c.SuspensionSpring : 3) * dt;
+        float damping = MathF.Exp(-(grounded ? c.SuspensionDamping : 0.5f) * dt);
+        angular.X *= damping;
+        angular.Z *= damping;
+        if (wheels is WheelSupport supports)
+        {
+            float[] compression = [supports.Compression.X, supports.Compression.Y, supports.Compression.Z, supports.Compression.W];
+            for (int index = 0; index < 4; index++)
+            {
+                if (compression[index] <= 0)
+                {
+                    continue;
+                }
+
+                Vector3 offset = (right * (index % 2 == 0 ? -0.85f : 0.85f)) + (forward * (index < 2 ? c.Wheelbase / 2 : -c.Wheelbase / 2));
+                float wheelVelocity = observed.LinearVelocity.Y + Vector3.Cross(observed.AngularVelocity, offset).Y;
+                float force = Math.Clamp((compression[index] * c.WheelSpring) - (wheelVelocity * c.WheelDamping), 0, c.Gravity * 6) / 4;
+                velocity += Vector3.UnitY * force * dt;
+                Vector3 torque = Vector3.Cross(offset, Vector3.UnitY * force);
+                angular += torque / (c.Wheelbase * c.Wheelbase / 3) * dt;
+            }
         }
 
         velocity -= Vector3.UnitY * (c.Gravity * dt);
-        Vector3 angular = Limit(observed.AngularVelocity, c.MaximumAngularSpeed);
-        float yaw = Steering(steering, longitudinal, c.SteeringRate) * (grounded ? drifting ? 1.3f : 1 : 0.2f);
-        angular.Y += (yaw - angular.Y) * (1 - MathF.Exp(-(grounded ? 9 : 1.5f) * dt));
-        Vector3 upright = Vector3.Cross(up, grounded ? groundNormal : Vector3.UnitY);
-        angular += upright * ((grounded ? 22 : 3) * dt);
-        float damping = MathF.Exp(-(grounded ? 5 : 0.5f) * dt);
-        angular.X *= damping;
-        angular.Z *= damping;
+        float landing = grounded && !State.Grounded ? Math.Clamp(-State.Physics.LinearVelocity.Y / 12, 0, 1) : Math.Max(0, State.LandingIntensity - (dt * 3));
+        bool sliding = grounded && Math.Abs(lateral) > 1 && rearSlip > 0.35f;
         var physics = new VehiclePhysicsState(observed.Position, observed.Orientation, Limit(velocity, c.MaximumPhysicsSpeed), Limit(angular, c.MaximumAngularSpeed));
-        State = new VehicleState(input.Tick, physics, grounded, drifting, driftTicks, boostTicks, currentSurface);
+        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default);
         return State;
     }
 
@@ -151,12 +195,31 @@ public sealed class VehicleMovement
     /// <param name="state">Validated saved snapshot.</param>
     public void Restore(VehicleState state)
     {
-        _ = new VehicleState(state.Tick, state.Physics, state.Grounded, state.Drifting, state.DriftTicks, state.BoostTicks, state.CurrentSurface);
-        if (state.DriftTicks > MathF.Ceiling(Configuration.DriftChargeSeconds * Configuration.TicksPerSecond) || state.BoostTicks > MathF.Ceiling(Configuration.BoostSeconds * Configuration.TicksPerSecond))
+        state.Validate();
+        if (Math.Abs(state.SteeringAngle) > Configuration.SteeringAngle)
         {
-            throw new ArgumentException("Snapshot timers exceed this vehicle's tuning.", nameof(state));
+            throw new ArgumentException("Snapshot steering exceeds this vehicle's tuning.", nameof(state));
         }
 
         State = state;
+    }
+
+    private static (float Side, float Drive, float Slip) Tire(float lateral, float longitudinal, float capacity, float lateralFraction = 1)
+    {
+        float demand = MathF.Sqrt((lateral * lateral) + (longitudinal * longitudinal));
+        if (demand < 0.00001f)
+        {
+            return (0, 0, 0);
+        }
+
+        if (capacity <= 0)
+        {
+            return (0, 0, 1);
+        }
+
+        // Smooth saturation avoids a grip/drift switch and couples acceleration/braking to cornering.
+        float ratio = demand / capacity;
+        float scale = MathF.Tanh(ratio) / ratio;
+        return (lateral * scale * lateralFraction, longitudinal * scale, Math.Clamp(1 - (scale * lateralFraction), 0, 1));
     }
 }

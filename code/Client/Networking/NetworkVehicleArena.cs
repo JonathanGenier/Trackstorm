@@ -173,7 +173,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
 
         _itemLabel.Text = $"HELD ITEM: {_driver.LocalItem?.Item ?? HeldItem.None}";
         string role = _driver.Host is null ? "CLIENT" : "HOST";
-        string status = _driver.Failure.Length > 0 ? _driver.Failure : _driver.LocalState is null ? "Connecting…" : $"HP {_driver.LocalState.Damage.CurrentHP:0} / {_driver.LocalState.Damage.MaxHP:0}   {_driver.LocalState.Movement.CurrentSurface}   {(_driver.LocalState.Movement.BoostTicks > 0 ? "BOOST" : _driver.LocalState.Movement.Drifting ? "DRIFT" : _driver.LocalState.Movement.Grounded ? "GROUNDED" : "AIRBORNE")}";
+        string status = _driver.Failure.Length > 0 ? _driver.Failure : _driver.LocalState is null ? "Connecting…" : $"HP {_driver.LocalState.Damage.CurrentHP:0} / {_driver.LocalState.Damage.MaxHP:0}   {_driver.LocalState.Movement.CurrentSurface}   {(_driver.LocalState.Movement.Handbrake > 0 ? "HANDBRAKE" : _driver.LocalState.Movement.Drifting ? "SLIDING" : _driver.LocalState.Movement.Grounded ? "GROUNDED" : "AIRBORNE")}";
         string formattedSnapshotAge = FormatSnapshotAge(_driver.SnapshotAge);
         _diagnostics.Text = $"{role}   {_bodies.Count}/8 vehicles   {status}\nPrediction error  {_driver.Prediction?.PredictionError ?? 0:0.000} m   Snapshot age  {formattedSnapshotAge}   Interpolation  {InterpolationDelay:0} ms\nLast acknowledged input  {_driver.Prediction?.History.LastAcknowledged ?? 0}   Corrections ≥3m  {local?.Smoothing.HardSnaps ?? 0}";
     }
@@ -210,11 +210,13 @@ internal sealed partial class NetworkVehicleArena : Node3D
             foreach (VehicleSnapshot state in _driver.Host.World.State.Vehicles)
             {
                 _bodies[state.VehicleId].Apply(state.Movement.Physics);
+                _bodies[state.VehicleId].PresentHandling(state.Movement);
             }
         }
         else if (_driver.LocalState is VehicleSnapshot state)
         {
             _bodies[state.VehicleId].Apply(state.Movement.Physics);
+            _bodies[state.VehicleId].PresentHandling(state.Movement);
         }
     }
 
@@ -266,10 +268,12 @@ internal sealed partial class NetworkVehicleArena : Node3D
                 AddChild(body);
                 _bodies.Add(id, body);
                 body.Apply(vehicle.State.Movement.Physics);
+                body.PresentHandling(vehicle.State.Movement);
             }
             else if (_driver.Host is not null || id != _driver.LocalVehicleId)
             {
                 body.Apply(vehicle.State.Movement.Physics);
+                body.PresentHandling(vehicle.State.Movement);
             }
         }
     }

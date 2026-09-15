@@ -24,6 +24,8 @@ public sealed partial class InputIntegrationChecks : Node
             _player = new PlayerInput();
             AddChild(_player);
             _player.SetPhysicsProcess(false);
+            VerifyRequiredDefaults();
+            GD.Print($"Connected physical gamepads before synthetic input: {Godot.Input.GetConnectedJoypads().Count}");
             VerifyEveryDefaultBinding();
             VerifyAnalogAndIndependentLeaderboard();
             VerifyRemappingAndMultipleBindings();
@@ -54,6 +56,9 @@ public sealed partial class InputIntegrationChecks : Node
             case InputEventKey key:
                 key.Pressed = pressed;
                 break;
+            case InputEventMouseButton mouse:
+                mouse.Pressed = pressed;
+                break;
             case InputEventJoypadButton button:
                 button.Pressed = pressed;
                 break;
@@ -70,24 +75,57 @@ public sealed partial class InputIntegrationChecks : Node
         Godot.Input.FlushBufferedEvents();
     }
 
+    private void VerifyRequiredDefaults()
+    {
+        Check(InputMap.ActionHasEvent(PlayerInputBindings.Name(InputAction.Drift), new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.B }), "B defaults to physical handbrake");
+        Check(InputMap.ActionHasEvent(PlayerInputBindings.Name(InputAction.UseItem), new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.A }), "A defaults to item use");
+        Check(InputMap.ActionHasEvent(PlayerInputBindings.Name(InputAction.UseItem), new InputEventMouseButton { ButtonIndex = MouseButton.Left }), "LMB defaults to item use");
+        Check(_player.Adapter.Bindings.FindConflicts(new InputEventMouseButton { ButtonIndex = MouseButton.Right }).Length == 0, "RMB remains reserved");
+        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true });
+        _player.Adapter.GameplaySuppressed = true;
+        Check((_player.Adapter.Capture(0).Pressed & InputButtons.UseItem) == 0, "opening UI cannot leak a pending mouse item press");
+        _player.Adapter.GameplaySuppressed = false;
+        Check((_player.Adapter.Capture(0).Pressed & InputButtons.UseItem) == 0, "closing UI while item input remains held waits for release");
+        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false });
+        _player.Adapter.GameplaySuppressed = false;
+        var saved = InputBindingPreferences.Capture(_player.Adapter, new Trackstorm.Core.Settings.PlayerSettings());
+        _player.Adapter.Bindings.Replace(InputAction.UseItem);
+        InputBindingPreferences.Apply(_player.Adapter, Trackstorm.Core.Settings.PlayerSettingsJson.Deserialize(Trackstorm.Core.Settings.PlayerSettingsJson.Serialize(saved)));
+        Check(InputMap.ActionHasEvent(PlayerInputBindings.Name(InputAction.UseItem), new InputEventMouseButton { ButtonIndex = MouseButton.Left }), "mouse remapping survives preference serialization");
+    }
+
     private void VerifyEveryDefaultBinding()
     {
         foreach (InputAction action in Enum.GetValues<InputAction>())
         {
             var bindings = InputMap.ActionGetEvents(PlayerInputBindings.Name(action));
-            Check(bindings.Count == 2, $"{action} has keyboard and gamepad defaults");
+            Check(bindings.Count == (action >= InputAction.CameraLeft ? 1 : 2), $"{action} has keyboard and gamepad defaults");
             foreach (InputEvent binding in bindings)
             {
                 using var pressed = (InputEvent)binding.Duplicate();
                 SetPressed(pressed, true);
                 Send(pressed);
                 Check(_player.Adapter.Bindings.Strength(action, 0.15f) == 1, $"{action} resolves {binding.GetType().Name}");
-                InputFrame frame = _player.Adapter.Capture(1);
-                Check(ActionActive(frame, action), $"{action} reaches logical frame");
+                InputFrame first = _player.Adapter.Capture(1);
+                if (binding is InputEventKey && action <= InputAction.SteerRight)
+                {
+                    Check(!ActionActive(first, action), "Digital input ramps before full strength");
+                }
+
+                InputFrame frame = first;
+                for (ulong tick = 2; tick <= 31; tick++)
+                {
+                    frame = _player.Adapter.Capture(tick);
+                }
+
+                Check(action >= InputAction.CameraLeft ? _player.Adapter.CameraIntent.Length() > 0 : ActionActive(frame, action), $"{action} reaches logical frame");
                 SetPressed(pressed, false);
                 Send(pressed);
                 Check(_player.Adapter.Bindings.Strength(action, 0.15f) == 0, $"{action} releases");
-                _player.Adapter.Capture(2);
+                for (ulong tick = 32; tick <= 61; tick++)
+                {
+                    _player.Adapter.Capture(tick);
+                }
             }
         }
     }
