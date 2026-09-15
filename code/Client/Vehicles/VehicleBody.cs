@@ -38,6 +38,7 @@ public sealed partial class VehicleBody : RigidBody3D
     /// <inheritdoc/>
     public override void _Ready()
     {
+        PhysicsInterpolationMode = PhysicsInterpolationModeEnum.On;
         Configuration.Validate();
         if (Configuration.TicksPerSecond != Engine.PhysicsTicksPerSecond)
         {

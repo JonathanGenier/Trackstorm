@@ -12,7 +12,7 @@ namespace Trackstorm.Client.Networking;
 internal sealed partial class NetworkVehicleArena : Node3D
 {
     private readonly Dictionary<ulong, NetworkVehicleBody> _bodies = new();
-    private readonly Camera3D _camera = new() { Current = true, Fov = 65 };
+    private readonly VehicleChaseCamera _camera = new() { Name = "ChaseCamera", Current = true, Fov = 65 };
     private readonly Label _diagnostics = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly RemoteInterpolation _interpolation = new();
     private readonly Items.ItemPresentation _items = new();
@@ -21,7 +21,9 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private readonly Label _itemLabel = new();
     private VehicleNetworkDriver _driver = null!;
     private Arenas.CombatArena _layout = null!;
-    private ulong _cameraLife;
+    private float _steering;
+    private ulong _collisionLife;
+    private ulong _collisionTick;
 
     /// <summary>Host pickup tuning supplied before scene entry.</summary>
     internal ItemSpawnConfiguration SpawnConfiguration { get; init; } = new();
@@ -45,6 +47,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <inheritdoc/>
     public override void _Ready()
     {
+        // Network visuals already interpolate and smooth corrections explicitly.
+        PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off;
         AddChild(new WorldEnvironment
         {
             Environment = new Godot.Environment
@@ -158,14 +162,10 @@ internal sealed partial class NetworkVehicleArena : Node3D
 
         if (_bodies.TryGetValue(_driver.LocalVehicleId, out var local))
         {
-            Vector3 target = local.VisualPosition;
-            Vector3 desired = target + new Vector3(0, 8, 13);
-            desired.X = Math.Clamp(desired.X, -56, 56);
-            desired.Z = Math.Clamp(desired.Z, -46, 46);
-            ulong life = _driver.LocalState?.LifeId ?? 0;
-            _camera.GlobalPosition = life != _cameraLife ? desired : _camera.GlobalPosition.Lerp(desired, 1 - MathF.Exp(-6 * (float)delta));
-            _cameraLife = life;
-            _camera.LookAt(target);
+            if (_driver.LocalState is VehicleSnapshot cameraState)
+            {
+                _camera.Follow(local.VisualTransform, cameraState, _steering, (float)delta);
+            }
         }
 
         foreach (var pair in _bodies)
@@ -201,7 +201,20 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <param name="input">Immediately captured local logical input.</param>
     internal void Advance(InputFrame input)
     {
-        _driver.Advance(input, state => _bodies[state.VehicleId].Observe(state));
+        _steering = input.Steering / 32767f;
+        _driver.Advance(input, state =>
+        {
+            VehicleObservation observation = _bodies[state.VehicleId].Observe(state);
+            // Prediction replay must not replay already presented contact impulses.
+            if (state.VehicleId == _driver.LocalVehicleId && (state.LifeId != _collisionLife || state.Movement.Tick > _collisionTick))
+            {
+                _collisionLife = state.LifeId;
+                _collisionTick = state.Movement.Tick;
+                _camera.ObserveCollision(observation, 900);
+            }
+
+            return observation;
+        });
         if (!_driver.IsActive)
         {
             return;

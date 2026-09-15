@@ -223,6 +223,30 @@ Core NUnit coverage checks drive/brake limits, steering boundaries, drift validi
 
 `check-vehicle.ps1 -GodotPath <Godot .NET executable>` builds and runs real native bodies through driving, reverse, turning, drift/boost, ramp launch/landing, wall stops, vehicle/crate interaction, hard impact damage to both vehicles, sustained harmless brushing, off-center explosion recovery, destruction and explicit reset. It also uses the production settings panel/HUD with isolated preferences to check zero speed at rest in both units, forward/reverse conversions, vertical-only and combined launch speed, horizontal external motion, and actual Settings-open input suppression. It compares all 240 movement snapshots in the ramp-driving trace across 30 and 144 fixed render FPS at a 0.02 numeric tolerance. `-Visual` also renders the scenarios and saves screenshots under `.godot/vehicle-checks`. The harness tears down its arena and allows the native audio mixer to release stopped playbacks before quitting its accelerated runs. Feedback submission checks establish native playback requests, not subjective audibility or sound quality. Physical-controller ergonomics, long multiplayer sessions and cross-platform native physics remain outside these automated checks.
 
+## Player Vehicle Chase Camera
+
+### Behavior and Controls
+
+Practice and network gameplay share `Client.Vehicles.VehicleChaseCamera`. It follows the local vehicle behind its heading with a level horizon, independently damped position and orientation, and a smoothed vehicle anchor. Chassis pitch/roll do not rotate the camera; near-vertical or overturned poses retain the last usable heading. New vehicle identities and life generations reset follow and feedback memory immediately, preserving the respawn boundary.
+
+Steering intent adds up to 10 degrees of horizontal anticipation. Mouse movement over the gameplay viewport and the assigned controller's right stick add limited horizontal look. Their combined target is clamped to 20 degrees on either side of the smoothed chase direction. Mouse sensitivity is degrees per screen pixel; stick sensitivity is degrees per second. After 0.25 seconds without manual input, the manual contribution decays toward the steering-assisted direction. Mouse input uses unhandled viewport events, leaving UI controls in charge of their pointer events; the cursor remains available for the development UI and is not captured. Moving beyond the window therefore stops mouse look input.
+
+The camera reuses `PlayerInput` ownership, the assigned gamepad ID, analog dead zone, and focus/settings suppression. Camera look never enters `InputFrame`, prediction history, Core state, or network payloads. A lost focus or open settings panel suppresses look while follow and recentering continue.
+
+### Feedback and Tuning
+
+Local native contacts above the configurable severity threshold produce a small vertical impulse. Severity uses existing normal contact velocity or impulse divided by mass. Accepted damage outcomes also trigger feedback, scaled by HP removed and deduplicated by sequence within the vehicle life. Network contact observations already presented at a prediction tick are not replayed by reconciliation. Impulses coalesce using the strongest envelope, with a short contact cooldown and exponential decay, rather than accumulating shake indefinitely. Feedback never changes the follow anchor, steering, HP, or vehicle forces.
+
+The `ChaseCamera` node exposes Godot Inspector properties for follow distance/height (11 m / 5 m), position/rotation damping (8/s / 7/s), steering influence/maximum, mouse/stick sensitivity (0.12 degrees/pixel / 65 degrees/s), total look limit, recenter delay/damping, collision/damage gains, contact threshold, shake decay, and maximum shake displacement (0.12 m). These properties can be tuned on the live node in Godot's Remote Inspector; scene-authored instances can save exported values. Current arenas create the shared camera with its default property values.
+
+### Rendering Boundary and Verification
+
+Practice native vehicle bodies opt into Godot physics interpolation, and the camera follows their interpolated transform in render time. The main scene and arenas disable inherited interpolation for other presentation nodes. Network vehicles retain their explicit pose interpolation/correction smoothing; the camera reads the resulting visual pose after it is updated. Camera position and aim update once per render frame with automatic camera interpolation disabled. Vehicle simulation, contact solving and network codecs remain unchanged.
+
+Pure Client tests in `ChaseCameraMotionTests` cover steering/manual/combined limits, recenter convergence, configured limits, render-rate consistency, bounded contact/damage envelopes and neutral reset. The `camera_checks.tscn` native harness checks actual camera placement, mouse/right-stick input, focus/settings gates, accepted damage deduplication, life resets and finite level-horizon recovery during tilted/spinning poses. Existing vehicle, network and lifecycle harnesses exercise the integrated gameplay paths. Synthetic inputs and screenshots do not establish physical-controller ergonomics or subjective driving polish.
+
+The camera retains the prototype's lack of obstruction avoidance: nearby walls or structures can obscure the vehicle. Spectator, replay, interior, free-orbit and replicated cameras are not implemented.
+
 ## Prototype Combat Arena
 
 ### Layout and Playability

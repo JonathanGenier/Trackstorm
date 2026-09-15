@@ -23,6 +23,10 @@ project/assembly_name="Trackstorm.Client"
 
 enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg")
 
+[physics]
+
+common/physics_interpolation=true
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

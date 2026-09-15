@@ -7,13 +7,14 @@ namespace Trackstorm.Client.Vehicles;
 /// <summary>Small local arena for exercising production movement against ramps, walls, vehicles, and movable props.</summary>
 public sealed partial class VehicleArena : Node3D
 {
-    private readonly Camera3D _camera = new() { Current = true, Fov = 65 };
+    private readonly VehicleChaseCamera _camera = new() { Name = "ChaseCamera", Current = true, Fov = 65 };
     private readonly Label _status = new();
     private readonly Label _health = new();
     private readonly Label _title = new() { Text = "LOCAL VEHICLE ARENA" };
     private readonly Label _instructions = new() { Text = "Drive / brake / steer with your bindings. Hold drift through a turn, then release for boost.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly List<VehicleBody> _vehicles = new();
     private readonly VehicleDestructionEffects _destruction = new();
+    private float _steering;
     private MeshInstance3D? _blast;
     private float _blastSeconds;
     private Arenas.CombatArena? _layout;
@@ -36,6 +37,8 @@ public sealed partial class VehicleArena : Node3D
     /// <inheritdoc/>
     public override void _Ready()
     {
+        // Only native vehicle bodies opt into physics interpolation; effects update in render time.
+        PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off;
         if (!LegacyTestLayout)
         {
             Simulation = new Trackstorm.Core.Simulation.Simulation(new Trackstorm.Core.Simulation.SimulationConfiguration(60), new RespawnConfiguration());
@@ -139,10 +142,7 @@ public sealed partial class VehicleArena : Node3D
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
-        Vector3 forward = -Player.GlobalBasis.Z;
-        Vector3 desired = Player.GlobalPosition - (forward * 11) + (Vector3.Up * 6);
-        _camera.GlobalPosition = _camera.GlobalPosition.Lerp(desired, 1 - MathF.Exp(-6 * (float)delta));
-        _camera.LookAt(Player.GlobalPosition + (Vector3.Up * 0.5f));
+        _camera.Follow(Player.GetGlobalTransformInterpolated(), Player.Snapshot, _steering, (float)delta);
         VehicleState state = Player.State;
         bool compact = GetViewport().GetVisibleRect().Size.Y < 500;
         _title.Visible = !compact;
@@ -168,8 +168,11 @@ public sealed partial class VehicleArena : Node3D
     /// <param name="input">Current fixed-step frame.</param>
     internal void Advance(InputFrame input)
     {
+        _steering = input.Steering / 32767f;
         var neutral = new InputFrame(input.Tick, 0, 0, 0, InputButtons.None, InputButtons.None, InputButtons.None);
-        IReadOnlyList<VehicleStepResult> results = Simulation.Step(input, _vehicles.Select(vehicle => vehicle.Capture(vehicle == Player ? input : neutral)).ToArray());
+        var requests = _vehicles.Select(vehicle => vehicle.Capture(vehicle == Player ? input : neutral)).ToArray();
+        _camera.ObserveCollision(requests[0].Observation, Player.Configuration.Mass);
+        IReadOnlyList<VehicleStepResult> results = Simulation.Step(input, requests);
         _destruction.Apply(Simulation.State.Vehicles);
         for (int index = 0; index < _vehicles.Count; index++)
         {

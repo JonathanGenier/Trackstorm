@@ -26,6 +26,9 @@ internal sealed class PlayerInputBindings : IDisposable
         RestoreDefaults(gamepadDevice);
     }
 
+    /// <summary>Assigned controller for local presentation axes, which never enter Core input frames.</summary>
+    internal int GamepadDevice { get; private set; }
+
     /// <summary>Stable names avoid overwriting Godot's built-in UI actions.</summary>
     /// <param name="action">Logical action.</param>
     /// <returns>The namespaced Godot action name.</returns>
@@ -36,6 +39,7 @@ internal sealed class PlayerInputBindings : IDisposable
     public void RestoreDefaults(int gamepadDevice = 0)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(gamepadDevice);
+        GamepadDevice = gamepadDevice;
         Set(InputAction.Accelerate, Key.W, Axis(JoyAxis.TriggerRight, 1, gamepadDevice));
         Set(InputAction.Brake, Key.S, Axis(JoyAxis.TriggerLeft, 1, gamepadDevice));
         Set(InputAction.SteerLeft, Key.A, Axis(JoyAxis.LeftX, -1, gamepadDevice));

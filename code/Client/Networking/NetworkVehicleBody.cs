@@ -25,6 +25,8 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     internal CorrectionSmoothing Smoothing { get; } = new();
     /// <summary>Displayed position for the local chase camera.</summary>
     internal Vector3 VisualPosition => _visual.GlobalPosition;
+    /// <summary>Complete displayed pose after interpolation and correction smoothing.</summary>
+    internal Transform3D VisualTransform => _visual.GlobalTransform;
     /// <summary>Visibility of the vehicle presentation, independent of collision state.</summary>
     internal bool IsPresented => _visual.Visible;
 
