@@ -11,17 +11,35 @@ Authorized scope: investigate/fix the two round-1 recommendations and package Wi
 
 ## Verification
 
-- **VERIFIED PASS:** `check.ps1`, formatting, Debug/Release warnings-as-errors builds, 194 Core tests and 81 non-native transport tests per configuration, repeated after tightening the remote completion guard. Local evidence: `.godot/ts44-r2-final-check.log`.
+- **VERIFIED PASS:** `check.ps1`, formatting, Debug/Release warnings-as-errors builds, 194 Core tests and 81 non-native transport tests per configuration, repeated after tightening the remote completion guard and canonical name handling. Final C# evidence: `.godot/ts44-r2-canonical-check.log`.
 - **VERIFIED PASS:** targeted Core replication suite (17 cases) and vehicle driver suite (6 cases), including backlog/wrap and send-closure regressions.
 - **VERIFIED PASS:** complete native suite, 92/92 tests plus three Godot transport lifecycle cycles; eight-player lobby/arena/Return/departure regression. Local evidence: `.godot/ts44-r2-native.log`, `.godot/ts44-r2-lobby.log`.
 - **VERIFIED FAIL before corrections:** the original impaired arena scenario reproduced p99 failure (4.4938 m, maximum 28.7078 m) and another run reproduced native send closure. Local evidence: `.godot/ts44-r2-stress-before.log`, `.godot/ts44-r2-stress-trace.log`.
 - **VERIFIED PASS after corrections, twice:** eight actual Godot processes, 30 ms latency, 10 ms jitter, 2% loss. All peers met the unchanged runtime thresholds. Maximum client p99 was 2.38 m in run 1 and 1.59 m in run 2. Local evidence: `.godot/ts44-r2-stress-fixed1.log`, `.godot/ts44-r2-stress-fixed2.log`; artifacts `5839d16671e84f7cb97e117ed09b4965` and `c1196c77f72a4fbda878d0911c5d3405` under `.godot/network-vehicle-checks`.
 - **LIMITATION:** isolated large corrections remain (maximum 9.80 m in run 2), although p99 passes. Two local runs are evidence of improvement, not a guarantee across arbitrary load or networks. These impairment measurements use GNS and do not establish EOS Internet performance.
-- **VERIFIED:** exported executable starts locally as an authenticated test host; packaging includes the existing EOS runtime. Final ZIP SHA-256: `AD121AC1C2BD8F640E7BA3E2FDED52B0A5A6D476B3A409ADE3D8EB020817395B`.
+- **VERIFIED:** exported executable starts locally as an authenticated test host; packaging includes the existing EOS runtime. Final ZIP SHA-256: `3FCDD92948C785C029C79BAED373DB6AD65C6A479836B9C4370A98550CA062D0`.
 - **VERIFIED launcher correction:** the tester reported an illegal output path. The initial batch launcher quoted a trailing directory backslash, and Windows PowerShell 5 evaluated the script-root parameter default before its value was available. The launcher now omits that argument, and the script resolves its fallback in the body. A real Windows PowerShell 5 / batch probe with a spaced directory resolves both executable and output paths correctly. Updated script and launcher are included in the final ZIP.
+- **VERIFIED discovery correction:** production lobby names discard dots. The original automated client compared its dotted test name against the canonical published name and waited indefinitely. The harness now applies the production sanitizer before creation/search, and the launcher default uses `Trackstorm 0005 remote check`. The successful real-device run used that canonical name explicitly.
+- **VERIFIED exit-check correction:** Windows PowerShell 5 returned null for the exit code of a redirected process. Reproduced locally with a successful native process; retaining the process handle before waiting restored the code. The corrected launcher recognizes 0 and rejects 7, prints the actual native code, and still rejects a missing code. See the [official PowerShell issue](https://github.com/PowerShell/PowerShell/issues/5421). This corrects a false failure report without ignoring genuine nonzero process exits.
 
 ## EOS evidence boundary
 
-The remote host was launched from the exported 0.0.0.5 executable and the ZIP/test instructions were supplied for the second PC. Separate-PC and cross-network results must be recorded from actual output. Two PCs on the same network establish local-network interoperability only. Separate residential connectivity can be tested by placing one PC on a cellular hotspot with cellular data enabled. Four/five independent testers, CGNAT/double-NAT/proxy routing and long-duration load remain separate, unverified requirements unless observed.
+**Two-PC EOS gameplay passed on the same router/network**, as identified by the tester. Host evidence was read directly from `.godot/ts44-r2-remote-host-2/eos-host-result.json`; the tester pasted the client result and confirmed its error log was empty. Both report `Passed: true`, Stage 4 and completed discovery/connect/Ready/Start/arena/Return/leave through real EOS packets. The host process exit was 0. The client's original wrapper exit check reported failure because its Windows PowerShell 5 code was unavailable; the exact launcher defect was independently reproduced and fixed as above. The original client native exit code itself was not recovered.
+
+| Measurement | Host | Client (tester-supplied output) |
+| --- | --- | --- |
+| Arena duration | 20.000 s | 19.983 s |
+| Authoritative snapshots received | N/A | 399 |
+| Sent / received datagrams | 810 / 1,203 | 1,205 / 810 |
+| Reliable sent datagrams | 10 | 7 |
+| Sent bytes | 244,248 | 153,555 |
+| Peak sent datagram | 424 B | 143 B |
+| Peak gateway Poll | 8.6271 ms | 1.5913 ms |
+| Peak SDK Tick | 20.7077 ms | 7.4184 ms |
+| Correction p99 / maximum | N/A | 0.000117 m / 0.040947 m |
+
+Counters and peak timings span the whole process/test, including admission and startup; the host waited about 529 seconds overall for the tester, so its total duration must not be used as an arena packet-rate denominator. Peak times include cold initialization and were not isolated steady-state profiles. The 399 client snapshots over 19.983 arena seconds are approximately 20 received snapshots/s. The host consumed about 1,200 client datagrams during gameplay, consistent with 60 Hz inputs; handshake/control packets are included in the cumulative counters. EOS sampled RTT and route remain unavailable.
+
+This establishes separate-PC local-network interoperability. **Separate residential Internet connectivity remains UNVERIFIED**, as do four/five independent testers, CGNAT/double-NAT/proxy routing and long-duration load. A cellular hotspot test was proposed, but no separate-network result has been supplied. The new two-PC evidence addresses the initial SDK-interoperability uncertainty; it does not waive the remaining Jira physical acceptance criteria. Repeated real solo host lifecycle tests and fake peer lifecycle tests remain recorded in round 1; a repeated automated remote cycle has not yet been recorded.
 
 Official EOS SDK 1.19.1.2 generated `P2PInterface.AcceptConnection` documentation was inspected: explicit accept/request initiates peer notification, the remote must subscribe and accept, and establishment is reported when packet communication is ready. `SendPacketOptions.DisableAutoAcceptConnection` requires explicit acceptance. The current adapter follows that documented sequence. The official web P2P page was requested but returned no readable content; no third-party search result was used as implementation authority.

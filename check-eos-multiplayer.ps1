@@ -1,6 +1,6 @@
 param (
     [Parameter(Mandatory)][string]$Executable,
-    [string]$Name = 'Trackstorm 0.0.0.5 remote check',
+    [string]$Name = 'Trackstorm 0005 remote check',
     [ValidateRange(2, 8)][int]$Players = 2,
     [switch]$HostPlayer,
     [string]$OutputDirectory = ''
@@ -18,12 +18,17 @@ $arguments = @('--headless', '--', '--eos-multiplayer-check', "`"--eos-test-name
 if ($HostPlayer) { $arguments += '--eos-test-host' }
 Write-Host "Running real EOS $role check. Waiting up to 15 minutes for $Players distinct devices in '$Name'."
 $process = Start-Process -FilePath $testExecutable -ArgumentList $arguments -WorkingDirectory (Split-Path -Parent $testExecutable) -WindowStyle Hidden -PassThru -RedirectStandardOutput $logPath -RedirectStandardError $errorPath
+# Windows PowerShell 5 can lose the exit code of a redirected process unless its handle is retained before waiting.
+$null = $process.Handle
 try {
     $process.WaitForExit()
     Get-Content -LiteralPath $logPath
-    if ($process.ExitCode -ne 0) { throw "EOS $role test failed. Send $resultPath and both log files for diagnosis." }
+    $testExitCode = $process.ExitCode
+    Write-Host "Native process exit code: $testExitCode"
+    if ($null -eq $testExitCode -or $testExitCode -ne 0) { throw "EOS $role test exited unsuccessfully ($testExitCode). Send $resultPath and both log files for diagnosis." }
     Write-Host "EOS $role check passed. Result: $resultPath"
 }
 finally {
+    if (-not $process.HasExited) { Stop-Process -Id $process.Id }
     $process.Dispose()
 }

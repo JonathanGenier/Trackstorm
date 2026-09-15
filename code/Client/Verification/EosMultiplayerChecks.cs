@@ -36,7 +36,7 @@ public sealed partial class EosMultiplayerChecks : Node
         Engine.MaxFps = 60;
         string[] args = OS.GetCmdlineUserArgs();
         string Value(string key, string fallback) => args.FirstOrDefault(arg => arg.StartsWith(key + "=", StringComparison.Ordinal))?[(key.Length + 1)..] ?? fallback;
-        _name = Value("--eos-test-name", "Trackstorm remote verification");
+        _name = LobbyName.Sanitize(Value("--eos-test-name", "Trackstorm remote verification"));
         _output = Value("--eos-test-output", "eos-multiplayer-result.json");
         _host = args.Contains("--eos-test-host");
         _players = int.Parse(Value("--eos-test-players", "2"), System.Globalization.CultureInfo.InvariantCulture);
