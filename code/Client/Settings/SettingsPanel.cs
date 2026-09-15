@@ -251,6 +251,10 @@ internal sealed partial class SettingsPanel : CanvasLayer
     /// <param name="pingMilliseconds">Sampled transport ping, or null while offline or unavailable.</param>
     internal void SetVehicleTelemetry(float metresPerSecond, int? pingMilliseconds = null) => _hud.SetTelemetry(metresPerSecond, pingMilliseconds);
 
+    /// <summary>Suppresses only the duplicate speed line; independent FPS and ping preferences remain intact.</summary>
+    /// <param name="visible">Whether the combat HUD is providing speed.</param>
+    internal void SetCombatHudVisible(bool visible) => _hud.SpeedVisible = !visible;
+
     private static void Heading(VBoxContainer parent, string text, int size = 20)
     {
         var label = new Label { Text = text };

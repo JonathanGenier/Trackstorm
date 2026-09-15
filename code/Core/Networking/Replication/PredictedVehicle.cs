@@ -17,7 +17,7 @@ public sealed class PredictedVehicle
     public PredictedVehicle(ReplicatedVehicle initial)
     {
         _vehicle = initial.State.VehicleId;
-        _world.AddVehicle(_vehicle, new(), new(), initial.State.ObservedPhysics);
+        _world.AddVehicle(_vehicle, new(), new() { MaxHP = initial.State.Damage.MaxHP }, initial.State.ObservedPhysics);
         History = new InputHistory(initial.AcknowledgedInput);
         Restore(initial.State);
         _lastSnapshotTick = initial.State.Movement.Tick;
@@ -37,7 +37,7 @@ public sealed class PredictedVehicle
         }
 
         _vehicle = initial.State.VehicleId;
-        _world.AddVehicle(_vehicle, new(), new(), initial.State.ObservedPhysics);
+        _world.AddVehicle(_vehicle, new(), new() { MaxHP = initial.State.Damage.MaxHP }, initial.State.ObservedPhysics);
         History = history;
         Restore(initial.State);
         History.Acknowledge(initial.AcknowledgedInput);
