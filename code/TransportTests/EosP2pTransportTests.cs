@@ -46,6 +46,11 @@ internal sealed class EosP2pTransportTests
 
         Assert.That(host.State!.Players.Count, Is.EqualTo(2));
         Assert.That(client.State!.Players.Count, Is.EqualTo(2));
+        host.Pump(1);
+        client.Pump(1);
+        Assert.That(host.State.Players.All(player => host.Latency.Get(host.State, player.Id) is null), Is.True, "EOS cannot manufacture RTT samples.");
+        Assert.That(client.State.Players.All(player => client.Latency.Get(client.State, player.Id) is null), Is.True, "Host-published EOS diagnostics stay unavailable.");
+        Assert.That(client.RejectedPackets, Is.Zero, "Production EOS framing carries the diagnostics protocol.");
         Assert.That(host.Request(LobbyCommand.Ready, true), Is.True);
         Assert.That(client.Request(LobbyCommand.Ready, true), Is.True);
         host.Pump(1.0 / 60);

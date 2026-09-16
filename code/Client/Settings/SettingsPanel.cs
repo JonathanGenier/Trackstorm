@@ -27,7 +27,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
     /// <inheritdoc/>
     public override void _Ready()
     {
-        Layer = 2;
+        Layer = 3;
         var root = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
         AddChild(root);
         root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);

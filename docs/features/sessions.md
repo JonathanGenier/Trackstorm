@@ -28,6 +28,7 @@ Core NUnit tests cover eight-player capacity, duplicate/invalid/retired IDs, sen
 
 The lobby harness uses eight real sockets and eight isolated native worlds in one process. Separate-process vehicle checks remain in `check-network-vehicles.ps1`; transport impairment/capacity tests remain in `check-transport.ps1`. These local checks do not establish cross-machine firewall/NAT behavior, cross-platform compatibility, hostile Internet security, long-session soak stability or subjective controller ergonomics. Transitions converge through reliable delivery; peers are not promised to load/render on exactly the same wall-clock frame, and there is no synchronized loading barrier. The separate [match countdown](matches.md) runs on authoritative ticks after arena entry. The prototype arena and host-controlled return are intentional development limitations, not a full competitive match service.
 
+The session also supplies the [match standings](standings.md) projection and host-published per-player latency. Lobby revision/session changes invalidate diagnostics immediately; current roster membership determines board rows.
 See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
 
 [Feature index](README.md)

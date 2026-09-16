@@ -29,6 +29,8 @@ internal sealed partial class CombatHud : CanvasLayer
     internal Func<ItemSlot?> Slot { get; set; } = () => null;
     /// <summary>Local preference service supplies presentation units.</summary>
     internal Func<SpeedUnit> Units { get; set; } = () => SpeedUnit.KilometresPerHour;
+    /// <summary>Shared match standings position; practice has no match ranking.</summary>
+    internal Func<string> Position { get; set; } = () => "--";
     /// <summary>Last projected values for native integration verification.</summary>
     internal CombatHudView? Displayed => _displayed;
     /// <summary>Rendered labels and materials are observable to native tests.</summary>
@@ -82,7 +84,7 @@ internal sealed partial class CombatHud : CanvasLayer
             return;
         }
 
-        CombatHudView view = CombatHudView.From(state, Slot(), Units());
+        CombatHudView view = CombatHudView.From(state, Slot(), Units()) with { Standing = Position() };
         if (view == _displayed)
         {
             return;

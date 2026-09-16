@@ -158,7 +158,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             string phase = match.Phase == Core.Matches.MatchPhase.Finished ? $"FINISHED — Player {match.Winner} wins!"
                 : match.Phase == Core.Matches.MatchPhase.Countdown ? $"COUNTDOWN — {Math.Ceiling(Math.Max(0, (double)match.CountdownAtTick!.Value - (_driver.Latest?.Tick ?? 0)) / HostVehicleSession.TickRate):0}"
                 : match.Phase == Core.Matches.MatchPhase.Waiting ? "WAITING FOR PLAYERS" : $"FIRST TO {match.KillTarget}";
-            _matchLabel.Text = phase + "\n" + string.Join("   ", match.Players.Where(player => _bodies.ContainsKey(player.Player) || player.Player == match.Winner).Select(player => $"P{player.Player}: {player.Kills} K / {player.Deaths} D"));
+            _matchLabel.Text = phase;
         }
 
         if (_driver.History is not null && _driver.SnapshotAge is double clientSnapshotAge)
