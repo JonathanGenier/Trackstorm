@@ -24,6 +24,8 @@ internal sealed class VehicleNetworkDriver
     private ulong? _lastLifecycleTick;
     private ulong _publishedSpawnRevision = ulong.MaxValue;
     private ulong _publishedMatchRevision = ulong.MaxValue;
+    private ulong _generation;
+    private bool _awaitingCheckpoint;
 
     /// <summary>Creates a host or connects a client driver to an already-open transport.</summary>
     /// <param name="gateway">Caller-owned transport.</param>
@@ -52,6 +54,8 @@ internal sealed class VehicleNetworkDriver
 
             _session = lobby.State.Match;
             LocalVehicleId = lobby.LocalPlayerId;
+            _generation = lobby.Generation;
+            _awaitingCheckpoint = Host is null && lobby.NeedsArenaCheckpoint;
             if (Host is not null)
             {
                 foreach (var peer in lobby.Authority!.Peers)
@@ -80,6 +84,8 @@ internal sealed class VehicleNetworkDriver
     internal event Action<WorldSnapshot>? LifecycleReceived;
     /// <summary>Once-per-revision authoritative totals, score deltas and phase/winner changes.</summary>
     internal event Action<MatchState>? MatchReceived;
+    /// <summary>Atomic reset boundary for interpolation, native bodies and one-shot presentation baselines.</summary>
+    internal event Action<WorldSnapshot>? Resynchronized;
     /// <summary>Latest reliable match state, independent of movement snapshot ordering.</summary>
     internal MatchState? Match { get; private set; }
     /// <summary>Authoritative native prop observation seam, absent in flat-ground vehicle unit tests.</summary>
@@ -115,9 +121,10 @@ internal sealed class VehicleNetworkDriver
     /// <summary>Explicit stopped-session diagnostic, empty during normal operation.</summary>
     internal string Failure { get; private set; } = string.Empty;
     /// <summary>Whether this arena generation still belongs to the live lobby.</summary>
-    internal bool IsActive => _lobby is null || (_lobby.Failure.Length == 0 && _lobby.State?.Phase == SessionPhase.Arena && _lobby.State.Match == _session);
+    internal bool IsActive => _lobby is null || (_lobby.Failure.Length == 0 && !_lobby.Reconnecting && !_awaitingCheckpoint && _lobby.State?.Phase == SessionPhase.Arena && _lobby.State.Match == _session);
     /// <summary>Current local gameplay state, independent of render smoothing.</summary>
     internal VehicleSnapshot? LocalState => Host?.World.GetVehicle(1) ?? Prediction?.State;
+    private ulong ServerPeer => _lobby?.ServerPeer ?? _serverPeer;
 
     /// <summary>Pumps transport, consumes authority updates, predicts immediately, and emits rate-limited snapshots.</summary>
     /// <param name="input">This fixed tick's local input.</param>
@@ -129,6 +136,12 @@ internal sealed class VehicleNetworkDriver
             _lobby.Pump(1.0 / HostVehicleSession.TickRate, message => Receive(message, observe));
             if (_lobby.Failure.Length > 0 || _lobby.State?.Phase != SessionPhase.Arena || _lobby.State.Match != _session)
             {
+                return;
+            }
+
+            if (_lobby.Reconnecting)
+            {
+                _awaitingCheckpoint = true;
                 return;
             }
         }
@@ -144,9 +157,14 @@ internal sealed class VehicleNetworkDriver
         else
         {
             _snapshotAge += 1.0 / HostVehicleSession.TickRate;
-            if (!_gateway.Connections.TryGetValue(_serverPeer, out var state) || state == TransportConnectionState.Disconnected)
+            if (!_gateway.Connections.TryGetValue(ServerPeer, out var state) || state == TransportConnectionState.Disconnected)
             {
-                Failure = "Host disconnected; reconnect to start a new session.";
+                if (_lobby?.Reconnect is null)
+                {
+                    Failure = "Host disconnected; reconnect to start a new session.";
+                }
+
+                return;
             }
         }
 
@@ -242,7 +260,7 @@ internal sealed class VehicleNetworkDriver
                 }
             }
         }
-        else if (Inputs is InputHistory inputs)
+        else if (!_awaitingCheckpoint && Inputs is InputHistory inputs)
         {
             if ((input.Pressed & InputButtons.UseItem) != 0)
             {
@@ -251,8 +269,12 @@ internal sealed class VehicleNetworkDriver
 
             if (inputs.IsFull)
             {
-                Failure = "Host acknowledgements stalled; reconnect to resynchronize.";
-                _gateway.Disconnect(_serverPeer);
+                if (_lobby?.Reconnect is null)
+                {
+                    Failure = "Host acknowledgements stalled; reconnect to resynchronize.";
+                }
+
+                _gateway.Disconnect(ServerPeer);
                 return;
             }
 
@@ -265,7 +287,7 @@ internal sealed class VehicleNetworkDriver
                 Prediction.Predict(input, observe);
             }
 
-            Send(new TransportMessage(_serverPeer, VehicleNetworkCodec.EncodeInputs(_session, inputs.GetRedundancy(), LocalState?.LifeId ?? 1), TransportDelivery.Unreliable));
+            Send(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeInputs(_session, inputs.GetRedundancy(), LocalState?.LifeId ?? 1), TransportDelivery.Unreliable));
         }
     }
 
@@ -284,7 +306,7 @@ internal sealed class VehicleNetworkDriver
             return Host.UseItem(0, _session, slot.Life, slot.Token);
         }
 
-        return Send(new TransportMessage(_serverPeer, ItemCodec.EncodeUse(_session, slot.Life, slot.Token), TransportDelivery.Reliable));
+        return Send(new TransportMessage(ServerPeer, ItemCodec.EncodeUse(_session, slot.Life, slot.Token), TransportDelivery.Reliable));
     }
 
     private bool Send(TransportMessage message)
@@ -296,14 +318,22 @@ internal sealed class VehicleNetworkDriver
 
         try
         {
-            _gateway.Send(message);
+            if (_lobby is null)
+            {
+                _gateway.Send(message);
+            }
+            else
+            {
+                _lobby.SendGameplay(message);
+            }
+
             return true;
         }
         catch (InvalidOperationException)
         {
             // Native closure can race the preceding Poll, including during a multi-packet publication.
             _gateway.Disconnect(message.RemotePeerId);
-            if (Host is null)
+            if (Host is null && _lobby?.Reconnect is null)
             {
                 Failure = "Host connection ended while sending; rejoin the lobby.";
             }
@@ -322,15 +352,39 @@ internal sealed class VehicleNetworkDriver
 
         foreach (ulong peer in _assigned.Except(connected).ToArray())
         {
-            Host!.Leave(peer);
+            if (_lobby is null)
+            {
+                Host!.Leave(peer);
+            }
+            else
+            {
+                Host!.Suspend(peer);
+            }
+
             _assigned.Remove(peer);
             _rosterChanged = true;
+        }
+
+        if (_lobby is not null)
+        {
+            foreach (var vehicle in Host!.World.State.Vehicles.Where(vehicle => !_lobby.State!.Players.Any(player => player.Id == vehicle.VehicleId)).ToArray())
+            {
+                Host.ExpirePlayer(vehicle.VehicleId);
+                _rosterChanged = true;
+            }
         }
 
         foreach (ulong peer in connected.Except(_assigned))
         {
             if (_lobby is not null)
             {
+                ulong player = _lobby.Authority!.PlayerId(peer);
+                if (Host!.ResumePlayer(peer, player))
+                {
+                    _assigned.Add(peer);
+                    SendCheckpoint(peer);
+                }
+
                 continue;
             }
 
@@ -344,6 +398,52 @@ internal sealed class VehicleNetworkDriver
             _assigned.Add(peer);
             _rosterChanged = true;
             Send(new TransportMessage(peer, VehicleNetworkCodec.EncodeWelcome(_session, vehicle), TransportDelivery.Reliable));
+        }
+    }
+
+    private void SendCheckpoint(ulong peer)
+    {
+        WorldSnapshot world = Host!.Snapshot();
+        var items = new ItemPublication(++_itemPublication, world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States);
+        var state = Host.World.State.Match!;
+        var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players);
+        var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());
+        Send(new TransportMessage(peer, ResumeCheckpointCodec.Encode(new ResumeCheckpoint(items, match, props)), TransportDelivery.Reliable));
+    }
+
+    private void ApplyCheckpoint(ResumeCheckpoint checkpoint)
+    {
+        WorldSnapshot world = checkpoint.Items.World;
+        var local = world.Vehicles.SingleOrDefault(vehicle => vehicle.State.VehicleId == LocalVehicleId);
+        if (world.Session != _session || local is null || _lobby is null || (_generation == _lobby.Generation && !_awaitingCheckpoint))
+        {
+            throw new ArgumentException("Unsolicited or mismatched resume checkpoint.");
+        }
+
+        var history = new SnapshotHistory(_session);
+        history.Add(world);
+        var prediction = new PredictedVehicle(local);
+        History = history;
+        Prediction = prediction;
+        _inputs = null;
+        Latest = world;
+        ItemState = checkpoint.Items;
+        Match = checkpoint.Match;
+        PropSnapshot = checkpoint.Props;
+        _lastLifecycleTick = world.Tick;
+        _snapshotAge = 0;
+        _generation = _lobby.Generation;
+        _awaitingCheckpoint = false;
+        _lobby.CompleteResume();
+        Failure = string.Empty;
+        RosterChanged?.Invoke(world);
+        Resynchronized?.Invoke(world);
+        LocalCorrected?.Invoke(local.State);
+        ItemsReceived?.Invoke(ItemState);
+        MatchReceived?.Invoke(Match);
+        if (PropSnapshot is not null)
+        {
+            PropsReceived?.Invoke(PropSnapshot);
         }
     }
 
@@ -386,9 +486,31 @@ internal sealed class VehicleNetworkDriver
 
         try
         {
+            if (Host is null && _lobby is not null && (_lobby.Generation != _generation || _lobby.Reconnecting))
+            {
+                _awaitingCheckpoint = true;
+            }
+
+            if (ResumeCheckpointCodec.IsCheckpoint(message.Payload.Span))
+            {
+                if (Host is not null || message.RemotePeerId != ServerPeer || message.Delivery != TransportDelivery.Reliable)
+                {
+                    throw new ArgumentException("Only the established host may publish a resume boundary.");
+                }
+
+                ApplyCheckpoint(ResumeCheckpointCodec.Decode(message.Payload.Span));
+                return;
+            }
+
+            if (_awaitingCheckpoint)
+            {
+                RejectedPackets++;
+                return;
+            }
+
             if (MatchCodec.IsMatch(message.Payload.Span))
             {
-                if (Host is not null || message.RemotePeerId != _serverPeer || History is null || message.Delivery != TransportDelivery.Reliable)
+                if (Host is not null || message.RemotePeerId != ServerPeer || History is null || message.Delivery != TransportDelivery.Reliable)
                 {
                     throw new ArgumentException("Only the assigned host can publish reliable match state.");
                 }
@@ -423,7 +545,7 @@ internal sealed class VehicleNetworkDriver
                     return;
                 }
 
-                if (message.RemotePeerId != _serverPeer || History is null)
+                if (message.RemotePeerId != ServerPeer || History is null)
                 {
                     throw new ArgumentException("Only the assigned host can publish item outcomes.");
                 }
@@ -452,7 +574,7 @@ internal sealed class VehicleNetworkDriver
                 return;
             }
 
-            if (Host is null && message.RemotePeerId == _serverPeer)
+            if (Host is null && message.RemotePeerId == ServerPeer)
             {
                 if (kind == VehicleNetworkCodec.Props && message.Delivery == TransportDelivery.Unreliable && _session != 0)
                 {

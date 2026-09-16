@@ -30,6 +30,8 @@ Core tests cover repair/clamping/full-health consumption, invalid/duplicate/stal
 
 `check-items.ps1 -GodotPath <Godot .NET executable>` runs eight actual UDP peers in isolated native worlds. It exercises full and partial HP Wrench uses on every peer, repeated requests, the real remote input-use edge, matching launch/impact identities and points on all clients, vehicle distance falloff, native vehicle/prop impulse response, and static-container/perimeter collision. `-Impaired` adds 30 ms outbound delay, 5 ms jitter and 2% loss; `-Visual` renders a client and saves impact images under `.godot/item-checks`. The native prop assertion waits for the next solver steps after confirmed impact. Existing lobby and network-vehicle harnesses cover surrounding session lifecycle and movement regressions.
 
-The native item harness uses one Windows process with eight sockets/worlds; it does not establish multi-machine/NAT compatibility, cross-platform deterministic physics or long-session performance. Projectiles are swept points, the radial blast does not use line-of-sight cover, and there is no combat-specific client prediction. Reliable projectile movement may pause visibly under delayed delivery. Reconnect persistence remains a separate feature.
+The native item harness uses one Windows process with eight sockets/worlds; it does not establish multi-machine/NAT compatibility, cross-platform deterministic physics or long-session performance. Projectiles are swept points, the radial blast does not use line-of-sight cover, and there is no combat-specific client prediction. Reliable projectile movement may pause visibly under delayed delivery. Reconnect uses the complete current item state in the session resume checkpoint described in [reconnection](reconnection.md).
+
+See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
 
 [Feature index](README.md)

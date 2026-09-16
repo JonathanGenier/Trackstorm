@@ -29,7 +29,15 @@ internal sealed class PlayerLatency
     /// <param name="state">Current roster.</param>
     /// <param name="playerId">Stable identity.</param>
     /// <returns>Fresh milliseconds or unavailable.</returns>
-    internal int? Get(LobbySnapshot state, ulong playerId) => Matches(state) && _seconds() - _sampledAt is >= 0 and <= 3 && state.Players.Any(player => player.Id == playerId) ? _samples.GetValueOrDefault(playerId) : null;
+    internal int? Get(LobbySnapshot state, ulong playerId) => Matches(state) && _seconds() - _sampledAt is >= 0 and <= 3 && state.Players.Any(player => player.Id == playerId && player.Connected) ? _samples.GetValueOrDefault(playerId) : null;
+
+    /// <summary>Immediately invalidates the previous stream when the local transport is interrupted.</summary>
+    internal void Clear()
+    {
+        _samples.Clear();
+        _session = 0;
+        _sampledAt = double.NegativeInfinity;
+    }
 
 
     /// <summary>Samples only currently connected, authoritative peer-to-player bindings.</summary>
@@ -54,7 +62,7 @@ internal sealed class PlayerLatency
             int ping = -1;
             foreach (var binding in peers)
             {
-                if (binding.Value == id && gateway.Connections.GetValueOrDefault(binding.Key) == TransportConnectionState.Connected &&
+                if (state.Players[index].Connected && binding.Value == id && gateway.Connections.GetValueOrDefault(binding.Key) == TransportConnectionState.Connected &&
                     gateway.GetStatistics(binding.Key).PingMilliseconds is >= 0 and <= 60000 and var sample)
                 {
                     ping = sample;

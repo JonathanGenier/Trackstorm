@@ -213,6 +213,18 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby, new DamageConfiguration { MaxHP = 1000 });
         _driver.RosterChanged += SynchronizeBodies;
         _driver.LocalCorrected += state => _bodies[state.VehicleId].Apply(state, true);
+        _driver.Resynchronized += snapshot =>
+        {
+            _interpolation.Reset();
+            _destruction.Reseed(snapshot.Vehicles.Select(vehicle => vehicle.State));
+            foreach (var vehicle in snapshot.Vehicles)
+            {
+                _bodies[vehicle.State.VehicleId].Reseed(vehicle.State);
+            }
+
+            _collisionLife = _driver.LocalState!.LifeId;
+            _collisionTick = snapshot.Tick;
+        };
     }
 
     /// <summary>Advances production networking and simulation once per captured physics input.</summary>
