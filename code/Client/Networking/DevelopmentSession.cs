@@ -54,7 +54,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <summary>Active arena, absent while assembling the lobby.</summary>
     internal NetworkVehicleArena? Arena => _arena;
     /// <summary>Current sampled peer latency.</summary>
-    internal int? Ping => TransportDiagnostics.GetPing(_gateway);
+    internal ConnectionDiagnostic Diagnostics => TransportDiagnostics.Capture(_gateway, _lobby);
 
     /// <inheritdoc/>
     public override void _Ready()

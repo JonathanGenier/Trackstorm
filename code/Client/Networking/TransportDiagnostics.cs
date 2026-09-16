@@ -2,28 +2,38 @@ using Trackstorm.Core.Networking.Transport;
 
 namespace Trackstorm.Client.Networking;
 
-/// <summary>Selects transport diagnostics for presentation without assigning player identities.</summary>
+/// <summary>Combines local connection lifecycle/quality with the shared host-published player latency.</summary>
 internal static class TransportDiagnostics
 {
-    /// <summary>Finds the first available ping among connected peers.</summary>
-    /// <param name="gateway">The optional active transport gateway.</param>
-    /// <returns>A sampled ping, or null when no connected peer has an available sample.</returns>
-    internal static int? GetPing(ITransportGateway? gateway)
+    /// <summary>Projects only the current connection. No value survives provider, session or peer replacement.</summary>
+    /// <param name="gateway">Current session's transport.</param>
+    /// <param name="lobby">Current admission and recovery state.</param>
+    /// <returns>Detached current values; recovery never exposes latency.</returns>
+    internal static ConnectionDiagnostic Capture(ITransportGateway? gateway, LobbyNetworkDriver? lobby)
     {
-        if (gateway is null)
+        if (gateway is null || lobby is null || lobby.LeaveComplete || lobby.Failure.Length > 0)
         {
-            return null;
+            return default;
         }
 
-        foreach (var peer in gateway.Connections)
+        if (lobby.Reconnecting || lobby.NeedsArenaCheckpoint)
         {
-            if (peer.Value == TransportConnectionState.Connected &&
-                gateway.GetStatistics(peer.Key).PingMilliseconds is int ping)
-            {
-                return ping;
-            }
+            return new(ConnectionDiagnosticState.Reconnecting, default, gateway.Name);
         }
 
-        return null;
+        if (lobby.Authority is not null)
+        {
+            // The host has no upstream connection. Do not label an arbitrary client's RTT as local ping.
+            return new(ConnectionDiagnosticState.Unavailable, default, gateway.Name);
+        }
+
+        if (!gateway.Connections.TryGetValue(lobby.ServerPeer, out var state) || state == TransportConnectionState.Disconnected)
+        {
+            return new(ConnectionDiagnosticState.Disconnected, default, gateway.Name);
+        }
+
+        return state == TransportConnectionState.Connected && lobby.State is not null
+            ? new(ConnectionDiagnosticState.Connected, gateway.GetStatistics(lobby.ServerPeer) with { PingMilliseconds = lobby.Latency.Get(lobby.State, lobby.LocalPlayerId) }, gateway.Name)
+            : new(ConnectionDiagnosticState.Connecting, default, gateway.Name);
     }
 }
