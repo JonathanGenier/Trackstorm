@@ -22,7 +22,7 @@ internal sealed class AudioPresentationTests
             {
                 Assert.That(count, Is.EqualTo(3));
                 calls++;
-                return start;
+                return (start + calls - 1) % 3;
             });
             Assert.That(playlist.Advance(), Is.False);
             Assert.That(playlist.Start(), Is.True);
@@ -40,6 +40,7 @@ internal sealed class AudioPresentationTests
             Assert.That(playlist.Advance(), Is.False);
             playlist.Start();
             Assert.That(calls, Is.EqualTo(2));
+            Assert.That(playlist.Index, Is.EqualTo((start + 1) % 3), "Re-entry uses a fresh selector result, not the previous index.");
         }
 
         foreach (int invalid in new[] { -1, 3 })

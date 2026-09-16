@@ -55,16 +55,27 @@ public sealed partial class AudioIntegrationChecks : Node
             settings.UpdateSettings(new PlayerSettings());
             var arena = new ArenaAudio();
             AddChild(arena);
-            Require(!arena.MusicPlaying && arena.TrackIndex == -1, "Arena entry before active match is silent for music.");
-            var active = new MatchState(10, 1, 5, MatchPhase.Active, null, null, []);
-            arena.ApplyMatch(active);
-            Require(arena.MusicPlaying && arena.TrackIndex is >= 0 and < 3, "Active state starts one valid track.");
+            Require(arena.MusicPlaying && arena.TrackIndex is >= 0 and < 3, "Arena entry immediately starts one valid track without match state or players.");
             AudioStreamPlayer player = arena.GetChildren().OfType<AudioStreamPlayer>().Single(node => node.Bus == "Music");
+            player.Seek(30);
+            await ToSignal(GetTree().CreateTimer(0.1), SceneTreeTimer.SignalName.Timeout);
+            int initial = arena.TrackIndex;
+            AudioStream initialStream = player.Stream;
+            ulong revision = 0;
+            foreach (MatchPhase phase in new[] { MatchPhase.Waiting, MatchPhase.Countdown, MatchPhase.Active, MatchPhase.Finished })
+            {
+                PlayerScore[] scores = phase == MatchPhase.Finished ? [new(1, 5, 0, 1, 0), new(2, 0, 5, 0, 5)] : [];
+                var state = new MatchState(++revision, revision, 5, phase, phase == MatchPhase.Countdown ? 181ul : null, phase == MatchPhase.Finished ? 1ul : null, scores);
+                arena.ApplyMatch(state);
+                arena.ApplyMatch(state);
+                arena.ApplyMatch(state, true);
+                Require(arena.MusicPlaying && arena.TrackIndex == initial && player.Stream == initialStream && player.GetPlaybackPosition() >= 29, $"{phase}, duplicates and reconnect seeding preserve the current stream, position and playlist.");
+            }
+
+            Require(arena.CueCount >= 3, "Match start/end/sting cues remain available independently of music.");
             for (int step = 0; step < 4; step++)
             {
                 int index = arena.TrackIndex;
-                arena.ApplyMatch(active);
-                Require(arena.TrackIndex == index, "Repeated match state does not restart music.");
                 player.Seek((float)player.Stream.GetLength() - 0.12f);
                 for (int wait = 0; wait < 100 && arena.TrackIndex == index; wait++)
                 {
@@ -74,15 +85,18 @@ public sealed partial class AudioIntegrationChecks : Node
                 Require(arena.TrackIndex == (index + 1) % 3, "Real MP3 completion advances sequentially, including wraparound.");
             }
 
-            arena.ApplyMatch(new MatchState(20, 2, 5, MatchPhase.Waiting, null, null, []));
-            Require(!arena.MusicPlaying && arena.TrackIndex == -1, "Leaving active state stops and resets music.");
+            RemoveChild(arena);
+            Require(!arena.MusicPlaying && arena.TrackIndex == -1 && player.Stream is null, "Arena exit stops, resets and releases the stream.");
             arena.NextSong();
-            Require(arena.TrackIndex == -1, "Late completion cannot restart a stopped match.");
-            arena.ApplyMatch(new MatchState(30, 3, 5, MatchPhase.Active, null, null, []));
-            arena.QueueFree();
-            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            Require(arena.TrackIndex == -1, "Late completion cannot restart an exited arena.");
+            arena.Free();
             Require(!IsInstanceValid(arena) && !IsInstanceValid(player), "Arena exit frees music and every owned voice.");
+            var reentered = new ArenaAudio();
+            AddChild(reentered);
+            Require(reentered.MusicPlaying && reentered.TrackIndex is >= 0 and < 3, "Re-entering a new arena starts a fresh playlist.");
+            RemoveChild(reentered);
+            reentered.Free();
+            await CheckLonePlayer();
             await ToSignal(GetTree().CreateTimer(0.5), SceneTreeTimer.SignalName.Timeout);
             GD.Print($"Audio integration passed: {_assertions} assertions.");
             GetTree().Quit();
@@ -92,6 +106,58 @@ public sealed partial class AudioIntegrationChecks : Node
             GD.PushError(exception.ToString());
             GetTree().Quit(1);
         }
+    }
+
+    private async Task CheckLonePlayer()
+    {
+        using var reservation = new System.Net.Sockets.UdpClient(new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 0));
+        string address = $"127.0.0.1:{((System.Net.IPEndPoint)reservation.Client.LocalEndPoint!).Port}";
+        reservation.Close();
+        using var hostGateway = new Networking.GameNetworkingSocketsTransport();
+        using var clientGateway = new Networking.GameNetworkingSocketsTransport();
+        hostGateway.Listen(Core.Networking.Transport.TransportEndpoint.DirectIp(address));
+        var hostView = new SubViewport { OwnWorld3D = true };
+        var clientView = new SubViewport { OwnWorld3D = true };
+        AddChild(hostView);
+        AddChild(clientView);
+        var host = new Networking.NetworkVehicleArena();
+        host.Initialize(hostGateway, 340, 0);
+        hostView.AddChild(host);
+        Require(host.Audio.MusicPlaying, "Production arena starts playback immediately with only its host.");
+        for (int frame = 0; frame < 30; frame++)
+        {
+            host.Advance(default);
+            await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
+        }
+
+        Require(host.Driver.Latest?.Vehicles.Count == 1 && host.Driver.Match?.Phase == MatchPhase.Waiting && host.Audio.MusicPlaying, "Lone player has native music while authoritative match is Waiting for players.");
+        var player = host.Audio.GetChildren().OfType<AudioStreamPlayer>().Single(node => node.Bus == "Music");
+        int index = host.Audio.TrackIndex;
+        player.Seek(30);
+        var client = new Networking.NetworkVehicleArena();
+        client.Initialize(clientGateway, 0, clientGateway.Connect(Core.Networking.Transport.TransportEndpoint.DirectIp(address)));
+        clientView.AddChild(client);
+        bool countdown = false;
+        for (int frame = 0; frame < 600; frame++)
+        {
+            host.Advance(default);
+            client.Advance(default);
+            countdown |= host.Driver.Match?.Phase == MatchPhase.Countdown;
+            if (host.Driver.Match?.Phase == MatchPhase.Active && client.Driver.Match?.Phase == MatchPhase.Active)
+            {
+                break;
+            }
+
+            await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
+        }
+
+        Require(countdown && host.Driver.Match?.Phase == MatchPhase.Active && client.Driver.Match?.Phase == MatchPhase.Active, "Second real UDP peer joins and both reach Active through countdown.");
+        Require(host.Audio.MusicPlaying && host.Audio.TrackIndex == index && player.GetPlaybackPosition() >= 29 && client.Audio.MusicPlaying, "Joining peer, countdown and activation preserve the host song and playback position.");
+        hostView.QueueFree();
+        clientView.QueueFree();
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        Require(!IsInstanceValid(player), "Leaving the production arena frees its music player.");
     }
 
     private void Require(bool condition, string description)

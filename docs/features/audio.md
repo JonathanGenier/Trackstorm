@@ -6,20 +6,24 @@ contain no new audio concepts. Removing the arena frees all streams, emitters an
 voices; the music completion callback is disconnected and playlist state resets.
 Main-menu scenes, controls and audio are unchanged.
 
-## Music and match lifecycle
+## Music and arena lifecycle
 
-Music starts only when the existing match phase is Active. `ArenaPlaylist` calls an
-injected random selector once to choose index 0, 1 or 2, then advances in fixed
-order on native stream completion: 1 → 2 → 3 → 1. Repeated active publications do
-not restart or reshuffle playback. Leaving Active stops the player and resets the
-index. A late completion after stopping cannot restart it. Each reconstructed
-match has independent Client randomness; music is never replicated.
+Arena map entry starts music immediately, including a lone player waiting for
+others and local practice without match rules. `ArenaAudio._Ready` starts the
+playlist; arena exit stops playback, releases streams and resets its index.
+`ArenaPlaylist` calls its injected selector once per arena entry, then advances
+on native stream completion in fixed order: 1 → 2 → 3 → 1.
 
-Late joins or resume checkpoints initialize current presentation without replaying
-historical kills, pickups, repairs or match stings. An already-active resumed arena
-keeps its current playlist position; a freshly reconstructed active arena starts
-its own playlist. Practice has no authoritative match phase, so it plays vehicle
-feedback and ambience but no battle playlist or invented match countdown.
+Waiting, Countdown, Active and Finished publications only drive match cues. They
+cannot start, stop, restart, reshuffle or reset the playlist. Match completion
+therefore leaves music playing until the arena is unloaded. A newly constructed
+arena selects a fresh starting position, which may legitimately match the last
+entry's selection. A late completion after exit cannot restart music.
+
+Late joins and resume checkpoints seed historical one-shots silently. Resuming
+an existing arena preserves music; reconstructing an arena starts a fresh playlist.
+Music is Client-only and never replicated. Final round-start music timing remains
+deferred until the fuller application flow exists.
 
 Countdown beeps follow the existing Core deadline and latest received world tick.
 The current remaining second plays once; delivery catch-up skips missed seconds.
@@ -89,7 +93,9 @@ events, initial state and reconnect reseeding, and countdown/match transitions.
 `check-audio.ps1 -GodotPath <exe>` loads every stream, checks native bus routing and
 settings, seeks actual MP3s near their ends to exercise completion/advancement,
 and verifies music teardown. The eight-peer match harness also checks music on
-Active, stopped/reset playlists on Finished, and submitted audio feedback per peer.
+Active and Finished, and submitted audio feedback per peer. The audio harness also
+checks a lone Waiting host, a second UDP peer joining through countdown, unchanged
+playback position, native completion/wraparound, exit cleanup and fresh re-entry.
 These checks establish native playback behavior, not subjective listening quality
 or separate-machine EOS acoustics.
 

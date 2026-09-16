@@ -5,17 +5,17 @@ internal sealed class ArenaPlaylist
 {
     private readonly Func<int, int> _select;
 
-    /// <summary>Uses a caller-owned selector only at each new match start.</summary>
+    /// <summary>Uses a caller-owned selector only at each new arena entry.</summary>
     /// <param name="select">Injected starting-index selector.</param>
     internal ArenaPlaylist(Func<int, int> select) => _select = select;
 
     /// <summary>Current track index, or minus one when stopped.</summary>
     internal int Index { get; private set; } = -1;
 
-    /// <summary>Whether this playlist belongs to an active match.</summary>
+    /// <summary>Whether this playlist belongs to an entered arena.</summary>
     internal bool Active => Index >= 0;
 
-    /// <summary>Starts once; repeated active publications preserve the selected track.</summary>
+    /// <summary>Starts once; repeated start requests preserve the selected track.</summary>
     /// <returns>The selected presentation value.</returns>
     internal bool Start()
     {

@@ -30,6 +30,11 @@ internal sealed partial class ArenaAudio : Node3D
         _events.Cue += Play;
         AddChild(_music);
         _music.Finished += NextSong;
+        if (_playlist.Start())
+        {
+            PlaySong();
+        }
+
         var ambience = new AudioStreamPlayer { Stream = LoopStream(AudioCue.Ambience), Bus = "SFX", VolumeDb = -27 };
         AddChild(ambience);
         ambience.Play();
@@ -129,7 +134,7 @@ internal sealed partial class ArenaAudio : Node3D
         }
     }
 
-    /// <summary>Updates match feedback and starts or stops the Client playlist.</summary>
+    /// <summary>Updates match cues independently of the arena-owned playlist.</summary>
     /// <param name="state">Confirmed gameplay boundary.</param>
     /// <param name="seed">Suppress historical one-shots while restoring the current boundary.</param>
     internal void ApplyMatch(MatchState state, bool seed = false)
@@ -141,18 +146,6 @@ internal sealed partial class ArenaAudio : Node3D
 
         _events.Match(state, seed);
         _match = state;
-        if (state.Phase == MatchPhase.Active)
-        {
-            if (_playlist.Start())
-            {
-                PlaySong();
-            }
-        }
-        else
-        {
-            _playlist.Stop();
-            _music.Stop();
-        }
     }
 
     /// <summary>Handles native stream completion; stopped playlists ignore late callbacks.</summary>
