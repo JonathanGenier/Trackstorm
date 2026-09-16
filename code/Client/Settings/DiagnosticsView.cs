@@ -21,9 +21,8 @@ internal readonly record struct DiagnosticsView(bool FpsVisible, bool PingVisibl
             ConnectionDiagnosticState.Connecting => "connecting",
             ConnectionDiagnosticState.Reconnecting => "reconnecting",
             ConnectionDiagnosticState.Disconnected => "disconnected",
-            ConnectionDiagnosticState.Connected when connection.Statistics.PingMilliseconds is >= 0
-                => connection.Statistics.PingMilliseconds.Value.ToString(CultureInfo.InvariantCulture) + " ms",
-            _ => "—"
+            ConnectionDiagnosticState.Connected => Hud.PingFormatter.Format(connection.Statistics.PingMilliseconds),
+            _ => Hud.PingFormatter.Format(null)
         };
         return new(settings.ShowFps, settings.ShowPing, "FPS  " + frameRate, "Ping  " + ping);
     }

@@ -2,7 +2,7 @@ using Trackstorm.Core.Networking.Transport;
 
 namespace Trackstorm.Client.Networking;
 
-/// <summary>Selects transport diagnostics for presentation without assigning player identities.</summary>
+/// <summary>Combines local connection lifecycle/quality with the shared host-published player latency.</summary>
 internal static class TransportDiagnostics
 {
     /// <summary>Projects only the current connection. No value survives provider, session or peer replacement.</summary>
@@ -33,7 +33,7 @@ internal static class TransportDiagnostics
         }
 
         return state == TransportConnectionState.Connected && lobby.State is not null
-            ? new(ConnectionDiagnosticState.Connected, gateway.GetStatistics(lobby.ServerPeer), gateway.Name)
+            ? new(ConnectionDiagnosticState.Connected, gateway.GetStatistics(lobby.ServerPeer) with { PingMilliseconds = lobby.Latency.Get(lobby.State, lobby.LocalPlayerId) }, gateway.Name)
             : new(ConnectionDiagnosticState.Connecting, default, gateway.Name);
     }
 }

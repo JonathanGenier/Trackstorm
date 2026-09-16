@@ -115,6 +115,14 @@ public sealed partial class StandingsIntegrationChecks : Node
             Refresh(false);
             await Until(() => _sessions.All(session => session.Standings.Rows.Count(row => row.Ping != "--") == 7));
             Require(_sessions.All(session => session.Standings.Rows.Single(row => row.PlayerId == 1).Ping == "--"), "Host no-hop rule");
+            foreach (var session in _sessions)
+            {
+                _diagnostics.SetVehicleTelemetry(0, session.Diagnostics);
+                var counter = _diagnostics.FindChild("Diagnostics", true, false) as Settings.SettingsHud ?? throw new InvalidOperationException("Missing diagnostics HUD.");
+                Require(counter.PingText == "Ping  " + session.Standings.Rows.Single(row => row.Local).Ping, "Rendered HUD Ping equals the local leaderboard row for every peer");
+            }
+
+            _diagnostics.SetVehicleTelemetry(0, new(ConnectionDiagnosticState.Reconnecting, default));
             SetTotals(false);
             await Until(() => _sessions.All(session => session.Standings.Rows[0].PlayerId == 8));
             key.Pressed = true;

@@ -22,6 +22,9 @@ internal sealed partial class SettingsHud : VBoxContainer
     /// <summary>Directly observable latency visibility for integration verification.</summary>
     internal bool PingVisible => _ping.Visible;
 
+    /// <summary>Rendered latency including its label, for composition verification.</summary>
+    internal string PingText => _ping.Text;
+
     /// <summary>Rendered speed including preferred units.</summary>
     internal string SpeedText => _speed.Text;
     /// <summary>A combat speedometer replaces the duplicate diagnostics speed while playing.</summary>

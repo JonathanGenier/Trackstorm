@@ -168,6 +168,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             Require(_retiredLatency is not null && !_client.Latency.Accept(_retiredLatency, _client.State!), "Retired connection diagnostics cannot replace the rebound player's RTT.");
             var standings = Hud.MatchStandingsView.From(_client.State, _arenas[1].Driver.Match, _player, Core.Input.InputButtons.Leaderboard, id => _client.Latency.Get(_client.State!, id));
             Require(standings.Rows.Count == 2 && standings.Rows.Single(row => row.Local).PlayerId == _player && standings.Rows.Single(row => row.Local).Ping != "--", "Resumed standings retain identity, rank and fresh transport-neutral ping.");
+            Require(Settings.DiagnosticsView.Create(new(), null, TransportDiagnostics.Capture(_gateways[1], _client)).Ping == "Ping  " + standings.Rows.Single(row => row.Local).Ping, "Resumed HUD and leaderboard use exactly the same published ping.");
             Require(_arenas[0].Bodies.Count == 2 && _arenas[1].Bodies.Count == 2, "Exactly one vehicle per player remains.");
             Require(_arenas[1].Driver.LocalItem?.Item == HeldItem.Wrench, "Held item survives grace.");
             Require(_arenas[1].Driver.ItemState?.Spawns.Count == 8 && _arenas[1].Driver.Match?.Players.Count == 2, "Pickup and match state arrive in the checkpoint.");

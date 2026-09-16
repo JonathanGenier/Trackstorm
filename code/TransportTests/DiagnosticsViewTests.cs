@@ -57,13 +57,14 @@ internal sealed class DiagnosticsViewTests
     /// <param name="expected">Exact compact label.</param>
     [TestCase(ConnectionDiagnosticState.Connected, 0, "Ping  0 ms")]
     [TestCase(ConnectionDiagnosticState.Connected, 45, "Ping  45 ms")]
-    [TestCase(ConnectionDiagnosticState.Connected, int.MaxValue, "Ping  2147483647 ms")]
-    [TestCase(ConnectionDiagnosticState.Connected, null, "Ping  —")]
-    [TestCase(ConnectionDiagnosticState.Connected, -1, "Ping  —")]
+    [TestCase(ConnectionDiagnosticState.Connected, 60000, "Ping  60000 ms")]
+    [TestCase(ConnectionDiagnosticState.Connected, int.MaxValue, "Ping  --")]
+    [TestCase(ConnectionDiagnosticState.Connected, null, "Ping  --")]
+    [TestCase(ConnectionDiagnosticState.Connected, -1, "Ping  --")]
     [TestCase(ConnectionDiagnosticState.Connecting, 45, "Ping  connecting")]
     [TestCase(ConnectionDiagnosticState.Reconnecting, 45, "Ping  reconnecting")]
     [TestCase(ConnectionDiagnosticState.Disconnected, 45, "Ping  disconnected")]
-    [TestCase(ConnectionDiagnosticState.Unavailable, 45, "Ping  —")]
+    [TestCase(ConnectionDiagnosticState.Unavailable, 45, "Ping  --")]
     public void FormatsLifecycle(ConnectionDiagnosticState state, int? ping, string expected)
     {
         var view = DiagnosticsView.Create(new(), null, new(state, new(ping, null, null)));

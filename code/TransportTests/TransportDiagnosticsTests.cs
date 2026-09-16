@@ -1,10 +1,14 @@
+using Trackstorm.Client.Hud;
 using Trackstorm.Client.Networking;
+using Trackstorm.Client.Settings;
+using Trackstorm.Core.Input;
+using Trackstorm.Core.Matches;
 using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Sessions;
 
 namespace Trackstorm.Transport.Tests;
 
-/// <summary>Checks local upstream selection and replacement with no presentation sample cache.</summary>
+/// <summary>Checks shared published latency selection and replacement with no independent HUD sample.</summary>
 [TestFixture]
 internal sealed class TransportDiagnosticsTests
 {
@@ -19,6 +23,10 @@ internal sealed class TransportDiagnosticsTests
         Assert.That(TransportDiagnostics.Capture(gateway, lobby).State, Is.EqualTo(ConnectionDiagnosticState.Connecting));
         gateway.Admit(12, 1);
         lobby.Pump(0);
+        Assert.That(TransportDiagnostics.Capture(gateway, lobby).Statistics.PingMilliseconds, Is.Null, "Local transport RTT cannot replace a missing publication.");
+        var publisher = new PlayerLatency();
+        lobby.Latency.Accept(publisher.Sample(lobby.State!, new Dictionary<ulong, ulong> { [7] = 2 }, gateway), lobby.State!);
+        gateway.Ping = 999;
         var sample = TransportDiagnostics.Capture(gateway, lobby);
         Assert.That(sample.Statistics.PingMilliseconds, Is.EqualTo(42));
         Assert.That(sample.Transport, Is.EqualTo(name));
@@ -39,6 +47,42 @@ internal sealed class TransportDiagnosticsTests
         Assert.That(newLobby.State!.Session, Is.EqualTo(13));
         Assert.That(newLobby.Generation, Is.EqualTo(2));
         Assert.That(TransportDiagnostics.Capture(null, null).State, Is.EqualTo(ConnectionDiagnosticState.Disconnected));
+    }
+
+    /// <summary>Both labels share published values and invalidation even when local RTT differs.</summary>
+    /// <param name="ping">Published bounded sample.</param>
+    [TestCase(0)]
+    [TestCase(123)]
+    [TestCase(60000)]
+    [TestCase(null)]
+    public void HudAndLeaderboardSharePublishedPing(int? ping)
+    {
+        using var gateway = new DiagnosticGateway("EOS P2P") { Ping = ping };
+        var lobby = new LobbyNetworkDriver(gateway, 0, 7, "Client");
+        gateway.Admit(12, 1);
+        lobby.Pump(0);
+        var publisher = new PlayerLatency();
+        byte[] publication = publisher.Sample(lobby.State!, new Dictionary<ulong, ulong> { [7] = 2 }, gateway);
+        Assert.That(lobby.Latency.Accept(publication, lobby.State!), Is.True);
+        gateway.Ping = 999;
+        AssertShared(ping);
+        lobby.Latency.Clear();
+        AssertShared(null);
+        Assert.That(lobby.Latency.Accept(publication, lobby.State!), Is.True);
+        gateway.Admit(12, 2);
+        lobby.Pump(0);
+        AssertShared(null);
+
+        void AssertShared(int? expected)
+        {
+            var state = lobby.State!;
+            var arena = new LobbySnapshot(state.Session, state.Revision, state.Match + 1, SessionPhase.Arena, state.Players);
+            var match = new MatchState(10, 1, 5, MatchPhase.Active, null, null, Array.Empty<PlayerScore>());
+            var board = MatchStandingsView.From(arena, match, lobby.LocalPlayerId, InputButtons.Leaderboard, id => lobby.Latency.Get(state, id));
+            var diagnostic = TransportDiagnostics.Capture(gateway, lobby);
+            Assert.That(diagnostic.Statistics.PingMilliseconds, Is.EqualTo(expected));
+            Assert.That(DiagnosticsView.Create(new(), null, diagnostic).Ping, Is.EqualTo("Ping  " + board.Rows.Single(row => row.Local).Ping));
+        }
     }
 
     /// <summary>A host has no upstream peer, even when remote peers have samples.</summary>
@@ -93,7 +137,7 @@ internal sealed class TransportDiagnosticsTests
 
         internal void Admit(ulong session, ulong generation)
         {
-            var state = new LobbySnapshot(session, 1, session, SessionPhase.Lobby, [new(1, "Host", false), new(2, "Client", false, true, generation)]);
+            var state = new LobbySnapshot(session, generation, session, SessionPhase.Lobby, [new(1, "Host", false), new(2, "Client", false, true, generation)]);
             _messages.Enqueue(new(7, LobbyCodec.EncodeState(state, 2), TransportDelivery.Reliable));
         }
     }
