@@ -34,4 +34,6 @@ Core tests exercise real simulation damage/death boundaries, valid and invalid a
 
 See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
 
+[Developer Options](developer-options.md) uses the existing match authority for live KillTarget, CountdownTicks and MinimumPlayers. A changed target must exceed existing scores and cannot change a Finished result. Countdown edits restart its deadline from the current tick; minimum-player rules still apply at the next Waiting/Countdown boundary. Host Force Start is a one-shot minimum-player override through the normal countdown, with no persisted rule change or separate subsystem activation. Audio retains its arena-lifetime policy.
+
 [Feature index](README.md)

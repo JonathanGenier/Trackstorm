@@ -125,8 +125,14 @@ internal sealed partial class SettingsPanel
             .Concat(_back.Visible ? new Control[] { _back } : Array.Empty<Control>());
     }
 
-    private void SampleNavigation(bool dispatch)
+    private void SampleNavigation(bool dispatch, bool gamepad = false)
     {
+        if (!gamepad && CurrentPage == MenuPage.DeveloperOptions && GetViewport().GuiGetFocusOwner() is LineEdit)
+        {
+            dispatch = false;
+            _repeatAction = null;
+        }
+
         bool routed = false;
         foreach (InputAction action in NavigationActions)
         {

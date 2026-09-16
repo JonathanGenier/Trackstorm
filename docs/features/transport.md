@@ -71,4 +71,6 @@ The packaged native adapter currently targets Windows x64. [Dependency provenanc
 
 Per-player standings RTT is published above the gateway by the lobby driver using stable session PlayerIds, exact roster revisions and monotonic expiry. See [match standings](standings.md#transport-neutral-latency) for mapping, host/unavailable display rules and wire bounds.
 
+[Developer Options](developer-options.md) exposes the existing process-wide GNS latency, jitter, loss and reordering controls only when the gateway advertises NetworkSimulation and the local session owns host authority. EOS has no such capability; its controls remain hidden and no successful configuration is claimed. These local transport controls are not saved or included in synchronized gameplay configuration.
+
 [Feature index](README.md)

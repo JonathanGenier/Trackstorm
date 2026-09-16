@@ -48,6 +48,7 @@ internal sealed class VehicleNetworkDriverTests
         Assert.That(gateway.Sent, Is.Empty);
 
         gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeWelcome(Session, 2), TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, Core.Development.GameplayConfigurationCodec.Encode(Session, new(0, new())), TransportDelivery.Reliable));
         client.Advance(first, Observe);
         client.Advance(second, Observe);
 
@@ -94,6 +95,7 @@ internal sealed class VehicleNetworkDriverTests
     {
         using var gateway = ConnectedGateway();
         gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeWelcome(Session, 2), TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, Core.Development.GameplayConfigurationCodec.Encode(Session, new(0, new())), TransportDelivery.Reliable));
         var client = new VehicleNetworkDriver(gateway, 0, ServerPeer);
         for (int i = 0; i < InputHistory.Capacity; i++)
         {
@@ -119,6 +121,7 @@ internal sealed class VehicleNetworkDriverTests
         using var gateway = ConnectedGateway();
         var driver = new VehicleNetworkDriver(gateway, 0, ServerPeer);
         gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeWelcome(Session, 2), TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, Core.Development.GameplayConfigurationCodec.Encode(Session, new(0, new())), TransportDelivery.Reliable));
         driver.Advance(default, Observe);
         var body = new VehiclePhysicsState(Vector3.One, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
         byte[] Payload(ulong session, ulong tick) => VehicleNetworkCodec.EncodeProps(new Trackstorm.Core.Arenas.ArenaPropSnapshot(session, tick, new[] { body, body, body }));
@@ -147,7 +150,7 @@ internal sealed class VehicleNetworkDriverTests
             host.Advance(default, Observe);
         }
 
-        Assert.That(hostGateway.Sent.Count(message => !Trackstorm.Core.Items.ItemCodec.IsItem(message.Payload.Span) && !MatchCodec.IsMatch(message.Payload.Span) && VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Props), Is.EqualTo(1));
+        Assert.That(hostGateway.Sent.Count(message => !Trackstorm.Core.Items.ItemCodec.IsItem(message.Payload.Span) && !MatchCodec.IsMatch(message.Payload.Span) && !Trackstorm.Core.Development.GameplayConfigurationCodec.IsConfiguration(message.Payload.Span) && VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Props), Is.EqualTo(1));
         hostGateway.Receive(new TransportMessage(ServerPeer, Payload(Session, 100), TransportDelivery.Unreliable));
         host.Advance(default, Observe);
         Assert.That(host.RejectedPackets, Is.EqualTo(1));
@@ -161,6 +164,7 @@ internal sealed class VehicleNetworkDriverTests
         using var gateway = ConnectedGateway();
         var driver = new VehicleNetworkDriver(gateway, 0, ServerPeer);
         gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeWelcome(Session, 2), TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, Core.Development.GameplayConfigurationCodec.Encode(Session, new(0, new())), TransportDelivery.Reliable));
         driver.Advance(default, Observe);
         var host = new HostVehicleSession(Session);
         host.Join(ServerPeer);
@@ -217,6 +221,7 @@ internal sealed class VehicleNetworkDriverTests
         var boundaries = new List<WorldSnapshot>();
         client.LifecycleReceived += boundaries.Add;
         gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeWelcome(Session, 2), TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, Core.Development.GameplayConfigurationCodec.Encode(Session, new(0, new())), TransportDelivery.Reliable));
         authority.Step(default, state => state.VehicleId == 2
             ? new VehicleObservation(state.ObservedPhysics, Vector3.UnitY, [new VehicleContact(-Vector3.UnitX * 100, Vector3.UnitX, 0, 0)]) : Observe(state));
         byte[] death = VehicleNetworkCodec.EncodeSnapshot(authority.Snapshot());
@@ -251,7 +256,7 @@ internal sealed class VehicleNetworkDriverTests
         gateway.Sent.Clear();
         host.Advance(default, state => state.VehicleId == 2
             ? new VehicleObservation(state.ObservedPhysics, Vector3.UnitY, [new VehicleContact(-Vector3.UnitX * 100, Vector3.UnitX, 0, 0)]) : Observe(state));
-        TransportMessage death = gateway.Sent.Single(message => !MatchCodec.IsMatch(message.Payload.Span) && VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Snapshot);
+        TransportMessage death = gateway.Sent.Single(message => !MatchCodec.IsMatch(message.Payload.Span) && !Trackstorm.Core.Development.GameplayConfigurationCodec.IsConfiguration(message.Payload.Span) && VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Snapshot);
         Assert.That(death.Delivery, Is.EqualTo(TransportDelivery.Reliable));
         Assert.That(VehicleNetworkCodec.DecodeSnapshot(death.Payload.Span).Vehicles.Single(vehicle => vehicle.State.VehicleId == 2).State.Lifecycle, Is.EqualTo(VehicleLifecycle.Dead));
         gateway.Sent.Clear();
@@ -272,7 +277,7 @@ internal sealed class VehicleNetworkDriverTests
         host.Advance(default, Observe);
         var replacement = gateway.Sent.Where(message => message.RemotePeerId == ServerPeer + 1 && message.Delivery == TransportDelivery.Reliable).ToArray();
         Assert.That(replacement.Any(message => Trackstorm.Core.Items.ItemCodec.IsItem(message.Payload.Span)), Is.True);
-        TransportMessage lifecycle = replacement.Single(message => !Trackstorm.Core.Items.ItemCodec.IsItem(message.Payload.Span) && !MatchCodec.IsMatch(message.Payload.Span) && VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Snapshot);
+        TransportMessage lifecycle = replacement.Single(message => !Trackstorm.Core.Items.ItemCodec.IsItem(message.Payload.Span) && !MatchCodec.IsMatch(message.Payload.Span) && !Trackstorm.Core.Development.GameplayConfigurationCodec.IsConfiguration(message.Payload.Span) && VehicleNetworkCodec.Kind(message.Payload.Span) == VehicleNetworkCodec.Snapshot);
         Assert.That(VehicleNetworkCodec.DecodeSnapshot(lifecycle.Payload.Span).Vehicles.Select(vehicle => vehicle.State.VehicleId), Is.EqualTo(new ulong[] { 1, 3 }));
     }
 
@@ -284,6 +289,7 @@ internal sealed class VehicleNetworkDriverTests
         gateway.ConnectPeer(77);
         var client = new VehicleNetworkDriver(gateway, 0, ServerPeer);
         gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeWelcome(Session, 2), TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, Core.Development.GameplayConfigurationCodec.Encode(Session, new(0, new())), TransportDelivery.Reliable));
         int callbacks = 0;
         client.MatchReceived += _ => callbacks++;
         client.Advance(default, Observe);
@@ -343,6 +349,117 @@ internal sealed class VehicleNetworkDriverTests
         Assert.That(host.Match!.Players.Select(player => player.Player), Is.EqualTo(new ulong[] { 1, 2, 3 }));
     }
 
+    /// <summary>Reliable host configuration precedes gameplay, including a peer admitted after live tuning.</summary>
+    [Test]
+    public void LiveConfigurationReplicatesToExistingAndNewPeersAndClientCannotMutate()
+    {
+        using var hostGateway = ConnectedGateway();
+        var host = new VehicleNetworkDriver(hostGateway, Session);
+        using var clientGateway = ConnectedGateway();
+        var client = new VehicleNetworkDriver(clientGateway, 0, ServerPeer);
+        void Transfer()
+        {
+            foreach (var message in hostGateway.Sent.Where(message => message.RemotePeerId == ServerPeer))
+            {
+                clientGateway.Receive(message);
+            }
+
+            hostGateway.Sent.Clear();
+            client.Advance(default, Observe);
+        }
+
+        host.Advance(default, Observe);
+        Transfer();
+        var edits = new Dictionary<string, double> { ["vehicle.acceleration"] = 4, ["damage.max_hp"] = 250, ["items.missile_speed"] = 90 };
+        Assert.That(client.TryConfigure(edits, out _), Is.False);
+        Assert.That(host.TryConfigure(edits, out var error), Is.True, error);
+        host.Advance(default, Observe);
+        Transfer();
+        Assert.That(client.Configuration, Is.EqualTo(host.Configuration));
+        Assert.That(client.LocalState!.Damage.MaxHP, Is.EqualTo(250));
+        Assert.That(client.Latest!.ConfigurationRevision, Is.EqualTo(host.Configuration.Revision));
+        hostGateway.ConnectPeer(77);
+        host.Advance(default, Observe);
+        var publication = hostGateway.Sent.Single(message => message.RemotePeerId == 77 && Core.Development.GameplayConfigurationCodec.IsConfiguration(message.Payload.Span));
+        Assert.That(Core.Development.GameplayConfigurationCodec.Decode(publication.Payload.Span).State, Is.EqualTo(host.Configuration));
+        Assert.That(host.Host!.World.GetVehicle(3).Damage.MaxHP, Is.EqualTo(250));
+    }
+
+    /// <summary>Stale, conflicting duplicate, wrong-peer and unreliable tuning cannot rewind a client.</summary>
+    [Test]
+    public void ConfigurationPublicationsAreOrderedIdempotentAndHostOnly()
+    {
+        using var gateway = ConnectedGateway();
+        var client = new VehicleNetworkDriver(gateway, 0, ServerPeer);
+        gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeWelcome(Session, 2), TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, Core.Development.GameplayConfigurationCodec.Encode(Session, new(0, new())), TransportDelivery.Reliable));
+        client.Advance(default, Observe);
+        int changes = 0;
+        client.ConfigurationChanged += _ => changes++;
+        byte[] Payload(ulong revision, float acceleration) => Core.Development.GameplayConfigurationCodec.Encode(Session, new(revision, new() { Vehicle = new() { Acceleration = acceleration } }));
+        gateway.Receive(new TransportMessage(ServerPeer, Payload(5, 20), TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, Payload(5, 20), TransportDelivery.Reliable));
+        client.Advance(default, Observe);
+        Assert.That(changes, Is.EqualTo(1));
+        int rejected = client.RejectedPackets;
+        gateway.Receive(new TransportMessage(ServerPeer, Payload(4, 11), TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, Payload(5, 11), TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, Payload(6, 11), TransportDelivery.Unreliable));
+        gateway.Receive(new TransportMessage(ServerPeer + 1, Payload(6, 11), TransportDelivery.Reliable));
+        client.Advance(default, Observe);
+        Assert.That(client.RejectedPackets, Is.EqualTo(rejected + 4));
+        Assert.That(client.Configuration.Revision, Is.EqualTo(5));
+        Assert.That(client.Configuration.Configuration.Vehicle.Acceleration, Is.EqualTo(20));
+        Assert.That(changes, Is.EqualTo(1));
+        using var hostGateway = ConnectedGateway();
+        var host = new VehicleNetworkDriver(hostGateway, Session);
+        hostGateway.Receive(new TransportMessage(ServerPeer, Payload(99, 50), TransportDelivery.Reliable));
+        host.Advance(default, Observe);
+        Assert.That(host.Configuration.Revision, Is.Zero);
+        Assert.That(host.RejectedPackets, Is.EqualTo(1));
+    }
+
+    /// <summary>Unreliable revision-zero movement cannot initialize prediction before persisted host tuning arrives.</summary>
+    [Test]
+    public void FirstSnapshotWaitsForActualHostConfiguration()
+    {
+        using var gateway = ConnectedGateway();
+        var client = new VehicleNetworkDriver(gateway, 0, ServerPeer);
+        var tuning = new Core.Development.GameplayConfiguration { Vehicle = new() { Acceleration = 4 } };
+        var host = new HostVehicleSession(Session, configuration: tuning);
+        host.Join(ServerPeer);
+        host.Step(default, Observe);
+        gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeWelcome(Session, 2), TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeSnapshot(host.Snapshot()), TransportDelivery.Unreliable));
+        client.Advance(default, Observe);
+        Assert.That(client.Prediction, Is.Null);
+        Assert.That(client.RejectedPackets, Is.EqualTo(1));
+        gateway.Receive(new TransportMessage(ServerPeer, Core.Development.GameplayConfigurationCodec.Encode(Session, host.Configuration), TransportDelivery.Reliable));
+        gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeSnapshot(host.Snapshot()), TransportDelivery.Reliable));
+        client.Advance(default, Observe);
+        Assert.That(client.Prediction, Is.Not.Null);
+        Assert.That(client.Configuration, Is.EqualTo(host.Configuration));
+    }
+
+    /// <summary>Native-free provider checks never call unsupported network simulation or expose raw identities.</summary>
+    [Test]
+    public void DeveloperCapabilitiesAndDiagnosticsExcludeUnsupportedOperationsAndRawIdentity()
+    {
+        using var gateway = ConnectedGateway();
+        Assert.That(Client.Development.NetworkSimulationControl.TryApply(gateway, true, new NetworkSimulation(50)), Is.False);
+        Assert.That(gateway.SimulationCalls, Is.Zero);
+        gateway.SimulationSupported = true;
+        Assert.That(Client.Development.NetworkSimulationControl.TryApply(gateway, false, new NetworkSimulation(50)), Is.False);
+        Assert.That(Client.Development.NetworkSimulationControl.TryApply(gateway, true, new NetworkSimulation(50)), Is.True);
+        Assert.That(gateway.SimulationCalls, Is.EqualTo(1));
+        gateway.SimulationRejected = true;
+        Assert.That(Client.Development.NetworkSimulationControl.TryApply(gateway, true, new NetworkSimulation(50)), Is.False);
+        string raw = "1234567890abcdef1234567890abcdef";
+        var diagnostic = Client.Development.DeveloperDiagnostics.Identity(Client.Online.OnlineIdentityState.LoggedIn, new Client.Online.OnlineProductUserId(raw));
+        Assert.That(diagnostic, Does.Contain("LoggedIn").And.Contain("puid#").And.Not.Contain(raw));
+        Assert.That(Client.Development.DeveloperDiagnostics.Identity(Client.Online.OnlineIdentityState.Failed, null), Does.Contain("Failed").And.Contain("unavailable"));
+    }
+
     private static DriverGateway ConnectedGateway() => new(ServerPeer, TransportConnectionState.Connected);
 
     private static SequencedInput[] DecodeLastInputs(DriverGateway gateway) => VehicleNetworkCodec.DecodeInputs(gateway.Sent[^1].Payload.Span).Inputs;
@@ -380,9 +497,13 @@ internal sealed class VehicleNetworkDriverTests
         public bool IsListening => false;
         public IReadOnlyDictionary<ulong, TransportConnectionState> Connections => _connections;
         public TransportConnectionState ConnectionState => _connections.Values.FirstOrDefault();
+        public TransportCapabilities Capabilities => SimulationSupported ? TransportCapabilities.NetworkSimulation : TransportCapabilities.None;
         internal List<TransportMessage> Sent { get; } = [];
         internal List<ulong> DisconnectedPeers { get; } = [];
         internal bool FailSend { get; set; }
+        internal bool SimulationSupported { get; set; }
+        internal bool SimulationRejected { get; set; }
+        internal int SimulationCalls { get; private set; }
 
         public void Disconnect(ulong peerId)
         {
@@ -417,6 +538,12 @@ internal sealed class VehicleNetworkDriverTests
 
         public void ConfigureSimulation(NetworkSimulation simulation)
         {
+            if (SimulationRejected)
+            {
+                throw new InvalidOperationException("Native provider rejected simulation.");
+            }
+
+            SimulationCalls++;
         }
 
         public TransportStatistics GetStatistics(ulong peerId) => default;

@@ -31,4 +31,6 @@ The lobby harness uses eight real sockets and eight isolated native worlds in on
 The session also supplies the [match standings](standings.md) projection and host-published per-player latency. Lobby revision/session changes invalidate diagnostics immediately; current roster membership determines board rows.
 See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
 
+[Developer Options](developer-options.md) uses current session authority to gate tuning and actions. The host loads its separate persisted gameplay overrides when constructing a new arena; joining clients initialize from the host's reliable configuration. Force Start readies the local host and invokes normal lobby Start before arming the arena's ordinary countdown with a one-shot solo override. Other admitted players still must be connected and ready.
+
 [Feature index](README.md)

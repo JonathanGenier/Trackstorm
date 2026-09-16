@@ -11,13 +11,16 @@ public sealed class PredictedVehicle
     private readonly Simulation.Simulation _world = new(new SimulationConfiguration(HostVehicleSession.TickRate));
     private readonly ulong _vehicle;
     private ulong _lastSnapshotTick;
+    private Development.GameplayConfiguration _configuration;
 
     /// <summary>Initializes from an authoritative spawn boundary.</summary>
     /// <param name="initial">Assigned local vehicle.</param>
-    public PredictedVehicle(ReplicatedVehicle initial)
+    /// <param name="configuration">Validated effective gameplay tuning.</param>
+    public PredictedVehicle(ReplicatedVehicle initial, Development.GameplayConfiguration? configuration = null)
     {
+        _configuration = configuration ?? new() { Damage = new() { MaxHP = initial.State.Damage.MaxHP } };
         _vehicle = initial.State.VehicleId;
-        _world.AddVehicle(_vehicle, new(), new() { MaxHP = initial.State.Damage.MaxHP }, initial.State.ObservedPhysics);
+        _world.AddVehicle(_vehicle, _configuration.Vehicle, _configuration.Damage, initial.State.ObservedPhysics);
         History = new InputHistory(initial.AcknowledgedInput);
         Restore(initial.State);
         _lastSnapshotTick = initial.State.Movement.Tick;
@@ -27,7 +30,8 @@ public sealed class PredictedVehicle
     /// <param name="initial">Assigned local vehicle.</param>
     /// <param name="history">Existing sequenced input history created after reliable assignment.</param>
     /// <param name="observe">Synchronous replay-capable external collision seam.</param>
-    public PredictedVehicle(ReplicatedVehicle initial, InputHistory history, Func<VehicleSnapshot, VehicleObservation> observe)
+    /// <param name="configuration">Validated effective gameplay tuning.</param>
+    public PredictedVehicle(ReplicatedVehicle initial, InputHistory history, Func<VehicleSnapshot, VehicleObservation> observe, Development.GameplayConfiguration? configuration = null)
     {
         ArgumentNullException.ThrowIfNull(history);
         ArgumentNullException.ThrowIfNull(observe);
@@ -37,7 +41,8 @@ public sealed class PredictedVehicle
         }
 
         _vehicle = initial.State.VehicleId;
-        _world.AddVehicle(_vehicle, new(), new() { MaxHP = initial.State.Damage.MaxHP }, initial.State.ObservedPhysics);
+        _configuration = configuration ?? new() { Damage = new() { MaxHP = initial.State.Damage.MaxHP } };
+        _world.AddVehicle(_vehicle, _configuration.Vehicle, _configuration.Damage, initial.State.ObservedPhysics);
         History = history;
         Restore(initial.State);
         History.Acknowledge(initial.AcknowledgedInput);
@@ -56,15 +61,23 @@ public sealed class PredictedVehicle
     /// <summary>Distance between old and corrected present-time predictions after replay.</summary>
     public float PredictionError { get; private set; }
 
+    /// <summary>Installs host tuning without discarding acknowledged input history or inventing health changes.</summary>
+    /// <param name="configuration">Validated effective gameplay tuning.</param>
+    public void ApplyConfiguration(Development.GameplayConfiguration configuration)
+    {
+        _world.ApplyConfiguration(configuration);
+        _configuration = configuration;
+    }
+
     /// <summary>Predicts before any reply from the host is needed.</summary>
     /// <param name="input">Immediately captured logical input.</param>
     /// <param name="observe">Same collision adapter used by host simulation.</param>
     public void Predict(InputFrame input, Func<VehicleSnapshot, VehicleObservation> observe) => Step(History.Add(input), observe);
 
     /// <summary>Applies authority, retires confirmed inputs, then replays remaining commands in sequence order.</summary>
+    /// <returns>Whether the snapshot was accepted.</returns>
     /// <param name="authoritative">New host boundary for this vehicle.</param>
     /// <param name="observe">Synchronous replay-capable external collision seam.</param>
-    /// <returns>Whether the snapshot was accepted.</returns>
     public bool Reconcile(ReplicatedVehicle authoritative, Func<VehicleSnapshot, VehicleObservation> observe)
     {
         if (authoritative.State.VehicleId != _vehicle || authoritative.State.Movement.Tick <= _lastSnapshotTick ||
@@ -103,7 +116,7 @@ public sealed class PredictedVehicle
         {
             VehicleObservation observation = observe(previous);
             physics = observation.Physics;
-            var predictor = new VehicleMovement(new(), physics);
+            var predictor = new VehicleMovement(_configuration.Vehicle, physics);
             predictor.Restore(previous.Movement);
             movement = predictor.Step(frame, physics, observation.Support, true, observation.Surface, observation.Wheels);
         }

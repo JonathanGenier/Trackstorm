@@ -19,11 +19,11 @@ public static class VehicleNetworkCodec
     private const int MaximumBytes = 16384;
 
     /// <summary>Checks the protocol header before routing a bounded payload.</summary>
-    /// <param name="bytes">Complete transport payload.</param>
     /// <returns>Recognized message kind.</returns>
+    /// <param name="bytes">Complete transport payload.</param>
     public static byte Kind(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || bytes[0] != 0x54 || bytes[1] != 0x53 || bytes[2] != 5 || bytes[3] is < Welcome or > Props)
+        if (bytes.Length is < 4 or > MaximumBytes || bytes[0] != 0x54 || bytes[1] != 0x53 || bytes[2] != 6 || bytes[3] is < Welcome or > Props)
         {
             throw new ArgumentException("Invalid vehicle network header.");
         }
@@ -32,8 +32,8 @@ public static class VehicleNetworkCodec
     }
 
     /// <summary>Encodes a complete, bounded host prop observation.</summary>
-    /// <param name="snapshot">Complete host publication.</param>
     /// <returns>Versioned bounded bytes.</returns>
+    /// <param name="snapshot">Complete host publication.</param>
     public static byte[] EncodeProps(Arenas.ArenaPropSnapshot snapshot) => Write(Props, writer =>
     {
         writer.Write(snapshot.Session);
@@ -51,8 +51,8 @@ public static class VehicleNetworkCodec
     });
 
     /// <summary>Rejects malformed, nonfinite, excessive or incomplete prop state.</summary>
-    /// <param name="bytes">Complete publication bytes.</param>
     /// <returns>Validated copied prop state.</returns>
+    /// <param name="bytes">Complete publication bytes.</param>
     public static Arenas.ArenaPropSnapshot DecodeProps(ReadOnlySpan<byte> bytes) => Read(bytes, Props, reader =>
     {
         ulong session = reader.ReadUInt64();
@@ -67,9 +67,9 @@ public static class VehicleNetworkCodec
     });
 
     /// <summary>Encodes a reliable assignment without granting authority to a client-chosen identity.</summary>
+    /// <returns>Versioned control payload.</returns>
     /// <param name="session">Host generation.</param>
     /// <param name="vehicle">Assigned gameplay identity.</param>
-    /// <returns>Versioned control payload.</returns>
     public static byte[] EncodeWelcome(ulong session, ulong vehicle) => Write(Welcome, writer =>
     {
         ArgumentOutOfRangeException.ThrowIfZero(session);
@@ -79,8 +79,8 @@ public static class VehicleNetworkCodec
     });
 
     /// <summary>Decodes a reliable assignment.</summary>
-    /// <param name="bytes">Complete control payload.</param>
     /// <returns>Host generation and assigned vehicle.</returns>
+    /// <param name="bytes">Complete control payload.</param>
     public static (ulong Session, ulong Vehicle) DecodeWelcome(ReadOnlySpan<byte> bytes) => Read(bytes, Welcome, reader =>
     {
         ulong session = reader.ReadUInt64();
@@ -94,9 +94,9 @@ public static class VehicleNetworkCodec
     });
 
     /// <summary>Encodes at most four redundant commands, with no client-owned vehicle state.</summary>
+    /// <returns>Unreliable input payload.</returns>
     /// <param name="session">Negotiated host generation.</param>
     /// <param name="inputs">Ordered recent inputs.</param>
-    /// <returns>Unreliable input payload.</returns>
     /// <param name="life">Life observed when capturing the input window.</param>
     public static byte[] EncodeInputs(ulong session, IReadOnlyList<SequencedInput> inputs, ulong life = 1) => Write(Inputs, writer =>
     {
@@ -119,8 +119,8 @@ public static class VehicleNetworkCodec
     });
 
     /// <summary>Decodes bounded input; host ordering and sender validation remain mandatory.</summary>
-    /// <param name="bytes">Complete input payload.</param>
     /// <returns>Session and input window.</returns>
+    /// <param name="bytes">Complete input payload.</param>
     public static (ulong Session, SequencedInput[] Inputs, ulong Life) DecodeInputs(ReadOnlySpan<byte> bytes) => Read(bytes, Inputs, reader =>
     {
         ulong session = reader.ReadUInt64();
@@ -141,12 +141,13 @@ public static class VehicleNetworkCodec
     });
 
     /// <summary>Encodes all active vehicles compactly, retaining replay-critical collision and movement memory.</summary>
-    /// <param name="snapshot">Authoritative roster.</param>
     /// <returns>Binary snapshot, normally under 1200 bytes for eight undamaged vehicles.</returns>
+    /// <param name="snapshot">Authoritative roster.</param>
     public static byte[] EncodeSnapshot(WorldSnapshot snapshot) => Write(Snapshot, writer =>
     {
         writer.Write(snapshot.Session);
         writer.Write(snapshot.Tick);
+        writer.Write(snapshot.ConfigurationRevision);
         writer.Write((byte)snapshot.Vehicles.Count);
         foreach (ReplicatedVehicle vehicle in snapshot.Vehicles)
         {
@@ -203,12 +204,13 @@ public static class VehicleNetworkCodec
     });
 
     /// <summary>Validates the complete roster before any live state is changed.</summary>
-    /// <param name="bytes">Complete snapshot payload.</param>
     /// <returns>Detached authoritative roster.</returns>
+    /// <param name="bytes">Complete snapshot payload.</param>
     public static WorldSnapshot DecodeSnapshot(ReadOnlySpan<byte> bytes) => Read(bytes, Snapshot, reader =>
     {
         ulong session = reader.ReadUInt64();
         ulong tick = reader.ReadUInt64();
+        ulong configurationRevision = reader.ReadUInt64();
         byte count = reader.ReadByte();
         if (count is < 1 or > 8)
         {
@@ -242,21 +244,21 @@ public static class VehicleNetworkCodec
             DamageEvent? damage = ReadFlag(reader) ? new DamageEvent(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadSingle(), new DamageContext(reader.ReadString(), reader.ReadUInt64(), reader.ReadString()), ReadFlag(reader)) : null;
             ulong? collision = ReadFlag(reader) ? reader.ReadUInt64() : null;
             var state = new VehicleSnapshot(id, life, movement, new VehicleDamageState(maxHP, hp, damage, collision), observed, effects, lifecycle, deadline);
-            // Reject snapshots that cannot be restored under the negotiated fixed tuning.
-            new VehicleMovement(new(), observed).Restore(movement);
+            // Portable bounds are validated here; the receiver checks the negotiated tuning revision.
+            movement.Validate();
             new DamageConfiguration { MaxHP = maxHP }.Validate();
 
             vehicles[i] = new ReplicatedVehicle(state, ack);
         }
 
-        return new WorldSnapshot(session, tick, vehicles);
+        return new WorldSnapshot(session, tick, vehicles, configurationRevision);
     });
 
     private static byte[] Write(byte kind, Action<BinaryWriter> encode)
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, new UTF8Encoding(false, true), true);
-        writer.Write(new byte[] { 0x54, 0x53, 5, kind });
+        writer.Write(new byte[] { 0x54, 0x53, 6, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {

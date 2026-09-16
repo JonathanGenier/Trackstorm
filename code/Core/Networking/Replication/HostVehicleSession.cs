@@ -1,4 +1,5 @@
 using System.Numerics;
+using Trackstorm.Core.Development;
 using Trackstorm.Core.Input;
 using Trackstorm.Core.Items;
 using Trackstorm.Core.Simulation;
@@ -15,7 +16,6 @@ public sealed class HostVehicleSession
     public const int SnapshotInterval = 3;
     private readonly Dictionary<ulong, (ulong Vehicle, HostInputBuffer Inputs, int SpawnSlot)> _peers = new();
     private readonly Dictionary<ulong, (HostInputBuffer Inputs, int SpawnSlot)> _disconnected = new();
-    private readonly DamageConfiguration _damageConfiguration;
     private ulong _nextVehicle = 1;
 
     /// <summary>Starts one host vehicle in a caller-identified session.</summary>
@@ -24,15 +24,16 @@ public sealed class HostVehicleSession
     /// <param name="respawnConfiguration">Optional host lifecycle tuning.</param>
     /// <param name="matchConfiguration">Optional match tuning; scoring always uses the shared simulation.</param>
     /// <param name="damageConfiguration">Vehicle health tuning for this arena.</param>
-    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null, DamageConfiguration? damageConfiguration = null)
+    /// <param name="configuration">Validated effective gameplay tuning.</param>
+    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null)
     {
         ArgumentOutOfRangeException.ThrowIfZero(sessionId);
         SessionId = sessionId;
-        _damageConfiguration = damageConfiguration ?? new();
-        _damageConfiguration.Validate();
-        World = new Simulation.Simulation(new SimulationConfiguration(TickRate), respawnConfiguration ?? new(), match: matchConfiguration ?? new());
-        Items = new ItemAuthority(itemConfiguration);
-        World.AddVehicle(1, new(), _damageConfiguration, Spawn(0));
+        var effective = configuration ?? new GameplayConfiguration { Damage = damageConfiguration ?? new(), Items = itemConfiguration ?? new(), Respawn = respawnConfiguration ?? new(), Match = matchConfiguration ?? new() };
+        Configuration = new GameplayConfigurationState(0, effective);
+        World = new Simulation.Simulation(new SimulationConfiguration(TickRate), effective.Respawn, match: effective.Match);
+        Items = new ItemAuthority(effective.Items);
+        World.AddVehicle(1, effective.Vehicle, effective.Damage, Spawn(0));
     }
 
     /// <summary>Caller-provided session generation.</summary>
@@ -46,6 +47,54 @@ public sealed class HostVehicleSession
     /// <summary>Registered arena spawns, absent until a layout is attached.</summary>
     public ItemSpawnAuthority? Spawns { get; private set; }
 
+    /// <summary>Effective validated gameplay configuration and monotonic revision.</summary>
+    public GameplayConfigurationState Configuration { get; private set; }
+
+    /// <summary>Only trusted local host requests may commit an atomic gameplay tuning transaction.</summary>
+    /// <returns>Whether the operation was accepted.</returns>
+    /// <param name="peer">Actual sender; zero denotes the trusted local host.</param>
+    /// <param name="edits">Stable gameplay keys and requested values.</param>
+    /// <param name="error">Safe validation feedback.</param>
+    public bool TryConfigure(ulong peer, IReadOnlyDictionary<string, double> edits, out string error)
+    {
+        error = "Only the authoritative host may change gameplay tuning.";
+        if (peer != 0 || !GameplayOptions.TryApply(Configuration.Configuration, edits, out var candidate, out error))
+        {
+            return false;
+        }
+
+        if (candidate == Configuration.Configuration)
+        {
+            return true;
+        }
+
+        try
+        {
+            var next = new GameplayConfigurationState(checked(Configuration.Revision + 1), candidate);
+            World.ApplyConfiguration(candidate);
+            Items.ApplyConfiguration(candidate.Items);
+            Spawns?.ApplyConfiguration(candidate.Spawns);
+            Configuration = next;
+            return true;
+        }
+        catch (Exception exception) when (exception is ArgumentException or OverflowException)
+        {
+            error = exception.Message;
+            return false;
+        }
+    }
+
+    /// <summary>Host-only non-persistent grant through the single-slot inventory authority.</summary>
+    /// <returns>Whether the operation was accepted.</returns>
+    /// <param name="peer">Actual sender; zero denotes the trusted local host.</param>
+    /// <param name="item">Implemented item to grant.</param>
+    public bool GiveItem(ulong peer, HeldItem item) => peer == 0 && Items.Grant(World, 1, item);
+
+    /// <summary>Host-only non-persistent solo override; uses the normal authoritative countdown.</summary>
+    /// <returns>Whether the operation was accepted.</returns>
+    /// <param name="peer">Actual sender; zero denotes the trusted local host.</param>
+    public bool ForceStart(ulong peer) => peer == 0 && World.ForceStart();
+
     /// <summary>Registers actual scene markers once before simulation.</summary>
     /// <param name="arena">Validated scene contract.</param>
     /// <param name="configuration">Optional host tuning.</param>
@@ -57,15 +106,20 @@ public sealed class HostVehicleSession
             throw new InvalidOperationException("Spawn registration must precede simulation and occur only once.");
         }
 
-        Spawns = new ItemSpawnAuthority(arena, Items, configuration, selector);
+        if (configuration is not null)
+        {
+            Configuration = new GameplayConfigurationState(Configuration.Revision, Configuration.Configuration with { Spawns = configuration });
+        }
+
+        Spawns = new ItemSpawnAuthority(arena, Items, Configuration.Configuration.Spawns, selector);
     }
 
     /// <summary>Resolves a use request using actual sender ownership.</summary>
+    /// <returns>Whether accepted for the next fixed step.</returns>
     /// <param name="peer">Transport sender; zero is the local host.</param>
     /// <param name="session">Arena generation.</param>
     /// <param name="life">Vehicle life.</param>
     /// <param name="token">Issued slot token.</param>
-    /// <returns>Whether accepted for the next fixed step.</returns>
     public bool UseItem(ulong peer, ulong session, ulong life, ulong token)
     {
         ulong vehicle = peer == 0 ? 1 : _peers.TryGetValue(peer, out var entry) ? entry.Vehicle : 0;
@@ -73,8 +127,8 @@ public sealed class HostVehicleSession
     }
 
     /// <summary>Assigns a unique gameplay identity only after the transport reports a connected peer.</summary>
-    /// <param name="peer">Transport identity scoped to the caller's live gateway.</param>
     /// <returns>Assigned vehicle identity, or zero when the eight-player session is full.</returns>
+    /// <param name="peer">Transport identity scoped to the caller's live gateway.</param>
     public ulong Join(ulong peer)
     {
         if (_peers.TryGetValue(peer, out var existing))
@@ -89,7 +143,7 @@ public sealed class HostVehicleSession
 
         ulong id = checked(++_nextVehicle);
         int spawnSlot = Enumerable.Range(1, 7).First(slot => _peers.Values.All(entry => entry.SpawnSlot != slot) && _disconnected.Values.All(entry => entry.SpawnSlot != slot));
-        World.JoinVehicle(id, new(), _damageConfiguration, Spawn(spawnSlot));
+        World.JoinVehicle(id, Configuration.Configuration.Vehicle, Configuration.Configuration.Damage, Spawn(spawnSlot));
         _peers.Add(peer, (id, new HostInputBuffer(), spawnSlot));
         return id;
     }
@@ -105,7 +159,7 @@ public sealed class HostVehicleSession
         }
 
         int slot = Enumerable.Range(1, 7).First(candidate => _peers.Values.All(entry => entry.SpawnSlot != candidate) && _disconnected.Values.All(entry => entry.SpawnSlot != candidate));
-        World.JoinVehicle(playerId, new(), _damageConfiguration, Spawn(slot));
+        World.JoinVehicle(playerId, Configuration.Configuration.Vehicle, Configuration.Configuration.Damage, Spawn(slot));
         _peers.Add(peer, (playerId, new HostInputBuffer(), slot));
         _nextVehicle = Math.Max(_nextVehicle, playerId);
     }
@@ -133,9 +187,9 @@ public sealed class HostVehicleSession
     }
 
     /// <summary>Rebinds an existing suspended vehicle after lobby authorization, without respawning it.</summary>
+    /// <returns>Whether the existing vehicle was rebound.</returns>
     /// <param name="peer">New transport peer.</param>
     /// <param name="player">Stable lobby player.</param>
-    /// <returns>Whether the existing vehicle was rebound.</returns>
     public bool ResumePlayer(ulong peer, ulong player)
     {
         if (peer == 0 || _peers.ContainsKey(peer) || !_disconnected.Remove(player, out var entry))
@@ -159,10 +213,10 @@ public sealed class HostVehicleSession
     }
 
     /// <summary>Routes input solely by the established sender mapping, never a client-claimed player ID.</summary>
+    /// <returns>Whether the input passed ownership and ordering validation.</returns>
     /// <param name="peer">Actual transport sender.</param>
     /// <param name="session">Negotiated session generation.</param>
     /// <param name="inputs">Bounded redundant command window.</param>
-    /// <returns>Whether the input passed ownership and ordering validation.</returns>
     /// <param name="life">Observed life generation; zero is reserved for trusted in-process callers.</param>
     public bool Receive(ulong peer, ulong session, IReadOnlyList<SequencedInput> inputs, ulong life = 0)
     {
@@ -207,7 +261,7 @@ public sealed class HostVehicleSession
 
     /// <summary>Captures the complete active roster and per-owner input confirmations.</summary>
     /// <returns>Immutable authoritative snapshot.</returns>
-    public WorldSnapshot Snapshot() => new(SessionId, World.State.Tick, World.State.Vehicles.Select(state => new ReplicatedVehicle(state, _peers.Values.FirstOrDefault(entry => entry.Vehicle == state.VehicleId).Inputs?.LastAcknowledged ?? _disconnected.GetValueOrDefault(state.VehicleId).Inputs?.LastAcknowledged ?? 0)));
+    public WorldSnapshot Snapshot() => new(SessionId, World.State.Tick, World.State.Vehicles.Select(state => new ReplicatedVehicle(state, _peers.Values.FirstOrDefault(entry => entry.Vehicle == state.VehicleId).Inputs?.LastAcknowledged ?? _disconnected.GetValueOrDefault(state.VehicleId).Inputs?.LastAcknowledged ?? 0)), Configuration.Revision);
 
     private static VehiclePhysicsState Spawn(int slot) => Arenas.PrototypeArena.Configuration.Spawn(slot);
 }

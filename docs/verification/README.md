@@ -6,6 +6,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 
 | Evidence | Reports |
 | --- | --- |
+| Host Developer Options | [TS-38 / TS-39 independent checkpoint; migration pending](ts-38.md) |
 | In-game Game Menu and Settings | [TS-61 implementation and Story critique](ts-61.md) |
 | Arena audio and music | [TS-34 / TS-35 implementation verification](ts-34.md) |
 | Static vehicle visual | [Asset and integration verification](ts-36.md) |

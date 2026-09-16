@@ -2,7 +2,7 @@
 
 ## Behavior and Defaults
 
-The main menu provides a **Settings** entry. During gameplay, the [ESC Game Menu](game-menu.md) is the sole settings entry point. Six category pages expose audio, video, gameplay, interface, controls and an intentionally empty Developer Options page. Preferences apply immediately and save automatically after a short idle interval. **Back** returns through the hierarchy; closing flushes pending changes. Escape goes Back or cancels an active binding capture. **Save now / retry** explicitly retries a failed save. The editor reports save status rather than claiming an unsuccessful write was saved.
+The main menu provides a **Settings** entry. During gameplay, the [ESC Game Menu](game-menu.md) opens Settings. Six category pages expose audio, video, gameplay, interface, controls and [Developer Options](developer-options.md); F1 directly toggles the same developer page in development builds. Local preferences apply immediately and save automatically after a short idle interval. **Back** returns through the hierarchy; closing flushes pending preference changes. Escape goes Back or cancels an active binding capture. **Save now / retry** explicitly retries a failed save. The editor reports save status rather than claiming an unsuccessful write was saved. Host gameplay tuning uses its own explicit Apply transaction and separate persistence, leaving local preferences outside synchronization.
 
 | Preference | Default | Behavior |
 | --- | --- | --- |

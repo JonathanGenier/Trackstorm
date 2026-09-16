@@ -34,6 +34,16 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private OnlineLobbyPanel _online = null!;
     private bool _leaving;
     private bool _logoutAfterLeave;
+    private bool _forceStart;
+
+    /// <summary>Host-local tuning supplied by composition; never consulted for a joining client.</summary>
+    internal Development.DeveloperSettingsStore? DeveloperSettings { get; set; }
+    /// <summary>Current local authority; no host controls exist before hosting or after authority is lost.</summary>
+    internal bool IsDeveloperHost => Development.DeveloperTools.Enabled && !_leaving && _lobby?.Authority is not null;
+    /// <summary>Active provider capability boundary for local network simulation.</summary>
+    internal ITransportGateway? Gateway => _gateway;
+    /// <summary>Current host tuning for lobby or arena editing.</summary>
+    internal Core.Development.GameplayConfiguration DeveloperConfiguration => _arena?.Driver.Configuration.Configuration ?? DeveloperSettings?.Current ?? new();
 
     /// <summary>Authenticated online coordinator supplied by application composition.</summary>
     internal Func<OnlineLobbyCoordinator?> OnlineCoordinator { get; set; } = () => null;
@@ -265,8 +275,14 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         {
             _arenaGeneration = _lobby.State.Match;
             _arena = new NetworkVehicleArena { Name = "SessionArena" };
-            _arena.Initialize(_gateway!, _lobby.Authority is null ? 0 : _arenaGeneration, _lobby.ServerPeer, _lobby);
+            _arena.Initialize(_gateway!, _lobby.Authority is null ? 0 : _arenaGeneration, _lobby.ServerPeer, _lobby, IsDeveloperHost ? DeveloperSettings?.LoadForHost() : null);
             AddChild(_arena);
+            if (_forceStart && _arena.Driver.Host is not null)
+            {
+                _arena.Driver.Host.ForceStart(0);
+            }
+
+            _forceStart = false;
         }
     }
 
@@ -302,10 +318,10 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     }
 
     /// <summary>Enters the existing lobby and arena presentation using separately established online transport.</summary>
+    /// <returns>The admission binding used by the authenticated transport adapter.</returns>
     /// <param name="gateway">Caller-owned authenticated gateway supplied by the transport integration.</param>
     /// <param name="serverPeer">Connected server peer for a client, zero for a host.</param>
     /// <param name="name">Requested gameplay display name.</param>
-    /// <returns>The admission binding used by the authenticated transport adapter.</returns>
     internal OnlineSessionBinding OpenOnline(ITransportGateway gateway, ulong serverPeer, string name)
     {
         if (_lobby is not null || _transport is not null)
@@ -323,8 +339,64 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         return binding;
     }
 
+    /// <summary>Validates and applies a host edit, then persists the accepted effective configuration.</summary>
+    /// <returns>Whether the operation was accepted.</returns>
+    /// <param name="edits">Stable gameplay keys and requested values.</param>
+    /// <param name="error">Safe validation feedback.</param>
+    internal bool ConfigureDeveloperOptions(IReadOnlyDictionary<string, double> edits, out string error)
+    {
+        error = "Only the authoritative host may change gameplay tuning.";
+        if (!IsDeveloperHost)
+        {
+            return false;
+        }
+
+        Core.Development.GameplayConfiguration accepted;
+        if (_arena is not null)
+        {
+            if (!_arena.Driver.TryConfigure(edits, out error))
+            {
+                return false;
+            }
+
+            accepted = _arena.Driver.Configuration.Configuration;
+        }
+        else if (!Core.Development.GameplayOptions.TryApply(DeveloperConfiguration, edits, out accepted, out error))
+        {
+            return false;
+        }
+
+        DeveloperSettings?.Save(accepted);
+        return true;
+    }
+
+    /// <summary>Uses existing inventory authority; a joined client never sends a grant request.</summary>
+    /// <returns>Whether the operation was accepted.</returns>
+    /// <param name="item">Implemented item to grant.</param>
+    internal bool GiveDeveloperItem(Core.Items.HeldItem item) => IsDeveloperHost && _arena?.Driver.Host?.GiveItem(0, item) == true;
+
+    /// <summary>Enters a normal arena and arms only its authoritative match countdown override.</summary>
+    /// <returns>Whether the operation was accepted.</returns>
+    internal bool ForceDeveloperStart()
+    {
+        if (!IsDeveloperHost)
+        {
+            return false;
+        }
+
+        if (_arena is not null)
+        {
+            return _arena.Driver.Host!.ForceStart(0);
+        }
+
+        _lobby!.Authority!.SetReady(0, true);
+        _forceStart = _lobby.Request(LobbyCommand.Start);
+        return _forceStart;
+    }
+
     private void CloseSession()
     {
+        _forceStart = false;
         _leaving = false;
         RemoveArena();
         _lobby = null;
