@@ -114,9 +114,10 @@ public sealed partial class ReconnectIntegrationChecks : Node
 
     private void AdvanceScenario()
     {
-        if (_stage == 0 && _client.State?.Players.Count == 2)
+        if (_stage == 0 && _client.State?.Players.Count == 2 && TransportDiagnostics.Capture(_gateways[1], _client).Statistics.PingMilliseconds is >= 0)
         {
             _player = _client.LocalPlayerId;
+            GD.Print("Diagnostics: Direct-IP current Ping observed through neutral projection.");
             _client.Request(LobbyCommand.Ready, true);
             _host.Pump(0);
             Drop();
@@ -199,6 +200,11 @@ public sealed partial class ReconnectIntegrationChecks : Node
     {
         _gateways[0].Disconnect(_host.Authority!.Peers.Keys.Single());
         _gateways[1].Disconnect(_client.ServerPeer);
+        var disconnected = TransportDiagnostics.Capture(_gateways[1], _client);
+        Require(disconnected.State == ConnectionDiagnosticState.Disconnected && disconnected.Statistics.PingMilliseconds is null, "Disconnect clears displayed latency immediately.");
+        _client.Pump(0);
+        var reconnecting = TransportDiagnostics.Capture(_gateways[1], _client);
+        Require(reconnecting.State == ConnectionDiagnosticState.Reconnecting && reconnecting.Statistics.PingMilliseconds is null, "Reconnecting never presents old latency.");
     }
 
     private void Cleanup()

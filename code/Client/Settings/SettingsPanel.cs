@@ -24,6 +24,9 @@ internal sealed partial class SettingsPanel : CanvasLayer
     private double _seconds;
     private SettingsHud _hud = null!;
 
+    /// <summary>Actual diagnostics bounds for runtime layout verification.</summary>
+    internal Rect2 DiagnosticsBounds => _hud.GetGlobalRect();
+
     /// <inheritdoc/>
     public override void _Ready()
     {
@@ -36,7 +39,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
         var open = new Button { Text = "Settings", Position = new Vector2(24, 24), CustomMinimumSize = new Vector2(140, 42) };
         _background.AddChild(open);
         open.Pressed += () => SetOpen(!_panel.Visible);
-        var hud = new SettingsHud { Name = "Diagnostics", Position = new Vector2(24, 84), MouseFilter = Control.MouseFilterEnum.Ignore };
+        var hud = new SettingsHud { Name = "Diagnostics", AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -224, OffsetRight = -16, OffsetTop = 16, MouseFilter = Control.MouseFilterEnum.Ignore };
         hud.Initialize(_settings);
         _hud = hud;
         _background.AddChild(hud);
@@ -248,8 +251,8 @@ internal sealed partial class SettingsPanel : CanvasLayer
 
     /// <summary>Connects authoritative vehicle speed to the existing preference-aware HUD.</summary>
     /// <param name="metresPerSecond">Unconverted Core speed.</param>
-    /// <param name="pingMilliseconds">Sampled transport ping, or null while offline or unavailable.</param>
-    internal void SetVehicleTelemetry(float metresPerSecond, int? pingMilliseconds = null) => _hud.SetTelemetry(metresPerSecond, pingMilliseconds);
+    /// <param name="connection">Current neutral connection diagnostics.</param>
+    internal void SetVehicleTelemetry(float metresPerSecond, Networking.ConnectionDiagnostic connection = default) => _hud.SetTelemetry(metresPerSecond, connection);
 
     /// <summary>Suppresses only the duplicate speed line; independent FPS and ping preferences remain intact.</summary>
     /// <param name="visible">Whether the combat HUD is providing speed.</param>

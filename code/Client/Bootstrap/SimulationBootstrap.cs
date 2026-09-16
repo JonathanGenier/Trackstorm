@@ -105,8 +105,7 @@ public sealed partial class SimulationBootstrap : Node
     {
         _arena?.Advance(input);
         _session?.Advance(input);
-        int? ping = _session?.Ping;
-        _settingsPanel.SetVehicleTelemetry(_session?.Arena?.LocalState?.Speed ?? _arena?.Player.Snapshot.Speed ?? 0, ping);
+        _settingsPanel.SetVehicleTelemetry(_session?.Arena?.LocalState?.Speed ?? _arena?.Player.Snapshot.Speed ?? 0, _session?.Diagnostics ?? default);
         _settingsPanel.SetCombatHudVisible(_session?.Arena?.LocalState is not null || _arena is not null);
     }
 }

@@ -1,5 +1,6 @@
 using System.Globalization;
 using Godot;
+using Trackstorm.Client.Networking;
 using Trackstorm.Core.Settings;
 
 namespace Trackstorm.Client.Settings;
@@ -10,9 +11,10 @@ internal sealed partial class SettingsHud : VBoxContainer
     private readonly Label _speed = new();
     private readonly Label _fps = new();
     private readonly Label _ping = new();
+    private readonly FrameRateSampler _frames = new();
     private PlayerSettingsController _settings = null!;
     private double? _metresPerSecond;
-    private double? _pingMilliseconds;
+    private ConnectionDiagnostic _connection;
 
     /// <summary>Directly observable diagnostics visibility for integration verification.</summary>
     internal bool FpsVisible => _fps.Visible;
@@ -26,7 +28,15 @@ internal sealed partial class SettingsHud : VBoxContainer
     internal bool SpeedVisible { set => _speed.Visible = value; }
 
     /// <inheritdoc/>
-    public override void _Process(double delta) => _fps.Text = $"FPS  {Engine.GetFramesPerSecond()}";
+    public override void _Process(double delta)
+    {
+        double? previous = _frames.FramesPerSecond;
+        _frames.Add(delta);
+        if (previous != _frames.FramesPerSecond)
+        {
+            Refresh();
+        }
+    }
 
     /// <inheritdoc/>
     public override void _ExitTree() => _settings.Changed -= Refresh;
@@ -45,12 +55,16 @@ internal sealed partial class SettingsHud : VBoxContainer
 
     /// <summary>Receives presentation telemetry in simulation units; null means unavailable.</summary>
     /// <param name="metresPerSecond">Unconverted speed.</param>
-    /// <param name="pingMilliseconds">Measured latency, or null offline.</param>
-    internal void SetTelemetry(double? metresPerSecond, double? pingMilliseconds)
+    /// <param name="connection">Fresh provider-neutral connection projection.</param>
+    internal void SetTelemetry(double? metresPerSecond, ConnectionDiagnostic connection)
     {
+        bool changed = connection != _connection || (_speed.Visible && metresPerSecond != _metresPerSecond);
         _metresPerSecond = metresPerSecond;
-        _pingMilliseconds = pingMilliseconds;
-        Refresh();
+        _connection = connection;
+        if (changed)
+        {
+            Refresh();
+        }
     }
 
     private void Refresh()
@@ -59,9 +73,10 @@ internal sealed partial class SettingsHud : VBoxContainer
         string speed = _metresPerSecond is double value && double.IsFinite(value)
             ? Hud.CombatHudView.ConvertSpeed(value, _settings.Current.SpeedUnit).ToString("0.0", CultureInfo.InvariantCulture) : "—";
         _speed.Text = $"Speed  {speed} {unit}";
-        _fps.Visible = _settings.Current.ShowFps;
-        _ping.Visible = _settings.Current.ShowPing;
-        _ping.Text = _pingMilliseconds is double ping && double.IsFinite(ping) && ping >= 0
-            ? $"Ping  {ping:0} ms" : "Ping  — (offline)";
+        var view = DiagnosticsView.Create(_settings.Current, _frames.FramesPerSecond, _connection);
+        _fps.Visible = view.FpsVisible;
+        _ping.Visible = view.PingVisible;
+        _fps.Text = view.Fps;
+        _ping.Text = view.Ping;
     }
 }

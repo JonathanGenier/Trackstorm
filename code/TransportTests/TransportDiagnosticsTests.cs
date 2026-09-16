@@ -1,47 +1,59 @@
 using Trackstorm.Client.Networking;
 using Trackstorm.Core.Networking.Transport;
+using Trackstorm.Core.Sessions;
 
 namespace Trackstorm.Transport.Tests;
 
-/// <summary>Checks HUD ping selection without loading the native transport runtime.</summary>
+/// <summary>Checks local upstream selection and replacement with no presentation sample cache.</summary>
 [TestFixture]
 internal sealed class TransportDiagnosticsTests
 {
-    /// <summary>An inactive transport has no ping.</summary>
+    /// <summary>Both providers use the same projection, and replacing provider/session cannot reuse a previous sample.</summary>
+    /// <param name="name">Provider-owned neutral name.</param>
+    [TestCase("EOS P2P")]
+    [TestCase("Direct-IP")]
+    public void ProjectsCurrentSessionAndInvalidatesReplacement(string name)
+    {
+        using var gateway = new DiagnosticGateway(name);
+        var lobby = new LobbyNetworkDriver(gateway, 0, 7, "Client");
+        Assert.That(TransportDiagnostics.Capture(gateway, lobby).State, Is.EqualTo(ConnectionDiagnosticState.Connecting));
+        gateway.Admit(12, 1);
+        lobby.Pump(0);
+        var sample = TransportDiagnostics.Capture(gateway, lobby);
+        Assert.That(sample.Statistics.PingMilliseconds, Is.EqualTo(42));
+        Assert.That(sample.Transport, Is.EqualTo(name));
+        Assert.That(sample.Statistics.IncomingQuality, Is.EqualTo(0.9f));
+        lobby.NeedsArenaCheckpoint = true;
+        Assert.That(TransportDiagnostics.Capture(gateway, lobby).Statistics.PingMilliseconds, Is.Null);
+        lobby.NeedsArenaCheckpoint = false;
+        gateway.States.Clear();
+        Assert.That(TransportDiagnostics.Capture(gateway, lobby).State, Is.EqualTo(ConnectionDiagnosticState.Disconnected));
+        Assert.That(TransportDiagnostics.Capture(gateway, lobby).Statistics.PingMilliseconds, Is.Null);
+        using var replacement = new DiagnosticGateway("Replacement") { Ping = null };
+        var newLobby = new LobbyNetworkDriver(replacement, 0, 7, "Client");
+        replacement.Admit(13, 2);
+        newLobby.Pump(0);
+        var fresh = TransportDiagnostics.Capture(replacement, newLobby);
+        Assert.That(fresh.Statistics.PingMilliseconds, Is.Null);
+        Assert.That(fresh.Transport, Is.EqualTo("Replacement"));
+        Assert.That(newLobby.State!.Session, Is.EqualTo(13));
+        Assert.That(newLobby.Generation, Is.EqualTo(2));
+        Assert.That(TransportDiagnostics.Capture(null, null).State, Is.EqualTo(ConnectionDiagnosticState.Disconnected));
+    }
+
+    /// <summary>A host has no upstream peer, even when remote peers have samples.</summary>
     [Test]
-    public void MissingGatewayHasNoPing()
+    public void HostDoesNotDisplayArbitraryClientPing()
     {
-        Assert.That(TransportDiagnostics.GetPing(null), Is.Null);
+        using var gateway = new DiagnosticGateway("Host");
+        var lobby = new LobbyNetworkDriver(gateway, 12, 0, "Host");
+        Assert.That(TransportDiagnostics.Capture(gateway, lobby).State, Is.EqualTo(ConnectionDiagnosticState.Unavailable));
+        Assert.That(TransportDiagnostics.Capture(gateway, lobby).Statistics.PingMilliseconds, Is.Null);
     }
 
-    /// <summary>Only connected peers with available samples contribute a ping.</summary>
-    /// <param name="states">The peer states in enumeration order.</param>
-    /// <param name="pings">The corresponding available or unavailable samples.</param>
-    /// <param name="expected">The first eligible ping, if any.</param>
-    /// <param name="sampledPeers">The peers whose statistics should be queried.</param>
-    [TestCaseSource(nameof(PingCases))]
-    public void SelectsFirstAvailableConnectedPing(TransportConnectionState[] states, int?[] pings, int? expected, ulong[] sampledPeers)
+    private sealed class DiagnosticGateway(string name) : ITransportGateway
     {
-        using var gateway = new DiagnosticGateway(states, pings);
-        Assert.That(TransportDiagnostics.GetPing(gateway), Is.EqualTo(expected));
-        Assert.That(gateway.SampledPeers, Is.EqualTo(sampledPeers));
-    }
-
-    private static IEnumerable<TestCaseData> PingCases()
-    {
-        var connecting = TransportConnectionState.Connecting;
-        var connected = TransportConnectionState.Connected;
-        yield return new TestCaseData(Array.Empty<TransportConnectionState>(), Array.Empty<int?>(), null, Array.Empty<ulong>()).SetName("NoPeersHasNoPing");
-        yield return new TestCaseData(new[] { connecting }, new int?[] { 10 }, null, Array.Empty<ulong>()).SetName("ConnectingPeerIsNotSampled");
-        yield return new TestCaseData(new[] { connected }, new int?[] { 25 }, 25, new ulong[] { 0 }).SetName("ConnectedPeerProvidesPing");
-        yield return new TestCaseData(new[] { connecting, connected }, new int?[] { null, 25 }, 25, new ulong[] { 1 }).SetName("ConnectingPeerDoesNotHideConnectedPing");
-        yield return new TestCaseData(new[] { connected, connected }, new int?[] { null, 25 }, 25, new ulong[] { 0, 1 }).SetName("UnavailableConnectedSampleIsSkipped");
-        yield return new TestCaseData(new[] { connected }, new int?[] { null }, null, new ulong[] { 0 }).SetName("UnavailableConnectedSampleHasNoPing");
-        yield return new TestCaseData(new[] { connected, connected }, new int?[] { 0, 25 }, 0, new ulong[] { 0 }).SetName("FirstAvailablePingIncludesZero");
-    }
-
-    private sealed class DiagnosticGateway(TransportConnectionState[] states, int?[] pings) : ITransportGateway
-    {
+        private readonly Queue<TransportMessage> _messages = new();
         public event Action<TransportConnectionChange>? ConnectionChanged
         {
             add { }
@@ -49,37 +61,40 @@ internal sealed class TransportDiagnosticsTests
         }
 
         public bool IsListening => false;
-
-        public IReadOnlyDictionary<ulong, TransportConnectionState> Connections { get; } = states.Select((state, index) => new KeyValuePair<ulong, TransportConnectionState>((ulong)index, state)).ToDictionary();
-
-        public TransportConnectionState ConnectionState => throw new NotSupportedException();
-
-        public List<ulong> SampledPeers { get; } = [];
-
+        public string Name => name;
+        public Dictionary<ulong, TransportConnectionState> States { get; } = new() { [7] = TransportConnectionState.Connected };
+        public IReadOnlyDictionary<ulong, TransportConnectionState> Connections => States;
+        public TransportConnectionState ConnectionState => TransportConnectionState.Connected;
+        internal int? Ping { get; set; } = 42;
         public TransportStatistics GetStatistics(ulong peerId)
         {
-            SampledPeers.Add(peerId);
-            return new TransportStatistics(pings[peerId], null, null);
+            Assert.That(peerId, Is.EqualTo(7));
+            return new(Ping, 0.9f, null);
         }
 
         public void Dispose()
         {
         }
 
+        public void Poll()
+        {
+        }
+
+        public void Send(TransportMessage message)
+        {
+        }
+
+        public bool TryReceive(out TransportMessage message) => _messages.TryDequeue(out message);
         public void Listen(TransportEndpoint endpoint) => throw new NotSupportedException();
-
         public ulong Connect(TransportEndpoint endpoint) => throw new NotSupportedException();
-
         public void Disconnect(ulong peerId) => throw new NotSupportedException();
-
-        public void Poll() => throw new NotSupportedException();
-
         public void Stop() => throw new NotSupportedException();
-
         public void ConfigureSimulation(NetworkSimulation simulation) => throw new NotSupportedException();
 
-        public void Send(TransportMessage message) => throw new NotSupportedException();
-
-        public bool TryReceive(out TransportMessage message) => throw new NotSupportedException();
+        internal void Admit(ulong session, ulong generation)
+        {
+            var state = new LobbySnapshot(session, 1, session, SessionPhase.Lobby, [new(1, "Host", false), new(2, "Client", false, true, generation)]);
+            _messages.Enqueue(new(7, LobbyCodec.EncodeState(state, 2), TransportDelivery.Reliable));
+        }
     }
 }

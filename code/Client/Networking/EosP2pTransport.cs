@@ -52,7 +52,7 @@ internal sealed class EosP2pTransport : ITransportGateway
     /// <inheritdoc/>
     public string Name => "EOS P2P";
     /// <inheritdoc/>
-    public TransportCapabilities Capabilities => TransportCapabilities.None;
+    public TransportCapabilities Capabilities => TransportCapabilities.Ping;
     /// <inheritdoc/>
     public bool IsListening { get; private set; }
     /// <inheritdoc/>
@@ -105,7 +105,9 @@ internal sealed class EosP2pTransport : ITransportGateway
     public TransportStatistics GetStatistics(ulong peerId)
     {
         Check();
-        return default;
+        return _peers.TryGetValue(peerId, out var peer) && _connections.IsConnected(peerId) &&
+            peer.SampledAt is long sampled && _time.GetElapsedTime(sampled).TotalSeconds < 5
+            ? new(peer.Ping, null, null) : default;
     }
 
     /// <inheritdoc/>
@@ -184,6 +186,10 @@ internal sealed class EosP2pTransport : ITransportGateway
                 else if (!_connections.IsConnected(peer.Id) && _time.GetElapsedTime(peer.Started).TotalSeconds >= 12)
                 {
                     Close(peer.Id, TransportDisconnectReason.Timeout);
+                }
+                else if (_connections.IsConnected(peer.Id))
+                {
+                    Probe(peer);
                 }
             }
 
@@ -438,6 +444,31 @@ internal sealed class EosP2pTransport : ITransportGateway
             return;
         }
 
+        if ((type == 5 || type == 6) && delivery == TransportDelivery.Unreliable &&
+            _connections.IsConnected(peer.Id) && packet.Length == 25)
+        {
+            ulong probe = BinaryPrimitives.ReadUInt64LittleEndian(packet[17..]);
+            if (type == 5)
+            {
+                // Bound replies independently of gameplay traffic; diagnostics never close a connection.
+                if (peer.RepliedAt is null || _time.GetElapsedTime(peer.RepliedAt.Value).TotalSeconds >= 0.5)
+                {
+                    peer.RepliedAt = _time.GetTimestamp();
+                    Header(peer, 6, peer.RemoteNonce);
+                    BinaryPrimitives.WriteUInt64LittleEndian(_send.AsSpan(17), probe);
+                    SendPacket(peer, 25, TransportDelivery.Unreliable);
+                }
+            }
+            else if (probe == peer.ProbeId && peer.ProbedAt is long sent && _time.GetElapsedTime(sent).TotalSeconds < 5)
+            {
+                peer.Ping = (int)Math.Round(_time.GetElapsedTime(sent).TotalMilliseconds);
+                peer.SampledAt = _time.GetTimestamp();
+                peer.ProbedAt = null;
+            }
+
+            return;
+        }
+
         if (type != 4 || !_connections.IsConnected(peer.Id) || packet.Length < EosPacketAssembly.Header)
         {
             return;
@@ -462,7 +493,26 @@ internal sealed class EosP2pTransport : ITransportGateway
     {
         if (_connections.TryTransition(peer.Id, TransportConnectionState.Connected))
         {
+            peer.LastProbeAt = _time.GetTimestamp();
             _changes.Enqueue(new(peer.Id, TransportConnectionState.Connected, TransportDisconnectReason.None, "EOS gameplay connected."));
+        }
+    }
+
+    private void Probe(Peer peer)
+    {
+        if (_time.GetElapsedTime(peer.LastProbeAt).TotalSeconds < 1 ||
+            (peer.ProbedAt is long pending && _time.GetElapsedTime(pending).TotalSeconds < 5))
+        {
+            return;
+        }
+
+        peer.LastProbeAt = _time.GetTimestamp();
+        peer.ProbedAt = peer.LastProbeAt;
+        Header(peer, 5, peer.RemoteNonce);
+        BinaryPrimitives.WriteUInt64LittleEndian(_send.AsSpan(17), ++peer.ProbeId);
+        if (!SendPacket(peer, 25, TransportDelivery.Unreliable))
+        {
+            peer.ProbedAt = null;
         }
     }
 
@@ -558,6 +608,12 @@ internal sealed class EosP2pTransport : ITransportGateway
         internal bool Challenged { get; set; }
         internal uint ReliableSequence { get; set; }
         internal uint UnreliableSequence { get; set; }
+        internal ulong ProbeId { get; set; }
+        internal long LastProbeAt { get; set; }
+        internal long? ProbedAt { get; set; }
+        internal long? RepliedAt { get; set; }
+        internal long? SampledAt { get; set; }
+        internal int? Ping { get; set; }
         internal EosPacketAssembly Reliable { get; } = new();
         internal EosUnreliableWindow Unreliable { get; } = new(time);
     }
