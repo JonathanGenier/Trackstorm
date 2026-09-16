@@ -26,9 +26,58 @@ internal sealed class EosP2pTransportTests
         Assert.That(EosP2pSdk.Reason(ConnectionClosedReason.ClosedByPeer), Is.EqualTo(TransportDisconnectReason.RemoteRequest));
         Assert.That(EosP2pSdk.Reason(ConnectionClosedReason.NegotiationFailed), Is.EqualTo(TransportDisconnectReason.Failure));
         using var pair = new Pair();
-        Assert.That(pair.Host.Capabilities, Is.EqualTo(TransportCapabilities.None));
+        Assert.That(pair.Host.Capabilities, Is.EqualTo(TransportCapabilities.Ping));
         Assert.That(pair.Host.GetStatistics(99), Is.EqualTo(default(TransportStatistics)));
         Assert.Throws<NotSupportedException>(() => pair.Host.ConfigureSimulation(new()));
+    }
+
+    /// <summary>Timed real framing supplies neutral RTT, expires silence and rejects old-generation replies.</summary>
+    [Test]
+    public void SamplesLatencyExpiresAndRejectsRetiredReplies()
+    {
+        using var pair = new Pair();
+        pair.Pump();
+        Assert.That(pair.Client.GetStatistics(pair.Server).PingMilliseconds, Is.Null);
+        pair.Clock.Advance(1);
+        pair.Client.Poll();
+        pair.Clock.Advance(0.04);
+        pair.Host.Poll();
+        var oldReply = pair.ClientWire.Packets.Single(packet => packet.Bytes[0] == 6);
+        pair.Clock.Advance(0.04);
+        pair.Client.Poll();
+        Assert.That(pair.Client.GetStatistics(pair.Server).PingMilliseconds, Is.EqualTo(80));
+        Assert.That(pair.Client.GetStatistics(pair.Server).IncomingQuality, Is.Null);
+        Assert.That(pair.Client.TryReceive(out _), Is.False, "Probes never become gameplay messages.");
+        pair.Clock.Advance(5);
+        Assert.That(pair.Client.GetStatistics(pair.Server).PingMilliseconds, Is.Null, "Silent samples expire without requiring a native disconnect.");
+        pair.ClientWire.Packets.Enqueue(oldReply);
+        pair.Client.Poll();
+        Assert.That(pair.Client.GetStatistics(pair.Server).PingMilliseconds, Is.Null, "Duplicate replies cannot refresh an expired sample.");
+        ulong oldPeer = pair.Server;
+        pair.Client.Stop();
+        pair.Host.Stop();
+        pair.Host.Listen(EosP2pTransport.Endpoint(pair.Lobby, pair.HostId));
+        pair.Server = pair.Client.Connect(EosP2pTransport.Endpoint(pair.Lobby, pair.HostId));
+        pair.Pump();
+        pair.Clock.Advance(1);
+        pair.Client.Poll();
+        pair.ClientWire.Packets.Enqueue(oldReply);
+        pair.Client.Poll();
+        Assert.That(pair.Client.GetStatistics(oldPeer).PingMilliseconds, Is.Null);
+        Assert.That(pair.Client.GetStatistics(pair.Server).PingMilliseconds, Is.Null, "Matching probe IDs with retired nonces are rejected.");
+        pair.Clock.Advance(0.1);
+        pair.Host.Poll();
+        pair.Clock.Advance(0.1);
+        pair.Client.Poll();
+        Assert.That(pair.Client.GetStatistics(pair.Server).PingMilliseconds, Is.EqualTo(200));
+        pair.Host.Poll();
+        ulong clientPeer = pair.Host.Connections.Keys.Single();
+        int? hostPing = pair.Host.GetStatistics(clientPeer).PingMilliseconds;
+        Assert.That(hostPing, Is.Not.Null);
+        var roster = new LobbySnapshot(17, 1, 17, SessionPhase.Lobby, [new(1, "Host", false), new(2, "Client", false)]);
+        var latency = new PlayerLatency();
+        latency.Sample(roster, new Dictionary<ulong, ulong> { [clientPeer] = 2 }, pair.Host);
+        Assert.That(latency.Get(roster, 2), Is.EqualTo(hostPing), "Standings reuse EOS statistics without another probe mechanism.");
     }
 
     /// <summary>The full existing lobby authority path works over the actual EOS framing and handshake.</summary>
@@ -96,6 +145,7 @@ internal sealed class EosP2pTransportTests
         Assert.That(client.ResumeStatus, Is.EqualTo("Resume succeeded"));
         Assert.That(client.Generation, Is.EqualTo(2));
         Assert.That(client.LocalPlayerId, Is.EqualTo(player));
+        Assert.That(TransportDiagnostics.Capture(pair.Client, client).State, Is.EqualTo(ConnectionDiagnosticState.Connected));
         Assert.That(client.State!.Players.Single(p => p.Id == player).Ready, Is.False);
         host.Request(LobbyCommand.Ready, true);
         client.Request(LobbyCommand.Ready, true);
@@ -121,6 +171,9 @@ internal sealed class EosP2pTransportTests
             ulong generation = client.Generation;
             pair.Host.Disconnect(oldPeer);
             pair.Client.Disconnect(client.ServerPeer);
+            Assert.That(TransportDiagnostics.Capture(pair.Client, client).Statistics.PingMilliseconds, Is.Null);
+            client.Pump(0);
+            Assert.That(TransportDiagnostics.Capture(pair.Client, client).State, Is.EqualTo(ConnectionDiagnosticState.Reconnecting));
             for (int i = 0; i < 110; i++)
             {
                 authority.Advance(default, Observe);

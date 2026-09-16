@@ -36,6 +36,12 @@ public sealed partial class HudIntegrationChecks : Node
             AddChild(settings);
             var hud = new CombatHud { Vehicle = () => state, Slot = () => slot, Units = () => settings.Current.SpeedUnit };
             viewport.AddChild(hud);
+            var preferences = new Settings.SettingsPanel();
+            preferences.Initialize(settings, input.Adapter);
+            viewport.AddChild(preferences);
+            preferences.SetCombatHudVisible(true);
+            settings.UpdateSettings(settings.Current with { ShowFps = true, ShowPing = true });
+            preferences.SetVehicleTelemetry(0, new(Networking.ConnectionDiagnosticState.Reconnecting, default));
             var pixels = new List<(int Health, int Speed)>();
             foreach (var sample in new[] { (1000f, 200 / 3.6f, HeldItem.None), (500f, 100 / 3.6f, HeldItem.Wrench), (0f, 0f, HeldItem.None), (850f, 200 / 3.6f, HeldItem.Missile) })
             {
@@ -66,6 +72,7 @@ public sealed partial class HudIntegrationChecks : Node
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 Require(hud.Displayed!.Standing == "--" && hud.Displayed.Timer == "--:--", "Placeholders");
+                Require(preferences.DiagnosticsBounds.Position.X >= size.X / 2.0f && preferences.DiagnosticsBounds.End.X <= size.X, "Diagnostics fit the upper-right region");
                 using Image frame = viewport.GetTexture().GetImage();
                 Require(frame.SavePng(System.IO.Path.Combine(output, $"hud-{size.X}x{size.Y}.png")) == Error.Ok, "Resolution screenshot");
             }

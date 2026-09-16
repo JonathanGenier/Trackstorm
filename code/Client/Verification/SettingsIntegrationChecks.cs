@@ -161,7 +161,7 @@ public sealed partial class SettingsIntegrationChecks : Node
         AddChild(hud);
         var simulation = new Simulation(new SimulationConfiguration(60));
         SimulationState state = simulation.State;
-        hud.SetTelemetry(10, null);
+        hud.SetTelemetry(10, default);
         Check(hud.SpeedText == "Speed  22.4 mph", "HUD converts supplied speed to mph");
         foreach (bool fps in new[] { false, true })
         {

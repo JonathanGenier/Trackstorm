@@ -29,7 +29,7 @@ internal sealed record MatchStandingsView(bool Visible, bool Finished, IReadOnly
 
         var names = roster.Players.ToDictionary(player => player.Id, player => player.Name);
         var ranks = MatchRanking.Create(match, names.Keys);
-        StandingsRow[] rows = ranks.Select(rank => new StandingsRow(rank.PlayerId, rank.Rank, names[rank.PlayerId], rank.Kills, rank.Deaths, ping(rank.PlayerId) is >= 0 and <= 60000 and var latency ? latency.ToString(CultureInfo.InvariantCulture) + " ms" : "--", rank.PlayerId == match.Winner, rank.PlayerId == localPlayer)).ToArray();
+        StandingsRow[] rows = ranks.Select(rank => new StandingsRow(rank.PlayerId, rank.Rank, names[rank.PlayerId], rank.Kills, rank.Deaths, PingFormatter.Format(ping(rank.PlayerId)), rank.PlayerId == match.Winner, rank.PlayerId == localPlayer)).ToArray();
         bool finished = match.Phase == MatchPhase.Finished;
         return new(finished || (match.Phase == MatchPhase.Active && held.HasFlag(InputButtons.Leaderboard)), finished, Array.AsReadOnly(rows), rows.SingleOrDefault(row => row.PlayerId == localPlayer)?.Rank.ToString(CultureInfo.InvariantCulture) ?? "--", match.Winner is ulong winner ? names.GetValueOrDefault(winner, $"Player {winner}") : string.Empty);
     }

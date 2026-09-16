@@ -19,6 +19,7 @@ public sealed partial class StandingsIntegrationChecks : Node
     private readonly List<CombatHud> _huds = new();
     private PlayerInput _input = null!;
     private SubViewport _view = null!;
+    private Settings.SettingsPanel _diagnostics = null!;
     private bool _done;
 
     /// <inheritdoc/>
@@ -73,6 +74,15 @@ public sealed partial class StandingsIntegrationChecks : Node
                 _huds.Add(hud);
             }
 
+            var settings = new Settings.PlayerSettingsController();
+            settings.Initialize(_input.Adapter, ProjectSettings.GlobalizePath("res://.godot/ts32-standings-settings.json"));
+            AddChild(settings);
+            _diagnostics = new Settings.SettingsPanel();
+            _diagnostics.Initialize(settings, _input.Adapter);
+            _view.AddChild(_diagnostics);
+            _diagnostics.SetCombatHudVisible(true);
+            settings.UpdateSettings(settings.Current with { ShowFps = true, ShowPing = true });
+            _diagnostics.SetVehicleTelemetry(0, new(ConnectionDiagnosticState.Reconnecting, default));
             await Until(() => _sessions.All(session => session.Lobby?.State?.Players.Count == 8));
             foreach (var session in _sessions)
             {
@@ -105,6 +115,14 @@ public sealed partial class StandingsIntegrationChecks : Node
             Refresh(false);
             await Until(() => _sessions.All(session => session.Standings.Rows.Count(row => row.Ping != "--") == 7));
             Require(_sessions.All(session => session.Standings.Rows.Single(row => row.PlayerId == 1).Ping == "--"), "Host no-hop rule");
+            foreach (var session in _sessions)
+            {
+                _diagnostics.SetVehicleTelemetry(0, session.Diagnostics);
+                var counter = _diagnostics.FindChild("Diagnostics", true, false) as Settings.SettingsHud ?? throw new InvalidOperationException("Missing diagnostics HUD.");
+                Require(counter.PingText == "Ping  " + session.Standings.Rows.Single(row => row.Local).Ping, "Rendered HUD Ping equals the local leaderboard row for every peer");
+            }
+
+            _diagnostics.SetVehicleTelemetry(0, new(ConnectionDiagnosticState.Reconnecting, default));
             SetTotals(false);
             await Until(() => _sessions.All(session => session.Standings.Rows[0].PlayerId == 8));
             key.Pressed = true;
@@ -125,6 +143,7 @@ public sealed partial class StandingsIntegrationChecks : Node
                 _view.Size = size;
                 await Frames(2);
                 Refresh(true);
+                Require(_diagnostics.DiagnosticsBounds.End.Y <= _boards[0].Bounds.Position.Y && _diagnostics.DiagnosticsBounds.End.X <= size.X, "FPS/Ping fit above standings without overlap");
                 await Capture($"results-{size.X}x{size.Y}");
             }
 

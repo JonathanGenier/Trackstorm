@@ -21,6 +21,9 @@ internal sealed partial class MatchStandings : CanvasLayer
     /// <summary>Last rendered projection for runtime verification.</summary>
     internal MatchStandingsView? Displayed { get; private set; }
 
+    /// <summary>Rendered board footprint including its decorative edge, for composition checks.</summary>
+    internal Rect2 Bounds => _board.GetGlobalRect().Grow(24 * _board.Scale.Y);
+
     /// <inheritdoc/>
     public override void _Ready()
     {
