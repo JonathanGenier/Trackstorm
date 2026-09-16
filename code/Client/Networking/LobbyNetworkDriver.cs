@@ -14,6 +14,7 @@ internal sealed class LobbyNetworkDriver
     private bool _joined;
     private ulong _published;
     private double _joiningSeconds;
+    private double _latencySeconds;
 
     /// <summary>Creates a host lobby or a client waiting for admission.</summary>
     /// <param name="gateway">Existing transport.</param>
@@ -47,12 +48,15 @@ internal sealed class LobbyNetworkDriver
     internal string Failure { get; private set; } = string.Empty;
     /// <summary>Rejected malformed or unauthorized intents/publications.</summary>
     internal int RejectedPackets { get; private set; }
+    /// <summary>Presentation-only host RTT samples keyed by session player identity.</summary>
+    internal PlayerLatency Latency { get; } = new();
 
     /// <summary>Pumps the single gateway and optionally routes non-lobby packets into the active vehicle driver.</summary>
     /// <param name="seconds">Elapsed monotonic time for admission timeout.</param>
     /// <param name="vehicleMessage">Consumer for an active arena only.</param>
     internal void Pump(double seconds, Action<TransportMessage>? vehicleMessage = null)
     {
+        _latencySeconds += seconds;
         _gateway.Poll();
         if (Authority is not null)
         {
@@ -95,6 +99,13 @@ internal sealed class LobbyNetworkDriver
             {
                 Receive(message);
             }
+            else if (PlayerLatency.IsLatency(message.Payload.Span))
+            {
+                if (Authority is not null || message.RemotePeerId != ServerPeer || message.Delivery != TransportDelivery.Reliable || State is null || !Latency.Accept(message.Payload.Span, State))
+                {
+                    RejectedPackets++;
+                }
+            }
             else if (State?.Phase == SessionPhase.Arena)
             {
                 vehicleMessage?.Invoke(message);
@@ -102,6 +113,15 @@ internal sealed class LobbyNetworkDriver
         }
 
         Publish();
+        if (Authority is not null && _latencySeconds >= 1)
+        {
+            _latencySeconds = 0;
+            byte[] payload = Latency.Sample(Authority.State, Authority.Peers, _gateway);
+            foreach (ulong peer in Authority.Peers.Keys.ToArray())
+            {
+                Send(peer, payload);
+            }
+        }
     }
 
     /// <summary>Dispatches local user intent through the same authoritative rules as remote requests.</summary>

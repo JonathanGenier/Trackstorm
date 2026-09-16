@@ -34,4 +34,6 @@ The EOS adapter records cumulative sent/received datagrams, sent bytes, maximum 
 
 Deterministic tests exercise two- and eight-player vehicle traffic, lobby Ready/Start/Return, packet fragmentation/loss/reordering, capacity, timeouts, stale callbacks and cleanup through the production gateway with a fake native packet provider. These measurements do not establish Internet performance. `check-eos.ps1 -P2p -GodotPath <exe>` adds real authenticated create/listen/notification/stop/close cycles and the solo host Ready/Start/arena/Return flow. Separate-PC Internet gameplay, realistic loss/jitter, NAT topology, long-session behavior and clean-machine export operation require real deployment testing using [the EOS verification procedure](../eos-development.md).
 
+The [match standings](standings.md) board uses the same transport-neutral diagnostics publication as Direct-IP. EOS unavailable RTT remains -- for every row; no synthetic latency measurement or SDK-dependent UI path is added.
+
 [Feature index](README.md)

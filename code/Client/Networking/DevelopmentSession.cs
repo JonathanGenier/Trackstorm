@@ -25,6 +25,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private bool _onlineTransport;
     private EosP2pTransport? _ownedOnline;
     private string? _transportFailure;
+    private InputButtons _standingsHeld;
     private LobbyNetworkDriver? _lobby;
     private NetworkVehicleArena? _arena;
     private VBoxContainer _menu = null!;
@@ -44,6 +45,9 @@ internal sealed partial class DevelopmentSession : CanvasLayer
 
     /// <summary>Production lobby exposed for runtime integration verification.</summary>
     internal LobbyNetworkDriver? Lobby => _lobby;
+    /// <summary>Shared projection used by both standings and the existing HUD badge.</summary>
+    internal Hud.MatchStandingsView Standings => Hud.MatchStandingsView.From(_lobby?.State, _arena?.Driver.Match, _lobby?.LocalPlayerId ?? 0, _standingsHeld, id => _lobby?.State is { } state ? _lobby.Latency.Get(state, id) : null);
+
     /// <summary>Active arena, absent while assembling the lobby.</summary>
     internal NetworkVehicleArena? Arena => _arena;
     /// <summary>Current sampled peer latency.</summary>
@@ -162,6 +166,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <param name="input">Captured local input.</param>
     internal void Advance(InputFrame input)
     {
+        _standingsHeld = input.Held;
         if (_lobby is null && !_debug.ButtonPressed && OnlineCoordinator() is { Active: not null, TransportFactory: not null } coordinator)
         {
             try
@@ -235,6 +240,18 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             _arena = new NetworkVehicleArena { Name = "SessionArena" };
             _arena.Initialize(_gateway!, _lobby.Authority is null ? 0 : _arenaGeneration, _lobby.ServerPeer, _lobby);
             AddChild(_arena);
+        }
+    }
+    /// <summary>Uses the existing host Return or individual client Leave action from final results.</summary>
+    internal void LeaveResults()
+    {
+        if (_lobby?.Authority is not null)
+        {
+            _lobby.Request(LobbyCommand.Return);
+        }
+        else
+        {
+            Leave();
         }
     }
 
