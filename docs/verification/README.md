@@ -6,6 +6,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 
 | Evidence | Reports |
 | --- | --- |
+| Static vehicle visual | [Asset and integration verification](ts-36.md) |
 | Death/respawn | [Implementation verification](ts-24.md) |
 | Combat HUD | [Implementation verification](ts-30.md) |
 | Match standings | [Implementation and reconnect integration verification](ts-28.md) |

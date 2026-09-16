@@ -6,22 +6,6 @@ namespace Trackstorm.Client.Vehicles;
 /// <summary>Shared native ray observations for practice, host and prediction replay; Core computes all spring forces.</summary>
 internal static class WheelSuspension
 {
-    /// <summary>Uses physical wheel compression and steering for reconstructable wheel visuals.</summary>
-    /// <param name="wheels">Visual wheels in observation order.</param>
-    /// <param name="state">Accepted handling state.</param>
-    /// <param name="length">Full suspension extension.</param>
-    /// <param name="radius">Visual wheel radius.</param>
-    internal static void Present(IReadOnlyList<Node3D> wheels, VehicleState state, float length, float radius)
-    {
-        float[] compression = [state.Wheels.Compression.X, state.Wheels.Compression.Y, state.Wheels.Compression.Z, state.Wheels.Compression.W];
-        for (int index = 0; index < wheels.Count; index++)
-        {
-            Node3D wheel = wheels[index];
-            wheel.Position = new Vector3(wheel.Position.X, -length + compression[index] + radius, wheel.Position.Z);
-            wheel.Rotation = new Vector3(0, index < 2 ? -state.SteeringAngle : 0, wheel.Rotation.Z);
-        }
-    }
-
     /// <summary>Samples individual wheels at the fixed-step command boundary.</summary>
     /// <param name="body">Collision proxy to exclude.</param>
     /// <param name="pose">Solved body pose.</param>
