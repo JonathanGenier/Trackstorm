@@ -22,7 +22,7 @@ After the lobby authorizes an arena rebind, the existing vehicle driver reconnec
 
 All components are decoded and cross-validated before installation. The client reconstructs prediction through `PredictedVehicle` at the host's current acknowledgement/tick, with no old pending inputs. The next input is acknowledgement + 1, and prediction advances from the checkpoint tick. Snapshot history is replaced with that one boundary. Remote interpolation cursor, native correction offsets, damage feedback and collision-feedback baselines are reseeded while existing native vehicle nodes retain their identities. Gameplay input stays suppressed until the complete checkpoint is installed. Arena reconstruction after process restart uses the same checkpoint path.
 
-Checkpoint item events and score deltas are empty: current state is restored without replaying historical launches, impacts, repairs, kills or wins. Death presentation seeds current life watermarks without emitting past destruction bursts. Normal later publications retain existing revision, tick, life and grant-token duplicate protection. Other connected players continue using their existing uninterrupted prediction/replication streams.
+Checkpoint item events and score deltas are empty: current state is restored without replaying historical launches, impacts, repairs, kills or wins. Death presentation seeds current life watermarks without emitting past destruction bursts. [Arena audio](audio.md) also reseeds vehicle, item and match baselines without historical one-shots. Normal later publications retain existing revision, tick, life and grant-token duplicate protection. Other connected players continue using their existing uninterrupted prediction/replication streams.
 
 ## Recovery and Restart
 

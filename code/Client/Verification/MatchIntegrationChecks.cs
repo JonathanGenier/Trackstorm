@@ -154,6 +154,7 @@ public sealed partial class MatchIntegrationChecks : Node
         switch (_stage)
         {
             case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Driver.LocalState is not null && arena.Driver.Match?.Phase == Core.Matches.MatchPhase.Active):
+                Require(_arenas.All(arena => arena.Audio.MusicPlaying && arena.Audio.TrackIndex is >= 0 and < 3), "Each active peer starts its Client playlist.");
                 _victim = _arenas[1].Driver.LocalVehicleId;
                 Prepare();
                 break;
@@ -194,6 +195,8 @@ public sealed partial class MatchIntegrationChecks : Node
                     {
                         Require(match.Phase == Core.Matches.MatchPhase.Finished && match.Winner == shooter && match.Players.Single(player => player.Player == shooter).Wins == 1, "All peers finish with one authoritative winner.");
                         Require(_finishes.All(count => count == 1), "Each peer presents the finished boundary exactly once.");
+                        Require(!arena.Audio.MusicPlaying && arena.Audio.TrackIndex == -1, "Finished authoritative match stops each Client playlist.");
+                        Require(arena.Audio.CueCount > 0, "Authoritative gameplay submits native audio feedback on every peer.");
                     }
                 }
 

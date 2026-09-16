@@ -7,8 +7,6 @@ namespace Trackstorm.Client.Items;
 /// <summary>Reconstructable Kenney projectile and particle effects; no collision or gameplay mutation.</summary>
 internal sealed partial class ItemPresentation : Node3D
 {
-    private readonly AudioStreamWav _launch = VehicleFeedback.CreateCue(false);
-    private readonly AudioStreamWav _blast = VehicleFeedback.CreateCue(true);
     private readonly Dictionary<ulong, Node3D> _missiles = new();
     private readonly Dictionary<ulong, (Node3D Node, HeldItem Item)> _held = new();
     private readonly List<(Node3D Node, float Age, float Lifetime)> _bursts = new();
@@ -30,22 +28,6 @@ internal sealed partial class ItemPresentation : Node3D
                 _bursts[i] = burst;
             }
         }
-    }
-
-    /// <inheritdoc/>
-    public override void _ExitTree()
-    {
-        foreach (var burst in _bursts)
-        {
-            foreach (var audio in burst.Node.GetChildren().OfType<AudioStreamPlayer3D>())
-            {
-                audio.Stop();
-                audio.Stream = null;
-            }
-        }
-
-        _launch.Dispose();
-        _blast.Dispose();
     }
 
     /// <summary>Builds a presentation-only emitter using the already acquired CC0 Particle Pack.</summary>
@@ -119,9 +101,6 @@ internal sealed partial class ItemPresentation : Node3D
         {
             var burst = new Node3D { Position = VehicleBody.ToGodot(outcome.Position) };
             AddChild(burst);
-            var audio = new AudioStreamPlayer3D { Stream = outcome.Impact ? _blast : _launch, MaxDistance = 65, UnitSize = 12, VolumeDb = -12, Bus = AudioServer.GetBusIndex("SFX") >= 0 ? "SFX" : "Master" };
-            burst.AddChild(audio);
-            audio.Play();
             string texture = outcome.Impact ? "fire_01" : "spark_01";
             burst.AddChild(Particles(texture, true, outcome.Impact ? 0.7f : 0.25f));
             if (outcome.Impact)

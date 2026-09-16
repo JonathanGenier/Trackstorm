@@ -6,6 +6,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 
 | Evidence | Reports |
 | --- | --- |
+| Arena audio and music | [TS-34 / TS-35 implementation verification](ts-34.md) |
 | Static vehicle visual | [Asset and integration verification](ts-36.md) |
 | Death/respawn | [Implementation verification](ts-24.md) |
 | FPS and Ping diagnostics | [Implementation verification](ts-32.md) |

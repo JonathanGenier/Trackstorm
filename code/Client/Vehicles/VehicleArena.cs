@@ -14,6 +14,7 @@ public sealed partial class VehicleArena : Node3D
     private readonly Label _instructions = new() { Text = "W/S drive and brake, A/D steer, Space handbrake. Brake before corners; release the handbrake to regain grip.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly List<VehicleBody> _vehicles = new();
     private readonly VehicleDestructionEffects _destruction = new();
+    private readonly Audio.ArenaAudio _audio = new();
     private MeshInstance3D? _blast;
     private float _blastSeconds;
     private Arenas.CombatArena? _layout;
@@ -44,6 +45,8 @@ public sealed partial class VehicleArena : Node3D
         }
 
         AddChild(_destruction);
+        AddChild(_audio);
+        _audio.Initialize(1);
         AddChild(new WorldEnvironment
         {
             Environment = new Godot.Environment
@@ -151,6 +154,7 @@ public sealed partial class VehicleArena : Node3D
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        _audio.Follow(Simulation.State.Vehicles, id => _vehicles.Single(vehicle => vehicle.VehicleId == id).GlobalPosition, Simulation.State.Tick);
         _camera.Follow(Player.GetGlobalTransformInterpolated(), Player.Snapshot, (float)delta);
         VehicleState state = Player.State;
         bool compact = GetViewport().GetVisibleRect().Size.Y < 500;
@@ -182,6 +186,7 @@ public sealed partial class VehicleArena : Node3D
         _camera.ObserveCollision(requests[0].Observation, Player.Configuration.Mass);
         IReadOnlyList<VehicleStepResult> results = Simulation.Step(input, requests);
         _destruction.Apply(Simulation.State.Vehicles);
+        _audio.ApplyVehicles(Simulation.State.Vehicles);
         for (int index = 0; index < _vehicles.Count; index++)
         {
             _vehicles[index].Apply(results[index]);
@@ -209,6 +214,7 @@ public sealed partial class VehicleArena : Node3D
         }
 
         _layout?.Explode(center);
+        _audio.PracticeExplosion(center);
         _blast?.QueueFree();
         _blast = new MeshInstance3D
         {

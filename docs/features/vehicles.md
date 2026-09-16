@@ -44,7 +44,7 @@ Collision severity is the larger of relative normal closing speed and contact im
 
 `DamageEffect` carries nonnegative requested damage, a world-space impulse and a world-space application offset. It is independent of missiles, inventory and item classes. The pure explosion helper linearly fades damage and impulse to zero at the radius, biases the outward direction upward, and uses up as the defined direction exactly at the center. Client queues effect intents for the next coordinated fixed step. Core evaluates damage and returns accepted impulses/outcomes; Client applies the impulses at their supplied offsets, allowing native inertia to create rotational response. The arena demonstration uses an 8-metre radius, 55 HP center damage and 15,000 N·s center impulse. Landing or secondary impacts can cause additional collision damage.
 
-Damage feedback is Client-only: identification-panel flashes, a dark panel color, a visible expanding blast, HP/destruction text and short original synthesized PCM impact/blast cues. These cues use no external assets and route to the existing SFX bus (Master fallback in isolated scenes without settings). Camera, feedback and UI cannot change HP or damage math.
+Damage feedback is Client-only: identification-panel flashes, a dark panel color, a visible expanding blast, HP/destruction text and [arena audio](audio.md) for engines, skids, collisions, damage, destruction and respawn. Audio consumes confirmed state and routes through the Vehicle/SFX hierarchy. Camera, feedback and UI cannot change HP or damage math.
 
 ## Static vehicle presentation
 
