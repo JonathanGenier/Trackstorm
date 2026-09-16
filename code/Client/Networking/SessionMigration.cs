@@ -31,6 +31,7 @@ internal sealed class SessionMigration
     private bool _committed;
     private bool _departing;
     private bool _confirmedDeparture;
+    private bool _authorityPaused;
     private MigrationElection? _election;
     private string? _selection;
 
@@ -154,7 +155,7 @@ internal sealed class SessionMigration
         if (!lost)
         {
             _lostAt = null;
-            Frozen = false;
+            Frozen = _authorityPaused;
             return;
         }
 
@@ -241,6 +242,13 @@ internal sealed class SessionMigration
             {
                 _confirmedDeparture = true;
                 Frozen = true;
+                return true;
+            }
+
+            if (control.Kind is "pause" or "running" && _lobby.Authority is null && message.RemotePeerId == _lobby.ServerPeer && !Negotiating)
+            {
+                _authorityPaused = control.Kind == "pause";
+                Frozen = _authorityPaused;
                 return true;
             }
 
@@ -342,6 +350,7 @@ internal sealed class SessionMigration
             bytes.CopyTo(packet, 3);
             foreach (ulong peer in authority.Peers.Keys)
             {
+                Send(peer, new Control(Frozen ? "pause" : "running", authority.State.Session, authority.State.AuthorityEpoch, authority.State.CurrentHostId, string.Empty, []));
                 _gateway.Send(new TransportMessage(peer, packet, TransportDelivery.Reliable));
             }
         }
@@ -369,8 +378,8 @@ internal sealed class SessionMigration
     {
         try
         {
-            var latest = _retained[^1];
-            if (!Recoverable(latest.State))
+            var latest = _retained.LastOrDefault(entry => Recoverable(entry.State));
+            if (latest.State is null)
             {
                 throw new InvalidOperationException("No checkpoint of the current phase.");
             }
@@ -440,6 +449,7 @@ internal sealed class SessionMigration
         RestoreArena?.Invoke(checkpoint, host);
         _committed = true;
         _confirmedDeparture = false;
+        _authorityPaused = false;
         Frozen = false;
         _lostAt = null;
         _attemptAt = null;

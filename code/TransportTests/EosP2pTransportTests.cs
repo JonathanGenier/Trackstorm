@@ -18,11 +18,13 @@ internal sealed class EosP2pTransportTests
     /// <param name="arena">Whether to migrate a running match instead of its lobby.</param>
     /// <param name="agree">Whether every eligible survivor remains available.</param>
     /// <param name="recover">Whether the original authority returns within grace.</param>
-    [TestCase(false, true, false)]
-    [TestCase(true, true, false)]
-    [TestCase(true, false, false)]
-    [TestCase(true, true, true)]
-    public void MigratesLobbyAndActiveMatchThroughProductionFraming(bool arena, bool agree, bool recover)
+    /// <param name="oneWay">Whether only client-to-host delivery fails.</param>
+    [TestCase(false, true, false, false)]
+    [TestCase(true, true, false, false)]
+    [TestCase(true, false, false, false)]
+    [TestCase(true, true, true, false)]
+    [TestCase(true, true, true, true)]
+    public void MigratesLobbyAndActiveMatchThroughProductionFraming(bool arena, bool agree, bool recover, bool oneWay)
     {
         var identities = Enumerable.Range(1, 3).Select(Id).ToArray();
         var lobby = new OnlineLobby("migration", "Migration", identities[0], 100, LobbyAccess.Public, 3, 8, OnlineLobby.CurrentProtocol, true, null) { MemberIds = identities };
@@ -104,14 +106,21 @@ internal sealed class EosP2pTransportTests
             {
                 foreach (ulong peer in drivers[0].Authority!.Peers.Keys)
                 {
-                    gateways[0].Disconnect(peer);
+                    if (!oneWay)
+                    {
+                        gateways[0].Disconnect(peer);
+                    }
                 }
 
                 bool available = false;
                 for (int i = 1; i < 3; i++)
                 {
                     int index = i;
-                    gateways[i].Disconnect(drivers[i].ServerPeer);
+                    if (!oneWay)
+                    {
+                        gateways[i].Disconnect(drivers[i].ServerPeer);
+                    }
+
                     drivers[i].Reconnect = () => available ? gateways[index].RebindHost(identities[0]) : throw new InvalidOperationException("Transient outage");
                 }
 
@@ -121,6 +130,11 @@ internal sealed class EosP2pTransportTests
                     if (tick == 180)
                     {
                         Assert.That(drivers[0].Migration!.Frozen, Is.True);
+                        if (oneWay)
+                        {
+                            Assert.That(drivers.All(driver => driver.Migration!.Frozen), Is.True);
+                        }
+
                         frozenTick = vehicles[0].Host!.World.State.Tick;
                     }
 
@@ -130,6 +144,7 @@ internal sealed class EosP2pTransportTests
                     }
 
                     available = tick >= 240;
+                    wires[1].DropOutgoing = wires[2].DropOutgoing = oneWay && !available;
                     foreach (var vehicle in vehicles)
                     {
                         vehicle.Advance(default, Observe);
@@ -139,7 +154,7 @@ internal sealed class EosP2pTransportTests
                 Assert.That(drivers.All(driver => driver.State!.AuthorityEpoch == 1 && driver.Failure.Length == 0), Is.True);
                 Assert.That(drivers.All(driver => !driver.Migration!.Frozen && !driver.Reconnecting), Is.True);
                 Assert.That(vehicles.All(vehicle => vehicle.IsActive && vehicle.Latest!.Vehicles.Count == 3), Is.True);
-                Assert.That(drivers[1].Generation, Is.EqualTo(2));
+                Assert.That(drivers[1].Generation, Is.EqualTo(oneWay ? 1 : 2));
                 return;
             }
 
@@ -162,6 +177,12 @@ internal sealed class EosP2pTransportTests
                 var newest = new MigrationCheckpoint(101, common.Lobby, captured.Arena, captured.Host);
                 byte[] newestPacket = [(byte)'T', (byte)'X', 1, .. MigrationCheckpointCodec.Encode(newest)];
                 drivers[1].Migration!.Receive(new(drivers[1].ServerPeer, newestPacket, TransportDelivery.Reliable));
+                // Reliable checkpoint delivery can precede its unreliable world snapshot.
+                vehicles[0].Host!.Step(default, Observe);
+                captured = drivers[0].Migration!.CaptureArena!();
+                var ahead = new MigrationCheckpoint(102, common.Lobby, captured.Arena, captured.Host);
+                byte[] aheadPacket = [(byte)'T', (byte)'X', 1, .. MigrationCheckpointCodec.Encode(ahead)];
+                drivers[1].Migration!.Receive(new(drivers[1].ServerPeer, aheadPacket, TransportDelivery.Reliable));
                 vehicles[1].Resynchronized += world => selectedTick ??= world.Tick;
             }
 
@@ -844,6 +865,7 @@ internal sealed class EosP2pTransportTests
         internal List<OnlineProductUserId> Closed { get; } = new();
         internal int Disposals { get; private set; }
         internal int Reads { get; private set; }
+        internal bool DropOutgoing { get; set; }
         public void Start(string socket, Action<OnlineProductUserId, TransportConnectionState, TransportDisconnectReason> changed) => Changed = changed;
         public bool Accept(OnlineProductUserId peer)
         {
@@ -864,7 +886,11 @@ internal sealed class EosP2pTransportTests
 
         public bool Send(OnlineProductUserId peer, ArraySegment<byte> data, TransportDelivery delivery)
         {
-            (Routes?.GetValueOrDefault(peer) ?? Other!).Packets.Enqueue((local, data.ToArray(), delivery));
+            if (!DropOutgoing)
+            {
+                (Routes?.GetValueOrDefault(peer) ?? Other!).Packets.Enqueue((local, data.ToArray(), delivery));
+            }
+
             return true;
         }
 

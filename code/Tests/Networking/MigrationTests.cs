@@ -14,6 +14,45 @@ namespace Trackstorm.Core.Tests.Networking;
 [TestFixture]
 internal sealed class MigrationTests
 {
+    /// <summary>The full player/projectile population fits the complete external checkpoint budget.</summary>
+    [Test]
+    public void EightPlayersAndFullProjectilePopulationFitCheckpointBudget()
+    {
+        var lobby = new LobbyAuthority(100, "Host");
+        var host = new HostVehicleSession(101);
+        for (ulong id = 2; id <= 8; id++)
+        {
+            lobby.Join(id * 10, "Player" + id, "subject" + id);
+            host.JoinPlayer(id * 10, id);
+            lobby.SetReady(id * 10, true);
+        }
+
+        lobby.SetReady(0, true);
+        Assert.That(lobby.Start(0), Is.True);
+        host.RegisterSpawns(PrototypeArena.Configuration);
+        for (int batch = 0; batch < ItemAuthority.MaximumProjectiles / 8; batch++)
+        {
+            for (ulong id = 1; id <= 8; id++)
+            {
+                Assert.That(host.Items.Grant(host.World, id, HeldItem.Missile), Is.True);
+                Assert.That(host.UseItem(id == 1 ? 0 : id * 10, 101, 1, host.Items.Slots.Single(slot => slot.Vehicle == id).Token), Is.True);
+            }
+
+            host.Step(default, Observe);
+        }
+
+        Assert.That(host.Items.Missiles.Count, Is.EqualTo(ItemAuthority.MaximumProjectiles));
+        for (ulong id = 1; id <= 8; id++)
+        {
+            Assert.That(host.Items.Grant(host.World, id, HeldItem.Missile), Is.True);
+        }
+
+        var checkpoint = new MigrationCheckpoint(1, lobby.Capture("host"), new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, [], host.Spawns!.States), host.World.State.Match!, null), host.CaptureAuthority());
+        byte[] bytes = MigrationCheckpointCodec.Encode(checkpoint);
+        Assert.That(MigrationCheckpointCodec.Decode(bytes).Arena!.Items.Missiles.Count, Is.EqualTo(ItemAuthority.MaximumProjectiles));
+        TestContext.WriteLine($"Eight-player/full-projectile checkpoint: {bytes.Length} bytes.");
+    }
+
     /// <summary>Authority changes once without depending on arrival order or provider identity ordering.</summary>
     [Test]
     public void ElectionRequiresExactUnanimousSurvivorAgreement()
@@ -70,6 +109,7 @@ internal sealed class MigrationTests
         host.Items.Grant(host.World, 2, HeldItem.Missile);
         host.UseItem(10, host.SessionId, 1, host.Items.Slots.Single(slot => slot.Vehicle == 2).Token);
         host.Step(default, Observe);
+        Assert.That(host.Items.Missiles.Count, Is.EqualTo(1));
         var world = host.Snapshot();
         var match = host.World.State.Match!;
         var resume = new ResumeCheckpoint(new ItemPublication(2, world, host.Items.Slots, host.Items.Missiles, [], host.Spawns!.States), match, null);
@@ -85,8 +125,12 @@ internal sealed class MigrationTests
         Assert.That(replacement.ResumePlayer(51, 1), Is.False);
         Assert.That(replacement.Items.Grant(replacement.World, 2, HeldItem.Wrench), Is.True);
         Assert.That(replacement.Items.Slots.Single(slot => slot.Vehicle == 2).Token, Is.GreaterThan(host.Items.TokenHighWater));
-        replacement.Step(default, Observe);
+        replacement.Step(default, Observe, (_, _) => 0);
         Assert.That(replacement.World.State.Tick, Is.EqualTo(world.Tick + 1));
+        Assert.That(replacement.Items.Events.Count(item => item.Impact), Is.EqualTo(1));
+        Assert.That(replacement.Items.Missiles, Is.Empty);
+        replacement.Step(default, Observe, (_, _) => 0);
+        Assert.That(replacement.Items.Events, Is.Empty, "An already committed missile impact is not replayed.");
         encoded[^1] ^= 1;
         Assert.Throws<ArgumentException>(() => MigrationCheckpointCodec.Decode(encoded));
     }

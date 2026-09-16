@@ -7,6 +7,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 | Evidence | Reports |
 | --- | --- |
 | Death/respawn | [Implementation verification](ts-24.md) |
+| Host migration | [TS-46 / TS-51 implementation and verification](ts-46.md) |
 | Combat HUD | [Implementation verification](ts-30.md) |
 | Match standings | [Implementation and reconnect integration verification](ts-28.md) |
 | EOS P2P | [Initial verification](ts-44.md), [second round and four-PC follow-up](ts-44-round-2.md), [ordering correction](ts-44-ordering-correction.md) |
