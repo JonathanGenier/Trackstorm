@@ -25,7 +25,7 @@ For multiplayer lobby discovery, extend the development **untrusted, user-requir
 
 The normal multiplayer entry point now starts EOS identity with the embedded configuration and opens the unified browser automatically. `--eos` remains accepted but is no longer required. The **Developer fallback: Direct-IP / LAN** toggle exposes the existing address controls; explicit transport launch arguments select it too. Invalid configuration does not prevent that fallback. `--local-practice` does not initialize EOS.
 
-EOS Lobbies is the chosen coordination primitive: it provides persistent owner-controlled metadata and member notifications without introducing a second Sessions store. Both Public and Locked game lobbies are publicly advertised by EOS. Locked admission uses a per-lobby salted PBKDF2 verifier, not EOS invite-only permission. This deliberately lightweight mechanism is susceptible to offline guessing of short codes; it is not account authentication. Raw codes must never be added to logs, attributes or test reports. The normal UI masks and clears credential edits. Protocol bucket `trackstorm-lobby-6` and native capacity eight constrain compatible results. Ready/phase/gameplay data remains solely in Trackstorm authority.
+EOS Lobbies is the chosen coordination primitive: it provides persistent owner-controlled metadata and member notifications without introducing a second Sessions store. Both Public and Locked game lobbies are publicly advertised by EOS. Locked admission uses a per-lobby salted PBKDF2 verifier, not EOS invite-only permission. This deliberately lightweight mechanism is susceptible to offline guessing of short codes; it is not account authentication. Raw codes must never be added to logs, attributes or test reports. The normal UI masks and clears credential edits. Protocol bucket `trackstorm-lobby-7` and native capacity eight constrain compatible results. Ready/phase/gameplay data remains solely in Trackstorm authority.
 
 Run `./check-online-lobby.ps1 -GodotPath <exe>` for production control checks with a fake provider, or add `-Visual` to save browser, credential-prompt and renamed-host screenshots. Run `./check.ps1` for deterministic coordination and authority regression tests, and `./check-lobby.ps1 -GodotPath <exe>` for eight native UDP sessions. Fake-provider success is not evidence of authenticated EOS behavior.
 
@@ -99,15 +99,21 @@ The saved locator contains routing hints and the last acknowledged generation, n
 
 ## Host migration checks
 
-Use the same compatible build on at least three independent PCs/profiles. Record session/player IDs, current host, epoch, match generation and gameplay tick before and after each scenario. No public IP or port exchange is used.
+### Two-PC acceptance path
 
-1. In a Public lobby, ready participants, then choose Leave on the host. Confirm one replacement, unchanged session/player IDs, cleared Ready, and normal Ready/Start on the replacement. Repeat by killing the lobby host process.
+Use the same compatible build on two physical PCs with distinct EOS identities: host plus one client. Record session/player IDs, current host, epoch, match generation and gameplay tick before and after each scenario, together with both machines' logs. No public IP or port exchange is used. These are manual real-service acceptance checks; local harness success does not mark them passed.
+
+1. In a Public lobby, ready both participants, then choose Leave on the host. Confirm the sole survivor becomes the replacement, unchanged session/player IDs, cleared Ready, and normal Ready/Start on the replacement. Repeat by killing the lobby host process. For unexpected loss, allow the advertised reconnect grace before expecting promotion.
 2. In an active arena, record HP, held items, active missiles, pickup cooldowns, dead-player respawn deadlines and standings. Terminate the host process. Confirm freeze/recovery feedback, one next epoch, the same match, recent checkpoint rollback, one vehicle per player, and coherent gameplay after resync. Check no repeated death, kill, pickup or winner effects. Repeat in a Locked lobby.
 3. Restart the former host on its original profile within the replacement's grace reservation. Confirm ordinary-player return to the same player ID with no host-only privileges. Repeat after a real network-route change.
 4. Briefly interrupt connectivity and restore it before the 30-second grace expires. Confirm recovery to the original epoch. Then isolate the host beyond grace: it must stop advancing after losing its acknowledgement quorum. Survivors either establish one authority or show a bounded migration failure with Leave/menu recovery.
-5. Remove another required survivor during election and confirm bounded failure. Repeat a successful transfer to verify sequential epochs. Repeat with eight players and realistic latency/loss; record checkpoint bytes, rollback ticks, timing and frame cost.
+5. Repeat Public lobby Leave, lobby process kill, active-match process kill and former-host return in a Locked lobby where practical. Return the former host within its reservation, then remove the replacement host to verify a second successful migration and one additional epoch. With no valid external checkpoint, expect a bounded failure rather than a new authority.
 
-`check-migration.ps1` exercises sequential lobby/arena handoff and former-host return through native local UDP. `check-migration-processes.ps1` kills one of three independent local Godot processes. Their identity mappings are trusted test seams. Production EOS framing is also covered with fake authenticated datagrams. None of these proves real EOS ownership notification, residential NAT traversal or separate-PC migration. Record these evidence categories separately.
+### Three-or-more-PC regression path
+
+Repeat with at least three independent PCs/profiles. Confirm deterministic lowest-ID candidacy and unanimous agreement on a common recoverable checkpoint. Remove another required survivor during election and confirm bounded failure. Repeat with eight players and realistic latency/loss; record checkpoint bytes, rollback ticks, timing and frame cost. The two-player exception must not permit a lone survivor of a larger roster to bypass agreement.
+
+`check-migration.ps1 -Players 2` exercises sequential lobby/arena handoff and former-host return through native local UDP. `check-migration-processes.ps1 -Players 2` kills the host of two independent local Godot processes. Both scripts retain `-Players 3` as their default regression mode. Their identity mappings are trusted test seams. Production EOS framing is also covered with fake authenticated datagrams. None of these proves real EOS ownership notification, residential NAT traversal or separate-PC migration. Record these evidence categories separately.
 
 ## Automated separate-device gameplay check
 

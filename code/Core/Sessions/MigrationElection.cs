@@ -7,15 +7,17 @@ public sealed class MigrationElection
     private readonly HashSet<ulong> _accepted = new();
 
     /// <summary>Derives candidate and electorate solely from a validated checkpoint.</summary>
+    /// <remarks>The caller must fence the old authority and complete the host-loss grace before beginning agreement.</remarks>
     /// <param name="checkpoint">Shared pre-loss roster.</param>
     /// <param name="digest">Digest of the exact recoverable bytes.</param>
     public MigrationElection(MigrationCheckpoint checkpoint, string digest)
     {
         var state = checkpoint.Lobby.State;
         _voters = state.Players.Where(player => player.Connected && player.Id != state.CurrentHostId).Select(player => player.Id).ToHashSet();
-        if (_voters.Count < 2 || digest.Length != 64 || !digest.All(Uri.IsHexDigit) || state.AuthorityEpoch == ulong.MaxValue)
+        bool soleSurvivor = state.Players.Count == 2 && _voters.Count == 1;
+        if ((!soleSurvivor && _voters.Count < 2) || digest.Length != 64 || !digest.All(Uri.IsHexDigit) || state.AuthorityEpoch == ulong.MaxValue)
         {
-            throw new ArgumentException("Migration requires at least two eligible survivors and a valid boundary.");
+            throw new ArgumentException("Migration requires an eligible two-player survivor or multiple agreeing survivors and a valid boundary.");
         }
 
         Session = state.Session;

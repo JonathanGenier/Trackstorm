@@ -13,8 +13,9 @@ internal sealed class SessionMigration
     private readonly string _subject;
     private readonly Func<ulong, string?> _identity;
     private readonly Func<string, bool, ulong> _rebind;
-    private readonly List<(MigrationCheckpoint State, byte[] Bytes, string Digest)> _retained = new();
-    private readonly Dictionary<ulong, (double At, ulong Tick)> _acks = new();
+    private readonly TimeProvider _time;
+    private readonly List<(MigrationCheckpoint State, byte[] Bytes, string Digest, double At)> _retained = new();
+    private readonly Dictionary<ulong, (double At, ulong Sequence)> _acks = new();
     private readonly Dictionary<ulong, string[]> _offers = new();
     private readonly Dictionary<ulong, ulong> _voterPeers = new();
     private ulong[] _electorate = [];
@@ -23,6 +24,8 @@ internal sealed class SessionMigration
     private double _receivedAt;
     private double? _lostAt;
     private double? _attemptAt;
+    private long _timestamp;
+    private ulong _reservedFormerHost;
     private ulong _sequence;
     private ulong _candidate;
     private ulong _server;
@@ -41,13 +44,16 @@ internal sealed class SessionMigration
     /// <param name="subject">Authenticated local subject.</param>
     /// <param name="identity">Authenticated incoming peer resolver.</param>
     /// <param name="rebind">Recreates star connectivity to the selected subject without assigning gameplay authority.</param>
-    internal SessionMigration(LobbyNetworkDriver lobby, ITransportGateway gateway, string subject, Func<ulong, string?> identity, Func<string, bool, ulong> rebind)
+    /// <param name="time">Monotonic lease clock; injectable for deterministic pause and delayed-acknowledgement tests.</param>
+    internal SessionMigration(LobbyNetworkDriver lobby, ITransportGateway gateway, string subject, Func<ulong, string?> identity, Func<string, bool, ulong> rebind, TimeProvider? time = null)
     {
         _lobby = lobby;
         _gateway = gateway;
         _subject = subject;
         _identity = identity;
         _rebind = rebind;
+        _time = time ?? TimeProvider.System;
+        _timestamp = _time.GetTimestamp();
     }
 
     /// <summary>Current complete authoritative arena boundary, absent while in lobby.</summary>
@@ -95,7 +101,10 @@ internal sealed class SessionMigration
     /// <param name="seconds">Elapsed monotonic seconds.</param>
     internal void Advance(double seconds)
     {
-        _seconds += seconds;
+        long timestamp = _time.GetTimestamp();
+        // A suspended process must expire its lease before its next simulation step, even when fixed-step delta is small.
+        _seconds += Math.Max(seconds, _time.GetElapsedTime(_timestamp, timestamp).TotalSeconds);
+        _timestamp = timestamp;
         if (_failed || _departing || _lobby.State is not { } state)
         {
             return;
@@ -120,10 +129,9 @@ internal sealed class SessionMigration
         {
             // A partitioned old host cannot keep advancing while the other players transfer authority.
             var electorate = _electorate;
-            if (electorate.Length >= 3)
+            if (electorate.Length >= 2)
             {
-                ulong now = (ulong)(_seconds * 60);
-                int alive = 1 + electorate.Count(id => id != state.CurrentHostId && _acks.TryGetValue(id, out var ack) && _seconds - ack.At <= 2 && now >= ack.Tick && now - ack.Tick <= 120);
+                int alive = 1 + electorate.Count(id => id != state.CurrentHostId && _acks.TryGetValue(id, out var ack) && _seconds - ack.At <= 2);
                 Frozen = _seconds > 2 && alive <= electorate.Length / 2;
                 _lostAt = Frozen ? _lostAt ?? _seconds : null;
                 if (_lostAt.HasValue && _seconds - _lostAt.Value >= state.GraceTicks / 60.0)
@@ -143,11 +151,6 @@ internal sealed class SessionMigration
                 Publish();
             }
 
-            return;
-        }
-
-        if (_retained.Count == 0)
-        {
             return;
         }
 
@@ -231,8 +234,12 @@ internal sealed class SessionMigration
                 ulong player = _lobby.Authority.PlayerId(message.RemotePeerId);
                 if (player != 0)
                 {
-                    ulong tick = _retained.Single(entry => entry.Digest == control.Digest).State.Lobby.Tick;
-                    _acks[player] = (_seconds, tick);
+                    // Receipt or replay cannot extend a lease beyond two seconds from checkpoint publication.
+                    var published = _retained.Single(entry => entry.Digest == control.Digest);
+                    if (!_acks.TryGetValue(player, out var previous) || published.State.Sequence > previous.Sequence)
+                    {
+                        _acks[player] = (published.At, published.State.Sequence);
+                    }
                 }
 
                 return true;
@@ -315,7 +322,9 @@ internal sealed class SessionMigration
     {
         ulong tick = checkpoint.Arena?.Items.World.Tick ?? 0;
         ulong observed = ObservedTick?.Invoke() ?? tick;
-        return checkpoint.Lobby.State.Match == _lobby.State!.Match && checkpoint.Lobby.State.Phase == _lobby.State.Phase && tick <= observed && observed - tick <= 240;
+        var current = _lobby.State!;
+        return checkpoint.Lobby.State.Match == current.Match && checkpoint.Lobby.State.Phase == current.Phase &&
+            (checkpoint.Lobby.State.Players.Count != 2 || current.Players.Count == 2) && tick <= observed && observed - tick <= 240;
     }
 
     private void Publish()
@@ -336,9 +345,19 @@ internal sealed class SessionMigration
             }
 
             var checkpoint = new MigrationCheckpoint(checked(++_sequence), authority.Capture(_subject), arena?.Arena, arena?.Host);
-            if (_electorate.Length == 0 || !Frozen)
+            if (authority.State.Players.Any(player => player.Id == _reservedFormerHost && player.Connected))
             {
-                _electorate = authority.State.Players.Select(player => player.Id).ToArray();
+                _reservedFormerHost = 0;
+            }
+
+            // Before replacing a two-player lease, its client must have retired the old single-survivor boundary.
+            bool expansionAcknowledged = _electorate.Length != 2 || authority.State.Players.Count <= 2 ||
+                _electorate.Where(id => id != authority.State.CurrentHostId).All(id => _acks.TryGetValue(id, out var ack) &&
+                    _retained.Any(entry => entry.State.Sequence == ack.Sequence && entry.State.Lobby.State.Players.Count > 2));
+            if ((_electorate.Length == 0 || !Frozen) && expansionAcknowledged)
+            {
+                // A sole replacement runs alone until the former host actually returns; a new loss then requires its ack again.
+                _electorate = authority.State.Players.Where(player => player.Id != _reservedFormerHost).Select(player => player.Id).ToArray();
             }
 
             byte[] bytes = MigrationCheckpointCodec.Encode(checkpoint);
@@ -362,12 +381,18 @@ internal sealed class SessionMigration
 
     private void Retain(MigrationCheckpoint checkpoint, byte[] bytes)
     {
+        if (checkpoint.Lobby.State.Players.Count > 2)
+        {
+            // Acknowledging a larger roster revokes permission to recover alone from an older two-player copy.
+            _retained.RemoveAll(entry => entry.State.Lobby.State.Players.Count == 2);
+        }
+
         if (_retained.Count > 0 && (_retained[^1].State.Lobby.State.AuthorityEpoch != checkpoint.Lobby.State.AuthorityEpoch || _retained[^1].State.Lobby.State.Match != checkpoint.Lobby.State.Match || _retained[^1].State.Lobby.State.Phase != checkpoint.Lobby.State.Phase))
         {
             _retained.Clear();
         }
 
-        _retained.Add((checkpoint, bytes, MigrationCheckpointCodec.Digest(bytes)));
+        _retained.Add((checkpoint, bytes, MigrationCheckpointCodec.Digest(bytes), _seconds));
         if (_retained.Count > 4)
         {
             _retained.RemoveAt(0);
@@ -396,6 +421,7 @@ internal sealed class SessionMigration
             if (_candidate == _lobby.LocalPlayerId)
             {
                 _offers[_candidate] = _retained.Select(entry => entry.Digest).ToArray();
+                Propose();
             }
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
@@ -432,6 +458,13 @@ internal sealed class SessionMigration
 
             _selection = entry.Digest;
             _election.Vote(_candidate, _election.Session, _election.Epoch, _candidate, entry.Digest);
+            if (_election.Agreed)
+            {
+                _election.Commit();
+                Install(entry.Digest);
+                return;
+            }
+
             foreach (ulong id in voters.Where(id => id != _candidate))
             {
                 Send(_voterPeers[id], new Control("propose", _election.Session, _election.Epoch, _candidate, entry.Digest, []));
@@ -459,6 +492,7 @@ internal sealed class SessionMigration
         _publishedAt = _seconds;
         _acks.Clear();
         _electorate = [];
+        _reservedFormerHost = host && checkpoint.Lobby.State.Players.Count == 2 ? checkpoint.Lobby.State.CurrentHostId : 0;
         _retained.Clear();
         AuthorityChanged?.Invoke(checkpoint.Lobby.Subjects[_candidate]);
     }

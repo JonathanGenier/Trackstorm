@@ -4,7 +4,7 @@ namespace Trackstorm.Client.Online;
 internal sealed record OnlineLobby(string Id, string Name, OnlineProductUserId Owner, ulong Session, LobbyAccess Access, int Members, int Capacity, string Protocol, bool Open, LobbyCredential? Credential)
 {
     /// <summary>Indexed build/protocol compatibility bucket for this lobby schema.</summary>
-    internal const string CurrentProtocol = "trackstorm-lobby-6";
+    internal const string CurrentProtocol = "trackstorm-lobby-7";
     /// <summary>Agreed routing metadata; never sufficient by itself to install gameplay authority.</summary>
     internal OnlineProductUserId? GameplayHost { get; init; }
     /// <summary>Last agreed Trackstorm authority fence advertised for authenticated resume routing.</summary>

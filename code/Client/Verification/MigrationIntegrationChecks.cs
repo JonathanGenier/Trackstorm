@@ -8,7 +8,7 @@ using Trackstorm.Core.Sessions;
 
 namespace Trackstorm.Client.Verification;
 
-/// <summary>Three real UDP peers and isolated Godot worlds; authenticated subjects are an explicit local test seam.</summary>
+/// <summary>Two or three real UDP peers and isolated Godot worlds; identity is an explicit local test seam.</summary>
 public sealed partial class MigrationIntegrationChecks : Node
 {
     private readonly GameNetworkingSocketsTransport[] _gateways = new GameNetworkingSocketsTransport[3];
@@ -21,6 +21,7 @@ public sealed partial class MigrationIntegrationChecks : Node
     private int _stage;
     private int _frames;
     private int _boundary;
+    private int _players = 3;
     private bool _finished;
     private NetworkVehicleBody? _retainedBody;
 
@@ -29,7 +30,8 @@ public sealed partial class MigrationIntegrationChecks : Node
     {
         Engine.PhysicsTicksPerSecond = 60;
         Engine.MaxFps = 60;
-        for (int i = 0; i < 3; i++)
+        _players = OS.GetCmdlineUserArgs().Contains("--migration-players=2") ? 2 : 3;
+        for (int i = 0; i < _players; i++)
         {
             int index = i;
             using var reservation = new UdpClient(new IPEndPoint(IPAddress.Loopback, 0));
@@ -58,7 +60,7 @@ public sealed partial class MigrationIntegrationChecks : Node
         {
             if (++_frames > _boundary + 4)
             {
-                GD.Print("Migration integration passed: three native UDP peers; intentional lobby host leave; former-host rebind; active native match authority loss; sequential epochs; retained vehicles; prediction reset; item/spawn/match restore. Identity is a trusted test seam, not real EOS.");
+                GD.Print($"Migration integration passed: {_players} native UDP peers; intentional lobby host leave; former-host rebind; active native match authority loss; sequential epochs; retained vehicles; prediction reset; item/spawn/match restore. Identity is a trusted test seam, not real EOS.");
                 GetTree().Quit();
             }
 
@@ -68,7 +70,7 @@ public sealed partial class MigrationIntegrationChecks : Node
         try
         {
             Require(++_frames < 3000, $"Migration stage {_stage} timed out: {string.Join("; ", _drivers.Select(driver => driver?.Failure))}");
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < _players; i++)
             {
                 if (_drivers[i] is not null)
                 {
@@ -136,10 +138,14 @@ public sealed partial class MigrationIntegrationChecks : Node
     {
         if (_stage == 0 && _drivers[1]!.State?.Players.Count == 2)
         {
-            CreateDriver(2, Connect(2, 0), false);
+            if (_players == 3)
+            {
+                CreateDriver(2, Connect(2, 0), false);
+            }
+
             _stage = 1;
         }
-        else if (_stage == 1 && _drivers.All(driver => driver?.Migration?.Subjects?.Count == 3))
+        else if (_stage == 1 && _drivers.Take(_players).All(driver => driver?.Migration?.Subjects?.Count == _players))
         {
             Require(_drivers[0]!.BeginLeave(), "Host drain begins.");
             _stage = 2;
@@ -150,7 +156,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             _drivers[0] = null;
             _stage = 3;
         }
-        else if (_stage == 3 && _drivers[1]!.State?.AuthorityEpoch == 2 && _drivers[2]!.State?.AuthorityEpoch == 2 && !_drivers[2]!.Reconnecting)
+        else if (_stage == 3 && _drivers[1]!.State?.AuthorityEpoch == 2 && (_players == 2 || (_drivers[2]!.State?.AuthorityEpoch == 2 && !_drivers[2]!.Reconnecting)))
         {
             Require(_drivers[1]!.State!.Players.All(player => !player.Ready), "Migration clears Ready.");
             CreateDriver(0, Connect(0, 1), false, 1, 2);
@@ -159,7 +165,7 @@ public sealed partial class MigrationIntegrationChecks : Node
         else if (_stage == 4 && _drivers[0]!.State?.AuthorityEpoch == 2 && !_drivers[0]!.Reconnecting)
         {
             Require(_drivers[0]!.Authority is null && _drivers[0]!.LocalPlayerId == 1, "Former host is an ordinary stable player.");
-            foreach (var driver in _drivers)
+            foreach (var driver in _drivers.Take(_players))
             {
                 driver!.Request(LobbyCommand.Ready, true);
             }
@@ -171,9 +177,9 @@ public sealed partial class MigrationIntegrationChecks : Node
             Require(_drivers[1]!.Request(LobbyCommand.Start), "Replacement can start normally.");
             _stage = 6;
         }
-        else if (_stage == 6 && _drivers.All(driver => driver!.State!.Phase == SessionPhase.Arena))
+        else if (_stage == 6 && _drivers.Take(_players).All(driver => driver!.State!.Phase == SessionPhase.Arena))
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < _players; i++)
             {
                 var arena = new NetworkVehicleArena();
                 arena.Initialize(_gateways[i], i == 1 ? _drivers[i]!.State!.Match : 0, _drivers[i]!.ServerPeer, _drivers[i]);
@@ -181,17 +187,18 @@ public sealed partial class MigrationIntegrationChecks : Node
                 _arenas[i] = arena;
             }
 
-            _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, 3, HeldItem.Wrench);
+            _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _players == 2 ? 1UL : 3UL, HeldItem.Wrench);
             _boundary = _frames;
             _stage = 7;
         }
         else if (_stage == 7 && _frames - _boundary > 150)
         {
-            _retainedBody = _arenas[2]!.Bodies[3];
-            _arenas[2]!.Driver.Resynchronized += _ =>
+            int survivor = _players == 2 ? 0 : 2;
+            _retainedBody = _arenas[survivor]!.Bodies[(ulong)survivor + 1];
+            _arenas[survivor]!.Driver.Resynchronized += _ =>
             {
-                Require(_arenas[2]!.Driver.Inputs!.Pending.Count == 0, "No old pending input.");
-                Require(_arenas[2]!.Driver.History!.Snapshots.Count == 1, "Interpolation reseeded at one boundary.");
+                Require(_arenas[survivor]!.Driver.Inputs!.Pending.Count == 0, "No old pending input.");
+                Require(_arenas[survivor]!.Driver.History!.Snapshots.Count == 1, "Interpolation reseeded at one boundary.");
             };
             _gateways[1].Stop();
             _drivers[1] = null;
@@ -199,11 +206,13 @@ public sealed partial class MigrationIntegrationChecks : Node
             _arenas[1] = null;
             _stage = 8;
         }
-        else if (_stage == 8 && _drivers[0]!.State?.AuthorityEpoch == 3 && _drivers[2]!.State?.AuthorityEpoch == 3 && _arenas[2]!.Driver.IsActive)
+        else if (_stage == 8 && _drivers[0]!.State?.AuthorityEpoch == 3 && _arenas[0]!.Driver.IsActive && (_players == 2 || (_drivers[2]!.State?.AuthorityEpoch == 3 && _arenas[2]!.Driver.IsActive)))
         {
-            Require(_drivers[0]!.State!.CurrentHostId == 1 && _drivers[2]!.State!.CurrentHostId == 1, "Second election converges on stable ID.");
-            Require(_arenas[0]!.Bodies.Count == 3 && _arenas[2]!.Bodies.Count == 3 && _arenas[2]!.Bodies[3] == _retainedBody, "No duplicate or replaced surviving vehicles.");
-            Require(_arenas[2]!.Driver.LocalItem?.Item == HeldItem.Wrench && _arenas[2]!.Driver.ItemState!.Spawns.Count == 8 && _arenas[2]!.Driver.Match!.Players.Count == 3, "Complete gameplay continuation.");
+            int survivor = _players == 2 ? 0 : 2;
+            var arena = _arenas[survivor]!;
+            Require(_drivers[0]!.State!.CurrentHostId == 1 && _drivers[survivor]!.State!.CurrentHostId == 1, "Second election converges on stable ID.");
+            Require(_arenas[0]!.Bodies.Count == _players && arena.Bodies.Count == _players && arena.Bodies[(ulong)survivor + 1] == _retainedBody, "No duplicate or replaced surviving vehicles.");
+            Require(arena.Driver.LocalItem?.Item == HeldItem.Wrench && arena.Driver.ItemState!.Spawns.Count == 8 && arena.Driver.Match!.Players.Count == _players, "Complete gameplay continuation.");
             Cleanup();
             _finished = true;
             _boundary = _frames;
@@ -219,7 +228,7 @@ public sealed partial class MigrationIntegrationChecks : Node
 
         foreach (var gateway in _gateways)
         {
-            gateway.Dispose();
+            gateway?.Dispose();
         }
     }
 }

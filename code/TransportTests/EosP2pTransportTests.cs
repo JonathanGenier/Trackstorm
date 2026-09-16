@@ -14,6 +14,289 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class EosP2pTransportTests
 {
+    /// <summary>A new third member cannot retire the original two-player lease before its client acknowledges the expanded roster.</summary>
+    /// <param name="acknowledgeExpansion">Whether the original client sees the larger checkpoint before partition.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void TwoPlayerRosterExpansionCannotLeaveTwoAuthorities(bool acknowledgeExpansion)
+    {
+        using var pair = new MigrationPair();
+        var thirdId = Id(3);
+        var thirdWire = new Wire(thirdId);
+        var routes = new Dictionary<OnlineProductUserId, Wire> { [pair.Link.HostId] = pair.Link.HostWire, [pair.Link.ClientId] = pair.Link.ClientWire, [thirdId] = thirdWire };
+        foreach (var wire in routes.Values)
+        {
+            wire.Routes = routes;
+        }
+
+        pair.Link.Lobby = pair.Link.Lobby with { Members = 3, MemberIds = routes.Keys.ToArray() };
+        if (!acknowledgeExpansion)
+        {
+            pair.Link.HostWire.DropRecipients.Add(pair.Link.ClientId);
+            pair.Link.ClientWire.DropOutgoing = true;
+        }
+
+        using var gateway = new EosP2pTransport(thirdWire, thirdId, () => pair.Link.Lobby, time: pair.Link.Clock);
+        ulong server = gateway.Connect(EosP2pTransport.Endpoint(pair.Link.Lobby, pair.Link.HostId));
+        var third = new LobbyNetworkDriver(gateway, 0, server, "Third", identity: _ => pair.Link.HostId.Value);
+        third.Reconnect = () => throw new InvalidOperationException("Partitioned fixture");
+        third.Migration = new SessionMigration(third, gateway, thirdId.Value, _ => pair.Link.HostId.Value, (subject, _) => gateway.RebindHost(new(subject)), pair.Link.Clock);
+        for (int i = 0; i < 150; i++)
+        {
+            pair.Step(1);
+            third.Pump(1.0 / 60);
+        }
+
+        Assert.That(third.Migration.Subjects?.Count, Is.EqualTo(3));
+        pair.Link.HostWire.DropRecipients.Add(pair.Link.ClientId);
+        pair.Link.ClientWire.DropOutgoing = true;
+        for (int i = 0; i < 3300; i++)
+        {
+            pair.Step(1);
+            third.Pump(1.0 / 60);
+        }
+
+        Assert.That(pair.Host.State!.AuthorityEpoch, Is.EqualTo(1));
+        Assert.That(pair.Host.Migration!.Frozen, Is.EqualTo(!acknowledgeExpansion));
+        if (acknowledgeExpansion)
+        {
+            Assert.That(pair.Client.Authority, Is.Null, "A larger roster cannot fall back to a retired two-player checkpoint.");
+            Assert.That(pair.Client.Failure, Is.Not.Empty);
+        }
+        else
+        {
+            Assert.That(pair.Client.State!.AuthorityEpoch, Is.EqualTo(2));
+            Assert.That(pair.Client.State.CurrentHostId, Is.EqualTo(2));
+        }
+    }
+
+    /// <summary>The sole survivor promotes only after departure or lease-safe grace, including a paused old process.</summary>
+    /// <param name="loss">Host-loss mode.</param>
+    [TestCase("leave")]
+    [TestCase("crash")]
+    [TestCase("partition")]
+    [TestCase("pause")]
+    public void TwoPlayerLobbyMigrationFencesOldHost(string loss)
+    {
+        using var pair = new MigrationPair();
+        pair.Host.Request(LobbyCommand.Ready, true);
+        pair.Client.Request(LobbyCommand.Ready, true);
+        pair.Step(90);
+        var before = pair.Client.State!;
+        if (loss == "leave")
+        {
+            pair.Host.BeginLeave();
+        }
+        else if (loss == "crash")
+        {
+            pair.Link.Host.Stop();
+        }
+        else if (loss == "partition")
+        {
+            pair.Link.HostWire.DropOutgoing = pair.Link.ClientWire.DropOutgoing = true;
+        }
+
+        for (int tick = 0; tick < 2100 && pair.Client.Authority is null; tick++)
+        {
+            pair.Step(1, host: loss is "leave" or "partition");
+            if (loss != "leave" && tick < 180)
+            {
+                Assert.That(pair.Client.Authority, Is.Null, "A transient interruption cannot cause immediate promotion.");
+            }
+
+            if (pair.Client.Authority is not null && loss is "leave" or "partition")
+            {
+                Assert.That(pair.Host.Migration!.Frozen, Is.True, "Old authority must be frozen at the promotion boundary.");
+            }
+        }
+
+        pair.Step(180, host: loss is "leave" or "partition");
+        if (loss == "pause")
+        {
+            pair.Host.Pump(1.0 / 60);
+            Assert.That(pair.Host.Migration!.Frozen, Is.True, "Monotonic lease time expires before a resumed process can simulate.");
+            pair.Host.Pump(1.0 / 60);
+            Assert.That(pair.Host.Migration.Frozen, Is.True, "Queued old acknowledgements cannot revive an expired lease.");
+        }
+
+        Assert.That(pair.Client.Failure, Is.Empty);
+        Assert.That(pair.Client.State!.Session, Is.EqualTo(before.Session));
+        Assert.That(pair.Client.State.Match, Is.EqualTo(before.Match));
+        Assert.That(pair.Client.State.AuthorityEpoch, Is.EqualTo(2));
+        Assert.That(pair.Client.State.CurrentHostId, Is.EqualTo(2));
+        Assert.That(pair.Client.LocalPlayerId, Is.EqualTo(2));
+        Assert.That(pair.Client.State.Players.Select(player => player.Id), Is.EqualTo(before.Players.Select(player => player.Id)));
+        Assert.That(pair.Client.State.Players.All(player => !player.Ready), Is.True);
+        Assert.That(pair.Client.Migration!.Frozen, Is.False, "The new sole host does not require an acknowledgement from its reserved former host.");
+    }
+
+    /// <summary>Two-player bidirectional and acknowledgement-only outages recover through TS-45 without an election.</summary>
+    /// <param name="oneWay">Whether only client acknowledgements are lost.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void TwoPlayerTransientLossRetainsEpoch(bool oneWay)
+    {
+        using var pair = new MigrationPair();
+        pair.StartArena();
+        if (!oneWay)
+        {
+            pair.Link.Host.Disconnect(pair.Host.Authority!.Peers.Keys.Single());
+            pair.Link.Client.Disconnect(pair.Client.ServerPeer);
+        }
+
+        pair.Link.ClientWire.DropOutgoing = true;
+        pair.Link.HostWire.DropOutgoing = !oneWay;
+        pair.Step(180);
+        Assert.That(pair.Host.Migration!.Frozen, Is.True);
+        ulong tick = pair.HostVehicles!.Host!.World.State.Tick;
+        pair.Step(60);
+        Assert.That(pair.HostVehicles.Host.World.State.Tick, Is.EqualTo(tick));
+        pair.Link.ClientWire.DropOutgoing = pair.Link.HostWire.DropOutgoing = false;
+        pair.Client.Reconnect = () => pair.Link.Client.RebindHost(pair.Link.HostId);
+        pair.Step(300);
+        Assert.That(pair.Host.Failure, Is.Empty);
+        Assert.That(pair.Client.Failure, Is.Empty);
+        Assert.That(pair.Host.State!.AuthorityEpoch, Is.EqualTo(1));
+        Assert.That(pair.Client.State!.AuthorityEpoch, Is.EqualTo(1));
+        Assert.That(pair.Host.Migration.Frozen, Is.False);
+        Assert.That(pair.Client.Migration!.Frozen, Is.False);
+        Assert.That(pair.ClientVehicles!.IsActive, Is.True);
+    }
+
+    /// <summary>The actual framed reconnect restores the former host as a client and permits a later reverse migration.</summary>
+    [Test]
+    public void TwoPlayerFormerHostResumesAndMigratesAgain()
+    {
+        using var pair = new MigrationPair();
+        var retired = pair.Host.State!;
+        pair.Link.Host.Stop();
+        pair.Step(1950, host: false);
+        Assert.That(pair.Client.State!.AuthorityEpoch, Is.EqualTo(2));
+        pair.RestartFormerHost();
+        pair.Step(120);
+        Assert.That(pair.Host.Failure, Is.Empty);
+        Assert.That(pair.Host.LocalPlayerId, Is.EqualTo(1));
+        Assert.That(pair.Host.Generation, Is.EqualTo(2));
+        Assert.That(pair.Host.Authority, Is.Null);
+        int rejected = pair.Client.RejectedPackets;
+        pair.Host.Request(LobbyCommand.Start);
+        pair.Step(2);
+        Assert.That(pair.Client.RejectedPackets, Is.GreaterThan(rejected));
+        Assert.That(pair.Client.State!.Phase, Is.EqualTo(SessionPhase.Lobby));
+        rejected = pair.Client.RejectedPackets;
+        pair.Link.Host.Send(new(pair.Host.ServerPeer, LobbyCodec.EncodeCommand(LobbyCommand.Ready, retired, true), TransportDelivery.Reliable));
+        pair.Step(2);
+        Assert.That(pair.Client.RejectedPackets, Is.GreaterThan(rejected));
+        pair.Link.Client.Stop();
+        pair.Step(2100, client: false);
+        Assert.That(pair.Host.Failure, Is.Empty);
+        Assert.That(pair.Host.State!.AuthorityEpoch, Is.EqualTo(3));
+        Assert.That(pair.Host.State.CurrentHostId, Is.EqualTo(1));
+        Assert.That(pair.Host.Migration!.Frozen, Is.False);
+    }
+
+    /// <summary>No externally retained boundary must produce bounded failure rather than authority.</summary>
+    [Test]
+    public void TwoPlayerMissingCheckpointFailsClosed()
+    {
+        using var pair = new MigrationPair();
+        pair.AttachClientMigration();
+        pair.Link.Host.Stop();
+        pair.Step(2100, host: false);
+        Assert.That(pair.Client.Authority, Is.Null);
+        Assert.That(pair.Client.State!.AuthorityEpoch, Is.EqualTo(1));
+        Assert.That(pair.Client.Failure, Does.Contain("Host migration failed"));
+    }
+
+    /// <summary>The newest recoverable external boundary restores two-player combat, and invalid choices fail closed.</summary>
+    /// <param name="boundary">Validity of the externally retained arena state.</param>
+    [TestCase("valid")]
+    [TestCase("stale")]
+    [TestCase("future")]
+    [TestCase("corrupt")]
+    [TestCase("wrong-epoch")]
+    public void TwoPlayerArenaRestoresLatestSafeCheckpoint(string boundary)
+    {
+        using var pair = new MigrationPair();
+        pair.StartArena();
+        var host = pair.HostVehicles!.Host!;
+        ulong match = pair.Client.State!.Match;
+        var older = pair.Host.Migration!.CaptureArena!();
+        byte[] olderBytes = MigrationCheckpointCodec.Encode(new MigrationCheckpoint(99, pair.Host.Authority!.Capture(pair.Link.HostId.Value), older.Arena, older.Host));
+        // Seed a lethal authoritative boundary after the countdown, with one retained item and respawn/score state.
+        ulong tick = host.World.State.Tick + 1;
+        var frame = new InputFrame(tick, 0, 0, 0, 0, 0, 0);
+        host.World.Step(frame, host.World.State.Vehicles.Select(vehicle => new VehicleStepRequest(
+            vehicle.VehicleId,
+            frame,
+            Observe(vehicle),
+            vehicle.VehicleId == 1 ? [new VehicleEffectRequest(new DamageEffect(100, Vector3.Zero, Vector3.Zero), new DamageContext("missile", 2, "two-player-migration"))] : [])).ToArray());
+        var captured = pair.Host.Migration!.CaptureArena!();
+        var checkpoint = new MigrationCheckpoint(100, pair.Host.Authority!.Capture(pair.Link.HostId.Value), captured.Arena, captured.Host);
+        var dead = host.World.GetVehicle(1);
+        Assert.That(dead.RespawnAtTick, Is.GreaterThan(0));
+        // Start with no retained copies so invalid input cannot fall back to an unrelated older checkpoint.
+        pair.AttachClientMigration();
+        var vehicleDriver = new VehicleNetworkDriver(pair.Link.Client, 0, pair.Client.ServerPeer, pair.Client);
+        pair.ReplaceClientVehicles(vehicleDriver);
+        pair.Client.Migration!.ObservedTick = () => boundary == "stale" ? tick + 241 : boundary == "future" ? tick - 1 : tick;
+        if (boundary == "valid")
+        {
+            byte[] olderPacket = [(byte)'T', (byte)'X', 1, .. olderBytes];
+            pair.Client.Migration.Receive(new(pair.Client.ServerPeer, olderPacket, TransportDelivery.Reliable));
+        }
+
+        byte[] bytes = MigrationCheckpointCodec.Encode(checkpoint);
+        if (boundary == "corrupt")
+        {
+            bytes[^1] ^= 1;
+        }
+        else if (boundary == "wrong-epoch")
+        {
+            var state = checkpoint.Lobby.State;
+            var wrong = new LobbySnapshot(state.Session, state.Revision, state.Match, state.Phase, state.Players, state.GraceTicks, state.CurrentHostId, 2);
+            var lobby = checkpoint.Lobby;
+            bytes = MigrationCheckpointCodec.Encode(new MigrationCheckpoint(100, new LobbyRestoreState(wrong, lobby.Tick, lobby.NextId, lobby.Subjects, lobby.Deadlines), captured.Arena, captured.Host));
+        }
+
+        byte[] packet = [(byte)'T', (byte)'X', 1, .. bytes];
+        pair.Client.Migration!.Receive(new(pair.Client.ServerPeer, packet, TransportDelivery.Reliable));
+        Trackstorm.Core.Networking.Replication.WorldSnapshot? restored = null;
+        pair.ClientVehicles!.Resynchronized += world => restored = world;
+        pair.Link.Host.Stop();
+        for (int i = 0; i < 2100 && restored is null && pair.Client.Failure.Length == 0; i++)
+        {
+            pair.Step(1, host: false);
+        }
+
+        if (boundary != "valid")
+        {
+            Assert.That(pair.Client.Failure, Does.Contain("Host migration failed"));
+            Assert.That(pair.Client.Authority, Is.Null);
+            Assert.That(pair.ClientVehicles.Host, Is.Null);
+            return;
+        }
+
+        Assert.That(pair.Client.Failure, Is.Empty);
+        Assert.That(restored!.Tick, Is.EqualTo(tick));
+        Assert.That(pair.Client.State!.Session, Is.EqualTo(pair.Link.Lobby.Session));
+        Assert.That(pair.Client.State.Match, Is.EqualTo(match));
+        Assert.That(pair.Client.State.AuthorityEpoch, Is.EqualTo(2));
+        var replacement = pair.ClientVehicles.Host!;
+        Assert.That(restored.Vehicles.Select(vehicle => vehicle.State.VehicleId), Is.EqualTo(new ulong[] { 1, 2 }));
+        Assert.That(restored.Vehicles.Single(vehicle => vehicle.State.VehicleId == 1).State.Damage, Is.EqualTo(dead.Damage));
+        Assert.That(replacement.World.GetVehicle(1).RespawnAtTick, Is.EqualTo(dead.RespawnAtTick));
+        Assert.That(replacement.Items.Slots, Is.EqualTo(host.Items.Slots));
+        Assert.That(replacement.Spawns!.States, Is.EqualTo(host.Spawns!.States));
+        Assert.That(replacement.Spawns.RandomState, Is.EqualTo(host.Spawns.RandomState));
+        Assert.That(replacement.World.State.Match!.Players.Single(player => player.Player == 2).Kills, Is.EqualTo(1));
+        pair.Step(200, host: false);
+        Assert.That(replacement.World.GetVehicle(1).LifeId, Is.EqualTo(dead.LifeId + 1));
+        Assert.That(replacement.World.State.Match.Players.Single(player => player.Player == 2).Kills, Is.EqualTo(1));
+        Assert.That(replacement.World.State.Match.Players.Single(player => player.Player == 1).Deaths, Is.EqualTo(1));
+        Assert.That(pair.Client.Migration.Frozen, Is.False);
+    }
+
     /// <summary>Three authenticated peers restore the same match after losing the original authority.</summary>
     /// <param name="arena">Whether to migrate a running match instead of its lobby.</param>
     /// <param name="agree">Whether every eligible survivor remains available.</param>
@@ -53,7 +336,7 @@ internal sealed class EosP2pTransportTests
                 ulong server = i == 0 ? 0 : gateways[i].Connect(EosP2pTransport.Endpoint(lobby, identities[0]));
                 drivers[i] = new LobbyNetworkDriver(gateways[i], i == 0 ? 100UL : 0, server, "Player" + i, identity: peer => subjects[index].GetValueOrDefault(peer));
                 drivers[i].Reconnect = () => throw new InvalidOperationException("Host terminated in this scenario.");
-                drivers[i].Migration = new SessionMigration(drivers[i], gateways[i], identities[i].Value, peer => subjects[index].GetValueOrDefault(peer), (subject, _) => gateways[index].RebindHost(new OnlineProductUserId(subject)));
+                drivers[i].Migration = new SessionMigration(drivers[i], gateways[i], identities[i].Value, peer => subjects[index].GetValueOrDefault(peer), (subject, _) => gateways[index].RebindHost(new OnlineProductUserId(subject)), new Clock());
             }
 
             for (int tick = 0; tick < 120; tick++)
@@ -868,6 +1151,98 @@ internal sealed class EosP2pTransportTests
         internal void Advance(double seconds = 13) => _ticks += (long)(TimeSpan.TicksPerSecond * seconds);
     }
 
+    private sealed class MigrationPair : IDisposable
+    {
+        internal MigrationPair()
+        {
+            Link.Host.Authorize = (peer, identity, _) =>
+            {
+                Subjects[peer] = identity.Value;
+                return true;
+            };
+            Link.Client.Authorize = (_, _, _) => true;
+            Host = new LobbyNetworkDriver(Link.Host, Link.Lobby.Session, 0, "Host", identity: peer => Subjects.GetValueOrDefault(peer));
+            Client = new LobbyNetworkDriver(Link.Client, 0, Link.Server, "Client", expectedSession: Link.Lobby.Session, identity: _ => Link.HostId.Value);
+            Host.Reconnect = () => throw new InvalidOperationException("Replacement unavailable");
+            Host.Migration = new SessionMigration(Host, Link.Host, Link.HostId.Value, peer => Subjects.GetValueOrDefault(peer), (subject, _) => Link.Host.RebindHost(new(subject)), Link.Clock);
+            AttachClientMigration();
+            Step(150);
+            Assert.That(Client.Migration!.Subjects?.Count, Is.EqualTo(2));
+        }
+
+        internal Pair Link { get; } = new();
+        internal Dictionary<ulong, string> Subjects { get; } = new();
+        internal LobbyNetworkDriver Host { get; private set; }
+        internal LobbyNetworkDriver Client { get; }
+        internal VehicleNetworkDriver? HostVehicles { get; private set; }
+        internal VehicleNetworkDriver? ClientVehicles { get; private set; }
+
+        public void Dispose() => Link.Dispose();
+
+        internal void AttachClientMigration()
+        {
+            Client.Reconnect = () => throw new InvalidOperationException("Host unavailable");
+            Client.Migration = new SessionMigration(Client, Link.Client, Link.ClientId.Value, _ => Link.HostId.Value, (subject, _) => Link.Client.RebindHost(new(subject)), Link.Clock);
+        }
+
+        internal void ReplaceClientVehicles(VehicleNetworkDriver driver) => ClientVehicles = driver;
+
+        internal void RestartFormerHost()
+        {
+            ulong server = Link.Host.RebindHost(Link.ClientId);
+            Host = new LobbyNetworkDriver(Link.Host, 0, server, "Former host", expectedSession: Link.Lobby.Session, expectedEpoch: 2);
+            Host.BeginResume(1, 1);
+            Host.Reconnect = () => throw new InvalidOperationException("Replacement unavailable");
+            Host.Migration = new SessionMigration(Host, Link.Host, Link.HostId.Value, _ => Link.ClientId.Value, (subject, _) => Link.Host.RebindHost(new(subject)), Link.Clock);
+        }
+
+        internal void StartArena()
+        {
+            Host.Request(LobbyCommand.Ready, true);
+            Client.Request(LobbyCommand.Ready, true);
+            Step(2);
+            Assert.That(Host.Request(LobbyCommand.Start), Is.True);
+            Step(2);
+            HostVehicles = new VehicleNetworkDriver(Link.Host, Host.State!.Match, 0, Host);
+            ClientVehicles = new VehicleNetworkDriver(Link.Client, 0, Client.ServerPeer, Client);
+            HostVehicles.Host!.RegisterSpawns(Trackstorm.Core.Arenas.PrototypeArena.Configuration);
+            HostVehicles.Host.Items.Grant(HostVehicles.Host.World, 2, Trackstorm.Core.Items.HeldItem.Wrench);
+            Step(240);
+        }
+
+        internal void Step(int count, bool host = true, bool client = true)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Link.Clock.Advance(1.0 / 60);
+                if (host)
+                {
+                    if (HostVehicles is null)
+                    {
+                        Host.Pump(1.0 / 60);
+                    }
+                    else
+                    {
+                        HostVehicles.Advance(default, Observe);
+                    }
+                }
+
+                if (client)
+                {
+                    if (ClientVehicles is null)
+                    {
+                        Client.Pump(1.0 / 60);
+                    }
+                    else
+                    {
+                        ClientVehicles.Advance(default, Observe);
+                    }
+                }
+            }
+        }
+
+    }
+
     private sealed class Pair : IDisposable
     {
         internal Pair(bool accept = true)
@@ -919,6 +1294,7 @@ internal sealed class EosP2pTransportTests
         internal int Disposals { get; private set; }
         internal int Reads { get; private set; }
         internal bool DropOutgoing { get; set; }
+        internal HashSet<OnlineProductUserId> DropRecipients { get; } = new();
         public void Start(string socket, Action<OnlineProductUserId, TransportConnectionState, TransportDisconnectReason> changed) => Changed = changed;
         public bool Accept(OnlineProductUserId peer)
         {
@@ -939,7 +1315,7 @@ internal sealed class EosP2pTransportTests
 
         public bool Send(OnlineProductUserId peer, ArraySegment<byte> data, TransportDelivery delivery)
         {
-            if (!DropOutgoing)
+            if (!DropOutgoing && !DropRecipients.Contains(peer))
             {
                 (Routes?.GetValueOrDefault(peer) ?? Other!).Packets.Enqueue((local, data.ToArray(), delivery));
             }

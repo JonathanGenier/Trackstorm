@@ -1,5 +1,6 @@
 param (
     [Parameter(Mandatory)][string]$GodotPath,
+    [ValidateSet(2, 3)][int]$Players = 3,
     [switch]$NoBuild
 )
 $ErrorActionPreference = 'Stop'
@@ -9,7 +10,8 @@ if (-not $NoBuild) {
 }
 $outputDirectory = Join-Path $PSScriptRoot ('.godot/migration-process-checks/' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
-$reservations = @(0..2 | ForEach-Object { [Net.Sockets.UdpClient]::new([Net.IPEndPoint]::new([Net.IPAddress]::Loopback, 0)) })
+$roles = 0..($Players - 1)
+$reservations = @($roles | ForEach-Object { [Net.Sockets.UdpClient]::new([Net.IPEndPoint]::new([Net.IPAddress]::Loopback, 0)) })
 $ports = ($reservations | ForEach-Object { $_.Client.LocalEndPoint.Port }) -join ','
 $reservations | ForEach-Object { $_.Dispose() }
 $processes = @()
@@ -21,24 +23,23 @@ function Wait-Evidence([string]$file) {
     }
 }
 try {
-    foreach ($role in 0..2) {
+    foreach ($role in $roles) {
         $arguments = @('--headless', '--path', ('"' + $PSScriptRoot + '"'), 'res://scenes/verification/migration_process_checks.tscn', '--', "--migration-role=$role", "--migration-ports=$ports", ('"--migration-output=' + $outputDirectory + '"'))
         $processes += Start-Process -FilePath $GodotPath -ArgumentList $arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $outputDirectory "$role.log") -RedirectStandardError (Join-Path $outputDirectory "$role.err")
         Wait-Evidence "$role-started.json"
         if ($role -eq 1) { Wait-Evidence '1-joined.json' }
     }
-    foreach ($role in 0..2) { Wait-Evidence "$role-ready.json" }
+    foreach ($role in $roles) { Wait-Evidence "$role-ready.json" }
     Stop-Process -Id $processes[0].Id -Force
-    Wait-Evidence '1-passed.json'
-    Wait-Evidence '2-passed.json'
-    foreach ($process in $processes[1..2]) {
+    foreach ($role in 1..($Players - 1)) { Wait-Evidence "$role-passed.json" }
+    foreach ($process in $processes[1..($Players - 1)]) {
         if (-not $process.WaitForExit(10000)) { throw 'Survivor did not exit cleanly.' }
         if ($process.ExitCode -ne 0) { throw 'Survivor failed.' }
     }
-    foreach ($role in 0..2) {
+    foreach ($role in $roles) {
         if ((Get-Content (Join-Path $outputDirectory "$role.err") -Raw) -match 'ERROR:|WARNING:|Exception') { throw 'Native migration emitted a diagnostic.' }
     }
-    Write-Host "Separate-process migration passed: host process terminated; two independent native survivors resumed epoch 2. Evidence: $outputDirectory"
+    Write-Host "Separate-process migration passed: $Players players; host process terminated; independent native survivors resumed epoch 2. Evidence: $outputDirectory"
 } finally {
     foreach ($process in $processes) {
         if (-not $process.HasExited) { Stop-Process -Id $process.Id -Force }

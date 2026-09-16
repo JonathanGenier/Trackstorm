@@ -14,6 +14,41 @@ namespace Trackstorm.Core.Tests.Networking;
 [TestFixture]
 internal sealed class MigrationTests
 {
+    /// <summary>A two-player checkpoint permits exactly one survivor; a larger roster cannot use that exception.</summary>
+    [Test]
+    public void TwoPlayerElectionRestoresOnceAndFormerHostCanReturnBeforeSequentialMigration()
+    {
+        var lobby = new LobbyAuthority(100, "Host");
+        lobby.Join(10, "Client", "client");
+        lobby.SetReady(0, true);
+        lobby.SetReady(10, true);
+        var checkpoint = new MigrationCheckpoint(1, lobby.Capture("host"), null, null);
+        string digest = MigrationCheckpointCodec.Digest(MigrationCheckpointCodec.Encode(checkpoint));
+        var election = new MigrationElection(checkpoint, digest);
+        Assert.Throws<InvalidOperationException>(() => election.Commit());
+        Assert.That(election.Vote(2, 100, 1, 2, digest), Is.True);
+        var replacement = LobbyAuthority.Restore(checkpoint.Lobby, election.Candidate, election.Commit());
+        Assert.Throws<InvalidOperationException>(() => election.Commit());
+        Assert.That(replacement.State.Session, Is.EqualTo(100));
+        Assert.That(replacement.State.Players.Select(player => player.Id), Is.EqualTo(new ulong[] { 1, 2 }));
+        Assert.That(replacement.State.Players.All(player => !player.Ready), Is.True);
+        Assert.That(replacement.Resume(50, 100, 1, 1, "host"), Is.True);
+        Assert.That(replacement.PlayerId(50), Is.EqualTo(1));
+        Assert.That(replacement.Execute(50, LobbyCommand.Start, 100, 100, SessionPhase.Lobby, false, [50], 2), Is.False);
+        Assert.That(replacement.Execute(50, LobbyCommand.Ready, 100, 100, SessionPhase.Lobby, true, [50], 1), Is.False);
+        var second = new MigrationCheckpoint(2, replacement.Capture("client"), null, null);
+        string secondDigest = MigrationCheckpointCodec.Digest(MigrationCheckpointCodec.Encode(second));
+        var next = new MigrationElection(second, secondDigest);
+        Assert.That(next.Candidate, Is.EqualTo(1));
+        Assert.That(next.Vote(1, 100, 2, 1, secondDigest), Is.True);
+        Assert.That(LobbyAuthority.Restore(second.Lobby, 1, next.Commit()).State.AuthorityEpoch, Is.EqualTo(3));
+
+        var larger = Lobby();
+        larger.Disconnect(20);
+        var unsafeBoundary = new MigrationCheckpoint(1, larger.Capture("host"), null, null);
+        Assert.Throws<ArgumentException>(() => new MigrationElection(unsafeBoundary, digest));
+    }
+
     /// <summary>The full player/projectile population fits the complete external checkpoint budget.</summary>
     [Test]
     public void EightPlayersAndFullProjectilePopulationFitCheckpointBudget()

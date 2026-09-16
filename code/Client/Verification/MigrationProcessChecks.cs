@@ -95,7 +95,7 @@ public sealed partial class MigrationProcessChecks : Node
                 {
                     Write("joined");
                     _driver.Request(LobbyCommand.Ready, true);
-                    if (_role == 0 && _driver.State.Players.Count == 3 && _driver.State.CanStart)
+                    if (_role == 0 && _driver.State.Players.Count == _ports.Length && _driver.State.CanStart)
                     {
                         _driver.Request(LobbyCommand.Start);
                     }
@@ -111,20 +111,20 @@ public sealed partial class MigrationProcessChecks : Node
             else
             {
                 _arena.Advance(default);
-                if (_arena.Driver.Latest?.Tick >= 120 && _driver.Migration!.Subjects?.Count == 3)
+                if (_arena.Driver.Latest?.Tick >= 120 && _driver.Migration!.Subjects?.Count == _ports.Length)
                 {
                     Write("ready");
                 }
 
                 if (_driver.State!.AuthorityEpoch == 2 && _arena.Driver.IsActive && ++_resumed >= 60)
                 {
-                    if (_driver.State.CurrentHostId != 2 || _arena.Bodies.Count != 3 || _arena.Driver.Latest?.Vehicles.Count != 3)
+                    if (_driver.State.CurrentHostId != 2 || _arena.Bodies.Count != _ports.Length || _arena.Driver.Latest?.Vehicles.Count != _ports.Length)
                     {
                         throw new InvalidOperationException("Separate processes did not converge on one intact authority.");
                     }
 
                     Write("passed");
-                    if (System.IO.File.Exists(System.IO.Path.Combine(_directory, $"{(_role == 1 ? 2 : 1)}-passed.json")))
+                    if (_ports.Length == 2 || System.IO.File.Exists(System.IO.Path.Combine(_directory, $"{(_role == 1 ? 2 : 1)}-passed.json")))
                     {
                         _gateway.Dispose();
                         _arena.QueueFree();
