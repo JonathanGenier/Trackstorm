@@ -4,3 +4,4 @@
 # Preserve verbatim upstream license bytes and their recorded source checksums.
 assets/arena/kenney/**/License.txt -text -whitespace
 assets/items/kenney/**/License.txt -text -whitespace
+assets/vehicles/kenney/License.txt -text -whitespace

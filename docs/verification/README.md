@@ -6,6 +6,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 
 | Evidence | Reports |
 | --- | --- |
+| Static vehicle visual | [Asset and integration verification](ts-36.md) |
 | Death/respawn | [Implementation verification](ts-24.md) |
 | Host migration | [TS-46 / TS-51 implementation and verification](ts-46.md) |
 | Combat HUD | [Implementation verification](ts-30.md) |
