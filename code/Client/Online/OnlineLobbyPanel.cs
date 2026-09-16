@@ -36,6 +36,8 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
 
     /// <summary>Requests logout after membership cleanup.</summary>
     internal Action Logout { get; set; } = () => { };
+    /// <summary>Gameplay-aware leave action supplied by session composition.</summary>
+    internal Action? LeaveSession { get; set; }
 
     /// <inheritdoc />
     public override void _Ready()
@@ -77,7 +79,17 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
             _credential.Clear();
         };
         _rename.Pressed += () => Coordinator()?.Rename(_name.Text);
-        _leave.Pressed += () => Coordinator()?.Leave();
+        _leave.Pressed += () =>
+        {
+            if (LeaveSession is not null)
+            {
+                LeaveSession();
+            }
+            else
+            {
+                Coordinator()?.Leave();
+            }
+        };
         _submit.Pressed += () =>
         {
             if (_selected is not null)

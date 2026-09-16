@@ -6,7 +6,7 @@ Each network arena registers the eight actual `ItemSpawns` markers extracted by 
 
 An accepted contact selects one item, grants it through the existing `ItemAuthority` single-slot API, and records the claimant, grant token, awarded item and next activation tick before publication. Rejected contacts do not advance the selector or consume availability. Contacts in a host boundary are deduplicated and ordered by ordinal marker ID then vehicle ID, giving simultaneous contestants exactly one winner. This stable tie-break favors the lower vehicle ID for an exact same-tick tie. Occupied slots never replace their items or consume the pickup. A player remaining in range can acquire again after consuming an item, including within that same committed boundary.
 
-Core advances cooldowns from committed 60 Hz world ticks, after successful vehicle/item simulation. A claim at tick `t` reactivates at `t + CooldownTicks`; clients never activate from a local timer. Claims survive claimant departure or item consumption until the deadline. Lobby return discards the match-owned authority; the next arena starts fresh. Restore/reconnect of this state is not implemented here.
+Core advances cooldowns from committed 60 Hz world ticks, after successful vehicle/item simulation. A claim at tick `t` reactivates at `t + CooldownTicks`; clients never activate from a local timer. Claims survive claimant departure or item consumption until the deadline. Lobby return discards the match-owned authority; the next arena starts fresh. Resume checkpoints include this exact state and deadlines; the authority is never restarted on rebind.
 
 ## Configuration and Replication
 
@@ -23,5 +23,7 @@ Provenance and license remain in `assets/items/sources.json` and the acquired Ke
 Deterministic NUnit coverage verifies actual registration IDs, single registration, alive/empty/in-range validation, same-tick contention, retry rejection, exact cooldown boundaries, invalid selectors and weights, seeded distribution and complete publication corruption handling. Driver coverage applies the host/trust/delivery/revision guards to spawn-bearing publications.
 
 `check-item-spawns.ps1 -GodotPath <Godot .NET executable>` runs eight actual UDP peers in isolated Godot worlds. Two remote vehicles contest one pickup; every peer verifies one matching claimant/token/item and cooldown. It exercises reactivation, all eight pickup positions, normal weighted distribution of both items, and occupied vehicles remaining in range without duplicate grants. `-Impaired` adds 30 ms outbound delay, 5 ms jitter and 2% loss; `-Visual` captures the rendered client. Existing item, lobby and network vehicle checks cover surrounding combat and scene lifecycle. These are local native integration checks, not multi-machine/NAT or long-session performance evidence.
+
+See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
 
 [Feature index](README.md)

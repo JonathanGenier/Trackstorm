@@ -22,7 +22,7 @@ internal sealed class OnlineSessionBinding : IDisposable
         _gateway = gateway;
         _gateway.ConnectionChanged += OnConnectionChanged;
         var lobby = coordinator.Active ?? throw new InvalidOperationException("An online lobby is required before transport attachment.");
-        Driver = new LobbyNetworkDriver(gateway, coordinator.IsHost ? lobby.Session : 0, serverPeer, playerName, peer => !_disposed && _authorized.ContainsKey(peer), lobby.Session);
+        Driver = new LobbyNetworkDriver(gateway, coordinator.IsHost ? lobby.Session : 0, serverPeer, playerName, peer => !_disposed && _authorized.ContainsKey(peer), lobby.Session, peer => _authorized.TryGetValue(peer, out var identity) ? identity.Value : null);
     }
 
     /// <summary>Existing driver which remains the sole route for lobby commands and roster admission.</summary>
@@ -46,11 +46,12 @@ internal sealed class OnlineSessionBinding : IDisposable
 
             if (Driver.Authority is not null)
             {
-                foreach (var peer in Driver.Authority.Peers)
+                foreach (var identity in _coordinator.Active?.MemberIds ?? [])
                 {
-                    if (_authorized.TryGetValue(peer.Key, out var identity))
+                    ulong player = Driver.Authority.FindPlayer(identity.Value);
+                    if (player != 0)
                     {
-                        result[identity] = peer.Value;
+                        result[identity] = player;
                     }
                 }
             }
@@ -81,9 +82,11 @@ internal sealed class OnlineSessionBinding : IDisposable
     internal bool AuthorizePeer(ulong peer, OnlineProductUserId authenticatedIdentity, string? credential)
     {
         var lobby = _coordinator.Active;
+        ulong retained = Driver.Authority?.FindPlayer(authenticatedIdentity.Value) ?? 0;
+        bool resumable = retained != 0 && Driver.Authority!.State.Players.Any(player => player.Id == retained && !player.Connected);
         bool accepted = !_disposed && _coordinator.IsHost && peer != 0 && lobby is not null && lobby.MemberIds.Contains(authenticatedIdentity)
             && !authenticatedIdentity.Equals(lobby.Owner) && !_authorized.Values.Contains(authenticatedIdentity)
-            && !_authorized.ContainsKey(peer) && (lobby.Access == LobbyAccess.Public || lobby.Credential!.Verify(credential));
+            && !_authorized.ContainsKey(peer) && (resumable || (retained == 0 && (lobby.Access == LobbyAccess.Public || lobby.Credential!.Verify(credential))));
         if (!accepted)
         {
             _gateway.Disconnect(peer);
@@ -112,6 +115,7 @@ internal sealed class OnlineSessionBinding : IDisposable
     {
         if (change.State == TransportConnectionState.Disconnected)
         {
+            Driver.Authority?.Disconnect(change.RemotePeerId);
             _authorized.Remove(change.RemotePeerId);
         }
     }

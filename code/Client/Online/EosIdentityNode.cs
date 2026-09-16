@@ -36,7 +36,7 @@ public sealed partial class EosIdentityNode : Node
         {
             try
             {
-                Coordinator = new OnlineLobbyCoordinator(_identity.CreateLobbyProvider(), _identity.ProductUserId!);
+                Coordinator = new OnlineLobbyCoordinator(_identity.CreateLobbyProvider(), _identity.ProductUserId!, resumeStore: new ResumeLocatorStore(ProjectSettings.GlobalizePath("user://session-resume.json")));
                 Coordinator.TransportFactory = credential => _identity.CreateTransport(Coordinator, credential);
             }
             catch (InvalidOperationException)
@@ -65,6 +65,7 @@ public sealed partial class EosIdentityNode : Node
     /// <inheritdoc />
     public override void _ExitTree()
     {
+        Coordinator?.PreserveResumeOnShutdown();
         Coordinator?.Dispose();
         _identity.Dispose();
         // No SDK calls are permitted after this terminal application shutdown.

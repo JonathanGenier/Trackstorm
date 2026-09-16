@@ -8,6 +8,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
 {
     private readonly IOnlineLobbyProvider _provider;
     private readonly TimeProvider _time;
+    private readonly ResumeLocatorStore? _resumeStore;
     private IDisposable? _watch;
     private OnlineSessionBinding? _binding;
     private long _epoch;
@@ -23,16 +24,26 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     private long _completedMembership;
     private bool _disposed;
     private string? _joinCredential;
+    private long? _resumeStarted;
+    private long _resumeRetry;
+    private long _savedAt;
+    private ulong _savedGeneration;
+    private bool _resumePending;
+    private bool _recoveringMembership;
+    private bool _preserveLocator;
 
     /// <summary>Creates one owner-thread coordination lifetime with an injectable monotonic clock.</summary>
     /// <param name="provider">Owned coordination adapter.</param>
     /// <param name="identity">Authenticated local product user identity.</param>
     /// <param name="time">Injectable monotonic deadline clock.</param>
-    internal OnlineLobbyCoordinator(IOnlineLobbyProvider provider, OnlineProductUserId identity, TimeProvider? time = null)
+    /// <param name="resumeStore">Optional local routing persistence; no authority or credentials are saved.</param>
+    internal OnlineLobbyCoordinator(IOnlineLobbyProvider provider, OnlineProductUserId identity, TimeProvider? time = null, ResumeLocatorStore? resumeStore = null)
     {
         _provider = provider;
         Identity = identity;
         _time = time ?? TimeProvider.System;
+        _resumeStore = resumeStore;
+        SavedResume = _resumeStore?.Load(identity.Value, _time.GetUtcNow());
     }
 
     /// <summary>Production packet composition; absent in browser-only verification.</summary>
@@ -49,9 +60,11 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Whether a membership mutation awaits completion.</summary>
     internal bool Busy { get; private set; }
     /// <summary>Whether Leave can release active membership or retry pending cleanup.</summary>
-    internal bool CanLeave => Active is not null || Busy || _closing is not null || _pendingMembership is not null;
+    internal bool CanLeave => Active is not null || Busy || _closing is not null || _pendingMembership is not null || SavedResume is not null;
     /// <summary>Presentation-safe progress or actionable failure; never includes credential input.</summary>
     internal string Status { get; private set; } = "Browse or host a game.";
+    /// <summary>Validated local routing hint until the restored assignment is acknowledged.</summary>
+    internal ResumeLocator? SavedResume { get; private set; }
 
     /// <inheritdoc />
     public void Dispose()
@@ -236,12 +249,31 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
 
         _binding = new OnlineSessionBinding(this, gateway, serverPeer, playerName);
+        if (!IsHost && SavedResume is { } resume && resume.Session == Active.Session)
+        {
+            _binding.Driver.BeginResume(resume.Player, resume.Generation);
+        }
+
         return _binding;
     }
 
     /// <summary>Enforces a monotonic deadline on pending coordination work.</summary>
     internal void Tick()
     {
+        if (!_disposed && ((SavedResume is not null && Active is null) || _recoveringMembership))
+        {
+            TickResume();
+        }
+
+        if (!_disposed && !IsHost && Active is not null && _binding?.Driver is { State: not null, Reconnecting: false, Failure.Length: 0 } driver &&
+            (_savedGeneration != driver.Generation || _time.GetElapsedTime(_savedAt).TotalSeconds >= 5))
+        {
+            _savedAt = _time.GetTimestamp();
+            _savedGeneration = driver.Generation;
+            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.Owner.Value, _time.GetUtcNow().AddMinutes(2)));
+            SavedResume = null;
+        }
+
         if (!Busy && _pendingMembership is not null && _time.GetElapsedTime(_started).TotalSeconds >= 60)
         {
             Status = "EOS membership cancellation is unresolved. Log out and log in to reset online services.";
@@ -295,6 +327,16 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Invalidates local membership and releases or destroys the associated online lobby.</summary>
     internal void Leave()
     {
+        SavedResume = null;
+        if (!_preserveLocator)
+        {
+            _resumeStore?.Clear();
+        }
+
+        _resumeStarted = null;
+        _recoveringMembership = false;
+        _resumePending = false;
+        _savedGeneration = 0;
         _joinCredential = null;
         if (_closing is not null && Busy)
         {
@@ -334,6 +376,16 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                     Status = failure is null ? (destroy ? "Lobby closed." : "Left lobby.") : "EOS leave/close failed. Retry Leave before creating another lobby.";
                 }
             });
+        }
+    }
+
+    /// <summary>Retains only an acknowledged routing hint when the application exits without choosing Leave.</summary>
+    internal void PreserveResumeOnShutdown()
+    {
+        if (!IsHost && Active is not null && _binding?.Driver is { State: not null, Failure.Length: 0 } driver)
+        {
+            _preserveLocator = true;
+            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.Owner.Value, _time.GetUtcNow().AddMinutes(2)));
         }
     }
 
@@ -403,7 +455,14 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             {
                 if (!_disposed && membership == _membership && Active?.Id == lobby.Id && Active.Session == lobby.Session)
                 {
-                    if (updated is null || !updated.Owner.Equals(lobby.Owner))
+                    if (updated is null && !IsHost && _binding?.Driver.State is not null)
+                    {
+                        _recoveringMembership = true;
+                        _resumeStarted ??= _time.GetTimestamp();
+                        Active = Active with { MemberIds = Active.MemberIds.Where(member => !member.Equals(Identity)).ToArray() };
+                        Status = "Connection interrupted";
+                    }
+                    else if (updated is null || !updated.Owner.Equals(lobby.Owner))
                     {
                         Leave();
                         Status = "Lobby closed.";
@@ -435,5 +494,68 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         Active = lobby;
         Browser.Update(lobby);
         _binding?.MembershipChanged(lobby);
+    }
+
+    private void TickResume()
+    {
+        _resumeStarted ??= _time.GetTimestamp();
+        if (_time.GetElapsedTime(_resumeStarted.Value).TotalSeconds >= 30)
+        {
+            Leave();
+            Status = "Session unavailable. Resume expired; refresh or choose another lobby.";
+            return;
+        }
+
+        if (_resumePending || (_resumeRetry != 0 && _time.GetElapsedTime(_resumeRetry).TotalSeconds < 2))
+        {
+            return;
+        }
+
+        string id = Active?.Id ?? SavedResume!.Lobby;
+        ulong session = Active?.Session ?? SavedResume!.Session;
+        string host = Active?.Owner.Value ?? SavedResume!.Host;
+        long epoch = _epoch;
+        _resumeRetry = _time.GetTimestamp();
+        _resumePending = true;
+        Status = "Reconnecting";
+        _provider.Resume(id, (lobby, failure) =>
+        {
+            if (_disposed || epoch != _epoch)
+            {
+                if (lobby is not null && Active?.Id != lobby.Id)
+                {
+                    _provider.Leave(lobby.Id, false, _ => { });
+                }
+
+                return;
+            }
+
+            _resumePending = false;
+            if (failure is not null || lobby is null)
+            {
+                Status = "Session unavailable — retrying";
+                return;
+            }
+
+            if (!lobby.Compatible || lobby.Session != session || lobby.Owner.Value != host || !lobby.MemberIds.Contains(Identity))
+            {
+                _provider.Leave(lobby.Id, false, _ => { });
+                Leave();
+                Status = "Resume rejected. Session changed or identity is unavailable.";
+                return;
+            }
+
+            _recoveringMembership = false;
+            _resumeStarted = null;
+            if (Active is null)
+            {
+                long operation = Begin("Reconnecting");
+                CompleteMembership(operation, lobby, null, false);
+            }
+            else
+            {
+                ApplyUpdate(lobby);
+            }
+        });
     }
 }

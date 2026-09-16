@@ -11,4 +11,8 @@ public enum LobbyCommand
     Start,
     /// <summary>Request a host-only return.</summary>
     Return,
+    /// <summary>Explicit departure; never starts automatic reconnect.</summary>
+    Leave,
+    /// <summary>Reclaim an authenticated reserved slot.</summary>
+    Resume,
 }

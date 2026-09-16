@@ -198,8 +198,9 @@ internal sealed class OnlineLobbyTests
         binding.AuthorizePeer(20, User(2), null);
         gateway.ReceiveJoin(20, "Client");
         binding.Driver.Pump(0);
+        Assert.That(binding.Driver.Authority!.Execute(20, LobbyCommand.Leave, binding.Driver.State!.Session, binding.Driver.State.Match, binding.Driver.State.Phase, false, [20]), Is.True);
         client.Leave();
-        Assert.That(binding.Driver.State!.Players.Count, Is.EqualTo(2), "EOS notification must not mutate the Core roster directly.");
+        Assert.That(binding.Driver.State!.Players.Count, Is.EqualTo(1), "Explicit gameplay Leave revokes the slot before EOS membership cleanup.");
         binding.Driver.Pump(0);
         Assert.That(binding.Driver.State.Players.Count, Is.EqualTo(1));
         client.Refresh();
@@ -442,6 +443,76 @@ internal sealed class OnlineLobbyTests
         Assert.That(host.Active!.Name, Is.EqualTo("Recovered"));
     }
 
+    /// <summary>Previously authenticated Locked members resume without retaining the access code; other identities cannot claim their slot.</summary>
+    [Test]
+    public void LockedResumeUsesAuthenticatedIdentityAndRetainsOneMapping()
+    {
+        var service = new Service();
+        using var host = service.Coordinator(1);
+        using var client = service.Coordinator(2);
+        host.Create("Test", LobbyAccess.Locked, "test-code");
+        client.Refresh();
+        client.Join(host.Active!.Id, "test-code");
+        using var gateway = new Gateway();
+        var binding = host.AttachTransport(gateway, 0, "Host");
+        gateway.ConnectPeer(20);
+        Assert.That(binding.AuthorizePeer(20, User(2), "test-code"), Is.True);
+        gateway.ReceiveJoin(20, "Original");
+        binding.Driver.Pump(0);
+        gateway.ConnectPeer(21);
+        Assert.That(binding.AuthorizePeer(21, User(2), null), Is.False, "A second live connection cannot control the same player.");
+        gateway.Disconnect(20);
+        binding.Driver.Pump(0);
+        Assert.That(binding.Driver.State!.Players.Single(p => p.Id == 2).Connected, Is.False);
+        gateway.ConnectPeer(22);
+        Assert.That(binding.AuthorizePeer(22, User(3), "test-code"), Is.False);
+        gateway.ConnectPeer(23);
+        Assert.That(binding.AuthorizePeer(23, User(2), null), Is.True);
+        gateway.ReceiveResume(23, host.Active.Session, 2, 1);
+        binding.Driver.Pump(0);
+        Assert.That(binding.PlayerIds[User(2)], Is.EqualTo(2));
+        Assert.That(binding.Driver.Authority!.PlayerId(20), Is.Zero);
+        Assert.That(binding.Driver.Authority.PlayerId(23), Is.EqualTo(2));
+        Assert.That(binding.Driver.State.Players.Count, Is.EqualTo(2));
+        Assert.That(binding.Driver.State.Players.Single(p => p.Id == 2).Name, Is.EqualTo("Original"));
+    }
+
+    /// <summary>A restart hint restores only the prior assignment and is cleared when the player chooses Leave.</summary>
+    [Test]
+    public void RestartLocatorRejoinsKnownSessionAndEmitsResumeInsteadOfNewAdmission()
+    {
+        string path = Path.Combine(Path.GetTempPath(), "trackstorm-resume-" + Guid.NewGuid().ToString("N") + ".json");
+        var store = new ResumeLocatorStore(path);
+        try
+        {
+            var service = new Service();
+            using var host = service.Coordinator(1);
+            host.Create("Hidden match", LobbyAccess.Public, null);
+            service.Lobbies[host.Active!.Id] = host.Active with { Open = false };
+            service.Notify(host.Active.Id);
+            var locator = new ResumeLocator(host.Active!.Id, host.Active.Session, 2, 4, User(2).Value, User(1).Value, DateTimeOffset.UtcNow.AddMinutes(2));
+            store.Save(locator);
+            using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
+            client.Tick();
+            Assert.That(client.Active!.Session, Is.EqualTo(host.Active.Session));
+            Assert.That(client.Active.Open, Is.False, "Resume uses the locator even when normal admission is closed.");
+            using var gateway = new Gateway();
+            gateway.ConnectPeer(1);
+            var binding = client.AttachTransport(gateway, 1, "Changed local name");
+            binding.Driver.Pump(0);
+            Assert.That(binding.Driver.Reconnecting, Is.True);
+            Assert.That(binding.Driver.LocalPlayerId, Is.EqualTo(2));
+            Assert.That(binding.Driver.Generation, Is.EqualTo(4));
+            Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
+            client.Leave();
+            Assert.That(store.Load(User(2).Value, DateTimeOffset.UtcNow), Is.Null);
+        }
+        finally
+        {
+            store.Clear();
+        }
+    }
+
     private static OnlineProductUserId User(int id) => new(id.ToString("x32"));
     private static OnlineLobby Lobby(string id, string name) => new(id, name, User(1), 100, LobbyAccess.Public, 1, 8, OnlineLobby.CurrentProtocol, true, null) { MemberIds = new[] { User(1) } };
 
@@ -534,6 +605,22 @@ internal sealed class OnlineLobbyTests
             service.Complete(() => completed(lobby, null));
         }
 
+        public void Resume(string id, Action<OnlineLobby?, string?> completed)
+        {
+            var lobby = service.Lobbies.GetValueOrDefault(id);
+            if (lobby is null || (lobby.Members == 8 && !lobby.MemberIds.Contains(user)))
+            {
+                service.Complete(() => completed(null, "Session unavailable"));
+                return;
+            }
+
+            var members = lobby.MemberIds.Append(user).Distinct().ToArray();
+            lobby = lobby with { Members = members.Length, MemberIds = members };
+            service.Lobbies[id] = lobby;
+            service.Notify(id);
+            service.Complete(() => completed(lobby, null));
+        }
+
         public void Update(OnlineLobby lobby, Action<OnlineLobby?, string?> completed)
         {
             var current = service.Lobbies[lobby.Id];
@@ -598,18 +685,20 @@ internal sealed class OnlineLobbyTests
     {
         private readonly Dictionary<ulong, TransportConnectionState> _connections = new();
         private readonly Queue<TransportMessage> _received = new();
-        public event Action<TransportConnectionChange>? ConnectionChanged
-        {
-            add { }
-            remove { }
-        }
+        public event Action<TransportConnectionChange>? ConnectionChanged;
 
         public bool IsListening => true;
         public IReadOnlyDictionary<ulong, TransportConnectionState> Connections => _connections;
         public TransportConnectionState ConnectionState => TransportConnectionState.Connected;
+        internal List<TransportMessage> Sent { get; } = new();
         public void Listen(TransportEndpoint endpoint) => throw new NotSupportedException();
         public ulong Connect(TransportEndpoint endpoint) => throw new NotSupportedException();
-        public void Disconnect(ulong peerId) => _connections[peerId] = TransportConnectionState.Disconnected;
+        public void Disconnect(ulong peerId)
+        {
+            _connections[peerId] = TransportConnectionState.Disconnected;
+            ConnectionChanged?.Invoke(new(peerId, TransportConnectionState.Disconnected, TransportDisconnectReason.Timeout, "Test loss"));
+        }
+
         public void Poll()
         {
         }
@@ -623,11 +712,13 @@ internal sealed class OnlineLobbyTests
 
         public void Send(TransportMessage message)
         {
+            Sent.Add(message);
         }
 
         public bool TryReceive(out TransportMessage message) => _received.TryDequeue(out message);
         internal void ConnectPeer(ulong peer) => _connections[peer] = TransportConnectionState.Connected;
         internal void ReceiveJoin(ulong peer, string name) => _received.Enqueue(new TransportMessage(peer, LobbyCodec.EncodeCommand(LobbyCommand.Join, null, name: name), TransportDelivery.Reliable));
+        internal void ReceiveResume(ulong peer, ulong session, ulong player, ulong generation) => _received.Enqueue(new TransportMessage(peer, LobbyCodec.EncodeResume(session, player, generation), TransportDelivery.Reliable));
         internal void ReceiveState(ulong peer, LobbySnapshot state, ulong player) => _received.Enqueue(new TransportMessage(peer, LobbyCodec.EncodeState(state, player), TransportDelivery.Reliable));
     }
 }

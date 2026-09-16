@@ -143,7 +143,7 @@ internal sealed class LobbyTests
         Assert.That(decoded.State.Revision, Is.EqualTo(lobby.State.Revision));
         Assert.Throws<ArgumentException>(() => LobbyCodec.DecodeState(LobbyCodec.EncodeState(lobby.State, 99)));
         Assert.Throws<ArgumentException>(() => LobbyCodec.DecodeState(bytes[..^1]));
-        bytes[2] = 2;
+        bytes[2] = 1;
         Assert.Throws<ArgumentException>(() => LobbyCodec.DecodeState(bytes));
         Assert.Throws<ArgumentException>(() => LobbyCodec.DecodeState(new byte[4097]));
         Assert.Throws<ArgumentException>(() => new LobbySnapshot(1, 1, 1, SessionPhase.Lobby, new[] { new SessionPlayer(1, "Invalid<", false) }));

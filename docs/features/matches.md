@@ -4,7 +4,7 @@
 
 Multiplayer `HostVehicleSession` enables `MatchConfiguration` on its existing `Simulation`. `SimulationState.Match` is the sole match boundary: phase, target, scores, winner, score deltas and consumed-life watermarks. Local practice and isolated movement fixtures omit match rules. No separate combat or health system is introduced.
 
-The match progresses through Waiting, Countdown, Active and Finished. Defaults are two participants, a 180-tick countdown (three seconds at 60 Hz), and `KillTarget = 5`. Countdown cancels back to Waiting if the connected roster drops below the minimum before activation. Countdown and scoring use Core ticks, never wall-clock or packet-arrival time. Combat remains available outside Active, but those deaths cannot change scores. An active match continues if a participant leaves; there is no automatic forfeit or restart rule. A new arena session starts a fresh match.
+The match progresses through Waiting, Countdown, Active and Finished. Defaults are two participants, a 180-tick countdown (three seconds at 60 Hz), and `KillTarget = 5`. Countdown cancels back to Waiting if the authoritative vehicle roster drops below the minimum before activation. Countdown and scoring use Core ticks, never wall-clock or packet-arrival time. Combat remains available outside Active, but those deaths cannot change scores. An active match continues if a participant leaves; there is no automatic forfeit or restart rule. A new arena session starts a fresh match.
 
 ## Attribution, Duplicate Protection and Winner
 
@@ -16,7 +16,7 @@ Each player retains the highest destroyed life consumed. This watermark advances
 
 Deaths in a batch are evaluated in ascending victim identity order. The first credited kill reaching the target records one winner, increments that player's per-match wins from zero to one, and enters Finished. Later deaths in the same batch and later ticks cannot change kills, deaths, wins or winner. Their ordinary damage/death/respawn behavior still proceeds. This deterministic tie rule makes results independent of request enumeration or network arrival order.
 
-Departed score rows remain for the lifetime of the match. A late join during Finished receives the final result without adding a score row. Match state is bounded to 256 lifetime participants, with at most eight connected vehicles; new standalone admissions are rejected at the lifetime bound. Session reconnection and cross-match win persistence are separate features.
+Departed score rows remain for the lifetime of the match. A late join during Finished receives the final result without adding a score row. Match state is bounded to 256 lifetime participants, with at most eight connected vehicles; new standalone admissions are rejected at the lifetime bound. Session resume retains these totals and watermarks. Cross-match win persistence remains unsupported.
 
 ## Reliable Publication and Presentation
 
@@ -31,5 +31,7 @@ The version-one `TM` match codec carries arena generation, increasing revision, 
 Core tests exercise real simulation damage/death boundaries, valid and invalid attribution, pre-active consumption, duplicate/restored deaths, configurable targets, stable simultaneous winners, frozen results and codec validation. Driver tests reject client-authored, unreliable, wrong-session, duplicate and post-finish publications and cover reliable state arriving after newer movement.
 
 `check-match.ps1 -GodotPath <exe>` runs eight native UDP peers through alternating remote missile and ram kills to five, followed by a sixth combat death and respawn after Finished. It checks consistent scores and winner, one finished notification per peer, native lifecycle behavior and unchanged final state. `-Impaired` adds 30 ms delay, 5 ms jitter and 2% loss; `-Visual` renders a peer and saves death/respawn and final-result evidence. Scenario setup positions vehicles and lowers victim HP; the real projectile/collision and authoritative damage paths cause each death. This is repeatable single-machine integration evidence, not a separate-PC EOS session or a balance/soak test.
+
+See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
 
 [Feature index](README.md)

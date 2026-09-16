@@ -232,6 +232,18 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         }
     }
 
+    /// <summary>Discards native render and damage-feedback memory at a connection resync boundary.</summary>
+    /// <param name="state">Fresh authoritative vehicle state.</param>
+    internal void Reseed(VehicleSnapshot state)
+    {
+        _initialized = false;
+        _flash = 0;
+        _previousHP = state.Damage.CurrentHP;
+        Smoothing.Reset();
+        Apply(state);
+        PresentRemote(state.Movement.Physics);
+    }
+
     /// <summary>Reconstructs participation and resets visual memory when the authoritative life changes.</summary>
     /// <param name="state">Freshest accepted aggregate, never an old reliable outcome.</param>
     internal void SynchronizeLifecycle(VehicleSnapshot state)

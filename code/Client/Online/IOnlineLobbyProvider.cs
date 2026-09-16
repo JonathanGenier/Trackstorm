@@ -20,6 +20,10 @@ internal interface IOnlineLobbyProvider : IDisposable
     /// <param name="id">Logical EOS lobby identity.</param>
     /// <param name="completed">Owner-thread completion with safe error information.</param>
     void Join(string id, Action<OnlineLobby?, string?> completed);
+    /// <summary>Re-establishes membership by a known locator; gameplay admission remains independently authenticated.</summary>
+    /// <param name="id">Previously joined lobby.</param>
+    /// <param name="completed">Owner-thread completion.</param>
+    void Resume(string id, Action<OnlineLobby?, string?> completed) => Join(id, completed);
     /// <summary>Updates the existing logical lobby without replacing its identity.</summary>
     /// <param name="lobby">Current client-only lobby metadata.</param>
     /// <param name="completed">Owner-thread completion with safe error information.</param>
