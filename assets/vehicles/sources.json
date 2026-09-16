@@ -1,0 +1,73 @@
+{
+  "polyhaven": {
+    "files": [
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_painted_metal/rusty_painted_metal_diff_1k.jpg",
+        "sha256": "B086937B45C3628116A838363364A29BD3C5D2542CFF906EC1D92D681EE80E15",
+        "path": "assets/vehicles/polyhaven/rusty_painted_metal/rusty_painted_metal_diff_1k.jpg",
+        "md5": "3846f5567b6e7985b275a6b3867a648f"
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_painted_metal/rusty_painted_metal_nor_gl_1k.jpg",
+        "sha256": "F3372E2F60517DF2D0E02C1472EB24071D95182D771C30B7ECD8E1B5142768BB",
+        "path": "assets/vehicles/polyhaven/rusty_painted_metal/rusty_painted_metal_nor_gl_1k.jpg",
+        "md5": "b5a2c2b08219304dcd4e0b00837f3e2d"
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_painted_metal/rusty_painted_metal_rough_1k.jpg",
+        "sha256": "2D1C355C793C5886EF9DCECFC06DA354E30218A84A9FE28DE37741D2F2ED5AAA",
+        "path": "assets/vehicles/polyhaven/rusty_painted_metal/rusty_painted_metal_rough_1k.jpg",
+        "md5": "4d1a17deece24665d877f818b59b7d38"
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rubberized_track/rubberized_track_diff_1k.jpg",
+        "sha256": "63BBDE84FACF0EC99D6D4C7A72BCBD2A8FE2DCB910BD65572B600E53E4AC13EA",
+        "path": "assets/vehicles/polyhaven/rubberized_track/rubberized_track_diff_1k.jpg",
+        "md5": "43c4cec5ce3578919440af1491d3c50e"
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rubberized_track/rubberized_track_nor_gl_1k.jpg",
+        "sha256": "116C912290F536D693E47A9B6F071ED840215EDD84436612D880EC42F113F133",
+        "path": "assets/vehicles/polyhaven/rubberized_track/rubberized_track_nor_gl_1k.jpg",
+        "md5": "4b60a99598fd2a0e24c2234468f5f31c"
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rubberized_track/rubberized_track_rough_1k.jpg",
+        "sha256": "A564E0549A3B54BF0B703922EB382DE60D0F530761F9F7DF72DD294B6CCBC1CF",
+        "path": "assets/vehicles/polyhaven/rubberized_track/rubberized_track_rough_1k.jpg",
+        "md5": "67107f2b5a3eb70ffa67fbbcf0123ecb"
+      }
+    ],
+    "license": "https://polyhaven.com/license",
+    "sources": [
+      "https://polyhaven.com/a/rusty_painted_metal",
+      "https://polyhaven.com/a/rubberized_track",
+      "https://polyhaven.com/a/rusty_metal_sheet"
+    ],
+    "supplemental": "Reuses assets/arena/polyhaven/rusty_metal_sheet; hashes and original download URLs in assets/arena/sources.json"
+  },
+  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "kenney": {
+    "files": [
+      {
+        "path": "assets/vehicles/kenney/hatchback-sports.glb",
+        "sha256": "BD5C9D4C3B4BDD254A66B8426563A68B1487AE7A5076DF3A2488E6FFED7BE64F"
+      },
+      {
+        "path": "assets/vehicles/kenney/License.txt",
+        "sha256": "C33B7F6453D134DEAE7B1B8493717D9CCFA754C25AB97F6DE89B88F8FDA19B00"
+      },
+      {
+        "path": "assets/vehicles/kenney/Textures/colormap.png",
+        "sha256": "F3622A03A20C6696065CAE9CBE391351BE873508AF190C2EBD1D420C055787A5"
+      }
+    ],
+    "source": "https://kenney.nl/assets/car-kit",
+    "download": "https://kenney.nl/media/pages/assets/car-kit/1a312ec241-1775131960/kenney_car-kit.zip",
+    "selection": "hatchback-sports.glb",
+    "archiveSha256": "FAC7DACAC5C7874348CF19729AF3EF205F3D366493EDAF0A827D93F4FDF3D0C4",
+    "version": "3.1"
+  },
+  "license": "CC0-1.0",
+  "conversion": "Original static armor/exhaust/guards by Trackstorm; authored with BuildVehicle.gd; local triplanar StandardMaterial3D maps; original source bytes preserved."
+}

@@ -11,6 +11,7 @@ This is the canonical entry point for repository dependency and asset provenance
 | Official EOS SDK | [EOS provenance, hashes, agreement and redistribution requirements](docs/licenses/eos/README.md); verified acquisition in [setup-eos.ps1](setup-eos.ps1) |
 | Arena models/textures | [Record below](#prototype-arena-assets) and [source manifest](assets/arena/sources.json) |
 | Item models/particles | [Record below](#item-combat-assets) and [source manifest](assets/items/sources.json) |
+| Gameplay vehicle | [Vehicle manifest](assets/vehicles/sources.json), [Kenney original notice](assets/vehicles/kenney/License.txt) and [authoring notes](assets/vehicles/README.md); CC0 Car Kit 3.1 and Poly Haven 1K materials |
 | HUD reference/component images | [HUD manifest](assets/hud/sources.json), including supplied asset sources, hashes and approval provenance; these are project-supplied assets and no third-party license is asserted. The [standings frame](docs/features/standings.md) reuses the recorded health steel sample with original procedural geometry; no additional font or texture was acquired |
 | Godot .NET SDK | Version selection in [Client project](Trackstorm.Client.csproj); [upstream source/license](https://github.com/godotengine/godot) |
 | StyleCop analyzers | Version selection in [Directory.Build.props](Directory.Build.props); [upstream source/license](https://github.com/DotNetAnalyzers/StyleCopAnalyzers) |
