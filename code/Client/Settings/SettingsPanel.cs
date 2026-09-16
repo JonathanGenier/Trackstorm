@@ -30,7 +30,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
     /// <inheritdoc/>
     public override void _Ready()
     {
-        Layer = 2;
+        Layer = 3;
         var root = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
         AddChild(root);
         root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
@@ -39,7 +39,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
         var open = new Button { Text = "Settings", Position = new Vector2(24, 24), CustomMinimumSize = new Vector2(140, 42) };
         _background.AddChild(open);
         open.Pressed += () => SetOpen(!_panel.Visible);
-        var hud = new SettingsHud { Name = "Diagnostics", AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -224, OffsetRight = -16, OffsetTop = 16, MouseFilter = Control.MouseFilterEnum.Ignore };
+        var hud = new SettingsHud { Name = "Diagnostics", AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -224, OffsetRight = -16, OffsetTop = 8, MouseFilter = Control.MouseFilterEnum.Ignore };
         hud.Initialize(_settings);
         _hud = hud;
         _background.AddChild(hud);

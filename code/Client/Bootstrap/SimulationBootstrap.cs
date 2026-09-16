@@ -58,8 +58,10 @@ public sealed partial class SimulationBootstrap : Node
             Vehicle = () => _session?.Arena?.LocalState ?? _arena?.Player.Snapshot,
             Slot = () => _session?.Arena?.Driver.LocalItem,
             Units = () => settings.Current.SpeedUnit,
+            Position = () => _session?.Standings.Position ?? "--",
         };
         AddChild(combatHud);
+        AddChild(new Hud.MatchStandings { Name = "MatchStandings", View = () => _session?.Standings, IsHost = () => _session?.Lobby?.Authority is not null, LeaveResults = () => _session?.LeaveResults() });
         EosIdentityNode? online = null;
         if (!OS.GetCmdlineUserArgs().Contains("--local-practice"))
         {

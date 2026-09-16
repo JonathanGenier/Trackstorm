@@ -9,6 +9,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 | Death/respawn | [Implementation verification](ts-24.md) |
 | FPS and Ping diagnostics | [Implementation verification](ts-32.md) |
 | Combat HUD | [Implementation verification](ts-30.md) |
+| Match standings | [Implementation and reconnect integration verification](ts-28.md) |
 | EOS P2P | [Initial verification](ts-44.md), [second round and four-PC follow-up](ts-44-round-2.md), [ordering correction](ts-44-ordering-correction.md) |
 | Chase camera | [Initial implementation](ts-55-camera.md), [direct-heading correction](ts-55-direct-heading.md), [fixed-chase correction](ts-55-fixed-chase.md) |
 | Documentation and Jira instruction cleanup | [Migration, issue accounting and preservation audit](ts-56.md) |

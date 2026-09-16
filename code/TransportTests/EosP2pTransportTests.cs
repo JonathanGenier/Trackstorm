@@ -70,6 +70,14 @@ internal sealed class EosP2pTransportTests
         pair.Clock.Advance(0.1);
         pair.Client.Poll();
         Assert.That(pair.Client.GetStatistics(pair.Server).PingMilliseconds, Is.EqualTo(200));
+        pair.Host.Poll();
+        ulong clientPeer = pair.Host.Connections.Keys.Single();
+        int? hostPing = pair.Host.GetStatistics(clientPeer).PingMilliseconds;
+        Assert.That(hostPing, Is.Not.Null);
+        var roster = new LobbySnapshot(17, 1, 17, SessionPhase.Lobby, [new(1, "Host", false), new(2, "Client", false)]);
+        var latency = new PlayerLatency();
+        latency.Sample(roster, new Dictionary<ulong, ulong> { [clientPeer] = 2 }, pair.Host);
+        Assert.That(latency.Get(roster, 2), Is.EqualTo(hostPing), "Standings reuse EOS statistics without another probe mechanism.");
     }
 
     /// <summary>The full existing lobby authority path works over the actual EOS framing and handshake.</summary>
@@ -87,6 +95,11 @@ internal sealed class EosP2pTransportTests
 
         Assert.That(host.State!.Players.Count, Is.EqualTo(2));
         Assert.That(client.State!.Players.Count, Is.EqualTo(2));
+        host.Pump(1);
+        client.Pump(1);
+        Assert.That(host.State.Players.All(player => host.Latency.Get(host.State, player.Id) is null), Is.True, "EOS cannot manufacture RTT samples.");
+        Assert.That(client.State.Players.All(player => client.Latency.Get(client.State, player.Id) is null), Is.True, "Host-published EOS diagnostics stay unavailable.");
+        Assert.That(client.RejectedPackets, Is.Zero, "Production EOS framing carries the diagnostics protocol.");
         Assert.That(host.Request(LobbyCommand.Ready, true), Is.True);
         Assert.That(client.Request(LobbyCommand.Ready, true), Is.True);
         host.Pump(1.0 / 60);

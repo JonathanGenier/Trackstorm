@@ -47,8 +47,17 @@ internal sealed partial class SettingsHud : VBoxContainer
     {
         _settings = settings;
         AddChild(_speed);
-        AddChild(_fps);
-        AddChild(_ping);
+        var counters = new HBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+        counters.AddThemeConstantOverride("separation", 12);
+        AddChild(counters);
+        foreach (var label in new[] { _fps, _ping })
+        {
+            label.AddThemeFontSizeOverride("font_size", 14);
+            label.AddThemeColorOverride("font_shadow_color", Colors.Black);
+            label.AddThemeConstantOverride("shadow_offset_y", 1);
+            counters.AddChild(label);
+        }
+
         _settings.Changed += Refresh;
         Refresh();
     }

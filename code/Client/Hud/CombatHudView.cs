@@ -14,8 +14,8 @@ namespace Trackstorm.Client.Hud;
 /// <param name="Item">Confirmed supported held item.</param>
 internal sealed record CombatHudView(string Health, double HealthFill, string Speed, string Unit, double SpeedFill, HeldItem Item)
 {
-    /// <summary>Standing awaits the future authoritative scoring feature.</summary>
-    internal string Standing => "--";
+    /// <summary>Position supplied by the same authoritative standings projection as the board.</summary>
+    internal string Standing { get; init; } = "--";
     /// <summary>Intentional timer placeholder; no presentation clock masquerades as a match clock.</summary>
     internal string Timer => "--:--";
     /// <summary>Accessible item name, also used below its silhouette.</summary>
