@@ -287,7 +287,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         {
             _savedAt = _time.GetTimestamp();
             _savedGeneration = driver.Generation;
-            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2)));
+            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2)));
             SavedResume = null;
         }
 
@@ -412,7 +412,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         if (Active is not null && _binding?.Driver is { State: not null, Failure.Length: 0 } driver)
         {
             _preserveLocator = true;
-            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2)));
+            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2)));
         }
     }
 
@@ -428,12 +428,18 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             {
                 if (!_disposed && epoch == _epoch && _migrationHost == subject)
                 {
-                    _migrationUpdateEpoch = null;
-                    _migrationRetry = failure is null ? null : _time.GetTimestamp();
-                    Status = failure ?? "Host migration completed.";
                     if (lobby is not null && failure is null)
                     {
-                        Active = lobby;
+                        ApplyUpdate(lobby);
+                        if (Active?.AuthorityEpoch != state.AuthorityEpoch || Active.HostIdentity.Value != subject)
+                        {
+                            _migrationUpdateEpoch = null;
+                            _migrationRetry = _time.GetTimestamp();
+                            Status = "Host migration routing update was not confirmed; retrying.";
+                            return;
+                        }
+
+                        Status = "Host migration completed.";
                         if (Identity.Value != subject)
                         {
                             _migrationUpdateEpoch = epoch;
@@ -450,8 +456,15 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                         }
                         else
                         {
+                            _migrationUpdateEpoch = null;
                             _migrationHost = null;
                         }
+                    }
+                    else
+                    {
+                        _migrationUpdateEpoch = null;
+                        _migrationRetry = _time.GetTimestamp();
+                        Status = failure ?? "Host migration routing update was not confirmed; retrying.";
                     }
                 }
             });
@@ -560,6 +573,17 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             return;
         }
 
+        OnlineLobby current = Active;
+        bool olderAuthority = lobby.AuthorityEpoch < current.AuthorityEpoch;
+        bool conflictingCurrentAuthority = lobby.AuthorityEpoch == current.AuthorityEpoch && !lobby.HostIdentity.Equals(current.HostIdentity);
+        if (olderAuthority || conflictingCurrentAuthority)
+        {
+            lobby = lobby with { GameplayHost = current.HostIdentity, AuthorityEpoch = current.AuthorityEpoch };
+            Status = olderAuthority
+                ? "Ignored stale lobby routing metadata; retained the current Trackstorm host."
+                : "Ignored conflicting lobby routing metadata; retained the current Trackstorm host.";
+        }
+
         Active = lobby;
         Browser.Update(lobby);
         _binding?.MembershipChanged(lobby);
@@ -584,6 +608,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         string id = Active?.Id ?? SavedResume!.Lobby;
         ulong session = Active?.Session ?? SavedResume!.Session;
         string host = Active?.HostIdentity.Value ?? SavedResume!.Host;
+        ulong authorityEpoch = Active?.AuthorityEpoch ?? SavedResume!.AuthorityEpoch;
         long epoch = _epoch;
         _resumeRetry = _time.GetTimestamp();
         _resumePending = true;
@@ -607,7 +632,8 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                 return;
             }
 
-            if (!lobby.Compatible || lobby.Session != session || (lobby.AuthorityEpoch == 1 && lobby.HostIdentity.Value != host) || !lobby.MemberIds.Contains(Identity))
+            bool invalidRestartAuthority = Active is null && (lobby.AuthorityEpoch < authorityEpoch || (lobby.AuthorityEpoch == authorityEpoch && lobby.HostIdentity.Value != host));
+            if (!lobby.Compatible || lobby.Session != session || invalidRestartAuthority || !lobby.MemberIds.Contains(Identity))
             {
                 _provider.Leave(lobby.Id, false, _ => { });
                 Leave();

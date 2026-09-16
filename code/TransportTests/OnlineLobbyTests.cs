@@ -30,6 +30,104 @@ internal sealed class OnlineLobbyTests
         Assert.That(binding.Driver.Authority, Is.Null);
     }
 
+    /// <summary>Delayed provider snapshots retain safe membership data without regressing established Trackstorm routing.</summary>
+    [Test]
+    public void ProviderUpdatesCannotRegressMigratedAuthorityRouting()
+    {
+        string path = Path.Combine(Path.GetTempPath(), "trackstorm-migrated-resume-" + Guid.NewGuid().ToString("N") + ".json");
+        var store = new ResumeLocatorStore(path);
+        try
+        {
+            var service = new Service();
+            using var host = service.Coordinator(1);
+            using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
+            host.Create("Migration", LobbyAccess.Public, null);
+            client.Refresh();
+            client.Join(host.Active!.Id, null);
+            OnlineLobby epochOne = client.Active!;
+
+            var epochTwo = epochOne with { Owner = User(2), GameplayHost = User(2), AuthorityEpoch = 2 };
+            service.Lobbies[epochOne.Id] = epochTwo;
+            service.Notify(epochOne.Id);
+            Assert.That(client.Active!.AuthorityEpoch, Is.EqualTo(2));
+            Assert.That(client.Active.HostIdentity, Is.EqualTo(User(2)));
+
+            var delayedEpochOne = epochOne with
+            {
+                Name = "Current members",
+                Owner = User(3),
+                Members = 3,
+                MemberIds = new[] { User(1), User(2), User(3) },
+                GameplayHost = User(1),
+                AuthorityEpoch = 1,
+            };
+            service.Lobbies[epochOne.Id] = delayedEpochOne;
+            service.Notify(epochOne.Id);
+            Assert.That(client.Active!.Session, Is.EqualTo(epochOne.Session));
+            Assert.That(client.Active.AuthorityEpoch, Is.EqualTo(2));
+            Assert.That(client.Active.HostIdentity, Is.EqualTo(User(2)));
+            Assert.That(client.Active.Owner, Is.EqualTo(User(3)));
+            Assert.That(client.Active.MemberIds, Is.EqualTo(delayedEpochOne.MemberIds));
+
+            var conflictingEpochTwo = delayedEpochOne with
+            {
+                Name = "Updated membership",
+                Owner = User(4),
+                Members = 4,
+                MemberIds = new[] { User(1), User(2), User(3), User(4) },
+                GameplayHost = User(3),
+                AuthorityEpoch = 2,
+            };
+            service.Lobbies[epochOne.Id] = conflictingEpochTwo;
+            service.Notify(epochOne.Id);
+            Assert.That(client.Active.AuthorityEpoch, Is.EqualTo(2));
+            Assert.That(client.Active.HostIdentity, Is.EqualTo(User(2)));
+            Assert.That(client.Active.Owner, Is.EqualTo(User(4)));
+            Assert.That(client.Active.Name, Is.EqualTo("Updated membership"));
+            Assert.That(client.Active.MemberIds, Is.EqualTo(conflictingEpochTwo.MemberIds));
+
+            using var gateway = new Gateway();
+            gateway.ConnectPeer(10);
+            var binding = client.AttachTransport(gateway, 10, "Client");
+            var migratedState = new LobbySnapshot(
+                epochOne.Session,
+                2,
+                epochOne.Session,
+                SessionPhase.Lobby,
+                new[] { new SessionPlayer(1, "Old host", false), new SessionPlayer(2, "Client", false) },
+                currentHostId: 2,
+                authorityEpoch: 2);
+            gateway.ReceiveState(10, migratedState, 2);
+            binding.Driver.Pump(0);
+            client.Tick();
+            ResumeLocator locator = store.Load(User(2).Value, DateTimeOffset.UtcNow)!;
+            Assert.That(locator, Is.Not.Null);
+            Assert.That(locator.Session, Is.EqualTo(epochOne.Session));
+            Assert.That(locator.AuthorityEpoch, Is.EqualTo(2));
+            Assert.That(locator.Host, Is.EqualTo(User(2).Value));
+
+            service.Lobbies[epochOne.Id] = delayedEpochOne;
+            using (var staleRestart = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store))
+            {
+                staleRestart.Tick();
+                Assert.That(staleRestart.Active, Is.Null);
+                Assert.That(staleRestart.Status, Does.Contain("Resume rejected"));
+            }
+
+            store.Save(locator);
+            service.Lobbies[epochOne.Id] = epochTwo with { MemberIds = new[] { User(1), User(2) } };
+            using var restarted = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
+            restarted.Tick();
+            Assert.That(restarted.Active!.Session, Is.EqualTo(epochOne.Session));
+            Assert.That(restarted.Active.AuthorityEpoch, Is.EqualTo(2));
+            Assert.That(restarted.Active.HostIdentity, Is.EqualTo(User(2)));
+        }
+        finally
+        {
+            store.Clear();
+        }
+    }
+
     /// <summary>Names are bounded, canonical, non-empty on admission, and safe for plain presentation.</summary>
     [Test]
     public void NamesValidateAtCreateAndRename()
@@ -511,7 +609,7 @@ internal sealed class OnlineLobbyTests
             host.Create("Hidden match", LobbyAccess.Public, null);
             service.Lobbies[host.Active!.Id] = host.Active with { Open = false };
             service.Notify(host.Active.Id);
-            var locator = new ResumeLocator(host.Active!.Id, host.Active.Session, 2, 4, User(2).Value, User(1).Value, DateTimeOffset.UtcNow.AddMinutes(2));
+            var locator = new ResumeLocator(host.Active!.Id, host.Active.Session, 2, 4, User(2).Value, host.Active.AuthorityEpoch, User(1).Value, DateTimeOffset.UtcNow.AddMinutes(2));
             store.Save(locator);
             using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
             client.Tick();

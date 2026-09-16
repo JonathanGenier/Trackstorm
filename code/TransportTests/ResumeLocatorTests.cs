@@ -13,7 +13,7 @@ internal sealed class ResumeLocatorTests
         string path = Path.Combine(Path.GetTempPath(), "trackstorm-resume-" + Guid.NewGuid().ToString("N") + ".json");
         var store = new ResumeLocatorStore(path);
         DateTimeOffset now = DateTimeOffset.UtcNow;
-        var locator = new ResumeLocator("lobby", 100, 2, 1, "identity", new string('a', 32), now.AddMinutes(2));
+        var locator = new ResumeLocator("lobby", 100, 2, 1, "identity", 2, new string('a', 32), now.AddMinutes(2));
         try
         {
             store.Save(locator);

@@ -46,7 +46,7 @@ A healthy connection normally rolls back at most one cadence interval plus deliv
 5. Reconstruct the new host's existing Core vehicle/item/spawn/match authority. Keep stable vehicle IDs and reserve remote players for fresh authenticated bindings.
 6. Rebind surviving clients through the existing reconnect-generation checks. Publish the existing complete resync checkpoint.
 7. Discard pending input/use commands, seed acknowledgements, replace snapshot history, reset interpolation/correction/collision feedback, and reseed destruction presentation. Existing surviving Godot vehicle nodes are reused. Props switch to the appropriate host/replica role and restore numeric velocity as well as pose.
-8. Resume from the coherent boundary. Provider ownership/metadata is coordinated afterward by the actual EOS owner; it does not decide the gameplay host.
+8. Resume from the coherent boundary. Provider ownership/metadata is coordinated afterward by the actual EOS owner; it does not decide the gameplay host. Delayed provider snapshots cannot lower the established authority epoch or replace its gameplay host, while ordinary membership and ownership fields can still refresh.
 
 The former host may resume its reserved stable player identity as an ordinary client, with no Start/Return privilege. The local resume locator now also supports the original host identity. Restart reads current lobby host/epoch routing and still requires authenticated subject/generation validation by Core. Reservation expiry remains bounded; return after expiry does not reclaim the old slot.
 
