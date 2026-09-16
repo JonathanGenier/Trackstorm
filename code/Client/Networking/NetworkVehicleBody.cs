@@ -9,7 +9,6 @@ namespace Trackstorm.Client.Networking;
 internal sealed partial class NetworkVehicleBody : StaticBody3D
 {
     private readonly VehicleConfiguration _configuration = new();
-    private readonly List<Node3D> _wheels = new();
     private readonly Node3D _visual = new();
     private VehiclePhysicsState _previous;
     private VehiclePhysicsState _current;
@@ -43,20 +42,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         Color paint = Color.FromHsv((VehicleId * 0.13f) % 1, 0.7f, 0.9f);
         _damageMaterial = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/items/materials/DamageFlash.gdshader") };
         _damageMaterial.SetShaderParameter("paint", paint);
-        var chassis = VehicleBody.Box(new Vector3(2, 0.7f, 3.6f), Vector3.Zero, paint);
-        chassis.MaterialOverride = _damageMaterial;
-        _visual.AddChild(chassis);
-        _visual.AddChild(VehicleBody.Box(new Vector3(1.5f, 0.55f, 1.65f), new Vector3(0, 0.55f, 0.15f), new Color("172435")));
-        _visual.AddChild(VehicleBody.Box(new Vector3(1.5f, 0.12f, 0.1f), new Vector3(0, 0.12f, -1.82f), new Color("ecfbff")));
-        foreach (float z in new[] { -1.15f, 1.15f })
-        {
-            foreach (float x in new[] { -1.02f, 1.02f })
-            {
-                var wheel = VehicleBody.Box(new Vector3(0.3f, 0.75f, 0.75f), new Vector3(x, -0.1f, z), new Color("10131a"));
-                _visual.AddChild(wheel);
-                _wheels.Add(wheel);
-            }
-        }
+        _visual.AddChild(VehicleVisual.Create(_damageMaterial));
     }
 
     /// <inheritdoc/>
@@ -196,10 +182,6 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         return new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts, surface, suspension.Wheels);
     }
 
-    /// <summary>Applies visible steering and independent spring travel from accepted state.</summary>
-    /// <param name="state">Accepted or predicted handling.</param>
-    internal void PresentHandling(VehicleState state) => WheelSuspension.Present(_wheels, state, _configuration.SuspensionLength, 0.375f);
-
     /// <summary>Reconstructs the collision proxy immediately; rendering retains its own correction offset.</summary>
     /// <param name="state">Predicted or authoritative physics.</param>
     /// <param name="correction">Whether this state replaces a prediction at the same visible instant.</param>
@@ -225,7 +207,6 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     {
         SynchronizeLifecycle(state);
         Apply(state.Movement.Physics, correction && !_lifeCorrectionPending);
-        PresentHandling(state.Movement);
         if (correction)
         {
             _lifeCorrectionPending = false;

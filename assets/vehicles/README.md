@@ -1,0 +1,11 @@
+# Static gameplay vehicle
+
+The preserved Kenney Car Kit 3.1 `hatchback-sports.glb` is the base for one original Trackstorm salvage combat car. `WastelandVehicle.tscn` contains its converted mesh surfaces plus original hood, roof and door armor, sill guards, bumper bars, weld strips, windshield protection and twin exhaust stacks. No franchise vehicle, logo or named design is reproduced.
+
+`sources.json` records the CC0 source URLs, archive selection and hashes. Kenney's original notice and colormap remain beside the source GLB. Poly Haven Rusty Painted Metal supplies body maps; Rubberized Track supplies darkened tire maps. Rusty Metal Sheet is reused from the existing arena acquisition and its manifest. All maps are 1K; no new license restrictions or attribution requirements apply.
+
+`BuildVehicle.gd` is an offline authoring script, not a gameplay script. Run Godot's import first, then `godot --headless --path . --script assets/vehicles/BuildVehicle.gd` to regenerate the scene. It partitions the base's palette surfaces into painted metal, rubber and graphite trim, preserves normals and constructs the fixed conversion geometry. The generated scene uses Godot StandardMaterial3D resources with object-local triplanar mapping so textures move with the car. It contains no script, skeleton, animation, physics body or collision shape.
+
+The base faces +Z upstream; the authored mount rotates it 180 degrees to gameplay -Z. Scaling is (1.4, 1.18, 1.17), with a -0.735 m vertical origin adjustment (including a common -0.235 m offset for every authored part to match the unchanged settled suspension height). The silhouette stays within the existing 2 m wide and 3.6 m long collision footprint. The roof is above the collider, as with the preceding placeholder cabin; visual geometry never defines collision. Fixed wheels intentionally do not track physical suspension compression or steering.
+
+Both practice and network bodies use `VehicleVisual.Create`. The small roof identification strip receives a per-instance material for existing player color and confirmed damage feedback; the textured body and armor remain shared. The whole visual follows its existing presentation parent, including launches, flips and corrections. No new mechanical or destruction animation is added.

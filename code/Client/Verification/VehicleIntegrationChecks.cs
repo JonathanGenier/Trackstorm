@@ -43,6 +43,7 @@ public sealed partial class VehicleIntegrationChecks : Node
             _hud = Descendants(_panel).OfType<SettingsHud>().Single();
             _input.FrameCaptured += Advance;
             await Settle();
+            VerifyVisualBinding();
             await VerifyDrivingAndRamp();
             await VerifyReverseAndDrift();
             await VerifyBrakingAndInvalidDrift();
@@ -90,6 +91,37 @@ public sealed partial class VehicleIntegrationChecks : Node
     {
         _arena.Advance(input);
         _panel.SetVehicleTelemetry(_arena.Player.Snapshot.Speed);
+    }
+
+    private void VerifyVisualBinding()
+    {
+        VehicleSnapshot authority = _arena.Player.Snapshot;
+        Node3D localModel = _arena.Player.GetNode<Node3D>("WastelandVehicle");
+        Check(localModel.Transform.IsEqualApprox(Transform3D.Identity), "Static model is bound at the physics origin.");
+        Check(!Descendants(localModel).Any(node => node is CollisionObject3D or CollisionShape3D or AnimationPlayer or AnimationTree), "Visual asset has no collision or animation layer.");
+        var meshes = Descendants(localModel).OfType<MeshInstance3D>().ToArray();
+        Check(meshes.Length > 10 && meshes.All(mesh => mesh.Mesh is not null), "Vehicle asset resolves all base and conversion meshes.");
+        Aabb bounds = meshes.Select(mesh => (localModel.GlobalTransform.AffineInverse() * mesh.GlobalTransform) * mesh.GetAabb()).Aggregate((left, right) => left.Merge(right));
+        Check(bounds.Position.X >= -1.001f && bounds.End.X <= 1.001f && bounds.Position.Z >= -1.801f && bounds.End.Z <= 1.801f, "Authored silhouette fits the unchanged horizontal collision footprint.");
+        Check(Math.Abs(bounds.Position.Y + 0.735f) < 0.01f, "Static tires match the settled suspension ride height.");
+
+        var network = new Networking.NetworkVehicleBody { VehicleId = 999 };
+        AddChild(network);
+        network.Apply(authority);
+        Node3D remoteModel = Descendants(network).OfType<Node3D>().Single(node => node.Name == "WastelandVehicle");
+        var parts = Descendants(remoteModel).OfType<Node3D>().ToDictionary(node => node, node => node.Transform);
+        Transform3D collision = network.GlobalTransform;
+        var pose = authority.Movement.Physics;
+        var launched = new VehiclePhysicsState(pose.Position + new Numerics.Vector3(3, 5, -2), Numerics.Quaternion.CreateFromYawPitchRoll(0.7f, 1.2f, 2.5f), pose.LinearVelocity, pose.AngularVelocity);
+        network.PresentRemote(launched);
+        Check(remoteModel.GlobalTransform.IsEqualApprox(network.VisualTransform), "Complete remote model follows the interpolated launch/flip pose.");
+        Check(network.GlobalTransform.IsEqualApprox(collision), "Remote rendering does not move the authoritative collision proxy.");
+        network.Apply(launched, true);
+        network.PresentLocal(1f / 60);
+        Check(remoteModel.GlobalTransform.IsEqualApprox(network.VisualTransform), "Complete local model follows prediction correction smoothing.");
+        Check(parts.All(part => part.Key.Transform.IsEqualApprox(part.Value)), "Reconciliation and interpolation do not articulate or detach model parts.");
+        Check(ReferenceEquals(authority, _arena.Player.Snapshot), "Visual binding leaves committed authority unchanged.");
+        network.QueueFree();
     }
 
     private void Press(string text) => Descendants(_panel).OfType<Button>().Single(button => button.Text == text).EmitSignal(BaseButton.SignalName.Pressed);

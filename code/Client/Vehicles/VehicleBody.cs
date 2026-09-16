@@ -8,7 +8,6 @@ namespace Trackstorm.Client.Vehicles;
 /// <summary>Native observation/command adapter around the single Core simulation; standard force integration is disabled.</summary>
 public sealed partial class VehicleBody : RigidBody3D
 {
-    private readonly List<Node3D> _wheels = new();
     private readonly List<VehicleEffectRequest> _effects = new();
     private readonly VehicleFeedback _feedback = new();
     private VehiclePhysicsState? _reset;
@@ -56,28 +55,10 @@ public sealed partial class VehicleBody : RigidBody3D
         CenterOfMass = new Vector3(0, -0.25f, 0);
         PhysicsMaterialOverride = new PhysicsMaterial { Friction = 0.15f, Bounce = 0.05f };
         AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(2, 1, 3.6f) } });
-        MeshInstance3D chassis = Box(new Vector3(2, 0.7f, 3.6f), Vector3.Zero, Paint);
-        AddChild(chassis);
-        _feedback.Initialize((StandardMaterial3D)chassis.MaterialOverride, Paint);
+        var identification = new StandardMaterial3D { AlbedoColor = Paint, Roughness = 0.8f };
+        AddChild(VehicleVisual.Create(identification));
+        _feedback.Initialize(identification, Paint);
         AddChild(_feedback);
-        AddChild(Box(new Vector3(1.5f, 0.55f, 1.65f), new Vector3(0, 0.55f, 0.15f), new Color("172435")));
-        AddChild(Box(new Vector3(1.5f, 0.12f, 0.1f), new Vector3(0, 0.12f, -1.82f), new Color("ecfbff")));
-        foreach (float z in new[] { -1.15f, 1.15f })
-        {
-            foreach (float x in new[] { -1.02f, 1.02f })
-            {
-                var wheel = new MeshInstance3D
-                {
-                    Mesh = new CylinderMesh { TopRadius = 0.4f, BottomRadius = 0.4f, Height = 0.25f },
-                    Position = new Vector3(x, -0.1f, z),
-                    Rotation = new Vector3(0, 0, MathF.PI / 2),
-                    MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color("10131a") },
-                };
-                AddChild(wheel);
-                _wheels.Add(wheel);
-            }
-        }
-
     }
 
     /// <summary>Converts a native vector at the engine boundary.</summary>
@@ -200,7 +181,6 @@ public sealed partial class VehicleBody : RigidBody3D
             _feedback.Reset();
         }
 
-        WheelSuspension.Present(_wheels, result.Snapshot.Movement, Configuration.SuspensionLength, 0.4f);
         body.LinearVelocity = ToGodot(commands.LinearVelocity);
         body.AngularVelocity = ToGodot(commands.AngularVelocity);
         foreach (VehicleEffectRequest request in result.Effects)
