@@ -110,6 +110,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
             {
                 VehiclePhysicsState state = snapshot.Bodies[index];
                 _layout.Props[index].GlobalTransform = new Transform3D(new Basis(VehicleBody.ToGodot(state.Orientation)), VehicleBody.ToGodot(state.Position));
+                _layout.Props[index].LinearVelocity = VehicleBody.ToGodot(state.LinearVelocity);
+                _layout.Props[index].AngularVelocity = VehicleBody.ToGodot(state.AngularVelocity);
             }
         };
         AddChild(_camera);
@@ -216,6 +218,12 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.Resynchronized += snapshot =>
         {
             _interpolation.Reset();
+            _layout.Replica = _driver.Host is null;
+            foreach (var body in _bodies.Values)
+            {
+                body.PushProps = _driver.Host is not null;
+            }
+
             _destruction.Reseed(snapshot.Vehicles.Select(vehicle => vehicle.State));
             foreach (var vehicle in snapshot.Vehicles)
             {
@@ -244,6 +252,11 @@ internal sealed partial class NetworkVehicleArena : Node3D
 
             return observation;
         });
+        foreach (var prop in _layout.Props)
+        {
+            prop.Freeze = _driver.Host is null || !_driver.IsActive;
+        }
+
         if (!_driver.IsActive)
         {
             return;

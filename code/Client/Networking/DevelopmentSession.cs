@@ -191,23 +191,23 @@ internal sealed partial class DevelopmentSession : CanvasLayer
                 var lobby = coordinator.Active;
                 _ownedOnline = coordinator.CreateTransport();
                 ulong peer = 0;
-                if (coordinator.IsHost)
+                if (coordinator.StartsGameplayAuthority)
                 {
                     _ownedOnline.Listen(EosP2pTransport.Endpoint(lobby, coordinator.Identity));
                 }
                 else
                 {
-                    peer = _ownedOnline.Connect(EosP2pTransport.Endpoint(lobby, lobby.Owner));
+                    peer = _ownedOnline.Connect(EosP2pTransport.Endpoint(lobby, lobby.HostIdentity));
                 }
 
                 var binding = OpenOnline(_ownedOnline, peer, _name.Text);
                 _ownedOnline.Authorize = binding.AuthorizePeer;
-                if (!coordinator.IsHost)
+                if (!coordinator.StartsGameplayAuthority)
                 {
                     binding.Driver.Reconnect = () =>
                     {
                         _ownedOnline.Stop();
-                        return _ownedOnline.Connect(EosP2pTransport.Endpoint(coordinator.Active ?? throw new InvalidOperationException("Session unavailable"), lobby.Owner));
+                        return _ownedOnline.Connect(EosP2pTransport.Endpoint(coordinator.Active ?? throw new InvalidOperationException("Session unavailable"), _ownedOnline.GameplayHost ?? lobby.HostIdentity));
                     };
                 }
 
@@ -362,10 +362,10 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _ready.Visible = _lobby?.State is not null && !arena;
         _start.Visible = _lobby?.Authority is not null && !arena;
         _start.Disabled = _leaving || _lobby?.State?.CanStart != true;
-        _ready.Disabled = _leaving || _lobby?.Reconnecting == true;
-        _arenaStatus.Text = _leaving ? "Leaving session…" : _lobby?.ResumeStatus ?? string.Empty;
-        _status.Text = _gateway is null ? _message : $"{_gateway.Name}: {_gateway.ConnectionState}\n{(_lobby?.ResumeStatus.Length > 0 ? _lobby.ResumeStatus : _message)}";
-        _roster.Text = _lobby?.State is not LobbySnapshot state ? string.Empty : $"{state.Players.Count}/8 slots\n" + string.Join("\n", state.Players.Select(player => $"{(!player.Connected ? "↻ RECONNECTING" : player.Ready ? "✓ READY" : "○ WAITING")}   {player.Name}  #{player.Id}{(player.Id == 1 ? " · HOST" : string.Empty)}{(player.Id == _lobby.LocalPlayerId ? " · YOU" : string.Empty)}"));
+        _ready.Disabled = _leaving || _lobby?.Reconnecting == true || _lobby?.Migration?.Frozen == true;
+        _arenaStatus.Text = _leaving ? "Leaving session…" : (_lobby?.Migration?.Frozen == true ? _lobby.Migration.Status : _lobby?.ResumeStatus) ?? string.Empty;
+        _status.Text = _gateway is null ? _message : $"{_gateway.Name}: {_gateway.ConnectionState}\n{(_lobby?.Migration?.Frozen == true ? _lobby.Migration.Status : _lobby?.ResumeStatus.Length > 0 ? _lobby.ResumeStatus : _message)}";
+        _roster.Text = _lobby?.State is not LobbySnapshot state ? string.Empty : $"{state.Players.Count}/8 slots\n" + string.Join("\n", state.Players.Select(player => $"{(!player.Connected ? "↻ RECONNECTING" : player.Ready ? "✓ READY" : "○ WAITING")}   {player.Name}  #{player.Id}{(player.Id == state.CurrentHostId ? " · HOST" : string.Empty)}{(player.Id == _lobby.LocalPlayerId ? " · YOU" : string.Empty)}"));
         _ready.Text = _lobby?.State?.Players.Single(player => player.Id == _lobby.LocalPlayerId).Ready == true ? "Unready" : "Ready";
     }
 }

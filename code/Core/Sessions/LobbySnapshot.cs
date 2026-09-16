@@ -8,15 +8,17 @@ public sealed class LobbySnapshot
     /// <param name="revision">Monotonic state revision.</param>
     /// <param name="match">Vehicle generation, advanced for every start.</param>
     /// <param name="phase">Current shared phase.</param>
-    /// <param name="players">Connected players including host identity one.</param>
+    /// <param name="players">Connected and reserved stable players, including the current host.</param>
     /// <param name="graceTicks">Reservation duration at 60 Hz.</param>
-    public LobbySnapshot(ulong session, ulong revision, ulong match, SessionPhase phase, IEnumerable<SessionPlayer> players, ulong graceTicks = 1800)
+    /// <param name="currentHostId">Stable player holding authority.</param>
+    /// <param name="authorityEpoch">Monotonic authority fence.</param>
+    public LobbySnapshot(ulong session, ulong revision, ulong match, SessionPhase phase, IEnumerable<SessionPlayer> players, ulong graceTicks = 1800, ulong currentHostId = 1, ulong authorityEpoch = 1)
     {
         SessionPlayer[] copy = players.Take(9).ToArray();
         if (session == 0 || revision == 0 || graceTicks is 0 or > 216000 || match < session || !Enum.IsDefined(phase) ||
             (phase == SessionPhase.Arena && match == session) || copy.Length is < 1 or > 8 ||
             copy.Any(player => player is null || player.Id == 0 || player.Generation == 0 || (!player.Connected && player.Ready) || player.Name != PlayerName.Sanitize(player.Name)) ||
-            copy.Select(player => player.Id).Distinct().Count() != copy.Length || !copy.Any(player => player.Id == 1))
+            copy.Select(player => player.Id).Distinct().Count() != copy.Length || authorityEpoch == 0 || !copy.Any(player => player.Id == currentHostId && player.Connected))
         {
             throw new ArgumentException("Invalid lobby state.");
         }
@@ -27,10 +29,16 @@ public sealed class LobbySnapshot
         Phase = phase;
         Players = Array.AsReadOnly(copy.OrderBy(player => player.Id).ToArray());
         GraceTicks = graceTicks;
+        CurrentHostId = currentHostId;
+        AuthorityEpoch = authorityEpoch;
     }
 
     /// <summary>Stable session lifetime.</summary>
     public ulong Session { get; }
+    /// <summary>Stable player currently holding gameplay authority, independently of provider ownership.</summary>
+    public ulong CurrentHostId { get; }
+    /// <summary>Monotonic authority fence within the logical session.</summary>
+    public ulong AuthorityEpoch { get; }
     /// <summary>Authoritative reconnect reservation duration in 60 Hz ticks.</summary>
     public ulong GraceTicks { get; }
     /// <summary>Strictly increasing accepted mutation revision.</summary>

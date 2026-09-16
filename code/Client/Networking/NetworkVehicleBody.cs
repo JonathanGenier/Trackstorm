@@ -22,7 +22,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     /// <summary>Host-assigned identity used only to attribute contact observations.</summary>
     internal ulong VehicleId { get; init; }
     /// <summary>Only authoritative forward steps may apply native prop impulses.</summary>
-    internal bool PushProps { get; init; }
+    internal bool PushProps { get; set; }
     /// <summary>Presentation-only correction memory.</summary>
     internal CorrectionSmoothing Smoothing { get; } = new();
     /// <summary>Displayed position for the local chase camera.</summary>

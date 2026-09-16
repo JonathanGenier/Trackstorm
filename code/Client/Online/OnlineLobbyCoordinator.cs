@@ -31,6 +31,10 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     private bool _resumePending;
     private bool _recoveringMembership;
     private bool _preserveLocator;
+    private string? _migrationHost;
+    private long? _migrationUpdateEpoch;
+    private long? _migrationRetry;
+    private bool _createdGameplaySession;
 
     /// <summary>Creates one owner-thread coordination lifetime with an injectable monotonic clock.</summary>
     /// <param name="provider">Owned coordination adapter.</param>
@@ -57,6 +61,8 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal OnlineLobby? Active { get; private set; }
     /// <summary>Whether the authenticated local identity owns the current lobby.</summary>
     internal bool IsHost => Active?.Owner.Equals(Identity) == true;
+    /// <summary>Only explicit session creation bootstraps authority; provider promotion never does.</summary>
+    internal bool StartsGameplayAuthority => _createdGameplaySession && Active?.AuthorityEpoch == 1;
     /// <summary>Whether a membership mutation awaits completion.</summary>
     internal bool Busy { get; private set; }
     /// <summary>Whether Leave can release active membership or retry pending cleanup.</summary>
@@ -77,6 +83,17 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         Leave();
         _disposed = true;
         _provider.Dispose();
+    }
+
+    /// <summary>Records agreed gameplay authority before any EOS ownership coordination.</summary>
+    /// <param name="subject">Authenticated identity chosen by Trackstorm election.</param>
+    internal void MigrationCompleted(string subject)
+    {
+        ++_epoch;
+        Busy = false;
+        _migrationHost = subject;
+        _migrationRetry = null;
+        CoordinateMigration();
     }
 
     /// <summary>Transfers the transient join credential into the owned packet connection.</summary>
@@ -249,7 +266,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
 
         _binding = new OnlineSessionBinding(this, gateway, serverPeer, playerName);
-        if (!IsHost && SavedResume is { } resume && resume.Session == Active.Session)
+        if (!StartsGameplayAuthority && SavedResume is { } resume && resume.Session == Active.Session)
         {
             _binding.Driver.BeginResume(resume.Player, resume.Generation);
         }
@@ -265,13 +282,18 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             TickResume();
         }
 
-        if (!_disposed && !IsHost && Active is not null && _binding?.Driver is { State: not null, Reconnecting: false, Failure.Length: 0 } driver &&
+        if (!_disposed && Active is not null && _binding?.Driver is { State: not null, Reconnecting: false, Failure.Length: 0 } driver &&
             (_savedGeneration != driver.Generation || _time.GetElapsedTime(_savedAt).TotalSeconds >= 5))
         {
             _savedAt = _time.GetTimestamp();
             _savedGeneration = driver.Generation;
-            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.Owner.Value, _time.GetUtcNow().AddMinutes(2)));
+            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2)));
             SavedResume = null;
+        }
+
+        if (!_disposed && !Busy)
+        {
+            CoordinateMigration();
         }
 
         if (!Busy && _pendingMembership is not null && _time.GetElapsedTime(_started).TotalSeconds >= 60)
@@ -279,7 +301,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             Status = "EOS membership cancellation is unresolved. Log out and log in to reset online services.";
         }
 
-        if (!_disposed && !Busy && Active is not null && _binding?.Driver.Authority is { } authority && (_availabilityRetry is null || _time.GetElapsedTime(_availabilityRetry.Value).TotalSeconds >= 5))
+        if (!_disposed && !Busy && IsHost && Active is not null && _binding?.Driver.Authority is { } authority && (_availabilityRetry is null || _time.GetElapsedTime(_availabilityRetry.Value).TotalSeconds >= 5))
         {
             bool open = authority.State.Phase == Trackstorm.Core.Sessions.SessionPhase.Lobby;
             if (Active.Open != open)
@@ -327,6 +349,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Invalidates local membership and releases or destroys the associated online lobby.</summary>
     internal void Leave()
     {
+        bool retainLobby = _binding?.Driver.Migration?.Subjects is not null || _binding?.Driver.State?.AuthorityEpoch > 1;
         SavedResume = null;
         if (!_preserveLocator)
         {
@@ -352,8 +375,12 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         _binding?.Dispose();
         _binding = null;
         _availabilityRetry = null;
+        _migrationHost = null;
+        _migrationUpdateEpoch = null;
+        _migrationRetry = null;
+        _createdGameplaySession = false;
         var old = Active ?? _closing;
-        bool destroy = Active is not null ? IsHost : _closingHost;
+        bool destroy = Active is not null ? IsHost && !retainLobby : _closingHost;
         _closing = old;
         _closingHost = destroy;
         Active = null;
@@ -382,13 +409,54 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Retains only an acknowledged routing hint when the application exits without choosing Leave.</summary>
     internal void PreserveResumeOnShutdown()
     {
-        if (!IsHost && Active is not null && _binding?.Driver is { State: not null, Failure.Length: 0 } driver)
+        if (Active is not null && _binding?.Driver is { State: not null, Failure.Length: 0 } driver)
         {
             _preserveLocator = true;
-            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.Owner.Value, _time.GetUtcNow().AddMinutes(2)));
+            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2)));
         }
     }
 
+
+    private void CoordinateMigration()
+    {
+        if (_migrationUpdateEpoch != _epoch && (_migrationRetry is null || _time.GetElapsedTime(_migrationRetry.Value).TotalSeconds >= 5) && IsHost && Active is not null && _migrationHost is { } subject && _binding?.Driver.State is { } state)
+        {
+            _migrationUpdateEpoch = _epoch;
+            long epoch = _epoch;
+            var updated = Active with { GameplayHost = new OnlineProductUserId(subject), AuthorityEpoch = state.AuthorityEpoch };
+            _provider.Update(updated, (lobby, failure) =>
+            {
+                if (!_disposed && epoch == _epoch && _migrationHost == subject)
+                {
+                    _migrationUpdateEpoch = null;
+                    _migrationRetry = failure is null ? null : _time.GetTimestamp();
+                    Status = failure ?? "Host migration completed.";
+                    if (lobby is not null && failure is null)
+                    {
+                        Active = lobby;
+                        if (Identity.Value != subject)
+                        {
+                            _migrationUpdateEpoch = epoch;
+                            _provider.Promote(lobby.Id, new OnlineProductUserId(subject), promotionFailure =>
+                            {
+                                if (!_disposed && epoch == _epoch && _migrationHost == subject)
+                                {
+                                    _migrationUpdateEpoch = null;
+                                    _migrationRetry = promotionFailure is null ? null : _time.GetTimestamp();
+                                    _migrationHost = promotionFailure is null ? null : subject;
+                                    Status = promotionFailure ?? "Host migration completed.";
+                                }
+                            });
+                        }
+                        else
+                        {
+                            _migrationHost = null;
+                        }
+                    }
+                }
+            });
+        }
+    }
 
     private long Begin(string status)
     {
@@ -447,6 +515,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
 
         Active = lobby;
+        _createdGameplaySession = host;
         Browser.Update(lobby);
         long membership = ++_membership;
         try
@@ -462,7 +531,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                         Active = Active with { MemberIds = Active.MemberIds.Where(member => !member.Equals(Identity)).ToArray() };
                         Status = "Connection interrupted";
                     }
-                    else if (updated is null || !updated.Owner.Equals(lobby.Owner))
+                    else if (updated is null)
                     {
                         Leave();
                         Status = "Lobby closed.";
@@ -494,6 +563,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         Active = lobby;
         Browser.Update(lobby);
         _binding?.MembershipChanged(lobby);
+        CoordinateMigration();
     }
 
     private void TickResume()
@@ -513,7 +583,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
 
         string id = Active?.Id ?? SavedResume!.Lobby;
         ulong session = Active?.Session ?? SavedResume!.Session;
-        string host = Active?.Owner.Value ?? SavedResume!.Host;
+        string host = Active?.HostIdentity.Value ?? SavedResume!.Host;
         long epoch = _epoch;
         _resumeRetry = _time.GetTimestamp();
         _resumePending = true;
@@ -537,7 +607,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                 return;
             }
 
-            if (!lobby.Compatible || lobby.Session != session || lobby.Owner.Value != host || !lobby.MemberIds.Contains(Identity))
+            if (!lobby.Compatible || lobby.Session != session || (lobby.AuthorityEpoch == 1 && lobby.HostIdentity.Value != host) || !lobby.MemberIds.Contains(Identity))
             {
                 _provider.Leave(lobby.Id, false, _ => { });
                 Leave();

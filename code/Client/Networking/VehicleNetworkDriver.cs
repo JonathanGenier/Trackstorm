@@ -41,12 +41,19 @@ internal sealed class VehicleNetworkDriver
         _session = hostSession;
         if (hostSession != 0)
         {
-            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration);
-            LocalVehicleId = 1;
+            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, hostPlayerId: lobby?.LocalPlayerId ?? 1);
+            LocalVehicleId = Host.HostPlayerId;
         }
 
         if (lobby is not null)
         {
+            if (lobby.Migration is not null)
+            {
+                lobby.Migration.CaptureArena = CaptureMigration;
+                lobby.Migration.RestoreArena = RestoreMigration;
+                lobby.Migration.ObservedTick = () => Host?.World.State.Tick ?? Latest?.Tick ?? 0;
+            }
+
             if (lobby.State?.Phase != SessionPhase.Arena)
             {
                 throw new ArgumentException("Vehicle gameplay requires an active arena.");
@@ -101,7 +108,7 @@ internal sealed class VehicleNetworkDriver
     /// <summary>Current local slot; no predicted consumption.</summary>
     internal ItemSlot? LocalItem => (Host?.Items.Slots ?? ItemState?.Slots)?.SingleOrDefault(slot => slot.Vehicle == LocalVehicleId);
     /// <summary>Host gameplay owner, or null on clients.</summary>
-    internal HostVehicleSession? Host { get; }
+    internal HostVehicleSession? Host { get; private set; }
     /// <summary>Client prediction, created only after reliable assignment and a valid snapshot.</summary>
     internal PredictedVehicle? Prediction { get; private set; }
     /// <summary>Bounded remote snapshot data.</summary>
@@ -121,9 +128,9 @@ internal sealed class VehicleNetworkDriver
     /// <summary>Explicit stopped-session diagnostic, empty during normal operation.</summary>
     internal string Failure { get; private set; } = string.Empty;
     /// <summary>Whether this arena generation still belongs to the live lobby.</summary>
-    internal bool IsActive => _lobby is null || (_lobby.Failure.Length == 0 && !_lobby.Reconnecting && !_awaitingCheckpoint && _lobby.State?.Phase == SessionPhase.Arena && _lobby.State.Match == _session);
+    internal bool IsActive => _lobby is null || (_lobby.Failure.Length == 0 && !_lobby.Reconnecting && _lobby.Migration?.Frozen != true && !_awaitingCheckpoint && _lobby.State?.Phase == SessionPhase.Arena && _lobby.State.Match == _session);
     /// <summary>Current local gameplay state, independent of render smoothing.</summary>
-    internal VehicleSnapshot? LocalState => Host?.World.GetVehicle(1) ?? Prediction?.State;
+    internal VehicleSnapshot? LocalState => Host?.World.GetVehicle(LocalVehicleId) ?? Prediction?.State;
     private ulong ServerPeer => _lobby?.ServerPeer ?? _serverPeer;
 
     /// <summary>Pumps transport, consumes authority updates, predicts immediately, and emits rate-limited snapshots.</summary>
@@ -139,9 +146,14 @@ internal sealed class VehicleNetworkDriver
                 return;
             }
 
-            if (_lobby.Reconnecting)
+            if (_lobby.Reconnecting || _lobby.Migration?.Frozen == true)
             {
-                _awaitingCheckpoint = true;
+                if (Host is not null)
+                {
+                    SynchronizePeers();
+                }
+
+                _awaitingCheckpoint = Host is null && (_awaitingCheckpoint || _lobby.Reconnecting || _lobby.NeedsArenaCheckpoint);
                 return;
             }
         }
@@ -398,6 +410,39 @@ internal sealed class VehicleNetworkDriver
             _assigned.Add(peer);
             _rosterChanged = true;
             Send(new TransportMessage(peer, VehicleNetworkCodec.EncodeWelcome(_session, vehicle), TransportDelivery.Reliable));
+        }
+    }
+
+    private (ResumeCheckpoint Arena, HostRestoreState Host) CaptureMigration()
+    {
+        WorldSnapshot world = Host!.Snapshot();
+        var items = new ItemPublication(Math.Max(1, _itemPublication), world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States);
+        var state = Host.World.State.Match!;
+        var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players);
+        var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());
+        return (new ResumeCheckpoint(items, match, props), Host.CaptureAuthority());
+    }
+
+    private void RestoreMigration(MigrationCheckpoint checkpoint, bool host)
+    {
+        if (checkpoint.Arena is null)
+        {
+            return;
+        }
+
+        _assigned.Clear();
+        _awaitingCheckpoint = true;
+        Host = host ? HostVehicleSession.Restore(checkpoint.Arena, checkpoint.Host!, _lobby!.LocalPlayerId) : null;
+        _itemPublication = checkpoint.Arena.Items.Revision;
+        _publishedItemRevision = ulong.MaxValue;
+        _publishedSpawnRevision = ulong.MaxValue;
+        _publishedMatchRevision = ulong.MaxValue;
+        ApplyCheckpoint(checkpoint.Arena);
+        if (!host)
+        {
+            // The replacement must independently authorize this fresh connection before gameplay resumes.
+            _awaitingCheckpoint = true;
+            _lobby!.BeginMigrationResume();
         }
     }
 

@@ -34,4 +34,6 @@ Core tests exercise real simulation damage/death boundaries, valid and invalid a
 
 See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
 
+Authority restoration, epoch fencing, checkpoint cadence and migration limits are described in [host migration](host-migration.md).
+
 [Feature index](README.md)

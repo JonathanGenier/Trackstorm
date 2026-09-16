@@ -10,6 +10,7 @@ public sealed class ItemSpawnAuthority
     private readonly Func<HeldItem> _select;
     private readonly Dictionary<string, ArenaSpawn> _markers;
     private readonly Dictionary<string, ItemSpawnState> _states;
+    private ItemRandom? _random;
     private ulong _tick;
 
     /// <summary>Registers exactly the validated arena markers and owns an independent selection stream.</summary>
@@ -24,7 +25,8 @@ public sealed class ItemSpawnAuthority
         Configuration = configuration ?? new();
         Configuration.Validate();
         _items = items;
-        _select = selector ?? Configuration.CreateSelector();
+        _random = selector is null ? new ItemRandom(unchecked((ulong)Configuration.Seed)) : null;
+        _select = selector ?? (() => _random!.Next(Configuration));
         _markers = arena.Items.ToDictionary(marker => marker.Id, StringComparer.Ordinal);
         _states = arena.Items.ToDictionary(marker => marker.Id, marker => new ItemSpawnState(marker.Id, true, 0, 0, 0, HeldItem.None), StringComparer.Ordinal);
     }
@@ -35,6 +37,31 @@ public sealed class ItemSpawnAuthority
     public ulong Revision { get; private set; }
     /// <summary>Detached state in canonical marker order.</summary>
     public IReadOnlyList<ItemSpawnState> States => _states.Values.OrderBy(state => state.Id, StringComparer.Ordinal).ToArray();
+
+    /// <summary>Complete production selector continuation; custom test selectors cannot be migrated.</summary>
+    public ulong RandomState => _random?.State ?? throw new InvalidOperationException("A custom selector has no portable checkpoint.");
+
+    /// <summary>Installs a validated publication's pickup boundary without awarding items again.</summary>
+    /// <param name="publication">Validated complete state sharing the restored world tick.</param>
+    /// <param name="revision">Saved mutation revision.</param>
+    /// <param name="randomState">Exact selector continuation.</param>
+    public void Restore(ItemPublication publication, ulong revision, ulong randomState)
+    {
+        if (_random is null || !_markers.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(publication.Spawns.Select(spawn => spawn.Id)))
+        {
+            throw new ArgumentException("Checkpoint pickup layout or selector is incompatible.");
+        }
+
+        _states.Clear();
+        foreach (var state in publication.Spawns)
+        {
+            _states.Add(state.Id, state);
+        }
+
+        _tick = publication.World.Tick;
+        Revision = revision;
+        _random = new ItemRandom(randomState);
+    }
 
     /// <summary>Reactivates due spawns using only committed authoritative time.</summary>
     /// <param name="world">Match world.</param>

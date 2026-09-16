@@ -1,0 +1,169 @@
+using System.Numerics;
+using Trackstorm.Core.Arenas;
+using Trackstorm.Core.Input;
+using Trackstorm.Core.Items;
+using Trackstorm.Core.Matches;
+using Trackstorm.Core.Networking.Replication;
+using Trackstorm.Core.Sessions;
+using Trackstorm.Core.Simulation;
+using Trackstorm.Core.Vehicles;
+
+namespace Trackstorm.Core.Tests.Networking;
+
+/// <summary>Complete portable authority continuation and epoch safety.</summary>
+[TestFixture]
+internal sealed class MigrationTests
+{
+    /// <summary>Authority changes once without depending on arrival order or provider identity ordering.</summary>
+    [Test]
+    public void ElectionRequiresExactUnanimousSurvivorAgreement()
+    {
+        var lobby = Lobby();
+        var checkpoint = new MigrationCheckpoint(1, lobby.Capture("host"), null, null);
+        string digest = MigrationCheckpointCodec.Digest(MigrationCheckpointCodec.Encode(checkpoint));
+        var election = new MigrationElection(checkpoint, digest);
+        Assert.That(election.Candidate, Is.EqualTo(2));
+        Assert.That(election.Vote(3, 100, 1, 2, digest), Is.True);
+        Assert.That(election.Vote(1, 100, 1, 2, digest), Is.False);
+        Assert.That(election.Vote(2, 100, 2, 2, digest), Is.False);
+        Assert.That(election.Vote(2, 100, 1, 3, digest), Is.False);
+        Assert.Throws<InvalidOperationException>(() => election.Commit());
+        Assert.That(election.Vote(2, 100, 1, 2, digest), Is.True);
+        Assert.That(election.Commit(), Is.EqualTo(2));
+        Assert.Throws<InvalidOperationException>(() => election.Commit());
+    }
+
+    /// <summary>Former host rebinds as a normal player, Ready resets, and old epoch commands fail.</summary>
+    [Test]
+    public void LobbyRestorePreservesIdentitiesAndRejectsOldAuthority()
+    {
+        var lobby = Lobby();
+        lobby.SetReady(0, true);
+        var restored = LobbyAuthority.Restore(lobby.Capture("host"), 2, 2);
+        Assert.That(restored.State.Session, Is.EqualTo(100));
+        Assert.That(restored.State.CurrentHostId, Is.EqualTo(2));
+        Assert.That(restored.State.Players.All(player => !player.Ready), Is.True);
+        Assert.That(restored.Resume(80, 100, 1, 1, "wrong"), Is.False);
+        Assert.That(restored.Resume(80, 100, 1, 1, "host"), Is.True);
+        Assert.That(restored.PlayerId(80), Is.EqualTo(1));
+        Assert.That(restored.Execute(80, LobbyCommand.Start, 100, 100, SessionPhase.Lobby, false, [80], 2), Is.False);
+        Assert.That(restored.Execute(80, LobbyCommand.Ready, 100, 100, SessionPhase.Lobby, true, [80], 1), Is.False);
+        Assert.That(restored.Execute(80, LobbyCommand.Ready, 100, 100, SessionPhase.Lobby, true, [80], 2), Is.True);
+        byte[] packet = ConnectionEnvelope.Encode(100, 2, [1, 2, 3], 1);
+        Assert.Throws<ArgumentException>(() => ConnectionEnvelope.Decode(packet, 100, 2, 2));
+    }
+
+    /// <summary>Checkpoint restores all existing gameplay codecs and rejects corrupt bytes before mutation.</summary>
+    [Test]
+    public void CompleteCheckpointRoundTripPreservesTokensRngAndWorld()
+    {
+        var lobby = Lobby();
+        lobby.SetReady(0, true);
+        lobby.SetReady(10, true);
+        lobby.SetReady(20, true);
+        Assert.That(lobby.Start(0), Is.True);
+        var host = new HostVehicleSession(lobby.State.Match);
+        host.JoinPlayer(10, 2);
+        host.JoinPlayer(20, 3);
+        host.RegisterSpawns(PrototypeArena.Configuration);
+        host.Items.Grant(host.World, 3, HeldItem.Wrench);
+        host.Items.Grant(host.World, 2, HeldItem.Missile);
+        host.UseItem(10, host.SessionId, 1, host.Items.Slots.Single(slot => slot.Vehicle == 2).Token);
+        host.Step(default, Observe);
+        var world = host.Snapshot();
+        var match = host.World.State.Match!;
+        var resume = new ResumeCheckpoint(new ItemPublication(2, world, host.Items.Slots, host.Items.Missiles, [], host.Spawns!.States), match, null);
+        byte[] encoded = MigrationCheckpointCodec.Encode(new MigrationCheckpoint(1, lobby.Capture("host"), resume, host.CaptureAuthority()));
+        var decoded = MigrationCheckpointCodec.Decode(encoded);
+        var replacement = HostVehicleSession.Restore(decoded.Arena!, decoded.Host!, 2);
+        Assert.That(replacement.World.State.Vehicles.Select(v => v.VehicleId), Is.EquivalentTo(new ulong[] { 1, 2, 3 }));
+        Assert.That(replacement.Items.TokenHighWater, Is.EqualTo(host.Items.TokenHighWater));
+        Assert.That(replacement.Items.Missiles, Is.EqualTo(host.Items.Missiles));
+        Assert.That(replacement.Spawns!.RandomState, Is.EqualTo(host.Spawns.RandomState));
+        Assert.That(replacement.Items.Events, Is.Empty);
+        Assert.That(replacement.ResumePlayer(50, 1), Is.True);
+        Assert.That(replacement.ResumePlayer(51, 1), Is.False);
+        Assert.That(replacement.Items.Grant(replacement.World, 2, HeldItem.Wrench), Is.True);
+        Assert.That(replacement.Items.Slots.Single(slot => slot.Vehicle == 2).Token, Is.GreaterThan(host.Items.TokenHighWater));
+        replacement.Step(default, Observe);
+        Assert.That(replacement.World.State.Tick, Is.EqualTo(world.Tick + 1));
+        encoded[^1] ^= 1;
+        Assert.Throws<ArgumentException>(() => MigrationCheckpointCodec.Decode(encoded));
+    }
+
+    /// <summary>Restoration continues the selector stream and cooldowns, rather than restarting from its seed.</summary>
+    [Test]
+    public void NextPickupMatchesUninterruptedAuthorityAfterRestore()
+    {
+        var host = new HostVehicleSession(101);
+        host.JoinPlayer(10, 2);
+        host.RegisterSpawns(PrototypeArena.Configuration);
+        Place(host, 1, "item-01");
+        Assert.That(host.Spawns!.TryPickup(host.World, "item-01", 1), Is.True);
+        var publication = new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], host.Spawns.States);
+        var restored = HostVehicleSession.Restore(new ResumeCheckpoint(publication, host.World.State.Match!, null), host.CaptureAuthority(), 2);
+        Assert.That(restored.Spawns!.States, Is.EqualTo(host.Spawns.States));
+        foreach (var authority in new[] { host, restored })
+        {
+            Place(authority, 2, "item-02");
+            Assert.That(authority.Spawns!.TryPickup(authority.World, "item-02", 2), Is.True);
+            ulong random = authority.Spawns.RandomState;
+            Assert.That(authority.Spawns.TryPickup(authority.World, "item-02", 2), Is.False);
+            Assert.That(authority.Spawns.RandomState, Is.EqualTo(random));
+        }
+
+        Assert.That(restored.Items.Slots, Is.EqualTo(host.Items.Slots));
+        Assert.That(restored.Spawns.RandomState, Is.EqualTo(host.Spawns.RandomState));
+        Assert.That(restored.Spawns.Revision, Is.EqualTo(host.Spawns.Revision));
+    }
+
+    /// <summary>A restored lethal boundary respawns once without recounting the kill or finishing again.</summary>
+    [Test]
+    public void RestoredDeathPreservesAttributionScoreAndRespawnDeadline()
+    {
+        var host = new HostVehicleSession(101, respawnConfiguration: new RespawnConfiguration { DelayTicks = 4 }, matchConfiguration: new MatchConfiguration { CountdownTicks = 1, KillTarget = 1 });
+        host.JoinPlayer(10, 2);
+        host.JoinPlayer(20, 3);
+        host.Step(default, Observe);
+        host.Step(default, Observe);
+        ulong tick = host.World.State.Tick + 1;
+        var frame = new InputFrame(tick, 0, 0, 0, 0, 0, 0);
+        host.World.Step(frame, host.World.State.Vehicles.Select(vehicle => new VehicleStepRequest(vehicle.VehicleId, frame, Observe(vehicle), vehicle.VehicleId == 3 ? [new VehicleEffectRequest(new DamageEffect(100, Vector3.Zero, Vector3.Zero), new DamageContext("missile", 2, "migration-test"))] : [])).ToArray());
+        var match = host.World.State.Match!;
+        var boundary = new MatchState(match.Tick, match.Revision, match.KillTarget, match.Phase, match.CountdownAtTick, match.Winner, match.Players);
+        var dead = host.World.GetVehicle(3);
+        var checkpoint = new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), [], [], []), boundary, null);
+        var restored = HostVehicleSession.Restore(ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(checkpoint)), host.CaptureAuthority(), 2);
+        Assert.That(restored.World.GetVehicle(3).Damage, Is.EqualTo(dead.Damage));
+        Assert.That(restored.World.GetVehicle(3).RespawnAtTick, Is.EqualTo(dead.RespawnAtTick));
+        Assert.That(restored.World.State.Match!.Changes, Is.Empty);
+        for (int i = 0; i < 6; i++)
+        {
+            restored.Step(default, Observe);
+        }
+
+        Assert.That(restored.World.GetVehicle(3).LifeId, Is.EqualTo(dead.LifeId + 1));
+        Assert.That(restored.World.State.Match!.Winner, Is.EqualTo(2));
+        Assert.That(restored.World.State.Match.Players.Single(player => player.Player == 2).Kills, Is.EqualTo(1));
+        Assert.That(restored.World.State.Match.Players.Single(player => player.Player == 3).Deaths, Is.EqualTo(1));
+        Assert.That(restored.World.State.Match.Revision, Is.EqualTo(boundary.Revision));
+    }
+
+    private static void Place(HostVehicleSession host, ulong id, string marker)
+    {
+        var world = host.World;
+        var pose = new VehiclePhysicsState(PrototypeArena.Configuration.Items.Single(spawn => spawn.Id == marker).Position, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        var states = world.State.Vehicles.Select(state => state.VehicleId != id ? state : new VehicleSnapshot(id, state.LifeId, new VehicleState(world.State.Tick, pose, false, false, 0, 0), state.Damage, pose));
+        world.Restore(new SimulationState(world.State.Tick, world.State.LastInput, states, world.State.Match));
+    }
+
+    private static LobbyAuthority Lobby()
+    {
+        var lobby = new LobbyAuthority(100, "Host");
+        lobby.Join(10, "Second", "second");
+        lobby.Join(20, "Third", "third");
+        return lobby;
+    }
+
+    private static VehicleObservation Observe(VehicleSnapshot state) => new(new VehiclePhysicsState(state.Movement.Physics.Position, Quaternion.Identity, state.Movement.Physics.LinearVelocity, Vector3.Zero), Vector3.UnitY);
+}

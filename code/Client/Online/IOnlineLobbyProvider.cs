@@ -3,6 +3,11 @@ namespace Trackstorm.Client.Online;
 /// <summary>Owner-thread asynchronous coordination boundary, independent of Godot and native SDK types.</summary>
 internal interface IOnlineLobbyProvider : IDisposable
 {
+    /// <summary>Moves provider ownership only after Trackstorm's independent authority agreement.</summary>
+    /// <param name="id">Existing lobby.</param>
+    /// <param name="member">Agreed gameplay host.</param>
+    /// <param name="completed">Bounded coordination result.</param>
+    void Promote(string id, OnlineProductUserId member, Action<string?> completed) => completed("Provider ownership transfer unavailable.");
     /// <summary>Publishes admission availability derived from the existing host authority.</summary>
     /// <param name="id">Current logical lobby identity.</param>
     /// <param name="open">Whether new members may join.</param>

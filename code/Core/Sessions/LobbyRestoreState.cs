@@ -1,0 +1,40 @@
+namespace Trackstorm.Core.Sessions;
+
+/// <summary>Detached authority continuation data; subjects are authenticated adapter identities, never credentials.</summary>
+public sealed class LobbyRestoreState
+{
+    /// <summary>Validates complete roster continuation before replacement authority is constructed.</summary>
+    /// <param name="state">Published lobby boundary.</param>
+    /// <param name="tick">Host session clock.</param>
+    /// <param name="nextId">Highest issued identity, including departed players.</param>
+    /// <param name="subjects">Authenticated subject for every retained player.</param>
+    /// <param name="deadlines">Disconnected reservation deadlines on the session clock.</param>
+    public LobbyRestoreState(LobbySnapshot state, ulong tick, ulong nextId, IReadOnlyDictionary<ulong, string> subjects, IReadOnlyDictionary<ulong, ulong> deadlines)
+    {
+        if (nextId < state.Players.Max(player => player.Id) || nextId == ulong.MaxValue ||
+            subjects.Count != state.Players.Count || subjects.Values.Distinct(StringComparer.Ordinal).Count() != subjects.Count ||
+            state.Players.Any(player => !subjects.TryGetValue(player.Id, out string? subject) || string.IsNullOrWhiteSpace(subject) || subject.Length > 256 ||
+                (!player.Connected && (!deadlines.TryGetValue(player.Id, out ulong deadline) || deadline <= tick))) ||
+            deadlines.Any(pair => pair.Value <= tick || !state.Players.Any(player => player.Id == pair.Key && !player.Connected)))
+        {
+            throw new ArgumentException("Invalid lobby continuation state.");
+        }
+
+        State = state;
+        Tick = tick;
+        NextId = nextId;
+        Subjects = new System.Collections.ObjectModel.ReadOnlyDictionary<ulong, string>(new Dictionary<ulong, string>(subjects));
+        Deadlines = new System.Collections.ObjectModel.ReadOnlyDictionary<ulong, ulong>(new Dictionary<ulong, ulong>(deadlines));
+    }
+
+    /// <summary>Immutable published roster.</summary>
+    public LobbySnapshot State { get; }
+    /// <summary>Authoritative session clock, distinct from match time.</summary>
+    public ulong Tick { get; }
+    /// <summary>Identity allocation high-water mark.</summary>
+    public ulong NextId { get; }
+    /// <summary>Provider-neutral authenticated rebind mapping.</summary>
+    public IReadOnlyDictionary<ulong, string> Subjects { get; }
+    /// <summary>Absolute reconnect expiry for already disconnected players.</summary>
+    public IReadOnlyDictionary<ulong, ulong> Deadlines { get; }
+}

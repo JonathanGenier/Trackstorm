@@ -80,7 +80,7 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
             MaxLobbyMembers = 8,
             PermissionLevel = LobbyPermissionLevel.Inviteonly,
             BucketId = OnlineLobby.CurrentProtocol,
-            DisableHostMigration = true,
+            DisableHostMigration = false,
             AllowInvites = false,
             PresenceEnabled = false,
             EnableRTCRoom = false,
@@ -258,6 +258,23 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
     }
 
     /// <inheritdoc />
+    public void Promote(string id, OnlineProductUserId member, Action<string?> completed)
+    {
+        var options = new PromoteMemberOptions { LobbyId = id, LocalUserId = _user, TargetUserId = ProductUserId.FromString(member.Value) };
+        _lobbies.PromoteMember(ref options, _callbackOwner, (ref PromoteMemberCallbackInfo info) =>
+        {
+            Result result = info.ResultCode;
+            _enqueue(() =>
+            {
+                if (!_disposed)
+                {
+                    completed(result == Result.Success ? null : Failure(result));
+                }
+            });
+        });
+    }
+
+    /// <inheritdoc />
     public void Dispose()
     {
         if (_disposed)
@@ -313,7 +330,7 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
             }
         }
 
-        return new OnlineLobby(info.LobbyId.ToString(), name, new OnlineProductUserId(info.LobbyOwnerUserId.ToString()), session, access == "Locked" ? LobbyAccess.Locked : LobbyAccess.Public, (int)(info.MaxMembers - info.AvailableSlots), 8, info.BucketId.ToString(), info.PermissionLevel == LobbyPermissionLevel.Publicadvertised, access == "Locked" ? LobbyCredential.Parse(Attribute(details, "verifier") ?? string.Empty) : null) { MemberIds = members.ToArray() };
+        return new OnlineLobby(info.LobbyId.ToString(), name, new OnlineProductUserId(info.LobbyOwnerUserId.ToString()), session, access == "Locked" ? LobbyAccess.Locked : LobbyAccess.Public, (int)(info.MaxMembers - info.AvailableSlots), 8, info.BucketId.ToString(), info.PermissionLevel == LobbyPermissionLevel.Publicadvertised, access == "Locked" ? LobbyCredential.Parse(Attribute(details, "verifier") ?? string.Empty) : null) { MemberIds = members.ToArray(), GameplayHost = new OnlineProductUserId(Attribute(details, "gameHost") ?? info.LobbyOwnerUserId.ToString()), AuthorityEpoch = ulong.TryParse(Attribute(details, "epoch"), out ulong epoch) && epoch > 0 ? epoch : 1 };
     }
 
     private static string Failure(Result result) => result switch
@@ -440,6 +457,8 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
             if (!availability)
             {
                 attributes["name"] = lobby.Name;
+                attributes["gameHost"] = lobby.HostIdentity.Value;
+                attributes["epoch"] = lobby.AuthorityEpoch.ToString(CultureInfo.InvariantCulture);
             }
 
             if (initial)

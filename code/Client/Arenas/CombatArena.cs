@@ -14,7 +14,7 @@ public sealed partial class CombatArena : Node3D
     /// <summary>Movable bodies in stable prop ID order.</summary>
     internal IReadOnlyList<RigidBody3D> Props => _props;
     /// <summary>Frozen replicas on network clients, native bodies on the host and in practice.</summary>
-    internal bool Replica { get; init; }
+    internal bool Replica { get; set; }
 
     /// <inheritdoc/>
     public override void _Ready()

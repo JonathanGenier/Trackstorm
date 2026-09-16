@@ -34,4 +34,6 @@ The native item harness uses one Windows process with eight sockets/worlds; it d
 
 See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
 
+Authority restoration, epoch fencing, checkpoint cadence and migration limits are described in [host migration](host-migration.md).
+
 [Feature index](README.md)

@@ -31,6 +31,7 @@ internal sealed class EosP2pTransport : ITransportGateway
     private bool _polling;
     private bool _overflow;
     private long _epoch;
+    private OnlineProductUserId? _gameplayHost;
 
     /// <summary>Owns an authenticated native subscription and bounded session packet state.</summary>
     /// <param name="native">Owned native adapter; platform Tick remains external.</param>
@@ -61,6 +62,9 @@ internal sealed class EosP2pTransport : ITransportGateway
     public TransportConnectionState ConnectionState => _peers.Values.Any(p => _connections.IsConnected(p.Id)) ? TransportConnectionState.Connected : _peers.Count > 0 ? TransportConnectionState.Connecting : TransportConnectionState.Disconnected;
     /// <summary>Host admission callback, invoked with EOS-authenticated identity before Connected.</summary>
     internal Func<ulong, OnlineProductUserId, string?, bool>? Authorize { get; set; }
+    /// <summary>Explicit gameplay routing target; provider ownership changes cannot replace it.</summary>
+    internal OnlineProductUserId? GameplayHost => _gameplayHost;
+
     /// <summary>Successfully queued datagrams, including handshake and fragmentation.</summary>
     internal long SentPackets { get; private set; }
     /// <summary>Consumed native datagrams, including discarded traffic.</summary>
@@ -85,7 +89,7 @@ internal sealed class EosP2pTransport : ITransportGateway
     public ulong Connect(TransportEndpoint endpoint)
     {
         Start(endpoint, false);
-        Peer peer = Admit(_session!.Owner)!;
+        Peer peer = Admit(_gameplayHost!)!;
         if (!_native.Accept(peer.Identity) || !Packet(peer, 0, 0))
         {
             Close(peer.Id, TransportDisconnectReason.Failure);
@@ -165,7 +169,7 @@ internal sealed class EosP2pTransport : ITransportGateway
         try
         {
             var lobby = _membership();
-            if (_session is not null && (lobby is null || !lobby.Compatible || !lobby.MemberIds.Contains(_local) || lobby.Id != _session.Id || lobby.Session != _session.Session || !lobby.Owner.Equals(_session.Owner)))
+            if (_session is not null && (lobby is null || !lobby.Compatible || !lobby.MemberIds.Contains(_local) || lobby.Id != _session.Id || lobby.Session != _session.Session))
             {
                 Stop();
                 return;
@@ -281,6 +285,23 @@ internal sealed class EosP2pTransport : ITransportGateway
     /// <returns>Opaque peer/session target.</returns>
     internal static TransportEndpoint Endpoint(OnlineLobby lobby, OnlineProductUserId peer) => TransportEndpoint.PeerSession(peer.Value, SocketName(lobby));
 
+    /// <summary>Changes only routing after the provider-neutral migration coordinator selects a candidate.</summary>
+    /// <param name="host">Authenticated candidate already in this lobby.</param>
+    /// <returns>New server peer, or zero for the candidate's listener.</returns>
+    internal ulong RebindHost(OnlineProductUserId host)
+    {
+        Stop();
+        _gameplayHost = host;
+        var lobby = _membership() ?? throw new InvalidOperationException("Session membership unavailable.");
+        if (host.Equals(_local))
+        {
+            Listen(Endpoint(lobby, host));
+            return 0;
+        }
+
+        return Connect(Endpoint(lobby, host));
+    }
+
     private void Start(TransportEndpoint endpoint, bool host)
     {
         Check();
@@ -290,7 +311,8 @@ internal sealed class EosP2pTransport : ITransportGateway
         }
 
         var lobby = _membership();
-        if (lobby is null || !lobby.Compatible || !lobby.MemberIds.Contains(_local) || host != lobby.Owner.Equals(_local) || endpoint != Endpoint(lobby, host ? _local : lobby.Owner))
+        _gameplayHost ??= lobby?.HostIdentity;
+        if (lobby is null || !lobby.Compatible || !lobby.MemberIds.Contains(_local) || _gameplayHost is null || !lobby.MemberIds.Contains(_gameplayHost) || host != _gameplayHost.Equals(_local) || endpoint != Endpoint(lobby, host ? _local : _gameplayHost))
         {
             throw new ArgumentException("EOS endpoint must match the active compatible lobby and host.");
         }

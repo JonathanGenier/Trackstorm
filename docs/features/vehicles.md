@@ -62,4 +62,6 @@ Core NUnit coverage checks digital shaping, analog conditioning, mass/drive/brak
 
 `check-input.ps1` checks native default mappings, analog precision, digital ramps, mouse preference round trips, camera intent, remapping, reserved RMB, focus and frame publication. `check-vehicle.ps1` exercises native acceleration, braking/reverse, low/fast corner entry, lane changes, slide recovery, prolonged handbrake use, short/long low/fast power-out slides with throttle before/on/after release, acceleration after braking and collision, suspension/ramp/landing, concrete/mud transitions, collisions, damage, explosions, HUD and settings suppression. It compares traces at 30 and 144 render FPS; `-Visual` saves rendered evidence. `check-network-vehicles.ps1` exercises separate host/client prediction and reconciliation. Synthetic driving establishes repeatable behavior, not physical-controller ergonomics or human judgement of the GTA V/Wreckfest feel target.
 
+Authority restoration, epoch fencing, checkpoint cadence and migration limits are described in [host migration](host-migration.md).
+
 [Feature index](README.md)

@@ -22,7 +22,22 @@ internal sealed class OnlineSessionBinding : IDisposable
         _gateway = gateway;
         _gateway.ConnectionChanged += OnConnectionChanged;
         var lobby = coordinator.Active ?? throw new InvalidOperationException("An online lobby is required before transport attachment.");
-        Driver = new LobbyNetworkDriver(gateway, coordinator.IsHost ? lobby.Session : 0, serverPeer, playerName, peer => !_disposed && _authorized.ContainsKey(peer), lobby.Session, peer => _authorized.TryGetValue(peer, out var identity) ? identity.Value : null);
+        Driver = new LobbyNetworkDriver(gateway, coordinator.StartsGameplayAuthority ? lobby.Session : 0, serverPeer, playerName, peer => !_disposed && _authorized.ContainsKey(peer), lobby.Session, peer => _authorized.TryGetValue(peer, out var identity) ? identity.Value : null, expectedEpoch: lobby.AuthorityEpoch);
+        if (gateway is EosP2pTransport eos)
+        {
+            Driver.Migration = new SessionMigration(
+                Driver,
+                gateway,
+                coordinator.Identity.Value,
+                peer => _authorized.TryGetValue(peer, out var identity) ? identity.Value : null,
+                (subject, _) =>
+                {
+                    _authorized.Clear();
+                    return eos.RebindHost(new OnlineProductUserId(subject));
+                });
+            Driver.Migration.AuthorityChanged = coordinator.MigrationCompleted;
+            Driver.Reconnect = () => eos.RebindHost(eos.GameplayHost ?? lobby.Owner);
+        }
     }
 
     /// <summary>Existing driver which remains the sole route for lobby commands and roster admission.</summary>
@@ -84,9 +99,10 @@ internal sealed class OnlineSessionBinding : IDisposable
         var lobby = _coordinator.Active;
         ulong retained = Driver.Authority?.FindPlayer(authenticatedIdentity.Value) ?? 0;
         bool resumable = retained != 0 && Driver.Authority!.State.Players.Any(player => player.Id == retained && !player.Connected);
-        bool accepted = !_disposed && _coordinator.IsHost && peer != 0 && lobby is not null && lobby.MemberIds.Contains(authenticatedIdentity)
-            && !authenticatedIdentity.Equals(lobby.Owner) && !_authorized.Values.Contains(authenticatedIdentity)
-            && !_authorized.ContainsKey(peer) && (resumable || (retained == 0 && (lobby.Access == LobbyAccess.Public || lobby.Credential!.Verify(credential))));
+        bool migrating = Driver.Migration?.Negotiating == true && Driver.Migration.Subjects?.Values.Contains(authenticatedIdentity.Value) == true;
+        bool accepted = !_disposed && (Driver.Authority is not null || migrating) && peer != 0 && lobby is not null && lobby.MemberIds.Contains(authenticatedIdentity)
+            && !authenticatedIdentity.Equals(_coordinator.Identity) && !_authorized.Values.Contains(authenticatedIdentity)
+            && !_authorized.ContainsKey(peer) && (migrating || resumable || (retained == 0 && (lobby.Access == LobbyAccess.Public || lobby.Credential!.Verify(credential))));
         if (!accepted)
         {
             _gateway.Disconnect(peer);

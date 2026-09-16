@@ -14,6 +14,204 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class EosP2pTransportTests
 {
+    /// <summary>Three authenticated peers restore the same match after losing the original authority.</summary>
+    /// <param name="arena">Whether to migrate a running match instead of its lobby.</param>
+    /// <param name="agree">Whether every eligible survivor remains available.</param>
+    /// <param name="recover">Whether the original authority returns within grace.</param>
+    [TestCase(false, true, false)]
+    [TestCase(true, true, false)]
+    [TestCase(true, false, false)]
+    [TestCase(true, true, true)]
+    public void MigratesLobbyAndActiveMatchThroughProductionFraming(bool arena, bool agree, bool recover)
+    {
+        var identities = Enumerable.Range(1, 3).Select(Id).ToArray();
+        var lobby = new OnlineLobby("migration", "Migration", identities[0], 100, LobbyAccess.Public, 3, 8, OnlineLobby.CurrentProtocol, true, null) { MemberIds = identities };
+        var wires = identities.Select(identity => new Wire(identity)).ToArray();
+        var routes = wires.Select((wire, index) => (wire, index)).ToDictionary(entry => identities[entry.index], entry => entry.wire);
+        var gateways = identities.Select((identity, index) => new EosP2pTransport(wires[index], identity, () => lobby)).ToArray();
+        var subjects = Enumerable.Range(0, 3).Select(_ => new Dictionary<ulong, string>()).ToArray();
+        var drivers = new LobbyNetworkDriver[3];
+        try
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                int index = i;
+                wires[i].Routes = routes;
+                gateways[i].Authorize = (peer, identity, _) =>
+                {
+                    subjects[index][peer] = identity.Value;
+                    return true;
+                };
+            }
+
+            gateways[0].Listen(EosP2pTransport.Endpoint(lobby, identities[0]));
+            for (int i = 0; i < 3; i++)
+            {
+                int index = i;
+                ulong server = i == 0 ? 0 : gateways[i].Connect(EosP2pTransport.Endpoint(lobby, identities[0]));
+                drivers[i] = new LobbyNetworkDriver(gateways[i], i == 0 ? 100UL : 0, server, "Player" + i, identity: peer => subjects[index].GetValueOrDefault(peer));
+                drivers[i].Reconnect = () => throw new InvalidOperationException("Host terminated in this scenario.");
+                drivers[i].Migration = new SessionMigration(drivers[i], gateways[i], identities[i].Value, peer => subjects[index].GetValueOrDefault(peer), (subject, _) => gateways[index].RebindHost(new OnlineProductUserId(subject)));
+            }
+
+            for (int tick = 0; tick < 120; tick++)
+            {
+                foreach (var driver in drivers)
+                {
+                    driver.Pump(1.0 / 60);
+                }
+            }
+
+            foreach (var driver in drivers)
+            {
+                Assert.That(driver.Migration!.Subjects, Is.Not.Null);
+                driver.Request(LobbyCommand.Ready, true);
+            }
+
+            if (!arena)
+            {
+                gateways[0].Stop();
+                for (int tick = 0; tick < 2100; tick++)
+                {
+                    drivers[1].Pump(1.0 / 60);
+                    drivers[2].Pump(1.0 / 60);
+                }
+
+                Assert.That(drivers[1].State!.AuthorityEpoch, Is.EqualTo(2), drivers[1].Failure);
+                Assert.That(drivers[2].State!.AuthorityEpoch, Is.EqualTo(2), drivers[2].Failure);
+                Assert.That(drivers[1].State!.Players.All(player => !player.Ready), Is.True);
+                Assert.That(drivers[1].LocalPlayerId, Is.EqualTo(2));
+                Assert.That(drivers[2].LocalPlayerId, Is.EqualTo(3));
+                return;
+            }
+
+            drivers[0].Pump(1.0 / 60);
+            Assert.That(drivers[0].Request(LobbyCommand.Start), Is.True);
+            drivers[1].Pump(1.0 / 60);
+            drivers[2].Pump(1.0 / 60);
+            var vehicles = drivers.Select((driver, index) => new VehicleNetworkDriver(gateways[index], index == 0 ? driver.State!.Match : 0, driver.ServerPeer, driver)).ToArray();
+            vehicles[0].Host!.RegisterSpawns(Trackstorm.Core.Arenas.PrototypeArena.Configuration);
+            vehicles[0].Host!.Items.Grant(vehicles[0].Host!.World, 3, Trackstorm.Core.Items.HeldItem.Wrench);
+            for (int tick = 0; tick < 120; tick++)
+            {
+                foreach (var vehicle in vehicles)
+                {
+                    vehicle.Advance(default, Observe);
+                }
+            }
+
+            if (recover)
+            {
+                foreach (ulong peer in drivers[0].Authority!.Peers.Keys)
+                {
+                    gateways[0].Disconnect(peer);
+                }
+
+                bool available = false;
+                for (int i = 1; i < 3; i++)
+                {
+                    int index = i;
+                    gateways[i].Disconnect(drivers[i].ServerPeer);
+                    drivers[i].Reconnect = () => available ? gateways[index].RebindHost(identities[0]) : throw new InvalidOperationException("Transient outage");
+                }
+
+                ulong frozenTick = 0;
+                for (int tick = 0; tick < 600; tick++)
+                {
+                    if (tick == 180)
+                    {
+                        Assert.That(drivers[0].Migration!.Frozen, Is.True);
+                        frozenTick = vehicles[0].Host!.World.State.Tick;
+                    }
+
+                    if (tick == 239)
+                    {
+                        Assert.That(vehicles[0].Host!.World.State.Tick, Is.EqualTo(frozenTick));
+                    }
+
+                    available = tick >= 240;
+                    foreach (var vehicle in vehicles)
+                    {
+                        vehicle.Advance(default, Observe);
+                    }
+                }
+
+                Assert.That(drivers.All(driver => driver.State!.AuthorityEpoch == 1 && driver.Failure.Length == 0), Is.True);
+                Assert.That(drivers.All(driver => !driver.Migration!.Frozen && !driver.Reconnecting), Is.True);
+                Assert.That(vehicles.All(vehicle => vehicle.IsActive && vehicle.Latest!.Vehicles.Count == 3), Is.True);
+                Assert.That(drivers[1].Generation, Is.EqualTo(2));
+                return;
+            }
+
+            ulong? selectedTick = null;
+            ulong commonTick = vehicles[0].Host!.World.State.Tick;
+            if (agree)
+            {
+                var captured = drivers[0].Migration!.CaptureArena!();
+                var common = new MigrationCheckpoint(100, drivers[0].Authority!.Capture(identities[0].Value), captured.Arena, captured.Host);
+                byte[] commonBytes = MigrationCheckpointCodec.Encode(common);
+                foreach (int index in new[] { 1, 2 })
+                {
+                    byte[] packet = [(byte)'T', (byte)'X', 1, .. commonBytes];
+                    drivers[index].Migration!.Receive(new(drivers[index].ServerPeer, packet, TransportDelivery.Reliable));
+                }
+
+                // Only the candidate sees the newest boundary; agreement must choose the older common copy.
+                vehicles[0].Host!.Items.Grant(vehicles[0].Host!.World, 3, Trackstorm.Core.Items.HeldItem.Missile);
+                captured = drivers[0].Migration!.CaptureArena!();
+                var newest = new MigrationCheckpoint(101, common.Lobby, captured.Arena, captured.Host);
+                byte[] newestPacket = [(byte)'T', (byte)'X', 1, .. MigrationCheckpointCodec.Encode(newest)];
+                drivers[1].Migration!.Receive(new(drivers[1].ServerPeer, newestPacket, TransportDelivery.Reliable));
+                vehicles[1].Resynchronized += world => selectedTick ??= world.Tick;
+            }
+
+            gateways[0].Stop();
+            if (!agree)
+            {
+                gateways[2].Stop();
+            }
+
+            for (int tick = 0; tick < (agree ? 2100 : 3300); tick++)
+            {
+                vehicles[1].Advance(default, Observe);
+                if (agree)
+                {
+                    vehicles[2].Advance(default, Observe);
+                }
+            }
+
+            if (!agree)
+            {
+                Assert.That(drivers[1].Failure, Does.Contain("Host migration failed"));
+                Assert.That(drivers[1].State!.AuthorityEpoch, Is.EqualTo(1));
+                Assert.That(vehicles[1].Host, Is.Null);
+                Assert.That(vehicles[1].IsActive, Is.False);
+                Assert.That(gateways[1].ConnectionState, Is.EqualTo(TransportConnectionState.Disconnected));
+                return;
+            }
+
+            Assert.That(drivers[1].Failure, Is.Empty);
+            Assert.That(drivers[2].Failure, Is.Empty);
+            Assert.That(drivers[1].State!.AuthorityEpoch, Is.EqualTo(2));
+            Assert.That(drivers[2].State!.AuthorityEpoch, Is.EqualTo(2));
+            Assert.That(drivers[1].State!.CurrentHostId, Is.EqualTo(2));
+            Assert.That(drivers[2].State!.CurrentHostId, Is.EqualTo(2));
+            Assert.That(vehicles[1].Host, Is.Not.Null);
+            Assert.That(vehicles[2].Host, Is.Null);
+            Assert.That(vehicles[2].Latest!.Vehicles.Count, Is.EqualTo(3));
+            Assert.That(vehicles[2].ItemState!.Slots.Single(slot => slot.Vehicle == 3).Item, Is.EqualTo(Trackstorm.Core.Items.HeldItem.Wrench));
+            Assert.That(vehicles[2].IsActive, Is.True);
+            Assert.That(selectedTick, Is.EqualTo(commonTick));
+        }
+        finally
+        {
+            foreach (var gateway in gateways)
+            {
+                gateway.Dispose();
+            }
+        }
+    }
+
     /// <summary>EOS reliability, closure reasons and unsupported metrics remain explicit.</summary>
     [Test]
     public void MapsCapabilitiesDeliveryAndFailures()

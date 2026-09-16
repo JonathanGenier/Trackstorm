@@ -9,6 +9,27 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class OnlineLobbyTests
 {
+    /// <summary>Provider ownership notifications cannot bootstrap gameplay authority on a joining player.</summary>
+    [Test]
+    public void ProviderPromotionDoesNotGrantGameplayAuthority()
+    {
+        var service = new Service();
+        using var host = service.Coordinator(1);
+        using var client = service.Coordinator(2);
+        host.Create("Migration", LobbyAccess.Public, null);
+        client.Refresh();
+        client.Join(host.Active!.Id, null);
+        var before = client.Active!;
+        service.Lobbies[before.Id] = before with { Owner = User(2) };
+        service.Notify(before.Id);
+        Assert.That(client.IsHost, Is.True);
+        Assert.That(client.StartsGameplayAuthority, Is.False);
+        Assert.That(client.Active!.Session, Is.EqualTo(before.Session));
+        using var gateway = new Gateway();
+        var binding = client.AttachTransport(gateway, 99, "Promoted member");
+        Assert.That(binding.Driver.Authority, Is.Null);
+    }
+
     /// <summary>Names are bounded, canonical, non-empty on admission, and safe for plain presentation.</summary>
     [Test]
     public void NamesValidateAtCreateAndRename()

@@ -20,7 +20,7 @@ Inactive vehicles have no native collision layer/mask and are hidden. Core indep
 
 ## Replication, Prediction and Hooks
 
-Every lifecycle or life-generation change publishes a complete existing vehicle snapshot reliably through the current ordered transport. Collision-only deaths therefore replicate even without item changes or a periodic movement publication. Joining peers receive a reliable current boundary. Aggregate codec version two and vehicle protocol version five preserve lifecycle/deadline; the EOS discovery compatibility bucket is `trackstorm-lobby-5`. Older aggregate/gameplay versions are rejected.
+Every lifecycle or life-generation change publishes a complete existing vehicle snapshot reliably through the current ordered transport. Collision-only deaths therefore replicate even without item changes or a periodic movement publication. Joining peers receive a reliable current boundary. Aggregate codec version two and vehicle protocol version five preserve lifecycle/deadline; the EOS discovery compatibility bucket is `trackstorm-lobby-6`. Older aggregate/gameplay versions are rejected.
 
 The existing snapshot history rejects stale poses. A delayed reliable death/wait/respawn publication can still notify presentation observers once, even if a newer unreliable movement snapshot arrived first; it cannot rewind the current vehicle state. `Simulation.LifecycleChanges` exposes immutable committed transitions, including the existing damage attribution, for later scoring or other consumers. `VehicleNetworkDriver.LifecycleReceived` provides ordered reliable full boundaries for future Client UI/audio. Consumers distinguish transitions by vehicle/life/state; match scoring consumes the committed Core death boundary; dedicated death audio is not implemented.
 
@@ -35,5 +35,7 @@ Core tests cover lethal crossing, duplicate damage, inactive interactions includ
 `check-death-respawn.ps1 -GodotPath <exe>` runs eight UDP peers in isolated Godot worlds through four alternating remote missile/collision deaths and respawns. It asserts matching lifecycle/deadline/spawn/HP across peers, native collision/visibility changes, movement/item rejection, reset physics/transients and bounded once-per-life VFX cleanup. `-Impaired` adds 30 ms outbound delay, 5 ms jitter and 2% loss; `-Visual` renders a client and saves death/respawn images. This is single-machine native evidence, not separate-PC, authenticated EOS peer gameplay, or an indefinite multiplayer soak.
 
 See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
+
+Authority restoration, epoch fencing, checkpoint cadence and migration limits are described in [host migration](host-migration.md).
 
 [Feature index](README.md)

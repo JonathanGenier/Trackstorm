@@ -24,19 +24,25 @@ public sealed class HostVehicleSession
     /// <param name="respawnConfiguration">Optional host lifecycle tuning.</param>
     /// <param name="matchConfiguration">Optional match tuning; scoring always uses the shared simulation.</param>
     /// <param name="damageConfiguration">Vehicle health tuning for this arena.</param>
-    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null, DamageConfiguration? damageConfiguration = null)
+    /// <param name="hostPlayerId">Stable identity of the local authority.</param>
+    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null, DamageConfiguration? damageConfiguration = null, ulong hostPlayerId = 1)
     {
         ArgumentOutOfRangeException.ThrowIfZero(sessionId);
         SessionId = sessionId;
+        ArgumentOutOfRangeException.ThrowIfZero(hostPlayerId);
+        HostPlayerId = hostPlayerId;
         _damageConfiguration = damageConfiguration ?? new();
         _damageConfiguration.Validate();
         World = new Simulation.Simulation(new SimulationConfiguration(TickRate), respawnConfiguration ?? new(), match: matchConfiguration ?? new());
         Items = new ItemAuthority(itemConfiguration);
-        World.AddVehicle(1, new(), _damageConfiguration, Spawn(0));
+        World.AddVehicle(hostPlayerId, new(), _damageConfiguration, Spawn(0));
+        _nextVehicle = hostPlayerId;
     }
 
     /// <summary>Caller-provided session generation.</summary>
     public ulong SessionId { get; }
+    /// <summary>Stable local authority identity; independent of roster order and transport handles.</summary>
+    public ulong HostPlayerId { get; }
     /// <summary>Sole host gameplay owner, using the existing aggregate simulation path.</summary>
     public Simulation.Simulation World { get; }
 
@@ -45,6 +51,59 @@ public sealed class HostVehicleSession
 
     /// <summary>Registered arena spawns, absent until a layout is attached.</summary>
     public ItemSpawnAuthority? Spawns { get; private set; }
+
+    /// <summary>Constructs a complete replacement off to the side; no live authority is partially mutated.</summary>
+    /// <param name="checkpoint">Existing validated complete resync state.</param>
+    /// <param name="continuation">Authority-only continuation.</param>
+    /// <param name="host">Elected player already present in the world.</param>
+    /// <returns>Restored authority with neutral remote inputs awaiting authenticated rebind.</returns>
+    public static HostVehicleSession Restore(ResumeCheckpoint checkpoint, HostRestoreState continuation, ulong host)
+    {
+        var world = checkpoint.Items.World;
+        if (!world.Vehicles.Any(vehicle => vehicle.State.VehicleId == host) || continuation.NextVehicle < world.Vehicles.Max(vehicle => vehicle.State.VehicleId))
+        {
+            throw new ArgumentException("Invalid vehicle migration roster.");
+        }
+
+        var result = new HostVehicleSession(world.Session, continuation.Items, continuation.Respawn, continuation.Match, continuation.Damage, host);
+        int slot = 1;
+        foreach (var vehicle in world.Vehicles.Where(vehicle => vehicle.State.VehicleId != host))
+        {
+            result.World.AddVehicle(vehicle.State.VehicleId, new(), continuation.Damage, vehicle.State.ObservedPhysics);
+            result._disconnected.Add(vehicle.State.VehicleId, (new HostInputBuffer(vehicle.AcknowledgedInput), slot++));
+        }
+
+        if (continuation.Spawns is not null)
+        {
+            result.RegisterSpawns(result.World.Arena, continuation.Spawns);
+            result.Spawns!.Restore(checkpoint.Items, continuation.SpawnRevision, continuation.RandomState);
+        }
+        else if (checkpoint.Items.Spawns.Count != 0)
+        {
+            throw new ArgumentException("Missing pickup continuation.");
+        }
+
+        result.World.Restore(new SimulationState(world.Tick, new InputFrame(world.Tick, 0, 0, 0, 0, 0, 0), world.Vehicles.Select(vehicle => vehicle.State), checkpoint.Match));
+        result.Items.Restore(checkpoint.Items, continuation.ItemRevision, continuation.Token);
+        result._nextVehicle = continuation.NextVehicle;
+        return result;
+    }
+
+    /// <summary>Captures authority-only continuation at the same boundary as Snapshot.</summary>
+    /// <returns>Portable immutable tuning and sequence state.</returns>
+    public HostRestoreState CaptureAuthority() => new()
+    {
+        Damage = _damageConfiguration,
+        Items = Items.Configuration,
+        Respawn = World.Respawn!,
+        Match = World.MatchRules!,
+        Spawns = Spawns?.Configuration,
+        Token = Items.TokenHighWater,
+        ItemRevision = Items.Revision,
+        SpawnRevision = Spawns?.Revision ?? 0,
+        RandomState = Spawns?.RandomState ?? 0,
+        NextVehicle = _nextVehicle,
+    };
 
     /// <summary>Registers actual scene markers once before simulation.</summary>
     /// <param name="arena">Validated scene contract.</param>
@@ -68,7 +127,7 @@ public sealed class HostVehicleSession
     /// <returns>Whether accepted for the next fixed step.</returns>
     public bool UseItem(ulong peer, ulong session, ulong life, ulong token)
     {
-        ulong vehicle = peer == 0 ? 1 : _peers.TryGetValue(peer, out var entry) ? entry.Vehicle : 0;
+        ulong vehicle = peer == 0 ? HostPlayerId : _peers.TryGetValue(peer, out var entry) ? entry.Vehicle : 0;
         return session == SessionId && vehicle != 0 && Items.RequestUse(World, vehicle, life, token);
     }
 
@@ -99,7 +158,7 @@ public sealed class HostVehicleSession
     /// <param name="playerId">Stable session player identity.</param>
     public void JoinPlayer(ulong peer, ulong playerId)
     {
-        if (peer == 0 || playerId <= 1 || _peers.ContainsKey(peer) || World.State.Vehicles.Any(vehicle => vehicle.VehicleId == playerId) || _peers.Count + _disconnected.Count == 7)
+        if (peer == 0 || playerId == 0 || playerId == HostPlayerId || _peers.ContainsKey(peer) || World.State.Vehicles.Any(vehicle => vehicle.VehicleId == playerId) || _peers.Count + _disconnected.Count == 7)
         {
             throw new ArgumentException("Invalid lobby vehicle assignment.");
         }
@@ -190,7 +249,7 @@ public sealed class HostVehicleSession
         }
 
         InputFrame hostInput = new SequencedInput(0, local).AtTick(tick);
-        inputs.Add(1, hostInput);
+        inputs.Add(HostPlayerId, hostInput);
         var previous = World.State.Vehicles.ToDictionary(state => state.VehicleId);
         Items.Step(World, hostInput, World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray(), collide ?? ((_, _) => null));
         foreach (var peer in _peers.Values)

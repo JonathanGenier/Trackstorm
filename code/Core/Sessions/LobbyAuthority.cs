@@ -37,6 +37,46 @@ public sealed class LobbyAuthority
     /// <summary>Copy of transport-to-player assignments for vehicle integration.</summary>
     public IReadOnlyDictionary<ulong, ulong> Peers => new Dictionary<ulong, ulong>(_peers);
 
+    /// <summary>Builds a replacement with all remote players reserved for authenticated fresh connections.</summary>
+    /// <param name="checkpoint">Validated old authority boundary.</param>
+    /// <param name="host">Elected stable identity.</param>
+    /// <param name="epoch">Exactly the next authority epoch.</param>
+    /// <returns>New authority with Ready cleared and no inherited transport handles.</returns>
+    public static LobbyAuthority Restore(LobbyRestoreState checkpoint, ulong host, ulong epoch)
+    {
+        var previous = checkpoint.State;
+        if (epoch != checked(previous.AuthorityEpoch + 1) || host == previous.CurrentHostId || !previous.Players.Any(player => player.Id == host && player.Connected))
+        {
+            throw new ArgumentException("Invalid authority transition.");
+        }
+
+        var result = new LobbyAuthority(previous.Session, previous.Players.Single(player => player.Id == host).Name, previous.GraceTicks)
+        {
+            _tick = checkpoint.Tick,
+            _nextId = checkpoint.NextId,
+            State = new LobbySnapshot(previous.Session, checked(previous.Revision + 1), previous.Match, previous.Phase, previous.Players.Select(player => player with { Ready = false, Connected = player.Id == host }), previous.GraceTicks, host, epoch),
+        };
+        foreach (var subject in checkpoint.Subjects)
+        {
+            result._identities.Add(subject.Key, subject.Value);
+            if (subject.Key != host)
+            {
+                result._deadlines.Add(subject.Key, checkpoint.Deadlines.GetValueOrDefault(subject.Key, checked(checkpoint.Tick + previous.GraceTicks)));
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>Captures authenticated authority, including the local host's trusted subject.</summary>
+    /// <param name="hostSubject">Authenticated local identity from the adapter.</param>
+    /// <returns>Detached continuation state.</returns>
+    public LobbyRestoreState Capture(string hostSubject)
+    {
+        var subjects = new Dictionary<ulong, string>(_identities) { [State.CurrentHostId] = hostSubject };
+        return new LobbyRestoreState(State, _tick, _nextId, subjects, _deadlines);
+    }
+
     /// <summary>Assigns a fresh identity to a connected transport sender.</summary>
     /// <param name="peer">Actual nonzero transport sender.</param>
     /// <param name="name">Requested display name.</param>
@@ -112,7 +152,7 @@ public sealed class LobbyAuthority
             return false;
         }
 
-        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), checked(State.Match + 1), SessionPhase.Arena, State.Players, GraceTicks);
+        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), checked(State.Match + 1), SessionPhase.Arena, State.Players, GraceTicks, State.CurrentHostId, State.AuthorityEpoch);
         return true;
     }
 
@@ -126,7 +166,7 @@ public sealed class LobbyAuthority
             return false;
         }
 
-        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, SessionPhase.Lobby, State.Players.Select(player => player with { Ready = false }), GraceTicks);
+        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, SessionPhase.Lobby, State.Players.Select(player => player with { Ready = false }), GraceTicks, State.CurrentHostId, State.AuthorityEpoch);
         return true;
     }
 
@@ -214,7 +254,7 @@ public sealed class LobbyAuthority
     /// <summary>Resolves sender ownership without trusting a player claim.</summary>
     /// <param name="peer">Actual transport sender, zero for local host.</param>
     /// <returns>Assigned identity or zero if unknown.</returns>
-    public ulong PlayerId(ulong peer) => peer == 0 ? 1 : _peers.GetValueOrDefault(peer);
+    public ulong PlayerId(ulong peer) => peer == 0 ? State.CurrentHostId : _peers.GetValueOrDefault(peer);
 
     /// <summary>Rejects stale phase intents before dispatching sender-scoped lobby actions.</summary>
     /// <param name="peer">Actual sender; zero only for the local host.</param>
@@ -224,10 +264,11 @@ public sealed class LobbyAuthority
     /// <param name="phase">Expected lifecycle phase.</param>
     /// <param name="ready">Requested ready state.</param>
     /// <param name="connectedPeers">Transport roster including pending admission.</param>
+    /// <param name="authorityEpoch">Expected current authority fence.</param>
     /// <returns>Whether the intent is legal at the current boundary.</returns>
-    public bool Execute(ulong peer, LobbyCommand command, ulong session, ulong match, SessionPhase phase, bool ready, IEnumerable<ulong> connectedPeers)
+    public bool Execute(ulong peer, LobbyCommand command, ulong session, ulong match, SessionPhase phase, bool ready, IEnumerable<ulong> connectedPeers, ulong authorityEpoch = 1)
     {
-        if (session != State.Session)
+        if (session != State.Session || authorityEpoch != State.AuthorityEpoch)
         {
             return false;
         }
@@ -259,5 +300,5 @@ public sealed class LobbyAuthority
         Publish(State.Players.Where(player => player.Id != id));
     }
 
-    private void Publish(IEnumerable<SessionPlayer> players) => State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, State.Phase, players, GraceTicks);
+    private void Publish(IEnumerable<SessionPlayer> players) => State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, State.Phase, players, GraceTicks, State.CurrentHostId, State.AuthorityEpoch);
 }
