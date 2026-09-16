@@ -17,6 +17,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private readonly RemoteInterpolation _interpolation = new();
     private readonly Items.ItemPresentation _items = new();
     private readonly VehicleDestructionEffects _destruction = new();
+    private readonly Audio.ArenaAudio _audio = new();
     private readonly Items.ItemSpawnPresentation _pickups = new();
     private readonly Label _itemLabel = new();
     private readonly Label _matchLabel = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
@@ -37,6 +38,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
     internal VehicleNetworkDriver Driver => _driver;
     /// <summary>Presentation diagnostics for native lifecycle checks.</summary>
     internal VehicleDestructionEffects Destruction => _destruction;
+    /// <summary>Arena-owned audio diagnostics for integrated native checks.</summary>
+    internal Audio.ArenaAudio Audio => _audio;
     /// <summary>Native bodies for participation/reset integration checks.</summary>
     internal IReadOnlyDictionary<ulong, NetworkVehicleBody> Bodies => _bodies;
     /// <summary>Current local gameplay snapshot for settings telemetry.</summary>
@@ -65,6 +68,9 @@ internal sealed partial class NetworkVehicleArena : Node3D
         AddChild(_layout);
         AddChild(_items);
         AddChild(_destruction);
+        AddChild(_audio);
+        _driver.LifecycleReceived += snapshot => _audio.ApplyVehicles(snapshot.Vehicles.Select(vehicle => vehicle.State));
+        _driver.MatchReceived += state => _audio.ApplyMatch(state);
         _driver.LifecycleReceived += snapshot => _destruction.Apply(snapshot.Vehicles.Select(vehicle => vehicle.State));
         var markers = _layout.ValidateScene();
         _driver.Host?.RegisterSpawns(markers, SpawnConfiguration);
@@ -90,6 +96,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.ItemsReceived += publication =>
         {
             _items.Apply(publication);
+            _audio.ApplyVehicles(publication.World.Vehicles.Select(vehicle => vehicle.State));
+            _audio.ApplyItems(publication);
             _pickups.Apply(publication);
             if (_driver.Host is not null)
             {
@@ -153,6 +161,11 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        if (_driver.Latest is { } world)
+        {
+            _audio.Follow(world.Vehicles.Select(vehicle => vehicle.State), id => _bodies[id].VisualPosition, world.Tick);
+        }
+
         if (_driver.Match is { } match)
         {
             string phase = match.Phase == Core.Matches.MatchPhase.Finished ? $"FINISHED — Player {match.Winner} wins!"
@@ -215,6 +228,9 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.LocalCorrected += state => _bodies[state.VehicleId].Apply(state, true);
         _driver.Resynchronized += snapshot =>
         {
+            _audio.ApplyVehicles(snapshot.Vehicles.Select(vehicle => vehicle.State), true);
+            _audio.ApplyItems(_driver.ItemState!, true);
+            _audio.ApplyMatch(_driver.Match!, true);
             _interpolation.Reset();
             _destruction.Reseed(snapshot.Vehicles.Select(vehicle => vehicle.State));
             foreach (var vehicle in snapshot.Vehicles)
@@ -231,6 +247,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <param name="input">Immediately captured local logical input.</param>
     internal void Advance(InputFrame input)
     {
+        _audio.Initialize(_driver.LocalVehicleId);
         _driver.Advance(input, state =>
         {
             VehicleObservation observation = _bodies[state.VehicleId].Observe(state);
@@ -247,6 +264,12 @@ internal sealed partial class NetworkVehicleArena : Node3D
         if (!_driver.IsActive)
         {
             return;
+        }
+
+        if (_driver.Latest is { } audioWorld)
+        {
+            _audio.Initialize(_driver.LocalVehicleId);
+            _audio.ApplyVehicles(audioWorld.Vehicles.Select(vehicle => vehicle.State));
         }
 
         if (_driver.Host is not null)

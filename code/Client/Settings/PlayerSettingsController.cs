@@ -119,12 +119,13 @@ public sealed partial class PlayerSettingsController : Node
             AudioServer.SetBusSend(index, "Master");
         }
 
-        AudioServer.SetBusMute(index, volume == 0);
-        AudioServer.SetBusVolumeDb(index, volume == 0 ? -80 : (float)(20 * Math.Log10(volume)));
+        AudioServer.SetBusMute(index, Audio.AudioRouting.Gain(volume) == 0);
+        AudioServer.SetBusVolumeDb(index, Audio.AudioRouting.Decibels(volume));
     }
 
     private void ApplyAudio()
     {
+        Audio.AudioBuses.Ensure();
         SetBus("Master", Current.MasterVolume);
         SetBus("Music", Current.MusicVolume);
         SetBus("SFX", Current.SfxVolume);

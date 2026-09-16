@@ -18,7 +18,7 @@ Spawn changes and assigned slots travel together in the existing reliable `ItemP
 
 `ItemSpawnPresentation` builds one floating, rotating, non-colliding pickup per marker from the already acquired CC0 Kenney Weapon Pack rocket geometry. The existing rusty emissive pickup material, local light and native `GpuParticles3D` make it stand out from arena props. The rocket is a generic pickup marker: the item is selected on claim, and the confirmed held model/HUD identifies the result. Active models and particles hide together on claim; a `RECHARGING` label remains until confirmed reactivation. A use followed by reacquisition updates the held model even when there was no intervening empty-slot publication.
 
-Provenance and license remain in `assets/items/sources.json` and the acquired Kenney license. No additional pack, plugin, HUD icon or pickup audio is acquired. Pickup sound remains part of the separate audio feature.
+Provenance and license remain in `assets/items/sources.json` and the acquired Kenney license. The [arena audio system](audio.md) uses confirmed grant tokens for distinct weapon and Wrench pickup cues; its assets and licenses have a separate manifest.
 
 Deterministic NUnit coverage verifies actual registration IDs, single registration, alive/empty/in-range validation, same-tick contention, retry rejection, exact cooldown boundaries, invalid selectors and weights, seeded distribution and complete publication corruption handling. Driver coverage applies the host/trust/delivery/revision guards to spawn-bearing publications.
 
