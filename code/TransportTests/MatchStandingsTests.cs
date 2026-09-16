@@ -62,7 +62,7 @@ internal sealed class MatchStandingsTests
         Assert.That(client.Get(roster, 3), Is.EqualTo(20));
         var newer = new LobbySnapshot(roster.Session, 2, roster.Match, roster.Phase, roster.Players);
         Assert.That(client.Get(newer, 2), Is.Null);
-        var disconnected = new LobbySnapshot(roster.Session, 3, roster.Match, roster.Phase, roster.Players.Select(player => player.Id == 2 ? player with { Connected = false } : player));
+        var disconnected = new LobbySnapshot(roster.Session, 3, roster.Match, roster.Phase, roster.Players.Select(player => player.Id == 2 ? player with { Connected = false, Ready = false } : player));
         Assert.That(client.Accept(host.Sample(disconnected, peers, gateway), disconnected), Is.True);
         Assert.That(client.Get(disconnected, 2), Is.Null, "Reserved disconnected players cannot retain a ping even with a retired peer mapping.");
         client.Clear();
