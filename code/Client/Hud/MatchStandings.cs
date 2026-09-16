@@ -10,14 +10,9 @@ internal sealed partial class MatchStandings : CanvasLayer
     private readonly List<Label[]> _rows = new();
     private Label _status = null!;
     private Label _footer = null!;
-    private Button _return = null!;
 
     /// <summary>Reconstructable presentation from the session owner.</summary>
     internal Func<MatchStandingsView?> View { get; set; } = () => null;
-    /// <summary>Existing session Return/Leave action, supplied by the session owner.</summary>
-    internal Action LeaveResults { get; set; } = () => { };
-    /// <summary>Host returns the group; a client leaves individually.</summary>
-    internal Func<bool> IsHost { get; set; } = () => false;
     /// <summary>Last rendered projection for runtime verification.</summary>
     internal MatchStandingsView? Displayed { get; private set; }
 
@@ -48,10 +43,6 @@ internal sealed partial class MatchStandings : CanvasLayer
         }
 
         _footer = Text(string.Empty, 42, 468, 720, 30, 18);
-        _return = new Button { Name = "LeaveResults", Position = new Vector2(785, 466), Size = new Vector2(213, 34), FocusMode = Control.FocusModeEnum.None };
-        _return.AddThemeFontSizeOverride("font_size", 16);
-        _return.Pressed += () => LeaveResults();
-        _board.AddChild(_return);
         _root.Resized += Layout;
         Layout();
         Refresh();
@@ -71,9 +62,7 @@ internal sealed partial class MatchStandings : CanvasLayer
         }
 
         _status.Text = view.Finished ? "FINAL RESULTS" : "LIVE / FIRST TO TARGET";
-        _return.Visible = view.Finished;
-        _return.Text = IsHost() ? "RETURN TO LOBBY" : "LEAVE SESSION";
-        _footer.Text = view.Finished ? $"WINNER  /  {view.WinnerName}" : "HOLD LEADERBOARD TO VIEW  /  RELEASE TO RETURN";
+        _footer.Text = view.Finished ? $"WINNER  /  {view.WinnerName}    ·    ESC FOR GAME MENU" : "HOLD LEADERBOARD TO VIEW  /  RELEASE TO RETURN";
         for (int index = 0; index < _rows.Count; index++)
         {
             StandingsRow? row = index < view.Rows.Count ? view.Rows[index] : null;

@@ -73,7 +73,7 @@ public sealed partial class SettingsIntegrationChecks : Node
         }
     }
 
-    private static void Press(Node root, string text) => Descendants(root).OfType<Button>().Single(button => button.Text == text).EmitSignal(BaseButton.SignalName.Pressed);
+    private static void Press(Node root, string text) => Descendants(root).OfType<Button>().Single(button => button.Text == text && button.IsVisibleInTree()).EmitSignal(BaseButton.SignalName.Pressed);
 
     private static void SendKey(Key key, bool pressed)
     {
@@ -206,6 +206,7 @@ public sealed partial class SettingsIntegrationChecks : Node
         _settings.AddChild(panel);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Press(panel, "Settings");
+        Press(panel, "Audio");
         Check(_player.Adapter.GameplaySuppressed, "opening settings suppresses gameplay");
         SendKey(Key.W, true);
         Check(_player.Adapter.Capture(1).Accelerate == 0, "settings keystrokes cannot accelerate");
@@ -235,6 +236,8 @@ public sealed partial class SettingsIntegrationChecks : Node
             Check(screenshot.SavePng(path + ".controls.png") == Error.Ok, "rendered controls screenshot saved");
         }
 
+        Press(panel, "Back");
+        Press(panel, "Controls");
         Button bindingButton = Descendants(panel).OfType<Button>().Single(button => button.Name == "Binding_Accelerate");
         bindingButton.EmitSignal(BaseButton.SignalName.Pressed);
         SendKey(Key.J, true);
@@ -242,6 +245,8 @@ public sealed partial class SettingsIntegrationChecks : Node
         Check(_settings.Current.Bindings[InputAction.Accelerate][^1] == "key:74", "UI native key capture persists remap");
         Press(panel, "Restore default bindings");
         Check(_settings.Current.Bindings[InputAction.Accelerate][0] == "key:87", "UI restores default bindings");
+        Press(panel, "Back");
+        Press(panel, "Video");
         OptionButton mode = Descendants(panel).OfType<OptionButton>().First();
         mode.Selected = 1;
         mode.EmitSignal(OptionButton.SignalName.ItemSelected, 1L);
@@ -256,8 +261,8 @@ public sealed partial class SettingsIntegrationChecks : Node
         Press(panel, "Preview display change");
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Check(DisplayServer.WindowGetSize() == new Vector2I(640, 360), "selected window resolution applies");
-        Descendants(panel).OfType<ConfirmationDialog>().Single().EmitSignal(ConfirmationDialog.SignalName.Confirmed);
-        Descendants(panel).OfType<ConfirmationDialog>().Single().Hide();
+        Press(panel, "Keep");
+
         Check(_settings.Current.WindowWidth == 640 && _settings.Current.WindowHeight == 360, "confirmed resolution updates preferences");
         scroll.ScrollVertical = 0;
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
@@ -268,9 +273,10 @@ public sealed partial class SettingsIntegrationChecks : Node
 
         mode.Selected = 1;
         Press(panel, "Preview display change");
-        Descendants(panel).OfType<ConfirmationDialog>().Single().EmitSignal(ConfirmationDialog.SignalName.Confirmed);
+        Press(panel, "Keep");
         Check(_settings.Current.Fullscreen, "confirmed display preview commits");
-        Press(panel, "Done");
+        Press(panel, "Back");
+        Press(panel, "Back");
         Check(!_player.Adapter.GameplaySuppressed, "closing settings restores input routing");
         Check(new PlayerSettingsStore(path).Load().Fullscreen, "UI display confirmation persisted");
     }

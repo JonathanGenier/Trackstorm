@@ -21,11 +21,18 @@ public sealed partial class SimulationBootstrap : Node
     private VehicleArena? _arena;
     private DevelopmentSession? _session;
     private SettingsPanel _settingsPanel = null!;
+    private EosIdentityNode? _online;
+    private bool _quitRequested;
 
     /// <summary>
     /// Gets the latest authoritative tick observed from Core.
     /// </summary>
     public ulong CurrentSimulationTick => _session?.Arena?.Driver.Latest?.Tick ?? _arena?.Simulation.State.Tick ?? 0;
+
+    /// <summary>Allows isolated runtime verification without authenticating an online identity.</summary>
+    internal bool OnlineEnabled { get; set; } = true;
+    /// <summary>Optional isolated storage for native integration checks.</summary>
+    internal string? SettingsPath { get; set; }
 
     /// <inheritdoc />
     public override void _Ready()
@@ -46,12 +53,19 @@ public sealed partial class SimulationBootstrap : Node
         _playerInput.FrameCaptured += OnFrameCaptured;
         Engine.PhysicsTicksPerSecond = _configuration.TicksPerSecond;
         var settings = new PlayerSettingsController { Name = "PlayerSettings" };
-        settings.Initialize(_playerInput.Adapter, ProjectSettings.GlobalizePath("user://player-settings.json"));
+        settings.Initialize(_playerInput.Adapter, SettingsPath ?? ProjectSettings.GlobalizePath("user://player-settings.json"));
         AddChild(settings);
         var panel = new SettingsPanel { Name = "SettingsPanel" };
         panel.Initialize(settings, _playerInput.Adapter);
         settings.AddChild(panel);
         _settingsPanel = panel;
+        panel.ArenaAvailable = () => _arena is not null || _session?.Arena is not null || _quitRequested;
+        panel.LeaveToMainMenu = LeaveToMainMenu;
+        panel.QuitApplication = RequestQuit;
+        panel.ExitStatus = () => !_quitRequested ? null : _online?.Coordinator is { CanLeave: true, Busy: false } coordinator
+            ? coordinator.Status + " Select Quit to retry."
+            : "Closing session…";
+        GetTree().AutoAcceptQuit = false;
         var combatHud = new Hud.CombatHud
         {
             Name = "CombatHud",
@@ -61,12 +75,13 @@ public sealed partial class SimulationBootstrap : Node
             Position = () => _session?.Standings.Position ?? "--",
         };
         AddChild(combatHud);
-        AddChild(new Hud.MatchStandings { Name = "MatchStandings", View = () => _session?.Standings, IsHost = () => _session?.Lobby?.Authority is not null, LeaveResults = () => _session?.LeaveResults() });
+        AddChild(new Hud.MatchStandings { Name = "MatchStandings", View = () => _session?.Standings });
         EosIdentityNode? online = null;
-        if (!OS.GetCmdlineUserArgs().Contains("--local-practice"))
+        if (OnlineEnabled && !OS.GetCmdlineUserArgs().Contains("--local-practice"))
         {
             online = new EosIdentityNode { Name = "EosIdentity" };
             AddChild(online);
+            _online = online;
         }
 
         string[] networkArguments = OS.GetCmdlineUserArgs().Where(argument => argument.StartsWith("--transport-host=", StringComparison.Ordinal) || argument.StartsWith("--transport-connect=", StringComparison.Ordinal)).ToArray();
@@ -95,11 +110,53 @@ public sealed partial class SimulationBootstrap : Node
     }
 
     /// <inheritdoc />
+    public override void _Notification(int what)
+    {
+        if (what == NotificationWMCloseRequest && _settingsPanel is not null)
+        {
+            RequestQuit();
+        }
+    }
+
+    /// <inheritdoc />
+    public override void _Process(double delta)
+    {
+        if (_quitRequested && (_session?.LeaveComplete ?? true) && _online?.Coordinator?.CanLeave != true)
+        {
+            // Normal tree teardown owns settings flush, transport disposal, platform release and terminal SDK shutdown.
+            GetTree().Quit();
+        }
+    }
+
+    /// <inheritdoc />
     public override void _ExitTree()
     {
         if (_playerInput is not null)
         {
             _playerInput.FrameCaptured -= OnFrameCaptured;
+        }
+    }
+
+    private void RequestQuit()
+    {
+        _quitRequested = true;
+        _session?.Leave();
+        if (_session is null)
+        {
+            _online?.Coordinator?.Leave();
+        }
+    }
+
+    private void LeaveToMainMenu()
+    {
+        _session?.Leave();
+        if (_arena is not null)
+        {
+            RemoveChild(_arena);
+            _arena.QueueFree();
+            _arena = null;
+            _session = new DevelopmentSession { Name = "DevelopmentSession" };
+            AddChild(_session);
         }
     }
 

@@ -19,7 +19,6 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private readonly Button _ready = new() { Text = "Ready" };
     private readonly Button _start = new() { Text = "Start Match (host only)" };
     private readonly Button _leave = new() { Text = "Leave session" };
-    private readonly Button _return = new() { Text = "End session / Return to lobby" };
     private readonly CheckButton _debug = new() { Text = "Developer fallback: Direct-IP / LAN" };
     private NetworkTransportNode? _transport;
     private ITransportGateway? _gateway;
@@ -53,6 +52,8 @@ internal sealed partial class DevelopmentSession : CanvasLayer
 
     /// <summary>Active arena, absent while assembling the lobby.</summary>
     internal NetworkVehicleArena? Arena => _arena;
+    /// <summary>Cleanup completion is owned by the session and its online coordinator.</summary>
+    internal bool LeaveComplete => _lobby is null && _gateway is null && OnlineCoordinator()?.CanLeave != true;
     /// <summary>Current sampled peer latency.</summary>
     internal ConnectionDiagnostic Diagnostics => TransportDiagnostics.Capture(_gateway, _lobby);
 
@@ -99,9 +100,6 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _menu.AddChild(_leave);
         var matchBar = new HBoxContainer { Position = new Vector2(24, 72) };
         root.AddChild(matchBar);
-        matchBar.AddChild(_return);
-        var exitArena = new Button { Text = "Leave session" };
-        matchBar.AddChild(exitArena);
         matchBar.AddChild(_arenaStatus);
         _host.Pressed += () => Open(true, _address.Text, _name.Text);
         _join.Pressed += () => Open(false, _address.Text, _name.Text);
@@ -113,9 +111,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
                 _message = "Start requires a connected, fully ready lobby.";
             }
         };
-        _return.Pressed += () => _lobby?.Request(LobbyCommand.Return);
         _leave.Pressed += Leave;
-        exitArena.Pressed += Leave;
         Render();
     }
 
@@ -290,6 +286,11 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <summary>Explicitly leaves or closes the session and releases its native transport.</summary>
     internal void Leave()
     {
+        if (_leaving)
+        {
+            return;
+        }
+
         if (_lobby?.BeginLeave() == true)
         {
             _leaving = true;
@@ -327,7 +328,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _leaving = false;
         RemoveArena();
         _lobby = null;
-        if (_onlineTransport)
+        if (_onlineTransport || OnlineCoordinator()?.CanLeave == true)
         {
             OnlineCoordinator()?.Leave();
             _onlineTransport = false;
@@ -365,10 +366,9 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private void Render()
     {
         bool active = _lobby is not null;
-        bool arena = _lobby?.State?.Phase == SessionPhase.Arena && _lobby?.Reconnecting != true;
+        bool arena = _arena is not null || _lobby?.State?.Phase == SessionPhase.Arena;
         _menu.GetParent<ScrollContainer>().GetParent<Control>().Visible = !arena;
-        ((Control)_return.GetParent()).Visible = arena;
-        _return.Visible = _lobby?.Authority is not null;
+        ((Control)_arenaStatus.GetParent()).Visible = arena;
         _online.Visible = !arena && !_debug.ButtonPressed;
         _debug.Visible = !active;
         _status.Visible = true;
@@ -376,7 +376,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _address.Visible = !active && _debug.ButtonPressed;
         _host.Visible = !active && _debug.ButtonPressed;
         _join.Visible = !active && _debug.ButtonPressed;
-        _leave.Visible = active;
+        _leave.Visible = active && !arena;
         _ready.Visible = _lobby?.State is not null && !arena;
         _start.Visible = _lobby?.Authority is not null && !arena;
         _start.Disabled = _leaving || _lobby?.State?.CanStart != true;
