@@ -23,6 +23,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
     private int _resyncs;
     private ulong _player;
     private NetworkVehicleBody? _originalBody;
+    private byte[]? _retiredLatency;
     private bool _finished;
     private int _cleanup;
 
@@ -161,8 +162,11 @@ public sealed partial class ReconnectIntegrationChecks : Node
             Drop();
             _stage = 5;
         }
-        else if (_stage == 5 && !_client.Reconnecting && _resyncs > 0 && _arenas[1].Driver.IsActive)
+        else if (_stage == 5 && !_client.Reconnecting && _resyncs > 0 && _arenas[1].Driver.IsActive && _client.Latency.Get(_client.State!, _player) is not null)
         {
+            Require(_retiredLatency is not null && !_client.Latency.Accept(_retiredLatency, _client.State!), "Retired connection diagnostics cannot replace the rebound player's RTT.");
+            var standings = Hud.MatchStandingsView.From(_client.State, _arenas[1].Driver.Match, _player, Core.Input.InputButtons.Leaderboard, id => _client.Latency.Get(_client.State!, id));
+            Require(standings.Rows.Count == 2 && standings.Rows.Single(row => row.Local).PlayerId == _player && standings.Rows.Single(row => row.Local).Ping != "--", "Resumed standings retain identity, rank and fresh transport-neutral ping.");
             Require(_arenas[0].Bodies.Count == 2 && _arenas[1].Bodies.Count == 2, "Exactly one vehicle per player remains.");
             Require(_arenas[1].Driver.LocalItem?.Item == HeldItem.Wrench, "Held item survives grace.");
             Require(_arenas[1].Driver.ItemState?.Spawns.Count == 8 && _arenas[1].Driver.Match?.Players.Count == 2, "Pickup and match state arrive in the checkpoint.");
@@ -197,8 +201,12 @@ public sealed partial class ReconnectIntegrationChecks : Node
 
     private void Drop()
     {
+        _retiredLatency = _host.Latency.Sample(_host.State!, _host.Authority!.Peers, _gateways[0]);
         _gateways[0].Disconnect(_host.Authority!.Peers.Keys.Single());
         _gateways[1].Disconnect(_client.ServerPeer);
+        _host.Pump(0);
+        _client.Pump(0);
+        Require(_client.Latency.Get(_client.State!, _player) is null && _host.Latency.Get(_host.State!, _player) is null, "Disconnect immediately clears both sides' stale ping.");
     }
 
     private void Cleanup()

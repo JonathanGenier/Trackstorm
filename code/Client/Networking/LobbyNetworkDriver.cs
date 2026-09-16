@@ -17,6 +17,7 @@ internal sealed class LobbyNetworkDriver
     private bool _joined;
     private ulong _published;
     private double _joiningSeconds;
+    private double _latencySeconds;
     private double _seconds;
     private double? _interruptedAt;
     private double _nextAttempt;
@@ -76,6 +77,8 @@ internal sealed class LobbyNetworkDriver
     internal string Failure { get; private set; } = string.Empty;
     /// <summary>Rejected malformed or unauthorized intents/publications.</summary>
     internal int RejectedPackets { get; private set; }
+    /// <summary>Presentation-only host RTT samples keyed by session player identity.</summary>
+    internal PlayerLatency Latency { get; } = new();
 
     /// <summary>Installs the agreed epoch without carrying transport ownership across the boundary.</summary>
     /// <param name="checkpoint">Agreed old authority checkpoint.</param>
@@ -96,6 +99,7 @@ internal sealed class LobbyNetworkDriver
         _seconds = checkpoint.Lobby.Tick / 60.0;
         _published = 0;
         _pendingGameplay.Clear();
+        Latency.Clear();
         _joined = false;
         _interruptedAt = Authority is null ? _seconds : null;
         NeedsArenaCheckpoint = Authority is null && restored.State.Phase == SessionPhase.Arena;
@@ -129,6 +133,7 @@ internal sealed class LobbyNetworkDriver
             throw new ArgumentOutOfRangeException(nameof(seconds));
         }
 
+        _latencySeconds += seconds;
         _seconds += seconds;
         Authority?.AdvanceTime((ulong)(_seconds * 60));
         _gateway.Poll();
@@ -167,6 +172,7 @@ internal sealed class LobbyNetworkDriver
             }
             else if (!_gateway.Connections.TryGetValue(ServerPeer, out var connection) || connection == TransportConnectionState.Disconnected)
             {
+                Latency.Clear();
                 if ((State is not null || _resumePlayer != 0) && Reconnect is not null && Failure.Length == 0)
                 {
                     if (!_interruptedAt.HasValue)
@@ -175,6 +181,7 @@ internal sealed class LobbyNetworkDriver
                         _nextAttempt = _seconds + 1;
                         ResumeStatus = "Connection interrupted";
                         _pendingGameplay.Clear();
+                        Latency.Clear();
                     }
 
                     if (_seconds - _interruptedAt.Value >= (State?.GraceTicks ?? 1800) / 60.0)
@@ -192,6 +199,7 @@ internal sealed class LobbyNetworkDriver
                             _joined = false;
                             NeedsArenaCheckpoint = false;
                             _pendingGameplay.Clear();
+                            Latency.Clear();
                         }
                         catch (Exception exception) when (exception is InvalidOperationException or ArgumentException)
                         {
@@ -248,6 +256,13 @@ internal sealed class LobbyNetworkDriver
             {
                 Receive(message);
             }
+            else if (PlayerLatency.IsLatency(message.Payload.Span))
+            {
+                if (Authority is not null || Reconnecting || message.RemotePeerId != ServerPeer || message.Delivery != TransportDelivery.Reliable || State is null || !Latency.Accept(message.Payload.Span, State))
+                {
+                    RejectedPackets++;
+                }
+            }
             else if (State?.Phase == SessionPhase.Arena)
             {
                 if (vehicleMessage is not null)
@@ -262,6 +277,15 @@ internal sealed class LobbyNetworkDriver
         }
 
         Publish();
+        if (Authority is not null && _latencySeconds >= 1)
+        {
+            _latencySeconds = 0;
+            byte[] payload = Latency.Sample(Authority.State, Authority.Peers, _gateway);
+            foreach (ulong peer in Authority.Peers.Keys.ToArray())
+            {
+                Send(peer, payload);
+            }
+        }
     }
 
     /// <summary>Dispatches local user intent through the same authoritative rules as remote requests.</summary>

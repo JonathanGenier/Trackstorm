@@ -71,4 +71,6 @@ The packaged native adapter currently targets Windows x64. [Dependency provenanc
 
 Authority restoration, epoch fencing, checkpoint cadence and migration limits are described in [host migration](host-migration.md).
 
+Per-player standings RTT is published above the gateway by the lobby driver using stable session PlayerIds, exact roster revisions and monotonic expiry. See [match standings](standings.md#transport-neutral-latency) for mapping, host/unavailable display rules and wire bounds.
+
 [Feature index](README.md)

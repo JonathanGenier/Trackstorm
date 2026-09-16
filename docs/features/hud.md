@@ -2,7 +2,7 @@
 
 ## Behavior and Layout
 
-During a production practice or network arena, the HUD shows a bottom-left standing badge and current/max HP, a bottom-right speedometer and held-item slot, and a top-center timer. Standing intentionally displays `--`; timer intentionally displays `--:--`. Neither component creates scoring, ranking, tie rules or a gameplay clock. The HUD disappears when the local vehicle is unavailable or the arena closes.
+During a production practice or network arena, the HUD shows a bottom-left standing badge and current/max HP, a bottom-right speedometer and held-item slot, and a top-center timer. Standing uses the same authoritative [match standings](standings.md) rank as the leaderboard during network matches; practice displays `--`. Timer intentionally displays `--:--`; neither component invents a gameplay clock. The HUD disappears when the local vehicle is unavailable or the arena closes.
 
 Health uses the actual `VehicleSnapshot.Damage.CurrentHP / MaxHP`. Production Release 0.0.1 vehicles spawn with 1000 HP; future capacities require no HUD formula changes. The red segmented health bar decreases and increases immediately with the committed health fraction. Speed uses `VehicleSnapshot.Speed`, the existing observed horizontal speed in metres per second, and the current local unit preference. Only the number converts to km/h or mph. The red arc fills at 200 km/h (55.555… m/s) in either setting, and clamps at full above that speed. This is a visual scale, not a new physical speed cap.
 
