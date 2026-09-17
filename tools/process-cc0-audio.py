@@ -1,4 +1,4 @@
-"""Import team-local Sonniss recordings; Python standard library plus FFmpeg only."""
+"""Optional authoring tool for committed CC0 placeholders; never needed to build/run."""
 import argparse
 import array
 import hashlib
@@ -52,20 +52,25 @@ def main():
     root = Path(__file__).resolve().parents[1]
     manifest = json.loads((root / "assets/audio/sources.json").read_text())
     source_root = args.sources.resolve()
-    for entry in manifest["sonniss"]["sources"]:
-        source = source_root / entry["source"]
+    selection = manifest["freesound"]
+    sources = {entry["id"]: entry for entry in selection["sources"]}
+    for entry in sources.values():
+        source = source_root / entry["file"]
         if hashlib.sha256(source.read_bytes()).hexdigest() != entry["sha256"]:
             raise ValueError(f"Source checksum mismatch: {source.name}")
-    target = root / "assets/audio/sonniss"
+    target = root / "assets/audio/freesound"
     with tempfile.TemporaryDirectory() as temporary:
         staging = Path(temporary)
         processed = {}
-        for edit in manifest["sonniss"]["edits"]:
-            samples = normalize(decode(args.ffmpeg, source_root / edit["source"],
+        for edit in selection["edits"]:
+            samples = normalize(decode(args.ffmpeg, source_root / sources[edit["sourceId"]]["file"],
                                        edit["start"], edit["duration"], edit["pitch"]))
             if edit["loop"]:
                 samples = loop(samples)
             else:
+                attack = min(88, len(samples) // 4)
+                for i in range(attack):
+                    samples[i] = int(samples[i] * i / attack)
                 fade = min(2205, len(samples) // 4)
                 for i in range(fade):
                     samples[-fade + i] = int(samples[-fade + i] * (1 - i / fade))
@@ -85,7 +90,17 @@ def main():
             output = target / name
             output.parent.mkdir(parents=True, exist_ok=True)
             output.write_bytes((staging / name).read_bytes())
-            print(f"Imported {output.relative_to(root)}")
+            relative = output.relative_to(root).as_posix()
+            manifest["files"] = [entry for entry in manifest["files"] if entry["path"] != relative]
+            ids = [423314, 790753] if name == "arena/ambience.wav" else [
+                edit["sourceId"] for edit in selection["edits"] if edit["output"] == name]
+            manifest["files"].append({
+                "path": relative, "sourceIds": ids, "license": "CC0-1.0",
+                "sha256": hashlib.sha256(output.read_bytes()).hexdigest(),
+                "processing": "freesound.edits and freesound.processing in this manifest",
+            })
+            print(f"Processed {relative}")
+        (root / "assets/audio/sources.json").write_text(json.dumps(manifest, indent=2) + "\n")
 
 
 if __name__ == "__main__":

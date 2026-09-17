@@ -4,6 +4,17 @@ param (
 )
 
 $ErrorActionPreference = 'Stop'
+# Validate source-controlled bytes before Godot can hide missing files behind its cache.
+$manifest = Get-Content (Join-Path $PSScriptRoot 'assets/audio/sources.json') -Raw | ConvertFrom-Json
+foreach ($entry in $manifest.files) {
+    $path = Join-Path $PSScriptRoot $entry.path
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+        throw "Missing committed audio asset: $($entry.path)"
+    }
+    if ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $entry.sha256) {
+        throw "Audio asset checksum mismatch: $($entry.path)"
+    }
+}
 if (-not $NoBuild) {
     dotnet build Trackstorm.sln -c Debug -warnaserror
     if ($LASTEXITCODE -ne 0) { throw 'Audio build failed.' }

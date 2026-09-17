@@ -27,6 +27,3 @@ Thumbs.db
 
 # Local/exported game releases
 /Releases/
-
-# Licensed audio recordings/derivatives are acquired locally, never published as loose files.
-/assets/audio/sonniss/
