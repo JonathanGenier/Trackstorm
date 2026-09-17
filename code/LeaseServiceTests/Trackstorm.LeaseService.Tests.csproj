@@ -1,15 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <AssemblyName>Trackstorm.Transport.Tests</AssemblyName>
-    <RootNamespace>Trackstorm.Transport.Tests</RootNamespace>
-    <IsTestProject>true</IsTestProject>
-    <IsPackable>false</IsPackable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../Trackstorm.Client.csproj" />
     <ProjectReference Include="../LeaseService/Trackstorm.LeaseService.csproj" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
     <PackageReference Include="NUnit" Version="4.3.2" />

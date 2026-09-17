@@ -39,7 +39,7 @@ public static class LobbyCodec
     /// <summary>Recognizes the exact versioned departure acknowledgement.</summary>
     /// <param name="data">Complete control payload.</param>
     /// <returns>Whether the host acknowledged departure.</returns>
-    public static bool IsLeft(ReadOnlySpan<byte> data) => data.SequenceEqual(new byte[] { (byte)'T', (byte)'L', 3, 3, 0 });
+    public static bool IsLeft(ReadOnlySpan<byte> data) => data.SequenceEqual(new byte[] { (byte)'T', (byte)'L', 4, 3, 0 });
 
     /// <summary>Encodes one complete host state and the recipient's assigned identity.</summary>
     /// <param name="state">Validated authoritative state.</param>
@@ -74,7 +74,7 @@ public static class LobbyCodec
         try
         {
             JsonElement root = document.RootElement;
-            var players = root.GetProperty("Players").EnumerateArray().Take(9).Select(player => new SessionPlayer(player.GetProperty("Id").GetUInt64(), player.GetProperty("Name").GetString()!, player.GetProperty("Ready").GetBoolean(), player.GetProperty("Connected").GetBoolean(), player.GetProperty("Generation").GetUInt64())).ToArray();
+            var players = root.GetProperty("Players").EnumerateArray().Take(9).Select(player => new SessionPlayer(player.GetProperty("Id").GetUInt64(), player.GetProperty("Name").GetString()!, player.GetProperty("Ready").GetBoolean(), player.GetProperty("Connected").GetBoolean(), player.GetProperty("Generation").GetUInt64(), player.GetProperty("RetainedHost").GetBoolean())).ToArray();
             var state = new LobbySnapshot(root.GetProperty("Session").GetUInt64(), root.GetProperty("Revision").GetUInt64(), root.GetProperty("Match").GetUInt64(), (SessionPhase)root.GetProperty("Phase").GetInt32(), players, root.GetProperty("GraceTicks").GetUInt64(), root.GetProperty("CurrentHostId").GetUInt64(), root.GetProperty("AuthorityEpoch").GetUInt64());
             ulong id = root.GetProperty("Player").GetUInt64();
             if (!state.Players.Any(player => player.Id == id))
@@ -118,7 +118,7 @@ public static class LobbyCodec
         byte[] result = new byte[body.Length + 4];
         result[0] = (byte)'T';
         result[1] = (byte)'L';
-        result[2] = 3;
+        result[2] = 4;
         result[3] = kind;
         body.CopyTo(result, 4);
         if (result.Length > MaximumBytes)
@@ -131,7 +131,7 @@ public static class LobbyCodec
 
     private static JsonDocument Parse(ReadOnlySpan<byte> data, byte kind)
     {
-        if (data.Length is < 5 or > MaximumBytes || !IsLobby(data) || data[2] != 3 || data[3] != kind)
+        if (data.Length is < 5 or > MaximumBytes || !IsLobby(data) || data[2] != 4 || data[3] != kind)
         {
             throw new ArgumentException("Invalid lobby envelope.");
         }

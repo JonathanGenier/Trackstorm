@@ -83,6 +83,11 @@ internal sealed class VehicleNetworkDriver
                     Host.JoinPlayer(peer.Key, peer.Value);
                     _assigned.Add(peer.Key);
                 }
+
+                foreach (var player in lobby.State.Players.Where(player => !player.Connected && player.RetainedHost))
+                {
+                    Host.ReservePlayer(player.Id);
+                }
             }
             else
             {

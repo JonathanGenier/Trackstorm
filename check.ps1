@@ -37,6 +37,10 @@ Invoke-Check "Debug transport conversion tests" {
     dotnet test code/TransportTests/Trackstorm.Transport.Tests.csproj -c Debug --no-build --filter 'TestCategory!=Native'
 }
 
+Invoke-Check "Debug authority lease service tests" {
+    dotnet test code/LeaseServiceTests/Trackstorm.LeaseService.Tests.csproj -c Debug --no-build
+}
+
 Invoke-Check "Release build and analyzers" {
     dotnet build Trackstorm.sln -c Release --no-restore -warnaserror
 }
@@ -47,6 +51,10 @@ Invoke-Check "Release Core tests" {
 
 Invoke-Check "Release transport conversion tests" {
     dotnet test code/TransportTests/Trackstorm.Transport.Tests.csproj -c Release --no-build --filter 'TestCategory!=Native'
+}
+
+Invoke-Check "Release authority lease service tests" {
+    dotnet test code/LeaseServiceTests/Trackstorm.LeaseService.Tests.csproj -c Release --no-build
 }
 
 Write-Host "`nAll checks passed."

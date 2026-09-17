@@ -10,7 +10,8 @@ public sealed class MigrationCheckpoint
     /// <param name="lobby">Session authority continuation.</param>
     /// <param name="arena">Complete match state, absent in lobby.</param>
     /// <param name="host">Authority-only gameplay supplement, absent in lobby.</param>
-    public MigrationCheckpoint(ulong sequence, LobbyRestoreState lobby, ResumeCheckpoint? arena, HostRestoreState? host)
+    /// <param name="leaseSession">Opaque coordination session for admitted survivors; absent in trusted native harnesses.</param>
+    public MigrationCheckpoint(ulong sequence, LobbyRestoreState lobby, ResumeCheckpoint? arena, HostRestoreState? host, string? leaseSession = null)
     {
         if (sequence == 0 || (lobby.State.Phase == SessionPhase.Arena) != (arena is not null) || (arena is null) != (host is null))
         {
@@ -37,6 +38,12 @@ public sealed class MigrationCheckpoint
         Lobby = lobby;
         Arena = arena;
         Host = host;
+        if (leaseSession is not null && (leaseSession.Length != 64 || !leaseSession.All(Uri.IsHexDigit)))
+        {
+            throw new ArgumentException("Invalid lease session.");
+        }
+
+        LeaseSession = leaseSession;
     }
 
     /// <summary>Epoch-scoped checkpoint identity.</summary>
@@ -47,4 +54,6 @@ public sealed class MigrationCheckpoint
     public ResumeCheckpoint? Arena { get; }
     /// <summary>Continuation supplement required only by replacement authority.</summary>
     public HostRestoreState? Host { get; }
+    /// <summary>Private coordination routing capability, never published in discovery or diagnostics.</summary>
+    public string? LeaseSession { get; }
 }

@@ -14,6 +14,104 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class EosP2pTransportTests
 {
+    /// <summary>Losing both coordination and P2P freezes the old host and never creates replacement authority.</summary>
+    [Test]
+    public void TrustedLeaseOutageFailsClosedAtBothPeers()
+    {
+        using var pair = new MigrationPair();
+        pair.EnableLeases();
+        pair.Step(180);
+        pair.StartArena();
+        pair.SetLeaseOutage();
+        pair.Link.HostWire.DropOutgoing = pair.Link.ClientWire.DropOutgoing = true;
+        pair.Step(600);
+        Assert.That(pair.Host.Migration!.Frozen, Is.True);
+        ulong tick = pair.HostVehicles!.Host!.World.State.Tick;
+        pair.Step(300);
+        Assert.That(pair.HostVehicles.Host.World.State.Tick, Is.EqualTo(tick));
+        Assert.That(pair.Client.Authority, Is.Null);
+        Assert.That(pair.Client.State!.AuthorityEpoch, Is.EqualTo(1));
+        Assert.That(pair.Client.Migration!.Frozen, Is.True);
+    }
+
+    /// <summary>Real lease semantics fence a crash within ten seconds, retain the match and permit password-independent rebind.</summary>
+    /// <param name="arena">Whether loss occurs in an active match.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void TrustedLeaseCrashMigrationAndFormerHostRetention(bool arena)
+    {
+        using var pair = new MigrationPair();
+        pair.EnableLeases();
+        pair.Step(180);
+        if (arena)
+        {
+            pair.StartArena();
+            pair.HostVehicles!.Host!.Items.Grant(pair.HostVehicles.Host.World, 1, Trackstorm.Core.Items.HeldItem.Wrench);
+            pair.Step(60);
+        }
+
+        var before = pair.Client.State!;
+        pair.RetireHostTransport();
+        int frames = 0;
+        while (pair.Client.Authority is null && frames++ < 780)
+        {
+            pair.Step(1, host: false);
+        }
+
+        Assert.That(pair.Client.Failure, Is.Empty);
+        Assert.That(pair.Client.State!.AuthorityEpoch, Is.EqualTo(2));
+        Assert.That(frames, Is.LessThan(780), "Failover must finish before the 30-second player grace.");
+        Assert.That(pair.Client.State.Session, Is.EqualTo(before.Session));
+        Assert.That(pair.Client.State.Match, Is.EqualTo(before.Match));
+        pair.Step(2100, host: false);
+        Assert.That(pair.Client.State.Players.Single(player => player.Id == 1), Is.EqualTo(before.Players.Single(player => player.Id == 1) with { Ready = false, Connected = false, RetainedHost = true }));
+        if (arena)
+        {
+            Assert.That(pair.Client.State.Phase, Is.EqualTo(SessionPhase.Arena));
+            Assert.That(pair.ClientVehicles!.Host!.World.State.Vehicles.Count, Is.EqualTo(2));
+            Assert.That(pair.ClientVehicles.Host.Items.Slots.Single(slot => slot.Vehicle == 1).Item, Is.EqualTo(Trackstorm.Core.Items.HeldItem.Wrench));
+        }
+        else
+        {
+            Assert.That(pair.Client.Request(LobbyCommand.Ready, true), Is.True);
+            Assert.That(pair.Client.Request(LobbyCommand.Start), Is.True);
+            pair.ReplaceClientVehicles(new VehicleNetworkDriver(pair.Link.Client, pair.Client.State.Match, 0, pair.Client));
+            Assert.That(pair.ClientVehicles!.Host!.World.State.Vehicles.Select(vehicle => vehicle.VehicleId), Is.EquivalentTo(new ulong[] { 1, 2 }));
+        }
+
+        pair.RestartFormerHost();
+        pair.Step(180);
+        Assert.That(pair.Host.Authority, Is.Null);
+        Assert.That(pair.Host.LocalPlayerId, Is.EqualTo(1));
+        Assert.That(pair.Host.Generation, Is.EqualTo(2));
+        Assert.That(pair.Host.State!.AuthorityEpoch, Is.EqualTo(2));
+        pair.RetireClientTransport();
+        pair.Step(780, client: false);
+        Assert.That(pair.Host.Failure, Is.Empty);
+        Assert.That(pair.Host.State.AuthorityEpoch, Is.EqualTo(3));
+    }
+
+    /// <summary>A healthy renewing host continues while its client has no gameplay route.</summary>
+    [Test]
+    public void TrustedLeaseP2pPartitionPreservesHealthyHost()
+    {
+        using var pair = new MigrationPair();
+        pair.EnableLeases();
+        pair.Step(180);
+        pair.StartArena();
+        ulong tick = pair.HostVehicles!.Host!.World.State.Tick;
+        pair.Link.HostWire.DropOutgoing = pair.Link.ClientWire.DropOutgoing = true;
+        pair.Step(900);
+        Assert.That(pair.Host.Migration!.Frozen, Is.False);
+        Assert.That(pair.HostVehicles.Host.World.State.Tick, Is.GreaterThan(tick));
+        Assert.That(pair.Client.Authority, Is.Null);
+        Assert.That(pair.Client.State!.AuthorityEpoch, Is.EqualTo(1));
+        pair.RetireHostTransport();
+        pair.Step(1200, host: false);
+        Assert.That(pair.Client.Authority, Is.Null, "Continuing service renewals made the pre-partition checkpoint stale.");
+        Assert.That(pair.Client.Failure, Is.Not.Empty);
+    }
+
     /// <summary>A complete older tuning boundary may be restored at a new epoch, without relaxing in-epoch ordering.</summary>
     [Test]
     public void MigrationRestoresCheckpointConfigurationAfterUncheckpointedTuning()
@@ -173,10 +271,6 @@ internal sealed class EosP2pTransportTests
         for (int tick = 0; tick < 2100 && pair.Client.Authority is null; tick++)
         {
             pair.Step(1, host: loss is "leave" or "partition");
-            if (loss != "leave" && tick < 180)
-            {
-                Assert.That(pair.Client.Authority, Is.Null, "A transient interruption cannot cause immediate promotion.");
-            }
 
             if (pair.Client.Authority is not null && loss is "leave" or "partition")
             {
@@ -287,6 +381,7 @@ internal sealed class EosP2pTransportTests
         Assert.That(pair.ClientVehicles.Latest!.Tick, Is.EqualTo(observed));
         Assert.That(pair.Client.Migration!.Subjects, Is.Not.Null, "The survivor still retains its external pre-partition checkpoint.");
 
+        pair.Client.Migration!.HostProgressAt = () => pair.Link.Clock.GetTimestamp();
         pair.RetireHostTransport();
         for (int i = 0; i < 2100 && pair.Client.Failure.Length == 0; i++)
         {
@@ -399,6 +494,7 @@ internal sealed class EosP2pTransportTests
         pair.Client.Migration!.Receive(new(pair.Client.ServerPeer, packet, TransportDelivery.Reliable));
         Trackstorm.Core.Networking.Replication.WorldSnapshot? restored = null;
         pair.ClientVehicles!.Resynchronized += world => restored = world;
+        pair.Client.Migration!.HostProgressAt = () => pair.Link.Clock.GetTimestamp();
         pair.RetireHostTransport();
         for (int i = 0; i < 2100 && restored is null && pair.Client.Failure.Length == 0; i++)
         {
@@ -438,12 +534,16 @@ internal sealed class EosP2pTransportTests
     /// <param name="agree">Whether every eligible survivor remains available.</param>
     /// <param name="recover">Whether the original authority returns within grace.</param>
     /// <param name="oneWay">Whether only client-to-host delivery fails.</param>
-    [TestCase(false, true, false, false)]
-    [TestCase(true, true, false, false)]
-    [TestCase(true, false, false, false)]
-    [TestCase(true, true, true, false)]
-    [TestCase(true, true, true, true)]
-    public void MigratesLobbyAndActiveMatchThroughProductionFraming(bool arena, bool agree, bool recover, bool oneWay)
+    /// <param name="trustedLease">Whether to fence through the real conditional store.</param>
+    [TestCase(false, true, false, false, false)]
+    [TestCase(true, true, false, false, false)]
+    [TestCase(true, false, false, false, false)]
+    [TestCase(true, true, true, false, false)]
+    [TestCase(true, true, true, true, false)]
+    [TestCase(false, true, false, false, true)]
+    [TestCase(true, true, false, false, true)]
+    [TestCase(true, false, false, false, true)]
+    public void MigratesLobbyAndActiveMatchThroughProductionFraming(bool arena, bool agree, bool recover, bool oneWay, bool trustedLease)
     {
         var identities = Enumerable.Range(1, 3).Select(Id).ToArray();
         var lobby = new OnlineLobby("migration", "Migration", identities[0], 100, LobbyAccess.Public, 3, 8, OnlineLobby.CurrentProtocol, true, null) { MemberIds = identities };
@@ -452,6 +552,10 @@ internal sealed class EosP2pTransportTests
         var gateways = identities.Select((identity, index) => new EosP2pTransport(wires[index], identity, () => lobby)).ToArray();
         var subjects = Enumerable.Range(0, 3).Select(_ => new Dictionary<ulong, string>()).ToArray();
         var drivers = new LobbyNetworkDriver[3];
+        var clock = new Clock();
+        string leasePath = Path.Combine(TestContext.CurrentContext.WorkDirectory, "lease-" + Guid.NewGuid().ToString("N"), "ledger.json");
+        var leaseClients = new List<AuthorityLeaseClient>();
+        using var store = trustedLease ? new LeaseService.LeaseStore(leasePath, clock) : null;
         try
         {
             for (int i = 0; i < 3; i++)
@@ -472,12 +576,30 @@ internal sealed class EosP2pTransportTests
                 ulong server = i == 0 ? 0 : gateways[i].Connect(EosP2pTransport.Endpoint(lobby, identities[0]));
                 drivers[i] = new LobbyNetworkDriver(gateways[i], i == 0 ? 100UL : 0, server, "Player" + i, identity: peer => subjects[index].GetValueOrDefault(peer));
                 drivers[i].Reconnect = () => throw new InvalidOperationException("Host terminated in this scenario.");
-                drivers[i].Migration = new SessionMigration(drivers[i], gateways[i], identities[i].Value, peer => subjects[index].GetValueOrDefault(peer), (subject, _) => gateways[index].RebindHost(new OnlineProductUserId(subject)), new Clock());
+                drivers[i].Migration = new SessionMigration(drivers[i], gateways[i], identities[i].Value, peer => subjects[index].GetValueOrDefault(peer), (subject, _) => gateways[index].RebindHost(new OnlineProductUserId(subject)), clock);
                 drivers[i].Migration!.RetirementConfirmedAt = _ => !gateways[0].IsListening ? 0L : null;
+                if (trustedLease)
+                {
+                    var driver = drivers[i];
+                    var lease = new AuthorityLeaseClient(new LeaseTransport(store!, identities[i].Value), identities[i].Value, clock);
+                    leaseClients.Add(lease);
+                    driver.Migration!.LeaseSession = new string('D', 64);
+                    driver.Migration.PollCoordination = () => lease.Poll(driver.Migration.LeaseSession, index == 0, driver.State?.AuthorityEpoch ?? 1);
+                    driver.Migration.AuthorityAvailable = () => lease.Available(driver.State!.AuthorityEpoch);
+                    driver.Migration.RetirementConfirmedAt = checkpoint => lease.Expired(checkpoint.Lobby.State.AuthorityEpoch, checkpoint.Lobby.Subjects[checkpoint.Lobby.State.CurrentHostId]) ? clock.GetTimestamp() : null;
+                    driver.Migration.AcquireAuthority = checkpoint => lease.Acquire(checkpoint.Lobby.State.AuthorityEpoch);
+                    driver.Migration.ConfirmSuccessor = (checkpoint, candidate) => lease.Confirms(checkpoint.Lobby.State.AuthorityEpoch + 1, checkpoint.Lobby.Subjects[candidate]);
+                    driver.Migration.HostProgressAt = () => lease.HostProgressAt;
+                }
             }
 
             for (int tick = 0; tick < 120; tick++)
             {
+                if (trustedLease)
+                {
+                    clock.Advance(1.0 / 60);
+                }
+
                 foreach (var driver in drivers)
                 {
                     driver.Pump(1.0 / 60);
@@ -495,6 +617,11 @@ internal sealed class EosP2pTransportTests
                 gateways[0].Stop();
                 for (int tick = 0; tick < 2100; tick++)
                 {
+                    if (trustedLease)
+                    {
+                        clock.Advance(1.0 / 60);
+                    }
+
                     drivers[1].Pump(1.0 / 60);
                     drivers[2].Pump(1.0 / 60);
                 }
@@ -516,6 +643,11 @@ internal sealed class EosP2pTransportTests
             vehicles[0].Host!.Items.Grant(vehicles[0].Host!.World, 3, Trackstorm.Core.Items.HeldItem.Wrench);
             for (int tick = 0; tick < 120; tick++)
             {
+                if (trustedLease)
+                {
+                    clock.Advance(1.0 / 60);
+                }
+
                 foreach (var vehicle in vehicles)
                 {
                     vehicle.Advance(default, Observe);
@@ -547,6 +679,11 @@ internal sealed class EosP2pTransportTests
                 ulong frozenTick = 0;
                 for (int tick = 0; tick < 600; tick++)
                 {
+                    if (trustedLease)
+                    {
+                        clock.Advance(1.0 / 60);
+                    }
+
                     if (tick == 180)
                     {
                         Assert.That(drivers[0].Migration!.Frozen, Is.False);
@@ -592,7 +729,7 @@ internal sealed class EosP2pTransportTests
             if (agree)
             {
                 var captured = drivers[0].Migration!.CaptureArena!();
-                var common = new MigrationCheckpoint(100, drivers[0].Authority!.Capture(identities[0].Value), captured.Arena, captured.Host);
+                var common = new MigrationCheckpoint(100, drivers[0].Authority!.Capture(identities[0].Value), captured.Arena, captured.Host, drivers[0].Migration!.LeaseSession);
                 byte[] commonBytes = MigrationCheckpointCodec.Encode(common);
                 foreach (int index in new[] { 1, 2 })
                 {
@@ -603,13 +740,13 @@ internal sealed class EosP2pTransportTests
                 // Only the candidate sees the newest boundary; agreement must choose the older common copy.
                 vehicles[0].Host!.Items.Grant(vehicles[0].Host!.World, 3, Trackstorm.Core.Items.HeldItem.Missile);
                 captured = drivers[0].Migration!.CaptureArena!();
-                var newest = new MigrationCheckpoint(101, common.Lobby, captured.Arena, captured.Host);
+                var newest = new MigrationCheckpoint(101, common.Lobby, captured.Arena, captured.Host, drivers[0].Migration!.LeaseSession);
                 byte[] newestPacket = [(byte)'T', (byte)'X', 1, .. MigrationCheckpointCodec.Encode(newest)];
                 drivers[1].Migration!.Receive(new(drivers[1].ServerPeer, newestPacket, TransportDelivery.Reliable));
                 // Reliable checkpoint delivery can precede its unreliable world snapshot.
                 vehicles[0].Host!.Step(default, Observe);
                 captured = drivers[0].Migration!.CaptureArena!();
-                var ahead = new MigrationCheckpoint(102, common.Lobby, captured.Arena, captured.Host);
+                var ahead = new MigrationCheckpoint(102, common.Lobby, captured.Arena, captured.Host, drivers[0].Migration!.LeaseSession);
                 byte[] aheadPacket = [(byte)'T', (byte)'X', 1, .. MigrationCheckpointCodec.Encode(ahead)];
                 drivers[1].Migration!.Receive(new(drivers[1].ServerPeer, aheadPacket, TransportDelivery.Reliable));
                 vehicles[1].Resynchronized += world => selectedTick ??= world.Tick;
@@ -623,6 +760,11 @@ internal sealed class EosP2pTransportTests
 
             for (int tick = 0; tick < (agree ? 2100 : 3300); tick++)
             {
+                if (trustedLease)
+                {
+                    clock.Advance(1.0 / 60);
+                }
+
                 vehicles[1].Advance(default, Observe);
                 if (agree)
                 {
@@ -655,6 +797,17 @@ internal sealed class EosP2pTransportTests
         }
         finally
         {
+            foreach (var lease in leaseClients)
+            {
+                lease.Dispose();
+            }
+
+            if (store is not null)
+            {
+                store.Dispose();
+                Directory.Delete(Path.GetDirectoryName(leasePath)!, true);
+            }
+
             foreach (var gateway in gateways)
             {
                 gateway.Dispose();
@@ -1299,6 +1452,10 @@ internal sealed class EosP2pTransportTests
 
     private sealed class MigrationPair : IDisposable
     {
+        private readonly List<AuthorityLeaseClient> _leaseClients = new();
+        private readonly List<LeaseTransport> _leaseTransports = new();
+        private LeaseService.LeaseStore? _leases;
+        private string? _leasePath;
         private bool _hostServiceLive = true;
         private bool _clientServiceLive = true;
         private long? _hostRetiredAt;
@@ -1358,7 +1515,33 @@ internal sealed class EosP2pTransportTests
             }
         }
 
-        public void Dispose() => Link.Dispose();
+        public void Dispose()
+        {
+            Link.Dispose();
+            _leaseClients.ForEach(client => client.Dispose());
+            _leases?.Dispose();
+            if (_leasePath is not null)
+            {
+                Directory.Delete(Path.GetDirectoryName(_leasePath)!, true);
+            }
+        }
+
+        internal void EnableLeases()
+        {
+            _leasePath = Path.Combine(TestContext.CurrentContext.WorkDirectory, "migration-lease-" + Guid.NewGuid().ToString("N"), "ledger.json");
+            _leases = new(_leasePath, Link.Clock);
+            Host.Migration!.LeaseSession = new string('A', 64);
+            AttachLease(Host, Link.HostId.Value, true);
+            AttachLease(Client, Link.ClientId.Value, false);
+        }
+
+        internal void SetLeaseOutage()
+        {
+            foreach (var transport in _leaseTransports)
+            {
+                transport.Offline = true;
+            }
+        }
 
         internal void AttachClientMigration()
         {
@@ -1393,6 +1576,10 @@ internal sealed class EosP2pTransportTests
             Host.Migration = new SessionMigration(Host, Link.Host, Link.HostId.Value, _ => Link.ClientId.Value, (subject, _) => Link.Host.RebindHost(new(subject)), Link.Clock);
             Host.Migration.AuthorityAvailable = () => HostServiceLive;
             Host.Migration.RetirementConfirmedAt = RetiredAt;
+            if (_leases is not null)
+            {
+                AttachLease(Host, Link.HostId.Value, false);
+            }
         }
 
         internal void StartArena(bool waiting = false)
@@ -1449,6 +1636,21 @@ internal sealed class EosP2pTransportTests
                     }
                 }
             }
+        }
+
+        private void AttachLease(LobbyNetworkDriver driver, string subject, bool create)
+        {
+            var transport = new LeaseTransport(_leases!, subject);
+            _leaseTransports.Add(transport);
+            var lease = new AuthorityLeaseClient(transport, subject, Link.Clock);
+            _leaseClients.Add(lease);
+            driver.Migration!.PollCoordination = () => lease.Poll(driver.Migration.LeaseSession, create, driver.State?.AuthorityEpoch ?? 1);
+            driver.Migration.AuthorityAvailable = () => lease.Available(driver.State!.AuthorityEpoch);
+            driver.Migration.RetirementConfirmedAt = checkpoint => lease.Expired(checkpoint.Lobby.State.AuthorityEpoch, checkpoint.Lobby.Subjects[checkpoint.Lobby.State.CurrentHostId]) ? Link.Clock.GetTimestamp() : null;
+            driver.Migration.AcquireAuthority = checkpoint => lease.Acquire(checkpoint.Lobby.State.AuthorityEpoch);
+            driver.Migration.ConfirmSuccessor = (checkpoint, candidate) => lease.Confirms(checkpoint.Lobby.State.AuthorityEpoch + 1, checkpoint.Lobby.Subjects[candidate]);
+            driver.Migration.HostProgressAt = () => lease.HostProgressAt;
+            driver.Migration.ReleaseAuthority = () => lease.Release(driver.State!.AuthorityEpoch);
         }
 
         private long? RetiredAt(MigrationCheckpoint checkpoint)

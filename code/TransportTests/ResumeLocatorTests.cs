@@ -22,6 +22,10 @@ internal sealed class ResumeLocatorTests
             Assert.That(File.Exists(path), Is.False);
             store.Save(locator);
             Assert.That(store.Load("identity", now.AddMinutes(2)), Is.Null);
+            var retained = locator with { RetainedHost = true };
+            store.Save(retained);
+            Assert.That(store.Load("identity", now.AddHours(1)), Is.EqualTo(retained), "Core decides same-match eligibility; local cleanup must not discard former-host routing.");
+            Assert.That(store.Load("different", now.AddHours(1)), Is.Null);
             foreach (string invalid in new[] { "broken", "null", "{}", new string('a', 4097), "{\"Identity\":\"identity\",\"Lobby\":null}" })
             {
                 File.WriteAllText(path, invalid);

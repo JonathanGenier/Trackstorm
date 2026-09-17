@@ -40,6 +40,7 @@ public sealed partial class EosIdentityNode : Node
             try
             {
                 Coordinator = new OnlineLobbyCoordinator(_identity.CreateLobbyProvider(), _identity.ProductUserId!, resumeStore: new ResumeLocatorStore(ProjectSettings.GlobalizePath("user://session-resume.json")));
+                Coordinator.LeaseFactory = _identity.CreateLeaseTransport;
                 Coordinator.TransportFactory = credential => _identity.CreateTransport(Coordinator, credential);
             }
             catch (InvalidOperationException)

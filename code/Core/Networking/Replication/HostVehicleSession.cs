@@ -234,6 +234,21 @@ public sealed class HostVehicleSession
         _nextVehicle = Math.Max(_nextVehicle, playerId);
     }
 
+    /// <summary>Creates a disconnected lobby reservation in a newly started match without granting input ownership.</summary>
+    /// <param name="playerId">Retained stable lobby identity.</param>
+    public void ReservePlayer(ulong playerId)
+    {
+        if (playerId == 0 || playerId == HostPlayerId || World.State.Vehicles.Any(vehicle => vehicle.VehicleId == playerId) || _peers.Count + _disconnected.Count == 7)
+        {
+            throw new ArgumentException("Invalid reserved vehicle identity.");
+        }
+
+        int slot = Enumerable.Range(1, 7).First(candidate => _peers.Values.All(entry => entry.SpawnSlot != candidate) && _disconnected.Values.All(entry => entry.SpawnSlot != candidate));
+        World.JoinVehicle(playerId, Configuration.Configuration.Vehicle, Configuration.Configuration.Damage, Spawn(slot));
+        _disconnected.Add(playerId, (new HostInputBuffer(), slot));
+        _nextVehicle = Math.Max(_nextVehicle, playerId);
+    }
+
     /// <summary>Releases gameplay ownership; stale input can no longer target the departed vehicle.</summary>
     /// <param name="peer">Departed transport identity.</param>
     public void Leave(ulong peer)

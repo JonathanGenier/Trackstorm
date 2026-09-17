@@ -14,6 +14,41 @@ namespace Trackstorm.Core.Tests.Networking;
 [TestFixture]
 internal sealed class MigrationTests
 {
+    /// <summary>Former hosts survive ordinary grace, but disconnected reservations end with the match.</summary>
+    /// <param name="resume">Whether the former host returns during the retained match.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void FormerHostReservationLastsThroughMatchAndClearsAtReturn(bool resume)
+    {
+        var lobby = new LobbyAuthority(100, "Host");
+        lobby.Join(10, "Client", "client");
+        var restored = LobbyAuthority.Restore(lobby.Capture("host"), 2, 2);
+        restored.AdvanceTime(100000);
+        Assert.That(restored.State.Players.Single(player => player.Id == 1).RetainedHost, Is.True);
+        restored.SetReady(0, true);
+        Assert.That(restored.Start(0), Is.True, "The disconnected former host cannot block a lobby successor from starting.");
+        restored.AdvanceTime(200000);
+        if (resume)
+        {
+            Assert.That(restored.Resume(50, 100, 1, 1, "host"), Is.True);
+            Assert.That(restored.State.CurrentHostId, Is.EqualTo(2));
+        }
+
+        Assert.That(restored.Return(0), Is.True);
+        Assert.That(restored.State.Players.Any(player => player.RetainedHost), Is.False);
+        Assert.That(restored.State.Players.Any(player => player.Id == 1), Is.EqualTo(resume));
+        if (resume)
+        {
+            restored.Disconnect(50);
+            restored.AdvanceTime(200000 + restored.GraceTicks);
+            Assert.That(restored.State.Players.Any(player => player.Id == 1), Is.False);
+        }
+        else
+        {
+            Assert.That(restored.Resume(50, 100, 1, 1, "host"), Is.False);
+        }
+    }
+
     /// <summary>A two-player checkpoint permits exactly one survivor; a larger roster cannot use that exception.</summary>
     [Test]
     public void TwoPlayerElectionRestoresOnceAndFormerHostCanReturnBeforeSequentialMigration()

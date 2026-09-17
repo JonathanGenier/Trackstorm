@@ -9,4 +9,5 @@ namespace Trackstorm.Client.Online;
 /// <param name="AuthorityEpoch">Last established Trackstorm authority epoch.</param>
 /// <param name="Host">Expected authenticated host.</param>
 /// <param name="Expires">Local cleanup deadline; the host independently enforces actual grace.</param>
-internal sealed record ResumeLocator(string Lobby, ulong Session, ulong Player, ulong Generation, string Identity, ulong AuthorityEpoch, string Host, DateTimeOffset Expires);
+/// <param name="RetainedHost">Allows an original or former host hint to remain available until Core rejects or tears down its match reservation.</param>
+internal sealed record ResumeLocator(string Lobby, ulong Session, ulong Player, ulong Generation, string Identity, ulong AuthorityEpoch, string Host, DateTimeOffset Expires, bool RetainedHost = false);

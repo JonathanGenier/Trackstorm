@@ -8,7 +8,7 @@ namespace Trackstorm.Client.Networking;
 /// <summary>Bounded checkpoint distribution and authenticated survivor agreement on the existing transport.</summary>
 internal sealed class SessionMigration
 {
-    /// <summary>Maximum rollback age at the trustworthy old-authority retirement boundary.</summary>
+    /// <summary>Maximum rollback age at locally detected gameplay loss, independently of fencing delay.</summary>
     private const double MaximumRecoverableCheckpointAgeSeconds = 4;
 
     private readonly LobbyNetworkDriver _lobby;
@@ -38,6 +38,7 @@ internal sealed class SessionMigration
     private bool _authorityPaused;
     private MigrationElection? _election;
     private string? _selection;
+    private string? _pendingCommit;
 
     /// <summary>Creates authenticated migration coordination; direct-IP remains explicitly opt-in.</summary>
     /// <param name="lobby">Existing gameplay admission authority.</param>
@@ -67,6 +68,20 @@ internal sealed class SessionMigration
     internal Func<bool>? AuthorityAvailable { get; set; }
     /// <summary>Returns the monotonic prior-authority retirement boundary after confirming the surviving service cohort.</summary>
     internal Func<MigrationCheckpoint, long?>? RetirementConfirmedAt { get; set; }
+    /// <summary>Owner-thread service pumping, independent of the P2P connection and player grace.</summary>
+    internal Action? PollCoordination { get; set; }
+    /// <summary>Credential-free trusted lease progress for development diagnostics.</summary>
+    internal Func<string>? LeaseStatus { get; set; }
+    /// <summary>Acquires exclusive successor permission after deterministic agreement and before Core commit.</summary>
+    internal Func<MigrationCheckpoint, bool>? AcquireAuthority { get; set; }
+    /// <summary>Confirms the committed successor through the trusted service before a remote installation.</summary>
+    internal Func<MigrationCheckpoint, ulong, bool>? ConfirmSuccessor { get; set; }
+    /// <summary>Private coordination session shared in authenticated checkpoints, never in public EOS metadata.</summary>
+    internal string? LeaseSession { get; set; }
+    /// <summary>Later trusted evidence of continuing host progress invalidates stale partition boundaries.</summary>
+    internal Func<long?>? HostProgressAt { get; set; }
+    /// <summary>Relinquishes service permission only after intentional departure freezes local gameplay.</summary>
+    internal Action? ReleaseAuthority { get; set; }
     /// <summary>Latest locally observed world tick, used to reject excessive rollback.</summary>
     internal Func<ulong>? ObservedTick { get; set; }
     /// <summary>Blocks input, commands and gameplay advancement during lost authority or agreement.</summary>
@@ -80,7 +95,7 @@ internal sealed class SessionMigration
     /// <summary>Configuration revision at the latest externally recoverable boundary, if present.</summary>
     internal ulong? ConfigurationRevision => _retained.LastOrDefault()?.State.Lobby.Configuration.Revision;
     /// <summary>Secret-free migration progress and checkpoint counters for Developer Options.</summary>
-    internal string Diagnostics => $"{(_failed ? "failed" : Negotiating ? "agreeing" : Frozen ? "frozen" : "running")}; retained checkpoints: {_retained.Count}; latest sequence: {_retained.LastOrDefault()?.State.Sequence ?? 0}";
+    internal string Diagnostics => $"{(_failed ? "failed" : Negotiating ? "agreeing" : Frozen ? "frozen" : "running")}; retained checkpoints: {_retained.Count}; latest sequence: {_retained.LastOrDefault()?.State.Sequence ?? 0}; fencing: {LeaseStatus?.Invoke() ?? "trusted harness"}";
 
     /// <summary>Freezes an intentionally departing authority and gives reliable control time to drain.</summary>
     internal void AnnounceDeparture()
@@ -92,6 +107,7 @@ internal sealed class SessionMigration
 
         _departing = true;
         Frozen = true;
+        ReleaseAuthority?.Invoke();
         var state = _lobby.State!;
         foreach (ulong peer in _lobby.Authority.Peers.Keys)
         {
@@ -114,6 +130,7 @@ internal sealed class SessionMigration
         // A suspended process must expire its lease before its next simulation step, even when fixed-step delta is small.
         _seconds += Math.Max(seconds, _time.GetElapsedTime(_timestamp, timestamp).TotalSeconds);
         _timestamp = timestamp;
+        PollCoordination?.Invoke();
         if (_failed || _departing || _lobby.State is not { } state)
         {
             return;
@@ -124,11 +141,21 @@ internal sealed class SessionMigration
             if (_seconds - _attemptAt!.Value >= 20)
             {
                 Fail("survivors could not agree on a recoverable checkpoint");
+                return;
             }
             else if (_candidate != _lobby.LocalPlayerId && !_reported && Connected(_server))
             {
                 Send(_server, new Control("offer", state.Session, state.AuthorityEpoch, _candidate, string.Empty, _retained.Select(entry => entry.Digest).ToArray()));
                 _reported = true;
+            }
+
+            if (_candidate == _lobby.LocalPlayerId)
+            {
+                CommitAgreement();
+            }
+            else if (_pendingCommit is { } digest && ConfirmSuccessor?.Invoke(_retained.Single(entry => entry.Digest == digest).State, _candidate) != false)
+            {
+                Install(digest);
             }
 
             return;
@@ -167,15 +194,16 @@ internal sealed class SessionMigration
         }
 
         _lostAt ??= _seconds;
-        if (!_confirmedDeparture && _seconds - _lostAt.Value < Math.Max(3, state.GraceTicks / 60.0))
-        {
-            return;
-        }
+        _departureAt ??= timestamp;
 
         var boundary = _retained.LastOrDefault(Recoverable)?.State;
         if (!_confirmedDeparture && (boundary is null || RetirementConfirmedAt?.Invoke(boundary) is null))
         {
-            Fail("host retirement was not confirmed; transport timeout cannot grant authority");
+            if (_seconds - _lostAt.Value >= Math.Max(20, state.GraceTicks / 60.0))
+            {
+                Fail("authority fencing could not be established");
+            }
+
             return;
         }
 
@@ -218,7 +246,13 @@ internal sealed class SessionMigration
                 }
 
                 Retain(checkpoint, bytes[3..].ToArray());
+                LeaseSession = checkpoint.LeaseSession;
                 _receivedAt = _seconds;
+                if (!_confirmedDeparture)
+                {
+                    _departureAt = null;
+                }
+
                 return true;
             }
 
@@ -278,20 +312,11 @@ internal sealed class SessionMigration
             else if (_candidate == _lobby.LocalPlayerId && control.Kind == "vote" && _election is not null)
             {
                 _election.Vote(voter, control.Session, control.Epoch, control.Candidate, control.Digest);
-                if (_election.Agreed)
-                {
-                    _election.Commit();
-                    foreach (ulong peer in _voterPeers.Values)
-                    {
-                        Send(peer, control with { Kind = "commit" });
-                    }
-
-                    Install(control.Digest);
-                }
+                CommitAgreement();
             }
             else if (_candidate != _lobby.LocalPlayerId && message.RemotePeerId == _server && control.Kind == "commit" && _selection == control.Digest)
             {
-                Install(control.Digest);
+                _pendingCommit = control.Digest;
             }
         }
         catch (Exception exception) when (exception is ArgumentException or JsonException or InvalidOperationException or OverflowException)
@@ -326,7 +351,12 @@ internal sealed class SessionMigration
             return true;
         }
 
-        long? retirementAt = _confirmedDeparture ? _departureAt : RetirementConfirmedAt?.Invoke(checkpoint);
+        long? retirementAt = _departureAt;
+        if (HostProgressAt?.Invoke() is { } progressed && (!retirementAt.HasValue || progressed > retirementAt.Value))
+        {
+            retirementAt = progressed;
+        }
+
         if (!retirementAt.HasValue)
         {
             return false;
@@ -353,7 +383,7 @@ internal sealed class SessionMigration
                 return;
             }
 
-            var checkpoint = new MigrationCheckpoint(checked(++_sequence), authority.Capture(_subject), arena?.Arena, arena?.Host);
+            var checkpoint = new MigrationCheckpoint(checked(++_sequence), authority.Capture(_subject), arena?.Arena, arena?.Host, LeaseSession);
             byte[] bytes = MigrationCheckpointCodec.Encode(checkpoint);
             Retain(checkpoint, bytes);
             byte[] packet = new byte[bytes.Length + 3];
@@ -454,8 +484,7 @@ internal sealed class SessionMigration
             _election.Vote(_candidate, _election.Session, _election.Epoch, _candidate, entry.Digest);
             if (_election.Agreed)
             {
-                _election.Commit();
-                Install(entry.Digest);
+                CommitAgreement();
                 return;
             }
 
@@ -466,6 +495,28 @@ internal sealed class SessionMigration
 
             return;
         }
+    }
+
+    private void CommitAgreement()
+    {
+        if (_election is not { Agreed: true, Committed: false } || _selection is null)
+        {
+            return;
+        }
+
+        var selected = _retained.Single(entry => entry.Digest == _selection);
+        if (!Recoverable(selected) || AcquireAuthority?.Invoke(selected.State) == false)
+        {
+            return;
+        }
+
+        _election.Commit();
+        foreach (ulong peer in _voterPeers.Values)
+        {
+            Send(peer, new Control("commit", _election.Session, _election.Epoch, _candidate, _selection, []));
+        }
+
+        Install(_selection);
     }
 
     private void Install(string digest)
@@ -481,6 +532,7 @@ internal sealed class SessionMigration
         _lobby.InstallMigration(checkpoint, _candidate, _server);
         RestoreArena?.Invoke(checkpoint, host);
         _committed = true;
+        _pendingCommit = null;
         _confirmedDeparture = false;
         _departureAt = null;
         _authorityPaused = false;

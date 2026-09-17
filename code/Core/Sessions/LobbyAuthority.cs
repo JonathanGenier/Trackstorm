@@ -57,14 +57,14 @@ public sealed class LobbyAuthority
             _tick = checkpoint.Tick,
             _nextId = checkpoint.NextId,
             Configuration = checkpoint.Configuration,
-            State = new LobbySnapshot(previous.Session, checked(previous.Revision + 1), previous.Match, previous.Phase, previous.Players.Select(player => player with { Ready = false, Connected = player.Id == host }), previous.GraceTicks, host, epoch),
+            State = new LobbySnapshot(previous.Session, checked(previous.Revision + 1), previous.Match, previous.Phase, previous.Players.Select(player => player with { Ready = false, Connected = player.Id == host, RetainedHost = player.RetainedHost || player.Id == previous.CurrentHostId }), previous.GraceTicks, host, epoch),
         };
         foreach (var subject in checkpoint.Subjects)
         {
             result._identities.Add(subject.Key, subject.Value);
             if (subject.Key != host)
             {
-                result._deadlines.Add(subject.Key, checkpoint.Deadlines.GetValueOrDefault(subject.Key, checked(checkpoint.Tick + previous.GraceTicks)));
+                result._deadlines.Add(subject.Key, result.State.Players.Single(player => player.Id == subject.Key).RetainedHost ? ulong.MaxValue : checkpoint.Deadlines.GetValueOrDefault(subject.Key, checked(checkpoint.Tick + previous.GraceTicks)));
             }
         }
 
@@ -208,7 +208,12 @@ public sealed class LobbyAuthority
             return false;
         }
 
-        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, SessionPhase.Lobby, State.Players.Select(player => player with { Ready = false }), GraceTicks, State.CurrentHostId, State.AuthorityEpoch);
+        foreach (ulong id in State.Players.Where(player => player.RetainedHost && !player.Connected).Select(player => player.Id).ToArray())
+        {
+            RemovePlayer(id);
+        }
+
+        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, SessionPhase.Lobby, State.Players.Select(player => player with { Ready = false, RetainedHost = false }), GraceTicks, State.CurrentHostId, State.AuthorityEpoch);
         return true;
     }
 
@@ -242,7 +247,7 @@ public sealed class LobbyAuthority
             return true;
         }
 
-        _deadlines.Add(id, checked(_tick + GraceTicks));
+        _deadlines.Add(id, State.Players.Single(player => player.Id == id).RetainedHost ? ulong.MaxValue : checked(_tick + GraceTicks));
         _previousPeers[id] = peer;
         Publish(State.Players.Select(player => player.Id == id ? player with { Ready = false, Connected = false } : player));
         return true;

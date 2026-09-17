@@ -73,6 +73,8 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
 
     /// <summary>Production packet composition; absent in browser-only verification.</summary>
     internal Func<string?, Networking.EosP2pTransport>? TransportFactory { get; set; }
+    /// <summary>Required trusted fencing transport in production; independent from EOS ownership.</summary>
+    internal Func<ILeaseTransport>? LeaseFactory { get; set; }
 
     /// <summary>Authenticated local online identity, distinct from gameplay PlayerId.</summary>
     internal OnlineProductUserId Identity { get; }
@@ -117,7 +119,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     }
 
     /// <summary>A voluntarily departed host can explicitly reclaim its still-reserved identity.</summary>
-    internal bool CanResumeRetained => Active is null && !Busy && _closing is null && _returnLocator?.Expires > _time.GetUtcNow();
+    internal bool CanResumeRetained => Active is null && !Busy && _closing is null && (_returnLocator is { RetainedHost: true } || _returnLocator?.Expires > _time.GetUtcNow());
 
     /// <summary>Fresh local service membership, independent of peer connectivity or provider ownership.</summary>
     internal bool CoordinationAvailable
@@ -376,7 +378,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         {
             _savedAt = _time.GetTimestamp();
             _savedGeneration = driver.Generation;
-            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2)));
+            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2), driver.Authority is not null || driver.State!.Players.Any(player => player.Id == driver.LocalPlayerId && player.RetainedHost)));
             SavedResume = null;
         }
 
@@ -444,7 +446,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         if (retainPlayer)
         {
             var driver = _binding!.Driver;
-            _returnLocator = new ResumeLocator(Active!.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, driver.State!.AuthorityEpoch, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2));
+            _returnLocator = new ResumeLocator(Active!.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, driver.State!.AuthorityEpoch, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2), true);
             _resumeStore?.Save(_returnLocator);
         }
 
@@ -510,7 +512,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         if (Active is not null && _binding?.Driver is { State: not null, Failure.Length: 0 } driver)
         {
             _preserveLocator = true;
-            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2)));
+            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2), driver.Authority is not null || driver.State!.Players.Any(player => player.Id == driver.LocalPlayerId && player.RetainedHost)));
         }
     }
 

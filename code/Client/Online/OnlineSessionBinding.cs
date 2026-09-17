@@ -9,6 +9,7 @@ internal sealed class OnlineSessionBinding : IDisposable
     private readonly ITransportGateway _gateway;
     private readonly OnlineLobbyCoordinator _coordinator;
     private readonly Dictionary<ulong, OnlineProductUserId> _authorized = new();
+    private readonly AuthorityLeaseClient? _lease;
     private bool _disposed;
 
     /// <summary>Binds a caller-owned authenticated transport to the existing authoritative lobby driver.</summary>
@@ -37,8 +38,30 @@ internal sealed class OnlineSessionBinding : IDisposable
                 },
                 coordinator.Clock);
             Driver.Migration.AuthorityChanged = coordinator.MigrationCompleted;
-            Driver.Migration.AuthorityAvailable = () => coordinator.CoordinationAvailable;
-            Driver.Migration.RetirementConfirmedAt = coordinator.HostRetiredAt;
+            if (coordinator.LeaseFactory is { } factory)
+            {
+                _lease = new AuthorityLeaseClient(factory(), coordinator.Identity.Value, coordinator.Clock);
+                if (Driver.Authority is not null)
+                {
+                    Driver.Migration.LeaseSession = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
+                }
+
+                Driver.Migration.PollCoordination = () => _lease.Poll(Driver.Migration.LeaseSession, coordinator.StartsGameplayAuthority, Driver.State?.AuthorityEpoch ?? lobby.AuthorityEpoch);
+                Driver.Migration.AuthorityAvailable = () => coordinator.CoordinationAvailable && _lease.Available(Driver.State!.AuthorityEpoch);
+                Driver.Migration.RetirementConfirmedAt = checkpoint => _lease.Expired(checkpoint.Lobby.State.AuthorityEpoch, checkpoint.Lobby.Subjects[checkpoint.Lobby.State.CurrentHostId]) ? coordinator.Clock.GetTimestamp() : null;
+                Driver.Migration.AcquireAuthority = checkpoint => _lease.Acquire(checkpoint.Lobby.State.AuthorityEpoch);
+                Driver.Migration.ConfirmSuccessor = (checkpoint, candidate) => _lease.Confirms(checkpoint.Lobby.State.AuthorityEpoch + 1, checkpoint.Lobby.Subjects[candidate]);
+                Driver.Migration.HostProgressAt = () => _lease.HostProgressAt;
+                Driver.Migration.LeaseStatus = () => _lease.Status;
+                Driver.Migration.ReleaseAuthority = () => _lease.Release(Driver.State!.AuthorityEpoch);
+            }
+            else
+            {
+                // Native/fake-provider harnesses explicitly opt into their trusted retirement seam.
+                Driver.Migration.AuthorityAvailable = () => coordinator.CoordinationAvailable;
+                Driver.Migration.RetirementConfirmedAt = coordinator.HostRetiredAt;
+            }
+
             Driver.Reconnect = () => eos.RebindHost(eos.GameplayHost ?? lobby.Owner);
         }
     }
@@ -89,6 +112,7 @@ internal sealed class OnlineSessionBinding : IDisposable
         _disposed = true;
         _gateway.ConnectionChanged -= OnConnectionChanged;
         _authorized.Clear();
+        _lease?.Dispose();
         _gateway.Stop();
     }
 

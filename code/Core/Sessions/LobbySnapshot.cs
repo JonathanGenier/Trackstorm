@@ -50,5 +50,5 @@ public sealed class LobbySnapshot
     /// <summary>Complete immutable connected roster.</summary>
     public IReadOnlyList<SessionPlayer> Players { get; }
     /// <summary>Development policy: one through eight connected players, all explicitly ready.</summary>
-    public bool CanStart => Phase == SessionPhase.Lobby && Players.All(player => player.Ready && player.Connected);
+    public bool CanStart => Phase == SessionPhase.Lobby && Players.All(player => player.Connected ? player.Ready : player.RetainedHost);
 }

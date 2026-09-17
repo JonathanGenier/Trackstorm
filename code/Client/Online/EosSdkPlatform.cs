@@ -162,6 +162,19 @@ internal sealed class EosSdkPlatform : IEosPlatform
         }
     }
 
+    /// <summary>Copies a current Connect ID token only for authenticated HTTPS coordination.</summary>
+    /// <returns>Current ID token, or no authenticated token.</returns>
+    internal string? CopyIdToken()
+    {
+        if (_disposed || _platform is null || _user is null || _connect is null)
+        {
+            return null;
+        }
+
+        var options = new CopyIdTokenOptions { LocalUserId = _user };
+        return _connect.CopyIdToken(ref options, out var token) == Result.Success ? token?.JsonWebToken.ToString() : null;
+    }
+
     /// <summary>Creates coordination on this authenticated platform; no second runtime or identity is created.</summary>
     /// <returns>A provider tied to this platform's callback queue.</returns>
     internal IOnlineLobbyProvider CreateLobbyProvider()

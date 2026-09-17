@@ -7,7 +7,7 @@ public sealed class MigrationElection
     private readonly HashSet<ulong> _accepted = new();
 
     /// <summary>Derives candidate and electorate solely from a validated checkpoint.</summary>
-    /// <remarks>The caller must fence the old authority and complete the host-loss grace before beginning agreement.</remarks>
+    /// <remarks>The caller must obtain exclusive fencing permission before committing; player reconnect grace is independent.</remarks>
     /// <param name="checkpoint">Shared pre-loss roster.</param>
     /// <param name="digest">Digest of the exact recoverable bytes.</param>
     public MigrationElection(MigrationCheckpoint checkpoint, string digest)

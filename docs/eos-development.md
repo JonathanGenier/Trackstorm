@@ -25,7 +25,7 @@ For multiplayer lobby discovery, extend the development **untrusted, user-requir
 
 The normal multiplayer entry point now starts EOS identity with the embedded configuration and opens the unified browser automatically. `--eos` remains accepted but is no longer required. The **Developer fallback: Direct-IP / LAN** toggle exposes the existing address controls; explicit transport launch arguments select it too. Invalid configuration does not prevent that fallback. `--local-practice` does not initialize EOS.
 
-EOS Lobbies is the chosen coordination primitive: it provides persistent owner-controlled metadata and member notifications without introducing a second Sessions store. Both Public and Locked game lobbies are publicly advertised by EOS. Locked admission uses a per-lobby salted PBKDF2 verifier, not EOS invite-only permission. This deliberately lightweight mechanism is susceptible to offline guessing of short codes; it is not account authentication. Raw codes must never be added to logs, attributes or test reports. The normal UI masks and clears credential edits. Protocol bucket `trackstorm-lobby-9` and native capacity eight constrain compatible results. Ready/phase/gameplay data remains solely in Trackstorm authority.
+EOS Lobbies is the chosen coordination primitive: it provides persistent owner-controlled metadata and member notifications without introducing a second Sessions store. Both Public and Locked game lobbies are publicly advertised by EOS. Locked admission uses a per-lobby salted PBKDF2 verifier, not EOS invite-only permission. This deliberately lightweight mechanism is susceptible to offline guessing of short codes; it is not account authentication. Raw codes must never be added to logs, attributes or test reports. The normal UI masks and clears credential edits. Protocol bucket `trackstorm-lobby-10` and native capacity eight constrain compatible results. Ready/phase/gameplay data remains solely in Trackstorm authority.
 
 Run `./check-online-lobby.ps1 -GodotPath <exe>` for production control checks with a fake provider, or add `-Visual` to save browser, credential-prompt and renamed-host screenshots. Run `./check.ps1` for deterministic coordination and authority regression tests, and `./check-lobby.ps1 -GodotPath <exe>` for eight native UDP sessions. Fake-provider success is not evidence of authenticated EOS behavior.
 
@@ -99,14 +99,18 @@ The saved locator contains routing hints and the last acknowledged generation, n
 
 ## Host migration checks
 
+### Lease service prerequisite
+
+Online gameplay requires the [self-hosted lease service](authority-lease-service.md) and the same HTTPS `TRACKSTORM_LEASE_URL` on all PCs. Verify its exact Connect issuer/audience/deployment and public signing keys before testing. Health alone is insufficient: the host must show a held lease. Membership proof age and trusted fencing status are separate diagnostics. Real authenticated P2P harnesses also require this endpoint.
+
 ### Two-PC acceptance path
 
 Use the same compatible build on two physical PCs with distinct EOS identities: host plus one client. Record session/player IDs, current host, epoch, match generation and gameplay tick before and after each scenario, together with both machines' logs. No public IP or port exchange is used. These are manual real-service acceptance checks; local harness success does not mark them passed.
 
-1. In a Public lobby, ready both participants, then choose Leave on the host. Confirm the sole survivor becomes the replacement, unchanged session/player IDs, cleared Ready, and normal Ready/Start on the replacement. Repeat by killing the lobby host process. For unexpected loss, allow the advertised reconnect grace before expecting promotion.
+1. In a Public lobby, ready both participants, then choose Leave on the host. Confirm the sole survivor becomes the replacement, unchanged session/player IDs, cleared Ready, and normal Ready/Start on the replacement. Repeat by killing the lobby host process. For unexpected loss, measure takeover against the remaining ten-second lease plus service polling/agreement delay, independently of the 30-second reconnect grace. Delayed EOS host-departure notification must not gate promotion.
 2. In an active arena, record HP, held items, active missiles, pickup cooldowns, dead-player respawn deadlines and standings. Terminate the host process. Confirm freeze/recovery feedback, one next epoch, the same match, recent checkpoint rollback, one vehicle per player, and coherent gameplay after resync. Check no repeated death, kill, pickup or winner effects. Repeat in a Locked lobby.
-3. Restart the former host on its original profile within the replacement's grace reservation. Confirm ordinary-player return to the same player ID with no host-only privileges. Repeat after a real network-route change.
-4. Briefly interrupt connectivity and restore it before the 30-second grace expires. Confirm recovery to the original epoch. During a client-only outage, confirm the healthy host keeps simulating and the client resumes the same vehicle/PlayerId. Then isolate the host from EOS: its service proof must expire before it can advance again. The survivor needs confirmed service retirement plus the lease wait; P2P-only loss cannot grant authority. Missing retirement evidence must produce bounded failure with Leave/menu recovery.
+3. Wait longer than 30 seconds (and separately longer than two minutes), then restart the former host on its original profile during the same match. Confirm ordinary-player return to the same player ID with no host-only privileges. Repeat after a real network-route change.
+4. Briefly interrupt connectivity and restore it before the 30-second grace expires. Confirm recovery to the original epoch. During a client-only outage, confirm the healthy host keeps simulating and the client resumes the same vehicle/PlayerId. Partition only P2P while both PCs can still reach EOS and the lease service: the host must continue simulation and the client must not promote. Separately interrupt the lease service: the host must freeze when its conservative eight-second local permission expires, and the client must not promote during the outage. Restore service and verify no stale response revives old authority. An extended P2P partition followed by host death may fail checkpoint freshness safely.
 5. Repeat Public lobby Leave, lobby process kill, active-match process kill and former-host return in a Locked lobby where practical. Return the former host within its reservation, then remove the replacement host to verify a second successful migration and one additional epoch. With no valid external checkpoint, expect a bounded failure rather than a new authority.
 
 ### Locked stability and former-host retest
@@ -125,8 +129,7 @@ and connection generation. Never record the password, verifier, raw PUID or toke
    bounded, no member/retirement callback removes either peer, coordinator remains
    active/not recovering and P2P remains connected.
 4. Ready/unready both players repeatedly, then start the match.
-5. Terminate the host process. After service-confirmed retirement and the bounded
-   migration policy, confirm the survivor becomes host at epoch 2 in the same
+5. Terminate the host process. After the short authority lease expires and takeover succeeds, confirm the survivor becomes host at epoch 2 in the same
    logical session/match.
 6. Relaunch the former host and choose **Resume previous session**. Do not enter
    the password. Confirm the same PlayerId returns as CLIENT, the successor remains
