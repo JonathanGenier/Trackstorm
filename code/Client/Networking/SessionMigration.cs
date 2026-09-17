@@ -14,18 +14,15 @@ internal sealed class SessionMigration
     private readonly Func<ulong, string?> _identity;
     private readonly Func<string, bool, ulong> _rebind;
     private readonly TimeProvider _time;
-    private readonly List<(MigrationCheckpoint State, byte[] Bytes, string Digest, double At)> _retained = new();
-    private readonly Dictionary<ulong, (double At, ulong Sequence)> _acks = new();
+    private readonly List<(MigrationCheckpoint State, byte[] Bytes, string Digest)> _retained = new();
     private readonly Dictionary<ulong, string[]> _offers = new();
     private readonly Dictionary<ulong, ulong> _voterPeers = new();
-    private ulong[] _electorate = [];
     private double _seconds;
     private double _publishedAt = -1;
     private double _receivedAt;
     private double? _lostAt;
     private double? _attemptAt;
     private long _timestamp;
-    private ulong _reservedFormerHost;
     private ulong _sequence;
     private ulong _candidate;
     private ulong _server;
@@ -44,7 +41,7 @@ internal sealed class SessionMigration
     /// <param name="subject">Authenticated local subject.</param>
     /// <param name="identity">Authenticated incoming peer resolver.</param>
     /// <param name="rebind">Recreates star connectivity to the selected subject without assigning gameplay authority.</param>
-    /// <param name="time">Monotonic lease clock; injectable for deterministic pause and delayed-acknowledgement tests.</param>
+    /// <param name="time">Monotonic clock, including elapsed time while the process is suspended.</param>
     internal SessionMigration(LobbyNetworkDriver lobby, ITransportGateway gateway, string subject, Func<ulong, string?> identity, Func<string, bool, ulong> rebind, TimeProvider? time = null)
     {
         _lobby = lobby;
@@ -62,6 +59,10 @@ internal sealed class SessionMigration
     internal Action<MigrationCheckpoint, bool>? RestoreArena { get; set; }
     /// <summary>Notifies the provider adapter after Trackstorm has established authority.</summary>
     internal Action<string>? AuthorityChanged { get; set; }
+    /// <summary>Online composition proves local service liveness; native harnesses supply a trusted process seam.</summary>
+    internal Func<bool>? AuthorityAvailable { get; set; }
+    /// <summary>Confirms actual prior-authority retirement and the provider's surviving membership cohort.</summary>
+    internal Func<MigrationCheckpoint, bool>? RetirementConfirmed { get; set; }
     /// <summary>Latest locally observed world tick, used to reject excessive rollback.</summary>
     internal Func<ulong>? ObservedTick { get; set; }
     /// <summary>Blocks input, commands and gameplay advancement during lost authority or agreement.</summary>
@@ -131,23 +132,12 @@ internal sealed class SessionMigration
 
         if (_lobby.Authority is not null)
         {
-            // A partitioned old host cannot keep advancing while the other players transfer authority.
-            var electorate = _electorate;
-            if (electorate.Length >= 2)
+            Frozen = AuthorityAvailable?.Invoke() == false;
+            _lostAt = Frozen ? _lostAt ?? _seconds : null;
+            if (_lostAt.HasValue && _seconds - _lostAt.Value >= state.GraceTicks / 60.0)
             {
-                int alive = 1 + electorate.Count(id => id != state.CurrentHostId && _acks.TryGetValue(id, out var ack) && _seconds - ack.At <= 2);
-                Frozen = _seconds > 2 && alive <= electorate.Length / 2;
-                _lostAt = Frozen ? _lostAt ?? _seconds : null;
-                if (_lostAt.HasValue && _seconds - _lostAt.Value >= state.GraceTicks / 60.0)
-                {
-                    Fail("authority lost its survivor quorum");
-                    return;
-                }
-            }
-            else
-            {
-                Frozen = false;
-                _lostAt = null;
+                Fail("online authority membership could not be established");
+                return;
             }
 
             if (_seconds - _publishedAt >= 0.5)
@@ -175,6 +165,13 @@ internal sealed class SessionMigration
         _lostAt ??= _seconds;
         if (!_confirmedDeparture && _seconds - _lostAt.Value < Math.Max(3, state.GraceTicks / 60.0))
         {
+            return;
+        }
+
+        var boundary = _retained.LastOrDefault(entry => Recoverable(entry.State)).State;
+        if (!_confirmedDeparture && (boundary is null || RetirementConfirmed?.Invoke(boundary) != true))
+        {
+            Fail("host retirement was not confirmed; transport timeout cannot grant authority");
             return;
         }
 
@@ -218,7 +215,6 @@ internal sealed class SessionMigration
 
                 Retain(checkpoint, bytes[3..].ToArray());
                 _receivedAt = _seconds;
-                Send(message.RemotePeerId, new Control("ack", state.Session, state.AuthorityEpoch, state.CurrentHostId, _retained[^1].Digest, []));
                 return true;
             }
 
@@ -230,22 +226,6 @@ internal sealed class SessionMigration
             var control = JsonSerializer.Deserialize<Control>(bytes[3..], new JsonSerializerOptions { MaxDepth = 4 });
             if (control is null || _lobby.State is not { } current || control.Session != current.Session || control.Epoch != current.AuthorityEpoch || control.Digest is null || control.Offers is null || control.Offers.Length > 4)
             {
-                return true;
-            }
-
-            if (control.Kind == "ack" && _lobby.Authority is not null && _retained.Any(entry => entry.Digest == control.Digest))
-            {
-                ulong player = _lobby.Authority.PlayerId(message.RemotePeerId);
-                if (player != 0)
-                {
-                    // Receipt or replay cannot extend a lease beyond two seconds from checkpoint publication.
-                    var published = _retained.Single(entry => entry.Digest == control.Digest);
-                    if (!_acks.TryGetValue(player, out var previous) || published.State.Sequence > previous.Sequence)
-                    {
-                        _acks[player] = (published.At, published.State.Sequence);
-                    }
-                }
-
                 return true;
             }
 
@@ -328,6 +308,7 @@ internal sealed class SessionMigration
         ulong observed = ObservedTick?.Invoke() ?? tick;
         var current = _lobby.State!;
         return checkpoint.Lobby.State.Match == current.Match && checkpoint.Lobby.State.Phase == current.Phase &&
+            (!_attemptAt.HasValue || _confirmedDeparture || RetirementConfirmed?.Invoke(checkpoint) == true) &&
             (checkpoint.Lobby.State.Players.Count != 2 || current.Players.Count == 2) && tick <= observed && observed - tick <= 240;
     }
 
@@ -349,21 +330,6 @@ internal sealed class SessionMigration
             }
 
             var checkpoint = new MigrationCheckpoint(checked(++_sequence), authority.Capture(_subject), arena?.Arena, arena?.Host);
-            if (authority.State.Players.Any(player => player.Id == _reservedFormerHost && player.Connected))
-            {
-                _reservedFormerHost = 0;
-            }
-
-            // Before replacing a two-player lease, its client must have retired the old single-survivor boundary.
-            bool expansionAcknowledged = _electorate.Length != 2 || authority.State.Players.Count <= 2 ||
-                _electorate.Where(id => id != authority.State.CurrentHostId).All(id => _acks.TryGetValue(id, out var ack) &&
-                    _retained.Any(entry => entry.State.Sequence == ack.Sequence && entry.State.Lobby.State.Players.Count > 2));
-            if ((_electorate.Length == 0 || !Frozen) && expansionAcknowledged)
-            {
-                // A sole replacement runs alone until the former host actually returns; a new loss then requires its ack again.
-                _electorate = authority.State.Players.Where(player => player.Id != _reservedFormerHost).Select(player => player.Id).ToArray();
-            }
-
             byte[] bytes = MigrationCheckpointCodec.Encode(checkpoint);
             Retain(checkpoint, bytes);
             byte[] packet = new byte[bytes.Length + 3];
@@ -387,7 +353,7 @@ internal sealed class SessionMigration
     {
         if (checkpoint.Lobby.State.Players.Count > 2)
         {
-            // Acknowledging a larger roster revokes permission to recover alone from an older two-player copy.
+            // A larger roster revokes permission to recover alone from an older two-player copy.
             _retained.RemoveAll(entry => entry.State.Lobby.State.Players.Count == 2);
         }
 
@@ -396,7 +362,7 @@ internal sealed class SessionMigration
             _retained.Clear();
         }
 
-        _retained.Add((checkpoint, bytes, MigrationCheckpointCodec.Digest(bytes), _seconds));
+        _retained.Add((checkpoint, bytes, MigrationCheckpointCodec.Digest(bytes)));
         if (_retained.Count > 4)
         {
             _retained.RemoveAt(0);
@@ -481,6 +447,11 @@ internal sealed class SessionMigration
     private void Install(string digest)
     {
         var checkpoint = _retained.Single(entry => entry.Digest == digest).State;
+        if (!_confirmedDeparture && RetirementConfirmed?.Invoke(checkpoint) != true)
+        {
+            throw new InvalidOperationException("Authority retirement or survivor membership changed before commit.");
+        }
+
         bool host = _lobby.LocalPlayerId == _candidate;
         _lobby.InstallMigration(checkpoint, _candidate, _server);
         RestoreArena?.Invoke(checkpoint, host);
@@ -494,9 +465,6 @@ internal sealed class SessionMigration
         _seconds = checkpoint.Lobby.Tick / 60.0;
         _receivedAt = _seconds;
         _publishedAt = _seconds;
-        _acks.Clear();
-        _electorate = [];
-        _reservedFormerHost = host && checkpoint.Lobby.State.Players.Count == 2 ? checkpoint.Lobby.State.CurrentHostId : 0;
         _retained.Clear();
         AuthorityChanged?.Invoke(checkpoint.Lobby.Subjects[_candidate]);
     }

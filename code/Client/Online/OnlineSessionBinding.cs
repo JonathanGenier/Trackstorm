@@ -34,8 +34,11 @@ internal sealed class OnlineSessionBinding : IDisposable
                 {
                     _authorized.Clear();
                     return eos.RebindHost(new OnlineProductUserId(subject));
-                });
+                },
+                coordinator.Clock);
             Driver.Migration.AuthorityChanged = coordinator.MigrationCompleted;
+            Driver.Migration.AuthorityAvailable = () => coordinator.CoordinationAvailable;
+            Driver.Migration.RetirementConfirmed = coordinator.HostRetired;
             Driver.Reconnect = () => eos.RebindHost(eos.GameplayHost ?? lobby.Owner);
         }
     }

@@ -65,6 +65,8 @@ public sealed partial class MigrationProcessChecks : Node
 
             return _gateway.Connect(Endpoint(target));
         });
+        // The launcher writes this only after waiting for the old authority process to exit.
+        _driver.Migration.RetirementConfirmed = _ => System.IO.File.Exists(System.IO.Path.Combine(_directory, "0-retired.json"));
         Write("started");
     }
 

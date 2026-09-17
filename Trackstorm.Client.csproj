@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <TrackstormDeveloperTools Condition="'$(TrackstormDeveloperTools)' == '' and '$(Configuration)' == 'Debug'">true</TrackstormDeveloperTools>
+    <TrackstormDeveloperTools Condition="'$(TrackstormDeveloperTools)' == ''">true</TrackstormDeveloperTools>
     <DefineConstants Condition="'$(TrackstormDeveloperTools)' == 'true'">$(DefineConstants);TRACKSTORM_DEVELOPER_TOOLS</DefineConstants>
   </PropertyGroup>
 

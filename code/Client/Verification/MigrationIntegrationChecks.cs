@@ -130,6 +130,8 @@ public sealed partial class MigrationIntegrationChecks : Node
 
             return Connect(index, target);
         });
+        // This local harness directly observes destruction of the old authority's transport.
+        driver.Migration.RetirementConfirmed = checkpoint => !_gateways[int.Parse(checkpoint.Lobby.Subjects[checkpoint.Lobby.State.CurrentHostId].AsSpan(7), System.Globalization.CultureInfo.InvariantCulture)].IsListening;
         if (player != 0)
         {
             driver.BeginResume(player, 1);

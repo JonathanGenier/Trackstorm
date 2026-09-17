@@ -24,13 +24,15 @@ function Wait-Evidence([string]$file) {
 }
 try {
     foreach ($role in $roles) {
-        $arguments = @('--headless', '--path', ('"' + $PSScriptRoot + '"'), 'res://scenes/verification/migration_process_checks.tscn', '--', "--migration-role=$role", "--migration-ports=$ports", ('"--migration-output=' + $outputDirectory + '"'))
+        $arguments = @('--headless', '--verbose', '--path', ('"' + $PSScriptRoot + '"'), 'res://scenes/verification/migration_process_checks.tscn', '--', "--migration-role=$role", "--migration-ports=$ports", ('"--migration-output=' + $outputDirectory + '"'))
         $processes += Start-Process -FilePath $GodotPath -ArgumentList $arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $outputDirectory "$role.log") -RedirectStandardError (Join-Path $outputDirectory "$role.err")
         Wait-Evidence "$role-started.json"
         if ($role -eq 1) { Wait-Evidence '1-joined.json' }
     }
     foreach ($role in $roles) { Wait-Evidence "$role-ready.json" }
     Stop-Process -Id $processes[0].Id -Force
+    if (-not $processes[0].WaitForExit(10000)) { throw 'Original authority did not exit.' }
+    Set-Content -LiteralPath (Join-Path $outputDirectory '0-retired.json') -Value '{"processExited":true}'
     foreach ($role in 1..($Players - 1)) { Wait-Evidence "$role-passed.json" }
     foreach ($process in $processes[1..($Players - 1)]) {
         if (-not $process.WaitForExit(10000)) { throw 'Survivor did not exit cleanly.' }

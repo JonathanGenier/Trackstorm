@@ -3,6 +3,10 @@ namespace Trackstorm.Client.Online;
 /// <summary>Owner-thread asynchronous coordination boundary, independent of Godot and native SDK types.</summary>
 internal interface IOnlineLobbyProvider : IDisposable
 {
+    /// <summary>Confirms local membership through a fresh service operation, never a cached read.</summary>
+    /// <param name="id">Current lobby.</param>
+    /// <param name="completed">True only after the service accepted this member's unique update.</param>
+    void ConfirmMembership(string id, Action<bool> completed) => completed(false);
     /// <summary>Moves provider ownership only after Trackstorm's independent authority agreement.</summary>
     /// <param name="id">Existing lobby.</param>
     /// <param name="member">Agreed gameplay host.</param>
@@ -41,6 +45,7 @@ internal interface IOnlineLobbyProvider : IDisposable
     /// <summary>Registers one disposable membership notification subscription.</summary>
     /// <param name="id">Logical EOS lobby identity.</param>
     /// <param name="changed">Consumer of updated membership or closure.</param>
+    /// <param name="retired">Authenticated service member-departure notification.</param>
     /// <returns>A subscription whose disposal makes queued notifications inert.</returns>
-    IDisposable Watch(string id, Action<OnlineLobby?> changed);
+    IDisposable Watch(string id, Action<OnlineLobby?> changed, Action<OnlineProductUserId>? retired = null);
 }

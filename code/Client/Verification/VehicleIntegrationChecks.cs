@@ -124,7 +124,7 @@ public sealed partial class VehicleIntegrationChecks : Node
         network.QueueFree();
     }
 
-    private void Press(string text) => Descendants(_panel).OfType<Button>().Single(button => button.Text == text).EmitSignal(BaseButton.SignalName.Pressed);
+    private void Press(string text) => Descendants(_panel).OfType<Button>().Single(button => button.Text == text && button.IsVisibleInTree()).EmitSignal(BaseButton.SignalName.Pressed);
 
     private async Task Settle()
     {
@@ -487,7 +487,7 @@ public sealed partial class VehicleIntegrationChecks : Node
             Press("Settings");
             await ObserveTicks(3);
             Check(input.Adapter.GameplaySuppressed && input.LatestFrame.Accelerate == 0, "opening the production settings panel neutralizes held driving input");
-            Press("Done");
+            Press("Back");
             Check(!input.Adapter.GameplaySuppressed, "closing settings resumes the gameplay input path");
             await Screenshot("input");
             if (_visual)
