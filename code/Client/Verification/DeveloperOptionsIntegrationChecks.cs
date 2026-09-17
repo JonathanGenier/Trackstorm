@@ -1,6 +1,7 @@
 using System.Globalization;
 using Godot;
 using Trackstorm.Client.Bootstrap;
+using Trackstorm.Client.Development;
 using Trackstorm.Client.Input;
 using Trackstorm.Client.Networking;
 using Trackstorm.Client.Settings;
@@ -62,6 +63,8 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
             }
             else
             {
+                Check(_host.DeveloperConfiguration == GameplayConfiguration.HostedDefaults, "host startup uses canonical production defaults");
+                Check(_host.DeveloperConfiguration.Damage.MaxHP == 1000, "production multiplayer starts with 1000 HP");
                 var viewport = new SubViewport { Size = new Vector2I(800, 600), OwnWorld3D = true };
                 AddChild(viewport);
                 _client = new DevelopmentSession { Name = "RemoteClient" };
@@ -74,7 +77,9 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Check(_host.Lobby.Request(LobbyCommand.Start), "normal Start");
                 await Until(() => _client.Arena?.Driver.Match?.Phase == MatchPhase.Active, "normal Active match");
                 await Frames(20);
+                Check(_host.Arena!.Driver.Configuration.Configuration == GameplayConfiguration.HostedDefaults, "production arena uses the same hosted defaults");
                 Check(!Descendants(_bootstrap).OfType<Button>().Any(button => button.Text == "Arena tools"), "separate Arena Tools retired");
+                Check(!Descendants(_menu.DeveloperOptions).OfType<Button>().Any(button => button.Text is "Apply tuning" or "Reload current values" or "Save tuning / retry"), "obsolete tuning actions removed");
                 var simulation = Descendants(_menu.DeveloperOptions).OfType<SpinBox>().ToArray();
                 double[] impairment = [30, 5, 2, 10, 25];
                 for (int i = 0; i < simulation.Length; i++)
@@ -89,7 +94,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                     double current = option.Read(_host.DeveloperConfiguration);
                     double value = option.Boolean ? 1 - current : option.Integral ? current + 1 : current * 1.05;
                     Set(option.Key, value);
-                    Press("Apply tuning");
+                    Press("Apply Settings");
                     var accepted = _host.Arena!.Driver.Configuration;
                     Check(option.Read(accepted.Configuration) != current, "UI commits owning value: " + option.Key);
                     await Until(() => _client.Arena!.Driver.Configuration == accepted, "client effective value: " + option.Key);
@@ -103,31 +108,32 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
 
                 Press("Apply local network simulation");
 
+                await CheckDraftActions();
                 ulong revision = _host.Arena!.Driver.Configuration.Revision;
                 Set("vehicle.mass", -1);
-                Press("Apply tuning");
+                Press("Apply Settings");
                 Check(_host.Arena.Driver.Configuration.Revision == revision, "invalid UI edit cannot commit");
-                Press("Reload current values");
+                Press("Discard Changes");
                 Check(!_client.ConfigureDeveloperOptions(new Dictionary<string, double> { ["vehicle.mass"] = 200 }, out _), "joined client cannot mutate");
                 Check(!_client.GiveDeveloperItem(HeldItem.Missile) && !_client.ForceDeveloperStart(), "joined client cannot invoke actions");
                 Set("match.minimum_players", 2);
                 Set("vehicle.acceleration", 7);
                 Set("items.wrench_heal", 17);
                 Set("items.missile_speed", 75);
-                Press("Apply tuning");
+                Press("Apply Settings");
                 await Until(() => _client.Arena!.Driver.Configuration == _host.Arena.Driver.Configuration, "final tuned boundary");
                 Set("vehicle.suspension_length", 0.9);
-                Press("Apply tuning");
+                Press("Apply Settings");
                 await Frames(4);
                 var suspensionState = _host.Arena.Driver.LocalState!;
                 var hostBody = _host.Arena.Bodies[suspensionState.VehicleId];
                 var extended = hostBody.Observe(suspensionState).Wheels;
                 Set("vehicle.suspension_length", 0.1);
-                Press("Apply tuning");
+                Press("Apply Settings");
                 var shortened = hostBody.Observe(suspensionState).Wheels;
                 Check(extended != shortened, "UI suspension length changes native wheel ray support");
                 Set("vehicle.suspension_length", 0.8);
-                Press("Apply tuning");
+                Press("Apply Settings");
                 Press("Give Wrench");
                 Check(_host.Arena.Driver.LocalItem?.Item == HeldItem.Wrench, "Give Wrench uses current host slot");
                 Check(!_host.GiveDeveloperItem(HeldItem.Missile), "occupied slot cannot be overwritten");
@@ -193,6 +199,77 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
             }
         }
     }
+
+    private async Task CheckDraftActions()
+    {
+        string path = System.IO.Path.Combine(_directory, "settings.json.developer.jsonl");
+        var before = _host.Arena!.Driver.Configuration;
+        string persisted = System.IO.File.ReadAllText(path);
+        Set("damage.max_hp", 2500);
+        Set("vehicle.acceleration", 99);
+        Press("Discard Changes");
+        Check(_host.Arena.Driver.Configuration == before, "Discard does not mutate live configuration or revision");
+        Check(ReadEditors() == before.Configuration, "Discard restores all current authoritative values");
+        Check(System.IO.File.ReadAllText(path) == persisted, "Discard does not write persistence");
+
+        Set("vehicle.mass", -1);
+        Press("Reset to Defaults");
+        await Frames(20);
+        Check(ReadEditors() == GameplayConfiguration.HostedDefaults, "Reset stages the complete production defaults including 1000 HP");
+        Check(_host.Arena.Driver.Configuration == before, "Reset does not mutate live configuration or revision");
+        Check(_host.DeveloperSettings!.Current == before.Configuration, "Reset does not mutate the host persistence owner");
+        Check(System.IO.File.ReadAllText(path) == persisted, "Reset does not write persistence");
+        var hp = Descendants(_menu.DeveloperOptions).OfType<LineEdit>().Single(editor => editor.Name == "damage_max_hp");
+        hp.EmitSignal(LineEdit.SignalName.TextSubmitted, hp.Text);
+        Check(_host.Arena.Driver.Configuration == before, "submitting numeric text does not bypass Apply Settings");
+
+        Press("Apply Settings");
+        var reset = _host.Arena.Driver.Configuration;
+        Check(reset.Configuration == GameplayConfiguration.HostedDefaults && reset.Revision == before.Revision + 1, "Reset plus Apply commits the default configuration once");
+        await Until(() => _client!.Arena!.Driver.Configuration == reset, "Reset plus Apply synchronizes normally");
+        Check(new DeveloperSettingsStore(path).LoadForHost() == GameplayConfiguration.HostedDefaults, "Reset plus Apply replaces persisted host tuning");
+
+        persisted = System.IO.File.ReadAllText(path);
+        var mass = Descendants(_menu.DeveloperOptions).OfType<LineEdit>().Single(editor => editor.Name == "vehicle_mass");
+        mass.Text = "invalid";
+        mass.EmitSignal(LineEdit.SignalName.TextChanged, mass.Text);
+        Press("Apply Settings");
+        Check(_host.Arena.Driver.Configuration == reset && HasStatus("Invalid value:"), "Apply reports malformed text without committing");
+        Set("vehicle.mass", -1);
+        Press("Apply Settings");
+        Check(_host.Arena.Driver.Configuration == reset, "Apply still enforces authoritative configuration validation");
+        Check(System.IO.File.ReadAllText(path) == persisted, "rejected Apply does not write persistence");
+        Press("Discard Changes");
+
+        // A directory at the temporary file path deterministically fails saving without changing permissions.
+        System.IO.Directory.CreateDirectory(path + ".tmp");
+        Set("vehicle.acceleration", 8);
+        Press("Apply Settings");
+        var accepted = _host.Arena.Driver.Configuration;
+        Check(accepted.Configuration.Vehicle.Acceleration == 8 && accepted.Revision == reset.Revision + 1, "failed persistence retains accepted live tuning");
+        Check(_host.DeveloperSettings.Current == accepted.Configuration && HasStatus("saving failed. Press Apply Settings to retry."), "save failure and Apply retry are clearly surfaced");
+        Check(System.IO.File.ReadAllText(path) == persisted, "failed persistence preserves the prior file");
+        System.IO.Directory.Delete(path + ".tmp");
+        Press("Apply Settings");
+        Check(_host.Arena.Driver.Configuration == accepted, "unchanged Apply retry does not advance revision");
+        Check(new DeveloperSettingsStore(path).LoadForHost() == accepted.Configuration && HasStatus("Host tuning saved."), "unchanged Apply retries and persists successfully");
+        await Until(() => _client!.Arena!.Driver.Configuration == accepted, "client retains the accepted retry boundary");
+    }
+
+    private GameplayConfiguration ReadEditors()
+    {
+        var values = new Dictionary<string, double>();
+        foreach (var option in GameplayOptions.All)
+        {
+            var control = Descendants(_menu.DeveloperOptions).OfType<Control>().Single(control => control.Name == option.Key.Replace('.', '_'));
+            values[option.Key] = control is CheckButton toggle ? (toggle.ButtonPressed ? 1 : 0) : double.Parse(((LineEdit)control).Text, CultureInfo.InvariantCulture);
+        }
+
+        Check(GameplayOptions.TryApply(GameplayConfiguration.HostedDefaults, values, out var configuration, out _), "staged editor values form a valid configuration");
+        return configuration;
+    }
+
+    private bool HasStatus(string text) => Descendants(_menu.DeveloperOptions).OfType<Label>().Any(label => label.Text.Contains(text, StringComparison.Ordinal));
 
     private void Set(string key, double value)
     {

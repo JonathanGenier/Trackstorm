@@ -43,7 +43,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <summary>Active provider capability boundary for local network simulation.</summary>
     internal ITransportGateway? Gateway => _gateway;
     /// <summary>Current host tuning for lobby or arena editing.</summary>
-    internal Core.Development.GameplayConfiguration DeveloperConfiguration => _arena?.Driver.Configuration.Configuration ?? DeveloperSettings?.Current ?? new();
+    internal Core.Development.GameplayConfiguration DeveloperConfiguration => _arena?.Driver.Configuration.Configuration ?? DeveloperSettings?.Current ?? Core.Development.GameplayConfiguration.HostedDefaults;
 
     /// <summary>Authenticated online coordinator supplied by application composition.</summary>
     internal Func<OnlineLobbyCoordinator?> OnlineCoordinator { get; set; } = () => null;

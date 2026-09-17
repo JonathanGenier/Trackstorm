@@ -21,7 +21,7 @@ Only `PlayerInputAdapter.GameplaySuppressed` changes. The scene tree is never pa
 | Controls | All existing logical-action remaps and Invert steering; binding capture/clear/restore uses `PlayerInputBindings` |
 | Developer Options | Host-authoritative gameplay tuning/actions with separate host-local persistence; safe read-only diagnostics |
 
-The existing local settings model, codec, debounced file store, display application and audio routing remain authoritative for user preferences. Developer tuning does not extend that schema. Analog dead zone remains an existing persisted input configuration, but is not offered as an additional menu control. Each persistence owner exposes its own save status/retry. See [settings](settings.md) for local storage and preview guarantees.
+The existing local settings model, codec, debounced file store, display application and audio routing remain authoritative for user preferences. Developer tuning does not extend that schema. Analog dead zone remains an existing persisted input configuration, but is not offered as an additional menu control. Each persistence owner exposes its own save status/retry: developer tuning retries through **Apply Settings**, while Discard and Reset only change its editor draft. See [settings](settings.md) for local storage and preview guarantees.
 
 ## Leave and quit
 

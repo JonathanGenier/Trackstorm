@@ -197,7 +197,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <param name="configuration">Validated effective gameplay tuning.</param>
     internal void Initialize(ITransportGateway gateway, ulong session, ulong serverPeer, LobbyNetworkDriver? lobby = null, Core.Development.GameplayConfiguration? configuration = null)
     {
-        _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby, new DamageConfiguration { MaxHP = 1000 }, configuration);
+        _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby, configuration: configuration ?? Core.Development.GameplayConfiguration.HostedDefaults);
         _driver.ConfigurationChanged += accepted =>
         {
             foreach (var body in _bodies.Values)

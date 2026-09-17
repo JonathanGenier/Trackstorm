@@ -1,4 +1,3 @@
-using System.Globalization;
 using Godot;
 using Trackstorm.Client.Networking;
 using Trackstorm.Client.Vehicles;
@@ -8,7 +7,7 @@ using Trackstorm.Core.Networking.Transport;
 
 namespace Trackstorm.Client.Development;
 
-/// <summary>Single Settings/F1 surface; drafts commit once and always render the accepted runtime values.</summary>
+/// <summary>Single Settings/F1 surface; only Apply commits its editor draft through current authority.</summary>
 internal sealed partial class DeveloperOptionsPanel : VBoxContainer
 {
     private readonly VBoxContainer _host = new() { Visible = false };
@@ -18,11 +17,10 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     private readonly Label _status = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly Label _diagnostics = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly Dictionary<string, Control> _editors = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, double> _baseline = new(StringComparer.Ordinal);
+    private readonly DeveloperOptionsDraft _draft = new();
     private readonly List<SpinBox> _simulation = new();
     private object? _owner;
     private ulong _revision;
-    private bool _dirty;
     private bool _refreshing;
     private double _elapsed;
 
@@ -55,20 +53,27 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             Button(items, $"Give {item}", () => Report(Session()?.GiveDeveloperItem(item) == true, $"{item} granted.", "Grant rejected: enter an arena with a living host and an empty slot."));
         }
 
-        var hint = new Label { Text = "Edit values, then Apply or press Enter. Tuning is saved on this host.\nNew respawn/pickup delays and missile lifetime affect future events. Max HP preserves health percentage. Seed restarts item selection. Countdown edits update the running countdown.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        hint.AddThemeFontSizeOverride("font_size", 16);
-        _host.AddChild(hint);
-        Button(_host, "Apply tuning", Apply);
-        Button(_host, "Reload current values", RefreshValues);
-        Button(_host, "Save tuning / retry", () =>
+        Button(_host, "Apply Settings", Apply);
+        Button(_host, "Discard Changes", () =>
         {
-            var session = Session();
-            if (session?.IsDeveloperHost == true)
+            if (Session()?.IsDeveloperHost == true)
             {
-                session.DeveloperSettings?.Save(session.DeveloperConfiguration);
-                _status.Text = session.DeveloperSettings?.Status ?? "Persistence unavailable.";
+                RefreshValues();
+                _status.Text = "Unapplied changes discarded. " + Session()?.DeveloperSettings?.Status;
             }
         });
+        Button(_host, "Reset to Defaults", () =>
+        {
+            if (Session()?.IsDeveloperHost == true)
+            {
+                _draft.ResetToDefaults();
+                RenderValues();
+                _status.Text = "Production defaults staged. Press Apply Settings to apply and save them.";
+            }
+        });
+        var hint = new Label { Text = "Apply Settings updates live tuning and saves it on this host. Discard Changes restores active values. Reset to Defaults stages production defaults until Apply Settings.\nNew respawn/pickup delays and missile lifetime affect future events. Max HP preserves health percentage. Seed restarts item selection. Countdown edits update the running countdown.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        hint.AddThemeFontSizeOverride("font_size", 16);
+        _host.AddChild(hint);
         foreach (var group in GameplayOptions.All.GroupBy(option => option.Group))
         {
             _host.AddChild(new Label { Text = group.Key.ToUpperInvariant() });
@@ -80,14 +85,13 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
                 if (option.Boolean)
                 {
                     var toggle = new CheckButton();
-                    toggle.Toggled += _ => _dirty |= !_refreshing;
+                    toggle.Toggled += value => StageValue(option.Key, value ? "1" : "0");
                     editor = toggle;
                 }
                 else
                 {
                     var number = new LineEdit { CustomMinimumSize = new Vector2(150, 36), MaxLength = 24, SelectAllOnFocus = true };
-                    number.TextChanged += _ => _dirty |= !_refreshing;
-                    number.TextSubmitted += _ => Apply();
+                    number.TextChanged += value => StageValue(option.Key, value);
                     editor = number;
                 }
 
@@ -152,7 +156,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             : "Read-only diagnostics. Host a session to access tuning and developer actions.";
         object? owner = (object?)session?.Arena?.Driver ?? session?.Lobby;
         ulong revision = session?.Arena?.Driver.Configuration.Revision ?? 0;
-        if (_host.Visible && (!ReferenceEquals(_owner, owner) || (!_dirty && revision != _revision)))
+        if (_host.Visible && (!ReferenceEquals(_owner, owner) || (!_draft.IsDirty && revision != _revision)))
         {
             RefreshValues();
         }
@@ -165,32 +169,18 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     /// <summary>Commits edited values once through current host authority.</summary>
     internal void Apply()
     {
-        var edits = new Dictionary<string, double>(StringComparer.Ordinal);
-        foreach (var option in GameplayOptions.All)
+        if (!_draft.TryGetEdits(out var edits, out string error))
         {
-            double value;
-            if (_editors[option.Key] is CheckButton toggle)
-            {
-                value = toggle.ButtonPressed ? 1 : 0;
-            }
-            else if (!double.TryParse(((LineEdit)_editors[option.Key]).Text, NumberStyles.Float, CultureInfo.InvariantCulture, out value))
-            {
-                _status.Text = $"Invalid value: {option.Group} / {option.Label}.";
-                return;
-            }
-
-            if (!_baseline.TryGetValue(option.Key, out double original) || original != value)
-            {
-                edits.Add(option.Key, value);
-            }
+            _status.Text = error;
+            return;
         }
 
         var session = Session();
-        string error = "Host authority unavailable.";
+        error = "Host authority unavailable.";
         if (session?.ConfigureDeveloperOptions(edits, out error) == true)
         {
             RefreshValues();
-            _status.Text = session.DeveloperSettings?.Status ?? "Tuning applied.";
+            _status.Text = session.DeveloperSettings?.Status ?? "Tuning applied; persistence unavailable.";
         }
         else
         {
@@ -213,23 +203,35 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             return;
         }
 
+        _draft.Discard(session.DeveloperConfiguration);
+        RenderValues();
+    }
+
+    private void RenderValues()
+    {
         _refreshing = true;
         foreach (var option in GameplayOptions.All)
         {
-            double value = option.Read(session.DeveloperConfiguration);
-            _baseline[option.Key] = value;
+            string value = _draft.Get(option.Key);
             if (_editors[option.Key] is CheckButton toggle)
             {
-                toggle.ButtonPressed = value == 1;
+                toggle.ButtonPressed = value == "1";
             }
             else
             {
-                ((LineEdit)_editors[option.Key]).Text = value.ToString("G9", CultureInfo.InvariantCulture);
+                ((LineEdit)_editors[option.Key]).Text = value;
             }
         }
 
         _refreshing = false;
-        _dirty = false;
+    }
+
+    private void StageValue(string key, string value)
+    {
+        if (!_refreshing)
+        {
+            _draft.Set(key, value);
+        }
     }
 
     private void Report(bool success, string accepted, string rejected) => _status.Text = success ? accepted : rejected;

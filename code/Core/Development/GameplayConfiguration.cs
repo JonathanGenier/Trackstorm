@@ -7,6 +7,9 @@ namespace Trackstorm.Core.Development;
 /// <summary>One effective session tuning boundary composed from the existing gameplay owners.</summary>
 public sealed record GameplayConfiguration
 {
+    /// <summary>Canonical production hosted-game tuning before host-local overrides; Core fixtures keep their own defaults.</summary>
+    public static GameplayConfiguration HostedDefaults { get; } = new() { Damage = new() { MaxHP = 1000 } };
+
     /// <summary>Existing vehicle and surface configuration.</summary>
     public VehicleConfiguration Vehicle { get; init; } = new();
     /// <summary>Existing health and collision configuration.</summary>

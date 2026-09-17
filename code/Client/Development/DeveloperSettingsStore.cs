@@ -14,7 +14,7 @@ internal sealed class DeveloperSettingsStore
     internal DeveloperSettingsStore(string path)
     {
         _path = path;
-        var defaults = new GameplayConfiguration { Damage = new() { MaxHP = 1000 } };
+        var defaults = GameplayConfiguration.HostedDefaults;
         _file = DeveloperSettingsFile.Read(string.Empty, defaults);
         try
         {
@@ -35,7 +35,7 @@ internal sealed class DeveloperSettingsStore
     }
 
     /// <summary>Most recent accepted host-local tuning.</summary>
-    internal GameplayConfiguration Current { get; private set; } = new() { Damage = new() { MaxHP = 1000 } };
+    internal GameplayConfiguration Current { get; private set; }
     /// <summary>Safe persistence status without file contents or credentials.</summary>
     internal string Status { get; private set; } = string.Empty;
 
@@ -61,7 +61,7 @@ internal sealed class DeveloperSettingsStore
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidOperationException)
         {
-            Status = "Applied for this session; saving failed. Use Save tuning to retry.";
+            Status = "Applied for this session; saving failed. Press Apply Settings to retry.";
             return false;
         }
     }
