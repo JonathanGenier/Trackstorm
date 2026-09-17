@@ -181,7 +181,7 @@ internal sealed class SessionMigration
         {
             Frozen = AuthorityAvailable?.Invoke() == false;
             _lostAt = Frozen ? _lostAt ?? _seconds : null;
-            if (_lostAt.HasValue && _seconds - _lostAt.Value >= state.GraceTicks / 60.0)
+            if (_lostAt.HasValue && _seconds - _lostAt.Value >= 30)
             {
                 Fail("online authority membership could not be established");
                 return;
@@ -215,7 +215,7 @@ internal sealed class SessionMigration
         var boundary = _retained.LastOrDefault(Recoverable)?.State;
         if (!_confirmedDeparture && (boundary is null || RetirementConfirmedAt?.Invoke(boundary) is null))
         {
-            if (_seconds - _lostAt.Value >= Math.Max(20, state.GraceTicks / 60.0))
+            if (_seconds - _lostAt.Value >= 30)
             {
                 Fail("authority fencing could not be established");
             }

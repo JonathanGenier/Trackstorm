@@ -14,7 +14,7 @@ namespace Trackstorm.Core.Tests.Networking;
 [TestFixture]
 internal sealed class MigrationTests
 {
-    /// <summary>Former hosts survive ordinary grace, but disconnected reservations end with the match.</summary>
+    /// <summary>Former hosts remain retained until Return ends the match.</summary>
     /// <param name="resume">Whether the former host returns during the retained match.</param>
     [TestCase(false)]
     [TestCase(true)]
@@ -41,13 +41,44 @@ internal sealed class MigrationTests
         if (resume)
         {
             restored.Disconnect(50);
-            restored.AdvanceTime(200000 + restored.GraceTicks);
+            restored.AdvanceTime(400000);
             Assert.That(restored.State.Players.Any(player => player.Id == 1), Is.False);
         }
         else
         {
             Assert.That(restored.Resume(50, 100, 1, 1, "host"), Is.False);
         }
+    }
+
+    /// <summary>An ordinary disconnected client survives sequential authority restores without a deadline.</summary>
+    [Test]
+    public void OrdinaryReservationSurvivesSequentialMigrationUntilReturn()
+    {
+        var lobby = new LobbyAuthority(100, "Host");
+        lobby.Join(10, "Successor", "successor");
+        ulong player = lobby.Join(20, "Disconnected", "client");
+        lobby.SetReady(0, true);
+        lobby.SetReady(10, true);
+        lobby.SetReady(20, true);
+        Assert.That(lobby.Start(0), Is.True);
+        lobby.Disconnect(20);
+        lobby.AdvanceTime(100000);
+        var second = LobbyAuthority.Restore(lobby.Capture("host"), 2, 2);
+        second.AdvanceTime(200000);
+        Assert.That(second.Resume(30, 100, 1, 1, "host"), Is.True);
+        var third = LobbyAuthority.Restore(second.Capture("successor"), 1, 3);
+        third.AdvanceTime(300000);
+        Assert.That(third.State.Players.Count, Is.EqualTo(3));
+        Assert.That(third.Resume(40, 100, player, 1, "wrong"), Is.False);
+        Assert.That(third.Resume(40, 100, player, 1, "client"), Is.True);
+        Assert.That(third.State.Players.Single(value => value.Id == player).Generation, Is.EqualTo(2));
+        Assert.That(third.State.CurrentHostId, Is.EqualTo(1));
+        Assert.That(third.State.AuthorityEpoch, Is.EqualTo(3));
+        third.Disconnect(40);
+        Assert.That(third.Return(0), Is.True);
+        Assert.That(third.State.Players.Select(value => value.Id), Is.EqualTo(new ulong[] { 1 }));
+        Assert.That(third.Capture("host").Subjects.Count, Is.EqualTo(1));
+        Assert.That(third.Resume(50, 100, player, 2, "client"), Is.False);
     }
 
     /// <summary>A two-player checkpoint permits exactly one survivor; a larger roster cannot use that exception.</summary>
@@ -181,7 +212,7 @@ internal sealed class MigrationTests
         var world = host.Snapshot();
         var match = host.World.State.Match!;
         var resume = new ResumeCheckpoint(new ItemPublication(2, world, host.Items.Slots, host.Items.Missiles, [], host.Spawns!.States), match, null, host.Configuration);
-        var inconsistent = new LobbyRestoreState(lobby.State, 0, 3, lobby.Capture("host").Subjects, new Dictionary<ulong, ulong>(), new(1, host.Configuration.Configuration));
+        var inconsistent = new LobbyRestoreState(lobby.State, 0, 3, lobby.Capture("host").Subjects, new(1, host.Configuration.Configuration));
         Assert.Throws<ArgumentException>(() => new MigrationCheckpoint(1, inconsistent, resume, host.CaptureAuthority()));
         byte[] encoded = MigrationCheckpointCodec.Encode(new MigrationCheckpoint(1, lobby.Capture("host"), resume, host.CaptureAuthority()));
         var decoded = MigrationCheckpointCodec.Decode(encoded);

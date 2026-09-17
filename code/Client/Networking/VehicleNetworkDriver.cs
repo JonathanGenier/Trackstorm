@@ -84,7 +84,7 @@ internal sealed class VehicleNetworkDriver
                     _assigned.Add(peer.Key);
                 }
 
-                foreach (var player in lobby.State.Players.Where(player => !player.Connected && player.RetainedHost))
+                foreach (var player in lobby.State.Players.Where(player => !player.Connected))
                 {
                     Host.ReservePlayer(player.Id);
                 }

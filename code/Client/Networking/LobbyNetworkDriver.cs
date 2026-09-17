@@ -41,9 +41,8 @@ internal sealed class LobbyNetworkDriver
     /// <param name="admission">Optional online admission gate; direct-IP retains development admission.</param>
     /// <param name="expectedSession">Online clients require this discovered session lifetime; zero retains development behavior.</param>
     /// <param name="identity">Trusted authenticated subject resolver, absent for unauthenticated Direct-IP.</param>
-    /// <param name="graceTicks">Host reservation duration in 60 Hz ticks.</param>
     /// <param name="expectedEpoch">Current advertised authority fence for a restarted resume.</param>
-    internal LobbyNetworkDriver(ITransportGateway gateway, ulong session, ulong serverPeer, string name, Func<ulong, bool>? admission = null, ulong expectedSession = 0, Func<ulong, string?>? identity = null, ulong graceTicks = 1800, ulong expectedEpoch = 1)
+    internal LobbyNetworkDriver(ITransportGateway gateway, ulong session, ulong serverPeer, string name, Func<ulong, bool>? admission = null, ulong expectedSession = 0, Func<ulong, string?>? identity = null, ulong expectedEpoch = 1)
     {
         _gateway = gateway;
         _name = name;
@@ -55,7 +54,7 @@ internal sealed class LobbyNetworkDriver
         _clientEvents.PlayerName = id => State?.Players.SingleOrDefault(player => player.Id == id)?.Name ?? $"Player {id}";
         if (session != 0)
         {
-            Authority = new LobbyAuthority(session, name, graceTicks);
+            Authority = new LobbyAuthority(session, name);
         }
     }
 
@@ -208,12 +207,7 @@ internal sealed class LobbyNetworkDriver
                         Latency.Clear();
                     }
 
-                    if (_seconds - _interruptedAt.Value >= (State?.GraceTicks ?? 1800) / 60.0)
-                    {
-                        Failure = "Grace expired. Resume is no longer available; choose a lobby to play again.";
-                        ResumeStatus = "Grace expired";
-                    }
-                    else if (_seconds >= _nextAttempt)
+                    if (_seconds >= _nextAttempt)
                     {
                         ResumeStatus = "Reconnecting";
                         _nextAttempt = _seconds + 2;
@@ -243,13 +237,6 @@ internal sealed class LobbyNetworkDriver
                     : LobbyCodec.EncodeCommand(LobbyCommand.Join, null, name: _name);
                 Send(ServerPeer, request);
                 _joined = true;
-            }
-
-            if (_interruptedAt.HasValue && _seconds - _interruptedAt.Value >= (State?.GraceTicks ?? 1800) / 60.0)
-            {
-                Failure = "Grace expired. Leave and choose a lobby.";
-                ResumeStatus = "Grace expired";
-                _gateway.Disconnect(ServerPeer);
             }
 
             if (State is null && !Reconnecting && _joiningSeconds > 15)
@@ -309,7 +296,7 @@ internal sealed class LobbyNetworkDriver
         if (_loggedResume != ResumeStatus)
         {
             _loggedResume = ResumeStatus;
-            Events.Record(EventCategory.Network, "Recovery state", context: ResumeStatus is "Connection interrupted" or "Reconnecting" or "Resume succeeded" or "Grace expired" ? ResumeStatus : "Resume unavailable or rejected", local: Authority is null);
+            Events.Record(EventCategory.Network, "Recovery state", context: ResumeStatus is "Connection interrupted" or "Reconnecting" or "Resume succeeded" ? ResumeStatus : "Resume unavailable or rejected", local: Authority is null);
         }
 
         if (!_loggedFailure && Failure.Length > 0)

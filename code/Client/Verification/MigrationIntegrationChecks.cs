@@ -116,7 +116,7 @@ public sealed partial class MigrationIntegrationChecks : Node
 
     private void CreateDriver(int index, ulong server, bool host, ulong player = 0, ulong epoch = 1)
     {
-        var driver = new LobbyNetworkDriver(_gateways[index], host ? 900UL : 0, server, "Player" + index, _ => true, 900, peer => _subjects[index].GetValueOrDefault(peer), 180, epoch);
+        var driver = new LobbyNetworkDriver(_gateways[index], host ? 900UL : 0, server, "Player" + index, _ => true, 900, peer => _subjects[index].GetValueOrDefault(peer), epoch);
         driver.Reconnect = () => throw new InvalidOperationException("Host is unavailable in this controlled loss scenario.");
         driver.Migration = new SessionMigration(driver, _gateways[index], "native-" + index, peer => _subjects[index].GetValueOrDefault(peer), (subject, listen) =>
         {

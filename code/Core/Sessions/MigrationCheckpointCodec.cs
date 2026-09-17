@@ -16,7 +16,7 @@ public static class MigrationCheckpointCodec
     public static byte[] Encode(MigrationCheckpoint checkpoint)
     {
         var lobby = checkpoint.Lobby;
-        byte[] body = JsonSerializer.SerializeToUtf8Bytes(new Wire(checkpoint.Sequence, LobbyCodec.EncodeState(lobby.State, lobby.State.CurrentHostId), lobby.Tick, lobby.NextId, new Dictionary<ulong, string>(lobby.Subjects), new Dictionary<ulong, ulong>(lobby.Deadlines), Development.GameplayConfigurationCodec.Encode(lobby.State.Session, lobby.Configuration), checkpoint.Arena is null ? null : ResumeCheckpointCodec.Encode(checkpoint.Arena), checkpoint.Host, checkpoint.LeaseSession));
+        byte[] body = JsonSerializer.SerializeToUtf8Bytes(new Wire(checkpoint.Sequence, LobbyCodec.EncodeState(lobby.State, lobby.State.CurrentHostId), lobby.Tick, lobby.NextId, new Dictionary<ulong, string>(lobby.Subjects), Development.GameplayConfigurationCodec.Encode(lobby.State.Session, lobby.Configuration), checkpoint.Arena is null ? null : ResumeCheckpointCodec.Encode(checkpoint.Arena), checkpoint.Host, checkpoint.LeaseSession));
         if (body.Length + 35 > MaximumBytes)
         {
             throw new ArgumentException("Migration checkpoint exceeds its bound.");
@@ -25,7 +25,7 @@ public static class MigrationCheckpointCodec
         byte[] result = new byte[body.Length + 35];
         result[0] = (byte)'T';
         result[1] = (byte)'C';
-        result[2] = 3;
+        result[2] = 4;
         SHA256.HashData(body).CopyTo(result, 3);
         body.CopyTo(result, 35);
         return result;
@@ -36,7 +36,7 @@ public static class MigrationCheckpointCodec
     /// <returns>Detached validated checkpoint.</returns>
     public static MigrationCheckpoint Decode(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length is < 36 or > MaximumBytes || bytes[0] != 'T' || bytes[1] != 'C' || bytes[2] != 3 ||
+        if (bytes.Length is < 36 or > MaximumBytes || bytes[0] != 'T' || bytes[1] != 'C' || bytes[2] != 4 ||
             !CryptographicOperations.FixedTimeEquals(bytes.Slice(3, 32), SHA256.HashData(bytes[35..])))
         {
             throw new ArgumentException("Corrupt or incompatible migration checkpoint.");
@@ -45,7 +45,7 @@ public static class MigrationCheckpointCodec
         try
         {
             var wire = JsonSerializer.Deserialize<Wire>(bytes[35..], new JsonSerializerOptions { MaxDepth = 16, UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow }) ?? throw new ArgumentException("Missing checkpoint.");
-            if (wire.Lobby is null || wire.Subjects is null || wire.Deadlines is null || wire.Configuration is null)
+            if (wire.Lobby is null || wire.Subjects is null || wire.Configuration is null)
             {
                 throw new ArgumentException("Incomplete checkpoint.");
             }
@@ -57,7 +57,7 @@ public static class MigrationCheckpointCodec
                 throw new ArgumentException("Configuration belongs to another session.");
             }
 
-            var lobby = new LobbyRestoreState(state, wire.Tick, wire.NextId, wire.Subjects, wire.Deadlines, configuration.State);
+            var lobby = new LobbyRestoreState(state, wire.Tick, wire.NextId, wire.Subjects, configuration.State);
             return new MigrationCheckpoint(wire.Sequence, lobby, wire.Arena is null ? null : ResumeCheckpointCodec.Decode(wire.Arena), wire.Host, wire.LeaseSession);
         }
         catch (Exception exception) when (exception is JsonException or InvalidOperationException or OverflowException or NullReferenceException)
@@ -71,5 +71,5 @@ public static class MigrationCheckpointCodec
     /// <returns>Canonical uppercase digest.</returns>
     public static string Digest(ReadOnlySpan<byte> bytes) => Convert.ToHexString(SHA256.HashData(bytes));
 
-    private sealed record Wire(ulong Sequence, byte[] Lobby, ulong Tick, ulong NextId, Dictionary<ulong, string> Subjects, Dictionary<ulong, ulong> Deadlines, byte[] Configuration, byte[]? Arena, HostRestoreState? Host, string? LeaseSession);
+    private sealed record Wire(ulong Sequence, byte[] Lobby, ulong Tick, ulong NextId, Dictionary<ulong, string> Subjects, byte[] Configuration, byte[]? Arena, HostRestoreState? Host, string? LeaseSession);
 }

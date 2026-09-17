@@ -101,11 +101,11 @@ internal sealed class EventStreamTests
         Assert.That(world.Events.Entries.Count(entry => entry.Category == EventCategory.Healing), Is.EqualTo(1));
     }
 
-    /// <summary>Grace and identity reuse emit one transition each and never include authenticated subjects.</summary>
+    /// <summary>Reservation and identity reuse emit one transition each and never include authenticated subjects.</summary>
     [Test]
     public void ReconnectEventsUseSafeIdentityAndSingleTransitions()
     {
-        var lobby = new LobbyAuthority(10, "Host", 60);
+        var lobby = new LobbyAuthority(10, "Host");
         ulong player = lobby.Join(4, "Guest", "secret-authenticated-subject");
         lobby.SetReady(0, true);
         lobby.SetReady(4, true);
@@ -116,11 +116,13 @@ internal sealed class EventStreamTests
         Assert.That(lobby.Resume(5, 10, player, 1, "secret-authenticated-subject"), Is.True);
         lobby.Disconnect(5);
         lobby.AdvanceTime(90);
-        lobby.AdvanceTime(100);
+        lobby.AdvanceTime(100000);
+        Assert.That(lobby.Events.Entries.Any(entry => entry.Kind == "Match reservation ended"), Is.False);
+        lobby.Return(0);
         Assert.Multiple(() =>
         {
             Assert.That(lobby.Events.Entries.Count(entry => entry.Kind == "Reconnected"), Is.EqualTo(1));
-            Assert.That(lobby.Events.Entries.Count(entry => entry.Kind == "Grace expired; player removed"), Is.EqualTo(1));
+            Assert.That(lobby.Events.Entries.Count(entry => entry.Kind == "Match reservation ended"), Is.EqualTo(1));
             Assert.That(lobby.Events.Entries.Any(entry => entry.ToString().Contains("secret-authenticated-subject", StringComparison.Ordinal)), Is.False);
         });
     }

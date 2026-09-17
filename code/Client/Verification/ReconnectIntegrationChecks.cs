@@ -61,7 +61,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
 
         _gateways[0].Listen(TransportEndpoint.DirectIp(_endpoint));
         ulong peer = _gateways[1].Connect(TransportEndpoint.DirectIp(_endpoint));
-        _host = new LobbyNetworkDriver(_gateways[0], 900, 0, "Host", _ => true, identity: _ => "native-test-user", graceTicks: 300);
+        _host = new LobbyNetworkDriver(_gateways[0], 900, 0, "Host", _ => true, identity: _ => "native-test-user");
         _client = new LobbyNetworkDriver(_gateways[1], 0, peer, "Client", expectedSession: 900)
         {
             Reconnect = () => _gateways[1].Connect(TransportEndpoint.DirectIp(_endpoint)),
@@ -75,7 +75,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
         {
             if (++_cleanup == 4)
             {
-                GD.Print("Reconnect integration passed: immediate lobby removal/fresh admission, three arena resyncs, native body reuse, prediction/interpolation reset, held-item/spawn/match continuity, and arena grace expiry over real UDP. EOS identity is a test seam.");
+                GD.Print("Reconnect integration passed: immediate lobby removal/fresh admission, three arena resyncs, native body reuse, prediction/interpolation reset, held-item/spawn/match continuity, match-long reservation and Return cleanup over real UDP. EOS identity is a test seam.");
                 GetTree().Quit();
             }
 
@@ -224,7 +224,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             RemoteVehicleTagChecks.Verify(_arenas[0], _host);
             RemoteVehicleTagChecks.Verify(_arenas[1], _client);
             Require(_arenas[0].Bodies[_player].GetNode<RemoteVehicleTag>("PlayerTag") == _originalTag, "Three reconnects retain exactly the same remote tag.");
-            Require(_arenas[1].Driver.LocalItem?.Item == HeldItem.Wrench, "Held item survives grace.");
+            Require(_arenas[1].Driver.LocalItem?.Item == HeldItem.Wrench, "Held item survives match-long retention.");
             Require(_arenas[1].Driver.ItemState?.Spawns.Count == 8 && _arenas[1].Driver.Match?.Players.Count == 2, "Pickup and match state arrive in the checkpoint.");
             if (_resyncs < 3)
             {
@@ -262,11 +262,16 @@ public sealed partial class ReconnectIntegrationChecks : Node
             _arenas[1].SetProcess(true);
             _client.Reconnect = () => throw new InvalidOperationException("Simulated unavailable session");
             Drop();
+            _host.Pump(181);
+            _client.Pump(181);
+            Require(_host.State!.Players.Count == 2 && _client.Failure.Length == 0, "Both drivers retain resume beyond thirty seconds and two minutes.");
             _stage = 7;
         }
-        else if (_stage == 7 && _host.State!.Players.Count == 1 && _arenas[0].Driver.Host!.World.State.Vehicles.Count == 1 && _client.Failure.Length > 0)
+        else if (_stage == 7)
         {
-            Require(_client.ResumeStatus == "Grace expired", "Retry loop terminates at the configured deadline.");
+            Require(_arenas[0].Driver.Host!.World.State.Vehicles.Count == 2, "Disconnected vehicle remains in the active match.");
+            Require(_host.Authority!.Return(0), "Return ends the retained match.");
+            Require(_host.State!.Players.Count == 1 && _host.Authority.FindPlayer("native-test-user") == 0, "Return clears disconnected player and subject.");
             Cleanup();
             _finished = true;
         }
@@ -281,6 +286,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
         Require(disconnected.State == ConnectionDiagnosticState.Disconnected && disconnected.Statistics.PingMilliseconds is null, "Disconnect clears displayed latency immediately.");
         _host.Pump(0);
         _client.Pump(0);
+        _host.Pump(181);
+        _client.Pump(181);
         if (_arenas.Count > 0)
         {
             RemoteVehicleTagChecks.Verify(_arenas[0], _host);

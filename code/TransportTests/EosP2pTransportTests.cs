@@ -60,7 +60,7 @@ internal sealed class EosP2pTransportTests
 
         Assert.That(pair.Client.Failure, Is.Empty);
         Assert.That(pair.Client.State!.AuthorityEpoch, Is.EqualTo(2));
-        Assert.That(frames, Is.LessThan(780), "Failover must finish before the 30-second player grace.");
+        Assert.That(frames, Is.LessThan(780), "Failover must finish promptly after trusted fencing, independently of player retention.");
         Assert.That(pair.Client.State.Session, Is.EqualTo(before.Session));
         Assert.That(pair.Client.State.Match, Is.EqualTo(before.Match));
         if (arena)
@@ -488,9 +488,9 @@ internal sealed class EosP2pTransportTests
         else if (boundary == "wrong-epoch")
         {
             var state = checkpoint.Lobby.State;
-            var wrong = new LobbySnapshot(state.Session, state.Revision, state.Match, state.Phase, state.Players, state.GraceTicks, state.CurrentHostId, 2);
+            var wrong = new LobbySnapshot(state.Session, state.Revision, state.Match, state.Phase, state.Players, state.CurrentHostId, 2);
             var lobby = checkpoint.Lobby;
-            bytes = MigrationCheckpointCodec.Encode(new MigrationCheckpoint(100, new LobbyRestoreState(wrong, lobby.Tick, lobby.NextId, lobby.Subjects, lobby.Deadlines), captured.Arena, captured.Host));
+            bytes = MigrationCheckpointCodec.Encode(new MigrationCheckpoint(100, new LobbyRestoreState(wrong, lobby.Tick, lobby.NextId, lobby.Subjects), captured.Arena, captured.Host));
         }
 
         byte[] packet = [(byte)'T', (byte)'X', 1, .. bytes];
@@ -985,6 +985,9 @@ internal sealed class EosP2pTransportTests
             Assert.That(TransportDiagnostics.Capture(pair.Client, client).Statistics.PingMilliseconds, Is.Null);
             client.Pump(0);
             Assert.That(TransportDiagnostics.Capture(pair.Client, client).State, Is.EqualTo(ConnectionDiagnosticState.Reconnecting));
+            host.Pump(181);
+            client.Pump(181);
+            Assert.That(host.State!.Players.Count, Is.EqualTo(2), "An ordinary client remains reserved beyond both former deadlines.");
             for (int i = 0; i < 110; i++)
             {
                 authority.Advance(default, Observe);

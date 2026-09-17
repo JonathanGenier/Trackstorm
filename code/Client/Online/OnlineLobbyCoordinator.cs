@@ -27,7 +27,6 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     private long _completedMembership;
     private bool _disposed;
     private string? _joinCredential;
-    private long? _resumeStarted;
     private long _resumeRetry;
     private long _savedAt;
     private ulong _savedGeneration;
@@ -68,7 +67,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         Identity = identity;
         _time = time ?? TimeProvider.System;
         _resumeStore = resumeStore;
-        SavedResume = _resumeStore?.Load(identity.Value, _time.GetUtcNow());
+        SavedResume = _resumeStore?.Load(identity.Value);
     }
 
     /// <summary>Production packet composition; absent in browser-only verification.</summary>
@@ -121,8 +120,8 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
     }
 
-    /// <summary>A voluntarily departed host can explicitly reclaim its still-reserved identity.</summary>
-    internal bool CanResumeRetained => Active is null && !Busy && _closing is null && (_returnLocator is { RetainedHost: true } || _returnLocator?.Expires > _time.GetUtcNow());
+    /// <summary>A departed arena player can explicitly resume its still-reserved identity.</summary>
+    internal bool CanResumeRetained => Active is null && !Busy && _closing is null && _returnLocator is not null;
 
     /// <summary>Fresh local service membership, independent of peer connectivity or provider ownership.</summary>
     internal bool CoordinationAvailable
@@ -401,7 +400,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         {
             _savedAt = _time.GetTimestamp();
             _savedGeneration = driver.Generation;
-            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2), driver.Authority is not null || driver.State!.Players.Any(player => player.Id == driver.LocalPlayerId && player.RetainedHost)));
+            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value));
             SavedResume = null;
         }
 
@@ -465,11 +464,11 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal void Leave()
     {
         bool retainLobby = _binding?.Driver.Migration?.Subjects is not null || _binding?.Driver.State?.AuthorityEpoch > 1;
-        bool retainPlayer = retainLobby && Active is not null && _binding?.Driver is { Authority: not null, State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume };
+        bool retainPlayer = Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume } && _binding.Driver.ResumeStatus != "Resume rejected" && (_binding.Driver.Authority is null || retainLobby);
         if (retainPlayer)
         {
             var driver = _binding!.Driver;
-            _returnLocator = new ResumeLocator(Active!.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, driver.State!.AuthorityEpoch, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2), true);
+            _returnLocator = new ResumeLocator(Active!.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, driver.State!.AuthorityEpoch, Active.HostIdentity.Value);
             _resumeStore?.Save(_returnLocator);
         }
 
@@ -479,7 +478,6 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             _resumeStore?.Clear();
         }
 
-        _resumeStarted = null;
         _recoveringMembership = false;
         _resumePending = false;
         _savedGeneration = 0;
@@ -536,11 +534,11 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         if (Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume, Failure.Length: 0 } driver)
         {
             _preserveLocator = true;
-            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2), driver.Authority is not null || driver.State!.Players.Any(player => player.Id == driver.LocalPlayerId && player.RetainedHost)));
+            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value));
         }
     }
 
-    /// <summary>Explicitly resumes a former host's retained identity through membership and Core authorization.</summary>
+    /// <summary>Explicitly resumes a player's retained identity through membership and Core authorization.</summary>
     internal void ResumeRetained()
     {
         if (!CanResumeRetained)
@@ -550,7 +548,6 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
 
         SavedResume = _returnLocator;
         _returnLocator = null;
-        _resumeStarted = null;
         _resumeRetry = 0;
         TickResume();
     }
@@ -710,7 +707,6 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                         if (!IsHost && _binding?.Driver.State?.ReconnectPolicy == Core.Sessions.SessionReconnectPolicy.RetainedResume)
                         {
                             _recoveringMembership = true;
-                            _resumeStarted ??= _time.GetTimestamp();
                             Active = Active with { MemberIds = Active.MemberIds.Where(member => !member.Equals(Identity)).ToArray() };
                             Status = "Connection interrupted";
                         }
@@ -858,14 +854,6 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
 
     private void TickResume()
     {
-        _resumeStarted ??= _time.GetTimestamp();
-        if (_time.GetElapsedTime(_resumeStarted.Value).TotalSeconds >= 30)
-        {
-            Leave();
-            Status = "Session unavailable. Resume expired; refresh or choose another lobby.";
-            return;
-        }
-
         if (_resumePending || (_resumeRetry != 0 && _time.GetElapsedTime(_resumeRetry).TotalSeconds < 2))
         {
             return;
@@ -917,7 +905,6 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             }
 
             _recoveringMembership = false;
-            _resumeStarted = null;
             if (Active is null)
             {
                 long operation = Begin("Reconnecting");

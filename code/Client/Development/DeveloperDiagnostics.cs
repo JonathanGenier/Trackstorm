@@ -36,7 +36,7 @@ internal static class DeveloperDiagnostics
             $"Failure: {(lobby?.Failure.Length > 0 || arena?.Driver.Failure.Length > 0 ? "failed" : "none")}; RTT: {samples}\n" +
             $"Trackstorm roster: {rosterState}\n" +
             $"Quality in/out: {connection.Statistics.IncomingQuality?.ToString("P1") ?? "N/A"} / {connection.Statistics.OutgoingQuality?.ToString("P1") ?? "N/A"}\n" +
-            $"Reconnect: {lobby?.Reconnecting == true}; grace: {lobby?.State?.GraceTicks.ToString() ?? "N/A"} ticks; resume checkpoint pending: {lobby?.NeedsArenaCheckpoint == true}\n" +
+            $"Reconnect: {lobby?.Reconnecting == true}; policy: {lobby?.State?.ReconnectPolicy.ToString() ?? "N/A"}; resume checkpoint pending: {lobby?.NeedsArenaCheckpoint == true}\n" +
             $"Connection generation: {lobby?.Generation ?? 0}; configuration revision: {arena?.Driver.Configuration.Revision ?? lobby?.Authority?.Configuration.Revision ?? lobby?.Migration?.ConfigurationRevision ?? 0}\n" +
             $"AuthorityEpoch: {lobby?.State?.AuthorityEpoch ?? 0}; migration: {lobby?.Migration?.Diagnostics ?? "unavailable"}\n" +
             (arena?.DeveloperDiagnostics ?? "Arena prediction: unavailable.");

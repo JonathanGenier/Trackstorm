@@ -50,7 +50,7 @@ public sealed partial class MigrationProcessChecks : Node
             server = _gateway.Connect(Endpoint(0));
         }
 
-        _driver = new LobbyNetworkDriver(_gateway, _role == 0 ? 901UL : 0, server, "Process" + _role, _ => true, 901, peer => _subjects.GetValueOrDefault(peer), 180)
+        _driver = new LobbyNetworkDriver(_gateway, _role == 0 ? 901UL : 0, server, "Process" + _role, _ => true, 901, peer => _subjects.GetValueOrDefault(peer))
         {
             Reconnect = () => throw new InvalidOperationException("Original host process has been terminated by the test launcher."),
         };

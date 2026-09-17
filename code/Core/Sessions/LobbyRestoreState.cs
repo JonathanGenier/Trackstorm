@@ -8,15 +8,12 @@ public sealed class LobbyRestoreState
     /// <param name="tick">Host session clock.</param>
     /// <param name="nextId">Highest issued identity, including departed players.</param>
     /// <param name="subjects">Authenticated subject for every retained player.</param>
-    /// <param name="deadlines">Disconnected reservation deadlines on the session clock.</param>
     /// <param name="configuration">Current authoritative session tuning, including lobby edits and arena continuation.</param>
-    public LobbyRestoreState(LobbySnapshot state, ulong tick, ulong nextId, IReadOnlyDictionary<ulong, string> subjects, IReadOnlyDictionary<ulong, ulong> deadlines, Development.GameplayConfigurationState? configuration = null)
+    public LobbyRestoreState(LobbySnapshot state, ulong tick, ulong nextId, IReadOnlyDictionary<ulong, string> subjects, Development.GameplayConfigurationState? configuration = null)
     {
         if (nextId < state.Players.Max(player => player.Id) || nextId == ulong.MaxValue ||
             subjects.Count != state.Players.Count || subjects.Values.Distinct(StringComparer.Ordinal).Count() != subjects.Count ||
-            state.Players.Any(player => !subjects.TryGetValue(player.Id, out string? subject) || string.IsNullOrWhiteSpace(subject) || subject.Length > 256 ||
-                (!player.Connected && (!deadlines.TryGetValue(player.Id, out ulong deadline) || deadline <= tick))) ||
-            deadlines.Any(pair => pair.Value <= tick || !state.Players.Any(player => player.Id == pair.Key && !player.Connected)))
+            state.Players.Any(player => !subjects.TryGetValue(player.Id, out string? subject) || string.IsNullOrWhiteSpace(subject) || subject.Length > 256))
         {
             throw new ArgumentException("Invalid lobby continuation state.");
         }
@@ -26,7 +23,6 @@ public sealed class LobbyRestoreState
         Tick = tick;
         NextId = nextId;
         Subjects = new System.Collections.ObjectModel.ReadOnlyDictionary<ulong, string>(new Dictionary<ulong, string>(subjects));
-        Deadlines = new System.Collections.ObjectModel.ReadOnlyDictionary<ulong, ulong>(new Dictionary<ulong, ulong>(deadlines));
     }
 
     /// <summary>Immutable published roster.</summary>
@@ -39,6 +35,4 @@ public sealed class LobbyRestoreState
     public ulong NextId { get; }
     /// <summary>Provider-neutral authenticated rebind mapping.</summary>
     public IReadOnlyDictionary<ulong, string> Subjects { get; }
-    /// <summary>Absolute reconnect expiry for already disconnected players.</summary>
-    public IReadOnlyDictionary<ulong, ulong> Deadlines { get; }
 }

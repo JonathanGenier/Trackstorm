@@ -7,7 +7,6 @@ public sealed class LobbyAuthority
 {
     private readonly Dictionary<ulong, ulong> _peers = new();
     private readonly Dictionary<ulong, string> _identities = new();
-    private readonly Dictionary<ulong, ulong> _deadlines = new();
     private readonly Dictionary<ulong, ulong> _previousPeers = new();
     private ulong _tick;
     private ulong _nextId = 1;
@@ -15,21 +14,14 @@ public sealed class LobbyAuthority
     /// <summary>Creates the host's unready lobby.</summary>
     /// <param name="session">Nonzero lifetime leaving room for future match generations.</param>
     /// <param name="name">Untrusted host display name.</param>
-    /// <param name="graceTicks">Reconnect reservation duration at the caller's fixed 60 Hz clock.</param>
-    public LobbyAuthority(ulong session, string name, ulong graceTicks = 1800)
+    public LobbyAuthority(ulong session, string name)
     {
         if (session == ulong.MaxValue)
         {
             throw new ArgumentOutOfRangeException(nameof(session));
         }
 
-        State = new LobbySnapshot(session, 1, session, SessionPhase.Lobby, new[] { new SessionPlayer(1, PlayerName.Sanitize(name), false) }, graceTicks);
-        if (graceTicks is 0 or > 216000)
-        {
-            throw new ArgumentOutOfRangeException(nameof(graceTicks));
-        }
-
-        GraceTicks = graceTicks;
+        State = new LobbySnapshot(session, 1, session, SessionPhase.Lobby, new[] { new SessionPlayer(1, PlayerName.Sanitize(name), false) });
         Events.PlayerName = id => State.Players.SingleOrDefault(player => player.Id == id)?.Name ?? $"Player {id}";
         Events.Record(EventCategory.Session, "Created", actor: 1);
         Events.Record(EventCategory.Session, "Joined", actor: 1);
@@ -37,8 +29,6 @@ public sealed class LobbyAuthority
 
     /// <summary>Current immutable authority boundary.</summary>
     public LobbySnapshot State { get; private set; }
-    /// <summary>Configured reservation in caller-supplied 60 Hz ticks.</summary>
-    public ulong GraceTicks { get; }
     /// <summary>Authoritative session journal shared with arena gameplay.</summary>
     public EventStream Events { get; } = new();
     /// <summary>Copy of transport-to-player assignments for vehicle integration.</summary>
@@ -63,21 +53,17 @@ public sealed class LobbyAuthority
         SessionPlayer[] restoredPlayers = previous.ReconnectPolicy == SessionReconnectPolicy.FreshJoin
             ? previous.Players.Where(player => player.Id != previous.CurrentHostId).Select(player => player with { Ready = false, Connected = true, RetainedHost = false }).ToArray()
             : previous.Players.Select(player => player with { Ready = false, Connected = player.Id == host, RetainedHost = player.RetainedHost || player.Id == previous.CurrentHostId }).ToArray();
-        var result = new LobbyAuthority(previous.Session, previous.Players.Single(player => player.Id == host).Name, previous.GraceTicks)
+        var result = new LobbyAuthority(previous.Session, previous.Players.Single(player => player.Id == host).Name)
         {
             _tick = checkpoint.Tick,
             _nextId = checkpoint.NextId,
             Configuration = checkpoint.Configuration,
-            State = new LobbySnapshot(previous.Session, checked(previous.Revision + 1), previous.Match, previous.Phase, restoredPlayers, previous.GraceTicks, host, epoch),
+            State = new LobbySnapshot(previous.Session, checked(previous.Revision + 1), previous.Match, previous.Phase, restoredPlayers, host, epoch),
         };
 
         foreach (var player in result.State.Players)
         {
             result._identities.Add(player.Id, checkpoint.Subjects[player.Id]);
-            if (previous.ReconnectPolicy == SessionReconnectPolicy.RetainedResume && player.Id != host)
-            {
-                result._deadlines.Add(player.Id, player.RetainedHost ? ulong.MaxValue : checkpoint.Deadlines.GetValueOrDefault(player.Id, checked(checkpoint.Tick + previous.GraceTicks)));
-            }
         }
 
         if (previous.ReconnectPolicy == SessionReconnectPolicy.FreshJoin)
@@ -145,7 +131,7 @@ public sealed class LobbyAuthority
     public LobbyRestoreState Capture(string hostSubject)
     {
         var subjects = new Dictionary<ulong, string>(_identities) { [State.CurrentHostId] = hostSubject };
-        return new LobbyRestoreState(State, _tick, _nextId, subjects, _deadlines, Configuration);
+        return new LobbyRestoreState(State, _tick, _nextId, subjects, Configuration);
     }
 
     /// <summary>Assigns a fresh identity to a connected transport sender.</summary>
@@ -224,7 +210,7 @@ public sealed class LobbyAuthority
             return false;
         }
 
-        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), checked(State.Match + 1), SessionPhase.Arena, State.Players, GraceTicks, State.CurrentHostId, State.AuthorityEpoch);
+        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), checked(State.Match + 1), SessionPhase.Arena, State.Players, State.CurrentHostId, State.AuthorityEpoch);
         Events.Record(EventCategory.Session, "Arena started", actor: State.CurrentHostId);
         return true;
     }
@@ -239,21 +225,27 @@ public sealed class LobbyAuthority
             return false;
         }
 
-        foreach (ulong id in State.Players.Where(player => player.RetainedHost && !player.Connected).Select(player => player.Id).ToArray())
+        foreach (ulong id in State.Players.Where(player => !player.Connected).Select(player => player.Id).ToArray())
         {
+            Events.Record(EventCategory.Session, "Match reservation ended", actor: id);
             RemovePlayer(id);
         }
 
-        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, SessionPhase.Lobby, State.Players.Select(player => player with { Ready = false, RetainedHost = false }), GraceTicks, State.CurrentHostId, State.AuthorityEpoch);
+        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, SessionPhase.Lobby, State.Players.Select(player => player with { Ready = false, RetainedHost = false }), State.CurrentHostId, State.AuthorityEpoch);
         Events.Record(EventCategory.Session, "Returned to lobby", actor: State.CurrentHostId);
         return true;
     }
 
-    /// <summary>Removes a disconnected player's entire record in either phase.</summary>
+    /// <summary>Applies the same phase lifecycle to an intentional departure.</summary>
     /// <param name="peer">Departed transport sender.</param>
     /// <returns>Whether an existing player was removed.</returns>
     public bool Remove(ulong peer)
     {
+        if (State.ReconnectPolicy == SessionReconnectPolicy.RetainedResume)
+        {
+            return Disconnect(peer);
+        }
+
         if (!_peers.Remove(peer, out ulong id))
         {
             return false;
@@ -275,20 +267,19 @@ public sealed class LobbyAuthority
         }
 
         Events.Record(EventCategory.Network, "Disconnected", actor: id, cause: "connection lost");
-        if (State.ReconnectPolicy == SessionReconnectPolicy.FreshJoin || !_identities.ContainsKey(id))
+        if (State.ReconnectPolicy == SessionReconnectPolicy.FreshJoin)
         {
             RemovePlayer(id);
             return true;
         }
 
-        _deadlines.Add(id, State.Players.Single(player => player.Id == id).RetainedHost ? ulong.MaxValue : checked(_tick + GraceTicks));
-        Events.Record(EventCategory.Network, State.Players.Single(player => player.Id == id).RetainedHost ? "Match reservation entered" : "Grace entered", actor: id);
+        Events.Record(EventCategory.Network, "Match reservation entered", actor: id);
         _previousPeers[id] = peer;
         Publish(State.Players.Select(player => player.Id == id ? player with { Ready = false, Connected = false } : player));
         return true;
     }
 
-    /// <summary>Advances explicit monotonic time; an exact deadline expires before a resume may succeed.</summary>
+    /// <summary>Advances the session journal clock; player reservations end only at Return.</summary>
     /// <param name="tick">Caller-owned 60 Hz session clock, including time spent in lobby.</param>
     public void AdvanceTime(ulong tick)
     {
@@ -299,11 +290,6 @@ public sealed class LobbyAuthority
 
         _tick = tick;
         Events.AdvanceTime(tick * 1000 / 60);
-        foreach (ulong id in _deadlines.Where(pair => pair.Value <= tick).Select(pair => pair.Key).ToArray())
-        {
-            Events.Record(EventCategory.Network, "Grace expired; player removed", actor: id);
-            RemovePlayer(id);
-        }
     }
 
     /// <summary>Resolves a retained subject without exposing platform identity in gameplay records.</summary>
@@ -322,7 +308,7 @@ public sealed class LobbyAuthority
     {
         SessionPlayer? player = State.Players.SingleOrDefault(value => value.Id == playerId);
         if (State.ReconnectPolicy != SessionReconnectPolicy.RetainedResume || peer == 0 || session != State.Session || player is null || player.Connected || player.Generation != generation ||
-            generation == ulong.MaxValue || !_deadlines.TryGetValue(playerId, out ulong deadline) || deadline <= _tick ||
+            generation == ulong.MaxValue ||
             !_identities.TryGetValue(playerId, out string? subject) || subject != identity || _peers.ContainsKey(peer) || peer <= _previousPeers.GetValueOrDefault(playerId))
         {
             return false;
@@ -330,7 +316,6 @@ public sealed class LobbyAuthority
 
         _peers.Add(peer, playerId);
         Events.Record(EventCategory.Network, "Reconnected", actor: playerId);
-        _deadlines.Remove(playerId);
         _previousPeers.Remove(playerId);
         Publish(State.Players.Select(value => value.Id == playerId ? value with { Connected = true, Ready = false, Generation = generation + 1 } : value));
         return true;
@@ -380,10 +365,9 @@ public sealed class LobbyAuthority
     private void RemovePlayer(ulong id)
     {
         _identities.Remove(id);
-        _deadlines.Remove(id);
         _previousPeers.Remove(id);
         Publish(State.Players.Where(player => player.Id != id));
     }
 
-    private void Publish(IEnumerable<SessionPlayer> players) => State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, State.Phase, players, GraceTicks, State.CurrentHostId, State.AuthorityEpoch);
+    private void Publish(IEnumerable<SessionPlayer> players) => State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, State.Phase, players, State.CurrentHostId, State.AuthorityEpoch);
 }

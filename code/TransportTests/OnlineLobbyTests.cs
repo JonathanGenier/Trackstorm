@@ -268,7 +268,7 @@ internal sealed partial class OnlineLobbyTests
             Assert.That(host.Active.HostIdentity, Is.EqualTo(User(1)));
             Assert.That(host.Active.Credential!.Verify("first-code"), Is.False);
             Assert.That(host.Active.Credential.Verify("second-code"), Is.True);
-            Assert.That(store.Load(User(1).Value, DateTimeOffset.UtcNow), Is.Null);
+            Assert.That(store.Load(User(1).Value), Is.Null);
         }
         finally
         {
@@ -553,7 +553,7 @@ internal sealed partial class OnlineLobbyTests
             gateway.ReceiveState(10, migratedState, 2);
             binding.Driver.Pump(0);
             client.Tick();
-            Assert.That(store.Load(User(2).Value, DateTimeOffset.UtcNow), Is.Null, "Lobby state must not persist a resume locator.");
+            Assert.That(store.Load(User(2).Value), Is.Null, "Lobby state must not persist a resume locator.");
             service.Lobbies[epochOne.Id] = delayedEpochOne;
             using var restarted = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
             restarted.Tick();
@@ -1001,13 +1001,15 @@ internal sealed partial class OnlineLobbyTests
     }
 
     /// <summary>Previously authenticated Locked members resume without retaining the access code; other identities cannot claim their slot.</summary>
-    [Test]
-    public void LockedResumeUsesAuthenticatedIdentityAndRetainsOneMapping()
+    /// <param name="access">Public or Locked admission mode.</param>
+    [TestCase(LobbyAccess.Public)]
+    [TestCase(LobbyAccess.Locked)]
+    public void MatchLongResumeUsesAuthenticatedIdentityAndRetainsOneMapping(LobbyAccess access)
     {
         var service = new Service();
         using var host = service.Coordinator(1);
         using var client = service.Coordinator(2);
-        host.Create("Test", LobbyAccess.Locked, "test-code");
+        host.Create("Test", access, access == LobbyAccess.Locked ? "test-code" : null);
         client.Refresh();
         client.Join(host.Active!.Id, "test-code");
         using var gateway = new Gateway();
@@ -1024,6 +1026,8 @@ internal sealed partial class OnlineLobbyTests
         gateway.Disconnect(20);
         binding.Driver.Pump(0);
         Assert.That(binding.Driver.State!.Players.Single(p => p.Id == 2).Connected, Is.False);
+        binding.Driver.Pump(181);
+        Assert.That(binding.Driver.State.Players.Single(p => p.Id == 2).Connected, Is.False);
         gateway.ConnectPeer(22);
         Assert.That(binding.AuthorizePeer(22, User(3), "test-code"), Is.False);
         gateway.ConnectPeer(23);
@@ -1035,6 +1039,11 @@ internal sealed partial class OnlineLobbyTests
         Assert.That(binding.Driver.Authority.PlayerId(23), Is.EqualTo(2));
         Assert.That(binding.Driver.State.Players.Count, Is.EqualTo(2));
         Assert.That(binding.Driver.State.Players.Single(p => p.Id == 2).Name, Is.EqualTo("Original"));
+        gateway.Disconnect(23);
+        binding.Driver.Pump(0);
+        Assert.That(binding.Driver.Authority.Return(0), Is.True);
+        gateway.ConnectPeer(24);
+        Assert.That(binding.AuthorizePeer(24, User(2), null), Is.EqualTo(access == LobbyAccess.Public), "Return clears retained authorization; fresh Locked admission requires the code.");
     }
 
     /// <summary>A restart hint restores only the prior assignment and is cleared when the player chooses Leave.</summary>
@@ -1050,7 +1059,7 @@ internal sealed partial class OnlineLobbyTests
             host.Create("Hidden match", LobbyAccess.Public, null);
             service.Lobbies[host.Active!.Id] = host.Active with { Open = false };
             service.Notify(host.Active.Id, new(OnlineLobbyUpdateKind.Metadata));
-            var locator = new ResumeLocator(host.Active!.Id, host.Active.Session, 2, 4, User(2).Value, host.Active.AuthorityEpoch, User(1).Value, DateTimeOffset.UtcNow.AddMinutes(2));
+            var locator = new ResumeLocator(host.Active!.Id, host.Active.Session, 2, 4, User(2).Value, host.Active.AuthorityEpoch, User(1).Value);
             store.Save(locator);
             using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
             client.Tick();
@@ -1065,7 +1074,97 @@ internal sealed partial class OnlineLobbyTests
             Assert.That(binding.Driver.Generation, Is.EqualTo(4));
             Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
             client.Leave();
-            Assert.That(store.Load(User(2).Value, DateTimeOffset.UtcNow), Is.Null);
+            Assert.That(store.Load(User(2).Value), Is.Null);
+        }
+        finally
+        {
+            store.Clear();
+        }
+    }
+
+    /// <summary>Membership retries and saved ordinary-client identity outlive both former local deadlines.</summary>
+    [Test]
+    public void OrdinaryRestartWaitsForMembershipBeyondTwoMinutes()
+    {
+        string path = Path.Combine(Path.GetTempPath(), "trackstorm-resume-" + Guid.NewGuid().ToString("N") + ".json");
+        var store = new ResumeLocatorStore(path);
+        var service = new Service();
+        var clock = new Clock();
+        var lobby = Lobby("retained-match", "Match") with { Open = false };
+        store.Save(new ResumeLocator(lobby.Id, lobby.Session, 2, 4, User(2).Value, 1, User(1).Value));
+        try
+        {
+            using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), clock, store);
+            client.Tick();
+            clock.Advance(181);
+            client.Tick();
+            Assert.That(client.SavedResume, Is.Not.Null);
+            Assert.That(client.Status, Is.EqualTo("Session unavailable — retrying"));
+            service.Lobbies[lobby.Id] = lobby;
+            clock.Advance(3);
+            client.Tick();
+            Assert.That(client.Active!.Session, Is.EqualTo(lobby.Session));
+            using var gateway = new Gateway();
+            gateway.ConnectPeer(1);
+            var binding = client.AttachTransport(gateway, 1, "Client");
+            binding.Driver.Pump(181);
+            Assert.That(binding.Driver.Failure, Is.Empty);
+            Assert.That(binding.Driver.LocalPlayerId, Is.EqualTo(2));
+            Assert.That(binding.Driver.Generation, Is.EqualTo(4));
+            Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
+        }
+        finally
+        {
+            store.Clear();
+        }
+    }
+
+    /// <summary>Leave and failed migration attempts preserve manual player recovery, while Return clears it.</summary>
+    /// <param name="failedAttempt">Whether a safely failed migration attempt precedes departure.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void OrdinaryArenaDeparturePreservesManualResumeUntilReturn(bool failedAttempt)
+    {
+        string path = Path.Combine(Path.GetTempPath(), "trackstorm-resume-" + Guid.NewGuid().ToString("N") + ".json");
+        var store = new ResumeLocatorStore(path);
+        var service = new Service();
+        var clock = new Clock();
+        using var host = service.Coordinator(1);
+        host.Create("Match", LobbyAccess.Public, null);
+        try
+        {
+            using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), clock, store);
+            client.Refresh();
+            client.Join(host.Active!.Id, null);
+            using var gateway = new Gateway();
+            gateway.ConnectPeer(1);
+            var binding = client.AttachTransport(gateway, 1, "Client");
+            var state = new LobbySnapshot(host.Active.Session, 2, host.Active.Session + 1, SessionPhase.Arena, [new(1, "Host", false), new(2, "Client", false)]);
+            gateway.ReceiveState(1, state, 2);
+            binding.Driver.Pump(0);
+            if (failedAttempt)
+            {
+                binding.Driver.FailMigration("trusted fence unavailable");
+            }
+
+            client.Leave();
+            clock.Advance(181);
+            client.Tick();
+            Assert.That(client.Active, Is.Null, "Leave must not automatically rejoin.");
+            Assert.That(client.CanResumeRetained, Is.True);
+            Assert.That(store.Load(User(2).Value)!.Player, Is.EqualTo(2));
+            client.ResumeRetained();
+            gateway.ConnectPeer(3);
+            binding = client.AttachTransport(gateway, 3, "Client");
+            binding.Driver.Pump(0);
+            Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
+            gateway.ReceiveState(3, new LobbySnapshot(state.Session, 3, state.Match, SessionPhase.Arena, state.Players.Select(player => player.Id == 2 ? player with { Generation = 2 } : player)), 2);
+            binding.Driver.Pump(0);
+            client.Tick();
+            gateway.ReceiveState(3, new LobbySnapshot(state.Session, 4, state.Match, SessionPhase.Lobby, binding.Driver.State!.Players), 2);
+            binding.Driver.Pump(0);
+            client.Tick();
+            Assert.That(store.Load(User(2).Value), Is.Null, "Observed Return clears the match locator.");
         }
         finally
         {

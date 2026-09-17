@@ -29,7 +29,7 @@ public static class LobbyCodec
     public static string DecodeRejection(ReadOnlySpan<byte> data)
     {
         using var document = Parse(data, 2);
-        return document.RootElement.ValueKind == JsonValueKind.String && document.RootElement.GetString() == "Grace expired" ? "Grace expired" : "Resume rejected";
+        return "Resume rejected";
     }
 
     /// <summary>Encodes explicit departure acknowledgement before transport cleanup.</summary>
@@ -39,13 +39,13 @@ public static class LobbyCodec
     /// <summary>Recognizes the exact versioned departure acknowledgement.</summary>
     /// <param name="data">Complete control payload.</param>
     /// <returns>Whether the host acknowledged departure.</returns>
-    public static bool IsLeft(ReadOnlySpan<byte> data) => data.SequenceEqual(new byte[] { (byte)'T', (byte)'L', 4, 3, 0 });
+    public static bool IsLeft(ReadOnlySpan<byte> data) => data.SequenceEqual(new byte[] { (byte)'T', (byte)'L', 5, 3, 0 });
 
     /// <summary>Encodes one complete host state and the recipient's assigned identity.</summary>
     /// <param name="state">Validated authoritative state.</param>
     /// <param name="player">Recipient identity.</param>
     /// <returns>Reliable packet.</returns>
-    public static byte[] EncodeState(LobbySnapshot state, ulong player) => Pack(0, JsonSerializer.SerializeToUtf8Bytes(new { state.Session, state.Revision, state.Match, state.Phase, state.Players, state.GraceTicks, state.CurrentHostId, state.AuthorityEpoch, Player = player }));
+    public static byte[] EncodeState(LobbySnapshot state, ulong player) => Pack(0, JsonSerializer.SerializeToUtf8Bytes(new { state.Session, state.Revision, state.Match, state.Phase, state.Players, state.CurrentHostId, state.AuthorityEpoch, Player = player }));
 
     /// <summary>Encodes a sender-scoped intent with phase generation to reject stale commands.</summary>
     /// <param name="command">Requested action.</param>
@@ -75,7 +75,7 @@ public static class LobbyCodec
         {
             JsonElement root = document.RootElement;
             var players = root.GetProperty("Players").EnumerateArray().Take(9).Select(player => new SessionPlayer(player.GetProperty("Id").GetUInt64(), player.GetProperty("Name").GetString()!, player.GetProperty("Ready").GetBoolean(), player.GetProperty("Connected").GetBoolean(), player.GetProperty("Generation").GetUInt64(), player.GetProperty("RetainedHost").GetBoolean())).ToArray();
-            var state = new LobbySnapshot(root.GetProperty("Session").GetUInt64(), root.GetProperty("Revision").GetUInt64(), root.GetProperty("Match").GetUInt64(), (SessionPhase)root.GetProperty("Phase").GetInt32(), players, root.GetProperty("GraceTicks").GetUInt64(), root.GetProperty("CurrentHostId").GetUInt64(), root.GetProperty("AuthorityEpoch").GetUInt64());
+            var state = new LobbySnapshot(root.GetProperty("Session").GetUInt64(), root.GetProperty("Revision").GetUInt64(), root.GetProperty("Match").GetUInt64(), (SessionPhase)root.GetProperty("Phase").GetInt32(), players, root.GetProperty("CurrentHostId").GetUInt64(), root.GetProperty("AuthorityEpoch").GetUInt64());
             ulong id = root.GetProperty("Player").GetUInt64();
             if (!state.Players.Any(player => player.Id == id))
             {
@@ -118,7 +118,7 @@ public static class LobbyCodec
         byte[] result = new byte[body.Length + 4];
         result[0] = (byte)'T';
         result[1] = (byte)'L';
-        result[2] = 4;
+        result[2] = 5;
         result[3] = kind;
         body.CopyTo(result, 4);
         if (result.Length > MaximumBytes)
@@ -131,7 +131,7 @@ public static class LobbyCodec
 
     private static JsonDocument Parse(ReadOnlySpan<byte> data, byte kind)
     {
-        if (data.Length is < 5 or > MaximumBytes || !IsLobby(data) || data[2] != 4 || data[3] != kind)
+        if (data.Length is < 5 or > MaximumBytes || !IsLobby(data) || data[2] != 5 || data[3] != kind)
         {
             throw new ArgumentException("Invalid lobby envelope.");
         }

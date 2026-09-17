@@ -24,3 +24,4 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 | Chase camera | [Initial implementation](ts-55-camera.md), [direct-heading correction](ts-55-direct-heading.md), [fixed-chase correction](ts-55-fixed-chase.md) |
 | Documentation and Jira instruction cleanup | [Migration, issue accounting and preservation audit](ts-56.md) |
 | TS-46 phase-specific disconnect correction | [Lobby fresh join and active-match retained resume](ts-46-disconnect-policy.md) |
+| TS-46 match-long reservation correction | [Ordinary-client retention, Return cleanup and remaining native gates](ts-46-match-reservations.md) |

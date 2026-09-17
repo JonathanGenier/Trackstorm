@@ -6,6 +6,6 @@ public enum SessionReconnectPolicy
     /// <summary>Lobby departures remove the player; a later return is a new admission.</summary>
     FreshJoin,
 
-    /// <summary>Arena departures retain the player for authenticated resume.</summary>
+    /// <summary>Arena departures retain the player until Return ends the match; authenticated resume has no time limit.</summary>
     RetainedResume,
 }

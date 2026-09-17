@@ -58,7 +58,7 @@ internal sealed class LobbyTests
     [Test]
     public void DisconnectPolicyIsExplicitlyPhaseSpecific()
     {
-        var lobby = new LobbyAuthority(100, "Host", graceTicks: 60);
+        var lobby = new LobbyAuthority(100, "Host");
         Assert.That(lobby.State.ReconnectPolicy, Is.EqualTo(SessionReconnectPolicy.FreshJoin));
         Assert.That(lobby.Join(10, "Client", "client"), Is.EqualTo(2));
         Assert.That(lobby.Disconnect(10), Is.True);
@@ -107,7 +107,8 @@ internal sealed class LobbyTests
         Assert.That(lobby.Start(0), Is.True);
         Assert.That(lobby.State.Match, Is.EqualTo(102));
         Assert.That(lobby.Remove(10), Is.True);
-        Assert.That(lobby.State.Players.Count, Is.EqualTo(1));
+        Assert.That(lobby.State.Players.Single(player => player.Id == 2).Connected, Is.False);
+        Assert.That(lobby.State.Players.Count, Is.EqualTo(2));
         Assert.That(lobby.State.Phase, Is.EqualTo(SessionPhase.Arena));
     }
 

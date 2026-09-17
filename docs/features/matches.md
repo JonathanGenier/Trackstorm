@@ -32,7 +32,7 @@ Core tests exercise real simulation damage/death boundaries, valid and invalid a
 
 `check-match.ps1 -GodotPath <exe>` runs eight native UDP peers through alternating remote missile and ram kills to five, followed by a sixth combat death and respawn after Finished. It checks consistent scores and winner, one finished notification per peer, native lifecycle behavior and unchanged final state. `-Impaired` adds 30 ms delay, 5 ms jitter and 2% loss; `-Visual` renders a peer and saves death/respawn and final-result evidence. Scenario setup positions vehicles and lowers victim HP; the real projectile/collision and authoritative damage paths cause each death. This is repeatable single-machine integration evidence, not a separate-PC EOS session or a balance/soak test.
 
-See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
+See [reconnection and session resume](reconnection.md) for authenticated match-long retention, rebind and checkpoint semantics.
 
 Authority restoration, epoch fencing, checkpoint cadence and migration limits are described in [host migration](host-migration.md).
 
