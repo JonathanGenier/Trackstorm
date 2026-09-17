@@ -25,6 +25,9 @@ internal sealed class PlayerInputAdapter
     private float _brake;
     private float _steering;
     private bool _itemNeedsRelease;
+    private bool _enabled = true;
+    private bool _gameplaySuppressed;
+    private bool _diagnosticSuppressed;
 
     /// <summary>Creates an adapter around the Client-owned mapping.</summary>
     /// <param name="bindings">The single local player's bindings.</param>
@@ -32,6 +35,9 @@ internal sealed class PlayerInputAdapter
     {
         Bindings = bindings;
     }
+
+    /// <summary>Notifies the native input owner when focus or UI ownership changes.</summary>
+    internal event Action? ControlStateChanged;
 
     /// <summary>Digital intent rates; shaping happens before frame recording.</summary>
     public DrivingInputShaping Shaping { get; set; } = new();
@@ -60,12 +66,25 @@ internal sealed class PlayerInputAdapter
     }
 
     /// <summary>Suppresses capture while focus is lost; observing suppression releases held controls.</summary>
-    public bool Enabled { get; set; } = true;
+    public bool Enabled
+    {
+        get => _enabled;
+        set => SetControlState(ref _enabled, value);
+    }
 
     /// <summary>Suppresses gameplay while settings are open, independently of application focus.</summary>
-    public bool GameplaySuppressed { get; set; }
+    public bool GameplaySuppressed
+    {
+        get => _gameplaySuppressed;
+        set => SetControlState(ref _gameplaySuppressed, value);
+    }
+
     /// <summary>Independent read-only diagnostic overlay input gate; does not alter menu ownership.</summary>
-    internal bool DiagnosticSuppressed { get; set; }
+    internal bool DiagnosticSuppressed
+    {
+        get => _diagnosticSuppressed;
+        set => SetControlState(ref _diagnosticSuppressed, value);
+    }
 
     /// <summary>Samples aggregate digital state; preserves press/release transitions until capture.</summary>
     public void Observe()
@@ -129,5 +148,14 @@ internal sealed class PlayerInputAdapter
             InputAxis.QuantizePedal(active ? Math.Max(_throttle, Bindings.Strength(InputAction.Accelerate, DeadZone, true)) : 0),
             InputAxis.QuantizePedal(active ? Math.Max(_brake, Bindings.Strength(InputAction.Brake, DeadZone, true)) : 0));
         return active ? frame : new InputFrame(tick, 0, 0, 0, InputButtons.None, InputButtons.None, frame.Released);
+    }
+
+    private void SetControlState(ref bool state, bool value)
+    {
+        if (state != value)
+        {
+            state = value;
+            ControlStateChanged?.Invoke();
+        }
     }
 }

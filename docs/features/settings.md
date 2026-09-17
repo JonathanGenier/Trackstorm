@@ -21,6 +21,8 @@ The control editor replaces keyboard/mouse bindings when a key or mouse button i
 
 ## Ownership and Persistence
 
+Settings and its category pages release gameplay mouse capture through the existing local-input suppression gate. The [input owner](input.md) keeps a normal native pointer available alongside keyboard/controller focus navigation, and restores capture when the player returns to gameplay. Settings controls do not own or restore mouse modes themselves.
+
 Core owns immutable, engine-independent preference data, the stable speed-unit enum, defaults, validation/clamping, and a reusable JSON codec with no filesystem access. Binding tokens are opaque to Core: Core associates copied read-only token lists with logical actions, while the Client input system owns native token encoding, interpretation, and validation. Preferences do not enter authoritative simulation state or replicated messages.
 
 Client owns the settings controller, filesystem store, UI, audio-bus application, display APIs, and input integration. The bootstrap loads preferences after input defaults exist and before the first simulation callback. Runtime consumers subscribe to the controller and read its current snapshot; gameplay and HUD consumers never access the persistence layer. Input changes go through the input owner's binding API, then `CaptureInput`; normal shutdown also captures current input preferences.
