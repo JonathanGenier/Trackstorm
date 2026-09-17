@@ -173,110 +173,288 @@
       "sha256": "2940ac98ff51aa3d5faeebae03665e76ea25cc5fc83c346aa6e94f450c377504",
       "bytes": 4176488,
       "license": "Project-provided; no third-party license asserted"
+    },
+    {
+      "path": "assets/audio/freesound/vehicle/idle.wav",
+      "sourceIds": [
+        401552
+      ],
+      "license": "CC0-1.0",
+      "sha256": "d21b933d584274c3b87f475c447fc9a55070ebc929739272980f86f339e9d57c",
+      "processing": "freesound.edits and freesound.processing in this manifest"
+    },
+    {
+      "path": "assets/audio/freesound/vehicle/low.wav",
+      "sourceIds": [
+        401556
+      ],
+      "license": "CC0-1.0",
+      "sha256": "e2297e68b4c07674e91da0830d41e75a9106468ecb3021c5a30e5cd73f05a78f",
+      "processing": "freesound.edits and freesound.processing in this manifest"
+    },
+    {
+      "path": "assets/audio/freesound/vehicle/high.wav",
+      "sourceIds": [
+        401551
+      ],
+      "license": "CC0-1.0",
+      "sha256": "153a46c068ac7b862f91196f76c124cb120ab3633ba62c467369197dad645cd9",
+      "processing": "freesound.edits and freesound.processing in this manifest"
+    },
+    {
+      "path": "assets/audio/freesound/vehicle/skid.wav",
+      "sourceIds": [
+        529225
+      ],
+      "license": "CC0-1.0",
+      "sha256": "a753bc32a0e8b2c98ef7c323a6424c4db2a5652bb33617f8d5c368bd6b1fd4ea",
+      "processing": "freesound.edits and freesound.processing in this manifest"
+    },
+    {
+      "path": "assets/audio/freesound/combat/fire.wav",
+      "sourceIds": [
+        398213
+      ],
+      "license": "CC0-1.0",
+      "sha256": "63cb3ebb16db6c2e9f6c72f036bb82a380dd34092988fe131b0401c9521e8611",
+      "processing": "freesound.edits and freesound.processing in this manifest"
+    },
+    {
+      "path": "assets/audio/freesound/combat/explosion.wav",
+      "sourceIds": [
+        811927
+      ],
+      "license": "CC0-1.0",
+      "sha256": "c9bb58946198013b1ff87f38788c1e793302e61a7b097a82365f4f75c90fe027",
+      "processing": "freesound.edits and freesound.processing in this manifest"
+    },
+    {
+      "path": "assets/audio/freesound/combat/destruction.wav",
+      "sourceIds": [
+        816376
+      ],
+      "license": "CC0-1.0",
+      "sha256": "80b6cb43f2cd8764cbeaecea16d54de161a0baf8f2e6547f39e1c517f04ef9e3",
+      "processing": "freesound.edits and freesound.processing in this manifest"
+    },
+    {
+      "path": "assets/audio/freesound/combat/death.wav",
+      "sourceIds": [
+        816376
+      ],
+      "license": "CC0-1.0",
+      "sha256": "42a45509600b914450227408a9eeaa1cefc419720e60f31017984659702458e3",
+      "processing": "freesound.edits and freesound.processing in this manifest"
+    },
+    {
+      "path": "assets/audio/freesound/combat/end.wav",
+      "sourceIds": [
+        816376
+      ],
+      "license": "CC0-1.0",
+      "sha256": "739b2828710be27c65f7a3a04bea9cda37e449a8da0fa101231df3e5934fe1ca",
+      "processing": "freesound.edits and freesound.processing in this manifest"
+    },
+    {
+      "path": "assets/audio/freesound/arena/ambience.wav",
+      "sourceIds": [
+        423314,
+        790753
+      ],
+      "license": "CC0-1.0",
+      "sha256": "13af2a88aaceca77a9e8f89d05cd223c7482b7aa49a89705b0e5555d846ee298",
+      "processing": "freesound.edits and freesound.processing in this manifest"
     }
   ],
-  "sonniss": {
-    "pack": "Sonniss GDC 2026 Game Audio Bundle",
-    "license": "https://sonniss.com/gdc-bundle-license/",
-    "licenseVersion": "2.0, effective 2026-08-27",
-    "distribution": "Local acquisition only; recordings and derivatives excluded from Git. Finished-game and team use per license.",
+  "freesound": {
     "sources": [
       {
-        "source": "344 Audio - Air Designed/AEROJet_Blast Off Clean_344 Audio_Air Designed.wav",
-        "archive": "https://downloads.sonniss.com/Sonniss.com-GDC2026-GameAudioBundle1of5.zip",
-        "sha256": "1de110cf09a62fb5fd117a415f7fb58bdf5ed05de436e7a12c5a228d3acaf5ac"
+        "id": 401552,
+        "author": "GiocoSound",
+        "url": "https://freesound.org/people/GiocoSound/sounds/401552/",
+        "acquiredUrl": "https://cdn.freesound.org/previews/401/401552_5820033-hq.mp3",
+        "originalDownloadUrl": "https://freesound.org/people/GiocoSound/sounds/401552/download/401552__giocosound__sfx_car_engine_outside_idle.wav",
+        "sha256": "b3a033013349b1886291bc30d0d76459f25aaa0f5e46015d3f2fad8fec2164b1",
+        "license": "CC0-1.0",
+        "title": "SFX_Car_Engine_Outside_Idle.wav",
+        "file": "401552.mp3",
+        "acquisition": "Official high-quality MP3 preview of the selected recording; original download requires login.",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licenseVerified": "2026-09-17"
       },
       {
-        "source": "Epic Stock Media - Strange Game Ambient Loops 3/AMBRoom_Factory Loop Heavy Machinery Tonal Roomtone Dark Wind Vent_ESM_SGA3.wav",
-        "archive": "https://downloads.sonniss.com/Sonniss.com-GDC2026-GameAudioBundle2of5.zip",
-        "sha256": "246822b305286be0d92cc77c42dc91a0b12ef4b4b5b4b5c1bd2da2e496c61225"
+        "id": 401556,
+        "author": "GiocoSound",
+        "url": "https://freesound.org/people/GiocoSound/sounds/401556/",
+        "acquiredUrl": "https://cdn.freesound.org/previews/401/401556_5820033-hq.mp3",
+        "originalDownloadUrl": "https://freesound.org/people/GiocoSound/sounds/401556/download/401556__giocosound__sfx_car_engine_outside_rpmlow.wav",
+        "sha256": "8e778dd772c0f1d8df27854d89b35e33dff4b887d076111bb2cb86351c9d6396",
+        "license": "CC0-1.0",
+        "title": "SFX_Car_Engine_Outside_RPMLow.wav",
+        "file": "401556.mp3",
+        "acquisition": "Official high-quality MP3 preview of the selected recording; original download requires login.",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licenseVerified": "2026-09-17"
       },
       {
-        "source": "Epic Stock Media - Synthesized Nature Loops and Sounds/WINDInt_Loop Weather Wind Whipping Constricted Flow Turbulent 01_ESM_SNLS.wav",
-        "archive": "https://downloads.sonniss.com/Sonniss.com-GDC2026-GameAudioBundle2of5.zip",
-        "sha256": "d521c04481c06e45db2ba3de30f2ee639689ce40c8c692c200b2008afaa4f723"
+        "id": 401551,
+        "author": "GiocoSound",
+        "url": "https://freesound.org/people/GiocoSound/sounds/401551/",
+        "acquiredUrl": "https://cdn.freesound.org/previews/401/401551_5820033-hq.mp3",
+        "originalDownloadUrl": "https://freesound.org/people/GiocoSound/sounds/401551/download/401551__giocosound__sfx_car_engine_outside_rpmhigh.wav",
+        "sha256": "2b905450a59ee1eed51738af8ee829c3afd9e616f517b44938aa0a37e47d4b7f",
+        "license": "CC0-1.0",
+        "title": "SFX_Car_Engine_Outside_RPMHigh.wav",
+        "file": "401551.mp3",
+        "acquisition": "Official high-quality MP3 preview of the selected recording; original download requires login.",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licenseVerified": "2026-09-17"
       },
       {
-        "source": "Federico Soler - Effective Trailer Booms Vol. 2/EffectiveTrailer_Booms_Vol2_011.wav",
-        "archive": "https://downloads.sonniss.com/Sonniss.com-GDC2026-GameAudioBundle2of5.zip",
-        "sha256": "f3a4426e9cf9f50a8ebb4a33a095be5522abc48a7e1f9b484fdcee082d9b70d6"
+        "id": 529225,
+        "author": "UnplugTheFridge",
+        "url": "https://freesound.org/people/UnplugTheFridge/sounds/529225/",
+        "acquiredUrl": "https://cdn.freesound.org/previews/529/529225_1138214-hq.mp3",
+        "originalDownloadUrl": "https://freesound.org/people/UnplugTheFridge/sounds/529225/download/529225__unplugthefridge__car-tires-start-and-stop-on-gravel-shoulder.wav",
+        "sha256": "04924dfadfd05418e101ebd055898915ac155cc130f8d1fcf41314cdd2955637",
+        "license": "CC0-1.0",
+        "title": "Car Tires Start and Stop on Gravel Shoulder.wav",
+        "file": "529225.mp3",
+        "acquisition": "Official high-quality MP3 preview of the selected recording; original download requires login.",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licenseVerified": "2026-09-17"
       },
       {
-        "source": "Epic Stock Media - Anime Game/EXPLDsgn_Explosion Small Blast Enemy Death Crunchy Boom Cartoon Noisy Crash Impact Delay 03_ESM_AG.wav",
-        "archive": "https://downloads.sonniss.com/Sonniss.com-GDC2026-GameAudioBundle2of5.zip",
-        "sha256": "0fdfac62d1c0b80a9db28e41c878562ab67825202cb863e8a0a600c35c333dc4"
+        "id": 398213,
+        "author": "morganpurkis",
+        "url": "https://freesound.org/people/morganpurkis/sounds/398213/",
+        "acquiredUrl": "https://cdn.freesound.org/previews/398/398213_5937039-hq.mp3",
+        "originalDownloadUrl": "https://freesound.org/people/morganpurkis/sounds/398213/download/398213__morganpurkis__cas-missile-launching.wav",
+        "sha256": "9347082320d3d7ee378a8b54e210474ea6b99b60f1258801a6911db30dccec54",
+        "license": "CC0-1.0",
+        "title": "CAS Missile Launching.wav",
+        "file": "398213.mp3",
+        "acquisition": "Official high-quality MP3 preview of the selected recording; original download requires login.",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licenseVerified": "2026-09-17"
       },
       {
-        "source": "SoundBits - Cars - Mad Mustang Mercury/VEHCar_Various Driving at Slow Speed 15 06_SNDBTS_CRS-MMM.wav",
-        "archive": "https://downloads.sonniss.com/Sonniss.com-GDC2026-GameAudioBundle5of5.zip",
-        "sha256": "7513db2c7127de13d4022924f5214b441584bf6e62b740bb03fa431e8f2325c3"
+        "id": 811927,
+        "author": "claywh",
+        "url": "https://freesound.org/people/claywh/sounds/811927/",
+        "acquiredUrl": "https://cdn.freesound.org/previews/811/811927_14549132-hq.mp3",
+        "originalDownloadUrl": "https://freesound.org/people/claywh/sounds/811927/download/811927__claywh__explosion.mp3",
+        "sha256": "5738ecc498781a603f5d5c5717619ee40c9ed3254f4f6362a8aa86700b8e47bc",
+        "license": "CC0-1.0",
+        "title": "explosion",
+        "file": "811927.mp3",
+        "acquisition": "Official high-quality MP3 preview of the selected recording; original download requires login.",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licenseVerified": "2026-09-17"
       },
       {
-        "source": "SoundBits - Cars - Mad Mustang Mercury/VEHSkid_Tire Skids on Gravel 15 06_SNDBTS_CRS-MMM.wav",
-        "archive": "https://downloads.sonniss.com/Sonniss.com-GDC2026-GameAudioBundle5of5.zip",
-        "sha256": "bb5010f26d4e8395053f90d0d645b9dbdfa75107eddb1667d48924fd8091f4ab"
+        "id": 816376,
+        "author": "harrisonlace",
+        "url": "https://freesound.org/people/harrisonlace/sounds/816376/",
+        "acquiredUrl": "https://cdn.freesound.org/previews/816/816376_9839964-hq.mp3",
+        "originalDownloadUrl": "https://freesound.org/people/harrisonlace/sounds/816376/download/816376__harrisonlace__dsgnstngr_basic-trailer-boom-impact.wav",
+        "sha256": "2936fd8ab56a63f4e5a829d6998e41e05a23fe6def90dbb4d32886c7f9dcbf3c",
+        "license": "CC0-1.0",
+        "title": "DSGNStngr_basic trailer boom impact",
+        "file": "816376.mp3",
+        "acquisition": "Official high-quality MP3 preview of the selected recording; original download requires login.",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licenseVerified": "2026-09-17"
+      },
+      {
+        "id": 790753,
+        "author": "JWS24",
+        "url": "https://freesound.org/people/JWS24/sounds/790753/",
+        "acquiredUrl": "https://cdn.freesound.org/previews/790/790753_15616799-hq.mp3",
+        "originalDownloadUrl": "https://freesound.org/people/JWS24/sounds/790753/download/790753__jws24__factory-ambience.wav",
+        "sha256": "a8125b4c2802c74410a88eb32ed924269299a655d1328bd159ddb036b02ddb8e",
+        "license": "CC0-1.0",
+        "title": "Factory Ambience",
+        "file": "790753.mp3",
+        "acquisition": "Official high-quality MP3 preview of the selected recording; original download requires login.",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licenseVerified": "2026-09-17"
+      },
+      {
+        "id": 423314,
+        "author": "haniebal",
+        "url": "https://freesound.org/people/haniebal/sounds/423314/",
+        "acquiredUrl": "https://cdn.freesound.org/previews/423/423314_1871454-hq.mp3",
+        "originalDownloadUrl": "https://freesound.org/people/haniebal/sounds/423314/download/423314__haniebal__wind-ambience.wav",
+        "sha256": "50b4b609d264dbc6cf79771a2930fc6e80d267e3d7f5532941be964ca2e85577",
+        "license": "CC0-1.0",
+        "title": "Wind ambience",
+        "file": "423314.mp3",
+        "acquisition": "Official high-quality MP3 preview of the selected recording; original download requires login.",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licenseVerified": "2026-09-17"
       }
     ],
     "edits": [
       {
         "output": "vehicle/idle.wav",
-        "source": "SoundBits - Cars - Mad Mustang Mercury/VEHCar_Various Driving at Slow Speed 15 06_SNDBTS_CRS-MMM.wav",
+        "sourceId": 401552,
         "start": 0,
-        "duration": 3,
-        "pitch": 0.85,
+        "duration": 3.1,
+        "pitch": 1,
         "loop": true
       },
       {
         "output": "vehicle/low.wav",
-        "source": "SoundBits - Cars - Mad Mustang Mercury/VEHCar_Various Driving at Slow Speed 15 06_SNDBTS_CRS-MMM.wav",
-        "start": 5,
-        "duration": 3,
+        "sourceId": 401556,
+        "start": 0,
+        "duration": 2.1,
         "pitch": 1,
         "loop": true
       },
       {
         "output": "vehicle/high.wav",
-        "source": "SoundBits - Cars - Mad Mustang Mercury/VEHCar_Various Driving at Slow Speed 15 06_SNDBTS_CRS-MMM.wav",
-        "start": 9,
-        "duration": 3,
-        "pitch": 1.3,
+        "sourceId": 401551,
+        "start": 0,
+        "duration": 2.03,
+        "pitch": 1,
         "loop": true
       },
       {
         "output": "vehicle/skid.wav",
-        "source": "SoundBits - Cars - Mad Mustang Mercury/VEHSkid_Tire Skids on Gravel 15 06_SNDBTS_CRS-MMM.wav",
-        "start": 3,
-        "duration": 3,
+        "sourceId": 529225,
+        "start": 5,
+        "duration": 4,
         "pitch": 1,
         "loop": true
       },
       {
         "output": "combat/fire.wav",
-        "source": "344 Audio - Air Designed/AEROJet_Blast Off Clean_344 Audio_Air Designed.wav",
+        "sourceId": 398213,
         "start": 0,
-        "duration": 2,
+        "duration": 1,
         "pitch": 1,
         "loop": false
       },
       {
         "output": "combat/explosion.wav",
-        "source": "Epic Stock Media - Anime Game/EXPLDsgn_Explosion Small Blast Enemy Death Crunchy Boom Cartoon Noisy Crash Impact Delay 03_ESM_AG.wav",
-        "start": 0,
-        "duration": 1.45,
+        "sourceId": 811927,
+        "start": 0.18,
+        "duration": 2.2,
         "pitch": 1,
         "loop": false
       },
       {
         "output": "combat/destruction.wav",
-        "source": "Federico Soler - Effective Trailer Booms Vol. 2/EffectiveTrailer_Booms_Vol2_011.wav",
+        "sourceId": 816376,
         "start": 0,
-        "duration": 4,
+        "duration": 3.5,
         "pitch": 1,
         "loop": false
       },
       {
         "output": "combat/death.wav",
-        "source": "Federico Soler - Effective Trailer Booms Vol. 2/EffectiveTrailer_Booms_Vol2_011.wav",
+        "sourceId": 816376,
         "start": 0,
         "duration": 3,
         "pitch": 0.7,
@@ -284,7 +462,7 @@
       },
       {
         "output": "combat/end.wav",
-        "source": "Federico Soler - Effective Trailer Booms Vol. 2/EffectiveTrailer_Booms_Vol2_011.wav",
+        "sourceId": 816376,
         "start": 0,
         "duration": 4,
         "pitch": 1.15,
@@ -292,20 +470,30 @@
       },
       {
         "output": "arena/wind.wav",
-        "source": "Epic Stock Media - Synthesized Nature Loops and Sounds/WINDInt_Loop Weather Wind Whipping Constricted Flow Turbulent 01_ESM_SNLS.wav",
-        "start": 0,
-        "duration": 7,
+        "sourceId": 423314,
+        "start": 48,
+        "duration": 12,
         "pitch": 1,
         "loop": true
       },
       {
         "output": "arena/industrial.wav",
-        "source": "Epic Stock Media - Strange Game Ambient Loops 3/AMBRoom_Factory Loop Heavy Machinery Tonal Roomtone Dark Wind Vent_ESM_SGA3.wav",
-        "start": 4,
-        "duration": 7,
+        "sourceId": 790753,
+        "start": 8,
+        "duration": 12,
         "pitch": 1,
         "loop": true
       }
-    ]
+    ],
+    "processing": {
+      "format": "Mono 44100 Hz 16-bit PCM WAV",
+      "peak": 23000,
+      "loopCrossfadeSeconds": 0.1,
+      "oneShotAttackFadeSeconds": 0.002,
+      "oneShotTailFadeSeconds": 0.05,
+      "ambienceMix": "Normalize each input; 65% wind + 35% factory; normalize and crossfade loop again.",
+      "endMix": "Add existing Kenney impactMetal_heavy_000.ogg at half gain; normalize.",
+      "tool": "tools/process-cc0-audio.py; Python standard library and FFmpeg 7.1 (imageio-ffmpeg 0.6.0)"
+    }
   }
 }
