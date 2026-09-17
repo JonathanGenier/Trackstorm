@@ -106,6 +106,12 @@ public sealed partial class SimulationBootstrap : Node
             Position = () => _session?.Standings.Position ?? "--",
         };
         AddChild(combatHud);
+        AddChild(new Hud.ActivityFeed
+        {
+            Name = "ActivityFeed",
+            Source = () => _arena?.Simulation.Events ?? _session?.Events,
+            Gameplay = () => _arena is not null || _session?.Arena is not null,
+        });
         AddChild(new Development.EventLogPanel { Name = "EventLog", Source = () => _arena?.Simulation.Events ?? _session?.Events, SuppressInput = open => _playerInput.Adapter.DiagnosticSuppressed = open });
         AddChild(new Hud.MatchStandings { Name = "MatchStandings", View = () => _session?.Standings });
         EosIdentityNode? online = null;

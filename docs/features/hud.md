@@ -10,6 +10,8 @@ Empty, Wrench and Missile have distinct slot presentations. Item identity comes 
 
 ## Presentation Ownership and Assets
 
+The [player activity feed](activity-feed.md) occupies the top-right below FPS/ping diagnostics. Its five independently expiring lines use transparent, outlined text and consume the same authoritative journal as the Event Log. It remains available while the arena exists, including death/respawn, and disappears when there are no recent approved events.
+
 `Client.Hud.CombatHudView` is a detached pure Client projection, unit-tested without Godot. `CombatHud` owns the native component Controls, labels and materials. The bootstrap supplies functions reading the current local practice snapshot or network driver's local snapshot, confirmed item slot and preference service. Render refreshes never call gameplay mutation APIs or persistence. Session replacement is naturally reflected by these providers; the HUD holds no vehicle authority or inventory lifecycle.
 
 The four project-supplied component PNGs provide the actual distressed metal frames. `assets/hud/sources.json` records their Jira sources and acquired hashes. The assembled scene reference guides placement and is never used as a fullscreen overlay. A small canvas shader masks the baked example numbers, Q prompt and machine gun using dark steel sampled from the supplied health texture, and drives the authored red gauge cells from normalized fractions. Native labels supply current values. Original project SVG silhouettes represent Wrench and Missile; there is no new external font or icon dependency. Text is cleaner than the baked distressed reference typography, and the slot intentionally replaces the reference's unsupported .50 CAL item.

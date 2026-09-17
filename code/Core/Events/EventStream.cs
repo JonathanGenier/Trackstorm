@@ -20,6 +20,9 @@ public sealed class EventStream
         _capacity = capacity;
     }
 
+    /// <summary>Notifies live projections after an outcome passes the journal's ordering and deduplication.</summary>
+    public event Action<RuntimeEvent>? Appended;
+
     /// <summary>Resolves safe display names at publication time.</summary>
     public Func<ulong, string>? PlayerName { get; set; }
     /// <summary>High watermark retained independently of bounded history.</summary>
@@ -109,5 +112,6 @@ public sealed class EventStream
 
         _entries.Enqueue(entry);
         Revision++;
+        Appended?.Invoke(entry);
     }
 }

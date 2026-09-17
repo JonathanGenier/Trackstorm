@@ -477,7 +477,10 @@ internal sealed class VehicleNetworkDriverTests
 
         client.Pump(0);
         hostWire.Sent.Clear();
+        using var feed = new Trackstorm.Client.Hud.ActivityFeedView();
+        feed.Update(client.Events, true, 0);
         host.Events.Record(Trackstorm.Core.Events.EventCategory.Damage, "Applied", 1, 2, "Missile", amount: 3.125, hp: 96.875, maxHP: 100);
+        host.Events.Record(Trackstorm.Core.Events.EventCategory.Network, "Reconnected", actor: 2);
         host.Pump(0.1);
         var publication = hostWire.Sent.Single(packet => Trackstorm.Core.Events.EventCodec.IsEvent(packet.Payload.Span));
         clientWire.Receive(new TransportMessage(1, publication.Payload, TransportDelivery.Reliable));
@@ -486,7 +489,8 @@ internal sealed class VehicleNetworkDriverTests
         var hit = client.Events.Entries.Single(entry => entry.Category == Trackstorm.Core.Events.EventCategory.Damage);
         Assert.That(hit, Is.EqualTo(host.Events.Entries.Single(entry => entry.Category == Trackstorm.Core.Events.EventCategory.Damage)));
         Assert.That(Trackstorm.Client.Development.EventLogFormatter.Format(hit), Does.Contain("3.125").And.Contain("Host").And.Contain("Guest"));
-        var next = hit with { Sequence = hit.Sequence + 1 };
+        Assert.That(feed.Entries.Single().Text, Is.EqualTo("Guest reconnected"));
+        var next = hit with { Sequence = client.Events.LastSequence + 1 };
         byte[] body = Trackstorm.Core.Events.EventCodec.Encode([next]);
         byte[] retired = [(byte)'T', (byte)'E', 1, .. Trackstorm.Core.Sessions.ConnectionEnvelope.Encode(10, 2, body)];
         clientWire.Receive(new TransportMessage(1, retired, TransportDelivery.Reliable));
@@ -494,6 +498,7 @@ internal sealed class VehicleNetworkDriverTests
         client.Pump(0);
         Assert.That(client.Events.Entries.Count(entry => entry.Category == Trackstorm.Core.Events.EventCategory.Damage), Is.EqualTo(1));
         Assert.That(client.RejectedPackets, Is.GreaterThanOrEqualTo(2));
+        Assert.That(feed.Entries.Count, Is.EqualTo(1));
         hostWire.Receive(new TransportMessage(2, publication.Payload, TransportDelivery.Reliable));
         host.Pump(0);
         Assert.That(host.RejectedPackets, Is.GreaterThan(0));

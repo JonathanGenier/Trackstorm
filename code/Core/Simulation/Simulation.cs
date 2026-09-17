@@ -226,7 +226,9 @@ public sealed class Simulation
         foreach (var vehicle in transitions)
         {
             var lethal = vehicle.Damage.LastDamage;
-            Events.Record(EventCategory.Lifecycle, vehicle.CanInteract ? "Respawned" : vehicle.Lifecycle.ToString(), lethal?.Attribution.InstigatorId ?? 0, vehicle.VehicleId, lethal is null ? string.Empty : SafeCause(lethal.Attribution), life: vehicle.LifeId, tick: nextTick);
+            bool scoredKill = match is not null && State.Match?.Revision != match.Revision &&
+                match.Changes.Any(death => death.Victim == vehicle.VehicleId && death.Life == vehicle.LifeId && death.Killer != 0);
+            Events.Record(EventCategory.Lifecycle, vehicle.CanInteract ? "Respawned" : vehicle.Lifecycle.ToString(), lethal?.Attribution.InstigatorId ?? 0, vehicle.VehicleId, lethal is null ? string.Empty : SafeCause(lethal.Attribution), context: scoredKill ? "Scored kill" : string.Empty, life: vehicle.LifeId, tick: nextTick);
         }
 
         if (match is not null && State.Match?.Revision != match.Revision)
