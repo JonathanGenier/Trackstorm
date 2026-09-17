@@ -45,6 +45,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     private bool _authorityRetired;
     private (string Subject, ulong Epoch, long At, string[] Survivors)? _retiredHost;
     private int _metadataUpdates;
+    private int _ownershipUpdates;
     private int _membershipUpdates;
     private int _retiredCallbacks;
     private int _coordinationRequests;
@@ -108,7 +109,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                     : "none";
             return $"EOS lobby: {lobby?.Id ?? "none"}; Trackstorm SessionId: {lobby?.Session.ToString() ?? "none"}; access: {lobby?.Access.ToString() ?? "none"}\n" +
                 $"Local PUID: {Identity}; owner: {lobby?.Owner.ToString() ?? "none"}; gameplay host: {lobby?.HostIdentity.ToString() ?? "none"}; EOS members: [{members}]\n" +
-                $"Coordinator active: {lobby is not null}; busy: {Busy}; membership generation: {_membership}; metadata/member callbacks: {_metadataUpdates}/{_membershipUpdates}; retired callbacks: {_retiredCallbacks}\n" +
+                $"Coordinator active: {lobby is not null}; busy: {Busy}; membership generation: {_membership}; metadata/ownership/member callbacks: {_metadataUpdates}/{_ownershipUpdates}/{_membershipUpdates}; retired callbacks: {_retiredCallbacks}\n" +
                 $"Coordination proof: {_lastCoordination}; pending: {_coordinationPending}; requests/results/successes: {_coordinationRequests}/{_coordinationResults}/{_coordinationSuccesses}; available: {coordinationAvailable}; age: {proofAge?.ToString("0.0") ?? "none"}s; lease: {CoordinationLeaseSeconds:0}s; authority retired: {_authorityRetired}\n" +
                 $"Lobby/availability updates: {_lobbyUpdates}/{_availabilityUpdates}; recovering membership: {_recoveringMembership}; resume pending/attempts: {_resumePending}/{_resumeAttempts}; locator: {locator}; status: {Status}";
         }
@@ -661,12 +662,16 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                     {
                         _metadataUpdates++;
                     }
+                    else if (kind == OnlineLobbyUpdateKind.Ownership)
+                    {
+                        _ownershipUpdates++;
+                    }
                     else if (kind == OnlineLobbyUpdateKind.Membership)
                     {
                         _membershipUpdates++;
                     }
 
-                    if (updated is null && kind is OnlineLobbyUpdateKind.Metadata or OnlineLobbyUpdateKind.Membership)
+                    if (updated is null && kind is OnlineLobbyUpdateKind.Metadata or OnlineLobbyUpdateKind.Ownership or OnlineLobbyUpdateKind.Membership)
                     {
                         Status = $"Ignored an incomplete {kind.ToString().ToLowerInvariant()} refresh; membership is unchanged.";
                     }
@@ -684,7 +689,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                     }
                     else
                     {
-                        if (kind == OnlineLobbyUpdateKind.Metadata)
+                        if (kind is OnlineLobbyUpdateKind.Metadata or OnlineLobbyUpdateKind.Ownership)
                         {
                             ApplyMetadataUpdate(updated);
                         }

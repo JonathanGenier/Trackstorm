@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Epic.OnlineServices.Lobby;
 using Trackstorm.Client.Online;
 using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Sessions;
@@ -9,6 +10,26 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class OnlineLobbyTests
 {
+    /// <summary>Native EOS status mapping grants promotion no membership or retirement authority.</summary>
+    /// <param name="status">Native EOS status.</param>
+    /// <param name="local">Whether the status targets the local member.</param>
+    /// <param name="kind">Expected local update authority.</param>
+    /// <param name="departure">Whether the status can produce retirement evidence.</param>
+    [TestCase(LobbyMemberStatus.Joined, false, OnlineLobbyUpdateKind.Membership, false)]
+    [TestCase(LobbyMemberStatus.Promoted, false, OnlineLobbyUpdateKind.Ownership, false)]
+    [TestCase(LobbyMemberStatus.Left, false, OnlineLobbyUpdateKind.Membership, true)]
+    [TestCase(LobbyMemberStatus.Kicked, false, OnlineLobbyUpdateKind.Membership, true)]
+    [TestCase(LobbyMemberStatus.Disconnected, false, OnlineLobbyUpdateKind.Membership, true)]
+    [TestCase(LobbyMemberStatus.Left, true, OnlineLobbyUpdateKind.Closure, true)]
+    [TestCase(LobbyMemberStatus.Kicked, true, OnlineLobbyUpdateKind.Closure, true)]
+    [TestCase(LobbyMemberStatus.Disconnected, true, OnlineLobbyUpdateKind.Closure, true)]
+    [TestCase(LobbyMemberStatus.Closed, false, OnlineLobbyUpdateKind.Closure, false)]
+    public void ClassifiesNativeMemberStatus(LobbyMemberStatus status, bool local, OnlineLobbyUpdateKind kind, bool departure)
+    {
+        Assert.That(EosLobbyWatch.Classify(status, local), Is.EqualTo(kind));
+        Assert.That(EosLobbyWatch.IsDeparture(status), Is.EqualTo(departure));
+    }
+
     /// <summary>Lobby metadata refreshes cannot retire an admitted member without a member-status event.</summary>
     /// <param name="access">Admission policy; post-admission membership behavior must be identical.</param>
     [TestCase(LobbyAccess.Public)]
@@ -42,6 +63,73 @@ internal sealed class OnlineLobbyTests
         service.NotifyIncompleteMembership(stable.Id);
         Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
         Assert.That(binding.Driver.State.Players.Single(player => player.Id == 2).Connected, Is.True);
+    }
+
+    /// <summary>EOS ownership promotion can refresh owner metadata without changing the admitted gameplay roster.</summary>
+    /// <param name="access">Admission policy; promotion behavior is identical after admission.</param>
+    [TestCase(LobbyAccess.Public)]
+    [TestCase(LobbyAccess.Locked)]
+    public void PromotionRefreshCannotTearDownAdmittedMember(LobbyAccess access)
+    {
+        var service = new Service();
+        using var host = service.Coordinator(1);
+        using var client = service.Coordinator(2);
+        host.Create("Promotion", access, "test-code");
+        client.Refresh();
+        client.Join(host.Active!.Id, access == LobbyAccess.Locked ? "test-code" : null);
+        using var gateway = new Gateway();
+        var binding = host.AttachTransport(gateway, 0, "Host");
+        gateway.ConnectPeer(20);
+        Assert.That(binding.AuthorizePeer(20, User(2), access == LobbyAccess.Locked ? "test-code" : null), Is.True);
+        gateway.ReceiveJoin(20, "Client");
+        binding.Driver.Pump(0);
+
+        OnlineLobby promoted = service.Lobbies[host.Active.Id] with { Owner = User(2) };
+        service.Lobbies[promoted.Id] = promoted;
+        service.Notify(promoted.Id, OnlineLobbyUpdateKind.Ownership);
+        Assert.That(host.Active!.Owner, Is.EqualTo(User(2)));
+        Assert.That(host.Active.MemberIds, Does.Contain(User(2)));
+        Assert.That(host.Active.HostIdentity, Is.EqualTo(User(1)));
+        Assert.That(binding.Driver.State!.CurrentHostId, Is.EqualTo(1));
+        Assert.That(binding.Driver.State.AuthorityEpoch, Is.EqualTo(1));
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+
+        service.Lobbies[promoted.Id] = promoted with { Members = 1, MemberIds = new[] { User(1) } };
+        service.Notify(promoted.Id, OnlineLobbyUpdateKind.Ownership);
+
+        Assert.That(host.Active.MemberIds, Does.Contain(User(2)));
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+        Assert.That(binding.Driver.State!.Players.Single(player => player.Id == 2).Connected, Is.True);
+        Assert.That(host.Diagnostics, Does.Contain("recovering membership: False"));
+        Assert.That(host.Diagnostics, Does.Contain("retired callbacks: 0"));
+    }
+
+    /// <summary>An actual member departure still tears down its authenticated transport and Core connection.</summary>
+    [Test]
+    public void ActualMembershipDepartureDisconnectsAdmittedMember()
+    {
+        var service = new Service();
+        using var host = service.Coordinator(1);
+        using var client = service.Coordinator(2);
+        host.Create("Departure", LobbyAccess.Public, null);
+        client.Refresh();
+        client.Join(host.Active!.Id);
+        using var gateway = new Gateway();
+        var binding = host.AttachTransport(gateway, 0, "Host");
+        gateway.ConnectPeer(20);
+        Assert.That(binding.AuthorizePeer(20, User(2), null), Is.True);
+        gateway.ReceiveJoin(20, "Client");
+        binding.Driver.Pump(0);
+
+        OnlineLobby lobby = service.Lobbies[host.Active.Id];
+        service.Lobbies[lobby.Id] = lobby with { Members = 1, MemberIds = new[] { User(1) } };
+        service.Notify(lobby.Id, OnlineLobbyUpdateKind.Membership);
+        service.Retire(lobby.Id, User(2));
+
+        Assert.That(host.Active!.MemberIds, Does.Not.Contain(User(2)));
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Disconnected));
+        Assert.That(binding.Driver.State!.Players.Single(player => player.Id == 2).Connected, Is.False);
+        Assert.That(host.Diagnostics, Does.Contain("retired callbacks: 1"));
     }
 
     /// <summary>Repeated proof-related metadata refreshes leave a healthy Locked session intact beyond reconnect grace.</summary>
@@ -92,7 +180,7 @@ internal sealed class OnlineLobbyTests
 
         Assert.That(service.ProofRequests, Is.GreaterThanOrEqualTo(16));
         Assert.That(hostBinding.Driver.State.Players.Single(player => player.Id == 2).Connected, Is.True);
-        Assert.That(client.Diagnostics, Does.Contain("metadata/member callbacks:"));
+        Assert.That(client.Diagnostics, Does.Contain("metadata/ownership/member callbacks:"));
         Assert.That(client.Diagnostics, Does.Contain("recovering membership: False"));
         Assert.That(client.Diagnostics, Does.Not.Contain("test-code"));
         Assert.That(client.Diagnostics, Does.Not.Contain(User(1).Value));
@@ -170,9 +258,11 @@ internal sealed class OnlineLobbyTests
         var checkpoint = new MigrationCheckpoint(1, binding.Driver.Authority!.Capture(User(1).Value), null, null);
         string id = host.Active.Id;
         service.Lobbies[id] = client.Active! with { Owner = User(2), MemberIds = new[] { User(2) }, Members = 1 };
-        service.Notify(id);
+        service.Notify(id, OnlineLobbyUpdateKind.Ownership);
         clock.Advance(11);
         client.Tick();
+        Assert.That(client.Active!.MemberIds, Does.Contain(User(1)), "Promotion snapshots cannot remove the established host.");
+        Assert.That(client.Diagnostics, Does.Contain("retired callbacks: 0"));
         Assert.That(client.HostRetired(checkpoint), Is.False, "Ownership and membership snapshots are not a retirement event.");
         Assert.That(client.HostRetiredAt(checkpoint), Is.Null);
         long retirementAt = clock.GetTimestamp();
@@ -312,7 +402,7 @@ internal sealed class OnlineLobbyTests
         client.Join(host.Active!.Id, null);
         var before = client.Active!;
         service.Lobbies[before.Id] = before with { Owner = User(2) };
-        service.Notify(before.Id);
+        service.Notify(before.Id, OnlineLobbyUpdateKind.Ownership);
         Assert.That(client.IsHost, Is.True);
         Assert.That(client.StartsGameplayAuthority, Is.False);
         Assert.That(client.Active!.Session, Is.EqualTo(before.Session));
@@ -339,7 +429,7 @@ internal sealed class OnlineLobbyTests
 
             var epochTwo = epochOne with { Owner = User(2), GameplayHost = User(2), AuthorityEpoch = 2 };
             service.Lobbies[epochOne.Id] = epochTwo;
-            service.Notify(epochOne.Id);
+            service.Notify(epochOne.Id, OnlineLobbyUpdateKind.Ownership);
             Assert.That(client.Active!.AuthorityEpoch, Is.EqualTo(2));
             Assert.That(client.Active.HostIdentity, Is.EqualTo(User(2)));
 

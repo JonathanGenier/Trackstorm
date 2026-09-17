@@ -115,7 +115,7 @@ Use a fresh Locked lobby and keep Developer Options diagnostics visible on both
 machines. Record the EOS lobby ID, Trackstorm SessionId, fingerprinted identities,
 PlayerIds, host/epoch, access mode, EOS member fingerprints, Trackstorm roster,
 P2P state, coordinator Active/Busy state, proof counters/lease age,
-metadata/member/retirement callback counters, availability updates, resume state
+metadata/ownership/member/retirement callback counters, availability updates, resume state
 and connection generation. Never record the password, verifier, raw PUID or token.
 
 1. Create a fresh Locked lobby and join from the second PC with its password.

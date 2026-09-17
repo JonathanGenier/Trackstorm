@@ -13,9 +13,11 @@ The online composition attaches `SessionMigration` to the existing single lobby 
 A healthy host continues simulating when a non-host client disappears, without waiting for checkpoint acknowledgements. Online authority instead requires a successful EOS service membership round trip: a unique private member attribute is updated every five seconds. Proof expires ten seconds after the request began, not after its callback arrives. The host checks monotonic elapsed time before simulation, including after process suspension. Expiry or an explicit local service departure irrevocably retires that authority for the membership lifetime; a late response cannot revive it. Gameplay freezes and fails after grace if the authority cannot continue. Returning requires normal authenticated resume as a client.
 
 The proof's private member-attribute update is not a gameplay membership mutation.
-Lobby metadata callbacks cannot remove peers; only EOS member-status callbacks can
-change the admitted member set or establish a retirement event. This keeps Public
-and Locked sessions on the same stable post-admission lifecycle while preserving
+Lobby metadata and EOS ownership-promotion callbacks cannot remove peers. Only
+Joined, Left, Kicked or Disconnected status may replace the admitted member set,
+and only Left/Kicked/Disconnected produces retirement evidence. Promotion alone
+cannot retire the old host or grant Trackstorm authority. This keeps Public and
+Locked sessions on the same stable post-admission lifecycle while preserving
 fail-closed proof expiry and service-confirmed host retirement.
 
 P2P timeout, a missing member in a cached snapshot, and EOS ownership promotion cannot establish host retirement. Unexpected-loss migration also requires an EOS Left/Kicked/Disconnected event for the established host, fresh service membership for the survivor, and a full ten-second wait after that event to outlast the old host's last possible proof. The service survivor set captured at departure must exactly match the selected checkpoint's connected electorate excluding the old host. Selection and commit revalidate this condition. These checks coordinate safe retirement; Core still elects the gameplay host and advances the epoch. If retirement cannot be proven within recovery bounds, the session fails closed. Service outages or delayed departure notifications can therefore prevent automatic recovery rather than risk concurrent authority.
