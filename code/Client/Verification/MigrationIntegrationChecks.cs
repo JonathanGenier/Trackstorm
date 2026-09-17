@@ -18,6 +18,7 @@ public sealed partial class MigrationIntegrationChecks : Node
     private readonly Dictionary<ulong, string>[] _subjects = Enumerable.Range(0, 3).Select(_ => new Dictionary<ulong, string>()).ToArray();
     private readonly Queue<string>[] _connecting = Enumerable.Range(0, 3).Select(_ => new Queue<string>()).ToArray();
     private readonly string[] _endpoints = new string[3];
+    private readonly long?[] _retiredAt = new long?[3];
     private int _stage;
     private int _frames;
     private int _boundary;
@@ -131,7 +132,11 @@ public sealed partial class MigrationIntegrationChecks : Node
             return Connect(index, target);
         });
         // This local harness directly observes destruction of the old authority's transport.
-        driver.Migration.RetirementConfirmed = checkpoint => !_gateways[int.Parse(checkpoint.Lobby.Subjects[checkpoint.Lobby.State.CurrentHostId].AsSpan(7), System.Globalization.CultureInfo.InvariantCulture)].IsListening;
+        driver.Migration.RetirementConfirmedAt = checkpoint =>
+        {
+            int host = int.Parse(checkpoint.Lobby.Subjects[checkpoint.Lobby.State.CurrentHostId].AsSpan(7), System.Globalization.CultureInfo.InvariantCulture);
+            return !_gateways[host].IsListening ? _retiredAt[host] : null;
+        };
         if (player != 0)
         {
             driver.BeginResume(player, 1);
@@ -159,6 +164,7 @@ public sealed partial class MigrationIntegrationChecks : Node
         else if (_stage == 2 && _drivers[0]!.LeaveComplete)
         {
             _gateways[0].Stop();
+            _retiredAt[0] ??= TimeProvider.System.GetTimestamp();
             _drivers[0] = null;
             _stage = 3;
         }
@@ -210,6 +216,7 @@ public sealed partial class MigrationIntegrationChecks : Node
                 Require(_arenas[survivor]!.Driver.Inputs!.Pending.Count == 0, "No old pending input.");
                 Require(_arenas[survivor]!.Driver.History!.Snapshots.Count == 1, "Interpolation reseeded at one boundary.");
             };
+            _retiredAt[1] = TimeProvider.System.GetTimestamp();
             _gateways[1].Stop();
             _drivers[1] = null;
             _arenas[1]!.QueueFree();

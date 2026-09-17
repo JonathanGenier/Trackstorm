@@ -121,6 +121,11 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         _time.GetElapsedTime(retired.At).TotalSeconds >= CoordinationLeaseSeconds &&
         retired.Survivors.ToHashSet(StringComparer.Ordinal).SetEquals(checkpoint.Lobby.State.Players.Where(player => player.Connected && player.Id != checkpoint.Lobby.State.CurrentHostId).Select(player => checkpoint.Lobby.Subjects[player.Id]));
 
+    /// <summary>Returns the original monotonic service-retirement event boundary after all retirement checks pass.</summary>
+    /// <param name="checkpoint">Exact prior authority and eligible survivor cohort.</param>
+    /// <returns>The local monotonic event timestamp, or null while retirement is unsafe.</returns>
+    internal long? HostRetiredAt(Core.Sessions.MigrationCheckpoint checkpoint) => HostRetired(checkpoint) ? _retiredHost!.Value.At : null;
+
     /// <summary>Records agreed gameplay authority before any EOS ownership coordination.</summary>
     /// <param name="subject">Authenticated identity chosen by Trackstorm election.</param>
     internal void MigrationCompleted(string subject)

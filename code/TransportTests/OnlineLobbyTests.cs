@@ -55,6 +55,8 @@ internal sealed class OnlineLobbyTests
         clock.Advance(11);
         client.Tick();
         Assert.That(client.HostRetired(checkpoint), Is.False, "Ownership and membership snapshots are not a retirement event.");
+        Assert.That(client.HostRetiredAt(checkpoint), Is.Null);
+        long retirementAt = clock.GetTimestamp();
         service.Retire(id, User(1));
         clock.Advance(9);
         client.Tick();
@@ -62,6 +64,7 @@ internal sealed class OnlineLobbyTests
         clock.Advance(2);
         client.Tick();
         Assert.That(client.HostRetired(checkpoint), Is.True);
+        Assert.That(client.HostRetiredAt(checkpoint), Is.EqualTo(retirementAt), "The safety wait must not replace the original monotonic retirement boundary.");
         clock.Advance(11);
         Assert.That(client.HostRetired(checkpoint), Is.False, "The survivor must itself have current service membership.");
         client.Tick();

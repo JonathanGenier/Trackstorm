@@ -20,6 +20,7 @@ public sealed partial class MigrationProcessChecks : Node
     private string _directory = string.Empty;
     private string[] _ports = [];
     private bool _finished;
+    private long? _retiredAt;
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -66,13 +67,18 @@ public sealed partial class MigrationProcessChecks : Node
             return _gateway.Connect(Endpoint(target));
         });
         // The launcher writes this only after waiting for the old authority process to exit.
-        _driver.Migration.RetirementConfirmed = _ => System.IO.File.Exists(System.IO.Path.Combine(_directory, "0-retired.json"));
+        _driver.Migration.RetirementConfirmedAt = _ => _retiredAt;
         Write("started");
     }
 
     /// <inheritdoc/>
     public override void _PhysicsProcess(double delta)
     {
+        if (_role != 0 && !_retiredAt.HasValue && System.IO.File.Exists(System.IO.Path.Combine(_directory, "0-retired.json")))
+        {
+            _retiredAt = TimeProvider.System.GetTimestamp();
+        }
+
         if (_finished)
         {
             if (++_resumed > 65)

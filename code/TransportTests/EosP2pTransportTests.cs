@@ -26,7 +26,7 @@ internal sealed class EosP2pTransportTests
         Assert.That(pair.HostVehicles.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 9 }, out _), Is.True);
         pair.Step(2);
         Assert.That(pair.ClientVehicles!.Configuration.Revision, Is.EqualTo(retained.Revision + 1));
-        pair.Link.Host.Stop();
+        pair.RetireHostTransport();
         pair.Step(2100, host: false);
         Assert.That(pair.Client.Failure, Is.Empty);
         Assert.That(pair.Client.State!.AuthorityEpoch, Is.EqualTo(2));
@@ -80,7 +80,7 @@ internal sealed class EosP2pTransportTests
         Assert.That(pair.Client.RejectedPackets, Is.GreaterThan(rejected));
         Assert.That(pair.ClientVehicles.Configuration, Is.EqualTo(expected));
         pair.Step(60);
-        pair.Link.Client.Stop();
+        pair.RetireClientTransport();
         pair.Step(2100, client: false);
         Assert.That(pair.Host.State!.AuthorityEpoch, Is.EqualTo(3));
         Assert.That(pair.HostVehicles.Configuration, Is.EqualTo(expected));
@@ -158,7 +158,7 @@ internal sealed class EosP2pTransportTests
         }
         else if (loss == "crash")
         {
-            pair.Link.Host.Stop();
+            pair.RetireHostTransport();
         }
         else if (loss == "partition")
         {
@@ -270,13 +270,42 @@ internal sealed class EosP2pTransportTests
         Assert.That(pair.HostVehicles.Host.World.State.Tick, Is.GreaterThan(before));
     }
 
+    /// <summary>An isolated survivor cannot restore a pre-partition checkpoint after the recoverability window.</summary>
+    [Test]
+    public void TwoPlayerLongPartitionThenConfirmedHostLossRejectsExpiredCheckpoint()
+    {
+        using var pair = new MigrationPair();
+        pair.StartArena();
+        ulong observed = pair.ClientVehicles!.Latest!.Tick;
+        ulong hostTick = pair.HostVehicles!.Host!.World.State.Tick;
+        pair.Link.HostWire.DropOutgoing = pair.Link.ClientWire.DropOutgoing = true;
+
+        pair.Step(300);
+
+        Assert.That(pair.Host.Migration!.Frozen, Is.False, "An isolated client cannot pause a healthy host.");
+        Assert.That(pair.HostVehicles.Host.World.State.Tick, Is.GreaterThan(hostTick));
+        Assert.That(pair.ClientVehicles.Latest!.Tick, Is.EqualTo(observed));
+        Assert.That(pair.Client.Migration!.Subjects, Is.Not.Null, "The survivor still retains its external pre-partition checkpoint.");
+
+        pair.RetireHostTransport();
+        for (int i = 0; i < 2100 && pair.Client.Failure.Length == 0; i++)
+        {
+            pair.Step(1, host: false);
+        }
+
+        Assert.That(pair.Client.Failure, Does.Contain("Host migration failed"));
+        Assert.That(pair.Client.Authority, Is.Null);
+        Assert.That(pair.Client.State!.AuthorityEpoch, Is.EqualTo(1));
+        Assert.That(pair.ClientVehicles.Host, Is.Null);
+    }
+
     /// <summary>The actual framed reconnect restores the former host as a client and permits a later reverse migration.</summary>
     [Test]
     public void TwoPlayerFormerHostResumesAndMigratesAgain()
     {
         using var pair = new MigrationPair();
         var retired = pair.Host.State!;
-        pair.Link.Host.Stop();
+        pair.RetireHostTransport();
         pair.Step(1950, host: false);
         Assert.That(pair.Client.State!.AuthorityEpoch, Is.EqualTo(2));
         pair.RestartFormerHost();
@@ -294,7 +323,7 @@ internal sealed class EosP2pTransportTests
         pair.Link.Host.Send(new(pair.Host.ServerPeer, LobbyCodec.EncodeCommand(LobbyCommand.Ready, retired, true), TransportDelivery.Reliable));
         pair.Step(2);
         Assert.That(pair.Client.RejectedPackets, Is.GreaterThan(rejected));
-        pair.Link.Client.Stop();
+        pair.RetireClientTransport();
         pair.Step(2100, client: false);
         Assert.That(pair.Host.Failure, Is.Empty);
         Assert.That(pair.Host.State!.AuthorityEpoch, Is.EqualTo(3));
@@ -308,7 +337,7 @@ internal sealed class EosP2pTransportTests
     {
         using var pair = new MigrationPair();
         pair.AttachClientMigration();
-        pair.Link.Host.Stop();
+        pair.RetireHostTransport();
         pair.Step(2100, host: false);
         Assert.That(pair.Client.Authority, Is.Null);
         Assert.That(pair.Client.State!.AuthorityEpoch, Is.EqualTo(1));
@@ -370,7 +399,7 @@ internal sealed class EosP2pTransportTests
         pair.Client.Migration!.Receive(new(pair.Client.ServerPeer, packet, TransportDelivery.Reliable));
         Trackstorm.Core.Networking.Replication.WorldSnapshot? restored = null;
         pair.ClientVehicles!.Resynchronized += world => restored = world;
-        pair.Link.Host.Stop();
+        pair.RetireHostTransport();
         for (int i = 0; i < 2100 && restored is null && pair.Client.Failure.Length == 0; i++)
         {
             pair.Step(1, host: false);
@@ -444,7 +473,7 @@ internal sealed class EosP2pTransportTests
                 drivers[i] = new LobbyNetworkDriver(gateways[i], i == 0 ? 100UL : 0, server, "Player" + i, identity: peer => subjects[index].GetValueOrDefault(peer));
                 drivers[i].Reconnect = () => throw new InvalidOperationException("Host terminated in this scenario.");
                 drivers[i].Migration = new SessionMigration(drivers[i], gateways[i], identities[i].Value, peer => subjects[index].GetValueOrDefault(peer), (subject, _) => gateways[index].RebindHost(new OnlineProductUserId(subject)), new Clock());
-                drivers[i].Migration!.RetirementConfirmed = _ => !gateways[0].IsListening;
+                drivers[i].Migration!.RetirementConfirmedAt = _ => !gateways[0].IsListening ? 0L : null;
             }
 
             for (int tick = 0; tick < 120; tick++)
@@ -1270,6 +1299,11 @@ internal sealed class EosP2pTransportTests
 
     private sealed class MigrationPair : IDisposable
     {
+        private bool _hostServiceLive = true;
+        private bool _clientServiceLive = true;
+        private long? _hostRetiredAt;
+        private long? _clientRetiredAt;
+
         internal MigrationPair()
         {
             Link.Host.Authorize = (peer, identity, _) =>
@@ -1283,7 +1317,7 @@ internal sealed class EosP2pTransportTests
             Host.Reconnect = () => throw new InvalidOperationException("Replacement unavailable");
             Host.Migration = new SessionMigration(Host, Link.Host, Link.HostId.Value, peer => Subjects.GetValueOrDefault(peer), (subject, _) => Link.Host.RebindHost(new(subject)), Link.Clock);
             Host.Migration.AuthorityAvailable = () => HostServiceLive;
-            Host.Migration.RetirementConfirmed = Retired;
+            Host.Migration.RetirementConfirmedAt = RetiredAt;
             AttachClientMigration();
             Step(150);
             Assert.That(Client.Migration!.Subjects?.Count, Is.EqualTo(2));
@@ -1295,8 +1329,34 @@ internal sealed class EosP2pTransportTests
         internal LobbyNetworkDriver Client { get; }
         internal VehicleNetworkDriver? HostVehicles { get; private set; }
         internal VehicleNetworkDriver? ClientVehicles { get; private set; }
-        internal bool HostServiceLive { get; set; } = true;
-        internal bool ClientServiceLive { get; set; } = true;
+
+        internal bool HostServiceLive
+        {
+            get => _hostServiceLive;
+            set
+            {
+                if (_hostServiceLive && !value)
+                {
+                    _hostRetiredAt = Link.Clock.GetTimestamp();
+                }
+
+                _hostServiceLive = value;
+            }
+        }
+
+        internal bool ClientServiceLive
+        {
+            get => _clientServiceLive;
+            set
+            {
+                if (_clientServiceLive && !value)
+                {
+                    _clientRetiredAt = Link.Clock.GetTimestamp();
+                }
+
+                _clientServiceLive = value;
+            }
+        }
 
         public void Dispose() => Link.Dispose();
 
@@ -1305,10 +1365,22 @@ internal sealed class EosP2pTransportTests
             Client.Reconnect = () => throw new InvalidOperationException("Host unavailable");
             Client.Migration = new SessionMigration(Client, Link.Client, Link.ClientId.Value, _ => Link.HostId.Value, (subject, _) => Link.Client.RebindHost(new(subject)), Link.Clock);
             Client.Migration.AuthorityAvailable = () => ClientServiceLive;
-            Client.Migration.RetirementConfirmed = Retired;
+            Client.Migration.RetirementConfirmedAt = RetiredAt;
         }
 
         internal void ReplaceClientVehicles(VehicleNetworkDriver driver) => ClientVehicles = driver;
+
+        internal void RetireHostTransport()
+        {
+            _hostRetiredAt ??= Link.Clock.GetTimestamp();
+            Link.Host.Stop();
+        }
+
+        internal void RetireClientTransport()
+        {
+            _clientRetiredAt ??= Link.Clock.GetTimestamp();
+            Link.Client.Stop();
+        }
 
         internal void RestartFormerHost()
         {
@@ -1320,7 +1392,7 @@ internal sealed class EosP2pTransportTests
             Host.Reconnect = () => throw new InvalidOperationException("Replacement unavailable");
             Host.Migration = new SessionMigration(Host, Link.Host, Link.HostId.Value, _ => Link.ClientId.Value, (subject, _) => Link.Host.RebindHost(new(subject)), Link.Clock);
             Host.Migration.AuthorityAvailable = () => HostServiceLive;
-            Host.Migration.RetirementConfirmed = Retired;
+            Host.Migration.RetirementConfirmedAt = RetiredAt;
         }
 
         internal void StartArena(bool waiting = false)
@@ -1379,10 +1451,12 @@ internal sealed class EosP2pTransportTests
             }
         }
 
-        private bool Retired(MigrationCheckpoint checkpoint)
+        private long? RetiredAt(MigrationCheckpoint checkpoint)
         {
             string subject = checkpoint.Lobby.Subjects[checkpoint.Lobby.State.CurrentHostId];
-            return subject == Link.HostId.Value ? !HostServiceLive || !Link.Host.IsListening : !ClientServiceLive || !Link.Client.IsListening;
+            return subject == Link.HostId.Value
+                ? !HostServiceLive || !Link.Host.IsListening ? _hostRetiredAt : null
+                : !ClientServiceLive || !Link.Client.IsListening ? _clientRetiredAt : null;
         }
 
     }

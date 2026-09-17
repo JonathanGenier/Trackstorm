@@ -8,13 +8,16 @@ namespace Trackstorm.Client.Networking;
 /// <summary>Bounded checkpoint distribution and authenticated survivor agreement on the existing transport.</summary>
 internal sealed class SessionMigration
 {
+    /// <summary>Maximum rollback age at the trustworthy old-authority retirement boundary.</summary>
+    private const double MaximumRecoverableCheckpointAgeSeconds = 4;
+
     private readonly LobbyNetworkDriver _lobby;
     private readonly ITransportGateway _gateway;
     private readonly string _subject;
     private readonly Func<ulong, string?> _identity;
     private readonly Func<string, bool, ulong> _rebind;
     private readonly TimeProvider _time;
-    private readonly List<(MigrationCheckpoint State, byte[] Bytes, string Digest)> _retained = new();
+    private readonly List<RetainedCheckpoint> _retained = new();
     private readonly Dictionary<ulong, string[]> _offers = new();
     private readonly Dictionary<ulong, ulong> _voterPeers = new();
     private double _seconds;
@@ -23,6 +26,7 @@ internal sealed class SessionMigration
     private double? _lostAt;
     private double? _attemptAt;
     private long _timestamp;
+    private long? _departureAt;
     private ulong _sequence;
     private ulong _candidate;
     private ulong _server;
@@ -61,8 +65,8 @@ internal sealed class SessionMigration
     internal Action<string>? AuthorityChanged { get; set; }
     /// <summary>Online composition proves local service liveness; native harnesses supply a trusted process seam.</summary>
     internal Func<bool>? AuthorityAvailable { get; set; }
-    /// <summary>Confirms actual prior-authority retirement and the provider's surviving membership cohort.</summary>
-    internal Func<MigrationCheckpoint, bool>? RetirementConfirmed { get; set; }
+    /// <summary>Returns the monotonic prior-authority retirement boundary after confirming the surviving service cohort.</summary>
+    internal Func<MigrationCheckpoint, long?>? RetirementConfirmedAt { get; set; }
     /// <summary>Latest locally observed world tick, used to reject excessive rollback.</summary>
     internal Func<ulong>? ObservedTick { get; set; }
     /// <summary>Blocks input, commands and gameplay advancement during lost authority or agreement.</summary>
@@ -72,11 +76,11 @@ internal sealed class SessionMigration
     /// <summary>Player-facing bounded recovery progress.</summary>
     internal string Status => _failed ? "Host migration failed" : Negotiating ? "Migrating host — agreeing and restoring match" : Frozen ? "Host connection interrupted — waiting for recovery" : string.Empty;
     /// <summary>Last retained authenticated subject mapping, used only for migration/rebind admission.</summary>
-    internal IReadOnlyDictionary<ulong, string>? Subjects => _retained.LastOrDefault().State?.Lobby.Subjects;
+    internal IReadOnlyDictionary<ulong, string>? Subjects => _retained.LastOrDefault()?.State.Lobby.Subjects;
     /// <summary>Configuration revision at the latest externally recoverable boundary, if present.</summary>
-    internal ulong? ConfigurationRevision => _retained.LastOrDefault().State?.Lobby.Configuration.Revision;
+    internal ulong? ConfigurationRevision => _retained.LastOrDefault()?.State.Lobby.Configuration.Revision;
     /// <summary>Secret-free migration progress and checkpoint counters for Developer Options.</summary>
-    internal string Diagnostics => $"{(_failed ? "failed" : Negotiating ? "agreeing" : Frozen ? "frozen" : "running")}; retained checkpoints: {_retained.Count}; latest sequence: {_retained.LastOrDefault().State?.Sequence ?? 0}";
+    internal string Diagnostics => $"{(_failed ? "failed" : Negotiating ? "agreeing" : Frozen ? "frozen" : "running")}; retained checkpoints: {_retained.Count}; latest sequence: {_retained.LastOrDefault()?.State.Sequence ?? 0}";
 
     /// <summary>Freezes an intentionally departing authority and gives reliable control time to drain.</summary>
     internal void AnnounceDeparture()
@@ -168,8 +172,8 @@ internal sealed class SessionMigration
             return;
         }
 
-        var boundary = _retained.LastOrDefault(entry => Recoverable(entry.State)).State;
-        if (!_confirmedDeparture && (boundary is null || RetirementConfirmed?.Invoke(boundary) != true))
+        var boundary = _retained.LastOrDefault(Recoverable)?.State;
+        if (!_confirmedDeparture && (boundary is null || RetirementConfirmedAt?.Invoke(boundary) is null))
         {
             Fail("host retirement was not confirmed; transport timeout cannot grant authority");
             return;
@@ -232,6 +236,7 @@ internal sealed class SessionMigration
             if (control.Kind == "leave" && _lobby.Authority is null && message.RemotePeerId == _lobby.ServerPeer && !Negotiating)
             {
                 _confirmedDeparture = true;
+                _departureAt ??= _time.GetTimestamp();
                 Frozen = true;
                 return true;
             }
@@ -258,7 +263,7 @@ internal sealed class SessionMigration
             else if (_candidate != _lobby.LocalPlayerId && message.RemotePeerId == _server && control.Kind == "propose")
             {
                 var selected = _retained.SingleOrDefault(entry => entry.Digest == control.Digest);
-                if (selected.State is not null && Recoverable(selected.State) && (_selection is null || _selection == control.Digest))
+                if (selected is not null && Recoverable(selected) && (_selection is null || _selection == control.Digest))
                 {
                     _election = new MigrationElection(selected.State, control.Digest);
                     if (_election.Candidate != _candidate)
@@ -302,14 +307,33 @@ internal sealed class SessionMigration
 
     private bool Connected(ulong peer) => _gateway.Connections.TryGetValue(peer, out var state) && state == TransportConnectionState.Connected;
 
-    private bool Recoverable(MigrationCheckpoint checkpoint)
+    private bool Recoverable(RetainedCheckpoint retained)
     {
+        var checkpoint = retained.State;
         ulong tick = checkpoint.Arena?.Items.World.Tick ?? 0;
         ulong observed = ObservedTick?.Invoke() ?? tick;
+        ulong maximumRollbackTicks = (ulong)(MaximumRecoverableCheckpointAgeSeconds * HostVehicleSession.TickRate);
         var current = _lobby.State!;
-        return checkpoint.Lobby.State.Match == current.Match && checkpoint.Lobby.State.Phase == current.Phase &&
-            (!_attemptAt.HasValue || _confirmedDeparture || RetirementConfirmed?.Invoke(checkpoint) == true) &&
-            (checkpoint.Lobby.State.Players.Count != 2 || current.Players.Count == 2) && tick <= observed && observed - tick <= 240;
+        if (checkpoint.Lobby.State.Match != current.Match || checkpoint.Lobby.State.Phase != current.Phase ||
+            (checkpoint.Lobby.State.Players.Count == 2 && current.Players.Count != 2) || tick > observed ||
+            observed - tick > maximumRollbackTicks)
+        {
+            return false;
+        }
+
+        if (!_attemptAt.HasValue)
+        {
+            return true;
+        }
+
+        long? retirementAt = _confirmedDeparture ? _departureAt : RetirementConfirmedAt?.Invoke(checkpoint);
+        if (!retirementAt.HasValue)
+        {
+            return false;
+        }
+
+        double receiptAgeAtRetirement = _time.GetElapsedTime(retained.RetainedAt, retirementAt.Value).TotalSeconds;
+        return receiptAgeAtRetirement >= 0 && receiptAgeAtRetirement <= MaximumRecoverableCheckpointAgeSeconds;
     }
 
     private void Publish()
@@ -362,7 +386,7 @@ internal sealed class SessionMigration
             _retained.Clear();
         }
 
-        _retained.Add((checkpoint, bytes, MigrationCheckpointCodec.Digest(bytes)));
+        _retained.Add(new(checkpoint, bytes, MigrationCheckpointCodec.Digest(bytes), _time.GetTimestamp()));
         if (_retained.Count > 4)
         {
             _retained.RemoveAt(0);
@@ -373,14 +397,14 @@ internal sealed class SessionMigration
     {
         try
         {
-            var latest = _retained.LastOrDefault(entry => Recoverable(entry.State));
-            if (latest.State is null)
+            _attemptAt = _seconds;
+            var latest = _retained.LastOrDefault(Recoverable);
+            if (latest is null)
             {
                 throw new InvalidOperationException("No checkpoint of the current phase.");
             }
 
             _candidate = new MigrationElection(latest.State, latest.Digest).Candidate;
-            _attemptAt = _seconds;
             _committed = false;
             _reported = false;
             _offers.Clear();
@@ -409,7 +433,7 @@ internal sealed class SessionMigration
 
         foreach (var entry in _retained.AsEnumerable().Reverse())
         {
-            if (!Recoverable(entry.State))
+            if (!Recoverable(entry))
             {
                 continue;
             }
@@ -446,17 +470,19 @@ internal sealed class SessionMigration
 
     private void Install(string digest)
     {
-        var checkpoint = _retained.Single(entry => entry.Digest == digest).State;
-        if (!_confirmedDeparture && RetirementConfirmed?.Invoke(checkpoint) != true)
+        var retained = _retained.Single(entry => entry.Digest == digest);
+        if (!Recoverable(retained))
         {
-            throw new InvalidOperationException("Authority retirement or survivor membership changed before commit.");
+            throw new InvalidOperationException("Checkpoint freshness, authority retirement, or survivor membership changed before commit.");
         }
 
+        var checkpoint = retained.State;
         bool host = _lobby.LocalPlayerId == _candidate;
         _lobby.InstallMigration(checkpoint, _candidate, _server);
         RestoreArena?.Invoke(checkpoint, host);
         _committed = true;
         _confirmedDeparture = false;
+        _departureAt = null;
         _authorityPaused = false;
         Frozen = false;
         _lostAt = null;
@@ -486,6 +512,8 @@ internal sealed class SessionMigration
         Frozen = true;
         _lobby.FailMigration(reason);
     }
+
+    private sealed record RetainedCheckpoint(MigrationCheckpoint State, byte[] Bytes, string Digest, long RetainedAt);
 
     private sealed record Control(string Kind, ulong Session, ulong Epoch, ulong Candidate, string Digest, string[] Offers);
 }

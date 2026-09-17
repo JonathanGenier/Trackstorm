@@ -38,7 +38,7 @@ internal sealed class OnlineSessionBinding : IDisposable
                 coordinator.Clock);
             Driver.Migration.AuthorityChanged = coordinator.MigrationCompleted;
             Driver.Migration.AuthorityAvailable = () => coordinator.CoordinationAvailable;
-            Driver.Migration.RetirementConfirmed = coordinator.HostRetired;
+            Driver.Migration.RetirementConfirmedAt = coordinator.HostRetiredAt;
             Driver.Reconnect = () => eos.RebindHost(eos.GameplayHost ?? lobby.Owner);
         }
     }
