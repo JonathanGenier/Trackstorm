@@ -6,6 +6,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 
 | Evidence | Reports |
 | --- | --- |
+| Remote vehicle tags | [TS-64 clean verification and Story Round 1 critique](ts-64.md) |
 | Player activity and kill feed | [TS-60 acceptance and verification evidence](ts-60.md) |
 | Runtime Statistic Panel | [TS-58 implementation, Debug/Release UI checks and regression limitations](ts-58.md) |
 | Live admin Event Log | [TS-59 acceptance evidence and Story critique](ts-59.md) |

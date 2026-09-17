@@ -163,6 +163,12 @@ public sealed partial class LobbyIntegrationChecks : Node
                 }
 
                 Capture("arena.png");
+                foreach (var session in _sessions)
+                {
+                    RemoteVehicleTagChecks.Verify(session.Arena!, session.Lobby!);
+                }
+
+                RemoteVehicleTagChecks.VerifyBoundaries(_sessions[0].Arena!);
                 _sessions[0].Lobby!.Request(LobbyCommand.Return);
                 Next("All eight peers entered native arenas and received eight-vehicle snapshots; host ended session.");
                 break;
@@ -195,12 +201,23 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Next("Second host start issued on the retained session connection.");
                 break;
             case 11 when AllArena():
+                foreach (var session in _sessions)
+                {
+                    RemoteVehicleTagChecks.Verify(session.Arena!, session.Lobby!);
+                }
+
                 Require(host!.State!.Match > _firstMatch, "Second match advances vehicle generation.");
                 _departedId = _sessions[7].Lobby!.LocalPlayerId;
                 _sessions[7].Leave();
                 Next("Repeated eight-player arena succeeded; client departed during gameplay.");
                 break;
             case 12 when _sessions.Take(7).All(session => session.Arena?.Driver.Latest?.Vehicles.Count == 7):
+                foreach (var session in _sessions.Take(7))
+                {
+                    RemoteVehicleTagChecks.Verify(session.Arena!, session.Lobby!);
+                    Require(!session.Arena!.Bodies.ContainsKey(_departedId), "Departed vehicle and its owned tag are removed.");
+                }
+
                 Require(_sessions.Take(7).All(session => session.Lobby!.State!.Players.All(player => player.Id != _departedId)), "Match disconnect clears lobby and vehicle roster.");
                 _sessions[0].Leave();
                 Next("Arena departure removed the vehicle; host closed the session.");

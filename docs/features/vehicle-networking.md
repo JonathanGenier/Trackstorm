@@ -24,6 +24,8 @@ This is a replay-capable collision adapter, not full native rigid-body rollback.
 
 Core retains at most 20 ordered world snapshots. Client remote rendering normally runs six host ticks (100 ms) behind received authority. Its cursor advances monotonically and adjusts speed within 90–110% to absorb jitter without restarting on each packet. Positions and velocities interpolate linearly; orientations use normalized spherical interpolation. Before/after available data, rendering holds the nearest endpoint and never extrapolates. New lives are discrete transitions, and departed identities are removed from the active roster.
 
+Remote bodies own the [world-space name and HP tags](hud.md#remote-vehicle-tags). Tags follow the rendered pose but read health from the latest accepted snapshot and names from the existing session roster; they add no replicated state or independent lifecycle. The standalone replication harness has no session names and therefore creates no tags.
+
 Local authoritative corrections apply to gameplay immediately. Client preserves a presentation-only position/orientation offset for small corrections and exponentially decays it at rate 15/s. Position errors up to 1 cm need no offset; errors of 3 m or more snap explicitly instead of dragging a ghost through obstacles. The unified Developer Options page exposes prediction error after replay, client snapshot age, actual interpolation delay, last acknowledged input and large-correction count, alongside HP and handbrake/slip/support state. Snapshot age is shown as unavailable on the host because the authority does not receive world snapshots. Existing bindings and settings continue to feed local input and preferred-unit speed/ping telemetry.
 
 ## Verification and Boundaries
