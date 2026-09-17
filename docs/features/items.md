@@ -39,3 +39,5 @@ Authority restoration, epoch fencing, checkpoint cadence and migration limits ar
 Host [Developer Options](developer-options.md) updates `ItemAuthority.Configuration` without a second inventory owner. Wrench healing and explosion radius/damage/impulse use current tuning; existing missiles adopt changed speed while retaining direction and remaining lifetime. Lifetime edits affect newly launched missiles. Give Wrench/Missile uses the ordinary grant path and cannot replace an occupied slot or revive a dead player.
 
 [Feature index](README.md)
+
+The [Event Log](event-log.md) stages use/impact outcomes with the world commit, reports Wrench applied healing, and records acquisition and relevant inventory/projectile removal without per-frame projectile telemetry.

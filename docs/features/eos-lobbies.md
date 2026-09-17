@@ -56,3 +56,5 @@ never formatted.
 See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
 
 [Feature index](README.md)
+
+The [Event Log](event-log.md) records local online create/join/leave/close outcomes and safe failure categories. It never copies credentials, provider error text or platform identifiers.

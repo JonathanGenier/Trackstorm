@@ -75,3 +75,5 @@ Core NUnit coverage checks digital shaping, analog conditioning, mass/drive/brak
 Authority restoration, epoch fencing, checkpoint cadence and migration limits are described in [host migration](host-migration.md).
 
 [Feature index](README.md)
+
+The [Event Log](event-log.md) records every committed positive hit from the Core step result, with exact applied amount, target, source/attacker and remaining HP. It does not infer damage from snapshots or raw native contacts.

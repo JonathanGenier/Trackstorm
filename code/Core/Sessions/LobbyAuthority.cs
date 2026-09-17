@@ -1,3 +1,5 @@
+using Trackstorm.Core.Events;
+
 namespace Trackstorm.Core.Sessions;
 
 /// <summary>Sole owner of admission, sender identity, readiness and session transitions.</summary>
@@ -28,12 +30,17 @@ public sealed class LobbyAuthority
         }
 
         GraceTicks = graceTicks;
+        Events.PlayerName = id => State.Players.SingleOrDefault(player => player.Id == id)?.Name ?? $"Player {id}";
+        Events.Record(EventCategory.Session, "Created", actor: 1);
+        Events.Record(EventCategory.Session, "Joined", actor: 1);
     }
 
     /// <summary>Current immutable authority boundary.</summary>
     public LobbySnapshot State { get; private set; }
     /// <summary>Configured reservation in caller-supplied 60 Hz ticks.</summary>
     public ulong GraceTicks { get; }
+    /// <summary>Authoritative session journal shared with arena gameplay.</summary>
+    public EventStream Events { get; } = new();
     /// <summary>Copy of transport-to-player assignments for vehicle integration.</summary>
     public IReadOnlyDictionary<ulong, ulong> Peers => new Dictionary<ulong, ulong>(_peers);
     /// <summary>Session tuning; the successor restores this instead of loading its host-local preferences.</summary>
@@ -67,6 +74,9 @@ public sealed class LobbyAuthority
                 result._deadlines.Add(subject.Key, result.State.Players.Single(player => player.Id == subject.Key).RetainedHost ? ulong.MaxValue : checkpoint.Deadlines.GetValueOrDefault(subject.Key, checked(checkpoint.Tick + previous.GraceTicks)));
             }
         }
+
+        result.Events.ResetAuthority(checkpoint.Tick * 1000 / 60);
+        result.Events.Record(EventCategory.Session, "Authority migrated", actor: host, amount: epoch);
 
         return result;
     }
@@ -160,6 +170,7 @@ public sealed class LobbyAuthority
         _peers.Add(peer, id);
         _nextId = Math.Max(_nextId, id);
         Publish(State.Players.Append(new SessionPlayer(id, PlayerName.Sanitize(name), false)));
+        Events.Record(EventCategory.Session, "Joined", actor: id);
         return true;
     }
 
@@ -195,6 +206,7 @@ public sealed class LobbyAuthority
         }
 
         State = new LobbySnapshot(State.Session, checked(State.Revision + 1), checked(State.Match + 1), SessionPhase.Arena, State.Players, GraceTicks, State.CurrentHostId, State.AuthorityEpoch);
+        Events.Record(EventCategory.Session, "Arena started", actor: State.CurrentHostId);
         return true;
     }
 
@@ -214,6 +226,7 @@ public sealed class LobbyAuthority
         }
 
         State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, SessionPhase.Lobby, State.Players.Select(player => player with { Ready = false, RetainedHost = false }), GraceTicks, State.CurrentHostId, State.AuthorityEpoch);
+        Events.Record(EventCategory.Session, "Returned to lobby", actor: State.CurrentHostId);
         return true;
     }
 
@@ -227,6 +240,7 @@ public sealed class LobbyAuthority
             return false;
         }
 
+        Events.Record(EventCategory.Session, "Left", actor: id);
         RemovePlayer(id);
         return true;
     }
@@ -241,6 +255,7 @@ public sealed class LobbyAuthority
             return false;
         }
 
+        Events.Record(EventCategory.Network, "Disconnected", actor: id, cause: "connection lost");
         if (!_identities.ContainsKey(id))
         {
             RemovePlayer(id);
@@ -248,6 +263,7 @@ public sealed class LobbyAuthority
         }
 
         _deadlines.Add(id, State.Players.Single(player => player.Id == id).RetainedHost ? ulong.MaxValue : checked(_tick + GraceTicks));
+        Events.Record(EventCategory.Network, State.Players.Single(player => player.Id == id).RetainedHost ? "Match reservation entered" : "Grace entered", actor: id);
         _previousPeers[id] = peer;
         Publish(State.Players.Select(player => player.Id == id ? player with { Ready = false, Connected = false } : player));
         return true;
@@ -263,8 +279,10 @@ public sealed class LobbyAuthority
         }
 
         _tick = tick;
+        Events.AdvanceTime(tick * 1000 / 60);
         foreach (ulong id in _deadlines.Where(pair => pair.Value <= tick).Select(pair => pair.Key).ToArray())
         {
+            Events.Record(EventCategory.Network, "Grace expired; player removed", actor: id);
             RemovePlayer(id);
         }
     }
@@ -292,6 +310,7 @@ public sealed class LobbyAuthority
         }
 
         _peers.Add(peer, playerId);
+        Events.Record(EventCategory.Network, "Reconnected", actor: playerId);
         _deadlines.Remove(playerId);
         _previousPeers.Remove(playerId);
         Publish(State.Players.Select(value => value.Id == playerId ? value with { Connected = true, Ready = false, Generation = generation + 1 } : value));

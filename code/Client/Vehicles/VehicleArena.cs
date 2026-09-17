@@ -179,6 +179,7 @@ public sealed partial class VehicleArena : Node3D
             vehicle.ApplyEffect(effect, new DamageContext("explosion", Player.VehicleId, "local-arena-blast"));
         }
 
+        Simulation.Events.Record(Core.Events.EventCategory.Developer, "Detonate nearby", actor: 1);
         _layout?.Explode(center);
         _audio.PracticeExplosion(center);
         _blast?.QueueFree();
@@ -195,6 +196,7 @@ public sealed partial class VehicleArena : Node3D
     /// <summary>Queues normal new-life resets for local practice vehicles.</summary>
     internal void ResetVehicles()
     {
+        Simulation.Events.Record(Core.Events.EventCategory.Developer, "Reset practice arena", actor: 1);
         if (!LegacyTestLayout)
         {
             _layout!.ResetProps();

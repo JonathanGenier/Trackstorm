@@ -53,7 +53,7 @@ internal sealed class VehicleNetworkDriver
                 revision = checked(revision + 1);
             }
 
-            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, configuration: configuration ?? sessionConfiguration?.Configuration, hostPlayerId: lobby?.LocalPlayerId ?? 1, configurationRevision: revision);
+            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, configuration: configuration ?? sessionConfiguration?.Configuration, hostPlayerId: lobby?.LocalPlayerId ?? 1, configurationRevision: revision, events: lobby?.Authority?.Events);
             lobby?.Authority?.RetainConfiguration(Host.Configuration);
             LocalVehicleId = Host.HostPlayerId;
         }
@@ -496,7 +496,7 @@ internal sealed class VehicleNetworkDriver
         // A new authority epoch may restore an older complete configuration boundary.
         _receivedConfiguration = false;
         _publishedConfiguration = null;
-        Host = host ? HostVehicleSession.Restore(checkpoint.Arena, checkpoint.Host!, _lobby!.LocalPlayerId) : null;
+        Host = host ? HostVehicleSession.Restore(checkpoint.Arena, checkpoint.Host!, _lobby!.LocalPlayerId, _lobby.Authority!.Events) : null;
         _itemPublication = checkpoint.Arena.Items.Revision;
         _publishedItemRevision = ulong.MaxValue;
         _publishedSpawnRevision = ulong.MaxValue;

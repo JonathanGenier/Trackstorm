@@ -64,3 +64,5 @@ Core NUnit tests exercise simulation configuration, sequential ticks, atomic veh
 Authority restoration, epoch fencing, checkpoint cadence and migration limits are described in [host migration](host-migration.md).
 
 [Feature index](README.md)
+
+The [Event Log](event-log.md) consumes committed hit results and lifecycle/match transitions at the same world boundary. Restore produces no historical outcomes; staged item-use events precede their applied damage/healing.

@@ -556,6 +556,32 @@ internal sealed class EosP2pTransportTests
         string leasePath = Path.Combine(TestContext.CurrentContext.WorkDirectory, "lease-" + Guid.NewGuid().ToString("N"), "ledger.json");
         var leaseClients = new List<AuthorityLeaseClient>();
         using var store = trustedLease ? new LeaseService.LeaseStore(leasePath, clock) : null;
+        void VerifyMigratedEvents()
+        {
+            drivers[1].Events.Record(Trackstorm.Core.Events.EventCategory.Network, "After migration", actor: 2);
+            for (int tick = 0; tick < 10; tick++)
+            {
+                if (trustedLease)
+                {
+                    clock.Advance(1.0 / 60);
+                }
+
+                drivers[1].Pump(1.0 / 60);
+                drivers[2].Pump(1.0 / 60);
+            }
+
+            Assert.That(drivers[2].Events.Entries.Any(entry => entry.Kind == "After migration" && entry.Actor == 2), Is.True, "The new epoch must not inherit the old journal's deduplication watermark.");
+            ulong generation = drivers[2].Generation;
+            byte[] body = Trackstorm.Core.Events.EventCodec.Encode([new Trackstorm.Core.Events.RuntimeEvent { Sequence = drivers[2].Events.LastSequence + 100, Category = Trackstorm.Core.Events.EventCategory.Network, Kind = "Old epoch event" }]);
+            ulong peer = drivers[1].Authority!.Peers.Single(pair => pair.Value == 3).Key;
+            byte[] stale = [(byte)'T', (byte)'E', 1, .. ConnectionEnvelope.Encode(100, generation, body, 1)];
+            gateways[1].Send(new(peer, stale, TransportDelivery.Reliable));
+            int rejected = drivers[2].RejectedPackets;
+            drivers[2].Pump(1.0 / 60);
+            Assert.That(drivers[2].RejectedPackets, Is.GreaterThan(rejected));
+            Assert.That(drivers[2].Events.Entries.Any(entry => entry.Kind == "Old epoch event"), Is.False);
+        }
+
         try
         {
             for (int i = 0; i < 3; i++)
@@ -631,6 +657,7 @@ internal sealed class EosP2pTransportTests
                 Assert.That(drivers[1].State!.Players.All(player => !player.Ready), Is.True);
                 Assert.That(drivers[1].LocalPlayerId, Is.EqualTo(2));
                 Assert.That(drivers[2].LocalPlayerId, Is.EqualTo(3));
+                VerifyMigratedEvents();
                 return;
             }
 
@@ -794,6 +821,8 @@ internal sealed class EosP2pTransportTests
             Assert.That(vehicles[2].ItemState!.Slots.Single(slot => slot.Vehicle == 3).Item, Is.EqualTo(Trackstorm.Core.Items.HeldItem.Wrench));
             Assert.That(vehicles[2].IsActive, Is.True);
             Assert.That(selectedTick, Is.EqualTo(commonTick));
+            Assert.That(vehicles[1].Host!.World.Events, Is.SameAs(drivers[1].Events));
+            VerifyMigratedEvents();
         }
         finally
         {

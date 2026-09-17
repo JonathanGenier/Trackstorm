@@ -34,3 +34,5 @@ See [reconnection and session resume](reconnection.md) for authenticated grace, 
 [Developer Options](developer-options.md) uses current session authority to gate tuning and actions. The host loads its separate persisted gameplay overrides when creating a new session; subsequent arenas and migration successors inherit authoritative session tuning, and joining clients initialize from the host's reliable configuration. Force Start readies the local host and invokes normal lobby Start before arming the arena's ordinary countdown with a one-shot solo override. Other admitted players still must be connected and ready.
 
 [Feature index](README.md)
+
+The [Event Log](event-log.md) shares the lobby authority journal with each arena and sends reliable structured outcomes through the existing session/connection envelope. F3 remains available in lobby and arena, including Release exports.

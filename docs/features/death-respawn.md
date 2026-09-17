@@ -41,3 +41,5 @@ Host [Developer Options](developer-options.md) changes the existing `RespawnConf
 Authority restoration and epoch fencing are described in [host migration](host-migration.md).
 
 [Feature index](README.md)
+
+The [Event Log](event-log.md) consumes committed lifecycle transitions once, independently of unreliable pose publications. It preserves the affected life and lethal cause, while scored kill credit remains owned by match authority.

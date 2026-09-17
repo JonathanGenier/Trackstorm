@@ -90,6 +90,9 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal bool Busy { get; private set; }
     /// <summary>Whether Leave can release active membership or retry pending cleanup.</summary>
     internal bool CanLeave => Active is not null || Busy || _closing is not null || _pendingMembership is not null || SavedResume is not null;
+    /// <summary>Application-owned local diagnostic journal; never receives provider credentials.</summary>
+    internal Core.Events.EventStream? EventLog { get; set; }
+
     /// <summary>Presentation-safe progress or actionable failure; never includes credential input.</summary>
     internal string Status { get; private set; } = "Browse or host a game.";
     /// <summary>Validated local routing hint until the restored assignment is acknowledged.</summary>
@@ -283,6 +286,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
 
         if (lobby.Access == LobbyAccess.Locked && !lobby.Credential!.Verify(credential))
         {
+            EventLog?.Record(Core.Events.EventCategory.Network, "Online join rejected", cause: "access denied", local: true);
             Status = "Incorrect password/access code.";
             return;
         }
@@ -500,6 +504,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                         _closing = null;
                     }
 
+                    EventLog?.Record(Core.Events.EventCategory.Session, failure is null ? (destroy ? "Online lobby closed" : "Online lobby left") : "Online lobby cleanup failed", local: true);
                     Status = failure is null ? (destroy ? "Lobby closed." : "Left lobby.") : "EOS leave/close failed. Retry Leave before creating another lobby.";
                 }
             });
@@ -638,6 +643,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                 Leave();
             }
 
+            EventLog?.Record(Core.Events.EventCategory.Network, "Online membership failed", cause: "service operation failed", local: true);
             Status = failure ?? "EOS service failure.";
             return;
         }
@@ -651,6 +657,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         _authorityRetired = false;
         _retiredHost = null;
         _createdGameplaySession = host;
+        EventLog?.Record(Core.Events.EventCategory.Session, host ? "Online lobby created" : "Online lobby joined", local: true);
         Browser.Update(lobby);
         long membership = ++_membership;
         try

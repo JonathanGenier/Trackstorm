@@ -1,3 +1,4 @@
+using Trackstorm.Core.Events;
 using System.Numerics;
 using Trackstorm.Core.Input;
 using Trackstorm.Core.Vehicles;
@@ -85,7 +86,8 @@ public sealed class ItemAuthority
     /// <param name="world">Authoritative vehicle world.</param>
     /// <param name="vehicle">Recipient identity.</param>
     /// <param name="item">One of the two real items.</param>
-    public bool Grant(Simulation.Simulation world, ulong vehicle, HeldItem item)
+    /// <param name="pickup">Whether the spawn authority will publish the contextual pickup outcome.</param>
+    public bool Grant(Simulation.Simulation world, ulong vehicle, HeldItem item, bool pickup = false)
     {
         VehicleSnapshot? state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
         if (state is null || !state.CanInteract || item is not (HeldItem.Wrench or HeldItem.Missile) ||
@@ -96,6 +98,11 @@ public sealed class ItemAuthority
 
         _slots[vehicle] = new ItemSlot(vehicle, state.LifeId, checked(++_token), item);
         Revision++;
+        if (!pickup)
+        {
+            world.Events.Record(EventCategory.Item, "Granted", target: vehicle, cause: item.ToString(), life: state.LifeId, tick: world.State.Tick);
+        }
+
         return true;
     }
 
@@ -198,7 +205,7 @@ public sealed class ItemAuthority
             }
         }
 
-        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, request.Observation, effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId))).ToArray());
+        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, request.Observation, effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause)).ToArray(), events.Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick }).ToArray());
         foreach (var pair in slots.ToArray())
         {
             VehicleSnapshot state = world.GetVehicle(pair.Key);
@@ -214,10 +221,20 @@ public sealed class ItemAuthority
 
         advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract));
         bool changed = !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) || missiles.Count > 0;
+        foreach (var removed in _slots.Values.Where(slot => slot.Item != HeldItem.None && !slots.ContainsKey(slot.Vehicle)))
+        {
+            world.Events.Record(EventCategory.Item, "Removed", target: removed.Vehicle, cause: removed.Item.ToString(), context: "life ended or reset", tick: input.Tick);
+        }
+
         _slots.Clear();
         foreach (var pair in slots)
         {
             _slots.Add(pair.Key, pair.Value);
+        }
+
+        foreach (var removed in missiles.Where(missile => !advanced.Any(value => value.Id == missile.Id) && !events.Any(value => value.Token == missile.Id && value.Impact)))
+        {
+            world.Events.Record(EventCategory.Item, "Projectile removed", actor: removed.Owner, cause: "Missile", context: removed.RemainingTicks <= 1 ? "lifetime expired" : "owner inactive", tick: input.Tick);
         }
 
         _missiles.Clear();

@@ -460,6 +460,45 @@ internal sealed class VehicleNetworkDriverTests
         Assert.That(Client.Development.DeveloperDiagnostics.Identity(Client.Online.OnlineIdentityState.Failed, null), Does.Contain("Failed").And.Contain("unavailable"));
     }
 
+    /// <summary>Event replication requires the current host and connection, preserving identity and original time.</summary>
+    [Test]
+    public void EventReplicationRejectsDuplicatesForgedSendersAndOldGenerations()
+    {
+        using var hostWire = new DriverGateway(2, TransportConnectionState.Connected);
+        using var clientWire = new DriverGateway(1, TransportConnectionState.Connected);
+        var host = new LobbyNetworkDriver(hostWire, 10, 0, "Host");
+        host.Authority!.Join(2, "Guest");
+        var client = new LobbyNetworkDriver(clientWire, 0, 1, "Guest");
+        host.Pump(0.25);
+        foreach (var packet in hostWire.Sent)
+        {
+            clientWire.Receive(new TransportMessage(1, packet.Payload, packet.Delivery));
+        }
+
+        client.Pump(0);
+        hostWire.Sent.Clear();
+        host.Events.Record(Trackstorm.Core.Events.EventCategory.Damage, "Applied", 1, 2, "Missile", amount: 3.125, hp: 96.875, maxHP: 100);
+        host.Pump(0.1);
+        var publication = hostWire.Sent.Single(packet => Trackstorm.Core.Events.EventCodec.IsEvent(packet.Payload.Span));
+        clientWire.Receive(new TransportMessage(1, publication.Payload, TransportDelivery.Reliable));
+        clientWire.Receive(new TransportMessage(1, publication.Payload, TransportDelivery.Reliable));
+        client.Pump(0.1);
+        var hit = client.Events.Entries.Single(entry => entry.Category == Trackstorm.Core.Events.EventCategory.Damage);
+        Assert.That(hit, Is.EqualTo(host.Events.Entries.Single(entry => entry.Category == Trackstorm.Core.Events.EventCategory.Damage)));
+        Assert.That(Trackstorm.Client.Development.EventLogFormatter.Format(hit), Does.Contain("3.125").And.Contain("Host").And.Contain("Guest"));
+        var next = hit with { Sequence = hit.Sequence + 1 };
+        byte[] body = Trackstorm.Core.Events.EventCodec.Encode([next]);
+        byte[] retired = [(byte)'T', (byte)'E', 1, .. Trackstorm.Core.Sessions.ConnectionEnvelope.Encode(10, 2, body)];
+        clientWire.Receive(new TransportMessage(1, retired, TransportDelivery.Reliable));
+        clientWire.Receive(new TransportMessage(1, publication.Payload, TransportDelivery.Unreliable));
+        client.Pump(0);
+        Assert.That(client.Events.Entries.Count(entry => entry.Category == Trackstorm.Core.Events.EventCategory.Damage), Is.EqualTo(1));
+        Assert.That(client.RejectedPackets, Is.GreaterThanOrEqualTo(2));
+        hostWire.Receive(new TransportMessage(2, publication.Payload, TransportDelivery.Reliable));
+        host.Pump(0);
+        Assert.That(host.RejectedPackets, Is.GreaterThan(0));
+    }
+
     private static DriverGateway ConnectedGateway() => new(ServerPeer, TransportConnectionState.Connected);
 
     private static SequencedInput[] DecodeLastInputs(DriverGateway gateway) => VehicleNetworkCodec.DecodeInputs(gateway.Sent[^1].Payload.Span).Inputs;
