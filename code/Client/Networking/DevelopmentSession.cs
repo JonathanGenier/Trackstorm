@@ -35,6 +35,12 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private bool _leaving;
     private bool _logoutAfterLeave;
     private bool _forceStart;
+    private double _eventMilliseconds;
+    private int _eventRejected;
+    private double _rejectionSeconds;
+
+    /// <summary>Retains the last bounded session history after departure.</summary>
+    internal Core.Events.EventStream Events { get; private set; } = new();
 
     /// <summary>Host-local tuning supplied by composition; never consulted for a joining client.</summary>
     internal Development.DeveloperSettingsStore? DeveloperSettings { get; set; }
@@ -126,7 +132,33 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     }
 
     /// <inheritdoc/>
-    public override void _Process(double delta) => Render();
+    public override void _Process(double delta)
+    {
+        if (_lobby is null)
+        {
+            _eventMilliseconds = Math.Max(_eventMilliseconds, Events.Milliseconds) + (delta * 1000);
+            Events.AdvanceTime((ulong)_eventMilliseconds);
+        }
+        else
+        {
+            _eventMilliseconds = 0;
+        }
+
+        _rejectionSeconds += delta;
+        if (_arena is not null && _arena.Driver.RejectedPackets != _eventRejected && _rejectionSeconds >= 1)
+        {
+            Events.Record(Core.Events.EventCategory.Network, "Arena requests rejected", cause: "invalid, stale or unauthorized gameplay protocol", amount: Math.Max(0, _arena.Driver.RejectedPackets - _eventRejected), local: _arena.Driver.Host is null);
+            _eventRejected = _arena.Driver.RejectedPackets;
+            _rejectionSeconds = 0;
+        }
+
+        if (OnlineCoordinator() is { } online)
+        {
+            online.EventLog = Events;
+        }
+
+        Render();
+    }
 
     /// <inheritdoc/>
     public override void _ExitTree()
@@ -168,6 +200,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             }
 
             _lobby = new LobbyNetworkDriver(_transport.Gateway, session, peer, name);
+            Events = _lobby.Events;
             _message = host ? $"Hosting {address}. Everyone must be ready to start." : $"Joining {address}…";
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
@@ -260,6 +293,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
 
         if (_transportFailure is not null || _lobby.Failure.Length > 0 || _arena?.Driver.Failure.Length > 0)
         {
+            Events.Record(Core.Events.EventCategory.Network, "Session failed", cause: _transportFailure is not null ? "transport failure" : "admission or arena synchronization failure", local: _lobby.Authority is null);
             string failure = _transportFailure ?? (_lobby.Failure.Length > 0 ? _lobby.Failure : _arena!.Driver.Failure);
             Leave();
             _message = failure;
@@ -274,6 +308,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         if (_lobby.State?.Phase == SessionPhase.Arena && _arena is null)
         {
             _arenaGeneration = _lobby.State.Match;
+            _eventRejected = 0;
             _arena = new NetworkVehicleArena { Name = "SessionArena" };
             _arena.Initialize(_gateway!, _lobby.Authority is null ? 0 : _arenaGeneration, _lobby.ServerPeer, _lobby, IsDeveloperHost ? DeveloperSettings?.LoadForHost() : null);
             AddChild(_arena);
@@ -333,6 +368,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         var binding = coordinator.AttachTransport(gateway, serverPeer, name);
         _gateway = gateway;
         _lobby = binding.Driver;
+        Events = _lobby.Events;
         _onlineTransport = true;
         _debug.ButtonPressed = false;
         _message = "Online transport connected. Everyone must be ready to start.";
@@ -351,6 +387,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             return false;
         }
 
+        var previousConfiguration = DeveloperConfiguration;
         Core.Development.GameplayConfiguration accepted;
         if (_arena is not null)
         {
@@ -364,6 +401,14 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         else if (!Core.Development.GameplayOptions.TryApply(DeveloperConfiguration, edits, out accepted, out error))
         {
             return false;
+        }
+
+        if (_arena is null)
+        {
+            foreach (var option in Core.Development.GameplayOptions.All.Where(option => option.Read(previousConfiguration) != option.Read(accepted)))
+            {
+                Events.Record(Core.Events.EventCategory.Developer, "Setting changed", actor: 1, context: option.Key, amount: option.Read(accepted), previous: option.Read(previousConfiguration));
+            }
         }
 
         DeveloperSettings?.Save(accepted);
@@ -396,10 +441,16 @@ internal sealed partial class DevelopmentSession : CanvasLayer
 
     private void CloseSession()
     {
+        if (_lobby is not null)
+        {
+            Events.Record(Core.Events.EventCategory.Session, _lobby.Authority is null ? (_leaving ? "Left session" : "Session ended") : "Session closed", actor: _lobby.LocalPlayerId, local: _lobby.Authority is null);
+        }
+
         _forceStart = false;
         _leaving = false;
         RemoveArena();
         _lobby = null;
+        Events.PlayerName = null;
         if (_onlineTransport || OnlineCoordinator()?.CanLeave == true)
         {
             OnlineCoordinator()?.Leave();

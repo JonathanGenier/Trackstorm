@@ -46,7 +46,7 @@ internal sealed class VehicleNetworkDriver
         _session = hostSession;
         if (hostSession != 0)
         {
-            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, configuration: configuration);
+            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, configuration: configuration, events: lobby?.Authority?.Events);
             LocalVehicleId = 1;
         }
 

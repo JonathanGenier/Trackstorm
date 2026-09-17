@@ -12,7 +12,8 @@ public sealed class VehicleStepRequest
     /// <param name="effects">Combat requests for this tick.</param>
     /// <param name="reset">Explicit new-life pose, or null to continue the current life.</param>
     /// <param name="repair">Repair request for a living vehicle.</param>
-    public VehicleStepRequest(ulong vehicleId, InputFrame input, VehicleObservation observation, IEnumerable<VehicleEffectRequest>? effects = null, VehiclePhysicsState? reset = null, float repair = 0)
+    /// <param name="repairCause">Allowlisted source of repair.</param>
+    public VehicleStepRequest(ulong vehicleId, InputFrame input, VehicleObservation observation, IEnumerable<VehicleEffectRequest>? effects = null, VehiclePhysicsState? reset = null, float repair = 0, string repairCause = "repair")
     {
         ArgumentNullException.ThrowIfNull(observation);
         if (vehicleId == 0 || !float.IsFinite(repair))
@@ -37,6 +38,7 @@ public sealed class VehicleStepRequest
         Effects = Array.AsReadOnly(copy);
         Reset = reset;
         Repair = repair;
+        RepairCause = repairCause == "Wrench" ? "Wrench" : "repair";
     }
 
     /// <summary>Registered identity.</summary>
@@ -51,4 +53,6 @@ public sealed class VehicleStepRequest
     public VehiclePhysicsState? Reset { get; }
     /// <summary>Repair intent.</summary>
     public float Repair { get; }
+    /// <summary>Allowlisted source of the repair request.</summary>
+    public string RepairCause { get; }
 }

@@ -1,5 +1,6 @@
 using System.Numerics;
 using Trackstorm.Core.Development;
+using Trackstorm.Core.Events;
 using Trackstorm.Core.Input;
 using Trackstorm.Core.Items;
 using Trackstorm.Core.Simulation;
@@ -17,6 +18,7 @@ public sealed class HostVehicleSession
     private readonly Dictionary<ulong, (ulong Vehicle, HostInputBuffer Inputs, int SpawnSlot)> _peers = new();
     private readonly Dictionary<ulong, (HostInputBuffer Inputs, int SpawnSlot)> _disconnected = new();
     private ulong _nextVehicle = 1;
+    private ulong? _lastUseRejection;
 
     /// <summary>Starts one host vehicle in a caller-identified session.</summary>
     /// <param name="sessionId">Nonzero identity supplied by the outer session lifetime.</param>
@@ -25,13 +27,16 @@ public sealed class HostVehicleSession
     /// <param name="matchConfiguration">Optional match tuning; scoring always uses the shared simulation.</param>
     /// <param name="damageConfiguration">Vehicle health tuning for this arena.</param>
     /// <param name="configuration">Validated effective gameplay tuning.</param>
-    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null)
+    /// <param name="events">Optional session journal shared across arena generations.</param>
+    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null, EventStream? events = null)
     {
         ArgumentOutOfRangeException.ThrowIfZero(sessionId);
         SessionId = sessionId;
         var effective = configuration ?? new GameplayConfiguration { Damage = damageConfiguration ?? new(), Items = itemConfiguration ?? new(), Respawn = respawnConfiguration ?? new(), Match = matchConfiguration ?? new() };
         Configuration = new GameplayConfigurationState(0, effective);
         World = new Simulation.Simulation(new SimulationConfiguration(TickRate), effective.Respawn, match: effective.Match);
+        World.Events = events ?? new EventStream();
+        World.Events.Record(EventCategory.Match, "Created");
         Items = new ItemAuthority(effective.Items);
         World.AddVehicle(1, effective.Vehicle, effective.Damage, Spawn(0));
     }
@@ -60,6 +65,7 @@ public sealed class HostVehicleSession
         error = "Only the authoritative host may change gameplay tuning.";
         if (peer != 0 || !GameplayOptions.TryApply(Configuration.Configuration, edits, out var candidate, out error))
         {
+            World.Events.Record(EventCategory.Developer, "Configuration rejected", actor: peer == 0 ? 1UL : 0, cause: "invalid values or unauthorized sender");
             return false;
         }
 
@@ -74,11 +80,19 @@ public sealed class HostVehicleSession
             World.ApplyConfiguration(candidate);
             Items.ApplyConfiguration(candidate.Items);
             Spawns?.ApplyConfiguration(candidate.Spawns);
+            var previous = Configuration.Configuration;
             Configuration = next;
+            foreach (var option in GameplayOptions.All.Where(option => option.Read(previous) != option.Read(candidate)))
+            {
+                World.Events.Record(EventCategory.Developer, "Setting changed", actor: 1, context: option.Key, amount: option.Read(candidate), previous: option.Read(previous));
+            }
+
+            World.Events.Record(EventCategory.Network, "Configuration applied", amount: next.Revision);
             return true;
         }
         catch (Exception exception) when (exception is ArgumentException or OverflowException)
         {
+            World.Events.Record(EventCategory.Developer, "Configuration rejected", actor: 1, cause: "runtime validation failed");
             error = exception.Message;
             return false;
         }
@@ -88,12 +102,22 @@ public sealed class HostVehicleSession
     /// <returns>Whether the operation was accepted.</returns>
     /// <param name="peer">Actual sender; zero denotes the trusted local host.</param>
     /// <param name="item">Implemented item to grant.</param>
-    public bool GiveItem(ulong peer, HeldItem item) => peer == 0 && Items.Grant(World, 1, item);
+    public bool GiveItem(ulong peer, HeldItem item)
+    {
+        bool accepted = peer == 0 && Items.Grant(World, 1, item);
+        World.Events.Record(EventCategory.Developer, accepted ? "Give Item" : "Give Item rejected", actor: peer == 0 ? 1UL : 0, target: 1, cause: Enum.IsDefined(item) ? item.ToString() : "unknown item");
+        return accepted;
+    }
 
     /// <summary>Host-only non-persistent solo override; uses the normal authoritative countdown.</summary>
     /// <returns>Whether the operation was accepted.</returns>
     /// <param name="peer">Actual sender; zero denotes the trusted local host.</param>
-    public bool ForceStart(ulong peer) => peer == 0 && World.ForceStart();
+    public bool ForceStart(ulong peer)
+    {
+        bool accepted = peer == 0 && World.ForceStart();
+        World.Events.Record(EventCategory.Developer, accepted ? "Force Start" : "Force Start rejected", actor: peer == 0 ? 1UL : 0);
+        return accepted;
+    }
 
     /// <summary>Registers actual scene markers once before simulation.</summary>
     /// <param name="arena">Validated scene contract.</param>
@@ -112,6 +136,10 @@ public sealed class HostVehicleSession
         }
 
         Spawns = new ItemSpawnAuthority(arena, Items, Configuration.Configuration.Spawns, selector);
+        foreach (var spawn in Spawns.States)
+        {
+            World.Events.Record(EventCategory.Item, "Pickup spawned", context: spawn.Id);
+        }
     }
 
     /// <summary>Resolves a use request using actual sender ownership.</summary>
@@ -123,7 +151,14 @@ public sealed class HostVehicleSession
     public bool UseItem(ulong peer, ulong session, ulong life, ulong token)
     {
         ulong vehicle = peer == 0 ? 1 : _peers.TryGetValue(peer, out var entry) ? entry.Vehicle : 0;
-        return session == SessionId && vehicle != 0 && Items.RequestUse(World, vehicle, life, token);
+        bool accepted = session == SessionId && vehicle != 0 && Items.RequestUse(World, vehicle, life, token);
+        if (!accepted && (!_lastUseRejection.HasValue || World.State.Tick - _lastUseRejection.Value >= TickRate))
+        {
+            _lastUseRejection = World.State.Tick;
+            World.Events.Record(EventCategory.Item, "Use rejected", actor: vehicle, cause: "inactive, empty or stale item request", tick: World.State.Tick);
+        }
+
+        return accepted;
     }
 
     /// <summary>Assigns a unique gameplay identity only after the transport reports a connected peer.</summary>

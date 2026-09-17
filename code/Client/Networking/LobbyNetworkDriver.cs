@@ -1,3 +1,4 @@
+using Trackstorm.Core.Events;
 using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Sessions;
 
@@ -13,6 +14,8 @@ internal sealed class LobbyNetworkDriver
     private readonly ulong _expectedSession;
     private readonly LobbyReplica _replica = new();
     private readonly Queue<TransportMessage> _pendingGameplay = new();
+    private readonly EventStream _clientEvents = new();
+    private readonly Dictionary<ulong, ulong> _eventSent = new();
     private bool _joined;
     private ulong _published;
     private double _joiningSeconds;
@@ -24,6 +27,10 @@ internal sealed class LobbyNetworkDriver
     private ulong _resumeGeneration;
     private double? _leaveAt;
     private bool _left;
+    private string _loggedResume = string.Empty;
+    private bool _loggedFailure;
+    private int _loggedRejections;
+    private double _nextRejectionReport;
 
     /// <summary>Creates a host lobby or a client waiting for admission.</summary>
     /// <param name="gateway">Existing transport.</param>
@@ -42,6 +49,7 @@ internal sealed class LobbyNetworkDriver
         _identity = identity;
         _expectedSession = expectedSession;
         ServerPeer = serverPeer;
+        _clientEvents.PlayerName = id => State?.Players.SingleOrDefault(player => player.Id == id)?.Name ?? $"Player {id}";
         if (session != 0)
         {
             Authority = new LobbyAuthority(session, name, graceTicks);
@@ -50,6 +58,9 @@ internal sealed class LobbyNetworkDriver
 
     /// <summary>Host-owned rules; absent on clients.</summary>
     internal LobbyAuthority? Authority { get; }
+    /// <summary>Structured current-session history; replicated outcomes never originate on a client.</summary>
+    internal EventStream Events => Authority?.Events ?? _clientEvents;
+
     /// <summary>Latest complete authoritative state.</summary>
     internal LobbySnapshot? State => Authority?.State ?? _replica.State;
     /// <summary>Session-stable local identity, zero before admission.</summary>
@@ -87,6 +98,7 @@ internal sealed class LobbyNetworkDriver
 
         _latencySeconds += seconds;
         _seconds += seconds;
+        Events.AdvanceTime((ulong)(_seconds * 1000));
         Authority?.AdvanceTime((ulong)(_seconds * 60));
         _gateway.Poll();
         if (Authority is not null)
@@ -185,6 +197,10 @@ internal sealed class LobbyNetworkDriver
             {
                 Receive(message);
             }
+            else if (message.Payload.Length >= 3 && message.Payload.Span[0] == (byte)'T' && message.Payload.Span[1] == (byte)'E')
+            {
+                ReceiveEvents(message);
+            }
             else if (PlayerLatency.IsLatency(message.Payload.Span))
             {
                 if (Authority is not null || Reconnecting || message.RemotePeerId != ServerPeer || message.Delivery != TransportDelivery.Reliable || State is null || !Latency.Accept(message.Payload.Span, State))
@@ -206,6 +222,26 @@ internal sealed class LobbyNetworkDriver
         }
 
         Publish();
+        PublishEvents();
+        if (_loggedResume != ResumeStatus)
+        {
+            _loggedResume = ResumeStatus;
+            Events.Record(EventCategory.Network, "Recovery state", context: ResumeStatus is "Connection interrupted" or "Reconnecting" or "Resume succeeded" or "Grace expired" ? ResumeStatus : "Resume unavailable or rejected", local: Authority is null);
+        }
+
+        if (!_loggedFailure && Failure.Length > 0)
+        {
+            _loggedFailure = true;
+            Events.Record(EventCategory.Network, "Session connection failed", cause: "admission, transport or recovery failed", local: Authority is null);
+        }
+
+        if (RejectedPackets != _loggedRejections && _seconds >= _nextRejectionReport)
+        {
+            Events.Record(EventCategory.Network, "Rejected requests", cause: "invalid, stale or unauthorized protocol", amount: RejectedPackets - _loggedRejections, local: Authority is null);
+            _loggedRejections = RejectedPackets;
+            _nextRejectionReport = _seconds + 1;
+        }
+
         if (Authority is not null && _latencySeconds >= 1)
         {
             _latencySeconds = 0;
@@ -435,6 +471,69 @@ internal sealed class LobbyNetworkDriver
                     Failure = "Host connection could not accept lobby commands. Leave and reconnect.";
                 }
             }
+        }
+    }
+
+    private void PublishEvents()
+    {
+        if (Authority is null)
+        {
+            return;
+        }
+
+        foreach (ulong retired in _eventSent.Keys.Where(peer => !Authority.Peers.ContainsKey(peer)).ToArray())
+        {
+            _eventSent.Remove(retired);
+        }
+
+        foreach (var peer in Authority.Peers)
+        {
+            ulong sent = _eventSent.GetValueOrDefault(peer.Key);
+            // New/resumed transport streams begin at their admission event, without replaying past gameplay.
+            if (!_eventSent.ContainsKey(peer.Key))
+            {
+                var admission = Events.Entries.LastOrDefault(entry => entry.Actor == peer.Value && entry.Kind is "Joined" or "Reconnected");
+                sent = admission is null ? Events.LastSequence : admission.Sequence - 1;
+            }
+
+            if (sent == Events.LastSequence)
+            {
+                _eventSent[peer.Key] = sent;
+                continue;
+            }
+
+            var entries = Events.Entries.Where(entry => !entry.Local && entry.Sequence > sent).Take(EventCodec.MaximumEvents).ToArray();
+            if (entries.Length > 0)
+            {
+                var record = State!.Players.Single(player => player.Id == peer.Value);
+                byte[] packet = EventCodec.Encode(entries);
+                // TE framing stays recognizable outside the fenced payload for the single receive dispatcher.
+                Send(peer.Key, [(byte)'T', (byte)'E', 1, .. ConnectionEnvelope.Encode(State.Session, record.Generation, packet)]);
+                sent = entries[^1].Sequence;
+            }
+
+            _eventSent[peer.Key] = sent;
+        }
+    }
+
+    private void ReceiveEvents(TransportMessage message)
+    {
+        try
+        {
+            if (!EventCodec.IsEvent(message.Payload.Span) || Authority is not null || State is null || message.RemotePeerId != ServerPeer || message.Delivery != TransportDelivery.Reliable || (Reconnecting && !NeedsArenaCheckpoint))
+            {
+                throw new ArgumentException("Untrusted event publication.");
+            }
+
+            var payload = ConnectionEnvelope.Decode(message.Payload.Span[3..], State.Session, Generation);
+            foreach (var entry in EventCodec.Decode(payload))
+            {
+                Events.Accept(entry);
+            }
+        }
+        catch (ArgumentException)
+        {
+            RejectedPackets++;
         }
     }
 
