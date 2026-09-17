@@ -11,6 +11,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Version rule regression tests
+        run: ./tools/test-version.ps1
+
+      - name: Require the next Story version against current main
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        shell: pwsh
+        run: |
+          git fetch origin +refs/heads/main:refs/remotes/origin/main
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot fetch current main for version validation.' }
+          ./tools/check-version.ps1
 
       - uses: actions/setup-dotnet@v4
         with:

@@ -4,6 +4,7 @@ Start with the system being changed. Read its document and only the integration 
 
 | System | Read for | Related systems |
 | --- | --- | --- |
+| [Game versioning](game-versioning.md) | Canonical build, Story CI sequencing and exact multiplayer compatibility | [Sessions](sessions.md), [EOS lobbies](eos-lobbies.md), [reconnection](reconnection.md) |
 | [Fixed-step simulation](simulation.md) | Tick ordering, atomic authority and restore | [Vehicles](vehicles.md), [matches](matches.md), [replication](vehicle-networking.md) |
 | [Player input](input.md) | Logical frames, remapping, shaping and suppression | [Settings](settings.md), [vehicles](vehicles.md) |
 | [Game Menu](game-menu.md) | ESC overlay, logical focus navigation, category hierarchy and clean exit | [Settings](settings.md), [sessions](sessions.md), [input](input.md) |

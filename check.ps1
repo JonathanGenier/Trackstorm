@@ -1,5 +1,7 @@
 $ErrorActionPreference = "Stop"
 
+& "$PSScriptRoot/tools/test-version.ps1"
+
 function Invoke-Check {
     param (
         [Parameter(Mandatory)]

@@ -88,7 +88,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         panel.AddChild(scroll);
         _menu.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         scroll.AddChild(_menu);
-        _menu.AddChild(new Label { Text = "TRACKSTORM · MULTIPLAYER", HorizontalAlignment = HorizontalAlignment.Center });
+        _menu.AddChild(new Label { Text = $"TRACKSTORM {GameVersion.Current} · MULTIPLAYER", HorizontalAlignment = HorizontalAlignment.Center });
         _online = new OnlineLobbyPanel { Coordinator = () => OnlineCoordinator(), IdentityStatus = () => OnlineStatus(), Login = () => OnlineLogin(), Logout = () => OnlineLogout() };
         _online.LeaveSession = Leave;
         _online.Logout = () =>

@@ -16,7 +16,8 @@ public sealed class LobbyAuthority
     /// <param name="session">Nonzero lifetime leaving room for future match generations.</param>
     /// <param name="name">Untrusted host display name.</param>
     /// <param name="graceTicks">Reconnect reservation duration at the caller's fixed 60 Hz clock.</param>
-    public LobbyAuthority(ulong session, string name, ulong graceTicks = 1800)
+    /// <param name="gameVersion">Hosted build; defaults to this runtime.</param>
+    public LobbyAuthority(ulong session, string name, ulong graceTicks = 1800, GameVersion? gameVersion = null)
     {
         if (session == ulong.MaxValue)
         {
@@ -29,11 +30,15 @@ public sealed class LobbyAuthority
             throw new ArgumentOutOfRangeException(nameof(graceTicks));
         }
 
+        Version = gameVersion ?? GameVersion.Current;
         GraceTicks = graceTicks;
         Events.PlayerName = id => State.Players.SingleOrDefault(player => player.Id == id)?.Name ?? $"Player {id}";
         Events.Record(EventCategory.Session, "Created", actor: 1);
         Events.Record(EventCategory.Session, "Joined", actor: 1);
     }
+
+    /// <summary>Immutable version of this hosted session.</summary>
+    public GameVersion Version { get; }
 
     /// <summary>Current immutable authority boundary.</summary>
     public LobbySnapshot State { get; private set; }
@@ -46,18 +51,24 @@ public sealed class LobbyAuthority
 
     /// <summary>Assigns a fresh identity to a connected transport sender.</summary>
     /// <param name="peer">Actual nonzero transport sender.</param>
+    /// <param name="gameVersion">Joining or returning runtime version.</param>
     /// <param name="name">Requested display name.</param>
     /// <returns>Accepted player ID, or zero for rejected admission.</returns>
     /// <param name="identity">Optional authenticated, provider-neutral subject supplied by trusted integration.</param>
-    public ulong Join(ulong peer, string name, string? identity = null)
+    public ulong Join(ulong peer, string gameVersion, string name, string? identity = null)
     {
+        if (!Version.IsCompatible(gameVersion))
+        {
+            return 0;
+        }
+
         if (identity is not null && (identity.Length is 0 or > 256 || _identities.ContainsValue(identity)))
         {
             return 0;
         }
 
         ulong id = checked(_nextId + 1);
-        if (!Add(peer, id, name))
+        if (!Add(peer, gameVersion, id, name))
         {
             return 0;
         }
@@ -72,12 +83,13 @@ public sealed class LobbyAuthority
 
     /// <summary>Admits an explicitly assigned identity, rejecting duplicates and retired identities.</summary>
     /// <param name="peer">Actual connected sender.</param>
+    /// <param name="gameVersion">Joining or returning runtime version.</param>
     /// <param name="id">Host-assigned identity.</param>
     /// <param name="name">Untrusted name.</param>
     /// <returns>Whether admission succeeded.</returns>
-    public bool Add(ulong peer, ulong id, string name)
+    public bool Add(ulong peer, string gameVersion, ulong id, string name)
     {
-        if (peer == 0 || id <= _nextId || id == ulong.MaxValue || _peers.ContainsKey(peer) || State.Phase != SessionPhase.Lobby || State.Players.Count == 8)
+        if (!Version.IsCompatible(gameVersion) || peer == 0 || id <= _nextId || id == ulong.MaxValue || _peers.ContainsKey(peer) || State.Phase != SessionPhase.Lobby || State.Players.Count == 8)
         {
             return false;
         }
@@ -204,15 +216,16 @@ public sealed class LobbyAuthority
 
     /// <summary>Atomically rebinds a disconnected player using trusted identity and the last connection generation.</summary>
     /// <param name="peer">Fresh actual peer; retired handles cannot be reused.</param>
+    /// <param name="gameVersion">Joining or returning runtime version.</param>
     /// <param name="session">Expected logical session.</param>
     /// <param name="playerId">Previously assigned player.</param>
     /// <param name="generation">Last accepted connection generation.</param>
     /// <param name="identity">Subject authenticated outside Core, never a wire claim.</param>
     /// <returns>Whether the existing slot was rebound exactly once.</returns>
-    public bool Resume(ulong peer, ulong session, ulong playerId, ulong generation, string identity)
+    public bool Resume(ulong peer, string gameVersion, ulong session, ulong playerId, ulong generation, string identity)
     {
         SessionPlayer? player = State.Players.SingleOrDefault(value => value.Id == playerId);
-        if (peer == 0 || session != State.Session || player is null || player.Connected || player.Generation != generation ||
+        if (!Version.IsCompatible(gameVersion) || peer == 0 || session != State.Session || player is null || player.Connected || player.Generation != generation ||
             generation == ulong.MaxValue || !_deadlines.TryGetValue(playerId, out ulong deadline) || deadline <= _tick ||
             !_identities.TryGetValue(playerId, out string? subject) || subject != identity || _peers.ContainsKey(peer) || peer <= _previousPeers.GetValueOrDefault(playerId))
         {

@@ -1,5 +1,6 @@
 using Trackstorm.Client.Networking;
 using Trackstorm.Client.Online;
+using Trackstorm.Core.Sessions;
 
 namespace Trackstorm.Client.Development;
 
@@ -20,7 +21,7 @@ internal static class DeveloperDiagnostics
     {
         if (session is null)
         {
-            return "No multiplayer session.";
+            return $"Trackstorm {GameVersion.Current}\nNo multiplayer session.";
         }
 
         var lobby = session.Lobby;
@@ -28,7 +29,7 @@ internal static class DeveloperDiagnostics
         var connection = session.Diagnostics;
         string samples = lobby?.State is { } roster
             ? string.Join(", ", roster.Players.Select(player => $"P{player.Id}: {(lobby.Latency.Get(roster, player.Id) is int ping ? $"{ping} ms" : "N/A")}")) : "N/A";
-        return $"Transport: {session.Gateway?.Name ?? "none"}; connection: {connection.State}\n" +
+        return $"Trackstorm {GameVersion.Current}\nTransport: {session.Gateway?.Name ?? "none"}; connection: {connection.State}\n" +
             $"Session: {lobby?.State?.Session.ToString() ?? "none"}; phase: {lobby?.State?.Phase.ToString() ?? "none"}; host: {(lobby?.State is null ? "none" : "Player 1")}\n" +
             $"Failure: {(lobby?.Failure.Length > 0 || arena?.Driver.Failure.Length > 0 ? "failed" : "none")}; RTT: {samples}\n" +
             $"Quality in/out: {connection.Statistics.IncomingQuality?.ToString("P1") ?? "N/A"} / {connection.Statistics.OutgoingQuality?.ToString("P1") ?? "N/A"}\n" +

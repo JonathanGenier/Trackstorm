@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Epic.OnlineServices;
 using Epic.OnlineServices.Platform;
+using Trackstorm.Core.Sessions;
 
 namespace Trackstorm.Client.Online;
 
@@ -44,7 +45,7 @@ internal static class EosProcessRuntime
                     _library = NativeLibrary.Load(Path.Combine(AppContext.BaseDirectory, "EOSSDK-Win64-Shipping.dll"), typeof(PlatformInterface).Assembly, DllImportSearchPath.UseDllDirectoryForDependencies);
                 }
 
-                var options = new InitializeOptions { ProductName = "Trackstorm", ProductVersion = "0.0.1" };
+                var options = new InitializeOptions { ProductName = "Trackstorm", ProductVersion = GameVersion.Current.ToString() };
                 Result result = PlatformInterface.Initialize(ref options);
                 if (result != Result.Success)
                 {

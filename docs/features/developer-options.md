@@ -1,5 +1,7 @@
 # Host Developer Options
 
+Diagnostics show the canonical [Trackstorm game version](game-versioning.md), including when no multiplayer session is active.
+
 Settings > Developer Options and F1 use the same `DeveloperOptionsPanel`. F1 toggles that page; normal Back navigation remains available. Numeric fields accept invariant decimal input. **Apply Settings** is the single tuning commit action: it validates the requested configuration, applies accepted values live and automatically saves the accepted host-local tuning. Submitting text with Enter does not commit it. **Discard Changes** restores the editor from the currently active authoritative configuration. **Reset to Defaults** stages the complete production hosted-game preset in the editor. Neither Discard nor Reset changes gameplay, configuration revision or persistence. Reset remains pending until Apply Settings, which uses the normal authority/synchronization path and replaces persisted tuning with the defaults.
 
 `DeveloperOptionsDraft` owns only editor text and pending changes; it has no gameplay or storage authority. Reset requests the complete preset even if authority has changed since the editor was opened. Opening the page suppresses local driving input while simulation and networking continue. Host controls disappear when authority is unavailable; clients retain read-only diagnostics. The build flag `TrackstormDeveloperTools` defaults to true in Debug and false in Release. A Release build can explicitly opt in for development.

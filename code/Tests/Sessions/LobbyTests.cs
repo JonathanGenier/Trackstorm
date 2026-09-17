@@ -12,25 +12,25 @@ internal sealed class LobbyTests
     public void CapacityAndIdentityValidationAreAtomic()
     {
         var lobby = new LobbyAuthority(100, "Host");
-        Assert.That(lobby.Add(0, 2, "A"), Is.False);
-        Assert.That(lobby.Add(10, 0, "A"), Is.False);
-        Assert.That(lobby.Add(10, 1, "A"), Is.False);
-        Assert.That(lobby.Add(10, ulong.MaxValue, "A"), Is.False);
-        Assert.That(lobby.Add(10, 2, "A"), Is.True);
-        Assert.That(lobby.Add(11, 2, "B"), Is.False);
-        Assert.That(lobby.Add(10, 3, "B"), Is.False);
+        Assert.That(lobby.Add(0, GameVersion.Current.ToString(), 2, "A"), Is.False);
+        Assert.That(lobby.Add(10, GameVersion.Current.ToString(), 0, "A"), Is.False);
+        Assert.That(lobby.Add(10, GameVersion.Current.ToString(), 1, "A"), Is.False);
+        Assert.That(lobby.Add(10, GameVersion.Current.ToString(), ulong.MaxValue, "A"), Is.False);
+        Assert.That(lobby.Add(10, GameVersion.Current.ToString(), 2, "A"), Is.True);
+        Assert.That(lobby.Add(11, GameVersion.Current.ToString(), 2, "B"), Is.False);
+        Assert.That(lobby.Add(10, GameVersion.Current.ToString(), 3, "B"), Is.False);
         for (ulong peer = 11; peer <= 16; peer++)
         {
-            Assert.That(lobby.Join(peer, "Same name"), Is.Not.Zero);
+            Assert.That(lobby.Join(peer, GameVersion.Current.ToString(), "Same name"), Is.Not.Zero);
         }
 
         LobbySnapshot full = lobby.State;
-        Assert.That(lobby.Join(17, "Excess"), Is.Zero);
+        Assert.That(lobby.Join(17, GameVersion.Current.ToString(), "Excess"), Is.Zero);
         Assert.That(lobby.State, Is.SameAs(full));
         Assert.That(full.Players.Count, Is.EqualTo(8));
         Assert.That(lobby.Remove(10), Is.True);
-        Assert.That(lobby.Add(20, 2, "Retired"), Is.False);
-        Assert.That(lobby.Join(20, "New"), Is.GreaterThan(8));
+        Assert.That(lobby.Add(20, GameVersion.Current.ToString(), 2, "Retired"), Is.False);
+        Assert.That(lobby.Join(20, GameVersion.Current.ToString(), "New"), Is.GreaterThan(8));
     }
 
     /// <summary>Readiness targets sender ownership; departure removes its entire record without touching others.</summary>
@@ -38,8 +38,8 @@ internal sealed class LobbyTests
     public void ReadyAndRemovalTargetOnlyTheSender()
     {
         var lobby = new LobbyAuthority(100, "Host");
-        ulong first = lobby.Join(10, "A");
-        ulong second = lobby.Join(20, "B");
+        ulong first = lobby.Join(10, GameVersion.Current.ToString(), "A");
+        ulong second = lobby.Join(20, GameVersion.Current.ToString(), "B");
         LobbySnapshot before = lobby.State;
         Assert.That(lobby.SetReady(10, true), Is.True);
         Assert.That(lobby.State.Players.Where(player => player.Ready).Select(player => player.Id), Is.EqualTo(new[] { first }));
@@ -59,7 +59,7 @@ internal sealed class LobbyTests
     public void StartReturnAndRepeatFollowAuthorityAndConnectedRosterRules()
     {
         var lobby = new LobbyAuthority(100, "Host");
-        lobby.Join(10, "Client");
+        lobby.Join(10, GameVersion.Current.ToString(), "Client");
         Assert.That(lobby.Start(0), Is.False);
         lobby.SetReady(0, true);
         Assert.That(lobby.Start(0), Is.False);
@@ -73,7 +73,7 @@ internal sealed class LobbyTests
         Assert.That(lobby.State.Match, Is.EqualTo(101));
         Assert.That(lobby.Start(0), Is.False);
         Assert.That(lobby.SetReady(10, false), Is.False);
-        Assert.That(lobby.Join(20, "Late"), Is.Zero);
+        Assert.That(lobby.Join(20, GameVersion.Current.ToString(), "Late"), Is.Zero);
         Assert.That(lobby.Return(10), Is.False);
         Assert.That(lobby.Return(0), Is.True);
         Assert.That(lobby.State.Players.All(player => !player.Ready), Is.True);
@@ -133,7 +133,7 @@ internal sealed class LobbyTests
     public void CodecValidatesCompleteStateAndIdentity()
     {
         var lobby = new LobbyAuthority(100, " Host ");
-        lobby.Join(10, " Client ");
+        lobby.Join(10, GameVersion.Current.ToString(), " Client ");
         lobby.SetReady(10, true);
         byte[] bytes = LobbyCodec.EncodeState(lobby.State, 2);
         var decoded = LobbyCodec.DecodeState(bytes);
@@ -159,7 +159,7 @@ internal sealed class LobbyTests
     public void ReplicaRejectsStaleForgedAndReassignedPublications()
     {
         var host = new LobbyAuthority(100, "Host");
-        host.Join(10, "Client");
+        host.Join(10, GameVersion.Current.ToString(), "Client");
         var replica = new LobbyReplica();
         Assert.That(replica.Accept(host.State, 2, 41, 42), Is.False);
         Assert.That(replica.Accept(host.State, 99, 42, 42), Is.False);
@@ -181,7 +181,7 @@ internal sealed class LobbyTests
     public void CommandsMustMatchCurrentSessionGenerationAndPhase()
     {
         var host = new LobbyAuthority(100, "Host");
-        host.Join(10, "Client");
+        host.Join(10, GameVersion.Current.ToString(), "Client");
         ulong[] peers = { 10 };
         Assert.That(host.Execute(10, LobbyCommand.Ready, 99, 100, SessionPhase.Lobby, true, peers), Is.False);
         Assert.That(host.Execute(10, LobbyCommand.Ready, 100, 100, SessionPhase.Lobby, true, peers), Is.True);

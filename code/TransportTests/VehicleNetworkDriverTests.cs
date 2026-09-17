@@ -4,6 +4,7 @@ using Trackstorm.Core.Input;
 using Trackstorm.Core.Matches;
 using Trackstorm.Core.Networking.Replication;
 using Trackstorm.Core.Networking.Transport;
+using Trackstorm.Core.Sessions;
 using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Transport.Tests;
@@ -467,7 +468,7 @@ internal sealed class VehicleNetworkDriverTests
         using var hostWire = new DriverGateway(2, TransportConnectionState.Connected);
         using var clientWire = new DriverGateway(1, TransportConnectionState.Connected);
         var host = new LobbyNetworkDriver(hostWire, 10, 0, "Host");
-        host.Authority!.Join(2, "Guest");
+        host.Authority!.Join(2, GameVersion.Current.ToString(), "Guest");
         var client = new LobbyNetworkDriver(clientWire, 0, 1, "Guest");
         host.Pump(0.25);
         foreach (var packet in hostWire.Sent)

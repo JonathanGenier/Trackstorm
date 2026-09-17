@@ -106,11 +106,11 @@ internal sealed class EventStreamTests
     public void ReconnectEventsUseSafeIdentityAndSingleTransitions()
     {
         var lobby = new LobbyAuthority(10, "Host", 60);
-        ulong player = lobby.Join(4, "Guest", "secret-authenticated-subject");
+        ulong player = lobby.Join(4, GameVersion.Current.ToString(), "Guest", "secret-authenticated-subject");
         lobby.Disconnect(4);
         lobby.Disconnect(4);
         lobby.AdvanceTime(30);
-        Assert.That(lobby.Resume(5, 10, player, 1, "secret-authenticated-subject"), Is.True);
+        Assert.That(lobby.Resume(5, GameVersion.Current.ToString(), 10, player, 1, "secret-authenticated-subject"), Is.True);
         lobby.Disconnect(5);
         lobby.AdvanceTime(90);
         lobby.AdvanceTime(100);

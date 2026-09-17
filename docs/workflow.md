@@ -34,6 +34,7 @@ If the assignment and Jira issue type/parent disagree, identify the discrepancy.
 - Use the explicitly human-assigned Story branch name. Do not rename it to satisfy a naming pattern. If no branch is assigned, resolve the intended Story branch before implementation.
 - Create a new Story branch from `main`; never implement directly on `main`.
 - Before starting/resuming implementation, synchronize with the latest `main`.
+- Each Story PR to `main` must advance only the fourth `TrackstormVersion` component by exactly one against current main; run `./tools/check-version.ps1` after synchronization. See [game versioning](features/game-versioning.md) for initialization and CI enforcement.
 - Implement and commit all child checkpoints and authorized corrections directly on that branch. Tasks/Subtasks never receive separate branches, PRs or independent Git reviews/merges.
 - The only delivery PR is the final integrated Story PR to `main`, after verification, critique and explicit human acceptance.
 
