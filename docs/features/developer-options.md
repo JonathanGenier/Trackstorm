@@ -38,6 +38,11 @@ Schema one begins with `{"schema":1}` followed by independent `{"key":"vehicle.m
 
 ## Actions and diagnostics
 
+The [Statistic Panel](statistics.md) provides the full-screen F2 read-only view with
+per-player selection. Developer Options retains the existing mutation controls
+and diagnostic summary; no actions are copied into the Statistic Panel. F2 is
+available independently of the Developer Options build flag.
+
 **FORCE START MATCH** has a larger accented button. In a lobby it readies the host and uses the ordinary Start request; other players must still be connected and ready. In a Waiting arena it arms a one-shot minimum-player override inside the existing match authority, which then runs the normal Countdown → Active transition. It never changes persisted MinimumPlayers or individually enables scoring, items, missiles or music. **Give Wrench** and **Give Missile** use the existing host inventory grant path and require a living host with an empty slot.
 
 The separate Arena Tools UI is removed. Local practice Reset and Detonate remain available on this same page. Match phase and combat HUD remain ordinary gameplay presentation. Read-only diagnostics show transport/capabilities, safe EOS lifecycle and a one-way PUID fingerprint, local PlayerId, CurrentHostId, explicit HOST/CLIENT role, session and match generation, AuthorityEpoch, migration state and retained checkpoint count/latest sequence, connection/failure state, RTT/quality, configuration revision, prediction error, snapshot age, interpolation delay, acknowledgements, reconnect/grace and resume checkpoint state. Raw provider errors, access codes, tokens, credentials and lobby metadata are never passed to this formatter.

@@ -49,6 +49,8 @@ internal sealed partial class SettingsPanel : CanvasLayer
 
     /// <summary>Arena presence supplied by composition, never a match-phase or player-count predicate.</summary>
     internal Func<bool> ArenaAvailable { get; set; } = () => false;
+    /// <summary>Observation overlay owns navigation while visible; simulation remains active.</summary>
+    internal Func<bool> DiagnosticOverlayOpen { get; set; } = () => false;
     /// <summary>The existing session owner's leave path.</summary>
     internal Action LeaveToMainMenu { get; set; } = () => { };
     /// <summary>The application owner's cleanup-aware exit request.</summary>
@@ -205,6 +207,12 @@ internal sealed partial class SettingsPanel : CanvasLayer
     /// <inheritdoc/>
     public override void _Input(InputEvent @event)
     {
+        if (DiagnosticOverlayOpen())
+        {
+            SampleNavigation(false);
+            return;
+        }
+
         if (_capture is null && @event is InputEventKey { Keycode: Key.F1, Pressed: true, Echo: false } && Development.DeveloperTools.Enabled)
         {
             if (CurrentPage == MenuPage.DeveloperOptions)
@@ -347,7 +355,11 @@ internal sealed partial class SettingsPanel : CanvasLayer
         }
 
         _wasArena = arena;
-        if (_capture is null)
+        if (DiagnosticOverlayOpen())
+        {
+            SampleNavigation(false);
+        }
+        else if (_capture is null)
         {
             SampleNavigation(true);
             if (_repeatAction is { } repeat && CurrentPage != MenuPage.Closed)
