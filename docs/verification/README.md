@@ -8,7 +8,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 | --- | --- |
 | Host Developer Options | [TS-38 / TS-39 independent checkpoint; migration pending](ts-38.md), [Apply / Discard / Reset correction](ts-38-actions.md) |
 | In-game Game Menu and Settings | [TS-61 implementation and Story critique](ts-61.md) |
-| Arena audio and music | [TS-34 / TS-35 implementation verification](ts-34.md) |
+| Arena audio and music | [TS-34 / TS-35 implementation verification](ts-34.md), [CC0 placeholder replacement and clean-clone verification](cc0-audio.md) |
 | Static vehicle visual | [Asset and integration verification](ts-36.md) |
 | Death/respawn | [Implementation verification](ts-24.md) |
 | Host migration | [TS-46 / TS-51 implementation and verification](ts-46.md) |

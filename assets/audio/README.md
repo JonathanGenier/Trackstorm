@@ -1,61 +1,73 @@
 # Arena audio assets
 
 The arena owns all playback. Main-menu audio is outside this package.
+Every required runtime clip is committed: clone, perform the normal Godot import,
+build and run. No audio download, Python, FFmpeg or manual audio setup is required.
+The normal project prerequisites still apply, including the separately documented
+[EOS SDK setup](../../docs/eos-development.md); this change removes audio setup only.
 
-`sources.json` is the authoritative file manifest: original filenames, source URLs,
-archive selections, SHA-256 checksums, project attachment IDs and derivative edits.
-The three MP3s under `project/music` retain the original TS-35 attachment bytes and
-names. They are project-provided assets; no external music license is asserted.
+`sources.json` is the authoritative manifest of source identities, licenses,
+acquired-byte and derivative SHA-256 hashes, and processing selections. The three
+MP3s under `project/music` retain the original TS-35 attachment bytes and names.
+They are project-provided assets; no external music license is asserted.
 
-`kenney/impact`, `kenney/interface` and `kenney/scifi` contain only the selected
-CC0 1.0 clips and their original `License.txt` notices. No attribution is required.
-These are pack version 1.0 selections; archive hashes pin the acquired versions.
+`kenney/impact`, `kenney/interface` and `kenney/scifi` contain selected CC0 1.0
+clips and original `License.txt` notices. These are pack version 1.0 selections;
+archive hashes pin the acquired versions.
 
-## Local Sonniss acquisition
+## Freesound CC0 placeholders
 
-Sonniss GDC 2026 recordings and all edited derivatives are **excluded from Git**.
-The [bundle license](https://sonniss.com/gdc-bundle-license/) permits project/team
-use and finished-game distribution, but restricts supplying loose sound files.
-Do not force-add `assets/audio/sonniss` or publish the acquisition cache.
+All files below are third-party CC0-1.0 derivatives, not Trackstorm-owned sounds.
+They may be committed publicly, redistributed with source, modified and used
+commercially without attribution. Source links and authors are retained for
+provenance. The [CC0 dedication](https://creativecommons.org/publicdomain/zero/1.0/)
+is linked by each selected Freesound page and recorded in the manifest.
 
-1. Download the official archives linked by the selected entries in `sources.json`
-   from [Sonniss](https://gdc.sonniss.com/). The selection uses parts 1, 2 and 5.
-2. Extract them into one local directory, preserving the source-pack subdirectories.
-3. Install Python 3 and FFmpeg from their official distributions if unavailable.
-4. Run from the repository root:
+| Runtime path under `freesound/` | Freesound ID / author | Processing |
+| --- | --- | --- |
+| `vehicle/idle.wav` | [401552 / GiocoSound](https://freesound.org/people/GiocoSound/sounds/401552/) | First 3.1 s; loop |
+| `vehicle/low.wav` | [401556 / GiocoSound](https://freesound.org/people/GiocoSound/sounds/401556/) | First 2.1 s; loop |
+| `vehicle/high.wav` | [401551 / GiocoSound](https://freesound.org/people/GiocoSound/sounds/401551/) | First 2.03 s; loop |
+| `vehicle/skid.wav` | [529225 / UnplugTheFridge](https://freesound.org/people/UnplugTheFridge/sounds/529225/) | 5–9 s gravel section; loop |
+| `combat/fire.wav` | [398213 / morganpurkis](https://freesound.org/people/morganpurkis/sounds/398213/) | First 1 s; discard silent tail |
+| `combat/explosion.wav` | [811927 / claywh](https://freesound.org/people/claywh/sounds/811927/) | 0.18–2.38 s; remove lead-in and quiet tail |
+| `combat/destruction.wav` | [816376 / harrisonlace](https://freesound.org/people/harrisonlace/sounds/816376/) | First 3.5 s; original pitch |
+| `combat/death.wav` | 816376 / harrisonlace | First 3 s; pitch/rate ×0.7 (about 4.29 s output) |
+| `combat/end.wav` | 816376 / harrisonlace + existing Kenney heavy metal impact | First 4 s; pitch/rate ×1.15; add metal at half gain |
+| `arena/ambience.wav` | [423314 / haniebal](https://freesound.org/people/haniebal/sounds/423314/) + [790753 / JWS24](https://freesound.org/people/JWS24/sounds/790753/) | Wind 48–60 s and factory 8–20 s; normalize separately, loop, mix 65%/35%, normalize and close seam |
 
-   ```powershell
-   ./setup-audio.ps1 -SonnissDirectory 'D:/Audio/Sonniss2026' -PythonPath python -FfmpegPath ffmpeg
-   ./import-godot.ps1 -GodotPath 'C:/path/to/Godot.NET.exe'
-   ```
+The three engine recordings are the same BMW 120d set. Runtime road-speed
+crossfades and pitch smoothing remain unchanged; there is no new RPM authority.
 
-The importer verifies all original recording hashes before writing any output.
-It uses only Python's standard library and an external FFmpeg executable; no audio
-manager or runtime plugin is installed. Missing or altered sources fail clearly.
-Run setup before launching arena scenes, native integration checks or exporting
-the game. The menu does not need these local files. Finished game exports include
-the imported assets in the game resource pack; do not ship a loose audio library.
+Original downloads require Freesound login. These exact recordings were acquired
+from Freesound's official high-quality MP3 previews, not the low-quality player
+previews. No alternate recordings were substituted. The manifest distinguishes
+preview hashes/URLs from original download links; it does not claim original WAV
+bytes were acquired. The runtime WAVs preserve decoded preview quality without
+further lossy compression. Only the game-ready derivatives are committed.
 
-## Editing and mixing
+## Optional authoring
 
-`tools/import-audio.py` owns deterministic processing. All derivatives use mono
-44.1 kHz 16-bit PCM. The manifest pins source windows, pitch and loop flags.
-Peaks normalize to 23000/32768; one-shots receive a 50 ms tail fade. Loops join
-their tails to their heads with a 100 ms crossfade and rotate the seam into the
-clip, avoiding a hard splice. Runtime engine mixing additionally smooths gains.
+`tools/process-cc0-audio.py` reproduces the derivatives from the checksummed preview
+files named `<id>.mp3` in an external source directory. This is an optional editing
+tool, not an import prerequisite. It verifies all source hashes before processing:
 
-The Mustang slow-driving recording supplies idle/low/high presentation layers
-from different windows with pitch treatment. These are designed engine layers,
-not measured recordings of three calibrated RPM bands. The current vehicle model
-has no transmission or RPM state; observed road speed controls their mix.
-Gravel tire-skid recording supplies the skid layer on the prototype's surfaces.
-The designed jet blast supplies missile fire. The Anime Game blast supplies
-explosions. Trailer Boom 011 supplies destruction, lowered death and end stings.
-Arena ambience blends 65% wind and 35% factory-loop material, then closes the seam.
-The end sting mixes the heavy Kenney metal impact into its boom at half gain.
-Heavy collisions and destruction also add a separate spatial metal impact at runtime.
+```powershell
+python tools/process-cc0-audio.py --sources 'D:/Audio/TrackstormCC0' --ffmpeg 'C:/tools/ffmpeg.exe'
+```
 
-FFmpeg and Python are development tools only and are not redistributed here.
-Validation used FFmpeg from imageio-ffmpeg 0.6.0 and Python 3.12; that temporary
-tool installation is outside tracked assets. The manifest records original-file
-hashes rather than claiming bit-identical encoders across arbitrary FFmpeg versions.
+All outputs are mono 44.1 kHz 16-bit PCM WAV. Peaks normalize to 23000/32768
+(about -3.1 dBFS). One-shots receive 2 ms attack and 50 ms tail fades. Loops
+crossfade the tail into the head over 100 ms and rotate the seam into the clip;
+each loop pass shortens the selected window by 100 ms. The end sting retains the
+half-gain Kenney metal layer; heavy collisions and destruction also retain their
+separate spatial metal impact at runtime.
+
+Python and FFmpeg are external authoring tools only, not redistributed dependencies.
+The recorded processing used FFmpeg 7.1 from imageio-ffmpeg 0.6.0. Regeneration updates
+derivative hashes; arbitrary decoder versions need not produce identical bytes.
+WAV files use ordinary Git binary storage, consistent with existing audio assets;
+this repository has no Git LFS policy or configuration.
+
+`check-audio.ps1 -GodotPath <exe>` checks every manifest file's existence and hash,
+then exercises imported streams, buses, settings, playlists and arena lifecycle.

@@ -84,8 +84,10 @@ world feedback and pickups are spatial. There is no parallel volume service.
 
 [Asset instructions](../../assets/audio/README.md) and the [manifest](../../assets/audio/sources.json)
 own acquisition, selected files, licenses and processing. The three project songs
-are committed unchanged. Sonniss derivatives must be imported locally before
-arena startup or export; they are intentionally absent from the public repository.
+are committed unchanged. All required effects are committed Kenney or Freesound
+CC0 assets, including the ten edited placeholders under `assets/audio/freesound`.
+A clean checkout needs only the normal Godot import; no audio acquisition or setup
+is required for arena startup, checks, builds or exports.
 
 Pure Client NUnit tests cover routing, gain bounds, event cooldowns, engine
 continuity, playlist start/advance/wrap/reset, duplicate damage/lifecycle/item
