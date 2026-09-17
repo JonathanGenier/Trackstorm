@@ -27,7 +27,7 @@ Logs are in ignored `.godot/match-reservation-checks/`. Tests use local sockets,
 | `check-migration-processes.ps1 -Players 2` | PASS: host forcibly terminated, independent survivor restored epoch 2 and exited cleanly |
 | `check-migration-processes.ps1 -Players 3` | Both independent survivors restored epoch 2 and recorded pass evidence; **clean-shutdown gate FAIL** on initial corrected run and one repeat, with 28 AudioStream/AudioStreamPlayback objects and one music resource reported at exit |
 | `check-statistics.ps1` | PASS, 42 assertions, including retained disconnected selection/state and Return cleanup |
-| `check-developer-options.ps1` | 238 write + 7 read functional assertions PASS; **clean-runtime gate FAIL** on initial and repeat runs due to one ObjectDB/Image/dummy texture at shutdown |
+| `check-developer-options.ps1` | **PASS after the shutdown correction below**, twice: 238 write + 7 read assertions per run, no ERROR/WARNING/ObjectDB/Image/dummy-texture diagnostics. Original reservation-correction runs failed this gate. |
 | `check-lobby.ps1` | PASS: eight players, fresh lobby rejoin, arena retention and Return removing disconnected records/native arenas |
 | `check-event-log.ps1` | PASS: production activity feed disconnect wording, filtering, bounded history, replicated events and F3 |
 | `check-online-lobby.ps1` | PASS, fake-provider native UI lifecycle |
@@ -36,11 +36,43 @@ Logs are in ignored `.godot/match-reservation-checks/`. Tests use local sockets,
 
 Deterministic coverage explicitly includes old 1,800-tick / 7,200-tick boundaries and much longer retention, Public and Locked authorization, repeated resume, disconnected ordinary players through sequential authority restores, generation/identity rejection, Return subject/capacity cleanup, saved ordinary-client membership recovery after 181 seconds, manual resume after safe migration failure, and locator removal after observed Return. Existing two-player/3+ fencing, partition, stale checkpoint, configuration, RNG and duplicate-outcome checks remain enabled.
 
-Intermediate failures were corrected rather than hidden: old arena-removal assertions in Statistics/lobby/Event Log were revised to verify retention followed by Return; the separate-process harness's obsolete positional grace argument was removed after it was interpreted as an expected epoch. Initial failed assertions/build attempts are not final passes. The three-player and Developer Options shutdown diagnostics remain unresolved and their gates have not been waived. Similar shutdown diagnostics were recorded in [earlier lifecycle evidence](ts-46-lease-lifecycle.md), including its Developer Options baseline comparison; this run does not claim a new leak fix or a fresh baseline comparison.
+Intermediate failures were corrected rather than hidden: old arena-removal assertions in Statistics/lobby/Event Log were revised to verify retention followed by Return; the separate-process harness's obsolete positional grace argument was removed after it was interpreted as an expected epoch. Initial failed assertions/build attempts are not final passes. The original runs left both shutdown diagnostics unresolved. The Developer Options correction below supersedes that result and the earlier baseline interpretation; the separate three-player audio gate remains unresolved. No gate has been waived.
+
+## Developer Options shutdown correction
+
+This narrow follow-up starts from reviewed head `1d63ebea86c7457799d3610abb44a5950332f310` on the same branch/PR. The user confirmed clean current main on Godot 4.7.2 (231 write / 7 read assertions, no diagnostics). That baseline is accepted: this is a branch shutdown regression, not a claimed existing failure on main. Approved TS-46 comments 10063/10064 and TS-51 comment 10067 are unchanged.
+
+**Verified cause and correction:** the exact unmodified branch check reproduced 238 successful write and 7 read assertions followed by one dummy-texture RID and one Image leak. A verbose diagnostic probe saved that Image and identified it as the 2172×724 `assets/hud/Health.png` used by the HUD shader and menu steel treatment. Restoring main's panel logic or diagnostic formatter independently did not resolve it. Freeing Controls/materials or disposing the cached texture alone also did not resolve it; those temporary probes were reverted.
+
+`CombatHud.Component` implicitly converted the shared `Texture2D` into a disposable Godot `Variant` for `SetShaderParameter("steel", ...)`, leaving its independent native reference to managed finalization. The correction explicitly scopes that temporary with `using var steelParameter = Variant.From(steel)`. The shader copies its own parameter reference; the caller's temporary is disposed as the component setup returns. Shared textures, material ownership, rendering and diagnostics remain intact. No shared cached texture is forcibly disposed. Godot's [Variant implementation](https://github.com/godotengine/godot/blob/master/modules/mono/glue/GodotSharp/GodotSharp/Core/Variant.cs) documents the owning disposable representation used by this conversion.
+
+The implicit handoff also exists in main; main's clean result does not establish deterministic disposal. **Inference:** the branch's changed runtime/allocation pattern exposes the finalization-dependent lifetime that main's tested run does not. No individual networking change or exact garbage-collector schedule is claimed as proven. The specific native resource and successful disposal correction were directly verified. Neither `GC.Collect`, warning suppression, log filtering nor weakened runtime assertions is used. The existing `QueueFree` plus four SceneTree frames in the Developer Options harness remains sufficient and unchanged.
+
+Exact correction files:
+
+- `code/Client/Hud/CombatHud.cs`: scope the temporary resource Variant.
+- `code/Client/Verification/MenuIntegrationChecks.cs`: the affected runtime check still expected immediate removal on arena Leave. Assert reliable local departure plus the same disconnected retained PlayerId in the two-player roster, matching the already-approved policy. No gameplay/networking implementation changed.
+- `docs/features/hud.md`: document the native parameter lifetime.
+- `docs/verification/ts-46-match-reservations.md`: this evidence and current acceptance status.
+
+Validation uses `Godot_v4.7.2-stable_mono_win64_console.exe`:
+
+| Check | Result / ignored local evidence |
+| --- | --- |
+| Exact `./check-developer-options.ps1 -GodotPath <4.7.2>` run 1 | PASS, 238 write + 7 read; no ERROR/WARNING; `.godot/developer-options-checks/4d89f2365ee547bb970f30fd3c6b87a4` |
+| Exact check, independent run 2 | PASS, 238 write + 7 read; no ERROR/WARNING; `.godot/developer-options-checks/6e62c44108d44e139401d87b63bff64c` |
+| Verbose read-phase reproduction after fix | PASS, no ObjectDB/Image/dummy-texture leak; `.godot/developer-variant-release-probe.log` |
+| `./check-hud.ps1 -NoBuild -GodotPath <4.7.2>` | PASS, rendered state/material changes, units, items/placeholders and nine resolutions; clean exit; `.godot/hud-checks/2c72c7cde6544d46af018c194d201697` |
+| `./check-menu.ps1 -GodotPath <4.7.2>` | PASS, 68 assertions and clean production Quit after correcting the stale arena-leave assertion; `.godot/menu-checks/2b4fea2bc7c24b7f9605c7667e42cb3d` |
+| Focused CombatHud / DeveloperOptions / DeveloperDiagnostics / MenuNavigation test filter | PASS, 14 tests; `.godot/developer-shutdown-focused.log` |
+| `./check.ps1` | PASS, formatting, zero-warning Debug/Release builds, 331 Core + 257 non-native transport/Client tests per configuration; `.godot/developer-shutdown-check-final.log` |
+| `./check-migration-processes.ps1 -NoBuild -Players 3 -GodotPath <4.7.2>` | Both survivors passed epoch 2; shutdown gate still FAIL with 28 audio stream/playback instances and one music resource; `.godot/migration-process-checks/fc497a5246ad4da3a9f31e8bdcf3c1f0` |
+
+The independent-process migration harness constructs `NetworkVehicleArena` directly and never constructs `CombatHud`; the fixed texture handoff is not on that path. No common cause with its audio diagnostic was established, and no audio cleanup was added. Physical-PC/live-EOS acceptance remains unresolved. No new Story critique round, branch, PR or merge was performed.
 
 ## Remaining acceptance
 
-Implementation is delivered for review, but overall repository acceptance is not complete while the two native clean-shutdown gates above fail. TS-46 and TS-51 remain In Progress; PR #27 remains open and unmerged.
+Implementation is delivered for review, but overall repository acceptance is not complete while the separate three-player audio clean-shutdown gate fails. TS-46 and TS-51 remain In Progress; PR #27 remains open and unmerged.
 
 Still required on physical PCs with real EOS and the bundled deployed Worker: Public/Locked ordinary-client loss and resume after more than thirty seconds and more than two minutes within the same match; retained HP/items/lifecycle/score/rank/statistics and one vehicle; disconnected Return cleanup and fresh lobby join; lobby and active-match host Leave/kill; former-host same-player CLIENT return; P2P-only partition, Worker outage, changed network/restart, sequential migration and 3+ agreement. Local tests do not supersede the previous physical-PC evidence.
 
