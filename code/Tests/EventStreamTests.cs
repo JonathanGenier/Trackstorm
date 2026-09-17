@@ -151,6 +151,7 @@ internal sealed class EventStreamTests
             Assert.That(kill.Actor, Is.EqualTo(1));
             Assert.That(kill.Target, Is.EqualTo(2));
             Assert.That(kill.Cause, Is.EqualTo("Missile"));
+            Assert.That(host.World.Events.Entries.Single(entry => entry.Kind == "Dead").Context, Is.EqualTo("Scored kill"));
             Assert.That(kill.Sequence, Is.LessThan(host.World.Events.Entries.Single(entry => entry.Kind == "Finished").Sequence));
         });
         host.Step(default, Observe);

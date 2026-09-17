@@ -31,7 +31,7 @@ Unsupported host migration and authority epochs produce no fabricated events. Or
 
 Future meaningful actions, transitions and failures should emit structured outcomes at the existing owner's committed boundary. Future damage/healing mechanisms must supply a safe cause and exact applied result. Extend the damage cause mapping for new mechanics; never forward arbitrary provider errors, EOS identities, authentication tokens, access codes or credentials to event fields. Display names use the same sanitizer as the session roster. Rendering uses plain text with BBCode disabled.
 
-Future player-facing feeds should filter/project this same structured stream and reuse its identity and deduplication. They must not introduce separate connection tracking, kill detection or damage authority. No player-facing feed is implemented here.
+The [player activity feed](activity-feed.md) projects this same structured stream through its post-acceptance `Appended` notification, reusing journal deduplication without maintaining a second history. A Dead event carries `Scored kill` in its existing Context when the same committed match change emits a Kill; this lets projections suppress redundant death messages even across packet boundaries. Future player-facing categories extend that filter without separate connection tracking, kill detection or damage authority.
 
 ## Verification
 

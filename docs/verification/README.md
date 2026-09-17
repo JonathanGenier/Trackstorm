@@ -6,6 +6,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 
 | Evidence | Reports |
 | --- | --- |
+| Player activity and kill feed | [TS-60 acceptance and verification evidence](ts-60.md) |
 | Live admin Event Log | [TS-59 acceptance evidence and Story critique](ts-59.md) |
 | Host Developer Options | [TS-38 / TS-39 independent checkpoint; migration pending](ts-38.md), [Apply / Discard / Reset correction](ts-38-actions.md) |
 | In-game Game Menu and Settings | [TS-61 implementation and Story critique](ts-61.md) |

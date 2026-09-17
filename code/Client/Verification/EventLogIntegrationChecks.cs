@@ -106,6 +106,7 @@ public sealed partial class EventLogIntegrationChecks : Node
 
             Descendants(panel).OfType<Button>().Single(button => button.Text == "Close").EmitSignal(BaseButton.SignalName.Pressed);
             Check(!frame.Visible, "Close is navigation only");
+            await CheckActivityFeed(bootstrap, host);
             GD.Print("Event Log integration passed: F3, live replication, bounded journal presentation, freeze, filtering and input isolation.");
             _client.Leave();
             host.Leave();
@@ -147,6 +148,68 @@ public sealed partial class EventLogIntegrationChecks : Node
             Godot.Input.ParseInputEvent(input);
             Godot.Input.FlushBufferedEvents();
         }
+    }
+
+    private async Task CheckActivityFeed(SimulationBootstrap bootstrap, DevelopmentSession host)
+    {
+        var feed = bootstrap.GetNode<Hud.ActivityFeed>("ActivityFeed");
+        Label[] rows = Descendants(feed).OfType<Label>().ToArray();
+        feed.Refresh(5);
+        Check(!feed.Visible && rows.Length == 5, "empty feed has no persistent panel");
+        Check(!Descendants(feed).Any(node => node is Panel or PanelContainer), "feed has no opaque panel");
+        // Structured presentation fixtures use the production journal; the real leave below uses UDP authority.
+        host.Events.Record(EventCategory.Session, "Joined", actor: 2);
+        feed.Refresh(2);
+        host.Events.Record(EventCategory.Network, "Reconnected", actor: 2);
+        feed.Refresh(3);
+        Check(rows.Count(row => row.Visible) == 1 && rows[0].Text == "Guest tester reconnected", "independent native row expiry");
+        feed.Refresh(5);
+        for (int index = 0; index < 6; index++)
+        {
+            host.Events.Record(EventCategory.Session, index == 0 ? "Joined" : "Left", actor: 2);
+        }
+
+        host.Events.Record(EventCategory.Developer, "Give Item", actor: 1);
+        feed.Refresh(0);
+        Check(rows.All(row => row.Visible && row.Text == "Guest tester left the game"), "sixth row evicts oldest and admin events stay hidden");
+        feed.Refresh(5);
+        if (DisplayServer.GetName() != "headless")
+        {
+            string output = ProjectSettings.GlobalizePath("res://.godot/activity-feed-checks");
+            System.IO.Directory.CreateDirectory(output);
+            foreach (Vector2I size in new[] { new Vector2I(640, 360), new Vector2I(1280, 720), new Vector2I(2560, 1080) })
+            {
+                DisplayServer.WindowSetSize(size);
+                await Frames(12);
+                feed.Refresh(5);
+                host.Events.Record(EventCategory.Session, "Joined", actor: 1);
+                host.Events.Record(EventCategory.Network, "Disconnected", actor: 2);
+                host.Events.Record(EventCategory.Network, "Reconnected", actor: 2);
+                host.Events.Record(EventCategory.Lifecycle, "Kill", actor: 1, target: 2, cause: "Missile");
+                host.Events.Record(EventCategory.Lifecycle, "Dead", target: 2);
+                await Frames(2);
+                for (int index = 0; index < rows.Length; index++)
+                {
+                    Rect2 rect = rows[index].GetGlobalRect();
+                    Check(rect.Position.Y >= 38 && rect.End.X <= size.X && rect.End.Y < size.Y / 2, "top-right feed fits viewport");
+                    Check(index == 0 || rows[index - 1].GetGlobalRect().End.Y <= rect.Position.Y, "feed rows never overlap");
+                    Check(rows[index].MouseFilter == Control.MouseFilterEnum.Ignore, "feed does not intercept input");
+                }
+
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                using var capture = GetViewport().GetTexture().GetImage();
+                Check(capture.SavePng(System.IO.Path.Combine(output, $"feed-{size.X}x{size.Y}.png")) == Error.Ok, "feed screenshot saved");
+            }
+        }
+
+        feed.Refresh(5);
+        _client!.Leave();
+        await Until(() => host.Events.Entries.Any(entry => entry.Kind == "Left" && entry.Sequence == host.Events.LastSequence) || host.Lobby!.State!.Players.Count == 1);
+        await Frames(3);
+        Check(rows.Any(row => row.Visible && row.Text == "Guest tester left the game"), "actual UDP departure appears automatically");
+        feed.Refresh(5);
+        Check(!feed.Visible, "all feed rows expire");
+        GD.Print("Activity feed integration passed: production HUD, independent expiry, bounded bursts, filtering and UDP departure.");
     }
 
     private async Task Until(Func<bool> predicate)
