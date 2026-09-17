@@ -553,9 +553,8 @@ internal sealed class EosP2pTransportTests
         var subjects = Enumerable.Range(0, 3).Select(_ => new Dictionary<ulong, string>()).ToArray();
         var drivers = new LobbyNetworkDriver[3];
         var clock = new Clock();
-        string leasePath = Path.Combine(TestContext.CurrentContext.WorkDirectory, "lease-" + Guid.NewGuid().ToString("N"), "ledger.json");
         var leaseClients = new List<AuthorityLeaseClient>();
-        using var store = trustedLease ? new LeaseService.LeaseStore(leasePath, clock) : null;
+        using var store = trustedLease ? new LeaseStore(clock) : null;
         void VerifyMigratedEvents()
         {
             drivers[1].Events.Record(Trackstorm.Core.Events.EventCategory.Network, "After migration", actor: 2);
@@ -829,12 +828,6 @@ internal sealed class EosP2pTransportTests
             foreach (var lease in leaseClients)
             {
                 lease.Dispose();
-            }
-
-            if (store is not null)
-            {
-                store.Dispose();
-                Directory.Delete(Path.GetDirectoryName(leasePath)!, true);
             }
 
             foreach (var gateway in gateways)
@@ -1483,8 +1476,7 @@ internal sealed class EosP2pTransportTests
     {
         private readonly List<AuthorityLeaseClient> _leaseClients = new();
         private readonly List<LeaseTransport> _leaseTransports = new();
-        private LeaseService.LeaseStore? _leases;
-        private string? _leasePath;
+        private LeaseStore? _leases;
         private bool _hostServiceLive = true;
         private bool _clientServiceLive = true;
         private long? _hostRetiredAt;
@@ -1549,16 +1541,11 @@ internal sealed class EosP2pTransportTests
             Link.Dispose();
             _leaseClients.ForEach(client => client.Dispose());
             _leases?.Dispose();
-            if (_leasePath is not null)
-            {
-                Directory.Delete(Path.GetDirectoryName(_leasePath)!, true);
-            }
         }
 
         internal void EnableLeases()
         {
-            _leasePath = Path.Combine(TestContext.CurrentContext.WorkDirectory, "migration-lease-" + Guid.NewGuid().ToString("N"), "ledger.json");
-            _leases = new(_leasePath, Link.Clock);
+            _leases = new(Link.Clock);
             Host.Migration!.LeaseSession = new string('A', 64);
             AttachLease(Host, Link.HostId.Value, true);
             AttachLease(Client, Link.ClientId.Value, false);

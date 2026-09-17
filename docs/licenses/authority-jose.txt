@@ -1,12 +1,6 @@
-Authority lease service authentication dependencies
+The MIT License (MIT)
 
-Microsoft.AspNetCore.Authentication.JwtBearer 10.0.12
-Microsoft.IdentityModel.* / System.IdentityModel.Tokens.Jwt 8.19.2
-Microsoft.Bcl.Cryptography 10.0.2
-
-Copyright (c) Microsoft Corporation. All rights reserved.
-
-MIT License
+Copyright (c) 2018 Filip Skokan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-Provenance: NuGet package metadata at the versions above. Source selections:
-https://github.com/dotnet/dotnet/tree/95017c711e6afc1085133d440e42b4bd78155701
-https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/tree/25d90ed3f48854036d444541a049089ccd198707
-https://www.nuget.org/packages/Microsoft.Bcl.Cryptography/10.0.2
-
-The ASP.NET Core runtime has its own notices supplied with its installation.

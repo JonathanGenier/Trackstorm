@@ -16,13 +16,12 @@
     <Compile Remove="code/Core/**/*.cs" />
     <Compile Remove="code/Tests/**/*.cs" />
     <Compile Remove="code/TransportTests/**/*.cs" />
-    <Compile Remove="code/LeaseService/**/*.cs" />
-    <Compile Remove="code/LeaseServiceTests/**/*.cs" />
     <Compile Remove="third_party/**/*.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="code/Core/Trackstorm.Core.csproj" />
+    <EmbeddedResource Include="config/authority-lease-endpoint.json" LogicalName="Trackstorm.Client.AuthorityLeaseEndpoint.json" />
     <ProjectReference Include="third_party/eos/Epic.OnlineServices.csproj" />
     <Content Include="docs/licenses/eos/README.md" Link="licenses/eos/README.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>

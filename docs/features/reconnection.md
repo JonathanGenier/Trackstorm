@@ -6,7 +6,7 @@ The existing lobby authority owns reconnect reservations. EOS Product User ID au
 
 A resume intent carries the previously acknowledged SessionId, PlayerId and connection generation. The authority requires the same authenticated subject, a valid disconnected reservation (ordinary grace or former-host match retention) and a fresh peer. It atomically installs the new mapping, advances the generation and retains the original name and slot. Duplicate live connections, wrong subjects/sessions/generations and expired reservations fail closed. Existing EOS handshake nonces reject old native packets; the `TG` gameplay envelope independently checks logical session and recipient connection generation before any vehicle, item, match or prop decoder runs. Transport handles increase within the gateway lifetime. Core retains only bounded current reservation state, not a growing log of retired connections.
 
-Initial Locked-lobby admission still requires the access code. An already admitted authenticated subject can resume its reserved slot without retaining or resending that code. No custom backend, resume secret or long-term platform credential is introduced. New players remain unable to join an active arena.
+Initial Locked-lobby admission still requires the access code. An already admitted authenticated subject can resume its reserved slot without retaining or resending that code. Resume authorization remains in Core; the separate [Cloudflare lease service](authority-leases.md) holds no player reservation or gameplay state. No resume secret or long-term platform credential is introduced. New players remain unable to join an active arena.
 
 ## Grace, Leave and Vehicle Policy
 

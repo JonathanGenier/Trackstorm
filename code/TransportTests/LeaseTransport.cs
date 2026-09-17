@@ -3,8 +3,8 @@ using Trackstorm.Core.Sessions;
 
 namespace Trackstorm.Transport.Tests;
 
-/// <summary>Deterministic transport to the real lease store, without HTTP scheduling.</summary>
-internal sealed class LeaseTransport(LeaseService.LeaseStore store, string subject) : ILeaseTransport
+/// <summary>Deterministic transport to the test-only lease model, without HTTP scheduling.</summary>
+internal sealed class LeaseTransport(LeaseStore store, string subject) : ILeaseTransport
 {
     /// <summary>Suppresses service access.</summary>
     internal bool Offline { get; set; }

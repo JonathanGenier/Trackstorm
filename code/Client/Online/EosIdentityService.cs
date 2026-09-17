@@ -174,13 +174,12 @@ internal sealed class EosIdentityService : IDisposable
     /// <returns>An authenticated HTTPS adapter.</returns>
     internal ILeaseTransport CreateLeaseTransport()
     {
-        string? endpoint = System.Environment.GetEnvironmentVariable("TRACKSTORM_LEASE_URL");
-        if (!Uri.TryCreate(endpoint, UriKind.Absolute, out var uri) || uri.Scheme != "https" || _platform is not EosSdkPlatform sdk)
+        if (State != OnlineIdentityState.LoggedIn || _platform is not EosSdkPlatform sdk)
         {
-            throw new InvalidOperationException("Set TRACKSTORM_LEASE_URL to the trusted HTTPS lease service before hosting or joining online.");
+            throw new InvalidOperationException("EOS authentication is required.");
         }
 
-        return new HttpLeaseTransport(uri, sdk.CopyIdToken);
+        return new HttpLeaseTransport(LeaseEndpointConfiguration.Resolve(), sdk.CopyIdToken);
     }
 
     /// <summary>Creates the Client-only lobby adapter from the current authenticated native runtime.</summary>

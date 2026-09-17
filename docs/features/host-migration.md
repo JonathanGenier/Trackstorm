@@ -8,6 +8,8 @@ Trackstorm owns the logical session, stable player IDs, `CurrentHostId`, `Author
 
 ## Detection, freeze and agreement
 
+The hosted coordination boundary is a Cloudflare Worker and one Durable Object per private lease session, using the existing provider-neutral HTTP adapter. The game bundles its public endpoint; the service owns no gameplay/checkpoint state and makes no election decision. See [deployment and authentication](authority-leases.md).
+
 The online composition attaches `SessionMigration` to the existing single lobby receive loop and a [trusted authority lease client](authority-leases.md). A missing connection or two seconds without an accepted checkpoint freezes client gameplay and enters recovery. The initial host holds a ten-second service lease, renewing every two seconds; local permission expires conservatively eight seconds from request start. A healthy host continues simulation during a P2P partition while its lease and independent EOS membership proof remain fresh. The client cannot promote from P2P loss, cached membership or EOS ownership promotion.
 
 Unexpected host loss waits for a fresh service observation of expired authority, then agreement and atomic takeover. It does **not** wait through the former player's reconnect grace or require a delayed EOS departure callback. The candidate acquires the expected old fence only after Core's deterministic agreement. Core commits the next epoch only after successful acquisition; other survivors independently confirm the new holder/epoch before installation. Delayed/stale responses, failed service requests and unavailable fencing fail closed. A paused process checks monotonic permission before its next simulation step and cannot revive an expired epoch.

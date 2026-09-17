@@ -1,5 +1,7 @@
 # EOS Lobby Discovery and Session Coordination
 
+EOS owns discovery, identity and P2P routing. The separate [Cloudflare authority lease](authority-leases.md), scoped to one Durable Object per private session, fences host transitions without moving gameplay or player reservations into the service. Its public endpoint is bundled with the game.
+
 ## Browser, Names and Access
 
 Normal multiplayer opens one browser for compatible **Public** and **Locked / Private** lobbies, without address or port entry. Each row has a name, online member count out of eight, access indicator and Join action. Counts describe EOS membership, not an authoritative gameplay roster. Names truncate visually before the separate count/access/action columns. A refresh replaces the previous cache; membership updates replace entries by logical EOS lobby ID. Rows sort by `OrdinalIgnoreCase` name and then ordinal lobby ID. Search is a local ordinal, case-insensitive substring of the lobby name; clearing it restores all compatible cached results. Updated names stop matching their previous spelling. Native search retrieves up to EOS's 200-result limit in the compatibility bucket; this prototype does not implement global pagination beyond that service limit.

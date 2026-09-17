@@ -13,7 +13,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 | Arena audio and music | [TS-34 / TS-35 implementation verification](ts-34.md), [CC0 placeholder replacement and clean-clone verification](cc0-audio.md) |
 | Static vehicle visual | [Asset and integration verification](ts-36.md) |
 | Death/respawn | [Implementation verification](ts-24.md) |
-| Host migration | [TS-46 / TS-51 implementation and verification](ts-46.md), [trusted lease correction and current acceptance boundary](ts-46-trusted-leases.md), [original authority-fencing investigation](ts-46-authority-fencing-analysis.md) |
+| Host migration | [TS-46 / TS-51 implementation and verification](ts-46.md), [Cloudflare lease implementation and pending deployment acceptance](ts-46-cloudflare-leases.md), [earlier self-hosted lease correction](ts-46-trusted-leases.md), [original authority-fencing investigation](ts-46-authority-fencing-analysis.md) |
 | FPS and Ping diagnostics | [Implementation verification](ts-32.md) |
 | Combat HUD | [Implementation verification](ts-30.md) |
 | Match standings | [Implementation and reconnect integration verification](ts-28.md) |

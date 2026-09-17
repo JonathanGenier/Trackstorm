@@ -1,39 +1,58 @@
-# Self-hosting the authority lease service
+# Deploying authority fencing with Cloudflare
 
-This service coordinates fencing only. Its [contract and failure assumptions](features/authority-leases.md) are required deployment context. No hosting account, domain, certificate or cloud resource is created by the repository scripts.
+The supported hosted implementation is a Cloudflare Worker with **one SQLite-backed Durable Object per private Trackstorm session**. It stores only lease coordination data. Gameplay and checkpoints remain on the player PCs. Read the [protocol and failure assumptions](features/authority-leases.md) before deploying.
 
-## Publish and configure
+## Ordinary development and players
 
-Run `./publish-lease.ps1` from the repository with the .NET 10 SDK. It produces a framework-dependent service under ignored `Releases/LeaseService`. Install the ASP.NET Core 10 runtime on the target and copy that directory. Run `dotnet Trackstorm.LeaseService.dll` under a dedicated service account/process supervisor. The game export does not include or launch the service.
+Use the existing Godot/.NET/EOS setup and `./check.ps1`. Node.js, npm, Wrangler, a .NET web server, reverse proxy, ledger directory and domain provisioning are not normal Trackstorm development prerequisites.
 
-Configure these environment variables on the service host:
+Players receive the normal game export with its public HTTPS lease URL embedded. They do not configure Cloudflare, environment variables or external software. The optional `TRACKSTORM_LEASE_URL` override is only for developers/tests.
 
-| Variable | Operator-supplied value |
+The actual Worker URL remains pending account/dashboard setup. [config/authority-lease-endpoint.json](../config/authority-lease-endpoint.json) currently has `"url": null`, so an unconfigured build fails closed with a build-configuration message. This is deliberate preparation, not a working public deployment. Once the Worker exists, the release owner commits its trusted HTTPS URL there and rebuilds both editor/export. No per-PC configuration file is needed. Do not substitute an invented URL or send EOS tokens to an unverified endpoint.
+
+## GitHub-connected dashboard deployment
+
+Only the service operator needs a Cloudflare account and GitHub repository access. Cloudflare's [Git integration](https://developers.cloudflare.com/workers/ci-cd/builds/git-integration/) and [build configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/) run the backend tooling on Cloudflare's infrastructure.
+
+1. In **Workers & Pages**, create/connect a Worker to the existing Trackstorm GitHub repository. Name it `trackstorm-authority-leases`, matching `wrangler.jsonc`. Select the intended deployment branch explicitly; use the existing Story branch for an authorized pre-merge deployment. Creating this connection does not require merging a PR.
+2. Set the root directory to `services/authority-lease`. The committed package lock supplies exact dependencies. Set the build command to `npm test` (its pretest script dry-builds the Worker), and the deploy command to `npm run deploy`. In **Settings → Build → Build Variables and Secrets**, set `NODE_VERSION` to `24.19.0`, the version used for local verification; the backend requires Node 22 or newer. Cloudflare documents this [build-image override](https://developers.cloudflare.com/workers/ci-cd/builds/build-image/#overriding-default-versions). These commands run in Cloudflare Builds, not on ordinary developers' PCs.
+3. Keep deployments restricted to that selected branch. Disable automatic non-production branch deployments for this service until a separate test namespace/endpoint is intentionally configured. Never point a game session at interchangeable independent namespaces.
+4. The committed binding `LEASE_SESSIONS` and migration `v1` create the SQLite Durable Object class `LeaseSession`. Keep that namespace and migration history on later deployments. Routing uses the private session string as the deterministic object name; no global match object or separate KV database is needed.
+5. In the Worker's **Settings → Variables and Secrets**, configure the runtime values below from the same EOS product used by the game. These are public identifiers, not credentials. `keep_vars` preserves dashboard runtime variables across deployment. Build-only variables do not configure the runtime.
+6. Deploy and use the HTTPS `workers.dev` URL assigned by Cloudflare, or an intentionally configured custom domain. Cloudflare manages HTTPS. Keep the `/lease/` routes and no-store responses intact. Do not enable request-body/authorization-header logging or expose private session IDs in URLs. Review account quotas/rate controls before opening a public deployment.
+7. Confirm HTTPS `GET /health` returns success and unauthenticated lease requests fail. Health alone proves neither valid EOS configuration nor lease acquisition. Bundle the verified endpoint in the game configuration and rebuild before physical acceptance.
+
+| Runtime variable | Value |
 | --- | --- |
-| `ASPNETCORE_URLS` | `http://127.0.0.1:5080` behind a same-machine HTTPS reverse proxy, or a configured Kestrel HTTPS listener |
-| `Lease__Issuer` | Exact trusted issuer of the deployment's EOS **Connect** ID tokens |
-| `Lease__Audience` | EOS client ID used by this game's Connect login |
-| `Lease__Jwks` | Trusted HTTPS Connect signing-key endpoint; obtain from the identity provider's configuration/documentation |
-| `Lease__Deployment` | The deployment ID matching the token's `pfdid` claim |
-| `Lease__Ledger` | Absolute durable private path, e.g. `/var/lib/trackstorm-leases/ledger.json` or `C:\ProgramData\TrackstormLeases\ledger.json` |
+| `EOS_CLIENT_ID` | Client ID used by Trackstorm's EOS Connect login; checked against `aud` |
+| `EOS_PRODUCT_ID` | Product ID, checked against `pfpid` |
+| `EOS_SANDBOX_ID` | Sandbox ID, checked against `pfsid` |
+| `EOS_DEPLOYMENT_ID` | Deployment ID, checked against `pfdid` |
 
-Use Connect identity configuration, not Epic Account Services Auth tokens. Exact issuer/key configuration must be verified for the target EOS deployment before acceptance; the service intentionally ships without a guessed issuer or credentials. Epic's [Connect interface documentation](https://dev.epicgames.com/docs/game-services/connect-interface) is the integration entry point. No EOS client secret is needed by the service: it verifies public-key signatures on the clients' current ID tokens.
+There are no issuer/JWKS guesses to fill in. The Worker validates Epic's documented issuer origin and uses its official Connect JWKS endpoint. The [authentication contract](features/authority-leases.md#verified-eos-authentication-contract) links the verified reference. Do not use Epic Account Services Auth tokens or add a trusted-server/client secret. Exact live token acceptance is still a deployment check.
 
-Provide a publicly trusted HTTPS certificate at the reachable domain, preserve the `/lease/` routes and `Authorization` header, disable body/header credential logging and caching, and bound request rate/size at the reverse proxy. Keep the HTTP listener loopback-only; do not expose port 5080 to the Internet. The service also limits request bodies to 2048 bytes. `/health` is an unauthenticated process-health endpoint and proves neither identity configuration nor successful lease acquisition. Configure UTC correctly for identity-token lifetime validation; lease deadlines themselves use monotonic clocks.
+A restart/deployment can retire current leases and impose a ten-second conservative quarantine. Schedule updates with that behavior in mind. Preserve the Durable Object namespace; do not reset storage or use point-in-time recovery while old sessions may still address it. Expired session fences remain stored to prevent generation reset.
 
-Set `TRACKSTORM_LEASE_URL=https://<your-service-domain>/` in the environment used to launch **both game PCs**. Use the same endpoint, deployment and compatible build. Missing configuration prevents online transport attachment with an actionable error; unavailable service freezes authority rather than permitting an unfenced game. Direct-IP/native harnesses retain their explicit trusted test seams.
+## Optional backend work
 
-## Storage and restart
+Only someone editing or locally testing the Worker needs Node 22+, npm and the pinned development tools. From `services/authority-lease`:
 
-Use one service instance and a private, persistent local directory writable by only its operator. Do not place the ledger in a game export, source control, a temporary directory or a synchronizing/network filesystem. Preserve the ledger across binary updates. The exclusive lock rejects a second writer; the process refuses to start with a malformed ledger. Do not reset or roll back storage while clients can still address old sessions. Capacity is intentionally bounded and there is no live-session garbage collector or administration API.
+```powershell
+npm ci
+npm test
+```
 
-Stop the service cleanly before maintenance. After restart, persisted sessions cannot renew old grants and must wait ten seconds before a different holder can take over. Hosts may fail closed and need normal session recovery. To retire a development ledger, first end all sessions and retire its endpoint from old clients; establish a new endpoint/session namespace before starting with empty storage. Reusing an old endpoint after rollback is unsafe.
+The pretest script runs Wrangler's **dry-run** build; tests use controlled clocks plus local Miniflare/workerd SQLite Durable Objects and synthetic RSA keys. No Cloudflare account, live EOS token or cloud deployment is involved. `npm run dev` is optional; local runtime variables may use ignored `.dev.vars`. The production game adapter requires HTTPS, so do not weaken it to point at a plain-HTTP local emulator. Use the test harness or an explicitly provisioned HTTPS test endpoint. `npm run deploy` is an optional operator path, not a normal game setup step.
 
-## Deployment acceptance
+The backend source and Node dependencies are excluded from Godot scanning with `.gdignore`; they are not shipped with the game. Dependency provenance is recorded in [THIRD_PARTY.md](../THIRD_PARTY.md).
 
-1. Run `./check.ps1` and `./publish-lease.ps1`; the service tests include a real loopback HTTP/JWT middleware check with isolated test keys.
-2. Confirm unauthenticated lease calls are rejected and health is reachable over the public HTTPS endpoint. Launch a host and observe a held lease in Developer Options; verify real Connect authentication without printing the token or private session key.
-3. Follow the [two-PC Public/Locked migration procedure](eos-development.md#host-migration-checks): lobby and arena host kill, P2P-only partition with healthy lease renewal, outage, delayed network recovery, former-host return after ordinary grace, and sequential migration.
-4. Run the three-or-more-PC agreement regression. Record actual failover times and network conditions separately from deterministic/local test evidence.
+The deployed Worker retains the runtime library's MIT notice and exposes it at `GET /licenses`. This notice is bundled as data because the deployment bundler strips ordinary source comments.
 
-The local publish output is deployable preparation. A supplied reachable host/domain, certificate and operator access are still needed for deployment and physical-PC verification.
+## Required deployment acceptance
+
+First establish real EOS Connect lease acquisition/renewal with the deployed endpoint. Record safe host/epoch/lease status without token/session-key dumps. Then follow [the physical-PC procedure](eos-development.md#host-migration-checks), in this order:
+
+1. **Public lobby, two PCs:** abruptly kill the host process. The survivor must become host in the same logical session instead of timing out to the menu.
+2. **Public active match, two PCs:** abruptly kill the host process. The survivor must restore/resume the same match without waiting through player reconnect grace.
+
+Only after both pass, test former-host CLIENT return after more than thirty seconds and more than two minutes within that match, Locked retained return, coordination outage, P2P-only partition while the host still renews, sequential migrations and three-or-more-player agreement. Local mocks, workerd and native UDP harnesses do not establish live EOS/Cloudflare acceptance.

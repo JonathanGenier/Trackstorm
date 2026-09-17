@@ -10,36 +10,28 @@ internal sealed class AuthorityLeaseClientTests
     [Test]
     public void LateRenewalAndServiceOutageFailClosed()
     {
-        string path = Path.Combine(TestContext.CurrentContext.WorkDirectory, "lease-" + Guid.NewGuid().ToString("N"), "ledger.json");
         var clock = new Clock();
-        try
-        {
-            using var store = new LeaseService.LeaseStore(path, clock);
-            var transport = new LeaseTransport(store, "host");
-            using var client = new AuthorityLeaseClient(transport, "host", clock);
-            string session = new('B', 64);
-            client.Poll(session, true, 1);
-            client.Poll(session, true, 1);
-            Assert.That(client.Available(1), Is.True);
-            clock.Advance(2);
-            transport.Delay = true;
-            client.Poll(session, true, 1);
-            clock.Advance(8);
-            Assert.That(client.Available(1), Is.False);
-            transport.Pending!.SetResult(transport.Response);
-            transport.Delay = false;
-            transport.Offline = true;
-            client.Poll(session, true, 1);
-            Assert.That(client.Available(1), Is.False);
-            clock.Advance(30);
-            client.Poll(session, true, 1);
-            Assert.That(client.Available(1), Is.False);
-            Assert.That(client.Acquire(1), Is.False);
-        }
-        finally
-        {
-            Directory.Delete(Path.GetDirectoryName(path)!, true);
-        }
+        using var store = new LeaseStore(clock);
+        var transport = new LeaseTransport(store, "host");
+        using var client = new AuthorityLeaseClient(transport, "host", clock);
+        string session = new('B', 64);
+        client.Poll(session, true, 1);
+        client.Poll(session, true, 1);
+        Assert.That(client.Available(1), Is.True);
+        clock.Advance(2);
+        transport.Delay = true;
+        client.Poll(session, true, 1);
+        clock.Advance(8);
+        Assert.That(client.Available(1), Is.False);
+        transport.Pending!.SetResult(transport.Response);
+        transport.Delay = false;
+        transport.Offline = true;
+        client.Poll(session, true, 1);
+        Assert.That(client.Available(1), Is.False);
+        clock.Advance(30);
+        client.Poll(session, true, 1);
+        Assert.That(client.Available(1), Is.False);
+        Assert.That(client.Acquire(1), Is.False);
     }
 
     private sealed class Clock : TimeProvider

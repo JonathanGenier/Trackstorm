@@ -4,6 +4,8 @@ Trackstorm is a Godot 4.7.2 C# vehicle-combat prototype targeting .NET 10. It in
 
 Normal multiplayer uses EOS Device ID identity, lobby discovery and EOS P2P gameplay transport. Direct-IP/GameNetworkingSockets is an explicit development fallback. These are prototype systems with documented limits; see the [feature index](docs/features/README.md) for current behavior and integration boundaries.
 
+[Cloudflare authority fencing](docs/features/authority-leases.md) coordinates one short lease per session while gameplay remains P2P. The service owner deploys through the [GitHub-connected dashboard workflow](docs/authority-lease-service.md) and bundles its HTTPS endpoint once. The actual endpoint is pending deployment; ordinary developers and players need no Cloudflare account or Node/npm/Wrangler setup.
+
 ## Solution layout
 
 | Project | Purpose |
