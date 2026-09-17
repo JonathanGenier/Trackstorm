@@ -8,6 +8,10 @@ The current main scene owns one `PlayerInput` node. It publishes `FrameCaptured(
 
 ## Architecture and Data Flow
 
+`PlayerInput` is the sole owner of Godot mouse mode. The bootstrap supplies arena presence; the existing adapter focus, gameplay-suppression and diagnostic-suppression gates determine whether local gameplay owns the mouse. Focused, unsuppressed gameplay uses `Captured` (hidden and locked); every other state uses `Visible` (free native pointer). Gate changes update the mode synchronously, and frame callbacks reconcile arena transitions. Input-owner teardown releases capture. Focus loss releases the pointer and disables local input; focus regain reapplies the current context, including menus opened while unfocused.
+
+Menus keep the native pointer available even during controller navigation. There is no separate device-mode tracker or software cursor: keyboard/controller focus routing and mouse interaction coexist, so mouse use after controller navigation needs no mode switch. LMB continues through the existing logical binding and item-release guard. Read-only held standings/final results have no pointer controls and retain arena ownership; opening their ESC menu releases capture. Mouse capture adds no free-look or camera behavior.
+
 `Keyboard/gamepad -> Client physical binding resolution -> Core axis conditioning -> Core integer InputFrame -> logical consumer`
 
 Core owns logical action identifiers, integer frames, versioned serialization, normalization/clamping/dead-zone/inversion helpers, and accumulation of logical button edges. It neither polls devices nor references Godot or Client. Its capture helper accepts aggregate logical held masks, never physical keys or events.

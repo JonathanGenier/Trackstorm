@@ -47,13 +47,23 @@ public sealed partial class MenuIntegrationChecks : Node
             _settings = _bootstrap.GetNode<PlayerSettingsController>("PlayerSettings");
             _menu = _settings.GetNode<SettingsPanel>("SettingsPanel");
             _session = _bootstrap.GetNode<DevelopmentSession>("DevelopmentSession");
+            await Frames(3);
+            CheckCursor(false, "Main Menu pointer");
+            Press("Settings");
+            CheckCursor(false, "Main Menu Settings pointer");
+            Press("Back");
             await EnterArena();
+            CheckCursor(true, "gameplay captures mouse");
+            VerifyFocus(true);
+            VerifyMouseItem();
             Check(_session.Arena!.Driver.Match?.Phase == MatchPhase.Waiting, "solo match is Waiting");
             Tap(Key.Escape);
             await Frames(2);
             Check(_menu.CurrentPage == MenuPage.Game, "ESC opens in solo Waiting arena");
             Check(!_menu.GetTree().Paused, "menu does not pause tree");
             Check(_player.Adapter.GameplaySuppressed, "local gameplay suppressed");
+            CheckCursor(false, "ESC releases mouse immediately");
+            VerifyFocus(false);
             Check(!Buttons(_session).Any(button => button.IsVisibleInTree() && (button.Text.Contains("Leave", StringComparison.OrdinalIgnoreCase) || button.Text.Contains("Return", StringComparison.OrdinalIgnoreCase))), "legacy session buttons absent in arena");
             Check(Buttons(_menu).Count(button => button.Text == "Settings" && button.IsVisibleInTree()) == 1, "only Game Menu Settings entry visible");
             ulong tick = _bootstrap.CurrentSimulationTick;
@@ -65,20 +75,43 @@ public sealed partial class MenuIntegrationChecks : Node
             await Capture("game");
             Tap(Key.Escape);
             Check(_menu.CurrentPage == MenuPage.Closed && !_player.Adapter.GameplaySuppressed, "second ESC closes and restores local input");
+            CheckCursor(true, "ESC restores capture immediately");
             Tap(Key.Escape);
             Tap(Key.Enter);
             Check(_menu.CurrentPage == MenuPage.Closed, "focused Back to Game closes");
+            Tap(Key.Escape);
+            await Frames(2);
+            Click("Back to Game");
+            Check(_menu.CurrentPage == MenuPage.Closed, "native pointer Back to Game closes");
+            CheckCursor(true, "pointer return restores capture immediately");
+            Check((_player.Adapter.Capture(0).Pressed & InputButtons.UseItem) == 0, "menu click cannot use an item on return");
+            VerifyMouseItem();
 
             // Start/A/D-pad/B use the existing gamepad bindings, including shared gameplay buttons.
             Joy(JoyButton.Start);
             Joy(JoyButton.DpadDown);
             Joy(JoyButton.A);
             Check(_menu.CurrentPage == MenuPage.Settings, "gamepad opens Settings through logical navigation");
+            CheckCursor(false, "controller navigation preserves pointer availability");
+            await Frames(2);
+            Click("Audio");
+            Check(_menu.CurrentPage == MenuPage.Audio, "mouse pointer selects category after controller navigation");
+            CheckCursor(false, "Settings category pointer");
+            _player._Notification((int)NotificationApplicationFocusOut);
+            _menu.Close();
+            CheckCursor(false, "closing menu while unfocused cannot recapture");
+            _player._Notification((int)NotificationApplicationFocusIn);
+            CheckCursor(true, "focus regain uses changed gameplay context");
+            Tap(Key.Escape);
+            Press("Settings");
+            Press("Audio");
+            Tap(Key.Escape);
             await Capture("settings");
             foreach (MenuPage page in Enum.GetValues<MenuPage>().Where(page => page >= MenuPage.Audio))
             {
                 Press(page == MenuPage.DeveloperOptions ? "Developer Options" : page.ToString());
                 Check(_menu.CurrentPage == page, "category opens: " + page);
+                CheckCursor(false, "category releases capture: " + page);
                 await Frames(2);
                 if (page == MenuPage.DeveloperOptions)
                 {
@@ -132,6 +165,19 @@ public sealed partial class MenuIntegrationChecks : Node
             Tap(Key.Escape);
             Check(_menu.CurrentPage == MenuPage.Game, "Settings Back returns to Game Menu");
             Press("Back to Game");
+            CheckCursor(true, "Settings return restores capture immediately");
+            VerifyMouseItem();
+            Tap(Key.F1);
+            CheckCursor(false, "F1 Developer Options releases capture");
+            Tap(Key.F1);
+            CheckCursor(true, "F1 close restores capture");
+            Tap(Key.F2);
+            CheckCursor(false, "Statistic Panel releases capture");
+            Tap(Key.F2);
+            Tap(Key.F3);
+            CheckCursor(false, "Event Log releases capture");
+            Tap(Key.F3);
+            CheckCursor(true, "diagnostic close restores capture");
             Check(new PlayerSettingsStore(_bootstrap.SettingsPath!).Load().SpeedUnit == SpeedUnit.MilesPerHour, "close flushes existing settings file");
             Joy(JoyButton.B);
             Check(_menu.CurrentPage == MenuPage.Closed, "shared handbrake button does not open the menu");
@@ -151,6 +197,8 @@ public sealed partial class MenuIntegrationChecks : Node
             Press("Leave to Main Menu");
             await Until(() => _session.LeaveComplete && _session.Arena is null, "leave cleanup completes");
             Check(_menu.CurrentPage == MenuPage.Closed, "leave closes overlay");
+            await Frames(2);
+            CheckCursor(false, "leaving arena restores Main Menu pointer");
             await EnterArena();
             Check(_session.Arena!.Driver.Match?.Phase == MatchPhase.Waiting, "reenter has fresh Waiting state");
             _session.Leave();
@@ -205,13 +253,64 @@ public sealed partial class MenuIntegrationChecks : Node
         }
     }
 
+    private static void MouseButtonEvent(bool pressed, Vector2 position)
+    {
+        using var input = new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = pressed, Position = position, GlobalPosition = position };
+        Godot.Input.ParseInputEvent(input);
+        Godot.Input.FlushBufferedEvents();
+    }
+
     private async Task EnterArena()
     {
         _session.Open(true, _endpoint, "Menu check");
         await Until(() => _session.Lobby?.State is not null, "host starts");
+        CheckCursor(false, "lobby pointer");
         Check(_session.Lobby!.Request(LobbyCommand.Ready, true), "solo host ready");
         Check(_session.Lobby.Request(LobbyCommand.Start), "solo arena entry uses existing lobby lifecycle");
         await Until(() => _session.Arena?.Driver.Match is not null, "arena initialized");
+        await Frames(2);
+        CheckCursor(true, "arena entry restores capture");
+    }
+
+    private void CheckCursor(bool captured, string message)
+    {
+        // The dummy display server cannot verify OS mouse modes. Run -Visual for these assertions.
+        if (DisplayServer.GetName() != "headless")
+        {
+            Check(Godot.Input.MouseMode == (captured ? Godot.Input.MouseModeEnum.Captured : Godot.Input.MouseModeEnum.Visible), message);
+        }
+    }
+
+    private void VerifyFocus(bool gameplay)
+    {
+        _player._Notification((int)NotificationApplicationFocusOut);
+        CheckCursor(false, "focus loss releases capture");
+        Check(!_player.Adapter.Enabled, "focus loss suppresses local input");
+        _player._Process(0);
+        CheckCursor(false, "background processing cannot recapture");
+        _player._Notification((int)NotificationApplicationFocusIn);
+        CheckCursor(gameplay, "focus regain restores current context");
+    }
+
+    private void VerifyMouseItem()
+    {
+        MouseButtonEvent(false, Vector2.Zero);
+        _player.Adapter.Observe();
+        MouseButtonEvent(true, Vector2.Zero);
+        Check((_player.Adapter.Capture(0).Pressed & InputButtons.UseItem) != 0, "captured LMB still produces logical item press");
+        MouseButtonEvent(false, Vector2.Zero);
+        _player.Adapter.Capture(0);
+    }
+
+    private void Click(string text)
+    {
+        Button button = Buttons(_menu).Single(button => button.IsVisibleInTree() && button.Text == text);
+        Vector2 position = button.GetGlobalRect().GetCenter();
+        using var motion = new InputEventMouseMotion { Position = position, GlobalPosition = position, Relative = new Vector2(12, 8) };
+        Godot.Input.ParseInputEvent(motion);
+        Godot.Input.FlushBufferedEvents();
+        MouseButtonEvent(true, position);
+        MouseButtonEvent(false, position);
     }
 
     private async Task VerifyRemoteProgress()

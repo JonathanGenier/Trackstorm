@@ -31,6 +31,20 @@ public sealed partial class InputIntegrationChecks : Node
             VerifyAnalogAndIndependentLeaderboard();
             VerifyRemappingAndMultipleBindings();
             VerifyTapFocusAndTickCapture();
+            _player.GameplayAvailable = () => true;
+            _player._Process(0);
+            if (DisplayServer.GetName() != "headless")
+            {
+                Check(Godot.Input.MouseMode == Godot.Input.MouseModeEnum.Captured, "input owner captures gameplay before teardown");
+            }
+
+            RemoveChild(_player);
+            if (DisplayServer.GetName() != "headless")
+            {
+                Check(Godot.Input.MouseMode == Godot.Input.MouseModeEnum.Visible, "input owner teardown releases capture");
+            }
+
+            _player.Free();
             GD.Print($"Input integration passed: {_assertions} assertions.");
             GetTree().Quit();
         }

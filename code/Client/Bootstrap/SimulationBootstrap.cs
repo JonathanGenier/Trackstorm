@@ -72,6 +72,7 @@ public sealed partial class SimulationBootstrap : Node
         }
 
         _playerInput = GetNode<PlayerInput>("PlayerInput");
+        _playerInput.GameplayAvailable = () => !_quitRequested && (_arena is not null || _session?.Arena is not null);
         _playerInput.FrameCaptured += OnFrameCaptured;
         Engine.PhysicsTicksPerSecond = _configuration.TicksPerSecond;
         var settings = new PlayerSettingsController { Name = "PlayerSettings" };
