@@ -197,8 +197,8 @@ internal sealed class EosP2pTransportTests
     {
         using var pair = new MigrationPair();
         var thirdId = Id(3);
-        var thirdWire = new Wire(thirdId);
-        var routes = new Dictionary<OnlineProductUserId, Wire> { [pair.Link.HostId] = pair.Link.HostWire, [pair.Link.ClientId] = pair.Link.ClientWire, [thirdId] = thirdWire };
+        var thirdWire = new EosP2pWire(thirdId);
+        var routes = new Dictionary<OnlineProductUserId, EosP2pWire> { [pair.Link.HostId] = pair.Link.HostWire, [pair.Link.ClientId] = pair.Link.ClientWire, [thirdId] = thirdWire };
         foreach (var wire in routes.Values)
         {
             wire.Routes = routes;
@@ -547,7 +547,7 @@ internal sealed class EosP2pTransportTests
     {
         var identities = Enumerable.Range(1, 3).Select(Id).ToArray();
         var lobby = new OnlineLobby("migration", "Migration", identities[0], 100, LobbyAccess.Public, 3, 8, OnlineLobby.CurrentProtocol, true, null) { MemberIds = identities };
-        var wires = identities.Select(identity => new Wire(identity)).ToArray();
+        var wires = identities.Select(identity => new EosP2pWire(identity)).ToArray();
         var routes = wires.Select((wire, index) => (wire, index)).ToDictionary(entry => identities[entry.index], entry => entry.wire);
         var gateways = identities.Select((identity, index) => new EosP2pTransport(wires[index], identity, () => lobby)).ToArray();
         var subjects = Enumerable.Range(0, 3).Select(_ => new Dictionary<ulong, string>()).ToArray();
@@ -609,7 +609,7 @@ internal sealed class EosP2pTransportTests
                     var lease = new AuthorityLeaseClient(new LeaseTransport(store!, identities[i].Value), identities[i].Value, clock);
                     leaseClients.Add(lease);
                     driver.Migration!.LeaseSession = new string('D', 64);
-                    driver.Migration.PollCoordination = () => lease.Poll(driver.Migration.LeaseSession, index == 0, driver.State?.AuthorityEpoch ?? 1);
+                    driver.Migration.PollCoordination = () => lease.Poll(driver.Migration.LeaseSession, index == 0, driver.State?.AuthorityEpoch ?? 1, driver.Migration.NeedsLeaseObservation);
                     driver.Migration.AuthorityAvailable = () => lease.Available(driver.State!.AuthorityEpoch);
                     driver.Migration.RetirementConfirmedAt = checkpoint => lease.Expired(checkpoint.Lobby.State.AuthorityEpoch, checkpoint.Lobby.Subjects[checkpoint.Lobby.State.CurrentHostId]) ? clock.GetTimestamp() : null;
                     driver.Migration.AcquireAuthority = checkpoint => lease.Acquire(checkpoint.Lobby.State.AuthorityEpoch);
@@ -1302,7 +1302,7 @@ internal sealed class EosP2pTransportTests
     [TestCase(8, true)]
     public void MeasuresVehicleTrafficThroughEosFraming(int players, bool reorderMixed)
     {
-        var routes = new Dictionary<OnlineProductUserId, Wire>();
+        var routes = new Dictionary<OnlineProductUserId, EosP2pWire>();
         var gateways = new List<EosP2pTransport>();
         var members = Enumerable.Range(1, players).Select(Id).ToArray();
         var lobby = new OnlineLobby("measure", "Measure", Id(1), 91, LobbyAccess.Public, players, 8, OnlineLobby.CurrentProtocol, true, null) { MemberIds = members };
@@ -1310,7 +1310,7 @@ internal sealed class EosP2pTransportTests
         {
             foreach (var member in members)
             {
-                routes.Add(member, new Wire(member) { Routes = routes });
+                routes.Add(member, new EosP2pWire(member) { Routes = routes });
             }
 
             var hostGateway = new EosP2pTransport(routes[Id(1)], Id(1), () => lobby) { Authorize = (_, _, _) => true };
@@ -1660,7 +1660,7 @@ internal sealed class EosP2pTransportTests
             _leaseTransports.Add(transport);
             var lease = new AuthorityLeaseClient(transport, subject, Link.Clock);
             _leaseClients.Add(lease);
-            driver.Migration!.PollCoordination = () => lease.Poll(driver.Migration.LeaseSession, create, driver.State?.AuthorityEpoch ?? 1);
+            driver.Migration!.PollCoordination = () => lease.Poll(driver.Migration.LeaseSession, create, driver.State?.AuthorityEpoch ?? 1, driver.Migration.NeedsLeaseObservation);
             driver.Migration.AuthorityAvailable = () => lease.Available(driver.State!.AuthorityEpoch);
             driver.Migration.RetirementConfirmedAt = checkpoint => lease.Expired(checkpoint.Lobby.State.AuthorityEpoch, checkpoint.Lobby.Subjects[checkpoint.Lobby.State.CurrentHostId]) ? Link.Clock.GetTimestamp() : null;
             driver.Migration.AcquireAuthority = checkpoint => lease.Acquire(checkpoint.Lobby.State.AuthorityEpoch);
@@ -1684,8 +1684,8 @@ internal sealed class EosP2pTransportTests
         internal Pair(bool accept = true)
         {
             Lobby = new("lobby", "Test", HostId, 17, LobbyAccess.Public, 2, 8, OnlineLobby.CurrentProtocol, true, null) { MemberIds = new[] { HostId, ClientId } };
-            HostWire = new Wire(HostId);
-            ClientWire = new Wire(ClientId);
+            HostWire = new EosP2pWire(HostId);
+            ClientWire = new EosP2pWire(ClientId);
             HostWire.Other = ClientWire;
             ClientWire.Other = HostWire;
             Host = new(HostWire, HostId, () => Lobby, time: Clock) { Authorize = (_, _, _) => accept };
@@ -1698,8 +1698,8 @@ internal sealed class EosP2pTransportTests
         internal OnlineProductUserId ClientId { get; } = Id(2);
         internal OnlineLobby Lobby { get; set; }
         internal Clock Clock { get; } = new();
-        internal Wire HostWire { get; }
-        internal Wire ClientWire { get; }
+        internal EosP2pWire HostWire { get; }
+        internal EosP2pWire ClientWire { get; }
         internal EosP2pTransport Host { get; }
         internal EosP2pTransport Client { get; }
         internal ulong Server { get; set; }
@@ -1719,92 +1719,4 @@ internal sealed class EosP2pTransportTests
         }
     }
 
-    private sealed class Wire(OnlineProductUserId local) : IEosP2p
-    {
-        private readonly HashSet<OnlineProductUserId> _accepted = new();
-        internal Dictionary<OnlineProductUserId, Wire>? Routes { get; set; }
-        internal Wire? Other { get; set; }
-        internal Action<OnlineProductUserId, TransportConnectionState, TransportDisconnectReason>? Changed { get; set; }
-        internal Queue<(OnlineProductUserId Peer, byte[] Bytes, TransportDelivery Delivery)> Packets { get; } = new();
-        internal List<OnlineProductUserId> Closed { get; } = new();
-        internal int Disposals { get; private set; }
-        internal int Reads { get; private set; }
-        internal bool DropOutgoing { get; set; }
-        internal HashSet<OnlineProductUserId> DropRecipients { get; } = new();
-        public void Start(string socket, Action<OnlineProductUserId, TransportConnectionState, TransportDisconnectReason> changed) => Changed = changed;
-        public bool Accept(OnlineProductUserId peer)
-        {
-            _accepted.Add(peer);
-            var other = Routes?.GetValueOrDefault(peer) ?? Other!;
-            if (other._accepted.Contains(local))
-            {
-                Changed!(peer, TransportConnectionState.Connected, TransportDisconnectReason.None);
-                other.Changed!(local, TransportConnectionState.Connected, TransportDisconnectReason.None);
-            }
-            else
-            {
-                other.Changed!(local, TransportConnectionState.Connecting, TransportDisconnectReason.None);
-            }
-
-            return true;
-        }
-
-        public bool Send(OnlineProductUserId peer, ArraySegment<byte> data, TransportDelivery delivery)
-        {
-            if (!DropOutgoing && !DropRecipients.Contains(peer))
-            {
-                (Routes?.GetValueOrDefault(peer) ?? Other!).Packets.Enqueue((local, data.ToArray(), delivery));
-            }
-
-            return true;
-        }
-
-        public bool Receive(byte[] buffer, out OnlineProductUserId? peer, out int length, out TransportDelivery delivery)
-        {
-            Reads++;
-            if (!Packets.TryDequeue(out var packet))
-            {
-                peer = null;
-                length = 0;
-                delivery = default;
-                return false;
-            }
-
-            peer = packet.Peer;
-            length = packet.Bytes.Length;
-            delivery = packet.Delivery;
-            packet.Bytes.CopyTo(buffer, 0);
-            return true;
-        }
-
-        public void Close(OnlineProductUserId peer)
-        {
-            _accepted.Remove(peer);
-            Closed.Add(peer);
-        }
-
-        public void Stop()
-        {
-            _accepted.Clear();
-            Packets.Clear();
-            Changed = null;
-        }
-
-        public void Dispose()
-        {
-            Disposals++;
-            Stop();
-        }
-
-        internal void ReverseUnreliable()
-        {
-            var packets = Packets.ToArray();
-            var reversed = new Queue<(OnlineProductUserId Peer, byte[] Bytes, TransportDelivery Delivery)>(packets.Where(packet => packet.Delivery == TransportDelivery.Unreliable).Reverse());
-            Packets.Clear();
-            foreach (var packet in packets)
-            {
-                Packets.Enqueue(packet.Delivery == TransportDelivery.Unreliable ? reversed.Dequeue() : packet);
-            }
-        }
-    }
 }

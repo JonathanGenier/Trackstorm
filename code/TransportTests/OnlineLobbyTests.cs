@@ -8,7 +8,7 @@ namespace Trackstorm.Transport.Tests;
 
 /// <summary>Provider-independent online coordination and real LobbyNetworkDriver authority admission checks.</summary>
 [TestFixture]
-internal sealed class OnlineLobbyTests
+internal sealed partial class OnlineLobbyTests
 {
     /// <summary>Native EOS status mapping grants promotion no membership or retirement authority.</summary>
     /// <param name="status">Native EOS status.</param>
@@ -1089,6 +1089,7 @@ internal sealed class OnlineLobbyTests
         internal bool NotifyMetadataOnProof { get; set; }
         internal int ProofRequests { get; set; }
         internal Action<bool>? LastProof { get; set; }
+        internal List<Action<bool>> PendingProofs { get; } = new();
         internal Action? LastCreate { get; set; }
         internal OnlineLobbyCoordinator Coordinator(int user) => new(new Provider(this, User(user)), User(user));
         internal void Complete(Action callback)
@@ -1208,6 +1209,10 @@ internal sealed class OnlineLobbyTests
             if (!service.DelayProof)
             {
                 completed(service.Lobbies.TryGetValue(id, out var lobby) && lobby.MemberIds.Contains(user));
+            }
+            else
+            {
+                service.PendingProofs.Add(completed);
             }
         }
 

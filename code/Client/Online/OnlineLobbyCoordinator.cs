@@ -139,6 +139,16 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
     }
 
+    /// <summary>The existing membership-proof boundary permanently retired this local authority.</summary>
+    internal bool AuthorityRetired
+    {
+        get
+        {
+            _ = CoordinationAvailable;
+            return _authorityRetired;
+        }
+    }
+
     /// <inheritdoc />
     public void Dispose()
     {

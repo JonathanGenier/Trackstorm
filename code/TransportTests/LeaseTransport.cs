@@ -14,10 +14,16 @@ internal sealed class LeaseTransport(LeaseStore store, string subject) : ILeaseT
     internal TaskCompletionSource<AuthorityLease?>? Pending { get; private set; }
     /// <summary>Server result awaiting delivery.</summary>
     internal AuthorityLease? Response { get; private set; }
+    /// <summary>Observed requests, including requests rejected during an outage.</summary>
+    internal List<string> Operations { get; } = new();
+    /// <summary>Observes the local lifecycle at the instant a request is sent.</summary>
+    internal Action<string>? Sending { get; set; }
 
     /// <inheritdoc/>
     public Task<AuthorityLease?> Send(string operation, LeaseRequest request)
     {
+        Operations.Add(operation);
+        Sending?.Invoke(operation);
         Response = Offline ? null : operation == "read" ? store.Read(request.Session) : store.Execute(operation, request, subject);
         if (Delay)
         {

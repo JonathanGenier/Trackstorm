@@ -46,7 +46,8 @@ internal sealed class OnlineSessionBinding : IDisposable
                     Driver.Migration.LeaseSession = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
                 }
 
-                Driver.Migration.PollCoordination = () => _lease.Poll(Driver.Migration.LeaseSession, coordinator.StartsGameplayAuthority, Driver.State?.AuthorityEpoch ?? lobby.AuthorityEpoch);
+                Driver.Migration.AuthorityRetired = () => coordinator.AuthorityRetired;
+                Driver.Migration.PollCoordination = () => _lease.Poll(Driver.Migration.LeaseSession, coordinator.StartsGameplayAuthority, Driver.State?.AuthorityEpoch ?? lobby.AuthorityEpoch, Driver.Migration.NeedsLeaseObservation);
                 Driver.Migration.AuthorityAvailable = () => coordinator.CoordinationAvailable && _lease.Available(Driver.State!.AuthorityEpoch);
                 Driver.Migration.RetirementConfirmedAt = checkpoint => _lease.Expired(checkpoint.Lobby.State.AuthorityEpoch, checkpoint.Lobby.Subjects[checkpoint.Lobby.State.CurrentHostId]) ? coordinator.Clock.GetTimestamp() : null;
                 Driver.Migration.AcquireAuthority = checkpoint => _lease.Acquire(checkpoint.Lobby.State.AuthorityEpoch);

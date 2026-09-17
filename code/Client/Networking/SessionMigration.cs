@@ -66,6 +66,8 @@ internal sealed class SessionMigration
     internal Action<string>? AuthorityChanged { get; set; }
     /// <summary>Online composition proves local service liveness; native harnesses supply a trusted process seam.</summary>
     internal Func<bool>? AuthorityAvailable { get; set; }
+    /// <summary>Existing online coordination policy has irrevocably retired the local host.</summary>
+    internal Func<bool>? AuthorityRetired { get; set; }
     /// <summary>Returns the monotonic prior-authority retirement boundary after confirming the surviving service cohort.</summary>
     internal Func<MigrationCheckpoint, long?>? RetirementConfirmedAt { get; set; }
     /// <summary>Owner-thread service pumping, independent of the P2P connection and player grace.</summary>
@@ -80,7 +82,7 @@ internal sealed class SessionMigration
     internal string? LeaseSession { get; set; }
     /// <summary>Later trusted evidence of continuing host progress invalidates stale partition boundaries.</summary>
     internal Func<long?>? HostProgressAt { get; set; }
-    /// <summary>Relinquishes service permission only after intentional departure freezes local gameplay.</summary>
+    /// <summary>Relinquishes service permission only after departure or permanent retirement freezes local gameplay.</summary>
     internal Action? ReleaseAuthority { get; set; }
     /// <summary>Latest locally observed world tick, used to reject excessive rollback.</summary>
     internal Func<ulong>? ObservedTick { get; set; }
@@ -88,6 +90,9 @@ internal sealed class SessionMigration
     internal bool Frozen { get; private set; }
     /// <summary>True only while survivor transport is being coordinated.</summary>
     internal bool Negotiating => _attemptAt.HasValue && !_committed && !_failed;
+    /// <summary>Trusted observation is needed only during suspected host loss or survivor agreement.</summary>
+    internal bool NeedsLeaseObservation => !_failed && !_departing && _lobby.Authority is null && _lobby.State is not null &&
+        (Negotiating || _confirmedDeparture || _authorityPaused || !Connected(_lobby.ServerPeer) || _seconds - _receivedAt >= 2);
     /// <summary>Player-facing bounded recovery progress.</summary>
     internal string Status => _failed ? "Host migration failed" : Negotiating ? "Migrating host — agreeing and restoring match" : Frozen ? "Host connection interrupted — waiting for recovery" : string.Empty;
     /// <summary>Last retained authenticated subject mapping, used only for migration/rebind admission.</summary>
@@ -97,10 +102,10 @@ internal sealed class SessionMigration
     /// <summary>Secret-free migration progress and checkpoint counters for Developer Options.</summary>
     internal string Diagnostics => $"{(_failed ? "failed" : Negotiating ? "agreeing" : Frozen ? "frozen" : "running")}; retained checkpoints: {_retained.Count}; latest sequence: {_retained.LastOrDefault()?.State.Sequence ?? 0}; fencing: {LeaseStatus?.Invoke() ?? "trusted harness"}";
 
-    /// <summary>Freezes an intentionally departing authority and gives reliable control time to drain.</summary>
+    /// <summary>Freezes a departing or permanently retired authority and gives reliable control time to drain.</summary>
     internal void AnnounceDeparture()
     {
-        if (_lobby.Authority is null || _retained.Count == 0)
+        if (_lobby.Authority is null || _departing)
         {
             return;
         }
@@ -108,6 +113,11 @@ internal sealed class SessionMigration
         _departing = true;
         Frozen = true;
         ReleaseAuthority?.Invoke();
+        if (_retained.Count == 0)
+        {
+            return;
+        }
+
         var state = _lobby.State!;
         foreach (ulong peer in _lobby.Authority.Peers.Keys)
         {
@@ -130,6 +140,12 @@ internal sealed class SessionMigration
         // A suspended process must expire its lease before its next simulation step, even when fixed-step delta is small.
         _seconds += Math.Max(seconds, _time.GetElapsedTime(_timestamp, timestamp).TotalSeconds);
         _timestamp = timestamp;
+        if (_lobby.Authority is not null && AuthorityRetired?.Invoke() == true)
+        {
+            // Freeze and retire before pumping any queued lease completion or new renewal.
+            AnnounceDeparture();
+        }
+
         PollCoordination?.Invoke();
         if (_failed || _departing || _lobby.State is not { } state)
         {

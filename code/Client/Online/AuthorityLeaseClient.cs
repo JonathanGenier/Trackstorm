@@ -16,6 +16,7 @@ internal sealed class AuthorityLeaseClient(ILeaseTransport transport, string sub
     private string? _session;
     private bool _create;
     private bool _release;
+    private bool _observing;
 
     /// <summary>Latest observed old-host renewal, used to reject stale pre-partition checkpoints.</summary>
     internal long? HostProgressAt { get; private set; }
@@ -23,7 +24,7 @@ internal sealed class AuthorityLeaseClient(ILeaseTransport transport, string sub
     /// <summary>Credential-free lease lifecycle status.</summary>
     internal string Status => _granted.HasValue ? $"lease held; epoch {_record!.Epoch}; local validity {Math.Max(0, AuthorityLease.ClientDurationSeconds - time.GetElapsedTime(_granted.Value).TotalSeconds):0.0}s" : _pending is not null ? "request pending" : _retiredEpoch != 0 ? "authority retired" : "waiting for lease";
 
-    private bool Fresh => _readAt.HasValue && time.GetElapsedTime(_readAt.Value).TotalSeconds < 2;
+    private bool Fresh => _observing && _readAt.HasValue && time.GetElapsedTime(_readAt.Value).TotalSeconds < 2;
 
     /// <inheritdoc />
     public void Dispose() => transport.Dispose();
@@ -32,7 +33,8 @@ internal sealed class AuthorityLeaseClient(ILeaseTransport transport, string sub
     /// <param name="session">Private coordination session.</param>
     /// <param name="create">Initial host bootstrap permission.</param>
     /// <param name="epoch">Current Core epoch.</param>
-    internal void Poll(string? session, bool create, ulong epoch)
+    /// <param name="observe">Host-loss or migration state requires trusted service observations.</param>
+    internal void Poll(string? session, bool create, ulong epoch, bool observe)
     {
         if (session is null)
         {
@@ -48,6 +50,13 @@ internal sealed class AuthorityLeaseClient(ILeaseTransport transport, string sub
 
             _session = session;
             _create = create;
+        }
+
+        if (observe != _observing)
+        {
+            _observing = observe;
+            _readAt = null;
+            _polled = null;
         }
 
         _ = Available(epoch);
@@ -76,12 +85,12 @@ internal sealed class AuthorityLeaseClient(ILeaseTransport transport, string sub
             return;
         }
 
-        if (_release && _record is { } relinquished && relinquished.Holder == subject)
+        if (_release && _record is { } relinquished && relinquished.Holder == subject && relinquished.Epoch <= _retiredEpoch)
         {
             _release = false;
             Begin("release", new(session, relinquished.Epoch, relinquished.Token));
         }
-        else if (_record is null && _create)
+        else if (_record is null && _create && epoch > _retiredEpoch)
         {
             _create = false;
             Begin("create", new(session, 0, string.Empty));
@@ -90,7 +99,7 @@ internal sealed class AuthorityLeaseClient(ILeaseTransport transport, string sub
         {
             Begin("renew", new(session, record.Epoch, record.Token));
         }
-        else
+        else if (observe)
         {
             Begin("read", new(session, 0, string.Empty));
         }
@@ -116,6 +125,7 @@ internal sealed class AuthorityLeaseClient(ILeaseTransport transport, string sub
     {
         _retiredEpoch = Math.Max(_retiredEpoch, epoch);
         _granted = null;
+        _create = false;
         _release = true;
         _polled = null;
     }

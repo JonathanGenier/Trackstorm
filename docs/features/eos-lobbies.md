@@ -41,7 +41,7 @@ and routing but cannot remove an admitted member or tear down P2P. Joined adds o
 the callback target; remote Left/Kicked/Disconnected removes and disconnects only
 the callback target. Arbitrary omissions from the accompanying details copy never
 remove unrelated admitted members. Explicit local Left/Kicked/Disconnected or
-lobby Closed status still enters the normal recovery/closure path. Actual Left/Kicked/Disconnected callbacks update membership; production authority retirement comes from the [trusted lease service](authority-leases.md). Promotion is not
+lobby Closed status still enters the normal recovery/closure path. Actual Left/Kicked/Disconnected callbacks update membership. The existing local proof-expiry/retirement boundary permanently freezes a host and stops/releases its Cloudflare lease before further renewal; remote promotion still requires the [trusted lease service](authority-leases.md) fence. Temporary proof delays inside the validity window and ordinary client/P2P loss do not release a healthy host lease. Healthy clients activate lease reads only when the migration state suspects host loss or needs fencing confirmation. Promotion is not
 retirement evidence and never grants Trackstorm gameplay authority. Private
 coordination writes and EOS ownership migration therefore cannot churn a healthy
 Public or Locked gameplay session.
