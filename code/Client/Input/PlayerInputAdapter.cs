@@ -40,7 +40,7 @@ internal sealed class PlayerInputAdapter
     public float CaptureInterval { get; set; } = 1f / 60;
 
     /// <summary>Local remappable camera intent; camera behavior is owned by presentation.</summary>
-    public Godot.Vector2 CameraIntent => Enabled && !GameplaySuppressed ? new(Bindings.Strength(InputAction.CameraRight, DeadZone) - Bindings.Strength(InputAction.CameraLeft, DeadZone), Bindings.Strength(InputAction.CameraDown, DeadZone) - Bindings.Strength(InputAction.CameraUp, DeadZone)) : Godot.Vector2.Zero;
+    public Godot.Vector2 CameraIntent => Enabled && !GameplaySuppressed && !DiagnosticSuppressed ? new(Bindings.Strength(InputAction.CameraRight, DeadZone) - Bindings.Strength(InputAction.CameraLeft, DeadZone), Bindings.Strength(InputAction.CameraDown, DeadZone) - Bindings.Strength(InputAction.CameraUp, DeadZone)) : Godot.Vector2.Zero;
 
     /// <summary>Runtime remapping entry point.</summary>
     public PlayerInputBindings Bindings { get; }
@@ -64,17 +64,19 @@ internal sealed class PlayerInputAdapter
 
     /// <summary>Suppresses gameplay while settings are open, independently of application focus.</summary>
     public bool GameplaySuppressed { get; set; }
+    /// <summary>Independent read-only diagnostic overlay input gate; does not alter menu ownership.</summary>
+    internal bool DiagnosticSuppressed { get; set; }
 
     /// <summary>Samples aggregate digital state; preserves press/release transitions until capture.</summary>
     public void Observe()
     {
         InputButtons held = InputButtons.None;
-        if (!Enabled || GameplaySuppressed)
+        if (!Enabled || GameplaySuppressed || DiagnosticSuppressed)
         {
             _itemNeedsRelease = true;
         }
 
-        if (Enabled && !GameplaySuppressed)
+        if (Enabled && !GameplaySuppressed && !DiagnosticSuppressed)
         {
             foreach ((InputAction action, InputButtons button) in DigitalActions)
             {
@@ -104,7 +106,7 @@ internal sealed class PlayerInputAdapter
     public InputFrame Capture(ulong tick)
     {
         Observe();
-        bool active = Enabled && !GameplaySuppressed;
+        bool active = Enabled && !GameplaySuppressed && !DiagnosticSuppressed;
         if (!active)
         {
             _throttle = _brake = _steering = 0;

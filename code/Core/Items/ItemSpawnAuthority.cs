@@ -1,5 +1,6 @@
 using System.Numerics;
 using Trackstorm.Core.Arenas;
+using Trackstorm.Core.Events;
 
 namespace Trackstorm.Core.Items;
 
@@ -52,6 +53,7 @@ public sealed class ItemSpawnAuthority
         {
             _states[state.Id] = state with { Available = true };
             Revision++;
+            world.Events.Record(EventCategory.Item, "Pickup respawned", context: state.Id, tick: _tick);
         }
 
     }
@@ -83,7 +85,7 @@ public sealed class ItemSpawnAuthority
             throw new InvalidOperationException("Pickup selector returned an item outside the configured pool.");
         }
 
-        if (!_items.Grant(world, vehicle, item))
+        if (!_items.Grant(world, vehicle, item, pickup: true))
         {
             return false;
         }
@@ -91,6 +93,7 @@ public sealed class ItemSpawnAuthority
         ItemSlot granted = _items.Slots.Single(slot => slot.Vehicle == vehicle);
         _states[id] = new ItemSpawnState(id, false, activation, vehicle, granted.Token, item);
         Revision++;
+        world.Events.Record(EventCategory.Item, "Picked up", actor: vehicle, cause: item.ToString(), context: id, tick: _tick);
         return true;
     }
 

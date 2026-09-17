@@ -1,3 +1,4 @@
+using Trackstorm.Core.Events;
 using Trackstorm.Core.Input;
 using Trackstorm.Core.Vehicles;
 
@@ -36,6 +37,9 @@ public sealed class Simulation
     /// Gets the fixed-step configuration used by this simulation.
     /// </summary>
     public SimulationConfiguration Configuration { get; }
+    /// <summary>Committed diagnostic outcomes.</summary>
+    public EventStream Events { get; set; } = new();
+
     /// <summary>Host lifecycle tuning; null disables automatic respawn in isolated fixtures.</summary>
     public RespawnConfiguration? Respawn { get; private set; }
     /// <summary>Validated configured arena markers.</summary>
@@ -81,6 +85,7 @@ public sealed class Simulation
         var authority = new VehicleAuthority(vehicleId, movement, damage, initial);
         Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Join(State.Match, State.Tick, vehicleId);
         _vehicles.Add(vehicleId, authority);
+        Events.Record(EventCategory.Lifecycle, "Spawned", target: vehicleId, life: 1, tick: State.Tick);
         State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot), match);
     }
 
@@ -105,6 +110,7 @@ public sealed class Simulation
         authority.Commit(new VehicleSnapshot(vehicleId, 1, new VehicleState(State.Tick, initial, false, false, 0, 0), authority.Snapshot.Damage, initial));
         Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Join(State.Match, State.Tick, vehicleId);
         _vehicles.Add(vehicleId, authority);
+        Events.Record(EventCategory.Lifecycle, "Spawned", target: vehicleId, life: 1, tick: State.Tick);
         State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot), match);
     }
 
@@ -112,7 +118,11 @@ public sealed class Simulation
     /// <param name="vehicleId">Departed identity.</param>
     public void LeaveVehicle(ulong vehicleId)
     {
-        _vehicles.Remove(vehicleId);
+        if (_vehicles.Remove(vehicleId))
+        {
+            Events.Record(EventCategory.Lifecycle, "Despawned", target: vehicleId, tick: State.Tick);
+        }
+
         State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot), State.Match);
     }
 
@@ -120,46 +130,7 @@ public sealed class Simulation
     /// <returns>Accepted commands/events, in vehicle identity order.</returns>
     /// <param name="input">Next global input tick.</param>
     /// <param name="requests">Exactly one observation/input request for every registered vehicle.</param>
-    public IReadOnlyList<VehicleStepResult> Step(InputFrame input, IReadOnlyList<VehicleStepRequest> requests)
-    {
-        ArgumentNullException.ThrowIfNull(requests);
-        ulong nextTick = checked(State.Tick + 1);
-        if (input.Tick != nextTick || requests.Count != _vehicles.Count ||
-            requests.Any(request => request is null || request.Input.Tick != nextTick || !_vehicles.ContainsKey(request.VehicleId)) ||
-            requests.Select(request => request.VehicleId).Distinct().Count() != requests.Count)
-        {
-            throw new ArgumentException("The input frame must target the next simulation tick.", nameof(input));
-        }
-
-        bool Participates(ulong id) => !_vehicles.TryGetValue(id, out var vehicle) || vehicle.Snapshot.CanInteract;
-        var reserved = State.Vehicles.ToDictionary(vehicle => vehicle.VehicleId);
-        VehicleStepResult[] candidates = requests.OrderBy(request => request.VehicleId).Select(request =>
-        {
-            var observation = new VehicleObservation(request.Observation.Physics, request.Observation.Support, request.Observation.Contacts.Where(contact => Participates(contact.OtherVehicleId)), request.Observation.Surface, request.Observation.Wheels);
-            var filtered = new VehicleStepRequest(request.VehicleId, request.Input, observation, request.Effects.Where(effect => Participates(effect.Attribution.InstigatorId)), request.Reset, request.Repair);
-            VehicleStepResult candidate = _vehicles[request.VehicleId].Prepare(filtered, Respawn, Arena, reserved.Values.ToArray());
-            reserved[request.VehicleId] = candidate.Snapshot;
-            return candidate;
-        }).ToArray();
-        VehicleSnapshot[] transitions = candidates.Select(result => result.Snapshot)
-            .Where(state => state.Lifecycle != _vehicles[state.VehicleId].Snapshot.Lifecycle || state.LifeId != _vehicles[state.VehicleId].Snapshot.LifeId).ToArray();
-        Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Advance(State.Match, _developmentStart ? MatchRules! with { MinimumPlayers = 1 } : MatchRules!, nextTick, candidates.Select(result => result.Snapshot).ToArray());
-        if (match?.Phase is Matches.MatchPhase.Active or Matches.MatchPhase.Finished)
-        {
-            _developmentStart = false;
-        }
-
-        var next = new SimulationState(nextTick, input, candidates.Select(result => result.Snapshot), match);
-        foreach (VehicleStepResult result in candidates)
-        {
-            _vehicles[result.Snapshot.VehicleId].Commit(result.Snapshot);
-        }
-
-        State = next;
-        LifecycleChanges = Array.AsReadOnly(transitions);
-
-        return Array.AsReadOnly(candidates);
-    }
+    public IReadOnlyList<VehicleStepResult> Step(InputFrame input, IReadOnlyList<VehicleStepRequest> requests) => Step(input, requests, null);
 
     /// <summary>Atomically restores the global tick/input and all vehicle aggregates using the registered tuning.</summary>
     /// <param name="state">Complete synchronization boundary; all registered vehicles must be present.</param>
@@ -188,6 +159,94 @@ public sealed class Simulation
 
         State = state;
         LifecycleChanges = Array.Empty<VehicleSnapshot>();
+    }
+
+    /// <summary>Commits staged item outcomes in causal order only after the whole world batch succeeds.</summary>
+    /// <param name="input">Next tick.</param>
+    /// <param name="requests">Complete vehicle request batch.</param>
+    /// <param name="precedingEvents">Authority-staged item outcomes.</param>
+    /// <returns>Committed vehicle results.</returns>
+    internal IReadOnlyList<VehicleStepResult> Step(InputFrame input, IReadOnlyList<VehicleStepRequest> requests, IReadOnlyList<RuntimeEvent>? precedingEvents)
+    {
+        ArgumentNullException.ThrowIfNull(requests);
+        ulong nextTick = checked(State.Tick + 1);
+        if (input.Tick != nextTick || requests.Count != _vehicles.Count ||
+            requests.Any(request => request is null || request.Input.Tick != nextTick || !_vehicles.ContainsKey(request.VehicleId)) ||
+            requests.Select(request => request.VehicleId).Distinct().Count() != requests.Count)
+        {
+            throw new ArgumentException("The input frame must target the next simulation tick.", nameof(input));
+        }
+
+        bool Participates(ulong id) => !_vehicles.TryGetValue(id, out var vehicle) || vehicle.Snapshot.CanInteract;
+        var reserved = State.Vehicles.ToDictionary(vehicle => vehicle.VehicleId);
+        VehicleStepResult[] candidates = requests.OrderBy(request => request.VehicleId).Select(request =>
+        {
+            var observation = new VehicleObservation(request.Observation.Physics, request.Observation.Support, request.Observation.Contacts.Where(contact => Participates(contact.OtherVehicleId)), request.Observation.Surface, request.Observation.Wheels);
+            var filtered = new VehicleStepRequest(request.VehicleId, request.Input, observation, request.Effects.Where(effect => Participates(effect.Attribution.InstigatorId)), request.Reset, request.Repair, request.RepairCause);
+            VehicleStepResult candidate = _vehicles[request.VehicleId].Prepare(filtered, Respawn, Arena, reserved.Values.ToArray());
+            reserved[request.VehicleId] = candidate.Snapshot;
+            return candidate;
+        }).ToArray();
+        VehicleSnapshot[] transitions = candidates.Select(result => result.Snapshot)
+            .Where(state => state.Lifecycle != _vehicles[state.VehicleId].Snapshot.Lifecycle || state.LifeId != _vehicles[state.VehicleId].Snapshot.LifeId).ToArray();
+        Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Advance(State.Match, _developmentStart ? MatchRules! with { MinimumPlayers = 1 } : MatchRules!, nextTick, candidates.Select(result => result.Snapshot).ToArray());
+        if (match?.Phase is Matches.MatchPhase.Active or Matches.MatchPhase.Finished)
+        {
+            _developmentStart = false;
+        }
+
+        var next = new SimulationState(nextTick, input, candidates.Select(result => result.Snapshot), match);
+        foreach (VehicleStepResult result in candidates)
+        {
+            _vehicles[result.Snapshot.VehicleId].Commit(result.Snapshot);
+        }
+
+        Events.AdvanceTime(nextTick * 1000 / (ulong)Configuration.TicksPerSecond);
+        foreach (var outcome in precedingEvents ?? [])
+        {
+            Events.Record(outcome.Category, outcome.Kind, outcome.Actor, outcome.Target, outcome.Cause, tick: nextTick);
+        }
+
+        foreach (var result in candidates)
+        {
+            var vehicle = result.Snapshot;
+            float hp = requests.Single(request => request.VehicleId == vehicle.VehicleId).Reset.HasValue ? vehicle.Damage.MaxHP : State.Vehicles.Single(value => value.VehicleId == vehicle.VehicleId).Damage.CurrentHP;
+            foreach (var damage in result.DamageEvents)
+            {
+                hp = Math.Max(0, hp - damage.Amount);
+                Events.Record(EventCategory.Damage, "Applied", damage.Attribution.InstigatorId, vehicle.VehicleId, SafeCause(damage.Attribution), amount: damage.Amount, hp: hp, maxHP: vehicle.Damage.MaxHP, life: vehicle.LifeId, tick: nextTick);
+            }
+
+            if (!result.Reset && vehicle.CanInteract && vehicle.Damage.CurrentHP > hp)
+            {
+                Events.Record(EventCategory.Healing, "Applied", target: vehicle.VehicleId, cause: requests.Single(request => request.VehicleId == vehicle.VehicleId).RepairCause, amount: vehicle.Damage.CurrentHP - hp, hp: vehicle.Damage.CurrentHP, maxHP: vehicle.Damage.MaxHP, life: vehicle.LifeId, tick: nextTick);
+            }
+        }
+
+        foreach (var vehicle in transitions)
+        {
+            var lethal = vehicle.Damage.LastDamage;
+            Events.Record(EventCategory.Lifecycle, vehicle.CanInteract ? "Respawned" : vehicle.Lifecycle.ToString(), lethal?.Attribution.InstigatorId ?? 0, vehicle.VehicleId, lethal is null ? string.Empty : SafeCause(lethal.Attribution), life: vehicle.LifeId, tick: nextTick);
+        }
+
+        if (match is not null && State.Match?.Revision != match.Revision)
+        {
+            foreach (var death in match.Changes.Where(death => death.Killer != 0))
+            {
+                var victim = candidates.Single(result => result.Snapshot.VehicleId == death.Victim).Snapshot;
+                Events.Record(EventCategory.Lifecycle, "Kill", death.Killer, death.Victim, SafeCause(victim.Damage.LastDamage!.Attribution), life: death.Life, tick: nextTick);
+            }
+        }
+
+        if (match is not null && State.Match?.Phase != match.Phase)
+        {
+            Events.Record(EventCategory.Match, match.Phase.ToString(), actor: match.Winner ?? 0, tick: nextTick);
+        }
+
+        State = next;
+        LifecycleChanges = Array.AsReadOnly(transitions);
+
+        return Array.AsReadOnly(candidates);
     }
 
     /// <summary>Arms a one-match minimum-player override through the ordinary countdown lifecycle.</summary>
@@ -234,4 +293,11 @@ public sealed class Simulation
         State = state;
     }
 
+    private static string SafeCause(DamageContext attribution) => attribution.Source switch
+    {
+        "missile" => "Missile",
+        "collision" => attribution.InstigatorId == 0 ? "map collision" : "vehicle collision",
+        "explosion" => "explosion",
+        _ => "gameplay effect",
+    };
 }

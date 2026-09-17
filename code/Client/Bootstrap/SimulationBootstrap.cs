@@ -31,6 +31,8 @@ public sealed partial class SimulationBootstrap : Node
 
     /// <summary>Allows isolated runtime verification without authenticating an online identity.</summary>
     internal bool OnlineEnabled { get; set; } = true;
+    /// <summary>Prevents recursive composition when the exported executable runs its verification entry point.</summary>
+    internal bool VerificationChild { get; set; }
     /// <summary>Optional isolated storage for native integration checks.</summary>
     internal string? SettingsPath { get; set; }
 
@@ -41,6 +43,19 @@ public sealed partial class SimulationBootstrap : Node
         {
             // Replace the scene so the normal input owner exits before the verification scene creates its own.
             GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, "res://scenes/verification/statistic_checks.tscn");
+            return;
+        }
+
+        if (!VerificationChild && OS.GetCmdlineUserArgs().Contains("--event-log-check"))
+        {
+            var input = GetNodeOrNull<PlayerInput>("PlayerInput");
+            if (input is not null)
+            {
+                RemoveChild(input);
+                input.Free();
+            }
+
+            AddChild(new Verification.EventLogIntegrationChecks());
             return;
         }
 
@@ -91,6 +106,7 @@ public sealed partial class SimulationBootstrap : Node
             Position = () => _session?.Standings.Position ?? "--",
         };
         AddChild(combatHud);
+        AddChild(new Development.EventLogPanel { Name = "EventLog", Source = () => _arena?.Simulation.Events ?? _session?.Events, SuppressInput = open => _playerInput.Adapter.DiagnosticSuppressed = open });
         AddChild(new Hud.MatchStandings { Name = "MatchStandings", View = () => _session?.Standings });
         EosIdentityNode? online = null;
         if (OnlineEnabled && !OS.GetCmdlineUserArgs().Contains("--local-practice"))

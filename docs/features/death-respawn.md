@@ -39,3 +39,5 @@ See [reconnection and session resume](reconnection.md) for authenticated grace, 
 Host [Developer Options](developer-options.md) changes the existing `RespawnConfiguration`: new deaths use the current DelayTicks, while already committed deadlines remain stable. ClearHeldItemOnDeath is consumed by the existing inventory lifecycle policy. Live Max HP preserves health percentage and cannot revive an inactive life. Accepted configuration and revision accompany resume checkpoints.
 
 [Feature index](README.md)
+
+The [Event Log](event-log.md) consumes committed lifecycle transitions once, independently of unreliable pose publications. It preserves the affected life and lethal cause, while scored kill credit remains owned by match authority.
