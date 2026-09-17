@@ -39,6 +39,13 @@ public sealed partial class SimulationBootstrap : Node
     /// <inheritdoc />
     public override void _Ready()
     {
+        if (OnlineEnabled && OS.GetCmdlineUserArgs().Contains("--statistics-check"))
+        {
+            // Replace the scene so the normal input owner exits before the verification scene creates its own.
+            GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, "res://scenes/verification/statistic_checks.tscn");
+            return;
+        }
+
         if (!VerificationChild && OS.GetCmdlineUserArgs().Contains("--event-log-check"))
         {
             var input = GetNodeOrNull<PlayerInput>("PlayerInput");
@@ -74,6 +81,12 @@ public sealed partial class SimulationBootstrap : Node
         panel.Initialize(settings, _playerInput.Adapter);
         settings.AddChild(panel);
         _settingsPanel = panel;
+        var statistics = new Statistics.StatisticPanel { Name = "StatisticPanel" };
+        statistics.Initialize(_playerInput.Adapter);
+        statistics.Capture = selected => Statistics.RuntimeStatistics.Capture(_session, _arena, selected);
+        statistics.MenuOpen = () => panel.CurrentPage != MenuPage.Closed;
+        panel.DiagnosticOverlayOpen = () => statistics.IsOpen;
+        AddChild(statistics);
         panel.DeveloperOptions.Session = () => _session;
         panel.DeveloperOptions.Practice = () => _arena;
         panel.DeveloperOptions.IdentityDiagnostics = () => _online?.DeveloperDiagnostics ?? "EOS unavailable.";
