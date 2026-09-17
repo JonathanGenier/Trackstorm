@@ -225,7 +225,7 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
     }
 
     /// <inheritdoc />
-    public IDisposable Watch(string id, Action<OnlineLobby?, OnlineLobbyUpdateKind> changed, Action<OnlineProductUserId>? retired = null)
+    public IDisposable Watch(string id, Action<OnlineLobby?, OnlineLobbyUpdate> changed, Action<OnlineProductUserId>? retired = null)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         var watch = new EosLobbyWatch(_lobbies, _user, _callbackOwner, id, _enqueue, () => ReadCurrent(id), changed, retired);

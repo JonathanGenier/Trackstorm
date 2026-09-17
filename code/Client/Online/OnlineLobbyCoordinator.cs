@@ -46,7 +46,8 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     private (string Subject, ulong Epoch, long At, string[] Survivors)? _retiredHost;
     private int _metadataUpdates;
     private int _ownershipUpdates;
-    private int _membershipUpdates;
+    private int _joinedUpdates;
+    private int _departedUpdates;
     private int _retiredCallbacks;
     private int _coordinationRequests;
     private int _coordinationResults;
@@ -109,7 +110,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                     : "none";
             return $"EOS lobby: {lobby?.Id ?? "none"}; Trackstorm SessionId: {lobby?.Session.ToString() ?? "none"}; access: {lobby?.Access.ToString() ?? "none"}\n" +
                 $"Local PUID: {Identity}; owner: {lobby?.Owner.ToString() ?? "none"}; gameplay host: {lobby?.HostIdentity.ToString() ?? "none"}; EOS members: [{members}]\n" +
-                $"Coordinator active: {lobby is not null}; busy: {Busy}; membership generation: {_membership}; metadata/ownership/member callbacks: {_metadataUpdates}/{_ownershipUpdates}/{_membershipUpdates}; retired callbacks: {_retiredCallbacks}\n" +
+                $"Coordinator active: {lobby is not null}; busy: {Busy}; membership generation: {_membership}; metadata/ownership/joined/departed callbacks: {_metadataUpdates}/{_ownershipUpdates}/{_joinedUpdates}/{_departedUpdates}; retired callbacks: {_retiredCallbacks}\n" +
                 $"Coordination proof: {_lastCoordination}; pending: {_coordinationPending}; requests/results/successes: {_coordinationRequests}/{_coordinationResults}/{_coordinationSuccesses}; available: {coordinationAvailable}; age: {proofAge?.ToString("0.0") ?? "none"}s; lease: {CoordinationLeaseSeconds:0}s; authority retired: {_authorityRetired}\n" +
                 $"Lobby/availability updates: {_lobbyUpdates}/{_availabilityUpdates}; recovering membership: {_recoveringMembership}; resume pending/attempts: {_resumePending}/{_resumeAttempts}; locator: {locator}; status: {Status}";
         }
@@ -654,10 +655,11 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         {
             _watch = _provider.Watch(
                 lobby.Id,
-                (updated, kind) =>
+                (updated, update) =>
             {
                 if (!_disposed && membership == _membership && Active?.Id == lobby.Id && Active.Session == lobby.Session)
                 {
+                    OnlineLobbyUpdateKind kind = update.Kind;
                     if (kind == OnlineLobbyUpdateKind.Metadata)
                     {
                         _metadataUpdates++;
@@ -666,37 +668,41 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                     {
                         _ownershipUpdates++;
                     }
-                    else if (kind == OnlineLobbyUpdateKind.Membership)
+                    else if (kind == OnlineLobbyUpdateKind.Joined)
                     {
-                        _membershipUpdates++;
+                        _joinedUpdates++;
+                    }
+                    else if (kind == OnlineLobbyUpdateKind.Departed)
+                    {
+                        _departedUpdates++;
                     }
 
-                    if (updated is null && kind is OnlineLobbyUpdateKind.Metadata or OnlineLobbyUpdateKind.Ownership or OnlineLobbyUpdateKind.Membership)
+                    if (kind == OnlineLobbyUpdateKind.Closure)
                     {
-                        Status = $"Ignored an incomplete {kind.ToString().ToLowerInvariant()} refresh; membership is unchanged.";
-                    }
-                    else if (updated is null && !IsHost && _binding?.Driver.State is not null)
-                    {
-                        _recoveringMembership = true;
-                        _resumeStarted ??= _time.GetTimestamp();
-                        Active = Active with { MemberIds = Active.MemberIds.Where(member => !member.Equals(Identity)).ToArray() };
-                        Status = "Connection interrupted";
-                    }
-                    else if (updated is null)
-                    {
-                        Leave();
-                        Status = "Lobby closed.";
-                    }
-                    else
-                    {
-                        if (kind is OnlineLobbyUpdateKind.Metadata or OnlineLobbyUpdateKind.Ownership)
+                        if (!IsHost && _binding?.Driver.State is not null)
                         {
-                            ApplyMetadataUpdate(updated);
+                            _recoveringMembership = true;
+                            _resumeStarted ??= _time.GetTimestamp();
+                            Active = Active with { MemberIds = Active.MemberIds.Where(member => !member.Equals(Identity)).ToArray() };
+                            Status = "Connection interrupted";
                         }
                         else
                         {
-                            ApplyUpdate(updated);
+                            Leave();
+                            Status = "Lobby closed.";
                         }
+                    }
+                    else if (kind is OnlineLobbyUpdateKind.Joined or OnlineLobbyUpdateKind.Departed)
+                    {
+                        ApplyMembershipUpdate(updated, update);
+                    }
+                    else if (updated is null && kind is OnlineLobbyUpdateKind.Metadata or OnlineLobbyUpdateKind.Ownership)
+                    {
+                        Status = $"Ignored an incomplete {kind.ToString().ToLowerInvariant()} refresh; membership is unchanged.";
+                    }
+                    else if (updated is not null)
+                    {
+                        ApplyMetadataUpdate(updated);
                     }
                 }
             },
@@ -764,6 +770,24 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
 
         ApplyUpdate(lobby);
+    }
+
+    private void ApplyMembershipUpdate(OnlineLobby? refreshed, OnlineLobbyUpdate update)
+    {
+        if (Active is null || update.Target is not { } target)
+        {
+            Status = $"Ignored an incomplete {update.Kind.ToString().ToLowerInvariant()} event; membership is unchanged.";
+            return;
+        }
+
+        OnlineLobby current = Active;
+        OnlineLobby lobby = refreshed is { } snapshot && snapshot.Id == current.Id && snapshot.Session == current.Session && snapshot.Compatible
+            ? snapshot
+            : current;
+        var members = update.Kind == OnlineLobbyUpdateKind.Joined
+            ? current.MemberIds.Append(target).Distinct().ToArray()
+            : current.MemberIds.Where(member => !member.Equals(target)).ToArray();
+        ApplyUpdate(lobby with { Members = members.Length, MemberIds = members });
     }
 
     private void TickCoordination()

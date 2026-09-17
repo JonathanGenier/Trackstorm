@@ -44,8 +44,8 @@ internal interface IOnlineLobbyProvider : IDisposable
     void Leave(string id, bool destroy, Action<string?> completed);
     /// <summary>Registers one disposable membership notification subscription.</summary>
     /// <param name="id">Logical EOS lobby identity.</param>
-    /// <param name="changed">Consumer of metadata, ownership, membership or closure updates.</param>
+    /// <param name="changed">Consumer of metadata, ownership, targeted membership or closure updates.</param>
     /// <param name="retired">Authenticated service member-departure notification.</param>
     /// <returns>A subscription whose disposal makes queued notifications inert.</returns>
-    IDisposable Watch(string id, Action<OnlineLobby?, OnlineLobbyUpdateKind> changed, Action<OnlineProductUserId>? retired = null);
+    IDisposable Watch(string id, Action<OnlineLobby?, OnlineLobbyUpdate> changed, Action<OnlineProductUserId>? retired = null);
 }

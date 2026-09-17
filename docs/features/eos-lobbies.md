@@ -16,7 +16,7 @@ EOS **Lobbies** provides the persistent group, owner-controlled attributes, boun
 
 Both access modes use EOS `Publicadvertised` permission so they appear together. “Private” means a game-level access code, not EOS invite-only visibility. A new lobby starts hidden until its complete metadata is published. Invites, presence and RTC are disabled. EOS ownership migration is enabled for coordination; it never grants Trackstorm gameplay authority. EOS supplies owner, membership count and eight-member capacity. Custom attributes contain canonical `name`, Trackstorm `session`, `access`, a salted `verifier` for Locked lobbies, agreed `gameHost`/`epoch` routing, and `open` admission availability. A private per-member `coordination` nonce supports bounded service membership proofs without publishing credentials. Gameplay checkpoints remain outside lobby metadata. Indexed bucket `trackstorm-lobby-9` identifies compatibility. No Ready, phase, HP, vehicle, score or item state is stored in attributes. When an attached host driver enters an arena, its authority-derived `open` attribute excludes it from normal discovery; returning to lobby opens discovery again. EOS permission remains Publicadvertised so retained players can search by lobby ID and use ordinary Join while fresh gameplay admission is closed. The native-invite-only JoinLobbyById API is not used for resume. Core independently rejects invalid admission if a publication races discovery.
 
-Provider notifications merge against the established Trackstorm routing fence. A lower `epoch` cannot replace the current `gameHost` or authority epoch. At the current epoch, a different `gameHost` is treated as conflicting and the established route is retained. Name, ownership and availability can refresh from metadata/ownership notifications; the admitted roster refreshes only from actual membership transitions. Restart locators retain the last established epoch and host so a delayed snapshot cannot route a resumed process to retired authority. A higher epoch remains eligible as the result of the independent Trackstorm migration flow; EOS ownership alone still cannot create gameplay authority.
+Provider notifications merge against the established Trackstorm routing fence. A lower `epoch` cannot replace the current `gameHost` or authority epoch. At the current epoch, a different `gameHost` is treated as conflicting and the established route is retained. Name, ownership and availability can refresh from metadata/ownership notifications. An EOS member-status event authorizes only its explicit target transition: Joined adds that target, while remote Left/Kicked/Disconnected removes that target. Every unrelated admitted member is preserved even when the accompanying lobby-details copy omits it. Restart locators retain the last established epoch and host so a delayed snapshot cannot route a resumed process to retired authority. A higher epoch remains eligible as the result of the independent Trackstorm migration flow; EOS ownership alone still cannot create gameplay authority.
 
 ## Lightweight Credential Handling
 
@@ -35,17 +35,19 @@ Native callbacks enqueue managed work for delivery after platform Tick. Disposab
 Lobby-attribute, ownership-promotion and actual membership notifications have
 different authority. Attribute and Promoted refreshes may carry a temporarily
 incomplete cached member list, so they can update name, owner, access, availability
-and routing but cannot remove an admitted member or tear down P2P. Only Joined,
-Left, Kicked or Disconnected status can replace membership; an incomplete details
-copy during any refresh is ignored. Explicit local Left/Kicked/Disconnected or
-lobby Closed status still enters the normal recovery/closure path. Promotion is
-not retirement evidence and never grants Trackstorm gameplay authority. Private
+and routing but cannot remove an admitted member or tear down P2P. Joined adds only
+the callback target; remote Left/Kicked/Disconnected removes and disconnects only
+the callback target. Arbitrary omissions from the accompanying details copy never
+remove unrelated admitted members. Explicit local Left/Kicked/Disconnected or
+lobby Closed status still enters the normal recovery/closure path. Only actual
+Left/Kicked/Disconnected callbacks provide retirement evidence. Promotion is not
+retirement evidence and never grants Trackstorm gameplay authority. Private
 coordination writes and EOS ownership migration therefore cannot churn a healthy
 Public or Locked gameplay session.
 
 Developer Options exposes credential-free coordination diagnostics: EOS lobby ID,
 Trackstorm SessionId, access mode, fingerprinted local/owner/gameplay-host
-identities and member list, metadata/ownership/member/retirement callback counters, proof
+identities and member list, metadata/ownership/joined/departed/retirement callback counters, proof
 request/result counts and lease age, availability updates, recovery state and
 resume-locator generation. Passwords, verifier bytes, raw PUIDs and tokens are
 never formatted.

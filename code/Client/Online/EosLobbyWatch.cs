@@ -20,7 +20,7 @@ internal sealed class EosLobbyWatch : IDisposable
     /// <param name="read">Copies current native membership into plain Client data.</param>
     /// <param name="changed">Consumer of metadata, ownership or service-confirmed membership changes.</param>
     /// <param name="retired">Service-confirmed departed members; cached snapshots cannot produce this signal.</param>
-    internal EosLobbyWatch(LobbyInterface lobbies, ProductUserId user, object owner, string id, Action<Action> enqueue, Func<OnlineLobby?> read, Action<OnlineLobby?, OnlineLobbyUpdateKind> changed, Action<OnlineProductUserId>? retired)
+    internal EosLobbyWatch(LobbyInterface lobbies, ProductUserId user, object owner, string id, Action<Action> enqueue, Func<OnlineLobby?> read, Action<OnlineLobby?, OnlineLobbyUpdate> changed, Action<OnlineProductUserId>? retired)
     {
         _lobbies = lobbies;
         var update = default(AddNotifyLobbyUpdateReceivedOptions);
@@ -32,7 +32,7 @@ internal sealed class EosLobbyWatch : IDisposable
                 {
                     if (!_disposed)
                     {
-                        changed(read(), OnlineLobbyUpdateKind.Metadata);
+                        changed(read(), new(OnlineLobbyUpdateKind.Metadata));
                     }
                 });
             }
@@ -40,8 +40,9 @@ internal sealed class EosLobbyWatch : IDisposable
         var member = default(AddNotifyLobbyMemberStatusReceivedOptions);
         _member = lobbies.AddNotifyLobbyMemberStatusReceived(ref member, owner, (ref LobbyMemberStatusReceivedCallbackInfo info) =>
         {
-            OnlineLobbyUpdateKind kind = Classify(info.CurrentStatus, info.TargetUserId.Equals(user));
             string subject = info.TargetUserId.ToString();
+            var target = new OnlineProductUserId(subject);
+            OnlineLobbyUpdateKind kind = Classify(info.CurrentStatus, info.TargetUserId.Equals(user));
             bool departed = IsDeparture(info.CurrentStatus);
             if (info.LobbyId.ToString() == id)
             {
@@ -49,10 +50,10 @@ internal sealed class EosLobbyWatch : IDisposable
                 {
                     if (!_disposed)
                     {
-                        changed(kind == OnlineLobbyUpdateKind.Closure ? null : read(), kind);
+                        changed(kind == OnlineLobbyUpdateKind.Closure ? null : read(), new(kind, target));
                         if (departed)
                         {
-                            retired?.Invoke(new OnlineProductUserId(subject));
+                            retired?.Invoke(target);
                         }
 
                     }
@@ -100,7 +101,8 @@ internal sealed class EosLobbyWatch : IDisposable
         LobbyMemberStatus.Closed => OnlineLobbyUpdateKind.Closure,
         LobbyMemberStatus.Left or LobbyMemberStatus.Kicked or LobbyMemberStatus.Disconnected when local => OnlineLobbyUpdateKind.Closure,
         LobbyMemberStatus.Promoted => OnlineLobbyUpdateKind.Ownership,
-        LobbyMemberStatus.Joined or LobbyMemberStatus.Left or LobbyMemberStatus.Kicked or LobbyMemberStatus.Disconnected => OnlineLobbyUpdateKind.Membership,
+        LobbyMemberStatus.Joined => OnlineLobbyUpdateKind.Joined,
+        LobbyMemberStatus.Left or LobbyMemberStatus.Kicked or LobbyMemberStatus.Disconnected => OnlineLobbyUpdateKind.Departed,
         _ => OnlineLobbyUpdateKind.Metadata,
     };
 

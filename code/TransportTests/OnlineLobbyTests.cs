@@ -15,11 +15,11 @@ internal sealed class OnlineLobbyTests
     /// <param name="local">Whether the status targets the local member.</param>
     /// <param name="kind">Expected local update authority.</param>
     /// <param name="departure">Whether the status can produce retirement evidence.</param>
-    [TestCase(LobbyMemberStatus.Joined, false, OnlineLobbyUpdateKind.Membership, false)]
+    [TestCase(LobbyMemberStatus.Joined, false, OnlineLobbyUpdateKind.Joined, false)]
     [TestCase(LobbyMemberStatus.Promoted, false, OnlineLobbyUpdateKind.Ownership, false)]
-    [TestCase(LobbyMemberStatus.Left, false, OnlineLobbyUpdateKind.Membership, true)]
-    [TestCase(LobbyMemberStatus.Kicked, false, OnlineLobbyUpdateKind.Membership, true)]
-    [TestCase(LobbyMemberStatus.Disconnected, false, OnlineLobbyUpdateKind.Membership, true)]
+    [TestCase(LobbyMemberStatus.Left, false, OnlineLobbyUpdateKind.Departed, true)]
+    [TestCase(LobbyMemberStatus.Kicked, false, OnlineLobbyUpdateKind.Departed, true)]
+    [TestCase(LobbyMemberStatus.Disconnected, false, OnlineLobbyUpdateKind.Departed, true)]
     [TestCase(LobbyMemberStatus.Left, true, OnlineLobbyUpdateKind.Closure, true)]
     [TestCase(LobbyMemberStatus.Kicked, true, OnlineLobbyUpdateKind.Closure, true)]
     [TestCase(LobbyMemberStatus.Disconnected, true, OnlineLobbyUpdateKind.Closure, true)]
@@ -52,7 +52,7 @@ internal sealed class OnlineLobbyTests
 
         OnlineLobby stable = service.Lobbies[host.Active.Id];
         service.Lobbies[stable.Id] = stable with { Members = 1, MemberIds = new[] { User(1) } };
-        service.Notify(stable.Id, OnlineLobbyUpdateKind.Metadata);
+        service.Notify(stable.Id, new(OnlineLobbyUpdateKind.Metadata));
 
         Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
         Assert.That(binding.Driver.State.Players.Single(player => player.Id == 2).Connected, Is.True);
@@ -86,7 +86,7 @@ internal sealed class OnlineLobbyTests
 
         OnlineLobby promoted = service.Lobbies[host.Active.Id] with { Owner = User(2) };
         service.Lobbies[promoted.Id] = promoted;
-        service.Notify(promoted.Id, OnlineLobbyUpdateKind.Ownership);
+        service.Notify(promoted.Id, new(OnlineLobbyUpdateKind.Ownership));
         Assert.That(host.Active!.Owner, Is.EqualTo(User(2)));
         Assert.That(host.Active.MemberIds, Does.Contain(User(2)));
         Assert.That(host.Active.HostIdentity, Is.EqualTo(User(1)));
@@ -95,7 +95,7 @@ internal sealed class OnlineLobbyTests
         Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
 
         service.Lobbies[promoted.Id] = promoted with { Members = 1, MemberIds = new[] { User(1) } };
-        service.Notify(promoted.Id, OnlineLobbyUpdateKind.Ownership);
+        service.Notify(promoted.Id, new(OnlineLobbyUpdateKind.Ownership));
 
         Assert.That(host.Active.MemberIds, Does.Contain(User(2)));
         Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
@@ -104,32 +104,89 @@ internal sealed class OnlineLobbyTests
         Assert.That(host.Diagnostics, Does.Contain("retired callbacks: 0"));
     }
 
-    /// <summary>An actual member departure still tears down its authenticated transport and Core connection.</summary>
-    [Test]
-    public void ActualMembershipDepartureDisconnectsAdmittedMember()
+    /// <summary>An actual member departure removes only its target and tears down that transport/Core connection.</summary>
+    /// <param name="status">Native departure operation represented by the targeted event.</param>
+    /// <param name="access">Admission policy; post-admission departure behavior must be identical.</param>
+    [TestCase(LobbyMemberStatus.Left, LobbyAccess.Public)]
+    [TestCase(LobbyMemberStatus.Kicked, LobbyAccess.Public)]
+    [TestCase(LobbyMemberStatus.Disconnected, LobbyAccess.Public)]
+    [TestCase(LobbyMemberStatus.Left, LobbyAccess.Locked)]
+    [TestCase(LobbyMemberStatus.Kicked, LobbyAccess.Locked)]
+    [TestCase(LobbyMemberStatus.Disconnected, LobbyAccess.Locked)]
+    public void ActualMembershipDepartureDisconnectsAdmittedMember(LobbyMemberStatus status, LobbyAccess access)
     {
         var service = new Service();
         using var host = service.Coordinator(1);
         using var client = service.Coordinator(2);
-        host.Create("Departure", LobbyAccess.Public, null);
+        using var departing = service.Coordinator(3);
+        host.Create("Departure", access, "test-code");
         client.Refresh();
-        client.Join(host.Active!.Id);
+        client.Join(host.Active!.Id, access == LobbyAccess.Locked ? "test-code" : null);
+        departing.Refresh();
+        departing.Join(host.Active.Id, access == LobbyAccess.Locked ? "test-code" : null);
         using var gateway = new Gateway();
         var binding = host.AttachTransport(gateway, 0, "Host");
         gateway.ConnectPeer(20);
-        Assert.That(binding.AuthorizePeer(20, User(2), null), Is.True);
+        Assert.That(binding.AuthorizePeer(20, User(2), access == LobbyAccess.Locked ? "test-code" : null), Is.True);
+        gateway.ReceiveJoin(20, "Client");
+        gateway.ConnectPeer(30);
+        Assert.That(binding.AuthorizePeer(30, User(3), access == LobbyAccess.Locked ? "test-code" : null), Is.True);
+        gateway.ReceiveJoin(30, "Departing");
+        binding.Driver.Pump(0);
+
+        OnlineLobby lobby = service.Lobbies[host.Active.Id];
+        service.Lobbies[lobby.Id] = lobby with { Members = 2, MemberIds = new[] { User(1), User(2) } };
+        OnlineLobby partial = lobby with { Members = 1, MemberIds = new[] { User(1) } };
+        service.Notify(lobby.Id, partial, new(EosLobbyWatch.Classify(status, false), User(3)));
+        service.Retire(lobby.Id, User(3));
+        binding.Driver.Pump(0);
+
+        Assert.That(host.Active!.MemberIds, Does.Contain(User(2)));
+        Assert.That(host.Active.MemberIds, Does.Not.Contain(User(3)));
+        Assert.That(host.Active.Members, Is.EqualTo(2));
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+        Assert.That(gateway.Connections[30], Is.EqualTo(TransportConnectionState.Disconnected));
+        Assert.That(binding.Driver.State!.Players.Single(player => player.Id == 2).Connected, Is.True);
+        Assert.That(binding.Driver.State.Players.Single(player => player.Id == 3).Connected, Is.False);
+        Assert.That(host.Diagnostics, Does.Contain("retired callbacks: 1"));
+    }
+
+    /// <summary>A member join cannot remove an unrelated admitted member omitted from the refreshed snapshot.</summary>
+    /// <param name="access">Admission policy; post-admission membership behavior must be identical.</param>
+    /// <param name="omitsTarget">Whether the partial snapshot omits the joined target instead of an unrelated member.</param>
+    [TestCase(LobbyAccess.Public, false)]
+    [TestCase(LobbyAccess.Public, true)]
+    [TestCase(LobbyAccess.Locked, false)]
+    [TestCase(LobbyAccess.Locked, true)]
+    public void MembershipJoinRefreshCannotTearDownUnrelatedAdmittedMember(LobbyAccess access, bool omitsTarget)
+    {
+        var service = new Service();
+        using var host = service.Coordinator(1);
+        using var client = service.Coordinator(2);
+        host.Create("Partial join", access, "test-code");
+        client.Refresh();
+        client.Join(host.Active!.Id, access == LobbyAccess.Locked ? "test-code" : null);
+        using var gateway = new Gateway();
+        var binding = host.AttachTransport(gateway, 0, "Host");
+        gateway.ConnectPeer(20);
+        Assert.That(binding.AuthorizePeer(20, User(2), access == LobbyAccess.Locked ? "test-code" : null), Is.True);
         gateway.ReceiveJoin(20, "Client");
         binding.Driver.Pump(0);
 
         OnlineLobby lobby = service.Lobbies[host.Active.Id];
-        service.Lobbies[lobby.Id] = lobby with { Members = 1, MemberIds = new[] { User(1) } };
-        service.Notify(lobby.Id, OnlineLobbyUpdateKind.Membership);
-        service.Retire(lobby.Id, User(2));
+        service.Lobbies[lobby.Id] = lobby with { Members = 3, MemberIds = new[] { User(1), User(2), User(3) } };
+        OnlineLobby partial = lobby with
+        {
+            Members = 2,
+            MemberIds = omitsTarget ? new[] { User(1), User(2) } : new[] { User(1), User(3) },
+        };
+        service.Notify(lobby.Id, partial, new(OnlineLobbyUpdateKind.Joined, User(3)));
 
-        Assert.That(host.Active!.MemberIds, Does.Not.Contain(User(2)));
-        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Disconnected));
-        Assert.That(binding.Driver.State!.Players.Single(player => player.Id == 2).Connected, Is.False);
-        Assert.That(host.Diagnostics, Does.Contain("retired callbacks: 1"));
+        Assert.That(host.Active!.MemberIds, Does.Contain(User(2)));
+        Assert.That(host.Active.MemberIds, Does.Contain(User(3)));
+        Assert.That(host.Active.Members, Is.EqualTo(3));
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+        Assert.That(binding.Driver.State!.Players.Single(player => player.Id == 2).Connected, Is.True);
     }
 
     /// <summary>Repeated proof-related metadata refreshes leave a healthy Locked session intact beyond reconnect grace.</summary>
@@ -180,7 +237,7 @@ internal sealed class OnlineLobbyTests
 
         Assert.That(service.ProofRequests, Is.GreaterThanOrEqualTo(16));
         Assert.That(hostBinding.Driver.State.Players.Single(player => player.Id == 2).Connected, Is.True);
-        Assert.That(client.Diagnostics, Does.Contain("metadata/ownership/member callbacks:"));
+        Assert.That(client.Diagnostics, Does.Contain("metadata/ownership/joined/departed callbacks:"));
         Assert.That(client.Diagnostics, Does.Contain("recovering membership: False"));
         Assert.That(client.Diagnostics, Does.Not.Contain("test-code"));
         Assert.That(client.Diagnostics, Does.Not.Contain(User(1).Value));
@@ -239,8 +296,11 @@ internal sealed class OnlineLobbyTests
     }
 
     /// <summary>Only explicit service retirement, a full lease wait and the exact survivor cohort permit recovery.</summary>
-    [Test]
-    public void RetirementRequiresServiceEventFreshMembershipAndMatchingCohort()
+    /// <param name="status">Native established-host departure that supplies retirement evidence.</param>
+    [TestCase(LobbyMemberStatus.Left)]
+    [TestCase(LobbyMemberStatus.Kicked)]
+    [TestCase(LobbyMemberStatus.Disconnected)]
+    public void RetirementRequiresServiceEventFreshMembershipAndMatchingCohort(LobbyMemberStatus status)
     {
         var service = new Service();
         var clock = new Clock();
@@ -258,7 +318,7 @@ internal sealed class OnlineLobbyTests
         var checkpoint = new MigrationCheckpoint(1, binding.Driver.Authority!.Capture(User(1).Value), null, null);
         string id = host.Active.Id;
         service.Lobbies[id] = client.Active! with { Owner = User(2), MemberIds = new[] { User(2) }, Members = 1 };
-        service.Notify(id, OnlineLobbyUpdateKind.Ownership);
+        service.Notify(id, new(OnlineLobbyUpdateKind.Ownership));
         clock.Advance(11);
         client.Tick();
         Assert.That(client.Active!.MemberIds, Does.Contain(User(1)), "Promotion snapshots cannot remove the established host.");
@@ -266,6 +326,7 @@ internal sealed class OnlineLobbyTests
         Assert.That(client.HostRetired(checkpoint), Is.False, "Ownership and membership snapshots are not a retirement event.");
         Assert.That(client.HostRetiredAt(checkpoint), Is.Null);
         long retirementAt = clock.GetTimestamp();
+        service.Notify(id, new(EosLobbyWatch.Classify(status, false), User(1)));
         service.Retire(id, User(1));
         clock.Advance(9);
         client.Tick();
@@ -278,7 +339,7 @@ internal sealed class OnlineLobbyTests
         Assert.That(client.HostRetired(checkpoint), Is.False, "The survivor must itself have current service membership.");
         client.Tick();
         service.Lobbies[id] = client.Active! with { MemberIds = new[] { User(2), User(3) }, Members = 2 };
-        service.Notify(id);
+        service.Notify(id, new(OnlineLobbyUpdateKind.Joined, User(3)));
         service.Retire(id, User(1));
         clock.Advance(11);
         client.Tick();
@@ -339,7 +400,7 @@ internal sealed class OnlineLobbyTests
             Assert.That(returning.Active, Is.Null, "A returning old host must not reconnect to its cached self route.");
             Assert.That(returning.Status, Does.Contain("replacement host"));
             service.Lobbies[id] = service.Lobbies[id] with { Owner = User(2), GameplayHost = User(2), AuthorityEpoch = 2, Open = false };
-            service.Notify(id);
+            service.Notify(id, new(OnlineLobbyUpdateKind.Metadata));
             clock.Advance(3);
             returning.Tick();
             Assert.That(returning.Active!.HostIdentity, Is.EqualTo(User(2)));
@@ -379,7 +440,7 @@ internal sealed class OnlineLobbyTests
             if (access == LobbyAccess.Locked)
             {
                 service.Lobbies[id] = service.Lobbies[id] with { MemberIds = new[] { User(1), User(2), User(3) }, Members = 3 };
-                service.Notify(id);
+                service.Notify(id, new(OnlineLobbyUpdateKind.Joined, User(3)));
                 replacementGateway.ConnectPeer(50);
                 Assert.That(replacement.AuthorizePeer(50, User(3), null), Is.False, "EOS membership cannot bypass fresh Locked admission.");
             }
@@ -402,7 +463,7 @@ internal sealed class OnlineLobbyTests
         client.Join(host.Active!.Id, null);
         var before = client.Active!;
         service.Lobbies[before.Id] = before with { Owner = User(2) };
-        service.Notify(before.Id, OnlineLobbyUpdateKind.Ownership);
+        service.Notify(before.Id, new(OnlineLobbyUpdateKind.Ownership));
         Assert.That(client.IsHost, Is.True);
         Assert.That(client.StartsGameplayAuthority, Is.False);
         Assert.That(client.Active!.Session, Is.EqualTo(before.Session));
@@ -429,7 +490,7 @@ internal sealed class OnlineLobbyTests
 
             var epochTwo = epochOne with { Owner = User(2), GameplayHost = User(2), AuthorityEpoch = 2 };
             service.Lobbies[epochOne.Id] = epochTwo;
-            service.Notify(epochOne.Id, OnlineLobbyUpdateKind.Ownership);
+            service.Notify(epochOne.Id, new(OnlineLobbyUpdateKind.Ownership));
             Assert.That(client.Active!.AuthorityEpoch, Is.EqualTo(2));
             Assert.That(client.Active.HostIdentity, Is.EqualTo(User(2)));
 
@@ -443,7 +504,7 @@ internal sealed class OnlineLobbyTests
                 AuthorityEpoch = 1,
             };
             service.Lobbies[epochOne.Id] = delayedEpochOne;
-            service.Notify(epochOne.Id);
+            service.Notify(epochOne.Id, new(OnlineLobbyUpdateKind.Joined, User(3)));
             Assert.That(client.Active!.Session, Is.EqualTo(epochOne.Session));
             Assert.That(client.Active.AuthorityEpoch, Is.EqualTo(2));
             Assert.That(client.Active.HostIdentity, Is.EqualTo(User(2)));
@@ -460,7 +521,7 @@ internal sealed class OnlineLobbyTests
                 AuthorityEpoch = 2,
             };
             service.Lobbies[epochOne.Id] = conflictingEpochTwo;
-            service.Notify(epochOne.Id);
+            service.Notify(epochOne.Id, new(OnlineLobbyUpdateKind.Joined, User(4)));
             Assert.That(client.Active.AuthorityEpoch, Is.EqualTo(2));
             Assert.That(client.Active.HostIdentity, Is.EqualTo(User(2)));
             Assert.That(client.Active.Owner, Is.EqualTo(User(4)));
@@ -733,7 +794,7 @@ internal sealed class OnlineLobbyTests
             Assert.That(host.Browser.Rows.Any(row => row.Id == id), Is.False);
             Assert.That(client.Browser.Rows.Any(row => row.Id == id), Is.False);
             host.Create("Replacement", LobbyAccess.Locked, "new-code");
-            late(null, OnlineLobbyUpdateKind.Closure);
+            late(null, new(OnlineLobbyUpdateKind.Closure));
             Assert.That(host.Active!.Name, Is.EqualTo("Replacement"));
             client.Refresh();
             client.Join(host.Active.Id, "old-code");
@@ -810,7 +871,7 @@ internal sealed class OnlineLobbyTests
         client.Leave();
         client.Refresh();
         client.Join(host.Active.Id);
-        late(null, OnlineLobbyUpdateKind.Closure);
+        late(null, new(OnlineLobbyUpdateKind.Closure));
         Assert.That(client.Active, Is.Not.Null);
         Assert.That(service.Watches.Count, Is.EqualTo(2));
     }
@@ -989,7 +1050,7 @@ internal sealed class OnlineLobbyTests
             using var host = service.Coordinator(1);
             host.Create("Hidden match", LobbyAccess.Public, null);
             service.Lobbies[host.Active!.Id] = host.Active with { Open = false };
-            service.Notify(host.Active.Id);
+            service.Notify(host.Active.Id, new(OnlineLobbyUpdateKind.Metadata));
             var locator = new ResumeLocator(host.Active!.Id, host.Active.Session, 2, 4, User(2).Value, host.Active.AuthorityEpoch, User(1).Value, DateTimeOffset.UtcNow.AddMinutes(2));
             store.Save(locator);
             using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
@@ -1050,11 +1111,13 @@ internal sealed class OnlineLobbyTests
             }
         }
 
-        internal void Notify(string id, OnlineLobbyUpdateKind kind = OnlineLobbyUpdateKind.Membership)
+        internal void Notify(string id, OnlineLobbyUpdate update) => Notify(id, Lobbies.GetValueOrDefault(id), update);
+
+        internal void Notify(string id, OnlineLobby? lobby, OnlineLobbyUpdate update)
         {
             foreach (var watch in Watches.Where(watch => watch.Id == id).ToArray())
             {
-                watch.Changed(Lobbies.GetValueOrDefault(id), kind);
+                watch.Changed(lobby, update);
             }
         }
 
@@ -1062,7 +1125,7 @@ internal sealed class OnlineLobbyTests
         {
             foreach (var watch in Watches.Where(watch => watch.Id == id).ToArray())
             {
-                watch.Changed(lobby, OnlineLobbyUpdateKind.Metadata);
+                watch.Changed(lobby, new(OnlineLobbyUpdateKind.Metadata));
             }
         }
 
@@ -1070,7 +1133,7 @@ internal sealed class OnlineLobbyTests
         {
             foreach (var watch in Watches.Where(watch => watch.Id == id).ToArray())
             {
-                watch.Changed(null, OnlineLobbyUpdateKind.Membership);
+                watch.Changed(null, new(OnlineLobbyUpdateKind.Joined));
             }
         }
 
@@ -1084,10 +1147,10 @@ internal sealed class OnlineLobbyTests
         }
     }
 
-    private sealed class Watch(Service service, string id, Action<OnlineLobby?, OnlineLobbyUpdateKind> changed, Action<OnlineProductUserId>? retired) : IDisposable
+    private sealed class Watch(Service service, string id, Action<OnlineLobby?, OnlineLobbyUpdate> changed, Action<OnlineProductUserId>? retired) : IDisposable
     {
         internal string Id { get; } = id;
-        internal Action<OnlineLobby?, OnlineLobbyUpdateKind> Changed { get; } = changed;
+        internal Action<OnlineLobby?, OnlineLobbyUpdate> Changed { get; } = changed;
         internal Action<OnlineProductUserId>? Retired { get; } = retired;
         public void Dispose() => service.Watches.Remove(this);
     }
@@ -1100,7 +1163,7 @@ internal sealed class OnlineLobbyTests
         {
             var current = service.Lobbies[id] with { Open = open };
             service.Lobbies[id] = current;
-            service.Notify(id, OnlineLobbyUpdateKind.Metadata);
+            service.Notify(id, new(OnlineLobbyUpdateKind.Metadata));
             completed(current, null);
         }
 
@@ -1129,7 +1192,7 @@ internal sealed class OnlineLobbyTests
 
             lobby = lobby with { Members = lobby.Members + 1, MemberIds = lobby.MemberIds.Append(user).ToArray() };
             service.Lobbies[id] = lobby;
-            service.Notify(id);
+            service.Notify(id, new(OnlineLobbyUpdateKind.Joined, user));
             service.Complete(() => completed(lobby, null));
         }
 
@@ -1160,7 +1223,7 @@ internal sealed class OnlineLobbyTests
             var members = lobby.MemberIds.Append(user).Distinct().ToArray();
             lobby = lobby with { Members = members.Length, MemberIds = members };
             service.Lobbies[id] = lobby;
-            service.Notify(id);
+            service.Notify(id, new(OnlineLobbyUpdateKind.Joined, user));
             service.Complete(() => completed(lobby, null));
         }
 
@@ -1175,7 +1238,7 @@ internal sealed class OnlineLobbyTests
 
             current = current with { Name = lobby.Name };
             service.Lobbies[lobby.Id] = current;
-            service.Notify(lobby.Id, OnlineLobbyUpdateKind.Metadata);
+            service.Notify(lobby.Id, new(OnlineLobbyUpdateKind.Metadata));
             service.Complete(() => completed(current, null));
         }
 
@@ -1199,13 +1262,13 @@ internal sealed class OnlineLobbyTests
                     service.Lobbies[id] = lobby with { Members = members.Length, MemberIds = members };
                 }
 
-                service.Notify(id, destroy ? OnlineLobbyUpdateKind.Closure : OnlineLobbyUpdateKind.Membership);
+                service.Notify(id, new(destroy ? OnlineLobbyUpdateKind.Closure : OnlineLobbyUpdateKind.Departed, user));
             }
 
             service.Complete(() => completed(null));
         }
 
-        public IDisposable Watch(string id, Action<OnlineLobby?, OnlineLobbyUpdateKind> changed, Action<OnlineProductUserId>? retired = null)
+        public IDisposable Watch(string id, Action<OnlineLobby?, OnlineLobbyUpdate> changed, Action<OnlineProductUserId>? retired = null)
         {
             var watch = new Watch(service, id, changed, retired);
             service.Watches.Add(watch);

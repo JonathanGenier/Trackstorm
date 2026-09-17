@@ -9,8 +9,11 @@ internal enum OnlineLobbyUpdateKind
     /// <summary>EOS lobby ownership changed; admitted membership and gameplay authority are not affected.</summary>
     Ownership,
 
-    /// <summary>EOS reported a member join or actual departure.</summary>
-    Membership,
+    /// <summary>EOS explicitly reported one member joining.</summary>
+    Joined,
+
+    /// <summary>EOS explicitly reported one member leaving, being kicked or disconnecting.</summary>
+    Departed,
 
     /// <summary>EOS explicitly reported local departure or lobby closure.</summary>
     Closure,

@@ -14,8 +14,9 @@ A healthy host continues simulating when a non-host client disappears, without w
 
 The proof's private member-attribute update is not a gameplay membership mutation.
 Lobby metadata and EOS ownership-promotion callbacks cannot remove peers. Only
-Joined, Left, Kicked or Disconnected status may replace the admitted member set,
-and only Left/Kicked/Disconnected produces retirement evidence. Promotion alone
+Joined may add its explicit target, and Left/Kicked/Disconnected may remove only
+their explicit target; omissions in an accompanying details snapshot have no
+authority over unrelated members. Only Left/Kicked/Disconnected produces retirement evidence. Promotion alone
 cannot retire the old host or grant Trackstorm authority. This keeps Public and
 Locked sessions on the same stable post-admission lifecycle while preserving
 fail-closed proof expiry and service-confirmed host retirement.
