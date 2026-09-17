@@ -5,6 +5,8 @@ using Trackstorm.Client.Networking;
 using Trackstorm.Core.Items;
 using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Sessions;
+using Trackstorm.Core.Simulation;
+using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Client.Verification;
 
@@ -19,10 +21,12 @@ public sealed partial class ReconnectIntegrationChecks : Node
     private string _endpoint = string.Empty;
     private string _output = string.Empty;
     private double _elapsed;
+    private double _captureAt;
     private int _stage;
     private int _resyncs;
     private ulong _player;
     private NetworkVehicleBody? _originalBody;
+    private RemoteVehicleTag? _originalTag;
     private byte[]? _retiredLatency;
     private bool _finished;
     private int _cleanup;
@@ -155,6 +159,50 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 Require(_arenas[1].LocalState!.Damage == world.Vehicles.Single(v => v.State.VehicleId == _player).State.Damage, "Current HP is restored.");
                 Require(_arenas[1].Driver.Configuration == _arenas[0].Driver.Configuration, "Current host tuning and revision are restored before prediction.");
             };
+            _stage = 40;
+        }
+        else if (_stage == 40 && _arenas[1].Driver.Match?.Phase == Trackstorm.Core.Matches.MatchPhase.Active)
+        {
+            _originalTag = _arenas[0].Bodies[_player].GetNode<RemoteVehicleTag>("PlayerTag");
+            RestoreHealthFixture(false);
+            _stage = 41;
+        }
+        else if (_stage == 41 && _arenas.All(arena => arena.Driver.Latest!.Vehicles.All(vehicle => vehicle.State.Damage.CurrentHP == 400)))
+        {
+            VerifyTags();
+            foreach (var state in _arenas[0].Driver.Host!.World.State.Vehicles)
+            {
+                Require(_arenas[0].Driver.Host!.Items.Grant(_arenas[0].Driver.Host!.World, state.VehicleId, HeldItem.Wrench), "Grant production healing item.");
+            }
+
+            _stage = 42;
+        }
+        else if (_stage == 42 && _arenas.All(arena => arena.Driver.LocalItem?.Item == HeldItem.Wrench))
+        {
+            foreach (var arena in _arenas)
+            {
+                Require(arena.Driver.RequestItemUse(), "Both peers request actual Wrench healing.");
+            }
+
+            _stage = 43;
+        }
+        else if (_stage == 43 && _arenas.All(arena => arena.Driver.Latest!.Vehicles.All(vehicle => vehicle.State.Damage.CurrentHP > 400)))
+        {
+            VerifyTags();
+            RestoreHealthFixture(true);
+            _stage = 44;
+        }
+        else if (_stage == 44 && _arenas.All(arena => !arena.Driver.Latest!.Vehicles.Single(vehicle => vehicle.State.VehicleId == _player).State.CanInteract))
+        {
+            VerifyTags();
+            Require(!_originalTag!.Visible, "Actual collision death hides remote tag.");
+            _stage = 45;
+        }
+        else if (_stage == 45 && _arenas.All(arena => arena.Driver.Latest!.Vehicles.Single(vehicle => vehicle.State.VehicleId == _player).State.CanInteract))
+        {
+            VerifyTags();
+            Require(_originalTag!.Visible && _arenas.All(arena => arena.Driver.Latest!.Vehicles.Single(vehicle => vehicle.State.VehicleId == _player).State.Damage.CurrentHP == 1000), "Actual respawn restores full health and original tag.");
+            GD.Print("Remote tags passed over two-peer UDP: damaged snapshot, actual Wrench healing, collision death, timed respawn, matching host/client names and no local tags.");
             _stage = 4;
         }
         else if (_stage == 4 && _arenas[1].Driver.Prediction is not null && _arenas[1].Driver.Match?.Phase == Trackstorm.Core.Matches.MatchPhase.Active)
@@ -172,6 +220,9 @@ public sealed partial class ReconnectIntegrationChecks : Node
             Require(standings.Rows.Count == 2 && standings.Rows.Single(row => row.Local).PlayerId == _player && standings.Rows.Single(row => row.Local).Ping != "--", "Resumed standings retain identity, rank and fresh transport-neutral ping.");
             Require(Settings.DiagnosticsView.Create(new(), null, TransportDiagnostics.Capture(_gateways[1], _client)).Ping == "Ping  " + standings.Rows.Single(row => row.Local).Ping, "Resumed HUD and leaderboard use exactly the same published ping.");
             Require(_arenas[0].Bodies.Count == 2 && _arenas[1].Bodies.Count == 2, "Exactly one vehicle per player remains.");
+            RemoteVehicleTagChecks.Verify(_arenas[0], _host);
+            RemoteVehicleTagChecks.Verify(_arenas[1], _client);
+            Require(_arenas[0].Bodies[_player].GetNode<RemoteVehicleTag>("PlayerTag") == _originalTag, "Three reconnects retain exactly the same remote tag.");
             Require(_arenas[1].Driver.LocalItem?.Item == HeldItem.Wrench, "Held item survives grace.");
             Require(_arenas[1].Driver.ItemState?.Spawns.Count == 8 && _arenas[1].Driver.Match?.Players.Count == 2, "Pickup and match state arrive in the checkpoint.");
             if (_resyncs < 3)
@@ -188,9 +239,26 @@ public sealed partial class ReconnectIntegrationChecks : Node
             Require(_arenas[1].Driver.Match?.Phase == Trackstorm.Core.Matches.MatchPhase.Active, "The active match continues through every resume.");
             if (DisplayServer.GetName() != "headless")
             {
+                var arena = _arenas[1];
+                arena.SetProcess(false);
+                var body = arena.Bodies[1];
+                var camera = arena.GetNode<Camera3D>("ChaseCamera");
+                camera.GlobalPosition = body.VisualPosition + new Vector3(0, 4, 9);
+                camera.LookAt(body.VisualPosition + Vector3.Up);
+                body.GetNode<RemoteVehicleTag>("PlayerTag").Present("Host", arena.Driver.Latest!.Vehicles.Single(vehicle => vehicle.State.VehicleId == 1).State, body.VisualPosition, camera);
+            }
+
+            _captureAt = _elapsed;
+            _stage = 60;
+        }
+        else if (_stage == 60 && _elapsed - _captureAt > 0.25)
+        {
+            if (DisplayServer.GetName() != "headless")
+            {
                 _views[1].GetTexture().GetImage().SavePng(System.IO.Path.Combine(_output, "resumed-arena.png"));
             }
 
+            _arenas[1].SetProcess(true);
             _client.Reconnect = () => throw new InvalidOperationException("Simulated unavailable session");
             Drop();
             _stage = 7;
@@ -212,9 +280,35 @@ public sealed partial class ReconnectIntegrationChecks : Node
         Require(disconnected.State == ConnectionDiagnosticState.Disconnected && disconnected.Statistics.PingMilliseconds is null, "Disconnect clears displayed latency immediately.");
         _host.Pump(0);
         _client.Pump(0);
+        if (_arenas.Count > 0)
+        {
+            RemoteVehicleTagChecks.Verify(_arenas[0], _host);
+            Require(!_arenas[0].Bodies[_player].GetNode<RemoteVehicleTag>("PlayerTag").Visible, "Disconnected reservation hides its tag.");
+        }
+
         var reconnecting = TransportDiagnostics.Capture(_gateways[1], _client);
         Require(reconnecting.State == ConnectionDiagnosticState.Reconnecting && reconnecting.Statistics.PingMilliseconds is null, "Reconnecting never presents old latency.");
         Require(_client.Latency.Get(_client.State!, _player) is null && _host.Latency.Get(_host.State!, _player) is null, "Disconnect immediately clears both sides' stale ping.");
+    }
+
+    private void VerifyTags()
+    {
+        RemoteVehicleTagChecks.Verify(_arenas[0], _host);
+        RemoteVehicleTagChecks.Verify(_arenas[1], _client);
+        Require(_arenas[0].Bodies[_player].GetNode<RemoteVehicleTag>("PlayerTag") == _originalTag, "Health and lifecycle updates reuse the original tag.");
+    }
+
+    private void RestoreHealthFixture(bool collision)
+    {
+        var world = _arenas[0].Driver.Host!.World;
+        var states = world.State.Vehicles.Select(state =>
+        {
+            var pose = collision && state.VehicleId == _player
+                ? new VehiclePhysicsState(new System.Numerics.Vector3(-57.5f, 0.6f, -35), System.Numerics.Quaternion.Identity, new System.Numerics.Vector3(-60, 0, 0), System.Numerics.Vector3.Zero)
+                : world.Arena.Spawn((int)state.VehicleId - 1);
+            return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(world.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(state.Damage.MaxHP, collision && state.VehicleId == _player ? 20 : 400, null, null), pose);
+        });
+        world.Restore(new SimulationState(world.State.Tick, world.State.LastInput, states, world.State.Match));
     }
 
     private void Cleanup()

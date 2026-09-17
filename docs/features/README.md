@@ -28,7 +28,7 @@ Start with the system being changed. Read its document and only the integration 
 | [EOS lobbies](eos-lobbies.md) | Browser, access codes, membership and admission | [Identity](eos-identity.md), [sessions](sessions.md), [EOS P2P](eos-p2p.md) |
 | [EOS P2P](eos-p2p.md) | Authenticated transport, framing, reliability and bounds | [Identity](eos-identity.md), [lobbies](eos-lobbies.md), [transport](transport.md) |
 | [Match standings](standings.md) | Shared Core ranking, held leaderboard, final results and per-player ping | [Matches](matches.md), [HUD](hud.md), [sessions](sessions.md), [transport](transport.md) |
-| [Combat HUD](hud.md) | Confirmed HP, speed, inventory and layout | [Settings](settings.md), [items](items.md), [matches](matches.md) |
+| [Combat HUD](hud.md) | Confirmed HP, speed, inventory, layout and remote vehicle name/HP tags | [Settings](settings.md), [items](items.md), [matches](matches.md), [sessions](sessions.md) |
 
 ## Specialized routes
 

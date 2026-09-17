@@ -21,6 +21,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private readonly Label _matchLabel = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private string _developerDiagnostics = string.Empty;
     private VehicleNetworkDriver _driver = null!;
+    private LobbyNetworkDriver? _lobby;
     private Arenas.CombatArena _layout = null!;
     private ulong _collisionLife;
     private ulong _collisionTick;
@@ -176,6 +177,15 @@ internal sealed partial class NetworkVehicleArena : Node3D
         foreach (var pair in _bodies)
         {
             _items.Follow(pair.Key, pair.Value.VisualPosition, _driver.Latest?.Vehicles.SingleOrDefault(vehicle => vehicle.State.VehicleId == pair.Key)?.State.CanInteract == true);
+            if (pair.Value.GetNodeOrNull<RemoteVehicleTag>("PlayerTag") is { } tag)
+            {
+                var player = _lobby?.State?.Players.SingleOrDefault(player => player.Id == pair.Key);
+                tag.Present(
+                    _driver.IsActive && player?.Connected == true ? player.Name : null,
+                    _driver.Latest?.Vehicles.SingleOrDefault(vehicle => vehicle.State.VehicleId == pair.Key)?.State,
+                    pair.Value.VisualPosition,
+                    _camera);
+            }
         }
 
         string role = _driver.Host is null ? "CLIENT" : "HOST";
@@ -197,6 +207,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <param name="configuration">Validated effective gameplay tuning.</param>
     internal void Initialize(ITransportGateway gateway, ulong session, ulong serverPeer, LobbyNetworkDriver? lobby = null, Core.Development.GameplayConfiguration? configuration = null)
     {
+        _lobby = lobby;
         _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby, configuration: configuration ?? Core.Development.GameplayConfiguration.HostedDefaults);
         _driver.ConfigurationChanged += accepted =>
         {
@@ -313,6 +324,11 @@ internal sealed partial class NetworkVehicleArena : Node3D
                 body = new NetworkVehicleBody { Name = $"Vehicle{id}", VehicleId = id, PushProps = _driver.Host is not null };
                 body.ApplyConfiguration(_driver.Configuration.Configuration.Vehicle);
                 AddChild(body);
+                if (id != _driver.LocalVehicleId && _lobby is not null)
+                {
+                    body.AddChild(new RemoteVehicleTag { Name = "PlayerTag", Visible = false });
+                }
+
                 _bodies.Add(id, body);
                 body.Apply(vehicle.State);
             }
