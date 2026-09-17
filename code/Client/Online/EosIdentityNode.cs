@@ -16,7 +16,8 @@ public sealed partial class EosIdentityNode : Node
     /// <summary>Single source for the multiplayer authentication presentation.</summary>
     internal EosLobbyStatus Status { get; private set; } = EosLobbyStatus.Initializing;
     /// <summary>Credential-free identity lifecycle and one-way PUID fingerprint.</summary>
-    internal string DeveloperDiagnostics => Development.DeveloperDiagnostics.Identity(_identity.State, _identity.ProductUserId);
+    internal string DeveloperDiagnostics => Development.DeveloperDiagnostics.Identity(_identity.State, _identity.ProductUserId) + "\n" +
+        (Coordinator?.Diagnostics ?? "Online lobby coordinator unavailable.");
 
     /// <inheritdoc />
     public override void _Ready()

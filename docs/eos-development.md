@@ -109,6 +109,34 @@ Use the same compatible build on two physical PCs with distinct EOS identities: 
 4. Briefly interrupt connectivity and restore it before the 30-second grace expires. Confirm recovery to the original epoch. During a client-only outage, confirm the healthy host keeps simulating and the client resumes the same vehicle/PlayerId. Then isolate the host from EOS: its service proof must expire before it can advance again. The survivor needs confirmed service retirement plus the lease wait; P2P-only loss cannot grant authority. Missing retirement evidence must produce bounded failure with Leave/menu recovery.
 5. Repeat Public lobby Leave, lobby process kill, active-match process kill and former-host return in a Locked lobby where practical. Return the former host within its reservation, then remove the replacement host to verify a second successful migration and one additional epoch. With no valid external checkpoint, expect a bounded failure rather than a new authority.
 
+### Locked stability and former-host retest
+
+Use a fresh Locked lobby and keep Developer Options diagnostics visible on both
+machines. Record the EOS lobby ID, Trackstorm SessionId, fingerprinted identities,
+PlayerIds, host/epoch, access mode, EOS member fingerprints, Trackstorm roster,
+P2P state, coordinator Active/Busy state, proof counters/lease age,
+metadata/member/retirement callback counters, availability updates, resume state
+and connection generation. Never record the password, verifier, raw PUID or token.
+
+1. Create a fresh Locked lobby and join from the second PC with its password.
+2. Confirm both peers show EOS P2P connected, the same lobby/session, host and
+   epoch, and a two-player EOS and Trackstorm roster.
+3. Idle for at least 60 seconds. Confirm proof requests continue, lease age stays
+   bounded, no member/retirement callback removes either peer, coordinator remains
+   active/not recovering and P2P remains connected.
+4. Ready/unready both players repeatedly, then start the match.
+5. Terminate the host process. After service-confirmed retirement and the bounded
+   migration policy, confirm the survivor becomes host at epoch 2 in the same
+   logical session/match.
+6. Relaunch the former host and choose **Resume previous session**. Do not enter
+   the password. Confirm the same PlayerId returns as CLIENT, the successor remains
+   HOST, the epoch does not regress and no duplicate player or vehicle appears.
+
+Use unique display names if helpful for the test UI, but also recreate a lobby with
+the same display name and confirm its EOS lobby ID and Trackstorm SessionId are
+fresh. A display name is never a session locator. Do not mark this real-EOS path
+passed until it is performed on two physical PCs.
+
 ### Three-or-more-PC regression path
 
 Repeat with at least three independent PCs/profiles. Confirm deterministic lowest-ID candidacy and unanimous agreement on a common recoverable checkpoint. Remove another required survivor during election and confirm bounded failure. Repeat with eight players and realistic latency/loss; record checkpoint bytes, rollback ticks, timing and frame cost. The two-player exception must not permit a lone survivor of a larger roster to bypass agreement.

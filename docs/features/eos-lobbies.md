@@ -32,6 +32,22 @@ The transport adapter must obtain the remote PUID from its authenticated connect
 
 Native callbacks enqueue managed work for delivery after platform Tick. Disposable subscriptions reject already-queued events; a separate membership generation rejects notifications from an earlier visit even to the same lobby. Operation generations reject stale create/join/rename callbacks and search request generations reject obsolete refreshes. Late successful membership operations are explicitly left/destroyed. Leaving or closing drops the departed membership snapshot from the browser until fresh discovery arrives. Failed close retains cleanup ownership, blocks replacement and exposes Leave for retry. Search and membership operations have a monotonic 60-second deadline. Disposal removes notifications and suppresses consumer delivery. Async search, join-details and modification handles remain platform-owned through completion; teardown releases still-pending caller-owned handles while the platform remains valid, then releases the platform and discards canceled callback registrations before SDK shutdown. Process exit or connectivity loss can still require EOS's service-side departure detection rather than a confirmed asynchronous close acknowledgment.
 
+Lobby-attribute notifications and member-status notifications have different
+authority. An attribute refresh may carry a temporarily incomplete cached member
+list, so it can update name, owner, access, availability and routing but cannot
+remove an admitted member or tear down P2P. Only an EOS member-status callback can
+replace membership; an incomplete details copy during either refresh is ignored.
+Explicit local Left/Kicked/Disconnected or lobby Closed status still enters the
+normal recovery/closure path. Private coordination member-attribute updates
+therefore cannot churn a healthy Public or Locked gameplay session.
+
+Developer Options exposes credential-free coordination diagnostics: EOS lobby ID,
+Trackstorm SessionId, access mode, fingerprinted local/owner/gameplay-host
+identities and member list, metadata/member/retirement callback counters, proof
+request/result counts and lease age, availability updates, recovery state and
+resume-locator generation. Passwords, verifier bytes, raw PUIDs and tokens are
+never formatted.
+
 `OnlineLobbyTests` exercises fake-provider coordination plus the real lobby driver without loading native EOS or Godot: access mapping, Unicode names, search/order/rename, identity separation, capacity, credential failure/expiry, wrong-code roster exclusion, lifecycle cleanup, delayed operations, obsolete subscriptions, timeouts and close retry. `check-online-lobby.ps1 -GodotPath <exe>` exercises production browser controls using a fake provider. `-Visual` saves browser/prompt/renamed-host images under `.godot/online-lobby-checks`. Existing `check-lobby.ps1` exercises eight actual UDP sessions and Ready/Start/Return regression behavior. These checks do not establish authenticated EOS service behavior or separate-PC interoperability. The real-device procedure remains in [EOS development setup](../eos-development.md).
 
 See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.

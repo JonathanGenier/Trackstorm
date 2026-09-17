@@ -18,9 +18,9 @@ internal sealed class EosLobbyWatch : IDisposable
     /// <param name="id">Logical EOS lobby identity.</param>
     /// <param name="enqueue">Main-thread queue drained after native platform Tick.</param>
     /// <param name="read">Copies current native membership into plain Client data.</param>
-    /// <param name="changed">Consumer of updated membership or closure.</param>
+    /// <param name="changed">Consumer of metadata or service-confirmed membership changes.</param>
     /// <param name="retired">Service-confirmed departed members; cached snapshots cannot produce this signal.</param>
-    internal EosLobbyWatch(LobbyInterface lobbies, ProductUserId user, object owner, string id, Action<Action> enqueue, Func<OnlineLobby?> read, Action<OnlineLobby?> changed, Action<OnlineProductUserId>? retired)
+    internal EosLobbyWatch(LobbyInterface lobbies, ProductUserId user, object owner, string id, Action<Action> enqueue, Func<OnlineLobby?> read, Action<OnlineLobby?, OnlineLobbyUpdateKind> changed, Action<OnlineProductUserId>? retired)
     {
         _lobbies = lobbies;
         var update = default(AddNotifyLobbyUpdateReceivedOptions);
@@ -32,7 +32,7 @@ internal sealed class EosLobbyWatch : IDisposable
                 {
                     if (!_disposed)
                     {
-                        changed(read());
+                        changed(read(), OnlineLobbyUpdateKind.Metadata);
                     }
                 });
             }
@@ -49,7 +49,7 @@ internal sealed class EosLobbyWatch : IDisposable
                 {
                     if (!_disposed)
                     {
-                        changed(closed ? null : read());
+                        changed(closed ? null : read(), closed ? OnlineLobbyUpdateKind.Closure : OnlineLobbyUpdateKind.Membership);
                         if (departed)
                         {
                             retired?.Invoke(new OnlineProductUserId(subject));

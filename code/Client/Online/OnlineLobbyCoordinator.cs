@@ -44,6 +44,16 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     private bool _coordinationPending;
     private bool _authorityRetired;
     private (string Subject, ulong Epoch, long At, string[] Survivors)? _retiredHost;
+    private int _metadataUpdates;
+    private int _membershipUpdates;
+    private int _retiredCallbacks;
+    private int _coordinationRequests;
+    private int _coordinationResults;
+    private int _coordinationSuccesses;
+    private int _availabilityUpdates;
+    private int _lobbyUpdates;
+    private int _resumeAttempts;
+    private string _lastCoordination = "none";
 
     /// <summary>Creates one owner-thread coordination lifetime with an injectable monotonic clock.</summary>
     /// <param name="provider">Owned coordination adapter.</param>
@@ -82,6 +92,28 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal ResumeLocator? SavedResume { get; private set; }
     /// <summary>Monotonic clock shared with the authority lifecycle.</summary>
     internal TimeProvider Clock => _time;
+    /// <summary>Credential-free EOS coordination state for Developer Options and manual diagnosis.</summary>
+    internal string Diagnostics
+    {
+        get
+        {
+            OnlineLobby? lobby = Active;
+            double? proofAge = _coordinationConfirmed is long confirmed ? _time.GetElapsedTime(confirmed).TotalSeconds : null;
+            bool coordinationAvailable = !_authorityRetired && proofAge < CoordinationLeaseSeconds && lobby?.MemberIds.Contains(Identity) == true;
+            string members = lobby is null ? "none" : string.Join(",", lobby.MemberIds.Select(member => member.ToString()).Order());
+            string locator = SavedResume is { } saved
+                ? $"{saved.Lobby}/{saved.Session}/P{saved.Player}/g{saved.Generation}/e{saved.AuthorityEpoch}"
+                : _returnLocator is { } retained
+                    ? $"{retained.Lobby}/{retained.Session}/P{retained.Player}/g{retained.Generation}/e{retained.AuthorityEpoch}"
+                    : "none";
+            return $"EOS lobby: {lobby?.Id ?? "none"}; Trackstorm SessionId: {lobby?.Session.ToString() ?? "none"}; access: {lobby?.Access.ToString() ?? "none"}\n" +
+                $"Local PUID: {Identity}; owner: {lobby?.Owner.ToString() ?? "none"}; gameplay host: {lobby?.HostIdentity.ToString() ?? "none"}; EOS members: [{members}]\n" +
+                $"Coordinator active: {lobby is not null}; busy: {Busy}; membership generation: {_membership}; metadata/member callbacks: {_metadataUpdates}/{_membershipUpdates}; retired callbacks: {_retiredCallbacks}\n" +
+                $"Coordination proof: {_lastCoordination}; pending: {_coordinationPending}; requests/results/successes: {_coordinationRequests}/{_coordinationResults}/{_coordinationSuccesses}; available: {coordinationAvailable}; age: {proofAge?.ToString("0.0") ?? "none"}s; lease: {CoordinationLeaseSeconds:0}s; authority retired: {_authorityRetired}\n" +
+                $"Lobby/availability updates: {_lobbyUpdates}/{_availabilityUpdates}; recovering membership: {_recoveringMembership}; resume pending/attempts: {_resumePending}/{_resumeAttempts}; locator: {locator}; status: {Status}";
+        }
+    }
+
     /// <summary>A voluntarily departed host can explicitly reclaim its still-reserved identity.</summary>
     internal bool CanResumeRetained => Active is null && !Busy && _closing is null && _returnLocator?.Expires > _time.GetUtcNow();
 
@@ -289,6 +321,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
 
         long epoch = Begin("Renaming lobby…");
+        _lobbyUpdates++;
         _provider.Update(Active! with { Name = name }, (updated, failure) =>
         {
             if (_disposed || epoch != _epoch)
@@ -299,7 +332,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             Busy = false;
             if (updated is not null && failure is null)
             {
-                ApplyUpdate(updated);
+                ApplyMetadataUpdate(updated);
             }
 
             Status = failure ?? "Lobby renamed.";
@@ -361,6 +394,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             if (Active.Open != open)
             {
                 long epoch = Begin("Updating lobby availability…");
+                _availabilityUpdates++;
                 _provider.SetJoinable(Active.Id, open, (updated, failure) =>
                 {
                     if (!_disposed && epoch == _epoch)
@@ -369,7 +403,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                         _availabilityRetry = failure is null ? null : _time.GetTimestamp();
                         if (updated is not null && failure is null)
                         {
-                            ApplyUpdate(updated);
+                            ApplyMetadataUpdate(updated);
                         }
 
                         Status = failure ?? "Lobby availability updated.";
@@ -500,13 +534,14 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             _migrationUpdateEpoch = _epoch;
             long epoch = _epoch;
             var updated = Active with { GameplayHost = new OnlineProductUserId(subject), AuthorityEpoch = state.AuthorityEpoch };
+            _lobbyUpdates++;
             _provider.Update(updated, (lobby, failure) =>
             {
                 if (!_disposed && epoch == _epoch && _migrationHost == subject)
                 {
                     if (lobby is not null && failure is null)
                     {
-                        ApplyUpdate(lobby);
+                        ApplyMetadataUpdate(lobby);
                         if (Active?.AuthorityEpoch != state.AuthorityEpoch || Active.HostIdentity.Value != subject)
                         {
                             _migrationUpdateEpoch = null;
@@ -618,11 +653,24 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         {
             _watch = _provider.Watch(
                 lobby.Id,
-                updated =>
+                (updated, kind) =>
             {
                 if (!_disposed && membership == _membership && Active?.Id == lobby.Id && Active.Session == lobby.Session)
                 {
-                    if (updated is null && !IsHost && _binding?.Driver.State is not null)
+                    if (kind == OnlineLobbyUpdateKind.Metadata)
+                    {
+                        _metadataUpdates++;
+                    }
+                    else if (kind == OnlineLobbyUpdateKind.Membership)
+                    {
+                        _membershipUpdates++;
+                    }
+
+                    if (updated is null && kind is OnlineLobbyUpdateKind.Metadata or OnlineLobbyUpdateKind.Membership)
+                    {
+                        Status = $"Ignored an incomplete {kind.ToString().ToLowerInvariant()} refresh; membership is unchanged.";
+                    }
+                    else if (updated is null && !IsHost && _binding?.Driver.State is not null)
                     {
                         _recoveringMembership = true;
                         _resumeStarted ??= _time.GetTimestamp();
@@ -636,7 +684,14 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                     }
                     else
                     {
-                        ApplyUpdate(updated);
+                        if (kind == OnlineLobbyUpdateKind.Metadata)
+                        {
+                            ApplyMetadataUpdate(updated);
+                        }
+                        else
+                        {
+                            ApplyUpdate(updated);
+                        }
                     }
                 }
             },
@@ -647,6 +702,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                     return;
                 }
 
+                _retiredCallbacks++;
                 if (subject.Equals(Identity) && _binding?.Driver.Authority is not null)
                 {
                     _authorityRetired = true;
@@ -695,6 +751,16 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         CoordinateMigration();
     }
 
+    private void ApplyMetadataUpdate(OnlineLobby lobby)
+    {
+        if (Active is not null)
+        {
+            lobby = lobby with { Members = Active.Members, MemberIds = Active.MemberIds };
+        }
+
+        ApplyUpdate(lobby);
+    }
+
     private void TickCoordination()
     {
         if (_disposed || Active is null || _coordinationPending ||
@@ -708,6 +774,8 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         long requested = _time.GetTimestamp();
         _coordinationRequested = requested;
         _coordinationPending = true;
+        _coordinationRequests++;
+        _lastCoordination = "requested";
         _provider.ConfirmMembership(Active.Id, accepted =>
         {
             if (_disposed || membership != _membership)
@@ -717,9 +785,16 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
 
             _ = CoordinationAvailable;
             _coordinationPending = false;
+            _coordinationResults++;
             if (accepted && _time.GetElapsedTime(requested).TotalSeconds < CoordinationLeaseSeconds)
             {
                 _coordinationConfirmed = requested;
+                _coordinationSuccesses++;
+                _lastCoordination = "accepted";
+            }
+            else
+            {
+                _lastCoordination = accepted ? "late" : "rejected";
             }
         });
     }
@@ -746,6 +821,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         long epoch = _epoch;
         _resumeRetry = _time.GetTimestamp();
         _resumePending = true;
+        _resumeAttempts++;
         Status = "Reconnecting";
         _provider.Resume(id, (lobby, failure) =>
         {

@@ -9,6 +9,125 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class OnlineLobbyTests
 {
+    /// <summary>Lobby metadata refreshes cannot retire an admitted member without a member-status event.</summary>
+    /// <param name="access">Admission policy; post-admission membership behavior must be identical.</param>
+    [TestCase(LobbyAccess.Public)]
+    [TestCase(LobbyAccess.Locked)]
+    public void MetadataRefreshCannotTearDownAdmittedMember(LobbyAccess access)
+    {
+        var service = new Service();
+        using var host = service.Coordinator(1);
+        using var client = service.Coordinator(2);
+        host.Create("Stable", access, "test-code");
+        client.Refresh();
+        client.Join(host.Active!.Id, access == LobbyAccess.Locked ? "test-code" : null);
+        using var gateway = new Gateway();
+        var binding = host.AttachTransport(gateway, 0, "Host");
+        gateway.ConnectPeer(20);
+        Assert.That(binding.AuthorizePeer(20, User(2), access == LobbyAccess.Locked ? "test-code" : null), Is.True);
+        gateway.ReceiveJoin(20, "Client");
+        binding.Driver.Pump(0);
+        Assert.That(binding.Driver.State!.Players.Single(player => player.Id == 2).Connected, Is.True);
+
+        OnlineLobby stable = service.Lobbies[host.Active.Id];
+        service.Lobbies[stable.Id] = stable with { Members = 1, MemberIds = new[] { User(1) } };
+        service.Notify(stable.Id, OnlineLobbyUpdateKind.Metadata);
+
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+        Assert.That(binding.Driver.State.Players.Single(player => player.Id == 2).Connected, Is.True);
+        Assert.That(host.Active!.MemberIds, Does.Contain(User(2)));
+        host.Rename("Still stable");
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+        Assert.That(host.Active!.MemberIds, Does.Contain(User(2)));
+        service.NotifyIncompleteMembership(stable.Id);
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+        Assert.That(binding.Driver.State.Players.Single(player => player.Id == 2).Connected, Is.True);
+    }
+
+    /// <summary>Repeated proof-related metadata refreshes leave a healthy Locked session intact beyond reconnect grace.</summary>
+    [Test]
+    public void LockedSessionRemainsStableAcrossProofRefreshesPastThirtySeconds()
+    {
+        var service = new Service { NotifyMetadataOnProof = true };
+        var clock = new Clock();
+        using var host = new OnlineLobbyCoordinator(new Provider(service, User(1)), User(1), clock);
+        using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), clock);
+        host.Create("Locked soak", LobbyAccess.Locked, "test-code");
+        client.Refresh();
+        client.Join(host.Active!.Id, "test-code");
+        using var hostGateway = new Gateway();
+        var hostBinding = host.AttachTransport(hostGateway, 0, "Host");
+        hostGateway.ConnectPeer(20);
+        Assert.That(hostBinding.AuthorizePeer(20, User(2), "test-code"), Is.True);
+        hostGateway.ReceiveJoin(20, "Client");
+        hostBinding.Driver.Pump(0);
+        using var clientGateway = new Gateway();
+        clientGateway.ConnectPeer(10);
+        var clientBinding = client.AttachTransport(clientGateway, 10, "Client");
+        clientGateway.ReceiveState(10, hostBinding.Driver.State!, 2);
+        clientBinding.Driver.Pump(0);
+        string lobbyId = host.Active.Id;
+        ulong session = hostBinding.Driver.State!.Session;
+        ulong epoch = hostBinding.Driver.State.AuthorityEpoch;
+
+        for (int second = 0; second < 40; second++)
+        {
+            clock.Advance(1);
+            host.Tick();
+            client.Tick();
+            hostBinding.Driver.Pump(1.0 / 60);
+            clientBinding.Driver.Pump(1.0 / 60);
+            Assert.That(host.Active?.Id, Is.EqualTo(lobbyId));
+            Assert.That(client.Active?.Id, Is.EqualTo(lobbyId));
+            Assert.That(clientBinding.Driver.State?.Session, Is.EqualTo(session));
+            Assert.That(clientBinding.Driver.LocalPlayerId, Is.EqualTo(2));
+            Assert.That(clientBinding.Driver.State?.AuthorityEpoch, Is.EqualTo(epoch));
+            Assert.That(clientBinding.Driver.Reconnecting, Is.False);
+            Assert.That(hostBinding.Driver.Migration?.Frozen, Is.Not.True);
+            Assert.That(host.CoordinationAvailable, Is.True);
+            Assert.That(client.CoordinationAvailable, Is.True);
+            Assert.That(hostGateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+            Assert.That(clientGateway.Connections[10], Is.EqualTo(TransportConnectionState.Connected));
+        }
+
+        Assert.That(service.ProofRequests, Is.GreaterThanOrEqualTo(16));
+        Assert.That(hostBinding.Driver.State.Players.Single(player => player.Id == 2).Connected, Is.True);
+        Assert.That(client.Diagnostics, Does.Contain("metadata/member callbacks:"));
+        Assert.That(client.Diagnostics, Does.Contain("recovering membership: False"));
+        Assert.That(client.Diagnostics, Does.Not.Contain("test-code"));
+        Assert.That(client.Diagnostics, Does.Not.Contain(User(1).Value));
+        Assert.That(client.Diagnostics, Does.Not.Contain(User(2).Value));
+    }
+
+    /// <summary>Display names never select or revive an earlier EOS or Trackstorm session lifetime.</summary>
+    [Test]
+    public void ReusedDisplayNameCreatesFreshLobbyAndSession()
+    {
+        string path = Path.Combine(Path.GetTempPath(), "trackstorm-reused-name-" + Guid.NewGuid().ToString("N") + ".json");
+        var store = new ResumeLocatorStore(path);
+        try
+        {
+            var service = new Service();
+            using var host = new OnlineLobbyCoordinator(new Provider(service, User(1)), User(1), resumeStore: store);
+            host.Create("TESER", LobbyAccess.Locked, "first-code");
+            string firstLobby = host.Active!.Id;
+            ulong firstSession = host.Active.Session;
+            host.Leave();
+            host.Create("TESER", LobbyAccess.Locked, "second-code");
+            Assert.That(host.Active!.Id, Is.Not.EqualTo(firstLobby));
+            Assert.That(host.Active.Session, Is.Not.EqualTo(firstSession));
+            Assert.That(host.Active.AuthorityEpoch, Is.EqualTo(1));
+            Assert.That(host.Active.HostIdentity, Is.EqualTo(User(1)));
+            Assert.That(host.Active.Credential!.Verify("first-code"), Is.False);
+            Assert.That(host.Active.Credential.Verify("second-code"), Is.True);
+            Assert.That(store.Load(User(1).Value, DateTimeOffset.UtcNow), Is.Null);
+        }
+        finally
+        {
+            store.Clear();
+        }
+    }
+
     /// <summary>A delayed service response cannot revive authority after its request-time lease expired.</summary>
     [Test]
     public void ExpiredAuthorityCannotBeRenewedByLateServiceCallback()
@@ -524,7 +643,7 @@ internal sealed class OnlineLobbyTests
             Assert.That(host.Browser.Rows.Any(row => row.Id == id), Is.False);
             Assert.That(client.Browser.Rows.Any(row => row.Id == id), Is.False);
             host.Create("Replacement", LobbyAccess.Locked, "new-code");
-            late(null);
+            late(null, OnlineLobbyUpdateKind.Closure);
             Assert.That(host.Active!.Name, Is.EqualTo("Replacement"));
             client.Refresh();
             client.Join(host.Active.Id, "old-code");
@@ -601,7 +720,7 @@ internal sealed class OnlineLobbyTests
         client.Leave();
         client.Refresh();
         client.Join(host.Active.Id);
-        late(null);
+        late(null, OnlineLobbyUpdateKind.Closure);
         Assert.That(client.Active, Is.Not.Null);
         Assert.That(service.Watches.Count, Is.EqualTo(2));
     }
@@ -816,6 +935,8 @@ internal sealed class OnlineLobbyTests
         internal bool Delay { get; set; }
         internal bool FailLeave { get; set; }
         internal bool DelayProof { get; set; }
+        internal bool NotifyMetadataOnProof { get; set; }
+        internal int ProofRequests { get; set; }
         internal Action<bool>? LastProof { get; set; }
         internal Action? LastCreate { get; set; }
         internal OnlineLobbyCoordinator Coordinator(int user) => new(new Provider(this, User(user)), User(user));
@@ -839,11 +960,27 @@ internal sealed class OnlineLobbyTests
             }
         }
 
-        internal void Notify(string id)
+        internal void Notify(string id, OnlineLobbyUpdateKind kind = OnlineLobbyUpdateKind.Membership)
         {
             foreach (var watch in Watches.Where(watch => watch.Id == id).ToArray())
             {
-                watch.Changed(Lobbies.GetValueOrDefault(id));
+                watch.Changed(Lobbies.GetValueOrDefault(id), kind);
+            }
+        }
+
+        internal void NotifyMetadata(string id, OnlineLobby lobby)
+        {
+            foreach (var watch in Watches.Where(watch => watch.Id == id).ToArray())
+            {
+                watch.Changed(lobby, OnlineLobbyUpdateKind.Metadata);
+            }
+        }
+
+        internal void NotifyIncompleteMembership(string id)
+        {
+            foreach (var watch in Watches.Where(watch => watch.Id == id).ToArray())
+            {
+                watch.Changed(null, OnlineLobbyUpdateKind.Membership);
             }
         }
 
@@ -857,10 +994,10 @@ internal sealed class OnlineLobbyTests
         }
     }
 
-    private sealed class Watch(Service service, string id, Action<OnlineLobby?> changed, Action<OnlineProductUserId>? retired) : IDisposable
+    private sealed class Watch(Service service, string id, Action<OnlineLobby?, OnlineLobbyUpdateKind> changed, Action<OnlineProductUserId>? retired) : IDisposable
     {
         internal string Id { get; } = id;
-        internal Action<OnlineLobby?> Changed { get; } = changed;
+        internal Action<OnlineLobby?, OnlineLobbyUpdateKind> Changed { get; } = changed;
         internal Action<OnlineProductUserId>? Retired { get; } = retired;
         public void Dispose() => service.Watches.Remove(this);
     }
@@ -873,7 +1010,7 @@ internal sealed class OnlineLobbyTests
         {
             var current = service.Lobbies[id] with { Open = open };
             service.Lobbies[id] = current;
-            service.Notify(id);
+            service.Notify(id, OnlineLobbyUpdateKind.Metadata);
             completed(current, null);
         }
 
@@ -908,7 +1045,13 @@ internal sealed class OnlineLobbyTests
 
         public void ConfirmMembership(string id, Action<bool> completed)
         {
+            service.ProofRequests++;
             service.LastProof = completed;
+            if (service.NotifyMetadataOnProof && service.Lobbies.TryGetValue(id, out var current))
+            {
+                service.NotifyMetadata(id, current with { Members = 1, MemberIds = new[] { current.Owner } });
+            }
+
             if (!service.DelayProof)
             {
                 completed(service.Lobbies.TryGetValue(id, out var lobby) && lobby.MemberIds.Contains(user));
@@ -942,7 +1085,7 @@ internal sealed class OnlineLobbyTests
 
             current = current with { Name = lobby.Name };
             service.Lobbies[lobby.Id] = current;
-            service.Notify(lobby.Id);
+            service.Notify(lobby.Id, OnlineLobbyUpdateKind.Metadata);
             service.Complete(() => completed(current, null));
         }
 
@@ -966,13 +1109,13 @@ internal sealed class OnlineLobbyTests
                     service.Lobbies[id] = lobby with { Members = members.Length, MemberIds = members };
                 }
 
-                service.Notify(id);
+                service.Notify(id, destroy ? OnlineLobbyUpdateKind.Closure : OnlineLobbyUpdateKind.Membership);
             }
 
             service.Complete(() => completed(null));
         }
 
-        public IDisposable Watch(string id, Action<OnlineLobby?> changed, Action<OnlineProductUserId>? retired = null)
+        public IDisposable Watch(string id, Action<OnlineLobby?, OnlineLobbyUpdateKind> changed, Action<OnlineProductUserId>? retired = null)
         {
             var watch = new Watch(service, id, changed, retired);
             service.Watches.Add(watch);

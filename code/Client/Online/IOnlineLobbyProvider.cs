@@ -47,5 +47,5 @@ internal interface IOnlineLobbyProvider : IDisposable
     /// <param name="changed">Consumer of updated membership or closure.</param>
     /// <param name="retired">Authenticated service member-departure notification.</param>
     /// <returns>A subscription whose disposal makes queued notifications inert.</returns>
-    IDisposable Watch(string id, Action<OnlineLobby?> changed, Action<OnlineProductUserId>? retired = null);
+    IDisposable Watch(string id, Action<OnlineLobby?, OnlineLobbyUpdateKind> changed, Action<OnlineProductUserId>? retired = null);
 }
