@@ -83,8 +83,9 @@ public sealed partial class MenuIntegrationChecks : Node
                 if (page == MenuPage.DeveloperOptions)
                 {
                     var content = Descendants(_menu).OfType<VBoxContainer>().Single(node => node.Name == "DeveloperOptions");
-                    Check(content.GetChildCount() == 0, "Developer Options content is empty");
-                    Check(Buttons(_menu).Count(button => button.IsVisibleInTree()) == 1, "Developer Options has only Back");
+                    Check(content.GetChildCount() == 1, "Developer Options owns one unified developer panel");
+                    await Frames(20);
+                    Check(Buttons(_menu).Any(button => button.IsVisibleInTree() && button.Text == "Apply Settings"), "Developer Options exposes host tuning");
                 }
 
                 await Capture(page.ToString());

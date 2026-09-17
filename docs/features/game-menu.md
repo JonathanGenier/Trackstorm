@@ -2,7 +2,7 @@
 
 Escape opens a centered overlay whenever an arena exists, including a lone player in `MatchPhase.Waiting`, countdown, Active and Finished. The existing remappable Pause action (P / gamepad Start by default) also opens it. Escape, logical Cancel or Pause goes Back one level; at the top level it closes. Back to Game closes directly. The gamepad B/handbrake binding does not open the overlay during driving.
 
-The hierarchy is Game Menu → Settings → Audio, Video, Gameplay, Interface, Controls or Developer Options. Category Back returns to Settings; Settings Back returns to Game Menu. Settings opened from the main menu returns to its caller. Developer Options has an empty content container, title/frame and Back only, ready for a future developer surface without changing navigation. It has no F1 route or developer behavior.
+The hierarchy is Game Menu → Settings → Audio, Video, Gameplay, Interface, Controls or Developer Options. Category Back returns to Settings; Settings Back returns to Game Menu. Settings opened from the main menu returns to its caller. [Developer Options](developer-options.md) uses the existing category container for host tuning/actions and read-only diagnostics. F1 directly opens/closes that same page in development builds. Numeric editors retain native text entry; Escape still goes Back and controller navigation can leave the editor.
 
 ## Ownership and input
 
@@ -19,9 +19,9 @@ Only `PlayerInputAdapter.GameplaySuppressed` changes. The scene tree is never pa
 | Gameplay | km/h or mph, presentation only |
 | Interface | Independent Show FPS and Show Ping flags |
 | Controls | All existing logical-action remaps and Invert steering; binding capture/clear/restore uses `PlayerInputBindings` |
-| Developer Options | Empty content, no preferences or developer actions |
+| Developer Options | Host-authoritative gameplay tuning/actions with separate host-local persistence; safe read-only diagnostics |
 
-The existing local settings model, codec, debounced file store, display application and audio routing remain authoritative. No settings schema or action is added. Analog dead zone remains an existing persisted input configuration, but is not offered as an additional menu control. Save status and explicit save retry remain available outside the blank developer page. See [settings](settings.md) for storage and preview guarantees.
+The existing local settings model, codec, debounced file store, display application and audio routing remain authoritative for user preferences. Developer tuning does not extend that schema. Analog dead zone remains an existing persisted input configuration, but is not offered as an additional menu control. Each persistence owner exposes its own save status/retry: developer tuning retries through **Apply Settings**, while Discard and Reset only change its editor draft. See [settings](settings.md) for local storage and preview guarantees.
 
 ## Leave and quit
 
@@ -33,6 +33,6 @@ Game Menu Quit and the window close request share the bootstrap's exit path. The
 
 `MenuPresentation` owns the shared steel texture treatment, procedural scratches/rivets/chains/spikes, striped carnival canopy, clown crest and red focus theme. The four project-supplied TS-61 mockups (`ESC Scene.png`, `Game Menu.png`, `Settings Menu.png`, `Audio menu.png`) guide this composition. Artwork is independent of navigation, and every row remains a native interactive Control. The existing HUD steel sample is reused; no new external asset or font is required. A translucent shade de-emphasizes the running arena. The design scales uniformly inside the viewport; the top-level menu uses a shorter frame than category pages.
 
-`check-menu.ps1 -GodotPath <Godot .NET executable>` exercises the production bootstrap with isolated settings storage and real local UDP sessions. It covers solo Waiting, ESC/Back, synthetic keyboard/gamepad navigation, remapping, local suppression with continued authoritative and remote progress, setting updates/persistence, empty Developer Options, retired buttons, viewport bounds, Leave/re-entry and production Quit. `-Visual` also captures all categories and four viewport sizes. `check-settings.ps1 -Visual` separately verifies restart persistence, save failure/retry and display preview/confirmation/reversion. Lobby and standings harnesses retain direct coverage of the underlying Return command without recreating the retired UI. Native synthetic input is not evidence of physical controller ergonomics or separate-PC authenticated EOS behavior.
+`check-menu.ps1 -GodotPath <Godot .NET executable>` exercises the production bootstrap with isolated settings storage and real local UDP sessions. It covers solo Waiting, ESC/Back, synthetic keyboard/gamepad navigation, remapping, local suppression with continued authoritative and remote progress, setting updates/persistence, unified Developer Options, retired buttons, viewport bounds, Leave/re-entry and production Quit. `-Visual` also captures all categories and four viewport sizes. `check-settings.ps1 -Visual` separately verifies restart persistence, save failure/retry and display preview/confirmation/reversion. Lobby and standings harnesses retain direct coverage of the underlying Return command without recreating the retired UI. Native synthetic input is not evidence of physical controller ergonomics or separate-PC authenticated EOS behavior.
 
 [Feature index](README.md) · [Input](input.md) · [Sessions](sessions.md) · [HUD](hud.md) · [Standings](standings.md)

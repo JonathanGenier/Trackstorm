@@ -13,21 +13,20 @@ internal sealed partial class NetworkVehicleArena : Node3D
 {
     private readonly Dictionary<ulong, NetworkVehicleBody> _bodies = new();
     private readonly VehicleChaseCamera _camera = new() { Name = "ChaseCamera", Current = true, Fov = 65 };
-    private readonly Label _diagnostics = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly RemoteInterpolation _interpolation = new();
     private readonly Items.ItemPresentation _items = new();
     private readonly VehicleDestructionEffects _destruction = new();
     private readonly Audio.ArenaAudio _audio = new();
     private readonly Items.ItemSpawnPresentation _pickups = new();
-    private readonly Label _itemLabel = new();
     private readonly Label _matchLabel = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
+    private string _developerDiagnostics = string.Empty;
     private VehicleNetworkDriver _driver = null!;
     private Arenas.CombatArena _layout = null!;
     private ulong _collisionLife;
     private ulong _collisionTick;
 
     /// <summary>Host pickup tuning supplied before scene entry.</summary>
-    internal ItemSpawnConfiguration SpawnConfiguration { get; init; } = new();
+    internal ItemSpawnConfiguration? SpawnConfiguration { get; init; }
     /// <summary>Replicated pickup presentation for runtime verification.</summary>
     internal Items.ItemSpawnPresentation Pickups => _pickups;
 
@@ -46,6 +45,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
     internal VehicleSnapshot? LocalState => _driver.LocalState;
     /// <summary>Measured render-buffer delay for diagnostics and runtime checks.</summary>
     internal double InterpolationDelay => _interpolation.DelayMilliseconds;
+    /// <summary>Existing runtime diagnostics presented by the unified Developer Options page.</summary>
+    internal string DeveloperDiagnostics => _developerDiagnostics;
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -83,7 +84,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
             {
                 foreach (var pair in _bodies)
                 {
-                    if (pair.Value.GlobalPosition.DistanceSquaredTo(marker.GlobalPosition) <= SpawnConfiguration.PickupRadius * SpawnConfiguration.PickupRadius)
+                    float radius = _driver.Configuration.Configuration.Spawns.PickupRadius;
+                    if (pair.Value.GlobalPosition.DistanceSquaredTo(marker.GlobalPosition) <= radius * radius)
                     {
                         contacts.Add((marker.Name.ToString(), pair.Key));
                     }
@@ -128,34 +130,6 @@ internal sealed partial class NetworkVehicleArena : Node3D
         var matchPanel = new PanelContainer { AnchorRight = 1, OffsetLeft = 24, OffsetRight = -24, OffsetTop = 90, MouseFilter = Control.MouseFilterEnum.Ignore };
         layer.AddChild(matchPanel);
         matchPanel.AddChild(_matchLabel);
-        var tools = new VBoxContainer { Position = new Vector2(24, 190) };
-        layer.AddChild(tools);
-        var toggle = new Button { Text = "Arena tools", ToggleMode = true };
-        tools.AddChild(toggle);
-        var content = new VBoxContainer { Visible = false };
-        tools.AddChild(content);
-        toggle.Toggled += visible => content.Visible = visible;
-        var panel = new PanelContainer { CustomMinimumSize = new Vector2(360, 0), MouseFilter = Control.MouseFilterEnum.Ignore };
-        panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("172235"), ContentMarginLeft = 12, ContentMarginRight = 12, ContentMarginTop = 8, ContentMarginBottom = 8 });
-        content.AddChild(panel);
-        panel.AddChild(_diagnostics);
-        var itemPanel = new VBoxContainer();
-        content.AddChild(itemPanel);
-        itemPanel.AddChild(_itemLabel);
-        var use = new Button { Text = "Use held item" };
-        use.Pressed += () => _driver.RequestItemUse();
-        tools.AddChild(use);
-        if (_driver.Host is not null)
-        {
-            var grants = new HBoxContainer();
-            itemPanel.AddChild(grants);
-            foreach (HeldItem item in new[] { HeldItem.Wrench, HeldItem.Missile })
-            {
-                var grant = new Button { Text = $"Dev: give {item} to empty slots" };
-                grant.Pressed += () => GrantItems(item);
-                grants.AddChild(grant);
-            }
-        }
     }
 
     /// <inheritdoc/>
@@ -204,16 +178,15 @@ internal sealed partial class NetworkVehicleArena : Node3D
             _items.Follow(pair.Key, pair.Value.VisualPosition, _driver.Latest?.Vehicles.SingleOrDefault(vehicle => vehicle.State.VehicleId == pair.Key)?.State.CanInteract == true);
         }
 
-        _itemLabel.Text = $"HELD ITEM: {(_driver.LocalState?.CanInteract == true ? _driver.LocalItem?.Item ?? HeldItem.None : HeldItem.None)}";
         string role = _driver.Host is null ? "CLIENT" : "HOST";
-        string status = _driver.Failure.Length > 0 ? _driver.Failure : _driver.LocalState is null ? "Connecting…" : $"HP {_driver.LocalState.Damage.CurrentHP:0} / {_driver.LocalState.Damage.MaxHP:0}   {_driver.LocalState.Lifecycle}   {_driver.LocalState.Movement.CurrentSurface}   {(_driver.LocalState.Movement.Handbrake > 0 ? "HANDBRAKE" : _driver.LocalState.Movement.Drifting ? "SLIDING" : _driver.LocalState.Movement.Grounded ? "GROUNDED" : "AIRBORNE")}";
+        string status = _driver.Failure.Length > 0 ? "Replication failed" : _driver.LocalState is null ? "Connecting…" : $"HP {_driver.LocalState.Damage.CurrentHP:0} / {_driver.LocalState.Damage.MaxHP:0}   {_driver.LocalState.Lifecycle}   {_driver.LocalState.Movement.CurrentSurface}   {(_driver.LocalState.Movement.Handbrake > 0 ? "HANDBRAKE" : _driver.LocalState.Movement.Drifting ? "SLIDING" : _driver.LocalState.Movement.Grounded ? "GROUNDED" : "AIRBORNE")}";
         string formattedSnapshotAge = FormatSnapshotAge(_driver.SnapshotAge);
-        _diagnostics.Text = $"{role}   {_bodies.Count}/8 vehicles   {status}\nPrediction error  {_driver.Prediction?.PredictionError ?? 0:0.000} m   Snapshot age  {formattedSnapshotAge}   Interpolation  {InterpolationDelay:0} ms\nLast acknowledged input  {_driver.Prediction?.History.LastAcknowledged ?? 0}   Corrections ≥3m  {local?.Smoothing.HardSnaps ?? 0}";
+        _developerDiagnostics = $"{role}   {_bodies.Count}/8 vehicles   {status}\nPrediction error  {_driver.Prediction?.PredictionError ?? 0:0.000} m   Snapshot age  {formattedSnapshotAge}   Interpolation  {InterpolationDelay:0} ms\nLast acknowledged input  {_driver.Prediction?.History.LastAcknowledged ?? 0}   Corrections ≥3m  {local?.Smoothing.HardSnaps ?? 0}";
     }
 
     /// <summary>Formats client authority freshness without assigning that metric to a host.</summary>
-    /// <param name="seconds">Elapsed client snapshot time, or null when not applicable.</param>
     /// <returns>HUD-ready diagnostic value.</returns>
+    /// <param name="seconds">Elapsed client snapshot time, or null when not applicable.</param>
     internal static string FormatSnapshotAge(double? seconds) => seconds is double age ? $"{age * 1000:0} ms" : "N/A";
 
     /// <summary>Binds a caller-owned transport before scene entry.</summary>
@@ -221,9 +194,17 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <param name="session">Nonzero host generation, or zero for a joining client.</param>
     /// <param name="serverPeer">Client's actual transport server identity.</param>
     /// <param name="lobby">Optional admitted development lobby.</param>
-    internal void Initialize(ITransportGateway gateway, ulong session, ulong serverPeer, LobbyNetworkDriver? lobby = null)
+    /// <param name="configuration">Validated effective gameplay tuning.</param>
+    internal void Initialize(ITransportGateway gateway, ulong session, ulong serverPeer, LobbyNetworkDriver? lobby = null, Core.Development.GameplayConfiguration? configuration = null)
     {
-        _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby, new DamageConfiguration { MaxHP = 1000 });
+        _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby, configuration: configuration ?? Core.Development.GameplayConfiguration.HostedDefaults);
+        _driver.ConfigurationChanged += accepted =>
+        {
+            foreach (var body in _bodies.Values)
+            {
+                body.ApplyConfiguration(accepted.Vehicle);
+            }
+        };
         _driver.RosterChanged += SynchronizeBodies;
         _driver.LocalCorrected += state => _bodies[state.VehicleId].Apply(state, true);
         _driver.Resynchronized += snapshot =>
@@ -256,7 +237,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             {
                 _collisionLife = state.LifeId;
                 _collisionTick = state.Movement.Tick;
-                _camera.ObserveCollision(observation, 900);
+                _camera.ObserveCollision(observation, _driver.Configuration.Configuration.Vehicle.Mass);
             }
 
             return observation;
@@ -330,6 +311,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             if (!_bodies.TryGetValue(id, out var body))
             {
                 body = new NetworkVehicleBody { Name = $"Vehicle{id}", VehicleId = id, PushProps = _driver.Host is not null };
+                body.ApplyConfiguration(_driver.Configuration.Configuration.Vehicle);
                 AddChild(body);
                 _bodies.Add(id, body);
                 body.Apply(vehicle.State);

@@ -8,10 +8,6 @@ namespace Trackstorm.Client.Vehicles;
 public sealed partial class VehicleArena : Node3D
 {
     private readonly VehicleChaseCamera _camera = new() { Name = "ChaseCamera", Current = true, Fov = 65 };
-    private readonly Label _status = new();
-    private readonly Label _health = new();
-    private readonly Label _title = new() { Text = "LOCAL VEHICLE ARENA" };
-    private readonly Label _instructions = new() { Text = "W/S drive and brake, A/D steer, Space handbrake. Brake before corners; release the handbrake to regain grip.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly List<VehicleBody> _vehicles = new();
     private readonly VehicleDestructionEffects _destruction = new();
     private readonly Audio.ArenaAudio _audio = new();
@@ -57,6 +53,7 @@ public sealed partial class VehicleArena : Node3D
                 AmbientLightColor = new Color("b9d6ed"),
                 AmbientLightEnergy = 0.65f,
             }
+
         });
         AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-55, -25, 0), LightEnergy = 1.4f, ShadowEnabled = true });
         if (LegacyTestLayout)
@@ -88,7 +85,6 @@ public sealed partial class VehicleArena : Node3D
         {
             _layout = new Arenas.CombatArena { Name = "PrototypeArena" };
             AddChild(_layout);
-            _title.Text = "PROTOTYPE COMBAT ARENA · 8 VEHICLES";
             for (int slot = 0; slot < Core.Arenas.ArenaConfiguration.SpawnCount; slot++)
             {
                 var spawn = Core.Arenas.PrototypeArena.Configuration.Spawn(slot);
@@ -125,30 +121,6 @@ public sealed partial class VehicleArena : Node3D
 
         AddChild(_camera);
         _camera.Position = new Vector3(0, 8, 32);
-        var layer = new CanvasLayer { Layer = 1 };
-        AddChild(layer);
-        var tools = new VBoxContainer { Position = new Vector2(24, 150) };
-        layer.AddChild(tools);
-        var toggle = new Button { Text = "Arena tools", ToggleMode = true };
-        tools.AddChild(toggle);
-        var backdrop = new PanelContainer { Visible = false, CustomMinimumSize = new Vector2(360, 0) };
-        toggle.Toggled += visible => backdrop.Visible = visible;
-        backdrop.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("172235"), ContentMarginLeft = 10, ContentMarginRight = 10, ContentMarginTop = 8, ContentMarginBottom = 8 });
-        tools.AddChild(backdrop);
-        var panel = new VBoxContainer();
-        backdrop.AddChild(panel);
-        panel.AddChild(_title);
-        panel.AddChild(_status);
-        panel.AddChild(_health);
-        panel.AddChild(_instructions);
-        var actions = new HBoxContainer();
-        panel.AddChild(actions);
-        var reset = new Button { Text = LegacyTestLayout ? "Reset vehicles" : "Reset arena", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-        reset.Pressed += ResetVehicles;
-        actions.AddChild(reset);
-        var explode = new Button { Text = "Detonate nearby", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, TooltipText = "Damage and push nearby vehicles with an explosion." };
-        explode.Pressed += () => Explode(Player.GlobalPosition + new Vector3(-2, -0.2f, 0.5f));
-        actions.AddChild(explode);
     }
 
     /// <inheritdoc/>
@@ -156,15 +128,6 @@ public sealed partial class VehicleArena : Node3D
     {
         _audio.Follow(Simulation.State.Vehicles, id => _vehicles.Single(vehicle => vehicle.VehicleId == id).GlobalPosition, Simulation.State.Tick);
         _camera.Follow(Player.GetGlobalTransformInterpolated(), Player.Snapshot, (float)delta);
-        VehicleState state = Player.State;
-        bool compact = GetViewport().GetVisibleRect().Size.Y < 500;
-        _title.Visible = !compact;
-        _instructions.Visible = !compact;
-        _status.Text = state.Handbrake > 0 ? "HANDBRAKE" : state.Drifting ? "SLIDING" : state.Grounded ? "GROUNDED" : "AIRBORNE";
-        _status.Text += $"  •  {state.CurrentSurface}";
-        VehicleDamageState health = Player.DamageState;
-        _health.Text = health.Destroyed ? (LegacyTestLayout ? "DESTROYED — reset vehicles to drive again" : $"{Player.Snapshot.Lifecycle.ToString().ToUpperInvariant()} — returning to arena") : $"HP  {health.CurrentHP:0} / {health.MaxHP:0}     Target HP  {Target.DamageState.CurrentHP:0} / {Target.DamageState.MaxHP:0}";
-        _health.Modulate = health.Destroyed ? new Color("ff906b") : Colors.White;
         if (_blast is not null)
         {
             _blastSeconds -= (float)delta;
@@ -174,7 +137,9 @@ public sealed partial class VehicleArena : Node3D
                 _blast.QueueFree();
                 _blast = null;
             }
+
         }
+
     }
 
     /// <summary>Collects all native observations, advances Core once, then applies the complete accepted batch.</summary>
@@ -196,6 +161,7 @@ public sealed partial class VehicleArena : Node3D
         {
             vehicle.Publish();
         }
+
     }
 
     /// <summary>Local authority demonstration of the item-independent Core explosion helper.</summary>
@@ -226,16 +192,8 @@ public sealed partial class VehicleArena : Node3D
         AddChild(_blast);
     }
 
-    private StaticBody3D AddStatic(Vector3 size, Vector3 position, Color color, SurfaceType surface = SurfaceType.Concrete)
-    {
-        var body = new SurfaceBody { Position = position, Surface = surface };
-        body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size } });
-        body.AddChild(VehicleBody.Box(size, Vector3.Zero, color));
-        AddChild(body);
-        return body;
-    }
-
-    private void ResetVehicles()
+    /// <summary>Queues normal new-life resets for local practice vehicles.</summary>
+    internal void ResetVehicles()
     {
         if (!LegacyTestLayout)
         {
@@ -251,4 +209,14 @@ public sealed partial class VehicleArena : Node3D
         Player.ResetBody(new VehiclePhysicsState(new System.Numerics.Vector3(0, 1, 20), System.Numerics.Quaternion.Identity, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero));
         Target.ResetBody(new VehiclePhysicsState(new System.Numerics.Vector3(12, 1, -15), System.Numerics.Quaternion.Identity, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero));
     }
+
+    private StaticBody3D AddStatic(Vector3 size, Vector3 position, Color color, SurfaceType surface = SurfaceType.Concrete)
+    {
+        var body = new SurfaceBody { Position = position, Surface = surface };
+        body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size } });
+        body.AddChild(VehicleBody.Box(size, Vector3.Zero, color));
+        AddChild(body);
+        return body;
+    }
+
 }

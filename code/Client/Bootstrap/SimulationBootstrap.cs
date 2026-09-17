@@ -59,6 +59,9 @@ public sealed partial class SimulationBootstrap : Node
         panel.Initialize(settings, _playerInput.Adapter);
         settings.AddChild(panel);
         _settingsPanel = panel;
+        panel.DeveloperOptions.Session = () => _session;
+        panel.DeveloperOptions.Practice = () => _arena;
+        panel.DeveloperOptions.IdentityDiagnostics = () => _online?.DeveloperDiagnostics ?? "EOS unavailable.";
         panel.ArenaAvailable = () => _arena is not null || _session?.Arena is not null || _quitRequested;
         panel.LeaveToMainMenu = LeaveToMainMenu;
         panel.QuitApplication = RequestQuit;
@@ -97,7 +100,15 @@ public sealed partial class SimulationBootstrap : Node
         }
         else
         {
-            _session = new DevelopmentSession { Name = "DevelopmentSession", OnlineCoordinator = () => online?.Coordinator, OnlineStatus = () => online?.Status ?? EosLobbyStatus.Unavailable, OnlineLogin = () => online?.Login(), OnlineLogout = () => online?.Logout() };
+            _session = new DevelopmentSession
+            {
+                Name = "DevelopmentSession",
+                OnlineCoordinator = () => online?.Coordinator,
+                OnlineStatus = () => online?.Status ?? EosLobbyStatus.Unavailable,
+                OnlineLogin = () => online?.Login(),
+                OnlineLogout = () => online?.Logout(),
+                DeveloperSettings = Development.DeveloperTools.Enabled ? new Development.DeveloperSettingsStore(SettingsPath is null ? ProjectSettings.GlobalizePath("user://developer-settings.jsonl") : SettingsPath + ".developer.jsonl") : null
+            };
             AddChild(_session);
             if (networkArguments.Length == 1)
             {
