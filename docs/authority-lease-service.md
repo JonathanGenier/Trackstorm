@@ -8,7 +8,7 @@ Use the existing Godot/.NET/EOS setup and `./check.ps1`. Node.js, npm, Wrangler,
 
 Players receive the normal game export with its public HTTPS lease URL embedded. They do not configure Cloudflare, environment variables or external software. The optional `TRACKSTORM_LEASE_URL` override is only for developers/tests.
 
-The actual Worker URL remains pending account/dashboard setup. [config/authority-lease-endpoint.json](../config/authority-lease-endpoint.json) currently has `"url": null`, so an unconfigured build fails closed with a build-configuration message. This is deliberate preparation, not a working public deployment. Once the Worker exists, the release owner commits its trusted HTTPS URL there and rebuilds both editor/export. No per-PC configuration file is needed. Do not substitute an invented URL or send EOS tokens to an unverified endpoint.
+The Worker is deployed at `https://trackstorm-authority-leases.crypt-jo-g.workers.dev`, with the `LEASE_SESSIONS` Durable Object binding and the four required EOS runtime identifiers configured. [config/authority-lease-endpoint.json](../config/authority-lease-endpoint.json) bundles that HTTPS URL for editor and export, while `TRACKSTORM_LEASE_URL` remains an optional developer/test override. `GET /health` has returned `{"status":"up"}` and proves reachability only; live EOS Connect authentication and lease acquisition/renewal remain unverified. No per-PC configuration file is needed. Do not send EOS tokens to any endpoint other than the reviewed bundled service or an intentional trusted override.
 
 ## GitHub-connected dashboard deployment
 

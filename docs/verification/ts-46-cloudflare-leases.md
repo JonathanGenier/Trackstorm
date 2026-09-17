@@ -10,7 +10,7 @@ Ten-second service leases retain the existing two-second renewal and eight-secon
 
 The supported hosted backend is now Cloudflare only. The ASP.NET executable, disk ledger, authentication packages, dedicated service test project, publishing script and obsolete notices were removed. A small in-memory C# lease reference model remains exclusively in TransportTests to preserve deterministic migration tests without requiring backend tooling for game development. It is not a deployable server.
 
-The normal endpoint comes from `config/authority-lease-endpoint.json`, embedded in the Client assembly for editor/export. The user explicitly confirmed the Worker does not exist yet: its URL remains null and unconfigured online authority fails closed. Once the release owner commits the verified HTTPS endpoint and rebuilds, gamers need no configuration. `TRACKSTORM_LEASE_URL` remains an optional developer/test override.
+The normal endpoint comes from `config/authority-lease-endpoint.json`, embedded in the Client assembly for editor/export. The deployed `https://trackstorm-authority-leases.crypt-jo-g.workers.dev` URL is now bundled, so gamers need no endpoint configuration. `TRACKSTORM_LEASE_URL` remains an optional developer/test override.
 
 Primary deployment is GitHub-connected Cloudflare Builds/dashboard, documented in the [deployment guide](../authority-lease-service.md). Node/npm/Wrangler run there; normal Godot/.NET development and `check.ps1` do not require them. Optional backend tools are isolated under `services/authority-lease`, pinned by the lockfile and excluded from Godot scanning/export. The bundled jose MIT notice remains present after compilation and is served at `/licenses`.
 
@@ -41,6 +41,14 @@ Environment: Windows, .NET SDK 10.0.401, Godot Mono 4.7.2, backend Node 24.19.0.
 
 The eight deterministic backend cases exercise renewal through a P2P partition, exact expiry, sixteen competing takeover attempts, sequential epochs, conditional release, stale fences, storage outage, restart quarantine, isolation, malformed requests and incompatible persisted state. Four further tests exercise real RSA/JWT validation and actual local Worker HTTP/SQLite Durable Objects, including forged/mismatched/expired tokens, unauthorized holder injection, session isolation, competing claims and unreachable/unconfigured coordination. Existing C# delayed-response, outage, complete-checkpoint, two/three-player election and former-host resume assertions were preserved; only their reference lease-store setup changed. Seven endpoint cases cover bundled defaults, overrides and rejected addresses.
 
+## Deployment configuration update
+
+On 2026-09-17, Cloudflare deployment completed for `trackstorm-authority-leases`. The deployed `LEASE_SESSIONS` Durable Object binding and four required EOS runtime identifiers were confirmed, backend tests passed during deployment, and `GET /health` returned `{"status":"up"}`. The public HTTPS URL is now bundled in `config/authority-lease-endpoint.json`; `TRACKSTORM_LEASE_URL` remains the optional developer/test override.
+
+After integrating current `main`, the focused endpoint suite passed 8/8 cases in Debug and Release, including loading the actual embedded resource. Final `./check.ps1` passed restore, formatting verification, zero-warning Debug/Release builds, 328 Core tests and 253 non-native Client/transport tests in each configuration. The scoped diff was inspected and contains no EOS Client Secret, Cloudflare token, EOS JWT, private lease session ID or other credential.
+
+This update verifies deployment, reachability and bundled configuration only. Live EOS Connect JWT authentication, lease creation/renewal/takeover, host migration through the deployed Worker and physical-PC acceptance remain unverified.
+
 Initial failures are retained rather than hidden:
 
 - Initial backend HTTP tests used the older Miniflare constructor shape; switching to the installed package's documented conversion adapter fixed that setup failure. All twelve tests then passed, including after the final persisted-state validation change.
@@ -50,11 +58,11 @@ Initial failures are retained rather than hidden:
 
 ## Remaining external acceptance
 
-No Cloudflare resource was created, no service was deployed, and no live EOS/Cloudflare or physical-PC result is claimed. The latest earlier physical reports remain Public Leave PASS, Public lobby process kill FAIL and Public active-match process kill FAIL on the older build; local evidence does not supersede them.
+Cloudflare deployment is complete. The `LEASE_SESSIONS` Durable Object binding deployed, backend tests passed during deployment, the four required EOS runtime identifiers are configured, and `GET /health` returned `{"status":"up"}` at the bundled endpoint. This verifies deployment and reachability only; no live EOS Connect JWT, lease creation/renewal/takeover, migration or physical-PC result is claimed. The latest earlier physical reports remain Public Leave PASS, Public lobby process kill FAIL and Public active-match process kill FAIL on the older build; local evidence and `/health` do not supersede them.
 
-The operator must connect the GitHub repository in Cloudflare, configure build root/commands and Node version, keep the committed per-session Durable Object binding/migration, set the four public EOS runtime identifiers, deploy, and supply the resulting trusted HTTPS URL. Then bundle that URL, rebuild both PCs and verify real Connect acquisition/renewal. Preserve the namespace across deployments and keep automatic independent preview deployments disabled.
+The operator must preserve the deployed Durable Object namespace, binding/migration, runtime identifiers and trusted HTTPS endpoint across later deployments. Keep automatic independent preview deployments disabled. Build both PCs with the bundled endpoint and verify real Connect authentication and lease acquisition/renewal before migration acceptance.
 
-First run **Public lobby, two PCs, abrupt host-process kill**, then **Public active match, two PCs, abrupt host-process kill**. The survivor must stay in the same logical session/match and migrate promptly after fencing. Only after both pass proceed to former-host CLIENT return after more than thirty seconds and more than two minutes within the match, Locked return, coordination outage, P2P-only partition, sequential migration and three-or-more-player agreement. Jira remains In Progress pending this evidence. PR #27 must not be merged as part of this work.
+First verify normal **Public lobby host/join**, then run **Public lobby, two PCs, abrupt host-process kill** and **Public active match, two PCs, abrupt host-process kill**. The survivor must stay in the same logical session/match and migrate promptly after fencing. Only after both kill scenarios pass proceed to former-host CLIENT return after more than thirty seconds and more than two minutes within the match, Locked return, coordination outage, P2P-only partition, sequential migration and three-or-more-player agreement. Jira remains In Progress pending this evidence. PR #27 must not be merged as part of this work.
 
 ## Exact files in this architecture correction
 

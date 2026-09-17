@@ -6,6 +6,24 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class LeaseEndpointConfigurationTests
 {
+    /// <summary>The Client assembly carries the deployed public endpoint without local setup.</summary>
+    [Test]
+    [NonParallelizable]
+    public void EmbeddedBundledAddress()
+    {
+        string? previous = Environment.GetEnvironmentVariable("TRACKSTORM_LEASE_URL");
+
+        try
+        {
+            Environment.SetEnvironmentVariable("TRACKSTORM_LEASE_URL", null);
+            Assert.That(LeaseEndpointConfiguration.Resolve().AbsoluteUri, Is.EqualTo("https://trackstorm-authority-leases.crypt-jo-g.workers.dev/"));
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("TRACKSTORM_LEASE_URL", previous);
+        }
+    }
+
     /// <summary>Bundled configuration works without environment setup, and test overrides are explicit.</summary>
     [Test]
     public void BundledAddressAndOverride()
