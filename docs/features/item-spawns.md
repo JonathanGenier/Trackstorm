@@ -29,3 +29,5 @@ See [reconnection and session resume](reconnection.md) for authenticated grace, 
 Host [Developer Options](developer-options.md) updates the existing spawn authority. Native observation and Core claims use the accepted pickup radius; future successful claims use the current cooldown and weights. Existing activation deadlines remain unchanged. A Seed edit restarts the actual selector stream without consuming a draw. The configuration is replicated and included in resume checkpoints; this does not restore a replacement host's RNG position, which requires host-migration support.
 
 [Feature index](README.md)
+
+The [Event Log](event-log.md) records successful pickup claims and marker spawn/reactivation transitions. Repeated proximity observations do not create repeated pickup events.

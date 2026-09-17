@@ -39,3 +39,5 @@ Deterministic Core tests cover grace boundaries/cancellation, identity and gener
 `check-reconnect.ps1 -GodotPath <exe>` exercises real local UDP sockets and two isolated native Godot worlds: lobby rebind, three arena resyncs, retained vehicle nodes, cleared input/interpolation history, HP/item/spawn/match continuity, and grace expiry. `-Visual` captures the resumed arena under `.godot/reconnect-checks`. Existing eight-peer lobby, item, pickup, death/respawn, match and vehicle checks cover surrounding regressions. The EOS smoke check covers real authentication and lobby/P2P lifecycle with a solo host. Separate-PC EOS interruption, changed public IP, full restart during an active match and long-session Internet soak still require real-device verification using the EOS development procedure.
 
 [Feature index](README.md)
+
+The [Event Log](event-log.md) retains its sequence watermark during in-process resume. A new transport receives events from its reconnect admission onward, without replaying older gameplay; the original host timestamps and sequence identities survive replication.

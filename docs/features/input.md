@@ -63,3 +63,5 @@ Analog dead zone defaults to `0.15` and accepts finite values in `[0,1)`. Digita
 - Core tests run without Godot. The explicit headless Godot verification scene exercises native synthetic keyboard/gamepad events through the production adapter, all defaults, analog conditioning, remapping, short taps, focus suppression, and fixed-callback publication. A GdUnit4 Client test loads the composed main scene and checks the bootstrap, input node, and configured tick rate. Synthetic checks do not establish physical controller ergonomics or vehicle feel.
 
 [Feature index](README.md)
+
+The [Event Log](event-log.md) reserves F3 and owns a separate local diagnostic suppression flag. Closing it does not clear Settings suppression; the existing item-release guard prevents click-through use.
