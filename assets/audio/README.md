@@ -3,6 +3,8 @@
 The arena owns all playback. Main-menu audio is outside this package.
 Every required runtime clip is committed: clone, perform the normal Godot import,
 build and run. No audio download, Python, FFmpeg or manual audio setup is required.
+The normal project prerequisites still apply, including the separately documented
+[EOS SDK setup](../../docs/eos-development.md); this change removes audio setup only.
 
 `sources.json` is the authoritative manifest of source identities, licenses,
 acquired-byte and derivative SHA-256 hashes, and processing selections. The three
