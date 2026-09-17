@@ -47,6 +47,8 @@ public sealed class LobbySnapshot
     public ulong Match { get; }
     /// <summary>Shared lobby or arena state.</summary>
     public SessionPhase Phase { get; }
+    /// <summary>Explicit continuity policy for the current phase.</summary>
+    public SessionReconnectPolicy ReconnectPolicy => Phase == SessionPhase.Lobby ? SessionReconnectPolicy.FreshJoin : SessionReconnectPolicy.RetainedResume;
     /// <summary>Complete immutable connected roster.</summary>
     public IReadOnlyList<SessionPlayer> Players { get; }
     /// <summary>Development policy: one through eight connected players, all explicitly ready.</summary>

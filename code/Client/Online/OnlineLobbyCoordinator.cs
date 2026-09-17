@@ -387,7 +387,16 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             TickResume();
         }
 
-        if (!_disposed && Active is not null && _binding?.Driver is { State: not null, Reconnecting: false, Failure.Length: 0 } driver &&
+        if (!_disposed && Active is not null && _binding?.Driver.State?.ReconnectPolicy == Core.Sessions.SessionReconnectPolicy.FreshJoin &&
+            (_savedGeneration != 0 || SavedResume is not null || _returnLocator is not null))
+        {
+            _resumeStore?.Clear();
+            SavedResume = null;
+            _returnLocator = null;
+            _savedGeneration = 0;
+        }
+
+        if (!_disposed && Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume, Reconnecting: false, Failure.Length: 0 } driver &&
             (_savedGeneration != driver.Generation || _time.GetElapsedTime(_savedAt).TotalSeconds >= 5))
         {
             _savedAt = _time.GetTimestamp();
@@ -456,7 +465,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal void Leave()
     {
         bool retainLobby = _binding?.Driver.Migration?.Subjects is not null || _binding?.Driver.State?.AuthorityEpoch > 1;
-        bool retainPlayer = retainLobby && Active is not null && _binding?.Driver.Authority is not null;
+        bool retainPlayer = retainLobby && Active is not null && _binding?.Driver is { Authority: not null, State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume };
         if (retainPlayer)
         {
             var driver = _binding!.Driver;
@@ -524,7 +533,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Retains only an acknowledged routing hint when the application exits without choosing Leave.</summary>
     internal void PreserveResumeOnShutdown()
     {
-        if (Active is not null && _binding?.Driver is { State: not null, Failure.Length: 0 } driver)
+        if (Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume, Failure.Length: 0 } driver)
         {
             _preserveLocator = true;
             _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value, _time.GetUtcNow().AddMinutes(2), driver.Authority is not null || driver.State!.Players.Any(player => player.Id == driver.LocalPlayerId && player.RetainedHost)));
@@ -698,7 +707,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
 
                     if (kind == OnlineLobbyUpdateKind.Closure)
                     {
-                        if (!IsHost && _binding?.Driver.State is not null)
+                        if (!IsHost && _binding?.Driver.State?.ReconnectPolicy == Core.Sessions.SessionReconnectPolicy.RetainedResume)
                         {
                             _recoveringMembership = true;
                             _resumeStarted ??= _time.GetTimestamp();

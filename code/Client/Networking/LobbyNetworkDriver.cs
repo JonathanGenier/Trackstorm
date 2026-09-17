@@ -95,10 +95,11 @@ internal sealed class LobbyNetworkDriver
     /// <param name="checkpoint">Agreed old authority checkpoint.</param>
     /// <param name="host">Deterministically elected replacement.</param>
     /// <param name="server">Replacement transport peer, zero on the new host.</param>
-    internal void InstallMigration(MigrationCheckpoint checkpoint, ulong host, ulong server)
+    /// <param name="survivorPeers">Active player-to-peer bindings used only for uninterrupted lobby migration.</param>
+    internal void InstallMigration(MigrationCheckpoint checkpoint, ulong host, ulong server, IReadOnlyDictionary<ulong, ulong>? survivorPeers = null)
     {
         ulong local = LocalPlayerId;
-        var restored = LobbyAuthority.Restore(checkpoint.Lobby, host, checked(checkpoint.Lobby.State.AuthorityEpoch + 1));
+        var restored = LobbyAuthority.Restore(checkpoint.Lobby, host, checked(checkpoint.Lobby.State.AuthorityEpoch + 1), survivorPeers);
         Authority = local == host ? restored : null;
         _clientEvents.ResetAuthority(checkpoint.Lobby.Tick * 1000 / 60);
         _eventSent.Clear();
@@ -113,8 +114,9 @@ internal sealed class LobbyNetworkDriver
         _published = 0;
         _pendingGameplay.Clear();
         Latency.Clear();
-        _joined = false;
-        _interruptedAt = Authority is null ? _seconds : null;
+        bool lobbyContinuity = restored.State.ReconnectPolicy == SessionReconnectPolicy.FreshJoin;
+        _joined = lobbyContinuity;
+        _interruptedAt = Authority is null && !lobbyContinuity ? _seconds : null;
         NeedsArenaCheckpoint = Authority is null && restored.State.Phase == SessionPhase.Arena;
         Failure = string.Empty;
         ResumeStatus = "Host migrated — resynchronizing";
@@ -187,7 +189,15 @@ internal sealed class LobbyNetworkDriver
             else if (!_gateway.Connections.TryGetValue(ServerPeer, out var connection) || connection == TransportConnectionState.Disconnected)
             {
                 Latency.Clear();
-                if ((State is not null || _resumePlayer != 0) && Reconnect is not null && Failure.Length == 0)
+                if (State?.ReconnectPolicy == SessionReconnectPolicy.FreshJoin)
+                {
+                    ResumeStatus = Migration is null ? "Lobby departure requires a fresh join" : Migration.Status;
+                    if (Migration is null)
+                    {
+                        Failure = "Disconnected from lobby. Join again to receive a fresh player assignment.";
+                    }
+                }
+                else if ((State is not null || _resumePlayer != 0) && Reconnect is not null && Failure.Length == 0)
                 {
                     if (!_interruptedAt.HasValue)
                     {

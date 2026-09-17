@@ -75,7 +75,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
         {
             if (++_cleanup == 4)
             {
-                GD.Print("Reconnect integration passed: lobby identity/Ready reset, three arena resyncs, native body reuse, prediction/interpolation reset, held-item/spawn/match continuity, and grace expiry over real UDP. EOS identity is a test seam.");
+                GD.Print("Reconnect integration passed: immediate lobby removal/fresh admission, three arena resyncs, native body reuse, prediction/interpolation reset, held-item/spawn/match continuity, and arena grace expiry over real UDP. EOS identity is a test seam.");
                 GetTree().Quit();
             }
 
@@ -125,12 +125,13 @@ public sealed partial class ReconnectIntegrationChecks : Node
             GD.Print("Diagnostics: Direct-IP current Ping observed through neutral projection.");
             _client.Request(LobbyCommand.Ready, true);
             _host.Pump(0);
-            Drop();
+            DropLobbyAndJoinFresh();
             _stage = 1;
         }
-        else if (_stage == 1 && _client.Generation == 2 && !_client.Reconnecting)
+        else if (_stage == 1 && _client.State?.Players.Count == 2 && !_client.Reconnecting)
         {
-            Require(_client.LocalPlayerId == _player && !_client.State!.Players.Single(p => p.Id == _player).Ready, "Lobby rebind preserves identity and resets Ready.");
+            Require(_client.LocalPlayerId != _player && _client.Generation == 1 && !_client.State.Players.Any(p => p.Id == _player), "Lobby return is a fresh PlayerId without a retained reservation.");
+            _player = _client.LocalPlayerId;
             _host.Request(LobbyCommand.Ready, true);
             _client.Request(LobbyCommand.Ready, true);
             _stage = 2;
@@ -289,6 +290,21 @@ public sealed partial class ReconnectIntegrationChecks : Node
         var reconnecting = TransportDiagnostics.Capture(_gateways[1], _client);
         Require(reconnecting.State == ConnectionDiagnosticState.Reconnecting && reconnecting.Statistics.PingMilliseconds is null, "Reconnecting never presents old latency.");
         Require(_client.Latency.Get(_client.State!, _player) is null && _host.Latency.Get(_host.State!, _player) is null, "Disconnect immediately clears both sides' stale ping.");
+    }
+
+    private void DropLobbyAndJoinFresh()
+    {
+        _gateways[0].Disconnect(_host.Authority!.Peers.Keys.Single());
+        _gateways[1].Disconnect(_client.ServerPeer);
+        _host.Pump(0);
+        _client.Pump(0);
+        Require(_host.State!.Players.Count == 1 && _host.State.Players.All(player => player.Id != _player), "Lobby disconnect removes the player immediately.");
+        Require(_client.Failure.Length > 0 && _client.ResumeStatus == "Lobby departure requires a fresh join", "Lobby disconnect exposes fresh-join recovery instead of reconnect grace.");
+        ulong peer = _gateways[1].Connect(TransportEndpoint.DirectIp(_endpoint));
+        _client = new LobbyNetworkDriver(_gateways[1], 0, peer, "Client", expectedSession: 900)
+        {
+            Reconnect = () => _gateways[1].Connect(TransportEndpoint.DirectIp(_endpoint)),
+        };
     }
 
     private void VerifyTags()

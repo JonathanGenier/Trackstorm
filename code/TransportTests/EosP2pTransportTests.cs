@@ -63,27 +63,29 @@ internal sealed class EosP2pTransportTests
         Assert.That(frames, Is.LessThan(780), "Failover must finish before the 30-second player grace.");
         Assert.That(pair.Client.State.Session, Is.EqualTo(before.Session));
         Assert.That(pair.Client.State.Match, Is.EqualTo(before.Match));
-        pair.Step(2100, host: false);
-        Assert.That(pair.Client.State.Players.Single(player => player.Id == 1), Is.EqualTo(before.Players.Single(player => player.Id == 1) with { Ready = false, Connected = false, RetainedHost = true }));
         if (arena)
         {
+            pair.Step(2100, host: false);
+            Assert.That(pair.Client.State.Players.Single(player => player.Id == 1), Is.EqualTo(before.Players.Single(player => player.Id == 1) with { Ready = false, Connected = false, RetainedHost = true }));
             Assert.That(pair.Client.State.Phase, Is.EqualTo(SessionPhase.Arena));
             Assert.That(pair.ClientVehicles!.Host!.World.State.Vehicles.Count, Is.EqualTo(2));
             Assert.That(pair.ClientVehicles.Host.Items.Slots.Single(slot => slot.Vehicle == 1).Item, Is.EqualTo(Trackstorm.Core.Items.HeldItem.Wrench));
+            pair.RestartFormerHost();
+            pair.Step(180);
+            Assert.That(pair.Host.Authority, Is.Null);
+            Assert.That(pair.Host.LocalPlayerId, Is.EqualTo(1));
+            Assert.That(pair.Host.Generation, Is.EqualTo(2));
         }
         else
         {
+            Assert.That(pair.Client.State.Players.Select(player => player.Id), Is.EqualTo(new ulong[] { 2 }));
             Assert.That(pair.Client.Request(LobbyCommand.Ready, true), Is.True);
             Assert.That(pair.Client.Request(LobbyCommand.Start), Is.True);
             pair.ReplaceClientVehicles(new VehicleNetworkDriver(pair.Link.Client, pair.Client.State.Match, 0, pair.Client));
-            Assert.That(pair.ClientVehicles!.Host!.World.State.Vehicles.Select(vehicle => vehicle.VehicleId), Is.EquivalentTo(new ulong[] { 1, 2 }));
+            Assert.That(pair.ClientVehicles!.Host!.World.State.Vehicles.Select(vehicle => vehicle.VehicleId), Is.EqualTo(new ulong[] { 2 }));
+            return;
         }
 
-        pair.RestartFormerHost();
-        pair.Step(180);
-        Assert.That(pair.Host.Authority, Is.Null);
-        Assert.That(pair.Host.LocalPlayerId, Is.EqualTo(1));
-        Assert.That(pair.Host.Generation, Is.EqualTo(2));
         Assert.That(pair.Host.State!.AuthorityEpoch, Is.EqualTo(2));
         pair.RetireClientTransport();
         pair.Step(780, client: false);
@@ -293,7 +295,7 @@ internal sealed class EosP2pTransportTests
         Assert.That(pair.Client.State.AuthorityEpoch, Is.EqualTo(2));
         Assert.That(pair.Client.State.CurrentHostId, Is.EqualTo(2));
         Assert.That(pair.Client.LocalPlayerId, Is.EqualTo(2));
-        Assert.That(pair.Client.State.Players.Select(player => player.Id), Is.EqualTo(before.Players.Select(player => player.Id)));
+        Assert.That(pair.Client.State.Players.Select(player => player.Id), Is.EqualTo(new ulong[] { 2 }));
         Assert.That(pair.Client.State.Players.All(player => !player.Ready), Is.True);
         Assert.That(pair.Client.Migration!.Frozen, Is.False, "The new sole host does not require an acknowledgement from its reserved former host.");
     }
@@ -399,6 +401,7 @@ internal sealed class EosP2pTransportTests
     public void TwoPlayerFormerHostResumesAndMigratesAgain()
     {
         using var pair = new MigrationPair();
+        pair.StartArena();
         var retired = pair.Host.State!;
         pair.RetireHostTransport();
         pair.Step(1950, host: false);
@@ -413,7 +416,7 @@ internal sealed class EosP2pTransportTests
         pair.Host.Request(LobbyCommand.Start);
         pair.Step(2);
         Assert.That(pair.Client.RejectedPackets, Is.GreaterThan(rejected));
-        Assert.That(pair.Client.State!.Phase, Is.EqualTo(SessionPhase.Lobby));
+        Assert.That(pair.Client.State!.Phase, Is.EqualTo(SessionPhase.Arena));
         rejected = pair.Client.RejectedPackets;
         pair.Link.Host.Send(new(pair.Host.ServerPeer, LobbyCodec.EncodeCommand(LobbyCommand.Ready, retired, true), TransportDelivery.Reliable));
         pair.Step(2);
@@ -651,7 +654,7 @@ internal sealed class EosP2pTransportTests
                     drivers[2].Pump(1.0 / 60);
                 }
 
-                Assert.That(drivers[1].State!.AuthorityEpoch, Is.EqualTo(2), drivers[1].Failure);
+                Assert.That(drivers[1].State!.AuthorityEpoch, Is.EqualTo(2), $"candidate: {drivers[1].Failure}; {drivers[1].Migration!.Diagnostics}; voter: {drivers[2].Failure}; {drivers[2].Migration!.Diagnostics}");
                 Assert.That(drivers[2].State!.AuthorityEpoch, Is.EqualTo(2), drivers[2].Failure);
                 Assert.That(drivers[1].State!.Players.All(player => !player.Ready), Is.True);
                 Assert.That(drivers[1].LocalPlayerId, Is.EqualTo(2));
@@ -936,7 +939,7 @@ internal sealed class EosP2pTransportTests
 
     /// <summary>Real EOS framing carries repeated authenticated rebinds without replacing gameplay identity or history.</summary>
     [Test]
-    public void ReconnectsLobbyAndArenaWithOneVehicleAndFreshCheckpoint()
+    public void ReconnectsArenaWithOneVehicleAndFreshCheckpoint()
     {
         using var pair = new Pair();
         var host = new LobbyNetworkDriver(pair.Host, pair.Lobby.Session, 0, "Host", _ => true, identity: _ => "authenticated-client");
@@ -957,21 +960,7 @@ internal sealed class EosP2pTransportTests
         ulong player = client.LocalPlayerId;
         client.Request(LobbyCommand.Ready, true);
         host.Pump(1.0 / 60);
-        pair.Host.Disconnect(host.Authority!.Peers.Keys.Single());
-        pair.Client.Disconnect(client.ServerPeer);
-        for (int i = 0; i < 100; i++)
-        {
-            host.Pump(1.0 / 60);
-            client.Pump(1.0 / 60);
-        }
-
-        Assert.That(client.ResumeStatus, Is.EqualTo("Resume succeeded"));
-        Assert.That(client.Generation, Is.EqualTo(2));
-        Assert.That(client.LocalPlayerId, Is.EqualTo(player));
-        Assert.That(TransportDiagnostics.Capture(pair.Client, client).State, Is.EqualTo(ConnectionDiagnosticState.Connected));
-        Assert.That(client.State!.Players.Single(p => p.Id == player).Ready, Is.False);
         host.Request(LobbyCommand.Ready, true);
-        client.Request(LobbyCommand.Ready, true);
         host.Pump(1.0 / 60);
         Assert.That(host.Request(LobbyCommand.Start), Is.True);
         client.Pump(1.0 / 60);
@@ -979,7 +968,6 @@ internal sealed class EosP2pTransportTests
         var replica = new VehicleNetworkDriver(pair.Client, 0, client.ServerPeer, client);
         authority.Host!.RegisterSpawns(Trackstorm.Core.Arenas.PrototypeArena.Configuration);
         authority.Host.Items.Grant(authority.Host.World, player, Trackstorm.Core.Items.HeldItem.Wrench);
-        // This is a new arena after a lobby-only resume, so its initial state is ordinary replication.
         for (int i = 0; i < 20; i++)
         {
             authority.Advance(default, Observe);
@@ -990,7 +978,7 @@ internal sealed class EosP2pTransportTests
         replica.Resynchronized += _ => resyncs++;
         for (int cycle = 0; cycle < 4; cycle++)
         {
-            ulong oldPeer = host.Authority.Peers.Keys.Single();
+            ulong oldPeer = host.Authority!.Peers.Keys.Single();
             ulong generation = client.Generation;
             pair.Host.Disconnect(oldPeer);
             pair.Client.Disconnect(client.ServerPeer);

@@ -1,6 +1,8 @@
 using System.Text.Json;
 using Epic.OnlineServices.Lobby;
 using Trackstorm.Client.Online;
+using Trackstorm.Core.Items;
+using Trackstorm.Core.Networking.Replication;
 using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Sessions;
 
@@ -147,7 +149,8 @@ internal sealed partial class OnlineLobbyTests
         Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
         Assert.That(gateway.Connections[30], Is.EqualTo(TransportConnectionState.Disconnected));
         Assert.That(binding.Driver.State!.Players.Single(player => player.Id == 2).Connected, Is.True);
-        Assert.That(binding.Driver.State.Players.Single(player => player.Id == 3).Connected, Is.False);
+        Assert.That(binding.Driver.State.Players.Any(player => player.Id == 3), Is.False);
+        Assert.That(binding.Driver.Authority!.FindPlayer(User(3).Value), Is.Zero);
         Assert.That(host.Diagnostics, Does.Contain("retired callbacks: 1"));
     }
 
@@ -371,9 +374,20 @@ internal sealed partial class OnlineLobbyTests
             Assert.That(oldBinding.AuthorizePeer(20, User(2), "test-code"), Is.True);
             oldGateway.ReceiveJoin(20, "Client");
             oldBinding.Driver.Pump(0);
+            oldBinding.Driver.Authority!.SetReady(0, true);
+            oldBinding.Driver.Authority.SetReady(20, true);
+            Assert.That(oldBinding.Driver.Authority.Start(0, [20]), Is.True);
+            var arena = new HostVehicleSession(oldBinding.Driver.State!.Match);
+            arena.JoinPlayer(20, 2);
+            var arenaCheckpoint = new ResumeCheckpoint(new ItemPublication(1, arena.Snapshot(), arena.Items.Slots, arena.Items.Missiles, []), arena.World.State.Match!, null);
             oldBinding.Driver.Migration = new Trackstorm.Client.Networking.SessionMigration(oldBinding.Driver, oldGateway, User(1).Value, _ => User(2).Value, (_, _) => 0);
+            oldBinding.Driver.Migration.CaptureArena = () => (arenaCheckpoint, arena.CaptureAuthority());
             oldBinding.Driver.Pump(0);
-            var checkpoint = new MigrationCheckpoint(1, oldBinding.Driver.Authority!.Capture(User(1).Value), null, null);
+            var checkpoint = new MigrationCheckpoint(
+                1,
+                oldBinding.Driver.Authority!.Capture(User(1).Value),
+                arenaCheckpoint,
+                arena.CaptureAuthority());
             using var replacementGateway = new Gateway();
             replacementGateway.ConnectPeer(10);
             var replacement = client.AttachTransport(replacementGateway, 10, "Client");
@@ -421,21 +435,18 @@ internal sealed partial class OnlineLobbyTests
             Assert.That(returned.Driver.Authority, Is.Null);
             Assert.That(returned.Driver.LocalPlayerId, Is.EqualTo(1));
             Assert.That(returned.Driver.Generation, Is.EqualTo(2));
-            Assert.That(returned.Driver.Reconnecting, Is.False);
+            Assert.That(returned.Driver.Reconnecting, Is.True, "Arena resume remains frozen until the complete gameplay checkpoint arrives.");
+            Assert.That(returned.Driver.NeedsArenaCheckpoint, Is.True);
             Assert.That(returned.Driver.State!.Session, Is.EqualTo(checkpoint.Lobby.State.Session));
             Assert.That(returned.Driver.State.CurrentHostId, Is.EqualTo(2));
             Assert.That(returned.Driver.State.AuthorityEpoch, Is.EqualTo(2));
             Assert.That(returned.Driver.State.Players.Select(player => player.Id), Is.EquivalentTo(new ulong[] { 1, 2 }));
-            replacement.Driver.Request(LobbyCommand.Ready, true);
-            returned.Driver.Request(LobbyCommand.Ready, true);
-            replacementGateway.Receive(40, returnGateway.Sent.Last().Payload.ToArray());
-            replacement.Driver.Pump(0);
-            Assert.That(replacement.Driver.State!.CanStart, Is.True);
+            Assert.That(replacement.Driver.State!.Phase, Is.EqualTo(SessionPhase.Arena));
             returned.Driver.Request(LobbyCommand.Start);
             int rejected = replacement.Driver.RejectedPackets;
             replacementGateway.Receive(40, returnGateway.Sent.Last().Payload.ToArray());
             replacement.Driver.Pump(0);
-            Assert.That(replacement.Driver.State.Phase, Is.EqualTo(SessionPhase.Lobby));
+            Assert.That(replacement.Driver.State.Phase, Is.EqualTo(SessionPhase.Arena));
             Assert.That(replacement.Driver.RejectedPackets, Is.GreaterThan(rejected));
             if (access == LobbyAccess.Locked)
             {
@@ -542,27 +553,12 @@ internal sealed partial class OnlineLobbyTests
             gateway.ReceiveState(10, migratedState, 2);
             binding.Driver.Pump(0);
             client.Tick();
-            ResumeLocator locator = store.Load(User(2).Value, DateTimeOffset.UtcNow)!;
-            Assert.That(locator, Is.Not.Null);
-            Assert.That(locator.Session, Is.EqualTo(epochOne.Session));
-            Assert.That(locator.AuthorityEpoch, Is.EqualTo(2));
-            Assert.That(locator.Host, Is.EqualTo(User(2).Value));
-
+            Assert.That(store.Load(User(2).Value, DateTimeOffset.UtcNow), Is.Null, "Lobby state must not persist a resume locator.");
             service.Lobbies[epochOne.Id] = delayedEpochOne;
-            using (var staleRestart = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store))
-            {
-                staleRestart.Tick();
-                Assert.That(staleRestart.Active, Is.Null);
-                Assert.That(staleRestart.Status, Does.Contain("Resume rejected"));
-            }
-
-            store.Save(locator);
-            service.Lobbies[epochOne.Id] = epochTwo with { MemberIds = new[] { User(1), User(2) }, GameplayHost = User(1), AuthorityEpoch = 3 };
             using var restarted = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
             restarted.Tick();
-            Assert.That(restarted.Active!.Session, Is.EqualTo(epochOne.Session));
-            Assert.That(restarted.Active.AuthorityEpoch, Is.EqualTo(3));
-            Assert.That(restarted.Active.HostIdentity, Is.EqualTo(User(1)));
+            Assert.That(restarted.Active, Is.Null);
+            Assert.That(restarted.SavedResume, Is.Null);
         }
         finally
         {
@@ -1020,6 +1016,9 @@ internal sealed partial class OnlineLobbyTests
         Assert.That(binding.AuthorizePeer(20, User(2), "test-code"), Is.True);
         gateway.ReceiveJoin(20, "Original");
         binding.Driver.Pump(0);
+        binding.Driver.Authority!.SetReady(0, true);
+        binding.Driver.Authority.SetReady(20, true);
+        Assert.That(binding.Driver.Authority.Start(0, [20]), Is.True);
         gateway.ConnectPeer(21);
         Assert.That(binding.AuthorizePeer(21, User(2), null), Is.False, "A second live connection cannot control the same player.");
         gateway.Disconnect(20);

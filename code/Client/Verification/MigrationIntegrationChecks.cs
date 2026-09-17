@@ -65,7 +65,7 @@ public sealed partial class MigrationIntegrationChecks : Node
         {
             if (++_frames > _boundary + 4)
             {
-                GD.Print($"Migration integration passed: {_players} native UDP peers; intentional lobby host leave; former-host rebind; active native match authority loss; sequential epochs; retained vehicles; prediction reset; item/spawn/match restore. Identity is a trusted test seam, not real EOS.");
+                GD.Print($"Migration integration passed: {_players} native UDP peers; intentional lobby host leave; former-host fresh join; active native match authority loss; sequential epochs; retained vehicles; prediction reset; item/spawn/match restore. Identity is a trusted test seam, not real EOS.");
                 GetTree().Quit();
             }
 
@@ -172,12 +172,13 @@ public sealed partial class MigrationIntegrationChecks : Node
         {
             Require(_drivers[1]!.State!.Players.All(player => !player.Ready), "Migration clears Ready.");
             Require(_drivers[1]!.Authority!.Configuration == _configuration, "Lobby migration retains the original host's tuning.");
-            CreateDriver(0, Connect(0, 1), false, 1, 2);
+            Require(_drivers[1]!.State!.Players.All(player => player.Id != 1), "Lobby migration removes the former host without a reservation.");
+            CreateDriver(0, Connect(0, 1), false, epoch: 2);
             _stage = 4;
         }
         else if (_stage == 4 && _drivers[0]!.State?.AuthorityEpoch == 2 && !_drivers[0]!.Reconnecting)
         {
-            Require(_drivers[0]!.Authority is null && _drivers[0]!.LocalPlayerId == 1, "Former host is an ordinary stable player.");
+            Require(_drivers[0]!.Authority is null && _drivers[0]!.LocalPlayerId > (ulong)_players, "Former lobby host returns through fresh admission with a new PlayerId.");
             foreach (var driver in _drivers.Take(_players))
             {
                 driver!.Request(LobbyCommand.Ready, true);
@@ -200,7 +201,8 @@ public sealed partial class MigrationIntegrationChecks : Node
                 _arenas[i] = arena;
             }
 
-            _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _players == 2 ? 1UL : 3UL, HeldItem.Wrench);
+            int nextHost = _players == 2 ? 0 : 2;
+            _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, HeldItem.Wrench);
             Require(_arenas[1]!.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 9, ["spawns.seed"] = 42, ["match.minimum_players"] = 8 }, out _), "First replacement configures normal gameplay owners.");
             _configuration = _arenas[1]!.Driver.Configuration;
             _randomState = _arenas[1]!.Driver.Host!.Spawns!.RandomState;
@@ -210,7 +212,7 @@ public sealed partial class MigrationIntegrationChecks : Node
         else if (_stage == 7 && _frames - _boundary > 150)
         {
             int survivor = _players == 2 ? 0 : 2;
-            _retainedBody = _arenas[survivor]!.Bodies[(ulong)survivor + 1];
+            _retainedBody = _arenas[survivor]!.Bodies[_drivers[survivor]!.LocalPlayerId];
             _arenas[survivor]!.Driver.Resynchronized += _ =>
             {
                 Require(_arenas[survivor]!.Driver.Inputs!.Pending.Count == 0, "No old pending input.");
@@ -223,33 +225,36 @@ public sealed partial class MigrationIntegrationChecks : Node
             _arenas[1] = null;
             _stage = 8;
         }
-        else if (_stage == 8 && _drivers[0]!.State?.AuthorityEpoch == 3 && _arenas[0]!.Driver.IsActive && (_players == 2 || (_drivers[2]!.State?.AuthorityEpoch == 3 && _arenas[2]!.Driver.IsActive)))
+        else if (_stage == 8 && _drivers[_players == 2 ? 0 : 2]!.State?.AuthorityEpoch == 3 && _arenas[_players == 2 ? 0 : 2]!.Driver.IsActive &&
+            _drivers.Take(_players).Where((_, index) => index != 1).All(driver => driver!.State?.AuthorityEpoch == 3))
         {
             int survivor = _players == 2 ? 0 : 2;
             var arena = _arenas[survivor]!;
-            Require(_drivers[0]!.State!.CurrentHostId == 1 && _drivers[survivor]!.State!.CurrentHostId == 1, "Second election converges on stable ID.");
-            Require(_arenas[0]!.Bodies.Count == _players && arena.Bodies.Count == _players && arena.Bodies[(ulong)survivor + 1] == _retainedBody, "No duplicate or replaced surviving vehicles.");
+            ulong successor = _drivers[survivor]!.LocalPlayerId;
+            Require(_drivers.Take(_players).Where((_, index) => index != 1).All(driver => driver!.State!.CurrentHostId == successor), "Second election converges on the lowest eligible stable ID.");
+            Require(_arenas[0]!.Bodies.Count == _players && arena.Bodies.Count == _players && arena.Bodies[_drivers[survivor]!.LocalPlayerId] == _retainedBody, "No duplicate or replaced surviving vehicles.");
             Require(arena.Driver.LocalItem?.Item == HeldItem.Wrench && arena.Driver.ItemState!.Spawns.Count == 8 && arena.Driver.Match!.Players.Count == _players, "Complete gameplay continuation.");
             Require(_arenas[0]!.Driver.Configuration == _configuration && arena.Driver.Configuration == _configuration, "Successive hosts retain configuration revision and ignore successor-local presets.");
-            Require(_arenas[0]!.Driver.Host!.Spawns!.RandomState == _randomState, "Migrated RNG continuation.");
-            Require(_arenas[0]!.Driver.ForceDeveloperStart(), "Replacement Force Start uses the existing Waiting/countdown authority.");
-            Require(_arenas[0]!.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 11 }, out _), "Second replacement can edit live tuning.");
+            Require(arena.Driver.Host!.Spawns!.RandomState == _randomState, "Migrated RNG continuation.");
+            Require(arena.Driver.ForceDeveloperStart(), "Replacement Force Start uses the existing Waiting/countdown authority.");
+            Require(arena.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 11 }, out _), "Second replacement can edit live tuning.");
             if (_players == 3)
             {
-                Require(!arena.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 13 }, out _) && !arena.Driver.GiveDeveloperItem(HeldItem.Missile) && !arena.Driver.ForceDeveloperStart(), "Ordinary survivor cannot invoke developer authority.");
+                Require(!_arenas[0]!.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 13 }, out _) && !_arenas[0]!.Driver.GiveDeveloperItem(HeldItem.Missile) && !_arenas[0]!.Driver.ForceDeveloperStart(), "Ordinary survivor cannot invoke developer authority.");
             }
 
             _stage = 9;
         }
         else if (_stage == 9)
         {
-            if (_players == 2 && _arenas[0]!.Driver.LocalItem?.Item == HeldItem.Wrench)
+            int host = _players == 2 ? 0 : 2;
+            if (_arenas[host]!.Driver.LocalItem?.Item == HeldItem.Wrench)
             {
-                Require(_arenas[0]!.Driver.RequestItemUse(), "Normal use clears the replacement slot.");
+                Require(_arenas[host]!.Driver.RequestItemUse(), "Normal use clears the replacement slot.");
                 return;
             }
 
-            Require(_arenas[0]!.Driver.GiveDeveloperItem(HeldItem.Missile), "Give Item targets the second replacement's stable player ID.");
+            Require(_arenas[host]!.Driver.GiveDeveloperItem(HeldItem.Missile), "Give Item targets the second replacement's stable player ID.");
             Cleanup();
             _finished = true;
             _boundary = _frames;

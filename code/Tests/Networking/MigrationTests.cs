@@ -22,11 +22,12 @@ internal sealed class MigrationTests
     {
         var lobby = new LobbyAuthority(100, "Host");
         lobby.Join(10, "Client", "client");
+        lobby.SetReady(0, true);
+        lobby.SetReady(10, true);
+        Assert.That(lobby.Start(0, [10]), Is.True);
         var restored = LobbyAuthority.Restore(lobby.Capture("host"), 2, 2);
         restored.AdvanceTime(100000);
         Assert.That(restored.State.Players.Single(player => player.Id == 1).RetainedHost, Is.True);
-        restored.SetReady(0, true);
-        Assert.That(restored.Start(0), Is.True, "The disconnected former host cannot block a lobby successor from starting.");
         restored.AdvanceTime(200000);
         if (resume)
         {
@@ -51,7 +52,7 @@ internal sealed class MigrationTests
 
     /// <summary>A two-player checkpoint permits exactly one survivor; a larger roster cannot use that exception.</summary>
     [Test]
-    public void TwoPlayerElectionRestoresOnceAndFormerHostCanReturnBeforeSequentialMigration()
+    public void TwoPlayerLobbyElectionRemovesFormerHostAndSupportsSequentialMigration()
     {
         var lobby = new LobbyAuthority(100, "Host");
         lobby.Join(10, "Client", "client");
@@ -65,23 +66,19 @@ internal sealed class MigrationTests
         var replacement = LobbyAuthority.Restore(checkpoint.Lobby, election.Candidate, election.Commit());
         Assert.Throws<InvalidOperationException>(() => election.Commit());
         Assert.That(replacement.State.Session, Is.EqualTo(100));
-        Assert.That(replacement.State.Players.Select(player => player.Id), Is.EqualTo(new ulong[] { 1, 2 }));
+        Assert.That(replacement.State.Players.Select(player => player.Id), Is.EqualTo(new ulong[] { 2 }));
         Assert.That(replacement.State.Players.All(player => !player.Ready), Is.True);
-        Assert.That(replacement.Resume(50, 100, 1, 1, "host"), Is.True);
-        Assert.That(replacement.PlayerId(50), Is.EqualTo(1));
-        Assert.That(replacement.Execute(50, LobbyCommand.Start, 100, 100, SessionPhase.Lobby, false, [50], 2), Is.False);
-        Assert.That(replacement.Execute(50, LobbyCommand.Ready, 100, 100, SessionPhase.Lobby, true, [50], 1), Is.False);
+        Assert.That(replacement.Resume(50, 100, 1, 1, "host"), Is.False);
+        Assert.That(replacement.Join(50, "Former host", "host"), Is.EqualTo(3));
         var second = new MigrationCheckpoint(2, replacement.Capture("client"), null, null);
         string secondDigest = MigrationCheckpointCodec.Digest(MigrationCheckpointCodec.Encode(second));
         var next = new MigrationElection(second, secondDigest);
-        Assert.That(next.Candidate, Is.EqualTo(1));
-        Assert.That(next.Vote(1, 100, 2, 1, secondDigest), Is.True);
-        Assert.That(LobbyAuthority.Restore(second.Lobby, 1, next.Commit()).State.AuthorityEpoch, Is.EqualTo(3));
+        Assert.That(next.Candidate, Is.EqualTo(3));
+        Assert.That(next.Vote(3, 100, 2, 3, secondDigest), Is.True);
+        LobbyAuthority sequential = LobbyAuthority.Restore(second.Lobby, 3, next.Commit());
+        Assert.That(sequential.State.AuthorityEpoch, Is.EqualTo(3));
+        Assert.That(sequential.State.Players.Select(player => player.Id), Is.EqualTo(new ulong[] { 3 }));
 
-        var larger = Lobby();
-        larger.Disconnect(20);
-        var unsafeBoundary = new MigrationCheckpoint(1, larger.Capture("host"), null, null);
-        Assert.Throws<ArgumentException>(() => new MigrationElection(unsafeBoundary, digest));
     }
 
     /// <summary>The full player/projectile population fits the complete external checkpoint budget.</summary>
@@ -142,19 +139,20 @@ internal sealed class MigrationTests
         Assert.Throws<InvalidOperationException>(() => election.Commit());
     }
 
-    /// <summary>Former host rebinds as a normal player, Ready resets, and old epoch commands fail.</summary>
+    /// <summary>Lobby restore drops the former host, preserves active survivors, and rejects old epochs.</summary>
     [Test]
     public void LobbyRestorePreservesIdentitiesAndRejectsOldAuthority()
     {
         var lobby = Lobby();
         lobby.SetReady(0, true);
-        var restored = LobbyAuthority.Restore(lobby.Capture("host"), 2, 2);
+        var restored = LobbyAuthority.Restore(lobby.Capture("host"), 2, 2, new Dictionary<ulong, ulong> { [3] = 80 });
         Assert.That(restored.State.Session, Is.EqualTo(100));
         Assert.That(restored.State.CurrentHostId, Is.EqualTo(2));
         Assert.That(restored.State.Players.All(player => !player.Ready), Is.True);
-        Assert.That(restored.Resume(80, 100, 1, 1, "wrong"), Is.False);
-        Assert.That(restored.Resume(80, 100, 1, 1, "host"), Is.True);
-        Assert.That(restored.PlayerId(80), Is.EqualTo(1));
+        Assert.That(restored.State.Players.Select(player => player.Id), Is.EqualTo(new ulong[] { 2, 3 }));
+        Assert.That(restored.Resume(90, 100, 1, 1, "host"), Is.False);
+        Assert.That(restored.Join(90, "Former host", "host"), Is.EqualTo(4));
+        Assert.That(restored.PlayerId(80), Is.EqualTo(3));
         Assert.That(restored.Execute(80, LobbyCommand.Start, 100, 100, SessionPhase.Lobby, false, [80], 2), Is.False);
         Assert.That(restored.Execute(80, LobbyCommand.Ready, 100, 100, SessionPhase.Lobby, true, [80], 1), Is.False);
         Assert.That(restored.Execute(80, LobbyCommand.Ready, 100, 100, SessionPhase.Lobby, true, [80], 2), Is.True);
@@ -247,10 +245,11 @@ internal sealed class MigrationTests
         var checkpoint = MigrationCheckpointCodec.Decode(MigrationCheckpointCodec.Encode(new MigrationCheckpoint(1, lobby.Capture("host"), null, null)));
         var successor = LobbyAuthority.Restore(checkpoint.Lobby, 2, 2);
         Assert.That(successor.Configuration, Is.EqualTo(lobby.Configuration));
-        Assert.That(successor.Resume(50, 100, 1, 1, "host"), Is.True);
+        Assert.That(successor.Resume(50, 100, 1, 1, "host"), Is.False);
+        Assert.That(successor.Join(50, "Former host", "host"), Is.EqualTo(3));
         Assert.That(successor.TryConfigure(50, edits, out _), Is.False);
         Assert.That(successor.TryConfigure(0, new Dictionary<string, double> { ["vehicle.acceleration"] = 9 }, out _), Is.True);
-        var next = LobbyAuthority.Restore(successor.Capture("client"), 1, 3);
+        var next = LobbyAuthority.Restore(successor.Capture("client"), 3, 3);
         Assert.That(next.Configuration, Is.EqualTo(successor.Configuration));
         Assert.That(next.Configuration.Revision, Is.EqualTo(2));
     }

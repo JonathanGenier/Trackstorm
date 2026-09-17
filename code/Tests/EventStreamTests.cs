@@ -107,6 +107,9 @@ internal sealed class EventStreamTests
     {
         var lobby = new LobbyAuthority(10, "Host", 60);
         ulong player = lobby.Join(4, "Guest", "secret-authenticated-subject");
+        lobby.SetReady(0, true);
+        lobby.SetReady(4, true);
+        Assert.That(lobby.Start(0, [4]), Is.True);
         lobby.Disconnect(4);
         lobby.Disconnect(4);
         lobby.AdvanceTime(30);

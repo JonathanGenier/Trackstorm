@@ -21,6 +21,9 @@ internal sealed class ActivityFeedTests
         using var feed = new ActivityFeedView();
         feed.Update(lobby.Events, true, 0);
         ulong player = lobby.Join(4, "Guest<>", "private-subject");
+        lobby.SetReady(0, true);
+        lobby.SetReady(4, true);
+        Assert.That(lobby.Start(0, [4]), Is.True);
         lobby.Disconnect(4);
         lobby.Disconnect(4);
         lobby.AdvanceTime(30);
@@ -162,6 +165,9 @@ internal sealed class ActivityFeedTests
         lobby.Join(4, "Guest", "subject");
         feed.Update(lobby.Events, true, 0);
         Assert.That(feed.Entries, Is.Empty);
+        lobby.SetReady(0, true);
+        lobby.SetReady(4, true);
+        Assert.That(lobby.Start(0, [4]), Is.True);
         lobby.Disconnect(4);
         lobby.AdvanceTime(60);
         Assert.That(feed.Entries.Select(row => row.Text), Is.EqualTo(new[] { "Guest disconnected", "Guest left the game" }));

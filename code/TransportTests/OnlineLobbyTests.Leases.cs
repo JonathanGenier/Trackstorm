@@ -114,6 +114,7 @@ internal sealed partial class OnlineLobbyTests
     {
         using var session = new LeaseSession();
         session.Step(180);
+        session.StartArena();
         session.HostWire.DropOutgoing = session.ClientWire.DropOutgoing = true;
         session.Step(150);
         Assert.That(session.ClientLease.Operations, Does.Contain("read"));

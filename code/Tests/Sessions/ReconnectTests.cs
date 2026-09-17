@@ -14,6 +14,7 @@ internal sealed class ReconnectTests
         ulong player = lobby.Join(10, "Original", "subject-a");
         lobby.SetReady(0, true);
         lobby.SetReady(10, true);
+        Assert.That(lobby.Start(0, [10]), Is.True);
         Assert.That(lobby.Disconnect(10), Is.True);
         Assert.That(lobby.Disconnect(10), Is.False);
         Assert.That(lobby.State.Players.Single(p => p.Id == player), Is.EqualTo(new SessionPlayer(player, "Original", false, false)));
@@ -43,8 +44,11 @@ internal sealed class ReconnectTests
         for (ulong peer = 1; peer < 8; peer++)
         {
             lobby.Join(peer, "Player", "subject-" + peer);
+            lobby.SetReady(peer, true);
         }
 
+        lobby.SetReady(0, true);
+        Assert.That(lobby.Start(0, Enumerable.Range(1, 7).Select(value => (ulong)value)), Is.True);
         ulong id = lobby.PlayerId(1);
         lobby.Disconnect(1);
         Assert.That(lobby.Join(8, "Full"), Is.Zero);
@@ -56,6 +60,7 @@ internal sealed class ReconnectTests
         Assert.That(lobby.State.Revision, Is.EqualTo(revision));
         Assert.That(lobby.Resume(8, 100, id, 1, "subject-1"), Is.False);
         Assert.That(lobby.FindPlayer("subject-1"), Is.Zero);
+        Assert.That(lobby.Return(0), Is.True);
         Assert.That(lobby.Join(8, "Replacement"), Is.Not.Zero);
         Assert.That(lobby.Execute(2, LobbyCommand.Leave, 100, 100, SessionPhase.Lobby, false, []), Is.True);
         Assert.That(lobby.FindPlayer("subject-2"), Is.Zero);
@@ -95,6 +100,9 @@ internal sealed class ReconnectTests
     {
         var lobby = new LobbyAuthority(100, "Host");
         ulong player = lobby.Join(10, "Client", "subject");
+        lobby.SetReady(0, true);
+        lobby.SetReady(10, true);
+        Assert.That(lobby.Start(0, [10]), Is.True);
         lobby.Disconnect(10);
         var state = LobbyCodec.DecodeState(LobbyCodec.EncodeState(lobby.State, player));
         Assert.That(state.State.Players, Is.EqualTo(lobby.State.Players));

@@ -545,7 +545,10 @@ internal sealed class SessionMigration
 
         var checkpoint = retained.State;
         bool host = _lobby.LocalPlayerId == _candidate;
-        _lobby.InstallMigration(checkpoint, _candidate, _server);
+        IReadOnlyDictionary<ulong, ulong>? survivorPeers = host && checkpoint.Lobby.State.ReconnectPolicy == SessionReconnectPolicy.FreshJoin
+            ? _voterPeers.ToDictionary(pair => pair.Key, pair => pair.Value)
+            : null;
+        _lobby.InstallMigration(checkpoint, _candidate, _server, survivorPeers);
         RestoreArena?.Invoke(checkpoint, host);
         _committed = true;
         _pendingCommit = null;

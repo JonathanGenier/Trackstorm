@@ -50,8 +50,9 @@ public sealed class LobbyAuthority
     /// <param name="checkpoint">Validated old authority boundary.</param>
     /// <param name="host">Elected stable identity.</param>
     /// <param name="epoch">Exactly the next authority epoch.</param>
+    /// <param name="survivorPeers">Active replacement-host transport bindings for every continuing lobby survivor.</param>
     /// <returns>New authority with Ready cleared and no inherited transport handles.</returns>
-    public static LobbyAuthority Restore(LobbyRestoreState checkpoint, ulong host, ulong epoch)
+    public static LobbyAuthority Restore(LobbyRestoreState checkpoint, ulong host, ulong epoch, IReadOnlyDictionary<ulong, ulong>? survivorPeers = null)
     {
         var previous = checkpoint.State;
         if (epoch != checked(previous.AuthorityEpoch + 1) || host == previous.CurrentHostId || !previous.Players.Any(player => player.Id == host && player.Connected))
@@ -59,19 +60,37 @@ public sealed class LobbyAuthority
             throw new ArgumentException("Invalid authority transition.");
         }
 
+        SessionPlayer[] restoredPlayers = previous.ReconnectPolicy == SessionReconnectPolicy.FreshJoin
+            ? previous.Players.Where(player => player.Id != previous.CurrentHostId).Select(player => player with { Ready = false, Connected = true, RetainedHost = false }).ToArray()
+            : previous.Players.Select(player => player with { Ready = false, Connected = player.Id == host, RetainedHost = player.RetainedHost || player.Id == previous.CurrentHostId }).ToArray();
         var result = new LobbyAuthority(previous.Session, previous.Players.Single(player => player.Id == host).Name, previous.GraceTicks)
         {
             _tick = checkpoint.Tick,
             _nextId = checkpoint.NextId,
             Configuration = checkpoint.Configuration,
-            State = new LobbySnapshot(previous.Session, checked(previous.Revision + 1), previous.Match, previous.Phase, previous.Players.Select(player => player with { Ready = false, Connected = player.Id == host, RetainedHost = player.RetainedHost || player.Id == previous.CurrentHostId }), previous.GraceTicks, host, epoch),
+            State = new LobbySnapshot(previous.Session, checked(previous.Revision + 1), previous.Match, previous.Phase, restoredPlayers, previous.GraceTicks, host, epoch),
         };
-        foreach (var subject in checkpoint.Subjects)
+
+        foreach (var player in result.State.Players)
         {
-            result._identities.Add(subject.Key, subject.Value);
-            if (subject.Key != host)
+            result._identities.Add(player.Id, checkpoint.Subjects[player.Id]);
+            if (previous.ReconnectPolicy == SessionReconnectPolicy.RetainedResume && player.Id != host)
             {
-                result._deadlines.Add(subject.Key, result.State.Players.Single(player => player.Id == subject.Key).RetainedHost ? ulong.MaxValue : checkpoint.Deadlines.GetValueOrDefault(subject.Key, checked(checkpoint.Tick + previous.GraceTicks)));
+                result._deadlines.Add(player.Id, player.RetainedHost ? ulong.MaxValue : checkpoint.Deadlines.GetValueOrDefault(player.Id, checked(checkpoint.Tick + previous.GraceTicks)));
+            }
+        }
+
+        if (previous.ReconnectPolicy == SessionReconnectPolicy.FreshJoin)
+        {
+            ulong[] expected = result.State.Players.Where(player => player.Id != host).Select(player => player.Id).ToArray();
+            if (survivorPeers is not null && (!expected.ToHashSet().SetEquals(survivorPeers.Keys) || survivorPeers.Values.Any(peer => peer == 0) || survivorPeers.Values.Distinct().Count() != survivorPeers.Count))
+            {
+                throw new ArgumentException($"Lobby migration requires active transport bindings for {expected.Length} continuing survivors; received {survivorPeers.Count}.");
+            }
+
+            foreach (var survivor in survivorPeers ?? new Dictionary<ulong, ulong>())
+            {
+                result._peers.Add(survivor.Value, survivor.Key);
             }
         }
 
@@ -245,7 +264,7 @@ public sealed class LobbyAuthority
         return true;
     }
 
-    /// <summary>Retires a lost peer immediately and reserves only authenticated players for resume.</summary>
+    /// <summary>Applies the current phase's explicit fresh-join or retained-resume disconnect policy.</summary>
     /// <param name="peer">Actual lost connection.</param>
     /// <returns>Whether an active binding was retired.</returns>
     public bool Disconnect(ulong peer)
@@ -256,7 +275,7 @@ public sealed class LobbyAuthority
         }
 
         Events.Record(EventCategory.Network, "Disconnected", actor: id, cause: "connection lost");
-        if (!_identities.ContainsKey(id))
+        if (State.ReconnectPolicy == SessionReconnectPolicy.FreshJoin || !_identities.ContainsKey(id))
         {
             RemovePlayer(id);
             return true;
@@ -302,7 +321,7 @@ public sealed class LobbyAuthority
     public bool Resume(ulong peer, ulong session, ulong playerId, ulong generation, string identity)
     {
         SessionPlayer? player = State.Players.SingleOrDefault(value => value.Id == playerId);
-        if (peer == 0 || session != State.Session || player is null || player.Connected || player.Generation != generation ||
+        if (State.ReconnectPolicy != SessionReconnectPolicy.RetainedResume || peer == 0 || session != State.Session || player is null || player.Connected || player.Generation != generation ||
             generation == ulong.MaxValue || !_deadlines.TryGetValue(playerId, out ulong deadline) || deadline <= _tick ||
             !_identities.TryGetValue(playerId, out string? subject) || subject != identity || _peers.ContainsKey(peer) || peer <= _previousPeers.GetValueOrDefault(playerId))
         {
