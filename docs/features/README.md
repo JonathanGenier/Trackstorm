@@ -6,7 +6,10 @@ Start with the system being changed. Read its document and only the integration 
 | --- | --- | --- |
 | [Fixed-step simulation](simulation.md) | Tick ordering, atomic authority and restore | [Vehicles](vehicles.md), [matches](matches.md), [replication](vehicle-networking.md) |
 | [Player input](input.md) | Logical frames, remapping, shaping and suppression | [Settings](settings.md), [vehicles](vehicles.md) |
+| [Game Menu](game-menu.md) | ESC overlay, logical focus navigation, category hierarchy and clean exit | [Settings](settings.md), [sessions](sessions.md), [input](input.md) |
 | [Settings](settings.md) | Local preferences, persistence, display/audio controls | [Input](input.md), [HUD](hud.md) |
+| [Developer Options](developer-options.md) | Host tuning, runtime mapping, persistence, replication, F1, actions and diagnostics | [Settings](settings.md), [vehicle networking](vehicle-networking.md), [reconnection](reconnection.md) |
+| [Arena audio](audio.md) | Vehicle/combat feedback, arena playlist, buses and local sound acquisition | [Settings](settings.md), [items](items.md), [matches](matches.md) |
 | [Vehicles and damage](vehicles.md) | Movement, suspension, surfaces, HP, collision/effect contracts | [Arena](arena.md), [camera](camera.md), [lifecycle](death-respawn.md), [replication](vehicle-networking.md) |
 | [Chase camera](camera.md) | Local orientation, inertia and feedback | [Vehicles](vehicles.md), [replication](vehicle-networking.md) |
 | [Combat arena](arena.md) | Layout, markers, props, materials and shared spawn geometry | [Vehicles](vehicles.md), [pickups](item-spawns.md), [replication](vehicle-networking.md) |

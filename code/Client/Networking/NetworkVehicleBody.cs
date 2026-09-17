@@ -8,8 +8,8 @@ namespace Trackstorm.Client.Networking;
 /// <summary>Synchronous Godot collision observation seam usable by both host steps and prediction replay.</summary>
 internal sealed partial class NetworkVehicleBody : StaticBody3D
 {
-    private readonly VehicleConfiguration _configuration = new();
     private readonly Node3D _visual = new();
+    private VehicleConfiguration _configuration = new();
     private VehiclePhysicsState _previous;
     private VehiclePhysicsState _current;
     private bool _initialized;
@@ -64,9 +64,13 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         _previousHP = damage.CurrentHP;
     }
 
+    /// <summary>Uses the same accepted tuning as Core for suspension, inertia and impulse conversion.</summary>
+    /// <param name="configuration">Validated effective gameplay tuning.</param>
+    internal void ApplyConfiguration(VehicleConfiguration configuration) => _configuration = configuration;
+
     /// <summary>Resolves the preceding Core command through bounded native sweep/slide queries.</summary>
-    /// <param name="snapshot">Complete pre-solver command boundary.</param>
     /// <returns>Solved numeric physics/support/contact observations for the next Core step.</returns>
+    /// <param name="snapshot">Complete pre-solver command boundary.</param>
     internal VehicleObservation Observe(VehicleSnapshot snapshot)
     {
         if (!snapshot.CanInteract)
@@ -83,9 +87,9 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
             angular += VehicleBody.ToGodot(Numerics.Vector3.Cross(effect.Effect.Offset, effect.Effect.Impulse)) / (_configuration.Mass * _configuration.Wheelbase * _configuration.Wheelbase / 3);
         }
 
-        if (velocity.Length() > 65)
+        if (velocity.Length() > _configuration.MaximumPhysicsSpeed)
         {
-            velocity = velocity.Normalized() * 65;
+            velocity = velocity.Normalized() * _configuration.MaximumPhysicsSpeed;
         }
 
         Quaternion orientation = VehicleBody.ToGodot(state.Orientation);

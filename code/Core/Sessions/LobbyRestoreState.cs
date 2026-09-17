@@ -9,7 +9,8 @@ public sealed class LobbyRestoreState
     /// <param name="nextId">Highest issued identity, including departed players.</param>
     /// <param name="subjects">Authenticated subject for every retained player.</param>
     /// <param name="deadlines">Disconnected reservation deadlines on the session clock.</param>
-    public LobbyRestoreState(LobbySnapshot state, ulong tick, ulong nextId, IReadOnlyDictionary<ulong, string> subjects, IReadOnlyDictionary<ulong, ulong> deadlines)
+    /// <param name="configuration">Current authoritative session tuning, including lobby edits and arena continuation.</param>
+    public LobbyRestoreState(LobbySnapshot state, ulong tick, ulong nextId, IReadOnlyDictionary<ulong, string> subjects, IReadOnlyDictionary<ulong, ulong> deadlines, Development.GameplayConfigurationState? configuration = null)
     {
         if (nextId < state.Players.Max(player => player.Id) || nextId == ulong.MaxValue ||
             subjects.Count != state.Players.Count || subjects.Values.Distinct(StringComparer.Ordinal).Count() != subjects.Count ||
@@ -21,6 +22,7 @@ public sealed class LobbyRestoreState
         }
 
         State = state;
+        Configuration = configuration ?? new(0, new());
         Tick = tick;
         NextId = nextId;
         Subjects = new System.Collections.ObjectModel.ReadOnlyDictionary<ulong, string>(new Dictionary<ulong, string>(subjects));
@@ -29,6 +31,8 @@ public sealed class LobbyRestoreState
 
     /// <summary>Immutable published roster.</summary>
     public LobbySnapshot State { get; }
+    /// <summary>Authoritative tuning retained across lobby migration and successive arenas.</summary>
+    public Development.GameplayConfigurationState Configuration { get; }
     /// <summary>Authoritative session clock, distinct from match time.</summary>
     public ulong Tick { get; }
     /// <summary>Identity allocation high-water mark.</summary>

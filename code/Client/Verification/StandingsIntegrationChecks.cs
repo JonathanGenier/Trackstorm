@@ -66,7 +66,7 @@ public sealed partial class StandingsIntegrationChecks : Node
                 viewport.AddChild(session);
                 session.Open(index == 0, endpoint, index == 7 ? "RoadKillQueen" : $"Player {index + 1}");
                 _sessions.Add(session);
-                var board = new MatchStandings { View = () => session.Standings, IsHost = () => session.Lobby?.Authority is not null, LeaveResults = session.LeaveResults };
+                var board = new MatchStandings { View = () => session.Standings };
                 viewport.AddChild(board);
                 _boards.Add(board);
                 var hud = new CombatHud { Vehicle = () => session.Arena?.LocalState, Slot = () => session.Arena?.Driver.LocalItem, Position = () => session.Standings.Position };
@@ -149,7 +149,7 @@ public sealed partial class StandingsIntegrationChecks : Node
 
             await Frames(120);
             Refresh(true);
-            _boards[0].FindChildren("LeaveResults", "Button", true, false).Cast<Button>().Single().EmitSignal(BaseButton.SignalName.Pressed);
+            _sessions[0].LeaveResults();
             await Until(() => _sessions.All(session => session.Arena is null));
             Refresh(false, false);
             GD.Print("Standings integration passed: eight UDP sessions; TAB/controller hold and release; host-published ping; synchronized changing ranks/HP HUD; winner/final results; five rendered sizes; return cleanup.");

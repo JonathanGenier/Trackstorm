@@ -23,7 +23,7 @@ public sealed class ItemAuthority
     }
 
     /// <summary>Validated immutable tuning.</summary>
-    public ItemConfiguration Configuration { get; }
+    public ItemConfiguration Configuration { get; private set; }
     /// <summary>Changed ownership/projectile state revision.</summary>
     public ulong Revision { get; private set; }
     /// <summary>Read-only detached inventory.</summary>
@@ -81,10 +81,10 @@ public sealed class ItemAuthority
     }
 
     /// <summary>Grants an item only to an empty, active, living slot. Called by host acquisition/dev controls.</summary>
+    /// <returns>Whether ownership changed.</returns>
     /// <param name="world">Authoritative vehicle world.</param>
     /// <param name="vehicle">Recipient identity.</param>
     /// <param name="item">One of the two real items.</param>
-    /// <returns>Whether ownership changed.</returns>
     public bool Grant(Simulation.Simulation world, ulong vehicle, HeldItem item)
     {
         VehicleSnapshot? state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
@@ -100,11 +100,11 @@ public sealed class ItemAuthority
     }
 
     /// <summary>Queues at most one use of the exact issued slot; clients cannot select another player's identity.</summary>
+    /// <returns>Whether accepted for fixed-step validation.</returns>
     /// <param name="world">Authoritative active vehicle roster.</param>
     /// <param name="vehicle">Identity resolved from the actual transport sender.</param>
     /// <param name="life">Requested life generation.</param>
     /// <param name="token">Exact ownership token observed by the player.</param>
-    /// <returns>Whether accepted for fixed-step validation.</returns>
     public bool RequestUse(Simulation.Simulation world, ulong vehicle, ulong life, ulong token)
     {
         VehicleSnapshot? state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
@@ -231,8 +231,27 @@ public sealed class ItemAuthority
     }
 
     /// <summary>Identical falloff/direction math for vehicles and host-observed movable objects.</summary>
+    /// <returns>Damage and impulse, zero at/outside the radius.</returns>
     /// <param name="center">Impact point.</param>
     /// <param name="target">Target center.</param>
-    /// <returns>Damage and impulse, zero at/outside the radius.</returns>
     public DamageEffect Explosion(Vector3 center, Vector3 target) => VehicleDamageMath.Explosion(center, target, Configuration.ExplosionRadius, Configuration.MaximumDamage, Configuration.MaximumImpulse, Vector3.Zero);
+    /// <summary>Updates the existing authority; in-flight speed changes preserve direction and remaining lifetime.</summary>
+    /// <param name="configuration">Validated effective gameplay tuning.</param>
+    internal void ApplyConfiguration(ItemConfiguration configuration)
+    {
+        configuration.Validate();
+        if (configuration.MissileSpeed != Configuration.MissileSpeed)
+        {
+            for (int i = 0; i < _missiles.Count; i++)
+            {
+                var missile = _missiles[i];
+                _missiles[i] = missile with { Velocity = Vector3.Normalize(missile.Velocity) * configuration.MissileSpeed };
+            }
+
+            Revision++;
+        }
+
+        Configuration = configuration;
+    }
+
 }

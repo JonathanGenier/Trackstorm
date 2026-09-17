@@ -19,7 +19,6 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private readonly Button _ready = new() { Text = "Ready" };
     private readonly Button _start = new() { Text = "Start Match (host only)" };
     private readonly Button _leave = new() { Text = "Leave session" };
-    private readonly Button _return = new() { Text = "End session / Return to lobby" };
     private readonly CheckButton _debug = new() { Text = "Developer fallback: Direct-IP / LAN" };
     private NetworkTransportNode? _transport;
     private ITransportGateway? _gateway;
@@ -35,6 +34,16 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private OnlineLobbyPanel _online = null!;
     private bool _leaving;
     private bool _logoutAfterLeave;
+    private bool _forceStart;
+
+    /// <summary>Host-local tuning supplied by composition; never consulted for a joining client.</summary>
+    internal Development.DeveloperSettingsStore? DeveloperSettings { get; set; }
+    /// <summary>Current local authority; no host controls exist before hosting or after authority is lost.</summary>
+    internal bool IsDeveloperHost => Development.DeveloperTools.Enabled && !_leaving && _lobby is { Authority: not null, Failure.Length: 0, Reconnecting: false } && _lobby.Migration?.Frozen != true && (_arena is null || _arena.Driver.IsActive);
+    /// <summary>Active provider capability boundary for local network simulation.</summary>
+    internal ITransportGateway? Gateway => _gateway;
+    /// <summary>Current host tuning for lobby or arena editing.</summary>
+    internal Core.Development.GameplayConfiguration DeveloperConfiguration => _arena?.Driver.Configuration.Configuration ?? _lobby?.Authority?.Configuration.Configuration ?? Core.Development.GameplayConfiguration.HostedDefaults;
 
     /// <summary>Authenticated online coordinator supplied by application composition.</summary>
     internal Func<OnlineLobbyCoordinator?> OnlineCoordinator { get; set; } = () => null;
@@ -53,6 +62,8 @@ internal sealed partial class DevelopmentSession : CanvasLayer
 
     /// <summary>Active arena, absent while assembling the lobby.</summary>
     internal NetworkVehicleArena? Arena => _arena;
+    /// <summary>Cleanup completion is owned by the session and its online coordinator.</summary>
+    internal bool LeaveComplete => _lobby is null && _gateway is null && OnlineCoordinator()?.CanLeave != true;
     /// <summary>Current sampled peer latency.</summary>
     internal ConnectionDiagnostic Diagnostics => TransportDiagnostics.Capture(_gateway, _lobby);
 
@@ -99,9 +110,6 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _menu.AddChild(_leave);
         var matchBar = new HBoxContainer { Position = new Vector2(24, 72) };
         root.AddChild(matchBar);
-        matchBar.AddChild(_return);
-        var exitArena = new Button { Text = "Leave session" };
-        matchBar.AddChild(exitArena);
         matchBar.AddChild(_arenaStatus);
         _host.Pressed += () => Open(true, _address.Text, _name.Text);
         _join.Pressed += () => Open(false, _address.Text, _name.Text);
@@ -113,9 +121,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
                 _message = "Start requires a connected, fully ready lobby.";
             }
         };
-        _return.Pressed += () => _lobby?.Request(LobbyCommand.Return);
         _leave.Pressed += Leave;
-        exitArena.Pressed += Leave;
         Render();
     }
 
@@ -162,6 +168,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             }
 
             _lobby = new LobbyNetworkDriver(_transport.Gateway, session, peer, name);
+            InitializeHostConfiguration();
             _message = host ? $"Hosting {address}. Everyone must be ready to start." : $"Joining {address}…";
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException)
@@ -269,8 +276,14 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         {
             _arenaGeneration = _lobby.State.Match;
             _arena = new NetworkVehicleArena { Name = "SessionArena" };
-            _arena.Initialize(_gateway!, _lobby.Authority is null ? 0 : _arenaGeneration, _lobby.ServerPeer, _lobby);
+            _arena.Initialize(_gateway!, _lobby.Authority is null ? 0 : _arenaGeneration, _lobby.ServerPeer, _lobby, _lobby.Authority?.Configuration.Configuration);
             AddChild(_arena);
+            if (_forceStart && _arena.Driver.Host is not null)
+            {
+                _arena.Driver.Host.ForceStart(0);
+            }
+
+            _forceStart = false;
         }
     }
 
@@ -290,6 +303,11 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <summary>Explicitly leaves or closes the session and releases its native transport.</summary>
     internal void Leave()
     {
+        if (_leaving)
+        {
+            return;
+        }
+
         if (_lobby?.BeginLeave() == true)
         {
             _leaving = true;
@@ -301,10 +319,10 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     }
 
     /// <summary>Enters the existing lobby and arena presentation using separately established online transport.</summary>
+    /// <returns>The admission binding used by the authenticated transport adapter.</returns>
     /// <param name="gateway">Caller-owned authenticated gateway supplied by the transport integration.</param>
     /// <param name="serverPeer">Connected server peer for a client, zero for a host.</param>
     /// <param name="name">Requested gameplay display name.</param>
-    /// <returns>The admission binding used by the authenticated transport adapter.</returns>
     internal OnlineSessionBinding OpenOnline(ITransportGateway gateway, ulong serverPeer, string name)
     {
         if (_lobby is not null || _transport is not null)
@@ -316,18 +334,88 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         var binding = coordinator.AttachTransport(gateway, serverPeer, name);
         _gateway = gateway;
         _lobby = binding.Driver;
+        InitializeHostConfiguration();
         _onlineTransport = true;
         _debug.ButtonPressed = false;
         _message = "Online transport connected. Everyone must be ready to start.";
         return binding;
     }
 
+    /// <summary>Validates and applies a host edit, then persists the accepted effective configuration.</summary>
+    /// <returns>Whether the operation was accepted.</returns>
+    /// <param name="edits">Stable gameplay keys and requested values.</param>
+    /// <param name="error">Safe validation feedback.</param>
+    internal bool ConfigureDeveloperOptions(IReadOnlyDictionary<string, double> edits, out string error)
+    {
+        error = "Only the authoritative host may change gameplay tuning.";
+        if (!IsDeveloperHost)
+        {
+            return false;
+        }
+
+        Core.Development.GameplayConfiguration accepted;
+        if (_arena is not null)
+        {
+            if (!_arena.Driver.TryConfigure(edits, out error))
+            {
+                return false;
+            }
+
+            accepted = _arena.Driver.Configuration.Configuration;
+        }
+        else if (!_lobby!.Authority!.TryConfigure(0, edits, out error))
+        {
+            return false;
+        }
+        else
+        {
+            accepted = _lobby.Authority.Configuration.Configuration;
+        }
+
+        DeveloperSettings?.Save(accepted);
+        return true;
+    }
+
+    /// <summary>Uses existing inventory authority; a joined client never sends a grant request.</summary>
+    /// <returns>Whether the operation was accepted.</returns>
+    /// <param name="item">Implemented item to grant.</param>
+    internal bool GiveDeveloperItem(Core.Items.HeldItem item) => IsDeveloperHost && _arena?.Driver.GiveDeveloperItem(item) == true;
+
+    /// <summary>Enters a normal arena and arms only its authoritative match countdown override.</summary>
+    /// <returns>Whether the operation was accepted.</returns>
+    internal bool ForceDeveloperStart()
+    {
+        if (!IsDeveloperHost)
+        {
+            return false;
+        }
+
+        if (_arena is not null)
+        {
+            return _arena.Driver.ForceDeveloperStart();
+        }
+
+        _lobby!.Authority!.SetReady(0, true);
+        _forceStart = _lobby.Request(LobbyCommand.Start);
+        return _forceStart;
+    }
+
+    private void InitializeHostConfiguration()
+    {
+        if (_lobby?.Authority is { } authority && authority.State.AuthorityEpoch == 1)
+        {
+            var initial = DeveloperSettings?.LoadForHost() ?? Core.Development.GameplayConfiguration.HostedDefaults;
+            authority.TryConfigure(0, Core.Development.GameplayOptions.All.ToDictionary(option => option.Key, option => option.Read(initial)), out _);
+        }
+    }
+
     private void CloseSession()
     {
+        _forceStart = false;
         _leaving = false;
         RemoveArena();
         _lobby = null;
-        if (_onlineTransport)
+        if (_onlineTransport || OnlineCoordinator()?.CanLeave == true)
         {
             OnlineCoordinator()?.Leave();
             _onlineTransport = false;
@@ -365,10 +453,9 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private void Render()
     {
         bool active = _lobby is not null;
-        bool arena = _lobby?.State?.Phase == SessionPhase.Arena && _lobby?.Reconnecting != true;
+        bool arena = _arena is not null || _lobby?.State?.Phase == SessionPhase.Arena;
         _menu.GetParent<ScrollContainer>().GetParent<Control>().Visible = !arena;
-        ((Control)_return.GetParent()).Visible = arena;
-        _return.Visible = _lobby?.Authority is not null;
+        ((Control)_arenaStatus.GetParent()).Visible = arena;
         _online.Visible = !arena && !_debug.ButtonPressed;
         _debug.Visible = !active;
         _status.Visible = true;
@@ -376,7 +463,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _address.Visible = !active && _debug.ButtonPressed;
         _host.Visible = !active && _debug.ButtonPressed;
         _join.Visible = !active && _debug.ButtonPressed;
-        _leave.Visible = active;
+        _leave.Visible = active && !arena;
         _ready.Visible = _lobby?.State is not null && !arena;
         _start.Visible = _lobby?.Authority is not null && !arena;
         _start.Disabled = _leaving || _lobby?.State?.CanStart != true;

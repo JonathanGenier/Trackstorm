@@ -19,6 +19,11 @@ public sealed class MigrationCheckpoint
 
         if (arena is not null)
         {
+            if (arena.Configuration != lobby.Configuration)
+            {
+                throw new ArgumentException("Checkpoint configuration boundaries disagree.");
+            }
+
             if (arena.Items.World.Session != lobby.State.Match || !lobby.State.Players.Select(player => player.Id).ToHashSet().SetEquals(arena.Items.World.Vehicles.Select(vehicle => vehicle.State.VehicleId)))
             {
                 throw new ArgumentException("Checkpoint roster or match mismatch.");

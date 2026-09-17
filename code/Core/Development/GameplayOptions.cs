@@ -1,0 +1,105 @@
+namespace Trackstorm.Core.Development;
+
+/// <summary>Allowlisted gameplay controls; local preferences, fixed rate and actions are deliberately absent.</summary>
+public static class GameplayOptions
+{
+    /// <summary>Stable allowlist of editable gameplay settings.</summary>
+    public static IReadOnlyList<GameplayOption> All { get; } = Array.AsReadOnly<GameplayOption>(
+    [
+        new("vehicle.mass", "Vehicle", "Mass", false, c => c.Vehicle.Mass, (c, v) => c with { Vehicle = c.Vehicle with { Mass = checked((float)v) } }),
+        new("vehicle.acceleration", "Vehicle", "Acceleration", false, c => c.Vehicle.Acceleration, (c, v) => c with { Vehicle = c.Vehicle with { Acceleration = checked((float)v) } }),
+        new("vehicle.braking", "Vehicle", "Braking", false, c => c.Vehicle.Braking, (c, v) => c with { Vehicle = c.Vehicle with { Braking = checked((float)v) } }),
+        new("vehicle.stop_speed", "Vehicle", "StopSpeed", false, c => c.Vehicle.StopSpeed, (c, v) => c with { Vehicle = c.Vehicle with { StopSpeed = checked((float)v) } }),
+        new("vehicle.reverse_acceleration", "Vehicle", "ReverseAcceleration", false, c => c.Vehicle.ReverseAcceleration, (c, v) => c with { Vehicle = c.Vehicle with { ReverseAcceleration = checked((float)v) } }),
+        new("vehicle.forward_speed", "Vehicle", "ForwardSpeed", false, c => c.Vehicle.ForwardSpeed, (c, v) => c with { Vehicle = c.Vehicle with { ForwardSpeed = checked((float)v) } }),
+        new("vehicle.reverse_speed", "Vehicle", "ReverseSpeed", false, c => c.Vehicle.ReverseSpeed, (c, v) => c with { Vehicle = c.Vehicle with { ReverseSpeed = checked((float)v) } }),
+        new("vehicle.grip", "Vehicle", "Grip", false, c => c.Vehicle.Grip, (c, v) => c with { Vehicle = c.Vehicle with { Grip = checked((float)v) } }),
+        new("vehicle.steering_angle", "Vehicle", "SteeringAngle", false, c => c.Vehicle.SteeringAngle, (c, v) => c with { Vehicle = c.Vehicle with { SteeringAngle = checked((float)v) } }),
+        new("vehicle.steering_speed", "Vehicle", "SteeringSpeed", false, c => c.Vehicle.SteeringSpeed, (c, v) => c with { Vehicle = c.Vehicle with { SteeringSpeed = checked((float)v) } }),
+        new("vehicle.steering_response", "Vehicle", "SteeringResponse", false, c => c.Vehicle.SteeringResponse, (c, v) => c with { Vehicle = c.Vehicle with { SteeringResponse = checked((float)v) } }),
+        new("vehicle.wheelbase", "Vehicle", "Wheelbase", false, c => c.Vehicle.Wheelbase, (c, v) => c with { Vehicle = c.Vehicle with { Wheelbase = checked((float)v) } }),
+        new("vehicle.tire_friction", "Vehicle", "TireFriction", false, c => c.Vehicle.TireFriction, (c, v) => c with { Vehicle = c.Vehicle with { TireFriction = checked((float)v) } }),
+        new("vehicle.drive_traction_reserve", "Vehicle", "DriveTractionReserve", false, c => c.Vehicle.DriveTractionReserve, (c, v) => c with { Vehicle = c.Vehicle with { DriveTractionReserve = checked((float)v) } }),
+        new("vehicle.load_height", "Vehicle", "LoadHeight", false, c => c.Vehicle.LoadHeight, (c, v) => c with { Vehicle = c.Vehicle with { LoadHeight = checked((float)v) } }),
+        new("vehicle.handbrake_braking", "Vehicle", "HandbrakeBraking", false, c => c.Vehicle.HandbrakeBraking, (c, v) => c with { Vehicle = c.Vehicle with { HandbrakeBraking = checked((float)v) } }),
+        new("vehicle.handbrake_grip", "Vehicle", "HandbrakeGrip", false, c => c.Vehicle.HandbrakeGrip, (c, v) => c with { Vehicle = c.Vehicle with { HandbrakeGrip = checked((float)v) } }),
+        new("vehicle.handbrake_response", "Vehicle", "HandbrakeResponse", false, c => c.Vehicle.HandbrakeResponse, (c, v) => c with { Vehicle = c.Vehicle with { HandbrakeResponse = checked((float)v) } }),
+        new("vehicle.traction_recovery", "Vehicle", "TractionRecovery", false, c => c.Vehicle.TractionRecovery, (c, v) => c with { Vehicle = c.Vehicle with { TractionRecovery = checked((float)v) } }),
+        new("vehicle.coast_drag", "Vehicle", "CoastDrag", false, c => c.Vehicle.CoastDrag, (c, v) => c with { Vehicle = c.Vehicle with { CoastDrag = checked((float)v) } }),
+        new("vehicle.reference_mass", "Vehicle", "ReferenceMass", false, c => c.Vehicle.ReferenceMass, (c, v) => c with { Vehicle = c.Vehicle with { ReferenceMass = checked((float)v) } }),
+        new("vehicle.suspension_spring", "Vehicle", "SuspensionSpring", false, c => c.Vehicle.SuspensionSpring, (c, v) => c with { Vehicle = c.Vehicle with { SuspensionSpring = checked((float)v) } }),
+        new("vehicle.suspension_damping", "Vehicle", "SuspensionDamping", false, c => c.Vehicle.SuspensionDamping, (c, v) => c with { Vehicle = c.Vehicle with { SuspensionDamping = checked((float)v) } }),
+        new("vehicle.chassis_compliance", "Vehicle", "ChassisCompliance", false, c => c.Vehicle.ChassisCompliance, (c, v) => c with { Vehicle = c.Vehicle with { ChassisCompliance = checked((float)v) } }),
+        new("vehicle.maximum_chassis_tilt", "Vehicle", "MaximumChassisTilt", false, c => c.Vehicle.MaximumChassisTilt, (c, v) => c with { Vehicle = c.Vehicle with { MaximumChassisTilt = checked((float)v) } }),
+        new("vehicle.stability_damping", "Vehicle", "StabilityDamping", false, c => c.Vehicle.StabilityDamping, (c, v) => c with { Vehicle = c.Vehicle with { StabilityDamping = checked((float)v) } }),
+        new("vehicle.suspension_length", "Vehicle", "SuspensionLength", false, c => c.Vehicle.SuspensionLength, (c, v) => c with { Vehicle = c.Vehicle with { SuspensionLength = checked((float)v) } }),
+        new("vehicle.wheel_spring", "Vehicle", "WheelSpring", false, c => c.Vehicle.WheelSpring, (c, v) => c with { Vehicle = c.Vehicle with { WheelSpring = checked((float)v) } }),
+        new("vehicle.wheel_damping", "Vehicle", "WheelDamping", false, c => c.Vehicle.WheelDamping, (c, v) => c with { Vehicle = c.Vehicle with { WheelDamping = checked((float)v) } }),
+        new("vehicle.gravity", "Vehicle", "Gravity", false, c => c.Vehicle.Gravity, (c, v) => c with { Vehicle = c.Vehicle with { Gravity = checked((float)v) } }),
+        new("vehicle.maximum_physics_speed", "Vehicle", "MaximumPhysicsSpeed", false, c => c.Vehicle.MaximumPhysicsSpeed, (c, v) => c with { Vehicle = c.Vehicle with { MaximumPhysicsSpeed = checked((float)v) } }),
+        new("vehicle.maximum_angular_speed", "Vehicle", "MaximumAngularSpeed", false, c => c.Vehicle.MaximumAngularSpeed, (c, v) => c with { Vehicle = c.Vehicle with { MaximumAngularSpeed = checked((float)v) } }),
+        new("damage.max_hp", "Damage", "MaxHP", false, c => c.Damage.MaxHP, (c, v) => c with { Damage = c.Damage with { MaxHP = checked((float)v) } }),
+        new("damage.collision_threshold", "Damage", "CollisionThreshold", false, c => c.Damage.CollisionThreshold, (c, v) => c with { Damage = c.Damage with { CollisionThreshold = checked((float)v) } }),
+        new("damage.collision_scale", "Damage", "CollisionScale", false, c => c.Damage.CollisionScale, (c, v) => c with { Damage = c.Damage with { CollisionScale = checked((float)v) } }),
+        new("damage.maximum_collision_damage", "Damage", "MaximumCollisionDamage", false, c => c.Damage.MaximumCollisionDamage, (c, v) => c with { Damage = c.Damage with { MaximumCollisionDamage = checked((float)v) } }),
+        new("damage.collision_cooldown_ticks", "Damage", "CollisionCooldownTicks", true, c => c.Damage.CollisionCooldownTicks, (c, v) => c with { Damage = c.Damage with { CollisionCooldownTicks = checked((ulong)v) } }),
+        new("items.wrench_heal", "Items", "WrenchHeal", false, c => c.Items.WrenchHeal, (c, v) => c with { Items = c.Items with { WrenchHeal = checked((float)v) } }),
+        new("items.missile_speed", "Items", "MissileSpeed", false, c => c.Items.MissileSpeed, (c, v) => c with { Items = c.Items with { MissileSpeed = checked((float)v) } }),
+        new("items.explosion_radius", "Items", "ExplosionRadius", false, c => c.Items.ExplosionRadius, (c, v) => c with { Items = c.Items with { ExplosionRadius = checked((float)v) } }),
+        new("items.maximum_damage", "Items", "MaximumDamage", false, c => c.Items.MaximumDamage, (c, v) => c with { Items = c.Items with { MaximumDamage = checked((float)v) } }),
+        new("items.maximum_impulse", "Items", "MaximumImpulse", false, c => c.Items.MaximumImpulse, (c, v) => c with { Items = c.Items with { MaximumImpulse = checked((float)v) } }),
+        new("items.missile_lifetime_ticks", "Items", "MissileLifetimeTicks", true, c => c.Items.MissileLifetimeTicks, (c, v) => c with { Items = c.Items with { MissileLifetimeTicks = checked((int)v) } }),
+        new("spawns.cooldown_ticks", "Item spawns", "CooldownTicks", true, c => c.Spawns.CooldownTicks, (c, v) => c with { Spawns = c.Spawns with { CooldownTicks = checked((int)v) } }),
+        new("spawns.wrench_weight", "Item spawns", "WrenchWeight", true, c => c.Spawns.WrenchWeight, (c, v) => c with { Spawns = c.Spawns with { WrenchWeight = checked((int)v) } }),
+        new("spawns.missile_weight", "Item spawns", "MissileWeight", true, c => c.Spawns.MissileWeight, (c, v) => c with { Spawns = c.Spawns with { MissileWeight = checked((int)v) } }),
+        new("spawns.seed", "Item spawns", "Seed", true, c => c.Spawns.Seed, (c, v) => c with { Spawns = c.Spawns with { Seed = checked((int)v) } }),
+        new("spawns.pickup_radius", "Item spawns", "PickupRadius", false, c => c.Spawns.PickupRadius, (c, v) => c with { Spawns = c.Spawns with { PickupRadius = checked((float)v) } }),
+        new("respawn.delay_ticks", "Respawn", "DelayTicks", true, c => c.Respawn.DelayTicks, (c, v) => c with { Respawn = c.Respawn with { DelayTicks = checked((ulong)v) } }),
+        new("respawn.clear_held_item_on_death", "Respawn", "ClearHeldItemOnDeath", true, c => c.Respawn.ClearHeldItemOnDeath ? 1 : 0, (c, v) => c with { Respawn = c.Respawn with { ClearHeldItemOnDeath = v == 1 } }),
+        new("match.kill_target", "Match", "KillTarget", true, c => c.Match.KillTarget, (c, v) => c with { Match = c.Match with { KillTarget = checked((int)v) } }),
+        new("match.minimum_players", "Match", "MinimumPlayers", true, c => c.Match.MinimumPlayers, (c, v) => c with { Match = c.Match with { MinimumPlayers = checked((int)v) } }),
+        new("match.countdown_ticks", "Match", "CountdownTicks", true, c => c.Match.CountdownTicks, (c, v) => c with { Match = c.Match with { CountdownTicks = checked((ulong)v) } }),
+        new("vehicle.concrete.grip", "Concrete", "Grip multiplier", false, c => c.Vehicle.Concrete.Grip, (c, v) => c with { Vehicle = c.Vehicle with { Concrete = new(checked((float)v), c.Vehicle.Concrete.Drag, c.Vehicle.Concrete.Acceleration) } }),
+        new("vehicle.concrete.drag", "Concrete", "Drag multiplier", false, c => c.Vehicle.Concrete.Drag, (c, v) => c with { Vehicle = c.Vehicle with { Concrete = new(c.Vehicle.Concrete.Grip, checked((float)v), c.Vehicle.Concrete.Acceleration) } }),
+        new("vehicle.concrete.acceleration", "Concrete", "Acceleration multiplier", false, c => c.Vehicle.Concrete.Acceleration, (c, v) => c with { Vehicle = c.Vehicle with { Concrete = new(c.Vehicle.Concrete.Grip, c.Vehicle.Concrete.Drag, checked((float)v)) } }),
+        new("vehicle.mud.grip", "Mud", "Grip multiplier", false, c => c.Vehicle.Mud.Grip, (c, v) => c with { Vehicle = c.Vehicle with { Mud = new(checked((float)v), c.Vehicle.Mud.Drag, c.Vehicle.Mud.Acceleration) } }),
+        new("vehicle.mud.drag", "Mud", "Drag multiplier", false, c => c.Vehicle.Mud.Drag, (c, v) => c with { Vehicle = c.Vehicle with { Mud = new(c.Vehicle.Mud.Grip, checked((float)v), c.Vehicle.Mud.Acceleration) } }),
+        new("vehicle.mud.acceleration", "Mud", "Acceleration multiplier", false, c => c.Vehicle.Mud.Acceleration, (c, v) => c with { Vehicle = c.Vehicle with { Mud = new(c.Vehicle.Mud.Grip, c.Vehicle.Mud.Drag, checked((float)v)) } }),
+    ]);
+
+    /// <summary>Applies a complete edit transaction through the existing owning validation rules.</summary>
+    /// <returns>Whether the operation was accepted.</returns>
+    /// <param name="current">Previously accepted configuration.</param>
+    /// <param name="edits">Stable gameplay keys and requested values.</param>
+    /// <param name="result">Accepted candidate, or the unchanged current configuration.</param>
+    /// <param name="error">Safe validation feedback.</param>
+    public static bool TryApply(GameplayConfiguration current, IReadOnlyDictionary<string, double> edits, out GameplayConfiguration result, out string error)
+    {
+        result = current;
+        error = string.Empty;
+        try
+        {
+            var candidate = current;
+            foreach (var pair in edits)
+            {
+                var option = All.SingleOrDefault(option => option.Key == pair.Key);
+                if (option is null)
+                {
+                    error = "Unknown gameplay setting.";
+                    return false;
+                }
+
+                candidate = option.Set(candidate, pair.Value);
+            }
+
+            candidate.Validate();
+            result = candidate;
+            return true;
+        }
+        catch (Exception exception) when (exception is ArgumentException or OverflowException)
+        {
+            error = exception.Message;
+            return false;
+        }
+    }
+}

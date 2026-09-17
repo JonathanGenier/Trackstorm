@@ -8,69 +8,115 @@ namespace Trackstorm.Client.Settings;
 /// <summary>Local preference editor with native binding capture and timed display confirmation.</summary>
 internal sealed partial class SettingsPanel : CanvasLayer
 {
-    private readonly PanelContainer _panel = new();
+    private readonly MenuPresentation _panel = new() { Size = new Vector2(640, 680) };
+    private readonly MenuNavigation _navigation = new();
+    private readonly Dictionary<MenuPage, VBoxContainer> _pages = new();
+    private readonly Control _root = new() { MouseFilter = Control.MouseFilterEnum.Ignore };
+    private readonly ColorRect _shade = new() { Color = new Color(0, 0, 0, 0.48f) };
+    private readonly Label _title = new() { HorizontalAlignment = HorizontalAlignment.Center };
+    private readonly ScrollContainer _scroll = new() { Position = new Vector2(48, 180), Size = new Vector2(544, 378), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, FollowFocus = true };
+    private readonly Button _back = new() { Text = "Back", Position = new Vector2(48, 570), Size = new Vector2(544, 44) };
+    private readonly Button _openSettings = new() { Text = "Settings", Position = new Vector2(24, 24), CustomMinimumSize = new Vector2(140, 42) };
+    private readonly Dictionary<InputAction, bool> _menuHeld = new();
     private readonly Label _status = new();
     private readonly Label _hint = new();
-    private readonly ConfirmationDialog _confirmation = new() { Title = "Keep display settings?", OkButtonText = "Keep", CancelButtonText = "Revert" };
+    private readonly VBoxContainer _confirmation = new() { Position = new Vector2(48, 190), Size = new Vector2(544, 350), Visible = false };
+    private readonly Label _confirmText = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
+    private readonly Button _keep = new() { Text = "Keep" };
+    private readonly Button _revert = new() { Text = "Revert" };
     private readonly Dictionary<InputAction, Button> _bindings = new();
     private readonly OptionButton _mode = new();
     private readonly OptionButton _resolution = new();
     private readonly List<Vector2I> _sizes = new();
     private readonly Control _background = new() { MouseFilter = Control.MouseFilterEnum.Ignore };
+    private readonly Development.DeveloperOptionsPanel _developerOptions = new();
     private PlayerSettingsController _settings = null!;
     private PlayerInputAdapter _input = null!;
     private InputAction? _capture;
     private PlayerSettings? _preview;
     private double _seconds;
     private SettingsHud _hud = null!;
+    private bool _wasArena;
+    private bool _escapeHeld;
+    private double _repeatDelay;
+    private InputAction? _repeatAction;
+
+    /// <summary>The single developer page shared by Settings navigation and F1.</summary>
+    internal Development.DeveloperOptionsPanel DeveloperOptions => _developerOptions;
 
     /// <summary>Actual diagnostics bounds for runtime layout verification.</summary>
     internal Rect2 DiagnosticsBounds => _hud.GetGlobalRect();
+
+    /// <summary>Arena presence supplied by composition, never a match-phase or player-count predicate.</summary>
+    internal Func<bool> ArenaAvailable { get; set; } = () => false;
+    /// <summary>The existing session owner's leave path.</summary>
+    internal Action LeaveToMainMenu { get; set; } = () => { };
+    /// <summary>The application owner's cleanup-aware exit request.</summary>
+    internal Action QuitApplication { get; set; } = () => { };
+    /// <summary>Current local navigation page for runtime verification.</summary>
+    internal MenuPage CurrentPage => _navigation.Page;
+    /// <summary>Rendered frame bounds for resolution checks.</summary>
+    internal Rect2 MenuBounds => _panel.GetGlobalRect();
+    /// <summary>Pending exit progress/failure; null during normal use.</summary>
+    internal Func<string?> ExitStatus { get; set; } = () => null;
 
     /// <inheritdoc/>
     public override void _Ready()
     {
         Layer = 3;
-        var root = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
-        AddChild(root);
-        root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        root.AddChild(_background);
+        AddChild(_root);
+        _root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        _root.AddChild(_background);
         _background.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        var open = new Button { Text = "Settings", Position = new Vector2(24, 24), CustomMinimumSize = new Vector2(140, 42) };
-        _background.AddChild(open);
-        open.Pressed += () => SetOpen(!_panel.Visible);
-        var hud = new SettingsHud { Name = "Diagnostics", AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -224, OffsetRight = -16, OffsetTop = 8, MouseFilter = Control.MouseFilterEnum.Ignore };
-        hud.Initialize(_settings);
-        _hud = hud;
-        _background.AddChild(hud);
-        root.AddChild(_panel);
-        _panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("24272d"), CornerRadiusTopLeft = 8, CornerRadiusTopRight = 8, CornerRadiusBottomLeft = 8, CornerRadiusBottomRight = 8 });
-        _panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        _panel.OffsetLeft = 20;
-        _panel.OffsetTop = 20;
-        _panel.OffsetRight = -20;
-        _panel.OffsetBottom = -20;
-        var margin = new MarginContainer();
-        foreach (string side in new[] { "left", "top", "right", "bottom" })
+        _background.AddChild(_openSettings);
+        _openSettings.Pressed += () =>
         {
-            margin.AddThemeConstantOverride("margin_" + side, 18);
+            _navigation.Open(false);
+            ShowPage();
+        };
+        _hud = new SettingsHud { Name = "Diagnostics", AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -224, OffsetRight = -16, OffsetTop = 8, MouseFilter = Control.MouseFilterEnum.Ignore };
+        _hud.Initialize(_settings);
+        _background.AddChild(_hud);
+        _root.AddChild(_shade);
+        _shade.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        _root.AddChild(_panel);
+        _panel.Theme = MenuPresentation.CreateTheme();
+        _title.Position = new Vector2(60, 107);
+        _title.Size = new Vector2(520, 48);
+        _title.AddThemeFontSizeOverride("font_size", 32);
+        _panel.AddChild(_title);
+        _panel.AddChild(_scroll);
+        _panel.AddChild(_back);
+        _back.Pressed += Back;
+        _status.Position = new Vector2(48, 620);
+        _status.Size = new Vector2(544, 36);
+        _status.AddThemeFontSizeOverride("font_size", 15);
+        _panel.AddChild(_status);
+        var column = Page(MenuPage.Game);
+        AddButton(column, "Back to Game", Close);
+        AddButton(column, "Settings", () => Select(MenuPage.Settings));
+        AddButton(column, "Leave to Main Menu", () =>
+        {
+            Close();
+            LeaveToMainMenu();
+        });
+        AddButton(column, "Quit", () => QuitApplication());
+        column = Page(MenuPage.Settings);
+        foreach (MenuPage category in Enum.GetValues<MenuPage>().Where(page => page >= MenuPage.Audio))
+        {
+            AddButton(column, Title(category), () => Select(category));
         }
 
-        _panel.AddChild(margin);
-        var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
-        margin.AddChild(scroll);
-        var column = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-        column.AddThemeConstantOverride("separation", 12);
-        scroll.AddChild(column);
-        Heading(column, "Player settings", 26);
-        column.AddChild(new Label { Text = "Saved on this device. Display changes require confirmation.", AutowrapMode = TextServer.AutowrapMode.WordSmart });
-        Heading(column, "Audio");
+        var retry = new Button { Text = "Save now / retry" };
+        retry.Pressed += () => _settings.Flush();
+        column.AddChild(retry);
+        column = Page(MenuPage.Audio);
         Volume(column, "Master", _settings.Current.MasterVolume, value => _settings.Current with { MasterVolume = value });
         Volume(column, "Music", _settings.Current.MusicVolume, value => _settings.Current with { MusicVolume = value });
         Volume(column, "SFX", _settings.Current.SfxVolume, value => _settings.Current with { SfxVolume = value });
-        Heading(column, "Display");
+        column = Page(MenuPage.Video);
         _mode.AddItem("Windowed");
-        _mode.AddItem("Fullscreen (desktop resolution)");
+        _mode.AddItem("Fullscreen");
         _mode.Selected = _settings.Current.Fullscreen ? 1 : 0;
         Row(column, "Mode", _mode);
         Vector2I screen = DisplayServer.GetName() == "headless" ? new Vector2I(1920, 1080) : DisplayServer.ScreenGetUsableRect().Size;
@@ -86,26 +132,30 @@ internal sealed partial class SettingsPanel : CanvasLayer
         RefreshDisplaySelection();
         _mode.ItemSelected += index => _resolution.Disabled = index == 1 || _sizes.Count == 0;
         Row(column, "Window resolution", _resolution);
+        var displayHint = new Label { Text = "Fullscreen uses the desktop resolution.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        displayHint.AddThemeFontSizeOverride("font_size", 16);
+        column.AddChild(displayHint);
         var display = new Button { Text = "Preview display change", Disabled = DisplayServer.GetName() == "headless" };
         display.Pressed += PreviewDisplay;
         column.AddChild(display);
-        AddChild(_confirmation);
-        _confirmation.Confirmed += KeepDisplay;
-        _confirmation.Canceled += RevertDisplay;
-        Heading(column, "HUD and diagnostics");
+        _panel.AddChild(_confirmation);
+        _confirmation.AddChild(_confirmText);
+        _confirmation.AddChild(_keep);
+        _confirmation.AddChild(_revert);
+        _keep.Pressed += KeepDisplay;
+        _revert.Pressed += RevertDisplay;
+        column = Page(MenuPage.Gameplay);
         var units = new OptionButton();
         units.AddItem("km/h");
         units.AddItem("mph");
         units.Selected = (int)_settings.Current.SpeedUnit;
         units.ItemSelected += index => _settings.UpdateSettings(_settings.Current with { SpeedUnit = (SpeedUnit)index });
         Row(column, "Speed units", units);
+        column = Page(MenuPage.Interface);
         Toggle(column, "Show FPS", _settings.Current.ShowFps, value => _settings.Current with { ShowFps = value });
         Toggle(column, "Show Ping", _settings.Current.ShowPing, value => _settings.Current with { ShowPing = value });
-        Heading(column, "Controls");
+        column = Page(MenuPage.Controls);
         Toggle(column, "Invert steering axis", _settings.Current.InvertSteering, value => _settings.Current with { InvertSteering = value });
-        var deadZone = new SpinBox { MinValue = 0, MaxValue = 0.99, Step = 0.01, Value = _settings.Current.DeadZone };
-        deadZone.ValueChanged += value => _settings.UpdateSettings(_settings.Current with { DeadZone = value });
-        Row(column, "Analog dead zone", deadZone);
         _hint.Text = "Select a binding, then press a key or gamepad control. Shared bindings are allowed.";
         _hint.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         column.AddChild(_hint);
@@ -113,6 +163,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
         {
             var controls = new HBoxContainer();
             var button = new Button { Name = $"Binding_{action}", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, ClipText = true };
+            button.AddThemeFontSizeOverride("font_size", 17);
             _bindings[action] = button;
             button.Pressed += () =>
             {
@@ -143,23 +194,74 @@ internal sealed partial class SettingsPanel : CanvasLayer
         };
         column.AddChild(restore);
         _status.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        column.AddChild(_status);
-        var retry = new Button { Text = "Save now / retry" };
-        retry.Pressed += () => _settings.Flush();
-        column.AddChild(retry);
-        var close = new Button { Text = "Done" };
-        close.Pressed += () => SetOpen(false);
-        column.AddChild(close);
         _settings.SaveStatusChanged += RefreshStatus;
         RefreshStatus();
-        _panel.Hide();
+        Page(MenuPage.DeveloperOptions).AddChild(_developerOptions);
+        _root.Resized += Layout;
+        Layout();
+        ShowPage();
     }
 
     /// <inheritdoc/>
     public override void _Input(InputEvent @event)
     {
+        if (_capture is null && @event is InputEventKey { Keycode: Key.F1, Pressed: true, Echo: false } && Development.DeveloperTools.Enabled)
+        {
+            if (CurrentPage == MenuPage.DeveloperOptions)
+            {
+                Close();
+            }
+            else
+            {
+                _navigation.Open(ArenaAvailable());
+                _navigation.Select(MenuPage.Settings);
+                _navigation.Select(MenuPage.DeveloperOptions);
+                ShowPage();
+            }
+
+            GetViewport().SetInputAsHandled();
+            return;
+        }
+
+        if (_capture is null && CurrentPage == MenuPage.DeveloperOptions &&
+            GetViewport().GuiGetFocusOwner() is LineEdit && @event is InputEventKey { Keycode: not Key.Escape })
+        {
+            SampleNavigation(false);
+            return;
+        }
+
         if (_capture is not InputAction action)
         {
+            bool open = CurrentPage != MenuPage.Closed;
+            if (@event is InputEventKey { Keycode: Key.Escape } escape)
+            {
+                if (escape.Pressed && !escape.Echo && !_escapeHeld)
+                {
+                    if (open)
+                    {
+                        Back();
+                    }
+                    else if (ArenaAvailable())
+                    {
+                        _navigation.Open(true);
+                        ShowPage();
+                    }
+                }
+
+                _escapeHeld = escape.Pressed;
+                SampleNavigation(false);
+            }
+            else
+            {
+                SampleNavigation(true, @event is InputEventJoypadButton or InputEventJoypadMotion);
+            }
+
+            if ((open || CurrentPage != MenuPage.Closed) && @event is InputEventKey or InputEventJoypadButton or InputEventJoypadMotion)
+            {
+                // Native ui_* defaults must not double-activate or bypass remapped logical controls.
+                GetViewport().SetInputAsHandled();
+            }
+
             return;
         }
 
@@ -167,6 +269,8 @@ internal sealed partial class SettingsPanel : CanvasLayer
         {
             _capture = null;
             _hint.Text = "Binding capture cancelled.";
+            _escapeHeld = true;
+            SampleNavigation(false);
             GetViewport().SetInputAsHandled();
             return;
         }
@@ -181,6 +285,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
         };
         if (candidate is null)
         {
+            GetViewport().SetInputAsHandled();
             return;
         }
 
@@ -204,28 +309,62 @@ internal sealed partial class SettingsPanel : CanvasLayer
         }
 
         _capture = null;
+        SampleNavigation(false);
         _settings.CaptureInput();
         RefreshBindings();
         GetViewport().SetInputAsHandled();
     }
 
     /// <inheritdoc/>
-    public override void _UnhandledKeyInput(InputEvent @event)
-    {
-        if (_panel.Visible && @event is InputEventKey { Pressed: true, Keycode: Key.Escape })
-        {
-            SetOpen(false);
-            GetViewport().SetInputAsHandled();
-        }
-    }
-
-    /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        bool arena = ArenaAvailable();
+        if (ExitStatus() is { } exitStatus)
+        {
+            if (CurrentPage != MenuPage.Game)
+            {
+                _navigation.Open(true);
+                ShowPage();
+            }
+
+            _status.Visible = true;
+            _status.Text = exitStatus;
+            foreach (Button button in _pages[MenuPage.Game].GetChildren().OfType<Button>())
+            {
+                button.Disabled = button.Text != "Quit";
+            }
+
+            if (GetViewport().GuiGetFocusOwner() is not Button { Text: "Quit" })
+            {
+                _pages[MenuPage.Game].GetChildren().OfType<Button>().Single(button => button.Text == "Quit").GrabFocus();
+            }
+        }
+
+        _openSettings.Visible = !arena && CurrentPage == MenuPage.Closed;
+        if (_wasArena && !arena)
+        {
+            Close();
+        }
+
+        _wasArena = arena;
+        if (_capture is null)
+        {
+            SampleNavigation(true);
+            if (_repeatAction is { } repeat && CurrentPage != MenuPage.Closed)
+            {
+                _repeatDelay -= delta;
+                if (_repeatDelay <= 0)
+                {
+                    Navigate(repeat);
+                    _repeatDelay = 0.12;
+                }
+            }
+        }
+
         if (_preview is not null)
         {
             _seconds -= delta;
-            _confirmation.DialogText = $"Keep this display mode? Reverting in {Math.Ceiling(Math.Max(0, _seconds))} seconds.";
+            _confirmText.Text = $"Keep this display mode? Reverting in {Math.Ceiling(Math.Max(0, _seconds))} seconds.";
             if (_seconds <= 0)
             {
                 RevertDisplay();
@@ -258,17 +397,10 @@ internal sealed partial class SettingsPanel : CanvasLayer
     /// <param name="visible">Whether the combat HUD is providing speed.</param>
     internal void SetCombatHudVisible(bool visible) => _hud.SpeedVisible = !visible;
 
-    private static void Heading(VBoxContainer parent, string text, int size = 20)
-    {
-        var label = new Label { Text = text };
-        label.AddThemeFontSizeOverride("font_size", size);
-        parent.AddChild(label);
-    }
-
     private static void Row(VBoxContainer parent, string text, Control control)
     {
         var row = new HBoxContainer();
-        row.AddChild(new Label { Text = text, CustomMinimumSize = new Vector2(160, 0) });
+        row.AddChild(new Label { Text = text, CustomMinimumSize = new Vector2(190, 0) });
         control.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         row.AddChild(control);
         parent.AddChild(row);
@@ -296,32 +428,16 @@ internal sealed partial class SettingsPanel : CanvasLayer
         parent.AddChild(toggle);
     }
 
-    private void SetOpen(bool open)
-    {
-        _panel.Visible = open;
-        _background.Visible = !open;
-        _input.GameplaySuppressed = open;
-        _input.Observe();
-        if (open)
-        {
-            _mode.GrabFocus();
-        }
-        else
-        {
-            _capture = null;
-            RevertDisplay();
-            _settings.Flush();
-        }
-    }
-
     private void PreviewDisplay()
     {
         Vector2I size = _resolution.Selected >= 0 && _resolution.Selected < _sizes.Count ? _sizes[_resolution.Selected] : new Vector2I(1280, 720);
         _preview = _settings.Current with { Fullscreen = _mode.Selected == 1, WindowWidth = size.X, WindowHeight = size.Y };
         PlayerSettingsController.ApplyDisplay(_preview);
         _seconds = 15;
-        _confirmation.DialogText = "Keep this display mode? Reverting in 15 seconds.";
-        _confirmation.PopupCentered();
+        _confirmText.Text = "Keep this display mode? Reverting in 15 seconds.";
+        _scroll.Hide();
+        _confirmation.Show();
+        _keep.GrabFocus();
     }
 
     private void KeepDisplay()
@@ -331,6 +447,12 @@ internal sealed partial class SettingsPanel : CanvasLayer
             _settings.UpdateSettings(_settings.Current with { Fullscreen = preview.Fullscreen, WindowWidth = preview.WindowWidth, WindowHeight = preview.WindowHeight });
             _settings.Flush();
             _preview = null;
+            _confirmation.Hide();
+            _scroll.Show();
+            if (_mode.IsVisibleInTree())
+            {
+                _mode.GrabFocus();
+            }
         }
     }
 
@@ -341,7 +463,12 @@ internal sealed partial class SettingsPanel : CanvasLayer
             PlayerSettingsController.ApplyDisplay(_settings.Current);
             _preview = null;
             _confirmation.Hide();
+            _scroll.Show();
             RefreshDisplaySelection();
+            if (_mode.IsVisibleInTree())
+            {
+                _mode.GrabFocus();
+            }
         }
     }
 

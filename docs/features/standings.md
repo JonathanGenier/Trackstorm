@@ -1,6 +1,6 @@
 # Match standings and results
 
-The centered **MATCH STANDINGS** board displays exactly **#, Player Name, Kills, Deaths, Ping** for every current session participant, up to eight. Holding the remappable leaderboard action during Active shows it; releasing hides it. Defaults are physical Tab and controller Back. Finished forces the same board open until leaving the arena/results state. Focus loss and settings suppression use the existing input adapter's release behavior. The overlay does not intercept vehicle controls. Results expose the existing host Return to lobby or client Leave session action in the footer, keeping it reachable at small sizes. Settings render above the board. Local practice has no match ranking or standings board.
+The centered **MATCH STANDINGS** board displays exactly **#, Player Name, Kills, Deaths, Ping** for every current session participant, up to eight. Holding the remappable leaderboard action during Active shows it; releasing hides it. Defaults are physical Tab and controller Back. Finished forces the same board open until leaving the arena/results state. Focus loss and settings suppression use the existing input adapter's release behavior. The overlay does not intercept vehicle controls. The results footer points to ESC for the [Game Menu](game-menu.md). There is no duplicate Return/Leave button. Game Menu and Settings render above the board. Local practice has no match ranking or standings board.
 
 ## Authority and presentation
 

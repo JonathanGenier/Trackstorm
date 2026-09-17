@@ -82,7 +82,7 @@ internal sealed class MigrationTests
             Assert.That(host.Items.Grant(host.World, id, HeldItem.Missile), Is.True);
         }
 
-        var checkpoint = new MigrationCheckpoint(1, lobby.Capture("host"), new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, [], host.Spawns!.States), host.World.State.Match!, null), host.CaptureAuthority());
+        var checkpoint = new MigrationCheckpoint(1, lobby.Capture("host"), new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, [], host.Spawns!.States), host.World.State.Match!, null, host.Configuration), host.CaptureAuthority());
         byte[] bytes = MigrationCheckpointCodec.Encode(checkpoint);
         Assert.That(MigrationCheckpointCodec.Decode(bytes).Arena!.Items.Missiles.Count, Is.EqualTo(ItemAuthority.MaximumProjectiles));
         TestContext.WriteLine($"Eight-player/full-projectile checkpoint: {bytes.Length} bytes.");
@@ -147,7 +147,9 @@ internal sealed class MigrationTests
         Assert.That(host.Items.Missiles.Count, Is.EqualTo(1));
         var world = host.Snapshot();
         var match = host.World.State.Match!;
-        var resume = new ResumeCheckpoint(new ItemPublication(2, world, host.Items.Slots, host.Items.Missiles, [], host.Spawns!.States), match, null);
+        var resume = new ResumeCheckpoint(new ItemPublication(2, world, host.Items.Slots, host.Items.Missiles, [], host.Spawns!.States), match, null, host.Configuration);
+        var inconsistent = new LobbyRestoreState(lobby.State, 0, 3, lobby.Capture("host").Subjects, new Dictionary<ulong, ulong>(), new(1, host.Configuration.Configuration));
+        Assert.Throws<ArgumentException>(() => new MigrationCheckpoint(1, inconsistent, resume, host.CaptureAuthority()));
         byte[] encoded = MigrationCheckpointCodec.Encode(new MigrationCheckpoint(1, lobby.Capture("host"), resume, host.CaptureAuthority()));
         var decoded = MigrationCheckpointCodec.Decode(encoded);
         var replacement = HostVehicleSession.Restore(decoded.Arena!, decoded.Host!, 2);
@@ -177,10 +179,12 @@ internal sealed class MigrationTests
         var host = new HostVehicleSession(101);
         host.JoinPlayer(10, 2);
         host.RegisterSpawns(PrototypeArena.Configuration);
+        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["spawns.seed"] = 42, ["spawns.wrench_weight"] = 3, ["vehicle.acceleration"] = 7 }, out _), Is.True);
         Place(host, 1, "item-01");
         Assert.That(host.Spawns!.TryPickup(host.World, "item-01", 1), Is.True);
         var publication = new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], host.Spawns.States);
-        var restored = HostVehicleSession.Restore(new ResumeCheckpoint(publication, host.World.State.Match!, null), host.CaptureAuthority(), 2);
+        var restored = HostVehicleSession.Restore(new ResumeCheckpoint(publication, host.World.State.Match!, null, host.Configuration), host.CaptureAuthority(), 2);
+        Assert.That(restored.Configuration, Is.EqualTo(host.Configuration));
         Assert.That(restored.Spawns!.States, Is.EqualTo(host.Spawns.States));
         foreach (var authority in new[] { host, restored })
         {
@@ -194,6 +198,26 @@ internal sealed class MigrationTests
         Assert.That(restored.Items.Slots, Is.EqualTo(host.Items.Slots));
         Assert.That(restored.Spawns.RandomState, Is.EqualTo(host.Spawns.RandomState));
         Assert.That(restored.Spawns.Revision, Is.EqualTo(host.Spawns.Revision));
+    }
+
+    /// <summary>Lobby tuning is session state and survives both serialization and successive authority transfers.</summary>
+    [Test]
+    public void LobbyConfigurationSurvivesSuccessiveMigrationAndRejectsClientEdits()
+    {
+        var lobby = new LobbyAuthority(100, "Host");
+        lobby.Join(10, "Client", "client");
+        var edits = new Dictionary<string, double> { ["vehicle.acceleration"] = 7, ["spawns.seed"] = 42 };
+        Assert.That(lobby.TryConfigure(10, edits, out _), Is.False);
+        Assert.That(lobby.TryConfigure(0, edits, out _), Is.True);
+        var checkpoint = MigrationCheckpointCodec.Decode(MigrationCheckpointCodec.Encode(new MigrationCheckpoint(1, lobby.Capture("host"), null, null)));
+        var successor = LobbyAuthority.Restore(checkpoint.Lobby, 2, 2);
+        Assert.That(successor.Configuration, Is.EqualTo(lobby.Configuration));
+        Assert.That(successor.Resume(50, 100, 1, 1, "host"), Is.True);
+        Assert.That(successor.TryConfigure(50, edits, out _), Is.False);
+        Assert.That(successor.TryConfigure(0, new Dictionary<string, double> { ["vehicle.acceleration"] = 9 }, out _), Is.True);
+        var next = LobbyAuthority.Restore(successor.Capture("client"), 1, 3);
+        Assert.That(next.Configuration, Is.EqualTo(successor.Configuration));
+        Assert.That(next.Configuration.Revision, Is.EqualTo(2));
     }
 
     /// <summary>A restored lethal boundary respawns once without recounting the kill or finishing again.</summary>
@@ -211,7 +235,7 @@ internal sealed class MigrationTests
         var match = host.World.State.Match!;
         var boundary = new MatchState(match.Tick, match.Revision, match.KillTarget, match.Phase, match.CountdownAtTick, match.Winner, match.Players);
         var dead = host.World.GetVehicle(3);
-        var checkpoint = new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), [], [], []), boundary, null);
+        var checkpoint = new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), [], [], []), boundary, null, host.Configuration);
         var restored = HostVehicleSession.Restore(ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(checkpoint)), host.CaptureAuthority(), 2);
         Assert.That(restored.World.GetVehicle(3).Damage, Is.EqualTo(dead.Damage));
         Assert.That(restored.World.GetVehicle(3).RespawnAtTick, Is.EqualTo(dead.RespawnAtTick));

@@ -20,15 +20,15 @@ Inactive vehicles have no native collision layer/mask and are hidden. Core indep
 
 ## Replication, Prediction and Hooks
 
-Every lifecycle or life-generation change publishes a complete existing vehicle snapshot reliably through the current ordered transport. Collision-only deaths therefore replicate even without item changes or a periodic movement publication. Joining peers receive a reliable current boundary. Aggregate codec version two and vehicle protocol version five preserve lifecycle/deadline; the EOS discovery compatibility bucket is `trackstorm-lobby-7`. Older aggregate/gameplay versions are rejected.
+Every lifecycle or life-generation change publishes a complete existing vehicle snapshot reliably through the current ordered transport. Collision-only deaths therefore replicate even without item changes or a periodic movement publication. Joining peers receive a reliable current boundary. Aggregate codec version two and vehicle protocol version six preserve lifecycle/deadline; the EOS discovery compatibility bucket is `trackstorm-lobby-8`. Older aggregate/gameplay versions are rejected.
 
-The existing snapshot history rejects stale poses. A delayed reliable death/wait/respawn publication can still notify presentation observers once, even if a newer unreliable movement snapshot arrived first; it cannot rewind the current vehicle state. `Simulation.LifecycleChanges` exposes immutable committed transitions, including the existing damage attribution, for later scoring or other consumers. `VehicleNetworkDriver.LifecycleReceived` provides ordered reliable full boundaries for future Client UI/audio. Consumers distinguish transitions by vehicle/life/state; match scoring consumes the committed Core death boundary; dedicated death audio is not implemented.
+The existing snapshot history rejects stale poses. A delayed reliable death/wait/respawn publication can still notify presentation observers once, even if a newer unreliable movement snapshot arrived first; it cannot rewind the current vehicle state. `Simulation.LifecycleChanges` exposes immutable committed transitions, including the existing damage attribution, for later scoring or other consumers. `VehicleNetworkDriver.LifecycleReceived` provides ordered reliable full boundaries for Client UI/audio. Consumers distinguish transitions by vehicle/life/state; match scoring consumes the committed Core death boundary; [arena audio](audio.md) consumes those boundaries for distinct destruction, local death and respawn feedback.
 
 Prediction advances movement only and keeps host HP/lifecycle unchanged, including when its local tick passes the respawn deadline. Lifecycle corrections neutralize retained controls while preserving sequence acknowledgements; input envelopes identify the observed life, and the host acknowledges delayed old-life inputs as neutral. Buffered held controls also clear on host lifecycle boundaries. Remote rendering excludes earlier-life poses after a respawn; local correction offsets reset and the chase camera snaps on the new-life boundary instead of blending a wreck into its spawn.
 
 ## Presentation and Verification
 
-Client `VehicleDestructionEffects` consumes confirmed deaths once per life and uses the already-acquired Kenney Particle Pack CC0 fire, smoke and spark textures for a short destruction flash, smoke and debris-like sparks. Existing provenance and license records remain in `assets/items/sources.json`. Bursts have no gameplay collision or state access for mutation, expire after 1.6 presentation seconds, and are capped at 24 during delivery catch-up. Arena teardown owns all particle nodes. There is no dedicated death-animation system, dissolve shader, or destruction/respawn audio.
+Client `VehicleDestructionEffects` consumes confirmed deaths once per life and uses the already-acquired Kenney Particle Pack CC0 fire, smoke and spark textures for a short destruction flash, smoke and debris-like sparks. Existing provenance and license records remain in `assets/items/sources.json`. Bursts have no gameplay collision or state access for mutation, expire after 1.6 presentation seconds, and are capped at 24 during delivery catch-up. Arena teardown owns all particle nodes. There is no dedicated death-animation system or dissolve shader. [Arena audio](audio.md) owns destruction/death/respawn sounds separately from particles.
 
 Core tests cover lethal crossing, duplicate damage, inactive interactions including live pickup claims, exact thresholds, full reset, optional inventory retention, repeated cycles, custom markers/all-eight coverage, occupied markers, simultaneous reservations, stale-life input, prediction authority and both state codecs. Driver tests cover collision-only reliable publication, stale/duplicate/forged delivery and reliable events arriving after newer movement.
 
@@ -36,6 +36,8 @@ Core tests cover lethal crossing, duplicate damage, inactive interactions includ
 
 See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
 
-Authority restoration, epoch fencing, checkpoint cadence and migration limits are described in [host migration](host-migration.md).
+Host [Developer Options](developer-options.md) changes the existing `RespawnConfiguration`: new deaths use the current DelayTicks, while already committed deadlines remain stable. ClearHeldItemOnDeath is consumed by the existing inventory lifecycle policy. Live Max HP preserves health percentage and cannot revive an inactive life. Accepted configuration and revision accompany resume checkpoints.
+
+Authority restoration and epoch fencing are described in [host migration](host-migration.md).
 
 [Feature index](README.md)

@@ -91,6 +91,17 @@ public sealed partial class LobbyIntegrationChecks : Node
         }
     }
 
+    /// <summary>Allows queued arena destruction to drain before checking native process teardown.</summary>
+    public async void Finish()
+    {
+        for (int frame = 0; frame < 3; frame++)
+        {
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        }
+
+        GetTree().Quit();
+    }
+
     private static void Click(DevelopmentSession session, string text)
     {
         session._Process(0);
@@ -152,7 +163,7 @@ public sealed partial class LobbyIntegrationChecks : Node
                 }
 
                 Capture("arena.png");
-                Click(_sessions[0], "End session / Return to lobby");
+                _sessions[0].Lobby!.Request(LobbyCommand.Return);
                 Next("All eight peers entered native arenas and received eight-vehicle snapshots; host ended session.");
                 break;
             case 6 when AllRoster(8) && _sessions.All(session => session.Arena is null && session.Lobby!.State!.Phase == SessionPhase.Lobby):
@@ -199,7 +210,7 @@ public sealed partial class LobbyIntegrationChecks : Node
                 _evidence.Add("Host loss returned all clients to Host/Join and removed every arena.");
                 System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
                 GD.Print("Lobby integration passed: " + string.Join("\n", _evidence));
-                GetTree().Quit();
+                CallDeferred(MethodName.Finish);
                 break;
         }
     }

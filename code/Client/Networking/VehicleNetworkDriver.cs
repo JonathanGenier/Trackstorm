@@ -1,3 +1,4 @@
+using Trackstorm.Core.Development;
 using Trackstorm.Core.Input;
 using Trackstorm.Core.Items;
 using Trackstorm.Core.Matches;
@@ -26,6 +27,9 @@ internal sealed class VehicleNetworkDriver
     private ulong _publishedMatchRevision = ulong.MaxValue;
     private ulong _generation;
     private bool _awaitingCheckpoint;
+    private GameplayConfigurationState _configuration = new(0, new());
+    private ulong? _publishedConfiguration;
+    private bool _receivedConfiguration;
 
     /// <summary>Creates a host or connects a client driver to an already-open transport.</summary>
     /// <param name="gateway">Caller-owned transport.</param>
@@ -33,7 +37,8 @@ internal sealed class VehicleNetworkDriver
     /// <param name="serverPeer">Client's actual transport server identity.</param>
     /// <param name="lobby">Optional authoritative lobby which has entered an arena.</param>
     /// <param name="damageConfiguration">Optional arena vehicle capacity.</param>
-    internal VehicleNetworkDriver(ITransportGateway gateway, ulong hostSession, ulong serverPeer = 0, LobbyNetworkDriver? lobby = null, DamageConfiguration? damageConfiguration = null)
+    /// <param name="configuration">Validated effective gameplay tuning.</param>
+    internal VehicleNetworkDriver(ITransportGateway gateway, ulong hostSession, ulong serverPeer = 0, LobbyNetworkDriver? lobby = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null)
     {
         _lobby = lobby;
         _gateway = gateway;
@@ -41,7 +46,15 @@ internal sealed class VehicleNetworkDriver
         _session = hostSession;
         if (hostSession != 0)
         {
-            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, hostPlayerId: lobby?.LocalPlayerId ?? 1);
+            var sessionConfiguration = lobby?.Authority?.Configuration;
+            ulong revision = sessionConfiguration?.Revision ?? 0;
+            if (configuration is not null && sessionConfiguration is not null && configuration != sessionConfiguration.Configuration)
+            {
+                revision = checked(revision + 1);
+            }
+
+            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, configuration: configuration ?? sessionConfiguration?.Configuration, hostPlayerId: lobby?.LocalPlayerId ?? 1, configurationRevision: revision);
+            lobby?.Authority?.RetainConfiguration(Host.Configuration);
             LocalVehicleId = Host.HostPlayerId;
         }
 
@@ -93,6 +106,10 @@ internal sealed class VehicleNetworkDriver
     internal event Action<MatchState>? MatchReceived;
     /// <summary>Atomic reset boundary for interpolation, native bodies and one-shot presentation baselines.</summary>
     internal event Action<WorldSnapshot>? Resynchronized;
+    /// <summary>Refreshes native observers after a complete validated tuning transaction.</summary>
+    internal event Action<GameplayConfiguration>? ConfigurationChanged;
+    /// <summary>Current authority-owned tuning; clients never load local persisted gameplay values.</summary>
+    internal GameplayConfigurationState Configuration => Host?.Configuration ?? _configuration;
     /// <summary>Latest reliable match state, independent of movement snapshot ordering.</summary>
     internal MatchState? Match { get; private set; }
     /// <summary>Authoritative native prop observation seam, absent in flat-ground vehicle unit tests.</summary>
@@ -192,6 +209,18 @@ internal sealed class VehicleNetworkDriver
 
         if (Host is not null)
         {
+            if (_rosterChanged || _publishedConfiguration != Host.Configuration.Revision)
+            {
+                byte[] configuration = GameplayConfigurationCodec.Encode(_session, Host.Configuration);
+                foreach (ulong peer in _assigned)
+                {
+                    Send(new TransportMessage(peer, configuration, TransportDelivery.Reliable));
+                }
+
+                _publishedConfiguration = Host.Configuration.Revision;
+                _rosterChanged = true;
+            }
+
             RosterChanged?.Invoke(Host.Snapshot());
             if ((input.Pressed & InputButtons.UseItem) != 0)
             {
@@ -302,6 +331,32 @@ internal sealed class VehicleNetworkDriver
             Send(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeInputs(_session, inputs.GetRedundancy(), LocalState?.LifeId ?? 1), TransportDelivery.Unreliable));
         }
     }
+
+    /// <summary>Commits local host edits; there is deliberately no client-to-host tuning message.</summary>
+    /// <returns>Whether the operation was accepted.</returns>
+    /// <param name="edits">Stable gameplay keys and requested values.</param>
+    /// <param name="error">Safe validation feedback.</param>
+    internal bool TryConfigure(IReadOnlyDictionary<string, double> edits, out string error)
+    {
+        error = "Only the authoritative host may change gameplay tuning.";
+        if (Host is null || !IsActive || !Host.TryConfigure(0, edits, out error))
+        {
+            return false;
+        }
+
+        _lobby?.Authority?.RetainConfiguration(Host.Configuration);
+        ConfigurationChanged?.Invoke(Configuration.Configuration);
+        return true;
+    }
+
+    /// <summary>Grants through the current active authority only, including migration lease fencing.</summary>
+    /// <param name="item">Requested supported item.</param>
+    /// <returns>Whether the current host granted its own item.</returns>
+    internal bool GiveDeveloperItem(HeldItem item) => IsActive && Host?.GiveItem(0, item) == true;
+
+    /// <summary>Uses the normal match authority only while the current epoch may advance.</summary>
+    /// <returns>Whether the authoritative countdown override was accepted.</returns>
+    internal bool ForceDeveloperStart() => IsActive && Host?.ForceStart(0) == true;
 
     /// <summary>Submits the local slot capability reliably; never creates a predicted item effect.</summary>
     /// <returns>Whether queued locally or sent to the host.</returns>
@@ -415,12 +470,13 @@ internal sealed class VehicleNetworkDriver
 
     private (ResumeCheckpoint Arena, HostRestoreState Host) CaptureMigration()
     {
+        _lobby!.Authority!.RetainConfiguration(Host!.Configuration);
         WorldSnapshot world = Host!.Snapshot();
         var items = new ItemPublication(Math.Max(1, _itemPublication), world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States);
         var state = Host.World.State.Match!;
         var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players);
         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());
-        return (new ResumeCheckpoint(items, match, props), Host.CaptureAuthority());
+        return (new ResumeCheckpoint(items, match, props, Host.Configuration), Host.CaptureAuthority());
     }
 
     private void RestoreMigration(MigrationCheckpoint checkpoint, bool host)
@@ -432,6 +488,9 @@ internal sealed class VehicleNetworkDriver
 
         _assigned.Clear();
         _awaitingCheckpoint = true;
+        // A new authority epoch may restore an older complete configuration boundary.
+        _receivedConfiguration = false;
+        _publishedConfiguration = null;
         Host = host ? HostVehicleSession.Restore(checkpoint.Arena, checkpoint.Host!, _lobby!.LocalPlayerId) : null;
         _itemPublication = checkpoint.Arena.Items.Revision;
         _publishedItemRevision = ulong.MaxValue;
@@ -453,7 +512,7 @@ internal sealed class VehicleNetworkDriver
         var state = Host.World.State.Match!;
         var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players);
         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());
-        Send(new TransportMessage(peer, ResumeCheckpointCodec.Encode(new ResumeCheckpoint(items, match, props)), TransportDelivery.Reliable));
+        Send(new TransportMessage(peer, ResumeCheckpointCodec.Encode(new ResumeCheckpoint(items, match, props, Host.Configuration)), TransportDelivery.Reliable));
     }
 
     private void ApplyCheckpoint(ResumeCheckpoint checkpoint)
@@ -467,7 +526,15 @@ internal sealed class VehicleNetworkDriver
 
         var history = new SnapshotHistory(_session);
         history.Add(world);
-        var prediction = new PredictedVehicle(local);
+        if (_receivedConfiguration && !checkpoint.Configuration.CanReplace(_configuration))
+        {
+            throw new ArgumentException("Stale checkpoint configuration.");
+        }
+
+        var prediction = new PredictedVehicle(local, checkpoint.Configuration.Configuration);
+        _configuration = checkpoint.Configuration;
+        _receivedConfiguration = true;
+        ConfigurationChanged?.Invoke(_configuration.Configuration);
         History = history;
         Prediction = prediction;
         _inputs = null;
@@ -495,7 +562,10 @@ internal sealed class VehicleNetworkDriver
     private bool AcceptSnapshot(WorldSnapshot snapshot, Func<VehicleSnapshot, VehicleObservation> observe)
     {
         ReplicatedVehicle? local = snapshot.Vehicles.SingleOrDefault(vehicle => vehicle.State.VehicleId == LocalVehicleId);
-        if (local is null || Inputs is not InputHistory inputs || !inputs.CanAcknowledge(local.AcknowledgedInput) || History is null || !History.Add(snapshot))
+        if (!_receivedConfiguration || snapshot.ConfigurationRevision != Configuration.Revision || local is null ||
+            local.State.Damage.MaxHP != Configuration.Configuration.Damage.MaxHP ||
+            Math.Abs(local.State.Movement.SteeringAngle) > Configuration.Configuration.Vehicle.SteeringAngle ||
+            Inputs is not InputHistory inputs || !inputs.CanAcknowledge(local.AcknowledgedInput) || History is null || !History.Add(snapshot))
         {
             return false;
         }
@@ -504,7 +574,7 @@ internal sealed class VehicleNetworkDriver
         RosterChanged?.Invoke(snapshot);
         if (Prediction is null)
         {
-            Prediction = new PredictedVehicle(local, inputs, observe);
+            Prediction = new PredictedVehicle(local, inputs, observe, Configuration.Configuration);
             _inputs = null;
         }
         else if (Prediction.Reconcile(local, observe))
@@ -531,6 +601,30 @@ internal sealed class VehicleNetworkDriver
 
         try
         {
+            if (GameplayConfigurationCodec.IsConfiguration(message.Payload.Span))
+            {
+                if (Host is not null || message.RemotePeerId != ServerPeer || message.Delivery != TransportDelivery.Reliable)
+                {
+                    throw new ArgumentException("Only the assigned host may publish configuration.");
+                }
+
+                var publication = GameplayConfigurationCodec.Decode(message.Payload.Span);
+                if (publication.Session != _session || (_receivedConfiguration && !publication.State.CanReplace(_configuration)))
+                {
+                    throw new ArgumentException("Stale or mismatched configuration publication.");
+                }
+
+                if (!_receivedConfiguration || publication.State.Revision != _configuration.Revision)
+                {
+                    Prediction?.ApplyConfiguration(publication.State.Configuration);
+                    _configuration = publication.State;
+                    ConfigurationChanged?.Invoke(_configuration.Configuration);
+                }
+
+                _receivedConfiguration = true;
+                return;
+            }
+
             if (Host is null && _lobby is not null && (_lobby.Generation != _generation || _lobby.Reconnecting))
             {
                 _awaitingCheckpoint = true;
@@ -596,7 +690,7 @@ internal sealed class VehicleNetworkDriver
                 }
 
                 ItemPublication publication = ItemCodec.DecodeState(message.Payload.Span);
-                if (publication.World.Session != _session || publication.Revision <= (ItemState?.Revision ?? 0))
+                if (!_receivedConfiguration || publication.World.Session != _session || publication.World.ConfigurationRevision != Configuration.Revision || publication.Revision <= (ItemState?.Revision ?? 0))
                 {
                     throw new ArgumentException("Stale item publication.");
                 }
@@ -645,6 +739,11 @@ internal sealed class VehicleNetworkDriver
                 if (kind == VehicleNetworkCodec.Snapshot && History is not null)
                 {
                     WorldSnapshot snapshot = VehicleNetworkCodec.DecodeSnapshot(message.Payload.Span);
+                    if (!_receivedConfiguration || snapshot.ConfigurationRevision != Configuration.Revision)
+                    {
+                        throw new ArgumentException("Snapshot requires a different configuration revision.");
+                    }
+
                     if (message.Delivery == TransportDelivery.Reliable && snapshot.Session == _session &&
                         (!_lastLifecycleTick.HasValue || snapshot.Tick > _lastLifecycleTick.Value))
                     {

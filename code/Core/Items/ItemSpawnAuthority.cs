@@ -7,7 +7,7 @@ namespace Trackstorm.Core.Items;
 public sealed class ItemSpawnAuthority
 {
     private readonly ItemAuthority _items;
-    private readonly Func<HeldItem> _select;
+    private readonly Func<HeldItem>? _select;
     private readonly Dictionary<string, ArenaSpawn> _markers;
     private readonly Dictionary<string, ItemSpawnState> _states;
     private ItemRandom? _random;
@@ -32,7 +32,7 @@ public sealed class ItemSpawnAuthority
     }
 
     /// <summary>Immutable validated host tuning.</summary>
-    public ItemSpawnConfiguration Configuration { get; }
+    public ItemSpawnConfiguration Configuration { get; private set; }
     /// <summary>Changes only when a claim or activation commits.</summary>
     public ulong Revision { get; private set; }
     /// <summary>Detached state in canonical marker order.</summary>
@@ -78,13 +78,14 @@ public sealed class ItemSpawnAuthority
             _states[state.Id] = state with { Available = true };
             Revision++;
         }
+
     }
 
     /// <summary>Validates host-observed contact against committed position, life and slot before one atomic award.</summary>
+    /// <returns>Whether exactly one spawn and one slot changed.</returns>
     /// <param name="world">Match world at the current spawn boundary.</param>
     /// <param name="id">Reported marker ID.</param>
     /// <param name="vehicle">Host-observed vehicle identity.</param>
-    /// <returns>Whether exactly one spawn and one slot changed.</returns>
     public bool TryPickup(Simulation.Simulation world, string id, ulong vehicle)
     {
         if (world.State.Tick != _tick || !_states.TryGetValue(id, out var spawn) || !spawn.Available)
@@ -101,7 +102,7 @@ public sealed class ItemSpawnAuthority
         }
 
         ulong activation = checked(_tick + (ulong)Configuration.CooldownTicks);
-        HeldItem item = _select();
+        HeldItem item = _select!.Invoke();
         if (item is not (HeldItem.Wrench or HeldItem.Missile))
         {
             throw new InvalidOperationException("Pickup selector returned an item outside the configured pool.");
@@ -117,4 +118,18 @@ public sealed class ItemSpawnAuthority
         Revision++;
         return true;
     }
+
+    /// <summary>Updates future claims without resetting existing cooldowns or consuming a random draw.</summary>
+    /// <param name="configuration">Validated effective gameplay tuning.</param>
+    internal void ApplyConfiguration(ItemSpawnConfiguration configuration)
+    {
+        configuration.Validate();
+        if (configuration.Seed != Configuration.Seed)
+        {
+            _random = _random is null ? null : new ItemRandom(unchecked((ulong)configuration.Seed));
+        }
+
+        Configuration = configuration;
+    }
+
 }

@@ -190,10 +190,8 @@ public sealed partial class VehicleBody : RigidBody3D
 
         if (result.DamageEvents.Count > 0 || result.Effects.Any(request => request.Effect.Impulse != Numerics.Vector3.Zero))
         {
-            // Coalesce one tick's damage/impulse cues so a single blast does not play twice.
-            bool blast = result.DamageEvents.Any(outcome => outcome.Attribution.Source == "explosion") ||
-                result.Effects.Any(request => request.Attribution.Source == "explosion" && request.Effect.Impulse != Numerics.Vector3.Zero);
-            _feedback.Present(blast, result.Snapshot.Damage.Destroyed);
+            // Coalesce one tick's confirmed damage/impulses into one visual flash.
+            _feedback.Present(result.Snapshot.Damage.Destroyed);
         }
 
         _effects.Clear();

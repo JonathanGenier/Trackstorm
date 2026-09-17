@@ -26,8 +26,8 @@ internal sealed class VehicleAuthority
     internal VehicleSnapshot Snapshot { get; private set; }
 
     /// <summary>Evaluates a candidate without mutating the published aggregate.</summary>
-    /// <param name="request">This global tick's inputs and observations.</param>
     /// <returns>Complete candidate state and commands.</returns>
+    /// <param name="request">This global tick's inputs and observations.</param>
     /// <param name="respawn">Host respawn policy, or null in isolated fixtures.</param>
     /// <param name="arena">Validated spawn contract.</param>
     /// <param name="vehicles">Authoritative roster with earlier candidate respawns reserved.</param>
@@ -111,6 +111,21 @@ internal sealed class VehicleAuthority
         var movement = new VehicleMovement(_movementConfiguration, snapshot.ObservedPhysics);
         movement.Restore(snapshot.Movement);
         new VehicleHealth(_damageConfiguration).Restore(snapshot.Damage);
+    }
+
+    /// <summary>Prepares new tuning without mutating this authority or reviving an inactive life.</summary>
+    /// <returns>Prepared vehicle authority preserving gameplay state.</returns>
+    /// <param name="movement">Validated vehicle handling tuning.</param>
+    /// <param name="damage">Validated health and collision tuning.</param>
+    internal VehicleAuthority Retune(VehicleConfiguration movement, DamageConfiguration damage)
+    {
+        var previous = Snapshot;
+        var m = previous.Movement;
+        var adjusted = new VehicleState(m.Tick, m.Physics, m.Grounded, m.Drifting, Math.Clamp(m.SteeringAngle, -movement.SteeringAngle, movement.SteeringAngle), m.Handbrake, m.CurrentSurface, m.FrontSlip, m.RearSlip, m.LongitudinalAcceleration, m.LateralAcceleration, m.LandingIntensity, m.Wheels);
+        var health = new VehicleDamageState(damage.MaxHP, previous.Damage.CurrentHP / previous.Damage.MaxHP * damage.MaxHP, previous.Damage.LastDamage, previous.Damage.LastCollisionTick);
+        var result = new VehicleAuthority(previous.VehicleId, movement, damage, previous.ObservedPhysics);
+        result.Commit(new VehicleSnapshot(previous.VehicleId, previous.LifeId, adjusted, health, previous.ObservedPhysics, previous.Effects, previous.Lifecycle, previous.RespawnAtTick));
+        return result;
     }
 
     /// <summary>Publishes a previously validated candidate after the whole batch succeeds.</summary>

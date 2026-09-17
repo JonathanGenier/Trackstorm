@@ -14,6 +14,82 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class EosP2pTransportTests
 {
+    /// <summary>A complete older tuning boundary may be restored at a new epoch, without relaxing in-epoch ordering.</summary>
+    [Test]
+    public void MigrationRestoresCheckpointConfigurationAfterUncheckpointedTuning()
+    {
+        using var pair = new MigrationPair();
+        pair.StartArena();
+        Assert.That(pair.HostVehicles!.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 7 }, out _), Is.True);
+        pair.Step(90);
+        var retained = pair.HostVehicles.Configuration;
+        Assert.That(pair.HostVehicles.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 9 }, out _), Is.True);
+        pair.Step(2);
+        Assert.That(pair.ClientVehicles!.Configuration.Revision, Is.EqualTo(retained.Revision + 1));
+        pair.Link.Host.Stop();
+        pair.Step(2100, host: false);
+        Assert.That(pair.Client.Failure, Is.Empty);
+        Assert.That(pair.Client.State!.AuthorityEpoch, Is.EqualTo(2));
+        Assert.That(pair.ClientVehicles.Configuration, Is.EqualTo(retained));
+    }
+
+    /// <summary>Live tuning and actions follow successive hosts, while retired-epoch tuning cannot cross a fresh connection.</summary>
+    [Test]
+    public void DeveloperAuthorityAndConfigurationSurviveSuccessiveMigrations()
+    {
+        using var pair = new MigrationPair();
+        pair.StartArena(waiting: true);
+        var edits = new Dictionary<string, double> { ["vehicle.acceleration"] = 7, ["damage.max_hp"] = 230, ["spawns.seed"] = 42, ["items.wrench_heal"] = 17 };
+        Assert.That(pair.HostVehicles!.TryConfigure(edits, out _), Is.True);
+        pair.Step(120);
+        var expected = pair.HostVehicles.Configuration;
+        ulong rng = pair.HostVehicles.Host!.Spawns!.RandomState;
+        var retiredDriver = pair.HostVehicles;
+        pair.Link.HostWire.DropOutgoing = pair.Link.ClientWire.DropOutgoing = true;
+        for (int i = 0; i < 2100 && pair.Client.Authority is null; i++)
+        {
+            pair.Step(1);
+        }
+
+        Assert.That(pair.Client.State!.AuthorityEpoch, Is.EqualTo(2));
+        Assert.That(retiredDriver.TryConfigure(edits, out _), Is.False);
+        Assert.That(retiredDriver.GiveDeveloperItem(Trackstorm.Core.Items.HeldItem.Missile), Is.False);
+        Assert.That(retiredDriver.ForceDeveloperStart(), Is.False);
+        Assert.That(pair.ClientVehicles!.Configuration, Is.EqualTo(expected));
+        Assert.That(pair.ClientVehicles.Host!.Spawns!.RandomState, Is.EqualTo(rng));
+        Assert.That(pair.ClientVehicles.ForceDeveloperStart(), Is.True);
+        Assert.That(pair.ClientVehicles.RequestItemUse(), Is.True);
+        pair.Step(2, host: false);
+        Assert.That(pair.ClientVehicles.GiveDeveloperItem(Trackstorm.Core.Items.HeldItem.Missile), Is.True);
+        Assert.That(pair.ClientVehicles.LocalItem!.Vehicle, Is.EqualTo(2));
+        Assert.That(pair.ClientVehicles.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 9 }, out _), Is.True);
+        expected = pair.ClientVehicles.Configuration;
+        pair.Link.HostWire.DropOutgoing = pair.Link.ClientWire.DropOutgoing = false;
+        pair.RestartFormerHost();
+        pair.Step(120);
+        Assert.That(pair.HostVehicles!.Host, Is.Null);
+        Assert.That(pair.HostVehicles.Configuration, Is.EqualTo(expected));
+        Assert.That(pair.HostVehicles.TryConfigure(edits, out _), Is.False);
+        Assert.That(pair.HostVehicles.GiveDeveloperItem(Trackstorm.Core.Items.HeldItem.Wrench), Is.False);
+        Assert.That(pair.HostVehicles.ForceDeveloperStart(), Is.False);
+        int rejected = pair.Client.RejectedPackets;
+        byte[] stale = Trackstorm.Core.Development.GameplayConfigurationCodec.Encode(pair.Client.State.Match, new(expected.Revision + 1, expected.Configuration));
+        pair.Link.Host.Send(new(pair.Host.ServerPeer, ConnectionEnvelope.Encode(pair.Client.State.Session, pair.Host.Generation, stale, 1), TransportDelivery.Reliable));
+        pair.Step(2);
+        Assert.That(pair.Client.RejectedPackets, Is.GreaterThan(rejected));
+        Assert.That(pair.ClientVehicles.Configuration, Is.EqualTo(expected));
+        pair.Step(60);
+        pair.Link.Client.Stop();
+        pair.Step(2100, client: false);
+        Assert.That(pair.Host.State!.AuthorityEpoch, Is.EqualTo(3));
+        Assert.That(pair.HostVehicles.Configuration, Is.EqualTo(expected));
+        Assert.That(pair.HostVehicles.Host!.Spawns!.RandomState, Is.EqualTo(rng));
+        Assert.That(pair.HostVehicles.GiveDeveloperItem(Trackstorm.Core.Items.HeldItem.Wrench), Is.True);
+        Assert.That(pair.HostVehicles.LocalItem!.Vehicle, Is.EqualTo(1));
+        Assert.That(pair.HostVehicles.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 11 }, out _), Is.True);
+        Assert.That(pair.HostVehicles.Configuration.Revision, Is.EqualTo(expected.Revision + 1));
+    }
+
     /// <summary>A new third member cannot retire the original two-player lease before its client acknowledges the expanded roster.</summary>
     /// <param name="acknowledgeExpansion">Whether the original client sees the larger checkpoint before partition.</param>
     [TestCase(false)]
@@ -1189,6 +1265,7 @@ internal sealed class EosP2pTransportTests
 
         internal void RestartFormerHost()
         {
+            HostVehicles = null;
             ulong server = Link.Host.RebindHost(Link.ClientId);
             Host = new LobbyNetworkDriver(Link.Host, 0, server, "Former host", expectedSession: Link.Lobby.Session, expectedEpoch: 2);
             Host.BeginResume(1, 1);
@@ -1196,7 +1273,7 @@ internal sealed class EosP2pTransportTests
             Host.Migration = new SessionMigration(Host, Link.Host, Link.HostId.Value, _ => Link.ClientId.Value, (subject, _) => Link.Host.RebindHost(new(subject)), Link.Clock);
         }
 
-        internal void StartArena()
+        internal void StartArena(bool waiting = false)
         {
             Host.Request(LobbyCommand.Ready, true);
             Client.Request(LobbyCommand.Ready, true);
@@ -1206,6 +1283,11 @@ internal sealed class EosP2pTransportTests
             HostVehicles = new VehicleNetworkDriver(Link.Host, Host.State!.Match, 0, Host);
             ClientVehicles = new VehicleNetworkDriver(Link.Client, 0, Client.ServerPeer, Client);
             HostVehicles.Host!.RegisterSpawns(Trackstorm.Core.Arenas.PrototypeArena.Configuration);
+            if (waiting)
+            {
+                Assert.That(HostVehicles.TryConfigure(new Dictionary<string, double> { ["match.minimum_players"] = 3 }, out _), Is.True);
+            }
+
             HostVehicles.Host.Items.Grant(HostVehicles.Host.World, 2, Trackstorm.Core.Items.HeldItem.Wrench);
             Step(240);
         }
@@ -1217,6 +1299,12 @@ internal sealed class EosP2pTransportTests
                 Link.Clock.Advance(1.0 / 60);
                 if (host)
                 {
+                    if (HostVehicles is null && Host.Authority is null && Host.State?.Phase == SessionPhase.Arena)
+                    {
+                        // A different local persisted preset cannot override a joining/former host's resync boundary.
+                        HostVehicles = new VehicleNetworkDriver(Link.Host, 0, Host.ServerPeer, Host, configuration: new() { Vehicle = new() { Acceleration = 80 } });
+                    }
+
                     if (HostVehicles is null)
                     {
                         Host.Pump(1.0 / 60);

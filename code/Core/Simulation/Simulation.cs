@@ -8,7 +8,8 @@ namespace Trackstorm.Core.Simulation;
 /// </summary>
 public sealed class Simulation
 {
-    private readonly Dictionary<ulong, VehicleAuthority> _vehicles = new();
+    private Dictionary<ulong, VehicleAuthority> _vehicles = new();
+    private bool _developmentStart;
     /// <summary>
     /// Initializes a new instance of the <see cref="Simulation"/> class.
     /// </summary>
@@ -28,6 +29,7 @@ public sealed class Simulation
         {
             State = new SimulationState(0, default, match: new Matches.MatchState(0, 0, match.KillTarget, Matches.MatchPhase.Waiting, null, null, []));
         }
+
     }
 
     /// <summary>
@@ -35,11 +37,11 @@ public sealed class Simulation
     /// </summary>
     public SimulationConfiguration Configuration { get; }
     /// <summary>Host lifecycle tuning; null disables automatic respawn in isolated fixtures.</summary>
-    public RespawnConfiguration? Respawn { get; }
+    public RespawnConfiguration? Respawn { get; private set; }
     /// <summary>Validated configured arena markers.</summary>
     public Arenas.ArenaConfiguration Arena { get; }
     /// <summary>Optional Core-owned match rules.</summary>
-    public Matches.MatchConfiguration? MatchRules { get; }
+    public Matches.MatchConfiguration? MatchRules { get; private set; }
     /// <summary>Committed lifecycle boundaries for scoring and other observers; never emitted by rejected batches.</summary>
     public IReadOnlyList<VehicleSnapshot> LifecycleChanges { get; private set; } = Array.Empty<VehicleSnapshot>();
 
@@ -51,11 +53,11 @@ public sealed class Simulation
     /// <summary>
     /// Consumes one ordered logical input frame and advances the simulation by exactly one tick.
     /// </summary>
-    /// <param name="input">The engine-independent logical input for this step.</param>
     /// <returns>The authoritative state after the step.</returns>
     /// <exception cref="ArgumentException">
     /// Thrown when the input tick is not the next simulation tick.
     /// </exception>
+    /// <param name="input">The engine-independent logical input for this step.</param>
     public SimulationState Step(InputFrame input)
     {
         Step(input, Array.Empty<VehicleStepRequest>());
@@ -83,8 +85,8 @@ public sealed class Simulation
     }
 
     /// <summary>Reads an immutable aggregate; callers cannot mutate the private authority owner.</summary>
-    /// <param name="vehicleId">Registered vehicle.</param>
     /// <returns>Latest committed state.</returns>
+    /// <param name="vehicleId">Registered vehicle.</param>
     public VehicleSnapshot GetVehicle(ulong vehicleId) => _vehicles[vehicleId].Snapshot;
 
     /// <summary>Registers a joining vehicle at the current fixed boundary without rewinding the world.</summary>
@@ -115,9 +117,9 @@ public sealed class Simulation
     }
 
     /// <summary>Advances every vehicle and the global clock atomically from one ordered batch.</summary>
+    /// <returns>Accepted commands/events, in vehicle identity order.</returns>
     /// <param name="input">Next global input tick.</param>
     /// <param name="requests">Exactly one observation/input request for every registered vehicle.</param>
-    /// <returns>Accepted commands/events, in vehicle identity order.</returns>
     public IReadOnlyList<VehicleStepResult> Step(InputFrame input, IReadOnlyList<VehicleStepRequest> requests)
     {
         ArgumentNullException.ThrowIfNull(requests);
@@ -141,7 +143,12 @@ public sealed class Simulation
         }).ToArray();
         VehicleSnapshot[] transitions = candidates.Select(result => result.Snapshot)
             .Where(state => state.Lifecycle != _vehicles[state.VehicleId].Snapshot.Lifecycle || state.LifeId != _vehicles[state.VehicleId].Snapshot.LifeId).ToArray();
-        Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Advance(State.Match, MatchRules!, nextTick, candidates.Select(result => result.Snapshot).ToArray());
+        Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Advance(State.Match, _developmentStart ? MatchRules! with { MinimumPlayers = 1 } : MatchRules!, nextTick, candidates.Select(result => result.Snapshot).ToArray());
+        if (match?.Phase is Matches.MatchPhase.Active or Matches.MatchPhase.Finished)
+        {
+            _developmentStart = false;
+        }
+
         var next = new SimulationState(nextTick, input, candidates.Select(result => result.Snapshot), match);
         foreach (VehicleStepResult result in candidates)
         {
@@ -182,4 +189,49 @@ public sealed class Simulation
         State = state;
         LifecycleChanges = Array.Empty<VehicleSnapshot>();
     }
+
+    /// <summary>Arms a one-match minimum-player override through the ordinary countdown lifecycle.</summary>
+    /// <returns>Whether the operation was accepted.</returns>
+    internal bool ForceStart()
+    {
+        if (State.Match?.Phase != Matches.MatchPhase.Waiting || State.Vehicles.Count == 0)
+        {
+            return false;
+        }
+
+        _developmentStart = true;
+        return true;
+    }
+
+    /// <summary>Replaces tuning atomically while preserving lives, damage history, physics and score state.</summary>
+    /// <param name="configuration">Validated effective gameplay tuning.</param>
+    internal void ApplyConfiguration(Development.GameplayConfiguration configuration)
+    {
+        configuration.Validate();
+        var match = State.Match;
+        if (match is not null && configuration.Match != MatchRules)
+        {
+            if (configuration.Match.KillTarget != match.KillTarget &&
+                (match.Phase == Matches.MatchPhase.Finished || match.Players.Any(player => player.Kills >= configuration.Match.KillTarget)))
+            {
+                throw new ArgumentException("Kill target must exceed existing scores and cannot change a finished result.");
+            }
+
+            ulong? deadline = match.CountdownAtTick;
+            if (deadline.HasValue && configuration.Match.CountdownTicks != MatchRules!.CountdownTicks)
+            {
+                deadline = checked(State.Tick + configuration.Match.CountdownTicks);
+            }
+
+            match = new Matches.MatchState(State.Tick, checked(match.Revision + 1), configuration.Match.KillTarget, match.Phase, deadline, match.Winner, match.Players);
+        }
+
+        var vehicles = _vehicles.ToDictionary(pair => pair.Key, pair => pair.Value.Retune(configuration.Vehicle, configuration.Damage));
+        var state = new SimulationState(State.Tick, State.LastInput, vehicles.Values.Select(vehicle => vehicle.Snapshot), match);
+        _vehicles = vehicles;
+        Respawn = Respawn is null ? null : configuration.Respawn;
+        MatchRules = MatchRules is null ? null : configuration.Match;
+        State = state;
+    }
+
 }

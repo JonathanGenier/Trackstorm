@@ -24,7 +24,7 @@ The version-one `TM` match codec carries arena generation, increasing revision, 
 
 `VehicleNetworkDriver` sends match changes reliably through the existing ordered transport and sends the current boundary on admission. Complete totals initialize joining peers; consumers should use the first publication as initialization rather than replaying its historical delta into those totals. Clients accept only newer revisions from their assigned host in the current arena over reliable delivery. Match ordering is independent of movement snapshot ticks, so a delayed reliable score update can arrive after newer movement without being lost. A finished client result is terminal. Clients cannot request score mutation or choose winners.
 
-`MatchReceived` exposes each accepted revision once for future leaderboard and result UI, including its score deltas. The arena displays the authoritative waiting/countdown/active/finished state in a small panel beneath the combat HUD timer. The [match standings and results board](standings.md) presents the complete current roster, kills/deaths and winner and supplies the same Core rank to the HUD. Its countdown display uses the host tick and never changes match phase locally. The gameplay protocol generation and EOS compatibility bucket require matching builds so older clients cannot silently join without scoring support.
+`MatchReceived` exposes each accepted revision once for leaderboard, result UI and [arena audio](audio.md), including its score deltas. Arena audio uses phase transitions for countdown/start/end feedback; its battle playlist runs from arena entry to exit independently of match phase. The arena displays the authoritative waiting/countdown/active/finished state in a small panel beneath the combat HUD timer. The [match standings and results board](standings.md) presents the complete current roster, kills/deaths and winner and supplies the same Core rank to the HUD. Its countdown display uses the host tick and never changes match phase locally. The gameplay protocol generation and EOS compatibility bucket require matching builds so older clients cannot silently join without scoring support.
 
 ## Verification and Limits
 
@@ -35,5 +35,7 @@ Core tests exercise real simulation damage/death boundaries, valid and invalid a
 See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
 
 Authority restoration, epoch fencing, checkpoint cadence and migration limits are described in [host migration](host-migration.md).
+
+[Developer Options](developer-options.md) uses the existing match authority for live KillTarget, CountdownTicks and MinimumPlayers. A changed target must exceed existing scores and cannot change a Finished result. Countdown edits restart its deadline from the current tick; minimum-player rules still apply at the next Waiting/Countdown boundary. Host Force Start is a one-shot minimum-player override through the normal countdown, with no persisted rule change or separate subsystem activation. Audio retains its arena-lifetime policy.
 
 [Feature index](README.md)

@@ -36,6 +36,8 @@ public sealed class LobbyAuthority
     public ulong GraceTicks { get; }
     /// <summary>Copy of transport-to-player assignments for vehicle integration.</summary>
     public IReadOnlyDictionary<ulong, ulong> Peers => new Dictionary<ulong, ulong>(_peers);
+    /// <summary>Session tuning; the successor restores this instead of loading its host-local preferences.</summary>
+    public Development.GameplayConfigurationState Configuration { get; private set; } = new(0, new());
 
     /// <summary>Builds a replacement with all remote players reserved for authenticated fresh connections.</summary>
     /// <param name="checkpoint">Validated old authority boundary.</param>
@@ -54,6 +56,7 @@ public sealed class LobbyAuthority
         {
             _tick = checkpoint.Tick,
             _nextId = checkpoint.NextId,
+            Configuration = checkpoint.Configuration,
             State = new LobbySnapshot(previous.Session, checked(previous.Revision + 1), previous.Match, previous.Phase, previous.Players.Select(player => player with { Ready = false, Connected = player.Id == host }), previous.GraceTicks, host, epoch),
         };
         foreach (var subject in checkpoint.Subjects)
@@ -68,13 +71,52 @@ public sealed class LobbyAuthority
         return result;
     }
 
+    /// <summary>Retains a validated host-owned tuning boundary for the next checkpoint and arena.</summary>
+    /// <param name="configuration">Current arena or explicitly edited lobby configuration.</param>
+    public void RetainConfiguration(Development.GameplayConfigurationState configuration)
+    {
+        if (!configuration.CanReplace(Configuration))
+        {
+            throw new ArgumentException("Session configuration cannot regress within one authority epoch.");
+        }
+
+        Configuration = configuration;
+    }
+
+    /// <summary>Applies an authenticated local host's lobby tuning edit through the existing configuration rules.</summary>
+    /// <param name="peer">Actual sender; zero denotes the local authority.</param>
+    /// <param name="edits">Allowlisted tuning transaction.</param>
+    /// <param name="error">Safe validation feedback.</param>
+    /// <returns>Whether the transaction is accepted.</returns>
+    public bool TryConfigure(ulong peer, IReadOnlyDictionary<string, double> edits, out string error)
+    {
+        error = "Only the lobby authority may change session tuning.";
+        if (peer != 0 || State.Phase != SessionPhase.Lobby || !Development.GameplayOptions.TryApply(Configuration.Configuration, edits, out var candidate, out error))
+        {
+            return false;
+        }
+
+        if (candidate != Configuration.Configuration)
+        {
+            if (Configuration.Revision == ulong.MaxValue)
+            {
+                error = "Configuration revision exhausted.";
+                return false;
+            }
+
+            Configuration = new(checked(Configuration.Revision + 1), candidate);
+        }
+
+        return true;
+    }
+
     /// <summary>Captures authenticated authority, including the local host's trusted subject.</summary>
     /// <param name="hostSubject">Authenticated local identity from the adapter.</param>
     /// <returns>Detached continuation state.</returns>
     public LobbyRestoreState Capture(string hostSubject)
     {
         var subjects = new Dictionary<ulong, string>(_identities) { [State.CurrentHostId] = hostSubject };
-        return new LobbyRestoreState(State, _tick, _nextId, subjects, _deadlines);
+        return new LobbyRestoreState(State, _tick, _nextId, subjects, _deadlines, Configuration);
     }
 
     /// <summary>Assigns a fresh identity to a connected transport sender.</summary>

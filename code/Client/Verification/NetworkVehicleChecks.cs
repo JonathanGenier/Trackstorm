@@ -164,6 +164,19 @@ public sealed partial class NetworkVehicleChecks : Node
         _gateway.Dispose();
     }
 
+    /// <summary>Releases the arena while native audio can still process queued stop commands before process shutdown.</summary>
+    public async void Complete()
+    {
+        _arena.QueueFree();
+        for (int i = 0; i < 6; i++)
+        {
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        }
+
+        GD.Print("Network vehicle integration passed.");
+        GetTree().Quit();
+    }
+
     private void Finish()
     {
         _done = true;
@@ -209,7 +222,8 @@ public sealed partial class NetworkVehicleChecks : Node
             throw new InvalidOperationException("Network vehicle runtime acceptance checks failed; inspect the recorded metrics.");
         }
 
-        GD.Print("Network vehicle integration passed.");
-        GetTree().Quit();
+        _captured = true;
+        CallDeferred(MethodName.Complete);
     }
+
 }
