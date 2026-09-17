@@ -97,7 +97,7 @@ internal sealed partial class SettingsPanel
         _back.Visible = CurrentPage != MenuPage.Game;
         _status.Visible = CurrentPage is not MenuPage.Game and not MenuPage.DeveloperOptions;
         _scroll.ScrollVertical = 0;
-        _input.GameplaySuppressed = open;
+        _input.GameplaySuppressed = open || DiagnosticOverlayOpen();
         _input.Observe();
         _repeatAction = null;
         if (open)
