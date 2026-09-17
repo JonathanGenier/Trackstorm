@@ -6,6 +6,10 @@ The hierarchy is Game Menu → Settings → Audio, Video, Gameplay, Interface, C
 
 ## Ownership and input
 
+The full-screen [Statistic Panel](statistics.md) can cover the menu with F2.
+While it is open, underlying menu navigation is suspended. Closing it restores
+the prior menu focus and keeps gameplay input suppressed if the menu is still open.
+
 `SettingsPanel` composes the existing preference controls with `MenuNavigation`, a pure Client back stack. `SettingsPanel.Navigation` routes the existing input owner's logical bindings to focus, buttons, sliders and option selections. Directional input repeats after 0.4 seconds at 0.12-second intervals. Binding capture consumes the candidate input and cancels on Escape. Native `ui_*` handling is consumed while the overlay is open so default controls cannot double-activate or bypass remapping. Escape remains a reserved access/cancel key even if Cancel is rebound. Focused controls scroll into view; Back remains outside the scroll area.
 
 Only `PlayerInputAdapter.GameplaySuppressed` changes. The scene tree is never paused, and fixed simulation, native physics, remote inputs, networking and audio continue. Navigation samples the existing binding owner independently of gameplay-frame suppression. Closing restores local control; the adapter's existing item-release guard prevents a held Accept/Use Item button from firing an item immediately afterward.
