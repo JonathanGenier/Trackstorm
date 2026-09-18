@@ -141,7 +141,7 @@ internal sealed class GameVersionTests
     {
         Assert.That(LobbyCodec.DecodeCommand(LobbyCodec.EncodeCommand(LobbyCommand.Join, null)).GameVersion, Is.EqualTo(GameVersion.Current.ToString()));
         Assert.That(LobbyCodec.DecodeCommand(LobbyCodec.EncodeResume(100, 2, 1)).GameVersion, Is.EqualTo(GameVersion.Current.ToString()));
-        byte[] legacy = [(byte)'T', (byte)'L', 5, 1, .. Encoding.UTF8.GetBytes("{\"Command\":0,\"Session\":0,\"Match\":0,\"Phase\":0,\"Ready\":false,\"Name\":\"Guest\",\"Player\":0,\"Generation\":0,\"AuthorityEpoch\":1}")];
+        byte[] legacy = [(byte)'T', (byte)'L', 6, 1, .. Encoding.UTF8.GetBytes("{\"Command\":0,\"Session\":0,\"Match\":0,\"Phase\":0,\"Ready\":false,\"Name\":\"Guest\",\"Player\":0,\"Generation\":0,\"AuthorityEpoch\":1}")];
         Assert.That(LobbyCodec.DecodeCommand(legacy).GameVersion, Is.Empty);
         var version = new GameVersion(4);
         byte[] rejection = LobbyCodec.EncodeVersionMismatch(version);
