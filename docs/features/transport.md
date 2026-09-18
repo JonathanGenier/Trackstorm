@@ -69,6 +69,8 @@ The packaged native adapter currently targets Windows x64. [Dependency provenanc
 
 `check.ps1` verifies Core contracts and transport flag/error conversions in Debug and Release. `check-transport.ps1 -GodotPath <Godot .NET executable>` additionally runs native UDP tests for host plus seven clients, excess admission, bidirectional payloads, reliable ordering during unreliable loss, sampled diagnostics, initial/established timeouts, queue overflow and repeated reconnect/host cycles. It then runs production Godot nodes through three creation/poll/message/removal cycles. `TRACKSTORM_TEST_ADDRESS` can select a local IPv4 LAN interface instead of loopback for native tests. These checks do not establish cross-machine firewall behavior, long-session memory stability, export-template packaging or non-Windows compatibility.
 
+Authority restoration, epoch fencing, checkpoint cadence and migration limits are described in [host migration](host-migration.md).
+
 Per-player standings RTT is published above the gateway by the lobby driver using stable session PlayerIds, exact roster revisions and monotonic expiry. See [match standings](standings.md#transport-neutral-latency) for mapping, host/unavailable display rules and wire bounds.
 
 [Developer Options](developer-options.md) exposes the existing process-wide GNS latency, jitter, loss and reordering controls only when the gateway advertises NetworkSimulation and the local session owns host authority. EOS has no such capability; its controls remain hidden and no successful configuration is claimed. These local transport controls are not saved or included in synchronized gameplay configuration.

@@ -34,6 +34,8 @@ The native item harness uses one Windows process with eight sockets/worlds; it d
 
 See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
 
+Authority restoration, epoch fencing, checkpoint cadence and migration limits are described in [host migration](host-migration.md).
+
 Host [Developer Options](developer-options.md) updates `ItemAuthority.Configuration` without a second inventory owner. Wrench healing and explosion radius/damage/impulse use current tuning; existing missiles adopt changed speed while retaining direction and remaining lifetime. Lifetime edits affect newly launched missiles. Give Wrench/Missile uses the ordinary grant path and cannot replace an occupied slot or revive a dead player.
 
 [Feature index](README.md)

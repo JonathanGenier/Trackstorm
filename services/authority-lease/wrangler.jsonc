@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "trackstorm-authority-leases",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-09-17",
+  "workers_dev": true,
+  "preview_urls": false,
+  "keep_vars": true,
+  "observability": { "enabled": false },
+  "durable_objects": {
+    "bindings": [{ "name": "LEASE_SESSIONS", "class_name": "LeaseSession" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["LeaseSession"] }]
+}

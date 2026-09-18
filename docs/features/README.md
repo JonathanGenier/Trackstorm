@@ -19,7 +19,9 @@ Start with the system being changed. Read its document and only the integration 
 | [Transport foundation](transport.md) | Opaque gateway, endpoints, GNS fallback and legacy state envelope | [Vehicle networking](vehicle-networking.md), [sessions](sessions.md), [EOS P2P](eos-p2p.md) |
 | [Vehicle networking](vehicle-networking.md) | Host input, snapshots, prediction and reconciliation | [Transport](transport.md), [vehicles](vehicles.md), [sessions](sessions.md) |
 | [Session flow](sessions.md) | Admission, Ready/Start/Return and Direct-IP development UI | [EOS lobbies](eos-lobbies.md), [vehicle networking](vehicle-networking.md), [matches](matches.md) |
-| [Reconnection and session resume](reconnection.md) | Stable identity, grace, authenticated rebind and full checkpoint recovery | [Sessions](sessions.md), [vehicle networking](vehicle-networking.md), [EOS P2P](eos-p2p.md) |
+| [Reconnection and session resume](reconnection.md) | Stable identity, match-long retention, authenticated rebind and full checkpoint recovery | [Sessions](sessions.md), [vehicle networking](vehicle-networking.md), [EOS P2P](eos-p2p.md) |
+| [Host migration](host-migration.md) | Authority epochs, election, retained checkpoints, restore and failure | [Reconnection](reconnection.md), [sessions](sessions.md), [vehicle networking](vehicle-networking.md), [EOS P2P](eos-p2p.md) |
+| [Authority leases](authority-leases.md) | Cloudflare per-session fencing, short expiry, authentication and service outage policy | [Host migration](host-migration.md), [dashboard deployment](../authority-lease-service.md) |
 | [Held items](items.md) | Wrench/Missile authority, outcomes and presentation | [Pickups](item-spawns.md), [damage](vehicles.md), [lifecycle](death-respawn.md) |
 | [Item spawning](item-spawns.md) | Marker claims, distribution and cooldowns | [Arena](arena.md), [items](items.md) |
 | [Death and respawn](death-respawn.md) | Life boundaries, reset policy and participation | [Vehicles](vehicles.md), [items](items.md), [matches](matches.md) |

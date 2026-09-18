@@ -11,6 +11,24 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class MatchStandingsTests
 {
+    /// <summary>Migration resets diagnostics even when rollback reuses a roster revision, and the new host has no network hop.</summary>
+    [Test]
+    public void MigrationRejectsRetiredEpochAndUsesCurrentHost()
+    {
+        using var gateway = new LatencyGateway();
+        var latency = new PlayerLatency();
+        LobbySnapshot before = Roster();
+        byte[] retired = latency.Sample(before, new Dictionary<ulong, ulong> { [20] = 2 }, gateway);
+        var after = new LobbySnapshot(before.Session, before.Revision, before.Match, before.Phase, before.Players, currentHostId: 2, authorityEpoch: 2);
+        Assert.That(latency.Get(after, 2), Is.Null);
+        Assert.That(latency.Accept(retired, after), Is.False);
+        latency.Clear();
+        byte[] fresh = latency.Sample(after, new Dictionary<ulong, ulong> { [20] = 1, [30] = 3 }, gateway);
+        Assert.That(new PlayerLatency().Accept(fresh, after), Is.True);
+        Assert.That(latency.Get(after, 2), Is.Null);
+        Assert.That(latency.Get(after, 1), Is.EqualTo(20));
+    }
+
     /// <summary>Held intent controls Active only, Finished forces results, and each HUD position is the corresponding Core rank.</summary>
     [Test]
     public void EightRowsShareRankAndVisibilityWithHud()
@@ -86,11 +104,11 @@ internal sealed class MatchStandingsTests
         var peers = new Dictionary<ulong, ulong> { [20] = 2, [30] = 3 };
         Assert.That(client.Accept(host.Sample(roster, peers, gateway), roster), Is.True);
         byte[] next = host.Sample(roster, peers, gateway);
-        foreach (int offset in new[] { 2, 3, 4, 12, 20, 36, 44, 48, 56 })
+        foreach (int offset in new[] { 2, 3, 4, 12, 20, 36, 44, 52, 56, 64 })
         {
             byte[] invalid = (byte[])next.Clone();
             invalid[offset] = 255;
-            if (offset is 44 or 56)
+            if (offset is 52 or 64)
             {
                 System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(invalid.AsSpan(offset), -2);
             }

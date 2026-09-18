@@ -211,18 +211,21 @@ public sealed partial class LobbyIntegrationChecks : Node
                 _sessions[7].Leave();
                 Next("Repeated eight-player arena succeeded; client departed during gameplay.");
                 break;
-            case 12 when _sessions.Take(7).All(session => session.Arena?.Driver.Latest?.Vehicles.Count == 7):
+            case 12 when _sessions.Take(7).All(session => session.Arena?.Driver.Latest?.Vehicles.Count == 8 && session.Lobby!.State!.Players.Any(player => player.Id == _departedId && !player.Connected)):
                 foreach (var session in _sessions.Take(7))
                 {
                     RemoteVehicleTagChecks.Verify(session.Arena!, session.Lobby!);
-                    Require(!session.Arena!.Bodies.ContainsKey(_departedId), "Departed vehicle and its owned tag are removed.");
+                    Require(session.Arena!.Bodies.ContainsKey(_departedId), "Disconnected vehicle remains retained during the match.");
                 }
 
-                Require(_sessions.Take(7).All(session => session.Lobby!.State!.Players.All(player => player.Id != _departedId)), "Match disconnect clears lobby and vehicle roster.");
-                _sessions[0].Leave();
-                Next("Arena departure removed the vehicle; host closed the session.");
+                Require(host!.Request(LobbyCommand.Return), "Return ends the match and its reservations.");
+                Next("Arena departure retained the vehicle; host ended the match.");
                 break;
-            case 13 when _sessions.All(session => session.Lobby is null && session.Arena is null):
+            case 13 when _sessions.Take(7).All(session => session.Arena is null && session.Lobby!.State!.Players.All(player => player.Id != _departedId)):
+                _sessions[0].Leave();
+                Next("Return cleared disconnected reservations and native arenas; host closed the session.");
+                break;
+            case 14 when _sessions.All(session => session.Lobby is null && session.Arena is null):
                 _finished = true;
                 _evidence.Add("Host loss returned all clients to Host/Join and removed every arena.");
                 System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);

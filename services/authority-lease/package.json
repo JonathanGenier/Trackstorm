@@ -1,0 +1,15 @@
+{
+  "name": "trackstorm-authority-leases",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "pretest": "npm run build",
+    "test": "node --test test/*.test.js",
+    "build": "wrangler deploy --dry-run --outdir .wrangler/build",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "dependencies": { "jose": "6.2.12" },
+  "devDependencies": { "wrangler": "4.134.0", "miniflare": "5.20260917.0-alpha" }
+}

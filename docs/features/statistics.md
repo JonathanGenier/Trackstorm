@@ -39,7 +39,7 @@ No preference, gameplay configuration or persistence command is invoked by Close
 | Combat / lifecycle | Current same-life inventory, participation gate, last damage amount/tick and numeric instigator, last damaging collision tick, respawn deadline and remaining seconds; `ItemAuthority` or accepted item publication plus `VehicleSnapshot` |
 | Arena / match / spawning | Match phase, kill target, winner, countdown, available/cooling item markers and their deadlines, active projectile count; host world/item/spawn authorities or accepted client publications |
 | Ranking | Current rank, kills, deaths; existing `MatchRanking` projection of match and current roster |
-| Networking / synchronization | Transport, connection/replication state, local client snapshot age and interpolation delay, reconnect/grace/checkpoint/generation; current drivers |
+| Networking / synchronization | Transport, connection/replication state, local client snapshot age and interpolation delay, reconnect policy/checkpoint/generation; current drivers |
 | Player networking | Fresh roster RTT, acknowledged input, local-client prediction error and large corrections, available local-upstream quality/estimated loss; existing latency, replication, prediction and smoothing owners |
 
 Client vehicle values are the last confirmed authority boundary, not predicted

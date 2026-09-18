@@ -16,9 +16,12 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 | Arena audio and music | [TS-34 / TS-35 implementation verification](ts-34.md), [CC0 placeholder replacement and clean-clone verification](cc0-audio.md) |
 | Static vehicle visual | [Asset and integration verification](ts-36.md) |
 | Death/respawn | [Implementation verification](ts-24.md) |
+| Host migration | [TS-46 / TS-51 implementation and verification](ts-46.md), [Lease retirement and demand-driven observation corrections](ts-46-lease-lifecycle.md), [Cloudflare lease implementation, deployment and pending live acceptance](ts-46-cloudflare-leases.md), [earlier self-hosted lease correction](ts-46-trusted-leases.md), [original authority-fencing investigation](ts-46-authority-fencing-analysis.md) |
 | FPS and Ping diagnostics | [Implementation verification](ts-32.md) |
 | Combat HUD | [Implementation verification](ts-30.md) |
 | Match standings | [Implementation and reconnect integration verification](ts-28.md) |
 | EOS P2P | [Initial verification](ts-44.md), [second round and four-PC follow-up](ts-44-round-2.md), [ordering correction](ts-44-ordering-correction.md) |
 | Chase camera | [Initial implementation](ts-55-camera.md), [direct-heading correction](ts-55-direct-heading.md), [fixed-chase correction](ts-55-fixed-chase.md) |
 | Documentation and Jira instruction cleanup | [Migration, issue accounting and preservation audit](ts-56.md) |
+| TS-46 phase-specific disconnect correction | [Lobby fresh join and active-match retained resume](ts-46-disconnect-policy.md) |
+| TS-46 match-long reservation correction | [Ordinary-client retention, Return cleanup and remaining native gates](ts-46-match-reservations.md) |

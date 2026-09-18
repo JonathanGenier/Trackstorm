@@ -5,11 +5,10 @@ namespace Trackstorm.Client.Online;
 /// <summary>Best-effort ephemeral routing persistence containing no password, ticket or platform credential.</summary>
 internal sealed class ResumeLocatorStore(string path)
 {
-    /// <summary>Loads only a bounded, unexpired locator for the current authenticated user.</summary>
+    /// <summary>Loads only a bounded match locator for the current authenticated user.</summary>
     /// <param name="identity">Current authenticated identity.</param>
-    /// <param name="now">Injectable UTC time.</param>
     /// <returns>Validated routing hint, otherwise absent.</returns>
-    internal ResumeLocator? Load(string identity, DateTimeOffset now)
+    internal ResumeLocator? Load(string identity)
     {
         try
         {
@@ -22,7 +21,9 @@ internal sealed class ResumeLocatorStore(string path)
             {
                 var locator = JsonSerializer.Deserialize<ResumeLocator>(File.ReadAllText(path));
                 if (locator is not null && locator.Identity == identity && locator.Lobby?.Length is > 0 and <= 256 && locator.Host?.Length == 32 &&
-                    locator.Session is > 0 and < ulong.MaxValue && locator.Player > 1 && locator.Generation is > 0 and < ulong.MaxValue && locator.Expires > now && locator.Expires <= now.AddMinutes(3))
+                    locator.Session is > 0 and < ulong.MaxValue && locator.Player > 0 && locator.Generation is > 0 and < ulong.MaxValue &&
+                    locator.AuthorityEpoch is > 0 and < ulong.MaxValue &&
+                    (locator.RoutingId is null || (locator.RoutingId.Length == 64 && locator.RoutingId.All(char.IsAsciiHexDigit))))
                 {
                     return locator;
                 }
@@ -37,7 +38,7 @@ internal sealed class ResumeLocatorStore(string path)
         return null;
     }
 
-    /// <summary>Atomically replaces the short-lived routing hint; failure leaves normal in-process resume available.</summary>
+    /// <summary>Atomically replaces the match routing hint; failure leaves normal in-process resume available.</summary>
     /// <param name="locator">Current acknowledged connection boundary.</param>
     internal void Save(ResumeLocator locator)
     {
@@ -52,7 +53,7 @@ internal sealed class ResumeLocatorStore(string path)
         }
     }
 
-    /// <summary>Clears hints on explicit leave, terminal rejection, expiry or account switch.</summary>
+    /// <summary>Clears hints on match Return, terminal rejection or account switch.</summary>
     internal void Clear()
     {
         try
@@ -62,7 +63,7 @@ internal sealed class ResumeLocatorStore(string path)
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            // The local deadline and host authorization still make stale files inert.
+            // Host authorization makes stale files inert.
         }
     }
 }

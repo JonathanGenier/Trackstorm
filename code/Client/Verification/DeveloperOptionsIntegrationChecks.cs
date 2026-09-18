@@ -71,6 +71,15 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 viewport.AddChild(_client);
                 _client.Open(false, endpoint, "Joined player");
                 await Until(() => _client.Lobby?.State?.Players.Count == 2, "real UDP client admission");
+                string hostDiagnostics = DeveloperDiagnostics.Capture(_host);
+                string clientDiagnostics = DeveloperDiagnostics.Capture(_client);
+                Check(hostDiagnostics.Contains("Local PlayerId: 1; CurrentHostId: 1; role: HOST", StringComparison.Ordinal), "host diagnostic identity and role");
+                Check(clientDiagnostics.Contains("Local PlayerId: 2; CurrentHostId: 1; role: CLIENT", StringComparison.Ordinal), "client diagnostic identity and role");
+                foreach (string field in new[] { "AuthorityEpoch: 1", "match generation:", "Connection generation:", "Reconnect:", "migration:" })
+                {
+                    Check(hostDiagnostics.Contains(field, StringComparison.Ordinal) && clientDiagnostics.Contains(field, StringComparison.Ordinal), "both roles expose " + field);
+                }
+
                 _host.Lobby!.Request(LobbyCommand.Ready, true);
                 _client.Lobby!.Request(LobbyCommand.Ready, true);
                 await Until(() => _host.Lobby.State!.CanStart, "normal multiplayer readiness");

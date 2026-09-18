@@ -27,3 +27,8 @@ Thumbs.db
 
 # Local/exported game releases
 /Releases/
+
+# Optional Cloudflare backend tooling (never part of a game export)
+/services/authority-lease/node_modules/
+/services/authority-lease/.wrangler/
+/services/authority-lease/.dev.vars*

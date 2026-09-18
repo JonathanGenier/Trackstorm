@@ -10,10 +10,11 @@ internal sealed class ReconnectTests
     [Test]
     public void RebindRetainsIdentityAndRejectsOldOwnershipAndReplay()
     {
-        var lobby = new LobbyAuthority(100, "Host", 60);
+        var lobby = new LobbyAuthority(100, "Host");
         ulong player = lobby.Join(10, "Original", "subject-a");
         lobby.SetReady(0, true);
         lobby.SetReady(10, true);
+        Assert.That(lobby.Start(0, [10]), Is.True);
         Assert.That(lobby.Disconnect(10), Is.True);
         Assert.That(lobby.Disconnect(10), Is.False);
         Assert.That(lobby.State.Players.Single(p => p.Id == player), Is.EqualTo(new SessionPlayer(player, "Original", false, false)));
@@ -32,30 +33,43 @@ internal sealed class ReconnectTests
         Assert.That(lobby.Remove(10), Is.False);
         Assert.That(lobby.PlayerId(20), Is.EqualTo(player));
         lobby.AdvanceTime(60);
-        Assert.That(lobby.State.Players.Count, Is.EqualTo(2), "Successful resume cancels expiry.");
+        Assert.That(lobby.State.Players.Count, Is.EqualTo(2), "Successful resume keeps the same player.");
     }
 
-    /// <summary>The exact deadline releases capacity once; explicit leave immediately revokes resume authority.</summary>
-    [Test]
-    public void ExpiryAndIntentionalLeaveReleaseSlotsAndAuthorization()
+    /// <summary>Every arena departure reserves capacity until Return, independently of elapsed time.</summary>
+    /// <param name="intentional">Whether departure is an explicit Leave.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void MatchEndReleasesSlotsAndAuthorization(bool intentional)
     {
-        var lobby = new LobbyAuthority(100, "Host", 60);
+        var lobby = new LobbyAuthority(100, "Host");
         for (ulong peer = 1; peer < 8; peer++)
         {
             lobby.Join(peer, "Player", "subject-" + peer);
+            lobby.SetReady(peer, true);
         }
 
+        lobby.SetReady(0, true);
+        Assert.That(lobby.Start(0, Enumerable.Range(1, 7).Select(value => (ulong)value)), Is.True);
         ulong id = lobby.PlayerId(1);
-        lobby.Disconnect(1);
+        Assert.That(intentional ? lobby.Remove(1) : lobby.Disconnect(1), Is.True);
         Assert.That(lobby.Join(8, "Full"), Is.Zero);
-        lobby.AdvanceTime(59);
-        Assert.That(lobby.State.Players.Count, Is.EqualTo(8));
-        lobby.AdvanceTime(60);
         ulong revision = lobby.State.Revision;
-        lobby.AdvanceTime(61);
-        Assert.That(lobby.State.Revision, Is.EqualTo(revision));
-        Assert.That(lobby.Resume(8, 100, id, 1, "subject-1"), Is.False);
+        foreach (ulong tick in new ulong[] { 1800, 7201, 216001, 1000000 })
+        {
+            lobby.AdvanceTime(tick);
+            Assert.That(lobby.State.Revision, Is.EqualTo(revision));
+            Assert.That(lobby.State.Players.Count, Is.EqualTo(8));
+            Assert.That(lobby.FindPlayer("subject-1"), Is.EqualTo(id));
+            Assert.That(lobby.State.Players.Single(player => player.Id == id).Generation, Is.EqualTo(1));
+        }
+
+        Assert.That(lobby.Resume(8, 100, id, 1, "subject-1"), Is.True);
+        Assert.That(lobby.Disconnect(8), Is.True);
+        Assert.That(lobby.Return(0), Is.True);
+        Assert.That(lobby.State.Players.Count, Is.EqualTo(7));
         Assert.That(lobby.FindPlayer("subject-1"), Is.Zero);
+        Assert.That(lobby.Resume(9, 100, id, 2, "subject-1"), Is.False);
         Assert.That(lobby.Join(8, "Replacement"), Is.Not.Zero);
         Assert.That(lobby.Execute(2, LobbyCommand.Leave, 100, 100, SessionPhase.Lobby, false, []), Is.True);
         Assert.That(lobby.FindPlayer("subject-2"), Is.Zero);
@@ -67,7 +81,7 @@ internal sealed class ReconnectTests
     [Test]
     public void RepeatedArenaCyclesPreserveOnePlayer()
     {
-        var lobby = new LobbyAuthority(100, "Host", 60);
+        var lobby = new LobbyAuthority(100, "Host");
         ulong id = lobby.Join(10, "Client", "subject");
         lobby.SetReady(0, true);
         lobby.SetReady(10, true);
@@ -86,15 +100,20 @@ internal sealed class ReconnectTests
         Assert.That(lobby.Join(peer + 1, "New player", "different"), Is.Zero);
         Assert.That(lobby.Execute(peer, LobbyCommand.Leave, 99, 100, SessionPhase.Lobby, false, []), Is.False);
         Assert.That(lobby.Execute(peer, LobbyCommand.Leave, 100, 100, SessionPhase.Lobby, false, []), Is.True, "Intentional departure must survive a concurrent lobby-to-arena transition.");
+        Assert.That(lobby.FindPlayer("subject"), Is.EqualTo(id));
+        Assert.That(lobby.Return(0), Is.True);
         Assert.That(lobby.FindPlayer("subject"), Is.Zero);
     }
 
-    /// <summary>Wire boundaries retain grace state and reject gameplay from retired generations.</summary>
+    /// <summary>Wire boundaries retain disconnected state and reject gameplay from retired generations.</summary>
     [Test]
     public void WireRetainsDisconnectedStateAndRejectsRetiredGeneration()
     {
         var lobby = new LobbyAuthority(100, "Host");
         ulong player = lobby.Join(10, "Client", "subject");
+        lobby.SetReady(0, true);
+        lobby.SetReady(10, true);
+        Assert.That(lobby.Start(0, [10]), Is.True);
         lobby.Disconnect(10);
         var state = LobbyCodec.DecodeState(LobbyCodec.EncodeState(lobby.State, player));
         Assert.That(state.State.Players, Is.EqualTo(lobby.State.Players));

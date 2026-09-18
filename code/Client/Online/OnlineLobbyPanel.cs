@@ -16,6 +16,7 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
     private readonly LineEdit _joinCredential = new() { PlaceholderText = "Enter lobby access code", Secret = true, MaxLength = 64 };
     private readonly Button _submit = new() { Text = "Join locked lobby" };
     private readonly Button _refresh = new() { Text = "Refresh" };
+    private readonly Button _resume = new() { Text = "Resume previous session" };
     private readonly Button _host = new() { Text = "Host Game" };
     private readonly Button _rename = new() { Text = "Rename lobby (host)" };
     private readonly Button _leave = new() { Text = "Leave / Close online lobby" };
@@ -64,6 +65,7 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
         AddChild(_hostReason);
         AddChild(_rename);
         AddChild(_leave);
+        AddChild(_resume);
         AddChild(_status);
         _search.TextChanged += text =>
         {
@@ -73,6 +75,7 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
             }
         };
         _refresh.Pressed += () => Coordinator()?.Refresh();
+        _resume.Pressed += () => Coordinator()?.ResumeRetained();
         _host.Pressed += () =>
         {
             Coordinator()?.Create(_name.Text, _locked.ButtonPressed ? LobbyAccess.Locked : LobbyAccess.Public, _credential.Text);
@@ -123,6 +126,7 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
 
         bool active = coordinator?.Active is not null;
         bool busy = coordinator?.Busy == true;
+        _resume.Visible = coordinator?.CanResumeRetained == true;
         _search.Visible = !active;
         _rows.GetParent<Control>().Visible = !active;
         _refresh.Visible = !active;

@@ -29,7 +29,7 @@ public sealed record ItemSpawnConfiguration
     public Func<HeldItem> CreateSelector()
     {
         Validate();
-        var random = new Random(Seed);
-        return () => random.Next(WrenchWeight + MissileWeight) < WrenchWeight ? HeldItem.Wrench : HeldItem.Missile;
+        var random = new ItemRandom(unchecked((ulong)Seed));
+        return () => random.Next(this);
     }
 }

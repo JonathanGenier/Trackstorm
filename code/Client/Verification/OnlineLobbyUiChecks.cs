@@ -203,7 +203,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
             completed(null);
         }
 
-        public IDisposable Watch(string id, Action<OnlineLobby?> changed) => new Subscription();
+        public IDisposable Watch(string id, Action<OnlineLobby?, OnlineLobbyUpdate> changed, Action<OnlineProductUserId>? retired = null) => new Subscription();
         public void Dispose()
         {
         }

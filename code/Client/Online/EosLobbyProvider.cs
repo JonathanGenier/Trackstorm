@@ -80,11 +80,11 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
             MaxLobbyMembers = 8,
             PermissionLevel = LobbyPermissionLevel.Inviteonly,
             BucketId = OnlineLobby.CurrentProtocol,
-            DisableHostMigration = true,
+            DisableHostMigration = false,
             AllowInvites = false,
             PresenceEnabled = false,
             EnableRTCRoom = false,
-            EnableJoinById = true,
+            EnableJoinById = false,
             RejoinAfterKickRequiresInvite = true,
         };
         _lobbies.CreateLobby(ref options, _callbackOwner, (ref CreateLobbyCallbackInfo info) =>
@@ -116,66 +116,41 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
     }
 
     /// <inheritdoc />
-    public void Join(string id, Action<OnlineLobby?, string?> completed)
-    {
-        Find(id, (search, failure) =>
-        {
-            if (search is null)
-            {
-                completed(null, failure);
-                return;
-            }
-
-            var copy = new LobbySearchCopySearchResultByIndexOptions { LobbyIndex = 0 };
-            if (search.CopySearchResultByIndex(ref copy, out var details) != Result.Success)
-            {
-                completed(null, "Lobby closed or not found.");
-                return;
-            }
-
-            var lease = _handles.Retain(details.Release);
-            bool started = false;
-            try
-            {
-                var lobby = Read(details);
-                if (lobby?.Joinable != true)
-                {
-                    completed(null, lobby is { Compatible: false } ? "Build/protocol incompatible." : "Lobby full or closed.");
-                    return;
-                }
-
-                var options = new JoinLobbyOptions { LocalUserId = _user, LobbyDetailsHandle = details, PresenceEnabled = false };
-                _lobbies.JoinLobby(ref options, _callbackOwner, (ref JoinLobbyCallbackInfo info) =>
-                {
-                    Result result = info.ResultCode;
-                    Dispatch(lease, () =>
-                    {
-                        var joined = result == Result.Success ? ReadCurrent(id) : null;
-                        if (result == Result.Success && joined is null)
-                        {
-                            // Membership exists even if copying its metadata failed; retain cleanup ownership.
-                            completed(lobby, "Lobby metadata unavailable. Refresh and retry.");
-                        }
-                        else
-                        {
-                            completed(joined, result == Result.Success ? null : Failure(result));
-                        }
-                    });
-                });
-                started = true;
-            }
-            finally
-            {
-                if (!started)
-                {
-                    lease.Dispose();
-                }
-            }
-        });
-    }
+    public void Join(string id, Action<OnlineLobby?, string?> completed) => JoinKnown(id, false, completed);
 
     /// <inheritdoc />
     public void Update(OnlineLobby lobby, Action<OnlineLobby?, string?> completed) => Write(lobby, false, completed);
+
+    /// <inheritdoc />
+    public void ConfirmMembership(string id, Action<bool> completed)
+    {
+        var options = new UpdateLobbyModificationOptions { LocalUserId = _user, LobbyId = id };
+        if (_disposed || _lobbies.UpdateLobbyModification(ref options, out var modification) != Result.Success)
+        {
+            completed(false);
+            return;
+        }
+
+        var lease = _handles.Retain(modification.Release);
+        var attribute = new LobbyModificationAddMemberAttributeOptions
+        {
+            Attribute = new AttributeData { Key = "coordination", Value = new AttributeDataValue { AsUtf8 = Guid.NewGuid().ToString("N") } },
+            Visibility = LobbyAttributeVisibility.Private,
+        };
+        if (modification.AddMemberAttribute(ref attribute) != Result.Success)
+        {
+            lease.Dispose();
+            completed(false);
+            return;
+        }
+
+        var update = new UpdateLobbyOptions { LobbyModificationHandle = modification };
+        _lobbies.UpdateLobby(ref update, _callbackOwner, (ref UpdateLobbyCallbackInfo info) =>
+        {
+            bool accepted = info.ResultCode == Result.Success;
+            Dispatch(lease, () => completed(accepted));
+        });
+    }
 
     /// <inheritdoc />
     public void Resume(string id, Action<OnlineLobby?, string?> completed)
@@ -189,20 +164,22 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
         var current = ReadCurrent(id);
         if (current?.MemberIds.Contains(new OnlineProductUserId(_user.ToString())) == true)
         {
-            completed(current, null);
+            ConfirmMembership(id, accepted =>
+            {
+                if (accepted)
+                {
+                    completed(ReadCurrent(id), null);
+                }
+                else
+                {
+                    // A cached member list can outlive service membership after a network loss.
+                    JoinKnown(id, true, completed);
+                }
+            });
             return;
         }
 
-        var options = new JoinLobbyByIdOptions { LocalUserId = _user, LobbyId = id, PresenceEnabled = false };
-        _lobbies.JoinLobbyById(ref options, _callbackOwner, (ref JoinLobbyByIdCallbackInfo info) =>
-        {
-            Result result = info.ResultCode;
-            Dispatch(() =>
-            {
-                var lobby = result is Result.Success or Result.AlreadyPending ? ReadCurrent(id) : null;
-                completed(lobby, lobby is null ? "Session unavailable" : null);
-            });
-        });
+        JoinKnown(id, true, completed);
     }
 
     /// <inheritdoc />
@@ -248,13 +225,30 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
     }
 
     /// <inheritdoc />
-    public IDisposable Watch(string id, Action<OnlineLobby?> changed)
+    public IDisposable Watch(string id, Action<OnlineLobby?, OnlineLobbyUpdate> changed, Action<OnlineProductUserId>? retired = null)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        var watch = new EosLobbyWatch(_lobbies, _user, _callbackOwner, id, _enqueue, () => ReadCurrent(id), changed);
+        var watch = new EosLobbyWatch(_lobbies, _user, _callbackOwner, id, _enqueue, () => ReadCurrent(id), changed, retired);
         _watches.Add(watch);
         watch.Removed = () => _watches.Remove(watch);
         return watch;
+    }
+
+    /// <inheritdoc />
+    public void Promote(string id, OnlineProductUserId member, Action<string?> completed)
+    {
+        var options = new PromoteMemberOptions { LobbyId = id, LocalUserId = _user, TargetUserId = ProductUserId.FromString(member.Value) };
+        _lobbies.PromoteMember(ref options, _callbackOwner, (ref PromoteMemberCallbackInfo info) =>
+        {
+            Result result = info.ResultCode;
+            _enqueue(() =>
+            {
+                if (!_disposed)
+                {
+                    completed(result == Result.Success ? null : Failure(result));
+                }
+            });
+        });
     }
 
     /// <inheritdoc />
@@ -313,7 +307,7 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
             }
         }
 
-        return new OnlineLobby(info.LobbyId.ToString(), name, new OnlineProductUserId(info.LobbyOwnerUserId.ToString()), session, access == "Locked" ? LobbyAccess.Locked : LobbyAccess.Public, (int)(info.MaxMembers - info.AvailableSlots), 8, info.BucketId.ToString(), info.PermissionLevel == LobbyPermissionLevel.Publicadvertised, access == "Locked" ? LobbyCredential.Parse(Attribute(details, "verifier") ?? string.Empty) : null) { MemberIds = members.ToArray() };
+        return new OnlineLobby(info.LobbyId.ToString(), name, new OnlineProductUserId(info.LobbyOwnerUserId.ToString()), session, access == "Locked" ? LobbyAccess.Locked : LobbyAccess.Public, (int)(info.MaxMembers - info.AvailableSlots), 8, info.BucketId.ToString(), Attribute(details, "open") == "1", access == "Locked" ? LobbyCredential.Parse(Attribute(details, "verifier") ?? string.Empty) : null) { MemberIds = members.ToArray(), GameplayHost = new OnlineProductUserId(Attribute(details, "gameHost") ?? info.LobbyOwnerUserId.ToString()), AuthorityEpoch = ulong.TryParse(Attribute(details, "epoch"), out ulong epoch) && epoch > 0 ? epoch : 1 };
     }
 
     private static string Failure(Result result) => result switch
@@ -383,6 +377,11 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
         {
             var parameter = new LobbySearchSetParameterOptions { Parameter = new AttributeData { Key = LobbyInterface.SEARCH_BUCKET_ID, Value = new AttributeDataValue { AsUtf8 = OnlineLobby.CurrentProtocol } }, ComparisonOp = ComparisonOp.Equal };
             result = search.SetParameter(ref parameter);
+            if (result == Result.Success)
+            {
+                var available = new LobbySearchSetParameterOptions { Parameter = new AttributeData { Key = "open", Value = new AttributeDataValue { AsUtf8 = "1" } }, ComparisonOp = ComparisonOp.Equal };
+                result = search.SetParameter(ref available);
+            }
         }
 
         if (result != Result.Success)
@@ -407,6 +406,64 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
             lease.Dispose();
             throw;
         }
+    }
+
+    private void JoinKnown(string id, bool resume, Action<OnlineLobby?, string?> completed)
+    {
+        Find(id, (search, failure) =>
+        {
+            if (search is null)
+            {
+                completed(null, failure);
+                return;
+            }
+
+            var copy = new LobbySearchCopySearchResultByIndexOptions { LobbyIndex = 0 };
+            if (search.CopySearchResultByIndex(ref copy, out var details) != Result.Success)
+            {
+                completed(null, "Lobby closed or not found.");
+                return;
+            }
+
+            var lease = _handles.Retain(details.Release);
+            bool started = false;
+            try
+            {
+                var lobby = Read(details);
+                if (lobby is null || !lobby.Compatible || (!resume && !lobby.Joinable))
+                {
+                    completed(null, lobby is { Compatible: false } ? "Build/protocol incompatible." : "Lobby full or closed.");
+                    return;
+                }
+
+                var options = new JoinLobbyOptions { LocalUserId = _user, LobbyDetailsHandle = details, PresenceEnabled = false };
+                _lobbies.JoinLobby(ref options, _callbackOwner, (ref JoinLobbyCallbackInfo info) =>
+                {
+                    Result result = info.ResultCode;
+                    Dispatch(lease, () =>
+                    {
+                        var joined = result == Result.Success ? ReadCurrent(id) : null;
+                        if (result == Result.Success && joined is null)
+                        {
+                            // Membership exists even if copying its metadata failed; retain cleanup ownership.
+                            completed(lobby, "Lobby metadata unavailable. Refresh and retry.");
+                        }
+                        else
+                        {
+                            completed(joined, result == Result.Success ? null : Failure(result));
+                        }
+                    });
+                });
+                started = true;
+            }
+            finally
+            {
+                if (!started)
+                {
+                    lease.Dispose();
+                }
+            }
+        });
     }
 
     private void Write(OnlineLobby lobby, bool initial, Action<OnlineLobby?, string?> completed, bool availability = false)
@@ -437,9 +494,16 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
         try
         {
             var attributes = new Dictionary<string, string>();
+            if (initial || availability)
+            {
+                attributes["open"] = lobby.Open ? "1" : "0";
+            }
+
             if (!availability)
             {
                 attributes["name"] = lobby.Name;
+                attributes["gameHost"] = lobby.HostIdentity.Value;
+                attributes["epoch"] = lobby.AuthorityEpoch.ToString(CultureInfo.InvariantCulture);
             }
 
             if (initial)
@@ -465,7 +529,8 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
 
             if (initial || availability)
             {
-                var permission = new LobbyModificationSetPermissionLevelOptions { PermissionLevel = lobby.Open ? LobbyPermissionLevel.Publicadvertised : LobbyPermissionLevel.Inviteonly };
+                // Hide active matches through discovery filtering, not an invitation requirement that blocks retained resumes.
+                var permission = new LobbyModificationSetPermissionLevelOptions { PermissionLevel = LobbyPermissionLevel.Publicadvertised };
                 result = modification.SetPermissionLevel(ref permission);
                 if (result != Result.Success)
                 {

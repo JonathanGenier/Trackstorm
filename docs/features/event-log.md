@@ -25,7 +25,7 @@ The panel shows millisecond elapsed timestamps, category, Host/Local origin, seq
 | Item | Grant, pickup, pickup activation, use/impact, projectile expiry/removal, inventory removal at life boundaries |
 | Developer | Give Item and Force Start results, changed setting keys/old/new values, configuration rejection, practice reset/blast |
 
-Unsupported host migration and authority epochs produce no fabricated events. Ordinary prediction corrections, position/speed/surface changes and physics callbacks are not journaled. Repeated packet rejection diagnostics are summarized at most once per second. Ongoing gameplay outcomes are not downsampled.
+Host migration starts an empty journal for the committed authority epoch; it does not replay checkpointed gameplay as new events. The replacement records the authority transition and shares that journal with its restored simulation. Clients reset the old epoch's sequence watermark, and replicated Event Log envelopes validate the current authority epoch as well as connection generation. Ordinary reconnect and Return/Start retain the existing epoch's journal. Event history is diagnostic and is not part of the gameplay checkpoint. Ordinary prediction corrections, position/speed/surface changes and physics callbacks are not journaled. Repeated packet rejection diagnostics are summarized at most once per second. Ongoing gameplay outcomes are not downsampled.
 
 ## Extension and security contract
 

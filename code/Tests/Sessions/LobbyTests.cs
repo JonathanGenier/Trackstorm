@@ -54,6 +54,29 @@ internal sealed class LobbyTests
         Assert.That(lobby.State.Players.Count, Is.EqualTo(2));
     }
 
+    /// <summary>Lobby loss removes immediately, while arena loss retains authenticated state for resume.</summary>
+    [Test]
+    public void DisconnectPolicyIsExplicitlyPhaseSpecific()
+    {
+        var lobby = new LobbyAuthority(100, "Host");
+        Assert.That(lobby.State.ReconnectPolicy, Is.EqualTo(SessionReconnectPolicy.FreshJoin));
+        Assert.That(lobby.Join(10, "Client", "client"), Is.EqualTo(2));
+        Assert.That(lobby.Disconnect(10), Is.True);
+        Assert.That(lobby.State.Players.Any(player => player.Id == 2), Is.False);
+        Assert.That(lobby.FindPlayer("client"), Is.Zero);
+        Assert.That(lobby.Resume(20, 100, 2, 1, "client"), Is.False);
+        Assert.That(lobby.Join(20, "Client", "client"), Is.EqualTo(3), "A returning lobby member is a fresh admission.");
+
+        lobby.SetReady(0, true);
+        lobby.SetReady(20, true);
+        Assert.That(lobby.Start(0, [20]), Is.True);
+        Assert.That(lobby.State.ReconnectPolicy, Is.EqualTo(SessionReconnectPolicy.RetainedResume));
+        Assert.That(lobby.Disconnect(20), Is.True);
+        Assert.That(lobby.State.Players.Single(player => player.Id == 3).Connected, Is.False);
+        Assert.That(lobby.Resume(30, 100, 3, 1, "client"), Is.True);
+        Assert.That(lobby.State.Players.Single(player => player.Id == 3).Generation, Is.EqualTo(2));
+    }
+
     /// <summary>Only a host with every admitted connected player ready can enter a fresh match.</summary>
     [Test]
     public void StartReturnAndRepeatFollowAuthorityAndConnectedRosterRules()
@@ -84,7 +107,8 @@ internal sealed class LobbyTests
         Assert.That(lobby.Start(0), Is.True);
         Assert.That(lobby.State.Match, Is.EqualTo(102));
         Assert.That(lobby.Remove(10), Is.True);
-        Assert.That(lobby.State.Players.Count, Is.EqualTo(1));
+        Assert.That(lobby.State.Players.Single(player => player.Id == 2).Connected, Is.False);
+        Assert.That(lobby.State.Players.Count, Is.EqualTo(2));
         Assert.That(lobby.State.Phase, Is.EqualTo(SessionPhase.Arena));
     }
 

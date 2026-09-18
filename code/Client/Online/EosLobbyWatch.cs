@@ -18,8 +18,9 @@ internal sealed class EosLobbyWatch : IDisposable
     /// <param name="id">Logical EOS lobby identity.</param>
     /// <param name="enqueue">Main-thread queue drained after native platform Tick.</param>
     /// <param name="read">Copies current native membership into plain Client data.</param>
-    /// <param name="changed">Consumer of updated membership or closure.</param>
-    internal EosLobbyWatch(LobbyInterface lobbies, ProductUserId user, object owner, string id, Action<Action> enqueue, Func<OnlineLobby?> read, Action<OnlineLobby?> changed)
+    /// <param name="changed">Consumer of metadata, ownership or service-confirmed membership changes.</param>
+    /// <param name="retired">Service-confirmed departed members; cached snapshots cannot produce this signal.</param>
+    internal EosLobbyWatch(LobbyInterface lobbies, ProductUserId user, object owner, string id, Action<Action> enqueue, Func<OnlineLobby?> read, Action<OnlineLobby?, OnlineLobbyUpdate> changed, Action<OnlineProductUserId>? retired)
     {
         _lobbies = lobbies;
         var update = default(AddNotifyLobbyUpdateReceivedOptions);
@@ -31,7 +32,7 @@ internal sealed class EosLobbyWatch : IDisposable
                 {
                     if (!_disposed)
                     {
-                        changed(read());
+                        changed(read(), new(OnlineLobbyUpdateKind.Metadata));
                     }
                 });
             }
@@ -39,14 +40,22 @@ internal sealed class EosLobbyWatch : IDisposable
         var member = default(AddNotifyLobbyMemberStatusReceivedOptions);
         _member = lobbies.AddNotifyLobbyMemberStatusReceived(ref member, owner, (ref LobbyMemberStatusReceivedCallbackInfo info) =>
         {
-            bool closed = info.CurrentStatus == LobbyMemberStatus.Closed || (info.TargetUserId.Equals(user) && info.CurrentStatus is LobbyMemberStatus.Left or LobbyMemberStatus.Kicked or LobbyMemberStatus.Disconnected);
+            string subject = info.TargetUserId.ToString();
+            var target = new OnlineProductUserId(subject);
+            OnlineLobbyUpdateKind kind = Classify(info.CurrentStatus, info.TargetUserId.Equals(user));
+            bool departed = IsDeparture(info.CurrentStatus);
             if (info.LobbyId.ToString() == id)
             {
                 enqueue(() =>
                 {
                     if (!_disposed)
                     {
-                        changed(closed ? null : read());
+                        changed(kind == OnlineLobbyUpdateKind.Closure ? null : read(), new(kind, target));
+                        if (departed)
+                        {
+                            retired?.Invoke(target);
+                        }
+
                     }
                 });
             }
@@ -82,4 +91,23 @@ internal sealed class EosLobbyWatch : IDisposable
 
         Removed?.Invoke();
     }
+
+    /// <summary>Classifies EOS status callbacks without granting ownership promotion membership authority.</summary>
+    /// <param name="status">Native status transition.</param>
+    /// <param name="local">Whether the transition targets the subscribed local user.</param>
+    /// <returns>The narrowest authority the callback has over local state.</returns>
+    internal static OnlineLobbyUpdateKind Classify(LobbyMemberStatus status, bool local) => status switch
+    {
+        LobbyMemberStatus.Closed => OnlineLobbyUpdateKind.Closure,
+        LobbyMemberStatus.Left or LobbyMemberStatus.Kicked or LobbyMemberStatus.Disconnected when local => OnlineLobbyUpdateKind.Closure,
+        LobbyMemberStatus.Promoted => OnlineLobbyUpdateKind.Ownership,
+        LobbyMemberStatus.Joined => OnlineLobbyUpdateKind.Joined,
+        LobbyMemberStatus.Left or LobbyMemberStatus.Kicked or LobbyMemberStatus.Disconnected => OnlineLobbyUpdateKind.Departed,
+        _ => OnlineLobbyUpdateKind.Metadata,
+    };
+
+    /// <summary>Only actual departure statuses provide service retirement evidence.</summary>
+    /// <param name="status">Native status transition.</param>
+    /// <returns>Whether the member actually left the EOS lobby.</returns>
+    internal static bool IsDeparture(LobbyMemberStatus status) => status is LobbyMemberStatus.Left or LobbyMemberStatus.Kicked or LobbyMemberStatus.Disconnected;
 }

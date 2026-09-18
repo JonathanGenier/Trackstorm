@@ -1,5 +1,8 @@
 using System.Text.Json;
+using Epic.OnlineServices.Lobby;
 using Trackstorm.Client.Online;
+using Trackstorm.Core.Items;
+using Trackstorm.Core.Networking.Replication;
 using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Sessions;
 
@@ -7,8 +10,562 @@ namespace Trackstorm.Transport.Tests;
 
 /// <summary>Provider-independent online coordination and real LobbyNetworkDriver authority admission checks.</summary>
 [TestFixture]
-internal sealed class OnlineLobbyTests
+internal sealed partial class OnlineLobbyTests
 {
+    /// <summary>Native EOS status mapping grants promotion no membership or retirement authority.</summary>
+    /// <param name="status">Native EOS status.</param>
+    /// <param name="local">Whether the status targets the local member.</param>
+    /// <param name="kind">Expected local update authority.</param>
+    /// <param name="departure">Whether the status can produce retirement evidence.</param>
+    [TestCase(LobbyMemberStatus.Joined, false, OnlineLobbyUpdateKind.Joined, false)]
+    [TestCase(LobbyMemberStatus.Promoted, false, OnlineLobbyUpdateKind.Ownership, false)]
+    [TestCase(LobbyMemberStatus.Left, false, OnlineLobbyUpdateKind.Departed, true)]
+    [TestCase(LobbyMemberStatus.Kicked, false, OnlineLobbyUpdateKind.Departed, true)]
+    [TestCase(LobbyMemberStatus.Disconnected, false, OnlineLobbyUpdateKind.Departed, true)]
+    [TestCase(LobbyMemberStatus.Left, true, OnlineLobbyUpdateKind.Closure, true)]
+    [TestCase(LobbyMemberStatus.Kicked, true, OnlineLobbyUpdateKind.Closure, true)]
+    [TestCase(LobbyMemberStatus.Disconnected, true, OnlineLobbyUpdateKind.Closure, true)]
+    [TestCase(LobbyMemberStatus.Closed, false, OnlineLobbyUpdateKind.Closure, false)]
+    public void ClassifiesNativeMemberStatus(LobbyMemberStatus status, bool local, OnlineLobbyUpdateKind kind, bool departure)
+    {
+        Assert.That(EosLobbyWatch.Classify(status, local), Is.EqualTo(kind));
+        Assert.That(EosLobbyWatch.IsDeparture(status), Is.EqualTo(departure));
+    }
+
+    /// <summary>Lobby metadata refreshes cannot retire an admitted member without a member-status event.</summary>
+    /// <param name="access">Admission policy; post-admission membership behavior must be identical.</param>
+    [TestCase(LobbyAccess.Public)]
+    [TestCase(LobbyAccess.Locked)]
+    public void MetadataRefreshCannotTearDownAdmittedMember(LobbyAccess access)
+    {
+        var service = new Service();
+        using var host = service.Coordinator(1);
+        using var client = service.Coordinator(2);
+        host.Create("Stable", access, "test-code");
+        client.Refresh();
+        client.Join(host.Active!.Id, access == LobbyAccess.Locked ? "test-code" : null);
+        using var gateway = new Gateway();
+        var binding = host.AttachTransport(gateway, 0, "Host");
+        gateway.ConnectPeer(20);
+        Assert.That(binding.AuthorizePeer(20, User(2), access == LobbyAccess.Locked ? "test-code" : null), Is.True);
+        gateway.ReceiveJoin(20, "Client");
+        binding.Driver.Pump(0);
+        Assert.That(binding.Driver.State!.Players.Single(player => player.Id == 2).Connected, Is.True);
+
+        OnlineLobby stable = service.Lobbies[host.Active.Id];
+        service.Lobbies[stable.Id] = stable with { Members = 1, MemberIds = new[] { User(1) } };
+        service.Notify(stable.Id, new(OnlineLobbyUpdateKind.Metadata));
+
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+        Assert.That(binding.Driver.State.Players.Single(player => player.Id == 2).Connected, Is.True);
+        Assert.That(host.Active!.MemberIds, Does.Contain(User(2)));
+        host.Rename("Still stable");
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+        Assert.That(host.Active!.MemberIds, Does.Contain(User(2)));
+        service.NotifyIncompleteMembership(stable.Id);
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+        Assert.That(binding.Driver.State.Players.Single(player => player.Id == 2).Connected, Is.True);
+    }
+
+    /// <summary>EOS ownership promotion can refresh owner metadata without changing the admitted gameplay roster.</summary>
+    /// <param name="access">Admission policy; promotion behavior is identical after admission.</param>
+    [TestCase(LobbyAccess.Public)]
+    [TestCase(LobbyAccess.Locked)]
+    public void PromotionRefreshCannotTearDownAdmittedMember(LobbyAccess access)
+    {
+        var service = new Service();
+        using var host = service.Coordinator(1);
+        using var client = service.Coordinator(2);
+        host.Create("Promotion", access, "test-code");
+        client.Refresh();
+        client.Join(host.Active!.Id, access == LobbyAccess.Locked ? "test-code" : null);
+        using var gateway = new Gateway();
+        var binding = host.AttachTransport(gateway, 0, "Host");
+        gateway.ConnectPeer(20);
+        Assert.That(binding.AuthorizePeer(20, User(2), access == LobbyAccess.Locked ? "test-code" : null), Is.True);
+        gateway.ReceiveJoin(20, "Client");
+        binding.Driver.Pump(0);
+
+        OnlineLobby promoted = service.Lobbies[host.Active.Id] with { Owner = User(2) };
+        service.Lobbies[promoted.Id] = promoted;
+        service.Notify(promoted.Id, new(OnlineLobbyUpdateKind.Ownership));
+        Assert.That(host.Active!.Owner, Is.EqualTo(User(2)));
+        Assert.That(host.Active.MemberIds, Does.Contain(User(2)));
+        Assert.That(host.Active.HostIdentity, Is.EqualTo(User(1)));
+        Assert.That(binding.Driver.State!.CurrentHostId, Is.EqualTo(1));
+        Assert.That(binding.Driver.State.AuthorityEpoch, Is.EqualTo(1));
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+
+        service.Lobbies[promoted.Id] = promoted with { Members = 1, MemberIds = new[] { User(1) } };
+        service.Notify(promoted.Id, new(OnlineLobbyUpdateKind.Ownership));
+
+        Assert.That(host.Active.MemberIds, Does.Contain(User(2)));
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+        Assert.That(binding.Driver.State!.Players.Single(player => player.Id == 2).Connected, Is.True);
+        Assert.That(host.Diagnostics, Does.Contain("recovering membership: False"));
+        Assert.That(host.Diagnostics, Does.Contain("retired callbacks: 0"));
+    }
+
+    /// <summary>An actual member departure removes only its target and tears down that transport/Core connection.</summary>
+    /// <param name="status">Native departure operation represented by the targeted event.</param>
+    /// <param name="access">Admission policy; post-admission departure behavior must be identical.</param>
+    [TestCase(LobbyMemberStatus.Left, LobbyAccess.Public)]
+    [TestCase(LobbyMemberStatus.Kicked, LobbyAccess.Public)]
+    [TestCase(LobbyMemberStatus.Disconnected, LobbyAccess.Public)]
+    [TestCase(LobbyMemberStatus.Left, LobbyAccess.Locked)]
+    [TestCase(LobbyMemberStatus.Kicked, LobbyAccess.Locked)]
+    [TestCase(LobbyMemberStatus.Disconnected, LobbyAccess.Locked)]
+    public void ActualMembershipDepartureDisconnectsAdmittedMember(LobbyMemberStatus status, LobbyAccess access)
+    {
+        var service = new Service();
+        using var host = service.Coordinator(1);
+        using var client = service.Coordinator(2);
+        using var departing = service.Coordinator(3);
+        host.Create("Departure", access, "test-code");
+        client.Refresh();
+        client.Join(host.Active!.Id, access == LobbyAccess.Locked ? "test-code" : null);
+        departing.Refresh();
+        departing.Join(host.Active.Id, access == LobbyAccess.Locked ? "test-code" : null);
+        using var gateway = new Gateway();
+        var binding = host.AttachTransport(gateway, 0, "Host");
+        gateway.ConnectPeer(20);
+        Assert.That(binding.AuthorizePeer(20, User(2), access == LobbyAccess.Locked ? "test-code" : null), Is.True);
+        gateway.ReceiveJoin(20, "Client");
+        gateway.ConnectPeer(30);
+        Assert.That(binding.AuthorizePeer(30, User(3), access == LobbyAccess.Locked ? "test-code" : null), Is.True);
+        gateway.ReceiveJoin(30, "Departing");
+        binding.Driver.Pump(0);
+
+        OnlineLobby lobby = service.Lobbies[host.Active.Id];
+        service.Lobbies[lobby.Id] = lobby with { Members = 2, MemberIds = new[] { User(1), User(2) } };
+        OnlineLobby partial = lobby with { Members = 1, MemberIds = new[] { User(1) } };
+        service.Notify(lobby.Id, partial, new(EosLobbyWatch.Classify(status, false), User(3)));
+        service.Retire(lobby.Id, User(3));
+        binding.Driver.Pump(0);
+
+        Assert.That(host.Active!.MemberIds, Does.Contain(User(2)));
+        Assert.That(host.Active.MemberIds, Does.Not.Contain(User(3)));
+        Assert.That(host.Active.Members, Is.EqualTo(2));
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+        Assert.That(gateway.Connections[30], Is.EqualTo(TransportConnectionState.Disconnected));
+        Assert.That(binding.Driver.State!.Players.Single(player => player.Id == 2).Connected, Is.True);
+        Assert.That(binding.Driver.State.Players.Any(player => player.Id == 3), Is.False);
+        Assert.That(binding.Driver.Authority!.FindPlayer(User(3).Value), Is.Zero);
+        Assert.That(host.Diagnostics, Does.Contain("retired callbacks: 1"));
+    }
+
+    /// <summary>A member join cannot remove an unrelated admitted member omitted from the refreshed snapshot.</summary>
+    /// <param name="access">Admission policy; post-admission membership behavior must be identical.</param>
+    /// <param name="omitsTarget">Whether the partial snapshot omits the joined target instead of an unrelated member.</param>
+    [TestCase(LobbyAccess.Public, false)]
+    [TestCase(LobbyAccess.Public, true)]
+    [TestCase(LobbyAccess.Locked, false)]
+    [TestCase(LobbyAccess.Locked, true)]
+    public void MembershipJoinRefreshCannotTearDownUnrelatedAdmittedMember(LobbyAccess access, bool omitsTarget)
+    {
+        var service = new Service();
+        using var host = service.Coordinator(1);
+        using var client = service.Coordinator(2);
+        host.Create("Partial join", access, "test-code");
+        client.Refresh();
+        client.Join(host.Active!.Id, access == LobbyAccess.Locked ? "test-code" : null);
+        using var gateway = new Gateway();
+        var binding = host.AttachTransport(gateway, 0, "Host");
+        gateway.ConnectPeer(20);
+        Assert.That(binding.AuthorizePeer(20, User(2), access == LobbyAccess.Locked ? "test-code" : null), Is.True);
+        gateway.ReceiveJoin(20, "Client");
+        binding.Driver.Pump(0);
+
+        OnlineLobby lobby = service.Lobbies[host.Active.Id];
+        service.Lobbies[lobby.Id] = lobby with { Members = 3, MemberIds = new[] { User(1), User(2), User(3) } };
+        OnlineLobby partial = lobby with
+        {
+            Members = 2,
+            MemberIds = omitsTarget ? new[] { User(1), User(2) } : new[] { User(1), User(3) },
+        };
+        service.Notify(lobby.Id, partial, new(OnlineLobbyUpdateKind.Joined, User(3)));
+
+        Assert.That(host.Active!.MemberIds, Does.Contain(User(2)));
+        Assert.That(host.Active.MemberIds, Does.Contain(User(3)));
+        Assert.That(host.Active.Members, Is.EqualTo(3));
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+        Assert.That(binding.Driver.State!.Players.Single(player => player.Id == 2).Connected, Is.True);
+    }
+
+    /// <summary>Repeated proof-related metadata refreshes leave a healthy Locked session intact beyond reconnect grace.</summary>
+    [Test]
+    public void LockedSessionRemainsStableAcrossProofRefreshesPastThirtySeconds()
+    {
+        var service = new Service { NotifyMetadataOnProof = true };
+        var clock = new Clock();
+        using var host = new OnlineLobbyCoordinator(new Provider(service, User(1)), User(1), clock);
+        using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), clock);
+        host.Create("Locked soak", LobbyAccess.Locked, "test-code");
+        client.Refresh();
+        client.Join(host.Active!.Id, "test-code");
+        using var hostGateway = new Gateway();
+        var hostBinding = host.AttachTransport(hostGateway, 0, "Host");
+        hostGateway.ConnectPeer(20);
+        Assert.That(hostBinding.AuthorizePeer(20, User(2), "test-code"), Is.True);
+        hostGateway.ReceiveJoin(20, "Client");
+        hostBinding.Driver.Pump(0);
+        using var clientGateway = new Gateway();
+        clientGateway.ConnectPeer(10);
+        var clientBinding = client.AttachTransport(clientGateway, 10, "Client");
+        clientGateway.ReceiveState(10, hostBinding.Driver.State!, 2);
+        clientBinding.Driver.Pump(0);
+        string lobbyId = host.Active.Id;
+        ulong session = hostBinding.Driver.State!.Session;
+        ulong epoch = hostBinding.Driver.State.AuthorityEpoch;
+
+        for (int second = 0; second < 40; second++)
+        {
+            clock.Advance(1);
+            host.Tick();
+            client.Tick();
+            hostBinding.Driver.Pump(1.0 / 60);
+            clientBinding.Driver.Pump(1.0 / 60);
+            Assert.That(host.Active?.Id, Is.EqualTo(lobbyId));
+            Assert.That(client.Active?.Id, Is.EqualTo(lobbyId));
+            Assert.That(clientBinding.Driver.State?.Session, Is.EqualTo(session));
+            Assert.That(clientBinding.Driver.LocalPlayerId, Is.EqualTo(2));
+            Assert.That(clientBinding.Driver.State?.AuthorityEpoch, Is.EqualTo(epoch));
+            Assert.That(clientBinding.Driver.Reconnecting, Is.False);
+            Assert.That(hostBinding.Driver.Migration?.Frozen, Is.Not.True);
+            Assert.That(host.CoordinationAvailable, Is.True);
+            Assert.That(client.CoordinationAvailable, Is.True);
+            Assert.That(hostGateway.Connections[20], Is.EqualTo(TransportConnectionState.Connected));
+            Assert.That(clientGateway.Connections[10], Is.EqualTo(TransportConnectionState.Connected));
+        }
+
+        Assert.That(service.ProofRequests, Is.GreaterThanOrEqualTo(16));
+        Assert.That(hostBinding.Driver.State.Players.Single(player => player.Id == 2).Connected, Is.True);
+        Assert.That(client.Diagnostics, Does.Contain("metadata/ownership/joined/departed callbacks:"));
+        Assert.That(client.Diagnostics, Does.Contain("recovering membership: False"));
+        Assert.That(client.Diagnostics, Does.Not.Contain("test-code"));
+        Assert.That(client.Diagnostics, Does.Not.Contain(User(1).Value));
+        Assert.That(client.Diagnostics, Does.Not.Contain(User(2).Value));
+    }
+
+    /// <summary>Display names never select or revive an earlier EOS or Trackstorm session lifetime.</summary>
+    [Test]
+    public void ReusedDisplayNameCreatesFreshLobbyAndSession()
+    {
+        string path = Path.Combine(Path.GetTempPath(), "trackstorm-reused-name-" + Guid.NewGuid().ToString("N") + ".json");
+        var store = new ResumeLocatorStore(path);
+        try
+        {
+            var service = new Service();
+            using var host = new OnlineLobbyCoordinator(new Provider(service, User(1)), User(1), resumeStore: store);
+            host.Create("TESER", LobbyAccess.Locked, "first-code");
+            string firstLobby = host.Active!.Id;
+            ulong firstSession = host.Active.Session;
+            host.Leave();
+            host.Create("TESER", LobbyAccess.Locked, "second-code");
+            Assert.That(host.Active!.Id, Is.Not.EqualTo(firstLobby));
+            Assert.That(host.Active.Session, Is.Not.EqualTo(firstSession));
+            Assert.That(host.Active.AuthorityEpoch, Is.EqualTo(1));
+            Assert.That(host.Active.HostIdentity, Is.EqualTo(User(1)));
+            Assert.That(host.Active.Credential!.Verify("first-code"), Is.False);
+            Assert.That(host.Active.Credential.Verify("second-code"), Is.True);
+            Assert.That(store.Load(User(1).Value), Is.Null);
+        }
+        finally
+        {
+            store.Clear();
+        }
+    }
+
+    /// <summary>A delayed service response cannot revive authority after its request-time lease expired.</summary>
+    [Test]
+    public void ExpiredAuthorityCannotBeRenewedByLateServiceCallback()
+    {
+        var service = new Service();
+        var clock = new Clock();
+        using var host = new OnlineLobbyCoordinator(new Provider(service, User(1)), User(1), clock);
+        host.Create("Lease", LobbyAccess.Public, null);
+        using var gateway = new Gateway();
+        host.AttachTransport(gateway, 0, "Host");
+        Assert.That(host.CoordinationAvailable, Is.True);
+        service.DelayProof = true;
+        clock.Advance(5);
+        host.Tick();
+        clock.Advance(6);
+        service.LastProof!(true);
+        Assert.That(host.CoordinationAvailable, Is.False);
+        service.DelayProof = false;
+        host.Tick();
+        Assert.That(host.CoordinationAvailable, Is.False, "Expired authority must rejoin; a later success cannot revive it.");
+    }
+
+    /// <summary>Only explicit service retirement, a full lease wait and the exact survivor cohort permit recovery.</summary>
+    /// <param name="status">Native established-host departure that supplies retirement evidence.</param>
+    [TestCase(LobbyMemberStatus.Left)]
+    [TestCase(LobbyMemberStatus.Kicked)]
+    [TestCase(LobbyMemberStatus.Disconnected)]
+    public void RetirementRequiresServiceEventFreshMembershipAndMatchingCohort(LobbyMemberStatus status)
+    {
+        var service = new Service();
+        var clock = new Clock();
+        using var host = service.Coordinator(1);
+        using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), clock);
+        host.Create("Retirement", LobbyAccess.Public, null);
+        client.Refresh();
+        client.Join(host.Active!.Id);
+        using var gateway = new Gateway();
+        var binding = host.AttachTransport(gateway, 0, "Host");
+        gateway.ConnectPeer(20);
+        Assert.That(binding.AuthorizePeer(20, User(2), null), Is.True);
+        gateway.ReceiveJoin(20, "Client");
+        binding.Driver.Pump(0);
+        var checkpoint = new MigrationCheckpoint(1, binding.Driver.Authority!.Capture(User(1).Value), null, null);
+        string id = host.Active.Id;
+        service.Lobbies[id] = client.Active! with { Owner = User(2), MemberIds = new[] { User(2) }, Members = 1 };
+        service.Notify(id, new(OnlineLobbyUpdateKind.Ownership));
+        clock.Advance(11);
+        client.Tick();
+        Assert.That(client.Active!.MemberIds, Does.Contain(User(1)), "Promotion snapshots cannot remove the established host.");
+        Assert.That(client.Diagnostics, Does.Contain("retired callbacks: 0"));
+        Assert.That(client.HostRetired(checkpoint), Is.False, "Ownership and membership snapshots are not a retirement event.");
+        Assert.That(client.HostRetiredAt(checkpoint), Is.Null);
+        long retirementAt = clock.GetTimestamp();
+        service.Notify(id, new(EosLobbyWatch.Classify(status, false), User(1)));
+        service.Retire(id, User(1));
+        clock.Advance(9);
+        client.Tick();
+        Assert.That(client.HostRetired(checkpoint), Is.False);
+        clock.Advance(2);
+        client.Tick();
+        Assert.That(client.HostRetired(checkpoint), Is.True);
+        Assert.That(client.HostRetiredAt(checkpoint), Is.EqualTo(retirementAt), "The safety wait must not replace the original monotonic retirement boundary.");
+        clock.Advance(11);
+        Assert.That(client.HostRetired(checkpoint), Is.False, "The survivor must itself have current service membership.");
+        client.Tick();
+        service.Lobbies[id] = client.Active! with { MemberIds = new[] { User(2), User(3) }, Members = 2 };
+        service.Notify(id, new(OnlineLobbyUpdateKind.Joined, User(3)));
+        service.Retire(id, User(1));
+        clock.Advance(11);
+        client.Tick();
+        Assert.That(client.HostRetired(checkpoint), Is.False, "An older two-player checkpoint cannot exclude a current survivor.");
+    }
+
+    /// <summary>Former-host membership recovery routes retained Public/Locked players through Core resume admission.</summary>
+    /// <param name="access">Original admission policy.</param>
+    /// <param name="restart">Whether to recover the persisted locator in a new coordinator.</param>
+    [TestCase(LobbyAccess.Public, false)]
+    [TestCase(LobbyAccess.Public, true)]
+    [TestCase(LobbyAccess.Locked, false)]
+    [TestCase(LobbyAccess.Locked, true)]
+    public void FormerHostResumesThroughProviderAndCoreWithoutPassword(LobbyAccess access, bool restart)
+    {
+        var store = new ResumeLocatorStore(Path.Combine(Path.GetTempPath(), "trackstorm-former-host-" + Guid.NewGuid().ToString("N") + ".json"));
+        try
+        {
+            var service = new Service();
+            var clock = new Clock();
+            using var host = new OnlineLobbyCoordinator(new Provider(service, User(1)), User(1), clock, store);
+            using var client = service.Coordinator(2);
+            host.Create("Return", access, "test-code");
+            client.Refresh();
+            client.Join(host.Active!.Id, "test-code");
+            using var oldGateway = new Gateway();
+            var oldBinding = host.AttachTransport(oldGateway, 0, "Host");
+            oldGateway.ConnectPeer(20);
+            Assert.That(oldBinding.AuthorizePeer(20, User(2), "test-code"), Is.True);
+            oldGateway.ReceiveJoin(20, "Client");
+            oldBinding.Driver.Pump(0);
+            oldBinding.Driver.Authority!.SetReady(0, true);
+            oldBinding.Driver.Authority.SetReady(20, true);
+            Assert.That(oldBinding.Driver.Authority.Start(0, [20]), Is.True);
+            var arena = new HostVehicleSession(oldBinding.Driver.State!.Match);
+            arena.JoinPlayer(20, 2);
+            var arenaCheckpoint = new ResumeCheckpoint(new ItemPublication(1, arena.Snapshot(), arena.Items.Slots, arena.Items.Missiles, []), arena.World.State.Match!, null);
+            oldBinding.Driver.Migration = new Trackstorm.Client.Networking.SessionMigration(oldBinding.Driver, oldGateway, User(1).Value, _ => User(2).Value, (_, _) => 0);
+            oldBinding.Driver.Migration.CaptureArena = () => (arenaCheckpoint, arena.CaptureAuthority());
+            oldBinding.Driver.Pump(0);
+            var checkpoint = new MigrationCheckpoint(
+                1,
+                oldBinding.Driver.Authority!.Capture(User(1).Value),
+                arenaCheckpoint,
+                arena.CaptureAuthority());
+            using var replacementGateway = new Gateway();
+            replacementGateway.ConnectPeer(10);
+            var replacement = client.AttachTransport(replacementGateway, 10, "Client");
+            replacementGateway.ReceiveState(10, checkpoint.Lobby.State, 2);
+            replacement.Driver.Pump(0);
+            replacement.Driver.InstallMigration(checkpoint, 2, 0);
+            client.MigrationCompleted(User(2).Value);
+            Assert.That(client.Active!.AuthorityEpoch, Is.EqualTo(2), "The Core commit establishes routing before provider publication.");
+            string id = host.Active.Id;
+            host.Leave();
+            Assert.That(client.Active.HostIdentity, Is.EqualTo(User(2)), "The delayed epoch-one membership event cannot replace the committed host.");
+            Assert.That(host.CanResumeRetained, Is.True);
+            using var restarted = restart ? new OnlineLobbyCoordinator(new Provider(service, User(1)), User(1), clock, store) : null;
+            var returning = restarted ?? host;
+            if (restart)
+            {
+                returning.Tick();
+            }
+            else
+            {
+                returning.ResumeRetained();
+            }
+
+            Assert.That(returning.Active, Is.Null, "A returning old host must not reconnect to its cached self route.");
+            Assert.That(returning.Status, Does.Contain("replacement host"));
+            service.Lobbies[id] = service.Lobbies[id] with { Owner = User(2), GameplayHost = User(2), AuthorityEpoch = 2, Open = false };
+            service.Notify(id, new(OnlineLobbyUpdateKind.Metadata));
+            clock.Advance(3);
+            returning.Tick();
+            Assert.That(returning.Active!.HostIdentity, Is.EqualTo(User(2)));
+            Assert.That(returning.Active.AuthorityEpoch, Is.EqualTo(2));
+            Assert.That(returning.StartsGameplayAuthority, Is.False);
+            using var returnGateway = new Gateway();
+            returnGateway.ConnectPeer(30);
+            var returned = returning.AttachTransport(returnGateway, 30, "Former host");
+            returned.Driver.Pump(0);
+            var resume = LobbyCodec.DecodeCommand(returnGateway.Sent.Last().Payload.Span);
+            Assert.That(resume.Command, Is.EqualTo(LobbyCommand.Resume));
+            replacementGateway.ConnectPeer(40);
+            Assert.That(replacement.AuthorizePeer(40, User(1), null), Is.True);
+            replacementGateway.ReceiveResume(40, checkpoint.Lobby.State.Session, 1, 1, 2);
+            replacement.Driver.Pump(0);
+            returnGateway.ReceiveState(30, replacement.Driver.State!, 1);
+            returned.Driver.Pump(0);
+            Assert.That(returned.Driver.Authority, Is.Null);
+            Assert.That(returned.Driver.LocalPlayerId, Is.EqualTo(1));
+            Assert.That(returned.Driver.Generation, Is.EqualTo(2));
+            Assert.That(returned.Driver.Reconnecting, Is.True, "Arena resume remains frozen until the complete gameplay checkpoint arrives.");
+            Assert.That(returned.Driver.NeedsArenaCheckpoint, Is.True);
+            Assert.That(returned.Driver.State!.Session, Is.EqualTo(checkpoint.Lobby.State.Session));
+            Assert.That(returned.Driver.State.CurrentHostId, Is.EqualTo(2));
+            Assert.That(returned.Driver.State.AuthorityEpoch, Is.EqualTo(2));
+            Assert.That(returned.Driver.State.Players.Select(player => player.Id), Is.EquivalentTo(new ulong[] { 1, 2 }));
+            Assert.That(replacement.Driver.State!.Phase, Is.EqualTo(SessionPhase.Arena));
+            returned.Driver.Request(LobbyCommand.Start);
+            int rejected = replacement.Driver.RejectedPackets;
+            replacementGateway.Receive(40, returnGateway.Sent.Last().Payload.ToArray());
+            replacement.Driver.Pump(0);
+            Assert.That(replacement.Driver.State.Phase, Is.EqualTo(SessionPhase.Arena));
+            Assert.That(replacement.Driver.RejectedPackets, Is.GreaterThan(rejected));
+            if (access == LobbyAccess.Locked)
+            {
+                service.Lobbies[id] = service.Lobbies[id] with { MemberIds = new[] { User(1), User(2), User(3) }, Members = 3 };
+                service.Notify(id, new(OnlineLobbyUpdateKind.Joined, User(3)));
+                replacementGateway.ConnectPeer(50);
+                Assert.That(replacement.AuthorizePeer(50, User(3), null), Is.False, "EOS membership cannot bypass fresh Locked admission.");
+            }
+        }
+        finally
+        {
+            store.Clear();
+        }
+    }
+
+    /// <summary>Provider ownership notifications cannot bootstrap gameplay authority on a joining player.</summary>
+    [Test]
+    public void ProviderPromotionDoesNotGrantGameplayAuthority()
+    {
+        var service = new Service();
+        using var host = service.Coordinator(1);
+        using var client = service.Coordinator(2);
+        host.Create("Migration", LobbyAccess.Public, null);
+        client.Refresh();
+        client.Join(host.Active!.Id, null);
+        var before = client.Active!;
+        service.Lobbies[before.Id] = before with { Owner = User(2) };
+        service.Notify(before.Id, new(OnlineLobbyUpdateKind.Ownership));
+        Assert.That(client.IsHost, Is.True);
+        Assert.That(client.StartsGameplayAuthority, Is.False);
+        Assert.That(client.Active!.Session, Is.EqualTo(before.Session));
+        using var gateway = new Gateway();
+        var binding = client.AttachTransport(gateway, 99, "Promoted member");
+        Assert.That(binding.Driver.Authority, Is.Null);
+    }
+
+    /// <summary>Delayed provider snapshots retain safe membership data without regressing established Trackstorm routing.</summary>
+    [Test]
+    public void ProviderUpdatesCannotRegressMigratedAuthorityRouting()
+    {
+        string path = Path.Combine(Path.GetTempPath(), "trackstorm-migrated-resume-" + Guid.NewGuid().ToString("N") + ".json");
+        var store = new ResumeLocatorStore(path);
+        try
+        {
+            var service = new Service();
+            using var host = service.Coordinator(1);
+            using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
+            host.Create("Migration", LobbyAccess.Public, null);
+            client.Refresh();
+            client.Join(host.Active!.Id, null);
+            OnlineLobby epochOne = client.Active!;
+
+            var epochTwo = epochOne with { Owner = User(2), GameplayHost = User(2), AuthorityEpoch = 2 };
+            service.Lobbies[epochOne.Id] = epochTwo;
+            service.Notify(epochOne.Id, new(OnlineLobbyUpdateKind.Ownership));
+            Assert.That(client.Active!.AuthorityEpoch, Is.EqualTo(2));
+            Assert.That(client.Active.HostIdentity, Is.EqualTo(User(2)));
+
+            var delayedEpochOne = epochOne with
+            {
+                Name = "Current members",
+                Owner = User(3),
+                Members = 3,
+                MemberIds = new[] { User(1), User(2), User(3) },
+                GameplayHost = User(1),
+                AuthorityEpoch = 1,
+            };
+            service.Lobbies[epochOne.Id] = delayedEpochOne;
+            service.Notify(epochOne.Id, new(OnlineLobbyUpdateKind.Joined, User(3)));
+            Assert.That(client.Active!.Session, Is.EqualTo(epochOne.Session));
+            Assert.That(client.Active.AuthorityEpoch, Is.EqualTo(2));
+            Assert.That(client.Active.HostIdentity, Is.EqualTo(User(2)));
+            Assert.That(client.Active.Owner, Is.EqualTo(User(3)));
+            Assert.That(client.Active.MemberIds, Is.EqualTo(delayedEpochOne.MemberIds));
+
+            var conflictingEpochTwo = delayedEpochOne with
+            {
+                Name = "Updated membership",
+                Owner = User(4),
+                Members = 4,
+                MemberIds = new[] { User(1), User(2), User(3), User(4) },
+                GameplayHost = User(3),
+                AuthorityEpoch = 2,
+            };
+            service.Lobbies[epochOne.Id] = conflictingEpochTwo;
+            service.Notify(epochOne.Id, new(OnlineLobbyUpdateKind.Joined, User(4)));
+            Assert.That(client.Active.AuthorityEpoch, Is.EqualTo(2));
+            Assert.That(client.Active.HostIdentity, Is.EqualTo(User(2)));
+            Assert.That(client.Active.Owner, Is.EqualTo(User(4)));
+            Assert.That(client.Active.Name, Is.EqualTo("Updated membership"));
+            Assert.That(client.Active.MemberIds, Is.EqualTo(conflictingEpochTwo.MemberIds));
+
+            using var gateway = new Gateway();
+            gateway.ConnectPeer(10);
+            var binding = client.AttachTransport(gateway, 10, "Client");
+            var migratedState = new LobbySnapshot(
+                epochOne.Session,
+                2,
+                epochOne.Session,
+                SessionPhase.Lobby,
+                new[] { new SessionPlayer(1, "Old host", false), new SessionPlayer(2, "Client", false) },
+                currentHostId: 2,
+                authorityEpoch: 2);
+            gateway.ReceiveState(10, migratedState, 2);
+            binding.Driver.Pump(0);
+            client.Tick();
+            Assert.That(store.Load(User(2).Value), Is.Null, "Lobby state must not persist a resume locator.");
+            service.Lobbies[epochOne.Id] = delayedEpochOne;
+            using var restarted = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
+            restarted.Tick();
+            Assert.That(restarted.Active, Is.Null);
+            Assert.That(restarted.SavedResume, Is.Null);
+        }
+        finally
+        {
+            store.Clear();
+        }
+    }
+
     /// <summary>Names are bounded, canonical, non-empty on admission, and safe for plain presentation.</summary>
     [Test]
     public void NamesValidateAtCreateAndRename()
@@ -233,7 +790,7 @@ internal sealed class OnlineLobbyTests
             Assert.That(host.Browser.Rows.Any(row => row.Id == id), Is.False);
             Assert.That(client.Browser.Rows.Any(row => row.Id == id), Is.False);
             host.Create("Replacement", LobbyAccess.Locked, "new-code");
-            late(null);
+            late(null, new(OnlineLobbyUpdateKind.Closure));
             Assert.That(host.Active!.Name, Is.EqualTo("Replacement"));
             client.Refresh();
             client.Join(host.Active.Id, "old-code");
@@ -310,7 +867,7 @@ internal sealed class OnlineLobbyTests
         client.Leave();
         client.Refresh();
         client.Join(host.Active.Id);
-        late(null);
+        late(null, new(OnlineLobbyUpdateKind.Closure));
         Assert.That(client.Active, Is.Not.Null);
         Assert.That(service.Watches.Count, Is.EqualTo(2));
     }
@@ -444,13 +1001,15 @@ internal sealed class OnlineLobbyTests
     }
 
     /// <summary>Previously authenticated Locked members resume without retaining the access code; other identities cannot claim their slot.</summary>
-    [Test]
-    public void LockedResumeUsesAuthenticatedIdentityAndRetainsOneMapping()
+    /// <param name="access">Public or Locked admission mode.</param>
+    [TestCase(LobbyAccess.Public)]
+    [TestCase(LobbyAccess.Locked)]
+    public void MatchLongResumeUsesAuthenticatedIdentityAndRetainsOneMapping(LobbyAccess access)
     {
         var service = new Service();
         using var host = service.Coordinator(1);
         using var client = service.Coordinator(2);
-        host.Create("Test", LobbyAccess.Locked, "test-code");
+        host.Create("Test", access, access == LobbyAccess.Locked ? "test-code" : null);
         client.Refresh();
         client.Join(host.Active!.Id, "test-code");
         using var gateway = new Gateway();
@@ -459,11 +1018,16 @@ internal sealed class OnlineLobbyTests
         Assert.That(binding.AuthorizePeer(20, User(2), "test-code"), Is.True);
         gateway.ReceiveJoin(20, "Original");
         binding.Driver.Pump(0);
+        binding.Driver.Authority!.SetReady(0, true);
+        binding.Driver.Authority.SetReady(20, true);
+        Assert.That(binding.Driver.Authority.Start(0, [20]), Is.True);
         gateway.ConnectPeer(21);
         Assert.That(binding.AuthorizePeer(21, User(2), null), Is.False, "A second live connection cannot control the same player.");
         gateway.Disconnect(20);
         binding.Driver.Pump(0);
         Assert.That(binding.Driver.State!.Players.Single(p => p.Id == 2).Connected, Is.False);
+        binding.Driver.Pump(181);
+        Assert.That(binding.Driver.State.Players.Single(p => p.Id == 2).Connected, Is.False);
         gateway.ConnectPeer(22);
         Assert.That(binding.AuthorizePeer(22, User(3), "test-code"), Is.False);
         gateway.ConnectPeer(23);
@@ -475,6 +1039,11 @@ internal sealed class OnlineLobbyTests
         Assert.That(binding.Driver.Authority.PlayerId(23), Is.EqualTo(2));
         Assert.That(binding.Driver.State.Players.Count, Is.EqualTo(2));
         Assert.That(binding.Driver.State.Players.Single(p => p.Id == 2).Name, Is.EqualTo("Original"));
+        gateway.Disconnect(23);
+        binding.Driver.Pump(0);
+        Assert.That(binding.Driver.Authority.Return(0), Is.True);
+        gateway.ConnectPeer(24);
+        Assert.That(binding.AuthorizePeer(24, User(2), null), Is.EqualTo(access == LobbyAccess.Public), "Return clears retained authorization; fresh Locked admission requires the code.");
     }
 
     /// <summary>A restart hint restores only the prior assignment and is cleared when the player chooses Leave.</summary>
@@ -489,8 +1058,8 @@ internal sealed class OnlineLobbyTests
             using var host = service.Coordinator(1);
             host.Create("Hidden match", LobbyAccess.Public, null);
             service.Lobbies[host.Active!.Id] = host.Active with { Open = false };
-            service.Notify(host.Active.Id);
-            var locator = new ResumeLocator(host.Active!.Id, host.Active.Session, 2, 4, User(2).Value, User(1).Value, DateTimeOffset.UtcNow.AddMinutes(2));
+            service.Notify(host.Active.Id, new(OnlineLobbyUpdateKind.Metadata));
+            var locator = new ResumeLocator(host.Active!.Id, host.Active.Session, 2, 4, User(2).Value, host.Active.AuthorityEpoch, User(1).Value);
             store.Save(locator);
             using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
             client.Tick();
@@ -505,7 +1074,97 @@ internal sealed class OnlineLobbyTests
             Assert.That(binding.Driver.Generation, Is.EqualTo(4));
             Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
             client.Leave();
-            Assert.That(store.Load(User(2).Value, DateTimeOffset.UtcNow), Is.Null);
+            Assert.That(store.Load(User(2).Value), Is.Null);
+        }
+        finally
+        {
+            store.Clear();
+        }
+    }
+
+    /// <summary>Membership retries and saved ordinary-client identity outlive both former local deadlines.</summary>
+    [Test]
+    public void OrdinaryRestartWaitsForMembershipBeyondTwoMinutes()
+    {
+        string path = Path.Combine(Path.GetTempPath(), "trackstorm-resume-" + Guid.NewGuid().ToString("N") + ".json");
+        var store = new ResumeLocatorStore(path);
+        var service = new Service();
+        var clock = new Clock();
+        var lobby = Lobby("retained-match", "Match") with { Open = false };
+        store.Save(new ResumeLocator(lobby.Id, lobby.Session, 2, 4, User(2).Value, 1, User(1).Value));
+        try
+        {
+            using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), clock, store);
+            client.Tick();
+            clock.Advance(181);
+            client.Tick();
+            Assert.That(client.SavedResume, Is.Not.Null);
+            Assert.That(client.Status, Is.EqualTo("Session unavailable — retrying"));
+            service.Lobbies[lobby.Id] = lobby;
+            clock.Advance(3);
+            client.Tick();
+            Assert.That(client.Active!.Session, Is.EqualTo(lobby.Session));
+            using var gateway = new Gateway();
+            gateway.ConnectPeer(1);
+            var binding = client.AttachTransport(gateway, 1, "Client");
+            binding.Driver.Pump(181);
+            Assert.That(binding.Driver.Failure, Is.Empty);
+            Assert.That(binding.Driver.LocalPlayerId, Is.EqualTo(2));
+            Assert.That(binding.Driver.Generation, Is.EqualTo(4));
+            Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
+        }
+        finally
+        {
+            store.Clear();
+        }
+    }
+
+    /// <summary>Leave and failed migration attempts preserve manual player recovery, while Return clears it.</summary>
+    /// <param name="failedAttempt">Whether a safely failed migration attempt precedes departure.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void OrdinaryArenaDeparturePreservesManualResumeUntilReturn(bool failedAttempt)
+    {
+        string path = Path.Combine(Path.GetTempPath(), "trackstorm-resume-" + Guid.NewGuid().ToString("N") + ".json");
+        var store = new ResumeLocatorStore(path);
+        var service = new Service();
+        var clock = new Clock();
+        using var host = service.Coordinator(1);
+        host.Create("Match", LobbyAccess.Public, null);
+        try
+        {
+            using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), clock, store);
+            client.Refresh();
+            client.Join(host.Active!.Id, null);
+            using var gateway = new Gateway();
+            gateway.ConnectPeer(1);
+            var binding = client.AttachTransport(gateway, 1, "Client");
+            var state = new LobbySnapshot(host.Active.Session, 2, host.Active.Session + 1, SessionPhase.Arena, [new(1, "Host", false), new(2, "Client", false)]);
+            gateway.ReceiveState(1, state, 2);
+            binding.Driver.Pump(0);
+            if (failedAttempt)
+            {
+                binding.Driver.FailMigration("trusted fence unavailable");
+            }
+
+            client.Leave();
+            clock.Advance(181);
+            client.Tick();
+            Assert.That(client.Active, Is.Null, "Leave must not automatically rejoin.");
+            Assert.That(client.CanResumeRetained, Is.True);
+            Assert.That(store.Load(User(2).Value)!.Player, Is.EqualTo(2));
+            client.ResumeRetained();
+            gateway.ConnectPeer(3);
+            binding = client.AttachTransport(gateway, 3, "Client");
+            binding.Driver.Pump(0);
+            Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
+            gateway.ReceiveState(3, new LobbySnapshot(state.Session, 3, state.Match, SessionPhase.Arena, state.Players.Select(player => player.Id == 2 ? player with { Generation = 2 } : player)), 2);
+            binding.Driver.Pump(0);
+            client.Tick();
+            gateway.ReceiveState(3, new LobbySnapshot(state.Session, 4, state.Match, SessionPhase.Lobby, binding.Driver.State!.Players), 2);
+            binding.Driver.Pump(0);
+            client.Tick();
+            Assert.That(store.Load(User(2).Value), Is.Null, "Observed Return clears the match locator.");
         }
         finally
         {
@@ -524,6 +1183,11 @@ internal sealed class OnlineLobbyTests
         internal List<Watch> Watches { get; } = new();
         internal bool Delay { get; set; }
         internal bool FailLeave { get; set; }
+        internal bool DelayProof { get; set; }
+        internal bool NotifyMetadataOnProof { get; set; }
+        internal int ProofRequests { get; set; }
+        internal Action<bool>? LastProof { get; set; }
+        internal List<Action<bool>> PendingProofs { get; } = new();
         internal Action? LastCreate { get; set; }
         internal OnlineLobbyCoordinator Coordinator(int user) => new(new Provider(this, User(user)), User(user));
         internal void Complete(Action callback)
@@ -546,21 +1210,47 @@ internal sealed class OnlineLobbyTests
             }
         }
 
-        internal void Notify(string id)
+        internal void Notify(string id, OnlineLobbyUpdate update) => Notify(id, Lobbies.GetValueOrDefault(id), update);
+
+        internal void Notify(string id, OnlineLobby? lobby, OnlineLobbyUpdate update)
         {
             foreach (var watch in Watches.Where(watch => watch.Id == id).ToArray())
             {
-                watch.Changed(Lobbies.GetValueOrDefault(id));
+                watch.Changed(lobby, update);
+            }
+        }
+
+        internal void NotifyMetadata(string id, OnlineLobby lobby)
+        {
+            foreach (var watch in Watches.Where(watch => watch.Id == id).ToArray())
+            {
+                watch.Changed(lobby, new(OnlineLobbyUpdateKind.Metadata));
+            }
+        }
+
+        internal void NotifyIncompleteMembership(string id)
+        {
+            foreach (var watch in Watches.Where(watch => watch.Id == id).ToArray())
+            {
+                watch.Changed(null, new(OnlineLobbyUpdateKind.Joined));
             }
         }
 
         internal string NextId() => (++_next).ToString();
+        internal void Retire(string id, OnlineProductUserId subject)
+        {
+            foreach (var watch in Watches.Where(watch => watch.Id == id).ToArray())
+            {
+                watch.Retired?.Invoke(subject);
+            }
+        }
     }
 
-    private sealed class Watch(Service service, string id, Action<OnlineLobby?> changed) : IDisposable
+    private sealed class Watch(Service service, string id, Action<OnlineLobby?, OnlineLobbyUpdate> changed, Action<OnlineProductUserId>? retired) : IDisposable
     {
         internal string Id { get; } = id;
-        internal Action<OnlineLobby?> Changed { get; } = changed;
+        internal Action<OnlineLobby?, OnlineLobbyUpdate> Changed { get; } = changed;
+        internal Action<OnlineProductUserId>? Retired { get; } = retired;
         public void Dispose() => service.Watches.Remove(this);
     }
 
@@ -572,7 +1262,7 @@ internal sealed class OnlineLobbyTests
         {
             var current = service.Lobbies[id] with { Open = open };
             service.Lobbies[id] = current;
-            service.Notify(id);
+            service.Notify(id, new(OnlineLobbyUpdateKind.Metadata));
             completed(current, null);
         }
 
@@ -601,8 +1291,27 @@ internal sealed class OnlineLobbyTests
 
             lobby = lobby with { Members = lobby.Members + 1, MemberIds = lobby.MemberIds.Append(user).ToArray() };
             service.Lobbies[id] = lobby;
-            service.Notify(id);
+            service.Notify(id, new(OnlineLobbyUpdateKind.Joined, user));
             service.Complete(() => completed(lobby, null));
+        }
+
+        public void ConfirmMembership(string id, Action<bool> completed)
+        {
+            service.ProofRequests++;
+            service.LastProof = completed;
+            if (service.NotifyMetadataOnProof && service.Lobbies.TryGetValue(id, out var current))
+            {
+                service.NotifyMetadata(id, current with { Members = 1, MemberIds = new[] { current.Owner } });
+            }
+
+            if (!service.DelayProof)
+            {
+                completed(service.Lobbies.TryGetValue(id, out var lobby) && lobby.MemberIds.Contains(user));
+            }
+            else
+            {
+                service.PendingProofs.Add(completed);
+            }
         }
 
         public void Resume(string id, Action<OnlineLobby?, string?> completed)
@@ -617,7 +1326,7 @@ internal sealed class OnlineLobbyTests
             var members = lobby.MemberIds.Append(user).Distinct().ToArray();
             lobby = lobby with { Members = members.Length, MemberIds = members };
             service.Lobbies[id] = lobby;
-            service.Notify(id);
+            service.Notify(id, new(OnlineLobbyUpdateKind.Joined, user));
             service.Complete(() => completed(lobby, null));
         }
 
@@ -632,7 +1341,7 @@ internal sealed class OnlineLobbyTests
 
             current = current with { Name = lobby.Name };
             service.Lobbies[lobby.Id] = current;
-            service.Notify(lobby.Id);
+            service.Notify(lobby.Id, new(OnlineLobbyUpdateKind.Metadata));
             service.Complete(() => completed(current, null));
         }
 
@@ -656,15 +1365,15 @@ internal sealed class OnlineLobbyTests
                     service.Lobbies[id] = lobby with { Members = members.Length, MemberIds = members };
                 }
 
-                service.Notify(id);
+                service.Notify(id, new(destroy ? OnlineLobbyUpdateKind.Closure : OnlineLobbyUpdateKind.Departed, user));
             }
 
             service.Complete(() => completed(null));
         }
 
-        public IDisposable Watch(string id, Action<OnlineLobby?> changed)
+        public IDisposable Watch(string id, Action<OnlineLobby?, OnlineLobbyUpdate> changed, Action<OnlineProductUserId>? retired = null)
         {
-            var watch = new Watch(service, id, changed);
+            var watch = new Watch(service, id, changed, retired);
             service.Watches.Add(watch);
             _watches.Add(watch);
             return watch;
@@ -678,7 +1387,7 @@ internal sealed class OnlineLobbyTests
         private long _timestamp;
         public override long TimestampFrequency => TimeSpan.TicksPerSecond;
         public override long GetTimestamp() => _timestamp;
-        internal void Advance() => _timestamp += TimeSpan.TicksPerMinute;
+        internal void Advance(double seconds = 60) => _timestamp += (long)(seconds * TimeSpan.TicksPerSecond);
     }
 
     private sealed class Gateway : ITransportGateway
@@ -717,8 +1426,9 @@ internal sealed class OnlineLobbyTests
 
         public bool TryReceive(out TransportMessage message) => _received.TryDequeue(out message);
         internal void ConnectPeer(ulong peer) => _connections[peer] = TransportConnectionState.Connected;
+        internal void Receive(ulong peer, byte[] payload) => _received.Enqueue(new(peer, payload, TransportDelivery.Reliable));
         internal void ReceiveJoin(ulong peer, string name) => _received.Enqueue(new TransportMessage(peer, LobbyCodec.EncodeCommand(LobbyCommand.Join, null, name: name), TransportDelivery.Reliable));
-        internal void ReceiveResume(ulong peer, ulong session, ulong player, ulong generation) => _received.Enqueue(new TransportMessage(peer, LobbyCodec.EncodeResume(session, player, generation), TransportDelivery.Reliable));
+        internal void ReceiveResume(ulong peer, ulong session, ulong player, ulong generation, ulong epoch = 1) => _received.Enqueue(new TransportMessage(peer, LobbyCodec.EncodeResume(session, player, generation, epoch), TransportDelivery.Reliable));
         internal void ReceiveState(ulong peer, LobbySnapshot state, ulong player) => _received.Enqueue(new TransportMessage(peer, LobbyCodec.EncodeState(state, player), TransportDelivery.Reliable));
     }
 }

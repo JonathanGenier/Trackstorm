@@ -38,6 +38,17 @@ public sealed class EventStream
     /// <param name="milliseconds">Elapsed monotonic milliseconds.</param>
     public void AdvanceTime(ulong milliseconds) => _milliseconds = Math.Max(_milliseconds, milliseconds);
 
+    /// <summary>Starts an empty journal at an explicitly committed authority epoch, without replaying old outcomes.</summary>
+    /// <param name="milliseconds">Restored session clock.</param>
+    public void ResetAuthority(ulong milliseconds)
+    {
+        _entries.Clear();
+        LastSequence = 0;
+        _localSequence = 0;
+        _milliseconds = milliseconds;
+        Revision++;
+    }
+
     /// <summary>Records a committed outcome; never pass credentials, raw provider errors or platform identities.</summary>
     /// <param name="category">Owning system.</param>
     /// <param name="kind">Stable outcome type.</param>
