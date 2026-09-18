@@ -33,10 +33,21 @@ If the assignment and Jira issue type/parent disagree, identify the discrepancy.
 
 - Use the explicitly human-assigned Story branch name. Do not rename it to satisfy a naming pattern. If no branch is assigned, resolve the intended Story branch before implementation.
 - Create a new Story branch from `main`; never implement directly on `main`.
-- Before starting/resuming implementation, synchronize with the latest `main`.
-- Each Story PR to `main` must advance only the fourth `TrackstormVersion` component by exactly one against current main; run `./tools/check-version.ps1` after synchronization. See [game versioning](features/game-versioning.md) for initialization and CI enforcement.
+- Before implementing, resuming or finalizing a Story, synchronize its branch with current `main` and follow the version procedure below.
 - Implement and commit all child checkpoints and authorized corrections directly on that branch. Tasks/Subtasks never receive separate branches, PRs or independent Git reviews/merges.
 - The only delivery PR is the final integrated Story PR to `main`, after verification, critique and explicit human acceptance.
+
+### Canonical Story version procedure
+
+1. Fetch current `main` and synchronize the Story branch with it before implementation and again before final delivery.
+2. Read `TrackstormVersion` from current main's root `Directory.Build.props` (for example, `git show origin/main:Directory.Build.props` after fetching).
+3. Set the Story branch's canonical property to exactly the next fourth-component revision, keeping the release prefix unchanged. If main is `0.0.1.4`, the Story must use `0.0.1.5`.
+4. Derive this value from current main, never from branch creation time, commit count, the previous local value or another Story branch. Do not blindly increment on every Codex/agent run: if the branch already has the expected value, leave it unchanged.
+5. If another Story merges and advances main, synchronize again and recalculate from that new main value. A previously valid Story version can become stale.
+6. For the initial TS-66 establishment only, main with no canonical `TrackstormVersion` initializes the Story at `0.0.1.0`. Missing versions after establishment are an error, not permission to restart the sequence.
+7. Run `./tools/check-version.ps1` after synchronization/version adjustment and before final delivery. Resolve any expected/actual or ancestry failure before delivery.
+
+[Game versioning](features/game-versioning.md#story-sequencing) describes the existing single CI enforcement path and parser limits. This repository procedure applies to agents and developers alike; it is not a per-Story Jira instruction.
 
 ## Scope discipline
 
