@@ -6,6 +6,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 
 | Evidence | Reports |
 | --- | --- |
+| Disconnected match participants | [TS-65 retention, standings and lifecycle verification](ts-65.md) |
 | Active-match fresh admission | [TS-53 implementation, local verification and remaining EOS acceptance](ts-53.md) |
 | Gameplay/menu cursor ownership | [TS-67 acceptance and runtime verification](ts-67.md) |
 | Remote vehicle tags | [TS-64 clean verification and Story Round 1 critique](ts-64.md) |

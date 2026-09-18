@@ -72,6 +72,7 @@ internal sealed partial class MatchStandings : CanvasLayer
             {
                 _rows[index][column].Text = values[column];
                 _rows[index][column].AddThemeColorOverride("font_color", new Color(index == 0 ? "ffe1a1" : "ebe7df"));
+                _rows[index][column].Modulate = new Color(1, 1, 1, row?.Connected == false ? 0.55f : 1);
             }
         }
     }
