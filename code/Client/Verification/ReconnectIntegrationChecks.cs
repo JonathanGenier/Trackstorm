@@ -1,8 +1,12 @@
 using System.Net;
 using System.Net.Sockets;
 using Godot;
+using Trackstorm.Client.Hud;
 using Trackstorm.Client.Networking;
+using Trackstorm.Core.Input;
 using Trackstorm.Core.Items;
+using Trackstorm.Core.Matches;
+using Trackstorm.Core.Networking.Replication;
 using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Sessions;
 using Trackstorm.Core.Simulation;
@@ -30,6 +34,10 @@ public sealed partial class ReconnectIntegrationChecks : Node
     private byte[]? _retiredLatency;
     private bool _finished;
     private int _cleanup;
+    private MatchStandings _board = null!;
+    private double _resumeAt;
+    private PlayerScore? _retainedScore;
+    private int _retainedRank;
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -64,8 +72,10 @@ public sealed partial class ReconnectIntegrationChecks : Node
         _host = new LobbyNetworkDriver(_gateways[0], 900, 0, "Host", _ => true, identity: _ => "native-test-user");
         _client = new LobbyNetworkDriver(_gateways[1], 0, peer, "Client", expectedSession: 900)
         {
-            Reconnect = () => _gateways[1].Connect(TransportEndpoint.DirectIp(_endpoint)),
+            Reconnect = Reconnect,
         };
+        _board = new MatchStandings { View = Standings };
+        _views[1].AddChild(_board);
     }
 
     /// <inheritdoc/>
@@ -75,7 +85,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
         {
             if (++_cleanup == 4)
             {
-                GD.Print("Reconnect integration passed: immediate lobby removal/fresh admission, three arena resyncs, native body reuse, prediction/interpolation reset, held-item/spawn/match continuity, match-long reservation and Return cleanup over real UDP. EOS identity is a test seam.");
+                GD.Print("Reconnect integration passed: immediate lobby removal/fresh admission, three arena resyncs including 125 seconds offline, native body reuse, prediction/interpolation reset, held-item/spawn/match continuity, dimmed retained standings, final results and new-generation reset over real UDP. EOS identity and initial scores are test seams.");
                 GetTree().Quit();
             }
 
@@ -85,7 +95,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
         try
         {
             _elapsed += delta;
-            Require(_elapsed < 35, $"Reconnect stage {_stage} timed out: {_client.Failure}");
+            Require(_elapsed < 170, $"Reconnect stage {_stage} timed out: {_client.Failure}");
             if (_arenas.Count == 0)
             {
                 _host.Pump(delta);
@@ -209,6 +219,10 @@ public sealed partial class ReconnectIntegrationChecks : Node
         else if (_stage == 4 && _arenas[1].Driver.Prediction is not null && _arenas[1].Driver.Match?.Phase == Trackstorm.Core.Matches.MatchPhase.Active)
         {
             _originalBody = _arenas[1].Bodies[_player];
+            SetScores(false);
+            _retainedScore = _arenas[0].Driver.Host!.World.State.Match!.Players.Single(score => score.Player == _player);
+            _retainedRank = Standings()!.Rows.Single(row => row.PlayerId == _player).Rank;
+            _resumeAt = _elapsed + 125;
             Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 7, ["damage.max_hp"] = 1500, ["items.missile_speed"] = 60, ["spawns.cooldown_ticks"] = 90 }, out _), "Live host configuration commits before interruption.");
             _arenas[0].Driver.Host!.Items.Grant(_arenas[0].Driver.Host!.World, _player, HeldItem.Wrench);
             Drop();
@@ -219,6 +233,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
             Require(_retiredLatency is not null && !_client.Latency.Accept(_retiredLatency, _client.State!), "Retired connection diagnostics cannot replace the rebound player's RTT.");
             var standings = Hud.MatchStandingsView.From(_client.State, _arenas[1].Driver.Match, _player, Core.Input.InputButtons.Leaderboard, id => _client.Latency.Get(_client.State!, id));
             Require(standings.Rows.Count == 2 && standings.Rows.Single(row => row.Local).PlayerId == _player && standings.Rows.Single(row => row.Local).Ping != "--", "Resumed standings retain identity, rank and fresh transport-neutral ping.");
+            Require(standings.Rows.Single(row => row.Local) is { Connected: true, Kills: 2, Deaths: 1 } && standings.Rows.Single(row => row.Local).Rank == _retainedRank, "Late resume reactivates exactly one row with the same statistics and rank.");
+            VerifyRow(true);
             Require(Settings.DiagnosticsView.Create(new(), null, TransportDiagnostics.Capture(_gateways[1], _client)).Ping == "Ping  " + standings.Rows.Single(row => row.Local).Ping, "Resumed HUD and leaderboard use exactly the same published ping.");
             Require(_arenas[0].Bodies.Count == 2 && _arenas[1].Bodies.Count == 2, "Exactly one vehicle per player remains.");
             RemoteVehicleTagChecks.Verify(_arenas[0], _host);
@@ -270,10 +286,34 @@ public sealed partial class ReconnectIntegrationChecks : Node
         else if (_stage == 7)
         {
             Require(_arenas[0].Driver.Host!.World.State.Vehicles.Count == 2, "Disconnected vehicle remains in the active match.");
+            SetScores(true);
+            Require(Standings() is { Finished: true, Visible: true, WinnerName: "Host" }, "Finished retains the complete result and winner.");
+            VerifyRow(false);
+            _captureAt = _elapsed;
+            _stage = 8;
+        }
+        else if (_stage == 8 && _elapsed - _captureAt > 0.25)
+        {
+            Capture("offline-final-results");
+            Require(_host.Authority!.FindPlayer("native-test-user") == _player, "Finished does not release the reservation.");
             Require(_host.Authority!.Return(0), "Return ends the retained match.");
             Require(_host.State!.Players.Count == 1 && _host.Authority.FindPlayer("native-test-user") == 0, "Return clears disconnected player and subject.");
+            ulong previous = _host.State.Match;
+            _host.Authority.SetReady(0, true);
+            Require(_host.Authority.Start(0), "Next match starts after leaving results.");
+            var next = new HostVehicleSession(_host.State.Match);
+            Require(next.SessionId > previous && next.World.State.Match!.Players.Count == 1 && next.World.State.Match.Players.All(score => score.Kills == 0 && score.Deaths == 0), "New match generation starts fresh without retained offline rows or totals.");
             Cleanup();
             _finished = true;
+        }
+
+        if (_stage == 5 && _elapsed < _resumeAt)
+        {
+            VerifyRow(false);
+            if (_resumeAt - _elapsed < 1)
+            {
+                Capture("offline-active-standings");
+            }
         }
     }
 
@@ -288,6 +328,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
         _client.Pump(0);
         _host.Pump(181);
         _client.Pump(181);
+        Require(_arenas[0].Driver.Host!.World.State.Match!.Players.Single(score => score.Player == _player) == _retainedScore, "Disconnect and elapsed reservation time do not erase authoritative statistics.");
+        VerifyRow(false);
         if (_arenas.Count > 0)
         {
             RemoteVehicleTagChecks.Verify(_arenas[0], _host);
@@ -310,8 +352,40 @@ public sealed partial class ReconnectIntegrationChecks : Node
         ulong peer = _gateways[1].Connect(TransportEndpoint.DirectIp(_endpoint));
         _client = new LobbyNetworkDriver(_gateways[1], 0, peer, "Client", expectedSession: 900)
         {
-            Reconnect = () => _gateways[1].Connect(TransportEndpoint.DirectIp(_endpoint)),
+            Reconnect = Reconnect,
         };
+    }
+
+    private ulong Reconnect() => _elapsed < _resumeAt ? throw new InvalidOperationException("Simulated interrupted route") : _gateways[1].Connect(TransportEndpoint.DirectIp(_endpoint));
+
+    private MatchStandingsView? Standings() => _arenas.Count == 0 ? null : MatchStandingsView.From(_host.State, _arenas[0].Driver.Host!.World.State.Match, 1, InputButtons.Leaderboard, id => _host.Latency.Get(_host.State!, id));
+
+    private void VerifyRow(bool connected)
+    {
+        _board.Refresh();
+        StandingsRow row = _board.Displayed!.Rows.Single(row => row.PlayerId == _player);
+        Require(row.Connected == connected && row.Kills == 2 && row.Deaths == 1, "The rendered participant preserves authoritative presence and totals.");
+        Require(connected || row.Ping == "--", "Offline standings never show a live ping.");
+        Label label = _board.FindChildren("*", "Label", true, false).OfType<Label>().Single(label => label.Text.StartsWith("Client", StringComparison.Ordinal));
+        Require(Math.Abs(label.Modulate.A - (connected ? 1 : 0.55f)) < 0.001f, "The native row dims offline and restores on resume.");
+    }
+
+    private void SetScores(bool finished)
+    {
+        var world = _arenas[0].Driver.Host!.World;
+        MatchState previous = world.State.Match!;
+        var match = new MatchState(world.State.Tick, previous.Revision + 1, previous.KillTarget, finished ? MatchPhase.Finished : MatchPhase.Active, null, finished ? 1ul : null, previous.Players.Select(score => score with { Kills = score.Player == _player ? 2 : finished ? 5 : 1, Deaths = score.Player == _player ? 1 : finished ? 6 : 2, Wins = finished && score.Player == 1 ? 1 : 0, ProcessedLife = Math.Max(1, score.ProcessedLife) }));
+        // Scoring itself is exercised by the match harness; this fixture isolates retention and presentation.
+        world.Restore(new SimulationState(world.State.Tick, world.State.LastInput, world.State.Vehicles, match));
+    }
+
+    private void Capture(string name)
+    {
+        if (DisplayServer.GetName() != "headless")
+        {
+            using Image image = _views[1].GetTexture().GetImage();
+            Require(image.SavePng(System.IO.Path.Combine(_output, name + ".png")) == Error.Ok, "Saved rendered standings evidence.");
+        }
     }
 
     private void VerifyTags()
