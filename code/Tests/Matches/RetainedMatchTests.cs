@@ -20,7 +20,7 @@ internal sealed class RetainedMatchTests
         var lobby = new LobbyAuthority(100, "Host");
         for (ulong peer = 2; peer <= 8; peer++)
         {
-            Assert.That(lobby.Join(peer, $"Player {peer}", $"subject-{peer}"), Is.EqualTo(peer));
+            Assert.That(lobby.Join(peer, GameVersion.Current.ToString(), $"Player {peer}", $"subject-{peer}"), Is.EqualTo(peer));
             lobby.SetReady(peer, true);
         }
 
@@ -44,7 +44,7 @@ internal sealed class RetainedMatchTests
         host.Suspend(2);
         lobby.AdvanceTime(1000000);
         Assert.That(lobby.FindPlayer("subject-2"), Is.EqualTo(2));
-        Assert.That(lobby.Join(20, "Replacement", "new-subject"), Is.Zero);
+        Assert.That(lobby.Join(20, GameVersion.Current.ToString(), "Replacement", "new-subject"), Is.Zero);
         Assert.That(host.CanJoin, Is.False);
         Assert.That(host.World.State.Match.Players.Single(score => score.Player == 2), Is.EqualTo(retained));
         Assert.That(MatchRanking.Create(host.World.State.Match, lobby.State.Players.Select(player => player.Id)).Single(row => row.PlayerId == 2), Is.EqualTo(rank));
@@ -53,7 +53,7 @@ internal sealed class RetainedMatchTests
         Assert.That(host.World.State.Tick, Is.EqualTo(before + 1), "Remaining players never wait for resume.");
         Score(host, 4, 1);
         Assert.That(host.World.State.Match.Players.Single(score => score.Player == 1).Kills, Is.EqualTo(2));
-        Assert.That(lobby.Resume(20, 100, 2, 1, "subject-2"), Is.True);
+        Assert.That(lobby.Resume(20, GameVersion.Current.ToString(), 100, 2, 1, "subject-2"), Is.True);
         Assert.That(host.ResumePlayer(20, 2), Is.True);
         Assert.That(lobby.State.Players.Count(player => player.Id == 2), Is.EqualTo(1));
         Assert.That(host.World.State.Match.Players.Single(score => score.Player == 2), Is.EqualTo(retained));
@@ -70,7 +70,7 @@ internal sealed class RetainedMatchTests
         Assert.That(final.Players.Single(score => score.Player == 2), Is.EqualTo(retained));
         Assert.That(MatchRanking.Create(final, lobby.State.Players.Select(player => player.Id)).Count, Is.EqualTo(8));
         lobby.AdvanceTime(2000000);
-        Assert.That(lobby.Resume(21, 100, 2, 2, "subject-2"), Is.True, "Finished still owns the reservation.");
+        Assert.That(lobby.Resume(21, GameVersion.Current.ToString(), 100, 2, 2, "subject-2"), Is.True, "Finished still owns the reservation.");
         Assert.That(host.ResumePlayer(21, 2), Is.True);
         host.Step(default, state => new(state.ObservedPhysics, Vector3.UnitY));
         Assert.That(host.World.State.Match, Is.SameAs(final));
@@ -78,7 +78,7 @@ internal sealed class RetainedMatchTests
         host.Suspend(21);
         Assert.That(lobby.Return(0), Is.True);
         Assert.That(lobby.FindPlayer("subject-2"), Is.Zero);
-        Assert.That(lobby.Resume(22, 100, 2, 3, "subject-2"), Is.False);
+        Assert.That(lobby.Resume(22, GameVersion.Current.ToString(), 100, 2, 3, "subject-2"), Is.False);
         lobby.SetReady(0, true);
         foreach (ulong peer in lobby.Peers.Keys)
         {
@@ -96,7 +96,7 @@ internal sealed class RetainedMatchTests
         Assert.That(next.World.State.Match!.Players.Any(score => score.Player == 2), Is.False);
         Assert.That(next.World.State.Match.Players.All(score => score.Kills == 0 && score.Deaths == 0 && score.Wins == 0 && score.ProcessedLife == 0), Is.True);
         Assert.That(MatchRanking.Create(next.World.State.Match, lobby.State.Players.Select(player => player.Id)).Select(row => row.PlayerId), Is.EqualTo(new ulong[] { 1, 3, 4, 5, 6, 7, 8 }));
-        Assert.That(lobby.Join(22, "Returning", "subject-2"), Is.GreaterThan(8));
+        Assert.That(lobby.Join(22, GameVersion.Current.ToString(), "Returning", "subject-2"), Is.GreaterThan(8));
     }
 
     private static void Score(HostVehicleSession host, ulong victim, ulong killer)
