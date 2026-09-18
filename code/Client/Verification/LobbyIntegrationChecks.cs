@@ -21,6 +21,7 @@ public sealed partial class LobbyIntegrationChecks : Node
     private ulong _departedId;
     private ulong _firstMatch;
     private bool _finished;
+    private bool _interruptedFresh;
     private SubViewport _hostView = null!;
 
     /// <inheritdoc/>
@@ -68,6 +69,15 @@ public sealed partial class LobbyIntegrationChecks : Node
             _elapsed += delta;
             foreach (DevelopmentSession session in _sessions)
             {
+                if (_stage == 16 && !_interruptedFresh && session == _sessions[7] && session.Lobby?.JoiningArena == true)
+                {
+                    _interruptedFresh = true;
+                    session.Gateway!.Stop();
+                    _stage = 20;
+                    _stageStarted = _elapsed;
+                    _evidence.Add("Interrupted the fresh client after roster assignment and before checkpoint activation.");
+                }
+
                 session.Advance(new InputFrame(0, 0, 20000, 0, 0, 0, 0));
             }
 
@@ -222,15 +232,57 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Next("Arena departure retained the vehicle; host ended the match.");
                 break;
             case 13 when _sessions.Take(7).All(session => session.Arena is null && session.Lobby!.State!.Players.All(player => player.Id != _departedId)):
-                _sessions[0].Leave();
-                Next("Return cleared disconnected reservations and native arenas; host closed the session.");
+                foreach (var session in _sessions.Take(7))
+                {
+                    Click(session, "Ready");
+                }
+
+                Next("Return released the eighth reservation; readying seven players for active admission.");
                 break;
-            case 14 when _sessions.All(session => session.Lobby is null && session.Arena is null):
+            case 14 when host!.State!.CanStart:
+                Click(_sessions[0], "Start Match (host only)");
+                Next("Seven-player match started before fresh client joins.");
+                break;
+            case 15 when _sessions.Take(7).All(session => session.Arena?.Driver.Match?.Phase == Core.Matches.MatchPhase.Active):
+                _firstMatch = host!.State!.Match;
+                OpenThroughUi(_sessions[7], false, "Active newcomer");
+                Next("Fresh eighth client joining after authoritative gameplay is active.");
+                break;
+            case 16 when AllArena() && SameState() && _sessions[7].Arena!.Driver.IsActive:
+                Require(host!.State!.Match == _firstMatch, "Fresh admission does not restart arena generation.");
+                Require(_sessions[7].Lobby!.LocalPlayerId > _departedId, "Active admission allocates a new identity.");
+                Require(_sessions.All(session => session.Arena!.Driver.Match!.Phase == Core.Matches.MatchPhase.Active), "Match remains active on every peer.");
+                Require(_sessions.All(session => session.Arena!.Driver.Latest!.Vehicles.Select(vehicle => vehicle.State.VehicleId).Distinct().Count() == 8), "Every peer observes exactly eight unique vehicles.");
+                Require(_sessions[7].Arena!.Driver.ItemState!.Spawns.Count == 8, "Fresh bootstrap includes every pickup marker.");
+                Capture("active-join.png");
+                _departedId = _sessions[7].Lobby!.LocalPlayerId;
+                _sessions[7].Leave();
+                Next("Fresh client bootstrapped into active native gameplay exactly once; testing retained-slot capacity.");
+                break;
+            case 17 when host!.State!.Players.Any(player => player.Id == _departedId && !player.Connected):
+                OpenThroughUi(_sessions[7], false, "Overflow");
+                Next("Attempted fresh admission with seven connected plus one retained participant.");
+                break;
+            case 18 when _sessions[7].Lobby is null && _sessions[7].Arena is null:
+                Require(host!.State!.Players.Count == 8, "Rejected new player cannot consume a ninth slot.");
+                Require(_sessions[0].Arena!.Driver.Latest!.Vehicles.Count == 8, "Retained vehicle survives rejected admission.");
+                _sessions[0].Leave();
+                Next("Authoritative retained-slot rejection preserved all eight vehicles; host closed the session.");
+                break;
+            case 19 when _sessions.All(session => session.Lobby is null && session.Arena is null):
                 _finished = true;
                 _evidence.Add("Host loss returned all clients to Host/Join and removed every arena.");
                 System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
                 GD.Print("Lobby integration passed: " + string.Join("\n", _evidence));
                 CallDeferred(MethodName.Finish);
+                break;
+            case 20 when host!.State!.Players.Count == 7 && _sessions[7].Lobby is null:
+                Require(_sessions[0].Arena!.Driver.Host!.World.State.Vehicles.Count == 7, "Interrupted bootstrap leaves no vehicle.");
+                Require(_sessions[0].Arena!.Driver.Host!.World.State.Match!.Players.Count == 7, "Interrupted bootstrap leaves no score row.");
+                OpenThroughUi(_sessions[7], false, "Active newcomer retry");
+                _stage = 16;
+                _stageStarted = _elapsed;
+                _evidence.Add("Interrupted bootstrap released its slot without a vehicle or score row; retrying fresh admission.");
                 break;
         }
     }

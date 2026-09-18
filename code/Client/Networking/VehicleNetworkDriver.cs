@@ -15,6 +15,7 @@ internal sealed class VehicleNetworkDriver
     private readonly ITransportGateway _gateway;
     private readonly ulong _serverPeer;
     private readonly HashSet<ulong> _assigned = new();
+    private readonly HashSet<ulong> _preparedJoins = new();
     private readonly LobbyNetworkDriver? _lobby;
     private InputHistory? _inputs;
     private ulong _session;
@@ -60,6 +61,19 @@ internal sealed class VehicleNetworkDriver
 
         if (lobby is not null)
         {
+            lobby.ArenaAdmissionOpen = () => Host?.CanJoin == true && IsActive;
+            lobby.ActivateJoin = peer =>
+            {
+                if (Host is null || !_preparedJoins.Contains(peer) || !Host.ActivateJoin(peer, lobby.Authority!.PlayerId(peer)))
+                {
+                    return false;
+                }
+
+                _preparedJoins.Remove(peer);
+                _assigned.Add(peer);
+                _rosterChanged = true;
+                return true;
+            };
             if (lobby.Migration is not null)
             {
                 lobby.Migration.CaptureArena = CaptureMigration;
@@ -80,6 +94,11 @@ internal sealed class VehicleNetworkDriver
             {
                 foreach (var peer in lobby.Authority!.Peers)
                 {
+                    if (lobby.Authority.IsPendingJoin(peer.Key))
+                    {
+                        continue;
+                    }
+
                     Host.JoinPlayer(peer.Key, peer.Value);
                     _assigned.Add(peer.Key);
                 }
@@ -150,7 +169,7 @@ internal sealed class VehicleNetworkDriver
     /// <summary>Explicit stopped-session diagnostic, empty during normal operation.</summary>
     internal string Failure { get; private set; } = string.Empty;
     /// <summary>Whether this arena generation still belongs to the live lobby.</summary>
-    internal bool IsActive => _lobby is null || (_lobby.Failure.Length == 0 && !_lobby.Reconnecting && _lobby.Migration?.Frozen != true && !_awaitingCheckpoint && _lobby.State?.Phase == SessionPhase.Arena && _lobby.State.Match == _session);
+    internal bool IsActive => _lobby is null || (_lobby.Failure.Length == 0 && !_lobby.Reconnecting && !_lobby.JoiningArena && _lobby.Migration?.Frozen != true && !_awaitingCheckpoint && _lobby.State?.Phase == SessionPhase.Arena && _lobby.State.Match == _session);
     /// <summary>Current local gameplay state, independent of render smoothing.</summary>
     internal VehicleSnapshot? LocalState => Host?.World.GetVehicle(LocalVehicleId) ?? Prediction?.State;
     private ulong ServerPeer => _lobby?.ServerPeer ?? _serverPeer;
@@ -306,7 +325,7 @@ internal sealed class VehicleNetworkDriver
                 }
             }
         }
-        else if (!_awaitingCheckpoint && Inputs is InputHistory inputs)
+        else if (!_awaitingCheckpoint && _lobby?.JoiningArena != true && Inputs is InputHistory inputs)
         {
             if ((input.Pressed & InputButtons.UseItem) != 0)
             {
@@ -422,6 +441,8 @@ internal sealed class VehicleNetworkDriver
             connected.IntersectWith(_lobby.Authority!.Peers.Keys);
         }
 
+        _preparedJoins.IntersectWith(connected);
+
         foreach (ulong peer in _assigned.Except(connected).ToArray())
         {
             if (_lobby is null)
@@ -451,6 +472,22 @@ internal sealed class VehicleNetworkDriver
             if (_lobby is not null)
             {
                 ulong player = _lobby.Authority!.PlayerId(peer);
+                if (_lobby.Authority.IsPendingJoin(peer))
+                {
+                    if (_preparedJoins.Add(peer))
+                    {
+                        var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, Host!.World.State.Tick, ObserveProps());
+                        var checkpoint = Host!.PrepareJoin(player, ++_itemPublication, props);
+                        if (checkpoint is null || !Send(new TransportMessage(peer, ResumeCheckpointCodec.Encode(checkpoint), TransportDelivery.Reliable)))
+                        {
+                            _preparedJoins.Remove(peer);
+                            _lobby.RejectJoin(peer, "Join bootstrap failed");
+                        }
+                    }
+
+                    continue;
+                }
+
                 if (Host!.ResumePlayer(peer, player))
                 {
                     _assigned.Add(peer);
@@ -492,6 +529,7 @@ internal sealed class VehicleNetworkDriver
         }
 
         _assigned.Clear();
+        _preparedJoins.Clear();
         _awaitingCheckpoint = true;
         // A new authority epoch may restore an older complete configuration boundary.
         _receivedConfiguration = false;
@@ -551,7 +589,6 @@ internal sealed class VehicleNetworkDriver
         _snapshotAge = 0;
         _generation = _lobby.Generation;
         _awaitingCheckpoint = false;
-        _lobby.CompleteResume();
         Failure = string.Empty;
         RosterChanged?.Invoke(world);
         Resynchronized?.Invoke(world);
@@ -562,6 +599,8 @@ internal sealed class VehicleNetworkDriver
         {
             PropsReceived?.Invoke(PropSnapshot);
         }
+
+        _lobby.CompleteResume();
     }
 
     private bool AcceptSnapshot(WorldSnapshot snapshot, Func<VehicleSnapshot, VehicleObservation> observe)

@@ -10,7 +10,7 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
     private readonly Button _login = new() { Text = "EOS dev login / Retry" };
     private readonly Button _logout = new() { Text = "EOS logout" };
     private readonly LineEdit _search = new() { PlaceholderText = "Search lobbies", MaxLength = 48 };
-    private readonly LineEdit _name = new() { PlaceholderText = "Lobby name (1–48 characters)", MaxLength = 96 };
+    private readonly LineEdit _name = new() { Text = "Lobby", PlaceholderText = "Lobby name (1–48 characters)", MaxLength = 96 };
     private readonly CheckButton _locked = new() { Text = "Locked / Private" };
     private readonly LineEdit _credential = new() { PlaceholderText = "Access code (4–64 characters)", Secret = true, MaxLength = 64 };
     private readonly LineEdit _joinCredential = new() { PlaceholderText = "Enter lobby access code", Secret = true, MaxLength = 64 };
