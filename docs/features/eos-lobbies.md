@@ -4,6 +4,8 @@ EOS owns discovery, identity and P2P routing. The separate [Cloudflare authority
 
 ## Browser, Names and Access
 
+The lobby creation name field starts with `Lobby` and remains editable before hosting.
+
 Normal multiplayer opens one browser for compatible **Public** and **Locked / Private** lobbies, without address or port entry. Each row has a name, online member count out of eight, access indicator and Join action. Counts describe EOS membership, not an authoritative gameplay roster. Names truncate visually before the separate count/access/action columns. A refresh replaces the previous cache; membership updates replace entries by logical EOS lobby ID. Rows sort by `OrdinalIgnoreCase` name and then ordinal lobby ID. Search is a local ordinal, case-insensitive substring of the lobby name; clearing it restores all compatible cached results. Updated names stop matching their previous spelling. Native search retrieves up to EOS's 200-result limit in the compatibility bucket; this prototype does not implement global pagination beyond that service limit.
 
 Creation and rename share canonical name rules: retain Unicode letters/digits, apostrophe, hyphen and underscore; collapse whitespace; discard other characters including markup and directional controls; trim and truncate to 48 Unicode scalars without splitting surrogate pairs. Empty canonical names are rejected. The host chooses Public or Locked and supplies a 4–64 character access code for Locked lobbies. The credential edit is masked and cleared after submission. Public joins never request a code; Locked joins display a separate masked prompt. Incorrect codes do not join EOS through the normal coordinator and cannot admit a player through the host transport binding.
