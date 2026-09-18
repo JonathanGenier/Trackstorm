@@ -9,4 +9,5 @@ namespace Trackstorm.Client.Hud;
 /// <param name="Ping">Safe latency text.</param>
 /// <param name="Winner">Recorded winner identity.</param>
 /// <param name="Local">Local player marker.</param>
-internal sealed record StandingsRow(ulong PlayerId, int Rank, string Name, int Kills, int Deaths, string Ping, bool Winner, bool Local);
+/// <param name="Connected">Authoritative online state; retained offline participants keep their rank and totals.</param>
+internal sealed record StandingsRow(ulong PlayerId, int Rank, string Name, int Kills, int Deaths, string Ping, bool Winner, bool Local, bool Connected);

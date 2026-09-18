@@ -27,10 +27,14 @@ internal sealed record MatchStandingsView(bool Visible, bool Finished, IReadOnly
             return new(false, false, Array.Empty<StandingsRow>(), "--", string.Empty);
         }
 
-        var names = roster.Players.ToDictionary(player => player.Id, player => player.Name);
-        var ranks = MatchRanking.Create(match, names.Keys);
-        StandingsRow[] rows = ranks.Select(rank => new StandingsRow(rank.PlayerId, rank.Rank, names[rank.PlayerId], rank.Kills, rank.Deaths, PingFormatter.Format(ping(rank.PlayerId)), rank.PlayerId == match.Winner, rank.PlayerId == localPlayer)).ToArray();
+        var participants = roster.Players.ToDictionary(player => player.Id);
+        var ranks = MatchRanking.Create(match, participants.Keys);
+        StandingsRow[] rows = ranks.Select(rank =>
+        {
+            SessionPlayer player = participants[rank.PlayerId];
+            return new StandingsRow(rank.PlayerId, rank.Rank, player.Name, rank.Kills, rank.Deaths, PingFormatter.Format(player.Connected ? ping(rank.PlayerId) : null), rank.PlayerId == match.Winner, rank.PlayerId == localPlayer, player.Connected);
+        }).ToArray();
         bool finished = match.Phase == MatchPhase.Finished;
-        return new(finished || (match.Phase == MatchPhase.Active && held.HasFlag(InputButtons.Leaderboard)), finished, Array.AsReadOnly(rows), rows.SingleOrDefault(row => row.PlayerId == localPlayer)?.Rank.ToString(CultureInfo.InvariantCulture) ?? "--", match.Winner is ulong winner ? names.GetValueOrDefault(winner, $"Player {winner}") : string.Empty);
+        return new(finished || (match.Phase == MatchPhase.Active && held.HasFlag(InputButtons.Leaderboard)), finished, Array.AsReadOnly(rows), rows.SingleOrDefault(row => row.PlayerId == localPlayer)?.Rank.ToString(CultureInfo.InvariantCulture) ?? "--", match.Winner is ulong winner ? participants.GetValueOrDefault(winner)?.Name ?? $"Player {winner}" : string.Empty);
     }
 }

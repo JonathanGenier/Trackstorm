@@ -11,6 +11,27 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class MatchStandingsTests
 {
+    /// <summary>Authoritative offline state retains names, totals, rank and winner while suppressing stale diagnostics.</summary>
+    [Test]
+    public void OfflineRowsSurviveResultsAndReactivateWithoutDuplicateOrReset()
+    {
+        LobbySnapshot online = Roster();
+        var offline = new LobbySnapshot(online.Session, 2, online.Match, online.Phase, online.Players.Select(player => player.Id == 8 ? player with { Connected = false, Ready = false } : player));
+        foreach (MatchPhase phase in new[] { MatchPhase.Active, MatchPhase.Finished })
+        {
+            var match = new MatchState(10, 1, 5, phase, null, phase == MatchPhase.Finished ? 8ul : null, online.Players.Select(player => new PlayerScore(player.Id, player.Id == 8 ? phase == MatchPhase.Finished ? 5 : 3 : 0, player.Id == 8 ? 2 : 1, player.Id == 8 && phase == MatchPhase.Finished ? 1 : 0, 2)));
+            var before = MatchStandingsView.From(online, match, 1, InputButtons.Leaderboard, _ => 25);
+            var disconnected = MatchStandingsView.From(offline, match, 1, InputButtons.Leaderboard, id => id == 8 ? throw new InvalidOperationException("Offline latency must not be sampled.") : 25);
+            Assert.That(disconnected.Rows, Is.EqualTo(before.Rows.Select(row => row.PlayerId == 8 ? row with { Connected = false, Ping = "--" } : row)));
+            Assert.That(disconnected.Rows[0], Is.EqualTo(before.Rows[0] with { Connected = false, Ping = "--" }));
+            Assert.That(disconnected.WinnerName, Is.EqualTo(phase == MatchPhase.Finished ? "Player 8" : string.Empty));
+            var rebound = new LobbySnapshot(online.Session, 3, online.Match, online.Phase, online.Players.Select(player => player.Id == 8 ? player with { Generation = 2 } : player));
+            var resumed = MatchStandingsView.From(rebound, match, 1, InputButtons.Leaderboard, _ => 40);
+            Assert.That(resumed.Rows, Is.EqualTo(before.Rows.Select(row => row with { Ping = "40 ms" })));
+            Assert.That(resumed.Rows.Count(row => row.PlayerId == 8), Is.EqualTo(1));
+        }
+    }
+
     /// <summary>Migration resets diagnostics even when rollback reuses a roster revision, and the new host has no network hop.</summary>
     [Test]
     public void MigrationRejectsRetiredEpochAndUsesCurrentHost()
