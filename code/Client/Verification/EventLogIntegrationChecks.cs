@@ -204,9 +204,9 @@ public sealed partial class EventLogIntegrationChecks : Node
 
         feed.Refresh(5);
         _client!.Leave();
-        await Until(() => host.Events.Entries.Any(entry => entry.Kind == "Left" && entry.Sequence == host.Events.LastSequence) || host.Lobby!.State!.Players.Count == 1);
+        await Until(() => host.Lobby!.State!.Players.Any(player => !player.Connected));
         await Frames(3);
-        Check(rows.Any(row => row.Visible && row.Text == "Guest tester left the game"), "actual UDP departure appears automatically");
+        Check(rows.Any(row => row.Visible && row.Text == "Guest tester disconnected"), "actual UDP arena disconnect appears automatically while player state is retained");
         feed.Refresh(5);
         Check(!feed.Visible, "all feed rows expire");
         GD.Print("Activity feed integration passed: production HUD, independent expiry, bounded bursts, filtering and UDP departure.");

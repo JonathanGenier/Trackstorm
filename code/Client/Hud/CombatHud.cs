@@ -105,7 +105,9 @@ internal sealed partial class CombatHud : CanvasLayer
     {
         var material = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/hud/Component.gdshader") };
         material.SetShaderParameter("component", kind);
-        material.SetShaderParameter("steel", steel);
+        // The temporary Variant owns a native texture reference; release it after the material copies it.
+        using var steelParameter = Variant.From(steel);
+        material.SetShaderParameter("steel", steelParameter);
         var control = new TextureRect { Name = name, Size = size, Texture = GD.Load<Texture2D>($"res://assets/hud/{name}.png"), Material = material, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, MouseFilter = Control.MouseFilterEnum.Ignore };
         _root.AddChild(control);
         _components.Add(control);

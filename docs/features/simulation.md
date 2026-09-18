@@ -61,6 +61,8 @@ The simulation owns tick/input, vehicle aggregates, lifecycle and optional match
 
 Core NUnit tests exercise simulation configuration, sequential ticks, atomic vehicle batches and restore invariants. `check-gdunit.ps1 -GodotPath <Godot .NET executable>` imports the enabled GdUnit4 plugin, runs the Godot-side Client suite and smoke-tests the main scene. The [input harness](input.md) separately checks native keyboard/gamepad capture and fixed-callback publication.
 
+Authority restoration, epoch fencing, checkpoint cadence and migration limits are described in [host migration](host-migration.md).
+
 [Feature index](README.md)
 
 The [Event Log](event-log.md) consumes committed hit results and lifecycle/match transitions at the same world boundary. Restore produces no historical outcomes; staged item-use events precede their applied damage/healing.

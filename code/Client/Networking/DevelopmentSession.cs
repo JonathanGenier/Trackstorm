@@ -45,11 +45,11 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <summary>Host-local tuning supplied by composition; never consulted for a joining client.</summary>
     internal Development.DeveloperSettingsStore? DeveloperSettings { get; set; }
     /// <summary>Current local authority; no host controls exist before hosting or after authority is lost.</summary>
-    internal bool IsDeveloperHost => Development.DeveloperTools.Enabled && !_leaving && _lobby?.Authority is not null;
+    internal bool IsDeveloperHost => Development.DeveloperTools.Enabled && !_leaving && _lobby is { Authority: not null, Failure.Length: 0, Reconnecting: false } && _lobby.Migration?.Frozen != true && (_arena is null || _arena.Driver.IsActive);
     /// <summary>Active provider capability boundary for local network simulation.</summary>
     internal ITransportGateway? Gateway => _gateway;
     /// <summary>Current host tuning for lobby or arena editing.</summary>
-    internal Core.Development.GameplayConfiguration DeveloperConfiguration => _arena?.Driver.Configuration.Configuration ?? DeveloperSettings?.Current ?? Core.Development.GameplayConfiguration.HostedDefaults;
+    internal Core.Development.GameplayConfiguration DeveloperConfiguration => _arena?.Driver.Configuration.Configuration ?? _lobby?.Authority?.Configuration.Configuration ?? Core.Development.GameplayConfiguration.HostedDefaults;
 
     /// <summary>Authenticated online coordinator supplied by application composition.</summary>
     internal Func<OnlineLobbyCoordinator?> OnlineCoordinator { get; set; } = () => null;
@@ -142,6 +142,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         else
         {
             _eventMilliseconds = 0;
+            Events = _lobby.Events;
         }
 
         _rejectionSeconds += delta;
@@ -200,6 +201,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             }
 
             _lobby = new LobbyNetworkDriver(_transport.Gateway, session, peer, name);
+            InitializeHostConfiguration();
             Events = _lobby.Events;
             _message = host ? $"Hosting {address}. Everyone must be ready to start." : $"Joining {address}…";
         }
@@ -235,23 +237,23 @@ internal sealed partial class DevelopmentSession : CanvasLayer
                 var lobby = coordinator.Active;
                 _ownedOnline = coordinator.CreateTransport();
                 ulong peer = 0;
-                if (coordinator.IsHost)
+                if (coordinator.StartsGameplayAuthority)
                 {
                     _ownedOnline.Listen(EosP2pTransport.Endpoint(lobby, coordinator.Identity));
                 }
                 else
                 {
-                    peer = _ownedOnline.Connect(EosP2pTransport.Endpoint(lobby, lobby.Owner));
+                    peer = _ownedOnline.Connect(EosP2pTransport.Endpoint(lobby, lobby.HostIdentity));
                 }
 
                 var binding = OpenOnline(_ownedOnline, peer, _name.Text);
                 _ownedOnline.Authorize = binding.AuthorizePeer;
-                if (!coordinator.IsHost)
+                if (!coordinator.StartsGameplayAuthority)
                 {
                     binding.Driver.Reconnect = () =>
                     {
                         _ownedOnline.Stop();
-                        return _ownedOnline.Connect(EosP2pTransport.Endpoint(coordinator.Active ?? throw new InvalidOperationException("Session unavailable"), lobby.Owner));
+                        return _ownedOnline.Connect(EosP2pTransport.Endpoint(coordinator.Active ?? throw new InvalidOperationException("Session unavailable"), _ownedOnline.GameplayHost ?? lobby.HostIdentity));
                     };
                 }
 
@@ -310,7 +312,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             _arenaGeneration = _lobby.State.Match;
             _eventRejected = 0;
             _arena = new NetworkVehicleArena { Name = "SessionArena" };
-            _arena.Initialize(_gateway!, _lobby.Authority is null ? 0 : _arenaGeneration, _lobby.ServerPeer, _lobby, IsDeveloperHost ? DeveloperSettings?.LoadForHost() : null);
+            _arena.Initialize(_gateway!, _lobby.Authority is null ? 0 : _arenaGeneration, _lobby.ServerPeer, _lobby, _lobby.Authority?.Configuration.Configuration);
             AddChild(_arena);
             if (_forceStart && _arena.Driver.Host is not null)
             {
@@ -368,6 +370,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         var binding = coordinator.AttachTransport(gateway, serverPeer, name);
         _gateway = gateway;
         _lobby = binding.Driver;
+        InitializeHostConfiguration();
         Events = _lobby.Events;
         _onlineTransport = true;
         _debug.ButtonPressed = false;
@@ -398,16 +401,20 @@ internal sealed partial class DevelopmentSession : CanvasLayer
 
             accepted = _arena.Driver.Configuration.Configuration;
         }
-        else if (!Core.Development.GameplayOptions.TryApply(DeveloperConfiguration, edits, out accepted, out error))
+        else if (!_lobby!.Authority!.TryConfigure(0, edits, out error))
         {
             return false;
+        }
+        else
+        {
+            accepted = _lobby.Authority.Configuration.Configuration;
         }
 
         if (_arena is null)
         {
             foreach (var option in Core.Development.GameplayOptions.All.Where(option => option.Read(previousConfiguration) != option.Read(accepted)))
             {
-                Events.Record(Core.Events.EventCategory.Developer, "Setting changed", actor: 1, context: option.Key, amount: option.Read(accepted), previous: option.Read(previousConfiguration));
+                Events.Record(Core.Events.EventCategory.Developer, "Setting changed", actor: _lobby!.LocalPlayerId, context: option.Key, amount: option.Read(accepted), previous: option.Read(previousConfiguration));
             }
         }
 
@@ -418,7 +425,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <summary>Uses existing inventory authority; a joined client never sends a grant request.</summary>
     /// <returns>Whether the operation was accepted.</returns>
     /// <param name="item">Implemented item to grant.</param>
-    internal bool GiveDeveloperItem(Core.Items.HeldItem item) => IsDeveloperHost && _arena?.Driver.Host?.GiveItem(0, item) == true;
+    internal bool GiveDeveloperItem(Core.Items.HeldItem item) => IsDeveloperHost && _arena?.Driver.GiveDeveloperItem(item) == true;
 
     /// <summary>Enters a normal arena and arms only its authoritative match countdown override.</summary>
     /// <returns>Whether the operation was accepted.</returns>
@@ -431,12 +438,21 @@ internal sealed partial class DevelopmentSession : CanvasLayer
 
         if (_arena is not null)
         {
-            return _arena.Driver.Host!.ForceStart(0);
+            return _arena.Driver.ForceDeveloperStart();
         }
 
         _lobby!.Authority!.SetReady(0, true);
         _forceStart = _lobby.Request(LobbyCommand.Start);
         return _forceStart;
+    }
+
+    private void InitializeHostConfiguration()
+    {
+        if (_lobby?.Authority is { } authority && authority.State.AuthorityEpoch == 1)
+        {
+            var initial = DeveloperSettings?.LoadForHost() ?? Core.Development.GameplayConfiguration.HostedDefaults;
+            authority.TryConfigure(0, Core.Development.GameplayOptions.All.ToDictionary(option => option.Key, option => option.Read(initial)), out _);
+        }
     }
 
     private void CloseSession()
@@ -503,10 +519,10 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _ready.Visible = _lobby?.State is not null && !arena;
         _start.Visible = _lobby?.Authority is not null && !arena;
         _start.Disabled = _leaving || _lobby?.State?.CanStart != true;
-        _ready.Disabled = _leaving || _lobby?.Reconnecting == true;
-        _arenaStatus.Text = _leaving ? "Leaving session…" : _lobby?.ResumeStatus ?? string.Empty;
-        _status.Text = _gateway is null ? _message : $"{_gateway.Name}: {_gateway.ConnectionState}\n{(_lobby?.ResumeStatus.Length > 0 ? _lobby.ResumeStatus : _message)}";
-        _roster.Text = _lobby?.State is not LobbySnapshot state ? string.Empty : $"{state.Players.Count}/8 slots\n" + string.Join("\n", state.Players.Select(player => $"{(!player.Connected ? "↻ RECONNECTING" : player.Ready ? "✓ READY" : "○ WAITING")}   {player.Name}  #{player.Id}{(player.Id == 1 ? " · HOST" : string.Empty)}{(player.Id == _lobby.LocalPlayerId ? " · YOU" : string.Empty)}"));
+        _ready.Disabled = _leaving || _lobby?.Reconnecting == true || _lobby?.Migration?.Frozen == true;
+        _arenaStatus.Text = _leaving ? "Leaving session…" : (_lobby?.Migration?.Frozen == true ? _lobby.Migration.Status : _lobby?.ResumeStatus) ?? string.Empty;
+        _status.Text = _gateway is null ? _message : $"{_gateway.Name}: {_gateway.ConnectionState}\n{(_lobby?.Migration?.Frozen == true ? _lobby.Migration.Status : _lobby?.ResumeStatus.Length > 0 ? _lobby.ResumeStatus : _message)}";
+        _roster.Text = _lobby?.State is not LobbySnapshot state ? string.Empty : $"{state.Players.Count}/8 slots\n" + string.Join("\n", state.Players.Select(player => $"{(!player.Connected ? "↻ RECONNECTING" : player.Ready ? "✓ READY" : "○ WAITING")}   {player.Name}  #{player.Id}{(player.Id == state.CurrentHostId ? " · HOST" : string.Empty)}{(player.Id == _lobby.LocalPlayerId ? " · YOU" : string.Empty)}"));
         _ready.Text = _lobby?.State?.Players.Single(player => player.Id == _lobby.LocalPlayerId).Ready == true ? "Unready" : "Ready";
     }
 }

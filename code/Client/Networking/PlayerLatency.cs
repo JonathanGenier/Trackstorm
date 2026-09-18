@@ -11,6 +11,7 @@ internal sealed class PlayerLatency
     private readonly Dictionary<ulong, int?> _samples = new();
     private readonly Func<double> _seconds;
     private ulong _session;
+    private ulong _authorityEpoch;
     private ulong _roster;
     private ulong _match;
     private ulong _sequence;
@@ -47,15 +48,16 @@ internal sealed class PlayerLatency
     /// <returns>Bounded complete publication.</returns>
     internal byte[] Sample(LobbySnapshot state, IReadOnlyDictionary<ulong, ulong> peers, ITransportGateway gateway)
     {
-        var data = new byte[36 + (state.Players.Count * 12)];
+        var data = new byte[44 + (state.Players.Count * 12)];
         data[0] = (byte)'T';
         data[1] = (byte)'P';
-        data[2] = 1;
+        data[2] = 2;
         data[3] = (byte)state.Players.Count;
         BinaryPrimitives.WriteUInt64LittleEndian(data.AsSpan(4), state.Session);
         BinaryPrimitives.WriteUInt64LittleEndian(data.AsSpan(12), state.Revision);
         BinaryPrimitives.WriteUInt64LittleEndian(data.AsSpan(20), state.Match);
         BinaryPrimitives.WriteUInt64LittleEndian(data.AsSpan(28), _sequence + 1);
+        BinaryPrimitives.WriteUInt64LittleEndian(data.AsSpan(36), state.AuthorityEpoch);
         for (int index = 0; index < state.Players.Count; index++)
         {
             ulong id = state.Players[index].Id;
@@ -69,8 +71,8 @@ internal sealed class PlayerLatency
                 }
             }
 
-            BinaryPrimitives.WriteUInt64LittleEndian(data.AsSpan(36 + (index * 12)), id);
-            BinaryPrimitives.WriteInt32LittleEndian(data.AsSpan(44 + (index * 12)), ping);
+            BinaryPrimitives.WriteUInt64LittleEndian(data.AsSpan(44 + (index * 12)), id);
+            BinaryPrimitives.WriteInt32LittleEndian(data.AsSpan(52 + (index * 12)), ping);
         }
 
         Accept(data, state);
@@ -83,9 +85,9 @@ internal sealed class PlayerLatency
     /// <returns>Whether accepted.</returns>
     internal bool Accept(ReadOnlySpan<byte> data, LobbySnapshot state)
     {
-        if (!IsLatency(data) || data.Length < 36 || data[2] != 1 || data[3] is < 1 or > 8 || data.Length != 36 + (data[3] * 12) ||
+        if (!IsLatency(data) || data.Length < 44 || data[2] != 2 || data[3] is < 1 or > 8 || data.Length != 44 + (data[3] * 12) ||
             BinaryPrimitives.ReadUInt64LittleEndian(data[4..]) != state.Session || BinaryPrimitives.ReadUInt64LittleEndian(data[12..]) != state.Revision ||
-            BinaryPrimitives.ReadUInt64LittleEndian(data[20..]) != state.Match || data[3] != state.Players.Count)
+            BinaryPrimitives.ReadUInt64LittleEndian(data[20..]) != state.Match || BinaryPrimitives.ReadUInt64LittleEndian(data[36..]) != state.AuthorityEpoch || data[3] != state.Players.Count)
         {
             return false;
         }
@@ -99,9 +101,9 @@ internal sealed class PlayerLatency
         var samples = new Dictionary<ulong, int?>();
         for (int index = 0; index < data[3]; index++)
         {
-            ulong id = BinaryPrimitives.ReadUInt64LittleEndian(data[(36 + (index * 12))..]);
-            int ping = BinaryPrimitives.ReadInt32LittleEndian(data[(44 + (index * 12))..]);
-            if (!state.Players.Any(player => player.Id == id) || ping is < -1 or > 60000 || (id == 1 && ping != -1) || !samples.TryAdd(id, ping < 0 ? null : ping))
+            ulong id = BinaryPrimitives.ReadUInt64LittleEndian(data[(44 + (index * 12))..]);
+            int ping = BinaryPrimitives.ReadInt32LittleEndian(data[(52 + (index * 12))..]);
+            if (!state.Players.Any(player => player.Id == id) || ping is < -1 or > 60000 || (id == state.CurrentHostId && ping != -1) || !samples.TryAdd(id, ping < 0 ? null : ping))
             {
                 return false;
             }
@@ -114,6 +116,7 @@ internal sealed class PlayerLatency
         }
 
         _session = state.Session;
+        _authorityEpoch = state.AuthorityEpoch;
         _roster = state.Revision;
         _match = state.Match;
         _sequence = sequence;
@@ -121,5 +124,5 @@ internal sealed class PlayerLatency
         return true;
     }
 
-    private bool Matches(LobbySnapshot state) => _session == state.Session && _roster == state.Revision && _match == state.Match;
+    private bool Matches(LobbySnapshot state) => _session == state.Session && _authorityEpoch == state.AuthorityEpoch && _roster == state.Revision && _match == state.Match;
 }

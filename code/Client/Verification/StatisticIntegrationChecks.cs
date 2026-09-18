@@ -128,9 +128,13 @@ public sealed partial class StatisticIntegrationChecks : Node
             menu.Close();
             Tap(Key.F2);
             _remote.Leave();
-            await Until(() => _host.Lobby!.State!.Players.Count == 1, "remote departure");
+            await Until(() => _host.Lobby!.State!.Players.Any(player => !player.Connected), "remote reservation");
             await Frames(20);
-            Check(_panel.View!.Players.Count == 1 && _panel.View.Selected == 1, "departure safely selects available player");
+            Check(_panel.View!.Players.Count == 2 && Text().Contains("Connected: False", StringComparison.Ordinal), "disconnected player keeps its statistics selection and state");
+            Check(_host.Lobby!.Request(LobbyCommand.Return), "Return ends retained arena");
+            await Until(() => _host.Lobby.State!.Players.Count == 1 && _host.Arena is null, "Return cleanup");
+            await Frames(20);
+            Check(_panel.View!.Players.Count == 1 && _panel.View.Selected == 1, "Return cleanup safely selects available player");
             _host.Leave();
             await Frames(30);
             Check(Text().Contains("NO SESSION", StringComparison.Ordinal) && !Text().Contains("HP 1000", StringComparison.Ordinal), "teardown clears stale telemetry");

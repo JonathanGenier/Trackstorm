@@ -1,6 +1,6 @@
 namespace Trackstorm.Client.Development;
 
-/// <summary>Build-time switch; Release builds omit developer entry points unless explicitly enabled.</summary>
+/// <summary>QA builds enable developer entry points; shipping builds can explicitly disable them.</summary>
 internal static class DeveloperTools
 {
     /// <summary>Whether this build enables developer UI and actions.</summary>

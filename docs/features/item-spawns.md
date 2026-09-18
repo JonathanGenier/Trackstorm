@@ -26,7 +26,7 @@ Deterministic NUnit coverage verifies actual registration IDs, single registrati
 
 See [reconnection and session resume](reconnection.md) for authenticated grace, rebind and checkpoint semantics.
 
-Host [Developer Options](developer-options.md) updates the existing spawn authority. Native observation and Core claims use the accepted pickup radius; future successful claims use the current cooldown and weights. Existing activation deadlines remain unchanged. A Seed edit restarts the actual selector stream without consuming a draw. The configuration is replicated and included in resume checkpoints; this does not restore a replacement host's RNG position, which requires host-migration support.
+Host [Developer Options](developer-options.md) updates the existing spawn authority. Native observation and Core claims use the accepted pickup radius; future successful claims use the current cooldown and weights. Existing activation deadlines remain unchanged. A Seed edit restarts the portable SplitMix64 selector stream without consuming a draw. Other tuning edits preserve its position. The configuration is replicated and included in resume checkpoints; host-migration checkpoints additionally retain the exact selector state so replacement authority continues the same award sequence.
 
 [Feature index](README.md)
 

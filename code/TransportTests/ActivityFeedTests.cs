@@ -17,10 +17,13 @@ internal sealed class ActivityFeedTests
     [Test]
     public void PresenceUsesCapturedNamesAndOnlyCommittedTransitions()
     {
-        var lobby = new LobbyAuthority(10, "Host", 60);
+        var lobby = new LobbyAuthority(10, "Host");
         using var feed = new ActivityFeedView();
         feed.Update(lobby.Events, true, 0);
         ulong player = lobby.Join(4, GameVersion.Current.ToString(), "Guest<>", "private-subject");
+        lobby.SetReady(0, true);
+        lobby.SetReady(4, true);
+        Assert.That(lobby.Start(0, [4]), Is.True);
         lobby.Disconnect(4);
         lobby.Disconnect(4);
         lobby.AdvanceTime(30);
@@ -28,7 +31,7 @@ internal sealed class ActivityFeedTests
         lobby.Remove(5);
         Assert.That(feed.Entries.Select(row => row.Text), Is.EqualTo(new[]
         {
-            "Guest joined the game", "Guest disconnected", "Guest reconnected", "Guest left the game",
+            "Guest joined the game", "Guest disconnected", "Guest reconnected", "Guest disconnected",
         }));
         Assert.That(feed.Entries.Select(row => row.Tone), Is.EqualTo(new[]
         {
@@ -152,18 +155,23 @@ internal sealed class ActivityFeedTests
         Assert.That(peer.Entries.Single().Text, Is.EqualTo(expected));
     }
 
-    /// <summary>Lobby history stays hidden while grace removal becomes a concise departure.</summary>
+    /// <summary>Lobby history stays hidden while match-end removal becomes a concise departure.</summary>
     [Test]
-    public void InactiveFeedConsumesNothingAndGraceExpiryHasPlayerWording()
+    public void InactiveFeedConsumesNothingAndMatchEndHasPlayerWording()
     {
-        var lobby = new LobbyAuthority(10, "Host", 60);
+        var lobby = new LobbyAuthority(10, "Host");
         using var feed = new ActivityFeedView();
         feed.Update(lobby.Events, false, 0);
         lobby.Join(4, GameVersion.Current.ToString(), "Guest", "subject");
         feed.Update(lobby.Events, true, 0);
         Assert.That(feed.Entries, Is.Empty);
+        lobby.SetReady(0, true);
+        lobby.SetReady(4, true);
+        Assert.That(lobby.Start(0, [4]), Is.True);
         lobby.Disconnect(4);
-        lobby.AdvanceTime(60);
+        lobby.AdvanceTime(100000);
+        Assert.That(feed.Entries.Select(row => row.Text), Is.EqualTo(new[] { "Guest disconnected" }));
+        lobby.Return(0);
         Assert.That(feed.Entries.Select(row => row.Text), Is.EqualTo(new[] { "Guest disconnected", "Guest left the game" }));
         feed.Update(lobby.Events, false, 0);
         Assert.That(feed.Entries, Is.Empty);

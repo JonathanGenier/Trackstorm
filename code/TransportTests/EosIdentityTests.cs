@@ -25,7 +25,7 @@ internal sealed class EosIdentityTests
             Assert.That(configuration.ClientId, Is.EqualTo("xyza7891VzsMsnNdYcYraBkYrS4ZheUn"));
             Assert.That(
                 Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(configuration.ClientSecret))),
-                Is.EqualTo("22C46FA9E4F06CE7B50CBB27549A3CF47B8D538B1042AE59367C6818E2D78245"));
+                Is.EqualTo("0316D09D48D697E397E1504DC738723FCCE6022FEC0FBFE4492BE26EA0FC66FF"));
             Assert.DoesNotThrow(configuration.Validate);
         });
     }

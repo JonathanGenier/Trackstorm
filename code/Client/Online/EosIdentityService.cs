@@ -170,6 +170,18 @@ internal sealed class EosIdentityService : IDisposable
         State = OnlineIdentityState.Disposed;
     }
 
+    /// <summary>Creates an authenticated fencing connection without retaining tokens on disk.</summary>
+    /// <returns>An authenticated HTTPS adapter.</returns>
+    internal ILeaseTransport CreateLeaseTransport()
+    {
+        if (State != OnlineIdentityState.LoggedIn || _platform is not EosSdkPlatform sdk)
+        {
+            throw new InvalidOperationException("EOS authentication is required.");
+        }
+
+        return new HttpLeaseTransport(LeaseEndpointConfiguration.Resolve(), sdk.CopyIdToken);
+    }
+
     /// <summary>Creates the Client-only lobby adapter from the current authenticated native runtime.</summary>
     /// <returns>A provider tied to the current platform lifetime.</returns>
     internal IOnlineLobbyProvider CreateLobbyProvider() => State == OnlineIdentityState.LoggedIn && _platform is EosSdkPlatform sdk
@@ -179,8 +191,16 @@ internal sealed class EosIdentityService : IDisposable
     /// <param name="coordinator">Active membership owner.</param>
     /// <param name="credential">Transient client access code.</param>
     /// <returns>Owned gameplay gateway.</returns>
-    internal Networking.EosP2pTransport CreateTransport(OnlineLobbyCoordinator coordinator, string? credential) => State == OnlineIdentityState.LoggedIn && _platform is EosSdkPlatform sdk
-        ? sdk.CreateTransport(coordinator, credential) : throw new InvalidOperationException("EOS authentication is required.");
+    internal Networking.EosP2pTransport CreateTransport(OnlineLobbyCoordinator coordinator, string? credential)
+    {
+        if (State != OnlineIdentityState.LoggedIn || _platform is not EosSdkPlatform sdk)
+        {
+            throw new InvalidOperationException("EOS authentication is required.");
+        }
+
+        coordinator.LeaseFactory ??= CreateLeaseTransport;
+        return sdk.CreateTransport(coordinator, credential);
+    }
 
     private void Fail(string reason)
     {

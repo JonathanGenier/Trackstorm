@@ -21,6 +21,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     private readonly List<SpinBox> _simulation = new();
     private object? _owner;
     private ulong _revision;
+    private ulong _authorityEpoch;
     private bool _refreshing;
     private double _elapsed;
 
@@ -155,14 +156,20 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             : _practice.Visible ? "Local practice tools. Host a multiplayer session for gameplay tuning."
             : "Read-only diagnostics. Host a session to access tuning and developer actions.";
         object? owner = (object?)session?.Arena?.Driver ?? session?.Lobby;
-        ulong revision = session?.Arena?.Driver.Configuration.Revision ?? 0;
-        if (_host.Visible && (!ReferenceEquals(_owner, owner) || (!_draft.IsDirty && revision != _revision)))
+        ulong revision = session?.Arena?.Driver.Configuration.Revision ?? session?.Lobby?.Authority?.Configuration.Revision ?? 0;
+        ulong epoch = session?.Lobby?.State?.AuthorityEpoch ?? 0;
+        if (_host.Visible && (!ReferenceEquals(_owner, owner) || epoch != _authorityEpoch || (!_draft.IsDirty && revision != _revision)))
         {
             RefreshValues();
         }
 
-        _owner = owner;
-        _revision = revision;
+        if (_host.Visible)
+        {
+            _owner = owner;
+            _revision = revision;
+            _authorityEpoch = epoch;
+        }
+
         _diagnostics.Text = IdentityDiagnostics() + "\n" + DeveloperDiagnostics.Capture(session);
     }
 

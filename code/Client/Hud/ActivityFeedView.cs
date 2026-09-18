@@ -69,7 +69,7 @@ internal sealed class ActivityFeedView : IDisposable
             (EventCategory.Session, "Left") => new($"{actor} left the game", ActivityFeedTone.Departure, expiresAt),
             (EventCategory.Network, "Disconnected") => new($"{actor} disconnected", ActivityFeedTone.Departure, expiresAt),
             (EventCategory.Network, "Reconnected") => new($"{actor} reconnected", ActivityFeedTone.Arrival, expiresAt),
-            (EventCategory.Network, "Grace expired; player removed") => new($"{actor} left the game", ActivityFeedTone.Departure, expiresAt),
+            (EventCategory.Session, "Match reservation ended") => new($"{actor} left the game", ActivityFeedTone.Departure, expiresAt),
             (EventCategory.Lifecycle, "Kill") => new($"{actor} killed {target}{(entry.Cause == "Missile" ? " with Missile" : string.Empty)}", ActivityFeedTone.Death, expiresAt),
             (EventCategory.Lifecycle, "Dead") when entry.Context != "Scored kill" => new($"{target} died", ActivityFeedTone.Death, expiresAt),
             _ => null,

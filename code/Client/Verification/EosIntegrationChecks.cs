@@ -18,6 +18,7 @@ public sealed partial class EosIntegrationChecks : Node
     private DevelopmentSession? _gameplay;
     private int _p2pFrames;
     private bool _p2pLeaving;
+    private ulong _p2pStartedAt;
 
     /// <inheritdoc />
     public override void _Ready()
@@ -194,11 +195,23 @@ public sealed partial class EosIntegrationChecks : Node
             _gameplay = new DevelopmentSession { OnlineCoordinator = () => _lobby, OnlineStatus = () => EosLobbyStatus.Connected };
             AddChild(_gameplay);
             _transport.Authorize = _gameplay.OpenOnline(_transport, 0, "Host").AuthorizePeer;
+            _p2pStartedAt = Time.GetTicksMsec();
         }
 
         _gameplay!.Advance(default);
         if (_p2pFrames == 0)
         {
+            // Online authority waits for the asynchronous membership proof before admitting commands.
+            if (_gameplay.Lobby!.Migration?.Frozen == true)
+            {
+                if (Time.GetTicksMsec() - _p2pStartedAt >= 10000 || _gameplay.Lobby.Failure.Length != 0)
+                {
+                    throw new InvalidOperationException("EOS gameplay authority did not become available.");
+                }
+
+                return false;
+            }
+
             if (!_gameplay.Lobby!.Request(LobbyCommand.Ready, true) || !_gameplay.Lobby.Request(LobbyCommand.Start))
             {
                 throw new InvalidOperationException("EOS host could not enter the arena through lobby authority.");

@@ -3,6 +3,15 @@ namespace Trackstorm.Client.Online;
 /// <summary>Owner-thread asynchronous coordination boundary, independent of Godot and native SDK types.</summary>
 internal interface IOnlineLobbyProvider : IDisposable
 {
+    /// <summary>Confirms local membership through a fresh service operation, never a cached read.</summary>
+    /// <param name="id">Current lobby.</param>
+    /// <param name="completed">True only after the service accepted this member's unique update.</param>
+    void ConfirmMembership(string id, Action<bool> completed) => completed(false);
+    /// <summary>Moves provider ownership only after Trackstorm's independent authority agreement.</summary>
+    /// <param name="id">Existing lobby.</param>
+    /// <param name="member">Agreed gameplay host.</param>
+    /// <param name="completed">Bounded coordination result.</param>
+    void Promote(string id, OnlineProductUserId member, Action<string?> completed) => completed("Provider ownership transfer unavailable.");
     /// <summary>Publishes admission availability derived from the existing host authority.</summary>
     /// <param name="id">Current logical lobby identity.</param>
     /// <param name="open">Whether new members may join.</param>
@@ -35,7 +44,8 @@ internal interface IOnlineLobbyProvider : IDisposable
     void Leave(string id, bool destroy, Action<string?> completed);
     /// <summary>Registers one disposable membership notification subscription.</summary>
     /// <param name="id">Logical EOS lobby identity.</param>
-    /// <param name="changed">Consumer of updated membership or closure.</param>
+    /// <param name="changed">Consumer of metadata, ownership, targeted membership or closure updates.</param>
+    /// <param name="retired">Authenticated service member-departure notification.</param>
     /// <returns>A subscription whose disposal makes queued notifications inert.</returns>
-    IDisposable Watch(string id, Action<OnlineLobby?> changed);
+    IDisposable Watch(string id, Action<OnlineLobby?, OnlineLobbyUpdate> changed, Action<OnlineProductUserId>? retired = null);
 }

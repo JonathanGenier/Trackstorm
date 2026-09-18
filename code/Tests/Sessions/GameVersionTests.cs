@@ -99,7 +99,7 @@ internal sealed class GameVersionTests
         Assert.That(host.State.Players.Count, Is.EqualTo(8));
     }
 
-    /// <summary>Mismatch cannot rebind in either phase; a later compatible attempt still succeeds.</summary>
+    /// <summary>Mismatch cannot rebind; compatible returns follow the current phase's admission policy.</summary>
     /// <param name="arena">Whether the retained player is in an arena.</param>
     /// <param name="remote">Incompatible returning runtime.</param>
     [TestCase(false, "0.0.1.3")]
@@ -123,9 +123,16 @@ internal sealed class GameVersionTests
         Assert.That(host.Join(21, remote, "Late", "new-subject"), Is.Zero);
         Assert.That(host.State, Is.SameAs(before));
         Assert.That(host.Peers, Is.Empty);
-        Assert.That(host.FindPlayer("subject"), Is.EqualTo(player));
-        Assert.That(host.Resume(20, "0.0.1.4", 100, player, 1, "subject"), Is.True);
-        Assert.That(host.State.Players.Single(value => value.Id == player).Generation, Is.EqualTo(2));
+        Assert.That(host.FindPlayer("subject"), Is.EqualTo(arena ? player : 0UL));
+        Assert.That(host.Resume(20, "0.0.1.4", 100, player, 1, "subject"), Is.EqualTo(arena));
+        if (arena)
+        {
+            Assert.That(host.State.Players.Single(value => value.Id == player).Generation, Is.EqualTo(2));
+        }
+        else
+        {
+            Assert.That(host.Join(20, "0.0.1.4", "Guest", "subject"), Is.GreaterThan(player));
+        }
     }
 
     /// <summary>Admission intents transmit canonical versions and old omitted fields stay incompatible.</summary>
@@ -134,7 +141,7 @@ internal sealed class GameVersionTests
     {
         Assert.That(LobbyCodec.DecodeCommand(LobbyCodec.EncodeCommand(LobbyCommand.Join, null)).GameVersion, Is.EqualTo(GameVersion.Current.ToString()));
         Assert.That(LobbyCodec.DecodeCommand(LobbyCodec.EncodeResume(100, 2, 1)).GameVersion, Is.EqualTo(GameVersion.Current.ToString()));
-        byte[] legacy = [(byte)'T', (byte)'L', 2, 1, .. Encoding.UTF8.GetBytes("{\"Command\":0,\"Session\":0,\"Match\":0,\"Phase\":0,\"Ready\":false,\"Name\":\"Guest\",\"Player\":0,\"Generation\":0}")];
+        byte[] legacy = [(byte)'T', (byte)'L', 5, 1, .. Encoding.UTF8.GetBytes("{\"Command\":0,\"Session\":0,\"Match\":0,\"Phase\":0,\"Ready\":false,\"Name\":\"Guest\",\"Player\":0,\"Generation\":0,\"AuthorityEpoch\":1}")];
         Assert.That(LobbyCodec.DecodeCommand(legacy).GameVersion, Is.Empty);
         var version = new GameVersion(4);
         byte[] rejection = LobbyCodec.EncodeVersionMismatch(version);

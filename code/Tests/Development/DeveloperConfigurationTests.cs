@@ -380,7 +380,7 @@ internal sealed class DeveloperConfigurationTests
         host.RegisterSpawns(PrototypeArena.Configuration);
         var marker = PrototypeArena.Configuration.Items[0];
         Pose(host, 1, new VehiclePhysicsState(marker.Position, Quaternion.Identity, Vector3.Zero, Vector3.Zero));
-        Edit(host, ("spawns.cooldown_ticks", 1), ("spawns.wrench_weight", 1), ("spawns.missile_weight", 1));
+        Edit(host, ("spawns.cooldown_ticks", 1), ("spawns.wrench_weight", 1), ("spawns.missile_weight", 1), ("items.missile_lifetime_ticks", 1));
         var sequences = new List<HeldItem[]>();
         foreach (int seed in new[] { 99, 11, 99 })
         {

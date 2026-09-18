@@ -6,6 +6,9 @@ namespace Trackstorm.Client.Online;
 /// <summary>Owns one online membership lifetime. EOS notifications never write authoritative gameplay state.</summary>
 internal sealed class OnlineLobbyCoordinator : IDisposable
 {
+    /// <summary>Service round trips expire from request time; client acknowledgements cannot renew authority.</summary>
+    internal const double CoordinationLeaseSeconds = 10;
+
     private readonly IOnlineLobbyProvider _provider;
     private readonly TimeProvider _time;
     private readonly ResumeLocatorStore? _resumeStore;
@@ -24,13 +27,40 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     private long _completedMembership;
     private bool _disposed;
     private string? _joinCredential;
-    private long? _resumeStarted;
     private long _resumeRetry;
     private long _savedAt;
     private ulong _savedGeneration;
     private bool _resumePending;
+    private string? _routingId;
+    private ILeaseTransport? _routingTransport;
+    private Task<LeaseRoute?>? _routingTask;
+    private OnlineLobby? _routingLobby;
+    private long _routingRequested;
+    private long _routingEpoch;
     private bool _recoveringMembership;
     private bool _preserveLocator;
+    private string? _migrationHost;
+    private long? _migrationUpdateEpoch;
+    private long? _migrationRetry;
+    private bool _createdGameplaySession;
+    private ResumeLocator? _returnLocator;
+    private long? _coordinationConfirmed;
+    private long? _coordinationRequested;
+    private bool _coordinationPending;
+    private bool _authorityRetired;
+    private (string Subject, ulong Epoch, long At, string[] Survivors)? _retiredHost;
+    private int _metadataUpdates;
+    private int _ownershipUpdates;
+    private int _joinedUpdates;
+    private int _departedUpdates;
+    private int _retiredCallbacks;
+    private int _coordinationRequests;
+    private int _coordinationResults;
+    private int _coordinationSuccesses;
+    private int _availabilityUpdates;
+    private int _lobbyUpdates;
+    private int _resumeAttempts;
+    private string _lastCoordination = "none";
 
     /// <summary>Creates one owner-thread coordination lifetime with an injectable monotonic clock.</summary>
     /// <param name="provider">Owned coordination adapter.</param>
@@ -43,11 +73,14 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         Identity = identity;
         _time = time ?? TimeProvider.System;
         _resumeStore = resumeStore;
-        SavedResume = _resumeStore?.Load(identity.Value, _time.GetUtcNow());
+        SavedResume = _resumeStore?.Load(identity.Value);
+        _routingId = SavedResume?.RoutingId;
     }
 
     /// <summary>Production packet composition; absent in browser-only verification.</summary>
     internal Func<string?, Networking.EosP2pTransport>? TransportFactory { get; set; }
+    /// <summary>Required trusted fencing transport in production; independent from EOS ownership.</summary>
+    internal Func<ILeaseTransport>? LeaseFactory { get; set; }
 
     /// <summary>Authenticated local online identity, distinct from gameplay PlayerId.</summary>
     internal OnlineProductUserId Identity { get; }
@@ -57,6 +90,8 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal OnlineLobby? Active { get; private set; }
     /// <summary>Whether the authenticated local identity owns the current lobby.</summary>
     internal bool IsHost => Active?.Owner.Equals(Identity) == true;
+    /// <summary>Only explicit session creation bootstraps authority; provider promotion never does.</summary>
+    internal bool StartsGameplayAuthority => _createdGameplaySession && Active?.AuthorityEpoch == 1;
     /// <summary>Whether a membership mutation awaits completion.</summary>
     internal bool Busy { get; private set; }
     /// <summary>Whether Leave can release active membership or retry pending cleanup.</summary>
@@ -68,6 +103,57 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal string Status { get; private set; } = "Browse or host a game.";
     /// <summary>Validated local routing hint until the restored assignment is acknowledged.</summary>
     internal ResumeLocator? SavedResume { get; private set; }
+    /// <summary>Monotonic clock shared with the authority lifecycle.</summary>
+    internal TimeProvider Clock => _time;
+    /// <summary>Credential-free EOS coordination state for Developer Options and manual diagnosis.</summary>
+    internal string Diagnostics
+    {
+        get
+        {
+            OnlineLobby? lobby = Active;
+            double? proofAge = _coordinationConfirmed is long confirmed ? _time.GetElapsedTime(confirmed).TotalSeconds : null;
+            bool coordinationAvailable = !_authorityRetired && proofAge < CoordinationLeaseSeconds && lobby?.MemberIds.Contains(Identity) == true;
+            string members = lobby is null ? "none" : string.Join(",", lobby.MemberIds.Select(member => member.ToString()).Order());
+            string locator = SavedResume is { } saved
+                ? $"{saved.Lobby}/{saved.Session}/P{saved.Player}/g{saved.Generation}/e{saved.AuthorityEpoch}"
+                : _returnLocator is { } retained
+                    ? $"{retained.Lobby}/{retained.Session}/P{retained.Player}/g{retained.Generation}/e{retained.AuthorityEpoch}"
+                    : "none";
+            return $"EOS lobby: {lobby?.Id ?? "none"}; Trackstorm SessionId: {lobby?.Session.ToString() ?? "none"}; access: {lobby?.Access.ToString() ?? "none"}\n" +
+                $"Local PUID: {Identity}; owner: {lobby?.Owner.ToString() ?? "none"}; gameplay host: {lobby?.HostIdentity.ToString() ?? "none"}; EOS members: [{members}]\n" +
+                $"Coordinator active: {lobby is not null}; busy: {Busy}; membership generation: {_membership}; metadata/ownership/joined/departed callbacks: {_metadataUpdates}/{_ownershipUpdates}/{_joinedUpdates}/{_departedUpdates}; retired callbacks: {_retiredCallbacks}\n" +
+                $"Coordination proof: {_lastCoordination}; pending: {_coordinationPending}; requests/results/successes: {_coordinationRequests}/{_coordinationResults}/{_coordinationSuccesses}; available: {coordinationAvailable}; age: {proofAge?.ToString("0.0") ?? "none"}s; lease: {CoordinationLeaseSeconds:0}s; authority retired: {_authorityRetired}\n" +
+                $"Lobby/availability updates: {_lobbyUpdates}/{_availabilityUpdates}; recovering membership: {_recoveringMembership}; resume pending/attempts: {_resumePending}/{_resumeAttempts}; locator: {locator}; status: {Status}";
+        }
+    }
+
+    /// <summary>A departed arena player can explicitly resume its still-reserved identity.</summary>
+    internal bool CanResumeRetained => Active is null && !Busy && _closing is null && _returnLocator is not null;
+
+    /// <summary>Fresh local service membership, independent of peer connectivity or provider ownership.</summary>
+    internal bool CoordinationAvailable
+    {
+        get
+        {
+            bool fresh = _coordinationConfirmed.HasValue && _time.GetElapsedTime(_coordinationConfirmed.Value).TotalSeconds < CoordinationLeaseSeconds;
+            if (!fresh && _coordinationConfirmed.HasValue && _binding?.Driver.Authority is not null)
+            {
+                _authorityRetired = true;
+            }
+
+            return !_authorityRetired && fresh && Active?.MemberIds.Contains(Identity) == true;
+        }
+    }
+
+    /// <summary>The existing membership-proof boundary permanently retired this local authority.</summary>
+    internal bool AuthorityRetired
+    {
+        get
+        {
+            _ = CoordinationAvailable;
+            return _authorityRetired;
+        }
+    }
 
     /// <inheritdoc />
     public void Dispose()
@@ -80,6 +166,36 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         Leave();
         _disposed = true;
         _provider.Dispose();
+    }
+
+    /// <summary>Only a service departure event plus the full old-host lease window permits promotion.</summary>
+    /// <param name="checkpoint">Exact prior authority and eligible survivor cohort.</param>
+    /// <returns>Whether that authority is safely retired.</returns>
+    internal bool HostRetired(Core.Sessions.MigrationCheckpoint checkpoint) => CoordinationAvailable && _retiredHost is { } retired &&
+        retired.Subject == checkpoint.Lobby.Subjects[checkpoint.Lobby.State.CurrentHostId] && retired.Epoch == checkpoint.Lobby.State.AuthorityEpoch &&
+        _time.GetElapsedTime(retired.At).TotalSeconds >= CoordinationLeaseSeconds &&
+        retired.Survivors.ToHashSet(StringComparer.Ordinal).SetEquals(checkpoint.Lobby.State.Players.Where(player => player.Connected && player.Id != checkpoint.Lobby.State.CurrentHostId).Select(player => checkpoint.Lobby.Subjects[player.Id]));
+
+    /// <summary>Returns the original monotonic service-retirement event boundary after all retirement checks pass.</summary>
+    /// <param name="checkpoint">Exact prior authority and eligible survivor cohort.</param>
+    /// <returns>The local monotonic event timestamp, or null while retirement is unsafe.</returns>
+    internal long? HostRetiredAt(Core.Sessions.MigrationCheckpoint checkpoint) => HostRetired(checkpoint) ? _retiredHost!.Value.At : null;
+
+    /// <summary>Records agreed gameplay authority before any EOS ownership coordination.</summary>
+    /// <param name="subject">Authenticated identity chosen by Trackstorm election.</param>
+    internal void MigrationCompleted(string subject)
+    {
+        ++_epoch;
+        Busy = false;
+        _migrationHost = subject;
+        _migrationRetry = null;
+        if (Active is not null && _binding?.Driver.State is { } state)
+        {
+            Active = Active with { GameplayHost = new OnlineProductUserId(subject), AuthorityEpoch = state.AuthorityEpoch };
+            Browser.Update(Active);
+        }
+
+        CoordinateMigration();
     }
 
     /// <summary>Transfers the transient join credential into the owned packet connection.</summary>
@@ -171,6 +287,12 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             return;
         }
 
+        if (CanResumeRetained && _returnLocator!.Lobby == id)
+        {
+            ResumeRetained();
+            return;
+        }
+
         var lobby = Browser.Find(id);
         if (lobby is null || !lobby.Joinable)
         {
@@ -223,6 +345,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
 
         long epoch = Begin("Renaming lobby…");
+        _lobbyUpdates++;
         _provider.Update(Active! with { Name = name }, (updated, failure) =>
         {
             if (_disposed || epoch != _epoch)
@@ -233,7 +356,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             Busy = false;
             if (updated is not null && failure is null)
             {
-                ApplyUpdate(updated);
+                ApplyMetadataUpdate(updated);
             }
 
             Status = failure ?? "Lobby renamed.";
@@ -253,7 +376,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
 
         _binding = new OnlineSessionBinding(this, gateway, serverPeer, playerName);
-        if (!IsHost && SavedResume is { } resume && resume.Session == Active.Session)
+        if (!StartsGameplayAuthority && SavedResume is { } resume && resume.Session == Active.Session)
         {
             _binding.Driver.BeginResume(resume.Player, resume.Generation);
         }
@@ -264,18 +387,35 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Enforces a monotonic deadline on pending coordination work.</summary>
     internal void Tick()
     {
+        TickCoordination();
+        TickRouting();
         if (!_disposed && ((SavedResume is not null && Active is null) || _recoveringMembership))
         {
             TickResume();
         }
 
-        if (!_disposed && !IsHost && Active is not null && _binding?.Driver is { State: not null, Reconnecting: false, Failure.Length: 0 } driver &&
-            (_savedGeneration != driver.Generation || _time.GetElapsedTime(_savedAt).TotalSeconds >= 5))
+        if (!_disposed && Active is not null && _binding?.Driver.State?.ReconnectPolicy == Core.Sessions.SessionReconnectPolicy.FreshJoin &&
+            (_savedGeneration != 0 || SavedResume is not null || _returnLocator is not null))
+        {
+            _resumeStore?.Clear();
+            SavedResume = null;
+            _returnLocator = null;
+            _savedGeneration = 0;
+        }
+
+        if (!_disposed && Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume, Reconnecting: false, Failure.Length: 0 } driver &&
+            (_savedGeneration != driver.Generation || (_binding.RoutingId is { } routingId && routingId != _routingId) || _time.GetElapsedTime(_savedAt).TotalSeconds >= 5))
         {
             _savedAt = _time.GetTimestamp();
             _savedGeneration = driver.Generation;
-            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.Owner.Value, _time.GetUtcNow().AddMinutes(2)));
+            _routingId = _binding.RoutingId ?? _routingId;
+            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value, _routingId));
             SavedResume = null;
+        }
+
+        if (!_disposed && !Busy)
+        {
+            CoordinateMigration();
         }
 
         if (!Busy && _pendingMembership is not null && _time.GetElapsedTime(_started).TotalSeconds >= 60)
@@ -283,12 +423,13 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             Status = "EOS membership cancellation is unresolved. Log out and log in to reset online services.";
         }
 
-        if (!_disposed && !Busy && Active is not null && _binding?.Driver.Authority is { } authority && (_availabilityRetry is null || _time.GetElapsedTime(_availabilityRetry.Value).TotalSeconds >= 5))
+        if (!_disposed && !Busy && IsHost && Active is not null && _binding?.Driver.Authority is { } authority && (_availabilityRetry is null || _time.GetElapsedTime(_availabilityRetry.Value).TotalSeconds >= 5))
         {
             bool open = authority.State.Phase == Trackstorm.Core.Sessions.SessionPhase.Lobby;
             if (Active.Open != open)
             {
                 long epoch = Begin("Updating lobby availability…");
+                _availabilityUpdates++;
                 _provider.SetJoinable(Active.Id, open, (updated, failure) =>
                 {
                     if (!_disposed && epoch == _epoch)
@@ -297,7 +438,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                         _availabilityRetry = failure is null ? null : _time.GetTimestamp();
                         if (updated is not null && failure is null)
                         {
-                            ApplyUpdate(updated);
+                            ApplyMetadataUpdate(updated);
                         }
 
                         Status = failure ?? "Lobby availability updated.";
@@ -331,15 +472,28 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Invalidates local membership and releases or destroys the associated online lobby.</summary>
     internal void Leave()
     {
+        bool retainLobby = _binding?.Driver.Migration?.Subjects is not null || _binding?.Driver.State?.AuthorityEpoch > 1;
+        bool retainPlayer = Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume } && _binding.Driver.ResumeStatus != "Resume rejected" && (_binding.Driver.Authority is null || retainLobby);
+        if (retainPlayer)
+        {
+            var driver = _binding!.Driver;
+            _returnLocator = new ResumeLocator(Active!.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, driver.State!.AuthorityEpoch, Active.HostIdentity.Value, _binding.RoutingId ?? _routingId);
+            _resumeStore?.Save(_returnLocator);
+        }
+
         SavedResume = null;
-        if (!_preserveLocator)
+        if (!_preserveLocator && !retainPlayer && _returnLocator is null)
         {
             _resumeStore?.Clear();
         }
 
-        _resumeStarted = null;
         _recoveringMembership = false;
         _resumePending = false;
+        _routingTransport?.Dispose();
+        _routingTransport = null;
+        _routingTask = null;
+        _routingLobby = null;
+        _routingId = null;
         _savedGeneration = 0;
         _joinCredential = null;
         if (_closing is not null && Busy)
@@ -356,8 +510,12 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         _binding?.Dispose();
         _binding = null;
         _availabilityRetry = null;
+        _migrationHost = null;
+        _migrationUpdateEpoch = null;
+        _migrationRetry = null;
+        _createdGameplaySession = false;
         var old = Active ?? _closing;
-        bool destroy = Active is not null ? IsHost : _closingHost;
+        bool destroy = Active is not null ? IsHost && !retainLobby : _closingHost;
         _closing = old;
         _closingHost = destroy;
         Active = null;
@@ -387,13 +545,82 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Retains only an acknowledged routing hint when the application exits without choosing Leave.</summary>
     internal void PreserveResumeOnShutdown()
     {
-        if (!IsHost && Active is not null && _binding?.Driver is { State: not null, Failure.Length: 0 } driver)
+        if (Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume, Failure.Length: 0 } driver)
         {
             _preserveLocator = true;
-            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.Owner.Value, _time.GetUtcNow().AddMinutes(2)));
+            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value, _binding.RoutingId ?? _routingId));
         }
     }
 
+    /// <summary>Explicitly resumes a player's retained identity through membership and Core authorization.</summary>
+    internal void ResumeRetained()
+    {
+        if (!CanResumeRetained)
+        {
+            return;
+        }
+
+        SavedResume = _returnLocator;
+        _routingId = SavedResume!.RoutingId;
+        _returnLocator = null;
+        _resumeRetry = 0;
+        TickResume();
+    }
+
+    private void CoordinateMigration()
+    {
+        if (_migrationUpdateEpoch != _epoch && (_migrationRetry is null || _time.GetElapsedTime(_migrationRetry.Value).TotalSeconds >= 5) && IsHost && Active is not null && _migrationHost is { } subject && _binding?.Driver.State is { } state)
+        {
+            _migrationUpdateEpoch = _epoch;
+            long epoch = _epoch;
+            var updated = Active with { GameplayHost = new OnlineProductUserId(subject), AuthorityEpoch = state.AuthorityEpoch };
+            _lobbyUpdates++;
+            _provider.Update(updated, (lobby, failure) =>
+            {
+                if (!_disposed && epoch == _epoch && _migrationHost == subject)
+                {
+                    if (lobby is not null && failure is null)
+                    {
+                        ApplyMetadataUpdate(lobby);
+                        if (Active?.AuthorityEpoch != state.AuthorityEpoch || Active.HostIdentity.Value != subject)
+                        {
+                            _migrationUpdateEpoch = null;
+                            _migrationRetry = _time.GetTimestamp();
+                            Status = "Host migration routing update was not confirmed; retrying.";
+                            return;
+                        }
+
+                        Status = "Host migration completed.";
+                        if (Identity.Value != subject)
+                        {
+                            _migrationUpdateEpoch = epoch;
+                            _provider.Promote(lobby.Id, new OnlineProductUserId(subject), promotionFailure =>
+                            {
+                                if (!_disposed && epoch == _epoch && _migrationHost == subject)
+                                {
+                                    _migrationUpdateEpoch = null;
+                                    _migrationRetry = promotionFailure is null ? null : _time.GetTimestamp();
+                                    _migrationHost = promotionFailure is null ? null : subject;
+                                    Status = promotionFailure ?? "Host migration completed.";
+                                }
+                            });
+                        }
+                        else
+                        {
+                            _migrationUpdateEpoch = null;
+                            _migrationHost = null;
+                        }
+                    }
+                    else
+                    {
+                        _migrationUpdateEpoch = null;
+                        _migrationRetry = _time.GetTimestamp();
+                        Status = failure ?? "Host migration routing update was not confirmed; retrying.";
+                    }
+                }
+            });
+        }
+    }
 
     private long Begin(string status)
     {
@@ -453,31 +680,89 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
 
         Active = lobby;
+        _closing = null;
+        _returnLocator = null;
+        _coordinationConfirmed = null;
+        _coordinationRequested = null;
+        _coordinationPending = false;
+        _authorityRetired = false;
+        _retiredHost = null;
+        _createdGameplaySession = host;
         EventLog?.Record(Core.Events.EventCategory.Session, host ? "Online lobby created" : "Online lobby joined", local: true);
         Browser.Update(lobby);
         long membership = ++_membership;
         try
         {
-            _watch = _provider.Watch(lobby.Id, updated =>
+            _watch = _provider.Watch(
+                lobby.Id,
+                (updated, update) =>
             {
                 if (!_disposed && membership == _membership && Active?.Id == lobby.Id && Active.Session == lobby.Session)
                 {
-                    if (updated is null && !IsHost && _binding?.Driver.State is not null)
+                    OnlineLobbyUpdateKind kind = update.Kind;
+                    if (kind == OnlineLobbyUpdateKind.Metadata)
                     {
-                        _recoveringMembership = true;
-                        _resumeStarted ??= _time.GetTimestamp();
-                        Active = Active with { MemberIds = Active.MemberIds.Where(member => !member.Equals(Identity)).ToArray() };
-                        Status = "Connection interrupted";
+                        _metadataUpdates++;
                     }
-                    else if (updated is null || !updated.Owner.Equals(lobby.Owner))
+                    else if (kind == OnlineLobbyUpdateKind.Ownership)
                     {
-                        Leave();
-                        Status = "Lobby closed.";
+                        _ownershipUpdates++;
                     }
-                    else
+                    else if (kind == OnlineLobbyUpdateKind.Joined)
                     {
-                        ApplyUpdate(updated);
+                        _joinedUpdates++;
                     }
+                    else if (kind == OnlineLobbyUpdateKind.Departed)
+                    {
+                        _departedUpdates++;
+                    }
+
+                    if (kind == OnlineLobbyUpdateKind.Closure)
+                    {
+                        if (!IsHost && _binding?.Driver.State?.ReconnectPolicy == Core.Sessions.SessionReconnectPolicy.RetainedResume)
+                        {
+                            _recoveringMembership = true;
+                            Active = Active with { MemberIds = Active.MemberIds.Where(member => !member.Equals(Identity)).ToArray() };
+                            Status = "Connection interrupted";
+                        }
+                        else
+                        {
+                            Leave();
+                            Status = "Lobby closed.";
+                        }
+                    }
+                    else if (kind is OnlineLobbyUpdateKind.Joined or OnlineLobbyUpdateKind.Departed)
+                    {
+                        ApplyMembershipUpdate(updated, update);
+                    }
+                    else if (updated is null && kind is OnlineLobbyUpdateKind.Metadata or OnlineLobbyUpdateKind.Ownership)
+                    {
+                        Status = $"Ignored an incomplete {kind.ToString().ToLowerInvariant()} refresh; membership is unchanged.";
+                    }
+                    else if (updated is not null)
+                    {
+                        ApplyMetadataUpdate(updated);
+                    }
+                }
+            },
+                subject =>
+            {
+                if (_disposed || membership != _membership || Active?.Id != lobby.Id || Active.Session != lobby.Session)
+                {
+                    return;
+                }
+
+                _retiredCallbacks++;
+                if (subject.Equals(Identity) && _binding?.Driver.Authority is not null)
+                {
+                    _authorityRetired = true;
+                }
+
+                var state = _binding?.Driver.State;
+                string host = state is not null && _binding?.Driver.Migration?.Subjects?.TryGetValue(state.CurrentHostId, out string? established) == true ? established : Active.HostIdentity.Value;
+                if (subject.Value == host)
+                {
+                    _retiredHost = (host, state?.AuthorityEpoch ?? Active.AuthorityEpoch, _time.GetTimestamp(), Active.MemberIds.Where(member => member.Value != host).Select(member => member.Value).ToArray());
                 }
             });
         }
@@ -489,6 +774,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
 
         Status = "Online lobby joined. Connecting gameplay…";
+        TickCoordination();
     }
 
     private void ApplyUpdate(OnlineLobby lobby)
@@ -498,21 +784,91 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             return;
         }
 
+        OnlineLobby current = Active;
+        bool olderAuthority = lobby.AuthorityEpoch < current.AuthorityEpoch;
+        bool conflictingCurrentAuthority = lobby.AuthorityEpoch == current.AuthorityEpoch && !lobby.HostIdentity.Equals(current.HostIdentity);
+        if (olderAuthority || conflictingCurrentAuthority)
+        {
+            lobby = lobby with { GameplayHost = current.HostIdentity, AuthorityEpoch = current.AuthorityEpoch };
+            Status = olderAuthority
+                ? "Ignored stale lobby routing metadata; retained the current Trackstorm host."
+                : "Ignored conflicting lobby routing metadata; retained the current Trackstorm host.";
+        }
+
         Active = lobby;
         Browser.Update(lobby);
         _binding?.MembershipChanged(lobby);
+        CoordinateMigration();
+    }
+
+    private void ApplyMetadataUpdate(OnlineLobby lobby)
+    {
+        if (Active is not null)
+        {
+            lobby = lobby with { Members = Active.Members, MemberIds = Active.MemberIds };
+        }
+
+        ApplyUpdate(lobby);
+    }
+
+    private void ApplyMembershipUpdate(OnlineLobby? refreshed, OnlineLobbyUpdate update)
+    {
+        if (Active is null || update.Target is not { } target)
+        {
+            Status = $"Ignored an incomplete {update.Kind.ToString().ToLowerInvariant()} event; membership is unchanged.";
+            return;
+        }
+
+        OnlineLobby current = Active;
+        OnlineLobby lobby = refreshed is { } snapshot && snapshot.Id == current.Id && snapshot.Session == current.Session && snapshot.Compatible
+            ? snapshot
+            : current;
+        var members = update.Kind == OnlineLobbyUpdateKind.Joined
+            ? current.MemberIds.Append(target).Distinct().ToArray()
+            : current.MemberIds.Where(member => !member.Equals(target)).ToArray();
+        ApplyUpdate(lobby with { Members = members.Length, MemberIds = members });
+    }
+
+    private void TickCoordination()
+    {
+        if (_disposed || Active is null || _coordinationPending ||
+            (_coordinationRequested.HasValue && _time.GetElapsedTime(_coordinationRequested.Value).TotalSeconds < 5))
+        {
+            return;
+        }
+
+        _ = CoordinationAvailable;
+        long membership = _membership;
+        long requested = _time.GetTimestamp();
+        _coordinationRequested = requested;
+        _coordinationPending = true;
+        _coordinationRequests++;
+        _lastCoordination = "requested";
+        _provider.ConfirmMembership(Active.Id, accepted =>
+        {
+            if (_disposed || membership != _membership)
+            {
+                return;
+            }
+
+            _ = CoordinationAvailable;
+            _coordinationPending = false;
+            _coordinationResults++;
+            if (accepted && _time.GetElapsedTime(requested).TotalSeconds < CoordinationLeaseSeconds)
+            {
+                _coordinationConfirmed = requested;
+                _coordinationSuccesses++;
+                _lastCoordination = "accepted";
+            }
+            else
+            {
+                _lastCoordination = accepted ? "late" : "rejected";
+            }
+        });
     }
 
     private void TickResume()
     {
-        _resumeStarted ??= _time.GetTimestamp();
-        if (_time.GetElapsedTime(_resumeStarted.Value).TotalSeconds >= 30)
-        {
-            Leave();
-            Status = "Session unavailable. Resume expired; refresh or choose another lobby.";
-            return;
-        }
-
         if (_resumePending || (_resumeRetry != 0 && _time.GetElapsedTime(_resumeRetry).TotalSeconds < 2))
         {
             return;
@@ -520,10 +876,12 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
 
         string id = Active?.Id ?? SavedResume!.Lobby;
         ulong session = Active?.Session ?? SavedResume!.Session;
-        string host = Active?.Owner.Value ?? SavedResume!.Host;
+        string host = Active?.HostIdentity.Value ?? SavedResume!.Host;
+        ulong authorityEpoch = Active?.AuthorityEpoch ?? SavedResume!.AuthorityEpoch;
         long epoch = _epoch;
         _resumeRetry = _time.GetTimestamp();
         _resumePending = true;
+        _resumeAttempts++;
         Status = "Reconnecting";
         _provider.Resume(id, (lobby, failure) =>
         {
@@ -544,16 +902,42 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                 return;
             }
 
-            if (!lobby.Compatible || lobby.VersionMismatch.Length > 0 || lobby.Session != session || lobby.Owner.Value != host || !lobby.MemberIds.Contains(Identity))
+            if (!lobby.Compatible || lobby.VersionMismatch.Length > 0 || lobby.Session != session || !lobby.MemberIds.Contains(Identity))
             {
-                _provider.Leave(lobby.Id, false, _ => { });
-                Leave();
-                Status = lobby.VersionMismatch.Length > 0 ? lobby.VersionMismatch : "Resume rejected. Session changed or identity is unavailable.";
+                RejectResume(lobby);
+                return;
+            }
+
+            if (Active is null && SavedResume?.RoutingId is { } routingId && LeaseFactory is { } factory)
+            {
+                _closing = lobby;
+                _closingHost = false;
+                _resumePending = true;
+                _routingLobby = lobby;
+                _routingEpoch = epoch;
+                _routingRequested = _time.GetTimestamp();
+                _routingTransport = factory();
+                _routingTask = _routingTransport.Resolve(routingId);
+                Status = "Resolving trusted gameplay host…";
+                return;
+            }
+
+            bool invalidRestartAuthority = Active is null && (lobby.AuthorityEpoch < authorityEpoch || (lobby.AuthorityEpoch == authorityEpoch && lobby.HostIdentity.Value != host));
+            if (Active is null && host == Identity.Value && lobby.HostIdentity.Equals(Identity))
+            {
+                _closing = lobby;
+                _closingHost = false;
+                Status = "Waiting for replacement host routing…";
+                return;
+            }
+
+            if (invalidRestartAuthority)
+            {
+                RejectResume(lobby);
                 return;
             }
 
             _recoveringMembership = false;
-            _resumeStarted = null;
             if (Active is null)
             {
                 long operation = Begin("Reconnecting");
@@ -564,5 +948,53 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                 ApplyUpdate(lobby);
             }
         });
+    }
+
+    private void TickRouting()
+    {
+        if (_routingTask is null || (!_routingTask.IsCompleted && _time.GetElapsedTime(_routingRequested).TotalSeconds < 3))
+        {
+            return;
+        }
+
+        var route = _routingTask.IsCompletedSuccessfully ? _routingTask.Result : null;
+        var lobby = _routingLobby;
+        _routingTask = null;
+        _routingLobby = null;
+        _routingTransport?.Dispose();
+        _routingTransport = null;
+        _resumePending = false;
+        double age = _time.GetElapsedTime(_routingRequested).TotalSeconds;
+        if (_disposed || _routingEpoch != _epoch || Active is not null || SavedResume is not { } saved || lobby is null)
+        {
+            return;
+        }
+
+        if (route is null || age >= 3 || route.RoutingId != saved.RoutingId ||
+            route.Epoch < saved.AuthorityEpoch || route.Epoch > 9007199254740991 ||
+            (route.Epoch == saved.AuthorityEpoch && route.Holder != saved.Host) ||
+            route.RemainingSeconds <= age || route.RemainingSeconds > Core.Sessions.AuthorityLease.DurationSeconds || !double.IsFinite(route.RemainingSeconds) ||
+            route.Holder is not { Length: 32 } || !route.Holder.All(char.IsAsciiHexDigit) || route.Holder.All(c => c == '0') ||
+            string.Equals(route.Holder, Identity.Value, StringComparison.OrdinalIgnoreCase))
+        {
+            Status = "Waiting for replacement host routing…";
+            return;
+        }
+
+        // A read only selects the authenticated connection target. Core Resume still owns admission.
+        _routingId = saved.RoutingId;
+        lobby = lobby with { GameplayHost = new OnlineProductUserId(route.Holder), AuthorityEpoch = route.Epoch };
+        _recoveringMembership = false;
+        _closing = null;
+        long operation = Begin("Reconnecting");
+        CompleteMembership(operation, lobby, null, false);
+    }
+
+    private void RejectResume(OnlineLobby lobby)
+    {
+        _closing = lobby;
+        _closingHost = false;
+        Leave();
+        Status = lobby.VersionMismatch.Length > 0 ? lobby.VersionMismatch : "Resume rejected. Session changed or identity is unavailable.";
     }
 }

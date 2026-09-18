@@ -17,7 +17,7 @@ public sealed class LobbyReplica
     public bool Accept(LobbySnapshot state, ulong playerId, ulong sender, ulong server)
     {
         if (server == 0 || sender != server || !state.Players.Any(player => player.Id == playerId) ||
-            (State is not null && (state.Session != State.Session || playerId != PlayerId || state.Revision <= State.Revision || state.Match < State.Match)))
+            (State is not null && (state.Session != State.Session || playerId != PlayerId || state.AuthorityEpoch != State.AuthorityEpoch || state.CurrentHostId != State.CurrentHostId || state.Revision <= State.Revision || state.Match < State.Match)))
         {
             return false;
         }

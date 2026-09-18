@@ -13,11 +13,12 @@ internal sealed class LobbyNetworkDriver
     private readonly Func<ulong, bool>? _admission;
     private readonly Func<ulong, string?>? _identity;
     private readonly ulong _expectedSession;
-    private readonly LobbyReplica _replica = new();
+    private readonly ulong _expectedEpoch;
     private readonly Queue<TransportMessage> _pendingGameplay = new();
     private readonly EventStream _clientEvents = new();
     private readonly Dictionary<ulong, ulong> _eventSent = new();
     private readonly Dictionary<ulong, double> _versionRejected = new();
+    private LobbyReplica _replica = new();
     private bool _joined;
     private ulong _published;
     private double _joiningSeconds;
@@ -42,9 +43,9 @@ internal sealed class LobbyNetworkDriver
     /// <param name="admission">Optional online admission gate; direct-IP retains development admission.</param>
     /// <param name="expectedSession">Online clients require this discovered session lifetime; zero retains development behavior.</param>
     /// <param name="identity">Trusted authenticated subject resolver, absent for unauthenticated Direct-IP.</param>
-    /// <param name="graceTicks">Host reservation duration in 60 Hz ticks.</param>
+    /// <param name="expectedEpoch">Current advertised authority fence for a restarted resume.</param>
     /// <param name="gameVersion">Runtime build identity; defaults to the canonical provider.</param>
-    internal LobbyNetworkDriver(ITransportGateway gateway, ulong session, ulong serverPeer, string name, Func<ulong, bool>? admission = null, ulong expectedSession = 0, Func<ulong, string?>? identity = null, ulong graceTicks = 1800, GameVersion? gameVersion = null)
+    internal LobbyNetworkDriver(ITransportGateway gateway, ulong session, ulong serverPeer, string name, Func<ulong, bool>? admission = null, ulong expectedSession = 0, Func<ulong, string?>? identity = null, ulong expectedEpoch = 1, GameVersion? gameVersion = null)
     {
         _gateway = gateway;
         _name = name;
@@ -52,23 +53,26 @@ internal sealed class LobbyNetworkDriver
         _admission = admission;
         _identity = identity;
         _expectedSession = expectedSession;
+        _expectedEpoch = expectedEpoch;
         ServerPeer = serverPeer;
         _clientEvents.PlayerName = id => State?.Players.SingleOrDefault(player => player.Id == id)?.Name ?? $"Player {id}";
         if (session != 0)
         {
-            Authority = new LobbyAuthority(session, name, graceTicks, _version);
+            Authority = new LobbyAuthority(session, name, _version);
         }
     }
 
     /// <summary>Host-owned rules; absent on clients.</summary>
-    internal LobbyAuthority? Authority { get; }
+    internal LobbyAuthority? Authority { get; private set; }
+    /// <summary>Optional authenticated migration coordinator on this same receive stream.</summary>
+    internal SessionMigration? Migration { get; set; }
     /// <summary>Structured current-session history; replicated outcomes never originate on a client.</summary>
     internal EventStream Events => Authority?.Events ?? _clientEvents;
 
     /// <summary>Latest complete authoritative state.</summary>
     internal LobbySnapshot? State => Authority?.State ?? _replica.State;
     /// <summary>Session-stable local identity, zero before admission.</summary>
-    internal ulong LocalPlayerId => Authority is null ? (_replica.PlayerId == 0 ? _resumePlayer : _replica.PlayerId) : 1;
+    internal ulong LocalPlayerId => Authority is null ? (_replica.PlayerId == 0 ? _resumePlayer : _replica.PlayerId) : Authority.State.CurrentHostId;
     /// <summary>Actual host transport peer on a client.</summary>
     internal ulong ServerPeer { get; private set; }
     /// <summary>Transport-specific re-establishment, retaining this driver and logical session.</summary>
@@ -90,6 +94,53 @@ internal sealed class LobbyNetworkDriver
     /// <summary>Presentation-only host RTT samples keyed by session player identity.</summary>
     internal PlayerLatency Latency { get; } = new();
 
+    /// <summary>Installs the agreed epoch without carrying transport ownership across the boundary.</summary>
+    /// <param name="checkpoint">Agreed old authority checkpoint.</param>
+    /// <param name="host">Deterministically elected replacement.</param>
+    /// <param name="server">Replacement transport peer, zero on the new host.</param>
+    /// <param name="survivorPeers">Active player-to-peer bindings used only for uninterrupted lobby migration.</param>
+    internal void InstallMigration(MigrationCheckpoint checkpoint, ulong host, ulong server, IReadOnlyDictionary<ulong, ulong>? survivorPeers = null)
+    {
+        ulong local = LocalPlayerId;
+        var restored = LobbyAuthority.Restore(checkpoint.Lobby, host, checked(checkpoint.Lobby.State.AuthorityEpoch + 1), survivorPeers);
+        Authority = local == host ? restored : null;
+        _clientEvents.ResetAuthority(checkpoint.Lobby.Tick * 1000 / 60);
+        _eventSent.Clear();
+        _replica = new LobbyReplica();
+        if (Authority is null)
+        {
+            _replica.Accept(restored.State, local, server, server);
+        }
+
+        ServerPeer = server;
+        _seconds = checkpoint.Lobby.Tick / 60.0;
+        _published = 0;
+        _pendingGameplay.Clear();
+        Latency.Clear();
+        bool lobbyContinuity = restored.State.ReconnectPolicy == SessionReconnectPolicy.FreshJoin;
+        _joined = lobbyContinuity;
+        _interruptedAt = Authority is null && !lobbyContinuity ? _seconds : null;
+        NeedsArenaCheckpoint = Authority is null && restored.State.Phase == SessionPhase.Arena;
+        Failure = string.Empty;
+        ResumeStatus = "Host migrated — resynchronizing";
+    }
+
+    /// <summary>Stops all gameplay after bounded migration failure.</summary>
+    /// <param name="reason">Presentation-safe failure reason.</param>
+    internal void FailMigration(string reason)
+    {
+        Failure = "Host migration failed: " + reason + ". Leave and choose a lobby.";
+        _gateway.Stop();
+    }
+
+    /// <summary>Keeps restored clients frozen until the replacement authenticates their rebind.</summary>
+    internal void BeginMigrationResume()
+    {
+        _interruptedAt = _seconds;
+        _joined = false;
+        NeedsArenaCheckpoint = false;
+    }
+
     /// <summary>Pumps the single gateway and optionally routes non-lobby packets into the active vehicle driver.</summary>
     /// <param name="seconds">Elapsed monotonic time for admission timeout.</param>
     /// <param name="vehicleMessage">Consumer for an active arena only.</param>
@@ -105,6 +156,22 @@ internal sealed class LobbyNetworkDriver
         Events.AdvanceTime((ulong)(_seconds * 1000));
         Authority?.AdvanceTime((ulong)(_seconds * 60));
         _gateway.Poll();
+        Migration?.Advance(seconds);
+        if (Failure.Length > 0)
+        {
+            return;
+        }
+
+        if (Migration?.Negotiating == true)
+        {
+            while (_gateway.TryReceive(out var frozenMessage))
+            {
+                Migration.Receive(frozenMessage);
+            }
+
+            return;
+        }
+
         if (Authority is not null)
         {
             foreach (var rejected in _versionRejected.ToArray())
@@ -134,7 +201,15 @@ internal sealed class LobbyNetworkDriver
             else if (!_gateway.Connections.TryGetValue(ServerPeer, out var connection) || connection == TransportConnectionState.Disconnected)
             {
                 Latency.Clear();
-                if ((State is not null || _resumePlayer != 0) && Reconnect is not null && Failure.Length == 0)
+                if (State?.ReconnectPolicy == SessionReconnectPolicy.FreshJoin)
+                {
+                    ResumeStatus = Migration is null ? "Lobby departure requires a fresh join" : Migration.Status;
+                    if (Migration is null)
+                    {
+                        Failure = "Disconnected from lobby. Join again to receive a fresh player assignment.";
+                    }
+                }
+                else if ((State is not null || _resumePlayer != 0) && Reconnect is not null && Failure.Length == 0)
                 {
                     if (!_interruptedAt.HasValue)
                     {
@@ -142,14 +217,10 @@ internal sealed class LobbyNetworkDriver
                         _nextAttempt = _seconds + 1;
                         ResumeStatus = "Connection interrupted";
                         _pendingGameplay.Clear();
+                        Latency.Clear();
                     }
 
-                    if (_seconds - _interruptedAt.Value >= (State?.GraceTicks ?? 1800) / 60.0)
-                    {
-                        Failure = "Grace expired. Resume is no longer available; choose a lobby to play again.";
-                        ResumeStatus = "Grace expired";
-                    }
-                    else if (_seconds >= _nextAttempt)
+                    if (_seconds >= _nextAttempt)
                     {
                         ResumeStatus = "Reconnecting";
                         _nextAttempt = _seconds + 2;
@@ -159,6 +230,7 @@ internal sealed class LobbyNetworkDriver
                             _joined = false;
                             NeedsArenaCheckpoint = false;
                             _pendingGameplay.Clear();
+                            Latency.Clear();
                         }
                         catch (Exception exception) when (exception is InvalidOperationException or ArgumentException)
                         {
@@ -174,17 +246,10 @@ internal sealed class LobbyNetworkDriver
             else if (!_joined && connection == TransportConnectionState.Connected)
             {
                 byte[] request = Reconnecting
-                    ? LobbyCodec.EncodeResume(State?.Session ?? _expectedSession, LocalPlayerId, Generation, _version.ToString())
+                    ? LobbyCodec.EncodeResume(State?.Session ?? _expectedSession, LocalPlayerId, Generation, State?.AuthorityEpoch ?? _expectedEpoch, _version.ToString())
                     : LobbyCodec.EncodeCommand(LobbyCommand.Join, null, name: _name, gameVersion: _version.ToString());
                 Send(ServerPeer, request);
                 _joined = true;
-            }
-
-            if (_interruptedAt.HasValue && _seconds - _interruptedAt.Value >= (State?.GraceTicks ?? 1800) / 60.0)
-            {
-                Failure = "Grace expired. Leave and choose a lobby.";
-                ResumeStatus = "Grace expired";
-                _gateway.Disconnect(ServerPeer);
             }
 
             if (State is null && !Reconnecting && _joiningSeconds > 15)
@@ -201,6 +266,11 @@ internal sealed class LobbyNetworkDriver
 
         while (_gateway.TryReceive(out TransportMessage message))
         {
+            if (Migration?.Receive(message) == true)
+            {
+                continue;
+            }
+
             if (!_gateway.Connections.TryGetValue(message.RemotePeerId, out var connection) || connection != TransportConnectionState.Connected)
             {
                 continue;
@@ -239,7 +309,7 @@ internal sealed class LobbyNetworkDriver
         if (_loggedResume != ResumeStatus)
         {
             _loggedResume = ResumeStatus;
-            Events.Record(EventCategory.Network, "Recovery state", context: ResumeStatus is "Connection interrupted" or "Reconnecting" or "Resume succeeded" or "Grace expired" ? ResumeStatus : "Resume unavailable or rejected", local: Authority is null);
+            Events.Record(EventCategory.Network, "Recovery state", context: ResumeStatus is "Connection interrupted" or "Reconnecting" or "Resume succeeded" ? ResumeStatus : "Resume unavailable or rejected", local: Authority is null);
         }
 
         if (!_loggedFailure && Failure.Length > 0)
@@ -272,7 +342,7 @@ internal sealed class LobbyNetworkDriver
     /// <returns>Whether locally accepted or submitted to the host.</returns>
     internal bool Request(LobbyCommand command, bool ready = false)
     {
-        if (Failure.Length > 0 || State is null || Reconnecting)
+        if (Failure.Length > 0 || State is null || Reconnecting || Migration?.Frozen == true)
         {
             return false;
         }
@@ -293,7 +363,7 @@ internal sealed class LobbyNetworkDriver
     /// <param name="generation">Last acknowledged generation.</param>
     internal void BeginResume(ulong player, ulong generation)
     {
-        if (Authority is not null || State is not null || _expectedSession == 0 || player <= 1 || generation == 0)
+        if (Authority is not null || State is not null || _expectedSession == 0 || player == 0 || generation == 0)
         {
             throw new InvalidOperationException("Invalid initial resume boundary.");
         }
@@ -316,6 +386,13 @@ internal sealed class LobbyNetworkDriver
     /// <returns>Whether the owner should pump until LeaveComplete.</returns>
     internal bool BeginLeave()
     {
+        if (Authority is not null && Migration?.Subjects is not null)
+        {
+            _leaveAt ??= _seconds;
+            Migration.AnnounceDeparture();
+            return true;
+        }
+
         if (Authority is not null || State is null || Reconnecting || Failure.Length > 0 || LeaveComplete)
         {
             return false;
@@ -341,10 +418,10 @@ internal sealed class LobbyNetworkDriver
             throw new InvalidOperationException("No active gameplay binding.");
         }
 
-        _gateway.Send(new TransportMessage(message.RemotePeerId, ConnectionEnvelope.Encode(State!.Session, record.Generation, message.Payload.Span), message.Delivery));
+        _gateway.Send(new TransportMessage(message.RemotePeerId, ConnectionEnvelope.Encode(State!.Session, record.Generation, message.Payload.Span, State.AuthorityEpoch), message.Delivery));
     }
 
-    private bool Apply(ulong peer, LobbyCommand command, bool ready) => Authority!.Execute(peer, command, State!.Session, State.Match, State.Phase, ready, ConnectedPeers());
+    private bool Apply(ulong peer, LobbyCommand command, bool ready) => Authority!.Execute(peer, command, State!.Session, State.Match, State.Phase, ready, ConnectedPeers(), State.AuthorityEpoch);
 
     private IEnumerable<ulong> ConnectedPeers() => _gateway.Connections.Where(connection => connection.Value != TransportConnectionState.Disconnected).Select(connection => connection.Key);
 
@@ -374,6 +451,11 @@ internal sealed class LobbyNetworkDriver
                     return;
                 }
 
+                if (Migration?.Frozen == true && intent.Command is not (LobbyCommand.Resume or LobbyCommand.Leave))
+                {
+                    throw new ArgumentException("Authority is frozen pending recovery.");
+                }
+
                 if (intent.Command == LobbyCommand.Join)
                 {
                     if ((_admission is not null && !_admission(message.RemotePeerId)) || Authority.Join(message.RemotePeerId, intent.GameVersion, intent.Name, _identity?.Invoke(message.RemotePeerId)) == 0)
@@ -387,7 +469,7 @@ internal sealed class LobbyNetworkDriver
                 if (intent.Command == LobbyCommand.Resume)
                 {
                     string? identity = _identity?.Invoke(message.RemotePeerId);
-                    if (identity is null || (_admission is not null && !_admission(message.RemotePeerId)) ||
+                    if (intent.AuthorityEpoch != State!.AuthorityEpoch || identity is null || (_admission is not null && !_admission(message.RemotePeerId)) ||
                         !Authority.Resume(message.RemotePeerId, intent.GameVersion, intent.Session, intent.Player, intent.Generation, identity))
                     {
                         Send(message.RemotePeerId, LobbyCodec.EncodeRejection("Resume rejected"));
@@ -397,13 +479,13 @@ internal sealed class LobbyNetworkDriver
                     return;
                 }
 
-                if (intent.Command == LobbyCommand.Leave && Authority.Execute(message.RemotePeerId, intent.Command, intent.Session, intent.Match, intent.Phase, false, ConnectedPeers()))
+                if (intent.Command == LobbyCommand.Leave && Authority.Execute(message.RemotePeerId, intent.Command, intent.Session, intent.Match, intent.Phase, false, ConnectedPeers(), intent.AuthorityEpoch))
                 {
                     Send(message.RemotePeerId, LobbyCodec.EncodeLeft());
                     return;
                 }
 
-                if (!Authority.Execute(message.RemotePeerId, intent.Command, intent.Session, intent.Match, intent.Phase, intent.Ready, ConnectedPeers()))
+                if (!Authority.Execute(message.RemotePeerId, intent.Command, intent.Session, intent.Match, intent.Phase, intent.Ready, ConnectedPeers(), intent.AuthorityEpoch))
                 {
                     throw new ArgumentException("Rejected stale or unauthorized lobby intent.");
                 }
@@ -440,6 +522,11 @@ internal sealed class LobbyNetworkDriver
                 }
 
                 var publication = LobbyCodec.DecodeState(message.Payload.Span);
+                if (State is null && publication.State.AuthorityEpoch != _expectedEpoch)
+                {
+                    throw new ArgumentException("Lobby publication has a stale authority epoch.");
+                }
+
                 if (Reconnecting && !NeedsArenaCheckpoint && (publication.Player != LocalPlayerId || publication.State.Players.Single(player => player.Id == publication.Player).Generation != checked(Generation + 1)))
                 {
                     throw new ArgumentException("Resume changed player or did not advance connection generation.");
@@ -551,7 +638,7 @@ internal sealed class LobbyNetworkDriver
                 var record = State!.Players.Single(player => player.Id == peer.Value);
                 byte[] packet = EventCodec.Encode(entries);
                 // TE framing stays recognizable outside the fenced payload for the single receive dispatcher.
-                Send(peer.Key, [(byte)'T', (byte)'E', 1, .. ConnectionEnvelope.Encode(State.Session, record.Generation, packet)]);
+                Send(peer.Key, [(byte)'T', (byte)'E', 1, .. ConnectionEnvelope.Encode(State.Session, record.Generation, packet, State.AuthorityEpoch)]);
                 sent = entries[^1].Sequence;
             }
 
@@ -568,7 +655,7 @@ internal sealed class LobbyNetworkDriver
                 throw new ArgumentException("Untrusted event publication.");
             }
 
-            var payload = ConnectionEnvelope.Decode(message.Payload.Span[3..], State.Session, Generation);
+            var payload = ConnectionEnvelope.Decode(message.Payload.Span[3..], State.Session, Generation, State.AuthorityEpoch);
             foreach (var entry in EventCodec.Decode(payload))
             {
                 Events.Accept(entry);
@@ -582,6 +669,11 @@ internal sealed class LobbyNetworkDriver
 
     private void RouteGameplay(TransportMessage message, Action<TransportMessage> receive)
     {
+        if (Authority is not null && Migration?.Frozen == true)
+        {
+            return;
+        }
+
         ulong player = Authority?.PlayerId(message.RemotePeerId) ?? (message.RemotePeerId == ServerPeer ? LocalPlayerId : 0);
         var record = State?.Players.SingleOrDefault(value => value.Id == player);
         if (record is null || !record.Connected || (Reconnecting && !NeedsArenaCheckpoint))
@@ -592,7 +684,7 @@ internal sealed class LobbyNetworkDriver
 
         try
         {
-            receive(new TransportMessage(message.RemotePeerId, ConnectionEnvelope.Decode(message.Payload.Span, State!.Session, record.Generation), message.Delivery));
+            receive(new TransportMessage(message.RemotePeerId, ConnectionEnvelope.Decode(message.Payload.Span, State!.Session, record.Generation, State.AuthorityEpoch), message.Delivery));
         }
         catch (ArgumentException)
         {

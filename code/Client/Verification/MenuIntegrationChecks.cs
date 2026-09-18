@@ -336,8 +336,12 @@ public sealed partial class MenuIntegrationChecks : Node
         Check(_remote.Arena.LocalState!.ObservedPhysics.Position != position, "remote vehicle continues driving while local controls are suppressed");
         Check(_player.Adapter.GameplaySuppressed, "suppression remains local to host");
         Tap(Key.Escape);
+        ulong departingPlayer = _remote.Lobby!.LocalPlayerId;
         _remote.Leave();
-        await Until(() => _remote.LeaveComplete && _session.Lobby.State!.Players.Count == 1, "client graceful leave completes through reliable cleanup");
+        await Until(
+            () => _remote.LeaveComplete && _session.Lobby.State!.Players.Count == 2 &&
+            !_session.Lobby.State.Players.Single(player => player.Id == departingPlayer).Connected,
+            "client graceful leave completes while the arena retains its player reservation");
         _remote = null;
         world.QueueFree();
         await Frames(2);

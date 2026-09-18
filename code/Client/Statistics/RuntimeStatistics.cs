@@ -41,7 +41,7 @@ internal static class RuntimeStatistics
             (spawns is null ? "Item spawns: unavailable" : $"Available spawns: {spawns.Count(value => value.Available)}/{spawns.Count}\n" + string.Join("\n", spawns.Select(value => $"{value.Id}: {(value.Available ? "Available" : "Cooldown " + VehicleStatistics.Remaining(value.NextActivationTick, tick))}")));
         string networkText = $"Transport: {session?.Gateway?.Name ?? "Unavailable"}\nReplication: {(driver is null ? "Unavailable" : driver.Failure.Length > 0 ? "Failed" : driver.IsActive ? "Active" : "Suspended / awaiting authority")}\n" +
             $"Snapshot age: {NetworkVehicleArena.FormatSnapshotAge(driver?.SnapshotAge)}\nInterpolation delay: {(driver?.Host is null && driver?.History is not null ? $"{arena!.InterpolationDelay:0} ms" : "Unavailable")}\n" +
-            $"Reconnect: {lobby?.Reconnecting.ToString() ?? "Unavailable"} · Awaiting arena checkpoint: {lobby?.NeedsArenaCheckpoint.ToString() ?? "Unavailable"}\nConfigured reconnect grace: {(roster is null ? "Unavailable" : $"{roster.GraceTicks / 60.0:0.##} s")} · Connection generation: {lobby?.Generation.ToString() ?? "Unavailable"}";
+            $"Reconnect: {lobby?.Reconnecting.ToString() ?? "Unavailable"} · Awaiting arena checkpoint: {lobby?.NeedsArenaCheckpoint.ToString() ?? "Unavailable"}\nReconnect policy: {roster?.ReconnectPolicy.ToString() ?? "Unavailable"} · Connection generation: {lobby?.Generation.ToString() ?? "Unavailable"}";
         StatisticSection[] global = [new("Session / authority", sessionText), new("Arena / match / spawning", arenaText), new("Networking / synchronization", networkText)];
         if (selected == 0)
         {

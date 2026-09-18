@@ -10,7 +10,7 @@ internal static class EosClientConfiguration
     private const string SandboxId = "6c0a33a5748841e09204957d28e6bb84";
     private const string DeploymentId = "dea3c60b4f30486688fbf674c9e57c2b";
     private const string ClientId = "xyza7891VzsMsnNdYcYraBkYrS4ZheUn";
-    private const string ClientSecret = "MLtwW1s77aZiZVHZbZS/yg2hMkBnFq4sGVkquzEMZX0";
+    private const string ClientSecret = "RKhyGdQ1JBnNuDUlTXNp9OV5daAao522OZKgVj5JZkU";
 
     /// <summary>Creates and validates the configuration embedded in the distributed client.</summary>
     /// <returns>The default EOS client configuration.</returns>

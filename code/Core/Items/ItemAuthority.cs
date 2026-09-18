@@ -34,6 +34,36 @@ public sealed class ItemAuthority
     /// <summary>Only the last committed step's presentation outcomes.</summary>
     public IReadOnlyList<ItemEvent> Events { get; private set; } = Array.Empty<ItemEvent>();
 
+    /// <summary>Highest issued token, including consumed and departed ownership.</summary>
+    public ulong TokenHighWater => _token;
+
+    /// <summary>Restores committed ownership without pending commands or historical effects.</summary>
+    /// <param name="publication">Validated current world and item state.</param>
+    /// <param name="revision">Authority mutation revision.</param>
+    /// <param name="token">Highest ever issued token in this match.</param>
+    public void Restore(ItemPublication publication, ulong revision, ulong token)
+    {
+        if (publication.Events.Count != 0 || publication.Slots.Any(slot => slot.Token > token) ||
+            publication.Spawns.Any(spawn => spawn.Token > token) || publication.Missiles.Any(missile => missile.Id > token ||
+                !publication.World.Vehicles.Any(vehicle => vehicle.State.VehicleId == missile.Owner && vehicle.State.CanInteract)))
+        {
+            throw new ArgumentException("Invalid item authority continuation.");
+        }
+
+        _slots.Clear();
+        foreach (var slot in publication.Slots)
+        {
+            _slots.Add(slot.Vehicle, slot);
+        }
+
+        _missiles.Clear();
+        _missiles.AddRange(publication.Missiles);
+        _pending.Clear();
+        Events = Array.Empty<ItemEvent>();
+        Revision = revision;
+        _token = token;
+    }
+
     /// <summary>Discards an uncommitted use when its transport owner is suspended.</summary>
     /// <param name="vehicle">Authoritative player identity.</param>
     public void CancelPending(ulong vehicle) => _pending.Remove(vehicle);
