@@ -15,6 +15,7 @@ public sealed partial class MigrationProcessChecks : Node
     private NetworkVehicleArena? _arena;
     private int _role;
     private int _assigned;
+    private int _cleanupFrames;
     private int _frames;
     private int _resumed;
     private string _directory = string.Empty;
@@ -81,11 +82,6 @@ public sealed partial class MigrationProcessChecks : Node
 
         if (_finished)
         {
-            if (++_resumed > 65)
-            {
-                GetTree().Quit();
-            }
-
             return;
         }
 
@@ -135,8 +131,8 @@ public sealed partial class MigrationProcessChecks : Node
                     if (_ports.Length == 2 || System.IO.File.Exists(System.IO.Path.Combine(_directory, $"{(_role == 1 ? 2 : 1)}-passed.json")))
                     {
                         _gateway.Dispose();
-                        _arena.QueueFree();
                         _finished = true;
+                        CallDeferred(MethodName.Complete);
                     }
                 }
             }
@@ -152,6 +148,19 @@ public sealed partial class MigrationProcessChecks : Node
             _gateway.Dispose();
             GetTree().Quit(1);
         }
+    }
+
+    /// <summary>Releases the arena and allows deferred audio teardown to complete before process shutdown.</summary>
+    public async void Complete()
+    {
+        _cleanupFrames = 0;
+        _arena!.QueueFree();
+        while (_cleanupFrames++ < 6)
+        {
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        }
+
+        GetTree().Quit();
     }
 
     private TransportEndpoint Endpoint(int role) => TransportEndpoint.DirectIp("127.0.0.1:" + _ports[role]);

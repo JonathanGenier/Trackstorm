@@ -25,7 +25,7 @@ Logs are in ignored `.godot/match-reservation-checks/`. Tests use local sockets,
 | `check-reconnect.ps1` | PASS: immediate lobby removal/fresh join; three arena resyncs after advancing both session clocks beyond 181 seconds; retained native body, HP/items/spawns/match/standings/generation; Return cleanup |
 | `check-migration.ps1 -Players 2` / `-Players 3` | PASS: native local UDP lobby loss, former-host fresh lobby admission, active-match loss, former-host CLIENT resume, complete state and sequential epochs |
 | `check-migration-processes.ps1 -Players 2` | PASS: host forcibly terminated, independent survivor restored epoch 2 and exited cleanly |
-| `check-migration-processes.ps1 -Players 3` | Both independent survivors restored epoch 2 and recorded pass evidence; **clean-shutdown gate FAIL** on initial corrected run and one repeat, with 28 AudioStream/AudioStreamPlayback objects and one music resource reported at exit |
+| `check-migration-processes.ps1 -Players 3` | PASS twice after the harness cleanup correction below: both independent survivors restored epoch 2, retained all three vehicles and exited cleanly with no ERROR/WARNING, leaked AudioStream/AudioStreamPlayback or music-resource diagnostics |
 | `check-statistics.ps1` | PASS, 42 assertions, including retained disconnected selection/state and Return cleanup |
 | `check-developer-options.ps1` | **PASS after the shutdown correction below**, twice: 238 write + 7 read assertions per run, no ERROR/WARNING/ObjectDB/Image/dummy-texture diagnostics. Original reservation-correction runs failed this gate. |
 | `check-lobby.ps1` | PASS: eight players, fresh lobby rejoin, arena retention and Return removing disconnected records/native arenas |
@@ -36,7 +36,7 @@ Logs are in ignored `.godot/match-reservation-checks/`. Tests use local sockets,
 
 Deterministic coverage explicitly includes old 1,800-tick / 7,200-tick boundaries and much longer retention, Public and Locked authorization, repeated resume, disconnected ordinary players through sequential authority restores, generation/identity rejection, Return subject/capacity cleanup, saved ordinary-client membership recovery after 181 seconds, manual resume after safe migration failure, and locator removal after observed Return. Existing two-player/3+ fencing, partition, stale checkpoint, configuration, RNG and duplicate-outcome checks remain enabled.
 
-Intermediate failures were corrected rather than hidden: old arena-removal assertions in Statistics/lobby/Event Log were revised to verify retention followed by Return; the separate-process harness's obsolete positional grace argument was removed after it was interpreted as an expected epoch. Initial failed assertions/build attempts are not final passes. The original runs left both shutdown diagnostics unresolved. The Developer Options correction below supersedes that result and the earlier baseline interpretation; the separate three-player audio gate remains unresolved. No gate has been waived.
+Intermediate failures were corrected rather than hidden: old arena-removal assertions in Statistics/lobby/Event Log were revised to verify retention followed by Return; the separate-process harness's obsolete positional grace argument was removed after it was interpreted as an expected epoch. Initial failed assertions/build attempts are not final passes. The Developer Options and migration-process shutdown corrections below supersede the original shutdown failures and earlier baseline interpretation. No gate has been waived.
 
 ## Developer Options shutdown correction
 
@@ -68,11 +68,37 @@ Validation uses `Godot_v4.7.2-stable_mono_win64_console.exe`:
 | `./check.ps1` | PASS, formatting, zero-warning Debug/Release builds, 331 Core + 257 non-native transport/Client tests per configuration; `.godot/developer-shutdown-check-final.log` |
 | `./check-migration-processes.ps1 -NoBuild -Players 3 -GodotPath <4.7.2>` | Both survivors passed epoch 2; shutdown gate still FAIL with 28 audio stream/playback instances and one music resource; `.godot/migration-process-checks/fc497a5246ad4da3a9f31e8bdcf3c1f0` |
 
-The independent-process migration harness constructs `NetworkVehicleArena` directly and never constructs `CombatHud`; the fixed texture handoff is not on that path. No common cause with its audio diagnostic was established, and no audio cleanup was added. Physical-PC/live-EOS acceptance remains unresolved. No new Story critique round, branch, PR or merge was performed.
+The independent-process migration harness constructs `NetworkVehicleArena` directly and never constructs `CombatHud`; the fixed texture handoff is not on that path. No common cause with its audio diagnostic was established, and no audio cleanup was added at that checkpoint. Physical-PC/live-EOS acceptance remains unresolved. No new Story critique round, branch, PR or merge was performed.
+
+## Migration-process shutdown correction
+
+This narrow follow-up starts from reviewed head `a6b9b10046fda6177a1bb907897a2f967000a309` on the same `ts-46-jg` branch and PR #27. TS-46 comments 10063/10064 and TS-51 comment 10067 remain unchanged. No gameplay migration, checkpoint, election, lease, epoch, reconnect, retention or production audio behavior changed.
+
+**Verified cause and correction:** the unmodified three-player harness reproduced after one clean timing-dependent baseline. Both survivors wrote pass evidence at epoch 2, but role 1 then reported 28 leaked ObjectDB instances, including 14 `AudioStreamWAV`/`AudioStreamPlaybackWAV` instances and one music resource still in use. `MigrationProcessChecks` reused `_resumed` for both the 60-frame migrated-gameplay stability gate and shutdown delay. A survivor that had already waited for its peer's pass file could therefore queue the arena and quit on the next physics frame, before deferred deletion ran `ArenaAudio._ExitTree()` and `VehicleAudio._ExitTree()`.
+
+`MigrationProcessChecks` now has a separate cleanup lifecycle and frame counter. Once both survivors have passed, it disposes transport once, marks the check finished and defers `Complete()`. `Complete()` resets the cleanup counter, queues the arena, awaits six actual `SceneTree.ProcessFrame` signals and only then quits, matching the established `NetworkVehicleChecks.Complete()` ownership pattern. The clean-shutdown gate remains strict; no warning suppression, log filtering, `GC.Collect()` or production audio change was added.
+
+Validation uses `Godot_v4.7.2-stable_mono_win64_console.exe`:
+
+| Check | Result / ignored local evidence |
+| --- | --- |
+| Unmodified `check-migration-processes.ps1 -Players 3` reproduction | Functional migration PASS, shutdown gate FAIL on role 1 with 28 ObjectDB instances, 14 audio stream/playback objects and one music resource; `.godot/migration-process-checks/ce137dc0975e43d6bd51a5fd38935013` |
+| Corrected three-player run 1 | PASS: roles 1/2 reached epoch 2 with host 2 at ticks 169/171; no shutdown diagnostics; `.godot/migration-process-checks/5bad811812554de18e95d608659262d8` |
+| Corrected three-player run 2 | PASS: roles 1/2 reached epoch 2 with host 2 at ticks 169/171; no shutdown diagnostics; `.godot/migration-process-checks/3e342cd176974daab3ff424f5525048c` |
+| Corrected two-player regression | PASS: survivor reached epoch 2 with host 2 at tick 170; no shutdown diagnostics; `.godot/migration-process-checks/49508e9805e14be18ef416cca01aa41b` |
+| `check-migration.ps1 -Players 3 -NoBuild` | PASS: native local UDP lobby and active-match migration, sequential epochs, retained vehicles and complete restore |
+| `check-network-vehicles.ps1 -Players 2 -NoBuild` | PASS: host/client production arena replication and deferred audio cleanup; `.godot/network-vehicle-checks/3ef0273e2638402298f6028f56a4610f` |
+| `check-audio.ps1 -NoBuild` | PASS, 53 native audio assertions and clean exit |
+| `./check.ps1` | PASS: formatting, zero-warning Debug/Release builds, 331 Core + 257 non-native transport/Client tests per configuration |
+
+Exact correction files:
+
+- `code/Client/Verification/MigrationProcessChecks.cs`: independent deferred cleanup lifecycle and six-frame shutdown wait.
+- `docs/verification/ts-46-match-reservations.md`: reproduction, correction and current verification evidence.
 
 ## Remaining acceptance
 
-Implementation is delivered for review, but overall repository acceptance is not complete while the separate three-player audio clean-shutdown gate fails. TS-46 and TS-51 remain In Progress; PR #27 remains open and unmerged.
+All local automated gates, including the separate three-player audio clean-shutdown gate, now pass. TS-46 and TS-51 remain In Progress pending the physical-PC/live-EOS acceptance below; PR #27 remains open and unmerged.
 
 Still required on physical PCs with real EOS and the bundled deployed Worker: Public/Locked ordinary-client loss and resume after more than thirty seconds and more than two minutes within the same match; retained HP/items/lifecycle/score/rank/statistics and one vehicle; disconnected Return cleanup and fresh lobby join; lobby and active-match host Leave/kill; former-host same-player CLIENT return; P2P-only partition, Worker outage, changed network/restart, sequential migration and 3+ agreement. Local tests do not supersede the previous physical-PC evidence.
 
