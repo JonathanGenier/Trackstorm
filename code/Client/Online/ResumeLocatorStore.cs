@@ -22,7 +22,8 @@ internal sealed class ResumeLocatorStore(string path)
                 var locator = JsonSerializer.Deserialize<ResumeLocator>(File.ReadAllText(path));
                 if (locator is not null && locator.Identity == identity && locator.Lobby?.Length is > 0 and <= 256 && locator.Host?.Length == 32 &&
                     locator.Session is > 0 and < ulong.MaxValue && locator.Player > 0 && locator.Generation is > 0 and < ulong.MaxValue &&
-                    locator.AuthorityEpoch is > 0 and < ulong.MaxValue)
+                    locator.AuthorityEpoch is > 0 and < ulong.MaxValue &&
+                    (locator.RoutingId is null || (locator.RoutingId.Length == 64 && locator.RoutingId.All(char.IsAsciiHexDigit))))
                 {
                     return locator;
                 }

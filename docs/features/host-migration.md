@@ -52,6 +52,10 @@ A healthy connection normally rolls back at most one cadence interval plus deliv
 
 Waiting for lease expiry does not itself age a recent crash checkpoint out of recovery. Continued host progress after a long P2P partition does: an isolated survivor cannot roll back a healthy host's later simulation merely because its own observed tick stopped. Packets with equal/older sequences cannot refresh receipt timestamps, and a checkpoint received after the selected boundary is ineligible. A missing recent common checkpoint fails closed; long partitions are not promised lossless recovery.
 
+## Restart routing after migration
+
+EOS ownership may lag a committed gameplay migration indefinitely. The replacement records its route locally immediately; publishing `gameHost`/`epoch` remains an EOS-owner operation and is not a prerequisite for authority. A restarted former host with a saved read-only [lease routing locator](authority-leases.md) resolves the live fenced holder/epoch directly from the existing service record after recovering EOS membership. It never connects to itself, takes over a lease, or treats EOS ownership as gameplay authority. Authenticated Core Resume then restores the retained player as CLIENT. Legacy locators without the read-only address still require EOS metadata to catch up. See [restart persistence and compatibility](reconnection.md#recovery-and-restart).
+
 ## Restore and rebind
 
 1. Freeze gameplay and native prop progression while authority is uncertain.

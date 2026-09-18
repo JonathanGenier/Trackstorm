@@ -14,6 +14,10 @@ export class LeaseSession extends DurableObject {
   async operate(operation, request, subject) {
     return this.ledger.operate(operation, request, subject);
   }
+
+  async route() {
+    return this.ledger.route();
+  }
 }
 
 function reply(status, body) {
@@ -45,7 +49,7 @@ export default {
     if (request.method === "GET" && url.pathname === "/health") return reply(200, { status: "up" });
     if (request.method === "GET" && url.pathname === "/licenses") return new Response(joseLicense, { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
     const operation = url.pathname.match(/^\/lease\/([a-z]+)$/)?.[1];
-    if (request.method !== "POST" || !OPERATIONS.has(operation)) return reply(404, { error: "Not found." });
+    if (request.method !== "POST" || (!OPERATIONS.has(operation) && operation !== "route")) return reply(404, { error: "Not found." });
     if (!configured(env)) return reply(503, { error: "Coordination unavailable." });
     let subject;
     try { subject = await authenticate(request.headers.get("Authorization"), env); }
@@ -54,9 +58,15 @@ export default {
     try {
       const body = await readRequest(request);
       if (!validRequest(body)) return reply(400, { error: "Invalid request." });
+      if (operation === "route") {
+        if (body.epoch !== 0 || body.token !== "") return reply(400, { error: "Invalid request." });
+        const id = env.LEASE_SESSIONS.idFromString(body.session);
+        const route = await env.LEASE_SESSIONS.get(id).route();
+        return route ? reply(200, { routingId: id.toString(), ...route }) : reply(409, { error: "Lease conflict." });
+      }
       const id = env.LEASE_SESSIONS.idFromName(body.session);
       const result = await env.LEASE_SESSIONS.get(id).operate(operation, body, subject);
-      return result ? reply(200, result) : reply(409, { error: "Lease conflict." });
+      return result ? reply(200, { ...result, routingId: id.toString() }) : reply(409, { error: "Lease conflict." });
     } catch {
       // Never expose tokens, session IDs, provider errors or request bodies to logs/responses.
       return reply(503, { error: "Coordination unavailable." });

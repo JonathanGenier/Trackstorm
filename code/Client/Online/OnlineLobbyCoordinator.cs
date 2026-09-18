@@ -31,6 +31,12 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     private long _savedAt;
     private ulong _savedGeneration;
     private bool _resumePending;
+    private string? _routingId;
+    private ILeaseTransport? _routingTransport;
+    private Task<LeaseRoute?>? _routingTask;
+    private OnlineLobby? _routingLobby;
+    private long _routingRequested;
+    private long _routingEpoch;
     private bool _recoveringMembership;
     private bool _preserveLocator;
     private string? _migrationHost;
@@ -68,6 +74,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         _time = time ?? TimeProvider.System;
         _resumeStore = resumeStore;
         SavedResume = _resumeStore?.Load(identity.Value);
+        _routingId = SavedResume?.RoutingId;
     }
 
     /// <summary>Production packet composition; absent in browser-only verification.</summary>
@@ -381,6 +388,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal void Tick()
     {
         TickCoordination();
+        TickRouting();
         if (!_disposed && ((SavedResume is not null && Active is null) || _recoveringMembership))
         {
             TickResume();
@@ -400,7 +408,8 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         {
             _savedAt = _time.GetTimestamp();
             _savedGeneration = driver.Generation;
-            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value));
+            _routingId = _binding.RoutingId ?? _routingId;
+            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value, _routingId));
             SavedResume = null;
         }
 
@@ -468,7 +477,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         if (retainPlayer)
         {
             var driver = _binding!.Driver;
-            _returnLocator = new ResumeLocator(Active!.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, driver.State!.AuthorityEpoch, Active.HostIdentity.Value);
+            _returnLocator = new ResumeLocator(Active!.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, driver.State!.AuthorityEpoch, Active.HostIdentity.Value, _binding.RoutingId ?? _routingId);
             _resumeStore?.Save(_returnLocator);
         }
 
@@ -480,6 +489,11 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
 
         _recoveringMembership = false;
         _resumePending = false;
+        _routingTransport?.Dispose();
+        _routingTransport = null;
+        _routingTask = null;
+        _routingLobby = null;
+        _routingId = null;
         _savedGeneration = 0;
         _joinCredential = null;
         if (_closing is not null && Busy)
@@ -534,7 +548,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         if (Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume, Failure.Length: 0 } driver)
         {
             _preserveLocator = true;
-            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value));
+            _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value, _binding.RoutingId ?? _routingId));
         }
     }
 
@@ -547,6 +561,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
 
         SavedResume = _returnLocator;
+        _routingId = SavedResume!.RoutingId;
         _returnLocator = null;
         _resumeRetry = 0;
         TickResume();
@@ -887,6 +902,26 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                 return;
             }
 
+            if (!lobby.Compatible || lobby.Session != session || !lobby.MemberIds.Contains(Identity))
+            {
+                RejectResume(lobby);
+                return;
+            }
+
+            if (Active is null && SavedResume?.RoutingId is { } routingId && LeaseFactory is { } factory)
+            {
+                _closing = lobby;
+                _closingHost = false;
+                _resumePending = true;
+                _routingLobby = lobby;
+                _routingEpoch = epoch;
+                _routingRequested = _time.GetTimestamp();
+                _routingTransport = factory();
+                _routingTask = _routingTransport.Resolve(routingId);
+                Status = "Resolving trusted gameplay host…";
+                return;
+            }
+
             bool invalidRestartAuthority = Active is null && (lobby.AuthorityEpoch < authorityEpoch || (lobby.AuthorityEpoch == authorityEpoch && lobby.HostIdentity.Value != host));
             if (Active is null && host == Identity.Value && lobby.HostIdentity.Equals(Identity))
             {
@@ -896,11 +931,9 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                 return;
             }
 
-            if (!lobby.Compatible || lobby.Session != session || invalidRestartAuthority || !lobby.MemberIds.Contains(Identity))
+            if (invalidRestartAuthority)
             {
-                _provider.Leave(lobby.Id, false, _ => { });
-                Leave();
-                Status = "Resume rejected. Session changed or identity is unavailable.";
+                RejectResume(lobby);
                 return;
             }
 
@@ -915,5 +948,53 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                 ApplyUpdate(lobby);
             }
         });
+    }
+
+    private void TickRouting()
+    {
+        if (_routingTask is null || (!_routingTask.IsCompleted && _time.GetElapsedTime(_routingRequested).TotalSeconds < 3))
+        {
+            return;
+        }
+
+        var route = _routingTask.IsCompletedSuccessfully ? _routingTask.Result : null;
+        var lobby = _routingLobby;
+        _routingTask = null;
+        _routingLobby = null;
+        _routingTransport?.Dispose();
+        _routingTransport = null;
+        _resumePending = false;
+        double age = _time.GetElapsedTime(_routingRequested).TotalSeconds;
+        if (_disposed || _routingEpoch != _epoch || Active is not null || SavedResume is not { } saved || lobby is null)
+        {
+            return;
+        }
+
+        if (route is null || age >= 3 || route.RoutingId != saved.RoutingId ||
+            route.Epoch < saved.AuthorityEpoch || route.Epoch > 9007199254740991 ||
+            (route.Epoch == saved.AuthorityEpoch && route.Holder != saved.Host) ||
+            route.RemainingSeconds <= age || route.RemainingSeconds > Core.Sessions.AuthorityLease.DurationSeconds || !double.IsFinite(route.RemainingSeconds) ||
+            route.Holder is not { Length: 32 } || !route.Holder.All(char.IsAsciiHexDigit) || route.Holder.All(c => c == '0') ||
+            string.Equals(route.Holder, Identity.Value, StringComparison.OrdinalIgnoreCase))
+        {
+            Status = "Waiting for replacement host routing…";
+            return;
+        }
+
+        // A read only selects the authenticated connection target. Core Resume still owns admission.
+        _routingId = saved.RoutingId;
+        lobby = lobby with { GameplayHost = new OnlineProductUserId(route.Holder), AuthorityEpoch = route.Epoch };
+        _recoveringMembership = false;
+        _closing = null;
+        long operation = Begin("Reconnecting");
+        CompleteMembership(operation, lobby, null, false);
+    }
+
+    private void RejectResume(OnlineLobby lobby)
+    {
+        _closing = lobby;
+        _closingHost = false;
+        Leave();
+        Status = "Resume rejected. Session changed or identity is unavailable.";
     }
 }

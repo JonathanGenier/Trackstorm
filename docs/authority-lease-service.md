@@ -35,6 +35,8 @@ A restart/deployment can retire current leases and impose a ten-second conservat
 
 ## Optional backend work
 
+For restart recovery with stale EOS metadata, deploy the Worker version supporting authenticated `/lease/route` and `routingId` in normal lease responses before starting matches with the updated game. Keep the existing Durable Object namespace and records: the read-only endpoint addresses the same object by its opaque ID and adds no storage migration or routing database. A locator written by an older game/service has no read-only address and still waits for EOS metadata to catch up. Worker deployment can quarantine existing leases as described above; use a fresh match for physical acceptance after the update.
+
 Only someone editing or locally testing the Worker needs Node 22+, npm and the pinned development tools. From `services/authority-lease`:
 
 ```powershell

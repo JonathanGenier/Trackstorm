@@ -10,4 +10,9 @@ internal interface ILeaseTransport : IDisposable
     /// <param name="request">Expected session and fence.</param>
     /// <returns>A trusted result or no grant on failure.</returns>
     Task<AuthorityLease?> Send(string operation, LeaseRequest request);
+
+    /// <summary>Resolves current routing without exposing a lease secret or granting authority.</summary>
+    /// <param name="routingId">Opaque read-only locator previously returned by the service.</param>
+    /// <returns>Authenticated observation or absence on failure.</returns>
+    Task<LeaseRoute?> Resolve(string routingId);
 }

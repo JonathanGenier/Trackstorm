@@ -70,6 +70,9 @@ internal sealed class OnlineSessionBinding : IDisposable
     /// <summary>Existing driver which remains the sole route for lobby commands and roster admission.</summary>
     internal LobbyNetworkDriver Driver { get; }
 
+    /// <summary>Optional trusted routing locator for process restart.</summary>
+    internal string? RoutingId => _lease?.RoutingId;
+
     /// <summary>Online identities mapped to authority-assigned gameplay identities.</summary>
     internal IReadOnlyDictionary<OnlineProductUserId, ulong> PlayerIds
     {

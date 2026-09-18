@@ -82,4 +82,12 @@ export class LeaseLedger {
     const { expiresAt, ...grant } = record;
     return { ...grant, remainingSeconds: Math.max(0, Math.min(LEASE_MS, expiresAt - now)) / 1000 };
   }
+
+  async route() {
+    const current = await this.storage.get("lease");
+    validateRecord(current);
+    if (!current) return null;
+    const { holder, epoch, remainingSeconds } = this.snapshot(current, this.now());
+    return { holder, epoch, remainingSeconds };
+  }
 }

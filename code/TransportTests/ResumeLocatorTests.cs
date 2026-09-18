@@ -17,6 +17,15 @@ internal sealed class ResumeLocatorTests
         {
             store.Save(locator);
             Assert.That(store.Load("identity"), Is.EqualTo(locator));
+            store.Save(locator with { RoutingId = new string('b', 64) });
+            Assert.That(store.Load("identity")!.RoutingId, Is.EqualTo(new string('b', 64)));
+            foreach (string invalidRoute in new[] { string.Empty, "short", new string('g', 64), new string('a', 65) })
+            {
+                store.Save(locator with { RoutingId = invalidRoute });
+                Assert.That(store.Load("identity"), Is.Null);
+            }
+
+            store.Save(locator);
             Assert.That(store.Load("different"), Is.Null);
             Assert.That(File.Exists(path), Is.False);
             store.Save(locator);

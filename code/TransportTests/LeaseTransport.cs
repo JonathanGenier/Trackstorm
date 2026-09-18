@@ -18,6 +18,8 @@ internal sealed class LeaseTransport(LeaseStore store, string subject) : ILeaseT
     internal List<string> Operations { get; } = new();
     /// <summary>Observes the local lifecycle at the instant a request is sent.</summary>
     internal Action<string>? Sending { get; set; }
+    /// <summary>Injects routing response failures without altering trusted stored authority.</summary>
+    internal Func<LeaseRoute?, Task<LeaseRoute?>>? RoutingResponse { get; set; }
 
     /// <inheritdoc/>
     public Task<AuthorityLease?> Send(string operation, LeaseRequest request)
@@ -37,5 +39,14 @@ internal sealed class LeaseTransport(LeaseStore store, string subject) : ILeaseT
     /// <inheritdoc/>
     public void Dispose()
     {
+    }
+
+    /// <inheritdoc/>
+    public Task<LeaseRoute?> Resolve(string routingId)
+    {
+        Operations.Add("route");
+        var lease = Offline ? null : store.Resolve(routingId);
+        var route = lease is null ? null : new LeaseRoute(routingId, lease.Holder, lease.Epoch, lease.RemainingSeconds);
+        return RoutingResponse?.Invoke(route) ?? Task.FromResult(route);
     }
 }

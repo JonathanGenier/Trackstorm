@@ -1,5 +1,47 @@
 # TS-46 match-long player reservation correction
 
+## Former-host restart with stale EOS routing — 2026-09-18
+
+This correction continues reviewed head `6af049f1ed39025159301956fb15b472489ccb9f` on the existing `ts-46-jg` / PR #27. No new branch, PR, merge or Story critique round. Fetch confirmed `origin/main` remains `b409017aa43cf5670762aeca20ce21fa7ac92297`, already integrated. TS-46 comments 10063/10064 and TS-51 comment 10067 remain the approved requirements.
+
+**Physical evidence supplied by the user:** Tests 1–5 and 7–13 PASS. Test 6 migrates immediately after active-host hard-kill and the replacement becomes authoritative, but former-host restart remains on `Waiting for replacement host routing...`. This supersedes older pending/failure summaries below; no new separate-PC result is claimed.
+
+**Root cause verified by code and deterministic reproduction:** `MigrationCompleted()` records the Core-committed epoch/host locally, while `CoordinateMigration()` publishes the route only when that coordinator is also the EOS owner. EOS ownership/attributes can remain at old host / epoch 1 after trusted gameplay authority reaches epoch 2. Restart had only the saved EOS locator and metadata. Its correct self-route guard then waited indefinitely. The earlier `FormerHostResumesThroughProviderAndCoreWithoutPassword` test explicitly replaced fake-service ownership/route with epoch 2 before asserting successful return, so it covered eventual publication rather than permanently stale metadata. Both new Public/Locked cases first failed against the uncorrected production code with the exact waiting status.
+
+**Correction:** normal lease responses include an opaque read-only `routingId` for the same Durable Object. Authenticated `/lease/route` reads only that object's existing holder/epoch/remaining duration; it exposes neither the private session key nor the token and creates no second routing record/store. The provider-neutral HTTP adapter resolves this address from a saved arena locator after EOS membership recovery. Only a timely, live, non-self route consistent with the saved epoch/host fence may select the connection target. Core Resume still validates authenticated subject/session/PlayerId/generation and returns the former host as CLIENT. Lease writes, election, checkpoint agreement, AuthorityEpoch, token fencing and healthy-client request cadence are unchanged. No EOS promotion is required.
+
+**Regression coverage:** production coordinator, binding, EOS packet framing, lease lifecycle and vehicle drivers over deterministic provider boundaries now exercise abrupt host disappearance, automatic fenced epoch-2 takeover, permanently stale EOS owner/route, new-process locator load, trusted routing, explicit Resume (never Join), same PlayerId/session, generation +1, retained vehicle/life/HP/held Missile, complete arena checkpoint, exactly two players/vehicles, and rejection of former-host Return privilege. Both Public and Locked cases pass without access-code re-entry on restart. Ten additional cases cover unavailable service, self route, older epoch, conflicting same epoch, wrong locator, expired lease, malformed holder, invalid duration, delayed response and cancellation. Existing normal EOS-publication coverage remains. Locator tests retain legacy compatibility and reject malformed routing IDs. Actual local Worker HTTP/SQLite tests verify authentication, route shape/token secrecy, stable address across takeover, unchanged fences after read, and inability to renew using the read-only address.
+
+| Current check | Result |
+| --- | --- |
+| New Public/Locked crash/restart regression before fix | Both FAIL with exact stuck routing status (expected reproduction) |
+| Focused online/lease/locator tests | 85 PASS, including all 78 `OnlineLobbyTests` |
+| `check.ps1` | PASS: formatting; Debug/Release builds with zero warnings/errors; 331 Core + 269 non-native Client/transport tests per configuration |
+| Worker dry-run build and `node --test test/lease-ledger.test.js test/worker.test.js` | PASS: 12 tests, including actual local HTTP/SQLite routing assertions; no deployment performed by these commands |
+| `check-migration.ps1 -Players 2` and `-Players 3` | PASS: native UDP, retained state and sequential migration |
+| `check-reconnect.ps1` | PASS: three arena resyncs, native body/state continuity, match-long retention and Return cleanup |
+| `check-transport.ps1` | PASS: 280 tests and three native Godot lifecycle cycles |
+| `check-migration-processes.ps1 -Players 2` and `-Players 3` | PASS: actual old-host process termination; independent survivors resume epoch 2; clean runtime gates |
+| `check-online-lobby.ps1`, minimal headless bootstrap | PASS; fake-provider UI is separate from live EOS evidence |
+| `check-eos.ps1 -Authenticate` | PASS: three processes, each with three real login/logout cycles and stable identity |
+| `check-eos.ps1 -P2p` | FAIL: generic EOS integration failure. Same failure/exit 1 reproduced after building all affected production files from reviewed HEAD; authentication-only checks pass. No new regression established, but this smoke gate remains unresolved and is not called a pass. |
+| Restored-source verification after baseline comparison | Every production source restored byte-for-byte; forced Debug rebuild has zero warnings/errors; 269 non-native tests PASS. The first incremental build reused baseline assemblies because copy restored old timestamps; forced rebuild corrected that local build artifact. |
+| Deployed service probe before delivery | `/health` HTTP 200; unauthenticated `/lease/route` HTTP 404, so the new endpoint was not deployed at that check |
+| Diff/architecture | Scoped review and `git diff --check` PASS; no new dependency, Shared layer, gameplay authority source or modified fencing rule |
+
+Runtime evidence is under ignored `.godot/former-host-routing-checks/`; process-kill evidence is under `.godot/migration-process-checks/454ab93d94494769b65d85f5a175e48d` and `c002a994bd86426783a3942b1662effe`. Native checks use Godot 4.7.2. Successful native logs contain no ERROR/WARNING or shutdown leak diagnostics. Initial sandbox/tool-version restrictions were resolved with the installed SDK and bundled Node runtime; they were not gameplay failures.
+
+**Remaining acceptance:** deploy the updated Worker to the existing namespace, use the corrected game, and create a fresh match before rerunning physical Test 6 (Public and Locked). Legacy locators lack `RoutingId` and still need EOS metadata to catch up; no private lease key is persisted or recoverable from those files. Authenticated live `/lease/route` and full separate-PC restart are unverified here. The baseline-reproduced EOS/P2P smoke failure remains a separate unresolved gate. Keep PR #27 open and unmerged; do not mark TS-46/TS-51 accepted from local evidence alone.
+
+Files changed for this correction:
+
+- `code/Client/Online/AuthorityLeaseClient.cs`, `HttpLeaseTransport.cs`, `ILeaseTransport.cs`, new `LeaseRoute.cs`
+- `code/Client/Online/OnlineLobbyCoordinator.cs`, `OnlineSessionBinding.cs`, `ResumeLocator.cs`, `ResumeLocatorStore.cs`
+- `code/Core/Sessions/AuthorityLease.cs` (optional provider-neutral read-only locator only)
+- `code/TransportTests/LeaseStore.cs`, `LeaseTransport.cs`, `OnlineLobbyTests.Leases.cs`, `ResumeLocatorTests.cs`
+- `services/authority-lease/src/worker.js`, `src/lease-ledger.js`, `test/worker.test.js`
+- `docs/authority-lease-service.md`, `docs/features/authority-leases.md`, `eos-lobbies.md`, `host-migration.md`, `reconnection.md`, and this evidence file
+
 ## Scope and implementation
 
 This authorized correction continues `ts-46-jg` / PR #27 from reviewed head `3be549e3bee8da8fd9d95d6b7d4ce12df4bb29d0`. TS-46 comments 10063/10064 and TS-51 comment 10067 govern the lifecycle. No new branch, PR, merge or Story critique round was performed. Current `origin/main` is `b409017aa43cf5670762aeca20ce21fa7ac92297`, already contained in this branch.

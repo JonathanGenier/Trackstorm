@@ -8,4 +8,5 @@ namespace Trackstorm.Client.Online;
 /// <param name="Identity">Local online identity to prevent accidental account switching.</param>
 /// <param name="AuthorityEpoch">Last established Trackstorm authority epoch.</param>
 /// <param name="Host">Expected authenticated host.</param>
-internal sealed record ResumeLocator(string Lobby, ulong Session, ulong Player, ulong Generation, string Identity, ulong AuthorityEpoch, string Host);
+/// <param name="RoutingId">Optional read-only trusted lease locator; never a lease key or token.</param>
+internal sealed record ResumeLocator(string Lobby, ulong Session, ulong Player, ulong Generation, string Identity, ulong AuthorityEpoch, string Host, string? RoutingId = null);

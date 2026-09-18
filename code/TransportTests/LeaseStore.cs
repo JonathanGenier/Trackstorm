@@ -11,6 +11,18 @@ internal sealed class LeaseStore(TimeProvider time) : IDisposable
     /// <inheritdoc />
     public void Dispose() => _records.Clear();
 
+    /// <summary>Models a read-only object locator, separate from the private lease session.</summary>
+    /// <param name="routingId">Opaque object identity.</param>
+    /// <returns>The existing grant without modifying its fence.</returns>
+    internal AuthorityLease? Resolve(string routingId)
+    {
+        lock (_gate)
+        {
+            var session = _records.Values.SingleOrDefault(entry => entry.Lease.RoutingId == routingId).Lease?.Session;
+            return session is null ? null : Read(session);
+        }
+    }
+
     /// <summary>Reads the model's authoritative remaining duration.</summary>
     /// <param name="session">Opaque session.</param>
     /// <returns>Current lease or absence.</returns>
@@ -60,7 +72,7 @@ internal sealed class LeaseStore(TimeProvider time) : IDisposable
 
     private AuthorityLease Commit(AuthorityLease record)
     {
-        _records[record.Session] = (record with { Token = Guid.NewGuid().ToString("N") }, time.GetTimestamp());
+        _records[record.Session] = (record with { Token = Guid.NewGuid().ToString("N"), RoutingId = record.RoutingId ?? Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(record.Session))) }, time.GetTimestamp());
         return Read(record.Session)!;
     }
 }

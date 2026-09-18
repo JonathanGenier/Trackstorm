@@ -29,20 +29,28 @@ internal sealed class HttpLeaseTransport : ILeaseTransport
     public Task<AuthorityLease?> Send(string operation, LeaseRequest request)
     {
         string? token = _token();
-        return token is null ? Task.FromResult<AuthorityLease?>(null) : SendAsync(operation, request, token);
+        return token is null ? Task.FromResult<AuthorityLease?>(null) : SendAsync<AuthorityLease>(operation, request, token);
+    }
+
+    /// <inheritdoc />
+    public Task<LeaseRoute?> Resolve(string routingId)
+    {
+        string? token = _token();
+        return token is null ? Task.FromResult<LeaseRoute?>(null) : SendAsync<LeaseRoute>("route", new(routingId, 0, string.Empty), token);
     }
 
     /// <inheritdoc />
     public void Dispose() => _http.Dispose();
 
-    private async Task<AuthorityLease?> SendAsync(string operation, LeaseRequest request, string token)
+    private async Task<T?> SendAsync<T>(string operation, LeaseRequest request, string token)
+        where T : class
     {
         try
         {
             using var message = new HttpRequestMessage(HttpMethod.Post, "lease/" + operation) { Content = JsonContent.Create(request) };
             message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             using var response = await _http.SendAsync(message).ConfigureAwait(false);
-            return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<AuthorityLease>().ConfigureAwait(false) : null;
+            return response.IsSuccessStatusCode ? await response.Content.ReadFromJsonAsync<T>().ConfigureAwait(false) : null;
         }
         catch (Exception exception) when (exception is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException or ObjectDisposedException)
         {

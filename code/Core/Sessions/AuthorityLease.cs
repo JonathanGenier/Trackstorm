@@ -12,4 +12,7 @@ public sealed record AuthorityLease(string Session, string Holder, ulong Epoch, 
     public const double DurationSeconds = 10;
     /// <summary>Conservative client lifetime measured from request start, including transit and suspension.</summary>
     public const double ClientDurationSeconds = 8;
+
+    /// <summary>Opaque read-only routing locator; cannot be used as a session key or fencing token.</summary>
+    public string? RoutingId { get; init; }
 }

@@ -21,6 +21,9 @@ internal sealed class AuthorityLeaseClient(ILeaseTransport transport, string sub
     /// <summary>Latest observed old-host renewal, used to reject stale pre-partition checkpoints.</summary>
     internal long? HostProgressAt { get; private set; }
 
+    /// <summary>Read-only service locator from an accepted response; never the private lease key.</summary>
+    internal string? RoutingId => _record?.RoutingId;
+
     /// <summary>Credential-free lease lifecycle status.</summary>
     internal string Status => _granted.HasValue ? $"lease held; epoch {_record!.Epoch}; local validity {Math.Max(0, AuthorityLease.ClientDurationSeconds - time.GetElapsedTime(_granted.Value).TotalSeconds):0.0}s" : _pending is not null ? "request pending" : _retiredEpoch != 0 ? "authority retired" : "waiting for lease";
 
