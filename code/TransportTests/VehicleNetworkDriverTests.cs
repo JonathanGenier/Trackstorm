@@ -11,7 +11,7 @@ namespace Trackstorm.Transport.Tests;
 
 /// <summary>Fast client-driver checks that do not load native transport or a Godot scene tree.</summary>
 [TestFixture]
-internal sealed class VehicleNetworkDriverTests
+internal sealed partial class VehicleNetworkDriverTests
 {
     private const ulong ServerPeer = 42;
     private const ulong Session = 99;

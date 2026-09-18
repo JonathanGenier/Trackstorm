@@ -31,3 +31,5 @@ Host [Developer Options](developer-options.md) updates the existing spawn author
 [Feature index](README.md)
 
 The [Event Log](event-log.md) records successful pickup claims and marker spawn/reactivation transitions. Repeated proximity observations do not create repeated pickup events.
+
+Fresh active admission copies every marker, claim/token and absolute cooldown deadline into the shared checkpoint. Preparation and cancellation neither consume nor reset pickup state. See [session activation](sessions.md#fresh-admission-during-an-arena).

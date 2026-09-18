@@ -8,6 +8,7 @@ public sealed class LobbyAuthority
     private readonly Dictionary<ulong, ulong> _peers = new();
     private readonly Dictionary<ulong, string> _identities = new();
     private readonly Dictionary<ulong, ulong> _previousPeers = new();
+    private readonly Dictionary<ulong, ulong> _pendingJoins = new();
     private ulong _tick;
     private ulong _nextId = 1;
 
@@ -38,6 +39,11 @@ public sealed class LobbyAuthority
     public EventStream Events { get; } = new();
     /// <summary>Copy of transport-to-player assignments for vehicle integration.</summary>
     public IReadOnlyDictionary<ulong, ulong> Peers => new Dictionary<ulong, ulong>(_peers);
+    /// <summary>Host gameplay eligibility, excluding the independently enforced participant limit.</summary>
+    public bool AdmissionOpen { get; set; } = true;
+    /// <summary>Fresh admission counts every roster slot, including pending and retained participants.</summary>
+    public bool CanJoin => AdmissionOpen && State.Players.Count < 8;
+
     /// <summary>Session tuning; the successor restores this instead of loading its host-local preferences.</summary>
     public Development.GameplayConfigurationState Configuration { get; private set; } = new(0, new());
 
@@ -91,6 +97,35 @@ public sealed class LobbyAuthority
         return result;
     }
 
+    /// <summary>Whether this connection still owes its complete bootstrap acknowledgement.</summary>
+    /// <param name="peer">Actual transport sender.</param>
+    /// <returns>Whether admission is provisional.</returns>
+    public bool IsPendingJoin(ulong peer) => _pendingJoins.ContainsKey(peer);
+
+    /// <summary>Commits fresh participation after the complete bootstrap has been acknowledged.</summary>
+    /// <param name="peer">Actual transport sender.</param>
+    /// <returns>Whether this pending admission was completed once.</returns>
+    public bool CompleteJoin(ulong peer)
+    {
+        if (!AdmissionOpen || !_pendingJoins.Remove(peer))
+        {
+            return false;
+        }
+
+        Events.Record(EventCategory.Session, "Joined", actor: PlayerId(peer));
+        Publish(State.Players);
+        return true;
+    }
+
+    /// <summary>Publishes committed participants plus the recipient's own provisional assignment.</summary>
+    /// <param name="recipient">Authoritative recipient identity.</param>
+    /// <returns>A detached roster excluding other unfinished admissions.</returns>
+    public LobbySnapshot SnapshotFor(ulong recipient)
+    {
+        var pending = _pendingJoins.Keys.Select(PlayerId).Where(player => player != recipient).ToHashSet();
+        return pending.Count == 0 ? State : new LobbySnapshot(State.Session, State.Revision, State.Match, State.Phase, State.Players.Where(player => !pending.Contains(player.Id)), State.CurrentHostId, State.AuthorityEpoch);
+    }
+
     /// <summary>Retains a validated host-owned tuning boundary for the next checkpoint and arena.</summary>
     /// <param name="configuration">Current arena or explicitly edited lobby configuration.</param>
     public void RetainConfiguration(Development.GameplayConfigurationState configuration)
@@ -136,7 +171,13 @@ public sealed class LobbyAuthority
     public LobbyRestoreState Capture(string hostSubject)
     {
         var subjects = new Dictionary<ulong, string>(_identities) { [State.CurrentHostId] = hostSubject };
-        return new LobbyRestoreState(State, _tick, _nextId, subjects, Configuration);
+        var pending = _pendingJoins.Keys.Select(PlayerId).ToHashSet();
+        foreach (ulong player in pending)
+        {
+            subjects.Remove(player);
+        }
+
+        return new LobbyRestoreState(SnapshotFor(State.CurrentHostId), _tick, _nextId, subjects, Configuration);
     }
 
     /// <summary>Assigns a fresh identity to a connected transport sender.</summary>
@@ -150,6 +191,11 @@ public sealed class LobbyAuthority
         if (!Version.IsCompatible(gameVersion))
         {
             return 0;
+        }
+
+        if (_peers.TryGetValue(peer, out ulong existing))
+        {
+            return _identities.GetValueOrDefault(existing) == identity ? existing : 0;
         }
 
         if (identity is not null && (identity.Length is 0 or > 256 || _identities.ContainsValue(identity)))
@@ -179,7 +225,7 @@ public sealed class LobbyAuthority
     /// <returns>Whether admission succeeded.</returns>
     public bool Add(ulong peer, string gameVersion, ulong id, string name)
     {
-        if (!Version.IsCompatible(gameVersion) || peer == 0 || id <= _nextId || id == ulong.MaxValue || _peers.ContainsKey(peer) || State.Phase != SessionPhase.Lobby || State.Players.Count == 8)
+        if (!Version.IsCompatible(gameVersion) || peer == 0 || id <= _nextId || id == ulong.MaxValue || _peers.ContainsKey(peer) || !CanJoin)
         {
             return false;
         }
@@ -187,7 +233,15 @@ public sealed class LobbyAuthority
         _peers.Add(peer, id);
         _nextId = Math.Max(_nextId, id);
         Publish(State.Players.Append(new SessionPlayer(id, PlayerName.Sanitize(name), false)));
-        Events.Record(EventCategory.Session, "Joined", actor: id);
+        if (State.Phase == SessionPhase.Arena)
+        {
+            _pendingJoins.Add(peer, _tick);
+        }
+        else
+        {
+            Events.Record(EventCategory.Session, "Joined", actor: id);
+        }
+
         return true;
     }
 
@@ -237,6 +291,12 @@ public sealed class LobbyAuthority
             return false;
         }
 
+        foreach (ulong pending in _pendingJoins.Keys.ToArray())
+        {
+            Disconnect(pending);
+        }
+
+        AdmissionOpen = true;
         foreach (ulong id in State.Players.Where(player => !player.Connected).Select(player => player.Id).ToArray())
         {
             Events.Record(EventCategory.Session, "Match reservation ended", actor: id);
@@ -278,6 +338,12 @@ public sealed class LobbyAuthority
             return false;
         }
 
+        if (_pendingJoins.Remove(peer))
+        {
+            RemovePlayer(id);
+            return true;
+        }
+
         Events.Record(EventCategory.Network, "Disconnected", actor: id, cause: "connection lost");
         if (State.ReconnectPolicy == SessionReconnectPolicy.FreshJoin)
         {
@@ -301,6 +367,11 @@ public sealed class LobbyAuthority
         }
 
         _tick = tick;
+        foreach (ulong peer in _pendingJoins.Where(pair => tick - pair.Value >= 900).Select(pair => pair.Key).ToArray())
+        {
+            Disconnect(peer);
+        }
+
         Events.AdvanceTime(tick * 1000 / 60);
     }
 

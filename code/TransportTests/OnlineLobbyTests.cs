@@ -680,7 +680,7 @@ internal sealed partial class OnlineLobbyTests
         Assert.That(binding.Driver.Request(LobbyCommand.Start), Is.True);
         Assert.That(binding.Driver.State!.Phase, Is.EqualTo(SessionPhase.Arena));
         host.Tick();
-        Assert.That(host.Active.Open, Is.False);
+        Assert.That(host.Active.Open, Is.True);
         Assert.That(binding.Driver.Request(LobbyCommand.Return), Is.True);
         host.Tick();
         Assert.That(host.Active.Open, Is.True);
@@ -1175,6 +1175,7 @@ internal sealed partial class OnlineLobbyTests
             gateway.ConnectPeer(1);
             var binding = client.AttachTransport(gateway, 1, "Client");
             var state = new LobbySnapshot(host.Active.Session, 2, host.Active.Session + 1, SessionPhase.Arena, [new(1, "Host", false), new(2, "Client", false)]);
+            gateway.ReceiveState(1, new LobbySnapshot(state.Session, 1, state.Session, SessionPhase.Lobby, state.Players), 2);
             gateway.ReceiveState(1, state, 2);
             binding.Driver.Pump(0);
             if (failedAttempt)

@@ -96,7 +96,8 @@ internal sealed class LobbyTests
         Assert.That(lobby.State.Match, Is.EqualTo(101));
         Assert.That(lobby.Start(0), Is.False);
         Assert.That(lobby.SetReady(10, false), Is.False);
-        Assert.That(lobby.Join(20, GameVersion.Current.ToString(), "Late"), Is.Zero);
+        Assert.That(lobby.Join(20, GameVersion.Current.ToString(), "Late"), Is.EqualTo(3));
+        Assert.That(lobby.IsPendingJoin(20), Is.True);
         Assert.That(lobby.Return(10), Is.False);
         Assert.That(lobby.Return(0), Is.True);
         Assert.That(lobby.State.Players.All(player => !player.Ready), Is.True);

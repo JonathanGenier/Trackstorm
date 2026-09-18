@@ -26,7 +26,7 @@ The host driver sends a distinct bounded reliable version rejection containing i
 
 [Reconnect](reconnection.md) requires exact equality in addition to existing subject, session, generation, authority-epoch, match-retention and peer checks. An incompatible return cannot reactivate a player or trigger a gameplay checkpoint; its disconnected reservation is unchanged and remains available until the match ends. A later compatible, authorized return can reclaim that same player.
 
-New-player arena admission remains disabled. The version gate precedes existing phase/capacity rules, so future join-in-progress can reuse it without a separate compatibility policy. Match retention and host migration follow their existing policies; version compatibility does not grant authority or extend reservations. Protocol negotiation, patch delivery and updaters remain outside this system.
+New-player arena admission uses the existing join-in-progress flow. The version gate precedes its phase/capacity checks and checkpoint activation, without a separate compatibility policy. Match retention and host migration follow their existing policies; version compatibility does not grant authority or extend reservations. Protocol negotiation, patch delivery and updaters remain outside this system.
 
 ## Runtime Verification
 

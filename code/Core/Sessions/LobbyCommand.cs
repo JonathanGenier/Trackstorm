@@ -15,4 +15,6 @@ public enum LobbyCommand
     Leave,
     /// <summary>Reclaim an authenticated reserved slot.</summary>
     Resume,
+    /// <summary>Confirms installation of a fresh participant's complete arena bootstrap.</summary>
+    Activate,
 }

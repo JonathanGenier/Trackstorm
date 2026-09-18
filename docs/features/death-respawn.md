@@ -20,7 +20,7 @@ Inactive vehicles have no native collision layer/mask and are hidden. Core indep
 
 ## Replication, Prediction and Hooks
 
-Every lifecycle or life-generation change publishes a complete existing vehicle snapshot reliably through the current ordered transport. Collision-only deaths therefore replicate even without item changes or a periodic movement publication. Joining peers receive a reliable current boundary. Aggregate codec version two and vehicle protocol version six preserve lifecycle/deadline; the EOS discovery compatibility bucket is `trackstorm-lobby-9`. Older aggregate/gameplay versions are rejected.
+Every lifecycle or life-generation change publishes a complete existing vehicle snapshot reliably through the current ordered transport. Collision-only deaths therefore replicate even without item changes or a periodic movement publication. Joining peers receive a reliable current boundary. Aggregate codec version two and vehicle protocol version six preserve lifecycle/deadline; the EOS discovery compatibility bucket is `trackstorm-lobby-13`. Older aggregate/gameplay versions are rejected.
 
 The existing snapshot history rejects stale poses. A delayed reliable death/wait/respawn publication can still notify presentation observers once, even if a newer unreliable movement snapshot arrived first; it cannot rewind the current vehicle state. `Simulation.LifecycleChanges` exposes immutable committed transitions, including the existing damage attribution, for later scoring or other consumers. `VehicleNetworkDriver.LifecycleReceived` provides ordered reliable full boundaries for Client UI/audio. Consumers distinguish transitions by vehicle/life/state; match scoring consumes the committed Core death boundary; [arena audio](audio.md) consumes those boundaries for distinct destruction, local death and respawn feedback.
 
@@ -43,3 +43,5 @@ Authority restoration and epoch fencing are described in [host migration](host-m
 [Feature index](README.md)
 
 The [Event Log](event-log.md) consumes committed lifecycle transitions once, independently of unreliable pose publications. It preserves the affected life and lethal cause, while scored kill credit remains owned by match authority.
+
+Fresh active admission preserves existing HP, life generations and absolute respawn deadlines through the shared checkpoint. Client reseeding suppresses historical destruction/respawn feedback. The new vehicle uses the existing marker-clearance selector at admission and again at activation, without moving or respawning existing vehicles. See [session activation](sessions.md#fresh-admission-during-an-arena).

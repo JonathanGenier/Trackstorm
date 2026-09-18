@@ -18,8 +18,10 @@ internal sealed class LobbyNetworkDriver
     private readonly EventStream _clientEvents = new();
     private readonly Dictionary<ulong, ulong> _eventSent = new();
     private readonly Dictionary<ulong, double> _versionRejected = new();
+    private readonly Dictionary<ulong, double> _rejectedJoins = new();
     private LobbyReplica _replica = new();
     private bool _joined;
+    private bool _joinCheckpointInstalled;
     private ulong _published;
     private double _joiningSeconds;
     private double _latencySeconds;
@@ -83,6 +85,14 @@ internal sealed class LobbyNetworkDriver
     internal string ResumeStatus { get; private set; } = string.Empty;
     /// <summary>Whether an arena resume must receive its complete checkpoint before prediction.</summary>
     internal bool NeedsArenaCheckpoint { get; set; }
+    /// <summary>Fresh arena admission remains distinct from retained-identity recovery.</summary>
+    internal bool JoiningArena { get; private set; }
+    /// <summary>A submitted complete checkpoint acknowledgement may already have committed a retained slot remotely.</summary>
+    internal bool CanResume => !JoiningArena || _joinCheckpointInstalled;
+    /// <summary>Existing vehicle authority commits the acknowledged fresh participant.</summary>
+    internal Func<ulong, bool>? ActivateJoin { get; set; }
+    /// <summary>Current gameplay eligibility supplied by the active arena owner.</summary>
+    internal Func<bool>? ArenaAdmissionOpen { get; set; }
     /// <summary>True after the host removed this player or the bounded leave exchange elapsed.</summary>
     internal bool LeaveComplete => _left || (_leaveAt.HasValue && _seconds - _leaveAt.Value >= 1);
     /// <summary>Current authenticated local stream generation.</summary>
@@ -154,8 +164,24 @@ internal sealed class LobbyNetworkDriver
         _latencySeconds += seconds;
         _seconds += seconds;
         Events.AdvanceTime((ulong)(_seconds * 1000));
-        Authority?.AdvanceTime((ulong)(_seconds * 60));
+        if (Authority is not null)
+        {
+            Authority.AdmissionOpen = _leaveAt is null && Migration?.Frozen != true && (State!.Phase == SessionPhase.Lobby || ArenaAdmissionOpen?.Invoke() == true);
+            var pending = Authority.Peers.Keys.Where(Authority.IsPendingJoin).ToArray();
+            Authority.AdvanceTime((ulong)(_seconds * 60));
+            foreach (ulong peer in pending.Where(peer => Authority.PlayerId(peer) == 0))
+            {
+                RejectJoin(peer, "Join bootstrap failed");
+            }
+        }
+
         _gateway.Poll();
+        foreach (ulong peer in _rejectedJoins.Where(pair => _seconds >= pair.Value).Select(pair => pair.Key).ToArray())
+        {
+            _gateway.Disconnect(peer);
+            _rejectedJoins.Remove(peer);
+        }
+
         Migration?.Advance(seconds);
         if (Failure.Length > 0)
         {
@@ -201,7 +227,11 @@ internal sealed class LobbyNetworkDriver
             else if (!_gateway.Connections.TryGetValue(ServerPeer, out var connection) || connection == TransportConnectionState.Disconnected)
             {
                 Latency.Clear();
-                if (State?.ReconnectPolicy == SessionReconnectPolicy.FreshJoin)
+                if (!CanResume)
+                {
+                    Failure = "Join interrupted before arena activation. Leave and join again.";
+                }
+                else if (State?.ReconnectPolicy == SessionReconnectPolicy.FreshJoin)
                 {
                     ResumeStatus = Migration is null ? "Lobby departure requires a fresh join" : Migration.Status;
                     if (Migration is null)
@@ -213,6 +243,7 @@ internal sealed class LobbyNetworkDriver
                 {
                     if (!_interruptedAt.HasValue)
                     {
+                        JoiningArena = false;
                         _interruptedAt = _seconds;
                         _nextAttempt = _seconds + 1;
                         ResumeStatus = "Connection interrupted";
@@ -252,7 +283,7 @@ internal sealed class LobbyNetworkDriver
                 _joined = true;
             }
 
-            if (State is null && !Reconnecting && _joiningSeconds > 15)
+            if ((State is null || JoiningArena) && !Reconnecting && _joiningSeconds > 15)
             {
                 Failure = "Lobby admission timed out. Check connectivity and rejoin the session.";
                 _gateway.Disconnect(ServerPeer);
@@ -328,8 +359,8 @@ internal sealed class LobbyNetworkDriver
         if (Authority is not null && _latencySeconds >= 1)
         {
             _latencySeconds = 0;
-            byte[] payload = Latency.Sample(Authority.State, Authority.Peers, _gateway);
-            foreach (ulong peer in Authority.Peers.Keys.ToArray())
+            byte[] payload = Latency.Sample(Authority.SnapshotFor(Authority.State.CurrentHostId), Authority.Peers, _gateway);
+            foreach (ulong peer in Authority.Peers.Keys.Where(peer => !Authority.IsPendingJoin(peer)).ToArray())
             {
                 Send(peer, payload);
             }
@@ -377,6 +408,14 @@ internal sealed class LobbyNetworkDriver
     /// <summary>Ends the bounded attempt only after the complete state boundary is installed.</summary>
     internal void CompleteResume()
     {
+        if (JoiningArena)
+        {
+            Send(ServerPeer, LobbyCodec.EncodeCommand(LobbyCommand.Activate, State));
+            _joinCheckpointInstalled = true;
+            NeedsArenaCheckpoint = false;
+            return;
+        }
+
         _interruptedAt = null;
         NeedsArenaCheckpoint = false;
         ResumeStatus = "Resume succeeded";
@@ -421,6 +460,20 @@ internal sealed class LobbyNetworkDriver
         _gateway.Send(new TransportMessage(message.RemotePeerId, ConnectionEnvelope.Encode(State!.Session, record.Generation, message.Payload.Span, State.AuthorityEpoch), message.Delivery));
     }
 
+    /// <summary>Rolls back provisional admission and reports a bounded recoverable failure.</summary>
+    /// <param name="peer">Rejected transport sender.</param>
+    /// <param name="reason">Allowlisted public diagnostic.</param>
+    internal void RejectJoin(ulong peer, string reason)
+    {
+        if (Authority?.IsPendingJoin(peer) == true)
+        {
+            Authority.Disconnect(peer);
+        }
+
+        Send(peer, LobbyCodec.EncodeRejection(reason));
+        _rejectedJoins.TryAdd(peer, _seconds + 1);
+    }
+
     private bool Apply(ulong peer, LobbyCommand command, bool ready) => Authority!.Execute(peer, command, State!.Session, State.Match, State.Phase, ready, ConnectedPeers(), State.AuthorityEpoch);
 
     private IEnumerable<ulong> ConnectedPeers() => _gateway.Connections.Where(connection => connection.Value != TransportConnectionState.Disconnected).Select(connection => connection.Key);
@@ -458,9 +511,31 @@ internal sealed class LobbyNetworkDriver
 
                 if (intent.Command == LobbyCommand.Join)
                 {
-                    if ((_admission is not null && !_admission(message.RemotePeerId)) || Authority.Join(message.RemotePeerId, intent.GameVersion, intent.Name, _identity?.Invoke(message.RemotePeerId)) == 0)
+                    if (_rejectedJoins.ContainsKey(message.RemotePeerId))
                     {
-                        _gateway.Disconnect(message.RemotePeerId);
+                        return;
+                    }
+
+                    if (_admission is not null && !_admission(message.RemotePeerId))
+                    {
+                        RejectJoin(message.RemotePeerId, "Access denied");
+                    }
+                    else if (Authority.Join(message.RemotePeerId, intent.GameVersion, intent.Name, _identity?.Invoke(message.RemotePeerId)) == 0)
+                    {
+                        RejectJoin(message.RemotePeerId, State!.Players.Count >= 8 ? "Session full" : "Session unavailable");
+                    }
+
+                    return;
+                }
+
+                if (intent.Command == LobbyCommand.Activate && intent.Session == State!.Session && intent.Match == State.Match && intent.AuthorityEpoch == State.AuthorityEpoch)
+                {
+                    if (Authority.IsPendingJoin(message.RemotePeerId))
+                    {
+                        if (!Authority.AdmissionOpen || ActivateJoin?.Invoke(message.RemotePeerId) != true || !Authority.CompleteJoin(message.RemotePeerId))
+                        {
+                            RejectJoin(message.RemotePeerId, "Join bootstrap failed");
+                        }
                     }
 
                     return;
@@ -516,6 +591,11 @@ internal sealed class LobbyNetworkDriver
 
                 if (LobbyCodec.IsRejection(message.Payload.Span))
                 {
+                    if (JoiningArena)
+                    {
+                        _joinCheckpointInstalled = false;
+                    }
+
                     ResumeStatus = LobbyCodec.DecodeRejection(message.Payload.Span);
                     Failure = ResumeStatus + ". Leave and choose a lobby.";
                     return;
@@ -537,9 +617,22 @@ internal sealed class LobbyNetworkDriver
                     throw new ArgumentException("Lobby publication does not match the discovered online session.");
                 }
 
+                bool freshArena = State is null && !Reconnecting && publication.State.Phase == SessionPhase.Arena;
                 if (!_replica.Accept(publication.State, publication.Player, message.RemotePeerId, ServerPeer))
                 {
                     throw new ArgumentException("Rejected stale or reassigned session state.");
+                }
+
+                if (freshArena)
+                {
+                    JoiningArena = true;
+                    NeedsArenaCheckpoint = true;
+                    _joiningSeconds = 0;
+                }
+
+                if (JoiningArena && _joinCheckpointInstalled && publication.Activated)
+                {
+                    JoiningArena = false;
                 }
 
                 if (Reconnecting)
@@ -578,7 +671,7 @@ internal sealed class LobbyNetworkDriver
 
         foreach (var peer in Authority.Peers)
         {
-            Send(peer.Key, LobbyCodec.EncodeState(state, peer.Value));
+            Send(peer.Key, LobbyCodec.EncodeState(Authority.SnapshotFor(peer.Value), peer.Value, !Authority.IsPendingJoin(peer.Key)));
         }
 
         _published = state.Revision;
@@ -618,6 +711,12 @@ internal sealed class LobbyNetworkDriver
 
         foreach (var peer in Authority.Peers)
         {
+            if (Authority.IsPendingJoin(peer.Key))
+            {
+                _eventSent[peer.Key] = Events.LastSequence;
+                continue;
+            }
+
             ulong sent = _eventSent.GetValueOrDefault(peer.Key);
             // New/resumed transport streams begin at their admission event, without replaying past gameplay.
             if (!_eventSent.ContainsKey(peer.Key))
@@ -676,7 +775,7 @@ internal sealed class LobbyNetworkDriver
 
         ulong player = Authority?.PlayerId(message.RemotePeerId) ?? (message.RemotePeerId == ServerPeer ? LocalPlayerId : 0);
         var record = State?.Players.SingleOrDefault(value => value.Id == player);
-        if (record is null || !record.Connected || (Reconnecting && !NeedsArenaCheckpoint))
+        if (record is null || !record.Connected || Authority?.IsPendingJoin(message.RemotePeerId) == true || (Reconnecting && !NeedsArenaCheckpoint))
         {
             RejectedPackets++;
             return;

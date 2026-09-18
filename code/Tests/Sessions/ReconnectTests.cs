@@ -97,7 +97,7 @@ internal sealed class ReconnectTests
             Assert.That(lobby.Resume(peer + 1, GameVersion.Current.ToString(), 100, id, generation, "subject"), Is.False);
         }
 
-        Assert.That(lobby.Join(peer + 1, GameVersion.Current.ToString(), "New player", "different"), Is.Zero);
+        Assert.That(lobby.Join(peer + 1, GameVersion.Current.ToString(), "New player", "different"), Is.GreaterThan(id));
         Assert.That(lobby.Execute(peer, LobbyCommand.Leave, 99, 100, SessionPhase.Lobby, false, []), Is.False);
         Assert.That(lobby.Execute(peer, LobbyCommand.Leave, 100, 100, SessionPhase.Lobby, false, []), Is.True, "Intentional departure must survive a concurrent lobby-to-arena transition.");
         Assert.That(lobby.FindPlayer("subject"), Is.EqualTo(id));

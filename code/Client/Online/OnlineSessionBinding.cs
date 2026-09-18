@@ -131,6 +131,11 @@ internal sealed class OnlineSessionBinding : IDisposable
     /// <returns>The validated result, or an explicit failure/absence.</returns>
     internal bool AuthorizePeer(ulong peer, OnlineProductUserId authenticatedIdentity, string? credential)
     {
+        if (!_disposed && _authorized.TryGetValue(peer, out var authorized) && authorized.Equals(authenticatedIdentity))
+        {
+            return true;
+        }
+
         var lobby = _coordinator.Active;
         ulong retained = Driver.Authority?.FindPlayer(authenticatedIdentity.Value) ?? 0;
         bool resumable = retained != 0 && Driver.Authority!.State.Players.Any(player => player.Id == retained && !player.Connected);

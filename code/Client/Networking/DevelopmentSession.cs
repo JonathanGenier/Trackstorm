@@ -496,6 +496,12 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     {
         if (_arena is not null)
         {
+            if (_lobby is not null)
+            {
+                _lobby.ActivateJoin = null;
+                _lobby.ArenaAdmissionOpen = null;
+            }
+
             RemoveChild(_arena);
             _arena.QueueFree();
             _arena = null;

@@ -403,7 +403,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             _savedGeneration = 0;
         }
 
-        if (!_disposed && Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume, Reconnecting: false, Failure.Length: 0 } driver &&
+        if (!_disposed && Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume, Reconnecting: false, CanResume: true, Failure.Length: 0 } driver &&
             (_savedGeneration != driver.Generation || (_binding.RoutingId is { } routingId && routingId != _routingId) || _time.GetElapsedTime(_savedAt).TotalSeconds >= 5))
         {
             _savedAt = _time.GetTimestamp();
@@ -425,7 +425,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
 
         if (!_disposed && !Busy && IsHost && Active is not null && _binding?.Driver.Authority is { } authority && (_availabilityRetry is null || _time.GetElapsedTime(_availabilityRetry.Value).TotalSeconds >= 5))
         {
-            bool open = authority.State.Phase == Trackstorm.Core.Sessions.SessionPhase.Lobby;
+            bool open = authority.CanJoin && _binding.Driver.Migration?.Frozen != true;
             if (Active.Open != open)
             {
                 long epoch = Begin("Updating lobby availability…");
@@ -473,7 +473,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal void Leave()
     {
         bool retainLobby = _binding?.Driver.Migration?.Subjects is not null || _binding?.Driver.State?.AuthorityEpoch > 1;
-        bool retainPlayer = Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume } && _binding.Driver.ResumeStatus != "Resume rejected" && (_binding.Driver.Authority is null || retainLobby);
+        bool retainPlayer = Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume, CanResume: true } && _binding.Driver.ResumeStatus != "Resume rejected" && (_binding.Driver.Authority is null || retainLobby);
         if (retainPlayer)
         {
             var driver = _binding!.Driver;
@@ -545,7 +545,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Retains only an acknowledged routing hint when the application exits without choosing Leave.</summary>
     internal void PreserveResumeOnShutdown()
     {
-        if (Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume, Failure.Length: 0 } driver)
+        if (Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume, CanResume: true, Failure.Length: 0 } driver)
         {
             _preserveLocator = true;
             _resumeStore?.Save(new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, Active.AuthorityEpoch, Active.HostIdentity.Value, _binding.RoutingId ?? _routingId));

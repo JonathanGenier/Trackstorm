@@ -197,6 +197,13 @@ internal sealed class SessionMigration
             return;
         }
 
+        if (_lobby.JoiningArena)
+        {
+            // Fresh bootstrap has no committed migration identity or checkpoint yet.
+            _receivedAt = _seconds;
+            return;
+        }
+
         bool lost = _confirmedDeparture || !Connected(_lobby.ServerPeer) || _seconds - _receivedAt >= 2;
         if (!lost)
         {
@@ -410,7 +417,7 @@ internal sealed class SessionMigration
             packet[1] = (byte)'X';
             packet[2] = 1;
             bytes.CopyTo(packet, 3);
-            foreach (ulong peer in authority.Peers.Keys)
+            foreach (ulong peer in authority.Peers.Keys.Where(peer => !authority.IsPendingJoin(peer)))
             {
                 Send(peer, new Control(Frozen ? "pause" : "running", authority.State.Session, authority.State.AuthorityEpoch, authority.State.CurrentHostId, string.Empty, []));
                 _gateway.Send(new TransportMessage(peer, packet, TransportDelivery.Reliable));
