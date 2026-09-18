@@ -17,6 +17,7 @@ internal sealed class LobbyNetworkDriver
     private readonly EventStream _clientEvents = new();
     private readonly Dictionary<ulong, ulong> _eventSent = new();
     private readonly Dictionary<ulong, double> _rejectedJoins = new();
+    private readonly Dictionary<ulong, (ulong Player, ulong Generation)> _abandonedReplies = new();
     private LobbyReplica _replica = new();
     private bool _joined;
     private bool _joinCheckpointInstalled;
@@ -34,6 +35,7 @@ internal sealed class LobbyNetworkDriver
     private bool _loggedFailure;
     private int _loggedRejections;
     private double _nextRejectionReport;
+    private LobbyCommand? _reservationCommand;
 
     /// <summary>Creates a host lobby or a client waiting for admission.</summary>
     /// <param name="gateway">Existing transport.</param>
@@ -99,6 +101,8 @@ internal sealed class LobbyNetworkDriver
     internal int RejectedPackets { get; private set; }
     /// <summary>Presentation-only host RTT samples keyed by session player identity.</summary>
     internal PlayerLatency Latency { get; } = new();
+    /// <summary>Read/release response bound to the authenticated startup reservation request.</summary>
+    internal ReservationResult? Reservation { get; private set; }
 
     /// <summary>Installs the agreed epoch without carrying transport ownership across the boundary.</summary>
     /// <param name="checkpoint">Agreed old authority checkpoint.</param>
@@ -172,6 +176,11 @@ internal sealed class LobbyNetworkDriver
         }
 
         _gateway.Poll();
+        foreach (ulong peer in _abandonedReplies.Keys.Where(peer => !_gateway.Connections.TryGetValue(peer, out var state) || state == TransportConnectionState.Disconnected).ToArray())
+        {
+            _abandonedReplies.Remove(peer);
+        }
+
         foreach (ulong peer in _rejectedJoins.Where(pair => _seconds >= pair.Value).Select(pair => pair.Key).ToArray())
         {
             _gateway.Disconnect(peer);
@@ -214,7 +223,11 @@ internal sealed class LobbyNetworkDriver
             else if (!_gateway.Connections.TryGetValue(ServerPeer, out var connection) || connection == TransportConnectionState.Disconnected)
             {
                 Latency.Clear();
-                if (!CanResume)
+                if (_reservationCommand is not null)
+                {
+                    Failure = "Could not verify the retained match. Retry from the menu.";
+                }
+                else if (!CanResume)
                 {
                     Failure = "Join interrupted before arena activation. Leave and join again.";
                 }
@@ -263,14 +276,16 @@ internal sealed class LobbyNetworkDriver
             }
             else if (!_joined && connection == TransportConnectionState.Connected)
             {
-                byte[] request = Reconnecting
+                byte[] request = _reservationCommand is { } reservationCommand
+                    ? LobbyCodec.EncodeResume(_expectedSession, _resumePlayer, _resumeGeneration, _expectedEpoch, reservationCommand)
+                    : Reconnecting
                     ? LobbyCodec.EncodeResume(State?.Session ?? _expectedSession, LocalPlayerId, Generation, State?.AuthorityEpoch ?? _expectedEpoch)
                     : LobbyCodec.EncodeCommand(LobbyCommand.Join, null, name: _name);
                 Send(ServerPeer, request);
                 _joined = true;
             }
 
-            if ((State is null || JoiningArena) && !Reconnecting && _joiningSeconds > 15)
+            if ((State is null || JoiningArena) && !Reconnecting && Reservation != ReservationResult.Available && _joiningSeconds > 15)
             {
                 Failure = "Lobby admission timed out. Check connectivity and rejoin the session.";
                 _gateway.Disconnect(ServerPeer);
@@ -392,6 +407,43 @@ internal sealed class LobbyNetworkDriver
         ResumeStatus = "Reconnecting";
     }
 
+    /// <summary>Queries existing authority before startup can offer Reconnect or Leave Match.</summary>
+    /// <param name="player">Saved player assignment.</param>
+    /// <param name="generation">Last acknowledged connection generation.</param>
+    internal void InspectReservation(ulong player, ulong generation)
+    {
+        if (Authority is not null || State is not null || _joined || _expectedSession == 0 || player == 0 || generation == 0)
+        {
+            throw new InvalidOperationException("Invalid reservation inspection boundary.");
+        }
+
+        _resumePlayer = player;
+        _resumeGeneration = generation;
+        _reservationCommand = LobbyCommand.InspectReservation;
+    }
+
+    /// <summary>Commits one explicit decision after an authoritative reservation response.</summary>
+    /// <param name="reconnect">True to use ordinary resume; false to permanently release the reservation.</param>
+    /// <returns>Whether a new operation was submitted.</returns>
+    internal bool DecideReservation(bool reconnect)
+    {
+        if (_reservationCommand != LobbyCommand.InspectReservation || Reservation != ReservationResult.Available || Failure.Length > 0)
+        {
+            return false;
+        }
+
+        Reservation = null;
+        _joined = false;
+        _joiningSeconds = 0;
+        _reservationCommand = reconnect ? null : LobbyCommand.Abandon;
+        if (reconnect)
+        {
+            BeginResume(_resumePlayer, _resumeGeneration);
+        }
+
+        return true;
+    }
+
     /// <summary>Ends the bounded attempt only after the complete state boundary is installed.</summary>
     internal void CompleteResume()
     {
@@ -501,6 +553,29 @@ internal sealed class LobbyNetworkDriver
                     return;
                 }
 
+                if (intent.Command is LobbyCommand.InspectReservation or LobbyCommand.Abandon)
+                {
+                    string? subject = _identity?.Invoke(message.RemotePeerId);
+                    if (subject is null || intent.Session != State!.Session || intent.AuthorityEpoch != State.AuthorityEpoch)
+                    {
+                        throw new ArgumentException("Unauthenticated or stale reservation request.");
+                    }
+
+                    bool available = Authority.HasReservation(intent.Session, intent.Player, intent.Generation, subject);
+                    ReservationResult result = available ? ReservationResult.Available : ReservationResult.Missing;
+                    if (intent.Command == LobbyCommand.Abandon)
+                    {
+                        if ((_abandonedReplies.TryGetValue(message.RemotePeerId, out var released) && released == (intent.Player, intent.Generation)) || Authority.Abandon(intent.Session, intent.Player, intent.Generation, subject))
+                        {
+                            _abandonedReplies[message.RemotePeerId] = (intent.Player, intent.Generation);
+                            result = ReservationResult.Abandoned;
+                        }
+                    }
+
+                    Send(message.RemotePeerId, LobbyCodec.EncodeReservation(intent.Session, intent.Player, intent.Generation, intent.AuthorityEpoch, result));
+                    return;
+                }
+
                 if (intent.Command == LobbyCommand.Activate && intent.Session == State!.Session && intent.Match == State.Match && intent.AuthorityEpoch == State.AuthorityEpoch)
                 {
                     if (Authority.IsPendingJoin(message.RemotePeerId))
@@ -540,6 +615,23 @@ internal sealed class LobbyNetworkDriver
             }
             else if (message.RemotePeerId == ServerPeer)
             {
+                if (LobbyCodec.IsReservation(message.Payload.Span))
+                {
+                    if (_reservationCommand is null || Reservation is not null)
+                    {
+                        return;
+                    }
+
+                    ReservationResult result = LobbyCodec.DecodeReservation(message.Payload.Span, _expectedSession, _resumePlayer, _resumeGeneration, _expectedEpoch);
+                    if ((_reservationCommand == LobbyCommand.InspectReservation && result == ReservationResult.Abandoned) || (_reservationCommand == LobbyCommand.Abandon && result == ReservationResult.Available))
+                    {
+                        throw new ArgumentException("Unexpected reservation result.");
+                    }
+
+                    Reservation = result;
+                    return;
+                }
+
                 if (_leaveAt.HasValue && LobbyCodec.IsLeft(message.Payload.Span))
                 {
                     _left = true;
@@ -556,6 +648,11 @@ internal sealed class LobbyNetworkDriver
                     ResumeStatus = LobbyCodec.DecodeRejection(message.Payload.Span);
                     Failure = ResumeStatus + ". Leave and choose a lobby.";
                     return;
+                }
+
+                if (_reservationCommand is not null)
+                {
+                    throw new ArgumentException("Reservation inspection cannot accept a gameplay assignment.");
                 }
 
                 var publication = LobbyCodec.DecodeState(message.Payload.Span);

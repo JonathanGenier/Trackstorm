@@ -1,6 +1,8 @@
 using Godot;
 using Trackstorm.Client.Networking;
 using Trackstorm.Client.Online;
+using Trackstorm.Core.Networking.Transport;
+using Trackstorm.Core.Sessions;
 
 namespace Trackstorm.Client.Verification;
 
@@ -25,6 +27,9 @@ public sealed partial class OnlineLobbyUiChecks : Node
     private int _stage = -7;
     private bool _online;
     private int _loginRequests;
+    private ResumeLocatorStore? _resumeStore;
+    private ReservationGateway? _reservationGateway;
+    private OnlineSessionBinding? _reservationBinding;
 
     /// <inheritdoc />
     public override void _Ready()
@@ -38,6 +43,8 @@ public sealed partial class OnlineLobbyUiChecks : Node
     /// <inheritdoc />
     public override void _Process(double delta)
     {
+        _reservationBinding?.Driver.Pump(delta);
+        _coordinator.Tick();
         _elapsed += delta;
         if (_elapsed < 0.4)
         {
@@ -120,7 +127,36 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     Require(_coordinator.Active?.Name == "Renamed Game", "Rename control failed.");
                     Capture("host-renamed");
                     _coordinator.Leave();
-                    GD.Print("Online lobby UI integration passed: fake-provider browser/search/public/locked/create/rename controls; no native EOS authentication.");
+                    BeginDecision();
+                    break;
+                case 9:
+                    Require(_coordinator.RetainedDecision == RetainedSessionDecision.Choose, "Reservation prompt missing.");
+                    Require(!Controls<Button>().Any(button => button.IsVisibleInTree() && button.Text == "Host Game"), "Browser visible during reservation decision.");
+                    Capture("retained-choice");
+                    Press("Leave Match");
+                    Press("Leave Match");
+                    break;
+                case 10:
+                    Require(_coordinator.RetainedDecision == RetainedSessionDecision.Leaving, "Unconfirmed release returned to browser.");
+                    Require(_reservationGateway!.AbandonRequests == 1, "Double click sent duplicate release.");
+                    Capture("retained-leaving");
+                    _reservationGateway.ConfirmAbandon();
+                    break;
+                case 11:
+                    Require(!_coordinator.HasRetainedDecision && _coordinator.Active is null, "Acknowledged release did not return to browser.");
+                    Require(_resumeStore!.Load(new string('1', 32)) is null, "Released locator persisted.");
+                    _reservationBinding = null;
+                    BeginDecision();
+                    break;
+                case 12:
+                    Press("Reconnect");
+                    Press("Reconnect");
+                    break;
+                case 13:
+                    Require(_coordinator.RetainedDecision == RetainedSessionDecision.Reconnecting, "Reconnect choice not submitted.");
+                    Require(_reservationGateway!.ResumeRequests == 1, "Reconnect did not use exactly one existing resume intent.");
+                    Capture("retained-reconnecting");
+                    GD.Print("Online lobby UI integration passed: browser/search/public/locked/create/rename and retained-match choice/release acknowledgement/reconnect controls; fake provider, no native EOS authentication.");
                     GetTree().Quit();
                     break;
             }
@@ -133,7 +169,11 @@ public sealed partial class OnlineLobbyUiChecks : Node
     }
 
     /// <inheritdoc />
-    public override void _ExitTree() => _coordinator?.Dispose();
+    public override void _ExitTree()
+    {
+        _coordinator?.Dispose();
+        _resumeStore?.Clear();
+    }
 
     private static void Require(bool condition, string message)
     {
@@ -153,6 +193,18 @@ public sealed partial class OnlineLobbyUiChecks : Node
                 yield return descendant;
             }
         }
+    }
+
+    private void BeginDecision()
+    {
+        _coordinator.Dispose();
+        _resumeStore = new ResumeLocatorStore(ProjectSettings.GlobalizePath("res://.godot/ts68-ui-resume.json"));
+        var local = new OnlineProductUserId(new string('1', 32));
+        _resumeStore.Save(new ResumeLocator("public", 100, 2, 1, local.Value, 1, new string('2', 32)));
+        _coordinator = new OnlineLobbyCoordinator(_provider, local, resumeStore: _resumeStore);
+        _coordinator.Tick();
+        _reservationGateway = new ReservationGateway();
+        _reservationBinding = _coordinator.AttachTransport(_reservationGateway, 1, "Player");
     }
 
     private IEnumerable<T> Controls<T>()
@@ -190,6 +242,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
             _active = rows.Single(row => row.Id == id);
             completed(_active, null);
         });
+        public void Resume(string id, Action<OnlineLobby?, string?> completed) => Join(id, (lobby, failure) => completed(lobby! with { MemberIds = [_remote, _local] }, failure));
         public void Update(OnlineLobby lobby, Action<OnlineLobby?, string?> completed)
         {
             _active = lobby;
@@ -214,5 +267,55 @@ public sealed partial class OnlineLobbyUiChecks : Node
         public void Dispose()
         {
         }
+    }
+
+    private sealed class ReservationGateway : ITransportGateway
+    {
+        private readonly Queue<TransportMessage> _received = new();
+        public event Action<TransportConnectionChange>? ConnectionChanged;
+        public bool IsListening => false;
+        public TransportConnectionState ConnectionState => TransportConnectionState.Connected;
+        public IReadOnlyDictionary<ulong, TransportConnectionState> Connections { get; } = new Dictionary<ulong, TransportConnectionState> { [1] = TransportConnectionState.Connected };
+        internal int AbandonRequests { get; private set; }
+        internal int ResumeRequests { get; private set; }
+        public void Listen(TransportEndpoint endpoint) => throw new NotSupportedException();
+        public ulong Connect(TransportEndpoint endpoint) => 1;
+        public void Poll()
+        {
+        }
+
+        public void Stop()
+        {
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public void ConfigureSimulation(NetworkSimulation simulation)
+        {
+        }
+
+        public TransportStatistics GetStatistics(ulong peerId) => default;
+        public bool TryReceive(out TransportMessage message) => _received.TryDequeue(out message);
+        public void Disconnect(ulong peerId) => ConnectionChanged?.Invoke(new(peerId, TransportConnectionState.Disconnected, TransportDisconnectReason.LocalRequest, "Closed"));
+        public void Send(TransportMessage message)
+        {
+            var command = LobbyCodec.DecodeCommand(message.Payload.Span).Command;
+            if (command == LobbyCommand.InspectReservation)
+            {
+                _received.Enqueue(new(1, LobbyCodec.EncodeReservation(100, 2, 1, 1, ReservationResult.Available), TransportDelivery.Reliable));
+            }
+            else if (command == LobbyCommand.Abandon)
+            {
+                AbandonRequests++;
+            }
+            else if (command == LobbyCommand.Resume)
+            {
+                ResumeRequests++;
+            }
+        }
+
+        internal void ConfirmAbandon() => _received.Enqueue(new(1, LobbyCodec.EncodeReservation(100, 2, 1, 1, ReservationResult.Abandoned), TransportDelivery.Reliable));
     }
 }

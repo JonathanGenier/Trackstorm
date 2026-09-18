@@ -11,7 +11,7 @@ public sealed class LobbyRestoreState
     /// <param name="configuration">Current authoritative session tuning, including lobby edits and arena continuation.</param>
     public LobbyRestoreState(LobbySnapshot state, ulong tick, ulong nextId, IReadOnlyDictionary<ulong, string> subjects, Development.GameplayConfigurationState? configuration = null)
     {
-        if (nextId < state.Players.Max(player => player.Id) || nextId == ulong.MaxValue ||
+        if (nextId < state.Players.Select(player => player.Id).Concat(state.Departed.Select(player => player.Id)).Max() || nextId == ulong.MaxValue ||
             subjects.Count != state.Players.Count || subjects.Values.Distinct(StringComparer.Ordinal).Count() != subjects.Count ||
             state.Players.Any(player => !subjects.TryGetValue(player.Id, out string? subject) || string.IsNullOrWhiteSpace(subject) || subject.Length > 256))
         {

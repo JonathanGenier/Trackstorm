@@ -11,9 +11,11 @@ public sealed class LobbySnapshot
     /// <param name="players">Connected and reserved stable players, including the current host.</param>
     /// <param name="currentHostId">Stable player holding authority.</param>
     /// <param name="authorityEpoch">Monotonic authority fence.</param>
-    public LobbySnapshot(ulong session, ulong revision, ulong match, SessionPhase phase, IEnumerable<SessionPlayer> players, ulong currentHostId = 1, ulong authorityEpoch = 1)
+    /// <param name="departed">Match participants whose reconnect/admission slots were permanently released.</param>
+    public LobbySnapshot(ulong session, ulong revision, ulong match, SessionPhase phase, IEnumerable<SessionPlayer> players, ulong currentHostId = 1, ulong authorityEpoch = 1, IEnumerable<MatchParticipant>? departed = null)
     {
         SessionPlayer[] copy = players.Take(9).ToArray();
+        MatchParticipant[] history = (departed ?? []).Take(Matches.MatchState.MaximumPlayers + 1).ToArray();
         if (session == 0 || revision == 0 || match < session || !Enum.IsDefined(phase) ||
             (phase == SessionPhase.Arena && match == session) || copy.Length is < 1 or > 8 ||
             copy.Any(player => player is null || (phase == SessionPhase.Lobby && (!player.Connected || player.RetainedHost)) || player.Id == 0 || player.Generation == 0 || (!player.Connected && player.Ready) || player.Name != PlayerName.Sanitize(player.Name)) ||
@@ -22,11 +24,19 @@ public sealed class LobbySnapshot
             throw new ArgumentException("Invalid lobby state.");
         }
 
+        if (history.Length + copy.Length > Matches.MatchState.MaximumPlayers || (phase == SessionPhase.Lobby && history.Length != 0) ||
+            history.Any(player => player is null || player.Id == 0 || player.Name != PlayerName.Sanitize(player.Name)) ||
+            history.Select(player => player.Id).Concat(copy.Select(player => player.Id)).Distinct().Count() != history.Length + copy.Length)
+        {
+            throw new ArgumentException("Invalid retained match participants.");
+        }
+
         Session = session;
         Revision = revision;
         Match = match;
         Phase = phase;
         Players = Array.AsReadOnly(copy.OrderBy(player => player.Id).ToArray());
+        Departed = Array.AsReadOnly(history.OrderBy(player => player.Id).ToArray());
         CurrentHostId = currentHostId;
         AuthorityEpoch = authorityEpoch;
     }
@@ -47,6 +57,8 @@ public sealed class LobbySnapshot
     public SessionReconnectPolicy ReconnectPolicy => Phase == SessionPhase.Lobby ? SessionReconnectPolicy.FreshJoin : SessionReconnectPolicy.RetainedResume;
     /// <summary>Complete immutable connected roster.</summary>
     public IReadOnlyList<SessionPlayer> Players { get; }
+    /// <summary>Offline match history; never grants admission, ownership or reconnect authorization.</summary>
+    public IReadOnlyList<MatchParticipant> Departed { get; }
     /// <summary>Development policy: one through eight connected players, all explicitly ready.</summary>
     public bool CanStart => Phase == SessionPhase.Lobby && Players.All(player => player.Connected && player.Ready);
 }

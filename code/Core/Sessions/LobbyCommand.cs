@@ -17,4 +17,8 @@ public enum LobbyCommand
     Resume,
     /// <summary>Confirms installation of a fresh participant's complete arena bootstrap.</summary>
     Activate,
+    /// <summary>Read-only authenticated retained-reservation validation before a menu decision.</summary>
+    InspectReservation,
+    /// <summary>Permanently release an authenticated disconnected reservation, retaining match history.</summary>
+    Abandon,
 }

@@ -27,7 +27,7 @@ internal sealed record MatchStandingsView(bool Visible, bool Finished, IReadOnly
             return new(false, false, Array.Empty<StandingsRow>(), "--", string.Empty);
         }
 
-        var participants = roster.Players.ToDictionary(player => player.Id);
+        var participants = roster.Players.Concat(roster.Departed.Select(player => new SessionPlayer(player.Id, player.Name, false, false))).ToDictionary(player => player.Id);
         var ranks = MatchRanking.Create(match, participants.Keys);
         StandingsRow[] rows = ranks.Select(rank =>
         {

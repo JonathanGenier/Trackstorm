@@ -229,6 +229,11 @@ internal sealed partial class OnlineLobbyTests
             {
                 restarted.Tick();
                 binding.Driver.Pump(1.0 / 60);
+                if (restarted.RetainedDecision == RetainedSessionDecision.Choose)
+                {
+                    restarted.DecideRetained(true);
+                }
+
                 foreach (var packet in session.ClientWire.Packets)
                 {
                     if (packet.Bytes.Length > EosPacketAssembly.Header + 3 && packet.Bytes[0] == 4 &&

@@ -17,6 +17,12 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
     private readonly Button _submit = new() { Text = "Join locked lobby" };
     private readonly Button _refresh = new() { Text = "Refresh" };
     private readonly Button _resume = new() { Text = "Resume previous session" };
+    private readonly VBoxContainer _decision = new() { Name = "RetainedMatchDecision" };
+    private readonly Label _decisionText = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
+    private readonly Button _reconnectMatch = new() { Text = "Reconnect" };
+    private readonly Button _leaveMatch = new() { Text = "Leave Match" };
+    private readonly Button _retryMatch = new() { Text = "Retry" };
+    private readonly Button _backToBrowser = new() { Text = "Back to browser" };
     private readonly Button _host = new() { Text = "Host Game" };
     private readonly Button _rename = new() { Text = "Rename lobby (host)" };
     private readonly Button _leave = new() { Text = "Leave / Close online lobby" };
@@ -50,6 +56,17 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
         AddChild(identityControls);
         _login.Pressed += () => Login();
         _logout.Pressed += () => Logout();
+        AddChild(_decision);
+        _decision.AddChild(new Label { Text = "RETAINED MATCH" });
+        _decision.AddChild(_decisionText);
+        _decision.AddChild(_reconnectMatch);
+        _decision.AddChild(_leaveMatch);
+        _decision.AddChild(_retryMatch);
+        _decision.AddChild(_backToBrowser);
+        _reconnectMatch.Pressed += () => Coordinator()?.DecideRetained(true);
+        _leaveMatch.Pressed += () => Coordinator()?.DecideRetained(false);
+        _retryMatch.Pressed += () => Coordinator()?.RetryRetained();
+        _backToBrowser.Pressed += () => Coordinator()?.DismissRetainedFailure();
         AddChild(_search);
         var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(0, 160), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         _rows.SizeFlagsHorizontal = SizeFlags.ExpandFill;
@@ -145,6 +162,26 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
         _submit.Disabled = busy || coordinator is null;
         _status.Text = coordinator is null ? string.Empty :
             (active ? $"{coordinator.Active!.Name} · {coordinator.Active.Members}/8 · {coordinator.Active.Access}\n" : string.Empty) + coordinator.Status;
+        bool decision = coordinator?.HasRetainedDecision == true;
+        _decision.Visible = decision;
+        if (decision)
+        {
+            _decisionText.Text = coordinator!.RetainedDecision == RetainedSessionDecision.Checking ? "Checking your previous match…" : coordinator.Status;
+            bool choose = coordinator.RetainedDecision == RetainedSessionDecision.Choose;
+            _reconnectMatch.Visible = _leaveMatch.Visible = choose;
+            _retryMatch.Visible = _backToBrowser.Visible = coordinator.RetainedDecision == RetainedSessionDecision.Failed;
+            _retryMatch.Disabled = coordinator.Busy;
+            foreach (var control in new Control[] { _search, _rows.GetParent<Control>(), _refresh, _joinCredential, _submit, _name, _locked, _credential, _host, _hostReason, _rename, _leave, _resume, _status })
+            {
+                control.Visible = false;
+            }
+
+            if (choose && !_reconnectMatch.HasFocus() && !_leaveMatch.HasFocus())
+            {
+                _reconnectMatch.GrabFocus();
+            }
+        }
+
         var rows = coordinator?.Browser.Rows.ToArray() ?? Array.Empty<LobbyRow>();
         if (!_rendered.SequenceEqual(rows))
         {

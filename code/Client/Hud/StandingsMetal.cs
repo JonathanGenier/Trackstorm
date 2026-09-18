@@ -7,6 +7,9 @@ internal sealed partial class StandingsMetal : Control
 {
     private Texture2D _steel = null!;
 
+    /// <summary>Only the page containing rank one uses the leader band.</summary>
+    internal bool ShowLeader { get; set; } = true;
+
     /// <inheritdoc/>
     public override void _Ready() => _steel = GD.Load<Texture2D>("res://assets/hud/Health.png");
 
@@ -28,11 +31,15 @@ internal sealed partial class StandingsMetal : Control
         DrawRect(new Rect2(20, 20, 1000, 69), new Color(0.28f, 0.01f, 0.015f, 0.65f));
         DrawColoredPolygon(new[] { new Vector2(20, 20), new Vector2(630, 20), new Vector2(560, 89), new Vector2(20, 89) }, new Color(0.6f, 0.035f, 0.025f, 0.32f));
         DrawRect(new Rect2(20, 89, 1000, 3), new Color("bc342c"));
-        DrawRect(new Rect2(28, 130, 984, 40), new Color(0.5f, 0.035f, 0.04f, 0.75f));
-        DrawRect(new Rect2(28, 130, 4, 40), new Color("f0ca84"));
-        for (int row = 1; row < 8; row++)
+        for (int row = 0; row < 8; row++)
         {
             DrawRect(new Rect2(28, 130 + (row * 40), 984, 40), new Color(row % 2 == 0 ? "1b1d1e" : "151718"));
+        }
+
+        if (ShowLeader)
+        {
+            DrawRect(new Rect2(28, 130, 984, 40), new Color(0.5f, 0.035f, 0.04f, 0.75f));
+            DrawRect(new Rect2(28, 130, 4, 40), new Color("f0ca84"));
         }
 
         for (int row = 0; row <= 8; row++)

@@ -424,6 +424,7 @@ internal sealed partial class OnlineLobbyTests
             returnGateway.ConnectPeer(30);
             var returned = returning.AttachTransport(returnGateway, 30, "Former host");
             returned.Driver.Pump(0);
+            ConfirmReservation(returning, returnGateway, returned.Driver, 30, checkpoint.Lobby.State.Session, 1, 1, 2);
             var resume = LobbyCodec.DecodeCommand(returnGateway.Sent.Last().Payload.Span);
             Assert.That(resume.Command, Is.EqualTo(LobbyCommand.Resume));
             replacementGateway.ConnectPeer(40);
@@ -453,7 +454,10 @@ internal sealed partial class OnlineLobbyTests
                 service.Lobbies[id] = service.Lobbies[id] with { MemberIds = new[] { User(1), User(2), User(3) }, Members = 3 };
                 service.Notify(id, new(OnlineLobbyUpdateKind.Joined, User(3)));
                 replacementGateway.ConnectPeer(50);
-                Assert.That(replacement.AuthorizePeer(50, User(3), null), Is.False, "EOS membership cannot bypass fresh Locked admission.");
+                Assert.That(replacement.AuthorizePeer(50, User(3), null), Is.True, "Authenticated control queries need no access code.");
+                replacementGateway.ReceiveJoin(50, "Unauthorized");
+                replacement.Driver.Pump(0);
+                Assert.That(replacement.Driver.Authority!.PlayerId(50), Is.Zero, "EOS membership cannot bypass fresh Locked admission.");
             }
         }
         finally
@@ -1043,10 +1047,13 @@ internal sealed partial class OnlineLobbyTests
         binding.Driver.Pump(0);
         Assert.That(binding.Driver.Authority.Return(0), Is.True);
         gateway.ConnectPeer(24);
-        Assert.That(binding.AuthorizePeer(24, User(2), null), Is.EqualTo(access == LobbyAccess.Public), "Return clears retained authorization; fresh Locked admission requires the code.");
+        Assert.That(binding.AuthorizePeer(24, User(2), null), Is.True);
+        gateway.ReceiveJoin(24, "Fresh");
+        binding.Driver.Pump(0);
+        Assert.That(binding.Driver.Authority.PlayerId(24) > 0, Is.EqualTo(access == LobbyAccess.Public), "Return clears retained authorization; fresh Locked admission requires the code.");
     }
 
-    /// <summary>A restart hint restores only the prior assignment and is cleared when the player chooses Leave.</summary>
+    /// <summary>A restart hint is inspected before the explicit choice and local cleanup does not claim authoritative release.</summary>
     [Test]
     public void RestartLocatorRejoinsKnownSessionAndEmitsResumeInsteadOfNewAdmission()
     {
@@ -1069,12 +1076,12 @@ internal sealed partial class OnlineLobbyTests
             gateway.ConnectPeer(1);
             var binding = client.AttachTransport(gateway, 1, "Changed local name");
             binding.Driver.Pump(0);
-            Assert.That(binding.Driver.Reconnecting, Is.True);
+            Assert.That(binding.Driver.Reconnecting, Is.False, "Checking must not resume gameplay before the choice.");
             Assert.That(binding.Driver.LocalPlayerId, Is.EqualTo(2));
             Assert.That(binding.Driver.Generation, Is.EqualTo(4));
-            Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
+            ConfirmReservation(client, gateway, binding.Driver, 1, locator.Session, 2, 4);
             client.Leave();
-            Assert.That(store.Load(User(2).Value), Is.Null);
+            Assert.That(store.Load(User(2).Value), Is.Not.Null, "Local cleanup cannot claim an authoritative release.");
         }
         finally
         {
@@ -1082,9 +1089,9 @@ internal sealed partial class OnlineLobbyTests
         }
     }
 
-    /// <summary>Membership retries and saved ordinary-client identity outlive both former local deadlines.</summary>
+    /// <summary>An unavailable menu check has a bounded wait and preserves its hint for explicit retry.</summary>
     [Test]
-    public void OrdinaryRestartWaitsForMembershipBeyondTwoMinutes()
+    public void UnavailableRestartOffersRetryWithoutErasingTheReservationHint()
     {
         string path = Path.Combine(Path.GetTempPath(), "trackstorm-resume-" + Guid.NewGuid().ToString("N") + ".json");
         var store = new ResumeLocatorStore(path);
@@ -1098,20 +1105,21 @@ internal sealed partial class OnlineLobbyTests
             client.Tick();
             clock.Advance(181);
             client.Tick();
-            Assert.That(client.SavedResume, Is.Not.Null);
-            Assert.That(client.Status, Is.EqualTo("Session unavailable — retrying"));
+            Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Failed));
+            Assert.That(store.Load(User(2).Value), Is.Not.Null);
+            Assert.That(client.Status, Does.Contain("not confirmed"));
             service.Lobbies[lobby.Id] = lobby;
             clock.Advance(3);
-            client.Tick();
+            client.RetryRetained();
             Assert.That(client.Active!.Session, Is.EqualTo(lobby.Session));
             using var gateway = new Gateway();
             gateway.ConnectPeer(1);
             var binding = client.AttachTransport(gateway, 1, "Client");
-            binding.Driver.Pump(181);
+            binding.Driver.Pump(0);
             Assert.That(binding.Driver.Failure, Is.Empty);
             Assert.That(binding.Driver.LocalPlayerId, Is.EqualTo(2));
             Assert.That(binding.Driver.Generation, Is.EqualTo(4));
-            Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
+            ConfirmReservation(client, gateway, binding.Driver, 1, lobby.Session, 2, 4);
         }
         finally
         {
@@ -1119,7 +1127,7 @@ internal sealed partial class OnlineLobbyTests
         }
     }
 
-    /// <summary>Leave and failed migration attempts preserve manual player recovery, while Return clears it.</summary>
+    /// <summary>Leave and failed migration attempts validate the retained player on menu entry, while Return clears the hint.</summary>
     /// <param name="failedAttempt">Whether a safely failed migration attempt precedes departure.</param>
     [TestCase(false)]
     [TestCase(true)]
@@ -1151,14 +1159,13 @@ internal sealed partial class OnlineLobbyTests
             client.Leave();
             clock.Advance(181);
             client.Tick();
-            Assert.That(client.Active, Is.Null, "Leave must not automatically rejoin.");
-            Assert.That(client.CanResumeRetained, Is.True);
+            Assert.That(client.Active, Is.Not.Null, "Menu entry checks the reservation before showing normal discovery.");
+            Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Checking));
             Assert.That(store.Load(User(2).Value)!.Player, Is.EqualTo(2));
-            client.ResumeRetained();
             gateway.ConnectPeer(3);
             binding = client.AttachTransport(gateway, 3, "Client");
             binding.Driver.Pump(0);
-            Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
+            ConfirmReservation(client, gateway, binding.Driver, 3, state.Session, 2, 1);
             gateway.ReceiveState(3, new LobbySnapshot(state.Session, 3, state.Match, SessionPhase.Arena, state.Players.Select(player => player.Id == 2 ? player with { Generation = 2 } : player)), 2);
             binding.Driver.Pump(0);
             client.Tick();
@@ -1171,6 +1178,19 @@ internal sealed partial class OnlineLobbyTests
         {
             store.Clear();
         }
+    }
+
+    private static void ConfirmReservation(OnlineLobbyCoordinator coordinator, Gateway gateway, Trackstorm.Client.Networking.LobbyNetworkDriver driver, ulong peer, ulong session, ulong player, ulong generation, ulong epoch = 1)
+    {
+        Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.InspectReservation));
+        Assert.That(driver.State, Is.Null);
+        gateway.Receive(peer, LobbyCodec.EncodeReservation(session, player, generation, epoch, ReservationResult.Available));
+        driver.Pump(0);
+        coordinator.Tick();
+        Assert.That(coordinator.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Choose));
+        coordinator.DecideRetained(true);
+        driver.Pump(0);
+        Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
     }
 
     private static OnlineProductUserId User(int id) => new(id.ToString("x32"));
