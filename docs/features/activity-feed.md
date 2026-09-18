@@ -13,3 +13,5 @@ Binding a journal never replays its retained history. The journal's sequence wat
 `ActivityFeedTests` exercises actual presence and lethal simulation outcomes, split event packets, names, filtering, bursts beyond journal retention, independent expiry, rebinding and replay rejection. Production driver tests cover reliable replication deduplication and connection-generation rejection. `check-event-log.ps1 -GodotPath <Godot .NET console> -Visual` also checks the production feed, a real UDP departure, native five-row layout/expiry and screenshots at 640×360, 1280×720 and 2560×1080 under `.godot/activity-feed-checks`. Presentation fixtures used for visual checks are explicit structured events; they do not establish actual combat input or separate-PC EOS behavior.
 
 [Event Log](event-log.md) · [HUD](hud.md) · [Sessions](sessions.md) · [Matches](matches.md) · [Reconnection](reconnection.md)
+
+Fresh active admission emits its Joined event only after checkpoint acknowledgement. The joining feed receives no earlier kill/death history; aborted bootstrap never emits a successful join. See [session admission](sessions.md#fresh-admission-during-an-arena).

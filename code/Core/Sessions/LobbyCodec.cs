@@ -29,7 +29,19 @@ public static class LobbyCodec
     public static string DecodeRejection(ReadOnlySpan<byte> data)
     {
         using var document = Parse(data, 2);
-        return "Resume rejected";
+        if (document.RootElement.ValueKind != JsonValueKind.String)
+        {
+            throw new ArgumentException("Invalid rejection reason.");
+        }
+
+        return document.RootElement.GetString() switch
+        {
+            "Session full" => "Session full",
+            "Session unavailable" => "Session unavailable",
+            "Join bootstrap failed" => "Join bootstrap failed",
+            "Access denied" => "Access denied",
+            _ => "Resume rejected",
+        };
     }
 
     /// <summary>Encodes explicit departure acknowledgement before transport cleanup.</summary>
@@ -39,13 +51,14 @@ public static class LobbyCodec
     /// <summary>Recognizes the exact versioned departure acknowledgement.</summary>
     /// <param name="data">Complete control payload.</param>
     /// <returns>Whether the host acknowledged departure.</returns>
-    public static bool IsLeft(ReadOnlySpan<byte> data) => data.SequenceEqual(new byte[] { (byte)'T', (byte)'L', 5, 3, 0 });
+    public static bool IsLeft(ReadOnlySpan<byte> data) => data.SequenceEqual(new byte[] { (byte)'T', (byte)'L', 6, 3, 0 });
 
     /// <summary>Encodes one complete host state and the recipient's assigned identity.</summary>
     /// <param name="state">Validated authoritative state.</param>
     /// <param name="player">Recipient identity.</param>
+    /// <param name="activated">Whether the recipient owns committed participation rather than a pending bootstrap.</param>
     /// <returns>Reliable packet.</returns>
-    public static byte[] EncodeState(LobbySnapshot state, ulong player) => Pack(0, JsonSerializer.SerializeToUtf8Bytes(new { state.Session, state.Revision, state.Match, state.Phase, state.Players, state.CurrentHostId, state.AuthorityEpoch, Player = player }));
+    public static byte[] EncodeState(LobbySnapshot state, ulong player, bool activated = true) => Pack(0, JsonSerializer.SerializeToUtf8Bytes(new { state.Session, state.Revision, state.Match, state.Phase, state.Players, state.CurrentHostId, state.AuthorityEpoch, Player = player, Activated = activated }));
 
     /// <summary>Encodes a sender-scoped intent with phase generation to reject stale commands.</summary>
     /// <param name="command">Requested action.</param>
@@ -68,7 +81,7 @@ public static class LobbyCodec
     /// <summary>Validates and decodes a host publication.</summary>
     /// <param name="data">Bounded reliable payload.</param>
     /// <returns>Detached state and recipient identity.</returns>
-    public static (LobbySnapshot State, ulong Player) DecodeState(ReadOnlySpan<byte> data)
+    public static (LobbySnapshot State, ulong Player, bool Activated) DecodeState(ReadOnlySpan<byte> data)
     {
         using JsonDocument document = Parse(data, 0);
         try
@@ -82,7 +95,7 @@ public static class LobbyCodec
                 throw new ArgumentException("Recipient is absent from the lobby.");
             }
 
-            return (state, id);
+            return (state, id, root.GetProperty("Activated").GetBoolean());
         }
         catch (Exception exception) when (exception is InvalidOperationException or KeyNotFoundException or FormatException or OverflowException)
         {
@@ -118,7 +131,7 @@ public static class LobbyCodec
         byte[] result = new byte[body.Length + 4];
         result[0] = (byte)'T';
         result[1] = (byte)'L';
-        result[2] = 5;
+        result[2] = 6;
         result[3] = kind;
         body.CopyTo(result, 4);
         if (result.Length > MaximumBytes)
@@ -131,7 +144,7 @@ public static class LobbyCodec
 
     private static JsonDocument Parse(ReadOnlySpan<byte> data, byte kind)
     {
-        if (data.Length is < 5 or > MaximumBytes || !IsLobby(data) || data[2] != 5 || data[3] != kind)
+        if (data.Length is < 5 or > MaximumBytes || !IsLobby(data) || data[2] != 6 || data[3] != kind)
         {
             throw new ArgumentException("Invalid lobby envelope.");
         }

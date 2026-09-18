@@ -76,3 +76,5 @@ Per-player standings RTT is published above the gateway by the lobby driver usin
 [Developer Options](developer-options.md) exposes the existing process-wide GNS latency, jitter, loss and reordering controls only when the gateway advertises NetworkSimulation and the local session owns host authority. EOS has no such capability; its controls remain hidden and no successful configuration is claimed. These local transport controls are not saved or included in synchronized gameplay configuration.
 
 [Feature index](README.md)
+
+Fresh active admission uses the existing reliable lobby and connection-enveloped checkpoint path, without a new transport or address requirement. Core roster occupancy includes retained participants even when their transport slots are free. See [session admission](sessions.md#fresh-admission-during-an-arena).

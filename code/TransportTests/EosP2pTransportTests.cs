@@ -14,6 +14,47 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class EosP2pTransportTests
 {
+    /// <summary>A fresh participant bootstraps through production EOS framing after the host is already active.</summary>
+    [Test]
+    public void FreshActiveJoinUsesEosCheckpointAndActivationPath()
+    {
+        using var pair = new Pair();
+        pair.Pump();
+        var host = new LobbyNetworkDriver(pair.Host, pair.Lobby.Session, 0, "Host", _ => true, identity: _ => pair.ClientId.Value);
+        host.Authority!.SetReady(0, true);
+        Assert.That(host.Authority.Start(0), Is.True);
+        var hostVehicles = new VehicleNetworkDriver(pair.Host, host.State!.Match, lobby: host);
+        hostVehicles.Host!.RegisterSpawns(Trackstorm.Core.Arenas.PrototypeArena.Configuration);
+        Assert.That(hostVehicles.ForceDeveloperStart(), Is.True);
+        for (int tick = 0; tick < 190; tick++)
+        {
+            hostVehicles.Advance(default, Observe);
+        }
+
+        Assert.That(hostVehicles.Match!.Phase, Is.EqualTo(Core.Matches.MatchPhase.Active));
+        var client = new LobbyNetworkDriver(pair.Client, 0, pair.Server, "Fresh", expectedSession: pair.Lobby.Session);
+        client.Pump(0);
+        hostVehicles.Advance(default, Observe);
+        client.Pump(0);
+        Assert.That(client.JoiningArena, Is.True);
+        var clientVehicles = new VehicleNetworkDriver(pair.Client, 0, pair.Server, client);
+        for (int tick = 0; tick < 60; tick++)
+        {
+            hostVehicles.Advance(default, Observe);
+            clientVehicles.Advance(new InputFrame(0, 0, 20000, 0, 0, 0, 0), Observe);
+        }
+
+        Assert.That(client.Failure, Is.Empty);
+        Assert.That(clientVehicles.IsActive, Is.True);
+        Assert.That(client.LocalPlayerId, Is.EqualTo(2));
+        Assert.That(host.State.Players.Count, Is.EqualTo(2));
+        Assert.That(hostVehicles.Host.World.State.Vehicles.Count, Is.EqualTo(2));
+        Assert.That(clientVehicles.Latest!.Vehicles.Count, Is.EqualTo(2));
+        Assert.That(clientVehicles.Inputs!.LastAcknowledged, Is.GreaterThan(40));
+        Assert.That(clientVehicles.ItemState!.Spawns.Count, Is.EqualTo(8));
+        Assert.That(clientVehicles.Match!.Phase, Is.EqualTo(Core.Matches.MatchPhase.Active));
+    }
+
     /// <summary>Losing both coordination and P2P freezes the old host and never creates replacement authority.</summary>
     [Test]
     public void TrustedLeaseOutageFailsClosedAtBothPeers()

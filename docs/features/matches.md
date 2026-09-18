@@ -16,7 +16,7 @@ Each player retains the highest destroyed life consumed. This watermark advances
 
 Deaths in a batch are evaluated in ascending victim identity order. The first credited kill reaching the target records one winner, increments that player's per-match wins from zero to one, and enters Finished. Later deaths in the same batch and later ticks cannot change kills, deaths, wins or winner. Their ordinary damage/death/respawn behavior still proceeds. This deterministic tie rule makes results independent of request enumeration or network arrival order.
 
-Departed score rows remain for the lifetime of the match. A late join during Finished receives the final result without adding a score row. Match state is bounded to 256 lifetime participants, with at most eight connected vehicles; new standalone admissions are rejected at the lifetime bound. Session resume retains these totals and watermarks. Cross-match win persistence remains unsupported.
+Departed score rows remain for the lifetime of the match. Normal session admission rejects new players during Finished. The lower-level standalone vehicle harness can still expose the frozen result without adding a score row. Match state is bounded to 256 lifetime participants, with at most eight connected vehicles; new standalone admissions are rejected at the lifetime bound. Session resume retains these totals and watermarks. Fresh active admission previews a zero score row in its complete checkpoint and commits that row only on bootstrap acknowledgement, preserving all existing totals, countdown deadlines and consumed-life watermarks. Cross-match win persistence remains unsupported.
 
 ## Reliable Publication and Presentation
 

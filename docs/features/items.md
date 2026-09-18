@@ -41,3 +41,5 @@ Host [Developer Options](developer-options.md) updates `ItemAuthority.Configurat
 [Feature index](README.md)
 
 The [Event Log](event-log.md) stages use/impact outcomes with the world commit, reports Wrench applied healing, and records acquisition and relevant inventory/projectile removal without per-frame projectile telemetry.
+
+Fresh active admission uses the same complete checkpoint as resume: held slots/tokens and current missiles are included, with historical item events omitted. Preparing or aborting admission does not mutate inventory or create a simulated vehicle. See [session activation](sessions.md#fresh-admission-during-an-arena).

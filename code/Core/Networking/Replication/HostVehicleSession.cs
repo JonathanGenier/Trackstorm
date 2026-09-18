@@ -61,6 +61,8 @@ public sealed class HostVehicleSession
 
     /// <summary>Effective validated gameplay configuration and monotonic revision.</summary>
     public GameplayConfigurationState Configuration { get; private set; }
+    /// <summary>Current gameplay eligibility for a fresh participant.</summary>
+    public bool CanJoin => World.State.Match!.Phase != Matches.MatchPhase.Finished && World.State.Match.Players.Count < Matches.MatchState.MaximumPlayers && World.State.Vehicles.Count < 8;
 
     /// <summary>Constructs a complete replacement off to the side; no live authority is partially mutated.</summary>
     /// <param name="checkpoint">Existing validated complete resync state.</param>
@@ -231,6 +233,46 @@ public sealed class HostVehicleSession
         }
 
         return accepted;
+    }
+
+    /// <summary>Builds the complete current boundary and proposed spawn without adding a simulation participant.</summary>
+    /// <param name="player">New lobby-assigned identity.</param>
+    /// <param name="revision">Reliable item publication sequence.</param>
+    /// <param name="props">Optional native prop boundary.</param>
+    /// <returns>Current bootstrap, or null when no safe admission/spawn is available.</returns>
+    public ResumeCheckpoint? PrepareJoin(ulong player, ulong revision, Arenas.ArenaPropSnapshot? props = null)
+    {
+        if (!CanJoin || player == 0 || World.State.Vehicles.Any(vehicle => vehicle.VehicleId == player) ||
+            World.Arena.SelectRespawn(player, 1, World.State.Vehicles) is not VehiclePhysicsState spawn)
+        {
+            return null;
+        }
+
+        var vehicle = new VehicleSnapshot(player, 1, new VehicleState(World.State.Tick, spawn, false, false, 0, 0), new VehicleHealth(Configuration.Configuration.Damage).State, spawn);
+        var current = Snapshot();
+        var world = new WorldSnapshot(SessionId, current.Tick, current.Vehicles.Append(new ReplicatedVehicle(vehicle, 0)), Configuration.Revision);
+        var items = new ItemPublication(revision, world, Items.Slots, Items.Missiles, [], Spawns?.States);
+        var match = Matches.MatchAuthority.Join(World.State.Match!, current.Tick, player);
+        return new ResumeCheckpoint(items, match, props, Configuration);
+    }
+
+    /// <summary>Creates a fresh participant only after bootstrap receipt, rechecking live spawn clearance.</summary>
+    /// <param name="peer">Actual transport sender.</param>
+    /// <param name="player">New lobby identity.</param>
+    /// <returns>Whether current authority can commit participation.</returns>
+    public bool ActivateJoin(ulong peer, ulong player)
+    {
+        if (!CanJoin || peer == 0 || _peers.ContainsKey(peer) || World.State.Vehicles.Any(vehicle => vehicle.VehicleId == player) ||
+            World.Arena.SelectRespawn(player, 1, World.State.Vehicles) is not VehiclePhysicsState spawn)
+        {
+            return false;
+        }
+
+        int slot = Enumerable.Range(1, 7).First(candidate => _peers.Values.All(entry => entry.SpawnSlot != candidate) && _disconnected.Values.All(entry => entry.SpawnSlot != candidate));
+        World.JoinVehicle(player, Configuration.Configuration.Vehicle, Configuration.Configuration.Damage, spawn);
+        _peers.Add(peer, (player, new HostInputBuffer(), slot));
+        _nextVehicle = Math.Max(_nextVehicle, player);
+        return true;
     }
 
     /// <summary>Assigns a unique gameplay identity only after the transport reports a connected peer.</summary>
