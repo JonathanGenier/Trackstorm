@@ -429,6 +429,40 @@ internal sealed class EosP2pTransportTests
         Assert.That(pair.Host.Migration!.Frozen, Is.False);
     }
 
+    /// <summary>Only an accepted reliable current-host checkpoint can supply a client's restart route.</summary>
+    /// <param name="invalid">The rejected boundary following a valid route.</param>
+    [TestCase("peer")]
+    [TestCase("unreliable")]
+    [TestCase("epoch")]
+    [TestCase("sequence")]
+    [TestCase("corrupt")]
+    public void MigrationRoutingRequiresAcceptedCheckpoint(string invalid)
+    {
+        using var pair = new MigrationPair();
+        pair.AttachClientMigration();
+        var lobby = pair.Host.Authority!.Capture(pair.Link.HostId.Value);
+        string routingId = new('B', 64);
+        byte[] accepted = [(byte)'T', (byte)'X', 1, .. MigrationCheckpointCodec.Encode(new(100, lobby, null, null, new string('A', 64), routingId))];
+        pair.Client.Migration!.Receive(new(pair.Client.ServerPeer, accepted, TransportDelivery.Reliable));
+        Assert.That(pair.Client.Migration.RoutingId, Is.EqualTo(routingId));
+        if (invalid == "epoch")
+        {
+            var state = lobby.State;
+            var wrong = new LobbySnapshot(state.Session, state.Revision, state.Match, state.Phase, state.Players, state.CurrentHostId, 2);
+            lobby = new(wrong, lobby.Tick, lobby.NextId, lobby.Subjects);
+        }
+
+        byte[] rejected = [(byte)'T', (byte)'X', 1, .. MigrationCheckpointCodec.Encode(new(invalid == "sequence" ? 100UL : 101UL, lobby, null, null, new string('A', 64), new string('C', 64)))];
+        if (invalid == "corrupt")
+        {
+            rejected[^1] ^= 1;
+        }
+
+        pair.Client.Migration.Receive(new(invalid == "peer" ? pair.Client.ServerPeer + 123 : pair.Client.ServerPeer, rejected, invalid == "unreliable" ? TransportDelivery.Unreliable : TransportDelivery.Reliable));
+        Assert.That(pair.Client.Migration.RoutingId, Is.EqualTo(routingId));
+        Assert.That(pair.Client.Authority, Is.Null);
+    }
+
     /// <summary>No externally retained boundary must produce bounded failure rather than authority.</summary>
     [Test]
     public void TwoPlayerMissingCheckpointFailsClosed()

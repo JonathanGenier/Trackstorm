@@ -1,5 +1,49 @@
 # TS-46 match-long player reservation correction
 
+## Ordinary-client restart after later migration — 2026-09-18
+
+This correction continues reviewed head `a8bf5b4aae71042263f7952cf5b4fdf0a77f4158` on `ts-46-jg` / PR #27. Current main is `b409017aa43cf5670762aeca20ce21fa7ac92297`, already integrated. TS-46 comments 10063/10064 and TS-51 comment 10067 remain unchanged. No new branch, PR, merge or Story critique round. This section supersedes the earlier unresolved EOS smoke conclusion below.
+
+**Verified root cause:** healthy ordinary clients deliberately do not observe the lease service. Their `AuthorityLeaseClient` therefore has no record and no `RoutingId`; the binding exposed only that record, so the persisted locator could not use trusted restart routing. The new Public/Locked regression first failed at the non-null saved RoutingId assertion against the reviewed implementation.
+
+**Propagation path:** accepted host lease response → `OnlineSessionBinding.PollCoordination` → `SessionMigration.RoutingId` → existing reliable authenticated `MigrationCheckpoint` stream → accepted client checkpoint → `OnlineSessionBinding.RoutingId` → coordinator arena locator save. Newly learned routing is saved on the next coordinator tick without waiting five seconds or changing generation. The checkpoint codec is now TC 5 and the EOS compatibility bucket is `trackstorm-lobby-12`; TL/TG admission and authority fences are unchanged.
+
+**Safety:** only the opaque 64-hex read-only address is added. Checkpoint construction rejects invalid addresses or one equal to the private lease session key. Existing authenticated current-server/reliable delivery, session/epoch/host/match/roster, revision, sequence and digest checks precede accepting it. Private LeaseSession remains in the existing in-memory coordination checkpoint only, and fencing tokens are not added to that checkpoint or the resume file. A healthy client still makes zero lease requests. On restart `/lease/route` selects a target only; its self/stale/conflict/expiry/timing checks, Core Resume PlayerId/generation admission, election agreement and trusted lease write fences are unchanged. No new store, endpoint or authority path is introduced in this correction.
+
+**Exact ordinary-client regression:** four production coordinators/bindings and vehicle drivers run over deterministic EOS packet and lease boundaries. B receives a locator with RoutingId while never holding authority or making a lease request; its file contains neither private session key nor token. B disconnects, remains retained while A continues, then A crashes. C and D agree on epoch 2 while EOS still advertises A/epoch 1. Two eligible survivors deliberately preserve the existing election rule for rosters larger than two. A fresh B process resolves C with exactly one routing read, sends Resume and never Join, installs a full arena checkpoint, retains the same PlayerId/session/match/life/HP/Missile and advances generation exactly once. It has no lobby or vehicle authority, cannot Return the match, and has exactly one roster entry and vehicle. Public and Locked both pass; restart supplies no access code. Existing former-host Public/Locked stale-EOS regressions, ten invalid/outage/cancellation route cases and legacy locators continue passing.
+
+| Current check | Result |
+| --- | --- |
+| New ordinary-client Public/Locked tests before propagation | Both FAIL at missing persisted RoutingId (expected reproduction) |
+| Focused online/locator/lease/migration suite | 101 Client/transport tests PASS, including all 80 OnlineLobbyTests; 12 focused Core migration tests PASS |
+| Checkpoint safety coverage | Roundtrip/optional address, length/hex/private-key alias and old TC version rejection PASS; wrong peer, unreliable delivery, wrong epoch, old sequence and corrupt bytes cannot replace an accepted route |
+| `check.ps1` | PASS: formatting; Debug/Release builds with zero warnings/errors; 332 Core + 276 non-native Client/transport tests per configuration |
+| `check-reconnect.ps1 -NoBuild` | PASS: native UDP and three complete arena resyncs, retained state and Return cleanup |
+| `check-migration.ps1 -Players 2` and `-Players 3` with `-NoBuild` | PASS: native UDP, retained state, client return and sequential epochs |
+| `check-transport.ps1` | PASS: 287 tests and three native Godot lifecycle cycles |
+| `check-migration-processes.ps1 -Players 2` and `-Players 3` with `-NoBuild` | PASS: real host-process termination; independent native survivors restore epoch 2 |
+| Minimal Godot headless bootstrap | PASS, exit 0 |
+| Worker dry-run build and `node --test test/*.test.js` | PASS: 12 tests including actual local HTTP/SQLite read-only routing assertions; no Worker change or deployment in this correction |
+| `check-eos.ps1 -P2p` after harness correction | PASS: three processes × three real login/logout/lobby/P2P/solo Ready/Start/arena/Return cycles; no remote traffic or live Cloudflare lease assertion |
+| Scope/architecture | Scoped source and integration review, dependency direction and `git diff --check` PASS; no Shared layer, new dependency, weakened fencing, tracked local config or debug artifact |
+
+**Clean-current-main EOS baseline:** an untouched source archive of `b409017aa43cf5670762aeca20ce21fa7ac92297` was built/imported with Godot 4.7.2 and the pinned native SDK in an ignored directory, without creating a branch or changing main sources. Its unmodified `check-eos.ps1 -P2p` initially failed earlier at `AuthWrongClient` with main's bundled client configuration. For a valid code comparison, rerunning main with the branch's working distributable development configuration through the existing process-local `TRACKSTORM_EOS_CONFIG` override passed all nine cycles. Thus the branch's later gameplay-start failure is a branch regression, not a clean-main failure.
+
+**Smoke diagnosis and narrow correction:** before the fix, the branch requested Ready/Start with `coordination=False`, `retired=False`, `frozen=True`, phase Lobby. The new branch authority guard correctly waits for asynchronous membership confirmation, but the old smoke harness assumed immediate availability. Only `EosIntegrationChecks` was adjusted: continue pumping until unfrozen, fail on driver failure or after ten seconds, then run the existing Ready/Start/arena/Return and cleanup assertions. No production authority gate was relaxed. The temporary diagnostic was removed. The earlier comparison against the already modified reviewed branch could not establish a clean-main baseline and is superseded by this comparison.
+
+Logs are under ignored `.godot/ordinary-client-routing-checks/` (`check.log`, `transport.log`, `main-eos-p2p.log`, `main-eos-p2p-matched-config.log`, `branch-eos-p2p-diagnostic.log`, `branch-eos-p2p-fixed.log`, `bootstrap.log`). Native reconnect/migration logs remain under their standard check directories. New process-kill evidence is in `.godot/migration-process-checks/5dd493af237243faa387e902ad909299` and `31927f08231745ec9b429afaccd07b52`. Successful final runtime checks contain no ERROR/WARNING or shutdown leak diagnostics. Earlier reproduction/configuration failures remain recorded as failures, not final passes.
+
+**Remaining physical acceptance:** physical Test 6 still needs rerun in Public and Locked, alongside ordinary B disconnect → later A hard-kill → surviving C/D migration → B restart while EOS metadata lags. Use updated protocol-12 games on every PC, the updated Worker route endpoint in the existing Durable Object namespace, and a fresh match. No deployment was performed here, and no new separate-PC result or authenticated live `/lease/route` result is claimed. Legacy locators without RoutingId still depend on EOS metadata. Previously user-reported Tests 1–5 and 7–13 remain PASS; local evidence does not mark TS-46/TS-51 physically accepted. PR #27 remains open and unmerged.
+
+Files changed in this correction:
+
+- `code/Client/Networking/SessionMigration.cs`
+- `code/Client/Online/OnlineLobby.cs`, `OnlineLobbyCoordinator.cs`, `OnlineSessionBinding.cs`
+- `code/Core/Sessions/MigrationCheckpoint.cs`, `MigrationCheckpointCodec.cs`
+- `code/Client/Verification/EosIntegrationChecks.cs` (separately proven smoke regression)
+- `code/TransportTests/OnlineLobbyTests.Restart.cs` (new), `EosP2pTransportTests.cs`, `code/Tests/Networking/MigrationTests.cs`
+- `docs/eos-development.md`, `docs/features/authority-leases.md`, `eos-lobbies.md`, `eos-p2p.md`, `host-migration.md`, `reconnection.md`, and this evidence file
+
 ## Former-host restart with stale EOS routing — 2026-09-18
 
 This correction continues reviewed head `6af049f1ed39025159301956fb15b472489ccb9f` on the existing `ts-46-jg` / PR #27. No new branch, PR, merge or Story critique round. Fetch confirmed `origin/main` remains `b409017aa43cf5670762aeca20ce21fa7ac92297`, already integrated. TS-46 comments 10063/10064 and TS-51 comment 10067 remain the approved requirements.

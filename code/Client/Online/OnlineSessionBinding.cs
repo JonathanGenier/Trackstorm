@@ -47,7 +47,11 @@ internal sealed class OnlineSessionBinding : IDisposable
                 }
 
                 Driver.Migration.AuthorityRetired = () => coordinator.AuthorityRetired;
-                Driver.Migration.PollCoordination = () => _lease.Poll(Driver.Migration.LeaseSession, coordinator.StartsGameplayAuthority, Driver.State?.AuthorityEpoch ?? lobby.AuthorityEpoch, Driver.Migration.NeedsLeaseObservation);
+                Driver.Migration.PollCoordination = () =>
+                {
+                    _lease.Poll(Driver.Migration.LeaseSession, coordinator.StartsGameplayAuthority, Driver.State?.AuthorityEpoch ?? lobby.AuthorityEpoch, Driver.Migration.NeedsLeaseObservation);
+                    Driver.Migration.RoutingId = _lease.RoutingId ?? Driver.Migration.RoutingId;
+                };
                 Driver.Migration.AuthorityAvailable = () => coordinator.CoordinationAvailable && _lease.Available(Driver.State!.AuthorityEpoch);
                 Driver.Migration.RetirementConfirmedAt = checkpoint => _lease.Expired(checkpoint.Lobby.State.AuthorityEpoch, checkpoint.Lobby.Subjects[checkpoint.Lobby.State.CurrentHostId]) ? coordinator.Clock.GetTimestamp() : null;
                 Driver.Migration.AcquireAuthority = checkpoint => _lease.Acquire(checkpoint.Lobby.State.AuthorityEpoch);
@@ -71,7 +75,7 @@ internal sealed class OnlineSessionBinding : IDisposable
     internal LobbyNetworkDriver Driver { get; }
 
     /// <summary>Optional trusted routing locator for process restart.</summary>
-    internal string? RoutingId => _lease?.RoutingId;
+    internal string? RoutingId => _lease?.RoutingId ?? Driver.Migration?.RoutingId;
 
     /// <summary>Online identities mapped to authority-assigned gameplay identities.</summary>
     internal IReadOnlyDictionary<OnlineProductUserId, ulong> PlayerIds

@@ -80,6 +80,8 @@ internal sealed class SessionMigration
     internal Func<MigrationCheckpoint, ulong, bool>? ConfirmSuccessor { get; set; }
     /// <summary>Private coordination session shared in authenticated checkpoints, never in public EOS metadata.</summary>
     internal string? LeaseSession { get; set; }
+    /// <summary>Read-only restart route from local lease observation or an accepted authenticated checkpoint.</summary>
+    internal string? RoutingId { get; set; }
     /// <summary>Later trusted evidence of continuing host progress invalidates stale partition boundaries.</summary>
     internal Func<long?>? HostProgressAt { get; set; }
     /// <summary>Relinquishes service permission only after departure or permanent retirement freezes local gameplay.</summary>
@@ -263,6 +265,7 @@ internal sealed class SessionMigration
 
                 Retain(checkpoint, bytes[3..].ToArray());
                 LeaseSession = checkpoint.LeaseSession;
+                RoutingId = checkpoint.RoutingId ?? RoutingId;
                 _receivedAt = _seconds;
                 if (!_confirmedDeparture)
                 {
@@ -399,7 +402,7 @@ internal sealed class SessionMigration
                 return;
             }
 
-            var checkpoint = new MigrationCheckpoint(checked(++_sequence), authority.Capture(_subject), arena?.Arena, arena?.Host, LeaseSession);
+            var checkpoint = new MigrationCheckpoint(checked(++_sequence), authority.Capture(_subject), arena?.Arena, arena?.Host, LeaseSession, RoutingId);
             byte[] bytes = MigrationCheckpointCodec.Encode(checkpoint);
             Retain(checkpoint, bytes);
             byte[] packet = new byte[bytes.Length + 3];

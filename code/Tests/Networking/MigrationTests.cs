@@ -14,6 +14,27 @@ namespace Trackstorm.Core.Tests.Networking;
 [TestFixture]
 internal sealed class MigrationTests
 {
+    /// <summary>The read-only route survives checkpoint encoding but cannot alias the private session key.</summary>
+    [Test]
+    public void CheckpointRoutingIsOptionalBoundedAndSeparateFromLeaseSession()
+    {
+        var lobby = Lobby().Capture("host");
+        string leaseSession = new('A', 64);
+        string routingId = new('B', 64);
+        var checkpoint = MigrationCheckpointCodec.Decode(MigrationCheckpointCodec.Encode(new(1, lobby, null, null, leaseSession, routingId)));
+        Assert.That(checkpoint.RoutingId, Is.EqualTo(routingId));
+        Assert.That(checkpoint.LeaseSession, Is.EqualTo(leaseSession));
+        Assert.That(MigrationCheckpointCodec.Decode(MigrationCheckpointCodec.Encode(new(1, lobby, null, null))).RoutingId, Is.Null);
+        foreach (string invalid in new[] { string.Empty, new string('B', 63), new string('B', 65), new string('G', 64), leaseSession.ToLowerInvariant() })
+        {
+            Assert.Throws<ArgumentException>(() => new MigrationCheckpoint(1, lobby, null, null, leaseSession, invalid));
+        }
+
+        byte[] oldVersion = MigrationCheckpointCodec.Encode(checkpoint);
+        oldVersion[2] = 4;
+        Assert.Throws<ArgumentException>(() => MigrationCheckpointCodec.Decode(oldVersion));
+    }
+
     /// <summary>Former hosts remain retained until Return ends the match.</summary>
     /// <param name="resume">Whether the former host returns during the retained match.</param>
     [TestCase(false)]

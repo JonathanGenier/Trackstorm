@@ -404,7 +404,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
 
         if (!_disposed && Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume, Reconnecting: false, Failure.Length: 0 } driver &&
-            (_savedGeneration != driver.Generation || _time.GetElapsedTime(_savedAt).TotalSeconds >= 5))
+            (_savedGeneration != driver.Generation || (_binding.RoutingId is { } routingId && routingId != _routingId) || _time.GetElapsedTime(_savedAt).TotalSeconds >= 5))
         {
             _savedAt = _time.GetTimestamp();
             _savedGeneration = driver.Generation;

@@ -28,9 +28,9 @@ Accepting a larger checkpoint retires older two-player copies, and a currently l
 
 ## Complete checkpoint
 
-The version-four `TC` migration checkpoint composes the existing complete version-two `TR` resume codecs with authority continuation:
+The version-five `TC` migration checkpoint composes the existing complete version-two `TR` resume codecs with authority continuation:
 
-- Stable session, match generation, host, epoch, roster, reconnect generations and disconnected roster records, session clock, player allocation high-water mark, private lease session key and former-host retention flags.
+- Stable session, match generation, host, epoch, roster, reconnect generations and disconnected roster records, session clock, player allocation high-water mark, private lease session key, optional read-only routing address and former-host retention flags. Only the read-only address may enter a local resume file; the private key remains in memory.
 - Simulation tick; complete vehicle aggregates, transforms, commanded and observed linear/angular velocity, handling/surface state, HP, damage attribution, collision cooldowns, accepted physical effects, life generations and respawn deadlines.
 - Held slots and tokens, active missiles and IDs/lifetime, item revision and the highest token ever issued, including consumed/departed grants.
 - Pickup availability, absolute cooldown deadlines, claim identities/tokens, spawn revision and the complete deterministic selector state.
@@ -54,7 +54,7 @@ Waiting for lease expiry does not itself age a recent crash checkpoint out of re
 
 ## Restart routing after migration
 
-EOS ownership may lag a committed gameplay migration indefinitely. The replacement records its route locally immediately; publishing `gameHost`/`epoch` remains an EOS-owner operation and is not a prerequisite for authority. A restarted former host with a saved read-only [lease routing locator](authority-leases.md) resolves the live fenced holder/epoch directly from the existing service record after recovering EOS membership. It never connects to itself, takes over a lease, or treats EOS ownership as gameplay authority. Authenticated Core Resume then restores the retained player as CLIENT. Legacy locators without the read-only address still require EOS metadata to catch up. See [restart persistence and compatibility](reconnection.md#recovery-and-restart).
+EOS ownership may lag a committed gameplay migration indefinitely. The replacement records its route locally immediately; publishing `gameHost`/`epoch` remains an EOS-owner operation and is not a prerequisite for authority. Every admitted participant learns the read-only [lease routing locator](authority-leases.md) through accepted host checkpoints, without healthy-client lease polling. An ordinary player can disconnect before the host fails, then restart after a later migration and resolve the live fenced holder/epoch directly from the existing service record after recovering EOS membership. Former hosts use the same path. Restart never connects to self, takes over a lease, or treats EOS ownership as gameplay authority. Authenticated Core Resume then restores the retained player as CLIENT. Legacy locators without the read-only address still require EOS metadata to catch up. See [restart persistence and compatibility](reconnection.md#recovery-and-restart).
 
 ## Restore and rebind
 
@@ -73,7 +73,7 @@ In a lobby, host migration starts on intentional or abrupt loss without a reconn
 
 ## Stale traffic and one-shot safety
 
-Lobby protocol version five carries host and epoch; all post-admission commands check the authority fence. The version-two `TG` envelope checks session, authority epoch and recipient connection generation before any nested vehicle, item, match or prop codec/event consumer runs. Native connection nonces, subscription generations, monotonic peer handles and coordinator operation generations reject retired connections and delayed callbacks. The version-two `TP` standings diagnostics also fence authority epochs and use the elected host identity. Online compatibility is `trackstorm-lobby-11`: all peers must use the trusted fencing protocol and retention-aware checkpoint/roster schemas.
+Lobby protocol version five carries host and epoch; all post-admission commands check the authority fence. The version-two `TG` envelope checks session, authority epoch and recipient connection generation before any nested vehicle, item, match or prop codec/event consumer runs. Native connection nonces, subscription generations, monotonic peer handles and coordinator operation generations reject retired connections and delayed callbacks. The version-two `TP` standings diagnostics also fence authority epochs and use the elected host identity. Online compatibility is `trackstorm-lobby-12`: all peers must use the trusted fencing protocol and retention-aware checkpoint/roster schemas.
 
 Restore publishes current item and score state with empty historical event/delta lists. Token high-water marks, missile IDs, life generations, consumed-death watermarks, spawn deadlines and revisions continue from the checkpoint. Pending uses/inputs do not cross the transition. Committed damage is not reapplied when physical continuation effects are restored. Later one-shot outcomes are evaluated by the original authorities and scoped to the new epoch. Rollback can discard outcomes after the selected boundary; it never adds those abandoned outcomes onto the restored totals.
 

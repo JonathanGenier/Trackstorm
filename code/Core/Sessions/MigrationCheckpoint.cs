@@ -11,7 +11,8 @@ public sealed class MigrationCheckpoint
     /// <param name="arena">Complete match state, absent in lobby.</param>
     /// <param name="host">Authority-only gameplay supplement, absent in lobby.</param>
     /// <param name="leaseSession">Opaque coordination session for admitted survivors; absent in trusted native harnesses.</param>
-    public MigrationCheckpoint(ulong sequence, LobbyRestoreState lobby, ResumeCheckpoint? arena, HostRestoreState? host, string? leaseSession = null)
+    /// <param name="routingId">Optional read-only routing address for retained-player restart; never a lease key or token.</param>
+    public MigrationCheckpoint(ulong sequence, LobbyRestoreState lobby, ResumeCheckpoint? arena, HostRestoreState? host, string? leaseSession = null, string? routingId = null)
     {
         if (sequence == 0 || (lobby.State.Phase == SessionPhase.Arena) != (arena is not null) || (arena is null) != (host is null))
         {
@@ -44,6 +45,12 @@ public sealed class MigrationCheckpoint
         }
 
         LeaseSession = leaseSession;
+        if (routingId is not null && (routingId.Length != 64 || !routingId.All(char.IsAsciiHexDigit) || string.Equals(routingId, leaseSession, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new ArgumentException("Invalid read-only routing address.");
+        }
+
+        RoutingId = routingId;
     }
 
     /// <summary>Epoch-scoped checkpoint identity.</summary>
@@ -56,4 +63,6 @@ public sealed class MigrationCheckpoint
     public HostRestoreState? Host { get; }
     /// <summary>Private coordination routing capability, never published in discovery or diagnostics.</summary>
     public string? LeaseSession { get; }
+    /// <summary>Read-only trusted-service address safe to retain in a local resume locator; grants no authority.</summary>
+    public string? RoutingId { get; }
 }
