@@ -93,8 +93,8 @@ jobs:
             fi
 
             if [ "$run_status" != "completed" ]; then
-              echo "PR #$pr_number: latest CI run is $run_status; skipping duplicate rerun."
-              continue
+              echo "PR #$pr_number: latest CI run is $run_status; waiting before revalidation."
+              gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status || true
             fi
 
             echo "PR #$pr_number: re-running CI run $run_id against current main."
