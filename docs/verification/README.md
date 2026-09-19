@@ -8,6 +8,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Automatic PR history guard | [TS-136 prior-PR suppression and recreation prevention evidence](ts-136.md) |
 | Automatic Story PR creation | [TS-135 push trigger, duplicate prevention and Jira-free PR creation](ts-135.md) |
 | Per-Story verification evidence requirement | [TS-134 workflow/report naming, indexing and historical-evidence boundary](ts-134.md) |
 | Lobby and match entry | [TS-86 application states, map selection, loading/sync and acceptance evidence](ts-86.md) |
