@@ -5,6 +5,10 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -13,11 +17,29 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout Story PR with version history
+        if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'ts-')
+        uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
           lfs: true
+
+      - name: Checkout current revision
+        if: github.event_name != 'pull_request' || !startsWith(github.head_ref, 'ts-')
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          lfs: true
+
+      - name: Restore pinned CI runtime downloads
+        uses: actions/cache@v6
+        with:
+          path: |
+            .godot/eos-sdk.zip
+            .godot/godot-4.7.2-stable-mono-win64.zip
+          key: trackstorm-runtime-windows-eos-1.19.1.2-godot-4.7.2-v1
 
       - name: Verify materialized frontend media
         shell: pwsh
@@ -40,11 +62,38 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - run: ./setup-eos.ps1
-      - run: dotnet restore Trackstorm.sln
-      - run: dotnet build Trackstorm.sln -c Release --warnaserror --no-restore
-      - run: dotnet test code/Tests/Trackstorm.Core.Tests.csproj -c Release --no-build
-      - run: dotnet test code/TransportTests/Trackstorm.Transport.Tests.csproj -c Release --no-build --filter 'TestCategory!=Native'
+      - name: Prepare pinned EOS SDK
+        run: ./setup-eos.ps1
+
+      - name: Restore
+        run: dotnet restore Trackstorm.sln
+
+      - name: Debug build
+        run: dotnet build Trackstorm.sln -c Debug --warnaserror --no-restore
+
+      - name: Prepare pinned Godot
+        id: godot
+        shell: pwsh
+        run: |
+          $godot = ./tools/setup-godot-ci.ps1
+          "path=$godot" >> $env:GITHUB_OUTPUT
+
+      - name: Import Godot project
+        shell: pwsh
+        run: ./import-godot.ps1 -GodotPath "${{ steps.godot.outputs.path }}"
+
+      - name: Godot startup smoke
+        shell: pwsh
+        run: ./check-startup.ps1 -GodotPath "${{ steps.godot.outputs.path }}" -SkipBuild -SkipMediaCheck
+
+      - name: Release build
+        run: dotnet build Trackstorm.sln -c Release --warnaserror --no-restore
+
+      - name: Core tests
+        run: dotnet test code/Tests/Trackstorm.Core.Tests.csproj -c Release --no-build
+
+      - name: Non-native transport tests
+        run: dotnet test code/TransportTests/Trackstorm.Transport.Tests.csproj -c Release --no-build --filter 'TestCategory!=Native'
 
   revalidate-open-prs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
