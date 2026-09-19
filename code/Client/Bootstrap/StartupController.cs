@@ -66,6 +66,7 @@ internal sealed partial class StartupController : Node
     private string? _loadingPath;
     private int _resourceIndex;
     private bool _preloaderPresented;
+    private bool _dependencyFailureShell;
 
     /// <summary>Raised after every validated startup transition.</summary>
     internal event Action<StartupStage>? StageChanged;
@@ -94,6 +95,9 @@ internal sealed partial class StartupController : Node
     /// <summary>Whether the persistent frontend video and music are both playing.</summary>
     internal bool MediaPlaying => _shell?.MediaPlaying == true;
 
+    /// <summary>Phase that owns the current recoverable failure.</summary>
+    internal StartupFailurePhase? FailurePhase => _flow.FailurePhase;
+
     /// <summary>Whether the dedicated one-shot Splash video is currently playing.</summary>
     internal bool SplashPlaying => _splash?.Playing == true;
 
@@ -102,6 +106,12 @@ internal sealed partial class StartupController : Node
 
     /// <summary>Whether the next system initialization should fail for runtime verification.</summary>
     internal bool FailNextInitialization { get; set; }
+
+    /// <summary>Whether runtime verification should fail the next frontend dependency attempt.</summary>
+    internal bool FailNextFrontendDependency { get; set; }
+
+    /// <summary>Whether runtime verification should fail the next MenuShell setup attempt.</summary>
+    internal bool FailNextFrontendSetup { get; set; }
 
     /// <inheritdoc/>
     public override void _Process(double delta)
@@ -114,7 +124,21 @@ internal sealed partial class StartupController : Node
                 return;
             }
 
-            LoadNextFrontendResource();
+            try
+            {
+                if (FailNextFrontendDependency)
+                {
+                    FailNextFrontendDependency = false;
+                    throw new InvalidOperationException("Frontend dependency loading was intentionally failed for verification.");
+                }
+
+                LoadNextFrontendResource();
+            }
+            catch (Exception exception)
+            {
+                Fail(StartupFailurePhase.FrontendDependencies, exception.Message);
+            }
+
             return;
         }
 
@@ -135,27 +159,37 @@ internal sealed partial class StartupController : Node
     {
         _splash?.QueueFree();
         _splash = null;
-        _shell = new MenuShell { Name = "MenuShell" };
-        _shell.RetryRequested += Retry;
-        _shell.QuitRequested += () => GetTree().Quit(1);
-        AddChild(_shell);
+        EnsureShell();
         _flow.ShowFrontendLoader();
+        StartFrontendSetup();
+    }
+
+    private void StartFrontendSetup()
+    {
         try
         {
+            if (FailNextFrontendSetup)
+            {
+                FailNextFrontendSetup = false;
+                throw new InvalidOperationException("MenuShell setup was intentionally failed for verification.");
+            }
+
             if (!PrepareFrontend())
             {
                 throw new InvalidOperationException("Required frontend audio settings did not initialize.");
             }
 
-            _shell.StartMedia(
+            MenuShell shell = _shell ?? throw new InvalidOperationException("MenuShell was not created before frontend setup.");
+            shell.StartMedia(
                 _frontendVideo ?? throw new InvalidOperationException("Frontend video was not preloaded."),
                 _frontendMusic ?? throw new InvalidOperationException("Frontend music was not preloaded."));
             StageChanged?.Invoke(_flow.Stage);
-            _shell.ShowProgress("Loading shared application resources…", 0);
+            shell.ShowProgress("Loading shared application resources…", 0);
         }
         catch (Exception exception)
         {
-            Fail(exception.Message);
+            _shell!.ResetMedia();
+            Fail(StartupFailurePhase.FrontendSetup, exception.Message);
         }
     }
 
@@ -163,6 +197,7 @@ internal sealed partial class StartupController : Node
     {
         if (_preloadIndex >= FrontendResources.Length)
         {
+            RemoveDependencyFailureShell();
             _splash = new SplashScreen { Name = "SplashScreen" };
             _splash.Initialize(_splashVideo ?? throw new InvalidOperationException("Splash video was not preloaded."));
             _splash.Completed += BeginFrontendLoading;
@@ -257,7 +292,7 @@ internal sealed partial class StartupController : Node
             }
             catch (Exception exception)
             {
-                Fail(exception.Message);
+                Fail(StartupFailurePhase.ApplicationInitialization, exception.Message);
             }
 
             return;
@@ -266,15 +301,15 @@ internal sealed partial class StartupController : Node
         try
         {
             _shell!.ShowProgress("Starting application systems…", 1);
+            if (!InitializeApplication())
+            {
+                throw new InvalidOperationException("A required application system did not initialize.");
+            }
+
             if (FailNextInitialization)
             {
                 FailNextInitialization = false;
                 throw new InvalidOperationException("Required application initialization was intentionally failed for verification.");
-            }
-
-            if (!InitializeApplication())
-            {
-                throw new InvalidOperationException("A required application system did not initialize.");
             }
 
             _flow.Complete();
@@ -286,24 +321,86 @@ internal sealed partial class StartupController : Node
         catch (Exception exception)
         {
             AbortApplication();
-            Fail(exception.Message);
+            Fail(StartupFailurePhase.ApplicationInitialization, exception.Message);
         }
     }
 
-    private void Fail(string message)
+    private void EnsureShell()
     {
-        _flow.Fail();
+        if (_shell is not null)
+        {
+            return;
+        }
+
+        _shell = new MenuShell { Name = "MenuShell" };
+        _shell.RetryRequested += Retry;
+        _shell.QuitRequested += () => GetTree().Quit(1);
+        AddChild(_shell);
+    }
+
+    private void Fail(StartupFailurePhase phase, string message)
+    {
+        if (phase == StartupFailurePhase.FrontendDependencies)
+        {
+            if (_splash is not null)
+            {
+                if (_splash.GetParent() == this)
+                {
+                    RemoveChild(_splash);
+                }
+
+                _splash.Free();
+                _splash = null;
+            }
+
+            EnsureShell();
+            _dependencyFailureShell = true;
+        }
+
+        _flow.Fail(phase);
         _shell!.ShowFailure(message);
         StageChanged?.Invoke(_flow.Stage);
     }
 
     private void Retry()
     {
-        _flow.Retry();
+        StartupFailurePhase phase = _flow.Retry();
+        if (phase == StartupFailurePhase.FrontendDependencies)
+        {
+            _preloadIndex = 0;
+            _preloadingPath = null;
+            _splashVideo = null;
+            _frontendVideo = null;
+            _frontendMusic = null;
+            _shell!.ShowProgress("Retrying startup presentation dependencies…", 0);
+            StageChanged?.Invoke(_flow.Stage);
+            return;
+        }
+
+        if (phase == StartupFailurePhase.FrontendSetup)
+        {
+            _shell!.ShowProgress("Retrying frontend presentation…", 0);
+            StartFrontendSetup();
+            return;
+        }
+
         _resourceIndex = 0;
         _loadingPath = null;
         _resources.Clear();
         _shell!.ShowProgress("Retrying shared application resources…", 0);
         StageChanged?.Invoke(_flow.Stage);
+    }
+
+    private void RemoveDependencyFailureShell()
+    {
+        if (!_dependencyFailureShell || _shell is null)
+        {
+            return;
+        }
+
+        RemoveChild(_shell);
+        _shell.Free();
+        _shell = null;
+        _dependencyFailureShell = false;
     }
 }

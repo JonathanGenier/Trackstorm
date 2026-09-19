@@ -115,24 +115,48 @@ internal sealed partial class MenuShell : CanvasLayer
     /// <param name="music">Authoritative frontend music.</param>
     internal void StartMedia(VideoStream video, AudioStream music)
     {
-        if (_background.Stream is not null || _music.Stream is not null)
+        if (_background.Stream is not null && _music.Stream is not null)
         {
+            if (_active)
+            {
+                if (!_background.IsPlaying())
+                {
+                    _background.Play();
+                }
+
+                if (!_music.Playing)
+                {
+                    _music.Play();
+                }
+            }
+
             return;
         }
 
-        _background.Stream = (VideoStream)video.Duplicate();
+        ResetMedia();
+        VideoStream videoPlayback = (VideoStream)video.Duplicate();
         AudioStream musicPlayback = (AudioStream)music.Duplicate();
         if (musicPlayback is AudioStreamMP3 mp3)
         {
             mp3.Loop = true;
         }
 
+        _background.Stream = videoPlayback;
         _music.Stream = musicPlayback;
         if (_active)
         {
             _background.Play();
             _music.Play();
         }
+    }
+
+    /// <summary>Clears a partial frontend setup before retrying that phase.</summary>
+    internal void ResetMedia()
+    {
+        _background.Stop();
+        _music.Stop();
+        _background.Stream = null;
+        _music.Stream = null;
     }
 
     /// <summary>Suspends frontend presentation and music while gameplay owns the viewport.</summary>

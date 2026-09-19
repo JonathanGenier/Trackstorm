@@ -6,6 +6,9 @@ internal sealed class StartupFlow
     /// <summary>Current validated startup state.</summary>
     internal StartupStage Stage { get; private set; } = StartupStage.Preloader;
 
+    /// <summary>Phase that owns the current recoverable failure.</summary>
+    internal StartupFailurePhase? FailurePhase { get; private set; }
+
     /// <summary>Advances from minimal preloading to the splash.</summary>
     internal void ShowSplash() => Transition(StartupStage.Preloader, StartupStage.Splash);
 
@@ -15,11 +18,32 @@ internal sealed class StartupFlow
     /// <summary>Advances successful initialization to the main menu.</summary>
     internal void Complete() => Transition(StartupStage.FrontendLoading, StartupStage.MainMenu);
 
-    /// <summary>Stops required initialization in a recoverable failure state.</summary>
-    internal void Fail() => Transition(StartupStage.FrontendLoading, StartupStage.Failed);
+    /// <summary>Stops the active required phase in a recoverable failure state.</summary>
+    /// <param name="phase">Phase that must be replayed by Retry.</param>
+    internal void Fail(StartupFailurePhase phase)
+    {
+        StartupStage expected = phase == StartupFailurePhase.FrontendDependencies
+            ? StartupStage.Preloader
+            : StartupStage.FrontendLoading;
+        Transition(expected, StartupStage.Failed);
+        FailurePhase = phase;
+    }
 
-    /// <summary>Returns a failed initialization attempt to the loader.</summary>
-    internal void Retry() => Transition(StartupStage.Failed, StartupStage.FrontendLoading);
+    /// <summary>Returns a failure to the exact startup phase that owns it.</summary>
+    /// <returns>The phase the caller must replay.</returns>
+    internal StartupFailurePhase Retry()
+    {
+        if (Stage != StartupStage.Failed || FailurePhase is not StartupFailurePhase phase)
+        {
+            throw new InvalidOperationException("Cannot retry startup without an active recoverable failure.");
+        }
+
+        Stage = phase == StartupFailurePhase.FrontendDependencies
+            ? StartupStage.Preloader
+            : StartupStage.FrontendLoading;
+        FailurePhase = null;
+        return phase;
+    }
 
     private void Transition(StartupStage expected, StartupStage next)
     {

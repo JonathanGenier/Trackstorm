@@ -104,6 +104,8 @@ public sealed partial class SimulationBootstrap : Node
                 PrepareFrontend = PrepareFrontend,
                 PresentMainMenu = PresentMainMenu,
                 AbortApplication = AbortApplicationInitialization,
+                FailNextFrontendDependency = startupCheck,
+                FailNextFrontendSetup = startupCheck,
                 FailNextInitialization = startupCheck,
             };
             AddChild(_startup);
@@ -241,13 +243,15 @@ public sealed partial class SimulationBootstrap : Node
             return true;
         }
 
-        _playerInput = GetNode<PlayerInput>("PlayerInput");
-        _playerInput.GameplayAvailable = () => !_quitRequested && (_arena is not null || _session?.Arena is not null);
-        _playerInput.FrameCaptured += OnFrameCaptured;
+        PlayerInput playerInput = GetNode<PlayerInput>("PlayerInput");
         Engine.PhysicsTicksPerSecond = _configuration.TicksPerSecond;
-        _settings = new PlayerSettingsController { Name = "PlayerSettings" };
-        _settings.Initialize(_playerInput.Adapter, SettingsPath ?? ProjectSettings.GlobalizePath("user://player-settings.json"));
-        AddChild(_settings);
+        var settings = new PlayerSettingsController { Name = "PlayerSettings" };
+        settings.Initialize(playerInput.Adapter, SettingsPath ?? ProjectSettings.GlobalizePath("user://player-settings.json"));
+        AddChild(settings);
+        playerInput.GameplayAvailable = () => !_quitRequested && (_arena is not null || _session?.Arena is not null);
+        playerInput.FrameCaptured += OnFrameCaptured;
+        _playerInput = playerInput;
+        _settings = settings;
         return true;
     }
 
@@ -283,6 +287,7 @@ public sealed partial class SimulationBootstrap : Node
         _session = null;
         _online = null;
         _settingsPanel = null!;
+        GetTree().AutoAcceptQuit = true;
     }
 
     private void RequestQuit()

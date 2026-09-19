@@ -19,6 +19,6 @@ MOV's AAC track was deliberately omitted. The resulting OGV contains one Theora
 video stream and no audio stream. At runtime its player volume is also zero as a
 defense in depth; the unchanged MP3 plays independently on the Music bus.
 
-Source and runtime video files use the repository's video Git LFS rules. `sources.json` records exact hashes, byte sizes,
+Source and runtime video files use the repository's video Git LFS rules, so Git LFS is a required checkout prerequisite. `tools/check-frontend-media.ps1` rejects unresolved pointer files before checking recorded byte sizes and hashes. `sources.json` records exact hashes, byte sizes,
 probe results and the reproducible conversion command. FFmpeg is an external
 authoring tool and is not a runtime dependency.

@@ -7,12 +7,12 @@ namespace Trackstorm.Client.Verification;
 internal sealed partial class StartupIntegrationChecks : Node
 {
     private readonly List<StartupStage> _stages = [StartupStage.Preloader];
+    private readonly HashSet<StartupFailurePhase> _recovered = [];
     private StartupController _startup = null!;
     private ulong _loaderBackground;
     private ulong _loaderMusic;
     private ulong _splashVideo;
     private double _seconds;
-    private bool _recovered;
 
     /// <inheritdoc/>
     public override void _Ready() => _startup.StageChanged += OnStageChanged;
@@ -66,20 +66,36 @@ internal sealed partial class StartupIntegrationChecks : Node
         }
         else if (stage == StartupStage.Failed)
         {
+            StartupFailurePhase phase = _startup.FailurePhase ?? throw new InvalidOperationException("Failed startup has no owning phase.");
             Check(GetParent().GetNodeOrNull<Networking.DevelopmentSession>("DevelopmentSession") is null, "Failure cannot enter Main Menu");
-            _recovered = true;
+            if (phase == StartupFailurePhase.FrontendDependencies)
+            {
+                Check(!_startup.MediaPlaying, "Dependency failure presents recovery without pretending media loaded");
+            }
+            else if (phase == StartupFailurePhase.FrontendSetup)
+            {
+                Check(!_startup.MediaPlaying, "Frontend setup failure clears partial media before retry");
+            }
+            else
+            {
+                Check(_startup.MediaPlaying, "Application failure preserves valid MenuShell media");
+                Check(GetTree().AutoAcceptQuit, "Application rollback restores safe native window close behavior");
+            }
+
+            Check(_recovered.Add(phase), $"{phase} fails only once before successful retry");
             _startup.RetryForVerification();
         }
         else if (stage == StartupStage.MainMenu)
         {
-            Check(_recovered, "Failure state recovered through retry");
+            Check(_recovered.SetEquals(Enum.GetValues<StartupFailurePhase>()), "Every startup failure phase recovered through its own retry path");
             Check(_startup.BackgroundInstanceId == _loaderBackground, "Main Menu retains exact Loader background instance");
             Check(_startup.MusicInstanceId == _loaderMusic, "Main Menu retains exact Loader music instance");
             Check(_startup.MediaPlaying, "Main Menu retains continuously playing frontend media");
+            Check(!GetTree().AutoAcceptQuit, "Successful composition restores coordinated application close ownership");
             Check(GetParent().GetNodeOrNull<Networking.DevelopmentSession>("DevelopmentSession") is not null, "Main Menu exists only after initialization");
-            StartupStage[] expected = [StartupStage.Preloader, StartupStage.Splash, StartupStage.FrontendLoading, StartupStage.Failed, StartupStage.FrontendLoading, StartupStage.MainMenu];
+            StartupStage[] expected = [StartupStage.Preloader, StartupStage.Failed, StartupStage.Preloader, StartupStage.Splash, StartupStage.Failed, StartupStage.FrontendLoading, StartupStage.Failed, StartupStage.FrontendLoading, StartupStage.MainMenu];
             Check(_stages.SequenceEqual(expected), "Startup transition order is explicit and deterministic");
-            GD.Print("Startup integration passed: Preloader, Splash, persistent MenuShell Loader, failure recovery, and Main Menu.");
+            GD.Print("Startup integration passed: phase-aware dependency, frontend setup, and application recovery with persistent MenuShell media.");
             GetTree().Quit();
         }
     }
