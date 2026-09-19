@@ -175,6 +175,15 @@
       "license": "Project-provided; no third-party license asserted"
     },
     {
+      "path": "assets/audio/project/music/Welcome to the Carnage Circus main menu.mp3",
+      "source": "Welcome to the Carnage Circus main menu.mp3",
+      "jira": "TS-85",
+      "sha256": "b4c613a1b6604be4d0300fc8dbb9429a3eb5dc56422a462e3d7e3281b941d826",
+      "bytes": 4063384,
+      "role": "Authoritative frontend music; committed unchanged",
+      "license": "Project-provided; no third-party license asserted"
+    },
+    {
       "path": "assets/audio/freesound/vehicle/idle.wav",
       "sourceIds": [
         401552

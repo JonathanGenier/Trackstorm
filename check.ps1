@@ -19,6 +19,14 @@ function Invoke-Check {
     }
 }
 
+Invoke-Check "Frontend media verifier regression tests" {
+    & "$PSScriptRoot/tools/test-frontend-media.ps1"
+}
+
+Invoke-Check "Frontend media materialization and checksums" {
+    & "$PSScriptRoot/tools/check-frontend-media.ps1"
+}
+
 Invoke-Check "Restore" {
     dotnet restore Trackstorm.sln
 }
