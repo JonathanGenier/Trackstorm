@@ -15,3 +15,5 @@ $baseTransition = if ($baseFiles) { (& git show "${BaseRef}:$transitionPath") -j
 $transitionFile = Join-Path "$PSScriptRoot/.." $transitionPath
 $transition = if (Test-Path -LiteralPath $transitionFile) { Get-Content -Raw -LiteralPath $transitionFile } else { '' }
 Assert-TrackstormVersionStep -BaseVersion $baseVersion -Actual $actual -TransitionJson $transition -BaseTransitionJson $baseTransition -StoryBranch $StoryBranch
+$preset = Get-Content -Raw -LiteralPath "$PSScriptRoot/../export_presets.cfg"
+Assert-TrackstormExportPresetVersion -Preset $preset -CanonicalVersion $actual

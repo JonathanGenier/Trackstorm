@@ -57,4 +57,39 @@ Assert-TrackstormVersionStep '0.0.15' '0.1.0' -TransitionJson $zeroRelease -Stor
 Expect-Failure { Assert-TrackstormVersionStep '0.0.15' '0.1.0' } 'requires a new explicit'
 Expect-Failure { Assert-TrackstormVersionStep '0.0.1.0' '0.1.0' -TransitionJson (Transition '0.0.1.0' '0.1.0' 'migration' 'TS-70') -StoryBranch 'ts-70-jg' } "expected '0.0.15'"
 $checks += 3
+$props = '<Project><PropertyGroup><TrackstormVersion>0.1.4</TrackstormVersion></PropertyGroup></Project>'
+$updatedProps = Set-TrackstormVersion $props '0.1.5'
+if ($updatedProps -cnotmatch '<TrackstormVersion>0\.1\.5</TrackstormVersion>' -or (Set-TrackstormVersion $updatedProps '0.1.5') -cne $updatedProps) {
+    throw 'Canonical property synchronization must be deterministic and idempotent.'
+}
+$checks++
+$preset = @'
+application/file_version="0.0.0.14"
+application/product_version="0.0.0.14"
+application/company_name="Trackstorm Company"
+'@
+$synchronized = Set-TrackstormExportPresetVersion $preset '0.0.15'
+Assert-TrackstormExportPresetVersion $synchronized '0.0.15'
+if ($synchronized -notmatch 'application/company_name="Trackstorm Company"' -or (Set-TrackstormExportPresetVersion $synchronized '0.0.15') -cne $synchronized) {
+    throw 'Export preset synchronization changed unrelated preferences or was not idempotent.'
+}
+$checks += 2
+foreach ($drifted in @(
+    $synchronized.Replace('application/file_version="0.0.15.0"', 'application/file_version="0.0.14.0"'),
+    $synchronized.Replace('application/product_version="0.0.15.0"', 'application/product_version="0.0.14.0"'))) {
+    Expect-Failure { Assert-TrackstormExportPresetVersion $drifted '0.0.15' } 'Tracked export preset drift'
+    $checks++
+}
+foreach ($case in @(
+    @('application/product_version="0.0.15.0"', 'export_presets.cfg'),
+    @('application/file_version="0.0.15.0"', 'export_presets.cfg'),
+    @("application/file_version=`"0.0.15.0`"`napplication/file_version=`"0.0.15.0`"`napplication/product_version=`"0.0.15.0`"", 'export_presets.cfg'),
+    @("application/file_version=`"0.0.15.0`"`napplication/product_version=`"0.0.15.0`"`napplication/product_version=`"0.0.15.0`"", 'export_presets.cfg'),
+    @("application/file_version=0.0.15.0`napplication/product_version=`"0.0.15.0`"", 'export_presets.cfg'),
+    @("application/file_version=`"0.0.15.0`"`napplication/product_version=0.0.15.0", 'export_presets.cfg'),
+    @("application/file_version=`"0.0.15`"`napplication/product_version=`"0.0.15.0`"", 'Windows numeric'),
+    @("application/file_version=`"0.0.15.0`"`napplication/product_version=`"0.0.15`"", 'Windows numeric'))) {
+    Expect-Failure { Assert-TrackstormExportPresetVersion $case[0] '0.0.15' } $case[1]
+    $checks++
+}
 Write-Host "Version rules: $checks checks passed."
