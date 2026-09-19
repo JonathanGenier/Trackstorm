@@ -19,7 +19,7 @@ internal static class WheelSuspension
         int index = 0;
         foreach (float z in new[] { -configuration.Wheelbase / 2, configuration.Wheelbase / 2 })
         {
-            foreach (float x in new[] { -0.85f, 0.85f })
+            foreach (float x in new[] { -VehicleDimensions.WheelTrack / 2, VehicleDimensions.WheelTrack / 2 })
             {
                 Vector3 origin = pose * new Vector3(x, 0, z);
                 using var query = PhysicsRayQueryParameters3D.Create(origin, origin + (Vector3.Down * configuration.SuspensionLength), body.CollisionMask, new Godot.Collections.Array<Rid> { body.GetRid() });

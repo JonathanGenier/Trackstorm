@@ -79,7 +79,7 @@ internal sealed class DeveloperConfigurationTests
         Assert.That(file.Configuration.Respawn.ClearHeldItemOnDeath, Is.False);
         Assert.That(file.RejectedRecords, Is.EqualTo(2));
         string written = file.Write(file.Configuration);
-        Assert.That(written, Does.Contain("future.setting").And.Contain("\"schema\":1"));
+        Assert.That(written, Does.Contain("future.setting").And.Contain("\"schema\":2"));
         Assert.That(written, Does.Not.Contain("vehicle.top_speed").And.Not.Contain("ForceStart").And.Not.Contain("volume"));
         Assert.That(DeveloperSettingsFile.Read(written).Configuration, Is.EqualTo(file.Configuration));
         var future = DeveloperSettingsFile.Read("{\"schema\":999}\n{\"key\":\"vehicle.mass\",\"value\":500}");

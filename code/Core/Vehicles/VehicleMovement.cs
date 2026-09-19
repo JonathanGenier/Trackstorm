@@ -178,7 +178,7 @@ public sealed class VehicleMovement
                     continue;
                 }
 
-                Vector3 offset = (right * (index % 2 == 0 ? -0.85f : 0.85f)) + (forward * (index < 2 ? c.Wheelbase / 2 : -c.Wheelbase / 2));
+                Vector3 offset = (right * (index % 2 == 0 ? -VehicleDimensions.WheelTrack / 2 : VehicleDimensions.WheelTrack / 2)) + (forward * (index < 2 ? c.Wheelbase / 2 : -c.Wheelbase / 2));
                 float wheelVelocity = observed.LinearVelocity.Y + Vector3.Cross(observed.AngularVelocity, offset).Y;
                 float force = Math.Clamp((compression[index] * c.WheelSpring) - (wheelVelocity * c.WheelDamping), 0, c.Gravity * 6) / 4;
                 velocity += Vector3.UnitY * force * dt;

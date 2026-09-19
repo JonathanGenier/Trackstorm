@@ -1,0 +1,50 @@
+[
+  {
+    "Vehicle": 1,
+    "CorrectionP99": 0,
+    "Grounded": true,
+    "Snapshots": 0
+  },
+  {
+    "Vehicle": 2,
+    "CorrectionP99": 4.070702,
+    "Grounded": true,
+    "Snapshots": 256
+  },
+  {
+    "Vehicle": 6,
+    "CorrectionP99": 2.9659026,
+    "Grounded": true,
+    "Snapshots": 273
+  },
+  {
+    "Vehicle": 4,
+    "CorrectionP99": 4.736012,
+    "Grounded": true,
+    "Snapshots": 198
+  },
+  {
+    "Vehicle": 3,
+    "CorrectionP99": 3.3645484,
+    "Grounded": true,
+    "Snapshots": 221
+  },
+  {
+    "Vehicle": 7,
+    "CorrectionP99": 3.468506,
+    "Grounded": true,
+    "Snapshots": 224
+  },
+  {
+    "Vehicle": 5,
+    "CorrectionP99": 3.2309332,
+    "Grounded": true,
+    "Snapshots": 220
+  },
+  {
+    "Vehicle": 8,
+    "CorrectionP99": 4.048799,
+    "Grounded": true,
+    "Snapshots": 219
+  }
+]

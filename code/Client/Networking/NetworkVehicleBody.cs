@@ -36,7 +36,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     {
         CollisionLayer = 2;
         CollisionMask = 3;
-        AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(2, 1, 3.6f) } });
+        AddChild(VehicleVisual.CreateCollision());
         AddChild(_visual);
         _visual.TopLevel = true;
         Color paint = Color.FromHsv((VehicleId * 0.13f) % 1, 0.7f, 0.9f);
@@ -167,7 +167,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
 
         if (velocity.Y <= 1)
         {
-            using var ray = PhysicsRayQueryParameters3D.Create(transform.Origin, transform.Origin + (Vector3.Down * 0.62f), CollisionMask, new Godot.Collections.Array<Rid> { GetRid() });
+            using var ray = PhysicsRayQueryParameters3D.Create(transform.Origin, transform.Origin + (Vector3.Down * (0.62f * VehicleDimensions.Scale)), CollisionMask, new Godot.Collections.Array<Rid> { GetRid() });
             var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
             if (hit.Count > 0 && hit["normal"].AsVector3().Y >= 0.55f)
             {
