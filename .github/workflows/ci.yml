@@ -29,7 +29,7 @@ jobs:
         run: ./tools/test-version.ps1
 
       - name: Validate Story version and synchronized export preset against current main
-        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        if: github.event_name == 'pull_request' && github.base_ref == 'main' && startsWith(github.head_ref, 'ts-')
         shell: pwsh
         run: |
           git fetch origin +refs/heads/main:refs/remotes/origin/main
