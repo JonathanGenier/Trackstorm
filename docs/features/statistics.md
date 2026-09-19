@@ -3,8 +3,9 @@
 F2 opens or selects the read-only Stats tab in the full-window [DevTools shell](devtools.md), including
 local practice, multiplayer lobby and arena states. Escape and the shell's persistent Close button dismiss DevTools.
 Stats is available in Debug and exported Release without the mutating Dev
-Mode build flag. Presentation is plain native tabs, labels, a player selector and
-scrolling; there are no gameplay controls.
+Mode build flag. Presentation uses the full available shell content area with native
+tabs, a search field, a player selector and scrolling. Diagnostic labels are white
+and values are blue; there are no gameplay controls in the Stats content.
 
 ## Ownership and refresh
 
@@ -15,6 +16,11 @@ scrolling; there are no gameplay controls.
 `StatisticSection` are ephemeral display projections, discarded at the next
 refresh; no diagnostic object becomes gameplay authority or is replicated.
 
+`StatisticEntry` splits the existing allowlisted compact text into presentation rows,
+including legacy vehicle labels. It never reads runtime owners or expands the safe
+projection. Plain native labels render values literally, with no markup interpretation.
+Unlabelled status fragments retain their full text under a State label.
+
 Values refresh immediately on open/selection and every 200 ms while visible.
 Hidden Stats content does not poll owners. Selection uses stable IDs, defaults to the local
 player, and falls back to an available ID when the selected entity departs. Lobby
@@ -24,6 +30,17 @@ retaining the previous session's values.
 
 Global/Session and Player/Vehicle use separate tabs. Close stays outside scrolling;
 the player selector remains above the player tab's independently scrolling values.
+One search field above both tabs filters category, label and displayed value text
+using a case-insensitive substring match with leading/trailing whitespace ignored.
+A category match reveals every row in that category; otherwise only matching rows
+remain, with their category headings. Each view reports when it has no matches.
+Clearing search restores all rows. Search is retained across player selection and
+shell tab switches, and filters each new live projection at the normal refresh rate.
+Typing only changes presentation of the current projection; it does not recapture,
+cache a separate diagnostic model, change selection or write to an owner.
+While search has focus, printable keyboard bindings (including P/Pause and remapped
+menu letters) are treated as text. Direct F1/F2/F3 and Escape shortcuts, nonprintable
+navigation keys and controller navigation retain the shared shell behavior.
 Opening suppresses local gameplay input only. The scene tree, physics, simulation,
 networking and audio continue. The existing settings menu suspends navigation
 while covered; closing restores its focus and input suppression if it was open.
@@ -92,11 +109,14 @@ internals, creating another state owner, or adding mutation delegates to the vie
 `check-statistics.ps1 -GodotPath <exe>` exercises the actual F2/DevTools UI, live owners,
 two local UDP peers with separate physics worlds, selection/departure, missing
 state, menu suppression/restoration, viewport bounds and practice targets.
-`-Visual` also captures both tabs at 640×360, 1280×720 and 1920×1080.
+`-Visual` also captures both tabs and filtered physics rows at 640×360, 1280×720 and 1920×1080.
 `-ExportPath <exported exe>` runs the same harness from the Release executable.
 Pure `StatisticProjectionTests` cover real snapshot formatting, stale item-life
 rejection, absent diagnostics, deadline clamping, lifecycle refresh and exclusion
-of credential-canary contexts/capability tokens. Existing menu/settings/network
+of credential-canary contexts/capability tokens, plus compact row formatting and search.
+The native harness verifies keyboard search, category/row filtering, empty/cleared
+search, colors and live filtered updates without configuration or selection changes.
+Existing menu/settings/network
 checks cover surrounding behavior. Local synthetic tests do not establish
 physical-controller ergonomics or separate-PC authenticated EOS connectivity.
 

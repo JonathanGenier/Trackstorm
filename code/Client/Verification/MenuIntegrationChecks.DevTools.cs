@@ -187,7 +187,23 @@ public sealed partial class MenuIntegrationChecks
         Check(_bootstrap.CurrentSimulationTick > tick && !_bootstrap.GetTree().Paused, "simulation continues while navigating DevTools");
         GetWindow().Size = new Vector2I(1280, 720);
         Tap(Key.F2);
-        Check(_devTools.SelectedTab == DevToolsTab.Stats && !Descendants(_devTools.Stats).OfType<LineEdit>().Any(), "F2 selects read-only Stats after remapped navigation");
+        Check(_devTools.SelectedTab == DevToolsTab.Stats && Descendants(_devTools.Stats).OfType<LineEdit>().Count() == 1 && !Descendants(_devTools.Stats).OfType<Godot.Range>().Any(), "F2 selects Stats with only presentation search after remapped navigation");
+        var search = Descendants(_devTools.Stats).OfType<LineEdit>().Single();
+        using (var cancelKey = new InputEventKey { PhysicalKeycode = Key.O })
+        using (var upKey = new InputEventKey { PhysicalKeycode = Key.I })
+        using (var upButton = new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.LeftShoulder })
+        {
+            _player.Adapter.Bindings.Replace(InputAction.MenuCancel, cancelKey);
+            _player.Adapter.Bindings.Replace(InputAction.MenuUp, upKey, upButton);
+        }
+
+        search.GrabFocus();
+        Tap(Key.O);
+        Tap(Key.I);
+        Check(_devTools.IsOpen && search.HasFocus(), "printable remapped Cancel and Up remain search input");
+        Joy(JoyButton.LeftShoulder);
+        Check(!search.HasFocus(), "remapped controller navigation can leave Stats search");
+        _player.Adapter.Bindings.RestoreDefaults();
         TabBar statsTabs = Descendants(_devTools.Stats).OfType<TabContainer>().Single().GetTabBar();
         statsTabs.GrabFocus();
         Joy(JoyButton.DpadRight);
