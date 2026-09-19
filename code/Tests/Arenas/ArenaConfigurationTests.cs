@@ -9,6 +9,24 @@ namespace Trackstorm.Core.Tests.Arenas;
 /// <summary>Authored configuration invariants and authoritative slot integration.</summary>
 internal sealed class ArenaConfigurationTests
 {
+    /// <summary>Admission and respawn reserve the larger vehicle footprint even at arbitrary headings.</summary>
+    /// <param name="distance">Distance from the preferred marker.</param>
+    /// <param name="available">Whether that marker has sufficient clearance.</param>
+    [TestCase(5.4f, false)]
+    [TestCase(5.7f, true)]
+    public void ScaledVehicleClearanceControlsSpawnSelection(float distance, bool available)
+    {
+        var map = PrototypeArena.Configuration;
+        var preferred = map.Respawn(2, 1);
+        var occupied = new VehiclePhysicsState(preferred.Position + new Vector3(distance, 0, 0), preferred.Orientation, Vector3.Zero, Vector3.Zero);
+        var simulation = new Core.Simulation.Simulation(new Core.Simulation.SimulationConfiguration(60));
+        simulation.AddVehicle(1, new VehicleConfiguration(), new DamageConfiguration(), occupied);
+        var selected = map.SelectRespawn(2, 1, simulation.State.Vehicles);
+        Assert.That(selected.HasValue, Is.True);
+        Assert.That(selected!.Value.Position == preferred.Position, Is.EqualTo(available));
+        Assert.That(VehicleDimensions.SpawnClearance, Is.GreaterThan(MathF.Sqrt((VehicleDimensions.Length * VehicleDimensions.Length) + (VehicleDimensions.Width * VehicleDimensions.Width))));
+    }
+
     /// <summary>Both categories require exact capacity.</summary>
     /// <param name="players">Requested player count.</param>
     /// <param name="items">Requested item count.</param>

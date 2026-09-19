@@ -52,9 +52,9 @@ public sealed partial class VehicleBody : RigidBody3D
         ContactMonitor = true;
         MaxContactsReported = 16;
         CenterOfMassMode = CenterOfMassModeEnum.Custom;
-        CenterOfMass = new Vector3(0, -0.25f, 0);
+        CenterOfMass = new Vector3(0, (-0.25f * VehicleDimensions.Scale) + VehicleDimensions.OriginShift, 0);
         PhysicsMaterialOverride = new PhysicsMaterial { Friction = 0.15f, Bounce = 0.05f };
-        AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(2, 1, 3.6f) } });
+        AddChild(VehicleVisual.CreateCollision());
         var identification = new StandardMaterial3D { AlbedoColor = Paint, Roughness = 0.8f };
         AddChild(VehicleVisual.Create(identification));
         _feedback.Initialize(identification, Paint);
@@ -136,7 +136,7 @@ public sealed partial class VehicleBody : RigidBody3D
         // Bridge tiny solver separation gaps, but never preserve ground control during a real upward launch.
         if (!support.IsZeroApprox() || body.LinearVelocity.Y <= 1)
         {
-            using var ray = PhysicsRayQueryParameters3D.Create(body.Transform.Origin, body.Transform.Origin + (Vector3.Down * 0.6f), CollisionMask, new Godot.Collections.Array<Rid> { GetRid() });
+            using var ray = PhysicsRayQueryParameters3D.Create(body.Transform.Origin, body.Transform.Origin + (Vector3.Down * (0.6f * VehicleDimensions.Scale)), CollisionMask, new Godot.Collections.Array<Rid> { GetRid() });
             Godot.Collections.Dictionary hit = body.GetSpaceState().IntersectRay(ray);
             if (hit.Count > 0)
             {
