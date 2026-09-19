@@ -45,14 +45,6 @@ jobs:
         shell: pwsh
         run: git lfs pull
 
-      - name: Restore pinned CI runtime downloads
-        uses: actions/cache@v6
-        with:
-          path: |
-            .godot/eos-sdk.zip
-            .godot/godot-4.7.2-stable-mono-win64.zip
-          key: trackstorm-runtime-windows-eos-1.19.1.2-godot-4.7.2-v1
-
       - name: Verify materialized frontend media
         shell: pwsh
         run: |
@@ -70,9 +62,14 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Cannot fetch current main for version validation.' }
           ./tools/check-version.ps1
 
-      - uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: 10.0.x
+      - name: Verify .NET 10 SDK
+        shell: pwsh
+        run: |
+          $version = dotnet --version
+          if ($LASTEXITCODE -ne 0 -or $version -notmatch '^10\.0\.') {
+            throw "Trackstorm CI requires a .NET 10 SDK; selected '$version'."
+          }
+          Write-Host "Using preinstalled .NET SDK $version."
 
       - name: Restore NuGet package cache
         uses: actions/cache@v6
