@@ -6,10 +6,10 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TrackstormVersion>0.0.1.1</TrackstormVersion>
+    <TrackstormVersion>0.0.15</TrackstormVersion>
     <Version>$(TrackstormVersion)</Version>
-    <AssemblyVersion>$(TrackstormVersion)</AssemblyVersion>
-    <FileVersion>$(TrackstormVersion)</FileVersion>
+    <AssemblyVersion>$(TrackstormVersion).0</AssemblyVersion>
+    <FileVersion>$(TrackstormVersion).0</FileVersion>
     <InformationalVersion>$(TrackstormVersion)</InformationalVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

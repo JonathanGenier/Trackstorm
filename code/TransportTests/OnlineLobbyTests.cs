@@ -434,7 +434,7 @@ internal sealed partial class OnlineLobbyTests
             var beforeResume = replacement.Driver.State;
             replacementGateway.ConnectPeer(38);
             Assert.That(replacement.AuthorizePeer(38, User(1), null), Is.True);
-            string incompatibleVersion = new GameVersion(GameVersion.Current.Revision == 0 ? 1 : 0).ToString();
+            string incompatibleVersion = new GameVersion(GameVersion.Current.Release, GameVersion.Current.Revision == 0 ? 1 : 0).ToString();
             replacementGateway.ReceiveResume(38, checkpoint.Lobby.State.Session, 1, 1, 2, incompatibleVersion);
             replacement.Driver.Pump(0);
             Assert.That(replacement.Driver.State, Is.SameAs(beforeResume), "A matching epoch cannot bypass the version gate after migration.");
@@ -1244,7 +1244,7 @@ internal sealed partial class OnlineLobbyTests
         Assert.That(lobby.DiscoveryAttributes["version"], Is.EqualTo(GameVersion.Current.ToString()));
         Assert.That(lobby.DiscoveryAttributes.Keys, Is.EquivalentTo(access == LobbyAccess.Public
             ? new[] { "name", "session", "access", "version" } : new[] { "name", "session", "access", "version", "verifier" }));
-        string incompatible = new GameVersion(GameVersion.Current.Revision == 0 ? 1 : GameVersion.Current.Revision - 1).ToString();
+        string incompatible = new GameVersion(GameVersion.Current.Release, GameVersion.Current.Revision == 0 ? 1 : GameVersion.Current.Revision - 1).ToString();
         service.Lobbies[lobby.Id] = lobby with { Version = incompatible };
         client.Refresh();
         var row = client.Browser.Rows.Single();
@@ -1314,8 +1314,8 @@ internal sealed partial class OnlineLobbyTests
         using var clientWire = new Gateway();
         hostWire.ConnectPeer(20);
         clientWire.ConnectPeer(10);
-        var host = new LobbyNetworkDriver(hostWire, 100, 0, "Host", gameVersion: new GameVersion(4));
-        var client = new LobbyNetworkDriver(clientWire, 0, 10, "Guest", gameVersion: new GameVersion(revision));
+        var host = new LobbyNetworkDriver(hostWire, 100, 0, "Host", gameVersion: new GameVersion(1, 4));
+        var client = new LobbyNetworkDriver(clientWire, 0, 10, "Guest", gameVersion: new GameVersion(1, revision));
         client.Pump(0);
         hostWire.ReceivePacket(20, clientWire.Sent.Single().Payload.ToArray());
         host.Pump(0);
@@ -1324,7 +1324,7 @@ internal sealed partial class OnlineLobbyTests
         Assert.That(hostWire.Sent.Count, Is.EqualTo(1), "Rejected clients must receive no roster or gameplay bootstrap.");
         clientWire.ReceivePacket(10, hostWire.Sent.Single().Payload.ToArray());
         client.Pump(0);
-        Assert.That(client.Failure, Does.Contain("Lobby: 0.0.1.4").And.Contain($"Your version: 0.0.1.{revision}"));
+        Assert.That(client.Failure, Does.Contain("Lobby: 0.1.4").And.Contain($"Your version: 0.1.{revision}"));
         string failure = client.Failure;
         client.Pump(20);
         Assert.That(client.Failure, Is.EqualTo(failure));
@@ -1332,7 +1332,7 @@ internal sealed partial class OnlineLobbyTests
         Assert.That(client.LocalPlayerId, Is.Zero);
         host.Pump(1);
         hostWire.ConnectPeer(21);
-        hostWire.ReceiveJoin(21, "Compatible", "0.0.1.4");
+        hostWire.ReceiveJoin(21, "Compatible", "0.1.4");
         host.Pump(0);
         Assert.That(host.Authority.PlayerId(21), Is.EqualTo(2));
     }
@@ -1352,9 +1352,9 @@ internal sealed partial class OnlineLobbyTests
     public void ResumeWireMismatchCannotReclaimAuthority(int revision, bool arena, LobbyCommand command)
     {
         using var wire = new Gateway();
-        var host = new LobbyNetworkDriver(wire, 100, 0, "Host", identity: _ => "subject", gameVersion: new GameVersion(4));
+        var host = new LobbyNetworkDriver(wire, 100, 0, "Host", identity: _ => "subject", gameVersion: new GameVersion(1, 4));
         wire.ConnectPeer(20);
-        wire.ReceiveJoin(20, "Guest", "0.0.1.4");
+        wire.ReceiveJoin(20, "Guest", "0.1.4");
         host.Pump(0);
         if (arena)
         {
@@ -1368,7 +1368,7 @@ internal sealed partial class OnlineLobbyTests
         var before = host.State;
         wire.Sent.Clear();
         wire.ConnectPeer(21);
-        wire.ReceivePacket(21, LobbyCodec.EncodeResume(100, 2, 1, gameVersion: new GameVersion(revision).ToString(), command: command));
+        wire.ReceivePacket(21, LobbyCodec.EncodeResume(100, 2, 1, gameVersion: new GameVersion(1, revision).ToString(), command: command));
         host.Pump(0);
         Assert.That(host.State, Is.SameAs(before));
         Assert.That(host.Authority!.Peers, Is.Empty);
@@ -1376,7 +1376,7 @@ internal sealed partial class OnlineLobbyTests
         Assert.That(LobbyCodec.IsVersionMismatch(wire.Sent.Single().Payload.Span), Is.True);
         host.Pump(1);
         wire.ConnectPeer(22);
-        wire.ReceiveResume(22, 100, 2, 1, gameVersion: "0.0.1.4");
+        wire.ReceiveResume(22, 100, 2, 1, gameVersion: "0.1.4");
         host.Pump(0);
         Assert.That(host.Authority.PlayerId(22), Is.EqualTo(arena ? 2UL : 0UL));
         Assert.That(host.State!.Players.Count, Is.EqualTo(arena ? 2 : 1));

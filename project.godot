@@ -11,7 +11,6 @@ config_version=5
 [application]
 
 config/name="Trackstorm"
-config/version="0.0.0.5"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "C#", "Forward Plus")
 
@@ -21,7 +20,7 @@ project/assembly_name="Trackstorm.Client"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg")
+enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg", "res://addons/trackstorm_version/plugin.cfg")
 
 [physics]
 
