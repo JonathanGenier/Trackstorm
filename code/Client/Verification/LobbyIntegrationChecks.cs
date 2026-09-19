@@ -259,7 +259,7 @@ public sealed partial class LobbyIntegrationChecks : Node
                 _sessions[7].Leave();
                 Next("Fresh client bootstrapped into active native gameplay exactly once; testing retained-slot capacity.");
                 break;
-            case 17 when host!.State!.Players.Any(player => player.Id == _departedId && !player.Connected):
+            case 17 when host!.State!.Players.Any(player => player.Id == _departedId && !player.Connected) && _sessions[7].Lobby is null && _sessions[7].Arena is null:
                 OpenThroughUi(_sessions[7], false, "Overflow");
                 Next("Attempted fresh admission with seven connected plus one retained participant.");
                 break;
