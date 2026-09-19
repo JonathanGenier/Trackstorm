@@ -32,7 +32,7 @@ if ($actualHash -ne $expectedHash) {
     throw "Godot archive hash mismatch. Expected $expectedHash; actual $actualHash."
 }
 
-$exeName = 'Godot_v4.7.2-stable_mono_win64.exe'
+$exeName = 'Godot_v4.7.2-stable_mono_win64_console.exe'
 $existing = Get-ChildItem -LiteralPath $Destination -Filter $exeName -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
 
 if ($null -eq $existing) {
