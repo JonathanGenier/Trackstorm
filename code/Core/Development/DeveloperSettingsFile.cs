@@ -7,7 +7,7 @@ namespace Trackstorm.Core.Development;
 public sealed class DeveloperSettingsFile
 {
     /// <summary>Current host-local file schema, independent of the gameplay wire protocol.</summary>
-    public const int SchemaVersion = 1;
+    public const int SchemaVersion = 2;
     private readonly Dictionary<string, string> _unknown = new(StringComparer.Ordinal);
 
     /// <summary>Validated effective values, defaulting missing fields to the caller's canonical configuration.</summary>
@@ -32,6 +32,7 @@ public sealed class DeveloperSettingsFile
         }
 
         var pending = new Dictionary<string, double>(StringComparer.Ordinal);
+        int loadedSchema = 0;
         foreach (string line in text.Split('\n', StringSplitOptions.RemoveEmptyEntries))
         {
             try
@@ -43,6 +44,8 @@ public sealed class DeveloperSettingsFile
                     {
                         result.CanSave = false;
                     }
+
+                    loadedSchema = Math.Max(loadedSchema, schema);
 
                     continue;
                 }
@@ -77,6 +80,19 @@ public sealed class DeveloperSettingsFile
         if (!result.CanSave)
         {
             return result;
+        }
+
+        if (loadedSchema < 2)
+        {
+            // Old files persisted every field, including unchanged pre-conversion dimensions.
+            // Adopt canonical geometry for those defaults; preserve deliberate custom tuning.
+            foreach (var (key, oldDefault) in new[] { ("vehicle.wheelbase", 2.3f), ("vehicle.load_height", 0.45f), ("vehicle.suspension_length", 0.8f) })
+            {
+                if (pending.TryGetValue(key, out double value) && Math.Abs(value - oldDefault) < 0.000001)
+                {
+                    pending.Remove(key);
+                }
+            }
         }
 
         // Apply related valid fields together first, then salvage independent values from a damaged transaction.

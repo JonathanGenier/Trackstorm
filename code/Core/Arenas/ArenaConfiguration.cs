@@ -120,7 +120,7 @@ public sealed class ArenaConfiguration
         {
             VehiclePhysicsState candidate = Spawn((start + offset) % SpawnCount);
             bool occupied = vehicles.Any(vehicle => vehicle.VehicleId != vehicleId && vehicle.CanInteract &&
-                new Vector2(vehicle.Movement.Physics.Position.X - candidate.Position.X, vehicle.Movement.Physics.Position.Z - candidate.Position.Z).LengthSquared() < 20.25f);
+                new Vector2(vehicle.Movement.Physics.Position.X - candidate.Position.X, vehicle.Movement.Physics.Position.Z - candidate.Position.Z).LengthSquared() < VehicleDimensions.SpawnClearance * VehicleDimensions.SpawnClearance);
             if (!occupied)
             {
                 return candidate;

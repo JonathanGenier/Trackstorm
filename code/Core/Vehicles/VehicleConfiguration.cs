@@ -33,13 +33,13 @@ public sealed record VehicleConfiguration
     /// <summary>Wheel angle transition rate in radians per second.</summary>
     public float SteeringResponse { get; init; } = 6;
     /// <summary>Distance between axle centers in metres.</summary>
-    public float Wheelbase { get; init; } = 2.3f;
+    public float Wheelbase { get; init; } = VehicleDimensions.Wheelbase;
     /// <summary>Tire friction coefficient; combined demands share this budget.</summary>
     public float TireFriction { get; init; } = 1.35f;
     /// <summary>Rear traction share available to propulsion despite lateral saturation; zero disables allocation.</summary>
     public float DriveTractionReserve { get; init; } = 0.55f;
     /// <summary>Effective center-of-mass height for longitudinal/lateral load transfer.</summary>
-    public float LoadHeight { get; init; } = 0.45f;
+    public float LoadHeight { get; init; } = 0.45f * VehicleDimensions.Scale;
     /// <summary>Rear braking deceleration at reference mass.</summary>
     public float HandbrakeBraking { get; init; } = 12;
     /// <summary>Rear lateral grip fraction with the handbrake fully engaged.</summary>
@@ -63,7 +63,7 @@ public sealed record VehicleConfiguration
     /// <summary>Weak yaw damping; never targets a commanded yaw or drift angle.</summary>
     public float StabilityDamping { get; init; } = 0.65f;
     /// <summary>Fully extended suspension ray length in metres.</summary>
-    public float SuspensionLength { get; init; } = 0.8f;
+    public float SuspensionLength { get; init; } = VehicleDimensions.RideHeight + (9.81f / 150);
     /// <summary>Vertical spring stiffness per unit sprung mass.</summary>
     public float WheelSpring { get; init; } = 150;
     /// <summary>Vertical wheel damping per unit sprung mass.</summary>

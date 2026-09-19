@@ -69,5 +69,15 @@
     "version": "3.1"
   },
   "license": "CC0-1.0",
-  "conversion": "Original static armor/exhaust/guards by Trackstorm; authored with BuildVehicle.gd; local triplanar StandardMaterial3D maps; original source bytes preserved."
+  "conversion": "Original static armor/exhaust/guards by Trackstorm, originally authored with the legacy BuildVehicle.gd. Current production geometry is Blender-authored; BuildVehicle.gd now binds existing local triplanar materials only. Original upstream source bytes are preserved.",
+  "trackstorm_scale_conversion": {
+    "authoring_tool": "Blender 5.2.2",
+    "source_revision": "802b267",
+    "source": "assets/vehicles/source/LegacyVehicle.glb",
+    "source_sha256": "d941595435995f8e48826ff802a0ad8faa242502e746cb6873ceb73872c30afd",
+    "editable_source": "assets/vehicles/source/WastelandVehicle.blend",
+    "export": "assets/vehicles/WastelandVehicle.glb",
+    "script": "assets/vehicles/RescaleVehicle.py",
+    "note": "Existing Trackstorm design uniformly rescaled; no new third-party acquisition. Godot material resources retain original CC0 textures."
+  }
 }
