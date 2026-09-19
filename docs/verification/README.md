@@ -6,6 +6,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 
 | Evidence | Reports |
 | --- | --- |
+| Three-component build version | [TS-70 migration, explicit release authorization and export identity verification](ts-70.md) |
 | Game version and compatibility | [TS-66 acceptance mapping, local verification and external EOS limitations](ts-66.md) |
 | Disconnected match participants | [TS-65 retention, standings and lifecycle verification](ts-65.md) |
 | Active-match fresh admission | [TS-53 implementation, local verification and remaining EOS acceptance](ts-53.md) |
