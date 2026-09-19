@@ -16,6 +16,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Lobby and match entry | [TS-86 application states, map selection, loading/sync and acceptance evidence](ts-86.md) |
 | Authoritative Game Loop foundation | [TS-91 Core lifecycle, legacy integration, regression evidence and runtime limitations](ts-91.md) |
 | Game Loop network participation | [TS-92 authoritative phase gates, checkpoint recovery, native multiplayer evidence and limitations](ts-92.md) |
+| Game Loop results and reset | [TS-93 frozen results, Application Flow handoff, disposal and repeated-match verification](ts-93.md) |
 | Unified DevTools navigation and compact Configs | [TS-96 correction, native/runtime checks and layout captures](ts-96.md) |
 | Real-scale Trackstorm vehicle | [TS-72 Blender conversion, physics integration and validation](ts-72.md) |
 | Active oval gameplay integration | [TS-71 map loading, eight player grid spawns, preserved systems and stress-test limitation](ts-71-map-swap.md) |

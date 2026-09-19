@@ -66,6 +66,7 @@ internal sealed class RetainedMatchTests
         }
 
         MatchState final = host.World.State.Match;
+        FinalMatchResults results = final.FinalResults!;
         Assert.That((final.Phase, final.KillTarget, final.Winner), Is.EqualTo((MatchPhase.Finished, 5, 1ul)));
         Assert.That(final.Players.Single(score => score.Player == 2), Is.EqualTo(retained));
         Assert.That(MatchRanking.Create(final, lobby.State.Players.Select(player => player.Id)).Count, Is.EqualTo(8));
@@ -74,6 +75,8 @@ internal sealed class RetainedMatchTests
         Assert.That(host.ResumePlayer(21, 2), Is.True);
         host.Step(default, state => new(state.ObservedPhysics, Vector3.UnitY));
         Assert.That(host.World.State.Match, Is.SameAs(final));
+        Assert.That(host.World.State.Match!.FinalResults, Is.SameAs(results));
+        Assert.That(results.Standings.Single(row => row.PlayerId == 2).Kills, Is.EqualTo(retained.Kills));
         lobby.Disconnect(21);
         host.Suspend(21);
         Assert.That(lobby.Return(0), Is.True);
@@ -94,6 +97,8 @@ internal sealed class RetainedMatchTests
 
         Assert.That(next.SessionId, Is.GreaterThan(host.SessionId));
         Assert.That(next.World.State.Match!.Players.Any(score => score.Player == 2), Is.False);
+        Assert.That(next.World.State.Match.FinalResults, Is.Null);
+        Assert.That(results.Standings.Count, Is.EqualTo(8), "An Application Flow handoff survives session Return and a new match.");
         Assert.That(next.World.State.Match.Players.All(score => score.Kills == 0 && score.Deaths == 0 && score.Wins == 0 && score.ProcessedLife == 0), Is.True);
         Assert.That(MatchRanking.Create(next.World.State.Match, lobby.State.Players.Select(player => player.Id)).Select(row => row.PlayerId), Is.EqualTo(new ulong[] { 1, 3, 4, 5, 6, 7, 8 }));
         Assert.That(lobby.Join(22, GameVersion.Current.ToString(), "Returning", "subject-2"), Is.GreaterThan(8));

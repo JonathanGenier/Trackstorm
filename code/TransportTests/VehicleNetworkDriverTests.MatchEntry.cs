@@ -187,6 +187,9 @@ internal sealed partial class VehicleNetworkDriverTests
         Assert.That(client.Match!.Phase, Is.EqualTo(expected.Phase));
         Assert.That(client.Match.Players, Is.EqualTo(expected.Players));
         Assert.That(client.Match.Winner, Is.EqualTo(expected.Winner));
+        Assert.That(client.FinalResults?.Standings, Is.EqualTo(expected.FinalResults?.Standings));
+        Assert.That(client.FinalResults?.Outcome, Is.EqualTo(expected.FinalResults?.Outcome));
+        Assert.That(client.FinalResults?.Tick, Is.EqualTo(expected.FinalResults?.Tick));
         Assert.That(client.AllowsParticipation, Is.EqualTo(!finished));
         Assert.That(client.Latest!.Tick, Is.GreaterThanOrEqualTo(tickBeforeResume));
         Transfer(clientWire, hostWire, ServerPeer, 50);

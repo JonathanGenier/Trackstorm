@@ -24,6 +24,8 @@ public sealed partial class LobbyIntegrationChecks : Node
     private bool _finished;
     private bool _interruptedFresh;
     private SubViewport _hostView = null!;
+    private readonly List<Core.Matches.FinalMatchResults> _completedResults = new();
+    private readonly List<VehicleNetworkDriver> _retiredDrivers = new();
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -133,6 +135,38 @@ public sealed partial class LobbyIntegrationChecks : Node
         button.EmitSignal(BaseButton.SignalName.Pressed);
     }
 
+    private void PrepareFinishedFixture()
+    {
+        var world = _sessions[0].Arena!.Driver.Host!.World;
+        var state = world.State;
+        var match = state.Match!;
+        ulong winner = _sessions[0].Lobby!.LocalPlayerId;
+        ulong victim = state.Vehicles.First(vehicle => vehicle.VehicleId != winner).VehicleId;
+        var final = new Core.Matches.MatchState(state.Tick, match.Revision + 1, match.KillTarget, Core.Matches.MatchPhase.Finished, null, winner,
+            match.Players.Select(row => new Core.Matches.PlayerScore(row.Player, row.Player == winner ? match.KillTarget : 0, row.Player == victim ? match.KillTarget : 0, row.Player == winner ? 1 : 0, row.Player == victim ? (ulong)match.KillTarget : 0)));
+        world.Restore(new Core.Simulation.SimulationState(state.Tick, state.LastInput, state.Vehicles, final));
+    }
+
+    private void VerifyFinishedHandoff()
+    {
+        var expected = _sessions[0].FinalResults!;
+        foreach (var session in _sessions)
+        {
+            Require(session.Stage == ApplicationStage.GameLoop && session.Lobby!.State!.Phase == SessionPhase.Arena, "Finished does not navigate Application Flow.");
+            Require(session.FinalResults!.Standings.SequenceEqual(expected.Standings) && session.FinalResults.Tick == expected.Tick && session.FinalResults.Outcome == expected.Outcome, "All Application Flow handoffs expose identical Core results.");
+            Require(!session.Arena!.Driver.AllowsParticipation, "Finished denies driving and item use.");
+            _completedResults.Add(session.FinalResults);
+            _retiredDrivers.Add(session.Arena.Driver);
+        }
+    }
+
+    private void VerifyDisposedResults()
+    {
+        Require(_retiredDrivers.All(driver => driver.Host is null && driver.Match is null && driver.EntryContext is null && !driver.IsActive), "Return disposes every old match driver.");
+        Require(_sessions.All(session => session.FinalResults is null), "Application Flow releases its result handoff on exit.");
+        Require(_completedResults.All(result => result.Standings.Count == 8 && result.Standings[0].Wins == 1), "Detached handoffs survive native arena teardown.");
+    }
+
     private static void Require(bool condition, string message)
     {
         if (!condition)
@@ -200,10 +234,18 @@ public sealed partial class LobbyIntegrationChecks : Node
                 }
 
                 RemoteVehicleTagChecks.VerifyBoundaries(_sessions[0].Arena!);
+                PrepareFinishedFixture();
+                _stage = 23;
+                _stageStarted = _elapsed;
+                break;
+            case 23 when _sessions.All(session => session.FinalResults is not null):
+                VerifyFinishedHandoff();
                 _sessions[0].Lobby!.Request(LobbyCommand.Return);
-                Next("All eight peers entered native arenas and received eight-vehicle snapshots; host ended session.");
+                _stage = 5;
+                Next("All eight peers consumed Finished results without navigation; host explicitly returned.");
                 break;
             case 6 when AllRoster(8) && _sessions.All(session => session.Arena is null && session.Lobby!.State!.Phase == SessionPhase.Lobby):
+                VerifyDisposedResults();
                 Require(host!.State!.Players.All(player => !player.Ready), "Return clears all ready state.");
                 Require(host.SelectMap(MatchMap.OldMap), "Select Old Map for the second match.");
                 _departedId = _sessions[7].Lobby!.LocalPlayerId;
@@ -233,6 +275,12 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Next("Second host start issued on the retained session connection.");
                 break;
             case 11 when AllArena():
+                Require(_sessions.All(session => session.FinalResults is null), "A fresh match has no previous final results.");
+                if (!_sessions.All(session => session.Arena!.Driver.Match?.Phase == Core.Matches.MatchPhase.Active))
+                {
+                    break;
+                }
+
                 foreach (var session in _sessions)
                 {
                     RemoteVehicleTagChecks.Verify(session.Arena!, session.Lobby!);
@@ -240,9 +288,17 @@ public sealed partial class LobbyIntegrationChecks : Node
 
                 Require(_sessions.All(session => session.Arena!.Map is Arenas.CombatArena && session.Arena.Driver.EntryReady), "All eight players load and synchronize Old Map.");
                 Require(host!.State!.Match > _firstMatch, "Second match advances vehicle generation.");
+                Require(_sessions.All(session => session.Arena!.Driver.Match!.Winner is null && session.Arena.Driver.Match.Players.All(row => row.Kills == 0 && row.Deaths == 0 && row.Wins == 0 && row.ProcessedLife == 0)), "Second synchronized match starts with fresh mode state.");
+                PrepareFinishedFixture();
+                _stage = 24;
+                _stageStarted = _elapsed;
+                break;
+            case 24 when _sessions.All(session => session.FinalResults is not null):
+                VerifyFinishedHandoff();
                 _departedId = _sessions[7].Lobby!.LocalPlayerId;
                 _sessions[7].Leave();
-                Next("Repeated eight-player arena succeeded; client departed during gameplay.");
+                _stage = 11;
+                Next("Second Finished handoff succeeded; client departed during results.");
                 break;
             case 12 when _sessions.Take(7).All(session => session.Arena?.Driver.Latest?.Vehicles.Count == 8 && session.Lobby!.State!.Players.Any(player => player.Id == _departedId && !player.Connected)):
                 foreach (var session in _sessions.Take(7))
@@ -255,6 +311,7 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Next("Arena departure retained the vehicle; host ended the match.");
                 break;
             case 13 when _sessions.Take(7).All(session => session.Arena is null && session.Lobby!.State!.Players.All(player => player.Id != _departedId)):
+                VerifyDisposedResults();
                 Require(host!.SelectMap(MatchMap.NewMap), "Return to New Map for active admission.");
                 foreach (var session in _sessions.Take(7))
                 {
