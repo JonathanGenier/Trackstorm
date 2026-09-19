@@ -16,7 +16,7 @@ jobs:
   verify:
     runs-on: windows-latest
     env:
-      NUGET_PACKAGES: ${{ github.workspace }}\.nuget\packages
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages/
 
     steps:
       - name: Checkout Story PR with version history
