@@ -4,6 +4,8 @@ This directory records historical verification evidence for particular implement
 
 Use [workflow](../workflow.md#verification) for current completion checks, Jira for assigned requirements, and the [feature index](../features/README.md) for current system behavior. Read a report only when its historical evidence is relevant.
 
+Every completed Jira Story must create or update `docs/verification/ts-<number>.md` using the Story number in lowercase filename form (for example, `TS-86` → `ts-86.md`) and add or update a useful entry in the table below. The report records only implementation and verification evidence actually produced for that Story, including material behavior/systems changed, commands/results actually run, applicable runtime/manual/native evidence, limitations, unresolved risks, and explicitly unverified areas. Never treat these reports as current requirements or infer that old test evidence remains valid after later changes.
+
 | Evidence | Reports |
 | --- | --- |
 | Authoritative Game Loop foundation | [TS-91 Core lifecycle, legacy integration, regression evidence and runtime limitations](ts-91.md) |
