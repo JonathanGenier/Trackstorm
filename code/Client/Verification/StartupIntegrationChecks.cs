@@ -93,11 +93,34 @@ internal sealed partial class StartupIntegrationChecks : Node
             Check(_startup.MediaPlaying, "Main Menu retains continuously playing frontend media");
             Check(!GetTree().AutoAcceptQuit, "Successful composition restores coordinated application close ownership");
             Check(GetParent().GetNodeOrNull<Networking.DevelopmentSession>("DevelopmentSession") is not null, "Main Menu exists only after initialization");
+            var session = GetParent().GetNode<Networking.DevelopmentSession>("DevelopmentSession");
+            Check(session.Stage == Networking.ApplicationStage.MainMenu, "Startup enters Main Menu before browsing");
+            session.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == "Browse online lobbies").EmitSignal(BaseButton.SignalName.Pressed);
+            Check(session.Stage == Networking.ApplicationStage.LobbyBrowser, "Main Menu enters Lobby Browser");
+            Check(_startup.BackgroundInstanceId == _loaderBackground && _startup.MusicInstanceId == _loaderMusic && _startup.MediaPlaying, "Browser retains the active MenuShell media");
+            session.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == "Back to Main Menu").EmitSignal(BaseButton.SignalName.Pressed);
+            Check(session.Stage == Networking.ApplicationStage.MainMenu, "Browser returns to Main Menu");
             StartupStage[] expected = [StartupStage.Preloader, StartupStage.Failed, StartupStage.Preloader, StartupStage.Splash, StartupStage.Failed, StartupStage.FrontendLoading, StartupStage.Failed, StartupStage.FrontendLoading, StartupStage.MainMenu];
             Check(_stages.SequenceEqual(expected), "Startup transition order is explicit and deterministic");
             GD.Print("Startup integration passed: phase-aware dependency, frontend setup, and application recovery with persistent MenuShell media.");
-            GetTree().Quit();
+            Finish();
         }
+    }
+
+    private async void Finish()
+    {
+        for (int frame = 0; frame < 30; frame++)
+        {
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        }
+
+        _startup.GetNode<MenuShell>("MenuShell").ResetMedia();
+        for (int frame = 0; frame < 4; frame++)
+        {
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        }
+
+        GetTree().Quit();
     }
 
     private void Check(bool condition, string message)

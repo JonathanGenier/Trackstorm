@@ -12,11 +12,12 @@ public sealed class LobbySnapshot
     /// <param name="currentHostId">Stable player holding authority.</param>
     /// <param name="authorityEpoch">Monotonic authority fence.</param>
     /// <param name="departed">Match participants whose reconnect/admission slots were permanently released.</param>
-    public LobbySnapshot(ulong session, ulong revision, ulong match, SessionPhase phase, IEnumerable<SessionPlayer> players, ulong currentHostId = 1, ulong authorityEpoch = 1, IEnumerable<MatchParticipant>? departed = null)
+    /// <param name="map">Authoritative selection, immutable during a match generation.</param>
+    public LobbySnapshot(ulong session, ulong revision, ulong match, SessionPhase phase, IEnumerable<SessionPlayer> players, ulong currentHostId = 1, ulong authorityEpoch = 1, IEnumerable<MatchParticipant>? departed = null, MatchMap map = MatchMap.NewMap)
     {
         SessionPlayer[] copy = players.Take(9).ToArray();
         MatchParticipant[] history = (departed ?? []).Take(Matches.MatchState.MaximumPlayers + 1).ToArray();
-        if (session == 0 || revision == 0 || match < session || !Enum.IsDefined(phase) ||
+        if (session == 0 || revision == 0 || match < session || !Enum.IsDefined(phase) || !Enum.IsDefined(map) ||
             (phase == SessionPhase.Arena && match == session) || copy.Length is < 1 or > 8 ||
             copy.Any(player => player is null || (phase == SessionPhase.Lobby && (!player.Connected || player.RetainedHost)) || player.Id == 0 || player.Generation == 0 || (!player.Connected && player.Ready) || player.Name != PlayerName.Sanitize(player.Name)) ||
             copy.Select(player => player.Id).Distinct().Count() != copy.Length || authorityEpoch == 0 || !copy.Any(player => player.Id == currentHostId && player.Connected))
@@ -35,6 +36,7 @@ public sealed class LobbySnapshot
         Revision = revision;
         Match = match;
         Phase = phase;
+        Map = map;
         Players = Array.AsReadOnly(copy.OrderBy(player => player.Id).ToArray());
         Departed = Array.AsReadOnly(history.OrderBy(player => player.Id).ToArray());
         CurrentHostId = currentHostId;
@@ -53,6 +55,8 @@ public sealed class LobbySnapshot
     public ulong Match { get; }
     /// <summary>Shared lobby or arena state.</summary>
     public SessionPhase Phase { get; }
+    /// <summary>Host-selected map carried by admission, reconnect and migration.</summary>
+    public MatchMap Map { get; }
     /// <summary>Explicit continuity policy for the current phase.</summary>
     public SessionReconnectPolicy ReconnectPolicy => Phase == SessionPhase.Lobby ? SessionReconnectPolicy.FreshJoin : SessionReconnectPolicy.RetainedResume;
     /// <summary>Complete immutable connected roster.</summary>

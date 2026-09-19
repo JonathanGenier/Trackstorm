@@ -1,6 +1,6 @@
 # Prototype Combat Arena
 
-Normal practice and network sessions use the [banked oval](oval-map.md). This scene and its assets remain available for content regressions through `PrototypeMapForVerification`; none of its props or placements are copied into the active map.
+Normal practice uses the [banked oval](oval-map.md). Multiplayer hosts may select this arena as **Old Map** through the [joined Lobby](match-entry.md). The prototype verification seam also remains available; its props and placements are never copied into New Map.
 
 ## Layout and Playability
 

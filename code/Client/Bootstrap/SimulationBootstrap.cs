@@ -136,7 +136,7 @@ public sealed partial class SimulationBootstrap : Node
     /// <inheritdoc />
     public override void _Process(double delta)
     {
-        _startup?.SetFrontendActive(_arena is null && _session?.Arena is null);
+        _startup?.SetFrontendActive(_arena is null && (_session?.InFrontend ?? true));
         if (_quitRequested && (_session?.LeaveComplete ?? true) && _online?.Coordinator?.CanLeave != true)
         {
             // Normal tree teardown owns settings flush, transport disposal, platform release and terminal SDK shutdown.

@@ -195,12 +195,16 @@ public sealed partial class MigrationIntegrationChecks : Node
         {
             for (int i = 0; i < _players; i++)
             {
-                var arena = new NetworkVehicleArena();
+                var arena = new NetworkVehicleArena { ApplicationEntry = true };
                 arena.Initialize(_gateways[i], i == 1 ? _drivers[i]!.State!.Match : 0, _drivers[i]!.ServerPeer, _drivers[i], i == 1 ? _drivers[i]!.Authority!.Configuration.Configuration : new() { Vehicle = new() { Acceleration = 80 } });
                 _views[i].AddChild(arena);
                 _arenas[i] = arena;
             }
 
+            _stage = 61;
+        }
+        else if (_stage == 61 && _arenas.Take(_players).All(arena => arena!.Driver.EntryReady))
+        {
             int nextHost = _players == 2 ? 0 : 2;
             _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, HeldItem.Wrench);
             Require(_arenas[1]!.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 9, ["spawns.seed"] = 42, ["match.minimum_players"] = 8 }, out _), "First replacement configures normal gameplay owners.");
