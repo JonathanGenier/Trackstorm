@@ -150,9 +150,9 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
         _refresh.Visible = !active;
         _refresh.Disabled = coordinator is null || busy;
         _host.Visible = !active;
-        _host.Disabled = !identity.Online || coordinator is null || coordinator.CanLeave;
+        _host.Disabled = !identity.Online || coordinator?.CanStartFreshSession != true;
         _hostReason.Visible = _host.Visible && _host.Disabled;
-        _hostReason.Text = coordinator?.CanLeave == true ? coordinator.Status : identity.HostReason.Length > 0 ? identity.HostReason : "Initializing EOS lobby services…";
+        _hostReason.Text = identity.Online && coordinator is not null ? coordinator.Status : identity.HostReason.Length > 0 ? identity.HostReason : "Initializing EOS lobby services…";
         _locked.Visible = !active;
         _credential.Visible = !active && _locked.ButtonPressed;
         _name.Visible = !active || coordinator?.IsHost == true;

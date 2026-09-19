@@ -550,7 +550,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     {
         bool active = _lobby is not null;
         bool arena = _arena is not null || _lobby?.State?.Phase == SessionPhase.Arena;
-        bool decision = OnlineCoordinator()?.HasRetainedDecision == true;
+        bool decision = OnlineCoordinator()?.ShowsRetainedDecision == true;
         _menu.GetParent<ScrollContainer>().GetParent<Control>().Visible = !arena;
         ((Control)_arenaStatus.GetParent()).Visible = arena;
         _online.Visible = !arena && !_debug.ButtonPressed;

@@ -103,6 +103,9 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal bool Busy { get; private set; }
     /// <summary>Whether Leave can release active membership or retry pending cleanup.</summary>
     internal bool CanLeave => Active is not null || Busy || _closing is not null || _pendingMembership is not null;
+    /// <summary>Fresh admission can supersede a read-only startup lookup or failed recovery, but never active membership or an explicit reservation decision.</summary>
+    internal bool CanStartFreshSession => !_disposed && !CanLeave && !ShowsRetainedDecision &&
+        (RetainedDecision is RetainedSessionDecision.None or RetainedSessionDecision.Failed || !_lookupComplete);
     /// <summary>Application-owned local diagnostic journal; never receives provider credentials.</summary>
     internal Core.Events.EventStream? EventLog { get; set; }
 
@@ -260,7 +263,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <param name="credential">Transient access code; never retained or logged.</param>
     internal void Create(string name, LobbyAccess access, string? credential)
     {
-        if (_disposed || Busy || Active is not null || _closing is not null || _pendingMembership is not null || HasRetainedDecision)
+        if (!CanStartFreshSession)
         {
             return;
         }
@@ -283,6 +286,11 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             return;
         }
 
+        if (HasRetainedDecision)
+        {
+            Leave();
+        }
+
         ulong session = (BitConverter.ToUInt64(RandomNumberGenerator.GetBytes(8)) >> 1) | 1;
         var lobby = new OnlineLobby(string.Empty, name, Identity, session, access, 1, 8, OnlineLobby.CurrentProtocol, true, verifier);
         long epoch = Begin("Creating lobby…");
@@ -295,9 +303,14 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <param name="credential">Transient access code; never retained or logged.</param>
     internal void Join(string id, string? credential = null)
     {
-        if (_disposed || Busy || Active is not null || _closing is not null || _pendingMembership is not null || HasRetainedDecision)
+        if (!CanStartFreshSession)
         {
             return;
+        }
+
+        if (HasRetainedDecision)
+        {
+            Leave();
         }
 
         if (CanResumeRetained && _returnLocator!.Lobby == id)

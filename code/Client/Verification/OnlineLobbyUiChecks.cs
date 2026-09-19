@@ -57,6 +57,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
             if (_stage < 0)
             {
                 var expected = _identityStates[_stage + 7];
+                VerifyPlayerName();
                 Require(Controls<Button>().Single(button => button.IsVisibleInTree() && button.Text == "Host Game").Disabled, "Unauthenticated Host Game was enabled.");
                 Require(Controls<Label>().Single(label => label.Name == "EosState").Text == expected.Text, "EOS state not shown in multiplayer panel.");
                 Require(Controls<Label>().Single(label => label.Name == "HostReason").Text.Length > 0, "Disabled Host Game has no reason.");
@@ -82,6 +83,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
             switch (_stage++)
             {
                 case 0:
+                    VerifyPlayerName();
                     Require(!Controls<Button>().Single(button => button.IsVisibleInTree() && button.Text == "Host Game").Disabled, "Host Game did not enable after authentication and coordinator creation.");
                     Require(!Controls<VBoxContainer>().Single(control => control.Name == "RetainedMatchDecision").IsVisibleInTree(), "Normal launch showed a retained-match prompt without a locator.");
                     Require(Controls<LineEdit>().Single(edit => edit.PlaceholderText == "Search lobbies").IsVisibleInTree(), "Normal launch did not enter the lobby browser.");
@@ -201,7 +203,29 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Reconnecting, "Reconnect choice not submitted.");
                     Require(_reservationGateway!.ResumeRequests == 1, "Reconnect did not use exactly one existing resume intent.");
                     Capture("retained-reconnecting");
-                    GD.Print("Online lobby UI integration passed: launch enters the browser, missing hints remain a scoped lookup result, found hints do not restore membership, explicit validation precedes authority confirmation, and release/reconnect controls remain idempotent; fake provider, no native EOS authentication.");
+                    _coordinator.FailRetainedConnection();
+                    _reservationBinding = null;
+                    break;
+                case 19:
+                    VerifyPlayerName();
+                    Press("Host Game");
+                    break;
+                case 20:
+                    Require(_coordinator.IsHost, "Failed recovery silently blocked fresh hosting.");
+                    _coordinator.Leave();
+                    _provider.DelayLookup = true;
+                    BeginMissingLookup();
+                    break;
+                case 21:
+                    VerifyPlayerName();
+                    Require(_provider.CompleteLookup is not null, "Saved-session lookup was not delayed.");
+                    Press("Host Game");
+                    _provider.CompleteLookup!();
+                    break;
+                case 22:
+                    Require(_coordinator.IsHost, "Pending saved-session lookup blocked fresh hosting or its late callback replaced it.");
+                    Require(_coordinator.RetainedDecision == RetainedSessionDecision.None, "Fresh host inherited a stale recovery decision.");
+                    GD.Print("Online lobby UI integration passed: authentication, browser, create/join/rename, retained choices, visible player name and fresh hosting during delayed lookup and after failed recovery; fake provider, no native EOS authentication.");
                     GetTree().Quit();
                     break;
             }
@@ -265,6 +289,16 @@ public sealed partial class OnlineLobbyUiChecks : Node
         => Descendants(_session).OfType<T>();
 
     private LineEdit Edit(string prefix) => Controls<LineEdit>().First(edit => edit.PlaceholderText.StartsWith(prefix, StringComparison.Ordinal));
+
+    private void VerifyPlayerName()
+    {
+        var name = Controls<LineEdit>().Single(edit => edit.Name == "PlayerName");
+        var scroll = name.GetParent().GetParent<ScrollContainer>();
+        Require(name.IsVisibleInTree(), "Player name disappeared during authentication or recovery.");
+        Require(scroll.GetGlobalRect().Encloses(name.GetGlobalRect()), "Player name is clipped below the multiplayer browser.");
+        Require(name.Text == "Player", "Player name changed during authentication.");
+    }
+
     private void Press(string prefix) => Controls<Button>().First(button => button.IsVisibleInTree() && (button.Text.StartsWith(prefix, StringComparison.Ordinal) || button.TooltipText.StartsWith(prefix, StringComparison.Ordinal))).EmitSignal(Button.SignalName.Pressed);
 
     private void Capture(string name)
@@ -284,8 +318,20 @@ public sealed partial class OnlineLobbyUiChecks : Node
         private readonly LobbyCredential _credential = LobbyCredential.Create("test-code");
         private OnlineLobby? _active;
         internal int ResumeRequests { get; private set; }
+        internal bool DelayLookup { get; set; }
+        internal Action? CompleteLookup { get; private set; }
         public void Search(Action<IReadOnlyList<OnlineLobby>, string?> completed) => completed(new[] { new OnlineLobby("public", "Arena Public", _remote, 100, LobbyAccess.Public, 2, 8, OnlineLobby.CurrentProtocol, true, null), new OnlineLobby("locked", "Private Game", _remote, 200, LobbyAccess.Locked, 3, 8, OnlineLobby.CurrentProtocol, true, _credential), new OnlineLobby("incompatible", "Different build", _remote, 300, LobbyAccess.Public, 1, 8, OnlineLobby.CurrentProtocol, true, null) { Version = new GameVersion(GameVersion.Current.Release, GameVersion.Current.Revision == 0 ? 1 : GameVersion.Current.Revision - 1).ToString() } }, null);
-        public void Lookup(string id, Action<OnlineLobbyLookup> completed) => Search((rows, failure) => completed(new(rows.SingleOrDefault(row => row.Id == id), failure)));
+        public void Lookup(string id, Action<OnlineLobbyLookup> completed) => Search((rows, failure) =>
+        {
+            if (DelayLookup)
+            {
+                CompleteLookup = () => completed(new(rows.SingleOrDefault(row => row.Id == id), failure));
+            }
+            else
+            {
+                completed(new(rows.SingleOrDefault(row => row.Id == id), failure));
+            }
+        });
         public void Create(OnlineLobby lobby, Action<OnlineLobby?, string?> completed)
         {
             _active = lobby with { Id = "hosted", Owner = _local };

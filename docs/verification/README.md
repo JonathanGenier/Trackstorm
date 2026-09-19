@@ -1,12 +1,14 @@
 # Historical verification evidence
 
+This directory is excluded from Godot resource importing by `.gdignore`. Evidence CSV files are diagnostic data, not localization tables; screenshots and logs are not runtime assets.
+
 This directory records historical verification evidence for particular implementations, builds and review rounds. Its reports are not current policy, repository instructions, Jira requirements or substitutes for current verification. Earlier acceptance gaps and delivery decisions describe their recorded point in time; later reports or code may differ.
 
 Use [workflow](../workflow.md#verification) for current completion checks, Jira for assigned requirements, and the [feature index](../features/README.md) for current system behavior. Read a report only when its historical evidence is relevant.
 
 | Evidence | Reports |
 | --- | --- |
-| Asphalt and banked-oval handling | [TS-73 first candidate](ts-73.md), [runtime-feedback correction and pending human acceptance](ts-73-correction.md) |
+| Asphalt and banked-oval handling | [TS-73 first candidate](ts-73.md), [runtime-feedback correction and pending human acceptance](ts-73-correction.md), [editor import and multiplayer menu correction](ts-73-menu-correction.md) |
 | Authoritative Game Loop foundation | [TS-91 Core lifecycle, legacy integration, regression evidence and runtime limitations](ts-91.md) |
 | Unified DevTools navigation and compact Configs | [TS-96 correction, native/runtime checks and layout captures](ts-96.md) |
 | Real-scale Trackstorm vehicle | [TS-72 Blender conversion, physics integration and validation](ts-72.md) |
