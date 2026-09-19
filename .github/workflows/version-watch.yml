@@ -141,7 +141,7 @@ jobs:
 
             if [ "$head_repo" != "$REPO" ]; then
               echo "PR #$pr_number: trusted author uses a fork; automatic branch writes are disabled."
-              upsert_report "$pr_number" "The PR is not using a branch in `$REPO`, so automatic version repair was not attempted."
+              upsert_report "$pr_number" "The PR is not using a branch in \\`$REPO\\`, so automatic version repair was not attempted."
               return 0
             fi
 
@@ -151,7 +151,7 @@ jobs:
 
             if [ "$main_transition" != "$branch_transition" ]; then
               echo "PR #$pr_number: custom version transition differs from main; skipping automatic repair."
-              upsert_report "$pr_number" "This PR changes `.github/version-transition.json`. Release, migration, and baseline transitions require explicit reviewed handling and are not auto-repaired."
+              upsert_report "$pr_number" "This PR changes \\`.github/version-transition.json\\`. Release, migration, and baseline transitions require explicit reviewed handling and are not auto-repaired."
               return 0
             fi
 
@@ -162,7 +162,7 @@ jobs:
             if [ "$behind_by" -gt 0 ]; then
               echo "PR #$pr_number: branch is $behind_by commit(s) behind main; requesting GitHub update-branch."
               if ! gh api                 --method PUT                 "repos/$REPO/pulls/$pr_number/update-branch"                 -f expected_head_sha="$head_sha" >/dev/null; then
-                upsert_report "$pr_number" "GitHub could not update this branch from current `main` without merge conflicts. No files were changed automatically. Resolve the non-version conflicts first; version repair can then run safely."
+                upsert_report "$pr_number" "GitHub could not update this branch from current \\`main\\` without merge conflicts. No files were changed automatically. Resolve the non-version conflicts first; version repair can then run safely."
                 return 0
               fi
 
@@ -203,7 +203,7 @@ jobs:
                 "")
                   ;;
                 *)
-                  upsert_report "$pr_number" "Version synchronization unexpectedly modified `$file`. Automatic repair stopped because only `Directory.Build.props` and `export_presets.cfg` may be changed by this workflow."
+                  upsert_report "$pr_number" "Version synchronization unexpectedly modified \\`$file\\`. Automatic repair stopped because only \\`Directory.Build.props\\` and \\`export_presets.cfg\\` may be changed by this workflow."
                   git reset --hard
                   git checkout main
                   return 0
