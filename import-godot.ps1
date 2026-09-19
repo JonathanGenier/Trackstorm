@@ -22,8 +22,10 @@ try {
     $output = & $GodotPath --headless --editor --path $PSScriptRoot --import 2>&1
     $exitCode = $LASTEXITCODE
     $output | ForEach-Object { Write-Host $_ }
-    if ($exitCode -ne 0 -or ($output -match 'ERROR:|WARNING:')) {
-        throw 'Godot project import failed or reported runtime diagnostics.'
+    $reportedDiagnostics = $output -match 'ERROR:|WARNING:'
+    Write-Host "Godot import exit code: $exitCode; diagnostics: $reportedDiagnostics."
+    if ($exitCode -ne 0 -or $reportedDiagnostics) {
+        throw "Godot project import failed or reported runtime diagnostics (exit code $exitCode; diagnostics $reportedDiagnostics)."
     }
 }
 finally {
