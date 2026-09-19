@@ -48,4 +48,12 @@ if ($null -eq $existing) {
     throw "Pinned Godot executable '$exeName' was not found after extraction."
 }
 
+$versionOutput = & $existing.FullName --version 2>&1
+$versionExitCode = $LASTEXITCODE
+$versionText = ($versionOutput | Out-String).Trim()
+if ($versionExitCode -ne 0 -or $versionText -notmatch '^4\.7\.2.*mono') {
+    throw "Pinned Godot failed to launch correctly (exit code $versionExitCode; version '$versionText')."
+}
+
+Write-Host "Pinned Godot verified: $versionText"
 Write-Output $existing.FullName
