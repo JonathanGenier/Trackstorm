@@ -2,17 +2,17 @@
 
 Escape opens a centered overlay whenever an arena exists, including a lone player in `MatchPhase.Waiting`, countdown, Active and Finished. The existing remappable Pause action (P / gamepad Start by default) also opens it. Escape, logical Cancel or Pause goes Back one level; at the top level it closes. Back to Game closes directly. The gamepad B/handbrake binding does not open the overlay during driving.
 
-The hierarchy is Game Menu → Settings → Audio, Video, Gameplay, Interface, Controls or Developer Options. Category Back returns to Settings; Settings Back returns to Game Menu. Settings opened from the main menu returns to its caller. [Developer Options](developer-options.md) uses the existing category container for host tuning/actions and read-only diagnostics. F1 directly opens/closes that same page in development builds. Numeric editors retain native text entry; Escape still goes Back and controller navigation can leave the editor.
+The hierarchy is Game Menu → Settings → Audio, Video, Gameplay, Interface or Controls. Category Back returns to Settings; Settings Back returns to Game Menu. Settings opened from the main menu returns to its caller. Developer Options remains a Settings entry but opens the shared [DevTools](devtools.md) Configs tab rather than another category page. F1 directly opens or selects that same Configs surface in development builds. Escape closes DevTools and restores the underlying Settings focus; numeric editors retain native text entry.
 
 ## Ownership and input
 
-The full-screen [Statistic Panel](statistics.md) can cover the menu with F2.
+The full-screen [DevTools shell](devtools.md) can cover the menu with F1, F2 or F3.
 While it is open, underlying menu navigation is suspended. Closing it restores
 the prior menu focus and keeps gameplay input suppressed if the menu is still open.
 
-`SettingsPanel` composes the existing preference controls with `MenuNavigation`, a pure Client back stack. `SettingsPanel.Navigation` routes the existing input owner's logical bindings to focus, buttons, sliders and option selections. Directional input repeats after 0.4 seconds at 0.12-second intervals. Binding capture consumes the candidate input and cancels on Escape. Native `ui_*` handling is consumed while the overlay is open so default controls cannot double-activate or bypass remapping. Escape remains a reserved access/cancel key even if Cancel is rebound. Focused controls scroll into view; Back remains outside the scroll area.
+`SettingsPanel` composes the existing preference controls with `MenuNavigation`, a pure Client back stack. `SettingsPanel.Navigation` routes the existing input owner's logical bindings through `MenuFocusNavigation`, shared with DevTools, to focus, buttons, sliders and option selections. Directional input repeats after 0.4 seconds at 0.12-second intervals. Binding capture consumes the candidate input and cancels on Escape. Native `ui_*` handling is consumed while the overlay is open so default controls cannot double-activate or bypass remapping. Escape remains a reserved access/cancel key even if Cancel is rebound. Focused controls scroll into view; Back remains outside the scroll area.
 
-Only `PlayerInputAdapter.GameplaySuppressed` changes. The scene tree is never paused, and fixed simulation, native physics, remote inputs, networking and audio continue. Navigation samples the existing binding owner independently of gameplay-frame suppression. Closing restores local control; the adapter's existing item-release guard prevents a held Accept/Use Item button from firing an item immediately afterward.
+The Game Menu owns `PlayerInputAdapter.GameplaySuppressed`; DevTools independently owns `DiagnosticSuppressed`. The scene tree is never paused, and fixed simulation, native physics, remote inputs, networking and audio continue. Navigation samples the existing binding owner independently of gameplay-frame suppression. Closing restores local control only when no underlying menu remains; the adapter's existing item-release guard prevents a held Accept/Use Item button from firing an item immediately afterward.
 
 The [input owner](input.md) observes that suppression and immediately releases gameplay mouse capture when the overlay opens, including Settings and F1 Developer Options. Closing the final menu restores hidden/captured gameplay input. Main Menu and lobby flows expose a free native pointer. Keyboard/controller focus navigation remains independent of pointer visibility; using the mouse after controller navigation works without leaving the menu. Focus loss releases capture, and focus regain preserves whichever gameplay/menu context is current.
 
@@ -25,7 +25,7 @@ The [input owner](input.md) observes that suppression and immediately releases g
 | Gameplay | km/h or mph, presentation only |
 | Interface | Independent Show FPS and Show Ping flags |
 | Controls | All existing logical-action remaps and Invert steering; binding capture/clear/restore uses `PlayerInputBindings` |
-| Developer Options | Host-authoritative gameplay tuning/actions with separate host-local persistence; safe read-only diagnostics |
+| Developer Options | Host-authoritative gameplay tuning/actions with separate host-local persistence; read-only diagnostics are in DevTools Stats |
 
 The existing local settings model, codec, debounced file store, display application and audio routing remain authoritative for user preferences. Developer tuning does not extend that schema. Analog dead zone remains an existing persisted input configuration, but is not offered as an additional menu control. Each persistence owner exposes its own save status/retry: developer tuning retries through **Apply Settings**, while Discard and Reset only change its editor draft. See [settings](settings.md) for local storage and preview guarantees.
 

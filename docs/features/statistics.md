@@ -1,14 +1,14 @@
 # Runtime Statistic Panel
 
-F2 toggles a full-screen, read-only diagnostic view in the application, including
-local practice, multiplayer lobby and arena states. Close (F2) and Escape close it.
-The panel is available in Debug and exported Release without the mutating Dev
+F2 opens or selects the read-only Stats tab in the full-window [DevTools shell](devtools.md), including
+local practice, multiplayer lobby and arena states. Escape and the shell's persistent Close button dismiss DevTools.
+Stats is available in Debug and exported Release without the mutating Dev
 Mode build flag. Presentation is plain native tabs, labels, a player selector and
 scrolling; there are no gameplay controls.
 
 ## Ownership and refresh
 
-`SimulationBootstrap` composes `StatisticPanel` with a read-only capture delegate.
+`SimulationBootstrap` composes the shell's `StatisticPanel` with a read-only capture delegate and the existing credential-safe identity diagnostic projection.
 `RuntimeStatistics` reads the currently active `DevelopmentSession`,
 `LobbyNetworkDriver`, `VehicleNetworkDriver` and optional practice `VehicleArena`.
 `VehicleStatistics` formats immutable Core snapshots. `StatisticView` and
@@ -16,7 +16,7 @@ scrolling; there are no gameplay controls.
 refresh; no diagnostic object becomes gameplay authority or is replicated.
 
 Values refresh immediately on open/selection and every 200 ms while visible.
-Closed panels do not poll owners. Selection uses stable IDs, defaults to the local
+Hidden Stats content does not poll owners. Selection uses stable IDs, defaults to the local
 player, and falls back to an available ID when the selected entity departs. Lobby
 members without a vehicle remain inspectable with explicit unavailable vehicle
 state. Teardown replaces the view with absent-owner information instead of
@@ -40,6 +40,7 @@ No preference, gameplay configuration or persistence command is invoked by Close
 | Arena / match / spawning | Match phase, kill target, winner, countdown, available/cooling item markers and their deadlines, active projectile count; host world/item/spawn authorities or accepted client publications |
 | Ranking | Current rank, kills, deaths; existing `MatchRanking` projection of match and current roster |
 | Networking / synchronization | Transport, connection/replication state, local client snapshot age and interpolation delay, reconnect policy/checkpoint/generation; current drivers |
+| Network Diagnostics | The existing allowlisted Developer Options diagnostic projection, relocated without duplication: safe EOS lifecycle/one-way identity fingerprint, transport and connection mode, host role and lobby/match state, failure state, RTT/quality, reconnect/checkpoint state, configuration revision, AuthorityEpoch and migration/checkpoint status; current online/session/network owners |
 | Player networking | Fresh roster RTT, acknowledged input, local-client prediction error and large corrections, available local-upstream quality/estimated loss; existing latency, replication, prediction and smoothing owners |
 
 Client vehicle values are the last confirmed authority boundary, not predicted
@@ -54,8 +55,9 @@ Surface classification is the last supported surface while airborne, explicitly
 labeled. Timers are projections of existing fixed 60 Hz deadlines, clamped at
 zero; the panel does not advance them. Matches use a kill target and have no time
 limit. Items are consumables, with no independent reusable-item cooldown telemetry.
-Host migration/AuthorityEpoch is not implemented by this branch's active stack
-and is labeled accordingly; no migration implementation is added here.
+AuthorityEpoch, migration and retained-checkpoint state come from the current
+lobby/migration owners. This integration only relocates their existing safe
+projection; it does not add a second migration or reconnect implementation.
 
 Only allowlisted fields are formatted. Raw provider failures, authentication
 objects, player-entered names, access codes, reusable credentials, damage contexts
@@ -69,7 +71,7 @@ Inspection of the current implementation and the pre-Developer-Options UI found:
 | Former capability | Current destination |
 | --- | --- |
 | Host/client, vehicle count, HP/lifecycle/surface/support, handbrake/sliding | Statistic Panel global and player categories |
-| Prediction error, snapshot age, interpolation, acknowledged input, hard corrections | Statistic Panel networking categories; existing Dev Mode diagnostic summary remains supported |
+| Prediction error, snapshot age, interpolation, acknowledged input, hard corrections | Statistic Panel networking categories and the relocated safe Network Diagnostics projection |
 | Held-item label | Statistic Panel and ordinary combat HUD |
 | Reset practice arena / Detonate nearby | Existing Developer Options actions through the original practice owner |
 | Give item | Existing host-only Developer Options grant path |
@@ -87,7 +89,7 @@ owning read-only API and add a category/field to this projection in the same
 feature change, with applicable tests/documentation. Avoid dumping arbitrary
 internals, creating another state owner, or adding mutation delegates to the view.
 
-`check-statistics.ps1 -GodotPath <exe>` exercises the actual F2/Close UI, live owners,
+`check-statistics.ps1 -GodotPath <exe>` exercises the actual F2/DevTools UI, live owners,
 two local UDP peers with separate physics worlds, selection/departure, missing
 state, menu suppression/restoration, viewport bounds and practice targets.
 `-Visual` also captures both tabs at 640×360, 1280×720 and 1920×1080.

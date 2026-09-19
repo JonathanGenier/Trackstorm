@@ -1,5 +1,6 @@
 using Godot;
 using Trackstorm.Client.Bootstrap;
+using Trackstorm.Client.Development;
 using Trackstorm.Client.Input;
 using Trackstorm.Client.Networking;
 using Trackstorm.Client.Settings;
@@ -17,6 +18,7 @@ public sealed partial class MenuIntegrationChecks : Node
     private string _directory = string.Empty;
     private SimulationBootstrap _bootstrap = null!;
     private SettingsPanel _menu = null!;
+    private DevToolsShell _devTools = null!;
     private DevelopmentSession _session = null!;
     private PlayerInput _player = null!;
     private PlayerSettingsController _settings = null!;
@@ -40,12 +42,13 @@ public sealed partial class MenuIntegrationChecks : Node
                 _endpoint = $"127.0.0.1:{((System.Net.IPEndPoint)reservation.Client.LocalEndPoint!).Port}";
             }
 
-            _bootstrap = new SimulationBootstrap { OnlineEnabled = false, SettingsPath = System.IO.Path.Combine(_directory, "settings.json") };
+            _bootstrap = new SimulationBootstrap { OnlineEnabled = false, VerificationOwnsExit = true, SettingsPath = System.IO.Path.Combine(_directory, "settings.json") };
             _bootstrap.AddChild(new PlayerInput { Name = "PlayerInput" });
             AddChild(_bootstrap);
             _player = _bootstrap.GetNode<PlayerInput>("PlayerInput");
             _settings = _bootstrap.GetNode<PlayerSettingsController>("PlayerSettings");
             _menu = _settings.GetNode<SettingsPanel>("SettingsPanel");
+            _devTools = _bootstrap.GetNode<DevToolsShell>("DevTools");
             _session = _bootstrap.GetNode<DevelopmentSession>("DevelopmentSession");
             await Frames(3);
             CheckCursor(false, "Main Menu pointer");
@@ -110,22 +113,23 @@ public sealed partial class MenuIntegrationChecks : Node
             await Capture("settings");
             foreach (MenuPage page in Enum.GetValues<MenuPage>().Where(page => page >= MenuPage.Audio))
             {
-                Press(page == MenuPage.DeveloperOptions ? "Developer Options" : page.ToString());
+                Press(page.ToString());
                 Check(_menu.CurrentPage == page, "category opens: " + page);
                 CheckCursor(false, "category releases capture: " + page);
                 await Frames(2);
-                if (page == MenuPage.DeveloperOptions)
-                {
-                    var content = Descendants(_menu).OfType<VBoxContainer>().Single(node => node.Name == "DeveloperOptions");
-                    Check(content.GetChildCount() == 1, "Developer Options owns one unified developer panel");
-                    await Frames(20);
-                    Check(Buttons(_menu).Any(button => button.IsVisibleInTree() && button.Text == "Apply Settings"), "Developer Options exposes host tuning");
-                }
-
                 await Capture(page.ToString());
                 Joy(JoyButton.B);
                 Check(_menu.CurrentPage == MenuPage.Settings, "category Back returns to Settings: " + page);
             }
+
+            Press("Developer Options");
+            await Frames(20);
+            Check(_menu.CurrentPage == MenuPage.Settings && _devTools.IsOpen && _devTools.SelectedTab == DevToolsTab.Configs, "Settings routes to unified DevTools Configs");
+            Check(Buttons(_devTools.Configs).Any(button => button.IsVisibleInTree() && button.Text == "Apply Settings"), "Configs exposes existing host tuning");
+            await Capture("DeveloperOptions");
+            await VerifyDevToolsNavigation();
+            Tap(Key.Escape);
+            Check(!_devTools.IsOpen && _menu.CurrentPage == MenuPage.Settings, "DevTools ESC restores Settings");
 
             Press("Audio");
             var sliders = Descendants(_menu).OfType<HSlider>().ToArray();
@@ -171,14 +175,14 @@ public sealed partial class MenuIntegrationChecks : Node
             Tap(Key.F1);
             CheckCursor(false, "F1 Developer Options releases capture");
             Tap(Key.F1);
-            CheckCursor(true, "F1 close restores capture");
+            Check(_devTools.IsOpen && _devTools.SelectedTab == DevToolsTab.Configs, "repeated F1 stays on Configs");
             Tap(Key.F2);
-            CheckCursor(false, "Statistic Panel releases capture");
-            Tap(Key.F2);
+            Check(_devTools.SelectedTab == DevToolsTab.Stats, "F2 switches to Stats without reopening");
             Tap(Key.F3);
-            CheckCursor(false, "Event Log releases capture");
-            Tap(Key.F3);
-            CheckCursor(true, "diagnostic close restores capture");
+            Check(_devTools.SelectedTab == DevToolsTab.Logs, "F3 switches to Logs without reopening");
+            CheckCursor(false, "shared DevTools shell releases capture");
+            Tap(Key.Escape);
+            CheckCursor(true, "DevTools close restores capture");
             Check(new PlayerSettingsStore(_bootstrap.SettingsPath!).Load().SpeedUnit == SpeedUnit.MilesPerHour, "close flushes existing settings file");
             Joy(JoyButton.B);
             Check(_menu.CurrentPage == MenuPage.Closed, "shared handbrake button does not open the menu");
@@ -209,6 +213,11 @@ public sealed partial class MenuIntegrationChecks : Node
             Press("Quit");
             Check(_session.LeaveComplete && _session.Arena is null, "Quit invokes production session cleanup before exit");
             GD.Print($"Menu integration passed: {_assertions} assertions; solo Waiting, navigation, settings, leave and production Quit.");
+            _bootstrap.QueueFree();
+            await Frames(4);
+            // Headless frames can finish before the audio thread releases stopped playback resources.
+            await ToSignal(GetTree().CreateTimer(0.1), SceneTreeTimer.SignalName.Timeout);
+            GetTree().Quit();
         }
         catch (Exception exception)
         {

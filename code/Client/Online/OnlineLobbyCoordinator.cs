@@ -118,7 +118,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal bool ShowsRetainedDecision => RetainedDecision is RetainedSessionDecision.Choose or RetainedSessionDecision.Reconnecting or RetainedSessionDecision.Leaving;
     /// <summary>Monotonic clock shared with the authority lifecycle.</summary>
     internal TimeProvider Clock => _time;
-    /// <summary>Credential-free EOS coordination state for Developer Options and manual diagnosis.</summary>
+    /// <summary>Credential-free EOS coordination state for DevTools Stats and manual diagnosis.</summary>
     internal string Diagnostics
     {
         get
