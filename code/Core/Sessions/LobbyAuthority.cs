@@ -69,7 +69,7 @@ public sealed class LobbyAuthority
             _tick = checkpoint.Tick,
             _nextId = checkpoint.NextId,
             Configuration = checkpoint.Configuration,
-            State = new LobbySnapshot(previous.Session, checked(previous.Revision + 1), previous.Match, previous.Phase, restoredPlayers, host, epoch, previous.Departed),
+            State = new LobbySnapshot(previous.Session, checked(previous.Revision + 1), previous.Match, previous.Phase, restoredPlayers, host, epoch, previous.Departed, previous.Map),
         };
 
         foreach (var player in result.State.Players)
@@ -123,7 +123,7 @@ public sealed class LobbyAuthority
     public LobbySnapshot SnapshotFor(ulong recipient)
     {
         var pending = _pendingJoins.Keys.Select(PlayerId).Where(player => player != recipient).ToHashSet();
-        return pending.Count == 0 ? State : new LobbySnapshot(State.Session, State.Revision, State.Match, State.Phase, State.Players.Where(player => !pending.Contains(player.Id)), State.CurrentHostId, State.AuthorityEpoch, State.Departed);
+        return pending.Count == 0 ? State : new LobbySnapshot(State.Session, State.Revision, State.Match, State.Phase, State.Players.Where(player => !pending.Contains(player.Id)), State.CurrentHostId, State.AuthorityEpoch, State.Departed, State.Map);
     }
 
     /// <summary>Retains a validated host-owned tuning boundary for the next checkpoint and arena.</summary>
@@ -276,7 +276,7 @@ public sealed class LobbyAuthority
             return false;
         }
 
-        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), checked(State.Match + 1), SessionPhase.Arena, State.Players, State.CurrentHostId, State.AuthorityEpoch);
+        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), checked(State.Match + 1), SessionPhase.Arena, State.Players, State.CurrentHostId, State.AuthorityEpoch, map: State.Map);
         Events.Record(EventCategory.Session, "Arena started", actor: State.CurrentHostId);
         return true;
     }
@@ -303,7 +303,7 @@ public sealed class LobbyAuthority
             RemovePlayer(id);
         }
 
-        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, SessionPhase.Lobby, State.Players.Select(player => player with { Ready = false, RetainedHost = false }), State.CurrentHostId, State.AuthorityEpoch);
+        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, SessionPhase.Lobby, State.Players.Select(player => player with { Ready = false, RetainedHost = false }), State.CurrentHostId, State.AuthorityEpoch, map: State.Map);
         Events.Record(EventCategory.Session, "Returned to lobby", actor: State.CurrentHostId);
         return true;
     }
@@ -407,7 +407,7 @@ public sealed class LobbyAuthority
         SessionPlayer player = State.Players.Single(player => player.Id == playerId);
         _identities.Remove(playerId);
         _previousPeers.Remove(playerId);
-        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, State.Phase, State.Players.Where(player => player.Id != playerId), State.CurrentHostId, State.AuthorityEpoch, State.Departed.Append(new MatchParticipant(playerId, player.Name)));
+        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, State.Phase, State.Players.Where(player => player.Id != playerId), State.CurrentHostId, State.AuthorityEpoch, State.Departed.Append(new MatchParticipant(playerId, player.Name)), State.Map);
         Events.Record(EventCategory.Session, "Match reservation abandoned", actor: playerId);
         return true;
     }
@@ -478,6 +478,25 @@ public sealed class LobbyAuthority
         };
     }
 
+    /// <summary>Changes the staging map only for the local authorized host.</summary>
+    /// <param name="peer">Actual sender; zero denotes local authority.</param>
+    /// <param name="map">Supported map selection.</param>
+    /// <returns>Whether the selection is valid at this boundary.</returns>
+    public bool SelectMap(ulong peer, MatchMap map)
+    {
+        if (peer != 0 || State.Phase != SessionPhase.Lobby || !Enum.IsDefined(map))
+        {
+            return false;
+        }
+
+        if (State.Map != map)
+        {
+            State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, State.Phase, State.Players, State.CurrentHostId, State.AuthorityEpoch, State.Departed, map);
+        }
+
+        return true;
+    }
+
     private void RemovePlayer(ulong id)
     {
         _identities.Remove(id);
@@ -485,5 +504,5 @@ public sealed class LobbyAuthority
         Publish(State.Players.Where(player => player.Id != id));
     }
 
-    private void Publish(IEnumerable<SessionPlayer> players) => State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, State.Phase, players, State.CurrentHostId, State.AuthorityEpoch, State.Departed);
+    private void Publish(IEnumerable<SessionPlayer> players) => State = new LobbySnapshot(State.Session, checked(State.Revision + 1), State.Match, State.Phase, players, State.CurrentHostId, State.AuthorityEpoch, State.Departed, State.Map);
 }

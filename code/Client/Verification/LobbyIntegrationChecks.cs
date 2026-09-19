@@ -137,6 +137,8 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Require(_sessions.All(session => session.Arena is null), "No arena exists before start.");
                 Require(host!.State!.Players.Select(player => player.Name).Order().SequenceEqual(Enumerable.Range(0, 8).Select(index => $"Player {index}").Order()), "Names sanitize consistently.");
                 Require(!host.Request(LobbyCommand.Start), "Unready host start is rejected.");
+                Require(host.SelectMap(MatchMap.OldMap), "Host can select Old Map.");
+                Require(!_sessions[1].Lobby!.SelectMap(MatchMap.NewMap), "Clients cannot select maps.");
                 Click(_sessions[1], "Ready");
                 Next("Eight production UIs joined; names and IDs match; unready start rejected.");
                 break;
@@ -145,6 +147,8 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Next("Targeted ready replicated to all eight peers.");
                 break;
             case 2 when SameState() && host!.State!.Players.All(player => !player.Ready):
+                Require(_sessions.All(session => session.Lobby!.State!.Map == MatchMap.OldMap), "All clients observe Old Map.");
+                Require(host.SelectMap(MatchMap.NewMap), "Host can select New Map.");
                 foreach (DevelopmentSession session in _sessions)
                 {
                     Click(session, "Ready");
@@ -185,6 +189,7 @@ public sealed partial class LobbyIntegrationChecks : Node
                 break;
             case 6 when AllRoster(8) && _sessions.All(session => session.Arena is null && session.Lobby!.State!.Phase == SessionPhase.Lobby):
                 Require(host!.State!.Players.All(player => !player.Ready), "Return clears all ready state.");
+                Require(host.SelectMap(MatchMap.OldMap), "Select Old Map for the second match.");
                 _departedId = _sessions[7].Lobby!.LocalPlayerId;
                 Click(_sessions[7], "Ready");
                 Next("Return preserved identities and cleared readiness on every peer.");
@@ -217,6 +222,7 @@ public sealed partial class LobbyIntegrationChecks : Node
                     RemoteVehicleTagChecks.Verify(session.Arena!, session.Lobby!);
                 }
 
+                Require(_sessions.All(session => session.Arena!.Map is Arenas.CombatArena && session.Arena.Driver.EntryReady), "All eight players load and synchronize Old Map.");
                 Require(host!.State!.Match > _firstMatch, "Second match advances vehicle generation.");
                 _departedId = _sessions[7].Lobby!.LocalPlayerId;
                 _sessions[7].Leave();
@@ -233,6 +239,7 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Next("Arena departure retained the vehicle; host ended the match.");
                 break;
             case 13 when _sessions.Take(7).All(session => session.Arena is null && session.Lobby!.State!.Players.All(player => player.Id != _departedId)):
+                Require(host!.SelectMap(MatchMap.NewMap), "Return to New Map for active admission.");
                 foreach (var session in _sessions.Take(7))
                 {
                     Click(session, "Ready");
@@ -290,9 +297,9 @@ public sealed partial class LobbyIntegrationChecks : Node
 
     private bool AllRoster(int count) => _sessions.All(session => session.Lobby?.State?.Players.Count == count) && SameState();
 
-    private bool SameState() => _sessions.All(session => session.Lobby?.State is LobbySnapshot state && _sessions[0].Lobby?.State is LobbySnapshot host && state.Revision == host.Revision && state.Players.SequenceEqual(host.Players));
+    private bool SameState() => _sessions.All(session => session.Lobby?.State is LobbySnapshot state && _sessions[0].Lobby?.State is LobbySnapshot host && state.Map == host.Map && state.Revision == host.Revision && state.Players.SequenceEqual(host.Players));
 
-    private bool AllArena() => _sessions.All(session => session.Arena?.Driver.Latest?.Vehicles.Count == 8 && session.Arena.Driver.LocalState is not null);
+    private bool AllArena() => _sessions.All(session => session.Arena?.Driver.Latest?.Vehicles.Count == 8 && session.Arena.Driver.LocalState is not null && session.Arena.Driver.EntryReady);
 
     private void Next(string evidence)
     {

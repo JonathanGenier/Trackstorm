@@ -38,6 +38,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
         _coordinator = new OnlineLobbyCoordinator(_provider, new OnlineProductUserId(new string('1', 32)));
         _session = new DevelopmentSession { OnlineCoordinator = () => _online ? _coordinator : null, OnlineStatus = () => _online ? EosLobbyStatus.Connected : _identityStates[_stage + 7], OnlineLogin = () => _loginRequests++ };
         AddChild(_session);
+        Press("Browse online lobbies");
     }
 
     /// <inheritdoc />
@@ -121,9 +122,16 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     Edit("Lobby name").Text = "My Game";
                     break;
                 case 6:
+                    _provider.DeferCreate = true;
                     Press("Host Game");
+                    Require(_session.Stage == ApplicationStage.Admission && _session.Lobby is null, "Creating must wait for authoritative admission.");
                     break;
                 case 7:
+                    Require(_session.Stage == ApplicationStage.Admission && Controls<Label>().Any(label => label.IsVisibleInTree() && label.Text.StartsWith("JOINING / CREATING", StringComparison.Ordinal)), "Pending creation has visible progress.");
+                    _provider.CompleteCreate!();
+                    _provider.CompleteCreate = null;
+                    Require(_session.Stage == ApplicationStage.Admission && _session.Lobby is null, "EOS membership alone cannot enter the joined Lobby.");
+                    Controls<OnlineLobbyPanel>().Single()._Process(0);
                     Require(_coordinator.IsHost, "Host control failed.");
                     Edit("Lobby name").Text = "Renamed Game";
                     Press("Rename lobby");
@@ -201,7 +209,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Reconnecting, "Reconnect choice not submitted.");
                     Require(_reservationGateway!.ResumeRequests == 1, "Reconnect did not use exactly one existing resume intent.");
                     Capture("retained-reconnecting");
-                    GD.Print("Online lobby UI integration passed: launch enters the browser, missing hints remain a scoped lookup result, found hints do not restore membership, explicit validation precedes authority confirmation, and release/reconnect controls remain idempotent; fake provider, no native EOS authentication.");
+                    GD.Print("Online lobby UI integration passed: Main Menu opens the browser; asynchronous creation waits for authoritative admission; missing hints remain a scoped lookup result, found hints do not restore membership, explicit validation precedes authority confirmation, and release/reconnect controls remain idempotent; fake provider, no native EOS authentication.");
                     GetTree().Quit();
                     break;
             }
@@ -284,12 +292,21 @@ public sealed partial class OnlineLobbyUiChecks : Node
         private readonly LobbyCredential _credential = LobbyCredential.Create("test-code");
         private OnlineLobby? _active;
         internal int ResumeRequests { get; private set; }
+        internal bool DeferCreate { get; set; }
+        internal Action? CompleteCreate { get; set; }
         public void Search(Action<IReadOnlyList<OnlineLobby>, string?> completed) => completed(new[] { new OnlineLobby("public", "Arena Public", _remote, 100, LobbyAccess.Public, 2, 8, OnlineLobby.CurrentProtocol, true, null), new OnlineLobby("locked", "Private Game", _remote, 200, LobbyAccess.Locked, 3, 8, OnlineLobby.CurrentProtocol, true, _credential), new OnlineLobby("incompatible", "Different build", _remote, 300, LobbyAccess.Public, 1, 8, OnlineLobby.CurrentProtocol, true, null) { Version = new GameVersion(GameVersion.Current.Release, GameVersion.Current.Revision == 0 ? 1 : GameVersion.Current.Revision - 1).ToString() } }, null);
         public void Lookup(string id, Action<OnlineLobbyLookup> completed) => Search((rows, failure) => completed(new(rows.SingleOrDefault(row => row.Id == id), failure)));
         public void Create(OnlineLobby lobby, Action<OnlineLobby?, string?> completed)
         {
             _active = lobby with { Id = "hosted", Owner = _local };
-            completed(_active, null);
+            if (DeferCreate)
+            {
+                CompleteCreate = () => completed(_active, null);
+            }
+            else
+            {
+                completed(_active, null);
+            }
         }
 
         public void Join(string id, Action<OnlineLobby?, string?> completed) => Search((rows, _) =>
