@@ -74,6 +74,12 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 viewport.AddChild(_client);
                 _client.Open(false, endpoint, "Joined player");
                 await Until(() => _client.Lobby?.State?.Players.Count == 2, "real UDP client admission");
+                _devTools.Configs.Session = () => _client;
+                await Frames(2);
+                Check(!Descendants(_devTools.Configs).OfType<LineEdit>().Any(editor => editor.IsVisibleInTree()), "joined client's Configs hides host-only settings");
+                Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.IsVisibleInTree()), "joined client's Configs hides mutation actions");
+                _devTools.Configs.Session = () => _host;
+                await Frames(20);
                 string hostDiagnostics = DeveloperDiagnostics.Capture(_host);
                 string clientDiagnostics = DeveloperDiagnostics.Capture(_client);
                 Check(hostDiagnostics.Contains("Local PlayerId: 1; CurrentHostId: 1; role: HOST", StringComparison.Ordinal), "host diagnostic identity and role");

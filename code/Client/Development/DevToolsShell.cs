@@ -1,19 +1,33 @@
 using Godot;
 using Trackstorm.Client.Input;
+using Trackstorm.Client.Settings;
 using Trackstorm.Client.Statistics;
+using Trackstorm.Core.Input;
 
 namespace Trackstorm.Client.Development;
 
 /// <summary>Single full-window owner for developer-tool navigation and input suppression.</summary>
 internal sealed partial class DevToolsShell : CanvasLayer
 {
+    private static readonly InputAction[] NavigationActions =
+    [
+        InputAction.MenuCancel, InputAction.Pause, InputAction.MenuUp, InputAction.MenuDown,
+        InputAction.MenuLeft, InputAction.MenuRight, InputAction.MenuAccept,
+    ];
+
     private readonly PanelContainer _root = new() { Visible = false };
     private readonly VBoxContainer _pages = new() { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
     private readonly Dictionary<DevToolsTab, Button> _tabs = new();
     private readonly Dictionary<DevToolsTab, Control> _content = new();
     private readonly Button _close = new() { Text = "Close", CustomMinimumSize = new Vector2(90, 40) };
+    private readonly Dictionary<InputAction, bool> _menuHeld = new();
     private PlayerInputAdapter _input = null!;
     private Control? _previousFocus;
+    private InputAction? _repeatAction;
+    private double _repeatDelay;
+
+    /// <summary>Synchronizes the underlying menu's held input when navigation returns to it.</summary>
+    internal Action NavigationClosed { get; set; } = () => { };
 
     /// <summary>The existing host-authoritative configuration surface.</summary>
     internal DeveloperOptionsPanel Configs { get; } = new() { Name = "Configs" };
@@ -66,7 +80,15 @@ internal sealed partial class DevToolsShell : CanvasLayer
         layout.AddChild(_pages);
 
         var configsScroll = new ScrollContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, FollowFocus = true };
-        configsScroll.AddChild(Configs);
+        var configsMargin = new MarginContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        configsMargin.AddChild(Configs);
+        configsScroll.AddChild(configsMargin);
+        configsScroll.Resized += () =>
+        {
+            int margin = Math.Max(0, (int)(configsScroll.Size.X - 640) / 2);
+            configsMargin.AddThemeConstantOverride("margin_left", margin);
+            configsMargin.AddThemeConstantOverride("margin_right", margin);
+        };
         AddPage(DevToolsTab.Configs, configsScroll);
         AddPage(DevToolsTab.Stats, Stats);
         AddPage(DevToolsTab.Logs, Logs);
@@ -77,24 +99,49 @@ internal sealed partial class DevToolsShell : CanvasLayer
     /// <inheritdoc/>
     public override void _Input(InputEvent @event)
     {
-        if (@event is not InputEventKey { Pressed: true, Echo: false } key)
+        if (@event is InputEventKey { Pressed: true, Echo: false } key)
         {
-            return;
+            DevToolsTab? requested = KeyMatches(key, Key.F1) && DeveloperTools.Enabled ? DevToolsTab.Configs
+                : KeyMatches(key, Key.F2) ? DevToolsTab.Stats
+                : KeyMatches(key, Key.F3) ? DevToolsTab.Logs
+                : null;
+            if (requested is { } tab)
+            {
+                Open(tab);
+                GetViewport().SetInputAsHandled();
+                return;
+            }
+
+            if (IsOpen && KeyMatches(key, Key.Escape))
+            {
+                Close();
+                GetViewport().SetInputAsHandled();
+                return;
+            }
         }
 
-        DevToolsTab? requested = KeyMatches(key, Key.F1) && DeveloperTools.Enabled ? DevToolsTab.Configs
-            : KeyMatches(key, Key.F2) ? DevToolsTab.Stats
-            : KeyMatches(key, Key.F3) ? DevToolsTab.Logs
-            : null;
-        if (requested is { } tab)
+        bool open = IsOpen;
+        bool navigation = SampleNavigation(open);
+        if (open && (navigation || @event is InputEventJoypadButton or InputEventJoypadMotion ||
+            (@event is InputEventKey && GetViewport().GuiGetFocusOwner() is not LineEdit)))
         {
-            Open(tab);
+            // Keep native text entry, but never let ui_* defaults bypass logical remaps or trap controller focus.
             GetViewport().SetInputAsHandled();
         }
-        else if (IsOpen && KeyMatches(key, Key.Escape))
+    }
+
+    /// <inheritdoc/>
+    public override void _Process(double delta)
+    {
+        SampleNavigation(IsOpen);
+        if (IsOpen && _repeatAction is { } repeat)
         {
-            Close();
-            GetViewport().SetInputAsHandled();
+            _repeatDelay -= delta;
+            if (_repeatDelay <= 0)
+            {
+                Navigate(repeat);
+                _repeatDelay = 0.12;
+            }
         }
     }
 
@@ -126,6 +173,7 @@ internal sealed partial class DevToolsShell : CanvasLayer
             _root.Show();
             _input.DiagnosticSuppressed = true;
             _input.Observe();
+            SampleNavigation(false);
         }
 
         Select(tab);
@@ -141,6 +189,8 @@ internal sealed partial class DevToolsShell : CanvasLayer
         }
 
         _root.Hide();
+        _repeatAction = null;
+        NavigationClosed();
         _input.DiagnosticSuppressed = false;
         _input.Observe();
         GetViewport().GuiGetFocusOwner()?.ReleaseFocus();
@@ -153,6 +203,65 @@ internal sealed partial class DevToolsShell : CanvasLayer
     }
 
     private static bool KeyMatches(InputEventKey input, Key key) => input.Keycode == key || input.PhysicalKeycode == key;
+
+    private static IEnumerable<Control> Focusable(Node node)
+    {
+        foreach (Node child in node.GetChildren(includeInternal: true))
+        {
+            if (child is Control control && control.IsVisibleInTree() && control.FocusMode == Control.FocusModeEnum.All && control is not BaseButton { Disabled: true })
+            {
+                yield return control;
+            }
+
+            foreach (Control descendant in Focusable(child))
+            {
+                yield return descendant;
+            }
+        }
+    }
+
+    private bool SampleNavigation(bool dispatch)
+    {
+        bool active = false;
+        bool routed = false;
+        foreach (InputAction action in NavigationActions)
+        {
+            bool held = _input.Enabled && _input.Bindings.Strength(action, _input.DeadZone) > 0.5f;
+            bool previous = _menuHeld.GetValueOrDefault(action);
+            _menuHeld[action] = held;
+            active |= held;
+            if (!held || !dispatch)
+            {
+                if (_repeatAction == action)
+                {
+                    _repeatAction = null;
+                }
+            }
+            else if (!previous && !routed)
+            {
+                routed = true;
+                Navigate(action);
+                if (IsOpen && action is InputAction.MenuUp or InputAction.MenuDown or InputAction.MenuLeft or InputAction.MenuRight)
+                {
+                    _repeatAction = action;
+                    _repeatDelay = 0.4;
+                }
+            }
+        }
+
+        return active;
+    }
+
+    private void Navigate(InputAction action)
+    {
+        if (action is InputAction.MenuCancel or InputAction.Pause)
+        {
+            Close();
+            return;
+        }
+
+        MenuFocusNavigation.Navigate(action, Focusable(_root).ToArray(), GetViewport().GuiGetFocusOwner());
+    }
 
     private void AddPage(DevToolsTab tab, Control content)
     {

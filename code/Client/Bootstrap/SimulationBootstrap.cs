@@ -171,6 +171,7 @@ public sealed partial class SimulationBootstrap : Node
         devTools.Stats.Capture = selected => Statistics.RuntimeStatistics.Capture(_session, _arena, selected, _online?.DeveloperDiagnostics ?? "EOS unavailable.");
         devTools.Logs.Source = () => _arena?.Simulation.Events ?? _session?.Events;
         panel.DiagnosticOverlayOpen = () => devTools.IsOpen;
+        devTools.NavigationClosed = panel.ResumeNavigation;
         panel.OpenDeveloperTools = () => devTools.Open(Development.DevToolsTab.Configs);
         AddChild(devTools);
         panel.ArenaAvailable = () => _arena is not null || _session?.Arena is not null || _quitRequested;

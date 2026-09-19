@@ -127,6 +127,7 @@ public sealed partial class MenuIntegrationChecks : Node
             Check(_menu.CurrentPage == MenuPage.Settings && _devTools.IsOpen && _devTools.SelectedTab == DevToolsTab.Configs, "Settings routes to unified DevTools Configs");
             Check(Buttons(_devTools.Configs).Any(button => button.IsVisibleInTree() && button.Text == "Apply Settings"), "Configs exposes existing host tuning");
             await Capture("DeveloperOptions");
+            await VerifyDevToolsNavigation();
             Tap(Key.Escape);
             Check(!_devTools.IsOpen && _menu.CurrentPage == MenuPage.Settings, "DevTools ESC restores Settings");
 
@@ -214,6 +215,8 @@ public sealed partial class MenuIntegrationChecks : Node
             GD.Print($"Menu integration passed: {_assertions} assertions; solo Waiting, navigation, settings, leave and production Quit.");
             _bootstrap.QueueFree();
             await Frames(4);
+            // Headless frames can finish before the audio thread releases stopped playback resources.
+            await ToSignal(GetTree().CreateTimer(0.1), SceneTreeTimer.SignalName.Timeout);
             GetTree().Quit();
         }
         catch (Exception exception)

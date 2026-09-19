@@ -73,10 +73,10 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         foreach (var group in GameplayOptions.All.GroupBy(option => option.Group))
         {
             _host.AddChild(new Label { Text = group.Key.ToUpperInvariant() });
+            var rows = ConfigurationRows(_host);
             foreach (var option in group)
             {
-                var row = new HBoxContainer();
-                row.AddChild(new Label { Text = System.Text.RegularExpressions.Regex.Replace(option.Label, "([a-z])([A-Z])", "$1 $2"), SizeFlagsHorizontal = SizeFlags.ExpandFill });
+                rows.AddChild(ConfigurationLabel(System.Text.RegularExpressions.Regex.Replace(option.Label, "([a-z])([A-Z])", "$1 $2")));
                 Control editor;
                 if (option.Boolean)
                 {
@@ -94,8 +94,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
                 editor.Name = option.Key.Replace('.', '_');
                 editor.TooltipText = option.Label + (option.Label.EndsWith("Ticks", StringComparison.Ordinal) ? " (60 ticks = 1 second)" : string.Empty);
                 _editors.Add(option.Key, editor);
-                row.AddChild(editor);
-                _host.AddChild(row);
+                rows.AddChild(editor);
             }
         }
 
@@ -103,14 +102,13 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         _network.AddChild(new Label { Text = "LOCAL NETWORK SIMULATION\nDirect-IP: affects all sockets in this process. Not saved.", AutowrapMode = TextServer.AutowrapMode.WordSmart });
         string[] names = ["Latency (ms)", "Jitter (ms)", "Loss (%)", "Reorder (%)", "Reorder delay (ms)"];
         int[] maxima = [5000, 1000, 100, 100, 5000];
+        var networkRows = ConfigurationRows(_network);
         for (int i = 0; i < names.Length; i++)
         {
-            var row = new HBoxContainer();
-            row.AddChild(new Label { Text = names[i], SizeFlagsHorizontal = SizeFlags.ExpandFill });
+            networkRows.AddChild(ConfigurationLabel(names[i]));
             var value = new SpinBox { MinValue = 0, MaxValue = maxima[i], Step = 1, CustomMinimumSize = new Vector2(150, 36) };
             _simulation.Add(value);
-            row.AddChild(value);
-            _network.AddChild(row);
+            networkRows.AddChild(value);
         }
 
         Button(_network, "Apply local network simulation", () =>
@@ -194,6 +192,23 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         parent.AddChild(button);
         return button;
     }
+
+    private static GridContainer ConfigurationRows(Container parent)
+    {
+        var rows = new GridContainer { Columns = 2, SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
+        rows.AddThemeConstantOverride("h_separation", 16);
+        rows.AddThemeConstantOverride("v_separation", 6);
+        parent.AddChild(rows);
+        return rows;
+    }
+
+    private static Label ConfigurationLabel(string text) => new()
+    {
+        Text = text,
+        CustomMinimumSize = new Vector2(280, 0),
+        AutowrapMode = TextServer.AutowrapMode.WordSmart,
+        VerticalAlignment = VerticalAlignment.Center,
+    };
 
     private void RefreshValues()
     {
