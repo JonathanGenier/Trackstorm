@@ -5,11 +5,13 @@ namespace Trackstorm.Client.Bootstrap;
 /// <summary>Coordinates minimal boot presentation, application resource loading, and recoverable completion.</summary>
 internal sealed partial class StartupController : Node
 {
+    private const string SplashVideoPath = "res://assets/frontend/Splashscreen.ogv";
     private const string FrontendVideoPath = "res://assets/frontend/Menu no music.ogv";
     private const string FrontendMusicPath = "res://assets/audio/project/music/Welcome to the Carnage Circus main menu.mp3";
 
     private static readonly string[] FrontendResources =
     [
+        SplashVideoPath,
         FrontendVideoPath,
         FrontendMusicPath,
     ];
@@ -58,6 +60,7 @@ internal sealed partial class StartupController : Node
     private MenuShell? _shell;
     private AudioStream? _frontendMusic;
     private VideoStream? _frontendVideo;
+    private VideoStream? _splashVideo;
     private string? _preloadingPath;
     private int _preloadIndex;
     private string? _loadingPath;
@@ -91,8 +94,11 @@ internal sealed partial class StartupController : Node
     /// <summary>Whether the persistent frontend video and music are both playing.</summary>
     internal bool MediaPlaying => _shell?.MediaPlaying == true;
 
-    /// <summary>Configurable splash duration used by production and runtime verification.</summary>
-    internal double SplashDuration { get; set; } = 1.4;
+    /// <summary>Whether the dedicated one-shot Splash video is currently playing.</summary>
+    internal bool SplashPlaying => _splash?.Playing == true;
+
+    /// <summary>Identity of the dedicated Splash video player.</summary>
+    internal ulong SplashVideoInstanceId => _splash?.VideoInstanceId ?? 0;
 
     /// <summary>Whether the next system initialization should fail for runtime verification.</summary>
     internal bool FailNextInitialization { get; set; }
@@ -157,7 +163,8 @@ internal sealed partial class StartupController : Node
     {
         if (_preloadIndex >= FrontendResources.Length)
         {
-            _splash = new SplashScreen { Name = "SplashScreen", Duration = SplashDuration };
+            _splash = new SplashScreen { Name = "SplashScreen" };
+            _splash.Initialize(_splashVideo ?? throw new InvalidOperationException("Splash video was not preloaded."));
             _splash.Completed += BeginFrontendLoading;
             AddChild(_splash);
             _flow.ShowSplash();
@@ -190,7 +197,11 @@ internal sealed partial class StartupController : Node
         }
 
         Resource resource = ResourceLoader.LoadThreadedGet(path) ?? throw new InvalidOperationException($"Frontend resource could not be loaded: {path}");
-        if (path == FrontendVideoPath)
+        if (path == SplashVideoPath)
+        {
+            _splashVideo = resource as VideoStream ?? throw new InvalidOperationException("Splash video has an unsupported imported type.");
+        }
+        else if (path == FrontendVideoPath)
         {
             _frontendVideo = resource as VideoStream ?? throw new InvalidOperationException("Frontend video has an unsupported imported type.");
         }

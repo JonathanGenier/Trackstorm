@@ -2,54 +2,57 @@ using Godot;
 
 namespace Trackstorm.Client.Bootstrap;
 
-/// <summary>Dedicated, self-timed splash presentation with no application initialization responsibility.</summary>
+/// <summary>Dedicated one-shot video presentation with no application initialization responsibility.</summary>
 internal sealed partial class SplashScreen : CanvasLayer
 {
-    private readonly Control _root = new();
-    private double _elapsed;
+    private readonly VideoStreamPlayer _video = new()
+    {
+        Name = "SplashVideo",
+        Expand = true,
+        Loop = false,
+        AudioTrack = 0,
+        Bus = "Master",
+        Volume = 1,
+        MouseFilter = Control.MouseFilterEnum.Ignore,
+    };
+    private bool _completed;
 
     /// <summary>Raised once after this presentation has fully elapsed.</summary>
     internal event Action? Completed;
 
-    /// <summary>Presentation duration in seconds.</summary>
-    internal double Duration { get; set; } = 1.4;
+    /// <summary>Whether the splash video, including its embedded audio, is currently playing.</summary>
+    internal bool Playing => _video.IsPlaying();
+
+    /// <summary>Stable identity used by native startup verification.</summary>
+    internal ulong VideoInstanceId => _video.GetInstanceId();
 
     /// <inheritdoc/>
     public override void _Ready()
     {
         Layer = 20;
-        AddChild(_root);
-        _root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        var backdrop = new ColorRect { Color = new Color("080b12"), MouseFilter = Control.MouseFilterEnum.Ignore };
-        _root.AddChild(backdrop);
-        backdrop.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        var title = new Label
+        if (_video.Stream is null)
         {
-            Text = "TRACKSTORM",
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            AnchorRight = 1,
-            AnchorBottom = 1,
-            MouseFilter = Control.MouseFilterEnum.Ignore,
-        };
-        title.AddThemeFontSizeOverride("font_size", 54);
-        title.AddThemeColorOverride("font_color", new Color("e9edf5"));
-        title.AddThemeColorOverride("font_shadow_color", new Color("a81f2b"));
-        title.AddThemeConstantOverride("shadow_offset_x", 4);
-        title.AddThemeConstantOverride("shadow_offset_y", 4);
-        _root.AddChild(title);
+            throw new InvalidOperationException("Splash video must be initialized before entering the scene tree.");
+        }
+
+        AddChild(_video);
+        _video.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        _video.Finished += Complete;
+        _video.Play();
     }
 
-    /// <inheritdoc/>
-    public override void _Process(double delta)
+    /// <summary>Assigns the preloaded Godot-compatible splash stream.</summary>
+    /// <param name="stream">One-shot video stream with embedded audio.</param>
+    internal void Initialize(VideoStream stream) => _video.Stream = (VideoStream)stream.Duplicate();
+
+    private void Complete()
     {
-        _elapsed += delta;
-        double fade = Math.Min(_elapsed / 0.25, Math.Max(0, (Duration - _elapsed) / 0.25));
-        _root.Modulate = new Color(1, 1, 1, (float)Math.Clamp(fade, 0, 1));
-        if (_elapsed >= Duration)
+        if (_completed)
         {
-            SetProcess(false);
-            Completed?.Invoke();
+            return;
         }
+
+        _completed = true;
+        Completed?.Invoke();
     }
 }

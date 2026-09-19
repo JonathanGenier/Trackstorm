@@ -10,6 +10,7 @@ internal sealed partial class StartupIntegrationChecks : Node
     private StartupController _startup = null!;
     private ulong _loaderBackground;
     private ulong _loaderMusic;
+    private ulong _splashVideo;
     private double _seconds;
     private bool _recovered;
 
@@ -20,7 +21,7 @@ internal sealed partial class StartupIntegrationChecks : Node
     public override void _Process(double delta)
     {
         _seconds += delta;
-        if (_seconds > 15)
+        if (_seconds > 45)
         {
             Fail("startup verification timed out");
         }
@@ -39,10 +40,16 @@ internal sealed partial class StartupIntegrationChecks : Node
         if (stage == StartupStage.Splash)
         {
             Check(_startup.GetNodeOrNull<MenuShell>("MenuShell") is null, "Splash completes before MenuShell exists");
+            Check(_startup.SplashPlaying, "Splash video with embedded audio begins in the Splash state");
+            Check(!_startup.MediaPlaying, "Loader video and music do not play during Splash");
+            _splashVideo = _startup.SplashVideoInstanceId;
+            Check(_splashVideo != 0, "Splash owns a dedicated video player");
         }
         else if (stage == StartupStage.FrontendLoading)
         {
             ulong current = _startup.BackgroundInstanceId;
+            Check(_startup.SplashVideoInstanceId == 0, "Completed Splash video does not continue into Loader");
+            Check(current != _splashVideo, "Loader uses a distinct video player after Splash completes");
             Check(current != 0, "MenuShell background begins with Loader");
             Check(_startup.MediaPlaying, "Frontend video and independent music begin with Loader");
             if (_loaderBackground == 0)

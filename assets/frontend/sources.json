@@ -1,6 +1,28 @@
 {
   "files": [
     {
+      "path": "assets/frontend/source/Splashscreen.mov",
+      "source": "Splashscreen.mov",
+      "jira": "TS-85",
+      "bytes": 2801507,
+      "sha256": "80adaa9625911c141c4b4d6bb6b1407783758f6ead3672ed10ad54f83b6f0a8d",
+      "format": "QuickTime; H.264 Main, yuv420p BT.709, 1920x1080, 30 fps; AAC-LC stereo 48 kHz",
+      "durationSeconds": 5.55,
+      "license": "Project-provided; no third-party license asserted"
+    },
+    {
+      "path": "assets/frontend/Splashscreen.ogv",
+      "derivedFrom": "assets/frontend/source/Splashscreen.mov",
+      "bytes": 1607574,
+      "sha256": "bc875c5712c738a0edfd2ecf9aed4646525ec93432e88d42d6fbb934df825fac",
+      "format": "Ogg; Theora, yuv420p BT.709, 1920x1080, 30 fps; Vorbis stereo 48 kHz",
+      "durationSeconds": 5.55,
+      "processing": "ffmpeg -hide_banner -y -i <source.mov> -map 0:v:0 -map 0:a:0 -c:v libtheora -q:v 7 -pix_fmt yuv420p -r 30 -c:a libvorbis -q:a 6 -ar 48000 -ac 2 -f ogg <runtime.ogv>",
+      "tool": "FFmpeg 7.1 from imageio-ffmpeg 0.6.0",
+      "reason": "Godot 4 built-in VideoStreamPlayer supports Ogg Theora/Vorbis, not QuickTime H.264/AAC; both streams are retained in one synchronized runtime container.",
+      "license": "Project-provided derivative; no third-party license asserted"
+    },
+    {
       "path": "assets/frontend/source/Menu no music.mov",
       "source": "Menu no music.mov",
       "jira": "TS-85",

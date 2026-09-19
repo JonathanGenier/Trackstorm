@@ -104,7 +104,6 @@ public sealed partial class SimulationBootstrap : Node
                 PrepareFrontend = PrepareFrontend,
                 PresentMainMenu = PresentMainMenu,
                 AbortApplication = AbortApplicationInitialization,
-                SplashDuration = startupCheck ? 0.05 : 1.4,
                 FailNextInitialization = startupCheck,
             };
             AddChild(_startup);

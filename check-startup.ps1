@@ -17,7 +17,7 @@ foreach ($entry in $manifest.files) {
 }
 dotnet build Trackstorm.sln -c Debug -warnaserror
 if ($LASTEXITCODE -ne 0) { throw 'Startup verification build failed.' }
-$arguments = @('--path', $PSScriptRoot, 'res://scenes/main.tscn', '--quit-after', '1200')
+$arguments = @('--path', $PSScriptRoot, 'res://scenes/main.tscn', '--quit-after', '3600')
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
 $output = & $GodotPath @arguments -- '--startup-check' 2>&1
 $exitCode = $LASTEXITCODE

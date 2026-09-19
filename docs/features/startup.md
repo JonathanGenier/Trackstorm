@@ -8,7 +8,7 @@ Fresh production startup follows one explicit sequence:
 
 ## Ownership and transitions
 
-`StartupFlow` accepts only the required ordered transitions. The Preloader presents one frame, imports only the two immediate frontend media dependencies, and then creates the dedicated `SplashScreen`; it performs no global application initialization. After the splash completes, `StartupController` creates one `MenuShell` and never replaces it while moving from Loader to Main Menu.
+`StartupFlow` accepts only the required ordered transitions. The Preloader presents one frame, loads only the Splash and two immediate MenuShell media dependencies, and then creates the dedicated `SplashScreen`; it performs no global application initialization. `SplashScreen` owns a full-screen one-shot Ogg Theora video with its synchronized embedded Vorbis audio on the Master bus. Native video completion—not a timer or player input—advances the flow. After completion the Splash owner is removed, `StartupController` creates one `MenuShell`, and the separate Loader video/music begin from their starts. The shell is never replaced while moving from Loader to Main Menu.
 
 `MenuShell` owns the approved silent Ogg Theora background, loader/failure chrome and separately routed authoritative MP3 player. Saved audio settings and the Music bus initialize before playback begins. The video player has zero embedded-audio gain and its runtime OGV contains no audio stream; music remains an independent looping `AudioStreamPlayer` on the settings-controlled Music bus. Each stream loops independently. Entering gameplay hides the shell and stops both players; returning to the frontend resumes the same shell owner.
 
@@ -22,6 +22,6 @@ Loading or required-system composition failure enters a blocking failure panel i
 
 ## Verification
 
-`StartupFlowTests` covers successful order, failure/retry and invalid transition rejection without Godot. `check-startup.ps1 -GodotPath <Godot .NET executable>` runs the production main scene, injects one required-initialization failure, retries through the production recovery path, and verifies ordered states, splash-before-shell, Main Menu gating, active playback, and exact video/music player instance continuity. The [frontend media record](../../assets/frontend/README.md) owns source preservation, conversion and hashes. Visual timing, loop-seam quality and audible output still require a rendered/manual run.
+`StartupFlowTests` covers successful order, failure/retry and invalid transition rejection without Godot. `check-startup.ps1 -GodotPath <Godot .NET executable>` checks all startup media hashes, runs the production main scene, lets the actual Splash finish, injects one required-initialization failure, retries through the production recovery path, and verifies ordered states, active one-shot Splash playback without MenuShell media, Splash teardown before Loader, Main Menu gating, and exact Loader video/music player instance continuity. The [frontend media record](../../assets/frontend/README.md) owns source preservation, conversion and hashes. Visual scaling, audio/video synchronization, loop-seam quality and audible output still require a rendered/manual run.
 
 [Feature index](README.md) · [Game Menu](game-menu.md) · [Settings](settings.md) · [Arena audio](audio.md)
