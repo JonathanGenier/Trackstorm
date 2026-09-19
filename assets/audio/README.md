@@ -1,6 +1,6 @@
 # Arena audio assets
 
-The arena owns all playback. Main-menu audio is outside this package.
+Arena playback and the MenuShell's independent Music-bus player share this package.
 Every required runtime clip is committed: clone, perform the normal Godot import,
 build and run. No audio download, Python, FFmpeg or manual audio setup is required.
 The normal project prerequisites still apply, including the separately documented
@@ -8,8 +8,10 @@ The normal project prerequisites still apply, including the separately documente
 
 `sources.json` is the authoritative manifest of source identities, licenses,
 acquired-byte and derivative SHA-256 hashes, and processing selections. The three
-MP3s under `project/music` retain the original TS-35 attachment bytes and names.
+arena MP3s under `project/music` retain the original TS-35 attachment bytes and names.
 They are project-provided assets; no external music license is asserted.
+The fourth MP3 is the unchanged TS-85 authoritative frontend track; its paired video,
+provenance and conversion record are in the [frontend media record](../frontend/README.md).
 
 `kenney/impact`, `kenney/interface` and `kenney/scifi` contain selected CC0 1.0
 clips and original `License.txt` notices. These are pack version 1.0 selections;
@@ -66,8 +68,8 @@ separate spatial metal impact at runtime.
 Python and FFmpeg are external authoring tools only, not redistributed dependencies.
 The recorded processing used FFmpeg 7.1 from imageio-ffmpeg 0.6.0. Regeneration updates
 derivative hashes; arbitrary decoder versions need not produce identical bytes.
-WAV files use ordinary Git binary storage, consistent with existing audio assets;
-this repository has no Git LFS policy or configuration.
+WAV and MP3 files use ordinary Git binary storage. The larger TS-85 source and
+runtime video files use the repository's scoped Git LFS rules.
 
 `check-audio.ps1 -GodotPath <exe>` checks every manifest file's existence and hash,
 then exercises imported streams, buses, settings, playlists and arena lifecycle.
