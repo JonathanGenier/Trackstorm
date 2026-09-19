@@ -1,0 +1,82 @@
+# Oval foundation authoring
+
+`source/OvalFoundation.blend` is the editable production source. The unchanged
+Higgsfield master is retained next to it. `.gdignore` excludes these authoring
+files from Godot import/export; the game consumes the committed GLB files.
+
+Use Blender 5.2.2 and Godot 4.7.2 .NET (the versions used for verification):
+
+```powershell
+& $BlenderPath --background --python-exit-code 1 --python assets/maps/oval/BuildOval.py
+& $GodotPath --headless --path . --editor --import
+& $GodotPath --headless --path . --script assets/maps/oval/BuildOvalScene.gd
+./check-oval.ps1 -GodotPath $GodotPath -Visual
+```
+
+`BuildOval.py` deliberately rebuilds from the immutable master. It overwrites
+`source/OvalFoundation.blend`, both GLBs and `measurements.json`. Preserve later
+manual Blender edits before rerunning it. For subsequent manual authoring, edit
+the production blend and export only `Track`, `Infield`, and `GridMarkings` to
+`oval_foundation.glb` with selection-only, modifiers applied, Y-up, metre units
+and no animations. Export the reference car separately if it changes. Update
+measurements and rerun the scene bake/checks after geometry changes.
+
+The retained map import configuration disables position compression and automatic
+LODs: either could change the source geometry or cause visual/collision mismatch.
+Do not discard that tracked `.import` file. The scene baker uses the imported
+surfaces to write two static concave collision resources and the reusable map
+scene. It is offline tooling; no runtime script constructs map geometry or collision.
+
+## Source treatment
+
+Every original `TrackSurface_18m` vertex is preserved at its original metre
+coordinate. The master has 916 ordered inner/outer sections. Its downward face
+winding is reversed, and each section is split into six strips across the road
+by linear interpolation of those actual vertices. This reduces diagonal faceting
+on twisting quads without inventing a bank curve. The road has 10,992 triangles;
+collision uses that same modest mesh rather than disconnected boxes or convex
+hulls that would fill the oval. The master solidify modifier is excluded: the
+driving surface is a continuous, upward-facing sheet.
+
+The infield uses the exact flat inner boundary, with 916 planar triangles to its
+center. Road and infield meet at y=0 with no overlapping floor or vertical step.
+The original rectangular infield slab, barrier, lights, camera, label and arrows
+are not production foundation content. Neutral materials distinguish road,
+infield and grid; no texture dependency is added.
+
+The original grid overlapped a banking transition. Its eight 6 × 3 m outlines
+are reauthored in Blender on the flat straight: four rows at x=0,-8,-16,-24 m,
+two lanes at Godot z=96,86 m, facing +X. Outline outer bounds are exactly 6 × 3 m;
+paint is 0.1 m wide and 0.012 m above the road with no collision. Stable markers
+use the existing `PlayerSpawns/player-01` through `player-08` convention. Their
+origins are 0.85 m above the surface for the existing vehicle to settle. The
+separate reference car is 4.81 m long and appears only in the validation fixture.
+
+## Measurement interpretation
+
+`measurements.json` records source section coordinates converted to Godot's
+Y-up coordinates `(x, z, -y)`, the source checksum and measured dimensions.
+
+| Measurement | Result |
+| --- | --- |
+| Surface width | 17.999988–18.000012 m |
+| Straights between tangent centers | 214 m each |
+| Plan centerline turn radius | 90.999993–91.000007 m |
+| Plan centerline polygonal lap | 999.766840 m (analytic 999.769863 m) |
+| Elevated surface-centerline lap | 1000.279695 m |
+| Horizontal road footprint | 410.741608 × 200 m |
+| Full bank | 35.000001° |
+| Outside-edge rise over inner edge | 10.324376 m |
+
+The 999.77 m reference is a **plan** lap: `2 × 214 + 2π × 91`. The longer
+surface-centerline path includes the banking elevation changes. Similarly,
+414 × 200 m describes an unbanked 18 m wide oval. At full bank the horizontal
+width is `18 cos(35°)`, reducing its long-axis footprint. Expanding the supplied
+banking to 414 m would violate either the 18 m surface width or 91 m radius.
+
+All four transitions retain the master's sampled profile. The sampled intervals
+bracketing flat-to-full-bank (or the reverse) span 149.6064 m in plan, consistent
+with the 150 m reference at the approximately 1.0–1.2 m source section spacing.
+No analytic replacement curve or concept-art reconstruction is used.
+
+[Current map architecture](../../../docs/features/oval-map.md)

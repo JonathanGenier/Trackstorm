@@ -1,0 +1,65 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/maps/oval/oval_foundation.glb" id="1_8npgq"]
+[ext_resource type="Shape3D" path="res://assets/maps/oval/TrackCollision.tres" id="2_3arwm"]
+[ext_resource type="Shape3D" path="res://assets/maps/oval/InfieldCollision.tres" id="3_713o3"]
+
+[node name="OvalFoundation" type="Node3D" unique_id=1219216818]
+
+[node name="Geometry" type="Node3D" parent="." unique_id=1437717419 instance=ExtResource("1_8npgq")]
+
+[node name="Collision" type="Node3D" parent="." unique_id=1361900466]
+
+[node name="Track" type="StaticBody3D" parent="Collision" unique_id=985708587]
+
+[node name="Shape" type="CollisionShape3D" parent="Collision/Track" unique_id=1345835297]
+shape = ExtResource("2_3arwm")
+
+[node name="Infield" type="StaticBody3D" parent="Collision" unique_id=243440412]
+
+[node name="Shape" type="CollisionShape3D" parent="Collision/Infield" unique_id=1009107219]
+shape = ExtResource("3_713o3")
+
+[node name="PlayerSpawns" type="Node3D" parent="." unique_id=143645201]
+
+[node name="player-01" type="Marker3D" parent="PlayerSpawns" unique_id=1202557869]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0.85, 96)
+metadata/slot_length_m = 6.0
+metadata/slot_width_m = 3.0
+
+[node name="player-02" type="Marker3D" parent="PlayerSpawns" unique_id=731372544]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0.85, 86)
+metadata/slot_length_m = 6.0
+metadata/slot_width_m = 3.0
+
+[node name="player-03" type="Marker3D" parent="PlayerSpawns" unique_id=639755602]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -8, 0.85, 96)
+metadata/slot_length_m = 6.0
+metadata/slot_width_m = 3.0
+
+[node name="player-04" type="Marker3D" parent="PlayerSpawns" unique_id=863708455]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -8, 0.85, 86)
+metadata/slot_length_m = 6.0
+metadata/slot_width_m = 3.0
+
+[node name="player-05" type="Marker3D" parent="PlayerSpawns" unique_id=1157927918]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -16, 0.85, 96)
+metadata/slot_length_m = 6.0
+metadata/slot_width_m = 3.0
+
+[node name="player-06" type="Marker3D" parent="PlayerSpawns" unique_id=1757052289]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -16, 0.85, 86)
+metadata/slot_length_m = 6.0
+metadata/slot_width_m = 3.0
+
+[node name="player-07" type="Marker3D" parent="PlayerSpawns" unique_id=2131388443]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -24, 0.85, 96)
+metadata/slot_length_m = 6.0
+metadata/slot_width_m = 3.0
+
+[node name="player-08" type="Marker3D" parent="PlayerSpawns" unique_id=1027271149]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -24, 0.85, 86)
+metadata/slot_length_m = 6.0
+metadata/slot_width_m = 3.0
+
+[node name="MapContent" type="Node3D" parent="." unique_id=42307847]

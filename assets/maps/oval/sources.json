@@ -1,0 +1,18 @@
+{
+  "assets": [
+    {
+      "name": "Higgsfield 3D Jutsu oval master",
+      "source_url": "https://jonathangenier.atlassian.net/browse/TS-71",
+      "attachment_id": "10016",
+      "filename": "a3efed07-c338-4d10-b122-91356975b5d5-r2.blend",
+      "size_bytes": 1178873,
+      "sha256": "49af73b8d400e25682636e6c361c7432c4c8b5c946f66b69050733babc848eba",
+      "acquisition": "Project-provided local Blender Master copy, matching Jira attachment filename and byte size; hash identifies the retained local source. Remote attachment byte equality was not independently verified.",
+      "license": "Project-supplied Higgsfield output, explicitly assigned for use and retention in Trackstorm. No separate third-party license or public-domain dedication is asserted.",
+      "attribution": "Higgsfield 3D Jutsu master supplied by the project owner; provenance retained here.",
+      "retained_source": "source/a3efed07-c338-4d10-b122-91356975b5d5-r2.blend",
+      "derived_assets": ["source/OvalFoundation.blend", "oval_foundation.glb", "reference_vehicle.glb", "TrackCollision.tres", "InfieldCollision.tres"],
+      "processing": "Blender metre-scale road coordinates and banking retained; corrected normals, six cross-track strips, flat boundary-matched infield and relocated eight-slot grid. Godot collision baked offline. See README.md."
+    }
+  ]
+}

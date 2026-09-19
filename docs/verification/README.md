@@ -6,6 +6,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 
 | Evidence | Reports |
 | --- | --- |
+| Real-scale banked oval foundation | [TS-71 source geometry, reusable map scene, collision, native lap and scale verification](ts-71.md) |
 | Release 0.1.0 baseline | [TS-89 exact tuning promotion, persistence and version verification](ts-89.md) |
 | Retained-match menu decision | [TS-68 prompt, abandonment and preserved history verification](ts-68.md) |
 | Three-component build version | [TS-70 migration, explicit release authorization and export identity verification](ts-70.md) |

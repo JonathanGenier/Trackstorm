@@ -17,6 +17,7 @@ Start with the system being changed. Read its document and only the integration 
 | [Vehicles and damage](vehicles.md) | Movement, suspension, surfaces, HP, collision/effect contracts | [Arena](arena.md), [camera](camera.md), [lifecycle](death-respawn.md), [replication](vehicle-networking.md) |
 | [Chase camera](camera.md) | Local orientation, inertia and feedback | [Vehicles](vehicles.md), [replication](vehicle-networking.md) |
 | [Combat arena](arena.md) | Layout, markers, props, materials and shared spawn geometry | [Vehicles](vehicles.md), [pickups](item-spawns.md), [replication](vehicle-networking.md) |
+| [Banked oval map](oval-map.md) | Standalone Blender-authored foundation, real scale, banking, grid markers and static collision | [Combat arena](arena.md), [vehicles](vehicles.md) |
 | [Transport foundation](transport.md) | Opaque gateway, endpoints, GNS fallback and legacy state envelope | [Vehicle networking](vehicle-networking.md), [sessions](sessions.md), [EOS P2P](eos-p2p.md) |
 | [Vehicle networking](vehicle-networking.md) | Host input, snapshots, prediction and reconciliation | [Transport](transport.md), [vehicles](vehicles.md), [sessions](sessions.md) |
 | [Session flow](sessions.md) | Admission, Ready/Start/Return and Direct-IP development UI | [EOS lobbies](eos-lobbies.md), [vehicle networking](vehicle-networking.md), [matches](matches.md) |
