@@ -4,6 +4,8 @@ The centered **MATCH STANDINGS** board displays exactly **#, Player Name, Kills,
 
 ## Authority and presentation
 
+Finished presentation uses the same retained authoritative phase/result installed by ordinary publication or reconnect checkpoint. Application driving and item use remain suppressed under the [Game Loop policy](game-loop.md), while the results board and menu stay available. Fresh admission remains closed during Finished; existing retained identities can resume into the frozen result.
+
 `Core.Matches.MatchRanking` is the single deterministic ranking rule: credited kills descending, deaths ascending, then stable PlayerId ascending. The recorded winner is first. The authoritative arena roster and departed-history identities include disconnected and intentionally departed participants until Return ends the arena/results lifecycle. Those retained participants keep their names, score rows and ranking eligibility; losing a transport binding does not remove a participant. Players awaiting their first totals receive zero totals. Disconnect does not rewrite the frozen match result or reorder rows by online status.
 
 Each row carries the authoritative roster's `Connected` state. Offline rows dim all five cells to 55% opacity and always display Ping as `--`, even if a diagnostic provider still has a sample. Name, Kills, Deaths and rank remain readable. A valid same-PlayerId resume restores normal opacity and fresh Ping when available, using the same row and authoritative totals. Disconnected vehicles remain vulnerable, so later gameplay can still change their totals/rank before Finished; the disconnect itself never does.
