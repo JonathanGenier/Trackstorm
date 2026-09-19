@@ -20,7 +20,7 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("vehicle.grip", 12d)]
     [TestCase("vehicle.steering_angle", 0.6000000238418579d)]
     [TestCase("vehicle.steering_speed", 18d)]
-    [TestCase("vehicle.steering_response", 2.4D)]
+    [TestCase("vehicle.steering_response", 2.4000000953674316d)]
     [TestCase("vehicle.wheelbase", (double)VehicleDimensions.Wheelbase)]
     [TestCase("vehicle.tire_friction", 1.350000023841858d)]
     [TestCase("vehicle.drive_traction_reserve", 0.550000011920929d)]

@@ -76,7 +76,7 @@ Open edges are intentional: this is a foundation, not a contained arena.
 checks imported coordinates, transforms, road dimensions, collision equivalence,
 22,900 raycasts over every road section and closure, adjacent normal continuity,
 flat infield/rim coverage, all eight grid footprints and reference vehicle scale.
-It also runs the existing `VehicleBody` and Core simulation through three high-speed laps using test-only steering input, plus low-speed bank descent/start, drift recovery, excessive-input spin and infield crossing. The fixture does not alter production tuning
+It also runs the existing `VehicleBody` and Core simulation through three high-speed laps using test-only steering input, plus low-speed bank descent/start, drift recovery, excessive-input spin and infield crossing. Practice and network collision adapters cross the bank-to-infield crease at multiple speeds and on a diagonal, with explicit wheel-support, rebound and settling bounds. An isolated test runway/crest also checks straight powered acceleration, coast-down, ordinary turns and 12 cm bump absorption. The fixture does not alter production tuning
 or artificially move the driving body around the lap. It also starts ordinary
 practice, checks all eight settled vehicles against the authored slots, resets
 them back to the grid and verifies existing music playback.
