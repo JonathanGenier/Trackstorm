@@ -158,6 +158,10 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 var arena = new NetworkVehicleArena();
                 arena.Initialize(_gateways[i], i == 0 ? _host.State!.Match : 0, i == 0 ? 0 : _client.ServerPeer, i == 0 ? _host : _client);
                 _views[i].AddChild(arena);
+                // Explicit fixture for the existing lethal wall-impact scenario, outside the map scene.
+                var impactWall = new StaticBody3D { Name = "LethalImpactFixture", Position = new Vector3(-60, 1, -35) };
+                impactWall.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(1, 4, 8) } });
+                arena.AddChild(impactWall);
                 _arenas.Add(arena);
             }
 
@@ -241,7 +245,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
             RemoteVehicleTagChecks.Verify(_arenas[1], _client);
             Require(_arenas[0].Bodies[_player].GetNode<RemoteVehicleTag>("PlayerTag") == _originalTag, "Three reconnects retain exactly the same remote tag.");
             Require(_arenas[1].Driver.LocalItem?.Item == HeldItem.Wrench, "Held item survives match-long retention.");
-            Require(_arenas[1].Driver.ItemState?.Spawns.Count == 8 && _arenas[1].Driver.Match?.Players.Count == 2, "Pickup and match state arrive in the checkpoint.");
+            Require(_arenas[1].Driver.ItemState?.Spawns.Count == 0 && _arenas[1].Driver.Match?.Players.Count == 2, "Empty oval pickup layout and match state arrive in the checkpoint.");
+            OvalGameplayAssertions.Verify(_arenas[1]);
             if (_resyncs < 3)
             {
                 Drop();

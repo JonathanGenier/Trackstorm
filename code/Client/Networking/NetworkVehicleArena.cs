@@ -22,17 +22,23 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private string _developerDiagnostics = string.Empty;
     private VehicleNetworkDriver _driver = null!;
     private LobbyNetworkDriver? _lobby;
-    private Arenas.CombatArena _layout = null!;
+    private Arenas.CombatArena? _layout;
     private ulong _collisionLife;
     private ulong _collisionTick;
 
     /// <summary>Host pickup tuning supplied before scene entry.</summary>
     internal ItemSpawnConfiguration? SpawnConfiguration { get; init; }
+    /// <summary>Explicit old-map fixture for prop/pickup regressions; never enabled by application loading.</summary>
+    internal bool PrototypeMapForVerification { get; init; }
+    /// <summary>Actual loaded map, independent of session systems.</summary>
+    internal Node3D Map { get; private set; } = null!;
+    /// <summary>Scene-derived marker contract used for initial spawns, respawns and migration.</summary>
+    internal Core.Arenas.ArenaConfiguration MapConfiguration { get; private set; } = null!;
     /// <summary>Replicated pickup presentation for runtime verification.</summary>
     internal Items.ItemSpawnPresentation Pickups => _pickups;
 
     /// <summary>Shared authored layout for runtime verification.</summary>
-    internal Arenas.CombatArena Layout => _layout;
+    internal Arenas.CombatArena Layout => _layout ?? throw new InvalidOperationException("The active oval has no prototype arena content.");
 
     /// <summary>Production session driver exposed to the runtime verification harness.</summary>
     internal VehicleNetworkDriver Driver => _driver;
@@ -48,6 +54,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
     internal double InterpolationDelay => _interpolation.DelayMilliseconds;
     /// <summary>Existing runtime diagnostics presented by the unified Developer Options page.</summary>
     internal string DeveloperDiagnostics => _developerDiagnostics;
+
+    private IReadOnlyList<RigidBody3D> Props => _layout?.Props ?? Array.Empty<RigidBody3D>();
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -66,22 +74,26 @@ internal sealed partial class NetworkVehicleArena : Node3D
             }
         });
         AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-55, -25, 0), LightEnergy = 1.4f, ShadowEnabled = true });
-        _layout = new Arenas.CombatArena { Name = "PrototypeArena", Replica = _driver.Host is null };
-        AddChild(_layout);
+        if (_layout is not null)
+        {
+            _layout.Replica = _driver.Host is null;
+        }
+
+        AddChild(Map);
         AddChild(_items);
         AddChild(_destruction);
         AddChild(_audio);
         _driver.LifecycleReceived += snapshot => _audio.ApplyVehicles(snapshot.Vehicles.Select(vehicle => vehicle.State));
         _driver.MatchReceived += state => _audio.ApplyMatch(state);
         _driver.LifecycleReceived += snapshot => _destruction.Apply(snapshot.Vehicles.Select(vehicle => vehicle.State));
-        var markers = _layout.ValidateScene();
+        var markers = MapConfiguration;
         _driver.Host?.RegisterSpawns(markers, SpawnConfiguration);
         AddChild(_pickups);
         _pickups.Initialize(markers);
         _driver.ObservePickups = () =>
         {
             var contacts = new List<(string Spawn, ulong Vehicle)>();
-            foreach (var marker in _layout.GetNode<Node3D>("ItemSpawns").GetChildren().OfType<Marker3D>())
+            foreach (var marker in Map.GetNodeOrNull<Node3D>("ItemSpawns")?.GetChildren().OfType<Marker3D>() ?? Enumerable.Empty<Marker3D>())
             {
                 foreach (var pair in _bodies)
                 {
@@ -106,7 +118,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             {
                 foreach (var impact in publication.Events.Where(outcome => outcome.Impact))
                 {
-                    foreach (var prop in _layout.Props)
+                    foreach (var prop in Props)
                     {
                         var effect = _driver.Host.Items.Explosion(impact.Position, VehicleBody.ToCore(prop.GlobalPosition));
                         prop.ApplyCentralImpulse(VehicleBody.ToGodot(effect.Impulse));
@@ -114,15 +126,19 @@ internal sealed partial class NetworkVehicleArena : Node3D
                 }
             }
         };
-        _driver.ObserveProps = () => _layout.Props.Select(prop => new VehiclePhysicsState(VehicleBody.ToCore(prop.GlobalPosition), new System.Numerics.Quaternion(prop.Quaternion.X, prop.Quaternion.Y, prop.Quaternion.Z, prop.Quaternion.W), VehicleBody.ToCore(prop.LinearVelocity), VehicleBody.ToCore(prop.AngularVelocity))).ToArray();
+        if (Props.Count > 0)
+        {
+            _driver.ObserveProps = () => Props.Select(prop => new VehiclePhysicsState(VehicleBody.ToCore(prop.GlobalPosition), new System.Numerics.Quaternion(prop.Quaternion.X, prop.Quaternion.Y, prop.Quaternion.Z, prop.Quaternion.W), VehicleBody.ToCore(prop.LinearVelocity), VehicleBody.ToCore(prop.AngularVelocity))).ToArray();
+        }
+
         _driver.PropsReceived += snapshot =>
         {
             for (int index = 0; index < snapshot.Bodies.Count; index++)
             {
                 VehiclePhysicsState state = snapshot.Bodies[index];
-                _layout.Props[index].GlobalTransform = new Transform3D(new Basis(VehicleBody.ToGodot(state.Orientation)), VehicleBody.ToGodot(state.Position));
-                _layout.Props[index].LinearVelocity = VehicleBody.ToGodot(state.LinearVelocity);
-                _layout.Props[index].AngularVelocity = VehicleBody.ToGodot(state.AngularVelocity);
+                Props[index].GlobalTransform = new Transform3D(new Basis(VehicleBody.ToGodot(state.Orientation)), VehicleBody.ToGodot(state.Position));
+                Props[index].LinearVelocity = VehicleBody.ToGodot(state.LinearVelocity);
+                Props[index].AngularVelocity = VehicleBody.ToGodot(state.AngularVelocity);
             }
         };
         AddChild(_camera);
@@ -210,7 +226,19 @@ internal sealed partial class NetworkVehicleArena : Node3D
     internal void Initialize(ITransportGateway gateway, ulong session, ulong serverPeer, LobbyNetworkDriver? lobby = null, Core.Development.GameplayConfiguration? configuration = null)
     {
         _lobby = lobby;
-        _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby, configuration: configuration ?? Core.Development.GameplayConfiguration.HostedDefaults);
+        if (PrototypeMapForVerification)
+        {
+            _layout = new Arenas.CombatArena { Name = "PrototypeArena" };
+            Map = _layout;
+            MapConfiguration = Core.Arenas.PrototypeArena.Configuration;
+        }
+        else
+        {
+            Map = Arenas.ActiveMap.Load();
+            MapConfiguration = Arenas.ActiveMap.ReadConfiguration(Map);
+        }
+
+        _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby, configuration: configuration ?? Core.Development.GameplayConfiguration.HostedDefaults, arena: MapConfiguration);
         _driver.ConfigurationChanged += accepted =>
         {
             foreach (var body in _bodies.Values)
@@ -226,7 +254,11 @@ internal sealed partial class NetworkVehicleArena : Node3D
             _audio.ApplyItems(_driver.ItemState!, true);
             _audio.ApplyMatch(_driver.Match!, true);
             _interpolation.Reset();
-            _layout.Replica = _driver.Host is null;
+            if (_layout is not null)
+            {
+                _layout.Replica = _driver.Host is null;
+            }
+
             foreach (var body in _bodies.Values)
             {
                 body.PushProps = _driver.Host is not null;
@@ -261,7 +293,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
 
             return observation;
         });
-        foreach (var prop in _layout.Props)
+        foreach (var prop in Props)
         {
             prop.Freeze = _driver.Host is null || !_driver.IsActive;
         }

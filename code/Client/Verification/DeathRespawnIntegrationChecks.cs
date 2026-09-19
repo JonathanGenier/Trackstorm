@@ -76,6 +76,10 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
             var arena = new NetworkVehicleArena();
             arena.Initialize(gateway, index == 0 ? 240ul : 0, server);
             viewport.AddChild(arena);
+            // Test-only impact target; it is not part of the active map scene.
+            var impactWall = new StaticBody3D { Name = "LethalImpactFixture", Position = new Vector3(-60, 1, -35) };
+            impactWall.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(1, 4, 8) } });
+            arena.AddChild(impactWall);
             _arenas.Add(arena);
             var outcomes = new List<VehicleSnapshot>();
             _boundaries.Add(outcomes);
@@ -139,6 +143,11 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
         switch (_stage)
         {
             case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Driver.LocalState is not null):
+                foreach (var arena in _arenas)
+                {
+                    OvalGameplayAssertions.Verify(arena);
+                }
+
                 _victim = _arenas[1].Driver.LocalVehicleId;
                 Prepare();
                 break;

@@ -39,7 +39,7 @@ public sealed partial class ArenaIntegrationChecks : Node3D
             _output = OS.GetCmdlineUserArgs().FirstOrDefault(argument => argument.StartsWith("--arena-output=", StringComparison.Ordinal))?[15..] ?? ProjectSettings.GlobalizePath("res://.godot/arena-checks");
             System.IO.Directory.CreateDirectory(_output);
             Engine.PhysicsTicksPerSecond = 60;
-            _practice = new VehicleArena();
+            _practice = new VehicleArena { PrototypeMapForVerification = true };
             AddChild(_practice);
             _layout = _practice.GetNode<CombatArena>("PrototypeArena");
             _advance = true;

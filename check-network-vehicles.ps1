@@ -7,6 +7,7 @@ param (
     [int]$Jitter = 0,
     [float]$Loss = 0,
     [switch]$Visual,
+    [switch]$PrototypeMap,
     [switch]$NoBuild
 )
 
@@ -30,10 +31,12 @@ try {
         $output = Join-Path $networkOutput "player-$index"
         if ($Visual -and $index -eq 1) {
             $visualArguments = @('--path', $PSScriptRoot, 'res://scenes/verification/network_vehicle_checks.tscn', '--', "--network-check-$role=127.0.0.1:$port", "--network-check-players=$Players", "--network-check-seconds=$duration", "--network-check-latency=$Latency", "--network-check-jitter=$Jitter", "--network-check-loss=$($Loss.ToString([System.Globalization.CultureInfo]::InvariantCulture))", "--network-check-output=$output")
+            if ($PrototypeMap) { $visualArguments += '--network-check-prototype' }
             continue
         }
         $arguments = @('--path', "`"$PSScriptRoot`"", 'res://scenes/verification/network_vehicle_checks.tscn', '--', "--network-check-$role=127.0.0.1:$port", "--network-check-players=$Players", "--network-check-seconds=$duration", "--network-check-latency=$Latency", "--network-check-jitter=$Jitter", "--network-check-loss=$($Loss.ToString([System.Globalization.CultureInfo]::InvariantCulture))", "`"--network-check-output=$output`"")
         if (-not $Visual -or $index -ne 1) { $arguments = @('--headless') + $arguments }
+        if ($PrototypeMap) { $arguments += '--network-check-prototype' }
         $processes[$index] = Start-Process -FilePath $GodotPath -ArgumentList $arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput "$output.log" -RedirectStandardError "$output.errors.log"
         if ($index -eq 0) { Start-Sleep -Milliseconds 400 }
     }

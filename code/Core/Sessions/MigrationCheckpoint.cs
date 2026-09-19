@@ -12,7 +12,8 @@ public sealed class MigrationCheckpoint
     /// <param name="host">Authority-only gameplay supplement, absent in lobby.</param>
     /// <param name="leaseSession">Opaque coordination session for admitted survivors; absent in trusted native harnesses.</param>
     /// <param name="routingId">Optional read-only routing address for retained-player restart; never a lease key or token.</param>
-    public MigrationCheckpoint(ulong sequence, LobbyRestoreState lobby, ResumeCheckpoint? arena, HostRestoreState? host, string? leaseSession = null, string? routingId = null)
+    /// <param name="map">Local authored map contract used to validate authority restoration.</param>
+    public MigrationCheckpoint(ulong sequence, LobbyRestoreState lobby, ResumeCheckpoint? arena, HostRestoreState? host, string? leaseSession = null, string? routingId = null, Arenas.ArenaConfiguration? map = null)
     {
         if (sequence == 0 || (lobby.State.Phase == SessionPhase.Arena) != (arena is not null) || (arena is null) != (host is null))
         {
@@ -32,7 +33,7 @@ public sealed class MigrationCheckpoint
             }
 
             // Prove the whole continuation is restorable before publishing or accepting it.
-            _ = HostVehicleSession.Restore(arena, host!, lobby.State.CurrentHostId);
+            _ = HostVehicleSession.Restore(arena, host!, lobby.State.CurrentHostId, arena: map);
         }
 
         Sequence = sequence;

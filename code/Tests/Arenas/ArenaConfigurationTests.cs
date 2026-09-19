@@ -1,5 +1,6 @@
 using System.Numerics;
 using Trackstorm.Core.Arenas;
+using Trackstorm.Core.Items;
 using Trackstorm.Core.Networking.Replication;
 using Trackstorm.Core.Vehicles;
 
@@ -107,6 +108,35 @@ internal sealed class ArenaConfigurationTests
         host.Leave(3);
         ulong replacement = host.Join(20);
         Assert.That(host.World.GetVehicle(replacement).Movement.Physics.Position, Is.EqualTo(PrototypeArena.Configuration.Players[3].Position));
+    }
+
+    /// <summary>A map without pickups keeps its own player poses through admission and authority replacement.</summary>
+    [Test]
+    public void SuppliedMapOwnsInitialRejoinRespawnAndRestoredAuthoritySlots()
+    {
+        var original = PrototypeArena.Configuration;
+        var offset = new Vector3(200, 0, 100);
+        var map = new ArenaConfiguration(original.Minimum + offset, original.Maximum + offset, original.Players.Select(marker => marker with { Position = marker.Position + offset }), [], original.Surfaces);
+        var host = new HostVehicleSession(1, arena: map);
+        host.RegisterSpawns(map);
+        for (ulong peer = 1; peer < 8; peer++)
+        {
+            host.Join(peer);
+        }
+
+        Assert.That(host.Spawns!.States, Is.Empty);
+        Assert.That(host.World.State.Vehicles.Select(vehicle => vehicle.Movement.Physics.Position), Is.EquivalentTo(map.Players.Select(marker => marker.Position)));
+        host.Leave(3);
+        ulong replacement = host.Join(20);
+        Assert.That(host.World.GetVehicle(replacement).Movement.Physics.Position, Is.EqualTo(map.Spawn(3).Position));
+        Assert.That(host.World.Arena.Respawn(1, 2).Position, Is.EqualTo(map.Spawn(1).Position));
+        var publication = new ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, [], host.Spawns.States);
+        var checkpoint = new ResumeCheckpoint(publication, host.World.State.Match!, null, host.Configuration);
+        var restored = HostVehicleSession.Restore(ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(checkpoint)), host.CaptureAuthority(), 2, arena: map);
+        Assert.That(restored.World.Arena, Is.SameAs(map));
+        Assert.That(restored.Spawns!.States, Is.Empty);
+        Assert.That(restored.World.Arena.Respawn(2, 2).Position, Is.EqualTo(map.Spawn(2).Position));
+        Assert.That(restored.World.State.Vehicles.Select(vehicle => vehicle.Movement.Physics.Position), Is.EquivalentTo(map.Players.Select(marker => marker.Position)));
     }
 
     private static ArenaConfiguration Copy(IEnumerable<ArenaSpawn>? players = null, IEnumerable<ArenaSpawn>? items = null, IEnumerable<SurfaceType>? surfaces = null)

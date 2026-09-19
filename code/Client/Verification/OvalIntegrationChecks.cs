@@ -14,6 +14,7 @@ public sealed partial class OvalIntegrationChecks : Node3D
     private readonly List<string> _evidence = new();
     private Node3D _map = null!;
     private VehicleBody _vehicle = null!;
+    private VehicleArena? _practice;
     private Vector3[] _inner = Array.Empty<Vector3>();
     private Vector3[] _outer = Array.Empty<Vector3>();
     private Vector3[] _centers = Array.Empty<Vector3>();
@@ -32,6 +33,11 @@ public sealed partial class OvalIntegrationChecks : Node3D
     /// <inheritdoc/>
     public override void _PhysicsProcess(double delta)
     {
+        if (_practice is { } practice)
+        {
+            practice.Advance(new InputFrame(practice.Simulation.State.Tick + 1, 0, 0, 0, 0, 0, 0));
+        }
+
         if (!_advance)
         {
             return;
@@ -87,9 +93,10 @@ public sealed partial class OvalIntegrationChecks : Node3D
             VerifyGrid();
             await CaptureViews();
             await VerifyDriving();
-            System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
             _advance = false;
             _vehicle.QueueFree();
+            await VerifyPractice();
+            System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             GD.Print($"Oval integration passed: {_evidence.Count} checks. Artifacts: {_output}");
@@ -250,6 +257,37 @@ public sealed partial class OvalIntegrationChecks : Node3D
         }
 
         reference.QueueFree();
+    }
+
+    private async Task VerifyPractice()
+    {
+        var viewport = new SubViewport { OwnWorld3D = true, Size = new Vector2I(320, 180), RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled };
+        AddChild(viewport);
+        var practice = new VehicleArena();
+        viewport.AddChild(practice);
+        _practice = practice;
+        await Frames(120);
+        OvalGameplayAssertions.VerifyMap(practice.Map, practice.Simulation.Arena);
+        Check(practice.GetChildren().OfType<Audio.ArenaAudio>().Single().MusicPlaying, "Normal practice starts the existing gameplay music.");
+        Check(practice.Vehicles.Count == 8, "Normal practice creates eight production vehicles on the active oval.");
+        foreach (VehicleBody vehicle in practice.Vehicles)
+        {
+            Vector3 spawn = VehicleBody.ToGodot(practice.Simulation.Arena.Spawn((int)vehicle.VehicleId - 1).Position);
+            Check(vehicle.State.Grounded && HorizontalDistance(vehicle.GlobalPosition, spawn) < 0.2f, $"Practice vehicle {vehicle.VehicleId} settles on its map grid marker.");
+        }
+
+        practice.Player.ResetBody(new VehiclePhysicsState(new Numerics.Vector3(10, 1, 10), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero));
+        await Frames(3);
+        practice.ResetVehicles();
+        await Frames(120);
+        foreach (VehicleBody vehicle in practice.Vehicles)
+        {
+            Vector3 spawn = VehicleBody.ToGodot(practice.Simulation.Arena.Spawn((int)vehicle.VehicleId - 1).Position);
+            Check(vehicle.State.Grounded && HorizontalDistance(vehicle.GlobalPosition, spawn) < 0.2f, $"Practice reset returns vehicle {vehicle.VehicleId} to its map grid marker.");
+        }
+
+        _practice = null;
+        viewport.QueueFree();
     }
 
     private async Task VerifyDriving()

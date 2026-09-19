@@ -26,6 +26,7 @@ public sealed partial class NetworkVehicleChecks : Node
     private bool _started;
     private ulong _startupMilliseconds;
     private bool _propsLaunched;
+    private bool _prototype;
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -58,7 +59,8 @@ public sealed partial class NetworkVehicleChecks : Node
             peer = _gateway.Connect(TransportEndpoint.DirectIp(Value("--network-check-client")));
         }
 
-        _arena = new NetworkVehicleArena();
+        _prototype = args.Contains("--network-check-prototype", StringComparer.Ordinal);
+        _arena = new NetworkVehicleArena { PrototypeMapForVerification = _prototype };
         _arena.Initialize(_gateway, host.Length > 0 ? 12345ul : 0, peer);
         _arena.Driver.LocalCorrected += state =>
         {
@@ -85,7 +87,18 @@ public sealed partial class NetworkVehicleChecks : Node
         {
             _arena.Advance(default);
             _largestRoster = Math.Max(_largestRoster, driver.Latest?.Vehicles.Count ?? 0);
-            _started = driver.Host is not null ? _largestRoster == _players : driver.LocalState is not null;
+            _started = _largestRoster == _players && driver.LocalState is not null;
+            if (_started && !_prototype)
+            {
+                var spawn = _arena.MapConfiguration.Spawn((int)driver.LocalVehicleId - 1).Position;
+                var position = driver.LocalState!.Movement.Physics.Position;
+                if (new System.Numerics.Vector2(position.X - spawn.X, position.Z - spawn.Z).Length() > 0.2f)
+                {
+                    GD.PushError("Initial network vehicle did not settle on its authored oval grid slot.");
+                    GetTree().Quit(1);
+                }
+            }
+
             if (Time.GetTicksMsec() - _startupMilliseconds > 60000)
             {
                 _done = true;
@@ -97,7 +110,7 @@ public sealed partial class NetworkVehicleChecks : Node
         }
 
         _seconds += delta;
-        if (!_propsLaunched && driver.Host is not null && _seconds > 7)
+        if (_prototype && !_propsLaunched && driver.Host is not null && _seconds > 7)
         {
             _propsLaunched = true;
             _arena.Layout.Explode(_arena.Layout.Props[0].GlobalPosition + new Vector3(-2, 0, 0));
@@ -106,8 +119,21 @@ public sealed partial class NetworkVehicleChecks : Node
         uint? ack = driver.Prediction?.History.LastAcknowledged;
         int? pending = driver.Prediction?.History.Pending.Count;
         short steering = _seconds is > 1 and < 6 ? (short)18000 : (short)0;
+        if (!_prototype)
+        {
+            // Turn inward from the +X grid into the flat infield; the foundation has no perimeter walls.
+            Vector3 forward = Vehicles.VehicleBody.ToGodot(System.Numerics.Vector3.Transform(-System.Numerics.Vector3.UnitZ, driver.LocalState!.Movement.Physics.Orientation));
+            float angle = new Vector3(forward.X, 0, forward.Z).SignedAngleTo(new Vector3(1, 0, -0.8f), Vector3.Up);
+            steering = (short)(Math.Clamp(-angle * 3, -1, 1) * short.MaxValue);
+        }
+
         InputButtons drift = _seconds is > 2 and < 3 ? InputButtons.Drift : 0;
         ushort throttle = _seconds < 6 ? ushort.MaxValue : (ushort)0;
+        if (!_prototype && driver.LocalState!.Speed > 12)
+        {
+            throttle = 0;
+        }
+
         ushort brake = _seconds >= 6 && driver.LocalState?.Speed > 0.5f ? ushort.MaxValue : (ushort)0;
         var input = new InputFrame(0, steering, throttle, brake, drift, 0, 0);
         try
@@ -188,10 +214,16 @@ public sealed partial class NetworkVehicleChecks : Node
         var position = driver.LocalState!.Movement.Physics.Position;
         var props = driver.PropSnapshot;
         float propTravel = props is null ? 0 : System.Numerics.Vector3.Distance(props.Bodies[0].Position, new System.Numerics.Vector3(-8, 1, -6));
-        float propReplicaError = props is null ? float.PositiveInfinity : props.Bodies.Select((body, index) => _arena.Layout.Props[index].GlobalPosition.DistanceTo(Vehicles.VehicleBody.ToGodot(body.Position))).Max();
+        float propReplicaError = props is null ? 0 : props.Bodies.Select((body, index) => _arena.Layout.Props[index].GlobalPosition.DistanceTo(Vehicles.VehicleBody.ToGodot(body.Position))).Max();
+        if (!_prototype)
+        {
+            OvalGameplayAssertions.Verify(_arena);
+        }
+
         var report = new
         {
             Host = driver.Host is not null,
+            Map = _arena.Map.SceneFilePath,
             LargestRoster = _largestRoster,
             LocalVehicle = driver.LocalVehicleId,
             Tick = driver.LocalState.Movement.Tick,
@@ -207,6 +239,7 @@ public sealed partial class NetworkVehicleChecks : Node
             LastAcknowledged = driver.Prediction?.History.LastAcknowledged ?? 0,
             Position = new[] { position.X, position.Y, position.Z },
             HP = driver.LocalState.Damage.CurrentHP,
+            Grounded = driver.LocalState.Movement.Grounded,
             PropTick = props?.Tick,
             PropTravel = propTravel,
             PropReplicaError = propReplicaError,
@@ -219,7 +252,9 @@ public sealed partial class NetworkVehicleChecks : Node
         }
 
         GD.Print(json);
-        if (props is null || propTravel < 0.5f || (driver.Host is null && propReplicaError > 0.01f) || _largestRoster != _players || driver.LocalState.Movement.Tick < 600 || (driver.Host is null && (driver.ReceivedSnapshots < 100 || _immediate < 100 || p99 >= 3)))
+        bool invalidProps = _prototype ? props is null || propTravel < 0.5f || (driver.Host is null && propReplicaError > 0.01f) : props is not null;
+        bool unsupported = !_prototype && (!driver.LocalState.Movement.Grounded || position.Y < 0);
+        if (invalidProps || unsupported || _largestRoster != _players || driver.LocalState.Movement.Tick < 600 || (driver.Host is null && (driver.ReceivedSnapshots < 100 || _immediate < 100 || p99 >= 3)))
         {
             throw new InvalidOperationException("Network vehicle runtime acceptance checks failed; inspect the recorded metrics.");
         }

@@ -62,6 +62,8 @@ internal sealed class SessionMigration
     internal Func<(ResumeCheckpoint Arena, HostRestoreState Host)>? CaptureArena { get; set; }
     /// <summary>Installs the agreed gameplay boundary and resets prediction/presentation baselines.</summary>
     internal Action<MigrationCheckpoint, bool>? RestoreArena { get; set; }
+    /// <summary>Local scene contract for checkpoint validation; never accepted from peer-supplied geometry.</summary>
+    internal Core.Arenas.ArenaConfiguration? MapConfiguration { get; set; }
     /// <summary>Notifies the provider adapter after Trackstorm has established authority.</summary>
     internal Action<string>? AuthorityChanged { get; set; }
     /// <summary>Online composition proves local service liveness; native harnesses supply a trusted process seam.</summary>
@@ -260,7 +262,7 @@ internal sealed class SessionMigration
                     return true;
                 }
 
-                var checkpoint = MigrationCheckpointCodec.Decode(bytes[3..]);
+                var checkpoint = MigrationCheckpointCodec.Decode(bytes[3..], MapConfiguration);
                 var state = _lobby.State!;
                 if (checkpoint.Lobby.State.Session != state.Session || checkpoint.Lobby.State.AuthorityEpoch != state.AuthorityEpoch ||
                     checkpoint.Lobby.State.CurrentHostId != state.CurrentHostId || checkpoint.Lobby.State.Match != state.Match ||
@@ -409,7 +411,7 @@ internal sealed class SessionMigration
                 return;
             }
 
-            var checkpoint = new MigrationCheckpoint(checked(++_sequence), authority.Capture(_subject), arena?.Arena, arena?.Host, LeaseSession, RoutingId);
+            var checkpoint = new MigrationCheckpoint(checked(++_sequence), authority.Capture(_subject), arena?.Arena, arena?.Host, LeaseSession, RoutingId, MapConfiguration);
             byte[] bytes = MigrationCheckpointCodec.Encode(checkpoint);
             Retain(checkpoint, bytes);
             byte[] packet = new byte[bytes.Length + 3];
