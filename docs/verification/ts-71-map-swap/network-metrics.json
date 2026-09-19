@@ -1,0 +1,371 @@
+[
+  {
+    "run": "oval-two-peer-impaired",
+    "latency_ms": 30,
+    "jitter_ms": 5,
+    "loss_percent": 2,
+    "passed": true,
+    "peers": [
+      {
+        "Host": true,
+        "Map": "res://scenes/maps/oval_foundation.tscn",
+        "LargestRoster": 2,
+        "LocalVehicle": 1,
+        "ErrorP99": 0,
+        "ErrorMaximum": 0,
+        "LargeCorrections": 0,
+        "Grounded": true,
+        "Position": [
+          50.035088,
+          0.7345992,
+          56.40279
+        ],
+        "HP": 1000,
+        "PropTick": null,
+        "PropTravel": 0,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "res://scenes/maps/oval_foundation.tscn",
+        "LargestRoster": 2,
+        "LocalVehicle": 2,
+        "ErrorP99": 0.10564787,
+        "ErrorMaximum": 0.7546464,
+        "LargeCorrections": 0,
+        "Grounded": true,
+        "Position": [
+          47.43679,
+          0.7345994,
+          48.53864
+        ],
+        "HP": 1000,
+        "PropTick": null,
+        "PropTravel": 0,
+        "PropReplicaError": 0
+      }
+    ]
+  },
+  {
+    "run": "oval-eight-process-impaired",
+    "latency_ms": 30,
+    "jitter_ms": 5,
+    "loss_percent": 2,
+    "passed": false,
+    "peers": [
+      {
+        "Host": true,
+        "Map": "res://scenes/maps/oval_foundation.tscn",
+        "LargestRoster": 8,
+        "LocalVehicle": 1,
+        "ErrorP99": 0,
+        "ErrorMaximum": 0,
+        "LargeCorrections": 0,
+        "Grounded": true,
+        "Position": [
+          50.035088,
+          0.7345992,
+          56.40279
+        ],
+        "HP": 1000,
+        "PropTick": null,
+        "PropTravel": 0,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "res://scenes/maps/oval_foundation.tscn",
+        "LargestRoster": 8,
+        "LocalVehicle": 2,
+        "ErrorP99": 2.810141,
+        "ErrorMaximum": 9.342373,
+        "LargeCorrections": 4,
+        "Grounded": true,
+        "Position": [
+          11.897053,
+          0.7345995,
+          70.2648
+        ],
+        "HP": 975.6869,
+        "PropTick": null,
+        "PropTravel": 0,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "res://scenes/maps/oval_foundation.tscn",
+        "LargestRoster": 8,
+        "LocalVehicle": 4,
+        "ErrorP99": 1.9116883,
+        "ErrorMaximum": 7.8693924,
+        "LargeCorrections": 2,
+        "Grounded": true,
+        "Position": [
+          15.8524475,
+          0.73459977,
+          68.8202
+        ],
+        "HP": 1000,
+        "PropTick": null,
+        "PropTravel": 0,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "res://scenes/maps/oval_foundation.tscn",
+        "LargestRoster": 8,
+        "LocalVehicle": 3,
+        "ErrorP99": 3.8760624,
+        "ErrorMaximum": 6.4059143,
+        "LargeCorrections": 6,
+        "Grounded": true,
+        "Position": [
+          31.073381,
+          0.7345997,
+          71.007095
+        ],
+        "HP": 1000,
+        "PropTick": null,
+        "PropTravel": 0,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "res://scenes/maps/oval_foundation.tscn",
+        "LargestRoster": 8,
+        "LocalVehicle": 8,
+        "ErrorP99": 3.1280186,
+        "ErrorMaximum": 8.665421,
+        "LargeCorrections": 5,
+        "Grounded": true,
+        "Position": [
+          -0.2791268,
+          0.7346001,
+          70.82442
+        ],
+        "HP": 1000,
+        "PropTick": null,
+        "PropTravel": 0,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "res://scenes/maps/oval_foundation.tscn",
+        "LargestRoster": 8,
+        "LocalVehicle": 5,
+        "ErrorP99": 3.9479723,
+        "ErrorMaximum": 8.7872505,
+        "LargeCorrections": 6,
+        "Grounded": true,
+        "Position": [
+          4.5291333,
+          0.7346,
+          80.68703
+        ],
+        "HP": 1000,
+        "PropTick": null,
+        "PropTravel": 0,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "res://scenes/maps/oval_foundation.tscn",
+        "LargestRoster": 8,
+        "LocalVehicle": 7,
+        "ErrorP99": 3.7525392,
+        "ErrorMaximum": 9.416669,
+        "LargeCorrections": 6,
+        "Grounded": true,
+        "Position": [
+          0.7359176,
+          0.7346,
+          79.203636
+        ],
+        "HP": 1000,
+        "PropTick": null,
+        "PropTravel": 0,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "res://scenes/maps/oval_foundation.tscn",
+        "LargestRoster": 8,
+        "LocalVehicle": 6,
+        "ErrorP99": 4.3742704,
+        "ErrorMaximum": 10.132988,
+        "LargeCorrections": 6,
+        "Grounded": true,
+        "Position": [
+          5.154457,
+          0.73459995,
+          70.82155
+        ],
+        "HP": 1000,
+        "PropTick": null,
+        "PropTravel": 0,
+        "PropReplicaError": 0
+      }
+    ]
+  },
+  {
+    "run": "old-map-eight-process-impaired-control",
+    "latency_ms": 30,
+    "jitter_ms": 5,
+    "loss_percent": 2,
+    "passed": false,
+    "peers": [
+      {
+        "Host": true,
+        "Map": "",
+        "LargestRoster": 8,
+        "LocalVehicle": 1,
+        "ErrorP99": 0,
+        "ErrorMaximum": 0,
+        "LargeCorrections": 0,
+        "Grounded": true,
+        "Position": [
+          -27.095373,
+          0.7346,
+          11.9081335
+        ],
+        "HP": 1000,
+        "PropTick": 1620,
+        "PropTravel": 2.5062282,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "",
+        "LargestRoster": 8,
+        "LocalVehicle": 3,
+        "ErrorP99": 5.9945984,
+        "ErrorMaximum": 7.9925447,
+        "LargeCorrections": 8,
+        "Grounded": true,
+        "Position": [
+          48.307293,
+          0.7346002,
+          40.18353
+        ],
+        "HP": 1000,
+        "PropTick": 1074,
+        "PropTravel": 2.5062282,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "",
+        "LargestRoster": 8,
+        "LocalVehicle": 5,
+        "ErrorP99": 3.4460528,
+        "ErrorMaximum": 9.505207,
+        "LargeCorrections": 6,
+        "Grounded": true,
+        "Position": [
+          33.017982,
+          0.73460007,
+          -48.988136
+        ],
+        "HP": 912.95123,
+        "PropTick": 1092,
+        "PropTravel": 2.5062282,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "",
+        "LargestRoster": 8,
+        "LocalVehicle": 4,
+        "ErrorP99": 3.5811884,
+        "ErrorMaximum": 6.445906,
+        "LargeCorrections": 5,
+        "Grounded": true,
+        "Position": [
+          58.094063,
+          0.73459995,
+          29.39714
+        ],
+        "HP": 955.8127,
+        "PropTick": 1074,
+        "PropTravel": 2.5062282,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "",
+        "LargestRoster": 8,
+        "LocalVehicle": 2,
+        "ErrorP99": 4.524631,
+        "ErrorMaximum": 10.428357,
+        "LargeCorrections": 6,
+        "Grounded": true,
+        "Position": [
+          14.817246,
+          0.7346002,
+          36.78293
+        ],
+        "HP": 1000,
+        "PropTick": 1059,
+        "PropTravel": 2.5062282,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "",
+        "LargestRoster": 8,
+        "LocalVehicle": 8,
+        "ErrorP99": 4.371563,
+        "ErrorMaximum": 10.939686,
+        "LargeCorrections": 5,
+        "Grounded": true,
+        "Position": [
+          43.971752,
+          0.73459995,
+          -20.263662
+        ],
+        "HP": 968.1285,
+        "PropTick": 1122,
+        "PropTravel": 2.5062282,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "",
+        "LargestRoster": 8,
+        "LocalVehicle": 7,
+        "ErrorP99": 5.373786,
+        "ErrorMaximum": 10.919715,
+        "LargeCorrections": 7,
+        "Grounded": true,
+        "Position": [
+          36.99306,
+          0.7354327,
+          -5.734261
+        ],
+        "HP": 1000,
+        "PropTick": 1125,
+        "PropTravel": 2.5062282,
+        "PropReplicaError": 0
+      },
+      {
+        "Host": false,
+        "Map": "",
+        "LargestRoster": 8,
+        "LocalVehicle": 6,
+        "ErrorP99": 5.344481,
+        "ErrorMaximum": 10.542002,
+        "LargeCorrections": 6,
+        "Grounded": true,
+        "Position": [
+          -34.59396,
+          0.7346002,
+          -27.619404
+        ],
+        "HP": 1000,
+        "PropTick": 1092,
+        "PropTravel": 2.5062282,
+        "PropReplicaError": 0
+      }
+    ]
+  }
+]

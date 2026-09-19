@@ -69,7 +69,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 AddChild(viewport);
             }
 
-            var arena = new NetworkVehicleArena { SpawnConfiguration = new ItemSpawnConfiguration { CooldownTicks = 180, Seed = 2 } };
+            var arena = new NetworkVehicleArena { PrototypeMapForVerification = true, SpawnConfiguration = new ItemSpawnConfiguration { CooldownTicks = 180, Seed = 2 } };
             arena.Initialize(gateway, index == 0 ? 88ul : 0, server);
             viewport.AddChild(arena);
             _arenas.Add(arena);

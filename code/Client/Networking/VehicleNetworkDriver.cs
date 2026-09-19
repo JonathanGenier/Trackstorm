@@ -17,6 +17,7 @@ internal sealed class VehicleNetworkDriver
     private readonly HashSet<ulong> _assigned = new();
     private readonly HashSet<ulong> _preparedJoins = new();
     private readonly LobbyNetworkDriver? _lobby;
+    private readonly Trackstorm.Core.Arenas.ArenaConfiguration? _arena;
     private InputHistory? _inputs;
     private ulong _session;
     private double _snapshotAge;
@@ -39,8 +40,10 @@ internal sealed class VehicleNetworkDriver
     /// <param name="lobby">Optional authoritative lobby which has entered an arena.</param>
     /// <param name="damageConfiguration">Optional arena vehicle capacity.</param>
     /// <param name="configuration">Validated effective gameplay tuning.</param>
-    internal VehicleNetworkDriver(ITransportGateway gateway, ulong hostSession, ulong serverPeer = 0, LobbyNetworkDriver? lobby = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null)
+    /// <param name="arena">Active map's validated player and optional pickup markers.</param>
+    internal VehicleNetworkDriver(ITransportGateway gateway, ulong hostSession, ulong serverPeer = 0, LobbyNetworkDriver? lobby = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null, Trackstorm.Core.Arenas.ArenaConfiguration? arena = null)
     {
+        _arena = arena;
         _lobby = lobby;
         _gateway = gateway;
         _serverPeer = serverPeer;
@@ -54,7 +57,7 @@ internal sealed class VehicleNetworkDriver
                 revision = checked(revision + 1);
             }
 
-            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, configuration: configuration ?? sessionConfiguration?.Configuration, hostPlayerId: lobby?.LocalPlayerId ?? 1, configurationRevision: revision, events: lobby?.Authority?.Events);
+            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, configuration: configuration ?? sessionConfiguration?.Configuration, hostPlayerId: lobby?.LocalPlayerId ?? 1, configurationRevision: revision, events: lobby?.Authority?.Events, arena: _arena);
             lobby?.Authority?.RetainConfiguration(Host.Configuration);
             LocalVehicleId = Host.HostPlayerId;
         }
@@ -77,6 +80,7 @@ internal sealed class VehicleNetworkDriver
             if (lobby.Migration is not null)
             {
                 lobby.Migration.CaptureArena = CaptureMigration;
+                lobby.Migration.MapConfiguration = _arena;
                 lobby.Migration.RestoreArena = RestoreMigration;
                 lobby.Migration.ObservedTick = () => Host?.World.State.Tick ?? Latest?.Tick ?? 0;
             }
@@ -534,7 +538,7 @@ internal sealed class VehicleNetworkDriver
         // A new authority epoch may restore an older complete configuration boundary.
         _receivedConfiguration = false;
         _publishedConfiguration = null;
-        Host = host ? HostVehicleSession.Restore(checkpoint.Arena, checkpoint.Host!, _lobby!.LocalPlayerId, _lobby.Authority!.Events) : null;
+        Host = host ? HostVehicleSession.Restore(checkpoint.Arena, checkpoint.Host!, _lobby!.LocalPlayerId, _lobby.Authority!.Events, _arena) : null;
         _itemPublication = checkpoint.Arena.Items.Revision;
         _publishedItemRevision = ulong.MaxValue;
         _publishedSpawnRevision = ulong.MaxValue;

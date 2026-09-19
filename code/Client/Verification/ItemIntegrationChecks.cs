@@ -82,7 +82,7 @@ public sealed partial class ItemIntegrationChecks : Node
                 AddChild(viewport);
             }
 
-            var arena = new NetworkVehicleArena();
+            var arena = new NetworkVehicleArena { PrototypeMapForVerification = true };
             arena.Initialize(gateway, index == 0 ? 88ul : 0, server);
             viewport.AddChild(arena);
             _arenas.Add(arena);

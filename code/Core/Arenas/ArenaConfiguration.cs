@@ -30,9 +30,9 @@ public sealed class ArenaConfiguration
         ArenaSpawn[] playerArray = players.ToArray();
         ArenaSpawn[] itemArray = items.ToArray();
         SurfaceType[] surfaceArray = surfaces.ToArray();
-        if (playerArray.Length != SpawnCount || itemArray.Length != SpawnCount)
+        if (playerArray.Length != SpawnCount || (itemArray.Length != 0 && itemArray.Length != SpawnCount))
         {
-            throw new ArgumentException("Arena requires exactly eight player and eight item markers.");
+            throw new ArgumentException("Arena requires exactly eight player markers and either zero or eight item markers.");
         }
 
         var ids = new HashSet<string>(StringComparer.Ordinal);
