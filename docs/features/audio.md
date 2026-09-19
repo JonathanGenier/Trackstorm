@@ -4,7 +4,7 @@ Practice and network arenas own an `ArenaAudio` node. It reconstructs sounds fro
 confirmed vehicle, item and match state. Core, network payloads and gameplay timing
 contain no new audio concepts. Removing the arena frees all streams, emitters and
 voices; the music completion callback is disconnected and playlist state resets.
-Main-menu scenes, controls and audio are unchanged.
+The [startup MenuShell](startup.md) owns the unchanged TS-85 main-menu MP3 as separately routed looping frontend music on the existing Music bus. Its video is silent and independently looped. The shell stops both players while an arena owns the viewport, so arena entry does not layer frontend and arena playlists. Arena audio ownership below remains unchanged.
 
 ## Music and arena lifecycle
 
@@ -83,11 +83,13 @@ world feedback and pickups are spatial. There is no parallel volume service.
 ## Assets and verification
 
 [Asset instructions](../../assets/audio/README.md) and the [manifest](../../assets/audio/sources.json)
-own acquisition, selected files, licenses and processing. The three project songs
+own acquisition, selected files, licenses and processing. The three arena songs
 are committed unchanged. All required effects are committed Kenney or Freesound
 CC0 assets, including the ten edited placeholders under `assets/audio/freesound`.
 A clean checkout needs only the normal Godot import; no audio acquisition or setup
 is required for arena startup, checks, builds or exports.
+The separate [frontend media record](../../assets/frontend/README.md) documents the
+unchanged authoritative MP3 and Godot-required silent video conversion.
 
 Pure Client NUnit tests cover routing, gain bounds, event cooldowns, engine
 continuity, playlist start/advance/wrap/reset, duplicate damage/lifecycle/item

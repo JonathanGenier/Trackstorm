@@ -38,6 +38,9 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private double _eventMilliseconds;
     private int _eventRejected;
     private double _rejectionSeconds;
+    private Control _root = null!;
+    private bool _frontendVisible = true;
+    private float _frontendAlpha = 1;
 
     /// <summary>Retains the last bounded session history after departure.</summary>
     internal Core.Events.EventStream Events { get; private set; } = new();
@@ -77,11 +80,11 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     public override void _Ready()
     {
         Layer = 1;
-        var root = new Control { AnchorRight = 1, AnchorBottom = 1, MouseFilter = Control.MouseFilterEnum.Ignore };
-        AddChild(root);
+        _root = new Control { AnchorRight = 1, AnchorBottom = 1, MouseFilter = Control.MouseFilterEnum.Ignore, Visible = _frontendVisible, Modulate = new Color(1, 1, 1, _frontendAlpha) };
+        AddChild(_root);
         var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -300, OffsetRight = 300, OffsetTop = -330, OffsetBottom = 330 };
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("172235"), ContentMarginLeft = 24, ContentMarginRight = 24, ContentMarginTop = 18, ContentMarginBottom = 18 });
-        root.AddChild(panel);
+        _root.AddChild(panel);
         _menu = new VBoxContainer();
         _menu.AddThemeConstantOverride("separation", 8);
         var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
@@ -115,7 +118,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _menu.AddChild(_start);
         _menu.AddChild(_leave);
         var matchBar = new HBoxContainer { Position = new Vector2(24, 72) };
-        root.AddChild(matchBar);
+        _root.AddChild(matchBar);
         matchBar.AddChild(_arenaStatus);
         _host.Pressed += () => Open(true, _address.Text, _name.Text);
         _join.Pressed += () => Open(false, _address.Text, _name.Text);
@@ -174,6 +177,23 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _ownedOnline = null;
         _gateway = null;
     }
+
+    /// <summary>Controls main-menu presentation while startup owns the foreground.</summary>
+    /// <param name="visible">Whether controls participate in presentation and input.</param>
+    /// <param name="alpha">Initial presentation opacity.</param>
+    internal void SetFrontendPresentation(bool visible, float alpha)
+    {
+        _frontendVisible = visible;
+        _frontendAlpha = alpha;
+        if (IsInsideTree())
+        {
+            _root.Visible = visible;
+            _root.Modulate = new Color(1, 1, 1, alpha);
+        }
+    }
+
+    /// <summary>Fades the existing main-menu controls over the persistent MenuShell.</summary>
+    internal void FadeFrontendIn() => CreateTween().TweenProperty(_root, "modulate:a", 1, 0.45).SetTrans(Tween.TransitionType.Cubic);
 
     /// <summary>Creates a listener or connects through the existing production transport.</summary>
     /// <param name="host">Whether to host.</param>

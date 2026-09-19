@@ -5,3 +5,7 @@
 assets/arena/kenney/**/License.txt -text -whitespace
 assets/items/kenney/**/License.txt -text -whitespace
 assets/vehicles/kenney/License.txt -text -whitespace
+
+# Preserve the approved TS-85 source and runtime video without GitHub's ordinary blob-size limit.
+*.mov filter=lfs diff=lfs merge=lfs -text
+*.ogv filter=lfs diff=lfs merge=lfs -text

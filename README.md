@@ -20,7 +20,7 @@ Normal multiplayer uses EOS Device ID identity, lobby discovery and EOS P2P game
 
 ## Development entry points
 
-Run `./setup-eos.ps1` on a fresh checkout to acquire the pinned SDK, then `./check.ps1` for repository verification. [EOS setup](docs/eos-development.md) explains native prerequisites, development configuration, online testing and export checks. [THIRD_PARTY.md](THIRD_PARTY.md) routes to dependency/asset provenance and redistribution requirements.
+Install [Git LFS](https://git-lfs.com/) before cloning so the required startup videos are materialized; for an existing checkout run `git lfs install` followed by `git lfs pull`. Run `./setup-eos.ps1` on a fresh checkout to acquire the pinned SDK, then `./check.ps1` for repository verification. The check fails explicitly when startup media remain unresolved LFS pointers. [EOS setup](docs/eos-development.md) explains native prerequisites, development configuration, online testing and export checks. [THIRD_PARTY.md](THIRD_PARTY.md) routes to dependency/asset provenance and redistribution requirements.
 
 Open `project.godot` with the matching Godot .NET editor. The main scene is `scenes/main.tscn`; it opens the multiplayer browser. Launch with `-- --local-practice` for the local rigid-body arena. The browser's **Developer fallback: Direct-IP / LAN** exposes address-based hosting/joining.
 

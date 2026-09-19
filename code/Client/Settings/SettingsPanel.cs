@@ -39,6 +39,8 @@ internal sealed partial class SettingsPanel : CanvasLayer
     private bool _escapeHeld;
     private double _repeatDelay;
     private InputAction? _repeatAction;
+    private bool _frontendVisible = true;
+    private float _frontendAlpha = 1;
 
     /// <summary>Actual diagnostics bounds for runtime layout verification.</summary>
     internal Rect2 DiagnosticsBounds => _hud.GetGlobalRect();
@@ -64,6 +66,8 @@ internal sealed partial class SettingsPanel : CanvasLayer
     public override void _Ready()
     {
         Layer = 3;
+        _root.Visible = _frontendVisible;
+        _root.Modulate = new Color(1, 1, 1, _frontendAlpha);
         AddChild(_root);
         _root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         _root.AddChild(_background);
@@ -206,6 +210,11 @@ internal sealed partial class SettingsPanel : CanvasLayer
     /// <inheritdoc/>
     public override void _Input(InputEvent @event)
     {
+        if (!_frontendVisible)
+        {
+            return;
+        }
+
         if (DiagnosticOverlayOpen())
         {
             SampleNavigation(false);
@@ -364,6 +373,23 @@ internal sealed partial class SettingsPanel : CanvasLayer
         _settings.SaveStatusChanged -= RefreshStatus;
         _input.GameplaySuppressed = false;
     }
+
+    /// <summary>Controls main-menu settings presentation while startup owns the foreground.</summary>
+    /// <param name="visible">Whether controls participate in presentation and input.</param>
+    /// <param name="alpha">Initial presentation opacity.</param>
+    internal void SetFrontendPresentation(bool visible, float alpha)
+    {
+        _frontendVisible = visible;
+        _frontendAlpha = alpha;
+        if (IsInsideTree())
+        {
+            _root.Visible = visible;
+            _root.Modulate = new Color(1, 1, 1, alpha);
+        }
+    }
+
+    /// <summary>Fades the existing settings entry over the persistent MenuShell.</summary>
+    internal void FadeFrontendIn() => CreateTween().TweenProperty(_root, "modulate:a", 1, 0.45).SetTrans(Tween.TransitionType.Cubic);
 
     /// <summary>Receives the existing preference and input owners.</summary>
     /// <param name="settings">Preference service.</param>
