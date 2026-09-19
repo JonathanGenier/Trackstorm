@@ -227,7 +227,7 @@ internal sealed partial class OnlineLobbyTests
                 incompatibleGateway.ConnectPeer(1);
                 var binding = incompatible.AttachTransport(incompatibleGateway, 1, "Client");
                 binding.Driver.Pump(0);
-                var hosted = new GameVersion(GameVersion.Current.Revision + 1);
+                var hosted = new GameVersion(GameVersion.Current.Release, GameVersion.Current.Revision + 1);
                 incompatibleGateway.Receive(1, LobbyCodec.EncodeVersionMismatch(hosted));
                 binding.Driver.Pump(0);
                 incompatible.Tick();
