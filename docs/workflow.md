@@ -115,7 +115,7 @@ After completing all required children:
 
 1. Re-read the Story, children and approved changes; verify every applicable requirement.
 2. Synchronize the branch with latest `main` and resolve integration conflicts.
-3. Run `./check.ps1` from the root: restore, formatting verification, Debug/Release builds with warnings as errors, Core tests and non-native Client/transport tests.
+3. Run `./check.ps1` from the root: restore, Debug/Release builds with warnings as errors, Core tests and non-native Client/transport tests.
 4. Run additional applicable or Jira-required gameplay, network, integration, runtime, visual, UI, audio, physics and asset/license checks. Exercise actual runtime behavior when relevant and technically possible; do not substitute inspection for required observation. Run the minimal Godot project when settings, scenes or Client integration change.
 5. Confirm engineering standards, including dependency direction and absence of a Shared layer.
 6. Verify affected feature documentation against code; check links, index coverage and obsolete references.
