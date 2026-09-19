@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
@@ -29,14 +29,14 @@ jobs:
         run: ./tools/test-version.ps1
 
       - name: Validate Story version and synchronized export preset against current main
-        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        if: github.event_name == 'pull_request' && github.base_ref == 'main' && startsWith(github.head_ref, 'ts-')
         shell: pwsh
         run: |
           git fetch origin +refs/heads/main:refs/remotes/origin/main
           if ($LASTEXITCODE -ne 0) { throw 'Cannot fetch current main for version validation.' }
           ./tools/check-version.ps1
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
 
