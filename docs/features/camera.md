@@ -16,7 +16,7 @@ Local contacts above the configurable severity threshold produce a small vertica
 
 ## Tuning and Architecture
 
-The ChaseCamera node exposes Inspector properties for follow distance/height (11 m / 5 m), position damping (8/s), longitudinal/lateral acceleration gains (0.045 / 0.025 metres per m/s²), sideways-speed gain (0.015 metres per m/s), maximum inertia offsets, collision/damage gains, contact threshold, shake decay and maximum vertical shake (0.12 m). Live Remote Inspector tuning is supported; scene-authored instances can save exported values. Current arenas instantiate shared defaults.
+The ChaseCamera node exposes Inspector properties for follow distance/height (approximately 15.096 m / 6.862 m, preserving framing after vehicle rescaling), position damping (8/s), longitudinal/lateral acceleration gains (0.045 / 0.025 metres per m/s²), sideways-speed gain (0.015 metres per m/s), maximum inertia offsets, collision/damage gains, contact threshold, shake decay and maximum vertical shake (0.12 m). Live Remote Inspector tuning is supported; scene-authored instances can save exported values. Current arenas instantiate shared defaults.
 
 Practice native bodies use Godot physics interpolation; the camera reads their interpolated pose. Network vehicles retain explicit pose interpolation/correction smoothing; the camera reads the visual pose after presentation updates. Automatic interpolation is disabled for the render-updated camera. Camera state remains entirely in Client, outside Core, input frames, prediction history and network payloads. Physics and vehicle input behavior are unchanged.
 

@@ -6,6 +6,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 
 | Evidence | Reports |
 | --- | --- |
+| Real-scale Trackstorm vehicle | [TS-72 Blender conversion, physics integration and validation](ts-72.md) |
 | Active oval gameplay integration | [TS-71 map loading, eight player grid spawns, preserved systems and stress-test limitation](ts-71-map-swap.md) |
 | Real-scale banked oval foundation | [TS-71 source geometry, reusable map scene, collision, native lap and scale verification](ts-71.md) |
 | Release 0.1.0 baseline | [TS-89 exact tuning promotion, persistence and version verification](ts-89.md) |

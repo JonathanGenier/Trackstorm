@@ -26,9 +26,19 @@ public sealed partial class OvalIntegrationChecks : Node3D
     private float _maximumLaneError;
     private int _airborneFrames;
     private string _output = string.Empty;
+    private VehicleChaseCamera? _chase;
 
     /// <inheritdoc/>
     public override void _Ready() => CallDeferred(MethodName.Run);
+
+    /// <inheritdoc/>
+    public override void _Process(double delta)
+    {
+        if (_chase is not null && _advance)
+        {
+            _chase.Follow(_vehicle.GetGlobalTransformInterpolated(), _vehicle.Snapshot, (float)delta);
+        }
+    }
 
     /// <inheritdoc/>
     public override void _PhysicsProcess(double delta)
@@ -300,21 +310,41 @@ public sealed partial class OvalIntegrationChecks : Node3D
         _vehicle.Initialize(_simulation);
         AddChild(_vehicle);
         _advance = true;
+        // Let the physics server publish the newly created body before testing resets.
+        await Frames(3);
         foreach (Marker3D marker in _map.GetNode("PlayerSpawns").GetChildren().OfType<Marker3D>())
         {
             Quaternion orientation = marker.Quaternion;
-            _vehicle.ResetBody(new VehiclePhysicsState(VehicleBody.ToCore(marker.Position), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), Numerics.Vector3.Zero, Numerics.Vector3.Zero));
+            _vehicle.ResetBody(new VehiclePhysicsState(VehicleBody.ToCore(marker.Position + (Vector3.Up * VehicleDimensions.SpawnLift)), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), Numerics.Vector3.Zero, Numerics.Vector3.Zero));
             await Frames(90);
-            Check(_vehicle.State.Grounded && HorizontalDistance(_vehicle.GlobalPosition, marker.Position) < 0.2f && _vehicle.DamageState.CurrentHP == _vehicle.DamageState.MaxHP, $"Production vehicle settles without damage at {marker.Name}.");
+            Check(_vehicle.State.Grounded && HorizontalDistance(_vehicle.GlobalPosition, marker.Position) < 0.2f && _vehicle.DamageState.CurrentHP == _vehicle.DamageState.MaxHP, $"Production vehicle settles without damage at {marker.Name}: position {_vehicle.GlobalPosition}, grounded {_vehicle.State.Grounded}, HP {_vehicle.DamageState.CurrentHP}.");
         }
 
         _vehicle.ResetBody(new VehiclePhysicsState(VehicleBody.ToCore(_centers[_start] + (Vector3.Up * 0.85f)), new Numerics.Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W), Numerics.Vector3.Zero, Numerics.Vector3.Zero));
         await Frames(90);
         Check(_vehicle.State.Grounded, "Production native VehicleBody settles on the imported road.");
+        VerifyVehicleScale();
+        if (DisplayServer.GetName() != "headless")
+        {
+            var side = new Camera3D { Current = true, Fov = 50, Position = _vehicle.Position + new Vector3(0, 2, 8) };
+            AddChild(side);
+            side.LookAt(_vehicle.Position);
+            await CaptureVehicleView("vehicle-side");
+            side.QueueFree();
+            _chase = new VehicleChaseCamera { Current = true, Fov = 65 };
+            AddChild(_chase);
+            await CaptureVehicleView("vehicle-chase");
+        }
+
         _drive = true;
         for (int frame = 0; frame < 7200 && _progress - _start < _centers.Length; frame++)
         {
             await Frames(1);
+            if (frame == 900 && _chase is not null)
+            {
+                await CaptureVehicleView("vehicle-banked");
+            }
+
             if (_maximumLaneError > 6 || _airborneFrames > 30 || _vehicle.GlobalPosition.Y < -1)
             {
                 throw new InvalidOperationException($"Native lap failed at progress {_progress - _start}: lane error {_maximumLaneError:F3}, airborne {_airborneFrames}, position {_vehicle.GlobalPosition}.");
@@ -323,5 +353,40 @@ public sealed partial class OvalIntegrationChecks : Node3D
 
         _drive = false;
         Check(_progress - _start >= _centers.Length, $"Production VehicleBody completed the full banked loop, maximum centerline deviation {_maximumLaneError:F3} m, without sustained support loss.");
+    }
+
+    private async Task CaptureVehicleView(string name)
+    {
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        using Image image = GetViewport().GetTexture().GetImage();
+        Check(image.SavePng(System.IO.Path.Combine(_output, name + ".png")) == Error.Ok, $"Rendered {name} in Godot.");
+    }
+
+    private void VerifyVehicleScale()
+    {
+        Node3D model = _vehicle.GetNode<Node3D>("WastelandVehicle");
+        MeshInstance3D[] meshes = model.GetChildren().OfType<MeshInstance3D>().ToArray();
+        Aabb bounds = meshes.Select(mesh => mesh.Transform * mesh.GetAabb()).Aggregate((left, right) => left.Merge(right));
+        Check(Math.Abs(bounds.Size.Z - 4.81f) < 0.001f && Math.Abs(bounds.Size.X - 2.662311f) < 0.001f && Math.Abs(bounds.Size.Y - 1.856070f) < 0.001f, $"Production silhouette measures {bounds.Size} metres.");
+        Check(model.Scale.IsEqualApprox(Vector3.One) && meshes.All(mesh => mesh.Scale.IsEqualApprox(Vector3.One)), "Blender geometry has applied scale; runtime nodes remain unit scale.");
+        CollisionShape3D collision = _vehicle.GetChildren().OfType<CollisionShape3D>().Single();
+        Vector3 size = ((BoxShape3D)collision.Shape).Size;
+        Check(Math.Abs(size.X - bounds.Size.X) < 0.001f && Math.Abs(size.Z - bounds.Size.Z) < 0.001f && Math.Abs(collision.Position.Z - bounds.GetCenter().Z) < 0.001f, "Offline collision agrees with the complete armor/bumper footprint and origin.");
+        CollisionShape3D online = VehicleVisual.CreateCollision();
+        Check(((BoxShape3D)online.Shape).Size.IsEqualApprox(size) && online.Position.IsEqualApprox(collision.Position), "Network and offline collision definitions agree.");
+        online.Free();
+        foreach (MeshInstance3D wheel in meshes.Where(mesh => mesh.Name.ToString().StartsWith("wheel-", StringComparison.Ordinal)))
+        {
+            Aabb tire = wheel.Transform * wheel.GetAabb();
+            Vector3 center = tire.GetCenter();
+            Check(Math.Abs(Math.Abs(center.X) - (VehicleDimensions.WheelTrack / 2)) < 0.001f && Math.Abs(Math.Abs(center.Z) - (_vehicle.Configuration.Wheelbase / 2)) < 0.001f, $"{wheel.Name} aligns with its suspension ray.");
+            Check(Math.Abs((tire.Size.Y / 2) - VehicleDimensions.WheelRadius) < 0.001f && Math.Abs(_vehicle.Position.Y + tire.Position.Y) < 0.025f, $"{wheel.Name} radius and settled level-road contact agree.");
+        }
+
+        Aabb body = model.GetNode<MeshInstance3D>("body").GetAabb();
+        Check(Math.Abs(collision.Position.Y - (size.Y / 2) - body.Position.Y) < 0.001f && Math.Abs(collision.Position.Y + (size.Y / 2) - bounds.End.Y) < 0.001f, "Collision spans the visible underbody through the roof identification panel.");
+        float clearance = _vehicle.Position.Y + body.Position.Y;
+        Check(clearance is > 0.2f and < 0.3f, $"Settled body clearance is {clearance:F3} m.");
     }
 }

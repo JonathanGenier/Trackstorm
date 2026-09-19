@@ -102,6 +102,12 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 {
                     double current = option.Read(_host.DeveloperConfiguration);
                     double value = option.Boolean ? 1 - current : option.Integral ? current + 1 : current * 1.05;
+                    // The scaled default is close to the existing one-metre validation ceiling.
+                    if (option.Key == "vehicle.suspension_length")
+                    {
+                        value = current * 0.95;
+                    }
+
                     Set(option.Key, value);
                     Press("Apply Settings");
                     var accepted = _host.Arena!.Driver.Configuration;

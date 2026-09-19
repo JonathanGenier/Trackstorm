@@ -17,10 +17,10 @@ public sealed partial class VehicleChaseCamera : Camera3D
 
     /// <summary>Horizontal chase distance in metres.</summary>
     [Export(PropertyHint.Range, "2,25,0.1")]
-    public float FollowDistance { get; set; } = 11;
+    public float FollowDistance { get; set; } = 11 * VehicleDimensions.Scale;
     /// <summary>Height above the damped anchor in metres.</summary>
     [Export(PropertyHint.Range, "1,12,0.1")]
-    public float CameraHeight { get; set; } = 5;
+    public float CameraHeight { get; set; } = 5 * VehicleDimensions.Scale;
     /// <summary>Position convergence rate per second.</summary>
     [Export(PropertyHint.Range, "0.1,30,0.1")]
     public float PositionDamping { get; set; } = 8;

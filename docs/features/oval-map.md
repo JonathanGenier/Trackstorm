@@ -47,7 +47,7 @@ Core simulation rule is introduced.
 Each marker has `slot_length_m=6` and `slot_width_m=3` metadata, and its -Z axis
 points along the racing direction. These are reusable authored poses, not live
 player identities. `ActiveMap` loads this scene and reads the actual marker
-positions and yaw values in stable name order before gameplay authority is created.
+positions and yaw values in stable name order before gameplay authority is created. It adds 0.2 m to the original marker height for the rescaled vehicle, placing the origin at 1.05 m before suspension settles at 0.9 m.
 Both `VehicleArena` practice and `NetworkVehicleArena` supply that validated
 `ArenaConfiguration` to the existing simulation. Initial admission, slot reuse,
 practice reset and death/respawn use the same eight grid transforms.
@@ -65,9 +65,8 @@ vehicle configuration, cameras, HUD, audio/music, networking and player lifecycl
 retain their existing owners outside the scriptless map scene. There is no map
 selection UI or new map negotiation protocol; session peers use the same build.
 
-The existing vehicle remains at its current gameplay scale. A separate 4.81 m
-Blender reference vehicle is exported for in-engine scale checks, not substituted
-for the [production vehicle](vehicles.md). Vehicle rescaling and handling tuning,
+The [production vehicle](vehicles.md) is 4.81 m long at unit runtime scale. The
+separate Blender reference vehicle remains a verification-only comparison. Handling tuning,
 infield gameplay, terrain, barriers and environment dressing remain later work.
 Open edges are intentional: this is a foundation, not a contained arena.
 

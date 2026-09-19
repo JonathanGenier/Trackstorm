@@ -1,8 +1,9 @@
 using Trackstorm.Core.Development;
+using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Tests.Development;
 
-/// <summary>Exact approved Release 0.1.0 values, independent of any developer-local file.</summary>
+/// <summary>Approved hosted tuning with current vehicle dimensions, independent of any developer-local file.</summary>
 [TestFixture]
 internal sealed class ReleaseDefaultsTests
 {
@@ -20,10 +21,10 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("vehicle.steering_angle", 0.800000011920929d)]
     [TestCase("vehicle.steering_speed", 30d)]
     [TestCase("vehicle.steering_response", 8d)]
-    [TestCase("vehicle.wheelbase", 2.299999952316284d)]
+    [TestCase("vehicle.wheelbase", (double)VehicleDimensions.Wheelbase)]
     [TestCase("vehicle.tire_friction", 3.3499999046325684d)]
     [TestCase("vehicle.drive_traction_reserve", 0.550000011920929d)]
-    [TestCase("vehicle.load_height", 0.44999998807907104d)]
+    [TestCase("vehicle.load_height", (double)(0.45f * VehicleDimensions.Scale))]
     [TestCase("vehicle.handbrake_braking", 12d)]
     [TestCase("vehicle.handbrake_grip", 0.6000000238418579d)]
     [TestCase("vehicle.handbrake_response", 12d)]
@@ -35,7 +36,7 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("vehicle.chassis_compliance", 0.012000000104308128d)]
     [TestCase("vehicle.maximum_chassis_tilt", 0.1599999964237213d)]
     [TestCase("vehicle.stability_damping", 0.6499999761581421d)]
-    [TestCase("vehicle.suspension_length", 0.800000011920929d)]
+    [TestCase("vehicle.suspension_length", (double)(VehicleDimensions.RideHeight + (9.81f / 150)))]
     [TestCase("vehicle.wheel_spring", 150d)]
     [TestCase("vehicle.wheel_damping", 18d)]
     [TestCase("vehicle.gravity", 9.8100004196167d)]
@@ -87,5 +88,20 @@ internal sealed class ReleaseDefaultsTests
         Assert.That(restored.Configuration, Is.EqualTo(defaults));
         var state = new GameplayConfigurationState(0, defaults);
         Assert.That(GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(9, state)).State, Is.EqualTo(state));
+    }
+
+    /// <summary>Old complete saved presets adopt the new geometry without discarding unrelated or intentional overrides.</summary>
+    [Test]
+    public void OldSpatialDefaultsMigrateOnce()
+    {
+        const string legacy = "{\"schema\":1}\n{\"key\":\"vehicle.wheelbase\",\"value\":2.3}\n{\"key\":\"vehicle.load_height\",\"value\":0.45}\n{\"key\":\"vehicle.suspension_length\",\"value\":0.8}\n{\"key\":\"vehicle.mass\",\"value\":1100}";
+        var file = DeveloperSettingsFile.Read(legacy, GameplayConfiguration.HostedDefaults);
+        Assert.That(file.Configuration.Vehicle.Wheelbase, Is.EqualTo(VehicleDimensions.Wheelbase));
+        Assert.That(file.Configuration.Vehicle.LoadHeight, Is.EqualTo(GameplayConfiguration.HostedDefaults.Vehicle.LoadHeight));
+        Assert.That(file.Configuration.Vehicle.SuspensionLength, Is.EqualTo(GameplayConfiguration.HostedDefaults.Vehicle.SuspensionLength));
+        Assert.That(file.Configuration.Vehicle.Mass, Is.EqualTo(1100));
+        Assert.That(DeveloperSettingsFile.Read(file.Write(file.Configuration)).Configuration, Is.EqualTo(file.Configuration));
+        Assert.That(DeveloperSettingsFile.Read(legacy.Replace("2.3", "2.7", StringComparison.Ordinal)).Configuration.Vehicle.Wheelbase, Is.EqualTo(2.7f));
+        Assert.That(DeveloperSettingsFile.Read(legacy.Replace("\"schema\":1", "\"schema\":2", StringComparison.Ordinal)).Configuration.Vehicle.Wheelbase, Is.EqualTo(2.3f));
     }
 }

@@ -102,8 +102,8 @@ public sealed partial class VehicleIntegrationChecks : Node
         var meshes = Descendants(localModel).OfType<MeshInstance3D>().ToArray();
         Check(meshes.Length > 10 && meshes.All(mesh => mesh.Mesh is not null), "Vehicle asset resolves all base and conversion meshes.");
         Aabb bounds = meshes.Select(mesh => (localModel.GlobalTransform.AffineInverse() * mesh.GlobalTransform) * mesh.GetAabb()).Aggregate((left, right) => left.Merge(right));
-        Check(bounds.Position.X >= -1.001f && bounds.End.X <= 1.001f && bounds.Position.Z >= -1.801f && bounds.End.Z <= 1.801f, "Authored silhouette fits the unchanged horizontal collision footprint.");
-        Check(Math.Abs(bounds.Position.Y + 0.735f) < 0.01f, "Static tires match the settled suspension ride height.");
+        Check(Math.Abs(bounds.Size.X - VehicleDimensions.Width) < 0.001f && Math.Abs(bounds.Size.Z - VehicleDimensions.Length) < 0.001f, "Authored silhouette has the canonical real-world dimensions.");
+        Check(Math.Abs(bounds.Position.Y + VehicleDimensions.RideHeight) < 0.01f, "Static tires match the settled suspension ride height.");
 
         var network = new Networking.NetworkVehicleBody { VehicleId = 999 };
         AddChild(network);
@@ -192,8 +192,8 @@ public sealed partial class VehicleIntegrationChecks : Node
 
     private async Task VerifyCorneringAndRecovery()
     {
-        List<VehicleState> low = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -8), 45, tick => Frame(tick, steering: 24000));
-        List<VehicleState> fast = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -24), 45, tick => Frame(tick, steering: 24000));
+        List<VehicleState> low = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -8), 45, tick => Frame(tick, steering: 24000));
+        List<VehicleState> fast = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -24), 45, tick => Frame(tick, steering: 24000));
         float lowYaw = Math.Abs(2 * MathF.Atan2(low.Last().Physics.Orientation.Y, low.Last().Physics.Orientation.W));
         float fastYaw = Math.Abs(2 * MathF.Atan2(fast.Last().Physics.Orientation.Y, fast.Last().Physics.Orientation.W));
         float lowRadius = Numerics.Vector3.Distance(low.First().Physics.Position, low.Last().Physics.Position) / Math.Max(0.001f, lowYaw);
@@ -203,13 +203,13 @@ public sealed partial class VehicleIntegrationChecks : Node
         Check(low[0].SteeringAngle > 0.08f && Math.Abs(low[5].Physics.AngularVelocity.Y) > 0.1f, "steering starts on the first fixed tick and produces physical yaw within 100ms");
         Check(lowYaw > 0.15f && fastRadius > lowRadius * 1.5f, "fast entry runs a wider line than low-speed steering");
         Check(fast.Max(state => state.FrontSlip) > 0.1f, "high-speed steering has measurable front traction saturation");
-        List<VehicleState> lane = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -20), 60, tick => Frame(tick, steering: tick <= 30 ? (short)10000 : (short)-10000));
+        List<VehicleState> lane = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -20), 60, tick => Frame(tick, steering: tick <= 30 ? (short)10000 : (short)-10000));
         Check(lane.All(state => Math.Abs(state.Physics.AngularVelocity.Y) < 1.5f) && Math.Abs(lane.Last().Physics.Position.X + 20) < 5, "high-speed lane change stays controlled");
-        List<VehicleState> slide = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(4, 0, -14), 100, tick => Frame(tick, steering: tick < 25 ? (short)-7000 : (short)0));
+        List<VehicleState> slide = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(4, 0, -14), 100, tick => Frame(tick, steering: tick < 25 ? (short)-7000 : (short)0));
         float finalSide = Math.Abs(Numerics.Vector3.Dot(slide.Last().Physics.LinearVelocity, Numerics.Vector3.Transform(Numerics.Vector3.UnitX, slide.Last().Physics.Orientation)));
         GD.Print($"Recovery: initial side speed=4m/s; final={finalSide:F3}m/s");
         Check(finalSide < 1, "throttle reduction and mild countersteering recover a moderate slide");
-        List<VehicleState> handbrake = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -14), 90, tick => Frame(tick, steering: 12000, drift: true));
+        List<VehicleState> handbrake = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -14), 90, tick => Frame(tick, steering: 12000, drift: true));
         Check(handbrake.Last().CommandSpeed < 10 && handbrake.Any(state => Math.Abs(state.Physics.AngularVelocity.Y) > 0.3f), "prolonged turning handbrake scrubs speed and rotates the rear");
         Check(slide.All(state => state.CommandSpeed < 20), "recovery does not add a drift boost");
         await Screenshot("cornering");
@@ -219,11 +219,11 @@ public sealed partial class VehicleIntegrationChecks : Node
     {
         foreach (float speed in new[] { 6f, 16f })
         {
-            List<VehicleState> straight = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -speed), 90, tick => Frame(tick, throttle: 65535, drift: true));
+            List<VehicleState> straight = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -speed), 90, tick => Frame(tick, throttle: 65535, drift: true));
             Check(straight.Last().CommandSpeed < speed * 0.7f && straight.All(state => Math.Abs(state.Physics.AngularVelocity.Y) < 0.1f), "straight handbrake slows without manufacturing rotation, even with throttle");
             foreach (ulong heldTicks in new[] { 6ul, 45ul })
             {
-                List<VehicleState> turn = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -speed), 180, tick => Frame(tick, throttle: tick > heldTicks + 30 ? (ushort)15000 : (ushort)0, steering: tick <= heldTicks ? (short)12000 : tick <= heldTicks + 20 ? (short)-7000 : (short)0, drift: tick <= heldTicks));
+                List<VehicleState> turn = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -speed), 180, tick => Frame(tick, throttle: tick > heldTicks + 30 ? (ushort)15000 : (ushort)0, steering: tick <= heldTicks ? (short)12000 : tick <= heldTicks + 20 ? (short)-7000 : (short)0, drift: tick <= heldTicks));
                 float side = Math.Abs(Numerics.Vector3.Dot(turn.Last().Physics.LinearVelocity, Numerics.Vector3.Transform(Numerics.Vector3.UnitX, turn.Last().Physics.Orientation)));
                 float peakYaw = turn.Max(state => Math.Abs(state.Physics.AngularVelocity.Y));
                 File.WriteAllLines($"{_output}.handbrake-{speed}-{heldTicks}.csv", turn.Select((state, index) => $"{index},{state.Physics.Position},{state.Physics.LinearVelocity},{state.Physics.AngularVelocity.Y},{state.Handbrake},{state.FrontSlip},{state.RearSlip}"));
@@ -246,7 +246,7 @@ public sealed partial class VehicleIntegrationChecks : Node
                 {
                     int release = 12 + heldTicks;
                     int powered = release + Math.Max(0, throttleDelay);
-                    List<VehicleState> states = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -speed), heldTicks == 45 ? 180 : 90, tick => Frame(
+                    List<VehicleState> states = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -speed), heldTicks == 45 ? 180 : 90, tick => Frame(
                         tick,
                         throttle: (int)tick > release + throttleDelay ? (ushort)65535 : (ushort)0,
                         steering: (int)tick <= release ? (short)12000 : (int)tick <= release + 20 ? (short)-7000 : (short)0,
@@ -272,12 +272,12 @@ public sealed partial class VehicleIntegrationChecks : Node
 
         foreach (float speed in new[] { 0f, 4f, 12f })
         {
-            List<VehicleState> acceleration = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -speed), 90, tick => Frame(tick, throttle: 65535));
+            List<VehicleState> acceleration = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -speed), 90, tick => Frame(tick, throttle: 65535));
             GD.Print($"Acceleration: entry={speed}, final={acceleration.Last().CommandSpeed:F3}");
             Check(acceleration.Take(6).Any(state => state.Grounded && state.LongitudinalAcceleration > 4) && acceleration.Last().CommandSpeed > speed + 8, "standing/low/cruising speed throttle produces immediate sustained acceleration");
         }
 
-        List<VehicleState> braking = await RunDrive(new Vector3(-20, 0.74f, 25), new Vector3(0, 0, -12), 90, tick => Frame(tick, brake: tick <= 30 ? (ushort)65535 : (ushort)0, throttle: tick > 30 ? (ushort)65535 : (ushort)0));
+        List<VehicleState> braking = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -12), 90, tick => Frame(tick, brake: tick <= 30 ? (ushort)65535 : (ushort)0, throttle: tick > 30 ? (ushort)65535 : (ushort)0));
         GD.Print($"Brake recovery: first drive={braking[30].LongitudinalAcceleration:F3}, before={braking[29].CommandSpeed:F3}, after={braking.Last().CommandSpeed:F3}");
         Check(braking[30].LongitudinalAcceleration > 2 && braking.Last().CommandSpeed > braking[29].CommandSpeed + 5, "throttle immediately rebuilds speed after service braking");
         await Screenshot("power-recovery");
@@ -306,10 +306,10 @@ public sealed partial class VehicleIntegrationChecks : Node
 
     private async Task VerifyBrakingAndInvalidDrift()
     {
-        List<VehicleState> braking = await RunDrive(new Vector3(-25, 0.5f, 20), new Vector3(0, 0, -12), 180, tick => Frame(tick, brake: 65535));
+        List<VehicleState> braking = await RunDrive(new Vector3(-25, VehicleDimensions.RideHeight, 20), new Vector3(0, 0, -12), 180, tick => Frame(tick, brake: 65535));
         GD.Print($"Brake check: end velocity={braking.Last().Physics.LinearVelocity}, distance={20 - braking.Min(state => state.Physics.Position.Z):F2}m");
         Check(braking.First().Physics.LinearVelocity.Z < -10 && braking.Any(state => Math.Abs(state.Physics.LinearVelocity.Z) < 0.5f) && braking.Last().Physics.LinearVelocity.Z > 2, "native braking slows forward travel through rest before reversing");
-        List<VehicleState> stationary = await RunDrive(new Vector3(-25, 0.5f, 20), Vector3.Zero, 60, tick => Frame(tick, steering: 32767, drift: tick < 50));
+        List<VehicleState> stationary = await RunDrive(new Vector3(-25, VehicleDimensions.RideHeight, 20), Vector3.Zero, 60, tick => Frame(tick, steering: 32767, drift: tick < 50));
         Check(stationary.All(state => !state.Drifting), "stationary handbrake cannot manufacture sliding");
         List<VehicleState> airborne = await RunDrive(new Vector3(-25, 8, 20), new Vector3(0, 15, -15), 30, tick => Frame(tick, steering: 32767, drift: tick < 20));
         Check(airborne.All(state => !state.Grounded && !state.Drifting && state.CommandSpeed < 65), "airborne handbrake cannot manufacture sliding and remains bounded");
@@ -328,13 +328,13 @@ public sealed partial class VehicleIntegrationChecks : Node
         }
 
         _arena.Player.Advanced += ObserveBrush;
-        await RunDrive(new Vector3(25, 0.5f, -1.3f), new Vector3(0, 0, -1), 180, tick => Frame(tick, throttle: 14000));
+        await RunDrive(new Vector3(25, VehicleDimensions.RideHeight, -1.3f), new Vector3(0, 0, -1), 180, tick => Frame(tick, throttle: 14000));
         _arena.Player.Advanced -= ObserveBrush;
         GD.Print($"Brush check: contacts={brushingTicks}, player HP={_arena.Player.DamageState.CurrentHP:F2}, target HP={_arena.Target.DamageState.CurrentHP:F2}");
         Check(brushingTicks > 30, "minor brushing scenario makes sustained real vehicle contact");
         Check(_arena.Player.DamageState.CurrentHP == 100 && _arena.Target.DamageState.CurrentHP == 100, "sustained minor contact does not drain either vehicle HP");
 
-        await RunDrive(new Vector3(-20, 0.5f, 20), Vector3.Zero, 30, tick => Frame(tick));
+        await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 20), Vector3.Zero, 30, tick => Frame(tick));
         Vector3 start = _arena.Player.GlobalPosition;
         int cues = _arena.Player.FeedbackCueCount;
         _arena.Explode(start + new Vector3(-2, -0.2f, 0.5f));
@@ -362,22 +362,22 @@ public sealed partial class VehicleIntegrationChecks : Node
         await Screenshot("destroyed");
         ulong life = _arena.Player.Snapshot.LifeId;
         ulong globalTick = _arena.Simulation.State.Tick;
-        await RunDrive(new Vector3(-20, 0.5f, 20), Vector3.Zero, 60, tick => Frame(tick, throttle: 65535));
+        await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 20), Vector3.Zero, 60, tick => Frame(tick, throttle: 65535));
         Check(!_arena.Player.DamageState.Destroyed && _arena.Player.DamageState.CurrentHP == 100 && _arena.Player.State.CommandSpeed > 5, "explicit reset restores health and driving");
         Check(_arena.Player.Snapshot.LifeId == life + 1 && _arena.Simulation.State.Tick == globalTick + 60 && _arena.Simulation.State.Vehicles.All(vehicle => vehicle.Movement.Tick == globalTick + 60), "reset starts one new Core life while both vehicles retain the global clock");
     }
 
     private async Task VerifySurfaces()
     {
-        List<VehicleState> baseline = await RunDrive(new Vector3(-22, 0.5f, 7), Vector3.Zero, 90, tick => Frame(tick, throttle: 65535));
-        List<VehicleState> mud = await RunDrive(new Vector3(-32, 0.5f, 7), Vector3.Zero, 90, tick => Frame(tick, throttle: 65535));
+        List<VehicleState> baseline = await RunDrive(new Vector3(-22, VehicleDimensions.RideHeight, 7), Vector3.Zero, 90, tick => Frame(tick, throttle: 65535));
+        List<VehicleState> mud = await RunDrive(new Vector3(-32, VehicleDimensions.RideHeight, 7), Vector3.Zero, 90, tick => Frame(tick, throttle: 65535));
         Check(mud.Skip(3).All(state => state.CurrentSurface == SurfaceType.Mud), "native support identifies the mud tile");
         Check(mud.Last().CommandSpeed < baseline.Last().CommandSpeed * 0.7f, "mud acceleration and resistance clearly reduce native speed");
         GD.Print($"Surface speed after 90 ticks: Concrete={baseline.Last().CommandSpeed:F2}, Mud={mud.Last().CommandSpeed:F2}");
         await Screenshot("mud");
 
         bool reversing = false;
-        List<VehicleState> crossings = await RunDrive(new Vector3(-32, 0.5f, 20), Vector3.Zero, 1200, tick =>
+        List<VehicleState> crossings = await RunDrive(new Vector3(-32, VehicleDimensions.RideHeight, 20), Vector3.Zero, 1200, tick =>
         {
             if (_arena.Player.Position.Z < -18)
             {
@@ -394,12 +394,12 @@ public sealed partial class VehicleIntegrationChecks : Node
         int transitions = crossings.Zip(crossings.Skip(1)).Count(pair => pair.First.CurrentSurface != pair.Second.CurrentSurface);
         Check(transitions >= 4, "repeated native driving crosses Concrete and Mud in both directions");
         Check(crossings.Any(state => state.CurrentSurface == SurfaceType.Concrete && state.Physics.Position.Z < -12 && -state.Physics.LinearVelocity.Z > 13), "leaving mud restores baseline acceleration");
-        Check(crossings.All(state => VehiclePhysicsState.IsFinite(state.Physics.Position) && state.CommandSpeed <= 65.001f && state.Physics.AngularVelocity.Length() <= 8.001f && state.Physics.Position.Y is > 0.3f and < 0.8f), "coplanar repeated transitions remain supported and bounded without launches");
+        Check(crossings.All(state => VehiclePhysicsState.IsFinite(state.Physics.Position) && state.CommandSpeed <= 65.001f && state.Physics.AngularVelocity.Length() <= 8.001f && state.Physics.Position.Y is > 0.7f and < 1.1f), "coplanar repeated transitions remain supported and bounded without launches");
         Check(crossings.Zip(crossings.Skip(1)).Where(pair => pair.First.CurrentSurface != pair.Second.CurrentSurface).All(pair => Numerics.Vector3.Distance(pair.First.Physics.LinearVelocity, pair.Second.Physics.LinearVelocity) < 1), "surface selection introduces no velocity impulse");
         File.WriteAllText(_output + ".surfaces.json", System.Text.Json.JsonSerializer.Serialize(crossings.SelectMany(state => new[] { state.Physics.Position.X, state.Physics.Position.Y, state.Physics.Position.Z, state.Physics.LinearVelocity.X, state.Physics.LinearVelocity.Y, state.Physics.LinearVelocity.Z, (float)state.CurrentSurface }).ToArray()));
         GD.Print($"Surface crossings: {transitions}; peak speed={crossings.Max(state => state.CommandSpeed):F2}");
 
-        List<VehicleState> drift = await RunDrive(new Vector3(-32, 0.5f, 12), new Vector3(0, 0, -18), 110, tick => Frame(tick, throttle: 65535, steering: 8000, drift: tick <= 70));
+        List<VehicleState> drift = await RunDrive(new Vector3(-32, VehicleDimensions.RideHeight, 12), new Vector3(0, 0, -18), 110, tick => Frame(tick, throttle: 65535, steering: 8000, drift: tick <= 70));
         Check(drift.Any(state => state.Drifting && state.CurrentSurface == SurfaceType.Mud), "drift continues when entering native mud support");
         Check(drift.Any(state => state.CurrentSurface == SurfaceType.Concrete && state.Handbrake > 0), "handbrake state remains continuous through surface crossings");
         Check(drift.All(state => state.CommandSpeed <= 65.001f && VehiclePhysicsState.IsFinite(state.Physics.Position)), "drift across surfaces remains bounded");
@@ -413,7 +413,7 @@ public sealed partial class VehicleIntegrationChecks : Node
 
     private async Task VerifySpeedTelemetry()
     {
-        await RunDrive(new Vector3(-25, 0.5f, 25), Vector3.Zero, 90, tick => Frame(tick));
+        await RunDrive(new Vector3(-25, VehicleDimensions.RideHeight, 25), Vector3.Zero, 90, tick => Frame(tick));
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Check(_arena.Player.Snapshot.Speed < 0.01f && _arena.Player.State.CommandSpeed < 0.01f, "stationary suspension balances gravity without road-speed creep");
         Check(_hud.SpeedText == "Speed  0.0 km/h", "stationary HUD reads zero in km/h");
@@ -423,7 +423,7 @@ public sealed partial class VehicleIntegrationChecks : Node
         await Screenshot("stationary-speed");
         _settings.UpdateSettings(_settings.Current with { SpeedUnit = SpeedUnit.KilometresPerHour });
 
-        await RunDrive(new Vector3(-25, 0.5f, 25), Vector3.Zero, 60, tick => Frame(tick, throttle: 65535));
+        await RunDrive(new Vector3(-25, VehicleDimensions.RideHeight, 25), Vector3.Zero, 60, tick => Frame(tick, throttle: 65535));
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Check(_arena.Player.Snapshot.Speed > 3, "solved forward travel produces positive HUD speed");
         VerifyHudConversion(3.6, "km/h");
@@ -431,7 +431,7 @@ public sealed partial class VehicleIntegrationChecks : Node
         VerifyHudConversion(2.2369362920544, "mph");
         _settings.UpdateSettings(_settings.Current with { SpeedUnit = SpeedUnit.KilometresPerHour });
 
-        await RunDrive(new Vector3(-25, 0.5f, 15), Vector3.Zero, 60, tick => Frame(tick, brake: 65535));
+        await RunDrive(new Vector3(-25, VehicleDimensions.RideHeight, 15), Vector3.Zero, 60, tick => Frame(tick, brake: 65535));
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Check(_arena.Player.Snapshot.ObservedPhysics.LinearVelocity.Z > 3 && _arena.Player.Snapshot.Speed > 3, "reverse travel displays a nonnegative magnitude");
         GD.Print($"Reverse speed: observed={_arena.Player.Snapshot.Speed:F2} m/s, HUD={_hud.SpeedText}");
@@ -473,7 +473,7 @@ public sealed partial class VehicleIntegrationChecks : Node
 
     private async Task VerifyNativeInput()
     {
-        await RunDrive(new Vector3(-25, 0.5f, 25), Vector3.Zero, 2, tick => Frame(tick));
+        await RunDrive(new Vector3(-25, VehicleDimensions.RideHeight, 25), Vector3.Zero, 2, tick => Frame(tick));
         _arena.Player.InputSource = null;
         Trackstorm.Client.Input.PlayerInput input = _input;
         using var press = new InputEventKey { PhysicalKeycode = Key.W, Pressed = true };
