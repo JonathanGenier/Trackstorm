@@ -1,6 +1,6 @@
 {
-  "kind": "release",
-  "story": "TS-89",
-  "from": "0.0.16",
+  "kind": "baseline-correction",
+  "story": "TS-94",
+  "from": "0.1.0",
   "to": "0.1.0"
 }
