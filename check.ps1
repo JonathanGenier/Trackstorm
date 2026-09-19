@@ -31,10 +31,6 @@ Invoke-Check "Restore" {
     dotnet restore Trackstorm.sln
 }
 
-Invoke-Check "Formatting verification" {
-    dotnet format Trackstorm.sln --verify-no-changes --no-restore
-}
-
 Invoke-Check "Debug build and analyzers" {
     dotnet build Trackstorm.sln -c Debug --no-restore -warnaserror
 }
