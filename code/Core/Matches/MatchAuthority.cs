@@ -33,30 +33,30 @@ internal static class MatchAuthority
             return previous;
         }
 
-        MatchPhase phase = previous.Phase;
-        ulong? deadline = previous.CountdownAtTick;
-        if (phase is MatchPhase.Waiting or MatchPhase.Countdown)
+        GameLoopState lifecycle = previous.Lifecycle;
+        if (lifecycle.Phase is GameLoopPhase.Initialization or GameLoopPhase.Countdown)
         {
             if (vehicles.Count < configuration.MinimumPlayers)
             {
-                phase = MatchPhase.Waiting;
-                deadline = null;
+                lifecycle = new GameLoopState(tick, GameLoopPhase.Initialization);
             }
-            else if (phase == MatchPhase.Waiting)
+            else if (lifecycle.Phase == GameLoopPhase.Initialization)
             {
-                phase = MatchPhase.Countdown;
-                deadline = checked(tick + configuration.CountdownTicks);
+                var initialized = new GameLoopState(tick, GameLoopPhase.Initialization);
+                lifecycle = initialized.StartCountdown(configuration.CountdownTicks);
             }
-            else if (tick >= deadline)
+            else
             {
-                phase = MatchPhase.Active;
-                deadline = null;
+                lifecycle = lifecycle.Advance(tick);
             }
+        }
+        else
+        {
+            lifecycle = lifecycle.Advance(tick);
         }
 
         var scores = previous.Players.ToDictionary(score => score.Player);
         var changes = new List<ScoredDeath>();
-        ulong? winner = null;
         foreach (VehicleSnapshot vehicle in vehicles.OrderBy(vehicle => vehicle.VehicleId))
         {
             PlayerScore victim = scores[vehicle.VehicleId];
@@ -66,7 +66,7 @@ internal static class MatchAuthority
             }
 
             victim = victim with { ProcessedLife = vehicle.LifeId };
-            if (phase == MatchPhase.Active)
+            if (lifecycle.AllowsGameplay)
             {
                 victim = victim with { Deaths = checked(victim.Deaths + 1) };
                 scores[victim.Player] = victim;
@@ -81,10 +81,10 @@ internal static class MatchAuthority
                 if (killer != 0)
                 {
                     PlayerScore credited = scores[killer] with { Kills = checked(scores[killer].Kills + 1) };
-                    if (credited.Kills >= configuration.KillTarget)
+                    MatchOutcome? outcome = FirstToTargetMode.Evaluate(credited, configuration.KillTarget);
+                    if (outcome is not null)
                     {
-                        winner = killer;
-                        phase = MatchPhase.Finished;
+                        lifecycle = lifecycle.Finish(outcome);
                         credited = credited with { Wins = 1 };
                     }
 
@@ -95,17 +95,25 @@ internal static class MatchAuthority
             }
 
             scores[victim.Player] = victim;
-            if (phase == MatchPhase.Finished)
+            if (lifecycle.Phase == GameLoopPhase.Finished)
             {
                 break;
             }
         }
 
-        if (phase == previous.Phase && deadline == previous.CountdownAtTick && scores.Values.OrderBy(score => score.Player).SequenceEqual(previous.Players))
+        if (lifecycle.Phase == previous.Lifecycle.Phase && lifecycle.CountdownAtTick == previous.CountdownAtTick && scores.Values.OrderBy(score => score.Player).SequenceEqual(previous.Players))
         {
             return previous;
         }
 
-        return new MatchState(tick, checked(previous.Revision + 1), configuration.KillTarget, phase, deadline, winner, scores.Values, changes);
+        MatchPhase phase = lifecycle.Phase switch
+        {
+            GameLoopPhase.Initialization => MatchPhase.Waiting,
+            GameLoopPhase.Countdown => MatchPhase.Countdown,
+            GameLoopPhase.Active => MatchPhase.Active,
+            GameLoopPhase.Finished => MatchPhase.Finished,
+            _ => throw new InvalidOperationException("Unknown Game Loop phase."),
+        };
+        return new MatchState(tick, checked(previous.Revision + 1), configuration.KillTarget, phase, lifecycle.CountdownAtTick, lifecycle.Outcome?.Winner, scores.Values, changes);
     }
 }

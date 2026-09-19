@@ -43,6 +43,15 @@ public sealed class MatchState
         Winner = winner;
         Players = Array.AsReadOnly(scores);
         Changes = Array.AsReadOnly(deaths);
+        GameLoopPhase lifecyclePhase = phase switch
+        {
+            MatchPhase.Waiting => GameLoopPhase.Initialization,
+            MatchPhase.Countdown => GameLoopPhase.Countdown,
+            MatchPhase.Active => GameLoopPhase.Active,
+            MatchPhase.Finished => GameLoopPhase.Finished,
+            _ => throw new ArgumentException("Invalid match phase."),
+        };
+        Lifecycle = new GameLoopState(tick, lifecyclePhase, countdownAtTick, winner.HasValue ? new MatchOutcome("kill-target", winner) : null);
     }
 
     /// <summary>Latest match mutation tick, independent of movement packet arrival.</summary>
@@ -61,4 +70,6 @@ public sealed class MatchState
     public IReadOnlyList<PlayerScore> Players { get; }
     /// <summary>Once-per-revision score deltas; late joiners can reconstruct totals without replaying these.</summary>
     public IReadOnlyList<ScoredDeath> Changes { get; }
+    /// <summary>Reusable phase rules; legacy Waiting projects to pre-countdown Initialization.</summary>
+    public GameLoopState Lifecycle { get; }
 }
