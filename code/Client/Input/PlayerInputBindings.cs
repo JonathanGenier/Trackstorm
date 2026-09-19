@@ -119,12 +119,18 @@ internal sealed class PlayerInputBindings : IDisposable
     /// <param name="action">Logical action to resolve.</param>
     /// <param name="deadZone">Neutral magnitude applied only to analog bindings.</param>
     /// <param name="analog">Optional analog/digital filter before intent shaping.</param>
+    /// <param name="ignoreTextKeys">Keeps printable keys in a focused search editor; other input consumers retain normal bindings.</param>
     /// <returns>The strongest binding's normalized nonnegative value.</returns>
-    public float Strength(InputAction action, float deadZone, bool? analog = null)
+    public float Strength(InputAction action, float deadZone, bool? analog = null, bool ignoreTextKeys = false)
     {
         float strength = 0;
         foreach (InputEvent binding in _bindings[action])
         {
+            if (ignoreTextKeys && binding is InputEventKey { PhysicalKeycode: >= Key.Space and < Key.Escape })
+            {
+                continue;
+            }
+
             if (analog.HasValue && (binding is InputEventJoypadMotion) != analog.Value)
             {
                 continue;

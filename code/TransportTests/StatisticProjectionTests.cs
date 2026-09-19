@@ -52,5 +52,28 @@ internal sealed class StatisticProjectionTests
         Assert.That(Text(VehicleStatistics.Capture(dead, [], 180)), Does.Contain("1.00 s"));
     }
 
+    /// <summary>Search works across the legacy compact labels and safe diagnostic categories.</summary>
+    [Test]
+    public void SearchPreservesValuesAndMatchesLabelsCategoriesAndUnavailableState()
+    {
+        var section = new StatisticSection("Vehicle / confirmed state", "Vehicle 2 · Life 3 · State tick 120\nHP 750/1000 · Alive\nSpeed 5.00 m/s · Position (3, 4, 5) m");
+        var entries = StatisticEntry.From(section).ToArray();
+        Assert.Multiple(() =>
+        {
+            Assert.That(entries, Has.Length.EqualTo(7));
+            Assert.That(entries.Single(entry => entry.Label == "HP").Value, Is.EqualTo("750/1000"));
+            Assert.That(entries.Where(entry => entry.Matches(section.Title, "  hP  ")).Select(entry => entry.Label), Is.EqualTo(new[] { "HP" }));
+            Assert.That(entries.All(entry => entry.Matches(section.Title, "CONFIRMED")), Is.True);
+            Assert.That(entries.All(entry => entry.Matches(section.Title, "  ")), Is.True);
+            Assert.That(entries.Any(entry => entry.Matches(section.Title, "does-not-exist")), Is.False);
+            Assert.That(entries.Single(entry => entry.Label == "Position").Value, Is.EqualTo("(3, 4, 5) m"));
+            Assert.That(section.Text, Does.Contain("HP 750/1000"));
+        });
+        var network = new StatisticSection("Network Diagnostics", "AuthorityEpoch: 4; migration: frozen; retained checkpoints: 2\nRTT: N/A\nEOS unavailable.");
+        var diagnostics = StatisticEntry.From(network).ToArray();
+        Assert.That(diagnostics.Select(entry => entry.Value), Is.EqualTo(new[] { "4", "frozen", "2", "N/A", "EOS unavailable." }));
+        Assert.That(diagnostics.Single(entry => entry.Label == "State").Matches(network.Title, "unavailable"), Is.True);
+    }
+
     private static string Text(IReadOnlyList<StatisticSection> sections) => string.Join("\n", sections.Select(section => section.Text));
 }

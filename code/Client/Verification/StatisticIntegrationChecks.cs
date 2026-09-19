@@ -111,6 +111,7 @@ public sealed partial class StatisticIntegrationChecks : Node
             await Frames(20);
             Check(_host.Arena.Driver.Latest.Tick > tick && Text() != before, "live values update while simulation continues");
             Check(_host.Arena.Driver.Configuration == configuration, "observation does not mutate configuration");
+            await CheckSearch();
             Check(_host.Arena.Driver.Host!.GiveItem(0, HeldItem.Missile), "fixture grants through existing authority");
             await Frames(20);
             Check(Text().Contains("Held item: Missile", StringComparison.Ordinal), "live inventory update without reopening");
@@ -130,12 +131,18 @@ public sealed partial class StatisticIntegrationChecks : Node
                 Check(_devTools.Bounds.Position.DistanceTo(viewport.Position) < 1 && _devTools.Bounds.Size.DistanceTo(viewport.Size) < 1, "full viewport at " + size);
                 var close = Descendants(_devTools).OfType<Button>().Single(button => button.Text == "Close");
                 Check(viewport.Encloses(close.GetGlobalRect()), "Close remains in viewport");
+                Check(_panel.Bounds.Size.X >= viewport.Size.X - 40, "Stats uses full shell content width");
+                Check(viewport.Encloses(Descendants(_panel).OfType<LineEdit>().Single().GetGlobalRect()), "search remains in viewport");
                 await Capture(size.X + "x" + size.Y);
                 var tabs = Descendants(_panel).OfType<TabContainer>().Single();
                 tabs.CurrentTab = 1;
                 await Frames(3);
                 Check(viewport.Encloses(selector.GetGlobalRect()), "player selector remains in viewport");
                 await Capture(size.X + "x" + size.Y + "-player");
+                Search("physics");
+                await Frames(3);
+                await Capture(size.X + "x" + size.Y + "-filtered");
+                Search(string.Empty);
                 tabs.CurrentTab = 0;
             }
 
@@ -206,6 +213,62 @@ public sealed partial class StatisticIntegrationChecks : Node
             Godot.Input.ParseInputEvent(input);
             Godot.Input.FlushBufferedEvents();
         }
+    }
+
+    private async Task CheckSearch()
+    {
+        var tabs = Descendants(_panel).OfType<TabContainer>().Single();
+        var editor = Descendants(_panel).OfType<LineEdit>().Single();
+        editor.GrabFocus();
+        foreach ((Key key, char character) in new[] { (Key.H, 'h'), (Key.P, 'p') })
+        {
+            foreach (bool pressed in new[] { true, false })
+            {
+                using var input = new InputEventKey { Keycode = key, PhysicalKeycode = key, Unicode = character, Pressed = pressed };
+                Godot.Input.ParseInputEvent(input);
+                Godot.Input.FlushBufferedEvents();
+            }
+        }
+
+        Check(editor.Text == "hp", "native keyboard text entry reaches Stats search through the shell");
+        var view = _panel.View;
+        var configuration = _host.Arena!.Driver.Configuration;
+        Search("  world TICK  ");
+        Check(ReferenceEquals(view, _panel.View), "typing filters the existing projection without recapturing runtime state");
+        var rows = Descendants(_panel).OfType<HBoxContainer>().Where(row => row.IsVisibleInTree()).ToArray();
+        Check(rows.Length == 1 && rows[0].GetChild<Label>(0).Text == "World tick", "search filters individual labels case-insensitively with trimmed whitespace");
+        string before = rows[0].GetChild<Label>(1).Text;
+        await Frames(20);
+        Check(rows[0].GetChild<Label>(1).Text != before, "filtered runtime value continues updating live");
+        Check(_host.Arena.Driver.Configuration == configuration && _panel.View!.Selected == view!.Selected, "filter preserves configuration and selected identity");
+        Search("network diagnostics");
+        rows = Descendants(_panel).OfType<HBoxContainer>().Where(row => row.IsVisibleInTree()).ToArray();
+        Check(rows.Any(row => row.GetChild<Label>(0).Text == "AuthorityEpoch") && rows.All(row => row.GetParent().GetChild<Label>(0).Text == "Network Diagnostics"), "category match preserves all of its diagnostics and hides unrelated categories");
+        tabs.CurrentTab = 1;
+        Search("hp");
+        rows = Descendants(_panel).OfType<HBoxContainer>().Where(row => row.IsVisibleInTree()).ToArray();
+        Check(rows.Any(row => row.GetChild<Label>(0).Text == "HP" && row.GetChild<Label>(1).Text == "1000/1000"), "player values remain searchable");
+        foreach (var row in Descendants(_panel).OfType<HBoxContainer>())
+        {
+            Check(row.GetChild<Label>(0).GetThemeColor("font_color") == Colors.White && row.GetChild<Label>(1).GetThemeColor("font_color") == new Color("69b7ff"), "white labels and blue values");
+        }
+
+        Search("no-such-statistic");
+        Check(!Descendants(_panel).OfType<HBoxContainer>().Any(row => row.IsVisibleInTree()) && Descendants(_panel).OfType<Label>().Any(label => label.IsVisibleInTree() && label.Text.StartsWith("No matching", StringComparison.Ordinal)), "no matches has explicit feedback and no diagnostic rows");
+        Tap(Key.F3);
+        Tap(Key.F2);
+        Check(Descendants(_panel).OfType<LineEdit>().Single().Text == "no-such-statistic", "search survives shell tab switches");
+        Search(" ");
+        Check(Descendants(_panel).OfType<HBoxContainer>().Any(row => row.IsVisibleInTree() && row.GetChild<Label>(0).Text == "HP"), "clearing the filter restores diagnostics");
+        Search(string.Empty);
+        tabs.CurrentTab = 0;
+    }
+
+    private void Search(string text)
+    {
+        var search = Descendants(_panel).OfType<LineEdit>().Single();
+        search.Text = text;
+        search.EmitSignal(LineEdit.SignalName.TextChanged, text);
     }
 
     private string Text() => string.Join("\n", _panel.View!.Global.Concat(_panel.View.Player).Select(section => section.Text));

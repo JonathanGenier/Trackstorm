@@ -312,7 +312,7 @@ internal sealed partial class DevToolsShell : CanvasLayer
         bool routed = false;
         foreach (InputAction action in NavigationActions)
         {
-            bool held = _input.Enabled && _input.Bindings.Strength(action, _input.DeadZone) > 0.5f;
+            bool held = _input.Enabled && _input.Bindings.Strength(action, _input.DeadZone, ignoreTextKeys: SelectedTab == DevToolsTab.Stats && Stats.EditingSearch) > 0.5f;
             bool previous = _menuHeld.GetValueOrDefault(action);
             _menuHeld[action] = held;
             active |= held;
