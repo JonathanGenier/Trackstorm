@@ -31,11 +31,33 @@ If the assignment and Jira issue type/parent disagree, identify the discrepancy.
         = 1 Story branch = 1 final PR to main
 ```
 
-- Use the explicitly human-assigned Story branch name. Do not rename it to satisfy a naming pattern. If no branch is assigned, resolve the intended Story branch before implementation.
+- Story branches use `ts-<Jira number>-<initials>` by default, for example `ts-91-jg` or `ts-72-pg`. An explicit human-assigned branch name may override the default; otherwise use the canonical pattern.
 - Create a new Story branch from `main`; never implement directly on `main`.
 - Before implementing, resuming or finalizing a Story, synchronize its branch with current `main` and follow the version procedure below.
 - Implement and commit all child checkpoints and authorized corrections directly on that branch. Tasks/Subtasks never receive separate branches, PRs or independent Git reviews/merges.
 - A push to a valid `ts-*` Story branch may mechanically create the Story's single PR to `main` immediately. Automatic PR creation is only delivery plumbing: it does not imply verification, critique, acceptance, merge readiness or Story completion. Tasks/Subtasks still never receive separate PRs.
+
+### Delivery handoff
+
+The normal Story handoff is:
+
+```text
+implement + verify locally
+        ↓
+commit + push Story branch
+        ↓
+GitHub creates/reuses the single PR
+        ↓
+delivery maintenance + review
+        ↓
+human manually merges
+```
+
+- Automated workflows and review agents never merge a Story PR unless a human explicitly requests that action.
+- During delivery review, mechanical maintenance may be applied directly before the verdict when the correct result is unambiguous and does not change feature behavior. Examples include synchronizing compatible `main` changes, Story version recalculation, export metadata, documentation synchronization, PR metadata, and simple workflow/config reconciliation.
+- Being behind `main`, stale version metadata, or a safely resolvable maintenance conflict is not by itself a review defect.
+- Merge conflicts must be classified by substance. Resolve mechanical conflicts during delivery when the intended result is clear. If resolution requires substantive production-code changes, feature-behavior decisions, architecture changes, nontrivial logic, or implementation-related test changes, return the work to implementation on the same Story branch and re-run applicable verification before final review.
+- Review-time maintenance must preserve Jira scope, approved requirement changes, current repository invariants, and newer compatible behavior already present on `main`.
 
 ### Canonical Story version procedure
 
@@ -109,6 +131,6 @@ After integrated verification, perform the applicable review in [critique](criti
 
 The repository may already have created the Story PR automatically when the `ts-*` branch was pushed. That early PR is only a delivery container and may initially use the branch name as its title with an empty/minimal body. Review and acceptance must still use Jira, approved changes, repository instructions, the current source/diff, current feature documentation, current CI and the Story verification report rather than trusting PR prose.
 
-After explicit human acceptance of the critique, perform final verification without new implementation changes. If changes become necessary, re-verify, repeat the applicable authorized critique process and obtain renewed acceptance.
+After explicit human acceptance of the critique, perform final verification without new implementation changes. Delivery-time mechanical maintenance may still be applied when it does not change feature behavior; re-run the affected checks afterward. If substantive implementation changes become necessary, return to implementation on the same Story branch, re-verify, repeat the applicable authorized critique process and obtain renewed acceptance.
 
-Maintain exactly one Story PR to `main`. Before final delivery, update its title/body as useful historical documentation with the Jira key, integrated implementation summary, actual verification evidence, assumptions, limitations and unresolved risks, then report its number and URL. Never treat PR creation itself as permission to merge.
+Maintain exactly one Story PR to `main`. Before final delivery, update its title/body as useful historical documentation with the Jira key, integrated implementation summary, actual verification evidence, assumptions, limitations and unresolved risks, then report its number and URL. PR prose is history, not review authority. A human performs the final merge; automatic PR creation, passing CI, or a passing review does not merge the Story.
