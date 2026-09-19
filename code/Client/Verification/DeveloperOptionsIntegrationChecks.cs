@@ -97,7 +97,8 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 await Frames(20);
                 Check(_host.Arena!.Driver.Configuration.Configuration == GameplayConfiguration.HostedDefaults, "production arena uses the same hosted defaults");
                 Check(!Descendants(_bootstrap).OfType<Button>().Any(button => button.Text == "Arena tools"), "separate Arena Tools retired");
-                Check(Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Text is "FORCE START MATCH" or "Give Wrench" or "Give Missile"), "host-authoritative developer actions remain in Configs");
+                Check(Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Text == "FORCE START MATCH"), "Force Start remains in Configs");
+                Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Text.StartsWith("Give ", StringComparison.Ordinal)), "developer item-grant controls are absent");
                 Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Text is "Apply tuning" or "Reload current values" or "Save tuning / retry"), "obsolete tuning actions removed");
                 var simulation = Descendants(_devTools.Configs).OfType<SpinBox>().ToArray();
                 double[] impairment = [30, 5, 2, 10, 25];
@@ -106,8 +107,8 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                     simulation[i].Value = impairment[i];
                 }
 
-                Press("Apply local network simulation");
-                Check(Descendants(_devTools.Configs).OfType<Label>().Any(label => label.Text == "Local network simulation applied."), "real GNS accepts all five UI impairment controls");
+                Press("Apply Settings");
+                Check(Descendants(_devTools.Configs).OfType<Label>().Any(label => label.Text == "Host tuning saved."), "real GNS accepts all five UI impairment controls");
                 foreach (var option in GameplayOptions.All)
                 {
                     double current = option.Read(_host.DeveloperConfiguration);
@@ -131,14 +132,15 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                     control.Value = 0;
                 }
 
-                Press("Apply local network simulation");
+                Press("Apply Settings");
 
                 await CheckDraftActions();
+                await CheckRedesign();
                 ulong revision = _host.Arena!.Driver.Configuration.Revision;
                 Set("vehicle.mass", -1);
                 Press("Apply Settings");
                 Check(_host.Arena.Driver.Configuration.Revision == revision, "invalid UI edit cannot commit");
-                Press("Discard Changes");
+                Press("Cancel");
                 Check(!_client.ConfigureDeveloperOptions(new Dictionary<string, double> { ["vehicle.mass"] = 200 }, out _), "joined client cannot mutate");
                 Check(!_client.GiveDeveloperItem(HeldItem.Missile) && !_client.ForceDeveloperStart(), "joined client cannot invoke actions");
                 Set("match.minimum_players", 2);
@@ -159,12 +161,12 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Check(extended != shortened, "UI suspension length changes native wheel ray support");
                 Set("vehicle.suspension_length", 0.8);
                 Press("Apply Settings");
-                Press("Give Wrench");
+                Check(_host.GiveDeveloperItem(HeldItem.Wrench), "fixture grants wrench through existing authority");
                 Check(_host.Arena.Driver.LocalItem?.Item == HeldItem.Wrench, "Give Wrench uses current host slot");
                 Check(!_host.GiveDeveloperItem(HeldItem.Missile), "occupied slot cannot be overwritten");
                 Check(_host.Arena.Driver.RequestItemUse(), "normal Wrench use");
                 await Until(() => _host.Arena.Driver.LocalItem?.Item == HeldItem.None, "normal Wrench consumption");
-                Press("Give Missile");
+                Check(_host.GiveDeveloperItem(HeldItem.Missile), "fixture grants missile through existing authority");
                 Check(_host.Arena.Driver.LocalItem?.Item == HeldItem.Missile, "Give Missile uses current host slot");
                 Check(_host.Arena.Driver.RequestItemUse(), "normal Missile use");
                 await Until(() => _host.Arena.Driver.Host!.Items.Missiles.Count > 0, "real projectile launched");
@@ -234,7 +236,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         string persisted = System.IO.File.ReadAllText(path);
         Set("damage.max_hp", 2500);
         Set("vehicle.acceleration", 99);
-        Press("Discard Changes");
+        Press("Cancel");
         Check(_host.Arena.Driver.Configuration == before, "Discard does not mutate live configuration or revision");
         Check(ReadEditors() == before.Configuration, "Discard restores all current authoritative values");
         Check(System.IO.File.ReadAllText(path) == persisted, "Discard does not write persistence");
@@ -266,7 +268,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         Press("Apply Settings");
         Check(_host.Arena.Driver.Configuration == reset, "Apply still enforces authoritative configuration validation");
         Check(System.IO.File.ReadAllText(path) == persisted, "rejected Apply does not write persistence");
-        Press("Discard Changes");
+        Press("Cancel");
 
         // A directory at the temporary file path deterministically fails saving without changing permissions.
         System.IO.Directory.CreateDirectory(path + ".tmp");
@@ -281,6 +283,111 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         Check(_host.Arena.Driver.Configuration == accepted, "unchanged Apply retry does not advance revision");
         Check(new DeveloperSettingsStore(path).LoadForHost() == accepted.Configuration && HasStatus("Host tuning saved."), "unchanged Apply retries and persists successfully");
         await Until(() => _client!.Arena!.Driver.Configuration == accepted, "client retains the accepted retry boundary");
+    }
+
+    private async Task CheckRedesign()
+    {
+        var before = _host.Arena!.Driver.Configuration;
+        var panel = _devTools.Configs;
+        var mass = Descendants(panel).OfType<LineEdit>().Single(editor => editor.Name == "vehicle_mass");
+        var search = Descendants(panel).OfType<LineEdit>().Single(editor => editor.Name == "ConfigSearch");
+        var latency = Descendants(panel).OfType<SpinBox>().First();
+        latency.Value = 10;
+        Check(panel.HasUnappliedChanges, "local network editor participates in pending-change protection");
+        Press("Cancel");
+        Check(latency.Value == 0 && !panel.HasUnappliedChanges, "Cancel restores effective local simulation");
+        latency.Value = 10;
+        Press("Apply Settings");
+        Check(!panel.HasUnappliedChanges && _host.Arena.Driver.Configuration == before, "local simulation Apply does not revise gameplay");
+        Press("Reset to Defaults");
+        Check(latency.Value == 0 && panel.HasUnappliedChanges, "Reset stages zero network impairment");
+        Press("Cancel");
+        Check(latency.Value == 10, "Cancel restores applied impairment after Reset");
+        latency.Value = 0;
+        Press("Apply Settings");
+        void Search(string query)
+        {
+            search.Text = query;
+            search.EmitSignal(LineEdit.SignalName.TextChanged, query);
+        }
+
+        Press("Reset to Defaults");
+        foreach (var option in GameplayOptions.All)
+        {
+            var editor = Descendants(panel).OfType<Control>().Single(control => control.Name == option.Key.Replace('.', '_'));
+            Check(editor.GetThemeColor("font_color") == new Color("69b7ff"), "canonical value is blue: " + option.Key);
+        }
+
+        Press("Cancel");
+        Set("vehicle.mass", 1234);
+        Check(panel.HasUnappliedChanges && mass.GetThemeColor("font_color") == new Color("ff7979"), "staged override is dirty and red");
+        Search("vehicle mass");
+        Check(mass.IsVisibleInTree(), "search matches category and label together");
+        Check(Descendants(panel).OfType<LineEdit>().Count(editor => editor.IsVisibleInTree() && editor.GetParent() is GridContainer) == 2, "mass search includes mass and reference mass");
+        Search("no such setting");
+        Check(!mass.IsVisibleInTree() && panel.HasUnappliedChanges, "empty search preserves hidden draft");
+        Check(_host.Arena.Driver.Configuration == before, "search and field changes do not mutate runtime or revision");
+        Search("MiSsIlE");
+        Check(Descendants(panel).OfType<LineEdit>().Any(editor => editor.IsVisibleInTree() && editor.Name == "items_missile_speed"), "search is case insensitive");
+        Search(string.Empty);
+        Check(mass.Text == "1234", "clearing search retains staged value");
+        foreach (var label in Descendants(panel).OfType<Label>().Where(label => label.GetParent() is GridContainer))
+        {
+            Check(label.GetThemeColor("font_color") == Colors.White, "setting labels remain white");
+        }
+
+        foreach (Key tab in new[] { Key.F2, Key.F3 })
+        {
+            Tap(tab);
+            Check(!panel.Footer.IsVisibleInTree(), "configuration footer hidden on read-only tabs");
+        }
+
+        Press("Close");
+        Check(_devTools.IsOpen && panel.HasUnappliedChanges, "closing from Logs still protects Configs edits");
+        Tap(Key.F1);
+        Check(Descendants(_devTools).OfType<Button>().Any(button => button.Text == "Stay" && button.IsVisibleInTree()), "shortcuts cannot bypass close decision");
+        Press("Stay");
+        Tap(Key.F1);
+        Tap(Key.Escape);
+        Press("Discard");
+        Check(!_devTools.IsOpen && !panel.HasUnappliedChanges && _host.Arena.Driver.Configuration == before, "Discard closes without committing");
+        Tap(Key.F1);
+        Set("vehicle.mass", -1);
+        Press("Close");
+        Press("Apply");
+        Check(_devTools.IsOpen && panel.HasUnappliedChanges && _host.Arena.Driver.Configuration == before, "invalid Apply keeps editor open without committing");
+        Tap(Key.Escape);
+        Tap(Key.Escape);
+        Check(_devTools.IsOpen && panel.HasUnappliedChanges, "Escape on decision means Stay");
+        Set("vehicle.mass", 1234);
+        Press("Close");
+        Press("Apply");
+        Check(!_devTools.IsOpen && !panel.HasUnappliedChanges, "successful Apply closes and clears pending changes");
+        var applied = _host.Arena.Driver.Configuration;
+        Check(applied.Configuration.Vehicle.Mass == 1234 && applied.Revision == before.Revision + 1, "close Apply commits exactly one authoritative revision");
+        await Until(() => _client!.Arena!.Driver.Configuration == applied, "close Apply synchronizes client");
+        Tap(Key.F1);
+        Check(mass.GetThemeColor("font_color") == new Color("ff7979"), "accepted nondefault remains red after reopening");
+        Press("Cancel");
+        Check(mass.Text == "1234", "Cancel restores effective override rather than defaults");
+        Set("vehicle.mass", 1200);
+        string temporary = System.IO.Path.Combine(_directory, "settings.json.developer.jsonl.tmp");
+        System.IO.Directory.CreateDirectory(temporary);
+        try
+        {
+            Press("Close");
+            Press("Apply");
+            Check(_devTools.IsOpen && HasStatus("saving failed"), "close Apply keeps persistence failure visible");
+        }
+        finally
+        {
+            System.IO.Directory.Delete(temporary);
+        }
+
+        var accepted = _host.Arena.Driver.Configuration;
+        Press("Apply Settings");
+        Check(_host.Arena.Driver.Configuration == accepted && HasStatus("Host tuning saved"), "retry saves without another revision");
+        await Until(() => _client!.Arena!.Driver.Configuration == accepted, "save-failure retry retains synchronized values");
     }
 
     private GameplayConfiguration ReadEditors()

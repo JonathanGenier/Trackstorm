@@ -40,7 +40,7 @@ public sealed partial class MenuIntegrationChecks
         Check(mass.Text == "9" && _session.DeveloperConfiguration == before, "native numeric typing stages text without applying configuration");
         Tap(Key.Enter);
         Check(_session.DeveloperConfiguration == before, "logical Accept in numeric editor does not Apply");
-        Buttons(_devTools.Configs).Single(button => button.Text == "Discard Changes").GrabFocus();
+        Buttons(_devTools).Single(button => button.Text == "Cancel").GrabFocus();
         Joy(JoyButton.A);
         Check(mass.Text != "9" && _session.DeveloperConfiguration == before, "controller Accept activates Discard without mutating configuration");
 
@@ -137,10 +137,24 @@ public sealed partial class MenuIntegrationChecks
                 Check(number.GetGlobalRect().End.X <= GetViewport().GetVisibleRect().End.X, "value column fits viewport");
             }
 
-            var scroll = (ScrollContainer)_devTools.Configs.GetParent().GetParent();
+            var scroll = Descendants(_devTools.Configs).OfType<ScrollContainer>().Single();
             numbers[^1].GrabFocus();
             await Frames(3);
             Check(scroll.ScrollVertical > 0, "focus follows last numeric editor through vertical scrolling");
+            Rect2 viewport = GetViewport().GetVisibleRect();
+            var reset = Buttons(_devTools).Single(button => button.Text == "Reset to Defaults");
+            var apply = Buttons(_devTools).Single(button => button.Text == "Apply Settings");
+            var cancel = Buttons(_devTools).Single(button => button.Text == "Cancel");
+            var close = Buttons(_devTools).Single(button => button.Text == "Close");
+            foreach (var button in new[] { reset, apply, cancel, close })
+            {
+                Check(button.IsVisibleInTree() && viewport.Encloses(button.GetGlobalRect()), "footer button stays inside viewport after scrolling: " + button.Text);
+                Check(button.GetGlobalRect().Position.Y >= scroll.GetGlobalRect().End.Y, "footer sits below scrolling settings");
+            }
+
+            Check(reset.GetGlobalRect().Position.X < apply.GetGlobalRect().Position.X && apply.GetGlobalRect().End.X <= cancel.GetGlobalRect().Position.X && cancel.GetGlobalRect().End.X <= close.GetGlobalRect().Position.X, "footer action order is Reset, Apply, Cancel, Close");
+            var force = Buttons(_devTools.Configs).Single(button => button.Text == "FORCE START MATCH");
+            Check(viewport.Encloses(force.GetGlobalRect()) && force.GetGlobalRect().End.Y <= scroll.GetGlobalRect().Position.Y, "Force Start remains visible above the settings scroll");
             mass.GrabFocus();
             await Frames(3);
             await Capture($"configs-{size.X}x{size.Y}");
