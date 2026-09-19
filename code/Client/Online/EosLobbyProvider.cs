@@ -65,6 +65,35 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
     }
 
     /// <inheritdoc />
+    public void Lookup(string id, Action<OnlineLobbyLookup> completed)
+    {
+        Find(id, (search, failure) =>
+        {
+            if (search is null)
+            {
+                completed(new(null, failure));
+                return;
+            }
+
+            var copy = new LobbySearchCopySearchResultByIndexOptions { LobbyIndex = 0 };
+            if (search.CopySearchResultByIndex(ref copy, out var details) != Result.Success)
+            {
+                completed(new(null, null));
+                return;
+            }
+
+            try
+            {
+                completed(new(Read(details), null));
+            }
+            finally
+            {
+                details.Release();
+            }
+        });
+    }
+
+    /// <inheritdoc />
     public void Create(OnlineLobby lobby, Action<OnlineLobby?, string?> completed)
     {
         if (_disposed)

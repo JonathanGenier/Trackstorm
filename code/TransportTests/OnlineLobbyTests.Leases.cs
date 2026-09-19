@@ -207,6 +207,8 @@ internal sealed partial class OnlineLobbyTests
             {
                 LeaseFactory = () => new LeaseTransport(session.Store, User(1).Value),
             };
+            restarted.Tick();
+            restarted.ResumeRetained();
             for (int frame = 0; frame < 240 && restarted.Active is null; frame++)
             {
                 restarted.Tick();
@@ -229,6 +231,11 @@ internal sealed partial class OnlineLobbyTests
             {
                 restarted.Tick();
                 binding.Driver.Pump(1.0 / 60);
+                if (restarted.RetainedDecision == RetainedSessionDecision.Choose)
+                {
+                    restarted.DecideRetained(true);
+                }
+
                 foreach (var packet in session.ClientWire.Packets)
                 {
                     if (packet.Bytes.Length > EosPacketAssembly.Header + 3 && packet.Bytes[0] == 4 &&
@@ -337,6 +344,7 @@ internal sealed partial class OnlineLobbyTests
         {
             using var restarted = new OnlineLobbyCoordinator(new Provider(service, User(1)), User(1), clock, store) { LeaseFactory = () => transport };
             restarted.Tick();
+            restarted.ResumeRetained();
             if (failure == "cancelled")
             {
                 restarted.Leave();

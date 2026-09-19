@@ -149,6 +149,20 @@ public sealed partial class StandingsIntegrationChecks : Node
 
             await Frames(120);
             Refresh(true);
+            var roster = _sessions[0].Lobby!.State!;
+            var totals = _sessions[0].Arena!.Driver.Match!;
+            var historyRoster = new LobbySnapshot(roster.Session, roster.Revision + 1, roster.Match, roster.Phase, roster.Players, departed: [new(9, "Departed contender")]);
+            var historyTotals = new MatchState(totals.Tick, totals.Revision + 1, totals.KillTarget, totals.Phase, null, totals.Winner, totals.Players.Append(new PlayerScore(9, 0, 6, 0, 6)));
+            _boards[0].View = () => MatchStandingsView.From(historyRoster, historyTotals, 1, InputButtons.None, _ => null);
+            _boards[0].Refresh();
+            using var nextPage = new InputEventKey { PhysicalKeycode = Key.Pagedown, Pressed = true };
+            _view.PushInput(nextPage);
+            await Frames(2);
+            var historyLabel = _boards[0].FindChildren("*", "Label", true, false).OfType<Label>().Single(label => label.Text == "Departed contender");
+            Require(historyLabel.Modulate.A == 0.55f, "Paged abandoned history remains dimmed and reachable.");
+            Require(_boards[0].FindChildren("*", "Label", true, false).OfType<Label>().Any(label => label.Text.Contains("2/2", StringComparison.Ordinal)), "Native Page Down changes the visible history page.");
+            await Capture("results-departed-page");
+            _boards[0].View = () => _sessions[0].Standings;
             _sessions[0].LeaveResults();
             await Until(() => _sessions.All(session => session.Arena is null));
             Refresh(false, false);

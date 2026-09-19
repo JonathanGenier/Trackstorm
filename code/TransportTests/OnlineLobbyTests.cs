@@ -406,6 +406,7 @@ internal sealed partial class OnlineLobbyTests
             if (restart)
             {
                 returning.Tick();
+                returning.ResumeRetained();
             }
             else
             {
@@ -425,6 +426,7 @@ internal sealed partial class OnlineLobbyTests
             returnGateway.ConnectPeer(30);
             var returned = returning.AttachTransport(returnGateway, 30, "Former host");
             returned.Driver.Pump(0);
+            ConfirmReservation(returning, returnGateway, returned.Driver, 30, checkpoint.Lobby.State.Session, 1, 1, 2);
             var resume = LobbyCodec.DecodeCommand(returnGateway.Sent.Last().Payload.Span);
             Assert.That(resume.Command, Is.EqualTo(LobbyCommand.Resume));
             Assert.That(resume.GameVersion, Is.EqualTo(GameVersion.Current.ToString()));
@@ -472,7 +474,10 @@ internal sealed partial class OnlineLobbyTests
                 service.Lobbies[id] = service.Lobbies[id] with { MemberIds = new[] { User(1), User(2), User(3) }, Members = 3 };
                 service.Notify(id, new(OnlineLobbyUpdateKind.Joined, User(3)));
                 replacementGateway.ConnectPeer(50);
-                Assert.That(replacement.AuthorizePeer(50, User(3), null), Is.False, "EOS membership cannot bypass fresh Locked admission.");
+                Assert.That(replacement.AuthorizePeer(50, User(3), null), Is.True, "Authenticated control queries need no access code.");
+                replacementGateway.ReceiveJoin(50, "Unauthorized");
+                replacement.Driver.Pump(0);
+                Assert.That(replacement.Driver.Authority!.PlayerId(50), Is.Zero, "EOS membership cannot bypass fresh Locked admission.");
             }
         }
         finally
@@ -1062,10 +1067,13 @@ internal sealed partial class OnlineLobbyTests
         binding.Driver.Pump(0);
         Assert.That(binding.Driver.Authority.Return(0), Is.True);
         gateway.ConnectPeer(24);
-        Assert.That(binding.AuthorizePeer(24, User(2), null), Is.EqualTo(access == LobbyAccess.Public), "Return clears retained authorization; fresh Locked admission requires the code.");
+        Assert.That(binding.AuthorizePeer(24, User(2), null), Is.True);
+        gateway.ReceiveJoin(24, "Fresh");
+        binding.Driver.Pump(0);
+        Assert.That(binding.Driver.Authority.PlayerId(24) > 0, Is.EqualTo(access == LobbyAccess.Public), "Return clears retained authorization; fresh Locked admission requires the code.");
     }
 
-    /// <summary>A restart hint restores only the prior assignment and is cleared when the player chooses Leave.</summary>
+    /// <summary>A restart hint is inspected before the explicit choice and local cleanup does not claim authoritative release.</summary>
     /// <param name="incompatible">Whether the saved session now advertises a different runtime version.</param>
     [TestCase(false)]
     [TestCase(true)]
@@ -1093,23 +1101,29 @@ internal sealed partial class OnlineLobbyTests
             {
                 Assert.That(client.Active, Is.Null);
                 Assert.That(client.Status, Does.StartWith("Game version mismatch."));
-                Assert.That(store.Load(User(2).Value), Is.Null);
+                Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.None));
+                Assert.That(service.ResumeRequests, Is.Zero);
+                Assert.That(store.Load(User(2).Value), Is.EqualTo(locator), "A version mismatch does not invalidate the authoritative reservation or its retry locator.");
                 Assert.That(service.Lobbies[host.Active.Id].Members, Is.EqualTo(1));
                 return;
             }
 
+            Assert.That(client.Active, Is.Null, "Read-only startup lookup must not rejoin the old lobby.");
+            Assert.That(service.LookupRequests, Is.EqualTo(1));
+            Assert.That(service.ResumeRequests, Is.Zero);
+            client.ResumeRetained();
             Assert.That(client.Active!.Session, Is.EqualTo(host.Active.Session));
             Assert.That(client.Active.Open, Is.False, "Resume uses the locator even when normal admission is closed.");
             using var gateway = new Gateway();
             gateway.ConnectPeer(1);
             var binding = client.AttachTransport(gateway, 1, "Changed local name");
             binding.Driver.Pump(0);
-            Assert.That(binding.Driver.Reconnecting, Is.True);
+            Assert.That(binding.Driver.Reconnecting, Is.False, "Checking must not resume gameplay before the choice.");
             Assert.That(binding.Driver.LocalPlayerId, Is.EqualTo(2));
             Assert.That(binding.Driver.Generation, Is.EqualTo(4));
-            Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
+            ConfirmReservation(client, gateway, binding.Driver, 1, locator.Session, 2, 4);
             client.Leave();
-            Assert.That(store.Load(User(2).Value), Is.Null);
+            Assert.That(store.Load(User(2).Value), Is.Not.Null, "Local cleanup cannot claim an authoritative release.");
         }
         finally
         {
@@ -1117,36 +1131,43 @@ internal sealed partial class OnlineLobbyTests
         }
     }
 
-    /// <summary>Membership retries and saved ordinary-client identity outlive both former local deadlines.</summary>
+    /// <summary>An unavailable menu check has a bounded wait and preserves its hint for explicit retry.</summary>
     [Test]
-    public void OrdinaryRestartWaitsForMembershipBeyondTwoMinutes()
+    public void UnavailableRestartOffersRetryWithoutErasingTheReservationHint()
     {
         string path = Path.Combine(Path.GetTempPath(), "trackstorm-resume-" + Guid.NewGuid().ToString("N") + ".json");
         var store = new ResumeLocatorStore(path);
         var service = new Service();
+        service.LookupFailure = "retained lookup unavailable";
         var clock = new Clock();
         var lobby = Lobby("retained-match", "Match") with { Open = false };
         store.Save(new ResumeLocator(lobby.Id, lobby.Session, 2, 4, User(2).Value, 1, User(1).Value));
         try
         {
             using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), clock, store);
+            Assert.That(client.ShowsRetainedDecision, Is.False, "A locator must validate silently.");
             client.Tick();
-            clock.Advance(181);
-            client.Tick();
-            Assert.That(client.SavedResume, Is.Not.Null);
-            Assert.That(client.Status, Is.EqualTo("Session unavailable — retrying"));
+            Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.None));
+            Assert.That(client.ShowsRetainedDecision, Is.False, "Unavailable validation must not trap the player behind a retained-match prompt.");
+            Assert.That(client.CanResumeRetained, Is.True, "Unavailable validation must remain manually retryable.");
+            Assert.That(store.Load(User(2).Value), Is.Not.Null);
+            Assert.That(client.Status, Does.Contain("Lobby browsing is still available"));
+            Assert.That(client.Status, Does.Not.Contain("EOS").IgnoreCase);
+            Assert.That(service.ResumeRequests, Is.Zero);
             service.Lobbies[lobby.Id] = lobby;
-            clock.Advance(3);
-            client.Tick();
+            service.LookupFailure = null;
+            client.Refresh();
+            Assert.That(client.Browser.Rows.Select(row => row.Id), Does.Contain(lobby.Id), "The normal lobby browser must remain refreshable after validation fails.");
+            client.ResumeRetained();
             Assert.That(client.Active!.Session, Is.EqualTo(lobby.Session));
             using var gateway = new Gateway();
             gateway.ConnectPeer(1);
             var binding = client.AttachTransport(gateway, 1, "Client");
-            binding.Driver.Pump(181);
+            binding.Driver.Pump(0);
             Assert.That(binding.Driver.Failure, Is.Empty);
             Assert.That(binding.Driver.LocalPlayerId, Is.EqualTo(2));
             Assert.That(binding.Driver.Generation, Is.EqualTo(4));
-            Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
+            ConfirmReservation(client, gateway, binding.Driver, 1, lobby.Session, 2, 4);
         }
         finally
         {
@@ -1154,7 +1175,7 @@ internal sealed partial class OnlineLobbyTests
         }
     }
 
-    /// <summary>Leave and failed migration attempts preserve manual player recovery, while Return clears it.</summary>
+    /// <summary>Leave and failed migration attempts validate the retained player on menu entry, while Return clears the hint.</summary>
     /// <param name="failedAttempt">Whether a safely failed migration attempt precedes departure.</param>
     [TestCase(false)]
     [TestCase(true)]
@@ -1186,14 +1207,15 @@ internal sealed partial class OnlineLobbyTests
             client.Leave();
             clock.Advance(181);
             client.Tick();
-            Assert.That(client.Active, Is.Null, "Leave must not automatically rejoin.");
+            Assert.That(client.Active, Is.Null, "Menu entry must not automatically restore EOS membership.");
             Assert.That(client.CanResumeRetained, Is.True);
             Assert.That(store.Load(User(2).Value)!.Player, Is.EqualTo(2));
             client.ResumeRetained();
+            Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Checking));
             gateway.ConnectPeer(3);
             binding = client.AttachTransport(gateway, 3, "Client");
             binding.Driver.Pump(0);
-            Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
+            ConfirmReservation(client, gateway, binding.Driver, 3, state.Session, 2, 1);
             gateway.ReceiveState(3, new LobbySnapshot(state.Session, 3, state.Match, SessionPhase.Arena, state.Players.Select(player => player.Id == 2 ? player with { Generation = 2 } : player)), 2);
             binding.Driver.Pump(0);
             client.Tick();
@@ -1318,11 +1340,16 @@ internal sealed partial class OnlineLobbyTests
     /// <summary>Returning packets are checked before rebind or arena checkpoint publication.</summary>
     /// <param name="revision">Older or newer returning build.</param>
     /// <param name="arena">Whether resume targets an existing arena.</param>
-    [TestCase(3, false)]
-    [TestCase(5, false)]
-    [TestCase(3, true)]
-    [TestCase(5, true)]
-    public void ResumeWireMismatchCannotReclaimAuthority(int revision, bool arena)
+    /// <param name="command">Returning player's resume or reservation operation.</param>
+    [TestCase(3, false, LobbyCommand.Resume)]
+    [TestCase(5, false, LobbyCommand.Resume)]
+    [TestCase(3, true, LobbyCommand.Resume)]
+    [TestCase(5, true, LobbyCommand.Resume)]
+    [TestCase(3, true, LobbyCommand.InspectReservation)]
+    [TestCase(5, true, LobbyCommand.InspectReservation)]
+    [TestCase(3, true, LobbyCommand.Abandon)]
+    [TestCase(5, true, LobbyCommand.Abandon)]
+    public void ResumeWireMismatchCannotReclaimAuthority(int revision, bool arena, LobbyCommand command)
     {
         using var wire = new Gateway();
         var host = new LobbyNetworkDriver(wire, 100, 0, "Host", identity: _ => "subject", gameVersion: new GameVersion(1, 4));
@@ -1341,7 +1368,7 @@ internal sealed partial class OnlineLobbyTests
         var before = host.State;
         wire.Sent.Clear();
         wire.ConnectPeer(21);
-        wire.ReceiveResume(21, 100, 2, 1, gameVersion: new GameVersion(1, revision).ToString());
+        wire.ReceivePacket(21, LobbyCodec.EncodeResume(100, 2, 1, gameVersion: new GameVersion(1, revision).ToString(), command: command));
         host.Pump(0);
         Assert.That(host.State, Is.SameAs(before));
         Assert.That(host.Authority!.Peers, Is.Empty);
@@ -1353,6 +1380,19 @@ internal sealed partial class OnlineLobbyTests
         host.Pump(0);
         Assert.That(host.Authority.PlayerId(22), Is.EqualTo(arena ? 2UL : 0UL));
         Assert.That(host.State!.Players.Count, Is.EqualTo(arena ? 2 : 1));
+    }
+
+    private static void ConfirmReservation(OnlineLobbyCoordinator coordinator, Gateway gateway, Trackstorm.Client.Networking.LobbyNetworkDriver driver, ulong peer, ulong session, ulong player, ulong generation, ulong epoch = 1)
+    {
+        Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.InspectReservation));
+        Assert.That(driver.State, Is.Null);
+        gateway.Receive(peer, LobbyCodec.EncodeReservation(session, player, generation, epoch, ReservationResult.Available));
+        driver.Pump(0);
+        coordinator.Tick();
+        Assert.That(coordinator.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Choose));
+        coordinator.DecideRetained(true);
+        driver.Pump(0);
+        Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.Resume));
     }
 
     private static OnlineProductUserId User(int id) => new(id.ToString("x32"));
@@ -1368,6 +1408,9 @@ internal sealed partial class OnlineLobbyTests
         internal bool FailLeave { get; set; }
         internal bool DelayProof { get; set; }
         internal bool NotifyMetadataOnProof { get; set; }
+        internal string? LookupFailure { get; set; }
+        internal int LookupRequests { get; set; }
+        internal int ResumeRequests { get; set; }
         internal int ProofRequests { get; set; }
         internal Action<bool>? LastProof { get; set; }
         internal List<Action<bool>> PendingProofs { get; } = new();
@@ -1455,6 +1498,13 @@ internal sealed partial class OnlineLobbyTests
             service.Complete(() => completed(result, null));
         }
 
+        public void Lookup(string id, Action<OnlineLobbyLookup> completed)
+        {
+            service.LookupRequests++;
+            var result = new OnlineLobbyLookup(service.Lobbies.GetValueOrDefault(id), service.LookupFailure);
+            service.Complete(() => completed(result));
+        }
+
         public void Create(OnlineLobby lobby, Action<OnlineLobby?, string?> completed)
         {
             lobby = lobby with { Id = service.NextId(), MemberIds = new[] { user } };
@@ -1499,6 +1549,7 @@ internal sealed partial class OnlineLobbyTests
 
         public void Resume(string id, Action<OnlineLobby?, string?> completed)
         {
+            service.ResumeRequests++;
             var lobby = service.Lobbies.GetValueOrDefault(id);
             if (lobby is null || (lobby.Members == 8 && !lobby.MemberIds.Contains(user)))
             {

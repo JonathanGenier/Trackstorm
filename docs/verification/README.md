@@ -6,6 +6,7 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 
 | Evidence | Reports |
 | --- | --- |
+| Retained-match menu decision | [TS-68 prompt, abandonment and preserved history verification](ts-68.md) |
 | Three-component build version | [TS-70 migration, explicit release authorization and export identity verification](ts-70.md) |
 | Game version and compatibility | [TS-66 acceptance mapping, local verification and external EOS limitations](ts-66.md) |
 | Disconnected match participants | [TS-65 retention, standings and lifecycle verification](ts-65.md) |

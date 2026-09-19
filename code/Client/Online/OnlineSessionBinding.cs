@@ -9,6 +9,7 @@ internal sealed class OnlineSessionBinding : IDisposable
     private readonly ITransportGateway _gateway;
     private readonly OnlineLobbyCoordinator _coordinator;
     private readonly Dictionary<ulong, OnlineProductUserId> _authorized = new();
+    private readonly HashSet<ulong> _freshAdmission = new();
     private readonly AuthorityLeaseClient? _lease;
     private bool _disposed;
 
@@ -23,7 +24,7 @@ internal sealed class OnlineSessionBinding : IDisposable
         _gateway = gateway;
         _gateway.ConnectionChanged += OnConnectionChanged;
         var lobby = coordinator.Active ?? throw new InvalidOperationException("An online lobby is required before transport attachment.");
-        Driver = new LobbyNetworkDriver(gateway, coordinator.StartsGameplayAuthority ? lobby.Session : 0, serverPeer, playerName, peer => !_disposed && _authorized.ContainsKey(peer), lobby.Session, peer => _authorized.TryGetValue(peer, out var identity) ? identity.Value : null, expectedEpoch: lobby.AuthorityEpoch);
+        Driver = new LobbyNetworkDriver(gateway, coordinator.StartsGameplayAuthority ? lobby.Session : 0, serverPeer, playerName, peer => !_disposed && _authorized.ContainsKey(peer) && (_freshAdmission.Contains(peer) || Driver!.Authority?.FindPlayer(_authorized[peer].Value) > 0), lobby.Session, peer => _authorized.TryGetValue(peer, out var identity) ? identity.Value : null, expectedEpoch: lobby.AuthorityEpoch);
         if (gateway is EosP2pTransport eos)
         {
             Driver.Migration = new SessionMigration(
@@ -34,6 +35,7 @@ internal sealed class OnlineSessionBinding : IDisposable
                 (subject, _) =>
                 {
                     _authorized.Clear();
+                    _freshAdmission.Clear();
                     return eos.RebindHost(new OnlineProductUserId(subject));
                 },
                 coordinator.Clock);
@@ -88,7 +90,7 @@ internal sealed class OnlineSessionBinding : IDisposable
                 return result;
             }
 
-            if (Driver.LocalPlayerId != 0)
+            if (Driver.LocalPlayerId != 0 && Driver.State is not null)
             {
                 result[_coordinator.Identity] = Driver.LocalPlayerId;
             }
@@ -120,6 +122,7 @@ internal sealed class OnlineSessionBinding : IDisposable
         _disposed = true;
         _gateway.ConnectionChanged -= OnConnectionChanged;
         _authorized.Clear();
+        _freshAdmission.Clear();
         _lease?.Dispose();
         _gateway.Stop();
     }
@@ -140,9 +143,10 @@ internal sealed class OnlineSessionBinding : IDisposable
         ulong retained = Driver.Authority?.FindPlayer(authenticatedIdentity.Value) ?? 0;
         bool resumable = retained != 0 && Driver.Authority!.State.Players.Any(player => player.Id == retained && !player.Connected);
         bool migrating = Driver.Migration?.Negotiating == true && Driver.Migration.Subjects?.Values.Contains(authenticatedIdentity.Value) == true;
+        bool credentialAccepted = lobby is not null && (lobby.Access == LobbyAccess.Public || lobby.Credential!.Verify(credential));
         bool accepted = !_disposed && (Driver.Authority is not null || migrating) && peer != 0 && lobby is not null && lobby.MemberIds.Contains(authenticatedIdentity)
             && !authenticatedIdentity.Equals(_coordinator.Identity) && !_authorized.Values.Contains(authenticatedIdentity)
-            && !_authorized.ContainsKey(peer) && (migrating || resumable || (retained == 0 && (lobby.Access == LobbyAccess.Public || lobby.Credential!.Verify(credential))));
+            && !_authorized.ContainsKey(peer) && (migrating || resumable || (retained == 0 && (credentialAccepted || credential is null)));
         if (!accepted)
         {
             _gateway.Disconnect(peer);
@@ -150,6 +154,11 @@ internal sealed class OnlineSessionBinding : IDisposable
         }
 
         _authorized.Add(peer, authenticatedIdentity);
+        if (credentialAccepted)
+        {
+            _freshAdmission.Add(peer);
+        }
+
         return true;
     }
 
@@ -163,6 +172,7 @@ internal sealed class OnlineSessionBinding : IDisposable
             {
                 _gateway.Disconnect(peer.Key);
                 _authorized.Remove(peer.Key);
+                _freshAdmission.Remove(peer.Key);
             }
         }
     }
@@ -173,6 +183,7 @@ internal sealed class OnlineSessionBinding : IDisposable
         {
             Driver.Authority?.Disconnect(change.RemotePeerId);
             _authorized.Remove(change.RemotePeerId);
+            _freshAdmission.Remove(change.RemotePeerId);
         }
     }
 

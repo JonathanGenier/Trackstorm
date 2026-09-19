@@ -268,15 +268,24 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             }
             catch (Exception exception) when (exception is InvalidOperationException or ArgumentException)
             {
-                Leave();
-                coordinator.Leave();
+                if (coordinator.HasRetainedDecision)
+                {
+                    coordinator.FailRetainedConnection();
+                    CloseSession(false);
+                }
+                else
+                {
+                    Leave();
+                    coordinator.Leave();
+                }
+
                 _message = exception.Message;
             }
         }
 
         if (_onlineTransport && OnlineCoordinator()?.Active is null)
         {
-            Leave();
+            CloseSession(false);
         }
 
         if (_lobby is null)
@@ -297,6 +306,14 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         {
             Events.Record(Core.Events.EventCategory.Network, "Session failed", cause: _transportFailure is not null ? "transport failure" : "admission or arena synchronization failure", local: _lobby.Authority is null);
             string failure = _transportFailure ?? (_lobby.Failure.Length > 0 ? _lobby.Failure : _arena!.Driver.Failure);
+            if (_onlineTransport && OnlineCoordinator() is { HasRetainedDecision: true } retained)
+            {
+                retained.FailRetainedConnection();
+                CloseSession(false);
+                _message = failure;
+                return;
+            }
+
             Leave();
             _message = failure;
             return;
@@ -455,7 +472,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         }
     }
 
-    private void CloseSession()
+    private void CloseSession(bool leaveOnline = true)
     {
         if (_lobby is not null)
         {
@@ -467,13 +484,14 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         RemoveArena();
         _lobby = null;
         Events.PlayerName = null;
-        if (_onlineTransport || OnlineCoordinator()?.CanLeave == true)
+        if (leaveOnline && (_onlineTransport || OnlineCoordinator()?.CanLeave == true))
         {
             OnlineCoordinator()?.Leave();
             _onlineTransport = false;
         }
 
         _gateway = null;
+        _onlineTransport = false;
         _ownedOnline?.Dispose();
         _ownedOnline = null;
         _transportFailure = null;
@@ -512,16 +530,17 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     {
         bool active = _lobby is not null;
         bool arena = _arena is not null || _lobby?.State?.Phase == SessionPhase.Arena;
+        bool decision = OnlineCoordinator()?.HasRetainedDecision == true;
         _menu.GetParent<ScrollContainer>().GetParent<Control>().Visible = !arena;
         ((Control)_arenaStatus.GetParent()).Visible = arena;
         _online.Visible = !arena && !_debug.ButtonPressed;
-        _debug.Visible = !active;
-        _status.Visible = true;
-        _name.Visible = !active;
+        _debug.Visible = !active && !decision;
+        _status.Visible = !decision;
+        _name.Visible = !active && !decision;
         _address.Visible = !active && _debug.ButtonPressed;
         _host.Visible = !active && _debug.ButtonPressed;
         _join.Visible = !active && _debug.ButtonPressed;
-        _leave.Visible = active && !arena;
+        _leave.Visible = active && !arena && !decision;
         _ready.Visible = _lobby?.State is not null && !arena;
         _start.Visible = _lobby?.Authority is not null && !arena;
         _start.Disabled = _leaving || _lobby?.State?.CanStart != true;

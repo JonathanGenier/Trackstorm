@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 
 namespace Trackstorm.Core.Sessions;
@@ -6,7 +7,8 @@ namespace Trackstorm.Core.Sessions;
 public static class LobbyCodec
 {
     /// <summary>Maximum complete packet size.</summary>
-    public const int MaximumBytes = 4096;
+    public const int MaximumBytes = 30000;
+    private const byte Version = 7;
 
     /// <summary>Identifies lobby packets before the vehicle decoder is consulted.</summary>
     /// <param name="data">Complete transport payload.</param>
@@ -70,14 +72,87 @@ public static class LobbyCodec
     /// <summary>Recognizes the exact versioned departure acknowledgement.</summary>
     /// <param name="data">Complete control payload.</param>
     /// <returns>Whether the host acknowledged departure.</returns>
-    public static bool IsLeft(ReadOnlySpan<byte> data) => data.SequenceEqual(new byte[] { (byte)'T', (byte)'L', 6, 3, 0 });
+    public static bool IsLeft(ReadOnlySpan<byte> data) => data.SequenceEqual(new byte[] { (byte)'T', (byte)'L', Version, 3, 0 });
+
+    /// <summary>Identifies a reservation response without granting a player assignment.</summary>
+    /// <param name="data">Complete reliable control payload.</param>
+    /// <returns>Whether it is a reservation response.</returns>
+    public static bool IsReservation(ReadOnlySpan<byte> data) => data.Length >= 4 && IsLobby(data) && data[3] == 5;
+
+    /// <summary>Encodes an exact request-bound reservation result.</summary>
+    /// <param name="session">Session lifetime.</param>
+    /// <param name="player">Requested identity.</param>
+    /// <param name="generation">Requested generation.</param>
+    /// <param name="epoch">Current authority fence.</param>
+    /// <param name="result">Authoritative result.</param>
+    /// <returns>Reliable control packet.</returns>
+    public static byte[] EncodeReservation(ulong session, ulong player, ulong generation, ulong epoch, ReservationResult result) => Pack(5, JsonSerializer.SerializeToUtf8Bytes(new { Session = session, Player = player, Generation = generation, Epoch = epoch, Result = result }));
+
+    /// <summary>Validates a response against the exact outstanding reservation request.</summary>
+    /// <param name="data">Reliable host response.</param>
+    /// <param name="session">Expected session.</param>
+    /// <param name="player">Expected player.</param>
+    /// <param name="generation">Expected connection generation.</param>
+    /// <param name="epoch">Expected authority fence.</param>
+    /// <returns>Validated reservation result.</returns>
+    public static ReservationResult DecodeReservation(ReadOnlySpan<byte> data, ulong session, ulong player, ulong generation, ulong epoch)
+    {
+        using var document = Parse(data, 5);
+        try
+        {
+            var root = document.RootElement;
+            var result = (ReservationResult)root.GetProperty("Result").GetInt32();
+            if (root.GetProperty("Session").GetUInt64() != session || root.GetProperty("Player").GetUInt64() != player || root.GetProperty("Generation").GetUInt64() != generation || root.GetProperty("Epoch").GetUInt64() != epoch || !Enum.IsDefined(result))
+            {
+                throw new ArgumentException("Mismatched reservation response.");
+            }
+
+            return result;
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or KeyNotFoundException or FormatException or OverflowException)
+        {
+            throw new ArgumentException("Invalid reservation response.", exception);
+        }
+    }
 
     /// <summary>Encodes one complete host state and the recipient's assigned identity.</summary>
     /// <param name="state">Validated authoritative state.</param>
     /// <param name="player">Recipient identity.</param>
     /// <param name="activated">Whether the recipient owns committed participation rather than a pending bootstrap.</param>
     /// <returns>Reliable packet.</returns>
-    public static byte[] EncodeState(LobbySnapshot state, ulong player, bool activated = true) => Pack(0, JsonSerializer.SerializeToUtf8Bytes(new { state.Session, state.Revision, state.Match, state.Phase, state.Players, state.CurrentHostId, state.AuthorityEpoch, Player = player, Activated = activated }));
+    public static byte[] EncodeState(LobbySnapshot state, ulong player, bool activated = true)
+    {
+        // Binary names keep up to 256 historical participants within the existing transport/checkpoint bounds.
+        using var stream = new MemoryStream();
+        using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
+        writer.Write(state.Session);
+        writer.Write(state.Revision);
+        writer.Write(state.Match);
+        writer.Write((byte)state.Phase);
+        writer.Write(state.CurrentHostId);
+        writer.Write(state.AuthorityEpoch);
+        writer.Write(player);
+        writer.Write(activated);
+        writer.Write((byte)state.Players.Count);
+        foreach (var participant in state.Players)
+        {
+            writer.Write(participant.Id);
+            writer.Write(participant.Name);
+            writer.Write(participant.Ready);
+            writer.Write(participant.Connected);
+            writer.Write(participant.Generation);
+            writer.Write(participant.RetainedHost);
+        }
+
+        writer.Write((ushort)state.Departed.Count);
+        foreach (var participant in state.Departed)
+        {
+            writer.Write(participant.Id);
+            writer.Write(participant.Name);
+        }
+
+        return Pack(0, stream.ToArray());
+    }
 
     /// <summary>Encodes a sender-scoped intent with phase generation to reject stale commands.</summary>
     /// <param name="command">Requested action.</param>
@@ -97,28 +172,54 @@ public static class LobbyCodec
     /// <param name="authorityEpoch">Expected authority fence from current routing metadata.</param>
     /// <param name="gameVersion">Runtime version; defaults to this build.</param>
     /// <returns>Reliable resume intent.</returns>
-    public static byte[] EncodeResume(ulong session, ulong player, ulong generation, ulong authorityEpoch = 1, string? gameVersion = null) => Pack(1, JsonSerializer.SerializeToUtf8Bytes(new { Command = LobbyCommand.Resume, Session = session, Match = session, Phase = SessionPhase.Lobby, Ready = false, Name = "Player", Player = player, Generation = generation, AuthorityEpoch = authorityEpoch, GameVersion = gameVersion ?? Sessions.GameVersion.Current.ToString() }));
+    /// <param name="command">Resume or a read/release operation using the same authenticated assignment.</param>
+    public static byte[] EncodeResume(ulong session, ulong player, ulong generation, ulong authorityEpoch = 1, string? gameVersion = null, LobbyCommand command = LobbyCommand.Resume) => Pack(1, JsonSerializer.SerializeToUtf8Bytes(new { Command = command, Session = session, Match = session, Phase = SessionPhase.Lobby, Ready = false, Name = "Player", Player = player, Generation = generation, AuthorityEpoch = authorityEpoch, GameVersion = gameVersion ?? Sessions.GameVersion.Current.ToString() }));
 
     /// <summary>Validates and decodes a host publication.</summary>
     /// <param name="data">Bounded reliable payload.</param>
     /// <returns>Detached state and recipient identity.</returns>
     public static (LobbySnapshot State, ulong Player, bool Activated) DecodeState(ReadOnlySpan<byte> data)
     {
-        using JsonDocument document = Parse(data, 0);
+        if (data.Length is < 5 or > MaximumBytes || !IsLobby(data) || data[2] != Version || data[3] != 0)
+        {
+            throw new ArgumentException("Invalid lobby state envelope.");
+        }
+
         try
         {
-            JsonElement root = document.RootElement;
-            var players = root.GetProperty("Players").EnumerateArray().Take(9).Select(player => new SessionPlayer(player.GetProperty("Id").GetUInt64(), player.GetProperty("Name").GetString()!, player.GetProperty("Ready").GetBoolean(), player.GetProperty("Connected").GetBoolean(), player.GetProperty("Generation").GetUInt64(), player.GetProperty("RetainedHost").GetBoolean())).ToArray();
-            var state = new LobbySnapshot(root.GetProperty("Session").GetUInt64(), root.GetProperty("Revision").GetUInt64(), root.GetProperty("Match").GetUInt64(), (SessionPhase)root.GetProperty("Phase").GetInt32(), players, root.GetProperty("CurrentHostId").GetUInt64(), root.GetProperty("AuthorityEpoch").GetUInt64());
-            ulong id = root.GetProperty("Player").GetUInt64();
-            if (!state.Players.Any(player => player.Id == id))
+            using var stream = new MemoryStream(data[4..].ToArray(), false);
+            using var reader = new BinaryReader(stream, new UTF8Encoding(false, true));
+            ulong session = reader.ReadUInt64();
+            ulong revision = reader.ReadUInt64();
+            ulong match = reader.ReadUInt64();
+            var phase = (SessionPhase)reader.ReadByte();
+            ulong host = reader.ReadUInt64();
+            ulong epoch = reader.ReadUInt64();
+            ulong id = reader.ReadUInt64();
+            bool activated = ReadBoolean(reader);
+            int count = reader.ReadByte();
+            if (count is < 1 or > 8)
+            {
+                throw new ArgumentException("Invalid roster count.");
+            }
+
+            var players = Enumerable.Range(0, count).Select(_ => new SessionPlayer(reader.ReadUInt64(), reader.ReadString(), ReadBoolean(reader), ReadBoolean(reader), reader.ReadUInt64(), ReadBoolean(reader))).ToArray();
+            int departed = reader.ReadUInt16();
+            if (departed + count > Matches.MatchState.MaximumPlayers)
+            {
+                throw new ArgumentException("Invalid history count.");
+            }
+
+            var history = Enumerable.Range(0, departed).Select(_ => new MatchParticipant(reader.ReadUInt64(), reader.ReadString())).ToArray();
+            var state = new LobbySnapshot(session, revision, match, phase, players, host, epoch, history);
+            if (!state.Players.Any(player => player.Id == id) || stream.Position != stream.Length)
             {
                 throw new ArgumentException("Recipient is absent from the lobby.");
             }
 
-            return (state, id, root.GetProperty("Activated").GetBoolean());
+            return (state, id, activated);
         }
-        catch (Exception exception) when (exception is InvalidOperationException or KeyNotFoundException or FormatException or OverflowException)
+        catch (Exception exception) when (exception is IOException or FormatException or DecoderFallbackException)
         {
             throw new ArgumentException("Malformed lobby state.", exception);
         }
@@ -152,7 +253,7 @@ public static class LobbyCodec
         byte[] result = new byte[body.Length + 4];
         result[0] = (byte)'T';
         result[1] = (byte)'L';
-        result[2] = 6;
+        result[2] = Version;
         result[3] = kind;
         body.CopyTo(result, 4);
         if (result.Length > MaximumBytes)
@@ -165,7 +266,7 @@ public static class LobbyCodec
 
     private static JsonDocument Parse(ReadOnlySpan<byte> data, byte kind)
     {
-        if (data.Length is < 5 or > MaximumBytes || !IsLobby(data) || data[2] != 6 || data[3] != kind)
+        if (data.Length is < 5 or > MaximumBytes || !IsLobby(data) || data[2] != Version || data[3] != kind)
         {
             throw new ArgumentException("Invalid lobby envelope.");
         }
@@ -179,4 +280,11 @@ public static class LobbyCodec
             throw new ArgumentException("Invalid lobby JSON.", exception);
         }
     }
+
+    private static bool ReadBoolean(BinaryReader reader) => reader.ReadByte() switch
+    {
+        0 => false,
+        1 => true,
+        _ => throw new ArgumentException("Invalid boolean."),
+    };
 }

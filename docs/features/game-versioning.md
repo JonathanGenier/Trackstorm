@@ -48,6 +48,8 @@ The host driver sends a distinct bounded reliable version rejection containing i
 
 ## Resume and Boundaries
 
+Retained-match inspection and abandonment carry the runtime version over the same authenticated lobby stream. The host rejects incompatible control requests before querying or releasing a reservation. Version rejection and reservation responses have distinct packet kinds; the menu preserves both the canonical local/host mismatch message and the local routing hint without releasing the host reservation. A later compatible build under the same account can retry inspection and reclaim that unchanged reservation.
+
 [Reconnect](reconnection.md) requires exact equality in addition to existing subject, session, generation, authority-epoch, match-retention and peer checks. An incompatible return cannot reactivate a player or trigger a gameplay checkpoint; its disconnected reservation is unchanged and remains available until the match ends. A later compatible, authorized return can reclaim that same player.
 
 New-player arena admission uses the existing join-in-progress flow. The version gate precedes its phase/capacity checks and checkpoint activation, without a separate compatibility policy. Match retention and host migration follow their existing policies; version compatibility does not grant authority or extend reservations. Protocol negotiation, patch delivery and updaters remain outside this system.

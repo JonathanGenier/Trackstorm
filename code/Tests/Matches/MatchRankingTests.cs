@@ -29,6 +29,6 @@ internal sealed class MatchRankingTests
         Assert.That(MatchRanking.Create(active, new ulong[] { 1, 2 })[0].PlayerId, Is.EqualTo(1));
         Assert.That(MatchRanking.Create(finished, new ulong[] { 1, 2 })[0].PlayerId, Is.EqualTo(2));
         Assert.Throws<ArgumentException>(() => MatchRanking.Create(active, new ulong[] { 1, 1 }));
-        Assert.Throws<ArgumentException>(() => MatchRanking.Create(active, Enumerable.Range(1, 9).Select(id => (ulong)id)));
+        Assert.Throws<ArgumentException>(() => MatchRanking.Create(active, Enumerable.Range(1, MatchState.MaximumPlayers + 1).Select(id => (ulong)id)));
     }
 }

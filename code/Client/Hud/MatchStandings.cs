@@ -10,6 +10,7 @@ internal sealed partial class MatchStandings : CanvasLayer
     private readonly List<Label[]> _rows = new();
     private Label _status = null!;
     private Label _footer = null!;
+    private int _page;
 
     /// <summary>Reconstructable presentation from the session owner.</summary>
     internal Func<MatchStandingsView?> View { get; set; } = () => null;
@@ -51,6 +52,24 @@ internal sealed partial class MatchStandings : CanvasLayer
     /// <inheritdoc/>
     public override void _Process(double delta) => Refresh();
 
+    /// <inheritdoc/>
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (Visible && @event is InputEventKey { Pressed: true, Echo: false } key && key.PhysicalKeycode is Key.Pageup or Key.Pagedown)
+        {
+            ChangePage(key.PhysicalKeycode == Key.Pagedown ? 1 : -1);
+            GetViewport().SetInputAsHandled();
+        }
+    }
+
+    /// <summary>Pages complete match history without changing rank or hiding abandoned participants permanently.</summary>
+    /// <param name="offset">Requested relative page.</param>
+    internal void ChangePage(int offset)
+    {
+        _page = Math.Clamp(_page + offset, 0, Math.Max(0, ((Displayed?.Rows.Count ?? 0) - 1) / 8));
+        Refresh();
+    }
+
     /// <summary>Applies current state without modifying gameplay or intercepting driving input.</summary>
     internal void Refresh()
     {
@@ -62,16 +81,29 @@ internal sealed partial class MatchStandings : CanvasLayer
         }
 
         _status.Text = view.Finished ? "FINAL RESULTS" : "LIVE / FIRST TO TARGET";
+        _page = Math.Min(_page, Math.Max(0, (view.Rows.Count - 1) / 8));
+        if (_board.ShowLeader != (_page == 0))
+        {
+            _board.ShowLeader = _page == 0;
+            _board.QueueRedraw();
+        }
+
+        if (view.Rows.Count > 8)
+        {
+            _status.Text = $"{(view.Finished ? "FINAL" : "LIVE")} · {_page + 1}/{(view.Rows.Count + 7) / 8} · PGUP/DN";
+        }
+
         _footer.Text = view.Finished ? $"WINNER  /  {view.WinnerName}    ·    ESC FOR GAME MENU" : "HOLD LEADERBOARD TO VIEW  /  RELEASE TO RETURN";
         for (int index = 0; index < _rows.Count; index++)
         {
-            StandingsRow? row = index < view.Rows.Count ? view.Rows[index] : null;
+            int position = (_page * 8) + index;
+            StandingsRow? row = position < view.Rows.Count ? view.Rows[position] : null;
             string marker = row?.Winner == true ? "  · WINNER" : row?.Rank == 1 ? "  · LEADER" : string.Empty;
             string[] values = row is null ? new[] { string.Empty, string.Empty, string.Empty, string.Empty, string.Empty } : new[] { row.Rank.ToString(System.Globalization.CultureInfo.InvariantCulture), row.Name + marker + (row.Local ? "  · YOU" : string.Empty), row.Kills.ToString(System.Globalization.CultureInfo.InvariantCulture), row.Deaths.ToString(System.Globalization.CultureInfo.InvariantCulture), row.Ping };
             for (int column = 0; column < values.Length; column++)
             {
                 _rows[index][column].Text = values[column];
-                _rows[index][column].AddThemeColorOverride("font_color", new Color(index == 0 ? "ffe1a1" : "ebe7df"));
+                _rows[index][column].AddThemeColorOverride("font_color", new Color(row?.Rank == 1 ? "ffe1a1" : "ebe7df"));
                 _rows[index][column].Modulate = new Color(1, 1, 1, row?.Connected == false ? 0.55f : 1);
             }
         }

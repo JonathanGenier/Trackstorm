@@ -126,6 +126,8 @@ internal sealed partial class OnlineLobbyTests
 
             var restartLease = new LeaseTransport(leases, User(2).Value);
             using var restarted = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), clock, resumeStore) { LeaseFactory = () => restartLease };
+            restarted.Tick();
+            restarted.ResumeRetained();
             for (int frame = 0; frame < 180 && restarted.Active is null; frame++)
             {
                 restarted.Tick();
@@ -146,6 +148,11 @@ internal sealed partial class OnlineLobbyTests
             {
                 restarted.Tick();
                 returned.Driver.Pump(1.0 / 60);
+                if (restarted.RetainedDecision == RetainedSessionDecision.Choose)
+                {
+                    restarted.DecideRetained(true);
+                }
+
                 foreach (var packet in wires[2].Packets)
                 {
                     if (packet.Peer.Equals(User(2)) && packet.Bytes.Length > EosPacketAssembly.Header + 3 && packet.Bytes[0] == 4 &&

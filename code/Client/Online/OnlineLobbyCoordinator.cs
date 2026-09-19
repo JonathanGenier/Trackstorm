@@ -28,6 +28,8 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     private bool _disposed;
     private string? _joinCredential;
     private long _resumeRetry;
+    private bool _lookupPending;
+    private bool _lookupComplete;
     private long _savedAt;
     private ulong _savedGeneration;
     private bool _resumePending;
@@ -61,6 +63,10 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     private int _lobbyUpdates;
     private int _resumeAttempts;
     private string _lastCoordination = "none";
+    private long? _decisionStarted;
+    private bool _resumeAfterCleanup;
+    private string? _decisionOutcome;
+    private string? _lookupOutcome;
 
     /// <summary>Creates one owner-thread coordination lifetime with an injectable monotonic clock.</summary>
     /// <param name="provider">Owned coordination adapter.</param>
@@ -75,6 +81,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         _resumeStore = resumeStore;
         SavedResume = _resumeStore?.Load(identity.Value);
         _routingId = SavedResume?.RoutingId;
+        RetainedDecision = SavedResume is null ? RetainedSessionDecision.None : RetainedSessionDecision.Checking;
     }
 
     /// <summary>Production packet composition; absent in browser-only verification.</summary>
@@ -95,7 +102,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Whether a membership mutation awaits completion.</summary>
     internal bool Busy { get; private set; }
     /// <summary>Whether Leave can release active membership or retry pending cleanup.</summary>
-    internal bool CanLeave => Active is not null || Busy || _closing is not null || _pendingMembership is not null || SavedResume is not null;
+    internal bool CanLeave => Active is not null || Busy || _closing is not null || _pendingMembership is not null;
     /// <summary>Application-owned local diagnostic journal; never receives provider credentials.</summary>
     internal Core.Events.EventStream? EventLog { get; set; }
 
@@ -103,6 +110,12 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal string Status { get; private set; } = "Browse or host a game.";
     /// <summary>Validated local routing hint until the restored assignment is acknowledged.</summary>
     internal ResumeLocator? SavedResume { get; private set; }
+    /// <summary>Explicit menu choice; Choose is reached only after the current host validates the reservation.</summary>
+    internal RetainedSessionDecision RetainedDecision { get; private set; }
+    /// <summary>Whether the retained-session flow owns the menu instead of normal discovery.</summary>
+    internal bool HasRetainedDecision => RetainedDecision != RetainedSessionDecision.None;
+    /// <summary>Whether authority has confirmed a reservation and the retained-match modal owns interaction.</summary>
+    internal bool ShowsRetainedDecision => RetainedDecision is RetainedSessionDecision.Choose or RetainedSessionDecision.Reconnecting or RetainedSessionDecision.Leaving;
     /// <summary>Monotonic clock shared with the authority lifecycle.</summary>
     internal TimeProvider Clock => _time;
     /// <summary>Credential-free EOS coordination state for Developer Options and manual diagnosis.</summary>
@@ -215,7 +228,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Refreshes compatible lobbies without accepting an obsolete search completion.</summary>
     internal void Refresh()
     {
-        if (_disposed || Busy || _searching)
+        if (_disposed || Busy || _searching || ShowsRetainedDecision)
         {
             return;
         }
@@ -237,7 +250,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             }
 
             _searching = false;
-            Status = failure ?? "Lobby browser updated.";
+            Status = failure ?? _lookupOutcome ?? "Lobby browser updated.";
         });
     }
 
@@ -247,7 +260,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <param name="credential">Transient access code; never retained or logged.</param>
     internal void Create(string name, LobbyAccess access, string? credential)
     {
-        if (_disposed || Busy || Active is not null || _closing is not null || _pendingMembership is not null)
+        if (_disposed || Busy || Active is not null || _closing is not null || _pendingMembership is not null || HasRetainedDecision)
         {
             return;
         }
@@ -282,7 +295,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <param name="credential">Transient access code; never retained or logged.</param>
     internal void Join(string id, string? credential = null)
     {
-        if (_disposed || Busy || Active is not null || _closing is not null || _pendingMembership is not null)
+        if (_disposed || Busy || Active is not null || _closing is not null || _pendingMembership is not null || HasRetainedDecision)
         {
             return;
         }
@@ -378,7 +391,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         _binding = new OnlineSessionBinding(this, gateway, serverPeer, playerName);
         if (!StartsGameplayAuthority && SavedResume is { } resume && resume.Session == Active.Session)
         {
-            _binding.Driver.BeginResume(resume.Player, resume.Generation);
+            _binding.Driver.InspectReservation(resume.Player, resume.Generation);
         }
 
         return _binding;
@@ -387,9 +400,27 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Enforces a monotonic deadline on pending coordination work.</summary>
     internal void Tick()
     {
+        if (!_disposed && _resumeAfterCleanup && CanResumeRetained)
+        {
+            _resumeAfterCleanup = false;
+            ResumeRetained();
+        }
+
+        TickDecision();
         TickCoordination();
         TickRouting();
-        if (!_disposed && ((SavedResume is not null && Active is null) || _recoveringMembership))
+        if (!_disposed && SavedResume is not null && Active is null && RetainedDecision == RetainedSessionDecision.Checking)
+        {
+            if (_lookupComplete)
+            {
+                TickResume();
+            }
+            else
+            {
+                TickLookup();
+            }
+        }
+        else if (!_disposed && _recoveringMembership)
         {
             TickResume();
         }
@@ -472,6 +503,13 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Invalidates local membership and releases or destroys the associated online lobby.</summary>
     internal void Leave()
     {
+        if (HasRetainedDecision && SavedResume is not null)
+        {
+            _returnLocator = SavedResume;
+        }
+
+        RetainedDecision = RetainedSessionDecision.None;
+        _decisionStarted = null;
         bool retainLobby = _binding?.Driver.Migration?.Subjects is not null || _binding?.Driver.State?.AuthorityEpoch > 1;
         bool retainPlayer = Active is not null && _binding?.Driver is { State.ReconnectPolicy: Core.Sessions.SessionReconnectPolicy.RetainedResume, CanResume: true } && _binding.Driver.ResumeStatus != "Resume rejected" && (_binding.Driver.Authority is null || retainLobby);
         if (retainPlayer)
@@ -489,6 +527,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
 
         _recoveringMembership = false;
         _resumePending = false;
+        _lookupPending = false;
         _routingTransport?.Dispose();
         _routingTransport = null;
         _routingTask = null;
@@ -536,7 +575,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                     }
 
                     EventLog?.Record(Core.Events.EventCategory.Session, failure is null ? (destroy ? "Online lobby closed" : "Online lobby left") : "Online lobby cleanup failed", local: true);
-                    Status = failure is null ? (destroy ? "Lobby closed." : "Left lobby.") : "EOS leave/close failed. Retry Leave before creating another lobby.";
+                    Status = failure is null ? _decisionOutcome ?? (destroy ? "Lobby closed." : "Left lobby.") : "EOS leave/close failed. Retry Leave before creating another lobby.";
                 }
             });
         }
@@ -561,10 +600,127 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
 
         SavedResume = _returnLocator;
+        _decisionOutcome = null;
+        _lookupOutcome = null;
         _routingId = SavedResume!.RoutingId;
         _returnLocator = null;
         _resumeRetry = 0;
+        _lookupComplete = true;
+        RetainedDecision = RetainedSessionDecision.Checking;
+        _decisionStarted = _time.GetTimestamp();
         TickResume();
+    }
+
+    /// <summary>Submits exactly one explicit choice to the existing authenticated lobby stream.</summary>
+    /// <param name="reconnect">Reconnect or permanently Leave Match.</param>
+    internal void DecideRetained(bool reconnect)
+    {
+        if (RetainedDecision != RetainedSessionDecision.Choose || _binding?.Driver.DecideReservation(reconnect) != true)
+        {
+            return;
+        }
+
+        RetainedDecision = reconnect ? RetainedSessionDecision.Reconnecting : RetainedSessionDecision.Leaving;
+        _decisionStarted = _time.GetTimestamp();
+        Status = reconnect ? "Reconnecting…" : "Leaving match — waiting for confirmation…";
+    }
+
+    /// <summary>Retries a failed check without overlapping an earlier connection or membership operation.</summary>
+    internal void RetryRetained()
+    {
+        if (RetainedDecision == RetainedSessionDecision.Failed && !Busy)
+        {
+            if (_closing is not null)
+            {
+                Leave();
+                RetainedDecision = RetainedSessionDecision.Failed;
+                _resumeAfterCleanup = true;
+                return;
+            }
+
+            RetainedDecision = RetainedSessionDecision.None;
+            ResumeRetained();
+        }
+    }
+
+    /// <summary>Returns from an unavailable check to the browser without claiming abandonment or erasing its hint.</summary>
+    internal void DismissRetainedFailure()
+    {
+        if (RetainedDecision == RetainedSessionDecision.Failed)
+        {
+            RetainedDecision = RetainedSessionDecision.None;
+            Status = "Reservation release was not confirmed. Check previous session can retry.";
+        }
+    }
+
+    /// <summary>Returns a failed startup transport to a recoverable decision without claiming a release.</summary>
+    internal void FailRetainedConnection()
+    {
+        if (HasRetainedDecision)
+        {
+            string? mismatch = _binding?.Driver.ResumeStatus == "Game version mismatch" ? _binding.Driver.Failure : null;
+            EndDecision(mismatch ?? "Connection failed. Match release was not confirmed. Retry or return to the browser.", false);
+        }
+    }
+
+    private void TickDecision()
+    {
+        if (_disposed || RetainedDecision is RetainedSessionDecision.None or RetainedSessionDecision.Failed)
+        {
+            return;
+        }
+
+        _decisionStarted ??= _time.GetTimestamp();
+        var driver = _binding?.Driver;
+        if (driver?.Reservation is Core.Sessions.ReservationResult.Missing or Core.Sessions.ReservationResult.Abandoned)
+        {
+            EndDecision(driver.Reservation == Core.Sessions.ReservationResult.Abandoned ? "Left match. Your final statistics remain with that match." : "The retained match reservation is no longer available.", true);
+        }
+        else if (RetainedDecision == RetainedSessionDecision.Checking && driver?.Reservation == Core.Sessions.ReservationResult.Available)
+        {
+            RetainedDecision = RetainedSessionDecision.Choose;
+            Status = "You are still part of a match. Reconnect to continue, or Leave Match to release your place. Your match statistics will remain.";
+        }
+        else if (RetainedDecision == RetainedSessionDecision.Reconnecting && driver is { State: not null, Reconnecting: false, NeedsArenaCheckpoint: false, Failure.Length: 0 })
+        {
+            RetainedDecision = RetainedSessionDecision.None;
+            _decisionStarted = null;
+        }
+        else if (driver?.ResumeStatus == "Game version mismatch")
+        {
+            EndDecision(driver.Failure, false);
+        }
+        else if (driver?.Failure.Length > 0 || (RetainedDecision != RetainedSessionDecision.Choose && _time.GetElapsedTime(_decisionStarted.Value).TotalSeconds >= 20))
+        {
+            EndDecision("The retained match could not be reached. Release was not confirmed. Retry or return to the browser.", false);
+        }
+    }
+
+    private void EndDecision(string status, bool resolved)
+    {
+        _decisionOutcome = status;
+        ResumeLocator? hint = SavedResume ?? _returnLocator;
+        if (!resolved && Active is not null && _binding?.Driver is { State: not null } driver)
+        {
+            hint = new ResumeLocator(Active.Id, Active.Session, driver.LocalPlayerId, driver.Generation, Identity.Value, driver.State.AuthorityEpoch, Active.HostIdentity.Value, _binding.RoutingId ?? _routingId);
+        }
+
+        _binding?.Dispose();
+        _binding = null;
+        SavedResume = null;
+        _returnLocator = resolved ? null : hint;
+        if (resolved)
+        {
+            _resumeStore?.Clear();
+        }
+        else if (hint is not null)
+        {
+            _resumeStore?.Save(hint);
+        }
+
+        Leave();
+        RetainedDecision = resolved ? RetainedSessionDecision.None : RetainedSessionDecision.Failed;
+        Status = status;
     }
 
     private void CoordinateMigration()
@@ -719,7 +875,11 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
 
                     if (kind == OnlineLobbyUpdateKind.Closure)
                     {
-                        if (!IsHost && _binding?.Driver.State?.ReconnectPolicy == Core.Sessions.SessionReconnectPolicy.RetainedResume)
+                        if (HasRetainedDecision)
+                        {
+                            FailRetainedConnection();
+                        }
+                        else if (!IsHost && _binding?.Driver.State?.ReconnectPolicy == Core.Sessions.SessionReconnectPolicy.RetainedResume)
                         {
                             _recoveringMembership = true;
                             Active = Active with { MemberIds = Active.MemberIds.Where(member => !member.Equals(Identity)).ToArray() };
@@ -768,8 +928,16 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
         catch (InvalidOperationException)
         {
-            Leave();
-            Status = "EOS lobby notifications unavailable. Refresh and retry.";
+            if (HasRetainedDecision)
+            {
+                FailRetainedConnection();
+            }
+            else
+            {
+                Leave();
+                Status = "EOS lobby notifications unavailable. Refresh and retry.";
+            }
+
             return;
         }
 
@@ -882,7 +1050,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         _resumeRetry = _time.GetTimestamp();
         _resumePending = true;
         _resumeAttempts++;
-        Status = "Reconnecting";
+        Status = RetainedDecision == RetainedSessionDecision.Checking ? "Checking previous session…" : "Reconnecting";
         _provider.Resume(id, (lobby, failure) =>
         {
             if (_disposed || epoch != _epoch)
@@ -950,6 +1118,63 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         });
     }
 
+    private void TickLookup()
+    {
+        if (_lookupPending || SavedResume is not { } saved)
+        {
+            return;
+        }
+
+        long epoch = _epoch;
+        _lookupPending = true;
+        Status = "Checking previous session…";
+        _provider.Lookup(saved.Lobby, result =>
+        {
+            if (_disposed || epoch != _epoch)
+            {
+                return;
+            }
+
+            _lookupPending = false;
+            _lookupComplete = true;
+            if (result.Failure is not null)
+            {
+                PreserveLookupHint(saved, "Previous session could not be checked. Lobby browsing is still available; retry when ready.");
+                return;
+            }
+
+            OnlineLobby? lobby = result.Lobby;
+            if (lobby is null || !lobby.Compatible || lobby.Session != saved.Session)
+            {
+                _resumeStore?.Clear();
+                SavedResume = null;
+                _routingId = null;
+                RetainedDecision = RetainedSessionDecision.None;
+                _lookupOutcome = "Previous session is no longer available.";
+                Status = _lookupOutcome;
+                return;
+            }
+
+            if (lobby.VersionMismatch.Length > 0)
+            {
+                PreserveLookupHint(saved, lobby.VersionMismatch);
+                return;
+            }
+
+            Browser.Update(lobby);
+            PreserveLookupHint(saved, "Previous session found. Check previous session to validate your reservation.");
+        });
+    }
+
+    private void PreserveLookupHint(ResumeLocator saved, string status)
+    {
+        SavedResume = saved;
+        _returnLocator = saved;
+        RetainedDecision = RetainedSessionDecision.None;
+        _lookupOutcome = status;
+        Status = status;
+    }
+
     private void TickRouting()
     {
         if (_routingTask is null || (!_routingTask.IsCompleted && _time.GetElapsedTime(_routingRequested).TotalSeconds < 3))
@@ -994,7 +1219,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     {
         _closing = lobby;
         _closingHost = false;
-        Leave();
-        Status = lobby.VersionMismatch.Length > 0 ? lobby.VersionMismatch : "Resume rejected. Session changed or identity is unavailable.";
+        bool versionMismatch = lobby.VersionMismatch.Length > 0;
+        EndDecision(versionMismatch ? lobby.VersionMismatch : "Resume rejected. Session changed or identity is unavailable.", !versionMismatch);
     }
 }

@@ -21,6 +21,10 @@ internal interface IOnlineLobbyProvider : IDisposable
     /// <summary>Retrieves a fresh batch of compatible discovery metadata.</summary>
     /// <param name="completed">Owner-thread completion with safe error information.</param>
     void Search(Action<IReadOnlyList<OnlineLobby>, string?> completed);
+    /// <summary>Locates one known lobby without joining it or changing local membership.</summary>
+    /// <param name="id">Saved logical lobby identity.</param>
+    /// <param name="completed">Read-only result; absent lobby and absent failure means the old lobby is gone.</param>
+    void Lookup(string id, Action<OnlineLobbyLookup> completed) => Search((lobbies, failure) => completed(new(lobbies.SingleOrDefault(lobby => lobby.Id == id), failure)));
     /// <summary>Creates and advertises one lobby using already validated metadata.</summary>
     /// <param name="lobby">Current client-only lobby metadata.</param>
     /// <param name="completed">Owner-thread completion with safe error information.</param>
