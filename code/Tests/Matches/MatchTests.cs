@@ -114,6 +114,12 @@ internal sealed class MatchTests
 
         MatchState final = world.State.Match!;
         Assert.That(final.Winner, Is.EqualTo(1));
+        Assert.That(final.Lifecycle.Phase, Is.EqualTo(GameLoopPhase.Finished));
+        Assert.That(final.Lifecycle.AllowsGameplay, Is.False);
+        Assert.That(final.Lifecycle.Outcome, Is.EqualTo(new MatchOutcome("kill-target", 1)));
+        var decoded = MatchCodec.Decode(MatchCodec.Encode(99, final)).State;
+        Assert.That(decoded.Lifecycle.Outcome, Is.EqualTo(final.Lifecycle.Outcome));
+        Assert.That(decoded.Lifecycle.Phase, Is.EqualTo(final.Lifecycle.Phase));
         Assert.That(final.Players.Single(player => player.Player == 1).Wins, Is.EqualTo(1));
         Assert.That(final.Players.Single(player => player.Player == 2).Deaths, Is.EqualTo(target));
         Step(world, reset: 2);
