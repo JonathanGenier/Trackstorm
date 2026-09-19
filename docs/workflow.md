@@ -35,7 +35,7 @@ If the assignment and Jira issue type/parent disagree, identify the discrepancy.
 - Create a new Story branch from `main`; never implement directly on `main`.
 - Before implementing, resuming or finalizing a Story, synchronize its branch with current `main` and follow the version procedure below.
 - Implement and commit all child checkpoints and authorized corrections directly on that branch. Tasks/Subtasks never receive separate branches, PRs or independent Git reviews/merges.
-- The only delivery PR is the final integrated Story PR to `main`, after verification, critique and explicit human acceptance.
+- A push to a valid `ts-*` Story branch may mechanically create the Story's single PR to `main` immediately. Automatic PR creation is only delivery plumbing: it does not imply verification, critique, acceptance, merge readiness or Story completion. Tasks/Subtasks still never receive separate PRs.
 
 ### Canonical Story version procedure
 
@@ -99,13 +99,16 @@ After completing all required children:
 6. Verify affected feature documentation against code; check links, index coverage and obsolete references.
 7. Inspect the complete Story diff against `main` for correctness, dead paths, stale identifiers, unrelated changes, generated files, build output, local configuration and debug artifacts.
 8. Report assumptions, limitations, unresolved risks and unverified behavior.
+9. Create or update the Story's historical verification report at `docs/verification/ts-<number>.md` using the Jira Story number in lowercase filename form (for example, `TS-86` → `docs/verification/ts-86.md`). Record only evidence from the current Story: materially implemented behavior/systems, verification and test commands/results actually run, applicable runtime/manual/native evidence, assumptions, limitations, unresolved risks and explicitly unverified areas. Never invent or infer a test result that was not run or observed. Add or update the Story's entry in `docs/verification/README.md`.
 
-Historical reports under `docs/verification/` do not replace these checks. Required checks must pass before the work is complete.
+The per-Story report is a historical delivery artifact, not a source of current requirements or proof that old evidence still applies. Jira, approved requirement changes, current source inspection, current CI, repository instructions and current feature documentation remain authoritative for review. Historical reports under `docs/verification/` do not replace the checks above; required current checks must pass before the work is complete.
 
 ## Critique and final PR
 
 After integrated verification, perform the applicable review in [critique](critique.md), which owns scoring, round limits and the mandatory stop for a human decision. Authorized corrections stay on the existing branch and require applicable re-verification.
 
-Only after explicit human acceptance for PR creation, perform final verification without new implementation changes. If changes become necessary, re-verify, repeat the applicable authorized critique process and obtain renewed acceptance.
+The repository may already have created the Story PR automatically when the `ts-*` branch was pushed. That early PR is only a delivery container and may initially use the branch name as its title with an empty/minimal body. Review and acceptance must still use Jira, approved changes, repository instructions, the current source/diff, current feature documentation, current CI and the Story verification report rather than trusting PR prose.
 
-Create exactly one final PR to `main`. Include the Jira key, integrated summary, verification evidence, assumptions, limitations and unresolved risks, then report its number and URL.
+After explicit human acceptance of the critique, perform final verification without new implementation changes. If changes become necessary, re-verify, repeat the applicable authorized critique process and obtain renewed acceptance.
+
+Maintain exactly one Story PR to `main`. Before final delivery, update its title/body as useful historical documentation with the Jira key, integrated implementation summary, actual verification evidence, assumptions, limitations and unresolved risks, then report its number and URL. Never treat PR creation itself as permission to merge.
