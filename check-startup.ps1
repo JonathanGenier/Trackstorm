@@ -13,7 +13,7 @@ if (-not $SkipMediaCheck) {
 }
 
 if (-not $SkipBuild) {
-    dotnet build Trackstorm.sln -c Debug -warnaserror
+    dotnet build Trackstorm.Client.csproj -c Debug -warnaserror
     if ($LASTEXITCODE -ne 0) { throw 'Startup verification build failed.' }
 }
 
