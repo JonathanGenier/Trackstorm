@@ -1100,7 +1100,8 @@ internal sealed partial class OnlineLobbyTests
             {
                 Assert.That(client.Active, Is.Null);
                 Assert.That(client.Status, Does.StartWith("Game version mismatch."));
-                Assert.That(store.Load(User(2).Value), Is.Null);
+                Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Failed));
+                Assert.That(store.Load(User(2).Value), Is.EqualTo(locator), "A version mismatch does not invalidate the authoritative reservation or its retry locator.");
                 Assert.That(service.Lobbies[host.Active.Id].Members, Is.EqualTo(1));
                 return;
             }

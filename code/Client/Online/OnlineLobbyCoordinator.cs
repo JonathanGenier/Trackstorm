@@ -641,7 +641,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         if (HasRetainedDecision)
         {
             string? mismatch = _binding?.Driver.ResumeStatus == "Game version mismatch" ? _binding.Driver.Failure : null;
-            EndDecision(mismatch ?? "Connection failed. Match release was not confirmed. Retry or return to the browser.", mismatch is not null);
+            EndDecision(mismatch ?? "Connection failed. Match release was not confirmed. Retry or return to the browser.", false);
         }
     }
 
@@ -670,7 +670,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
         else if (driver?.ResumeStatus == "Game version mismatch")
         {
-            EndDecision(driver.Failure, true);
+            EndDecision(driver.Failure, false);
         }
         else if (driver?.Failure.Length > 0 || (RetainedDecision != RetainedSessionDecision.Choose && _time.GetElapsedTime(_decisionStarted.Value).TotalSeconds >= 20))
         {
@@ -1145,6 +1145,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     {
         _closing = lobby;
         _closingHost = false;
-        EndDecision(lobby.VersionMismatch.Length > 0 ? lobby.VersionMismatch : "Resume rejected. Session changed or identity is unavailable.", true);
+        bool versionMismatch = lobby.VersionMismatch.Length > 0;
+        EndDecision(versionMismatch ? lobby.VersionMismatch : "Resume rejected. Session changed or identity is unavailable.", !versionMismatch);
     }
 }

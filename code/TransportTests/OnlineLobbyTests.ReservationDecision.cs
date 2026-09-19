@@ -128,13 +128,108 @@ internal sealed partial class OnlineLobbyTests
         }
     }
 
+    /// <summary>A version mismatch preserves both reservation and locator so a compatible restart can reclaim the same player.</summary>
+    [Test]
+    public void VersionMismatchPreservesLocatorAndCompatibleRetryReclaimsSamePlayer()
+    {
+        var service = new Service();
+        using var host = service.Coordinator(1);
+        using var original = service.Coordinator(2);
+        host.Create("Version retry", LobbyAccess.Public, null);
+        original.Refresh();
+        original.Join(host.Active!.Id);
+        using var hostGateway = new Gateway();
+        var hosting = host.AttachTransport(hostGateway, 0, "Host");
+        hostGateway.ConnectPeer(20);
+        Assert.That(hosting.AuthorizePeer(20, User(2), null), Is.True);
+        hostGateway.ReceiveJoin(20, "Retained player");
+        hosting.Driver.Pump(0);
+        var authority = hosting.Driver.Authority!;
+        authority.SetReady(0, true);
+        authority.SetReady(20, true);
+        Assert.That(authority.Start(0), Is.True);
+        var vehicles = new VehicleNetworkDriver(hostGateway, authority.State.Match, lobby: hosting.Driver);
+        vehicles.Advance(default, state => new(state.Movement.Physics, System.Numerics.Vector3.UnitY));
+        hostGateway.Disconnect(20);
+        hosting.Driver.Pump(0);
+        vehicles.Advance(default, state => new(state.Movement.Physics, System.Numerics.Vector3.UnitY));
+        original.Leave();
+
+        var locator = new ResumeLocator(host.Active.Id, host.Active.Session, 2, 1, User(2).Value, 1, User(1).Value);
+        var store = new ResumeLocatorStore(Path.Combine(Path.GetTempPath(), "trackstorm-version-retry-" + Guid.NewGuid().ToString("N") + ".json"));
+        store.Save(locator);
+        try
+        {
+            ulong revision = authority.State.Revision;
+            LobbySnapshot retained = authority.State;
+            using (var incompatible = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store))
+            {
+                incompatible.Tick();
+                using var incompatibleGateway = new Gateway();
+                incompatibleGateway.ConnectPeer(1);
+                var binding = incompatible.AttachTransport(incompatibleGateway, 1, "Client");
+                binding.Driver.Pump(0);
+                var hosted = new GameVersion(GameVersion.Current.Revision + 1);
+                incompatibleGateway.Receive(1, LobbyCodec.EncodeVersionMismatch(hosted));
+                binding.Driver.Pump(0);
+                incompatible.Tick();
+
+                Assert.That(binding.Driver.State, Is.Null, "An incompatible client cannot bind gameplay state.");
+                Assert.That(incompatible.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Failed));
+                Assert.That(incompatible.Status, Is.EqualTo(GameVersion.Current.MismatchMessage(hosted.ToString())));
+                Assert.That(store.Load(User(2).Value), Is.EqualTo(locator));
+                Assert.That(authority.State, Is.SameAs(retained));
+                Assert.That(authority.State.Revision, Is.EqualTo(revision));
+                Assert.That(authority.HasReservation(locator.Session, locator.Player, locator.Generation, locator.Identity), Is.True);
+                Assert.That(vehicles.Host!.World.State.Vehicles.Select(vehicle => vehicle.VehicleId), Is.EquivalentTo(new ulong[] { 1, 2 }));
+            }
+
+            using var compatible = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
+            Assert.That(compatible.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Checking));
+            compatible.Tick();
+            using var compatibleGateway = new Gateway();
+            compatibleGateway.ConnectPeer(1);
+            var returned = compatible.AttachTransport(compatibleGateway, 1, "Changed name");
+            hostGateway.ConnectPeer(31);
+            Assert.That(hosting.AuthorizePeer(31, User(2), null), Is.True);
+            returned.Driver.Pump(0);
+            hostGateway.Receive(31, compatibleGateway.Sent.Last().Payload.ToArray());
+            hosting.Driver.Pump(0);
+            compatibleGateway.Receive(1, hostGateway.Sent.Last(message => message.RemotePeerId == 31 && LobbyCodec.IsReservation(message.Payload.Span)).Payload.ToArray());
+            returned.Driver.Pump(0);
+            compatible.Tick();
+            Assert.That(compatible.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Choose));
+            compatible.DecideRetained(true);
+            returned.Driver.Pump(0);
+            hostGateway.Receive(31, compatibleGateway.Sent.Last().Payload.ToArray());
+            hosting.Driver.Pump(0);
+
+            Assert.That(authority.PlayerId(31), Is.EqualTo(locator.Player));
+            Assert.That(authority.State.Players.Count, Is.EqualTo(2));
+            Assert.That(authority.State.Players.Count(player => player.Id == locator.Player), Is.EqualTo(1));
+            Assert.That(authority.State.Players.Single(player => player.Id == locator.Player).Generation, Is.EqualTo(2));
+            compatibleGateway.ReceiveState(1, authority.State, locator.Player);
+            returned.Driver.Pump(0);
+            Assert.That(returned.Driver.LocalPlayerId, Is.EqualTo(locator.Player));
+            Assert.That(returned.Driver.State!.Players.Select(player => player.Id), Is.EquivalentTo(new ulong[] { 1, 2 }));
+            vehicles.Advance(default, state => new(state.Movement.Physics, System.Numerics.Vector3.UnitY));
+            Assert.That(vehicles.Host!.World.State.Vehicles.Select(vehicle => vehicle.VehicleId), Is.EquivalentTo(new ulong[] { 1, 2 }));
+            Assert.That(vehicles.Host.World.State.Vehicles.Select(vehicle => vehicle.VehicleId).Distinct().Count(), Is.EqualTo(2));
+            var standings = MatchStandingsView.From(authority.State, vehicles.Host.World.State.Match!, locator.Player, InputButtons.None, _ => 42);
+            Assert.That(standings.Rows.Select(row => row.PlayerId), Is.EquivalentTo(new ulong[] { 1, 2 }));
+            Assert.That(standings.Rows.Count(row => row.PlayerId == locator.Player), Is.EqualTo(1));
+        }
+        finally
+        {
+            store.Clear();
+        }
+    }
+
     /// <summary>A stale claim is cleared only by the current host, while foreign/replayed results cannot unlock the browser.</summary>
     /// <param name="changedSession">Whether membership metadata already proves this is a replacement session.</param>
-    /// <param name="wireMismatch">Whether the host rejects the runtime version after metadata was accepted.</param>
-    [TestCase(false, false)]
-    [TestCase(true, false)]
-    [TestCase(false, true)]
-    public void StaleReservationReturnsToBrowserAfterBoundHostResponse(bool changedSession, bool wireMismatch)
+    [TestCase(false)]
+    [TestCase(true)]
+    public void StaleReservationReturnsToBrowserAfterBoundHostResponse(bool changedSession)
     {
         var service = new Service();
         service.Lobbies["match"] = Lobby("match", "Match") with { Session = changedSession ? 101ul : 100ul };
@@ -157,18 +252,6 @@ internal sealed partial class OnlineLobbyTests
             gateway.ConnectPeer(1);
             var binding = client.AttachTransport(gateway, 1, "Client");
             binding.Driver.Pump(0);
-            if (wireMismatch)
-            {
-                var hosted = new GameVersion(GameVersion.Current.Revision + 1);
-                gateway.Receive(1, LobbyCodec.EncodeVersionMismatch(hosted));
-                binding.Driver.Pump(0);
-                client.Tick();
-                Assert.That(client.HasRetainedDecision, Is.False);
-                Assert.That(store.Load(User(2).Value), Is.Null);
-                Assert.That(client.Status, Is.EqualTo(GameVersion.Current.MismatchMessage(hosted.ToString())));
-                return;
-            }
-
             gateway.Receive(9, LobbyCodec.EncodeReservation(100, 2, 1, 1, ReservationResult.Missing));
             gateway.Receive(1, LobbyCodec.EncodeReservation(100, 2, 2, 1, ReservationResult.Missing));
             binding.Driver.Pump(0);
