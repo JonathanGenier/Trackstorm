@@ -389,7 +389,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
             Press("Close");
             Press("Apply");
             Check(_devTools.IsOpen && HasStatus("saving failed"), "close Apply keeps persistence failure visible");
-            Check(!feedback.IsVisibleInTree() || feedback.Text != "Settings applied", "failed Apply does not show success feedback");
+            Check(feedback.IsVisibleInTree() && feedback.Text == "Settings applied" && feedback.GetThemeColor("font_color") == new Color("46b85d"), "authoritative Apply shows green success feedback despite persistence failure");
         }
         finally
         {

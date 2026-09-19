@@ -245,13 +245,12 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         }
 
         _status.Text = session.DeveloperSettings?.Status ?? "Tuning applied; persistence unavailable.";
+        SetFeedback(DeveloperOptionsFeedbackState.Applied);
         if (session.DeveloperSettings?.LastSaveSucceeded == false)
         {
-            UpdateFeedback();
             return false;
         }
 
-        SetFeedback(DeveloperOptionsFeedbackState.Applied);
         return true;
     }
 
