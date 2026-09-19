@@ -5,6 +5,9 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   verify:
     runs-on: windows-latest
@@ -43,3 +46,57 @@ jobs:
       - run: dotnet build Trackstorm.sln -c Release --warnaserror --no-restore
       - run: dotnet test code/Tests/Trackstorm.Core.Tests.csproj -c Release --no-build
       - run: dotnet test code/TransportTests/Trackstorm.Transport.Tests.csproj -c Release --no-build --filter 'TestCategory!=Native'
+
+  revalidate-open-prs:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Re-run completed CI for open PRs targeting main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --base main \
+            --state open \
+            --limit 100 \
+            --json number,headRefOid \
+            --jq '.[] | [.number, .headRefOid] | @tsv' |
+          while IFS=$'\t' read -r pr_number head_sha; do
+            [ -n "$pr_number" ] || continue
+
+            run_json="$(
+              gh run list \
+                --repo "$GITHUB_REPOSITORY" \
+                --workflow CI \
+                --event pull_request \
+                --commit "$head_sha" \
+                --limit 1 \
+                --json databaseId,status
+            )"
+
+            run_id="$(jq -r '.[0].databaseId // empty' <<<"$run_json")"
+            run_status="$(jq -r '.[0].status // empty' <<<"$run_json")"
+
+            if [ -z "$run_id" ]; then
+              echo "PR #$pr_number: no Pull Request CI run found; skipping."
+              continue
+            fi
+
+            if [ "$run_status" != "completed" ]; then
+              echo "PR #$pr_number: latest CI run is $run_status; waiting before revalidation."
+              gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status || true
+            fi
+
+            echo "PR #$pr_number: re-running CI run $run_id against current main."
+            gh run rerun "$run_id" --repo "$GITHUB_REPOSITORY"
+          done
