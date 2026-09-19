@@ -2,7 +2,7 @@
 
 Escape opens a centered overlay whenever an arena exists, including a lone player in `MatchPhase.Waiting`, countdown, Active and Finished. The existing remappable Pause action (P / gamepad Start by default) also opens it. Escape, logical Cancel or Pause goes Back one level; at the top level it closes. Back to Game closes directly. The gamepad B/handbrake binding does not open the overlay during driving.
 
-The hierarchy is Game Menu → Settings → Audio, Video, Gameplay, Interface or Controls. Category Back returns to Settings; Settings Back returns to Game Menu. Settings opened from the main menu returns to its caller. Developer Options remains a Settings entry but opens the shared [DevTools](devtools.md) Configs tab rather than another category page. F1 directly opens or selects that same Configs surface in development builds. Escape closes DevTools and restores the underlying Settings focus; numeric editors retain native text entry.
+The hierarchy is Game Menu → Settings → Audio, Video, Gameplay, Interface or Controls. Category Back returns to Settings; Settings Back returns to Game Menu. Settings opened from the main menu returns to its caller. Developer Options remains a Settings entry but opens the shared [DevTools](devtools.md) Configs tab rather than another category page. F1 directly opens or selects that same Configs surface in development builds. Escape requests DevTools closure, protecting unapplied Configs edits with Apply / Discard / Stay, then restores the underlying Settings focus; numeric editors retain native text entry.
 
 ## Ownership and input
 
@@ -27,7 +27,7 @@ The [input owner](input.md) observes that suppression and immediately releases g
 | Controls | All existing logical-action remaps and Invert steering; binding capture/clear/restore uses `PlayerInputBindings` |
 | Developer Options | Host-authoritative gameplay tuning/actions with separate host-local persistence; read-only diagnostics are in DevTools Stats |
 
-The existing local settings model, codec, debounced file store, display application and audio routing remain authoritative for user preferences. Developer tuning does not extend that schema. Analog dead zone remains an existing persisted input configuration, but is not offered as an additional menu control. Each persistence owner exposes its own save status/retry: developer tuning retries through **Apply Settings**, while Discard and Reset only change its editor draft. See [settings](settings.md) for local storage and preview guarantees.
+The existing local settings model, codec, debounced file store, display application and audio routing remain authoritative for user preferences. Developer tuning does not extend that schema. Analog dead zone remains an existing persisted input configuration, but is not offered as an additional menu control. Each persistence owner exposes its own save status/retry: developer tuning retries through **Apply Settings**, while Cancel and Reset only change its editor draft. See [settings](settings.md) for local storage and preview guarantees.
 
 ## Leave and quit
 

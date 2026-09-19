@@ -11,6 +11,39 @@ internal sealed class DeveloperOptionsTests
     private string _directory = string.Empty;
     private string _path = string.Empty;
 
+    /// <summary>Classification compares typed values, never edit history or rounded display strings.</summary>
+    [Test]
+    public void DefaultsAndDirtyStateUseActualConfigurationValues()
+    {
+        var draft = new DeveloperOptionsDraft();
+        foreach (var option in GameplayOptions.All)
+        {
+            Assert.That(draft.IsDefault(option), Is.True, option.Key);
+        }
+
+        Assert.That(draft.IsDirty, Is.False);
+        Assert.That(draft.TryGetEdits(out var unchanged, out _), Is.True);
+        Assert.That(unchanged, Is.Empty, "Displayed float precision must not create phantom edits.");
+        var friction = GameplayOptions.All.Single(option => option.Key == "vehicle.tire_friction");
+        draft.Set(friction.Key, "3.35");
+        Assert.That(draft.IsDefault(friction), Is.True);
+        Assert.That(draft.IsDirty, Is.False);
+        draft.Set(friction.Key, "3.36");
+        Assert.That(draft.IsDefault(friction), Is.False);
+        Assert.That(draft.IsDirty, Is.True);
+        draft.Set(friction.Key, "3.3500");
+        Assert.That(draft.IsDirty, Is.False, "Restoring a value clears unapplied changes.");
+        draft.Set(friction.Key, "NaN");
+        Assert.That(draft.IsDefault(friction), Is.False);
+        Assert.That(draft.IsDirty, Is.True);
+        draft.ResetToDefaults();
+        Assert.That(draft.IsDirty, Is.False, "Resetting already effective defaults needs no close decision.");
+        var effective = GameplayConfiguration.HostedDefaults with { Vehicle = GameplayConfiguration.HostedDefaults.Vehicle with { TireFriction = 4 } };
+        draft.Discard(effective);
+        Assert.That(draft.IsDefault(friction), Is.False, "Persisted effective overrides are red before being edited.");
+        Assert.That(draft.IsDirty, Is.False);
+    }
+
     /// <summary>Uses an isolated file for each test.</summary>
     [SetUp]
     public void SetUp()

@@ -14,7 +14,12 @@ internal sealed class DeveloperOptionsDraft
     internal DeveloperOptionsDraft() => Discard(GameplayConfiguration.HostedDefaults);
 
     /// <summary>Whether edits must survive automatic runtime refresh.</summary>
-    internal bool IsDirty { get; private set; }
+    internal bool IsDirty => GameplayOptions.All.Any(option => !Matches(option, _baseline));
+
+    /// <summary>Compares parsed editor values with the canonical hosted preset, independently of edit history.</summary>
+    /// <param name="option">Catalog setting and its actual numeric type.</param>
+    /// <returns>Whether the staged value equals the canonical game default.</returns>
+    internal bool IsDefault(GameplayOption option) => Matches(option, GameplayConfiguration.HostedDefaults);
 
     /// <summary>Reads the pending text for a catalog key.</summary>
     /// <param name="key">Stable gameplay setting key.</param>
@@ -27,7 +32,6 @@ internal sealed class DeveloperOptionsDraft
     internal void Set(string key, string value)
     {
         _values[key] = value;
-        IsDirty = true;
     }
 
     /// <summary>Discards pending changes in favor of the current authoritative values.</summary>
@@ -37,7 +41,6 @@ internal sealed class DeveloperOptionsDraft
         _baseline = current;
         Populate(current);
         _replaceAll = false;
-        IsDirty = false;
     }
 
     /// <summary>Stages the complete production preset until the user explicitly applies it.</summary>
@@ -45,7 +48,6 @@ internal sealed class DeveloperOptionsDraft
     {
         Populate(GameplayConfiguration.HostedDefaults);
         _replaceAll = true;
-        IsDirty = true;
     }
 
     /// <summary>Parses a request for the existing authority path; owning Core rules still validate it.</summary>
@@ -65,7 +67,7 @@ internal sealed class DeveloperOptionsDraft
             }
 
             // Reset replaces the whole preset, including fields changed by authority after the editor opened.
-            if (_replaceAll || option.Read(_baseline) != value)
+            if (_replaceAll || !Matches(option, _baseline))
             {
                 edits.Add(option.Key, value);
             }
@@ -74,11 +76,19 @@ internal sealed class DeveloperOptionsDraft
         return true;
     }
 
+    private bool Matches(GameplayOption option, GameplayConfiguration configuration)
+    {
+        return double.TryParse(Get(option.Key), NumberStyles.Float, CultureInfo.InvariantCulture, out double value)
+            && double.IsFinite(value)
+            && (option.Integral ? value : (float)value) == option.Read(configuration);
+    }
+
     private void Populate(GameplayConfiguration configuration)
     {
         foreach (var option in GameplayOptions.All)
         {
-            _values[option.Key] = option.Read(configuration).ToString(option.Integral ? "G17" : "G9", CultureInfo.InvariantCulture);
+            double value = option.Read(configuration);
+            _values[option.Key] = option.Integral ? value.ToString("G17", CultureInfo.InvariantCulture) : ((float)value).ToString("G", CultureInfo.InvariantCulture);
         }
     }
 }
