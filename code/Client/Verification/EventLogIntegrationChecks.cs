@@ -26,6 +26,7 @@ public sealed partial class EventLogIntegrationChecks : Node
         try
         {
             Engine.MaxFps = 60;
+            GetTree().Root.Size = new Vector2I(1280, 720);
             var bootstrap = new SimulationBootstrap { OnlineEnabled = false, VerificationChild = true, SettingsPath = ProjectSettings.GlobalizePath("user://event-log-check-settings.json") };
             bootstrap.AddChild(new PlayerInput { Name = "PlayerInput" });
             AddChild(bootstrap);
@@ -62,6 +63,7 @@ public sealed partial class EventLogIntegrationChecks : Node
             host.Lobby.Request(LobbyCommand.Start);
             await Until(() => _client.Arena is not null && host.Arena is not null);
             var authority = host.Arena!.Driver.Host!;
+            await Until(() => host.Arena.Driver.Match?.Phase == Trackstorm.Core.Matches.MatchPhase.Active);
             Check(authority.GiveItem(0, HeldItem.Wrench), "normal item grant");
             var slot = authority.Items.Slots.Single(value => value.Vehicle == 1);
             Check(authority.UseItem(0, authority.SessionId, slot.Life, slot.Token), "normal item use");
@@ -71,25 +73,26 @@ public sealed partial class EventLogIntegrationChecks : Node
             Tap(Key.F3);
             await Frames(3);
             var text = Descendants(panel).OfType<RichTextLabel>().Single();
-            Check(text.Text.Contains("Used", StringComparison.Ordinal) && text.Text.Contains("[Item]", StringComparison.Ordinal), "live timestamped history rendered");
+            Check(text.GetParsedText().Contains("Used", StringComparison.Ordinal) && text.GetParsedText().Contains("[Item]", StringComparison.Ordinal), "live timestamped history rendered");
             ulong tick = authority.World.State.Tick;
             await Frames(12);
             Check(authority.World.State.Tick > tick, "simulation continues while F3 open");
             var follow = Descendants(panel).OfType<CheckButton>().Single();
             follow.ButtonPressed = false;
             await Frames(2);
-            string frozen = text.Text;
+            string frozen = text.GetParsedText();
             authority.GiveItem(0, HeldItem.Missile);
             await Frames(3);
-            Check(text.Text == frozen, "freeze preserves inspected history while collection continues");
+            Check(text.GetParsedText() == frozen, "freeze preserves inspected history while collection continues");
             follow.ButtonPressed = true;
             await Frames(3);
-            Check(text.Text.Contains("Missile", StringComparison.Ordinal), "unfreeze displays collected outcomes");
+            Check(text.GetParsedText().Contains("Missile", StringComparison.Ordinal), "unfreeze displays collected outcomes");
             var filter = Descendants(panel).OfType<OptionButton>().Single();
             filter.Select((int)EventCategory.Item + 1);
             filter.EmitSignal(OptionButton.SignalName.ItemSelected, filter.Selected);
             await Frames(3);
-            Check(!text.Text.Contains("[Session]", StringComparison.Ordinal) && text.Text.Contains("[Item]", StringComparison.Ordinal), "category filtering");
+            Check(!text.GetParsedText().Contains("[Session]", StringComparison.Ordinal) && text.GetParsedText().Contains("[Item]", StringComparison.Ordinal), "category filtering");
+            await CheckPresentation(panel, devTools, text, filter, follow);
             if (DisplayServer.GetName() != "headless")
             {
                 string? sizeArgument = OS.GetCmdlineUserArgs().FirstOrDefault(value => value.StartsWith("--event-log-size=", StringComparison.Ordinal));
@@ -152,6 +155,66 @@ public sealed partial class EventLogIntegrationChecks : Node
             Godot.Input.ParseInputEvent(input);
             Godot.Input.FlushBufferedEvents();
         }
+    }
+
+    private async Task CheckPresentation(EventLogPanel panel, DevToolsShell shell, RichTextLabel text, OptionButton filter, CheckButton follow)
+    {
+        var originalSource = panel.Source;
+        var stream = new EventStream { PlayerName = _ => "Missile" };
+        stream.AdvanceTime(125104);
+        stream.Record(EventCategory.Damage, "Applied", actor: 1, target: 2, cause: "Missile", amount: 27, hp: 73, maxHP: 100);
+        stream.Record(EventCategory.Network, "[b]literal[/b]", local: true);
+        for (int i = 0; i < 80; i++)
+        {
+            stream.Record(EventCategory.Item, "Used", actor: 1, cause: "Missile");
+        }
+
+        panel.Source = () => stream;
+        filter.Select(0);
+        filter.EmitSignal(OptionButton.SignalName.ItemSelected, 0);
+        await Frames(3);
+        Check(text.GetParsedText() == string.Join('\n', stream.Entries.Select(EventLogFormatter.Format)), "styled rendering preserves exact timestamp, origin, sequence, names and literal markup");
+        Check(!text.BbcodeEnabled && text.GetThemeColor("default_color") == new Color("eeeeee"), "literal readable message rendering");
+        var first = stream.Entries[0];
+        follow.ButtonPressed = false;
+        text.GetVScrollBar().Value = 30;
+        await Frames(2);
+        string frozen = text.GetParsedText();
+        double scroll = text.GetVScrollBar().Value;
+        Check(scroll > 0, "frozen inspection scrolls away from the latest event");
+        for (int i = 0; i < 1030; i++)
+        {
+            stream.Record(EventCategory.Item, "Used", actor: 1, cause: "Missile");
+        }
+
+        await Frames(3);
+        Check(stream.Entries.Count == 1024 && text.GetParsedText() == frozen && text.GetVScrollBar().Value == scroll, "freeze retains presentation and scroll while bounded collection evicts oldest events");
+        filter.Select((int)EventCategory.Damage + 1);
+        filter.EmitSignal(OptionButton.SignalName.ItemSelected, filter.Selected);
+        await Frames(2);
+        Check(text.GetParsedText() == EventLogFormatter.Format(first), "filtering frozen history retains the inspected event even after journal eviction");
+        Tap(Key.F2);
+        Tap(Key.F3);
+        await Frames(2);
+        Check(shell.SelectedTab == DevToolsTab.Logs && !follow.ButtonPressed && text.GetParsedText() == EventLogFormatter.Format(first), "tab switching preserves frozen snapshot and filter");
+        filter.Select(0);
+        filter.EmitSignal(OptionButton.SignalName.ItemSelected, 0);
+        follow.ButtonPressed = true;
+        await Frames(3);
+        Check(text.GetParsedText() == string.Join('\n', stream.Entries.Select(EventLogFormatter.Format)), "unfreeze renders all and only retained events in stream order");
+        Check(text.ScrollFollowing && Math.Abs(text.GetVScrollBar().Value - text.GetVScrollBar().MaxValue + text.GetVScrollBar().Page) < 1, "unfreeze resumes following the latest retained event");
+        Check(!stream.Accept(first), "evicted authoritative identity remains rejected");
+        stream.Record(EventCategory.Session, "Joined", actor: 1);
+        await Frames(3);
+        Check(text.GetParsedText().EndsWith(EventLogFormatter.Format(stream.Entries[^1]), StringComparison.Ordinal), "live rendering resumes after unfreeze");
+        panel.Source = () => null;
+        await Frames(2);
+        Check(text.GetParsedText().Length == 0, "absent source clears stale history");
+        panel.Source = originalSource;
+        await Frames(3);
+        Check(filter.ItemCount == Enum.GetValues<EventCategory>().Length + 1, "all structured categories retained");
+        Rect2 content = panel.GetGlobalRect();
+        Check(Math.Abs(content.Size.X - shell.Bounds.Size.X + 32) < 1 && text.Size.Y > 100 && content.Encloses(text.GetGlobalRect()), $"Logs fills the shared shell content width with an expanding history: shell={shell.Bounds}, content={content}, text={text.GetGlobalRect()}");
     }
 
     private async Task CheckActivityFeed(SimulationBootstrap bootstrap, DevelopmentSession host)

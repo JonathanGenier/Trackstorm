@@ -26,6 +26,8 @@ The shell fills the viewport with a black/dark-gray panel, a fixed header contai
 
 Stats fills the available content width and height. Its search stays above the Global/Session and Player/Vehicle views and filters existing live rows by category, label or value. Rows retain category headings, white labels and blue values. Player selection and the read-only runtime capture remain owned by the existing Statistic Panel integration.
 
+Logs fills the available content area with category filtering and Follow latest above a selectable, scrolling history. Muted timestamps, blue categories, red player names and light message text distinguish the structured fields. Disabling Follow latest freezes presentation while the original journal keeps collecting; category changes filter the frozen snapshot until following resumes. Logs content has no gameplay actions; the independently owned shell header retains its host-only Force Start action.
+
 The menu, Developer Options, statistics and event-log native harnesses jointly exercise shortcut routing, in-place switching, single-shell composition, Escape/Close, focus and gameplay suppression, live gameplay continuity, host-only configuration, read-only diagnostics and viewport bounds. Debug/Release build checks preserve the compile-time availability policy.
 
 [Feature index](README.md) · [Developer Options](developer-options.md) · [Statistic Panel](statistics.md) · [Event Log](event-log.md) · [Game Menu](game-menu.md)
