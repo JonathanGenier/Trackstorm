@@ -406,6 +406,7 @@ internal sealed partial class OnlineLobbyTests
             if (restart)
             {
                 returning.Tick();
+                returning.ResumeRetained();
             }
             else
             {
@@ -1100,12 +1101,17 @@ internal sealed partial class OnlineLobbyTests
             {
                 Assert.That(client.Active, Is.Null);
                 Assert.That(client.Status, Does.StartWith("Game version mismatch."));
-                Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Failed));
+                Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.None));
+                Assert.That(service.ResumeRequests, Is.Zero);
                 Assert.That(store.Load(User(2).Value), Is.EqualTo(locator), "A version mismatch does not invalidate the authoritative reservation or its retry locator.");
                 Assert.That(service.Lobbies[host.Active.Id].Members, Is.EqualTo(1));
                 return;
             }
 
+            Assert.That(client.Active, Is.Null, "Read-only startup lookup must not rejoin the old lobby.");
+            Assert.That(service.LookupRequests, Is.EqualTo(1));
+            Assert.That(service.ResumeRequests, Is.Zero);
+            client.ResumeRetained();
             Assert.That(client.Active!.Session, Is.EqualTo(host.Active.Session));
             Assert.That(client.Active.Open, Is.False, "Resume uses the locator even when normal admission is closed.");
             using var gateway = new Gateway();
@@ -1132,6 +1138,7 @@ internal sealed partial class OnlineLobbyTests
         string path = Path.Combine(Path.GetTempPath(), "trackstorm-resume-" + Guid.NewGuid().ToString("N") + ".json");
         var store = new ResumeLocatorStore(path);
         var service = new Service();
+        service.LookupFailure = "retained lookup unavailable";
         var clock = new Clock();
         var lobby = Lobby("retained-match", "Match") with { Open = false };
         store.Save(new ResumeLocator(lobby.Id, lobby.Session, 2, 4, User(2).Value, 1, User(1).Value));
@@ -1140,18 +1147,18 @@ internal sealed partial class OnlineLobbyTests
             using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), clock, store);
             Assert.That(client.ShowsRetainedDecision, Is.False, "A locator must validate silently.");
             client.Tick();
-            clock.Advance(181);
-            client.Tick();
-            Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Failed));
+            Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.None));
             Assert.That(client.ShowsRetainedDecision, Is.False, "Unavailable validation must not trap the player behind a retained-match prompt.");
             Assert.That(client.CanResumeRetained, Is.True, "Unavailable validation must remain manually retryable.");
             Assert.That(store.Load(User(2).Value), Is.Not.Null);
-            Assert.That(client.Status, Does.Contain("not confirmed"));
+            Assert.That(client.Status, Does.Contain("Lobby browsing is still available"));
+            Assert.That(client.Status, Does.Not.Contain("EOS").IgnoreCase);
+            Assert.That(service.ResumeRequests, Is.Zero);
             service.Lobbies[lobby.Id] = lobby;
+            service.LookupFailure = null;
             client.Refresh();
             Assert.That(client.Browser.Rows.Select(row => row.Id), Does.Contain(lobby.Id), "The normal lobby browser must remain refreshable after validation fails.");
-            clock.Advance(3);
-            client.RetryRetained();
+            client.ResumeRetained();
             Assert.That(client.Active!.Session, Is.EqualTo(lobby.Session));
             using var gateway = new Gateway();
             gateway.ConnectPeer(1);
@@ -1200,9 +1207,11 @@ internal sealed partial class OnlineLobbyTests
             client.Leave();
             clock.Advance(181);
             client.Tick();
-            Assert.That(client.Active, Is.Not.Null, "Menu entry checks the reservation before showing normal discovery.");
-            Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Checking));
+            Assert.That(client.Active, Is.Null, "Menu entry must not automatically restore EOS membership.");
+            Assert.That(client.CanResumeRetained, Is.True);
             Assert.That(store.Load(User(2).Value)!.Player, Is.EqualTo(2));
+            client.ResumeRetained();
+            Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Checking));
             gateway.ConnectPeer(3);
             binding = client.AttachTransport(gateway, 3, "Client");
             binding.Driver.Pump(0);
@@ -1399,6 +1408,9 @@ internal sealed partial class OnlineLobbyTests
         internal bool FailLeave { get; set; }
         internal bool DelayProof { get; set; }
         internal bool NotifyMetadataOnProof { get; set; }
+        internal string? LookupFailure { get; set; }
+        internal int LookupRequests { get; set; }
+        internal int ResumeRequests { get; set; }
         internal int ProofRequests { get; set; }
         internal Action<bool>? LastProof { get; set; }
         internal List<Action<bool>> PendingProofs { get; } = new();
@@ -1486,6 +1498,13 @@ internal sealed partial class OnlineLobbyTests
             service.Complete(() => completed(result, null));
         }
 
+        public void Lookup(string id, Action<OnlineLobbyLookup> completed)
+        {
+            service.LookupRequests++;
+            var result = new OnlineLobbyLookup(service.Lobbies.GetValueOrDefault(id), service.LookupFailure);
+            service.Complete(() => completed(result));
+        }
+
         public void Create(OnlineLobby lobby, Action<OnlineLobby?, string?> completed)
         {
             lobby = lobby with { Id = service.NextId(), MemberIds = new[] { user } };
@@ -1530,6 +1549,7 @@ internal sealed partial class OnlineLobbyTests
 
         public void Resume(string id, Action<OnlineLobby?, string?> completed)
         {
+            service.ResumeRequests++;
             var lobby = service.Lobbies.GetValueOrDefault(id);
             if (lobby is null || (lobby.Members == 8 && !lobby.MemberIds.Contains(user)))
             {

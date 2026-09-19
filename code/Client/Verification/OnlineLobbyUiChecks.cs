@@ -89,6 +89,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     Require(!Controls<LineEdit>().Any(edit => edit.IsVisibleInTree() && edit.PlaceholderText.Contains("IP:", StringComparison.Ordinal)), "IP field visible in normal flow.");
                     Require(Controls<Label>().Any(label => label.Text.StartsWith("Game version mismatch.", StringComparison.Ordinal) && label.Text.Contains(GameVersion.Current.ToString(), StringComparison.Ordinal)), "Visible version mismatch missing.");
                     Require(Controls<Button>().Any(button => button.Disabled && button.TooltipText.StartsWith("Game version mismatch.", StringComparison.Ordinal)), "Incompatible Join was not disabled.");
+                    Require(_provider.ResumeRequests == 0, "Normal launch attempted retained-session membership recovery without a locator.");
                     Capture("browser");
                     Edit("Search lobbies").Text = "aRENa";
                     Edit("Search lobbies").EmitSignal(LineEdit.SignalName.TextChanged, "aRENa");
@@ -131,17 +132,36 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     Require(_coordinator.Active?.Name == "Renamed Game", "Rename control failed.");
                     Capture("host-renamed");
                     _coordinator.Leave();
-                    BeginDecision();
+                    BeginMissingLookup();
                     break;
                 case 9:
-                    Require(_coordinator.RetainedDecision == RetainedSessionDecision.Checking, "Retained locator did not begin validation.");
+                    Require(_coordinator.Active is null, "Missing retained lobby created membership.");
+                    Require(!_coordinator.HasRetainedDecision, "Missing retained lobby created a decision.");
+                    Require(_resumeStore!.Load(new string('1', 32)) is null, "Missing retained lobby did not retire the stale locator.");
                     Require(!Controls<VBoxContainer>().Single(control => control.Name == "RetainedMatchDecision").IsVisibleInTree(), "Local locator exposed the retained-match prompt before authority confirmation.");
                     Require(Controls<LineEdit>().Single(edit => edit.PlaceholderText == "Search lobbies").IsVisibleInTree(), "Lobby browser was hidden while retained-session validation was pending.");
                     Require(Controls<Button>().Any(button => button.IsVisibleInTree() && button.TooltipText == "Arena Public"), "Lobby list was unavailable while retained-session validation was pending.");
+                    Require(!Controls<Label>().Single(label => label.Name == "EosState").Text.Contains("unavailable", StringComparison.OrdinalIgnoreCase), "Missing retained lobby was presented as EOS unavailable.");
+                    Require(_provider.ResumeRequests == 0, "Missing retained lobby attempted membership recovery.");
+                    BeginDecision();
+                    break;
+                case 10:
+                    Require(_coordinator.Active is null, "Read-only retained lookup restored EOS membership.");
+                    Require(!_coordinator.HasRetainedDecision, "Read-only retained lookup exposed a confirmed decision.");
+                    Require(Controls<Button>().Any(button => button.IsVisibleInTree() && button.Text == "Check previous session"), "Found retained metadata did not expose explicit validation.");
+                    Require(_provider.ResumeRequests == 0, "Startup lookup called the legacy EOS Resume path.");
+                    Press("Check previous session");
+                    _reservationGateway = new ReservationGateway();
+                    _reservationBinding = _coordinator.AttachTransport(_reservationGateway, 1, "Player");
+                    break;
+                case 11:
+                    Require(_provider.ResumeRequests == 1, "Explicit validation did not request retained membership exactly once.");
+                    Require(_coordinator.RetainedDecision == RetainedSessionDecision.Checking, "Explicit retained validation did not begin authority inspection.");
+                    Require(!Controls<VBoxContainer>().Single(control => control.Name == "RetainedMatchDecision").IsVisibleInTree(), "Authority inspection exposed the prompt before confirmation.");
                     _reservationGateway!.ConfirmAvailable();
                     Capture("retained-checking");
                     break;
-                case 10:
+                case 12:
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Choose, "Reservation prompt missing.");
                     Require(Controls<VBoxContainer>().Single(control => control.Name == "RetainedMatchDecision").IsVisibleInTree(), "Confirmed reservation did not expose the retained-match prompt.");
                     Require(!Controls<Button>().Any(button => button.IsVisibleInTree() && button.Text == "Host Game"), "Browser visible during reservation decision.");
@@ -149,33 +169,39 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     Press("Leave Match");
                     Press("Leave Match");
                     break;
-                case 11:
+                case 13:
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Leaving, "Unconfirmed release returned to browser.");
                     Require(_reservationGateway!.AbandonRequests == 1, "Double click sent duplicate release.");
                     Capture("retained-leaving");
                     _reservationGateway.ConfirmAbandon();
                     break;
-                case 12:
+                case 14:
                     Require(!_coordinator.HasRetainedDecision && _coordinator.Active is null, "Acknowledged release did not return to browser.");
                     Require(_resumeStore!.Load(new string('1', 32)) is null, "Released locator persisted.");
                     _reservationBinding = null;
                     BeginDecision();
                     break;
-                case 13:
-                    Require(_coordinator.RetainedDecision == RetainedSessionDecision.Checking, "Second retained locator did not begin validation.");
-                    Require(!Controls<VBoxContainer>().Single(control => control.Name == "RetainedMatchDecision").IsVisibleInTree(), "Second local locator exposed a prompt before confirmation.");
+                case 15:
+                    Require(_coordinator.Active is null, "Second startup lookup restored EOS membership.");
+                    Press("Check previous session");
+                    _reservationGateway = new ReservationGateway();
+                    _reservationBinding = _coordinator.AttachTransport(_reservationGateway, 1, "Player");
+                    break;
+                case 16:
+                    Require(_coordinator.RetainedDecision == RetainedSessionDecision.Checking, "Second explicit validation did not begin authority inspection.");
+                    Require(!Controls<VBoxContainer>().Single(control => control.Name == "RetainedMatchDecision").IsVisibleInTree(), "Second authority inspection exposed a prompt before confirmation.");
                     _reservationGateway!.ConfirmAvailable();
                     break;
-                case 14:
+                case 17:
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Choose, "Second reservation confirmation did not expose the choice.");
                     Press("Reconnect");
                     Press("Reconnect");
                     break;
-                case 15:
+                case 18:
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Reconnecting, "Reconnect choice not submitted.");
                     Require(_reservationGateway!.ResumeRequests == 1, "Reconnect did not use exactly one existing resume intent.");
                     Capture("retained-reconnecting");
-                    GD.Print("Online lobby UI integration passed: launch enters the browser, local hints validate without a prompt, authority confirmation exposes the retained-match modal, and release/reconnect controls remain idempotent; fake provider, no native EOS authentication.");
+                    GD.Print("Online lobby UI integration passed: launch enters the browser, missing hints remain a scoped lookup result, found hints do not restore membership, explicit validation precedes authority confirmation, and release/reconnect controls remain idempotent; fake provider, no native EOS authentication.");
                     GetTree().Quit();
                     break;
             }
@@ -222,8 +248,16 @@ public sealed partial class OnlineLobbyUiChecks : Node
         _resumeStore.Save(new ResumeLocator("public", 100, 2, 1, local.Value, 1, new string('2', 32)));
         _coordinator = new OnlineLobbyCoordinator(_provider, local, resumeStore: _resumeStore);
         _coordinator.Tick();
-        _reservationGateway = new ReservationGateway();
-        _reservationBinding = _coordinator.AttachTransport(_reservationGateway, 1, "Player");
+    }
+
+    private void BeginMissingLookup()
+    {
+        _coordinator.Dispose();
+        _resumeStore = new ResumeLocatorStore(ProjectSettings.GlobalizePath("res://.godot/ts68-ui-resume.json"));
+        var local = new OnlineProductUserId(new string('1', 32));
+        _resumeStore.Save(new ResumeLocator("missing", 999, 2, 1, local.Value, 1, new string('2', 32)));
+        _coordinator = new OnlineLobbyCoordinator(_provider, local, resumeStore: _resumeStore);
+        _coordinator.Tick();
     }
 
     private IEnumerable<T> Controls<T>()
@@ -249,7 +283,9 @@ public sealed partial class OnlineLobbyUiChecks : Node
         private readonly OnlineProductUserId _remote = new(new string('2', 32));
         private readonly LobbyCredential _credential = LobbyCredential.Create("test-code");
         private OnlineLobby? _active;
+        internal int ResumeRequests { get; private set; }
         public void Search(Action<IReadOnlyList<OnlineLobby>, string?> completed) => completed(new[] { new OnlineLobby("public", "Arena Public", _remote, 100, LobbyAccess.Public, 2, 8, OnlineLobby.CurrentProtocol, true, null), new OnlineLobby("locked", "Private Game", _remote, 200, LobbyAccess.Locked, 3, 8, OnlineLobby.CurrentProtocol, true, _credential), new OnlineLobby("incompatible", "Different build", _remote, 300, LobbyAccess.Public, 1, 8, OnlineLobby.CurrentProtocol, true, null) { Version = new GameVersion(GameVersion.Current.Revision == 0 ? 1 : GameVersion.Current.Revision - 1).ToString() } }, null);
+        public void Lookup(string id, Action<OnlineLobbyLookup> completed) => Search((rows, failure) => completed(new(rows.SingleOrDefault(row => row.Id == id), failure)));
         public void Create(OnlineLobby lobby, Action<OnlineLobby?, string?> completed)
         {
             _active = lobby with { Id = "hosted", Owner = _local };
@@ -261,7 +297,13 @@ public sealed partial class OnlineLobbyUiChecks : Node
             _active = rows.Single(row => row.Id == id);
             completed(_active, null);
         });
-        public void Resume(string id, Action<OnlineLobby?, string?> completed) => Join(id, (lobby, failure) => completed(lobby! with { MemberIds = [_remote, _local] }, failure));
+
+        public void Resume(string id, Action<OnlineLobby?, string?> completed)
+        {
+            ResumeRequests++;
+            Join(id, (lobby, failure) => completed(lobby! with { MemberIds = [_remote, _local] }, failure));
+        }
+
         public void Update(OnlineLobby lobby, Action<OnlineLobby?, string?> completed)
         {
             _active = lobby;

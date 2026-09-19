@@ -16,7 +16,7 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
     private readonly LineEdit _joinCredential = new() { PlaceholderText = "Enter lobby access code", Secret = true, MaxLength = 64 };
     private readonly Button _submit = new() { Text = "Join locked lobby" };
     private readonly Button _refresh = new() { Text = "Refresh" };
-    private readonly Button _resume = new() { Text = "Resume previous session" };
+    private readonly Button _resume = new() { Text = "Check previous session" };
     private readonly VBoxContainer _decision = new() { Name = "RetainedMatchDecision" };
     private readonly Label _decisionText = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly Button _reconnectMatch = new() { Text = "Reconnect" };

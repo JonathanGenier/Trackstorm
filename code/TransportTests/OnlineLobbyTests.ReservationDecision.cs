@@ -10,6 +10,53 @@ namespace Trackstorm.Transport.Tests;
 /// <summary>Explicit retained-session choices through the existing authenticated lobby protocol.</summary>
 internal sealed partial class OnlineLobbyTests
 {
+    /// <summary>Ordinary startup browses normally and never invokes retained-session lookup or membership recovery.</summary>
+    [Test]
+    public void StartupWithoutLocatorNeverRequestsRetainedResume()
+    {
+        var service = new Service();
+        service.Lobbies["available"] = Lobby("available", "Available");
+        using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2));
+
+        client.Tick();
+        client.Refresh();
+
+        Assert.That(client.Active, Is.Null);
+        Assert.That(client.HasRetainedDecision, Is.False);
+        Assert.That(service.LookupRequests, Is.Zero);
+        Assert.That(service.ResumeRequests, Is.Zero);
+        Assert.That(client.Browser.Rows.Select(row => row.Id), Does.Contain("available"));
+    }
+
+    /// <summary>A locator for an ended lobby is retired by read-only lookup without changing EOS service state.</summary>
+    [Test]
+    public void MissingStartupLobbyClearsHintWithoutMembershipOrOfflineStatus()
+    {
+        var service = new Service();
+        service.Lobbies["available"] = Lobby("available", "Available");
+        var store = new ResumeLocatorStore(Path.Combine(Path.GetTempPath(), "trackstorm-missing-startup-" + Guid.NewGuid().ToString("N") + ".json"));
+        store.Save(new ResumeLocator("ended", 999, 2, 1, User(2).Value, 1, User(1).Value));
+        try
+        {
+            using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
+            client.Tick();
+            client.Refresh();
+
+            Assert.That(client.Active, Is.Null);
+            Assert.That(client.HasRetainedDecision, Is.False);
+            Assert.That(client.Status, Is.EqualTo("Previous session is no longer available."));
+            Assert.That(client.Status, Does.Not.Contain("EOS").IgnoreCase);
+            Assert.That(store.Load(User(2).Value), Is.Null);
+            Assert.That(service.LookupRequests, Is.EqualTo(1));
+            Assert.That(service.ResumeRequests, Is.Zero);
+            Assert.That(client.Browser.Rows.Select(row => row.Id), Does.Contain("available"));
+        }
+        finally
+        {
+            store.Clear();
+        }
+    }
+
     /// <summary>Authenticated inspection changes nothing; explicit release is acknowledged once and preserves final history.</summary>
     /// <param name="access">Existing admission policy.</param>
     /// <param name="dropReply">Whether the release acknowledgement is lost before local confirmation.</param>
@@ -54,6 +101,11 @@ internal sealed partial class OnlineLobbyTests
             Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Checking));
             Assert.That(client.ShowsRetainedDecision, Is.False, "A local locator is not authoritative enough to own the UI.");
             client.Tick();
+            Assert.That(client.Active, Is.Null, "Startup lookup must not restore EOS membership.");
+            Assert.That(service.LookupRequests, Is.EqualTo(1));
+            Assert.That(service.ResumeRequests, Is.Zero);
+            client.ResumeRetained();
+            Assert.That(service.ResumeRequests, Is.EqualTo(1), "Membership recovery requires an explicit validation action.");
             using var gateway = new Gateway();
             gateway.ConnectPeer(1);
             var binding = client.AttachTransport(gateway, 1, "Changed name");
@@ -168,6 +220,9 @@ internal sealed partial class OnlineLobbyTests
             using (var incompatible = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store))
             {
                 incompatible.Tick();
+                Assert.That(incompatible.Active, Is.Null);
+                Assert.That(service.ResumeRequests, Is.Zero, "Startup lookup must not rejoin the saved EOS lobby.");
+                incompatible.ResumeRetained();
                 using var incompatibleGateway = new Gateway();
                 incompatibleGateway.ConnectPeer(1);
                 var binding = incompatible.AttachTransport(incompatibleGateway, 1, "Client");
@@ -190,6 +245,10 @@ internal sealed partial class OnlineLobbyTests
             using var compatible = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
             Assert.That(compatible.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Checking));
             compatible.Tick();
+            Assert.That(compatible.Active, Is.Null);
+            int membershipRequests = service.ResumeRequests;
+            compatible.ResumeRetained();
+            Assert.That(service.ResumeRequests, Is.EqualTo(membershipRequests + 1));
             using var compatibleGateway = new Gateway();
             compatibleGateway.ConnectPeer(1);
             var returned = compatible.AttachTransport(compatibleGateway, 1, "Changed name");
@@ -252,6 +311,7 @@ internal sealed partial class OnlineLobbyTests
                 return;
             }
 
+            client.ResumeRetained();
             using var gateway = new Gateway();
             gateway.ConnectPeer(1);
             var binding = client.AttachTransport(gateway, 1, "Client");

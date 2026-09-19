@@ -126,6 +126,8 @@ internal sealed partial class OnlineLobbyTests
 
             var restartLease = new LeaseTransport(leases, User(2).Value);
             using var restarted = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), clock, resumeStore) { LeaseFactory = () => restartLease };
+            restarted.Tick();
+            restarted.ResumeRetained();
             for (int frame = 0; frame < 180 && restarted.Active is null; frame++)
             {
                 restarted.Tick();

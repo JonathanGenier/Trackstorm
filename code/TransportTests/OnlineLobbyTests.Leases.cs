@@ -207,6 +207,8 @@ internal sealed partial class OnlineLobbyTests
             {
                 LeaseFactory = () => new LeaseTransport(session.Store, User(1).Value),
             };
+            restarted.Tick();
+            restarted.ResumeRetained();
             for (int frame = 0; frame < 240 && restarted.Active is null; frame++)
             {
                 restarted.Tick();
@@ -342,6 +344,7 @@ internal sealed partial class OnlineLobbyTests
         {
             using var restarted = new OnlineLobbyCoordinator(new Provider(service, User(1)), User(1), clock, store) { LeaseFactory = () => transport };
             restarted.Tick();
+            restarted.ResumeRetained();
             if (failure == "cancelled")
             {
                 restarted.Leave();
