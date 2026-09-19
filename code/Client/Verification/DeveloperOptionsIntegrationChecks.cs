@@ -292,16 +292,21 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         var panel = _devTools.Configs;
         var mass = Descendants(panel).OfType<LineEdit>().Single(editor => editor.Name == "vehicle_mass");
         var search = Descendants(panel).OfType<LineEdit>().Single(editor => editor.Name == "ConfigSearch");
+        var feedback = Descendants(panel.Footer).OfType<Label>().Single(label => label.Name == "ConfigFeedback");
         var latency = Descendants(panel).OfType<SpinBox>().First();
         latency.Value = 10;
         Check(panel.HasUnappliedChanges, "local network editor participates in pending-change protection");
+        Check(feedback.IsVisibleInTree() && feedback.Text == "Unsaved changes" && feedback.GetThemeColor("font_color") == new Color("e6a23c"), "staged values show persistent amber Unsaved changes feedback");
         Press("Cancel");
         Check(latency.Value == 0 && !panel.HasUnappliedChanges, "Cancel restores effective local simulation");
+        Check(feedback.IsVisibleInTree() && feedback.Text == "Changes discarded" && feedback.GetThemeColor("font_color") == new Color("ff6262"), "Cancel shows red Changes discarded feedback");
         latency.Value = 10;
         Press("Apply Settings");
         Check(!panel.HasUnappliedChanges && _host.Arena.Driver.Configuration == before, "local simulation Apply does not revise gameplay");
+        Check(feedback.IsVisibleInTree() && feedback.Text == "Settings applied" && feedback.GetThemeColor("font_color") == new Color("46b85d"), "successful Apply shows green Settings applied feedback");
         Press("Reset to Defaults");
         Check(latency.Value == 0 && panel.HasUnappliedChanges, "Reset stages zero network impairment");
+        Check(feedback.IsVisibleInTree() && feedback.Text == "Unsaved changes", "Reset replaces confirmation with persistent Unsaved changes feedback");
         Press("Cancel");
         Check(latency.Value == 10, "Cancel restores applied impairment after Reset");
         latency.Value = 0;
@@ -322,6 +327,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         Press("Cancel");
         Set("vehicle.mass", 1234);
         Check(panel.HasUnappliedChanges && mass.GetThemeColor("font_color") == new Color("ff7979"), "staged override is dirty and red");
+        Check(feedback.IsVisibleInTree() && feedback.Text == "Unsaved changes", "gameplay draft shows Unsaved changes feedback");
         Search("vehicle mass");
         Check(mass.IsVisibleInTree(), "search matches category and label together");
         Check(Descendants(panel).OfType<LineEdit>().Count(editor => editor.IsVisibleInTree() && editor.GetParent() is GridContainer) == 2, "mass search includes mass and reference mass");
@@ -340,7 +346,8 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         foreach (Key tab in new[] { Key.F2, Key.F3 })
         {
             Tap(tab);
-            Check(!panel.Footer.IsVisibleInTree(), "configuration footer hidden on read-only tabs");
+            Check(!Descendants(panel.Footer).OfType<Button>().Any(button => button.IsVisibleInTree() && button.Text is "Reset to Defaults" or "Apply Settings" or "Cancel"), "configuration actions hidden on read-only tabs");
+            Check(Descendants(panel.Footer).OfType<Button>().Any(button => button.IsVisibleInTree() && button.Text == "Close"), "shell Close remains visible on read-only tabs");
         }
 
         Press("Close");
@@ -357,6 +364,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         Press("Close");
         Press("Apply");
         Check(_devTools.IsOpen && panel.HasUnappliedChanges && _host.Arena.Driver.Configuration == before, "invalid Apply keeps editor open without committing");
+        Check(feedback.IsVisibleInTree() && feedback.Text == "Unsaved changes", "rejected Apply does not show success feedback");
         Tap(Key.Escape);
         Tap(Key.Escape);
         Check(_devTools.IsOpen && panel.HasUnappliedChanges, "Escape on decision means Stay");
@@ -368,9 +376,11 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         Check(applied.Configuration.Vehicle.Mass == 1234 && applied.Revision == before.Revision + 1, "close Apply commits exactly one authoritative revision");
         await Until(() => _client!.Arena!.Driver.Configuration == applied, "close Apply synchronizes client");
         Tap(Key.F1);
+        Check(feedback.IsVisibleInTree() && feedback.Text == "Settings applied" && feedback.GetThemeColor("font_color") == new Color("46b85d"), "authoritative close Apply shows green success feedback when Configs reopens");
         Check(mass.GetThemeColor("font_color") == new Color("ff7979"), "accepted nondefault remains red after reopening");
         Press("Cancel");
         Check(mass.Text == "1234", "Cancel restores effective override rather than defaults");
+        Check(feedback.IsVisibleInTree() && feedback.Text == "Changes discarded", "Cancel confirmation remains associated with the footer");
         Set("vehicle.mass", 1200);
         string temporary = System.IO.Path.Combine(_directory, "settings.json.developer.jsonl.tmp");
         System.IO.Directory.CreateDirectory(temporary);
@@ -379,6 +389,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
             Press("Close");
             Press("Apply");
             Check(_devTools.IsOpen && HasStatus("saving failed"), "close Apply keeps persistence failure visible");
+            Check(!feedback.IsVisibleInTree() || feedback.Text != "Settings applied", "failed Apply does not show success feedback");
         }
         finally
         {
@@ -388,6 +399,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         var accepted = _host.Arena.Driver.Configuration;
         Press("Apply Settings");
         Check(_host.Arena.Driver.Configuration == accepted && HasStatus("Host tuning saved"), "retry saves without another revision");
+        Check(feedback.IsVisibleInTree() && feedback.Text == "Settings applied", "successful persistence retry shows Settings applied feedback");
         await Until(() => _client!.Arena!.Driver.Configuration == accepted, "save-failure retry retains synchronized values");
     }
 

@@ -101,7 +101,7 @@ internal sealed partial class DevToolsShell : CanvasLayer
         layout.AddChild(_footer);
         _footer.AddChild(Configs.Footer);
         _footer.Alignment = BoxContainer.AlignmentMode.End;
-        _footer.AddChild(_close);
+        Configs.FooterActions.AddChild(_close);
         layout.AddChild(_confirmation);
         _confirmation.AddChild(new Label { Text = "Unapplied Configs changes", AutowrapMode = TextServer.AutowrapMode.WordSmart });
         _confirmation.AddChild(new Label { Text = "Apply these changes before closing, discard them, or stay in DevTools?", AutowrapMode = TextServer.AutowrapMode.WordSmart });
@@ -365,7 +365,7 @@ internal sealed partial class DevToolsShell : CanvasLayer
         }
 
         SelectedTab = tab;
-        Configs.Footer.Visible = tab == DevToolsTab.Configs && Configs.Session()?.IsDeveloperHost == true;
+        Configs.SetConfigurationFooterVisible(tab == DevToolsTab.Configs && Configs.Session()?.IsDeveloperHost == true);
         foreach ((DevToolsTab candidate, Control content) in _content)
         {
             bool selected = candidate == tab;

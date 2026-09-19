@@ -14,6 +14,9 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     private readonly VBoxContainer _network = new() { Visible = false };
     private readonly Label _availability = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly Label _status = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
+    private readonly Label _feedback = new() { Name = "ConfigFeedback", Visible = false, VerticalAlignment = VerticalAlignment.Center };
+    private readonly HBoxContainer _footerActions = new();
+    private readonly HBoxContainer _configurationButtons = new();
     private readonly LineEdit _search = new() { Name = "ConfigSearch", PlaceholderText = "Search settings by label or category…", ClearButtonEnabled = true };
     private readonly Label _noResults = new() { Text = "No settings match your search.", Visible = false };
     private readonly Dictionary<string, Control> _editors = new(StringComparer.Ordinal);
@@ -26,6 +29,10 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     private ulong _authorityEpoch;
     private bool _refreshing;
     private double _elapsed;
+    private double _feedbackSeconds;
+    private DeveloperOptionsFeedbackState _feedbackState;
+    private Button _resetButton = null!;
+    private bool _configurationFooterVisible;
 
     /// <summary>Current production session supplied by composition.</summary>
     internal Func<DevelopmentSession?> Session { get; set; } = () => null;
@@ -33,6 +40,8 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     internal Func<VehicleArena?> Practice { get; set; } = () => null;
     /// <summary>Configuration actions mounted in the shell's fixed footer.</summary>
     internal HBoxContainer Footer { get; } = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+    /// <summary>Right-side action row extended by the shell-owned Close button.</summary>
+    internal HBoxContainer FooterActions => _footerActions;
     /// <summary>Whether closing needs an explicit decision, including invalid editor text.</summary>
     internal bool HasUnappliedChanges => _draft.IsDirty || NetworkDirty;
     private bool NetworkDirty => _simulation.Where((value, index) => value.Value != _appliedSimulation[index]).Any();
@@ -104,18 +113,29 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             var label = ConfigurationLabel(names[i]);
             networkRows.AddChild(label);
             var value = new SpinBox { MinValue = 0, MaxValue = maxima[i], Step = 1, UpdateOnTextChanged = true, CustomMinimumSize = new Vector2(150, 36) };
-            value.ValueChanged += _ => ColorNetworkValues();
+            value.ValueChanged += _ =>
+            {
+                ColorNetworkValues();
+                _status.Text = string.Empty;
+                UpdateFeedback();
+            };
             _simulation.Add(value);
             networkRows.AddChild(value);
             networkEntries.Add((label, value, "Local network simulation " + names[i]));
         }
 
-        var reset = Button(Footer, "Reset to Defaults", Reset);
-        DevToolsButtonPresentation.Configure(reset, "reset", DevToolsButtonPresentation.Treatment.Reset);
+        _resetButton = Button(Footer, "Reset to Defaults", Reset);
+        DevToolsButtonPresentation.Configure(_resetButton, "reset", DevToolsButtonPresentation.Treatment.Reset);
         Footer.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
-        var apply = Button(Footer, "Apply Settings", () => Apply());
+        var feedbackActions = new VBoxContainer();
+        Footer.AddChild(feedbackActions);
+        _feedback.AddThemeFontSizeOverride("font_size", 14);
+        feedbackActions.AddChild(_feedback);
+        feedbackActions.AddChild(_footerActions);
+        _footerActions.AddChild(_configurationButtons);
+        var apply = Button(_configurationButtons, "Apply Settings", () => Apply());
         DevToolsButtonPresentation.Configure(apply, "apply", DevToolsButtonPresentation.Treatment.Apply);
-        var cancel = Button(Footer, "Cancel", Cancel);
+        var cancel = Button(_configurationButtons, "Cancel", Cancel);
         DevToolsButtonPresentation.Configure(cancel, "cancel", DevToolsButtonPresentation.Treatment.Cancel);
         AddChild(_practice);
         Button(_practice, "Reset practice arena", () => Practice()?.ResetVehicles());
@@ -135,8 +155,28 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     {
         var session = Session();
         _host.Visible = session?.IsDeveloperHost == true;
-        Footer.Visible = _host.Visible && IsVisibleInTree();
+        SetConfigurationFooterVisible(_host.Visible && IsVisibleInTree());
         _practice.Visible = DeveloperTools.Enabled && Practice() is not null;
+        if (HasUnappliedChanges)
+        {
+            if (_feedbackState != DeveloperOptionsFeedbackState.Unsaved)
+            {
+                SetFeedback(DeveloperOptionsFeedbackState.Unsaved);
+            }
+        }
+        else if (_feedbackState == DeveloperOptionsFeedbackState.Unsaved)
+        {
+            SetFeedback(DeveloperOptionsFeedbackState.None);
+        }
+        else if (_feedbackState is DeveloperOptionsFeedbackState.Applied or DeveloperOptionsFeedbackState.Discarded && _feedbackSeconds > 0)
+        {
+            _feedbackSeconds -= delta;
+            if (_feedbackSeconds <= 0)
+            {
+                SetFeedback(DeveloperOptionsFeedbackState.None);
+            }
+        }
+
         _elapsed += delta;
         if (_elapsed < 0.25)
         {
@@ -174,6 +214,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         if (!_draft.TryGetEdits(out var edits, out string error))
         {
             _status.Text = error;
+            UpdateFeedback();
             return false;
         }
 
@@ -182,6 +223,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         if (session?.ConfigureDeveloperOptions(edits, out error) != true)
         {
             _status.Text = error;
+            UpdateFeedback();
             return false;
         }
 
@@ -192,6 +234,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             if (!NetworkSimulationControl.TryApply(session.Gateway, session.IsDeveloperHost, simulation))
             {
                 _status.Text = "Gameplay tuning applied. Local network simulation unavailable; its edits remain staged.";
+                UpdateFeedback();
                 return false;
             }
 
@@ -202,7 +245,14 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         }
 
         _status.Text = session.DeveloperSettings?.Status ?? "Tuning applied; persistence unavailable.";
-        return session.DeveloperSettings?.LastSaveSucceeded != false;
+        if (session.DeveloperSettings?.LastSaveSucceeded == false)
+        {
+            UpdateFeedback();
+            return false;
+        }
+
+        SetFeedback(DeveloperOptionsFeedbackState.Applied);
+        return true;
     }
 
     /// <summary>Discards unapplied edits and restores currently effective values.</summary>
@@ -216,10 +266,21 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         }
 
         _status.Text = "Unapplied changes discarded.";
+        SetFeedback(DeveloperOptionsFeedbackState.Discarded);
     }
 
     /// <summary>Invokes the existing immediate match-start authority from the shell action.</summary>
     internal void ForceStart() => Report(Session()?.ForceDeveloperStart() == true, "Match start requested.", "Start unavailable; host and connected ready players required.");
+
+    /// <summary>Shows Configs-only footer controls without affecting shell-owned Close.</summary>
+    /// <param name="visible">Whether Configs is active with host authority.</param>
+    internal void SetConfigurationFooterVisible(bool visible)
+    {
+        _configurationFooterVisible = visible;
+        _resetButton.Visible = visible;
+        _configurationButtons.Visible = visible;
+        _feedback.Visible = visible && _feedbackState != DeveloperOptionsFeedbackState.None;
+    }
 
     private static Button Button(Container parent, string text, Action pressed)
     {
@@ -270,6 +331,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         }
 
         _status.Text = "Game defaults staged. Press Apply Settings to apply them.";
+        UpdateFeedback();
     }
 
     private void RefreshValues()
@@ -281,6 +343,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
 
         _draft.Discard(session.DeveloperConfiguration);
         RenderValues();
+        UpdateFeedback();
     }
 
     private void RenderValues()
@@ -319,13 +382,43 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         if (!_refreshing)
         {
             _draft.Set(key, value);
+            _status.Text = string.Empty;
             var option = GameplayOptions.All.Single(option => option.Key == key);
             ValueColor(_editors[key], _draft.IsDefault(option));
             if (_editors[key] is CheckButton toggle)
             {
                 toggle.Text = value == "1" ? "On" : "Off";
             }
+
+            UpdateFeedback();
         }
+    }
+
+    private void UpdateFeedback()
+    {
+        if (HasUnappliedChanges)
+        {
+            SetFeedback(DeveloperOptionsFeedbackState.Unsaved);
+        }
+        else if (_feedbackState == DeveloperOptionsFeedbackState.Unsaved)
+        {
+            SetFeedback(DeveloperOptionsFeedbackState.None);
+        }
+    }
+
+    private void SetFeedback(DeveloperOptionsFeedbackState state)
+    {
+        _feedbackState = state;
+        _feedbackSeconds = state is DeveloperOptionsFeedbackState.Applied or DeveloperOptionsFeedbackState.Discarded ? 3 : 0;
+        (_feedback.Text, Color color) = state switch
+        {
+            DeveloperOptionsFeedbackState.Unsaved => ("Unsaved changes", new Color("e6a23c")),
+            DeveloperOptionsFeedbackState.Applied => ("Settings applied", new Color("46b85d")),
+            DeveloperOptionsFeedbackState.Discarded => ("Changes discarded", new Color("ff6262")),
+            _ => (string.Empty, Colors.White),
+        };
+        _feedback.AddThemeColorOverride("font_color", color);
+        _feedback.Visible = _configurationFooterVisible && state != DeveloperOptionsFeedbackState.None;
     }
 
     private void Filter()
@@ -351,4 +444,5 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     }
 
     private void Report(bool success, string accepted, string rejected) => _status.Text = success ? accepted : rejected;
+
 }

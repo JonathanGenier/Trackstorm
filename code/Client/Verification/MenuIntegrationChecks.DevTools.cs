@@ -115,6 +115,12 @@ public sealed partial class MenuIntegrationChecks
 
         _player.Adapter.Bindings.RestoreDefaults();
         Tap(Key.F1);
+        await Frames(20);
+        spin.Value = spin.Value == spin.MaxValue ? spin.Value - 1 : spin.Value + 1;
+        await Frames(2);
+        var feedback = Descendants(_devTools.Configs.Footer).OfType<Label>().Single(label => label.Name == "ConfigFeedback");
+        Check(_devTools.Configs.HasUnappliedChanges, "responsive footer fixture stages a configuration change");
+        Check(feedback.Text == "Unsaved changes", "staged responsive footer fixture updates feedback text");
         ulong tick = _bootstrap.CurrentSimulationTick;
         foreach (Vector2I size in new[] { new Vector2I(640, 360), new Vector2I(1280, 720), new Vector2I(2560, 1080) })
         {
@@ -153,6 +159,9 @@ public sealed partial class MenuIntegrationChecks
             }
 
             Check(reset.GetGlobalRect().Position.X < apply.GetGlobalRect().Position.X && apply.GetGlobalRect().End.X <= cancel.GetGlobalRect().Position.X && cancel.GetGlobalRect().End.X <= close.GetGlobalRect().Position.X, "footer action order is Reset, Apply, Cancel, Close");
+            Check(feedback.IsVisibleInTree() && feedback.Text == "Unsaved changes", "footer shows persistent Unsaved changes feedback");
+            Check(feedback.GetGlobalRect().End.Y <= apply.GetGlobalRect().Position.Y + 1, "feedback remains above the persistent action row");
+            Check(feedback.GetGlobalRect().Position.X >= apply.GetGlobalRect().Position.X - 1 && feedback.GetGlobalRect().Position.X < close.GetGlobalRect().End.X, "feedback remains aligned with the Apply, Cancel and Close group");
             var force = Buttons(_devTools).Single(button => button.Name == "ForceStart");
             Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Name == "ForceStart"), "Force Start has no duplicate inside Configs");
             Check(viewport.Encloses(force.GetGlobalRect()) && force.GetGlobalRect().Position.X > viewport.Size.X / 2 && force.GetGlobalRect().End.Y <= scroll.GetGlobalRect().Position.Y, "Force Start remains at the shell top-right outside Configs scrolling");
@@ -174,6 +183,7 @@ public sealed partial class MenuIntegrationChecks
             await Capture($"configs-{size.X}x{size.Y}");
         }
 
+        Buttons(_devTools).Single(button => button.IsVisibleInTree() && button.Text == "Cancel").EmitSignal(BaseButton.SignalName.Pressed);
         Check(_bootstrap.CurrentSimulationTick > tick && !_bootstrap.GetTree().Paused, "simulation continues while navigating DevTools");
         GetWindow().Size = new Vector2I(1280, 720);
         Tap(Key.F2);
