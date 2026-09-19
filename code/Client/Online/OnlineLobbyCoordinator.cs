@@ -304,7 +304,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         var lobby = Browser.Find(id);
         if (lobby is null || !lobby.Joinable)
         {
-            Status = lobby is null ? "Lobby closed or not found. Refresh the browser." : !lobby.Compatible ? "Build/protocol incompatible." : lobby.Members == 8 ? "Lobby full." : "Lobby closed.";
+            Status = lobby is null ? "Lobby closed or not found. Refresh the browser." : lobby.VersionMismatch.Length > 0 ? lobby.VersionMismatch : !lobby.Compatible ? "Build/protocol incompatible." : lobby.Members == 8 ? "Lobby full." : "Lobby closed.";
             return;
         }
 
@@ -321,9 +321,9 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         _provider.Join(id, (joined, failure) =>
         {
             // Revalidate fresh provider state; an ID must never redirect admission into a replacement session.
-            if (joined is not null && (!joined.Compatible || joined.Session != lobby.Session || joined.Access != lobby.Access || joined.Credential?.ExportVerifier() != lobby.Credential?.ExportVerifier()))
+            if (joined is not null && (!joined.Compatible || joined.VersionMismatch.Length > 0 || joined.Session != lobby.Session || joined.Access != lobby.Access || joined.Credential?.ExportVerifier() != lobby.Credential?.ExportVerifier()))
             {
-                failure = "Lobby changed or is incompatible. Refresh and join again.";
+                failure = joined.VersionMismatch.Length > 0 ? joined.VersionMismatch : "Lobby changed or is incompatible. Refresh and join again.";
             }
 
             CompleteMembership(epoch, joined, failure, false);
@@ -640,7 +640,8 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     {
         if (HasRetainedDecision)
         {
-            EndDecision("Connection failed. Match release was not confirmed. Retry or return to the browser.", false);
+            string? mismatch = _binding?.Driver.ResumeStatus == "Game version mismatch" ? _binding.Driver.Failure : null;
+            EndDecision(mismatch ?? "Connection failed. Match release was not confirmed. Retry or return to the browser.", mismatch is not null);
         }
     }
 
@@ -666,6 +667,10 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         {
             RetainedDecision = RetainedSessionDecision.None;
             _decisionStarted = null;
+        }
+        else if (driver?.ResumeStatus == "Game version mismatch")
+        {
+            EndDecision(driver.Failure, true);
         }
         else if (driver?.Failure.Length > 0 || (RetainedDecision != RetainedSessionDecision.Choose && _time.GetElapsedTime(_decisionStarted.Value).TotalSeconds >= 20))
         {
@@ -1048,7 +1053,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                 return;
             }
 
-            if (!lobby.Compatible || lobby.Session != session || !lobby.MemberIds.Contains(Identity))
+            if (!lobby.Compatible || lobby.VersionMismatch.Length > 0 || lobby.Session != session || !lobby.MemberIds.Contains(Identity))
             {
                 RejectResume(lobby);
                 return;
@@ -1140,6 +1145,6 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     {
         _closing = lobby;
         _closingHost = false;
-        EndDecision("Resume rejected. Session changed or identity is unavailable.", true);
+        EndDecision(lobby.VersionMismatch.Length > 0 ? lobby.VersionMismatch : "Resume rejected. Session changed or identity is unavailable.", true);
     }
 }

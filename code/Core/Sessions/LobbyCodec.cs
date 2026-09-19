@@ -46,6 +46,25 @@ public static class LobbyCodec
         };
     }
 
+    /// <summary>Encodes a stable compatibility rejection containing the canonical host version.</summary>
+    /// <returns>Reliable rejection.</returns>
+    /// <param name="version">Canonical host version.</param>
+    public static byte[] EncodeVersionMismatch(GameVersion version) => Pack(4, JsonSerializer.SerializeToUtf8Bytes(version.ToString()));
+
+    /// <summary>Recognizes a compatibility rejection.</summary>
+    /// <param name="data">Complete payload.</param>
+    /// <returns>Whether this is a version rejection.</returns>
+    public static bool IsVersionMismatch(ReadOnlySpan<byte> data) => data.Length >= 4 && IsLobby(data) && data[3] == 4;
+
+    /// <summary>Decodes the hosted version for safe local presentation.</summary>
+    /// <param name="data">Complete rejection.</param>
+    /// <returns>Hosted version.</returns>
+    public static string DecodeVersionMismatch(ReadOnlySpan<byte> data)
+    {
+        using var document = Parse(data, 4);
+        return document.RootElement.ValueKind == JsonValueKind.String ? GameVersion.Parse(document.RootElement.GetString()!).ToString() : throw new ArgumentException("Invalid version rejection.");
+    }
+
     /// <summary>Encodes explicit departure acknowledgement before transport cleanup.</summary>
     /// <returns>Reliable acknowledgement.</returns>
     public static byte[] EncodeLeft() => Pack(3, [0]);
@@ -58,7 +77,7 @@ public static class LobbyCodec
     /// <summary>Identifies a reservation response without granting a player assignment.</summary>
     /// <param name="data">Complete reliable control payload.</param>
     /// <returns>Whether it is a reservation response.</returns>
-    public static bool IsReservation(ReadOnlySpan<byte> data) => data.Length >= 4 && IsLobby(data) && data[3] == 4;
+    public static bool IsReservation(ReadOnlySpan<byte> data) => data.Length >= 4 && IsLobby(data) && data[3] == 5;
 
     /// <summary>Encodes an exact request-bound reservation result.</summary>
     /// <param name="session">Session lifetime.</param>
@@ -67,7 +86,7 @@ public static class LobbyCodec
     /// <param name="epoch">Current authority fence.</param>
     /// <param name="result">Authoritative result.</param>
     /// <returns>Reliable control packet.</returns>
-    public static byte[] EncodeReservation(ulong session, ulong player, ulong generation, ulong epoch, ReservationResult result) => Pack(4, JsonSerializer.SerializeToUtf8Bytes(new { Session = session, Player = player, Generation = generation, Epoch = epoch, Result = result }));
+    public static byte[] EncodeReservation(ulong session, ulong player, ulong generation, ulong epoch, ReservationResult result) => Pack(5, JsonSerializer.SerializeToUtf8Bytes(new { Session = session, Player = player, Generation = generation, Epoch = epoch, Result = result }));
 
     /// <summary>Validates a response against the exact outstanding reservation request.</summary>
     /// <param name="data">Reliable host response.</param>
@@ -78,7 +97,7 @@ public static class LobbyCodec
     /// <returns>Validated reservation result.</returns>
     public static ReservationResult DecodeReservation(ReadOnlySpan<byte> data, ulong session, ulong player, ulong generation, ulong epoch)
     {
-        using var document = Parse(data, 4);
+        using var document = Parse(data, 5);
         try
         {
             var root = document.RootElement;
@@ -143,16 +162,18 @@ public static class LobbyCodec
     /// <returns>Reliable packet.</returns>
     /// <param name="player">Previous assigned identity for resume only.</param>
     /// <param name="generation">Previous connection generation for resume only.</param>
-    public static byte[] EncodeCommand(LobbyCommand command, LobbySnapshot? state, bool ready = false, string name = "", ulong player = 0, ulong generation = 0) => Pack(1, JsonSerializer.SerializeToUtf8Bytes(new { Command = command, Session = state?.Session ?? 0, Match = state?.Match ?? 0, Phase = state?.Phase ?? SessionPhase.Lobby, Ready = ready, Name = PlayerName.Sanitize(name), Player = player, Generation = generation, AuthorityEpoch = state?.AuthorityEpoch ?? 1 }));
+    /// <param name="gameVersion">Runtime version; defaults to this build.</param>
+    public static byte[] EncodeCommand(LobbyCommand command, LobbySnapshot? state, bool ready = false, string name = "", ulong player = 0, ulong generation = 0, string? gameVersion = null) => Pack(1, JsonSerializer.SerializeToUtf8Bytes(new { Command = command, Session = state?.Session ?? 0, Match = state?.Match ?? 0, Phase = state?.Phase ?? SessionPhase.Lobby, Ready = ready, Name = PlayerName.Sanitize(name), Player = player, Generation = generation, AuthorityEpoch = state?.AuthorityEpoch ?? 1, GameVersion = gameVersion ?? Sessions.GameVersion.Current.ToString() }));
 
     /// <summary>Encodes only the previous assignment; the host independently resolves authenticated identity.</summary>
     /// <param name="session">Expected logical session.</param>
     /// <param name="player">Previous player assignment.</param>
     /// <param name="generation">Last acknowledged connection generation.</param>
     /// <param name="authorityEpoch">Expected authority fence from current routing metadata.</param>
+    /// <param name="gameVersion">Runtime version; defaults to this build.</param>
     /// <returns>Reliable resume intent.</returns>
     /// <param name="command">Resume or a read/release operation using the same authenticated assignment.</param>
-    public static byte[] EncodeResume(ulong session, ulong player, ulong generation, ulong authorityEpoch = 1, LobbyCommand command = LobbyCommand.Resume) => Pack(1, JsonSerializer.SerializeToUtf8Bytes(new { Command = command, Session = session, Match = session, Phase = SessionPhase.Lobby, Ready = false, Name = "Player", Player = player, Generation = generation, AuthorityEpoch = authorityEpoch }));
+    public static byte[] EncodeResume(ulong session, ulong player, ulong generation, ulong authorityEpoch = 1, string? gameVersion = null, LobbyCommand command = LobbyCommand.Resume) => Pack(1, JsonSerializer.SerializeToUtf8Bytes(new { Command = command, Session = session, Match = session, Phase = SessionPhase.Lobby, Ready = false, Name = "Player", Player = player, Generation = generation, AuthorityEpoch = authorityEpoch, GameVersion = gameVersion ?? Sessions.GameVersion.Current.ToString() }));
 
     /// <summary>Validates and decodes a host publication.</summary>
     /// <param name="data">Bounded reliable payload.</param>
@@ -207,7 +228,7 @@ public static class LobbyCodec
     /// <summary>Validates and decodes a client intent.</summary>
     /// <param name="data">Bounded reliable payload.</param>
     /// <returns>Sender-scoped action and phase guard.</returns>
-    public static (LobbyCommand Command, ulong Session, ulong Match, SessionPhase Phase, bool Ready, string Name, ulong Player, ulong Generation, ulong AuthorityEpoch) DecodeCommand(ReadOnlySpan<byte> data)
+    public static (LobbyCommand Command, ulong Session, ulong Match, SessionPhase Phase, bool Ready, string Name, ulong Player, ulong Generation, string GameVersion, ulong AuthorityEpoch) DecodeCommand(ReadOnlySpan<byte> data)
     {
         using JsonDocument document = Parse(data, 1);
         try
@@ -219,7 +240,7 @@ public static class LobbyCodec
                 throw new ArgumentException("Unknown lobby command.");
             }
 
-            return (command, root.GetProperty("Session").GetUInt64(), root.GetProperty("Match").GetUInt64(), (SessionPhase)root.GetProperty("Phase").GetInt32(), root.GetProperty("Ready").GetBoolean(), PlayerName.Sanitize(root.GetProperty("Name").GetString()), root.GetProperty("Player").GetUInt64(), root.GetProperty("Generation").GetUInt64(), root.GetProperty("AuthorityEpoch").GetUInt64());
+            return (command, root.GetProperty("Session").GetUInt64(), root.GetProperty("Match").GetUInt64(), (SessionPhase)root.GetProperty("Phase").GetInt32(), root.GetProperty("Ready").GetBoolean(), PlayerName.Sanitize(root.GetProperty("Name").GetString()), root.GetProperty("Player").GetUInt64(), root.GetProperty("Generation").GetUInt64(), root.TryGetProperty("GameVersion", out var version) && version.ValueKind == JsonValueKind.String ? version.GetString()! : string.Empty, root.GetProperty("AuthorityEpoch").GetUInt64());
         }
         catch (Exception exception) when (exception is InvalidOperationException or KeyNotFoundException or FormatException or OverflowException)
         {

@@ -11,7 +11,7 @@ internal sealed class ReconnectTests
     public void RebindRetainsIdentityAndRejectsOldOwnershipAndReplay()
     {
         var lobby = new LobbyAuthority(100, "Host");
-        ulong player = lobby.Join(10, "Original", "subject-a");
+        ulong player = lobby.Join(10, GameVersion.Current.ToString(), "Original", "subject-a");
         lobby.SetReady(0, true);
         lobby.SetReady(10, true);
         Assert.That(lobby.Start(0, [10]), Is.True);
@@ -21,13 +21,13 @@ internal sealed class ReconnectTests
         Assert.That(lobby.State.CanStart, Is.False);
         Assert.That(lobby.PlayerId(10), Is.Zero);
         Assert.That(lobby.SetReady(10, true), Is.False);
-        Assert.That(lobby.Join(20, "Duplicate", "subject-a"), Is.Zero);
-        Assert.That(lobby.Resume(20, 101, player, 1, "subject-a"), Is.False);
-        Assert.That(lobby.Resume(20, 100, player, 1, "subject-b"), Is.False);
-        Assert.That(lobby.Resume(20, 100, player, 2, "subject-a"), Is.False);
-        Assert.That(lobby.Resume(10, 100, player, 1, "subject-a"), Is.False);
-        Assert.That(lobby.Resume(20, 100, player, 1, "subject-a"), Is.True);
-        Assert.That(lobby.Resume(21, 100, player, 1, "subject-a"), Is.False);
+        Assert.That(lobby.Join(20, GameVersion.Current.ToString(), "Duplicate", "subject-a"), Is.Zero);
+        Assert.That(lobby.Resume(20, GameVersion.Current.ToString(), 101, player, 1, "subject-a"), Is.False);
+        Assert.That(lobby.Resume(20, GameVersion.Current.ToString(), 100, player, 1, "subject-b"), Is.False);
+        Assert.That(lobby.Resume(20, GameVersion.Current.ToString(), 100, player, 2, "subject-a"), Is.False);
+        Assert.That(lobby.Resume(10, GameVersion.Current.ToString(), 100, player, 1, "subject-a"), Is.False);
+        Assert.That(lobby.Resume(20, GameVersion.Current.ToString(), 100, player, 1, "subject-a"), Is.True);
+        Assert.That(lobby.Resume(21, GameVersion.Current.ToString(), 100, player, 1, "subject-a"), Is.False);
         Assert.That(lobby.State.Players.Count, Is.EqualTo(2));
         Assert.That(lobby.State.Players.Single(p => p.Id == player), Is.EqualTo(new SessionPlayer(player, "Original", false, true, 2)));
         Assert.That(lobby.Remove(10), Is.False);
@@ -45,7 +45,7 @@ internal sealed class ReconnectTests
         var lobby = new LobbyAuthority(100, "Host");
         for (ulong peer = 1; peer < 8; peer++)
         {
-            lobby.Join(peer, "Player", "subject-" + peer);
+            lobby.Join(peer, GameVersion.Current.ToString(), "Player", "subject-" + peer);
             lobby.SetReady(peer, true);
         }
 
@@ -53,7 +53,7 @@ internal sealed class ReconnectTests
         Assert.That(lobby.Start(0, Enumerable.Range(1, 7).Select(value => (ulong)value)), Is.True);
         ulong id = lobby.PlayerId(1);
         Assert.That(intentional ? lobby.Remove(1) : lobby.Disconnect(1), Is.True);
-        Assert.That(lobby.Join(8, "Full"), Is.Zero);
+        Assert.That(lobby.Join(8, GameVersion.Current.ToString(), "Full"), Is.Zero);
         ulong revision = lobby.State.Revision;
         foreach (ulong tick in new ulong[] { 1800, 7201, 216001, 1000000 })
         {
@@ -64,13 +64,13 @@ internal sealed class ReconnectTests
             Assert.That(lobby.State.Players.Single(player => player.Id == id).Generation, Is.EqualTo(1));
         }
 
-        Assert.That(lobby.Resume(8, 100, id, 1, "subject-1"), Is.True);
+        Assert.That(lobby.Resume(8, GameVersion.Current.ToString(), 100, id, 1, "subject-1"), Is.True);
         Assert.That(lobby.Disconnect(8), Is.True);
         Assert.That(lobby.Return(0), Is.True);
         Assert.That(lobby.State.Players.Count, Is.EqualTo(7));
         Assert.That(lobby.FindPlayer("subject-1"), Is.Zero);
-        Assert.That(lobby.Resume(9, 100, id, 2, "subject-1"), Is.False);
-        Assert.That(lobby.Join(8, "Replacement"), Is.Not.Zero);
+        Assert.That(lobby.Resume(9, GameVersion.Current.ToString(), 100, id, 2, "subject-1"), Is.False);
+        Assert.That(lobby.Join(8, GameVersion.Current.ToString(), "Replacement"), Is.Not.Zero);
         Assert.That(lobby.Execute(2, LobbyCommand.Leave, 100, 100, SessionPhase.Lobby, false, []), Is.True);
         Assert.That(lobby.FindPlayer("subject-2"), Is.Zero);
         Assert.That(lobby.Disconnect(2), Is.False);
@@ -82,7 +82,7 @@ internal sealed class ReconnectTests
     public void RepeatedArenaCyclesPreserveOnePlayer()
     {
         var lobby = new LobbyAuthority(100, "Host");
-        ulong id = lobby.Join(10, "Client", "subject");
+        ulong id = lobby.Join(10, GameVersion.Current.ToString(), "Client", "subject");
         lobby.SetReady(0, true);
         lobby.SetReady(10, true);
         lobby.Start(0);
@@ -90,14 +90,14 @@ internal sealed class ReconnectTests
         for (ulong generation = 1; generation <= 100; generation++)
         {
             lobby.Disconnect(peer);
-            Assert.That(lobby.Resume(++peer, 100, id, generation, "subject"), Is.True);
+            Assert.That(lobby.Resume(++peer, GameVersion.Current.ToString(), 100, id, generation, "subject"), Is.True);
             Assert.That(lobby.State.Players.Count, Is.EqualTo(2));
             Assert.That(lobby.State.Match, Is.EqualTo(101));
             Assert.That(lobby.Peers.Count, Is.EqualTo(1));
-            Assert.That(lobby.Resume(peer + 1, 100, id, generation, "subject"), Is.False);
+            Assert.That(lobby.Resume(peer + 1, GameVersion.Current.ToString(), 100, id, generation, "subject"), Is.False);
         }
 
-        Assert.That(lobby.Join(peer + 1, "New player", "different"), Is.GreaterThan(id));
+        Assert.That(lobby.Join(peer + 1, GameVersion.Current.ToString(), "New player", "different"), Is.GreaterThan(id));
         Assert.That(lobby.Execute(peer, LobbyCommand.Leave, 99, 100, SessionPhase.Lobby, false, []), Is.False);
         Assert.That(lobby.Execute(peer, LobbyCommand.Leave, 100, 100, SessionPhase.Lobby, false, []), Is.True, "Intentional departure must survive a concurrent lobby-to-arena transition.");
         Assert.That(lobby.FindPlayer("subject"), Is.EqualTo(id));
@@ -110,7 +110,7 @@ internal sealed class ReconnectTests
     public void WireRetainsDisconnectedStateAndRejectsRetiredGeneration()
     {
         var lobby = new LobbyAuthority(100, "Host");
-        ulong player = lobby.Join(10, "Client", "subject");
+        ulong player = lobby.Join(10, GameVersion.Current.ToString(), "Client", "subject");
         lobby.SetReady(0, true);
         lobby.SetReady(10, true);
         Assert.That(lobby.Start(0, [10]), Is.True);

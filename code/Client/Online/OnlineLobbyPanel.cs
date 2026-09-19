@@ -197,7 +197,7 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
                 line.AddChild(new Label { Text = row.Name, TooltipText = row.Name, SizeFlagsHorizontal = SizeFlags.ExpandFill, ClipText = true, TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis });
                 line.AddChild(new Label { Text = $"{row.Members}/{row.Capacity}", CustomMinimumSize = new Vector2(48, 0) });
                 line.AddChild(new Label { Text = row.Access == LobbyAccess.Locked ? "LOCKED" : "Public", CustomMinimumSize = new Vector2(76, 0) });
-                var button = new Button { Text = row.Joinable ? "Join" : "Unavailable", TooltipText = row.Name, CustomMinimumSize = new Vector2(100, 0), Disabled = !row.Joinable };
+                var button = new Button { Text = row.Joinable ? "Join" : "Unavailable", TooltipText = row.VersionMismatch.Length > 0 ? row.VersionMismatch : row.Name, CustomMinimumSize = new Vector2(100, 0), Disabled = !row.Joinable };
                 button.Pressed += () =>
                 {
                     if (row.Access == LobbyAccess.Locked)
@@ -213,6 +213,10 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
                 };
                 line.AddChild(button);
                 _rows.AddChild(line);
+                if (row.VersionMismatch.Length > 0)
+                {
+                    _rows.AddChild(new Label { Text = row.VersionMismatch, AutowrapMode = TextServer.AutowrapMode.WordSmart });
+                }
             }
 
             _rendered = rows;

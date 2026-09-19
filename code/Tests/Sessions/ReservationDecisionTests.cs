@@ -16,7 +16,7 @@ internal sealed class ReservationDecisionTests
         var lobby = new LobbyAuthority(100, "Host");
         for (ulong peer = 1; peer < 8; peer++)
         {
-            lobby.Join(peer, "Player " + peer, "subject-" + peer);
+            lobby.Join(peer, GameVersion.Current.ToString(), "Player " + peer, "subject-" + peer);
             lobby.SetReady(peer, true);
         }
 
@@ -36,8 +36,8 @@ internal sealed class ReservationDecisionTests
         Assert.That(lobby.State.Revision, Is.EqualTo(revision + 1));
         Assert.That(lobby.State.Departed, Is.EqualTo(new[] { new MatchParticipant(2, "Player 1") }));
         Assert.That(lobby.FindPlayer("subject-1"), Is.Zero);
-        Assert.That(lobby.Resume(20, 100, 2, 1, "subject-1"), Is.False);
-        Assert.That(lobby.Join(20, "New identity", "subject-1"), Is.EqualTo(9));
+        Assert.That(lobby.Resume(20, GameVersion.Current.ToString(), 100, 2, 1, "subject-1"), Is.False);
+        Assert.That(lobby.Join(20, GameVersion.Current.ToString(), "New identity", "subject-1"), Is.EqualTo(9));
         Assert.That(lobby.State.Departed.Count, Is.EqualTo(1));
         Assert.That(lobby.Return(0), Is.True);
         Assert.That(lobby.State.Departed, Is.Empty);

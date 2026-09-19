@@ -91,7 +91,7 @@ internal sealed partial class OnlineLobbyTests
             vehicles.Advance(default, state => new(state.Movement.Physics, System.Numerics.Vector3.UnitY));
             Assert.That(vehicles.Host.World.State.Vehicles.Count, Is.EqualTo(1), "The released reservation cannot retain a duplicate vehicle.");
             Assert.That(vehicles.Host.World.State.Match!.Players.Single(player => player.Player == 2), Is.EqualTo(originalScore));
-            Assert.That(authority.Resume(40, host.Active.Session, 2, 1, User(2).Value), Is.False);
+            Assert.That(authority.Resume(40, GameVersion.Current.ToString(), host.Active.Session, 2, 1, User(2).Value), Is.False);
             var match = new MatchState(10, 1, 5, MatchPhase.Finished, null, 2, [new(1, 0, 5, 0, 5), new(2, 5, 0, 1, 0)]);
             var view = MatchStandingsView.From(authority.State, match, 1, InputButtons.None, _ => 42);
             Assert.That(view.WinnerName, Is.EqualTo("Retained winner"));
@@ -130,9 +130,11 @@ internal sealed partial class OnlineLobbyTests
 
     /// <summary>A stale claim is cleared only by the current host, while foreign/replayed results cannot unlock the browser.</summary>
     /// <param name="changedSession">Whether membership metadata already proves this is a replacement session.</param>
-    [TestCase(false)]
-    [TestCase(true)]
-    public void StaleReservationReturnsToBrowserAfterBoundHostResponse(bool changedSession)
+    /// <param name="wireMismatch">Whether the host rejects the runtime version after metadata was accepted.</param>
+    [TestCase(false, false)]
+    [TestCase(true, false)]
+    [TestCase(false, true)]
+    public void StaleReservationReturnsToBrowserAfterBoundHostResponse(bool changedSession, bool wireMismatch)
     {
         var service = new Service();
         service.Lobbies["match"] = Lobby("match", "Match") with { Session = changedSession ? 101ul : 100ul };
@@ -155,6 +157,18 @@ internal sealed partial class OnlineLobbyTests
             gateway.ConnectPeer(1);
             var binding = client.AttachTransport(gateway, 1, "Client");
             binding.Driver.Pump(0);
+            if (wireMismatch)
+            {
+                var hosted = new GameVersion(GameVersion.Current.Revision + 1);
+                gateway.Receive(1, LobbyCodec.EncodeVersionMismatch(hosted));
+                binding.Driver.Pump(0);
+                client.Tick();
+                Assert.That(client.HasRetainedDecision, Is.False);
+                Assert.That(store.Load(User(2).Value), Is.Null);
+                Assert.That(client.Status, Is.EqualTo(GameVersion.Current.MismatchMessage(hosted.ToString())));
+                return;
+            }
+
             gateway.Receive(9, LobbyCodec.EncodeReservation(100, 2, 1, 1, ReservationResult.Missing));
             gateway.Receive(1, LobbyCodec.EncodeReservation(100, 2, 2, 1, ReservationResult.Missing));
             binding.Driver.Pump(0);

@@ -84,6 +84,10 @@ Record the build, number of independent PCs, elapsed measurement interval, relia
 
 Export Windows Desktop to an ignored output folder. Confirm the export contains `Epic.OnlineServices.dll`, `EOSSDK-Win64-Shipping.dll`, the EOS provenance README and third-party notices. Run `--eos-check --eos-authenticate --eos-p2p-check` from the export, then repeat the normal multiplayer flow on a clean second PC without Godot. No additional P2P-specific native binary is introduced beyond the existing official EOS runtime. Microsoft VC++ runtime requirements still apply.
 
+## Game-version compatibility checks
+
+Use the [canonical version and sequencing procedure](features/game-versioning.md) to produce two exports with different revisions. On separate PCs/profiles, verify both Public and Locked mismatches remain discoverable but show both versions and cannot Join, including with a correct code. Repeat with matching exports and confirm normal admission, Ready/Start and reconnect. Keep these results separate from fake-provider UI and local UDP evidence.
+
 ## Reconnection and resume checks
 
 `./check-reconnect.ps1 -GodotPath <exe>` exercises the production lobby/vehicle drivers over real local GNS sockets with an authenticated-subject test seam. It verifies Ready reset, stable identity, three arena resumes without replacing the native vehicle, current item/spawn/match state, cleared prediction history, and match-long retention/Return cleanup. Add `-Visual` for a rendered arena capture. Client tests additionally exercise the EOS framing and authenticated admission with a fake provider. Neither establishes remote EOS reconnect behavior.
