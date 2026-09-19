@@ -9,6 +9,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Evidence | Reports |
 | --- | --- |
 | Searchable DevTools Stats | [TS-98 grouped live rows, filtering, colors and runtime verification](ts-98.md) |
+| Automatic PR history guard | [TS-136 prior-PR suppression and recreation prevention evidence](ts-136.md) |
 | Automatic Story PR creation | [TS-135 push trigger, duplicate prevention and Jira-free PR creation](ts-135.md) |
 | Per-Story verification evidence requirement | [TS-134 workflow/report naming, indexing and historical-evidence boundary](ts-134.md) |
 | Configs discovery and staged settings | [TS-97 implementation, acceptance mapping and verification limitations](ts-97.md) |
