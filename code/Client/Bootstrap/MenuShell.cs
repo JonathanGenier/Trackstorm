@@ -20,6 +20,8 @@ internal sealed partial class MenuShell : CanvasLayer
     private readonly Button _quit = new() { Text = "Quit", Visible = false };
     private readonly AudioStreamPlayer _music = new() { Name = "FrontendMusic", Bus = "Music" };
     private PanelContainer _loader = null!;
+    private VideoStream? _videoPlayback;
+    private AudioStream? _musicPlayback;
     private bool _active = true;
 
     /// <summary>Raised when the player requests another initialization attempt.</summary>
@@ -137,15 +139,15 @@ internal sealed partial class MenuShell : CanvasLayer
         }
 
         ResetMedia();
-        VideoStream videoPlayback = (VideoStream)video.Duplicate();
-        AudioStream musicPlayback = (AudioStream)music.Duplicate();
-        if (musicPlayback is AudioStreamMP3 mp3)
+        _videoPlayback = (VideoStream)video.Duplicate();
+        _musicPlayback = (AudioStream)music.Duplicate();
+        if (_musicPlayback is AudioStreamMP3 mp3)
         {
             mp3.Loop = true;
         }
 
-        _background.Stream = videoPlayback;
-        _music.Stream = musicPlayback;
+        _background.Stream = _videoPlayback;
+        _music.Stream = _musicPlayback;
         if (_active)
         {
             _background.Play();
@@ -160,6 +162,10 @@ internal sealed partial class MenuShell : CanvasLayer
         _music.Stop();
         _background.Stream = null;
         _music.Stream = null;
+        _videoPlayback?.Dispose();
+        _videoPlayback = null;
+        _musicPlayback?.Dispose();
+        _musicPlayback = null;
     }
 
     /// <summary>Suspends frontend presentation and music while gameplay owns the viewport.</summary>
