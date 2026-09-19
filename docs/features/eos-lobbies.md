@@ -54,7 +54,7 @@ retirement evidence and never grants Trackstorm gameplay authority. Private
 coordination writes and EOS ownership migration therefore cannot churn a healthy
 Public or Locked gameplay session.
 
-Developer Options exposes credential-free coordination diagnostics: EOS lobby ID,
+DevTools Stats exposes credential-free coordination diagnostics: EOS lobby ID,
 Trackstorm SessionId, access mode, fingerprinted local/owner/gameplay-host
 identities and member list, metadata/ownership/joined/departed/retirement callback counters, proof
 request/result counts and lease age, availability updates, recovery state and

@@ -39,6 +39,8 @@ public sealed partial class SimulationBootstrap : Node
     internal bool OnlineEnabled { get; set; } = true;
     /// <summary>Prevents recursive composition when the exported executable runs its verification entry point.</summary>
     internal bool VerificationChild { get; set; }
+    /// <summary>Lets a runtime harness observe production cleanup before it tears down its own scene.</summary>
+    internal bool VerificationOwnsExit { get; set; }
     /// <summary>Optional isolated storage for native integration checks.</summary>
     internal string? SettingsPath { get; set; }
 
@@ -138,7 +140,10 @@ public sealed partial class SimulationBootstrap : Node
         if (_quitRequested && (_session?.LeaveComplete ?? true) && _online?.Coordinator?.CanLeave != true)
         {
             // Normal tree teardown owns settings flush, transport disposal, platform release and terminal SDK shutdown.
-            GetTree().Quit();
+            if (!VerificationOwnsExit)
+            {
+                GetTree().Quit();
+            }
         }
     }
 
@@ -159,15 +164,16 @@ public sealed partial class SimulationBootstrap : Node
         panel.SetFrontendPresentation(presentFrontend, presentFrontend ? 1 : 0);
         _settings.AddChild(panel);
         _settingsPanel = panel;
-        var statistics = new Statistics.StatisticPanel { Name = "StatisticPanel" };
-        statistics.Initialize(_playerInput.Adapter);
-        statistics.Capture = selected => Statistics.RuntimeStatistics.Capture(_session, _arena, selected);
-        statistics.MenuOpen = () => panel.CurrentPage != MenuPage.Closed;
-        panel.DiagnosticOverlayOpen = () => statistics.IsOpen;
-        AddChild(statistics);
-        panel.DeveloperOptions.Session = () => _session;
-        panel.DeveloperOptions.Practice = () => _arena;
-        panel.DeveloperOptions.IdentityDiagnostics = () => _online?.DeveloperDiagnostics ?? "EOS unavailable.";
+        var devTools = new Development.DevToolsShell { Name = "DevTools" };
+        devTools.Initialize(_playerInput.Adapter);
+        devTools.Configs.Session = () => _session;
+        devTools.Configs.Practice = () => _arena;
+        devTools.Stats.Capture = selected => Statistics.RuntimeStatistics.Capture(_session, _arena, selected, _online?.DeveloperDiagnostics ?? "EOS unavailable.");
+        devTools.Logs.Source = () => _arena?.Simulation.Events ?? _session?.Events;
+        panel.DiagnosticOverlayOpen = () => devTools.IsOpen;
+        devTools.NavigationClosed = panel.ResumeNavigation;
+        panel.OpenDeveloperTools = () => devTools.Open(Development.DevToolsTab.Configs);
+        AddChild(devTools);
         panel.ArenaAvailable = () => _arena is not null || _session?.Arena is not null || _quitRequested;
         panel.LeaveToMainMenu = LeaveToMainMenu;
         panel.QuitApplication = RequestQuit;
@@ -190,7 +196,6 @@ public sealed partial class SimulationBootstrap : Node
             Source = () => _arena?.Simulation.Events ?? _session?.Events,
             Gameplay = () => _arena is not null || _session?.Arena is not null,
         });
-        AddChild(new Development.EventLogPanel { Name = "EventLog", Source = () => _arena?.Simulation.Events ?? _session?.Events, SuppressInput = open => _playerInput.Adapter.DiagnosticSuppressed = open });
         AddChild(new Hud.MatchStandings { Name = "MatchStandings", View = () => _session?.Standings });
         EosIdentityNode? online = null;
         if (OnlineEnabled && !OS.GetCmdlineUserArgs().Contains("--local-practice"))
@@ -271,7 +276,7 @@ public sealed partial class SimulationBootstrap : Node
             _settingsPanel.Free();
         }
 
-        foreach (string name in new[] { "StatisticPanel", "CombatHud", "ActivityFeed", "EventLog", "MatchStandings", "EosIdentity", "DevelopmentSession", "VehicleArena" })
+        foreach (string name in new[] { "DevTools", "CombatHud", "ActivityFeed", "MatchStandings", "EosIdentity", "DevelopmentSession", "VehicleArena" })
         {
             Node? node = GetNodeOrNull<Node>(name);
             if (node is null)

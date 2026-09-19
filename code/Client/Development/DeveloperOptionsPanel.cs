@@ -15,7 +15,6 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     private readonly VBoxContainer _network = new() { Visible = false };
     private readonly Label _availability = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly Label _status = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
-    private readonly Label _diagnostics = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly Dictionary<string, Control> _editors = new(StringComparer.Ordinal);
     private readonly DeveloperOptionsDraft _draft = new();
     private readonly List<SpinBox> _simulation = new();
@@ -29,16 +28,12 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     internal Func<DevelopmentSession?> Session { get; set; } = () => null;
     /// <summary>Current local practice authority supplied by composition.</summary>
     internal Func<VehicleArena?> Practice { get; set; } = () => null;
-    /// <summary>Credential-free identity diagnostics supplied by composition.</summary>
-    internal Func<string> IdentityDiagnostics { get; set; } = () => "EOS unavailable.";
-
     /// <inheritdoc/>
     public override void _Ready()
     {
         SizeFlagsHorizontal = SizeFlags.ExpandFill;
         _availability.AddThemeFontSizeOverride("font_size", 16);
         _status.AddThemeFontSizeOverride("font_size", 16);
-        _diagnostics.AddThemeFontSizeOverride("font_size", 16);
         AddChild(_availability);
         AddChild(_status);
         AddChild(_host);
@@ -78,10 +73,10 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         foreach (var group in GameplayOptions.All.GroupBy(option => option.Group))
         {
             _host.AddChild(new Label { Text = group.Key.ToUpperInvariant() });
+            var rows = ConfigurationRows(_host);
             foreach (var option in group)
             {
-                var row = new HBoxContainer();
-                row.AddChild(new Label { Text = System.Text.RegularExpressions.Regex.Replace(option.Label, "([a-z])([A-Z])", "$1 $2"), SizeFlagsHorizontal = SizeFlags.ExpandFill });
+                rows.AddChild(ConfigurationLabel(System.Text.RegularExpressions.Regex.Replace(option.Label, "([a-z])([A-Z])", "$1 $2")));
                 Control editor;
                 if (option.Boolean)
                 {
@@ -99,8 +94,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
                 editor.Name = option.Key.Replace('.', '_');
                 editor.TooltipText = option.Label + (option.Label.EndsWith("Ticks", StringComparison.Ordinal) ? " (60 ticks = 1 second)" : string.Empty);
                 _editors.Add(option.Key, editor);
-                row.AddChild(editor);
-                _host.AddChild(row);
+                rows.AddChild(editor);
             }
         }
 
@@ -108,14 +102,13 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         _network.AddChild(new Label { Text = "LOCAL NETWORK SIMULATION\nDirect-IP: affects all sockets in this process. Not saved.", AutowrapMode = TextServer.AutowrapMode.WordSmart });
         string[] names = ["Latency (ms)", "Jitter (ms)", "Loss (%)", "Reorder (%)", "Reorder delay (ms)"];
         int[] maxima = [5000, 1000, 100, 100, 5000];
+        var networkRows = ConfigurationRows(_network);
         for (int i = 0; i < names.Length; i++)
         {
-            var row = new HBoxContainer();
-            row.AddChild(new Label { Text = names[i], SizeFlagsHorizontal = SizeFlags.ExpandFill });
+            networkRows.AddChild(ConfigurationLabel(names[i]));
             var value = new SpinBox { MinValue = 0, MaxValue = maxima[i], Step = 1, CustomMinimumSize = new Vector2(150, 36) };
             _simulation.Add(value);
-            row.AddChild(value);
-            _network.AddChild(row);
+            networkRows.AddChild(value);
         }
 
         Button(_network, "Apply local network simulation", () =>
@@ -133,7 +126,6 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
                 arena.Explode(arena.Player.GlobalPosition + new Vector3(-2, -0.2f, 0.5f));
             }
         });
-        AddChild(_diagnostics);
     }
 
     /// <inheritdoc/>
@@ -143,7 +135,6 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         _host.Visible = session?.IsDeveloperHost == true;
         _practice.Visible = DeveloperTools.Enabled && Practice() is not null;
         _network.Visible = NetworkSimulationControl.Supported(session?.Gateway);
-        _diagnostics.Visible = DeveloperTools.Enabled;
         _elapsed += delta;
         if (_elapsed < 0.25 || !IsVisibleInTree())
         {
@@ -152,9 +143,9 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
 
         _elapsed = 0;
         _availability.Text = !DeveloperTools.Enabled ? "Developer tools are disabled in this build."
-            : _host.Visible ? (_network.Visible ? "Host controls · F1 closes this page" : "Host controls · network simulation unavailable for this transport")
+            : _host.Visible ? (_network.Visible ? "Host controls · changes apply through current authority" : "Host controls · network simulation unavailable for this transport")
             : _practice.Visible ? "Local practice tools. Host a multiplayer session for gameplay tuning."
-            : "Read-only diagnostics. Host a session to access tuning and developer actions.";
+            : "Configs require current host authority. Host a session to access tuning and developer actions.";
         object? owner = (object?)session?.Arena?.Driver ?? session?.Lobby;
         ulong revision = session?.Arena?.Driver.Configuration.Revision ?? session?.Lobby?.Authority?.Configuration.Revision ?? 0;
         ulong epoch = session?.Lobby?.State?.AuthorityEpoch ?? 0;
@@ -170,7 +161,6 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             _authorityEpoch = epoch;
         }
 
-        _diagnostics.Text = IdentityDiagnostics() + "\n" + DeveloperDiagnostics.Capture(session);
     }
 
     /// <summary>Commits edited values once through current host authority.</summary>
@@ -202,6 +192,23 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         parent.AddChild(button);
         return button;
     }
+
+    private static GridContainer ConfigurationRows(Container parent)
+    {
+        var rows = new GridContainer { Columns = 2, SizeFlagsHorizontal = SizeFlags.ShrinkCenter };
+        rows.AddThemeConstantOverride("h_separation", 16);
+        rows.AddThemeConstantOverride("v_separation", 6);
+        parent.AddChild(rows);
+        return rows;
+    }
+
+    private static Label ConfigurationLabel(string text) => new()
+    {
+        Text = text,
+        CustomMinimumSize = new Vector2(280, 0),
+        AutowrapMode = TextServer.AutowrapMode.WordSmart,
+        VerticalAlignment = VerticalAlignment.Center,
+    };
 
     private void RefreshValues()
     {
