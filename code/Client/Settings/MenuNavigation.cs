@@ -21,7 +21,7 @@ internal sealed class MenuNavigation
     internal void Select(MenuPage page)
     {
         if ((Page == MenuPage.Game && page == MenuPage.Settings) ||
-            (Page == MenuPage.Settings && page >= MenuPage.Audio && page <= MenuPage.DeveloperOptions))
+            (Page == MenuPage.Settings && page >= MenuPage.Audio && page <= MenuPage.Controls))
         {
             Page = page;
         }

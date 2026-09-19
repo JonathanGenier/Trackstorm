@@ -1,12 +1,12 @@
 # Host Developer Options
 
-Diagnostics show the canonical [Trackstorm game version](game-versioning.md), including when no multiplayer session is active.
+The Stats tab's Network Diagnostics show the canonical [Trackstorm game version](game-versioning.md), including when no multiplayer session is active.
 
-Online migration diagnostics include trusted fencing status, granted epoch and remaining conservative local permission, separately from the EOS membership proof. They never display the private lease session key, fencing token or identity JWT. See [authority leases](authority-leases.md).
+Those online migration diagnostics include trusted fencing status, granted epoch and remaining conservative local permission, separately from the EOS membership proof. They never display the private lease session key, fencing token or identity JWT. See [authority leases](authority-leases.md).
 
-Settings > Developer Options and F1 use the same `DeveloperOptionsPanel`. F1 toggles that page; normal Back navigation remains available. Numeric fields accept invariant decimal input. **Apply Settings** is the single tuning commit action: it validates the requested configuration, applies accepted values live and automatically saves the accepted host-local tuning. Submitting text with Enter does not commit it. **Discard Changes** restores the editor from the currently active authoritative configuration. **Reset to Defaults** stages the complete production hosted-game preset in the editor. Neither Discard nor Reset changes gameplay, configuration revision or persistence. Reset remains pending until Apply Settings, which uses the normal authority/synchronization path and replaces persisted tuning with the defaults.
+Settings > Developer Options and F1 open the same `DeveloperOptionsPanel` in the shared [DevTools shell](devtools.md) Configs tab. F1 selects Configs without toggling or reconstructing the shell. Numeric fields accept invariant decimal input. **Apply Settings** is the single tuning commit action: it validates the requested configuration, applies accepted values live and automatically saves the accepted host-local tuning. Submitting text with Enter does not commit it. **Discard Changes** restores the editor from the currently active authoritative configuration. **Reset to Defaults** stages the complete production hosted-game preset in the editor. Neither Discard nor Reset changes gameplay, configuration revision or persistence. Reset remains pending until Apply Settings, which uses the normal authority/synchronization path and replaces persisted tuning with the defaults.
 
-`DeveloperOptionsDraft` owns only editor text and pending changes; it has no gameplay or storage authority. Reset requests the complete preset even if authority has changed since the editor was opened. Opening the page suppresses local driving input while simulation and networking continue. Host controls disappear when authority is unavailable; clients retain read-only diagnostics. The build flag `TrackstormDeveloperTools` defaults to true in current Debug and Release QA builds. Future shipping builds can explicitly disable the surface with `-p:TrackstormDeveloperTools=false`.
+`DeveloperOptionsDraft` owns only editor text and pending changes; it has no gameplay or storage authority. Reset requests the complete preset even if authority has changed since the editor was opened. Opening DevTools suppresses local driving input while simulation and networking continue. Host controls disappear when authority is unavailable. Read-only current state, including Network Diagnostics, belongs exclusively to Stats rather than Configs. The build flag `TrackstormDeveloperTools` defaults to true in current Debug and Release QA builds. Future shipping builds can explicitly disable Configs and its F1 entry with `-p:TrackstormDeveloperTools=false`; the independent read-only Stats and Logs tabs retain their existing availability.
 
 ## Authority and runtime application
 
@@ -60,13 +60,14 @@ The other 45 persisted values already match this preset, including HP, surfaces,
 ## Actions and diagnostics
 
 The [Statistic Panel](statistics.md) provides the full-screen F2 read-only view with
-per-player selection. Developer Options retains the existing mutation controls
-and diagnostic summary; no actions are copied into the Statistic Panel. F2 is
-available independently of the Developer Options build flag.
+per-player selection and the existing safe Network Diagnostics projection. Developer
+Options retains only editable configuration and mutation controls; no actions are
+copied into the Statistic Panel. F2 is available independently of the Developer
+Options build flag.
 
 **FORCE START MATCH** has a larger accented button. In a lobby it readies the host and uses the ordinary Start request; other players must still be connected and ready. In a Waiting arena it arms a one-shot minimum-player override inside the existing match authority, which then runs the normal Countdown → Active transition. It never changes persisted MinimumPlayers or individually enables scoring, items, missiles or music. **Give Wrench** and **Give Missile** use the existing host inventory grant path and require a living host with an empty slot.
 
-The separate Arena Tools UI is removed. Local practice Reset and Detonate remain available on this same page. Match phase and combat HUD remain ordinary gameplay presentation. Read-only diagnostics show transport/capabilities, safe EOS lifecycle and a one-way PUID fingerprint, local PlayerId, CurrentHostId, explicit HOST/CLIENT role, session and match generation, AuthorityEpoch, migration state and retained checkpoint count/latest sequence, connection/failure state, RTT/quality, configuration revision, prediction error, snapshot age, interpolation delay, acknowledgements, reconnect policy and resume checkpoint state. Raw provider errors, access codes, tokens, credentials and lobby metadata are never passed to this formatter.
+The separate Arena Tools UI is removed. Local practice Reset and Detonate remain available on this same page. Match phase and combat HUD remain ordinary gameplay presentation. The former Developer Options Network Diagnostics section now appears only in [Stats](statistics.md); its existing safe formatter and runtime owners remain authoritative. Raw provider errors, access codes, tokens, credentials and lobby metadata are never passed to that formatter.
 
 Direct-IP GameNetworkingSockets exposes latency, jitter, loss, reorder percentage and reorder delay as explicit local Apply controls. They affect the provider's process-wide sockets, are not saved, and require host authority. `NetworkSimulationControl` checks the provider capability before invoking it. EOS P2P advertises no simulation capability, so those editors are hidden and availability is described accurately.
 

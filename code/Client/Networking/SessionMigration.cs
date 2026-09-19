@@ -103,7 +103,7 @@ internal sealed class SessionMigration
     internal IReadOnlyDictionary<ulong, string>? Subjects => _retained.LastOrDefault()?.State.Lobby.Subjects;
     /// <summary>Configuration revision at the latest externally recoverable boundary, if present.</summary>
     internal ulong? ConfigurationRevision => _retained.LastOrDefault()?.State.Lobby.Configuration.Revision;
-    /// <summary>Secret-free migration progress and checkpoint counters for Developer Options.</summary>
+    /// <summary>Secret-free migration progress and checkpoint counters for DevTools Stats.</summary>
     internal string Diagnostics => $"{(_failed ? "failed" : Negotiating ? "agreeing" : Frozen ? "frozen" : "running")}; retained checkpoints: {_retained.Count}; latest sequence: {_retained.LastOrDefault()?.State.Sequence ?? 0}; fencing: {LeaseStatus?.Invoke() ?? "trusted harness"}";
 
     /// <summary>Freezes a departing or permanently retired authority and gives reliable control time to drain.</summary>

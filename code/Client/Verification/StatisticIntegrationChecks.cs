@@ -1,5 +1,6 @@
 using Godot;
 using Trackstorm.Client.Bootstrap;
+using Trackstorm.Client.Development;
 using Trackstorm.Client.Input;
 using Trackstorm.Client.Networking;
 using Trackstorm.Client.Settings;
@@ -17,6 +18,7 @@ public sealed partial class StatisticIntegrationChecks : Node
     private DevelopmentSession _host = null!;
     private DevelopmentSession? _remote;
     private StatisticPanel _panel = null!;
+    private DevToolsShell _devTools = null!;
     private Vehicles.VehicleArena? _practice;
     private int _assertions;
     private string _output = string.Empty;
@@ -44,20 +46,26 @@ public sealed partial class StatisticIntegrationChecks : Node
             _bootstrap = new SimulationBootstrap { OnlineEnabled = false, SettingsPath = System.IO.Path.Combine(_output, "settings.json") };
             _bootstrap.AddChild(new PlayerInput { Name = "PlayerInput" });
             AddChild(_bootstrap);
-            _panel = _bootstrap.GetNode<StatisticPanel>("StatisticPanel");
+            _devTools = _bootstrap.GetNode<DevToolsShell>("DevTools");
+            _panel = _devTools.Stats;
             var input = _bootstrap.GetNode<PlayerInput>("PlayerInput");
             _host = _bootstrap.GetNode<DevelopmentSession>("DevelopmentSession");
             var menu = _bootstrap.GetNode<SettingsPanel>("PlayerSettings/SettingsPanel");
             Tap(Key.F2);
             await Frames(3);
-            Check(_panel.IsOpen && input.Adapter.GameplaySuppressed, "F2 opens and suppresses local gameplay");
+            Check(_devTools.IsOpen && _devTools.SelectedTab == DevToolsTab.Stats && input.Adapter.DiagnosticSuppressed, "F2 opens Stats and suppresses local gameplay");
             Tap(Key.F1);
+            Check(_devTools.IsOpen && _devTools.SelectedTab == DevToolsTab.Configs, "F1 switches the open shell directly to Configs");
+            Tap(Key.F2);
             Tap(Key.P);
             Check(menu.CurrentPage == MenuPage.Closed, "underlying menu cannot receive diagnostics navigation");
             Check(Text().Contains("NO SESSION", StringComparison.Ordinal), "missing session is explicit");
-            Check(Descendants(_panel).OfType<BaseButton>().All(button => button is OptionButton or Button { Text: "Close (F2)" }), "only selection and Close controls exist");
+            Check(_panel.View!.Global.Any(section => section.Title == "Network Diagnostics" && section.Text.Contains("EOS unavailable.", StringComparison.Ordinal)), "Stats owns the existing safe network diagnostics projection");
+            Check(Descendants(_panel).OfType<BaseButton>().All(button => button is OptionButton), "statistics content remains read only");
             Tap(Key.F2);
-            Check(!_panel.IsOpen && !input.Adapter.GameplaySuppressed, "F2 closes and releases input");
+            Check(_devTools.IsOpen && _devTools.SelectedTab == DevToolsTab.Stats, "repeated F2 keeps one shell open on Stats");
+            Tap(Key.Escape);
+            Check(!_devTools.IsOpen && !input.Adapter.DiagnosticSuppressed, "ESC closes and releases input");
             string endpoint;
             using (var socket = new System.Net.Sockets.UdpClient(new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 0)))
             {
@@ -78,7 +86,22 @@ public sealed partial class StatisticIntegrationChecks : Node
             await Until(() => _host.Arena?.Driver.Match?.Phase == MatchPhase.Active && _remote.Arena?.Driver.Latest?.Vehicles.Count == 2, "active replicated arena");
             Tap(Key.F2);
             await Frames(18);
-            Check(_panel.IsOpen && Text().Contains("Role: HOST", StringComparison.Ordinal), "host diagnostics");
+            Check(_devTools.IsOpen && Text().Contains("Role: HOST", StringComparison.Ordinal), "host diagnostics");
+            string movedDiagnostics = _panel.View!.Global.Single(section => section.Title == "Network Diagnostics").Text;
+            foreach (string field in new[] { "Transport:", "role: HOST", "Session:", "Failure:", "RTT:", "Reconnect:", "AuthorityEpoch:", "migration:", "checkpoint" })
+            {
+                Check(movedDiagnostics.Contains(field, StringComparison.Ordinal), "moved network diagnostics expose " + field);
+            }
+
+            var activeArena = _host.Arena;
+            ulong switchingTick = _host.Arena!.Driver.Latest!.Tick;
+            Tap(Key.F3);
+            await Frames(3);
+            Tap(Key.F1);
+            await Frames(3);
+            Tap(Key.F2);
+            await Frames(3);
+            Check(ReferenceEquals(_host.Arena, activeArena) && _host.Arena.Driver.Latest!.Tick > switchingTick, "tab switching preserves and advances the active match");
             Check(Text().Contains("HP 1000/1000", StringComparison.Ordinal) && Text().Contains("Concrete", StringComparison.Ordinal), "real HP and surface");
             Check(_panel.View!.Players.Count == 2, "multiple entities available");
             Check(Text().Contains("Available spawns:", StringComparison.Ordinal), "spawn owner observed");
@@ -104,8 +127,8 @@ public sealed partial class StatisticIntegrationChecks : Node
                 GetWindow().Size = size;
                 await Frames(4);
                 var viewport = GetViewport().GetVisibleRect();
-                Check(_panel.Bounds.Position.DistanceTo(viewport.Position) < 1 && _panel.Bounds.Size.DistanceTo(viewport.Size) < 1, "full viewport at " + size);
-                var close = Descendants(_panel).OfType<Button>().Single(button => button.Text == "Close (F2)");
+                Check(_devTools.Bounds.Position.DistanceTo(viewport.Position) < 1 && _devTools.Bounds.Size.DistanceTo(viewport.Size) < 1, "full viewport at " + size);
+                var close = Descendants(_devTools).OfType<Button>().Single(button => button.Text == "Close");
                 Check(viewport.Encloses(close.GetGlobalRect()), "Close remains in viewport");
                 await Capture(size.X + "x" + size.Y);
                 var tabs = Descendants(_panel).OfType<TabContainer>().Single();
@@ -116,15 +139,15 @@ public sealed partial class StatisticIntegrationChecks : Node
                 tabs.CurrentTab = 0;
             }
 
-            Descendants(_panel).OfType<Button>().Single(button => button.Text == "Close (F2)").EmitSignal(BaseButton.SignalName.Pressed);
-            Check(!_panel.IsOpen && !input.Adapter.GameplaySuppressed, "Close button restores gameplay");
+            Descendants(_devTools).OfType<Button>().Single(button => button.Text == "Close").EmitSignal(BaseButton.SignalName.Pressed);
+            Check(!_devTools.IsOpen && !input.Adapter.DiagnosticSuppressed, "Close button restores gameplay");
             Tap(Key.Escape);
             Check(menu.CurrentPage == MenuPage.Game, "normal menu still opens");
             Tap(Key.F2);
             await Frames(3);
-            Check(_panel.IsOpen, "statistics can cover menu");
+            Check(_devTools.IsOpen, "statistics can cover menu");
             Tap(Key.Escape);
-            Check(!_panel.IsOpen && menu.CurrentPage == MenuPage.Game && input.Adapter.GameplaySuppressed, "closing restores existing menu suppression");
+            Check(!_devTools.IsOpen && menu.CurrentPage == MenuPage.Game && input.Adapter.GameplaySuppressed, "closing restores existing menu suppression");
             menu.Close();
             Tap(Key.F2);
             _remote.Leave();
@@ -148,7 +171,7 @@ public sealed partial class StatisticIntegrationChecks : Node
             Check(_panel.View!.Selected == 8 && Text().Contains("Vehicle 8", StringComparison.Ordinal), "practice target selection");
             _practice.QueueFree();
             _practice = null;
-            _panel.Close();
+            _devTools.Close();
             _bootstrap.QueueFree();
             remoteViewport.QueueFree();
             _remote = null;

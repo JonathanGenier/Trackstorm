@@ -15,7 +15,6 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     private readonly VBoxContainer _network = new() { Visible = false };
     private readonly Label _availability = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly Label _status = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
-    private readonly Label _diagnostics = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly Dictionary<string, Control> _editors = new(StringComparer.Ordinal);
     private readonly DeveloperOptionsDraft _draft = new();
     private readonly List<SpinBox> _simulation = new();
@@ -29,16 +28,12 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     internal Func<DevelopmentSession?> Session { get; set; } = () => null;
     /// <summary>Current local practice authority supplied by composition.</summary>
     internal Func<VehicleArena?> Practice { get; set; } = () => null;
-    /// <summary>Credential-free identity diagnostics supplied by composition.</summary>
-    internal Func<string> IdentityDiagnostics { get; set; } = () => "EOS unavailable.";
-
     /// <inheritdoc/>
     public override void _Ready()
     {
         SizeFlagsHorizontal = SizeFlags.ExpandFill;
         _availability.AddThemeFontSizeOverride("font_size", 16);
         _status.AddThemeFontSizeOverride("font_size", 16);
-        _diagnostics.AddThemeFontSizeOverride("font_size", 16);
         AddChild(_availability);
         AddChild(_status);
         AddChild(_host);
@@ -133,7 +128,6 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
                 arena.Explode(arena.Player.GlobalPosition + new Vector3(-2, -0.2f, 0.5f));
             }
         });
-        AddChild(_diagnostics);
     }
 
     /// <inheritdoc/>
@@ -143,7 +137,6 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         _host.Visible = session?.IsDeveloperHost == true;
         _practice.Visible = DeveloperTools.Enabled && Practice() is not null;
         _network.Visible = NetworkSimulationControl.Supported(session?.Gateway);
-        _diagnostics.Visible = DeveloperTools.Enabled;
         _elapsed += delta;
         if (_elapsed < 0.25 || !IsVisibleInTree())
         {
@@ -152,9 +145,9 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
 
         _elapsed = 0;
         _availability.Text = !DeveloperTools.Enabled ? "Developer tools are disabled in this build."
-            : _host.Visible ? (_network.Visible ? "Host controls · F1 closes this page" : "Host controls · network simulation unavailable for this transport")
+            : _host.Visible ? (_network.Visible ? "Host controls · changes apply through current authority" : "Host controls · network simulation unavailable for this transport")
             : _practice.Visible ? "Local practice tools. Host a multiplayer session for gameplay tuning."
-            : "Read-only diagnostics. Host a session to access tuning and developer actions.";
+            : "Configs require current host authority. Host a session to access tuning and developer actions.";
         object? owner = (object?)session?.Arena?.Driver ?? session?.Lobby;
         ulong revision = session?.Arena?.Driver.Configuration.Revision ?? session?.Lobby?.Authority?.Configuration.Revision ?? 0;
         ulong epoch = session?.Lobby?.State?.AuthorityEpoch ?? 0;
@@ -170,7 +163,6 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             _authorityEpoch = epoch;
         }
 
-        _diagnostics.Text = IdentityDiagnostics() + "\n" + DeveloperDiagnostics.Capture(session);
     }
 
     /// <summary>Commits edited values once through current host authority.</summary>

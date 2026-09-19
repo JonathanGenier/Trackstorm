@@ -1,6 +1,6 @@
 # Runtime Event Log
 
-F3 toggles a read-only developer/admin history in both Debug and exported Release builds. It is available in the lobby, network arena and local practice. Close performs UI navigation only. Opening the panel suppresses local driving, camera and item input independently of the Settings menu; simulation, remote players, networking and event collection continue.
+F3 opens or selects the read-only Logs tab in the full-window [DevTools shell](devtools.md) in both Debug and exported Release builds. It is available in the lobby, network arena and local practice. Escape and the shell's persistent Close button perform UI navigation only. Opening DevTools suppresses local driving, camera and item input independently of the Settings menu; simulation, remote players, networking and event collection continue.
 
 The panel shows millisecond elapsed timestamps, category, Host/Local origin, sequence and a human-readable outcome. All categories are initially visible. The category selector filters the existing history. Follow latest tracks incoming events; disabling it freezes the displayed snapshot for scrolling and selection while collection continues. Re-enabling it displays the current retained buffer. Both the journal and frozen presentation retain at most 1,024 entries. Oldest entries are evicted first. The last session journal remains inspectable after leaving; entering a new session starts a new history.
 

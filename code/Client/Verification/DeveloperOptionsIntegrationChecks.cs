@@ -19,6 +19,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
     private DevelopmentSession _host = null!;
     private DevelopmentSession? _client;
     private SettingsPanel _menu = null!;
+    private DevToolsShell _devTools = null!;
     private int _assertions;
     private string _directory = string.Empty;
 
@@ -42,6 +43,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
             AddChild(_bootstrap);
             _host = _bootstrap.GetNode<DevelopmentSession>("DevelopmentSession");
             _menu = _bootstrap.GetNode<SettingsPanel>("PlayerSettings/SettingsPanel");
+            _devTools = _bootstrap.GetNode<DevToolsShell>("DevTools");
             string endpoint;
             using (var reservation = new System.Net.Sockets.UdpClient(new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 0)))
             {
@@ -52,7 +54,8 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
             await Until(() => _host.Lobby?.Authority is not null, "host authority");
             Tap(Key.F1);
             await Frames(20);
-            Check(_menu.CurrentPage == MenuPage.DeveloperOptions, "F1 opens existing Developer Options page");
+            Check(_devTools.IsOpen && _devTools.SelectedTab == DevToolsTab.Configs, "F1 opens unified DevTools on Configs");
+            Check(!Descendants(_devTools.Configs).OfType<Label>().Any(label => label.Text.Contains("AuthorityEpoch:", StringComparison.Ordinal) || label.Text.Contains("Transport:", StringComparison.Ordinal)), "Configs does not duplicate read-only network diagnostics");
             if (phase == "read")
             {
                 Check(_host.DeveloperConfiguration.Vehicle.Acceleration == 7, "full process restart restores host tuning");
@@ -88,8 +91,9 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 await Frames(20);
                 Check(_host.Arena!.Driver.Configuration.Configuration == GameplayConfiguration.HostedDefaults, "production arena uses the same hosted defaults");
                 Check(!Descendants(_bootstrap).OfType<Button>().Any(button => button.Text == "Arena tools"), "separate Arena Tools retired");
-                Check(!Descendants(_menu.DeveloperOptions).OfType<Button>().Any(button => button.Text is "Apply tuning" or "Reload current values" or "Save tuning / retry"), "obsolete tuning actions removed");
-                var simulation = Descendants(_menu.DeveloperOptions).OfType<SpinBox>().ToArray();
+                Check(Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Text is "FORCE START MATCH" or "Give Wrench" or "Give Missile"), "host-authoritative developer actions remain in Configs");
+                Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Text is "Apply tuning" or "Reload current values" or "Save tuning / retry"), "obsolete tuning actions removed");
+                var simulation = Descendants(_devTools.Configs).OfType<SpinBox>().ToArray();
                 double[] impairment = [30, 5, 2, 10, 25];
                 for (int i = 0; i < simulation.Length; i++)
                 {
@@ -97,7 +101,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 }
 
                 Press("Apply local network simulation");
-                Check(Descendants(_menu.DeveloperOptions).OfType<Label>().Any(label => label.Text == "Local network simulation applied."), "real GNS accepts all five UI impairment controls");
+                Check(Descendants(_devTools.Configs).OfType<Label>().Any(label => label.Text == "Local network simulation applied."), "real GNS accepts all five UI impairment controls");
                 foreach (var option in GameplayOptions.All)
                 {
                     double current = option.Read(_host.DeveloperConfiguration);
@@ -155,7 +159,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Check(Math.Abs(_host.Arena.Driver.Host!.Items.Missiles[0].Velocity.Length() - 75) < 0.01, "UI missile speed affects actual projectile");
                 Check(_host.Arena.Driver.Configuration.Configuration.Damage.MaxHP == _host.Arena.Driver.LocalState!.Damage.MaxHP, "UI max HP affects live vehicle");
                 Check(_client.Arena!.Driver.LocalState!.Damage.MaxHP == _host.Arena.Driver.LocalState.Damage.MaxHP, "client max HP matches authority");
-                var accelerationEditor = Descendants(_menu.DeveloperOptions).OfType<LineEdit>().Single(editor => editor.Name == "vehicle_acceleration");
+                var accelerationEditor = Descendants(_devTools.Configs).OfType<LineEdit>().Single(editor => editor.Name == "vehicle_acceleration");
                 accelerationEditor.GrabFocus();
                 await Frames(3);
                 await Capture("developer-options-values");
@@ -168,11 +172,13 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
 
                 Check(GetViewport().GuiGetFocusOwner() != accelerationEditor, "controller navigation exits numeric editor");
                 Tap(Key.F1);
-                Check(_menu.CurrentPage == MenuPage.Closed, "F1 closes same page");
+                Check(_devTools.IsOpen && _devTools.SelectedTab == DevToolsTab.Configs, "F1 keeps the shared shell open on Configs");
+                Tap(Key.Escape);
+                Check(!_devTools.IsOpen, "ESC closes DevTools");
                 Tap(Key.Escape);
                 Press("Settings");
                 Press("Developer Options");
-                Check(_menu.CurrentPage == MenuPage.DeveloperOptions, "Settings reopens same developer panel");
+                Check(_menu.CurrentPage == MenuPage.Settings && _devTools.IsOpen && _devTools.SelectedTab == DevToolsTab.Configs, "Settings opens the same DevTools Configs surface");
                 await Frames(3);
                 await Capture("developer-options");
                 _client.Leave();
@@ -228,7 +234,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         Check(_host.Arena.Driver.Configuration == before, "Reset does not mutate live configuration or revision");
         Check(_host.DeveloperSettings!.Current == before.Configuration, "Reset does not mutate the host persistence owner");
         Check(System.IO.File.ReadAllText(path) == persisted, "Reset does not write persistence");
-        var hp = Descendants(_menu.DeveloperOptions).OfType<LineEdit>().Single(editor => editor.Name == "damage_max_hp");
+        var hp = Descendants(_devTools.Configs).OfType<LineEdit>().Single(editor => editor.Name == "damage_max_hp");
         hp.EmitSignal(LineEdit.SignalName.TextSubmitted, hp.Text);
         Check(_host.Arena.Driver.Configuration == before, "submitting numeric text does not bypass Apply Settings");
 
@@ -239,7 +245,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         Check(new DeveloperSettingsStore(path).LoadForHost() == GameplayConfiguration.HostedDefaults, "Reset plus Apply replaces persisted host tuning");
 
         persisted = System.IO.File.ReadAllText(path);
-        var mass = Descendants(_menu.DeveloperOptions).OfType<LineEdit>().Single(editor => editor.Name == "vehicle_mass");
+        var mass = Descendants(_devTools.Configs).OfType<LineEdit>().Single(editor => editor.Name == "vehicle_mass");
         mass.Text = "invalid";
         mass.EmitSignal(LineEdit.SignalName.TextChanged, mass.Text);
         Press("Apply Settings");
@@ -270,7 +276,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         var values = new Dictionary<string, double>();
         foreach (var option in GameplayOptions.All)
         {
-            var control = Descendants(_menu.DeveloperOptions).OfType<Control>().Single(control => control.Name == option.Key.Replace('.', '_'));
+            var control = Descendants(_devTools.Configs).OfType<Control>().Single(control => control.Name == option.Key.Replace('.', '_'));
             values[option.Key] = control is CheckButton toggle ? (toggle.ButtonPressed ? 1 : 0) : double.Parse(((LineEdit)control).Text, CultureInfo.InvariantCulture);
         }
 
@@ -278,11 +284,11 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         return configuration;
     }
 
-    private bool HasStatus(string text) => Descendants(_menu.DeveloperOptions).OfType<Label>().Any(label => label.Text.Contains(text, StringComparison.Ordinal));
+    private bool HasStatus(string text) => Descendants(_devTools.Configs).OfType<Label>().Any(label => label.Text.Contains(text, StringComparison.Ordinal));
 
     private void Set(string key, double value)
     {
-        var control = Descendants(_menu.DeveloperOptions).OfType<Control>().Single(control => control.Name == key.Replace('.', '_'));
+        var control = Descendants(_devTools.Configs).OfType<Control>().Single(control => control.Name == key.Replace('.', '_'));
         if (control is CheckButton toggle)
         {
             toggle.ButtonPressed = value == 1;
@@ -295,7 +301,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         }
     }
 
-    private void Press(string text) => Descendants(_menu).OfType<Button>().Single(button => button.IsVisibleInTree() && button.Text == text).EmitSignal(BaseButton.SignalName.Pressed);
+    private void Press(string text) => Descendants(_bootstrap).OfType<Button>().Single(button => button.IsVisibleInTree() && button.Text == text).EmitSignal(BaseButton.SignalName.Pressed);
 
     private void Tap(Key key)
     {

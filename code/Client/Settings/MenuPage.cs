@@ -19,6 +19,4 @@ internal enum MenuPage
     Interface,
     /// <summary>Controls navigation page.</summary>
     Controls,
-    /// <summary>DeveloperOptions navigation page.</summary>
-    DeveloperOptions,
 }

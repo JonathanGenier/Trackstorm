@@ -29,7 +29,6 @@ internal sealed partial class SettingsPanel : CanvasLayer
     private readonly OptionButton _resolution = new();
     private readonly List<Vector2I> _sizes = new();
     private readonly Control _background = new() { MouseFilter = Control.MouseFilterEnum.Ignore };
-    private readonly Development.DeveloperOptionsPanel _developerOptions = new();
     private PlayerSettingsController _settings = null!;
     private PlayerInputAdapter _input = null!;
     private InputAction? _capture;
@@ -41,9 +40,6 @@ internal sealed partial class SettingsPanel : CanvasLayer
     private double _repeatDelay;
     private InputAction? _repeatAction;
 
-    /// <summary>The single developer page shared by Settings navigation and F1.</summary>
-    internal Development.DeveloperOptionsPanel DeveloperOptions => _developerOptions;
-
     /// <summary>Actual diagnostics bounds for runtime layout verification.</summary>
     internal Rect2 DiagnosticsBounds => _hud.GetGlobalRect();
 
@@ -51,6 +47,8 @@ internal sealed partial class SettingsPanel : CanvasLayer
     internal Func<bool> ArenaAvailable { get; set; } = () => false;
     /// <summary>Observation overlay owns navigation while visible; simulation remains active.</summary>
     internal Func<bool> DiagnosticOverlayOpen { get; set; } = () => false;
+    /// <summary>Routes the Settings category to the single shared developer-tools shell.</summary>
+    internal Action OpenDeveloperTools { get; set; } = () => { };
     /// <summary>The existing session owner's leave path.</summary>
     internal Action LeaveToMainMenu { get; set; } = () => { };
     /// <summary>The application owner's cleanup-aware exit request.</summary>
@@ -108,6 +106,8 @@ internal sealed partial class SettingsPanel : CanvasLayer
         {
             AddButton(column, Title(category), () => Select(category));
         }
+
+        AddButton(column, "Developer Options", () => OpenDeveloperTools());
 
         var retry = new Button { Text = "Save now / retry" };
         retry.Pressed += () => _settings.Flush();
@@ -198,7 +198,6 @@ internal sealed partial class SettingsPanel : CanvasLayer
         _status.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _settings.SaveStatusChanged += RefreshStatus;
         RefreshStatus();
-        Page(MenuPage.DeveloperOptions).AddChild(_developerOptions);
         _root.Resized += Layout;
         Layout();
         ShowPage();
@@ -208,31 +207,6 @@ internal sealed partial class SettingsPanel : CanvasLayer
     public override void _Input(InputEvent @event)
     {
         if (DiagnosticOverlayOpen())
-        {
-            SampleNavigation(false);
-            return;
-        }
-
-        if (_capture is null && @event is InputEventKey { Keycode: Key.F1, Pressed: true, Echo: false } && Development.DeveloperTools.Enabled)
-        {
-            if (CurrentPage == MenuPage.DeveloperOptions)
-            {
-                Close();
-            }
-            else
-            {
-                _navigation.Open(ArenaAvailable());
-                _navigation.Select(MenuPage.Settings);
-                _navigation.Select(MenuPage.DeveloperOptions);
-                ShowPage();
-            }
-
-            GetViewport().SetInputAsHandled();
-            return;
-        }
-
-        if (_capture is null && CurrentPage == MenuPage.DeveloperOptions &&
-            GetViewport().GuiGetFocusOwner() is LineEdit && @event is InputEventKey { Keycode: not Key.Escape })
         {
             SampleNavigation(false);
             return;

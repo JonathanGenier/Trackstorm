@@ -19,12 +19,7 @@ internal sealed partial class SettingsPanel
         ShowPage();
     }
 
-    private static string Title(MenuPage page) => page switch
-    {
-        MenuPage.Game => "Game Menu",
-        MenuPage.DeveloperOptions => "Developer Options",
-        _ => page.ToString(),
-    };
+    private static string Title(MenuPage page) => page == MenuPage.Game ? "Game Menu" : page.ToString();
 
     private static void AddButton(VBoxContainer parent, string text, Action action)
     {
@@ -95,7 +90,7 @@ internal sealed partial class SettingsPanel
         _panel.QueueRedraw();
         Layout();
         _back.Visible = CurrentPage != MenuPage.Game;
-        _status.Visible = CurrentPage is not MenuPage.Game and not MenuPage.DeveloperOptions;
+        _status.Visible = CurrentPage != MenuPage.Game;
         _scroll.ScrollVertical = 0;
         _input.GameplaySuppressed = open || DiagnosticOverlayOpen();
         _input.Observe();
@@ -127,12 +122,6 @@ internal sealed partial class SettingsPanel
 
     private void SampleNavigation(bool dispatch, bool gamepad = false)
     {
-        if (!gamepad && CurrentPage == MenuPage.DeveloperOptions && GetViewport().GuiGetFocusOwner() is LineEdit)
-        {
-            dispatch = false;
-            _repeatAction = null;
-        }
-
         bool routed = false;
         foreach (InputAction action in NavigationActions)
         {
