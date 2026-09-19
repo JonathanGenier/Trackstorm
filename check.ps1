@@ -32,7 +32,7 @@ Invoke-Check "Restore" {
 }
 
 Invoke-Check "Debug build and analyzers" {
-    dotnet build Trackstorm.sln -c Debug --no-restore -warnaserror
+    dotnet build Trackstorm.Client.csproj -c Debug --no-restore -warnaserror
 }
 
 Invoke-Check "Release build and analyzers" {
