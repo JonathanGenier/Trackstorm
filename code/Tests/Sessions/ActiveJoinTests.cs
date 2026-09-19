@@ -19,16 +19,16 @@ internal sealed class ActiveJoinTests
         var results = new List<ulong>();
         foreach (ulong peer in peers)
         {
-            results.Add(lobby.Join(peer, "New", $"subject-{peer}"));
+            results.Add(lobby.Join(peer, GameVersion.Current.ToString(), "New", $"subject-{peer}"));
             Assert.That(lobby.State.Players.Count, Is.LessThanOrEqualTo(8));
         }
 
         Assert.That(results.Count(id => id != 0), Is.EqualTo(1));
         Assert.That(results[0], Is.EqualTo(8));
-        Assert.That(lobby.Join(peers[0], "Retry", $"subject-{peers[0]}"), Is.EqualTo(8));
+        Assert.That(lobby.Join(peers[0], GameVersion.Current.ToString(), "Retry", $"subject-{peers[0]}"), Is.EqualTo(8));
         Assert.That(lobby.State.Players.Count, Is.EqualTo(8));
         Assert.That(lobby.State.Players.Single(player => player.Id == 2), Is.EqualTo(retained));
-        Assert.That(lobby.Join(99, "Impersonation", "subject-2"), Is.Zero);
+        Assert.That(lobby.Join(99, GameVersion.Current.ToString(), "Impersonation", "subject-2"), Is.Zero);
         Assert.That(lobby.CompleteJoin(peers[0]), Is.True);
         Assert.That(lobby.CompleteJoin(peers[0]), Is.False);
         lobby.Disconnect(peers[0]);
@@ -42,7 +42,7 @@ internal sealed class ActiveJoinTests
     public void InterruptedBootstrapReleasesSubjectAndCapacity(bool timeout)
     {
         var lobby = Arena(2);
-        ulong id = lobby.Join(50, "New", "new-subject");
+        ulong id = lobby.Join(50, GameVersion.Current.ToString(), "New", "new-subject");
         Assert.That(lobby.IsPendingJoin(50), Is.True);
         Assert.That(lobby.Capture("host").State.Players.Any(player => player.Id == id), Is.False, "Migration cannot retain a participant without a vehicle.");
         if (timeout)
@@ -59,8 +59,8 @@ internal sealed class ActiveJoinTests
         Assert.That(lobby.FindPlayer("new-subject"), Is.Zero);
         Assert.That(lobby.State.Players.Count, Is.EqualTo(2));
         Assert.That(lobby.Events.Entries.Any(entry => entry.Actor == id && entry.Kind is "Joined" or "Disconnected"), Is.False, "Uncommitted players produce no presence feed entries.");
-        Assert.That(lobby.Resume(51, 100, id, 1, "new-subject"), Is.False);
-        Assert.That(lobby.Join(51, "Retry", "new-subject"), Is.GreaterThan(id));
+        Assert.That(lobby.Resume(51, GameVersion.Current.ToString(), 100, id, 1, "new-subject"), Is.False);
+        Assert.That(lobby.Join(51, GameVersion.Current.ToString(), "Retry", "new-subject"), Is.GreaterThan(id));
     }
 
     /// <summary>Terminal/closing eligibility rejects without changing any roster boundary.</summary>
@@ -70,7 +70,7 @@ internal sealed class ActiveJoinTests
         var lobby = Arena(2);
         lobby.AdmissionOpen = false;
         var before = lobby.State;
-        Assert.That(lobby.Join(50, "New", "new-subject"), Is.Zero);
+        Assert.That(lobby.Join(50, GameVersion.Current.ToString(), "New", "new-subject"), Is.Zero);
         Assert.That(lobby.State, Is.SameAs(before));
     }
 
@@ -80,7 +80,7 @@ internal sealed class ActiveJoinTests
     {
         var lobby = Arena(8);
         var before = lobby.State;
-        Assert.That(lobby.Join(99, "Ninth", "ninth"), Is.Zero);
+        Assert.That(lobby.Join(99, GameVersion.Current.ToString(), "Ninth", "ninth"), Is.Zero);
         Assert.That(lobby.State, Is.SameAs(before));
         Assert.That(lobby.State.Players.Count, Is.EqualTo(8));
     }
@@ -102,7 +102,7 @@ internal sealed class ActiveJoinTests
         lobby.SetReady(0, true);
         for (ulong peer = 2; peer <= (ulong)players; peer++)
         {
-            lobby.Join(peer, "Player", $"subject-{peer}");
+            lobby.Join(peer, GameVersion.Current.ToString(), "Player", $"subject-{peer}");
             lobby.SetReady(peer, true);
         }
 

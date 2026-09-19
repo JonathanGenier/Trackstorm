@@ -112,7 +112,7 @@ internal sealed partial class VehicleNetworkDriverTests
     {
         wire.ConnectPeer(2);
         var lobby = new LobbyNetworkDriver(wire, Session, 0, "Host");
-        lobby.Authority!.Join(2, "Existing", "existing");
+        lobby.Authority!.Join(2, GameVersion.Current.ToString(), "Existing", "existing");
         lobby.Authority.SetReady(0, true);
         lobby.Authority.SetReady(2, true);
         Assert.That(lobby.Authority.Start(0), Is.True);

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Epic.OnlineServices.Lobby;
+using Trackstorm.Client.Networking;
 using Trackstorm.Client.Online;
 using Trackstorm.Core.Items;
 using Trackstorm.Core.Networking.Replication;
@@ -426,6 +427,24 @@ internal sealed partial class OnlineLobbyTests
             returned.Driver.Pump(0);
             var resume = LobbyCodec.DecodeCommand(returnGateway.Sent.Last().Payload.Span);
             Assert.That(resume.Command, Is.EqualTo(LobbyCommand.Resume));
+            Assert.That(resume.GameVersion, Is.EqualTo(GameVersion.Current.ToString()));
+            Assert.That(resume.AuthorityEpoch, Is.EqualTo(2));
+            var beforeResume = replacement.Driver.State;
+            replacementGateway.ConnectPeer(38);
+            Assert.That(replacement.AuthorizePeer(38, User(1), null), Is.True);
+            string incompatibleVersion = new GameVersion(GameVersion.Current.Revision == 0 ? 1 : 0).ToString();
+            replacementGateway.ReceiveResume(38, checkpoint.Lobby.State.Session, 1, 1, 2, incompatibleVersion);
+            replacement.Driver.Pump(0);
+            Assert.That(replacement.Driver.State, Is.SameAs(beforeResume), "A matching epoch cannot bypass the version gate after migration.");
+            Assert.That(LobbyCodec.IsVersionMismatch(replacementGateway.Sent.Last().Payload.Span), Is.True);
+            replacementGateway.Disconnect(38);
+            replacementGateway.ConnectPeer(39);
+            Assert.That(replacement.AuthorizePeer(39, User(1), null), Is.True);
+            replacementGateway.ReceiveResume(39, checkpoint.Lobby.State.Session, 1, 1, 1);
+            replacement.Driver.Pump(0);
+            Assert.That(replacement.Driver.State, Is.SameAs(beforeResume), "A matching version cannot bypass the authority fence.");
+            Assert.That(LobbyCodec.IsRejection(replacementGateway.Sent.Last().Payload.Span), Is.True);
+            replacementGateway.Disconnect(39);
             replacementGateway.ConnectPeer(40);
             Assert.That(replacement.AuthorizePeer(40, User(1), null), Is.True);
             replacementGateway.ReceiveResume(40, checkpoint.Lobby.State.Session, 1, 1, 2);
@@ -965,13 +984,13 @@ internal sealed partial class OnlineLobbyTests
         gateway.ConnectPeer(10);
         var binding = client.AttachTransport(gateway, 10, "Client");
         var wrong = new LobbyAuthority(host.Active.Session + 1, "Host");
-        wrong.Join(20, "Client");
+        wrong.Join(20, GameVersion.Current.ToString(), "Client");
         gateway.ReceiveState(10, wrong.State, 2);
         binding.Driver.Pump(0);
         Assert.That(binding.Driver.State, Is.Null);
         Assert.That(binding.PlayerIds, Is.Empty);
         var correct = new LobbyAuthority(host.Active.Session, "Host");
-        correct.Join(20, "Client");
+        correct.Join(20, GameVersion.Current.ToString(), "Client");
         gateway.ReceiveState(10, correct.State, 2);
         binding.Driver.Pump(0);
         Assert.That(binding.Driver.State!.Session, Is.EqualTo(host.Active.Session));
@@ -1047,8 +1066,10 @@ internal sealed partial class OnlineLobbyTests
     }
 
     /// <summary>A restart hint restores only the prior assignment and is cleared when the player chooses Leave.</summary>
-    [Test]
-    public void RestartLocatorRejoinsKnownSessionAndEmitsResumeInsteadOfNewAdmission()
+    /// <param name="incompatible">Whether the saved session now advertises a different runtime version.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void RestartLocatorRejoinsKnownSessionAndEmitsResumeInsteadOfNewAdmission(bool incompatible)
     {
         string path = Path.Combine(Path.GetTempPath(), "trackstorm-resume-" + Guid.NewGuid().ToString("N") + ".json");
         var store = new ResumeLocatorStore(path);
@@ -1058,11 +1079,25 @@ internal sealed partial class OnlineLobbyTests
             using var host = service.Coordinator(1);
             host.Create("Hidden match", LobbyAccess.Public, null);
             service.Lobbies[host.Active!.Id] = host.Active with { Open = false };
+            if (incompatible)
+            {
+                service.Lobbies[host.Active.Id] = service.Lobbies[host.Active.Id] with { Version = "invalid" };
+            }
+
             service.Notify(host.Active.Id, new(OnlineLobbyUpdateKind.Metadata));
             var locator = new ResumeLocator(host.Active!.Id, host.Active.Session, 2, 4, User(2).Value, host.Active.AuthorityEpoch, User(1).Value);
             store.Save(locator);
             using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
             client.Tick();
+            if (incompatible)
+            {
+                Assert.That(client.Active, Is.Null);
+                Assert.That(client.Status, Does.StartWith("Game version mismatch."));
+                Assert.That(store.Load(User(2).Value), Is.Null);
+                Assert.That(service.Lobbies[host.Active.Id].Members, Is.EqualTo(1));
+                return;
+            }
+
             Assert.That(client.Active!.Session, Is.EqualTo(host.Active.Session));
             Assert.That(client.Active.Open, Is.False, "Resume uses the locator even when normal admission is closed.");
             using var gateway = new Gateway();
@@ -1171,6 +1206,153 @@ internal sealed partial class OnlineLobbyTests
         {
             store.Clear();
         }
+    }
+
+    /// <summary>Public and Locked browsers publish canonical metadata and reject mismatches before credentials or provider Join.</summary>
+    /// <param name="access">Lobby access mode.</param>
+    [TestCase(LobbyAccess.Public)]
+    [TestCase(LobbyAccess.Locked)]
+    public void BrowserVersionGatePrecedesMembershipAndCredentials(LobbyAccess access)
+    {
+        var service = new Service();
+        using var host = service.Coordinator(1);
+        using var client = service.Coordinator(2);
+        host.Create("Version test", access, "test-code");
+        var lobby = host.Active!;
+        Assert.That(lobby.DiscoveryAttributes["version"], Is.EqualTo(GameVersion.Current.ToString()));
+        Assert.That(lobby.DiscoveryAttributes.Keys, Is.EquivalentTo(access == LobbyAccess.Public
+            ? new[] { "name", "session", "access", "version" } : new[] { "name", "session", "access", "version", "verifier" }));
+        string incompatible = new GameVersion(GameVersion.Current.Revision == 0 ? 1 : GameVersion.Current.Revision - 1).ToString();
+        service.Lobbies[lobby.Id] = lobby with { Version = incompatible };
+        client.Refresh();
+        var row = client.Browser.Rows.Single();
+        Assert.That(row.Version, Is.EqualTo(incompatible));
+        Assert.That(row.Joinable, Is.False);
+        Assert.That(row.VersionMismatch, Does.Contain(incompatible).And.Contain(GameVersion.Current.ToString()));
+        client.Join(lobby.Id, "wrong");
+        Assert.That(client.Status, Does.StartWith("Game version mismatch."));
+        client.Join(lobby.Id, "test-code");
+        Assert.That(client.Active, Is.Null);
+        Assert.That(service.Lobbies[lobby.Id].Members, Is.EqualTo(1));
+        service.Lobbies[lobby.Id] = lobby;
+        client.Refresh();
+        client.Join(lobby.Id, "test-code");
+        Assert.That(client.Active, Is.Not.Null);
+    }
+
+    /// <summary>Missing native metadata cannot silently inherit this runtime's version.</summary>
+    [Test]
+    public void MissingVersionRemainsVisibleButCannotJoin()
+    {
+        var browser = new LobbyBrowser();
+        browser.Replace([Lobby("missing", "Missing version") with { Version = string.Empty }]);
+        Assert.That(browser.Rows.Single().Joinable, Is.False);
+        Assert.That(browser.Rows.Single().VersionMismatch, Does.Contain("unknown/invalid"));
+    }
+
+    /// <summary>Authenticated membership and valid Locked credentials cannot bypass the host version gate.</summary>
+    /// <param name="access">Lobby access mode.</param>
+    [TestCase(LobbyAccess.Public)]
+    [TestCase(LobbyAccess.Locked)]
+    public void BrowserBypassCannotAllocateAuthoritativePlayer(LobbyAccess access)
+    {
+        var service = new Service();
+        using var host = service.Coordinator(1);
+        using var client = service.Coordinator(2);
+        host.Create("Bypass", access, "test-code");
+        client.Refresh();
+        client.Join(host.Active!.Id, "test-code");
+        using var gateway = new Gateway();
+        var binding = host.AttachTransport(gateway, 0, "Host");
+        gateway.ConnectPeer(20);
+        Assert.That(binding.AuthorizePeer(20, User(2), "test-code"), Is.True);
+        gateway.ReceiveJoin(20, "Guest", "invalid");
+        binding.Driver.Pump(0);
+        Assert.That(binding.Driver.State!.Players.Count, Is.EqualTo(1));
+        Assert.That(binding.Driver.Authority!.FindPlayer(User(2).Value), Is.Zero);
+        Assert.That(binding.PlayerIds.ContainsKey(User(2)), Is.False);
+        Assert.That(gateway.Sent.Count, Is.EqualTo(1));
+        Assert.That(LobbyCodec.IsVersionMismatch(gateway.Sent[0].Payload.Span), Is.True);
+        binding.Driver.Pump(1);
+        Assert.That(gateway.Connections[20], Is.EqualTo(TransportConnectionState.Disconnected));
+        gateway.ConnectPeer(21);
+        Assert.That(binding.AuthorizePeer(21, User(2), "test-code"), Is.True);
+        gateway.ReceiveJoin(21, "Guest");
+        binding.Driver.Pump(0);
+        Assert.That(binding.Driver.Authority.PlayerId(21), Is.EqualTo(2));
+    }
+
+    /// <summary>Direct-IP packets use the same gate and preserve their clear failure after disconnect and timeout.</summary>
+    /// <param name="revision">Older or newer client build.</param>
+    [TestCase(3)]
+    [TestCase(5)]
+    public void DirectIpVersionRejectionReachesClientWithoutBootstrap(int revision)
+    {
+        using var hostWire = new Gateway();
+        using var clientWire = new Gateway();
+        hostWire.ConnectPeer(20);
+        clientWire.ConnectPeer(10);
+        var host = new LobbyNetworkDriver(hostWire, 100, 0, "Host", gameVersion: new GameVersion(4));
+        var client = new LobbyNetworkDriver(clientWire, 0, 10, "Guest", gameVersion: new GameVersion(revision));
+        client.Pump(0);
+        hostWire.ReceivePacket(20, clientWire.Sent.Single().Payload.ToArray());
+        host.Pump(0);
+        Assert.That(host.Authority!.Peers, Is.Empty);
+        Assert.That(host.State!.Players.Count, Is.EqualTo(1));
+        Assert.That(hostWire.Sent.Count, Is.EqualTo(1), "Rejected clients must receive no roster or gameplay bootstrap.");
+        clientWire.ReceivePacket(10, hostWire.Sent.Single().Payload.ToArray());
+        client.Pump(0);
+        Assert.That(client.Failure, Does.Contain("Lobby: 0.0.1.4").And.Contain($"Your version: 0.0.1.{revision}"));
+        string failure = client.Failure;
+        client.Pump(20);
+        Assert.That(client.Failure, Is.EqualTo(failure));
+        Assert.That(client.State, Is.Null);
+        Assert.That(client.LocalPlayerId, Is.Zero);
+        host.Pump(1);
+        hostWire.ConnectPeer(21);
+        hostWire.ReceiveJoin(21, "Compatible", "0.0.1.4");
+        host.Pump(0);
+        Assert.That(host.Authority.PlayerId(21), Is.EqualTo(2));
+    }
+
+    /// <summary>Returning packets are checked before rebind or arena checkpoint publication.</summary>
+    /// <param name="revision">Older or newer returning build.</param>
+    /// <param name="arena">Whether resume targets an existing arena.</param>
+    [TestCase(3, false)]
+    [TestCase(5, false)]
+    [TestCase(3, true)]
+    [TestCase(5, true)]
+    public void ResumeWireMismatchCannotReclaimAuthority(int revision, bool arena)
+    {
+        using var wire = new Gateway();
+        var host = new LobbyNetworkDriver(wire, 100, 0, "Host", identity: _ => "subject", gameVersion: new GameVersion(4));
+        wire.ConnectPeer(20);
+        wire.ReceiveJoin(20, "Guest", "0.0.1.4");
+        host.Pump(0);
+        if (arena)
+        {
+            host.Authority!.SetReady(0, true);
+            host.Authority.SetReady(20, true);
+            Assert.That(host.Authority.Start(0), Is.True);
+        }
+
+        wire.Disconnect(20);
+        host.Pump(0);
+        var before = host.State;
+        wire.Sent.Clear();
+        wire.ConnectPeer(21);
+        wire.ReceiveResume(21, 100, 2, 1, gameVersion: new GameVersion(revision).ToString());
+        host.Pump(0);
+        Assert.That(host.State, Is.SameAs(before));
+        Assert.That(host.Authority!.Peers, Is.Empty);
+        Assert.That(wire.Sent.Count, Is.EqualTo(1));
+        Assert.That(LobbyCodec.IsVersionMismatch(wire.Sent.Single().Payload.Span), Is.True);
+        host.Pump(1);
+        wire.ConnectPeer(22);
+        wire.ReceiveResume(22, 100, 2, 1, gameVersion: "0.0.1.4");
+        host.Pump(0);
+        Assert.That(host.Authority.PlayerId(22), Is.EqualTo(arena ? 2UL : 0UL));
+        Assert.That(host.State!.Players.Count, Is.EqualTo(arena ? 2 : 1));
     }
 
     private static OnlineProductUserId User(int id) => new(id.ToString("x32"));
@@ -1426,10 +1608,11 @@ internal sealed partial class OnlineLobbyTests
         }
 
         public bool TryReceive(out TransportMessage message) => _received.TryDequeue(out message);
+        internal void ReceivePacket(ulong peer, byte[] payload) => _received.Enqueue(new TransportMessage(peer, payload, TransportDelivery.Reliable));
         internal void ConnectPeer(ulong peer) => _connections[peer] = TransportConnectionState.Connected;
         internal void Receive(ulong peer, byte[] payload) => _received.Enqueue(new(peer, payload, TransportDelivery.Reliable));
-        internal void ReceiveJoin(ulong peer, string name) => _received.Enqueue(new TransportMessage(peer, LobbyCodec.EncodeCommand(LobbyCommand.Join, null, name: name), TransportDelivery.Reliable));
-        internal void ReceiveResume(ulong peer, ulong session, ulong player, ulong generation, ulong epoch = 1) => _received.Enqueue(new TransportMessage(peer, LobbyCodec.EncodeResume(session, player, generation, epoch), TransportDelivery.Reliable));
+        internal void ReceiveJoin(ulong peer, string name, string? gameVersion = null) => _received.Enqueue(new TransportMessage(peer, LobbyCodec.EncodeCommand(LobbyCommand.Join, null, name: name, gameVersion: gameVersion), TransportDelivery.Reliable));
+        internal void ReceiveResume(ulong peer, ulong session, ulong player, ulong generation, ulong epoch = 1, string? gameVersion = null) => _received.Enqueue(new TransportMessage(peer, LobbyCodec.EncodeResume(session, player, generation, epoch, gameVersion), TransportDelivery.Reliable));
         internal void ReceiveState(ulong peer, LobbySnapshot state, ulong player) => _received.Enqueue(new TransportMessage(peer, LobbyCodec.EncodeState(state, player), TransportDelivery.Reliable));
     }
 }

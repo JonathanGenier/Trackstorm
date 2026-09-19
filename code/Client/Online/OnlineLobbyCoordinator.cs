@@ -296,7 +296,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         var lobby = Browser.Find(id);
         if (lobby is null || !lobby.Joinable)
         {
-            Status = lobby is null ? "Lobby closed or not found. Refresh the browser." : !lobby.Compatible ? "Build/protocol incompatible." : lobby.Members == 8 ? "Lobby full." : "Lobby closed.";
+            Status = lobby is null ? "Lobby closed or not found. Refresh the browser." : lobby.VersionMismatch.Length > 0 ? lobby.VersionMismatch : !lobby.Compatible ? "Build/protocol incompatible." : lobby.Members == 8 ? "Lobby full." : "Lobby closed.";
             return;
         }
 
@@ -313,9 +313,9 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         _provider.Join(id, (joined, failure) =>
         {
             // Revalidate fresh provider state; an ID must never redirect admission into a replacement session.
-            if (joined is not null && (!joined.Compatible || joined.Session != lobby.Session || joined.Access != lobby.Access || joined.Credential?.ExportVerifier() != lobby.Credential?.ExportVerifier()))
+            if (joined is not null && (!joined.Compatible || joined.VersionMismatch.Length > 0 || joined.Session != lobby.Session || joined.Access != lobby.Access || joined.Credential?.ExportVerifier() != lobby.Credential?.ExportVerifier()))
             {
-                failure = "Lobby changed or is incompatible. Refresh and join again.";
+                failure = joined.VersionMismatch.Length > 0 ? joined.VersionMismatch : "Lobby changed or is incompatible. Refresh and join again.";
             }
 
             CompleteMembership(epoch, joined, failure, false);
@@ -902,7 +902,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
                 return;
             }
 
-            if (!lobby.Compatible || lobby.Session != session || !lobby.MemberIds.Contains(Identity))
+            if (!lobby.Compatible || lobby.VersionMismatch.Length > 0 || lobby.Session != session || !lobby.MemberIds.Contains(Identity))
             {
                 RejectResume(lobby);
                 return;
@@ -995,6 +995,6 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         _closing = lobby;
         _closingHost = false;
         Leave();
-        Status = "Resume rejected. Session changed or identity is unavailable.";
+        Status = lobby.VersionMismatch.Length > 0 ? lobby.VersionMismatch : "Resume rejected. Session changed or identity is unavailable.";
     }
 }

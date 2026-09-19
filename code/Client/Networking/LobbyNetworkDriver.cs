@@ -9,6 +9,7 @@ internal sealed class LobbyNetworkDriver
 {
     private readonly ITransportGateway _gateway;
     private readonly string _name;
+    private readonly GameVersion _version;
     private readonly Func<ulong, bool>? _admission;
     private readonly Func<ulong, string?>? _identity;
     private readonly ulong _expectedSession;
@@ -16,6 +17,7 @@ internal sealed class LobbyNetworkDriver
     private readonly Queue<TransportMessage> _pendingGameplay = new();
     private readonly EventStream _clientEvents = new();
     private readonly Dictionary<ulong, ulong> _eventSent = new();
+    private readonly Dictionary<ulong, double> _versionRejected = new();
     private readonly Dictionary<ulong, double> _rejectedJoins = new();
     private LobbyReplica _replica = new();
     private bool _joined;
@@ -44,10 +46,12 @@ internal sealed class LobbyNetworkDriver
     /// <param name="expectedSession">Online clients require this discovered session lifetime; zero retains development behavior.</param>
     /// <param name="identity">Trusted authenticated subject resolver, absent for unauthenticated Direct-IP.</param>
     /// <param name="expectedEpoch">Current advertised authority fence for a restarted resume.</param>
-    internal LobbyNetworkDriver(ITransportGateway gateway, ulong session, ulong serverPeer, string name, Func<ulong, bool>? admission = null, ulong expectedSession = 0, Func<ulong, string?>? identity = null, ulong expectedEpoch = 1)
+    /// <param name="gameVersion">Runtime build identity; defaults to the canonical provider.</param>
+    internal LobbyNetworkDriver(ITransportGateway gateway, ulong session, ulong serverPeer, string name, Func<ulong, bool>? admission = null, ulong expectedSession = 0, Func<ulong, string?>? identity = null, ulong expectedEpoch = 1, GameVersion? gameVersion = null)
     {
         _gateway = gateway;
         _name = name;
+        _version = gameVersion ?? GameVersion.Current;
         _admission = admission;
         _identity = identity;
         _expectedSession = expectedSession;
@@ -56,7 +60,7 @@ internal sealed class LobbyNetworkDriver
         _clientEvents.PlayerName = id => State?.Players.SingleOrDefault(player => player.Id == id)?.Name ?? $"Player {id}";
         if (session != 0)
         {
-            Authority = new LobbyAuthority(session, name);
+            Authority = new LobbyAuthority(session, name, _version);
         }
     }
 
@@ -196,6 +200,15 @@ internal sealed class LobbyNetworkDriver
 
         if (Authority is not null)
         {
+            foreach (var rejected in _versionRejected.ToArray())
+            {
+                if (_seconds >= rejected.Value)
+                {
+                    _gateway.Disconnect(rejected.Key);
+                    _versionRejected.Remove(rejected.Key);
+                }
+            }
+
             foreach (ulong peer in Authority.Peers.Keys)
             {
                 if (!_gateway.Connections.TryGetValue(peer, out var connection) || connection != TransportConnectionState.Connected)
@@ -204,7 +217,7 @@ internal sealed class LobbyNetworkDriver
                 }
             }
         }
-        else
+        else if (Failure.Length == 0)
         {
             _joiningSeconds += seconds;
             if (_leaveAt.HasValue)
@@ -264,8 +277,8 @@ internal sealed class LobbyNetworkDriver
             else if (!_joined && connection == TransportConnectionState.Connected)
             {
                 byte[] request = Reconnecting
-                    ? LobbyCodec.EncodeResume(State?.Session ?? _expectedSession, LocalPlayerId, Generation, State?.AuthorityEpoch ?? _expectedEpoch)
-                    : LobbyCodec.EncodeCommand(LobbyCommand.Join, null, name: _name);
+                    ? LobbyCodec.EncodeResume(State?.Session ?? _expectedSession, LocalPlayerId, Generation, State?.AuthorityEpoch ?? _expectedEpoch, _version.ToString())
+                    : LobbyCodec.EncodeCommand(LobbyCommand.Join, null, name: _name, gameVersion: _version.ToString());
                 Send(ServerPeer, request);
                 _joined = true;
             }
@@ -477,6 +490,20 @@ internal sealed class LobbyNetworkDriver
             if (Authority is not null)
             {
                 var intent = LobbyCodec.DecodeCommand(message.Payload.Span);
+                if (_versionRejected.ContainsKey(message.RemotePeerId))
+                {
+                    return;
+                }
+
+                if (intent.Command is LobbyCommand.Join or LobbyCommand.Resume && !Authority.Version.IsCompatible(intent.GameVersion))
+                {
+                    Send(message.RemotePeerId, LobbyCodec.EncodeVersionMismatch(Authority.Version));
+                    // Allow reliable rejection delivery before retiring the unauthorised connection.
+                    _versionRejected[message.RemotePeerId] = _seconds + 1;
+                    RejectedPackets++;
+                    return;
+                }
+
                 if (Migration?.Frozen == true && intent.Command is not (LobbyCommand.Resume or LobbyCommand.Leave))
                 {
                     throw new ArgumentException("Authority is frozen pending recovery.");
@@ -493,7 +520,7 @@ internal sealed class LobbyNetworkDriver
                     {
                         RejectJoin(message.RemotePeerId, "Access denied");
                     }
-                    else if (Authority.Join(message.RemotePeerId, intent.Name, _identity?.Invoke(message.RemotePeerId)) == 0)
+                    else if (Authority.Join(message.RemotePeerId, intent.GameVersion, intent.Name, _identity?.Invoke(message.RemotePeerId)) == 0)
                     {
                         RejectJoin(message.RemotePeerId, State!.Players.Count >= 8 ? "Session full" : "Session unavailable");
                     }
@@ -518,7 +545,7 @@ internal sealed class LobbyNetworkDriver
                 {
                     string? identity = _identity?.Invoke(message.RemotePeerId);
                     if (intent.AuthorityEpoch != State!.AuthorityEpoch || identity is null || (_admission is not null && !_admission(message.RemotePeerId)) ||
-                        !Authority.Resume(message.RemotePeerId, intent.Session, intent.Player, intent.Generation, identity))
+                        !Authority.Resume(message.RemotePeerId, intent.GameVersion, intent.Session, intent.Player, intent.Generation, identity))
                     {
                         Send(message.RemotePeerId, LobbyCodec.EncodeRejection("Resume rejected"));
                         RejectedPackets++;
@@ -543,6 +570,22 @@ internal sealed class LobbyNetworkDriver
                 if (_leaveAt.HasValue && LobbyCodec.IsLeft(message.Payload.Span))
                 {
                     _left = true;
+                    return;
+                }
+
+                if (Failure.Length > 0)
+                {
+                    return;
+                }
+
+                if (LobbyCodec.IsVersionMismatch(message.Payload.Span))
+                {
+                    Failure = _version.MismatchMessage(LobbyCodec.DecodeVersionMismatch(message.Payload.Span));
+                    ResumeStatus = "Game version mismatch";
+                    NeedsArenaCheckpoint = false;
+                    _pendingGameplay.Clear();
+                    Latency.Clear();
+                    _gateway.Disconnect(ServerPeer);
                     return;
                 }
 

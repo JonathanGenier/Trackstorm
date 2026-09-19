@@ -20,14 +20,14 @@ internal sealed class ActivityFeedTests
         var lobby = new LobbyAuthority(10, "Host");
         using var feed = new ActivityFeedView();
         feed.Update(lobby.Events, true, 0);
-        ulong player = lobby.Join(4, "Guest<>", "private-subject");
+        ulong player = lobby.Join(4, GameVersion.Current.ToString(), "Guest<>", "private-subject");
         lobby.SetReady(0, true);
         lobby.SetReady(4, true);
         Assert.That(lobby.Start(0, [4]), Is.True);
         lobby.Disconnect(4);
         lobby.Disconnect(4);
         lobby.AdvanceTime(30);
-        Assert.That(lobby.Resume(5, 10, player, 1, "private-subject"), Is.True);
+        Assert.That(lobby.Resume(5, GameVersion.Current.ToString(), 10, player, 1, "private-subject"), Is.True);
         lobby.Remove(5);
         Assert.That(feed.Entries.Select(row => row.Text), Is.EqualTo(new[]
         {
@@ -162,7 +162,7 @@ internal sealed class ActivityFeedTests
         var lobby = new LobbyAuthority(10, "Host");
         using var feed = new ActivityFeedView();
         feed.Update(lobby.Events, false, 0);
-        lobby.Join(4, "Guest", "subject");
+        lobby.Join(4, GameVersion.Current.ToString(), "Guest", "subject");
         feed.Update(lobby.Events, true, 0);
         Assert.That(feed.Entries, Is.Empty);
         lobby.SetReady(0, true);

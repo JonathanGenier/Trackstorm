@@ -307,7 +307,7 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
             }
         }
 
-        return new OnlineLobby(info.LobbyId.ToString(), name, new OnlineProductUserId(info.LobbyOwnerUserId.ToString()), session, access == "Locked" ? LobbyAccess.Locked : LobbyAccess.Public, (int)(info.MaxMembers - info.AvailableSlots), 8, info.BucketId.ToString(), Attribute(details, "open") == "1", access == "Locked" ? LobbyCredential.Parse(Attribute(details, "verifier") ?? string.Empty) : null) { MemberIds = members.ToArray(), GameplayHost = new OnlineProductUserId(Attribute(details, "gameHost") ?? info.LobbyOwnerUserId.ToString()), AuthorityEpoch = ulong.TryParse(Attribute(details, "epoch"), out ulong epoch) && epoch > 0 ? epoch : 1 };
+        return new OnlineLobby(info.LobbyId.ToString(), name, new OnlineProductUserId(info.LobbyOwnerUserId.ToString()), session, access == "Locked" ? LobbyAccess.Locked : LobbyAccess.Public, (int)(info.MaxMembers - info.AvailableSlots), 8, info.BucketId.ToString(), Attribute(details, "open") == "1", access == "Locked" ? LobbyCredential.Parse(Attribute(details, "verifier") ?? string.Empty) : null) { MemberIds = members.ToArray(), Version = Attribute(details, "version") ?? string.Empty, GameplayHost = new OnlineProductUserId(Attribute(details, "gameHost") ?? info.LobbyOwnerUserId.ToString()), AuthorityEpoch = ulong.TryParse(Attribute(details, "epoch"), out ulong epoch) && epoch > 0 ? epoch : 1 };
     }
 
     private static string Failure(Result result) => result switch
@@ -432,7 +432,7 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
                 var lobby = Read(details);
                 if (lobby is null || !lobby.Compatible || (!resume && !lobby.Joinable))
                 {
-                    completed(null, lobby is { Compatible: false } ? "Build/protocol incompatible." : "Lobby full or closed.");
+                    completed(null, lobby is { VersionMismatch.Length: > 0 } ? lobby.VersionMismatch : lobby is { Compatible: false } ? "Build/protocol incompatible." : "Lobby full or closed.");
                     return;
                 }
 
@@ -493,7 +493,7 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
         bool started = false;
         try
         {
-            var attributes = new Dictionary<string, string>();
+            var attributes = initial ? new Dictionary<string, string>(lobby.DiscoveryAttributes) : new Dictionary<string, string>();
             if (initial || availability)
             {
                 attributes["open"] = lobby.Open ? "1" : "0";
@@ -504,16 +504,6 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
                 attributes["name"] = lobby.Name;
                 attributes["gameHost"] = lobby.HostIdentity.Value;
                 attributes["epoch"] = lobby.AuthorityEpoch.ToString(CultureInfo.InvariantCulture);
-            }
-
-            if (initial)
-            {
-                attributes["session"] = lobby.Session.ToString(CultureInfo.InvariantCulture);
-                attributes["access"] = lobby.Access.ToString();
-                if (lobby.Credential is not null)
-                {
-                    attributes["verifier"] = lobby.Credential.ExportVerifier();
-                }
             }
 
             foreach (var pair in attributes)

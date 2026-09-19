@@ -86,7 +86,7 @@ internal sealed partial class OnlineLobbyTests
 
         for (ulong peer = 60; peer < 66; peer++)
         {
-            binding.Driver.Authority.Join(peer, "Reserved", $"subject-{peer}");
+            binding.Driver.Authority.Join(peer, GameVersion.Current.ToString(), "Reserved", $"subject-{peer}");
         }
 
         host.Tick();

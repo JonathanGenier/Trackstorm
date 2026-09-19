@@ -1,5 +1,7 @@
 # Host Developer Options
 
+Diagnostics show the canonical [Trackstorm game version](game-versioning.md), including when no multiplayer session is active.
+
 Online migration diagnostics include trusted fencing status, granted epoch and remaining conservative local permission, separately from the EOS membership proof. They never display the private lease session key, fencing token or identity JWT. See [authority leases](authority-leases.md).
 
 Settings > Developer Options and F1 use the same `DeveloperOptionsPanel`. F1 toggles that page; normal Back navigation remains available. Numeric fields accept invariant decimal input. **Apply Settings** is the single tuning commit action: it validates the requested configuration, applies accepted values live and automatically saves the accepted host-local tuning. Submitting text with Enter does not commit it. **Discard Changes** restores the editor from the currently active authoritative configuration. **Reset to Defaults** stages the complete production hosted-game preset in the editor. Neither Discard nor Reset changes gameplay, configuration revision or persistence. Reset remains pending until Apply Settings, which uses the normal authority/synchronization path and replaces persisted tuning with the defaults.

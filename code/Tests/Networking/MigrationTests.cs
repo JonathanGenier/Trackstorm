@@ -42,7 +42,7 @@ internal sealed class MigrationTests
     public void FormerHostReservationLastsThroughMatchAndClearsAtReturn(bool resume)
     {
         var lobby = new LobbyAuthority(100, "Host");
-        lobby.Join(10, "Client", "client");
+        lobby.Join(10, GameVersion.Current.ToString(), "Client", "client");
         lobby.SetReady(0, true);
         lobby.SetReady(10, true);
         Assert.That(lobby.Start(0, [10]), Is.True);
@@ -52,7 +52,7 @@ internal sealed class MigrationTests
         restored.AdvanceTime(200000);
         if (resume)
         {
-            Assert.That(restored.Resume(50, 100, 1, 1, "host"), Is.True);
+            Assert.That(restored.Resume(50, GameVersion.Current.ToString(), 100, 1, 1, "host"), Is.True);
             Assert.That(restored.State.CurrentHostId, Is.EqualTo(2));
         }
 
@@ -67,7 +67,7 @@ internal sealed class MigrationTests
         }
         else
         {
-            Assert.That(restored.Resume(50, 100, 1, 1, "host"), Is.False);
+            Assert.That(restored.Resume(50, GameVersion.Current.ToString(), 100, 1, 1, "host"), Is.False);
         }
     }
 
@@ -76,8 +76,8 @@ internal sealed class MigrationTests
     public void OrdinaryReservationSurvivesSequentialMigrationUntilReturn()
     {
         var lobby = new LobbyAuthority(100, "Host");
-        lobby.Join(10, "Successor", "successor");
-        ulong player = lobby.Join(20, "Disconnected", "client");
+        lobby.Join(10, GameVersion.Current.ToString(), "Successor", "successor");
+        ulong player = lobby.Join(20, GameVersion.Current.ToString(), "Disconnected", "client");
         lobby.SetReady(0, true);
         lobby.SetReady(10, true);
         lobby.SetReady(20, true);
@@ -86,12 +86,12 @@ internal sealed class MigrationTests
         lobby.AdvanceTime(100000);
         var second = LobbyAuthority.Restore(lobby.Capture("host"), 2, 2);
         second.AdvanceTime(200000);
-        Assert.That(second.Resume(30, 100, 1, 1, "host"), Is.True);
+        Assert.That(second.Resume(30, GameVersion.Current.ToString(), 100, 1, 1, "host"), Is.True);
         var third = LobbyAuthority.Restore(second.Capture("successor"), 1, 3);
         third.AdvanceTime(300000);
         Assert.That(third.State.Players.Count, Is.EqualTo(3));
-        Assert.That(third.Resume(40, 100, player, 1, "wrong"), Is.False);
-        Assert.That(third.Resume(40, 100, player, 1, "client"), Is.True);
+        Assert.That(third.Resume(40, GameVersion.Current.ToString(), 100, player, 1, "wrong"), Is.False);
+        Assert.That(third.Resume(40, GameVersion.Current.ToString(), 100, player, 1, "client"), Is.True);
         Assert.That(third.State.Players.Single(value => value.Id == player).Generation, Is.EqualTo(2));
         Assert.That(third.State.CurrentHostId, Is.EqualTo(1));
         Assert.That(third.State.AuthorityEpoch, Is.EqualTo(3));
@@ -99,7 +99,7 @@ internal sealed class MigrationTests
         Assert.That(third.Return(0), Is.True);
         Assert.That(third.State.Players.Select(value => value.Id), Is.EqualTo(new ulong[] { 1 }));
         Assert.That(third.Capture("host").Subjects.Count, Is.EqualTo(1));
-        Assert.That(third.Resume(50, 100, player, 2, "client"), Is.False);
+        Assert.That(third.Resume(50, GameVersion.Current.ToString(), 100, player, 2, "client"), Is.False);
     }
 
     /// <summary>A two-player checkpoint permits exactly one survivor; a larger roster cannot use that exception.</summary>
@@ -107,7 +107,7 @@ internal sealed class MigrationTests
     public void TwoPlayerLobbyElectionRemovesFormerHostAndSupportsSequentialMigration()
     {
         var lobby = new LobbyAuthority(100, "Host");
-        lobby.Join(10, "Client", "client");
+        lobby.Join(10, GameVersion.Current.ToString(), "Client", "client");
         lobby.SetReady(0, true);
         lobby.SetReady(10, true);
         var checkpoint = new MigrationCheckpoint(1, lobby.Capture("host"), null, null);
@@ -120,8 +120,8 @@ internal sealed class MigrationTests
         Assert.That(replacement.State.Session, Is.EqualTo(100));
         Assert.That(replacement.State.Players.Select(player => player.Id), Is.EqualTo(new ulong[] { 2 }));
         Assert.That(replacement.State.Players.All(player => !player.Ready), Is.True);
-        Assert.That(replacement.Resume(50, 100, 1, 1, "host"), Is.False);
-        Assert.That(replacement.Join(50, "Former host", "host"), Is.EqualTo(3));
+        Assert.That(replacement.Resume(50, GameVersion.Current.ToString(), 100, 1, 1, "host"), Is.False);
+        Assert.That(replacement.Join(50, GameVersion.Current.ToString(), "Former host", "host"), Is.EqualTo(3));
         var second = new MigrationCheckpoint(2, replacement.Capture("client"), null, null);
         string secondDigest = MigrationCheckpointCodec.Digest(MigrationCheckpointCodec.Encode(second));
         var next = new MigrationElection(second, secondDigest);
@@ -141,7 +141,7 @@ internal sealed class MigrationTests
         var host = new HostVehicleSession(101);
         for (ulong id = 2; id <= 8; id++)
         {
-            lobby.Join(id * 10, "Player" + id, "subject" + id);
+            lobby.Join(id * 10, GameVersion.Current.ToString(), "Player" + id, "subject" + id);
             host.JoinPlayer(id * 10, id);
             lobby.SetReady(id * 10, true);
         }
@@ -202,8 +202,8 @@ internal sealed class MigrationTests
         Assert.That(restored.State.CurrentHostId, Is.EqualTo(2));
         Assert.That(restored.State.Players.All(player => !player.Ready), Is.True);
         Assert.That(restored.State.Players.Select(player => player.Id), Is.EqualTo(new ulong[] { 2, 3 }));
-        Assert.That(restored.Resume(90, 100, 1, 1, "host"), Is.False);
-        Assert.That(restored.Join(90, "Former host", "host"), Is.EqualTo(4));
+        Assert.That(restored.Resume(90, GameVersion.Current.ToString(), 100, 1, 1, "host"), Is.False);
+        Assert.That(restored.Join(90, GameVersion.Current.ToString(), "Former host", "host"), Is.EqualTo(4));
         Assert.That(restored.PlayerId(80), Is.EqualTo(3));
         Assert.That(restored.Execute(80, LobbyCommand.Start, 100, 100, SessionPhase.Lobby, false, [80], 2), Is.False);
         Assert.That(restored.Execute(80, LobbyCommand.Ready, 100, 100, SessionPhase.Lobby, true, [80], 1), Is.False);
@@ -290,15 +290,15 @@ internal sealed class MigrationTests
     public void LobbyConfigurationSurvivesSuccessiveMigrationAndRejectsClientEdits()
     {
         var lobby = new LobbyAuthority(100, "Host");
-        lobby.Join(10, "Client", "client");
+        lobby.Join(10, GameVersion.Current.ToString(), "Client", "client");
         var edits = new Dictionary<string, double> { ["vehicle.acceleration"] = 7, ["spawns.seed"] = 42 };
         Assert.That(lobby.TryConfigure(10, edits, out _), Is.False);
         Assert.That(lobby.TryConfigure(0, edits, out _), Is.True);
         var checkpoint = MigrationCheckpointCodec.Decode(MigrationCheckpointCodec.Encode(new MigrationCheckpoint(1, lobby.Capture("host"), null, null)));
         var successor = LobbyAuthority.Restore(checkpoint.Lobby, 2, 2);
         Assert.That(successor.Configuration, Is.EqualTo(lobby.Configuration));
-        Assert.That(successor.Resume(50, 100, 1, 1, "host"), Is.False);
-        Assert.That(successor.Join(50, "Former host", "host"), Is.EqualTo(3));
+        Assert.That(successor.Resume(50, GameVersion.Current.ToString(), 100, 1, 1, "host"), Is.False);
+        Assert.That(successor.Join(50, GameVersion.Current.ToString(), "Former host", "host"), Is.EqualTo(3));
         Assert.That(successor.TryConfigure(50, edits, out _), Is.False);
         Assert.That(successor.TryConfigure(0, new Dictionary<string, double> { ["vehicle.acceleration"] = 9 }, out _), Is.True);
         var next = LobbyAuthority.Restore(successor.Capture("client"), 3, 3);
@@ -349,8 +349,8 @@ internal sealed class MigrationTests
     private static LobbyAuthority Lobby()
     {
         var lobby = new LobbyAuthority(100, "Host");
-        lobby.Join(10, "Second", "second");
-        lobby.Join(20, "Third", "third");
+        lobby.Join(10, GameVersion.Current.ToString(), "Second", "second");
+        lobby.Join(20, GameVersion.Current.ToString(), "Third", "third");
         return lobby;
     }
 
