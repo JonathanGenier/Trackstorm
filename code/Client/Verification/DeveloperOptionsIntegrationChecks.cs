@@ -59,7 +59,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
             if (phase == "read")
             {
                 Check(_host.DeveloperConfiguration.Vehicle.Acceleration == 7, "full process restart restores host tuning");
-                Press("FORCE START MATCH");
+                Press("Force Start");
                 await Until(() => _host.Arena?.Driver.Match?.Phase == MatchPhase.Active, "solo Force Start uses normal countdown and Active phase");
                 Check(_host.Arena!.Driver.Configuration.Configuration.Vehicle.Acceleration == 7, "persisted values become authoritative arena configuration");
                 Check(_host.Arena.Driver.Configuration.Configuration.Match.MinimumPlayers == 2, "Force Start does not change normal player rules");
@@ -97,7 +97,8 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 await Frames(20);
                 Check(_host.Arena!.Driver.Configuration.Configuration == GameplayConfiguration.HostedDefaults, "production arena uses the same hosted defaults");
                 Check(!Descendants(_bootstrap).OfType<Button>().Any(button => button.Text == "Arena tools"), "separate Arena Tools retired");
-                Check(Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Text == "FORCE START MATCH"), "Force Start remains in Configs");
+                Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Name == "ForceStart"), "Configs contains no duplicate Force Start action");
+                Check(Descendants(_devTools).OfType<Button>().Single(button => button.Name == "ForceStart").IsVisibleInTree(), "Force Start is available from the DevTools shell");
                 Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Text.StartsWith("Give ", StringComparison.Ordinal)), "developer item-grant controls are absent");
                 Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Text is "Apply tuning" or "Reload current values" or "Save tuning / retry"), "obsolete tuning actions removed");
                 var simulation = Descendants(_devTools.Configs).OfType<SpinBox>().ToArray();

@@ -153,8 +153,22 @@ public sealed partial class MenuIntegrationChecks
             }
 
             Check(reset.GetGlobalRect().Position.X < apply.GetGlobalRect().Position.X && apply.GetGlobalRect().End.X <= cancel.GetGlobalRect().Position.X && cancel.GetGlobalRect().End.X <= close.GetGlobalRect().Position.X, "footer action order is Reset, Apply, Cancel, Close");
-            var force = Buttons(_devTools.Configs).Single(button => button.Text == "FORCE START MATCH");
-            Check(viewport.Encloses(force.GetGlobalRect()) && force.GetGlobalRect().End.Y <= scroll.GetGlobalRect().Position.Y, "Force Start remains visible above the settings scroll");
+            var force = Buttons(_devTools).Single(button => button.Name == "ForceStart");
+            Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Name == "ForceStart"), "Force Start has no duplicate inside Configs");
+            Check(viewport.Encloses(force.GetGlobalRect()) && force.GetGlobalRect().Position.X > viewport.Size.X / 2 && force.GetGlobalRect().End.Y <= scroll.GetGlobalRect().Position.Y, "Force Start remains at the shell top-right outside Configs scrolling");
+            foreach (var button in new[] { force, reset, apply, cancel, close })
+            {
+                Check(button.Icon is not null, "DevTools action has an icon: " + button.Text);
+            }
+
+            var resetStyle = (StyleBoxFlat)reset.GetThemeStylebox("normal");
+            var applyStyle = (StyleBoxFlat)apply.GetThemeStylebox("normal");
+            var cancelStyle = (StyleBoxFlat)cancel.GetThemeStylebox("normal");
+            var closeStyle = (StyleBoxFlat)close.GetThemeStylebox("normal");
+            Check(resetStyle.BgColor == new Color("1b2027") && resetStyle.BorderColor == new Color("e24a4a") && resetStyle.BorderWidthTop > 0, "Reset uses a dark fill with red border");
+            Check(applyStyle.BgColor == new Color("238636"), "Apply Settings uses a green fill");
+            Check(cancelStyle.BgColor == new Color("b4232c"), "Cancel uses a red fill");
+            Check(closeStyle.BgColor == new Color("1f6feb"), "Close uses a blue fill");
             mass.GrabFocus();
             await Frames(3);
             await Capture($"configs-{size.X}x{size.Y}");

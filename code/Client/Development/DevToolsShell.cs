@@ -20,6 +20,7 @@ internal sealed partial class DevToolsShell : CanvasLayer
     private readonly Dictionary<DevToolsTab, Button> _tabs = new();
     private readonly Dictionary<DevToolsTab, Control> _content = new();
     private readonly Button _close = new() { Text = "Close", CustomMinimumSize = new Vector2(90, 40) };
+    private readonly Button _forceStart = new() { Name = "ForceStart", Text = "Force Start", Visible = false };
     private readonly Dictionary<InputAction, bool> _menuHeld = new();
     private readonly VBoxContainer _confirmation = new() { Visible = false, SizeFlagsVertical = Control.SizeFlags.ExpandFill };
     private readonly HBoxContainer _navigation = new();
@@ -78,7 +79,11 @@ internal sealed partial class DevToolsShell : CanvasLayer
         }
 
         navigation.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
+        _forceStart.Pressed += Configs.ForceStart;
+        DevToolsButtonPresentation.Configure(_forceStart, "force-start", DevToolsButtonPresentation.Treatment.ForceStart);
+        navigation.AddChild(_forceStart);
         _close.Pressed += Close;
+        DevToolsButtonPresentation.Configure(_close, "close", DevToolsButtonPresentation.Treatment.Close);
         layout.AddChild(new HSeparator());
         layout.AddChild(_pages);
 
@@ -100,10 +105,16 @@ internal sealed partial class DevToolsShell : CanvasLayer
         layout.AddChild(_confirmation);
         _confirmation.AddChild(new Label { Text = "Unapplied Configs changes", AutowrapMode = TextServer.AutowrapMode.WordSmart });
         _confirmation.AddChild(new Label { Text = "Apply these changes before closing, discard them, or stay in DevTools?", AutowrapMode = TextServer.AutowrapMode.WordSmart });
-        foreach (string choice in new[] { "Apply", "Discard", "Stay" })
+        foreach ((string choice, string icon, DevToolsButtonPresentation.Treatment treatment) in new[]
+        {
+            ("Apply", "apply", DevToolsButtonPresentation.Treatment.Apply),
+            ("Discard", "discard", DevToolsButtonPresentation.Treatment.Cancel),
+            ("Stay", "stay", DevToolsButtonPresentation.Treatment.Neutral),
+        })
         {
             var button = new Button { Text = choice, CustomMinimumSize = new Vector2(0, 40) };
             button.Pressed += () => ResolveClose(choice);
+            DevToolsButtonPresentation.Configure(button, icon, treatment);
             _confirmation.AddChild(button);
         }
 
@@ -148,6 +159,7 @@ internal sealed partial class DevToolsShell : CanvasLayer
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        _forceStart.Visible = DeveloperTools.Enabled && Configs.Session()?.IsDeveloperHost == true;
         SampleNavigation(IsOpen);
         if (IsOpen && _repeatAction is { } repeat)
         {

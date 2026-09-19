@@ -47,11 +47,6 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         _status.AddThemeFontSizeOverride("font_size", 16);
         AddChild(_availability);
         AddChild(_host);
-        var force = Button(_host, "FORCE START MATCH", () => Report(Session()?.ForceDeveloperStart() == true, "Match start requested.", "Start unavailable; host and connected ready players required."));
-        force.Name = "ForceStart";
-        force.CustomMinimumSize = new Vector2(0, 48);
-        force.AddThemeColorOverride("font_color", new Color("ffb45c"));
-        force.AddThemeFontSizeOverride("font_size", 24);
         _host.AddChild(_search);
         _search.TextChanged += _ => Filter();
         var legend = new Label { Text = "Blue: game default · Red: modified · Changes are staged until Apply Settings", AutowrapMode = TextServer.AutowrapMode.WordSmart };
@@ -115,10 +110,13 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             networkEntries.Add((label, value, "Local network simulation " + names[i]));
         }
 
-        Button(Footer, "Reset to Defaults", Reset);
+        var reset = Button(Footer, "Reset to Defaults", Reset);
+        DevToolsButtonPresentation.Configure(reset, "reset", DevToolsButtonPresentation.Treatment.Reset);
         Footer.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
-        Button(Footer, "Apply Settings", () => Apply());
-        Button(Footer, "Cancel", Cancel);
+        var apply = Button(Footer, "Apply Settings", () => Apply());
+        DevToolsButtonPresentation.Configure(apply, "apply", DevToolsButtonPresentation.Treatment.Apply);
+        var cancel = Button(Footer, "Cancel", Cancel);
+        DevToolsButtonPresentation.Configure(cancel, "cancel", DevToolsButtonPresentation.Treatment.Cancel);
         AddChild(_practice);
         Button(_practice, "Reset practice arena", () => Practice()?.ResetVehicles());
         Button(_practice, "Detonate nearby", () =>
@@ -219,6 +217,9 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
 
         _status.Text = "Unapplied changes discarded.";
     }
+
+    /// <summary>Invokes the existing immediate match-start authority from the shell action.</summary>
+    internal void ForceStart() => Report(Session()?.ForceDeveloperStart() == true, "Match start requested.", "Start unavailable; host and connected ready players required.");
 
     private static Button Button(Container parent, string text, Action pressed)
     {
