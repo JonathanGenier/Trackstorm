@@ -6,7 +6,8 @@ Use [workflow](../workflow.md#verification) for current completion checks, Jira 
 
 | Evidence | Reports |
 | --- | --- |
-| Asphalt and banked-oval handling | [TS-73 production candidate, native dynamics and pending human acceptance](ts-73.md) |
+| Asphalt and banked-oval handling | [TS-73 first candidate](ts-73.md), [runtime-feedback correction and pending human acceptance](ts-73-correction.md) |
+| Authoritative Game Loop foundation | [TS-91 Core lifecycle, legacy integration, regression evidence and runtime limitations](ts-91.md) |
 | Unified DevTools navigation and compact Configs | [TS-96 correction, native/runtime checks and layout captures](ts-96.md) |
 | Real-scale Trackstorm vehicle | [TS-72 Blender conversion, physics integration and validation](ts-72.md) |
 | Active oval gameplay integration | [TS-71 map loading, eight player grid spawns, preserved systems and stress-test limitation](ts-71-map-swap.md) |
