@@ -404,6 +404,20 @@ internal sealed class LobbyNetworkDriver
         return accepted;
     }
 
+    /// <summary>Publishes a local host map edit through Core authority.</summary>
+    /// <param name="map">Supported map selection.</param>
+    /// <returns>Whether authority accepted the edit.</returns>
+    internal bool SelectMap(MatchMap map)
+    {
+        if (Authority is null || Reconnecting || Migration?.Frozen == true || Failure.Length > 0 || !Authority.SelectMap(0, map))
+        {
+            return false;
+        }
+
+        Publish();
+        return true;
+    }
+
     /// <summary>Starts resume from a short-lived locator after process restart.</summary>
     /// <param name="player">Previous assignment.</param>
     /// <param name="generation">Last acknowledged generation.</param>
@@ -872,7 +886,7 @@ internal sealed class LobbyNetworkDriver
 
         ulong player = Authority?.PlayerId(message.RemotePeerId) ?? (message.RemotePeerId == ServerPeer ? LocalPlayerId : 0);
         var record = State?.Players.SingleOrDefault(value => value.Id == player);
-        if (record is null || !record.Connected || Authority?.IsPendingJoin(message.RemotePeerId) == true || (Reconnecting && !NeedsArenaCheckpoint))
+        if (record is null || !record.Connected || (Reconnecting && !NeedsArenaCheckpoint))
         {
             RejectedPackets++;
             return;
@@ -880,7 +894,14 @@ internal sealed class LobbyNetworkDriver
 
         try
         {
-            receive(new TransportMessage(message.RemotePeerId, ConnectionEnvelope.Decode(message.Payload.Span, State!.Session, record.Generation, State.AuthorityEpoch), message.Delivery));
+            var payload = ConnectionEnvelope.Decode(message.Payload.Span, State!.Session, record.Generation, State.AuthorityEpoch);
+            if (Authority?.IsPendingJoin(message.RemotePeerId) == true &&
+                (!MatchEntryCodec.IsEntry(payload) || MatchEntryCodec.Decode(payload, State.Match) != MatchEntryCodec.Loaded || message.Delivery != TransportDelivery.Reliable))
+            {
+                throw new ArgumentException("Pending participants may only announce completed resource loading.");
+            }
+
+            receive(new TransportMessage(message.RemotePeerId, payload, message.Delivery));
         }
         catch (ArgumentException)
         {

@@ -8,7 +8,7 @@ public static class LobbyCodec
 {
     /// <summary>Maximum complete packet size.</summary>
     public const int MaximumBytes = 30000;
-    private const byte Version = 7;
+    private const byte Version = 8;
 
     /// <summary>Identifies lobby packets before the vehicle decoder is consulted.</summary>
     /// <param name="data">Complete transport payload.</param>
@@ -129,6 +129,7 @@ public static class LobbyCodec
         writer.Write(state.Revision);
         writer.Write(state.Match);
         writer.Write((byte)state.Phase);
+        writer.Write((byte)state.Map);
         writer.Write(state.CurrentHostId);
         writer.Write(state.AuthorityEpoch);
         writer.Write(player);
@@ -193,6 +194,7 @@ public static class LobbyCodec
             ulong revision = reader.ReadUInt64();
             ulong match = reader.ReadUInt64();
             var phase = (SessionPhase)reader.ReadByte();
+            var map = (MatchMap)reader.ReadByte();
             ulong host = reader.ReadUInt64();
             ulong epoch = reader.ReadUInt64();
             ulong id = reader.ReadUInt64();
@@ -211,7 +213,7 @@ public static class LobbyCodec
             }
 
             var history = Enumerable.Range(0, departed).Select(_ => new MatchParticipant(reader.ReadUInt64(), reader.ReadString())).ToArray();
-            var state = new LobbySnapshot(session, revision, match, phase, players, host, epoch, history);
+            var state = new LobbySnapshot(session, revision, match, phase, players, host, epoch, history, map);
             if (!state.Players.Any(player => player.Id == id) || stream.Position != stream.Length)
             {
                 throw new ArgumentException("Recipient is absent from the lobby.");

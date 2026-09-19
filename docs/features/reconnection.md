@@ -22,7 +22,7 @@ While disconnected, the host retains the same authoritative vehicle and sends ne
 
 ## Retained-match menu decision
 
-Application entry always presents the normal Lobby flow. With no locator, discovery and its browse/host/join controls are immediately available. A same-account locator first performs only a read-only EOS lobby-ID search: it does not join that lobby, restore membership, attach the session transport or send gameplay Resume. Missing, incompatible or replacement-session metadata retires the stale hint with **Previous session is no longer available** while EOS authentication and ordinary browsing remain online. A service/search failure instead preserves the hint and keeps browsing available without reporting EOS itself offline.
+Application entry presents Main Menu, with Lobby Browser inside the persistent MenuShell. With no locator, discovery and its browse/host/join controls are immediately available. A same-account locator first performs only a read-only EOS lobby-ID search: it does not join that lobby, restore membership, attach the session transport or send gameplay Resume. Missing, incompatible or replacement-session metadata retires the stale hint with **Previous session is no longer available** while EOS authentication and ordinary browsing remain online. A service/search failure instead preserves the hint and keeps browsing available without reporting EOS itself offline.
 
 Fresh matching metadata exposes **Check previous session**. That explicit action permits retained membership/routing recovery and sends `InspectReservation` over the existing authenticated control stream; it still does not bind a player or send gameplay Resume. The local locator and provider metadata remain routing input only. The current host validates session, epoch, player, generation and subject. Only an `Available` response overlays **Reconnect / Leave Match** and blocks fresh-session controls until the decision resolves. A current-host `Missing` response clears the obsolete hint and leaves the browser visible.
 
@@ -33,6 +33,8 @@ Released participants remain offline in standings, including Finished/results, w
 Authority checking, reconnecting and release confirmation each have a twenty-second deadline. A lookup or validation failure preserves a retryable routing hint, leaves the normal lobby browser available and exposes **Check previous session** for a manual retry; it never promotes the unconfirmed hint into a modal. An unresolved reconnect or release never reports successful abandonment. Choice itself has no countdown or automatic default. Closing the application while choosing preserves the hint. These deadlines do not expire the host reservation and do not replace in-process transient reconnect behavior.
 
 A game-version mismatch is also unresolved reservation state, not authoritative rejection of the saved assignment. The client shows the host/local mismatch, returns to the recoverable menu, and preserves the locator for a later compatible build. It cannot bind gameplay while incompatible; the host neither queries nor releases the reservation before rejecting the control request. Confirmed `Missing` and `Abandoned` responses still clear the obsolete locator.
+
+The selected map is retained in authoritative lobby state and migration checkpoints. Process restart loads it through the same [Match Loader / Sync](match-entry.md) contract; transient recovery keeps the existing scene hidden behind synchronization presentation until the checkpoint is installed.
 
 ## Complete Arena Resync
 

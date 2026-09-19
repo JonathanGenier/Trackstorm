@@ -155,7 +155,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
         {
             for (int i = 0; i < 2; i++)
             {
-                var arena = new NetworkVehicleArena();
+                var arena = new NetworkVehicleArena { ApplicationEntry = true };
                 arena.Initialize(_gateways[i], i == 0 ? _host.State!.Match : 0, i == 0 ? 0 : _client.ServerPeer, i == 0 ? _host : _client);
                 _views[i].AddChild(arena);
                 // Explicit fixture for the existing lethal wall-impact scenario, outside the map scene.
@@ -167,6 +167,12 @@ public sealed partial class ReconnectIntegrationChecks : Node
 
             _arenas[1].Driver.Resynchronized += world =>
             {
+                if (_originalBody is null)
+                {
+                    Require(world.Tick == 0 && !_arenas[1].Driver.EntryReady, "Initial checkpoint precedes gameplay release.");
+                    return;
+                }
+
                 _resyncs++;
                 Require(_arenas[1].Driver.Inputs!.Pending.Count == 0, "Old pending input was discarded before prediction.");
                 Require(_arenas[1].Driver.History!.Snapshots.Count == 1, "Interpolation data contains only the fresh boundary.");

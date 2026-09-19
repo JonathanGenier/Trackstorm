@@ -28,7 +28,7 @@ Finished retains the exact final state and outcome. Repeated or competing report
 
 The development match adapter retains its current roster threshold, countdown cancellation, Force Start, pre/post-match vehicle combat and scoring semantics. Its checkpoint fields and wire format remain unchanged. [Join-in-progress](sessions.md), [reconnect](reconnection.md), [host migration](host-migration.md) and [standings](standings.md) continue using that complete `MatchState`; decoding reconstructs the same lifecycle projection without replaying transitions or scoring.
 
-The reusable post-sync entry point is available for Application Flow integration. The current development arena does not yet use a synchronized loading barrier. Wiring that entry point into match loading and applying its participation policy across host inputs, client prediction and bootstrap are separate application/network integration work. The development adapter and the reusable owner must not be run as competing phase owners for the same match.
+Application sessions complete the [match-entry barrier](match-entry.md) before Simulation.InitializeMatch accepts the SynchronizedMatchContext through GameLoop.Initialize. The completed context is retained by the simulation; the existing atomic match adapter continues as the sole phase owner. No second mutable GameLoop is advanced alongside it. Active-match join/reconnect installs the existing phase checkpoint without restarting initialization or countdown. Phase synchronization and changes to the development adapter’s participation rules remain separate work.
 
 ## Verification
 
