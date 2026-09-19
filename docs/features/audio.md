@@ -4,7 +4,7 @@ Practice and network arenas own an `ArenaAudio` node. It reconstructs sounds fro
 confirmed vehicle, item and match state. Core, network payloads and gameplay timing
 contain no new audio concepts. Removing the arena frees all streams, emitters and
 voices; the music completion callback is disconnected and playlist state resets.
-Main-menu scenes, controls and audio are unchanged.
+The [startup MenuShell](startup.md) owns separately routed looping frontend music on the existing Music bus. It stops that player while an arena owns the viewport, so arena entry does not layer frontend and arena playlists. Arena audio ownership below remains unchanged.
 
 ## Music and arena lifecycle
 

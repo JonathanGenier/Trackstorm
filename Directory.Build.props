@@ -6,7 +6,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TrackstormVersion>0.1.0</TrackstormVersion>
+    <TrackstormVersion>0.1.1</TrackstormVersion>
     <Version>$(TrackstormVersion)</Version>
     <AssemblyVersion>$(TrackstormVersion).0</AssemblyVersion>
     <FileVersion>$(TrackstormVersion).0</FileVersion>
