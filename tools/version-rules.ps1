@@ -23,14 +23,23 @@ function Set-TrackstormVersion {
     return [regex]::Replace($Xml, $pattern, ('${1}' + $Version + '${2}'))
 }
 
+function Get-TrackstormExportPresetField {
+    param([Parameter(Mandatory)][string]$Preset, [Parameter(Mandatory)][string]$Field)
+    # Count assignments separately so an additional malformed assignment cannot hide behind a valid one.
+    $key = [regex]::Escape($Field)
+    $assignments = [regex]::Matches($Preset, ('(?m)^[\t ]*' + $key + '[\t ]*='))
+    $values = [regex]::Matches($Preset, ('(?m)^' + $key + '="([^"\r\n]*)"(?=\r?$)'))
+    if ($assignments.Count -ne 1 -or $values.Count -ne 1) {
+        throw "Expected exactly one quoted tracked $Field field in export_presets.cfg."
+    }
+    return $values[0].Groups[1].Value
+}
+
 function Get-TrackstormExportPresetVersions {
     param([Parameter(Mandatory)][string]$Preset)
     $result = @{}
     foreach ($field in @('application/file_version', 'application/product_version')) {
-        $pattern = '(?m)^' + [regex]::Escape($field) + '="([^"\r\n]*)"(?=\r?$)'
-        $matches = [regex]::Matches($Preset, $pattern)
-        if ($matches.Count -ne 1) { throw "Expected exactly one tracked $field field in export_presets.cfg." }
-        $value = $matches[0].Groups[1].Value
+        $value = Get-TrackstormExportPresetField -Preset $Preset -Field $field
         if ($value -cnotmatch '\A0\.(0|[1-9][0-9]{0,4})\.(0|[1-9][0-9]{0,4})\.0\z' -or [int]$Matches[1] -gt 65534 -or [int]$Matches[2] -gt 65534) {
             throw "Expected $field to use canonical Windows numeric MAJOR.RELEASE.PR.0; actual '$value'."
         }
@@ -49,6 +58,10 @@ function Assert-TrackstormExportPresetVersion {
             throw "Tracked export preset drift: expected $field '$expected'; actual '$($versions[$field])'."
         }
     }
+    foreach ($identity in @(@('application/company_name', 'Thantrick'), @('application/product_name', 'Trackstorm'))) {
+        $value = Get-TrackstormExportPresetField -Preset $Preset -Field $identity[0]
+        if ($value -cne $identity[1]) { throw "Expected fixed export identity $($identity[0]) '$($identity[1])'; actual '$value'." }
+    }
     Write-Host "Trackstorm export preset versions: expected '$expected'; actual file/product '$expected'."
 }
 
@@ -57,8 +70,8 @@ function Set-TrackstormExportPresetVersion {
     $null = Get-TrackstormVersion "<Project><PropertyGroup><TrackstormVersion>$CanonicalVersion</TrackstormVersion></PropertyGroup></Project>"
     # Require one quoted field of each kind before replacing so missing or ambiguous presets fail closed.
     foreach ($field in @('application/file_version', 'application/product_version')) {
+        $null = Get-TrackstormExportPresetField -Preset $Preset -Field $field
         $pattern = '(?m)^' + [regex]::Escape($field) + '="[^"\r\n]*"(?=\r?$)'
-        if ([regex]::Matches($Preset, $pattern).Count -ne 1) { throw "Expected exactly one tracked $field field in export_presets.cfg." }
         $Preset = [regex]::Replace($Preset, $pattern, "$field=`"$CanonicalVersion.0`"")
     }
     Assert-TrackstormExportPresetVersion -Preset $Preset -CanonicalVersion $CanonicalVersion
@@ -74,7 +87,8 @@ function Assert-TrackstormVersionStep {
     $migration = $BaseVersion -ceq '0.0.1.0'
     $parts = $BaseVersion.Split('.')
     $releaseChange = -not $migration -and $Actual.Split('.')[1] -cne $parts[1]
-    if ($migration -or $releaseChange) {
+    $baselineCorrection = $changed -and $BaseVersion -ceq $Actual
+    if ($migration -or $releaseChange -or $baselineCorrection) {
         if (-not $changed -or -not $TransitionJson) { throw 'Release/migration transition requires a new explicit Story authorization.' }
         $transition = ConvertFrom-Json -InputObject $TransitionJson -AsHashtable
         if (($transition.Keys | Sort-Object) -join ',' -cne 'from,kind,story,to') { throw 'Transition authorization requires exactly from, kind, story and to.' }
@@ -82,7 +96,14 @@ function Assert-TrackstormVersionStep {
             throw 'Transition Story must match the assigned branch Jira key.'
         }
         if ($transition.from -cne $BaseVersion -or $transition.to -cne $Actual) { throw "Transition authorization is stale or mismatched: expected from '$BaseVersion' to '$Actual'." }
-        if ($migration) {
+        if ($baselineCorrection) {
+            $baseAuthorization = if ($BaseTransitionJson) { ConvertFrom-Json -InputObject $BaseTransitionJson -AsHashtable } else { @{} }
+            if ($baseAuthorization.story -ceq 'TS-94') { throw 'TS-94 baseline correction authorization has already been consumed by main.' }
+            if ($transition.kind -cne 'baseline-correction' -or $transition.story -cne 'TS-94' -or $BaseVersion -cne '0.1.0') {
+                throw 'Only TS-94 authorizes the 0.1.0 baseline correction.'
+            }
+            $expected = '0.1.0'
+        } elseif ($migration) {
             if ($transition.kind -cne 'migration' -or $transition.story -cne 'TS-70') { throw 'Only TS-70 authorizes the four-to-three-component migration.' }
             $expected = '0.0.15'
         } else {
