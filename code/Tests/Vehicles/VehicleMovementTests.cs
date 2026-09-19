@@ -78,7 +78,7 @@ internal sealed class VehicleMovementTests
         VehicleMovement high = Create(40);
         VehicleMovement analog = Create(2);
         GroundStep(low, steering: 32767);
-        Assert.That(low.State.SteeringAngle, Is.InRange(0.08f, 0.12f));
+        Assert.That(low.State.SteeringAngle, Is.InRange(0.035f, 0.045f));
         for (int index = 0; index < 60; index++)
         {
             low.Step(Frame(low.State.Tick + 1, steering: 32767), Create(2).State.Physics, Vector3.UnitY);
@@ -356,6 +356,74 @@ internal sealed class VehicleMovementTests
         {
             Assert.Throws<ArgumentException>(() => new VehicleConfiguration { DriveTractionReserve = invalid }.Validate());
         }
+    }
+
+    /// <summary>Small road/contact disturbances decay under neutral steering and sustained propulsion.</summary>
+    /// <param name="speed">Entry speed in metres per second.</param>
+    [TestCase(5f)]
+    [TestCase(20f)]
+    [TestCase(35f)]
+    public void NeutralThrottleSettlesSmallYawDisturbance(float speed)
+    {
+        var movement = new VehicleMovement(new(), new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(0.05f, 0, -speed), new Vector3(0, 0.03f, 0)));
+        float peakYaw = 0;
+        for (int tick = 0; tick < 600; tick++)
+        {
+            VehiclePhysicsState integrated = Integrate(movement.State.Physics);
+            var observation = new VehiclePhysicsState(integrated.Position, integrated.Orientation, new Vector3(integrated.LinearVelocity.X, 0, integrated.LinearVelocity.Z), new Vector3(0, integrated.AngularVelocity.Y, 0));
+            movement.Step(Frame(movement.State.Tick + 1, throttle: ushort.MaxValue), observation, Vector3.UnitY);
+            peakYaw = Math.Max(peakYaw, Math.Abs(movement.State.Physics.AngularVelocity.Y));
+        }
+
+        float heading = Vector3.Dot(Vector3.Transform(-Vector3.UnitZ, movement.State.Physics.Orientation), -Vector3.UnitZ);
+        TestContext.WriteLine($"Entry {speed}: peak yaw {peakYaw:F4}, final yaw {movement.State.Physics.AngularVelocity.Y:F4}, heading dot {heading:F4}");
+        Assert.That(peakYaw, Is.LessThan(0.08f));
+        Assert.That(Math.Abs(movement.State.Physics.AngularVelocity.Y), Is.LessThan(0.005f));
+        Assert.That(heading, Is.GreaterThan(0.99f));
+    }
+
+    /// <summary>Lift-off loses speed smoothly without reversing or imposing the powered cap on external velocity.</summary>
+    [Test]
+    public void CoastDownApproachesRestWithinTenSeconds()
+    {
+        VehicleMovement movement = Create(44.44f);
+        for (int tick = 0; tick < 600; tick++)
+        {
+            float previous = movement.State.CommandSpeed;
+            GroundStep(movement);
+            Assert.That(movement.State.CommandSpeed, Is.InRange(previous * 0.99f, previous));
+            Assert.That(movement.State.Physics.LinearVelocity.Z, Is.LessThan(0));
+        }
+
+        Assert.That(movement.State.CommandSpeed, Is.LessThan(0.4f));
+    }
+
+    /// <summary>A raised wheel compresses the sprung body, then near-critical damping settles without pogo.</summary>
+    [Test]
+    public void SuspensionAbsorbsBumpAndSettles()
+    {
+        var tuning = new VehicleConfiguration();
+        var movement = new VehicleMovement(tuning, new VehiclePhysicsState(new Vector3(0, VehicleDimensions.RideHeight, 0), Quaternion.Identity, Vector3.Zero, Vector3.Zero));
+        float peak = 0;
+        float minimumCompression = float.MaxValue;
+        for (int tick = 0; tick < 240; tick++)
+        {
+            VehiclePhysicsState body = Integrate(movement.State.Physics);
+            float road = tick < 30 ? 0.12f * MathF.Pow(MathF.Sin(MathF.PI * tick / 30), 2) : 0;
+            float compression = Math.Max(0, tuning.SuspensionLength - (body.Position.Y - road));
+            minimumCompression = Math.Min(minimumCompression, compression);
+            movement.Step(Frame(movement.State.Tick + 1), body, compression > 0 ? Vector3.UnitY : Vector3.Zero, wheels: new WheelSupport(new Vector4(compression)));
+            peak = Math.Max(peak, body.Position.Y - VehicleDimensions.RideHeight);
+            if (tick > 120)
+            {
+                Assert.That(Math.Abs(body.Position.Y - VehicleDimensions.RideHeight), Is.LessThan(0.005f));
+                Assert.That(Math.Abs(body.LinearVelocity.Y), Is.LessThan(0.02f));
+            }
+        }
+
+        TestContext.WriteLine($"12 cm bump: chassis rise {peak:F3} m, minimum compression {minimumCompression:F3} m");
+        Assert.That(peak, Is.InRange(0.02f, 0.09f));
+        Assert.That(minimumCompression, Is.GreaterThan(0));
     }
 
     private static VehicleMovement Create(float speed = 0) => new(new VehicleConfiguration(), new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(0, 0, -speed), Vector3.Zero));

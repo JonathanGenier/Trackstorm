@@ -29,9 +29,9 @@ public sealed record VehicleConfiguration
     /// <summary>Maximum low-speed wheel angle in radians.</summary>
     public float SteeringAngle { get; init; } = 0.6f;
     /// <summary>Speed in m/s at which wheel authority starts calming substantially.</summary>
-    public float SteeringSpeed { get; init; } = 22;
+    public float SteeringSpeed { get; init; } = 18;
     /// <summary>Wheel angle transition rate in radians per second.</summary>
-    public float SteeringResponse { get; init; } = 6;
+    public float SteeringResponse { get; init; } = 2.4f;
     /// <summary>Distance between axle centers in metres.</summary>
     public float Wheelbase { get; init; } = VehicleDimensions.Wheelbase;
     /// <summary>Tire friction coefficient; combined demands share this budget.</summary>
@@ -49,7 +49,7 @@ public sealed record VehicleConfiguration
     /// <summary>Handbrake release response per second, permitting gradual traction recovery.</summary>
     public float TractionRecovery { get; init; } = 3;
     /// <summary>Rolling resistance per second.</summary>
-    public float CoastDrag { get; init; } = 0.12f;
+    public float CoastDrag { get; init; } = 0.5f;
     /// <summary>Reference mass for engine and brake forces, so heavier tuning retains inertia.</summary>
     public float ReferenceMass { get; init; } = 900;
     /// <summary>Pitch/roll spring stiffness per second squared.</summary>
@@ -63,11 +63,11 @@ public sealed record VehicleConfiguration
     /// <summary>Weak yaw damping; never targets a commanded yaw or drift angle.</summary>
     public float StabilityDamping { get; init; } = 0.65f;
     /// <summary>Fully extended suspension ray length in metres.</summary>
-    public float SuspensionLength { get; init; } = VehicleDimensions.RideHeight + (9.81f / 150);
+    public float SuspensionLength { get; init; } = VehicleDimensions.RideHeight + (9.81f / 100);
     /// <summary>Vertical spring stiffness per unit sprung mass.</summary>
-    public float WheelSpring { get; init; } = 150;
+    public float WheelSpring { get; init; } = 100;
     /// <summary>Vertical wheel damping per unit sprung mass.</summary>
-    public float WheelDamping { get; init; } = 18;
+    public float WheelDamping { get; init; } = 20;
     /// <summary>Gravity acceleration.</summary>
     public float Gravity { get; init; } = 9.81f;
     /// <summary>Safety bound on total velocity, including external impulses.</summary>

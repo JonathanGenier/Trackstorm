@@ -387,10 +387,17 @@ public sealed partial class OvalIntegrationChecks : Node3D
         Check(Math.Abs(bounds.Size.Z - 4.81f) < 0.001f && Math.Abs(bounds.Size.X - 2.662311f) < 0.001f && Math.Abs(bounds.Size.Y - 1.856070f) < 0.001f, $"Production silhouette measures {bounds.Size} metres.");
         Check(model.Scale.IsEqualApprox(Vector3.One) && meshes.All(mesh => mesh.Scale.IsEqualApprox(Vector3.One)), "Blender geometry has applied scale; runtime nodes remain unit scale.");
         CollisionShape3D collision = _vehicle.GetChildren().OfType<CollisionShape3D>().Single();
-        Vector3 size = ((BoxShape3D)collision.Shape).Size;
-        Check(Math.Abs(size.X - bounds.Size.X) < 0.001f && Math.Abs(size.Z - bounds.Size.Z) < 0.001f && Math.Abs(collision.Position.Z - bounds.GetCenter().Z) < 0.001f, "Offline collision agrees with the complete armor/bumper footprint and origin.");
+        Vector3[] hull = ((ConvexPolygonShape3D)collision.Shape).Points;
+        Aabb collisionBounds = new(hull[0], Vector3.Zero);
+        foreach (Vector3 point in hull)
+        {
+            collisionBounds = collisionBounds.Expand(point);
+        }
+
+        Vector3 size = collisionBounds.Size;
+        Check(Math.Abs(size.X - bounds.Size.X) < 0.001f && Math.Abs(size.Z - bounds.Size.Z) < 0.001f && Math.Abs(collisionBounds.GetCenter().Z - bounds.GetCenter().Z) < 0.001f, "Offline collision agrees with the complete armor/bumper footprint and origin.");
         CollisionShape3D online = VehicleVisual.CreateCollision();
-        Check(((BoxShape3D)online.Shape).Size.IsEqualApprox(size) && online.Position.IsEqualApprox(collision.Position), "Network and offline collision definitions agree.");
+        Check(((ConvexPolygonShape3D)online.Shape).Points.SequenceEqual(hull) && online.Position.IsEqualApprox(collision.Position), "Network and offline beveled collision definitions agree.");
         online.Free();
         foreach (MeshInstance3D wheel in meshes.Where(mesh => mesh.Name.ToString().StartsWith("wheel-", StringComparison.Ordinal)))
         {
@@ -401,7 +408,7 @@ public sealed partial class OvalIntegrationChecks : Node3D
         }
 
         Aabb body = model.GetNode<MeshInstance3D>("body").GetAabb();
-        Check(Math.Abs(collision.Position.Y - (size.Y / 2) - body.Position.Y) < 0.001f && Math.Abs(collision.Position.Y + (size.Y / 2) - bounds.End.Y) < 0.001f, "Collision spans the visible underbody through the roof identification panel.");
+        Check(Math.Abs(collisionBounds.Position.Y - body.Position.Y) < 0.001f && Math.Abs(collisionBounds.End.Y - bounds.End.Y) < 0.001f, "Collision spans the visible underbody through the roof identification panel.");
         float clearance = _vehicle.Position.Y + body.Position.Y;
         Check(clearance is > 0.2f and < 0.3f, $"Settled body clearance is {clearance:F3} m.");
     }
