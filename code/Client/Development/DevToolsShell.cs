@@ -20,7 +20,12 @@ internal sealed partial class DevToolsShell : CanvasLayer
     private readonly Dictionary<DevToolsTab, Button> _tabs = new();
     private readonly Dictionary<DevToolsTab, Control> _content = new();
     private readonly Button _close = new() { Text = "Close", CustomMinimumSize = new Vector2(90, 40) };
+    private readonly Button _forceStart = new() { Name = "ForceStart", Text = "Force Start", Visible = false };
     private readonly Dictionary<InputAction, bool> _menuHeld = new();
+    private readonly VBoxContainer _confirmation = new() { Visible = false, SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+    private readonly HBoxContainer _navigation = new();
+    private readonly HBoxContainer _footer = new();
+    private Control? _decisionFocus;
     private PlayerInputAdapter _input = null!;
     private Control? _previousFocus;
     private InputAction? _repeatAction;
@@ -59,7 +64,7 @@ internal sealed partial class DevToolsShell : CanvasLayer
         var layout = new VBoxContainer();
         layout.AddThemeConstantOverride("separation", 10);
         _root.AddChild(layout);
-        var navigation = new HBoxContainer();
+        var navigation = _navigation;
         navigation.AddThemeConstantOverride("separation", 8);
         layout.AddChild(navigation);
         var title = new Label { Text = "DEVTOOLS", CustomMinimumSize = new Vector2(100, 40), VerticalAlignment = VerticalAlignment.Center };
@@ -74,24 +79,45 @@ internal sealed partial class DevToolsShell : CanvasLayer
         }
 
         navigation.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
+        _forceStart.Pressed += Configs.ForceStart;
+        DevToolsButtonPresentation.Configure(_forceStart, "force-start", DevToolsButtonPresentation.Treatment.ForceStart);
+        navigation.AddChild(_forceStart);
         _close.Pressed += Close;
-        navigation.AddChild(_close);
+        DevToolsButtonPresentation.Configure(_close, "close", DevToolsButtonPresentation.Treatment.Close);
         layout.AddChild(new HSeparator());
         layout.AddChild(_pages);
 
-        var configsScroll = new ScrollContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, FollowFocus = true };
         var configsMargin = new MarginContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         configsMargin.AddChild(Configs);
-        configsScroll.AddChild(configsMargin);
-        configsScroll.Resized += () =>
+        configsMargin.Resized += () =>
         {
-            int margin = Math.Max(0, (int)(configsScroll.Size.X - 640) / 2);
+            int margin = Math.Max(0, (int)(configsMargin.Size.X - 640) / 2);
             configsMargin.AddThemeConstantOverride("margin_left", margin);
             configsMargin.AddThemeConstantOverride("margin_right", margin);
         };
-        AddPage(DevToolsTab.Configs, configsScroll);
+        AddPage(DevToolsTab.Configs, configsMargin);
         AddPage(DevToolsTab.Stats, Stats);
         AddPage(DevToolsTab.Logs, Logs);
+        layout.AddChild(_footer);
+        _footer.AddChild(Configs.Footer);
+        _footer.Alignment = BoxContainer.AlignmentMode.End;
+        Configs.FooterActions.AddChild(_close);
+        layout.AddChild(_confirmation);
+        _confirmation.AddChild(new Label { Text = "Unapplied Configs changes", AutowrapMode = TextServer.AutowrapMode.WordSmart });
+        _confirmation.AddChild(new Label { Text = "Apply these changes before closing, discard them, or stay in DevTools?", AutowrapMode = TextServer.AutowrapMode.WordSmart });
+        foreach ((string choice, string icon, DevToolsButtonPresentation.Treatment treatment) in new[]
+        {
+            ("Apply", "apply", DevToolsButtonPresentation.Treatment.Apply),
+            ("Discard", "discard", DevToolsButtonPresentation.Treatment.Cancel),
+            ("Stay", "stay", DevToolsButtonPresentation.Treatment.Neutral),
+        })
+        {
+            var button = new Button { Text = choice, CustomMinimumSize = new Vector2(0, 40) };
+            button.Pressed += () => ResolveClose(choice);
+            DevToolsButtonPresentation.Configure(button, icon, treatment);
+            _confirmation.AddChild(button);
+        }
+
         _tabs[DevToolsTab.Configs].Disabled = !DeveloperTools.Enabled;
         Select(DeveloperTools.Enabled ? DevToolsTab.Configs : DevToolsTab.Stats);
     }
@@ -133,6 +159,7 @@ internal sealed partial class DevToolsShell : CanvasLayer
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        _forceStart.Visible = DeveloperTools.Enabled && Configs.Session()?.IsDeveloperHost == true;
         SampleNavigation(IsOpen);
         if (IsOpen && _repeatAction is { } repeat)
         {
@@ -162,6 +189,11 @@ internal sealed partial class DevToolsShell : CanvasLayer
     /// <param name="tab">Destination selected by shortcut or navigation.</param>
     internal void Open(DevToolsTab tab)
     {
+        if (_confirmation.Visible)
+        {
+            return;
+        }
+
         if (tab == DevToolsTab.Configs && !DeveloperTools.Enabled)
         {
             return;
@@ -188,18 +220,25 @@ internal sealed partial class DevToolsShell : CanvasLayer
             return;
         }
 
-        _root.Hide();
-        _repeatAction = null;
-        NavigationClosed();
-        _input.DiagnosticSuppressed = false;
-        _input.Observe();
-        GetViewport().GuiGetFocusOwner()?.ReleaseFocus();
-        if (IsInstanceValid(_previousFocus) && _previousFocus!.IsInsideTree() && _previousFocus.IsVisibleInTree())
+        if (_confirmation.Visible)
         {
-            _previousFocus.GrabFocus();
+            ResolveClose("Stay");
+            return;
         }
 
-        _previousFocus = null;
+        if (Configs.HasUnappliedChanges)
+        {
+            _decisionFocus = GetViewport().GuiGetFocusOwner();
+            _pages.Hide();
+            _navigation.Hide();
+            _footer.Hide();
+            _confirmation.Show();
+            _repeatAction = null;
+            Focusable(_confirmation).Last().GrabFocus();
+            return;
+        }
+
+        FinishClose();
     }
 
     private static bool KeyMatches(InputEventKey input, Key key) => input.Keycode == key || input.PhysicalKeycode == key;
@@ -218,6 +257,53 @@ internal sealed partial class DevToolsShell : CanvasLayer
                 yield return descendant;
             }
         }
+    }
+
+    private void ResolveClose(string choice)
+    {
+        _confirmation.Hide();
+        _pages.Show();
+        _navigation.Show();
+        _footer.Show();
+        if (choice == "Discard")
+        {
+            Configs.Cancel();
+            FinishClose();
+        }
+        else if (choice == "Apply")
+        {
+            Select(DevToolsTab.Configs);
+            if (Configs.Apply())
+            {
+                FinishClose();
+            }
+            else
+            {
+                _tabs[DevToolsTab.Configs].GrabFocus();
+            }
+        }
+        else if (IsInstanceValid(_decisionFocus) && _decisionFocus!.IsVisibleInTree())
+        {
+            _decisionFocus.GrabFocus();
+        }
+
+        _decisionFocus = null;
+    }
+
+    private void FinishClose()
+    {
+        _root.Hide();
+        _repeatAction = null;
+        NavigationClosed();
+        _input.DiagnosticSuppressed = false;
+        _input.Observe();
+        GetViewport().GuiGetFocusOwner()?.ReleaseFocus();
+        if (IsInstanceValid(_previousFocus) && _previousFocus!.IsInsideTree() && _previousFocus.IsVisibleInTree())
+        {
+            _previousFocus.GrabFocus();
+        }
+
+        _previousFocus = null;
     }
 
     private bool SampleNavigation(bool dispatch)
@@ -279,6 +365,7 @@ internal sealed partial class DevToolsShell : CanvasLayer
         }
 
         SelectedTab = tab;
+        Configs.SetConfigurationFooterVisible(tab == DevToolsTab.Configs && Configs.Session()?.IsDeveloperHost == true);
         foreach ((DevToolsTab candidate, Control content) in _content)
         {
             bool selected = candidate == tab;

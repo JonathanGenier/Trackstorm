@@ -125,7 +125,7 @@ public sealed partial class MenuIntegrationChecks : Node
             Press("Developer Options");
             await Frames(20);
             Check(_menu.CurrentPage == MenuPage.Settings && _devTools.IsOpen && _devTools.SelectedTab == DevToolsTab.Configs, "Settings routes to unified DevTools Configs");
-            Check(Buttons(_devTools.Configs).Any(button => button.IsVisibleInTree() && button.Text == "Apply Settings"), "Configs exposes existing host tuning");
+            Check(Buttons(_devTools.Configs.Footer).Any(button => button.IsVisibleInTree() && button.Text == "Apply Settings"), "Configs exposes existing host tuning in fixed footer");
             await Capture("DeveloperOptions");
             await VerifyDevToolsNavigation();
             Tap(Key.Escape);
