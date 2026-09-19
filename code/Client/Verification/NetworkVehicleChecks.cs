@@ -173,6 +173,8 @@ public sealed partial class NetworkVehicleChecks : Node
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         }
 
+        // Match the vehicle harness: deferred node frees can finish before the native mixer releases playbacks.
+        await Task.Delay(100);
         GD.Print("Network vehicle integration passed.");
         GetTree().Quit();
     }

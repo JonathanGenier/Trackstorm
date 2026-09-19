@@ -89,6 +89,24 @@ internal sealed class GameVersionTests
         Assert.That(assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion, Is.EqualTo(canonical));
     }
 
+    /// <summary>The release runtime publishes its exact identity and rejects adjacent or container versions.</summary>
+    [Test]
+    public void ReleaseRuntimePublishesExactVersionAndRequiresExactCompatibility()
+    {
+        Assert.That(GameVersion.Current.ToString(), Is.EqualTo("0.1.0"));
+        Assert.That(LobbyCodec.DecodeCommand(LobbyCodec.EncodeCommand(LobbyCommand.Join, null)).GameVersion, Is.EqualTo("0.1.0"));
+        Assert.That(LobbyCodec.DecodeCommand(LobbyCodec.EncodeResume(100, 2, 1)).GameVersion, Is.EqualTo("0.1.0"));
+        var host = new LobbyAuthority(100, "Host");
+        foreach (string incompatible in new[] { "0.0.16", "0.1.1", "0.2.0", "0.1.0.0" })
+        {
+            Assert.That(GameVersion.Current.IsCompatible(incompatible), Is.False);
+            Assert.That(host.Join(10, incompatible, "Guest"), Is.Zero);
+            Assert.That(host.Peers, Is.Empty);
+        }
+
+        Assert.That(host.Join(10, "0.1.0", "Guest"), Is.EqualTo(2));
+    }
+
     /// <summary>Rejection consumes no identity, slot, event or reservation.</summary>
     /// <param name="remote">Incompatible joining runtime.</param>
     [TestCase("0.1.3")]
