@@ -175,6 +175,7 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Capture("arena.png");
                 foreach (var session in _sessions)
                 {
+                    OvalGameplayAssertions.Verify(session.Arena!);
                     RemoteVehicleTagChecks.Verify(session.Arena!, session.Lobby!);
                 }
 
@@ -253,7 +254,7 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Require(_sessions[7].Lobby!.LocalPlayerId > _departedId, "Active admission allocates a new identity.");
                 Require(_sessions.All(session => session.Arena!.Driver.Match!.Phase == Core.Matches.MatchPhase.Active), "Match remains active on every peer.");
                 Require(_sessions.All(session => session.Arena!.Driver.Latest!.Vehicles.Select(vehicle => vehicle.State.VehicleId).Distinct().Count() == 8), "Every peer observes exactly eight unique vehicles.");
-                Require(_sessions[7].Arena!.Driver.ItemState!.Spawns.Count == 8, "Fresh bootstrap includes every pickup marker.");
+                Require(_sessions[7].Arena!.Driver.ItemState!.Spawns.Count == 0, "Fresh bootstrap preserves the oval's empty pickup layout.");
                 Capture("active-join.png");
                 _departedId = _sessions[7].Lobby!.LocalPlayerId;
                 _sessions[7].Leave();

@@ -30,7 +30,8 @@ public sealed class HostVehicleSession
     /// <param name="hostPlayerId">Stable identity of the current authority.</param>
     /// <param name="configurationRevision">Session configuration revision retained across arena transitions.</param>
     /// <param name="events">Optional session journal shared across arena generations.</param>
-    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null, ulong hostPlayerId = 1, ulong configurationRevision = 0, EventStream? events = null)
+    /// <param name="arena">Scene-authored map contract; omitted only by legacy fixtures.</param>
+    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null, ulong hostPlayerId = 1, ulong configurationRevision = 0, EventStream? events = null, Arenas.ArenaConfiguration? arena = null)
     {
         ArgumentOutOfRangeException.ThrowIfZero(sessionId);
         SessionId = sessionId;
@@ -38,7 +39,7 @@ public sealed class HostVehicleSession
         HostPlayerId = hostPlayerId;
         var effective = configuration ?? new GameplayConfiguration { Damage = damageConfiguration ?? new(), Items = itemConfiguration ?? new(), Respawn = respawnConfiguration ?? new(), Match = matchConfiguration ?? new() };
         Configuration = new GameplayConfigurationState(configurationRevision, effective);
-        World = new Simulation.Simulation(new SimulationConfiguration(TickRate), effective.Respawn, match: effective.Match);
+        World = new Simulation.Simulation(new SimulationConfiguration(TickRate), effective.Respawn, arena, effective.Match);
         World.Events = events ?? new EventStream();
         World.Events.Record(EventCategory.Match, "Created");
         Items = new ItemAuthority(effective.Items);
@@ -69,8 +70,9 @@ public sealed class HostVehicleSession
     /// <param name="continuation">Authority-only continuation.</param>
     /// <param name="host">Elected player already present in the world.</param>
     /// <param name="events">Replacement session journal, without historical gameplay replay.</param>
+    /// <param name="arena">The same scene-authored contract used by the continuing peers.</param>
     /// <returns>Restored authority with neutral remote inputs awaiting authenticated rebind.</returns>
-    public static HostVehicleSession Restore(ResumeCheckpoint checkpoint, HostRestoreState continuation, ulong host, EventStream? events = null)
+    public static HostVehicleSession Restore(ResumeCheckpoint checkpoint, HostRestoreState continuation, ulong host, EventStream? events = null, Arenas.ArenaConfiguration? arena = null)
     {
         var world = checkpoint.Items.World;
         if (!world.Vehicles.Any(vehicle => vehicle.State.VehicleId == host) || continuation.NextVehicle < world.Vehicles.Max(vehicle => vehicle.State.VehicleId))
@@ -85,7 +87,7 @@ public sealed class HostVehicleSession
             throw new ArgumentException("Migration tuning does not match its resume boundary.");
         }
 
-        var result = new HostVehicleSession(world.Session, configuration: tuning, hostPlayerId: host)
+        var result = new HostVehicleSession(world.Session, configuration: tuning, hostPlayerId: host, arena: arena)
         {
             Configuration = checkpoint.Configuration,
         };
@@ -427,5 +429,5 @@ public sealed class HostVehicleSession
     /// <returns>Immutable authoritative snapshot.</returns>
     public WorldSnapshot Snapshot() => new(SessionId, World.State.Tick, World.State.Vehicles.Select(state => new ReplicatedVehicle(state, _peers.Values.FirstOrDefault(entry => entry.Vehicle == state.VehicleId).Inputs?.LastAcknowledged ?? _disconnected.GetValueOrDefault(state.VehicleId).Inputs?.LastAcknowledged ?? 0)), Configuration.Revision);
 
-    private static VehiclePhysicsState Spawn(int slot) => Arenas.PrototypeArena.Configuration.Spawn(slot);
+    private VehiclePhysicsState Spawn(int slot) => World.Arena.Spawn(slot);
 }

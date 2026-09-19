@@ -93,18 +93,20 @@ internal sealed class GameVersionTests
     [Test]
     public void ReleaseRuntimePublishesExactVersionAndRequiresExactCompatibility()
     {
-        Assert.That(GameVersion.Current.ToString(), Is.EqualTo("0.1.0"));
-        Assert.That(LobbyCodec.DecodeCommand(LobbyCodec.EncodeCommand(LobbyCommand.Join, null)).GameVersion, Is.EqualTo("0.1.0"));
-        Assert.That(LobbyCodec.DecodeCommand(LobbyCodec.EncodeResume(100, 2, 1)).GameVersion, Is.EqualTo("0.1.0"));
+        string current = GameVersion.Current.ToString();
+        Assert.That(LobbyCodec.DecodeCommand(LobbyCodec.EncodeCommand(LobbyCommand.Join, null)).GameVersion, Is.EqualTo(current));
+        Assert.That(LobbyCodec.DecodeCommand(LobbyCodec.EncodeResume(100, 2, 1)).GameVersion, Is.EqualTo(current));
         var host = new LobbyAuthority(100, "Host");
-        foreach (string incompatible in new[] { "0.0.16", "0.1.1", "0.2.0", "0.1.0.0" })
+        int release = GameVersion.Current.Release;
+        int revision = GameVersion.Current.Revision;
+        foreach (string incompatible in new[] { new GameVersion(release, revision == 65534 ? revision - 1 : revision + 1).ToString(), new GameVersion(release == 65534 ? release - 1 : release + 1, revision).ToString(), current + ".0" })
         {
             Assert.That(GameVersion.Current.IsCompatible(incompatible), Is.False);
             Assert.That(host.Join(10, incompatible, "Guest"), Is.Zero);
             Assert.That(host.Peers, Is.Empty);
         }
 
-        Assert.That(host.Join(10, "0.1.0", "Guest"), Is.EqualTo(2));
+        Assert.That(host.Join(10, current, "Guest"), Is.EqualTo(2));
     }
 
     /// <summary>Rejection consumes no identity, slot, event or reservation.</summary>

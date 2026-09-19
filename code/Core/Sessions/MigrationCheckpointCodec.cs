@@ -33,8 +33,9 @@ public static class MigrationCheckpointCodec
 
     /// <summary>Validates integrity, schema, nested contracts and complete host restore.</summary>
     /// <param name="bytes">Untrusted bounded payload.</param>
+    /// <param name="map">Local authored map contract; geometry is not supplied by a network peer.</param>
     /// <returns>Detached validated checkpoint.</returns>
-    public static MigrationCheckpoint Decode(ReadOnlySpan<byte> bytes)
+    public static MigrationCheckpoint Decode(ReadOnlySpan<byte> bytes, Arenas.ArenaConfiguration? map = null)
     {
         if (bytes.Length is < 36 or > MaximumBytes || bytes[0] != 'T' || bytes[1] != 'C' || bytes[2] != 5 ||
             !CryptographicOperations.FixedTimeEquals(bytes.Slice(3, 32), SHA256.HashData(bytes[35..])))
@@ -58,7 +59,7 @@ public static class MigrationCheckpointCodec
             }
 
             var lobby = new LobbyRestoreState(state, wire.Tick, wire.NextId, wire.Subjects, configuration.State);
-            return new MigrationCheckpoint(wire.Sequence, lobby, wire.Arena is null ? null : ResumeCheckpointCodec.Decode(wire.Arena), wire.Host, wire.LeaseSession, wire.RoutingId);
+            return new MigrationCheckpoint(wire.Sequence, lobby, wire.Arena is null ? null : ResumeCheckpointCodec.Decode(wire.Arena), wire.Host, wire.LeaseSession, wire.RoutingId, map);
         }
         catch (Exception exception) when (exception is JsonException or InvalidOperationException or OverflowException or NullReferenceException)
         {

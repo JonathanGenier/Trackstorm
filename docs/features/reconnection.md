@@ -65,6 +65,8 @@ Deterministic Core tests cover immediate lobby removal/fresh admission, match-lo
 
 `check-reconnect.ps1 -GodotPath <exe>` exercises real local UDP sockets and two isolated native Godot worlds: immediate lobby removal/fresh admission, three arena resyncs (the first after 125 seconds offline), retained vehicle nodes, cleared input/interpolation history, HP/item/spawn/match continuity, dimmed offline standings, retained final results, Return cleanup and a fresh match generation. Session clocks also advance beyond the old thirty-second/two-minute boundaries. Initial score totals and Finished are authoritative fixtures; the separate match harness verifies real combat scoring. `-Visual` captures the resumed arena and offline active/final standings under `.godot/reconnect-checks`. Existing eight-peer lobby, item, pickup, death/respawn, match and vehicle checks cover surrounding regressions. The EOS smoke check covers real authentication and lobby/P2P lifecycle with a solo host. Separate-PC EOS interruption, changed public IP, full restart during an active match and long-session Internet soak still require real-device verification using the EOS development procedure.
 
+Native resume verification uses the [active oval](oval-map.md), retaining zero placed pickups and no prop snapshots. Its wall-impact health/tag scenario owns an explicit test-only collider outside the map scene.
+
 [Feature index](README.md)
 
 The [Event Log](event-log.md) retains its sequence watermark during in-process resume. A new transport receives events from its reconnect admission onward, without replaying older gameplay; the original host timestamps and sequence identities survive replication.

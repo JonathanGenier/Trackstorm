@@ -4,7 +4,7 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Client.Vehicles;
 
-/// <summary>Small local arena for exercising production movement against ramps, walls, vehicles, and movable props.</summary>
+/// <summary>Local practice composing production vehicles and global presentation around the active map.</summary>
 public sealed partial class VehicleArena : Node3D
 {
     private readonly VehicleChaseCamera _camera = new() { Name = "ChaseCamera", Current = true, Fov = 65 };
@@ -17,6 +17,10 @@ public sealed partial class VehicleArena : Node3D
 
     /// <summary>Retains the focused ramp/surface fixture for existing movement regression tests.</summary>
     internal bool LegacyTestLayout { get; init; }
+    /// <summary>Retains the old combat map only for its explicit content regression fixture.</summary>
+    internal bool PrototypeMapForVerification { get; init; }
+    /// <summary>The map loaded by ordinary local practice.</summary>
+    internal Node3D Map { get; private set; } = null!;
     /// <summary>All eight production practice vehicles, or two in the focused fixture.</summary>
     internal IReadOnlyList<VehicleBody> Vehicles => _vehicles;
 
@@ -35,11 +39,6 @@ public sealed partial class VehicleArena : Node3D
     {
         // Only native vehicle bodies opt into physics interpolation; effects update in render time.
         PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off;
-        if (!LegacyTestLayout)
-        {
-            Simulation = new Trackstorm.Core.Simulation.Simulation(new Trackstorm.Core.Simulation.SimulationConfiguration(60), new RespawnConfiguration());
-        }
-
         AddChild(_destruction);
         AddChild(_audio);
         _audio.Initialize(1);
@@ -83,11 +82,22 @@ public sealed partial class VehicleArena : Node3D
         }
         else
         {
-            _layout = new Arenas.CombatArena { Name = "PrototypeArena" };
-            AddChild(_layout);
+            if (PrototypeMapForVerification)
+            {
+                _layout = new Arenas.CombatArena { Name = "PrototypeArena" };
+                Map = _layout;
+            }
+            else
+            {
+                Map = Arenas.ActiveMap.Load();
+            }
+
+            AddChild(Map);
+            var markers = _layout?.ValidateScene() ?? Arenas.ActiveMap.ReadConfiguration(Map);
+            Simulation = new Trackstorm.Core.Simulation.Simulation(new Trackstorm.Core.Simulation.SimulationConfiguration(60), new RespawnConfiguration(), markers);
             for (int slot = 0; slot < Core.Arenas.ArenaConfiguration.SpawnCount; slot++)
             {
-                var spawn = Core.Arenas.PrototypeArena.Configuration.Spawn(slot);
+                var spawn = Simulation.Arena.Spawn(slot);
                 _vehicles.Add(new VehicleBody { Name = $"Vehicle{slot + 1}", VehicleId = (ulong)slot + 1, Position = VehicleBody.ToGodot(spawn.Position), Quaternion = VehicleBody.ToGodot(spawn.Orientation), Paint = Color.FromHsv(slot * 0.12f, 0.45f, 0.7f) });
             }
 
@@ -114,9 +124,9 @@ public sealed partial class VehicleArena : Node3D
             Crate.AddChild(VehicleBody.Box(new Vector3(1.8f, 1.8f, 1.8f), Vector3.Zero, new Color("ddba5b")));
             AddChild(Crate);
         }
-        else
+        else if (_layout is not null)
         {
-            Crate = _layout!.Props[0];
+            Crate = _layout.Props[0];
         }
 
         AddChild(_camera);
@@ -199,10 +209,10 @@ public sealed partial class VehicleArena : Node3D
         Simulation.Events.Record(Core.Events.EventCategory.Developer, "Reset practice arena", actor: 1);
         if (!LegacyTestLayout)
         {
-            _layout!.ResetProps();
+            _layout?.ResetProps();
             for (int slot = 0; slot < _vehicles.Count; slot++)
             {
-                _vehicles[slot].ResetBody(Core.Arenas.PrototypeArena.Configuration.Spawn(slot));
+                _vehicles[slot].ResetBody(Simulation.Arena.Spawn(slot));
             }
 
             return;

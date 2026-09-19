@@ -89,4 +89,6 @@ The [lease service tests](authority-leases.md) cover atomic fencing and authenti
 
 Real EOS multi-PC host loss, service ownership notification timing, Locked migration admission, changed-network former-host restart and long-session Internet behavior require separate-device verification. Never infer these from local UDP or fake-provider success. See [EOS development](../eos-development.md).
 
+Checkpoint construction, decode validation and replacement authority use the locally loaded [active map contract](oval-map.md). The network does not supply geometry or alternate spawn coordinates. This preserves the oval's eight player slots and empty pickup layout through migration.
+
 [Feature index](README.md)

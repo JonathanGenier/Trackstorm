@@ -213,18 +213,22 @@ internal sealed class MigrationTests
     }
 
     /// <summary>Checkpoint restores all existing gameplay codecs and rejects corrupt bytes before mutation.</summary>
-    [Test]
-    public void CompleteCheckpointRoundTripPreservesTokensRngAndWorld()
+    /// <param name="emptyMap">Whether the active map has no placed pickups.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void CompleteCheckpointRoundTripPreservesTokensRngAndWorld(bool emptyMap)
     {
         var lobby = Lobby();
         lobby.SetReady(0, true);
         lobby.SetReady(10, true);
         lobby.SetReady(20, true);
         Assert.That(lobby.Start(0), Is.True);
-        var host = new HostVehicleSession(lobby.State.Match);
+        var original = PrototypeArena.Configuration;
+        var map = emptyMap ? new ArenaConfiguration(original.Minimum, original.Maximum, original.Players, [], original.Surfaces) : original;
+        var host = new HostVehicleSession(lobby.State.Match, arena: map);
         host.JoinPlayer(10, 2);
         host.JoinPlayer(20, 3);
-        host.RegisterSpawns(PrototypeArena.Configuration);
+        host.RegisterSpawns(map);
         host.Items.Grant(host.World, 3, HeldItem.Wrench);
         host.Items.Grant(host.World, 2, HeldItem.Missile);
         host.UseItem(10, host.SessionId, 1, host.Items.Slots.Single(slot => slot.Vehicle == 2).Token);
@@ -235,9 +239,16 @@ internal sealed class MigrationTests
         var resume = new ResumeCheckpoint(new ItemPublication(2, world, host.Items.Slots, host.Items.Missiles, [], host.Spawns!.States), match, null, host.Configuration);
         var inconsistent = new LobbyRestoreState(lobby.State, 0, 3, lobby.Capture("host").Subjects, new(1, host.Configuration.Configuration));
         Assert.Throws<ArgumentException>(() => new MigrationCheckpoint(1, inconsistent, resume, host.CaptureAuthority()));
-        byte[] encoded = MigrationCheckpointCodec.Encode(new MigrationCheckpoint(1, lobby.Capture("host"), resume, host.CaptureAuthority()));
-        var decoded = MigrationCheckpointCodec.Decode(encoded);
-        var replacement = HostVehicleSession.Restore(decoded.Arena!, decoded.Host!, 2);
+        byte[] encoded = MigrationCheckpointCodec.Encode(new MigrationCheckpoint(1, lobby.Capture("host"), resume, host.CaptureAuthority(), map: map));
+        if (emptyMap)
+        {
+            Assert.Throws<ArgumentException>(() => MigrationCheckpointCodec.Decode(encoded, original));
+        }
+
+        var decoded = MigrationCheckpointCodec.Decode(encoded, map);
+        var replacement = HostVehicleSession.Restore(decoded.Arena!, decoded.Host!, 2, arena: map);
+        Assert.That(replacement.World.Arena, Is.SameAs(map));
+        Assert.That(replacement.Spawns!.States.Count, Is.EqualTo(map.Items.Count));
         Assert.That(replacement.World.State.Vehicles.Select(v => v.VehicleId), Is.EquivalentTo(new ulong[] { 1, 2, 3 }));
         Assert.That(replacement.Items.TokenHighWater, Is.EqualTo(host.Items.TokenHighWater));
         Assert.That(replacement.Items.Missiles, Is.EqualTo(host.Items.Missiles));

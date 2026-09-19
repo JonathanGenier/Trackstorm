@@ -2,6 +2,7 @@
 /android/
 .import/
 *.import
+!assets/maps/oval/oval_foundation.glb.import
 .export/
 .godot/
 *.translation

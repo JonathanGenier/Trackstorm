@@ -53,6 +53,7 @@ public sealed partial class MenuIntegrationChecks : Node
             CheckCursor(false, "Main Menu Settings pointer");
             Press("Back");
             await EnterArena();
+            OvalGameplayAssertions.Verify(_session.Arena!);
             CheckCursor(true, "gameplay captures mouse");
             VerifyFocus(true);
             VerifyMouseItem();
