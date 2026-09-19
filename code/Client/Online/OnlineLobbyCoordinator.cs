@@ -111,6 +111,8 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal RetainedSessionDecision RetainedDecision { get; private set; }
     /// <summary>Whether the retained-session flow owns the menu instead of normal discovery.</summary>
     internal bool HasRetainedDecision => RetainedDecision != RetainedSessionDecision.None;
+    /// <summary>Whether authority has confirmed a reservation and the retained-match modal owns interaction.</summary>
+    internal bool ShowsRetainedDecision => RetainedDecision is RetainedSessionDecision.Choose or RetainedSessionDecision.Reconnecting or RetainedSessionDecision.Leaving;
     /// <summary>Monotonic clock shared with the authority lifecycle.</summary>
     internal TimeProvider Clock => _time;
     /// <summary>Credential-free EOS coordination state for Developer Options and manual diagnosis.</summary>
@@ -223,7 +225,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     /// <summary>Refreshes compatible lobbies without accepting an obsolete search completion.</summary>
     internal void Refresh()
     {
-        if (_disposed || Busy || _searching || HasRetainedDecision)
+        if (_disposed || Busy || _searching || ShowsRetainedDecision)
         {
             return;
         }
@@ -1033,7 +1035,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         _resumeRetry = _time.GetTimestamp();
         _resumePending = true;
         _resumeAttempts++;
-        Status = "Reconnecting";
+        Status = RetainedDecision == RetainedSessionDecision.Checking ? "Checking previous session…" : "Reconnecting";
         _provider.Resume(id, (lobby, failure) =>
         {
             if (_disposed || epoch != _epoch)

@@ -1138,13 +1138,18 @@ internal sealed partial class OnlineLobbyTests
         try
         {
             using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), clock, store);
+            Assert.That(client.ShowsRetainedDecision, Is.False, "A locator must validate silently.");
             client.Tick();
             clock.Advance(181);
             client.Tick();
             Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Failed));
+            Assert.That(client.ShowsRetainedDecision, Is.False, "Unavailable validation must not trap the player behind a retained-match prompt.");
+            Assert.That(client.CanResumeRetained, Is.True, "Unavailable validation must remain manually retryable.");
             Assert.That(store.Load(User(2).Value), Is.Not.Null);
             Assert.That(client.Status, Does.Contain("not confirmed"));
             service.Lobbies[lobby.Id] = lobby;
+            client.Refresh();
+            Assert.That(client.Browser.Rows.Select(row => row.Id), Does.Contain(lobby.Id), "The normal lobby browser must remain refreshable after validation fails.");
             clock.Advance(3);
             client.RetryRetained();
             Assert.That(client.Active!.Session, Is.EqualTo(lobby.Session));

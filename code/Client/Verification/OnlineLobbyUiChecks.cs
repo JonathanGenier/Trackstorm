@@ -83,6 +83,8 @@ public sealed partial class OnlineLobbyUiChecks : Node
             {
                 case 0:
                     Require(!Controls<Button>().Single(button => button.IsVisibleInTree() && button.Text == "Host Game").Disabled, "Host Game did not enable after authentication and coordinator creation.");
+                    Require(!Controls<VBoxContainer>().Single(control => control.Name == "RetainedMatchDecision").IsVisibleInTree(), "Normal launch showed a retained-match prompt without a locator.");
+                    Require(Controls<LineEdit>().Single(edit => edit.PlaceholderText == "Search lobbies").IsVisibleInTree(), "Normal launch did not enter the lobby browser.");
                     Require(Controls<Label>().Any(label => label.Text == "LOCKED"), "Locked row missing.");
                     Require(!Controls<LineEdit>().Any(edit => edit.IsVisibleInTree() && edit.PlaceholderText.Contains("IP:", StringComparison.Ordinal)), "IP field visible in normal flow.");
                     Require(Controls<Label>().Any(label => label.Text.StartsWith("Game version mismatch.", StringComparison.Ordinal) && label.Text.Contains(GameVersion.Current.ToString(), StringComparison.Ordinal)), "Visible version mismatch missing.");
@@ -132,33 +134,48 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     BeginDecision();
                     break;
                 case 9:
+                    Require(_coordinator.RetainedDecision == RetainedSessionDecision.Checking, "Retained locator did not begin validation.");
+                    Require(!Controls<VBoxContainer>().Single(control => control.Name == "RetainedMatchDecision").IsVisibleInTree(), "Local locator exposed the retained-match prompt before authority confirmation.");
+                    Require(Controls<LineEdit>().Single(edit => edit.PlaceholderText == "Search lobbies").IsVisibleInTree(), "Lobby browser was hidden while retained-session validation was pending.");
+                    Require(Controls<Button>().Any(button => button.IsVisibleInTree() && button.TooltipText == "Arena Public"), "Lobby list was unavailable while retained-session validation was pending.");
+                    _reservationGateway!.ConfirmAvailable();
+                    Capture("retained-checking");
+                    break;
+                case 10:
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Choose, "Reservation prompt missing.");
+                    Require(Controls<VBoxContainer>().Single(control => control.Name == "RetainedMatchDecision").IsVisibleInTree(), "Confirmed reservation did not expose the retained-match prompt.");
                     Require(!Controls<Button>().Any(button => button.IsVisibleInTree() && button.Text == "Host Game"), "Browser visible during reservation decision.");
                     Capture("retained-choice");
                     Press("Leave Match");
                     Press("Leave Match");
                     break;
-                case 10:
+                case 11:
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Leaving, "Unconfirmed release returned to browser.");
                     Require(_reservationGateway!.AbandonRequests == 1, "Double click sent duplicate release.");
                     Capture("retained-leaving");
                     _reservationGateway.ConfirmAbandon();
                     break;
-                case 11:
+                case 12:
                     Require(!_coordinator.HasRetainedDecision && _coordinator.Active is null, "Acknowledged release did not return to browser.");
                     Require(_resumeStore!.Load(new string('1', 32)) is null, "Released locator persisted.");
                     _reservationBinding = null;
                     BeginDecision();
                     break;
-                case 12:
+                case 13:
+                    Require(_coordinator.RetainedDecision == RetainedSessionDecision.Checking, "Second retained locator did not begin validation.");
+                    Require(!Controls<VBoxContainer>().Single(control => control.Name == "RetainedMatchDecision").IsVisibleInTree(), "Second local locator exposed a prompt before confirmation.");
+                    _reservationGateway!.ConfirmAvailable();
+                    break;
+                case 14:
+                    Require(_coordinator.RetainedDecision == RetainedSessionDecision.Choose, "Second reservation confirmation did not expose the choice.");
                     Press("Reconnect");
                     Press("Reconnect");
                     break;
-                case 13:
+                case 15:
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Reconnecting, "Reconnect choice not submitted.");
                     Require(_reservationGateway!.ResumeRequests == 1, "Reconnect did not use exactly one existing resume intent.");
                     Capture("retained-reconnecting");
-                    GD.Print("Online lobby UI integration passed: browser/search/public/locked/create/rename and retained-match choice/release acknowledgement/reconnect controls; fake provider, no native EOS authentication.");
+                    GD.Print("Online lobby UI integration passed: launch enters the browser, local hints validate without a prompt, authority confirmation exposes the retained-match modal, and release/reconnect controls remain idempotent; fake provider, no native EOS authentication.");
                     GetTree().Quit();
                     break;
             }
@@ -304,11 +321,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
         public void Send(TransportMessage message)
         {
             var command = LobbyCodec.DecodeCommand(message.Payload.Span).Command;
-            if (command == LobbyCommand.InspectReservation)
-            {
-                _received.Enqueue(new(1, LobbyCodec.EncodeReservation(100, 2, 1, 1, ReservationResult.Available), TransportDelivery.Reliable));
-            }
-            else if (command == LobbyCommand.Abandon)
+            if (command == LobbyCommand.Abandon)
             {
                 AbandonRequests++;
             }
@@ -318,6 +331,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
             }
         }
 
+        internal void ConfirmAvailable() => _received.Enqueue(new(1, LobbyCodec.EncodeReservation(100, 2, 1, 1, ReservationResult.Available), TransportDelivery.Reliable));
         internal void ConfirmAbandon() => _received.Enqueue(new(1, LobbyCodec.EncodeReservation(100, 2, 1, 1, ReservationResult.Abandoned), TransportDelivery.Reliable));
     }
 }

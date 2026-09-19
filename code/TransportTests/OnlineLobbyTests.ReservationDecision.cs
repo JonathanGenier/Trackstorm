@@ -52,6 +52,7 @@ internal sealed partial class OnlineLobbyTests
         {
             using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), clock, store);
             Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Checking));
+            Assert.That(client.ShowsRetainedDecision, Is.False, "A local locator is not authoritative enough to own the UI.");
             client.Tick();
             using var gateway = new Gateway();
             gateway.ConnectPeer(1);
@@ -67,6 +68,7 @@ internal sealed partial class OnlineLobbyTests
             binding.Driver.Pump(0);
             client.Tick();
             Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Choose));
+            Assert.That(client.ShowsRetainedDecision, Is.True, "Authority confirmation must expose the player decision.");
             Assert.That(binding.Driver.State, Is.Null);
             Assert.That(binding.PlayerIds, Is.Empty);
             Assert.That(authority.State.Revision, Is.EqualTo(revision));
@@ -101,6 +103,7 @@ internal sealed partial class OnlineLobbyTests
                 clock.Advance(21);
                 client.Tick();
                 Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Failed));
+                Assert.That(client.ShowsRetainedDecision, Is.False, "A failed validation must return control to the lobby UI.");
                 Assert.That(client.Status, Does.Contain("not confirmed"));
                 Assert.That(store.Load(User(2).Value), Is.Not.Null);
                 client.DismissRetainedFailure();
@@ -238,6 +241,7 @@ internal sealed partial class OnlineLobbyTests
         try
         {
             using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
+            Assert.That(client.ShowsRetainedDecision, Is.False, "A stale local locator must not expose the decision before validation.");
             client.Tick();
             if (changedSession)
             {
@@ -261,6 +265,7 @@ internal sealed partial class OnlineLobbyTests
             binding.Driver.Pump(0);
             client.Tick();
             Assert.That(client.HasRetainedDecision, Is.False);
+            Assert.That(client.ShowsRetainedDecision, Is.False);
             Assert.That(store.Load(User(2).Value), Is.Null);
             Assert.That(client.Status, Does.Contain("no longer available"));
         }

@@ -141,7 +141,8 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
             }
         }
 
-        bool active = coordinator?.Active is not null;
+        bool validatingRetainedSession = coordinator?.RetainedDecision == RetainedSessionDecision.Checking;
+        bool active = coordinator?.Active is not null && !validatingRetainedSession;
         bool busy = coordinator?.Busy == true;
         _resume.Visible = coordinator?.CanResumeRetained == true;
         _search.Visible = !active;
@@ -157,16 +158,16 @@ internal sealed partial class OnlineLobbyPanel : VBoxContainer
         _name.Visible = !active || coordinator?.IsHost == true;
         _rename.Visible = active && coordinator?.IsHost == true;
         _rename.Disabled = busy;
-        _leave.Visible = coordinator?.CanLeave == true;
+        _leave.Visible = !validatingRetainedSession && coordinator?.CanLeave == true;
         _joinCredential.Visible = _submit.Visible = !active && _selected is not null;
         _submit.Disabled = busy || coordinator is null;
         _status.Text = coordinator is null ? string.Empty :
             (active ? $"{coordinator.Active!.Name} · {coordinator.Active.Members}/8 · {coordinator.Active.Access}\n" : string.Empty) + coordinator.Status;
-        bool decision = coordinator?.HasRetainedDecision == true;
+        bool decision = coordinator?.ShowsRetainedDecision == true;
         _decision.Visible = decision;
         if (decision)
         {
-            _decisionText.Text = coordinator!.RetainedDecision == RetainedSessionDecision.Checking ? "Checking your previous match…" : coordinator.Status;
+            _decisionText.Text = coordinator!.Status;
             bool choose = coordinator.RetainedDecision == RetainedSessionDecision.Choose;
             _reconnectMatch.Visible = _leaveMatch.Visible = choose;
             _retryMatch.Visible = _backToBrowser.Visible = coordinator.RetainedDecision == RetainedSessionDecision.Failed;
