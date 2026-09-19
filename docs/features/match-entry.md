@@ -24,7 +24,7 @@ Client input, prediction advancement and presentation remain gated until checkpo
 
 Fresh active joins announce resource readiness before the host prepares their provisional checkpoint. The existing Activate acknowledgement and committed roster confirmation remain required. Resume uses the same complete checkpoint and presentation gate; running match state is restored rather than reinitialized. Application clients acknowledge every installed checkpoint through TE Synchronized; the host rejects gameplay on a resumed binding until that acknowledgement arrives. Migration retains its fencing and checkpoint rules and reconstructs the same phase participation policy. Isolated legacy driver fixtures may omit the application entry gate.
 
-Resource loading and synchronization each have a thirty-second local deadline; existing admission/reconnect deadlines may fail earlier. Failure drains Leave, removes partial native state and returns a diagnostic to the frontend. The [Game Loop](game-loop.md) owns phase participation after entry. Results/reset and rematch policies remain outside this application contract.
+Resource loading and synchronization each have a thirty-second local deadline; existing admission/reconnect deadlines may fail earlier. Failure drains Leave, removes partial native state and returns a diagnostic to the frontend. The [Game Loop](game-loop.md) owns phase participation after entry. Application Flow exposes the immutable final-results handoff while the synchronized arena remains alive. Return/Leave disposes match drivers and native arenas; the next generation repeats this complete loading/sync barrier with fresh lifecycle, mode, vehicle, item and prediction state. Post-match navigation and rematch UI remain separate work.
 
 ## Verification
 

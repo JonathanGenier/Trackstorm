@@ -20,7 +20,31 @@ The trusted composition root fixes authority when it constructs `GameLoop`. A no
 
 A trusted active game mode reports its validated authoritative result through `ReportCompletion(MatchOutcome)`. The outcome contains a bounded diagnostic reason and an optional winning player; a draw or non-player objective can finish without kills or a winner. The mode owns result validity, attribution and score data. The lifecycle owns whether that result can transition Active to Finished. There is no client completion intent or navigation side effect.
 
-Finished retains the exact final state and outcome. Repeated or competing reports, further ticks, countdown commands and reinitialization are rejected. A new match requires a new owner and completed handoff. Results navigation, reset/rematch orchestration and game-mode-specific scoring are outside this contract.
+Finished retains the exact final state and outcome. Repeated or competing reports, further ticks, countdown commands and reinitialization are rejected. `ReportFinalResults` accepts a mode's immutable `FinalMatchResults` only at the current Active tick and commits it with Finished. The outcome-only `ReportCompletion` remains available for modes without player statistics; its payload has no standings. The lifecycle does not derive mode rankings from kill counts.
+
+## Final results and Application Flow handoff
+
+`FinalMatchResults` contains the authoritative completion tick, reason, optional winner and detached, ordered `FinalMatchStanding` rows (PlayerId, rank, kills, deaths and per-match wins). It validates bounded unique identities and complete one-based positions, copies the collection and exposes only read-only values. These are the currently implemented statistics; it adds no new scoring rules or cross-match totals.
+
+The combat adapter creates `MatchState.FinalResults` only for Finished, using all retained score identities and the existing Core `MatchRanking` rule. The same immutable result remains available while physics and respawns continue. Existing match and checkpoint codecs retain all source data, so decoding reconstructs identical Core results without a new wire stream or UI calculation. Recovery still follows the existing coherent-checkpoint/rollback contract.
+
+`VehicleNetworkDriver.FinalResults` exposes the accepted match result. `DevelopmentSession.FinalResults` is Application Flow's read-only handoff once entry/recovery synchronization is complete. Its scope is the current lobby session and arena generation; consumers can retain the immutable value before disposing the arena. Late consumers can read the property without replaying an event or historical score deltas. Finished standings use these frozen rows directly. Names remain authoritative session display metadata, while connectivity and ping remain live presentation metadata; none affects final order or totals.
+
+No result API loads scenes, issues Return/Leave, changes reservations or chooses navigation. Application Flow owns when to retain the handoff and end the arena. Podium navigation, rematch controls and Podium presentation remain separate work.
+
+## Reset and disposal contract
+
+Reset means **dispose and reconstruct**, never rewind a live simulation or reuse a Finished owner. Application Flow ends the current arena through the existing session lifecycle, disposes its driver/native arena, and starts a new generation through Game Load / Sync. `GameLoop.Dispose` clears its context, phase/tick/deadline/outcome, results and revision, and permanently rejects reinitialization. A fresh owner is required even after an interrupted Initialization or Countdown.
+
+`VehicleNetworkDriver.Dispose` is idempotent: it disables advancement and participation, releases simulation/mode, input/prediction/history, item/prop/publication and entry references, and detaches its admission and migration callbacks and native presentation delegates. It never closes the caller-owned gateway or mutates lobby reservations. Delayed disposal of an old owner cannot detach a newer owner's callbacks. `DevelopmentSession.RemoveArena` calls disposal before native removal, clears loader time and held standings intent, and releases the arena; native `_ExitTree` also disposes the driver.
+
+| Match-scoped: reconstructed for each arena generation | Session-scoped: owned outside Game Loop |
+| --- | --- |
+| Context, countdown, phase, completion tick/outcome/results, score totals/wins, consumed-life watermarks, one-shot Force Start | Logical session, connected identities/names, transport bindings, selected map, authority epoch and effective host tuning |
+| Simulation tick/input, vehicles/lives/HP/respawn timers and physical memory, item slots/tokens/pending uses/projectiles and pickup timers | Session event journal and online membership/coordination |
+| Admission/loading acknowledgements, prediction/retransmission/interpolation histories, replication baselines, native arena and effects | Match reservations/departed identities are held by session authority **through Finished**; only explicit abandonment or surrounding session Return/Leave rules clear them |
+
+The next host session constructs fresh simulation, mode, vehicles and items at tick zero with zero scores/watermarks, no winner/deadline/result, initial vehicle lives and empty inventory/projectiles. The loader/sync barrier must complete again. Connected session players and host tuning survive Return; ready flags reset and disconnected reservations/departed history clear under the existing lobby rules. Local disposal itself never grants or revokes remote reconnect rights.
 
 ## Existing combat match integration
 
@@ -36,6 +60,6 @@ Fresh admission requires the existing checkpoint/Activate/committed-roster excha
 
 ## Verification
 
-Core tests cover handoff validation, observable phases, authority rejection, transition ordering, duplicate/skipped ticks, countdown deadline and overflow, read-only timer projection, Active-only participation policy, generic outcomes and stable one-time completion. Existing simulation match tests exercise the real first-to-target mode through damage/scoring, terminal outcomes and codec round trips. Existing session, reconnect, migration and standings suites protect the retained development integration.
+Core tests cover handoff validation, observable phases, authority rejection, transition ordering, duplicate/skipped ticks, countdown deadline and overflow, read-only timer projection, Active-only participation policy, generic outcomes, detached results, codec reconstruction, disposal and repeated lifecycles. Driver tests run three real scoring cycles with fresh load/sync, one Finished publication, retained session tuning/identity and disposal; recovery tests compare final payloads. The native lobby harness uses authoritative Finished fixtures in two eight-player application cycles, verifies the handoff and native teardown, then starts another match. The separate match harness exercises real missile/ram end conditions. Existing session, reconnect, migration and standings suites protect retained behavior.
 
 [Matches](matches.md) · [Simulation](simulation.md) · [Feature index](README.md)

@@ -11,6 +11,19 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class MatchStandingsTests
 {
+    /// <summary>Later roster changes cannot add to or remove from frozen result rankings.</summary>
+    [Test]
+    public void FinishedPresentationUsesFrozenParticipantsRatherThanRebuildingRanks()
+    {
+        var roster = new LobbySnapshot(1, 1, 2, SessionPhase.Arena, [new(1, "Host", false, true), new(3, "New roster row", false, true)]);
+        var match = new MatchState(5, 1, 1, MatchPhase.Finished, null, 2, [new(1, 0, 1, 0, 1), new(2, 1, 0, 1, 0)]);
+        var view = MatchStandingsView.From(roster, match, 1, InputButtons.None, _ => null);
+        Assert.That(view.Rows.Select(row => row.PlayerId), Is.EqualTo(match.FinalResults!.Standings.Select(row => row.PlayerId)));
+        Assert.That(view.Rows[0].Name, Is.EqualTo("Player 2"));
+        Assert.That(view.Rows[0].Connected, Is.False);
+        Assert.That(view.Position, Is.EqualTo("2"));
+    }
+
     /// <summary>Authoritative offline state retains names, totals, rank and winner while suppressing stale diagnostics.</summary>
     [Test]
     public void OfflineRowsSurviveResultsAndReactivateWithoutDuplicateOrReset()

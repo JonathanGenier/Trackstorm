@@ -1,9 +1,10 @@
 namespace Trackstorm.Core.Matches;
 
 /// <summary>Host-owned lifecycle accepting a completed Application Flow handoff and mode-reported outcomes.</summary>
-public sealed class GameLoop
+public sealed class GameLoop : IDisposable
 {
     private readonly bool _isAuthority;
+    private bool _disposed;
 
     /// <summary>Creates an uninitialized owner or read-only client; authority cannot change during its lifetime.</summary>
     /// <param name="isAuthority">Trusted composition decision, never a value taken from a client packet.</param>
@@ -18,6 +19,8 @@ public sealed class GameLoop
     public GameLoopState? State { get; private set; }
     /// <summary>Monotonic phase revision, incremented exactly once per accepted transition.</summary>
     public ulong Revision { get; private set; }
+    /// <summary>Stable handoff available only after completion; callers may retain it after disposal.</summary>
+    public FinalMatchResults? FinalResults { get; private set; }
     /// <summary>No gameplay before handoff, during initialization/countdown, or after completion.</summary>
     public bool AllowsGameplay => State?.AllowsGameplay == true;
 
@@ -27,7 +30,7 @@ public sealed class GameLoop
     public bool Initialize(SynchronizedMatchContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
-        if (!_isAuthority || State is not null)
+        if (_disposed || !_isAuthority || State is not null)
         {
             return false;
         }
@@ -79,13 +82,38 @@ public sealed class GameLoop
     public bool ReportCompletion(MatchOutcome outcome)
     {
         ArgumentNullException.ThrowIfNull(outcome);
+        return ReportFinalResults(new FinalMatchResults(State?.Tick ?? 0, outcome, []));
+    }
+
+    /// <summary>Commits the active mode's detached ranks/statistics with Finished exactly once.</summary>
+    /// <param name="results">Authoritative mode results at the current lifecycle tick.</param>
+    /// <returns>Whether the result was accepted.</returns>
+    public bool ReportFinalResults(FinalMatchResults results)
+    {
+        ArgumentNullException.ThrowIfNull(results);
         if (!_isAuthority || State?.Phase != GameLoopPhase.Active)
         {
             return false;
         }
 
-        State = State.Finish(outcome);
+        if (results.Tick != State.Tick)
+        {
+            return false;
+        }
+
+        State = State.Finish(results.Outcome);
+        FinalResults = results;
         Revision++;
         return true;
+    }
+
+    /// <summary>Ends this match's ownership. A new match requires a new owner and completed Game Load / Sync handoff.</summary>
+    public void Dispose()
+    {
+        _disposed = true;
+        Context = null;
+        State = null;
+        FinalResults = null;
+        Revision = 0;
     }
 }

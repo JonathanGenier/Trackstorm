@@ -52,6 +52,7 @@ public sealed class MatchState
             _ => throw new ArgumentException("Invalid match phase."),
         };
         Lifecycle = new GameLoopState(tick, lifecyclePhase, countdownAtTick, winner.HasValue ? new MatchOutcome("kill-target", winner) : null);
+        FinalResults = phase == MatchPhase.Finished ? FinalMatchResults.From(this) : null;
     }
 
     /// <summary>Latest match mutation tick, independent of movement packet arrival.</summary>
@@ -72,4 +73,6 @@ public sealed class MatchState
     public IReadOnlyList<ScoredDeath> Changes { get; }
     /// <summary>Reusable phase rules; legacy Waiting projects to pre-countdown Initialization.</summary>
     public GameLoopState Lifecycle { get; }
+    /// <summary>Frozen Core-ranked results; restored from the same authoritative checkpoint without UI rules.</summary>
+    public FinalMatchResults? FinalResults { get; }
 }

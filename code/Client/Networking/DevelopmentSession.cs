@@ -84,6 +84,8 @@ internal sealed partial class DevelopmentSession : CanvasLayer
 
     /// <summary>Active arena, absent while assembling the lobby.</summary>
     internal NetworkVehicleArena? Arena => _arena;
+    /// <summary>Application Flow's completed results handoff; may be retained before disposing the arena.</summary>
+    internal Core.Matches.FinalMatchResults? FinalResults => _arena?.Driver.EntryReady == true ? _arena.Driver.FinalResults : null;
     /// <summary>MenuShell remains active for Main Menu, browser and pending admission only.</summary>
     internal bool InFrontend => _lobby?.State is null;
     /// <summary>Visible application match-entry state, including reconnection synchronization.</summary>
@@ -627,13 +629,11 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     {
         _matchLoader = null;
         _loadSeconds = 0;
+        _standingsHeld = 0;
         if (_arena is not null)
         {
-            if (_lobby is not null)
-            {
-                _lobby.ActivateJoin = null;
-                _lobby.ArenaAdmissionOpen = null;
-            }
+            _arena.Driver.Dispose();
+            _forceStart = false;
 
             if (_arena.GetParent() == this)
             {

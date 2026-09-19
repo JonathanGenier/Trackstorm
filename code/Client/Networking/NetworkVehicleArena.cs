@@ -62,6 +62,9 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private IReadOnlyList<RigidBody3D> Props => _layout?.Props ?? Array.Empty<RigidBody3D>();
 
     /// <inheritdoc/>
+    public override void _ExitTree() => _driver?.Dispose();
+
+    /// <inheritdoc/>
     public override void _Ready()
     {
         // Network visuals already interpolate and smooth corrections explicitly.

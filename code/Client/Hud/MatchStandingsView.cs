@@ -28,10 +28,12 @@ internal sealed record MatchStandingsView(bool Visible, bool Finished, IReadOnly
         }
 
         var participants = roster.Players.Concat(roster.Departed.Select(player => new SessionPlayer(player.Id, player.Name, false, false))).ToDictionary(player => player.Id);
-        var ranks = MatchRanking.Create(match, participants.Keys);
+        var ranks = match.FinalResults is { } final
+            ? final.Standings.Select(row => new MatchStanding(row.PlayerId, row.Rank, row.Kills, row.Deaths))
+            : MatchRanking.Create(match, participants.Keys);
         StandingsRow[] rows = ranks.Select(rank =>
         {
-            SessionPlayer player = participants[rank.PlayerId];
+            SessionPlayer player = participants.GetValueOrDefault(rank.PlayerId) ?? new SessionPlayer(rank.PlayerId, $"Player {rank.PlayerId}", false, false);
             return new StandingsRow(rank.PlayerId, rank.Rank, player.Name, rank.Kills, rank.Deaths, PingFormatter.Format(player.Connected ? ping(rank.PlayerId) : null), rank.PlayerId == match.Winner, rank.PlayerId == localPlayer, player.Connected);
         }).ToArray();
         bool finished = match.Phase == MatchPhase.Finished;

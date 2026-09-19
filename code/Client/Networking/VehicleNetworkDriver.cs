@@ -10,7 +10,7 @@ using Trackstorm.Core.Vehicles;
 namespace Trackstorm.Client.Networking;
 
 /// <summary>Connects the transport's byte seam to Core authority/prediction at fixed tick boundaries.</summary>
-internal sealed class VehicleNetworkDriver
+internal sealed class VehicleNetworkDriver : IDisposable
 {
     private readonly ITransportGateway _gateway;
     private readonly ulong _serverPeer;
@@ -38,6 +38,9 @@ internal sealed class VehicleNetworkDriver
     private bool _entryReleased;
     private double _entrySeconds;
     private double _entryRequestSeconds;
+    private bool _disposed;
+    private readonly Func<bool>? _admissionOpen;
+    private readonly Func<ulong, bool>? _activateJoin;
 
     /// <summary>Creates a host or connects a client driver to an already-open transport.</summary>
     /// <param name="gateway">Caller-owned transport.</param>
@@ -73,8 +76,9 @@ internal sealed class VehicleNetworkDriver
 
         if (lobby is not null)
         {
-            lobby.ArenaAdmissionOpen = () => Host?.CanJoin == true && EntryReady && IsActive;
-            lobby.ActivateJoin = peer =>
+            _admissionOpen = () => Host?.CanJoin == true && EntryReady && IsActive;
+            lobby.ArenaAdmissionOpen = _admissionOpen;
+            _activateJoin = peer =>
             {
                 if (Host is null || !_preparedJoins.Contains(peer) || !Host.ActivateJoin(peer, lobby.Authority!.PlayerId(peer)))
                 {
@@ -87,12 +91,13 @@ internal sealed class VehicleNetworkDriver
                 _rosterChanged = true;
                 return true;
             };
+            lobby.ActivateJoin = _activateJoin;
             if (lobby.Migration is not null)
             {
                 lobby.Migration.CaptureArena = CaptureMigration;
                 lobby.Migration.MapConfiguration = _arena;
                 lobby.Migration.RestoreArena = RestoreMigration;
-                lobby.Migration.ObservedTick = () => Host?.World.State.Tick ?? Latest?.Tick ?? 0;
+                lobby.Migration.ObservedTick = GetObservedTick;
             }
 
             if (lobby.State?.Phase != SessionPhase.Arena)
@@ -150,6 +155,8 @@ internal sealed class VehicleNetworkDriver
     internal GameplayConfigurationState Configuration => Host?.Configuration ?? _configuration;
     /// <summary>Latest reliable match state, independent of movement snapshot ordering.</summary>
     internal MatchState? Match { get; private set; }
+    /// <summary>Core-completed results for this arena generation; no presentation-side ranking or scoring.</summary>
+    internal FinalMatchResults? FinalResults => Match?.FinalResults;
     /// <summary>Authoritative native prop observation seam, absent in flat-ground vehicle unit tests.</summary>
     internal Func<IReadOnlyList<VehiclePhysicsState>>? ObserveProps { get; set; }
     /// <summary>Latest accepted complete prop publication.</summary>
@@ -183,13 +190,13 @@ internal sealed class VehicleNetworkDriver
     /// <summary>Explicit stopped-session diagnostic, empty during normal operation.</summary>
     internal string Failure { get; private set; } = string.Empty;
     /// <summary>Whether this arena generation still belongs to the live lobby.</summary>
-    internal bool IsActive => _lobby is null || ((!_applicationEntry || _entryReleased) && _lobby.Failure.Length == 0 && !_lobby.Reconnecting && !_lobby.JoiningArena && _lobby.Migration?.Frozen != true && !_awaitingCheckpoint && _lobby.State?.Phase == SessionPhase.Arena && _lobby.State.Match == _session);
+    internal bool IsActive => !_disposed && (_lobby is null || ((!_applicationEntry || _entryReleased) && _lobby.Failure.Length == 0 && !_lobby.Reconnecting && !_lobby.JoiningArena && _lobby.Migration?.Frozen != true && !_awaitingCheckpoint && _lobby.State?.Phase == SessionPhase.Arena && _lobby.State.Match == _session));
     /// <summary>Current local gameplay state, independent of render smoothing.</summary>
     internal VehicleSnapshot? LocalState => Host?.World.GetVehicle(LocalVehicleId) ?? Prediction?.State;
     /// <summary>Completed application handoff; absent throughout local loading or authoritative recovery.</summary>
     internal SynchronizedMatchContext? EntryContext { get; private set; }
     /// <summary>Whether presentation may expose this completely initialized match.</summary>
-    internal bool EntryReady => !_applicationEntry || (EntryContext is not null && IsActive);
+    internal bool EntryReady => !_disposed && (!_applicationEntry || (EntryContext is not null && IsActive));
 
     /// <summary>Local controls require synchronization and the accepted authoritative phase, never a local countdown.</summary>
     internal bool AllowsParticipation => Failure.Length == 0 && IsActive && EntryReady &&
@@ -202,6 +209,11 @@ internal sealed class VehicleNetworkDriver
     /// <param name="observe">Synchronous native or deterministic test collision seam.</param>
     internal void Advance(InputFrame input, Func<VehicleSnapshot, VehicleObservation> observe)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         if (_lobby is not null)
         {
             _lobby.Pump(1.0 / HostVehicleSession.TickRate, message => Receive(message, observe));
@@ -552,6 +564,64 @@ internal sealed class VehicleNetworkDriver
             Send(new TransportMessage(peer, VehicleNetworkCodec.EncodeWelcome(_session, vehicle), TransportDelivery.Reliable));
         }
     }
+
+    /// <summary>Releases match-scoped state and callbacks without closing transport or changing session reservations.</summary>
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        if (_lobby is not null)
+        {
+            if (_lobby.ActivateJoin == _activateJoin)
+            {
+                _lobby.ActivateJoin = null;
+            }
+
+            if (_lobby.ArenaAdmissionOpen == _admissionOpen)
+            {
+                _lobby.ArenaAdmissionOpen = null;
+            }
+
+            if (_lobby.Migration is { } migration && migration.CaptureArena == CaptureMigration)
+            {
+                migration.CaptureArena = null;
+                migration.RestoreArena = null;
+                migration.ObservedTick = null;
+                migration.MapConfiguration = null;
+            }
+        }
+
+        Host = null;
+        Match = null;
+        EntryContext = null;
+        Prediction = null;
+        History = null;
+        Latest = null;
+        ItemState = null;
+        PropSnapshot = null;
+        _inputs = null;
+        _assigned.Clear();
+        _preparedJoins.Clear();
+        _entryPrepared.Clear();
+        _entrySynchronized.Clear();
+        ObserveProps = null;
+        CollideMissile = null;
+        ObservePickups = null;
+        RosterChanged = null;
+        LocalCorrected = null;
+        PropsReceived = null;
+        ItemsReceived = null;
+        LifecycleReceived = null;
+        MatchReceived = null;
+        Resynchronized = null;
+        ConfigurationChanged = null;
+    }
+
+    private ulong GetObservedTick() => Host?.World.State.Tick ?? Latest?.Tick ?? 0;
 
     private (ResumeCheckpoint Arena, HostRestoreState Host) CaptureMigration()
     {
