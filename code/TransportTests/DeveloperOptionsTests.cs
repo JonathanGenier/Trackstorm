@@ -36,7 +36,7 @@ internal sealed class DeveloperOptionsTests
         var loaded = new DeveloperSettingsStore(_path).Current;
         Assert.That(loaded, Is.EqualTo(GameplayConfiguration.HostedDefaults with { Vehicle = GameplayConfiguration.HostedDefaults.Vehicle with { Acceleration = 7 } }));
         Assert.That(loaded.Vehicle.Acceleration, Is.EqualTo(7));
-        Assert.That(loaded.Vehicle.TireFriction, Is.EqualTo(3.35f));
+        Assert.That(loaded.Vehicle.TireFriction, Is.EqualTo(1.35f));
         Assert.That(loaded.Items.MaximumDamage, Is.EqualTo(300));
     }
 
