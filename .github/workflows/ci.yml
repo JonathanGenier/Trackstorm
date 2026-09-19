@@ -2,6 +2,12 @@ name: CI
 
 on:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull Request number for an explicit trusted version-repair verification run.
+        required: false
+        type: string
   push:
     branches: [main]
 
@@ -29,12 +35,14 @@ jobs:
         run: ./tools/test-version.ps1
 
       - name: Validate Story version and synchronized export preset against current main
-        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        if: (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'workflow_dispatch' && inputs.pr_number != '')
+        env:
+          STORY_BRANCH: ${{ github.head_ref || github.ref_name }}
         shell: pwsh
         run: |
           git fetch origin +refs/heads/main:refs/remotes/origin/main
           if ($LASTEXITCODE -ne 0) { throw 'Cannot fetch current main for version validation.' }
-          ./tools/check-version.ps1
+          ./tools/check-version.ps1 -StoryBranch $env:STORY_BRANCH
 
       - uses: actions/setup-dotnet@v4
         with:
