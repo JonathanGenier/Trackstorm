@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('normal', 'release', 'migration')][string]$Kind = 'normal',
+    [ValidateSet('normal', 'release', 'migration', 'baseline-correction')][string]$Kind = 'normal',
     [string]$BaseRef = 'origin/main',
     [string]$StoryBranch = $env:GITHUB_HEAD_REF)
 $ErrorActionPreference = 'Stop'
@@ -18,6 +18,7 @@ $transitionFile = Join-Path "$PSScriptRoot/.." $transitionPath
 $transition = if (Test-Path -LiteralPath $transitionFile) { Get-Content -Raw -LiteralPath $transitionFile } else { '' }
 $parts = $baseVersion.Split('.')
 $expected = switch ($Kind) {
+    'baseline-correction' { $baseVersion }
     'migration' { '0.0.15' }
     'release' {
         if ($parts.Count -ne 3) { throw 'A release transition requires a canonical three-component main version.' }
