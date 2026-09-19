@@ -58,6 +58,8 @@ Analog dead zone defaults to `0.15` and accepts finite values in `[0,1)`. Digita
 
 ## Invariants, Interactions, and Intentional Limitations
 
+Network application sessions apply the [Game Loop participation gate](game-loop.md) after capture: synchronization and authoritative Active are both required for driving or item use. Countdown and Finished retain neutral command sequencing/prediction; the host independently enforces the same phase rule and clears pending controls. Logical menu/standings capture remains available. Local loading completion or a displayed countdown reaching zero cannot enable participation.
+
 - Leaderboard held/pressed/released state is independent of vehicle axes and other button bits. An explicitly conflicting custom binding can intentionally activate both actions.
 - Frame consumers must use pressed bits for one-shot requests and held bits for sustained actions. The [Game Menu](game-menu.md) routes existing logical menu bindings to native Controls, including directional repeat, options, sliders and confirmation. Gameplay suppression does not suppress this separate local navigation sampling. Native ui_* input is consumed while the overlay is open to avoid double activation. Escape remains a fixed access/cancel key even after remapping.
 - Construction installs defaults; the composed Client then restores locally saved binding overrides, steering inversion, and analog dead zone. The settings editor captures keys, mouse buttons and gamepad controls through the existing binding API. While it is open, `GameplaySuppressed` neutralizes gameplay input independently of application focus, while logical menu navigation remains available.

@@ -16,6 +16,7 @@ public sealed partial class LobbyIntegrationChecks : Node
     private string _output = string.Empty;
     private double _elapsed;
     private double _stageStarted;
+    private bool _countdownVerified;
     private int _stage;
     private int _rejected;
     private ulong _departedId;
@@ -79,6 +80,18 @@ public sealed partial class LobbyIntegrationChecks : Node
                 }
 
                 session.Advance(new InputFrame(0, 0, 20000, 0, 0, 0, 0));
+                if (session.Arena?.Driver is { Match.Phase: Core.Matches.MatchPhase.Countdown } driver)
+                {
+                    Require(!driver.AllowsParticipation, "Countdown denies local participation despite held throttle.");
+                    Require(driver.Host is null || driver.Host.World.State.LastInput.Accelerate == 0, "Host throttle is suppressed during Countdown.");
+                    Require(driver.Inputs is null || driver.Inputs.Pending.All(command => command.Frame.Accelerate == 0), "Client prediction and outgoing controls are neutral during Countdown.");
+                }
+            }
+
+            if (_stage == 5 && _sessions.All(session => session.Arena?.Driver.Match?.Phase == Core.Matches.MatchPhase.Countdown))
+            {
+                Require(_sessions.Select(session => session.Arena!.Driver.Match!.CountdownAtTick).Distinct().Count() == 1, "Every peer observes the same authoritative countdown deadline.");
+                _countdownVerified = true;
             }
 
             if (_elapsed - _stageStarted > 20)
@@ -171,10 +184,13 @@ public sealed partial class LobbyIntegrationChecks : Node
             case 5 when AllArena():
                 Require(_sessions.All(session => session.Arena!.Driver.LocalVehicleId == session.Lobby!.LocalPlayerId), "Vehicle IDs preserve session IDs.");
                 Require(_sessions.All(session => session.Lobby!.State!.Match == _firstMatch), "Every peer has the same arena generation.");
-                if (_elapsed - _stageStarted < 2)
+                if (!_sessions.All(session => session.Arena!.Driver.Match?.Phase == Core.Matches.MatchPhase.Active))
                 {
                     break;
                 }
+
+                Require(_countdownVerified, "Observed the shared Countdown before authoritative Active.");
+                Require(_sessions.All(session => session.Arena!.Driver.AllowsParticipation), "All synchronized players may participate in Active.");
 
                 Capture("arena.png");
                 foreach (var session in _sessions)

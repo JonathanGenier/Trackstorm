@@ -66,7 +66,7 @@ internal sealed class VehicleNetworkDriver
                 revision = checked(revision + 1);
             }
 
-            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, configuration: configuration ?? sessionConfiguration?.Configuration, hostPlayerId: lobby?.LocalPlayerId ?? 1, configurationRevision: revision, events: lobby?.Authority?.Events, arena: _arena);
+            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, configuration: configuration ?? sessionConfiguration?.Configuration, hostPlayerId: lobby?.LocalPlayerId ?? 1, configurationRevision: revision, events: lobby?.Authority?.Events, arena: _arena, requireActiveMatch: applicationEntry);
             lobby?.Authority?.RetainConfiguration(Host.Configuration);
             LocalVehicleId = Host.HostPlayerId;
         }
@@ -82,6 +82,7 @@ internal sealed class VehicleNetworkDriver
                 }
 
                 _preparedJoins.Remove(peer);
+                _entrySynchronized.Add(peer);
                 _assigned.Add(peer);
                 _rosterChanged = true;
                 return true;
@@ -189,6 +190,10 @@ internal sealed class VehicleNetworkDriver
     internal SynchronizedMatchContext? EntryContext { get; private set; }
     /// <summary>Whether presentation may expose this completely initialized match.</summary>
     internal bool EntryReady => !_applicationEntry || (EntryContext is not null && IsActive);
+
+    /// <summary>Local controls require synchronization and the accepted authoritative phase, never a local countdown.</summary>
+    internal bool AllowsParticipation => Failure.Length == 0 && IsActive && EntryReady &&
+        (!_applicationEntry || (Host?.World.State.Match ?? Match)?.Lifecycle.AllowsGameplay == true);
 
     private ulong ServerPeer => _lobby?.ServerPeer ?? _serverPeer;
 
@@ -351,6 +356,12 @@ internal sealed class VehicleNetworkDriver
         }
         else if ((!_applicationEntry || EntryReady) && !_awaitingCheckpoint && _lobby?.JoiningArena != true && Inputs is InputHistory inputs)
         {
+            if (!AllowsParticipation)
+            {
+                input = default;
+                inputs.NeutralizePending();
+            }
+
             if ((input.Pressed & InputButtons.UseItem) != 0)
             {
                 RequestItemUse();
@@ -411,7 +422,7 @@ internal sealed class VehicleNetworkDriver
     internal bool RequestItemUse()
     {
         ItemSlot? slot = LocalItem;
-        if (!IsActive || Failure.Length > 0 || LocalState?.CanInteract != true || slot is null || slot.Item == HeldItem.None)
+        if (!AllowsParticipation || LocalState?.CanInteract != true || slot is null || slot.Item == HeldItem.None)
         {
             return false;
         }
@@ -522,6 +533,7 @@ internal sealed class VehicleNetworkDriver
                 if (Host!.ResumePlayer(peer, player))
                 {
                     _assigned.Add(peer);
+                    _entryPrepared.Add(peer);
                     SendCheckpoint(peer);
                 }
 
@@ -561,11 +573,13 @@ internal sealed class VehicleNetworkDriver
 
         _assigned.Clear();
         _preparedJoins.Clear();
+        _entryPrepared.Clear();
+        _entrySynchronized.Clear();
         _awaitingCheckpoint = true;
         // A new authority epoch may restore an older complete configuration boundary.
         _receivedConfiguration = false;
         _publishedConfiguration = null;
-        Host = host ? HostVehicleSession.Restore(checkpoint.Arena, checkpoint.Host!, _lobby!.LocalPlayerId, _lobby.Authority!.Events, _arena) : null;
+        Host = host ? HostVehicleSession.Restore(checkpoint.Arena, checkpoint.Host!, _lobby!.LocalPlayerId, _lobby.Authority!.Events, _arena, requireActiveMatch: _applicationEntry) : null;
         _itemPublication = checkpoint.Arena.Items.Revision;
         _publishedItemRevision = ulong.MaxValue;
         _publishedSpawnRevision = ulong.MaxValue;
@@ -633,7 +647,7 @@ internal sealed class VehicleNetworkDriver
         }
 
         _lobby.CompleteResume();
-        if (_applicationEntry && !_entryReleased)
+        if (_applicationEntry && Host is null)
         {
             Send(new TransportMessage(ServerPeer, MatchEntryCodec.Encode(_session, MatchEntryCodec.Synchronized), TransportDelivery.Reliable));
         }
@@ -794,7 +808,7 @@ internal sealed class VehicleNetworkDriver
                 return;
             }
 
-            if (_applicationEntry && Host is not null && !_entryReleased)
+            if (_applicationEntry && Host is not null && (!_entryReleased || !_entrySynchronized.Contains(message.RemotePeerId)))
             {
                 throw new ArgumentException("Gameplay is unavailable during match synchronization.");
             }
@@ -860,6 +874,11 @@ internal sealed class VehicleNetworkDriver
                 }
 
                 Match = publication.State;
+                if (_applicationEntry && !Match.Lifecycle.AllowsGameplay)
+                {
+                    Inputs?.NeutralizePending();
+                }
+
                 MatchReceived?.Invoke(Match);
                 return;
             }
