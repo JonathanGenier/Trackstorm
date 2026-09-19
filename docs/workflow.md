@@ -100,6 +100,12 @@ Use a descriptive title and only relevant sections from that list; omit empty he
 
 Engineering and test-design requirements are in [standards](standards.md). Feature documents identify relevant harnesses; Jira can require additional feature-specific checks.
 
+### Automated CI tiers
+
+The normal PR/main CI is the fast gate. It verifies materialized frontend media, version-rule regressions, Story version ancestry where applicable, both Debug and Release compilation with warnings as errors, Core tests, non-native transport tests and a headless main-scene startup smoke using the pinned Godot .NET editor. The deterministic test suites run once in Release after both configurations compile; duplicate Debug execution is intentionally avoided. Superseded runs for the same PR/branch are canceled, non-Story checkouts are shallow, and pinned EOS/Godot downloads are cached.
+
+Extended CI runs nightly, on manual dispatch and for version tags. It exercises native transport plus Godot transport integration, the native local lobby harness and the unauthenticated EOS native SDK lifecycle smoke. Real authenticated EOS, exported-build, remote-network and multi-device acceptance remains manual because those checks require deployment credentials/state or independent physical identities and cannot be represented faithfully by a hosted runner.
+
 ### Child checkpoint
 
 Before recording a child complete:
@@ -115,7 +121,7 @@ After completing all required children:
 
 1. Re-read the Story, children and approved changes; verify every applicable requirement.
 2. Synchronize the branch with latest `main` and resolve integration conflicts.
-3. Run `./check.ps1` from the root: restore, Debug/Release builds with warnings as errors, Core tests and non-native Client/transport tests.
+3. Run `./check.ps1` from the root: restore, Debug/Release builds with warnings as errors, then Core tests and non-native Client/transport tests once in Release configuration.
 4. Run additional applicable or Jira-required gameplay, network, integration, runtime, visual, UI, audio, physics and asset/license checks. Exercise actual runtime behavior when relevant and technically possible; do not substitute inspection for required observation. Run the minimal Godot project when settings, scenes or Client integration change.
 5. Confirm engineering standards, including dependency direction and absence of a Shared layer.
 6. Verify affected feature documentation against code; check links, index coverage and obsolete references.
