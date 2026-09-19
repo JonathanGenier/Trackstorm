@@ -8,6 +8,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Post-match Application Flow | [TS-87 Podium, authoritative results, repeated rematch, destination cleanup and native verification](ts-87.md) |
 | Categorized DevTools Logs | [TS-99 semantic styling, frozen history and native verification](ts-99.md) |
 | Searchable DevTools Stats | [TS-98 grouped live rows, filtering, colors and runtime verification](ts-98.md) |
 | Automatic PR history guard | [TS-136 prior-PR suppression and recreation prevention evidence](ts-136.md) |

@@ -15,4 +15,8 @@ internal enum ApplicationStage
     MatchLoader,
     /// <summary>Completed application handoff.</summary>
     GameLoop,
+    /// <summary>Retained authoritative Finished handoff and post-match destinations.</summary>
+    Podium,
+    /// <summary>Explicit session/membership cleanup before returning to MenuShell.</summary>
+    Leaving,
 }
