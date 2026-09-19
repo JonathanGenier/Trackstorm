@@ -18,13 +18,25 @@ permissions:
 jobs:
   native-runtime:
     runs-on: windows-latest
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}\.nuget\packages
 
     steps:
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
           fetch-depth: 1
-          lfs: true
+          lfs: false
+
+      - name: Restore Git LFS object cache
+        uses: actions/cache@v6
+        with:
+          path: .git/lfs
+          key: trackstorm-lfs-${{ runner.os }}-${{ hashFiles('**/*.mov', '**/*.ogv') }}
+
+      - name: Materialize Git LFS media
+        shell: pwsh
+        run: git lfs pull
 
       - name: Restore pinned CI runtime downloads
         uses: actions/cache@v6
@@ -37,6 +49,12 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
+
+      - name: Restore NuGet package cache
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: trackstorm-nuget-${{ runner.os }}-net10-${{ hashFiles('**/*.csproj', 'Directory.Build.props') }}
 
       - name: Prepare pinned EOS SDK
         run: ./setup-eos.ps1
