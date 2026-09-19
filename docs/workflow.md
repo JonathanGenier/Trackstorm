@@ -41,11 +41,12 @@ If the assignment and Jira issue type/parent disagree, identify the discrepancy.
 
 1. Fetch current `main` and synchronize the Story branch with it before implementation and again before final delivery.
 2. Read `TrackstormVersion` from current main's root `Directory.Build.props` (for example, `git show origin/main:Directory.Build.props` after fetching).
-3. Set the Story branch's canonical property to exactly the next fourth-component revision, keeping the release prefix unchanged. If main is `0.0.1.4`, the Story must use `0.0.1.5`.
+3. For a normal Story, preserve main's exact `MAJOR.RELEASE` prefix and set only the third (`PR`) component to `main.PR + 1`. Main `0.0.15` requires `0.0.16`; main `0.1.14` requires `0.1.15`. Canonical versions have exactly three components, with `MAJOR = 0` for the current generation.
 4. Derive this value from current main, never from branch creation time, commit count, the previous local value or another Story branch. Do not blindly increment on every Codex/agent run: if the branch already has the expected value, leave it unchanged.
 5. If another Story merges and advances main, synchronize again and recalculate from that new main value. A previously valid Story version can become stale.
-6. For the initial TS-66 establishment only, main with no canonical `TrackstormVersion` initializes the Story at `0.0.1.0`. Missing versions after establishment are an error, not permission to restart the sequence.
-7. Run `./tools/check-version.ps1` after synchronization/version adjustment and before final delivery. Resolve any expected/actual or ancestry failure before delivery.
+6. A release change requires a dedicated Jira release-version Story. Update `.github/version-transition.json` with `kind: release`, that Story's key, exact `from` main version and exact `to` canonical target. The branch must contain that Jira key. CI requires a newly changed declaration, exactly the next release and `PR = 0`: `0.1.15 -> 0.2.0`, never `0.1.15 -> 0.8.0`. Normal Stories leave the last declaration unchanged. The declaration authorizes a transition only; `Directory.Build.props` remains the sole build-version source.
+7. TS-70 alone authorizes migration from the old main `0.0.1.0` to the explicitly user-approved baseline `0.0.15`, using `kind: migration` and `story: TS-70`. It is not an old-fourth-component increment or an inferred `0.1.0`. Old four-component values are otherwise invalid canonical versions.
+8. Run `./tools/check-version.ps1` after synchronization/version adjustment and before final delivery. CI supplies the PR head branch; local checks use the checked-out branch. Resolve expected/actual, authorization or ancestry failures before delivery.
 
 [Game versioning](features/game-versioning.md#story-sequencing) describes the existing single CI enforcement path and parser limits. This repository procedure applies to agents and developers alike; it is not a per-Story Jira instruction.
 

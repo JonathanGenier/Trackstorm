@@ -18,7 +18,7 @@ jobs:
       - name: Version rule regression tests
         run: ./tools/test-version.ps1
 
-      - name: Require the next Story version against current main
+      - name: Require Story revision or authorized release transition against current main
         if: github.event_name == 'pull_request' && github.base_ref == 'main'
         shell: pwsh
         run: |

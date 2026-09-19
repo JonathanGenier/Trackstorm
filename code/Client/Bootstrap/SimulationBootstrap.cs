@@ -39,6 +39,18 @@ public sealed partial class SimulationBootstrap : Node
     /// <inheritdoc />
     public override void _Ready()
     {
+        string canonicalVersion = Core.Sessions.GameVersion.Current.ToString();
+        if (OS.GetCmdlineUserArgs().Contains("--version-check"))
+        {
+            string embedded = ProjectSettings.GetSetting("application/config/version", string.Empty).AsString();
+            bool valid = OS.HasFeature("editor") || embedded == canonicalVersion;
+            GD.Print($"Trackstorm version: {canonicalVersion}; Godot metadata: {embedded}; exported: {!OS.HasFeature("editor")}");
+            GetTree().Quit(valid ? 0 : 1);
+            return;
+        }
+
+        ProjectSettings.SetSetting("application/config/version", canonicalVersion);
+
         if (OnlineEnabled && OS.GetCmdlineUserArgs().Contains("--statistics-check"))
         {
             // Replace the scene so the normal input owner exits before the verification scene creates its own.

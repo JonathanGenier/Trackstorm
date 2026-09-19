@@ -9,32 +9,38 @@ namespace Trackstorm.Core.Tests.Sessions;
 [TestFixture]
 internal sealed class GameVersionTests
 {
-    /// <summary>Canonical values preserve all four components.</summary>
+    /// <summary>Canonical values preserve all three components.</summary>
+    /// <param name="release">Release milestone.</param>
     /// <param name="revision">Build revision.</param>
-    [TestCase(0)]
-    [TestCase(8)]
-    [TestCase(65534)]
-    public void CanonicalValuesRoundTrip(int revision)
+    [TestCase(0, 15)]
+    [TestCase(1, 0)]
+    [TestCase(1, 15)]
+    [TestCase(2, 0)]
+    [TestCase(65534, 65534)]
+    public void CanonicalValuesRoundTrip(int release, int revision)
     {
-        var version = new GameVersion(revision);
+        var version = new GameVersion(release, revision);
         Assert.That(GameVersion.Parse(version.ToString()), Is.EqualTo(version));
-        Assert.That(version.ToString(), Is.EqualTo($"0.0.1.{revision}"));
+        Assert.That(version.ToString(), Is.EqualTo($"0.{release}.{revision}"));
     }
 
     /// <summary>Malformed or absent wire values never match.</summary>
     /// <param name="value">Untrusted version.</param>
     [TestCase(null)]
     [TestCase("")]
-    [TestCase("0.0.1")]
-    [TestCase("0.0.1.-1")]
-    [TestCase("0.0.1.+1")]
-    [TestCase("0.0.1.01")]
-    [TestCase("0.0.1.65535")]
-    [TestCase("0.0.1.999999999999999")]
-    [TestCase("0.0.1.1 ")]
-    [TestCase(" 0.0.1.1")]
-    [TestCase("0.0.1.1-beta")]
-    [TestCase("0.0.1.١")]
+    [TestCase("0.1")]
+    [TestCase("0.0.1.15")]
+    [TestCase("0.01.1")]
+    [TestCase("0.65535.0")]
+    [TestCase("0.1.-1")]
+    [TestCase("0.1.+1")]
+    [TestCase("0.1.01")]
+    [TestCase("0.1.65535")]
+    [TestCase("0.1.999999999999999")]
+    [TestCase("0.1.1 ")]
+    [TestCase(" 0.1.1")]
+    [TestCase("0.1.1-beta")]
+    [TestCase("0.1.١")]
     [TestCase("0.0.2.1")]
     [TestCase("1.0.1.1")]
     public void InvalidVersionsFailClosed(string? value)
@@ -50,7 +56,19 @@ internal sealed class GameVersionTests
     /// <param name="revision">Invalid revision.</param>
     [TestCase(-1)]
     [TestCase(65535)]
-    public void RevisionMustFitAssemblyMetadata(int revision) => Assert.Throws<ArgumentOutOfRangeException>(() => new GameVersion(revision));
+    public void RevisionMustFitAssemblyMetadata(int revision) => Assert.Throws<ArgumentOutOfRangeException>(() => new GameVersion(1, revision));
+
+    /// <summary>Exact equality includes release and never accepts obsolete four-component identities.</summary>
+    [Test]
+    public void CompatibilityIncludesReleaseAndRejectsOldFormat()
+    {
+        var version = new GameVersion(0, 15);
+        Assert.That(version.IsCompatible("0.0.15"), Is.True);
+        Assert.That(version.IsCompatible("0.1.15"), Is.False);
+        Assert.That(version.IsCompatible("0.0.1.15"), Is.False);
+        Assert.Throws<ArgumentOutOfRangeException>(() => new GameVersion(-1, 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new GameVersion(65535, 0));
+    }
 
     /// <summary>Runtime and ordinary assembly versions share the canonical repository source.</summary>
     [Test]
@@ -66,20 +84,20 @@ internal sealed class GameVersionTests
         string canonical = XDocument.Load(Path.Combine(directory!.FullName, "Directory.Build.props")).Descendants("TrackstormVersion").Single().Value;
         Assembly assembly = typeof(GameVersion).Assembly;
         Assert.That(GameVersion.Current.ToString(), Is.EqualTo(canonical));
-        Assert.That(assembly.GetName().Version!.ToString(), Is.EqualTo(canonical));
-        Assert.That(assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()!.Version, Is.EqualTo(canonical));
+        Assert.That(assembly.GetName().Version!.ToString(), Is.EqualTo(canonical + ".0"));
+        Assert.That(assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()!.Version, Is.EqualTo(canonical + ".0"));
         Assert.That(assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion, Is.EqualTo(canonical));
     }
 
     /// <summary>Rejection consumes no identity, slot, event or reservation.</summary>
     /// <param name="remote">Incompatible joining runtime.</param>
-    [TestCase("0.0.1.3")]
-    [TestCase("0.0.1.5")]
+    [TestCase("0.1.3")]
+    [TestCase("0.1.5")]
     [TestCase("")]
     [TestCase("invalid")]
     public void RejectedFreshJoinAllocatesNothing(string remote)
     {
-        var host = new LobbyAuthority(100, "Host", gameVersion: new GameVersion(4));
+        var host = new LobbyAuthority(100, "Host", gameVersion: new GameVersion(1, 4));
         var before = host.State;
         ulong sequence = host.Events.LastSequence;
         Assert.That(host.Join(10, remote, "Guest", "subject"), Is.Zero);
@@ -90,10 +108,10 @@ internal sealed class GameVersionTests
         Assert.That(host.PlayerId(10), Is.Zero);
         Assert.That(host.FindPlayer("subject"), Is.Zero);
         Assert.That(host.Disconnect(10), Is.False);
-        Assert.That(host.Join(10, "0.0.1.4", "Guest", "subject"), Is.EqualTo(2));
+        Assert.That(host.Join(10, "0.1.4", "Guest", "subject"), Is.EqualTo(2));
         for (ulong peer = 11; peer < 17; peer++)
         {
-            Assert.That(host.Join(peer, "0.0.1.4", "Guest"), Is.Not.Zero);
+            Assert.That(host.Join(peer, "0.1.4", "Guest"), Is.Not.Zero);
         }
 
         Assert.That(host.State.Players.Count, Is.EqualTo(8));
@@ -102,14 +120,14 @@ internal sealed class GameVersionTests
     /// <summary>Mismatch cannot rebind; compatible returns follow the current phase's admission policy.</summary>
     /// <param name="arena">Whether the retained player is in an arena.</param>
     /// <param name="remote">Incompatible returning runtime.</param>
-    [TestCase(false, "0.0.1.3")]
-    [TestCase(false, "0.0.1.5")]
-    [TestCase(true, "0.0.1.3")]
-    [TestCase(true, "0.0.1.5")]
+    [TestCase(false, "0.1.3")]
+    [TestCase(false, "0.1.5")]
+    [TestCase(true, "0.1.3")]
+    [TestCase(true, "0.1.5")]
     public void ResumeMismatchPreservesReservationAndCannotRestoreControl(bool arena, string remote)
     {
-        var host = new LobbyAuthority(100, "Host", gameVersion: new GameVersion(4));
-        ulong player = host.Join(10, "0.0.1.4", "Guest", "subject");
+        var host = new LobbyAuthority(100, "Host", gameVersion: new GameVersion(1, 4));
+        ulong player = host.Join(10, "0.1.4", "Guest", "subject");
         if (arena)
         {
             host.SetReady(0, true);
@@ -124,14 +142,14 @@ internal sealed class GameVersionTests
         Assert.That(host.State, Is.SameAs(before));
         Assert.That(host.Peers, Is.Empty);
         Assert.That(host.FindPlayer("subject"), Is.EqualTo(arena ? player : 0UL));
-        Assert.That(host.Resume(20, "0.0.1.4", 100, player, 1, "subject"), Is.EqualTo(arena));
+        Assert.That(host.Resume(20, "0.1.4", 100, player, 1, "subject"), Is.EqualTo(arena));
         if (arena)
         {
             Assert.That(host.State.Players.Single(value => value.Id == player).Generation, Is.EqualTo(2));
         }
         else
         {
-            Assert.That(host.Join(20, "0.0.1.4", "Guest", "subject"), Is.GreaterThan(player));
+            Assert.That(host.Join(20, "0.1.4", "Guest", "subject"), Is.GreaterThan(player));
         }
     }
 
@@ -143,7 +161,7 @@ internal sealed class GameVersionTests
         Assert.That(LobbyCodec.DecodeCommand(LobbyCodec.EncodeResume(100, 2, 1)).GameVersion, Is.EqualTo(GameVersion.Current.ToString()));
         byte[] legacy = [(byte)'T', (byte)'L', 6, 1, .. Encoding.UTF8.GetBytes("{\"Command\":0,\"Session\":0,\"Match\":0,\"Phase\":0,\"Ready\":false,\"Name\":\"Guest\",\"Player\":0,\"Generation\":0,\"AuthorityEpoch\":1}")];
         Assert.That(LobbyCodec.DecodeCommand(legacy).GameVersion, Is.Empty);
-        var version = new GameVersion(4);
+        var version = new GameVersion(1, 4);
         byte[] rejection = LobbyCodec.EncodeVersionMismatch(version);
         Assert.That(LobbyCodec.IsVersionMismatch(rejection), Is.True);
         Assert.That(LobbyCodec.DecodeVersionMismatch(rejection), Is.EqualTo(version.ToString()));

@@ -2,19 +2,39 @@
 
 ## Canonical Build Identity
 
-The root `Directory.Build.props` defines `TrackstormVersion` in canonical `0.0.1.N` form. Revision zero establishes the sequence; each subsequent Story merge advances the fourth component exactly once. Revisions range from 0 through 65534 to fit .NET assembly metadata. Leading zeroes, whitespace, suffixes, missing components and other release prefixes are invalid.
+The root `Directory.Build.props` is the one canonical Trackstorm version source: exactly `MAJOR.RELEASE.PR`. For the current generation `MAJOR` is `0`; `RELEASE` and `PR` are integers from 0 through 65534. Release zero is valid. Leading zeroes, whitespace, suffixes, missing components and obsolete four-component canonical values are rejected.
 
-MSBuild derives assembly, file, informational and `TrackstormVersion` assembly metadata from that property. Core's immutable `GameVersion.Current` reads generated metadata once. Runtime systems never read project XML or depend on the checkout. The multiplayer menu, Developer Options diagnostics, EOS metadata and session messages use that provider. Explicit version injection on session construction supports deterministic mixed-build tests; production composition uses the canonical provider.
+TS-70 establishes **`0.0.15`**, the explicitly user-approved current build baseline. This intentionally migrates old main `0.0.1.0`; it does not reinterpret the old fourth component or infer `0.1.0`. Normal progression from this baseline is `0.0.16`, `0.0.17`, and so on. An explicitly authorized next-release Story establishes `0.1.0`.
+
+Core's immutable `GameVersion.Current` reads generated assembly metadata once; runtime code never reads project XML. UI, diagnostics, EOS product/discovery metadata and Join/Resume intents use that exact three-component identity. MSBuild derives informational and `TrackstormVersion` assembly metadata unchanged. .NET assembly/file versions use the deterministic four-slot container mapping `MAJOR.RELEASE.PR.0`; this is not a canonical Trackstorm value and is never accepted by multiplayer parsing. Client assembly metadata is generated as well as Core metadata.
 
 ## Story Sequencing
 
-The required GitHub Actions `verify` job checks every PR targeting `main`. It checks out the actual PR head, fetches current `origin/main`, reads both canonical properties and requires exactly `base revision + 1`, with the release prefix unchanged. It also requires current main to be an ancestor of the Story head. A parallel Story that was previously valid must synchronize and increment again after another Story merges. Diagnostics show expected and actual values; missing or duplicate properties fail closed. Only a base without a version property permits initialization at `0.0.1.0`.
+Follow the [canonical Story version procedure](../workflow.md#canonical-story-version-procedure) before implementation and finalization. Fetch and synchronize with current main, read its `Directory.Build.props`, then set only the third component to `main.PR + 1` without changing `MAJOR.RELEASE`. Main `0.1.4` requires Story `0.1.5`. Never derive it from branch age, commit count, a previous local value or another Story branch, and never increment blindly on every agent run. If main advances, synchronize and recalculate again.
 
-Follow the [canonical Story version procedure](../workflow.md#canonical-story-version-procedure) before implementation and finalization: fetch and synchronize with current main, read its `Directory.Build.props`, then set only `TrackstormVersion` to the next fourth-component revision. Main `0.0.1.4` requires Story `0.0.1.5`. Do not increment from the previous local value, branch creation time, commit count or another Story branch, and do not increment on every Codex/agent run when the expected value is already present. If another Story advances main, synchronize and derive the expected value again. Only the initial TS-66 establishment against main without a canonical property starts at `0.0.1.0`.
+The existing GitHub Actions `verify` job is the single enforcement path. It checks out the actual PR head, fetches current `origin/main`, and invokes `check-version.ps1` for PRs targeting main. The script rejects non-ancestor/stale main and compares the canonical source against the expected transition. Missing, duplicate, malformed, wrong-major, unchanged and skipped revisions fail. Normal restore, formatting, builds and tests remain in the same job. Required `verify` status and up-to-date-main protection must remain enabled to close the race between validation and merge.
 
-Run `./tools/check-version.ps1` after synchronization/version adjustment and before final delivery. The script reads the current-main Git ref and the checked-out Story property; callers must fetch first. CI does this in the existing `verify` job, which remains the single enforcement path and preserves normal restore, formatting, build and test steps. Existing up-to-date-main branch protection and the required `verify` check remain necessary to close the race between CI completion and merging another Story. A future release-prefix change or exhausted revision range requires an explicit sequencing-policy change.
+### Explicit release authorization
 
-`./tools/test-version.ps1` runs deterministic sequencing/parser checks, also invoked by `check.ps1` and CI. `GameVersionTests` separately checks runtime parsing and generated metadata against the repository source.
+A dedicated Jira release-version Story updates `.github/version-transition.json`, whose exact fields are `kind`, `story`, `from` and `to`. For example:
+
+```json
+{"kind":"release","story":"TS-123","from":"0.1.15","to":"0.2.0"}
+```
+
+CI requires a newly changed declaration relative to main, a Jira key matching the PR's branch (for example `ts-123-jg`), an exact source/target match, the next release (`main.RELEASE + 1`) and revision zero. A prefix change is never authorized just because it ends in `.0`. A stale declaration, reused declaration, arbitrary jump to `0.8.0`, mismatched Story or nonzero reset fails. Reviewers verify that the named Jira Story is actually the approved release work; CI does not authenticate Jira or replace code review. After merge, leave the declaration unchanged for normal Stories, which continue `0.2.1`, `0.2.2`, etc.
+
+The declaration is an auditable transition authorization, not a second canonical build source: builds and runtime never consume it. The only legacy source exception is TS-70's exact migration declaration from `0.0.1.0` to approved `0.0.15`; missing sources and other four-component values are not initialization shortcuts. Changing release policy or exhausting the numeric range requires explicit reviewed work.
+
+Run `./tools/check-version.ps1` after synchronization/version adjustment and before delivery. It does not fetch itself; CI fetches explicitly, and local callers must do likewise. `./tools/test-version.ps1` runs deterministic parser/transition cases, also included by `check.ps1` and CI; `GameVersionTests` covers runtime parsing, exact compatibility and generated metadata.
+
+## Godot and exported identity
+
+`project.godot` has no independently maintained `config/version`. The enabled `addons/trackstorm_version` editor/export plugin reads the canonical MSBuild property at editor/export time, validates it, and sets Godot's in-memory `application/config/version` before packing. It also overrides Windows file/product numeric versions with the derived `.0` container mapping, regardless of stale local preset version fields. It does not rewrite `export_presets.cfg`, other export preferences or company/product names. The packaged Godot version and the in-game title remain the exact three-component value.
+
+The ordinary Client bootstrap sets runtime Godot metadata from `GameVersion.Current` for editor-launched games. `-- --version-check` prints the runtime and embedded Godot values and fails an exported executable whose embedded version disagrees. Exports need the enabled plugin, the canonical source and the normal .NET build. Windows is the configured export platform; other platforms retain the canonical Godot setting but platform-specific resource metadata requires validation when an export target is introduced.
+
+The plugin uses Godot's [EditorExportPlugin option overrides](https://docs.godotengine.org/en/stable/classes/class_editorexportplugin.html#class-editorexportplugin-private-method-get-export-options-overrides), shared by editor and command-line exports. Run `check-build-version.ps1` for native runtime/export identity verification after a build/export.
 
 ## Discovery and Authoritative Admission
 
