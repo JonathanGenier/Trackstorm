@@ -1,3 +1,4 @@
+using Trackstorm.Client.Development;
 using Trackstorm.Client.Networking;
 using Trackstorm.Client.Vehicles;
 using Trackstorm.Core.Arenas;
@@ -14,8 +15,9 @@ internal static class RuntimeStatistics
     /// <param name="session">Current multiplayer owner, including lobby-only state.</param>
     /// <param name="practice">Optional isolated practice owner.</param>
     /// <param name="selected">Previously selected stable identity.</param>
+    /// <param name="identityDiagnostics">Credential-safe online identity and coordination state.</param>
     /// <returns>New display data, discarded on the next refresh.</returns>
-    internal static StatisticView Capture(DevelopmentSession? session, VehicleArena? practice, ulong selected)
+    internal static StatisticView Capture(DevelopmentSession? session, VehicleArena? practice, ulong selected, string identityDiagnostics = "EOS unavailable.")
     {
         var lobby = session?.Lobby;
         var roster = lobby?.State;
@@ -35,14 +37,16 @@ internal static class RuntimeStatistics
         string sessionText = $"Role: {role} · Connection: {connection}\nSession phase: {roster?.Phase.ToString() ?? "Unavailable"} · Session: {roster?.Session.ToString() ?? "Unavailable"}\n" +
             $"Host: {(roster is not null ? "Player 1" : practice is not null ? "Local authority" : "Unavailable")}\n" +
             $"Connected players: {(roster is not null ? $"{roster.Players.Count(value => value.Connected)}/{ArenaConfiguration.SpawnCount}" : practice is not null ? "1 local driver" : "Unavailable")} · Vehicles: {vehicles.Count}/{ArenaConfiguration.SpawnCount}\n" +
-            $"World tick: {(practice is not null || driver?.Latest is not null ? tick.ToString() : "Unavailable")} · Configuration revision: {driver?.Configuration.Revision.ToString() ?? "Unavailable"}\nAuthority epoch / host migration: not implemented by the current stack.";
+            $"World tick: {(practice is not null || driver?.Latest is not null ? tick.ToString() : "Unavailable")} · Configuration revision: {driver?.Configuration.Revision.ToString() ?? "Unavailable"}\n" +
+            $"Authority epoch: {roster?.AuthorityEpoch.ToString() ?? "Unavailable"} · Host migration: {lobby?.Migration?.Diagnostics ?? "Unavailable"}";
         string arenaText = $"Arena: {(practice is not null || arena is not null ? "Industrial yard" : "Unavailable")}\n" + MatchText(match, tick) +
             $"\nActive projectiles: {missiles?.Count.ToString() ?? "Unavailable"}\n" +
             (spawns is null ? "Item spawns: unavailable" : $"Available spawns: {spawns.Count(value => value.Available)}/{spawns.Count}\n" + string.Join("\n", spawns.Select(value => $"{value.Id}: {(value.Available ? "Available" : "Cooldown " + VehicleStatistics.Remaining(value.NextActivationTick, tick))}")));
         string networkText = $"Transport: {session?.Gateway?.Name ?? "Unavailable"}\nReplication: {(driver is null ? "Unavailable" : driver.Failure.Length > 0 ? "Failed" : driver.IsActive ? "Active" : "Suspended / awaiting authority")}\n" +
             $"Snapshot age: {NetworkVehicleArena.FormatSnapshotAge(driver?.SnapshotAge)}\nInterpolation delay: {(driver?.Host is null && driver?.History is not null ? $"{arena!.InterpolationDelay:0} ms" : "Unavailable")}\n" +
             $"Reconnect: {lobby?.Reconnecting.ToString() ?? "Unavailable"} · Awaiting arena checkpoint: {lobby?.NeedsArenaCheckpoint.ToString() ?? "Unavailable"}\nReconnect policy: {roster?.ReconnectPolicy.ToString() ?? "Unavailable"} · Connection generation: {lobby?.Generation.ToString() ?? "Unavailable"}";
-        StatisticSection[] global = [new("Session / authority", sessionText), new("Arena / match / spawning", arenaText), new("Networking / synchronization", networkText)];
+        string diagnosticsText = identityDiagnostics + "\n" + DeveloperDiagnostics.Capture(session);
+        StatisticSection[] global = [new("Session / authority", sessionText), new("Arena / match / spawning", arenaText), new("Networking / synchronization", networkText), new("Network Diagnostics", diagnosticsText)];
         if (selected == 0)
         {
             return new(players, 0, global, [new("Player / vehicle", "No player or vehicle available.")]);

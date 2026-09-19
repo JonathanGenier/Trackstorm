@@ -30,8 +30,8 @@ public sealed partial class EventLogIntegrationChecks : Node
             bootstrap.AddChild(new PlayerInput { Name = "PlayerInput" });
             AddChild(bootstrap);
             var host = bootstrap.GetNode<DevelopmentSession>("DevelopmentSession");
-            var panel = bootstrap.GetNode<EventLogPanel>("EventLog");
-            var frame = panel.GetChild<PanelContainer>(0);
+            var devTools = bootstrap.GetNode<DevToolsShell>("DevTools");
+            var panel = devTools.Logs;
             string endpoint;
             using (var reservation = new System.Net.Sockets.UdpClient(new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 0)))
             {
@@ -39,13 +39,17 @@ public sealed partial class EventLogIntegrationChecks : Node
             }
 
             host.Open(true, endpoint, "Host tester");
-            Tap();
+            Tap(Key.F3);
             await Frames(3);
-            Check(frame.Visible, "F3 opens in lobby");
+            Check(devTools.IsOpen && devTools.SelectedTab == DevToolsTab.Logs, "F3 opens Logs in lobby");
+            Check(Descendants(bootstrap).OfType<DevToolsShell>().Count() == 1, "only one DevTools shell exists");
+            Check(Descendants(panel).OfType<BaseButton>().All(button => button is OptionButton or CheckButton), "Logs content remains read only");
             Check(bootstrap.GetNode<PlayerInput>("PlayerInput").Adapter.DiagnosticSuppressed, "panel suppresses local gameplay");
-            Tap();
+            Tap(Key.F3);
             await Frames(2);
-            Check(!frame.Visible, "second F3 closes");
+            Check(devTools.IsOpen && devTools.SelectedTab == DevToolsTab.Logs, "repeated F3 keeps the shared shell open on Logs");
+            Tap(Key.Escape);
+            Check(!devTools.IsOpen, "ESC closes DevTools");
             var viewport = new SubViewport { Size = new Vector2I(800, 600), OwnWorld3D = true };
             AddChild(viewport);
             _client = new DevelopmentSession();
@@ -64,7 +68,7 @@ public sealed partial class EventLogIntegrationChecks : Node
             await Until(() => _client.Events.Entries.Any(entry => entry.Kind == "Used"));
             var use = host.Events.Entries.Single(entry => entry.Kind == "Used");
             Check(_client.Events.Entries.Single(entry => entry.Kind == "Used") == use, "same structured authoritative outcome on both peers");
-            Tap();
+            Tap(Key.F3);
             await Frames(3);
             var text = Descendants(panel).OfType<RichTextLabel>().Single();
             Check(text.Text.Contains("Used", StringComparison.Ordinal) && text.Text.Contains("[Item]", StringComparison.Ordinal), "live timestamped history rendered");
@@ -96,7 +100,7 @@ public sealed partial class EventLogIntegrationChecks : Node
                     DisplayServer.WindowSetSize(size);
                     await Frames(12);
                     Check(GetViewport().GetVisibleRect().Size == (Vector2)size, "requested visual verification size");
-                    Check(frame.GetGlobalRect().End.X <= size.X && frame.GetGlobalRect().End.Y <= size.Y, "panel stays within viewport");
+                    Check(devTools.Bounds.End.X <= size.X && devTools.Bounds.End.Y <= size.Y, "shell stays within viewport");
                 }
 
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
@@ -104,8 +108,8 @@ public sealed partial class EventLogIntegrationChecks : Node
                 Check(image.SavePng(ProjectSettings.GlobalizePath("user://event-log-check.png")) == Error.Ok, "screenshot saved");
             }
 
-            Descendants(panel).OfType<Button>().Single(button => button.Text == "Close").EmitSignal(BaseButton.SignalName.Pressed);
-            Check(!frame.Visible, "Close is navigation only");
+            Descendants(devTools).OfType<Button>().Single(button => button.Text == "Close").EmitSignal(BaseButton.SignalName.Pressed);
+            Check(!devTools.IsOpen, "Close is navigation only");
             await CheckActivityFeed(bootstrap, host);
             GD.Print("Event Log integration passed: F3, live replication, bounded journal presentation, freeze, filtering and input isolation.");
             _client.Leave();
@@ -140,11 +144,11 @@ public sealed partial class EventLogIntegrationChecks : Node
         }
     }
 
-    private static void Tap()
+    private static void Tap(Key key)
     {
         foreach (bool pressed in new[] { true, false })
         {
-            using var input = new InputEventKey { Keycode = Key.F3, PhysicalKeycode = Key.F3, Pressed = pressed };
+            using var input = new InputEventKey { Keycode = key, PhysicalKeycode = key, Pressed = pressed };
             Godot.Input.ParseInputEvent(input);
             Godot.Input.FlushBufferedEvents();
         }
