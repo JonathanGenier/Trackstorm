@@ -7,22 +7,10 @@ namespace Trackstorm.Core.Development;
 /// <summary>One effective session tuning boundary composed from the existing gameplay owners.</summary>
 public sealed record GameplayConfiguration
 {
-    /// <summary>Release 0.1.0 hosted-game tuning before host-local overrides; Core fixtures keep their own defaults.</summary>
+    /// <summary>Production asphalt tuning before host-local overrides; all vehicle consumers share the same defaults.</summary>
     public static GameplayConfiguration HostedDefaults { get; } = new()
     {
-        Vehicle = new()
-        {
-            Acceleration = 12,
-            StopSpeed = 0.1f,
-            ReverseAcceleration = 10,
-            ForwardSpeed = 30,
-            SteeringAngle = 0.8f,
-            SteeringSpeed = 30,
-            SteeringResponse = 8,
-            TireFriction = 3.35f,
-            CoastDrag = 1,
-            SuspensionDamping = 12,
-        },
+        Vehicle = new(),
         Damage = new() { MaxHP = 1000, CollisionScale = 5 },
         Items = new() { MissileSpeed = 70, ExplosionRadius = 12, MaximumDamage = 300 },
     };

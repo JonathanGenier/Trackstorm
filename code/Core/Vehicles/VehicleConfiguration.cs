@@ -21,7 +21,7 @@ public sealed record VehicleConfiguration
     /// <summary>Reverse acceleration.</summary>
     public float ReverseAcceleration { get; init; } = 8;
     /// <summary>Normal forward drive limit in metres per second.</summary>
-    public float ForwardSpeed { get; init; } = 28;
+    public float ForwardSpeed { get; init; } = 44.44f;
     /// <summary>Reverse drive limit.</summary>
     public float ReverseSpeed { get; init; } = 11;
     /// <summary>Lateral grip response per second.</summary>
@@ -45,9 +45,9 @@ public sealed record VehicleConfiguration
     /// <summary>Rear lateral grip fraction with the handbrake fully engaged.</summary>
     public float HandbrakeGrip { get; init; } = 0.6f;
     /// <summary>Handbrake application response per second.</summary>
-    public float HandbrakeResponse { get; init; } = 12;
+    public float HandbrakeResponse { get; init; } = 4;
     /// <summary>Handbrake release response per second, permitting gradual traction recovery.</summary>
-    public float TractionRecovery { get; init; } = 5;
+    public float TractionRecovery { get; init; } = 3;
     /// <summary>Rolling resistance per second.</summary>
     public float CoastDrag { get; init; } = 0.12f;
     /// <summary>Reference mass for engine and brake forces, so heavier tuning retains inertia.</summary>
@@ -57,7 +57,7 @@ public sealed record VehicleConfiguration
     /// <summary>Pitch/roll damper rate per second.</summary>
     public float SuspensionDamping { get; init; } = 8;
     /// <summary>Chassis pitch/roll target radians per m/s squared of tire acceleration.</summary>
-    public float ChassisCompliance { get; init; } = 0.012f;
+    public float ChassisCompliance { get; init; } = 0.004f;
     /// <summary>Maximum load-induced chassis tilt in radians.</summary>
     public float MaximumChassisTilt { get; init; } = 0.16f;
     /// <summary>Weak yaw damping; never targets a commanded yaw or drift angle.</summary>

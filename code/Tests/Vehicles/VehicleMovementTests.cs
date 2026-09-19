@@ -13,16 +13,16 @@ internal sealed class VehicleMovementTests
     public void Drive_ObeysLimitsAndBrakesBeforeReverse()
     {
         VehicleMovement movement = Create();
-        for (int index = 0; index < 600; index++)
+        for (int index = 0; index < 1800; index++)
         {
             GroundStep(movement, throttle: 65535);
         }
 
-        Assert.That(-movement.State.Physics.LinearVelocity.Z, Is.EqualTo(28).Within(0.001));
+        Assert.That(-movement.State.Physics.LinearVelocity.Z, Is.EqualTo(44.44f).Within(0.001));
         float before = -movement.State.Physics.LinearVelocity.Z;
         GroundStep(movement, brake: 65535);
         Assert.That(-movement.State.Physics.LinearVelocity.Z, Is.LessThan(before).And.GreaterThan(before - 1));
-        for (int index = 0; index < 600; index++)
+        for (int index = 0; index < 1800; index++)
         {
             GroundStep(movement, brake: 65535);
         }
@@ -40,7 +40,7 @@ internal sealed class VehicleMovementTests
         var movement = new VehicleMovement(configuration, new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero));
         GroundStep(movement, throttle: 65535);
         Assert.That(-movement.State.Physics.LinearVelocity.Z, Is.InRange(0.01f, 0.05f));
-        for (int index = 0; index < 600; index++)
+        for (int index = 0; index < 1800; index++)
         {
             GroundStep(movement, throttle: 65535);
         }
@@ -48,7 +48,7 @@ internal sealed class VehicleMovementTests
         Assert.That(-movement.State.Physics.LinearVelocity.Z, Is.EqualTo(10).Within(0.001));
         GroundStep(movement, brake: 65535);
         Assert.That(-movement.State.Physics.LinearVelocity.Z, Is.InRange(9.8f, 10f));
-        for (int index = 0; index < 600; index++)
+        for (int index = 0; index < 1800; index++)
         {
             GroundStep(movement, brake: 65535);
         }
@@ -270,7 +270,7 @@ internal sealed class VehicleMovementTests
         Assert.That(locked.LongitudinalAcceleration, Is.LessThan(-1));
         VehicleState release = held.Step(Frame(2), body, Vector3.UnitY);
         Assert.That(release.Handbrake, Is.InRange(0.8f, 0.99f));
-        for (ulong tick = 3; tick <= 17; tick++)
+        for (ulong tick = 3; tick <= 25; tick++)
         {
             held.Step(Frame(tick), body, Vector3.UnitY);
         }

@@ -25,6 +25,10 @@ public sealed partial class OvalIntegrationChecks : Node3D
     private ulong _tick;
     private float _maximumLaneError;
     private int _airborneFrames;
+    private float _maximumSpeed;
+    private float _maximumNormalSpeed;
+    private int _supportedFrames;
+    private int _drivingFrames;
     private string _output = string.Empty;
     private VehicleChaseCamera? _chase;
 
@@ -69,11 +73,20 @@ public sealed partial class OvalIntegrationChecks : Node3D
 
             _progress = nearest;
             _maximumLaneError = Math.Max(_maximumLaneError, HorizontalDistance(position, _centers[nearest % _centers.Length]));
-            Vector3 target = _centers[(nearest + 12) % _centers.Length] - position;
+            Vector3 target = _centers[(nearest + 24) % _centers.Length] - position;
             Vector3 forward = -_vehicle.GlobalBasis.Z;
             float angle = new Vector3(forward.X, 0, forward.Z).SignedAngleTo(new Vector3(target.X, 0, target.Z), Vector3.Up);
             steering = (short)(Math.Clamp(-angle * 3, -1, 1) * short.MaxValue);
-            throttle = _vehicle.LinearVelocity.Length() < 19 ? ushort.MaxValue : (ushort)0;
+            throttle = _vehicle.LinearVelocity.Length() < 43 ? ushort.MaxValue : (ushort)0;
+            _maximumSpeed = Math.Max(_maximumSpeed, _vehicle.LinearVelocity.Length());
+            _drivingFrames++;
+            _supportedFrames += _vehicle.State.Grounded ? 1 : 0;
+            if (_vehicle.State.Grounded)
+            {
+                var support = WheelSuspension.Observe(_vehicle, _vehicle.GlobalTransform, _vehicle.Configuration);
+                _maximumNormalSpeed = Math.Max(_maximumNormalSpeed, Math.Abs(_vehicle.LinearVelocity.Dot(support.Normal)));
+            }
+
             _airborneFrames = _vehicle.State.Grounded ? 0 : _airborneFrames + 1;
         }
 
@@ -103,12 +116,14 @@ public sealed partial class OvalIntegrationChecks : Node3D
             VerifyGrid();
             await CaptureViews();
             await VerifyDriving();
+            await VerifyHandling();
             _advance = false;
             _vehicle.QueueFree();
             await VerifyPractice();
             System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            await Task.Delay(100);
             GD.Print($"Oval integration passed: {_evidence.Count} checks. Artifacts: {_output}");
             GetTree().Quit();
         }
@@ -337,7 +352,7 @@ public sealed partial class OvalIntegrationChecks : Node3D
         }
 
         _drive = true;
-        for (int frame = 0; frame < 7200 && _progress - _start < _centers.Length; frame++)
+        for (int frame = 0; frame < 18000 && _progress - _start < _centers.Length * 3; frame++)
         {
             await Frames(1);
             if (frame == 900 && _chase is not null)
@@ -347,12 +362,13 @@ public sealed partial class OvalIntegrationChecks : Node3D
 
             if (_maximumLaneError > 6 || _airborneFrames > 30 || _vehicle.GlobalPosition.Y < -1)
             {
-                throw new InvalidOperationException($"Native lap failed at progress {_progress - _start}: lane error {_maximumLaneError:F3}, airborne {_airborneFrames}, position {_vehicle.GlobalPosition}.");
+                throw new InvalidOperationException($"Native lap failed at progress {_progress - _start}: lane error {_maximumLaneError:F3}, airborne {_airborneFrames}, position {_vehicle.GlobalPosition}, velocity {_vehicle.LinearVelocity}, angular {_vehicle.AngularVelocity}, wheel {_vehicle.State.SteeringAngle}, slip {_vehicle.State.FrontSlip}/{_vehicle.State.RearSlip}, normal-speed {_maximumNormalSpeed}.");
             }
         }
 
         _drive = false;
-        Check(_progress - _start >= _centers.Length, $"Production VehicleBody completed the full banked loop, maximum centerline deviation {_maximumLaneError:F3} m, without sustained support loss.");
+        Check(_maximumSpeed > 40 && _supportedFrames > _drivingFrames * 0.99f && _maximumNormalSpeed < 2, $"Sustained high-speed support: peak {_maximumSpeed:F3} m/s, grounded {_supportedFrames}/{_drivingFrames}, peak normal speed {_maximumNormalSpeed:F3} m/s.");
+        Check(_progress - _start >= _centers.Length * 3, $"Production VehicleBody completed three banked loops, maximum centerline deviation {_maximumLaneError:F3} m, without sustained support loss.");
     }
 
     private async Task CaptureVehicleView(string name)

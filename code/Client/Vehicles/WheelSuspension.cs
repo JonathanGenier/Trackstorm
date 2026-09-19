@@ -22,7 +22,7 @@ internal static class WheelSuspension
             foreach (float x in new[] { -VehicleDimensions.WheelTrack / 2, VehicleDimensions.WheelTrack / 2 })
             {
                 Vector3 origin = pose * new Vector3(x, 0, z);
-                using var query = PhysicsRayQueryParameters3D.Create(origin, origin + (Vector3.Down * configuration.SuspensionLength), body.CollisionMask, new Godot.Collections.Array<Rid> { body.GetRid() });
+                using var query = PhysicsRayQueryParameters3D.Create(origin, origin + (-pose.Basis.Y * configuration.SuspensionLength), body.CollisionMask, new Godot.Collections.Array<Rid> { body.GetRid() });
                 var hit = body.GetWorld3D().DirectSpaceState.IntersectRay(query);
                 if (hit.Count > 0 && hit["normal"].AsVector3().Y >= 0.55f)
                 {
@@ -35,7 +35,7 @@ internal static class WheelSuspension
             }
         }
 
-        using var center = PhysicsRayQueryParameters3D.Create(pose.Origin, pose.Origin + (Vector3.Down * configuration.SuspensionLength), body.CollisionMask, new Godot.Collections.Array<Rid> { body.GetRid() });
+        using var center = PhysicsRayQueryParameters3D.Create(pose.Origin, pose.Origin + (-pose.Basis.Y * configuration.SuspensionLength), body.CollisionMask, new Godot.Collections.Array<Rid> { body.GetRid() });
         var centerHit = body.GetWorld3D().DirectSpaceState.IntersectRay(center);
         if (centerHit.Count > 0 && centerHit["normal"].AsVector3().Y >= 0.55f)
         {

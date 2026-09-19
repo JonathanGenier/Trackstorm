@@ -66,7 +66,7 @@ retain their existing owners outside the scriptless map scene. There is no map
 selection UI or new map negotiation protocol; session peers use the same build.
 
 The [production vehicle](vehicles.md) is 4.81 m long at unit runtime scale. The
-separate Blender reference vehicle remains a verification-only comparison. Handling tuning,
+separate Blender reference vehicle remains a verification-only comparison. The [asphalt handling baseline](vehicles.md) owns driving behavior;
 infield gameplay, terrain, barriers and environment dressing remain later work.
 Open edges are intentional: this is a foundation, not a contained arena.
 
@@ -76,16 +76,14 @@ Open edges are intentional: this is a foundation, not a contained arena.
 checks imported coordinates, transforms, road dimensions, collision equivalence,
 22,900 raycasts over every road section and closure, adjacent normal continuity,
 flat infield/rim coverage, all eight grid footprints and reference vehicle scale.
-It also runs the existing `VehicleBody` and Core simulation through a complete
-lap using test-only steering input. The fixture does not alter production tuning
+It also runs the existing `VehicleBody` and Core simulation through three high-speed laps using test-only steering input, plus low-speed bank descent/start, drift recovery, excessive-input spin and infield crossing. The fixture does not alter production tuning
 or artificially move the driving body around the lap. It also starts ordinary
 practice, checks all eight settled vehicles against the authored slots, resets
 them back to the grid and verifies existing music playback.
 
 `-Visual` additionally renders an overview, bank view and grid with the 4.81 m
 reference. Evidence is written beneath `.godot/oval-checks/`. This establishes
-foundation drivability with one automated vehicle, not racing balance, human
-control feel or high-speed tuning. Normal menu/lobby, separate-process networking,
+repeatable high-speed drivability with one automated vehicle; it does not establish human control feel or multiplayer racing balance. Normal menu/lobby, separate-process networking,
 death/respawn, reconnect and migration fixtures verify the active map contract,
 empty pickup/prop state and preserved global systems. The separate-process driving
 route turns into the infield so its replication checks do not depend on old walls.
