@@ -9,6 +9,7 @@ internal sealed partial class StartupIntegrationChecks : Node
     private readonly List<StartupStage> _stages = [StartupStage.Preloader];
     private StartupController _startup = null!;
     private ulong _loaderBackground;
+    private ulong _loaderMusic;
     private double _seconds;
     private bool _recovered;
 
@@ -43,13 +44,17 @@ internal sealed partial class StartupIntegrationChecks : Node
         {
             ulong current = _startup.BackgroundInstanceId;
             Check(current != 0, "MenuShell background begins with Loader");
+            Check(_startup.MediaPlaying, "Frontend video and independent music begin with Loader");
             if (_loaderBackground == 0)
             {
                 _loaderBackground = current;
+                _loaderMusic = _startup.MusicInstanceId;
+                Check(_loaderMusic != 0, "Frontend music player begins with Loader");
             }
             else
             {
                 Check(current == _loaderBackground, "Retry preserves MenuShell background");
+                Check(_startup.MusicInstanceId == _loaderMusic, "Retry preserves frontend music player");
             }
         }
         else if (stage == StartupStage.Failed)
@@ -62,6 +67,8 @@ internal sealed partial class StartupIntegrationChecks : Node
         {
             Check(_recovered, "Failure state recovered through retry");
             Check(_startup.BackgroundInstanceId == _loaderBackground, "Main Menu retains exact Loader background instance");
+            Check(_startup.MusicInstanceId == _loaderMusic, "Main Menu retains exact Loader music instance");
+            Check(_startup.MediaPlaying, "Main Menu retains continuously playing frontend media");
             Check(GetParent().GetNodeOrNull<Networking.DevelopmentSession>("DevelopmentSession") is not null, "Main Menu exists only after initialization");
             StartupStage[] expected = [StartupStage.Preloader, StartupStage.Splash, StartupStage.FrontendLoading, StartupStage.Failed, StartupStage.FrontendLoading, StartupStage.MainMenu];
             Check(_stages.SequenceEqual(expected), "Startup transition order is explicit and deterministic");

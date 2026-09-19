@@ -1,0 +1,37 @@
+{
+  "files": [
+    {
+      "path": "assets/frontend/source/Menu no music.mov",
+      "source": "Menu no music.mov",
+      "jira": "TS-85",
+      "bytes": 131978991,
+      "sha256": "66a5a27b862cea9cfd8254f6a0582fbf7c5ab01e9714d002c523ac78b93f95c7",
+      "format": "QuickTime; H.264 Main, yuv420p BT.709, 1920x1080, 24 fps; AAC-LC stereo 48 kHz",
+      "durationSeconds": 179.75,
+      "license": "Project-provided; no third-party license asserted"
+    },
+    {
+      "path": "assets/frontend/Menu no music.ogv",
+      "derivedFrom": "assets/frontend/source/Menu no music.mov",
+      "bytes": 91845117,
+      "sha256": "b2b0e5b8841522b6a50bffa540eb71d3b05a05b2b678294d63fab008ba617c70",
+      "format": "Ogg; Theora, yuv420p, 1920x1080, 24 fps; no audio stream",
+      "durationSeconds": 179.75,
+      "processing": "ffmpeg -hide_banner -y -i <source.mov> -map 0:v:0 -an -c:v libtheora -q:v 7 -pix_fmt yuv420p -r 24 -f ogg <runtime.ogv>",
+      "tool": "FFmpeg 7.1 from imageio-ffmpeg 0.6.0",
+      "reason": "Godot 4 built-in VideoStreamPlayer supports Ogg Theora, not QuickTime/H.264; -an explicitly removes the supplied MOV audio so the MP3 remains authoritative.",
+      "license": "Project-provided derivative; no third-party license asserted"
+    },
+    {
+      "path": "assets/audio/project/music/Welcome to the Carnage Circus main menu.mp3",
+      "source": "Welcome to the Carnage Circus main menu.mp3",
+      "jira": "TS-85",
+      "bytes": 4063384,
+      "sha256": "b4c613a1b6604be4d0300fc8dbb9429a3eb5dc56422a462e3d7e3281b941d826",
+      "format": "MP3 stereo 48 kHz",
+      "durationSeconds": 179.76,
+      "role": "Authoritative frontend music; committed unchanged",
+      "license": "Project-provided; no third-party license asserted"
+    }
+  ]
+}

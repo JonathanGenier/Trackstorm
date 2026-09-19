@@ -5,7 +5,14 @@ namespace Trackstorm.Client.Bootstrap;
 /// <summary>Owns the persistent frontend background and startup status presented above it.</summary>
 internal sealed partial class MenuShell : CanvasLayer
 {
-    private readonly FrontendBackground _background = new() { Name = "FrontendBackground" };
+    private readonly VideoStreamPlayer _background = new()
+    {
+        Name = "FrontendVideo",
+        Expand = true,
+        Loop = true,
+        Volume = 0,
+        MouseFilter = Control.MouseFilterEnum.Ignore,
+    };
     private readonly Control _root = new();
     private readonly Label _status = new() { HorizontalAlignment = HorizontalAlignment.Center };
     private readonly ProgressBar _progress = new() { MinValue = 0, MaxValue = 1, ShowPercentage = false };
@@ -24,11 +31,18 @@ internal sealed partial class MenuShell : CanvasLayer
     /// <summary>Stable identity used to verify background continuity.</summary>
     internal ulong BackgroundInstanceId => _background.GetInstanceId();
 
+    /// <summary>Stable identity used to verify independent music continuity.</summary>
+    internal ulong MusicInstanceId => _music.GetInstanceId();
+
+    /// <summary>Whether both independent frontend media players are active.</summary>
+    internal bool MediaPlaying => _background.IsPlaying() && _music.Playing;
+
     /// <inheritdoc/>
     public override void _Ready()
     {
         Layer = -5;
         AddChild(_background);
+        _background.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         AddChild(_music);
         AddChild(_root);
         _root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
@@ -96,24 +110,27 @@ internal sealed partial class MenuShell : CanvasLayer
         _retry.GrabFocus();
     }
 
-    /// <summary>Starts separately routed frontend music without coupling it to the background.</summary>
-    /// <param name="stream">Loaded music stream.</param>
-    internal void StartMusic(AudioStream stream)
+    /// <summary>Starts the independent looping video and Music-bus stream owned by this shell.</summary>
+    /// <param name="video">Silent Godot-compatible frontend video.</param>
+    /// <param name="music">Authoritative frontend music.</param>
+    internal void StartMedia(VideoStream video, AudioStream music)
     {
-        if (_music.Playing)
+        if (_background.Stream is not null || _music.Stream is not null)
         {
             return;
         }
 
-        AudioStream playback = (AudioStream)stream.Duplicate();
-        if (playback is AudioStreamMP3 mp3)
+        _background.Stream = (VideoStream)video.Duplicate();
+        AudioStream musicPlayback = (AudioStream)music.Duplicate();
+        if (musicPlayback is AudioStreamMP3 mp3)
         {
             mp3.Loop = true;
         }
 
-        _music.Stream = playback;
+        _music.Stream = musicPlayback;
         if (_active)
         {
+            _background.Play();
             _music.Play();
         }
     }
@@ -131,11 +148,20 @@ internal sealed partial class MenuShell : CanvasLayer
         Visible = active;
         if (!active)
         {
+            _background.Stop();
             _music.Stop();
         }
-        else if (_music.Stream is not null)
+        else
         {
-            _music.Play();
+            if (_background.Stream is not null)
+            {
+                _background.Play();
+            }
+
+            if (_music.Stream is not null)
+            {
+                _music.Play();
+            }
         }
     }
 

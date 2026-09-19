@@ -21,6 +21,7 @@ public sealed partial class SimulationBootstrap : Node
     private VehicleArena? _arena;
     private DevelopmentSession? _session;
     private SettingsPanel _settingsPanel = null!;
+    private PlayerSettingsController _settings = null!;
     private EosIdentityNode? _online;
     private StartupController? _startup;
     private bool _quitRequested;
@@ -100,6 +101,7 @@ public sealed partial class SimulationBootstrap : Node
             {
                 Name = "StartupController",
                 InitializeApplication = () => InitializeApplication(false),
+                PrepareFrontend = PrepareFrontend,
                 PresentMainMenu = PresentMainMenu,
                 AbortApplication = AbortApplicationInitialization,
                 SplashDuration = startupCheck ? 0.05 : 1.4,
@@ -150,17 +152,11 @@ public sealed partial class SimulationBootstrap : Node
 
     private bool InitializeApplication(bool presentFrontend)
     {
-        _playerInput = GetNode<PlayerInput>("PlayerInput");
-        _playerInput.GameplayAvailable = () => !_quitRequested && (_arena is not null || _session?.Arena is not null);
-        _playerInput.FrameCaptured += OnFrameCaptured;
-        Engine.PhysicsTicksPerSecond = _configuration.TicksPerSecond;
-        var settings = new PlayerSettingsController { Name = "PlayerSettings" };
-        settings.Initialize(_playerInput.Adapter, SettingsPath ?? ProjectSettings.GlobalizePath("user://player-settings.json"));
-        AddChild(settings);
+        PrepareFrontend();
         var panel = new SettingsPanel { Name = "SettingsPanel" };
-        panel.Initialize(settings, _playerInput.Adapter);
+        panel.Initialize(_settings, _playerInput.Adapter);
         panel.SetFrontendPresentation(presentFrontend, presentFrontend ? 1 : 0);
-        settings.AddChild(panel);
+        _settings.AddChild(panel);
         _settingsPanel = panel;
         var statistics = new Statistics.StatisticPanel { Name = "StatisticPanel" };
         statistics.Initialize(_playerInput.Adapter);
@@ -183,7 +179,7 @@ public sealed partial class SimulationBootstrap : Node
             Name = "CombatHud",
             Vehicle = () => _session?.Arena?.LocalState ?? _arena?.Player.Snapshot,
             Slot = () => _session?.Arena?.Driver.LocalItem,
-            Units = () => settings.Current.SpeedUnit,
+            Units = () => _settings.Current.SpeedUnit,
             Position = () => _session?.Standings.Position ?? "--",
         };
         AddChild(combatHud);
@@ -239,6 +235,23 @@ public sealed partial class SimulationBootstrap : Node
         return true;
     }
 
+    private bool PrepareFrontend()
+    {
+        if (_settings is not null)
+        {
+            return true;
+        }
+
+        _playerInput = GetNode<PlayerInput>("PlayerInput");
+        _playerInput.GameplayAvailable = () => !_quitRequested && (_arena is not null || _session?.Arena is not null);
+        _playerInput.FrameCaptured += OnFrameCaptured;
+        Engine.PhysicsTicksPerSecond = _configuration.TicksPerSecond;
+        _settings = new PlayerSettingsController { Name = "PlayerSettings" };
+        _settings.Initialize(_playerInput.Adapter, SettingsPath ?? ProjectSettings.GlobalizePath("user://player-settings.json"));
+        AddChild(_settings);
+        return true;
+    }
+
     private void PresentMainMenu()
     {
         _session?.SetFrontendPresentation(true, 0);
@@ -249,12 +262,13 @@ public sealed partial class SimulationBootstrap : Node
 
     private void AbortApplicationInitialization()
     {
-        if (_playerInput is not null)
+        if (_settingsPanel is not null)
         {
-            _playerInput.FrameCaptured -= OnFrameCaptured;
+            _settings.RemoveChild(_settingsPanel);
+            _settingsPanel.Free();
         }
 
-        foreach (string name in new[] { "PlayerSettings", "StatisticPanel", "CombatHud", "ActivityFeed", "EventLog", "MatchStandings", "EosIdentity", "DevelopmentSession", "VehicleArena" })
+        foreach (string name in new[] { "StatisticPanel", "CombatHud", "ActivityFeed", "EventLog", "MatchStandings", "EosIdentity", "DevelopmentSession", "VehicleArena" })
         {
             Node? node = GetNodeOrNull<Node>(name);
             if (node is null)
@@ -299,7 +313,7 @@ public sealed partial class SimulationBootstrap : Node
     {
         _arena?.Advance(input);
         _session?.Advance(input);
-        _settingsPanel.SetVehicleTelemetry(_session?.Arena?.LocalState?.Speed ?? _arena?.Player.Snapshot.Speed ?? 0, _session?.Diagnostics ?? default);
-        _settingsPanel.SetCombatHudVisible(_session?.Arena?.LocalState is not null || _arena is not null);
+        _settingsPanel?.SetVehicleTelemetry(_session?.Arena?.LocalState?.Speed ?? _arena?.Player.Snapshot.Speed ?? 0, _session?.Diagnostics ?? default);
+        _settingsPanel?.SetCombatHudVisible(_session?.Arena?.LocalState is not null || _arena is not null);
     }
 }

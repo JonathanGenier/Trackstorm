@@ -5,7 +5,14 @@ namespace Trackstorm.Client.Bootstrap;
 /// <summary>Coordinates minimal boot presentation, application resource loading, and recoverable completion.</summary>
 internal sealed partial class StartupController : Node
 {
-    private const string FrontendMusicPath = "res://assets/audio/project/music/Welcome to the Carnage Circus Arena.mp3";
+    private const string FrontendVideoPath = "res://assets/frontend/Menu no music.ogv";
+    private const string FrontendMusicPath = "res://assets/audio/project/music/Welcome to the Carnage Circus main menu.mp3";
+
+    private static readonly string[] FrontendResources =
+    [
+        FrontendVideoPath,
+        FrontendMusicPath,
+    ];
 
     private static readonly string[] ApplicationResources =
     [
@@ -17,7 +24,7 @@ internal sealed partial class StartupController : Node
         "res://assets/hud/Missile.svg",
         "res://assets/hud/Component.gdshader",
         "res://assets/items/materials/DamageFlash.gdshader",
-        FrontendMusicPath,
+        "res://assets/audio/project/music/Welcome to the Carnage Circus Arena.mp3",
         "res://assets/audio/project/music/Welcome to the Carnage Circus Arena 2.mp3",
         "res://assets/audio/project/music/Welcome to the Carnage Circus Arena 3.mp3",
         "res://assets/audio/freesound/arena/ambience.wav",
@@ -50,6 +57,9 @@ internal sealed partial class StartupController : Node
     private SplashScreen? _splash;
     private MenuShell? _shell;
     private AudioStream? _frontendMusic;
+    private VideoStream? _frontendVideo;
+    private string? _preloadingPath;
+    private int _preloadIndex;
     private string? _loadingPath;
     private int _resourceIndex;
     private bool _preloaderPresented;
@@ -59,6 +69,9 @@ internal sealed partial class StartupController : Node
 
     /// <summary>Application composition invoked only after required resources load.</summary>
     internal Func<bool> InitializeApplication { get; set; } = () => true;
+
+    /// <summary>Initializes saved audio routing before frontend music begins.</summary>
+    internal Func<bool> PrepareFrontend { get; set; } = () => true;
 
     /// <summary>Main-menu reveal invoked only after composition succeeds.</summary>
     internal Action PresentMainMenu { get; set; } = () => { };
@@ -71,6 +84,12 @@ internal sealed partial class StartupController : Node
 
     /// <summary>Identity of the current persistent frontend background.</summary>
     internal ulong BackgroundInstanceId => _shell?.BackgroundInstanceId ?? 0;
+
+    /// <summary>Identity of the current independent frontend music player.</summary>
+    internal ulong MusicInstanceId => _shell?.MusicInstanceId ?? 0;
+
+    /// <summary>Whether the persistent frontend video and music are both playing.</summary>
+    internal bool MediaPlaying => _shell?.MediaPlaying == true;
 
     /// <summary>Configurable splash duration used by production and runtime verification.</summary>
     internal double SplashDuration { get; set; } = 1.4;
@@ -89,11 +108,7 @@ internal sealed partial class StartupController : Node
                 return;
             }
 
-            _splash = new SplashScreen { Name = "SplashScreen", Duration = SplashDuration };
-            _splash.Completed += BeginFrontendLoading;
-            AddChild(_splash);
-            _flow.ShowSplash();
-            StageChanged?.Invoke(_flow.Stage);
+            LoadNextFrontendResource();
             return;
         }
 
@@ -119,8 +134,73 @@ internal sealed partial class StartupController : Node
         _shell.QuitRequested += () => GetTree().Quit(1);
         AddChild(_shell);
         _flow.ShowFrontendLoader();
-        StageChanged?.Invoke(_flow.Stage);
-        _shell.ShowProgress("Loading shared application resources…", 0);
+        try
+        {
+            if (!PrepareFrontend())
+            {
+                throw new InvalidOperationException("Required frontend audio settings did not initialize.");
+            }
+
+            _shell.StartMedia(
+                _frontendVideo ?? throw new InvalidOperationException("Frontend video was not preloaded."),
+                _frontendMusic ?? throw new InvalidOperationException("Frontend music was not preloaded."));
+            StageChanged?.Invoke(_flow.Stage);
+            _shell.ShowProgress("Loading shared application resources…", 0);
+        }
+        catch (Exception exception)
+        {
+            Fail(exception.Message);
+        }
+    }
+
+    private void LoadNextFrontendResource()
+    {
+        if (_preloadIndex >= FrontendResources.Length)
+        {
+            _splash = new SplashScreen { Name = "SplashScreen", Duration = SplashDuration };
+            _splash.Completed += BeginFrontendLoading;
+            AddChild(_splash);
+            _flow.ShowSplash();
+            StageChanged?.Invoke(_flow.Stage);
+            return;
+        }
+
+        string path = FrontendResources[_preloadIndex];
+        if (_preloadingPath is null)
+        {
+            Error request = ResourceLoader.LoadThreadedRequest(path, useSubThreads: true);
+            if (request != Error.Ok)
+            {
+                throw new InvalidOperationException($"Frontend resource could not start loading: {path} ({request}).");
+            }
+
+            _preloadingPath = path;
+            return;
+        }
+
+        ResourceLoader.ThreadLoadStatus status = ResourceLoader.LoadThreadedGetStatus(path);
+        if (status == ResourceLoader.ThreadLoadStatus.InProgress)
+        {
+            return;
+        }
+
+        if (status != ResourceLoader.ThreadLoadStatus.Loaded)
+        {
+            throw new InvalidOperationException($"Frontend resource failed to load: {path} ({status}).");
+        }
+
+        Resource resource = ResourceLoader.LoadThreadedGet(path) ?? throw new InvalidOperationException($"Frontend resource could not be loaded: {path}");
+        if (path == FrontendVideoPath)
+        {
+            _frontendVideo = resource as VideoStream ?? throw new InvalidOperationException("Frontend video has an unsupported imported type.");
+        }
+        else
+        {
+            _frontendMusic = resource as AudioStream ?? throw new InvalidOperationException("Frontend music has an unsupported imported type.");
+        }
+
+        _preloadIndex++;
+        _preloadingPath = null;
     }
 
     private void LoadNextResource()
@@ -163,10 +243,6 @@ internal sealed partial class StartupController : Node
                 _resourceIndex++;
                 _loadingPath = null;
                 _shell!.ShowProgress($"Loading {_resourceIndex} of {paths.Length}", (double)_resourceIndex / (paths.Length + 1));
-                if (path == FrontendMusicPath && resource is AudioStream music)
-                {
-                    _frontendMusic = music;
-                }
             }
             catch (Exception exception)
             {
@@ -192,11 +268,6 @@ internal sealed partial class StartupController : Node
 
             _flow.Complete();
             PresentMainMenu();
-            if (_frontendMusic is not null)
-            {
-                _shell.StartMusic(_frontendMusic);
-            }
-
             _shell.ShowMainMenu();
             StageChanged?.Invoke(_flow.Stage);
             SetProcess(false);
@@ -221,7 +292,6 @@ internal sealed partial class StartupController : Node
         _resourceIndex = 0;
         _loadingPath = null;
         _resources.Clear();
-        _frontendMusic = null;
         _shell!.ShowProgress("Retrying shared application resources…", 0);
         StageChanged?.Invoke(_flow.Stage);
     }
