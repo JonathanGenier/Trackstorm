@@ -85,6 +85,9 @@ internal sealed partial class MenuShell : CanvasLayer
         _quit.Pressed += () => QuitRequested?.Invoke();
     }
 
+    /// <inheritdoc/>
+    public override void _ExitTree() => ResetMedia();
+
     /// <summary>Displays bounded application initialization progress.</summary>
     /// <param name="item">Human-readable current work.</param>
     /// <param name="progress">Normalized completion.</param>

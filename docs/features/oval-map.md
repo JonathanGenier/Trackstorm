@@ -2,8 +2,7 @@
 
 `scenes/maps/oval_foundation.tscn` is the active map for normal gameplay and practice.
 It has no runtime script, camera, lighting, player controllers, match state or
-network session ownership. The existing [combat arena](arena.md) remains available
-only as an explicit verification fixture. Later map work can instance this scene and add content
+network session ownership. The existing [combat arena](arena.md) is selectable as Old Map in multiplayer. Later map work can instance this scene and add content
 without replacing its geometry or folding unrelated systems into the map root.
 
 ```text
@@ -58,12 +57,11 @@ The oval contains no old arena props, barrels, obstacles, decorations or item
 markers. Its item configuration is empty; the existing item authority, inventory,
 combat, replication and presentation remain available, with no placed pickups.
 Pickup placement belongs to later map work. Optional prop snapshots remain absent.
-The old map scene and its assets are retained, not instantiated by normal entry.
+The old map scene and assets are loaded only when Old Map is selected or a verification fixture requests them.
 
-Map selection is centralized in `ActiveMap.ScenePath`. Application/menu entry,
+`ActiveMap.ScenePath` identifies New Map and the practice default. Multiplayer selection belongs to `LobbySnapshot.Map`. Application/menu entry,
 vehicle configuration, cameras, HUD, audio/music, networking and player lifecycle
-retain their existing owners outside the scriptless map scene. There is no map
-selection UI or new map negotiation protocol; session peers use the same build.
+retain their existing owners outside the scriptless map scene. The joined Lobby offers exactly Old Map and New Map through authoritative session state; the [Match Loader](match-entry.md) consumes that selection.
 
 The [production vehicle](vehicles.md) is 4.81 m long at unit runtime scale. The
 separate Blender reference vehicle remains a verification-only comparison. Handling tuning,
