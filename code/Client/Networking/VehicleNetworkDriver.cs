@@ -620,6 +620,7 @@ internal sealed class VehicleNetworkDriver
         _snapshotAge = 0;
         _generation = _lobby.Generation;
         _awaitingCheckpoint = false;
+        EntryContext = null;
         Failure = string.Empty;
         RosterChanged?.Invoke(world);
         Resynchronized?.Invoke(world);

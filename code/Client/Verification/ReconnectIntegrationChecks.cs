@@ -83,7 +83,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
     {
         if (_finished)
         {
-            if (++_cleanup == 4)
+            // Allow the native audio mixer to release stopped arena voices before engine shutdown.
+            if (++_cleanup == 30)
             {
                 GD.Print("Reconnect integration passed: immediate lobby removal/fresh admission, three arena resyncs including 125 seconds offline, native body reuse, prediction/interpolation reset, held-item/spawn/match continuity, dimmed retained standings, final results and new-generation reset over real UDP. EOS identity and initial scores are test seams.");
                 GetTree().Quit();

@@ -84,6 +84,11 @@ internal sealed partial class NetworkVehicleArena : Node3D
         }
 
         AddChild(Map);
+        foreach (var prop in Props)
+        {
+            prop.Freeze = ApplicationEntry || _driver.Host is null;
+        }
+
         AddChild(_items);
         AddChild(_destruction);
         AddChild(_audio);

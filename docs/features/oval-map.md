@@ -59,7 +59,7 @@ combat, replication and presentation remain available, with no placed pickups.
 Pickup placement belongs to later map work. Optional prop snapshots remain absent.
 The old map scene and assets are loaded only when Old Map is selected or a verification fixture requests them.
 
-Map selection is centralized in `ActiveMap.ScenePath`. Application/menu entry,
+`ActiveMap.ScenePath` identifies New Map and the practice default. Multiplayer selection belongs to `LobbySnapshot.Map`. Application/menu entry,
 vehicle configuration, cameras, HUD, audio/music, networking and player lifecycle
 retain their existing owners outside the scriptless map scene. The joined Lobby offers exactly Old Map and New Map through authoritative session state; the [Match Loader](match-entry.md) consumes that selection.
 
