@@ -1,0 +1,249 @@
+name: Trusted PR Version Repair
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review]
+  push:
+    branches: [main]
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out trusted main workflow context
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Repair trusted PR Story versions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          readonly REPO="$GITHUB_REPOSITORY"
+          readonly MARKER='<!-- trackstorm-version-watch -->'
+
+          is_trusted_author() {
+            case "$1" in
+              JonathanGenier|sadprotate) return 0 ;;
+              *) return 1 ;;
+            esac
+          }
+
+          upsert_report() {
+            local pr_number="$1"
+            local message="$2"
+            local body
+            body="$MARKER
+          **Trackstorm version repair requires attention**
+
+          $message"
+
+            local comments comment_id
+            comments="$(gh api "repos/$REPO/issues/$pr_number/comments" --paginate)"
+            comment_id="$(
+              jq -r --arg marker "$MARKER" '
+                .[]
+                | select(.user.login == "github-actions[bot]")
+                | select(.body | contains($marker))
+                | .id
+              ' <<<"$comments" | tail -n 1
+            )"
+
+            if [ -n "$comment_id" ] && [ "$comment_id" != "null" ]; then
+              jq -n --arg body "$body" '{body:$body}' |
+                gh api --method PATCH "repos/$REPO/issues/comments/$comment_id" --input - >/dev/null
+            else
+              gh pr comment "$pr_number" --repo "$REPO" --body "$body" >/dev/null
+            fi
+          }
+
+          clear_report() {
+            local pr_number="$1"
+            local comments comment_id
+            comments="$(gh api "repos/$REPO/issues/$pr_number/comments" --paginate)"
+            comment_id="$(
+              jq -r --arg marker "$MARKER" '
+                .[]
+                | select(.user.login == "github-actions[bot]")
+                | select(.body | contains($marker))
+                | .id
+              ' <<<"$comments" | tail -n 1
+            )"
+
+            if [ -n "$comment_id" ] && [ "$comment_id" != "null" ]; then
+              gh api --method DELETE "repos/$REPO/issues/comments/$comment_id" >/dev/null
+            fi
+          }
+
+          get_file() {
+            local ref="$1"
+            local path="$2"
+            gh api --method GET "repos/$REPO/contents/$path" -f ref="$ref" --jq .content |
+              tr -d '\n' |
+              base64 --decode
+          }
+
+          wait_for_branch_update() {
+            local pr_number="$1"
+            local previous_sha="$2"
+
+            for _ in $(seq 1 30); do
+              local current_sha
+              current_sha="$(gh api "repos/$REPO/pulls/$pr_number" --jq .head.sha)"
+              if [ "$current_sha" != "$previous_sha" ]; then
+                echo "$current_sha"
+                return 0
+              fi
+              sleep 2
+            done
+
+            return 1
+          }
+
+          dispatch_verify() {
+            local pr_number="$1"
+            local head_ref="$2"
+            echo "PR #$pr_number: dispatching required verify job for corrected head."
+            gh workflow run ci.yml               --repo "$REPO"               --ref "$head_ref"               -f pr_number="$pr_number"
+          }
+
+          process_pr() {
+            local pr_number="$1"
+            local pr_json author base_ref head_ref head_repo head_sha
+
+            pr_json="$(gh api "repos/$REPO/pulls/$pr_number")"
+            author="$(jq -r '.user.login' <<<"$pr_json")"
+            base_ref="$(jq -r '.base.ref' <<<"$pr_json")"
+            head_ref="$(jq -r '.head.ref' <<<"$pr_json")"
+            head_repo="$(jq -r '.head.repo.full_name // empty' <<<"$pr_json")"
+            head_sha="$(jq -r '.head.sha' <<<"$pr_json")"
+
+            if ! is_trusted_author "$author"; then
+              echo "PR #$pr_number: ignoring untrusted author $author."
+              return 0
+            fi
+
+            if [ "$base_ref" != "main" ]; then
+              echo "PR #$pr_number: ignoring non-main base $base_ref."
+              return 0
+            fi
+
+            if [ "$head_repo" != "$REPO" ]; then
+              echo "PR #$pr_number: trusted author uses a fork; automatic branch writes are disabled."
+              upsert_report "$pr_number" "The PR is not using a branch in `$REPO`, so automatic version repair was not attempted."
+              return 0
+            fi
+
+            local main_transition branch_transition
+            main_transition="$(get_file main .github/version-transition.json 2>/dev/null || true)"
+            branch_transition="$(get_file "$head_ref" .github/version-transition.json 2>/dev/null || true)"
+
+            if [ "$main_transition" != "$branch_transition" ]; then
+              echo "PR #$pr_number: custom version transition differs from main; skipping automatic repair."
+              upsert_report "$pr_number" "This PR changes `.github/version-transition.json`. Release, migration, and baseline transitions require explicit reviewed handling and are not auto-repaired."
+              return 0
+            fi
+
+            local compare_json behind_by branch_was_updated=0
+            compare_json="$(gh api "repos/$REPO/compare/main...$head_sha")"
+            behind_by="$(jq -r '.behind_by' <<<"$compare_json")"
+
+            if [ "$behind_by" -gt 0 ]; then
+              echo "PR #$pr_number: branch is $behind_by commit(s) behind main; requesting GitHub update-branch."
+              if ! gh api                 --method PUT                 "repos/$REPO/pulls/$pr_number/update-branch"                 -f expected_head_sha="$head_sha" >/dev/null; then
+                upsert_report "$pr_number" "GitHub could not update this branch from current `main` without merge conflicts. No files were changed automatically. Resolve the non-version conflicts first; version repair can then run safely."
+                return 0
+              fi
+
+              local updated_sha
+              if ! updated_sha="$(wait_for_branch_update "$pr_number" "$head_sha")"; then
+                upsert_report "$pr_number" "GitHub accepted the branch update request, but the PR head did not advance in time. No version files were changed."
+                return 0
+              fi
+
+              head_sha="$updated_sha"
+              branch_was_updated=1
+              echo "PR #$pr_number: branch synchronized to $head_sha."
+            fi
+
+            git reset --hard
+            git clean -fd
+            git fetch origin main "$head_ref"
+            git checkout -B "$head_ref" "origin/$head_ref"
+
+            if ! pwsh -NoProfile -File ./tools/sync-story-version.ps1               -BaseRef origin/main               -StoryBranch "$head_ref"; then
+              upsert_report "$pr_number" "The canonical normal-Story version synchronization failed. No automatic commit was pushed. Inspect the version rule output before changing this PR."
+              git reset --hard
+              git checkout main
+              return 0
+            fi
+
+            mapfile -t changed_files < <(
+              git status --porcelain |
+                sed -E 's/^.. //' |
+                sed -E 's/^"//; s/"$//' |
+                sort -u
+            )
+
+            local file
+            for file in "${changed_files[@]}"; do
+              case "$file" in
+                Directory.Build.props|export_presets.cfg) ;;
+                "")
+                  ;;
+                *)
+                  upsert_report "$pr_number" "Version synchronization unexpectedly modified `$file`. Automatic repair stopped because only `Directory.Build.props` and `export_presets.cfg` may be changed by this workflow."
+                  git reset --hard
+                  git checkout main
+                  return 0
+                  ;;
+              esac
+            done
+
+            if [ "${#changed_files[@]}" -gt 0 ]; then
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git add Directory.Build.props export_presets.cfg
+              git commit -m "Auto-sync Story version against current main"
+
+              if ! git push origin "HEAD:$head_ref"; then
+                upsert_report "$pr_number" "The branch changed while automatic version repair was running, so the safe non-force push was rejected. No history was rewritten; the next PR/main event will reevaluate it."
+                git reset --hard
+                git checkout main
+                return 0
+              fi
+
+              branch_was_updated=1
+              echo "PR #$pr_number: pushed corrected Story version."
+            else
+              echo "PR #$pr_number: Story version already correct."
+            fi
+
+            git checkout main
+            clear_report "$pr_number"
+
+            if [ "$branch_was_updated" -eq 1 ]; then
+              dispatch_verify "$pr_number" "$head_ref"
+            fi
+          }
+
+          if [ "$GITHUB_EVENT_NAME" = "pull_request_target" ]; then
+            process_pr "$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")"
+          else
+            gh api "repos/$REPO/pulls?state=open&base=main&per_page=100" --paginate --jq '.[].number' |
+              while read -r pr_number; do
+                [ -n "$pr_number" ] || continue
+                process_pr "$pr_number"
+              done
+          fi
