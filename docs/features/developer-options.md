@@ -36,7 +36,26 @@ Host migration carries lobby tuning and the complete arena configuration/revisio
 
 Schema one begins with `{"schema":1}` followed by independent `{"key":"vehicle.mass","value":900}` records. Missing keys retain canonical defaults; headerless/schema-zero files are supported. The targeted alias `vehicle.top_speed` migrates to `vehicle.forward_speed`. Unknown keys retain their raw JSON values when saved, without becoming editable or affecting gameplay. Malformed records are skipped independently. Related valid bounds apply together first; a damaged transaction salvages independently valid values. Files are bounded to 64 KiB/depth eight. Unsupported future schemas and oversized files use defaults and disable rewriting. Actions, diagnostics and network impairment have no persistent keys. Accepted balance changes still require explicit promotion into repository defaults.
 
-`GameplayConfiguration.HostedDefaults` is the canonical production 0.0.1 hosted-game preset, including **1000 Max HP**. `NetworkVehicleArena`, the session fallback, `DeveloperSettingsStore` (including missing persisted keys), and Reset all use that definition. It composes the owning configuration defaults with the production multiplayer HP override; plain Core fixtures retain their 100 HP default. Developer overrides do not silently change either canonical default.
+`GameplayConfiguration.HostedDefaults` is the canonical **Release 0.1.0** hosted-game preset, including **1000 Max HP** and the approved driving, collision and missile tuning below. `NetworkVehicleArena`, the session fallback, `DeveloperSettingsStore` (including missing persisted keys), and Reset all use that definition. Fresh profiles receive the complete preset without a saved file. Valid saved keys override it; Reset stages it and Reset + Apply persists it through the normal transaction. It composes the owning records with explicit production tuning; plain Core fixtures retain their independent defaults, including 100 HP. Player-local graphics, audio, bindings and display settings remain separate.
+
+| Persisted gameplay key | Canonical owning property in the hosted preset | Release default |
+| --- | --- | --- |
+| `vehicle.acceleration` | `VehicleConfiguration.Acceleration` | 12 |
+| `vehicle.stop_speed` | `VehicleConfiguration.StopSpeed` | 0.1f |
+| `vehicle.reverse_acceleration` | `VehicleConfiguration.ReverseAcceleration` | 10 |
+| `vehicle.forward_speed` | `VehicleConfiguration.ForwardSpeed` | 30 |
+| `vehicle.steering_angle` | `VehicleConfiguration.SteeringAngle` | 0.8f |
+| `vehicle.steering_speed` | `VehicleConfiguration.SteeringSpeed` | 30 |
+| `vehicle.steering_response` | `VehicleConfiguration.SteeringResponse` | 8 |
+| `vehicle.tire_friction` | `VehicleConfiguration.TireFriction` | 3.35f |
+| `vehicle.coast_drag` | `VehicleConfiguration.CoastDrag` | 1 |
+| `vehicle.suspension_damping` | `VehicleConfiguration.SuspensionDamping` | 12 |
+| `damage.collision_scale` | `DamageConfiguration.CollisionScale` | 5 |
+| `items.missile_speed` | `ItemConfiguration.MissileSpeed` | 70 |
+| `items.explosion_radius` | `ItemConfiguration.ExplosionRadius` | 12 |
+| `items.maximum_damage` | `ItemConfiguration.MaximumDamage` | 300 |
+
+The other 45 persisted values already match this preset, including HP, surfaces, item spawning, respawn and match rules. The complete stable-key ownership map below applies to all 59 values. Decimal float literals retain the exact binary32 values represented by persisted JSON doubles; no tolerance or approximate tuning is used. `ReleaseDefaultsTests` checks every approved numeric value exactly and verifies validation, persistence and network round trips.
 
 ## Actions and diagnostics
 

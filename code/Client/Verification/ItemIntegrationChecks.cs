@@ -224,7 +224,7 @@ public sealed partial class ItemIntegrationChecks : Node
                     float near = host.World.GetVehicle(1).Damage.CurrentHP;
                     ulong farId = _arenas[2].Driver.LocalVehicleId;
                     float far = host.World.GetVehicle(farId).Damage.CurrentHP;
-                    Require(near < far && far < 100, $"Distance falloff differs: near={near}, far={far}.");
+                    Require(near > 0 && near < far && far < host.Configuration.Configuration.Damage.MaxHP, $"Distance falloff differs: near={near}, far={far}.");
                     Require(host.World.GetVehicle(1).Movement.Physics.LinearVelocity.Length() > 0.1f, "Explosion physically pushes the target.");
                 }
                 else if (_scenario == 1)
@@ -293,8 +293,9 @@ public sealed partial class ItemIntegrationChecks : Node
     {
         _impactSeen = 0;
         _propPeakSpeed = 0;
-        SetWorld(100);
         var host = _arenas[0].Driver.Host!;
+        // Full hosted health keeps the approved release blast nonlethal so distance falloff remains observable.
+        SetWorld(host.Configuration.Configuration.Damage.MaxHP);
         ulong shooter = _arenas[1].Driver.LocalVehicleId;
         host.Items.Grant(host.World, shooter, HeldItem.Missile);
         _token = host.Items.Slots.Single(slot => slot.Vehicle == shooter).Token;

@@ -30,10 +30,14 @@ internal sealed class DeveloperOptionsTests
     {
         Assert.That(new DeveloperSettingsStore(_path).Current, Is.EqualTo(GameplayConfiguration.HostedDefaults));
         Assert.That(GameplayConfiguration.HostedDefaults.Damage.MaxHP, Is.EqualTo(1000));
+        AssertReleaseTuning(new DeveloperSettingsStore(_path).LoadForHost());
         Assert.That(new GameplayConfiguration().Damage.MaxHP, Is.EqualTo(100), "Core fixture defaults remain distinct.");
         File.WriteAllText(_path, "{\"schema\":1}\n{\"key\":\"vehicle.acceleration\",\"value\":7}\n");
         var loaded = new DeveloperSettingsStore(_path).Current;
         Assert.That(loaded, Is.EqualTo(GameplayConfiguration.HostedDefaults with { Vehicle = GameplayConfiguration.HostedDefaults.Vehicle with { Acceleration = 7 } }));
+        Assert.That(loaded.Vehicle.Acceleration, Is.EqualTo(7));
+        Assert.That(loaded.Vehicle.TireFriction, Is.EqualTo(3.35f));
+        Assert.That(loaded.Items.MaximumDamage, Is.EqualTo(300));
     }
 
     /// <summary>Discard reads current authority, including updates after opening, without saving or revising it.</summary>
@@ -78,6 +82,8 @@ internal sealed class DeveloperOptionsTests
 
         Assert.That(draft.IsDirty, Is.True);
         Assert.That(draft.Get("damage.max_hp"), Is.EqualTo("1000"));
+        Assert.That(draft.Get("vehicle.acceleration"), Is.EqualTo("12"));
+        Assert.That(draft.Get("items.missile_speed"), Is.EqualTo("70"));
         Assert.That(host.Configuration, Is.EqualTo(before));
         Assert.That(store.Current, Is.EqualTo(before.Configuration));
         Assert.That(File.ReadAllText(_path), Is.EqualTo(persisted));
@@ -88,6 +94,7 @@ internal sealed class DeveloperOptionsTests
         Assert.That(host.Configuration.Revision, Is.EqualTo(before.Revision + 1));
         Assert.That(store.Save(host.Configuration.Configuration), Is.True);
         Assert.That(new DeveloperSettingsStore(_path).LoadForHost(), Is.EqualTo(GameplayConfiguration.HostedDefaults));
+        AssertReleaseTuning(new DeveloperSettingsStore(_path).LoadForHost());
     }
 
     /// <summary>A reset still replaces fields that authority changed after the draft was opened.</summary>
@@ -151,6 +158,55 @@ internal sealed class DeveloperOptionsTests
         Assert.That(store.Save(host.Configuration.Configuration), Is.True);
         Assert.That(store.Status, Is.EqualTo("Host tuning saved."));
         Assert.That(new DeveloperSettingsStore(_path).LoadForHost(), Is.EqualTo(accepted.Configuration));
+    }
+
+    /// <summary>Damaged records retain release fallbacks while independent overrides still load and save.</summary>
+    [Test]
+    public void MalformedSavedTuningPreservesReleaseFallbacksAndValidOverrides()
+    {
+        string text = """
+            {"schema":1}
+            {broken record
+            {"key":"vehicle.tire_friction","value":-1}
+            {"key":"items.missile_speed","value":90}
+            {"key":"future.setting","value":{"enabled":true}}
+            """;
+        File.WriteAllText(_path, text);
+        var store = new DeveloperSettingsStore(_path);
+        Assert.That(store.Current, Is.EqualTo(GameplayConfiguration.HostedDefaults with
+        {
+            Items = GameplayConfiguration.HostedDefaults.Items with { MissileSpeed = 90 },
+        }));
+        Assert.That(store.Status, Does.Contain("ignored 2 invalid records"));
+        Assert.That(store.Save(store.Current), Is.True);
+        Assert.That(File.ReadAllText(_path), Does.Contain("future.setting"));
+        Assert.That(new DeveloperSettingsStore(_path).LoadForHost(), Is.EqualTo(store.Current));
+    }
+
+    /// <summary>Unsupported or oversized files keep the release baseline and cannot be overwritten.</summary>
+    /// <param name="oversized">Whether the file exceeds the bounded size instead of using a future schema.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void UnsupportedSavedTuningPreservesFileAndUsesReleaseDefaults(bool oversized)
+    {
+        string text = oversized ? new string(' ', 65537) : "{\"schema\":999}\n{\"key\":\"items.missile_speed\",\"value\":90}\n";
+        File.WriteAllText(_path, text);
+        var store = new DeveloperSettingsStore(_path);
+        Assert.That(store.LoadForHost(), Is.EqualTo(GameplayConfiguration.HostedDefaults));
+        AssertReleaseTuning(store.LoadForHost());
+        Assert.That(store.Status, Does.Contain("persistence disabled"));
+        Assert.That(store.Save(store.Current), Is.False);
+        Assert.That(File.ReadAllText(_path), Is.EqualTo(text));
+    }
+
+    private static void AssertReleaseTuning(GameplayConfiguration configuration)
+    {
+        Assert.That(configuration.Vehicle.Acceleration, Is.EqualTo(12));
+        Assert.That(configuration.Vehicle.TireFriction, Is.EqualTo(3.35f));
+        Assert.That(configuration.Damage.CollisionScale, Is.EqualTo(5));
+        Assert.That(configuration.Items.MissileSpeed, Is.EqualTo(70));
+        Assert.That(configuration.Items.ExplosionRadius, Is.EqualTo(12));
+        Assert.That(configuration.Items.MaximumDamage, Is.EqualTo(300));
     }
 
     private static HostVehicleSession Host() => new(9, configuration: GameplayConfiguration.HostedDefaults);
