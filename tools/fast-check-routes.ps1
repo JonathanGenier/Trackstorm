@@ -39,6 +39,12 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        # Feature-document-only edits stay cheap. Feature docs act as route hints only
+        # when the same change also contains production/runtime files.
+        if ($path -match '^docs/features/' -and -not $hasProductionChanges) {
+            continue
+        }
+
         if ($path -match '^code/Core/' -or $path -match '^code/Tests/') {
             $coreTests = $true
         }
@@ -74,12 +80,6 @@ function Get-FastCheckPlan {
 
         if ($path -match '^assets/frontend/' -or $path -match '^tools/.*frontend-media.*\.ps1$') {
             $mediaChecks = $true
-        }
-
-        # Feature-document-only edits stay cheap. Feature docs act as route hints only
-        # when the same change also contains production/runtime files.
-        if ($path -match '^docs/features/' -and -not $hasProductionChanges) {
-            continue
         }
 
         # Startup / application flow.
