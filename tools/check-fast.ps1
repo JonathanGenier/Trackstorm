@@ -121,6 +121,7 @@ $runtimeWillRun = $resolvedGodot -and $plan.RuntimeScripts.Count -gt 0
 Write-Host "Fast-check plan for $($paths.Count) changed path(s):"
 if ($plan.CoreTests) { Write-Host "  - Core tests" }
 if ($plan.TransportTests) { Write-Host "  - Non-native transport tests" }
+if ($plan.ServiceTests) { Write-Host "  - Authority-lease service tests" }
 if ($plan.ClientBuild -and -not $runtimeWillRun) { Write-Host "  - Client Debug build" }
 if ($plan.VersionChecks) { Write-Host "  - Version rule regression tests" }
 if ($plan.MediaChecks) { Write-Host "  - Frontend media checks" }
@@ -152,6 +153,19 @@ if ($plan.CoreTests) {
 if ($plan.TransportTests) {
     Invoke-Check "Transport tests" {
         dotnet test "$root/code/TransportTests/Trackstorm.Transport.Tests.csproj" -c Release --filter 'TestCategory!=Native'
+    }
+}
+
+if ($plan.ServiceTests) {
+    $serviceRoot = Join-Path $root "services/authority-lease"
+    if (-not (Test-Path (Join-Path $serviceRoot "node_modules"))) {
+        Invoke-Check "Authority-lease npm install" {
+            npm ci --prefix $serviceRoot
+        }
+    }
+
+    Invoke-Check "Authority-lease service tests" {
+        npm test --prefix $serviceRoot
     }
 }
 
@@ -206,7 +220,7 @@ if ($plan.ManualScenarios.Count -gt 0) {
     }
 }
 
-$selected = $plan.CoreTests -or $plan.TransportTests -or $plan.ClientBuild -or
+$selected = $plan.CoreTests -or $plan.TransportTests -or $plan.ServiceTests -or $plan.ClientBuild -or
     $plan.VersionChecks -or $plan.MediaChecks -or $plan.RuntimeScripts.Count -gt 0 -or
     $plan.ExtendedScripts.Count -gt 0 -or $plan.ManualScenarios.Count -gt 0
 
