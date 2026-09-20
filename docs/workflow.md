@@ -8,7 +8,37 @@ Jira is the persistent source of truth for what assigned work must accomplish: b
 
 Read the complete assigned description, required children, comments and explicit clarifications before implementation. Never silently omit, simplify, replace or defer a requirement.
 
-Implementation prompts should stay concise. They should identify the Jira work unit, current Story branch, objective, approved requirement changes, validation expectations and completion handoff, then rely on this repository's routing documents for generic architecture, testing, documentation and delivery rules instead of restating them. Use the lowest-capability implementation model/reasoning level likely to complete the scoped work reliably; increase it only when complexity actually requires it.
+Implementation prompts should stay concise. They should identify the Jira work unit, current Story branch, objective, approved requirement changes, validation expectations and completion handoff, then rely on this repository's routing documents for generic architecture, testing, documentation and delivery rules instead of restating them.
+
+### Implementation-agent efficiency
+
+Use the lowest implementation-agent level likely to complete the scoped work reliably:
+
+- **Astra Light** — default for established patterns, ordinary UI/settings, straightforward gameplay additions, map/environment/assets work, small bugs, normal tests and low-risk multi-file changes.
+- **Astra Medium** — substantial multi-component integration, new state machines/lifecycles, significant Core + Client work, or moderately difficult debugging.
+- **Astra Heavy** — complex architecture, networking/synchronization, serialization/state restoration, host migration, high-risk refactors or difficult nondeterministic debugging.
+
+Do not escalate merely because a Story touches several files. Escalate when the reasoning, integration risk or ambiguity requires it.
+
+A normal implementation prompt should be close to:
+
+```text
+Implement <Jira key> on the current Story branch <branch>.
+
+Inspect the Jira Story/Bug and required children/comments, approved requirement changes,
+applicable repository instructions, relevant feature docs, and current implementation.
+
+Jira is the persistent source of truth for Story scope and acceptance criteria.
+Explicit user-approved changes made during implementation override stale Jira content
+until Jira is updated.
+
+Implement only required scope. Use targeted checks while iterating, then perform the
+required final verification and runtime/playtest critique. Update the Story verification
+report with actual evidence, commit, push, and report what changed, what was verified,
+and anything unverified.
+```
+
+Do not repeat generic architecture, Git, test, documentation, critique or delivery rules already owned by this repository. Do not bulk-read the full feature catalog or historical verification archive: follow `AGENTS.md`, the feature index and nested routing to load only context material to the current work. Historical reports are read only when their recorded evidence is actually relevant.
 
 An explicit human-approved requirement change during implementation overrides stale Jira content until Jira is updated. Identify the approved change and affected criteria, preserve unaffected requirements, and update Jira to reflect the decision before closing the work. Suggestions, brainstorming and unapproved alternatives do not change active scope.
 
