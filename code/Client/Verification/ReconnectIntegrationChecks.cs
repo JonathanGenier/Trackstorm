@@ -180,6 +180,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 Require(_arenas[1].Bodies[_player] == _originalBody, "The native vehicle is reused, never duplicated.");
                 Require(_arenas[1].LocalState!.Damage == world.Vehicles.Single(v => v.State.VehicleId == _player).State.Damage, "Current HP is restored.");
                 Require(_arenas[1].Driver.Configuration == _arenas[0].Driver.Configuration, "Current host tuning and revision are restored before prediction.");
+                Require(_arenas[1].Driver.Match!.Players.SequenceEqual(_arenas[0].Driver.Host!.World.State.Match!.Players), "Resume preserves complete Circus totals, streaks, multiplier inputs and damage watermarks.");
             };
             _stage = 40;
         }
@@ -386,7 +387,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
     {
         var world = _arenas[0].Driver.Host!.World;
         MatchState previous = world.State.Match!;
-        var match = new MatchState(world.State.Tick, previous.Revision + 1, previous.KillTarget, finished ? MatchPhase.Finished : MatchPhase.Active, null, finished ? 1ul : null, previous.Players.Select(score => score with { Kills = score.Player == _player ? 2 : finished ? 5 : 1, Deaths = score.Player == _player ? 1 : finished ? 6 : 2, Wins = finished && score.Player == 1 ? 1 : 0, ProcessedLife = Math.Max(1, score.ProcessedLife) }));
+        var match = new MatchState(world.State.Tick, previous.Revision + 1, previous.KillTarget, finished ? MatchPhase.Finished : MatchPhase.Active, null, finished ? 1ul : null, previous.Players.Select(score => score with { Kills = score.Player == _player ? 2 : finished ? 5 : 1, Deaths = score.Player == _player ? 1 : finished ? 6 : 2, Wins = finished && score.Player == 1 ? 1 : 0, ProcessedLife = Math.Max(1, score.ProcessedLife), CircusScore = score.Player == _player ? 375.5 : 125.25, KillStreak = 1 }));
         // Scoring itself is exercised by the match harness; this fixture isolates retention and presentation.
         world.Restore(new SimulationState(world.State.Tick, world.State.LastInput, world.State.Vehicles, match));
     }

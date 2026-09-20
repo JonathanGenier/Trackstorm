@@ -294,7 +294,7 @@ internal sealed partial class VehicleNetworkDriverTests
         int callbacks = 0;
         client.MatchReceived += _ => callbacks++;
         client.Advance(default, Observe);
-        var active = new MatchState(1, 1, 5, MatchPhase.Active, null, null, [new PlayerScore(1, 0, 0, 0, 0), new PlayerScore(2, 0, 0, 0, 0)]);
+        var active = new MatchState(1, 1, 5, MatchPhase.Active, null, null, [new PlayerScore(1, 0, 0, 0, 0) { CircusScore = 12.5 }, new PlayerScore(2, 0, 0, 0, 0) { ProcessedDamageLife = 1, ProcessedDamageSequence = 1 }]);
         byte[] payload = MatchCodec.Encode(Session, active);
         gateway.Receive(new TransportMessage(77, payload, TransportDelivery.Reliable));
         gateway.Receive(new TransportMessage(ServerPeer, payload, TransportDelivery.Unreliable));
@@ -306,6 +306,7 @@ internal sealed partial class VehicleNetworkDriverTests
         gateway.Receive(new TransportMessage(ServerPeer, payload, TransportDelivery.Reliable));
         client.Advance(default, Observe);
         Assert.That(callbacks, Is.EqualTo(1));
+        Assert.That(client.Match!.Players, Is.EqualTo(active.Players), "Duplicate reliable publications initialize totals once without re-awarding damage.");
         var host = new HostVehicleSession(Session);
         host.Join(ServerPeer);
         for (int tick = 0; tick < 10; tick++)

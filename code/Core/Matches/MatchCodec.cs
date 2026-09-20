@@ -18,7 +18,7 @@ public static class MatchCodec
         ArgumentNullException.ThrowIfNull(state);
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x4d, 1 });
+        writer.Write(new byte[] { 0x54, 0x4d, 2 });
         writer.Write(session);
         writer.Write(state.Tick);
         writer.Write(state.Revision);
@@ -34,6 +34,10 @@ public static class MatchCodec
             writer.Write(score.Deaths);
             writer.Write(score.Wins);
             writer.Write(score.ProcessedLife);
+            writer.Write(score.CircusScore);
+            writer.Write(score.KillStreak);
+            writer.Write(score.ProcessedDamageLife);
+            writer.Write(score.ProcessedDamageSequence);
         }
 
         writer.Write((byte)state.Changes.Count);
@@ -52,7 +56,7 @@ public static class MatchCodec
     /// <returns>Session and complete validated state.</returns>
     public static (ulong Session, MatchState State) Decode(ReadOnlySpan<byte> bytes)
     {
-        if (!IsMatch(bytes) || bytes.Length is < 51 or > 8192 || bytes[2] != 1)
+        if (!IsMatch(bytes) || bytes.Length is < 51 or > 16384 || bytes[2] != 2)
         {
             throw new ArgumentException("Invalid match header or size.");
         }
@@ -78,7 +82,13 @@ public static class MatchCodec
             var players = new PlayerScore[count];
             for (int index = 0; index < count; index++)
             {
-                players[index] = new PlayerScore(reader.ReadUInt64(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadUInt64());
+                players[index] = new PlayerScore(reader.ReadUInt64(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadUInt64())
+                {
+                    CircusScore = reader.ReadDouble(),
+                    KillStreak = reader.ReadInt32(),
+                    ProcessedDamageLife = reader.ReadUInt64(),
+                    ProcessedDamageSequence = reader.ReadUInt64(),
+                };
             }
 
             int changes = reader.ReadByte();
