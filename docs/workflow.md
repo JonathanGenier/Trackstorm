@@ -135,7 +135,16 @@ Engineering and test-design requirements are in [standards](standards.md). Featu
 
 ### Iteration efficiency
 
-During implementation, use the narrowest deterministic checks that exercise the systems changed. Prefer existing subsystem check scripts and `./tools/check-fast.ps1` over repeatedly running the entire repository gate. Re-run the affected checks after each meaningful correction, including runtime/playtest scenarios when behavior, presentation, physics, multiplayer or other observable outcomes are involved.
+During implementation, use the narrowest deterministic checks that exercise the systems changed. Prefer `./tools/check-fast.ps1` over repeatedly running the entire repository gate. It compares the Story branch with current `main`, routes changes to Core, transport, authority-lease service, version/media and existing feature-specific harnesses, deduplicates overlapping routes, and keeps feature-doc-only edits from triggering production runtime checks.
+
+- Run `./tools/check-fast.ps1` for automatic deterministic routing.
+- Pass `-GodotPath <path>` (or set `GODOT_PATH`) to execute the routed Godot/runtime harnesses automatically.
+- Use `-RequireRuntime` when an iteration must fail rather than merely report pending runtime checks if Godot is unavailable.
+- Use `-IncludeExtended` only when the routed extended/native checks are appropriate; expensive multi-process/EOS/GdUnit-regression checks are identified but not silently run by default.
+- The router prints required playtest/manual scenarios such as multi-car driving, camera inspection, UI navigation, audio listening or latency-sensitive multiplayer when those cannot be fully represented by an automated harness.
+- Re-run the affected checks after each meaningful correction.
+
+The routing table lives in `tools/fast-check-routes.ps1` and is regression-tested by `tools/test-workflow-tools.ps1`. Add or change routes when a system gains a durable verification harness; do not duplicate feature behavior or acceptance criteria in the routing table.
 
 Targeted iteration does not reduce completion coverage. Before Story handoff, perform the comprehensive integrated verification below exactly once on the completed result, plus any additional Jira- or feature-specific runtime/native checks. CI remains an independent final machine gate.
 
