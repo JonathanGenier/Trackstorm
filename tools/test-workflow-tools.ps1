@@ -28,11 +28,11 @@ $settingsPlan = Get-FastCheckPlan -Paths @("code/Client/Settings/SettingsPanel.c
 Assert-True ($settingsPlan.RuntimeScripts -contains "check-settings.ps1") "Settings changes must route settings verification."
 Assert-True ($settingsPlan.RuntimeScripts -contains "check-hud.ps1") "HUD changes must route HUD verification."
 
-$migrationPlan = Get-FastCheckPlan -Paths @("docs/features/host-migration.md")
+$migrationPlan = Get-FastCheckPlan -Paths @("code/Core/Sessions/HostMigrationCoordinator.cs", "docs/features/host-migration.md")
 Assert-True ($migrationPlan.RuntimeScripts -contains "check-migration.ps1") "Migration changes must route deterministic migration verification."
 Assert-True ($migrationPlan.ExtendedScripts -contains "check-migration-processes.ps1") "Migration changes must identify extended process verification."
 
-$cameraPlan = Get-FastCheckPlan -Paths @("docs/features/camera.md")
+$cameraPlan = Get-FastCheckPlan -Paths @("code/Client/Vehicles/ChaseCamera.cs", "docs/features/camera.md")
 Assert-True ($cameraPlan.ManualScenarios.Count -gt 0) "Camera changes must preserve manual/playtest verification."
 Assert-True ($cameraPlan.RuntimeScripts.Count -eq 0) "Camera route should not invent a dedicated root harness."
 
@@ -56,6 +56,7 @@ $gdUnitPlan = Get-FastCheckPlan -Paths @("test/Client/Bootstrap/SimulationBootst
 Assert-True ($gdUnitPlan.RuntimeScripts -contains "check-gdunit.ps1") "GDScript Client test changes must route GdUnit checks."
 
 $allFeaturePaths = @(
+    "project.godot",
     "docs/features/startup.md",
     "docs/features/vehicles.md",
     "docs/features/arena.md",
