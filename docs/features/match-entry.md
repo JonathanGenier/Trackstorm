@@ -16,7 +16,7 @@ Clients render the authoritative selection and cannot edit it. Each native arena
 
 ## Loading and synchronization contract
 
-MatchResourceLoader requests match audio, damage shader and the selected packed scene incrementally through Godot threaded resource loading. These resources are absent from startup's reusable resource list. A separate full-screen Match Loader covers gameplay during resource loading and synchronization.
+MatchResourceLoader prepares match audio, damage shader and the selected packed scene incrementally. Already-cached resources are acquired and retained on the main thread, avoiding a redundant worker-thread reference-count/managed-handle handoff during rematch. Cache misses still use Godot threaded loading and status polling; no unfinished load is synchronously awaited. There is no new global asset cache or retained gameplay state. These resources are absent from startup's reusable resource list. A separate full-screen Match Loader covers gameplay during resource loading and synchronization.
 
 For a new match, the host constructs authority at tick zero and does not step it. After local resources and scene setup complete, each client sends reliable Loaded. The host publishes a complete existing TR checkpoint, including assignment, configuration, world, items, match and optional props. The client installs it atomically and acknowledges synchronization. Only after every still-connected admitted peer acknowledges does the host accept SynchronizedMatchContext through Simulation.InitializeMatch and GameLoop.Initialize, then send reliable release. The existing atomic match adapter remains the sole ongoing phase owner.
 

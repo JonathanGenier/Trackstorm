@@ -18,17 +18,31 @@ public sealed partial class PostMatchIntegrationChecks : Node
     private DevelopmentSession? _client;
     private string _output = string.Empty;
     private string _endpoint = string.Empty;
+    private bool _collectDuringLoading;
     private readonly List<string> _evidence = new();
 
     public override void _Ready() => CallDeferred(MethodName.Run);
-    public override void _PhysicsProcess(double delta) => _client?.Advance(default);
+    public override void _PhysicsProcess(double delta)
+    {
+        _client?.Advance(default);
+        if (_collectDuringLoading && _host?.LoadingMatch == true) GC.Collect();
+    }
 
     public async void Run()
     {
         try
         {
             Engine.MaxFps = 60;
+            _collectDuringLoading = OS.GetCmdlineUserArgs().Contains("--post-match-gc");
             _output = OS.GetCmdlineUserArgs().Single(arg => arg.StartsWith("--post-match-output=", StringComparison.Ordinal))[20..];
+            if (OS.GetCmdlineUserArgs().Contains("--post-match-resources-only"))
+            {
+                await CheckWarmResourceHandoff();
+                System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
+                GD.Print($"Post-match integration passed: {_evidence.Count} resource assertions.");
+                GetTree().Quit();
+                return;
+            }
             _bootstrap = new SimulationBootstrap { OnlineEnabled = false, StartupEnabled = true, VerificationOwnsExit = true, SettingsPath = System.IO.Path.Combine(_output, "settings.json") };
             _bootstrap.AddChild(new PlayerInput { Name = "PlayerInput" });
             AddChild(_bootstrap);
@@ -48,7 +62,8 @@ public sealed partial class PostMatchIntegrationChecks : Node
             Check(!_host.NavigatePostMatch(PostMatchDestination.Rematch), "Rematch rejected before Finished");
             await Start();
 
-            for (int cycle = 0; cycle < 3; cycle++)
+            int cycles = int.Parse(OS.GetCmdlineUserArgs().Single(arg => arg.StartsWith("--post-match-cycles=", StringComparison.Ordinal))[20..], System.Globalization.CultureInfo.InvariantCulture);
+            for (int cycle = 0; cycle < cycles; cycle++)
             {
                 await FinishMatch();
                 Check(!_client.NavigatePostMatch(PostMatchDestination.Rematch) && !_client.NavigatePostMatch(PostMatchDestination.Lobby) && !_client.NavigatePostMatch(PostMatchDestination.EndMatch), "Non-host cannot navigate the shared match");
@@ -78,6 +93,15 @@ public sealed partial class PostMatchIntegrationChecks : Node
                         await Frames(4);
                         var bounds = _host.GetNode<PodiumScene>("PodiumScene").Bounds;
                         Check(GetViewport().GetVisibleRect().Encloses(bounds), $"Podium fits {size}");
+                        CheckPodiumControls();
+                        if (size.X == 640)
+                        {
+                            Buttons(_host).Single(button => button.Text == "Rematch").GrabFocus();
+                            JoyEvent(JoyButton.DpadDown);
+                            Check((GetViewport().GuiGetFocusOwner() as Button)?.Text == "Main Menu", "Compact controller Down selects action in next row");
+                            KeyEvent(Key.Up);
+                            Check((GetViewport().GuiGetFocusOwner() as Button)?.Text == "Rematch", "Compact keyboard Up returns to preceding action row");
+                        }
                         await Capture($"podium-{size.X}x{size.Y}");
                     }
                     GetWindow().Size = new Vector2I(1280, 720);
@@ -89,6 +113,8 @@ public sealed partial class PostMatchIntegrationChecks : Node
                     await Frames(2);
                     Check(!_host.OverlayOpen(), "ESC closes overlay and restores Podium navigation");
                     if (DisplayServer.GetName() != "headless") Check(Godot.Input.MouseMode == Godot.Input.MouseModeEnum.Visible, "Podium releases native mouse capture");
+                    await CheckOverlayFocus();
+                    await CheckResultLayouts(context);
                     // Native UI defaults cannot bypass a logical Accept remap.
                     var input = _bootstrap.GetNode<PlayerInput>("PlayerInput").Adapter;
                     using var key = new InputEventKey { PhysicalKeycode = Key.F8 };
@@ -100,9 +126,15 @@ public sealed partial class PostMatchIntegrationChecks : Node
                     input.Bindings.RestoreDefaults();
                 }
 
-                if (cycle < 2)
+                if (cycle < cycles - 1)
                 {
-                    Press(_host, "Rematch");
+                    if (cycle == 0)
+                    {
+                        Buttons(_host).Single(button => button.Text == "Rematch").GrabFocus();
+                        JoyEvent(JoyButton.A);
+                        Check(_host.Stage == ApplicationStage.MatchLoader, "Controller Accept starts rematch through Loader");
+                    }
+                    else Press(_host, "Rematch");
                     Check(_host.Stage == ApplicationStage.MatchLoader && _host.Arena is null && _host.PostMatch is null, "Rematch immediately enters Loader with no arena/results");
                     Check(oldHost.Host is null && oldHost.Match is null && oldHost.EntryContext is null, "Rematch disposes host match state");
                     Check(!_host.NavigatePostMatch(PostMatchDestination.Rematch), "Rapid duplicate rematch rejected");
@@ -186,6 +218,145 @@ public sealed partial class PostMatchIntegrationChecks : Node
     }
 
     private static IEnumerable<Button> Buttons(Node node) => node.FindChildren("*", "Button", true, false).OfType<Button>();
+
+    private async Task CheckWarmResourceHandoff()
+    {
+        foreach (var map in new[] { MatchMap.OldMap, MatchMap.NewMap })
+        {
+            var retained = new MatchResourceLoader(map);
+            for (int frame = 0; !retained.Complete; frame++)
+            {
+                if (frame >= 1800) throw new InvalidOperationException("Cold resource preparation timed out.");
+                retained.Advance();
+                await Frames(1);
+            }
+            var warm = new MatchResourceLoader(map);
+            while (!warm.Complete)
+            {
+                double previous = warm.Progress;
+                warm.Advance();
+                Check(warm.Progress > previous, "Cached resource handoff progresses on the main thread without a worker/poll round trip");
+            }
+            Check(ReferenceEquals(retained.MapScene, warm.MapScene), "Warm loader retains the same cached map asset");
+            GC.KeepAlive(retained);
+        }
+    }
+
+    private async Task CheckOverlayFocus()
+    {
+        var mainMenu = Buttons(_host).Single(button => button.Text == "Main Menu");
+        mainMenu.GrabFocus();
+        JoyEvent(JoyButton.DpadLeft);
+        Check((GetViewport().GuiGetFocusOwner() as Button)?.Text == "End Match", "Controller Left selects adjacent destination");
+        JoyEvent(JoyButton.DpadRight);
+        Check(GetViewport().GuiGetFocusOwner() == mainMenu, "Controller Right restores Main Menu selection");
+        JoyEvent(JoyButton.Start);
+        await Frames(2);
+        Check(_host.OverlayOpen(), "Controller Start opens Game Menu above Podium");
+        JoyEvent(JoyButton.Start);
+        await Frames(2);
+        Check(GetViewport().GuiGetFocusOwner() == mainMenu, "Closing Game Menu preserves selected Podium destination");
+        KeyEvent(Key.F2);
+        await Frames(2);
+        Check(_host.OverlayOpen(), "Stats overlays Podium");
+        KeyState(Key.Enter, true);
+        KeyEvent(Key.Escape);
+        await Frames(2);
+        Check(!_host.OverlayOpen() && GetViewport().GuiGetFocusOwner() == mainMenu && _host.Stage == ApplicationStage.Podium,
+            "Stats close preserves focus and does not dispatch held Accept into Podium");
+        KeyState(Key.Enter, false);
+        await Capture("podium-restored-main-menu-focus");
+    }
+
+    private async Task CheckResultLayouts(PostMatchContext original)
+    {
+        // Renderer-only fixtures: stop the bootstrap's simulation/input while substituting a detached
+        // handoff. The private setter is used here rather than adding a production state mutation API.
+        var handoff = typeof(DevelopmentSession).GetProperty(nameof(DevelopmentSession.PostMatch),
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var podium = _host.GetNode<PodiumScene>("PodiumScene");
+        _bootstrap.GetNode<PlayerInput>("PlayerInput").SetPhysicsProcess(false);
+        try
+        {
+            foreach (int participants in new[] { 8, 10 })
+            {
+                var roster = original.Roster;
+                var history = Enumerable.Range(3, participants - 2).Select(id => new MatchParticipant((ulong)id,
+                    id == 3 ? "WWWWWWWWWWWWWWWWWWWWWWWW" : $"Retained player {id}"));
+                var fixtureRoster = new LobbySnapshot(roster.Session, roster.Revision, roster.Match, roster.Phase,
+                    roster.Players, roster.CurrentHostId, roster.AuthorityEpoch, history, roster.Map);
+                ulong[] ids = new[] { 3UL, 1UL, 2UL }.Concat(Enumerable.Range(4, participants - 3).Select(id => (ulong)id)).ToArray();
+                var results = new FinalMatchResults(original.Results.Tick, new MatchOutcome("layout fixture", 3),
+                    ids.Select((id, index) => new FinalMatchStanding(id, index + 1, index == 0 ? 5 : 0, 0, index == 0 ? 1 : 0)));
+                handoff.SetValue(_host, new PostMatchContext(fixtureRoster, results));
+                foreach (var size in new[] { new Vector2I(1280, 720), new Vector2I(640, 360) })
+                {
+                    GetWindow().Size = size;
+                    await Frames(3);
+                    Check(GetViewport().GetVisibleRect().Encloses(podium.Bounds), $"{participants}-result layout fits {size}");
+                    CheckPodiumControls();
+                    Check(ReferenceEquals(results, podium.Displayed!.Results), "Layout preserves authoritative result ordering/object");
+                    await Capture($"podium-{participants}-long-name-{size.X}x{size.Y}");
+                    if (participants == 8 && size.X == 640 && DisplayServer.GetName() != "headless")
+                    {
+                        var name = podium.FindChildren("*", "Label", true, false).OfType<Label>()
+                            .Single(label => label.IsVisibleInTree() && label.Text.StartsWith("WWWW", StringComparison.Ordinal) && label.GetGlobalRect().Position.Y > 60);
+                        using var motion = new InputEventMouseMotion { Position = name.GetGlobalRect().GetCenter(), GlobalPosition = name.GetGlobalRect().GetCenter() };
+                        Godot.Input.ParseInputEvent(motion);
+                        Godot.Input.FlushBufferedEvents();
+                        await Frames(45);
+                        await Capture("podium-long-name-tooltip");
+                        using var away = new InputEventMouseMotion { Position = Vector2.Zero, GlobalPosition = Vector2.Zero };
+                        Godot.Input.ParseInputEvent(away);
+                        Godot.Input.FlushBufferedEvents();
+                    }
+                    var next = Buttons(_host).Single(button => button.Text == "Next");
+                    if (next.Visible && !next.Disabled)
+                    {
+                        next.GrabFocus();
+                        KeyEvent(Key.Enter);
+                        await Frames(2);
+                        Check(Buttons(_host).Single(button => button.Text == "Previous").Disabled == false, "Keyboard advances to retained-results page");
+                        await Capture($"podium-{participants}-page2-{size.X}x{size.Y}");
+                        Buttons(_host).Single(button => button.Text == "Previous").GrabFocus();
+                        JoyEvent(JoyButton.A);
+                        Check(Buttons(_host).Single(button => button.Text == "Previous").Disabled, "Controller returns to first results page");
+                    }
+                }
+            }
+            handoff.SetValue(_host, new PostMatchContext(original.Roster,
+                new FinalMatchResults(original.Results.Tick, new MatchOutcome("draw"), [])));
+            await Frames(3);
+            Check(podium.FindChildren("*", "Label", true, false).OfType<Label>().Any(label => label.Text == "MATCH FINISHED" && label.IsVisibleInTree()), "No-winner outcome does not invent a winner");
+            await Capture("podium-no-winner-640x360");
+        }
+        finally
+        {
+            handoff.SetValue(_host, original);
+            GetWindow().Size = new Vector2I(1280, 720);
+            _bootstrap.GetNode<PlayerInput>("PlayerInput").SetPhysicsProcess(true);
+        }
+        await Frames(3);
+        Check(!Buttons(_host).Single(button => button.Text == "Next").Visible, "Two-player results hide unnecessary paging");
+    }
+
+    private static void JoyEvent(JoyButton button)
+    {
+        foreach (bool down in new[] { true, false })
+        {
+            using var input = new InputEventJoypadButton { Device = 0, ButtonIndex = button, Pressed = down };
+            Godot.Input.ParseInputEvent(input);
+            Godot.Input.FlushBufferedEvents();
+        }
+    }
+
+    private void CheckPodiumControls()
+    {
+        var podium = _host.GetNode<PodiumScene>("PodiumScene");
+        var buttons = Buttons(podium).Where(button => button.IsVisibleInTree()).ToArray();
+        Check(buttons.All(button => podium.Bounds.Encloses(button.GetGlobalRect())), "All Podium hit targets fit content bounds");
+        Check(!buttons.Where((button, index) => buttons.Skip(index + 1).Any(other => button.GetGlobalRect().Intersects(other.GetGlobalRect()))).Any(), "Podium action and paging hit targets do not overlap");
+    }
     private void Press(DevelopmentSession session, string title)
     {
         session._Process(0);
@@ -198,10 +369,15 @@ public sealed partial class PostMatchIntegrationChecks : Node
     {
         foreach (bool down in new[] { true, false })
         {
-            using var key = new InputEventKey { Keycode = code, PhysicalKeycode = code, Pressed = down };
-            Godot.Input.ParseInputEvent(key);
-            Godot.Input.FlushBufferedEvents();
+            KeyState(code, down);
         }
+    }
+
+    private static void KeyState(Key code, bool down)
+    {
+        using var key = new InputEventKey { Keycode = code, PhysicalKeycode = code, Pressed = down };
+        Godot.Input.ParseInputEvent(key);
+        Godot.Input.FlushBufferedEvents();
     }
 
     private async Task Capture(string name)
