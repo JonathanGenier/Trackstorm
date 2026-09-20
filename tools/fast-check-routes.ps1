@@ -201,7 +201,7 @@ function Get-FastCheckPlan {
         }
 
         if ($path -eq 'docs/features/eos-p2p.md') {
-            Add-Extended 'check-eos-multiplayer.ps1'
+            Add-Manual 'Run check-eos-multiplayer.ps1 with an exported executable and distinct authenticated devices when real EOS multiplayer verification is applicable.'
         }
 
         # DevTools.
