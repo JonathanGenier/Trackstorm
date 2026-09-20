@@ -74,11 +74,11 @@ Score the observed resulting feature from **0.0–10.0**:
 | 0–2 | **Broken:** fundamentally incomplete, unstable, unusable, or incorrect in operation. |
 | 3–4 | **Poor:** partially functional but significant runtime, usability, gameplay, presentation, or integration problems remain. |
 | ~5 | **Merely functional:** requirements may work, but the exercised result lacks enough robustness, usability, game feel, integration quality, or polish to be solid. |
-| 6–7 | **Solid:** reliable, coherent, appropriately integrated, and suitable for the current milestone. **6.0 is passing.** |
-| 8–9 | **Highly polished:** professional, intentional, refined, robust, and difficult to improve substantially without added scope. |
+| 6–7 | **Solid but below the Trackstorm quality gate:** reliable and coherent, but still requires meaningful experiential/runtime refinement before acceptance. |
+| 8–9 | **Highly polished:** professional, intentional, refined, robust, and difficult to improve substantially without added scope. **8.0 is passing.** |
 | 10 | **Exceptional:** meaningful in-scope experiential or operational improvements are extremely difficult to identify. This score is rare. |
 
-The score advises the human; it does not authorize changes or remove the human gate. Never inflate, round, or manipulate a score to reach 6.0. Score the observed result, not effort, change volume, test count, or critique-round number.
+The score advises the human; it does not authorize changes or remove the human gate. Never inflate, round, or manipulate a score to reach 8.0. Score the observed result, not effort, change volume, test count, or critique-round number.
 
 ## Runtime / experiential review categories
 
@@ -121,12 +121,12 @@ Astra Runtime Critique — Story Round X
 Always include:
 
 - **Overall Score: X.X / 10**
-- **Quality Assessment: FAIL (<6.0) / PASS (>=6.0)**
+- **Quality Assessment: FAIL (<8.0) / PASS (>=8.0)**
 - **Category Scores:** only materially relevant runtime/experiential categories.
 - **What Was Exercised:** concise evidence, including VERIFIED / INFERRED / UNVERIFIED labels where useful.
 - **Runtime / Operational Limitations:** anything not directly exercised or observed.
 
-For a **FAIL** below 6.0, include at least one meaningful, evidence-based recommendation. For each material problem state:
+For a **FAIL** below 8.0, include at least one meaningful, evidence-based recommendation. For each material problem state:
 
 - **Problem:** what is wrong in the observed outcome.
 - **Evidence:** what exposed it.
@@ -138,13 +138,13 @@ For a **FAIL** below 6.0, include at least one meaningful, evidence-based recomm
 
 Also include **Recommended Next Round**, prioritizing what should change if the human authorizes another round. An out-of-scope finding must be labeled **Out-of-Scope Recommendation** and must not be implemented without approval.
 
-For a **PASS** at or above 6.0, problems, suggestions, and a recommended next round are not required and should normally be omitted. Do not invent low-value criticism merely to populate those sections.
+For a **PASS** at or above 8.0, problems, suggestions, and a recommended next round are not required and should normally be omitted. Do not invent low-value criticism merely to populate those sections.
 
 The threshold rule is exact:
 
 ```text
-Score < 6.0  → FAIL; meaningful recommendation(s) required
-Score >= 6.0 → PASS; recommendation not required
+Score < 8.0  → FAIL; meaningful recommendation(s) required
+Score >= 8.0 → PASS; recommendation not required
 ```
 
 ## Mandatory human gate
