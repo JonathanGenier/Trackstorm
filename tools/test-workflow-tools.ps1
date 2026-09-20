@@ -26,7 +26,8 @@ Assert-True ($networkPlan.RuntimeScripts -contains "check-network-vehicles.ps1")
 
 $eosPlan = Get-FastCheckPlan -Paths @("code/Client/Online/EosP2pSession.cs", "docs/features/eos-p2p.md")
 Assert-True (-not ($eosPlan.ExtendedScripts -contains "check-eos-multiplayer.ps1")) "Real EOS multiplayer verification must not be auto-routed through the GodotPath extended runner."
-Assert-True ($eosPlan.ManualScenarios | Where-Object { $_ -match 'check-eos-multiplayer\.ps1' }) "EOS P2P changes must surface the exported-build/distinct-device verification requirement."
+$hasEosManual = @($eosPlan.ManualScenarios | Where-Object { $_ -like '*check-eos-multiplayer.ps1*' }).Count -gt 0
+Assert-True $hasEosManual "EOS P2P changes must surface the exported-build/distinct-device verification requirement."
 
 $settingsPlan = Get-FastCheckPlan -Paths @("code/Client/Settings/SettingsPanel.cs", "code/Client/Hud/HudController.cs")
 Assert-True ($settingsPlan.RuntimeScripts -contains "check-settings.ps1") "Settings changes must route settings verification."
