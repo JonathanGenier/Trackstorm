@@ -42,8 +42,18 @@ Assert-True $versionPlan.VersionChecks "Version metadata changes must route vers
 $mediaPlan = Get-FastCheckPlan -Paths @("assets/frontend/menu/menu.ogv")
 Assert-True $mediaPlan.MediaChecks "Frontend media changes must route media checks."
 
-$docsPlan = Get-FastCheckPlan -Paths @("docs/workflow.md")
-Assert-True (-not $docsPlan.CoreTests -and -not $docsPlan.ClientBuild -and $docsPlan.RuntimeScripts.Count -eq 0) "Workflow-only docs must not trigger production checks."
+$docsPlan = Get-FastCheckPlan -Paths @("docs/features/vehicles.md")
+Assert-True (-not $docsPlan.CoreTests -and -not $docsPlan.ClientBuild -and $docsPlan.RuntimeScripts.Count -eq 0) "Feature-doc-only changes must not trigger production/runtime checks."
+
+$servicePlan = Get-FastCheckPlan -Paths @("services/authority-lease/src/worker.js")
+Assert-True $servicePlan.ServiceTests "Authority-lease source changes must route service tests."
+
+$simulationPlan = Get-FastCheckPlan -Paths @("code/Core/Simulation/SimulationRunner.cs")
+Assert-True ($simulationPlan.RuntimeScripts -contains "check-vehicle.ps1") "Simulation changes must route vehicle runtime verification."
+Assert-True ($simulationPlan.RuntimeScripts -contains "check-match.ps1") "Simulation changes must route match runtime verification."
+
+$gdUnitPlan = Get-FastCheckPlan -Paths @("test/Client/Bootstrap/SimulationBootstrapTest.gd")
+Assert-True ($gdUnitPlan.RuntimeScripts -contains "check-gdunit.ps1") "GDScript Client test changes must route GdUnit checks."
 
 $allFeaturePaths = @(
     "docs/features/startup.md",
