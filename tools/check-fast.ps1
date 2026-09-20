@@ -21,17 +21,17 @@ function Invoke-Check {
 
 function Get-ChangedPaths {
     $base = "origin/main"
-    git rev-parse --verify $base *> $null
+    git -C "$root" rev-parse --verify $base *> $null
     if ($LASTEXITCODE -ne 0) {
         $base = "main"
-        git rev-parse --verify $base *> $null
+        git -C "$root" rev-parse --verify $base *> $null
     }
 
     if ($LASTEXITCODE -ne 0) {
         throw "Cannot resolve origin/main or main. Fetch main or pass -Area explicitly."
     }
 
-    $paths = @(git diff --name-only "$base...HEAD")
+    $paths = @(git -C "$root" diff --name-only "$base...HEAD")
     if ($LASTEXITCODE -ne 0) {
         throw "Cannot determine changed paths against $base."
     }
