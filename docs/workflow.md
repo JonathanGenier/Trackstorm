@@ -8,6 +8,39 @@ Jira is the persistent source of truth for what assigned work must accomplish: b
 
 Read the complete assigned description, required children, comments and explicit clarifications before implementation. Never silently omit, simplify, replace or defer a requirement.
 
+Implementation prompts should stay concise. They should identify the Jira work unit, current Story branch, objective, approved requirement changes, validation expectations and completion handoff, then rely on this repository's routing documents for generic architecture, testing, documentation and delivery rules instead of restating them.
+
+### Implementation-agent efficiency
+
+Use the lowest trusted implementation-agent level likely to complete the scoped work reliably. Do not use Light-tier implementation models for Trackstorm.
+
+- **Sol — Medium** — default for straightforward implementation with established patterns, small/medium bugs, ordinary UI/settings, focused Core or Client changes, repository/tooling work, and low-risk multi-file changes where strong reasoning matters more than broad autonomous implementation.
+- **Astra Medium** — default for substantial feature implementation, multi-component integration, runtime/gameplay work, new state machines/lifecycles, significant Core + Client changes, or moderately difficult debugging.
+- **Sol — High** — use when the implementation is still bounded but requires deeper reasoning, architecture/debugging analysis, or careful technical decision-making without the breadth/risk that justifies Astra Heavy.
+- **Astra Heavy** — reserve for complex architecture, networking/synchronization, serialization/state restoration, host migration, high-risk refactors, difficult nondeterministic debugging, or other work where Medium is materially likely to require rework.
+
+Choose the cheapest trusted model/reasoning level that is likely to succeed in one implementation cycle. Do not use Astra Heavy merely because a Story is important or touches many files; use it when complexity, ambiguity, integration risk, or expected rework makes Medium less cost-efficient.
+
+A normal implementation prompt should be close to:
+
+```text
+Implement <Jira key> on the current Story branch <branch>.
+
+Inspect the Jira Story/Bug and required children/comments, approved requirement changes,
+applicable repository instructions, relevant feature docs, and current implementation.
+
+Jira is the persistent source of truth for Story scope and acceptance criteria.
+Explicit user-approved changes made during implementation override stale Jira content
+until Jira is updated.
+
+Implement only required scope. Use targeted checks while iterating, then perform the
+required final verification and runtime/playtest critique. Update the Story verification
+report with actual evidence, commit, push, and report what changed, what was verified,
+and anything unverified.
+```
+
+Do not repeat generic architecture, Git, test, documentation, critique or delivery rules already owned by this repository. Do not bulk-read the full feature catalog or historical verification archive: follow `AGENTS.md`, the feature index and nested routing to load only context material to the current work. Historical reports are read only when their recorded evidence is actually relevant.
+
 An explicit human-approved requirement change during implementation overrides stale Jira content until Jira is updated. Identify the approved change and affected criteria, preserve unaffected requirements, and update Jira to reflect the decision before closing the work. Suggestions, brainstorming and unapproved alternatives do not change active scope.
 
 If Jira or an approved change appears to conflict with an architecture, workflow, security, licensing or engineering invariant, report the conflict and preserve the stricter invariant until the human explicitly resolves it. Do not infer an exception.
@@ -32,7 +65,7 @@ If the assignment and Jira issue type/parent disagree, identify the discrepancy.
 ```
 
 - Story branches use `ts-<Jira number>-<initials>` by default, for example `ts-91-jg` or `ts-72-pg`. An explicit human-assigned branch name may override the default; otherwise use the canonical pattern.
-- Create a new Story branch from `main`; never implement directly on `main`.
+- Story branches are normally created and selected locally by the human developer before handing work to an implementation agent. Agents work on the already-selected Story branch unless explicitly asked to perform Git administration; never implement directly on `main`.
 - Before implementing, resuming or finalizing a Story, synchronize its branch with current `main` and follow the version procedure below.
 - Implement and commit all child checkpoints and authorized corrections directly on that branch. Tasks/Subtasks never receive separate branches, PRs or independent Git reviews/merges.
 - A push to a valid `ts-*` Story branch may mechanically create the Story's single PR to `main` immediately only when that exact branch has no prior PR history targeting `main`. If an open, closed, or merged PR already exists for the branch, automatic creation must not create another one. Automatic PR creation is only delivery plumbing: it does not imply verification, critique, acceptance, merge readiness or Story completion. Tasks/Subtasks still never receive separate PRs.
@@ -54,9 +87,9 @@ human manually merges
 ```
 
 - Automated workflows and review agents never merge a Story PR unless a human explicitly requests that action.
-- During delivery review, mechanical maintenance may be applied directly before the verdict when the correct result is unambiguous and does not change feature behavior. Examples include synchronizing compatible `main` changes, Story version recalculation, export metadata, documentation synchronization, PR metadata, and simple workflow/config reconciliation.
+- During delivery review, mechanical maintenance should be applied directly before the verdict when the correct result is unambiguous and does not change feature behavior. Examples include synchronizing compatible `main` changes, Story version recalculation, `Directory.Build.props` / `export_presets.cfg` synchronization, PR metadata, verification-index maintenance, simple documentation synchronization, analyzer/stale-reference corrections, and simple workflow/config reconciliation. Do not spend a new implementation-agent run on work the independent reviewer can repair safely.
 - Being behind `main`, stale version metadata, or a safely resolvable maintenance conflict is not by itself a review defect.
-- Merge conflicts must be classified by substance. Resolve mechanical conflicts during delivery when the intended result is clear. If resolution requires substantive production-code changes, feature-behavior decisions, architecture changes, nontrivial logic, or implementation-related test changes, return the work to implementation on the same Story branch and re-run applicable verification before final review.
+- Merge conflicts and review findings must be classified by substance. Resolve mechanical conflicts and small unambiguous non-behavioral corrections during delivery. Return work to the implementation agent only when correction requires changed feature behavior, architecture decisions, nontrivial production logic, networking/state/serialization work, physics/gameplay changes, substantial multi-file implementation, implementation-related test redesign, or ambiguous semantic conflict resolution. Re-run applicable verification after any correction.
 - Review-time maintenance must preserve Jira scope, approved requirement changes, current repository invariants, and newer compatible behavior already present on `main`.
 
 ### Canonical Story version procedure
@@ -100,6 +133,25 @@ Use a descriptive title and only relevant sections from that list; omit empty he
 
 Engineering and test-design requirements are in [standards](standards.md). Feature documents identify relevant harnesses; Jira can require additional feature-specific checks.
 
+### Iteration efficiency
+
+During implementation, use the narrowest deterministic checks that exercise the systems changed. Prefer `./tools/check-fast.ps1` over repeatedly running the entire repository gate. It compares the Story branch with current `main`, routes changes to Core, transport, authority-lease service, version/media and existing feature-specific harnesses, deduplicates overlapping routes, and keeps feature-doc-only edits from triggering production runtime checks.
+
+- Run `./tools/check-fast.ps1` for automatic deterministic routing.
+- Pass `-GodotPath <path>` (or set `GODOT_PATH`) to execute the routed Godot/runtime harnesses automatically.
+- Use `-RequireRuntime` when an iteration must fail rather than merely report pending runtime checks if Godot is unavailable.
+- Use `-IncludeExtended` only when the routed extended/native checks are appropriate; expensive multi-process/EOS/GdUnit-regression checks are identified but not silently run by default.
+- The router prints required playtest/manual scenarios such as multi-car driving, camera inspection, UI navigation, audio listening or latency-sensitive multiplayer when those cannot be fully represented by an automated harness.
+- Re-run the affected checks after each meaningful correction.
+
+The routing table lives in `tools/fast-check-routes.ps1` and is regression-tested by `tools/test-workflow-tools.ps1`. Add or change routes when a system gains a durable verification harness; do not duplicate feature behavior or acceptance criteria in the routing table.
+
+Targeted iteration does not reduce completion coverage. Before Story handoff, perform the comprehensive integrated verification below exactly once on the completed result, plus any additional Jira- or feature-specific runtime/native checks. CI remains an independent final machine gate.
+
+Runtime observation is part of implementation verification, not merely critique. When runtime execution is relevant and technically possible, actively exercise the feature and correct clear in-scope defects before the formal critique. Multi-car, multi-entity, multiplayer, reconnect, state-transition, persistence, repeated-use and sustained-runtime scenarios must be exercised when material to the Story.
+
+Use `./tools/new-verification-report.ps1 TS-<number>` to scaffold a missing Story verification report and index entry. The scaffold contains placeholders only; replace them with actual evidence and never convert an unexecuted placeholder into a claimed result.
+
 ### Automated CI tiers
 
 The normal PR/main CI is the fast gate. It verifies materialized frontend media, version-rule regressions, Story version ancestry where applicable, Debug compilation of the production dependency graph and Release compilation of the full solution with warnings as errors, Core tests, non-native transport tests and a headless main-scene startup smoke using the pinned Godot .NET editor. The deterministic test suites run once in Release; duplicate Debug test-assembly compilation/execution is intentionally avoided. Superseded runs for the same PR/branch are canceled, non-Story checkouts are shallow, and Git LFS objects plus NuGet packages are cached. EOS and Godot remain pinned and integrity-checked but are downloaded directly because their small downloads are faster than restoring an additional Actions cache.
@@ -133,10 +185,21 @@ The per-Story report is a historical delivery artifact, not a source of current 
 
 ## Critique and final PR
 
-After integrated verification, perform the applicable review in [critique](critique.md), which owns scoring, round limits and the mandatory stop for a human decision. Authorized corrections stay on the existing branch and require applicable re-verification.
+After integrated verification, perform the applicable runtime/experiential review in [critique](critique.md), which owns Astra scoring, round limits and the mandatory stop for a human decision. Stories with a meaningful runtime/player/operational surface require this critique. Pure repository/process/tooling Stories may omit Astra critique when operational verification plus independent engineering review fully cover the changed behavior and no distinct experiential judgment exists; record the exemption in the Story verification report. Astra evaluates what requires execution or observation and does not duplicate static source-code review.
+
+The independent PR review owns engineering judgment after push: Jira completeness, code correctness and quality, architecture and technical decisions, maintainability, Core/Client ownership, dependency direction, test quality and coverage, documentation, scope discipline, current-`main` integration, version state, CI and delivery readiness. Authorized corrections stay on the existing branch and require applicable re-verification.
+
+When an engineering quality score is used, score it from **0.0–10.0** with an exact **6.0 PASS threshold**:
+
+```text
+Engineering score < 6.0  → CHANGES REQUIRED
+Engineering score >= 6.0 → PASS
+```
+
+The 6.0 engineering threshold is intentionally lower than Astra's 8.0 runtime/experiential threshold. Engineering review is a correctness, maintainability, architecture, test and delivery gate; it should block material defects and technical risk without requiring unnecessary perfection or speculative cleanup. Optional polish alone must not fail the review. The final manual PR review verdict remains exactly `PASS` or `CHANGES REQUIRED`.
 
 The repository may already have created the Story PR automatically when the `ts-*` branch was pushed. That early PR is only a delivery container and may initially use the branch name as its title with an empty/minimal body. Review and acceptance must still use Jira, approved changes, repository instructions, the current source/diff, current feature documentation, current CI and the Story verification report rather than trusting PR prose.
 
-After explicit human acceptance of the critique, perform final verification without new implementation changes. Delivery-time mechanical maintenance may still be applied when it does not change feature behavior; re-run the affected checks afterward. If substantive implementation changes become necessary, return to implementation on the same Story branch, re-verify, repeat the applicable authorized critique process and obtain renewed acceptance.
+After explicit human acceptance of an applicable critique, perform final verification without new implementation changes. For an exempt pure tooling/process Story, proceed after successful operational verification and independent engineering review. Delivery-time mechanical maintenance may still be applied when it does not change feature behavior; re-run the affected checks afterward. If substantive implementation changes become necessary, return to implementation on the same Story branch, re-verify, repeat the applicable authorized critique process and obtain renewed acceptance.
 
 Maintain exactly one Story PR to `main`. Before final delivery, update its title/body as useful historical documentation with the Jira key, integrated implementation summary, actual verification evidence, assumptions, limitations and unresolved risks, then report its number and URL. PR prose is history, not review authority. A human performs the final merge; automatic PR creation, passing CI, or a passing review does not merge the Story.

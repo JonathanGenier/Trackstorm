@@ -19,6 +19,10 @@ function Invoke-Check {
     }
 }
 
+Invoke-Check "Workflow helper regression tests" {
+    & "$PSScriptRoot/tools/test-workflow-tools.ps1"
+}
+
 Invoke-Check "Frontend media verifier regression tests" {
     & "$PSScriptRoot/tools/test-frontend-media.ps1"
 }
