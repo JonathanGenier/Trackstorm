@@ -5,28 +5,45 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
   verify:
     runs-on: windows-latest
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages/
 
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout Story PR with version history
+        if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'ts-')
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          lfs: false
+
+      - name: Checkout current revision
+        if: github.event_name != 'pull_request' || !startsWith(github.head_ref, 'ts-')
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 0
-          lfs: true
+          fetch-depth: 1
+          lfs: false
 
-      - name: Verify materialized frontend media
+      - name: Restore Git LFS object cache
+        uses: actions/cache@v6
+        with:
+          path: .git/lfs
+          key: trackstorm-lfs-${{ runner.os }}-${{ hashFiles('**/*.mov', '**/*.ogv') }}
+
+      - name: Materialize Git LFS media
         shell: pwsh
-        run: |
-          ./tools/test-frontend-media.ps1
-          ./tools/check-frontend-media.ps1
-
-      - name: Version rule regression tests
-        run: ./tools/test-version.ps1
+        run: git lfs pull
 
       - name: Validate Story version and synchronized export preset against current main
         if: github.event_name == 'pull_request' && github.base_ref == 'main' && startsWith(github.head_ref, 'ts-')
@@ -36,15 +53,42 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Cannot fetch current main for version validation.' }
           ./tools/check-version.ps1
 
-      - uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: 10.0.x
+      - name: Verify .NET 10 SDK
+        shell: pwsh
+        run: |
+          $version = dotnet --version
+          if ($LASTEXITCODE -ne 0 -or $version -notmatch '^10\.0\.') {
+            throw "Trackstorm CI requires a .NET 10 SDK; selected '$version'."
+          }
+          Write-Host "Using preinstalled .NET SDK $version."
 
-      - run: ./setup-eos.ps1
-      - run: dotnet restore Trackstorm.sln
-      - run: dotnet build Trackstorm.sln -c Release --warnaserror --no-restore
-      - run: dotnet test code/Tests/Trackstorm.Core.Tests.csproj -c Release --no-build
-      - run: dotnet test code/TransportTests/Trackstorm.Transport.Tests.csproj -c Release --no-build --filter 'TestCategory!=Native'
+      - name: Restore NuGet package cache
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: trackstorm-nuget-${{ runner.os }}-net10-${{ hashFiles('**/*.csproj', 'Directory.Build.props') }}
+
+      - name: Prepare pinned EOS SDK
+        run: ./setup-eos.ps1
+
+      - name: Comprehensive verification
+        shell: pwsh
+        run: ./check.ps1
+
+      - name: Prepare pinned Godot
+        id: godot
+        shell: pwsh
+        run: |
+          $godot = ./tools/setup-godot-ci.ps1
+          "path=$godot" >> $env:GITHUB_OUTPUT
+
+      - name: Import Godot project
+        shell: pwsh
+        run: ./import-godot.ps1 -GodotPath "${{ steps.godot.outputs.path }}"
+
+      - name: Godot startup smoke
+        shell: pwsh
+        run: ./check-startup.ps1 -GodotPath "${{ steps.godot.outputs.path }}" -SkipBuild -SkipMediaCheck
 
   revalidate-open-prs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
