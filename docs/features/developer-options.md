@@ -18,7 +18,7 @@ Configuration actions and their feedback disappear on Stats and Logs and for non
 
 ## Authority and runtime application
 
-Core `GameplayConfiguration` composes the existing vehicle, damage, item, spawn, respawn and match records. `GameplayOptions` is the explicit 59-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
+Core `GameplayConfiguration` composes the existing vehicle, damage, item, spawn, respawn and match records. `GameplayOptions` is the explicit 62-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
 
 Live scalar tuning additionally rejects positive values below 0.0001: subnormal mass/axle lengths can overflow fixed-step divisions despite passing older positive-only checks. Zero remains allowed where the owning rule explicitly supports it. Collision/respawn timers are bounded to one hour and the simulation clock remains fixed at 60 Hz.
 
@@ -30,7 +30,7 @@ Native `NetworkVehicleBody` observation receives the same configuration as Core 
 
 ## Replication and recovery
 
-The reliable version-one `TC` message carries arena generation, configuration revision and all 59 values (493 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
+The reliable version-two `TC` message carries arena generation, configuration revision and all 62 values (517 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
 
 The host sends configuration before its reliable world boundary on admission or edits. Version-six `TS` world snapshots include the configuration revision; clients reject world/item boundaries for a different revision, preventing mismatched simulation. Subsequent unreliable snapshots recover normal movement after an ordered tuning change. EOS lobby metadata does not store gameplay tuning. Discovery compatibility is `trackstorm-lobby-9`.
 
@@ -154,6 +154,9 @@ Evidence names refer to methods in `DeveloperConfigurationTests`: **Movement** =
 | `match.kill_target` | `MatchConfiguration.KillTarget`; `MatchAuthority` winning threshold | Match: real kills reach edited target/winner |
 | `match.countdown_ticks` | `.CountdownTicks`; authoritative activation deadline | Lifecycle and `LiveMatchRulesChangeNormalCountdownAndActivation`: Countdown/Active ticks |
 | `match.minimum_players` | `.MinimumPlayers`; Waiting/Countdown roster guard | Lifecycle and normal two-player Waiting/Countdown transition |
+| `match.base_kill_points` | `.BaseKillPoints`; base Circus kill award, default 100 | `CircusCollisionAndLiveTuningContinueAcrossAuthorityRestore`: tuned kill awards before/after checkpoint restore |
+| `match.kill_streak_bonus_step` | `.KillStreakBonusStep`; linear bonus for consecutive kills after the first, default 25 | Same test: a second kill applies the configured streak progression and updated K/D |
+| `match.collision_points_per_damage` | `.CollisionPointsPerDamage`; actual applied collision HP conversion, default 1 | Same test: nonlethal and clamped lethal damage use the configured rate |
 | `vehicle.concrete.grip` | `VehicleConfiguration.Concrete.Grip`; hard-surface tire budget | Trajectory |
 | `vehicle.concrete.drag` | `.Concrete.Drag`; hard-surface rolling resistance | Trajectory |
 | `vehicle.concrete.acceleration` | `.Concrete.Acceleration`; hard-surface drive force | Trajectory |

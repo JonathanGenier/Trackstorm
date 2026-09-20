@@ -8,6 +8,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Circus combat scoring | [TS-102 applied damage, K/D, streaks and synchronization evidence](ts-102.md) |
 | AI implementation and review workflow | [TS-137 critique split, targeted iteration and tooling evidence](ts-137.md) |
 | Categorized DevTools Logs | [TS-99 semantic styling, frozen history and native verification](ts-99.md) |
 | Searchable DevTools Stats | [TS-98 grouped live rows, filtering, colors and runtime verification](ts-98.md) |

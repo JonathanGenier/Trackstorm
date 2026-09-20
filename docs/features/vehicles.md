@@ -79,3 +79,5 @@ Authority restoration, epoch fencing, checkpoint cadence and migration limits ar
 [Feature index](README.md)
 
 The [Event Log](event-log.md) records every committed positive hit from the Core step result, with exact applied amount, target, source/attacker and remaining HP. It does not infer damage from snapshots or raw native contacts.
+
+[Circus combat scoring](matches.md#circus-combat-score) consumes those same positive applied outcomes inside the atomic simulation candidate, including nonlethal collision damage. The victim/life/damage-sequence identity prevents repeat awards; no separate Client contact listener awards points.
