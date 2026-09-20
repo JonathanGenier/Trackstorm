@@ -10,12 +10,22 @@ public sealed record MatchConfiguration
     /// <summary>Participants needed to begin the countdown.</summary>
     public int MinimumPlayers { get; init; } = 2;
 
+    /// <summary>Base Circus points per valid kill.</summary>
+    public double BaseKillPoints { get; init; } = 100;
+    /// <summary>Additional base points per consecutive kill after the first.</summary>
+    public double KillStreakBonusStep { get; init; } = 25;
+    /// <summary>Base Circus points per actual collision HP removed from another participant.</summary>
+    public double CollisionPointsPerDamage { get; init; } = 1;
+
     /// <summary>Rejects unusable or unbounded configuration.</summary>
     public void Validate()
     {
-        if (KillTarget is < 1 or > 1000000 || CountdownTicks is < 1 or > 36000 || MinimumPlayers is < 1 or > 8)
+        if (KillTarget is < 1 or > 1000000 || CountdownTicks is < 1 or > 36000 || MinimumPlayers is < 1 or > 8 ||
+            !ValidPoints(BaseKillPoints) || !ValidPoints(KillStreakBonusStep) || !ValidPoints(CollisionPointsPerDamage))
         {
             throw new ArgumentException("Invalid match target, countdown or participant count.");
         }
     }
+
+    private static bool ValidPoints(double value) => double.IsFinite(value) && value is >= 0 and <= 1000000;
 }

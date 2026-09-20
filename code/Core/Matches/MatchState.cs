@@ -21,12 +21,14 @@ public sealed class MatchState
         ScoredDeath[] deaths = changes?.ToArray() ?? [];
         if (killTarget is < 1 or > 1000000 || !Enum.IsDefined(phase) || scores.Length > MaximumPlayers ||
             scores.Any(player => player.Player == 0 || player.Kills < 0 || player.Kills > killTarget || player.Deaths < 0 || player.Wins is < 0 or > 1 || (player.Deaths > 0 && player.ProcessedLife == 0)) ||
+            scores.Any(player => !double.IsFinite(player.CircusScore) || player.CircusScore < 0 || player.KillStreak < 0 || player.KillStreak > player.Kills ||
+                (player.ProcessedDamageLife == 0) != (player.ProcessedDamageSequence == 0)) ||
             scores.Select(player => player.Player).Distinct().Count() != scores.Length ||
             (phase == MatchPhase.Countdown) != countdownAtTick.HasValue || (countdownAtTick.HasValue && countdownAtTick <= tick) ||
             (phase == MatchPhase.Finished) != winner.HasValue ||
             (winner.HasValue && !scores.Any(player => player.Player == winner && player.Kills == killTarget && player.Wins == 1)) ||
             scores.Any(player => player.Wins != (player.Player == winner ? 1 : 0) || (player.Kills == killTarget && player.Player != winner)) ||
-            (phase is MatchPhase.Waiting or MatchPhase.Countdown && scores.Any(player => player.Kills != 0 || player.Deaths != 0)) ||
+            (phase is MatchPhase.Waiting or MatchPhase.Countdown && scores.Any(player => player.Kills != 0 || player.Deaths != 0 || player.CircusScore != 0)) ||
             scores.Sum(player => (long)player.Kills) > scores.Sum(player => (long)player.Deaths) ||
             deaths.Length > 8 || deaths.Select(death => death.Victim).Distinct().Count() != deaths.Length ||
             deaths.Any(death => death.Life == 0 || !scores.Any(player => player.Player == death.Victim && player.Deaths > 0 && player.ProcessedLife == death.Life) ||

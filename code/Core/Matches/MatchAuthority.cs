@@ -24,19 +24,20 @@ internal static class MatchAuthority
     /// <param name="previous">Committed match boundary.</param>
     /// <param name="configuration">Validated host rules.</param>
     /// <param name="tick">Candidate simulation tick.</param>
-    /// <param name="vehicles">Complete candidate vehicle roster.</param>
+    /// <param name="results">Complete candidate vehicle roster and applied damage outcomes.</param>
     /// <returns>Validated candidate match state.</returns>
-    internal static MatchState Advance(MatchState previous, MatchConfiguration configuration, ulong tick, IReadOnlyList<VehicleSnapshot> vehicles)
+    internal static MatchState Advance(MatchState previous, MatchConfiguration configuration, ulong tick, IReadOnlyList<VehicleStepResult> results)
     {
         if (previous.Phase == MatchPhase.Finished)
         {
             return previous;
         }
 
+        VehicleSnapshot[] vehicles = results.Select(result => result.Snapshot).ToArray();
         GameLoopState lifecycle = previous.Lifecycle;
         if (lifecycle.Phase is GameLoopPhase.Initialization or GameLoopPhase.Countdown)
         {
-            if (vehicles.Count < configuration.MinimumPlayers)
+            if (vehicles.Length < configuration.MinimumPlayers)
             {
                 lifecycle = new GameLoopState(tick, GameLoopPhase.Initialization);
             }
@@ -57,9 +58,31 @@ internal static class MatchAuthority
 
         var scores = previous.Players.ToDictionary(score => score.Player);
         var changes = new List<ScoredDeath>();
-        foreach (VehicleSnapshot vehicle in vehicles.OrderBy(vehicle => vehicle.VehicleId))
+        foreach (VehicleStepResult result in results.OrderBy(result => result.Snapshot.VehicleId))
         {
+            VehicleSnapshot vehicle = result.Snapshot;
             PlayerScore victim = scores[vehicle.VehicleId];
+            // Outcomes are generated only by the candidate health authority. Consume every source,
+            // including outside Active, so restoring/repeating an outcome can never bank it again.
+            foreach (DamageEvent applied in result.DamageEvents.OrderBy(damage => damage.Sequence))
+            {
+                if (applied.Tick != tick || vehicle.LifeId < victim.ProcessedDamageLife ||
+                    (vehicle.LifeId == victim.ProcessedDamageLife && applied.Sequence <= victim.ProcessedDamageSequence))
+                {
+                    continue;
+                }
+
+                victim = victim with { ProcessedDamageLife = vehicle.LifeId, ProcessedDamageSequence = applied.Sequence };
+                scores[victim.Player] = victim;
+                ulong attacker = applied.Attribution.InstigatorId;
+                if (lifecycle.AllowsGameplay && applied.Attribution.Source == "collision" && attacker != victim.Player &&
+                    scores.ContainsKey(attacker) && vehicles.Any(candidate => candidate.VehicleId == attacker))
+                {
+                    scores[attacker] = CircusScoring.Bank(scores[attacker], applied.Amount * configuration.CollisionPointsPerDamage);
+                }
+            }
+
+            scores[victim.Player] = victim;
             if (!vehicle.Damage.Destroyed || vehicle.LifeId <= victim.ProcessedLife)
             {
                 continue;
@@ -68,7 +91,7 @@ internal static class MatchAuthority
             victim = victim with { ProcessedLife = vehicle.LifeId };
             if (lifecycle.AllowsGameplay)
             {
-                victim = victim with { Deaths = checked(victim.Deaths + 1) };
+                victim = victim with { Deaths = checked(victim.Deaths + 1), KillStreak = 0 };
                 scores[victim.Player] = victim;
                 DamageEvent? damage = vehicle.Damage.LastDamage;
                 ulong killer = damage is { DestroyedTransition: true } && damage.Tick == tick && damage.Attribution.Source is "missile" or "collision"
@@ -80,7 +103,8 @@ internal static class MatchAuthority
 
                 if (killer != 0)
                 {
-                    PlayerScore credited = scores[killer] with { Kills = checked(scores[killer].Kills + 1) };
+                    PlayerScore credited = scores[killer] with { Kills = checked(scores[killer].Kills + 1), KillStreak = checked(scores[killer].KillStreak + 1) };
+                    credited = CircusScoring.Bank(credited, configuration.BaseKillPoints + ((credited.KillStreak - 1) * configuration.KillStreakBonusStep));
                     MatchOutcome? outcome = FirstToTargetMode.Evaluate(credited, configuration.KillTarget);
                     if (outcome is not null)
                     {

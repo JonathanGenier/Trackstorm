@@ -32,6 +32,11 @@ internal sealed partial class VehicleNetworkDriverTests
         }
 
         Assert.That(host.Host.World.State.Match!.Phase, Is.EqualTo(MatchPhase.Active));
+        var world = host.Host.World;
+        var damageFrame = new Core.Input.InputFrame(world.State.Tick + 1, 0, 0, 0, 0, 0, 0);
+        world.Step(damageFrame, world.State.Vehicles.Select(vehicle => new Core.Vehicles.VehicleStepRequest(vehicle.VehicleId, damageFrame, Observe(vehicle),
+            vehicle.VehicleId == 2 ? [new Core.Vehicles.VehicleEffectRequest(new Core.Vehicles.DamageEffect(12.5f, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero), new Core.Vehicles.DamageContext("collision", 1, "join score"))] : [])).ToArray());
+        Assert.That(world.State.Match!.Players.Single(player => player.Player == 1).CircusScore, Is.EqualTo(12.5));
         host.Host.GiveItem(0, HeldItem.Missile);
         using var clientWire = ConnectedGateway();
         var clientLobby = new LobbyNetworkDriver(clientWire, 0, ServerPeer, "Fresh");
@@ -70,6 +75,8 @@ internal sealed partial class VehicleNetworkDriverTests
         Assert.That(client.Prediction, Is.Not.Null);
         Assert.That(resyncs, Is.EqualTo(1));
         Assert.That(client.Match!.Phase, Is.EqualTo(MatchPhase.Active));
+        Assert.That(client.Match.Players.Take(2), Is.EqualTo(existing.Match!.Players));
+        Assert.That(client.Match.Players.Single(player => player.Player == 3).CircusScore, Is.Zero);
         Assert.That(client.ItemState!.Slots.Single(slot => slot.Vehicle == 1).Item, Is.EqualTo(HeldItem.Missile));
         Assert.That(client.ItemState.Spawns, Is.EqualTo(host.Host.Spawns!.States));
         Assert.That(client.ItemState.Events, Is.Empty);
