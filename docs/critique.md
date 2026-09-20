@@ -14,12 +14,12 @@ This boundary preserves the part of Astra critique that static review cannot rep
 
 ## Applicability
 
-- Every completed Jira Story receives a Story critique after all required children are implemented and verified on the Story branch.
-- A meaningful Task/Subtask explicitly assigned on its own receives an individual Task critique after its scoped work is verified on the parent Story branch.
+- Every completed Jira Story with a meaningful runtime/player/operational surface receives a Story critique after all required children are implemented and verified on the Story branch.
+- A meaningful Task/Subtask explicitly assigned on its own receives an individual Task critique when its scoped result has a meaningful runtime/experiential surface.
 - A child completed during an already-authorized full Story assignment is an internal checkpoint, not a mandatory human-gated critique. Verify it and continue to the next required child.
-- Technical or tooling Stories still receive critique. Exercise their observable or operational outcome rather than substituting a static code review.
+- Pure repository/process/tooling Stories may omit Astra critique when there is no distinct experiential surface to evaluate and operational verification plus independent engineering review fully cover the changed behavior. Record that exemption in the Story verification report.
 
-A Story critique evaluates the integrated Story rather than merely aggregating child results. It must exercise the complete feature and relevant integration behavior where technically possible.
+When critique applies, it evaluates the integrated Story rather than merely aggregating child results and must exercise the complete feature and relevant integration behavior where technically possible.
 
 ## Required sequence
 
