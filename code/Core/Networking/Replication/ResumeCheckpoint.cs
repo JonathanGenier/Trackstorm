@@ -24,6 +24,9 @@ public sealed class ResumeCheckpoint
             throw new ArgumentException("Inconsistent resume checkpoint.");
         }
 
+        // Validate pending event life/tick ownership against the same vehicle boundary before client installation.
+        _ = new Simulation.SimulationState(items.World.Tick, new Input.InputFrame(items.World.Tick, 0, 0, 0, 0, 0, 0),
+            items.World.Vehicles.Select(vehicle => vehicle.State), match);
         Items = items;
         Match = match;
         Props = props;

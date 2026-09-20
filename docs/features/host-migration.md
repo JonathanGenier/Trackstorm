@@ -94,3 +94,5 @@ Real EOS multi-PC host loss, service ownership notification timing, Locked migra
 Checkpoint construction, decode validation and replacement authority use the locally loaded [active map contract](oval-map.md). The network does not supply geometry or alternate spawn coordinates. This preserves the oval's eight player slots and empty pickup layout through migration.
 
 [Feature index](README.md)
+
+Circus pending stunt durations, base amounts, jump origin and life/tick ownership travel in the nested match codec. Replacement authority resumes that complete boundary without replaying completed awards; uncheckpointed progression remains subject to the existing epoch rollback policy. See [match scoring](matches.md#circus-stunt-detection-and-banking).

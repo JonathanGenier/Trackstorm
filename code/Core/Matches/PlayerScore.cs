@@ -8,6 +8,10 @@ namespace Trackstorm.Core.Matches;
 /// <param name="ProcessedLife">Highest destroyed life consumed, including deaths outside Active.</param>
 public readonly record struct PlayerScore(ulong Player, int Kills, int Deaths, int Wins, ulong ProcessedLife)
 {
+    /// <summary>Independent unbanked stunt events; null when idle.</summary>
+    public StuntState? Stunts { get; init; }
+    /// <summary>Current potential stunt award at the shared K/D; never part of permanent CircusScore.</summary>
+    public double PendingStuntScore => Stunts is { } pending ? (pending.Drift.BasePoints + pending.Airtime.BasePoints + pending.LongJumpBasePoints + pending.TopSpeed.BasePoints) * KdMultiplier : 0;
     /// <summary>Permanent Circus points; death never subtracts banked awards.</summary>
     public double CircusScore { get; init; }
     /// <summary>Consecutive credited kills since the last scored death.</summary>

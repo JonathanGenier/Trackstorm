@@ -31,7 +31,7 @@ Start with the system being changed. Read its document and only the integration 
 | [Item spawning](item-spawns.md) | Marker claims, distribution and cooldowns | [Arena](arena.md), [items](items.md) |
 | [Death and respawn](death-respawn.md) | Life boundaries, reset policy and participation | [Vehicles](vehicles.md), [items](items.md), [matches](matches.md) |
 | [Authoritative Game Loop](game-loop.md) | Post-sync initialization, phases, countdown, participation, frozen results handoff and disposal/reset ownership | [Matches](matches.md), [simulation](simulation.md), [sessions](sessions.md) |
-| [Match scoring](matches.md) | Countdown, attribution, Circus combat points/K/D/streaks and first-to-target | [Game Loop](game-loop.md), [lifecycle](death-respawn.md), [sessions](sessions.md), [HUD](hud.md) |
+| [Match scoring](matches.md) | Countdown, attribution, Circus combat/K/D/streaks, pending stunt detection/banking and first-to-target | [Game Loop](game-loop.md), [lifecycle](death-respawn.md), [sessions](sessions.md), [HUD](hud.md) |
 | [EOS identity](eos-identity.md) | Device ID, platform lifetime and configuration | [EOS lobbies](eos-lobbies.md), [EOS P2P](eos-p2p.md) |
 | [EOS lobbies](eos-lobbies.md) | Browser, access codes, membership and admission | [Identity](eos-identity.md), [sessions](sessions.md), [EOS P2P](eos-p2p.md) |
 | [EOS P2P](eos-p2p.md) | Authenticated transport, framing, reliability and bounds | [Identity](eos-identity.md), [lobbies](eos-lobbies.md), [transport](transport.md) |
