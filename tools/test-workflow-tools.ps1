@@ -24,7 +24,7 @@ $networkPlan = Get-FastCheckPlan -Paths @("code/Client/Networking/VehicleReplica
 Assert-True $networkPlan.TransportTests "Networking changes must route transport tests."
 Assert-True ($networkPlan.RuntimeScripts -contains "check-network-vehicles.ps1") "Networking changes must route network vehicle verification."
 
-$eosPlan = Get-FastCheckPlan -Paths @("code/Client/Online/EosP2pSession.cs", "docs/features/eos-p2p.md")
+$eosPlan = Get-FastCheckPlan -Paths @("code/Client/Online/EosP2pSession.cs")
 Assert-True (-not ($eosPlan.ExtendedScripts -contains "check-eos-multiplayer.ps1")) "Real EOS multiplayer verification must not be auto-routed through the GodotPath extended runner."
 $hasEosManual = @($eosPlan.ManualScenarios | Where-Object { $_ -like '*check-eos-multiplayer.ps1*' }).Count -gt 0
 Assert-True $hasEosManual "EOS P2P changes must surface the exported-build/distinct-device verification requirement."
