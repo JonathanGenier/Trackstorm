@@ -189,6 +189,15 @@ After integrated verification, perform the applicable runtime/experiential revie
 
 The independent PR review owns engineering judgment after push: Jira completeness, code correctness and quality, architecture and technical decisions, maintainability, Core/Client ownership, dependency direction, test quality and coverage, documentation, scope discipline, current-`main` integration, version state, CI and delivery readiness. Authorized corrections stay on the existing branch and require applicable re-verification.
 
+When an engineering quality score is used, score it from **0.0–10.0** with an exact **6.0 PASS threshold**:
+
+```text
+Engineering score < 6.0  → CHANGES REQUIRED
+Engineering score >= 6.0 → PASS
+```
+
+The 6.0 engineering threshold is intentionally lower than Astra's 8.0 runtime/experiential threshold. Engineering review is a correctness, maintainability, architecture, test and delivery gate; it should block material defects and technical risk without requiring unnecessary perfection or speculative cleanup. Optional polish alone must not fail the review. The final manual PR review verdict remains exactly `PASS` or `CHANGES REQUIRED`.
+
 The repository may already have created the Story PR automatically when the `ts-*` branch was pushed. That early PR is only a delivery container and may initially use the branch name as its title with an empty/minimal body. Review and acceptance must still use Jira, approved changes, repository instructions, the current source/diff, current feature documentation, current CI and the Story verification report rather than trusting PR prose.
 
 After explicit human acceptance of the critique, perform final verification without new implementation changes. Delivery-time mechanical maintenance may still be applied when it does not change feature behavior; re-run the affected checks afterward. If substantive implementation changes become necessary, return to implementation on the same Story branch, re-verify, repeat the applicable authorized critique process and obtain renewed acceptance.
