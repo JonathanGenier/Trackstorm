@@ -34,7 +34,7 @@ Assert-True ($migrationPlan.ExtendedScripts -contains "check-migration-processes
 
 $cameraPlan = Get-FastCheckPlan -Paths @("code/Client/Vehicles/ChaseCamera.cs", "docs/features/camera.md")
 Assert-True ($cameraPlan.ManualScenarios.Count -gt 0) "Camera changes must preserve manual/playtest verification."
-Assert-True ($cameraPlan.RuntimeScripts.Count -eq 0) "Camera route should not invent a dedicated root harness."
+Assert-True ($cameraPlan.RuntimeScripts -contains "check-vehicle.ps1") "Vehicle-mounted camera changes should retain vehicle integration verification."
 
 $versionPlan = Get-FastCheckPlan -Paths @("Directory.Build.props", "export_presets.cfg")
 Assert-True $versionPlan.VersionChecks "Version metadata changes must route version regression tests."
