@@ -12,13 +12,14 @@ Implementation prompts should stay concise. They should identify the Jira work u
 
 ### Implementation-agent efficiency
 
-Use the lowest implementation-agent level likely to complete the scoped work reliably:
+Use the lowest trusted implementation-agent level likely to complete the scoped work reliably. Do not use Light-tier implementation models for Trackstorm.
 
-- **Astra Light** — default for established patterns, ordinary UI/settings, straightforward gameplay additions, map/environment/assets work, small bugs, normal tests and low-risk multi-file changes.
-- **Astra Medium** — substantial multi-component integration, new state machines/lifecycles, significant Core + Client work, or moderately difficult debugging.
-- **Astra Heavy** — complex architecture, networking/synchronization, serialization/state restoration, host migration, high-risk refactors or difficult nondeterministic debugging.
+- **Sol — Medium** — default for straightforward implementation with established patterns, small/medium bugs, ordinary UI/settings, focused Core or Client changes, repository/tooling work, and low-risk multi-file changes where strong reasoning matters more than broad autonomous implementation.
+- **Astra Medium** — default for substantial feature implementation, multi-component integration, runtime/gameplay work, new state machines/lifecycles, significant Core + Client changes, or moderately difficult debugging.
+- **Sol — High** — use when the implementation is still bounded but requires deeper reasoning, architecture/debugging analysis, or careful technical decision-making without the breadth/risk that justifies Astra Heavy.
+- **Astra Heavy** — reserve for complex architecture, networking/synchronization, serialization/state restoration, host migration, high-risk refactors, difficult nondeterministic debugging, or other work where Medium is materially likely to require rework.
 
-Do not escalate merely because a Story touches several files. Escalate when the reasoning, integration risk or ambiguity requires it.
+Choose the cheapest trusted model/reasoning level that is likely to succeed in one implementation cycle. Do not use Astra Heavy merely because a Story is important or touches many files; use it when complexity, ambiguity, integration risk, or expected rework makes Medium less cost-efficient.
 
 A normal implementation prompt should be close to:
 
