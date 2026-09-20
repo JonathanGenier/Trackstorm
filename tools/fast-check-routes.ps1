@@ -33,6 +33,7 @@ function Get-FastCheckPlan {
         }
 
         if ($path -match '^code/Client/' -or
+            $path -match '^test/Client/' -or
             $path -match '^scenes/' -or
             $path -match '^assets/' -or
             $path -eq 'project.godot' -or
@@ -68,12 +69,18 @@ function Get-FastCheckPlan {
             Add-Runtime 'check-startup.ps1'
         }
 
-        # Vehicle, physics and camera-facing integration.
+        # Vehicle, physics, fixed-step simulation and camera-facing integration.
         if ($path -match '^code/(Core|Client)/Vehicles/' -or
             $path -eq 'docs/features/vehicles.md' -or
             $path -match '^scenes/verification/vehicle_checks\.tscn$') {
             Add-Runtime 'check-vehicle.ps1'
             Add-Manual 'Drive/playtest the affected vehicle behavior, including multiple cars when collisions or shared physics are material.'
+        }
+
+        if ($path -match '^code/Core/Simulation/' -or $path -eq 'docs/features/simulation.md') {
+            Add-Runtime 'check-vehicle.ps1'
+            Add-Runtime 'check-match.ps1'
+            Add-Manual 'Exercise sustained fixed-step gameplay and relevant multi-entity state transitions after simulation changes.'
         }
 
         if ($path -eq 'docs/features/camera.md' -or
@@ -178,7 +185,7 @@ function Get-FastCheckPlan {
         }
 
         # DevTools.
-        if ($path -eq 'docs/features/devtools.md') {
+        if ($path -eq 'docs/features/devtools.md' -or $path -match '(?i)DevTools') {
             Add-Runtime 'check-developer-options.ps1'
             Add-Runtime 'check-statistics.ps1'
             Add-Runtime 'check-event-log.ps1'
@@ -203,6 +210,17 @@ function Get-FastCheckPlan {
         if ($path -eq 'docs/features/activity-feed.md' -or $path -match '(?i)ActivityFeed') {
             Add-Runtime 'check-event-log.ps1'
             Add-Runtime 'check-hud.ps1'
+        }
+
+        # GDScript / GdUnit client tests and import wrapper behavior.
+        if ($path -match '^test/Client/' -or $path -match '^addons/gdUnit4/') {
+            Add-Runtime 'check-gdunit.ps1'
+        }
+
+        if ($path -eq 'import-godot.ps1' -or
+            $path -eq 'check-gdunit.ps1' -or
+            $path -eq 'check-gdunit-regression.ps1') {
+            Add-Extended 'check-gdunit-regression.ps1'
         }
 
         # Audio.
