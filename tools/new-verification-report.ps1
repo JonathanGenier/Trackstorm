@@ -57,17 +57,21 @@ $index = Get-Content -Path $indexPath -Raw
 $link = "($reportName)"
 if ($index -notmatch [regex]::Escape($link)) {
     $entry = "| $Title | [TS-$number verification evidence]($reportName) |"
-    $tableHeader = "| Evidence | Reports |`r?`n| --- | --- |"
-    if ($index -notmatch $tableHeader) {
+    $tableHeader = "| Evidence | Reports |"
+    $separator = "| --- | --- |"
+
+    $headerIndex = $index.IndexOf($tableHeader, [System.StringComparison]::Ordinal)
+    if ($headerIndex -lt 0) {
         throw "Could not find verification index table header in $indexPath."
     }
 
-    $index = [regex]::Replace(
-        $index,
-        $tableHeader,
-        { param($m) "$($m.Value)`n$entry" },
-        1
-    )
+    $separatorIndex = $index.IndexOf($separator, $headerIndex, [System.StringComparison]::Ordinal)
+    if ($separatorIndex -lt 0) {
+        throw "Could not find verification index table separator in $indexPath."
+    }
+
+    $insertAt = $separatorIndex + $separator.Length
+    $index = $index.Insert($insertAt, "`n$entry")
     Set-Content -Path $indexPath -Value $index -Encoding utf8
     Write-Host "Added TS-$number to docs/verification/README.md"
 }
