@@ -6,10 +6,21 @@ This directory records historical verification evidence for particular implement
 
 Use [workflow](../workflow.md#verification) for current completion checks, Jira for assigned requirements, and the [feature index](../features/README.md) for current system behavior. Read a report only when its historical evidence is relevant.
 
+Every completed Jira Story must create or update `docs/verification/ts-<number>.md` using the Story number in lowercase filename form (for example, `TS-86` → `ts-86.md`) and add or update a useful entry in the table below. The report records only implementation and verification evidence actually produced for that Story, including material behavior/systems changed, commands/results actually run, applicable runtime/manual/native evidence, limitations, unresolved risks, and explicitly unverified areas. Never treat these reports as current requirements or infer that old test evidence remains valid after later changes.
+
 | Evidence | Reports |
 | --- | --- |
 | Asphalt and banked-oval handling | [TS-73 first candidate](ts-73.md), [runtime-feedback correction and pending human acceptance](ts-73-correction.md), [editor import and multiplayer menu correction](ts-73-menu-correction.md) |
+| Categorized DevTools Logs | [TS-99 semantic styling, frozen history and native verification](ts-99.md) |
+| Searchable DevTools Stats | [TS-98 grouped live rows, filtering, colors and runtime verification](ts-98.md) |
+| Automatic PR history guard | [TS-136 prior-PR suppression and recreation prevention evidence](ts-136.md) |
+| Automatic Story PR creation | [TS-135 push trigger, duplicate prevention and Jira-free PR creation](ts-135.md) |
+| Per-Story verification evidence requirement | [TS-134 workflow/report naming, indexing and historical-evidence boundary](ts-134.md) |
+| Configs discovery and staged settings | [TS-97 implementation, acceptance mapping and verification limitations](ts-97.md) |
+| Lobby and match entry | [TS-86 application states, map selection, loading/sync and acceptance evidence](ts-86.md) |
 | Authoritative Game Loop foundation | [TS-91 Core lifecycle, legacy integration, regression evidence and runtime limitations](ts-91.md) |
+| Game Loop network participation | [TS-92 authoritative phase gates, checkpoint recovery, native multiplayer evidence and limitations](ts-92.md) |
+| Game Loop results and reset | [TS-93 frozen results, Application Flow handoff, disposal and repeated-match verification](ts-93.md) |
 | Unified DevTools navigation and compact Configs | [TS-96 correction, native/runtime checks and layout captures](ts-96.md) |
 | Real-scale Trackstorm vehicle | [TS-72 Blender conversion, physics integration and validation](ts-72.md) |
 | Active oval gameplay integration | [TS-71 map loading, eight player grid spawns, preserved systems and stress-test limitation](ts-71-map-swap.md) |

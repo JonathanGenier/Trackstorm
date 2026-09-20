@@ -5,6 +5,7 @@ Start with the system being changed. Read its document and only the integration 
 | System | Read for | Related systems |
 | --- | --- | --- |
 | [Startup application flow](startup.md) | Preloader, Splash, persistent MenuShell/Loader, global initialization and Main Menu reveal | [Game Menu](game-menu.md), [Settings](settings.md), [audio](audio.md) |
+| [Lobby and match entry](match-entry.md) | Browser, admission, joined Lobby, map selection and Match Loader / Sync | [Sessions](sessions.md), [reconnection](reconnection.md), [Game Loop](game-loop.md) |
 | [Game versioning](game-versioning.md) | Canonical build, Story CI sequencing and exact multiplayer compatibility | [Sessions](sessions.md), [EOS lobbies](eos-lobbies.md), [reconnection](reconnection.md) |
 | [Fixed-step simulation](simulation.md) | Tick ordering, atomic authority and restore | [Vehicles](vehicles.md), [matches](matches.md), [replication](vehicle-networking.md) |
 | [Player input](input.md) | Logical frames, remapping, shaping and suppression | [Settings](settings.md), [vehicles](vehicles.md) |
@@ -12,7 +13,7 @@ Start with the system being changed. Read its document and only the integration 
 | [Settings](settings.md) | Local preferences, persistence, display/audio controls | [Input](input.md), [HUD](hud.md) |
 | [DevTools shell](devtools.md) | Shared full-window Configs/Stats/Logs navigation, shortcuts, close behavior and input suppression | [Developer Options](developer-options.md), [Statistic Panel](statistics.md), [Event Log](event-log.md), [Game Menu](game-menu.md) |
 | [Developer Options](developer-options.md) | Host tuning, runtime mapping, persistence, replication, F1 and authorized actions | [DevTools shell](devtools.md), [Statistic Panel](statistics.md), [Settings](settings.md), [vehicle networking](vehicle-networking.md) |
-| [Statistic Panel](statistics.md) | Full-screen F2 read-only live session, player, physics, combat and network diagnostics in Debug/Release | [Developer Options](developer-options.md), [Game Menu](game-menu.md), [vehicles](vehicles.md), [vehicle networking](vehicle-networking.md) |
+| [Statistic Panel](statistics.md) | Searchable F2 Stats tab, read-only live session, player, physics, combat and network diagnostics in Debug/Release | [Developer Options](developer-options.md), [Game Menu](game-menu.md), [vehicles](vehicles.md), [vehicle networking](vehicle-networking.md) |
 | [Event Log](event-log.md) | F3 history, structured committed outcomes, timestamps, bounded retention and reliable event replication | [Sessions](sessions.md), [vehicles](vehicles.md), [items](items.md), [reconnection](reconnection.md) |
 | [Player activity feed](activity-feed.md) | Player-safe presence and kill/death messages, five-row HUD, expiry and replay protection | [Event Log](event-log.md), [HUD](hud.md), [matches](matches.md) |
 | [Arena audio](audio.md) | Vehicle/combat feedback, arena playlist, buses and committed CC0 sounds | [Settings](settings.md), [items](items.md), [matches](matches.md) |
@@ -29,7 +30,7 @@ Start with the system being changed. Read its document and only the integration 
 | [Held items](items.md) | Wrench/Missile authority, outcomes and presentation | [Pickups](item-spawns.md), [damage](vehicles.md), [lifecycle](death-respawn.md) |
 | [Item spawning](item-spawns.md) | Marker claims, distribution and cooldowns | [Arena](arena.md), [items](items.md) |
 | [Death and respawn](death-respawn.md) | Life boundaries, reset policy and participation | [Vehicles](vehicles.md), [items](items.md), [matches](matches.md) |
-| [Authoritative Game Loop](game-loop.md) | Post-sync initialization, phase transitions, countdown, participation policy and mode completion | [Matches](matches.md), [simulation](simulation.md), [sessions](sessions.md) |
+| [Authoritative Game Loop](game-loop.md) | Post-sync initialization, phases, countdown, participation, frozen results handoff and disposal/reset ownership | [Matches](matches.md), [simulation](simulation.md), [sessions](sessions.md) |
 | [Match scoring](matches.md) | Countdown, attribution, scores and first-to-target | [Game Loop](game-loop.md), [lifecycle](death-respawn.md), [sessions](sessions.md), [HUD](hud.md) |
 | [EOS identity](eos-identity.md) | Device ID, platform lifetime and configuration | [EOS lobbies](eos-lobbies.md), [EOS P2P](eos-p2p.md) |
 | [EOS lobbies](eos-lobbies.md) | Browser, access codes, membership and admission | [Identity](eos-identity.md), [sessions](sessions.md), [EOS P2P](eos-p2p.md) |

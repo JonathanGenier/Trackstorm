@@ -31,11 +31,33 @@ If the assignment and Jira issue type/parent disagree, identify the discrepancy.
         = 1 Story branch = 1 final PR to main
 ```
 
-- Use the explicitly human-assigned Story branch name. Do not rename it to satisfy a naming pattern. If no branch is assigned, resolve the intended Story branch before implementation.
+- Story branches use `ts-<Jira number>-<initials>` by default, for example `ts-91-jg` or `ts-72-pg`. An explicit human-assigned branch name may override the default; otherwise use the canonical pattern.
 - Create a new Story branch from `main`; never implement directly on `main`.
 - Before implementing, resuming or finalizing a Story, synchronize its branch with current `main` and follow the version procedure below.
 - Implement and commit all child checkpoints and authorized corrections directly on that branch. Tasks/Subtasks never receive separate branches, PRs or independent Git reviews/merges.
-- The only delivery PR is the final integrated Story PR to `main`, after verification, critique and explicit human acceptance.
+- A push to a valid `ts-*` Story branch may mechanically create the Story's single PR to `main` immediately only when that exact branch has no prior PR history targeting `main`. If an open, closed, or merged PR already exists for the branch, automatic creation must not create another one. Automatic PR creation is only delivery plumbing: it does not imply verification, critique, acceptance, merge readiness or Story completion. Tasks/Subtasks still never receive separate PRs.
+
+### Delivery handoff
+
+The normal Story handoff is:
+
+```text
+implement + verify locally
+        ↓
+commit + push Story branch
+        ↓
+GitHub creates/reuses the single PR
+        ↓
+delivery maintenance + review
+        ↓
+human manually merges
+```
+
+- Automated workflows and review agents never merge a Story PR unless a human explicitly requests that action.
+- During delivery review, mechanical maintenance may be applied directly before the verdict when the correct result is unambiguous and does not change feature behavior. Examples include synchronizing compatible `main` changes, Story version recalculation, export metadata, documentation synchronization, PR metadata, and simple workflow/config reconciliation.
+- Being behind `main`, stale version metadata, or a safely resolvable maintenance conflict is not by itself a review defect.
+- Merge conflicts must be classified by substance. Resolve mechanical conflicts during delivery when the intended result is clear. If resolution requires substantive production-code changes, feature-behavior decisions, architecture changes, nontrivial logic, or implementation-related test changes, return the work to implementation on the same Story branch and re-run applicable verification before final review.
+- Review-time maintenance must preserve Jira scope, approved requirement changes, current repository invariants, and newer compatible behavior already present on `main`.
 
 ### Canonical Story version procedure
 
@@ -93,19 +115,22 @@ After completing all required children:
 
 1. Re-read the Story, children and approved changes; verify every applicable requirement.
 2. Synchronize the branch with latest `main` and resolve integration conflicts.
-3. Run `./check.ps1` from the root: restore, formatting verification, Debug/Release builds with warnings as errors, Core tests and non-native Client/transport tests.
+3. Run `./check.ps1` from the root: restore, Debug/Release builds with warnings as errors, Core tests and non-native Client/transport tests.
 4. Run additional applicable or Jira-required gameplay, network, integration, runtime, visual, UI, audio, physics and asset/license checks. Exercise actual runtime behavior when relevant and technically possible; do not substitute inspection for required observation. Run the minimal Godot project when settings, scenes or Client integration change.
 5. Confirm engineering standards, including dependency direction and absence of a Shared layer.
 6. Verify affected feature documentation against code; check links, index coverage and obsolete references.
 7. Inspect the complete Story diff against `main` for correctness, dead paths, stale identifiers, unrelated changes, generated files, build output, local configuration and debug artifacts.
 8. Report assumptions, limitations, unresolved risks and unverified behavior.
+9. Create or update the Story's historical verification report at `docs/verification/ts-<number>.md` using the Jira Story number in lowercase filename form (for example, `TS-86` → `docs/verification/ts-86.md`). Record only evidence from the current Story: materially implemented behavior/systems, verification and test commands/results actually run, applicable runtime/manual/native evidence, assumptions, limitations, unresolved risks and explicitly unverified areas. Never invent or infer a test result that was not run or observed. Add or update the Story's entry in `docs/verification/README.md`.
 
-Historical reports under `docs/verification/` do not replace these checks. Required checks must pass before the work is complete.
+The per-Story report is a historical delivery artifact, not a source of current requirements or proof that old evidence still applies. Jira, approved requirement changes, current source inspection, current CI, repository instructions and current feature documentation remain authoritative for review. Historical reports under `docs/verification/` do not replace the checks above; required current checks must pass before the work is complete.
 
 ## Critique and final PR
 
 After integrated verification, perform the applicable review in [critique](critique.md), which owns scoring, round limits and the mandatory stop for a human decision. Authorized corrections stay on the existing branch and require applicable re-verification.
 
-Only after explicit human acceptance for PR creation, perform final verification without new implementation changes. If changes become necessary, re-verify, repeat the applicable authorized critique process and obtain renewed acceptance.
+The repository may already have created the Story PR automatically when the `ts-*` branch was pushed. That early PR is only a delivery container and may initially use the branch name as its title with an empty/minimal body. Review and acceptance must still use Jira, approved changes, repository instructions, the current source/diff, current feature documentation, current CI and the Story verification report rather than trusting PR prose.
 
-Create exactly one final PR to `main`. Include the Jira key, integrated summary, verification evidence, assumptions, limitations and unresolved risks, then report its number and URL.
+After explicit human acceptance of the critique, perform final verification without new implementation changes. Delivery-time mechanical maintenance may still be applied when it does not change feature behavior; re-run the affected checks afterward. If substantive implementation changes become necessary, return to implementation on the same Story branch, re-verify, repeat the applicable authorized critique process and obtain renewed acceptance.
+
+Maintain exactly one Story PR to `main`. Before final delivery, update its title/body as useful historical documentation with the Jira key, integrated implementation summary, actual verification evidence, assumptions, limitations and unresolved risks, then report its number and URL. PR prose is history, not review authority. A human performs the final merge; automatic PR creation, passing CI, or a passing review does not merge the Story.

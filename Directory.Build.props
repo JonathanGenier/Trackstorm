@@ -1,12 +1,6 @@
 <Project>
-  <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers"
-                      Version="1.2.0-beta.556"
-                      PrivateAssets="all" />
-  </ItemGroup>
-
   <PropertyGroup>
-    <TrackstormVersion>0.1.7</TrackstormVersion>
+    <TrackstormVersion>0.1.17</TrackstormVersion>
     <Version>$(TrackstormVersion)</Version>
     <AssemblyVersion>$(TrackstormVersion).0</AssemblyVersion>
     <FileVersion>$(TrackstormVersion).0</FileVersion>

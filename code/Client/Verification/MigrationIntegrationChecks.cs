@@ -27,6 +27,8 @@ public sealed partial class MigrationIntegrationChecks : Node
     private NetworkVehicleBody? _retainedBody;
     private Core.Development.GameplayConfigurationState? _configuration;
     private ulong _randomState;
+    private Core.Matches.MatchPhase _matchPhase;
+    private ulong? _countdownAtTick;
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -195,15 +197,20 @@ public sealed partial class MigrationIntegrationChecks : Node
         {
             for (int i = 0; i < _players; i++)
             {
-                var arena = new NetworkVehicleArena();
+                var arena = new NetworkVehicleArena { ApplicationEntry = true };
                 arena.Initialize(_gateways[i], i == 1 ? _drivers[i]!.State!.Match : 0, _drivers[i]!.ServerPeer, _drivers[i], i == 1 ? _drivers[i]!.Authority!.Configuration.Configuration : new() { Vehicle = new() { Acceleration = 80 } });
                 _views[i].AddChild(arena);
                 _arenas[i] = arena;
             }
 
+            _stage = 61;
+        }
+        else if (_stage == 61 && _arenas.Take(_players).All(arena => arena!.Driver.EntryReady &&
+            arena.Driver.Match?.Phase == (_players == 2 ? Core.Matches.MatchPhase.Countdown : Core.Matches.MatchPhase.Active)))
+        {
             int nextHost = _players == 2 ? 0 : 2;
             _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, HeldItem.Wrench);
-            Require(_arenas[1]!.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 9, ["spawns.seed"] = 42, ["match.minimum_players"] = 8 }, out _), "First replacement configures normal gameplay owners.");
+            Require(_arenas[1]!.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 9, ["spawns.seed"] = 42, ["match.countdown_ticks"] = 600 }, out _), "First replacement configures normal gameplay owners.");
             _configuration = _arenas[1]!.Driver.Configuration;
             _randomState = _arenas[1]!.Driver.Host!.Spawns!.RandomState;
             _boundary = _frames;
@@ -219,6 +226,8 @@ public sealed partial class MigrationIntegrationChecks : Node
                 Require(_arenas[survivor]!.Driver.History!.Snapshots.Count == 1, "Interpolation reseeded at one boundary.");
             };
             _retiredAt[1] = TimeProvider.System.GetTimestamp();
+            _matchPhase = _arenas[1]!.Driver.Match!.Phase;
+            _countdownAtTick = _arenas[1]!.Driver.Match!.CountdownAtTick;
             _gateways[1].Stop();
             _drivers[1] = null;
             _arenas[1]!.QueueFree();
@@ -237,7 +246,8 @@ public sealed partial class MigrationIntegrationChecks : Node
             OvalGameplayAssertions.Verify(arena);
             Require(_arenas[0]!.Driver.Configuration == _configuration && arena.Driver.Configuration == _configuration, "Successive hosts retain configuration revision and ignore successor-local presets.");
             Require(arena.Driver.Host!.Spawns!.RandomState == _randomState, "Migrated RNG continuation.");
-            Require(arena.Driver.ForceDeveloperStart(), "Replacement Force Start uses the existing Waiting/countdown authority.");
+            Require(arena.Driver.Match!.Phase == _matchPhase && arena.Driver.Match.CountdownAtTick == _countdownAtTick, "Migration preserves the current phase and absolute countdown deadline.");
+            Require(!arena.Driver.ForceDeveloperStart(), "Replacement cannot restart an existing Countdown or Active phase.");
             Require(arena.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 11 }, out _), "Second replacement can edit live tuning.");
             if (_players == 3)
             {
@@ -249,6 +259,12 @@ public sealed partial class MigrationIntegrationChecks : Node
         else if (_stage == 9)
         {
             int host = _players == 2 ? 0 : 2;
+            if (!_arenas[host]!.Driver.AllowsParticipation)
+            {
+                Require(!_arenas[host]!.Driver.RequestItemUse(), "Replacement cannot use its retained item before authoritative Active.");
+                return;
+            }
+
             if (_arenas[host]!.Driver.LocalItem?.Item == HeldItem.Wrench)
             {
                 Require(_arenas[host]!.Driver.RequestItemUse(), "Normal use clears the replacement slot.");

@@ -40,7 +40,7 @@ public sealed partial class MenuIntegrationChecks
         Check(mass.Text == "9" && _session.DeveloperConfiguration == before, "native numeric typing stages text without applying configuration");
         Tap(Key.Enter);
         Check(_session.DeveloperConfiguration == before, "logical Accept in numeric editor does not Apply");
-        Buttons(_devTools.Configs).Single(button => button.Text == "Discard Changes").GrabFocus();
+        Buttons(_devTools).Single(button => button.Text == "Cancel").GrabFocus();
         Joy(JoyButton.A);
         Check(mass.Text != "9" && _session.DeveloperConfiguration == before, "controller Accept activates Discard without mutating configuration");
 
@@ -115,6 +115,12 @@ public sealed partial class MenuIntegrationChecks
 
         _player.Adapter.Bindings.RestoreDefaults();
         Tap(Key.F1);
+        await Frames(20);
+        spin.Value = spin.Value == spin.MaxValue ? spin.Value - 1 : spin.Value + 1;
+        await Frames(2);
+        var feedback = Descendants(_devTools.Configs.Footer).OfType<Label>().Single(label => label.Name == "ConfigFeedback");
+        Check(_devTools.Configs.HasUnappliedChanges, "responsive footer fixture stages a configuration change");
+        Check(feedback.Text == "Unsaved changes", "staged responsive footer fixture updates feedback text");
         ulong tick = _bootstrap.CurrentSimulationTick;
         foreach (Vector2I size in new[] { new Vector2I(640, 360), new Vector2I(1280, 720), new Vector2I(2560, 1080) })
         {
@@ -137,19 +143,67 @@ public sealed partial class MenuIntegrationChecks
                 Check(number.GetGlobalRect().End.X <= GetViewport().GetVisibleRect().End.X, "value column fits viewport");
             }
 
-            var scroll = (ScrollContainer)_devTools.Configs.GetParent().GetParent();
+            var scroll = Descendants(_devTools.Configs).OfType<ScrollContainer>().Single();
             numbers[^1].GrabFocus();
             await Frames(3);
             Check(scroll.ScrollVertical > 0, "focus follows last numeric editor through vertical scrolling");
+            Rect2 viewport = GetViewport().GetVisibleRect();
+            var reset = Buttons(_devTools).Single(button => button.Text == "Reset to Defaults");
+            var apply = Buttons(_devTools).Single(button => button.Text == "Apply Settings");
+            var cancel = Buttons(_devTools).Single(button => button.Text == "Cancel");
+            var close = Buttons(_devTools).Single(button => button.Text == "Close");
+            foreach (var button in new[] { reset, apply, cancel, close })
+            {
+                Check(button.IsVisibleInTree() && viewport.Encloses(button.GetGlobalRect()), "footer button stays inside viewport after scrolling: " + button.Text);
+                Check(button.GetGlobalRect().Position.Y >= scroll.GetGlobalRect().End.Y, "footer sits below scrolling settings");
+            }
+
+            Check(reset.GetGlobalRect().Position.X < apply.GetGlobalRect().Position.X && apply.GetGlobalRect().End.X <= cancel.GetGlobalRect().Position.X && cancel.GetGlobalRect().End.X <= close.GetGlobalRect().Position.X, "footer action order is Reset, Apply, Cancel, Close");
+            Check(feedback.IsVisibleInTree() && feedback.Text == "Unsaved changes", "footer shows persistent Unsaved changes feedback");
+            Check(feedback.GetGlobalRect().End.Y <= apply.GetGlobalRect().Position.Y + 1, "feedback remains above the persistent action row");
+            Check(feedback.GetGlobalRect().Position.X >= apply.GetGlobalRect().Position.X - 1 && feedback.GetGlobalRect().Position.X < close.GetGlobalRect().End.X, "feedback remains aligned with the Apply, Cancel and Close group");
+            var force = Buttons(_devTools).Single(button => button.Name == "ForceStart");
+            Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Name == "ForceStart"), "Force Start has no duplicate inside Configs");
+            Check(viewport.Encloses(force.GetGlobalRect()) && force.GetGlobalRect().Position.X > viewport.Size.X / 2 && force.GetGlobalRect().End.Y <= scroll.GetGlobalRect().Position.Y, "Force Start remains at the shell top-right outside Configs scrolling");
+            foreach (var button in new[] { force, reset, apply, cancel, close })
+            {
+                Check(button.Icon is not null, "DevTools action has an icon: " + button.Text);
+            }
+
+            var resetStyle = (StyleBoxFlat)reset.GetThemeStylebox("normal");
+            var applyStyle = (StyleBoxFlat)apply.GetThemeStylebox("normal");
+            var cancelStyle = (StyleBoxFlat)cancel.GetThemeStylebox("normal");
+            var closeStyle = (StyleBoxFlat)close.GetThemeStylebox("normal");
+            Check(resetStyle.BgColor == new Color("1b2027") && resetStyle.BorderColor == new Color("e24a4a") && resetStyle.BorderWidthTop > 0, "Reset uses a dark fill with red border");
+            Check(applyStyle.BgColor == new Color("238636"), "Apply Settings uses a green fill");
+            Check(cancelStyle.BgColor == new Color("b4232c"), "Cancel uses a red fill");
+            Check(closeStyle.BgColor == new Color("1f6feb"), "Close uses a blue fill");
             mass.GrabFocus();
             await Frames(3);
             await Capture($"configs-{size.X}x{size.Y}");
         }
 
+        Buttons(_devTools).Single(button => button.IsVisibleInTree() && button.Text == "Cancel").EmitSignal(BaseButton.SignalName.Pressed);
         Check(_bootstrap.CurrentSimulationTick > tick && !_bootstrap.GetTree().Paused, "simulation continues while navigating DevTools");
         GetWindow().Size = new Vector2I(1280, 720);
         Tap(Key.F2);
-        Check(_devTools.SelectedTab == DevToolsTab.Stats && !Descendants(_devTools.Stats).OfType<LineEdit>().Any(), "F2 selects read-only Stats after remapped navigation");
+        Check(_devTools.SelectedTab == DevToolsTab.Stats && Descendants(_devTools.Stats).OfType<LineEdit>().Count() == 1 && !Descendants(_devTools.Stats).OfType<Godot.Range>().Any(), "F2 selects Stats with only presentation search after remapped navigation");
+        var search = Descendants(_devTools.Stats).OfType<LineEdit>().Single();
+        using (var cancelKey = new InputEventKey { PhysicalKeycode = Key.O })
+        using (var upKey = new InputEventKey { PhysicalKeycode = Key.I })
+        using (var upButton = new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.LeftShoulder })
+        {
+            _player.Adapter.Bindings.Replace(InputAction.MenuCancel, cancelKey);
+            _player.Adapter.Bindings.Replace(InputAction.MenuUp, upKey, upButton);
+        }
+
+        search.GrabFocus();
+        Tap(Key.O);
+        Tap(Key.I);
+        Check(_devTools.IsOpen && search.HasFocus(), "printable remapped Cancel and Up remain search input");
+        Joy(JoyButton.LeftShoulder);
+        Check(!search.HasFocus(), "remapped controller navigation can leave Stats search");
+        _player.Adapter.Bindings.RestoreDefaults();
         TabBar statsTabs = Descendants(_devTools.Stats).OfType<TabContainer>().Single().GetTabBar();
         statsTabs.GrabFocus();
         Joy(JoyButton.DpadRight);

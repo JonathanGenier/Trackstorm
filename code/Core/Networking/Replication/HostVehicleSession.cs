@@ -17,6 +17,7 @@ public sealed class HostVehicleSession
     public const int SnapshotInterval = 3;
     private readonly Dictionary<ulong, (ulong Vehicle, HostInputBuffer Inputs, int SpawnSlot)> _peers = new();
     private readonly Dictionary<ulong, (HostInputBuffer Inputs, int SpawnSlot)> _disconnected = new();
+    private readonly bool _requireActiveMatch;
     private ulong _nextVehicle = 1;
     private ulong? _lastUseRejection;
 
@@ -31,8 +32,10 @@ public sealed class HostVehicleSession
     /// <param name="configurationRevision">Session configuration revision retained across arena transitions.</param>
     /// <param name="events">Optional session journal shared across arena generations.</param>
     /// <param name="arena">Scene-authored map contract; omitted only by legacy fixtures.</param>
-    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null, ulong hostPlayerId = 1, ulong configurationRevision = 0, EventStream? events = null, Arenas.ArenaConfiguration? arena = null)
+    /// <param name="requireActiveMatch">Application sessions require Active for driving and item use; isolated development fixtures may omit this policy.</param>
+    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null, ulong hostPlayerId = 1, ulong configurationRevision = 0, EventStream? events = null, Arenas.ArenaConfiguration? arena = null, bool requireActiveMatch = false)
     {
+        _requireActiveMatch = requireActiveMatch;
         ArgumentOutOfRangeException.ThrowIfZero(sessionId);
         SessionId = sessionId;
         ArgumentOutOfRangeException.ThrowIfZero(hostPlayerId);
@@ -65,14 +68,18 @@ public sealed class HostVehicleSession
     /// <summary>Current gameplay eligibility for a fresh participant.</summary>
     public bool CanJoin => World.State.Match!.Phase != Matches.MatchPhase.Finished && World.State.Match.Players.Count < Matches.MatchState.MaximumPlayers && World.State.Vehicles.Count < 8;
 
+    /// <summary>Authoritative phase permission, independent of transport readiness and vehicle life.</summary>
+    public bool AllowsParticipation => !_requireActiveMatch || World.State.Match!.Lifecycle.AllowsGameplay;
+
     /// <summary>Constructs a complete replacement off to the side; no live authority is partially mutated.</summary>
     /// <param name="checkpoint">Existing validated complete resync state.</param>
     /// <param name="continuation">Authority-only continuation.</param>
     /// <param name="host">Elected player already present in the world.</param>
     /// <param name="events">Replacement session journal, without historical gameplay replay.</param>
     /// <param name="arena">The same scene-authored contract used by the continuing peers.</param>
+    /// <param name="requireActiveMatch">Trusted composition policy, identical to the original application session.</param>
     /// <returns>Restored authority with neutral remote inputs awaiting authenticated rebind.</returns>
-    public static HostVehicleSession Restore(ResumeCheckpoint checkpoint, HostRestoreState continuation, ulong host, EventStream? events = null, Arenas.ArenaConfiguration? arena = null)
+    public static HostVehicleSession Restore(ResumeCheckpoint checkpoint, HostRestoreState continuation, ulong host, EventStream? events = null, Arenas.ArenaConfiguration? arena = null, bool requireActiveMatch = false)
     {
         var world = checkpoint.Items.World;
         if (!world.Vehicles.Any(vehicle => vehicle.State.VehicleId == host) || continuation.NextVehicle < world.Vehicles.Max(vehicle => vehicle.State.VehicleId))
@@ -87,7 +94,7 @@ public sealed class HostVehicleSession
             throw new ArgumentException("Migration tuning does not match its resume boundary.");
         }
 
-        var result = new HostVehicleSession(world.Session, configuration: tuning, hostPlayerId: host, arena: arena)
+        var result = new HostVehicleSession(world.Session, configuration: tuning, hostPlayerId: host, arena: arena, requireActiveMatch: requireActiveMatch)
         {
             Configuration = checkpoint.Configuration,
         };
@@ -227,7 +234,7 @@ public sealed class HostVehicleSession
     public bool UseItem(ulong peer, ulong session, ulong life, ulong token)
     {
         ulong vehicle = peer == 0 ? HostPlayerId : _peers.TryGetValue(peer, out var entry) ? entry.Vehicle : 0;
-        bool accepted = session == SessionId && vehicle != 0 && Items.RequestUse(World, vehicle, life, token);
+        bool accepted = AllowsParticipation && session == SessionId && vehicle != 0 && Items.RequestUse(World, vehicle, life, token);
         if (!accepted && (!_lastUseRejection.HasValue || World.State.Tick - _lastUseRejection.Value >= TickRate))
         {
             _lastUseRejection = World.State.Tick;
@@ -392,7 +399,7 @@ public sealed class HostVehicleSession
         }
 
         VehicleSnapshot state = World.GetVehicle(entry.Vehicle);
-        return entry.Inputs.Receive(!state.CanInteract || (life != 0 && life != state.LifeId)
+        return entry.Inputs.Receive(!AllowsParticipation || !state.CanInteract || (life != 0 && life != state.LifeId)
             ? inputs.Select(input => new SequencedInput(input.Sequence, default)).ToArray() : inputs);
     }
 
@@ -403,6 +410,20 @@ public sealed class HostVehicleSession
     public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null)
     {
         ulong tick = checked(World.State.Tick + 1);
+        if (!AllowsParticipation)
+        {
+            local = default;
+            foreach (var entry in _peers.Values)
+            {
+                entry.Inputs.NeutralizePending();
+            }
+
+            foreach (var vehicle in World.State.Vehicles)
+            {
+                Items.CancelPending(vehicle.VehicleId);
+            }
+        }
+
         var inputs = _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.Consume(tick));
         foreach (ulong player in _disconnected.Keys)
         {

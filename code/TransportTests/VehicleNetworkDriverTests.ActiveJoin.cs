@@ -12,13 +12,20 @@ namespace Trackstorm.Transport.Tests;
 internal sealed partial class VehicleNetworkDriverTests
 {
     /// <summary>Production drivers bootstrap fresh current state before input, then create one live vehicle.</summary>
-    [Test]
-    public void ActiveJoinBootstrapsWithoutChangingExistingWorldAndActivatesOnce()
+    /// <param name="applicationEntry">Exercise the production loading and phase participation gate.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void ActiveJoinBootstrapsWithoutChangingExistingWorldAndActivatesOnce(bool applicationEntry)
     {
         using var hostWire = new DriverGateway();
         var lobby = StartJoinHost(hostWire);
-        var host = new VehicleNetworkDriver(hostWire, lobby.State!.Match, lobby: lobby);
+        var host = new VehicleNetworkDriver(hostWire, lobby.State!.Match, lobby: lobby, applicationEntry: applicationEntry);
         host.Host!.RegisterSpawns(PrototypeArena.Configuration);
+        if (applicationEntry)
+        {
+            ReleaseEntry(hostWire, lobby, host);
+        }
+
         for (int tick = 0; tick < 190; tick++)
         {
             host.Advance(default, Observe);
@@ -36,12 +43,22 @@ internal sealed partial class VehicleNetworkDriverTests
         clientLobby.Pump(0);
         Assert.That(clientLobby.LocalPlayerId, Is.EqualTo(3));
         Assert.That(clientLobby.JoiningArena, Is.True);
-        var client = new VehicleNetworkDriver(clientWire, 0, ServerPeer, clientLobby);
+        var client = new VehicleNetworkDriver(clientWire, 0, ServerPeer, clientLobby, applicationEntry: applicationEntry);
         client.Advance(Drive(), Observe);
         Assert.That(client.IsActive, Is.False);
         Assert.That(client.Prediction, Is.Null);
         Assert.That(client.Inputs!.Pending, Is.Empty);
-        Assert.That(clientWire.Sent, Is.Empty, "No gameplay input while the complete checkpoint is delayed.");
+        if (applicationEntry)
+        {
+            Assert.That(client.AllowsParticipation, Is.False);
+            Transfer(clientWire, hostWire, ServerPeer, 50);
+            host.Advance(default, Observe);
+        }
+        else
+        {
+            Assert.That(clientWire.Sent, Is.Empty, "No gameplay input while the complete checkpoint is delayed.");
+        }
+
         Assert.That(host.Host.World.State.Vehicles.Count, Is.EqualTo(2), "Pending admission must not create a live vehicle.");
         var existing = host.Host.World.State;
 
@@ -68,6 +85,7 @@ internal sealed partial class VehicleNetworkDriverTests
         Transfer(hostWire, clientWire, 50, ServerPeer);
         client.Advance(default, Observe);
         Assert.That(client.IsActive, Is.True);
+        Assert.That(client.AllowsParticipation, Is.True);
         Assert.That(lobby.State.Players.Count, Is.EqualTo(3));
         Assert.That(host.Host.World.State.Vehicles.Select(vehicle => vehicle.VehicleId), Is.EqualTo(new ulong[] { 1, 2, 3 }));
         Assert.That(host.Host.World.State.Match!.Phase, Is.EqualTo(MatchPhase.Active));
@@ -117,6 +135,17 @@ internal sealed partial class VehicleNetworkDriverTests
         lobby.Authority.SetReady(2, true);
         Assert.That(lobby.Authority.Start(0), Is.True);
         return lobby;
+    }
+
+    private static void ReleaseEntry(DriverGateway wire, LobbyNetworkDriver lobby, VehicleNetworkDriver host)
+    {
+        foreach (byte kind in new[] { MatchEntryCodec.Loaded, MatchEntryCodec.Synchronized })
+        {
+            wire.Receive(new TransportMessage(2, ConnectionEnvelope.Encode(lobby.State!.Session, 1, MatchEntryCodec.Encode(lobby.State.Match, kind)), TransportDelivery.Reliable));
+            host.Advance(default, Observe);
+        }
+
+        Assert.That(host.EntryReady, Is.True);
     }
 
     private static void Transfer(DriverGateway from, DriverGateway to, ulong recipient, ulong sender, bool checkpoints = true)

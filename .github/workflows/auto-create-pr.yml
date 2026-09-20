@@ -1,0 +1,58 @@
+name: Auto Create Story PR
+
+on:
+  push:
+    branches:
+      - 'ts-*'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create PR when missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          branch="$GITHUB_REF_NAME"
+          repo="$GITHUB_REPOSITORY"
+
+          if [[ ! "$branch" =~ ^ts-[0-9]+-[A-Za-z0-9._-]+$ ]]; then
+            echo "Ignoring non-Story branch: $branch"
+            exit 0
+          fi
+
+          prior_pr_count="$(
+            gh pr list \
+              --repo "$repo" \
+              --head "$branch" \
+              --base main \
+              --state all \
+              --json number \
+              --jq 'length'
+          )"
+
+          if [ "$prior_pr_count" -gt 0 ]; then
+            echo "PR history already exists for $branch -> main; no new PR will be created."
+            exit 0
+          fi
+
+          ahead_by="$(
+            gh api               "repos/$repo/compare/main...$GITHUB_SHA"               --jq '.ahead_by'
+          )"
+
+          if [ "$ahead_by" -le 0 ]; then
+            echo "$branch is not ahead of main; no PR created."
+            exit 0
+          fi
+
+          gh pr create             --repo "$repo"             --base main             --head "$branch"             --title "$branch"             --body ""
+
+          echo "Created PR for $branch."

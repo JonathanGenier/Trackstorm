@@ -38,6 +38,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
         _coordinator = new OnlineLobbyCoordinator(_provider, new OnlineProductUserId(new string('1', 32)));
         _session = new DevelopmentSession { OnlineCoordinator = () => _online ? _coordinator : null, OnlineStatus = () => _online ? EosLobbyStatus.Connected : _identityStates[_stage + 7], OnlineLogin = () => _loginRequests++ };
         AddChild(_session);
+        Press("Browse online lobbies");
     }
 
     /// <inheritdoc />
@@ -123,9 +124,16 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     Edit("Lobby name").Text = "My Game";
                     break;
                 case 6:
+                    _provider.DeferCreate = true;
                     Press("Host Game");
+                    Require(_session.Stage == ApplicationStage.Admission && _session.Lobby is null, "Creating must wait for authoritative admission.");
                     break;
                 case 7:
+                    Require(_session.Stage == ApplicationStage.Admission && Controls<Label>().Any(label => label.IsVisibleInTree() && label.Text.StartsWith("JOINING / CREATING", StringComparison.Ordinal)), "Pending creation has visible progress.");
+                    _provider.CompleteCreate!();
+                    _provider.CompleteCreate = null;
+                    Require(_session.Stage == ApplicationStage.Admission && _session.Lobby is null, "EOS membership alone cannot enter the joined Lobby.");
+                    Controls<OnlineLobbyPanel>().Single()._Process(0);
                     Require(_coordinator.IsHost, "Host control failed.");
                     Edit("Lobby name").Text = "Renamed Game";
                     Press("Rename lobby");
@@ -335,7 +343,14 @@ public sealed partial class OnlineLobbyUiChecks : Node
         public void Create(OnlineLobby lobby, Action<OnlineLobby?, string?> completed)
         {
             _active = lobby with { Id = "hosted", Owner = _local };
-            completed(_active, null);
+            if (DeferCreate)
+            {
+                CompleteCreate = () => completed(_active, null);
+            }
+            else
+            {
+                completed(_active, null);
+            }
         }
 
         public void Join(string id, Action<OnlineLobby?, string?> completed) => Search((rows, _) =>

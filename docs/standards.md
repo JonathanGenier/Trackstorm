@@ -33,7 +33,7 @@ Apply only the sections relevant to a change. Keep work scoped and do not introd
 - Use one primary type per file and the narrowest practical visibility.
 - Organize members consistently: fields, constructors/initialization, events, properties, then methods when those categories are present.
 - Public fields are not permitted. XML summaries identify intentional APIs and non-obvious types or members.
-- Enable nullable reference types and implicit usings. `Directory.Build.props` supplies StyleCop; `.editorconfig` owns formatting and analyzer severity preferences.
+- Enable nullable reference types and implicit usings. `.editorconfig` may define non-blocking editor formatting preferences.
 - Gameplay failures should use explicit results where appropriate; exceptions represent programmer errors or broken invariants.
 
 ## Verification routing

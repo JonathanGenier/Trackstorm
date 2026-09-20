@@ -38,6 +38,8 @@ internal sealed class DeveloperSettingsStore
     internal GameplayConfiguration Current { get; private set; }
     /// <summary>Safe persistence status without file contents or credentials.</summary>
     internal string Status { get; private set; } = string.Empty;
+    /// <summary>Whether the last save succeeded, so an editor can keep failure feedback visible.</summary>
+    internal bool LastSaveSucceeded { get; private set; } = true;
 
     /// <summary>Called only by host composition; the joined client's file never enters its driver.</summary>
     /// <returns>Most recent accepted host tuning.</returns>
@@ -57,11 +59,13 @@ internal sealed class DeveloperSettingsStore
             File.WriteAllText(temporary, text, new UTF8Encoding(false));
             File.Move(temporary, _path, true);
             Status = "Host tuning saved.";
+            LastSaveSucceeded = true;
             return true;
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidOperationException)
         {
             Status = "Applied for this session; saving failed. Press Apply Settings to retry.";
+            LastSaveSucceeded = false;
             return false;
         }
     }

@@ -10,7 +10,7 @@ using Trackstorm.Core.Vehicles;
 namespace Trackstorm.Client.Networking;
 
 /// <summary>Connects the transport's byte seam to Core authority/prediction at fixed tick boundaries.</summary>
-internal sealed class VehicleNetworkDriver
+internal sealed class VehicleNetworkDriver : IDisposable
 {
     private readonly ITransportGateway _gateway;
     private readonly ulong _serverPeer;
@@ -18,6 +18,9 @@ internal sealed class VehicleNetworkDriver
     private readonly HashSet<ulong> _preparedJoins = new();
     private readonly LobbyNetworkDriver? _lobby;
     private readonly Trackstorm.Core.Arenas.ArenaConfiguration? _arena;
+    private readonly bool _applicationEntry;
+    private readonly HashSet<ulong> _entryPrepared = new();
+    private readonly HashSet<ulong> _entrySynchronized = new();
     private InputHistory? _inputs;
     private ulong _session;
     private double _snapshotAge;
@@ -32,6 +35,12 @@ internal sealed class VehicleNetworkDriver
     private GameplayConfigurationState _configuration = new(0, new());
     private ulong? _publishedConfiguration;
     private bool _receivedConfiguration;
+    private bool _entryReleased;
+    private double _entrySeconds;
+    private double _entryRequestSeconds;
+    private bool _disposed;
+    private readonly Func<bool>? _admissionOpen;
+    private readonly Func<ulong, bool>? _activateJoin;
 
     /// <summary>Creates a host or connects a client driver to an already-open transport.</summary>
     /// <param name="gateway">Caller-owned transport.</param>
@@ -41,8 +50,11 @@ internal sealed class VehicleNetworkDriver
     /// <param name="damageConfiguration">Optional arena vehicle capacity.</param>
     /// <param name="configuration">Validated effective gameplay tuning.</param>
     /// <param name="arena">Active map's validated player and optional pickup markers.</param>
-    internal VehicleNetworkDriver(ITransportGateway gateway, ulong hostSession, ulong serverPeer = 0, LobbyNetworkDriver? lobby = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null, Trackstorm.Core.Arenas.ArenaConfiguration? arena = null)
+    /// <param name="applicationEntry">Require the application loading barrier before simulation.</param>
+    internal VehicleNetworkDriver(ITransportGateway gateway, ulong hostSession, ulong serverPeer = 0, LobbyNetworkDriver? lobby = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null, Trackstorm.Core.Arenas.ArenaConfiguration? arena = null, bool applicationEntry = false)
     {
+        _applicationEntry = applicationEntry;
+        _entryReleased = !applicationEntry || (hostSession == 0 && lobby?.NeedsArenaCheckpoint == true);
         _arena = arena;
         _lobby = lobby;
         _gateway = gateway;
@@ -57,15 +69,16 @@ internal sealed class VehicleNetworkDriver
                 revision = checked(revision + 1);
             }
 
-            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, configuration: configuration ?? sessionConfiguration?.Configuration, hostPlayerId: lobby?.LocalPlayerId ?? 1, configurationRevision: revision, events: lobby?.Authority?.Events, arena: _arena);
+            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, configuration: configuration ?? sessionConfiguration?.Configuration, hostPlayerId: lobby?.LocalPlayerId ?? 1, configurationRevision: revision, events: lobby?.Authority?.Events, arena: _arena, requireActiveMatch: applicationEntry);
             lobby?.Authority?.RetainConfiguration(Host.Configuration);
             LocalVehicleId = Host.HostPlayerId;
         }
 
         if (lobby is not null)
         {
-            lobby.ArenaAdmissionOpen = () => Host?.CanJoin == true && IsActive;
-            lobby.ActivateJoin = peer =>
+            _admissionOpen = () => Host?.CanJoin == true && EntryReady && IsActive;
+            lobby.ArenaAdmissionOpen = _admissionOpen;
+            _activateJoin = peer =>
             {
                 if (Host is null || !_preparedJoins.Contains(peer) || !Host.ActivateJoin(peer, lobby.Authority!.PlayerId(peer)))
                 {
@@ -73,16 +86,18 @@ internal sealed class VehicleNetworkDriver
                 }
 
                 _preparedJoins.Remove(peer);
+                _entrySynchronized.Add(peer);
                 _assigned.Add(peer);
                 _rosterChanged = true;
                 return true;
             };
+            lobby.ActivateJoin = _activateJoin;
             if (lobby.Migration is not null)
             {
                 lobby.Migration.CaptureArena = CaptureMigration;
                 lobby.Migration.MapConfiguration = _arena;
                 lobby.Migration.RestoreArena = RestoreMigration;
-                lobby.Migration.ObservedTick = () => Host?.World.State.Tick ?? Latest?.Tick ?? 0;
+                lobby.Migration.ObservedTick = GetObservedTick;
             }
 
             if (lobby.State?.Phase != SessionPhase.Arena)
@@ -93,7 +108,7 @@ internal sealed class VehicleNetworkDriver
             _session = lobby.State.Match;
             LocalVehicleId = lobby.LocalPlayerId;
             _generation = lobby.Generation;
-            _awaitingCheckpoint = Host is null && lobby.NeedsArenaCheckpoint;
+            _awaitingCheckpoint = Host is null && (applicationEntry || lobby.NeedsArenaCheckpoint);
             if (Host is not null)
             {
                 foreach (var peer in lobby.Authority!.Peers)
@@ -140,6 +155,8 @@ internal sealed class VehicleNetworkDriver
     internal GameplayConfigurationState Configuration => Host?.Configuration ?? _configuration;
     /// <summary>Latest reliable match state, independent of movement snapshot ordering.</summary>
     internal MatchState? Match { get; private set; }
+    /// <summary>Core-completed results for this arena generation; no presentation-side ranking or scoring.</summary>
+    internal FinalMatchResults? FinalResults => Match?.FinalResults;
     /// <summary>Authoritative native prop observation seam, absent in flat-ground vehicle unit tests.</summary>
     internal Func<IReadOnlyList<VehiclePhysicsState>>? ObserveProps { get; set; }
     /// <summary>Latest accepted complete prop publication.</summary>
@@ -173,9 +190,18 @@ internal sealed class VehicleNetworkDriver
     /// <summary>Explicit stopped-session diagnostic, empty during normal operation.</summary>
     internal string Failure { get; private set; } = string.Empty;
     /// <summary>Whether this arena generation still belongs to the live lobby.</summary>
-    internal bool IsActive => _lobby is null || (_lobby.Failure.Length == 0 && !_lobby.Reconnecting && !_lobby.JoiningArena && _lobby.Migration?.Frozen != true && !_awaitingCheckpoint && _lobby.State?.Phase == SessionPhase.Arena && _lobby.State.Match == _session);
+    internal bool IsActive => !_disposed && (_lobby is null || ((!_applicationEntry || _entryReleased) && _lobby.Failure.Length == 0 && !_lobby.Reconnecting && !_lobby.JoiningArena && _lobby.Migration?.Frozen != true && !_awaitingCheckpoint && _lobby.State?.Phase == SessionPhase.Arena && _lobby.State.Match == _session));
     /// <summary>Current local gameplay state, independent of render smoothing.</summary>
     internal VehicleSnapshot? LocalState => Host?.World.GetVehicle(LocalVehicleId) ?? Prediction?.State;
+    /// <summary>Completed application handoff; absent throughout local loading or authoritative recovery.</summary>
+    internal SynchronizedMatchContext? EntryContext { get; private set; }
+    /// <summary>Whether presentation may expose this completely initialized match.</summary>
+    internal bool EntryReady => !_disposed && (!_applicationEntry || (EntryContext is not null && IsActive));
+
+    /// <summary>Local controls require synchronization and the accepted authoritative phase, never a local countdown.</summary>
+    internal bool AllowsParticipation => Failure.Length == 0 && IsActive && EntryReady &&
+        (!_applicationEntry || (Host?.World.State.Match ?? Match)?.Lifecycle.AllowsGameplay == true);
+
     private ulong ServerPeer => _lobby?.ServerPeer ?? _serverPeer;
 
     /// <summary>Pumps transport, consumes authority updates, predicts immediately, and emits rate-limited snapshots.</summary>
@@ -183,6 +209,11 @@ internal sealed class VehicleNetworkDriver
     /// <param name="observe">Synchronous native or deterministic test collision seam.</param>
     internal void Advance(InputFrame input, Func<VehicleSnapshot, VehicleObservation> observe)
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         if (_lobby is not null)
         {
             _lobby.Pump(1.0 / HostVehicleSession.TickRate, message => Receive(message, observe));
@@ -198,6 +229,7 @@ internal sealed class VehicleNetworkDriver
                     SynchronizePeers();
                 }
 
+                EntryContext = null;
                 _awaitingCheckpoint = Host is null && (_awaitingCheckpoint || _lobby.Reconnecting || _lobby.NeedsArenaCheckpoint);
                 return;
             }
@@ -231,6 +263,11 @@ internal sealed class VehicleNetworkDriver
         }
 
         if (Failure.Length > 0)
+        {
+            return;
+        }
+
+        if (_applicationEntry && !AdvanceEntry())
         {
             return;
         }
@@ -329,8 +366,14 @@ internal sealed class VehicleNetworkDriver
                 }
             }
         }
-        else if (!_awaitingCheckpoint && _lobby?.JoiningArena != true && Inputs is InputHistory inputs)
+        else if ((!_applicationEntry || EntryReady) && !_awaitingCheckpoint && _lobby?.JoiningArena != true && Inputs is InputHistory inputs)
         {
+            if (!AllowsParticipation)
+            {
+                input = default;
+                inputs.NeutralizePending();
+            }
+
             if ((input.Pressed & InputButtons.UseItem) != 0)
             {
                 RequestItemUse();
@@ -391,7 +434,7 @@ internal sealed class VehicleNetworkDriver
     internal bool RequestItemUse()
     {
         ItemSlot? slot = LocalItem;
-        if (!IsActive || Failure.Length > 0 || LocalState?.CanInteract != true || slot is null || slot.Item == HeldItem.None)
+        if (!AllowsParticipation || LocalState?.CanInteract != true || slot is null || slot.Item == HeldItem.None)
         {
             return false;
         }
@@ -446,6 +489,8 @@ internal sealed class VehicleNetworkDriver
         }
 
         _preparedJoins.IntersectWith(connected);
+        _entryPrepared.IntersectWith(connected);
+        _entrySynchronized.IntersectWith(connected);
 
         foreach (ulong peer in _assigned.Except(connected).ToArray())
         {
@@ -478,6 +523,11 @@ internal sealed class VehicleNetworkDriver
                 ulong player = _lobby.Authority!.PlayerId(peer);
                 if (_lobby.Authority.IsPendingJoin(peer))
                 {
+                    if (_applicationEntry && !_entryPrepared.Contains(peer))
+                    {
+                        continue;
+                    }
+
                     if (_preparedJoins.Add(peer))
                     {
                         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, Host!.World.State.Tick, ObserveProps());
@@ -495,6 +545,7 @@ internal sealed class VehicleNetworkDriver
                 if (Host!.ResumePlayer(peer, player))
                 {
                     _assigned.Add(peer);
+                    _entryPrepared.Add(peer);
                     SendCheckpoint(peer);
                 }
 
@@ -513,6 +564,64 @@ internal sealed class VehicleNetworkDriver
             Send(new TransportMessage(peer, VehicleNetworkCodec.EncodeWelcome(_session, vehicle), TransportDelivery.Reliable));
         }
     }
+
+    /// <summary>Releases match-scoped state and callbacks without closing transport or changing session reservations.</summary>
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        if (_lobby is not null)
+        {
+            if (_lobby.ActivateJoin == _activateJoin)
+            {
+                _lobby.ActivateJoin = null;
+            }
+
+            if (_lobby.ArenaAdmissionOpen == _admissionOpen)
+            {
+                _lobby.ArenaAdmissionOpen = null;
+            }
+
+            if (_lobby.Migration is { } migration && migration.CaptureArena == CaptureMigration)
+            {
+                migration.CaptureArena = null;
+                migration.RestoreArena = null;
+                migration.ObservedTick = null;
+                migration.MapConfiguration = null;
+            }
+        }
+
+        Host = null;
+        Match = null;
+        EntryContext = null;
+        Prediction = null;
+        History = null;
+        Latest = null;
+        ItemState = null;
+        PropSnapshot = null;
+        _inputs = null;
+        _assigned.Clear();
+        _preparedJoins.Clear();
+        _entryPrepared.Clear();
+        _entrySynchronized.Clear();
+        ObserveProps = null;
+        CollideMissile = null;
+        ObservePickups = null;
+        RosterChanged = null;
+        LocalCorrected = null;
+        PropsReceived = null;
+        ItemsReceived = null;
+        LifecycleReceived = null;
+        MatchReceived = null;
+        Resynchronized = null;
+        ConfigurationChanged = null;
+    }
+
+    private ulong GetObservedTick() => Host?.World.State.Tick ?? Latest?.Tick ?? 0;
 
     private (ResumeCheckpoint Arena, HostRestoreState Host) CaptureMigration()
     {
@@ -534,11 +643,13 @@ internal sealed class VehicleNetworkDriver
 
         _assigned.Clear();
         _preparedJoins.Clear();
+        _entryPrepared.Clear();
+        _entrySynchronized.Clear();
         _awaitingCheckpoint = true;
         // A new authority epoch may restore an older complete configuration boundary.
         _receivedConfiguration = false;
         _publishedConfiguration = null;
-        Host = host ? HostVehicleSession.Restore(checkpoint.Arena, checkpoint.Host!, _lobby!.LocalPlayerId, _lobby.Authority!.Events, _arena) : null;
+        Host = host ? HostVehicleSession.Restore(checkpoint.Arena, checkpoint.Host!, _lobby!.LocalPlayerId, _lobby.Authority!.Events, _arena, requireActiveMatch: _applicationEntry) : null;
         _itemPublication = checkpoint.Arena.Items.Revision;
         _publishedItemRevision = ulong.MaxValue;
         _publishedSpawnRevision = ulong.MaxValue;
@@ -593,6 +704,7 @@ internal sealed class VehicleNetworkDriver
         _snapshotAge = 0;
         _generation = _lobby.Generation;
         _awaitingCheckpoint = false;
+        EntryContext = null;
         Failure = string.Empty;
         RosterChanged?.Invoke(world);
         Resynchronized?.Invoke(world);
@@ -605,6 +717,117 @@ internal sealed class VehicleNetworkDriver
         }
 
         _lobby.CompleteResume();
+        if (_applicationEntry && Host is null)
+        {
+            Send(new TransportMessage(ServerPeer, MatchEntryCodec.Encode(_session, MatchEntryCodec.Synchronized), TransportDelivery.Reliable));
+        }
+    }
+
+    private bool AdvanceEntry()
+    {
+        if (EntryContext is not null && IsActive)
+        {
+            return true;
+        }
+
+        _entrySeconds += 1.0 / HostVehicleSession.TickRate;
+        if (_entrySeconds > 30)
+        {
+            Failure = "Match loading or synchronization timed out. Return to the browser and retry.";
+            return false;
+        }
+
+        if (Host is not null && !_entryReleased)
+        {
+            var peers = _lobby!.Authority!.Peers.Keys.ToArray();
+            if (peers.Any(peer => !_entrySynchronized.Contains(peer)))
+            {
+                return false;
+            }
+
+            var context = new SynchronizedMatchContext(_session, Host.World.State.Tick, Host.World.State.Vehicles.Select(vehicle => vehicle.VehicleId));
+            if (!Host.World.InitializeMatch(context))
+            {
+                Failure = "The Game Loop rejected match initialization.";
+                return false;
+            }
+
+            EntryContext = context;
+            _entryReleased = true;
+            foreach (ulong peer in peers)
+            {
+                Send(new TransportMessage(peer, MatchEntryCodec.Encode(_session, MatchEntryCodec.Released), TransportDelivery.Reliable));
+            }
+        }
+
+        if (Host is null && _awaitingCheckpoint)
+        {
+            _entryRequestSeconds -= 1.0 / HostVehicleSession.TickRate;
+            if (_entryRequestSeconds <= 0)
+            {
+                _entryRequestSeconds = 0.5;
+                Send(new TransportMessage(ServerPeer, MatchEntryCodec.Encode(_session, MatchEntryCodec.Loaded), TransportDelivery.Reliable));
+            }
+
+            return false;
+        }
+
+        if (!_entryReleased || !IsActive)
+        {
+            return false;
+        }
+
+        var world = Host?.Snapshot() ?? Latest;
+        if (world is null || (Host is null && (Match is null || ItemState is null || !_receivedConfiguration || Prediction is null)))
+        {
+            return false;
+        }
+
+        EntryContext ??= new SynchronizedMatchContext(_session, world.Tick, world.Vehicles.Select(vehicle => vehicle.State.VehicleId));
+        _entrySeconds = 0;
+        return true;
+    }
+
+    private void ReceiveEntry(TransportMessage message)
+    {
+        if (!_applicationEntry || _lobby is null || message.Delivery != TransportDelivery.Reliable)
+        {
+            throw new ArgumentException("Match entry requires an admitted reliable session.");
+        }
+
+        byte kind = MatchEntryCodec.Decode(message.Payload.Span, _session);
+        if (Host is not null)
+        {
+            ulong peer = message.RemotePeerId;
+            if (!_lobby.Authority!.Peers.ContainsKey(peer))
+            {
+                throw new ArgumentException("Unknown loading participant.");
+            }
+
+            if (kind == MatchEntryCodec.Loaded)
+            {
+                if (_entryPrepared.Add(peer) && !_lobby.Authority.IsPendingJoin(peer) && _assigned.Contains(peer))
+                {
+                    SendCheckpoint(peer);
+                }
+            }
+            else if (kind == MatchEntryCodec.Synchronized && _entryPrepared.Contains(peer))
+            {
+                _entrySynchronized.Add(peer);
+            }
+            else
+            {
+                throw new ArgumentException("Unauthorized loading acknowledgement.");
+            }
+        }
+        else if (message.RemotePeerId == ServerPeer && kind == MatchEntryCodec.Released && !_awaitingCheckpoint)
+        {
+            _entryReleased = true;
+        }
+        else
+        {
+            throw new ArgumentException("Only the established host can release synchronization.");
+        }
     }
 
     private bool AcceptSnapshot(WorldSnapshot snapshot, Func<VehicleSnapshot, VehicleObservation> observe)
@@ -649,6 +872,17 @@ internal sealed class VehicleNetworkDriver
 
         try
         {
+            if (MatchEntryCodec.IsEntry(message.Payload.Span))
+            {
+                ReceiveEntry(message);
+                return;
+            }
+
+            if (_applicationEntry && Host is not null && (!_entryReleased || !_entrySynchronized.Contains(message.RemotePeerId)))
+            {
+                throw new ArgumentException("Gameplay is unavailable during match synchronization.");
+            }
+
             if (GameplayConfigurationCodec.IsConfiguration(message.Payload.Span))
             {
                 if (Host is not null || message.RemotePeerId != ServerPeer || message.Delivery != TransportDelivery.Reliable)
@@ -710,6 +944,11 @@ internal sealed class VehicleNetworkDriver
                 }
 
                 Match = publication.State;
+                if (_applicationEntry && !Match.Lifecycle.AllowsGameplay)
+                {
+                    Inputs?.NeutralizePending();
+                }
+
                 MatchReceived?.Invoke(Match);
                 return;
             }

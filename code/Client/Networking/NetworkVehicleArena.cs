@@ -30,6 +30,10 @@ internal sealed partial class NetworkVehicleArena : Node3D
     internal ItemSpawnConfiguration? SpawnConfiguration { get; init; }
     /// <summary>Explicit old-map fixture for prop/pickup regressions; never enabled by application loading.</summary>
     internal bool PrototypeMapForVerification { get; init; }
+    /// <summary>Selected scene retained by the dedicated match loader.</summary>
+    internal PackedScene? PreparedMap { get; init; }
+    /// <summary>Application sessions require complete synchronization before simulation.</summary>
+    internal bool ApplicationEntry { get; init; }
     /// <summary>Actual loaded map, independent of session systems.</summary>
     internal Node3D Map { get; private set; } = null!;
     /// <summary>Scene-derived marker contract used for initial spawns, respawns and migration.</summary>
@@ -58,6 +62,9 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private IReadOnlyList<RigidBody3D> Props => _layout?.Props ?? Array.Empty<RigidBody3D>();
 
     /// <inheritdoc/>
+    public override void _ExitTree() => _driver?.Dispose();
+
+    /// <inheritdoc/>
     public override void _Ready()
     {
         // Network visuals already interpolate and smooth corrections explicitly.
@@ -80,6 +87,11 @@ internal sealed partial class NetworkVehicleArena : Node3D
         }
 
         AddChild(Map);
+        foreach (var prop in Props)
+        {
+            prop.Freeze = ApplicationEntry || _driver.Host is null;
+        }
+
         AddChild(_items);
         AddChild(_destruction);
         AddChild(_audio);
@@ -154,6 +166,11 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        if (ApplicationEntry && !_driver.EntryReady)
+        {
+            return;
+        }
+
         if (_driver.Latest is { } world)
         {
             _audio.Follow(world.Vehicles.Select(vehicle => vehicle.State), id => _bodies[id].VisualPosition, world.Tick);
@@ -226,7 +243,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     internal void Initialize(ITransportGateway gateway, ulong session, ulong serverPeer, LobbyNetworkDriver? lobby = null, Core.Development.GameplayConfiguration? configuration = null)
     {
         _lobby = lobby;
-        if (PrototypeMapForVerification)
+        if (PrototypeMapForVerification || lobby?.State?.Map == Core.Sessions.MatchMap.OldMap)
         {
             _layout = new Arenas.CombatArena { Name = "PrototypeArena" };
             Map = _layout;
@@ -234,11 +251,11 @@ internal sealed partial class NetworkVehicleArena : Node3D
         }
         else
         {
-            Map = Arenas.ActiveMap.Load();
+            Map = PreparedMap?.Instantiate<Node3D>() ?? Arenas.ActiveMap.Load();
             MapConfiguration = Arenas.ActiveMap.ReadConfiguration(Map);
         }
 
-        _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby, configuration: configuration ?? Core.Development.GameplayConfiguration.HostedDefaults, arena: MapConfiguration);
+        _driver = new VehicleNetworkDriver(gateway, session, serverPeer, lobby, configuration: configuration ?? Core.Development.GameplayConfiguration.HostedDefaults, arena: MapConfiguration, applicationEntry: ApplicationEntry);
         _driver.ConfigurationChanged += accepted =>
         {
             foreach (var body in _bodies.Values)

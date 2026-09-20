@@ -54,6 +54,9 @@ public sealed class Simulation
     /// </summary>
     public SimulationState State { get; private set; }
 
+    /// <summary>Completed application handoff for a newly initialized match.</summary>
+    public Matches.SynchronizedMatchContext? MatchEntry { get; private set; }
+
     /// <summary>
     /// Consumes one ordered logical input frame and advances the simulation by exactly one tick.
     /// </summary>
@@ -66,6 +69,30 @@ public sealed class Simulation
     {
         Step(input, Array.Empty<VehicleStepRequest>());
         return State;
+    }
+
+    /// <summary>Hands completed application loading into the existing Game Loop initialization contract.</summary>
+    /// <param name="context">Trusted completed loading/synchronization boundary.</param>
+    /// <returns>Whether initialization was accepted without replacing live match rules.</returns>
+    public bool InitializeMatch(Matches.SynchronizedMatchContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        if (MatchEntry is not null || State.Tick != 0 || context.Tick != State.Tick || State.Match?.Phase != Matches.MatchPhase.Waiting ||
+            !context.Participants.ToHashSet().SetEquals(State.Vehicles.Select(vehicle => vehicle.VehicleId)))
+        {
+            return false;
+        }
+
+        // Initialize once, then transfer the immutable boundary to the existing atomic match adapter.
+        // The adapter remains the sole phase owner; no parallel GameLoop is advanced.
+        var entry = new Matches.GameLoop(true);
+        if (!entry.Initialize(context))
+        {
+            return false;
+        }
+
+        MatchEntry = entry.Context;
+        return true;
     }
 
     /// <summary>Registers vehicle gameplay ownership before the first simulation tick.</summary>
