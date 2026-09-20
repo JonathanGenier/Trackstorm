@@ -18,7 +18,7 @@ Configuration actions and their feedback disappear on Stats and Logs and for non
 
 ## Authority and runtime application
 
-Core `GameplayConfiguration` composes the existing vehicle, damage, item, spawn, respawn and match records. `GameplayOptions` is the explicit 62-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
+Core `GameplayConfiguration` composes the existing vehicle, damage, item, spawn, respawn and match records. `GameplayOptions` is the explicit 75-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
 
 Live scalar tuning additionally rejects positive values below 0.0001: subnormal mass/axle lengths can overflow fixed-step divisions despite passing older positive-only checks. Zero remains allowed where the owning rule explicitly supports it. Collision/respawn timers are bounded to one hour and the simulation clock remains fixed at 60 Hz.
 
@@ -30,7 +30,7 @@ Native `NetworkVehicleBody` observation receives the same configuration as Core 
 
 ## Replication and recovery
 
-The reliable version-two `TC` message carries arena generation, configuration revision and all 62 values (517 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
+The reliable version-three `TC` message carries arena generation, configuration revision and all 75 values (621 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
 
 The host sends configuration before its reliable world boundary on admission or edits. Version-six `TS` world snapshots include the configuration revision; clients reject world/item boundaries for a different revision, preventing mismatched simulation. Subsequent unreliable snapshots recover normal movement after an ordered tuning change. EOS lobby metadata does not store gameplay tuning. Discovery compatibility is `trackstorm-lobby-9`.
 
@@ -65,7 +65,24 @@ Host-local schema 2 migrates the old default wheelbase, load height and suspensi
 | `items.explosion_radius` | `ItemConfiguration.ExplosionRadius` | 12 |
 | `items.maximum_damage` | `ItemConfiguration.MaximumDamage` | 300 |
 
-The other 45 persisted values already match this preset, including HP, surfaces, item spawning, respawn and match rules. The complete stable-key ownership map below applies to all 59 values. Decimal float literals retain the exact binary32 values represented by persisted JSON doubles; no tolerance or approximate tuning is used. `ReleaseDefaultsTests` checks every approved numeric value exactly and verifies validation, persistence and network round trips.
+The other 61 persisted values already match this preset, including HP, surfaces, item spawning, respawn and match rules. The complete stable-key ownership map below applies to all 75 values. Decimal float literals retain the exact binary32 values represented by persisted JSON doubles; no tolerance or approximate tuning is used. `ReleaseDefaultsTests` checks every approved numeric value exactly and verifies validation, persistence and network round trips.
+
+### Circus stunt tuning
+
+The `Circus stunts` group extends the existing allowlist, host validation, Apply/Cancel/Reset, schema-two host persistence, complete reliable configuration and checkpoint/migration paths. Missing saved keys use defaults. Fractional match/scoring properties retain binary64 precision in the editor; vehicle properties retain their owning binary32 semantics, so default/dirty comparisons do not narrow scoring thresholds accidentally.
+
+| Key suffix under `match.` | Default | Effect |
+| --- | --- | --- |
+| `drift_minimum_speed` | 5 | Minimum observed horizontal m/s for physical sliding |
+| `drift_minimum_seconds` | 0.25 | Minimum uninterrupted duration to bank a supported drift exit |
+| `drift_rate`, `drift_tier_step`, `drift_tier_seconds` | 5, 5, 2 | Initial points/s, added points/s per tier and uninterrupted seconds per tier |
+| `airtime_minimum_seconds` | 0.25 | Minimum flight duration for Airtime and Long Jump landing awards |
+| `airtime_rate`, `airtime_tier_step`, `airtime_tier_seconds` | 5, 5, 2 | Independent airborne rate escalation |
+| `stunt_maximum_tier` | 4 | Maximum additional tiers for both sustained categories |
+| `jump_points_per_metre` | 2 | Horizontal takeoff-to-landing conversion |
+| `top_speed_enter_ratio`, `top_speed_exit_ratio` | 0.95, 0.92 | Fractions of registered forward cap; exit must be below entry |
+
+Points/rates are finite 0–1,000,000; tier count is integer 1–100; qualification/tier seconds are 0.01–60; drift minimum speed is 0.1–65 m/s; speed ratios are 0.5–1 with strict hysteresis ordering. Top Speed's 5 base points/s is a fixed requirement. The [stunt contract](matches.md#circus-stunt-detection-and-banking) defines completion, cancellation and live-edit semantics. `StuntScoringTests`, `ResumeCheckpointTests` and the native harness described there exercise actual scoring effects; the existing Developer Options runtime harness applies every catalog key through the production UI and UDP replication.
 
 ## Actions and diagnostics
 

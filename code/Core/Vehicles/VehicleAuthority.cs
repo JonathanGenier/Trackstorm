@@ -22,6 +22,8 @@ internal sealed class VehicleAuthority
         Snapshot = new VehicleSnapshot(id, 1, new VehicleState(0, initial, false, false, 0, 0), new VehicleHealth(damage).State, initial);
     }
 
+    internal VehicleConfiguration MovementConfiguration => _movementConfiguration;
+
     /// <summary>Last committed aggregate.</summary>
     internal VehicleSnapshot Snapshot { get; private set; }
 

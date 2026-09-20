@@ -13,12 +13,14 @@ public sealed class GameplayOption
     /// <param name="integral">Whether fractional values are forbidden.</param>
     /// <param name="get">Typed accessor into the owning configuration.</param>
     /// <param name="set">Typed immutable candidate update.</param>
-    internal GameplayOption(string key, string group, string label, bool integral, Func<GameplayConfiguration, double> get, Func<GameplayConfiguration, double, GameplayConfiguration> set)
+    /// <param name="doublePrecision">Whether a fractional owning property uses binary64 rather than binary32.</param>
+    internal GameplayOption(string key, string group, string label, bool integral, Func<GameplayConfiguration, double> get, Func<GameplayConfiguration, double, GameplayConfiguration> set, bool doublePrecision = false)
     {
         Key = key;
         Group = group;
         Label = label;
         Integral = integral;
+        DoublePrecision = doublePrecision;
         _get = get;
         _set = set;
     }
@@ -31,6 +33,8 @@ public sealed class GameplayOption
     public string Label { get; }
     /// <summary>Whether this setting requires an integer.</summary>
     public bool Integral { get; }
+    /// <summary>Whether fractional editor values retain binary64 precision.</summary>
+    public bool DoublePrecision { get; }
     /// <summary>Whether this setting has exactly two possible values.</summary>
     public bool Boolean => Key == "respawn.clear_held_item_on_death";
 

@@ -72,3 +72,5 @@ Native resume verification uses the [active oval](oval-map.md), retaining zero p
 [Feature index](README.md)
 
 The [Event Log](event-log.md) retains its sequence watermark during in-process resume. A new transport receives events from its reconnect admission onward, without replaying older gameplay; the original host timestamps and sequence identities survive replication.
+
+Complete match checkpoints also carry sparse [pending stunt state](matches.md#circus-stunt-detection-and-banking), including independent amounts/durations and jump origin in the owning life/tick. Resume/rebind does not award or reset those events. A disconnected vehicle continues to accrue, complete or lose stunts through normal host simulation. Admission previews preserve existing pending events and give new identities empty state; permanent abandonment discards only the removed vehicle's pending events.

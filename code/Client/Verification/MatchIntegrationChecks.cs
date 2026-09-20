@@ -33,6 +33,7 @@ public sealed partial class MatchIntegrationChecks : Node
     private int _cleanupFrames;
     private bool _captured;
     private Core.Matches.MatchState? _final;
+    private readonly Dictionary<ulong, Core.Matches.MatchState> _publishedMatches = new();
     private bool _nonlethal;
     private ulong _collisionStart;
 
@@ -89,6 +90,15 @@ public sealed partial class MatchIntegrationChecks : Node
             int peerIndex = index;
             arena.Driver.MatchReceived += match =>
             {
+                if (peerIndex == 0)
+                {
+                    _publishedMatches[match.Revision] = match;
+                }
+                else
+                {
+                    Require(_publishedMatches.TryGetValue(match.Revision, out var published) && match.Players.SequenceEqual(published.Players),
+                        "Every received pending/banked revision exactly matches its authoritative publication.");
+                }
                 if (match.Phase == Core.Matches.MatchPhase.Finished)
                 {
                     _finishes[peerIndex]++;
@@ -218,7 +228,7 @@ public sealed partial class MatchIntegrationChecks : Node
                     Require(match.Players.Single(player => player.Player == shooter).Kills == Math.Min(5, _cycle + 1), "Every peer has the same killer total.");
                     Require(match.Players.Single(player => player.Player == _victim).Deaths == Math.Min(5, _cycle + 1), "Every peer has the same victim total.");
                     Require(match.Players.Where(player => player.Player != shooter).All(player => player.Kills == 0), "No bystander receives a kill.");
-                    Require(match.Players.SequenceEqual(host.World.State.Match!.Players), "Every peer agrees on Circus totals, streaks, K/D and consumed damage identities.");
+                    Require(_publishedMatches.TryGetValue(match.Revision, out var published) && match.Players.SequenceEqual(published.Players), "Every peer agrees on Circus totals, pending stunts, streaks, K/D and damage identities at its received revision.");
                     Require(match.Players.Single(player => player.Player == shooter).KillStreak == Math.Min(5, _cycle + 1), "Consecutive authoritative kills advance the Circus streak.");
                     if (_cycle >= 4)
                     {

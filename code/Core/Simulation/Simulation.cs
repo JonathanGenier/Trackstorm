@@ -150,7 +150,13 @@ public sealed class Simulation
             Events.Record(EventCategory.Lifecycle, "Despawned", target: vehicleId, tick: State.Tick);
         }
 
-        State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot), State.Match);
+        var match = State.Match;
+        if (match is not null && match.Players.Any(player => player.Player == vehicleId && player.Stunts is not null))
+        {
+            match = new Matches.MatchState(State.Tick, checked(match.Revision + 1), match.KillTarget, match.Phase, match.CountdownAtTick, match.Winner,
+                match.Players.Select(player => player.Player == vehicleId ? player with { Stunts = null } : player));
+        }
+        State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot), match);
     }
 
     /// <summary>Advances every vehicle and the global clock atomically from one ordered batch.</summary>
@@ -216,7 +222,7 @@ public sealed class Simulation
         }).ToArray();
         VehicleSnapshot[] transitions = candidates.Select(result => result.Snapshot)
             .Where(state => state.Lifecycle != _vehicles[state.VehicleId].Snapshot.Lifecycle || state.LifeId != _vehicles[state.VehicleId].Snapshot.LifeId).ToArray();
-        Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Advance(State.Match, _developmentStart ? MatchRules! with { MinimumPlayers = 1 } : MatchRules!, nextTick, candidates);
+        Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Advance(State.Match, _developmentStart ? MatchRules! with { MinimumPlayers = 1 } : MatchRules!, nextTick, candidates, State.Vehicles.ToDictionary(vehicle => vehicle.VehicleId), id => _vehicles[id].MovementConfiguration);
         if (match?.Phase is Matches.MatchPhase.Active or Matches.MatchPhase.Finished)
         {
             _developmentStart = false;

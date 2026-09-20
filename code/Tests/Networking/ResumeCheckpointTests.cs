@@ -117,6 +117,47 @@ internal sealed class ResumeCheckpointTests
         Assert.That(host.World.State.Match.Players, Is.EqualTo(checkpoint.Match.Players));
     }
 
+    [Test]
+    public void PendingStuntsSurviveAdmissionRebindAndAuthorityRestoreWithLiveTuning()
+    {
+        var host = new HostVehicleSession(103, matchConfiguration: new() { CountdownTicks = 1, KillTarget = 20 });
+        host.JoinPlayer(10, 2);
+        host.Step(default, Observe);
+        host.Step(default, Observe);
+        VehicleObservation Moving(VehicleSnapshot vehicle) => new(new VehiclePhysicsState(vehicle.ObservedPhysics.Position, Quaternion.Identity, new(0, 0, -27), Vector3.Zero), Vector3.UnitY);
+        for (int i = 0; i < 60; i++) { host.Step(default, Moving); }
+        Assert.That(host.World.State.Match!.Players.All(player => player.CircusScore == 0 && player.Stunts!.TopSpeed.Ticks == 60), Is.True);
+        var preview = host.PrepareJoin(3, 1)!;
+        Assert.That(preview.Match.Players.Take(2), Is.EqualTo(host.World.State.Match.Players));
+        Assert.That(preview.Match.Players.Last().Stunts, Is.Null);
+        host.Suspend(10);
+        var checkpoint = new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), [], [], []), host.World.State.Match!, null, host.Configuration);
+        var restored = HostVehicleSession.Restore(ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(checkpoint)), host.CaptureAuthority(), 1);
+        Assert.That(restored.ResumePlayer(20, 2), Is.True);
+        Assert.That(restored.TryConfigure(0, new Dictionary<string, double> { ["match.top_speed_enter_ratio"] = 0.99, ["match.top_speed_exit_ratio"] = 0.98 }, out _), Is.True);
+        restored.Step(default, Moving);
+        Assert.That(restored.World.State.Match!.Players.All(player => Math.Abs(player.CircusScore - 5) < 1e-9 && player.Stunts is null), Is.True, "Live threshold edit completes each retained event once.");
+        for (int i = 0; i < 60; i++) { restored.Step(default, Moving); }
+        Assert.That(restored.World.State.Match.Players.All(player => Math.Abs(player.CircusScore - 5) < 1e-9), Is.True);
+        Assert.That(restored.ResumePlayer(30, 2), Is.False, "Duplicate rebind cannot restart a completed award.");
+        Assert.That(host.World.State.Match.Players.All(player => player.CircusScore == 0), Is.True, "Preview and restoration never mutate original authority.");
+    }
+
+    [Test]
+    public void AbandoningVehicleCancelsPendingWithoutRemovingBankedScore()
+    {
+        var host = new HostVehicleSession(103, matchConfiguration: new() { CountdownTicks = 1 });
+        host.JoinPlayer(10, 2);
+        host.Step(default, Observe);
+        host.Step(default, Observe);
+        for (int i = 0; i < 60; i++)
+        {
+            host.Step(default, vehicle => new(new VehiclePhysicsState(vehicle.ObservedPhysics.Position, Quaternion.Identity, new(0, 0, -27), Vector3.Zero), Vector3.UnitY));
+        }
+        host.World.LeaveVehicle(2);
+        Assert.That(host.World.State.Match!.Players.Single(player => player.Player == 2).Stunts, Is.Null);
+        Assert.That(host.World.State.Match.Players.Single(player => player.Player == 1).Stunts!.TopSpeed.Ticks, Is.EqualTo(60));
+    }
     private static VehicleObservation Observe(VehicleSnapshot state) => new(state.Movement.Physics, Vector3.UnitY);
 
     /// <summary>Nonlethal banked points, tuning and sequence memory survive actual checkpoint/authority reconstruction.</summary>
