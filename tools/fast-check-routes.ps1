@@ -200,7 +200,7 @@ function Get-FastCheckPlan {
             Add-Runtime 'check-eos.ps1'
         }
 
-        if ($path -eq 'docs/features/eos-p2p.md') {
+        if ($path -eq 'docs/features/eos-p2p.md' -or $path -match '(?i)EosP2p') {
             Add-Manual 'Run check-eos-multiplayer.ps1 with an exported executable and distinct authenticated devices when real EOS multiplayer verification is applicable.'
         }
 
