@@ -65,7 +65,7 @@ EOS's SDK documentation explicitly says no SDK calls are allowed after `Shutdown
 
 ## Verification procedure
 
-- `./check.ps1`: both configurations, Core tests and Client fake lifecycle/configuration/identity tests.
+- `./check.ps1`: Debug compilation of the production Client and dependencies, a full Release solution build, then one Release execution of Core tests and Client fake lifecycle/configuration/identity tests.
 - `./check-transport.ps1 -GodotPath <Godot .NET exe>` and `./check-lobby.ps1 -GodotPath <exe>`: existing Direct-IP regressions.
 - `./check-eos.ps1 -GodotPath <exe>`: native SDK initialization/version check and terminal shutdown in three distinct processes, plus invalid-configuration runtime handling. This does not establish a working portal login.
 - `./check-eos.ps1 -GodotPath <Godot .NET executable> -Authenticate`: runs `res://scenes/verification/eos_checks.tscn` in three fresh Godot processes. It uses the embedded configuration unless `TRACKSTORM_EOS_CONFIG` is explicitly set, exercises real repeated platform/login/logout and checks a PUID is present. No fake product configuration is used.

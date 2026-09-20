@@ -1,0 +1,83 @@
+name: Extended CI
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 7 * * *'
+  push:
+    tags:
+      - '*.*.*'
+
+concurrency:
+  group: extended-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  native-runtime:
+    runs-on: windows-latest
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages/
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          lfs: false
+
+      - name: Restore Git LFS object cache
+        uses: actions/cache@v6
+        with:
+          path: .git/lfs
+          key: trackstorm-lfs-${{ runner.os }}-${{ hashFiles('**/*.mov', '**/*.ogv') }}
+
+      - name: Materialize Git LFS media
+        shell: pwsh
+        run: git lfs pull
+
+      - name: Verify .NET 10 SDK
+        shell: pwsh
+        run: |
+          $version = dotnet --version
+          if ($LASTEXITCODE -ne 0 -or $version -notmatch '^10\.0\.') {
+            throw "Trackstorm CI requires a .NET 10 SDK; selected '$version'."
+          }
+          Write-Host "Using preinstalled .NET SDK $version."
+
+      - name: Restore NuGet package cache
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: trackstorm-nuget-${{ runner.os }}-net10-${{ hashFiles('**/*.csproj', 'Directory.Build.props') }}
+
+      - name: Prepare pinned EOS SDK
+        run: ./setup-eos.ps1
+
+      - name: Restore
+        run: dotnet restore Trackstorm.sln
+
+      - name: Prepare pinned Godot
+        id: godot
+        shell: pwsh
+        run: |
+          $godot = ./tools/setup-godot-ci.ps1
+          "path=$godot" >> $env:GITHUB_OUTPUT
+
+      - name: Import Godot project
+        shell: pwsh
+        run: ./import-godot.ps1 -GodotPath "${{ steps.godot.outputs.path }}"
+
+      - name: Native transport and Godot transport integration
+        shell: pwsh
+        run: ./check-transport.ps1 -GodotPath "${{ steps.godot.outputs.path }}"
+
+      - name: Native lobby integration
+        shell: pwsh
+        run: ./check-lobby.ps1 -GodotPath "${{ steps.godot.outputs.path }}" -NoBuild
+
+      - name: EOS native SDK lifecycle smoke
+        shell: pwsh
+        run: ./check-eos.ps1 -GodotPath "${{ steps.godot.outputs.path }}"
