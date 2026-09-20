@@ -45,6 +45,10 @@ jobs:
         shell: pwsh
         run: git lfs pull
 
+      - name: Workflow helper regression tests
+        shell: pwsh
+        run: ./tools/test-workflow-tools.ps1
+
       - name: Verify materialized frontend media
         shell: pwsh
         run: |
