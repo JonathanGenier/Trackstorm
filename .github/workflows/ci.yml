@@ -45,19 +45,6 @@ jobs:
         shell: pwsh
         run: git lfs pull
 
-      - name: Workflow helper regression tests
-        shell: pwsh
-        run: ./tools/test-workflow-tools.ps1
-
-      - name: Verify materialized frontend media
-        shell: pwsh
-        run: |
-          ./tools/test-frontend-media.ps1
-          ./tools/check-frontend-media.ps1
-
-      - name: Version rule regression tests
-        run: ./tools/test-version.ps1
-
       - name: Validate Story version and synchronized export preset against current main
         if: github.event_name == 'pull_request' && github.base_ref == 'main' && startsWith(github.head_ref, 'ts-')
         shell: pwsh
@@ -84,11 +71,9 @@ jobs:
       - name: Prepare pinned EOS SDK
         run: ./setup-eos.ps1
 
-      - name: Restore
-        run: dotnet restore Trackstorm.sln
-
-      - name: Debug build
-        run: dotnet build Trackstorm.Client.csproj -c Debug --warnaserror --no-restore
+      - name: Comprehensive verification
+        shell: pwsh
+        run: ./check.ps1
 
       - name: Prepare pinned Godot
         id: godot
@@ -104,15 +89,6 @@ jobs:
       - name: Godot startup smoke
         shell: pwsh
         run: ./check-startup.ps1 -GodotPath "${{ steps.godot.outputs.path }}" -SkipBuild -SkipMediaCheck
-
-      - name: Release build
-        run: dotnet build Trackstorm.sln -c Release --warnaserror --no-restore
-
-      - name: Core tests
-        run: dotnet test code/Tests/Trackstorm.Core.Tests.csproj -c Release --no-build
-
-      - name: Non-native transport tests
-        run: dotnet test code/TransportTests/Trackstorm.Transport.Tests.csproj -c Release --no-build --filter 'TestCategory!=Native'
 
   revalidate-open-prs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
