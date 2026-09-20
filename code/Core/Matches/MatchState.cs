@@ -23,6 +23,8 @@ public sealed class MatchState
             scores.Any(player => player.Player == 0 || player.Kills < 0 || player.Kills > killTarget || player.Deaths < 0 || player.Wins is < 0 or > 1 || (player.Deaths > 0 && player.ProcessedLife == 0)) ||
             scores.Any(player => !double.IsFinite(player.CircusScore) || player.CircusScore < 0 || player.KillStreak < 0 || player.KillStreak > player.Kills ||
                 (player.ProcessedDamageLife == 0) != (player.ProcessedDamageSequence == 0)) ||
+            scores.Count(player => player.Stunts is not null) > 8 ||
+            scores.Any(player => player.Stunts is { } stunt && (phase != MatchPhase.Active || !stunt.IsValid(tick) || !double.IsFinite(player.PendingStuntScore))) ||
             scores.Select(player => player.Player).Distinct().Count() != scores.Length ||
             (phase == MatchPhase.Countdown) != countdownAtTick.HasValue || (countdownAtTick.HasValue && countdownAtTick <= tick) ||
             (phase == MatchPhase.Finished) != winner.HasValue ||

@@ -25,8 +25,10 @@ internal static class MatchAuthority
     /// <param name="configuration">Validated host rules.</param>
     /// <param name="tick">Candidate simulation tick.</param>
     /// <param name="results">Complete candidate vehicle roster and applied damage outcomes.</param>
+    /// <param name="previousVehicles">Previous authoritative poses and support.</param>
+    /// <param name="vehicleRules">Registered per-vehicle movement tuning.</param>
     /// <returns>Validated candidate match state.</returns>
-    internal static MatchState Advance(MatchState previous, MatchConfiguration configuration, ulong tick, IReadOnlyList<VehicleStepResult> results)
+    internal static MatchState Advance(MatchState previous, MatchConfiguration configuration, ulong tick, IReadOnlyList<VehicleStepResult> results, IReadOnlyDictionary<ulong, VehicleSnapshot> previousVehicles, Func<ulong, VehicleConfiguration> vehicleRules)
     {
         if (previous.Phase == MatchPhase.Finished)
         {
@@ -122,6 +124,18 @@ internal static class MatchAuthority
             if (lifecycle.Phase == GameLoopPhase.Finished)
             {
                 break;
+            }
+        }
+
+        // Resolve combat/life boundaries first: a lethal landing or same-tick death cannot bank.
+        foreach (var result in results.OrderBy(result => result.Snapshot.VehicleId))
+        {
+            ulong id = result.Snapshot.VehicleId;
+            if (scores.TryGetValue(id, out var score))
+            {
+                scores[id] = lifecycle.AllowsGameplay
+                    ? StuntScoring.Advance(score, previousVehicles[id], result, configuration, vehicleRules(id))
+                    : score with { Stunts = null };
             }
         }
 

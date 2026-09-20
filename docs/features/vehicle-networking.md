@@ -43,3 +43,5 @@ See [reconnection and session resume](reconnection.md) for authenticated match-l
 The reliable [Developer Options configuration boundary](developer-options.md#replication-and-recovery) precedes matching world publications on admission and live edits. Host validation owns all values; clients reject wrong/stale/conflicting configuration revisions and simulate/predict using the accepted record. Resume checkpoints include configuration. Native wheel rays, impulse mass/inertia and motion safety bounds read the same values.
 
 [Feature index](README.md)
+
+[Circus pending stunt state](matches.md#circus-stunt-detection-and-banking) uses complete reliable match publications, separate from movement prediction. Clients never accumulate authoritative stunt points. Complete join/resume checkpoints validate pending ownership against the living vehicle life and checkpoint tick before installation.

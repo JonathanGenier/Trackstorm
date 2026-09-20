@@ -80,7 +80,7 @@ internal sealed class DeveloperOptionsDraft
     {
         return double.TryParse(Get(option.Key), NumberStyles.Float, CultureInfo.InvariantCulture, out double value)
             && double.IsFinite(value)
-            && (option.Integral ? value : (float)value) == option.Read(configuration);
+            && (option.Integral || option.DoublePrecision ? value : (float)value) == option.Read(configuration);
     }
 
     private void Populate(GameplayConfiguration configuration)
@@ -88,7 +88,7 @@ internal sealed class DeveloperOptionsDraft
         foreach (var option in GameplayOptions.All)
         {
             double value = option.Read(configuration);
-            _values[option.Key] = option.Integral ? value.ToString("G17", CultureInfo.InvariantCulture) : ((float)value).ToString("G", CultureInfo.InvariantCulture);
+            _values[option.Key] = option.Integral || option.DoublePrecision ? value.ToString("G", CultureInfo.InvariantCulture) : ((float)value).ToString("G", CultureInfo.InvariantCulture);
         }
     }
 }

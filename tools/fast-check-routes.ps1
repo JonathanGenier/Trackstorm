@@ -157,6 +157,11 @@ function Get-FastCheckPlan {
             Add-Runtime 'check-death-respawn.ps1'
         }
 
+        if ($path -match '^code/(Core/Matches|Tests/Matches)/Stunt' -or
+            $path -match '(StuntIntegrationChecks|stunt_checks)' -or $path -eq 'docs/features/matches.md') {
+            Add-Runtime 'check-stunts.ps1'
+        }
+
         # Match lifecycle / standings.
         if ($path -match '^code/Core/Matches/' -or
             $path -eq 'docs/features/matches.md' -or

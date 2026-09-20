@@ -18,7 +18,7 @@ public static class MatchCodec
         ArgumentNullException.ThrowIfNull(state);
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x4d, 2 });
+        writer.Write(new byte[] { 0x54, 0x4d, 3 });
         writer.Write(session);
         writer.Write(state.Tick);
         writer.Write(state.Revision);
@@ -40,6 +40,25 @@ public static class MatchCodec
             writer.Write(score.ProcessedDamageSequence);
         }
 
+        // Sparse memory is bounded to the eight live vehicles, not the 256 historical score rows.
+        var pending = state.Players.Where(player => player.Stunts is not null).ToArray();
+        writer.Write((byte)pending.Length);
+        foreach (var player in pending)
+        {
+            var stunt = player.Stunts!;
+            writer.Write(player.Player);
+            writer.Write(stunt.Life);
+            writer.Write(stunt.Tick);
+            WriteProgress(writer, stunt.Drift);
+            WriteProgress(writer, stunt.Airtime);
+            WriteProgress(writer, stunt.TopSpeed);
+            writer.Write(stunt.JumpOrigin.X);
+            writer.Write(stunt.JumpOrigin.Y);
+            writer.Write(stunt.JumpOrigin.Z);
+            writer.Write(stunt.JumpDistance);
+            writer.Write(stunt.LongJumpBasePoints);
+        }
+
         writer.Write((byte)state.Changes.Count);
         foreach (ScoredDeath change in state.Changes)
         {
@@ -56,7 +75,7 @@ public static class MatchCodec
     /// <returns>Session and complete validated state.</returns>
     public static (ulong Session, MatchState State) Decode(ReadOnlySpan<byte> bytes)
     {
-        if (!IsMatch(bytes) || bytes.Length is < 51 or > 16384 || bytes[2] != 2)
+        if (!IsMatch(bytes) || bytes.Length is < 51 or > 16384 || bytes[2] != 3)
         {
             throw new ArgumentException("Invalid match header or size.");
         }
@@ -91,6 +110,22 @@ public static class MatchCodec
                 };
             }
 
+            int pending = reader.ReadByte();
+            if (pending > 8) { throw new ArgumentException("Invalid pending stunt count."); }
+            for (int i = 0; i < pending; i++)
+            {
+                ulong player = reader.ReadUInt64();
+                int index = Array.FindIndex(players, score => score.Player == player);
+                if (index < 0 || players[index].Stunts is not null) { throw new ArgumentException("Invalid stunt owner."); }
+                players[index] = players[index] with { Stunts = new StuntState
+                {
+                    Life = reader.ReadUInt64(), Tick = reader.ReadUInt64(),
+                    Drift = ReadProgress(reader), Airtime = ReadProgress(reader), TopSpeed = ReadProgress(reader),
+                    JumpOrigin = new System.Numerics.Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()),
+                    JumpDistance = reader.ReadDouble(), LongJumpBasePoints = reader.ReadDouble(),
+                } };
+            }
+
             int changes = reader.ReadByte();
             if (changes > 8)
             {
@@ -115,4 +150,12 @@ public static class MatchCodec
             throw new ArgumentException("Truncated match data.", exception);
         }
     }
+
+    private static void WriteProgress(BinaryWriter writer, StuntProgress progress)
+    {
+        writer.Write(progress.Ticks);
+        writer.Write(progress.BasePoints);
+    }
+
+    private static StuntProgress ReadProgress(BinaryReader reader) => new(reader.ReadUInt64(), reader.ReadDouble());
 }

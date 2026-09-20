@@ -57,6 +57,9 @@ $simulationPlan = Get-FastCheckPlan -Paths @("code/Core/Simulation/SimulationRun
 Assert-True ($simulationPlan.RuntimeScripts -contains "check-vehicle.ps1") "Simulation changes must route vehicle runtime verification."
 Assert-True ($simulationPlan.RuntimeScripts -contains "check-match.ps1") "Simulation changes must route match runtime verification."
 
+$stuntPlan = Get-FastCheckPlan -Paths @("code/Core/Matches/StuntScoring.cs")
+Assert-True ($stuntPlan.RuntimeScripts -contains "check-stunts.ps1") "Stunt changes must route native motion/scoring verification."
+
 $gdUnitPlan = Get-FastCheckPlan -Paths @("test/Client/Bootstrap/SimulationBootstrapTest.gd")
 Assert-True ($gdUnitPlan.RuntimeScripts -contains "check-gdunit.ps1") "GDScript Client test changes must route GdUnit checks."
 
