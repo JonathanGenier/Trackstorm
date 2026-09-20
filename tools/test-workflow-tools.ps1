@@ -24,6 +24,10 @@ $networkPlan = Get-FastCheckPlan -Paths @("code/Client/Networking/VehicleReplica
 Assert-True $networkPlan.TransportTests "Networking changes must route transport tests."
 Assert-True ($networkPlan.RuntimeScripts -contains "check-network-vehicles.ps1") "Networking changes must route network vehicle verification."
 
+$eosPlan = Get-FastCheckPlan -Paths @("code/Client/Online/EosP2pSession.cs", "docs/features/eos-p2p.md")
+Assert-True (-not ($eosPlan.ExtendedScripts -contains "check-eos-multiplayer.ps1")) "Real EOS multiplayer verification must not be auto-routed through the GodotPath extended runner."
+Assert-True ($eosPlan.ManualScenarios | Where-Object { $_ -match 'check-eos-multiplayer\.ps1' }) "EOS P2P changes must surface the exported-build/distinct-device verification requirement."
+
 $settingsPlan = Get-FastCheckPlan -Paths @("code/Client/Settings/SettingsPanel.cs", "code/Client/Hud/HudController.cs")
 Assert-True ($settingsPlan.RuntimeScripts -contains "check-settings.ps1") "Settings changes must route settings verification."
 Assert-True ($settingsPlan.RuntimeScripts -contains "check-hud.ps1") "HUD changes must route HUD verification."
@@ -42,8 +46,8 @@ Assert-True $versionPlan.VersionChecks "Version metadata changes must route vers
 $mediaPlan = Get-FastCheckPlan -Paths @("assets/frontend/menu/menu.ogv")
 Assert-True $mediaPlan.MediaChecks "Frontend media changes must route media checks."
 
-$docsPlan = Get-FastCheckPlan -Paths @("docs/features/vehicles.md")
-Assert-True (-not $docsPlan.CoreTests -and -not $docsPlan.ClientBuild -and $docsPlan.RuntimeScripts.Count -eq 0) "Feature-doc-only changes must not trigger production/runtime checks."
+$docsPlan = Get-FastCheckPlan -Paths @("docs/features/vehicles.md", "docs/features/eos-p2p.md", "docs/features/vehicle-networking.md")
+Assert-True (-not $docsPlan.CoreTests -and -not $docsPlan.TransportTests -and -not $docsPlan.ClientBuild -and $docsPlan.RuntimeScripts.Count -eq 0 -and $docsPlan.ExtendedScripts.Count -eq 0) "Feature-doc-only changes must not trigger production/runtime checks."
 
 $servicePlan = Get-FastCheckPlan -Paths @("services/authority-lease/src/worker.js")
 Assert-True $servicePlan.ServiceTests "Authority-lease source changes must route service tests."
