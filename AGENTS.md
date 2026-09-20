@@ -2,7 +2,7 @@
 
 ## Required routing
 
-Read [workflow](docs/workflow.md) for assignment scope, Jira authority and approved requirement changes, branch selection, verification and delivery. Read the relevant sections of [engineering standards](docs/standards.md) before changing code, and [critique](docs/critique.md) before the completion review. These documents own their rules; this file routes to them.
+Read [workflow](docs/workflow.md) for assignment scope, Jira authority and approved requirement changes, branch selection, verification, independent engineering review and delivery. Read the relevant sections of [engineering standards](docs/standards.md) before changing code, and [critique](docs/critique.md) before the runtime/experiential completion review. These documents own their rules; this file routes to them.
 
 For feature work, inspect the [feature index](docs/features/README.md), then read only documents relevant to the assigned system and its affected integrations. Follow nested `AGENTS.md` routing in the directories being changed.
 
