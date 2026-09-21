@@ -52,7 +52,7 @@ public sealed partial class MenuIntegrationChecks : Node
             _session = _bootstrap.GetNode<DevelopmentSession>("DevelopmentSession");
             await Frames(3);
             CheckCursor(false, "Main Menu pointer");
-            Press("Settings");
+            _session.MainMenu.Targets.Single(button => button.Text == "Settings").EmitSignal(BaseButton.SignalName.Pressed);
             CheckCursor(false, "Main Menu Settings pointer");
             Press("Back");
             await EnterArena();

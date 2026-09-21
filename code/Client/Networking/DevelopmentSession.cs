@@ -21,7 +21,6 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private readonly Button _start = new() { Text = "Start Match (host only)" };
     private readonly Button _leave = new() { Text = "Leave session" };
     private readonly CheckButton _debug = new() { Text = "Developer fallback: Direct-IP / LAN" };
-    private readonly Button _browse = new() { Text = "Browse online lobbies" };
     private readonly Button _back = new() { Text = "Back to Main Menu" };
     private readonly OptionButton _mapChoice = new() { Name = "MapSelection" };
     private readonly Label _mapLabel = new();
@@ -55,6 +54,11 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private double _loadSeconds;
     private string? _failureOutcome;
     private VBoxContainer _staging = null!;
+    private Frontend.HangingMainMenu _mainMenu = null!;
+
+    /// <summary>Existing Settings destination supplied by the bootstrap.</summary>
+    internal Action OpenSettings { get; set; } = () => { };
+    internal Frontend.HangingMainMenu MainMenu => _mainMenu;
 
     /// <summary>Retains the last bounded session history after departure.</summary>
     internal Core.Events.EventStream Events { get; private set; } = new();
@@ -122,6 +126,19 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         Layer = 1;
         _root = new Control { AnchorRight = 1, AnchorBottom = 1, MouseFilter = Control.MouseFilterEnum.Ignore, Visible = _frontendVisible, Modulate = new Color(1, 1, 1, _frontendAlpha) };
         AddChild(_root);
+        _mainMenu = new Frontend.HangingMainMenu
+        {
+            Name = "MainMenu", NavigationInput = NavigationInput,
+            Active = () => Stage == ApplicationStage.MainMenu && OnlineCoordinator()?.HasRetainedDecision != true,
+            Blocked = () => OverlayOpen(),
+        };
+        _root.AddChild(_mainMenu);
+        _mainMenu.SetEntries([
+            new("Play", "Play", 0, true, string.Empty, () => SetBrowser(true)),
+            new("Garage", "Garage", 1, false, "Coming Soon", () => { }),
+            new("Settings", "Settings", 2, true, string.Empty, () => OpenSettings()),
+            new("Quit", "Quit", 3, true, string.Empty, () => QuitApplication()),
+        ]);
         var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -300, OffsetRight = 300, OffsetTop = -330, OffsetBottom = 330 };
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("172235"), ContentMarginLeft = 24, ContentMarginRight = 24, ContentMarginTop = 18, ContentMarginBottom = 18 });
         _root.AddChild(panel);
@@ -139,9 +156,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             _logoutAfterLeave = true;
             Leave();
         };
-        _menu.AddChild(_browse);
         _menu.AddChild(_back);
-        _browse.Pressed += () => SetBrowser(true);
         _back.Pressed += () => SetBrowser(false);
         _menu.AddChild(_debug);
         _menu.AddChild(_online);
@@ -266,8 +281,12 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         }
     }
 
-    /// <summary>Fades the existing main-menu controls over the persistent MenuShell.</summary>
-    internal void FadeFrontendIn() => CreateTween().TweenProperty(_root, "modulate:a", 1, 0.45).SetTrans(Tween.TransitionType.Cubic);
+    /// <summary>Reveals the hanging menu over the persistent MenuShell at successful startup.</summary>
+    internal void FadeFrontendIn()
+    {
+        _root.Modulate = Colors.White;
+        _mainMenu.BeginEntrance();
+    }
 
     /// <summary>Creates a listener or connects through the existing production transport.</summary>
     /// <param name="host">Whether to host.</param>
@@ -712,7 +731,6 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         bool browsing = _browsing || _debug.ButtonPressed || OnlineCoordinator()?.HasRetainedDecision == true;
         _admission.Visible = pending && OnlineCoordinator()?.HasRetainedDecision != true;
         _admission.Text = "JOINING / CREATING LOBBY\n" + (OnlineCoordinator()?.Busy == true ? OnlineCoordinator()!.Status : "Waiting for authoritative admission…");
-        _browse.Visible = !active && !browsing && !pending;
         _back.Visible = !active && browsing && !pending;
         _joinedPanel.Visible = active && _lobby!.State!.Phase == SessionPhase.Lobby;
         bool exiting = Stage == ApplicationStage.Leaving;
@@ -729,7 +747,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _mapChoice.Disabled = _lobby?.Authority is null || _leaving || _lobby.Migration?.Frozen == true;
         bool arena = _arena is not null || _lobby?.State?.Phase == SessionPhase.Arena;
         bool decision = OnlineCoordinator()?.HasRetainedDecision == true;
-        _menu.GetParent<ScrollContainer>().GetParent<Control>().Visible = !active;
+        _menu.GetParent<ScrollContainer>().GetParent<Control>().Visible = !active && (browsing || pending);
         ((Control)_arenaStatus.GetParent()).Visible = arena;
         Node onlineParent = active && !arena ? _staging : _menu;
         if (_online.GetParent() != onlineParent)

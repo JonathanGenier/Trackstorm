@@ -38,7 +38,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
         _coordinator = new OnlineLobbyCoordinator(_provider, new OnlineProductUserId(new string('1', 32)));
         _session = new DevelopmentSession { OnlineCoordinator = () => _online ? _coordinator : null, OnlineStatus = () => _online ? EosLobbyStatus.Connected : _identityStates[_stage + 7], OnlineLogin = () => _loginRequests++ };
         AddChild(_session);
-        Press("Browse online lobbies");
+        Press("Play");
     }
 
     /// <inheritdoc />

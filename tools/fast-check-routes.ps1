@@ -83,7 +83,8 @@ function Get-FastCheckPlan {
         }
 
         # Startup / application flow.
-        if ($path -match '^code/Client/(Bootstrap|Assembly)/' -or
+        if ($path -match '^code/Client/(Bootstrap|Assembly|Frontend)/' -or
+            $path -match '^assets/frontend/main-menu/' -or
             $path -eq 'project.godot' -or
             $path -eq 'scenes/main.tscn' -or
             $path -eq 'docs/features/startup.md') {

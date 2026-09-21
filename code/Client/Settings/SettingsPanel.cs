@@ -42,6 +42,15 @@ internal sealed partial class SettingsPanel : CanvasLayer
     private bool _frontendVisible = true;
     private float _frontendAlpha = 1;
 
+    /// <summary>The main menu supplies its own Settings entry; other frontend screens retain theirs.</summary>
+    internal Func<bool> ShowFrontendShortcut { get; set; } = () => true;
+
+    internal void OpenFrontendSettings()
+    {
+        _navigation.Open(false);
+        ShowPage();
+    }
+
     /// <summary>Actual diagnostics bounds for runtime layout verification.</summary>
     internal Rect2 DiagnosticsBounds => _hud.GetGlobalRect();
 
@@ -331,7 +340,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
             }
         }
 
-        _openSettings.Visible = !arena && CurrentPage == MenuPage.Closed;
+        _openSettings.Visible = !arena && CurrentPage == MenuPage.Closed && ShowFrontendShortcut();
         if (_wasArena && !arena)
         {
             Close();

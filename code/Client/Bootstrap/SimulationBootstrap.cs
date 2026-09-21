@@ -227,6 +227,7 @@ public sealed partial class SimulationBootstrap : Node
                 NavigationInput = _playerInput.Adapter,
                 OverlayOpen = () => panel.CurrentPage != MenuPage.Closed || devTools.IsOpen,
                 QuitApplication = RequestQuit,
+                OpenSettings = panel.OpenFrontendSettings,
                 OnlineCoordinator = () => online?.Coordinator,
                 OnlineStatus = () => online?.Status ?? EosLobbyStatus.Unavailable,
                 OnlineLogin = () => online?.Login(),
@@ -235,6 +236,7 @@ public sealed partial class SimulationBootstrap : Node
             };
             _session.SetFrontendPresentation(presentFrontend, presentFrontend ? 1 : 0);
             AddChild(_session);
+            panel.ShowFrontendShortcut = () => _session.Stage != ApplicationStage.MainMenu;
             if (networkArguments.Length == 1)
             {
                 string argument = networkArguments[0];

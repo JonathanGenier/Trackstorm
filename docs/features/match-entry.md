@@ -4,7 +4,7 @@ Application navigation is **Main Menu → Lobby Browser → Joining / Creating �
 
 ## Frontend and admission
 
-Main Menu's Browse online lobbies action fades browser controls over the same MenuShell video/music instances. Back returns to Main Menu. Existing EOS discovery, Public/Locked access, exact version compatibility and retained-match decisions remain authoritative. Asynchronous membership and transport admission display progress; EOS membership alone does not enter the joined Lobby. Only a validated authoritative roster does. Failed admission keeps the browser usable with a diagnostic.
+[Main Menu's Play action](main-menu.md) fades browser controls over the same MenuShell video/music instances. Back returns to the settled Main Menu. Existing EOS discovery, Public/Locked access, exact version compatibility and retained-match decisions remain authoritative. Asynchronous membership and transport admission display progress; EOS membership alone does not enter the joined Lobby. Only a validated authoritative roster does. Failed admission keeps the browser usable with a diagnostic.
 
 Joined Lobby is a separate runtime presentation/state. It suspends MenuShell media and presents the admitted roster, Ready, host Start, map selection and Leave, retaining online membership management. No new standalone Godot scene file owns networking lifetime.
 
