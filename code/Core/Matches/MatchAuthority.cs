@@ -60,6 +60,7 @@ internal static class MatchAuthority
 
         var scores = previous.Players.ToDictionary(score => score.Player);
         var changes = new List<ScoredDeath>();
+        var awards = new List<CircusScoreAward>();
         foreach (VehicleStepResult result in results.OrderBy(result => result.Snapshot.VehicleId))
         {
             VehicleSnapshot vehicle = result.Snapshot;
@@ -80,7 +81,7 @@ internal static class MatchAuthority
                 if (lifecycle.AllowsGameplay && applied.Attribution.Source == "collision" && attacker != victim.Player &&
                     scores.ContainsKey(attacker) && vehicles.Any(candidate => candidate.VehicleId == attacker))
                 {
-                    scores[attacker] = CircusScoring.Bank(scores[attacker], applied.Amount * configuration.CollisionPointsPerDamage);
+                    scores[attacker] = CircusScoring.Bank(scores[attacker], applied.Amount * configuration.CollisionPointsPerDamage, awards, CircusScoreCategory.Collision);
                 }
             }
 
@@ -106,7 +107,7 @@ internal static class MatchAuthority
                 if (killer != 0)
                 {
                     PlayerScore credited = scores[killer] with { Kills = checked(scores[killer].Kills + 1), KillStreak = checked(scores[killer].KillStreak + 1) };
-                    credited = CircusScoring.Bank(credited, configuration.BaseKillPoints + ((credited.KillStreak - 1) * configuration.KillStreakBonusStep));
+                    credited = CircusScoring.Bank(credited, configuration.BaseKillPoints + ((credited.KillStreak - 1) * configuration.KillStreakBonusStep), awards, CircusScoreCategory.Kill);
                     MatchOutcome? outcome = FirstToTargetMode.Evaluate(credited, configuration.KillTarget);
                     if (outcome is not null)
                     {
@@ -134,7 +135,7 @@ internal static class MatchAuthority
             if (scores.TryGetValue(id, out var score))
             {
                 scores[id] = lifecycle.AllowsGameplay
-                    ? StuntScoring.Advance(score, previousVehicles[id], result, configuration, vehicleRules(id))
+                    ? StuntScoring.Advance(score, previousVehicles[id], result, configuration, vehicleRules(id), awards)
                     : score with { Stunts = null };
             }
         }
@@ -152,6 +153,8 @@ internal static class MatchAuthority
             GameLoopPhase.Finished => MatchPhase.Finished,
             _ => throw new InvalidOperationException("Unknown Game Loop phase."),
         };
-        return new MatchState(tick, checked(previous.Revision + 1), configuration.KillTarget, phase, lifecycle.CountdownAtTick, lifecycle.Outcome?.Winner, scores.Values, changes);
+        var publishedAwards = awards.GroupBy(award => (award.Player, award.Category))
+            .Select(group => new CircusScoreAward(group.Key.Player, group.Key.Category, group.Sum(award => award.Points)));
+        return new MatchState(tick, checked(previous.Revision + 1), configuration.KillTarget, phase, lifecycle.CountdownAtTick, lifecycle.Outcome?.Winner, scores.Values, changes, publishedAwards);
     }
 }

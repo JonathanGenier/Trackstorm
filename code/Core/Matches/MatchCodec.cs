@@ -18,7 +18,7 @@ public static class MatchCodec
         ArgumentNullException.ThrowIfNull(state);
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x4d, 3 });
+        writer.Write(new byte[] { 0x54, 0x4d, 4 });
         writer.Write(session);
         writer.Write(state.Tick);
         writer.Write(state.Revision);
@@ -67,6 +67,14 @@ public static class MatchCodec
             writer.Write(change.Killer);
         }
 
+        writer.Write((byte)state.Awards.Count);
+        foreach (CircusScoreAward award in state.Awards)
+        {
+            writer.Write(award.Player);
+            writer.Write((byte)award.Category);
+            writer.Write(award.Points);
+        }
+
         return stream.ToArray();
     }
 
@@ -75,7 +83,7 @@ public static class MatchCodec
     /// <returns>Session and complete validated state.</returns>
     public static (ulong Session, MatchState State) Decode(ReadOnlySpan<byte> bytes)
     {
-        if (!IsMatch(bytes) || bytes.Length is < 51 or > 16384 || bytes[2] != 3)
+        if (!IsMatch(bytes) || bytes.Length is < 52 or > 16384 || bytes[2] != 4)
         {
             throw new ArgumentException("Invalid match header or size.");
         }
@@ -138,12 +146,24 @@ public static class MatchCodec
                 deaths[index] = new ScoredDeath(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64());
             }
 
+            int awardCount = reader.ReadByte();
+            if (awardCount > 48)
+            {
+                throw new ArgumentException("Invalid Circus award count.");
+            }
+
+            var awards = new CircusScoreAward[awardCount];
+            for (int index = 0; index < awardCount; index++)
+            {
+                awards[index] = new CircusScoreAward(reader.ReadUInt64(), (CircusScoreCategory)reader.ReadByte(), reader.ReadDouble());
+            }
+
             if (stream.Position != stream.Length)
             {
                 throw new ArgumentException("Trailing match data.");
             }
 
-            return (session, new MatchState(tick, revision, target, phase, deadline == 0 ? null : deadline, winner == 0 ? null : winner, players, deaths));
+            return (session, new MatchState(tick, revision, target, phase, deadline == 0 ? null : deadline, winner == 0 ? null : winner, players, deaths, awards));
         }
         catch (EndOfStreamException exception)
         {

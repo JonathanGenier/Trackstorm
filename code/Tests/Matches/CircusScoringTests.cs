@@ -57,9 +57,15 @@ internal sealed class CircusScoringTests
         Hit(world, 2, 1, "collision", 10);
         Assert.That(Score(world, 1).CircusScore, Is.EqualTo(390));
         Assert.That(Score(world, 1).Kills, Is.EqualTo(2));
+        Assert.That(world.State.Match!.Awards, Is.EqualTo(new[] { new CircusScoreAward(1, CircusScoreCategory.Collision, 40) }));
         Hit(world, 2, 1, "collision", 1000);
         // Remaining 90 HP * 2 conversion * x2, followed by (100 + 50) * x3.
         Assert.That(Score(world, 1).CircusScore, Is.EqualTo(1200));
+        Assert.That(world.State.Match!.Awards, Is.EqualTo(new[]
+        {
+            new CircusScoreAward(1, CircusScoreCategory.Collision, 360),
+            new CircusScoreAward(1, CircusScoreCategory.Kill, 450),
+        }));
         Hit(world, 2, 1, "collision", 1000);
         Assert.That(Score(world, 1).CircusScore, Is.EqualTo(1200));
     }
@@ -200,6 +206,12 @@ internal sealed class CircusScoringTests
         byte[] bytes = MatchCodec.Encode(1, state);
         Assert.That(bytes.Length, Is.LessThan(16384));
         Assert.That(MatchCodec.Decode(bytes).State.Players, Is.EqualTo(state.Players));
+        var awarded = new MatchState(5, 9, 20, MatchPhase.Active, null, null, state.Players, awards:
+        [
+            new CircusScoreAward(1, CircusScoreCategory.Collision, 12.5),
+            new CircusScoreAward(1, CircusScoreCategory.Kill, 100),
+        ]);
+        Assert.That(MatchCodec.Decode(MatchCodec.Encode(1, awarded)).State.Awards, Is.EqualTo(awarded.Awards));
         foreach (double value in new[] { -1d, double.NaN, double.PositiveInfinity })
         {
             Assert.Throws<ArgumentException>(() => new MatchState(0, 1, 20, MatchPhase.Active, null, null, [new PlayerScore(1, 0, 0, 0, 0) { CircusScore = value }]));

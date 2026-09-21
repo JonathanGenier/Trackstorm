@@ -287,7 +287,7 @@ public sealed partial class PostMatchIntegrationChecks : Node
                     roster.Players, roster.CurrentHostId, roster.AuthorityEpoch, history, roster.Map);
                 ulong[] ids = new[] { 3UL, 1UL, 2UL }.Concat(Enumerable.Range(4, participants - 3).Select(id => (ulong)id)).ToArray();
                 var results = new FinalMatchResults(original.Results.Tick, new MatchOutcome("layout fixture", 3),
-                    ids.Select((id, index) => new FinalMatchStanding(id, index + 1, index == 0 ? 5 : 0, 0, index == 0 ? 1 : 0)));
+                    ids.Select((id, index) => new FinalMatchStanding(id, index + 1, 0, index == 0 ? 5 : 0, 0, index == 0 ? 1 : 0)));
                 handoff.SetValue(_host, new PostMatchContext(fixtureRoster, results));
                 foreach (var size in new[] { new Vector2I(1280, 720), new Vector2I(640, 360) })
                 {

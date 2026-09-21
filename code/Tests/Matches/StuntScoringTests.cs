@@ -23,6 +23,9 @@ internal sealed class StuntScoringTests
         Assert.That(Score(world).CircusScore, Is.Zero);
         Step(world, Vector3.Zero);
         Assert.That(Score(world).CircusScore, Is.EqualTo(30).Within(1e-9));
+        Assert.That(world.State.Match!.Awards.Single().Player, Is.EqualTo(1));
+        Assert.That(world.State.Match.Awards.Single().Category, Is.EqualTo(CircusScoreCategory.Drift));
+        Assert.That(world.State.Match.Awards.Single().Points, Is.EqualTo(30).Within(1e-9));
         for (int i = 0; i < 60; i++) { Step(world, Vector3.Zero); }
         Assert.That(Score(world).CircusScore, Is.EqualTo(30).Within(1e-9));
         for (int i = 0; i < 60; i++) { Step(world, new(8, 0, -20)); }
@@ -42,6 +45,7 @@ internal sealed class StuntScoringTests
         Assert.That(Score(world).CircusScore, Is.Zero);
         Step(world, Vector3.Zero, position: new(0, 1, -distance));
         Assert.That(Score(world).CircusScore, Is.EqualTo(30 + jumpAward).Within(1e-6));
+        Assert.That(world.State.Match!.Awards.Select(award => award.Category), Is.EqualTo(new[] { CircusScoreCategory.Airtime, CircusScoreCategory.LongJump }));
         Assert.That(Score(world).Stunts, Is.Null);
         Step(world, Vector3.Zero);
         Assert.That(Score(world).CircusScore, Is.EqualTo(30 + jumpAward).Within(1e-6));
@@ -74,6 +78,9 @@ internal sealed class StuntScoringTests
         Assert.That(Score(world).CircusScore, Is.Zero);
         Step(world, new(0, 0, -25), false, new(0, 5, -10));
         Assert.That(Score(world).CircusScore, Is.EqualTo(10).Within(1e-9));
+        Assert.That(world.State.Match!.Awards.Single().Player, Is.EqualTo(1));
+        Assert.That(world.State.Match.Awards.Single().Category, Is.EqualTo(CircusScoreCategory.TopSpeed));
+        Assert.That(world.State.Match.Awards.Single().Points, Is.EqualTo(10).Within(1e-9));
         Assert.That(Score(world).Stunts!.TopSpeed.Ticks, Is.Zero);
         Assert.That(Score(world).Stunts!.Airtime.Ticks, Is.EqualTo(61));
         Step(world, Vector3.Zero, position: new(0, 1, -10));
@@ -179,11 +186,13 @@ internal sealed class StuntScoringTests
     public void SparseCodecFitsFullHistoryAndRejectsMalformedPendingMemory()
     {
         var pending = new StuntState { Life = 1, Tick = 100, Drift = new(30, 2), Airtime = new(30, 3), TopSpeed = new(30, 4), JumpOrigin = Vector3.One, JumpDistance = 10, LongJumpBasePoints = 20 };
-        var rows = Enumerable.Range(1, 256).Select(id => new PlayerScore((ulong)id, 0, 0, 0, 0) { Stunts = id <= 8 ? pending : null }).ToArray();
-        var state = new MatchState(100, 1, 20, MatchPhase.Active, null, null, rows);
+        var rows = Enumerable.Range(1, 256).Select(id => new PlayerScore((ulong)id, 0, 0, 0, 0) { CircusScore = id <= 8 ? 6 : 0, Stunts = id <= 8 ? pending : null }).ToArray();
+        var awards = Enumerable.Range(1, 8).SelectMany(player => Enum.GetValues<CircusScoreCategory>().Select(category => new CircusScoreAward((ulong)player, category, 1))).ToArray();
+        var state = new MatchState(100, 1, 20, MatchPhase.Active, null, null, rows, awards: awards);
         var bytes = MatchCodec.Encode(1, state);
         Assert.That(bytes.Length, Is.LessThan(16384));
         Assert.That(MatchCodec.Decode(bytes).State.Players, Is.EqualTo(rows));
+        Assert.That(MatchCodec.Decode(bytes).State.Awards, Is.EqualTo(awards));
         Assert.Throws<ArgumentException>(() => MatchCodec.Decode(bytes[..^1]));
         Assert.Throws<ArgumentException>(() => MatchCodec.Decode(bytes.Concat(new byte[] { 0 }).ToArray()));
         foreach (var invalid in new[] { pending with { Life = 0 }, pending with { Tick = 99 }, pending with { LongJumpBasePoints = double.NaN }, pending with { Drift = new(101, 2) } })

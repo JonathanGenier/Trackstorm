@@ -6,7 +6,7 @@ namespace Trackstorm.Core.Matches;
 /// <summary>Observes committed candidate motion without modifying movement or accepting player score claims.</summary>
 internal static class StuntScoring
 {
-    internal static PlayerScore Advance(PlayerScore score, VehicleSnapshot before, VehicleStepResult result, MatchConfiguration rules, VehicleConfiguration vehicleRules)
+    internal static PlayerScore Advance(PlayerScore score, VehicleSnapshot before, VehicleStepResult result, MatchConfiguration rules, VehicleConfiguration vehicleRules, ICollection<CircusScoreAward> awards)
     {
         VehicleSnapshot vehicle = result.Snapshot;
         ulong tick = vehicle.Movement.Tick;
@@ -30,7 +30,7 @@ internal static class StuntScoring
         {
             if (grounded && upright && drift.Ticks / rate >= rules.DriftMinimumSeconds)
             {
-                score = CircusScoring.Bank(score, drift.BasePoints);
+                score = CircusScoring.Bank(score, drift.BasePoints, awards, CircusScoreCategory.Drift);
             }
             drift = default;
         }
@@ -51,8 +51,8 @@ internal static class StuntScoring
         {
             if (upright && air.Ticks / rate >= rules.AirtimeMinimumSeconds)
             {
-                score = CircusScoring.Bank(score, air.BasePoints);
-                score = CircusScoring.Bank(score, HorizontalDistance(origin, vehicle.ObservedPhysics.Position) * rules.JumpPointsPerMetre);
+                score = CircusScoring.Bank(score, air.BasePoints, awards, CircusScoreCategory.Airtime);
+                score = CircusScoring.Bank(score, HorizontalDistance(origin, vehicle.ObservedPhysics.Position) * rules.JumpPointsPerMetre, awards, CircusScoreCategory.LongJump);
             }
             air = default;
             origin = default;
@@ -67,7 +67,7 @@ internal static class StuntScoring
         }
         else
         {
-            score = CircusScoring.Bank(score, top.BasePoints);
+            score = CircusScoring.Bank(score, top.BasePoints, awards, CircusScoreCategory.TopSpeed);
             top = default;
         }
 
