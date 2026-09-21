@@ -63,14 +63,14 @@ internal sealed partial class PodiumScene : CanvasLayer
             _podiums[^1].MouseFilter = Control.MouseFilterEnum.Pass;
         }
 
-        string[] headings = ["#", "PLAYER", "KILLS", "DEATHS", "WINS", "PING"];
+        string[] headings = ["#", "PLAYER", "SCORE", "KILLS", "DEATHS", "WINS", "PING"];
         for (int column = 0; column < headings.Length; column++) _headings.Add(Cell(headings[column], column, 249, 17));
         for (int row = 0; row < 8; row++)
         {
             var band = new ColorRect { Position = new Vector2(20, 278 + row * 29), Size = new Vector2(1080, 28), Color = new Color(row % 2 == 0 ? "202326" : "191c1f"), MouseFilter = Control.MouseFilterEnum.Ignore };
             _content.AddChild(band);
             _bands.Add(band);
-            _rows.Add(Enumerable.Range(0, 6).Select(column => Cell(string.Empty, column, 278 + row * 29, 19)).ToArray());
+            _rows.Add(Enumerable.Range(0, 7).Select(column => Cell(string.Empty, column, 278 + row * 29, 19)).ToArray());
         }
 
         _previous = Button("Previous", 20, 515, 140, () => ChangePage(-1));
@@ -143,7 +143,7 @@ internal sealed partial class PodiumScene : CanvasLayer
         for (int index = 0; index < _podiums.Count; index++)
         {
             var standing = results.Standings.ElementAtOrDefault(index);
-            _podiums[index].Text = standing is null ? "—" : $"{standing.Rank:00}\n{context.Participant(standing.PlayerId, roster).Name}\n{standing.Kills} KILLS  ·  {standing.Deaths} DEATHS";
+            _podiums[index].Text = standing is null ? "—" : $"{standing.Rank:00}\n{context.Participant(standing.PlayerId, roster).Name}\n{Hud.CircusHudView.FormatPoints(standing.CircusScore)} POINTS";
             _podiums[index].TooltipText = _podiums[index].Text;
         }
 
@@ -151,8 +151,8 @@ internal sealed partial class PodiumScene : CanvasLayer
         {
             var row = index < RowsPerPage ? results.Standings.ElementAtOrDefault(_page * RowsPerPage + index) : null;
             var player = row is null ? null : context.Participant(row.PlayerId, roster);
-            string[] values = row is null ? ["", "", "", "", "", ""] :
-                [row.Rank.ToString(), player!.Name + (row.PlayerId == Session.Lobby?.LocalPlayerId ? " · YOU" : ""), row.Kills.ToString(), row.Deaths.ToString(), row.Wins.ToString(),
+            string[] values = row is null ? ["", "", "", "", "", "", ""] :
+                [row.Rank.ToString(), player!.Name + (row.PlayerId == Session.Lobby?.LocalPlayerId ? " · YOU" : ""), Hud.CircusHudView.FormatPoints(row.CircusScore), row.Kills.ToString(), row.Deaths.ToString(), row.Wins.ToString(),
                  Hud.PingFormatter.Format(player.Connected && roster is not null ? Session.Lobby!.Latency.Get(roster, row.PlayerId) : null)];
             for (int column = 0; column < values.Length; column++)
             {
@@ -237,8 +237,8 @@ internal sealed partial class PodiumScene : CanvasLayer
 
     private Label Cell(string title, int column, float y, int size)
     {
-        float[] positions = [30, 95, 620, 745, 870, 990];
-        float[] widths = [55, 500, 110, 110, 100, 100];
+        float[] positions = [20, 80, 470, 610, 720, 830, 940];
+        float[] widths = [55, 380, 140, 110, 110, 110, 100];
         var label = Text(title, positions[column], y, widths[column], 28, size, "eee1d1");
         if (column == 1)
         {
@@ -283,11 +283,12 @@ internal sealed partial class PodiumScene : CanvasLayer
         }
         if (!compact && podiumCount > 0) y += 156;
         float rankWidth = compact ? 30 : 60;
-        float statWidth = compact ? 58 : 115;
-        float nameWidth = width - rankWidth - statWidth * 4;
-        float[] columns = [0, rankWidth, rankWidth + nameWidth, width - statWidth * 3, width - statWidth * 2, width - statWidth];
-        float[] widths = [rankWidth, nameWidth, statWidth, statWidth, statWidth, statWidth];
-        for (int column = 0; column < 6; column++)
+        float statWidth = compact ? 58 : 100;
+        float scoreWidth = compact ? 110 : 150;
+        float nameWidth = width - rankWidth - scoreWidth - statWidth * 4;
+        float[] columns = [0, rankWidth, rankWidth + nameWidth, width - statWidth * 4, width - statWidth * 3, width - statWidth * 2, width - statWidth];
+        float[] widths = [rankWidth, nameWidth, scoreWidth, statWidth, statWidth, statWidth, statWidth];
+        for (int column = 0; column < 7; column++)
             Place(_headings[column], columns[column] + 4, y, widths[column] - 8, 24, compact ? 12 : 17);
         y += 24;
         float rowHeight = compact ? 24 : 30;
@@ -295,7 +296,7 @@ internal sealed partial class PodiumScene : CanvasLayer
         {
             _bands[row].Visible = row < rows;
             Place(_bands[row], 0, y + row * rowHeight, width, rowHeight - 1);
-            for (int column = 0; column < 6; column++)
+            for (int column = 0; column < 7; column++)
             {
                 _rows[row][column].Visible = row < rows;
                 Place(_rows[row][column], columns[column] + 4, y + row * rowHeight, widths[column] - 8, rowHeight, compact ? 15 : 19);

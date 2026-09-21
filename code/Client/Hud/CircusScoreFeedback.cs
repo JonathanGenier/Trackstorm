@@ -15,7 +15,7 @@ internal sealed class CircusScoreFeedback
     /// <summary>Projects a local authoritative score boundary without calculating or mutating awards.</summary>
     internal CircusHudView? Project(MatchState? match, ulong player, double milliseconds)
     {
-        if (match is null || player == 0 || !match.Players.Any(score => score.Player == player))
+        if (match is null || match.Mode != MatchMode.Circus || player == 0 || !match.Players.Any(score => score.Player == player))
         {
             Reset();
             return null;

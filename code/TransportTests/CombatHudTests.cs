@@ -11,6 +11,23 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class CombatHudTests
 {
+    [Test]
+    public void NonCircusModeClearsCircusPresentationAndNextMatchStartsWithoutFeedback()
+    {
+        var feedback = new CircusScoreFeedback();
+        var circus = new MatchState(10, 5, 5, MatchPhase.Active, null, null,
+            [new PlayerScore(1, 0, 0, 0, 0) { CircusScore = 100 }]);
+        Assert.That(feedback.Project(circus, 1, 0)!.Total, Is.EqualTo("100"));
+        var combat = new MatchState(0, 1, 5, MatchPhase.Waiting, null, null,
+            [new PlayerScore(1, 0, 0, 0, 0)], mode: MatchMode.FirstToTarget);
+        Assert.That(feedback.Project(combat, 1, 10), Is.Null);
+        var fresh = new MatchState(0, 1, 5, MatchPhase.Waiting, null, null, combat.Players);
+        var projected = feedback.Project(fresh, 1, 20)!;
+        Assert.That(projected.Total, Is.EqualTo("0"));
+        Assert.That(projected.Multiplier, Is.EqualTo("x1"));
+        Assert.That(projected.Rows, Is.Empty);
+    }
+
     /// <summary>Units change numbers, never the common visual scale.</summary>
     [Test]
     public void SpeedUnitsAndVisualScale()

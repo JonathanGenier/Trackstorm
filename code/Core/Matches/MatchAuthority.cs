@@ -17,7 +17,7 @@ internal static class MatchAuthority
             return previous;
         }
 
-        return new MatchState(tick, checked(previous.Revision + 1), previous.KillTarget, previous.Phase, previous.CountdownAtTick, previous.Winner, previous.Players.Append(new PlayerScore(player, 0, 0, 0, 0)));
+        return new MatchState(tick, checked(previous.Revision + 1), previous.KillTarget, previous.Phase, previous.CountdownAtTick, previous.Winner, previous.Players.Append(new PlayerScore(player, 0, 0, 0, 0)), mode: previous.Mode);
     }
 
     /// <summary>Consumes authoritative destroyed lives once, in stable victim order.</summary>
@@ -78,7 +78,7 @@ internal static class MatchAuthority
                 victim = victim with { ProcessedDamageLife = vehicle.LifeId, ProcessedDamageSequence = applied.Sequence };
                 scores[victim.Player] = victim;
                 ulong attacker = applied.Attribution.InstigatorId;
-                if (lifecycle.AllowsGameplay && applied.Attribution.Source == "collision" && attacker != victim.Player &&
+                if (configuration.Mode == MatchMode.Circus && lifecycle.AllowsGameplay && applied.Attribution.Source == "collision" && attacker != victim.Player &&
                     scores.ContainsKey(attacker) && vehicles.Any(candidate => candidate.VehicleId == attacker))
                 {
                     scores[attacker] = CircusScoring.Bank(scores[attacker], applied.Amount * configuration.CollisionPointsPerDamage, awards, CircusScoreCategory.Collision);
@@ -106,8 +106,12 @@ internal static class MatchAuthority
 
                 if (killer != 0)
                 {
-                    PlayerScore credited = scores[killer] with { Kills = checked(scores[killer].Kills + 1), KillStreak = checked(scores[killer].KillStreak + 1) };
-                    credited = CircusScoring.Bank(credited, configuration.BaseKillPoints + ((credited.KillStreak - 1) * configuration.KillStreakBonusStep), awards, CircusScoreCategory.Kill);
+                    PlayerScore credited = scores[killer] with { Kills = checked(scores[killer].Kills + 1) };
+                    if (configuration.Mode == MatchMode.Circus)
+                    {
+                        credited = credited with { KillStreak = checked(credited.KillStreak + 1) };
+                        credited = CircusScoring.Bank(credited, configuration.BaseKillPoints + ((credited.KillStreak - 1) * configuration.KillStreakBonusStep), awards, CircusScoreCategory.Kill);
+                    }
                     MatchOutcome? outcome = FirstToTargetMode.Evaluate(credited, configuration.KillTarget);
                     if (outcome is not null)
                     {
@@ -134,7 +138,7 @@ internal static class MatchAuthority
             ulong id = result.Snapshot.VehicleId;
             if (scores.TryGetValue(id, out var score))
             {
-                scores[id] = lifecycle.AllowsGameplay
+                scores[id] = configuration.Mode == MatchMode.Circus && lifecycle.AllowsGameplay
                     ? StuntScoring.Advance(score, previousVehicles[id], result, configuration, vehicleRules(id), awards)
                     : score with { Stunts = null };
             }
@@ -155,6 +159,6 @@ internal static class MatchAuthority
         };
         var publishedAwards = awards.GroupBy(award => (award.Player, award.Category))
             .Select(group => new CircusScoreAward(group.Key.Player, group.Key.Category, group.Sum(award => award.Points)));
-        return new MatchState(tick, checked(previous.Revision + 1), configuration.KillTarget, phase, lifecycle.CountdownAtTick, lifecycle.Outcome?.Winner, scores.Values, changes, publishedAwards);
+        return new MatchState(tick, checked(previous.Revision + 1), configuration.KillTarget, phase, lifecycle.CountdownAtTick, lifecycle.Outcome?.Winner, scores.Values, changes, publishedAwards, configuration.Mode);
     }
 }

@@ -89,6 +89,12 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                     Check(hostDiagnostics.Contains(field, StringComparison.Ordinal) && clientDiagnostics.Contains(field, StringComparison.Ordinal), "both roles expose " + field);
                 }
 
+                Set("match.mode", 0);
+                Press("Apply Settings");
+                Check(_host.DeveloperConfiguration.Match.Mode == MatchMode.FirstToTarget, "Lobby config selects non-Circus mode");
+                Set("match.mode", 1);
+                Press("Apply Settings");
+                Check(_host.DeveloperConfiguration.Match.Mode == MatchMode.Circus, "Lobby config selects Circus before match entry");
                 _host.Lobby!.Request(LobbyCommand.Ready, true);
                 _client.Lobby!.Request(LobbyCommand.Ready, true);
                 await Until(() => _host.Lobby.State!.CanStart, "normal multiplayer readiness");
@@ -112,6 +118,15 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Check(Descendants(_devTools.Configs).OfType<Label>().Any(label => label.Text == "Host tuning saved."), "real GNS accepts all five UI impairment controls");
                 foreach (var option in GameplayOptions.All)
                 {
+                    if (option.Key == "match.mode")
+                    {
+                        var previous = _host.Arena!.Driver.Configuration;
+                        Set(option.Key, 0);
+                        Press("Apply Settings");
+                        Check(_host.Arena.Driver.Configuration == previous, "Active match rejects a scoring mode change");
+                        Press("Cancel");
+                        continue;
+                    }
                     double current = option.Read(_host.DeveloperConfiguration);
                     double value = option.Boolean ? 1 - current : option.Integral ? current + 1 : current * 1.05;
                     // The scaled default is close to the existing one-metre validation ceiling.
