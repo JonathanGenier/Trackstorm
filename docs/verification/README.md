@@ -8,6 +8,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Story verification | [TS-105 verification evidence](ts-105.md) |
 | Circus stunt scoring and banking | [TS-103 verification evidence](ts-103.md) |
 | Circus combat scoring | [TS-102 applied damage, K/D, streaks and synchronization evidence](ts-102.md) |
 | AI implementation and review workflow | [TS-137 critique split, targeted iteration and tooling evidence](ts-137.md) |

@@ -188,6 +188,9 @@ public sealed partial class SimulationBootstrap : Node
             Slot = () => _session?.Arena?.Driver.LocalItem,
             Units = () => _settings.Current.SpeedUnit,
             Position = () => _session?.Standings.Position ?? "--",
+            Match = () => _session?.Arena?.Driver.Match,
+            MatchUpdates = () => _session?.DrainMatchPresentation() ?? Array.Empty<Core.Matches.MatchState>(),
+            Player = () => _session?.Lobby?.LocalPlayerId ?? 0,
         };
         AddChild(combatHud);
         AddChild(new Hud.ActivityFeed

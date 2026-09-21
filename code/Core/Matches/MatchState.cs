@@ -15,10 +15,12 @@ public sealed class MatchState
     /// <param name="winner">Winning player, present only after Finished.</param>
     /// <param name="players">Detached score totals and consumed-life memory.</param>
     /// <param name="changes">Deaths scored in this publication.</param>
-    public MatchState(ulong tick, ulong revision, int killTarget, MatchPhase phase, ulong? countdownAtTick, ulong? winner, IEnumerable<PlayerScore> players, IEnumerable<ScoredDeath>? changes = null)
+    /// <param name="awards">Committed Circus awards aggregated by player and source category.</param>
+    public MatchState(ulong tick, ulong revision, int killTarget, MatchPhase phase, ulong? countdownAtTick, ulong? winner, IEnumerable<PlayerScore> players, IEnumerable<ScoredDeath>? changes = null, IEnumerable<CircusScoreAward>? awards = null)
     {
         PlayerScore[] scores = players.OrderBy(player => player.Player).ToArray();
         ScoredDeath[] deaths = changes?.ToArray() ?? [];
+        CircusScoreAward[] scoreAwards = awards?.ToArray() ?? [];
         if (killTarget is < 1 or > 1000000 || !Enum.IsDefined(phase) || scores.Length > MaximumPlayers ||
             scores.Any(player => player.Player == 0 || player.Kills < 0 || player.Kills > killTarget || player.Deaths < 0 || player.Wins is < 0 or > 1 || (player.Deaths > 0 && player.ProcessedLife == 0)) ||
             scores.Any(player => !double.IsFinite(player.CircusScore) || player.CircusScore < 0 || player.KillStreak < 0 || player.KillStreak > player.Kills ||
@@ -34,7 +36,10 @@ public sealed class MatchState
             scores.Sum(player => (long)player.Kills) > scores.Sum(player => (long)player.Deaths) ||
             deaths.Length > 8 || deaths.Select(death => death.Victim).Distinct().Count() != deaths.Length ||
             deaths.Any(death => death.Life == 0 || !scores.Any(player => player.Player == death.Victim && player.Deaths > 0 && player.ProcessedLife == death.Life) ||
-                (death.Killer != 0 && (death.Killer == death.Victim || !scores.Any(player => player.Player == death.Killer && player.Kills > 0)))))
+                (death.Killer != 0 && (death.Killer == death.Victim || !scores.Any(player => player.Player == death.Killer && player.Kills > 0)))) ||
+            scoreAwards.Length > 48 || scoreAwards.Any(award => award.Player == 0 || !Enum.IsDefined(award.Category) || !double.IsFinite(award.Points) || award.Points <= 0 || !scores.Any(player => player.Player == award.Player)) ||
+            scoreAwards.Select(award => (award.Player, award.Category)).Distinct().Count() != scoreAwards.Length ||
+            scoreAwards.GroupBy(award => award.Player).Any(group => !double.IsFinite(group.Sum(award => award.Points)) || group.Sum(award => award.Points) > scores.Single(player => player.Player == group.Key).CircusScore))
         {
             throw new ArgumentException("Invalid match snapshot.");
         }
@@ -47,6 +52,7 @@ public sealed class MatchState
         Winner = winner;
         Players = Array.AsReadOnly(scores);
         Changes = Array.AsReadOnly(deaths);
+        Awards = Array.AsReadOnly(scoreAwards);
         GameLoopPhase lifecyclePhase = phase switch
         {
             MatchPhase.Waiting => GameLoopPhase.Initialization,
@@ -75,6 +81,8 @@ public sealed class MatchState
     public IReadOnlyList<PlayerScore> Players { get; }
     /// <summary>Once-per-revision score deltas; late joiners can reconstruct totals without replaying these.</summary>
     public IReadOnlyList<ScoredDeath> Changes { get; }
+    /// <summary>Once-per-revision committed Circus award deltas, aggregated by player and category.</summary>
+    public IReadOnlyList<CircusScoreAward> Awards { get; }
     /// <summary>Reusable phase rules; legacy Waiting projects to pre-countdown Initialization.</summary>
     public GameLoopState Lifecycle { get; }
     /// <summary>Frozen Core-ranked results; restored from the same authoritative checkpoint without UI rules.</summary>

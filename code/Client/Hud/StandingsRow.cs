@@ -4,10 +4,11 @@ namespace Trackstorm.Client.Hud;
 /// <param name="PlayerId">Stable identity.</param>
 /// <param name="Rank">Core rank.</param>
 /// <param name="Name">Session name.</param>
+/// <param name="CircusScore">Confirmed banked Circus points.</param>
 /// <param name="Kills">Confirmed kills.</param>
 /// <param name="Deaths">Confirmed deaths.</param>
 /// <param name="Ping">Safe latency text.</param>
 /// <param name="Winner">Recorded winner identity.</param>
 /// <param name="Local">Local player marker.</param>
 /// <param name="Connected">Authoritative online state; retained offline participants keep their rank and totals.</param>
-internal sealed record StandingsRow(ulong PlayerId, int Rank, string Name, int Kills, int Deaths, string Ping, bool Winner, bool Local, bool Connected);
+internal sealed record StandingsRow(ulong PlayerId, int Rank, string Name, double CircusScore, int Kills, int Deaths, string Ping, bool Winner, bool Local, bool Connected);

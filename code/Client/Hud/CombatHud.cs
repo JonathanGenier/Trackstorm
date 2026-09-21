@@ -1,5 +1,6 @@
 using Godot;
 using Trackstorm.Core.Items;
+using Trackstorm.Core.Matches;
 using Trackstorm.Core.Settings;
 using Trackstorm.Core.Vehicles;
 
@@ -10,6 +11,12 @@ internal sealed partial class CombatHud : CanvasLayer
 {
     private readonly Control _root = new() { MouseFilter = Control.MouseFilterEnum.Ignore };
     private readonly List<Control> _components = new();
+    private readonly CircusScoreFeedback _scoreFeedback = new();
+    private readonly List<Label> _scoreRows = new();
+    private Panel _scorePanel = null!;
+    private VBoxContainer _scoreCounter = null!;
+    private Label _scoreTotal = null!;
+    private Label _scoreMultiplier = null!;
     private Label _standing = null!;
     private Label _health = null!;
     private Label _speed = null!;
@@ -22,6 +29,7 @@ internal sealed partial class CombatHud : CanvasLayer
     private Texture2D _wrench = null!;
     private Texture2D _missile = null!;
     private CombatHudView? _displayed;
+    private double _milliseconds;
 
     /// <summary>Current existing gameplay snapshot; null hides the HUD outside a match.</summary>
     internal Func<VehicleSnapshot?> Vehicle { get; set; } = () => null;
@@ -31,8 +39,16 @@ internal sealed partial class CombatHud : CanvasLayer
     internal Func<SpeedUnit> Units { get; set; } = () => SpeedUnit.KilometresPerHour;
     /// <summary>Shared match standings position; practice has no match ranking.</summary>
     internal Func<string> Position { get; set; } = () => "--";
+    /// <summary>Accepted authoritative match state; null keeps non-Circus practice presentation unchanged.</summary>
+    internal Func<MatchState?> Match { get; set; } = () => null;
+    /// <summary>Every accepted revision, preserving deltas when several arrive in one rendered frame.</summary>
+    internal Func<IReadOnlyList<MatchState>> MatchUpdates { get; set; } = () => Array.Empty<MatchState>();
+    /// <summary>Stable local participant identity used to select authoritative Circus state.</summary>
+    internal Func<ulong> Player { get; set; } = () => 0;
     /// <summary>Last projected values for native integration verification.</summary>
     internal CombatHudView? Displayed => _displayed;
+    /// <summary>Last authoritative Circus projection for native verification.</summary>
+    internal CircusHudView? ScoreDisplayed { get; private set; }
     /// <summary>Rendered labels and materials are observable to native tests.</summary>
     internal string HealthText => _health.Text;
     /// <summary>Native material fraction for verification.</summary>
@@ -65,13 +81,18 @@ internal sealed partial class CombatHud : CanvasLayer
         _timer = Text(timer, "TimerValue", new Rect2(58, 14, 99, 36), 34);
         _standing.Text = "--";
         _timer.Text = "--:--";
+        BuildCircusScore();
         _root.Resized += Layout;
         Layout();
         Refresh();
     }
 
     /// <inheritdoc/>
-    public override void _Process(double delta) => Refresh();
+    public override void _Process(double delta)
+    {
+        _milliseconds += delta * 1000;
+        Refresh();
+    }
 
     /// <summary>Refreshes the actual labels and gauges from current providers, including setting-only changes.</summary>
     internal void Refresh()
@@ -81,24 +102,34 @@ internal sealed partial class CombatHud : CanvasLayer
         if (state is null)
         {
             _displayed = null;
+            ScoreDisplayed = _scoreFeedback.Project(null, 0, _milliseconds);
+            _scorePanel.Visible = false;
+            _scoreCounter.Visible = false;
             return;
         }
 
         CombatHudView view = CombatHudView.From(state, Slot(), Units()) with { Standing = Position() };
-        if (view == _displayed)
+        if (view != _displayed)
         {
-            return;
+            _displayed = view;
+            _standing.Text = view.Standing;
+            _health.Text = view.Health;
+            _speed.Text = view.Speed;
+            _unit.Text = view.Unit;
+            _itemName.Text = view.ItemName;
+            _itemIcon.Texture = view.Item switch { HeldItem.Wrench => _wrench, HeldItem.Missile => _missile, _ => null };
+            _healthMaterial.SetShaderParameter("fill", view.HealthFill);
+            _speedMaterial.SetShaderParameter("fill", view.SpeedFill);
         }
 
-        _displayed = view;
-        _standing.Text = view.Standing;
-        _health.Text = view.Health;
-        _speed.Text = view.Speed;
-        _unit.Text = view.Unit;
-        _itemName.Text = view.ItemName;
-        _itemIcon.Texture = view.Item switch { HeldItem.Wrench => _wrench, HeldItem.Missile => _missile, _ => null };
-        _healthMaterial.SetShaderParameter("fill", view.HealthFill);
-        _speedMaterial.SetShaderParameter("fill", view.SpeedFill);
+        ulong player = Player();
+        CircusHudView? score = null;
+        foreach (MatchState update in MatchUpdates())
+        {
+            score = _scoreFeedback.Project(update, player, _milliseconds);
+        }
+
+        RenderCircusScore(_scoreFeedback.Project(Match(), player, _milliseconds) ?? score);
     }
 
     private TextureRect Component(string name, Vector2 size, int kind, Texture2D steel)
@@ -125,6 +156,63 @@ internal sealed partial class CombatHud : CanvasLayer
         return label;
     }
 
+    private void BuildCircusScore()
+    {
+        _scorePanel = new Panel { Name = "CircusScore", Size = new Vector2(210, 62), MouseFilter = Control.MouseFilterEnum.Ignore };
+        var style = new StyleBoxFlat { BgColor = new Color(0.035f, 0.04f, 0.045f, 0.82f), BorderColor = new Color("b5342f") };
+        style.SetBorderWidthAll(2);
+        style.SetCornerRadiusAll(4);
+        _scorePanel.AddThemeStyleboxOverride("panel", style);
+        _root.AddChild(_scorePanel);
+        _scoreTotal = Text(_scorePanel, "ScoreTotal", new Rect2(12, 5, 186, 31), 22);
+        _scoreTotal.HorizontalAlignment = HorizontalAlignment.Left;
+        _scoreMultiplier = Text(_scorePanel, "ScoreMultiplier", new Rect2(12, 34, 186, 20), 15);
+        _scoreMultiplier.HorizontalAlignment = HorizontalAlignment.Left;
+
+        _scoreCounter = new VBoxContainer { Name = "CircusCounter", Size = new Vector2(250, 192), MouseFilter = Control.MouseFilterEnum.Ignore };
+        _scoreCounter.AddThemeConstantOverride("separation", 4);
+        _root.AddChild(_scoreCounter);
+        for (int index = 0; index < Enum.GetValues<CircusScoreCategory>().Length; index++)
+        {
+            var label = new Label { CustomMinimumSize = new Vector2(250, 26), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center, MouseFilter = Control.MouseFilterEnum.Ignore };
+            label.AddThemeFontSizeOverride("font_size", 17);
+            label.AddThemeColorOverride("font_shadow_color", Colors.Black);
+            label.AddThemeConstantOverride("shadow_offset_y", 2);
+            _scoreCounter.AddChild(label);
+            _scoreRows.Add(label);
+        }
+    }
+
+    private void RenderCircusScore(CircusHudView? score)
+    {
+        ScoreDisplayed = score;
+        _scorePanel.Visible = score is not null;
+        _scoreCounter.Visible = score?.Rows.Count > 0;
+        if (score is null)
+        {
+            return;
+        }
+
+        _scoreTotal.Text = $"CIRCUS  {score.Total}";
+        _scoreMultiplier.Text = $"K/D MULTIPLIER  {score.Multiplier}";
+        for (int index = 0; index < _scoreRows.Count; index++)
+        {
+            CircusFeedbackRow? row = index < score.Rows.Count ? score.Rows[index] : null;
+            Label label = _scoreRows[index];
+            label.Visible = row is not null;
+            if (row is null)
+            {
+                continue;
+            }
+
+            string status = row.Kind switch { CircusFeedbackKind.Pending => "PENDING", CircusFeedbackKind.Lost => "LOST", _ => "BANKED" };
+            string sign = row.Kind == CircusFeedbackKind.Lost ? "−" : "+";
+            label.Text = $"{row.Name}   {status} {sign}{CircusHudView.FormatPoints(row.Points)}";
+            label.Modulate = new Color(1, 1, 1, row.Opacity);
+            label.AddThemeColorOverride("font_color", row.Kind switch { CircusFeedbackKind.Pending => new Color("ffd166"), CircusFeedbackKind.Lost => new Color("ff6262"), _ => new Color("e8f3e8") });
+        }
+    }
+
     private void Layout()
     {
         Vector2 viewport = _root.Size;
@@ -139,5 +227,9 @@ internal sealed partial class CombatHud : CanvasLayer
         _components[2].Position = new Vector2(viewport.X - (112.5f * scale) - margin, viewport.Y - (150 * scale) - margin);
         _components[1].Position = new Vector2(viewport.X - (354 * scale) - margin, viewport.Y - (187.5f * scale) - margin + (9 * scale));
         _components[3].Position = new Vector2((viewport.X - (220 * scale)) / 2, 12 * scale);
+        _scorePanel.Scale = Vector2.One * scale;
+        _scorePanel.Position = new Vector2(margin, 120 * scale);
+        _scoreCounter.Scale = Vector2.One * scale;
+        _scoreCounter.Position = new Vector2(margin, 194 * scale);
     }
 }

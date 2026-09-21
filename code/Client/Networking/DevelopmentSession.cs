@@ -9,6 +9,7 @@ namespace Trackstorm.Client.Networking;
 /// <summary>Development Host/Join and lobby presentation reconstructed from authoritative Core state.</summary>
 internal sealed partial class DevelopmentSession : CanvasLayer
 {
+    private readonly Queue<Core.Matches.MatchState> _matchPresentation = new();
     private readonly LineEdit _name = new() { Name = "PlayerName", Text = "Player", PlaceholderText = "Display name", MaxLength = 96 };
     private readonly LineEdit _address = new() { Name = "DirectAddress", Text = "127.0.0.1:27020", PlaceholderText = "IP:port or [IPv6]:port" };
     private readonly Label _status = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
@@ -81,6 +82,18 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     internal LobbyNetworkDriver? Lobby => _lobby;
     /// <summary>Shared projection used by both standings and the existing HUD badge.</summary>
     internal Hud.MatchStandingsView Standings => Hud.MatchStandingsView.From(_lobby?.State, _arena?.Driver.Match, _lobby?.LocalPlayerId ?? 0, _standingsHeld, id => _lobby?.State is { } state ? _lobby.Latency.Get(state, id) : null);
+
+    /// <summary>Drains every accepted authoritative match revision for transient presentation consumers.</summary>
+    internal IReadOnlyList<Core.Matches.MatchState> DrainMatchPresentation()
+    {
+        var states = new List<Core.Matches.MatchState>(_matchPresentation.Count);
+        while (_matchPresentation.TryDequeue(out var state))
+        {
+            states.Add(state);
+        }
+
+        return states;
+    }
 
     /// <summary>Active arena, absent while assembling the lobby.</summary>
     internal NetworkVehicleArena? Arena => _arena;
@@ -429,6 +442,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
                 _eventRejected = 0;
                 _arena = new NetworkVehicleArena { Name = "SessionArena", PreparedMap = _matchLoader.MapScene, ApplicationEntry = true, Visible = false };
                 _arena.Initialize(_gateway!, _lobby.Authority is null ? 0 : _arenaGeneration, _lobby.ServerPeer, _lobby, _lobby.Authority?.Configuration.Configuration);
+                _arena.Driver.MatchReceived += QueueMatchPresentation;
                 AddChild(_arena);
                 if (_forceStart && _arena.Driver.Host is not null)
                 {
@@ -632,6 +646,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _standingsHeld = 0;
         if (_arena is not null)
         {
+            _arena.Driver.MatchReceived -= QueueMatchPresentation;
             _arena.Driver.Dispose();
             _forceStart = false;
 
@@ -643,6 +658,18 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             _arena.QueueFree();
             _arena = null;
         }
+
+        _matchPresentation.Clear();
+    }
+
+    private void QueueMatchPresentation(Core.Matches.MatchState state)
+    {
+        if (_matchPresentation.Count == 256)
+        {
+            _matchPresentation.Dequeue();
+        }
+
+        _matchPresentation.Enqueue(state);
     }
 
     private void Render()

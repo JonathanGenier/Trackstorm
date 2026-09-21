@@ -6,17 +6,21 @@ namespace Trackstorm.Core.Tests.Matches;
 [TestFixture]
 internal sealed class MatchRankingTests
 {
-    /// <summary>Performance and identity resolve ties; current participants alone receive contiguous ranks.</summary>
+    /// <summary>Circus score leads, while combat totals and identity resolve ties.</summary>
     [Test]
     public void RanksKillsThenDeathsThenIdentityAcrossEightPlayers()
     {
-        var scores = Enumerable.Range(1, 8).Select(id => new PlayerScore((ulong)id, id is 2 or 3 ? 3 : id == 4 ? 2 : 0, id == 3 ? 4 : 3, 0, 4));
+        var scores = Enumerable.Range(1, 8).Select(id => new PlayerScore((ulong)id, id is 2 or 3 ? 3 : id == 4 ? 2 : 0, id == 3 ? 4 : 3, 0, 4)
+        {
+            CircusScore = id == 4 ? 500 : id is 2 or 3 ? 300 : 0,
+        });
         var match = new MatchState(10, 1, 5, MatchPhase.Active, null, null, scores);
         ulong[] ids = Enumerable.Range(1, 8).Select(id => (ulong)id).ToArray();
         var ranks = MatchRanking.Create(match, ids.Reverse());
-        Assert.That(ranks.Select(row => row.PlayerId), Is.EqualTo(new ulong[] { 2, 3, 4, 1, 5, 6, 7, 8 }));
+        Assert.That(ranks.Select(row => row.PlayerId), Is.EqualTo(new ulong[] { 4, 2, 3, 1, 5, 6, 7, 8 }));
         Assert.That(ranks.Select(row => row.Rank), Is.EqualTo(Enumerable.Range(1, 8)));
         Assert.That(MatchRanking.Create(match, ids), Is.EqualTo(ranks));
+        Assert.That(ranks.Select(row => row.CircusScore), Is.EqualTo(new[] { 500d, 300d, 300d, 0d, 0d, 0d, 0d, 0d }));
         Assert.That(MatchRanking.Create(match, new ulong[] { 1, 3 }).Select(row => row.PlayerId), Is.EqualTo(new ulong[] { 3, 1 }));
     }
 

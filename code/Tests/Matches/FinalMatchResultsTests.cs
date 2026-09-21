@@ -25,9 +25,9 @@ internal sealed class FinalMatchResultsTests
                 loop.Advance(tick);
             }
 
-            FinalMatchStanding[] rows = [new(2, 1, 0, 0, 0), new(1, 2, 0, 0, 0)];
+            FinalMatchStanding[] rows = [new(2, 1, 0, 0, 0, 0), new(1, 2, 0, 0, 0, 0)];
             var result = new FinalMatchResults(generation, new("objective", 2), rows);
-            rows[0] = new(99, 1, 99, 99, 1);
+            rows[0] = new(99, 1, 0, 99, 99, 1);
             Assert.That(loop.ReportFinalResults(new FinalMatchResults(generation + 1, new("wrong-tick"), [])), Is.False);
             Assert.That(loop.FinalResults, Is.Null);
             Assert.That(loop.ReportFinalResults(result), Is.True);
@@ -88,7 +88,7 @@ internal sealed class FinalMatchResultsTests
         var match = new MatchState(40, 8, 1, MatchPhase.Finished, null, 2, scores);
         scores[0] = new(99, 0, 0, 0, 0);
         FinalMatchResults result = match.FinalResults!;
-        Assert.That(result.Standings, Is.EqualTo(new FinalMatchStanding[] { new(2, 1, 1, 0, 1), new(3, 2, 0, 0, 0), new(4, 3, 0, 1, 0) }));
+        Assert.That(result.Standings, Is.EqualTo(new FinalMatchStanding[] { new(2, 1, 0, 1, 0, 1), new(3, 2, 0, 0, 0, 0), new(4, 3, 0, 0, 1, 0) }));
         Assert.That(match.FinalResults, Is.SameAs(result));
         var restored = MatchCodec.Decode(MatchCodec.Encode(7, match)).State.FinalResults!;
         Assert.That(restored.Tick, Is.EqualTo(40));
@@ -102,11 +102,12 @@ internal sealed class FinalMatchResultsTests
     public void InvalidResultsAreRejected()
     {
         var outcome = new MatchOutcome("objective", 1);
-        Assert.Throws<ArgumentException>(() => new FinalMatchResults(0, outcome, [new(1, 1, 0, 0, 0), new(1, 2, 0, 0, 0)]));
-        Assert.Throws<ArgumentException>(() => new FinalMatchResults(0, outcome, [new(1, 2, 0, 0, 0)]));
-        Assert.Throws<ArgumentException>(() => new FinalMatchResults(0, outcome, [new(2, 1, 0, 0, 0)]));
-        Assert.Throws<ArgumentException>(() => new FinalMatchResults(0, outcome, [new(1, 1, -1, 0, 0)]));
-        Assert.Throws<ArgumentException>(() => new FinalMatchResults(0, outcome, [new(0, 1, 0, 0, 0)]));
+        Assert.Throws<ArgumentException>(() => new FinalMatchResults(0, outcome, [new(1, 1, 0, 0, 0, 0), new(1, 2, 0, 0, 0, 0)]));
+        Assert.Throws<ArgumentException>(() => new FinalMatchResults(0, outcome, [new(1, 2, 0, 0, 0, 0)]));
+        Assert.Throws<ArgumentException>(() => new FinalMatchResults(0, outcome, [new(2, 1, 0, 0, 0, 0)]));
+        Assert.Throws<ArgumentException>(() => new FinalMatchResults(0, outcome, [new(1, 1, -1, 0, 0, 0)]));
+        Assert.Throws<ArgumentException>(() => new FinalMatchResults(0, outcome, [new(1, 1, 0, -1, 0, 0)]));
+        Assert.Throws<ArgumentException>(() => new FinalMatchResults(0, outcome, [new(0, 1, 0, 0, 0, 0)]));
         using var client = new GameLoop(false);
         Assert.That(client.ReportFinalResults(new FinalMatchResults(0, outcome, [])), Is.False);
         Assert.That(client.FinalResults, Is.Null);
