@@ -14,7 +14,7 @@ internal sealed class PostMatchContextTests
             [new SessionPlayer(1, "Host", false), new SessionPlayer(2, "Winner", false)]);
         // The mode winner deliberately has fewer kills: presentation must never rank by kills.
         var results = new FinalMatchResults(10, new MatchOutcome("objective", 2),
-            [new FinalMatchStanding(2, 1, 0, 5, 1), new FinalMatchStanding(1, 2, 9, 0, 0)]);
+            [new FinalMatchStanding(2, 1, 0, 0, 5, 1), new FinalMatchStanding(1, 2, 0, 9, 0, 0)]);
         var context = new PostMatchContext(roster, results);
         var offline = new LobbySnapshot(100, 3, 101, SessionPhase.Arena,
             [new SessionPlayer(1, "Host", false), new SessionPlayer(2, "Winner", false, false)]);
