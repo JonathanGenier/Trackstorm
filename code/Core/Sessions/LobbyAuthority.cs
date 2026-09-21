@@ -308,6 +308,26 @@ public sealed class LobbyAuthority
         return true;
     }
 
+    /// <summary>Host-selected restart using Return cleanup and a fresh generation for connected participants.</summary>
+    /// <param name="peer">Actual sender; zero only for local host authority.</param>
+    /// <param name="connectedPeers">Complete transport roster, including connections awaiting admission.</param>
+    /// <returns>Whether the next match may enter loading/synchronization.</returns>
+    public bool Restart(ulong peer, IEnumerable<ulong> connectedPeers)
+    {
+        if (peer != 0 || State.Phase != SessionPhase.Arena || _pendingJoins.Count != 0 ||
+            !_peers.Keys.ToHashSet().SetEquals(connectedPeers) || State.Match == ulong.MaxValue)
+        {
+            return false;
+        }
+
+        Return(0);
+        State = new LobbySnapshot(State.Session, checked(State.Revision + 1), checked(State.Match + 1), SessionPhase.Arena,
+            State.Players, State.CurrentHostId, State.AuthorityEpoch, map: State.Map);
+        AdmissionOpen = false;
+        Events.Record(EventCategory.Session, "Rematch started", actor: State.CurrentHostId);
+        return true;
+    }
+
     /// <summary>Applies the same phase lifecycle to an intentional departure.</summary>
     /// <param name="peer">Departed transport sender.</param>
     /// <returns>Whether an existing player was removed.</returns>

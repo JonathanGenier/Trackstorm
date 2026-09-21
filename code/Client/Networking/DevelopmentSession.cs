@@ -100,9 +100,11 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <summary>Application Flow's completed results handoff; may be retained before disposing the arena.</summary>
     internal Core.Matches.FinalMatchResults? FinalResults => _arena?.Driver.EntryReady == true ? _arena.Driver.FinalResults : null;
     /// <summary>MenuShell remains active for Main Menu, browser and pending admission only.</summary>
-    internal bool InFrontend => _lobby?.State is null;
+    internal bool InFrontend => _lobby?.State is null && !(_exitToMenu && !LeaveComplete);
     /// <summary>Visible application match-entry state, including reconnection synchronization.</summary>
-    internal ApplicationStage Stage => LoadingMatch ? ApplicationStage.MatchLoader
+    internal ApplicationStage Stage => _exitToMenu && !LeaveComplete ? ApplicationStage.Leaving
+        : LoadingMatch ? ApplicationStage.MatchLoader
+        : PostMatch is not null ? ApplicationStage.Podium
         : _arena is not null ? ApplicationStage.GameLoop
         : _lobby?.State is not null ? ApplicationStage.Lobby
         : _lobby is not null || OnlineCoordinator()?.Active is not null || OnlineCoordinator()?.Busy == true ? ApplicationStage.Admission
@@ -183,7 +185,12 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         loadingLayer.AddChild(_loadingPanel);
         var loadingCenter = new CenterContainer();
         _loadingPanel.AddChild(loadingCenter);
-        loadingCenter.AddChild(_loadingText);
+        var cleanup = new VBoxContainer();
+        loadingCenter.AddChild(cleanup);
+        cleanup.AddChild(_loadingText);
+        cleanup.AddChild(_retryExit);
+        _retryExit.Pressed += BeginMenuExit;
+        AddChild(new PostMatch.PodiumScene { Name = "PodiumScene", Session = this });
         var matchBar = new HBoxContainer { Position = new Vector2(24, 72) };
         _root.AddChild(matchBar);
         matchBar.AddChild(_arenaStatus);
@@ -307,6 +314,13 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <param name="input">Captured local input.</param>
     internal void Advance(InputFrame input)
     {
+        if (_exitToMenu && LeaveComplete)
+        {
+            _exitToMenu = false;
+            _browsing = false;
+            _debug.SetPressedNoSignal(false);
+        }
+
         _standingsHeld = input.Held;
         if (_leaving && _lobby is not null)
         {
@@ -319,7 +333,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             return;
         }
 
-        if (_lobby is null && !_debug.ButtonPressed && OnlineCoordinator() is { Active: not null, TransportFactory: not null } coordinator)
+        if (!_exitToMenu && _lobby is null && !_debug.ButtonPressed && OnlineCoordinator() is { Active: not null, TransportFactory: not null } coordinator)
         {
             try
             {
@@ -388,8 +402,8 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         }
         else
         {
-            _arena.Advance(_arena.Driver.EntryReady ? input : default);
-            _arena.Visible = _arena.Driver.EntryReady;
+            _arena.Advance(_arena.Driver.EntryReady && PostMatch is null ? input : default);
+            _arena.Visible = _arena.Driver.EntryReady && PostMatch is null;
         }
 
         if (_transportFailure is not null || _lobby.Failure.Length > 0 || _arena?.Driver.Failure.Length > 0)
@@ -413,6 +427,23 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         if (_lobby.State?.Phase != SessionPhase.Arena || _arenaGeneration != _lobby.State.Match)
         {
             RemoveArena();
+        }
+
+        // A recovered coherent checkpoint may precede the previously presented finish.
+        // Follow accepted authority after synchronization rather than pinning stale scene state.
+        if (_arena?.Driver.EntryReady == true && PostMatch is not null && FinalResults is null)
+        {
+            PostMatch = null;
+            PostMatchStatus = string.Empty;
+        }
+
+        if (_lobby.State is { Phase: SessionPhase.Arena } completed && FinalResults is { } results &&
+            (PostMatch is null || PostMatch.Results.Tick != results.Tick || PostMatch.Results.Outcome != results.Outcome ||
+             !PostMatch.Results.Standings.SequenceEqual(results.Standings)))
+        {
+            PostMatch = new PostMatchContext(completed, results);
+            _standingsHeld = 0;
+            _arena!.Visible = false;
         }
 
         if (_lobby.State?.Phase == SessionPhase.Arena && _arena is null)
@@ -641,6 +672,8 @@ internal sealed partial class DevelopmentSession : CanvasLayer
 
     private void RemoveArena()
     {
+        PostMatch = null;
+        PostMatchStatus = string.Empty;
         _matchLoader = null;
         _loadSeconds = 0;
         _standingsHeld = 0;
@@ -682,8 +715,11 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _browse.Visible = !active && !browsing && !pending;
         _back.Visible = !active && browsing && !pending;
         _joinedPanel.Visible = active && _lobby!.State!.Phase == SessionPhase.Lobby;
-        _loadingPanel.Visible = LoadingMatch;
-        _loadingText.Text = _arena is null ? $"MATCH LOADER\nLoading selected map and resources… {_matchLoader?.Progress * 100:0}%" : "MATCH SYNC\nWaiting for authoritative synchronization…";
+        bool exiting = Stage == ApplicationStage.Leaving;
+        _loadingPanel.Visible = LoadingMatch || exiting;
+        _retryExit.Visible = exiting && OnlineCoordinator() is { CanLeave: true, Busy: false };
+        _loadingText.Text = exiting ? "LEAVING SESSION\n" + (OnlineCoordinator()?.Status ?? "Completing session cleanup…")
+            : _arena is null ? $"MATCH LOADER\nLoading selected map and resources… {_matchLoader?.Progress * 100:0}%" : "MATCH SYNC\nWaiting for authoritative synchronization…";
         if (_lobby?.State is { } selected)
         {
             _mapLabel.Text = "Selected map: " + (selected.Map == MatchMap.OldMap ? "Old Map" : "New Map");

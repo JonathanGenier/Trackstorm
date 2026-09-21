@@ -152,7 +152,7 @@ public sealed partial class LobbyIntegrationChecks : Node
         var expected = _sessions[0].FinalResults!;
         foreach (var session in _sessions)
         {
-            Require(session.Stage == ApplicationStage.GameLoop && session.Lobby!.State!.Phase == SessionPhase.Arena, "Finished does not navigate Application Flow.");
+            Require(session.Stage == ApplicationStage.Podium && session.Lobby!.State!.Phase == SessionPhase.Arena, "Application Flow owns Podium while retaining the Finished arena.");
             Require(session.FinalResults!.Standings.SequenceEqual(expected.Standings) && session.FinalResults.Tick == expected.Tick && session.FinalResults.Outcome == expected.Outcome, "All Application Flow handoffs expose identical Core results.");
             Require(!session.Arena!.Driver.AllowsParticipation, "Finished denies driving and item use.");
             _completedResults.Add(session.FinalResults);
@@ -242,7 +242,7 @@ public sealed partial class LobbyIntegrationChecks : Node
                 VerifyFinishedHandoff();
                 _sessions[0].Lobby!.Request(LobbyCommand.Return);
                 _stage = 5;
-                Next("All eight peers consumed Finished results without navigation; host explicitly returned.");
+                Next("All eight peers entered Podium with retained Finished results; host explicitly returned.");
                 break;
             case 6 when AllRoster(8) && _sessions.All(session => session.Arena is null && session.Lobby!.State!.Phase == SessionPhase.Lobby):
                 VerifyDisposedResults();

@@ -17,7 +17,8 @@ if (-not $SkipBuild) {
     if ($LASTEXITCODE -ne 0) { throw 'Startup verification build failed.' }
 }
 
-$arguments = @('--path', $PSScriptRoot, 'res://scenes/main.tscn', '--quit-after', '3600')
+# Native audio teardown needs real mixer time; uncapped headless frames can outrun its drain.
+$arguments = @('--path', $PSScriptRoot, 'res://scenes/main.tscn', '--max-fps', '60', '--quit-after', '3600')
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
 $output = & $GodotPath @arguments -- '--startup-check' 2>&1
 $exitCode = $LASTEXITCODE
