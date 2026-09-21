@@ -30,7 +30,7 @@ The combat adapter creates `MatchState.FinalResults` only for Finished, using al
 
 `VehicleNetworkDriver.FinalResults` exposes the accepted match result. `DevelopmentSession.FinalResults` is Application Flow's read-only handoff once entry/recovery synchronization is complete. Its scope is the current lobby session and arena generation; consumers can retain the immutable value before disposing the arena. Late consumers can read the property without replaying an event or historical score deltas. Finished standings use these frozen rows directly. Names remain authoritative session display metadata, while connectivity and ping remain live presentation metadata; none affects final order or totals.
 
-No result API loads scenes, issues Return/Leave, changes reservations or chooses navigation. Application Flow owns when to retain the handoff and end the arena. Podium navigation, rematch controls and Podium presentation remain separate work.
+No result API loads scenes, issues Return/Leave, changes reservations or chooses navigation. [Post-match Application Flow](post-match.md) captures the handoff, presents Podium and owns explicit rematch, Return and Leave destinations. It retains the Finished arena for checkpoint/reconnect support until navigation ends that match lifetime.
 
 ## Reset and disposal contract
 

@@ -14,6 +14,8 @@ Fresh production startup follows one explicit sequence:
 
 The existing multiplayer menu and Settings entry are composed hidden while the Loader is visible. Successful initialization fades those existing controls in while fading Loader chrome out. Neither media player is restarted or recreated during this transition; the Main Menu appears over the exact presentation that began with the Loader.
 
+[Podium](post-match.md) Main Menu waits for explicit session/membership cleanup before resuming this same MenuShell. Controlled Quit keeps the shell suspended rather than starting its media again as session teardown completes.
+
 ## Application initialization
 
 The Loader retains reusable HUD textures/icons, the shared HUD shader and interface cues. Arena music, ambience, vehicle/combat sounds, damage shader and the selected map are loaded separately by the [Match Loader](match-entry.md). Resources load incrementally across frames before the existing application composition creates diagnostics, HUD systems, EOS identity where enabled, and the multiplayer Main Menu/session owner. The minimum settings/audio owner is created at MenuShell entry so saved mute and Music volume apply before the authoritative frontend MP3 starts.

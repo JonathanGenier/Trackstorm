@@ -136,7 +136,7 @@ public sealed partial class SimulationBootstrap : Node
     /// <inheritdoc />
     public override void _Process(double delta)
     {
-        _startup?.SetFrontendActive(_arena is null && (_session?.InFrontend ?? true));
+        _startup?.SetFrontendActive(!_quitRequested && _arena is null && (_session?.InFrontend ?? true));
         if (_quitRequested && (_session?.LeaveComplete ?? true) && _online?.Coordinator?.CanLeave != true)
         {
             // Normal tree teardown owns settings flush, transport disposal, platform release and terminal SDK shutdown.
@@ -184,7 +184,7 @@ public sealed partial class SimulationBootstrap : Node
         var combatHud = new Hud.CombatHud
         {
             Name = "CombatHud",
-            Vehicle = () => _session?.Arena?.LocalState ?? _arena?.Player.Snapshot,
+            Vehicle = () => _session?.PostMatch is null ? _session?.Arena?.LocalState ?? _arena?.Player.Snapshot : null,
             Slot = () => _session?.Arena?.Driver.LocalItem,
             Units = () => _settings.Current.SpeedUnit,
             Position = () => _session?.Standings.Position ?? "--",
@@ -194,9 +194,9 @@ public sealed partial class SimulationBootstrap : Node
         {
             Name = "ActivityFeed",
             Source = () => _arena?.Simulation.Events ?? _session?.Events,
-            Gameplay = () => _arena is not null || _session?.Arena is not null,
+            Gameplay = () => _arena is not null || (_session?.Arena is not null && _session.PostMatch is null),
         });
-        AddChild(new Hud.MatchStandings { Name = "MatchStandings", View = () => _session?.Standings });
+        AddChild(new Hud.MatchStandings { Name = "MatchStandings", View = () => _session?.PostMatch is null ? _session?.Standings : null });
         EosIdentityNode? online = null;
         if (OnlineEnabled && !OS.GetCmdlineUserArgs().Contains("--local-practice"))
         {
@@ -221,6 +221,9 @@ public sealed partial class SimulationBootstrap : Node
             _session = new DevelopmentSession
             {
                 Name = "DevelopmentSession",
+                NavigationInput = _playerInput.Adapter,
+                OverlayOpen = () => panel.CurrentPage != MenuPage.Closed || devTools.IsOpen,
+                QuitApplication = RequestQuit,
                 OnlineCoordinator = () => online?.Coordinator,
                 OnlineStatus = () => online?.Status ?? EosLobbyStatus.Unavailable,
                 OnlineLogin = () => online?.Login(),
@@ -253,7 +256,7 @@ public sealed partial class SimulationBootstrap : Node
         var settings = new PlayerSettingsController { Name = "PlayerSettings" };
         settings.Initialize(playerInput.Adapter, SettingsPath ?? ProjectSettings.GlobalizePath("user://player-settings.json"));
         AddChild(settings);
-        playerInput.GameplayAvailable = () => !_quitRequested && (_arena is not null || _session?.Arena is not null);
+        playerInput.GameplayAvailable = () => !_quitRequested && (_arena is not null || (_session?.Arena is not null && _session.Stage == ApplicationStage.GameLoop));
         playerInput.FrameCaptured += OnFrameCaptured;
         _playerInput = playerInput;
         _settings = settings;

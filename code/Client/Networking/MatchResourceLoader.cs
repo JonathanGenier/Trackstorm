@@ -61,6 +61,15 @@ internal sealed class MatchResourceLoader
         string path = _paths[_index];
         if (!_requested)
         {
+            // Rematches usually reuse assets still held by the retiring arena. Acquire that
+            // reference on the main thread; do not send an already-live managed resource
+            // through another worker-thread reference-count/GC-handle handoff.
+            if (ResourceLoader.GetCachedRef(path) is { } cached)
+            {
+                Retain(cached);
+                return;
+            }
+
             if (ResourceLoader.LoadThreadedRequest(path, useSubThreads: true) != Error.Ok)
             {
                 throw new InvalidOperationException("Could not request a required match resource.");
@@ -82,6 +91,11 @@ internal sealed class MatchResourceLoader
         }
 
         Resource resource = ResourceLoader.LoadThreadedGet(path) ?? throw new InvalidOperationException("Missing match resource.");
+        Retain(resource);
+    }
+
+    private void Retain(Resource resource)
+    {
         _retained.Add(resource);
         if (_index == _paths.Length - 1)
         {
