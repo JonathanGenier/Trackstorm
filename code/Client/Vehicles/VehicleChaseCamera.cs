@@ -7,6 +7,7 @@ namespace Trackstorm.Client.Vehicles;
 public sealed partial class VehicleChaseCamera : Camera3D
 {
     private readonly ChaseCameraMotion _motion = new();
+    private readonly CameraFreeLook _look = new();
     private bool _initialized;
     private ulong _vehicle;
     private ulong _life;
@@ -57,6 +58,16 @@ public sealed partial class VehicleChaseCamera : Camera3D
 
     /// <summary>Presentation diagnostics for runtime checks.</summary>
     internal ChaseCameraMotion Motion => _motion;
+    /// <summary>The existing local input owner; never a gameplay or replicated camera command.</summary>
+    internal Input.PlayerInputAdapter? InputSource { get; set; }
+
+    /// <summary>Clears presentation memory at a restored/reassigned display boundary, even for the same life.</summary>
+    internal void ResetFollow()
+    {
+        _initialized = false;
+        _look.Reset();
+        InputSource?.ResetCameraMotion();
+    }
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -92,6 +103,8 @@ public sealed partial class VehicleChaseCamera : Camera3D
             ? MathF.Atan2(-forward.X, -forward.Z) : _heading;
         if (reset)
         {
+            _look.Reset();
+            InputSource?.ResetCameraMotion();
             _motion.Reset(state.ObservedPhysics.LinearVelocity);
             _motionTick = state.Movement.Tick;
             _anchor = pose.Origin;
@@ -123,8 +136,18 @@ public sealed partial class VehicleChaseCamera : Camera3D
         Vector3 right = new(MathF.Cos(_heading), 0, -MathF.Sin(_heading));
         float distance = Math.Max(2, FollowDistance);
         float height = Math.Max(1, CameraHeight);
-        GlobalPosition = _anchor + (backward * (distance + _motion.Offset.Y)) + (right * _motion.Offset.X) + (Vector3.Up * (height + (_motion.ShakeOffset * MaximumShakeMetres)));
-        GlobalBasis = Basis.FromEuler(new Vector3(-MathF.Atan2(height - 0.5f, distance), _heading, 0));
+        float basePitch = -MathF.Atan2(height - 0.5f, distance);
+        Vector2 mouse = InputSource?.ConsumeCameraMotion() ?? Vector2.Zero;
+        Vector2 stick = InputSource is { CameraEnabled: true } source ? source.CameraIntent.LimitLength() : Vector2.Zero;
+        if (!reset)
+        {
+            _look.Advance(new(mouse.X, mouse.Y), InputSource?.MouseLookHeld == true, new(stick.X, stick.Y), delta, basePitch);
+        }
+
+        GlobalBasis = Basis.FromEuler(new Vector3(basePitch + _look.Pitch, _heading + _look.Yaw, 0));
+        float radius = MathF.Sqrt(distance * distance + (height - 0.5f) * (height - 0.5f));
+        GlobalPosition = _anchor + Vector3.Up * 0.5f + GlobalBasis.Z * radius
+            + backward * _motion.Offset.Y + right * _motion.Offset.X + Vector3.Up * (_motion.ShakeOffset * MaximumShakeMetres);
         _initialized = true;
     }
 }
