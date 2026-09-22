@@ -15,7 +15,15 @@ internal sealed partial class StartupIntegrationChecks : Node
     private double _seconds;
 
     /// <inheritdoc/>
-    public override void _Ready() => _startup.StageChanged += OnStageChanged;
+    public override void _Ready()
+    {
+        // The headless display defaults to 64x64 and ignores --resolution. Size the actual
+        // Window before composition so browser controls participate in real pointer hit testing.
+        Vector2I initialSize = GetWindow().Size;
+        GetWindow().Size = new Vector2I(1280, 720);
+        GD.Print($"Startup pointer fixture window: {initialSize} -> {GetWindow().Size} ({DisplayServer.GetName()}).");
+        _startup.StageChanged += OnStageChanged;
+    }
 
     /// <inheritdoc/>
     public override void _Process(double delta)
@@ -169,7 +177,8 @@ internal sealed partial class StartupIntegrationChecks : Node
             Click(menu.Targets[0]);
             Check(session.Stage == Networking.ApplicationStage.LobbyBrowser, "Play opens existing Lobby Browser");
             Check(_startup.BackgroundInstanceId == _loaderBackground && _startup.MusicInstanceId == _loaderMusic && _startup.MediaPlaying, "Entrance, Settings, and browser retain active MenuShell players");
-            session.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == "Back to Main Menu").EmitSignal(BaseButton.SignalName.Pressed);
+            await Frames(2);
+            Click(session.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == "Back to Main Menu"));
             await Frames(3);
             Check(session.Stage == Networking.ApplicationStage.MainMenu && menu.Interactive, "Browser return retains settled menu");
             for (int repeat = 0; repeat < 3; repeat++)
@@ -178,10 +187,21 @@ internal sealed partial class StartupIntegrationChecks : Node
                 Click(menu.Targets[0]);
                 Check(!menu.Visible && menu.Targets.All(button => button.Disabled), "Browser entry immediately hides and disables Main Menu targets");
                 var direct = session.FindChildren("*", "CheckButton", true, false).Cast<CheckButton>().Single(button => button.Text == "Developer fallback: Direct-IP / LAN");
-                direct.ButtonPressed = true;
+                // Containers lay out newly shown browser content on the following frames.
                 await Frames(2);
-                Click(session.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == "Back to Main Menu"));
-                Check(session.Stage == Networking.ApplicationStage.MainMenu && menu.Visible && !direct.ButtonPressed, "Direct-IP Back restores only the new Main Menu immediately");
+                Click(direct);
+                Check(direct.ButtonPressed, "Real click enables Direct-IP before Back");
+                await Frames(2);
+                var back = session.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == "Back to Main Menu");
+                int received = 0;
+                void OnBackPressed() => received++;
+                back.Pressed += OnBackPressed;
+                try { Click(back); }
+                finally { back.Pressed -= OnBackPressed; }
+                Check(received == 1, $"Back receives exactly one real click in cycle {repeat}: {received}");
+                Check(session.Stage == Networking.ApplicationStage.MainMenu && menu.Visible && !direct.ButtonPressed,
+                    $"Direct-IP Back restores only the new Main Menu immediately: stage={session.Stage}, menuVisible={menu.Visible}, direct={direct.ButtonPressed}");
+                GD.Print($"Direct-IP click cycle {repeat + 1}: viewport={GetViewport().GetVisibleRect().Size}, Back={back.GetGlobalRect()}, pressed={received}, stage={session.Stage}, menuVisible={menu.Visible}, direct={direct.ButtonPressed}.");
                 await Frames(2);
             }
             CheckMainMenuComposition(session);
@@ -232,9 +252,12 @@ internal sealed partial class StartupIntegrationChecks : Node
         Godot.Input.FlushBufferedEvents();
     }
 
-    private static void Click(Button button)
+    private void Click(Button button)
     {
-        Vector2 position = button.GetGlobalRect().GetCenter();
+        Rect2 bounds = button.GetGlobalRect();
+        Check(button.IsVisibleInTree() && bounds.HasArea() && GetViewport().GetVisibleRect().Encloses(bounds),
+            $"Click target '{button.Text}' must be visible and laid out inside viewport: bounds={bounds}, viewport={GetViewport().GetVisibleRect()}");
+        Vector2 position = bounds.GetCenter();
         using var motion = new InputEventMouseMotion { Position = position, GlobalPosition = position, Relative = new Vector2(8, 8) };
         Godot.Input.ParseInputEvent(motion);
         Godot.Input.FlushBufferedEvents();
