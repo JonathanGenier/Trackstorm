@@ -132,6 +132,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     Require(_session.Stage == ApplicationStage.Admission && Controls<Label>().Any(label => label.IsVisibleInTree() && label.Text.StartsWith("JOINING / CREATING", StringComparison.Ordinal)), "Pending creation has visible progress.");
                     _provider.CompleteCreate!();
                     _provider.CompleteCreate = null;
+                    _provider.DeferCreate = false;
                     Require(_session.Stage == ApplicationStage.Admission && _session.Lobby is null, "EOS membership alone cannot enter the joined Lobby.");
                     Controls<OnlineLobbyPanel>().Single()._Process(0);
                     Require(_coordinator.IsHost, "Host control failed.");
@@ -326,6 +327,8 @@ public sealed partial class OnlineLobbyUiChecks : Node
         private readonly LobbyCredential _credential = LobbyCredential.Create("test-code");
         private OnlineLobby? _active;
         internal int ResumeRequests { get; private set; }
+        internal bool DeferCreate { get; set; }
+        internal Action? CompleteCreate { get; set; }
         internal bool DelayLookup { get; set; }
         internal Action? CompleteLookup { get; private set; }
         public void Search(Action<IReadOnlyList<OnlineLobby>, string?> completed) => completed(new[] { new OnlineLobby("public", "Arena Public", _remote, 100, LobbyAccess.Public, 2, 8, OnlineLobby.CurrentProtocol, true, null), new OnlineLobby("locked", "Private Game", _remote, 200, LobbyAccess.Locked, 3, 8, OnlineLobby.CurrentProtocol, true, _credential), new OnlineLobby("incompatible", "Different build", _remote, 300, LobbyAccess.Public, 1, 8, OnlineLobby.CurrentProtocol, true, null) { Version = new GameVersion(GameVersion.Current.Release, GameVersion.Current.Revision == 0 ? 1 : GameVersion.Current.Revision - 1).ToString() } }, null);

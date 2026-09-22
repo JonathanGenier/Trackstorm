@@ -18,6 +18,28 @@ public sealed partial class OvalIntegrationChecks
         Vector3 normal = hit["normal"].AsVector3().Normalized();
         Vector3 tangent = (_centers[(bank + 1) % _centers.Length] - _centers[(bank - 1 + _centers.Length) % _centers.Length]).Normalized();
         Basis bankBasis = Basis.LookingAt(tangent, normal);
+        foreach (bool network in new[] { false, true })
+        {
+            foreach (int direction in new[] { 1, -1 })
+            {
+                foreach ((float entry, short steering) in new (float, short)[] { (42, 8000), (42, 16000), (42, 32767), (44.44f, 32767) })
+                {
+                    var corner = await HandlingProbe(network, center + (normal * VehicleDimensions.RideHeight), Basis.LookingAt(tangent * direction, normal), tangent * (entry * direction), 60, tick => new InputFrame(tick, (short)(-steering * direction), ushort.MaxValue, 0, 0, 0, 0));
+                    var samples = corner.Skip(2).ToArray();
+                    float slipAngle = samples.Max(state =>
+                    {
+                        var forward = System.Numerics.Vector3.Transform(-System.Numerics.Vector3.UnitZ, state.Physics.Orientation);
+                        var side = System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, state.Physics.Orientation);
+                        return MathF.Abs(MathF.Atan2(System.Numerics.Vector3.Dot(state.Physics.LinearVelocity, side), System.Numerics.Vector3.Dot(state.Physics.LinearVelocity, forward)));
+                    });
+                    float yaw = samples.Max(state => state.Physics.AngularVelocity.Length());
+                    float rearSlip = samples.Max(state => state.RearSlip);
+                    Check(slipAngle < 0.15f && yaw < 0.8f && rearSlip < 0.4f && samples.All(state => state.Grounded) && samples[^1].CommandSpeed > 40,
+                        $"{(network ? "Network" : "Practice")} {entry} m/s bank turn, direction {direction}, steering {steering}: slip angle {slipAngle:F3} rad, angular speed {yaw:F3} rad/s, rear slip {rearSlip:F3}, continuously supported, final speed {samples[^1].CommandSpeed:F3} m/s.");
+                }
+            }
+        }
+
         Vector3 downhill = (Vector3.Down - (normal * Vector3.Down.Dot(normal))).Normalized();
         foreach (float speed in new[] { 6f, 12f, 20f })
         {

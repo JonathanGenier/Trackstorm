@@ -25,13 +25,13 @@ internal sealed class DeveloperOptionsTests
         Assert.That(draft.TryGetEdits(out var unchanged, out _), Is.True);
         Assert.That(unchanged, Is.Empty, "Displayed float precision must not create phantom edits.");
         var friction = GameplayOptions.All.Single(option => option.Key == "vehicle.tire_friction");
-        draft.Set(friction.Key, "3.35");
+        draft.Set(friction.Key, "1.65");
         Assert.That(draft.IsDefault(friction), Is.True);
         Assert.That(draft.IsDirty, Is.False);
-        draft.Set(friction.Key, "3.36");
+        draft.Set(friction.Key, "1.66");
         Assert.That(draft.IsDefault(friction), Is.False);
         Assert.That(draft.IsDirty, Is.True);
-        draft.Set(friction.Key, "3.3500");
+        draft.Set(friction.Key, "1.6500");
         Assert.That(draft.IsDirty, Is.False, "Restoring a value clears unapplied changes.");
         draft.Set(friction.Key, "NaN");
         Assert.That(draft.IsDefault(friction), Is.False);
@@ -69,7 +69,7 @@ internal sealed class DeveloperOptionsTests
         var loaded = new DeveloperSettingsStore(_path).Current;
         Assert.That(loaded, Is.EqualTo(GameplayConfiguration.HostedDefaults with { Vehicle = GameplayConfiguration.HostedDefaults.Vehicle with { Acceleration = 7 } }));
         Assert.That(loaded.Vehicle.Acceleration, Is.EqualTo(7));
-        Assert.That(loaded.Vehicle.TireFriction, Is.EqualTo(1.35f));
+        Assert.That(loaded.Vehicle.TireFriction, Is.EqualTo(1.65f));
         Assert.That(loaded.Items.MaximumDamage, Is.EqualTo(300));
     }
 
@@ -235,7 +235,7 @@ internal sealed class DeveloperOptionsTests
     private static void AssertReleaseTuning(GameplayConfiguration configuration)
     {
         Assert.That(configuration.Vehicle.Acceleration, Is.EqualTo(11));
-        Assert.That(configuration.Vehicle.TireFriction, Is.EqualTo(1.35f));
+        Assert.That(configuration.Vehicle.TireFriction, Is.EqualTo(1.65f));
         Assert.That(configuration.Damage.CollisionScale, Is.EqualTo(5));
         Assert.That(configuration.Items.MissileSpeed, Is.EqualTo(70));
         Assert.That(configuration.Items.ExplosionRadius, Is.EqualTo(12));

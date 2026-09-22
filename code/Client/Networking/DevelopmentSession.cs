@@ -129,6 +129,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _browse.Pressed += () => SetBrowser(true);
         _back.Pressed += () => SetBrowser(false);
         _menu.AddChild(_debug);
+        _menu.AddChild(_name);
         _menu.AddChild(_online);
         _debug.Toggled += enabled =>
         {
@@ -137,7 +138,6 @@ internal sealed partial class DevelopmentSession : CanvasLayer
                 OnlineCoordinator()?.Leave();
             }
         };
-        _menu.AddChild(_name);
         _menu.AddChild(_address);
         _menu.AddChild(_host);
         _menu.AddChild(_join);

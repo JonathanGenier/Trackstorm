@@ -246,10 +246,11 @@ public sealed partial class VehicleIntegrationChecks : Node
                 {
                     int release = 12 + heldTicks;
                     int powered = release + Math.Max(0, throttleDelay);
+                    // The calmer speed-sensitive wheel range needs deliberate steering to initiate the faster drift.
                     List<VehicleState> states = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -speed), heldTicks == 45 ? 180 : 90, tick => Frame(
                         tick,
                         throttle: (int)tick > release + throttleDelay ? (ushort)65535 : (ushort)0,
-                        steering: (int)tick <= release ? (short)12000 : (int)tick <= release + 20 ? (short)-7000 : (short)0,
+                        steering: (int)tick <= release ? (speed == 16 ? (short)24000 : (short)12000) : (int)tick <= release + 20 ? (short)-7000 : (short)0,
                         drift: tick > 12 && (int)tick <= release));
                     VehicleState first = states[powered];
                     float side = Math.Abs(Numerics.Vector3.Dot(first.Physics.LinearVelocity, Numerics.Vector3.Transform(Numerics.Vector3.UnitX, first.Physics.Orientation)));

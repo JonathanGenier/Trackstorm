@@ -29,13 +29,13 @@ public sealed record VehicleConfiguration
     /// <summary>Maximum low-speed wheel angle in radians.</summary>
     public float SteeringAngle { get; init; } = 0.6f;
     /// <summary>Speed in m/s at which wheel authority starts calming substantially.</summary>
-    public float SteeringSpeed { get; init; } = 18;
+    public float SteeringSpeed { get; init; } = 11;
     /// <summary>Wheel angle transition rate in radians per second.</summary>
     public float SteeringResponse { get; init; } = 2.4f;
     /// <summary>Distance between axle centers in metres.</summary>
     public float Wheelbase { get; init; } = VehicleDimensions.Wheelbase;
     /// <summary>Tire friction coefficient; combined demands share this budget.</summary>
-    public float TireFriction { get; init; } = 1.35f;
+    public float TireFriction { get; init; } = 1.65f;
     /// <summary>Rear traction share available to propulsion despite lateral saturation; zero disables allocation.</summary>
     public float DriveTractionReserve { get; init; } = 0.55f;
     /// <summary>Effective center-of-mass height for longitudinal/lateral load transfer.</summary>
