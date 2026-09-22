@@ -28,7 +28,7 @@ public sealed class Simulation
         MatchRules = match;
         if (match is not null)
         {
-            State = new SimulationState(0, default, match: new Matches.MatchState(0, 0, match.KillTarget, Matches.MatchPhase.Waiting, null, null, []));
+            State = new SimulationState(0, default, match: new Matches.MatchState(0, 0, match.KillTarget, Matches.MatchPhase.Waiting, null, null, [], mode: match.Mode));
         }
 
     }
@@ -154,7 +154,7 @@ public sealed class Simulation
         if (match is not null && match.Players.Any(player => player.Player == vehicleId && player.Stunts is not null))
         {
             match = new Matches.MatchState(State.Tick, checked(match.Revision + 1), match.KillTarget, match.Phase, match.CountdownAtTick, match.Winner,
-                match.Players.Select(player => player.Player == vehicleId ? player with { Stunts = null } : player));
+                match.Players.Select(player => player.Player == vehicleId ? player with { Stunts = null } : player), mode: match.Mode);
         }
         State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot), match);
     }
@@ -170,7 +170,7 @@ public sealed class Simulation
     public void Restore(SimulationState state)
     {
         if ((state.Match is null) != (MatchRules is null) || (state.Match is not null &&
-            (state.Match.KillTarget != MatchRules!.KillTarget || (state.Match.Phase != Matches.MatchPhase.Finished && state.Vehicles.Any(vehicle => !state.Match.Players.Any(player => player.Player == vehicle.VehicleId))))))
+            (state.Match.Mode != MatchRules!.Mode || state.Match.KillTarget != MatchRules.KillTarget || (state.Match.Phase != Matches.MatchPhase.Finished && state.Vehicles.Any(vehicle => !state.Match.Players.Any(player => player.Player == vehicle.VehicleId))))))
         {
             throw new ArgumentException("Restoration requires the complete configured match state.", nameof(state));
         }
@@ -311,13 +311,21 @@ public sealed class Simulation
                 throw new ArgumentException("Kill target must exceed existing scores and cannot change a finished result.");
             }
 
+            if (configuration.Match.Mode != match.Mode && match.Phase != Matches.MatchPhase.Waiting)
+            {
+                throw new ArgumentException("Scoring mode is fixed once countdown starts.");
+            }
+
             ulong? deadline = match.CountdownAtTick;
             if (deadline.HasValue && configuration.Match.CountdownTicks != MatchRules!.CountdownTicks)
             {
                 deadline = checked(State.Tick + configuration.Match.CountdownTicks);
             }
 
-            match = new Matches.MatchState(State.Tick, checked(match.Revision + 1), configuration.Match.KillTarget, match.Phase, deadline, match.Winner, match.Players);
+            if (match.Phase != Matches.MatchPhase.Finished)
+            {
+                match = new Matches.MatchState(State.Tick, checked(match.Revision + 1), configuration.Match.KillTarget, match.Phase, deadline, match.Winner, match.Players, mode: configuration.Match.Mode);
+            }
         }
 
         var vehicles = _vehicles.ToDictionary(pair => pair.Key, pair => pair.Value.Retune(configuration.Vehicle, configuration.Damage));

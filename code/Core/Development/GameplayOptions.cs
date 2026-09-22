@@ -56,6 +56,7 @@ public static class GameplayOptions
         new("spawns.pickup_radius", "Item spawns", "PickupRadius", false, c => c.Spawns.PickupRadius, (c, v) => c with { Spawns = c.Spawns with { PickupRadius = checked((float)v) } }),
         new("respawn.delay_ticks", "Respawn", "DelayTicks", true, c => c.Respawn.DelayTicks, (c, v) => c with { Respawn = c.Respawn with { DelayTicks = checked((ulong)v) } }),
         new("respawn.clear_held_item_on_death", "Respawn", "ClearHeldItemOnDeath", true, c => c.Respawn.ClearHeldItemOnDeath ? 1 : 0, (c, v) => c with { Respawn = c.Respawn with { ClearHeldItemOnDeath = v == 1 } }),
+        new("match.mode", "Match", "Mode (0 = First to Target, 1 = Circus)", true, c => (byte)c.Match.Mode, (c, v) => c with { Match = c.Match with { Mode = (Matches.MatchMode)checked((byte)v) } }),
         new("match.kill_target", "Match", "KillTarget", true, c => c.Match.KillTarget, (c, v) => c with { Match = c.Match with { KillTarget = checked((int)v) } }),
         new("match.minimum_players", "Match", "MinimumPlayers", true, c => c.Match.MinimumPlayers, (c, v) => c with { Match = c.Match with { MinimumPlayers = checked((int)v) } }),
         new("match.countdown_ticks", "Match", "CountdownTicks", true, c => c.Match.CountdownTicks, (c, v) => c with { Match = c.Match with { CountdownTicks = checked((ulong)v) } }),

@@ -131,7 +131,9 @@ internal sealed class ResumeCheckpointTests
         Assert.That(preview.Match.Players.Take(2), Is.EqualTo(host.World.State.Match.Players));
         Assert.That(preview.Match.Players.Last().Stunts, Is.Null);
         host.Suspend(10);
-        var checkpoint = new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), [], [], []), host.World.State.Match!, null, host.Configuration);
+        var state = host.World.State.Match!;
+        var retained = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode);
+        var checkpoint = new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), [], [], []), retained, null, host.Configuration);
         var restored = HostVehicleSession.Restore(ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(checkpoint)), host.CaptureAuthority(), 1);
         Assert.That(restored.ResumePlayer(20, 2), Is.True);
         Assert.That(restored.TryConfigure(0, new Dictionary<string, double> { ["match.top_speed_enter_ratio"] = 0.99, ["match.top_speed_exit_ratio"] = 0.98 }, out _), Is.True);
@@ -186,7 +188,9 @@ internal sealed class ResumeCheckpointTests
         Hit(host, 10);
         Assert.That(host.World.State.Match!.Players[0].CircusScore, Is.EqualTo(25));
         host.Suspend(10);
-        var checkpoint = new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), [], [], []), host.World.State.Match!, null, host.Configuration);
+        var state = host.World.State.Match!;
+        var retained = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode);
+        var checkpoint = new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), [], [], []), retained, null, host.Configuration);
         var decoded = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(checkpoint));
         var restored = HostVehicleSession.Restore(decoded, host.CaptureAuthority(), 1);
         Assert.That(restored.World.State.Match!.Players, Is.EqualTo(host.World.State.Match.Players));
