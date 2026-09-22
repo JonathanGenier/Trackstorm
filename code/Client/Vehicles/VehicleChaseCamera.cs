@@ -45,16 +45,16 @@ public sealed partial class VehicleChaseCamera : Camera3D
     public float CollisionShakeStrength { get; set; } = 0.55f;
     /// <summary>Bounded damage feedback gain.</summary>
     [Export(PropertyHint.Range, "0,1,0.01")]
-    public float DamageShakeStrength { get; set; } = 0.65f;
+    public float DamageShakeStrength { get; set; } = 0.85f;
     /// <summary>Shake envelope decay rate per second.</summary>
     [Export(PropertyHint.Range, "0.1,20,0.1")]
     public float ShakeDecay { get; set; } = 7;
     /// <summary>Minimum contact severity in metres per second for feedback.</summary>
     [Export(PropertyHint.Range, "0,10,0.1")]
     public float CollisionThreshold { get; set; } = 3;
-    /// <summary>Maximum vertical shake displacement in metres.</summary>
-    [Export(PropertyHint.Range, "0,0.5,0.01")]
-    public float MaximumShakeMetres { get; set; } = 0.12f;
+    /// <summary>Maximum view-plane shake displacement in metres; actual impacts use a smaller envelope.</summary>
+    [Export(PropertyHint.Range, "0,0.65,0.01")]
+    public float MaximumShakeMetres { get; set; } = 0.65f;
 
     /// <summary>Presentation diagnostics for runtime checks.</summary>
     internal ChaseCameraMotion Motion => _motion;
@@ -123,7 +123,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
             float strength = damage.Attribution.Source == "collision" ? CollisionShakeStrength : DamageShakeStrength;
             if (ShakeIntensity > 0)
             {
-                _motion.Impulse(strength * Math.Clamp(damage.Amount / 50, 0, 1));
+                _motion.Impulse(strength * MathF.Sqrt(Math.Clamp(damage.Amount / 50, 0, 1)));
             }
         }
 
@@ -157,8 +157,10 @@ public sealed partial class VehicleChaseCamera : Camera3D
 
         GlobalBasis = Basis.FromEuler(new Vector3(basePitch + _look.Pitch, _heading + _look.Yaw, 0));
         float radius = MathF.Sqrt(distance * distance + (height - 0.5f) * (height - 0.5f));
+        System.Numerics.Vector2 shake = _motion.ShakeOffset * Math.Clamp(MaximumShakeMetres, 0, 0.65f) * ShakeIntensity;
         GlobalPosition = _anchor + Vector3.Up * 0.5f + GlobalBasis.Z * radius
-            + backward * _motion.Offset.Y + right * _motion.Offset.X + Vector3.Up * (_motion.ShakeOffset * MaximumShakeMetres * ShakeIntensity);
+            + backward * _motion.Offset.Y + right * _motion.Offset.X
+            + GlobalBasis.X * shake.X + GlobalBasis.Y * shake.Y;
         _initialized = true;
     }
 }

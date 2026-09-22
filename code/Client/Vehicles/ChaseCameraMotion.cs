@@ -17,8 +17,15 @@ internal sealed class ChaseCameraMotion
     internal Vector2 Offset { get; private set; }
     /// <summary>Bounded nonnegative feedback envelope.</summary>
     internal float Shake { get; private set; }
-    /// <summary>Zero-centred deterministic oscillation scaled by the envelope.</summary>
-    internal float ShakeOffset => MathF.Sin(_phase * ShakeFrequency) * Shake;
+    /// <summary>Bounded view-plane displacement; differing frequencies avoid a repetitive vertical bob.</summary>
+    internal Vector2 ShakeOffset
+    {
+        get
+        {
+            var wave = new Vector2(0.6f * MathF.Sin(_phase * 31), MathF.Sin(_phase * ShakeFrequency));
+            return wave / Math.Max(1, wave.Length()) * Shake;
+        }
+    }
 
     /// <summary>Frame-rate independent exponential interpolation weight.</summary>
     /// <param name="rate">Convergence rate per second.</param>
@@ -89,7 +96,8 @@ internal sealed class ChaseCameraMotion
             return;
         }
 
-        Impulse(Math.Clamp((severity - threshold) / FullCollisionSpeed, 0, 1) * strength);
+        // A soft response curve makes useful mid-severity impacts readable at chase distance.
+        Impulse(MathF.Sqrt(Math.Clamp((severity - threshold) / FullCollisionSpeed, 0, 1)) * strength);
         _collisionCooldown = CollisionCooldownSeconds;
     }
 

@@ -220,7 +220,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
             float offset = camera.GlobalPosition.Y - baseline.Origin.Y;
             if (intensity == 1) fullOffset = offset;
             Require(fullOffset > 0 && Math.Abs(offset - fullOffset * intensity) < 0.00001, "Local intensity scales only the final shake displacement");
-            Require(camera.GlobalBasis.IsEqualApprox(baseline.Basis) && camera.GlobalPosition.X == baseline.Origin.X && camera.GlobalPosition.Z == baseline.Origin.Z, "Intensity preserves normal heading and chase position");
+            Require(camera.GlobalBasis.IsEqualApprox(baseline.Basis) && Math.Abs((camera.GlobalPosition - baseline.Origin).Dot(baseline.Basis.Z)) < 0.00001f, "Shake preserves aim and chase depth");
             float envelope = camera.Motion.Shake;
             camera.ObserveCollision(observation, 900);
             Require(camera.Motion.Shake == envelope, "Repeated contacts within cooldown cannot stack shake");

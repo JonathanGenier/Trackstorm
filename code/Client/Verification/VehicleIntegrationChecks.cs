@@ -27,7 +27,7 @@ public sealed partial class VehicleIntegrationChecks : Node
         if (_arena is not null && _settings is not null)
         {
             var camera = _arena.GetNode<VehicleChaseCamera>("ChaseCamera");
-            _shakePeak = Math.Max(_shakePeak, Math.Abs(camera.Motion.ShakeOffset * camera.MaximumShakeMetres * (float)_settings.Current.CameraShakeIntensity));
+            _shakePeak = Math.Max(_shakePeak, camera.Motion.ShakeOffset.Length() * camera.MaximumShakeMetres * (float)_settings.Current.CameraShakeIntensity);
         }
     }
 
