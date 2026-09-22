@@ -168,3 +168,43 @@ Snapshots cannot establish continuous animation quality, a precise fixed percent
 ## Recommended Next Round / Human Decision
 
 **No fourth Story critique round is permitted by the current policy.** This is Round 3, the last allowed Story round. The requested animation correction can be accepted as-is; any remaining advisory polish must be handled through an explicit human decision consistent with that limit. Do not start further implementation or critique automatically. No implementation changes were made during this review. **Stop for explicit human instruction.**
+
+---
+
+# Astra Runtime Critique — User-Authorized Follow-up
+
+Story: TS-122. Branch: `ts-122-jg`. Date: 2026-09-21. The user's explicit request for an additional critique of the replacement/diagnostics/version/flash correction overrides the earlier round limit for this follow-up only. Repository policy and earlier history remain unchanged; no additional polish is authorized.
+
+**Overall Score: 7.7 / 10**
+
+**Quality Assessment: FAIL (<8.0)**
+
+The requested menu changes are supported by current rendered evidence: Speed is gone, the version appears at bottom-left, and sampled delayed-lookup frames keep the hanging menu visible without exposing the blue browser panel. Existing visual polish concerns remain. The score assesses the menu surface; a separately observed local-practice failure is reported below.
+
+| Category | Score | Basis |
+| --- | --- | --- |
+| Runtime Functionality | 8.0 | Current native harnesses pass; independent interactive return testing was incomplete. |
+| Controls / Responsiveness | 7.8 | Current return/input harness evidence supports behavior; no new independent native actions completed. |
+| Visual Quality | 7.4 | Clear composition and version placement; selected-material and status-badge concerns persist. |
+| UI / UX | 7.8 | Reduced diagnostic clutter; sampled lookup states preserve the intended menu. |
+| Runtime Integration | 7.8 | Startup/menu checks pass; independent local-practice return was blocked by a simulation exception. |
+
+Animation, audio and measured performance were not rescored.
+
+## What Was Exercised
+
+- **VERIFIED — direct visual inspection:** current settled capture shows Speed removed and version at bottom-left. Lookup frames `00`, `05`, `10` and `19` show the menu without the blue panel. These are sampled views, not independent inspection of every intervening frame.
+- **VERIFIED — failed native runtime attempt:** launched local practice at 30 FPS. It repeatedly emitted `ArgumentException: The input frame must target the next simulation tick` through `Simulation.Step → VehicleArena.Advance → SimulationBootstrap.OnFrameCaptured → PlayerInput._PhysicsProcess`. Stopped promptly; `.godot/ts-122-astra-followup-practice.log` records the failure.
+- **VERIFIED — bounded normal-startup attempt:** a separate normal launch at 30 FPS produced no diagnostics before termination. Window discovery exposed another, user-owned exported game. Stopped only the critique instance, without interacting with either window. Evidence: `.godot/ts-122-astra-followup-menu.log`.
+- **Supporting verification:** the implementation agent's post-synchronization full gate passed 504 Core and 342 transport tests with zero build warnings; rendered startup passed and native menu passed 961 assertions. The delayed-lookup regression uses a fake provider, not authenticated EOS. These suites were not independently rerun by the critic.
+
+## Runtime / Operational Limitations
+
+Independent normal-menu actions and local-practice return → Settings/input remain **UNVERIFIED in this follow-up**. The user's exported game was left untouched to avoid concurrent games after the freeze report. Earlier-round native observations are historical, not current retests. Live EOS, audible continuity, physical controllers, exported-build correctness, continuous animation and frame pacing were not verified. The source-based conclusion that the practice tick mismatch predates TS-122 was supplied by the implementation agent, not independently reproduced on main.
+
+## Recommendations and Human Decision
+
+1. **Retained presentation concerns:** current captures retain saturated selected plates and a flat status plaque, weakening material consistency despite clear selection. **Severity:** Medium for selected material, Low for status backing. **Suggested improvement:** if separately authorized, retain darker metallic variation in selection and integrate the status backing with the artwork. **Scope:** In Scope for general Story presentation, outside this specific correction authorization. **Corrective Work Type:** Existing Task. Earlier recommendations remain unauthorized and unimplemented.
+2. **Local-practice tick failure:** native launch repeatedly throws before its return callbacks can be exercised, preventing meaningful practice use and producing substantial diagnostics. **Severity:** High. **Suggested improvement:** investigate input-tick synchronization with newly created simulation, then verify fresh practice startup and return. **Scope:** Out-of-Scope Recommendation; not a confirmed TS-122 regression. **Corrective Work Type:** New Corrective Task, only if authorized.
+
+**Recommended next decision:** accept or reject the follow-up as-is and explicitly decide whether the separate practice defect warrants work. No further implementation, critique or polish begins automatically. Requested commit/push only records the verified changes and limitations; it does not claim human acceptance or authorize merge.
