@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+{"Host":true,"Map":"res://scenes/maps/oval_foundation.tscn","LargestRoster":2,"LocalVehicle":1,"Tick":1507,"Snapshots":0,"ImmediateFrames":0,"DriftFrames":0,"HandbrakeFrames":79,"ErrorP99":0,"ErrorMaximum":0,"InterpolationDelay":0,"LargeCorrections":0,"CorrectionDetails":[],"LastAcknowledged":0,"Position":[51.912926,0.9000031,55.83393],"HP":1000,"Grounded":true,"PropTick":null,"PropTravel":0,"PropReplicaError":0,"PropPositions":null}
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+{"Host":false,"Map":"res://scenes/maps/oval_foundation.tscn","LargestRoster":2,"LocalVehicle":2,"Tick":1039,"Snapshots":317,"ImmediateFrames":703,"DriftFrames":0,"HandbrakeFrames":76,"ErrorP99":0.84337217,"ErrorMaximum":3.9589903,"InterpolationDelay":69.19728450174034,"LargeCorrections":1,"CorrectionDetails":[{"Seconds":1.0666666666666678,"Error":2.09436,"Tick":208,"Ack":24,"Pending":40,"HP":1000,"Position":"\u003C2.0566103, 0.89996266, 85.411964\u003E","Speed":5.8798885},{"Seconds":1.7999999999999985,"Error":3.9589903,"Tick":205,"Ack":98,"Pending":10,"HP":1000,"Position":"\u003C1.7979213, 0.89997166, 85.76271\u003E","Speed":5.3749948},{"Seconds":2.2999999999999967,"Error":1.6704552,"Tick":226,"Ack":122,"Pending":16,"HP":1000,"Position":"\u003C3.8630219, 0.89995897, 85.062706\u003E","Speed":5.985185},{"Seconds":2.7333333333333285,"Error":1.0317718,"Tick":242,"Ack":159,"Pending":5,"HP":1000,"Position":"\u003C5.0813975, 0.8999741, 84.5004\u003E","Speed":4.3202076}],"LastAcknowledged":948,"Position":[35.162903,0.9000002,60.653027],"HP":1000,"Grounded":true,"PropTick":null,"PropTravel":0,"PropReplicaError":0,"PropPositions":null}
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+
+Network vehicle verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\bb6ef9cce5254594aebcbdfc089f06a4

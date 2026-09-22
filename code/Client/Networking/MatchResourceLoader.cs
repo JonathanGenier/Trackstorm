@@ -70,7 +70,11 @@ internal sealed class MatchResourceLoader
                 return;
             }
 
-            if (ResourceLoader.LoadThreadedRequest(path, useSubThreads: true) != Error.Ok)
+            // Keep dependency loads on the request's worker. Godot 4.7.2's distributed
+            // dependency path leaves zero-reference LoadTokens behind for the oval's
+            // three external resources. The request remains asynchronous; polling and
+            // LoadThreadedGet still own its completion before retaining the resource.
+            if (ResourceLoader.LoadThreadedRequest(path, useSubThreads: false) != Error.Ok)
             {
                 throw new InvalidOperationException("Could not request a required match resource.");
             }

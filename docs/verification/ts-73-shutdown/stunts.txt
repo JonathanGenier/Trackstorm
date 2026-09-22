@@ -1,0 +1,10 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Native drift: 101 uninterrupted ticks, 37.083333 peak pending base points, total award 37.083333 (includes any concurrent Top Speed).
+Native top speed: 120 ticks produced 10.000000 pending base points; braking banked once.
+Native jump at 10 m/s: 150 airborne ticks and 25.003052 m observed before landing; banked 82.340861 including independent speed awards.
+Native jump at 20 m/s: 150 airborne ticks and 49.996948 m observed before landing; banked 143.992472 including independent speed awards.
+Native jump at 46.661995 m/s: 150 airborne ticks and 116.656494 m observed before landing; banked 325.086019 including independent speed awards.
+Native airborne death: applied lethal Core effect discarded pending flight/Top Speed; respawn and both UDP peers retained prior banked score.
+Stunt integration passed.
+Stunt verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\stunt-checks\d035e7c8d3cd4798ad9bec8a80d1faa2
