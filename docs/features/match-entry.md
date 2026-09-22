@@ -6,6 +6,8 @@ Application navigation is **Main Menu → Lobby Browser → Joining / Creating �
 
 [Main Menu's Play action](main-menu.md) fades browser controls over the same MenuShell video/music instances. Back returns to the settled Main Menu. Existing EOS discovery, Public/Locked access, exact version compatibility and retained-match decisions remain authoritative. Asynchronous membership and transport admission display progress; EOS membership alone does not enter the joined Lobby. Only a validated authoritative roster does. Failed admission keeps the browser usable with a diagnostic.
 
+The initial saved-session lookup runs without replacing the Main Menu with browser chrome. Explicit retained-session validation and authority-confirmed decisions retain their existing browser flow. Direct-IP Back clears the fallback selection so it returns to the Main Menu consistently.
+
 Joined Lobby is a separate runtime presentation/state. It suspends MenuShell media and presents the admitted roster, Ready, host Start, map selection and Leave, retaining online membership management. No new standalone Godot scene file owns networking lifetime.
 
 ## Authoritative map selection

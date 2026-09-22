@@ -221,22 +221,7 @@ public sealed partial class SimulationBootstrap : Node
         }
         else
         {
-            _session = new DevelopmentSession
-            {
-                Name = "DevelopmentSession",
-                NavigationInput = _playerInput.Adapter,
-                OverlayOpen = () => panel.CurrentPage != MenuPage.Closed || devTools.IsOpen,
-                QuitApplication = RequestQuit,
-                OpenSettings = panel.OpenFrontendSettings,
-                OnlineCoordinator = () => online?.Coordinator,
-                OnlineStatus = () => online?.Status ?? EosLobbyStatus.Unavailable,
-                OnlineLogin = () => online?.Login(),
-                OnlineLogout = () => online?.Logout(),
-                DeveloperSettings = Development.DeveloperTools.Enabled ? new Development.DeveloperSettingsStore(SettingsPath is null ? ProjectSettings.GlobalizePath("user://developer-settings.jsonl") : SettingsPath + ".developer.jsonl") : null
-            };
-            _session.SetFrontendPresentation(presentFrontend, presentFrontend ? 1 : 0);
-            AddChild(_session);
-            panel.ShowFrontendShortcut = () => _session.Stage != ApplicationStage.MainMenu;
+            _session = CreateSession(presentFrontend);
             if (networkArguments.Length == 1)
             {
                 string argument = networkArguments[0];
@@ -247,6 +232,29 @@ public sealed partial class SimulationBootstrap : Node
         }
 
         return true;
+    }
+
+    private DevelopmentSession CreateSession(bool presentFrontend)
+    {
+        var panel = _settingsPanel;
+        var devTools = GetNode<Development.DevToolsShell>("DevTools");
+        var session = new DevelopmentSession
+        {
+            Name = "DevelopmentSession",
+            NavigationInput = _playerInput.Adapter,
+            OverlayOpen = () => panel.CurrentPage != MenuPage.Closed || devTools.IsOpen,
+            QuitApplication = RequestQuit,
+            OpenSettings = panel.OpenFrontendSettings,
+            OnlineCoordinator = () => _online?.Coordinator,
+            OnlineStatus = () => _online?.Status ?? EosLobbyStatus.Unavailable,
+            OnlineLogin = () => _online?.Login(),
+            OnlineLogout = () => _online?.Logout(),
+            DeveloperSettings = Development.DeveloperTools.Enabled ? new Development.DeveloperSettingsStore(SettingsPath is null ? ProjectSettings.GlobalizePath("user://developer-settings.jsonl") : SettingsPath + ".developer.jsonl") : null
+        };
+        session.SetFrontendPresentation(presentFrontend, presentFrontend ? 1 : 0);
+        AddChild(session);
+        panel.ShowFrontendShortcut = () => session.Stage != ApplicationStage.MainMenu;
+        return session;
     }
 
     private bool PrepareFrontend()
@@ -315,14 +323,13 @@ public sealed partial class SimulationBootstrap : Node
 
     private void LeaveToMainMenu()
     {
-        _session?.Leave();
+        _session?.ReturnToMainMenu();
         if (_arena is not null)
         {
             RemoveChild(_arena);
             _arena.QueueFree();
             _arena = null;
-            _session = new DevelopmentSession { Name = "DevelopmentSession" };
-            AddChild(_session);
+            _session = CreateSession(true);
         }
     }
 
@@ -330,7 +337,6 @@ public sealed partial class SimulationBootstrap : Node
     {
         _arena?.Advance(input);
         _session?.Advance(input);
-        _settingsPanel?.SetVehicleTelemetry(_session?.Arena?.LocalState?.Speed ?? _arena?.Player.Snapshot.Speed ?? 0, _session?.Diagnostics ?? default);
-        _settingsPanel?.SetCombatHudVisible(_session?.Arena?.LocalState is not null || _arena is not null);
+        _settingsPanel?.SetConnectionTelemetry(_session?.Diagnostics ?? default);
     }
 }

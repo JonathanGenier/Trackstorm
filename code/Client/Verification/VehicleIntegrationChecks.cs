@@ -18,7 +18,7 @@ public sealed partial class VehicleIntegrationChecks : Node
     private Trackstorm.Client.Input.PlayerInput _input = null!;
     private PlayerSettingsController _settings = null!;
     private SettingsPanel _panel = null!;
-    private SettingsHud _hud = null!;
+    private Hud.CombatHud _hud = null!;
 
     /// <inheritdoc/>
     public override void _Ready() => CallDeferred(MethodName.Run);
@@ -40,7 +40,8 @@ public sealed partial class VehicleIntegrationChecks : Node
             _panel = new SettingsPanel();
             _panel.Initialize(_settings, _input.Adapter);
             _settings.AddChild(_panel);
-            _hud = Descendants(_panel).OfType<SettingsHud>().Single();
+            _hud = new Hud.CombatHud { Vehicle = () => _arena.Player.Snapshot, Units = () => _settings.Current.SpeedUnit };
+            AddChild(_hud);
             _input.FrameCaptured += Advance;
             await Settle();
             VerifyVisualBinding();
@@ -57,6 +58,7 @@ public sealed partial class VehicleIntegrationChecks : Node
             await VerifySurfaces();
             _input.FrameCaptured -= Advance;
             _settings.QueueFree();
+            _hud.QueueFree();
             _input.QueueFree();
             _arena.QueueFree();
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
@@ -90,7 +92,7 @@ public sealed partial class VehicleIntegrationChecks : Node
     private void Advance(InputFrame input)
     {
         _arena.Advance(input);
-        _panel.SetVehicleTelemetry(_arena.Player.Snapshot.Speed);
+        _hud.Refresh();
     }
 
     private void VerifyVisualBinding()
@@ -416,10 +418,10 @@ public sealed partial class VehicleIntegrationChecks : Node
         await RunDrive(new Vector3(-25, VehicleDimensions.RideHeight, 25), Vector3.Zero, 90, tick => Frame(tick));
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Check(_arena.Player.Snapshot.Speed < 0.01f && _arena.Player.State.CommandSpeed < 0.01f, "stationary suspension balances gravity without road-speed creep");
-        Check(_hud.SpeedText == "Speed  0.0 km/h", "stationary HUD reads zero in km/h");
-        GD.Print($"Stationary speed: observed={_arena.Player.Snapshot.Speed:F4} m/s, command={_arena.Player.State.CommandSpeed:F4} m/s, HUD={_hud.SpeedText}");
+        Check(HudSpeedText == "Speed  0 km/h", "stationary HUD reads zero in km/h");
+        GD.Print($"Stationary speed: observed={_arena.Player.Snapshot.Speed:F4} m/s, command={_arena.Player.State.CommandSpeed:F4} m/s, HUD={HudSpeedText}");
         _settings.UpdateSettings(_settings.Current with { SpeedUnit = SpeedUnit.MilesPerHour });
-        Check(_hud.SpeedText == "Speed  0.0 mph", "stationary HUD reads zero in mph");
+        Check(HudSpeedText == "Speed  0 mph", "stationary HUD reads zero in mph");
         await Screenshot("stationary-speed");
         _settings.UpdateSettings(_settings.Current with { SpeedUnit = SpeedUnit.KilometresPerHour });
 
@@ -434,22 +436,31 @@ public sealed partial class VehicleIntegrationChecks : Node
         await RunDrive(new Vector3(-25, VehicleDimensions.RideHeight, 15), Vector3.Zero, 60, tick => Frame(tick, brake: 65535));
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Check(_arena.Player.Snapshot.ObservedPhysics.LinearVelocity.Z > 3 && _arena.Player.Snapshot.Speed > 3, "reverse travel displays a nonnegative magnitude");
-        GD.Print($"Reverse speed: observed={_arena.Player.Snapshot.Speed:F2} m/s, HUD={_hud.SpeedText}");
+        GD.Print($"Reverse speed: observed={_arena.Player.Snapshot.Speed:F2} m/s, HUD={HudSpeedText}");
         VerifyHudConversion(3.6, "km/h");
 
         await RunDrive(new Vector3(-25, 5, 25), new Vector3(0, 15, 0), 4, tick => Frame(tick));
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        Check(_arena.Player.Snapshot.ObservedPhysics.LinearVelocity.Y > 10 && _hud.SpeedText == "Speed  0.0 km/h", "pure vertical launch does not inflate the road-speed HUD");
+        Check(_arena.Player.Snapshot.ObservedPhysics.LinearVelocity.Y > 10 && HudSpeedText == "Speed  0 km/h", "pure vertical launch does not inflate the road-speed HUD");
         await RunDrive(new Vector3(-25, 5, 25), new Vector3(0, 15, -10), 4, tick => Frame(tick));
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Check(_arena.Player.Snapshot.ObservedPhysics.LinearVelocity.Y > 10 && Math.Abs(_arena.Player.Snapshot.Speed - 10) < 0.01f, "vertical launch preserves horizontal road speed");
         VerifyHudConversion(3.6, "km/h");
     }
 
+    private string HudSpeedText
+    {
+        get
+        {
+            _hud.Refresh();
+            return $"Speed  {_hud.Displayed!.Speed} {_hud.Displayed.Unit}";
+        }
+    }
+
     private void VerifyHudConversion(double factor, string unit)
     {
-        string value = (_arena.Player.Snapshot.Speed * factor).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
-        Check(_hud.SpeedText == $"Speed  {value} {unit}", "production HUD converts the committed observed speed into preferred units");
+        string value = (_arena.Player.Snapshot.Speed * factor).ToString("0", System.Globalization.CultureInfo.InvariantCulture);
+        Check(HudSpeedText == $"Speed  {value} {unit}", "production HUD converts the committed observed speed into preferred units");
     }
 
     private async Task<List<VehicleState>> ObserveTicks(int count)

@@ -29,12 +29,30 @@ internal sealed partial class HangingMainMenu : Control
     internal bool Settled => _elapsed >= 1.12f;
     internal string SelectedId => _entries.Length == 0 ? string.Empty : _entries[_selected].Id;
     internal IReadOnlyList<Button> Targets => _targets;
-    internal bool Interactive => IsVisibleInTree() && Settled && !Blocked();
+    internal bool Interactive => Active() && IsVisibleInTree() && Settled && !Blocked();
+
+    /// <summary>Synchronizes presentation and targets in the same call as a navigation transition.</summary>
+    internal void RefreshPresentation()
+    {
+        Visible = Active();
+        UpdateTargets();
+    }
 
     public override void _Ready()
     {
         MouseFilter = MouseFilterEnum.Ignore;
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        var version = new Label
+        {
+            Name = "GameVersion", Text = $"v{Trackstorm.Core.Sessions.GameVersion.Current}",
+            AnchorTop = 1, AnchorBottom = 1, OffsetLeft = 16, OffsetTop = -40, OffsetRight = 216, OffsetBottom = -16,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        version.AddThemeFontSizeOverride("font_size", 16);
+        version.AddThemeColorOverride("font_color", new Color("e3d8c8"));
+        version.AddThemeColorOverride("font_shadow_color", Colors.Black);
+        version.AddThemeConstantOverride("shadow_offset_y", 1);
+        AddChild(version);
         AddChild(_layout);
         _layout.AddChild(_art);
         _chain = new AtlasTexture { Atlas = GD.Load<Texture2D>("res://assets/frontend/main-menu/Chain.png"), Region = new Rect2(277, 92, 170, 258) };
@@ -91,7 +109,7 @@ internal sealed partial class HangingMainMenu : Control
 
     public override void _Process(double delta)
     {
-        Visible = Active();
+        RefreshPresentation();
         if (IsVisibleInTree()) _elapsed += (float)delta;
         bool interactive = Interactive;
         UpdateTargets();

@@ -161,8 +161,8 @@ public sealed partial class SettingsIntegrationChecks : Node
         AddChild(hud);
         var simulation = new Simulation(new SimulationConfiguration(60));
         SimulationState state = simulation.State;
-        hud.SetTelemetry(10, default);
-        Check(hud.SpeedText == "Speed  22.4 mph", "HUD converts supplied speed to mph");
+        hud.SetTelemetry(default);
+        Check(!hud.FindChildren("*", "Label", true, false).Cast<Label>().Any(label => label.Text.StartsWith("Speed", StringComparison.Ordinal)), "Obsolete diagnostics speed control is absent");
         foreach (bool fps in new[] { false, true })
         {
             foreach (bool ping in new[] { false, true })
@@ -173,7 +173,7 @@ public sealed partial class SettingsIntegrationChecks : Node
         }
 
         _settings.UpdateSettings(_settings.Current with { SpeedUnit = SpeedUnit.KilometresPerHour });
-        Check(hud.SpeedText == "Speed  36.0 km/h" && simulation.State.Equals(state), "unit changes leave authoritative state unchanged");
+        Check(simulation.State.Equals(state), "unit changes leave authoritative state unchanged");
         Check(AudioServer.IsBusMute(AudioServer.GetBusIndex("Master")), "zero master volume mutes");
         Check(Math.Abs(AudioServer.GetBusVolumeDb(AudioServer.GetBusIndex("Music")) - (20 * Math.Log10(0.25))) < 0.001, "music gain reaches runtime bus");
         Check(Math.Abs(AudioServer.GetBusVolumeDb(AudioServer.GetBusIndex("SFX")) - (20 * Math.Log10(0.75))) < 0.001, "SFX gain reaches runtime bus");

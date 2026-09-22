@@ -116,13 +116,29 @@ internal sealed partial class StartupIntegrationChecks : Node
             await Frames(12);
             Check(session.Stage == Networking.ApplicationStage.MainMenu, "Mouse signal, keyboard and controller cannot activate during drop");
             await Capture("drop");
-            for (int frame = 0; frame < 180 && !menu.Interactive; frame++) await Frames(1);
+            for (int frame = 0; frame < 180 && !menu.Interactive; frame++)
+            {
+                await Frames(1);
+                Check(!session.FindChildren("LobbyBrowser", "Control", true, false).Cast<Control>().Single().IsVisibleInTree(), "Browser stays absent on every entrance frame");
+                await Capture($"entrance-{frame:000}");
+            }
             Check(menu.Interactive, "Interaction enables after settle");
             Check(session.Stage == Networking.ApplicationStage.MainMenu, "Held accept cannot leak across settle");
             Joy(JoyButton.A, false);
             await Frames(2);
             await Capture("settled");
+            CheckMainMenuComposition(session);
+            for (int frame = 0; frame < 30; frame++)
+            {
+                await Frames(1);
+                CheckMainMenuComposition(session);
+                await Capture($"after-settle-{frame:00}");
+            }
+            Check(!GetParent().FindChildren("*", "Label", true, false).Cast<Label>().Any(label => label.Text.StartsWith("Speed  ", StringComparison.Ordinal)), "Obsolete diagnostics speed line is not instantiated");
             Rect2 stableTarget = menu.Targets[0].GetGlobalRect();
+            // Frame capture can outlive desktop focus; establish the synthetic navigation baseline explicitly.
+            GetParent().GetNode<Input.PlayerInput>("PlayerInput").Adapter.Enabled = true;
+            menu.Targets[0].GrabFocus();
             Tap(Key.Down);
             Check(menu.SelectedId == "Settings", "Keyboard skips Garage");
             Joy(JoyButton.DpadDown, true);
@@ -156,6 +172,19 @@ internal sealed partial class StartupIntegrationChecks : Node
             session.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == "Back to Main Menu").EmitSignal(BaseButton.SignalName.Pressed);
             await Frames(3);
             Check(session.Stage == Networking.ApplicationStage.MainMenu && menu.Interactive, "Browser return retains settled menu");
+            for (int repeat = 0; repeat < 3; repeat++)
+            {
+                CheckMainMenuComposition(session);
+                Click(menu.Targets[0]);
+                Check(!menu.Visible && menu.Targets.All(button => button.Disabled), "Browser entry immediately hides and disables Main Menu targets");
+                var direct = session.FindChildren("*", "CheckButton", true, false).Cast<CheckButton>().Single(button => button.Text == "Developer fallback: Direct-IP / LAN");
+                direct.ButtonPressed = true;
+                await Frames(2);
+                Click(session.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == "Back to Main Menu"));
+                Check(session.Stage == Networking.ApplicationStage.MainMenu && menu.Visible && !direct.ButtonPressed, "Direct-IP Back restores only the new Main Menu immediately");
+                await Frames(2);
+            }
+            CheckMainMenuComposition(session);
             if (DisplayServer.GetName() != "headless")
             {
                 Vector2I original = GetWindow().Size;
@@ -165,6 +194,8 @@ internal sealed partial class StartupIntegrationChecks : Node
                     await Frames(4);
                     Rect2 viewport = GetViewport().GetVisibleRect();
                     Check(menu.Targets.All(button => viewport.Encloses(button.GetGlobalRect())), $"Targets fit {size}");
+                    var version = menu.GetNode<Label>("GameVersion");
+                    Check(version.Text == $"v{Core.Sessions.GameVersion.Current}" && version.MouseFilter == Control.MouseFilterEnum.Ignore && viewport.Encloses(version.GetGlobalRect()), "Canonical non-interactive version label fits viewport");
                     await Capture($"layout-{size.X}x{size.Y}");
                 }
                 GetWindow().Size = original;
@@ -183,6 +214,15 @@ internal sealed partial class StartupIntegrationChecks : Node
             Godot.Input.ParseInputEvent(input);
             Godot.Input.FlushBufferedEvents();
         }
+    }
+
+    private void CheckMainMenuComposition(Networking.DevelopmentSession session)
+    {
+        var menu = session.MainMenu;
+        Check(session.FindChildren("MainMenu", "Control", true, false).Count == 1, "Exactly one Main Menu instance");
+        Button[] buttons = session.FindChildren("*", "Button", true, false).Cast<Button>().ToArray();
+        Check(buttons.Where(button => button.IsVisibleInTree()).ToHashSet().SetEquals(menu.Targets), "Only four new menu targets are visible; no underlying browser controls");
+        Check(buttons.Where(button => new[] { "Play", "Garage", "Settings", "Quit" }.Contains(button.Text)).ToHashSet().SetEquals(menu.Targets), "No hidden duplicate primary controls remain in the session tree");
     }
 
     private static void Joy(JoyButton button, bool pressed)
