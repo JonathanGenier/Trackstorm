@@ -108,9 +108,12 @@ function Get-FastCheckPlan {
         if ($path -eq 'docs/features/camera.md' -or
             $path -match '^code/Client/.*/Camera' -or
             $path -match 'Camera.*\.cs$' -or
-            $path -eq 'scenes/verification/camera_checks.tscn') {
+            $path -eq 'scenes/verification/camera_checks.tscn' -or
+            $path -eq 'scenes/verification/camera_shake_playtest.tscn' -or
+            $path -eq 'check-camera-shake.ps1') {
             Add-Runtime 'check-camera.ps1'
-            Add-Manual 'Playtest mouse/controller orbit and return, camera framing and lifecycle transitions in practice and network gameplay.'
+            Add-Runtime 'check-camera-shake.ps1'
+            Add-Manual 'Playtest mouse/controller orbit and return, camera framing, perceptible collision/damage shake and lifecycle transitions in practice and network gameplay.'
         }
 
         # Maps / arena.

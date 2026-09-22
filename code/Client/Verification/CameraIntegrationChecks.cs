@@ -174,6 +174,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
             }
 
             VerifyFreeLook(camera, input, state);
+            VerifyShakeSettings(camera, input, state);
             camera.QueueFree();
             input.QueueFree();
             GD.Print("Camera integration passed: RMB orbit/hold/release, controller/dead-zone return, suppression, identity/life/reseed resets, 30/60/144 FPS, unchanged gameplay input, heading/inertia/feedback regressions.");
@@ -192,6 +193,59 @@ public sealed partial class CameraIntegrationChecks : Node3D
         {
             throw new InvalidOperationException(message);
         }
+    }
+
+    private void VerifyShakeSettings(VehicleChaseCamera camera, PlayerInput input, VehicleSnapshot state)
+    {
+        var settings = new Settings.PlayerSettingsController();
+        string path = ProjectSettings.GlobalizePath($"res://.godot/camera-checks/{Guid.NewGuid():N}.settings.json");
+        settings.Initialize(input.Adapter, path);
+        AddChild(settings);
+        camera.SettingsSource = settings;
+        camera.InputSource = null;
+        var other = new VehicleChaseCamera();
+        AddChild(other);
+        other.Follow(Transform3D.Identity, state, 1f / 60);
+        float fullOffset = 0;
+        foreach (double intensity in new[] { 1d, 0.5d, 0.25d, 0d })
+        {
+            settings.UpdateSettings(settings.Current with { CameraShakeIntensity = intensity });
+            camera.ResetFollow();
+            camera.Follow(Transform3D.Identity, state, 1f / 60);
+            Transform3D baseline = camera.GlobalTransform;
+            var contact = new VehicleContact(new System.Numerics.Vector3(-23, 0, 0), System.Numerics.Vector3.UnitX, 0, 0);
+            var observation = new VehicleObservation(state.ObservedPhysics, System.Numerics.Vector3.UnitY, new[] { contact });
+            camera.ObserveCollision(observation, 900);
+            camera.Follow(Transform3D.Identity, state, 1f / 60);
+            float offset = camera.GlobalPosition.Y - baseline.Origin.Y;
+            if (intensity == 1) fullOffset = offset;
+            Require(fullOffset > 0 && Math.Abs(offset - fullOffset * intensity) < 0.00001, "Local intensity scales only the final shake displacement");
+            Require(camera.GlobalBasis.IsEqualApprox(baseline.Basis) && Math.Abs((camera.GlobalPosition - baseline.Origin).Dot(baseline.Basis.Z)) < 0.00001f, "Shake preserves aim and chase depth");
+            float envelope = camera.Motion.Shake;
+            camera.ObserveCollision(observation, 900);
+            Require(camera.Motion.Shake == envelope, "Repeated contacts within cooldown cannot stack shake");
+            Require(camera.Motion.Shake <= 1 && Math.Abs(offset) <= camera.MaximumShakeMetres, "Feedback is safely bounded");
+            settings.UpdateSettings(settings.Current with { CameraShakeIntensity = 0 });
+            camera.Follow(Transform3D.Identity, state, 1f / 60);
+            Require(camera.Motion.Shake == 0 && camera.GlobalTransform.IsEqualApprox(baseline), "Zero immediately clears an active impact without moving the baseline");
+            settings.UpdateSettings(settings.Current with { CameraShakeIntensity = 1 });
+            camera.Follow(Transform3D.Identity, state, 1f / 60);
+            Require(camera.Motion.Shake == 0, "Re-enabling does not resurrect disabled feedback");
+        }
+
+        camera.ResetFollow();
+        camera.Follow(Transform3D.Identity, state, 1f / 60);
+        var minor = new VehicleContact(new System.Numerics.Vector3(-3, 0, 0), System.Numerics.Vector3.UnitX, 0, 0);
+        camera.ObserveCollision(new VehicleObservation(state.ObservedPhysics, System.Numerics.Vector3.UnitY, new[] { minor }), 900);
+        Require(camera.Motion.Shake == 0, "Minor contacts at the threshold remain silent");
+        other.Motion.Impulse(0.5f);
+        settings.UpdateSettings(settings.Current with { CameraShakeIntensity = 0 });
+        camera.Follow(Transform3D.Identity, state, 1f / 60);
+        Require(other.Motion.Shake == 0.5f, "Local settings do not affect another camera");
+        camera.SettingsSource = null;
+        other.QueueFree();
+        settings.QueueFree();
+        GD.Print("Camera shake settings passed: 0/25/50/100%, active disable/re-enable, minor/repeated contacts, bounds, local isolation and unchanged chase transform.");
     }
 
     private static void VerifyFreeLook(VehicleChaseCamera camera, PlayerInput input, VehicleSnapshot state)

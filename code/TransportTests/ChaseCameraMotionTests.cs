@@ -127,7 +127,7 @@ internal sealed class ChaseCameraMotionTests
             Step(motion);
         }
 
-        Assert.That(motion.ShakeOffset, Is.Zero);
+        Assert.That(motion.ShakeOffset, Is.EqualTo(Vector2.Zero));
         Assert.That(motion.Offset, Is.EqualTo(Vector2.Zero));
     }
 
@@ -143,7 +143,31 @@ internal sealed class ChaseCameraMotionTests
         motion.ObserveVelocity(new Vector3(0, 0, -20), 1f / 60);
         Step(motion);
         Assert.That(motion.Offset, Is.EqualTo(Vector2.Zero));
-        Assert.That(motion.ShakeOffset, Is.Zero);
+        Assert.That(motion.ShakeOffset, Is.EqualTo(Vector2.Zero));
+    }
+
+    /// <summary>Both axes settle with a bounded envelope, without tying the motion to render rate.</summary>
+    [Test]
+    public void ShakeTrajectoryIsBoundedAndRenderRateIndependent()
+    {
+        var endpoints = new List<Vector2>();
+        foreach (int fps in new[] { 30, 60, 144 })
+        {
+            var motion = new ChaseCameraMotion();
+            motion.Impulse(1);
+            bool horizontal = false;
+            for (int frame = 0; frame < fps; frame++)
+            {
+                Step(motion, 1f / fps);
+                Assert.That(motion.ShakeOffset.Length(), Is.LessThanOrEqualTo(motion.Shake + 0.000001f));
+                horizontal |= Math.Abs(motion.ShakeOffset.X) > 0.1f;
+            }
+            Assert.That(horizontal, Is.True);
+            endpoints.Add(motion.ShakeOffset);
+            motion.ClearShake();
+            Assert.That(motion.ShakeOffset, Is.EqualTo(Vector2.Zero));
+        }
+        Assert.That(Vector2.Distance(endpoints[0], endpoints[2]), Is.LessThan(0.00001f));
     }
 
     private static void Step(ChaseCameraMotion motion, float delta = 1f / 60, float heading = 0) =>

@@ -17,6 +17,7 @@ internal sealed class PlayerSettingsTests
             Assert.That(settings.MasterVolume, Is.EqualTo(1));
             Assert.That(settings.MusicVolume, Is.EqualTo(1));
             Assert.That(settings.SfxVolume, Is.EqualTo(1));
+            Assert.That(settings.CameraShakeIntensity, Is.EqualTo(1));
             Assert.That(settings.Fullscreen, Is.False);
             Assert.That(settings.WindowWidth, Is.EqualTo(1280));
             Assert.That(settings.WindowHeight, Is.EqualTo(720));
@@ -38,6 +39,7 @@ internal sealed class PlayerSettingsTests
             MasterVolume = 0.2,
             MusicVolume = 0.4,
             SfxVolume = 0.6,
+            CameraShakeIntensity = 0.35,
             Fullscreen = true,
             WindowWidth = 1920,
             WindowHeight = 1080,
@@ -113,6 +115,28 @@ internal sealed class PlayerSettingsTests
     {
         var settings = new PlayerSettings { MasterVolume = value, MusicVolume = value, SfxVolume = value };
         Assert.That(new[] { settings.MasterVolume, settings.MusicVolume, settings.SfxVolume }, Is.All.EqualTo(expected));
+    }
+
+    /// <summary>Local shake settings clamp safely and remain compatible with older or malformed saves.</summary>
+    [Test]
+    public void CameraShake_ValidatesAndPersistsIndependently()
+    {
+        foreach (double value in new[] { -1d, 0d, 0.25d, 1d, 2d, double.NaN, double.PositiveInfinity })
+        {
+            double expected = double.IsFinite(value) ? Math.Clamp(value, 0, 1) : 1;
+            var settings = new PlayerSettings { CameraShakeIntensity = value };
+            Assert.That(settings.CameraShakeIntensity, Is.EqualTo(expected));
+            Assert.That(PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(settings)).CameraShakeIntensity, Is.EqualTo(expected));
+        }
+
+        foreach (string json in new[] { "{}", "{\"cameraShakeIntensity\":null}", "{\"cameraShakeIntensity\":\"off\"}", "{\"cameraShakeIntensity\":1e999}" })
+        {
+            Assert.That(PlayerSettingsJson.Deserialize(json).CameraShakeIntensity, Is.EqualTo(1));
+        }
+
+        var clamped = PlayerSettingsJson.Deserialize("{\"cameraShakeIntensity\":-2,\"showFps\":true}");
+        Assert.That(clamped.CameraShakeIntensity, Is.Zero);
+        Assert.That(clamped.ShowFps, Is.True);
     }
 
     /// <summary>Text values remain stable independently of enum numeric values.</summary>

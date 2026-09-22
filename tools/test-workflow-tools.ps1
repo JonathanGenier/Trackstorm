@@ -41,6 +41,8 @@ $cameraPlan = Get-FastCheckPlan -Paths @("code/Client/Vehicles/ChaseCamera.cs", 
 Assert-True ($cameraPlan.ManualScenarios.Count -gt 0) "Camera changes must preserve manual/playtest verification."
 Assert-True ($cameraPlan.RuntimeScripts -contains "check-vehicle.ps1") "Vehicle-mounted camera changes should retain vehicle integration verification."
 Assert-True ($cameraPlan.RuntimeScripts -contains "check-camera.ps1") "Camera changes run the native camera harness."
+Assert-True ($cameraPlan.RuntimeScripts -contains "check-camera-shake.ps1") "Camera changes run projected native impact verification."
+Assert-True ((Get-FastCheckPlan -Paths @("scenes/verification/camera_shake_playtest.tscn")).RuntimeScripts -contains "check-camera-shake.ps1") "Standalone shake scene changes retain their native verification."
 
 $versionPlan = Get-FastCheckPlan -Paths @("Directory.Build.props", "export_presets.cfg")
 Assert-True $versionPlan.VersionChecks "Version metadata changes must route version regression tests."

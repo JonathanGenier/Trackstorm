@@ -166,6 +166,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
         units.Selected = (int)_settings.Current.SpeedUnit;
         units.ItemSelected += index => _settings.UpdateSettings(_settings.Current with { SpeedUnit = (SpeedUnit)index });
         Row(column, "Speed units", units);
+        Volume(column, "Camera shake", _settings.Current.CameraShakeIntensity, value => _settings.Current with { CameraShakeIntensity = value });
         column = Page(MenuPage.Interface);
         Toggle(column, "Show FPS", _settings.Current.ShowFps, value => _settings.Current with { ShowFps = value });
         Toggle(column, "Show Ping", _settings.Current.ShowPing, value => _settings.Current with { ShowPing = value });

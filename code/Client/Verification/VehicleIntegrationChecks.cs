@@ -19,6 +19,17 @@ public sealed partial class VehicleIntegrationChecks : Node
     private PlayerSettingsController _settings = null!;
     private SettingsPanel _panel = null!;
     private Hud.CombatHud _hud = null!;
+    private float _shakePeak;
+
+    /// <inheritdoc/>
+    public override void _Process(double delta)
+    {
+        if (_arena is not null && _settings is not null)
+        {
+            var camera = _arena.GetNode<VehicleChaseCamera>("ChaseCamera");
+            _shakePeak = Math.Max(_shakePeak, camera.Motion.ShakeOffset.Length() * camera.MaximumShakeMetres * (float)_settings.Current.CameraShakeIntensity);
+        }
+    }
 
     /// <inheritdoc/>
     public override void _Ready() => CallDeferred(MethodName.Run);
@@ -37,6 +48,7 @@ public sealed partial class VehicleIntegrationChecks : Node
             _settings = new PlayerSettingsController();
             _settings.Initialize(_input.Adapter, _output + ".settings.json");
             AddChild(_settings);
+            _arena.CameraSettings = _settings;
             _panel = new SettingsPanel();
             _panel.Initialize(_settings, _input.Adapter);
             _settings.AddChild(_panel);
@@ -53,6 +65,7 @@ public sealed partial class VehicleIntegrationChecks : Node
             await VerifyPowerThroughSlide();
             await VerifyPhysicalInteractions();
             await VerifyDamageAndExplosions();
+            await VerifyAdjustableShake();
             await VerifySpeedTelemetry();
             await VerifyNativeInput();
             await VerifySurfaces();
@@ -60,6 +73,7 @@ public sealed partial class VehicleIntegrationChecks : Node
                 () => _arena.Player.GetGlobalTransformInterpolated(), _output,
                 () => _arena.Player.ResetBody(_arena.Player.Snapshot.Movement.Physics));
             _input.FrameCaptured -= Advance;
+            SetProcess(false);
             _settings.QueueFree();
             _hud.QueueFree();
             _input.QueueFree();
@@ -414,6 +428,35 @@ public sealed partial class VehicleIntegrationChecks : Node
         Check(landing.Take(15).All(state => !state.Grounded && !state.Drifting), "air above mud does not acquire surface grip or drift support");
         Check(landing.TakeLast(30).All(state => state.Grounded && state.CurrentSurface == SurfaceType.Mud), "landing selects mud on the actual supporting collider");
         await Screenshot("mud-landing");
+    }
+
+    private async Task VerifyAdjustableShake()
+    {
+        var camera = _arena.GetNode<VehicleChaseCamera>("ChaseCamera");
+        var evidence = new List<object>();
+        foreach (double intensity in new[] { 0d, 0.25d, 0.5d, 1d, 1d })
+        {
+            _settings.UpdateSettings(_settings.Current with { CameraShakeIntensity = intensity });
+            _shakePeak = 0;
+            await RunDrive(new Vector3(28, 1, -28), new Vector3(0, 0, -23), 90, tick => Frame(tick));
+            float hp = _arena.Player.DamageState.CurrentHP;
+            Check(hp < 100, "real wall impact still damages the vehicle at every local shake setting");
+            Check(intensity == 0 ? _shakePeak == 0 : _shakePeak > 0.0001f, "real impact obeys the local shake intensity");
+            Check(_shakePeak <= camera.MaximumShakeMetres * intensity, "repeated native impacts stay within the configured presentation bound");
+            evidence.Add(new { intensity, peakMetres = _shakePeak, hp, life = _arena.Player.Snapshot.LifeId });
+            GD.Print($"Collision shake: intensity={intensity:P0}, peak={_shakePeak:F6}m, HP={hp:F3}, life={_arena.Player.Snapshot.LifeId}");
+        }
+
+        await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 20), Vector3.Zero, 60, tick => Frame(tick));
+        Check(camera.Motion.Shake == 0, "native new-life reset clears shake");
+        _settings.UpdateSettings(_settings.Current with { CameraShakeIntensity = 0 });
+        _arena.Player.ApplyEffect(new DamageEffect(20, Numerics.Vector3.Zero, Numerics.Vector3.Zero), new DamageContext("missile", 99, "disabled-shake"));
+        await ObserveTicks(3);
+        Check(_arena.Player.DamageState.CurrentHP == 80 && camera.Motion.Shake == 0, "zero disables real damage feedback without disabling damage");
+        _settings.UpdateSettings(_settings.Current with { CameraShakeIntensity = 1 });
+        await ObserveTicks(3);
+        Check(camera.Motion.Shake == 0, "enabling does not replay an already consumed damage event");
+        File.WriteAllText(_output + ".shake.json", System.Text.Json.JsonSerializer.Serialize(evidence));
     }
 
     private async Task VerifySpeedTelemetry()
