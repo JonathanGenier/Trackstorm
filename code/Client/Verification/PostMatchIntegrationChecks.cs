@@ -10,7 +10,7 @@ using Trackstorm.Core.Simulation;
 
 namespace Trackstorm.Client.Verification;
 
-/// <summary>Production Application Flow over two native UDP worlds; Finished is an explicit authoritative fixture.</summary>
+/// <summary>Production Application Flow over two native UDP worlds; a lethal Core outcome completes seeded Circus state.</summary>
 public sealed partial class PostMatchIntegrationChecks : Node
 {
     private SimulationBootstrap _bootstrap = null!;
@@ -83,7 +83,7 @@ public sealed partial class PostMatchIntegrationChecks : Node
                     await Until(() => _host.Stage == ApplicationStage.GameLoop,
                         "Locally restored authoritative checkpoint clears stale Podium (host fixture)");
                     Check(_client.Stage == ApplicationStage.Podium, "Ordinary phase packets cannot roll a remote Finished state backward");
-                    world.Restore(boundary);
+                    world.Restore(new SimulationState(world.State.Tick, world.State.LastInput, world.State.Vehicles, boundary.Match));
                     await Until(() => _host.Stage == ApplicationStage.Podium, "Restoring the original authoritative final checkpoint returns to Podium");
                     await Frames(2);
                     context = _host.PostMatch!;
@@ -142,7 +142,7 @@ public sealed partial class PostMatchIntegrationChecks : Node
                     await Until(() => _host.Arena?.Driver.EntryReady == true && _client.Arena?.Driver.EntryReady == true, "Both peers finish fresh Loader/Sync");
                     Check(oldClient.Match is null && oldClient.Prediction is null, "Old client prediction and results disposed");
                     Check(_host.Lobby!.State!.Match == context.Roster.Match + 1, "Rematch advances generation exactly once");
-                    Check(_host.Arena!.Driver.Match is { Winner: null } fresh && fresh.Phase != MatchPhase.Finished && fresh.Players.All(row => row.Kills == 0 && row.Deaths == 0 && row.Wins == 0 && row.ProcessedLife == 0), "Fresh mode has no winner, totals or consumed-life history");
+                    Check(_host.Arena!.Driver.Match is { Winner: null } fresh && fresh.Phase != MatchPhase.Finished && fresh.Players.All(row => row.Kills == 0 && row.Deaths == 0 && row.Wins == 0 && row.ProcessedLife == 0 && row.CircusScore == 0 && row.KillStreak == 0 && row.Stunts is null && row.ProcessedDamageLife == 0 && row.ProcessedDamageSequence == 0), "Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history");
                     Check(_host.FinalResults is null && _client.FinalResults is null, "Neither peer leaks old results");
                     await Until(() => _host.Arena?.Driver.Match?.Phase == MatchPhase.Active && _client.Arena?.Driver.Match?.Phase == MatchPhase.Active, "Fresh countdown reaches Active");
                 }
@@ -210,11 +210,39 @@ public sealed partial class PostMatchIntegrationChecks : Node
         var match = state.Match!;
         ulong winner = _host.Lobby!.LocalPlayerId;
         ulong victim = match.Players.Select(row => row.Player).FirstOrDefault(id => id != winner, winner);
-        var final = new MatchState(state.Tick, match.Revision + 1, match.KillTarget, MatchPhase.Finished, null, winner,
-            match.Players.Select(row => new PlayerScore(row.Player, row.Player == winner ? match.KillTarget : 0, row.Player == victim ? match.KillTarget : 0, row.Player == winner ? 1 : 0, row.Player == victim ? (ulong)match.KillTarget : 0)));
-        world.Restore(new SimulationState(state.Tick, state.LastInput, state.Vehicles, final));
+        if (withClient)
+        {
+            var active = new MatchState(state.Tick, match.Revision + 1, match.KillTarget, MatchPhase.Active, null, null,
+                match.Players.Select(row => new PlayerScore(row.Player, row.Player == winner ? match.KillTarget - 1 : 0,
+                    row.Player == victim ? match.KillTarget - 1 : 0, 0, row.Player == victim ? (ulong)match.KillTarget - 1 : 0)
+                {
+                    CircusScore = row.Player == winner ? 375.5 : 125.25,
+                    KillStreak = row.Player == winner ? match.KillTarget - 1 : 0,
+                    Stunts = row.Player == winner ? new StuntState { Life = world.GetVehicle(winner).LifeId, Tick = state.Tick, TopSpeed = new(1, 15) } : null,
+                }));
+            // Advance the victim life to represent the seeded previous deaths coherently.
+            var vehicles = state.Vehicles.Select(vehicle => vehicle.VehicleId == victim
+                ? new Core.Vehicles.VehicleSnapshot(vehicle.VehicleId, (ulong)match.KillTarget, vehicle.Movement, vehicle.Damage, vehicle.ObservedPhysics)
+                : vehicle).ToArray();
+            world.Restore(new SimulationState(state.Tick, state.LastInput, vehicles, active));
+            var frame = new InputFrame(state.Tick + 1, 0, 0, 0, 0, 0, 0);
+            world.Step(frame, world.State.Vehicles.Select(vehicle => new Core.Vehicles.VehicleStepRequest(vehicle.VehicleId, frame,
+                new Core.Vehicles.VehicleObservation(vehicle.ObservedPhysics, System.Numerics.Vector3.UnitY), vehicle.VehicleId == victim
+                    ? [new Core.Vehicles.VehicleEffectRequest(new Core.Vehicles.DamageEffect(100000, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero), new Core.Vehicles.DamageContext("missile", winner, "Circus completion check"))] : [])).ToArray());
+            Check(world.State.Match!.Phase == MatchPhase.Finished && world.State.Match.Players.All(row => row.Stunts is null), "Configured kill target completes Circus through Game Loop and cancels pending stunts");
+        }
+        else
+        {
+            // Solo quit-navigation fixture: no opponent exists for an attributed completion.
+            var final = new MatchState(state.Tick, match.Revision + 1, match.KillTarget, MatchPhase.Finished, null, winner,
+                match.Players.Select(row => new PlayerScore(row.Player, match.KillTarget, match.KillTarget, 1, (ulong)match.KillTarget) { CircusScore = 1375.5 }));
+            world.Restore(new SimulationState(state.Tick, state.LastInput, state.Vehicles, final));
+        }
         await Until(() => _host.Stage == ApplicationStage.Podium && (!withClient || _client?.Stage == ApplicationStage.Podium), "Authoritative Finished transitions to dedicated Podium");
         await Frames(2);
+        var podium = _host.GetNode<PodiumScene>("PodiumScene");
+        string score = Hud.CircusHudView.FormatPoints(_host.PostMatch!.Results.Standings[0].CircusScore);
+        Check(podium.FindChildren("*", "Label", true, false).OfType<Label>().Any(label => label.Text == score && label.IsVisibleInTree()), "Podium renders frozen authoritative Circus score");
     }
 
     private static IEnumerable<Button> Buttons(Node node) => node.FindChildren("*", "Button", true, false).OfType<Button>();
@@ -287,7 +315,7 @@ public sealed partial class PostMatchIntegrationChecks : Node
                     roster.Players, roster.CurrentHostId, roster.AuthorityEpoch, history, roster.Map);
                 ulong[] ids = new[] { 3UL, 1UL, 2UL }.Concat(Enumerable.Range(4, participants - 3).Select(id => (ulong)id)).ToArray();
                 var results = new FinalMatchResults(original.Results.Tick, new MatchOutcome("layout fixture", 3),
-                    ids.Select((id, index) => new FinalMatchStanding(id, index + 1, 0, index == 0 ? 5 : 0, 0, index == 0 ? 1 : 0)));
+                    ids.Select((id, index) => new FinalMatchStanding(id, index + 1, 1234567.89 - index * 100, index == 0 ? 5 : 0, 0, index == 0 ? 1 : 0)));
                 handoff.SetValue(_host, new PostMatchContext(fixtureRoster, results));
                 foreach (var size in new[] { new Vector2I(1280, 720), new Vector2I(640, 360) })
                 {

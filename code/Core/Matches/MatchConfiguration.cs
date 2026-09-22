@@ -3,6 +3,8 @@ namespace Trackstorm.Core.Matches;
 /// <summary>Host-owned match rules; timers use simulation ticks exclusively.</summary>
 public sealed record MatchConfiguration
 {
+    /// <summary>Scoring mode, selected before countdown and retained for this match.</summary>
+    public MatchMode Mode { get; init; } = MatchMode.Circus;
     /// <summary>Required kills, defaulting to first-to-five.</summary>
     public int KillTarget { get; init; } = 5;
     /// <summary>Three seconds at the production 60 Hz rate.</summary>
@@ -59,7 +61,7 @@ public sealed record MatchConfiguration
     /// <summary>Rejects unusable or unbounded configuration.</summary>
     public void Validate()
     {
-        if (KillTarget is < 1 or > 1000000 || CountdownTicks is < 1 or > 36000 || MinimumPlayers is < 1 or > 8 ||
+        if (!Enum.IsDefined(Mode) || KillTarget is < 1 or > 1000000 || CountdownTicks is < 1 or > 36000 || MinimumPlayers is < 1 or > 8 ||
             !ValidPoints(BaseKillPoints) || !ValidPoints(KillStreakBonusStep) || !ValidPoints(CollisionPointsPerDamage) || !ValidPoints(DriftRate) || !ValidPoints(DriftTierStep) ||
             !ValidPoints(AirtimeRate) || !ValidPoints(AirtimeTierStep) || !ValidPoints(JumpPointsPerMetre) ||
             !Bounded(DriftMinimumSpeed, 0.1, 65) || !Bounded(DriftMinimumSeconds, 0.01, 60) ||

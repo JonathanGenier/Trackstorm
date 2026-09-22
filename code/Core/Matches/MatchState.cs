@@ -16,12 +16,14 @@ public sealed class MatchState
     /// <param name="players">Detached score totals and consumed-life memory.</param>
     /// <param name="changes">Deaths scored in this publication.</param>
     /// <param name="awards">Committed Circus awards aggregated by player and source category.</param>
-    public MatchState(ulong tick, ulong revision, int killTarget, MatchPhase phase, ulong? countdownAtTick, ulong? winner, IEnumerable<PlayerScore> players, IEnumerable<ScoredDeath>? changes = null, IEnumerable<CircusScoreAward>? awards = null)
+    /// <param name="mode">Authoritative match-scoped scoring policy.</param>
+    public MatchState(ulong tick, ulong revision, int killTarget, MatchPhase phase, ulong? countdownAtTick, ulong? winner, IEnumerable<PlayerScore> players, IEnumerable<ScoredDeath>? changes = null, IEnumerable<CircusScoreAward>? awards = null, MatchMode mode = MatchMode.Circus)
     {
         PlayerScore[] scores = players.OrderBy(player => player.Player).ToArray();
         ScoredDeath[] deaths = changes?.ToArray() ?? [];
         CircusScoreAward[] scoreAwards = awards?.ToArray() ?? [];
-        if (killTarget is < 1 or > 1000000 || !Enum.IsDefined(phase) || scores.Length > MaximumPlayers ||
+        if (!Enum.IsDefined(mode) || killTarget is < 1 or > 1000000 || !Enum.IsDefined(phase) || scores.Length > MaximumPlayers ||
+            (mode != MatchMode.Circus && (scoreAwards.Length != 0 || scores.Any(player => player.CircusScore != 0 || player.KillStreak != 0 || player.Stunts is not null))) ||
             scores.Any(player => player.Player == 0 || player.Kills < 0 || player.Kills > killTarget || player.Deaths < 0 || player.Wins is < 0 or > 1 || (player.Deaths > 0 && player.ProcessedLife == 0)) ||
             scores.Any(player => !double.IsFinite(player.CircusScore) || player.CircusScore < 0 || player.KillStreak < 0 || player.KillStreak > player.Kills ||
                 (player.ProcessedDamageLife == 0) != (player.ProcessedDamageSequence == 0)) ||
@@ -45,6 +47,7 @@ public sealed class MatchState
         }
 
         Tick = tick;
+        Mode = mode;
         Revision = revision;
         KillTarget = killTarget;
         Phase = phase;
@@ -67,6 +70,8 @@ public sealed class MatchState
 
     /// <summary>Latest match mutation tick, independent of movement packet arrival.</summary>
     public ulong Tick { get; }
+    /// <summary>Scoring policy carried by publications and complete recovery boundaries.</summary>
+    public MatchMode Mode { get; }
     /// <summary>Reliable publication sequence.</summary>
     public ulong Revision { get; }
     /// <summary>Authoritative winning threshold.</summary>
