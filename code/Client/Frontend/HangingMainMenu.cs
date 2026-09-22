@@ -16,7 +16,6 @@ internal sealed partial class HangingMainMenu : Control
     private MainMenuEntry[] _entries = [];
     private Texture2D _chain = null!;
     private float _elapsed = 2;
-    private float _clock;
     private float _height;
     private int _selected;
     private bool _wasActive;
@@ -93,7 +92,6 @@ internal sealed partial class HangingMainMenu : Control
     public override void _Process(double delta)
     {
         Visible = Active();
-        _clock += (float)delta;
         if (IsVisibleInTree()) _elapsed += (float)delta;
         bool interactive = Interactive;
         UpdateTargets();
@@ -172,8 +170,7 @@ internal sealed partial class HangingMainMenu : Control
             y = -7 * MathF.Sin(t * MathF.PI) * (1 - t);
         }
         else y = 0;
-        float blend = Mathf.SmoothStep(0, 1, Math.Clamp((_elapsed - 1.12f) / 1.2f, 0, 1));
-        _art.Position = new Vector2(MathF.Sin(_clock * 0.65f) * 2.4f * blend, y);
+        _art.Position = new Vector2(0, y);
         QueueRedraw();
     }
 

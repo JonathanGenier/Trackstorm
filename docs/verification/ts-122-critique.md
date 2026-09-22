@@ -118,3 +118,53 @@ The Round 1 material and badge recommendations remain unchanged advisory finding
 ## Recommended Next Round
 
 The requested layout can be accepted as-is. If the human instead authorizes further refinement, first decide whether to address small-viewport status readability, then explicitly select any retained Round 1 visual suggestions. Do not begin another round automatically. No implementation was changed during this critique; **stop for explicit human instruction** under the critique human gate.
+
+---
+
+# Astra Runtime Critique — Story Round 3
+
+Story: TS-122. Branch: `ts-122-jg`. Date: 2026-09-21.
+
+**Overall Score: 7.7 / 10**
+
+**Quality Assessment: FAIL (<8.0)**
+
+**Requested animation outcome supported by current evidence:** the rigid header, chains and plates remain in the same settled position while the flags' loose portions change shape. Their upper attachment areas remain aligned with the header. The small left placement and readable main actions remain intact. Native Settings activation/return and Quit also work. The earlier visual polish findings remain, so the integrated score is unchanged; this is not a failure verdict on the specifically authorized animation correction. No previous recommendation was implicitly authorized or implemented.
+
+## Category Scores
+
+| Category | Score | Observed basis |
+| --- | --- | --- |
+| Runtime Functionality | 8.2 | Current Settings round trip and clean Quit; supporting startup checks cover broader navigation. |
+| Controls / Responsiveness | 8.0 | Visible mouse targets continue to respond after idle and Settings return. |
+| Visual Quality | 7.4 | Coherent left composition and attached cloth; retained selected-material and status-badge findings remain visible. |
+| Animation / Motion | 7.8 | Sampled idle states show changing lower cloth against stationary rigid artwork; exact temporal smoothness and full entrance feel remain unverified. |
+| VFX / Feedback | 7.5 | Clear selection with the existing saturation concern unchanged. |
+| UI / UX | 7.8 | Stable main-action presentation and selection restored after Settings; earlier secondary-status readability concern remains unresolved. |
+| Runtime Stability | 8.2 | Native session completed without log diagnostics and Quit exited with code 0. |
+| Runtime Integration | 8.0 | Settings overlay and return preserve the left settled assembly; background continues progressing in successive observations. |
+
+## What Was Exercised
+
+- **VERIFIED — independently inspected all six current idle captures:** `.godot/main-menu-checks/idle-0.png` through `idle-5.png`. Header/plate corners and chains retain their screen positions; the red/checkered flag edges and loose tips visibly differ between samples. The upper cloth remains visually attached rather than translating with its loose ends. This is sampled spatial evidence, not continuous playback observation.
+- **VERIFIED — native runtime:** launched the production scene with `--max-fps 60`, captured successive settled-menu states at 1280×720, clicked Settings, returned with Back, and clicked Quit. The live observations corroborate stable metal placement, changing loose flag shapes and retained layout. Settings selection was restored on return. Quit exited with code 0; `.godot/ts-122-astra-round3.log` contains engine/renderer startup lines and no diagnostics.
+- **VERIFIED — inspected current verification output:** `.godot/ts-122-animation-startup.log` reports the rendered startup integration passing with exit code 0 and no diagnostics. The implementation agent reports six assertions at 15-frame intervals proving invariant settled transforms, plus passing final builds and 504 Core / 338 transport tests. Assertions and final suite were not independently rerun by this critic.
+- **INFERRED:** current cloth movement is more pronounced than the prior subtle flutter, supported by the larger visibly changing loose-edge shapes across current samples and prior-round observations. There was no synchronized old/new playback comparison; exact perceived speed/amplitude improvement is not claimed as directly measured.
+
+## Runtime / Operational Limitations
+
+Snapshots cannot establish continuous animation quality, a precise fixed percentage of cloth height, frame pacing or the complete drop/catch/settle timing. The entire entrance was not directly watched; its retention is supported by current verification rather than independent experiential timing. No audible output, physical controller, native keyboard, browser round trip or disabled Garage click was independently retested in this round. Earlier evidence must remain distinguished from this round's observations. No audio or performance score is assigned, and unchanged background media artifacts remain excluded.
+
+## Retained Recommendation
+
+- **Problem:** selected plates still have highly saturated red faces/frame/spikes, reducing visible metallic tonal separation; the status plaque still appears flat against dimensional artwork.
+- **Evidence:** current idle captures show the selected Settings plate; the native run showed both Play and Settings selected, with the same treatments observed in Round 1.
+- **Severity:** Medium for selected-material treatment; Low for badge integration.
+- **Impact:** action state is obvious, but the most prominent interactive surfaces remain below the highly polished visual standard.
+- **Suggested Improvement:** the specific material and plaque refinements recorded in Round 1 remain advisory. They were not part of this animation authorization and must not be implemented without a separate human decision. The Round 2 small-viewport status recommendation likewise remains historical and unresolved, not newly retested at that size here.
+- **Scope:** In Scope for general Story presentation; outside the completed, specifically authorized animation correction.
+- **Corrective Work Type:** Existing Task, only if separately authorized.
+
+## Recommended Next Round / Human Decision
+
+**No fourth Story critique round is permitted by the current policy.** This is Round 3, the last allowed Story round. The requested animation correction can be accepted as-is; any remaining advisory polish must be handled through an explicit human decision consistent with that limit. Do not start further implementation or critique automatically. No implementation changes were made during this review. **Stop for explicit human instruction.**

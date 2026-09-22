@@ -139,7 +139,14 @@ internal sealed partial class StartupIntegrationChecks : Node
             Tap(Key.Escape);
             await Frames(3);
             Check(settings.CurrentPage == Settings.MenuPage.Closed && menu.SelectedId == "Settings", "Settings returns with prior main-menu selection");
-            await Frames(90);
+            var artwork = menu.FindChildren("*", "Control", true, false).Cast<Control>().ToArray();
+            Transform2D[] restingTransforms = artwork.Select(control => control.GetGlobalTransform()).ToArray();
+            for (int sample = 0; sample < 6; sample++)
+            {
+                await Frames(15);
+                Check(artwork.Select(control => control.GetGlobalTransform()).SequenceEqual(restingTransforms), "Settled assembly and attachment controls remain stationary during flag flutter");
+                await Capture($"idle-{sample}");
+            }
             Check(menu.Targets[0].GetGlobalRect() == stableTarget, "Idle artwork never moves input targets");
             Check(menu.SelectedId == "Settings", "Stationary pointer and ambient motion preserve selection");
             await Capture("settings-selected");
