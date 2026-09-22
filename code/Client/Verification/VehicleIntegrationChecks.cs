@@ -56,6 +56,9 @@ public sealed partial class VehicleIntegrationChecks : Node
             await VerifySpeedTelemetry();
             await VerifyNativeInput();
             await VerifySurfaces();
+            await CameraPlaytest.Run(this, _arena.GetNode<VehicleChaseCamera>("ChaseCamera"), _input,
+                () => _arena.Player.GetGlobalTransformInterpolated(), _output,
+                () => _arena.Player.ResetBody(_arena.Player.Snapshot.Movement.Physics));
             _input.FrameCaptured -= Advance;
             _settings.QueueFree();
             _hud.QueueFree();

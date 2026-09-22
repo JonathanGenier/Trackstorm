@@ -493,7 +493,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
                 }
 
                 _eventRejected = 0;
-                _arena = new NetworkVehicleArena { Name = "SessionArena", PreparedMap = _matchLoader.MapScene, ApplicationEntry = true, Visible = false };
+                _arena = new NetworkVehicleArena { Name = "SessionArena", PreparedMap = _matchLoader.MapScene, ApplicationEntry = true, Visible = false, CameraInput = NavigationInput };
                 _arena.Initialize(_gateway!, _lobby.Authority is null ? 0 : _arenaGeneration, _lobby.ServerPeer, _lobby, _lobby.Authority?.Configuration.Configuration);
                 _arena.Driver.MatchReceived += QueueMatchPresentation;
                 AddChild(_arena);

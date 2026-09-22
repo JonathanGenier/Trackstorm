@@ -38,12 +38,16 @@ public sealed partial class ReconnectIntegrationChecks : Node
     private double _resumeAt;
     private PlayerScore? _retainedScore;
     private int _retainedRank;
+    private Input.PlayerInput _cameraInput = null!;
 
     /// <inheritdoc/>
     public override void _Ready()
     {
         Engine.PhysicsTicksPerSecond = 60;
         Engine.MaxFps = 60;
+        _cameraInput = new Input.PlayerInput { GameplayAvailable = () => true };
+        AddChild(_cameraInput);
+        _cameraInput.SetPhysicsProcess(false);
         _output = ProjectSettings.GlobalizePath("res://.godot/reconnect-checks");
         System.IO.Directory.CreateDirectory(_output);
         using var reservation = new UdpClient(new IPEndPoint(IPAddress.Loopback, 0));
@@ -175,6 +179,15 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 }
 
                 _resyncs++;
+                var camera = _arenas[1].GetNode<Vehicles.VehicleChaseCamera>("ChaseCamera");
+                var cameraPose = _arenas[1].Bodies[_player].VisualTransform;
+                camera.Follow(cameraPose, _arenas[1].LocalState!, 0);
+                float expectedYaw = MathF.Atan2(cameraPose.Basis.Z.X, cameraPose.Basis.Z.Z);
+                float actualYaw = MathF.Atan2(camera.GlobalBasis.Z.X, camera.GlobalBasis.Z.Z);
+                Require(Math.Abs(Mathf.AngleDifference(expectedYaw, actualYaw)) < 0.0001f, "Resume clears held free-look on the reused displayed vehicle.");
+                using var releaseLook = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false };
+                Godot.Input.ParseInputEvent(releaseLook);
+                Godot.Input.FlushBufferedEvents();
                 Require(_arenas[1].Driver.Inputs!.Pending.Count == 0, "Old pending input was discarded before prediction.");
                 Require(_arenas[1].Driver.History!.Snapshots.Count == 1, "Interpolation data contains only the fresh boundary.");
                 Require(_arenas[1].Bodies[_player] == _originalBody, "The native vehicle is reused, never duplicated.");
@@ -332,6 +345,23 @@ public sealed partial class ReconnectIntegrationChecks : Node
 
     private void Drop()
     {
+        if (_arenas.Count > 1 && _arenas[1].LocalState is { } cameraState)
+        {
+            var camera = _arenas[1].GetNode<Vehicles.VehicleChaseCamera>("ChaseCamera");
+            _arenas[1].CameraInput = _cameraInput.Adapter;
+            _cameraInput.Adapter.Enabled = true;
+            _cameraInput._Process(0);
+            var pose = _arenas[1].Bodies[_player].VisualTransform;
+            camera.Follow(pose, cameraState, 1f / 60);
+            using var heldLook = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true };
+            Godot.Input.ParseInputEvent(heldLook);
+            Godot.Input.FlushBufferedEvents();
+            using var motion = new InputEventMouseMotion { ScreenRelative = new Vector2(350, 0) };
+            _cameraInput.Adapter.ObserveCamera(motion);
+            camera.Follow(pose, cameraState, 1f / 60);
+            Require(Math.Abs(Mathf.AngleDifference(MathF.Atan2(pose.Basis.Z.X, pose.Basis.Z.Z), MathF.Atan2(camera.GlobalBasis.Z.X, camera.GlobalBasis.Z.Z))) > 0.5f, "Reconnect starts with an active held orbit.");
+        }
+
         _retiredLatency = _host.Latency.Sample(_host.State!, _host.Authority!.Peers, _gateways[0]);
         _gateways[0].Disconnect(_host.Authority!.Peers.Keys.Single());
         _gateways[1].Disconnect(_client.ServerPeer);
