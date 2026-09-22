@@ -42,6 +42,15 @@ internal sealed partial class SettingsPanel : CanvasLayer
     private bool _frontendVisible = true;
     private float _frontendAlpha = 1;
 
+    /// <summary>The main menu supplies its own Settings entry; other frontend screens retain theirs.</summary>
+    internal Func<bool> ShowFrontendShortcut { get; set; } = () => true;
+
+    internal void OpenFrontendSettings()
+    {
+        _navigation.Open(false);
+        ShowPage();
+    }
+
     /// <summary>Actual diagnostics bounds for runtime layout verification.</summary>
     internal Rect2 DiagnosticsBounds => _hud.GetGlobalRect();
 
@@ -331,7 +340,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
             }
         }
 
-        _openSettings.Visible = !arena && CurrentPage == MenuPage.Closed;
+        _openSettings.Visible = !arena && CurrentPage == MenuPage.Closed && ShowFrontendShortcut();
         if (_wasArena && !arena)
         {
             Close();
@@ -400,14 +409,9 @@ internal sealed partial class SettingsPanel : CanvasLayer
         _input = input;
     }
 
-    /// <summary>Connects authoritative vehicle speed to the existing preference-aware HUD.</summary>
-    /// <param name="metresPerSecond">Unconverted Core speed.</param>
+    /// <summary>Connects session diagnostics to the preference-aware FPS/Ping display.</summary>
     /// <param name="connection">Current neutral connection diagnostics.</param>
-    internal void SetVehicleTelemetry(float metresPerSecond, Networking.ConnectionDiagnostic connection = default) => _hud.SetTelemetry(metresPerSecond, connection);
-
-    /// <summary>Suppresses only the duplicate speed line; independent FPS and ping preferences remain intact.</summary>
-    /// <param name="visible">Whether the combat HUD is providing speed.</param>
-    internal void SetCombatHudVisible(bool visible) => _hud.SpeedVisible = !visible;
+    internal void SetConnectionTelemetry(Networking.ConnectionDiagnostic connection) => _hud.SetTelemetry(connection);
 
     private static void Row(VBoxContainer parent, string text, Control control)
     {

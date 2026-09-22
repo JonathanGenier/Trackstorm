@@ -67,7 +67,18 @@ internal sealed partial class DevelopmentSession
 
     private void BeginMenuExit()
     {
+        _browsing = false;
+        _debug.SetPressedNoSignal(false);
         if (_quitFromPodium) QuitApplication();
         else Leave();
+    }
+
+    /// <summary>Returns through the same cleanup gate used by the Podium Main Menu action.</summary>
+    internal void ReturnToMainMenu()
+    {
+        _exitToMenu = true;
+        _quitFromPodium = false;
+        BeginMenuExit();
+        Render();
     }
 }

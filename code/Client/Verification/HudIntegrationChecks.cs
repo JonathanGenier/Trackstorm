@@ -39,9 +39,8 @@ public sealed partial class HudIntegrationChecks : Node
             var preferences = new Settings.SettingsPanel();
             preferences.Initialize(settings, input.Adapter);
             viewport.AddChild(preferences);
-            preferences.SetCombatHudVisible(true);
             settings.UpdateSettings(settings.Current with { ShowFps = true, ShowPing = true });
-            preferences.SetVehicleTelemetry(0, new(Networking.ConnectionDiagnosticState.Reconnecting, default));
+            preferences.SetConnectionTelemetry(new(Networking.ConnectionDiagnosticState.Reconnecting, default));
             var pixels = new List<(int Health, int Speed)>();
             foreach (var sample in new[] { (1000f, 200 / 3.6f, HeldItem.None), (500f, 100 / 3.6f, HeldItem.Wrench), (0f, 0f, HeldItem.None), (850f, 200 / 3.6f, HeldItem.Missile) })
             {
@@ -80,6 +79,12 @@ public sealed partial class HudIntegrationChecks : Node
             hud.Vehicle = () => null;
             hud.Refresh();
             Require(!hud.Visible && hud.Displayed is null, "No stale HUD outside match");
+            viewport.QueueFree();
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            settings.QueueFree();
+            input.QueueFree();
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            await ToSignal(GetTree().CreateTimer(0.1), SceneTreeTimer.SignalName.Timeout);
             GD.Print("HUD integration passed: state changes, units, 1000 HP, placeholders, nine resolutions, teardown visibility.");
             GetTree().Quit();
         }

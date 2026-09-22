@@ -21,7 +21,6 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private readonly Button _start = new() { Text = "Start Match (host only)" };
     private readonly Button _leave = new() { Text = "Leave session" };
     private readonly CheckButton _debug = new() { Text = "Developer fallback: Direct-IP / LAN" };
-    private readonly Button _browse = new() { Text = "Browse online lobbies" };
     private readonly Button _back = new() { Text = "Back to Main Menu" };
     private readonly OptionButton _mapChoice = new() { Name = "MapSelection" };
     private readonly Label _mapLabel = new();
@@ -35,7 +34,8 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private InputButtons _standingsHeld;
     private LobbyNetworkDriver? _lobby;
     private NetworkVehicleArena? _arena;
-    private VBoxContainer _menu = null!;
+    private VBoxContainer _browserContent = null!;
+    private PanelContainer _browserPanel = null!;
     private string _message = "Choose or host a game. Up to 8 players; everyone must be ready.";
     private ulong _arenaGeneration;
     private OnlineLobbyPanel _online = null!;
@@ -55,6 +55,12 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private double _loadSeconds;
     private string? _failureOutcome;
     private VBoxContainer _staging = null!;
+    private Frontend.HangingMainMenu _mainMenu = null!;
+    private bool RetainedPresentation => OnlineCoordinator() is { HasRetainedDecision: true, CheckingSavedSession: false };
+
+    /// <summary>Existing Settings destination supplied by the bootstrap.</summary>
+    internal Action OpenSettings { get; set; } = () => { };
+    internal Frontend.HangingMainMenu MainMenu => _mainMenu;
 
     /// <summary>Retains the last bounded session history after departure.</summary>
     internal Core.Events.EventStream Events { get; private set; } = new();
@@ -122,16 +128,30 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         Layer = 1;
         _root = new Control { AnchorRight = 1, AnchorBottom = 1, MouseFilter = Control.MouseFilterEnum.Ignore, Visible = _frontendVisible, Modulate = new Color(1, 1, 1, _frontendAlpha) };
         AddChild(_root);
-        var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -300, OffsetRight = 300, OffsetTop = -330, OffsetBottom = 330 };
+        _mainMenu = new Frontend.HangingMainMenu
+        {
+            Name = "MainMenu", NavigationInput = NavigationInput,
+            Active = () => Stage == ApplicationStage.MainMenu && !RetainedPresentation,
+            Blocked = () => OverlayOpen(),
+        };
+        _root.AddChild(_mainMenu);
+        _mainMenu.SetEntries([
+            new("Play", "Play", 0, true, string.Empty, () => SetBrowser(true)),
+            new("Garage", "Garage", 1, false, "Coming Soon", () => { }),
+            new("Settings", "Settings", 2, true, string.Empty, () => OpenSettings()),
+            new("Quit", "Quit", 3, true, string.Empty, () => QuitApplication()),
+        ]);
+        var panel = new PanelContainer { Name = "LobbyBrowser", Visible = false, AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -300, OffsetRight = 300, OffsetTop = -330, OffsetBottom = 330 };
+        _browserPanel = panel;
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("172235"), ContentMarginLeft = 24, ContentMarginRight = 24, ContentMarginTop = 18, ContentMarginBottom = 18 });
         _root.AddChild(panel);
-        _menu = new VBoxContainer();
-        _menu.AddThemeConstantOverride("separation", 8);
+        _browserContent = new VBoxContainer();
+        _browserContent.AddThemeConstantOverride("separation", 8);
         var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         panel.AddChild(scroll);
-        _menu.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        scroll.AddChild(_menu);
-        _menu.AddChild(new Label { Text = $"TRACKSTORM {GameVersion.Current} · MULTIPLAYER", HorizontalAlignment = HorizontalAlignment.Center });
+        _browserContent.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        scroll.AddChild(_browserContent);
+        _browserContent.AddChild(new Label { Text = $"TRACKSTORM {GameVersion.Current} · MULTIPLAYER", HorizontalAlignment = HorizontalAlignment.Center });
         _online = new OnlineLobbyPanel { Coordinator = () => OnlineCoordinator(), IdentityStatus = () => OnlineStatus(), Login = () => OnlineLogin(), Logout = () => OnlineLogout() };
         _online.LeaveSession = Leave;
         _online.Logout = () =>
@@ -139,12 +159,10 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             _logoutAfterLeave = true;
             Leave();
         };
-        _menu.AddChild(_browse);
-        _menu.AddChild(_back);
-        _browse.Pressed += () => SetBrowser(true);
+        _browserContent.AddChild(_back);
         _back.Pressed += () => SetBrowser(false);
-        _menu.AddChild(_debug);
-        _menu.AddChild(_online);
+        _browserContent.AddChild(_debug);
+        _browserContent.AddChild(_online);
         _debug.Toggled += enabled =>
         {
             if (enabled)
@@ -152,12 +170,12 @@ internal sealed partial class DevelopmentSession : CanvasLayer
                 OnlineCoordinator()?.Leave();
             }
         };
-        _menu.AddChild(_name);
-        _menu.AddChild(_address);
-        _menu.AddChild(_host);
-        _menu.AddChild(_join);
-        _menu.AddChild(_status);
-        _menu.AddChild(_admission);
+        _browserContent.AddChild(_name);
+        _browserContent.AddChild(_address);
+        _browserContent.AddChild(_host);
+        _browserContent.AddChild(_join);
+        _browserContent.AddChild(_status);
+        _browserContent.AddChild(_admission);
         _joinedPanel = new PanelContainer { Name = "JoinedLobby", AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -300, OffsetRight = 300, OffsetTop = -330, OffsetBottom = 330 };
         _root.AddChild(_joinedPanel);
         var staging = new VBoxContainer();
@@ -266,8 +284,12 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         }
     }
 
-    /// <summary>Fades the existing main-menu controls over the persistent MenuShell.</summary>
-    internal void FadeFrontendIn() => CreateTween().TweenProperty(_root, "modulate:a", 1, 0.45).SetTrans(Tween.TransitionType.Cubic);
+    /// <summary>Reveals the hanging menu over the persistent MenuShell at successful startup.</summary>
+    internal void FadeFrontendIn()
+    {
+        _root.Modulate = Colors.White;
+        _mainMenu.BeginEntrance();
+    }
 
     /// <summary>Creates a listener or connects through the existing production transport.</summary>
     /// <param name="host">Whether to host.</param>
@@ -618,8 +640,12 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private void SetBrowser(bool visible)
     {
         _browsing = visible;
-        _menu.Modulate = new Color(1, 1, 1, 0);
-        CreateTween().TweenProperty(_menu, "modulate:a", 1, 0.25);
+        if (!visible) _debug.SetPressedNoSignal(false);
+        if (visible)
+        {
+            _browserContent.Modulate = new Color(1, 1, 1, 0);
+            CreateTween().TweenProperty(_browserContent, "modulate:a", 1, 0.25);
+        }
         Render();
     }
 
@@ -709,10 +735,9 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     {
         bool active = _lobby?.State is not null;
         bool pending = !active && (_lobby is not null || OnlineCoordinator()?.Active is not null || OnlineCoordinator()?.Busy == true);
-        bool browsing = _browsing || _debug.ButtonPressed || OnlineCoordinator()?.HasRetainedDecision == true;
-        _admission.Visible = pending && OnlineCoordinator()?.HasRetainedDecision != true;
+        bool browsing = _browsing || _debug.ButtonPressed || RetainedPresentation;
+        _admission.Visible = pending && !RetainedPresentation;
         _admission.Text = "JOINING / CREATING LOBBY\n" + (OnlineCoordinator()?.Busy == true ? OnlineCoordinator()!.Status : "Waiting for authoritative admission…");
-        _browse.Visible = !active && !browsing && !pending;
         _back.Visible = !active && browsing && !pending;
         _joinedPanel.Visible = active && _lobby!.State!.Phase == SessionPhase.Lobby;
         bool exiting = Stage == ApplicationStage.Leaving;
@@ -728,10 +753,11 @@ internal sealed partial class DevelopmentSession : CanvasLayer
 
         _mapChoice.Disabled = _lobby?.Authority is null || _leaving || _lobby.Migration?.Frozen == true;
         bool arena = _arena is not null || _lobby?.State?.Phase == SessionPhase.Arena;
-        bool decision = OnlineCoordinator()?.HasRetainedDecision == true;
-        _menu.GetParent<ScrollContainer>().GetParent<Control>().Visible = !active;
+        bool decision = RetainedPresentation;
+        _browserPanel.Visible = !exiting && !active && (browsing || pending);
+        _mainMenu.RefreshPresentation();
         ((Control)_arenaStatus.GetParent()).Visible = arena;
-        Node onlineParent = active && !arena ? _staging : _menu;
+        Node onlineParent = active && !arena ? _staging : _browserContent;
         if (_online.GetParent() != onlineParent)
         {
             _online.Reparent(onlineParent);
