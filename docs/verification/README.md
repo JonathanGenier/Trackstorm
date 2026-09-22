@@ -10,7 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
-| Asphalt and banked-oval handling | [TS-73 first candidate](ts-73.md), [runtime-feedback correction and pending human acceptance](ts-73-correction.md), [editor import and multiplayer menu correction](ts-73-menu-correction.md) |
+| Asphalt and banked-oval handling | [TS-73 latest banked-turn correction and historical baseline](ts-73.md), [runtime-feedback correction and pending human acceptance](ts-73-correction.md), [editor import and multiplayer menu correction](ts-73-menu-correction.md) |
 | Modular chain-hung Main Menu, stationary left layout, legacy presentation cleanup, version label and startup flash regression | [TS-122 implementation and verification](ts-122.md), [Astra runtime critique](ts-122-critique.md) |
 | Adjustable local collision camera shake | [TS-109 verification evidence](ts-109.md) |
 | Vehicle camera free-look and recentering | [TS-108 verification evidence](ts-108.md) |

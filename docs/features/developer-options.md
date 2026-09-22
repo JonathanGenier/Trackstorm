@@ -71,7 +71,7 @@ Host-local schema 2 migrates the old default wheelbase, load height and suspensi
 | `items.explosion_radius` | `ItemConfiguration.ExplosionRadius` | 12 |
 | `items.maximum_damage` | `ItemConfiguration.MaximumDamage` | 300 |
 
-The other 62 persisted values already match this preset, including HP, surfaces, item spawning, respawn and match rules. The complete stable-key ownership map below applies to all 76 values. Decimal float literals retain the exact binary32 values represented by persisted JSON doubles; no tolerance or approximate tuning is used. `ReleaseDefaultsTests` checks every approved numeric value exactly and verifies validation, persistence and network round trips.
+The remaining persisted values already match this preset, including HP, surfaces, item spawning, respawn and match rules. The complete stable-key ownership map below applies to all 76 values. Decimal float literals retain the exact binary32 values represented by persisted JSON doubles; no tolerance or approximate tuning is used. `ReleaseDefaultsTests` checks every approved numeric value exactly and verifies validation, persistence and network round trips.
 
 ### Circus stunt tuning
 
