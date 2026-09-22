@@ -194,7 +194,7 @@ internal sealed partial class OnlineLobbyTests
             var match = new MatchState(10, 1, 5, MatchPhase.Finished, null, 2, [new(1, 0, 5, 0, 5), new(2, 5, 0, 1, 0)]);
             var view = MatchStandingsView.From(authority.State, match, 1, InputButtons.None, _ => 42);
             Assert.That(view.WinnerName, Is.EqualTo("Retained winner"));
-            Assert.That(view.Rows[0], Is.EqualTo(new StandingsRow(2, 1, "Retained winner", 5, 0, "--", true, false, false)));
+            Assert.That(view.Rows[0], Is.EqualTo(new StandingsRow(2, 1, "Retained winner", 0, 5, 0, "--", true, false, false)));
             if (dropReply)
             {
                 clock.Advance(21);

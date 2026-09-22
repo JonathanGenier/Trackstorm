@@ -32,7 +32,11 @@ public sealed partial class PlayerInput : Node
     }
 
     /// <inheritdoc/>
-    public override void _Input(InputEvent @event) => _adapter?.Observe();
+    public override void _Input(InputEvent @event)
+    {
+        _adapter?.Observe();
+        _adapter?.ObserveCamera(@event);
+    }
 
     /// <inheritdoc/>
     public override void _Process(double delta) => RefreshMouseMode();
@@ -78,6 +82,15 @@ public sealed partial class PlayerInput : Node
         if (Godot.Input.MouseMode != mode)
         {
             Godot.Input.MouseMode = mode;
+        }
+
+        if (_adapter is not null)
+        {
+            _adapter.CameraAvailable = mode == Godot.Input.MouseModeEnum.Captured;
+            if (!_adapter.CameraAvailable)
+            {
+                _adapter.ResetCameraMotion();
+            }
         }
     }
 }

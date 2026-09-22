@@ -173,9 +173,11 @@ public sealed partial class CameraIntegrationChecks : Node3D
                 }
             }
 
+            VerifyFreeLook(camera, input, state);
+            VerifyShakeSettings(camera, input, state);
             camera.QueueFree();
             input.QueueFree();
-            GD.Print("Camera integration passed: ignored mouse/right-stick/steering, actual heading alignment, acceleration/braking/lateral inertia, settling, damage/life reset, airborne horizon.");
+            GD.Print("Camera integration passed: RMB orbit/hold/release, controller/dead-zone return, suppression, identity/life/reseed resets, 30/60/144 FPS, unchanged gameplay input, heading/inertia/feedback regressions.");
             GetTree().Quit();
         }
         catch (Exception exception)
@@ -190,6 +192,142 @@ public sealed partial class CameraIntegrationChecks : Node3D
         if (!condition)
         {
             throw new InvalidOperationException(message);
+        }
+    }
+
+    private void VerifyShakeSettings(VehicleChaseCamera camera, PlayerInput input, VehicleSnapshot state)
+    {
+        var settings = new Settings.PlayerSettingsController();
+        string path = ProjectSettings.GlobalizePath($"res://.godot/camera-checks/{Guid.NewGuid():N}.settings.json");
+        settings.Initialize(input.Adapter, path);
+        AddChild(settings);
+        camera.SettingsSource = settings;
+        camera.InputSource = null;
+        var other = new VehicleChaseCamera();
+        AddChild(other);
+        other.Follow(Transform3D.Identity, state, 1f / 60);
+        float fullOffset = 0;
+        foreach (double intensity in new[] { 1d, 0.5d, 0.25d, 0d })
+        {
+            settings.UpdateSettings(settings.Current with { CameraShakeIntensity = intensity });
+            camera.ResetFollow();
+            camera.Follow(Transform3D.Identity, state, 1f / 60);
+            Transform3D baseline = camera.GlobalTransform;
+            var contact = new VehicleContact(new System.Numerics.Vector3(-23, 0, 0), System.Numerics.Vector3.UnitX, 0, 0);
+            var observation = new VehicleObservation(state.ObservedPhysics, System.Numerics.Vector3.UnitY, new[] { contact });
+            camera.ObserveCollision(observation, 900);
+            camera.Follow(Transform3D.Identity, state, 1f / 60);
+            float offset = camera.GlobalPosition.Y - baseline.Origin.Y;
+            if (intensity == 1) fullOffset = offset;
+            Require(fullOffset > 0 && Math.Abs(offset - fullOffset * intensity) < 0.00001, "Local intensity scales only the final shake displacement");
+            Require(camera.GlobalBasis.IsEqualApprox(baseline.Basis) && Math.Abs((camera.GlobalPosition - baseline.Origin).Dot(baseline.Basis.Z)) < 0.00001f, "Shake preserves aim and chase depth");
+            float envelope = camera.Motion.Shake;
+            camera.ObserveCollision(observation, 900);
+            Require(camera.Motion.Shake == envelope, "Repeated contacts within cooldown cannot stack shake");
+            Require(camera.Motion.Shake <= 1 && Math.Abs(offset) <= camera.MaximumShakeMetres, "Feedback is safely bounded");
+            settings.UpdateSettings(settings.Current with { CameraShakeIntensity = 0 });
+            camera.Follow(Transform3D.Identity, state, 1f / 60);
+            Require(camera.Motion.Shake == 0 && camera.GlobalTransform.IsEqualApprox(baseline), "Zero immediately clears an active impact without moving the baseline");
+            settings.UpdateSettings(settings.Current with { CameraShakeIntensity = 1 });
+            camera.Follow(Transform3D.Identity, state, 1f / 60);
+            Require(camera.Motion.Shake == 0, "Re-enabling does not resurrect disabled feedback");
+        }
+
+        camera.ResetFollow();
+        camera.Follow(Transform3D.Identity, state, 1f / 60);
+        var minor = new VehicleContact(new System.Numerics.Vector3(-3, 0, 0), System.Numerics.Vector3.UnitX, 0, 0);
+        camera.ObserveCollision(new VehicleObservation(state.ObservedPhysics, System.Numerics.Vector3.UnitY, new[] { minor }), 900);
+        Require(camera.Motion.Shake == 0, "Minor contacts at the threshold remain silent");
+        other.Motion.Impulse(0.5f);
+        settings.UpdateSettings(settings.Current with { CameraShakeIntensity = 0 });
+        camera.Follow(Transform3D.Identity, state, 1f / 60);
+        Require(other.Motion.Shake == 0.5f, "Local settings do not affect another camera");
+        camera.SettingsSource = null;
+        other.QueueFree();
+        settings.QueueFree();
+        GD.Print("Camera shake settings passed: 0/25/50/100%, active disable/re-enable, minor/repeated contacts, bounds, local isolation and unchanged chase transform.");
+    }
+
+    private static void VerifyFreeLook(VehicleChaseCamera camera, PlayerInput input, VehicleSnapshot state)
+    {
+        camera.InputSource = input.Adapter;
+        input.GameplayAvailable = () => true;
+        input._Process(0);
+        input.Adapter.Enabled = true;
+        input.Adapter.CameraAvailable = true;
+        void Send(InputEvent value)
+        {
+            using (value)
+            {
+                Godot.Input.ParseInputEvent(value);
+                Godot.Input.FlushBufferedEvents();
+            }
+        }
+
+        foreach (int fps in new[] { 30, 60, 144 })
+        {
+            camera.ResetFollow();
+            camera.Follow(Transform3D.Identity, state, 1f / fps);
+            Transform3D baseline = camera.GlobalTransform;
+            Send(new InputEventMouseMotion { ScreenRelative = new Vector2(100, 0) });
+            camera.Follow(Transform3D.Identity, state, 1f / fps);
+            RequireHeading(camera, 0);
+            Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
+            for (int i = 0; i < fps; i++)
+            {
+                Send(new InputEventMouseMotion { ScreenRelative = new Vector2(300f / fps, -30f / fps) });
+                camera.Follow(Transform3D.Identity, state, 1f / fps);
+            }
+
+            RequireHeading(camera, -0.9f);
+            Require(camera.GlobalPosition.DistanceTo(baseline.Origin) > 5, "Mouse orbits the vehicle, not only the viewing direction.");
+            Basis held = camera.GlobalBasis;
+            camera.Follow(Transform3D.Identity, state, 1f / fps);
+            Require(camera.GlobalBasis.IsEqualApprox(held), "Held RMB retains the angle at rest.");
+            var frame = input.Adapter.Capture(1000);
+            Require(frame.Steering == 0 && frame.Accelerate == 0 && frame.Brake == 0 && frame.Held == 0, "Camera input never reaches gameplay frame.");
+            Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
+            camera.Follow(Transform3D.Identity, state, 1f / fps);
+            RequireHeading(camera, -0.9f * MathF.Exp(-6f / fps));
+            for (int i = 0; i < fps * 3; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
+            RequireHeading(camera, 0);
+
+            Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 1 });
+            for (int i = 0; i < fps; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
+            RequireHeading(camera, -2.2f);
+            input.Adapter.DeadZone = 0;
+            Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0.1f });
+            for (int i = 0; i < fps * 3; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
+            RequireHeading(camera, 0);
+            Require(input.Adapter.CameraIntent == Vector2.Zero, "Analog noise is neutral even with driving dead zone disabled.");
+            Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightX, AxisValue = 0 });
+
+            foreach (int boundary in new[] { 0, 1, 2 })
+            {
+                Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
+                Send(new InputEventMouseMotion { ScreenRelative = new Vector2(200, 50) });
+                camera.Follow(Transform3D.Identity, state, 1f / fps);
+                Send(new InputEventMouseMotion { ScreenRelative = new Vector2(200, 50) });
+                var next = new VehicleSnapshot(state.VehicleId + (boundary == 0 ? 1ul : 0), state.LifeId + (boundary == 1 ? 1ul : 0), state.Movement, state.Damage, state.ObservedPhysics);
+                if (boundary == 2) camera.ResetFollow();
+                camera.Follow(Transform3D.Identity, next, 1f / fps);
+                RequireHeading(camera, 0);
+                Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
+                camera.Follow(Transform3D.Identity, state, 1f / fps);
+            }
+
+            Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
+            Send(new InputEventMouseMotion { ScreenRelative = new Vector2(200, 0) });
+            input.Adapter.GameplaySuppressed = true;
+            camera.Follow(Transform3D.Identity, state, 1f / fps);
+            RequireHeading(camera, 0);
+            input.Adapter.GameplaySuppressed = false;
+            Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
+            Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
+            Send(new InputEventMouseMotion { ScreenRelative = new Vector2(100, 0) });
+            Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
+            camera.Follow(Transform3D.Identity, state, 1f / fps);
+            RequireHeading(camera, -0.3f);
         }
     }
 

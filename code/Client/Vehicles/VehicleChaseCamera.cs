@@ -7,6 +7,7 @@ namespace Trackstorm.Client.Vehicles;
 public sealed partial class VehicleChaseCamera : Camera3D
 {
     private readonly ChaseCameraMotion _motion = new();
+    private readonly CameraFreeLook _look = new();
     private bool _initialized;
     private ulong _vehicle;
     private ulong _life;
@@ -44,19 +45,33 @@ public sealed partial class VehicleChaseCamera : Camera3D
     public float CollisionShakeStrength { get; set; } = 0.55f;
     /// <summary>Bounded damage feedback gain.</summary>
     [Export(PropertyHint.Range, "0,1,0.01")]
-    public float DamageShakeStrength { get; set; } = 0.65f;
+    public float DamageShakeStrength { get; set; } = 0.85f;
     /// <summary>Shake envelope decay rate per second.</summary>
     [Export(PropertyHint.Range, "0.1,20,0.1")]
     public float ShakeDecay { get; set; } = 7;
     /// <summary>Minimum contact severity in metres per second for feedback.</summary>
     [Export(PropertyHint.Range, "0,10,0.1")]
     public float CollisionThreshold { get; set; } = 3;
-    /// <summary>Maximum vertical shake displacement in metres.</summary>
-    [Export(PropertyHint.Range, "0,0.5,0.01")]
-    public float MaximumShakeMetres { get; set; } = 0.12f;
+    /// <summary>Maximum view-plane shake displacement in metres; actual impacts use a smaller envelope.</summary>
+    [Export(PropertyHint.Range, "0,0.65,0.01")]
+    public float MaximumShakeMetres { get; set; } = 0.65f;
 
     /// <summary>Presentation diagnostics for runtime checks.</summary>
     internal ChaseCameraMotion Motion => _motion;
+    /// <summary>The existing local input owner; never a gameplay or replicated camera command.</summary>
+    internal Input.PlayerInputAdapter? InputSource { get; set; }
+    /// <summary>Local preferences supplied by composition; never replicated or read from disk here.</summary>
+    internal Settings.PlayerSettingsController? SettingsSource { get; set; }
+
+    private float ShakeIntensity => (float)(SettingsSource?.Current.CameraShakeIntensity ?? 1);
+
+    /// <summary>Clears presentation memory at a restored/reassigned display boundary, even for the same life.</summary>
+    internal void ResetFollow()
+    {
+        _initialized = false;
+        _look.Reset();
+        InputSource?.ResetCameraMotion();
+    }
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -76,7 +91,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
             severity = Math.Max(severity, Math.Max(-System.Numerics.Vector3.Dot(contact.RelativeVelocity, contact.Normal), contact.Impulse / mass));
         }
 
-        _motion.Collision(severity, CollisionThreshold, CollisionShakeStrength);
+        _motion.Collision(severity, CollisionThreshold, ShakeIntensity > 0 ? CollisionShakeStrength : 0);
     }
 
     /// <summary>Combines vehicle heading, measured positional inertia and accepted damage.</summary>
@@ -92,6 +107,8 @@ public sealed partial class VehicleChaseCamera : Camera3D
             ? MathF.Atan2(-forward.X, -forward.Z) : _heading;
         if (reset)
         {
+            _look.Reset();
+            InputSource?.ResetCameraMotion();
             _motion.Reset(state.ObservedPhysics.LinearVelocity);
             _motionTick = state.Movement.Tick;
             _anchor = pose.Origin;
@@ -104,7 +121,10 @@ public sealed partial class VehicleChaseCamera : Camera3D
         {
             _damageSequence = damage.Sequence;
             float strength = damage.Attribution.Source == "collision" ? CollisionShakeStrength : DamageShakeStrength;
-            _motion.Impulse(strength * Math.Clamp(damage.Amount / 50, 0, 1));
+            if (ShakeIntensity > 0)
+            {
+                _motion.Impulse(strength * MathF.Sqrt(Math.Clamp(damage.Amount / 50, 0, 1)));
+            }
         }
 
         if (state.Movement.Tick > _motionTick)
@@ -115,6 +135,10 @@ public sealed partial class VehicleChaseCamera : Camera3D
 
         // The displayed pose already includes practice/network interpolation. Do not add yaw lag.
         _heading = heading;
+        if (ShakeIntensity == 0)
+        {
+            _motion.ClearShake();
+        }
         _motion.Advance(delta, _heading, LongitudinalInertia, LateralInertia, SidewaysInertia, MaximumLongitudinalInertia, MaximumLateralInertia, PositionDamping, ShakeDecay);
         // Horizontal position follows the interpolated vehicle, with only bounded local inertia.
         // Vertical damping absorbs bumps; neither inertia nor shake changes the heading or aim.
@@ -123,8 +147,20 @@ public sealed partial class VehicleChaseCamera : Camera3D
         Vector3 right = new(MathF.Cos(_heading), 0, -MathF.Sin(_heading));
         float distance = Math.Max(2, FollowDistance);
         float height = Math.Max(1, CameraHeight);
-        GlobalPosition = _anchor + (backward * (distance + _motion.Offset.Y)) + (right * _motion.Offset.X) + (Vector3.Up * (height + (_motion.ShakeOffset * MaximumShakeMetres)));
-        GlobalBasis = Basis.FromEuler(new Vector3(-MathF.Atan2(height - 0.5f, distance), _heading, 0));
+        float basePitch = -MathF.Atan2(height - 0.5f, distance);
+        Vector2 mouse = InputSource?.ConsumeCameraMotion() ?? Vector2.Zero;
+        Vector2 stick = InputSource is { CameraEnabled: true } source ? source.CameraIntent.LimitLength() : Vector2.Zero;
+        if (!reset)
+        {
+            _look.Advance(new(mouse.X, mouse.Y), InputSource?.MouseLookHeld == true, new(stick.X, stick.Y), delta, basePitch);
+        }
+
+        GlobalBasis = Basis.FromEuler(new Vector3(basePitch + _look.Pitch, _heading + _look.Yaw, 0));
+        float radius = MathF.Sqrt(distance * distance + (height - 0.5f) * (height - 0.5f));
+        System.Numerics.Vector2 shake = _motion.ShakeOffset * Math.Clamp(MaximumShakeMetres, 0, 0.65f) * ShakeIntensity;
+        GlobalPosition = _anchor + Vector3.Up * 0.5f + GlobalBasis.Z * radius
+            + backward * _motion.Offset.Y + right * _motion.Offset.X
+            + GlobalBasis.X * shake.X + GlobalBasis.Y * shake.Y;
         _initialized = true;
     }
 }

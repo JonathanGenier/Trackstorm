@@ -18,7 +18,18 @@ public sealed partial class VehicleIntegrationChecks : Node
     private Trackstorm.Client.Input.PlayerInput _input = null!;
     private PlayerSettingsController _settings = null!;
     private SettingsPanel _panel = null!;
-    private SettingsHud _hud = null!;
+    private Hud.CombatHud _hud = null!;
+    private float _shakePeak;
+
+    /// <inheritdoc/>
+    public override void _Process(double delta)
+    {
+        if (_arena is not null && _settings is not null)
+        {
+            var camera = _arena.GetNode<VehicleChaseCamera>("ChaseCamera");
+            _shakePeak = Math.Max(_shakePeak, camera.Motion.ShakeOffset.Length() * camera.MaximumShakeMetres * (float)_settings.Current.CameraShakeIntensity);
+        }
+    }
 
     /// <inheritdoc/>
     public override void _Ready() => CallDeferred(MethodName.Run);
@@ -37,10 +48,12 @@ public sealed partial class VehicleIntegrationChecks : Node
             _settings = new PlayerSettingsController();
             _settings.Initialize(_input.Adapter, _output + ".settings.json");
             AddChild(_settings);
+            _arena.CameraSettings = _settings;
             _panel = new SettingsPanel();
             _panel.Initialize(_settings, _input.Adapter);
             _settings.AddChild(_panel);
-            _hud = Descendants(_panel).OfType<SettingsHud>().Single();
+            _hud = new Hud.CombatHud { Vehicle = () => _arena.Player.Snapshot, Units = () => _settings.Current.SpeedUnit };
+            AddChild(_hud);
             _input.FrameCaptured += Advance;
             await Settle();
             VerifyVisualBinding();
@@ -52,11 +65,17 @@ public sealed partial class VehicleIntegrationChecks : Node
             await VerifyPowerThroughSlide();
             await VerifyPhysicalInteractions();
             await VerifyDamageAndExplosions();
+            await VerifyAdjustableShake();
             await VerifySpeedTelemetry();
             await VerifyNativeInput();
             await VerifySurfaces();
+            await CameraPlaytest.Run(this, _arena.GetNode<VehicleChaseCamera>("ChaseCamera"), _input,
+                () => _arena.Player.GetGlobalTransformInterpolated(), _output,
+                () => _arena.Player.ResetBody(_arena.Player.Snapshot.Movement.Physics));
             _input.FrameCaptured -= Advance;
+            SetProcess(false);
             _settings.QueueFree();
+            _hud.QueueFree();
             _input.QueueFree();
             _arena.QueueFree();
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
@@ -90,7 +109,7 @@ public sealed partial class VehicleIntegrationChecks : Node
     private void Advance(InputFrame input)
     {
         _arena.Advance(input);
-        _panel.SetVehicleTelemetry(_arena.Player.Snapshot.Speed);
+        _hud.Refresh();
     }
 
     private void VerifyVisualBinding()
@@ -412,15 +431,44 @@ public sealed partial class VehicleIntegrationChecks : Node
         await Screenshot("mud-landing");
     }
 
+    private async Task VerifyAdjustableShake()
+    {
+        var camera = _arena.GetNode<VehicleChaseCamera>("ChaseCamera");
+        var evidence = new List<object>();
+        foreach (double intensity in new[] { 0d, 0.25d, 0.5d, 1d, 1d })
+        {
+            _settings.UpdateSettings(_settings.Current with { CameraShakeIntensity = intensity });
+            _shakePeak = 0;
+            await RunDrive(new Vector3(28, 1, -28), new Vector3(0, 0, -23), 90, tick => Frame(tick));
+            float hp = _arena.Player.DamageState.CurrentHP;
+            Check(hp < 100, "real wall impact still damages the vehicle at every local shake setting");
+            Check(intensity == 0 ? _shakePeak == 0 : _shakePeak > 0.0001f, "real impact obeys the local shake intensity");
+            Check(_shakePeak <= camera.MaximumShakeMetres * intensity, "repeated native impacts stay within the configured presentation bound");
+            evidence.Add(new { intensity, peakMetres = _shakePeak, hp, life = _arena.Player.Snapshot.LifeId });
+            GD.Print($"Collision shake: intensity={intensity:P0}, peak={_shakePeak:F6}m, HP={hp:F3}, life={_arena.Player.Snapshot.LifeId}");
+        }
+
+        await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 20), Vector3.Zero, 60, tick => Frame(tick));
+        Check(camera.Motion.Shake == 0, "native new-life reset clears shake");
+        _settings.UpdateSettings(_settings.Current with { CameraShakeIntensity = 0 });
+        _arena.Player.ApplyEffect(new DamageEffect(20, Numerics.Vector3.Zero, Numerics.Vector3.Zero), new DamageContext("missile", 99, "disabled-shake"));
+        await ObserveTicks(3);
+        Check(_arena.Player.DamageState.CurrentHP == 80 && camera.Motion.Shake == 0, "zero disables real damage feedback without disabling damage");
+        _settings.UpdateSettings(_settings.Current with { CameraShakeIntensity = 1 });
+        await ObserveTicks(3);
+        Check(camera.Motion.Shake == 0, "enabling does not replay an already consumed damage event");
+        File.WriteAllText(_output + ".shake.json", System.Text.Json.JsonSerializer.Serialize(evidence));
+    }
+
     private async Task VerifySpeedTelemetry()
     {
         await RunDrive(new Vector3(-25, VehicleDimensions.RideHeight, 25), Vector3.Zero, 90, tick => Frame(tick));
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Check(_arena.Player.Snapshot.Speed < 0.01f && _arena.Player.State.CommandSpeed < 0.01f, "stationary suspension balances gravity without road-speed creep");
-        Check(_hud.SpeedText == "Speed  0.0 km/h", "stationary HUD reads zero in km/h");
-        GD.Print($"Stationary speed: observed={_arena.Player.Snapshot.Speed:F4} m/s, command={_arena.Player.State.CommandSpeed:F4} m/s, HUD={_hud.SpeedText}");
+        Check(HudSpeedText == "Speed  0 km/h", "stationary HUD reads zero in km/h");
+        GD.Print($"Stationary speed: observed={_arena.Player.Snapshot.Speed:F4} m/s, command={_arena.Player.State.CommandSpeed:F4} m/s, HUD={HudSpeedText}");
         _settings.UpdateSettings(_settings.Current with { SpeedUnit = SpeedUnit.MilesPerHour });
-        Check(_hud.SpeedText == "Speed  0.0 mph", "stationary HUD reads zero in mph");
+        Check(HudSpeedText == "Speed  0 mph", "stationary HUD reads zero in mph");
         await Screenshot("stationary-speed");
         _settings.UpdateSettings(_settings.Current with { SpeedUnit = SpeedUnit.KilometresPerHour });
 
@@ -435,22 +483,31 @@ public sealed partial class VehicleIntegrationChecks : Node
         await RunDrive(new Vector3(-25, VehicleDimensions.RideHeight, 15), Vector3.Zero, 60, tick => Frame(tick, brake: 65535));
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Check(_arena.Player.Snapshot.ObservedPhysics.LinearVelocity.Z > 3 && _arena.Player.Snapshot.Speed > 3, "reverse travel displays a nonnegative magnitude");
-        GD.Print($"Reverse speed: observed={_arena.Player.Snapshot.Speed:F2} m/s, HUD={_hud.SpeedText}");
+        GD.Print($"Reverse speed: observed={_arena.Player.Snapshot.Speed:F2} m/s, HUD={HudSpeedText}");
         VerifyHudConversion(3.6, "km/h");
 
         await RunDrive(new Vector3(-25, 5, 25), new Vector3(0, 15, 0), 4, tick => Frame(tick));
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        Check(_arena.Player.Snapshot.ObservedPhysics.LinearVelocity.Y > 10 && _hud.SpeedText == "Speed  0.0 km/h", "pure vertical launch does not inflate the road-speed HUD");
+        Check(_arena.Player.Snapshot.ObservedPhysics.LinearVelocity.Y > 10 && HudSpeedText == "Speed  0 km/h", "pure vertical launch does not inflate the road-speed HUD");
         await RunDrive(new Vector3(-25, 5, 25), new Vector3(0, 15, -10), 4, tick => Frame(tick));
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Check(_arena.Player.Snapshot.ObservedPhysics.LinearVelocity.Y > 10 && Math.Abs(_arena.Player.Snapshot.Speed - 10) < 0.01f, "vertical launch preserves horizontal road speed");
         VerifyHudConversion(3.6, "km/h");
     }
 
+    private string HudSpeedText
+    {
+        get
+        {
+            _hud.Refresh();
+            return $"Speed  {_hud.Displayed!.Speed} {_hud.Displayed.Unit}";
+        }
+    }
+
     private void VerifyHudConversion(double factor, string unit)
     {
-        string value = (_arena.Player.Snapshot.Speed * factor).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
-        Check(_hud.SpeedText == $"Speed  {value} {unit}", "production HUD converts the committed observed speed into preferred units");
+        string value = (_arena.Player.Snapshot.Speed * factor).ToString("0", System.Globalization.CultureInfo.InvariantCulture);
+        Check(HudSpeedText == $"Speed  {value} {unit}", "production HUD converts the committed observed speed into preferred units");
     }
 
     private async Task<List<VehicleState>> ObserveTicks(int count)

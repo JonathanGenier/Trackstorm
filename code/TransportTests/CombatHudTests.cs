@@ -1,6 +1,7 @@
 using System.Numerics;
 using Trackstorm.Client.Hud;
 using Trackstorm.Core.Items;
+using Trackstorm.Core.Matches;
 using Trackstorm.Core.Settings;
 using Trackstorm.Core.Vehicles;
 
@@ -10,6 +11,23 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class CombatHudTests
 {
+    [Test]
+    public void NonCircusModeClearsCircusPresentationAndNextMatchStartsWithoutFeedback()
+    {
+        var feedback = new CircusScoreFeedback();
+        var circus = new MatchState(10, 5, 5, MatchPhase.Active, null, null,
+            [new PlayerScore(1, 0, 0, 0, 0) { CircusScore = 100 }]);
+        Assert.That(feedback.Project(circus, 1, 0)!.Total, Is.EqualTo("100"));
+        var combat = new MatchState(0, 1, 5, MatchPhase.Waiting, null, null,
+            [new PlayerScore(1, 0, 0, 0, 0)], mode: MatchMode.FirstToTarget);
+        Assert.That(feedback.Project(combat, 1, 10), Is.Null);
+        var fresh = new MatchState(0, 1, 5, MatchPhase.Waiting, null, null, combat.Players);
+        var projected = feedback.Project(fresh, 1, 20)!;
+        Assert.That(projected.Total, Is.EqualTo("0"));
+        Assert.That(projected.Multiplier, Is.EqualTo("x1"));
+        Assert.That(projected.Rows, Is.Empty);
+    }
+
     /// <summary>Units change numbers, never the common visual scale.</summary>
     [Test]
     public void SpeedUnitsAndVisualScale()
@@ -73,6 +91,51 @@ internal sealed class CombatHudTests
         Assert.That(changed.SpeedFill, Is.EqualTo(1).Within(1e-6));
         Assert.That(initial.Damage.CurrentHP, Is.EqualTo(850));
         Assert.That(initial.Speed, Is.EqualTo(10));
+    }
+
+    /// <summary>Pending, banked and death-lost rows use authoritative snapshots and expire by category.</summary>
+    [Test]
+    public void CircusProjectionUpdatesCategoriesInPlaceAndDoesNotReplayInitialAwards()
+    {
+        var feedback = new CircusScoreFeedback();
+        var pending = new StuntState
+        {
+            Life = 1,
+            Tick = 10,
+            Drift = new StuntProgress(10, 12.5),
+            Airtime = new StuntProgress(8, 4),
+            JumpOrigin = System.Numerics.Vector3.One,
+            JumpDistance = 3,
+            LongJumpBasePoints = 6,
+        };
+        var first = new MatchState(10, 1, 5, MatchPhase.Active, null, null,
+            [new PlayerScore(1, 0, 0, 0, 0) { CircusScore = 125.5, Stunts = pending }],
+            awards: [new CircusScoreAward(1, CircusScoreCategory.Kill, 125.5)]);
+        CircusHudView initial = feedback.Project(first, 1, 0)!;
+        Assert.That(initial.Total, Is.EqualTo("125.5"));
+        Assert.That(initial.Multiplier, Is.EqualTo("x1"));
+        Assert.That(initial.Rows.Select(row => row.Category), Is.EqualTo(new[] { CircusScoreCategory.Drift, CircusScoreCategory.Airtime, CircusScoreCategory.LongJump }));
+        Assert.That(initial.Rows.All(row => row.Kind == CircusFeedbackKind.Pending), Is.True, "Initial publication is state, not historical award replay.");
+
+        var continuing = new MatchState(11, 2, 5, MatchPhase.Active, null, null,
+            [first.Players[0] with { CircusScore = 250.5, Stunts = pending with { Tick = 11, Drift = new StuntProgress(11, 14) } }],
+            awards:
+            [
+                new CircusScoreAward(1, CircusScoreCategory.Collision, 25),
+                new CircusScoreAward(1, CircusScoreCategory.Kill, 100),
+            ]);
+        CircusHudView live = feedback.Project(continuing, 1, 100)!;
+        Assert.That(live.Rows.Count, Is.EqualTo(5));
+        Assert.That(live.Rows.Single(row => row.Category == CircusScoreCategory.Drift).Points, Is.EqualTo(14));
+        Assert.That(live.Rows.Single(row => row.Category == CircusScoreCategory.Kill).Kind, Is.EqualTo(CircusFeedbackKind.Banked));
+
+        var death = new MatchState(12, 3, 5, MatchPhase.Active, null, null,
+            [continuing.Players[0] with { Deaths = 1, KillStreak = 0, ProcessedLife = 1, Stunts = null }],
+            [new ScoredDeath(1, 1, 0)]);
+        CircusHudView lost = feedback.Project(death, 1, 200)!;
+        Assert.That(lost.Rows.Single(row => row.Category == CircusScoreCategory.Drift).Kind, Is.EqualTo(CircusFeedbackKind.Lost));
+        Assert.That(lost.Rows.Single(row => row.Category == CircusScoreCategory.Airtime).Kind, Is.EqualTo(CircusFeedbackKind.Lost));
+        Assert.That(feedback.Project(death, 1, 2100)!.Rows, Is.Empty);
     }
 
     private static VehicleSnapshot State(float hp, float max, float speed)

@@ -66,3 +66,5 @@ Authority restoration, epoch fencing, checkpoint cadence and migration limits ar
 [Feature index](README.md)
 
 The [Event Log](event-log.md) consumes committed hit results and lifecycle/match transitions at the same world boundary. Restore produces no historical outcomes; staged item-use events precede their applied damage/healing.
+
+Circus stunt evaluation follows the combat batch within the atomic match candidate, using previous support/pose and current solved vehicle observations plus registered per-vehicle tuning. Rejected batches cannot partly accrue or bank. Complete state validation rejects pending events without a matching living vehicle/life at the current tick. See [match stunt scoring](matches.md#circus-stunt-detection-and-banking).

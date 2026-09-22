@@ -13,7 +13,7 @@ public sealed class FinalMatchResults
         ArgumentNullException.ThrowIfNull(standings);
         FinalMatchStanding[] rows = standings.Take(MatchState.MaximumPlayers + 1).ToArray();
         if (rows.Length > MatchState.MaximumPlayers ||
-            rows.Any(row => row is null || row.PlayerId == 0 || row.Rank < 1 || row.Kills < 0 || row.Deaths < 0 || row.Wins is < 0 or > 1) ||
+            rows.Any(row => row is null || row.PlayerId == 0 || row.Rank < 1 || !double.IsFinite(row.CircusScore) || row.CircusScore < 0 || row.Kills < 0 || row.Deaths < 0 || row.Wins is < 0 or > 1) ||
             rows.Select(row => row.PlayerId).Distinct().Count() != rows.Length ||
             !rows.Select(row => row.Rank).Order().SequenceEqual(Enumerable.Range(1, rows.Length)) ||
             (rows.Length > 0 && outcome.Winner is ulong winner && !rows.Any(row => row.PlayerId == winner && row.Rank == 1)))
@@ -37,6 +37,6 @@ public sealed class FinalMatchResults
     {
         var scores = match.Players.ToDictionary(player => player.Player);
         return new(match.Tick, match.Lifecycle.Outcome!, MatchRanking.Create(match, scores.Keys)
-            .Select(row => new FinalMatchStanding(row.PlayerId, row.Rank, row.Kills, row.Deaths, scores[row.PlayerId].Wins)));
+            .Select(row => new FinalMatchStanding(row.PlayerId, row.Rank, row.CircusScore, row.Kills, row.Deaths, scores[row.PlayerId].Wins)));
     }
 }

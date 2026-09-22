@@ -14,16 +14,19 @@ public sealed class ResumeCheckpoint
     /// <param name="configuration">Validated effective gameplay tuning.</param>
     public ResumeCheckpoint(ItemPublication items, MatchState match, ArenaPropSnapshot? props, Development.GameplayConfigurationState? configuration = null)
     {
-        configuration ??= new(items.World.ConfigurationRevision, new() { Damage = new() { MaxHP = items.World.Vehicles[0].State.Damage.MaxHP }, Match = new() { KillTarget = match.KillTarget } });
-        if (items.Events.Count != 0 || match.Changes.Count != 0 || match.Tick > items.World.Tick ||
+        configuration ??= new(items.World.ConfigurationRevision, new() { Damage = new() { MaxHP = items.World.Vehicles[0].State.Damage.MaxHP }, Match = new() { KillTarget = match.KillTarget, Mode = match.Mode } });
+        if (items.Events.Count != 0 || match.Changes.Count != 0 || match.Awards.Count != 0 || match.Tick > items.World.Tick ||
             (props is not null && (props.Session != items.World.Session || props.Tick != items.World.Tick)) ||
-            configuration.Revision != items.World.ConfigurationRevision || configuration.Configuration.Match.KillTarget != match.KillTarget ||
+            configuration.Revision != items.World.ConfigurationRevision || configuration.Configuration.Match.KillTarget != match.KillTarget || configuration.Configuration.Match.Mode != match.Mode ||
             items.World.Vehicles.Any(vehicle => vehicle.State.Damage.MaxHP != configuration.Configuration.Damage.MaxHP ||
                 Math.Abs(vehicle.State.Movement.SteeringAngle) > configuration.Configuration.Vehicle.SteeringAngle))
         {
             throw new ArgumentException("Inconsistent resume checkpoint.");
         }
 
+        // Validate pending event life/tick ownership against the same vehicle boundary before client installation.
+        _ = new Simulation.SimulationState(items.World.Tick, new Input.InputFrame(items.World.Tick, 0, 0, 0, 0, 0, 0),
+            items.World.Vehicles.Select(vehicle => vehicle.State), match);
         Items = items;
         Match = match;
         Props = props;

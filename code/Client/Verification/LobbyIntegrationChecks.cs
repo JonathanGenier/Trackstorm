@@ -152,7 +152,7 @@ public sealed partial class LobbyIntegrationChecks : Node
         var expected = _sessions[0].FinalResults!;
         foreach (var session in _sessions)
         {
-            Require(session.Stage == ApplicationStage.GameLoop && session.Lobby!.State!.Phase == SessionPhase.Arena, "Finished does not navigate Application Flow.");
+            Require(session.Stage == ApplicationStage.Podium && session.Lobby!.State!.Phase == SessionPhase.Arena, "Application Flow owns Podium while retaining the Finished arena.");
             Require(session.FinalResults!.Standings.SequenceEqual(expected.Standings) && session.FinalResults.Tick == expected.Tick && session.FinalResults.Outcome == expected.Outcome, "All Application Flow handoffs expose identical Core results.");
             Require(!session.Arena!.Driver.AllowsParticipation, "Finished denies driving and item use.");
             _completedResults.Add(session.FinalResults);
@@ -242,7 +242,7 @@ public sealed partial class LobbyIntegrationChecks : Node
                 VerifyFinishedHandoff();
                 _sessions[0].Lobby!.Request(LobbyCommand.Return);
                 _stage = 5;
-                Next("All eight peers consumed Finished results without navigation; host explicitly returned.");
+                Next("All eight peers entered Podium with retained Finished results; host explicitly returned.");
                 break;
             case 6 when AllRoster(8) && _sessions.All(session => session.Arena is null && session.Lobby!.State!.Phase == SessionPhase.Lobby):
                 VerifyDisposedResults();
@@ -325,6 +325,13 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Next("Seven-player match started before fresh client joins.");
                 break;
             case 15 when _sessions.Take(7).All(session => session.Arena?.Driver.Match?.Phase == Core.Matches.MatchPhase.Active):
+                var scoringWorld = _sessions[0].Arena!.Driver.Host!.World;
+                var scoringFrame = new Core.Input.InputFrame(scoringWorld.State.Tick + 1, 0, 0, 0, 0, 0, 0);
+                ulong collisionVictim = scoringWorld.State.Vehicles.First(vehicle => vehicle.VehicleId != 1).VehicleId;
+                scoringWorld.Step(scoringFrame, scoringWorld.State.Vehicles.Select(vehicle => new Core.Vehicles.VehicleStepRequest(vehicle.VehicleId, scoringFrame,
+                    new Core.Vehicles.VehicleObservation(vehicle.ObservedPhysics, System.Numerics.Vector3.UnitY),
+                    vehicle.VehicleId == collisionVictim ? [new Core.Vehicles.VehicleEffectRequest(new Core.Vehicles.DamageEffect(12.5f, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero), new Core.Vehicles.DamageContext("collision", 1, "join fixture"))] : [])).ToArray());
+                Require(scoringWorld.State.Match!.Players.Single(player => player.Player == 1).CircusScore == 12.5, "Applied nonlethal damage banks points before fresh admission.");
                 _firstMatch = host!.State!.Match;
                 OpenThroughUi(_sessions[7], false, "Active newcomer");
                 Next("Fresh eighth client joining after authoritative gameplay is active.");
@@ -333,6 +340,9 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Require(host!.State!.Match == _firstMatch, "Fresh admission does not restart arena generation.");
                 Require(_sessions[7].Lobby!.LocalPlayerId > _departedId, "Active admission allocates a new identity.");
                 Require(_sessions.All(session => session.Arena!.Driver.Match!.Phase == Core.Matches.MatchPhase.Active), "Match remains active on every peer.");
+                var expectedScores = _sessions[0].Arena!.Driver.Host!.World.State.Match!.Players;
+                Require(_sessions.All(session => session.Arena!.Driver.Match!.Players.SequenceEqual(expectedScores)), "Fresh native bootstrap and existing peers retain identical Circus scores and damage watermarks.");
+                Require(expectedScores.Single(player => player.Player == 1).CircusScore == 12.5 && expectedScores.Single(player => player.Player == _sessions[7].Lobby!.LocalPlayerId).CircusScore == 0, "Existing banked points survive admission and the newcomer starts at zero.");
                 Require(_sessions.All(session => session.Arena!.Driver.Latest!.Vehicles.Select(vehicle => vehicle.State.VehicleId).Distinct().Count() == 8), "Every peer observes exactly eight unique vehicles.");
                 Require(_sessions[7].Arena!.Driver.ItemState!.Spawns.Count == 0, "Fresh bootstrap preserves the oval's empty pickup layout.");
                 Capture("active-join.png");

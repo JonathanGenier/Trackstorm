@@ -11,6 +11,15 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Evidence | Reports |
 | --- | --- |
 | Asphalt and banked-oval handling | [TS-73 first candidate](ts-73.md), [runtime-feedback correction and pending human acceptance](ts-73-correction.md), [editor import and multiplayer menu correction](ts-73-menu-correction.md) |
+| Modular chain-hung Main Menu, stationary left layout, legacy presentation cleanup, version label and startup flash regression | [TS-122 implementation and verification](ts-122.md), [Astra runtime critique](ts-122-critique.md) |
+| Adjustable local collision camera shake | [TS-109 verification evidence](ts-109.md) |
+| Vehicle camera free-look and recentering | [TS-108 verification evidence](ts-108.md) |
+| Circus Game Loop, frozen results, rematch and recovery integration | [TS-106 verification evidence](ts-106.md) |
+| Circus HUD and live scoring | [TS-105 authoritative score, live leaderboard and scoring-feedback verification](ts-105.md) |
+| Post-match Application Flow | [TS-87 Podium, authoritative results, repeated rematch, destination cleanup and native verification](ts-87.md) |
+| Circus stunt scoring and banking | [TS-103 verification evidence](ts-103.md) |
+| Circus combat scoring | [TS-102 applied damage, K/D, streaks and synchronization evidence](ts-102.md) |
+| AI implementation and review workflow | [TS-137 critique split, targeted iteration and tooling evidence](ts-137.md) |
 | Categorized DevTools Logs | [TS-99 semantic styling, frozen history and native verification](ts-99.md) |
 | Searchable DevTools Stats | [TS-98 grouped live rows, filtering, colors and runtime verification](ts-98.md) |
 | Automatic PR history guard | [TS-136 prior-PR suppression and recreation prevention evidence](ts-136.md) |

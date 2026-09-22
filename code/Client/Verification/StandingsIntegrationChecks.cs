@@ -69,7 +69,15 @@ public sealed partial class StandingsIntegrationChecks : Node
                 var board = new MatchStandings { View = () => session.Standings };
                 viewport.AddChild(board);
                 _boards.Add(board);
-                var hud = new CombatHud { Vehicle = () => session.Arena?.LocalState, Slot = () => session.Arena?.Driver.LocalItem, Position = () => session.Standings.Position };
+                var hud = new CombatHud
+                {
+                    Vehicle = () => session.Arena?.LocalState,
+                    Slot = () => session.Arena?.Driver.LocalItem,
+                    Position = () => session.Standings.Position,
+                    Match = () => session.Arena?.Driver.Match,
+                    MatchUpdates = session.DrainMatchPresentation,
+                    Player = () => session.Lobby?.LocalPlayerId ?? 0,
+                };
                 viewport.AddChild(hud);
                 _huds.Add(hud);
             }
@@ -80,9 +88,8 @@ public sealed partial class StandingsIntegrationChecks : Node
             _diagnostics = new Settings.SettingsPanel();
             _diagnostics.Initialize(settings, _input.Adapter);
             _view.AddChild(_diagnostics);
-            _diagnostics.SetCombatHudVisible(true);
             settings.UpdateSettings(settings.Current with { ShowFps = true, ShowPing = true });
-            _diagnostics.SetVehicleTelemetry(0, new(ConnectionDiagnosticState.Reconnecting, default));
+            _diagnostics.SetConnectionTelemetry(new(ConnectionDiagnosticState.Reconnecting, default));
             await Until(() => _sessions.All(session => session.Lobby?.State?.Players.Count == 8));
             foreach (var session in _sessions)
             {
@@ -117,19 +124,53 @@ public sealed partial class StandingsIntegrationChecks : Node
             Require(_sessions.All(session => session.Standings.Rows.Single(row => row.PlayerId == 1).Ping == "--"), "Host no-hop rule");
             foreach (var session in _sessions)
             {
-                _diagnostics.SetVehicleTelemetry(0, session.Diagnostics);
+                _diagnostics.SetConnectionTelemetry(session.Diagnostics);
                 var counter = _diagnostics.FindChild("Diagnostics", true, false) as Settings.SettingsHud ?? throw new InvalidOperationException("Missing diagnostics HUD.");
                 Require(counter.PingText == "Ping  " + session.Standings.Rows.Single(row => row.Local).Ping, "Rendered HUD Ping equals the local leaderboard row for every peer");
             }
 
-            _diagnostics.SetVehicleTelemetry(0, new(ConnectionDiagnosticState.Reconnecting, default));
+            _diagnostics.SetConnectionTelemetry(new(ConnectionDiagnosticState.Reconnecting, default));
             SetTotals(false);
             await Until(() => _sessions.All(session => session.Standings.Rows[0].PlayerId == 8));
+            for (int index = 0; index < _sessions.Count; index++)
+            {
+                DevelopmentSession session = _sessions[index];
+                MatchState published = session.Arena!.Driver.Match!;
+                ulong local = session.Lobby!.LocalPlayerId;
+                var pending = new StuntState
+                {
+                    Life = session.Arena.LocalState!.LifeId,
+                    Tick = published.Tick,
+                    Drift = new StuntProgress(30, 12),
+                    Airtime = new StuntProgress(30, 10),
+                    TopSpeed = new StuntProgress(30, 5),
+                    JumpOrigin = new System.Numerics.Vector3(1, 0, 1),
+                    JumpDistance = 4,
+                    LongJumpBasePoints = 8,
+                };
+                var fixture = new MatchState(published.Tick, published.Revision + 1, published.KillTarget, MatchPhase.Active, null, null,
+                    published.Players.Select(player => player.Player == local ? player with { Stunts = pending } : player));
+                _huds[index].Match = () => fixture;
+                _huds[index].MatchUpdates = () => Array.Empty<MatchState>();
+            }
+
+            Refresh(false);
+            Require(_huds.All(hud => hud.ScoreDisplayed!.Rows.Count(row => row.Kind == CircusFeedbackKind.Pending) == 4), "Drift, Airtime, Long Jump and Top Speed coexist as one live row per category.");
+            await Capture("circus-hud");
+            for (int index = 0; index < _sessions.Count; index++)
+            {
+                DevelopmentSession session = _sessions[index];
+                _huds[index].Match = () => session.Arena?.Driver.Match;
+                _huds[index].MatchUpdates = session.DrainMatchPresentation;
+            }
+
             key.Pressed = true;
             Send(key);
             _input.Adapter.Observe();
             await Frames(2);
             Refresh(true);
+            Require(_sessions.All(session => session.Standings.Rows[0] is { PlayerId: 8, CircusScore: 802 }), "Live Circus score is the primary rank and is projected into every board.");
+            Require(_huds.Select((hud, index) => hud.ScoreDisplayed?.Total == CircusHudView.FormatPoints(_sessions[index].Standings.Rows.Single(row => row.Local).CircusScore)).All(equal => equal), "Every local HUD consumes the same authoritative banked total as its standings row.");
             await Capture("active");
             key.Pressed = false;
             Send(key);
@@ -198,7 +239,12 @@ public sealed partial class StandingsIntegrationChecks : Node
     {
         var world = _sessions[0].Arena!.Driver.Host!.World;
         var previous = world.State;
-        var match = new MatchState(previous.Tick, previous.Match!.Revision + 1, 5, finished ? MatchPhase.Finished : MatchPhase.Active, null, finished ? 8ul : null, previous.Match.Players.Select(player => new PlayerScore(player.Player, player.Player == 8 ? finished ? 5 : 2 : 0, player.Player == 1 ? 5 : 0, finished && player.Player == 8 ? 1 : 0, 5)));
+        var players = previous.Match!.Players.Select(player => new PlayerScore(player.Player, player.Player == 8 ? finished ? 5 : 2 : 0, player.Player == 1 ? 5 : 0, finished && player.Player == 8 ? 1 : 0, 5)
+        {
+            CircusScore = (player.Player * 100) + 2,
+        }).ToArray();
+        var awards = finished ? Array.Empty<CircusScoreAward>() : players.Select(player => new CircusScoreAward(player.Player, CircusScoreCategory.Collision, 2)).ToArray();
+        var match = new MatchState(previous.Tick, previous.Match.Revision + 1, 5, finished ? MatchPhase.Finished : MatchPhase.Active, null, finished ? 8ul : null, players, awards: awards);
         // Fixture installs an authoritative boundary. The existing match harness separately verifies actual lethal combat.
         world.Restore(new SimulationState(previous.Tick, previous.LastInput, previous.Vehicles, match));
     }

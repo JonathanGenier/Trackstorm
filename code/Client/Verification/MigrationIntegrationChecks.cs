@@ -29,6 +29,7 @@ public sealed partial class MigrationIntegrationChecks : Node
     private ulong _randomState;
     private Core.Matches.MatchPhase _matchPhase;
     private ulong? _countdownAtTick;
+    private readonly Dictionary<ulong, Core.Matches.MatchState> _circusBoundaries = new();
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -213,6 +214,31 @@ public sealed partial class MigrationIntegrationChecks : Node
             Require(_arenas[1]!.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 9, ["spawns.seed"] = 42, ["match.countdown_ticks"] = 600 }, out _), "First replacement configures normal gameplay owners.");
             _configuration = _arenas[1]!.Driver.Configuration;
             _randomState = _arenas[1]!.Driver.Host!.Spawns!.RandomState;
+            if (_players == 3)
+            {
+                var arena = _arenas[1]!;
+                var world = arena.Driver.Host!.World;
+                var boundary = world.State;
+                var vehicles = boundary.Vehicles.Select(vehicle =>
+                {
+                    var pose = new Core.Vehicles.VehiclePhysicsState(vehicle.ObservedPhysics.Position + new System.Numerics.Vector3(0, 500, 0),
+                        System.Numerics.Quaternion.Identity, new System.Numerics.Vector3(0, 0, -10), System.Numerics.Vector3.Zero);
+                    arena.Bodies[vehicle.VehicleId].Apply(pose);
+                    return new Core.Vehicles.VehicleSnapshot(vehicle.VehicleId, vehicle.LifeId,
+                        new Core.Vehicles.VehicleState(boundary.Tick, pose, false, false, 0, 0), vehicle.Damage, pose);
+                }).ToArray();
+                // Seed earned statistics and an already armed flight; native falling continues during checkpoint publication.
+                var match = new Core.Matches.MatchState(boundary.Tick, boundary.Match!.Revision + 1, boundary.Match.KillTarget,
+                    Core.Matches.MatchPhase.Active, null, null, boundary.Match.Players.Select(row => row with
+                    {
+                        Kills = 1, Deaths = 1, ProcessedLife = 1, CircusScore = 125.25 + row.Player, KillStreak = 1,
+                        Stunts = new Core.Matches.StuntState { Life = world.GetVehicle(row.Player).LifeId, Tick = boundary.Tick,
+                            Airtime = new(1, 0.5), JumpOrigin = world.GetVehicle(row.Player).ObservedPhysics.Position },
+                    }));
+                world.Restore(new Core.Simulation.SimulationState(boundary.Tick, boundary.LastInput, vehicles, match));
+                _circusBoundaries[match.Revision] = match;
+                arena.Driver.MatchReceived += state => _circusBoundaries[state.Revision] = state;
+            }
             _boundary = _frames;
             _stage = 7;
         }
@@ -224,6 +250,13 @@ public sealed partial class MigrationIntegrationChecks : Node
             {
                 Require(_arenas[survivor]!.Driver.Inputs!.Pending.Count == 0, "No old pending input.");
                 Require(_arenas[survivor]!.Driver.History!.Snapshots.Count == 1, "Interpolation reseeded at one boundary.");
+                if (_players == 3)
+                {
+                    var restored = _arenas[survivor]!.Driver.Match!;
+                    Require(_circusBoundaries.TryGetValue(restored.Revision, out var original) && restored.Players.SequenceEqual(original.Players), "Selected checkpoint restores exact Circus score, K/D, streak and pending flight state.");
+                    Require(restored.Mode == Core.Matches.MatchMode.Circus && restored.Players.All(row => row.CircusScore > 0 && row.Stunts is not null), "Migration retains the configured Circus mode and unbanked stunts.");
+                    Require(restored.Awards.Count == 0 && restored.Changes.Count == 0, "Migration does not replay prior Circus awards.");
+                }
             };
             _retiredAt[1] = TimeProvider.System.GetTimestamp();
             _matchPhase = _arenas[1]!.Driver.Match!.Phase;

@@ -19,6 +19,10 @@ function Invoke-Check {
     }
 }
 
+Invoke-Check "Workflow helper regression tests" {
+    & "$PSScriptRoot/tools/test-workflow-tools.ps1"
+}
+
 Invoke-Check "Frontend media verifier regression tests" {
     & "$PSScriptRoot/tools/test-frontend-media.ps1"
 }
@@ -32,26 +36,18 @@ Invoke-Check "Restore" {
 }
 
 Invoke-Check "Debug build and analyzers" {
-    dotnet build Trackstorm.sln -c Debug --no-restore -warnaserror
-}
-
-Invoke-Check "Debug Core tests" {
-    dotnet test code/Tests/Trackstorm.Core.Tests.csproj -c Debug --no-build
-}
-
-Invoke-Check "Debug transport conversion tests" {
-    dotnet test code/TransportTests/Trackstorm.Transport.Tests.csproj -c Debug --no-build --filter 'TestCategory!=Native'
+    dotnet build Trackstorm.Client.csproj -c Debug --no-restore -warnaserror
 }
 
 Invoke-Check "Release build and analyzers" {
     dotnet build Trackstorm.sln -c Release --no-restore -warnaserror
 }
 
-Invoke-Check "Release Core tests" {
+Invoke-Check "Core tests" {
     dotnet test code/Tests/Trackstorm.Core.Tests.csproj -c Release --no-build
 }
 
-Invoke-Check "Release transport conversion tests" {
+Invoke-Check "Transport conversion tests" {
     dotnet test code/TransportTests/Trackstorm.Transport.Tests.csproj -c Release --no-build --filter 'TestCategory!=Native'
 }
 

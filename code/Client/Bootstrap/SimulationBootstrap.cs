@@ -136,7 +136,7 @@ public sealed partial class SimulationBootstrap : Node
     /// <inheritdoc />
     public override void _Process(double delta)
     {
-        _startup?.SetFrontendActive(_arena is null && (_session?.InFrontend ?? true));
+        _startup?.SetFrontendActive(!_quitRequested && _arena is null && (_session?.InFrontend ?? true));
         if (_quitRequested && (_session?.LeaveComplete ?? true) && _online?.Coordinator?.CanLeave != true)
         {
             // Normal tree teardown owns settings flush, transport disposal, platform release and terminal SDK shutdown.
@@ -184,19 +184,22 @@ public sealed partial class SimulationBootstrap : Node
         var combatHud = new Hud.CombatHud
         {
             Name = "CombatHud",
-            Vehicle = () => _session?.Arena?.LocalState ?? _arena?.Player.Snapshot,
+            Vehicle = () => _session?.PostMatch is null ? _session?.Arena?.LocalState ?? _arena?.Player.Snapshot : null,
             Slot = () => _session?.Arena?.Driver.LocalItem,
             Units = () => _settings.Current.SpeedUnit,
             Position = () => _session?.Standings.Position ?? "--",
+            Match = () => _session?.Arena?.Driver.Match,
+            MatchUpdates = () => _session?.DrainMatchPresentation() ?? Array.Empty<Core.Matches.MatchState>(),
+            Player = () => _session?.Lobby?.LocalPlayerId ?? 0,
         };
         AddChild(combatHud);
         AddChild(new Hud.ActivityFeed
         {
             Name = "ActivityFeed",
             Source = () => _arena?.Simulation.Events ?? _session?.Events,
-            Gameplay = () => _arena is not null || _session?.Arena is not null,
+            Gameplay = () => _arena is not null || (_session?.Arena is not null && _session.PostMatch is null),
         });
-        AddChild(new Hud.MatchStandings { Name = "MatchStandings", View = () => _session?.Standings });
+        AddChild(new Hud.MatchStandings { Name = "MatchStandings", View = () => _session?.PostMatch is null ? _session?.Standings : null });
         EosIdentityNode? online = null;
         if (OnlineEnabled && !OS.GetCmdlineUserArgs().Contains("--local-practice"))
         {
@@ -213,22 +216,12 @@ public sealed partial class SimulationBootstrap : Node
 
         if (OS.GetCmdlineUserArgs().Contains("--local-practice"))
         {
-            _arena = new VehicleArena { Name = "VehicleArena" };
+            _arena = new VehicleArena { Name = "VehicleArena", CameraInput = _playerInput.Adapter, CameraSettings = _settings };
             AddChild(_arena);
         }
         else
         {
-            _session = new DevelopmentSession
-            {
-                Name = "DevelopmentSession",
-                OnlineCoordinator = () => online?.Coordinator,
-                OnlineStatus = () => online?.Status ?? EosLobbyStatus.Unavailable,
-                OnlineLogin = () => online?.Login(),
-                OnlineLogout = () => online?.Logout(),
-                DeveloperSettings = Development.DeveloperTools.Enabled ? new Development.DeveloperSettingsStore(SettingsPath is null ? ProjectSettings.GlobalizePath("user://developer-settings.jsonl") : SettingsPath + ".developer.jsonl") : null
-            };
-            _session.SetFrontendPresentation(presentFrontend, presentFrontend ? 1 : 0);
-            AddChild(_session);
+            _session = CreateSession(presentFrontend);
             if (networkArguments.Length == 1)
             {
                 string argument = networkArguments[0];
@@ -239,6 +232,30 @@ public sealed partial class SimulationBootstrap : Node
         }
 
         return true;
+    }
+
+    private DevelopmentSession CreateSession(bool presentFrontend)
+    {
+        var panel = _settingsPanel;
+        var devTools = GetNode<Development.DevToolsShell>("DevTools");
+        var session = new DevelopmentSession
+        {
+            Name = "DevelopmentSession",
+            NavigationInput = _playerInput.Adapter,
+            CameraSettings = _settings,
+            OverlayOpen = () => panel.CurrentPage != MenuPage.Closed || devTools.IsOpen,
+            QuitApplication = RequestQuit,
+            OpenSettings = panel.OpenFrontendSettings,
+            OnlineCoordinator = () => _online?.Coordinator,
+            OnlineStatus = () => _online?.Status ?? EosLobbyStatus.Unavailable,
+            OnlineLogin = () => _online?.Login(),
+            OnlineLogout = () => _online?.Logout(),
+            DeveloperSettings = Development.DeveloperTools.Enabled ? new Development.DeveloperSettingsStore(SettingsPath is null ? ProjectSettings.GlobalizePath("user://developer-settings.jsonl") : SettingsPath + ".developer.jsonl") : null
+        };
+        session.SetFrontendPresentation(presentFrontend, presentFrontend ? 1 : 0);
+        AddChild(session);
+        panel.ShowFrontendShortcut = () => session.Stage != ApplicationStage.MainMenu;
+        return session;
     }
 
     private bool PrepareFrontend()
@@ -253,7 +270,7 @@ public sealed partial class SimulationBootstrap : Node
         var settings = new PlayerSettingsController { Name = "PlayerSettings" };
         settings.Initialize(playerInput.Adapter, SettingsPath ?? ProjectSettings.GlobalizePath("user://player-settings.json"));
         AddChild(settings);
-        playerInput.GameplayAvailable = () => !_quitRequested && (_arena is not null || _session?.Arena is not null);
+        playerInput.GameplayAvailable = () => !_quitRequested && (_arena is not null || (_session?.Arena is not null && _session.Stage == ApplicationStage.GameLoop));
         playerInput.FrameCaptured += OnFrameCaptured;
         _playerInput = playerInput;
         _settings = settings;
@@ -307,14 +324,13 @@ public sealed partial class SimulationBootstrap : Node
 
     private void LeaveToMainMenu()
     {
-        _session?.Leave();
+        _session?.ReturnToMainMenu();
         if (_arena is not null)
         {
             RemoveChild(_arena);
             _arena.QueueFree();
             _arena = null;
-            _session = new DevelopmentSession { Name = "DevelopmentSession" };
-            AddChild(_session);
+            _session = CreateSession(true);
         }
     }
 
@@ -322,7 +338,6 @@ public sealed partial class SimulationBootstrap : Node
     {
         _arena?.Advance(input);
         _session?.Advance(input);
-        _settingsPanel?.SetVehicleTelemetry(_session?.Arena?.LocalState?.Speed ?? _arena?.Player.Snapshot.Speed ?? 0, _session?.Diagnostics ?? default);
-        _settingsPanel?.SetCombatHudVisible(_session?.Arena?.LocalState is not null || _arena is not null);
+        _settingsPanel?.SetConnectionTelemetry(_session?.Diagnostics ?? default);
     }
 }

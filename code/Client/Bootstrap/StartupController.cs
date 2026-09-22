@@ -18,6 +18,14 @@ internal sealed partial class StartupController : Node
 
     private static readonly string[] ApplicationResources =
     [
+        "res://assets/frontend/main-menu/Header.png",
+        "res://assets/frontend/main-menu/Plate.png",
+        "res://assets/frontend/main-menu/Icons.png",
+        "res://assets/frontend/main-menu/Chain.png",
+        "res://assets/frontend/main-menu/FlagRed.png",
+        "res://assets/frontend/main-menu/FlagCheckered.png",
+        "res://assets/frontend/main-menu/Plate.gdshader",
+        "res://assets/frontend/main-menu/Fabric.gdshader",
         "res://assets/hud/Health.png",
         "res://assets/hud/Item.png",
         "res://assets/hud/Speed.png",

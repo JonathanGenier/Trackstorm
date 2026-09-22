@@ -40,6 +40,12 @@ public readonly record struct SimulationState
             throw new ArgumentException("Vehicle snapshots must have unique identities and share the simulation tick.", nameof(vehicles));
         }
 
+        if (match is not null && match.Players.Any(player => player.Stunts is { } stunt &&
+            !copy.Any(vehicle => vehicle.VehicleId == player.Player && vehicle.LifeId == stunt.Life && vehicle.CanInteract && stunt.Tick == tick)))
+        {
+            throw new ArgumentException("Pending stunts require their current living vehicle and complete fixed boundary.");
+        }
+
         _vehicles = copy.Length == 0 ? null : Array.AsReadOnly(copy);
     }
 

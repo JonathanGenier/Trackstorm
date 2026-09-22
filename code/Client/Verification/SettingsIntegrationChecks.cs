@@ -106,6 +106,7 @@ public sealed partial class SettingsIntegrationChecks : Node
             MasterVolume = 0,
             MusicVolume = 0.25,
             SfxVolume = 0.75,
+            CameraShakeIntensity = 0.35,
             Fullscreen = true,
             WindowWidth = 960,
             WindowHeight = 540,
@@ -126,6 +127,7 @@ public sealed partial class SettingsIntegrationChecks : Node
     private void VerifyRestart()
     {
         PlayerSettings settings = _settings.Current;
+        Check(settings.CameraShakeIntensity == 0.35, "camera shake intensity survives process restart");
         Check(settings.MasterVolume == 0 && settings.MusicVolume == 0.25 && settings.SfxVolume == 0.75, "audio gains survive process restart");
         Check(settings.Fullscreen && settings.WindowWidth == 960 && settings.WindowHeight == 540, "display preferences survive process restart");
         Check(settings.SpeedUnit == SpeedUnit.MilesPerHour && settings.ShowFps && !settings.ShowPing, "independent HUD preferences survive process restart");
@@ -161,8 +163,8 @@ public sealed partial class SettingsIntegrationChecks : Node
         AddChild(hud);
         var simulation = new Simulation(new SimulationConfiguration(60));
         SimulationState state = simulation.State;
-        hud.SetTelemetry(10, default);
-        Check(hud.SpeedText == "Speed  22.4 mph", "HUD converts supplied speed to mph");
+        hud.SetTelemetry(default);
+        Check(!hud.FindChildren("*", "Label", true, false).Cast<Label>().Any(label => label.Text.StartsWith("Speed", StringComparison.Ordinal)), "Obsolete diagnostics speed control is absent");
         foreach (bool fps in new[] { false, true })
         {
             foreach (bool ping in new[] { false, true })
@@ -173,7 +175,7 @@ public sealed partial class SettingsIntegrationChecks : Node
         }
 
         _settings.UpdateSettings(_settings.Current with { SpeedUnit = SpeedUnit.KilometresPerHour });
-        Check(hud.SpeedText == "Speed  36.0 km/h" && simulation.State.Equals(state), "unit changes leave authoritative state unchanged");
+        Check(simulation.State.Equals(state), "unit changes leave authoritative state unchanged");
         Check(AudioServer.IsBusMute(AudioServer.GetBusIndex("Master")), "zero master volume mutes");
         Check(Math.Abs(AudioServer.GetBusVolumeDb(AudioServer.GetBusIndex("Music")) - (20 * Math.Log10(0.25))) < 0.001, "music gain reaches runtime bus");
         Check(Math.Abs(AudioServer.GetBusVolumeDb(AudioServer.GetBusIndex("SFX")) - (20 * Math.Log10(0.75))) < 0.001, "SFX gain reaches runtime bus");
@@ -237,6 +239,22 @@ public sealed partial class SettingsIntegrationChecks : Node
         }
 
         Press(panel, "Back");
+        Press(panel, "Gameplay");
+        HSlider shake = Descendants(panel).OfType<HSlider>().Single(slider => slider.IsVisibleInTree());
+        foreach (double amount in new[] { 0d, 25d, 50d, 100d })
+        {
+            shake.Value = amount;
+            Check(_settings.Current.CameraShakeIntensity == amount / 100, "Gameplay camera shake slider applies immediately");
+        }
+        shake.Value = 35;
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        using (Image screenshot = GetViewport().GetTexture().GetImage())
+        {
+            Check(screenshot.SavePng(path + ".gameplay.png") == Error.Ok, "camera shake settings screenshot saved");
+        }
+        Press(panel, "Back");
+        await ToSignal(GetTree().CreateTimer(0.4), SceneTreeTimer.SignalName.Timeout);
+        Check(new PlayerSettingsStore(path).Load().CameraShakeIntensity == 0.35, "camera shake UI value persists after normal debounce");
         Press(panel, "Controls");
         Button bindingButton = Descendants(panel).OfType<Button>().Single(button => button.Name == "Binding_Accelerate");
         bindingButton.EmitSignal(BaseButton.SignalName.Pressed);

@@ -117,6 +117,8 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal RetainedSessionDecision RetainedDecision { get; private set; }
     /// <summary>Whether the retained-session flow owns the menu instead of normal discovery.</summary>
     internal bool HasRetainedDecision => RetainedDecision != RetainedSessionDecision.None;
+    /// <summary>Passive startup metadata lookup, which does not own frontend navigation.</summary>
+    internal bool CheckingSavedSession => RetainedDecision == RetainedSessionDecision.Checking && !_lookupComplete;
     /// <summary>Whether authority has confirmed a reservation and the retained-match modal owns interaction.</summary>
     internal bool ShowsRetainedDecision => RetainedDecision is RetainedSessionDecision.Choose or RetainedSessionDecision.Reconnecting or RetainedSessionDecision.Leaving;
     /// <summary>Monotonic clock shared with the authority lifecycle.</summary>

@@ -404,6 +404,19 @@ internal sealed class LobbyNetworkDriver
         return accepted;
     }
 
+    /// <summary>Publishes an authoritative restart; no remote intent can invoke this local host API.</summary>
+    internal bool Restart()
+    {
+        if (Authority is null || Failure.Length > 0 || Reconnecting || Migration?.Frozen == true ||
+            !Authority.Restart(0, ConnectedPeers()))
+        {
+            return false;
+        }
+
+        Publish();
+        return true;
+    }
+
     /// <summary>Publishes a local host map edit through Core authority.</summary>
     /// <param name="map">Supported map selection.</param>
     /// <returns>Whether authority accepted the edit.</returns>

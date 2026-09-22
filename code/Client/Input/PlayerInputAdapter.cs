@@ -28,6 +28,7 @@ internal sealed class PlayerInputAdapter
     private bool _enabled = true;
     private bool _gameplaySuppressed;
     private bool _diagnosticSuppressed;
+    private Godot.Vector2 _cameraMotion;
 
     /// <summary>Creates an adapter around the Client-owned mapping.</summary>
     /// <param name="bindings">The single local player's bindings.</param>
@@ -46,7 +47,7 @@ internal sealed class PlayerInputAdapter
     public float CaptureInterval { get; set; } = 1f / 60;
 
     /// <summary>Local remappable camera intent; camera behavior is owned by presentation.</summary>
-    public Godot.Vector2 CameraIntent => Enabled && !GameplaySuppressed && !DiagnosticSuppressed ? new(Bindings.Strength(InputAction.CameraRight, DeadZone) - Bindings.Strength(InputAction.CameraLeft, DeadZone), Bindings.Strength(InputAction.CameraDown, DeadZone) - Bindings.Strength(InputAction.CameraUp, DeadZone)) : Godot.Vector2.Zero;
+    public Godot.Vector2 CameraIntent => Enabled && !GameplaySuppressed && !DiagnosticSuppressed ? new(Bindings.Strength(InputAction.CameraRight, Math.Max(0.15f, DeadZone)) - Bindings.Strength(InputAction.CameraLeft, Math.Max(0.15f, DeadZone)), Bindings.Strength(InputAction.CameraDown, Math.Max(0.15f, DeadZone)) - Bindings.Strength(InputAction.CameraUp, Math.Max(0.15f, DeadZone))) : Godot.Vector2.Zero;
 
     /// <summary>Runtime remapping entry point.</summary>
     public PlayerInputBindings Bindings { get; }
@@ -85,6 +86,27 @@ internal sealed class PlayerInputAdapter
         get => _diagnosticSuppressed;
         set => SetControlState(ref _diagnosticSuppressed, value);
     }
+
+    internal bool CameraAvailable { get; set; }
+    internal bool CameraEnabled => CameraAvailable && Enabled && !GameplaySuppressed && !DiagnosticSuppressed;
+    internal bool MouseLookHeld => CameraEnabled && Godot.Input.IsMouseButtonPressed(Godot.MouseButton.Right);
+
+    internal void ObserveCamera(Godot.InputEvent input)
+    {
+        if (input is Godot.InputEventMouseMotion motion && MouseLookHeld)
+        {
+            _cameraMotion += motion.ScreenRelative;
+        }
+    }
+
+    internal Godot.Vector2 ConsumeCameraMotion()
+    {
+        var motion = CameraEnabled ? _cameraMotion : Godot.Vector2.Zero;
+        _cameraMotion = Godot.Vector2.Zero;
+        return motion;
+    }
+
+    internal void ResetCameraMotion() => _cameraMotion = Godot.Vector2.Zero;
 
     /// <summary>Samples aggregate digital state; preserves press/release transitions until capture.</summary>
     public void Observe()
@@ -155,6 +177,7 @@ internal sealed class PlayerInputAdapter
         if (state != value)
         {
             state = value;
+            ResetCameraMotion();
             ControlStateChanged?.Invoke();
         }
     }

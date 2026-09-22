@@ -33,6 +33,9 @@ public sealed partial class MatchIntegrationChecks : Node
     private int _cleanupFrames;
     private bool _captured;
     private Core.Matches.MatchState? _final;
+    private readonly Dictionary<ulong, Core.Matches.MatchState> _publishedMatches = new();
+    private bool _nonlethal;
+    private ulong _collisionStart;
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -87,6 +90,15 @@ public sealed partial class MatchIntegrationChecks : Node
             int peerIndex = index;
             arena.Driver.MatchReceived += match =>
             {
+                if (peerIndex == 0)
+                {
+                    _publishedMatches[match.Revision] = match;
+                }
+                else
+                {
+                    Require(_publishedMatches.TryGetValue(match.Revision, out var published) && match.Players.SequenceEqual(published.Players),
+                        "Every received pending/banked revision exactly matches its authoritative publication.");
+                }
                 if (match.Phase == Core.Matches.MatchPhase.Finished)
                 {
                     _finishes[peerIndex]++;
@@ -156,6 +168,31 @@ public sealed partial class MatchIntegrationChecks : Node
             case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Driver.LocalState is not null && arena.Driver.Match?.Phase == Core.Matches.MatchPhase.Active):
                 Require(_arenas.All(arena => arena.Audio.MusicPlaying && arena.Audio.TrackIndex is >= 0 and < 3), "Each active peer starts its Client playlist.");
                 _victim = _arenas[1].Driver.LocalVehicleId;
+                _nonlethal = true;
+                Prepare();
+                _collisionStart = host.World.State.Tick;
+                _stage = 10;
+                break;
+            case 10 when host.World.GetVehicle(_victim).Damage.LastDamage is { Attribution.Source: "collision" } hit && hit.Tick > _collisionStart:
+                Require(host.World.GetVehicle(_victim).CanInteract, "Real ram causes nonlethal applied damage.");
+                var collisionScore = host.World.State.Match!.Players.Single(player => player.Player == hit.Attribution.InstigatorId);
+                Require(collisionScore.Kills == 0 && collisionScore.CircusScore == hit.Amount, "Nonlethal Circus points equal actual HP removed before any kill.");
+                // Separate the bodies after the observed ram while preserving applied-damage memory.
+                var separated = host.World.State.Vehicles.Select(state =>
+                {
+                    var pose = host.World.Arena.Spawn((int)(state.VehicleId - 1));
+                    return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), state.Damage, pose);
+                });
+                host.World.Restore(new SimulationState(host.World.State.Tick, host.World.State.LastInput, separated, host.World.State.Match));
+                _stage = 11;
+                _started = _elapsed;
+                break;
+            case 11 when _elapsed - _started > 0.5:
+                Require(_arenas.All(arena => arena.Driver.Match!.Players.SequenceEqual(host.World.State.Match!.Players)), "All eight peers receive the nonlethal score and damage watermarks.");
+                string nonlethalEvidence = "Native nonlethal ram: actual applied HP banks Circus score without a kill; all eight UDP peers agree on complete scoring state.";
+                _evidence.Add(nonlethalEvidence);
+                GD.Print(nonlethalEvidence);
+                _nonlethal = false;
                 Prepare();
                 break;
             case 1:
@@ -191,6 +228,8 @@ public sealed partial class MatchIntegrationChecks : Node
                     Require(match.Players.Single(player => player.Player == shooter).Kills == Math.Min(5, _cycle + 1), "Every peer has the same killer total.");
                     Require(match.Players.Single(player => player.Player == _victim).Deaths == Math.Min(5, _cycle + 1), "Every peer has the same victim total.");
                     Require(match.Players.Where(player => player.Player != shooter).All(player => player.Kills == 0), "No bystander receives a kill.");
+                    Require(_publishedMatches.TryGetValue(match.Revision, out var published) && match.Players.SequenceEqual(published.Players), "Every peer agrees on Circus totals, pending stunts, streaks, K/D and damage identities at its received revision.");
+                    Require(match.Players.Single(player => player.Player == shooter).KillStreak == Math.Min(5, _cycle + 1), "Consecutive authoritative kills advance the Circus streak.");
                     if (_cycle >= 4)
                     {
                         Require(match.Phase == Core.Matches.MatchPhase.Finished && match.Winner == shooter && match.Players.Single(player => player.Player == shooter).Wins == 1, "All peers finish with one authoritative winner.");
@@ -263,7 +302,7 @@ public sealed partial class MatchIntegrationChecks : Node
                     Require(ReferenceEquals(_final, host.World.State.Match), "Respawning cannot alter final match state.");
                 }
 
-                string evidence = $"Cycle {_cycle + 1}: {(_cycle % 2 == 0 ? "missile" : "collision")} death, all eight peers agree on scores, winner and Dead/Respawning/Alive, respawn tick {_deadline}, reset physics/HP/items/VFX verified.";
+                string evidence = $"Cycle {_cycle + 1}: {(_cycle % 2 == 0 ? "missile" : "collision")} death, all eight peers agree on Circus score/streak/watermarks, kills, winner and Dead/Respawning/Alive, respawn tick {_deadline}, reset physics/HP/items/VFX verified.";
                 _evidence.Add(evidence);
                 GD.Print(evidence);
                 if (++_cycle == 6)
@@ -296,18 +335,21 @@ public sealed partial class MatchIntegrationChecks : Node
             VehiclePhysicsState pose = host.World.Arena.Spawn((int)(state.VehicleId - 1));
             if (state.VehicleId == _victim)
             {
-                pose = new VehiclePhysicsState(new Numerics.Vector3(-40, 0.6f, -5), Numerics.Quaternion.Identity, _cycle % 2 == 0 ? Numerics.Vector3.Zero : new Numerics.Vector3(0, 0, 20), Numerics.Vector3.Zero);
+                pose = new VehiclePhysicsState(new Numerics.Vector3(-40, 0.6f, -5), Numerics.Quaternion.Identity, !_nonlethal && _cycle % 2 == 0 ? Numerics.Vector3.Zero : new Numerics.Vector3(0, 0, 20), Numerics.Vector3.Zero);
             }
             else if (state.VehicleId == shooter)
             {
-                pose = new VehiclePhysicsState(new Numerics.Vector3(-40, 0.6f, _cycle % 2 == 0 ? 5 : 1), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
+                pose = new VehiclePhysicsState(new Numerics.Vector3(-40, 0.6f, !_nonlethal && _cycle % 2 == 0 ? 5 : 1), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
             }
 
-            return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(state.Damage.MaxHP, state.VehicleId == _victim ? 20 : state.Damage.MaxHP, null, null), pose);
+            return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(state.Damage.MaxHP, !_nonlethal && state.VehicleId == _victim ? 20 : state.Damage.MaxHP, state.Damage.LastDamage, state.Damage.LastCollisionTick), pose);
         }).ToArray();
         host.World.Restore(new SimulationState(host.World.State.Tick, host.World.State.LastInput, states, host.World.State.Match));
-        Require(host.Items.Grant(host.World, _victim, HeldItem.Wrench), "Victim holds an item before death.");
-        if (_cycle % 2 == 0)
+        if (!_nonlethal)
+        {
+            Require(host.Items.Grant(host.World, _victim, HeldItem.Wrench), "Victim holds an item before death.");
+        }
+        if (!_nonlethal && _cycle % 2 == 0)
         {
             Require(host.Items.Grant(host.World, shooter, HeldItem.Missile), "Shooter receives a missile.");
         }

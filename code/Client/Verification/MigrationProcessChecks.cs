@@ -15,7 +15,6 @@ public sealed partial class MigrationProcessChecks : Node
     private NetworkVehicleArena? _arena;
     private int _role;
     private int _assigned;
-    private int _cleanupFrames;
     private int _frames;
     private int _resumed;
     private string _directory = string.Empty;
@@ -153,12 +152,11 @@ public sealed partial class MigrationProcessChecks : Node
     /// <summary>Releases the arena and allows deferred audio teardown to complete before process shutdown.</summary>
     public async void Complete()
     {
-        _cleanupFrames = 0;
         _arena!.QueueFree();
-        while (_cleanupFrames++ < 6)
-        {
-            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        }
+        _arena = null;
+        // Audio playback retirement runs on a separate native clock. A handful of render
+        // frames can finish before that clock drains, especially in headless multi-process runs.
+        await ToSignal(GetTree().CreateTimer(1), SceneTreeTimer.SignalName.Timeout);
 
         GetTree().Quit();
     }

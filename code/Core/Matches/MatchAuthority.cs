@@ -17,26 +17,29 @@ internal static class MatchAuthority
             return previous;
         }
 
-        return new MatchState(tick, checked(previous.Revision + 1), previous.KillTarget, previous.Phase, previous.CountdownAtTick, previous.Winner, previous.Players.Append(new PlayerScore(player, 0, 0, 0, 0)));
+        return new MatchState(tick, checked(previous.Revision + 1), previous.KillTarget, previous.Phase, previous.CountdownAtTick, previous.Winner, previous.Players.Append(new PlayerScore(player, 0, 0, 0, 0)), mode: previous.Mode);
     }
 
     /// <summary>Consumes authoritative destroyed lives once, in stable victim order.</summary>
     /// <param name="previous">Committed match boundary.</param>
     /// <param name="configuration">Validated host rules.</param>
     /// <param name="tick">Candidate simulation tick.</param>
-    /// <param name="vehicles">Complete candidate vehicle roster.</param>
+    /// <param name="results">Complete candidate vehicle roster and applied damage outcomes.</param>
+    /// <param name="previousVehicles">Previous authoritative poses and support.</param>
+    /// <param name="vehicleRules">Registered per-vehicle movement tuning.</param>
     /// <returns>Validated candidate match state.</returns>
-    internal static MatchState Advance(MatchState previous, MatchConfiguration configuration, ulong tick, IReadOnlyList<VehicleSnapshot> vehicles)
+    internal static MatchState Advance(MatchState previous, MatchConfiguration configuration, ulong tick, IReadOnlyList<VehicleStepResult> results, IReadOnlyDictionary<ulong, VehicleSnapshot> previousVehicles, Func<ulong, VehicleConfiguration> vehicleRules)
     {
         if (previous.Phase == MatchPhase.Finished)
         {
             return previous;
         }
 
+        VehicleSnapshot[] vehicles = results.Select(result => result.Snapshot).ToArray();
         GameLoopState lifecycle = previous.Lifecycle;
         if (lifecycle.Phase is GameLoopPhase.Initialization or GameLoopPhase.Countdown)
         {
-            if (vehicles.Count < configuration.MinimumPlayers)
+            if (vehicles.Length < configuration.MinimumPlayers)
             {
                 lifecycle = new GameLoopState(tick, GameLoopPhase.Initialization);
             }
@@ -57,9 +60,32 @@ internal static class MatchAuthority
 
         var scores = previous.Players.ToDictionary(score => score.Player);
         var changes = new List<ScoredDeath>();
-        foreach (VehicleSnapshot vehicle in vehicles.OrderBy(vehicle => vehicle.VehicleId))
+        var awards = new List<CircusScoreAward>();
+        foreach (VehicleStepResult result in results.OrderBy(result => result.Snapshot.VehicleId))
         {
+            VehicleSnapshot vehicle = result.Snapshot;
             PlayerScore victim = scores[vehicle.VehicleId];
+            // Outcomes are generated only by the candidate health authority. Consume every source,
+            // including outside Active, so restoring/repeating an outcome can never bank it again.
+            foreach (DamageEvent applied in result.DamageEvents.OrderBy(damage => damage.Sequence))
+            {
+                if (applied.Tick != tick || vehicle.LifeId < victim.ProcessedDamageLife ||
+                    (vehicle.LifeId == victim.ProcessedDamageLife && applied.Sequence <= victim.ProcessedDamageSequence))
+                {
+                    continue;
+                }
+
+                victim = victim with { ProcessedDamageLife = vehicle.LifeId, ProcessedDamageSequence = applied.Sequence };
+                scores[victim.Player] = victim;
+                ulong attacker = applied.Attribution.InstigatorId;
+                if (configuration.Mode == MatchMode.Circus && lifecycle.AllowsGameplay && applied.Attribution.Source == "collision" && attacker != victim.Player &&
+                    scores.ContainsKey(attacker) && vehicles.Any(candidate => candidate.VehicleId == attacker))
+                {
+                    scores[attacker] = CircusScoring.Bank(scores[attacker], applied.Amount * configuration.CollisionPointsPerDamage, awards, CircusScoreCategory.Collision);
+                }
+            }
+
+            scores[victim.Player] = victim;
             if (!vehicle.Damage.Destroyed || vehicle.LifeId <= victim.ProcessedLife)
             {
                 continue;
@@ -68,7 +94,7 @@ internal static class MatchAuthority
             victim = victim with { ProcessedLife = vehicle.LifeId };
             if (lifecycle.AllowsGameplay)
             {
-                victim = victim with { Deaths = checked(victim.Deaths + 1) };
+                victim = victim with { Deaths = checked(victim.Deaths + 1), KillStreak = 0 };
                 scores[victim.Player] = victim;
                 DamageEvent? damage = vehicle.Damage.LastDamage;
                 ulong killer = damage is { DestroyedTransition: true } && damage.Tick == tick && damage.Attribution.Source is "missile" or "collision"
@@ -81,6 +107,11 @@ internal static class MatchAuthority
                 if (killer != 0)
                 {
                     PlayerScore credited = scores[killer] with { Kills = checked(scores[killer].Kills + 1) };
+                    if (configuration.Mode == MatchMode.Circus)
+                    {
+                        credited = credited with { KillStreak = checked(credited.KillStreak + 1) };
+                        credited = CircusScoring.Bank(credited, configuration.BaseKillPoints + ((credited.KillStreak - 1) * configuration.KillStreakBonusStep), awards, CircusScoreCategory.Kill);
+                    }
                     MatchOutcome? outcome = FirstToTargetMode.Evaluate(credited, configuration.KillTarget);
                     if (outcome is not null)
                     {
@@ -101,6 +132,18 @@ internal static class MatchAuthority
             }
         }
 
+        // Resolve combat/life boundaries first: a lethal landing or same-tick death cannot bank.
+        foreach (var result in results.OrderBy(result => result.Snapshot.VehicleId))
+        {
+            ulong id = result.Snapshot.VehicleId;
+            if (scores.TryGetValue(id, out var score))
+            {
+                scores[id] = configuration.Mode == MatchMode.Circus && lifecycle.AllowsGameplay
+                    ? StuntScoring.Advance(score, previousVehicles[id], result, configuration, vehicleRules(id), awards)
+                    : score with { Stunts = null };
+            }
+        }
+
         if (lifecycle.Phase == previous.Lifecycle.Phase && lifecycle.CountdownAtTick == previous.CountdownAtTick && scores.Values.OrderBy(score => score.Player).SequenceEqual(previous.Players))
         {
             return previous;
@@ -114,6 +157,8 @@ internal static class MatchAuthority
             GameLoopPhase.Finished => MatchPhase.Finished,
             _ => throw new InvalidOperationException("Unknown Game Loop phase."),
         };
-        return new MatchState(tick, checked(previous.Revision + 1), configuration.KillTarget, phase, lifecycle.CountdownAtTick, lifecycle.Outcome?.Winner, scores.Values, changes);
+        var publishedAwards = awards.GroupBy(award => (award.Player, award.Category))
+            .Select(group => new CircusScoreAward(group.Key.Player, group.Key.Category, group.Sum(award => award.Points)));
+        return new MatchState(tick, checked(previous.Revision + 1), configuration.KillTarget, phase, lifecycle.CountdownAtTick, lifecycle.Outcome?.Winner, scores.Values, changes, publishedAwards, configuration.Mode);
     }
 }

@@ -5,6 +5,7 @@ Start with the system being changed. Read its document and only the integration 
 | System | Read for | Related systems |
 | --- | --- | --- |
 | [Startup application flow](startup.md) | Preloader, Splash, persistent MenuShell/Loader, global initialization and Main Menu reveal | [Game Menu](game-menu.md), [Settings](settings.md), [audio](audio.md) |
+| [Main Menu](main-menu.md) | Modular chain-hung plates, post-Loader entrance, stable navigation, flags and selection | [Startup](startup.md), [Settings](settings.md), [match entry](match-entry.md) |
 | [Lobby and match entry](match-entry.md) | Browser, admission, joined Lobby, map selection and Match Loader / Sync | [Sessions](sessions.md), [reconnection](reconnection.md), [Game Loop](game-loop.md) |
 | [Game versioning](game-versioning.md) | Canonical build, Story CI sequencing and exact multiplayer compatibility | [Sessions](sessions.md), [EOS lobbies](eos-lobbies.md), [reconnection](reconnection.md) |
 | [Fixed-step simulation](simulation.md) | Tick ordering, atomic authority and restore | [Vehicles](vehicles.md), [matches](matches.md), [replication](vehicle-networking.md) |
@@ -18,7 +19,7 @@ Start with the system being changed. Read its document and only the integration 
 | [Player activity feed](activity-feed.md) | Player-safe presence and kill/death messages, five-row HUD, expiry and replay protection | [Event Log](event-log.md), [HUD](hud.md), [matches](matches.md) |
 | [Arena audio](audio.md) | Vehicle/combat feedback, arena playlist, buses and committed CC0 sounds | [Settings](settings.md), [items](items.md), [matches](matches.md) |
 | [Vehicles and damage](vehicles.md) | Movement, suspension, surfaces, HP, collision/effect contracts | [Arena](arena.md), [camera](camera.md), [lifecycle](death-respawn.md), [replication](vehicle-networking.md) |
-| [Chase camera](camera.md) | Local orientation, inertia and feedback | [Vehicles](vehicles.md), [replication](vehicle-networking.md) |
+| [Chase camera](camera.md) | Local orientation, free-look/recentering, inertia and feedback | [Input](input.md), [vehicles](vehicles.md), [replication](vehicle-networking.md) |
 | [Combat arena](arena.md) | Retained prototype fixture, markers, props and materials | [Vehicles](vehicles.md), [pickups](item-spawns.md), [replication](vehicle-networking.md) |
 | [Banked oval map](oval-map.md) | Active practice/gameplay map, Blender source, real scale, banking, eight player grid spawns and collision | [Combat arena](arena.md), [vehicles](vehicles.md) |
 | [Transport foundation](transport.md) | Opaque gateway, endpoints, GNS fallback and legacy state envelope | [Vehicle networking](vehicle-networking.md), [sessions](sessions.md), [EOS P2P](eos-p2p.md) |
@@ -31,7 +32,7 @@ Start with the system being changed. Read its document and only the integration 
 | [Item spawning](item-spawns.md) | Marker claims, distribution and cooldowns | [Arena](arena.md), [items](items.md) |
 | [Death and respawn](death-respawn.md) | Life boundaries, reset policy and participation | [Vehicles](vehicles.md), [items](items.md), [matches](matches.md) |
 | [Authoritative Game Loop](game-loop.md) | Post-sync initialization, phases, countdown, participation, frozen results handoff and disposal/reset ownership | [Matches](matches.md), [simulation](simulation.md), [sessions](sessions.md) |
-| [Match scoring](matches.md) | Countdown, attribution, scores and first-to-target | [Game Loop](game-loop.md), [lifecycle](death-respawn.md), [sessions](sessions.md), [HUD](hud.md) |
+| [Match scoring](matches.md) | Countdown, attribution, Circus combat/K/D/streaks, pending stunt detection/banking and first-to-target | [Game Loop](game-loop.md), [lifecycle](death-respawn.md), [sessions](sessions.md), [HUD](hud.md) |
 | [EOS identity](eos-identity.md) | Device ID, platform lifetime and configuration | [EOS lobbies](eos-lobbies.md), [EOS P2P](eos-p2p.md) |
 | [EOS lobbies](eos-lobbies.md) | Browser, access codes, membership and admission | [Identity](eos-identity.md), [sessions](sessions.md), [EOS P2P](eos-p2p.md) |
 | [EOS P2P](eos-p2p.md) | Authenticated transport, framing, reliability and bounds | [Identity](eos-identity.md), [lobbies](eos-lobbies.md), [transport](transport.md) |
@@ -43,3 +44,5 @@ Start with the system being changed. Read its document and only the integration 
 - EOS configuration, native prerequisites, portal setup, authenticated checks and export procedures: [EOS development setup](../eos-development.md).
 - Dependency and asset provenance, license records and redistribution: [canonical third-party registry](../../THIRD_PARTY.md).
 - Past verification results: [historical evidence index](../verification/README.md).
+
+| [Post-match Application Flow](post-match.md) | Dedicated Podium, authoritative results, rematch, lobby/menu return and controlled exit | [Game Loop](game-loop.md), [match entry](match-entry.md), [sessions](sessions.md), [standings](standings.md) |

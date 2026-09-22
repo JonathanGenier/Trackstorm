@@ -45,3 +45,5 @@ Authority restoration and epoch fencing are described in [host migration](host-m
 The [Event Log](event-log.md) consumes committed lifecycle transitions once, independently of unreliable pose publications. It preserves the affected life and lethal cause, while scored kill credit remains owned by match authority.
 
 Fresh active admission preserves existing HP, life generations and absolute respawn deadlines through the shared checkpoint. Client reseeding suppresses historical destruction/respawn feedback. The new vehicle uses the existing marker-clearance selector at admission and again at activation, without moving or respawning existing vehicles. See [session activation](sessions.md#fresh-admission-during-an-arena).
+
+[Circus pending stunts](matches.md#circus-stunt-detection-and-banking) are cancelled in the lethal candidate before landing/threshold completion can bank. Reset/respawn life changes also cancel pending events; all previously banked Circus points remain permanent for the match.

@@ -32,7 +32,7 @@ internal sealed partial class MatchStandings : CanvasLayer
         _root.AddChild(_board);
         Text("MATCH STANDINGS", 40, 28, 650, 47, 38);
         _status = Text("LIVE", 716, 34, 284, 32, 20, HorizontalAlignment.Right);
-        string[] columns = { "#", "Player Name", "Kills", "Deaths", "Ping" };
+        string[] columns = { "#", "Player Name", "Score", "Kills", "Deaths", "Ping" };
         for (int index = 0; index < columns.Length; index++)
         {
             Cell(columns[index], index, 98, 20);
@@ -40,7 +40,7 @@ internal sealed partial class MatchStandings : CanvasLayer
 
         for (int row = 0; row < 8; row++)
         {
-            _rows.Add(Enumerable.Range(0, 5).Select(column => Cell(string.Empty, column, 134 + (row * 40), 23)).ToArray());
+            _rows.Add(Enumerable.Range(0, 6).Select(column => Cell(string.Empty, column, 134 + (row * 40), 23)).ToArray());
         }
 
         _footer = Text(string.Empty, 42, 468, 720, 30, 18);
@@ -99,7 +99,7 @@ internal sealed partial class MatchStandings : CanvasLayer
             int position = (_page * 8) + index;
             StandingsRow? row = position < view.Rows.Count ? view.Rows[position] : null;
             string marker = row?.Winner == true ? "  · WINNER" : row?.Rank == 1 ? "  · LEADER" : string.Empty;
-            string[] values = row is null ? new[] { string.Empty, string.Empty, string.Empty, string.Empty, string.Empty } : new[] { row.Rank.ToString(System.Globalization.CultureInfo.InvariantCulture), row.Name + marker + (row.Local ? "  · YOU" : string.Empty), row.Kills.ToString(System.Globalization.CultureInfo.InvariantCulture), row.Deaths.ToString(System.Globalization.CultureInfo.InvariantCulture), row.Ping };
+            string[] values = row is null ? new[] { string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty } : new[] { row.Rank.ToString(System.Globalization.CultureInfo.InvariantCulture), row.Name + marker + (row.Local ? "  · YOU" : string.Empty), CircusHudView.FormatPoints(row.CircusScore), row.Kills.ToString(System.Globalization.CultureInfo.InvariantCulture), row.Deaths.ToString(System.Globalization.CultureInfo.InvariantCulture), row.Ping };
             for (int column = 0; column < values.Length; column++)
             {
                 _rows[index][column].Text = values[column];
@@ -111,8 +111,8 @@ internal sealed partial class MatchStandings : CanvasLayer
 
     private Label Cell(string text, int column, float y, int fontSize)
     {
-        float[] positions = { 42, 110, 650, 770, 887 };
-        float[] widths = { 52, 530, 100, 100, 112 };
+        float[] positions = { 42, 110, 566, 696, 806, 906 };
+        float[] widths = { 52, 446, 116, 96, 96, 94 };
         return Text(text, positions[column], y, widths[column], 32, fontSize, column == 1 ? HorizontalAlignment.Left : HorizontalAlignment.Center);
     }
 
