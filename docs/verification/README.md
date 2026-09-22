@@ -8,7 +8,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
-| Modular chain-hung Main Menu | [TS-122 implementation and verification](ts-122.md), [Astra runtime critique](ts-122-critique.md) |
+| Modular chain-hung Main Menu and approved smaller left-side layout | [TS-122 implementation and verification](ts-122.md), [Astra runtime critique](ts-122-critique.md) |
 | Circus HUD and live scoring | [TS-105 authoritative score, live leaderboard and scoring-feedback verification](ts-105.md) |
 | Post-match Application Flow | [TS-87 Podium, authoritative results, repeated rematch, destination cleanup and native verification](ts-87.md) |
 | Circus stunt scoring and banking | [TS-103 verification evidence](ts-103.md) |

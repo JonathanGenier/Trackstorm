@@ -232,9 +232,10 @@ internal sealed partial class HangingMainMenu : Control
 
     private void Layout()
     {
-        float scale = Math.Min(Size.X / 1040, Size.Y / Math.Max(1, _height + 20));
+        // Keep the complete suspension and its stationary targets together, leaving the title visible on the right.
+        float scale = 0.75f * Math.Min(Size.X / 1040, Size.Y / Math.Max(1, _height + 20));
         _layout.Scale = Vector2.One * scale;
-        _layout.Position = new Vector2((Size.X - 1000 * scale) / 2, 0);
+        _layout.Position = new Vector2(Size.X * 0.04f, 0);
         QueueRedraw();
     }
 }

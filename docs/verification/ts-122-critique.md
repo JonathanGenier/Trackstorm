@@ -64,3 +64,57 @@ The overall score is a judgment of the integrated result, not an arithmetic aver
 If authorized by the human, prioritize selected-material refinement, then integrate the status badge. Re-run affected visual/navigation checks and observe the full entrance and repeated input transitions continuously where tooling permits. Confirm native keyboard and physical-controller behavior and listen to media continuity before making broader claims about input and animation/audio polish.
 
 No recommendations have been implemented. **Stop for explicit human instruction**, as required by [the critique human gate](../critique.md#mandatory-human-gate). A failed score does not prevent the human from accepting the result as-is.
+
+---
+
+# Astra Runtime Critique — Story Round 2
+
+Story: TS-122. Branch: `ts-122-jg`. Date: 2026-09-21.
+
+**Overall Score: 7.7 / 10**
+
+**Quality Assessment: FAIL (<8.0)**
+
+**Approved adjustment achieved:** the menu is visibly smaller and positioned on the left, leaving the right-hand background title unobstructed at all three inspected resolutions. The assembly remains coherent and within the viewport, and relocated mouse targets work in the exercised flows. This is a successful implementation of the requested layout adjustment. The integrated score remains below the general Story polish threshold because the earlier material/badge findings remain visible and the reduced status lettering is particularly small at 640×360. The user did not authorize the Round 1 polish suggestions; this critique does not authorize them either.
+
+## Category Scores
+
+| Category | Score | Observed basis |
+| --- | --- | --- |
+| Runtime Functionality | 8.2 | Current native Settings/browser return and Quit succeeded. |
+| Controls / Responsiveness | 8.0 | Reduced, relocated mouse targets correspond to the visible plates and activate correctly. Keyboard/controller behavior was not independently retested this round. |
+| Visual Quality | 7.4 | Left composition balances the background substantially better; retained selected coloration/status treatment and tiny low-resolution status prevent a highly polished rating. |
+| VFX / Feedback | 7.5 | Selection remains clear at the reduced scale; previous saturated material concern persists. |
+| UI / UX | 7.8 | Main actions remain easy to identify; secondary status legibility is weak in the smallest capture. |
+| Runtime Stability | 8.2 | Final native playtest completed with a clean exit and no runtime log diagnostics. |
+| Runtime Integration | 8.0 | Settings/browser round trips restore the settled left-hand menu and appropriate selected action. |
+
+The overall score judges the integrated menu; it is not an average or a failure verdict on the narrowly requested placement change.
+
+## What Was Exercised
+
+- **VERIFIED — direct current visual inspection:** inspected the new `layout-640x360.png`, `layout-1280x720.png`, and `layout-1600x900.png` under `.godot/main-menu-checks`. The menu occupies the left portion consistently, its upper chains reach the viewport edge, and the background title is clear. Primary labels remain identifiable, without clipping.
+- **VERIFIED — current native mouse playtest:** launched the production scene with `--max-fps 60`; observed the smaller left assembly at 1280×720, opened Settings through its relocated plate, clicked Back, opened Play through its relocated plate, returned from the browser, then clicked the relocated Quit plate. Settings and browser returns retained the settled composition with Settings and Play selected respectively. Quit exited with code 0. Log: `.godot/ts-122-astra-round2-retry.log`.
+- **Supporting verification, supplied by implementation agent:** current `check-fast.ps1 -Area Client`, rendered startup verification and comprehensive `check.ps1` passed, including 500 Core and 337 transport tests. These are supporting evidence, not independent reruns or a basis for visual scoring.
+
+## Runtime / Operational Limitations
+
+The first escalated launch exited cleanly before a window could be captured; the bounded retry succeeded. One initial mouse action encountered changing desktop foreground/occlusion, so it was not counted as successful activation; after reactivating the game, Settings opened normally. No Godot editor interaction was performed.
+
+The complete entrance and continuous frame pacing were not independently observed. No audio listening, physical controller, native keyboard navigation, Garage click, long-duration use or multiplayer session was independently retested in Round 2. Prior-round evidence and the current harness must remain distinguished from this round's direct observations. No score is assigned to audio, full-motion feel or measured performance. Unchanged background artifacts and destination-screen styling are excluded from this assessment.
+
+## Recommendation
+
+- **Problem:** at 640×360, uniform shrink leaves the Coming Soon status substantially smaller than the main labels and difficult to read at native image size.
+- **Evidence:** direct inspection of the current 640×360 capture compared with the 1280×720 capture; the status is recognizable by context but is no longer comfortably readable. The live 1280×720 status remained readable.
+- **Severity:** Low.
+- **Impact:** players at the smallest supported viewport have less immediate explanation for the disabled Garage entry, although its dim appearance still communicates unavailability.
+- **Suggested Improvement:** if separately authorized, preserve the requested overall size/left placement while giving secondary status text a minimum readable rendered size at small viewports; validate against the exact 640×360 native-size capture.
+- **Scope:** In Scope for the Story's menu usability; outside the already completed, specifically authorized uniform-layout adjustment unless the human approves further refinement.
+- **Corrective Work Type:** Existing Task.
+
+The Round 1 material and badge recommendations remain unchanged advisory findings, supported again by the current captures and live menu. Their severity, impact and proposed corrections remain as recorded above. They were not implemented or newly authorized in this round.
+
+## Recommended Next Round
+
+The requested layout can be accepted as-is. If the human instead authorizes further refinement, first decide whether to address small-viewport status readability, then explicitly select any retained Round 1 visual suggestions. Do not begin another round automatically. No implementation was changed during this critique; **stop for explicit human instruction** under the critique human gate.
