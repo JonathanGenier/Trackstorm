@@ -1,0 +1,72 @@
+{
+  "license": "Project-supplied artwork; no third-party license asserted",
+  "runtime": [
+    {
+      "file": "Chain.png",
+      "sha256": "d90f1ccf1b758a4f720fc0dfb7938153084835a159798daf145f9c05b14c27a3"
+    },
+    {
+      "file": "FlagCheckered.png",
+      "sha256": "dabab3260e0f8d3abe6f81c37a9bc0cd38374624e0bbbbfe3225de2273db1c6d"
+    },
+    {
+      "file": "FlagRed.png",
+      "sha256": "10e948329dd56db737dcfb6694e3def3cb67585c15294b7c02a147f7e74d9e7a"
+    },
+    {
+      "file": "Header.png",
+      "sha256": "4ceec56304dd175d8ad2d46c44d690ba800f1470c108a1ae1c86fd10319af3e0"
+    },
+    {
+      "file": "Icons.png",
+      "sha256": "d8f487bdf75aef2a579316768b12e87b3c3e1fae5a67f32cf8fe2cb6bfeba752"
+    },
+    {
+      "file": "Plate.png",
+      "sha256": "0525e7b47ac1be8931918638f04b701ae96d6fffa95daa28389331a936314934"
+    }
+  ],
+  "sources": [
+    {
+      "file": "ChatGPT Image Sep 21, 2026, 06_17_27 AM (8).png",
+      "sha256": "1c13c5cb19b375dd9b80f589d7e3002b1f0f2942b3206329261ef7f9c7fecf54"
+    },
+    {
+      "file": "Icons.png",
+      "sha256": "d8f487bdf75aef2a579316768b12e87b3c3e1fae5a67f32cf8fe2cb6bfeba752"
+    },
+    {
+      "file": "Left_Left.png",
+      "sha256": "cd505e0810c350b9822bb1297e3915444ea9d086a0fe92562f375e6d82e55e02"
+    },
+    {
+      "file": "Flag_right.png",
+      "sha256": "278a592bf2566d5f95a7391004346681367a7e8e91f015a7abd47cb3992f90fd"
+    },
+    {
+      "file": "Chain_Long.png",
+      "sha256": "d90f1ccf1b758a4f720fc0dfb7938153084835a159798daf145f9c05b14c27a3"
+    },
+    {
+      "file": "Chains_Short.png",
+      "sha256": "ec4f8638e93648b7b04ab2f8359d3ac9205afb371e5d15fc4b5c95131489904b"
+    },
+    {
+      "file": "Frame.png",
+      "sha256": "4ceec56304dd175d8ad2d46c44d690ba800f1470c108a1ae1c86fd10319af3e0"
+    },
+    {
+      "file": "Main_Menu_full.png",
+      "sha256": "b80db12b98bc8a646779d9138f0cd0ab6abe6d30da88b37da5a4e5b770ee544c"
+    },
+    {
+      "file": "Active_button.png",
+      "sha256": "bcf4a2518d10411e77d93e0a544b91ca3997ad64d03687686b2e44d655f8d89a"
+    },
+    {
+      "file": "Button.png",
+      "sha256": "0525e7b47ac1be8931918638f04b701ae96d6fffa95daa28389331a936314934"
+    }
+  ],
+  "authority": "TS-122 and explicit user implementation request, 2026-09-21"
+}

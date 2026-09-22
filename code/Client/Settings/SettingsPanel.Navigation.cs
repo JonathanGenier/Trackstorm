@@ -85,7 +85,7 @@ internal sealed partial class SettingsPanel
     {
         bool open = CurrentPage != MenuPage.Closed;
         _panel.Visible = _shade.Visible = open;
-        _openSettings.Visible = !open && !ArenaAvailable();
+        _openSettings.Visible = !open && !ArenaAvailable() && ShowFrontendShortcut();
         foreach ((MenuPage page, VBoxContainer column) in _pages)
         {
             column.Visible = page == CurrentPage;

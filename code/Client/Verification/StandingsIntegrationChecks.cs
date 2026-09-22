@@ -88,9 +88,8 @@ public sealed partial class StandingsIntegrationChecks : Node
             _diagnostics = new Settings.SettingsPanel();
             _diagnostics.Initialize(settings, _input.Adapter);
             _view.AddChild(_diagnostics);
-            _diagnostics.SetCombatHudVisible(true);
             settings.UpdateSettings(settings.Current with { ShowFps = true, ShowPing = true });
-            _diagnostics.SetVehicleTelemetry(0, new(ConnectionDiagnosticState.Reconnecting, default));
+            _diagnostics.SetConnectionTelemetry(new(ConnectionDiagnosticState.Reconnecting, default));
             await Until(() => _sessions.All(session => session.Lobby?.State?.Players.Count == 8));
             foreach (var session in _sessions)
             {
@@ -125,12 +124,12 @@ public sealed partial class StandingsIntegrationChecks : Node
             Require(_sessions.All(session => session.Standings.Rows.Single(row => row.PlayerId == 1).Ping == "--"), "Host no-hop rule");
             foreach (var session in _sessions)
             {
-                _diagnostics.SetVehicleTelemetry(0, session.Diagnostics);
+                _diagnostics.SetConnectionTelemetry(session.Diagnostics);
                 var counter = _diagnostics.FindChild("Diagnostics", true, false) as Settings.SettingsHud ?? throw new InvalidOperationException("Missing diagnostics HUD.");
                 Require(counter.PingText == "Ping  " + session.Standings.Rows.Single(row => row.Local).Ping, "Rendered HUD Ping equals the local leaderboard row for every peer");
             }
 
-            _diagnostics.SetVehicleTelemetry(0, new(ConnectionDiagnosticState.Reconnecting, default));
+            _diagnostics.SetConnectionTelemetry(new(ConnectionDiagnosticState.Reconnecting, default));
             SetTotals(false);
             await Until(() => _sessions.All(session => session.Standings.Rows[0].PlayerId == 8));
             for (int index = 0; index < _sessions.Count; index++)

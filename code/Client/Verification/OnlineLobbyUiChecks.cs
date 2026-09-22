@@ -32,13 +32,43 @@ public sealed partial class OnlineLobbyUiChecks : Node
     private OnlineSessionBinding? _reservationBinding;
 
     /// <inheritdoc />
-    public override void _Ready()
+    public override async void _Ready()
     {
         Engine.MaxFps = 60;
-        _coordinator = new OnlineLobbyCoordinator(_provider, new OnlineProductUserId(new string('1', 32)));
+        var local = new OnlineProductUserId(new string('1', 32));
+        _resumeStore = new ResumeLocatorStore(ProjectSettings.GlobalizePath("res://.godot/ts-122-startup-lookup.json"));
+        _resumeStore.Save(new ResumeLocator("missing", 999, 2, 1, local.Value, 1, new string('2', 32)));
+        _provider.DeferLookup = true;
+        _online = true;
+        _coordinator = new OnlineLobbyCoordinator(_provider, local, resumeStore: _resumeStore);
         _session = new DevelopmentSession { OnlineCoordinator = () => _online ? _coordinator : null, OnlineStatus = () => _online ? EosLobbyStatus.Connected : _identityStates[_stage + 7], OnlineLogin = () => _loginRequests++ };
         AddChild(_session);
-        Press("Browse online lobbies");
+        SetProcess(false);
+        try
+        {
+            _coordinator.Tick();
+            for (int frame = 0; frame < 20; frame++)
+            {
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                if (DisplayServer.GetName() != "headless") await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                Capture($"startup-lookup-{frame:00}");
+                Require(_session.MainMenu.IsVisibleInTree(), "Main Menu remains visible on every passive lookup frame");
+            }
+            Require(_session.MainMenu.IsVisibleInTree() && !Controls<PanelContainer>().Single(panel => panel.Name == "LobbyBrowser").IsVisibleInTree(), "Read-only saved-session lookup must not replace Main Menu with the blue browser panel");
+            _provider.CompleteLookup!();
+            _provider.DeferLookup = false;
+            _online = false;
+            _resumeStore.Clear();
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        }
+        catch (Exception exception)
+        {
+            GD.PushError("Main Menu lookup transition failed: " + exception.Message);
+            GetTree().Quit(1);
+            return;
+        }
+        SetProcess(true);
+        Press("Play");
     }
 
     /// <inheritdoc />
@@ -294,8 +324,15 @@ public sealed partial class OnlineLobbyUiChecks : Node
         internal int ResumeRequests { get; private set; }
         internal bool DeferCreate { get; set; }
         internal Action? CompleteCreate { get; set; }
+        internal bool DeferLookup { get; set; }
+        internal Action? CompleteLookup { get; set; }
         public void Search(Action<IReadOnlyList<OnlineLobby>, string?> completed) => completed(new[] { new OnlineLobby("public", "Arena Public", _remote, 100, LobbyAccess.Public, 2, 8, OnlineLobby.CurrentProtocol, true, null), new OnlineLobby("locked", "Private Game", _remote, 200, LobbyAccess.Locked, 3, 8, OnlineLobby.CurrentProtocol, true, _credential), new OnlineLobby("incompatible", "Different build", _remote, 300, LobbyAccess.Public, 1, 8, OnlineLobby.CurrentProtocol, true, null) { Version = new GameVersion(GameVersion.Current.Release, GameVersion.Current.Revision == 0 ? 1 : GameVersion.Current.Revision - 1).ToString() } }, null);
-        public void Lookup(string id, Action<OnlineLobbyLookup> completed) => Search((rows, failure) => completed(new(rows.SingleOrDefault(row => row.Id == id), failure)));
+        public void Lookup(string id, Action<OnlineLobbyLookup> completed)
+        {
+            void Lookup() => Search((rows, failure) => completed(new(rows.SingleOrDefault(row => row.Id == id), failure)));
+            if (DeferLookup) CompleteLookup = Lookup;
+            else Lookup();
+        }
         public void Create(OnlineLobby lobby, Action<OnlineLobby?, string?> completed)
         {
             _active = lobby with { Id = "hosted", Owner = _local };

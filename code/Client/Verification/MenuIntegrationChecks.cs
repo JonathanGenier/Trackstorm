@@ -52,7 +52,7 @@ public sealed partial class MenuIntegrationChecks : Node
             _session = _bootstrap.GetNode<DevelopmentSession>("DevelopmentSession");
             await Frames(3);
             CheckCursor(false, "Main Menu pointer");
-            Press("Settings");
+            _session.MainMenu.Targets.Single(button => button.Text == "Settings").EmitSignal(BaseButton.SignalName.Pressed);
             CheckCursor(false, "Main Menu Settings pointer");
             Press("Back");
             await EnterArena();
@@ -203,6 +203,7 @@ public sealed partial class MenuIntegrationChecks : Node
             await Until(() => _session.LeaveComplete && _session.Arena is null, "leave cleanup completes");
             Check(_menu.CurrentPage == MenuPage.Closed, "leave closes overlay");
             await Frames(2);
+            Check(_session.Stage == ApplicationStage.MainMenu && _session.MainMenu.Interactive, "Leave returns to the chain-hung Main Menu, not the browser");
             CheckCursor(false, "leaving arena restores Main Menu pointer");
             await EnterArena();
             Check(_session.Arena!.Driver.Match?.Phase == MatchPhase.Waiting, "reenter has fresh Waiting state");
