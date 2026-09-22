@@ -193,6 +193,22 @@ public sealed partial class NetworkVehicleChecks : Node
     /// <summary>Releases the arena while native audio can still process queued stop commands before process shutdown.</summary>
     public async void Complete()
     {
+        try
+        {
+            var input = new Input.PlayerInput();
+            AddChild(input);
+            input.SetPhysicsProcess(false);
+            await CameraPlaytest.Run(this, _arena.GetNode<Vehicles.VehicleChaseCamera>("ChaseCamera"), input,
+                () => _arena.Bodies[_arena.Driver.LocalVehicleId].VisualTransform, _output);
+            input.QueueFree();
+        }
+        catch (Exception exception)
+        {
+            GD.PushError(exception.ToString());
+            GetTree().Quit(1);
+            return;
+        }
+
         _arena.QueueFree();
         for (int i = 0; i < 6; i++)
         {

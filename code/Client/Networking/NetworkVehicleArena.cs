@@ -25,6 +25,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private Arenas.CombatArena? _layout;
     private ulong _collisionLife;
     private ulong _collisionTick;
+    internal Input.PlayerInputAdapter? CameraInput { get => _camera.InputSource; set => _camera.InputSource = value; }
 
     /// <summary>Host pickup tuning supplied before scene entry.</summary>
     internal ItemSpawnConfiguration? SpawnConfiguration { get; init; }
@@ -267,6 +268,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.LocalCorrected += state => _bodies[state.VehicleId].Apply(state, true);
         _driver.Resynchronized += snapshot =>
         {
+            _camera.ResetFollow();
             _audio.ApplyVehicles(snapshot.Vehicles.Select(vehicle => vehicle.State), true);
             _audio.ApplyItems(_driver.ItemState!, true);
             _audio.ApplyMatch(_driver.Match!, true);

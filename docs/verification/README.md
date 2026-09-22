@@ -8,6 +8,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Vehicle camera free-look and recentering | [TS-108 verification evidence](ts-108.md) |
 | Circus Game Loop, frozen results, rematch and recovery integration | [TS-106 verification evidence](ts-106.md) |
 | Circus HUD and live scoring | [TS-105 authoritative score, live leaderboard and scoring-feedback verification](ts-105.md) |
 | Post-match Application Flow | [TS-87 Podium, authoritative results, repeated rematch, destination cleanup and native verification](ts-87.md) |

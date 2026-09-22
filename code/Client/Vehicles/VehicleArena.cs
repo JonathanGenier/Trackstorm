@@ -14,6 +14,7 @@ public sealed partial class VehicleArena : Node3D
     private MeshInstance3D? _blast;
     private float _blastSeconds;
     private Arenas.CombatArena? _layout;
+    internal Input.PlayerInputAdapter? CameraInput { get => _camera.InputSource; set => _camera.InputSource = value; }
 
     /// <summary>Retains the focused ramp/surface fixture for existing movement regression tests.</summary>
     internal bool LegacyTestLayout { get; init; }
