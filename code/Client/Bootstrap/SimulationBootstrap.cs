@@ -216,7 +216,7 @@ public sealed partial class SimulationBootstrap : Node
 
         if (OS.GetCmdlineUserArgs().Contains("--local-practice"))
         {
-            _arena = new VehicleArena { Name = "VehicleArena", CameraInput = _playerInput.Adapter };
+            _arena = new VehicleArena { Name = "VehicleArena", CameraInput = _playerInput.Adapter, CameraSettings = _settings };
             AddChild(_arena);
         }
         else
@@ -225,6 +225,7 @@ public sealed partial class SimulationBootstrap : Node
             {
                 Name = "DevelopmentSession",
                 NavigationInput = _playerInput.Adapter,
+                CameraSettings = _settings,
                 OverlayOpen = () => panel.CurrentPage != MenuPage.Closed || devTools.IsOpen,
                 QuitApplication = RequestQuit,
                 OnlineCoordinator = () => online?.Coordinator,
@@ -319,7 +320,7 @@ public sealed partial class SimulationBootstrap : Node
             RemoveChild(_arena);
             _arena.QueueFree();
             _arena = null;
-            _session = new DevelopmentSession { Name = "DevelopmentSession" };
+            _session = new DevelopmentSession { Name = "DevelopmentSession", CameraSettings = _settings };
             AddChild(_session);
         }
     }

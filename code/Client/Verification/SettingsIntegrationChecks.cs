@@ -106,6 +106,7 @@ public sealed partial class SettingsIntegrationChecks : Node
             MasterVolume = 0,
             MusicVolume = 0.25,
             SfxVolume = 0.75,
+            CameraShakeIntensity = 0.35,
             Fullscreen = true,
             WindowWidth = 960,
             WindowHeight = 540,
@@ -126,6 +127,7 @@ public sealed partial class SettingsIntegrationChecks : Node
     private void VerifyRestart()
     {
         PlayerSettings settings = _settings.Current;
+        Check(settings.CameraShakeIntensity == 0.35, "camera shake intensity survives process restart");
         Check(settings.MasterVolume == 0 && settings.MusicVolume == 0.25 && settings.SfxVolume == 0.75, "audio gains survive process restart");
         Check(settings.Fullscreen && settings.WindowWidth == 960 && settings.WindowHeight == 540, "display preferences survive process restart");
         Check(settings.SpeedUnit == SpeedUnit.MilesPerHour && settings.ShowFps && !settings.ShowPing, "independent HUD preferences survive process restart");
@@ -237,6 +239,22 @@ public sealed partial class SettingsIntegrationChecks : Node
         }
 
         Press(panel, "Back");
+        Press(panel, "Gameplay");
+        HSlider shake = Descendants(panel).OfType<HSlider>().Single(slider => slider.IsVisibleInTree());
+        foreach (double amount in new[] { 0d, 25d, 50d, 100d })
+        {
+            shake.Value = amount;
+            Check(_settings.Current.CameraShakeIntensity == amount / 100, "Gameplay camera shake slider applies immediately");
+        }
+        shake.Value = 35;
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        using (Image screenshot = GetViewport().GetTexture().GetImage())
+        {
+            Check(screenshot.SavePng(path + ".gameplay.png") == Error.Ok, "camera shake settings screenshot saved");
+        }
+        Press(panel, "Back");
+        await ToSignal(GetTree().CreateTimer(0.4), SceneTreeTimer.SignalName.Timeout);
+        Check(new PlayerSettingsStore(path).Load().CameraShakeIntensity == 0.35, "camera shake UI value persists after normal debounce");
         Press(panel, "Controls");
         Button bindingButton = Descendants(panel).OfType<Button>().Single(button => button.Name == "Binding_Accelerate");
         bindingButton.EmitSignal(BaseButton.SignalName.Pressed);

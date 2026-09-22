@@ -9,6 +9,7 @@ public sealed record PlayerSettings
     private double _masterVolume = 1;
     private double _musicVolume = 1;
     private double _sfxVolume = 1;
+    private double _cameraShakeIntensity = 1;
     private SpeedUnit _speedUnit;
     private int _windowWidth = 1280;
     private int _windowHeight = 720;
@@ -24,6 +25,9 @@ public sealed record PlayerSettings
 
     /// <summary>Sound-effects gain in [0,1].</summary>
     public double SfxVolume { get => _sfxVolume; init => _sfxVolume = Volume(value); }
+
+    /// <summary>Local collision/damage camera feedback scale in [0,1]; zero disables shake.</summary>
+    public double CameraShakeIntensity { get => _cameraShakeIntensity; init => _cameraShakeIntensity = double.IsFinite(value) ? Math.Clamp(value, 0, 1) : 1; }
 
     /// <summary>Whether to request fullscreen; defaults to a recoverable window.</summary>
     public bool Fullscreen { get; init; }

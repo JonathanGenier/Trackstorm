@@ -75,6 +75,9 @@ internal sealed class ChaseCameraMotion
     /// <param name="strength">Normalized feedback gain.</param>
     internal void Impulse(float strength) => Shake = Math.Clamp(Math.Max(Shake, strength), 0, 1);
 
+    /// <summary>Disables pending feedback without resetting inertia or contact cooldown.</summary>
+    internal void ClearShake() => _phase = Shake = 0;
+
     /// <summary>Rejects brushes and coalesces repeated contacts in render time.</summary>
     /// <param name="severity">Normal closing speed or mass-normalized impulse.</param>
     /// <param name="threshold">Minimum meaningful severity.</param>

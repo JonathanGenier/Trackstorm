@@ -60,6 +60,10 @@ public sealed partial class VehicleChaseCamera : Camera3D
     internal ChaseCameraMotion Motion => _motion;
     /// <summary>The existing local input owner; never a gameplay or replicated camera command.</summary>
     internal Input.PlayerInputAdapter? InputSource { get; set; }
+    /// <summary>Local preferences supplied by composition; never replicated or read from disk here.</summary>
+    internal Settings.PlayerSettingsController? SettingsSource { get; set; }
+
+    private float ShakeIntensity => (float)(SettingsSource?.Current.CameraShakeIntensity ?? 1);
 
     /// <summary>Clears presentation memory at a restored/reassigned display boundary, even for the same life.</summary>
     internal void ResetFollow()
@@ -87,7 +91,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
             severity = Math.Max(severity, Math.Max(-System.Numerics.Vector3.Dot(contact.RelativeVelocity, contact.Normal), contact.Impulse / mass));
         }
 
-        _motion.Collision(severity, CollisionThreshold, CollisionShakeStrength);
+        _motion.Collision(severity, CollisionThreshold, ShakeIntensity > 0 ? CollisionShakeStrength : 0);
     }
 
     /// <summary>Combines vehicle heading, measured positional inertia and accepted damage.</summary>
@@ -117,7 +121,10 @@ public sealed partial class VehicleChaseCamera : Camera3D
         {
             _damageSequence = damage.Sequence;
             float strength = damage.Attribution.Source == "collision" ? CollisionShakeStrength : DamageShakeStrength;
-            _motion.Impulse(strength * Math.Clamp(damage.Amount / 50, 0, 1));
+            if (ShakeIntensity > 0)
+            {
+                _motion.Impulse(strength * Math.Clamp(damage.Amount / 50, 0, 1));
+            }
         }
 
         if (state.Movement.Tick > _motionTick)
@@ -128,6 +135,10 @@ public sealed partial class VehicleChaseCamera : Camera3D
 
         // The displayed pose already includes practice/network interpolation. Do not add yaw lag.
         _heading = heading;
+        if (ShakeIntensity == 0)
+        {
+            _motion.ClearShake();
+        }
         _motion.Advance(delta, _heading, LongitudinalInertia, LateralInertia, SidewaysInertia, MaximumLongitudinalInertia, MaximumLateralInertia, PositionDamping, ShakeDecay);
         // Horizontal position follows the interpolated vehicle, with only bounded local inertia.
         // Vertical damping absorbs bumps; neither inertia nor shake changes the heading or aim.
@@ -147,7 +158,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
         GlobalBasis = Basis.FromEuler(new Vector3(basePitch + _look.Pitch, _heading + _look.Yaw, 0));
         float radius = MathF.Sqrt(distance * distance + (height - 0.5f) * (height - 0.5f));
         GlobalPosition = _anchor + Vector3.Up * 0.5f + GlobalBasis.Z * radius
-            + backward * _motion.Offset.Y + right * _motion.Offset.X + Vector3.Up * (_motion.ShakeOffset * MaximumShakeMetres);
+            + backward * _motion.Offset.Y + right * _motion.Offset.X + Vector3.Up * (_motion.ShakeOffset * MaximumShakeMetres * ShakeIntensity);
         _initialized = true;
     }
 }

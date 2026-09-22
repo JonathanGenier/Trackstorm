@@ -61,6 +61,8 @@ internal sealed partial class DevelopmentSession : CanvasLayer
 
     /// <summary>Host-local tuning supplied by composition; never consulted for a joining client.</summary>
     internal Development.DeveloperSettingsStore? DeveloperSettings { get; set; }
+    /// <summary>Local camera settings retained across arena reconstruction.</summary>
+    internal Settings.PlayerSettingsController? CameraSettings { get; set; }
     /// <summary>Current local authority; no host controls exist before hosting or after authority is lost.</summary>
     internal bool IsDeveloperHost => Development.DeveloperTools.Enabled && !_leaving && _lobby is { Authority: not null, Failure.Length: 0, Reconnecting: false } && _lobby.Migration?.Frozen != true && (_arena is null || _arena.Driver.IsActive);
     /// <summary>Active provider capability boundary for local network simulation.</summary>
@@ -471,7 +473,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
                 }
 
                 _eventRejected = 0;
-                _arena = new NetworkVehicleArena { Name = "SessionArena", PreparedMap = _matchLoader.MapScene, ApplicationEntry = true, Visible = false, CameraInput = NavigationInput };
+                _arena = new NetworkVehicleArena { Name = "SessionArena", PreparedMap = _matchLoader.MapScene, ApplicationEntry = true, Visible = false, CameraInput = NavigationInput, CameraSettings = CameraSettings };
                 _arena.Initialize(_gateway!, _lobby.Authority is null ? 0 : _arenaGeneration, _lobby.ServerPeer, _lobby, _lobby.Authority?.Configuration.Configuration);
                 _arena.Driver.MatchReceived += QueueMatchPresentation;
                 AddChild(_arena);
