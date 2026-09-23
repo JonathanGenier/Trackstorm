@@ -16,7 +16,8 @@ OvalFoundation (Node3D, identity)
 │   └── Infield (StaticBody3D / Shape)
 ├── PlayerSpawns
 │   └── player-01 … player-08 (Marker3D)
-└── MapContent (extension point)
+├── ItemSpawns (five triple rows and five singles)
+└── MapContent (concrete perimeter, upper collision, exterior ground and forest)
 ```
 
 One Blender unit and one Godot world unit are one metre. Blender exports Y-up;
@@ -35,9 +36,7 @@ In particular, road width is measured **on the surface**, and the approximate
 banking rather than approximating it from art.
 
 The road's 10,992 triangles form one continuous static concave collision shape;
-the 916-triangle flat infield uses another. No runtime collision generation,
-per-section bodies, solidified undersides, barriers or hidden containment walls
-are added. Grid paint and the separate verification car have no map collision.
+the 916-triangle flat infield uses another. No runtime collision generation or solidified road undersides are added. The offline content bake adds the outer barrier and containment described below. Grid paint and the separate verification car have no map collision.
 Collision layer/mask 1 matches [vehicle queries](vehicles.md); unmarked static
 bodies resolve to the existing Concrete handling identifier. No new surface or
 Core simulation rule is introduced.
@@ -53,11 +52,7 @@ practice reset and death/respawn use the same eight grid transforms.
 `VehicleNetworkDriver` retains the contract when restoring migrated authority;
 resume checkpoints retain existing vehicle poses without resetting the map slots.
 
-The oval contains no old arena props, barrels, obstacles, decorations or item
-markers. Its item configuration is empty; the existing item authority, inventory,
-combat, replication and presentation remain available, with no placed pickups.
-Pickup placement belongs to later map work. Optional prop snapshots remain absent.
-The old map scene and assets are loaded only when Old Map is selected or a verification fixture requests them.
+The oval contains 20 scene-authored item markers: five transverse rows with pickups at 3, 9 and 15 m across the 18 m surface, plus five singles. Locations follow the Jira placement reference relative to the grid, projected onto actual master sections; its legacy dimensions are not used. The existing network arena registers, observes, distributes and replicates these markers through the existing pickup system. Optional old-map prop snapshots remain absent. Local rigid-body practice retains its existing driving-only role; pickup acquisition and inventory remain owned by hosted gameplay. Old Map retains its own eight pickups.
 
 `ActiveMap.ScenePath` identifies New Map and the practice default. Multiplayer selection belongs to `LobbySnapshot.Map`. Application/menu entry,
 vehicle configuration, cameras, HUD, audio/music, networking and player lifecycle
@@ -65,8 +60,7 @@ retain their existing owners outside the scriptless map scene. The joined Lobby 
 
 The [production vehicle](vehicles.md) is 4.81 m long at unit runtime scale. The
 separate Blender reference vehicle remains a verification-only comparison. The [asphalt handling baseline](vehicles.md) owns driving behavior;
-infield gameplay, terrain, barriers and environment dressing remain later work.
-Open edges are intentional: this is a foundation, not a contained arena.
+infield handling retains that same Concrete identity; grass is a visual material only.
 
 ## Verification
 
@@ -83,7 +77,19 @@ them back to the grid and verifies existing music playback.
 reference. Evidence is written beneath `.godot/oval-checks/`. This establishes
 repeatable high-speed drivability with one automated vehicle; it does not establish human control feel or multiplayer racing balance. Normal menu/lobby, separate-process networking,
 death/respawn, reconnect and migration fixtures verify the active map contract,
-empty pickup/prop state and preserved global systems. The separate-process driving
+20-marker pickup state and absent old-map prop state and preserved global systems. The separate-process driving
 route turns into the infield so its replication checks do not depend on old walls.
 
 [Feature index](README.md)
+
+## Outer boundary and environment
+
+`BuildOvalContent.gd`, called by the existing offline scene baker, follows every one of the 916 measured outer sections. The visible concrete strip is 1.3 m above the local rim and 1.2 m thick outward. Solid convex collision prisms overlap by 5 cm at adjoining section ends, extend four metres outward, begin two metres below the rim and end at world y=45 m. This bounds ordinary driving and blast launches; arbitrary teleports and unbounded externally injected forces are outside that contract. Upper collision has no visible mesh. No inner containment exists and the infield remains accessible.
+
+The exterior ground annulus starts at the outer rim and extends 700 m outward. It has no gameplay collision. 864 conifers occupy 48 spatial MultiMesh batches, using three original Blender-authored meshes. Tree centers have at least 12 m setback; foliage stays outside the boundary. Deterministic size, orientation and spacing variation avoid per-tree runtime scripts and physics. Source and regeneration commands are in the oval asset notes.
+
+Asphalt reuses the acquired Poly Haven Asphalt 04 maps, with a neutral tint and 2 m world-triplanar tiling. The infield and exterior use original seamless 2 m grass albedo/normal maps with mipmaps and high roughness. Surface materials do not alter geometry or handling identifiers.
+
+The existing practice and network arena owners select `Daylight.tres` for the oval, retaining their single sun and WorldEnvironment. Old Map keeps its existing lighting. The oval resource supplies a blue procedural sky, cool ambient fill and filmic tonemapping without glare effects or competing map-owned lighting.
+
+The oval runtime harness additionally checks all boundary seams at four heights, high-speed and airborne impacts through both production adapters, and 36 m/s driving approaches to every pickup through the existing Core pickup authority. `check-item-spawns.ps1 -Oval` runs the existing eight-peer UDP contention/cooldown/occupied-slot checks against the 20-marker map; its simultaneous distribution stage exercises the first eight markers, while the oval harness covers all 20 individual approaches.

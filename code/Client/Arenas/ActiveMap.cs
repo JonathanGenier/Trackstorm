@@ -35,7 +35,15 @@ internal static class ActiveMap
             .Select(marker => new ArenaSpawn(marker.Name, VehicleBody.ToCore(marker.Position + (Vector3.Up * VehicleDimensions.SpawnLift)), marker.Rotation.Y)).ToArray();
         MeshInstance3D track = map.GetNode<MeshInstance3D>("Geometry/Track");
         Aabb bounds = track.GetAabb();
+        var items = map.GetNode<Node3D>("ItemSpawns");
+        if (!items.Transform.IsEqualApprox(Transform3D.Identity))
+        {
+            throw new InvalidOperationException("ItemSpawns must preserve map coordinates.");
+        }
+
+        ArenaSpawn[] pickups = items.GetChildren().OfType<Marker3D>().OrderBy(marker => marker.Name.ToString(), StringComparer.Ordinal)
+            .Select(marker => new ArenaSpawn(marker.Name, VehicleBody.ToCore(marker.Position), marker.Rotation.Y)).ToArray();
         // Bounds validate authored poses; they do not introduce invisible walls.
-        return new ArenaConfiguration(VehicleBody.ToCore(bounds.Position - Vector3.Up), VehicleBody.ToCore(bounds.End + Vector3.Up), players, Array.Empty<ArenaSpawn>(), new[] { SurfaceType.Concrete });
+        return new ArenaConfiguration(VehicleBody.ToCore(bounds.Position - Vector3.Up), VehicleBody.ToCore(bounds.End + Vector3.Up), players, pickups, new[] { SurfaceType.Concrete });
     }
 }

@@ -117,6 +117,7 @@ public sealed partial class OvalIntegrationChecks : Node3D
             await CaptureViews();
             await VerifyDriving();
             await VerifyHandling();
+            await VerifyContent();
             _advance = false;
             _vehicle.QueueFree();
             await VerifyPractice();
@@ -265,8 +266,8 @@ public sealed partial class OvalIntegrationChecks : Node3D
         Check(Math.Abs(body.GetAabb().Size.X - 4.81f) < 0.001f, "Imported reference car body measures 4.81 m in Godot.");
         if (DisplayServer.GetName() != "headless")
         {
-            AddChild(new WorldEnvironment { Environment = new Godot.Environment { BackgroundMode = Godot.Environment.BGMode.Color, BackgroundColor = new Color("253241"), AmbientLightSource = Godot.Environment.AmbientSource.Color, AmbientLightColor = Colors.White, AmbientLightEnergy = 0.25f } });
-            AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-55, -25, 0), LightEnergy = 0.65f, ShadowEnabled = true });
+            AddChild(new WorldEnvironment { Environment = GD.Load<Godot.Environment>("res://assets/maps/oval/Daylight.tres") });
+            AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-55, -25, 0), LightEnergy = 1.4f, ShadowEnabled = true });
             var camera = new Camera3D { Current = true, Far = 1500 };
             AddChild(camera);
             foreach (var view in new[] { (Name: "overview", Position: new Vector3(260, 230, 270), Target: Vector3.Zero), (Name: "grid-scale", Position: new Vector3(18, 18, 111), Target: new Vector3(-9, 0, 92)), (Name: "banking", Position: new Vector3(227, 34, 100), Target: new Vector3(164, 3, 32)) })

@@ -107,7 +107,7 @@ public static class ItemCodec
         }
 
         WorldSnapshot world = VehicleNetworkCodec.DecodeSnapshot(reader.ReadBytes(length));
-        var spawns = new ItemSpawnState[Count(reader, 8)];
+        var spawns = new ItemSpawnState[Count(reader, Arenas.ArenaConfiguration.MaximumItemSpawns)];
         for (int i = 0; i < spawns.Length; i++)
         {
             int idLength = Count(reader, 128);

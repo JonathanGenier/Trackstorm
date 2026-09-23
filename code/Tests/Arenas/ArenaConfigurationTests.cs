@@ -27,15 +27,14 @@ internal sealed class ArenaConfigurationTests
         Assert.That(VehicleDimensions.SpawnClearance, Is.GreaterThan(MathF.Sqrt((VehicleDimensions.Length * VehicleDimensions.Length) + (VehicleDimensions.Width * VehicleDimensions.Width))));
     }
 
-    /// <summary>Both categories require exact capacity.</summary>
+    /// <summary>Invalid player counts and duplicate pickup IDs are rejected.</summary>
     /// <param name="players">Requested player count.</param>
     /// <param name="items">Requested item count.</param>
     [TestCase(7, 8)]
     [TestCase(9, 8)]
-    [TestCase(8, 7)]
     [TestCase(8, 9)]
     [TestCase(0, 0)]
-    public void CountsMustBeExactlyEight(int players, int items)
+    public void InvalidCountsOrRepeatedMarkersFail(int players, int items)
     {
         var configuration = PrototypeArena.Configuration;
         Assert.Throws<ArgumentException>(() => Copy(

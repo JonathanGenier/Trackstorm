@@ -275,7 +275,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             ulong successor = _drivers[survivor]!.LocalPlayerId;
             Require(_drivers.Take(_players).Where((_, index) => index != 1).All(driver => driver!.State!.CurrentHostId == successor), "Second election converges on the lowest eligible stable ID.");
             Require(_arenas[0]!.Bodies.Count == _players && arena.Bodies.Count == _players && arena.Bodies[_drivers[survivor]!.LocalPlayerId] == _retainedBody, "No duplicate or replaced surviving vehicles.");
-            Require(arena.Driver.LocalItem?.Item == HeldItem.Wrench && arena.Driver.ItemState!.Spawns.Count == 0 && arena.Driver.Match!.Players.Count == _players, "Complete gameplay continuation with no placed oval pickups.");
+            Require(arena.Driver.LocalItem?.Item == HeldItem.Wrench && arena.Driver.ItemState!.Spawns.Count == 20 && arena.Driver.Match!.Players.Count == _players, "Complete gameplay continuation with twenty placed oval pickups.");
             OvalGameplayAssertions.Verify(arena);
             Require(_arenas[0]!.Driver.Configuration == _configuration && arena.Driver.Configuration == _configuration, "Successive hosts retain configuration revision and ignore successor-local presets.");
             Require(arena.Driver.Host!.Spawns!.RandomState == _randomState, "Migrated RNG continuation.");
