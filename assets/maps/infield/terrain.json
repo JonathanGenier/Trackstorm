@@ -1,0 +1,12 @@
+{
+  "units": "metres",
+  "topology_sha256": "5fa21825dfe218f2de6d4336182a4e87792284a7ae0692067095ea3208bc6bca",
+  "vertices": 201521,
+  "triangles": 402124,
+  "elevation_min_m": -2.9035759061121933,
+  "elevation_max_m": 3.1973411987487204,
+  "jump_target_speed_mps": 16,
+  "basin_depth_m": 1.8,
+  "boundary_vertices": 916,
+  "transition_depth_m": 28
+}

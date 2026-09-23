@@ -1,0 +1,9 @@
+{
+  "provenance": "Original Trackstorm Blender terrain derived from the approved TS-74 topology. No acquired assets.",
+  "files": {
+    "source/InfieldTerrain.blend": "230647aadcba99dea1e06dbbafab4a246778c9d434ca3a6f15f184fdbcc0f466",
+    "infield_terrain.glb": "2bc47410e8349b06dd2ba94acc5baab9cdbb9a8ae78cce92e1e24ab2d9141182",
+    "terrain.json": "bf6cf054cf72c2728a3f236e52832b7f24a53070103a89d4f73ed6df44e684ca",
+    "layout.json": "5fa21825dfe218f2de6d4336182a4e87792284a7ae0692067095ea3208bc6bca"
+  }
+}

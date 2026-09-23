@@ -70,6 +70,13 @@ Equivalent initial pure state, input frames and external observations produce eq
 
 ## Verification
 
+The existing braking-before-reversal path can prevent an uphill standing start
+when gravity produces tiny backward motion each tick: throttle keeps braking
+that motion instead of engaging forward drive. Native infield recovery testing
+reproduces this on a mild slope with all four wheels supported. Moving terrain
+traversal does not establish stop/restart reliability; this remains a vehicle
+limitation and is not corrected by the terrain authoring pipeline.
+
 Core NUnit coverage checks digital shaping, analog conditioning, mass/drive/braking response, progressive speed-sensitive wheel steering, combined tire demand, analog propulsion during slip, immediate handbrake-release drive with gradual lateral recovery, bounded supported tire forces, handbrake speed loss/recovery, individual spring forces, impulse retention, surfaces, malformed snapshots and deterministic replay/restoration. Existing damage, item, authority and networking tests remain applicable.
 
 `check-input.ps1` checks native default mappings, analog precision, digital ramps, mouse preference round trips, camera intent, remapping, reserved RMB, focus and frame publication. `check-vehicle.ps1` exercises native acceleration, braking/reverse, low/fast corner entry, lane changes, slide recovery, prolonged handbrake use, short/long low/fast power-out slides with throttle before/on/after release, acceleration after braking and collision, suspension/ramp/landing, concrete/mud transitions, collisions, damage, explosions, HUD and settings suppression. It compares traces at 30 and 144 render FPS; `-Visual` saves rendered evidence. `check-network-vehicles.ps1` exercises separate host/client prediction and reconciliation. `check-oval.ps1` additionally exercises three sustained high-speed laps, normal support velocity, low-speed bank descent/start, a short handbrake/countersteer/throttle recovery, excessive-input spin and track-to-infield traversal using production defaults. Both practice and network collision adapters additionally exercise straight acceleration toward 44.44 m/s, ten-second lift-off, normal turns followed by neutral throttle, repeated bank crossings and a 12 cm test crest with compression/rebound and settling assertions. The infield still uses the authored Concrete ID; distinct grass tuning remains later work. Synthetic driving establishes repeatable behavior, not physical-controller ergonomics or human judgement of the Wreckfest feel target.

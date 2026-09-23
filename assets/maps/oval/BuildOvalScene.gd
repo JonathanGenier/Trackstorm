@@ -12,7 +12,10 @@ func _initialize() -> void:
 	collision.name = "Collision"
 	map.add_child(collision)
 	collision.owner = map
-	for surface in ["Track", "Infield"]:
+	# The Blender terrain now owns infield support, including negative basins.
+	# Hide the retained immutable foundation floor; never stack its collider.
+	geometry.find_child("Infield", true, false).visible = false
+	for surface in ["Track"]:
 		var visual := geometry.find_child(surface, true, false) as MeshInstance3D
 		assert(visual != null and visual.transform.is_equal_approx(Transform3D.IDENTITY))
 		var shape := visual.mesh.create_trimesh_shape()
@@ -45,8 +48,8 @@ func _initialize() -> void:
 	map.add_child(content)
 	content.owner = map
 	load("res://assets/maps/oval/BuildOvalContent.gd").bake(map, measurements)
-	var infield := load("res://assets/maps/infield/infield_graybox.glb").instantiate() as Node3D
-	infield.name = "InfieldGraybox"
+	var infield := load("res://assets/maps/infield/infield_terrain.glb").instantiate() as Node3D
+	infield.name = "InfieldTerrain"
 	map.add_child(infield)
 	infield.owner = map
 	var packed := PackedScene.new()
