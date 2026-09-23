@@ -112,7 +112,7 @@ internal sealed class AudioEventProjection
             if (!initialize && slot.Token > previous && slot.Item != HeldItem.None)
             {
                 var vehicle = state.World.Vehicles.Single(entry => entry.State.VehicleId == slot.Vehicle).State;
-                Emit(slot.Item == HeldItem.Wrench ? AudioCue.WrenchPickup : AudioCue.WeaponPickup, vehicle.Movement.Physics.Position);
+                Emit(Enum.Parse<AudioCue>(ItemRegistry.Find(slot.Item)!.PickupAudio), vehicle.Movement.Physics.Position);
             }
         }
 
@@ -135,7 +135,12 @@ internal sealed class AudioEventProjection
                 continue;
             }
 
-            Emit(outcome.Item == HeldItem.Wrench ? AudioCue.WrenchUse : outcome.Impact ? AudioCue.MissileImpact : AudioCue.MissileFire, outcome.Position);
+            var definition = ItemRegistry.Find(outcome.Item)!;
+            string? hook = outcome.Impact ? definition.ImpactAudio : definition.UseAudio;
+            if (hook is not null)
+            {
+                Emit(Enum.Parse<AudioCue>(hook), outcome.Position);
+            }
             if (outcome.Impact)
             {
                 Emit(AudioCue.Explosion, outcome.Position);

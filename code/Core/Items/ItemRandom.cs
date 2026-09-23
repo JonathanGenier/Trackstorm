@@ -25,6 +25,18 @@ internal sealed class ItemRandom
             value ^= value >> 31;
         }
 
-        return value % (ulong)(configuration.WrenchWeight + configuration.MissileWeight) < (ulong)configuration.WrenchWeight ? HeldItem.Wrench : HeldItem.Missile;
+        ulong draw = value % (ulong)configuration.Weights.Values.Sum(weight => (long)weight);
+        foreach (var definition in ItemRegistry.All)
+        {
+            ulong weight = (ulong)configuration.Weights[definition.Identity];
+            if (draw < weight)
+            {
+                return definition.Identity;
+            }
+
+            draw -= weight;
+        }
+
+        throw new InvalidOperationException("Validated item distribution has no selection.");
     }
 }

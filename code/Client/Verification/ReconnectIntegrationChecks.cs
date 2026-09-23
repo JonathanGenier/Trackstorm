@@ -249,7 +249,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             _retainedRank = Standings()!.Rows.Single(row => row.PlayerId == _player).Rank;
             _resumeAt = _elapsed + 125;
             Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 7, ["damage.max_hp"] = 1500, ["items.missile_speed"] = 60, ["spawns.cooldown_ticks"] = 90 }, out _), "Live host configuration commits before interruption.");
-            _arenas[0].Driver.Host!.Items.Grant(_arenas[0].Driver.Host!.World, _player, HeldItem.Wrench);
+            _arenas[0].Driver.Host!.Items.Grant(_arenas[0].Driver.Host!.World, _player, HeldItem.Oil);
             Drop();
             _stage = 5;
         }
@@ -265,7 +265,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             RemoteVehicleTagChecks.Verify(_arenas[0], _host);
             RemoteVehicleTagChecks.Verify(_arenas[1], _client);
             Require(_arenas[0].Bodies[_player].GetNode<RemoteVehicleTag>("PlayerTag") == _originalTag, "Three reconnects retain exactly the same remote tag.");
-            Require(_arenas[1].Driver.LocalItem?.Item == HeldItem.Wrench, "Held item survives match-long retention.");
+            Require(_arenas[1].Driver.LocalItem?.Item == HeldItem.Oil, "Oil identity survives match-long retention and three reconnects.");
             Require(_arenas[1].Driver.ItemState?.Spawns.Count == 0 && _arenas[1].Driver.Match?.Players.Count == 2, "Empty oval pickup layout and match state arrive in the checkpoint.");
             OvalGameplayAssertions.Verify(_arenas[1]);
             if (_resyncs < 3)

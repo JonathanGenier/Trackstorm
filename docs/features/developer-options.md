@@ -169,8 +169,10 @@ Evidence names refer to methods in `DeveloperConfigurationTests`: **Movement** =
 | `items.maximum_impulse` | `.MaximumImpulse`; explosion impulse consumed by native physics | Items: numeric impulse effect |
 | `spawns.cooldown_ticks` | `ItemSpawnConfiguration.CooldownTicks`; next successful claim deadline | Spawns: actual reactivation |
 | `spawns.pickup_radius` | `.PickupRadius`; native observation and Core distance guard | Spawns: rejected/accepted claims |
-| `spawns.wrench_weight` | `.WrenchWeight`; live `ItemSpawnAuthority` selector | Spawns: actual award |
-| `spawns.missile_weight` | `.MissileWeight`; live selector | Spawns: actual award |
+| `spawns.wrench_weight` | `.Weights[HeldItem.Wrench]`; live `ItemSpawnAuthority` selector | Spawns: actual award |
+| `spawns.missile_weight` | `.Weights[HeldItem.Missile]`; live selector | Spawns: actual award |
+| `spawns.oil_weight` | `.Weights[HeldItem.Oil]`; live selector | Spawns: actual award |
+| `spawns.nitro_weight` | `.Weights[HeldItem.Nitro]`; live selector | Spawns: actual award |
 | `spawns.seed` | `.Seed`; restarts selector RNG | Seed: changed/repeated award sequence |
 | `respawn.delay_ticks` | `RespawnConfiguration.DelayTicks`; future authoritative death deadline | Lifecycle: actual respawn tick |
 | `respawn.clear_held_item_on_death` | `.ClearHeldItemOnDeath`; `ItemAuthority.Synchronize` ownership policy | Lifecycle: held missile retained |
@@ -195,3 +197,5 @@ No editable drift boost, collision recoil or missile falloff setting exists beca
 [Feature index](README.md) · [Settings](settings.md) · [Vehicle networking](vehicle-networking.md)
 
 The read-only [Event Log](event-log.md) records accepted tuning keys with old/new values, configuration revisions/rejections, Give Item and Force Start results, and practice reset/blast actions. F3 provides history and no mutation controls.
+
+Item spawn weights are generated from the shared item registry (spawns.wrench_weight, spawns.missile_weight, spawns.oil_weight, spawns.nitro_weight). Zero excludes an item; the complete pool must retain positive total weight. All four default to one. Oil and Nitro can be acquired but retain their slot on unavailable use. The version-five gameplay configuration payload includes the complete distribution in resume and migration checkpoints.

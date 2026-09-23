@@ -78,3 +78,5 @@ The [Event Log](event-log.md) retains its sequence watermark during in-process r
 Complete match checkpoints also carry sparse [pending stunt state](matches.md#circus-stunt-detection-and-banking), including independent amounts/durations and jump origin in the owning life/tick. Resume/rebind does not award or reset those events. A disconnected vehicle continues to accrue, complete or lose stunts through normal host simulation. Admission previews preserve existing pending events and give new identities empty state; permanent abandonment discards only the removed vehicle's pending events.
 
 The [Play Menu](play-menu.md) replaces its list with the retained validation/decision panel. Its Yes / No controls use the existing Reconnect / Leave Match actions; no new reservation or cleanup authority is introduced.
+
+All four registered item identities retain their exact life/token through the existing item checkpoint. Oil/Nitro remain held when use is unavailable; reconnect neither consumes them nor adds a fallback behavior. Local HUD reconstruction reads the same confirmed slot, while vehicle reconstruction creates no held-item world model.

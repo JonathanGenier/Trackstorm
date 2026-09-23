@@ -26,8 +26,8 @@ internal sealed partial class CombatHud : CanvasLayer
     private TextureRect _itemIcon = null!;
     private ShaderMaterial _healthMaterial = null!;
     private ShaderMaterial _speedMaterial = null!;
-    private Texture2D _wrench = null!;
-    private Texture2D _missile = null!;
+    private readonly Dictionary<HeldItem, Texture2D> _itemIcons = new();
+
     private CombatHudView? _displayed;
     private double _milliseconds;
 
@@ -75,8 +75,10 @@ internal sealed partial class CombatHud : CanvasLayer
         _itemName = Text(item, "ItemName", new Rect2(17, 111, 84, 22), 18);
         _itemIcon = new TextureRect { Name = "ItemIcon", Position = new Vector2(25, 48), Size = new Vector2(70, 55), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = Control.MouseFilterEnum.Ignore };
         item.AddChild(_itemIcon);
-        _wrench = GD.Load<Texture2D>("res://assets/hud/Wrench.svg");
-        _missile = GD.Load<Texture2D>("res://assets/hud/Missile.svg");
+        foreach (var definition in ItemRegistry.All)
+        {
+            _itemIcons.Add(definition.Identity, GD.Load<Texture2D>($"res://assets/hud/{definition.PresentationKey}.svg"));
+        }
         var timer = Component("Timer", new Vector2(220, 73.333f), 3, steel);
         _timer = Text(timer, "TimerValue", new Rect2(58, 14, 99, 36), 34);
         _standing.Text = "--";
@@ -117,7 +119,7 @@ internal sealed partial class CombatHud : CanvasLayer
             _speed.Text = view.Speed;
             _unit.Text = view.Unit;
             _itemName.Text = view.ItemName;
-            _itemIcon.Texture = view.Item switch { HeldItem.Wrench => _wrench, HeldItem.Missile => _missile, _ => null };
+            _itemIcon.Texture = _itemIcons.GetValueOrDefault(view.Item);
             _healthMaterial.SetShaderParameter("fill", view.HealthFill);
             _speedMaterial.SetShaderParameter("fill", view.SpeedFill);
         }

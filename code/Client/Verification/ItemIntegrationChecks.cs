@@ -264,11 +264,15 @@ public sealed partial class ItemIntegrationChecks : Node
 
     private void ItemInput(bool pressed)
     {
+        // Synthetic harness input must not depend on desktop foreground ownership.
+        _input.Adapter.Enabled = true;
+        _input.Adapter.Observe();
         using InputEvent input = _scenario == 1
             ? new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.A, Pressed = pressed }
             : new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = pressed };
         Godot.Input.ParseInputEvent(input);
         Godot.Input.FlushBufferedEvents();
+        _input.Adapter.Observe();
     }
 
     private void UseAll()

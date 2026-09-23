@@ -214,7 +214,6 @@ internal sealed partial class NetworkVehicleArena : Node3D
 
         foreach (var pair in _bodies)
         {
-            _items.Follow(pair.Key, pair.Value.VisualPosition, _driver.Latest?.Vehicles.SingleOrDefault(vehicle => vehicle.State.VehicleId == pair.Key)?.State.CanInteract == true);
             if (pair.Value.GetNodeOrNull<RemoteVehicleTag>("PlayerTag") is { } tag)
             {
                 var player = _lobby?.State?.Players.SingleOrDefault(player => player.Id == pair.Key);
