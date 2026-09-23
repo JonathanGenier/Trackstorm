@@ -19,10 +19,10 @@ public sealed class ItemPublication
         var projectiles = missiles.ToArray();
         var outcomes = events.ToArray();
         if (revision == 0 || inventory.Length > 8 || inventory.Select(slot => slot.Vehicle).Distinct().Count() != inventory.Length ||
-            inventory.Any(slot => slot.Token == 0 || slot.Item is < HeldItem.None or > HeldItem.Missile || !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == slot.Vehicle && vehicle.State.LifeId == slot.Life)) ||
+            inventory.Any(slot => slot.Token == 0 || (slot.Item != HeldItem.None && ItemRegistry.Find(slot.Item) is null) || !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == slot.Vehicle && vehicle.State.LifeId == slot.Life)) ||
             projectiles.Length > ItemAuthority.MaximumProjectiles || projectiles.Select(missile => missile.Id).Distinct().Count() != projectiles.Length ||
             projectiles.Any(missile => missile.Id == 0 || missile.Owner == 0 || !VehiclePhysicsState.IsFinite(missile.Position) || !VehiclePhysicsState.IsFinite(missile.Velocity) || missile.Velocity.Length() is <= 0 or > 301 || missile.RemainingTicks is < 1 or > 3600) ||
-            outcomes.Length > ItemAuthority.MaximumProjectiles + 8 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || outcome.Item is not (HeldItem.Wrench or HeldItem.Missile) || !VehiclePhysicsState.IsFinite(outcome.Position) || (outcome.Impact && outcome.Item != HeldItem.Missile)))
+            outcomes.Length > ItemAuthority.MaximumProjectiles + 8 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || ItemRegistry.Find(outcome.Item)?.CanUse != true || !VehiclePhysicsState.IsFinite(outcome.Position) || (outcome.Impact && outcome.Item != HeldItem.Missile)))
         {
             throw new ArgumentException("Invalid item publication.");
         }
@@ -31,7 +31,7 @@ public sealed class ItemPublication
         if (pickups.Length > Arenas.ArenaConfiguration.MaximumItemSpawns || pickups.Select(spawn => spawn.Id).Distinct(StringComparer.Ordinal).Count() != pickups.Length ||
             pickups.Any(spawn => string.IsNullOrWhiteSpace(spawn.Id) || spawn.Id != spawn.Id.Trim() || System.Text.Encoding.UTF8.GetByteCount(spawn.Id) > 128 ||
                 (spawn.Token == 0 ? spawn.ClaimedBy != 0 || spawn.Item != HeldItem.None || spawn.NextActivationTick != 0 || !spawn.Available :
-                spawn.ClaimedBy == 0 || spawn.Item is not (HeldItem.Wrench or HeldItem.Missile) || spawn.NextActivationTick == 0) ||
+                spawn.ClaimedBy == 0 || ItemRegistry.Find(spawn.Item) is null || spawn.NextActivationTick == 0) ||
                 (spawn.Available ? spawn.NextActivationTick > world.Tick : spawn.NextActivationTick <= world.Tick)))
         {
             throw new ArgumentException("Invalid spawn publication.");

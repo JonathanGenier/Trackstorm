@@ -390,7 +390,10 @@ internal sealed class DeveloperConfigurationTests
             {
                 Assert.That(host.Spawns!.TryPickup(host.World, marker.Id, 1), Is.True);
                 draws.Add(host.Items.Slots.Single().Item);
-                Use(host);
+                // Reset is the existing inventory-clear boundary, including items without a use handler.
+                var input = new InputFrame(host.World.State.Tick + 1, 0, 0, 0, 0, 0, 0);
+                host.Items.Step(host.World, input, host.World.State.Vehicles.Select(state =>
+                    new VehicleStepRequest(state.VehicleId, input, Observe(state), reset: state.Movement.Physics)).ToArray(), (_, _) => null);
                 host.Step(default, Observe);
             }
 

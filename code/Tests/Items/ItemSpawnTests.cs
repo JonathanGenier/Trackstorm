@@ -134,28 +134,30 @@ internal sealed class ItemSpawnTests
         Assert.That(ItemCodec.DecodeState(ItemCodec.EncodeState(publication)).Slots.Single().Item, Is.EqualTo(HeldItem.Missile));
     }
 
-    /// <summary>Both items have positive weights, overflow is rejected, and a seed reproduces the weighted sequence.</summary>
+    /// <summary>The complete registered pool is bounded and a seed reproduces the four-item weighted sequence.</summary>
     [Test]
     public void ValidatesPoolAndSeededDistribution()
     {
         foreach (var configuration in new[]
         {
-            new ItemSpawnConfiguration { WrenchWeight = -1 }, new ItemSpawnConfiguration { MissileWeight = -1 },
-            new ItemSpawnConfiguration { WrenchWeight = 0, MissileWeight = 0 }, new ItemSpawnConfiguration { MissileWeight = 0 },
-            new ItemSpawnConfiguration { WrenchWeight = int.MaxValue }, new ItemSpawnConfiguration { CooldownTicks = 0 },
+            new ItemSpawnConfiguration { Weights = new ItemSpawnConfiguration().Weights.SetItem(HeldItem.Wrench, -1) },
+            new ItemSpawnConfiguration { Weights = new ItemSpawnConfiguration().Weights.Clear() },
+            new ItemSpawnConfiguration { Weights = new ItemSpawnConfiguration().Weights.SetItem(HeldItem.Wrench, int.MaxValue) }, new ItemSpawnConfiguration { CooldownTicks = 0 },
             new ItemSpawnConfiguration { PickupRadius = float.NaN },
+            new ItemSpawnConfiguration { Weights = new ItemSpawnConfiguration().Weights.SetItem((HeldItem)255, 1) },
+            new ItemSpawnConfiguration { Weights = new ItemSpawnConfiguration().Weights.SetItems(ItemRegistry.All.Select(item => new KeyValuePair<HeldItem, int>(item.Identity, 0))) },
         })
         {
             Assert.Throws<ArgumentException>(() => configuration.CreateSelector());
         }
 
-        var tuning = new ItemSpawnConfiguration { WrenchWeight = 1, MissileWeight = 3, Seed = 17 };
+        var tuning = new ItemSpawnConfiguration { Weights = new ItemSpawnConfiguration().Weights.SetItem(HeldItem.Missile, 3), Seed = 17 };
         var first = tuning.CreateSelector();
         var second = tuning.CreateSelector();
         var sequence = Enumerable.Range(0, 1000).Select(_ => first()).ToArray();
         Assert.That(sequence, Is.EqualTo(Enumerable.Range(0, 1000).Select(_ => second()).ToArray()));
-        Assert.That(sequence, Does.Contain(HeldItem.Wrench).And.Contain(HeldItem.Missile));
-        Assert.That(sequence.Count(item => item == HeldItem.Missile), Is.InRange(650, 850));
+        Assert.That(sequence, Is.SupersetOf(ItemRegistry.All.Select(item => item.Identity)));
+        Assert.That(sequence.Count(item => item == HeldItem.Missile), Is.InRange(400, 600));
     }
 
     /// <summary>Replicated claims preserve cooldown and grant identity; malformed and old envelopes fail closed.</summary>

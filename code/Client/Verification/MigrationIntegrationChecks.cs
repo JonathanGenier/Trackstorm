@@ -28,6 +28,7 @@ public sealed partial class MigrationIntegrationChecks : Node
     private NetworkVehicleBody? _retainedBody;
     private Core.Development.GameplayConfigurationState? _configuration;
     private ulong _randomState;
+    private ulong _nitroOwner;
     private Core.Matches.MatchPhase _matchPhase;
     private ulong? _countdownAtTick;
     private readonly Dictionary<ulong, Core.Matches.MatchState> _circusBoundaries = new();
@@ -216,6 +217,8 @@ public sealed partial class MigrationIntegrationChecks : Node
             int nextHost = _players == 2 ? 0 : 2;
             _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, HeldItem.Wrench);
             Require(_arenas[1]!.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 9, ["spawns.seed"] = 42, ["match.countdown_ticks"] = 600 }, out _), "First replacement configures normal gameplay owners.");
+            _nitroOwner = _drivers[1]!.LocalPlayerId;
+            Require(_arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _nitroOwner, HeldItem.Nitro), "Nitro uses the same authority before host loss.");
             _configuration = _arenas[1]!.Driver.Configuration;
             _randomState = _arenas[1]!.Driver.Host!.Spawns!.RandomState;
             if (_players == 3)
@@ -280,6 +283,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             Require(_drivers.Take(_players).Where((_, index) => index != 1).All(driver => driver!.State!.CurrentHostId == successor), "Second election converges on the lowest eligible stable ID.");
             Require(_arenas[0]!.Bodies.Count == _players && arena.Bodies.Count == _players && arena.Bodies[_drivers[survivor]!.LocalPlayerId] == _retainedBody, "No duplicate or replaced surviving vehicles.");
             Require(arena.Driver.LocalItem?.Item == HeldItem.Wrench && arena.Driver.ItemState!.Spawns.Count == 20 && arena.Driver.Match!.Players.Count == _players, "Complete gameplay continuation with twenty placed oval pickups.");
+            Require(arena.Driver.ItemState!.Slots.Single(slot => slot.Vehicle == _nitroOwner).Item == HeldItem.Nitro, "Nitro is retained on the disconnected former host across migration.");
             OvalGameplayAssertions.Verify(arena);
             Require(_arenas[0]!.Driver.Configuration == _configuration && arena.Driver.Configuration == _configuration, "Successive hosts retain configuration revision and ignore successor-local presets.");
             Require(arena.Driver.Host!.Spawns!.RandomState == _randomState, "Migrated RNG continuation.");

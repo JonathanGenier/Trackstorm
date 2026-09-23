@@ -71,7 +71,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 AddChild(viewport);
             }
 
-            var arena = new NetworkVehicleArena { PrototypeMapForVerification = !Oval, SpawnConfiguration = new ItemSpawnConfiguration { CooldownTicks = 180, Seed = 2 } };
+            var arena = new NetworkVehicleArena { PrototypeMapForVerification = !Oval, SpawnConfiguration = new ItemSpawnConfiguration { CooldownTicks = 180, Seed = 6 } };
             arena.Initialize(gateway, index == 0 ? 88ul : 0, server);
             viewport.AddChild(arena);
             _arenas.Add(arena);
@@ -160,16 +160,28 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
             case 3 when _arenas.All(arena => arena.Pickups.ActiveCount == PickupCount - 8):
                 var expected = host.Items.Slots;
                 _distributed = expected.ToArray();
-                Require(expected.Count == 8 && expected.Any(slot => slot.Item == HeldItem.Wrench) && expected.Any(slot => slot.Item == HeldItem.Missile), "Normal weighted pickups distribute both Wrench and Missile across eight slots.");
+                Require(expected.Count == 8 && ItemRegistry.All.All(item => expected.Any(slot => slot.Item == item.Identity)), "Normal weighted pickups distribute all four registered items across eight slots.");
                 Require(_arenas.All(arena => arena.Driver.ItemState!.Slots.SequenceEqual(expected) && arena.Driver.ItemState.Spawns.SequenceEqual(host.Spawns!.States)), "All inventory and spawn outcomes agree across eight peers.");
+                foreach (var arena in _arenas.Where(arena => ItemRegistry.Find(arena.Driver.LocalItem!.Item)?.CanUse == false))
+                {
+                    var slot = arena.Driver.LocalItem!;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        arena.Driver.RequestItemUse();
+                    }
+
+                    Require(host.Items.Slots.Single(value => value.Vehicle == slot.Vehicle) == slot, "Unavailable item use preserves the issued capability.");
+                }
+
                 Capture("all-claimed.png");
                 // Stay in range: occupied slots must not reclaim when the cooldown elapses.
-                Next("All eight spawn locations awarded once, with both item types replicated normally.");
+                Next("All eight spawn locations awarded once, with all four item types replicated normally.");
                 break;
             case 4 when _arenas.All(arena => arena.Pickups.ActiveCount == PickupCount) && _elapsed - _started > 4:
                 Require(host.Items.Slots.All(slot => slot.Item != HeldItem.None), "Occupied slots retain their grants.");
                 Require(host.Spawns!.States.All(spawn => spawn.Available), "Occupied players cannot consume reactivated spawns while remaining in range.");
                 Require(_arenas.All(arena => arena.Driver.ItemState!.Slots.SequenceEqual(_distributed)), "Occupied grants and tokens remain unchanged on all peers after reactivation.");
+                Require(_arenas.All(arena => arena.GetChildren().OfType<Items.ItemPresentation>().Single().GetChildCount() == 0), "Held inventory creates no world presentation for local or remote vehicles.");
                 Capture("occupied-slots.png");
                 _evidence.Add($"All {PickupCount} pickups are available after cooldown, including under occupied vehicles. No duplicate awards or overwritten grants.");
                 System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
