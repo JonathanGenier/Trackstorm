@@ -189,7 +189,6 @@ internal sealed partial class DevelopmentSession : CanvasLayer
                 OnlineCoordinator()?.Leave();
             }
         };
-        _browserContent.AddChild(_name);
         _browserContent.AddChild(_address);
         _browserContent.AddChild(_host);
         _browserContent.AddChild(_join);
