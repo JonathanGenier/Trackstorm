@@ -3,6 +3,10 @@ extends EditorScenePostImport
 ## Use the Blender terrain's authored color attribute under normal world lighting.
 
 func _post_import(scene: Node) -> Object:
+	# Retain the immutable terrain source but replace its inherited TS-74 solids.
+	# The standalone production structural set owns all tunnel collision now.
+	for placeholder in scene.find_children("Tunnel*", "MeshInstance3D", true, false):
+		placeholder.free()
 	for body in scene.find_children("*", "StaticBody3D", true, false):
 		if str(body.get_parent().name).begins_with("InfieldTerrain"):
 			body.add_to_group("landing_terrain", true)

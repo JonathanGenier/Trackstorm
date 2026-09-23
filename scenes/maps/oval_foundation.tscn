@@ -1,6 +1,7 @@
 [gd_scene format=4]
 
 [ext_resource type="PackedScene" path="res://assets/maps/infield/infield_terrain.glb" id="infield_terrain"]
+[ext_resource type="PackedScene" path="res://assets/maps/infield/infield_structures.glb" id="infield_structures"]
 
 [ext_resource type="PackedScene" path="res://assets/maps/oval/oval_foundation.glb" id="1_k7ftl"]
 [ext_resource type="Material" path="res://assets/maps/oval/Grass.tres" id="2_mku4n"]
@@ -2499,3 +2500,5 @@ metadata/source_section = 871
 [editable path="Geometry"]
 
 [node name="InfieldTerrain" parent="." instance=ExtResource("infield_terrain")]
+
+[node name="InfieldStructures" parent="." instance=ExtResource("infield_structures")]
