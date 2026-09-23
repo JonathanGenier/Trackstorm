@@ -16,6 +16,8 @@ internal sealed record OnlineLobby(string Id, string Name, OnlineProductUserId O
 
     /// <summary>Exact hosted game version; absent native metadata is never inferred.</summary>
     internal string Version { get; init; } = GameVersion.Current.ToString();
+    /// <summary>Optional advertised mode; missing metadata is displayed as unknown.</summary>
+    internal string GameMode { get; init; } = string.Empty;
 
     /// <summary>Compatibility diagnostic shared by the browser and refreshed join checks.</summary>
     internal string VersionMismatch => GameVersion.Current.IsCompatible(Version) ? string.Empty : GameVersion.Current.MismatchMessage(Version);
@@ -31,6 +33,7 @@ internal sealed record OnlineLobby(string Id, string Name, OnlineProductUserId O
                 ["session"] = Session.ToString(System.Globalization.CultureInfo.InvariantCulture),
                 ["access"] = Access.ToString(),
                 ["version"] = Version,
+                ["mode"] = GameMode,
             };
             if (Credential is not null)
             {
@@ -51,7 +54,7 @@ internal sealed record OnlineLobby(string Id, string Name, OnlineProductUserId O
     internal bool Joinable => Compatible && VersionMismatch.Length == 0 && Open && Members < Capacity;
 
     /// <summary>Whitelisted browser presentation without online identities or verification material.</summary>
-    internal LobbyRow Row => new(Id, Name, Members, Capacity, Access, Joinable, Version, VersionMismatch);
+    internal LobbyRow Row => new(Id, Name, Members, Capacity, Access, Joinable, Version, VersionMismatch) { GameMode = GameMode };
 
     /// <inheritdoc />
     public override string ToString() => $"{Name}: {Members}/{Capacity}, {Access}, open={Open}";

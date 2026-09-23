@@ -82,6 +82,10 @@ function Get-FastCheckPlan {
             $mediaChecks = $true
         }
 
+        if ($path -match '^code/Client/Frontend/(HangingPlayMenu|PlayMenuSelection)' -or $path -match '^assets/frontend/play-menu/' -or $path -eq 'code/Client/Verification/PlayMenuChecks.cs') {
+            Add-Runtime 'check-play-menu.ps1'
+        }
+
         # Startup / application flow.
         if ($path -match '^code/Client/(Bootstrap|Assembly|Frontend)/' -or
             $path -match '^assets/frontend/main-menu/' -or

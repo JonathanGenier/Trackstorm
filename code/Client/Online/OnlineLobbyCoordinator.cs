@@ -30,6 +30,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     private long _resumeRetry;
     private bool _lookupPending;
     private bool _lookupComplete;
+    private bool _retainedCandidate;
     private long _savedAt;
     private ulong _savedGeneration;
     private bool _resumePending;
@@ -101,11 +102,14 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal bool StartsGameplayAuthority => _createdGameplaySession && Active?.AuthorityEpoch == 1;
     /// <summary>Whether a membership mutation awaits completion.</summary>
     internal bool Busy { get; private set; }
+    internal bool Searching => _searching;
     /// <summary>Whether Leave can release active membership or retry pending cleanup.</summary>
     internal bool CanLeave => Active is not null || Busy || _closing is not null || _pendingMembership is not null;
-    /// <summary>Fresh admission can supersede a read-only startup lookup or failed recovery, but never active membership or an explicit reservation decision.</summary>
-    internal bool CanStartFreshSession => !_disposed && !CanLeave && !ShowsRetainedDecision &&
-        (RetainedDecision is RetainedSessionDecision.None or RetainedSessionDecision.Failed || !_lookupComplete);
+    /// <summary>Fresh admission waits for saved-session detection and any matching candidate's authority inspection.</summary>
+    internal bool CanStartFreshSession => !_disposed && !CanLeave && !CheckingSavedSession && !NeedsRetainedValidation &&
+        RetainedDecision is RetainedSessionDecision.None or RetainedSessionDecision.Failed;
+    /// <summary>Matching lookup metadata awaits the existing authority validation on Play entry; it is not a confirmed reservation.</summary>
+    internal bool NeedsRetainedValidation => _retainedCandidate && CanResumeRetained;
     /// <summary>Application-owned local diagnostic journal; never receives provider credentials.</summary>
     internal Core.Events.EventStream? EventLog { get; set; }
 
@@ -464,6 +468,24 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
             CoordinateMigration();
         }
 
+        // Advertise only the mode selected by the existing gameplay authority.
+        if (!_disposed && !Busy && IsHost && Active is not null && _binding?.Driver.Authority is { } modeAuthority)
+        {
+            string mode = modeAuthority.Configuration.Configuration.Match.Mode.ToString();
+            if (Active.GameMode != mode && (_availabilityRetry is null || _time.GetElapsedTime(_availabilityRetry.Value).TotalSeconds >= 5))
+            {
+                long epoch = Begin("Updating advertised game mode…");
+                _provider.Update(Active with { GameMode = mode }, (updated, failure) =>
+                {
+                    if (_disposed || epoch != _epoch) return;
+                    Busy = false;
+                    _availabilityRetry = failure is null ? null : _time.GetTimestamp();
+                    if (updated is not null && failure is null) ApplyMetadataUpdate(updated);
+                    Status = failure ?? "Lobby game mode updated.";
+                });
+            }
+        }
+
         if (!Busy && _pendingMembership is not null && _time.GetElapsedTime(_started).TotalSeconds >= 60)
         {
             Status = "EOS membership cancellation is unresolved. Log out and log in to reset online services.";
@@ -615,6 +637,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         }
 
         SavedResume = _returnLocator;
+        _retainedCandidate = false;
         _decisionOutcome = null;
         _lookupOutcome = null;
         _routingId = SavedResume!.RoutingId;
@@ -1178,6 +1201,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
 
             Browser.Update(lobby);
             PreserveLookupHint(saved, "Previous session found. Check previous session to validate your reservation.");
+            _retainedCandidate = true;
         });
     }
 

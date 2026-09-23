@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Play Menu and lobby browser | [TS-138 verification evidence](ts-138.md) |
 | Oval weapon spawns and coniferous perimeter | [TS-100 verification evidence](ts-100.md) |
 | Persistent Oil deployment and recovery | [TS-117 verification evidence](ts-117.md) |
 | Story verification | [TS-116 verification evidence](ts-116.md) |

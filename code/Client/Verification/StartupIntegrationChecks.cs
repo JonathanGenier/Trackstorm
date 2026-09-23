@@ -175,34 +175,26 @@ internal sealed partial class StartupIntegrationChecks : Node
             Check(menu.SelectedId == "Settings", "Stationary pointer and ambient motion preserve selection");
             await Capture("settings-selected");
             Click(menu.Targets[0]);
+            await Frames(85);
             Check(session.Stage == Networking.ApplicationStage.LobbyBrowser, "Play opens existing Lobby Browser");
+            await Capture("play-menu-shell");
             Check(_startup.BackgroundInstanceId == _loaderBackground && _startup.MusicInstanceId == _loaderMusic && _startup.MediaPlaying, "Entrance, Settings, and browser retain active MenuShell players");
             await Frames(2);
-            Click(session.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == "Back to Main Menu"));
-            await Frames(3);
-            Check(session.Stage == Networking.ApplicationStage.MainMenu && menu.Interactive, "Browser return retains settled menu");
+            Click(session.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == "Back"));
+            await Frames(96);
+            Check(session.Stage == Networking.ApplicationStage.MainMenu && menu.Interactive, "Browser return drops and settles Main Menu");
             for (int repeat = 0; repeat < 3; repeat++)
             {
                 CheckMainMenuComposition(session);
                 Click(menu.Targets[0]);
-                Check(!menu.Visible && menu.Targets.All(button => button.Disabled), "Browser entry immediately hides and disables Main Menu targets");
-                var direct = session.FindChildren("*", "CheckButton", true, false).Cast<CheckButton>().Single(button => button.Text == "Developer fallback: Direct-IP / LAN");
-                // Containers lay out newly shown browser content on the following frames.
-                await Frames(2);
-                Click(direct);
-                Check(direct.ButtonPressed, "Real click enables Direct-IP before Back");
-                await Frames(2);
-                var back = session.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == "Back to Main Menu");
-                int received = 0;
-                void OnBackPressed() => received++;
-                back.Pressed += OnBackPressed;
-                try { Click(back); }
-                finally { back.Pressed -= OnBackPressed; }
-                Check(received == 1, $"Back receives exactly one real click in cycle {repeat}: {received}");
-                Check(session.Stage == Networking.ApplicationStage.MainMenu && menu.Visible && !direct.ButtonPressed,
-                    $"Direct-IP Back restores only the new Main Menu immediately: stage={session.Stage}, menuVisible={menu.Visible}, direct={direct.ButtonPressed}");
-                GD.Print($"Direct-IP click cycle {repeat + 1}: viewport={GetViewport().GetVisibleRect().Size}, Back={back.GetGlobalRect()}, pressed={received}, stage={session.Stage}, menuVisible={menu.Visible}, direct={direct.ButtonPressed}.");
-                await Frames(2);
+                Check(!menu.Interactive, "Play hoist immediately blocks input");
+                await Frames(85);
+                Check(!menu.Visible && session.PlayMenu.Interactive, "Play catches after Main clears");
+                var back = session.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.IsVisibleInTree() && button.Text == "Back");
+                Click(back);
+                Check(!session.PlayMenu.Interactive, "Back hoist immediately blocks input");
+                await Frames(96);
+                Check(session.Stage == Networking.ApplicationStage.MainMenu && menu.Interactive, "Complementary drop restores Main Menu");
             }
             CheckMainMenuComposition(session);
             if (DisplayServer.GetName() != "headless")
