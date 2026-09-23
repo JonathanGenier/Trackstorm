@@ -132,6 +132,6 @@ for obj in bpy.context.scene.objects:
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/'source/InfieldTerrain.blend'))
 bpy.ops.export_scene.gltf(filepath=str(ROOT/'infield_terrain.glb'), use_selection=True, export_format='GLB', export_yup=True, export_animations=False, export_extras=True)
 report = dict(units='metres', topology_sha256=hashlib.sha256((ROOT/'layout.json').read_bytes()).hexdigest(), vertices=len(vertices), triangles=len(faces), elevation_min_m=float(y.min()), elevation_max_m=float(y.max()), jump_target_speed_mps=16, basin_depth_m=1.8, boundary_vertices=count, transition_depth_m=28)
-(ROOT/'terrain.json').write_text(json.dumps(report,indent=2)+'\n')
-(ROOT/'terrain-sources.json').write_text(json.dumps(dict(provenance='Original Trackstorm Blender terrain derived from the approved TS-74 topology. No acquired assets.',files={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['source/InfieldTerrain.blend','infield_terrain.glb','terrain.json','layout.json']}),indent=2)+'\n')
+(ROOT/'terrain.json').write_text(json.dumps(report,indent=2)+'\n', newline='\n')
+(ROOT/'terrain-sources.json').write_text(json.dumps(dict(provenance='Original Trackstorm Blender terrain derived from the approved TS-74 topology. No acquired assets.',files={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['source/InfieldTerrain.blend','infield_terrain.glb','terrain.json','layout.json']}),indent=2)+'\n', newline='\n')
 print(json.dumps(report))
