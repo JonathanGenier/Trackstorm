@@ -52,6 +52,7 @@ public sealed class HostVehicleSession
         World.Events = events ?? new EventStream();
         World.Events.Record(EventCategory.Match, "Created");
         Items = new ItemAuthority(effective.Items);
+        ItemSelectionRandom = new ItemSelectionRandom(unchecked((ulong)effective.Spawns.Seed));
         World.AddVehicle(hostPlayerId, effective.Vehicle, effective.Damage, Spawn(0));
         _nextVehicle = hostPlayerId;
     }
@@ -65,6 +66,9 @@ public sealed class HostVehicleSession
 
     /// <summary>Match-scoped item gameplay authority.</summary>
     public ItemAuthority Items { get; }
+
+    /// <summary>One host-owned stream for every sequential item-selection decision in this match.</summary>
+    public ItemSelectionRandom ItemSelectionRandom { get; }
 
     /// <summary>Registered arena spawns, absent until a layout is attached.</summary>
     public ItemSpawnAuthority? Spawns { get; private set; }
@@ -114,13 +118,14 @@ public sealed class HostVehicleSession
         if (continuation.Spawns is not null)
         {
             result.RegisterSpawns(result.World.Arena, continuation.Spawns);
-            result.Spawns!.Restore(checkpoint.Items, continuation.SpawnRevision, continuation.RandomState);
+            result.Spawns!.Restore(checkpoint.Items, continuation.SpawnRevision);
         }
         else if (checkpoint.Items.Spawns.Count != 0)
         {
             throw new ArgumentException("Missing pickup continuation.");
         }
 
+        result.ItemSelectionRandom.Restore(continuation.RandomState);
         result.World.Restore(new SimulationState(world.Tick, new InputFrame(world.Tick, 0, 0, 0, 0, 0, 0), world.Vehicles.Select(vehicle => vehicle.State), checkpoint.Match));
         result.Items.Restore(checkpoint.Items, continuation.ItemRevision, continuation.Token);
         result._nextVehicle = continuation.NextVehicle;
@@ -140,7 +145,7 @@ public sealed class HostVehicleSession
         Token = Items.TokenHighWater,
         ItemRevision = Items.Revision,
         SpawnRevision = Spawns?.Revision ?? 0,
-        RandomState = Spawns?.RandomState ?? 0,
+        RandomState = Spawns?.RandomState ?? ItemSelectionRandom.State,
         NextVehicle = _nextVehicle,
     };
 
@@ -169,6 +174,10 @@ public sealed class HostVehicleSession
             World.ApplyConfiguration(candidate);
             Items.ApplyConfiguration(candidate.Items);
             Spawns?.ApplyConfiguration(candidate.Spawns);
+            if (candidate.Spawns.Seed != Configuration.Configuration.Spawns.Seed)
+            {
+                ItemSelectionRandom.Restore(unchecked((ulong)candidate.Spawns.Seed));
+            }
             var previous = Configuration.Configuration;
             Configuration = next;
             foreach (var option in GameplayOptions.All.Where(option => option.Read(previous) != option.Read(candidate)))
@@ -221,10 +230,16 @@ public sealed class HostVehicleSession
 
         if (configuration is not null)
         {
+            configuration.Validate();
+            if (configuration.Seed != Configuration.Configuration.Spawns.Seed)
+            {
+                ItemSelectionRandom.Restore(unchecked((ulong)configuration.Seed));
+            }
+
             Configuration = new GameplayConfigurationState(Configuration.Revision, Configuration.Configuration with { Spawns = configuration });
         }
 
-        Spawns = new ItemSpawnAuthority(arena, Items, Configuration.Configuration.Spawns, selector);
+        Spawns = new ItemSpawnAuthority(arena, Items, ItemSelectionRandom, Configuration.Configuration.Spawns, selector);
         foreach (var spawn in Spawns.States)
         {
             World.Events.Record(EventCategory.Item, "Pickup spawned", context: spawn.Id);

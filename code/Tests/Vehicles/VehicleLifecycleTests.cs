@@ -241,7 +241,7 @@ internal sealed class VehicleLifecycleTests
         World world = Create();
         var items = new ItemAuthority();
         int selections = 0;
-        var spawns = new ItemSpawnAuthority(world.Arena, items, selector: () =>
+        var spawns = new ItemSpawnAuthority(world.Arena, items, new ItemSelectionRandom(1), selector: () =>
         {
             selections++;
             return HeldItem.Wrench;
