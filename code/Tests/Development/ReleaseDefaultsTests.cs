@@ -80,7 +80,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(76));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(78));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);
         var restored = DeveloperSettingsFile.Read(file.Write(defaults), defaults);

@@ -96,3 +96,5 @@ Checkpoint construction, decode validation and replacement authority use the loc
 [Feature index](README.md)
 
 Configured match mode, Circus banked score, K/D/streak, consumed damage/death watermarks, pending stunt durations, base amounts, jump origin and life/tick ownership travel in the nested match codec. Replacement authority resumes that complete boundary without replaying completed awards; uncheckpointed progression remains subject to the existing epoch rollback policy. See [match scoring](matches.md#circus-stunt-detection-and-banking).
+
+The item continuation accepts every registered identity, including Oil and Nitro without implemented use handlers. The selected configuration restores all four registry-keyed weights and the exact selector state. Retained inventory has no world-space held model; only the owning local HUD displays it.

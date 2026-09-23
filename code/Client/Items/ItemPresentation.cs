@@ -8,7 +8,6 @@ namespace Trackstorm.Client.Items;
 internal sealed partial class ItemPresentation : Node3D
 {
     private readonly Dictionary<ulong, Node3D> _missiles = new();
-    private readonly Dictionary<ulong, (Node3D Node, HeldItem Item)> _held = new();
     private readonly List<(Node3D Node, float Age, float Lifetime)> _bursts = new();
 
     /// <inheritdoc/>
@@ -73,7 +72,7 @@ internal sealed partial class ItemPresentation : Node3D
         {
             if (!_missiles.TryGetValue(missile.Id, out var node))
             {
-                node = Rocket(false);
+                node = Rocket();
                 AddChild(node);
                 node.AddChild(Particles("smoke_01", false, 0.5f));
                 _missiles.Add(missile.Id, node);
@@ -83,25 +82,17 @@ internal sealed partial class ItemPresentation : Node3D
             node.Quaternion = new Quaternion(Vector3.Forward, VehicleBody.ToGodot(missile.Velocity).Normalized());
         }
 
-        foreach (ulong id in _held.Keys.Except(state.Slots.Where(slot => slot.Item != HeldItem.None && _held.TryGetValue(slot.Vehicle, out var held) && held.Item == slot.Item).Select(slot => slot.Vehicle)).ToArray())
-        {
-            _held[id].Node.QueueFree();
-            _held.Remove(id);
-        }
-
-        foreach (var slot in state.Slots.Where(slot => slot.Item != HeldItem.None && !_held.ContainsKey(slot.Vehicle)))
-        {
-            Node3D node = slot.Item == HeldItem.Missile ? Rocket(true) : Wrench();
-            AddChild(node);
-            node.Position = VehicleBody.ToGodot(state.World.Vehicles.Single(vehicle => vehicle.State.VehicleId == slot.Vehicle).State.Movement.Physics.Position) + new Vector3(0, 2.2f, 0);
-            _held.Add(slot.Vehicle, (node, slot.Item));
-        }
-
         foreach (var outcome in state.Events)
         {
+            var definition = ItemRegistry.Find(outcome.Item)!;
+            string? texture = outcome.Impact ? definition.ImpactVfx : definition.UseVfx;
+            if (texture is null)
+            {
+                continue;
+            }
+
             var burst = new Node3D { Position = VehicleBody.ToGodot(outcome.Position) };
             AddChild(burst);
-            string texture = outcome.Impact ? "fire_01" : "spark_01";
             burst.AddChild(Particles(texture, true, outcome.Impact ? 0.7f : 0.25f));
             if (outcome.Impact)
             {
@@ -112,38 +103,13 @@ internal sealed partial class ItemPresentation : Node3D
         }
     }
 
-    /// <summary>Follows displayed vehicles without feeding render poses into authority.</summary>
-    /// <param name="vehicle">Stable ID.</param>
-    /// <param name="position">Displayed vehicle position.</param>
-    /// <param name="active">Whether the authoritative vehicle may show a held item.</param>
-    internal void Follow(ulong vehicle, Vector3 position, bool active = true)
-    {
-        if (_held.TryGetValue(vehicle, out var node))
-        {
-            node.Node.Position = position + new Vector3(0, 2.2f, 0);
-            node.Node.Visible = active;
-        }
-    }
-
-    private static Node3D Rocket(bool held)
+    private static Node3D Rocket()
     {
         var root = new Node3D();
         var mesh = GD.Load<Mesh>("res://assets/items/kenney/weapons/ammo_rocket.obj");
         Aabb bounds = mesh.GetAabb();
         float scale = 1.5f / Math.Max(bounds.Size.X, Math.Max(bounds.Size.Y, bounds.Size.Z));
-        root.AddChild(new MeshInstance3D { Mesh = mesh, Scale = Vector3.One * scale, Position = -bounds.GetCenter() * scale, MaterialOverride = GD.Load<StandardMaterial3D>(held ? "res://assets/items/materials/Pickup.tres" : "res://assets/items/materials/Projectile.tres") });
-        return root;
-    }
-
-    private static Node3D Wrench()
-    {
-        var root = new Node3D();
-        var material = GD.Load<StandardMaterial3D>("res://assets/items/materials/Pickup.tres");
-        foreach (var part in new[] { (new Vector3(0.18f, 0.18f, 0.9f), Vector3.Zero), (new Vector3(0.5f, 0.18f, 0.18f), new Vector3(0, 0, -0.45f)), (new Vector3(0.16f, 0.18f, 0.3f), new Vector3(-0.2f, 0, -0.6f)), (new Vector3(0.16f, 0.18f, 0.3f), new Vector3(0.2f, 0, -0.6f)) })
-        {
-            root.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = part.Item1 }, Position = part.Item2, MaterialOverride = material });
-        }
-
+        root.AddChild(new MeshInstance3D { Mesh = mesh, Scale = Vector3.One * scale, Position = -bounds.GetCenter() * scale, MaterialOverride = GD.Load<StandardMaterial3D>("res://assets/items/materials/Projectile.tres") });
         return root;
     }
 
