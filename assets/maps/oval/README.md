@@ -9,7 +9,7 @@ Use Blender 5.2.2 and Godot 4.7.2 .NET (the versions used for verification):
 ```powershell
 & $BlenderPath --background --python-exit-code 1 --python assets/maps/oval/BuildOval.py
 & $GodotPath --headless --path . --editor --import
-& $GodotPath --headless --path . --script assets/maps/oval/BuildOvalScene.gd
+& $GodotPath --path . --script assets/maps/oval/BuildOvalScene.gd
 ./check-oval.ps1 -GodotPath $GodotPath -Visual
 ```
 
@@ -80,3 +80,16 @@ with the 150 m reference at the approximately 1.0–1.2 m source section spacing
 No analytic replacement curve or concept-art reconstruction is used.
 
 [Current map architecture](../../../docs/features/oval-map.md)
+
+## Combat environment authoring
+
+Run Blender 5.2.2 with `--background --python-exit-code 1 --python assets/maps/oval/BuildEnvironment.py` to regenerate the original conifer variants, `source/OvalEnvironment.blend`, `conifers.glb`, and grass maps. This script does not modify the foundation blend, GLB or measurements. Grass maps are a deterministic original 1024-pixel seamless 2 m patch, combined with a restrained 16 m isotropic detail layer (the separate 64 m macro layer remains on asphalt), not an acquired photograph. Blender mesh geometry is exported Y-up in metres with applied coordinates and no animation. Godot consumes the GLB, never the blend.
+
+Run the normal Godot editor import, then `BuildOvalScene.gd` as above. It now invokes `BuildOvalContent.gd` to bake the fixed outer collision, concrete strip, exterior ground, MultiMesh forest batches and pickup markers into the scriptless production scene. The production geometry and collision resources remain unchanged. Asphalt and concrete reuse the repository's existing licensed Poly Haven maps. `environment-sources.json` records original-art provenance and checksums. Preserve grass import settings for mipmaps/VRAM compression.
+
+The spawn targets use only the red/green annotations in TS-100 attachment 10018, `Map Concept 0.2.0 weapon spawn position.png`, visually inspected in Jira. Bottom is Godot +Z and the grid faces +X. The red rows sit before the grid, on the lower-right turn, upper-right turn, upper-left turn and lower-left turn. Green singles sit on the lower straight, upper straight, upper-right outer line, upper-left outer line and lower-left outer line. Nearest source sections preserve placement while honoring TS-71 geometry; marker metadata records the source section and surface-lane distance.
+
+
+The scene bake requires a rendering backend (omit `--headless`): Godot's dummy renderer discards MultiMesh transforms. The baker rejects that mode rather than saving an empty forest. Headless imports and runtime collision checks remain supported.
+
+The three environment meshes provide mature fir, open-crowned pine and young spruce silhouettes. The scene baker mixes them in irregular stands with 3.5 m minimum center spacing, varied depth and height, preserving the 12 m boundary setback and fixed 864-instance/48-batch budget.

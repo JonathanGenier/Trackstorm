@@ -47,7 +47,7 @@ public sealed partial class VehicleArena : Node3D
         _audio.Initialize(1);
         AddChild(new WorldEnvironment
         {
-            Environment = new Godot.Environment
+            Environment = !LegacyTestLayout && !PrototypeMapForVerification ? GD.Load<Godot.Environment>("res://assets/maps/oval/Daylight.tres") : new Godot.Environment
             {
                 BackgroundMode = Godot.Environment.BGMode.Color,
                 BackgroundColor = new Color("172235"),

@@ -1,0 +1,32 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Movie Maker mode enabled, recording movie in 1152×648 @ 60 FPS...
+Obstruction: Wall approach / hold, min=5.911m, final=6.688m, max-step=0.217m
+Obstruction: Wall clears / recovery, min=6.688m, final=16.381m, max-step=0.214m
+Obstruction: Thin barrier / low orbit, min=5.665m, final=5.665m, max-step=0.000m
+Obstruction: Building corner orbit, min=4.414m, final=16.381m, max-step=1.448m
+Obstruction: Moving solid prop, min=6.177m, final=15.933m, max-step=0.192m
+Obstruction: Sloped terrain, min=8.033m, final=8.033m, max-step=0.000m
+Obstruction: Repeated boundary crossings, min=7.777m, final=7.812m, max-step=0.019m
+Obstruction: Shake beside wall, min=7.709m, final=7.777m, max-step=0.066m
+Obstruction: Life reset, min=7.777m, final=16.381m, max-step=8.605m
+Obstruction: Replacement reset, min=7.777m, final=16.381m, max-step=8.605m
+Obstruction: Resume reset, min=7.777m, final=16.381m, max-step=8.605m
+Obstruction: Scene reconstruction, min=7.777m, final=16.381m, max-step=8.605m
+Obstruction: Production yard wall, min=6.177m, final=6.177m, max-step=0.000m
+Obstruction: Production container, min=3.881m, final=3.930m, max-step=0.008m
+Obstruction: Production barrier, min=3.139m, final=3.534m, max-step=0.045m
+Obstruction: Production oval bank, min=2.578m, final=4.545m, max-step=0.074m
+Obstruction: Overlapping target recovery, min=16.381m, final=16.381m, max-step=0.000m
+Obstruction: Wide near plane, min=6.817m, final=6.817m, max-step=0.000m
+Obstruction: Cramped ceiling, min=1.329m, final=1.331m, max-step=0.003m
+Camera obstruction checks passed.
+--------------------------------------------------------------------------------
+Done recording movie at path: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\camera-obstruction-checks\b457b0622aa84443b93ace0189ec34ee\obstruction.avi
+3439 frames at 60 FPS (movie length: 00:00:57:19), recorded in 00:02:13 (42% of real-time speed).
+CPU render time: 3.11 seconds (average: 0.90 ms/frame)
+GPU render time: 1.20 seconds (average: 0.35 ms/frame)
+Encoding time: 39.00 seconds (average: 11.34 ms/frame)
+--------------------------------------------------------------------------------
+Camera obstruction verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\camera-obstruction-checks\b457b0622aa84443b93ace0189ec34ee

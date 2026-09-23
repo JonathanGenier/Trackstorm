@@ -18,9 +18,9 @@ internal static class OvalGameplayAssertions
             throw new InvalidOperationException("Host authority lost the scene-owned oval spawn contract.");
         }
 
-        if (arena.Driver.ObserveProps is not null || arena.Driver.PropSnapshot is not null || arena.Pickups.ActiveCount != 0 || !arena.Audio.MusicPlaying)
+        if (arena.Driver.ObserveProps is not null || arena.Driver.PropSnapshot is not null || arena.Pickups.ActiveCount != arena.Driver.ItemState?.Spawns.Count(spawn => spawn.Available) || !arena.Audio.MusicPlaying)
         {
-            throw new InvalidOperationException("Oval must have no legacy props/pickups and must preserve arena music.");
+            throw new InvalidOperationException("Oval must have no legacy props and must present authoritative pickups and must preserve arena music.");
         }
     }
 
@@ -30,7 +30,7 @@ internal static class OvalGameplayAssertions
     internal static void VerifyMap(Node3D map, ArenaConfiguration configuration)
     {
         var authored = ActiveMap.ReadConfiguration(map);
-        if (map.SceneFilePath != ActiveMap.ScenePath || !configuration.Players.SequenceEqual(authored.Players) || configuration.Items.Count != 0 ||
+        if (map.SceneFilePath != ActiveMap.ScenePath || !configuration.Players.SequenceEqual(authored.Players) || configuration.Items.Count != 20 || !configuration.Items.SequenceEqual(authored.Items) ||
             configuration.Players.Any(marker => PrototypeArena.Configuration.Players.Any(old => old.Position == marker.Position)) ||
             map.FindChildren("*", "RigidBody3D", true, false).Count != 0 || map.FindChildren("*", "CombatArena", true, false).Count != 0)
         {

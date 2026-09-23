@@ -1,0 +1,37 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+{"Host":true,"Map":"res://scenes/maps/oval_foundation.tscn","LargestRoster":8,"LocalVehicle":1,"Tick":1756,"Snapshots":0,"ImmediateFrames":0,"DriftFrames":0,"HandbrakeFrames":79,"ErrorP99":0,"ErrorMaximum":0,"InterpolationDelay":0,"LargeCorrections":0,"CorrectionDetails":[],"LastAcknowledged":0,"Position":[51.9119,0.9000016,55.8347],"HP":1000,"Grounded":true,"PropTick":null,"PropTravel":0,"PropReplicaError":0,"PropPositions":null}
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+{"Host":false,"Map":"res://scenes/maps/oval_foundation.tscn","LargestRoster":8,"LocalVehicle":8,"Tick":1156,"Snapshots":279,"ImmediateFrames":783,"DriftFrames":0,"HandbrakeFrames":75,"ErrorP99":2.0695572,"ErrorMaximum":6.0156426,"InterpolationDelay":286.66800000000876,"LargeCorrections":2,"CorrectionDetails":[{"Seconds":0.7500000000000007,"Error":2.107428,"Tick":367,"Ack":41,"Pending":4,"HP":1000,"Position":"\u003C-23.955418, 0.9003103, 85.99897\u003E","Speed":0.775148},{"Seconds":1.6166666666666658,"Error":4.7805853,"Tick":387,"Ack":91,"Pending":6,"HP":1000,"Position":"\u003C-23.234198, 0.90001154, 85.848465\u003E","Speed":3.521609},{"Seconds":2.2166666666666637,"Error":1.817557,"Tick":407,"Ack":128,"Pending":5,"HP":1000,"Position":"\u003C-21.67128, 0.89996314, 85.325485\u003E","Speed":6.0185547},{"Seconds":4.233333333333324,"Error":6.0156426,"Tick":485,"Ack":249,"Pending":5,"HP":1000,"Position":"\u003C-14.576274, 0.8999702, 80.30013\u003E","Speed":10.362131},{"Seconds":4.599999999999989,"Error":2.0087001,"Tick":494,"Ack":271,"Pending":5,"HP":1000,"Position":"\u003C-13.355002, 0.89997596, 79.31143\u003E","Speed":10.6537285},{"Seconds":4.866666666666655,"Error":1.2698851,"Tick":506,"Ack":287,"Pending":5,"HP":1000,"Position":"\u003C-11.616489, 0.8999811, 77.9067\u003E","Speed":11.329063},{"Seconds":5.13333333333332,"Error":1.6738677,"Tick":519,"Ack":305,"Pending":3,"HP":1000,"Position":"\u003C-9.635, 0.8999848, 76.31249\u003E","Speed":11.887176},{"Seconds":5.33333333333332,"Error":1.418,"Tick":524,"Ack":315,"Pending":5,"HP":1000,"Position":"\u003C-8.867446, 0.89998543, 75.69648\u003E","Speed":11.614188},{"Seconds":5.733333333333318,"Error":2.0695572,"Tick":546,"Ack":338,"Pending":6,"HP":1000,"Position":"\u003C-5.4661617, 0.8999921, 72.97237\u003E","Speed":11.490531},{"Seconds":6.016666666666651,"Error":1.4034005,"Tick":560,"Ack":356,"Pending":5,"HP":1000,"Position":"\u003C-3.3190544, 0.899994, 71.25452\u003E","Speed":11.942643},{"Seconds":6.449999999999982,"Error":1.9263422,"Tick":575,"Ack":382,"Pending":5,"HP":1000,"Position":"\u003C-1.2630775, 0.8999939, 69.60977\u003E","Speed":9.212772},{"Seconds":7.14999999999998,"Error":1.7339977,"Tick":590,"Ack":424,"Pending":5,"HP":1000,"Position":"\u003C0.24115774, 0.89996785, 68.4064\u003E","Speed":6.386689}],"LastAcknowledged":954,"Position":[1.8802508,0.89999974,67.095146],"HP":1000,"Grounded":true,"PropTick":null,"PropTravel":0,"PropReplicaError":0,"PropPositions":null}
+
+ERROR: System.InvalidOperationException: Live camera: RMB orbit follows the displayed pose.
+   at Trackstorm.Client.Verification.CameraPlaytest.<Run>g__Require|0_4(Boolean condition, String message) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\CameraPlaytest.cs:line 47
+   at Trackstorm.Client.Verification.CameraPlaytest.Run(Node owner, VehicleChaseCamera camera, PlayerInput input, Func`1 pose, String output, Action respawn) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\CameraPlaytest.cs:line 64
+   at Trackstorm.Client.Verification.NetworkVehicleChecks.Complete() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\NetworkVehicleChecks.cs:line 201
+   at: void Trackstorm.Client.Verification.NetworkVehicleChecks+<Complete>d__22.MoveNext() (res://code/Client/Verification/NetworkVehicleChecks.cs:201)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.NetworkVehicleChecks+<Complete>d__22.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\NetworkVehicleChecks.cs:201)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)
+       [4] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [5] void System.Threading.Tasks.Task.RunContinuations(object)
+       [6] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [7] bool System.Threading.Tasks.Task.TrySetException(object)
+       [8] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [9] void Trackstorm.Client.Verification.CameraPlaytest+<Run>d__0.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\CameraPlaytest.cs:64)
+       [10] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [11] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)
+       [12] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [13] void System.Threading.Tasks.Task.RunContinuations(object)
+       [14] bool System.Threading.Tasks.Task`1.TrySetResult(TResult)
+       [15] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetExistingTaskResult(System.Threading.Tasks.Task`1[TResult], TResult)
+       [16] void Trackstorm.Client.Verification.CameraPlaytest+<>c__DisplayClass0_0+<<Run>g__Wait|1>d.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\CameraPlaytest.cs:27)
+       [17] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [18] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)
+       [19] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)

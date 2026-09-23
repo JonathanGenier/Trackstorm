@@ -24,6 +24,7 @@ public sealed partial class MigrationIntegrationChecks : Node
     private int _boundary;
     private int _players = 3;
     private bool _finished;
+    private PackedScene _preparedMap = null!;
     private NetworkVehicleBody? _retainedBody;
     private Core.Development.GameplayConfigurationState? _configuration;
     private ulong _randomState;
@@ -38,6 +39,9 @@ public sealed partial class MigrationIntegrationChecks : Node
         Engine.PhysicsTicksPerSecond = 60;
         Engine.MaxFps = 60;
         _players = OS.GetCmdlineUserArgs().Contains("--migration-players=2") ? 2 : 3;
+        // Production MatchResourceLoader prepares resources before arena entry.
+        // Do not block three live peer heartbeats on cold resource loading in this fixture.
+        _preparedMap = GD.Load<PackedScene>(Arenas.ActiveMap.ScenePath);
         for (int i = 0; i < _players; i++)
         {
             int index = i;
@@ -199,7 +203,7 @@ public sealed partial class MigrationIntegrationChecks : Node
         {
             for (int i = 0; i < _players; i++)
             {
-                var arena = new NetworkVehicleArena { ApplicationEntry = true };
+                var arena = new NetworkVehicleArena { ApplicationEntry = true, PreparedMap = _preparedMap };
                 arena.Initialize(_gateways[i], i == 1 ? _drivers[i]!.State!.Match : 0, _drivers[i]!.ServerPeer, _drivers[i], i == 1 ? _drivers[i]!.Authority!.Configuration.Configuration : new() { Vehicle = new() { Acceleration = 80 } });
                 _views[i].AddChild(arena);
                 _arenas[i] = arena;
@@ -278,7 +282,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             ulong successor = _drivers[survivor]!.LocalPlayerId;
             Require(_drivers.Take(_players).Where((_, index) => index != 1).All(driver => driver!.State!.CurrentHostId == successor), "Second election converges on the lowest eligible stable ID.");
             Require(_arenas[0]!.Bodies.Count == _players && arena.Bodies.Count == _players && arena.Bodies[_drivers[survivor]!.LocalPlayerId] == _retainedBody, "No duplicate or replaced surviving vehicles.");
-            Require(arena.Driver.LocalItem?.Item == HeldItem.Wrench && arena.Driver.ItemState!.Spawns.Count == 0 && arena.Driver.Match!.Players.Count == _players, "Complete gameplay continuation with no placed oval pickups.");
+            Require(arena.Driver.LocalItem?.Item == HeldItem.Wrench && arena.Driver.ItemState!.Spawns.Count == 20 && arena.Driver.Match!.Players.Count == _players, "Complete gameplay continuation with twenty placed oval pickups.");
             Require(arena.Driver.ItemState!.Slots.Single(slot => slot.Vehicle == _nitroOwner).Item == HeldItem.Nitro, "Nitro is retained on the disconnected former host across migration.");
             OvalGameplayAssertions.Verify(arena);
             Require(_arenas[0]!.Driver.Configuration == _configuration && arena.Driver.Configuration == _configuration, "Successive hosts retain configuration revision and ignore successor-local presets.");
