@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" path="res://assets/arena/polyhaven/asphalt_04/asphalt_04_rough_1k.jpg" id="3"]
 [ext_resource type="Texture2D" path="res://assets/maps/oval/ground_macro.png" id="macro"]
 [resource]
+metadata/surface_identity = "Asphalt"
 albedo_color = Color(0.32, 0.32, 0.32, 1)
 albedo_texture = ExtResource("1")
 roughness = 1.0

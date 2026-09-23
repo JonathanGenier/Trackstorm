@@ -8,6 +8,9 @@ namespace Trackstorm.Client.Networking;
 /// <summary>Synchronous Godot collision observation seam usable by both host steps and prediction replay.</summary>
 internal sealed partial class NetworkVehicleBody : StaticBody3D
 {
+    /// <summary>Current native support material, independent of simulation handling.</summary>
+    internal SurfaceIdentity? DetectedSurface { get; private set; }
+
     private readonly Node3D _visual = new();
     private VehicleConfiguration _configuration = new();
     private VehiclePhysicsState _previous;
@@ -97,6 +100,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     {
         if (!snapshot.CanInteract)
         {
+            DetectedSurface = null;
             return new VehicleObservation(snapshot.Movement.Physics, Numerics.Vector3.Zero);
         }
 
@@ -199,6 +203,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         }
 
         var suspension = WheelSuspension.Observe(this, transform, _configuration);
+        DetectedSurface = suspension.Identity;
         if (!suspension.Normal.IsZeroApprox())
         {
             support = suspension.Normal;

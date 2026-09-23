@@ -47,7 +47,8 @@ internal static class RuntimeStatistics
             $"Snapshot age: {NetworkVehicleArena.FormatSnapshotAge(driver?.SnapshotAge)}\nInterpolation delay: {(driver?.Host is null && driver?.History is not null ? $"{arena!.InterpolationDelay:0} ms" : "Unavailable")}\n" +
             $"Reconnect: {lobby?.Reconnecting.ToString() ?? "Unavailable"} · Awaiting arena checkpoint: {lobby?.NeedsArenaCheckpoint.ToString() ?? "Unavailable"}\nReconnect policy: {roster?.ReconnectPolicy.ToString() ?? "Unavailable"} · Connection generation: {lobby?.Generation.ToString() ?? "Unavailable"}";
         string diagnosticsText = identityDiagnostics + "\n" + DeveloperDiagnostics.Capture(session);
-        StatisticSection[] global = [new("Session / authority", sessionText), new("Arena / match / spawning", arenaText), new("Networking / synchronization", networkText), new("Network Diagnostics", diagnosticsText)];
+        SurfaceIdentity? detectedSurface = practice?.Player.DetectedSurface ?? (arena is not null && arena.Bodies.TryGetValue(local, out var localBody) ? localBody.DetectedSurface : null);
+        StatisticSection[] global = [new("Local surface / material", "Detected surface: " + SurfaceIdentityResolver.Describe(detectedSurface) + "\nSource: local native support; identity only"), new("Session / authority", sessionText), new("Arena / match / spawning", arenaText), new("Networking / synchronization", networkText), new("Network Diagnostics", diagnosticsText)];
         if (selected == 0)
         {
             return new(players, 0, global, [new("Player / vehicle", "No player or vehicle available.")]);

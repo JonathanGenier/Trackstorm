@@ -52,7 +52,7 @@ No preference, gameplay configuration or persistence command is invoked by Close
 | --- | --- |
 | Session / authority | Host/client/local-practice role, safe numeric session/player IDs, lobby phase, connected count, vehicle count and prototype capacity, world tick, effective configuration revision; existing lobby/arena owners |
 | Player / vehicle | Connected/Ready, local identity, HP/max HP, lifecycle/life generation, confirmed state tick, observed horizontal speed/position; lobby roster and Core vehicle aggregates |
-| Physics / environment | Grounded/airborne, Concrete/Mud, handbrake application, sliding, steering, front/rear slip, longitudinal/lateral acceleration, four wheel compressions; committed `VehicleState` |
+| Physics / environment | Grounded/airborne, legacy Concrete/Mud handling profile, handbrake application, sliding, steering, front/rear slip, longitudinal/lateral acceleration, four wheel compressions; committed `VehicleState` |
 | Combat / lifecycle | Current same-life inventory, participation gate, last damage amount/tick and numeric instigator, last damaging collision tick, respawn deadline and remaining seconds; `ItemAuthority` or accepted item publication plus `VehicleSnapshot` |
 | Arena / match / spawning | Match phase, kill target, winner, countdown, available/cooling item markers and their deadlines, active projectile count; host world/item/spawn authorities or accepted client publications |
 | Ranking | Current rank, kills, deaths; existing `MatchRanking` projection of match and current roster |
@@ -68,7 +68,7 @@ Local host prediction, host upstream RTT, unsupported transport quality, invento
 in practice and absent match rules are unavailable rather than invented zeros.
 The actual prototype capacity comes from `ArenaConfiguration.SpawnCount`.
 
-Surface classification is the last supported surface while airborne, explicitly
+The legacy handling profile is the last supported profile while airborne, explicitly
 labeled. Timers are projections of existing fixed 60 Hz deadlines, clamped at
 zero; the panel does not advance them. Matches use a kill target and have no time
 limit. Items are consumables, with no independent reusable-item cooldown telemetry.
@@ -123,3 +123,5 @@ physical-controller ergonomics or separate-PC authenticated EOS connectivity.
 [Feature index](README.md) · [Developer Options](developer-options.md) · [Game Menu](game-menu.md) · [Vehicles](vehicles.md) · [Networking](vehicle-networking.md) · [Reconnection](reconnection.md)
 
 Combat diagnostics include each vehicle's authoritative remaining Oil traction duration. Arena diagnostics include the current persistent patch count from the existing item publication.
+
+The Global/Session tab also shows the local vehicle's current [material identity](surfaces.md), sampled from native support independently of the selected player and confirmed gameplay state. Airborne or unauthored support is unavailable. This read-only field has no Configs controls.

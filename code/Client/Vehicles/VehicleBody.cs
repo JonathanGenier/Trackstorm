@@ -8,6 +8,9 @@ namespace Trackstorm.Client.Vehicles;
 /// <summary>Native observation/command adapter around the single Core simulation; standard force integration is disabled.</summary>
 public sealed partial class VehicleBody : RigidBody3D
 {
+    /// <summary>Current native support material, independent of simulation handling.</summary>
+    internal SurfaceIdentity? DetectedSurface { get; private set; }
+
     private readonly List<VehicleEffectRequest> _effects = new();
     private readonly VehicleFeedback _feedback = new();
     private VehiclePhysicsState? _reset;
@@ -99,6 +102,7 @@ public sealed partial class VehicleBody : RigidBody3D
     {
         if (!Snapshot.CanInteract && !_reset.HasValue)
         {
+            DetectedSurface = null;
             return new VehicleStepRequest(VehicleId, input, new VehicleObservation(Snapshot.Movement.Physics, Numerics.Vector3.Zero));
         }
 
@@ -154,6 +158,7 @@ public sealed partial class VehicleBody : RigidBody3D
         }
 
         var suspension = WheelSuspension.Observe(this, body.Transform, Configuration);
+        DetectedSurface = suspension.Identity;
         if (!suspension.Normal.IsZeroApprox())
         {
             support = suspension.Normal;

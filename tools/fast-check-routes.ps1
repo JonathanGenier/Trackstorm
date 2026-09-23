@@ -39,6 +39,10 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match '(?i)SurfaceIdentity|SurfaceField|BuildSurfaces|surface_checks|check-surfaces|surface_field|surface-sources' -or $path -eq 'docs/features/surfaces.md') {
+            Add-Runtime 'check-surfaces.ps1'
+            Add-Manual 'Inspect material readability, gradual shoulders, designated Water basin and local Stats during driving.'
+        }
         # Feature-document-only edits stay cheap. Feature docs act as route hints only
         # when the same change also contains production/runtime files.
         if ($path -match '^docs/features/' -and -not $hasProductionChanges) {
