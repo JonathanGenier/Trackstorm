@@ -73,6 +73,9 @@ shortcuts are 14 m and entries/spine 16 m. Side-loop hills and berms, northern
 rises, valleys, paired rhythm stretches and four negative water basins shape
 the course. Two 100 m jump corridors integrate approaches, kickers, recoverable
 tabletops beneath the flight paths, descending dirt landings and recovery zones.
+Each kicker rises 4.8 m over 12 m; its 30 m downslope ends at corridor metre 85.
+The intended 14–18 m/s approach range supports substantial airtime with a
+remaining 15 m recovery before the unchanged central junction.
 The three obstacle reservations and open-sided tunnel remain in place. Both
 lower tunnel crossings stay clear; an elevated bridge route is not added.
 

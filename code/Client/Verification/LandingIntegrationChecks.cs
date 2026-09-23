@@ -7,7 +7,7 @@ using N = System.Numerics;
 
 namespace Trackstorm.Client.Verification;
 
-/// <summary>Real collision adapters on the unchanged TS-75 landing zone, with controlled crash initial conditions.</summary>
+/// <summary>Real collision adapters on both authored landing zones, with controlled crash initial conditions.</summary>
 public sealed partial class LandingIntegrationChecks : Node3D
 {
     private Core.Simulation.Simulation _world = null!;
@@ -24,6 +24,9 @@ public sealed partial class LandingIntegrationChecks : Node3D
     private int _forgiven;
     private string _case = "";
     private string _output = "";
+    private int _side;
+    private string _filter = "";
+    private int _cases;
 
     public override void _Ready() => CallDeferred(MethodName.Run);
 
@@ -65,6 +68,7 @@ public sealed partial class LandingIntegrationChecks : Node3D
         try
         {
             _output = ProjectSettings.GlobalizePath("res://.godot/landing-checks");
+            _filter = OS.GetCmdlineUserArgs().FirstOrDefault(value => value.StartsWith("--landing-case=", StringComparison.Ordinal))?[15..] ?? "";
             System.IO.Directory.CreateDirectory(_output);
             AddChild(Arenas.ActiveMap.Load());
             await Frames(3);
@@ -76,14 +80,18 @@ public sealed partial class LandingIntegrationChecks : Node3D
                 AddChild(_camera);
                 _camera.LookAt(new Vector3(-60, 2, 0));
             }
+            foreach (int side in new[] { -1, 1 })
             foreach (bool network in new[] { false, true })
             {
+                _side = side;
                 foreach (var scenario in new[] { ("upright", 0f, 0f, 0f), ("yawed", 90f, 0f, 0f), ("spin", 90f, 0f, 0f), ("bank", 0f, 0f, 0f), ("roll35", 0f, 35f, 0f), ("pitch25", 0f, 0f, 25f), ("roll45", 0f, 45f, 0f), ("pitch35", 0f, 0f, 35f), ("side", 0f, 90f, 0f), ("roof", 0f, 180f, 0f), ("front", 0f, 0f, 90f), ("rear", 0f, 0f, -90f), ("tumble", 0f, 0f, 0f), ("obstacle", 0f, 0f, 0f), ("vehicle", 0f, 0f, 0f) })
                 {
                     await Drop(network, scenario.Item1, scenario.Item2, scenario.Item3, scenario.Item4);
                 }
+                await Drop(network, "air-roll", 0, 0, 0);
             }
-            GD.Print("Landing integration passed. Evidence: " + _output);
+            if (_cases == 0) { throw new InvalidOperationException("No landing scenarios matched the filter."); }
+            GD.Print($"Landing integration passed: {_cases} scenarios. Evidence: " + _output);
             GetTree().Quit();
         }
         catch (Exception exception)
@@ -97,23 +105,26 @@ public sealed partial class LandingIntegrationChecks : Node3D
 
     private async Task Drop(bool network, string name, float yaw, float roll, float pitch)
     {
-        _case = (network ? "network-" : "native-") + name;
+        _case = (_side < 0 ? "west-" : "east-") + (network ? "network-" : "native-") + name;
+        if (!_case.StartsWith(_filter, StringComparison.Ordinal)) { return; }
+        _cases++;
         _world = new(new Core.Simulation.SimulationConfiguration(60));
         _phases.Clear();
         _contacts = 0;
         _forgiven = 0;
         _tumble = name == "tumble";
         _kicked = false;
-        Vector3 sample = name == "bank" ? GetNode<Node3D>("OvalFoundation/PlayerSpawns/player-01").GlobalPosition : new Vector3(-62, 0, 0);
+        Vector3 sample = name == "bank" ? GetNode<Node3D>("OvalFoundation/PlayerSpawns/player-01").GlobalPosition : new Vector3(_side * 62, 0, 0);
         using var ray = PhysicsRayQueryParameters3D.Create(sample + Vector3.Up * 20, sample + Vector3.Down * 10);
         var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
         if (hit.Count == 0 || hit["collider"].AsGodotObject() is not Node terrain || !terrain.IsInGroup("landing_terrain")) { throw new InvalidOperationException("TS-75 landing terrain metadata missing."); }
         Vector3 point = hit["position"].AsVector3();
-        Quaternion rotation = (new Quaternion(Vector3.Up, Mathf.DegToRad(yaw - 90)) * new Quaternion(Vector3.Forward, Mathf.DegToRad(roll)) * new Quaternion(Vector3.Right, Mathf.DegToRad(pitch)));
+        Quaternion rotation = (new Quaternion(Vector3.Up, Mathf.DegToRad(yaw + _side * 90)) * new Quaternion(Vector3.Forward, Mathf.DegToRad(roll)) * new Quaternion(Vector3.Right, Mathf.DegToRad(pitch)));
         if (name == "bank") { Vector3 normal = hit["normal"].AsVector3(); rotation = Basis.LookingAt(Vector3.Right.Slide(normal).Normalized(), normal).GetRotationQuaternion(); }
         Vector3 position = point + Vector3.Up * 8;
-        Vector3 velocity = new(name is "yawed" or "spin" ? 8 : 0, -12, 0);
+        Vector3 velocity = new(name is "yawed" or "spin" ? -_side * 8 : 0, -12, 0);
         Vector3 angular = name == "spin" ? Vector3.Up * 3 : Vector3.Zero;
+        if (name == "air-roll") { angular = new Basis(rotation) * Vector3.Forward * 2.8f; }
         var physics = new VehiclePhysicsState(VehicleBody.ToCore(position), new N.Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular));
         var damage = new DamageConfiguration { MaxHP = 1000, CollisionScale = 5 };
         _world.AddVehicle(1, new(), damage, physics);
@@ -150,12 +161,16 @@ public sealed partial class LandingIntegrationChecks : Node3D
         }
         await Frames(3);
         _advance = true;
-        await Frames(name == "tumble" ? 360 : 100);
+        // The deliberately large off-centre tumble impulse can eject the body
+        // for over ten seconds; observe the subsequent impact, not just flight.
+        await Frames(name == "tumble" ? 720 : 100);
         _advance = false;
         var state = _world.GetVehicle(1);
-        Log($"RESULT {_case}: HP={state.Damage.CurrentHP:F2}, phases={string.Join(',', _phases)}, contacts={_contacts}, forgivenFrames={_forgiven}, kick={_kicked}");
+        Log($"RESULT {_case}: HP={state.Damage.CurrentHP:F2}, phases={string.Join(',', _phases)}, contacts={_contacts}, forgivenFrames={_forgiven}, kick={_kicked}, position={state.ObservedPhysics.Position}, velocity={state.ObservedPhysics.LinearVelocity}");
         if (_camera is not null)
         {
+            _camera.Position = point + new Vector3(-_side * 15, 13, 18);
+            _camera.LookAt(point);
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             using var image = GetViewport().GetTexture().GetImage();
             image.SavePng(System.IO.Path.Combine(_output, _case + ".png"));

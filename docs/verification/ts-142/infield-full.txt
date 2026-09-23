@@ -1,0 +1,87 @@
+Blender infield imports at identity metre scale.
+Original flat floor has no active visual or collision; negative basins are usable.
+Terrain was authored against the retained TS-74 topology manifest.
+Preserved basin (-57, 0, -29): negative terrain support { "position": (-57.0, -1.795714, -29.0), "normal": (0.004201, 0.999939, 0.010222), "face_index": 157994, "collider_id": 40500201592, "collider": StaticBody3D:<StaticBody3D#40500201592>, "shape": 0, "rid": RID(1816771166210) }.
+Preserved basin (77, 0, -35): negative terrain support { "position": (77.0, -1.795455, -35.0), "normal": (0.013839, 0.999868, 0.008476), "face_index": 201417, "collider_id": 40500201592, "collider": StaticBody3D:<StaticBody3D#40500201592>, "shape": 0, "rid": RID(1816771166210) }.
+Preserved basin (-85, 0, 28): negative terrain support { "position": (-85.0, -1.793176, 28.0), "normal": (-0.000698, 0.99996, -0.008958), "face_index": 202287, "collider_id": 40500201592, "collider": StaticBody3D:<StaticBody3D#40500201592>, "shape": 0, "rid": RID(1816771166210) }.
+Preserved basin (85, 0, 28): negative terrain support { "position": (85.0, -1.793235, 28.0), "normal": (0.000571, 0.999963, -0.008572), "face_index": 201110, "collider_id": 40500201592, "collider": StaticBody3D:<StaticBody3D#40500201592>, "shape": 0, "rid": RID(1816771166210) }.
+WestLoop: width 12.0 m versus 2.662 m vehicle width.
+EastLoop: width 12.0 m versus 2.662 m vehicle width.
+NorthLink: width 12.0 m versus 2.662 m vehicle width.
+WestShortcut: width 14.0 m versus 2.662 m vehicle width.
+EastShortcut: width 14.0 m versus 2.662 m vehicle width.
+NorthSouth: width 16.0 m versus 2.662 m vehicle width.
+SouthWestEntry: width 16.0 m versus 2.662 m vehicle width.
+SouthEastEntry: width 16.0 m versus 2.662 m vehicle width.
+NorthWestEntry: width 16.0 m versus 2.662 m vehicle width.
+NorthEastEntry: width 16.0 m versus 2.662 m vehicle width.
+Tunnel has 18 m clear north/south opening.
+Central east/west intersection remains open below future earth bridge.
+Imported tunnel roof has usable collision at 5.5 m clearance.
+WestLoop: supported initial pose.
+WestLoop: entire route driven using production physics/input; progress 190/192, position (-18.092573, 0.8999959, 1.511529), velocity (0.4860353, 1.847744E-06, -10.008515); peak centerline error 1.15 m, unsupported frames 0, final HP 1000.
+WestLoop: no collision damage (1000/1000); launch , landing , flight 0 frames.
+EastLoop: supported initial pose.
+EastLoop: entire route driven using production physics/input; progress 190/192, position (18.091873, 0.8999958, 1.4954579), velocity (-0.48519203, 8.34465E-07, -9.988701); peak centerline error 1.13 m, unsupported frames 0, final HP 1000.
+EastLoop: no collision damage (1000/1000); launch , landing , flight 0 frames.
+NorthLink: supported initial pose.
+NorthLink: entire route driven using production physics/input; progress 157/159, position (144.92679, 2.9984913, -37.095062), velocity (6.989917, 1.1454234, 6.9649124); peak centerline error 1.32 m, unsupported frames 0, final HP 1000.
+NorthLink: no collision damage (1000/1000); launch , landing , flight 0 frames.
+WestShortcut: supported initial pose.
+WestShortcut: entire route driven using production physics/input; progress 77/79, position (-1.5528653, 0.89999616, -2.5366211E-05), velocity (9.922005, -4.917383E-07, 3.3147207E-05); peak centerline error 1.13 m, unsupported frames 71, final HP 1000.
+WestShortcut: no collision damage (1000/1000); launch (-81.47442, 6.570059, 0.95537907), landing (-71.924965, 4.455233, -0.5233593), flight 71 frames.
+EastShortcut: supported initial pose.
+EastShortcut: entire route driven using production physics/input; progress 77/79, position (149.68144, 0.8999994, 19.581934), velocity (9.474109, -2.2351742E-05, 3.021915); peak centerline error 1.13 m, unsupported frames 48, final HP 1000.
+EastShortcut: no collision damage (1000/1000); launch (85.40791, 5.5005364, 1.7528498), landing (92.78261, 1.2557427, 3.0049858), flight 48 frames.
+NorthSouth: supported initial pose.
+NorthSouth: entire route driven using production physics/input; progress 83/85, position (-2.5063022E-08, 0.89999604, 80.50097), velocity (1.5261787E-08, 1.6838312E-06, 10.046845); peak centerline error 1.09 m, unsupported frames 0, final HP 1000.
+NorthSouth: no collision damage (1000/1000); launch , landing , flight 0 frames.
+SouthWestEntry: supported initial pose.
+SouthWestEntry: entire route driven using production physics/input; progress 23/25, position (-66.36603, 0.9933594, 48.90048), velocity (8.378103, -0.70877355, -5.449773); peak centerline error 1.61 m, unsupported frames 0, final HP 1000.
+SouthWestEntry: no collision damage (1000/1000); launch , landing , flight 0 frames.
+SouthEastEntry: supported initial pose.
+SouthEastEntry: entire route driven using production physics/input; progress 23/25, position (66.36013, 0.9958513, 48.897873), velocity (-8.38045, -0.6886198, -5.4413733); peak centerline error 1.60 m, unsupported frames 0, final HP 1000.
+SouthEastEntry: no collision damage (1000/1000); launch , landing , flight 0 frames.
+NorthWestEntry: supported initial pose.
+NorthWestEntry: entire route driven using production physics/input; progress 18/20, position (-73.49289, 1.432284, -55.836964), velocity (8.710379, 0.85517675, 4.887011); peak centerline error 1.39 m, unsupported frames 0, final HP 1000.
+NorthWestEntry: no collision damage (1000/1000); launch , landing , flight 0 frames.
+NorthEastEntry: supported initial pose.
+NorthEastEntry: entire route driven using production physics/input; progress 18/20, position (73.51872, 1.4294579, -55.851234), velocity (-8.698798, 0.8561867, 4.8833942); peak centerline error 1.40 m, unsupported frames 0, final HP 1000.
+NorthEastEntry: no collision damage (1000/1000); launch , landing , flight 0 frames.
+WestJump14: supported initial pose.
+WestJump14: real launch (-81.50581, 6.6441927, 0.007061085), landing (-64.60805, 3.961395, 0.0036996817), longest flight 1.58s, peak origin 8.36m, peak origin clearance 4.78m, launch horizontal speed 10.90m/s, airborne horizontal travel 16.90m; recovered grounded.
+WestJump14: lands on descending dirt zone at corridor metre 60.39.
+WestJump14: entire route driven using production physics/input; progress 49/51, position (-27.651047, 0.89986145, -0.0010067913), velocity (14.071565, 0.0010123253, 0.0025238986); peak centerline error 1.00 m, unsupported frames 95, final HP 1000.
+WestJump14: no collision damage (1000/1000); launch (-81.50581, 6.6441927, 0.007061085), landing (-64.60805, 3.961395, 0.0036996817), flight 95 frames.
+WestJump16: supported initial pose.
+WestJump16: real launch (-81.298874, 6.7859154, 0.00041561807), landing (-55.439686, 2.6563878, 0.001998096), longest flight 2.00s, peak origin 9.63m, peak origin clearance 6.40m, launch horizontal speed 13.17m/s, airborne horizontal travel 25.86m; recovered grounded.
+WestJump16: lands on descending dirt zone at corridor metre 69.56.
+WestJump16: entire route driven using production physics/input; progress 49/51, position (-27.58147, 0.89965653, 0.0038542633), velocity (16.02237, 0.0025541335, 0.015006969); peak centerline error 1.00 m, unsupported frames 120, final HP 1000.
+WestJump16: no collision damage (1000/1000); launch (-81.298874, 6.7859154, 0.00041561807), landing (-55.439686, 2.6563878, 0.001998096), flight 120 frames.
+WestJump18: supported initial pose.
+WestJump18: real launch (-81.15469, 6.857387, 0.0005905448), landing (-47.873077, 1.3927616, -0.004587712), longest flight 2.28s, peak origin 10.56m, peak origin clearance 7.42m, launch horizontal speed 14.84m/s, airborne horizontal travel 33.28m; recovered grounded.
+WestJump18: lands on descending dirt zone at corridor metre 77.13.
+WestJump18: entire route driven using production physics/input; progress 49/51, position (-27.680767, 0.89908934, -0.027143432), velocity (18.019981, 0.006807655, 0.20554802); peak centerline error 1.00 m, unsupported frames 137, final HP 1000.
+WestJump18: no collision damage (1000/1000); launch (-81.15469, 6.857387, 0.0005905448), landing (-47.873077, 1.3927616, -0.004587712), flight 137 frames.
+EastJump14: supported initial pose.
+EastJump14: real launch (81.459724, 6.691465, -0.000512895), landing (61.671253, 3.6066766, -0.00029577958), longest flight 1.73s, peak origin 8.81m, peak origin clearance 5.40m, launch horizontal speed 11.65m/s, airborne horizontal travel 19.79m; recovered grounded.
+EastJump14: lands on descending dirt zone at corridor metre 63.33.
+EastJump14: entire route driven using production physics/input; progress 49/51, position (27.56815, 0.89986557, 0.0057198075), velocity (-13.966014, 0.0009809881, -0.011996707); peak centerline error 1.00 m, unsupported frames 104, final HP 1000.
+EastJump14: no collision damage (1000/1000); launch (81.459724, 6.691465, -0.000512895), landing (61.671253, 3.6066766, -0.00029577958), flight 104 frames.
+EastJump16: supported initial pose.
+EastJump16: real launch (81.29661, 6.7879295, -0.0005852733), landing (55.168507, 2.5010936, -0.00027968312), longest flight 2.02s, peak origin 9.65m, peak origin clearance 6.42m, launch horizontal speed 13.20m/s, airborne horizontal travel 26.13m; recovered grounded.
+EastJump16: lands on descending dirt zone at corridor metre 69.83.
+EastJump16: entire route driven using production physics/input; progress 49/51, position (27.512959, 0.89965564, -0.0048789494), velocity (-15.985156, 0.002560392, -0.020646596); peak centerline error 1.00 m, unsupported frames 121, final HP 1000.
+EastJump16: no collision damage (1000/1000); launch (81.29661, 6.7879295, -0.0005852733), landing (55.168507, 2.5010936, -0.00027968312), flight 121 frames.
+EastJump18: supported initial pose.
+EastJump18: real launch (81.15437, 6.8558216, -5.68666E-05), landing (47.842464, 1.4263623, 0.0008716977), longest flight 2.28s, peak origin 10.57m, peak origin clearance 7.43m, launch horizontal speed 14.85m/s, airborne horizontal travel 33.31m; recovered grounded.
+EastJump18: lands on descending dirt zone at corridor metre 77.16.
+EastJump18: entire route driven using production physics/input; progress 49/51, position (27.65492, 0.89911234, -0.03021726), velocity (-18.043465, 0.006634414, 0.19679461); peak centerline error 1.00 m, unsupported frames 137, final HP 1000.
+EastJump18: no collision damage (1000/1000); launch (81.15437, 6.8558216, -5.68666E-05), landing (47.842464, 1.4263623, 0.0008716977), flight 137 frames.
+BasinRecovery-57--29: supported initial pose.
+BasinRecovery-57--29: entire route driven using production physics/input; progress 19/21, position (-39.835133, 0.8984189, -28.999712), velocity (8.079811, 0.15285331, -0.0012343854); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+BasinRecovery-57--29: no collision damage (1000/1000); launch , landing , flight 0 frames.
+BasinRecovery77--35: supported initial pose.
+BasinRecovery77--35: entire route driven using production physics/input; progress 19/21, position (94.18848, 0.9081904, -35.00013), velocity (7.9442253, 0.0248546, -4.4600514E-05); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+BasinRecovery77--35: no collision damage (1000/1000); launch , landing , flight 0 frames.
+BasinRecovery-85-28: supported initial pose.

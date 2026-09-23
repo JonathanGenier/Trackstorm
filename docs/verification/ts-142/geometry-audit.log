@@ -1,0 +1,7 @@
+00:11.500  blend            | Read blend: "C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\assets\maps\infield\source\InfieldTerrain.blend1"
+00:11.797  blend            | Read blend: "C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\assets\maps\infield\source\InfieldTerrain.blend"
+AUDIT: changed terrain vertices 15640 of 201521 bounds Blender xyz [-9.49735641e+01 -1.79964752e+01  2.83013474e-10] [94.97356415 17.99647522  4.79998159]
+AUDIT PASS: all mesh topology counts and horizontal coordinates retained; only local jump-height vertices changed; all other Blender meshes identical.
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit
