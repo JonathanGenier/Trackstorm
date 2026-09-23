@@ -1,0 +1,209 @@
+Blender infield imports at identity metre scale.
+Original flat floor has no active visual or collision; negative basins are usable.
+Terrain was authored against the retained TS-74 topology manifest.
+Preserved basin (-57, 0, -29): negative terrain support { "position": (-57.0, -1.795714, -29.0), "normal": (0.004201, 0.999939, 0.010222), "face_index": 157994, "collider_id": 43687872814, "collider": StaticBody3D:<StaticBody3D#43687872814>, "shape": 0, "rid": RID(2589865279490) }.
+Preserved basin (77, 0, -35): negative terrain support { "position": (77.0, -1.795455, -35.0), "normal": (0.013839, 0.999868, 0.008476), "face_index": 201417, "collider_id": 43687872814, "collider": StaticBody3D:<StaticBody3D#43687872814>, "shape": 0, "rid": RID(2589865279490) }.
+Preserved basin (-85, 0, 28): negative terrain support { "position": (-85.0, -1.793176, 28.0), "normal": (-0.000698, 0.99996, -0.008958), "face_index": 202287, "collider_id": 43687872814, "collider": StaticBody3D:<StaticBody3D#43687872814>, "shape": 0, "rid": RID(2589865279490) }.
+Preserved basin (85, 0, 28): negative terrain support { "position": (85.0, -1.793235, 28.0), "normal": (0.000571, 0.999963, -0.008572), "face_index": 201110, "collider_id": 43687872814, "collider": StaticBody3D:<StaticBody3D#43687872814>, "shape": 0, "rid": RID(2589865279490) }.
+WestLoop: width 12.0 m versus 2.662 m vehicle width.
+EastLoop: width 12.0 m versus 2.662 m vehicle width.
+NorthLink: width 12.0 m versus 2.662 m vehicle width.
+WestShortcut: width 14.0 m versus 2.662 m vehicle width.
+EastShortcut: width 14.0 m versus 2.662 m vehicle width.
+NorthSouth: width 16.0 m versus 2.662 m vehicle width.
+SouthWestEntry: width 16.0 m versus 2.662 m vehicle width.
+SouthEastEntry: width 16.0 m versus 2.662 m vehicle width.
+NorthWestEntry: width 16.0 m versus 2.662 m vehicle width.
+NorthEastEntry: width 16.0 m versus 2.662 m vehicle width.
+Tunnel has 18 m clear north/south opening.
+Central east/west intersection remains open below the structural deck.
+Imported tunnel roof has usable collision at 5.5 m clearance.
+Production Blender structures retain metre-scale identity transform.
+Inherited graybox tunnel meshes and child colliders are removed at import.
+Production structures import 62 static colliders.
+DeckPanel00: obstacle collision retains layer 1 and crash classification.
+DeckPanel01: obstacle collision retains layer 1 and crash classification.
+DeckPanel02: obstacle collision retains layer 1 and crash classification.
+DeckPanel03: obstacle collision retains layer 1 and crash classification.
+DeckPanel04: obstacle collision retains layer 1 and crash classification.
+DeckPanel05: obstacle collision retains layer 1 and crash classification.
+DeckPanel06: obstacle collision retains layer 1 and crash classification.
+DeckPanel07: obstacle collision retains layer 1 and crash classification.
+DeckPanel08: obstacle collision retains layer 1 and crash classification.
+EastNorthCapital: obstacle collision retains layer 1 and crash classification.
+EastNorthDrainInvert: obstacle collision retains layer 1 and crash classification.
+EastNorthDrainLip1: obstacle collision retains layer 1 and crash classification.
+EastNorthDrainLip-1: obstacle collision retains layer 1 and crash classification.
+EastNorthFoundation: obstacle collision retains layer 1 and crash classification.
+EastNorthPier: obstacle collision retains layer 1 and crash classification.
+EastNorthRetainingWing: obstacle collision retains layer 1 and crash classification.
+EastSouthCapital: obstacle collision retains layer 1 and crash classification.
+EastSouthDrainInvert: obstacle collision retains layer 1 and crash classification.
+EastSouthDrainLip1: obstacle collision retains layer 1 and crash classification.
+EastSouthDrainLip-1: obstacle collision retains layer 1 and crash classification.
+EastSouthFoundation: obstacle collision retains layer 1 and crash classification.
+EastSouthPier: obstacle collision retains layer 1 and crash classification.
+EastSouthRetainingWing: obstacle collision retains layer 1 and crash classification.
+EastWestEdgeBeam1: obstacle collision retains layer 1 and crash classification.
+EastWestEdgeBeam-1: obstacle collision retains layer 1 and crash classification.
+EastWestParapet1_0: obstacle collision retains layer 1 and crash classification.
+EastWestParapet1_1: obstacle collision retains layer 1 and crash classification.
+EastWestParapet1_2: obstacle collision retains layer 1 and crash classification.
+EastWestParapet1_3: obstacle collision retains layer 1 and crash classification.
+EastWestParapet1_4: obstacle collision retains layer 1 and crash classification.
+EastWestParapet-1_0: obstacle collision retains layer 1 and crash classification.
+EastWestParapet-1_1: obstacle collision retains layer 1 and crash classification.
+EastWestParapet-1_2: obstacle collision retains layer 1 and crash classification.
+EastWestParapet-1_3: obstacle collision retains layer 1 and crash classification.
+EastWestParapet-1_4: obstacle collision retains layer 1 and crash classification.
+NorthSouthEdgeBeam1: obstacle collision retains layer 1 and crash classification.
+NorthSouthEdgeBeam-1: obstacle collision retains layer 1 and crash classification.
+NorthSouthParapet1_0: obstacle collision retains layer 1 and crash classification.
+NorthSouthParapet1_1: obstacle collision retains layer 1 and crash classification.
+NorthSouthParapet1_2: obstacle collision retains layer 1 and crash classification.
+NorthSouthParapet1_3: obstacle collision retains layer 1 and crash classification.
+NorthSouthParapet1_4: obstacle collision retains layer 1 and crash classification.
+NorthSouthParapet-1_0: obstacle collision retains layer 1 and crash classification.
+NorthSouthParapet-1_1: obstacle collision retains layer 1 and crash classification.
+NorthSouthParapet-1_2: obstacle collision retains layer 1 and crash classification.
+NorthSouthParapet-1_3: obstacle collision retains layer 1 and crash classification.
+NorthSouthParapet-1_4: obstacle collision retains layer 1 and crash classification.
+TunnelSoffit: obstacle collision retains layer 1 and crash classification.
+WestNorthCapital: obstacle collision retains layer 1 and crash classification.
+WestNorthDrainInvert: obstacle collision retains layer 1 and crash classification.
+WestNorthDrainLip1: obstacle collision retains layer 1 and crash classification.
+WestNorthDrainLip-1: obstacle collision retains layer 1 and crash classification.
+WestNorthFoundation: obstacle collision retains layer 1 and crash classification.
+WestNorthPier: obstacle collision retains layer 1 and crash classification.
+WestNorthRetainingWing: obstacle collision retains layer 1 and crash classification.
+WestSouthCapital: obstacle collision retains layer 1 and crash classification.
+WestSouthDrainInvert: obstacle collision retains layer 1 and crash classification.
+WestSouthDrainLip1: obstacle collision retains layer 1 and crash classification.
+WestSouthDrainLip-1: obstacle collision retains layer 1 and crash classification.
+WestSouthFoundation: obstacle collision retains layer 1 and crash classification.
+WestSouthPier: obstacle collision retains layer 1 and crash classification.
+WestSouthRetainingWing: obstacle collision retains layer 1 and crash classification.
+North/south clear at x=-8, y=0.3.
+East/west clear at z=-8, y=0.3.
+North/south clear at x=-7, y=0.3.
+East/west clear at z=-7, y=0.3.
+North/south clear at x=-6, y=0.3.
+East/west clear at z=-6, y=0.3.
+North/south clear at x=-5, y=0.3.
+East/west clear at z=-5, y=0.3.
+North/south clear at x=-4, y=0.3.
+East/west clear at z=-4, y=0.3.
+North/south clear at x=-3, y=0.3.
+East/west clear at z=-3, y=0.3.
+North/south clear at x=-2, y=0.3.
+East/west clear at z=-2, y=0.3.
+North/south clear at x=-1, y=0.3.
+East/west clear at z=-1, y=0.3.
+North/south clear at x=0, y=0.3.
+East/west clear at z=0, y=0.3.
+North/south clear at x=1, y=0.3.
+East/west clear at z=1, y=0.3.
+North/south clear at x=2, y=0.3.
+East/west clear at z=2, y=0.3.
+North/south clear at x=3, y=0.3.
+East/west clear at z=3, y=0.3.
+North/south clear at x=4, y=0.3.
+East/west clear at z=4, y=0.3.
+North/south clear at x=5, y=0.3.
+East/west clear at z=5, y=0.3.
+North/south clear at x=6, y=0.3.
+East/west clear at z=6, y=0.3.
+North/south clear at x=7, y=0.3.
+East/west clear at z=7, y=0.3.
+North/south clear at x=8, y=0.3.
+East/west clear at z=8, y=0.3.
+North/south clear at x=-8, y=2.
+East/west clear at z=-8, y=2.
+North/south clear at x=-7, y=2.
+East/west clear at z=-7, y=2.
+North/south clear at x=-6, y=2.
+East/west clear at z=-6, y=2.
+North/south clear at x=-5, y=2.
+East/west clear at z=-5, y=2.
+North/south clear at x=-4, y=2.
+East/west clear at z=-4, y=2.
+North/south clear at x=-3, y=2.
+East/west clear at z=-3, y=2.
+North/south clear at x=-2, y=2.
+East/west clear at z=-2, y=2.
+North/south clear at x=-1, y=2.
+East/west clear at z=-1, y=2.
+North/south clear at x=0, y=2.
+East/west clear at z=0, y=2.
+North/south clear at x=1, y=2.
+East/west clear at z=1, y=2.
+North/south clear at x=2, y=2.
+East/west clear at z=2, y=2.
+North/south clear at x=3, y=2.
+East/west clear at z=3, y=2.
+North/south clear at x=4, y=2.
+East/west clear at z=4, y=2.
+North/south clear at x=5, y=2.
+East/west clear at z=5, y=2.
+North/south clear at x=6, y=2.
+East/west clear at z=6, y=2.
+North/south clear at x=7, y=2.
+East/west clear at z=7, y=2.
+North/south clear at x=8, y=2.
+East/west clear at z=8, y=2.
+North/south clear at x=-8, y=5.45.
+East/west clear at z=-8, y=5.45.
+North/south clear at x=-7, y=5.45.
+East/west clear at z=-7, y=5.45.
+North/south clear at x=-6, y=5.45.
+East/west clear at z=-6, y=5.45.
+North/south clear at x=-5, y=5.45.
+East/west clear at z=-5, y=5.45.
+North/south clear at x=-4, y=5.45.
+East/west clear at z=-4, y=5.45.
+North/south clear at x=-3, y=5.45.
+East/west clear at z=-3, y=5.45.
+North/south clear at x=-2, y=5.45.
+East/west clear at z=-2, y=5.45.
+North/south clear at x=-1, y=5.45.
+East/west clear at z=-1, y=5.45.
+North/south clear at x=0, y=5.45.
+East/west clear at z=0, y=5.45.
+North/south clear at x=1, y=5.45.
+East/west clear at z=1, y=5.45.
+North/south clear at x=2, y=5.45.
+East/west clear at z=2, y=5.45.
+North/south clear at x=3, y=5.45.
+East/west clear at z=3, y=5.45.
+North/south clear at x=4, y=5.45.
+East/west clear at z=4, y=5.45.
+North/south clear at x=5, y=5.45.
+East/west clear at z=5, y=5.45.
+North/south clear at x=6, y=5.45.
+East/west clear at z=6, y=5.45.
+North/south clear at x=7, y=5.45.
+East/west clear at z=7, y=5.45.
+North/south clear at x=8, y=5.45.
+East/west clear at z=8, y=5.45.
+Pier (-10,-10) has front/back collision.
+Pier (-10,-10) meets retained flat terrain without a gap.
+Retaining wing at (-10,-10) has solid collision.
+Drain invert at (-10,-10) has solid collision.
+Pier (-10,10) has front/back collision.
+Pier (-10,10) meets retained flat terrain without a gap.
+Retaining wing at (-10,10) has solid collision.
+Drain invert at (-10,10) has solid collision.
+Deck parapet on x=-10 has solid collision.
+Deck parapet on z=-10 has solid collision.
+Pier (10,-10) has front/back collision.
+Pier (10,-10) meets retained flat terrain without a gap.
+Retaining wing at (10,-10) has solid collision.
+Drain invert at (10,-10) has solid collision.
+Pier (10,10) has front/back collision.
+Pier (10,10) meets retained flat terrain without a gap.
+Retaining wing at (10,10) has solid collision.
+Drain invert at (10,10) has solid collision.
+Deck parapet on x=10 has solid collision.
+Deck parapet on z=10 has solid collision.
+102 crossing-envelope rays verify ground-to-soffit clearance on both axes.
+TerrainToBank-1: supported initial pose.

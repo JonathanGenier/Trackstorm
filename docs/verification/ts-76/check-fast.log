@@ -1,0 +1,76 @@
+Fast-check plan for 18 changed path(s):
+  - Client Debug build
+  - Version rule regression tests
+  - Runtime: check-infield.ps1
+  - Runtime: check-oval.ps1
+  - Playtest/manual: Drive the active map with representative multi-car traffic when map collision, scale, banking or spawn behavior changed.
+
+>> Version rule regression tests
+Trackstorm Story version: expected '0.0.16'; actual '0.0.16'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm Story version: expected '0.1.15'; actual '0.1.15'.
+Trackstorm Story version: expected '0.2.1'; actual '0.2.1'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm Story version: expected '0.2.1'; actual '0.2.1'.
+Trackstorm Story version: expected '0.0.15'; actual '0.0.15'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.0.15.0'; actual file/product '0.0.15.0'.
+Trackstorm export preset versions: expected '0.0.15.0'; actual file/product '0.0.15.0'.
+Trackstorm export preset versions: expected '0.0.15.0'; actual file/product '0.0.15.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm Story version: expected '0.1.2'; actual '0.1.2'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.1'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.1'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.2.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.2.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Version rules: 108 checks passed.
+
+>> Client Debug build
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:01:07.64
+Runtime checks were routed but no Godot executable was supplied. Pass -GodotPath <path> or set GODOT_PATH.
+  pending runtime check: ./check-infield.ps1 -GodotPath <path>
+  pending runtime check: ./check-oval.ps1 -GodotPath <path>
+
+Required playtest/manual scenarios for this change:
+  - Drive the active map with representative multi-car traffic when map collision, scale, banking or spawn behavior changed.
+
+Fast targeted checks completed. Run ./check.ps1 before final Story handoff.

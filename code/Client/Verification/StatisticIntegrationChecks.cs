@@ -102,7 +102,7 @@ public sealed partial class StatisticIntegrationChecks : Node
             Tap(Key.F2);
             await Frames(3);
             Check(ReferenceEquals(_host.Arena, activeArena) && _host.Arena.Driver.Latest!.Tick > switchingTick, "tab switching preserves and advances the active match");
-            Check(Text().Contains("HP 1000/1000", StringComparison.Ordinal) && Text().Contains("Concrete", StringComparison.Ordinal), "real HP and surface");
+            Check(Text().Contains("HP 1000/1000", StringComparison.Ordinal) && Text().Contains("Asphalt", StringComparison.Ordinal), "real HP and authored asphalt handling surface");
             Check(_panel.View!.Players.Count == 2, "multiple entities available");
             Check(Text().Contains("Available spawns:", StringComparison.Ordinal), "spawn owner observed");
             ulong tick = _host.Arena!.Driver.Latest!.Tick;

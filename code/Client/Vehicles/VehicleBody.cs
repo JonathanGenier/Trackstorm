@@ -8,6 +8,9 @@ namespace Trackstorm.Client.Vehicles;
 /// <summary>Native observation/command adapter around the single Core simulation; standard force integration is disabled.</summary>
 public sealed partial class VehicleBody : RigidBody3D
 {
+    /// <summary>Current native support material, independent of simulation handling.</summary>
+    internal SurfaceIdentity? DetectedSurface { get; private set; }
+
     private readonly List<VehicleEffectRequest> _effects = new();
     private readonly VehicleFeedback _feedback = new();
     private VehiclePhysicsState? _reset;
@@ -99,6 +102,7 @@ public sealed partial class VehicleBody : RigidBody3D
     {
         if (!Snapshot.CanInteract && !_reset.HasValue)
         {
+            DetectedSurface = null;
             return new VehicleStepRequest(VehicleId, input, new VehicleObservation(Snapshot.Movement.Physics, Numerics.Vector3.Zero));
         }
 
@@ -129,7 +133,7 @@ public sealed partial class VehicleBody : RigidBody3D
 
             Vector3 relative = body.GetContactLocalVelocityAtPosition(contact) - body.GetContactColliderVelocityAtPosition(contact);
             var other = body.GetContactColliderObject(contact) as VehicleBody;
-            contacts.Add(new VehicleContact(ToCore(relative), ToCore(normal.Normalized()), body.GetContactImpulse(contact).Length(), other?.VehicleId ?? 0));
+            contacts.Add(new VehicleContact(ToCore(relative), ToCore(normal.Normalized()), body.GetContactImpulse(contact).Length(), other?.VehicleId ?? 0, body.GetContactColliderObject(contact) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= 0.55f, ToCore(body.Transform.AffineInverse() * body.GetContactLocalPosition(contact))));
         }
 
         // Prefer the center's surface while retaining native contact normals for existing slope handling.
@@ -154,13 +158,14 @@ public sealed partial class VehicleBody : RigidBody3D
         }
 
         var suspension = WheelSuspension.Observe(this, body.Transform, Configuration);
+        DetectedSurface = suspension.Identity;
         if (!suspension.Normal.IsZeroApprox())
         {
             support = suspension.Normal;
             surface = suspension.Surface;
         }
 
-        var observation = new VehicleObservation(Observe(body.Transform, body.LinearVelocity, body.AngularVelocity), ToCore(support.IsZeroApprox() ? Vector3.Zero : support.Normalized()), contacts, surface, suspension.Wheels);
+        var observation = new VehicleObservation(Observe(body.Transform, body.LinearVelocity, body.AngularVelocity), ToCore(support.IsZeroApprox() ? Vector3.Zero : support.Normalized()), contacts, surface, suspension.Wheels, ToCore(suspension.TerrainNormal), WaterObservation.Observe(this, body.Transform));
         return new VehicleStepRequest(VehicleId, InputSource?.Invoke(input.Tick) ?? input, observation, _effects, _reset);
     }
 

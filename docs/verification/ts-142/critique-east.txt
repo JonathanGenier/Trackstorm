@@ -1,0 +1,48 @@
+Blender infield imports at identity metre scale.
+Original flat floor has no active visual or collision; negative basins are usable.
+Terrain was authored against the retained TS-74 topology manifest.
+Preserved basin (-57, 0, -29): negative terrain support { "position": (-57.0, -1.795714, -29.0), "normal": (0.004201, 0.999939, 0.010222), "face_index": 157994, "collider_id": 40869300335, "collider": StaticBody3D:<StaticBody3D#40869300335>, "shape": 0, "rid": RID(2100239007746) }.
+Preserved basin (77, 0, -35): negative terrain support { "position": (77.0, -1.795455, -35.0), "normal": (0.013839, 0.999868, 0.008476), "face_index": 201417, "collider_id": 40869300335, "collider": StaticBody3D:<StaticBody3D#40869300335>, "shape": 0, "rid": RID(2100239007746) }.
+Preserved basin (-85, 0, 28): negative terrain support { "position": (-85.0, -1.793176, 28.0), "normal": (-0.000698, 0.99996, -0.008958), "face_index": 202287, "collider_id": 40869300335, "collider": StaticBody3D:<StaticBody3D#40869300335>, "shape": 0, "rid": RID(2100239007746) }.
+Preserved basin (85, 0, 28): negative terrain support { "position": (85.0, -1.793235, 28.0), "normal": (0.000571, 0.999963, -0.008572), "face_index": 201110, "collider_id": 40869300335, "collider": StaticBody3D:<StaticBody3D#40869300335>, "shape": 0, "rid": RID(2100239007746) }.
+WestLoop: width 12.0 m versus 2.662 m vehicle width.
+EastLoop: width 12.0 m versus 2.662 m vehicle width.
+NorthLink: width 12.0 m versus 2.662 m vehicle width.
+WestShortcut: width 14.0 m versus 2.662 m vehicle width.
+EastShortcut: width 14.0 m versus 2.662 m vehicle width.
+NorthSouth: width 16.0 m versus 2.662 m vehicle width.
+SouthWestEntry: width 16.0 m versus 2.662 m vehicle width.
+SouthEastEntry: width 16.0 m versus 2.662 m vehicle width.
+NorthWestEntry: width 16.0 m versus 2.662 m vehicle width.
+NorthEastEntry: width 16.0 m versus 2.662 m vehicle width.
+Tunnel has 18 m clear north/south opening.
+Central east/west intersection remains open below future earth bridge.
+Imported tunnel roof has usable collision at 5.5 m clearance.
+Rendered overview
+Rendered tunnel
+Rendered west-layout
+EastJump14: supported initial pose.
+Rendered EastJump14-drive
+Rendered EastJump14-air
+Rendered EastJump14-landing
+EastJump14: real launch (81.45704, 6.693058, -0.00041523477), landing (61.65689, 3.6146533, 0.00032574072), longest flight 1.73s, peak origin 8.82m, peak origin clearance 5.41m, launch horizontal speed 11.65m/s, airborne horizontal travel 19.80m; recovered grounded.
+EastJump14: lands on descending dirt zone at corridor metre 63.34.
+EastJump14: entire route driven using production physics/input; progress 49/51, position (27.559675, 0.8998727, 0.0016463913), velocity (-13.919201, 0.00092694163, -0.003176839); peak centerline error 1.00 m, unsupported frames 104, final HP 1000.
+EastJump14: no collision damage (1000/1000); launch (81.45704, 6.693058, -0.00041523477), landing (61.65689, 3.6146533, 0.00032574072), flight 104 frames.
+EastJump16: supported initial pose.
+Rendered EastJump16-drive
+Rendered EastJump16-air
+Rendered EastJump16-landing
+EastJump16: real launch (81.29661, 6.7879295, -0.0005852733), landing (55.168507, 2.5010936, -0.00027968312), longest flight 2.02s, peak origin 9.65m, peak origin clearance 6.42m, launch horizontal speed 13.20m/s, airborne horizontal travel 26.13m; recovered grounded.
+EastJump16: lands on descending dirt zone at corridor metre 69.83.
+EastJump16: entire route driven using production physics/input; progress 49/51, position (27.512959, 0.89965564, -0.0048789494), velocity (-15.985156, 0.002560392, -0.020646596); peak centerline error 1.00 m, unsupported frames 121, final HP 1000.
+EastJump16: no collision damage (1000/1000); launch (81.29661, 6.7879295, -0.0005852733), landing (55.168507, 2.5010936, -0.00027968312), flight 121 frames.
+EastJump18: supported initial pose.
+Rendered EastJump18-drive
+Rendered EastJump18-air
+Rendered EastJump18-landing
+EastJump18: real launch (81.15437, 6.8558216, -5.68666E-05), landing (47.842464, 1.4263623, 0.0008716977), longest flight 2.28s, peak origin 10.57m, peak origin clearance 7.43m, launch horizontal speed 14.85m/s, airborne horizontal travel 33.31m; recovered grounded.
+EastJump18: lands on descending dirt zone at corridor metre 77.16.
+EastJump18: entire route driven using production physics/input; progress 49/51, position (27.65492, 0.89911234, -0.03021726), velocity (-18.043465, 0.006634414, 0.19679461); peak centerline error 1.00 m, unsupported frames 137, final HP 1000.
+EastJump18: no collision damage (1000/1000); launch (81.15437, 6.8558216, -5.68666E-05), landing (47.842464, 1.4263623, 0.0008716977), flight 137 frames.
+Case filter exercised at least one driving scenario.

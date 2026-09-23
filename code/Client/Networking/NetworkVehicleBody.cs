@@ -8,6 +8,9 @@ namespace Trackstorm.Client.Networking;
 /// <summary>Synchronous Godot collision observation seam usable by both host steps and prediction replay.</summary>
 internal sealed partial class NetworkVehicleBody : StaticBody3D
 {
+    /// <summary>Current native support material, independent of simulation handling.</summary>
+    internal SurfaceIdentity? DetectedSurface { get; private set; }
+
     private readonly Node3D _visual = new();
     private VehicleConfiguration _configuration = new();
     private VehiclePhysicsState _previous;
@@ -97,6 +100,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     {
         if (!snapshot.CanInteract)
         {
+            DetectedSurface = null;
             return new VehicleObservation(snapshot.Movement.Physics, Numerics.Vector3.Zero);
         }
 
@@ -151,7 +155,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                     prop.ApplyCentralImpulse(-normal * Math.Min(1800, closing * prop.Mass));
                 }
 
-                contacts.Add(new VehicleContact(VehicleBody.ToCore(relative), VehicleBody.ToCore(normal), 0, other?.VehicleId ?? 0));
+                contacts.Add(new VehicleContact(VehicleBody.ToCore(relative), VehicleBody.ToCore(normal), 0, other?.VehicleId ?? 0, result.GetCollider(i) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= 0.55f, VehicleBody.ToCore(transform.AffineInverse() * result.GetCollisionPoint(i))));
                 if (normal.Y >= 0.55f)
                 {
                     support = normal;
@@ -199,13 +203,14 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         }
 
         var suspension = WheelSuspension.Observe(this, transform, _configuration);
+        DetectedSurface = suspension.Identity;
         if (!suspension.Normal.IsZeroApprox())
         {
             support = suspension.Normal;
             surface = suspension.Surface;
         }
 
-        return new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts, surface, suspension.Wheels);
+        return new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts, surface, suspension.Wheels, VehicleBody.ToCore(suspension.TerrainNormal), WaterObservation.Observe(this, transform));
     }
 
     /// <summary>Reconstructs the collision proxy immediately; rendering retains its own correction offset.</summary>

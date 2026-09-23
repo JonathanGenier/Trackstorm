@@ -192,12 +192,46 @@ public sealed partial class OvalIntegrationChecks : Node3D
         Check(_centers.Where(point => Math.Abs(point.X) > 107.001f).All(point => Math.Abs(new Vector2(Math.Abs(point.X) - 107, point.Z).Length() - 91) < 0.0001f), "Both imported turns have 91 m plan radius; tangent centers are 214 m apart.");
         var trackShape = _map.GetNode<CollisionShape3D>("Collision/Track/Shape").Shape as ConcavePolygonShape3D;
         Check(trackShape is not null && trackShape.GetFaces().SequenceEqual(points), $"One static road collision surface exactly matches the {points.Length / 3} exported triangles.");
+        var terrain = _map.GetNode("InfieldTerrain").FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>().Single(mesh => mesh.Name.ToString().StartsWith("InfieldTerrain", StringComparison.Ordinal));
+        Vector3[] terrainFaces = terrain.Mesh.GetFaces();
+        var terrainVertices = terrainFaces.Where(point => Math.Abs(point.Y) < 0.0001f).Distinct().ToArray();
+        Check(_inner.All(point => terrainVertices.Any(vertex => vertex.DistanceTo(point) < 0.0001f)), "Every original oval inner-edge vertex is retained in the terrain mesh within 0.1 mm float conversion tolerance.");
+        var terrainShape = terrain.GetChildren().OfType<StaticBody3D>().Single().GetChildren().OfType<CollisionShape3D>().Single().Shape as ConcavePolygonShape3D;
+        Check(terrainShape is not null, "Blender terrain has static concave collision.");
+        Vector3[] collisionFaces = terrainShape!.GetFaces();
+        // Godot reorders imported visual triangles and rounds their vertices.
+        // Compare the complete vertex sets spatially, not by importer index order.
+        static (int X, int Y, int Z) Cell(Vector3 point) => ((int)MathF.Floor(point.X * 1000), (int)MathF.Floor(point.Y * 1000), (int)MathF.Floor(point.Z * 1000));
+        var visualCells = terrainFaces.Distinct().GroupBy(Cell).ToDictionary(group => group.Key, group => group.ToArray());
+        float terrainError = 0;
+        foreach (Vector3 point in collisionFaces.Distinct())
+        {
+            var cell = Cell(point);
+            float nearest = float.MaxValue;
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                for (int dy = -1; dy <= 1; dy++)
+                {
+                    for (int dz = -1; dz <= 1; dz++)
+                    {
+                        if (visualCells.TryGetValue((cell.X + dx, cell.Y + dy, cell.Z + dz), out Vector3[]? candidates))
+                        {
+                            nearest = Math.Min(nearest, candidates.Min(candidate => candidate.DistanceTo(point)));
+                        }
+                    }
+                }
+            }
+
+            terrainError = Math.Max(terrainError, nearest);
+        }
+
+        Check(collisionFaces.Length == terrainFaces.Length && terrainError < 0.001f, $"Blender terrain visual/collision correspondence: {terrainFaces.Length / 3} triangles, maximum nearest-vertex import rounding error {terrainError:F7} m (limit 1 mm).");
     }
 
     private void VerifyCollision()
     {
         Node trackBody = _map.GetNode("Collision/Track");
-        Node infieldBody = _map.GetNode("Collision/Infield");
+        Node infieldBody = _map.GetNode("InfieldTerrain").FindChildren("*", "StaticBody3D", true, false).First(body => body.GetParent().Name.ToString().StartsWith("InfieldTerrain", StringComparison.Ordinal));
         float worstHeightError = 0;
         float worstNormalStep = 0;
         int samples = 0;
@@ -227,16 +261,22 @@ public sealed partial class OvalIntegrationChecks : Node3D
             worstNormalStep = Math.Max(worstNormalStep, before.Normal.AngleTo(after.Normal));
             Vector3 inset = _inner[index].Lerp(Vector3.Zero, 0.001f);
             var infield = Hit(inset);
+            var rimRoad = Hit(_inner[index].Lerp(_outer[index], 0.01f));
+            Check(infield.Normal.AngleTo(rimRoad.Normal) < 0.12f, $"Rim {index}: bank/terrain normal change {Mathf.RadToDeg(infield.Normal.AngleTo(rimRoad.Normal)):F3} degrees.");
             // Native broad-phase/triangle queries have submillimetre rounding at this map scale.
-            if (infield.Body != infieldBody || Math.Abs(infield.Position.Y) > 0.003f)
+            float insetDistance = HorizontalDistance(inset, _inner[index]);
+            if (infield.Body != infieldBody || Math.Abs(infield.Position.Y) > insetDistance * 0.72f + 0.003f || infield.Normal.Y < 0.8f)
             {
-                throw new InvalidOperationException($"Flat infield does not meet road at section {index}: {infield.Position}, {infield.Body}, expected {infieldBody}.");
+                throw new InvalidOperationException($"Terrain rim does not meet road at section {index}: {infield.Position}, {infield.Body}, expected {infieldBody}.");
             }
         }
 
         Check(worstHeightError < 0.025f, $"{samples} road raycasts including both sides of every seam: maximum height error {worstHeightError:F6} m.");
         Check(worstNormalStep < 0.03f, $"Continuous banking: maximum adjacent collision-normal step {Mathf.RadToDeg(worstNormalStep):F4} degrees.");
-        Check(Math.Abs(Hit(Vector3.Zero).Position.Y) < 0.003f, "Flat infield center and all 916 inner-rim samples meet the road at y=0 within 3 mm native-query tolerance.");
+        // Sample below the authored tunnel roof; the foundation floor is still y=0.
+        using var centerRay = PhysicsRayQueryParameters3D.Create(Vector3.Up * 2, Vector3.Down);
+        var centerHit = GetWorld3D().DirectSpaceState.IntersectRay(centerRay);
+        Check(centerHit.Count > 0 && Math.Abs(centerHit["position"].AsVector3().Y) < 0.003f, "Tunnel floor remains at zero; all 916 rim samples have continuous support within the bank grade bound.");
     }
 
     private void VerifyGrid()

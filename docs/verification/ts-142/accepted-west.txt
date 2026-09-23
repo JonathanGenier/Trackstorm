@@ -1,0 +1,36 @@
+Blender infield imports at identity metre scale.
+Original flat floor has no active visual or collision; negative basins are usable.
+Terrain was authored against the retained TS-74 topology manifest.
+Preserved basin (-57, 0, -29): negative terrain support { "position": (-57.0, -1.795714, -29.0), "normal": (0.004201, 0.999939, 0.010222), "face_index": 157994, "collider_id": 40500201592, "collider": StaticBody3D:<StaticBody3D#40500201592>, "shape": 0, "rid": RID(1816771166210) }.
+Preserved basin (77, 0, -35): negative terrain support { "position": (77.0, -1.795455, -35.0), "normal": (0.013839, 0.999868, 0.008476), "face_index": 201417, "collider_id": 40500201592, "collider": StaticBody3D:<StaticBody3D#40500201592>, "shape": 0, "rid": RID(1816771166210) }.
+Preserved basin (-85, 0, 28): negative terrain support { "position": (-85.0, -1.793176, 28.0), "normal": (-0.000698, 0.99996, -0.008958), "face_index": 202287, "collider_id": 40500201592, "collider": StaticBody3D:<StaticBody3D#40500201592>, "shape": 0, "rid": RID(1816771166210) }.
+Preserved basin (85, 0, 28): negative terrain support { "position": (85.0, -1.793235, 28.0), "normal": (0.000571, 0.999963, -0.008572), "face_index": 201110, "collider_id": 40500201592, "collider": StaticBody3D:<StaticBody3D#40500201592>, "shape": 0, "rid": RID(1816771166210) }.
+WestLoop: width 12.0 m versus 2.662 m vehicle width.
+EastLoop: width 12.0 m versus 2.662 m vehicle width.
+NorthLink: width 12.0 m versus 2.662 m vehicle width.
+WestShortcut: width 14.0 m versus 2.662 m vehicle width.
+EastShortcut: width 14.0 m versus 2.662 m vehicle width.
+NorthSouth: width 16.0 m versus 2.662 m vehicle width.
+SouthWestEntry: width 16.0 m versus 2.662 m vehicle width.
+SouthEastEntry: width 16.0 m versus 2.662 m vehicle width.
+NorthWestEntry: width 16.0 m versus 2.662 m vehicle width.
+NorthEastEntry: width 16.0 m versus 2.662 m vehicle width.
+Tunnel has 18 m clear north/south opening.
+Central east/west intersection remains open below future earth bridge.
+Imported tunnel roof has usable collision at 5.5 m clearance.
+WestJump14: supported initial pose.
+WestJump14: real launch (-81.50581, 6.6441927, 0.007061085), landing (-64.60805, 3.961395, 0.0036996817), longest flight 1.58s, peak origin 8.36m, peak origin clearance 4.78m, launch horizontal speed 10.90m/s, airborne horizontal travel 16.90m; recovered grounded.
+WestJump14: lands on descending dirt zone at corridor metre 60.39.
+WestJump14: entire route driven using production physics/input; progress 49/51, position (-27.651047, 0.89986145, -0.0010067913), velocity (14.071565, 0.0010123253, 0.0025238986); peak centerline error 1.00 m, unsupported frames 95, final HP 1000.
+WestJump14: no collision damage (1000/1000); launch (-81.50581, 6.6441927, 0.007061085), landing (-64.60805, 3.961395, 0.0036996817), flight 95 frames.
+WestJump16: supported initial pose.
+WestJump16: real launch (-81.298874, 6.7859154, 0.00041561807), landing (-55.439686, 2.6563878, 0.001998096), longest flight 2.00s, peak origin 9.63m, peak origin clearance 6.40m, launch horizontal speed 13.17m/s, airborne horizontal travel 25.86m; recovered grounded.
+WestJump16: lands on descending dirt zone at corridor metre 69.56.
+WestJump16: entire route driven using production physics/input; progress 49/51, position (-27.58147, 0.89965653, 0.0038542633), velocity (16.02237, 0.0025541335, 0.015006969); peak centerline error 1.00 m, unsupported frames 120, final HP 1000.
+WestJump16: no collision damage (1000/1000); launch (-81.298874, 6.7859154, 0.00041561807), landing (-55.439686, 2.6563878, 0.001998096), flight 120 frames.
+WestJump18: supported initial pose.
+WestJump18: real launch (-81.15469, 6.857387, 0.0005905448), landing (-47.873077, 1.3927616, -0.004587712), longest flight 2.28s, peak origin 10.56m, peak origin clearance 7.42m, launch horizontal speed 14.84m/s, airborne horizontal travel 33.28m; recovered grounded.
+WestJump18: lands on descending dirt zone at corridor metre 77.13.
+WestJump18: entire route driven using production physics/input; progress 49/51, position (-27.680767, 0.89908934, -0.027143432), velocity (18.019981, 0.006807655, 0.20554802); peak centerline error 1.00 m, unsupported frames 137, final HP 1000.
+WestJump18: no collision damage (1000/1000); launch (-81.15469, 6.857387, 0.0005905448), landing (-47.873077, 1.3927616, -0.004587712), flight 137 frames.
+Case filter exercised at least one driving scenario.

@@ -1,0 +1,34 @@
+00:06.453  blend            | Read blend: "C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\assets\maps\infield\source\InfieldGraybox.blend"
+C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\assets\maps\infield\BuildTerrain.py:147: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  mat.use_nodes = True
+Info: Saved as "InfieldTerrain.blend"
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+14:03:46 | INFO: Starting glTF 2.0 export
+14:03:46 | INFO: Extracting primitive: Continuous infield metre terrain
+14:03:47 | INFO: Primitives created: 1
+14:03:47 | INFO: Extracting primitive: Cube
+14:03:47 | INFO: Primitives created: 1
+14:03:47 | INFO: Extracting primitive: Cube.004
+14:03:47 | INFO: Primitives created: 1
+14:03:47 | INFO: Finished glTF 2.0 export in 1.4769399166107178 s
+Traceback (most recent call last):
+  File "C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\assets\maps\infield\BuildTerrain.py", line 167, in <module>
+    (ROOT/'terrain-sources.json').write_text(json.dumps(dict(provenance='Original Trackstorm Blender terrain derived from the approved TS-74 topology. No acquired assets.',files={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['source/InfieldTerrain.blend','infield_terrain.glb','terrain.json','layout.json']}),indent=2)+'\n', newline='\n')
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\python\Lib\pathlib\_local.py", line 555, in write_text
+    return PathBase.write_text(self, data, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\python\Lib\pathlib\_abc.py", line 651, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\python\Lib\pathlib\_local.py", line 537, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 22] Invalid argument: 'C:\\Users\\orsin\\OneDrive\\Desktop\\ThanTrick\\Trackstorm\\assets\\maps\\infield\\terrain-sources.json'
+
+
+Error: script failed, file: 'assets/maps/infield/BuildTerrain.py', exiting.
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

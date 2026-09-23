@@ -1,0 +1,10 @@
+{
+  "provenance": "Original Trackstorm Blender-authored graybox; no third-party assets acquired.",
+  "reference": "Jira TS-74 attachment 10017, layout direction only",
+  "files": {
+    "source/InfieldGraybox.blend": "6b593fb7bde41c728dbf603064ffb3233db48169ebd51eca6c4c9e472fe7cbb9",
+    "infield_graybox.glb": "e04c9c9485c7205d69ce7be944e5d78268025a00097d16cc89bc76e16cb950d1",
+    "layout.json": "5fa21825dfe218f2de6d4336182a4e87792284a7ae0692067095ea3208bc6bca",
+    "layout_palette.png": "4fc49036ceb8cca990ac245b166bae9306605a4dbebecb8a17eaeeaea38e2744"
+  }
+}

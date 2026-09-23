@@ -1,0 +1,10 @@
+00:10.438  blend            | Read blend: "C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\assets\maps\infield\source\InfieldTerrain.blend"
+00:11.297  blend            | Read blend: "C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts76-baseline.blend"
+00:11.500  blend            | Read blend: "C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\assets\maps\infield\source\InfieldStructures.blend"
+PASS: unchanged horizontal topology and all 146145 vertices outside approved dirt fills, including takeoff faces/central underpass.
+Changed terrain vertices: 55365
+PASS: 53 editable parts, ten retained lateral barriers, both jump-facing ends open, authored continuous deck collider.
+PASS: all source/export manifest hashes match.
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

@@ -63,12 +63,12 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("match.kill_target", 5d)]
     [TestCase("match.minimum_players", 2d)]
     [TestCase("match.countdown_ticks", 180d)]
-    [TestCase("vehicle.concrete.grip", 1d)]
+    [TestCase("vehicle.concrete.grip", (double)0.95f)]
     [TestCase("vehicle.concrete.drag", 1d)]
-    [TestCase("vehicle.concrete.acceleration", 1d)]
-    [TestCase("vehicle.mud.grip", 0.550000011920929d)]
-    [TestCase("vehicle.mud.drag", 3d)]
-    [TestCase("vehicle.mud.acceleration", 0.6000000238418579d)]
+    [TestCase("vehicle.concrete.acceleration", (double)0.98f)]
+    [TestCase("vehicle.mud.grip", (double)0.6f)]
+    [TestCase("vehicle.mud.drag", 2.5d)]
+    [TestCase("vehicle.mud.acceleration", (double)0.85f)]
     public void HostedDefaultsMatchApprovedTuning(string key, double expected)
     {
         var option = GameplayOptions.All.Single(option => option.Key == key);
@@ -80,7 +80,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(83));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(97));
         Assert.That(defaults.Items.MaximumOilPatches, Is.EqualTo(16));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);

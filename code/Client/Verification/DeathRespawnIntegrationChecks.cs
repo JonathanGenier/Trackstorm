@@ -31,6 +31,8 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
     private bool _finished;
     private int _cleanupFrames;
     private bool _captured;
+    private bool Water => OS.GetCmdlineUserArgs().Contains("--death-water");
+    private string Cause => Water ? "water" : _cycle % 2 == 0 ? "missile" : "collision";
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -142,7 +144,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
         HostVehicleSession host = _arenas[0].Driver.Host!;
         switch (_stage)
         {
-            case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Driver.LocalState is not null):
+            case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Driver.LocalState is not null && arena.Driver.ItemState is not null):
                 foreach (var arena in _arenas)
                 {
                     OvalGameplayAssertions.Verify(arena);
@@ -155,7 +157,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
                 // Allow setup snapshots and inventory grants to reach every peer before launching.
                 if (_elapsed - _started > 0.4)
                 {
-                    if (_cycle % 2 == 0)
+                    if (!Water && _cycle % 2 == 0)
                     {
                         Require(_arenas[2].Driver.RequestItemUse(), "Remote shooter submits its issued missile.");
                     }
@@ -168,7 +170,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
             case 2 when _boundaries.All(outcomes => outcomes.Any(state => state.LifeId == _life && state.Lifecycle == VehicleLifecycle.Dead)):
                 VehicleSnapshot death = _boundaries[0].Single(state => state.LifeId == _life && state.Lifecycle == VehicleLifecycle.Dead);
                 _deadline = death.RespawnAtTick!.Value;
-                Require(death.Damage.LastDamage!.Attribution.Source == (_cycle % 2 == 0 ? "missile" : "collision"), "Production damage source causes the death.");
+                Require(death.Damage.LastDamage!.Attribution.Source == Cause, "Production damage source causes the death.");
                 foreach (var arena in _arenas)
                 {
                     VehicleSnapshot state = arena.Driver.Latest!.Vehicles.Single(vehicle => vehicle.State.VehicleId == _victim).State;
@@ -224,7 +226,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
             case 4 when _elapsed - _started > 0.25:
                 // Capture after the renderer has presented the new life, before arranging the next scenario.
                 Capture($"respawn-{_cycle}.png");
-                string evidence = $"Cycle {_cycle + 1}: {(_cycle % 2 == 0 ? "missile" : "collision")} death, all eight peers Dead/Respawning/Alive, respawn tick {_deadline}, reset physics/HP/items/VFX verified.";
+                string evidence = $"Cycle {_cycle + 1}: {Cause} death, all eight peers Dead/Respawning/Alive, respawn tick {_deadline}, reset physics/HP/items/VFX verified.";
                 _evidence.Add(evidence);
                 GD.Print(evidence);
                 if (++_cycle == 4)
@@ -259,16 +261,20 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
             {
                 pose = new VehiclePhysicsState(_cycle % 2 == 0 ? new Numerics.Vector3(-40, 0.6f, -5) : new Numerics.Vector3(-57.5f, 0.6f, -35), Numerics.Quaternion.Identity, _cycle % 2 == 0 ? Numerics.Vector3.Zero : new Numerics.Vector3(-60, 0, 0), Numerics.Vector3.Zero);
             }
+            if (Water && state.VehicleId == _victim)
+            {
+                pose = new VehiclePhysicsState(new Numerics.Vector3(77, -0.75f, -35), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
+            }
             else if (state.VehicleId == shooter)
             {
                 pose = new VehiclePhysicsState(new Numerics.Vector3(-40, 0.6f, 5), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
             }
 
-            return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(state.Damage.MaxHP, state.VehicleId == _victim ? 20 : state.Damage.MaxHP, null, null), pose);
+            return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(state.Damage.MaxHP, state.VehicleId == _victim && !Water ? 20 : state.Damage.MaxHP, null, null), pose);
         }).ToArray();
         host.World.Restore(new SimulationState(host.World.State.Tick, host.World.State.LastInput, states, host.World.State.Match));
         Require(host.Items.Grant(host.World, _victim, HeldItem.Wrench), "Victim holds an item before death.");
-        if (_cycle % 2 == 0)
+        if (!Water && _cycle % 2 == 0)
         {
             Require(host.Items.Grant(host.World, shooter, HeldItem.Missile), "Shooter receives a missile.");
         }

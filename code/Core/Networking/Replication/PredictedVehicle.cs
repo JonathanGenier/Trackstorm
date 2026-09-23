@@ -118,7 +118,7 @@ public sealed class PredictedVehicle
             physics = observation.Physics;
             var predictor = new VehicleMovement(_configuration.Vehicle, physics);
             predictor.Restore(previous.Movement);
-            movement = predictor.Step(frame, physics, observation.Support, true, observation.Surface, observation.Wheels);
+            movement = predictor.Step(frame, physics, observation.Support, true, observation.Surface, observation.Wheels, waterDepth: observation.WaterDepth);
         }
         else
         {
@@ -127,6 +127,6 @@ public sealed class PredictedVehicle
         }
 
         // Prediction owns movement only: collision observations cannot kill, heal or respawn a player.
-        Restore(new VehicleSnapshot(_vehicle, previous.LifeId, movement, previous.Damage, physics, lifecycle: previous.Lifecycle, respawnAtTick: previous.RespawnAtTick));
+        Restore(new VehicleSnapshot(_vehicle, previous.LifeId, movement, previous.Damage, physics, lifecycle: previous.Lifecycle, respawnAtTick: previous.RespawnAtTick, landing: previous.Landing));
     }
 }

@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Cycle 1: missile death, all eight peers Dead/Respawning/Alive, respawn tick 215, reset physics/HP/items/VFX verified.
+Cycle 2: collision death, all eight peers Dead/Respawning/Alive, respawn tick 412, reset physics/HP/items/VFX verified.
+Cycle 3: missile death, all eight peers Dead/Respawning/Alive, respawn tick 640, reset physics/HP/items/VFX verified.
+Cycle 4: collision death, all eight peers Dead/Respawning/Alive, respawn tick 836, reset physics/HP/items/VFX verified.
+Death/respawn integration passed.
+Death/respawn verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\death-checks\8772858a79e34ff6bab22cda655072ce

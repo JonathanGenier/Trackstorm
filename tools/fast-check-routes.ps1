@@ -39,6 +39,14 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'Water|water_checks|check-water' -or $path -eq 'docs/features/water.md') {
+            Add-Runtime 'check-water.ps1'
+            Add-Manual 'Drive repeated shallow/deep Water entry/exit and run check-death-respawn.ps1 -Water -Impaired for eight-peer lifecycle replication.'
+        }
+        if ($path -match '(?i)SurfaceIdentity|SurfaceField|BuildSurfaces|surface_checks|check-surfaces|surface_field|surface-sources' -or $path -eq 'docs/features/surfaces.md') {
+            Add-Runtime 'check-surfaces.ps1'
+            Add-Manual 'Inspect material readability, gradual shoulders, designated Water basin and local Stats during driving.'
+        }
         # Feature-document-only edits stay cheap. Feature docs act as route hints only
         # when the same change also contains production/runtime files.
         if ($path -match '^docs/features/' -and -not $hasProductionChanges) {
@@ -96,15 +104,21 @@ function Get-FastCheckPlan {
         }
 
         # Vehicles, simulation and camera.
+        if ($path -match '^code/(Core|Client)/Vehicles/' -or $path -match 'TerrainHandling|terrain_handling|check-terrain-handling') {
+            Add-Runtime 'check-terrain-handling.ps1'
+            Add-Manual 'Drive all normal surfaces and transitions; restart uphill on infield grades; verify host tuning and client prediction.'
+        }
         if ($path -match '^code/(Core|Client)/Vehicles/' -or
             $path -eq 'docs/features/vehicles.md' -or
             $path -eq 'scenes/verification/vehicle_checks.tscn') {
             Add-Runtime 'check-vehicle.ps1'
+            Add-Runtime 'check-landing.ps1'
             Add-Manual 'Drive/playtest the affected vehicle behavior, including multiple cars when collisions or shared physics are material.'
         }
 
         if ($path -match '^code/Core/Simulation/' -or $path -eq 'docs/features/simulation.md') {
             Add-Runtime 'check-vehicle.ps1'
+            Add-Runtime 'check-landing.ps1'
             Add-Runtime 'check-match.ps1'
             Add-Manual 'Exercise sustained fixed-step gameplay and relevant multi-entity state transitions after simulation changes.'
         }
@@ -134,7 +148,12 @@ function Get-FastCheckPlan {
             $path -eq 'docs/features/oval-map.md' -or
             $path -match '(?i)oval') {
             Add-Runtime 'check-oval.ps1'
+            Add-Runtime 'check-infield.ps1'
             Add-Manual 'Drive the active map with representative multi-car traffic when map collision, scale, banking or spawn behavior changed.'
+        }
+
+        if ($path -match '(?i)infield') {
+            Add-Runtime 'check-infield.ps1'
         }
 
         # Input, settings, menu and HUD.

@@ -14,11 +14,14 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+Assert-True ((Get-FastCheckPlan -Paths @("code/Client/Vehicles/WaterObservation.cs")).RuntimeScripts -contains "check-water.ps1") "Water observations route native water verification."
+Assert-True ((Get-FastCheckPlan -Paths @("code/Client/Vehicles/SurfaceIdentityResolver.cs")).RuntimeScripts -contains "check-surfaces.ps1") "Material identity changes route native surface verification."
 Assert-True ((Get-FastCheckPlan -Paths @("check-nitro.ps1")).RuntimeScripts -contains "check-nitro.ps1") "Nitro harness changes retain native verification."
 $vehiclePlan = Get-FastCheckPlan -Paths @("code/Core/Vehicles/VehicleSimulation.cs", "code/Client/Vehicles/VehicleController.cs")
 Assert-True $vehiclePlan.CoreTests "Vehicle Core changes must route Core tests."
 Assert-True $vehiclePlan.ClientBuild "Vehicle Client changes must route a Client build."
 Assert-True ($vehiclePlan.RuntimeScripts -contains "check-vehicle.ps1") "Vehicle changes must route check-vehicle.ps1."
+Assert-True ($vehiclePlan.RuntimeScripts -contains "check-terrain-handling.ps1") "Vehicle changes must verify surface handling and slope starts."
 Assert-True ($vehiclePlan.ManualScenarios.Count -gt 0) "Vehicle changes must preserve playtest guidance."
 
 $networkPlan = Get-FastCheckPlan -Paths @("code/Client/Networking/VehicleReplicator.cs")

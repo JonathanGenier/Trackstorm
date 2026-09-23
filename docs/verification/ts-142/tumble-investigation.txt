@@ -1,0 +1,9 @@
+east-native-tumble initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-native-tumble tick=30 phase=Recovery hp=1000.00 terrain=True local=<0.15483147, -0.7500591, 1.2932854> normal=<-0.10569939, 0.9943982, 0> severity=14.75
+east-native-tumble tick=31 phase=Recovery hp=1000.00 terrain=True local=<-1.3161438, -0.7568579, 1.234417> normal=<-0.10594873, 0.9943716, 0.00023740112> severity=0.56
+east-native-tumble tick=32 phase=Recovery hp=1000.00 terrain=True local=<1.7419164, -0.8100729, -1.099308> normal=<-0.14224088, 0.9894846, -0.026224038> severity=75.51
+east-native-tumble tick=33 phase=Crash hp=1000.00 terrain=True local=<1.8053765, -1.1716237, 1.3810768> normal=<-0.31153816, 0.7275452, -0.6112463> severity=0.00
+RESULT east-native-tumble: HP=1000.00, phases=Driving,Airborne,Recovery,Crash, contacts=16, forgivenFrames=3, kick=True, position=<13.99268, 7.931079, -36.48579>, velocity=<-5.05093, -45.94878, -3.8505564>
+System.InvalidOperationException: east-native-tumble meaningful crash did not damage.
+   at Trackstorm.Client.Verification.LandingIntegrationChecks.Drop(Boolean network, String name, Single yaw, Single roll, Single pitch) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\LandingIntegrationChecks.cs:line 178
+   at Trackstorm.Client.Verification.LandingIntegrationChecks.Run() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\LandingIntegrationChecks.cs:line 89

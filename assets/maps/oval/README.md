@@ -81,6 +81,10 @@ No analytic replacement curve or concept-art reconstruction is used.
 
 [Current map architecture](../../../docs/features/oval-map.md)
 
+The scene baker also instances the separate [infield layout graybox](../infield/README.md).
+Its authoring source, route reservations, tunnel and verification are independent
+of this immutable oval foundation; rebuilding the foundation does not regenerate it.
+
 ## Combat environment authoring
 
 Run Blender 5.2.2 with `--background --python-exit-code 1 --python assets/maps/oval/BuildEnvironment.py` to regenerate the original conifer variants, `source/OvalEnvironment.blend`, `conifers.glb`, and grass maps. This script does not modify the foundation blend, GLB or measurements. Grass maps are a deterministic original 1024-pixel seamless 2 m patch, combined with a restrained 16 m isotropic detail layer (the separate 64 m macro layer remains on asphalt), not an acquired photograph. Blender mesh geometry is exported Y-up in metres with applied coordinates and no animation. Godot consumes the GLB, never the blend.

@@ -1,10 +1,12 @@
 [gd_scene format=4]
 
+[ext_resource type="PackedScene" path="res://assets/maps/infield/infield_terrain.glb" id="infield_terrain"]
+[ext_resource type="PackedScene" path="res://assets/maps/infield/infield_structures.glb" id="infield_structures"]
+
 [ext_resource type="PackedScene" path="res://assets/maps/oval/oval_foundation.glb" id="1_k7ftl"]
 [ext_resource type="Material" path="res://assets/maps/oval/Grass.tres" id="2_mku4n"]
 [ext_resource type="Material" path="res://assets/maps/oval/Asphalt.tres" id="3_m6igb"]
 [ext_resource type="Shape3D" path="res://assets/maps/oval/TrackCollision.tres" id="4_g8yx0"]
-[ext_resource type="Shape3D" path="res://assets/maps/oval/InfieldCollision.tres" id="5_8l3bq"]
 [ext_resource type="Material" path="res://assets/arena/materials/Concrete.tres" id="6_upc2u"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bbdx1"]
@@ -1493,6 +1495,7 @@ buffer = PackedFloat32Array(0.022150302, 0, 0.7356288, -103.24783, 0, 0.81387997
 mesh = SubResource("ArrayMesh_hgrku")
 
 [node name="Infield" parent="Geometry" index="1" unique_id=1311025581]
+visible = false
 material_override = ExtResource("2_mku4n")
 mesh = SubResource("ArrayMesh_cvluj")
 
@@ -1502,15 +1505,11 @@ mesh = SubResource("ArrayMesh_u0nyf")
 
 [node name="Collision" type="Node3D" parent="." unique_id=476622518]
 
-[node name="Track" type="StaticBody3D" parent="Collision" unique_id=2033836968]
+[node name="Track" type="StaticBody3D" parent="Collision" unique_id=2033836968 groups=["landing_terrain"]]
+metadata/surface_identity = "Asphalt"
 
 [node name="Shape" type="CollisionShape3D" parent="Collision/Track" unique_id=1842522546]
 shape = ExtResource("4_g8yx0")
-
-[node name="Infield" type="StaticBody3D" parent="Collision" unique_id=305059236]
-
-[node name="Shape" type="CollisionShape3D" parent="Collision/Infield" unique_id=680670072]
-shape = ExtResource("5_8l3bq")
 
 [node name="PlayerSpawns" type="Node3D" parent="." unique_id=1079784798]
 
@@ -1557,6 +1556,7 @@ metadata/slot_width_m = 3.0
 [node name="MapContent" type="Node3D" parent="." unique_id=83921450]
 
 [node name="OuterContainment" type="StaticBody3D" parent="MapContent" unique_id=1524285431]
+metadata/surface_identity = "Concrete"
 
 [node name="Section000" type="CollisionShape3D" parent="MapContent/OuterContainment" unique_id=1871111262]
 shape = SubResource("ConvexPolygonShape3D_akxyn")
@@ -2500,3 +2500,7 @@ metadata/surface_lane_m = 15.0
 metadata/source_section = 871
 
 [editable path="Geometry"]
+
+[node name="InfieldTerrain" parent="." instance=ExtResource("infield_terrain")]
+
+[node name="InfieldStructures" parent="." instance=ExtResource("infield_structures")]
