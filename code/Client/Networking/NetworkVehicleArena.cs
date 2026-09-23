@@ -208,7 +208,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         {
             if (_driver.LocalState is VehicleSnapshot cameraState)
             {
-                _camera.Follow(local.VisualTransform, cameraState, (float)delta);
+                _camera.Follow(local.VisualTransform, cameraState, (float)delta, local.GetRid());
             }
         }
 

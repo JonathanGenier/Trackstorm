@@ -64,7 +64,7 @@ public sealed partial class CameraShakePlaytest : Node
         try
         {
             _seconds += (float)delta;
-            _reference.Follow(_arena.Player.GetGlobalTransformInterpolated(), _arena.Player.Snapshot, (float)delta);
+            _reference.Follow(_arena.Player.GetGlobalTransformInterpolated(), _arena.Player.Snapshot, (float)delta, _arena.Player.GetRid());
             Vector3 target = _arena.Player.GetGlobalTransformInterpolated().Origin;
             float pixels = _camera.UnprojectPosition(target).DistanceTo(_reference.UnprojectPosition(target));
             pixels *= 720 / GetViewport().GetVisibleRect().Size.Y;

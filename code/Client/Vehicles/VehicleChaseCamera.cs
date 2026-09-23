@@ -8,6 +8,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
 {
     private readonly ChaseCameraMotion _motion = new();
     private readonly CameraFreeLook _look = new();
+    private readonly CameraObstruction _obstruction = new();
     private bool _initialized;
     private ulong _vehicle;
     private ulong _life;
@@ -80,6 +81,9 @@ public sealed partial class VehicleChaseCamera : Camera3D
         PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off;
     }
 
+    /// <inheritdoc/>
+    public override void _ExitTree() => _obstruction.Dispose();
+
     /// <summary>Coalesces existing native contacts into presentation feedback.</summary>
     /// <param name="observation">Native contact data.</param>
     /// <param name="mass">Mass for impulse normalization.</param>
@@ -98,7 +102,8 @@ public sealed partial class VehicleChaseCamera : Camera3D
     /// <param name="pose">Interpolated displayed pose.</param>
     /// <param name="state">Aggregate for identity and damage.</param>
     /// <param name="delta">Elapsed presentation seconds.</param>
-    internal void Follow(Transform3D pose, VehicleSnapshot state, float delta)
+    /// <param name="followedBody">Native body excluded from presentation queries.</param>
+    internal void Follow(Transform3D pose, VehicleSnapshot state, float delta, Rid followedBody = default)
     {
         bool reset = !_initialized || state.VehicleId != _vehicle || state.LifeId != _life;
         Vector3 forward = -pose.Basis.Z;
@@ -158,9 +163,25 @@ public sealed partial class VehicleChaseCamera : Camera3D
         GlobalBasis = Basis.FromEuler(new Vector3(basePitch + _look.Pitch, _heading + _look.Yaw, 0));
         float radius = MathF.Sqrt(distance * distance + (height - 0.5f) * (height - 0.5f));
         System.Numerics.Vector2 shake = _motion.ShakeOffset * Math.Clamp(MaximumShakeMetres, 0, 0.65f) * ShakeIntensity;
-        GlobalPosition = _anchor + Vector3.Up * 0.5f + GlobalBasis.Z * radius
-            + backward * _motion.Offset.Y + right * _motion.Offset.X
-            + GlobalBasis.X * shake.X + GlobalBasis.Y * shake.Y;
+        Vector3 intent = _anchor + Vector3.Up * 0.5f + GlobalBasis.Z * radius
+            + backward * _motion.Offset.Y + right * _motion.Offset.X;
+        Vector3 desired = intent + GlobalBasis.X * shake.X + GlobalBasis.Y * shake.Y;
+        // Enclose the actual near-plane corners, including wide aspect ratios. Sweep after
+        // inertia and shake so neither can place the rendered camera inside a world solid.
+        Vector2 viewport = GetViewport().GetVisibleRect().Size;
+        float aspect = viewport.X / Math.Max(1, viewport.Y);
+        float half = Near * MathF.Tan(Mathf.DegToRad(Fov) * 0.5f);
+        float planeRadius = MathF.Sqrt(Near * Near + half * half * (1 + (KeepAspect == KeepAspectEnum.Height ? aspect * aspect : 1 / (aspect * aspect))));
+        GlobalPosition = _obstruction.Resolve(GetWorld3D().DirectSpaceState, pose.Origin + Vector3.Up * 0.5f, desired, intent, Math.Max(0.25f, planeRadius + 0.05f), followedBody, delta, reset);
+        if (_obstruction.Lift > 0.001f)
+        {
+            // Only the cramped-view lift changes pitch, keeping the car framed below the
+            // raised lens. Orbit intent and the normal chase basis remain untouched.
+            Vector3 offset = GlobalPosition - (pose.Origin + Vector3.Up * 0.5f);
+            float horizontal = new Vector2(offset.X, offset.Z).Length();
+            float pitchCorrection = MathF.Atan2(offset.Y, horizontal) - MathF.Atan2(offset.Y - _obstruction.Lift, horizontal);
+            GlobalBasis = GlobalBasis.Rotated(GlobalBasis.X, -pitchCorrection);
+        }
         _initialized = true;
     }
 }

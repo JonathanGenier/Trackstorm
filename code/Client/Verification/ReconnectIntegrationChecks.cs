@@ -181,7 +181,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 _resyncs++;
                 var camera = _arenas[1].GetNode<Vehicles.VehicleChaseCamera>("ChaseCamera");
                 var cameraPose = _arenas[1].Bodies[_player].VisualTransform;
-                camera.Follow(cameraPose, _arenas[1].LocalState!, 0);
+                camera.Follow(cameraPose, _arenas[1].LocalState!, 0, _arenas[1].Bodies[_player].GetRid());
                 float expectedYaw = MathF.Atan2(cameraPose.Basis.Z.X, cameraPose.Basis.Z.Z);
                 float actualYaw = MathF.Atan2(camera.GlobalBasis.Z.X, camera.GlobalBasis.Z.Z);
                 Require(Math.Abs(Mathf.AngleDifference(expectedYaw, actualYaw)) < 0.0001f, "Resume clears held free-look on the reused displayed vehicle.");
@@ -352,13 +352,13 @@ public sealed partial class ReconnectIntegrationChecks : Node
             _cameraInput.Adapter.Enabled = true;
             _cameraInput._Process(0);
             var pose = _arenas[1].Bodies[_player].VisualTransform;
-            camera.Follow(pose, cameraState, 1f / 60);
+            camera.Follow(pose, cameraState, 1f / 60, _arenas[1].Bodies[_player].GetRid());
             using var heldLook = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true };
             Godot.Input.ParseInputEvent(heldLook);
             Godot.Input.FlushBufferedEvents();
             using var motion = new InputEventMouseMotion { ScreenRelative = new Vector2(350, 0) };
             _cameraInput.Adapter.ObserveCamera(motion);
-            camera.Follow(pose, cameraState, 1f / 60);
+            camera.Follow(pose, cameraState, 1f / 60, _arenas[1].Bodies[_player].GetRid());
             Require(Math.Abs(Mathf.AngleDifference(MathF.Atan2(pose.Basis.Z.X, pose.Basis.Z.Z), MathF.Atan2(camera.GlobalBasis.Z.X, camera.GlobalBasis.Z.Z))) > 0.5f, "Reconnect starts with an active held orbit.");
         }
 

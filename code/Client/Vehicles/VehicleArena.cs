@@ -140,7 +140,7 @@ public sealed partial class VehicleArena : Node3D
     public override void _Process(double delta)
     {
         _audio.Follow(Simulation.State.Vehicles, id => _vehicles.Single(vehicle => vehicle.VehicleId == id).GlobalPosition, Simulation.State.Tick);
-        _camera.Follow(Player.GetGlobalTransformInterpolated(), Player.Snapshot, (float)delta);
+        _camera.Follow(Player.GetGlobalTransformInterpolated(), Player.Snapshot, (float)delta, Player.GetRid());
         if (_blast is not null)
         {
             _blastSeconds -= (float)delta;
