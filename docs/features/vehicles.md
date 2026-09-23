@@ -50,6 +50,18 @@ Collision severity is the larger of relative normal closing speed and contact im
 
 Damage feedback is Client-only: identification-panel flashes, a dark panel color, a visible expanding blast, HP/destruction text and [arena audio](audio.md) for engines, skids, collisions, damage, destruction and respawn. Audio consumes confirmed state and routes through the Vehicle/SFX hierarchy. Camera, feedback and UI cannot change HP or damage math.
 
+## Terrain landing recovery
+
+Core retains a landing episode in each vehicle aggregate. Three consecutive ticks without meaningful driveable-terrain wheel support begin an airborne episode. Airborne status alone never suppresses damage. The first terrain wheel support or body contact classifies the landing; a valid landing starts a 60-tick recovery window. Six supported ticks with local pitch/roll angular speed below 1.5 rad/s mark recovery. Yaw rate and sideways travel do not disqualify it.
+
+Contact normals are transformed into vehicle-local axes. The landing envelope allows up to 50 degrees of roll and 40 degrees of pitch relative to the terrain; a forgiven body contact must also lie below the local origin by more than 0.15 m, consistent with wheel/underside support. This includes suspension bottom-out and does not require simultaneous four-wheel contact. Recovery only forgives qualifying terrain contacts. A non-landable terrain contact enters Crash immediately; meaningful first or secondary impacts use the unchanged severity, attribution and cooldown rules. Crash remains latched through unsupported tumble bounces until six stable supported ticks. Recovery expires after one second at the production 60 Hz rate.
+
+Both native adapters report explicit terrain identity, local contact position and terrain wheel-support normal. The oval road and imported infield terrain are tagged with the persistent `landing_terrain` group; tunnel structures, containment, props and other vehicles are excluded. Old Map tags its ground tiles and salvage ramp. Only faces meeting the existing suspension driveability cutoff (normal Y >= 0.55) carry terrain identity. This cutoff identifies driveable surfaces; landing attitude is evaluated relative to their normals, not world up. Surface material identifiers do not grant forgiveness.
+
+Forgiven contacts are removed before strongest-contact selection and never consume collision cooldown or emit damage/scoring events. Simultaneous obstacles and vehicle impacts remain eligible. New lives and destruction clear the episode; tuning preserves it. Version-three complete aggregate and version-eight vehicle network codecs retain the episode continuation for restore, reconnect and authority migration. Prediction continues movement only and retains the last confirmed landing/HP state.
+
+`check-landing.ps1 -GodotPath <path> [-Visual]` exercises controlled drops, sideways spins, bottom-out, banked support, crash attitudes, secondary tumbles and obstacle/vehicle impacts through both production adapters on the unchanged infield landing zone. `check-infield.ps1 -Case WestJump` and `-Case EastJump` exercise actual input-driven takeoff, flight and recovery. Controlled initial poses and induced tumble impulses are verification fixtures, not gameplay assistance.
+
 ## Static vehicle presentation
 
 The single gameplay model is a Kenney hatchback converted with rusted metal bodywork, armor panels, guards, weld strips, exhaust stacks and windshield bars. The [asset notes](../../assets/vehicles/README.md) describe authoring, dimensions and provenance. Body and tire materials use the specified Poly Haven 1K maps; supplemental armor reuses the arena Rusty Metal Sheet maps.

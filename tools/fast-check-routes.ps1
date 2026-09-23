@@ -100,11 +100,13 @@ function Get-FastCheckPlan {
             $path -eq 'docs/features/vehicles.md' -or
             $path -eq 'scenes/verification/vehicle_checks.tscn') {
             Add-Runtime 'check-vehicle.ps1'
+            Add-Runtime 'check-landing.ps1'
             Add-Manual 'Drive/playtest the affected vehicle behavior, including multiple cars when collisions or shared physics are material.'
         }
 
         if ($path -match '^code/Core/Simulation/' -or $path -eq 'docs/features/simulation.md') {
             Add-Runtime 'check-vehicle.ps1'
+            Add-Runtime 'check-landing.ps1'
             Add-Runtime 'check-match.ps1'
             Add-Manual 'Exercise sustained fixed-step gameplay and relevant multi-entity state transitions after simulation changes.'
         }

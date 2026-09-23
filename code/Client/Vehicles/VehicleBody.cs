@@ -129,7 +129,7 @@ public sealed partial class VehicleBody : RigidBody3D
 
             Vector3 relative = body.GetContactLocalVelocityAtPosition(contact) - body.GetContactColliderVelocityAtPosition(contact);
             var other = body.GetContactColliderObject(contact) as VehicleBody;
-            contacts.Add(new VehicleContact(ToCore(relative), ToCore(normal.Normalized()), body.GetContactImpulse(contact).Length(), other?.VehicleId ?? 0));
+            contacts.Add(new VehicleContact(ToCore(relative), ToCore(normal.Normalized()), body.GetContactImpulse(contact).Length(), other?.VehicleId ?? 0, body.GetContactColliderObject(contact) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= 0.55f, ToCore(body.Transform.AffineInverse() * body.GetContactLocalPosition(contact))));
         }
 
         // Prefer the center's surface while retaining native contact normals for existing slope handling.
@@ -160,7 +160,7 @@ public sealed partial class VehicleBody : RigidBody3D
             surface = suspension.Surface;
         }
 
-        var observation = new VehicleObservation(Observe(body.Transform, body.LinearVelocity, body.AngularVelocity), ToCore(support.IsZeroApprox() ? Vector3.Zero : support.Normalized()), contacts, surface, suspension.Wheels);
+        var observation = new VehicleObservation(Observe(body.Transform, body.LinearVelocity, body.AngularVelocity), ToCore(support.IsZeroApprox() ? Vector3.Zero : support.Normalized()), contacts, surface, suspension.Wheels, ToCore(suspension.TerrainNormal));
         return new VehicleStepRequest(VehicleId, InputSource?.Invoke(input.Tick) ?? input, observation, _effects, _reset);
     }
 

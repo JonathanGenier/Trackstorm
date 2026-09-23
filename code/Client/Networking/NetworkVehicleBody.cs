@@ -151,7 +151,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                     prop.ApplyCentralImpulse(-normal * Math.Min(1800, closing * prop.Mass));
                 }
 
-                contacts.Add(new VehicleContact(VehicleBody.ToCore(relative), VehicleBody.ToCore(normal), 0, other?.VehicleId ?? 0));
+                contacts.Add(new VehicleContact(VehicleBody.ToCore(relative), VehicleBody.ToCore(normal), 0, other?.VehicleId ?? 0, result.GetCollider(i) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= 0.55f, VehicleBody.ToCore(transform.AffineInverse() * result.GetCollisionPoint(i))));
                 if (normal.Y >= 0.55f)
                 {
                     support = normal;
@@ -205,7 +205,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
             surface = suspension.Surface;
         }
 
-        return new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts, surface, suspension.Wheels);
+        return new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts, surface, suspension.Wheels, VehicleBody.ToCore(suspension.TerrainNormal));
     }
 
     /// <summary>Reconstructs the collision proxy immediately; rendering retains its own correction offset.</summary>

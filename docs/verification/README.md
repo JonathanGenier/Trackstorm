@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Story verification | [TS-141 verification evidence](ts-141.md) |
 | Blender infield terrain; slope-start acceptance blocker | [TS-75 verification evidence](ts-75.md) |
 | Story verification | [TS-118 verification evidence](ts-118.md) |
 | Play Menu and lobby browser | [TS-138 verification evidence](ts-138.md) |

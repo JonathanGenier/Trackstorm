@@ -12,7 +12,8 @@ public sealed record VehicleSnapshot
     /// <param name="effects">Accepted one-shot native effects belonging to this command boundary.</param>
     /// <param name="lifecycle">Participation state; omitted snapshots infer Alive/Dead from HP.</param>
     /// <param name="respawnAtTick">Host deadline, retained throughout the inactive life.</param>
-    public VehicleSnapshot(ulong vehicleId, ulong lifeId, VehicleState movement, VehicleDamageState damage, VehiclePhysicsState observedPhysics, IEnumerable<VehicleEffectRequest>? effects = null, VehicleLifecycle? lifecycle = null, ulong? respawnAtTick = null)
+    /// <param name="landing">Complete landing episode continuation.</param>
+    public VehicleSnapshot(ulong vehicleId, ulong lifeId, VehicleState movement, VehicleDamageState damage, VehiclePhysicsState observedPhysics, IEnumerable<VehicleEffectRequest>? effects = null, VehicleLifecycle? lifecycle = null, ulong? respawnAtTick = null, LandingState landing = default)
     {
         ArgumentNullException.ThrowIfNull(damage);
         movement.Validate();
@@ -32,6 +33,8 @@ public sealed record VehicleSnapshot
             throw new ArgumentException("Incoherent vehicle lifecycle.");
         }
 
+        landing.Validate();
+        Landing = landing;
         RespawnAtTick = respawnAtTick;
         VehicleId = vehicleId;
         LifeId = lifeId;
@@ -47,6 +50,8 @@ public sealed record VehicleSnapshot
         Effects = Array.AsReadOnly(copy);
     }
 
+    /// <summary>Complete terrain landing/crash continuation.</summary>
+    public LandingState Landing { get; }
     /// <summary>Stable identity.</summary>
     public ulong VehicleId { get; }
     /// <summary>Life generation, distinct from the global movement tick.</summary>
