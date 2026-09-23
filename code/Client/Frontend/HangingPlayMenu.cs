@@ -41,7 +41,6 @@ internal sealed partial class HangingPlayMenu : Control
     private Button _login = null!;
     private Button _direct = null!;
     private Button _resume = null!;
-    private bool _inspectOnEntry;
     private LineEdit? _code;
     private string _modalKey = "";
 
@@ -133,7 +132,6 @@ internal sealed partial class HangingPlayMenu : Control
         _page = "";
         _lockedId = null;
         _modalKey = "";
-        _inspectOnEntry = true;
         UpdateMotion();
     }
 
@@ -141,7 +139,6 @@ internal sealed partial class HangingPlayMenu : Control
     {
         if (_hoisted is not null) return;
         _hoisted = completed;
-        _inspectOnEntry = false;
         _motion = 0;
         _selection.Reset();
     }
@@ -186,14 +183,10 @@ internal sealed partial class HangingPlayMenu : Control
             _selection.Select(null);
             if (coordinator is not null) { coordinator.Browser.Search = ""; coordinator.Refresh(); }
         }
-        // Play is the explicit entry intent. Passive startup lookup alone must not
-        // disable fresh-session controls or take over Main Menu navigation.
-        if (_inspectOnEntry && coordinator is not null && !coordinator.CheckingSavedSession)
-        {
-            _inspectOnEntry = false;
-            if (coordinator.CanResumeRetained) coordinator.ResumeRetained();
-        }
-        bool retained = coordinator is { HasRetainedDecision: true, CheckingSavedSession: false };
+        // A routing hint is not a reservation. Only the existing explicit check
+        // or authority-confirmed decision can own this panel; Play never resumes.
+        bool retained = coordinator?.ShowsRetainedDecision == true ||
+            coordinator is { RetainedDecision: RetainedSessionDecision.Checking, CheckingSavedSession: false };
         bool busy = coordinator?.Busy == true || coordinator?.Active is not null;
         string page = retained ? "retained:" + coordinator!.RetainedDecision : busy ? "admission" : _page;
         _browser.Visible = page.Length == 0;
@@ -280,7 +273,6 @@ internal sealed partial class HangingPlayMenu : Control
         if (!Interactive) return;
         _selection.Reset();
         _page = page;
-        if (page == "host") _inspectOnEntry = false;
         _modalKey = "!";
         UpdatePresentation();
     }
@@ -297,21 +289,21 @@ internal sealed partial class HangingPlayMenu : Control
         {
             _picker = false;
             _page = "";
-            _modal.AddChild(new Label { Text = "Reconnect to previous game?", HorizontalAlignment = HorizontalAlignment.Center });
             var coordinator = Coordinator()!;
+            string title = coordinator.RetainedDecision switch
+            {
+                RetainedSessionDecision.Choose => "Reconnect to previous game?",
+                RetainedSessionDecision.Reconnecting => "Reconnecting to previous game…",
+                RetainedSessionDecision.Leaving => "Leaving previous game…",
+                _ => "Checking previous session…",
+            };
+            _modal.AddChild(new Label { Text = title, HorizontalAlignment = HorizontalAlignment.Center });
             _modal.AddChild(new Label { Name = "RetainedStatus", Text = coordinator.Status, AutowrapMode = TextServer.AutowrapMode.WordSmart, HorizontalAlignment = HorizontalAlignment.Center });
             if (coordinator.RetainedDecision == RetainedSessionDecision.Choose)
             {
                 _modal.AddChild(PlainButton("Yes", () => coordinator.DecideRetained(true)));
                 _modal.AddChild(PlainButton("No", () => coordinator.DecideRetained(false)));
             }
-            else if (coordinator.RetainedDecision == RetainedSessionDecision.Failed)
-            {
-                _modal.AddChild(PlainButton("Retry previous session", coordinator.RetryRetained));
-                _modal.AddChild(PlainButton("Back to browser", () => { coordinator.DismissRetainedFailure(); }));
-            }
-            else if (coordinator.CanResumeRetained)
-                _modal.AddChild(PlainButton("Check previous session", coordinator.ResumeRetained));
             else _modal.AddChild(new Label { Text = "Validating / recovering previous session…", HorizontalAlignment = HorizontalAlignment.Center });
         }
         else if (page == "admission")

@@ -198,11 +198,10 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     Require(!_coordinator.HasRetainedDecision, "Read-only retained lookup exposed a confirmed decision.");
                     Require(Controls<Button>().Any(button => button.IsVisibleInTree() && button.Text == "Check previous session"), "Found retained metadata did not expose explicit validation.");
                     Require(_provider.ResumeRequests == 0, "Startup lookup called the legacy EOS Resume path.");
-                    _session.PlayMenu.BeginEntrance();
-                    _elapsed = -0.1;
+                    Press("Check previous session");
                     break;
                 case 11:
-                    Require(_provider.ResumeRequests == 1, "Entering Play did not request retained validation exactly once.");
+                    Require(_provider.ResumeRequests == 1, "Explicit check did not request retained validation exactly once.");
                     _reservationGateway = new ReservationGateway();
                     _reservationBinding = _coordinator.AttachTransport(_reservationGateway, 1, "Player");
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Checking, "Explicit retained validation did not begin authority inspection.");
@@ -233,8 +232,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     break;
                 case 15:
                     Require(_coordinator.Active is null, "Second startup lookup restored EOS membership.");
-                    _session.PlayMenu.BeginEntrance();
-                    _elapsed = -0.1;
+                    Press("Check previous session");
                     break;
                 case 16:
                     _reservationGateway = new ReservationGateway();
@@ -258,9 +256,9 @@ public sealed partial class OnlineLobbyUiChecks : Node
                 case 19:
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Failed, "Failed resume must remain recoverable.");
                     Require(_resumeStore!.Load(new string('1', 32)) is not null, "Failure must preserve the locator.");
-                    Require(!Controls<LineEdit>().Single(edit => edit.Name == "LobbySearch").IsVisibleInTree(), "Failure panel owns browser interaction.");
+                    Require(Controls<LineEdit>().Single(edit => edit.Name == "LobbySearch").IsVisibleInTree(), "Failed validation restores ordinary browsing without erasing the hint.");
+                    Require(Controls<Button>().Where(button => button.IsVisibleInTree() && (button.Text == "Host Game" || button.Text == "Back")).All(button => !button.Disabled), "Failed validation does not trap Host or Back.");
                     Capture("retained-failure");
-                    Press("Back to browser");
                     break;
                 case 20:
                     Require(Controls<LineEdit>().Single(edit => edit.Name == "LobbySearch").IsVisibleInTree(), "Dismissal restores browser without claiming release.");

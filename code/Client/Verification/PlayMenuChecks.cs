@@ -120,6 +120,8 @@ public sealed partial class PlayMenuChecks : Node
             Require(_session.MainMenu.Interactive, "Direct-IP Back returns through the complementary transition");
             Click(_session.MainMenu.Targets[0]); await Frames(85);
             await CheckPassiveLookupActions();
+            await CheckUnconfirmedHint(false);
+            await CheckUnconfirmedHint(true);
             await Capture("flag-a"); await Frames(20); await Capture("flag-b");
             GD.Print("Play Menu checks passed: 0/100, fixed scrolling, search/filter, mouse and logical double Accept, controller equivalent, expiry, transitions, viewport bounds, host form.");
             _session.ProcessMode = ProcessModeEnum.Disabled; _coordinator.Dispose(); _bindings.Dispose(); GetTree().Quit();
@@ -127,6 +129,35 @@ public sealed partial class PlayMenuChecks : Node
         catch (Exception exception) { GD.PushError(exception.ToString()); GetTree().Quit(1); }
     }
     private IEnumerable<T> Controls<T>() where T : Node => Descendants(_session).OfType<T>();
+    private async Task CheckUnconfirmedHint(bool lookupFailure)
+    {
+        await HeldClick(Button("Back")); await Frames(96);
+        _coordinator.Dispose();
+        var store = new ResumeLocatorStore(ProjectSettings.GlobalizePath("res://.godot/play-menu-unconfirmed-hint.json"));
+        var local = new OnlineProductUserId(new string('1', 32));
+        var hint = new ResumeLocator("old-hint", 999, 2, 1, local.Value, 1, new string('2', 32));
+        store.Save(hint);
+        _provider.LookupFailure = lookupFailure;
+        _provider.LookupHint = true;
+        _coordinator = new OnlineLobbyCoordinator(_provider, local, resumeStore: store);
+        _coordinator.Tick(); _provider.CompleteLookup!();
+        Require(_coordinator.CanResumeRetained && _coordinator.CanStartFreshSession, "Unconfirmed hint permits explicit check and fresh admission");
+        int resumes = _provider.Resumes;
+        for (int cycle = 0; cycle < 2; cycle++)
+        {
+            Click(_session.MainMenu.Targets[0]); await Frames(85); _coordinator.Tick(); await Frames(3);
+            Require(_provider.Resumes == resumes && _coordinator.Active is null, "Opening Play must not turn an unconfirmed hint into a reconnect attempt");
+            Require(!Button("Host Game").Disabled && !Button("Back").Disabled && Button("Check previous session").IsVisibleInTree(), "Unconfirmed hint keeps Host/Back/browser available with explicit retry");
+            Require(Controls<LineEdit>().Single(edit => edit.Name == "LobbySearch").IsVisibleInTree(), "Hint alone cannot expose a reconnect modal");
+            await HeldClick(Button("Host Game")); await Frames(3);
+            Require(Button("Create lobby").IsVisibleInTree(), "Host opens while unconfirmed hint is preserved");
+            Click(Button("Cancel")); await Frames(3);
+            await Capture(lookupFailure ? "lookup-failed-no-auto-reconnect" : "hint-no-auto-reconnect");
+            if (cycle == 0) { await HeldClick(Button("Back")); await Frames(96); Require(_session.MainMenu.Interactive, "Back works with unconfirmed hint"); }
+        }
+        Require(store.Load(local.Value) == hint, "UI entry never erases saved hint or claims abandonment");
+        store.Clear();
+    }
     private async Task CheckPassiveLookupActions()
     {
         _coordinator.Dispose();
@@ -185,13 +216,38 @@ public sealed partial class PlayMenuChecks : Node
     private async Task HeldClick(Button button)
     {
         Vector2 position = button.GetGlobalRect().GetCenter();
+        if (DisplayServer.GetName() != "headless")
+        {
+            // Parsed events do not move the OS pointer. Align it before holding across frames.
+            GetWindow().GrabFocus();
+            await Frames(2);
+            GetViewport().WarpMouse(position);
+            await Frames(2);
+            Require(GetWindow().HasFocus(), "Rendered pointer check requires window focus");
+        }
+        string text = button.Text;
+        int activations = 0;
+        void Activated() => activations++;
+        button.Pressed += Activated;
+        var samples = new List<string>();
         using var motion = new InputEventMouseMotion { Position = position, GlobalPosition = position, Relative = new Vector2(8, 8) };
         Godot.Input.ParseInputEvent(motion); Godot.Input.FlushBufferedEvents();
         foreach (bool pressed in new[] { true, false })
         {
             using var input = new InputEventMouseButton { Position = position, GlobalPosition = position, ButtonIndex = MouseButton.Left, Pressed = pressed };
             Godot.Input.ParseInputEvent(input); Godot.Input.FlushBufferedEvents();
-            if (pressed) await Frames(6);
+            if (pressed)
+                for (int frame = 0; frame < 6; frame++)
+                {
+                    await Frames(1);
+                    samples.Add($"focus={GetWindow().HasFocus()}, pressed={button.ButtonPressed}, mouse={GetViewport().GetMousePosition()}, disabled={button.Disabled}, interactive={_session.PlayMenu.Interactive}");
+                }
+        }
+        button.Pressed -= Activated;
+        if (activations != 1)
+        {
+            await Capture("pointer-activation-failure");
+            throw new InvalidOperationException($"Held click '{text}' at {position} produced {activations} activations. " + string.Join("; ", samples));
         }
     }
     private static void Click(Button button, bool twice = false)
@@ -209,7 +265,13 @@ public sealed partial class PlayMenuChecks : Node
         internal string? SearchFailure { get; set; }
         internal Action? CompleteSearch { get; private set; }
         internal Action? CompleteLookup { get; private set; }
-        public void Lookup(string id, Action<OnlineLobbyLookup> completed) => CompleteLookup = () => completed(new(null, null));
+        internal bool LookupFailure { get; set; }
+        internal bool LookupHint { get; set; }
+        internal int Resumes { get; private set; }
+        public void Resume(string id, Action<OnlineLobby?, string?> completed) { Resumes++; completed(null, "Session unavailable"); }
+        public void Lookup(string id, Action<OnlineLobbyLookup> completed) => CompleteLookup = () => completed(new(
+            LookupHint && !LookupFailure ? new OnlineLobby(id, "Old session metadata", new OnlineProductUserId(new string('2', 32)), 999, LobbyAccess.Public, 1, 8, OnlineLobby.CurrentProtocol, false, null) : null,
+            LookupFailure ? "Fixture lookup service unavailable" : null));
         public void Search(Action<IReadOnlyList<OnlineLobby>, string?> completed)
         {
             void Complete() => completed(Enumerable.Range(0, Count).Select(i => new OnlineLobby(i.ToString(), $"Arena {i:000}", new OnlineProductUserId(new string('2', 32)), (ulong)(i + 1), i % 2 == 0 ? LobbyAccess.Public : LobbyAccess.Locked, i % 8 + 1, 8, OnlineLobby.CurrentProtocol, true, i % 2 == 0 ? null : LobbyCredential.Create("test-code")) { GameMode = i % 3 == 0 ? "Circus" : "FirstToTarget" }).ToArray(), SearchFailure);
