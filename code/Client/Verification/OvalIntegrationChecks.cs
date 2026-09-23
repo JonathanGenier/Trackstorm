@@ -40,7 +40,7 @@ public sealed partial class OvalIntegrationChecks : Node3D
     {
         if (_chase is not null && _advance)
         {
-            _chase.Follow(_vehicle.GetGlobalTransformInterpolated(), _vehicle.Snapshot, (float)delta);
+            _chase.Follow(_vehicle.GetGlobalTransformInterpolated(), _vehicle.Snapshot, (float)delta, _vehicle.GetRid());
         }
     }
 
