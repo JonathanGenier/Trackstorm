@@ -21,7 +21,7 @@ public sealed record VehicleConfiguration
     /// <summary>Reverse acceleration.</summary>
     public float ReverseAcceleration { get; init; } = 8;
     /// <summary>Normal forward drive limit in metres per second.</summary>
-    public float ForwardSpeed { get; init; } = 28;
+    public float ForwardSpeed { get; init; } = 44.44f;
     /// <summary>Reverse drive limit.</summary>
     public float ReverseSpeed { get; init; } = 11;
     /// <summary>Lateral grip response per second.</summary>
@@ -29,13 +29,13 @@ public sealed record VehicleConfiguration
     /// <summary>Maximum low-speed wheel angle in radians.</summary>
     public float SteeringAngle { get; init; } = 0.6f;
     /// <summary>Speed in m/s at which wheel authority starts calming substantially.</summary>
-    public float SteeringSpeed { get; init; } = 22;
+    public float SteeringSpeed { get; init; } = 11;
     /// <summary>Wheel angle transition rate in radians per second.</summary>
-    public float SteeringResponse { get; init; } = 6;
+    public float SteeringResponse { get; init; } = 2.4f;
     /// <summary>Distance between axle centers in metres.</summary>
     public float Wheelbase { get; init; } = VehicleDimensions.Wheelbase;
     /// <summary>Tire friction coefficient; combined demands share this budget.</summary>
-    public float TireFriction { get; init; } = 1.35f;
+    public float TireFriction { get; init; } = 1.65f;
     /// <summary>Rear traction share available to propulsion despite lateral saturation; zero disables allocation.</summary>
     public float DriveTractionReserve { get; init; } = 0.55f;
     /// <summary>Effective center-of-mass height for longitudinal/lateral load transfer.</summary>
@@ -45,11 +45,11 @@ public sealed record VehicleConfiguration
     /// <summary>Rear lateral grip fraction with the handbrake fully engaged.</summary>
     public float HandbrakeGrip { get; init; } = 0.6f;
     /// <summary>Handbrake application response per second.</summary>
-    public float HandbrakeResponse { get; init; } = 12;
+    public float HandbrakeResponse { get; init; } = 4;
     /// <summary>Handbrake release response per second, permitting gradual traction recovery.</summary>
-    public float TractionRecovery { get; init; } = 5;
+    public float TractionRecovery { get; init; } = 3;
     /// <summary>Rolling resistance per second.</summary>
-    public float CoastDrag { get; init; } = 0.12f;
+    public float CoastDrag { get; init; } = 0.5f;
     /// <summary>Reference mass for engine and brake forces, so heavier tuning retains inertia.</summary>
     public float ReferenceMass { get; init; } = 900;
     /// <summary>Pitch/roll spring stiffness per second squared.</summary>
@@ -57,17 +57,17 @@ public sealed record VehicleConfiguration
     /// <summary>Pitch/roll damper rate per second.</summary>
     public float SuspensionDamping { get; init; } = 8;
     /// <summary>Chassis pitch/roll target radians per m/s squared of tire acceleration.</summary>
-    public float ChassisCompliance { get; init; } = 0.012f;
+    public float ChassisCompliance { get; init; } = 0.004f;
     /// <summary>Maximum load-induced chassis tilt in radians.</summary>
     public float MaximumChassisTilt { get; init; } = 0.16f;
     /// <summary>Weak yaw damping; never targets a commanded yaw or drift angle.</summary>
     public float StabilityDamping { get; init; } = 0.65f;
     /// <summary>Fully extended suspension ray length in metres.</summary>
-    public float SuspensionLength { get; init; } = VehicleDimensions.RideHeight + (9.81f / 150);
+    public float SuspensionLength { get; init; } = VehicleDimensions.RideHeight + (9.81f / 100);
     /// <summary>Vertical spring stiffness per unit sprung mass.</summary>
-    public float WheelSpring { get; init; } = 150;
+    public float WheelSpring { get; init; } = 100;
     /// <summary>Vertical wheel damping per unit sprung mass.</summary>
-    public float WheelDamping { get; init; } = 18;
+    public float WheelDamping { get; init; } = 20;
     /// <summary>Gravity acceleration.</summary>
     public float Gravity { get; init; } = 9.81f;
     /// <summary>Safety bound on total velocity, including external impulses.</summary>

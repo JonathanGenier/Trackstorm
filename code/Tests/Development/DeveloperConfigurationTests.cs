@@ -331,7 +331,7 @@ internal sealed class DeveloperConfigurationTests
     [TestCase("vehicle.wheel_spring", 50)]
     [TestCase("vehicle.wheel_damping", 4)]
     [TestCase("vehicle.gravity", 3)]
-    [TestCase("vehicle.maximum_physics_speed", 40)]
+    [TestCase("vehicle.maximum_physics_speed", 50)]
     [TestCase("vehicle.maximum_angular_speed", 1)]
     public void EachVehicleOptionChangesActualSimulationCommands(string key, double value)
     {

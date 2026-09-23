@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connected; None; 
+Transport peer 1: Connected; None; 
+Transport peer 1: Disconnected; RemoteRequest; Transport stopped
+Developer Options integration passed: write; 496 assertions.

@@ -124,7 +124,7 @@ internal sealed class ResumeCheckpointTests
         host.JoinPlayer(10, 2);
         host.Step(default, Observe);
         host.Step(default, Observe);
-        VehicleObservation Moving(VehicleSnapshot vehicle) => new(new VehiclePhysicsState(vehicle.ObservedPhysics.Position, Quaternion.Identity, new(0, 0, -27), Vector3.Zero), Vector3.UnitY);
+        VehicleObservation Moving(VehicleSnapshot vehicle) => new(new VehiclePhysicsState(vehicle.ObservedPhysics.Position, Quaternion.Identity, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f)), Vector3.Zero), Vector3.UnitY);
         for (int i = 0; i < 60; i++) { host.Step(default, Moving); }
         Assert.That(host.World.State.Match!.Players.All(player => player.CircusScore == 0 && player.Stunts!.TopSpeed.Ticks == 60), Is.True);
         var preview = host.PrepareJoin(3, 1)!;
@@ -154,7 +154,7 @@ internal sealed class ResumeCheckpointTests
         host.Step(default, Observe);
         for (int i = 0; i < 60; i++)
         {
-            host.Step(default, vehicle => new(new VehiclePhysicsState(vehicle.ObservedPhysics.Position, Quaternion.Identity, new(0, 0, -27), Vector3.Zero), Vector3.UnitY));
+            host.Step(default, vehicle => new(new VehiclePhysicsState(vehicle.ObservedPhysics.Position, Quaternion.Identity, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f)), Vector3.Zero), Vector3.UnitY));
         }
         host.World.LeaveVehicle(2);
         Assert.That(host.World.State.Match!.Players.Single(player => player.Player == 2).Stunts, Is.Null);

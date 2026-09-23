@@ -1,0 +1,11 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+{"Host":true,"Map":"res://scenes/maps/oval_foundation.tscn","LargestRoster":2,"LocalVehicle":1,"Tick":1520,"Snapshots":0,"ImmediateFrames":0,"DriftFrames":0,"HandbrakeFrames":79,"ErrorP99":0,"ErrorMaximum":0,"InterpolationDelay":0,"LargeCorrections":0,"CorrectionDetails":[],"LastAcknowledged":0,"Position":[51.794823,0.9000013,55.682106],"HP":1000,"Grounded":true,"PropTick":null,"PropTravel":0,"PropReplicaError":0,"PropPositions":null}
+Network vehicle integration passed.
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+{"Host":false,"Map":"res://scenes/maps/oval_foundation.tscn","LargestRoster":2,"LocalVehicle":2,"Tick":1026,"Snapshots":305,"ImmediateFrames":706,"DriftFrames":0,"HandbrakeFrames":79,"ErrorP99":0.39715192,"ErrorMaximum":3.338915,"InterpolationDelay":101.73436941506868,"LargeCorrections":1,"CorrectionDetails":[{"Seconds":1.0833333333333344,"Error":3.338915,"Tick":157,"Ack":40,"Pending":25,"HP":1000,"Position":"\u003C0.778714, 0.89999974, 85.877785\u003E","Speed":3.2849197},{"Seconds":1.4499999999999997,"Error":1.3274109,"Tick":160,"Ack":68,"Pending":19,"HP":1000,"Position":"\u003C0.94840175, 0.8999902, 85.76293\u003E","Speed":3.772233}],"LastAcknowledged":949,"Position":[37.81257,0.9000012,56.852203],"HP":1000,"Grounded":true,"PropTick":null,"PropTravel":0,"PropReplicaError":0,"PropPositions":null}
+Network vehicle integration passed.
+
+Network vehicle verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\b75f9da9f3394b08b627b5adeec7f180

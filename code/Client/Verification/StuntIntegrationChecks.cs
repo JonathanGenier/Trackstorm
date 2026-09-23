@@ -89,7 +89,7 @@ public sealed partial class StuntIntegrationChecks : Node
             Record($"Native drift: {_largestDrift} uninterrupted ticks, {_largestDriftPoints:F6} peak pending base points, total award {Score.CircusScore - before:F6} (includes any concurrent Top Speed).");
             await Agree();
 
-            Place(new(0, 0, -29.5f));
+            Place(new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 1.05f)));
             _input = new(0, 0, 65535, 0, 0, 0, 0);
             await Frames(120);
             var top = Score.Stunts!.TopSpeed;
@@ -106,10 +106,10 @@ public sealed partial class StuntIntegrationChecks : Node
             double shortDistance = await Jump(10);
             double longDistance = await Jump(20);
             Require(longDistance > shortDistance * 1.7, "Longer native jump travels farther with unchanged vertical launch.");
-            await Jump(29.5f);
+            await Jump((new VehicleConfiguration().ForwardSpeed * 1.05f));
             Require(_concurrent, "Native airborne and Top Speed events coexist independently.");
 
-            Place(new(0, 15, -29.5f));
+            Place(new(0, 15, -(new VehicleConfiguration().ForwardSpeed * 1.05f)));
             await Frames(40);
             Require(Score.Stunts is { Airtime.Ticks: > 15 } && Score.PendingStuntScore > 0, "Death fixture begins with actual native pending flight.");
             before = Score.CircusScore;

@@ -1,5 +1,7 @@
 # Historical verification evidence
 
+This directory is excluded from Godot resource importing by `.gdignore`. Evidence CSV files are diagnostic data, not localization tables; screenshots and logs are not runtime assets.
+
 This directory records historical verification evidence for particular implementations, builds and review rounds. Its reports are not current policy, repository instructions, Jira requirements or substitutes for current verification. Earlier acceptance gaps and delivery decisions describe their recorded point in time; later reports or code may differ.
 
 Use [workflow](../workflow.md#verification) for current completion checks, Jira for assigned requirements, and the [feature index](../features/README.md) for current system behavior. Read a report only when its historical evidence is relevant.
@@ -8,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Asphalt and banked-oval handling | [TS-73 accepted driving, clean Developer Options shutdown and final runtime critique](ts-73.md), [historical runtime-feedback correction](ts-73-correction.md), [editor import and multiplayer menu correction](ts-73-menu-correction.md) |
 | Modular chain-hung Main Menu, stationary left layout, legacy presentation cleanup, version label and startup flash regression | [TS-122 implementation and verification](ts-122.md), [Astra runtime critique](ts-122-critique.md) |
 | Adjustable local collision camera shake | [TS-109 verification evidence](ts-109.md) |
 | Vehicle camera free-look and recentering | [TS-108 verification evidence](ts-108.md) |

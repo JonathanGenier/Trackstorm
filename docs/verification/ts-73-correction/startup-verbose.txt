@@ -1,0 +1,205 @@
+WorkerThreadPool: 4 threads, 1 max low-priority.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+TextServer: Added interface "Dummy"
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+Using "default" pen tablet driver...
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+.NET: Initializing module...
+Found hostfxr: C:/Program Files/dotnet/host/fxr/10.0.12/hostfxr.dll
+.NET: hostfxr initialized
+.NET: GodotPlugins initialized
+CORE API HASH: 3677103882
+EDITOR API HASH: 1629494564
+SceneTreeFTI: traversal method DEFAULT
+Loaded system CA certificates
+Loading resource: res://scenes/main.tscn remapped: res://scenes/main.tscn
+Loading resource: res://code/Client/Bootstrap/SimulationBootstrap.cs remapped: res://code/Client/Bootstrap/SimulationBootstrap.cs
+Completed load for: 'res://code/Client/Bootstrap/SimulationBootstrap.cs' remapped 'res://code/Client/Bootstrap/SimulationBootstrap.cs' at thread -1
+Loading resource: res://code/Client/Input/PlayerInput.cs remapped: res://code/Client/Input/PlayerInput.cs
+Completed load for: 'res://code/Client/Input/PlayerInput.cs' remapped 'res://code/Client/Input/PlayerInput.cs' at thread -1
+Completed load for: 'res://scenes/main.tscn' remapped 'res://scenes/main.tscn' at thread -1
+Loading resource: res://code/Client/Bootstrap/StartupController.cs remapped: res://code/Client/Bootstrap/StartupController.cs
+Completed load for: 'res://code/Client/Bootstrap/StartupController.cs' remapped 'res://code/Client/Bootstrap/StartupController.cs' at thread -1
+Loading resource: res://code/Client/Verification/StartupIntegrationChecks.cs remapped: res://code/Client/Verification/StartupIntegrationChecks.cs
+Completed load for: 'res://code/Client/Verification/StartupIntegrationChecks.cs' remapped 'res://code/Client/Verification/StartupIntegrationChecks.cs' at thread -1
+Loading resource: res://code/Client/Bootstrap/MenuShell.cs remapped: res://code/Client/Bootstrap/MenuShell.cs
+Completed load for: 'res://code/Client/Bootstrap/MenuShell.cs' remapped 'res://code/Client/Bootstrap/MenuShell.cs' at thread -1
+Loading resource: res://assets/frontend/Splashscreen.ogv remapped: res://assets/frontend/Splashscreen.ogv
+Completed load for: 'res://assets/frontend/Splashscreen.ogv' remapped 'res://assets/frontend/Splashscreen.ogv' at thread 0
+Loading resource: res://assets/frontend/Menu no music.ogv remapped: res://assets/frontend/Menu no music.ogv
+Completed load for: 'res://assets/frontend/Menu no music.ogv' remapped 'res://assets/frontend/Menu no music.ogv' at thread 1
+Loading resource: res://assets/audio/project/music/Welcome to the Carnage Circus main menu.mp3 remapped: res://assets/audio/project/music/Welcome to the Carnage Circus main menu.mp3
+Loading resource: res://.godot/imported/Welcome to the Carnage Circus main menu.mp3-cd919710b65bc7eab931b239d10e57b3.mp3str remapped: res://.godot/imported/Welcome to the Carnage Circus main menu.mp3-cd919710b65bc7eab931b239d10e57b3.mp3str
+Completed load for: 'res://assets/audio/project/music/Welcome to the Carnage Circus main menu.mp3' remapped 'res://assets/audio/project/music/Welcome to the Carnage Circus main menu.mp3' at thread 2
+Loading resource: res://code/Client/Bootstrap/SplashScreen.cs remapped: res://code/Client/Bootstrap/SplashScreen.cs
+Completed load for: 'res://code/Client/Bootstrap/SplashScreen.cs' remapped 'res://code/Client/Bootstrap/SplashScreen.cs' at thread -1
+Loading resource: res://code/Client/Bootstrap/MenuShell.cs remapped: res://code/Client/Bootstrap/MenuShell.cs
+Completed load for: 'res://code/Client/Bootstrap/MenuShell.cs' remapped 'res://code/Client/Bootstrap/MenuShell.cs' at thread -1
+Loading resource: res://code/Client/Settings/PlayerSettingsController.cs remapped: res://code/Client/Settings/PlayerSettingsController.cs
+Completed load for: 'res://code/Client/Settings/PlayerSettingsController.cs' remapped 'res://code/Client/Settings/PlayerSettingsController.cs' at thread -1
+Loading resource: res://assets/hud/Health.png remapped: res://assets/hud/Health.png
+Loading resource: res://.godot/imported/Health.png-b5e63646c388c3b1b2e61fa0def3cf1f.ctex remapped: res://.godot/imported/Health.png-b5e63646c388c3b1b2e61fa0def3cf1f.ctex
+Completed load for: 'res://assets/hud/Health.png' remapped 'res://assets/hud/Health.png' at thread 3
+Loading resource: res://assets/hud/Item.png remapped: res://assets/hud/Item.png
+Loading resource: res://.godot/imported/Item.png-b74500bfea5086bdae9e9c0e90170c7f.ctex remapped: res://.godot/imported/Item.png-b74500bfea5086bdae9e9c0e90170c7f.ctex
+Completed load for: 'res://assets/hud/Item.png' remapped 'res://assets/hud/Item.png' at thread 0
+Loading resource: res://assets/hud/Speed.png remapped: res://assets/hud/Speed.png
+Loading resource: res://.godot/imported/Speed.png-bda390dbe907a5c53c3f6379f618c2cc.ctex remapped: res://.godot/imported/Speed.png-bda390dbe907a5c53c3f6379f618c2cc.ctex
+Completed load for: 'res://assets/hud/Speed.png' remapped 'res://assets/hud/Speed.png' at thread 1
+Loading resource: res://assets/hud/Timer.png remapped: res://assets/hud/Timer.png
+Loading resource: res://.godot/imported/Timer.png-1ee0f4c7f4df205d46464c98099f02e5.ctex remapped: res://.godot/imported/Timer.png-1ee0f4c7f4df205d46464c98099f02e5.ctex
+Completed load for: 'res://assets/hud/Timer.png' remapped 'res://assets/hud/Timer.png' at thread 2
+Loading resource: res://assets/hud/Wrench.svg remapped: res://assets/hud/Wrench.svg
+Loading resource: res://.godot/imported/Wrench.svg-dbb1444e669b4ffa00141079d644d34d.ctex remapped: res://.godot/imported/Wrench.svg-dbb1444e669b4ffa00141079d644d34d.ctex
+Completed load for: 'res://assets/hud/Wrench.svg' remapped 'res://assets/hud/Wrench.svg' at thread 3
+Loading resource: res://assets/hud/Missile.svg remapped: res://assets/hud/Missile.svg
+Loading resource: res://.godot/imported/Missile.svg-8129a3f4cf3d426f2130b13dd3f40213.ctex remapped: res://.godot/imported/Missile.svg-8129a3f4cf3d426f2130b13dd3f40213.ctex
+Completed load for: 'res://assets/hud/Missile.svg' remapped 'res://assets/hud/Missile.svg' at thread 0
+Loading resource: res://assets/hud/Component.gdshader remapped: res://assets/hud/Component.gdshader
+Completed load for: 'res://assets/hud/Component.gdshader' remapped 'res://assets/hud/Component.gdshader' at thread 1
+Loading resource: res://assets/items/materials/DamageFlash.gdshader remapped: res://assets/items/materials/DamageFlash.gdshader
+Completed load for: 'res://assets/items/materials/DamageFlash.gdshader' remapped 'res://assets/items/materials/DamageFlash.gdshader' at thread 2
+Loading resource: res://assets/audio/project/music/Welcome to the Carnage Circus Arena.mp3 remapped: res://assets/audio/project/music/Welcome to the Carnage Circus Arena.mp3
+Loading resource: res://.godot/imported/Welcome to the Carnage Circus Arena.mp3-6c335eef7e82ad07898258745d108ffd.mp3str remapped: res://.godot/imported/Welcome to the Carnage Circus Arena.mp3-6c335eef7e82ad07898258745d108ffd.mp3str
+Completed load for: 'res://assets/audio/project/music/Welcome to the Carnage Circus Arena.mp3' remapped 'res://assets/audio/project/music/Welcome to the Carnage Circus Arena.mp3' at thread 3
+Loading resource: res://assets/audio/project/music/Welcome to the Carnage Circus Arena 2.mp3 remapped: res://assets/audio/project/music/Welcome to the Carnage Circus Arena 2.mp3
+Loading resource: res://.godot/imported/Welcome to the Carnage Circus Arena 2.mp3-ad727715e455c4bde04cb9ae3156ea2b.mp3str remapped: res://.godot/imported/Welcome to the Carnage Circus Arena 2.mp3-ad727715e455c4bde04cb9ae3156ea2b.mp3str
+Completed load for: 'res://assets/audio/project/music/Welcome to the Carnage Circus Arena 2.mp3' remapped 'res://assets/audio/project/music/Welcome to the Carnage Circus Arena 2.mp3' at thread 0
+Loading resource: res://assets/audio/project/music/Welcome to the Carnage Circus Arena 3.mp3 remapped: res://assets/audio/project/music/Welcome to the Carnage Circus Arena 3.mp3
+Loading resource: res://.godot/imported/Welcome to the Carnage Circus Arena 3.mp3-f8437908f9cc4de1d680e4b475b3d410.mp3str remapped: res://.godot/imported/Welcome to the Carnage Circus Arena 3.mp3-f8437908f9cc4de1d680e4b475b3d410.mp3str
+Completed load for: 'res://assets/audio/project/music/Welcome to the Carnage Circus Arena 3.mp3' remapped 'res://assets/audio/project/music/Welcome to the Carnage Circus Arena 3.mp3' at thread 1
+Loading resource: res://assets/audio/freesound/arena/ambience.wav remapped: res://assets/audio/freesound/arena/ambience.wav
+Loading resource: res://.godot/imported/ambience.wav-c409724aa262f6e12cd79d808a66352c.sample remapped: res://.godot/imported/ambience.wav-c409724aa262f6e12cd79d808a66352c.sample
+Completed load for: 'res://assets/audio/freesound/arena/ambience.wav' remapped 'res://assets/audio/freesound/arena/ambience.wav' at thread 2
+Loading resource: res://assets/audio/freesound/combat/death.wav remapped: res://assets/audio/freesound/combat/death.wav
+Loading resource: res://.godot/imported/death.wav-5428332cf7f64d85747cb3281fb0e75a.sample remapped: res://.godot/imported/death.wav-5428332cf7f64d85747cb3281fb0e75a.sample
+Completed load for: 'res://assets/audio/freesound/combat/death.wav' remapped 'res://assets/audio/freesound/combat/death.wav' at thread 3
+Loading resource: res://assets/audio/freesound/combat/destruction.wav remapped: res://assets/audio/freesound/combat/destruction.wav
+Loading resource: res://.godot/imported/destruction.wav-1ae8d1768d611bd32a89683d4f17bf68.sample remapped: res://.godot/imported/destruction.wav-1ae8d1768d611bd32a89683d4f17bf68.sample
+Completed load for: 'res://assets/audio/freesound/combat/destruction.wav' remapped 'res://assets/audio/freesound/combat/destruction.wav' at thread 0
+Loading resource: res://assets/audio/freesound/combat/end.wav remapped: res://assets/audio/freesound/combat/end.wav
+Loading resource: res://.godot/imported/end.wav-623d07d889b963948ed851859b870cf7.sample remapped: res://.godot/imported/end.wav-623d07d889b963948ed851859b870cf7.sample
+Completed load for: 'res://assets/audio/freesound/combat/end.wav' remapped 'res://assets/audio/freesound/combat/end.wav' at thread 1
+Loading resource: res://assets/audio/freesound/combat/explosion.wav remapped: res://assets/audio/freesound/combat/explosion.wav
+Loading resource: res://.godot/imported/explosion.wav-8fb57bd54ad39dfd3f6a3f7f2846f4b3.sample remapped: res://.godot/imported/explosion.wav-8fb57bd54ad39dfd3f6a3f7f2846f4b3.sample
+Completed load for: 'res://assets/audio/freesound/combat/explosion.wav' remapped 'res://assets/audio/freesound/combat/explosion.wav' at thread 2
+Loading resource: res://assets/audio/freesound/combat/fire.wav remapped: res://assets/audio/freesound/combat/fire.wav
+Loading resource: res://.godot/imported/fire.wav-4aaafdb46456f250b2af8c1311909538.sample remapped: res://.godot/imported/fire.wav-4aaafdb46456f250b2af8c1311909538.sample
+Completed load for: 'res://assets/audio/freesound/combat/fire.wav' remapped 'res://assets/audio/freesound/combat/fire.wav' at thread 3
+Loading resource: res://assets/audio/freesound/vehicle/high.wav remapped: res://assets/audio/freesound/vehicle/high.wav
+Loading resource: res://.godot/imported/high.wav-202ae2d276e89631c84c1fbd08682106.sample remapped: res://.godot/imported/high.wav-202ae2d276e89631c84c1fbd08682106.sample
+Completed load for: 'res://assets/audio/freesound/vehicle/high.wav' remapped 'res://assets/audio/freesound/vehicle/high.wav' at thread 0
+Loading resource: res://assets/audio/freesound/vehicle/idle.wav remapped: res://assets/audio/freesound/vehicle/idle.wav
+Loading resource: res://.godot/imported/idle.wav-1e236b3e866941f22fd497d38067e631.sample remapped: res://.godot/imported/idle.wav-1e236b3e866941f22fd497d38067e631.sample
+Completed load for: 'res://assets/audio/freesound/vehicle/idle.wav' remapped 'res://assets/audio/freesound/vehicle/idle.wav' at thread 1
+Loading resource: res://assets/audio/freesound/vehicle/low.wav remapped: res://assets/audio/freesound/vehicle/low.wav
+Loading resource: res://.godot/imported/low.wav-06fbc6a6a2931bc8faa0c59e246760ae.sample remapped: res://.godot/imported/low.wav-06fbc6a6a2931bc8faa0c59e246760ae.sample
+Completed load for: 'res://assets/audio/freesound/vehicle/low.wav' remapped 'res://assets/audio/freesound/vehicle/low.wav' at thread 2
+Loading resource: res://assets/audio/freesound/vehicle/skid.wav remapped: res://assets/audio/freesound/vehicle/skid.wav
+Loading resource: res://.godot/imported/skid.wav-9ec7bd3033410a49bc031b7ea744ccef.sample remapped: res://.godot/imported/skid.wav-9ec7bd3033410a49bc031b7ea744ccef.sample
+Completed load for: 'res://assets/audio/freesound/vehicle/skid.wav' remapped 'res://assets/audio/freesound/vehicle/skid.wav' at thread 3
+Loading resource: res://assets/audio/kenney/impact/impactMetal_heavy_000.ogg remapped: res://assets/audio/kenney/impact/impactMetal_heavy_000.ogg
+Loading resource: res://.godot/imported/impactMetal_heavy_000.ogg-2145852346d2186ce661b81033cfdbdc.oggvorbisstr remapped: res://.godot/imported/impactMetal_heavy_000.ogg-2145852346d2186ce661b81033cfdbdc.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/impact/impactMetal_heavy_000.ogg' remapped 'res://assets/audio/kenney/impact/impactMetal_heavy_000.ogg' at thread 0
+Loading resource: res://assets/audio/kenney/impact/impactMetal_light_000.ogg remapped: res://assets/audio/kenney/impact/impactMetal_light_000.ogg
+Loading resource: res://.godot/imported/impactMetal_light_000.ogg-125acd62cfb9a631d59d28200f7b2ed3.oggvorbisstr remapped: res://.godot/imported/impactMetal_light_000.ogg-125acd62cfb9a631d59d28200f7b2ed3.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/impact/impactMetal_light_000.ogg' remapped 'res://assets/audio/kenney/impact/impactMetal_light_000.ogg' at thread 1
+Loading resource: res://assets/audio/kenney/impact/impactMetal_medium_000.ogg remapped: res://assets/audio/kenney/impact/impactMetal_medium_000.ogg
+Loading resource: res://.godot/imported/impactMetal_medium_000.ogg-6daa45f0973796947d6ba16efecd640a.oggvorbisstr remapped: res://.godot/imported/impactMetal_medium_000.ogg-6daa45f0973796947d6ba16efecd640a.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/impact/impactMetal_medium_000.ogg' remapped 'res://assets/audio/kenney/impact/impactMetal_medium_000.ogg' at thread 2
+Loading resource: res://assets/audio/kenney/impact/impactMetal_medium_001.ogg remapped: res://assets/audio/kenney/impact/impactMetal_medium_001.ogg
+Loading resource: res://.godot/imported/impactMetal_medium_001.ogg-818349e4a7d3917e9f0d320d392cddcd.oggvorbisstr remapped: res://.godot/imported/impactMetal_medium_001.ogg-818349e4a7d3917e9f0d320d392cddcd.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/impact/impactMetal_medium_001.ogg' remapped 'res://assets/audio/kenney/impact/impactMetal_medium_001.ogg' at thread 3
+Loading resource: res://assets/audio/kenney/interface/confirmation_001.ogg remapped: res://assets/audio/kenney/interface/confirmation_001.ogg
+Loading resource: res://.godot/imported/confirmation_001.ogg-14d71e6adfdc83b0f4744935e0b868c8.oggvorbisstr remapped: res://.godot/imported/confirmation_001.ogg-14d71e6adfdc83b0f4744935e0b868c8.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/interface/confirmation_001.ogg' remapped 'res://assets/audio/kenney/interface/confirmation_001.ogg' at thread 0
+Loading resource: res://assets/audio/kenney/interface/confirmation_002.ogg remapped: res://assets/audio/kenney/interface/confirmation_002.ogg
+Loading resource: res://.godot/imported/confirmation_002.ogg-6272ae3cce6858edca1e241cd0c5ac93.oggvorbisstr remapped: res://.godot/imported/confirmation_002.ogg-6272ae3cce6858edca1e241cd0c5ac93.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/interface/confirmation_002.ogg' remapped 'res://assets/audio/kenney/interface/confirmation_002.ogg' at thread 1
+Loading resource: res://assets/audio/kenney/interface/confirmation_003.ogg remapped: res://assets/audio/kenney/interface/confirmation_003.ogg
+Loading resource: res://.godot/imported/confirmation_003.ogg-880aa5483fc8592995c5a9eaeb5677df.oggvorbisstr remapped: res://.godot/imported/confirmation_003.ogg-880aa5483fc8592995c5a9eaeb5677df.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/interface/confirmation_003.ogg' remapped 'res://assets/audio/kenney/interface/confirmation_003.ogg' at thread 2
+Loading resource: res://assets/audio/kenney/interface/confirmation_004.ogg remapped: res://assets/audio/kenney/interface/confirmation_004.ogg
+Loading resource: res://.godot/imported/confirmation_004.ogg-486b00f22fabd5aa1abaad1a9215ead5.oggvorbisstr remapped: res://.godot/imported/confirmation_004.ogg-486b00f22fabd5aa1abaad1a9215ead5.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/interface/confirmation_004.ogg' remapped 'res://assets/audio/kenney/interface/confirmation_004.ogg' at thread 3
+Loading resource: res://assets/audio/kenney/interface/tick_001.ogg remapped: res://assets/audio/kenney/interface/tick_001.ogg
+Loading resource: res://.godot/imported/tick_001.ogg-09ee4addb3e9d201b178ef7302a025f6.oggvorbisstr remapped: res://.godot/imported/tick_001.ogg-09ee4addb3e9d201b178ef7302a025f6.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/interface/tick_001.ogg' remapped 'res://assets/audio/kenney/interface/tick_001.ogg' at thread 0
+Loading resource: res://assets/audio/kenney/scifi/engineCircular_000.ogg remapped: res://assets/audio/kenney/scifi/engineCircular_000.ogg
+Loading resource: res://.godot/imported/engineCircular_000.ogg-1369088de426ba46419eadecd82c16e1.oggvorbisstr remapped: res://.godot/imported/engineCircular_000.ogg-1369088de426ba46419eadecd82c16e1.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/scifi/engineCircular_000.ogg' remapped 'res://assets/audio/kenney/scifi/engineCircular_000.ogg' at thread 1
+Loading resource: res://assets/audio/kenney/scifi/forceField_000.ogg remapped: res://assets/audio/kenney/scifi/forceField_000.ogg
+Loading resource: res://.godot/imported/forceField_000.ogg-e3642a603e8ccef3783d2c9c19045824.oggvorbisstr remapped: res://.godot/imported/forceField_000.ogg-e3642a603e8ccef3783d2c9c19045824.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/scifi/forceField_000.ogg' remapped 'res://assets/audio/kenney/scifi/forceField_000.ogg' at thread 2
+Loading resource: res://assets/audio/kenney/scifi/forceField_001.ogg remapped: res://assets/audio/kenney/scifi/forceField_001.ogg
+Loading resource: res://.godot/imported/forceField_001.ogg-2ee102abfba835460749a736d95bdfea.oggvorbisstr remapped: res://.godot/imported/forceField_001.ogg-2ee102abfba835460749a736d95bdfea.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/scifi/forceField_001.ogg' remapped 'res://assets/audio/kenney/scifi/forceField_001.ogg' at thread 3
+Loading resource: res://assets/audio/kenney/scifi/forceField_002.ogg remapped: res://assets/audio/kenney/scifi/forceField_002.ogg
+Loading resource: res://.godot/imported/forceField_002.ogg-ae07ce2400fb7b41516093e74eb427e4.oggvorbisstr remapped: res://.godot/imported/forceField_002.ogg-ae07ce2400fb7b41516093e74eb427e4.oggvorbisstr
+Completed load for: 'res://assets/audio/kenney/scifi/forceField_002.ogg' remapped 'res://assets/audio/kenney/scifi/forceField_002.ogg' at thread 0
+Loading resource: res://code/Client/Settings/MenuPresentation.cs remapped: res://code/Client/Settings/MenuPresentation.cs
+Completed load for: 'res://code/Client/Settings/MenuPresentation.cs' remapped 'res://code/Client/Settings/MenuPresentation.cs' at thread -1
+Loading resource: res://code/Client/Settings/SettingsPanel.cs remapped: res://code/Client/Settings/SettingsPanel.cs
+Completed load for: 'res://code/Client/Settings/SettingsPanel.cs' remapped 'res://code/Client/Settings/SettingsPanel.cs' at thread -1
+Loading resource: res://code/Client/Settings/SettingsHud.cs remapped: res://code/Client/Settings/SettingsHud.cs
+Completed load for: 'res://code/Client/Settings/SettingsHud.cs' remapped 'res://code/Client/Settings/SettingsHud.cs' at thread -1
+Loading resource: res://code/Client/Development/DeveloperOptionsPanel.cs remapped: res://code/Client/Development/DeveloperOptionsPanel.cs
+Completed load for: 'res://code/Client/Development/DeveloperOptionsPanel.cs' remapped 'res://code/Client/Development/DeveloperOptionsPanel.cs' at thread -1
+Loading resource: res://code/Client/Statistics/StatisticPanel.cs remapped: res://code/Client/Statistics/StatisticPanel.cs
+Completed load for: 'res://code/Client/Statistics/StatisticPanel.cs' remapped 'res://code/Client/Statistics/StatisticPanel.cs' at thread -1
+Loading resource: res://code/Client/Development/EventLogPanel.cs remapped: res://code/Client/Development/EventLogPanel.cs
+Completed load for: 'res://code/Client/Development/EventLogPanel.cs' remapped 'res://code/Client/Development/EventLogPanel.cs' at thread -1
+Loading resource: res://code/Client/Development/DevToolsShell.cs remapped: res://code/Client/Development/DevToolsShell.cs
+Completed load for: 'res://code/Client/Development/DevToolsShell.cs' remapped 'res://code/Client/Development/DevToolsShell.cs' at thread -1
+Loading resource: res://code/Client/Hud/CombatHud.cs remapped: res://code/Client/Hud/CombatHud.cs
+Completed load for: 'res://code/Client/Hud/CombatHud.cs' remapped 'res://code/Client/Hud/CombatHud.cs' at thread -1
+Loading resource: res://code/Client/Hud/ActivityFeed.cs remapped: res://code/Client/Hud/ActivityFeed.cs
+Completed load for: 'res://code/Client/Hud/ActivityFeed.cs' remapped 'res://code/Client/Hud/ActivityFeed.cs' at thread -1
+Loading resource: res://code/Client/Hud/StandingsMetal.cs remapped: res://code/Client/Hud/StandingsMetal.cs
+Completed load for: 'res://code/Client/Hud/StandingsMetal.cs' remapped 'res://code/Client/Hud/StandingsMetal.cs' at thread -1
+Loading resource: res://code/Client/Hud/MatchStandings.cs remapped: res://code/Client/Hud/MatchStandings.cs
+Completed load for: 'res://code/Client/Hud/MatchStandings.cs' remapped 'res://code/Client/Hud/MatchStandings.cs' at thread -1
+Loading resource: res://code/Client/Networking/DevelopmentSession.cs remapped: res://code/Client/Networking/DevelopmentSession.cs
+Completed load for: 'res://code/Client/Networking/DevelopmentSession.cs' remapped 'res://code/Client/Networking/DevelopmentSession.cs' at thread -1
+Loading resource: res://code/Client/Online/OnlineLobbyPanel.cs remapped: res://code/Client/Online/OnlineLobbyPanel.cs
+Completed load for: 'res://code/Client/Online/OnlineLobbyPanel.cs' remapped 'res://code/Client/Online/OnlineLobbyPanel.cs' at thread -1
+Loading resource: res://code/Client/Settings/MenuPresentation.cs remapped: res://code/Client/Settings/MenuPresentation.cs
+Completed load for: 'res://code/Client/Settings/MenuPresentation.cs' remapped 'res://code/Client/Settings/MenuPresentation.cs' at thread -1
+Loading resource: res://code/Client/Settings/SettingsPanel.cs remapped: res://code/Client/Settings/SettingsPanel.cs
+Completed load for: 'res://code/Client/Settings/SettingsPanel.cs' remapped 'res://code/Client/Settings/SettingsPanel.cs' at thread -1
+Loading resource: res://code/Client/Settings/SettingsHud.cs remapped: res://code/Client/Settings/SettingsHud.cs
+Completed load for: 'res://code/Client/Settings/SettingsHud.cs' remapped 'res://code/Client/Settings/SettingsHud.cs' at thread -1
+Loading resource: res://code/Client/Development/DeveloperOptionsPanel.cs remapped: res://code/Client/Development/DeveloperOptionsPanel.cs
+Completed load for: 'res://code/Client/Development/DeveloperOptionsPanel.cs' remapped 'res://code/Client/Development/DeveloperOptionsPanel.cs' at thread -1
+Loading resource: res://code/Client/Statistics/StatisticPanel.cs remapped: res://code/Client/Statistics/StatisticPanel.cs
+Completed load for: 'res://code/Client/Statistics/StatisticPanel.cs' remapped 'res://code/Client/Statistics/StatisticPanel.cs' at thread -1
+Loading resource: res://code/Client/Development/EventLogPanel.cs remapped: res://code/Client/Development/EventLogPanel.cs
+Completed load for: 'res://code/Client/Development/EventLogPanel.cs' remapped 'res://code/Client/Development/EventLogPanel.cs' at thread -1
+Loading resource: res://code/Client/Development/DevToolsShell.cs remapped: res://code/Client/Development/DevToolsShell.cs
+Completed load for: 'res://code/Client/Development/DevToolsShell.cs' remapped 'res://code/Client/Development/DevToolsShell.cs' at thread -1
+Loading resource: res://code/Client/Hud/CombatHud.cs remapped: res://code/Client/Hud/CombatHud.cs
+Completed load for: 'res://code/Client/Hud/CombatHud.cs' remapped 'res://code/Client/Hud/CombatHud.cs' at thread -1
+Loading resource: res://code/Client/Hud/ActivityFeed.cs remapped: res://code/Client/Hud/ActivityFeed.cs
+Completed load for: 'res://code/Client/Hud/ActivityFeed.cs' remapped 'res://code/Client/Hud/ActivityFeed.cs' at thread -1
+Loading resource: res://code/Client/Hud/StandingsMetal.cs remapped: res://code/Client/Hud/StandingsMetal.cs
+Completed load for: 'res://code/Client/Hud/StandingsMetal.cs' remapped 'res://code/Client/Hud/StandingsMetal.cs' at thread -1
+Loading resource: res://code/Client/Hud/MatchStandings.cs remapped: res://code/Client/Hud/MatchStandings.cs
+Completed load for: 'res://code/Client/Hud/MatchStandings.cs' remapped 'res://code/Client/Hud/MatchStandings.cs' at thread -1
+Loading resource: res://code/Client/Networking/DevelopmentSession.cs remapped: res://code/Client/Networking/DevelopmentSession.cs
+Completed load for: 'res://code/Client/Networking/DevelopmentSession.cs' remapped 'res://code/Client/Networking/DevelopmentSession.cs' at thread -1
+Loading resource: res://code/Client/Online/OnlineLobbyPanel.cs remapped: res://code/Client/Online/OnlineLobbyPanel.cs
+Completed load for: 'res://code/Client/Online/OnlineLobbyPanel.cs' remapped 'res://code/Client/Online/OnlineLobbyPanel.cs' at thread -1
+Startup integration passed: phase-aware dependency, frontend setup, and application recovery with persistent MenuShell media.
+Unloading: Disposing tracked instances...
+Unloading: Finished disposing tracked instances.
+XR: Clearing primary interface
+XR: Removed interface "Native mobile"
+XR: Removed interface "OpenXR"
+Leaked instance: AudioStreamMP3:9223372071197738489 - Reference count: 1
+Leaked instance: AudioStreamPlaybackMP3:9223372071298401836 - Reference count: 1
+Hint: Leaked instances typically happen when nodes are removed from the scene tree (with `remove_child()`) but not freed (with `free()` or `queue_free()`).
+Orphan StringName: Music (static: 0, total: 2)
+StringName: 1 unclaimed string names at exit.
+WARNING: 2 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
