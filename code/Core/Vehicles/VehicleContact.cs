@@ -10,15 +10,24 @@ public readonly record struct VehicleContact
     /// <param name="normal">Unit world-space normal away from the other body.</param>
     /// <param name="impulse">Nonnegative contact impulse magnitude.</param>
     /// <param name="otherVehicleId">Stable vehicle identity, or zero for world/prop contacts.</param>
-    public VehicleContact(Vector3 relativeVelocity, Vector3 normal, float impulse, ulong otherVehicleId)
+    /// <param name="terrain">Explicit driveable-terrain identity.</param>
+    /// <param name="localPosition">Vehicle-local contact point.</param>
+    public VehicleContact(Vector3 relativeVelocity, Vector3 normal, float impulse, ulong otherVehicleId, bool terrain = false, Vector3 localPosition = default)
     {
         _ = VehicleDamageMath.CollisionSeverity(relativeVelocity, normal, impulse, 1);
+        if (!VehiclePhysicsState.IsFinite(localPosition)) { throw new ArgumentException("Invalid contact position."); }
+        Terrain = terrain;
+        LocalPosition = localPosition;
         RelativeVelocity = relativeVelocity;
         Normal = normal;
         Impulse = impulse;
         OtherVehicleId = otherVehicleId;
     }
 
+    /// <summary>Explicit driveable terrain identity; obstacles and vehicles are excluded.</summary>
+    public bool Terrain { get; }
+    /// <summary>Contact point relative to the vehicle origin in vehicle-local axes.</summary>
+    public Vector3 LocalPosition { get; }
     /// <summary>World-space relative contact velocity.</summary>
     public Vector3 RelativeVelocity { get; }
     /// <summary>Unit contact normal.</summary>

@@ -1,0 +1,252 @@
+Map root preserves metre scale and identity transform.
+Map instances the Blender GLB.
+Imported track preserves axis conversion without runtime scale.
+Imported extent is (410.7416, 10.324376, 200) m.
+Every source road vertex survives Blender to Godot export.
+Measured plan centerline lap: 999.7660 m.
+All 916 transverse road sections measure 18 m on the banked surface.
+Both imported turns have 91 m plan radius; tangent centers are 214 m apart.
+One static road collision surface exactly matches the 10992 exported triangles.
+22900 road raycasts including both sides of every seam: maximum height error 0.006678 m.
+Continuous banking: maximum adjacent collision-normal step 0.9868 degrees.
+Flat infield center and all 916 inner-rim samples meet the road at y=0 within 3 mm native-query tolerance.
+Eight ordered stable Marker3D player spawn IDs.
+player-01 declares a 6 by 3 m grid slot.
+player-01 faces the +X racing direction.
+player-01 footprint (-3, -1.5) is fully supported on flat track.
+player-01 footprint (-3, 0) is fully supported on flat track.
+player-01 footprint (-3, 1.5) is fully supported on flat track.
+player-01 footprint (0, -1.5) is fully supported on flat track.
+player-01 footprint (0, 0) is fully supported on flat track.
+player-01 footprint (0, 1.5) is fully supported on flat track.
+player-01 footprint (3, -1.5) is fully supported on flat track.
+player-01 footprint (3, 0) is fully supported on flat track.
+player-01 footprint (3, 1.5) is fully supported on flat track.
+player-02 declares a 6 by 3 m grid slot.
+player-02 faces the +X racing direction.
+player-02 footprint (-3, -1.5) is fully supported on flat track.
+player-02 footprint (-3, 0) is fully supported on flat track.
+player-02 footprint (-3, 1.5) is fully supported on flat track.
+player-02 footprint (0, -1.5) is fully supported on flat track.
+player-02 footprint (0, 0) is fully supported on flat track.
+player-02 footprint (0, 1.5) is fully supported on flat track.
+player-02 footprint (3, -1.5) is fully supported on flat track.
+player-02 footprint (3, 0) is fully supported on flat track.
+player-02 footprint (3, 1.5) is fully supported on flat track.
+player-03 declares a 6 by 3 m grid slot.
+player-03 faces the +X racing direction.
+player-03 footprint (-3, -1.5) is fully supported on flat track.
+player-03 footprint (-3, 0) is fully supported on flat track.
+player-03 footprint (-3, 1.5) is fully supported on flat track.
+player-03 footprint (0, -1.5) is fully supported on flat track.
+player-03 footprint (0, 0) is fully supported on flat track.
+player-03 footprint (0, 1.5) is fully supported on flat track.
+player-03 footprint (3, -1.5) is fully supported on flat track.
+player-03 footprint (3, 0) is fully supported on flat track.
+player-03 footprint (3, 1.5) is fully supported on flat track.
+player-04 declares a 6 by 3 m grid slot.
+player-04 faces the +X racing direction.
+player-04 footprint (-3, -1.5) is fully supported on flat track.
+player-04 footprint (-3, 0) is fully supported on flat track.
+player-04 footprint (-3, 1.5) is fully supported on flat track.
+player-04 footprint (0, -1.5) is fully supported on flat track.
+player-04 footprint (0, 0) is fully supported on flat track.
+player-04 footprint (0, 1.5) is fully supported on flat track.
+player-04 footprint (3, -1.5) is fully supported on flat track.
+player-04 footprint (3, 0) is fully supported on flat track.
+player-04 footprint (3, 1.5) is fully supported on flat track.
+player-05 declares a 6 by 3 m grid slot.
+player-05 faces the +X racing direction.
+player-05 footprint (-3, -1.5) is fully supported on flat track.
+player-05 footprint (-3, 0) is fully supported on flat track.
+player-05 footprint (-3, 1.5) is fully supported on flat track.
+player-05 footprint (0, -1.5) is fully supported on flat track.
+player-05 footprint (0, 0) is fully supported on flat track.
+player-05 footprint (0, 1.5) is fully supported on flat track.
+player-05 footprint (3, -1.5) is fully supported on flat track.
+player-05 footprint (3, 0) is fully supported on flat track.
+player-05 footprint (3, 1.5) is fully supported on flat track.
+player-06 declares a 6 by 3 m grid slot.
+player-06 faces the +X racing direction.
+player-06 footprint (-3, -1.5) is fully supported on flat track.
+player-06 footprint (-3, 0) is fully supported on flat track.
+player-06 footprint (-3, 1.5) is fully supported on flat track.
+player-06 footprint (0, -1.5) is fully supported on flat track.
+player-06 footprint (0, 0) is fully supported on flat track.
+player-06 footprint (0, 1.5) is fully supported on flat track.
+player-06 footprint (3, -1.5) is fully supported on flat track.
+player-06 footprint (3, 0) is fully supported on flat track.
+player-06 footprint (3, 1.5) is fully supported on flat track.
+player-07 declares a 6 by 3 m grid slot.
+player-07 faces the +X racing direction.
+player-07 footprint (-3, -1.5) is fully supported on flat track.
+player-07 footprint (-3, 0) is fully supported on flat track.
+player-07 footprint (-3, 1.5) is fully supported on flat track.
+player-07 footprint (0, -1.5) is fully supported on flat track.
+player-07 footprint (0, 0) is fully supported on flat track.
+player-07 footprint (0, 1.5) is fully supported on flat track.
+player-07 footprint (3, -1.5) is fully supported on flat track.
+player-07 footprint (3, 0) is fully supported on flat track.
+player-07 footprint (3, 1.5) is fully supported on flat track.
+player-08 declares a 6 by 3 m grid slot.
+player-08 faces the +X racing direction.
+player-08 footprint (-3, -1.5) is fully supported on flat track.
+player-08 footprint (-3, 0) is fully supported on flat track.
+player-08 footprint (-3, 1.5) is fully supported on flat track.
+player-08 footprint (0, -1.5) is fully supported on flat track.
+player-08 footprint (0, 0) is fully supported on flat track.
+player-08 footprint (0, 1.5) is fully supported on flat track.
+player-08 footprint (3, -1.5) is fully supported on flat track.
+player-08 footprint (3, 0) is fully supported on flat track.
+player-08 footprint (3, 1.5) is fully supported on flat track.
+Imported reference car body measures 4.81 m in Godot.
+Production vehicle settles without damage at player-01: position (0, 0.9000035, 96), grounded True, HP 100.
+Production vehicle settles without damage at player-02: position (0, 0.9000035, 86), grounded True, HP 100.
+Production vehicle settles without damage at player-03: position (-8, 0.9000036, 96), grounded True, HP 100.
+Production vehicle settles without damage at player-04: position (-8, 0.9000036, 86), grounded True, HP 100.
+Production vehicle settles without damage at player-05: position (-16, 0.90000355, 96), grounded True, HP 100.
+Production vehicle settles without damage at player-06: position (-16, 0.90000355, 86), grounded True, HP 100.
+Production vehicle settles without damage at player-07: position (-24, 0.90000355, 96), grounded True, HP 100.
+Production vehicle settles without damage at player-08: position (-24, 0.90000355, 86), grounded True, HP 100.
+Production native VehicleBody settles on the imported road.
+Production silhouette measures (2.662311, 1.8560698, 4.8100004) metres.
+Blender geometry has applied scale; runtime nodes remain unit scale.
+Offline collision agrees with the complete armor/bumper footprint and origin.
+Network and offline beveled collision definitions agree.
+wheel-back-left aligns with its suspension ray.
+wheel-back-left radius and settled level-road contact agree.
+wheel-back-right aligns with its suspension ray.
+wheel-back-right radius and settled level-road contact agree.
+wheel-front-left aligns with its suspension ray.
+wheel-front-left radius and settled level-road contact agree.
+wheel-front-right aligns with its suspension ray.
+wheel-front-right radius and settled level-road contact agree.
+Collision spans the visible underbody through the roof identification panel.
+Settled body clearance is 0.243 m.
+Sustained high-speed support: peak 43.034 m/s, grounded 4428/4428, peak normal speed 0.614 m/s.
+Production VehicleBody completed three banked loops, maximum centerline deviation 3.350 m, without sustained support loss.
+Practice 42 m/s bank turn, direction 1, steering 8000: slip angle 0.010 rad, angular speed 0.294 rad/s, rear slip 0.009, continuously supported, final speed 42.932 m/s.
+Practice 42 m/s bank turn, direction 1, steering 16000: slip angle 0.010 rad, angular speed 0.380 rad/s, rear slip 0.021, continuously supported, final speed 43.150 m/s.
+Practice 42 m/s bank turn, direction 1, steering 32767: slip angle 0.016 rad, angular speed 0.671 rad/s, rear slip 0.218, continuously supported, final speed 43.418 m/s.
+Practice 44.44 m/s bank turn, direction 1, steering 32767: slip angle 0.018 rad, angular speed 0.681 rad/s, rear slip 0.248, continuously supported, final speed 44.316 m/s.
+Practice 42 m/s bank turn, direction -1, steering 8000: slip angle 0.010 rad, angular speed 0.294 rad/s, rear slip 0.009, continuously supported, final speed 42.932 m/s.
+Practice 42 m/s bank turn, direction -1, steering 16000: slip angle 0.010 rad, angular speed 0.380 rad/s, rear slip 0.021, continuously supported, final speed 43.150 m/s.
+Practice 42 m/s bank turn, direction -1, steering 32767: slip angle 0.016 rad, angular speed 0.672 rad/s, rear slip 0.219, continuously supported, final speed 43.418 m/s.
+Practice 44.44 m/s bank turn, direction -1, steering 32767: slip angle 0.018 rad, angular speed 0.681 rad/s, rear slip 0.249, continuously supported, final speed 44.316 m/s.
+Network 42 m/s bank turn, direction 1, steering 8000: slip angle 0.009 rad, angular speed 0.294 rad/s, rear slip 0.009, continuously supported, final speed 42.932 m/s.
+Network 42 m/s bank turn, direction 1, steering 16000: slip angle 0.010 rad, angular speed 0.380 rad/s, rear slip 0.021, continuously supported, final speed 43.155 m/s.
+Network 42 m/s bank turn, direction 1, steering 32767: slip angle 0.016 rad, angular speed 0.672 rad/s, rear slip 0.220, continuously supported, final speed 43.433 m/s.
+Network 44.44 m/s bank turn, direction 1, steering 32767: slip angle 0.018 rad, angular speed 0.681 rad/s, rear slip 0.226, continuously supported, final speed 44.313 m/s.
+Network 42 m/s bank turn, direction -1, steering 8000: slip angle 0.009 rad, angular speed 0.294 rad/s, rear slip 0.009, continuously supported, final speed 42.932 m/s.
+Network 42 m/s bank turn, direction -1, steering 16000: slip angle 0.010 rad, angular speed 0.380 rad/s, rear slip 0.021, continuously supported, final speed 43.155 m/s.
+Network 42 m/s bank turn, direction -1, steering 32767: slip angle 0.016 rad, angular speed 0.672 rad/s, rear slip 0.220, continuously supported, final speed 43.433 m/s.
+Network 44.44 m/s bank turn, direction -1, steering 32767: slip angle 0.018 rad, angular speed 0.682 rad/s, rear slip 0.227, continuously supported, final speed 44.313 m/s.
+Practice bank crossing at 6 m/s: rebound 0.324 m/s, angular 1.666 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Practice bank crossing at 12 m/s: rebound 0.381 m/s, angular 1.862 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Practice bank crossing at 20 m/s: rebound 0.542 m/s, angular 2.658 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Practice asphalt acceleration: neutral steering, peak yaw 0.0013 rad/s, lateral deviation 0.107 m, speed 39.434 m/s, continuously supported.
+Network bank crossing at 6 m/s: rebound 0.286 m/s, angular 1.596 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Network bank crossing at 12 m/s: rebound 0.286 m/s, angular 1.596 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Network bank crossing at 20 m/s: rebound 0.286 m/s, angular 1.596 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Network asphalt acceleration: neutral steering, peak yaw 0.0012 rad/s, lateral deviation 0.106 m, speed 39.484 m/s, continuously supported.
+Practice diagonal bank crossing at 16 m/s: rebound 0.209 m/s, angular 1.887 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Network diagonal bank crossing at 16 m/s: rebound 0.294 m/s, angular 1.519 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Low-speed 35-degree banking descends 1.458 m in three seconds with stable support.
+Banked standing start reaches 10.926 m/s without losing support.
+Oval handbrake pulse/countersteer/throttle recovery: peak yaw 0.366, final side 0.000 m/s.
+Excessive held steering/handbrake permits a spin: final forward dot entry -0.999.
+Oval-to-infield crossing finishes supported at <-0.5977654, 0.89997566, 30.069057>; surface identity remains the authored Concrete baseline.
+Practice production propulsion reaches 44.4399 m/s with neutral steering and stable support.
+Practice lift-off: 16.349 m/s after two seconds, 0.299 m/s after ten seconds, no reversal.
+Practice ordinary 8 m/s turn then neutral throttle: peak yaw 0.309, final yaw 0.000 rad/s.
+Practice ordinary 28 m/s turn then neutral throttle: peak yaw 0.211, final yaw 0.000 rad/s.
+Network production propulsion reaches 44.4399 m/s with neutral steering and stable support.
+Network lift-off: 16.213 m/s after two seconds, 0.297 m/s after ten seconds, no reversal.
+Network ordinary 8 m/s turn then neutral throttle: peak yaw 0.309, final yaw 0.000 rad/s.
+Network ordinary 28 m/s turn then neutral throttle: peak yaw 0.211, final yaw 0.000 rad/s.
+Bump fixture exposes its upward-facing 12 cm crest to production wheel queries.
+Practice 12 cm bump at 6 m/s: chassis rise 0.063 m, compression 0.187 m, settling 0.0001 m/s, unsupported 0.
+Practice 12 cm bump at 12 m/s: chassis rise 0.063 m, compression 0.181 m, settling 0.0001 m/s, unsupported 0.
+Practice 12 cm bump at 20 m/s: chassis rise 0.082 m, compression 0.168 m, settling 0.0001 m/s, unsupported 0.
+Network 12 cm bump at 6 m/s: chassis rise 0.062 m, compression 0.187 m, settling 0.0001 m/s, unsupported 0.
+Network 12 cm bump at 12 m/s: chassis rise 0.066 m, compression 0.176 m, settling 0.0001 m/s, unsupported 0.
+Network 12 cm bump at 20 m/s: chassis rise 0.081 m, compression 0.165 m, settling 0.0001 m/s, unsupported 0.
+Five triple rows and five single pickups are registered from scene markers.
+Forest uses 864 instances in 48 spatial batches.
+Forest transforms require the Visual runtime check; headless renderer cannot inspect them.
+item-triple-01: exactly three pickups, six metre separation, three metre edge clearance.
+item-triple-02: exactly three pickups, six metre separation, three metre edge clearance.
+item-triple-03: exactly three pickups, six metre separation, three metre edge clearance.
+item-triple-04: exactly three pickups, six metre separation, three metre edge clearance.
+item-triple-05: exactly three pickups, six metre separation, three metre edge clearance.
+10992 native perimeter rays cover every seam, midsection and upper wall through 30 m above track.
+Practice 55 m/s impact/launch at section 0, elevation 1: outermost center -1.583 m relative to boundary.
+Practice 55 m/s impact/launch at section 0, elevation 8: outermost center -1.583 m relative to boundary.
+Network 55 m/s impact/launch at section 0, elevation 1: outermost center -2.457 m relative to boundary.
+Network 55 m/s impact/launch at section 0, elevation 8: outermost center -2.457 m relative to boundary.
+Practice 55 m/s impact/launch at section 114, elevation 1: outermost center -1.583 m relative to boundary.
+Practice 55 m/s impact/launch at section 114, elevation 8: outermost center -1.583 m relative to boundary.
+Network 55 m/s impact/launch at section 114, elevation 1: outermost center -2.411 m relative to boundary.
+Network 55 m/s impact/launch at section 114, elevation 8: outermost center -2.411 m relative to boundary.
+Practice 55 m/s impact/launch at section 229, elevation 1: outermost center -1.583 m relative to boundary.
+Practice 55 m/s impact/launch at section 229, elevation 8: outermost center -1.583 m relative to boundary.
+Network 55 m/s impact/launch at section 229, elevation 1: outermost center -2.465 m relative to boundary.
+Network 55 m/s impact/launch at section 229, elevation 8: outermost center -2.465 m relative to boundary.
+Practice 55 m/s impact/launch at section 343, elevation 1: outermost center -1.583 m relative to boundary.
+Practice 55 m/s impact/launch at section 343, elevation 8: outermost center -1.583 m relative to boundary.
+Network 55 m/s impact/launch at section 343, elevation 1: outermost center -2.445 m relative to boundary.
+Network 55 m/s impact/launch at section 343, elevation 8: outermost center -2.445 m relative to boundary.
+Practice 55 m/s impact/launch at section 458, elevation 1: outermost center -1.583 m relative to boundary.
+Practice 55 m/s impact/launch at section 458, elevation 8: outermost center -1.583 m relative to boundary.
+Network 55 m/s impact/launch at section 458, elevation 1: outermost center -2.447 m relative to boundary.
+Network 55 m/s impact/launch at section 458, elevation 8: outermost center -2.447 m relative to boundary.
+Practice 55 m/s impact/launch at section 572, elevation 1: outermost center -1.583 m relative to boundary.
+Practice 55 m/s impact/launch at section 572, elevation 8: outermost center -1.583 m relative to boundary.
+Network 55 m/s impact/launch at section 572, elevation 1: outermost center -2.411 m relative to boundary.
+Network 55 m/s impact/launch at section 572, elevation 8: outermost center -2.411 m relative to boundary.
+Practice 55 m/s impact/launch at section 687, elevation 1: outermost center -1.583 m relative to boundary.
+Practice 55 m/s impact/launch at section 687, elevation 8: outermost center -1.583 m relative to boundary.
+Network 55 m/s impact/launch at section 687, elevation 1: outermost center -2.444 m relative to boundary.
+Network 55 m/s impact/launch at section 687, elevation 8: outermost center -2.444 m relative to boundary.
+Practice 55 m/s impact/launch at section 801, elevation 1: outermost center -1.583 m relative to boundary.
+Practice 55 m/s impact/launch at section 801, elevation 8: outermost center -1.583 m relative to boundary.
+Network 55 m/s impact/launch at section 801, elevation 1: outermost center -2.445 m relative to boundary.
+Network 55 m/s impact/launch at section 801, elevation 8: outermost center -2.445 m relative to boundary.
+Production network vehicle drives through item-triple-01-1 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-triple-01-2 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-triple-01-3 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-triple-02-1 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-triple-02-2 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-triple-02-3 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-triple-03-1 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-triple-03-2 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-triple-03-3 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-triple-04-1 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-triple-04-2 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-triple-04-3 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-triple-05-1 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-triple-05-2 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-triple-05-3 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-single-01 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-single-02 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-single-03 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-single-04 at 36 m/s entry and existing Core authority awards one pickup.
+Production network vehicle drives through item-single-05 at 36 m/s entry and existing Core authority awards one pickup.
+Normal practice starts the existing gameplay music.
+Normal practice creates eight production vehicles on the active oval.
+Practice vehicle 1 settles on its map grid marker.
+Practice vehicle 2 settles on its map grid marker.
+Practice vehicle 3 settles on its map grid marker.
+Practice vehicle 4 settles on its map grid marker.
+Practice vehicle 5 settles on its map grid marker.
+Practice vehicle 6 settles on its map grid marker.
+Practice vehicle 7 settles on its map grid marker.
+Practice vehicle 8 settles on its map grid marker.
+Practice reset returns vehicle 1 to its map grid marker.
+Practice reset returns vehicle 2 to its map grid marker.
+Practice reset returns vehicle 3 to its map grid marker.
+Practice reset returns vehicle 4 to its map grid marker.
+Practice reset returns vehicle 5 to its map grid marker.
+Practice reset returns vehicle 6 to its map grid marker.
+Practice reset returns vehicle 7 to its map grid marker.
+Practice reset returns vehicle 8 to its map grid marker.

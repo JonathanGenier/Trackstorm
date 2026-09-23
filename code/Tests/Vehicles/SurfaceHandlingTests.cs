@@ -14,12 +14,12 @@ internal sealed class SurfaceHandlingTests
     public void Configuration_ResolvesConfiguredAndDefaultMultipliers()
     {
         var defaults = new VehicleConfiguration();
-        Assert.That(defaults.ResolveSurface(SurfaceType.Concrete), Is.EqualTo(new SurfaceModifiers(1, 1, 1)));
-        Assert.That(defaults.ResolveSurface(SurfaceType.Mud), Is.EqualTo(new SurfaceModifiers(0.55f, 3, 0.6f)));
+        Assert.That(defaults.ResolveSurface(SurfaceType.Concrete), Is.EqualTo(new SurfaceModifiers(0.95f, 1, 0.98f)));
+        Assert.That(defaults.ResolveSurface(SurfaceType.Mud), Is.EqualTo(new SurfaceModifiers(0.6f, 2.5f, 0.85f)));
         var custom = defaults with { Concrete = new(0.8f, 2, 0.7f), Mud = new(0.3f, 5, 0.2f) };
         Assert.That(custom.ResolveSurface(SurfaceType.Concrete), Is.EqualTo(custom.Concrete));
         Assert.That(custom.ResolveSurface(SurfaceType.Mud), Is.EqualTo(custom.Mud));
-        Assert.Throws<ArgumentOutOfRangeException>(() => custom.ResolveSurface((SurfaceType)2));
+        Assert.Throws<ArgumentOutOfRangeException>(() => custom.ResolveSurface((SurfaceType)255));
     }
 
     /// <summary>Unsafe tuning is rejected before multiplication; zero and maximum legal values remain bounded.</summary>
@@ -61,7 +61,7 @@ internal sealed class SurfaceHandlingTests
         var reverse = new InputFrame(4, 0, 0, 65535, InputButtons.None, InputButtons.None, InputButtons.None);
         Assert.That(
             movement.Step(reverse, Physics(), Vector3.UnitY, surface: SurfaceType.Mud).Physics.LinearVelocity.Z,
-            Is.InRange(0.001f, 8 * 0.6f / 60));
+            Is.InRange(0.001f, 8 * tuning.Mud.Acceleration / 60));
     }
 
     /// <summary>Nondefault surface tuning controls coasting, ordinary grip and drift grip through the same response.</summary>
@@ -69,7 +69,7 @@ internal sealed class SurfaceHandlingTests
     public void CustomTuning_ComposesCoastingAndTireGrip()
     {
         var tuning = new VehicleConfiguration { Concrete = new(0.4f, 2, 0.3f), Mud = new(0.2f, 4, 0.1f) };
-        foreach (SurfaceType surface in Enum.GetValues<SurfaceType>())
+        foreach (SurfaceType surface in new[] { SurfaceType.Concrete, SurfaceType.Mud })
         {
             SurfaceModifiers modifiers = tuning.ResolveSurface(surface);
             foreach (bool drift in new[] { false, true })
@@ -128,7 +128,7 @@ internal sealed class SurfaceHandlingTests
         second.AddVehicle(1, new(), new(), Physics());
         for (ulong tick = 1; tick <= 600; tick++)
         {
-            SurfaceType surface = tick % 40 < 20 ? SurfaceType.Concrete : SurfaceType.Mud;
+            SurfaceType surface = Enum.GetValues<SurfaceType>()[(int)(tick / 20 % 6)];
             Vector3 support = tick % 60 < 50 ? Vector3.UnitY : Vector3.Zero;
             InputFrame input = Frame(tick, tick % 60 < 45);
             var observation = new VehicleObservation(Physics(new Vector3(3, 0, -16)), support, surface: surface);
@@ -157,7 +157,7 @@ internal sealed class SurfaceHandlingTests
     {
         var movement = new VehicleMovement(new(), Physics());
         VehicleState before = movement.State;
-        Assert.Throws<ArgumentOutOfRangeException>(() => movement.Step(Frame(1), Physics(), Vector3.UnitY, surface: (SurfaceType)2));
+        Assert.Throws<ArgumentOutOfRangeException>(() => movement.Step(Frame(1), Physics(), Vector3.UnitY, surface: (SurfaceType)255));
         Assert.That(movement.State, Is.EqualTo(before));
         Assert.Throws<ArgumentOutOfRangeException>(() => new VehicleObservation(Physics(), Vector3.UnitY, surface: (SurfaceType)255));
         byte[] payload = VehicleStateCodec.Encode(before);

@@ -6,6 +6,8 @@ Fresh production startup follows one explicit sequence:
 
 `SimulationBootstrap` remains the application composition root. The main scene enables its startup controller; isolated integration fixtures construct the same bootstrap without replaying presentation delays. Command-line verification entry points continue to run before the product startup sequence so their existing ownership and timing remain unchanged.
 
+Local practice rebases each captured input onto its own next simulation tick. Input capture can already have advanced while the startup Loader is running; device sequence numbers do not become the clock of a newly created practice world.
+
 ## Ownership and transitions
 
 `StartupFlow` accepts only the required ordered transitions. The Preloader presents one frame, loads only the Splash and two immediate MenuShell media dependencies, and then creates the dedicated `SplashScreen`; it performs no global application initialization. `SplashScreen` owns a full-screen one-shot Ogg Theora video with its synchronized embedded Vorbis audio on the Master bus. Native video completion—not a timer or player input—advances the flow. After completion the Splash owner is removed, `StartupController` creates one `MenuShell`, and the separate Loader video/music begin from their starts. The shell is never replaced while moving from Loader to Main Menu.

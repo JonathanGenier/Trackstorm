@@ -11,8 +11,16 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Evidence | Reports |
 | --- | --- |
 | Authoritative item seed per match | [TS-140 verification evidence](ts-140.md) |
+| Shallow/deep water, host tuning and lifecycle | [TS-79 verification evidence](ts-79.md) |
+| Terrain handling, Configs and uphill starts | [TS-78 verification evidence](ts-78.md) |
+| Surface/material identity and native transitions | [TS-77 verification evidence](ts-77.md) |
+| Blender infield structures and native clearance/collision | [TS-76 verification evidence](ts-76.md) |
+| Infield spectacle jump retuning | [TS-142 verification evidence](ts-142.md) |
+| Story verification | [TS-141 verification evidence](ts-141.md) |
+| Blender infield terrain; slope-start acceptance blocker | [TS-75 verification evidence](ts-75.md) |
 | Story verification | [TS-118 verification evidence](ts-118.md) |
 | Play Menu and lobby browser | [TS-138 verification evidence](ts-138.md) |
+| Blender-authored infield graybox | [TS-74 verification evidence](ts-74.md) |
 | Oval weapon spawns and coniferous perimeter | [TS-100 verification evidence](ts-100.md) |
 | Persistent Oil deployment and recovery | [TS-117 verification evidence](ts-117.md) |
 | Story verification | [TS-116 verification evidence](ts-116.md) |

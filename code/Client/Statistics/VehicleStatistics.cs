@@ -31,7 +31,7 @@ internal static class VehicleStatistics
         return
         [
             new("Vehicle / confirmed state", FormattableString.Invariant($"Vehicle {state.VehicleId} · Life {state.LifeId} · State tick {movement.Tick}\nHP {damage.CurrentHP:0.##}/{damage.MaxHP:0.##} · {state.Lifecycle}\nSpeed {state.Speed:0.00} m/s · Position ({position.X:0.00}, {position.Y:0.00}, {position.Z:0.00}) m")),
-            new("Physics / environment", FormattableString.Invariant($"Surface: {movement.CurrentSurface}{(movement.Grounded ? string.Empty : " (last supported)")} · {(movement.Grounded ? "Grounded" : "Airborne")}\nHandbrake {movement.Handbrake:0.00} · Sliding {movement.Drifting} · Steering {movement.SteeringAngle:0.00} rad\nFront/rear slip {movement.FrontSlip:0.00}/{movement.RearSlip:0.00}\nLongitudinal/lateral acceleration {movement.LongitudinalAcceleration:0.00}/{movement.LateralAcceleration:0.00} m/s²\nWheel compression FL/FR/RL/RR: {wheels.X:0.00}/{wheels.Y:0.00}/{wheels.Z:0.00}/{wheels.W:0.00} m")),
+            new("Physics / environment", FormattableString.Invariant($"Handling profile: {movement.CurrentSurface}{(movement.Grounded ? string.Empty : " (last supported)")} · {(movement.Grounded ? "Grounded" : "Airborne")}\nHandbrake {movement.Handbrake:0.00} · Sliding {movement.Drifting} · Steering {movement.SteeringAngle:0.00} rad\nFront/rear slip {movement.FrontSlip:0.00}/{movement.RearSlip:0.00}\nLongitudinal/lateral acceleration {movement.LongitudinalAcceleration:0.00}/{movement.LateralAcceleration:0.00} m/s²\nWheel compression FL/FR/RL/RR: {wheels.X:0.00}/{wheels.Y:0.00}/{wheels.Z:0.00}/{wheels.W:0.00} m")),
             new("Combat / lifecycle", combat)
         ];
     }

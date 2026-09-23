@@ -1,0 +1,21 @@
+{
+  "units": "metres",
+  "topology_sha256": "5fa21825dfe218f2de6d4336182a4e87792284a7ae0692067095ea3208bc6bca",
+  "vertices": 201521,
+  "triangles": 402124,
+  "elevation_min_m": -2.9035759061121933,
+  "elevation_max_m": 6.35,
+  "jump_target_speed_mps": 16,
+  "basin_depth_m": 1.8,
+  "boundary_vertices": 916,
+  "transition_depth_m": 28,
+  "tabletop": {
+    "deck_height_m": 6.35,
+    "flat_half_width_m": 11.25,
+    "flat_outer_x_m": 70,
+    "unchanged_kicker_lip_x_m": 83,
+    "symmetric_side_profile_to_z_m": 23.25,
+    "blend_limit_z_m": 28.25,
+    "changed_vertices": 54980
+  }
+}

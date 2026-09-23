@@ -1,0 +1,32 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ERROR: System.InvalidOperationException: TerrainToBank-1: stalled at (-158.66429, 1.4450369, 0.40479916), forward (-0.99130726, 0.13088307, 0.01340153), up (0.13151076, 0.98871493, 0.07174806), wheel compression <0.08746868, 0.10615182, 0.10738522, 0.08722675>, steering 0.085091405, speed (0.020709177, -0.006796986, 0.05823459).
+   at Trackstorm.Client.Verification.InfieldIntegrationChecks.Drive(String name, Vector3[] points, Single width, Single speed, Boolean jump) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\InfieldIntegrationChecks.cs:line 258
+   at Trackstorm.Client.Verification.InfieldIntegrationChecks.Run() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\InfieldIntegrationChecks.cs:line 188
+   at: void Trackstorm.Client.Verification.InfieldIntegrationChecks+<Run>d__23.MoveNext() (res://code/Client/Verification/InfieldIntegrationChecks.cs:188)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.InfieldIntegrationChecks+<Run>d__23.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\InfieldIntegrationChecks.cs:188)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)
+       [4] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [5] void System.Threading.Tasks.Task.RunContinuations(object)
+       [6] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [7] bool System.Threading.Tasks.Task.TrySetException(object)
+       [8] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [9] void Trackstorm.Client.Verification.InfieldIntegrationChecks+<Drive>d__26.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\InfieldIntegrationChecks.cs:258)
+       [10] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [11] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)
+       [12] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [13] void System.Threading.Tasks.Task.RunContinuations(object)
+       [14] bool System.Threading.Tasks.Task`1.TrySetResult(TResult)
+       [15] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetExistingTaskResult(System.Threading.Tasks.Task`1[TResult], TResult)
+       [16] void Trackstorm.Client.Verification.InfieldIntegrationChecks+<Frames>d__28.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\InfieldIntegrationChecks.cs:310)
+       [17] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [18] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)
+       [19] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)
+Exception: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\check-infield.ps1:19
+Line |
+  19 |      throw 'Infield integration failed; see .godot/infield-checks.'
+     |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Infield integration failed; see .godot/infield-checks.

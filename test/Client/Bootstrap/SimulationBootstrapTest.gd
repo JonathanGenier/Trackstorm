@@ -15,6 +15,8 @@ func test_main_scene_composes_lobby_without_advancing_gameplay() -> void:
 	var packed_scene := load("res://scenes/main.tscn") as PackedScene
 	assert_object(packed_scene).is_not_null()
 	var main_scene := auto_free(packed_scene.instantiate()) as Node
+	# This fixture checks immediate composition; check-startup.ps1 owns the asynchronous video/Loader flow.
+	main_scene.set("StartupEnabled", false)
 	add_child(main_scene)
 	assert_str(main_scene.get_script().resource_path).is_equal(
 		"res://code/Client/Bootstrap/SimulationBootstrap.cs"

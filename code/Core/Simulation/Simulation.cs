@@ -214,7 +214,7 @@ public sealed class Simulation
         var reserved = State.Vehicles.ToDictionary(vehicle => vehicle.VehicleId);
         VehicleStepResult[] candidates = requests.OrderBy(request => request.VehicleId).Select(request =>
         {
-            var observation = new VehicleObservation(request.Observation.Physics, request.Observation.Support, request.Observation.Contacts.Where(contact => Participates(contact.OtherVehicleId)), request.Observation.Surface, request.Observation.Wheels);
+            var observation = new VehicleObservation(request.Observation.Physics, request.Observation.Support, request.Observation.Contacts.Where(contact => Participates(contact.OtherVehicleId)), request.Observation.Surface, request.Observation.Wheels, request.Observation.TerrainSupport, request.Observation.WaterDepth);
             var filtered = new VehicleStepRequest(request.VehicleId, request.Input, observation, request.Effects.Where(effect => Participates(effect.Attribution.InstigatorId)), request.Reset, request.Repair, request.RepairCause, request.OilSpin, request.Nitro, request.ClearNitro || State.Match is { Phase: not Matches.MatchPhase.Active });
             VehicleStepResult candidate = _vehicles[request.VehicleId].Prepare(filtered, Respawn, Arena, reserved.Values.ToArray());
             reserved[request.VehicleId] = candidate.Snapshot;
@@ -233,7 +233,7 @@ public sealed class Simulation
             candidates = candidates.Select(result =>
             {
                 var v = result.Snapshot;
-                return new VehicleStepResult(new VehicleSnapshot(v.VehicleId, v.LifeId, v.Movement with { Nitro = default }, v.Damage, v.ObservedPhysics, v.Effects, v.Lifecycle, v.RespawnAtTick), result.Effects, result.DamageEvents.ToList(), result.Reset);
+                return new VehicleStepResult(new VehicleSnapshot(v.VehicleId, v.LifeId, v.Movement with { Nitro = default }, v.Damage, v.ObservedPhysics, v.Effects, v.Lifecycle, v.RespawnAtTick, v.Landing), result.Effects, result.DamageEvents.ToList(), result.Reset);
             }).ToArray();
         }
 

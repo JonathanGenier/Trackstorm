@@ -18,7 +18,7 @@ Configuration actions and their feedback disappear on Stats and Logs and for non
 
 ## Authority and runtime application
 
-Core `GameplayConfiguration` composes the existing vehicle, damage, item, spawn, respawn and match records. `GameplayOptions` is the explicit 76-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
+Core `GameplayConfiguration` composes the existing vehicle, damage, item, spawn, respawn and match records. `GameplayOptions` is the explicit 97-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
 
 Live scalar tuning additionally rejects positive values below 0.0001: subnormal mass/axle lengths can overflow fixed-step divisions despite passing older positive-only checks. Zero remains allowed where the owning rule explicitly supports it. Collision/respawn timers are bounded to one hour and the simulation clock remains fixed at 60 Hz.
 
@@ -30,7 +30,7 @@ Native `NetworkVehicleBody` observation receives the same configuration as Core 
 
 ## Replication and recovery
 
-The reliable version-four `TC` message carries arena generation, configuration revision and all 76 values (629 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
+The reliable version-eight `TC` message carries arena generation, configuration revision and all 97 values (757 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
 
 The host sends configuration before its reliable world boundary on admission or edits. Version-six `TS` world snapshots include the configuration revision; clients reject world/item boundaries for a different revision, preventing mismatched simulation. Subsequent unreliable snapshots recover normal movement after an ordered tuning change. EOS lobby metadata does not store gameplay tuning. Discovery compatibility is `trackstorm-lobby-9`.
 
@@ -46,7 +46,7 @@ Schema two begins with `{"schema":2}` followed by independent `{"key":"vehicle.m
 
 Host-local schema 2 migrates the old default wheelbase, load height and suspension length to the rescaled vehicle dimensions. It preserves deliberately customized spatial values and every unrelated override; schema-2 values are never re-migrated. Custom spatial overrides can intentionally depart from the canonical asset geometry.
 
-`GameplayConfiguration.HostedDefaults` is the canonical hosted-game preset, including **1000 Max HP** and the approved driving, collision and missile tuning below. `NetworkVehicleArena`, the session fallback, `DeveloperSettingsStore` (including missing persisted keys), and Reset all use that definition. Fresh profiles receive the complete preset without a saved file. Valid saved keys override it; Reset stages it and Reset + Apply persists it through the normal transaction. Its vehicle record uses the same asphalt defaults as `new VehicleConfiguration()` and practice; generic damage fixtures retain 100 HP. All changed handling values are already present in the existing catalog, so no new UI key or wire layout is introduced. Player-local graphics, audio, bindings and display settings remain separate.
+`GameplayConfiguration.HostedDefaults` is the canonical hosted-game preset, including **1000 Max HP** and the approved driving, collision and missile tuning below. `NetworkVehicleArena`, the session fallback, `DeveloperSettingsStore` (including missing persisted keys), and Reset all use that definition. Fresh profiles receive the complete preset without a saved file. Valid saved keys override it; Reset stages it and Reset + Apply persists it through the normal transaction. Its vehicle record uses the same asphalt defaults as `new VehicleConfiguration()` and practice; generic damage fixtures retain 100 HP. Surface categories use the same catalog, with nine additional Dirt, Grass and Deep Mud keys in the version-eight configuration layout. Player-local graphics, audio, bindings and display settings remain separate.
 
 | Persisted gameplay key | Canonical owning property in the hosted preset | Release default |
 | --- | --- | --- |
@@ -71,7 +71,7 @@ Host-local schema 2 migrates the old default wheelbase, load height and suspensi
 | `items.explosion_radius` | `ItemConfiguration.ExplosionRadius` | 12 |
 | `items.maximum_damage` | `ItemConfiguration.MaximumDamage` | 300 |
 
-The remaining persisted values already match this preset, including HP, surfaces, item spawning, respawn and match rules. The complete stable-key ownership map below applies to all 76 values. Decimal float literals retain the exact binary32 values represented by persisted JSON doubles; no tolerance or approximate tuning is used. `ReleaseDefaultsTests` checks every approved numeric value exactly and verifies validation, persistence and network round trips.
+The remaining persisted values already match this preset, including HP, item spawning, respawn and match rules. The complete stable-key ownership map below applies to all 97 values. Decimal float literals retain the exact binary32 values represented by persisted JSON doubles; no tolerance or approximate tuning is used. `ReleaseDefaultsTests` checks every approved numeric value exactly and verifies validation, persistence and network round trips.
 
 ### Circus stunt tuning
 
@@ -201,3 +201,10 @@ The read-only [Event Log](event-log.md) records accepted tuning keys with old/ne
 Item spawn weights are generated from the shared item registry (spawns.wrench_weight, spawns.missile_weight, spawns.oil_weight, spawns.nitro_weight). Zero excludes an item; the complete pool must retain positive total weight. All four default to one. Oil uses the normal deployment path; Nitro uses the normal activation path and retains its slot while already boosted. The Oil patch bound is editable as items.maximum_oil_patches (1–32, default 16); lowering it preserves existing patches. The version-seven gameplay configuration payload includes the complete distribution in resume and migration checkpoints.
 
 Nitro adds `items.nitro_duration_ticks`, `items.nitro_acceleration_multiplier`, `items.nitro_speed_multiplier`, and `match.nitro_points_per_second` to the existing 83-key configuration catalog. Item settings are captured at activation; score rate edits affect subsequent active ticks. Ordinary validation, persistence, replication and recovery apply. See [Nitro](items.md#temporary-nitro-boost) for lifecycle and bounds.
+
+## Surface tuning
+
+Concrete, Dirt, Grass, Mud and Deep Mud each expose Grip, Drag and Acceleration multipliers under their searchable category. Keys are `vehicle.concrete.*`, `vehicle.dirt.*`, `vehicle.grass.*`, `vehicle.mud.*` and `vehicle.deep_mud.*`, with suffixes `grip`, `drag`, `acceleration`. Each maps directly to the matching `VehicleConfiguration` record used by movement; [vehicles](vehicles.md#terrain-handling-profiles) owns default values and force semantics. Asphalt retains existing vehicle controls rather than a second surface authority. Host overrides may intentionally depart from the default ordering.
+
+Apply, Cancel, Reset, validation, host-local schema-two persistence, version-eight complete reliable configuration and existing resume/migration checkpoints carry all 97 values. New keys missing from saved files use canonical defaults. Old explicit Concrete/Mud overrides remain user tuning; Reset plus Apply selects the new defaults. No file migration silently overwrites those choices. The existing UI/UDP/persistence harness iterates all catalog controls; Core trajectory tests exercise every surface multiplier and checkpoint round trips.
+The **Water** category adds five [water controls](water.md#gameplay-and-tuning) through the same authority, validation, persistence and recovery path. The complete configuration layout is version 9.

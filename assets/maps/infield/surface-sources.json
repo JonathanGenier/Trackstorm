@@ -1,0 +1,26 @@
+{
+  "provenance": "Original Trackstorm material field; no acquired assets.",
+  "bounds_xz": [
+    -256,
+    -128,
+    512,
+    256
+  ],
+  "channels": [
+    "Dirt",
+    "Wet soil",
+    "Rock",
+    "Water"
+  ],
+  "water_basin_xz": [
+    77,
+    -35
+  ],
+  "geometry_before_sha256": "925e1dd171bd4baf696ed929fe5aaf0679ff1f52ad17a903c63200d712cfd86b",
+  "geometry_after_sha256": "925e1dd171bd4baf696ed929fe5aaf0679ff1f52ad17a903c63200d712cfd86b",
+  "files": {
+    "surface_field.png": "078862fc4d877a650351e45fd047c239924addd4142083c0c7d6b3bc5c6a6fe0",
+    "source/InfieldTerrain.blend": "c36f072711d9a0c99aba27089ca1d66bd18f74206d65a69ce51e571ea02e83ef",
+    "infield_terrain.glb": "f9877ce8046fa3ee3901beab4052547fe8ae6dccd207e7cc70f4de74e48170c4"
+  }
+}
