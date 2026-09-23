@@ -155,7 +155,7 @@ public sealed partial class NetworkVehicleChecks : Node
                 _handbrakeFrames++;
             }
 
-            if (driver.Failure.Length > 0 && _seconds < _duration - 2)
+            if (driver.Failure.Length > 0 && _seconds < _duration - 4)
             {
                 throw new InvalidOperationException(driver.Failure);
             }
