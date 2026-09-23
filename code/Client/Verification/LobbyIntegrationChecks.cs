@@ -17,6 +17,7 @@ public sealed partial class LobbyIntegrationChecks : Node
     private double _elapsed;
     private double _stageStarted;
     private bool _countdownVerified;
+    private bool _authorityAvailable;
     private int _stage = -6;
     private Dictionary<ulong, int> _slots = new();
     private int _rejected;
@@ -82,7 +83,8 @@ public sealed partial class LobbyIntegrationChecks : Node
                     _evidence.Add("Interrupted the fresh client after roster assignment and before checkpoint activation.");
                 }
 
-                session.Advance(new InputFrame(0, 0, 20000, 0, 0, 0, 0));
+                if (_stage == 35 && session == _sessions[0]) session.Lobby!.Pump(1.0 / 60);
+                else session.Advance(new InputFrame(0, 0, 20000, 0, 0, 0, 0));
                 if (session.Arena?.Driver is { Match.Phase: Core.Matches.MatchPhase.Countdown } driver)
                 {
                     Require(!driver.AllowsParticipation, "Countdown denies local participation despite held throttle.");
@@ -310,6 +312,26 @@ public sealed partial class LobbyIntegrationChecks : Node
                 }
 
                 RemoteVehicleTagChecks.VerifyBoundaries(_sessions[0].Arena!);
+                _authorityAvailable = false;
+                host!.Migration = new SessionMigration(host, _sessions[0].Gateway!, "fixture-host", _ => "fixture-client", (_, _) => throw new InvalidOperationException("No rebind expected in lease freeze fixture.")) { AuthorityAvailable = () => _authorityAvailable };
+                _sessions[0].Advance(default);
+                Require(_sessions[0].Arena!.Driver.InitialEntryReleased && !_sessions[0].Arena!.Driver.EntryReady, "Temporary authority freeze clears readiness but retains initial release.");
+                _authorityAvailable = true;
+                host.Migration.Advance(0);
+                Require(!host.Migration.Frozen && !_sessions[0].Arena!.Driver.EntryReady, "Observe unfrozen authority before resynchronization context is rebuilt.");
+                _rejected = host.RejectedPackets;
+                var sender = _sessions[1].Lobby!;
+                sender.SendGameplay(new Core.Networking.Transport.TransportMessage(sender.ServerPeer, MatchEntryCodec.Encode(host.State!.Match, MatchEntryCodec.Failed), Core.Networking.Transport.TransportDelivery.Reliable));
+                _stage = 35;
+                _stageStarted = _elapsed;
+                break;
+            case 35 when host!.RejectedPackets > _rejected:
+                Require(host.State!.Phase == SessionPhase.Arena && host.State.Match == _firstMatch, "An admitted failure packet cannot return an already-released generation to Lobby during resynchronization.");
+                Require(_sessions[0].Arena!.Driver.InitialEntryReleased && !_sessions[0].Arena!.Driver.EntryReady, "Failure rejection occurred before readiness reconstruction.");
+                host.Migration = null;
+                _sessions[0].Advance(default);
+                Require(_sessions[0].Arena!.Driver.EntryReady, "Existing entry context recovers normally after freeze.");
+                _evidence.Add("Authenticated late Failed packet rejected while initial release was retained but EntryReady was false after authority unfreeze.");
                 PrepareFinishedFixture();
                 _stage = 23;
                 _stageStarted = _elapsed;
@@ -321,6 +343,7 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Next("All eight peers entered Podium with retained Finished results; host explicitly returned.");
                 break;
             case 6 when AllRoster(8) && _sessions.All(session => session.Arena is null && session.Lobby!.State!.Phase == SessionPhase.Lobby):
+                Require(_sessions.All(session => session.LobbyNotice.Length == 0), "Successful retry clears every peer’s old entry-failure notice.");
                 VerifyDisposedResults();
                 Require(host!.State!.Players.All(player => !player.Ready), "Return clears all ready state.");
                 Require(host.SelectMap(MatchMap.OldMap), "Select Old Map for the second match.");

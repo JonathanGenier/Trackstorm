@@ -419,7 +419,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             _arena.Visible = _arena.Driver.EntryReady && PostMatch is null;
         }
 
-        if (_arena?.Driver is { EntryReady: false, Failure.Length: > 0 } failed && _lobby.Failure.Length == 0 && _transportFailure is null)
+        if (_arena?.Driver is { InitialEntryReleased: false, Failure.Length: > 0 } failed && _lobby.Failure.Length == 0 && _transportFailure is null)
         {
             FailEntry(failed.Failure);
         }
@@ -492,6 +492,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
                 if (_matchLoader is null)
                 {
                     _arenaGeneration = _lobby.State.Match;
+                    LobbyNotice = string.Empty;
                     _matchLoader = CreateMatchLoader(_lobby.State.Map);
                     Render();
                     return;
@@ -532,7 +533,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     // waits for that snapshot; it never invents a replacement lobby or admission record.
     private bool RecoverEntry(string reason)
     {
-        if (_lobby is not { Authority: not null, State.Phase: SessionPhase.Arena } || _arena?.Driver.EntryReady == true) return false;
+        if (_lobby is not { Authority: not null, State.Phase: SessionPhase.Arena } || _arena?.Driver.InitialEntryReleased == true) return false;
         if (!_lobby.Request(LobbyCommand.Return)) return false;
         LobbyNotice = reason + " Ready up to retry.";
         return true;
