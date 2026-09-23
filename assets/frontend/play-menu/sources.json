@@ -1,0 +1,32 @@
+[
+  {
+    "file": "Back_button.png",
+    "source": "Project-provided TS-138 attachment, 2026-09-22",
+    "sha256": "4BFBF41E677C93F4BE70CE0A0FF8B44D23C2B99EFE417238987EB3C6683ABA09",
+    "processing": "Unchanged bytes; runtime atlas regions only"
+  },
+  {
+    "file": "Fame.png",
+    "source": "Project-provided TS-138 attachment, 2026-09-22",
+    "sha256": "5EA572468AD1B6610A28D0FB29921C827B79D9C891021CF57B4071528E266B09",
+    "processing": "Unchanged bytes; runtime atlas regions only"
+  },
+  {
+    "file": "Flag.png",
+    "source": "Project-provided TS-138 attachment, 2026-09-22",
+    "sha256": "89AA5F61D3040E62B34DD9BAE9126AEE6BB9D5AC547AFE4EF17C35E6D501161C",
+    "processing": "Unchanged bytes; runtime atlas regions only"
+  },
+  {
+    "file": "Free_Play_Button.png",
+    "source": "Project-provided TS-138 attachment, 2026-09-22",
+    "sha256": "7544B4A2151BE77775D8422E4F3301AC51F69CCF303C5801E3E639017B88DD35",
+    "processing": "Unchanged bytes; runtime atlas regions only"
+  },
+  {
+    "file": "Host_button.png",
+    "source": "Project-provided TS-138 attachment, 2026-09-22",
+    "sha256": "B1DB5A2340151B6ACF3D5B062D11B22A44E06076A216A974CC725FDBD0D7916F",
+    "processing": "Unchanged bytes; runtime atlas regions only"
+  }
+]

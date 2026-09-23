@@ -1243,7 +1243,7 @@ internal sealed partial class OnlineLobbyTests
         var lobby = host.Active!;
         Assert.That(lobby.DiscoveryAttributes["version"], Is.EqualTo(GameVersion.Current.ToString()));
         Assert.That(lobby.DiscoveryAttributes.Keys, Is.EquivalentTo(access == LobbyAccess.Public
-            ? new[] { "name", "session", "access", "version" } : new[] { "name", "session", "access", "version", "verifier" }));
+            ? new[] { "name", "session", "access", "version", "mode" } : new[] { "name", "session", "access", "version", "mode", "verifier" }));
         string incompatible = new GameVersion(GameVersion.Current.Release, GameVersion.Current.Revision == 0 ? 1 : GameVersion.Current.Revision - 1).ToString();
         service.Lobbies[lobby.Id] = lobby with { Version = incompatible };
         client.Refresh();

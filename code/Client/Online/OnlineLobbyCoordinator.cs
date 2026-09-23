@@ -101,6 +101,7 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
     internal bool StartsGameplayAuthority => _createdGameplaySession && Active?.AuthorityEpoch == 1;
     /// <summary>Whether a membership mutation awaits completion.</summary>
     internal bool Busy { get; private set; }
+    internal bool Searching => _searching;
     /// <summary>Whether Leave can release active membership or retry pending cleanup.</summary>
     internal bool CanLeave => Active is not null || Busy || _closing is not null || _pendingMembership is not null;
     /// <summary>Application-owned local diagnostic journal; never receives provider credentials.</summary>
@@ -449,6 +450,24 @@ internal sealed class OnlineLobbyCoordinator : IDisposable
         if (!_disposed && !Busy)
         {
             CoordinateMigration();
+        }
+
+        // Advertise only the mode selected by the existing gameplay authority.
+        if (!_disposed && !Busy && IsHost && Active is not null && _binding?.Driver.Authority is { } modeAuthority)
+        {
+            string mode = modeAuthority.Configuration.Configuration.Match.Mode.ToString();
+            if (Active.GameMode != mode && (_availabilityRetry is null || _time.GetElapsedTime(_availabilityRetry.Value).TotalSeconds >= 5))
+            {
+                long epoch = Begin("Updating advertised game mode…");
+                _provider.Update(Active with { GameMode = mode }, (updated, failure) =>
+                {
+                    if (_disposed || epoch != _epoch) return;
+                    Busy = false;
+                    _availabilityRetry = failure is null ? null : _time.GetTimestamp();
+                    if (updated is not null && failure is null) ApplyMetadataUpdate(updated);
+                    Status = failure ?? "Lobby game mode updated.";
+                });
+            }
         }
 
         if (!Busy && _pendingMembership is not null && _time.GetElapsedTime(_started).TotalSeconds >= 60)

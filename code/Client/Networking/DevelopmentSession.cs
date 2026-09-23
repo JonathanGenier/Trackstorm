@@ -56,6 +56,11 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private string? _failureOutcome;
     private VBoxContainer _staging = null!;
     private Frontend.HangingMainMenu _mainMenu = null!;
+    private Frontend.HangingPlayMenu _playMenu = null!;
+    private bool _menuTransition;
+    private bool _mainHoisting;
+    private bool _playHoisting;
+    internal Frontend.HangingPlayMenu PlayMenu => _playMenu;
     private bool RetainedPresentation => OnlineCoordinator() is { HasRetainedDecision: true, CheckingSavedSession: false };
 
     /// <summary>Existing Settings destination supplied by the bootstrap.</summary>
@@ -133,8 +138,8 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _mainMenu = new Frontend.HangingMainMenu
         {
             Name = "MainMenu", NavigationInput = NavigationInput,
-            Active = () => Stage == ApplicationStage.MainMenu && !RetainedPresentation,
-            Blocked = () => OverlayOpen(),
+            Active = () => _mainHoisting || (!_playHoisting && Stage == ApplicationStage.MainMenu && !RetainedPresentation),
+            Blocked = () => OverlayOpen() || _menuTransition,
         };
         _root.AddChild(_mainMenu);
         _mainMenu.SetEntries([
@@ -143,6 +148,17 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             new("Settings", "Settings", 2, true, string.Empty, () => OpenSettings()),
             new("Quit", "Quit", 3, true, string.Empty, () => QuitApplication()),
         ]);
+        _playMenu = new Frontend.HangingPlayMenu
+        {
+            Name = "PlayMenu", Visible = false, NavigationInput = NavigationInput,
+            Coordinator = () => OnlineCoordinator(), IdentityStatus = () => OnlineStatus(),
+            Login = () => OnlineLogin(), Back = () => SetBrowser(false),
+            CancelAdmission = Leave,
+            PlayerNameChanged = name => _name.Text = name,
+            Blocked = () => OverlayOpen() || _menuTransition,
+            Direct = () => { _debug.SetPressedNoSignal(true); OnlineCoordinator()?.Leave(); Render(); },
+        };
+        _root.AddChild(_playMenu);
         var panel = new PanelContainer { Name = "LobbyBrowser", Visible = false, AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -300, OffsetRight = 300, OffsetTop = -330, OffsetBottom = 330 };
         _browserPanel = panel;
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("172235"), ContentMarginLeft = 24, ContentMarginRight = 24, ContentMarginTop = 18, ContentMarginBottom = 18 });
@@ -641,12 +657,32 @@ internal sealed partial class DevelopmentSession : CanvasLayer
 
     private void SetBrowser(bool visible)
     {
-        _browsing = visible;
-        if (!visible) _debug.SetPressedNoSignal(false);
+        if (_menuTransition) return;
+        _menuTransition = true;
         if (visible)
         {
-            _browserContent.Modulate = new Color(1, 1, 1, 0);
-            CreateTween().TweenProperty(_browserContent, "modulate:a", 1, 0.25);
+            _mainHoisting = true;
+            _mainMenu.Hoist(() =>
+            {
+                _mainHoisting = false;
+                _browsing = true;
+                _menuTransition = false;
+                _playMenu.BeginEntrance();
+                Render();
+            });
+        }
+        else
+        {
+            _debug.SetPressedNoSignal(false);
+            _playHoisting = true;
+            _playMenu.Hoist(() =>
+            {
+                _playHoisting = false;
+                _browsing = false;
+                _menuTransition = false;
+                _mainMenu.BeginEntrance();
+                Render();
+            });
         }
         Render();
     }
@@ -756,7 +792,8 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _mapChoice.Disabled = _lobby?.Authority is null || _leaving || _lobby.Migration?.Frozen == true;
         bool arena = _arena is not null || _lobby?.State?.Phase == SessionPhase.Arena;
         bool decision = RetainedPresentation;
-        _browserPanel.Visible = !exiting && !active && (browsing || pending);
+        _browserPanel.Visible = !exiting && !active && (browsing || pending) && _debug.ButtonPressed;
+        _playMenu.Visible = !exiting && !active && !_mainHoisting && !_debug.ButtonPressed && (browsing || pending || _playHoisting);
         _mainMenu.RefreshPresentation();
         ((Control)_arenaStatus.GetParent()).Visible = arena;
         Node onlineParent = active && !arena ? _staging : _browserContent;
@@ -765,7 +802,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
             _online.Reparent(onlineParent);
         }
 
-        _online.Visible = !arena && (active || browsing) && !_debug.ButtonPressed;
+        _online.Visible = !arena && active && !_debug.ButtonPressed;
         _debug.Visible = !active && browsing && !decision && !pending;
         _status.Visible = !decision && (browsing || pending);
         _name.Visible = !active && browsing && !decision && !pending;
