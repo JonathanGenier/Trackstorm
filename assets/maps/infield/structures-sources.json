@@ -6,9 +6,9 @@
   "minimum_soffit_height_m": 5.5,
   "ground_routes": "Both north/south and east/west remain at existing terrain datum; no elevated route.",
   "files": {
-    "source/InfieldStructures.blend": "055c7d855d49ee3760539d38dafbb352b48543d3b371fc67f794ebe8e61c08ae",
-    "infield_structures.glb": "7394328614c52b8aa3b2ee25184f491c13adfd61d590ee45d5366fd3bf206018",
-    "BuildStructures.py": "44ba54ffba1c51150b6b12ac7699a2f5036a86fed43c379816ebaa0d41a7b38a",
+    "source/InfieldStructures.blend": "4fb24300ebebf01c7df3009ae0d44195401697ae939181a3f446438a6c30ca6d",
+    "infield_structures.glb": "3b63ee3859b0d2ee4f7ff52d535ca3179bdbfcb38982d7bd7c9a6a5761d0779b",
+    "BuildStructures.py": "bc00a638a66b815cbbfab1a3ad296608480f69f27796673331d7ab8ecb4077d3",
     "layout.json": "5fa21825dfe218f2de6d4336182a4e87792284a7ae0692067095ea3208bc6bca"
   }
 }

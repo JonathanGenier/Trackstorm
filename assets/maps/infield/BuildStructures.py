@@ -96,7 +96,7 @@ for side in [-1, 1]:
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / 'source/InfieldStructures.blend'))
 bpy.ops.export_scene.gltf(filepath=str(ROOT / 'infield_structures.glb'),
                           export_format='GLB', export_yup=True,
-                          export_animations=False, export_extras=True)
+                          export_animations=False, export_extras=True, export_apply=True)
 manifest = dict(provenance='Original Trackstorm Blender-authored structural set; no acquired assets.',
                 units='metres', reference='TS-74 attachment 10017 and retained layout.json; existing terrain is unchanged.',
                 minimum_opening_width_m=18, minimum_soffit_height_m=5.5,
