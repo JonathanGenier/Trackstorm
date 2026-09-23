@@ -12,6 +12,9 @@ public sealed record MatchConfiguration
     /// <summary>Participants needed to begin the countdown.</summary>
     public int MinimumPlayers { get; init; } = 2;
 
+    /// <summary>Base points per second throughout active Nitro, independent of driving input.</summary>
+    public double NitroPointsPerSecond { get; init; } = 10;
+
     /// <summary>Base Circus points per valid kill.</summary>
     public double BaseKillPoints { get; init; } = 100;
     /// <summary>Additional base points per consecutive kill after the first.</summary>
@@ -62,7 +65,7 @@ public sealed record MatchConfiguration
     public void Validate()
     {
         if (!Enum.IsDefined(Mode) || KillTarget is < 1 or > 1000000 || CountdownTicks is < 1 or > 36000 || MinimumPlayers is < 1 or > 8 ||
-            !ValidPoints(BaseKillPoints) || !ValidPoints(KillStreakBonusStep) || !ValidPoints(CollisionPointsPerDamage) || !ValidPoints(DriftRate) || !ValidPoints(DriftTierStep) ||
+            !ValidPoints(NitroPointsPerSecond) || !ValidPoints(BaseKillPoints) || !ValidPoints(KillStreakBonusStep) || !ValidPoints(CollisionPointsPerDamage) || !ValidPoints(DriftRate) || !ValidPoints(DriftTierStep) ||
             !ValidPoints(AirtimeRate) || !ValidPoints(AirtimeTierStep) || !ValidPoints(JumpPointsPerMetre) ||
             !Bounded(DriftMinimumSpeed, 0.1, 65) || !Bounded(DriftMinimumSeconds, 0.01, 60) ||
             !Bounded(AirtimeMinimumSeconds, 0.01, 60) || !Bounded(DriftTierSeconds, 0.01, 60) || !Bounded(AirtimeTierSeconds, 0.01, 60) ||

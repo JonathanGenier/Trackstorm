@@ -141,6 +141,10 @@ internal static class MatchAuthority
                 scores[id] = configuration.Mode == MatchMode.Circus && lifecycle.AllowsGameplay
                     ? StuntScoring.Advance(score, previousVehicles[id], result, configuration, vehicleRules(id), awards)
                     : score with { Stunts = null };
+                if (configuration.Mode == MatchMode.Circus && lifecycle.AllowsGameplay && result.Snapshot.CanInteract && result.Snapshot.Movement.Nitro.Active && !result.Reset)
+                {
+                    scores[id] = CircusScoring.Bank(scores[id], configuration.NitroPointsPerSecond / vehicleRules(id).TicksPerSecond, awards, CircusScoreCategory.Nitro);
+                }
             }
         }
 

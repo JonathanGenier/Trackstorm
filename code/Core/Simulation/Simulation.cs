@@ -215,7 +215,7 @@ public sealed class Simulation
         VehicleStepResult[] candidates = requests.OrderBy(request => request.VehicleId).Select(request =>
         {
             var observation = new VehicleObservation(request.Observation.Physics, request.Observation.Support, request.Observation.Contacts.Where(contact => Participates(contact.OtherVehicleId)), request.Observation.Surface, request.Observation.Wheels);
-            var filtered = new VehicleStepRequest(request.VehicleId, request.Input, observation, request.Effects.Where(effect => Participates(effect.Attribution.InstigatorId)), request.Reset, request.Repair, request.RepairCause, request.OilSpin);
+            var filtered = new VehicleStepRequest(request.VehicleId, request.Input, observation, request.Effects.Where(effect => Participates(effect.Attribution.InstigatorId)), request.Reset, request.Repair, request.RepairCause, request.OilSpin, request.Nitro, request.ClearNitro || State.Match is { Phase: not Matches.MatchPhase.Active });
             VehicleStepResult candidate = _vehicles[request.VehicleId].Prepare(filtered, Respawn, Arena, reserved.Values.ToArray());
             reserved[request.VehicleId] = candidate.Snapshot;
             return candidate;
@@ -226,6 +226,15 @@ public sealed class Simulation
         if (match?.Phase is Matches.MatchPhase.Active or Matches.MatchPhase.Finished)
         {
             _developmentStart = false;
+        }
+
+        if (match?.Phase == Matches.MatchPhase.Finished)
+        {
+            candidates = candidates.Select(result =>
+            {
+                var v = result.Snapshot;
+                return new VehicleStepResult(new VehicleSnapshot(v.VehicleId, v.LifeId, v.Movement with { Nitro = default }, v.Damage, v.ObservedPhysics, v.Effects, v.Lifecycle, v.RespawnAtTick), result.Effects, result.DamageEvents.ToList(), result.Reset);
+            }).ToArray();
         }
 
         var next = new SimulationState(nextTick, input, candidates.Select(result => result.Snapshot), match);
@@ -243,6 +252,11 @@ public sealed class Simulation
         foreach (var result in candidates)
         {
             var vehicle = result.Snapshot;
+            if (State.Vehicles.Single(value => value.VehicleId == vehicle.VehicleId).Movement.Nitro.Active && !vehicle.Movement.Nitro.Active)
+            {
+                Events.Record(EventCategory.Item, "Effect ended", actor: vehicle.VehicleId, cause: "Nitro", life: vehicle.LifeId, tick: nextTick);
+            }
+
             float hp = requests.Single(request => request.VehicleId == vehicle.VehicleId).Reset.HasValue ? vehicle.Damage.MaxHP : State.Vehicles.Single(value => value.VehicleId == vehicle.VehicleId).Damage.CurrentHP;
             foreach (var damage in result.DamageEvents)
             {

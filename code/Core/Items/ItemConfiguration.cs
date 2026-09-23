@@ -3,6 +3,13 @@ namespace Trackstorm.Core.Items;
 /// <summary>Host-owned bounded tuning. Linear falloff reaches zero at the edge.</summary>
 public sealed record ItemConfiguration
 {
+    /// <summary>Boost duration at the fixed simulation rate; captured when consumed.</summary>
+    public int NitroDurationTicks { get; init; } = 300;
+    /// <summary>Forward engine demand multiplier while boosted.</summary>
+    public float NitroAccelerationMultiplier { get; init; } = 2;
+    /// <summary>Forward drive cap multiplier, still bounded by vehicle physics safety limits.</summary>
+    public float NitroSpeedMultiplier { get; init; } = 1.4f;
+
     /// <summary>Maximum persistent patches; lowering this cap never deletes existing hazards.</summary>
     public int MaximumOilPatches { get; init; } = 16;
 
@@ -22,6 +29,8 @@ public sealed record ItemConfiguration
     /// <summary>Rejects nonfinite or excessive host configuration before simulation.</summary>
     public void Validate()
     {
+        new Vehicles.NitroState(NitroDurationTicks, NitroAccelerationMultiplier, NitroSpeedMultiplier).Validate();
+        if (NitroDurationTicks == 0) { throw new ArgumentException("Nitro requires a positive duration."); }
         if (MaximumOilPatches is < 1 or > ItemAuthority.MaximumPatches || !float.IsFinite(WrenchHeal) || WrenchHeal < 0 || WrenchHeal > 10000 ||
             !float.IsFinite(MissileSpeed) || MissileSpeed <= 0 || MissileSpeed > 300 ||
             MissileLifetimeTicks is < 1 or > 3600 || !float.IsFinite(ExplosionRadius) || ExplosionRadius <= 0 || ExplosionRadius > 100 ||

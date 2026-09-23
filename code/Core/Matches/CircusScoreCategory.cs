@@ -9,4 +9,6 @@ public enum CircusScoreCategory : byte
     Airtime = 4,
     LongJump = 5,
     TopSpeed = 6,
+    /// <summary>Temporary Nitro duration.</summary>
+    Nitro = 7,
 }

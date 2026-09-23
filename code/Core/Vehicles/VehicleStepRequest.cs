@@ -13,8 +13,10 @@ public sealed class VehicleStepRequest
     /// <param name="reset">Explicit new-life pose, or null to continue the current life.</param>
     /// <param name="repair">Repair request for a living vehicle.</param>
     /// <param name="repairCause">Allowlisted source of repair.</param>
+    /// <param name="nitro">New boost staged by item authority.</param>
+    /// <param name="clearNitro">Match boundary clearing temporary boost.</param>
     /// <param name="oilSpin">Signed entry spin requested by item authority.</param>
-    public VehicleStepRequest(ulong vehicleId, InputFrame input, VehicleObservation observation, IEnumerable<VehicleEffectRequest>? effects = null, VehiclePhysicsState? reset = null, float repair = 0, string repairCause = "repair", float oilSpin = 0)
+    public VehicleStepRequest(ulong vehicleId, InputFrame input, VehicleObservation observation, IEnumerable<VehicleEffectRequest>? effects = null, VehiclePhysicsState? reset = null, float repair = 0, string repairCause = "repair", float oilSpin = 0, NitroState nitro = default, bool clearNitro = false)
     {
         ArgumentNullException.ThrowIfNull(observation);
         if (vehicleId == 0 || !float.IsFinite(repair))
@@ -35,6 +37,9 @@ public sealed class VehicleStepRequest
 
         if (!float.IsFinite(oilSpin) || Math.Abs(oilSpin) > 3) { throw new ArgumentException("Invalid oil spin."); }
         OilSpin = oilSpin;
+        nitro.Validate();
+        Nitro = nitro;
+        ClearNitro = clearNitro;
         VehicleId = vehicleId;
         Input = input;
         Observation = observation;
@@ -46,6 +51,10 @@ public sealed class VehicleStepRequest
 
     /// <summary>Authoritative entry yaw impulse; zero continues the existing timer.</summary>
     public float OilSpin { get; }
+    /// <summary>Newly authorized boost; clients cannot originate this intent.</summary>
+    public NitroState Nitro { get; }
+    /// <summary>Ends a boost at the authoritative match boundary.</summary>
+    public bool ClearNitro { get; }
     /// <summary>Registered identity.</summary>
     public ulong VehicleId { get; }
     /// <summary>Ordered logical input.</summary>

@@ -16,6 +16,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     private ShaderMaterial _damageMaterial = null!;
     private float _previousHP = 100;
     private float _flash;
+    private GpuParticles3D _nitroTrail = null!;
     private ulong _life;
     private bool _lifeCorrectionPending;
     /// <summary>Host-assigned identity used only to attribute contact observations.</summary>
@@ -43,6 +44,27 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         _damageMaterial = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/items/materials/DamageFlash.gdshader") };
         _damageMaterial.SetShaderParameter("paint", paint);
         _visual.AddChild(VehicleVisual.Create(_damageMaterial));
+        _nitroTrail = Items.ItemPresentation.Particles(Core.Items.ItemRegistry.Find(Core.Items.HeldItem.Nitro)!.ActiveVfx!, false, 0.18f);
+        _nitroTrail.Amount = 64;
+        ((StandardMaterial3D)((QuadMesh)_nitroTrail.DrawPass1).Material).AlbedoColor = new Color(0.15f, 0.65f, 1);
+        ((ParticleProcessMaterial)_nitroTrail.ProcessMaterial).ScaleMax = 0.25f;
+        _nitroTrail.Position = new Vector3(0, 0.6f, 1.9f);
+        _nitroTrail.Emitting = false;
+        _visual.AddChild(_nitroTrail);
+    }
+
+    /// <inheritdoc/>
+    public override void _ExitTree()
+    {
+        // These procedural resources are owned by this emitter, not shared imported assets.
+        var process = _nitroTrail.ProcessMaterial;
+        var mesh = _nitroTrail.DrawPass1 as QuadMesh;
+        var material = mesh?.Material;
+        _nitroTrail.ProcessMaterial = null;
+        _nitroTrail.DrawPass1 = null;
+        process?.Dispose();
+        material?.Dispose();
+        mesh?.Dispose();
     }
 
     /// <inheritdoc/>
@@ -233,6 +255,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     /// <param name="state">Freshest accepted aggregate, never an old reliable outcome.</param>
     internal void SynchronizeLifecycle(VehicleSnapshot state)
     {
+        _nitroTrail.Emitting = state.CanInteract && state.Movement.Nitro.Active;
         if (_life != state.LifeId)
         {
             _life = state.LifeId;

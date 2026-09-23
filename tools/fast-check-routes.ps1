@@ -152,10 +152,13 @@ function Get-FastCheckPlan {
             Add-Manual 'Navigate the affected menu with mouse/keyboard/controller paths that are material to the change.'
         }
 
+        if ($path -match '(?i)Nitro') { Add-Runtime 'check-nitro.ps1' }
+
         # Items and lifecycle.
         if ($path -match '^code/(Core|Client)/Items/' -or $path -eq 'docs/features/items.md') {
             Add-Runtime 'check-items.ps1'
             Add-Runtime 'check-oil.ps1'
+            Add-Runtime 'check-nitro.ps1'
         }
 
         if ($path -eq 'docs/features/item-spawns.md' -or $path -match '(?i)(ItemSpawn|PickupSpawn|SpawnMarker)') {

@@ -41,7 +41,7 @@ public static class VehicleSnapshotCodec
             Document document = JsonSerializer.Deserialize<Document>(bytes[1..], Options) ?? throw new ArgumentException("Missing vehicle aggregate.");
             VehicleState movement = VehicleStateCodec.Decode(document.Movement);
             VehicleState observed = VehicleStateCodec.Decode(document.Observed);
-            if (observed.Tick != movement.Tick || observed.Grounded || observed.Drifting || observed.SteeringAngle != 0 || observed.Handbrake != 0 || observed.FrontSlip != 0 || observed.RearSlip != 0 || observed.LongitudinalAcceleration != 0 || observed.LateralAcceleration != 0 || observed.LandingIntensity != 0 || observed.Wheels != default || observed.CurrentSurface != SurfaceType.Concrete || document.Effects is null)
+            if (observed.Tick != movement.Tick || observed.Grounded || observed.Drifting || observed.SteeringAngle != 0 || observed.Handbrake != 0 || observed.FrontSlip != 0 || observed.RearSlip != 0 || observed.LongitudinalAcceleration != 0 || observed.LateralAcceleration != 0 || observed.LandingIntensity != 0 || observed.Wheels != default || observed.CurrentSurface != SurfaceType.Concrete || observed.OilTicks != 0 || observed.Nitro != default || document.Effects is null)
             {
                 throw new ArgumentException("Malformed solved-state envelope.");
             }

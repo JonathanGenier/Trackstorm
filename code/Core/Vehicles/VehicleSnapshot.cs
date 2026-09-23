@@ -19,7 +19,7 @@ public sealed record VehicleSnapshot
         _ = new VehiclePhysicsState(observedPhysics.Position, observedPhysics.Orientation, observedPhysics.LinearVelocity, observedPhysics.AngularVelocity);
         if (vehicleId == 0 || lifeId == 0 || damage.LastDamage?.Tick > movement.Tick ||
             observedPhysics.Position != movement.Physics.Position || observedPhysics.Orientation != movement.Physics.Orientation ||
-            (damage.Destroyed && movement.Handbrake != 0))
+            (damage.Destroyed && (movement.Handbrake != 0 || movement.Nitro.Active)))
         {
             throw new ArgumentException("Incoherent authoritative vehicle snapshot.");
         }

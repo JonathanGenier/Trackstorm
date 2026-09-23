@@ -149,6 +149,7 @@ public sealed class ItemAuthority
         var spins = new Dictionary<ulong, float>();
         var journal = new List<RuntimeEvent>();
         var repair = new Dictionary<ulong, float>();
+        var boosts = new Dictionary<ulong, NitroState>();
         var effects = requests.ToDictionary(request => request.VehicleId, request => request.Effects.ToList());
         foreach (var pair in slots.ToArray())
         {
@@ -168,8 +169,8 @@ public sealed class ItemAuthority
 
             VehicleStepRequest request = requests.Single(value => value.VehicleId == pair.Key);
             var handler = ItemRegistry.Find(slot.Item)?.Handler;
-            if (request.Reset.HasValue || handler is null ||
-                !handler.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil))
+            if (request.Reset.HasValue || handler is null || (slot.Item == HeldItem.Nitro && (world.GetVehicle(slot.Vehicle).Movement.Nitro.Active || world.State.Match is { Phase: not Matches.MatchPhase.Active })) ||
+                !handler.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts))
             {
                 continue;
             }
@@ -233,7 +234,7 @@ public sealed class ItemAuthority
             }
         }
 
-        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, request.Observation, effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, spins.GetValueOrDefault(request.VehicleId))).ToArray(), journal.Concat(events.Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray());
+        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, request.Observation, effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, spins.GetValueOrDefault(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro)).ToArray(), journal.Concat(events.Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray());
         foreach (var pair in slots.ToArray())
         {
             VehicleSnapshot state = world.GetVehicle(pair.Key);
