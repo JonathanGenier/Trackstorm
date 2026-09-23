@@ -108,3 +108,4 @@ Related systems: [vehicles](vehicles.md), [items](items.md), [pickups](item-spaw
 [reconnection](reconnection.md).
 
 [Feature index](README.md)
+Item pickup/use audio resolves the shared item registry hooks. Wrench/Missile retain their existing cues; Oil/Nitro currently share the weapon pickup cue and emit no use cue while their behavior is unavailable. Registry lookup does not change token/event replay protection or authority ownership.

@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Story verification | [TS-116 verification evidence](ts-116.md) |
 | Camera obstruction and world-geometry avoidance | [TS-132 verification evidence](ts-132.md) |
 | Asphalt and banked-oval handling | [TS-73 accepted driving, clean Developer Options shutdown and final runtime critique](ts-73.md), [historical runtime-feedback correction](ts-73-correction.md), [editor import and multiplayer menu correction](ts-73-menu-correction.md) |
 | Modular chain-hung Main Menu, stationary left layout, legacy presentation cleanup, version label and startup flash regression | [TS-122 implementation and verification](ts-122.md), [Astra runtime critique](ts-122-critique.md) |

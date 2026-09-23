@@ -50,8 +50,6 @@ public static class GameplayOptions
         new("items.maximum_impulse", "Items", "MaximumImpulse", false, c => c.Items.MaximumImpulse, (c, v) => c with { Items = c.Items with { MaximumImpulse = checked((float)v) } }),
         new("items.missile_lifetime_ticks", "Items", "MissileLifetimeTicks", true, c => c.Items.MissileLifetimeTicks, (c, v) => c with { Items = c.Items with { MissileLifetimeTicks = checked((int)v) } }),
         new("spawns.cooldown_ticks", "Item spawns", "CooldownTicks", true, c => c.Spawns.CooldownTicks, (c, v) => c with { Spawns = c.Spawns with { CooldownTicks = checked((int)v) } }),
-        new("spawns.wrench_weight", "Item spawns", "WrenchWeight", true, c => c.Spawns.WrenchWeight, (c, v) => c with { Spawns = c.Spawns with { WrenchWeight = checked((int)v) } }),
-        new("spawns.missile_weight", "Item spawns", "MissileWeight", true, c => c.Spawns.MissileWeight, (c, v) => c with { Spawns = c.Spawns with { MissileWeight = checked((int)v) } }),
         new("spawns.seed", "Item spawns", "Seed", true, c => c.Spawns.Seed, (c, v) => c with { Spawns = c.Spawns with { Seed = checked((int)v) } }),
         new("spawns.pickup_radius", "Item spawns", "PickupRadius", false, c => c.Spawns.PickupRadius, (c, v) => c with { Spawns = c.Spawns with { PickupRadius = checked((float)v) } }),
         new("respawn.delay_ticks", "Respawn", "DelayTicks", true, c => c.Respawn.DelayTicks, (c, v) => c with { Respawn = c.Respawn with { DelayTicks = checked((ulong)v) } }),
@@ -82,6 +80,8 @@ public static class GameplayOptions
         new("vehicle.mud.grip", "Mud", "Grip multiplier", false, c => c.Vehicle.Mud.Grip, (c, v) => c with { Vehicle = c.Vehicle with { Mud = new(checked((float)v), c.Vehicle.Mud.Drag, c.Vehicle.Mud.Acceleration) } }),
         new("vehicle.mud.drag", "Mud", "Drag multiplier", false, c => c.Vehicle.Mud.Drag, (c, v) => c with { Vehicle = c.Vehicle with { Mud = new(c.Vehicle.Mud.Grip, checked((float)v), c.Vehicle.Mud.Acceleration) } }),
         new("vehicle.mud.acceleration", "Mud", "Acceleration multiplier", false, c => c.Vehicle.Mud.Acceleration, (c, v) => c with { Vehicle = c.Vehicle with { Mud = new(c.Vehicle.Mud.Grip, c.Vehicle.Mud.Drag, checked((float)v)) } }),
+        .. Items.ItemRegistry.All.Select(item => new GameplayOption($"spawns.{item.Key}_weight", "Item spawns", $"{item.DisplayName}Weight", true,
+            c => c.Spawns.Weights[item.Identity], (c, v) => c with { Spawns = c.Spawns with { Weights = c.Spawns.Weights.SetItem(item.Identity, checked((int)v)) } })),
     ]);
 
     /// <summary>Applies a complete edit transaction through the existing owning validation rules.</summary>

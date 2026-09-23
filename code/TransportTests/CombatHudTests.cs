@@ -68,7 +68,7 @@ internal sealed class CombatHudTests
     public void SnapshotChangesAndItemMappingAreReadOnly()
     {
         VehicleSnapshot initial = State(850, 1000, 10);
-        foreach (HeldItem item in new[] { HeldItem.None, HeldItem.Wrench, HeldItem.Missile })
+        foreach (HeldItem item in Enum.GetValues<HeldItem>())
         {
             var slot = new ItemSlot(1, 1, 7, item);
             CombatHudView view = CombatHudView.From(initial, slot, SpeedUnit.KilometresPerHour);

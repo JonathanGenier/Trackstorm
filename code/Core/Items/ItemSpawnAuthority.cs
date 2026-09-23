@@ -105,7 +105,7 @@ public sealed class ItemSpawnAuthority
 
         ulong activation = checked(_tick + (ulong)Configuration.CooldownTicks);
         HeldItem item = _select!.Invoke();
-        if (item is not (HeldItem.Wrench or HeldItem.Missile))
+        if (ItemRegistry.Find(item) is null)
         {
             throw new InvalidOperationException("Pickup selector returned an item outside the configured pool.");
         }

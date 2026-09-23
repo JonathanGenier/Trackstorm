@@ -19,7 +19,7 @@ internal sealed record CombatHudView(string Health, double HealthFill, string Sp
     /// <summary>Intentional timer placeholder; no presentation clock masquerades as a match clock.</summary>
     internal string Timer => "--:--";
     /// <summary>Accessible item name, also used below its silhouette.</summary>
-    internal string ItemName => Item switch { HeldItem.Wrench => "WRENCH", HeldItem.Missile => "MISSILE", _ => "EMPTY" };
+    internal string ItemName => ItemRegistry.Find(Item)?.DisplayName.ToUpperInvariant() ?? "EMPTY";
 
     /// <summary>Projects one existing local/replicated boundary without changing it.</summary>
     /// <param name="state">Local vehicle boundary.</param>
@@ -29,7 +29,7 @@ internal sealed record CombatHudView(string Health, double HealthFill, string Sp
     internal static CombatHudView From(VehicleSnapshot state, ItemSlot? slot, SpeedUnit unit)
     {
         HeldItem item = state.CanInteract && slot?.Vehicle == state.VehicleId && slot.Life == state.LifeId ? slot.Item : HeldItem.None;
-        return new CombatHudView(FormatHealth(state.Damage.CurrentHP, state.Damage.MaxHP), NormalizeHealth(state.Damage.CurrentHP, state.Damage.MaxHP), ConvertSpeed(state.Speed, unit).ToString("0", CultureInfo.InvariantCulture), UnitSuffix(unit), NormalizeSpeed(state.Speed), item is HeldItem.Wrench or HeldItem.Missile ? item : HeldItem.None);
+        return new CombatHudView(FormatHealth(state.Damage.CurrentHP, state.Damage.MaxHP), NormalizeHealth(state.Damage.CurrentHP, state.Damage.MaxHP), ConvertSpeed(state.Speed, unit).ToString("0", CultureInfo.InvariantCulture), UnitSuffix(unit), NormalizeSpeed(state.Speed), ItemRegistry.Find(item) is not null ? item : HeldItem.None);
     }
 
     /// <summary>Presentation conversion from metres per second.</summary>

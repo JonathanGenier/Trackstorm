@@ -32,6 +32,8 @@ internal sealed partial class StartupController : Node
         "res://assets/hud/Timer.png",
         "res://assets/hud/Wrench.svg",
         "res://assets/hud/Missile.svg",
+        "res://assets/hud/Oil.svg",
+        "res://assets/hud/Nitro.svg",
         "res://assets/hud/Component.gdshader",
         "res://assets/audio/kenney/interface/confirmation_001.ogg",
         "res://assets/audio/kenney/interface/confirmation_002.ogg",

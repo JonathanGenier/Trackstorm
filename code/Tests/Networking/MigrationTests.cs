@@ -214,9 +214,12 @@ internal sealed class MigrationTests
 
     /// <summary>Checkpoint restores all existing gameplay codecs and rejects corrupt bytes before mutation.</summary>
     /// <param name="emptyMap">Whether the active map has no placed pickups.</param>
-    [TestCase(false)]
-    [TestCase(true)]
-    public void CompleteCheckpointRoundTripPreservesTokensRngAndWorld(bool emptyMap)
+    /// <param name="heldItem">Identity retained on an ordinary participant.</param>
+    [TestCase(false, HeldItem.Wrench)]
+    [TestCase(true, HeldItem.Wrench)]
+    [TestCase(false, HeldItem.Oil)]
+    [TestCase(true, HeldItem.Nitro)]
+    public void CompleteCheckpointRoundTripPreservesTokensRngAndWorld(bool emptyMap, HeldItem heldItem)
     {
         var lobby = Lobby();
         lobby.SetReady(0, true);
@@ -229,7 +232,7 @@ internal sealed class MigrationTests
         host.JoinPlayer(10, 2);
         host.JoinPlayer(20, 3);
         host.RegisterSpawns(map);
-        host.Items.Grant(host.World, 3, HeldItem.Wrench);
+        host.Items.Grant(host.World, 3, heldItem);
         host.Items.Grant(host.World, 2, HeldItem.Missile);
         host.UseItem(10, host.SessionId, 1, host.Items.Slots.Single(slot => slot.Vehicle == 2).Token);
         host.Step(default, Observe);
@@ -250,6 +253,7 @@ internal sealed class MigrationTests
         Assert.That(replacement.World.Arena, Is.SameAs(map));
         Assert.That(replacement.Spawns!.States.Count, Is.EqualTo(map.Items.Count));
         Assert.That(replacement.World.State.Vehicles.Select(v => v.VehicleId), Is.EquivalentTo(new ulong[] { 1, 2, 3 }));
+        Assert.That(replacement.Items.Slots, Is.EqualTo(host.Items.Slots));
         Assert.That(replacement.Items.TokenHighWater, Is.EqualTo(host.Items.TokenHighWater));
         Assert.That(replacement.Items.Missiles, Is.EqualTo(host.Items.Missiles));
         Assert.That(replacement.Spawns!.RandomState, Is.EqualTo(host.Spawns.RandomState));

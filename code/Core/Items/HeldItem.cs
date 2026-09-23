@@ -1,12 +1,16 @@
 namespace Trackstorm.Core.Items;
 
-/// <summary>The only two inventory items; None represents an empty slot.</summary>
+/// <summary>Stable wire identities; None represents an empty slot.</summary>
 public enum HeldItem : byte
 {
     /// <summary>Empty slot.</summary>
-    None,
+    None = 0,
     /// <summary>Single-use repair.</summary>
-    Wrench,
+    Wrench = 1,
     /// <summary>Straight explosive projectile.</summary>
-    Missile,
+    Missile = 2,
+    /// <summary>Oil deployable identity.</summary>
+    Oil = 3,
+    /// <summary>Temporary boost identity.</summary>
+    Nitro = 4,
 }
