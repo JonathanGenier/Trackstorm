@@ -34,24 +34,29 @@ rollers. The four original water footprints contain 1.8 m sculpted depressions
 with smooth sides; surrounding terrain can influence absolute depth. No water
 surface, water physics or distinct handling identifier is added. The three
 obstacle reservations and the central tunnel envelope stay in their original
-locations. Both lower tunnel crossings remain open at the original datum.
-An elevated bridge route is not added. The separate [production structural
-set](STRUCTURES.md) now owns the tunnel: the import hook removes the inherited
-graybox solids without changing this terrain source or export.
+locations. The north/south tunnel crossing remains at the original datum.
+The approved TS-76 follow-up raises the east/west connection onto the existing
+6.35 m deck. The separate [production structural set](STRUCTURES.md) owns the
+tunnel; the import hook removes the inherited graybox solids.
 
 Both original 100 m jump corridors have a 30 m approach, a 12 m kicker reaching
-4.8 m with a 0.70 terminal grade, a recoverable tabletop easing to 3.2 m beneath
-the 13 m flight reservation, a 30 m descending dirt landing and a 15 m recovery.
-The landing ends at corridor metre 85, before the unchanged tunnel junction.
+4.8 m with a 0.70 terminal grade. Those takeoff faces remain unchanged. Dirt
+after each lip now blends into a full-width 6.35 m tabletop joining the tunnel.
+The flat section extends from |X|=10.75 to 70 m across Z=±11.25 m. Rounded
+side slopes share a mirrored profile to |Z|=23.25 m along the flat section;
+the post-kicker transition and outer five-metre collar
+blend into the preserved surrounding terrain. The outer toe narrows smoothly
+through |X|=70..83 m to keep the adjacent basin approach clear. All vertices at |X|≥83 m or
+|Z|≥28.25 m remain unchanged, as do the central underpass and terrain rim.
 Geometry is intended for
 approximately 16 m/s approaches; the native harness checks nearby speeds as well
 as lower-speed traversal of the overlapping shortcuts. Terrain shaping does not
 change vehicle forces, health, suspension or steering. Native jump checks use
 production 1000 HP and collision scale 5, report measured horizontal launch
 speed, flight distance/time and vehicle-origin clearance above local terrain,
-and require a grounded, damage-free recovery on the descending dirt zone.
+and require a grounded, damage-free recovery on the raised dirt tabletop.
 Origin clearance includes ride height; it is not tire or underside clearance.
-Controlled probes exercise both landing zones through both physics adapters.
+Controlled probes exercise terrain landing classification through both physics adapters.
 
 Original vertex colors blend dirt lanes into grass shoulders over seven metres;
 normal lighting and mesh normals communicate elevation. This is terrain-stage

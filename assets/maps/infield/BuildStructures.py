@@ -82,14 +82,18 @@ for sx in [-1, 1]:
 # there are no collision cracks or floor changes in the crossing beneath.
 box('TunnelSoffit', (0, 5.7, 0), (22.5, .4, 22.5), .025)
 for index in range(9):
-    box(f'DeckPanel{index:02}', (-10 + index*2.5, 6.12, 0), (2.48, .46, 22.5), .025)
+    panel = box(f'DeckPanel{index:02}', (-10 + index*2.5, 6.12, 0), (2.48, .46, 22.5), .025)
+    panel.name = f'DeckPanel{index:02}'
+# One authored road collider bridges the visual expansion joints. Individual
+# panels stay visible/editable, without overlapping wheel support colliders.
+road = box('DeckRoad', (0, 6.125, 0), (22.5, .45, 22.5), 0)
+road.name = 'DeckRoad-colonly'
 for side in [-1, 1]:
     box(f'NorthSouthEdgeBeam{side}', (side*10.5, 5.98, 0), (1.5, .95, 22.5), .06)
     box(f'EastWestEdgeBeam{side}', (0, 5.98, side*10.5), (22.5, .95, 1.5), .06)
-    # Deck barriers contain accidental landings; no new elevated route is claimed.
+    # Retain north/south edge barriers; open the two jump-facing (X) ends.
     for segment in range(5):
         center = -8.8 + segment*4.4
-        box(f'NorthSouthParapet{side}_{segment}', (side*10.95, 6.88, center), (.55, 1.15, 4.38), .06)
         box(f'EastWestParapet{side}_{segment}', (center, 6.88, side*10.95), (4.38, 1.15, .55), .06)
 
 # Source remains individually editable, including construction names/modifiers.
@@ -98,9 +102,9 @@ bpy.ops.export_scene.gltf(filepath=str(ROOT / 'infield_structures.glb'),
                           export_format='GLB', export_yup=True,
                           export_animations=False, export_extras=True, export_apply=True)
 manifest = dict(provenance='Original Trackstorm Blender-authored structural set; no acquired assets.',
-                units='metres', reference='TS-74 attachment 10017 and retained layout.json; existing terrain is unchanged.',
+                units='metres', reference='TS-74 layout and approved TS-76 dirt tabletop connections.',
                 minimum_opening_width_m=18, minimum_soffit_height_m=5.5,
-                ground_routes='Both north/south and east/west remain at existing terrain datum; no elevated route.',
+                ground_routes='North/south passage retained; east/west crosses the open deck via dirt tabletops.',
                 files={p: hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in
                        ['source/InfieldStructures.blend', 'infield_structures.glb', 'BuildStructures.py', 'layout.json']})
 (ROOT/'structures-sources.json').write_text(json.dumps(manifest, indent=2)+'\n', newline='\n')

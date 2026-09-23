@@ -73,17 +73,19 @@ central tunnel junction and six oval access points. Main lanes are 12 m wide;
 shortcuts are 14 m and entries/spine 16 m. Side-loop hills and berms, northern
 rises, valleys, paired rhythm stretches and four negative water basins shape
 the course. Two 100 m jump corridors integrate approaches, kickers, recoverable
-tabletops beneath the flight paths, descending dirt landings and recovery zones.
-Each kicker rises 4.8 m over 12 m; its 30 m downslope ends at corridor metre 85.
-The intended 14–18 m/s approach range supports substantial airtime with a
-remaining 15 m recovery before the unchanged central junction.
+tabletop approaches connected to the central deck. Each preserved kicker rises
+4.8 m over 12 m. The intended 14–18 m/s approach range launches toward the
+raised dirt tabletop; low-speed approaches can continue onto the bridge.
 The three obstacle reservations and open-sided tunnel remain in place. The
 [production structural set](../../assets/maps/infield/STRUCTURES.md) replaces
 the graybox tunnel with chamfered concrete piers, foundations, capitals, beams,
 a segmented deck over a continuous soffit, deck barriers, short retaining wings
-and open drainage channels. Its 18 m openings and minimum 5.5 m soffit preserve
-both intersecting routes. Both
-lower tunnel crossings stay clear; an elevated bridge route is not added.
+and open drainage channels. Its north/south underpass retains an 18 m opening
+and minimum 5.5 m soffit. The approved east/west crossing now passes across the
+unchanged 6.35 m deck. Jump-facing parapets are removed; the other deck edges
+remain guarded. Full-width dirt tabletops meet both ends, with mirrored rounded
+side slopes and localized collars joining the existing terrain. Visible deck
+panels share a continuous Blender-authored collision slab across their joints.
 
 A twenty-eight-metre collar follows the original bank's inward grade at all 916 rim
 sections and eases into the terrain. The original oval road and collision stay
@@ -95,7 +97,8 @@ water behavior, final material identity and environment dressing remain later wo
 tunnel clearance and production-vehicle driving along all ten routes and both
 jump corridors, plus a continuous loop-to-loop tour and two-car tunnel traversal.
 `-Case Structure` isolates twelve repeated crossings, four native pier impacts,
-102 clearance-envelope rays and structure/terrain joins.
+51 underpass-envelope rays and structure/terrain joins. `-Case Tabletop` checks
+slow kicker approaches, six offset deck crossings and four side climbs.
 Each individual route is initialized separately, then driven entirely with
 logical input and native physics. Jump runs measure real airborne travel, dirt
 landing location and recovery at nearby approach speeds. This is repeatable
@@ -136,4 +139,4 @@ The oval runtime harness additionally checks all boundary seams at four heights,
 
 The asphalt retains its separate seamless 64 m multiply layer. Grass combines two-metre blade detail with a restrained 16 m isotropic variation tile: its small, low-contrast variations avoid broad light/dark bands at driving height. Both UV sets use world triplanar mapping and mipmaps.
 
-Driveable road and infield collision bodies carry the persistent landing_terrain group for [landing damage classification](vehicles.md#terrain-landing-recovery). The scene baker and terrain import hook retain this metadata. Tunnel and outer-containment colliders remain obstacles; geometry is unchanged.
+Driveable road and infield collision bodies carry the persistent landing_terrain group for [landing damage classification](vehicles.md#terrain-landing-recovery). The scene baker and terrain import hook retain this metadata. The reachable tunnel deck and edge beams also carry this group; remaining structural and outer-containment colliders remain obstacles. The existing contact-normal filter still treats side impacts as obstacles.

@@ -1,14 +1,14 @@
 {
   "provenance": "Original Trackstorm Blender-authored structural set; no acquired assets.",
   "units": "metres",
-  "reference": "TS-74 attachment 10017 and retained layout.json; existing terrain is unchanged.",
+  "reference": "TS-74 layout and approved TS-76 dirt tabletop connections.",
   "minimum_opening_width_m": 18,
   "minimum_soffit_height_m": 5.5,
-  "ground_routes": "Both north/south and east/west remain at existing terrain datum; no elevated route.",
+  "ground_routes": "North/south passage retained; east/west crosses the open deck via dirt tabletops.",
   "files": {
-    "source/InfieldStructures.blend": "4fb24300ebebf01c7df3009ae0d44195401697ae939181a3f446438a6c30ca6d",
-    "infield_structures.glb": "3b63ee3859b0d2ee4f7ff52d535ca3179bdbfcb38982d7bd7c9a6a5761d0779b",
-    "BuildStructures.py": "bc00a638a66b815cbbfab1a3ad296608480f69f27796673331d7ab8ecb4077d3",
+    "source/InfieldStructures.blend": "03bd4400fcdba168857b4b54f1ed900ed4f4dada61971976f976c32a0380501a",
+    "infield_structures.glb": "d91ad69185dc168981b62d24b1cf96f118ed63a525a11ed83bf961f484179d9d",
+    "BuildStructures.py": "54fb4d54a6d7e807e5ebb027524bc88583f38c2fba81693f0b21c5cd838eb56f",
     "layout.json": "5fa21825dfe218f2de6d4336182a4e87792284a7ae0692067095ea3208bc6bca"
   }
 }
