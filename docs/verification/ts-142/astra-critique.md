@@ -58,5 +58,7 @@ that every matrix case was independently repeated for critique.
 - Existing surface presentation remains simple. Later art dressing and human
   playtesting remain distinct from the evidence supporting this focused retune.
 
-No corrective round was performed or authorized. Human acceptance remains
-pending; the branch is delivered without merging as explicitly requested.
+No corrective round was performed or authorized. Human acceptance was pending
+at critique time. On 2026-09-23 the human subsequently reported control testing
+passed and accepted the existing airborne recovery behavior until later
+air-controls work; see the Story report. No merge was authorized.
