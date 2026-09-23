@@ -32,7 +32,7 @@ Reset is a queued new-life intent. Core increments `LifeId`, clears health/event
 
 ## Terrain handling profiles
 
-Core retains stable `SurfaceType` values Concrete = 0 and Mud = 1, and adds Asphalt = 2, Dirt = 3, Grass = 4 and DeepMud = 5. `SurfaceHandling` maps the existing [material identities](surfaces.md) into these portable profiles. `WheelSuspension` supplies the same center-selected identity to practice, host and prediction; detection is not duplicated. Unauthored fixtures retain their explicit `SurfaceBody` profile (otherwise Concrete). Rock and Water retain the neutral Asphalt baseline until separately specified; no Water damage or failure is implemented.
+Core retains stable `SurfaceType` values Concrete = 0 and Mud = 1, and adds Asphalt = 2, Dirt = 3, Grass = 4 and DeepMud = 5. `SurfaceHandling` maps the existing [material identities](surfaces.md) into these portable profiles. `WheelSuspension` supplies the same center-selected identity to practice, host and prediction; detection is not duplicated. Unauthored fixtures retain their explicit `SurfaceBody` profile (otherwise Concrete). Rock retains the neutral Asphalt baseline. [Water](water.md) adds profile 6, immersion observations and deep-water damage through this same authority.
 
 `VehicleConfiguration` owns immutable grip, drag and acceleration multipliers. Asphalt is always (1, 1, 1), using the existing vehicle baseline. Defaults deliberately order Asphalt > Concrete > Dirt > Grass > Mud > Deep Mud:
 
@@ -116,3 +116,5 @@ The [Event Log](event-log.md) records every committed positive hit from the Core
 The native adapters expose the current [material identity](surfaces.md) through the shared wheel-query path. Core maps this identity to handling; local Stats still reports the raw material separately from the committed handling profile.
 
 `check-terrain-handling.ps1 -GodotPath <path> [-Visual]` compares eight-second acceleration, steering, handbrake recovery and asphalt return through both production adapters, plus standing starts on 20-degree Asphalt/Concrete/Dirt, 15-degree Grass, 12-degree Mud and 10-degree Deep Mud fixtures. The infield suite exercises actual mapped slopes and basin recovery. These are sampled grades, not a universal climb-angle guarantee.
+
+[Water interaction](water.md) uses the existing handling and health/lifecycle owners; it has no parallel damage or respawn system.

@@ -45,8 +45,9 @@ public sealed class VehicleMovement
     /// <param name="nitro">New authoritative activation; prediction only continues existing state.</param>
     /// <param name="clearNitro">Explicit match boundary expiry.</param>
     /// <param name="oilSpin">Host entry impulse; prediction only continues restored handling memory.</param>
+    /// <param name="waterDepth">Immersion from the shared native observation.</param>
     /// <returns>Next movement snapshot and commanded velocities.</returns>
-    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null, float oilSpin = 0, NitroState nitro = default, bool clearNitro = false)
+    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null, float oilSpin = 0, NitroState nitro = default, bool clearNitro = false, float waterDepth = 0)
     {
         if (input.Tick != checked(State.Tick + 1))
         {
@@ -66,6 +67,8 @@ public sealed class VehicleMovement
         VehicleConfiguration c = Configuration;
         float forwardSpeed = boost.Active ? Math.Min(c.MaximumPhysicsSpeed, c.ForwardSpeed * boost.SpeedMultiplier) : c.ForwardSpeed;
         float acceleration = boost.Active ? c.Acceleration * boost.AccelerationMultiplier : c.Acceleration;
+        if (!float.IsFinite(waterDepth) || waterDepth is < 0 or > 1000) { throw new ArgumentOutOfRangeException(nameof(waterDepth)); }
+        if (waterDepth > 0) { surface = SurfaceType.Water; }
         SurfaceModifiers detected = c.ResolveSurface(surface);
         float dt = 1f / c.TicksPerSecond;
         bool grounded = groundNormal.Y >= 0.55f;

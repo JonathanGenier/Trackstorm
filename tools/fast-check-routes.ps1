@@ -39,6 +39,10 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'Water|water_checks|check-water' -or $path -eq 'docs/features/water.md') {
+            Add-Runtime 'check-water.ps1'
+            Add-Manual 'Drive repeated shallow/deep Water entry/exit and run check-death-respawn.ps1 -Water -Impaired for eight-peer lifecycle replication.'
+        }
         if ($path -match '(?i)SurfaceIdentity|SurfaceField|BuildSurfaces|surface_checks|check-surfaces|surface_field|surface-sources' -or $path -eq 'docs/features/surfaces.md') {
             Add-Runtime 'check-surfaces.ps1'
             Add-Manual 'Inspect material readability, gradual shoulders, designated Water basin and local Stats during driving.'

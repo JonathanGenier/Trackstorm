@@ -231,6 +231,14 @@ public sealed partial class InfieldIntegrationChecks : Node3D
 
             foreach (Vector3 basin in new[] { new Vector3(-57, 0, -29), new Vector3(77, 0, -35), new Vector3(-85, 0, 28), new Vector3(85, 0, 28) })
             {
+                using var query = PhysicsRayQueryParameters3D.Create(basin + Vector3.Up * 4, basin + Vector3.Down * 5, 1);
+                var hit = GetWorld3D().DirectSpaceState.IntersectRay(query);
+                if (hit.Count > 0 && SurfaceIdentityResolver.Resolve(hit["collider"].AsGodotObject(), hit["position"].AsVector3()) == SurfaceIdentity.Water)
+                {
+                    // Deep Water is deliberately hazardous. check-water owns its driving/lifecycle checks;
+                    // the geometry probes above still verify this basin's native negative support.
+                    continue;
+                }
                 await Drive($"BasinRecovery{basin.X}-{basin.Z}", Enumerable.Range(0, 21).Select(i => basin + Vector3.Right * (-20 + i * 2)).ToArray(), 12, 8);
             }
 

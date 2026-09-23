@@ -118,7 +118,7 @@ public sealed class PredictedVehicle
             physics = observation.Physics;
             var predictor = new VehicleMovement(_configuration.Vehicle, physics);
             predictor.Restore(previous.Movement);
-            movement = predictor.Step(frame, physics, observation.Support, true, observation.Surface, observation.Wheels);
+            movement = predictor.Step(frame, physics, observation.Support, true, observation.Surface, observation.Wheels, waterDepth: observation.WaterDepth);
         }
         else
         {

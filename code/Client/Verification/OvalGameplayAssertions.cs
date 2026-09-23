@@ -20,7 +20,7 @@ internal static class OvalGameplayAssertions
 
         if (arena.Driver.ObserveProps is not null || arena.Driver.PropSnapshot is not null || arena.Pickups.ActiveCount != arena.Driver.ItemState?.Spawns.Count(spawn => spawn.Available) || !arena.Audio.MusicPlaying)
         {
-            throw new InvalidOperationException("Oval must have no legacy props and must present authoritative pickups and must preserve arena music.");
+            throw new InvalidOperationException($"Oval must have no legacy props and must present authoritative pickups and must preserve arena music. Props={arena.Driver.ObserveProps is not null}/{arena.Driver.PropSnapshot is not null}, pickups={arena.Pickups.ActiveCount}/{arena.Driver.ItemState?.Spawns.Count(spawn => spawn.Available)}, music={arena.Audio.MusicPlaying}");
         }
     }
 

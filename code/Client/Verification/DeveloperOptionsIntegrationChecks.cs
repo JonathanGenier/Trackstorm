@@ -351,7 +351,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         Check(_host.Arena.Driver.Configuration == before, "search and field changes do not mutate runtime or revision");
         Search("MiSsIlE");
         Check(Descendants(panel).OfType<LineEdit>().Any(editor => editor.IsVisibleInTree() && editor.Name == "items_missile_speed"), "search is case insensitive");
-        foreach (var surface in new[] { ("Concrete", "concrete"), ("Dirt", "dirt"), ("Grass", "grass"), ("Mud", "mud"), ("Deep Mud", "deep_mud") })
+        foreach (var surface in new[] { ("Concrete", "concrete"), ("Dirt", "dirt"), ("Grass", "grass"), ("Mud", "mud"), ("Deep Mud", "deep_mud"), ("Water", "water") })
         {
             Search(surface.Item1);
             foreach (string component in new[] { "grip", "drag", "acceleration" })

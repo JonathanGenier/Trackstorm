@@ -1,0 +1,47 @@
+Imported water field and level are registered
+Actual Water basin samples: 574 shallow / 130 deep
+Mud basin excludes Water even below terrain: (-57, -100, -29)
+Mud basin excludes Water even below terrain: (-85, -100, 28)
+Mud basin excludes Water even below terrain: (85, -100, 28)
+Jump above pond is dry
+Inverted/subterrain pose still detects deep water without contact
+False/0: submerged HP=625.00, immersion=1.209
+Rendered False-0-submerged
+False/0: ordinary water death
+False/0: ordinary respawn, fresh HP and life
+False/1: submerged HP=625.00, immersion=1.209
+Rendered False-1-submerged
+False/1: ordinary water death
+False/1: ordinary respawn, fresh HP and life
+False/2: submerged HP=625.00, immersion=1.209
+Rendered False-2-submerged
+False/2: ordinary water death
+False/2: ordinary respawn, fresh HP and life
+False/0: shallow starting immersion 0.444
+False/0: drives out of shallow water without damage or sticky state; depth=0.000, HP=1000.00, position=<137.87976, 3.0634756, -35.016026>
+False/1: shallow starting immersion 0.444
+False/1: drives out of shallow water without damage or sticky state; depth=0.000, HP=1000.00, position=<137.87976, 3.0634756, -35.016026>
+False/2: shallow starting immersion 0.444
+False/2: drives out of shallow water without damage or sticky state; depth=0.000, HP=1000.00, position=<137.87976, 3.0634756, -35.016026>
+False: input-driven bank → shallow → deep transition
+Rendered False-entry
+True/0: submerged HP=625.00, immersion=1.209
+Rendered True-0-submerged
+True/0: ordinary water death
+True/0: ordinary respawn, fresh HP and life
+True/1: submerged HP=625.00, immersion=1.209
+Rendered True-1-submerged
+True/1: ordinary water death
+True/1: ordinary respawn, fresh HP and life
+True/2: submerged HP=625.00, immersion=1.209
+Rendered True-2-submerged
+True/2: ordinary water death
+True/2: ordinary respawn, fresh HP and life
+True/0: shallow starting immersion 0.409
+True/0: drives out of shallow water without damage or sticky state; depth=0.000, HP=1000.00, position=<138.93828, 3.1400666, -35.000736>
+True/1: shallow starting immersion 0.409
+True/1: drives out of shallow water without damage or sticky state; depth=0.000, HP=1000.00, position=<138.93828, 3.1400666, -35.000736>
+True/2: shallow starting immersion 0.409
+True/2: drives out of shallow water without damage or sticky state; depth=0.000, HP=1000.00, position=<138.93828, 3.1400666, -35.000736>
+True: input-driven bank → shallow → deep transition
+Rendered True-entry

@@ -66,7 +66,7 @@ internal sealed class TerrainHandlingTests
     {
         Assert.That(SurfaceHandling.Resolve(SurfaceIdentity.Asphalt), Is.EqualTo(SurfaceType.Asphalt));
         Assert.That(SurfaceHandling.Resolve(SurfaceIdentity.DeepMud), Is.EqualTo(SurfaceType.DeepMud));
-        Assert.That(SurfaceHandling.Resolve(SurfaceIdentity.Water), Is.EqualTo(SurfaceType.Asphalt));
+        Assert.That(SurfaceHandling.Resolve(SurfaceIdentity.Water), Is.EqualTo(SurfaceType.Water));
         Assert.That(SurfaceHandling.Resolve(SurfaceIdentity.Rock), Is.EqualTo(SurfaceType.Asphalt));
         Assert.That(SurfaceHandling.Resolve(null, SurfaceType.Mud), Is.EqualTo(SurfaceType.Mud));
         Assert.Throws<ArgumentOutOfRangeException>(() => SurfaceHandling.Resolve((SurfaceIdentity)255));
