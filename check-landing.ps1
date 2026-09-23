@@ -1,7 +1,8 @@
 param (
     [Parameter(Mandatory)][string]$GodotPath,
     [switch]$Visual,
-    [switch]$NoBuild
+    [switch]$NoBuild,
+    [string]$Case = ''
 )
 $ErrorActionPreference = 'Stop'
 if (-not $NoBuild) {
@@ -10,6 +11,7 @@ if (-not $NoBuild) {
 }
 $arguments = @('--path', $PSScriptRoot, '--fixed-fps', '60', 'res://scenes/verification/landing_checks.tscn')
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
+if ($Case) { $arguments += @('--', "--landing-case=$Case") }
 $log = & $GodotPath @arguments 2>&1
 $result = $LASTEXITCODE
 $log | ForEach-Object { Write-Host $_ }

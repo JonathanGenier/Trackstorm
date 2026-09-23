@@ -58,14 +58,14 @@ for side in [-1, 1]:
 s = 125 - np.abs(x)
 profile = np.zeros_like(x)
 t = np.clip((s - 30) / 12, 0, 1)
-kicker = (-2*t**3 + 3*t*t) * 2.4 + (t**3 - t*t) * 4.56
+kicker = (-2*t**3 + 3*t*t) * 4.8 + (t**3 - t*t) * 8.4
 profile = np.where((s >= 30) & (s <= 42), kicker, profile)
 t = np.clip((s - 42) / 13, 0, 1)
-profile = np.where((s > 42) & (s < 55), 2.4 - .4 * smooth(t), profile)
-t = np.clip((s - 55) / 22, 0, 1)
-profile = np.where((s >= 55) & (s <= 77), 2 * (1 - smooth(t)), profile)
+profile = np.where((s > 42) & (s < 55), 4.8 - 1.6 * smooth(t), profile)
+t = np.clip((s - 55) / 30, 0, 1)
+profile = np.where((s >= 55) & (s <= 85), 3.2 * (1 - smooth(t)), profile)
 weight = 1 - smooth((np.abs(z) - 8) / 10)
-y = y * (1 - weight * smooth((s - 20)/10) * (1-smooth((s-77)/10))) + profile * weight
+y = y * (1 - weight * smooth((s - 20)/10) * (1-smooth((s-85)/10))) + profile * weight
 
 # Preserve the open tunnel junction, including both lower routes and its piers.
 y *= smooth((np.maximum(np.abs(x)/28, np.abs(z)/23) - 1) / .4)

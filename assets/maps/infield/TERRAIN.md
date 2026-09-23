@@ -38,11 +38,18 @@ locations. Both lower tunnel crossings remain open at the original datum.
 An elevated bridge route and additional structures are not added.
 
 Both original 100 m jump corridors have a 30 m approach, a 12 m kicker reaching
-2.4 m, a shallow recoverable tabletop beneath the 13 m flight reservation, a
-22 m descending dirt landing and a 23 m recovery. Geometry is intended for
+4.8 m with a 0.70 terminal grade, a recoverable tabletop easing to 3.2 m beneath
+the 13 m flight reservation, a 30 m descending dirt landing and a 15 m recovery.
+The landing ends at corridor metre 85, before the unchanged tunnel junction.
+Geometry is intended for
 approximately 16 m/s approaches; the native harness checks nearby speeds as well
 as lower-speed traversal of the overlapping shortcuts. Terrain shaping does not
-change vehicle forces, health, suspension or steering.
+change vehicle forces, health, suspension or steering. Native jump checks use
+production 1000 HP and collision scale 5, report measured horizontal launch
+speed, flight distance/time and vehicle-origin clearance above local terrain,
+and require a grounded, damage-free recovery on the descending dirt zone.
+Origin clearance includes ride height; it is not tire or underside clearance.
+Controlled probes exercise both landing zones through both physics adapters.
 
 Original vertex colors blend dirt lanes into grass shoulders over seven metres;
 normal lighting and mesh normals communicate elevation. This is terrain-stage

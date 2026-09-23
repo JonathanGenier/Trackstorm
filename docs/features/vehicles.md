@@ -60,7 +60,7 @@ Both native adapters report explicit terrain identity, local contact position an
 
 Forgiven contacts are removed before strongest-contact selection and never consume collision cooldown or emit damage/scoring events. Simultaneous obstacles and vehicle impacts remain eligible. New lives and destruction clear the episode; tuning preserves it. Version-three complete aggregate and version-eight vehicle network codecs retain the episode continuation for restore, reconnect and authority migration. Prediction continues movement only and retains the last confirmed landing/HP state.
 
-`check-landing.ps1 -GodotPath <path> [-Visual]` exercises controlled drops, sideways spins, bottom-out, banked support, crash attitudes, secondary tumbles and obstacle/vehicle impacts through both production adapters on the unchanged infield landing zone. `check-infield.ps1 -Case WestJump` and `-Case EastJump` exercise actual input-driven takeoff, flight and recovery. Controlled initial poses and induced tumble impulses are verification fixtures, not gameplay assistance.
+`check-landing.ps1 -GodotPath <path> [-Visual]` exercises controlled drops, sideways spins, bottom-out, banked support, crash attitudes, secondary tumbles and obstacle/vehicle impacts through both production adapters on both infield landing zones, including an initially upright airborne roll. `check-infield.ps1 -Case WestJump` and `-Case EastJump` exercise actual input-driven takeoff, flight and recovery. Controlled initial poses and induced tumble impulses are verification fixtures, not gameplay assistance.
 
 ## Static vehicle presentation
 
