@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Security.Cryptography;
 using Trackstorm.Core.Development;
 using Trackstorm.Core.Events;
 using Trackstorm.Core.Input;
@@ -33,7 +34,8 @@ public sealed class HostVehicleSession
     /// <param name="events">Optional session journal shared across arena generations.</param>
     /// <param name="arena">Scene-authored map contract; omitted only by legacy fixtures.</param>
     /// <param name="requireActiveMatch">Application sessions require Active for driving and item use; isolated development fixtures may omit this policy.</param>
-    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null, ulong hostPlayerId = 1, ulong configurationRevision = 0, EventStream? events = null, Arenas.ArenaConfiguration? arena = null, bool requireActiveMatch = false)
+    /// <param name="randomizeItemSeed">Fresh application match; fixture and restore construction retain supplied tuning.</param>
+    public HostVehicleSession(ulong sessionId, ItemConfiguration? itemConfiguration = null, RespawnConfiguration? respawnConfiguration = null, Matches.MatchConfiguration? matchConfiguration = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null, ulong hostPlayerId = 1, ulong configurationRevision = 0, EventStream? events = null, Arenas.ArenaConfiguration? arena = null, bool requireActiveMatch = false, bool randomizeItemSeed = false)
     {
         _requireActiveMatch = requireActiveMatch;
         ArgumentOutOfRangeException.ThrowIfZero(sessionId);
@@ -41,7 +43,11 @@ public sealed class HostVehicleSession
         ArgumentOutOfRangeException.ThrowIfZero(hostPlayerId);
         HostPlayerId = hostPlayerId;
         var effective = configuration ?? new GameplayConfiguration { Damage = damageConfiguration ?? new(), Items = itemConfiguration ?? new(), Respawn = respawnConfiguration ?? new(), Match = matchConfiguration ?? new() };
-        Configuration = new GameplayConfigurationState(configurationRevision, effective);
+        if (randomizeItemSeed)
+        {
+            effective = effective with { Spawns = effective.Spawns with { Seed = RandomNumberGenerator.GetInt32(int.MaxValue) } };
+        }
+        Configuration = new GameplayConfigurationState(randomizeItemSeed ? checked(configurationRevision + 1) : configurationRevision, effective);
         World = new Simulation.Simulation(new SimulationConfiguration(TickRate), effective.Respawn, arena, effective.Match);
         World.Events = events ?? new EventStream();
         World.Events.Record(EventCategory.Match, "Created");

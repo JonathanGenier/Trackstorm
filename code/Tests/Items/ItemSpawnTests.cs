@@ -2,6 +2,7 @@ using System.Numerics;
 using Trackstorm.Core.Arenas;
 using Trackstorm.Core.Items;
 using Trackstorm.Core.Networking.Replication;
+using Trackstorm.Core.Sessions;
 using Trackstorm.Core.Simulation;
 using Trackstorm.Core.Vehicles;
 
@@ -11,6 +12,28 @@ namespace Trackstorm.Core.Tests.Items;
 [TestFixture]
 internal sealed class ItemSpawnTests
 {
+    /// <summary>Fresh matches choose independent authoritative seeds and keep each in effective tuning.</summary>
+    [Test]
+    public void FreshMatchesStartWithIndependentItemSeeds()
+    {
+        var lobby = new LobbyAuthority(100, "Host");
+        var seeds = new HashSet<int>();
+        for (ulong match = 1; match <= 8; match++)
+        {
+            var host = new HostVehicleSession(match, configuration: lobby.Configuration.Configuration,
+                configurationRevision: lobby.Configuration.Revision, randomizeItemSeed: true);
+            host.RegisterSpawns(PrototypeArena.Configuration);
+            int seed = host.Configuration.Configuration.Spawns.Seed;
+            Assert.That(host.Configuration.Revision, Is.EqualTo(lobby.Configuration.Revision + 1));
+            Assert.That(host.Spawns!.Configuration.Seed, Is.EqualTo(seed));
+            Assert.That(host.Spawns.RandomState, Is.EqualTo(unchecked((ulong)seed)));
+            lobby.RetainConfiguration(host.Configuration);
+            seeds.Add(seed);
+        }
+
+        Assert.That(seeds.Count, Is.GreaterThan(1));
+    }
+
     /// <summary>Registration preserves actual configuration IDs and is permitted once per match.</summary>
     [Test]
     public void RegistersExactlyActualMarkers()

@@ -69,7 +69,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 revision = checked(revision + 1);
             }
 
-            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, configuration: configuration ?? sessionConfiguration?.Configuration, hostPlayerId: lobby?.LocalPlayerId ?? 1, configurationRevision: revision, events: lobby?.Authority?.Events, arena: _arena, requireActiveMatch: applicationEntry);
+            Host = new HostVehicleSession(hostSession, damageConfiguration: damageConfiguration, configuration: configuration ?? sessionConfiguration?.Configuration, hostPlayerId: lobby?.LocalPlayerId ?? 1, configurationRevision: revision, events: lobby?.Authority?.Events, arena: _arena, requireActiveMatch: applicationEntry, randomizeItemSeed: true);
             lobby?.Authority?.RetainConfiguration(Host.Configuration);
             LocalVehicleId = Host.HostPlayerId;
         }

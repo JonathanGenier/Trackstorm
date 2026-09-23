@@ -276,15 +276,18 @@ internal sealed class MigrationTests
     [Test]
     public void NextPickupMatchesUninterruptedAuthorityAfterRestore()
     {
-        var host = new HostVehicleSession(101);
+        var host = new HostVehicleSession(101, randomizeItemSeed: true);
         host.JoinPlayer(10, 2);
         host.RegisterSpawns(PrototypeArena.Configuration);
-        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["spawns.seed"] = 42, ["spawns.wrench_weight"] = 3, ["vehicle.acceleration"] = 7 }, out _), Is.True);
+        int matchSeed = host.Configuration.Configuration.Spawns.Seed;
+        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["spawns.wrench_weight"] = 3, ["vehicle.acceleration"] = 7 }, out _), Is.True);
         Place(host, 1, "item-01");
         Assert.That(host.Spawns!.TryPickup(host.World, "item-01", 1), Is.True);
         var publication = new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], host.Spawns.States);
         var restored = HostVehicleSession.Restore(new ResumeCheckpoint(publication, host.World.State.Match!, null, host.Configuration), host.CaptureAuthority(), 2);
         Assert.That(restored.Configuration, Is.EqualTo(host.Configuration));
+        Assert.That(restored.Configuration.Configuration.Spawns.Seed, Is.EqualTo(matchSeed));
+        Assert.That(restored.Spawns!.RandomState, Is.EqualTo(host.Spawns.RandomState));
         Assert.That(restored.Spawns!.States, Is.EqualTo(host.Spawns.States));
         foreach (var authority in new[] { host, restored })
         {
