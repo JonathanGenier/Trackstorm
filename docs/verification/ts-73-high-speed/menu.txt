@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Online lobby UI integration passed: authentication, browser, create/join/rename, retained choices, visible player name and fresh hosting during delayed lookup and after failed recovery; fake provider, no native EOS authentication.
+Fake-provider UI verified. This does not authenticate EOS or establish multi-PC behavior.

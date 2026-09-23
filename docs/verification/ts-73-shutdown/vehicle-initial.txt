@@ -1,0 +1,173 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+  Trackstorm.Core.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll
+  Trackstorm.Transport.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:40.47
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Drive check: end=<1.0273822E-08, 1.5362029, -35.26913>, peak speed=22.05, peak height=4.18, supported ticks=171
+Drift check: max handbrake=1, supported=144, drift ticks=101, end=<-9.560575, 0.89968425, 13.268058>
+Brake check: end velocity=<-2.9705534E-09, 1.3411045E-06, 10.636052>, distance=6.42m
+Cornering: low radius=10.94m; fast radius=36.97m; front slip=0.29
+Steering onset: first wheel=0.040rad; yaw at 100ms=-0.251rad/s
+Recovery: initial side speed=4m/s; final=0.000m/s
+Handbrake recovery: entry=6, held=6, peak yaw=0.19, final side=0.000, speed=10.17
+Handbrake recovery: entry=6, held=45, peak yaw=0.30, final side=0.000, speed=4.78
+Handbrake recovery: entry=16, held=6, peak yaw=0.23, final side=0.000, speed=17.58
+Handbrake recovery: entry=16, held=45, peak yaw=0.74, final side=0.000, speed=10.26
+Power out: entry=6, held=6, throttle delay=-6, acceleration=7.281, side=0.343, yaw=0.330, recovery=0.350, final side=0.001, peak speed=15.564, peak yaw=0.337
+Power out: entry=6, held=6, throttle delay=0, acceleration=6.525, side=0.333, yaw=0.316, recovery=0.350, final side=0.001, peak speed=14.552, peak yaw=0.325
+Power out: entry=6, held=6, throttle delay=6, acceleration=7.029, side=0.000, yaw=0.103, recovery=0.050, final side=0.001, peak speed=13.526, peak yaw=0.325
+Power out: entry=6, held=45, throttle delay=-6, acceleration=6.086, side=0.030, yaw=0.093, recovery=0.950, final side=0.000, peak speed=16.646, peak yaw=0.330
+Power out: entry=6, held=45, throttle delay=0, acceleration=6.086, side=0.028, yaw=0.092, recovery=0.950, final side=0.000, peak speed=16.621, peak yaw=0.330
+Power out: entry=6, held=45, throttle delay=6, acceleration=6.949, side=0.000, yaw=0.039, recovery=0.650, final side=0.000, peak speed=15.841, peak yaw=0.330
+Power out: entry=16, held=6, throttle delay=-6, acceleration=6.865, side=0.262, yaw=0.714, recovery=0.350, final side=0.002, peak speed=24.338, peak yaw=0.714
+Power out: entry=16, held=6, throttle delay=0, acceleration=6.225, side=0.334, yaw=0.738, recovery=0.350, final side=0.002, peak speed=22.985, peak yaw=0.738
+Power out: entry=16, held=6, throttle delay=6, acceleration=6.630, side=0.356, yaw=0.284, recovery=0.050, final side=0.002, peak speed=21.656, peak yaw=0.734
+Power out: entry=16, held=45, throttle delay=-6, acceleration=3.922, side=1.066, yaw=1.590, recovery=0.950, final side=0.731, peak speed=21.567, peak yaw=1.590
+Power out: entry=16, held=45, throttle delay=0, acceleration=3.920, side=1.041, yaw=1.584, recovery=0.950, final side=0.000, peak speed=21.564, peak yaw=1.585
+Power out: entry=16, held=45, throttle delay=6, acceleration=4.363, side=1.345, yaw=1.269, recovery=0.650, final side=0.000, peak speed=20.885, peak yaw=1.585
+Acceleration: entry=0, final=11.955
+Acceleration: entry=4, final=15.933
+Acceleration: entry=12, final=23.745
+Brake recovery: first drive=5.104, before=6.485, after=14.370
+Collision HP: player=61.45, target=61.45
+Brush check: contacts=76, player HP=100.00, target HP=100.00
+Blast check: max height=2.20, peak angular=2.63, end=<-1.4620204, 0.899999, 22.156368>, HP=59.24
+Collision shake: intensity=0%, peak=0.000000m, HP=56.902, life=41
+Collision shake: intensity=25%, peak=0.065709m, HP=56.902, life=42
+Collision shake: intensity=50%, peak=0.131417m, HP=56.902, life=43
+Collision shake: intensity=100%, peak=0.262835m, HP=56.902, life=44
+Collision shake: intensity=100%, peak=0.262835m, HP=56.902, life=45
+Stationary speed: observed=0.0000 m/s, command=0.0000 m/s, HUD=Speed  0 km/h
+Reverse speed: observed=5.45 m/s, HUD=Speed  20 km/h
+Surface speed after 90 ticks: Concrete=11.96, Mud=3.35
+Surface crossings: 6; peak speed=16.10
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose, native life reset.
+Vehicle integration passed: 144 assertions.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Drive check: end=<1.0273822E-08, 1.5362029, -35.26913>, peak speed=22.05, peak height=4.18, supported ticks=171
+Drift check: max handbrake=1, supported=144, drift ticks=101, end=<-9.560575, 0.89968425, 13.268058>
+Brake check: end velocity=<-2.9705534E-09, 1.3411045E-06, 10.636052>, distance=6.42m
+Cornering: low radius=10.94m; fast radius=36.97m; front slip=0.29
+Steering onset: first wheel=0.040rad; yaw at 100ms=-0.251rad/s
+Recovery: initial side speed=4m/s; final=0.000m/s
+Handbrake recovery: entry=6, held=6, peak yaw=0.19, final side=0.000, speed=10.17
+Handbrake recovery: entry=6, held=45, peak yaw=0.30, final side=0.000, speed=4.78
+Handbrake recovery: entry=16, held=6, peak yaw=0.23, final side=0.000, speed=17.58
+Handbrake recovery: entry=16, held=45, peak yaw=0.74, final side=0.000, speed=10.26
+Power out: entry=6, held=6, throttle delay=-6, acceleration=7.281, side=0.343, yaw=0.330, recovery=0.350, final side=0.001, peak speed=15.564, peak yaw=0.337
+Power out: entry=6, held=6, throttle delay=0, acceleration=6.525, side=0.333, yaw=0.316, recovery=0.350, final side=0.001, peak speed=14.552, peak yaw=0.325
+Power out: entry=6, held=6, throttle delay=6, acceleration=7.029, side=0.000, yaw=0.103, recovery=0.050, final side=0.001, peak speed=13.526, peak yaw=0.325
+Power out: entry=6, held=45, throttle delay=-6, acceleration=6.086, side=0.030, yaw=0.093, recovery=0.950, final side=0.000, peak speed=16.646, peak yaw=0.330
+Power out: entry=6, held=45, throttle delay=0, acceleration=6.086, side=0.028, yaw=0.092, recovery=0.950, final side=0.000, peak speed=16.621, peak yaw=0.330
+Power out: entry=6, held=45, throttle delay=6, acceleration=6.949, side=0.000, yaw=0.039, recovery=0.650, final side=0.000, peak speed=15.841, peak yaw=0.330
+Power out: entry=16, held=6, throttle delay=-6, acceleration=6.865, side=0.262, yaw=0.714, recovery=0.350, final side=0.002, peak speed=24.338, peak yaw=0.714
+Power out: entry=16, held=6, throttle delay=0, acceleration=6.225, side=0.334, yaw=0.738, recovery=0.350, final side=0.002, peak speed=22.985, peak yaw=0.738
+Power out: entry=16, held=6, throttle delay=6, acceleration=6.630, side=0.356, yaw=0.284, recovery=0.050, final side=0.002, peak speed=21.656, peak yaw=0.734
+Power out: entry=16, held=45, throttle delay=-6, acceleration=3.922, side=1.066, yaw=1.590, recovery=0.950, final side=0.731, peak speed=21.567, peak yaw=1.590
+Power out: entry=16, held=45, throttle delay=0, acceleration=3.920, side=1.041, yaw=1.584, recovery=0.950, final side=0.000, peak speed=21.564, peak yaw=1.585
+Power out: entry=16, held=45, throttle delay=6, acceleration=4.363, side=1.345, yaw=1.269, recovery=0.650, final side=0.000, peak speed=20.885, peak yaw=1.585
+Acceleration: entry=0, final=11.955
+Acceleration: entry=4, final=15.933
+Acceleration: entry=12, final=23.745
+Brake recovery: first drive=5.104, before=6.485, after=14.370
+Collision HP: player=61.45, target=61.45
+Brush check: contacts=76, player HP=100.00, target HP=100.00
+Blast check: max height=2.20, peak angular=2.63, end=<-1.4620204, 0.899999, 22.156368>, HP=59.24
+Collision shake: intensity=0%, peak=0.000000m, HP=56.902, life=41
+Collision shake: intensity=25%, peak=0.068314m, HP=56.902, life=42
+Collision shake: intensity=50%, peak=0.136629m, HP=56.902, life=43
+Collision shake: intensity=100%, peak=0.273257m, HP=56.902, life=44
+Collision shake: intensity=100%, peak=0.273257m, HP=56.902, life=45
+Stationary speed: observed=0.0000 m/s, command=0.0000 m/s, HUD=Speed  0 km/h
+Reverse speed: observed=5.45 m/s, HUD=Speed  20 km/h
+Surface speed after 90 ticks: Concrete=11.96, Mud=3.35
+Surface crossings: 6; peak speed=16.10
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose, native life reset.
+Vehicle integration passed: 144 assertions.
+Fixed-step replay matched across 30 and 144 render FPS (0.02 tolerance).
+Surface replay matched across 30 and 144 render FPS (0.02 tolerance).
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Drive check: end=<1.0273822E-08, 1.5362029, -35.26913>, peak speed=22.05, peak height=4.18, supported ticks=171
+Drift check: max handbrake=1, supported=144, drift ticks=101, end=<-9.560575, 0.89968425, 13.268058>
+Brake check: end velocity=<-2.9705534E-09, 1.3411045E-06, 10.636052>, distance=6.42m
+Cornering: low radius=10.94m; fast radius=36.97m; front slip=0.29
+Steering onset: first wheel=0.040rad; yaw at 100ms=-0.251rad/s
+Recovery: initial side speed=4m/s; final=0.000m/s
+Handbrake recovery: entry=6, held=6, peak yaw=0.19, final side=0.000, speed=10.17
+Handbrake recovery: entry=6, held=45, peak yaw=0.30, final side=0.000, speed=4.78
+Handbrake recovery: entry=16, held=6, peak yaw=0.23, final side=0.000, speed=17.58
+Handbrake recovery: entry=16, held=45, peak yaw=0.74, final side=0.000, speed=10.26
+Power out: entry=6, held=6, throttle delay=-6, acceleration=7.281, side=0.343, yaw=0.330, recovery=0.350, final side=0.001, peak speed=15.564, peak yaw=0.337
+Power out: entry=6, held=6, throttle delay=0, acceleration=6.525, side=0.333, yaw=0.316, recovery=0.350, final side=0.001, peak speed=14.552, peak yaw=0.325
+Power out: entry=6, held=6, throttle delay=6, acceleration=7.029, side=0.000, yaw=0.103, recovery=0.050, final side=0.001, peak speed=13.526, peak yaw=0.325
+Power out: entry=6, held=45, throttle delay=-6, acceleration=6.086, side=0.030, yaw=0.093, recovery=0.950, final side=0.000, peak speed=16.646, peak yaw=0.330
+Power out: entry=6, held=45, throttle delay=0, acceleration=6.086, side=0.028, yaw=0.092, recovery=0.950, final side=0.000, peak speed=16.621, peak yaw=0.330
+Power out: entry=6, held=45, throttle delay=6, acceleration=6.949, side=0.000, yaw=0.039, recovery=0.650, final side=0.000, peak speed=15.841, peak yaw=0.330
+Power out: entry=16, held=6, throttle delay=-6, acceleration=6.865, side=0.262, yaw=0.714, recovery=0.350, final side=0.002, peak speed=24.338, peak yaw=0.714
+Power out: entry=16, held=6, throttle delay=0, acceleration=6.225, side=0.334, yaw=0.738, recovery=0.350, final side=0.002, peak speed=22.985, peak yaw=0.738
+Power out: entry=16, held=6, throttle delay=6, acceleration=6.630, side=0.356, yaw=0.284, recovery=0.050, final side=0.002, peak speed=21.656, peak yaw=0.734
+Power out: entry=16, held=45, throttle delay=-6, acceleration=3.922, side=1.066, yaw=1.590, recovery=0.950, final side=0.731, peak speed=21.567, peak yaw=1.590
+Power out: entry=16, held=45, throttle delay=0, acceleration=3.920, side=1.041, yaw=1.584, recovery=0.950, final side=0.000, peak speed=21.564, peak yaw=1.585
+Power out: entry=16, held=45, throttle delay=6, acceleration=4.363, side=1.345, yaw=1.269, recovery=0.650, final side=0.000, peak speed=20.885, peak yaw=1.585
+Acceleration: entry=0, final=11.955
+Acceleration: entry=4, final=15.933
+Acceleration: entry=12, final=23.745
+Brake recovery: first drive=5.104, before=6.485, after=14.370
+Collision HP: player=61.45, target=61.45
+Brush check: contacts=76, player HP=100.00, target HP=100.00
+Blast check: max height=2.20, peak angular=2.63, end=<-1.4620204, 0.899999, 22.156368>, HP=59.24
+Collision shake: intensity=0%, peak=0.000000m, HP=56.902, life=41
+Collision shake: intensity=25%, peak=0.065709m, HP=56.902, life=42
+Collision shake: intensity=50%, peak=0.131417m, HP=56.902, life=43
+Collision shake: intensity=100%, peak=0.262835m, HP=56.902, life=44
+Collision shake: intensity=100%, peak=0.262835m, HP=56.902, life=45
+Stationary speed: observed=0.0000 m/s, command=0.0000 m/s, HUD=Speed  0 km/h
+Reverse speed: observed=5.45 m/s, HUD=Speed  20 km/h
+ERROR: System.InvalidOperationException: native W input flows through production capture into vehicle movement
+   at Trackstorm.Client.Verification.VehicleIntegrationChecks.Check(Boolean condition, String message) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:line 582
+   at Trackstorm.Client.Verification.VehicleIntegrationChecks.VerifyNativeInput() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:line 544
+   at Trackstorm.Client.Verification.VehicleIntegrationChecks.Run() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:line 70
+   at: void Trackstorm.Client.Verification.VehicleIntegrationChecks+<Run>d__11.MoveNext() (res://code/Client/Verification/VehicleIntegrationChecks.cs:70)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.VehicleIntegrationChecks+<Run>d__11.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:70)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [4] void System.Threading.Tasks.Task.RunContinuations(object)
+       [5] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [6] bool System.Threading.Tasks.Task.TrySetException(object)
+       [7] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [8] void Trackstorm.Client.Verification.VehicleIntegrationChecks+<VerifyNativeInput>d__34.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:544)
+       [9] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [10] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [11] void System.Threading.Tasks.Task.RunContinuations(object)
+       [12] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetExistingTaskResult(System.Threading.Tasks.Task`1[TResult], TResult)
+       [13] void Trackstorm.Client.Verification.VehicleIntegrationChecks+<ObserveTicks>d__33.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:530)
+       [14] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.ExecutionContextCallback(object)
+       [15] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [16] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [17] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [18] void System.Threading.Tasks.Task.RunContinuations(object)
+       [19] bool System.Threading.Tasks.Task.TrySetResult()
+       [20] bool System.Threading.Tasks.TaskCompletionSource.TrySetResult()
+       [21] void Trackstorm.Client.Verification.VehicleIntegrationChecks+<>c__DisplayClass33_0.<ObserveTicks>g__Observe|0(Trackstorm.Core.Vehicles.VehicleState) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:522)
+       [22] void Trackstorm.Client.Vehicles.VehicleBody.Publish() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Vehicles\VehicleBody.cs:202)
+       [23] void Trackstorm.Client.Vehicles.VehicleArena.Advance(Trackstorm.Core.Input.InputFrame) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Vehicles\VehicleArena.cs:175)
+       [24] void Trackstorm.Client.Verification.VehicleIntegrationChecks.Advance(Trackstorm.Core.Input.InputFrame) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:111)
+       [25] void Trackstorm.Client.Input.PlayerInput._PhysicsProcess(double) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Input\PlayerInput.cs:59)
+       [26] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2648)
+       [27] bool Trackstorm.Client.Input.PlayerInput.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Input.PlayerInput_ScriptMethods.generated.cs:100)
+       [28] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

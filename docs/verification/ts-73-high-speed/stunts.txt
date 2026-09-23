@@ -1,0 +1,23 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Core.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:12.26
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Native drift: 101 uninterrupted ticks, 37.083333 peak pending base points, total award 37.083333 (includes any concurrent Top Speed).
+Native top speed: 120 ticks produced 10.000000 pending base points; braking banked once.
+Native jump at 10 m/s: 150 airborne ticks and 25.003052 m observed before landing; banked 82.340861 including independent speed awards.
+Native jump at 20 m/s: 150 airborne ticks and 49.996948 m observed before landing; banked 143.992472 including independent speed awards.
+Native jump at 46.661995 m/s: 150 airborne ticks and 116.656494 m observed before landing; banked 325.086019 including independent speed awards.
+Native airborne death: applied lethal Core effect discarded pending flight/Top Speed; respawn and both UDP peers retained prior banked score.
+Stunt integration passed.
+Stunt verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\stunt-checks\ff2068dac91b4ac689fe5897e0cd49cf

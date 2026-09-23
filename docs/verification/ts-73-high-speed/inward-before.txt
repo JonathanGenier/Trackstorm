@@ -1,0 +1,30 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Core.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.89
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+BANK ENTRY (197.99855, 5.162188, 0.5123359) tangent (0.005629035, 0, -0.9999842) normal (-0.5735389, 0.81915265, -0.006491547); next (194.8326, 5.162188, -23.79988)
+BANK PROBE Practice steering 8000: slip angle 0.011, yaw 0.428, rear slip 0.061, airborne 0, speed 43.225
+BANK POSITION final <190.08774, 7.168619, -40.48803>, first unsupported <0, 0, 0>, compression <0.23729175, 0.25177628, 0.09634513, 0.112671494>
+BANK PROBE Practice steering 16000: slip angle 0.119, yaw 1.212, rear slip 0.756, airborne 0, speed 43.031
+BANK POSITION final <186.48106, 4.5031548, -39.20382>, first unsupported <0, 0, 0>, compression <0.21731603, 0.2734558, 0.0780009, 0.13152951>
+BANK PROBE Practice steering 32767: slip angle 0.502, yaw 1.641, rear slip 0.930, airborne 0, speed 41.167
+BANK POSITION final <184.60973, 2.9043984, -37.81788>, first unsupported <0, 0, 0>, compression <0.1945579, 0.2877726, 0.062686265, 0.14791948>
+BANK PROBE Network steering 8000: slip angle 0.010, yaw 0.428, rear slip 0.060, airborne 0, speed 43.232
+BANK POSITION final <189.81981, 7.2207236, -41.20031>, first unsupported <0, 0, 0>, compression <0.23664194, 0.25130177, 0.09579998, 0.11229485>
+BANK PROBE Network steering 16000: slip angle 0.124, yaw 1.224, rear slip 0.765, airborne 0, speed 43.025
+BANK POSITION final <186.13298, 4.486045, -39.85166>, first unsupported <0, 0, 0>, compression <0.21785891, 0.27535534, 0.07851893, 0.13339996>
+BANK PROBE Network steering 32767: slip angle 0.534, yaw 1.674, rear slip 0.950, airborne 0, speed 41.237
+BANK POSITION final <184.39847, 3.0112631, -38.566845>, first unsupported <0, 0, 0>, compression <0.1946668, 0.28869057, 0.062318563, 0.14826882>
+Oval integration passed: 175 checks. Artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\oval-checks\b2bfab077c734f0ea8478477cfdfba67
+Oval verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\oval-checks\b2bfab077c734f0ea8478477cfdfba67

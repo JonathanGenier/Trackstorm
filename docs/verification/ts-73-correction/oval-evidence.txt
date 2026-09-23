@@ -1,0 +1,175 @@
+Map root preserves metre scale and identity transform.
+Map instances the Blender GLB.
+Imported track preserves axis conversion without runtime scale.
+Imported extent is (410.7416, 10.324376, 200) m.
+Every source road vertex survives Blender to Godot export.
+Measured plan centerline lap: 999.7660 m.
+All 916 transverse road sections measure 18 m on the banked surface.
+Both imported turns have 91 m plan radius; tangent centers are 214 m apart.
+One static road collision surface exactly matches the 10992 exported triangles.
+22900 road raycasts including both sides of every seam: maximum height error 0.006678 m.
+Continuous banking: maximum adjacent collision-normal step 0.9868 degrees.
+Flat infield center and all 916 inner-rim samples meet the road at y=0 within 3 mm native-query tolerance.
+Eight ordered stable Marker3D player spawn IDs.
+player-01 declares a 6 by 3 m grid slot.
+player-01 faces the +X racing direction.
+player-01 footprint (-3, -1.5) is fully supported on flat track.
+player-01 footprint (-3, 0) is fully supported on flat track.
+player-01 footprint (-3, 1.5) is fully supported on flat track.
+player-01 footprint (0, -1.5) is fully supported on flat track.
+player-01 footprint (0, 0) is fully supported on flat track.
+player-01 footprint (0, 1.5) is fully supported on flat track.
+player-01 footprint (3, -1.5) is fully supported on flat track.
+player-01 footprint (3, 0) is fully supported on flat track.
+player-01 footprint (3, 1.5) is fully supported on flat track.
+player-02 declares a 6 by 3 m grid slot.
+player-02 faces the +X racing direction.
+player-02 footprint (-3, -1.5) is fully supported on flat track.
+player-02 footprint (-3, 0) is fully supported on flat track.
+player-02 footprint (-3, 1.5) is fully supported on flat track.
+player-02 footprint (0, -1.5) is fully supported on flat track.
+player-02 footprint (0, 0) is fully supported on flat track.
+player-02 footprint (0, 1.5) is fully supported on flat track.
+player-02 footprint (3, -1.5) is fully supported on flat track.
+player-02 footprint (3, 0) is fully supported on flat track.
+player-02 footprint (3, 1.5) is fully supported on flat track.
+player-03 declares a 6 by 3 m grid slot.
+player-03 faces the +X racing direction.
+player-03 footprint (-3, -1.5) is fully supported on flat track.
+player-03 footprint (-3, 0) is fully supported on flat track.
+player-03 footprint (-3, 1.5) is fully supported on flat track.
+player-03 footprint (0, -1.5) is fully supported on flat track.
+player-03 footprint (0, 0) is fully supported on flat track.
+player-03 footprint (0, 1.5) is fully supported on flat track.
+player-03 footprint (3, -1.5) is fully supported on flat track.
+player-03 footprint (3, 0) is fully supported on flat track.
+player-03 footprint (3, 1.5) is fully supported on flat track.
+player-04 declares a 6 by 3 m grid slot.
+player-04 faces the +X racing direction.
+player-04 footprint (-3, -1.5) is fully supported on flat track.
+player-04 footprint (-3, 0) is fully supported on flat track.
+player-04 footprint (-3, 1.5) is fully supported on flat track.
+player-04 footprint (0, -1.5) is fully supported on flat track.
+player-04 footprint (0, 0) is fully supported on flat track.
+player-04 footprint (0, 1.5) is fully supported on flat track.
+player-04 footprint (3, -1.5) is fully supported on flat track.
+player-04 footprint (3, 0) is fully supported on flat track.
+player-04 footprint (3, 1.5) is fully supported on flat track.
+player-05 declares a 6 by 3 m grid slot.
+player-05 faces the +X racing direction.
+player-05 footprint (-3, -1.5) is fully supported on flat track.
+player-05 footprint (-3, 0) is fully supported on flat track.
+player-05 footprint (-3, 1.5) is fully supported on flat track.
+player-05 footprint (0, -1.5) is fully supported on flat track.
+player-05 footprint (0, 0) is fully supported on flat track.
+player-05 footprint (0, 1.5) is fully supported on flat track.
+player-05 footprint (3, -1.5) is fully supported on flat track.
+player-05 footprint (3, 0) is fully supported on flat track.
+player-05 footprint (3, 1.5) is fully supported on flat track.
+player-06 declares a 6 by 3 m grid slot.
+player-06 faces the +X racing direction.
+player-06 footprint (-3, -1.5) is fully supported on flat track.
+player-06 footprint (-3, 0) is fully supported on flat track.
+player-06 footprint (-3, 1.5) is fully supported on flat track.
+player-06 footprint (0, -1.5) is fully supported on flat track.
+player-06 footprint (0, 0) is fully supported on flat track.
+player-06 footprint (0, 1.5) is fully supported on flat track.
+player-06 footprint (3, -1.5) is fully supported on flat track.
+player-06 footprint (3, 0) is fully supported on flat track.
+player-06 footprint (3, 1.5) is fully supported on flat track.
+player-07 declares a 6 by 3 m grid slot.
+player-07 faces the +X racing direction.
+player-07 footprint (-3, -1.5) is fully supported on flat track.
+player-07 footprint (-3, 0) is fully supported on flat track.
+player-07 footprint (-3, 1.5) is fully supported on flat track.
+player-07 footprint (0, -1.5) is fully supported on flat track.
+player-07 footprint (0, 0) is fully supported on flat track.
+player-07 footprint (0, 1.5) is fully supported on flat track.
+player-07 footprint (3, -1.5) is fully supported on flat track.
+player-07 footprint (3, 0) is fully supported on flat track.
+player-07 footprint (3, 1.5) is fully supported on flat track.
+player-08 declares a 6 by 3 m grid slot.
+player-08 faces the +X racing direction.
+player-08 footprint (-3, -1.5) is fully supported on flat track.
+player-08 footprint (-3, 0) is fully supported on flat track.
+player-08 footprint (-3, 1.5) is fully supported on flat track.
+player-08 footprint (0, -1.5) is fully supported on flat track.
+player-08 footprint (0, 0) is fully supported on flat track.
+player-08 footprint (0, 1.5) is fully supported on flat track.
+player-08 footprint (3, -1.5) is fully supported on flat track.
+player-08 footprint (3, 0) is fully supported on flat track.
+player-08 footprint (3, 1.5) is fully supported on flat track.
+Imported reference car body measures 4.81 m in Godot.
+Production vehicle settles without damage at player-01: position (0, 0.9000035, 96), grounded True, HP 100.
+Production vehicle settles without damage at player-02: position (0, 0.9000035, 86), grounded True, HP 100.
+Production vehicle settles without damage at player-03: position (-8, 0.9000036, 96), grounded True, HP 100.
+Production vehicle settles without damage at player-04: position (-8, 0.9000036, 86), grounded True, HP 100.
+Production vehicle settles without damage at player-05: position (-16, 0.90000355, 96), grounded True, HP 100.
+Production vehicle settles without damage at player-06: position (-16, 0.90000355, 86), grounded True, HP 100.
+Production vehicle settles without damage at player-07: position (-24, 0.90000355, 96), grounded True, HP 100.
+Production vehicle settles without damage at player-08: position (-24, 0.90000355, 86), grounded True, HP 100.
+Production native VehicleBody settles on the imported road.
+Production silhouette measures (2.662311, 1.8560698, 4.8100004) metres.
+Blender geometry has applied scale; runtime nodes remain unit scale.
+Offline collision agrees with the complete armor/bumper footprint and origin.
+Network and offline beveled collision definitions agree.
+wheel-back-left aligns with its suspension ray.
+wheel-back-left radius and settled level-road contact agree.
+wheel-back-right aligns with its suspension ray.
+wheel-back-right radius and settled level-road contact agree.
+wheel-front-left aligns with its suspension ray.
+wheel-front-left radius and settled level-road contact agree.
+wheel-front-right aligns with its suspension ray.
+wheel-front-right radius and settled level-road contact agree.
+Collision spans the visible underbody through the roof identification panel.
+Settled body clearance is 0.243 m.
+Sustained high-speed support: peak 43.028 m/s, grounded 4363/4363, peak normal speed 0.613 m/s.
+Production VehicleBody completed three banked loops, maximum centerline deviation 1.811 m, without sustained support loss.
+Practice bank crossing at 6 m/s: rebound 0.324 m/s, angular 1.666 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Practice bank crossing at 12 m/s: rebound 0.381 m/s, angular 1.862 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Practice bank crossing at 20 m/s: rebound 0.542 m/s, angular 2.658 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Practice asphalt acceleration: neutral steering, peak yaw 0.0016 rad/s, lateral deviation 0.162 m, speed 36.798 m/s, continuously supported.
+Network bank crossing at 6 m/s: rebound 0.286 m/s, angular 1.596 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Network bank crossing at 12 m/s: rebound 0.286 m/s, angular 1.596 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Network bank crossing at 20 m/s: rebound 0.286 m/s, angular 1.596 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Network asphalt acceleration: neutral steering, peak yaw 0.0016 rad/s, lateral deviation 0.161 m, speed 36.853 m/s, continuously supported.
+Practice diagonal bank crossing at 16 m/s: rebound 0.210 m/s, angular 1.887 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Network diagonal bank crossing at 16 m/s: rebound 0.273 m/s, angular 1.551 rad/s, unsupported 0, final-second vertical speed 0.0000 m/s.
+Low-speed 35-degree banking descends 1.510 m in three seconds with stable support.
+Banked standing start reaches 8.154 m/s without losing support.
+Oval handbrake pulse/countersteer/throttle recovery: peak yaw 0.551, final side 0.000 m/s.
+Excessive held steering/handbrake permits a spin: final forward dot entry -0.969.
+Oval-to-infield crossing finishes supported at <-0.5977654, 0.8999779, 32.55612>; surface identity remains the authored Concrete baseline.
+Practice production propulsion reaches 44.4399 m/s with neutral steering and stable support.
+Practice lift-off: 16.349 m/s after two seconds, 0.299 m/s after ten seconds, no reversal.
+Practice ordinary 8 m/s turn then neutral throttle: peak yaw 0.448, final yaw 0.000 rad/s.
+Practice ordinary 28 m/s turn then neutral throttle: peak yaw 0.394, final yaw 0.000 rad/s.
+Network production propulsion reaches 44.4399 m/s with neutral steering and stable support.
+Network lift-off: 16.213 m/s after two seconds, 0.297 m/s after ten seconds, no reversal.
+Network ordinary 8 m/s turn then neutral throttle: peak yaw 0.449, final yaw 0.000 rad/s.
+Network ordinary 28 m/s turn then neutral throttle: peak yaw 0.393, final yaw 0.000 rad/s.
+Bump fixture exposes its upward-facing 12 cm crest to production wheel queries.
+Practice 12 cm bump at 6 m/s: chassis rise 0.063 m, compression 0.185 m, settling 0.0001 m/s, unsupported 0.
+Practice 12 cm bump at 12 m/s: chassis rise 0.061 m, compression 0.180 m, settling 0.0001 m/s, unsupported 0.
+Practice 12 cm bump at 20 m/s: chassis rise 0.087 m, compression 0.167 m, settling 0.0001 m/s, unsupported 0.
+Network 12 cm bump at 6 m/s: chassis rise 0.063 m, compression 0.184 m, settling 0.0001 m/s, unsupported 0.
+Network 12 cm bump at 12 m/s: chassis rise 0.064 m, compression 0.179 m, settling 0.0001 m/s, unsupported 0.
+Network 12 cm bump at 20 m/s: chassis rise 0.085 m, compression 0.164 m, settling 0.0001 m/s, unsupported 0.
+Normal practice starts the existing gameplay music.
+Normal practice creates eight production vehicles on the active oval.
+Practice vehicle 1 settles on its map grid marker.
+Practice vehicle 2 settles on its map grid marker.
+Practice vehicle 3 settles on its map grid marker.
+Practice vehicle 4 settles on its map grid marker.
+Practice vehicle 5 settles on its map grid marker.
+Practice vehicle 6 settles on its map grid marker.
+Practice vehicle 7 settles on its map grid marker.
+Practice vehicle 8 settles on its map grid marker.
+Practice reset returns vehicle 1 to its map grid marker.
+Practice reset returns vehicle 2 to its map grid marker.
+Practice reset returns vehicle 3 to its map grid marker.
+Practice reset returns vehicle 4 to its map grid marker.
+Practice reset returns vehicle 5 to its map grid marker.
+Practice reset returns vehicle 6 to its map grid marker.
+Practice reset returns vehicle 7 to its map grid marker.
+Practice reset returns vehicle 8 to its map grid marker.

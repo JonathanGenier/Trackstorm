@@ -61,7 +61,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private bool _mainHoisting;
     private bool _playHoisting;
     internal Frontend.HangingPlayMenu PlayMenu => _playMenu;
-    private bool RetainedPresentation => OnlineCoordinator() is { HasRetainedDecision: true, CheckingSavedSession: false };
+    private bool RetainedPresentation => OnlineCoordinator()?.ShowsRetainedDecision == true;
 
     /// <summary>Existing Settings destination supplied by the bootstrap.</summary>
     internal Action OpenSettings { get; set; } = () => { };
@@ -170,6 +170,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _browserContent.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         scroll.AddChild(_browserContent);
         _browserContent.AddChild(new Label { Text = $"TRACKSTORM {GameVersion.Current} · MULTIPLAYER", HorizontalAlignment = HorizontalAlignment.Center });
+        _browserContent.AddChild(_name);
         _online = new OnlineLobbyPanel { Coordinator = () => OnlineCoordinator(), IdentityStatus = () => OnlineStatus(), Login = () => OnlineLogin(), Logout = () => OnlineLogout() };
         _online.LeaveSession = Leave;
         _online.Logout = () =>
