@@ -42,7 +42,7 @@ public sealed partial class HudIntegrationChecks : Node
             settings.UpdateSettings(settings.Current with { ShowFps = true, ShowPing = true });
             preferences.SetConnectionTelemetry(new(Networking.ConnectionDiagnosticState.Reconnecting, default));
             var pixels = new List<(int Health, int Speed)>();
-            foreach (var sample in new[] { (1000f, 200 / 3.6f, HeldItem.None), (500f, 100 / 3.6f, HeldItem.Wrench), (0f, 0f, HeldItem.None), (850f, 200 / 3.6f, HeldItem.Missile) })
+            foreach (var sample in new[] { (1000f, 200 / 3.6f, HeldItem.None), (500f, 100 / 3.6f, HeldItem.Wrench), (0f, 0f, HeldItem.None), (850f, 200 / 3.6f, HeldItem.Missile), (850f, 200 / 3.6f, HeldItem.Oil), (850f, 200 / 3.6f, HeldItem.Nitro) })
             {
                 state = Sample(state, sample.Item1, sample.Item2);
                 slot = new ItemSlot(state.VehicleId, state.LifeId, 1, sample.Item3);

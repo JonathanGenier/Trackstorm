@@ -52,7 +52,7 @@ internal sealed class ItemAuthorityTests
         var slot = host.Items.Slots.Single();
         Assert.That(host.Items.Grant(host.World, 2, HeldItem.Wrench), Is.False);
         Assert.That(host.Items.Grant(host.World, 99, HeldItem.Wrench), Is.False);
-        Assert.That(host.Items.Grant(host.World, 1, (HeldItem)3), Is.False);
+        Assert.That(host.Items.Grant(host.World, 1, (HeldItem)255), Is.False);
         Assert.That(host.UseItem(99, 99, 1, slot.Token), Is.False);
         Assert.That(host.UseItem(42, 98, 1, slot.Token), Is.False);
         Assert.That(host.UseItem(42, 99, 2, slot.Token), Is.False);

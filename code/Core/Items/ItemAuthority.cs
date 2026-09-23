@@ -85,12 +85,12 @@ public sealed class ItemAuthority
     /// <returns>Whether ownership changed.</returns>
     /// <param name="world">Authoritative vehicle world.</param>
     /// <param name="vehicle">Recipient identity.</param>
-    /// <param name="item">One of the two real items.</param>
+    /// <param name="item">A registered item identity.</param>
     /// <param name="pickup">Whether the spawn authority will publish the contextual pickup outcome.</param>
     public bool Grant(Simulation.Simulation world, ulong vehicle, HeldItem item, bool pickup = false)
     {
         VehicleSnapshot? state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
-        if (state is null || !state.CanInteract || item is not (HeldItem.Wrench or HeldItem.Missile) ||
+        if (state is null || !state.CanInteract || ItemRegistry.Find(item) is null ||
             (_slots.TryGetValue(vehicle, out var previous) && previous.Life == state.LifeId && previous.Item != HeldItem.None))
         {
             return false;
@@ -116,7 +116,7 @@ public sealed class ItemAuthority
     {
         VehicleSnapshot? state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
         return state is not null && state.CanInteract && state.LifeId == life &&
-            _slots.TryGetValue(vehicle, out var slot) && slot.Life == life && slot.Token == token && slot.Item != HeldItem.None &&
+            _slots.TryGetValue(vehicle, out var slot) && slot.Life == life && slot.Token == token && ItemRegistry.Find(slot.Item)?.CanUse == true &&
             _pending.TryAdd(vehicle, token);
     }
 
@@ -149,25 +149,14 @@ public sealed class ItemAuthority
             }
 
             VehicleStepRequest request = requests.Single(value => value.VehicleId == pair.Key);
-            if (request.Reset.HasValue || (slot.Item == HeldItem.Missile && missiles.Count >= MaximumProjectiles))
+            var handler = ItemRegistry.Find(slot.Item)?.Handler;
+            if (request.Reset.HasValue || handler is null ||
+                !handler.Stage(slot, request.Observation.Physics, Configuration, missiles, repair))
             {
                 continue;
             }
 
-            VehiclePhysicsState pose = request.Observation.Physics;
-            Vector3 forward = Vector3.Transform(-Vector3.UnitZ, pose.Orientation);
-            // Start at the vehicle center, exclude the owner in the sweep: no muzzle-offset wall tunneling.
-            Vector3 origin = pose.Position;
-            if (slot.Item == HeldItem.Wrench)
-            {
-                repair.Add(pair.Key, Configuration.WrenchHeal);
-            }
-            else
-            {
-                missiles.Add(new MissileState(slot.Token, slot.Vehicle, origin, forward * Configuration.MissileSpeed, Configuration.MissileLifetimeTicks));
-            }
-
-            events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, origin, false));
+            events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, request.Observation.Physics.Position, false));
             slots[pair.Key] = slot with { Item = HeldItem.None };
         }
 
