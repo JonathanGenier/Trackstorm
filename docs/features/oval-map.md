@@ -9,14 +9,13 @@ without replacing its geometry or folding unrelated systems into the map root.
 OvalFoundation (Node3D, identity)
 ├── Geometry (instance of assets/maps/oval/oval_foundation.glb)
 │   ├── Track
-│   ├── Infield
+│   ├── Infield (retained hidden foundation)
 │   └── GridMarkings
 ├── Collision
-│   ├── Track (StaticBody3D / Shape)
-│   └── Infield (StaticBody3D / Shape)
+│   └── Track (StaticBody3D / Shape)
 ├── PlayerSpawns
 │   └── player-01 … player-08 (Marker3D)
-├── InfieldGraybox (Blender routes, feature reservations and tunnel collision)
+├── InfieldTerrain (Blender terrain and tunnel collision)
 ├── ItemSpawns (five triple rows and five singles)
 └── MapContent (concrete perimeter, upper collision, exterior ground and forest)
 ```
@@ -24,8 +23,8 @@ OvalFoundation (Node3D, identity)
 One Blender unit and one Godot world unit are one metre. Blender exports Y-up;
 the map root, imported mesh nodes and collision bodies retain identity transforms.
 The oval lies on Godot X/Z, its long axis is X, and racing from the grid starts
-toward +X. The plane center is the map origin. All inner-edge vertices and the
-flat infield lie at y=0; the bank rises outward.
+toward +X. The plane center is the map origin. All inner-edge vertices lie at
+y=0; the bank rises outward and the infield has positive and negative grades.
 
 ## Geometry and collision ownership
 
@@ -37,7 +36,9 @@ In particular, road width is measured **on the surface**, and the approximate
 banking rather than approximating it from art.
 
 The road's 10,992 triangles form one continuous static concave collision shape;
-the 916-triangle flat infield uses another. No runtime collision generation or solidified road undersides are added. The offline content bake adds the outer barrier and containment described below. Grid paint and the separate verification car have no map collision.
+the active infield uses the separate Blender terrain's 402,124-triangle imported
+static shape. The retained foundation floor is hidden and has no active collider.
+No runtime collision generation or solidified road undersides are added. The offline content bake adds the outer barrier and containment described below. Grid paint and the separate verification car have no map collision.
 Collision layer/mask 1 matches [vehicle queries](vehicles.md); unmarked static
 bodies resolve to the existing Concrete handling identifier. No new surface or
 Core simulation rule is introduced.
@@ -63,25 +64,31 @@ The [production vehicle](vehicles.md) is 4.81 m long at unit runtime scale. The
 separate Blender reference vehicle remains a verification-only comparison. The [asphalt handling baseline](vehicles.md) owns driving behavior;
 infield handling retains that same Concrete identity; grass is a visual material only.
 
-## Infield layout reservations
+## Infield terrain and preserved topology
 
-The [Blender-authored infield graybox](../../assets/maps/infield/README.md) adds
+The [Blender-authored terrain](../../assets/maps/infield/TERRAIN.md) preserves
 connected dirt-course loops, a north connector, lateral shortcuts, an open
 central tunnel junction and six oval access points. Main lanes are 12 m wide;
-shortcuts are 14 m and entries/spine 16 m. Broad shoulders, open junctions, two
-100 m jump corridors, rhythm stretches, four water footprints and three obstacle
-areas reserve space for later terrain work. Both inner straights retain 20 m
-transition corridors. The original oval and flat floor collision are preserved.
-Only the tunnel envelope adds solid collision; flat color overlays identify
-reservations without changing vehicle handling. Final elevation, jump flight,
-water behavior, materials and dressing remain intentionally absent.
+shortcuts are 14 m and entries/spine 16 m. Side-loop hills and berms, northern
+rises, valleys, paired rhythm stretches and four negative water basins shape
+the course. Two 100 m jump corridors integrate approaches, kickers, recoverable
+tabletops beneath the flight paths, descending dirt landings and recovery zones.
+The three obstacle reservations and open-sided tunnel remain in place. Both
+lower tunnel crossings stay clear; an elevated bridge route is not added.
+
+A twenty-eight-metre collar follows the original bank's inward grade at all 916 rim
+sections and eases into the terrain. The original oval road and collision stay
+unchanged. The old flat infield collider is replaced so it cannot fill the basins
+or compete with wheel support. Lit vertex colors blend dirt into grass shoulders;
+water behavior, additional structures and environment dressing remain later work.
 
 `check-infield.ps1 -GodotPath <path> -Visual` checks imported route support,
 tunnel clearance and production-vehicle driving along all ten routes and both
 jump corridors, plus a continuous loop-to-loop tour and two-car tunnel traversal.
 Each individual route is initialized separately, then driven entirely with
-logical input and native physics; this is route coverage, not proof of future
-elevated-course flow or human control feel. Rendered views and measurements are
+logical input and native physics. Jump runs measure real airborne travel, dirt
+landing location and recovery at nearby approach speeds. This is repeatable
+automated coverage, not proof of human control feel. Rendered views and measurements are
 written to `.godot/infield-checks/`.
 
 ## Verification
@@ -89,7 +96,7 @@ written to `.godot/infield-checks/`.
 `check-oval.ps1 -GodotPath <Godot .NET executable>` loads the committed map and
 checks imported coordinates, transforms, road dimensions, collision equivalence,
 22,900 raycasts over every road section and closure, adjacent normal continuity,
-flat infield/rim coverage, all eight grid footprints and reference vehicle scale.
+terrain rim continuity, all eight grid footprints and reference vehicle scale.
 It also runs the existing `VehicleBody` and Core simulation through three high-speed laps using test-only steering input, plus low-speed bank descent/start, drift recovery, excessive-input spin and infield crossing. Practice and network collision adapters cross the bank-to-infield crease at multiple speeds and on a diagonal, with explicit wheel-support, rebound and settling bounds. An isolated test runway/crest also checks straight powered acceleration, coast-down, ordinary turns and 12 cm bump absorption. The fixture does not alter production tuning
 or artificially move the driving body around the lap. It also starts ordinary
 practice, checks all eight settled vehicles against the authored slots, resets
@@ -110,7 +117,7 @@ route turns into the infield so its replication checks do not depend on old wall
 
 The exterior ground annulus starts at the outer rim and extends 700 m outward. It has no gameplay collision. 864 conifers occupy 48 spatial MultiMesh batches, using original Blender-authored mature fir, open-crowned pine and young spruce silhouettes. Deterministic irregular stands mix all three variants across depth, with varied size, aspect and orientation. Tree centers retain at least 12 m setback and 3.5 m mutual spacing; foliage stays outside the boundary. No per-tree runtime scripts or physics are added. Source and regeneration commands are in the oval asset notes.
 
-Asphalt reuses the acquired Poly Haven Asphalt 04 maps, with a neutral tint and 2 m world-triplanar tiling. The foundation infield and exterior use original seamless 2 m grass albedo/normal maps with mipmaps and high roughness. The graybox covers the foundation infield with its flat topology palette; the exterior remains textured grass. Surface materials do not alter geometry or handling identifiers.
+Asphalt reuses the acquired Poly Haven Asphalt 04 maps, with a neutral tint and 2 m world-triplanar tiling. The foundation infield and exterior use original seamless 2 m grass albedo/normal maps with mipmaps and high roughness. The sculpted infield replaces the foundation floor with lit dirt/grass vertex colors; the exterior remains textured grass. Surface materials do not alter handling identifiers.
 
 The existing practice and network arena owners select `Daylight.tres` for the oval, retaining their single sun and WorldEnvironment. Old Map keeps its existing lighting. The oval resource supplies a blue procedural sky, cool ambient fill and filmic tonemapping without glare effects or competing map-owned lighting.
 

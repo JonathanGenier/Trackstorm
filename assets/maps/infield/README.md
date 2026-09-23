@@ -1,5 +1,9 @@
 # Infield layout graybox
 
+This is the retained topology baseline. The active map now consumes the
+[Blender terrain](TERRAIN.md), which preserves this layout and replaces its flat
+visual/collision floor. Instructions below regenerate the baseline only.
+
 `source/InfieldGraybox.blend` is the editable Blender source; the game instances
 `infield_graybox.glb` beneath the scriptless production oval. One unit is one metre.
 The original oval meshes, measurements, collision and vehicle scale are unchanged.

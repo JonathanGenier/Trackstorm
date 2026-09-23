@@ -7,7 +7,7 @@ using Numerics = System.Numerics;
 
 namespace Trackstorm.Client.Verification;
 
-/// <summary>Exercises authored infield reservations with the native production vehicle.</summary>
+/// <summary>Exercises Blender terrain with the native production vehicle and unchanged route topology.</summary>
 public sealed partial class InfieldIntegrationChecks : Node3D
 {
     private readonly Core.Simulation.Simulation _simulation = new(new Core.Simulation.SimulationConfiguration(60));
@@ -22,6 +22,13 @@ public sealed partial class InfieldIntegrationChecks : Node3D
     private bool _drive;
     private float _deviation;
     private int _unsupported;
+    private int _airStreak;
+    private int _longestFlight;
+    private float _targetSpeed = 10;
+    private float _peakHeight;
+    private Vector3? _launch;
+    private Vector3? _landing;
+    private string _caseFilter = string.Empty;
     private Camera3D? _camera;
     private string _output = string.Empty;
 
@@ -57,10 +64,22 @@ public sealed partial class InfieldIntegrationChecks : Node3D
             Vector3 forward = -_vehicle.GlobalBasis.Z;
             float angle = (forward with { Y = 0 }).SignedAngleTo(target, Vector3.Up);
             steering = (short)(Math.Clamp(-angle * 2.5f, -1, 1) * short.MaxValue);
-            float targetSpeed = Math.Abs(angle) > 0.35f ? 6 : 10;
+            float targetSpeed = Math.Abs(angle) > 0.35f ? 6 : _targetSpeed;
             throttle = _vehicle.LinearVelocity.Length() < targetSpeed ? (ushort)40000 : (ushort)0;
             brake = _vehicle.LinearVelocity.Length() > targetSpeed + 1 ? (ushort)18000 : (ushort)0;
             _unsupported += _vehicle.State.Grounded ? 0 : 1;
+            _airStreak = _vehicle.State.Grounded ? 0 : _airStreak + 1;
+            _longestFlight = Math.Max(_longestFlight, _airStreak);
+            _peakHeight = Math.Max(_peakHeight, _vehicle.Position.Y);
+            if (_airStreak == 4 && _launch is null)
+            {
+                _launch = _vehicle.Position;
+            }
+
+            if (_launch is not null && _vehicle.State.Grounded && _landing is null)
+            {
+                _landing = _vehicle.Position;
+            }
         }
 
         var input = new InputFrame(++_tick, steering, throttle, brake, 0, 0, 0);
@@ -82,13 +101,24 @@ public sealed partial class InfieldIntegrationChecks : Node3D
         try
         {
             _output = ProjectSettings.GlobalizePath("res://.godot/infield-checks");
+            _caseFilter = OS.GetCmdlineUserArgs().FirstOrDefault(value => value.StartsWith("--infield-case=", StringComparison.Ordinal))?[15..] ?? string.Empty;
             System.IO.Directory.CreateDirectory(_output);
             var map = GD.Load<PackedScene>(Arenas.ActiveMap.ScenePath).Instantiate<Node3D>();
             AddChild(map);
             using var layout = JsonDocument.Parse(Godot.FileAccess.GetFileAsString("res://assets/maps/infield/layout.json"));
             JsonElement[] routes = layout.RootElement.GetProperty("routes").EnumerateArray().ToArray();
             await Frames(3);
-            Check(map.GetNode<Node3D>("InfieldGraybox").Transform.IsEqualApprox(Transform3D.Identity), "Blender infield imports at identity metre scale.");
+            Check(map.GetNode<Node3D>("InfieldTerrain").Transform.IsEqualApprox(Transform3D.Identity), "Blender infield imports at identity metre scale.");
+            Check(!map.HasNode("Collision/Infield") && !map.GetNode<MeshInstance3D>("Geometry/Infield").Visible, "Original flat floor has no active visual or collision; negative basins are usable.");
+            using var terrainData = JsonDocument.Parse(Godot.FileAccess.GetFileAsString("res://assets/maps/infield/terrain.json"));
+            string topologyHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Godot.FileAccess.GetFileAsBytes("res://assets/maps/infield/layout.json"))).ToLowerInvariant();
+            Check(topologyHash == terrainData.RootElement.GetProperty("topology_sha256").GetString(), "Terrain was authored against the retained TS-74 topology manifest.");
+            foreach (Vector3 basin in new[] { new Vector3(-57, 0, -29), new Vector3(77, 0, -35), new Vector3(-85, 0, 28), new Vector3(85, 0, 28) })
+            {
+                using var basinRay = PhysicsRayQueryParameters3D.Create(basin + Vector3.Up * 4, basin + Vector3.Down * 5);
+                var basinHit = GetWorld3D().DirectSpaceState.IntersectRay(basinRay);
+                Check(basinHit.Count > 0 && basinHit["position"].AsVector3().Y < -1, $"Preserved basin {basin}: negative terrain support {basinHit}.");
+            }
             int samples = 0;
             foreach (JsonElement route in routes)
             {
@@ -101,12 +131,9 @@ public sealed partial class InfieldIntegrationChecks : Node3D
                     foreach (float offset in new[] { -half + 1.4f, 0, half - 1.4f })
                     {
                         Vector3 p = points[i] + (side * offset);
-                        using var ray = PhysicsRayQueryParameters3D.Create(p + (Vector3.Up * 2), p + Vector3.Down);
+                        using var ray = PhysicsRayQueryParameters3D.Create(p + (Vector3.Up * 4), p + (Vector3.Down * 5));
                         var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
-                        // Entry footprints can straddle the first centimetres of existing banking.
-                        bool bankEntry = Math.Abs(p.Z) > 82;
-                        float tolerance = bankEntry ? 0.2f : 0.01f;
-                        Check(hit.Count > 0 && Math.Abs(hit["position"].AsVector3().Y) < tolerance && hit["normal"].AsVector3().Y > 0.98f, $"Route support sample {samples++}: {route.GetProperty("id").GetString()} at {p}, hit {hit}.");
+                        Check(hit.Count > 0 && hit["normal"].AsVector3().Y > 0.80f, $"Route support sample {samples++}: {route.GetProperty("id").GetString()} at {p}, hit {hit}.");
                     }
                 }
             }
@@ -145,7 +172,20 @@ public sealed partial class InfieldIntegrationChecks : Node3D
             {
                 float x = jump.GetProperty("start")[0].GetSingle();
                 float direction = jump.GetProperty("direction")[0].GetSingle();
-                await Drive(jump.GetProperty("id").GetString()!, Enumerable.Range(0, 51).Select(i => new Vector3(x + (direction * i * 2), 0, 0)).ToArray(), 12);
+                foreach (float speed in new[] { 14f, 16f, 18f })
+                {
+                    await Drive(jump.GetProperty("id").GetString()! + speed, Enumerable.Range(0, 51).Select(i => new Vector3(x + (direction * i * 2), 0, 0)).ToArray(), 12, speed, true);
+                }
+            }
+
+            foreach (Vector3 basin in new[] { new Vector3(-57, 0, -29), new Vector3(77, 0, -35), new Vector3(-85, 0, 28), new Vector3(85, 0, 28) })
+            {
+                await Drive($"BasinRecovery{basin.X}-{basin.Z}", Enumerable.Range(0, 21).Select(i => basin + Vector3.Right * (-20 + i * 2)).ToArray(), 12, 8);
+            }
+
+            foreach (int direction in new[] { -1, 1 })
+            {
+                await Drive($"TerrainToBank{direction}", Enumerable.Range(0, 21).Select(i => new Vector3(direction * (160 + i * 2), 0, 0)).ToArray(), 12, 8);
             }
 
             Vector3[] west = ReadPoints(routes[0]);
@@ -157,11 +197,14 @@ public sealed partial class InfieldIntegrationChecks : Node3D
             _companion.ResetBody(new VehiclePhysicsState(new Numerics.Vector3(3.5f, 1, -62), new Numerics.Quaternion(companionRotation.X, companionRotation.Y, companionRotation.Z, companionRotation.W), Numerics.Vector3.Zero, Numerics.Vector3.Zero));
             _companionDrive = true;
             await Drive("TwoCarTunnel", Enumerable.Range(0, 61).Select(i => new Vector3(-3.5f, 0, -60 + (i * 2))).ToArray(), 9);
-            Check(_companion.Position.Z > 45 && _companion.State.Grounded && _companion.DamageState.CurrentHP == _companion.DamageState.MaxHP, "Second production car traverses tunnel alongside first without damage.");
+            if (_caseFilter.Length == 0 || "TwoCarTunnel".StartsWith(_caseFilter, StringComparison.Ordinal))
+            {
+                Check(_companion.Position.Z > 45 && _companion.State.Grounded && _companion.DamageState.CurrentHP == _companion.DamageState.MaxHP, "Second production car traverses tunnel alongside first without damage.");
+            }
 
             _advance = false;
             System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence.Where(line => !line.StartsWith("Route support sample", StringComparison.Ordinal)));
-            GD.Print($"Infield integration passed: {samples} support probes; ten routes, two jump footprints, connected loop tour and two-car tunnel driven. Evidence: {_output}");
+            GD.Print($"Infield integration passed: {samples} support probes; case filter '{_caseFilter}' (empty = complete suite). Evidence: {_output}");
             GetTree().Quit();
         }
         catch (Exception exception)
@@ -180,21 +223,41 @@ public sealed partial class InfieldIntegrationChecks : Node3D
         return GetWorld3D().DirectSpaceState.IntersectRay(ray).Count == 0;
     }
 
-    private async Task Drive(string name, Vector3[] points, float width)
+    private async Task Drive(string name, Vector3[] points, float width, float speed = 10, bool jump = false)
     {
+        if (_caseFilter.Length != 0 && !name.StartsWith(_caseFilter, StringComparison.Ordinal))
+        {
+            return;
+        }
+
         _drive = false;
         _path = points;
         _progress = 0;
         _deviation = 0;
         _unsupported = 0;
+        _airStreak = 0;
+        _longestFlight = 0;
+        _targetSpeed = speed;
+        _peakHeight = 0;
+        _launch = null;
+        _landing = null;
         Quaternion rotation = Basis.LookingAt(points[1] - points[0]).GetRotationQuaternion();
-        _vehicle.ResetBody(new VehiclePhysicsState(VehicleBody.ToCore(points[0] + Vector3.Up), new Numerics.Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W), Numerics.Vector3.Zero, Numerics.Vector3.Zero));
+        using var spawnRay = PhysicsRayQueryParameters3D.Create(points[0] + Vector3.Up * 4, points[0] + Vector3.Down * 5);
+        var spawnHit = GetWorld3D().DirectSpaceState.IntersectRay(spawnRay);
+        Check(spawnHit.Count > 0, name + ": supported initial pose.");
+        _vehicle.ResetBody(new VehiclePhysicsState(VehicleBody.ToCore(spawnHit["position"].AsVector3() + Vector3.Up), new Numerics.Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W), Numerics.Vector3.Zero, Numerics.Vector3.Zero));
         await Frames(90);
         _drive = true;
+        bool airCaptured = false;
+        bool landingCaptured = false;
         for (int frame = 0; frame < 9000 && _progress < points.Length - 2; frame++)
         {
             await Frames(1);
-            if (_deviation > (width / 2) - 1.4f || _unsupported > 10)
+            if (frame == 300 && _progress == 0)
+            {
+                throw new InvalidOperationException($"{name}: stalled at {_vehicle.Position}, forward {-_vehicle.GlobalBasis.Z}, up {_vehicle.GlobalBasis.Y}, wheel compression {_vehicle.State.Wheels.Compression}, steering {_vehicle.State.SteeringAngle}, speed {_vehicle.LinearVelocity}.");
+            }
+            if (_deviation > (width / 2) - 1.4f || _airStreak > 120 || _vehicle.GlobalBasis.Y.Y < 0.5f)
             {
                 throw new InvalidOperationException($"{name} failed: progress {_progress}/{points.Length}, lateral {_deviation:F2}, unsupported {_unsupported}, position {_vehicle.Position}.");
             }
@@ -203,11 +266,29 @@ public sealed partial class InfieldIntegrationChecks : Node3D
             {
                 await View(name + "-drive", _vehicle.Position + (_vehicle.GlobalBasis.Z * 12) + (Vector3.Up * 6), _vehicle.Position - (_vehicle.GlobalBasis.Z * 8));
             }
+
+            if (jump && _camera is not null && !airCaptured && _airStreak >= 12)
+            {
+                airCaptured = true;
+                await View(name + "-air", _vehicle.Position + new Vector3(0, 5, 18), _vehicle.Position);
+            }
+
+            if (jump && _camera is not null && !landingCaptured && _landing is not null)
+            {
+                landingCaptured = true;
+                await View(name + "-landing", _vehicle.Position + new Vector3(0, 5, 18), _vehicle.Position);
+            }
         }
 
         _drive = false;
-        Check(_progress >= points.Length - 2, $"{name}: entire route driven using production physics/input; peak centerline error {_deviation:F2} m, unsupported frames {_unsupported}, final HP {_vehicle.DamageState.CurrentHP}.");
-        Check(_vehicle.DamageState.CurrentHP == _vehicle.DamageState.MaxHP, name + ": no collision damage.");
+        if (jump)
+        {
+            Check(_longestFlight >= 4 && _landing is not null && _vehicle.State.Grounded, $"{name}: real launch {_launch}, landing {_landing}, longest flight {_longestFlight / 60f:F2}s, peak origin {_peakHeight:F2}m; recovered grounded.");
+            float landingDistance = Math.Abs(_landing!.Value.X - points[0].X);
+            Check(landingDistance >= 55 && landingDistance <= 77, $"{name}: lands on descending dirt zone at corridor metre {landingDistance:F2}.");
+        }
+        Check(_progress >= points.Length - 2, $"{name}: entire route driven using production physics/input; progress {_progress}/{points.Length}, position {_vehicle.Position}, velocity {_vehicle.LinearVelocity}; peak centerline error {_deviation:F2} m, unsupported frames {_unsupported}, final HP {_vehicle.DamageState.CurrentHP}.");
+        Check(_vehicle.DamageState.CurrentHP == _vehicle.DamageState.MaxHP, $"{name}: no collision damage ({_vehicle.DamageState.CurrentHP}/{_vehicle.DamageState.MaxHP}); launch {_launch}, landing {_landing}, flight {_longestFlight} frames.");
     }
 
     private async Task View(string name, Vector3 position, Vector3 target)
@@ -236,5 +317,9 @@ public sealed partial class InfieldIntegrationChecks : Node3D
         }
 
         _evidence.Add(message);
+        if (!message.StartsWith("Route support sample", StringComparison.Ordinal))
+        {
+            System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence.Where(line => !line.StartsWith("Route support sample", StringComparison.Ordinal)));
+        }
     }
 }

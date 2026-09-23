@@ -1,12 +1,11 @@
 [gd_scene format=4]
 
-[ext_resource type="PackedScene" path="res://assets/maps/infield/infield_graybox.glb" id="infield_graybox"]
+[ext_resource type="PackedScene" path="res://assets/maps/infield/infield_terrain.glb" id="infield_terrain"]
 
 [ext_resource type="PackedScene" path="res://assets/maps/oval/oval_foundation.glb" id="1_k7ftl"]
 [ext_resource type="Material" path="res://assets/maps/oval/Grass.tres" id="2_mku4n"]
 [ext_resource type="Material" path="res://assets/maps/oval/Asphalt.tres" id="3_m6igb"]
 [ext_resource type="Shape3D" path="res://assets/maps/oval/TrackCollision.tres" id="4_g8yx0"]
-[ext_resource type="Shape3D" path="res://assets/maps/oval/InfieldCollision.tres" id="5_8l3bq"]
 [ext_resource type="Material" path="res://assets/arena/materials/Concrete.tres" id="6_upc2u"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bbdx1"]
@@ -1495,6 +1494,7 @@ buffer = PackedFloat32Array(0.022150302, 0, 0.7356288, -103.24783, 0, 0.81387997
 mesh = SubResource("ArrayMesh_hgrku")
 
 [node name="Infield" parent="Geometry" index="1" unique_id=1311025581]
+visible = false
 material_override = ExtResource("2_mku4n")
 mesh = SubResource("ArrayMesh_cvluj")
 
@@ -1508,11 +1508,6 @@ mesh = SubResource("ArrayMesh_u0nyf")
 
 [node name="Shape" type="CollisionShape3D" parent="Collision/Track" unique_id=1842522546]
 shape = ExtResource("4_g8yx0")
-
-[node name="Infield" type="StaticBody3D" parent="Collision" unique_id=305059236]
-
-[node name="Shape" type="CollisionShape3D" parent="Collision/Infield" unique_id=680670072]
-shape = ExtResource("5_8l3bq")
 
 [node name="PlayerSpawns" type="Node3D" parent="." unique_id=1079784798]
 
@@ -2503,4 +2498,4 @@ metadata/source_section = 871
 
 [editable path="Geometry"]
 
-[node name="InfieldGraybox" parent="." instance=ExtResource("infield_graybox")]
+[node name="InfieldTerrain" parent="." instance=ExtResource("infield_terrain")]

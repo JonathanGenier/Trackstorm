@@ -22,7 +22,7 @@ Start with the system being changed. Read its document and only the integration 
 | [Vehicles and damage](vehicles.md) | Movement, suspension, surfaces, HP, collision/effect contracts | [Arena](arena.md), [camera](camera.md), [lifecycle](death-respawn.md), [replication](vehicle-networking.md) |
 | [Chase camera](camera.md) | Local orientation, free-look/recentering, inertia and feedback | [Input](input.md), [vehicles](vehicles.md), [replication](vehicle-networking.md) |
 | [Combat arena](arena.md) | Retained prototype fixture, markers, props and materials | [Vehicles](vehicles.md), [pickups](item-spawns.md), [replication](vehicle-networking.md) |
-| [Banked oval map](oval-map.md) | Active practice/gameplay map, Blender source, infield course graybox, real scale, banking, eight player grid spawns and collision | [Combat arena](arena.md), [vehicles](vehicles.md) |
+| [Banked oval map](oval-map.md) | Active practice/gameplay map, Blender source, infield terrain and jump corridors, real scale, banking, eight player grid spawns and collision | [Combat arena](arena.md), [vehicles](vehicles.md) |
 | [Transport foundation](transport.md) | Opaque gateway, endpoints, GNS fallback and legacy state envelope | [Vehicle networking](vehicle-networking.md), [sessions](sessions.md), [EOS P2P](eos-p2p.md) |
 | [Vehicle networking](vehicle-networking.md) | Host input, snapshots, prediction and reconciliation | [Transport](transport.md), [vehicles](vehicles.md), [sessions](sessions.md) |
 | [Session flow](sessions.md) | Admission, Ready/Start/Return and Direct-IP development UI | [EOS lobbies](eos-lobbies.md), [vehicle networking](vehicle-networking.md), [matches](matches.md) |
