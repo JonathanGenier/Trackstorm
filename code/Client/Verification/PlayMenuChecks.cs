@@ -41,7 +41,7 @@ public sealed partial class PlayMenuChecks : Node
             row.GrabFocus(); Tap(Key.Enter); await Frames(32); Tap(Key.Enter);
             Require(_provider.Joins == 1, "Expired Accept does not join");
             Tap(Key.Enter);
-            Require(_provider.Joins == 2, "Bounded double Accept joins same row");
+            Require(_provider.Joins == 2, $"Bounded double Accept joins same row (joins={_provider.Joins}, focus={GetViewport().GuiGetFocusOwner()?.GetPath()}, target={row.GetPath()}, windowFocus={GetWindow().HasFocus()}, interactive={_session.PlayMenu.Interactive})");
             await Frames(2);
             row.GrabFocus(); Joy(JoyButton.A); Joy(JoyButton.A);
             Require(_provider.Joins == 3, "Controller equivalent double Accept joins");
@@ -287,6 +287,11 @@ public sealed partial class PlayMenuChecks : Node
     private static void Click(Button button, bool twice = false)
     {
         Vector2 position = button.GetGlobalRect().GetCenter();
+        if (DisplayServer.GetName() != "headless")
+        {
+            button.GetWindow().GrabFocus();
+            button.GetViewport().WarpMouse(position);
+        }
         using var motion = new InputEventMouseMotion { Position = position, GlobalPosition = position, Relative = new Vector2(8, 8) };
         Godot.Input.ParseInputEvent(motion); Godot.Input.FlushBufferedEvents();
         foreach (bool pressed in new[] { true, false }) { using var input = new InputEventMouseButton { Position = position, GlobalPosition = position, ButtonIndex = MouseButton.Left, Pressed = pressed, DoubleClick = twice }; Godot.Input.ParseInputEvent(input); Godot.Input.FlushBufferedEvents(); }
