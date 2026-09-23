@@ -1,6 +1,6 @@
 # TS-76 follow-up independent engineering review
 
-Review date: 2026-09-23. Review target: uncommitted approved follow-up on `ts-76-pg`, PR 90. Final runtime evidence and post-push delivery review are pending.
+Review date: 2026-09-23. Final review target: pushed commit `c1cb13c0829a4d9f2c44e86f1f2d3b91348e104a` on `ts-76-pg`, PR 90. **Engineering verdict: PASS.** Runtime critique and human acceptance are separate gates.
 
 ## Scope and method
 
@@ -19,6 +19,17 @@ Executed three read-only Blender 5.2.2 source evaluations, stopping before mesh 
 - Final verification exposed a new northwest basin-start regression beside the constant-width toe. The final correction smoothly narrows the outer limit from 28.25 m at |X|=70 m to 23.25 m at the unchanged |X|=83 m kicker lip, retaining the five-metre blend width. Independent source evaluation found **zero changed vertices** in the sampled basin-start rectangle |X+77|<2 m, |Z+29|<1.4 m. Final core-side paired sample difference remains at most 0.001712 m. Native recovery results are reported separately by the implementation harness.
 - Verification exercises both upper directions, multiple deck offsets, low-speed full approaches, four side climbs, preserved lower passage and deliberate support impacts. Final runtime results must establish practical climbability and absence of damaging catch points; source inspection alone cannot establish those outcomes.
 
-## Pending final review
+## Final post-push review
 
-No unresolved production source defect was identified in the frozen geometry. Comprehensive final verification, native results, final documentation, current-main/version state, pushed commit and PR delivery state remain to be reviewed before a final engineering verdict. User-owned changes to `code/Core/Input/InputButtons.cs` and `assets/maps/oval/grass_variation.png.import` are outside this review's implementation scope and must remain excluded from the Story commit.
+Inspected the pushed implementation, final Story report, source audit and recorded final check/native results. No unresolved production source defect or newly introduced failing exercised scenario was identified.
+
+- Final `check.ps1` log records zero-warning/error builds and 556 Core / 352 transport tests passing. Final oval log records 3,087 checks passing. The separate-process network log records integration and automated camera controls passing.
+- Final imported/source audit records 53 editable structural parts, correct open/retained barriers, exact preservation of all 146,145 source vertices outside the local fills, and matching source/export hashes. Its 54,969 changed float32 source vertices differ appropriately from the 54,980 double-precision generator changes because Blender storage rounds sub-float differences.
+- The native evidence records completed low-speed bridge traversals, all six offset crossings, four side climbs, repeated underpass/deck passes, support impacts, ten original routes and six jumps without traversal damage. The previously introduced northwest basin-start regression passes after the toe correction. Connected-loop and two-car native runs pass separately.
+- The complete infield command still fails at the previously documented `BasinRecovery-85-28` stationary uphill start. Both existing terrain-to-bank starts also fail. These are explicitly recorded as unresolved pre-existing limitations, not passes, and remain outside this geometry correction. This engineering verdict does not represent an entirely green infield suite.
+- Current feature/asset documentation describes the elevated route, retained lower passage, editable sources, collision ownership and qualified symmetry/tie-in behavior. No Core gameplay rules, material scope or dressing work were introduced.
+- Local `origin/main` is an ancestor, with four Story commits ahead and zero behind. Canonical version is 0.1.38; the final implementation report records its paired 0.1.38.0 export metadata and main `1a02028`. The complete Story file list contains expected production assets, verification fixture, documentation/evidence, provenance and version changes.
+- GitHub read confirmed PR 90 is open on `ts-76-pg` at the reviewed commit. CI `verify` was **IN_PROGRESS** when inspected; automatic PR reuse succeeded. GitHub reported merge state `BLOCKED`. No completed CI pass or merge readiness is claimed by this review.
+- User-owned changes to `code/Core/Input/InputButtons.cs` and `assets/maps/oval/grass_variation.png.import` remain outside the pushed implementation. Remaining untracked files observed during review were the concurrently produced Astra evidence.
+
+Only this review report was edited by the reviewer. Human control feel, unexercised approach angles, stopped restarts across all new slopes, ordinary chase-camera occlusion and remote-device behavior remain unverified as recorded in the Story report. Passing engineering review does not authorize merge or substitute for the required Astra critique/human gate.
