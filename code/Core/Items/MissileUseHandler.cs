@@ -7,7 +7,7 @@ namespace Trackstorm.Core.Items;
 internal sealed class MissileUseHandler : IItemUseHandler
 {
     public bool Stage(ItemSlot slot, VehiclePhysicsState pose, ItemConfiguration configuration,
-        List<MissileState> missiles, Dictionary<ulong, float> repairs)
+        List<MissileState> missiles, Dictionary<ulong, float> repairs, List<OilPatch> patches, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil)
     {
         if (missiles.Count >= ItemAuthority.MaximumProjectiles)
         {

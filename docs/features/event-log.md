@@ -40,3 +40,5 @@ Core tests cover ordering, timestamp stability, bounded eviction, replay waterma
 [Feature index](README.md) · [Sessions](sessions.md) · [Vehicles](vehicles.md) · [Items](items.md) · [Reconnection](reconnection.md) · [Developer Options](developer-options.md)
 
 Fresh arena bootstrap withholds journal delivery until activation and advances the initial stream watermark while pending. Only committed admission emits Joined and Spawned; checkpoint preparation does not replay earlier gameplay, and cancelled provisional participants emit no Joined/Disconnected presence pair. See [session admission](sessions.md#fresh-admission-during-an-arena).
+
+Oil deployment uses the generic confirmed item use outcome. Each authoritative patch entry records an Oil triggered item event with deployer and target; remaining in a patch produces no per-frame event.
