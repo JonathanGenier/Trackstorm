@@ -45,6 +45,10 @@ func _initialize() -> void:
 	map.add_child(content)
 	content.owner = map
 	load("res://assets/maps/oval/BuildOvalContent.gd").bake(map, measurements)
+	var infield := load("res://assets/maps/infield/infield_graybox.glb").instantiate() as Node3D
+	infield.name = "InfieldGraybox"
+	map.add_child(infield)
+	infield.owner = map
 	var packed := PackedScene.new()
 	assert(packed.pack(map) == OK)
 	assert(ResourceSaver.save(packed, "res://scenes/maps/oval_foundation.tscn") == OK)

@@ -12,6 +12,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | --- | --- |
 | Story verification | [TS-118 verification evidence](ts-118.md) |
 | Play Menu and lobby browser | [TS-138 verification evidence](ts-138.md) |
+| Blender-authored infield graybox | [TS-74 verification evidence](ts-74.md) |
 | Oval weapon spawns and coniferous perimeter | [TS-100 verification evidence](ts-100.md) |
 | Persistent Oil deployment and recovery | [TS-117 verification evidence](ts-117.md) |
 | Story verification | [TS-116 verification evidence](ts-116.md) |

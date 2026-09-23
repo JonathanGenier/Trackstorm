@@ -236,7 +236,10 @@ public sealed partial class OvalIntegrationChecks : Node3D
 
         Check(worstHeightError < 0.025f, $"{samples} road raycasts including both sides of every seam: maximum height error {worstHeightError:F6} m.");
         Check(worstNormalStep < 0.03f, $"Continuous banking: maximum adjacent collision-normal step {Mathf.RadToDeg(worstNormalStep):F4} degrees.");
-        Check(Math.Abs(Hit(Vector3.Zero).Position.Y) < 0.003f, "Flat infield center and all 916 inner-rim samples meet the road at y=0 within 3 mm native-query tolerance.");
+        // Sample below the authored tunnel roof; the foundation floor is still y=0.
+        using var centerRay = PhysicsRayQueryParameters3D.Create(Vector3.Up * 2, Vector3.Down);
+        var centerHit = GetWorld3D().DirectSpaceState.IntersectRay(centerRay);
+        Check(centerHit.Count > 0 && Math.Abs(centerHit["position"].AsVector3().Y) < 0.003f, "Flat infield center and all 916 inner-rim samples meet the road at y=0 within 3 mm native-query tolerance.");
     }
 
     private void VerifyGrid()
