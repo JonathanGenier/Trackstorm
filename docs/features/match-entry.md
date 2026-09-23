@@ -8,7 +8,15 @@ Application navigation is **Main Menu → Lobby Browser → Joining / Creating �
 
 The initial saved-session lookup runs without replacing the Main Menu with browser chrome. Explicit retained-session validation and authority-confirmed decisions retain their existing browser flow. Direct-IP Back clears the fallback selection so it returns to the Main Menu consistently.
 
-Joined Lobby is a separate runtime presentation/state. It suspends MenuShell media and presents the admitted roster, Ready, host Start, map selection and Leave, retaining online membership management. No new standalone Godot scene file owns networking lifetime.
+Joined Lobby suspends MenuShell media and displays a dedicated static 3D staging scene. `JoinedLobby` owns an isolated presentation viewport, fixed orthographic camera, eight predefined showcases, red/cream theatrical backdrop, industrial floor, chains and warm lights. It reuses the existing vehicle meshes, licensed arena materials and approved Main Menu crest/plate artwork. No physics, gameplay vehicle authority, damage, weapons, AI or match resources are instantiated by the stage.
+
+The connected authoritative roster supplies every displayed identity, name, HOST and non-host READY/NOT READY marker. Presentation nodes are reconciled by stable player ID; departing/disconnected identities are removed, and reconnect uses the existing fresh-join policy. Empty pads contain no sample cars. The scene releases all showcases when leaving Lobby. Names are associated with selectable nameplates; long names ellipsize with a full-name tooltip. Uniform fixed-camera composition fits the viewport; compact controls use larger design-space fonts.
+
+Host controls are Start, Settings, Quit to Main Menu and Kick Player after selecting another player's nameplate. Non-hosts receive Ready/Not Ready, Settings and Quit. Existing host-only map selection remains available. Start submits host readiness and then Start through the existing authoritative driver; the all-ready and transport-roster checks remain unchanged. Kick is a local-host-only driver operation guarded by lobby phase, current authority and lifecycle, using Core's existing removal policy and reliable rejection/disconnect cleanup. It does not create a ban or change EOS membership/admission authority. Other peers receive the normal roster publication.
+
+Settings uses the existing owner and blocks underlying stage actions, then returns to the retained stage. Quit uses the cleanup-gated Main Menu return. Logical remapped navigation and native pointer targets share existing menu navigation. The stage owns neither networking lifetime nor membership/ready state.
+
+`LobbyShowcase.Replace` and `JoinedLobby.RefreshVehicle` replace a single visual under its existing identity/position. The caller-supplied visual factory defaults to the existing Wasteland vehicle because the current lobby contract has no authoritative vehicle-selection field. A later vehicle-selection projection can supply updated art without changing the roster or stage; no selection UI or parallel selected-vehicle state exists.
 
 ## Authoritative map selection
 

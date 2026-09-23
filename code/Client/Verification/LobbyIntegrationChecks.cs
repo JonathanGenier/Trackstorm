@@ -17,7 +17,7 @@ public sealed partial class LobbyIntegrationChecks : Node
     private double _elapsed;
     private double _stageStarted;
     private bool _countdownVerified;
-    private int _stage;
+    private int _stage = -6;
     private int _rejected;
     private ulong _departedId;
     private ulong _firstMatch;
@@ -130,6 +130,7 @@ public sealed partial class LobbyIntegrationChecks : Node
     private static void Click(DevelopmentSession session, string text)
     {
         session._Process(0);
+        session.JoinedLobby.Refresh();
         Button button = session.FindChildren("*", "Button", true, false).Cast<Button>().First(candidate => candidate.Text == text && candidate.IsVisibleInTree());
         Require(!button.Disabled, $"UI action is enabled: {text}");
         button.EmitSignal(BaseButton.SignalName.Pressed);
@@ -180,6 +181,44 @@ public sealed partial class LobbyIntegrationChecks : Node
         LobbyNetworkDriver? host = _sessions[0].Lobby;
         switch (_stage)
         {
+            case -6 when AllRoster(8):
+                VerifyLineup();
+                Require(!host!.Kick(host.LocalPlayerId), "Host cannot kick self.");
+                Require(!_sessions[1].Lobby!.Kick(_sessions[2].Lobby!.LocalPlayerId), "Client cannot kick.");
+                _departedId = _sessions[7].Lobby!.LocalPlayerId;
+                _sessions[0].JoinedLobby.Cars[_departedId].Target.EmitSignal(BaseButton.SignalName.Pressed);
+                _sessions[0].JoinedLobby.Refresh();
+                Click(_sessions[0], "Kick Player");
+                Next("Host selected a vehicle nameplate and kicked its authoritative participant.");
+                break;
+            case -5 when _sessions.Take(7).All(session => session.Lobby?.State?.Players.Count == 7) && _sessions[7].Lobby is null:
+                VerifyLineup();
+                OpenThroughUi(_sessions[7], false, "Player 7");
+                Next("Kicked client cleaned up; seven peers removed its vehicle. Fresh join remains allowed.");
+                break;
+            case -4 when AllRoster(8):
+                VerifyLineup();
+                Require(_sessions[7].Lobby!.LocalPlayerId > _departedId, "Kicked identity is not reused.");
+                _sessions[7].Gateway!.Stop();
+                Next("Unexpected lobby transport loss injected.");
+                break;
+            case -3 when _sessions.Take(7).All(session => session.Lobby?.State?.Players.Count == 7) && _sessions[7].Lobby is null:
+                VerifyLineup();
+                OpenThroughUi(_sessions[7], false, "Player 7");
+                Next("Disconnect removed the displayed identity; fresh reconnect requested.");
+                break;
+            case -2 when AllRoster(8):
+                VerifyLineup();
+                Click(_sessions[7], "Quit to Main Menu");
+                Next("Client Quit used cleanup-gated Main Menu return.");
+                break;
+            case -1 when _sessions[7].LeaveComplete && _sessions.Take(7).All(session => session.Lobby?.State?.Players.Count == 7):
+                Require(_sessions[7].Stage == ApplicationStage.MainMenu, "Quit returns to Main Menu.");
+                _sessions[7].Advance(default);
+                VerifyLineup();
+                OpenThroughUi(_sessions[7], false, "Player 7");
+                Next("Quit left no stale showcase; joining for eight-player match checks.");
+                break;
             case 0 when AllRoster(8):
                 Require(_sessions.All(session => session.Arena is null), "No arena exists before start.");
                 Require(host!.State!.Players.Select(player => player.Name).Order().SequenceEqual(Enumerable.Range(0, 8).Select(index => $"Player {index}").Order()), "Names sanitize consistently.");
@@ -190,30 +229,28 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Next("Eight production UIs joined; names and IDs match; unready start rejected.");
                 break;
             case 1 when SameState() && host!.State!.Players.Count(player => player.Ready) == 1:
-                Click(_sessions[1], "Unready");
+                Click(_sessions[1], "Not Ready");
                 Next("Targeted ready replicated to all eight peers.");
                 break;
             case 2 when SameState() && host!.State!.Players.All(player => !player.Ready):
                 Require(_sessions.All(session => session.Lobby!.State!.Map == MatchMap.OldMap), "All clients observe Old Map.");
                 Require(host.SelectMap(MatchMap.NewMap), "Host can select New Map.");
-                foreach (DevelopmentSession session in _sessions)
+                foreach (DevelopmentSession session in _sessions.Skip(1))
                 {
                     Click(session, "Ready");
                 }
 
                 Next("Targeted unready replicated to all peers.");
                 break;
-            case 3 when SameState() && host!.State!.CanStart:
+            case 3 when SameState() && host!.State!.Players.Where(player => player.Id != host.LocalPlayerId).All(player => player.Ready):
                 _rejected = host.RejectedPackets;
                 _sessions[1].Lobby!.Request(LobbyCommand.Start);
                 Next("Non-host start intent submitted over the real transport.");
                 break;
             case 4 when host!.RejectedPackets > _rejected:
                 Require(_sessions.All(session => session.Lobby!.State!.Phase == SessionPhase.Lobby), "Non-host cannot transition any peer.");
-                Capture("lobby.png");
-                Click(_sessions[0], "Start Match (host only)");
-                _firstMatch = host.State!.Match;
-                Next("Host rejected non-host start; one host UI start command issued.");
+                _stage = 30;
+                CaptureLayoutsAndStart();
                 break;
             case 5 when AllArena():
                 Require(_sessions.All(session => session.Arena!.Driver.LocalVehicleId == session.Lobby!.LocalPlayerId), "Vehicle IDs preserve session IDs.");
@@ -263,15 +300,15 @@ public sealed partial class LobbyIntegrationChecks : Node
                 break;
             case 9 when AllRoster(8):
                 Require(_sessions[7].Lobby!.LocalPlayerId > _departedId, "Rejoin receives a fresh stable identity.");
-                foreach (DevelopmentSession session in _sessions)
+                foreach (DevelopmentSession session in _sessions.Skip(1))
                 {
                     Click(session, "Ready");
                 }
 
                 Next("Replacement joined with fresh identity; readying second match.");
                 break;
-            case 10 when SameState() && host!.State!.CanStart:
-                Click(_sessions[0], "Start Match (host only)");
+            case 10 when SameState() && host!.State!.Players.Where(player => player.Id != host.LocalPlayerId).All(player => player.Ready):
+                Click(_sessions[0], "Start");
                 Next("Second host start issued on the retained session connection.");
                 break;
             case 11 when AllArena():
@@ -313,15 +350,15 @@ public sealed partial class LobbyIntegrationChecks : Node
             case 13 when _sessions.Take(7).All(session => session.Arena is null && session.Lobby!.State!.Players.All(player => player.Id != _departedId)):
                 VerifyDisposedResults();
                 Require(host!.SelectMap(MatchMap.NewMap), "Return to New Map for active admission.");
-                foreach (var session in _sessions.Take(7))
+                foreach (var session in _sessions.Skip(1).Take(6))
                 {
                     Click(session, "Ready");
                 }
 
                 Next("Return released the eighth reservation; readying seven players for active admission.");
                 break;
-            case 14 when host!.State!.CanStart:
-                Click(_sessions[0], "Start Match (host only)");
+            case 14 when host!.State!.Players.Where(player => player.Id != host.LocalPlayerId).All(player => player.Ready):
+                Click(_sessions[0], "Start");
                 Next("Seven-player match started before fresh client joins.");
                 break;
             case 15 when _sessions.Take(7).All(session => session.Arena?.Driver.Match?.Phase == Core.Matches.MatchPhase.Active):
@@ -375,6 +412,51 @@ public sealed partial class LobbyIntegrationChecks : Node
                 _stageStarted = _elapsed;
                 _evidence.Add("Interrupted bootstrap released its slot without a vehicle or score row; retrying fresh admission.");
                 break;
+        }
+    }
+
+    private async void CaptureLayoutsAndStart()
+    {
+        try
+        {
+            foreach (var size in new[] { new Vector2I(1280, 720), new Vector2I(640, 360), new Vector2I(1600, 900) })
+            {
+                _hostView.Size = size;
+                for (int frame = 0; frame < 4; frame++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                var targets = _sessions[0].JoinedLobby.Cars.Values.Select(car => car.Target.GetGlobalRect()).ToArray();
+                for (int i = 0; i < targets.Length; i++)
+                {
+                    Require(new Rect2(Vector2.Zero, size).Encloses(targets[i]), "Nameplate remains within viewport.");
+                    Require(targets.Where((_, index) => index != i).All(other => !other.Intersects(targets[i])), "Eight nameplates never overlap.");
+                }
+                Capture($"lobby-{size.X}.png");
+            }
+            _hostView.Size = new Vector2I(1280, 720);
+            for (int frame = 0; frame < 4; frame++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            Capture("lobby.png");
+            Click(_sessions[0], "Start");
+            _firstMatch = _sessions[0].Lobby!.State!.Match;
+            _stage = 4;
+            Next("Host rejected non-host start; eight non-overlapping labels verified at 640, 1280 and 1600 widths; host UI Start issued.");
+        }
+        catch (Exception exception)
+        {
+            GD.PrintErr(exception);
+            _finished = true;
+            GetTree().Quit(1);
+        }
+    }
+
+    private void VerifyLineup()
+    {
+        foreach (var session in _sessions)
+        {
+            session.JoinedLobby.Refresh();
+            var expected = session.Stage == ApplicationStage.Lobby ? session.Lobby!.State!.Players.Where(player => player.Connected).Select(player => player.Id).Order().ToArray() : [];
+            Require(session.JoinedLobby.Cars.Keys.Order().SequenceEqual(expected), "Display identities exactly match connected authority.");
+            Require(session.Arena is null, "Lobby creates no gameplay arena.");
+            foreach (var car in session.JoinedLobby.Cars.Values)
+                Require(car.Root.FindChildren("*", "CollisionObject3D", true, false).Count == 0, "Showcases have no gameplay physics.");
         }
     }
 

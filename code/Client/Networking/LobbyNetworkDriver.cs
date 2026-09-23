@@ -404,6 +404,18 @@ internal sealed class LobbyNetworkDriver
         return accepted;
     }
 
+    /// <summary>Local host removal through Core departure policy and the reliable rejection path.</summary>
+    internal bool Kick(ulong player)
+    {
+        if (Authority is null || State?.Phase != SessionPhase.Lobby || player == State.CurrentHostId ||
+            Failure.Length > 0 || Reconnecting || Migration?.Frozen == true || _leaveAt.HasValue) return false;
+        var binding = Authority.Peers.FirstOrDefault(pair => pair.Value == player);
+        if (binding.Key == 0 || !Authority.Remove(binding.Key)) return false;
+        RejectJoin(binding.Key, "Removed by host");
+        Publish();
+        return true;
+    }
+
     /// <summary>Publishes an authoritative restart; no remote intent can invoke this local host API.</summary>
     internal bool Restart()
     {

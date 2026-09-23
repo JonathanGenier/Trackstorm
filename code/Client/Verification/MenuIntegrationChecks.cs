@@ -276,8 +276,23 @@ public sealed partial class MenuIntegrationChecks : Node
         _session.Open(true, _endpoint, "Menu check");
         await Until(() => _session.Lobby?.State is not null, "host starts");
         CheckCursor(false, "lobby pointer");
-        Check(_session.Lobby!.Request(LobbyCommand.Ready, true), "solo host ready");
-        Check(_session.Lobby.Request(LobbyCommand.Start), "solo arena entry uses existing lobby lifecycle");
+        var lobby = _session.JoinedLobby;
+        var visual = lobby.Cars.Values.Single().Root;
+        for (int visit = 0; visit < 2; visit++)
+        {
+            lobby.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == "Settings").EmitSignal(BaseButton.SignalName.Pressed);
+            await Frames(2);
+            Check(_menu.CurrentPage == MenuPage.Settings, "Lobby Settings opens production settings");
+            Check(lobby.FindChildren("*", "Button", true, false).Cast<Button>().Where(button => button.Visible).All(button => button.Disabled), "Settings blocks lobby actions");
+            Press("Back");
+            await Frames(2);
+            Check(_session.Stage == ApplicationStage.Lobby && lobby.Cars.Values.Single().Root == visual, "Settings returns to same authority and showcase");
+        }
+        lobby.RefreshVehicle(_session.Lobby!.LocalPlayerId);
+        await Frames(2);
+        Check(lobby.Cars.Values.Single().Root == visual && visual.GetChildCount() == 1, "Vehicle art refresh preserves identity and replaces only model");
+        await Capture("joined-lobby");
+        Check(_session.StartFromLobby(), "solo host Start uses existing readiness and match authority without Ready UI");
         await Until(() => _session.Arena?.Driver.Match is not null, "arena initialized");
         await Frames(2);
         CheckCursor(true, "arena entry restores capture");

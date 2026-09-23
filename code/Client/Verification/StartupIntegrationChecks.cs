@@ -234,7 +234,7 @@ internal sealed partial class StartupIntegrationChecks : Node
         Check(session.FindChildren("MainMenu", "Control", true, false).Count == 1, "Exactly one Main Menu instance");
         Button[] buttons = session.FindChildren("*", "Button", true, false).Cast<Button>().ToArray();
         Check(buttons.Where(button => button.IsVisibleInTree()).ToHashSet().SetEquals(menu.Targets), "Only four new menu targets are visible; no underlying browser controls");
-        Check(buttons.Where(button => new[] { "Play", "Garage", "Settings", "Quit" }.Contains(button.Text)).ToHashSet().SetEquals(menu.Targets), "No hidden duplicate primary controls remain in the session tree");
+        Check(buttons.Where(button => !session.JoinedLobby.IsAncestorOf(button) && new[] { "Play", "Garage", "Settings", "Quit" }.Contains(button.Text)).ToHashSet().SetEquals(menu.Targets), "No hidden duplicate primary controls remain in the session tree");
     }
 
     private static void Joy(JoyButton button, bool pressed)

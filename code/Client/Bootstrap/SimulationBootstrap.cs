@@ -249,12 +249,11 @@ public sealed partial class SimulationBootstrap : Node
             OnlineCoordinator = () => _online?.Coordinator,
             OnlineStatus = () => _online?.Status ?? EosLobbyStatus.Unavailable,
             OnlineLogin = () => _online?.Login(),
-            OnlineLogout = () => _online?.Logout(),
             DeveloperSettings = Development.DeveloperTools.Enabled ? new Development.DeveloperSettingsStore(SettingsPath is null ? ProjectSettings.GlobalizePath("user://developer-settings.jsonl") : SettingsPath + ".developer.jsonl") : null
         };
         session.SetFrontendPresentation(presentFrontend, presentFrontend ? 1 : 0);
         AddChild(session);
-        panel.ShowFrontendShortcut = () => session.Stage != ApplicationStage.MainMenu;
+        panel.ShowFrontendShortcut = () => session.Stage is not (ApplicationStage.MainMenu or ApplicationStage.Lobby);
         return session;
     }
 

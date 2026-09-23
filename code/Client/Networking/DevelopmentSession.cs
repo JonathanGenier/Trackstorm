@@ -13,17 +13,11 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private readonly LineEdit _name = new() { Name = "PlayerName", Text = "Player", PlaceholderText = "Display name", MaxLength = 96 };
     private readonly LineEdit _address = new() { Name = "DirectAddress", Text = "127.0.0.1:27020", PlaceholderText = "IP:port or [IPv6]:port" };
     private readonly Label _status = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
-    private readonly Label _roster = new();
     private readonly Label _arenaStatus = new();
     private readonly Button _host = new() { Text = "Host Game" };
     private readonly Button _join = new() { Text = "Join Game by address" };
-    private readonly Button _ready = new() { Text = "Ready" };
-    private readonly Button _start = new() { Text = "Start Match (host only)" };
-    private readonly Button _leave = new() { Text = "Leave session" };
     private readonly CheckButton _debug = new() { Text = "Developer fallback: Direct-IP / LAN" };
     private readonly Button _back = new() { Text = "Back to Main Menu" };
-    private readonly OptionButton _mapChoice = new() { Name = "MapSelection" };
-    private readonly Label _mapLabel = new();
     private readonly Label _loadingText = new() { HorizontalAlignment = HorizontalAlignment.Center };
     private readonly Label _admission = new() { HorizontalAlignment = HorizontalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private NetworkTransportNode? _transport;
@@ -38,9 +32,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private PanelContainer _browserPanel = null!;
     private string _message = "Choose or host a game. Up to 8 players; everyone must be ready.";
     private ulong _arenaGeneration;
-    private OnlineLobbyPanel _online = null!;
     private bool _leaving;
-    private bool _logoutAfterLeave;
     private bool _forceStart;
     private double _eventMilliseconds;
     private int _eventRejected;
@@ -48,13 +40,11 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private Control _root = null!;
     private bool _frontendVisible = true;
     private float _frontendAlpha = 1;
-    private PanelContainer _joinedPanel = null!;
     private PanelContainer _loadingPanel = null!;
     private bool _browsing;
     private MatchResourceLoader? _matchLoader;
     private double _loadSeconds;
     private string? _failureOutcome;
-    private VBoxContainer _staging = null!;
     private Frontend.HangingMainMenu _mainMenu = null!;
     private Frontend.HangingPlayMenu _playMenu = null!;
     private Label _directVersion = null!;
@@ -62,6 +52,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private bool _mainHoisting;
     private bool _playHoisting;
     internal Frontend.HangingPlayMenu PlayMenu => _playMenu;
+    internal Frontend.JoinedLobby JoinedLobby { get; private set; } = null!;
     private bool RetainedPresentation => OnlineCoordinator()?.ShowsRetainedDecision == true;
 
     /// <summary>Existing Settings destination supplied by the bootstrap.</summary>
@@ -89,8 +80,6 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     internal Func<EosLobbyStatus> OnlineStatus { get; set; } = () => EosLobbyStatus.Unavailable;
     /// <summary>Explicit login/retry action supplied by the identity owner.</summary>
     internal Action OnlineLogin { get; set; } = () => { };
-    /// <summary>Explicit logout action supplied by the identity owner.</summary>
-    internal Action OnlineLogout { get; set; } = () => { };
 
     /// <summary>Production lobby exposed for runtime integration verification.</summary>
     internal LobbyNetworkDriver? Lobby => _lobby;
@@ -176,17 +165,9 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _browserContent.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         scroll.AddChild(_browserContent);
         _browserContent.AddChild(_name);
-        _online = new OnlineLobbyPanel { Coordinator = () => OnlineCoordinator(), IdentityStatus = () => OnlineStatus(), Login = () => OnlineLogin(), Logout = () => OnlineLogout() };
-        _online.LeaveSession = Leave;
-        _online.Logout = () =>
-        {
-            _logoutAfterLeave = true;
-            Leave();
-        };
         _browserContent.AddChild(_back);
         _back.Pressed += () => SetBrowser(false);
         _browserContent.AddChild(_debug);
-        _browserContent.AddChild(_online);
         _debug.Toggled += enabled =>
         {
             if (enabled && OnlineCoordinator() is { CanStartFreshSession: false })
@@ -204,26 +185,8 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _browserContent.AddChild(_join);
         _browserContent.AddChild(_status);
         _browserContent.AddChild(_admission);
-        _joinedPanel = new PanelContainer { Name = "JoinedLobby", AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -300, OffsetRight = 300, OffsetTop = -330, OffsetBottom = 330 };
-        _root.AddChild(_joinedPanel);
-        var staging = new VBoxContainer();
-        _staging = staging;
-        staging.AddThemeConstantOverride("separation", 16);
-        _joinedPanel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("172235"), ContentMarginLeft = 28, ContentMarginRight = 28, ContentMarginTop = 24, ContentMarginBottom = 24 });
-        var stagingScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
-        _joinedPanel.AddChild(stagingScroll);
-        staging.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        stagingScroll.AddChild(staging);
-        staging.AddChild(new Label { Text = "LOBBY", HorizontalAlignment = HorizontalAlignment.Center });
-        staging.AddChild(_roster);
-        staging.AddChild(_mapLabel);
-        staging.AddChild(_mapChoice);
-        _mapChoice.AddItem("Old Map", (int)MatchMap.OldMap);
-        _mapChoice.AddItem("New Map", (int)MatchMap.NewMap);
-        _mapChoice.ItemSelected += index => _lobby?.SelectMap((MatchMap)_mapChoice.GetItemId((int)index));
-        staging.AddChild(_ready);
-        staging.AddChild(_start);
-        staging.AddChild(_leave);
+        JoinedLobby = new Frontend.JoinedLobby { Name = "JoinedLobby", Session = this };
+        _root.AddChild(JoinedLobby);
         _loadingPanel = new PanelContainer { Name = "MatchLoader", AnchorRight = 1, AnchorBottom = 1 };
         _loadingPanel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("101826") });
         var loadingLayer = new CanvasLayer { Layer = 8 };
@@ -242,15 +205,6 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         matchBar.AddChild(_arenaStatus);
         _host.Pressed += () => Open(true, _address.Text, _name.Text);
         _join.Pressed += () => Open(false, _address.Text, _name.Text);
-        _ready.Pressed += () => _lobby?.Request(LobbyCommand.Ready, !(_lobby.State?.Players.Single(player => player.Id == _lobby.LocalPlayerId).Ready ?? false));
-        _start.Pressed += () =>
-        {
-            if (_lobby?.Request(LobbyCommand.Start) != true)
-            {
-                _message = "Start requires a connected, fully ready lobby.";
-            }
-        };
-        _leave.Pressed += Leave;
         Render();
     }
 
@@ -738,11 +692,6 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         }
 
         _message = _failureOutcome ?? "Choose or host a game. Everyone must be ready before starting.";
-        if (_logoutAfterLeave)
-        {
-            _logoutAfterLeave = false;
-            OnlineLogout();
-        }
     }
 
     private void RemoveArena()
@@ -780,6 +729,13 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _matchPresentation.Enqueue(state);
     }
 
+    /// <summary>Host Start consents through existing readiness authority before requesting Start.</summary>
+    internal bool StartFromLobby()
+    {
+        if (_leaving || OverlayOpen() || _lobby is not { Authority: not null, State.Phase: SessionPhase.Lobby }) return false;
+        return _lobby.Request(LobbyCommand.Ready, true) && _lobby.Request(LobbyCommand.Start);
+    }
+
     private void LayoutDirectPanel()
     {
         // Keep the legacy fallback's existing scrollable controls above the version footer.
@@ -799,19 +755,12 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _admission.Visible = pending && !RetainedPresentation;
         _admission.Text = "JOINING / CREATING LOBBY\n" + (OnlineCoordinator()?.Busy == true ? OnlineCoordinator()!.Status : "Waiting for authoritative admission…");
         _back.Visible = !active && browsing && !pending;
-        _joinedPanel.Visible = active && _lobby!.State!.Phase == SessionPhase.Lobby;
+        JoinedLobby.Refresh();
         bool exiting = Stage == ApplicationStage.Leaving;
         _loadingPanel.Visible = LoadingMatch || exiting;
         _retryExit.Visible = exiting && OnlineCoordinator() is { CanLeave: true, Busy: false };
         _loadingText.Text = exiting ? "LEAVING SESSION\n" + (OnlineCoordinator()?.Status ?? "Completing session cleanup…")
             : _arena is null ? $"MATCH LOADER\nLoading selected map and resources… {_matchLoader?.Progress * 100:0}%" : "MATCH SYNC\nWaiting for authoritative synchronization…";
-        if (_lobby?.State is { } selected)
-        {
-            _mapLabel.Text = "Selected map: " + (selected.Map == MatchMap.OldMap ? "Old Map" : "New Map");
-            _mapChoice.Select((int)selected.Map);
-        }
-
-        _mapChoice.Disabled = _lobby?.Authority is null || _leaving || _lobby.Migration?.Frozen == true;
         bool arena = _arena is not null || _lobby?.State?.Phase == SessionPhase.Arena;
         bool decision = RetainedPresentation;
         _browserPanel.Visible = !exiting && !active && (browsing || pending) && _debug.ButtonPressed;
@@ -819,13 +768,6 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _playMenu.Visible = !exiting && !active && !_mainHoisting && !_debug.ButtonPressed && (browsing || pending || _playHoisting);
         _mainMenu.RefreshPresentation();
         ((Control)_arenaStatus.GetParent()).Visible = arena;
-        Node onlineParent = active && !arena ? _staging : _browserContent;
-        if (_online.GetParent() != onlineParent)
-        {
-            _online.Reparent(onlineParent);
-        }
-
-        _online.Visible = !arena && active && !_debug.ButtonPressed;
         _debug.Visible = !active && browsing && !decision && !pending;
         _status.Visible = !decision && (browsing || pending);
         _name.Visible = !active && browsing && !decision && !pending;
@@ -836,14 +778,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _debug.Disabled = detecting;
         _host.Disabled = detecting;
         _join.Disabled = detecting;
-        _leave.Visible = active && !arena && !decision;
-        _ready.Visible = _lobby?.State is not null && !arena;
-        _start.Visible = _lobby?.Authority is not null && !arena;
-        _start.Disabled = _leaving || _lobby?.State?.CanStart != true;
-        _ready.Disabled = _leaving || _lobby?.Reconnecting == true || _lobby?.Migration?.Frozen == true;
         _arenaStatus.Text = _leaving ? "Leaving session…" : (_lobby?.Migration?.Frozen == true ? _lobby.Migration.Status : _lobby?.ResumeStatus) ?? string.Empty;
         _status.Text = _gateway is null ? _message : $"{_gateway.Name}: {_gateway.ConnectionState}\n{(_lobby?.Migration?.Frozen == true ? _lobby.Migration.Status : _lobby?.ResumeStatus.Length > 0 ? _lobby.ResumeStatus : _message)}";
-        _roster.Text = _lobby?.State is not LobbySnapshot state ? string.Empty : $"{state.Players.Count}/8 slots\n" + string.Join("\n", state.Players.Select(player => $"{(!player.Connected ? "↻ RECONNECTING" : player.Ready ? "✓ READY" : "○ WAITING")}   {player.Name}  #{player.Id}{(player.Id == state.CurrentHostId ? " · HOST" : string.Empty)}{(player.Id == _lobby.LocalPlayerId ? " · YOU" : string.Empty)}"));
-        _ready.Text = _lobby?.State?.Players.Single(player => player.Id == _lobby.LocalPlayerId).Ready == true ? "Unready" : "Ready";
     }
 }
