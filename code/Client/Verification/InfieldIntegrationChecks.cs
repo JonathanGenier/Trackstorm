@@ -147,8 +147,9 @@ public sealed partial class InfieldIntegrationChecks : Node3D
             }
 
             Check(ClearRay(new Vector3(-8, 2, -15), new Vector3(-8, 2, 15)) && ClearRay(new Vector3(8, 2, -15), new Vector3(8, 2, 15)), "Tunnel has 18 m clear north/south opening.");
-            Check(ClearRay(new Vector3(-15, 2, 0), new Vector3(15, 2, 0)), "Central east/west intersection remains open below future earth bridge.");
+            Check(ClearRay(new Vector3(-15, 2, 0), new Vector3(15, 2, 0)), "Central east/west intersection remains open below the structural deck.");
             Check(!ClearRay(new Vector3(0, 5, 0), new Vector3(0, 6, 0)), "Imported tunnel roof has usable collision at 5.5 m clearance.");
+            CheckStructures(map);
             _vehicle = new VehicleBody { Position = new Vector3(0, 1, 70), DamageConfiguration = new DamageConfiguration { MaxHP = 1000, CollisionScale = 5 } };
             _simulation.AddVehicle(1, _vehicle.Configuration, _vehicle.DamageConfiguration, new VehiclePhysicsState(new Numerics.Vector3(0, 1, 70), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero));
             _vehicle.Initialize(_simulation);
@@ -167,8 +168,24 @@ public sealed partial class InfieldIntegrationChecks : Node3D
                 AddChild(_camera);
                 await View("overview", new Vector3(0, 285, 190), Vector3.Zero);
                 await View("tunnel", new Vector3(22, 13, 38), Vector3.Zero);
+                await View("tunnel-clearance", new Vector3(0, 2.5f, 23), new Vector3(0, 2.5f, -15));
+                await View("structure-join", new Vector3(21, 6, 22), new Vector3(11, 1, 11));
                 await View("west-layout", new Vector3(-100, 95, 65), new Vector3(-85, 0, 0));
             }
+
+            // Repeated ground-level crossing in both directions on both axes.
+            // These scenarios precede the wider terrain suite so its known
+            // slope-start limitation cannot hide the structural evidence.
+            foreach (int pass in Enumerable.Range(0, 3))
+            {
+                foreach (int direction in new[] { -1, 1 })
+                {
+                    await Drive($"StructureNorthSouth{pass}_{direction}", Enumerable.Range(0, 25).Select(i => new Vector3(0, 0, direction * (-24 + i * 2))).ToArray(), 16, 14);
+                    await Drive($"StructureEastWest{pass}_{direction}", Enumerable.Range(0, 25).Select(i => new Vector3(direction * (-24 + i * 2), 0, 0)).ToArray(), 16, 14);
+                }
+            }
+
+            await StructureImpacts();
 
             foreach (JsonElement route in routes)
             {
@@ -225,6 +242,80 @@ public sealed partial class InfieldIntegrationChecks : Node3D
     }
 
     private static Vector3[] ReadPoints(JsonElement route) => route.GetProperty("points").EnumerateArray().Select(p => new Vector3(p[0].GetSingle(), 0, p[1].GetSingle())).ToArray();
+
+    private void CheckStructures(Node3D map)
+    {
+        Node3D structures = map.GetNode<Node3D>("InfieldStructures");
+        Check(structures.Transform.IsEqualApprox(Transform3D.Identity), "Production Blender structures retain metre-scale identity transform.");
+        Check(map.GetNode("InfieldTerrain").FindChildren("Tunnel*", "MeshInstance3D", true, false).Count == 0, "Inherited graybox tunnel meshes and child colliders are removed at import.");
+        var bodies = structures.FindChildren("*", "StaticBody3D", true, false);
+        Check(bodies.Count >= 50, $"Production structures import {bodies.Count} static colliders.");
+        foreach (Node child in bodies)
+        {
+            var body = (StaticBody3D)child;
+            Check(body.CollisionLayer == 1 && !body.IsInGroup("landing_terrain"), $"{body.GetParent().Name}: obstacle collision retains layer 1 and crash classification.");
+        }
+
+        int clearances = 0;
+        foreach (float height in new[] { .3f, 2f, 5.45f })
+        {
+            for (int offset = -8; offset <= 8; offset++)
+            {
+                Check(ClearRay(new Vector3(offset, height, -24), new Vector3(offset, height, 24)), $"North/south clear at x={offset}, y={height}.");
+                Check(ClearRay(new Vector3(-24, height, offset), new Vector3(24, height, offset)), $"East/west clear at z={offset}, y={height}.");
+                clearances += 2;
+            }
+        }
+
+        foreach (int x in new[] { -10, 10 })
+        {
+            foreach (int z in new[] { -10, 10 })
+            {
+                Check(!ClearRay(new Vector3(x, 1, z-3), new Vector3(x, 1, z+3)), $"Pier ({x},{z}) has front/back collision.");
+                // Test surrounding toe support outside the solid, not an inside-origin ray.
+                using var joinRay = PhysicsRayQueryParameters3D.Create(new Vector3(x * 1.15f, 1, z), new Vector3(x * 1.15f, -1, z));
+                var hit = GetWorld3D().DirectSpaceState.IntersectRay(joinRay);
+                Check(hit.Count > 0 && Math.Abs(hit["position"].AsVector3().Y) < .02f, $"Pier ({x},{z}) meets retained flat terrain without a gap.");
+                Check(!ClearRay(new Vector3(x * 1.4f, .4f, z), new Vector3(x * 1.4f, .4f, z * 1.6f)), $"Retaining wing at ({x},{z}) has solid collision.");
+                Check(!ClearRay(new Vector3(x * 1.21f, .2f, z), new Vector3(x * 1.21f, -.2f, z)), $"Drain invert at ({x},{z}) has solid collision.");
+            }
+
+            Check(!ClearRay(new Vector3(0, 6.8f, 0), new Vector3(x * 1.2f, 6.8f, 0)), $"Deck parapet on x={x} has solid collision.");
+            Check(!ClearRay(new Vector3(0, 6.8f, 0), new Vector3(0, 6.8f, x * 1.2f)), $"Deck parapet on z={x} has solid collision.");
+        }
+
+        Check(clearances == 102, "102 crossing-envelope rays verify ground-to-soffit clearance on both axes.");
+    }
+
+    private async Task StructureImpacts()
+    {
+        if (_caseFilter.Length != 0 && !"StructureImpacts".StartsWith(_caseFilter, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _drivenCases++;
+        _drive = false;
+        foreach (int side in new[] { -1, 1 })
+        {
+            foreach (int pass in Enumerable.Range(0, 2))
+            {
+                Quaternion rotation = new(Vector3.Up, Mathf.Pi);
+                _vehicle.ResetBody(new VehiclePhysicsState(new Numerics.Vector3(side * 10, .9f, -22), new Numerics.Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W), new Numerics.Vector3(0, 0, 15), Numerics.Vector3.Zero));
+                // Reset is queued through Core; observe only after native state applies.
+                await Frames(3);
+                Check(Math.Abs(_vehicle.Position.X - side * 10) < .1f && _vehicle.Position.Z < -20, "Pier impact begins at the requested native setup pose.");
+                float furthest = -22;
+                for (int frame = 0; frame < 100; frame++)
+                {
+                    await Frames(1);
+                    furthest = Math.Max(furthest, _vehicle.Position.Z);
+                }
+
+                Check(furthest < -11 && _vehicle.DamageState.CurrentHP < _vehicle.DamageState.MaxHP && _vehicle.Position.IsFinite(), $"Structure impact {side}/{pass}: native 15 m/s pier approach stopped outside solid, furthest z={furthest:F2}, HP={_vehicle.DamageState.CurrentHP}; stable repeated reset/impact.");
+            }
+        }
+    }
 
     private bool ClearRay(Vector3 from, Vector3 to)
     {

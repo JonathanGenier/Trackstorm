@@ -35,7 +35,9 @@ with smooth sides; surrounding terrain can influence absolute depth. No water
 surface, water physics or distinct handling identifier is added. The three
 obstacle reservations and the central tunnel envelope stay in their original
 locations. Both lower tunnel crossings remain open at the original datum.
-An elevated bridge route and additional structures are not added.
+An elevated bridge route is not added. The separate [production structural
+set](STRUCTURES.md) now owns the tunnel: the import hook removes the inherited
+graybox solids without changing this terrain source or export.
 
 Both original 100 m jump corridors have a 30 m approach, a 12 m kicker reaching
 4.8 m with a 0.70 terminal grade, a recoverable tabletop easing to 3.2 m beneath

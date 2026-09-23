@@ -15,7 +15,8 @@ OvalFoundation (Node3D, identity)
 │   └── Track (StaticBody3D / Shape)
 ├── PlayerSpawns
 │   └── player-01 … player-08 (Marker3D)
-├── InfieldTerrain (Blender terrain and tunnel collision)
+├── InfieldTerrain (Blender terrain collision)
+├── InfieldStructures (Blender junction structure and obstacle collision)
 ├── ItemSpawns (five triple rows and five singles)
 └── MapContent (concrete perimeter, upper collision, exterior ground and forest)
 ```
@@ -76,18 +77,25 @@ tabletops beneath the flight paths, descending dirt landings and recovery zones.
 Each kicker rises 4.8 m over 12 m; its 30 m downslope ends at corridor metre 85.
 The intended 14–18 m/s approach range supports substantial airtime with a
 remaining 15 m recovery before the unchanged central junction.
-The three obstacle reservations and open-sided tunnel remain in place. Both
+The three obstacle reservations and open-sided tunnel remain in place. The
+[production structural set](../../assets/maps/infield/STRUCTURES.md) replaces
+the graybox tunnel with chamfered concrete piers, foundations, capitals, beams,
+a segmented deck over a continuous soffit, deck barriers, short retaining wings
+and open drainage channels. Its 18 m openings and minimum 5.5 m soffit preserve
+both intersecting routes. Both
 lower tunnel crossings stay clear; an elevated bridge route is not added.
 
 A twenty-eight-metre collar follows the original bank's inward grade at all 916 rim
 sections and eases into the terrain. The original oval road and collision stay
 unchanged. The old flat infield collider is replaced so it cannot fill the basins
 or compete with wheel support. Lit vertex colors blend dirt into grass shoulders;
-water behavior, additional structures and environment dressing remain later work.
+water behavior, final material identity and environment dressing remain later work.
 
 `check-infield.ps1 -GodotPath <path> -Visual` checks imported route support,
 tunnel clearance and production-vehicle driving along all ten routes and both
 jump corridors, plus a continuous loop-to-loop tour and two-car tunnel traversal.
+`-Case Structure` isolates twelve repeated crossings, four native pier impacts,
+102 clearance-envelope rays and structure/terrain joins.
 Each individual route is initialized separately, then driven entirely with
 logical input and native physics. Jump runs measure real airborne travel, dirt
 landing location and recovery at nearby approach speeds. This is repeatable

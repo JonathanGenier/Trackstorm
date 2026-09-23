@@ -1,0 +1,14 @@
+{
+  "provenance": "Original Trackstorm Blender-authored structural set; no acquired assets.",
+  "units": "metres",
+  "reference": "TS-74 attachment 10017 and retained layout.json; existing terrain is unchanged.",
+  "minimum_opening_width_m": 18,
+  "minimum_soffit_height_m": 5.5,
+  "ground_routes": "Both north/south and east/west remain at existing terrain datum; no elevated route.",
+  "files": {
+    "source/InfieldStructures.blend": "055c7d855d49ee3760539d38dafbb352b48543d3b371fc67f794ebe8e61c08ae",
+    "infield_structures.glb": "7394328614c52b8aa3b2ee25184f491c13adfd61d590ee45d5366fd3bf206018",
+    "BuildStructures.py": "44ba54ffba1c51150b6b12ac7699a2f5036a86fed43c379816ebaa0d41a7b38a",
+    "layout.json": "5fa21825dfe218f2de6d4336182a4e87792284a7ae0692067095ea3208bc6bca"
+  }
+}

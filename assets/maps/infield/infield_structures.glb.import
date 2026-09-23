@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://c6vf3d6tu74cb"
-path="res://.godot/imported/infield_terrain.glb-06e456ef65546637923a7fb3cfcfc94d.scn"
+uid="uid://dwwmke2ng8028"
+path="res://.godot/imported/infield_structures.glb-518af2c8ec374754f7274d77d9c169b6.scn"
 
 [deps]
 
-source_file="res://assets/maps/infield/infield_terrain.glb"
-dest_files=["res://.godot/imported/infield_terrain.glb-06e456ef65546637923a7fb3cfcfc94d.scn"]
+source_file="res://assets/maps/infield/infield_structures.glb"
+dest_files=["res://.godot/imported/infield_structures.glb-518af2c8ec374754f7274d77d9c169b6.scn"]
 
 [params]
 
@@ -30,12 +30,12 @@ meshes/light_baking=1
 meshes/lightmap_texel_size=0.2
 meshes/force_disable_compression=true
 skins/use_named_skins=true
-animation/import=false
+animation/import=true
 animation/fps=30
 animation/trimming=false
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
-import_script/path="res://assets/maps/infield/ImportTerrain.gd"
+import_script/path="res://assets/maps/infield/ImportStructures.gd"
 materials/extract=0
 materials/extract_format=0
 materials/extract_path=""

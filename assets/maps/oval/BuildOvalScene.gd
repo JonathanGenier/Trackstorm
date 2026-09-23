@@ -53,6 +53,10 @@ func _initialize() -> void:
 	infield.name = "InfieldTerrain"
 	map.add_child(infield)
 	infield.owner = map
+	var structures := load("res://assets/maps/infield/infield_structures.glb").instantiate() as Node3D
+	structures.name = "InfieldStructures"
+	map.add_child(structures)
+	structures.owner = map
 	var packed := PackedScene.new()
 	assert(packed.pack(map) == OK)
 	assert(ResourceSaver.save(packed, "res://scenes/maps/oval_foundation.tscn") == OK)
