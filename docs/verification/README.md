@@ -8,6 +8,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Story verification | [TS-132 verification evidence](ts-132.md) |
 | Modular chain-hung Main Menu, stationary left layout, legacy presentation cleanup, version label and startup flash regression | [TS-122 implementation and verification](ts-122.md), [Astra runtime critique](ts-122-critique.md) |
 | Adjustable local collision camera shake | [TS-109 verification evidence](ts-109.md) |
 | Vehicle camera free-look and recentering | [TS-108 verification evidence](ts-108.md) |

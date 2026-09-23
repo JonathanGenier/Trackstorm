@@ -36,7 +36,7 @@ public sealed partial class OvalIntegrationChecks : Node3D
     {
         if (_chase is not null && _advance)
         {
-            _chase.Follow(_vehicle.GetGlobalTransformInterpolated(), _vehicle.Snapshot, (float)delta);
+            _chase.Follow(_vehicle.GetGlobalTransformInterpolated(), _vehicle.Snapshot, (float)delta, _vehicle.GetRid());
         }
     }
 
@@ -109,6 +109,8 @@ public sealed partial class OvalIntegrationChecks : Node3D
             System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            // Headless fixed-FPS execution can outrun the audio mixer releasing practice voices.
+            await Task.Delay(100);
             GD.Print($"Oval integration passed: {_evidence.Count} checks. Artifacts: {_output}");
             GetTree().Quit();
         }
