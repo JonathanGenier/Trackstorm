@@ -12,6 +12,8 @@ namespace Trackstorm.Client.Verification;
 public sealed partial class MigrationIntegrationChecks : Node
 {
     private OilPatch? _oil;
+    private readonly DevelopmentSession?[] _presentations = new DevelopmentSession?[3];
+    private readonly Dictionary<ulong, (Node3D Root, int Slot)>[] _showcases = [new(), new(), new()];
     private readonly GameNetworkingSocketsTransport[] _gateways = new GameNetworkingSocketsTransport[3];
     private readonly LobbyNetworkDriver?[] _drivers = new LobbyNetworkDriver?[3];
     private readonly NetworkVehicleArena?[] _arenas = new NetworkVehicleArena?[3];
@@ -152,6 +154,12 @@ public sealed partial class MigrationIntegrationChecks : Node
         }
 
         _drivers[index] = driver;
+        if (_presentations[index] is null)
+        {
+            _presentations[index] = new DevelopmentSession();
+            _views[index].AddChild(_presentations[index]);
+        }
+        _presentations[index]!.BindLobby(_gateways[index], driver);
     }
 
     private void Scenario()
@@ -167,6 +175,18 @@ public sealed partial class MigrationIntegrationChecks : Node
         }
         else if (_stage == 1 && _drivers.Take(_players).All(driver => driver?.Migration?.Subjects?.Count == _players))
         {
+            var authority = _drivers[0]!.Authority!;
+            authority.SelectMap(0, MatchMap.OldMap);
+            foreach (ulong peer in authority.Peers.Keys) authority.SetReady(peer, true);
+            _stage = 101;
+        }
+        else if (_stage == 101 && _drivers.Take(_players).All(driver => driver!.Migration!.LobbyRevision == driver.State!.Revision && driver.State.Map == MatchMap.OldMap && driver.State.Players.Where(player => player.Id != 1).All(player => player.Ready)))
+        {
+            for (int i = 0; i < _players; i++)
+            {
+                _presentations[i]!.JoinedLobby.Refresh();
+                foreach (var pair in _presentations[i]!.JoinedLobby.Cars) _showcases[i][pair.Key] = (pair.Value.Root, pair.Value.Slot);
+            }
             Require(_drivers[0]!.BeginLeave(), "Host drain begins.");
             _stage = 2;
         }
@@ -179,7 +199,16 @@ public sealed partial class MigrationIntegrationChecks : Node
         }
         else if (_stage == 3 && _drivers[1]!.State?.AuthorityEpoch == 2 && (_players == 2 || (_drivers[2]!.State?.AuthorityEpoch == 2 && !_drivers[2]!.Reconnecting)))
         {
-            Require(_drivers[1]!.State!.Players.All(player => !player.Ready), "Migration clears Ready.");
+            Require(_drivers[1]!.State!.Players.All(player => player.Ready), "Migration preserves survivor Ready.");
+            for (int i = 1; i < _players; i++)
+            {
+                var scene = _presentations[i]!.JoinedLobby;
+                scene.Refresh();
+                Require(_drivers[i]!.State!.Map == MatchMap.OldMap, "Migration preserves map selection.");
+                Require(scene.Cars.All(pair => _showcases[i][pair.Key] == (pair.Value.Root, pair.Value.Slot)), "Migration retains survivor vehicle nodes and slots.");
+                foreach (string label in new[] { "Start", "Map Select", "Lobby Settings" })
+                    Require(scene.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == label).Visible == (i == 1), "Authoritative migration transfers host controls.");
+            }
             Require(_drivers[1]!.Authority!.Configuration == _configuration, "Lobby migration retains the original host's tuning.");
             Require(_drivers[1]!.State!.Players.All(player => player.Id != 1), "Lobby migration removes the former host without a reservation.");
             CreateDriver(0, Connect(0, 1), false, epoch: 2);
@@ -188,6 +217,8 @@ public sealed partial class MigrationIntegrationChecks : Node
         else if (_stage == 4 && _drivers[0]!.State?.AuthorityEpoch == 2 && !_drivers[0]!.Reconnecting)
         {
             Require(_drivers[0]!.Authority is null && _drivers[0]!.LocalPlayerId > (ulong)_players, "Former lobby host returns through fresh admission with a new PlayerId.");
+            _presentations[0]!.JoinedLobby.Refresh();
+            Require(!_presentations[0]!.JoinedLobby.FindChildren("*", "Button", true, false).Cast<Button>().Any(button => button.Text is "Start" or "Map Select" or "Lobby Settings" && button.Visible), "Former host has no host-only controls after fresh admission.");
             foreach (var driver in _drivers.Take(_players))
             {
                 driver!.Request(LobbyCommand.Ready, true);
@@ -197,6 +228,7 @@ public sealed partial class MigrationIntegrationChecks : Node
         }
         else if (_stage == 5 && _drivers[1]!.State!.CanStart)
         {
+            Require(_drivers[1]!.SelectMap(MatchMap.NewMap), "Replacement controls the authoritative map.");
             Require(_drivers[1]!.Request(LobbyCommand.Start), "Replacement can start normally.");
             _stage = 6;
         }

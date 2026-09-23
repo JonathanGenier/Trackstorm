@@ -337,7 +337,7 @@ internal sealed class EosP2pTransportTests
         Assert.That(pair.Client.State.CurrentHostId, Is.EqualTo(2));
         Assert.That(pair.Client.LocalPlayerId, Is.EqualTo(2));
         Assert.That(pair.Client.State.Players.Select(player => player.Id), Is.EqualTo(new ulong[] { 2 }));
-        Assert.That(pair.Client.State.Players.All(player => !player.Ready), Is.True);
+        Assert.That(pair.Client.State.Players.All(player => player.Ready), Is.True);
         Assert.That(pair.Client.Migration!.Frozen, Is.False, "The new sole host does not require an acknowledgement from its reserved former host.");
     }
 

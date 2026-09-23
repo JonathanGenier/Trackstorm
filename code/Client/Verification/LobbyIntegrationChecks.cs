@@ -18,6 +18,7 @@ public sealed partial class LobbyIntegrationChecks : Node
     private double _stageStarted;
     private bool _countdownVerified;
     private int _stage = -6;
+    private Dictionary<ulong, int> _slots = new();
     private int _rejected;
     private ulong _departedId;
     private ulong _firstMatch;
@@ -185,14 +186,23 @@ public sealed partial class LobbyIntegrationChecks : Node
                 VerifyLineup();
                 Require(!host!.Kick(host.LocalPlayerId), "Host cannot kick self.");
                 Require(!_sessions[1].Lobby!.Kick(_sessions[2].Lobby!.LocalPlayerId), "Client cannot kick.");
+                _slots = _sessions[0].JoinedLobby.Cars.ToDictionary(pair => pair.Key, pair => pair.Value.Slot);
                 _departedId = _sessions[7].Lobby!.LocalPlayerId;
                 _sessions[0].JoinedLobby.Cars[_departedId].Target.EmitSignal(BaseButton.SignalName.Pressed);
                 _sessions[0].JoinedLobby.Refresh();
                 Click(_sessions[0], "Kick Player");
+                Require(host.State!.Players.Count == 8, "Opening confirmation does not remove anyone.");
+                Click(_sessions[0], "Cancel");
+                Require(host.State.Players.Count == 8, "Cancel does not mutate membership.");
+                _sessions[0].JoinedLobby.Refresh();
+                _sessions[0].JoinedLobby.Cars[_departedId].Target.EmitSignal(BaseButton.SignalName.Pressed);
+                Click(_sessions[0], "Kick Player");
+                Click(_sessions[0], "Confirm Kick");
                 Next("Host selected a vehicle nameplate and kicked its authoritative participant.");
                 break;
             case -5 when _sessions.Take(7).All(session => session.Lobby?.State?.Players.Count == 7) && _sessions[7].Lobby is null:
                 VerifyLineup();
+                Require(_sessions[0].JoinedLobby.Cars.All(pair => pair.Value.Slot == _slots[pair.Key]), "Departure preserves every surviving showcase slot.");
                 OpenThroughUi(_sessions[7], false, "Player 7");
                 Next("Kicked client cleaned up; seven peers removed its vehicle. Fresh join remains allowed.");
                 break;
@@ -223,7 +233,12 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Require(_sessions.All(session => session.Arena is null), "No arena exists before start.");
                 Require(host!.State!.Players.Select(player => player.Name).Order().SequenceEqual(Enumerable.Range(0, 8).Select(index => $"Player {index}").Order()), "Names sanitize consistently.");
                 Require(!host.Request(LobbyCommand.Start), "Unready host start is rejected.");
-                Require(host.SelectMap(MatchMap.OldMap), "Host can select Old Map.");
+                Click(_sessions[0], "Map Select");
+                Click(_sessions[0], "Old Map");
+                Require(host.State.Map == MatchMap.OldMap, "Host UI selects Old Map.");
+                Click(_sessions[0], "Lobby Settings");
+                Click(_sessions[0], "Apply");
+                Require(!_sessions[1].ConfigureLobbyOptions(new Dictionary<string, double> { ["match.kill_target"] = 9 }, out _), "Client cannot edit Lobby Settings.");
                 Require(!_sessions[1].Lobby!.SelectMap(MatchMap.NewMap), "Clients cannot select maps.");
                 Click(_sessions[1], "Ready");
                 Next("Eight production UIs joined; names and IDs match; unready start rejected.");
@@ -234,7 +249,8 @@ public sealed partial class LobbyIntegrationChecks : Node
                 break;
             case 2 when SameState() && host!.State!.Players.All(player => !player.Ready):
                 Require(_sessions.All(session => session.Lobby!.State!.Map == MatchMap.OldMap), "All clients observe Old Map.");
-                Require(host.SelectMap(MatchMap.NewMap), "Host can select New Map.");
+                Click(_sessions[0], "Map Select");
+                Click(_sessions[0], "New Map");
                 foreach (DevelopmentSession session in _sessions.Skip(1))
                 {
                     Click(session, "Ready");
@@ -251,6 +267,29 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Require(_sessions.All(session => session.Lobby!.State!.Phase == SessionPhase.Lobby), "Non-host cannot transition any peer.");
                 _stage = 30;
                 CaptureLayoutsAndStart();
+                break;
+            case 31 when AllRoster(8) && _sessions.All(session => session.Stage == ApplicationStage.Lobby):
+                Require(_sessions[0].LobbyNotice.Contains("Injected host resource failure", StringComparison.Ordinal), "Host load failure returns to retained usable Lobby.");
+                _sessions[0].CreateMatchLoader = map => new MatchResourceLoader(map);
+                foreach (var session in _sessions.Skip(1)) Click(session, "Ready");
+                Next("Host resource failure recovered through authoritative Return with all eight memberships preserved.");
+                break;
+            case 32 when SameState() && host!.State!.CanStart:
+                _sessions[1].CreateMatchLoader = _ => throw new InvalidOperationException("Injected client resource failure");
+                Click(_sessions[0], "Start");
+                Next("Client resource failure armed for the next accepted generation.");
+                break;
+            case 33 when AllRoster(8) && _sessions.All(session => session.Stage == ApplicationStage.Lobby):
+                Require(_sessions[1].LobbyNotice.Contains("Injected client resource failure", StringComparison.Ordinal), "Client load failure returns through host authority.");
+                _sessions[1].CreateMatchLoader = map => new MatchResourceLoader(map);
+                foreach (var session in _sessions.Skip(1)) Click(session, "Ready");
+                Next("Client failure notification recovered all eight peers to one authoritative lobby.");
+                break;
+            case 34 when SameState() && host!.State!.CanStart:
+                Click(_sessions[0], "Start");
+                _firstMatch = host.State.Match;
+                _stage = 4;
+                Next("Retry starts one fresh generation after both recoverable load failures.");
                 break;
             case 5 when AllArena():
                 Require(_sessions.All(session => session.Arena!.Driver.LocalVehicleId == session.Lobby!.LocalPlayerId), "Vehicle IDs preserve session IDs.");
@@ -423,6 +462,7 @@ public sealed partial class LobbyIntegrationChecks : Node
             {
                 _hostView.Size = size;
                 for (int frame = 0; frame < 4; frame++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                Capture($"layout-observed-{size.X}.png");
                 var targets = _sessions[0].JoinedLobby.Cars.Values.Select(car => car.Target.GetGlobalRect()).ToArray();
                 for (int i = 0; i < targets.Length; i++)
                 {
@@ -434,10 +474,16 @@ public sealed partial class LobbyIntegrationChecks : Node
             _hostView.Size = new Vector2I(1280, 720);
             for (int frame = 0; frame < 4; frame++) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             Capture("lobby.png");
+            _sessions[0].CreateMatchLoader = _ => throw new InvalidOperationException("Injected host resource failure");
             Click(_sessions[0], "Start");
+            Require(_sessions[0].Stage == ApplicationStage.MatchLoader, "Accepted Start enters the explicit loading stage synchronously.");
+            Require(!_sessions[0].StartFromLobby(), "Repeated Start cannot create another transition.");
+            Require(!_sessions[0].Lobby!.SelectMap(MatchMap.OldMap), "Transition rejects map changes.");
+            Require(!_sessions[0].Lobby!.Kick(_sessions[1].Lobby!.LocalPlayerId), "Transition rejects kick.");
+            Require(!_sessions[0].ConfigureLobbyOptions(new Dictionary<string, double> { ["match.kill_target"] = 9 }, out _), "Transition rejects configuration edits.");
             _firstMatch = _sessions[0].Lobby!.State!.Match;
-            _stage = 4;
-            Next("Host rejected non-host start; eight non-overlapping labels verified at 640, 1280 and 1600 widths; host UI Start issued.");
+            _stage = 30;
+            Next("Host rejected non-host start; eight non-overlapping labels verified at 640, 1280 and 1600 widths; host load failure armed.");
         }
         catch (Exception exception)
         {

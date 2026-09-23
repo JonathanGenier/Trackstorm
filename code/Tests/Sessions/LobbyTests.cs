@@ -113,14 +113,39 @@ internal sealed class LobbyTests
         Assert.That(lobby.State.Phase, Is.EqualTo(SessionPhase.Arena));
     }
 
-    /// <summary>One explicitly ready host is a valid development session.</summary>
+    /// <summary>A solo host can start without a separate Ready action.</summary>
     [Test]
-    public void SoloHostRequiresReadiness()
+    public void SoloHostDoesNotRequireReadiness()
     {
         var lobby = new LobbyAuthority(7, "Host");
-        Assert.That(lobby.Start(0), Is.False);
-        lobby.SetReady(0, true);
+        Assert.That(lobby.State.Players.Single().Ready, Is.False);
         Assert.That(lobby.Start(0), Is.True);
+    }
+
+    /// <summary>Eligibility follows only the current connected non-host roster, without resetting survivors.</summary>
+    [Test]
+    public void StartEligibilityTracksJoinsDeparturesAndFreshReconnects()
+    {
+        var lobby = new LobbyAuthority(100, "Host");
+        Assert.That(lobby.State.CanStart, Is.True);
+        lobby.Join(10, GameVersion.Current.ToString(), "A", "a");
+        lobby.Join(20, GameVersion.Current.ToString(), "B", "b");
+        lobby.SetReady(10, true);
+        Assert.That(lobby.State.CanStart, Is.False);
+        lobby.SetReady(20, true);
+        Assert.That(lobby.State.CanStart, Is.True);
+        lobby.SetReady(0, false);
+        Assert.That(lobby.State.CanStart, Is.True);
+        lobby.Disconnect(20);
+        Assert.That(lobby.State.CanStart, Is.True);
+        ulong returning = lobby.Join(30, GameVersion.Current.ToString(), "B", "b");
+        Assert.That(lobby.State.CanStart, Is.False);
+        Assert.That(lobby.State.Players.Single(player => player.Id == 2).Ready, Is.True);
+        Assert.That(lobby.State.Players.Single(player => player.Id == returning).Ready, Is.False);
+        lobby.Remove(30);
+        Assert.That(lobby.Start(0, [10]), Is.True);
+        Assert.That(lobby.SetReady(10, false), Is.False);
+        Assert.That(lobby.Start(0, [10]), Is.False);
     }
 
     /// <summary>Names have deterministic fallback, plain text and bounded Unicode scalar length.</summary>

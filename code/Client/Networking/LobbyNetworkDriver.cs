@@ -339,7 +339,7 @@ internal sealed class LobbyNetworkDriver
             }
             else if (State?.Phase == SessionPhase.Arena)
             {
-                if (vehicleMessage is not null)
+                if (vehicleMessage is not null || Authority is not null)
                 {
                     RouteGameplay(message, vehicleMessage);
                 }
@@ -902,7 +902,9 @@ internal sealed class LobbyNetworkDriver
         }
     }
 
-    private void RouteGameplay(TransportMessage message, Action<TransportMessage> receive)
+    internal Func<bool>? RecoverMatchEntry { get; set; }
+
+    private void RouteGameplay(TransportMessage message, Action<TransportMessage>? receive)
     {
         if (Authority is not null && Migration?.Frozen == true)
         {
@@ -926,7 +928,13 @@ internal sealed class LobbyNetworkDriver
                 throw new ArgumentException("Pending participants may only announce completed resource loading.");
             }
 
-            receive(new TransportMessage(message.RemotePeerId, payload, message.Delivery));
+            if (Authority is not null && MatchEntryCodec.IsEntry(payload) && MatchEntryCodec.Decode(payload, State.Match) == MatchEntryCodec.Failed)
+            {
+                if (message.Delivery != TransportDelivery.Reliable || RecoverMatchEntry?.Invoke() != true) RejectedPackets++;
+                return;
+            }
+
+            receive?.Invoke(new TransportMessage(message.RemotePeerId, payload, message.Delivery));
         }
         catch (ArgumentException)
         {

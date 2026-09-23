@@ -98,6 +98,18 @@ internal sealed class MatchResourceLoader
         Retain(resource);
     }
 
+    /// <summary>Releases a cancelled asynchronous request once its worker finishes, without blocking frames.</summary>
+    internal bool DiscardPending(bool wait = false)
+    {
+        if (!_requested) return true;
+        var status = ResourceLoader.LoadThreadedGetStatus(_paths[_index]);
+        if (!wait && status == ResourceLoader.ThreadLoadStatus.InProgress) return false;
+        if (status is ResourceLoader.ThreadLoadStatus.Loaded or ResourceLoader.ThreadLoadStatus.InProgress)
+            ResourceLoader.LoadThreadedGet(_paths[_index]);
+        _requested = false;
+        return true;
+    }
+
     private void Retain(Resource resource)
     {
         _retained.Add(resource);
