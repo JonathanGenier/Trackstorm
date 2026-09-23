@@ -116,11 +116,21 @@ public sealed partial class PlayMenuChecks : Node
             }
             Click(Button("Direct-IP / LAN")); await Frames(4);
             Require(Controls<LineEdit>().Any(edit => edit.IsVisibleInTree() && edit.Name == "DirectAddress"), "Explicit Direct-IP fallback remains available");
+            foreach (var size in new[] { new Vector2I(640, 360), new Vector2I(1280, 720), new Vector2I(1600, 900) })
+            {
+                GetWindow().Size = size; await Frames(6);
+                var version = Controls<Label>().Single(label => label.IsVisibleInTree() && label.Name == "GameVersion");
+                Require(version.Text == $"v{Core.Sessions.GameVersion.Current}" && version.Position.X == 16 && version.AnchorTop == 1 && GetViewport().GetVisibleRect().Encloses(version.GetGlobalRect()), "Direct-IP uses canonical bottom-left version at " + size);
+                var fallback = Controls<PanelContainer>().Single(panel => panel.Name == "LobbyBrowser");
+                Require(GetViewport().GetVisibleRect().Encloses(fallback.GetGlobalRect()) && fallback.GetGlobalRect().End.Y <= version.GetGlobalRect().Position.Y, "Direct-IP panel cannot cover the version footer at " + size);
+                Require(!Controls<Label>().Any(label => label.Text.StartsWith("TRACKSTORM ", StringComparison.Ordinal) && label.Text.Contains("MULTIPLAYER", StringComparison.Ordinal)), "Legacy centered version header removed");
+                await Capture($"direct-version-{size.X}x{size.Y}");
+            }
             Click(Button("Back to Main Menu")); await Frames(96);
             Require(_session.MainMenu.Interactive, "Direct-IP Back returns through the complementary transition");
             Click(_session.MainMenu.Targets[0]); await Frames(85);
             await CheckPassiveLookupActions();
-            await CheckUnconfirmedHint(false);
+            await CheckCandidateDuringBack();
             await CheckUnconfirmedHint(true);
             await Capture("flag-a"); await Frames(20); await Capture("flag-b");
             GD.Print("Play Menu checks passed: 0/100, fixed scrolling, search/filter, mouse and logical double Accept, controller equivalent, expiry, transitions, viewport bounds, host form.");
@@ -129,6 +139,28 @@ public sealed partial class PlayMenuChecks : Node
         catch (Exception exception) { GD.PushError(exception.ToString()); GetTree().Quit(1); }
     }
     private IEnumerable<T> Controls<T>() where T : Node => Descendants(_session).OfType<T>();
+    private async Task CheckCandidateDuringBack()
+    {
+        await HeldClick(Button("Back")); await Frames(96);
+        _coordinator.Dispose();
+        var store = new ResumeLocatorStore(ProjectSettings.GlobalizePath("res://.godot/play-menu-back-lookup.json"));
+        var local = new OnlineProductUserId(new string('1', 32));
+        store.Save(new ResumeLocator("old-hint", 999, 2, 1, local.Value, 1, new string('2', 32)));
+        _provider.LookupHint = true; _provider.LookupFailure = false;
+        _coordinator = new OnlineLobbyCoordinator(_provider, local, resumeStore: store);
+        _coordinator.Tick();
+        Click(_session.MainMenu.Targets[0]); await Frames(85);
+        int resumes = _provider.Resumes;
+        Button("Back").GrabFocus(); Joy(JoyButton.A);
+        _provider.CompleteLookup!();
+        await Frames(96);
+        Require(_session.MainMenu.Interactive && _provider.Resumes == resumes && _coordinator.NeedsRetainedValidation, "Matching lookup during Back cannot pull the player out of Main Menu");
+        Click(_session.MainMenu.Targets[0]); await Frames(85);
+        Require(_provider.Resumes == resumes + 1 && _coordinator.RetainedDecision == RetainedSessionDecision.Checking, "Next Play validates the matching candidate exactly once");
+        _coordinator.Dispose();
+        _coordinator = new OnlineLobbyCoordinator(_provider, local);
+        store.Clear(); await Frames(3);
+    }
     private async Task CheckUnconfirmedHint(bool lookupFailure)
     {
         await HeldClick(Button("Back")); await Frames(96);
@@ -167,17 +199,16 @@ public sealed partial class PlayMenuChecks : Node
         _coordinator = new OnlineLobbyCoordinator(_provider, local, resumeStore: store);
         _coordinator.Tick();
         await Frames(3);
-        Require(_coordinator.CheckingSavedSession && _coordinator.CanStartFreshSession, "Fixture has unresolved passive lookup, not an authoritative decision");
-        Require(!Button("Host Game").Disabled && !Button("Back").Disabled && Controls<LineEdit>().Single(edit => edit.Name == "LobbySearch").IsVisibleInTree(), "Passive hint does not block normal browser/Host/Back");
-        await HeldClick(Button("Host Game")); await Frames(3);
-        Require(Button("Create lobby").IsVisibleInTree(), "Pointer Host opens existing form during passive lookup");
-        Click(Button("Cancel")); await Frames(3);
-        Button("Host Game").GrabFocus(); Tap(Key.Enter); await Frames(3);
-        Require(Button("Create lobby").IsVisibleInTree(), "Keyboard Host opens existing form");
-        Click(Button("Cancel")); await Frames(3);
-        Button("Host Game").GrabFocus(); Joy(JoyButton.A); await Frames(3);
-        Require(Button("Create lobby").IsVisibleInTree(), "Controller Host opens existing form");
-        Click(Button("Cancel")); await Frames(3);
+        Require(_coordinator.CheckingSavedSession && !_coordinator.CanStartFreshSession, "Pending detection gates fresh admission");
+        Require(Button("Host Game").Disabled && !Button("Back").Disabled && !Controls<LineEdit>().Single(edit => edit.Name == "LobbySearch").IsVisibleInTree(), "Pending detection hides browser and gates Host while Back remains usable");
+        int joins = _provider.Joins;
+        _coordinator.Create("Must not bypass", LobbyAccess.Public, null);
+        _coordinator.Join("0");
+        Click(Button("Host Game"));
+        _session.Open(true, "127.0.0.1:27020", "Player");
+        await Frames(3);
+        Require(_coordinator.CheckingSavedSession && _provider.Joins == joins && _session.Lobby is null && !Controls<Button>().Any(button => button.IsVisibleInTree() && button.Text == "Create lobby"), "Host, Join and Direct-IP cannot cancel pending detection");
+        await Capture("pending-detection");
         var back = Button("Back"); float restingY = back.GetGlobalRect().Position.Y;
         await HeldClick(back); await Frames(10);
         Require(!_session.PlayMenu.Interactive && !_session.MainMenu.Visible && back.GetGlobalRect().Position.Y < restingY, "Back visibly hoists with both menus noninteractive");
@@ -190,6 +221,9 @@ public sealed partial class PlayMenuChecks : Node
         _provider.Count = 0;
         Click(_session.MainMenu.Targets[0]); await Frames(85); _coordinator.Refresh(); await Frames(3);
         Require(_session.PlayMenu.VisibleRows.Count == 0 && Controls<LineEdit>().Single(edit => edit.Name == "LobbySearch").IsVisibleInTree(), "No resumable game immediately shows empty browser");
+        await HeldClick(Button("Host Game")); await Frames(3);
+        Require(Button("Create lobby").IsVisibleInTree(), "Host works once delayed lookup establishes no previous game");
+        Click(Button("Cancel")); await Frames(3);
         await Capture("no-previous-game");
         foreach (bool controller in new[] { false, true })
         {

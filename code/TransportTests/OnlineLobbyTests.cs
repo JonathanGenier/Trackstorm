@@ -13,6 +13,53 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed partial class OnlineLobbyTests
 {
+    /// <summary>Fresh admission cannot retire detection callbacks or bypass a matching candidate's authority inspection.</summary>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void DelayedSavedLookupPrecedesFreshAdmission(bool found)
+    {
+        var store = new ResumeLocatorStore(Path.Combine(Path.GetTempPath(), "trackstorm-order-" + Guid.NewGuid().ToString("N") + ".json"));
+        var service = new Service();
+        var old = Lobby("retained", "Previous game");
+        if (found) service.Lobbies[old.Id] = old;
+        store.Save(new ResumeLocator(old.Id, old.Session, 2, 1, User(2).Value, 1, User(1).Value));
+        try
+        {
+            using var client = new OnlineLobbyCoordinator(new Provider(service, User(2)), User(2), resumeStore: store);
+            client.Refresh();
+            service.Delay = true;
+            client.Tick();
+            Assert.That(client.CanStartFreshSession, Is.False);
+            client.Create("Bypass", LobbyAccess.Public, null);
+            client.Join(old.Id);
+            Assert.That(service.LastCreate, Is.Null);
+            Assert.That(service.ResumeRequests, Is.Zero);
+            Assert.That(client.CheckingSavedSession, Is.True);
+            service.Delay = false;
+            service.Flush();
+            Assert.That(client.CheckingSavedSession, Is.False, "The original lookup callback still completes.");
+            Assert.That(client.NeedsRetainedValidation, Is.EqualTo(found));
+            Assert.That(client.CanStartFreshSession, Is.EqualTo(!found));
+            if (found)
+            {
+                client.Create("Bypass candidate", LobbyAccess.Public, null);
+                client.Join(old.Id);
+                Assert.That(service.LastCreate, Is.Null);
+                Assert.That(service.ResumeRequests, Is.Zero, "Only the existing validation entry point may inspect a candidate.");
+                client.ResumeRetained();
+                Assert.That(service.ResumeRequests, Is.EqualTo(1));
+                Assert.That(client.RetainedDecision, Is.EqualTo(RetainedSessionDecision.Checking));
+            }
+            else
+            {
+                Assert.That(store.Load(User(2).Value), Is.Null);
+                client.Create("Fresh host", LobbyAccess.Public, null);
+                Assert.That(client.Active, Is.Not.Null);
+            }
+        }
+        finally { store.Clear(); }
+    }
+
     /// <summary>Native EOS status mapping grants promotion no membership or retirement authority.</summary>
     /// <param name="status">Native EOS status.</param>
     /// <param name="local">Whether the status targets the local member.</param>

@@ -62,6 +62,16 @@ internal sealed partial class HangingPlayMenu : Control
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         MouseFilter = MouseFilterEnum.Ignore;
         Theme = MakeTheme();
+        AddChild(CreateVersionLabel());
+        AddChild(_layout);
+        _layout.AddChild(_rig);
+        BuildRig();
+        Resized += Layout;
+        Layout();
+    }
+
+    internal static Label CreateVersionLabel()
+    {
         var version = new Label
         {
             Name = "GameVersion", Text = $"v{Trackstorm.Core.Sessions.GameVersion.Current}",
@@ -72,9 +82,11 @@ internal sealed partial class HangingPlayMenu : Control
         version.AddThemeColorOverride("font_color", new Color("e3d8c8"));
         version.AddThemeColorOverride("font_shadow_color", Colors.Black);
         version.AddThemeConstantOverride("shadow_offset_y", 1);
-        AddChild(version);
-        AddChild(_layout);
-        _layout.AddChild(_rig);
+        return version;
+    }
+
+    private void BuildRig()
+    {
         // Separate atlas regions retain the supplied pixels without rendering a flattened mockup.
         Picture("Fame.png", new Rect2(0, 0, 1672, 340), new Rect2(110, 12, 1140, 232));
         Add(_rig, new ColorRect { Color = new Color("151210"), MouseFilter = MouseFilterEnum.Ignore }, new Rect2(78, 355, 1205, 391));
@@ -119,8 +131,6 @@ internal sealed partial class HangingPlayMenu : Control
         Add(_rig, _resume, new Rect2(640, 810, 325, 46));
         _direct = PlainButton("Direct-IP / LAN", () => Direct());
         Add(_rig, _direct, new Rect2(985, 810, 295, 46));
-        Resized += Layout;
-        Layout();
     }
 
     internal void BeginEntrance()
@@ -183,28 +193,30 @@ internal sealed partial class HangingPlayMenu : Control
             _selection.Select(null);
             if (coordinator is not null) { coordinator.Browser.Search = ""; coordinator.Refresh(); }
         }
-        // A routing hint is not a reservation. Only the existing explicit check
-        // or authority-confirmed decision can own this panel; Play never resumes.
+        // Lookup metadata is only a candidate. Reuse authority inspection before
+        // fresh admission, but never automatically retry a failed lookup/recovery.
+        if (_hoisted is null && coordinator?.NeedsRetainedValidation == true) coordinator.ResumeRetained();
+        bool detecting = coordinator?.CheckingSavedSession == true;
         bool retained = coordinator?.ShowsRetainedDecision == true ||
             coordinator is { RetainedDecision: RetainedSessionDecision.Checking, CheckingSavedSession: false };
         bool busy = coordinator?.Busy == true || coordinator?.Active is not null;
-        string page = retained ? "retained:" + coordinator!.RetainedDecision : busy ? "admission" : _page;
+        string page = detecting ? "detecting" : retained ? "retained:" + coordinator!.RetainedDecision : busy ? "admission" : _page;
         _browser.Visible = page.Length == 0;
         _modal.Visible = !_browser.Visible;
         _host.Disabled = !identity.Online || coordinator?.CanStartFreshSession != true || retained;
         _back.Disabled = busy || retained;
         _host.TooltipText = _host.Disabled ? identity.HostReason.Length > 0 ? identity.HostReason : coordinator?.Status ?? "Initializing online services…" : "Create a lobby";
-        _login.Visible = identity.CanRetry && !retained;
-        _resume.Visible = !retained && coordinator?.CanResumeRetained == true;
+        _login.Visible = identity.CanRetry && !retained && !detecting;
+        _resume.Visible = !retained && !detecting && coordinator?.CanResumeRetained == true;
         if (_resume.Visible) _login.Visible = false;
-        _playerName.Visible = !retained;
+        _playerName.Visible = !retained && !detecting;
         _playerName.Editable = !busy;
-        _direct.Visible = !retained && !busy;
+        _direct.Visible = !retained && !busy && !detecting;
         _refresh.Disabled = coordinator is null || busy || coordinator.Searching;
         _search.Editable = !busy;
         _filter.Disabled = busy;
         _status.Text = retained ? coordinator!.Status : coordinator is null ? identity.Text : coordinator.Status;
-        _status.Visible = !retained && page != "filter";
+        _status.Visible = !retained && !detecting && page != "filter";
         _status.TooltipText = _status.Text;
         if (page != _modalKey) BuildModal(page);
         if (_modal.GetNodeOrNull<Label>("RetainedStatus") is { } progress) progress.Text = coordinator?.Status ?? string.Empty;
@@ -227,7 +239,7 @@ internal sealed partial class HangingPlayMenu : Control
         _empty.Visible = rows.Length == 0;
         _empty.Text = Coordinator() is null ? "Online lobbies are unavailable. See connection status below."
             : Coordinator()?.Searching == true ? "Searching for lobbies…" : source.Length == 0 ? "No lobbies found. Refresh or host a game." : "No lobbies match your search and filter.";
-        bool busy = Coordinator()?.Busy == true || Coordinator()?.Active is not null;
+        bool busy = Coordinator()?.CanStartFreshSession != true;
         if (_rendered.SequenceEqual(rows))
         {
             foreach (Button button in _rows.GetChildren().OfType<Button>()) button.Disabled = busy || !rows.First(row => row.Id == (string)button.GetMeta("lobby_id")).Joinable;
@@ -260,7 +272,7 @@ internal sealed partial class HangingPlayMenu : Control
 
     private void Join(string id)
     {
-        if (!Interactive || !_browser.Visible || Coordinator() is not { Busy: false, Active: null } coordinator) return;
+        if (!Interactive || !_browser.Visible || Coordinator() is not { CanStartFreshSession: true } coordinator) return;
         LobbyRow? row = coordinator.Browser.Find(id)?.Row;
         if (row is null || !row.Joinable || !_rendered.Any(item => item.Id == id)) return;
         _selection.Reset();
@@ -285,7 +297,14 @@ internal sealed partial class HangingPlayMenu : Control
         _modalKey = page;
         _modal.AddThemeConstantOverride("separation", page == "filter" ? 2 : 12);
         if (page.Length == 0) return;
-        if (page.StartsWith("retained:", StringComparison.Ordinal))
+        if (page == "detecting")
+        {
+            _picker = false;
+            _page = "";
+            _modal.AddChild(new Label { Text = "Checking previous session…", HorizontalAlignment = HorizontalAlignment.Center });
+            _modal.AddChild(new Label { Text = "Please wait. You can return to the Main Menu while this check completes.", AutowrapMode = TextServer.AutowrapMode.WordSmart, HorizontalAlignment = HorizontalAlignment.Center });
+        }
+        else if (page.StartsWith("retained:", StringComparison.Ordinal))
         {
             _picker = false;
             _page = "";
@@ -416,7 +435,7 @@ internal sealed partial class HangingPlayMenu : Control
         Settings.MenuFocusNavigation.Navigate(action, Focusables(), focused);
     }
 
-    private Control[] Focusables() => Descendants(_modal.Visible ? _modal : _rig).Where(control => control.IsVisibleInTree() && control.FocusMode == FocusModeEnum.All && (control is not BaseButton button || !button.Disabled)).ToArray();
+    private Control[] Focusables() => Descendants(_modal.Visible ? _modal : _rig).Concat(_modal.Visible ? new Control[] { _back } : []).Where(control => control.IsVisibleInTree() && control.FocusMode == FocusModeEnum.All && (control is not BaseButton button || !button.Disabled)).ToArray();
     private static IEnumerable<Control> Descendants(Node node)
     {
         foreach (Node child in node.GetChildren()) { if (child is Control control) yield return control; foreach (Control nested in Descendants(child)) yield return nested; }

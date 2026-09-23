@@ -10,11 +10,11 @@ namespace Trackstorm.Transport.Tests;
 /// <summary>Explicit retained-session choices through the existing authenticated lobby protocol.</summary>
 internal sealed partial class OnlineLobbyTests
 {
-    /// <summary>A delayed read-only startup lookup cannot hide fresh admission or overwrite the new session.</summary>
+    /// <summary>Fresh Host/Join waits for a delayed lookup to retire a missing session.</summary>
     /// <param name="host">Whether the player creates a lobby or joins another one.</param>
     [TestCase(true)]
     [TestCase(false)]
-    public void FreshAdmissionSupersedesPendingStartupLookup(bool host)
+    public void FreshAdmissionWaitsForPendingStartupLookup(bool host)
     {
         var service = new Service();
         service.Lobbies["available"] = Lobby("available", "Available");
@@ -27,7 +27,7 @@ internal sealed partial class OnlineLobbyTests
             client.Refresh();
             service.Delay = true;
             client.Tick();
-            Assert.That(client.CanStartFreshSession, Is.True);
+            Assert.That(client.CanStartFreshSession, Is.False);
             Assert.That(service.LookupRequests, Is.EqualTo(1));
             service.Delay = false;
             if (host)
@@ -39,14 +39,17 @@ internal sealed partial class OnlineLobbyTests
                 client.Join("available");
             }
 
-            var admitted = client.Active;
-            Assert.That(admitted, Is.Not.Null);
-            Assert.That(client.HasRetainedDecision, Is.False);
+            Assert.That(client.Active, Is.Null, "Fresh admission cannot bypass detection.");
+            Assert.That(store.Load(User(2).Value), Is.EqualTo(hint));
             service.Flush();
             client.Tick();
-            Assert.That(client.Active, Is.EqualTo(admitted));
+            Assert.That(client.HasRetainedDecision, Is.False);
+            Assert.That(client.CanStartFreshSession, Is.True);
+            if (host) client.Create("Fresh lobby", LobbyAccess.Public, null);
+            else client.Join("available");
+            Assert.That(client.Active, Is.Not.Null);
             Assert.That(client.CanStartFreshSession, Is.False, "Existing membership must still block replacement.");
-            Assert.That(store.Load(User(2).Value), Is.EqualTo(hint), "Canceled lookup must not erase or abandon the old reservation.");
+            Assert.That(store.Load(User(2).Value), Is.Null, "Completed missing-session lookup retires the stale locator.");
             Assert.That(service.ResumeRequests, Is.Zero);
         }
         finally

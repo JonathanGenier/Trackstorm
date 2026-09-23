@@ -195,13 +195,15 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     break;
                 case 10:
                     Require(_coordinator.Active is null, "Read-only retained lookup restored EOS membership.");
-                    Require(!_coordinator.HasRetainedDecision, "Read-only retained lookup exposed a confirmed decision.");
-                    Require(Controls<Button>().Any(button => button.IsVisibleInTree() && button.Text == "Check previous session"), "Found retained metadata did not expose explicit validation.");
+                    Require(_coordinator.CheckingSavedSession && !_coordinator.CanStartFreshSession, "Delayed lookup must gate fresh admission.");
+                    Require(!Controls<LineEdit>().Single(edit => edit.Name == "LobbySearch").IsVisibleInTree(), "Pending detection hides browser.");
+                    Require(Controls<Button>().Single(button => button.IsVisibleInTree() && button.Text == "Host Game").Disabled, "Pending detection blocks Host.");
+                    Require(!Controls<Button>().Single(button => button.IsVisibleInTree() && button.Text == "Back").Disabled, "Pending detection preserves Back.");
                     Require(_provider.ResumeRequests == 0, "Startup lookup called the legacy EOS Resume path.");
-                    Press("Check previous session");
+                    _provider.CompleteLookup!();
                     break;
                 case 11:
-                    Require(_provider.ResumeRequests == 1, "Explicit check did not request retained validation exactly once.");
+                    Require(_provider.ResumeRequests == 1, "Matching delayed lookup must enter existing validation exactly once.");
                     _reservationGateway = new ReservationGateway();
                     _reservationBinding = _coordinator.AttachTransport(_reservationGateway, 1, "Player");
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Checking, "Explicit retained validation did not begin authority inspection.");
@@ -232,7 +234,8 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     break;
                 case 15:
                     Require(_coordinator.Active is null, "Second startup lookup restored EOS membership.");
-                    Press("Check previous session");
+                    Require(_coordinator.CheckingSavedSession, "Second lookup remains delayed before result.");
+                    _provider.CompleteLookup!();
                     break;
                 case 16:
                     _reservationGateway = new ReservationGateway();
@@ -312,6 +315,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
         var local = new OnlineProductUserId(new string('1', 32));
         _resumeStore.Save(new ResumeLocator("public", 100, 2, 1, local.Value, 1, new string('2', 32)));
         _coordinator = new OnlineLobbyCoordinator(_provider, local, resumeStore: _resumeStore);
+        _provider.DeferLookup = true;
         _coordinator.Tick();
     }
 
