@@ -42,7 +42,7 @@ internal sealed class DeveloperConfigurationTests
     public void ConfigurationCodecAndCheckpointPreserveAllValuesAndRejectInvalidRevisions()
     {
         var host = new HostVehicleSession(9);
-        Edit(host, ("vehicle.acceleration", 20), ("vehicle.mud.grip", 0.3), ("items.missile_speed", 90), ("match.kill_target", 8));
+        Edit(host, ("vehicle.acceleration", 20), ("vehicle.mud.grip", 0.3), ("vehicle.dirt.drag", 1.3), ("vehicle.grass.acceleration", 0.8), ("vehicle.deep_mud.grip", 0.4), ("items.missile_speed", 90), ("match.kill_target", 8));
         var decoded = GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(9, host.Configuration));
         Assert.That(decoded.Session, Is.EqualTo(9));
         Assert.That(decoded.State, Is.EqualTo(host.Configuration));
@@ -148,6 +148,15 @@ internal sealed class DeveloperConfigurationTests
     [TestCase("vehicle.mud.grip", 0.1)]
     [TestCase("vehicle.mud.drag", 8)]
     [TestCase("vehicle.mud.acceleration", 0.1)]
+    [TestCase("vehicle.dirt.grip", 0.1)]
+    [TestCase("vehicle.dirt.drag", 8)]
+    [TestCase("vehicle.dirt.acceleration", 0.1)]
+    [TestCase("vehicle.grass.grip", 0.1)]
+    [TestCase("vehicle.grass.drag", 8)]
+    [TestCase("vehicle.grass.acceleration", 0.1)]
+    [TestCase("vehicle.deep_mud.grip", 0.1)]
+    [TestCase("vehicle.deep_mud.drag", 8)]
+    [TestCase("vehicle.deep_mud.acceleration", 0.1)]
     public void HandlingAndSurfacesChangeTheActualVehicleTrajectory(string key, double value)
     {
         var baseline = new HostVehicleSession(9);
@@ -156,7 +165,7 @@ internal sealed class DeveloperConfigurationTests
         Pose(baseline, 1, physics);
         Pose(tuned, 1, physics);
         Edit(tuned, (key, value));
-        SurfaceType surface = key.Contains(".mud.", StringComparison.Ordinal) ? SurfaceType.Mud : SurfaceType.Concrete;
+        SurfaceType surface = key.Split('.')[1] switch { "mud" => SurfaceType.Mud, "dirt" => SurfaceType.Dirt, "grass" => SurfaceType.Grass, "deep_mud" => SurfaceType.DeepMud, _ => SurfaceType.Concrete };
         bool handbrake = key.Contains("handbrake", StringComparison.Ordinal);
         var input = new InputFrame(0, 16000, 50000, 0, handbrake ? InputButtons.Drift : 0, 0, 0);
         for (int tick = 0; tick < 30; tick++)
@@ -343,7 +352,7 @@ internal sealed class DeveloperConfigurationTests
             var physics = new VehiclePhysicsState(
                 Vector3.Zero,
                 Quaternion.CreateFromYawPitchRoll(0, 0.12f, -0.09f),
-                new Vector3(scenario % 3 == 0 ? 25 : 3, scenario % 4 == 0 ? -1 : 0.1f, scenario % 5 == 0 ? -0.2f : scenario % 2 == 0 ? 12 : -55),
+                new Vector3(scenario % 3 == 0 ? 25 : 3, scenario % 4 == 0 ? -1 : 0.1f, scenario % 5 == 0 ? -0.5f : scenario % 2 == 0 ? 12 : -55),
                 new Vector3(0.3f, 3, -0.4f));
             bool straight = scenario >= 18;
             if (straight)

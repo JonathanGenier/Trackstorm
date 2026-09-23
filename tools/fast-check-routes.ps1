@@ -100,6 +100,10 @@ function Get-FastCheckPlan {
         }
 
         # Vehicles, simulation and camera.
+        if ($path -match '^code/(Core|Client)/Vehicles/' -or $path -match 'TerrainHandling|terrain_handling|check-terrain-handling') {
+            Add-Runtime 'check-terrain-handling.ps1'
+            Add-Manual 'Drive all normal surfaces and transitions; restart uphill on infield grades; verify host tuning and client prediction.'
+        }
         if ($path -match '^code/(Core|Client)/Vehicles/' -or
             $path -eq 'docs/features/vehicles.md' -or
             $path -eq 'scenes/verification/vehicle_checks.tscn') {

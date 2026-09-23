@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Terrain handling, Configs and uphill starts | [TS-78 verification evidence](ts-78.md) |
 | Surface/material identity and native transitions | [TS-77 verification evidence](ts-77.md) |
 | Blender infield structures and native clearance/collision | [TS-76 verification evidence](ts-76.md) |
 | Infield spectacle jump retuning | [TS-142 verification evidence](ts-142.md) |

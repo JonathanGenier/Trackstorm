@@ -87,6 +87,15 @@ public static class GameplayOptions
         new("vehicle.mud.acceleration", "Mud", "Acceleration multiplier", false, c => c.Vehicle.Mud.Acceleration, (c, v) => c with { Vehicle = c.Vehicle with { Mud = new(c.Vehicle.Mud.Grip, c.Vehicle.Mud.Drag, checked((float)v)) } }),
         .. Items.ItemRegistry.All.Select(item => new GameplayOption($"spawns.{item.Key}_weight", "Item spawns", $"{item.DisplayName}Weight", true,
             c => c.Spawns.Weights[item.Identity], (c, v) => c with { Spawns = c.Spawns with { Weights = c.Spawns.Weights.SetItem(item.Identity, checked((int)v)) } })),
+        new("vehicle.dirt.grip", "Dirt", "Grip multiplier", false, c => c.Vehicle.Dirt.Grip, (c, v) => c with { Vehicle = c.Vehicle with { Dirt = new(checked((float)v), c.Vehicle.Dirt.Drag, c.Vehicle.Dirt.Acceleration) } }),
+        new("vehicle.dirt.drag", "Dirt", "Drag multiplier", false, c => c.Vehicle.Dirt.Drag, (c, v) => c with { Vehicle = c.Vehicle with { Dirt = new(c.Vehicle.Dirt.Grip, checked((float)v), c.Vehicle.Dirt.Acceleration) } }),
+        new("vehicle.dirt.acceleration", "Dirt", "Acceleration multiplier", false, c => c.Vehicle.Dirt.Acceleration, (c, v) => c with { Vehicle = c.Vehicle with { Dirt = new(c.Vehicle.Dirt.Grip, c.Vehicle.Dirt.Drag, checked((float)v)) } }),
+        new("vehicle.grass.grip", "Grass", "Grip multiplier", false, c => c.Vehicle.Grass.Grip, (c, v) => c with { Vehicle = c.Vehicle with { Grass = new(checked((float)v), c.Vehicle.Grass.Drag, c.Vehicle.Grass.Acceleration) } }),
+        new("vehicle.grass.drag", "Grass", "Drag multiplier", false, c => c.Vehicle.Grass.Drag, (c, v) => c with { Vehicle = c.Vehicle with { Grass = new(c.Vehicle.Grass.Grip, checked((float)v), c.Vehicle.Grass.Acceleration) } }),
+        new("vehicle.grass.acceleration", "Grass", "Acceleration multiplier", false, c => c.Vehicle.Grass.Acceleration, (c, v) => c with { Vehicle = c.Vehicle with { Grass = new(c.Vehicle.Grass.Grip, c.Vehicle.Grass.Drag, checked((float)v)) } }),
+        new("vehicle.deep_mud.grip", "Deep Mud", "Grip multiplier", false, c => c.Vehicle.DeepMud.Grip, (c, v) => c with { Vehicle = c.Vehicle with { DeepMud = new(checked((float)v), c.Vehicle.DeepMud.Drag, c.Vehicle.DeepMud.Acceleration) } }),
+        new("vehicle.deep_mud.drag", "Deep Mud", "Drag multiplier", false, c => c.Vehicle.DeepMud.Drag, (c, v) => c with { Vehicle = c.Vehicle with { DeepMud = new(c.Vehicle.DeepMud.Grip, checked((float)v), c.Vehicle.DeepMud.Acceleration) } }),
+        new("vehicle.deep_mud.acceleration", "Deep Mud", "Acceleration multiplier", false, c => c.Vehicle.DeepMud.Acceleration, (c, v) => c with { Vehicle = c.Vehicle with { DeepMud = new(c.Vehicle.DeepMud.Grip, c.Vehicle.DeepMud.Drag, checked((float)v)) } }),
     ]);
 
     /// <summary>Applies a complete edit transaction through the existing owning validation rules.</summary>

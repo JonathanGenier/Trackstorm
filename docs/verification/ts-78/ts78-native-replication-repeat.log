@@ -1,0 +1,26 @@
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 5 of 5 NUnit test cases using Current Discovery mode, Non-Explicit run
+players=2; outbound delay=0ms; jitter=0ms; loss=0%; corrections=239; p99=0.0000m; max=0.0000m; snapshots/client=240; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,0,0,0.0f) [12 s]
+players=2; outbound delay=30ms; jitter=0ms; loss=0%; corrections=237; p99=0.0000m; max=0.0634m; snapshots/client=238; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,30,0,0.0f) [12 s]
+players=2; outbound delay=50ms; jitter=10ms; loss=0%; corrections=234; p99=0.0000m; max=0.1805m; snapshots/client=235; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,50,10,0.0f) [12 s]
+players=2; outbound delay=0ms; jitter=0ms; loss=2%; corrections=234; p99=0.0000m; max=0.0406m; snapshots/client=235; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,0,0,2.0f) [12 s]
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1580; p99=0.0000m; max=0.1788m; snapshots/client=223; stale packets rejected
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f) [12 s]
+
+Test Run Successful.
+Total tests: 5
+     Passed: 5
+ Total time: 1.0152 Minutes

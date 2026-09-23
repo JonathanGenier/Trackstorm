@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+{"Rendered":false,"FrameTime":{"Samples":1358,"Mean":16.69156553755524,"P50":16.654,"P95":18.571,"P99":24.03,"Maximum":65.27},"SimulationStepTime":{"Samples":1441,"Mean":1.306124219292159,"P50":0.753,"P95":3.385,"P99":7.845,"Maximum":21.853},"FrameStalls":[],"Host":true,"Map":"res://scenes/maps/oval_foundation.tscn","LargestRoster":2,"LocalVehicle":1,"Tick":1443,"Snapshots":0,"ImmediateFrames":0,"DriftFrames":0,"HandbrakeFrames":79,"ErrorP99":0,"ErrorMaximum":0,"InterpolationDelay":0,"LargeCorrections":0,"CorrectionDetails":[],"LastAcknowledged":0,"Position":[50.227818,0.8999998,57.148376],"HP":1000,"Grounded":true,"PropTick":null,"PropTravel":0,"PropReplicaError":0,"PropPositions":null}
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+{"Rendered":false,"FrameTime":{"Samples":868,"Mean":16.88978456221198,"P50":16.652,"P95":30.048,"P99":42.579,"Maximum":200.201},"SimulationStepTime":{"Samples":960,"Mean":2.6426635416666664,"P50":0.72,"P95":13.86,"P99":25.528,"Maximum":58.969},"FrameStalls":[{"Seconds":1.3666666666666667,"Milliseconds":200.201,"Tick":141,"SnapshotAge":0.08333333333333333}],"Host":false,"Map":"res://scenes/maps/oval_foundation.tscn","LargestRoster":2,"LocalVehicle":2,"Tick":1000,"Snapshots":326,"ImmediateFrames":671,"DriftFrames":0,"HandbrakeFrames":79,"ErrorP99":0.15041003,"ErrorMaximum":4.5046444,"InterpolationDelay":68.08797561537858,"LargeCorrections":1,"CorrectionDetails":[{"Seconds":1.100000000000001,"Error":4.5046444,"Tick":124,"Ack":59,"Pending":7,"SnapshotAge":0.016666666666666666,"FrameMilliseconds":0,"HP":1000,"Position":"\u003C0.11808799, 0.8999989, 85.99547\u003E","Speed":1.3037225},{"Seconds":1.649999999999999,"Error":1.1672194,"Tick":146,"Ack":82,"Pending":17,"SnapshotAge":0.016666666666666666,"FrameMilliseconds":46.353,"HP":1000,"Position":"\u003C1.1537113, 0.8999757, 85.810936\u003E","Speed":4.372089}],"LastAcknowledged":948,"Position":[34.15237,0.8999621,60.460377],"HP":1000,"Grounded":true,"PropTick":null,"PropTravel":0,"PropReplicaError":0,"PropPositions":null}
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+
+Network vehicle verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\8fcfc86398ab46219fd0e61d90e7ec31
