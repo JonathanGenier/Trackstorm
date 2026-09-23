@@ -34,7 +34,7 @@ The version-five `TC` migration checkpoint composes the existing complete versio
 
 - Stable session, match generation, host, epoch, roster, reconnect generations and disconnected roster records, session clock, player allocation high-water mark, private lease session key, optional read-only routing address and former-host retention flags. Only the read-only address may enter a local resume file; the private key remains in memory.
 - Simulation tick; complete vehicle aggregates, transforms, commanded and observed linear/angular velocity, handling/surface state, HP, damage attribution, collision cooldowns, accepted physical effects, life generations and respawn deadlines.
-- Held slots and tokens, active missiles and IDs/lifetime, item revision and the highest token ever issued, including consumed/departed grants.
+- Held slots and tokens, active missiles and IDs/lifetime, item revision and the highest token ever issued, including consumed/departed grants; persistent Oil patch poses/normals/IDs and current per-life entry latches. Vehicle movement also retains the temporary Oil traction duration and angular velocity.
 - Pickup availability, absolute cooldown deadlines, claim identities/tokens, spawn revision and the complete deterministic selector state.
 - Match phase/countdown, target, score rows, consumed-life watermarks, winner/finish state and revision.
 - Complete live gameplay configuration and its revision, including lobby tuning before arena creation; current native movable-prop poses and velocities as plain numeric records.
@@ -97,4 +97,4 @@ Checkpoint construction, decode validation and replacement authority use the loc
 
 Configured match mode, Circus banked score, K/D/streak, consumed damage/death watermarks, pending stunt durations, base amounts, jump origin and life/tick ownership travel in the nested match codec. Replacement authority resumes that complete boundary without replaying completed awards; uncheckpointed progression remains subject to the existing epoch rollback policy. See [match scoring](matches.md#circus-stunt-detection-and-banking).
 
-The item continuation accepts every registered identity, including Oil and Nitro without implemented use handlers. The selected configuration restores all four registry-keyed weights and the exact selector state. Retained inventory has no world-space held model; only the owning local HUD displays it.
+The item continuation accepts every registered identity, including usable Oil and reserved Nitro. The selected configuration restores all four registry-keyed weights and the exact selector state. Retained inventory has no world-space held model; only the owning local HUD displays it.

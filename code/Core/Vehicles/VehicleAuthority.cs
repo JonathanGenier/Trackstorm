@@ -88,7 +88,7 @@ internal sealed class VehicleAuthority
         }
 
         health.Repair(request.Repair);
-        VehicleState next = movement.Step(request.Input, observed.Physics, observed.Support, !health.State.Destroyed, observed.Surface, observed.Wheels);
+        VehicleState next = movement.Step(request.Input, observed.Physics, observed.Support, !health.State.Destroyed, observed.Surface, observed.Wheels, request.Reset.HasValue ? 0 : request.OilSpin);
         IReadOnlyList<VehicleEffectRequest> acceptedEffects = health.State.Destroyed ? Array.Empty<VehicleEffectRequest>() : request.Effects;
         if (health.State.Destroyed)
         {
@@ -123,7 +123,7 @@ internal sealed class VehicleAuthority
     {
         var previous = Snapshot;
         var m = previous.Movement;
-        var adjusted = new VehicleState(m.Tick, m.Physics, m.Grounded, m.Drifting, Math.Clamp(m.SteeringAngle, -movement.SteeringAngle, movement.SteeringAngle), m.Handbrake, m.CurrentSurface, m.FrontSlip, m.RearSlip, m.LongitudinalAcceleration, m.LateralAcceleration, m.LandingIntensity, m.Wheels);
+        var adjusted = new VehicleState(m.Tick, m.Physics, m.Grounded, m.Drifting, Math.Clamp(m.SteeringAngle, -movement.SteeringAngle, movement.SteeringAngle), m.Handbrake, m.CurrentSurface, m.FrontSlip, m.RearSlip, m.LongitudinalAcceleration, m.LateralAcceleration, m.LandingIntensity, m.Wheels, m.OilTicks);
         var health = new VehicleDamageState(damage.MaxHP, previous.Damage.CurrentHP / previous.Damage.MaxHP * damage.MaxHP, previous.Damage.LastDamage, previous.Damage.LastCollisionTick);
         var result = new VehicleAuthority(previous.VehicleId, movement, damage, previous.ObservedPhysics);
         result.Commit(new VehicleSnapshot(previous.VehicleId, previous.LifeId, adjusted, health, previous.ObservedPhysics, previous.Effects, previous.Lifecycle, previous.RespawnAtTick));

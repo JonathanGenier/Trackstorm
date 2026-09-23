@@ -43,6 +43,7 @@ public static class GameplayOptions
         new("damage.collision_scale", "Damage", "CollisionScale", false, c => c.Damage.CollisionScale, (c, v) => c with { Damage = c.Damage with { CollisionScale = checked((float)v) } }),
         new("damage.maximum_collision_damage", "Damage", "MaximumCollisionDamage", false, c => c.Damage.MaximumCollisionDamage, (c, v) => c with { Damage = c.Damage with { MaximumCollisionDamage = checked((float)v) } }),
         new("damage.collision_cooldown_ticks", "Damage", "CollisionCooldownTicks", true, c => c.Damage.CollisionCooldownTicks, (c, v) => c with { Damage = c.Damage with { CollisionCooldownTicks = checked((ulong)v) } }),
+        new("items.maximum_oil_patches", "Items", "MaximumOilPatches", true, c => c.Items.MaximumOilPatches, (c, v) => c with { Items = c.Items with { MaximumOilPatches = checked((int)v) } }),
         new("items.wrench_heal", "Items", "WrenchHeal", false, c => c.Items.WrenchHeal, (c, v) => c with { Items = c.Items with { WrenchHeal = checked((float)v) } }),
         new("items.missile_speed", "Items", "MissileSpeed", false, c => c.Items.MissileSpeed, (c, v) => c with { Items = c.Items with { MissileSpeed = checked((float)v) } }),
         new("items.explosion_radius", "Items", "ExplosionRadius", false, c => c.Items.ExplosionRadius, (c, v) => c with { Items = c.Items with { ExplosionRadius = checked((float)v) } }),

@@ -11,6 +11,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Two or three real UDP peers and isolated Godot worlds; identity is an explicit local test seam.</summary>
 public sealed partial class MigrationIntegrationChecks : Node
 {
+    private OilPatch? _oil;
     private readonly GameNetworkingSocketsTransport[] _gateways = new GameNetworkingSocketsTransport[3];
     private readonly LobbyNetworkDriver?[] _drivers = new LobbyNetworkDriver?[3];
     private readonly NetworkVehicleArena?[] _arenas = new NetworkVehicleArena?[3];
@@ -213,6 +214,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             int nextHost = _players == 2 ? 0 : 2;
             _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, HeldItem.Wrench);
             Require(_arenas[1]!.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 9, ["spawns.seed"] = 42, ["match.countdown_ticks"] = 600 }, out _), "First replacement configures normal gameplay owners.");
+            _oil = OilRecoveryFixture.Seed(_arenas[1]!);
             _nitroOwner = _drivers[1]!.LocalPlayerId;
             Require(_arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _nitroOwner, HeldItem.Nitro), "Nitro uses the same authority before host loss.");
             _configuration = _arenas[1]!.Driver.Configuration;
@@ -280,6 +282,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             Require(_arenas[0]!.Bodies.Count == _players && arena.Bodies.Count == _players && arena.Bodies[_drivers[survivor]!.LocalPlayerId] == _retainedBody, "No duplicate or replaced surviving vehicles.");
             Require(arena.Driver.LocalItem?.Item == HeldItem.Wrench && arena.Driver.ItemState!.Spawns.Count == 0 && arena.Driver.Match!.Players.Count == _players, "Complete gameplay continuation with no placed oval pickups.");
             Require(arena.Driver.ItemState!.Slots.Single(slot => slot.Vehicle == _nitroOwner).Item == HeldItem.Nitro, "Nitro is retained on the disconnected former host across migration.");
+            Require(arena.Driver.ItemState!.Patches.Count == 1 && arena.Driver.ItemState.Patches.Single() == _oil && arena.Driver.Host!.Items.Patches.Single() == _oil, "Persistent Oil survives host replacement exactly once, including departed owner.");
             OvalGameplayAssertions.Verify(arena);
             Require(_arenas[0]!.Driver.Configuration == _configuration && arena.Driver.Configuration == _configuration, "Successive hosts retain configuration revision and ignore successor-local presets.");
             Require(arena.Driver.Host!.Spawns!.RandomState == _randomState, "Migrated RNG continuation.");

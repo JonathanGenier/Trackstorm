@@ -31,6 +31,7 @@ internal static class RuntimeStatistics
         IReadOnlyList<ItemSlot>? slots = driver?.Host?.Items.Slots ?? driver?.ItemState?.Slots;
         IReadOnlyList<ItemSpawnState>? spawns = driver?.Host?.Spawns?.States ?? driver?.ItemState?.Spawns;
         var missiles = driver?.Host?.Items.Missiles ?? driver?.ItemState?.Missiles;
+        var patches = driver?.Host?.Items.Patches ?? driver?.ItemState?.Patches;
         var match = driver?.Host?.World.State.Match ?? driver?.Match;
         string role = practice is not null ? "LOCAL PRACTICE" : lobby is null ? "NO SESSION" : lobby.Authority is not null ? "HOST" : "CLIENT";
         string connection = practice is not null ? "Local only" : lobby?.Authority is not null ? "Hosting (no upstream connection)" : session?.Diagnostics.State.ToString() ?? "Unavailable";
@@ -40,7 +41,7 @@ internal static class RuntimeStatistics
             $"World tick: {(practice is not null || driver?.Latest is not null ? tick.ToString() : "Unavailable")} · Configuration revision: {driver?.Configuration.Revision.ToString() ?? "Unavailable"}\n" +
             $"Authority epoch: {roster?.AuthorityEpoch.ToString() ?? "Unavailable"} · Host migration: {lobby?.Migration?.Diagnostics ?? "Unavailable"}";
         string arenaText = $"Arena: {(practice is not null || arena is not null ? "Industrial yard" : "Unavailable")}\n" + MatchText(match, tick) +
-            $"\nActive projectiles: {missiles?.Count.ToString() ?? "Unavailable"}\n" +
+            $"\nActive oil patches: {patches?.Count.ToString() ?? "Unavailable"}\nActive projectiles: {missiles?.Count.ToString() ?? "Unavailable"}\n" +
             (spawns is null ? "Item spawns: unavailable" : $"Available spawns: {spawns.Count(value => value.Available)}/{spawns.Count}\n" + string.Join("\n", spawns.Select(value => $"{value.Id}: {(value.Available ? "Available" : "Cooldown " + VehicleStatistics.Remaining(value.NextActivationTick, tick))}")));
         string networkText = $"Transport: {session?.Gateway?.Name ?? "Unavailable"}\nReplication: {(driver is null ? "Unavailable" : driver.Failure.Length > 0 ? "Failed" : driver.IsActive ? "Active" : "Suspended / awaiting authority")}\n" +
             $"Snapshot age: {NetworkVehicleArena.FormatSnapshotAge(driver?.SnapshotAge)}\nInterpolation delay: {(driver?.Host is null && driver?.History is not null ? $"{arena!.InterpolationDelay:0} ms" : "Unavailable")}\n" +

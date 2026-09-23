@@ -13,7 +13,9 @@ public sealed class ItemPublication
     /// <param name="missiles">Bounded active projectiles.</param>
     /// <param name="events">This step's launch/repair/impact effects.</param>
     /// <param name="spawns">Complete configured spawn state.</param>
-    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null)
+    /// <param name="patches">Complete match-owned oil hazards.</param>
+    /// <param name="oilContacts">Entry latches preserved across recovery.</param>
+    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null, IEnumerable<OilPatch>? patches = null, IEnumerable<OilContact>? oilContacts = null)
     {
         var inventory = slots.ToArray();
         var projectiles = missiles.ToArray();
@@ -37,6 +39,18 @@ public sealed class ItemPublication
             throw new ArgumentException("Invalid spawn publication.");
         }
 
+        var oil = patches?.ToArray() ?? [];
+        var contacts = oilContacts?.ToArray() ?? [];
+        foreach (var patch in oil) { patch.Validate(); }
+        if (oil.Length > ItemAuthority.MaximumPatches || oil.Select(patch => patch.Id).Distinct().Count() != oil.Length ||
+            contacts.Length > ItemAuthority.MaximumPatches * 8 || contacts.Distinct().Count() != contacts.Length ||
+            contacts.Any(contact => !oil.Any(patch => patch.Id == contact.Patch) ||
+                !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == contact.Vehicle && vehicle.State.LifeId == contact.Life && vehicle.State.CanInteract)))
+        {
+            throw new ArgumentException("Invalid oil continuation.");
+        }
+        Patches = Array.AsReadOnly(oil);
+        OilContacts = Array.AsReadOnly(contacts);
         Spawns = Array.AsReadOnly(pickups);
         Revision = revision;
         World = world;
@@ -45,6 +59,10 @@ public sealed class ItemPublication
         Events = Array.AsReadOnly(outcomes);
     }
 
+    /// <summary>Complete persistent hazards.</summary>
+    public IReadOnlyList<OilPatch> Patches { get; }
+    /// <summary>Per-life entry latches.</summary>
+    public IReadOnlyList<OilContact> OilContacts { get; }
     /// <summary>Complete marker state and last claim.</summary>
     public IReadOnlyList<ItemSpawnState> Spawns { get; }
 

@@ -7,6 +7,7 @@ namespace Trackstorm.Client.Items;
 /// <summary>Reconstructable Kenney projectile and particle effects; no collision or gameplay mutation.</summary>
 internal sealed partial class ItemPresentation : Node3D
 {
+    private readonly Dictionary<ulong, Node3D> _oil = new();
     private readonly Dictionary<ulong, Node3D> _missiles = new();
     private readonly List<(Node3D Node, float Age, float Lifetime)> _bursts = new();
 
@@ -62,6 +63,28 @@ internal sealed partial class ItemPresentation : Node3D
     /// <param name="state">Accepted authority state.</param>
     internal void Apply(ItemPublication state)
     {
+        foreach (ulong id in _oil.Keys.Except(state.Patches.Select(patch => patch.Id)).ToArray())
+        {
+            _oil[id].QueueFree();
+            _oil.Remove(id);
+        }
+        foreach (var patch in state.Patches)
+        {
+            if (!_oil.TryGetValue(patch.Id, out var node))
+            {
+                node = new MeshInstance3D
+                {
+                    Mesh = new CylinderMesh { TopRadius = patch.Radius, BottomRadius = patch.Radius, Height = 0.012f, RadialSegments = 64 },
+                    MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.035f, 0.022f, 0.055f), Metallic = 0.65f, Roughness = 0.18f },
+                    CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+                };
+                AddChild(node);
+                _oil.Add(patch.Id, node);
+            }
+            node.Position = VehicleBody.ToGodot(patch.Position + patch.Normal * 0.07f);
+            node.Quaternion = new Quaternion(Vector3.Up, VehicleBody.ToGodot(patch.Normal));
+        }
+
         foreach (ulong id in _missiles.Keys.Except(state.Missiles.Select(missile => missile.Id)).ToArray())
         {
             _missiles[id].QueueFree();

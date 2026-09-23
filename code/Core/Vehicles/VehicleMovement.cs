@@ -42,8 +42,9 @@ public sealed class VehicleMovement
     /// <param name="driveEnabled">Authority-controlled drive permission.</param>
     /// <param name="surface">Fixed-step supporting surface identifier.</param>
     /// <param name="wheels">Optional independent spring observations.</param>
+    /// <param name="oilSpin">Host entry impulse; prediction only continues restored handling memory.</param>
     /// <returns>Next movement snapshot and commanded velocities.</returns>
-    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null)
+    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null, float oilSpin = 0)
     {
         if (input.Tick != checked(State.Tick + 1))
         {
@@ -56,6 +57,8 @@ public sealed class VehicleMovement
             throw new ArgumentException("Ground support must be a unit normal or zero.", nameof(groundNormal));
         }
 
+        if (!float.IsFinite(oilSpin) || Math.Abs(oilSpin) > 3) { throw new ArgumentException("Invalid oil spin."); }
+        int oilTicks = oilSpin != 0 && driveEnabled ? 120 : Math.Max(0, State.OilTicks - 1);
         VehicleConfiguration c = Configuration;
         SurfaceModifiers detected = c.ResolveSurface(surface);
         float dt = 1f / c.TicksPerSecond;
@@ -76,6 +79,7 @@ public sealed class VehicleMovement
 
         Vector3 velocity = Limit(observed.LinearVelocity, c.MaximumPhysicsSpeed);
         Vector3 angular = Limit(observed.AngularVelocity, c.MaximumAngularSpeed);
+        if (grounded && driveEnabled && oilSpin != 0) { angular = Limit(angular + tireNormal * oilSpin, c.MaximumAngularSpeed); }
         float normalLoad = 0;
         Vector3 suspensionTorque = Vector3.Zero;
         if (grounded && wheels is WheelSupport supports)
@@ -155,7 +159,7 @@ public sealed class VehicleMovement
 
             float tireLoad = wheels.HasValue ? normalLoad : c.Gravity * groundNormal.Y;
             // Missing wheel forces already reduce normalLoad; do not discount their absence twice.
-            float totalGrip = c.TireFriction * tireLoad * modifiers.Grip;
+            float totalGrip = c.TireFriction * tireLoad * modifiers.Grip * (oilTicks > 0 ? 0.08f + 0.92f * Math.Clamp(1 - oilTicks / 30f, 0, 1) : 1);
             float frontCapacity = totalGrip * frontLoad;
             float rearCapacity = totalGrip * (1 - frontLoad);
             float yaw = Vector3.Dot(angular, tireNormal);
@@ -205,7 +209,7 @@ public sealed class VehicleMovement
         float landing = grounded && !State.Grounded ? Math.Clamp(-State.Physics.LinearVelocity.Y / 12, 0, 1) : Math.Max(0, State.LandingIntensity - (dt * 3));
         bool sliding = grounded && Math.Abs(lateral) > 1 && rearSlip > 0.35f;
         var physics = new VehiclePhysicsState(observed.Position, observed.Orientation, Limit(velocity, c.MaximumPhysicsSpeed), Limit(angular, c.MaximumAngularSpeed));
-        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default);
+        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oilTicks);
         return State;
     }
 
