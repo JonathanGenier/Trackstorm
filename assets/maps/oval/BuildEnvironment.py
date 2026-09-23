@@ -55,7 +55,7 @@ bpy.ops.export_scene.gltf(filepath=str(ROOT/'conifers.glb'), export_format='GLB'
 size=1024
 nr=np.random.default_rng(100)
 y,x=np.mgrid[0:size,0:size]
-base=.5+.13*np.sin(x*math.tau/size)*np.cos(y*math.tau/size)+nr.random((size,size))*.16
+base=.5+nr.random((size,size))*.16
 for i in range(34000):
     xx,yy=nr.integers(0,size,2); length=int(nr.integers(3,14)); slope=nr.uniform(-.5,.5)
     shade=nr.uniform(.18,.94)
@@ -70,4 +70,15 @@ dx=(np.roll(base,-1,axis=1)-np.roll(base,1,axis=1))*.8
 dy=(np.roll(base,-1,axis=0)-np.roll(base,1,axis=0))*.8
 normal=np.stack((-dx,-dy,np.ones_like(base)),axis=-1); normal/=np.linalg.norm(normal,axis=-1)[:,:,None]
 save('grass_normal',normal*.5+.5)
+# A separate 64 m macro layer breaks up distant repetition without enlarging grain/blades.
+macro=np.zeros((size,size))
+for cells,weight in [(8,.5),(16,.3),(32,.15),(64,.05)]:
+    grid=nr.random((cells,cells))
+    coordinate=np.arange(size)*cells/size
+    index=coordinate.astype(int); fraction=coordinate-index
+    fraction=fraction*fraction*(3-2*fraction)
+    horizontal=grid[:,index]*(1-fraction)+grid[:,(index+1)%cells]*fraction
+    macro+=(horizontal[index,:]*(1-fraction[:,None])+horizontal[(index+1)%cells,:]*fraction[:,None])*weight
+macro=.55+macro*.45
+save('ground_macro',np.repeat(macro[:,:,None],3,axis=2))
 print('Authored three conifers and original seamless grass maps.')

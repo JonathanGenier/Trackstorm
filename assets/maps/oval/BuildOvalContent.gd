@@ -38,6 +38,14 @@ static func bake(map: Node3D, measurements: Dictionary) -> void:
 		for face in [[0,2,1],[0,3,2],[3,7,6],[3,6,2],[4,5,6],[4,6,7]]:
 			for index: int in face:
 				barrier.add_vertex(points[index])
+	# Four-section collision spans avoid hundreds of redundant physics shapes.
+	# A 5 cm exterior offset keeps the chord outside the curved road surface.
+	for i in range(0, outer.size(), 4):
+		var j := (i + 4) % outer.size()
+		var na := Vector3(outer[i].x-inner[i].x, 0, outer[i].z-inner[i].z).normalized()
+		var nb := Vector3(outer[j].x-inner[j].x, 0, outer[j].z-inner[j].z).normalized()
+		var a := outer[i] + na*.05
+		var b := outer[j] + nb*.05
 		# Overlapping solid convex prisms: thickness is exterior, usable road stays 18 m.
 		# Vertical extent includes the visible barrier and invisible upper containment.
 		var tangent := (b-a).normalized()*.025

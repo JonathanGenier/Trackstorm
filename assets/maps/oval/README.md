@@ -83,7 +83,7 @@ No analytic replacement curve or concept-art reconstruction is used.
 
 ## Combat environment authoring
 
-Run Blender 5.2.2 with `--background --python-exit-code 1 --python assets/maps/oval/BuildEnvironment.py` to regenerate the original conifer variants, `source/OvalEnvironment.blend`, `conifers.glb`, and grass maps. This script does not modify the foundation blend, GLB or measurements. Grass maps are a deterministic original 1024-pixel seamless 2 m patch, not an acquired photograph. Blender mesh geometry is exported Y-up in metres with applied coordinates and no animation. Godot consumes the GLB, never the blend.
+Run Blender 5.2.2 with `--background --python-exit-code 1 --python assets/maps/oval/BuildEnvironment.py` to regenerate the original conifer variants, `source/OvalEnvironment.blend`, `conifers.glb`, and grass maps. This script does not modify the foundation blend, GLB or measurements. Grass maps are a deterministic original 1024-pixel seamless 2 m patch, combined with an original 64 m macro detail layer, not an acquired photograph. Blender mesh geometry is exported Y-up in metres with applied coordinates and no animation. Godot consumes the GLB, never the blend.
 
 Run the normal Godot editor import, then `BuildOvalScene.gd` as above. It now invokes `BuildOvalContent.gd` to bake the fixed outer collision, concrete strip, exterior ground, MultiMesh forest batches and pickup markers into the scriptless production scene. The production geometry and collision resources remain unchanged. Asphalt and concrete reuse the repository's existing licensed Poly Haven maps. `environment-sources.json` records original-art provenance and checksums. Preserve grass import settings for mipmaps/VRAM compression.
 

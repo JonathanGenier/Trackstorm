@@ -84,7 +84,7 @@ route turns into the infield so its replication checks do not depend on old wall
 
 ## Outer boundary and environment
 
-`BuildOvalContent.gd`, called by the existing offline scene baker, follows every one of the 916 measured outer sections. The visible concrete strip is 1.3 m above the local rim and 1.2 m thick outward. Solid convex collision prisms overlap by 5 cm at adjoining section ends, extend four metres outward, begin two metres below the rim and end at world y=45 m. This bounds ordinary driving and blast launches; arbitrary teleports and unbounded externally injected forces are outside that contract. Upper collision has no visible mesh. No inner containment exists and the infield remains accessible.
+`BuildOvalContent.gd`, called by the existing offline scene baker, follows every one of the 916 measured outer sections. The visible concrete strip is 1.3 m above the local rim and 1.2 m thick outward. 229 solid convex collision prisms span four master sections each, offset 5 cm outward to keep their chords clear of the usable road, and overlap by 5 cm at adjoining section ends, extend four metres outward, begin two metres below the rim and end at world y=45 m. This bounds ordinary driving and blast launches; arbitrary teleports and unbounded externally injected forces are outside that contract. Upper collision has no visible mesh. No inner containment exists and the infield remains accessible.
 
 The exterior ground annulus starts at the outer rim and extends 700 m outward. It has no gameplay collision. 864 conifers occupy 48 spatial MultiMesh batches, using three original Blender-authored meshes. Tree centers have at least 12 m setback; foliage stays outside the boundary. Deterministic size, orientation and spacing variation avoid per-tree runtime scripts and physics. Source and regeneration commands are in the oval asset notes.
 
@@ -93,3 +93,5 @@ Asphalt reuses the acquired Poly Haven Asphalt 04 maps, with a neutral tint and 
 The existing practice and network arena owners select `Daylight.tres` for the oval, retaining their single sun and WorldEnvironment. Old Map keeps its existing lighting. The oval resource supplies a blue procedural sky, cool ambient fill and filmic tonemapping without glare effects or competing map-owned lighting.
 
 The oval runtime harness additionally checks all boundary seams at four heights, high-speed and airborne impacts through both production adapters, and 36 m/s driving approaches to every pickup through the existing Core pickup authority. `check-item-spawns.ps1 -Oval` runs the existing eight-peer UDP contention/cooldown/occupied-slot checks against the 20-marker map; its simultaneous distribution stage exercises the first eight markers, while the oval harness covers all 20 individual approaches.
+
+The asphalt and grass retain two-metre fine detail with a separate seamless 64 m multiply layer to reduce distant tiling. Both UV sets use world triplanar mapping and mipmaps.
