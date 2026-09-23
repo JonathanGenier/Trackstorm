@@ -6,6 +6,7 @@ Start with the system being changed. Read its document and only the integration 
 | --- | --- | --- |
 | [Startup application flow](startup.md) | Preloader, Splash, persistent MenuShell/Loader, global initialization and Main Menu reveal | [Game Menu](game-menu.md), [Settings](settings.md), [audio](audio.md) |
 | [Main Menu](main-menu.md) | Modular chain-hung plates, post-Loader entrance, stable navigation, flags and selection | [Startup](startup.md), [Settings](settings.md), [match entry](match-entry.md) |
+| [Play Menu](play-menu.md) | Hanging lobby browser, Search/Filter, double activation, retained decision and chain transitions | [Main Menu](main-menu.md), [EOS lobbies](eos-lobbies.md), [reconnection](reconnection.md) |
 | [Lobby and match entry](match-entry.md) | Browser, admission, joined Lobby, map selection and Match Loader / Sync | [Sessions](sessions.md), [reconnection](reconnection.md), [Game Loop](game-loop.md) |
 | [Game versioning](game-versioning.md) | Canonical build, Story CI sequencing and exact multiplayer compatibility | [Sessions](sessions.md), [EOS lobbies](eos-lobbies.md), [reconnection](reconnection.md) |
 | [Fixed-step simulation](simulation.md) | Tick ordering, atomic authority and restore | [Vehicles](vehicles.md), [matches](matches.md), [replication](vehicle-networking.md) |

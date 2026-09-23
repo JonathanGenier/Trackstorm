@@ -4,7 +4,7 @@ Application navigation is **Main Menu → Lobby Browser → Joining / Creating �
 
 ## Frontend and admission
 
-[Main Menu's Play action](main-menu.md) fades browser controls over the same MenuShell video/music instances. Back returns to the settled Main Menu. Existing EOS discovery, Public/Locked access, exact version compatibility and retained-match decisions remain authoritative. Asynchronous membership and transport admission display progress; EOS membership alone does not enter the joined Lobby. Only a validated authoritative roster does. Failed admission keeps the browser usable with a diagnostic.
+[Main Menu's Play action](main-menu.md) hoists its rig clear before the [Play Menu](play-menu.md) drops and settles over the same MenuShell video/music instances. Back performs the complementary transition. Existing EOS discovery, Public/Locked access, exact version compatibility and retained-match decisions remain authoritative. Asynchronous membership and transport admission display progress; EOS membership alone does not enter the joined Lobby. Only a validated authoritative roster does. Failed admission keeps the browser usable with a diagnostic.
 
 The initial saved-session lookup runs without replacing the Main Menu with browser chrome. Explicit retained-session validation and authority-confirmed decisions retain their existing browser flow. Direct-IP Back clears the fallback selection so it returns to the Main Menu consistently.
 

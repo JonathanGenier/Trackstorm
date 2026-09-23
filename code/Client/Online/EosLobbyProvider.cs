@@ -336,7 +336,7 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
             }
         }
 
-        return new OnlineLobby(info.LobbyId.ToString(), name, new OnlineProductUserId(info.LobbyOwnerUserId.ToString()), session, access == "Locked" ? LobbyAccess.Locked : LobbyAccess.Public, (int)(info.MaxMembers - info.AvailableSlots), 8, info.BucketId.ToString(), Attribute(details, "open") == "1", access == "Locked" ? LobbyCredential.Parse(Attribute(details, "verifier") ?? string.Empty) : null) { MemberIds = members.ToArray(), Version = Attribute(details, "version") ?? string.Empty, GameplayHost = new OnlineProductUserId(Attribute(details, "gameHost") ?? info.LobbyOwnerUserId.ToString()), AuthorityEpoch = ulong.TryParse(Attribute(details, "epoch"), out ulong epoch) && epoch > 0 ? epoch : 1 };
+        return new OnlineLobby(info.LobbyId.ToString(), name, new OnlineProductUserId(info.LobbyOwnerUserId.ToString()), session, access == "Locked" ? LobbyAccess.Locked : LobbyAccess.Public, (int)(info.MaxMembers - info.AvailableSlots), 8, info.BucketId.ToString(), Attribute(details, "open") == "1", access == "Locked" ? LobbyCredential.Parse(Attribute(details, "verifier") ?? string.Empty) : null) { MemberIds = members.ToArray(), Version = Attribute(details, "version") ?? string.Empty, GameMode = Enum.TryParse<Core.Matches.MatchMode>(Attribute(details, "mode"), out var mode) && Enum.IsDefined(mode) ? mode.ToString() : string.Empty, GameplayHost = new OnlineProductUserId(Attribute(details, "gameHost") ?? info.LobbyOwnerUserId.ToString()), AuthorityEpoch = ulong.TryParse(Attribute(details, "epoch"), out ulong epoch) && epoch > 0 ? epoch : 1 };
     }
 
     private static string Failure(Result result) => result switch
@@ -531,6 +531,7 @@ internal sealed class EosLobbyProvider : IOnlineLobbyProvider
             if (!availability)
             {
                 attributes["name"] = lobby.Name;
+                attributes["mode"] = lobby.GameMode;
                 attributes["gameHost"] = lobby.HostIdentity.Value;
                 attributes["epoch"] = lobby.AuthorityEpoch.ToString(CultureInfo.InvariantCulture);
             }

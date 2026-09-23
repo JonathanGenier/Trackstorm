@@ -22,11 +22,13 @@ internal sealed partial class HangingMainMenu : Control
     private bool _wasInteractive;
     private double _repeat;
     private InputAction? _repeatAction;
+    private Action? _hoisted;
+    private float _hoistElapsed;
 
     internal PlayerInputAdapter? NavigationInput { get; set; }
     internal Func<bool> Active { get; set; } = () => true;
     internal Func<bool> Blocked { get; set; } = () => false;
-    internal bool Settled => _elapsed >= 1.12f;
+    internal bool Settled => _elapsed >= 1.12f && _hoisted is null;
     internal string SelectedId => _entries.Length == 0 ? string.Empty : _entries[_selected].Id;
     internal IReadOnlyList<Button> Targets => _targets;
     internal bool Interactive => Active() && IsVisibleInTree() && Settled && !Blocked();
@@ -107,10 +109,28 @@ internal sealed partial class HangingMainMenu : Control
         UpdateTargets();
     }
 
+    internal void Hoist(Action completed)
+    {
+        if (_hoisted is not null) return;
+        _hoisted = completed;
+        _hoistElapsed = 0;
+        UpdateTargets();
+    }
+
     public override void _Process(double delta)
     {
         RefreshPresentation();
         if (IsVisibleInTree()) _elapsed += (float)delta;
+        if (_hoisted is not null)
+        {
+            _hoistElapsed += (float)delta;
+            if (_hoistElapsed >= 0.34f)
+            {
+                var completed = _hoisted;
+                _hoisted = null;
+                completed();
+            }
+        }
         bool interactive = Interactive;
         UpdateTargets();
         if (interactive && (!_wasActive || !_wasInteractive) && _targets.Count > 0)
@@ -188,6 +208,7 @@ internal sealed partial class HangingMainMenu : Control
             y = -7 * MathF.Sin(t * MathF.PI) * (1 - t);
         }
         else y = 0;
+        if (_hoisted is not null) y = -(_height + 80) * MathF.Pow(Math.Clamp(_hoistElapsed / 0.34f, 0, 1), 2);
         _art.Position = new Vector2(0, y);
         QueueRedraw();
     }
