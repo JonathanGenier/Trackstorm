@@ -85,19 +85,21 @@ public sealed partial class SurfaceIntegrationChecks : Node3D
             _vehicle.Initialize(_simulation);
             AddChild(_vehicle);
             _advance = true;
+            await Frames(3); // Let the native body enter physics before requesting the first reset.
             foreach (var pair in locations)
             {
                 _drive = false;
                 _vehicle.ResetBody(Physics(pair.Value + Vector3.Up * .9f));
                 await Frames(20);
-                Check(_vehicle.DetectedSurface == pair.Key, $"Production practice detects {pair.Key}: {_vehicle.DetectedSurface}");
+                Check(_vehicle.DetectedSurface == pair.Key, $"Production practice detects {pair.Key}: {_vehicle.DetectedSurface}; requested {pair.Value}, actual {_vehicle.Position}");
                 var proxy = new NetworkVehicleBody { VehicleId = 2 };
                 AddChild(proxy);
                 proxy.CollisionMask = 1;
                 _vehicle.CollisionLayer = 2;
                 proxy.Apply(_vehicle.Snapshot.Movement.Physics);
-                _ = proxy.Observe(_vehicle.Snapshot);
+                var observation = proxy.Observe(_vehicle.Snapshot);
                 Check(proxy.DetectedSurface == pair.Key, $"Host/prediction native adapter detects {pair.Key}: {proxy.DetectedSurface}");
+                Check(observation.Surface == SurfaceHandling.Resolve(pair.Key) && _vehicle.State.CurrentSurface == observation.Surface, $"Both adapters apply {observation.Surface} handling for {pair.Key}");
                 proxy.QueueFree();
                 await Frames(1);
             }

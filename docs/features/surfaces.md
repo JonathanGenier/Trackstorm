@@ -1,11 +1,7 @@
 # Surface and material identity
 
 `SurfaceIdentity` names Asphalt, Grass, Dirt, Mud, Deep Mud, Rock, Concrete and
-Water. It describes material only. The existing `SurfaceType` enum remains the
-legacy handling-profile contract used by simulation and replication; material
-identity does not select that profile. In particular, identifying production
-terrain as Mud does not activate the prototype's Mud modifiers. No friction,
-drag, acceleration, damage, depth, drowning or water resistance is added.
+Water. It describes material; Core `SurfaceHandling` maps the shared observation to the [vehicle handling profiles](vehicles.md#terrain-handling-profiles). Asphalt preserves the vehicle baseline, and Concrete, Dirt, Grass, Mud and Deep Mud have distinct host-tunable responses. Rock and Water retain neutral baseline handling; depth, drowning and Water resistance remain separate work.
 
 ## Authoring and ownership
 
@@ -33,7 +29,7 @@ identity is unavailable, not an invented material.
 `WheelSuspension` resolves native support hit positions through
 `SurfaceIdentityResolver`. The center support ray wins; if it misses, the last
 supported wheel in the fixed FL/FR/RL/RR order wins. Mixed wheel contacts thus
-have a deterministic single diagnostic identity. Both practice and host/client
+have a deterministic single support identity. Both practice and host/client
 prediction use this same observation path, without map names or basin coordinates
 in vehicle code. No support, inactive vehicles and airborne observations clear
 the current material. Future wheel-specific consumers can resolve their own
@@ -60,8 +56,8 @@ vertex/triangle hashes before and after authoring.
 showing the current native observation independently of the selected player.
 It is local, read-only and not replicated or authoritative. Client prediction
 observations may differ transiently from a host observation. The Player/Vehicle
-section labels the older value **Legacy handling profile** to avoid confusing it
-with material identity. Configs has no new surface controls.
+section labels the committed value **Handling profile** to avoid confusing it
+with material identity. Configs exposes Concrete, Dirt, Grass, Mud and Deep Mud categories through the existing host-owned tuning path.
 
 `check-surfaces.ps1 -GodotPath <exe> [-Visual]` samples actual imported collision,
 checks all eight materials through practice and host/prediction adapters, drives

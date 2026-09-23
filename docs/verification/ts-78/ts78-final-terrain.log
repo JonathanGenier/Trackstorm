@@ -1,0 +1,160 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+practice-Asphalt-0 uses authored support profile
+practice-Asphalt-0: from rest progress 222.727 m, speed 43.930 m/s
+practice-Asphalt-0 traversable without damage
+practice-Asphalt-0 responds to steering
+practice-Asphalt-0 recovers upright after handbrake and steering
+practice-Asphalt-0 retains drive after release
+practice-Asphalt-0 returns to asphalt and accelerates continuously
+Rendered practice-Asphalt-0
+False: acceleration order Asphalt, 8s speed 43.930 m/s < 340282346638528859811704183484516925440.000
+practice-Asphalt-20 uses authored support profile
+practice-Asphalt-20: from rest progress 137.754 m, speed 32.907 m/s
+practice-Asphalt-20 traversable without damage
+Rendered practice-Asphalt-20
+practice-Concrete-0 uses authored support profile
+practice-Concrete-0: from rest progress 217.796 m, speed 43.788 m/s
+practice-Concrete-0 traversable without damage
+practice-Concrete-0 responds to steering
+practice-Concrete-0 recovers upright after handbrake and steering
+practice-Concrete-0 retains drive after release
+practice-Concrete-0 returns to asphalt and accelerates continuously
+Rendered practice-Concrete-0
+False: acceleration order Concrete, 8s speed 43.788 m/s < 43.930
+practice-Concrete-20 uses authored support profile
+practice-Concrete-20: from rest progress 128.645 m, speed 31.135 m/s
+practice-Concrete-20 traversable without damage
+Rendered practice-Concrete-20
+practice-Dirt-0 uses authored support profile
+practice-Dirt-0: from rest progress 179.588 m, speed 37.716 m/s
+practice-Dirt-0 traversable without damage
+practice-Dirt-0 responds to steering
+practice-Dirt-0 recovers upright after handbrake and steering
+practice-Dirt-0 retains drive after release
+practice-Dirt-0 returns to asphalt and accelerates continuously
+Rendered practice-Dirt-0
+False: acceleration order Dirt, 8s speed 37.716 m/s < 43.788
+practice-Dirt-20 uses authored support profile
+practice-Dirt-20: from rest progress 91.082 m, speed 20.641 m/s
+practice-Dirt-20 traversable without damage
+Rendered practice-Dirt-20
+practice-Grass-0 uses authored support profile
+practice-Grass-0: from rest progress 122.779 m, speed 24.253 m/s
+practice-Grass-0 traversable without damage
+practice-Grass-0 responds to steering
+practice-Grass-0 recovers upright after handbrake and steering
+practice-Grass-0 retains drive after release
+practice-Grass-0 returns to asphalt and accelerates continuously
+Rendered practice-Grass-0
+False: acceleration order Grass, 8s speed 24.253 m/s < 37.716
+practice-Grass-15 uses authored support profile
+practice-Grass-15: from rest progress 69.507 m, speed 13.866 m/s
+practice-Grass-15 traversable without damage
+Rendered practice-Grass-15
+practice-Mud-0 uses authored support profile
+practice-Mud-0: from rest progress 46.345 m, speed 6.948 m/s
+practice-Mud-0 traversable without damage
+practice-Mud-0 responds to steering
+practice-Mud-0 recovers upright after handbrake and steering
+practice-Mud-0 retains drive after release
+practice-Mud-0 returns to asphalt and accelerates continuously
+Rendered practice-Mud-0
+False: acceleration order Mud, 8s speed 6.948 m/s < 24.253
+practice-Mud-12 uses authored support profile
+practice-Mud-12: from rest progress 27.278 m, speed 4.093 m/s
+practice-Mud-12 traversable without damage
+Rendered practice-Mud-12
+practice-DeepMud-0 uses authored support profile
+practice-DeepMud-0: from rest progress 16.226 m, speed 2.168 m/s
+practice-DeepMud-0 traversable without damage
+practice-DeepMud-0 responds to steering
+practice-DeepMud-0 recovers upright after handbrake and steering
+practice-DeepMud-0 retains drive after release
+practice-DeepMud-0 returns to asphalt and accelerates continuously
+Rendered practice-DeepMud-0
+False: acceleration order DeepMud, 8s speed 2.168 m/s < 6.948
+practice-DeepMud-10 uses authored support profile
+practice-DeepMud-10: from rest progress 9.515 m, speed 1.272 m/s
+practice-DeepMud-10 traversable without damage
+Rendered practice-DeepMud-10
+network-Asphalt-0 uses authored support profile
+network-Asphalt-0: from rest progress 222.710 m, speed 43.930 m/s
+network-Asphalt-0 traversable without damage
+network-Asphalt-0 responds to steering
+network-Asphalt-0 recovers upright after handbrake and steering
+network-Asphalt-0 retains drive after release
+network-Asphalt-0 returns to asphalt and accelerates continuously
+Rendered network-Asphalt-0
+True: acceleration order Asphalt, 8s speed 43.930 m/s < 340282346638528859811704183484516925440.000
+network-Asphalt-20 uses authored support profile
+network-Asphalt-20: from rest progress 137.702 m, speed 32.903 m/s
+network-Asphalt-20 traversable without damage
+Rendered network-Asphalt-20
+network-Concrete-0 uses authored support profile
+network-Concrete-0: from rest progress 217.777 m, speed 43.788 m/s
+network-Concrete-0 traversable without damage
+network-Concrete-0 responds to steering
+network-Concrete-0 recovers upright after handbrake and steering
+network-Concrete-0 retains drive after release
+network-Concrete-0 returns to asphalt and accelerates continuously
+Rendered network-Concrete-0
+True: acceleration order Concrete, 8s speed 43.788 m/s < 43.930
+network-Concrete-20 uses authored support profile
+network-Concrete-20: from rest progress 128.576 m, speed 31.129 m/s
+network-Concrete-20 traversable without damage
+Rendered network-Concrete-20
+network-Dirt-0 uses authored support profile
+network-Dirt-0: from rest progress 179.566 m, speed 37.716 m/s
+network-Dirt-0 traversable without damage
+network-Dirt-0 responds to steering
+network-Dirt-0 recovers upright after handbrake and steering
+network-Dirt-0 retains drive after release
+network-Dirt-0 returns to asphalt and accelerates continuously
+Rendered network-Dirt-0
+True: acceleration order Dirt, 8s speed 37.716 m/s < 43.788
+network-Dirt-20 uses authored support profile
+network-Dirt-20: from rest progress 90.988 m, speed 20.621 m/s
+network-Dirt-20 traversable without damage
+Rendered network-Dirt-20
+network-Grass-0 uses authored support profile
+network-Grass-0: from rest progress 122.730 m, speed 24.248 m/s
+network-Grass-0 traversable without damage
+network-Grass-0 responds to steering
+network-Grass-0 recovers upright after handbrake and steering
+network-Grass-0 retains drive after release
+network-Grass-0 returns to asphalt and accelerates continuously
+Rendered network-Grass-0
+True: acceleration order Grass, 8s speed 24.248 m/s < 37.716
+network-Grass-15 uses authored support profile
+network-Grass-15: from rest progress 69.434 m, speed 13.849 m/s
+network-Grass-15 traversable without damage
+Rendered network-Grass-15
+network-Mud-0 uses authored support profile
+network-Mud-0: from rest progress 46.313 m, speed 6.942 m/s
+network-Mud-0 traversable without damage
+network-Mud-0 responds to steering
+network-Mud-0 recovers upright after handbrake and steering
+network-Mud-0 retains drive after release
+network-Mud-0 returns to asphalt and accelerates continuously
+Rendered network-Mud-0
+True: acceleration order Mud, 8s speed 6.942 m/s < 24.248
+network-Mud-12 uses authored support profile
+network-Mud-12: from rest progress 27.244 m, speed 4.087 m/s
+network-Mud-12 traversable without damage
+Rendered network-Mud-12
+network-DeepMud-0 uses authored support profile
+network-DeepMud-0: from rest progress 16.214 m, speed 2.166 m/s
+network-DeepMud-0 traversable without damage
+network-DeepMud-0 responds to steering
+network-DeepMud-0 recovers upright after handbrake and steering
+network-DeepMud-0 retains drive after release
+network-DeepMud-0 returns to asphalt and accelerates continuously
+Rendered network-DeepMud-0
+True: acceleration order DeepMud, 8s speed 2.166 m/s < 6.942
+network-DeepMud-10 uses authored support profile
+network-DeepMud-10: from rest progress 9.502 m, speed 1.270 m/s
+network-DeepMud-10 traversable without damage
+Rendered network-DeepMud-10
+Terrain handling integration passed: both adapters, six surfaces, slope starts, steering, handbrake recovery and transitions.

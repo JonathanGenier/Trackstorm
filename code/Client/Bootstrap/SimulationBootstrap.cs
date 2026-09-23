@@ -336,7 +336,11 @@ public sealed partial class SimulationBootstrap : Node
 
     private void OnFrameCaptured(InputFrame input)
     {
-        _arena?.Advance(input);
+        if (_arena is not null)
+        {
+            // Device capture runs during loading; a newly created practice world owns a fresh clock.
+            _arena.Advance(new InputFrame(checked(_arena.Simulation.State.Tick + 1), input.Steering, input.Accelerate, input.Brake, input.Held, input.Pressed, input.Released));
+        }
         _session?.Advance(input);
         _settingsPanel?.SetConnectionTelemetry(_session?.Diagnostics ?? default);
     }

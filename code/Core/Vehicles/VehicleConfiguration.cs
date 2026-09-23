@@ -3,10 +3,16 @@ namespace Trackstorm.Core.Vehicles;
 /// <summary>Validated arcade tuning shared by local, replay, and future authority drivers.</summary>
 public sealed record VehicleConfiguration
 {
-    /// <summary>Hard-surface baseline; identity multipliers preserve ordinary driving.</summary>
-    public SurfaceModifiers Concrete { get; init; } = new(1, 1, 1);
+    /// <summary>Cast surface, slightly below the unmodified asphalt baseline.</summary>
+    public SurfaceModifiers Concrete { get; init; } = new(0.95f, 1, 0.98f);
+    /// <summary>Compacted soil retains controllable drive with modest rolling resistance.</summary>
+    public SurfaceModifiers Dirt { get; init; } = new(0.85f, 1.15f, 0.95f);
+    /// <summary>Vegetation reduces tire purchase and adds rolling resistance.</summary>
+    public SurfaceModifiers Grass { get; init; } = new(0.72f, 1.4f, 0.9f);
     /// <summary>Soft ground has less grip/acceleration and greater resistance.</summary>
-    public SurfaceModifiers Mud { get; init; } = new(0.55f, 3, 0.6f);
+    public SurfaceModifiers Mud { get; init; } = new(0.6f, 2.5f, 0.85f);
+    /// <summary>Saturated soil bogs at speed while retaining usable low-speed drive.</summary>
+    public SurfaceModifiers DeepMud { get; init; } = new(0.5f, 5, 0.8f);
 
     /// <summary>Fixed frequency; independent of rendering.</summary>
     public int TicksPerSecond { get; init; } = 60;
@@ -82,6 +88,10 @@ public sealed record VehicleConfiguration
     {
         SurfaceType.Concrete => Concrete,
         SurfaceType.Mud => Mud,
+        SurfaceType.Asphalt => new(1, 1, 1),
+        SurfaceType.Dirt => Dirt,
+        SurfaceType.Grass => Grass,
+        SurfaceType.DeepMud => DeepMud,
         _ => throw new ArgumentOutOfRangeException(nameof(surface)),
     };
 

@@ -47,6 +47,6 @@ internal static class WheelSuspension
             identity = SurfaceIdentityResolver.Resolve(centerHit["collider"].AsGodotObject(), centerHit["position"].AsVector3());
         }
 
-        return (new WheelSupport(new System.Numerics.Vector4(compression[0], compression[1], compression[2], compression[3])), normal.IsZeroApprox() ? Vector3.Zero : normal.Normalized(), surface, terrainNormal.IsZeroApprox() ? Vector3.Zero : terrainNormal.Normalized(), identity);
+        return (new WheelSupport(new System.Numerics.Vector4(compression[0], compression[1], compression[2], compression[3])), normal.IsZeroApprox() ? Vector3.Zero : normal.Normalized(), SurfaceHandling.Resolve(identity, surface), terrainNormal.IsZeroApprox() ? Vector3.Zero : terrainNormal.Normalized(), identity);
     }
 }
