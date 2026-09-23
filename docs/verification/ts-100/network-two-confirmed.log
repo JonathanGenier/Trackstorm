@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+{"Host":true,"Map":"res://scenes/maps/oval_foundation.tscn","LargestRoster":2,"LocalVehicle":1,"Tick":1585,"Snapshots":0,"ImmediateFrames":0,"DriftFrames":0,"HandbrakeFrames":79,"ErrorP99":0,"ErrorMaximum":0,"InterpolationDelay":0,"LargeCorrections":0,"CorrectionDetails":[],"LastAcknowledged":0,"Position":[51.9119,0.9000016,55.8347],"HP":1000,"Grounded":true,"PropTick":null,"PropTravel":0,"PropReplicaError":0,"PropPositions":null}
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+{"Host":false,"Map":"res://scenes/maps/oval_foundation.tscn","LargestRoster":2,"LocalVehicle":2,"Tick":1099,"Snapshots":318,"ImmediateFrames":673,"DriftFrames":0,"HandbrakeFrames":79,"ErrorP99":0.51485026,"ErrorMaximum":4.153154,"InterpolationDelay":50.03948131015553,"LargeCorrections":1,"CorrectionDetails":[{"Seconds":0.733333333333334,"Error":1.7224299,"Tick":209,"Ack":27,"Pending":17,"HP":1000,"Position":"\u003C0.33210567, 0.90006083, 85.95673\u003E","Speed":2.2820966},{"Seconds":1.2500000000000004,"Error":1.6476985,"Tick":213,"Ack":72,"Pending":3,"HP":1000,"Position":"\u003C0.50276995, 0.900031, 85.91487\u003E","Speed":2.8487053},{"Seconds":4.016666666666658,"Error":4.153154,"Tick":380,"Ack":236,"Pending":5,"HP":1000,"Position":"\u003C16.7272, 0.89998287, 74.06398\u003E","Speed":9.484544}],"LastAcknowledged":957,"Position":[40.512722,0.9000011,55.037735],"HP":1000,"Grounded":true,"PropTick":null,"PropTravel":0,"PropReplicaError":0,"PropPositions":null}
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+
+Network vehicle verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\df1468fac2684cba822112f5869c93af

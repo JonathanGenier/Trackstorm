@@ -19,11 +19,14 @@ internal static class CameraPlaytest
         async Task Wait(float seconds)
         {
             double elapsed = 0;
+            int frames = 0;
+            // ProcessFrame resumes before node processing; one slow frame must not skip the camera update.
             do
             {
                 await owner.ToSignal(owner.GetTree(), SceneTree.SignalName.ProcessFrame);
                 elapsed += owner.GetProcessDeltaTime();
-            } while (elapsed < seconds);
+                frames++;
+            } while (elapsed < seconds || frames < 2);
         }
 
         void Send(InputEvent value)
@@ -53,6 +56,9 @@ internal static class CameraPlaytest
             {
                 await owner.ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 owner.GetViewport().GetTexture().GetImage().SavePng(output + ".camera-" + name + ".png");
+                // Absorb synchronous image encoding before the next timed control transition.
+                await owner.ToSignal(owner.GetTree(), SceneTree.SignalName.ProcessFrame);
+                await owner.ToSignal(owner.GetTree(), SceneTree.SignalName.ProcessFrame);
             }
         }
 

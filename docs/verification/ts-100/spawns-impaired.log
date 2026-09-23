@@ -1,0 +1,12 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Eight peers see exactly 20 configured active pickups; two remote vehicles enter one pickup together.
+Exactly one remote contestant won; all eight peers show matching inactive spawn, cooldown and item token.
+Authoritative cooldown reactivates on every peer; all eight vehicles approach separate pickups.
+All eight spawn locations awarded once, with both item types replicated normally.
+Item spawn integration passed: Eight peers see exactly 20 configured active pickups; two remote vehicles enter one pickup together.
+Exactly one remote contestant won; all eight peers show matching inactive spawn, cooldown and item token.
+Authoritative cooldown reactivates on every peer; all eight vehicles approach separate pickups.
+All eight spawn locations awarded once, with both item types replicated normally.
+All 20 pickups are available after cooldown, including under occupied vehicles. No duplicate awards or overwritten grants.
+Item spawn verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\spawn-checks\73cb1ca9842d46f8a931e0bbc0eeecff
