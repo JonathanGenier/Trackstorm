@@ -1,0 +1,43 @@
+Blender infield imports at identity metre scale.
+WestLoop: width 12.0 m versus 2.662 m vehicle width.
+EastLoop: width 12.0 m versus 2.662 m vehicle width.
+NorthLink: width 12.0 m versus 2.662 m vehicle width.
+WestShortcut: width 14.0 m versus 2.662 m vehicle width.
+EastShortcut: width 14.0 m versus 2.662 m vehicle width.
+NorthSouth: width 16.0 m versus 2.662 m vehicle width.
+SouthWestEntry: width 16.0 m versus 2.662 m vehicle width.
+SouthEastEntry: width 16.0 m versus 2.662 m vehicle width.
+NorthWestEntry: width 16.0 m versus 2.662 m vehicle width.
+NorthEastEntry: width 16.0 m versus 2.662 m vehicle width.
+Tunnel has 18 m clear north/south opening.
+Central east/west intersection remains open below future earth bridge.
+Imported tunnel roof has usable collision at 5.5 m clearance.
+WestLoop: entire route driven using production physics/input; peak centerline error 1.13 m, unsupported frames 0, final HP 100.
+WestLoop: no collision damage.
+EastLoop: entire route driven using production physics/input; peak centerline error 1.13 m, unsupported frames 0, final HP 100.
+EastLoop: no collision damage.
+NorthLink: entire route driven using production physics/input; peak centerline error 1.32 m, unsupported frames 0, final HP 100.
+NorthLink: no collision damage.
+WestShortcut: entire route driven using production physics/input; peak centerline error 1.15 m, unsupported frames 0, final HP 100.
+WestShortcut: no collision damage.
+EastShortcut: entire route driven using production physics/input; peak centerline error 1.13 m, unsupported frames 0, final HP 100.
+EastShortcut: no collision damage.
+NorthSouth: entire route driven using production physics/input; peak centerline error 1.09 m, unsupported frames 0, final HP 100.
+NorthSouth: no collision damage.
+SouthWestEntry: entire route driven using production physics/input; peak centerline error 1.60 m, unsupported frames 0, final HP 100.
+SouthWestEntry: no collision damage.
+SouthEastEntry: entire route driven using production physics/input; peak centerline error 1.61 m, unsupported frames 0, final HP 100.
+SouthEastEntry: no collision damage.
+NorthWestEntry: entire route driven using production physics/input; peak centerline error 1.36 m, unsupported frames 0, final HP 100.
+NorthWestEntry: no collision damage.
+NorthEastEntry: entire route driven using production physics/input; peak centerline error 1.37 m, unsupported frames 0, final HP 100.
+NorthEastEntry: no collision damage.
+WestJump: entire route driven using production physics/input; peak centerline error 1.00 m, unsupported frames 0, final HP 100.
+WestJump: no collision damage.
+EastJump: entire route driven using production physics/input; peak centerline error 1.00 m, unsupported frames 0, final HP 100.
+EastJump: no collision damage.
+ConnectedLoopTour: entire route driven using production physics/input; peak centerline error 3.50 m, unsupported frames 0, final HP 100.
+ConnectedLoopTour: no collision damage.
+TwoCarTunnel: entire route driven using production physics/input; peak centerline error 1.00 m, unsupported frames 0, final HP 100.
+TwoCarTunnel: no collision damage.
+Second production car traverses tunnel alongside first without damage.

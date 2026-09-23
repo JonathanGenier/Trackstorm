@@ -16,6 +16,7 @@ OvalFoundation (Node3D, identity)
 │   └── Infield (StaticBody3D / Shape)
 ├── PlayerSpawns
 │   └── player-01 … player-08 (Marker3D)
+├── InfieldGraybox (Blender routes, feature reservations and tunnel collision)
 ├── ItemSpawns (five triple rows and five singles)
 └── MapContent (concrete perimeter, upper collision, exterior ground and forest)
 ```
@@ -62,6 +63,27 @@ The [production vehicle](vehicles.md) is 4.81 m long at unit runtime scale. The
 separate Blender reference vehicle remains a verification-only comparison. The [asphalt handling baseline](vehicles.md) owns driving behavior;
 infield handling retains that same Concrete identity; grass is a visual material only.
 
+## Infield layout reservations
+
+The [Blender-authored infield graybox](../../assets/maps/infield/README.md) adds
+connected dirt-course loops, a north connector, lateral shortcuts, an open
+central tunnel junction and six oval access points. Main lanes are 12 m wide;
+shortcuts are 14 m and entries/spine 16 m. Broad shoulders, open junctions, two
+100 m jump corridors, rhythm stretches, four water footprints and three obstacle
+areas reserve space for later terrain work. Both inner straights retain 20 m
+transition corridors. The original oval and flat floor collision are preserved.
+Only the tunnel envelope adds solid collision; flat color overlays identify
+reservations without changing vehicle handling. Final elevation, jump flight,
+water behavior, materials and dressing remain intentionally absent.
+
+`check-infield.ps1 -GodotPath <path> -Visual` checks imported route support,
+tunnel clearance and production-vehicle driving along all ten routes and both
+jump corridors, plus a continuous loop-to-loop tour and two-car tunnel traversal.
+Each individual route is initialized separately, then driven entirely with
+logical input and native physics; this is route coverage, not proof of future
+elevated-course flow or human control feel. Rendered views and measurements are
+written to `.godot/infield-checks/`.
+
 ## Verification
 
 `check-oval.ps1 -GodotPath <Godot .NET executable>` loads the committed map and
@@ -88,7 +110,7 @@ route turns into the infield so its replication checks do not depend on old wall
 
 The exterior ground annulus starts at the outer rim and extends 700 m outward. It has no gameplay collision. 864 conifers occupy 48 spatial MultiMesh batches, using original Blender-authored mature fir, open-crowned pine and young spruce silhouettes. Deterministic irregular stands mix all three variants across depth, with varied size, aspect and orientation. Tree centers retain at least 12 m setback and 3.5 m mutual spacing; foliage stays outside the boundary. No per-tree runtime scripts or physics are added. Source and regeneration commands are in the oval asset notes.
 
-Asphalt reuses the acquired Poly Haven Asphalt 04 maps, with a neutral tint and 2 m world-triplanar tiling. The infield and exterior use original seamless 2 m grass albedo/normal maps with mipmaps and high roughness. Surface materials do not alter geometry or handling identifiers.
+Asphalt reuses the acquired Poly Haven Asphalt 04 maps, with a neutral tint and 2 m world-triplanar tiling. The foundation infield and exterior use original seamless 2 m grass albedo/normal maps with mipmaps and high roughness. The graybox covers the foundation infield with its flat topology palette; the exterior remains textured grass. Surface materials do not alter geometry or handling identifiers.
 
 The existing practice and network arena owners select `Daylight.tres` for the oval, retaining their single sun and WorldEnvironment. Old Map keeps its existing lighting. The oval resource supplies a blue procedural sky, cool ambient fill and filmic tonemapping without glare effects or competing map-owned lighting.
 

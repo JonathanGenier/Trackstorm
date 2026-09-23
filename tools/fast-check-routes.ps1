@@ -134,7 +134,12 @@ function Get-FastCheckPlan {
             $path -eq 'docs/features/oval-map.md' -or
             $path -match '(?i)oval') {
             Add-Runtime 'check-oval.ps1'
+            Add-Runtime 'check-infield.ps1'
             Add-Manual 'Drive the active map with representative multi-car traffic when map collision, scale, banking or spawn behavior changed.'
+        }
+
+        if ($path -match '(?i)infield') {
+            Add-Runtime 'check-infield.ps1'
         }
 
         # Input, settings, menu and HUD.

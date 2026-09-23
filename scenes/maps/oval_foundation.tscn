@@ -1,5 +1,7 @@
 [gd_scene format=4]
 
+[ext_resource type="PackedScene" path="res://assets/maps/infield/infield_graybox.glb" id="infield_graybox"]
+
 [ext_resource type="PackedScene" path="res://assets/maps/oval/oval_foundation.glb" id="1_k7ftl"]
 [ext_resource type="Material" path="res://assets/maps/oval/Grass.tres" id="2_mku4n"]
 [ext_resource type="Material" path="res://assets/maps/oval/Asphalt.tres" id="3_m6igb"]
@@ -2500,3 +2502,5 @@ metadata/surface_lane_m = 15.0
 metadata/source_section = 871
 
 [editable path="Geometry"]
+
+[node name="InfieldGraybox" parent="." instance=ExtResource("infield_graybox")]
