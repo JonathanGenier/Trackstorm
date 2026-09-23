@@ -1506,6 +1506,7 @@ mesh = SubResource("ArrayMesh_u0nyf")
 [node name="Collision" type="Node3D" parent="." unique_id=476622518]
 
 [node name="Track" type="StaticBody3D" parent="Collision" unique_id=2033836968 groups=["landing_terrain"]]
+metadata/surface_identity = "Asphalt"
 
 [node name="Shape" type="CollisionShape3D" parent="Collision/Track" unique_id=1842522546]
 shape = ExtResource("4_g8yx0")
@@ -1555,6 +1556,7 @@ metadata/slot_width_m = 3.0
 [node name="MapContent" type="Node3D" parent="." unique_id=83921450]
 
 [node name="OuterContainment" type="StaticBody3D" parent="MapContent" unique_id=1524285431]
+metadata/surface_identity = "Concrete"
 
 [node name="Section000" type="CollisionShape3D" parent="MapContent/OuterContainment" unique_id=1871111262]
 shape = SubResource("ConvexPolygonShape3D_akxyn")

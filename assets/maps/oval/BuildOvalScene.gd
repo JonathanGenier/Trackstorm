@@ -22,6 +22,7 @@ func _initialize() -> void:
 		assert(ResourceSaver.save(shape, "res://assets/maps/oval/" + surface + "Collision.tres") == OK)
 		var body := StaticBody3D.new()
 		body.name = surface
+		body.set_meta("surface_identity", load("res://assets/maps/oval/Asphalt.tres").get_meta("surface_identity"))
 		body.add_to_group("landing_terrain", true)
 		collision.add_child(body)
 		body.owner = map

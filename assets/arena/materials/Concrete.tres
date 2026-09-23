@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" path="res://assets/arena/polyhaven/concrete/concrete_rough_1k.jpg" id="3"]
 
 [resource]
+metadata/surface_identity = "Concrete"
 albedo_color = Color(0.7, 0.65, 0.56, 1)
 albedo_texture = ExtResource("1")
 roughness_texture = ExtResource("3")

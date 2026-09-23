@@ -1,0 +1,68 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.98
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Imported native support includes Asphalt
+Imported native support includes Grass
+Imported native support includes Dirt
+Imported native support includes Mud
+Imported native support includes DeepMud
+Imported native support includes Rock
+Imported native support includes Concrete
+Imported native support includes Water
+Basin (-57, 0, -29): DeepMud; unchanged negative collision -1.796m
+Basin (77, 0, -35): Water; unchanged negative collision -1.795m
+Basin (-85, 0, 28): DeepMud; unchanged negative collision -1.793m
+Basin (85, 0, 28): DeepMud; unchanged negative collision -1.793m
+Rendered overview
+Rendered wet-basins
+Rendered water
+Rendered route-shoulders
+Production practice detects Grass: Grass
+Host/prediction native adapter detects Grass: Grass
+Production practice detects Dirt: Dirt
+Host/prediction native adapter detects Dirt: Dirt
+Production practice detects Rock: Rock
+Host/prediction native adapter detects Rock: Rock
+Production practice detects Asphalt: Asphalt
+Host/prediction native adapter detects Asphalt: Asphalt
+Production practice detects Mud: Mud
+Host/prediction native adapter detects Mud: Mud
+Production practice detects DeepMud: DeepMud
+Host/prediction native adapter detects DeepMud: DeepMud
+Production practice detects Concrete: Concrete
+Host/prediction native adapter detects Concrete: Concrete
+Production practice detects Water: Water
+Host/prediction native adapter detects Water: Water
+Driven oval-infield: Asphalt, Dirt; end (7.392002E-06, 0.899997, 57.48495); HP 1000
+Route retains native support after oval-infield
+Rendered oval-infield
+Driven mud-west: Dirt, Grass, Mud, DeepMud; end (-56.849472, -0.041804567, -27.042316); HP 1000
+Route retains native support after mud-west
+Rendered mud-west
+Driven water-northeast: Dirt, Mud, DeepMud, Water; end (76.90598, 0.15421823, -30.5827); HP 1000
+Route retains native support after water-northeast
+Rendered water-northeast
+Driven grass-shoulder: Dirt, Grass; end (-129.94391, 0.85466254, 14.834818); HP 1000
+Route retains native support after grass-shoulder
+Rendered grass-shoulder
+Driven rock-shoulder: Dirt, Grass, Rock; end (-129.87645, 2.7421975, -24.01882); HP 1000
+Route retains native support after rock-shoulder
+Rendered rock-shoulder
+Driven deck: Dirt, Concrete; end (1.1828964, 7.250011, -1.2569124E-07); HP 1000
+Route retains native support after deck
+Rendered deck
+Airborne detection clears instead of inventing current contact
+Existing Stats reads the local practice surface as Asphalt: Detected surface: Asphalt
+Source: local native support; identity only
+Surface integration passed: all eight identities, native adapters, driving transitions and Stats.

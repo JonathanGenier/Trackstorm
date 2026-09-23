@@ -31,8 +31,7 @@ immutable oval asset and road collision remain retained unchanged.
 Broad side-loop hills, low outer berms, northern rises and southern valleys
 shape the main routes. Both southern rhythm stretches contain three 0.65 m
 rollers. The four original water footprints contain 1.8 m sculpted depressions
-with smooth sides; surrounding terrain can influence absolute depth. No water
-surface, water physics or distinct handling identifier is added. The three
+with smooth sides; surrounding terrain can influence absolute depth. No water plane, water physics or distinct handling profile is added. The separate material field identifies wet soil and the northeast Water bed. The three
 obstacle reservations and the central tunnel envelope stay in their original
 locations. The north/south tunnel crossing remains at the original datum.
 The approved TS-76 follow-up raises the east/west connection onto the existing
@@ -58,9 +57,7 @@ and require a grounded, damage-free recovery on the raised dirt tabletop.
 Origin clearance includes ride height; it is not tire or underside clearance.
 Controlled probes exercise terrain landing classification through both physics adapters.
 
-Original vertex colors blend dirt lanes into grass shoulders over seven metres;
-normal lighting and mesh normals communicate elevation. This is terrain-stage
-surface readability, without acquired textures or later environment dressing.
+Run `BuildSurfaces.py` after geometry regeneration to author the material field, UVs and material slot on the production blend. It preserves vertex positions and triangle indices and exports the same geometry. Godot supplies runtime shading and uses the same field for identity; see [surface contracts](../../../docs/features/surfaces.md). The pass reuses existing licensed detail textures and adds no acquired assets.
 `terrain-sources.json` records original authorship and output SHA-256 hashes;
 `terrain.json` also binds the output to the unchanged topology manifest hash.
 

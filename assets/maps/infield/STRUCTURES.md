@@ -9,8 +9,7 @@ The structure replaces the five inherited graybox tunnel solids. `ImportTerrain.
 removes those named mesh nodes and their child colliders during import. This keeps
 the inherited graybox out of runtime. The approved follow-up reshapes only the
 local dirt approaches; kicker faces and the topology manifest remain unchanged.
-`ImportStructures.gd` supplies neutral rough shading only;
-final material identity is separate work.
+`ImportStructures.gd` binds the existing Concrete material and Concrete collision identity.
 
 The four original pier centers remain at X/Z ±10 m. The 2 m piers leave 18 m
 structural openings on both axes; dirt now fills the east/west ground approach.
@@ -33,7 +32,7 @@ deck panels share one Blender-authored `DeckRoad-colonly` slab, bridging their
 visual expansion joints. Its top remains 6.35 m. The deck and perimeter beams
 carry `landing_terrain`; other structures remain obstacles. Existing contact
 normal classification keeps wall impacts distinct from landings. No
-CSG, runtime construction script, handling identifier or gameplay rule is added.
+CSG, runtime construction script, handling profile or gameplay rule is added.
 The map remains a scriptless composition of imported assets. The scene baker
 instances this same structural set.
 

@@ -40,9 +40,7 @@ The road's 10,992 triangles form one continuous static concave collision shape;
 the active infield uses the separate Blender terrain's 402,124-triangle imported
 static shape. The retained foundation floor is hidden and has no active collider.
 No runtime collision generation or solidified road undersides are added. The offline content bake adds the outer barrier and containment described below. Grid paint and the separate verification car have no map collision.
-Collision layer/mask 1 matches [vehicle queries](vehicles.md); unmarked static
-bodies resolve to the existing Concrete handling identifier. No new surface or
-Core simulation rule is introduced.
+Collision layer/mask 1 matches [vehicle queries](vehicles.md); unmarked static bodies retain the legacy Concrete handling profile. The independent [material identity system](surfaces.md) adds no simulation rules.
 
 `PlayerSpawns` follows the existing arena's stable `Marker3D` naming convention.
 Each marker has `slot_length_m=6` and `slot_width_m=3` metadata, and its -Z axis
@@ -63,7 +61,7 @@ retain their existing owners outside the scriptless map scene. The joined Lobby 
 
 The [production vehicle](vehicles.md) is 4.81 m long at unit runtime scale. The
 separate Blender reference vehicle remains a verification-only comparison. The [asphalt handling baseline](vehicles.md) owns driving behavior;
-infield handling retains that same Concrete identity; grass is a visual material only.
+infield handling retains that same Concrete profile; material identity is independent.
 
 ## Infield terrain and preserved topology
 
@@ -90,8 +88,7 @@ panels share a continuous Blender-authored collision slab across their joints.
 A twenty-eight-metre collar follows the original bank's inward grade at all 916 rim
 sections and eases into the terrain. The original oval road and collision stay
 unchanged. The old flat infield collider is replaced so it cannot fill the basins
-or compete with wheel support. Lit vertex colors blend dirt into grass shoulders;
-water behavior, final material identity and environment dressing remain later work.
+or compete with wheel support. The shared material field blends dirt into grass shoulders and identifies wet soil, rock and the designated Water basin. Water behavior and environment dressing remain later work.
 
 `check-infield.ps1 -GodotPath <path> -Visual` checks imported route support,
 tunnel clearance and production-vehicle driving along all ten routes and both
@@ -131,7 +128,7 @@ route turns into the infield so its replication checks do not depend on old wall
 
 The exterior ground annulus starts at the outer rim and extends 700 m outward. It has no gameplay collision. 864 conifers occupy 48 spatial MultiMesh batches, using original Blender-authored mature fir, open-crowned pine and young spruce silhouettes. Deterministic irregular stands mix all three variants across depth, with varied size, aspect and orientation. Tree centers retain at least 12 m setback and 3.5 m mutual spacing; foliage stays outside the boundary. No per-tree runtime scripts or physics are added. Source and regeneration commands are in the oval asset notes.
 
-Asphalt reuses the acquired Poly Haven Asphalt 04 maps, with a neutral tint and 2 m world-triplanar tiling. The foundation infield and exterior use original seamless 2 m grass albedo/normal maps with mipmaps and high roughness. The sculpted infield replaces the foundation floor with lit dirt/grass vertex colors; the exterior remains textured grass. Surface materials do not alter handling identifiers.
+Asphalt reuses the acquired Poly Haven Asphalt 04 maps, with a neutral tint and 2 m world-triplanar tiling. The foundation infield and exterior use original seamless 2 m grass albedo/normal maps with mipmaps and high roughness. The sculpted infield uses the shared dirt/grass/wet-soil/rock/water material field; the exterior remains textured grass. Surface identities do not alter legacy handling profiles.
 
 The existing practice and network arena owners select `Daylight.tres` for the oval, retaining their single sun and WorldEnvironment. Old Map keeps its existing lighting. The oval resource supplies a blue procedural sky, cool ambient fill and filmic tonemapping without glare effects or competing map-owned lighting.
 

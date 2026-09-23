@@ -1,0 +1,17 @@
+[gd_resource type="ShaderMaterial" load_steps=7 format=3]
+
+[ext_resource type="Shader" path="res://assets/maps/infield/SurfaceField.gdshader" id="1"]
+[ext_resource type="Texture2D" path="res://assets/maps/infield/surface_field.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/maps/oval/grass_albedo.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/arena/polyhaven/asphalt_04/asphalt_04_diff_1k.jpg" id="4"]
+[ext_resource type="Texture2D" path="res://assets/arena/polyhaven/asphalt_04/asphalt_04_nor_gl_1k.jpg" id="5"]
+[ext_resource type="Texture2D" path="res://assets/maps/oval/grass_normal.png" id="6"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/surface_field = ExtResource("2")
+shader_parameter/surface_bounds = Vector4(-256, -128, 512, 256)
+shader_parameter/grass_albedo = ExtResource("3")
+shader_parameter/ground_detail = ExtResource("4")
+shader_parameter/ground_normal = ExtResource("5")
+shader_parameter/grass_normal = ExtResource("6")

@@ -28,6 +28,7 @@ static func bake(map: Node3D, measurements: Dictionary) -> void:
 	var barrier := SurfaceTool.new()
 	barrier.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var wall := child(map, content, StaticBody3D.new(), "OuterContainment") as StaticBody3D
+	wall.set_meta("surface_identity", load("res://assets/arena/materials/Concrete.tres").get_meta("surface_identity"))
 	for i in outer.size():
 		var j := (i + 1) % outer.size()
 		var a := outer[i]
