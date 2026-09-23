@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Camera shake settings passed: 0/25/50/100%, active disable/re-enable, minor/repeated contacts, bounds, local isolation and unchanged chase transform.
+Camera integration passed: RMB orbit/hold/release, controller/dead-zone return, suppression, identity/life/reseed resets, 30/60/144 FPS, unchanged gameplay input, heading/inertia/feedback regressions.
+Camera verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\camera-checks\b04021e6127949edbd4ee046a38270e7

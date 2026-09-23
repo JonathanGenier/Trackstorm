@@ -9,6 +9,9 @@ public sealed class ArenaConfiguration
     /// <summary>Required capacity of the prototype.</summary>
     public const int SpawnCount = 8;
 
+    /// <summary>Bounded map pickup capacity, independent of player slots.</summary>
+    public const int MaximumItemSpawns = 20;
+
     /// <summary>Copies and validates authored markers, bounds and surface identifiers.</summary>
     /// <param name="minimum">Inclusive lower world bounds.</param>
     /// <param name="maximum">Inclusive upper world bounds.</param>
@@ -30,9 +33,9 @@ public sealed class ArenaConfiguration
         ArenaSpawn[] playerArray = players.ToArray();
         ArenaSpawn[] itemArray = items.ToArray();
         SurfaceType[] surfaceArray = surfaces.ToArray();
-        if (playerArray.Length != SpawnCount || (itemArray.Length != 0 && itemArray.Length != SpawnCount))
+        if (playerArray.Length != SpawnCount || itemArray.Length > MaximumItemSpawns)
         {
-            throw new ArgumentException("Arena requires exactly eight player markers and either zero or eight item markers.");
+            throw new ArgumentException("Arena requires exactly eight player markers and at most twenty item markers.");
         }
 
         var ids = new HashSet<string>(StringComparer.Ordinal);

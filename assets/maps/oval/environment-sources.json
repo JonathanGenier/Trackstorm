@@ -1,0 +1,39 @@
+{
+  "provenance": "Original Trackstorm TS-100 assets authored using Blender 5.2.2; no third-party models or textures acquired.",
+  "placement_reference": "Jira TS-100 attachment 10018: Map Concept 0.2.0 weapon spawn position.png; placement annotations only, inspected 2026-09-22.",
+  "reused_materials": "Existing Poly Haven Asphalt 04 and Concrete; see assets/arena/sources.json and THIRD_PARTY.md.",
+  "files": [
+    {
+      "path": "BuildEnvironment.py",
+      "sha256": "0a470ae9598e3fb281cb83540d661ea57bdeed5fb824689fa9eb3f3c08a87df2"
+    },
+    {
+      "path": "BuildOvalContent.gd",
+      "sha256": "0f09b216e10e5f1f08f7fdc085334a01c66122e2323ffd06606ad8fca6edfb39"
+    },
+    {
+      "path": "source/OvalEnvironment.blend",
+      "sha256": "6f663c94112c348b0665fafca07c528303a873276e626e44d9e480d5898f4684"
+    },
+    {
+      "path": "conifers.glb",
+      "sha256": "0a3fe06fd74c3e8ecda8830d9039e78d940f22d0b1710dd47fcc2d50bd9aea97"
+    },
+    {
+      "path": "grass_albedo.png",
+      "sha256": "35bb39ffeb6d41681cbac2a26c704f5217f42642e7f5f846b4570fc97bd7630b"
+    },
+    {
+      "path": "grass_normal.png",
+      "sha256": "361c0e15d138315c1ed7fd983c11d85daf22bb8247ea1f4927589d557bcdb5f7"
+    },
+    {
+      "path": "ground_macro.png",
+      "sha256": "455f6651acdb0be7d26dd192859b0e4a9e44c2c0b72d2452aee330583b2c3a73"
+    },
+    {
+      "path": "grass_variation.png",
+      "sha256": "2ee80c84bec2a131872ab6964546a15d2737e8eb8c657bcc8c35dcd47b02b761"
+    }
+  ]
+}

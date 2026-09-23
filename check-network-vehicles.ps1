@@ -8,10 +8,15 @@ param (
     [float]$Loss = 0,
     [switch]$Visual,
     [switch]$PrototypeMap,
+    [switch]$IsolateHost,
     [switch]$NoBuild
 )
 
 $ErrorActionPreference = 'Stop'
+if ($IsolateHost -and (-not $IsWindows -or [Environment]::ProcessorCount -lt 4 -or [Environment]::ProcessorCount -gt 62)) {
+    throw 'Host CPU isolation requires Windows with 4-62 logical processors.'
+}
+$clientAffinity = if ($IsolateHost) { (1L -shl [Environment]::ProcessorCount) - 2 } else { 0 }
 if (-not $NoBuild) {
     dotnet build Trackstorm.sln -c Debug -warnaserror
     if ($LASTEXITCODE -ne 0) { throw 'Network vehicle build failed.' }
@@ -38,12 +43,25 @@ try {
         if (-not $Visual -or $index -ne 1) { $arguments = @('--headless') + $arguments }
         if ($PrototypeMap) { $arguments += '--network-check-prototype' }
         $processes[$index] = Start-Process -FilePath $GodotPath -ArgumentList $arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput "$output.log" -RedirectStandardError "$output.errors.log"
+        if ($IsolateHost) {
+            # Diagnostic scheduling control only: never changes simulation or acceptance thresholds.
+            $processes[$index].ProcessorAffinity = [IntPtr]$(if ($index -eq 0) { 1 } else { $clientAffinity })
+        }
         if ($index -eq 0) { Start-Sleep -Milliseconds 400 }
     }
     if ($Visual) {
         $visualOutput = Join-Path $networkOutput 'player-1'
-        & $GodotPath @visualArguments 1> "$visualOutput.log" 2> "$visualOutput.errors.log"
-        $visualExitCode = $LASTEXITCODE
+        if ($IsolateHost) {
+            $quoted = $visualArguments | ForEach-Object { if ($_ -match '\s') { '"' + $_ + '"' } else { $_ } }
+            $processes[1] = Start-Process -FilePath $GodotPath -ArgumentList $quoted -WindowStyle Hidden -PassThru -RedirectStandardOutput "$visualOutput.log" -RedirectStandardError "$visualOutput.errors.log"
+            $processes[1].ProcessorAffinity = [IntPtr]$clientAffinity
+            if (-not $processes[1].WaitForExit(90000)) { throw 'Rendered diagnostic peer timed out.' }
+            $visualExitCode = $processes[1].ExitCode
+        }
+        else {
+            & $GodotPath @visualArguments 1> "$visualOutput.log" 2> "$visualOutput.errors.log"
+            $visualExitCode = $LASTEXITCODE
+        }
     }
     $deadline = [DateTime]::UtcNow.AddSeconds(90)
     while (@($processes.Values | Where-Object { -not $_.HasExited }).Count -gt 0 -and [DateTime]::UtcNow -lt $deadline) {

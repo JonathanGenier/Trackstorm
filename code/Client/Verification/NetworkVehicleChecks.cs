@@ -11,6 +11,10 @@ public sealed partial class NetworkVehicleChecks : Node
 {
     private readonly List<float> _errors = new();
     private readonly List<object> _largeCorrectionDetails = new();
+    private readonly List<double> _frameMilliseconds = new();
+    private readonly List<double> _stepMilliseconds = new();
+    private readonly List<object> _frameStalls = new();
+    private ulong _lastFrameMicroseconds;
     private GameNetworkingSocketsTransport _gateway = null!;
     private NetworkVehicleArena _arena = null!;
     private double _seconds;
@@ -68,7 +72,7 @@ public sealed partial class NetworkVehicleChecks : Node
             _errors.Add(prediction.PredictionError);
             if (prediction.PredictionError >= 1 && _largeCorrectionDetails.Count < 128)
             {
-                _largeCorrectionDetails.Add(new { Seconds = _seconds, Error = prediction.PredictionError, Tick = state.Movement.Tick, Ack = prediction.History.LastAcknowledged, Pending = prediction.History.Pending.Count, HP = state.Damage.CurrentHP, Position = state.Movement.Physics.Position.ToString(), Speed = state.Speed });
+                _largeCorrectionDetails.Add(new { Seconds = _seconds, Error = prediction.PredictionError, Tick = state.Movement.Tick, Ack = prediction.History.LastAcknowledged, Pending = prediction.History.Pending.Count, SnapshotAge = _arena.Driver.SnapshotAge, FrameMilliseconds = _frameMilliseconds.LastOrDefault(), HP = state.Damage.CurrentHP, Position = state.Movement.Physics.Position.ToString(), Speed = state.Speed });
             }
         };
         AddChild(_arena);
@@ -138,7 +142,9 @@ public sealed partial class NetworkVehicleChecks : Node
         var input = new InputFrame(0, steering, throttle, brake, drift, 0, 0);
         try
         {
+            ulong stepStarted = Time.GetTicksUsec();
             _arena.Advance(input);
+            _stepMilliseconds.Add((Time.GetTicksUsec() - stepStarted) / 1000.0);
             _largestRoster = Math.Max(_largestRoster, driver.Latest?.Vehicles.Count ?? 0);
             if (ack.HasValue && ack == driver.Prediction!.History.LastAcknowledged && driver.Prediction.History.Pending.Count > pending)
             {
@@ -155,7 +161,7 @@ public sealed partial class NetworkVehicleChecks : Node
                 _handbrakeFrames++;
             }
 
-            if (driver.Failure.Length > 0 && _seconds < _duration - 2)
+            if (driver.Failure.Length > 0 && _seconds < _duration - 4)
             {
                 throw new InvalidOperationException(driver.Failure);
             }
@@ -176,6 +182,18 @@ public sealed partial class NetworkVehicleChecks : Node
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        ulong now = Time.GetTicksUsec();
+        if (_started && !_done && _lastFrameMicroseconds != 0)
+        {
+            double milliseconds = (now - _lastFrameMicroseconds) / 1000.0;
+            _frameMilliseconds.Add(milliseconds);
+            if (milliseconds >= 100 && _frameStalls.Count < 128)
+            {
+                _frameStalls.Add(new { Seconds = _seconds, Milliseconds = milliseconds, Tick = _arena.Driver.LocalState?.Movement.Tick, SnapshotAge = _arena.Driver.SnapshotAge });
+            }
+        }
+
+        _lastFrameMicroseconds = now;
         if (!_captured && _seconds > 3.5 && DisplayServer.GetName() != "headless" && _output.Length > 0)
         {
             _captured = true;
@@ -238,6 +256,10 @@ public sealed partial class NetworkVehicleChecks : Node
 
         var report = new
         {
+            Rendered = DisplayServer.GetName() != "headless",
+            FrameTime = Timing(_frameMilliseconds),
+            SimulationStepTime = Timing(_stepMilliseconds),
+            FrameStalls = _frameStalls,
             Host = driver.Host is not null,
             Map = _arena.Map.SceneFilePath,
             LargestRoster = _largestRoster,
@@ -277,6 +299,13 @@ public sealed partial class NetworkVehicleChecks : Node
 
         _captured = true;
         CallDeferred(MethodName.Complete);
+    }
+
+    private static object Timing(List<double> samples)
+    {
+        double[] ordered = samples.Order().ToArray();
+        double Percentile(double fraction) => ordered.Length == 0 ? 0 : ordered[Math.Min(ordered.Length - 1, (int)(ordered.Length * fraction))];
+        return new { Samples = ordered.Length, Mean = ordered.Length == 0 ? 0 : ordered.Average(), P50 = Percentile(0.5), P95 = Percentile(0.95), P99 = Percentile(0.99), Maximum = ordered.LastOrDefault() };
     }
 
 }

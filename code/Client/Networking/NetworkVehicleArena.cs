@@ -74,7 +74,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off;
         AddChild(new WorldEnvironment
         {
-            Environment = new Godot.Environment
+            Environment = _layout is null ? GD.Load<Godot.Environment>("res://assets/maps/oval/Daylight.tres") : new Godot.Environment
             {
                 BackgroundMode = Godot.Environment.BGMode.Color,
                 BackgroundColor = new Color("172235"),

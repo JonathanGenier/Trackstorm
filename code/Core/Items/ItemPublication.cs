@@ -30,7 +30,7 @@ public sealed class ItemPublication
         }
 
         var pickups = spawns?.ToArray() ?? Array.Empty<ItemSpawnState>();
-        if (pickups.Length is not (0 or 8) || pickups.Select(spawn => spawn.Id).Distinct(StringComparer.Ordinal).Count() != pickups.Length ||
+        if (pickups.Length > Arenas.ArenaConfiguration.MaximumItemSpawns || pickups.Select(spawn => spawn.Id).Distinct(StringComparer.Ordinal).Count() != pickups.Length ||
             pickups.Any(spawn => string.IsNullOrWhiteSpace(spawn.Id) || spawn.Id != spawn.Id.Trim() || System.Text.Encoding.UTF8.GetByteCount(spawn.Id) > 128 ||
                 (spawn.Token == 0 ? spawn.ClaimedBy != 0 || spawn.Item != HeldItem.None || spawn.NextActivationTick != 0 || !spawn.Available :
                 spawn.ClaimedBy == 0 || ItemRegistry.Find(spawn.Item) is null || spawn.NextActivationTick == 0) ||

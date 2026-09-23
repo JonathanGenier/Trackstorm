@@ -44,6 +44,7 @@ func _initialize() -> void:
 	content.name = "MapContent"
 	map.add_child(content)
 	content.owner = map
+	load("res://assets/maps/oval/BuildOvalContent.gd").bake(map, measurements)
 	var packed := PackedScene.new()
 	assert(packed.pack(map) == OK)
 	assert(ResourceSaver.save(packed, "res://scenes/maps/oval_foundation.tscn") == OK)

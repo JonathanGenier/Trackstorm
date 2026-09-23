@@ -27,6 +27,8 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
     private ItemSlot[] _distributed = Array.Empty<ItemSlot>();
     private bool _finished;
     private int _cleanupFrames;
+    private bool Oval => OS.GetCmdlineUserArgs().Contains("--spawn-oval");
+    private int PickupCount => Oval ? 20 : 8;
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -69,7 +71,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 AddChild(viewport);
             }
 
-            var arena = new NetworkVehicleArena { PrototypeMapForVerification = true, SpawnConfiguration = new ItemSpawnConfiguration { CooldownTicks = 180, Seed = 6 } };
+            var arena = new NetworkVehicleArena { PrototypeMapForVerification = !Oval, SpawnConfiguration = new ItemSpawnConfiguration { CooldownTicks = 180, Seed = 6 } };
             arena.Initialize(gateway, index == 0 ? 88ul : 0, server);
             viewport.AddChild(arena);
             _arenas.Add(arena);
@@ -133,12 +135,12 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
         var host = _arenas[0].Driver.Host!;
         switch (_stage)
         {
-            case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Pickups.ActiveCount == 8):
-                Require(_arenas.All(arena => arena.Driver.ItemState!.Spawns.Select(spawn => spawn.Id).SequenceEqual(arena.Layout.ValidateScene().Items.Select(marker => marker.Id))), "All eight actual marker IDs replicate to every peer.");
+            case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Pickups.ActiveCount == PickupCount):
+                Require(_arenas.All(arena => arena.Driver.ItemState!.Spawns.Select(spawn => spawn.Id).SequenceEqual(arena.MapConfiguration.Items.Select(marker => marker.Id))), "All actual marker IDs replicate to every peer.");
                 PositionPlayers(true, false);
-                Next("Eight peers see exactly the eight configured active pickups; two remote vehicles enter one pickup together.");
+                Next($"Eight peers see exactly {PickupCount} configured active pickups; two remote vehicles enter one pickup together.");
                 break;
-            case 1 when _arenas.All(arena => arena.Pickups.ActiveCount == 7) && _elapsed - _started > 1.2:
+            case 1 when _arenas.All(arena => arena.Pickups.ActiveCount == PickupCount - 1) && _elapsed - _started > 1.2:
                 Require(_arenas.All(arena => arena.Driver.ItemState!.Slots.Count == 1), "Only one slot is awarded on every peer.");
                 var claim = host.Spawns!.States[0];
                 _winner = claim.ClaimedBy;
@@ -150,12 +152,12 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 Require(_arenas.Single(arena => arena.Driver.LocalVehicleId == _winner).Driver.RequestItemUse(), "Winner consumes acquired Wrench through production remote use.");
                 Next("Exactly one remote contestant won; all eight peers show matching inactive spawn, cooldown and item token.");
                 break;
-            case 2 when _arenas.All(arena => arena.Pickups.ActiveCount == 8 && arena.Driver.ItemState!.Slots.All(slot => slot.Item == HeldItem.None)):
+            case 2 when _arenas.All(arena => arena.Pickups.ActiveCount == PickupCount && arena.Driver.ItemState!.Slots.All(slot => slot.Item == HeldItem.None)):
                 Capture("reactivated.png");
                 PositionPlayers(false, true);
                 Next("Authoritative cooldown reactivates on every peer; all eight vehicles approach separate pickups.");
                 break;
-            case 3 when _arenas.All(arena => arena.Pickups.ActiveCount == 0):
+            case 3 when _arenas.All(arena => arena.Pickups.ActiveCount == PickupCount - 8):
                 var expected = host.Items.Slots;
                 _distributed = expected.ToArray();
                 Require(expected.Count == 8 && ItemRegistry.All.All(item => expected.Any(slot => slot.Item == item.Identity)), "Normal weighted pickups distribute all four registered items across eight slots.");
@@ -175,13 +177,13 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 // Stay in range: occupied slots must not reclaim when the cooldown elapses.
                 Next("All eight spawn locations awarded once, with all four item types replicated normally.");
                 break;
-            case 4 when _arenas.All(arena => arena.Pickups.ActiveCount == 8) && _elapsed - _started > 4:
+            case 4 when _arenas.All(arena => arena.Pickups.ActiveCount == PickupCount) && _elapsed - _started > 4:
                 Require(host.Items.Slots.All(slot => slot.Item != HeldItem.None), "Occupied slots retain their grants.");
                 Require(host.Spawns!.States.All(spawn => spawn.Available), "Occupied players cannot consume reactivated spawns while remaining in range.");
                 Require(_arenas.All(arena => arena.Driver.ItemState!.Slots.SequenceEqual(_distributed)), "Occupied grants and tokens remain unchanged on all peers after reactivation.");
                 Require(_arenas.All(arena => arena.GetChildren().OfType<Items.ItemPresentation>().Single().GetChildCount() == 0), "Held inventory creates no world presentation for local or remote vehicles.");
                 Capture("occupied-slots.png");
-                _evidence.Add("All eight pickups reappear and remain available under occupied vehicles. No duplicate awards or overwritten grants.");
+                _evidence.Add($"All {PickupCount} pickups are available after cooldown, including under occupied vehicles. No duplicate awards or overwritten grants.");
                 System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
                 GD.Print("Item spawn integration passed: " + string.Join("\n", _evidence));
                 Cleanup();
@@ -194,7 +196,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
         var world = _arenas[0].Driver.Host!.World;
         ulong first = _arenas[1].Driver.LocalVehicleId;
         ulong second = _arenas[2].Driver.LocalVehicleId;
-        var config = Core.Arenas.PrototypeArena.Configuration;
+        var config = _arenas[0].MapConfiguration;
         var states = world.State.Vehicles.Select(vehicle =>
         {
             int index = (int)vehicle.VehicleId - 1;
