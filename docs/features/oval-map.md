@@ -124,3 +124,5 @@ The existing practice and network arena owners select `Daylight.tres` for the ov
 The oval runtime harness additionally checks all boundary seams at four heights, high-speed and airborne impacts through both production adapters, and 36 m/s driving approaches to every pickup through the existing Core pickup authority. `check-item-spawns.ps1 -Oval` runs the existing eight-peer UDP contention/cooldown/occupied-slot checks against the 20-marker map; its simultaneous distribution stage exercises the first eight markers, while the oval harness covers all 20 individual approaches.
 
 The asphalt retains its separate seamless 64 m multiply layer. Grass combines two-metre blade detail with a restrained 16 m isotropic variation tile: its small, low-contrast variations avoid broad light/dark bands at driving height. Both UV sets use world triplanar mapping and mipmaps.
+
+Driveable road and infield collision bodies carry the persistent landing_terrain group for [landing damage classification](vehicles.md#terrain-landing-recovery). The scene baker and terrain import hook retain this metadata. Tunnel and outer-containment colliders remain obstacles; geometry is unchanged.

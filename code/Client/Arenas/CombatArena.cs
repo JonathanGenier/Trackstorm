@@ -33,7 +33,7 @@ public sealed partial class CombatArena : Node3D
             for (int z = 0; z < zs.Length - 1; z++)
             {
                 bool soft = (x == 1 || x == 3) && z == 1;
-                AddSolid($"Ground{x}_{z}", new Vector3(xs[x + 1] - xs[x], 2, zs[z + 1] - zs[z]), new Vector3((xs[x] + xs[x + 1]) / 2, -1, (zs[z] + zs[z + 1]) / 2), soft ? mud : asphalt, soft ? SurfaceType.Mud : SurfaceType.Concrete);
+                AddSolid($"Ground{x}_{z}", new Vector3(xs[x + 1] - xs[x], 2, zs[z + 1] - zs[z]), new Vector3((xs[x] + xs[x + 1]) / 2, -1, (zs[z] + zs[z + 1]) / 2), soft ? mud : asphalt, soft ? SurfaceType.Mud : SurfaceType.Concrete).AddToGroup("landing_terrain");
             }
         }
 
@@ -52,6 +52,7 @@ public sealed partial class CombatArena : Node3D
         // A low salvage ramp at the edge leaves the central combat floor flat.
         var ramp = new SurfaceBody { Name = "SalvageRamp", Position = new Vector3(49, 0, -20) };
         ramp.AddChild(new CollisionShape3D { Shape = new ConvexPolygonShape3D { Points = new[] { new Vector3(-3, 0, -4), new Vector3(3, 0, -4), new Vector3(-3, 1, -4), new Vector3(3, 1, -4), new Vector3(-3, 0, 4), new Vector3(3, 0, 4) } } });
+        ramp.AddToGroup("landing_terrain");
         AddChild(ramp);
         AddModel(ramp, "kenney/racing/ramp.glb", new Vector3(6, 1, 8), new Vector3(0, 0.5f, 0), sheet);
         _surfaces.Add(ramp);

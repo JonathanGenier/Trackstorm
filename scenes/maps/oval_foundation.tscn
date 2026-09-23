@@ -1504,7 +1504,7 @@ mesh = SubResource("ArrayMesh_u0nyf")
 
 [node name="Collision" type="Node3D" parent="." unique_id=476622518]
 
-[node name="Track" type="StaticBody3D" parent="Collision" unique_id=2033836968]
+[node name="Track" type="StaticBody3D" parent="Collision" unique_id=2033836968 groups=["landing_terrain"]]
 
 [node name="Shape" type="CollisionShape3D" parent="Collision/Track" unique_id=1842522546]
 shape = ExtResource("4_g8yx0")

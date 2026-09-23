@@ -1,0 +1,19 @@
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f) [12 s]
+  Error Message:
+     Injected stale snapshot must be rejected.
+Assert.That(client.RejectedPackets, Is.GreaterThan(0))
+  Expected: greater than 0
+  But was:  0
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Int32 players, Int32 latency, Int32 jitter, Single loss) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 31
+   at InvokeStub_NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Object, Span`1)
+
+1)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Int32 players, Int32 latency, Int32 jitter, Single loss) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 31
+   at InvokeStub_NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Object, Span`1)
+
+
+
+Failed!  - Failed:     1, Passed:     4, Skipped:     0, Total:     5, Duration: 1 m - Trackstorm.Transport.Tests.dll (net10.0)

@@ -3,6 +3,9 @@ extends EditorScenePostImport
 ## Use the Blender terrain's authored color attribute under normal world lighting.
 
 func _post_import(scene: Node) -> Object:
+	for body in scene.find_children("*", "StaticBody3D", true, false):
+		if str(body.get_parent().name).begins_with("InfieldTerrain"):
+			body.add_to_group("landing_terrain", true)
 	for child in scene.find_children("*", "MeshInstance3D", true, false):
 		var visual := child as MeshInstance3D
 		for index in visual.mesh.get_surface_count():

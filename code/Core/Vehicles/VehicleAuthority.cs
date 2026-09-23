@@ -70,10 +70,12 @@ internal sealed class VehicleAuthority
             }
         }
 
+        LandingState landing = request.Reset.HasValue ? default : VehicleLanding.Step(previous.Landing, observed);
         float severity = 0;
         VehicleContact strongest = default;
         foreach (VehicleContact contact in observed.Contacts)
         {
+            if (VehicleLanding.Forgives(landing, observed, contact)) { continue; }
             float candidate = VehicleDamageMath.CollisionSeverity(contact.RelativeVelocity, contact.Normal, contact.Impulse, _movementConfiguration.Mass);
             if (candidate > severity)
             {
@@ -96,7 +98,7 @@ internal sealed class VehicleAuthority
             next = new VehicleState(request.Input.Tick, stationary, false, false, 0, 0);
         }
 
-        var snapshot = new VehicleSnapshot(previous.VehicleId, request.Reset.HasValue ? checked(previous.LifeId + 1) : previous.LifeId, next, health.State, observed.Physics, acceptedEffects, respawnAtTick: health.State.Destroyed && respawn is not null ? checked(request.Input.Tick + respawn.DelayTicks) : null);
+        var snapshot = new VehicleSnapshot(previous.VehicleId, request.Reset.HasValue ? checked(previous.LifeId + 1) : previous.LifeId, next, health.State, observed.Physics, acceptedEffects, respawnAtTick: health.State.Destroyed && respawn is not null ? checked(request.Input.Tick + respawn.DelayTicks) : null, landing: health.State.Destroyed ? default : landing);
         return new VehicleStepResult(snapshot, acceptedEffects, events, request.Reset.HasValue);
     }
 
@@ -126,7 +128,7 @@ internal sealed class VehicleAuthority
         var adjusted = new VehicleState(m.Tick, m.Physics, m.Grounded, m.Drifting, Math.Clamp(m.SteeringAngle, -movement.SteeringAngle, movement.SteeringAngle), m.Handbrake, m.CurrentSurface, m.FrontSlip, m.RearSlip, m.LongitudinalAcceleration, m.LateralAcceleration, m.LandingIntensity, m.Wheels, m.OilTicks, m.Nitro);
         var health = new VehicleDamageState(damage.MaxHP, previous.Damage.CurrentHP / previous.Damage.MaxHP * damage.MaxHP, previous.Damage.LastDamage, previous.Damage.LastCollisionTick);
         var result = new VehicleAuthority(previous.VehicleId, movement, damage, previous.ObservedPhysics);
-        result.Commit(new VehicleSnapshot(previous.VehicleId, previous.LifeId, adjusted, health, previous.ObservedPhysics, previous.Effects, previous.Lifecycle, previous.RespawnAtTick));
+        result.Commit(new VehicleSnapshot(previous.VehicleId, previous.LifeId, adjusted, health, previous.ObservedPhysics, previous.Effects, previous.Lifecycle, previous.RespawnAtTick, previous.Landing));
         return result;
     }
 

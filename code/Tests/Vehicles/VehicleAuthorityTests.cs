@@ -199,7 +199,7 @@ internal sealed class VehicleAuthorityTests
     {
         VehicleSnapshot snapshot = Create().GetVehicle(1);
         byte[] bytes = VehicleSnapshotCodec.Encode(snapshot);
-        Assert.That(bytes[0], Is.EqualTo(2));
+        Assert.That(bytes[0], Is.EqualTo(3));
         JsonObject json = JsonNode.Parse(Encoding.UTF8.GetString(bytes[1..]))!.AsObject();
         byte[] movement = Convert.FromBase64String(json["Movement"]!.GetValue<string>());
         Assert.That(movement.Length, Is.EqualTo(VehicleStateCodec.SerializedSize));
