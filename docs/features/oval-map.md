@@ -88,7 +88,7 @@ panels share a continuous Blender-authored collision slab across their joints.
 A twenty-eight-metre collar follows the original bank's inward grade at all 916 rim
 sections and eases into the terrain. The original oval road and collision stay
 unchanged. The old flat infield collider is replaced so it cannot fill the basins
-or compete with wheel support. The shared material field blends dirt into grass shoulders and identifies wet soil, rock and the designated Water basin. Water behavior and environment dressing remain later work.
+or compete with wheel support. The shared material field blends dirt into grass shoulders and identifies wet soil, rock and the designated Water basin. [Water interaction](water.md) adds a shared-field waterline and hazard; environment dressing remains later work.
 
 `check-infield.ps1 -GodotPath <path> -Visual` checks imported route support,
 tunnel clearance and production-vehicle driving along all ten routes and both

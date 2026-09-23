@@ -14,6 +14,7 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+Assert-True ((Get-FastCheckPlan -Paths @("code/Client/Vehicles/WaterObservation.cs")).RuntimeScripts -contains "check-water.ps1") "Water observations route native water verification."
 Assert-True ((Get-FastCheckPlan -Paths @("code/Client/Vehicles/SurfaceIdentityResolver.cs")).RuntimeScripts -contains "check-surfaces.ps1") "Material identity changes route native surface verification."
 Assert-True ((Get-FastCheckPlan -Paths @("check-nitro.ps1")).RuntimeScripts -contains "check-nitro.ps1") "Nitro harness changes retain native verification."
 $vehiclePlan = Get-FastCheckPlan -Paths @("code/Core/Vehicles/VehicleSimulation.cs", "code/Client/Vehicles/VehicleController.cs")

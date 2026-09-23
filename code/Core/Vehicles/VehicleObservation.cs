@@ -12,7 +12,8 @@ public sealed class VehicleObservation
     /// <param name="surface">Detected supporting surface; ignored while airborne.</param>
     /// <param name="wheels">Optional per-wheel spring compression from fixed-step queries.</param>
     /// <param name="terrainSupport">Wheel support normal from tagged terrain.</param>
-    public VehicleObservation(VehiclePhysicsState physics, Vector3 support, IEnumerable<VehicleContact>? contacts = null, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null, Vector3 terrainSupport = default)
+    /// <param name="waterDepth">Immersion from nominal tire level, independently of wheel contact.</param>
+    public VehicleObservation(VehiclePhysicsState physics, Vector3 support, IEnumerable<VehicleContact>? contacts = null, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null, Vector3 terrainSupport = default, float waterDepth = 0)
     {
         _ = new VehiclePhysicsState(physics.Position, physics.Orientation, physics.LinearVelocity, physics.AngularVelocity);
         if (!VehiclePhysicsState.IsFinite(support) || (support != Vector3.Zero && Math.Abs(support.LengthSquared() - 1) > 0.001f))
@@ -33,6 +34,8 @@ public sealed class VehicleObservation
 
         if (!VehiclePhysicsState.IsFinite(terrainSupport) || (terrainSupport != Vector3.Zero && Math.Abs(terrainSupport.LengthSquared() - 1) > 0.001f)) { throw new ArgumentException("Invalid terrain support."); }
         TerrainSupport = terrainSupport;
+        if (!float.IsFinite(waterDepth) || waterDepth is < 0 or > 1000) { throw new ArgumentOutOfRangeException(nameof(waterDepth)); }
+        WaterDepth = waterDepth;
         Wheels = wheels;
         Surface = surface;
         Physics = physics;
@@ -42,6 +45,8 @@ public sealed class VehicleObservation
 
     /// <summary>Wheel-ray normal from explicitly driveable terrain, or zero.</summary>
     public Vector3 TerrainSupport { get; }
+    /// <summary>Current immersion; zero outside authored Water or above its surface.</summary>
+    public float WaterDepth { get; }
     /// <summary>Optional independent wheel support observations.</summary>
     public WheelSupport? Wheels { get; }
     /// <summary>Supporting surface from the fixed-step adapter.</summary>

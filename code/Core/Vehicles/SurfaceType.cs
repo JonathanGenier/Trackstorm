@@ -15,4 +15,6 @@ public enum SurfaceType : byte
     Grass = 4,
     /// <summary>Saturated, traversable soil.</summary>
     DeepMud = 5,
+    /// <summary>Immersed vehicle with strong resistance.</summary>
+    Water = 6,
 }

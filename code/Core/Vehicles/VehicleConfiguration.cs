@@ -13,6 +13,12 @@ public sealed record VehicleConfiguration
     public SurfaceModifiers Mud { get; init; } = new(0.6f, 2.5f, 0.85f);
     /// <summary>Saturated soil bogs at speed while retaining usable low-speed drive.</summary>
     public SurfaceModifiers DeepMud { get; init; } = new(0.5f, 5, 0.8f);
+    /// <summary>Traversable water is more restrictive than saturated soil.</summary>
+    public SurfaceModifiers Water { get; init; } = new(0.45f, 8, 0.65f);
+    /// <summary>Immersion measured from nominal tire level at which damage begins, in metres.</summary>
+    public float DeepWaterDepth { get; init; } = 1.0f;
+    /// <summary>Continuous deep-water damage per second, through ordinary health authority.</summary>
+    public float WaterDamagePerSecond { get; init; } = 250;
 
     /// <summary>Fixed frequency; independent of rendering.</summary>
     public int TicksPerSecond { get; init; } = 60;
@@ -92,12 +98,18 @@ public sealed record VehicleConfiguration
         SurfaceType.Dirt => Dirt,
         SurfaceType.Grass => Grass,
         SurfaceType.DeepMud => DeepMud,
+        SurfaceType.Water => Water,
         _ => throw new ArgumentOutOfRangeException(nameof(surface)),
     };
 
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(DeepWaterDepth) || DeepWaterDepth is < 0.01f or > 100 ||
+            !float.IsFinite(WaterDamagePerSecond) || WaterDamagePerSecond is < 0 or > 10000)
+        {
+            throw new ArgumentException("Water depth must be 0.01–100 metres and damage 0–10000 HP/s.");
+        }
         if (!float.IsFinite(DriveTractionReserve) || DriveTractionReserve < 0 || DriveTractionReserve > 1)
         {
             throw new ArgumentException("Drive traction reserve must be a finite fraction.");

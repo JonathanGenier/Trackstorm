@@ -31,7 +31,7 @@ immutable oval asset and road collision remain retained unchanged.
 Broad side-loop hills, low outer berms, northern rises and southern valleys
 shape the main routes. Both southern rhythm stretches contain three 0.65 m
 rollers. The four original water footprints contain 1.8 m sculpted depressions
-with smooth sides; surrounding terrain can influence absolute depth. No water plane, water physics or distinct handling profile is added. The separate material field identifies wet soil and the northeast Water bed. The three
+with smooth sides; surrounding terrain can influence absolute depth. The [runtime water system](../../../docs/features/water.md) adds a non-colliding waterline and depth-dependent gameplay without changing this geometry. The separate material field identifies wet soil and the northeast Water bed. The three
 obstacle reservations and the central tunnel envelope stay in their original
 locations. The north/south tunnel crossing remains at the original datum.
 The approved TS-76 follow-up raises the east/west connection onto the existing

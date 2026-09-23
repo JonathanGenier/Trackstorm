@@ -1,7 +1,7 @@
 # Surface and material identity
 
 `SurfaceIdentity` names Asphalt, Grass, Dirt, Mud, Deep Mud, Rock, Concrete and
-Water. It describes material; Core `SurfaceHandling` maps the shared observation to the [vehicle handling profiles](vehicles.md#terrain-handling-profiles). Asphalt preserves the vehicle baseline, and Concrete, Dirt, Grass, Mud and Deep Mud have distinct host-tunable responses. Rock and Water retain neutral baseline handling; depth, drowning and Water resistance remain separate work.
+Water. It describes material; Core `SurfaceHandling` maps the shared observation to the [vehicle handling profiles](vehicles.md#terrain-handling-profiles). Asphalt preserves the vehicle baseline, and Concrete, Dirt, Grass, Mud and Deep Mud have distinct host-tunable responses. Rock retains neutral baseline handling; [Water interaction](water.md) owns immersion, resistance and deep-water damage.
 
 ## Authoring and ownership
 
@@ -45,8 +45,7 @@ The three basins centered at (-57,-29), (-85,28) and (85,28) use Mud rims and
 Deep Mud centers. The northeast basin at (77,-35) has the sole Water center,
 with wet-soil banks. Coordinates are Godot X/Z metres.
 
-Water currently identifies and shades the existing basin bed. There is no new
-water plane, volume, depth classification or gameplay behavior. Geometry and
+Water identifies the existing basin bed and bounds the [waterline and immersion field](water.md). Terrain geometry and
 collision remain the production terrain; the material pass checks identical
 vertex/triangle hashes before and after authoring.
 

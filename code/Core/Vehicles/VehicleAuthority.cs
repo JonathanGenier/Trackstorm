@@ -89,8 +89,15 @@ internal sealed class VehicleAuthority
             events.Add(collision);
         }
 
+        if (observed.WaterDepth >= _movementConfiguration.DeepWaterDepth &&
+            health.ApplyDamage(_movementConfiguration.WaterDamagePerSecond / _movementConfiguration.TicksPerSecond,
+                new DamageContext("water", 0, "deep-water"), request.Input.Tick) is DamageEvent waterDamage)
+        {
+            events.Add(waterDamage);
+        }
+
         health.Repair(request.Repair);
-        VehicleState next = movement.Step(request.Input, observed.Physics, observed.Support, !health.State.Destroyed, observed.Surface, observed.Wheels, request.Reset.HasValue ? 0 : request.OilSpin, request.Reset.HasValue ? default : request.Nitro, request.ClearNitro || request.Reset.HasValue);
+        VehicleState next = movement.Step(request.Input, observed.Physics, observed.Support, !health.State.Destroyed, observed.Surface, observed.Wheels, request.Reset.HasValue ? 0 : request.OilSpin, request.Reset.HasValue ? default : request.Nitro, request.ClearNitro || request.Reset.HasValue, observed.WaterDepth);
         IReadOnlyList<VehicleEffectRequest> acceptedEffects = health.State.Destroyed ? Array.Empty<VehicleEffectRequest>() : request.Effects;
         if (health.State.Destroyed)
         {

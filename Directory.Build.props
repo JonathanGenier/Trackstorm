@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <TrackstormVersion>0.1.40</TrackstormVersion>
+    <TrackstormVersion>0.1.41</TrackstormVersion>
     <Version>$(TrackstormVersion)</Version>
     <AssemblyVersion>$(TrackstormVersion).0</AssemblyVersion>
     <FileVersion>$(TrackstormVersion).0</FileVersion>
