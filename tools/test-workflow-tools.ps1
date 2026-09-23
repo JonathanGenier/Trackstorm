@@ -14,6 +14,7 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+Assert-True ((Get-FastCheckPlan -Paths @("check-nitro.ps1")).RuntimeScripts -contains "check-nitro.ps1") "Nitro harness changes retain native verification."
 $vehiclePlan = Get-FastCheckPlan -Paths @("code/Core/Vehicles/VehicleSimulation.cs", "code/Client/Vehicles/VehicleController.cs")
 Assert-True $vehiclePlan.CoreTests "Vehicle Core changes must route Core tests."
 Assert-True $vehiclePlan.ClientBuild "Vehicle Client changes must route a Client build."

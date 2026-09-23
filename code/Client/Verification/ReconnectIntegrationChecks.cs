@@ -180,6 +180,13 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 }
 
                 _resyncs++;
+                var nitro = world.Vehicles.Single(v => v.State.VehicleId == _player).State.Movement.Nitro;
+                Require(_arenas[1].LocalState!.Movement.Nitro == nitro, "Nitro restored exactly before prediction.");
+                if (_resyncs <= 3)
+                {
+                    Require(_resyncs == 1 ? !nitro.Active : nitro is { RemainingTicks: > 0 and < 3600 }, "Long offline expiry and active short reconnect preserve Nitro duration.");
+                    GD.Print($"Nitro reconnect {_resyncs}: remaining {nitro.RemainingTicks}, exact checkpoint state.");
+                }
                 var camera = _arenas[1].GetNode<Vehicles.VehicleChaseCamera>("ChaseCamera");
                 var cameraPose = _arenas[1].Bodies[_player].VisualTransform;
                 camera.Follow(cameraPose, _arenas[1].LocalState!, 0, _arenas[1].Bodies[_player].GetRid());
@@ -245,6 +252,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
         else if (_stage == 4 && _arenas[1].Driver.Prediction is not null && _arenas[1].Driver.Match?.Phase == Trackstorm.Core.Matches.MatchPhase.Active)
         {
             _oil = OilRecoveryFixture.Seed(_arenas[0]);
+            Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["match.nitro_points_per_second"] = 0 }, out _), "Disable duration score only in the retention fixture to preserve its fixed rank assertions.");
+            NitroRecoveryFixture.Seed(_arenas[0], _player);
             _originalBody = _arenas[1].Bodies[_player];
             SetScores(false);
             _retainedScore = _arenas[0].Driver.Host!.World.State.Match!.Players.Single(score => score.Player == _player);
@@ -273,6 +282,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             OvalGameplayAssertions.Verify(_arenas[1]);
             if (_resyncs < 3)
             {
+                NitroRecoveryFixture.Seed(_arenas[0], _player);
                 Drop();
             }
             else
@@ -423,7 +433,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
         MatchState previous = world.State.Match!;
         var match = new MatchState(world.State.Tick, previous.Revision + 1, previous.KillTarget, finished ? MatchPhase.Finished : MatchPhase.Active, null, finished ? 1ul : null, previous.Players.Select(score => score with { Kills = score.Player == _player ? 2 : finished ? 5 : 1, Deaths = score.Player == _player ? 1 : finished ? 6 : 2, Wins = finished && score.Player == 1 ? 1 : 0, ProcessedLife = Math.Max(1, score.ProcessedLife), CircusScore = score.Player == _player ? 375.5 : 125.25, KillStreak = 1 }));
         // Scoring itself is exercised by the match harness; this fixture isolates retention and presentation.
-        world.Restore(new SimulationState(world.State.Tick, world.State.LastInput, world.State.Vehicles, match));
+        world.Restore(new SimulationState(world.State.Tick, world.State.LastInput, world.State.Vehicles.Select(v => !finished ? v :
+            new VehicleSnapshot(v.VehicleId, v.LifeId, v.Movement with { Nitro = default }, v.Damage, v.ObservedPhysics, v.Effects, v.Lifecycle, v.RespawnAtTick)), match));
     }
 
     private void Capture(string name)

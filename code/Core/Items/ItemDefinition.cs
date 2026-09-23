@@ -21,5 +21,8 @@ public sealed record ItemDefinition(HeldItem Identity, string Key, string Displa
     /// <summary>Optional impact-effect texture hook.</summary>
     public string? ImpactVfx { get; init; }
 
+    /// <summary>Continuous active-effect texture, reconstructed from authoritative vehicle state.</summary>
+    public string? ActiveVfx { get; init; }
+
     internal IItemUseHandler? Handler { get; init; }
 }

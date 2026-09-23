@@ -245,6 +245,7 @@ public sealed partial class MigrationIntegrationChecks : Node
                             Airtime = new(1, 0.5), JumpOrigin = world.GetVehicle(row.Player).ObservedPhysics.Position },
                     }));
                 world.Restore(new Core.Simulation.SimulationState(boundary.Tick, boundary.LastInput, vehicles, match));
+                NitroRecoveryFixture.Seed(arena, _nitroOwner);
                 _circusBoundaries[match.Revision] = match;
                 arena.Driver.MatchReceived += state => _circusBoundaries[state.Revision] = state;
             }
@@ -264,6 +265,9 @@ public sealed partial class MigrationIntegrationChecks : Node
                     var restored = _arenas[survivor]!.Driver.Match!;
                     Require(_circusBoundaries.TryGetValue(restored.Revision, out var original) && restored.Players.SequenceEqual(original.Players), "Selected checkpoint restores exact Circus score, K/D, streak and pending flight state.");
                     Require(restored.Mode == Core.Matches.MatchMode.Circus && restored.Players.All(row => row.CircusScore > 0 && row.Stunts is not null), "Migration retains the configured Circus mode and unbanked stunts.");
+                    Require(_arenas[survivor]!.Driver.LocalState is not null &&
+                        _arenas[survivor]!.Driver.Latest!.Vehicles.Single(v => v.State.VehicleId == _nitroOwner).State.Movement.Nitro.Active,
+                        "Active Nitro survives selected checkpoint installation.");
                     Require(restored.Awards.Count == 0 && restored.Changes.Count == 0, "Migration does not replay prior Circus awards.");
                 }
             };
@@ -287,6 +291,11 @@ public sealed partial class MigrationIntegrationChecks : Node
             Require(arena.Driver.LocalItem?.Item == HeldItem.Wrench && arena.Driver.ItemState!.Spawns.Count == 20 && arena.Driver.Match!.Players.Count == _players, "Complete gameplay continuation with twenty placed oval pickups.");
             Require(arena.Driver.ItemState!.Slots.Single(slot => slot.Vehicle == _nitroOwner).Item == HeldItem.Nitro, "Nitro is retained on the disconnected former host across migration.");
             Require(arena.Driver.ItemState!.Patches.Count == 1 && arena.Driver.ItemState.Patches.Single() == _oil && arena.Driver.Host!.Items.Patches.Single() == _oil, "Persistent Oil survives host replacement exactly once, including departed owner.");
+            if (_players == 3)
+            {
+                Require(arena.Driver.Host!.World.GetVehicle(_nitroOwner).Movement.Nitro is { RemainingTicks: > 0 and < 3600, AccelerationMultiplier: 2, SpeedMultiplier: 1.4f }, "Nitro continues without restarting after host migration.");
+                GD.Print("Nitro migration verified: active timer and multipliers retained; Circus totals restore without historical awards.");
+            }
             OvalGameplayAssertions.Verify(arena);
             Require(_arenas[0]!.Driver.Configuration == _configuration && arena.Driver.Configuration == _configuration, "Successive hosts retain configuration revision and ignore successor-local presets.");
             Require(arena.Driver.Host!.Spawns!.RandomState == _randomState, "Migrated RNG continuation.");

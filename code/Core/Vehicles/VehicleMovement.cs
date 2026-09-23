@@ -42,9 +42,11 @@ public sealed class VehicleMovement
     /// <param name="driveEnabled">Authority-controlled drive permission.</param>
     /// <param name="surface">Fixed-step supporting surface identifier.</param>
     /// <param name="wheels">Optional independent spring observations.</param>
+    /// <param name="nitro">New authoritative activation; prediction only continues existing state.</param>
+    /// <param name="clearNitro">Explicit match boundary expiry.</param>
     /// <param name="oilSpin">Host entry impulse; prediction only continues restored handling memory.</param>
     /// <returns>Next movement snapshot and commanded velocities.</returns>
-    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null, float oilSpin = 0)
+    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null, float oilSpin = 0, NitroState nitro = default, bool clearNitro = false)
     {
         if (input.Tick != checked(State.Tick + 1))
         {
@@ -59,7 +61,11 @@ public sealed class VehicleMovement
 
         if (!float.IsFinite(oilSpin) || Math.Abs(oilSpin) > 3) { throw new ArgumentException("Invalid oil spin."); }
         int oilTicks = oilSpin != 0 && driveEnabled ? 120 : Math.Max(0, State.OilTicks - 1);
+        nitro.Validate();
+        NitroState boost = !driveEnabled || clearNitro ? default : nitro.Active ? nitro : State.Nitro.Advance();
         VehicleConfiguration c = Configuration;
+        float forwardSpeed = boost.Active ? Math.Min(c.MaximumPhysicsSpeed, c.ForwardSpeed * boost.SpeedMultiplier) : c.ForwardSpeed;
+        float acceleration = boost.Active ? c.Acceleration * boost.AccelerationMultiplier : c.Acceleration;
         SurfaceModifiers detected = c.ResolveSurface(surface);
         float dt = 1f / c.TicksPerSecond;
         bool grounded = groundNormal.Y >= 0.55f;
@@ -128,7 +134,7 @@ public sealed class VehicleMovement
             }
             else if (throttle > 0)
             {
-                drive = Math.Min(c.Acceleration * throttle * modifiers.Acceleration * Math.Clamp(1 - MathF.Pow(Math.Max(0, longitudinal) / c.ForwardSpeed, 4), 0, 1), Math.Max(0, c.ForwardSpeed - longitudinal) / dt);
+                drive = Math.Min(acceleration * throttle * modifiers.Acceleration * Math.Clamp(1 - MathF.Pow(Math.Max(0, longitudinal) / forwardSpeed, 4), 0, 1), Math.Max(0, forwardSpeed - longitudinal) / dt);
             }
             else if (brake > 0)
             {
@@ -141,7 +147,7 @@ public sealed class VehicleMovement
             float brakeApplication = handbrakeTarget > 0 ? handbrake : 0;
             float handbrakeStop = Math.Min(c.HandbrakeBraking * brakeApplication * forceScale, Math.Max(0, (Math.Abs(longitudinal) / dt) - stopping));
             float frontLong = -Math.Sign(longitudinal) * stopping * 0.65f;
-            float driveAcceleration = Math.Clamp(drive * forceScale, -Math.Max(0, c.ReverseSpeed + longitudinal) / dt, Math.Max(0, c.ForwardSpeed - longitudinal) / dt);
+            float driveAcceleration = Math.Clamp(drive * forceScale, -Math.Max(0, c.ReverseSpeed + longitudinal) / dt, Math.Max(0, forwardSpeed - longitudinal) / dt);
             // A locked rear axle cannot transmit engine drive against its handbrake.
             float rearLong = (driveAcceleration * (1 - brakeApplication)) - (Math.Sign(longitudinal) * ((stopping * 0.35f) + handbrakeStop));
             float halfAxle = c.Wheelbase / 2;
@@ -209,7 +215,7 @@ public sealed class VehicleMovement
         float landing = grounded && !State.Grounded ? Math.Clamp(-State.Physics.LinearVelocity.Y / 12, 0, 1) : Math.Max(0, State.LandingIntensity - (dt * 3));
         bool sliding = grounded && Math.Abs(lateral) > 1 && rearSlip > 0.35f;
         var physics = new VehiclePhysicsState(observed.Position, observed.Orientation, Limit(velocity, c.MaximumPhysicsSpeed), Limit(angular, c.MaximumAngularSpeed));
-        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oilTicks);
+        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oilTicks, boost);
         return State;
     }
 

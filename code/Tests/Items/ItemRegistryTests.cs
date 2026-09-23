@@ -10,35 +10,6 @@ namespace Trackstorm.Core.Tests.Items;
 [TestFixture]
 internal sealed class ItemRegistryTests
 {
-    [TestCase(HeldItem.Nitro)]
-    public void UnimplementedUseRetainsExactSlotAcrossResumeAndReset(HeldItem item)
-    {
-        var host = new HostVehicleSession(99);
-        host.JoinPlayer(10, 2);
-        Assert.That(host.Items.Grant(host.World, 2, item), Is.True);
-        var slot = host.Items.Slots.Single();
-        for (int i = 0; i < 4; i++)
-        {
-            Assert.That(host.UseItem(10, 99, slot.Life, slot.Token), Is.False);
-            host.Step(default, Observe);
-        }
-
-        Assert.That(host.Items.Slots.Single(), Is.EqualTo(slot));
-        Assert.That(host.Items.Events, Is.Empty);
-        Assert.That(host.Items.Missiles, Is.Empty);
-        host.Suspend(10);
-        var resume = new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], []), host.World.State.Match!, null, host.Configuration);
-        var decoded = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(resume));
-        Assert.That(decoded.Items.Slots.Single(), Is.EqualTo(slot));
-        Assert.That(host.ResumePlayer(20, 2), Is.True);
-        Assert.That(host.Items.Grant(host.World, 2, HeldItem.Wrench), Is.False);
-        Assert.That(host.UseItem(10, 99, slot.Life, slot.Token), Is.False);
-        var input = new Trackstorm.Core.Input.InputFrame(host.World.State.Tick + 1, 0, 0, 0, 0, 0, 0);
-        host.Items.Step(host.World, input, host.World.State.Vehicles.Select(state =>
-            new VehicleStepRequest(state.VehicleId, input, Observe(state), reset: state.Movement.Physics)).ToArray(), (_, _) => null);
-        Assert.That(host.Items.Slots, Is.Empty);
-    }
-
     [TestCase(HeldItem.Wrench)]
     [TestCase(HeldItem.Missile)]
     [TestCase(HeldItem.Oil)]

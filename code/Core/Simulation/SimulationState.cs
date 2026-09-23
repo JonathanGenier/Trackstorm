@@ -46,6 +46,11 @@ public readonly record struct SimulationState
             throw new ArgumentException("Pending stunts require their current living vehicle and complete fixed boundary.");
         }
 
+        if (match is { Phase: not Matches.MatchPhase.Active } && copy.Any(vehicle => vehicle.Movement.Nitro.Active))
+        {
+            throw new ArgumentException("Nitro cannot survive outside Active match state.");
+        }
+
         _vehicles = copy.Length == 0 ? null : Array.AsReadOnly(copy);
     }
 

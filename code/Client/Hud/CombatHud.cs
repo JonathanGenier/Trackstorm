@@ -22,6 +22,7 @@ internal sealed partial class CombatHud : CanvasLayer
     private Label _speed = null!;
     private Label _unit = null!;
     private Label _itemName = null!;
+    private Label _nitro = null!;
     private Label _timer = null!;
     private TextureRect _itemIcon = null!;
     private ShaderMaterial _healthMaterial = null!;
@@ -71,6 +72,8 @@ internal sealed partial class CombatHud : CanvasLayer
         _speedMaterial = (ShaderMaterial)speed.Material;
         _speed = Text(speed, "SpeedValue", new Rect2(73, 78, 108, 57), 49);
         _unit = Text(speed, "SpeedUnit", new Rect2(88, 137, 78, 20), 19);
+        _nitro = Text(speed, "NitroActive", new Rect2(20, -24, 220, 22), 18);
+        _nitro.AddThemeColorOverride("font_color", new Color("ffd166"));
         var item = Component("Item", new Vector2(112.5f, 150), 2, steel);
         _itemName = Text(item, "ItemName", new Rect2(17, 111, 84, 22), 18);
         _itemIcon = new TextureRect { Name = "ItemIcon", Position = new Vector2(25, 48), Size = new Vector2(70, 55), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -124,6 +127,8 @@ internal sealed partial class CombatHud : CanvasLayer
             _speedMaterial.SetShaderParameter("fill", view.SpeedFill);
         }
 
+        _nitro.Visible = state.Movement.Nitro.Active;
+        _nitro.Text = $"{ItemRegistry.Find(HeldItem.Nitro)!.DisplayName.ToUpperInvariant()}  {state.Movement.Nitro.RemainingTicks / 60f:0.0}s";
         ulong player = Player();
         CircusHudView? score = null;
         foreach (MatchState update in MatchUpdates())
