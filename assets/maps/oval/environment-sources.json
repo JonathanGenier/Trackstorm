@@ -5,19 +5,19 @@
   "files": [
     {
       "path": "BuildEnvironment.py",
-      "sha256": "d5f799356b5d5f75b546e35852c875c0f39aa1b7d05596c040fd20f0f6b4e50e"
+      "sha256": "0a470ae9598e3fb281cb83540d661ea57bdeed5fb824689fa9eb3f3c08a87df2"
     },
     {
       "path": "BuildOvalContent.gd",
-      "sha256": "62aee2bb141a37c221d0c1e71c923a91bacfabe248d0fbc652cf6b67e9d08d43"
+      "sha256": "0f09b216e10e5f1f08f7fdc085334a01c66122e2323ffd06606ad8fca6edfb39"
     },
     {
       "path": "source/OvalEnvironment.blend",
-      "sha256": "6f6a855bf61787fd808abf7ea689fb43ac1a40a78f866efd005f317b8f383e29"
+      "sha256": "6f663c94112c348b0665fafca07c528303a873276e626e44d9e480d5898f4684"
     },
     {
       "path": "conifers.glb",
-      "sha256": "23543c0b08ff4e0b44a5ab135e722f6cc6dbcaa33655761b07ca192e8ce09009"
+      "sha256": "0a3fe06fd74c3e8ecda8830d9039e78d940f22d0b1710dd47fcc2d50bd9aea97"
     },
     {
       "path": "grass_albedo.png",
@@ -30,6 +30,10 @@
     {
       "path": "ground_macro.png",
       "sha256": "455f6651acdb0be7d26dd192859b0e4a9e44c2c0b72d2452aee330583b2c3a73"
+    },
+    {
+      "path": "grass_variation.png",
+      "sha256": "2ee80c84bec2a131872ab6964546a15d2737e8eb8c657bcc8c35dcd47b02b761"
     }
   ]
 }

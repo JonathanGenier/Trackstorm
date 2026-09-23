@@ -99,19 +99,34 @@ static func bake(map: Node3D, measurements: Dictionary) -> void:
 			material.roughness = 1.0
 			tree.mesh.surface_set_material(surface, material)
 	var random := RandomNumberGenerator.new()
-	random.seed = 100
-	# Spatial chunks retain culling. Three rows, generous road setback, no scenery collision.
+	random.seed = 200
+	var occupied: Array[Vector3] = []
+	# Irregular mixed-age stands, not species-specific rings. Chunking still bounds draw calls.
 	for chunk in 16:
+		var centers: Array[Vector2] = []
+		for stand in 4:
+			centers.append(Vector2((chunk+random.randf())*outer.size()/16.0,random.randf_range(25,95)))
 		for variant in 3:
 			var transforms: Array[Transform3D] = []
 			for step in 18:
-				var i := (chunk*57+step*3+variant) % outer.size()
-				var outward := Vector3(outer[i].x-inner[i].x,0,outer[i].z-inner[i].z).normalized()
-				var distance := 12.0+variant*18.0+random.randf_range(0,10)
-				var p := outer[i]+outward*distance
-				p.y = outer[i].y*(1-distance/700.0)-.1
-				var scale := random.randf_range(.75,1.35)
-				transforms.append(Transform3D(Basis(Vector3.UP,random.randf()*TAU).scaled(Vector3(scale,scale*random.randf_range(.9,1.15),scale)),p))
+				var p := Vector3.ZERO
+				for attempt in 100:
+					var center := centers[random.randi_range(0,centers.size()-1)]
+					var section := fposmod(center.x+random.randfn(0,13),outer.size())
+					var i := int(section)
+					var j := (i+1)%outer.size()
+					var rim := outer[i].lerp(outer[j],section-i)
+					var inside := inner[i].lerp(inner[j],section-i)
+					var outward := Vector3(rim.x-inside.x,0,rim.z-inside.z).normalized()
+					var distance := clampf(center.y+random.randfn(0,17),12.5,125)
+					p = rim+outward*distance
+					p.y = rim.y*(1-distance/700.0)-.1
+					if occupied.all(func(other: Vector3) -> bool: return Vector2(other.x,other.z).distance_to(Vector2(p.x,p.z))>3.5):
+						break
+					assert(attempt<99,"Forest placement exhausted its spacing budget.")
+				occupied.append(p)
+				var scale := random.randf_range(.65,1.35)
+				transforms.append(Transform3D(Basis(Vector3.UP,random.randf()*TAU).scaled(Vector3(scale*random.randf_range(.9,1.15),scale*random.randf_range(.85,1.2),scale)),p))
 			var batch := child(map,content,MultiMeshInstance3D.new(),"Forest%02d_%d" % [chunk,variant]) as MultiMeshInstance3D
 			batch.multimesh = MultiMesh.new()
 			batch.multimesh.transform_format = MultiMesh.TRANSFORM_3D
