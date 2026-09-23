@@ -85,6 +85,13 @@ public sealed partial class PlayMenuChecks : Node
                 Rect2 viewport = GetViewport().GetVisibleRect();
                 foreach (string text in new[] { "Host Game", "Back", "Refresh", "All  ▾" })
                     Require(viewport.Encloses(Button(text).GetGlobalRect()), text + " fits " + size);
+                var version = _session.PlayMenu.GetNode<Label>("GameVersion");
+                Require(version.Text == $"v{Core.Sessions.GameVersion.Current}" && version.Position.X == 16 && version.MouseFilter == Control.MouseFilterEnum.Ignore && viewport.Encloses(version.GetGlobalRect()), "Canonical bottom-left version at " + size);
+                Require(Button("Back").GetGlobalRect().End.Y < version.GetGlobalRect().Position.Y, "Version footer is separate from rig at " + size);
+                var interior = Controls<Control>().Single(control => control.Name == "BrowserInterior");
+                foreach (Control control in interior.GetChildren().OfType<Control>())
+                    Require(interior.GetGlobalRect().Grow(0.1f).Encloses(control.GetGlobalRect()), "Browser child fits safe interior: " + control.GetType().Name);
+                Require(scroll.GetGlobalRect().Size.X == interior.GetGlobalRect().Size.X, "Scrolling content cannot widen beyond safe interior");
                 await Capture($"layout-{size.X}x{size.Y}");
             }
             Click(Button("All  ▾")); await Frames(3); await Capture("filter-choices");
@@ -95,13 +102,13 @@ public sealed partial class PlayMenuChecks : Node
             Click(Button("Has Space  ▾")); await Frames(3); Click(Button("Mode: Circus")); await Frames(3);
             Require(_session.PlayMenu.VisibleRows.All(row => row.GameMode == "Circus"), "Advertised mode UI choice");
             Click(Button("Mode: Circus  ▾")); await Frames(3); Click(Button("All")); await Frames(3);
-            Click(Button("Host Game")); await Frames(3); await Capture("host-form");
+            await HeldClick(Button("Host Game")); await Frames(3); await Capture("host-form");
             Click(Button("Create lobby")); await Frames(3); await Capture("host-failure");
             Require(_coordinator.Active is null && Button("Create lobby").IsVisibleInTree(), "Failed host remains retryable");
             Click(Button("Cancel")); await Frames(3);
             for (int cycle = 0; cycle < 3; cycle++)
             {
-                Click(Button("Back")); Require(!_session.PlayMenu.Interactive, "Back blocks interaction");
+                await HeldClick(Button("Back")); Require(!_session.PlayMenu.Interactive, "Back blocks interaction");
                 await Frames(96);
                 Require(_session.MainMenu.Interactive && !_session.PlayMenu.Visible, "Main Menu settled after Back");
                 Click(_session.MainMenu.Targets[0]); await Frames(85);
@@ -112,6 +119,7 @@ public sealed partial class PlayMenuChecks : Node
             Click(Button("Back to Main Menu")); await Frames(96);
             Require(_session.MainMenu.Interactive, "Direct-IP Back returns through the complementary transition");
             Click(_session.MainMenu.Targets[0]); await Frames(85);
+            await CheckPassiveLookupActions();
             await Capture("flag-a"); await Frames(20); await Capture("flag-b");
             GD.Print("Play Menu checks passed: 0/100, fixed scrolling, search/filter, mouse and logical double Accept, controller equivalent, expiry, transitions, viewport bounds, host form.");
             _session.ProcessMode = ProcessModeEnum.Disabled; _coordinator.Dispose(); _bindings.Dispose(); GetTree().Quit();
@@ -119,6 +127,46 @@ public sealed partial class PlayMenuChecks : Node
         catch (Exception exception) { GD.PushError(exception.ToString()); GetTree().Quit(1); }
     }
     private IEnumerable<T> Controls<T>() where T : Node => Descendants(_session).OfType<T>();
+    private async Task CheckPassiveLookupActions()
+    {
+        _coordinator.Dispose();
+        var store = new ResumeLocatorStore(ProjectSettings.GlobalizePath("res://.godot/play-menu-pending-lookup.json"));
+        var local = new OnlineProductUserId(new string('1', 32));
+        store.Save(new ResumeLocator("missing", 999, 2, 1, local.Value, 1, new string('2', 32)));
+        _coordinator = new OnlineLobbyCoordinator(_provider, local, resumeStore: store);
+        _coordinator.Tick();
+        await Frames(3);
+        Require(_coordinator.CheckingSavedSession && _coordinator.CanStartFreshSession, "Fixture has unresolved passive lookup, not an authoritative decision");
+        Require(!Button("Host Game").Disabled && !Button("Back").Disabled && Controls<LineEdit>().Single(edit => edit.Name == "LobbySearch").IsVisibleInTree(), "Passive hint does not block normal browser/Host/Back");
+        await HeldClick(Button("Host Game")); await Frames(3);
+        Require(Button("Create lobby").IsVisibleInTree(), "Pointer Host opens existing form during passive lookup");
+        Click(Button("Cancel")); await Frames(3);
+        Button("Host Game").GrabFocus(); Tap(Key.Enter); await Frames(3);
+        Require(Button("Create lobby").IsVisibleInTree(), "Keyboard Host opens existing form");
+        Click(Button("Cancel")); await Frames(3);
+        Button("Host Game").GrabFocus(); Joy(JoyButton.A); await Frames(3);
+        Require(Button("Create lobby").IsVisibleInTree(), "Controller Host opens existing form");
+        Click(Button("Cancel")); await Frames(3);
+        var back = Button("Back"); float restingY = back.GetGlobalRect().Position.Y;
+        await HeldClick(back); await Frames(10);
+        Require(!_session.PlayMenu.Interactive && !_session.MainMenu.Visible && back.GetGlobalRect().Position.Y < restingY, "Back visibly hoists with both menus noninteractive");
+        await Frames(14);
+        Require(!_session.PlayMenu.Visible && _session.MainMenu.Visible && !_session.MainMenu.Interactive, "Play clears before Main drops");
+        await Frames(75);
+        Require(_session.MainMenu.Interactive, "Back restores Main interaction despite pending lookup");
+        _provider.CompleteLookup!();
+        Require(! _coordinator.HasRetainedDecision && store.Load(local.Value) is null, "Missing hint clears through existing owner");
+        _provider.Count = 0;
+        Click(_session.MainMenu.Targets[0]); await Frames(85); _coordinator.Refresh(); await Frames(3);
+        Require(_session.PlayMenu.VisibleRows.Count == 0 && Controls<LineEdit>().Single(edit => edit.Name == "LobbySearch").IsVisibleInTree(), "No resumable game immediately shows empty browser");
+        await Capture("no-previous-game");
+        foreach (bool controller in new[] { false, true })
+        {
+            Button("Back").GrabFocus(); if (controller) Joy(JoyButton.A); else Tap(Key.Enter);
+            await Frames(96); Require(_session.MainMenu.Interactive, "Logical Back completes complementary transition");
+            Click(_session.MainMenu.Targets[0]); await Frames(85);
+        }
+    }
     private static IEnumerable<Node> Descendants(Node node) { foreach (Node child in node.GetChildren()) { yield return child; foreach (Node nested in Descendants(child)) yield return nested; } }
     private Button Button(string text) => Controls<Button>().Single(button => button.IsVisibleInTree() && button.Text == text);
     private IEnumerable<Button> Rows() => Controls<Button>().Where(button => button.IsVisibleInTree() && button.HasMeta("lobby_id"));
@@ -134,6 +182,18 @@ public sealed partial class PlayMenuChecks : Node
     }
     private static void Tap(Key key) { foreach (bool pressed in new[] { true, false }) { using var input = new InputEventKey { PhysicalKeycode = key, Keycode = key, Pressed = pressed }; Godot.Input.ParseInputEvent(input); Godot.Input.FlushBufferedEvents(); } }
     private static void Joy(JoyButton button) { foreach (bool pressed in new[] { true, false }) { using var input = new InputEventJoypadButton { Device = 0, ButtonIndex = button, Pressed = pressed }; Godot.Input.ParseInputEvent(input); Godot.Input.FlushBufferedEvents(); } }
+    private async Task HeldClick(Button button)
+    {
+        Vector2 position = button.GetGlobalRect().GetCenter();
+        using var motion = new InputEventMouseMotion { Position = position, GlobalPosition = position, Relative = new Vector2(8, 8) };
+        Godot.Input.ParseInputEvent(motion); Godot.Input.FlushBufferedEvents();
+        foreach (bool pressed in new[] { true, false })
+        {
+            using var input = new InputEventMouseButton { Position = position, GlobalPosition = position, ButtonIndex = MouseButton.Left, Pressed = pressed };
+            Godot.Input.ParseInputEvent(input); Godot.Input.FlushBufferedEvents();
+            if (pressed) await Frames(6);
+        }
+    }
     private static void Click(Button button, bool twice = false)
     {
         Vector2 position = button.GetGlobalRect().GetCenter();
@@ -148,6 +208,8 @@ public sealed partial class PlayMenuChecks : Node
         internal bool DeferSearch { get; set; }
         internal string? SearchFailure { get; set; }
         internal Action? CompleteSearch { get; private set; }
+        internal Action? CompleteLookup { get; private set; }
+        public void Lookup(string id, Action<OnlineLobbyLookup> completed) => CompleteLookup = () => completed(new(null, null));
         public void Search(Action<IReadOnlyList<OnlineLobby>, string?> completed)
         {
             void Complete() => completed(Enumerable.Range(0, Count).Select(i => new OnlineLobby(i.ToString(), $"Arena {i:000}", new OnlineProductUserId(new string('2', 32)), (ulong)(i + 1), i % 2 == 0 ? LobbyAccess.Public : LobbyAccess.Locked, i % 8 + 1, 8, OnlineLobby.CurrentProtocol, true, i % 2 == 0 ? null : LobbyCredential.Create("test-code")) { GameMode = i % 3 == 0 ? "Circus" : "FirstToTarget" }).ToArray(), SearchFailure);

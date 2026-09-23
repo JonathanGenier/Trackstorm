@@ -30,6 +30,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
     private ResumeLocatorStore? _resumeStore;
     private ReservationGateway? _reservationGateway;
     private OnlineSessionBinding? _reservationBinding;
+    private Input.PlayerInputBindings _bindings = null!;
 
     /// <inheritdoc />
     public override async void _Ready()
@@ -41,7 +42,8 @@ public sealed partial class OnlineLobbyUiChecks : Node
         _provider.DeferLookup = true;
         _online = true;
         _coordinator = new OnlineLobbyCoordinator(_provider, local, resumeStore: _resumeStore);
-        _session = new DevelopmentSession { OnlineCoordinator = () => _online ? _coordinator : null, OnlineStatus = () => _online ? EosLobbyStatus.Connected : _identityStates[_stage + 7], OnlineLogin = () => _loginRequests++ };
+        _bindings = new Input.PlayerInputBindings();
+        _session = new DevelopmentSession { NavigationInput = new Input.PlayerInputAdapter(_bindings), OnlineCoordinator = () => _online ? _coordinator : null, OnlineStatus = () => _online ? EosLobbyStatus.Connected : _identityStates[_stage + 7], OnlineLogin = () => _loginRequests++ };
         AddChild(_session);
         SetProcess(false);
         try
@@ -196,12 +198,13 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     Require(!_coordinator.HasRetainedDecision, "Read-only retained lookup exposed a confirmed decision.");
                     Require(Controls<Button>().Any(button => button.IsVisibleInTree() && button.Text == "Check previous session"), "Found retained metadata did not expose explicit validation.");
                     Require(_provider.ResumeRequests == 0, "Startup lookup called the legacy EOS Resume path.");
-                    Press("Check previous session");
-                    _reservationGateway = new ReservationGateway();
-                    _reservationBinding = _coordinator.AttachTransport(_reservationGateway, 1, "Player");
+                    _session.PlayMenu.BeginEntrance();
+                    _elapsed = -0.1;
                     break;
                 case 11:
-                    Require(_provider.ResumeRequests == 1, "Explicit validation did not request retained membership exactly once.");
+                    Require(_provider.ResumeRequests == 1, "Entering Play did not request retained validation exactly once.");
+                    _reservationGateway = new ReservationGateway();
+                    _reservationBinding = _coordinator.AttachTransport(_reservationGateway, 1, "Player");
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Checking, "Explicit retained validation did not begin authority inspection.");
                     Require(!Controls<LineEdit>().Any(edit => edit.Name == "LobbySearch" && edit.IsVisibleInTree()), "Authority inspection must hide browser controls.");
                     _reservationGateway!.ConfirmAvailable();
@@ -212,8 +215,8 @@ public sealed partial class OnlineLobbyUiChecks : Node
                     Require(Controls<VBoxContainer>().Single(control => control.Name == "PlayDecision").IsVisibleInTree(), "Confirmed reservation did not expose the retained-match prompt.");
                     Require(!Controls<Button>().Any(button => button.IsVisibleInTree() && button.Text == "Host Game" && !button.Disabled), "Browser enabled during reservation decision.");
                     Capture("retained-choice");
-                    Press("No");
-                    Press("No");
+                    ClickChoice("No");
+                    AcceptChoice("No", false);
                     break;
                 case 13:
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Leaving, "Unconfirmed release returned to browser.");
@@ -224,24 +227,26 @@ public sealed partial class OnlineLobbyUiChecks : Node
                 case 14:
                     Require(!_coordinator.HasRetainedDecision && _coordinator.Active is null, "Acknowledged release did not return to browser.");
                     Require(_resumeStore!.Load(new string('1', 32)) is null, "Released locator persisted.");
+                    Require(Controls<LineEdit>().Single(edit => edit.Name == "LobbySearch").IsVisibleInTree(), "Browser returns only after acknowledged abandon clears retained state.");
                     _reservationBinding = null;
                     BeginDecision();
                     break;
                 case 15:
                     Require(_coordinator.Active is null, "Second startup lookup restored EOS membership.");
-                    Press("Check previous session");
-                    _reservationGateway = new ReservationGateway();
-                    _reservationBinding = _coordinator.AttachTransport(_reservationGateway, 1, "Player");
+                    _session.PlayMenu.BeginEntrance();
+                    _elapsed = -0.1;
                     break;
                 case 16:
+                    _reservationGateway = new ReservationGateway();
+                    _reservationBinding = _coordinator.AttachTransport(_reservationGateway, 1, "Player");
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Checking, "Second explicit validation did not begin authority inspection.");
                     Require(!Controls<LineEdit>().Any(edit => edit.Name == "LobbySearch" && edit.IsVisibleInTree()), "Second authority inspection must hide browser controls.");
                     _reservationGateway!.ConfirmAvailable();
                     break;
                 case 17:
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Choose, "Second reservation confirmation did not expose the choice.");
-                    Press("Yes");
-                    Press("Yes");
+                    AcceptChoice("Yes", true);
+                    AcceptChoice("Yes", false);
                     break;
                 case 18:
                     Require(_coordinator.RetainedDecision == RetainedSessionDecision.Reconnecting, "Reconnect choice not submitted.");
@@ -276,6 +281,8 @@ public sealed partial class OnlineLobbyUiChecks : Node
     /// <inheritdoc />
     public override void _ExitTree()
     {
+        _session.ProcessMode = ProcessModeEnum.Disabled;
+        _bindings.Dispose();
         _coordinator?.Dispose();
         _resumeStore?.Clear();
     }
@@ -335,6 +342,28 @@ public sealed partial class OnlineLobbyUiChecks : Node
         row.EmitSignal(Control.SignalName.GuiInput, input);
     }
     private void Press(string prefix) => Controls<Button>().First(button => button.IsVisibleInTree() && (button.Text.StartsWith(prefix, StringComparison.Ordinal) || button.TooltipText.StartsWith(prefix, StringComparison.Ordinal))).EmitSignal(Button.SignalName.Pressed);
+
+    private void AcceptChoice(string text, bool controller)
+    {
+        Controls<Button>().Single(button => button.IsVisibleInTree() && button.Text == text).GrabFocus();
+        foreach (bool pressed in new[] { true, false })
+        {
+            using InputEvent input = controller ? new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.A, Pressed = pressed }
+                : new InputEventKey { Keycode = Key.Enter, PhysicalKeycode = Key.Enter, Pressed = pressed };
+            Godot.Input.ParseInputEvent(input); Godot.Input.FlushBufferedEvents();
+        }
+    }
+
+    private void ClickChoice(string text)
+    {
+        var button = Controls<Button>().Single(button => button.IsVisibleInTree() && button.Text == text);
+        Vector2 position = button.GetGlobalRect().GetCenter();
+        foreach (bool pressed in new[] { true, false })
+        {
+            using var input = new InputEventMouseButton { Position = position, GlobalPosition = position, ButtonIndex = MouseButton.Left, Pressed = pressed };
+            Godot.Input.ParseInputEvent(input); Godot.Input.FlushBufferedEvents();
+        }
+    }
 
     private void Capture(string name)
     {

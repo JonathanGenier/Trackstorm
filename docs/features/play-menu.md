@@ -1,6 +1,6 @@
 # Play Menu
 
-The Play Menu is the lobby browser inside the persistent [MenuShell](startup.md). `HangingPlayMenu` composes a header, empty rigid frame, fixed primary action plates, native table controls, decision/form content and independent fabric. The complete assembly uses a 1360×880 design region, uniformly fitted within the viewport. It never renders the full design mockup or painted sample rows. [Asset provenance](../../assets/frontend/play-menu/README.md) records the project-provided art.
+The Play Menu is the lobby browser inside the persistent [MenuShell](startup.md). `HangingPlayMenu` composes a header, empty rigid frame, fixed primary action plates, native table controls, decision/form content and independent fabric. The complete assembly uses a 1360×880 design region, uniformly fitted within the viewport above a 44-pixel footer. Search, headings, scrolling rows and status share an inset safe interior clear of the metal rails. The canonical game version uses the Main Menu bottom-left viewport anchoring, margins, type and shadow outside the moving rig. It never renders the full design mockup or painted sample rows. [Asset provenance](../../assets/frontend/play-menu/README.md) records the project-provided art.
 
 ## Navigation and motion
 
@@ -20,7 +20,7 @@ Zero rows produce an explicit empty state. Up to 100 actual discovered rows occu
 
 ## Retained sessions
 
-Any retained decision or resumable locator replaces browser content with the existing validation/decision flow. Search, filters and rows are hidden; Host and Back are disabled during the unresolved decision. A found locator exposes explicit Check previous session; the authority-confirmed choice presents Reconnect to previous game? Yes / No. Yes calls `DecideRetained(true)`; No calls `DecideRetained(false)` and normal browsing returns only after authoritative abandonment clears the retained state. Progress and recoverable failure use the coordinator's existing retry/dismiss behavior. Dismissing a failed check restores browsing while preserving the hint and an explicit Check previous session retry control. Passive startup lookup still cannot replace Main Menu.
+Entering Play requests the existing retained validation path once when the coordinator has a resumable hint, including when passive lookup finishes during entry. A passive read-only lookup alone does not block the normal browser, Host or Back; opening Host supersedes that entry intent. Explicit validation and authority-confirmed decisions replace browser content; Search, filters and rows are hidden, and Host/Back are disabled until resolution. The authority-confirmed choice presents Reconnect to previous game? Yes / No. Yes calls `DecideRetained(true)`; No calls `DecideRetained(false)` and normal browsing returns only after authoritative abandonment clears the retained state. Progress and recoverable failure use the coordinator's existing retry/dismiss behavior. Dismissing a failed check restores browsing while preserving the hint and an explicit Check previous session retry control. Passive startup lookup still cannot replace Main Menu.
 
 ## Verification
 

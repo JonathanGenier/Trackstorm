@@ -41,7 +41,7 @@ internal sealed partial class HangingPlayMenu : Control
     private Button _login = null!;
     private Button _direct = null!;
     private Button _resume = null!;
-    private bool _dismissedHint;
+    private bool _inspectOnEntry;
     private LineEdit? _code;
     private string _modalKey = "";
 
@@ -63,6 +63,17 @@ internal sealed partial class HangingPlayMenu : Control
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         MouseFilter = MouseFilterEnum.Ignore;
         Theme = MakeTheme();
+        var version = new Label
+        {
+            Name = "GameVersion", Text = $"v{Trackstorm.Core.Sessions.GameVersion.Current}",
+            AnchorTop = 1, AnchorBottom = 1, OffsetLeft = 16, OffsetTop = -40, OffsetRight = 216, OffsetBottom = -16,
+            MouseFilter = MouseFilterEnum.Ignore,
+        };
+        version.AddThemeFontSizeOverride("font_size", 16);
+        version.AddThemeColorOverride("font_color", new Color("e3d8c8"));
+        version.AddThemeColorOverride("font_shadow_color", Colors.Black);
+        version.AddThemeConstantOverride("shadow_offset_y", 1);
+        AddChild(version);
         AddChild(_layout);
         _layout.AddChild(_rig);
         // Separate atlas regions retain the supplied pixels without rendering a flattened mockup.
@@ -78,32 +89,34 @@ internal sealed partial class HangingPlayMenu : Control
         free.Modulate = new Color(0.6f, 0.6f, 0.6f);
         _back = ArtButton("Back_button.png", new Rect2(0, 90, 2172, 540), new Rect2(35, 791, 280, 70), "Back", () => { if (Interactive) Back(); });
         _rig.AddChild(_browser);
-        Place(_browser, new Rect2(82, 380, 1194, 345));
-        Add(_browser, _search, new Rect2(0, 0, 650, 46));
-        Add(_browser, _filter, new Rect2(675, 0, 325, 46));
-        Add(_browser, _refresh, new Rect2(1020, 0, 174, 46));
+        _browser.Name = "BrowserInterior";
+        Place(_browser, new Rect2(120, 385, 1120, 290));
+        Add(_browser, _search, new Rect2(0, 0, 600, 46));
+        Add(_browser, _filter, new Rect2(620, 0, 310, 46));
+        Add(_browser, _refresh, new Rect2(950, 0, 170, 46));
         _filter.Pressed += TogglePicker;
         _refresh.Pressed += () => { _selection.Reset(); Coordinator()?.Refresh(); };
         _search.TextChanged += _ => { _selection.Reset(); UpdateRows(); };
         var headings = new HBoxContainer();
-        Add(_browser, headings, new Rect2(0, 58, 1160, 35));
+        Add(_browser, headings, new Rect2(12, 58, 1080, 35));
         AddCells(headings, ["LOBBY NAME", "GAME MODE", "PLAYERS", "BLOCKED", "PING"], true);
-        Add(_browser, _scroll, new Rect2(0, 98, 1194, 210));
+        Add(_browser, _scroll, new Rect2(0, 98, 1120, 181));
         _rows.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         _rows.AddThemeConstantOverride("separation", 3);
         _scroll.AddChild(_rows);
-        Add(_browser, _empty, new Rect2(0, 98, 1194, 210));
+        Add(_browser, _empty, new Rect2(0, 98, 1120, 181));
+        _empty.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _empty.MouseFilter = MouseFilterEnum.Ignore;
         Add(_rig, _modal, new Rect2(135, 410, 1090, 295));
         _modal.AddThemeConstantOverride("separation", 12);
-        Add(_rig, _status, new Rect2(85, 699, 1185, 45));
+        Add(_rig, _status, new Rect2(120, 681, 1120, 53));
         _status.AddThemeFontSizeOverride("font_size", 21);
         _status.MaxLinesVisible = 2;
         _login = PlainButton("EOS dev login / Retry", () => Login());
         Add(_rig, _playerName, new Rect2(340, 810, 275, 46));
         _playerName.TextChanged += name => PlayerNameChanged(name);
         Add(_rig, _login, new Rect2(640, 810, 325, 46));
-        _resume = PlainButton("Check previous session", () => { _dismissedHint = false; Coordinator()?.ResumeRetained(); });
+        _resume = PlainButton("Check previous session", () => { Coordinator()?.ResumeRetained(); });
         Add(_rig, _resume, new Rect2(640, 810, 325, 46));
         _direct = PlainButton("Direct-IP / LAN", () => Direct());
         Add(_rig, _direct, new Rect2(985, 810, 295, 46));
@@ -120,7 +133,7 @@ internal sealed partial class HangingPlayMenu : Control
         _page = "";
         _lockedId = null;
         _modalKey = "";
-        _dismissedHint = false;
+        _inspectOnEntry = true;
         UpdateMotion();
     }
 
@@ -128,6 +141,7 @@ internal sealed partial class HangingPlayMenu : Control
     {
         if (_hoisted is not null) return;
         _hoisted = completed;
+        _inspectOnEntry = false;
         _motion = 0;
         _selection.Reset();
     }
@@ -169,16 +183,22 @@ internal sealed partial class HangingPlayMenu : Control
         if (!ReferenceEquals(coordinator, _previous))
         {
             _previous = coordinator;
-            _dismissedHint = false;
             _selection.Select(null);
             if (coordinator is not null) { coordinator.Browser.Search = ""; coordinator.Refresh(); }
         }
-        bool retained = coordinator is { HasRetainedDecision: true } || (coordinator?.CanResumeRetained == true && !_dismissedHint);
+        // Play is the explicit entry intent. Passive startup lookup alone must not
+        // disable fresh-session controls or take over Main Menu navigation.
+        if (_inspectOnEntry && coordinator is not null && !coordinator.CheckingSavedSession)
+        {
+            _inspectOnEntry = false;
+            if (coordinator.CanResumeRetained) coordinator.ResumeRetained();
+        }
+        bool retained = coordinator is { HasRetainedDecision: true, CheckingSavedSession: false };
         bool busy = coordinator?.Busy == true || coordinator?.Active is not null;
         string page = retained ? "retained:" + coordinator!.RetainedDecision : busy ? "admission" : _page;
         _browser.Visible = page.Length == 0;
         _modal.Visible = !_browser.Visible;
-        _host.Disabled = !identity.Online || coordinator is null || busy || retained;
+        _host.Disabled = !identity.Online || coordinator?.CanStartFreshSession != true || retained;
         _back.Disabled = busy || retained;
         _host.TooltipText = _host.Disabled ? identity.HostReason.Length > 0 ? identity.HostReason : coordinator?.Status ?? "Initializing online services…" : "Create a lobby";
         _login.Visible = identity.CanRetry && !retained;
@@ -191,7 +211,7 @@ internal sealed partial class HangingPlayMenu : Control
         _search.Editable = !busy;
         _filter.Disabled = busy;
         _status.Text = retained ? coordinator!.Status : coordinator is null ? identity.Text : coordinator.Status;
-        _status.Visible = !retained;
+        _status.Visible = !retained && page != "filter";
         _status.TooltipText = _status.Text;
         if (page != _modalKey) BuildModal(page);
         if (_modal.GetNodeOrNull<Label>("RetainedStatus") is { } progress) progress.Text = coordinator?.Status ?? string.Empty;
@@ -260,6 +280,7 @@ internal sealed partial class HangingPlayMenu : Control
         if (!Interactive) return;
         _selection.Reset();
         _page = page;
+        if (page == "host") _inspectOnEntry = false;
         _modalKey = "!";
         UpdatePresentation();
     }
@@ -287,7 +308,7 @@ internal sealed partial class HangingPlayMenu : Control
             else if (coordinator.RetainedDecision == RetainedSessionDecision.Failed)
             {
                 _modal.AddChild(PlainButton("Retry previous session", coordinator.RetryRetained));
-                _modal.AddChild(PlainButton("Back to browser", () => { _dismissedHint = true; coordinator.DismissRetainedFailure(); }));
+                _modal.AddChild(PlainButton("Back to browser", () => { coordinator.DismissRetainedFailure(); }));
             }
             else if (coordinator.CanResumeRetained)
                 _modal.AddChild(PlainButton("Check previous session", coordinator.ResumeRetained));
@@ -442,7 +463,7 @@ internal sealed partial class HangingPlayMenu : Control
     private static void Add(Control parent, Control child, Rect2 rect) { parent.AddChild(child); Place(child, rect); }
     private static void AddCells(HBoxContainer parent, string[] texts, bool heading)
     {
-        float[] widths = [425, 265, 170, 175, 110];
+        float[] widths = [385, 240, 150, 160, 110];
         for (int i = 0; i < texts.Length; i++)
         {
             var label = new Label { Text = texts[i], CustomMinimumSize = new Vector2(widths[i], 0), ClipText = true, TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis, MouseFilter = MouseFilterEnum.Ignore, VerticalAlignment = VerticalAlignment.Center };
@@ -464,7 +485,8 @@ internal sealed partial class HangingPlayMenu : Control
     }
     private void Layout()
     {
-        float scale = Math.Min(Size.X / 1400, Size.Y / 900);
+        // Reserve the same viewport-space version footer used by Main Menu.
+        float scale = Math.Min(Size.X / 1400, Math.Max(1, Size.Y - 44) / 880);
         _layout.Scale = Vector2.One * scale;
         _layout.Position = new Vector2((Size.X - 1360 * scale) / 2, 0);
     }
