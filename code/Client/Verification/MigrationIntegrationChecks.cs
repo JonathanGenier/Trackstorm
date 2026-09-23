@@ -187,6 +187,15 @@ public sealed partial class MigrationIntegrationChecks : Node
                 _presentations[i]!.JoinedLobby.Refresh();
                 foreach (var pair in _presentations[i]!.JoinedLobby.Cars) _showcases[i][pair.Key] = (pair.Value.Root, pair.Value.Slot);
             }
+            var migration = _drivers[0]!.Migration!;
+            migration.AuthorityAvailable = () => false;
+            migration.Advance(0);
+            _presentations[0]!.JoinedLobby.Refresh();
+            Require(migration.Frozen, "Authority is explicitly frozen for local-navigation verification.");
+            foreach (string label in new[] { "Settings", "Quit to Main Menu" })
+                Require(!_presentations[0]!.JoinedLobby.FindChildren("*", "Button", true, false).Cast<Button>().Single(button => button.Text == label).Disabled, "Personal Settings and cleanup remain available during lobby migration freeze.");
+            migration.AuthorityAvailable = null;
+            migration.Advance(0);
             Require(_drivers[0]!.BeginLeave(), "Host drain begins.");
             _stage = 2;
         }

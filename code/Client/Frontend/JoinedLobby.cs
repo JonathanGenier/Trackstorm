@@ -69,26 +69,27 @@ internal sealed partial class JoinedLobby : Control
         _ready.Pressed += () => { if (CanAct && Session.Lobby is { Authority: null, State: { } state } lobby) lobby.Request(LobbyCommand.Ready, !state.Players.Single(player => player.Id == lobby.LocalPlayerId).Ready); };
         _map.Pressed += () => { if (CanHostAct) _dialog.ShowMaps(); };
         _lobbySettings.Pressed += () => { if (CanHostAct) _dialog.ShowSettings(); };
-        _settings.Pressed += () => { if (CanAct) Session.OpenSettings(); };
-        _quit.Pressed += () => { if (CanAct) Session.ReturnToMainMenu(); };
+        _settings.Pressed += () => { if (CanNavigate) Session.OpenSettings(); };
+        _quit.Pressed += () => { if (CanNavigate) Session.ReturnToMainMenu(); };
         Resized += Layout;
         Layout();
         Refresh();
     }
 
     private Button[] BottomButtons => [_start, _ready, _map, _lobbySettings, _settings, _quit];
-    internal bool CanAct => Session.Stage == ApplicationStage.Lobby && !Session.OverlayOpen() && Session.Lobby is { Reconnecting: false, Failure.Length: 0 } && Session.Lobby.Migration?.Frozen != true;
+    private bool CanNavigate => Session.Stage == ApplicationStage.Lobby && !Session.OverlayOpen();
+    internal bool CanAct => CanNavigate && Session.Lobby is { Reconnecting: false, Failure.Length: 0 } && Session.Lobby.Migration?.Frozen != true;
     internal bool CanHostAct => CanAct && Session.Lobby?.Authority is not null;
 
     public override void _Process(double delta)
     {
         Refresh();
-        SampleNavigation(Visible && CanAct);
+        SampleNavigation(Visible && CanNavigate);
     }
 
     public override void _Input(InputEvent @event)
     {
-        if (!Visible || !CanAct) return;
+        if (!Visible || !CanNavigate) return;
         SampleNavigation(true);
         if (Session.NavigationInput is not null && (@event.IsAction("ui_accept") || @event.IsAction("ui_up") || @event.IsAction("ui_down") || @event.IsAction("ui_left") || @event.IsAction("ui_right") || @event.IsAction("ui_cancel"))) GetViewport().SetInputAsHandled();
     }
@@ -143,6 +144,7 @@ internal sealed partial class JoinedLobby : Control
         _start.Visible = _map.Visible = _lobbySettings.Visible = host;
         _ready.Visible = !host;
         foreach (var button in BottomButtons) button.Disabled = !CanAct || _dialog.Visible;
+        _settings.Disabled = _quit.Disabled = !CanNavigate || _dialog.Visible;
         _start.Disabled |= !state.CanStart;
         _ready.Text = players.FirstOrDefault(player => player.Id == Session.Lobby.LocalPlayerId)?.Ready == true ? "Not Ready" : "Ready";
         Button[] visibleButtons = BottomButtons.Where(button => button.Visible).ToArray();
