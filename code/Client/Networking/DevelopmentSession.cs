@@ -56,7 +56,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private string? _failureOutcome;
     private VBoxContainer _staging = null!;
     private Frontend.HangingMainMenu _mainMenu = null!;
-    private bool RetainedPresentation => OnlineCoordinator() is { HasRetainedDecision: true, CheckingSavedSession: false };
+    private bool RetainedPresentation => OnlineCoordinator()?.ShowsRetainedDecision == true;
 
     /// <summary>Existing Settings destination supplied by the bootstrap.</summary>
     internal Action OpenSettings { get; set; } = () => { };
@@ -164,6 +164,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         _browserContent.AddChild(_back);
         _back.Pressed += () => SetBrowser(false);
         _browserContent.AddChild(_debug);
+        _browserContent.AddChild(_name);
         _browserContent.AddChild(_online);
         _debug.Toggled += enabled =>
         {
@@ -172,7 +173,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
                 OnlineCoordinator()?.Leave();
             }
         };
-        _browserContent.AddChild(_name);
+
         _browserContent.AddChild(_address);
         _browserContent.AddChild(_host);
         _browserContent.AddChild(_join);

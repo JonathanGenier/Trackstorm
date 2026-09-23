@@ -70,13 +70,13 @@ internal sealed class StuntScoringTests
     public void TopSpeedUsesFivePointsPerSecondAndHysteresisWithIndependentConcurrentFlight()
     {
         var world = Create();
-        Step(world, new(0, 0, -26));
+        Step(world, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.94f)));
         Assert.That(Score(world).Stunts, Is.Null);
-        for (int i = 0; i < 60; i++) { Step(world, new(0, 0, -27)); }
-        for (int i = 0; i < 60; i++) { Step(world, new(0, 0, -26), false, new(0, 5, -10)); }
+        for (int i = 0; i < 60; i++) { Step(world, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f))); }
+        for (int i = 0; i < 60; i++) { Step(world, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.94f)), false, new(0, 5, -10)); }
         Assert.That(Score(world).Stunts!.TopSpeed.BasePoints, Is.EqualTo(10).Within(1e-9));
         Assert.That(Score(world).CircusScore, Is.Zero);
-        Step(world, new(0, 0, -25), false, new(0, 5, -10));
+        Step(world, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.89f)), false, new(0, 5, -10));
         Assert.That(Score(world).CircusScore, Is.EqualTo(10).Within(1e-9));
         Assert.That(world.State.Match!.Awards.Single().Player, Is.EqualTo(1));
         Assert.That(world.State.Match.Awards.Single().Category, Is.EqualTo(CircusScoreCategory.TopSpeed));
@@ -91,12 +91,12 @@ internal sealed class StuntScoringTests
     public void CompletingDriftDoesNotBankTopSpeedAndLossOfSupportCancelsOnlyDrift()
     {
         var world = Create();
-        for (int i = 0; i < 60; i++) { Step(world, new(8, 0, -27)); }
-        Step(world, new(0, 0, -27));
+        for (int i = 0; i < 60; i++) { Step(world, new(8, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f))); }
+        Step(world, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f)));
         Assert.That(Score(world).CircusScore, Is.EqualTo(5).Within(1e-9));
         Assert.That(Score(world).Stunts!.TopSpeed.Ticks, Is.EqualTo(61));
-        for (int i = 0; i < 60; i++) { Step(world, new(8, 0, -27)); }
-        Step(world, new(0, 0, -27), false);
+        for (int i = 0; i < 60; i++) { Step(world, new(8, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f))); }
+        Step(world, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f)), false);
         Assert.That(Score(world).CircusScore, Is.EqualTo(5).Within(1e-9));
         Assert.That(Score(world).Stunts!.Drift.Ticks, Is.Zero);
         Assert.That(Score(world).Stunts!.Airtime.Ticks, Is.EqualTo(1));
@@ -108,9 +108,9 @@ internal sealed class StuntScoringTests
     public void DeathOrResetAtCompletionDiscardsAllPendingAndKeepsBankedPoints(bool reset)
     {
         var world = Create();
-        for (int i = 0; i < 60; i++) { Step(world, new(0, 0, -27)); }
+        for (int i = 0; i < 60; i++) { Step(world, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f))); }
         Step(world, Vector3.Zero);
-        for (int i = 0; i < 60; i++) { Step(world, new(0, 0, -27), false, new(0, 5, -20)); }
+        for (int i = 0; i < 60; i++) { Step(world, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f)), false, new(0, 5, -20)); }
         Assert.That(Score(world).PendingStuntScore, Is.GreaterThan(40));
         Step(world, Vector3.Zero, lethal: !reset, reset: reset);
         Assert.That(Score(world).Stunts, Is.Null);
@@ -123,11 +123,11 @@ internal sealed class StuntScoringTests
     public void AllCategoriesBankWithCurrentSharedFractionalMultiplier()
     {
         var world = Create();
-        for (int i = 0; i < 60; i++) { Step(world, new(8, 0, -27)); }
+        for (int i = 0; i < 60; i++) { Step(world, new(8, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f))); }
         SetMultiplier(world);
-        Step(world, new(0, 0, -27));
+        Step(world, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f)));
         Assert.That(Score(world).CircusScore, Is.EqualTo(12.5).Within(1e-9));
-        for (int i = 0; i < 60; i++) { Step(world, new(0, 0, -27), false, new(0, 5, -10)); }
+        for (int i = 0; i < 60; i++) { Step(world, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f)), false, new(0, 5, -10)); }
         Step(world, Vector3.Zero, position: new(0, 1, -10));
         Assert.That(Score(world).CircusScore, Is.EqualTo((5 + 5 + 20 + (121 * 5d / 60)) * 2.5).Within(1e-8));
     }
@@ -136,14 +136,14 @@ internal sealed class StuntScoringTests
     public void CompleteRestoreContinuesPendingThenNeverReawardsCompletedEvents()
     {
         var world = Create();
-        for (int i = 0; i < 150; i++) { Step(world, new(0, 0, -27), false, new(0, 5, -10)); }
+        for (int i = 0; i < 150; i++) { Step(world, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f)), false, new(0, 5, -10)); }
         var restored = Create();
         restored.Restore(new SimulationState(world.State.Tick, world.State.LastInput, world.State.Vehicles,
             MatchCodec.Decode(MatchCodec.Encode(1, world.State.Match!)).State));
         for (int i = 0; i < 30; i++)
         {
-            Step(world, new(0, 0, -27), false, new(0, 5, -15));
-            Step(restored, new(0, 0, -27), false, new(0, 5, -15));
+            Step(world, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f)), false, new(0, 5, -15));
+            Step(restored, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f)), false, new(0, 5, -15));
         }
         Step(world, Vector3.Zero, position: new(0, 1, -20));
         Step(restored, Vector3.Zero, position: new(0, 1, -20));
@@ -175,7 +175,7 @@ internal sealed class StuntScoringTests
         for (int i = 0; i < 120; i++) { Step(world, new(8, 0, -20)); }
         Step(world, Vector3.Zero);
         Assert.That(Score(world).CircusScore, Is.EqualTo(18.5).Within(1e-9));
-        for (int i = 0; i < 120; i++) { Step(world, new(0, 0, -23), false, new(0, 5, -10)); }
+        for (int i = 0; i < 120; i++) { Step(world, new(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.83f)), false, new(0, 5, -10)); }
         Step(world, Vector3.Zero, position: new(0, 1, -10));
         Assert.That(Score(world).CircusScore, Is.EqualTo(18.5 + 24 + 30 + 10).Within(1e-9));
         Assert.That(GameplayOptions.TryApply(config, new Dictionary<string, double> { ["match.top_speed_exit_ratio"] = 0.9 }, out _, out _), Is.False);

@@ -65,8 +65,37 @@ public sealed class VehicleMovement
         Vector3 forward = Vector3.Transform(-Vector3.UnitZ, observed.Orientation);
         Vector3 right = Vector3.Transform(Vector3.UnitX, observed.Orientation);
         Vector3 up = Vector3.Transform(Vector3.UnitY, observed.Orientation);
+        Vector3 tireNormal = grounded ? groundNormal : up;
+        if (grounded)
+        {
+            // Tire forces lie in the contact plane even while the sprung chassis rolls or pitches.
+            Vector3 tangent = forward - (groundNormal * Vector3.Dot(forward, groundNormal));
+            forward = tangent.LengthSquared() > 0.0001f ? Vector3.Normalize(tangent) : Vector3.Normalize(Vector3.Cross(groundNormal, right));
+            right = Vector3.Normalize(Vector3.Cross(forward, groundNormal));
+        }
+
         Vector3 velocity = Limit(observed.LinearVelocity, c.MaximumPhysicsSpeed);
         Vector3 angular = Limit(observed.AngularVelocity, c.MaximumAngularSpeed);
+        float normalLoad = 0;
+        Vector3 suspensionTorque = Vector3.Zero;
+        if (grounded && wheels is WheelSupport supports)
+        {
+            float[] compression = [supports.Compression.X, supports.Compression.Y, supports.Compression.Z, supports.Compression.W];
+            for (int index = 0; index < 4; index++)
+            {
+                if (compression[index] <= 0)
+                {
+                    continue;
+                }
+
+                Vector3 offset = Vector3.Transform(new Vector3(index % 2 == 0 ? -VehicleDimensions.WheelTrack / 2 : VehicleDimensions.WheelTrack / 2, 0, index < 2 ? -c.Wheelbase / 2 : c.Wheelbase / 2), observed.Orientation);
+                float wheelVelocity = Vector3.Dot(observed.LinearVelocity + Vector3.Cross(observed.AngularVelocity, offset), groundNormal);
+                float force = Math.Clamp((compression[index] * c.WheelSpring) - (wheelVelocity * c.WheelDamping), 0, c.Gravity * 6) / 4;
+                normalLoad += force;
+                suspensionTorque += Vector3.Cross(offset, groundNormal * force);
+            }
+        }
+
         float longitudinal = Vector3.Dot(velocity, forward);
         float lateral = Vector3.Dot(velocity, right);
         float steerIntent = driveEnabled ? input.Steering / 32767f : 0;
@@ -95,7 +124,7 @@ public sealed class VehicleMovement
             }
             else if (throttle > 0)
             {
-                drive = Math.Min(c.Acceleration * throttle * modifiers.Acceleration, Math.Max(0, c.ForwardSpeed - longitudinal) / dt);
+                drive = Math.Min(c.Acceleration * throttle * modifiers.Acceleration * Math.Clamp(1 - MathF.Pow(Math.Max(0, longitudinal) / c.ForwardSpeed, 4), 0, 1), Math.Max(0, c.ForwardSpeed - longitudinal) / dt);
             }
             else if (brake > 0)
             {
@@ -114,23 +143,24 @@ public sealed class VehicleMovement
             float halfAxle = c.Wheelbase / 2;
             // Load transfer changes the traction budget; tire demands generate both translation and yaw.
             float frontLoad = Math.Clamp(0.5f - (State.LongitudinalAcceleration * c.LoadHeight / (c.Gravity * c.Wheelbase)), 0.2f, 0.8f);
-            float supportedFraction = 1;
             if (wheels is WheelSupport tireSupport)
             {
                 System.Numerics.Vector4 compression = tireSupport.Compression;
                 float total = compression.X + compression.Y + compression.Z + compression.W;
-                supportedFraction = ((compression.X > 0 ? 1 : 0) + (compression.Y > 0 ? 1 : 0) + (compression.Z > 0 ? 1 : 0) + (compression.W > 0 ? 1 : 0)) / 4f;
                 if (total > 0)
                 {
                     frontLoad = Math.Clamp((frontLoad + ((compression.X + compression.Y) / total)) / 2, 0.1f, 0.9f);
                 }
             }
 
-            float totalGrip = c.TireFriction * c.Gravity * modifiers.Grip * supportedFraction;
+            float tireLoad = wheels.HasValue ? normalLoad : c.Gravity * groundNormal.Y;
+            // Missing wheel forces already reduce normalLoad; do not discount their absence twice.
+            float totalGrip = c.TireFriction * tireLoad * modifiers.Grip;
             float frontCapacity = totalGrip * frontLoad;
             float rearCapacity = totalGrip * (1 - frontLoad);
-            float frontSideSpeed = lateral - (angular.Y * halfAxle) - (longitudinal * MathF.Tan(wheel));
-            float rearSideSpeed = lateral + (angular.Y * halfAxle);
+            float yaw = Vector3.Dot(angular, tireNormal);
+            float frontSideSpeed = lateral - (yaw * halfAxle) - (longitudinal * MathF.Tan(wheel));
+            float rearSideSpeed = lateral + (yaw * halfAxle);
             float response = Math.Min(c.Grip * forceScale, 1 / dt);
             float frontDemand = -frontSideSpeed * response * 0.5f;
             float rearDemand = -rearSideSpeed * response * 0.5f;
@@ -151,8 +181,8 @@ public sealed class VehicleMovement
             float coast = throttle == 0 && brake == 0 ? modifiers.Drag : Math.Max(0, modifiers.Drag - 1);
             velocity -= forward * (Vector3.Dot(velocity, forward) * (1 - MathF.Exp(-c.CoastDrag * coast * dt)));
             float inertiaPerMass = c.Wheelbase * c.Wheelbase / 3;
-            angular.Y += halfAxle * (rearForce - frontForce) / inertiaPerMass * dt;
-            angular.Y *= MathF.Exp(-c.StabilityDamping * dt);
+            angular += tireNormal * (halfAxle * (rearForce - frontForce) / inertiaPerMass * dt);
+            angular -= tireNormal * (Vector3.Dot(angular, tireNormal) * (1 - MathF.Exp(-c.StabilityDamping * dt)));
         }
 
         // Chassis load response acts on the physical body, using the same forces that consume tire grip.
@@ -166,26 +196,10 @@ public sealed class VehicleMovement
         Vector3 spring = Vector3.Cross(up, Vector3.Normalize(desiredUp));
         angular += spring * (grounded ? c.SuspensionSpring : 3) * dt;
         float damping = MathF.Exp(-(grounded ? c.SuspensionDamping : 0.5f) * dt);
-        angular.X *= damping;
-        angular.Z *= damping;
-        if (wheels is WheelSupport supports)
-        {
-            float[] compression = [supports.Compression.X, supports.Compression.Y, supports.Compression.Z, supports.Compression.W];
-            for (int index = 0; index < 4; index++)
-            {
-                if (compression[index] <= 0)
-                {
-                    continue;
-                }
-
-                Vector3 offset = (right * (index % 2 == 0 ? -VehicleDimensions.WheelTrack / 2 : VehicleDimensions.WheelTrack / 2)) + (forward * (index < 2 ? c.Wheelbase / 2 : -c.Wheelbase / 2));
-                float wheelVelocity = observed.LinearVelocity.Y + Vector3.Cross(observed.AngularVelocity, offset).Y;
-                float force = Math.Clamp((compression[index] * c.WheelSpring) - (wheelVelocity * c.WheelDamping), 0, c.Gravity * 6) / 4;
-                velocity += Vector3.UnitY * force * dt;
-                Vector3 torque = Vector3.Cross(offset, Vector3.UnitY * force);
-                angular += torque / (c.Wheelbase * c.Wheelbase / 3) * dt;
-            }
-        }
+        Vector3 tiltVelocity = angular - (tireNormal * Vector3.Dot(angular, tireNormal));
+        angular -= tiltVelocity * (1 - damping);
+        velocity += groundNormal * normalLoad * dt;
+        angular += suspensionTorque / (c.Wheelbase * c.Wheelbase / 3) * dt;
 
         velocity -= Vector3.UnitY * (c.Gravity * dt);
         float landing = grounded && !State.Grounded ? Math.Clamp(-State.Physics.LinearVelocity.Y / 12, 0, 1) : Math.Max(0, State.LandingIntensity - (dt * 3));

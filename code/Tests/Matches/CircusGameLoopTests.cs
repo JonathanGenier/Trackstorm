@@ -118,7 +118,7 @@ internal sealed class CircusGameLoopTests
     }
 
     private static void Step(HostVehicleSession host, bool moving = false) => host.Step(default, vehicle => new(
-        new VehiclePhysicsState(vehicle.ObservedPhysics.Position, Quaternion.Identity, moving ? new Vector3(0, 0, -27) : Vector3.Zero, Vector3.Zero), Vector3.UnitY));
+        new VehiclePhysicsState(vehicle.ObservedPhysics.Position, Quaternion.Identity, moving ? new Vector3(0, 0, -(new VehicleConfiguration().ForwardSpeed * 0.97f)) : Vector3.Zero, Vector3.Zero), Vector3.UnitY));
 
     private static void Hit(HostVehicleSession host, float amount)
     {

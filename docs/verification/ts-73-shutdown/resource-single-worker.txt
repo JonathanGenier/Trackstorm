@@ -1,0 +1,32 @@
+WorkerThreadPool: 4 threads, 1 max low-priority.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+TextServer: Added interface "Dummy"
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+Using "default" pen tablet driver...
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+.NET: Initializing module...
+Found hostfxr: C:/Program Files/dotnet/host/fxr/10.0.12/hostfxr.dll
+.NET: hostfxr initialized
+.NET: GodotPlugins initialized
+CORE API HASH: 3677103882
+EDITOR API HASH: 1629494564
+Loading resource: res://.godot/leak-map.gd remapped: res://.godot/leak-map.gd
+Completed load for: 'res://.godot/leak-map.gd' remapped 'res://.godot/leak-map.gd' at thread -1
+SceneTreeFTI: traversal method DEFAULT
+Loaded system CA certificates
+Loading resource: res://scenes/maps/oval_foundation.tscn remapped: res://scenes/maps/oval_foundation.tscn
+Loading resource: res://assets/maps/oval/oval_foundation.glb remapped: res://assets/maps/oval/oval_foundation.glb
+Loading resource: res://.godot/imported/oval_foundation.glb-d53fc80b05e7986b35e9004686cf9c44.scn remapped: res://.godot/imported/oval_foundation.glb-d53fc80b05e7986b35e9004686cf9c44.scn
+Completed load for: 'res://assets/maps/oval/oval_foundation.glb' remapped 'res://assets/maps/oval/oval_foundation.glb' at thread 0
+Loading resource: res://assets/maps/oval/TrackCollision.tres remapped: res://assets/maps/oval/TrackCollision.tres
+Completed load for: 'res://assets/maps/oval/TrackCollision.tres' remapped 'res://assets/maps/oval/TrackCollision.tres' at thread 0
+Loading resource: res://assets/maps/oval/InfieldCollision.tres remapped: res://assets/maps/oval/InfieldCollision.tres
+Completed load for: 'res://assets/maps/oval/InfieldCollision.tres' remapped 'res://assets/maps/oval/InfieldCollision.tres' at thread 0
+Completed load for: 'res://scenes/maps/oval_foundation.tscn' remapped 'res://scenes/maps/oval_foundation.tscn' at thread 0
+MAP LOADED
+Unloading: Disposing tracked instances...
+Unloading: Finished disposing tracked instances.
+XR: Clearing primary interface
+XR: Removed interface "Native mobile"
+XR: Removed interface "OpenXR"
