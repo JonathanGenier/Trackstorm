@@ -1,0 +1,16 @@
+Info: Saved as "OvalEnvironment.blend"
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+22:29:02 | INFO: Starting glTF 2.0 export
+22:29:02 | INFO: Extracting primitive: Conifer0
+22:29:02 | INFO: Primitives created: 4
+22:29:02 | INFO: Extracting primitive: Conifer1
+22:29:02 | INFO: Primitives created: 4
+22:29:02 | INFO: Extracting primitive: Conifer2
+22:29:02 | INFO: Primitives created: 4
+22:29:02 | INFO: Finished glTF 2.0 export in 0.10632038116455078 s
+
+Authored three conifers and original seamless grass maps.
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

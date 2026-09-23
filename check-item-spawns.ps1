@@ -3,6 +3,7 @@ param (
     [string]$GodotPath,
     [switch]$Visual,
     [switch]$Impaired,
+    [switch]$Oval,
     [switch]$NoBuild
 )
 
@@ -16,6 +17,7 @@ New-Item -ItemType Directory -Path $spawnOutput -Force | Out-Null
 $arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/item_spawn_checks.tscn', '--', "--spawn-output=$spawnOutput")
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
 if ($Impaired) { $arguments += '--spawn-impaired' }
+if ($Oval) { $arguments += '--spawn-oval' }
 $log = & $GodotPath @arguments 2>&1
 $exitCode = $LASTEXITCODE
 $log | Set-Content -LiteralPath (Join-Path $spawnOutput 'runtime.log')
