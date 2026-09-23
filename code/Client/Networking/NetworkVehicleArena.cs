@@ -123,6 +123,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             return contacts;
         };
         _driver.CollideMissile = CollideMissile;
+        _driver.PlaceOil = PlaceOil;
         _driver.ItemsReceived += publication =>
         {
             _items.Apply(publication);
@@ -353,6 +354,36 @@ internal sealed partial class NetworkVehicleArena : Node3D
                 _driver.Host.Items.Grant(_driver.Host.World, vehicle.VehicleId, item);
             }
         }
+    }
+
+    private OilPatch? PlaceOil(ItemSlot slot, VehiclePhysicsState pose)
+    {
+        Vector3 up = VehicleBody.ToGodot(System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitY, pose.Orientation));
+        Vector3 behind = VehicleBody.ToGodot(pose.Position + System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitZ * 4, pose.Orientation));
+        using var ray = PhysicsRayQueryParameters3D.Create(behind + up, behind - up * 5, 1);
+        var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
+        if (hit.Count == 0 || hit["collider"].AsGodotObject() is not StaticBody3D) { return null; }
+        Vector3 center = hit["position"].AsVector3();
+        Vector3 normal = hit["normal"].AsVector3().Normalized();
+        if (normal.Y < 0.55f) { return null; }
+        Vector3 tangent = normal.Cross(Vector3.Forward).Normalized();
+        Vector3 bitangent = normal.Cross(tangent);
+        // Refuse ledges, obstacles and surfaces that cannot support the entire planar footprint.
+        for (int i = 0; i < 16; i++)
+        {
+            float angle = i * Mathf.Tau / 16;
+            Vector3 point = center + 3 * (tangent * Mathf.Cos(angle) + bitangent * Mathf.Sin(angle));
+            ray.From = point + normal * 0.5f;
+            ray.To = point - normal * 0.5f;
+            var sample = GetWorld3D().DirectSpaceState.IntersectRay(ray);
+            if (sample.Count == 0 || sample["collider"].AsGodotObject() is not StaticBody3D ||
+                sample["normal"].AsVector3().Dot(normal) < 0.98f ||
+                Mathf.Abs((sample["position"].AsVector3() - point).Dot(normal)) > 0.06f)
+            {
+                return null;
+            }
+        }
+        return new OilPatch(slot.Token, slot.Vehicle, new System.Numerics.Vector3(center.X, center.Y, center.Z), new System.Numerics.Vector3(normal.X, normal.Y, normal.Z), 3);
     }
 
     private float? CollideMissile(MissileState missile, System.Numerics.Vector3 end)

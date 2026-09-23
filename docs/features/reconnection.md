@@ -79,4 +79,4 @@ Complete match checkpoints also carry sparse [pending stunt state](matches.md#ci
 
 The [Play Menu](play-menu.md) replaces its list with the retained validation/decision panel. Its Yes / No controls use the existing Reconnect / Leave Match actions; no new reservation or cleanup authority is introduced.
 
-All four registered item identities retain their exact life/token through the existing item checkpoint. Oil/Nitro remain held when use is unavailable; reconnect neither consumes them nor adds a fallback behavior. Local HUD reconstruction reads the same confirmed slot, while vehicle reconstruction creates no held-item world model.
+All four registered item identities retain their exact life/token through the existing item checkpoint. Nitro remains held when use is unavailable. Oil inventory, persistent patches and per-life contact latches restore through the complete item state, while vehicle movement restores ongoing traction recovery without a second entry impulse. Local HUD reconstruction reads the same confirmed slot, while vehicle reconstruction creates no held-item world model.

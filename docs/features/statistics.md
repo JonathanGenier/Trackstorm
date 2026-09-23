@@ -121,3 +121,5 @@ checks cover surrounding behavior. Local synthetic tests do not establish
 physical-controller ergonomics or separate-PC authenticated EOS connectivity.
 
 [Feature index](README.md) · [Developer Options](developer-options.md) · [Game Menu](game-menu.md) · [Vehicles](vehicles.md) · [Networking](vehicle-networking.md) · [Reconnection](reconnection.md)
+
+Combat diagnostics include each vehicle's authoritative remaining Oil traction duration. Arena diagnostics include the current persistent patch count from the existing item publication.

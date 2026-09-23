@@ -13,6 +13,10 @@ public sealed class ItemAuthority
     private readonly Dictionary<ulong, ItemSlot> _slots = new();
     private readonly Dictionary<ulong, ulong> _pending = new();
     private readonly List<MissileState> _missiles = new();
+    /// <summary>Portable hard ceiling on match hazards.</summary>
+    public const int MaximumPatches = 32;
+    private readonly List<OilPatch> _patches = new();
+    private readonly List<OilContact> _contacts = new();
     private ulong _token;
 
     /// <summary>Creates a match-scoped item authority.</summary>
@@ -36,6 +40,10 @@ public sealed class ItemAuthority
 
     /// <summary>Highest issued token, including consumed and departed ownership.</summary>
     public ulong TokenHighWater => _token;
+    /// <summary>Complete persistent hazards, independent of deployer lifetime.</summary>
+    public IReadOnlyList<OilPatch> Patches => _patches.ToArray();
+    /// <summary>Current entry latches for authority continuation.</summary>
+    public IReadOnlyList<OilContact> OilContacts => _contacts.ToArray();
 
     /// <summary>Restores committed ownership without pending commands or historical effects.</summary>
     /// <param name="publication">Validated current world and item state.</param>
@@ -43,7 +51,7 @@ public sealed class ItemAuthority
     /// <param name="token">Highest ever issued token in this match.</param>
     public void Restore(ItemPublication publication, ulong revision, ulong token)
     {
-        if (publication.Events.Count != 0 || publication.Slots.Any(slot => slot.Token > token) ||
+        if (publication.Events.Count != 0 || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token) ||
             publication.Spawns.Any(spawn => spawn.Token > token) || publication.Missiles.Any(missile => missile.Id > token ||
                 !publication.World.Vehicles.Any(vehicle => vehicle.State.VehicleId == missile.Owner && vehicle.State.CanInteract)))
         {
@@ -58,6 +66,10 @@ public sealed class ItemAuthority
 
         _missiles.Clear();
         _missiles.AddRange(publication.Missiles);
+        _patches.Clear();
+        _patches.AddRange(publication.Patches);
+        _contacts.Clear();
+        _contacts.AddRange(publication.OilContacts);
         _pending.Clear();
         Events = Array.Empty<ItemEvent>();
         Revision = revision;
@@ -74,6 +86,7 @@ public sealed class ItemAuthority
     {
         _pending.Remove(vehicle);
         bool changed = _slots.Remove(vehicle);
+        changed |= _contacts.RemoveAll(contact => contact.Vehicle == vehicle) > 0;
         changed |= _missiles.RemoveAll(missile => missile.Owner == vehicle) > 0;
         if (changed)
         {
@@ -125,11 +138,16 @@ public sealed class ItemAuthority
     /// <param name="input">Next world tick.</param>
     /// <param name="requests">Complete native observation batch.</param>
     /// <param name="collide">Host collision adapter returning a hit fraction in [0,1], or null.</param>
-    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide)
+    /// <param name="placeOil">Host-only ground projection; null rejects deployment.</param>
+    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null)
     {
         var slots = new Dictionary<ulong, ItemSlot>(_slots);
         var missiles = new List<MissileState>(_missiles);
         var events = new List<ItemEvent>();
+        var patches = new List<OilPatch>(_patches);
+        var contacts = new List<OilContact>();
+        var spins = new Dictionary<ulong, float>();
+        var journal = new List<RuntimeEvent>();
         var repair = new Dictionary<ulong, float>();
         var effects = requests.ToDictionary(request => request.VehicleId, request => request.Effects.ToList());
         foreach (var pair in slots.ToArray())
@@ -151,13 +169,34 @@ public sealed class ItemAuthority
             VehicleStepRequest request = requests.Single(value => value.VehicleId == pair.Key);
             var handler = ItemRegistry.Find(slot.Item)?.Handler;
             if (request.Reset.HasValue || handler is null ||
-                !handler.Stage(slot, request.Observation.Physics, Configuration, missiles, repair))
+                !handler.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil))
             {
                 continue;
             }
 
             events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, request.Observation.Physics.Position, false));
             slots[pair.Key] = slot with { Item = HeldItem.None };
+        }
+
+        if (world.State.Match?.Phase != Matches.MatchPhase.Finished)
+        {
+            foreach (var request in requests.OrderBy(request => request.VehicleId))
+            {
+                var vehicle = world.GetVehicle(request.VehicleId);
+                if (!vehicle.CanInteract || request.Reset.HasValue) { continue; }
+                foreach (var patch in patches.OrderBy(patch => patch.Id))
+                {
+                    var contact = new OilContact(patch.Id, vehicle.VehicleId, vehicle.LifeId);
+                    if (!patch.Contains(request.Observation)) { continue; }
+                    contacts.Add(contact);
+                    if (!_contacts.Contains(contact))
+                    {
+                        // Multiple simultaneous entries share one bounded physical response.
+                        spins.TryAdd(vehicle.VehicleId, ((patch.Id ^ vehicle.VehicleId) & 1) == 0 ? 2.6f : -2.6f);
+                        journal.Add(new RuntimeEvent { Category = EventCategory.Item, Kind = "Oil triggered", Actor = patch.Owner, Target = vehicle.VehicleId, Cause = "Oil", Tick = input.Tick });
+                    }
+                }
+            }
         }
 
         var advanced = new List<MissileState>();
@@ -194,7 +233,7 @@ public sealed class ItemAuthority
             }
         }
 
-        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, request.Observation, effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause)).ToArray(), events.Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick }).ToArray());
+        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, request.Observation, effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, spins.GetValueOrDefault(request.VehicleId))).ToArray(), journal.Concat(events.Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray());
         foreach (var pair in slots.ToArray())
         {
             VehicleSnapshot state = world.GetVehicle(pair.Key);
@@ -208,8 +247,15 @@ public sealed class ItemAuthority
             }
         }
 
+        contacts.RemoveAll(contact => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == contact.Vehicle && vehicle.LifeId == contact.Life && vehicle.CanInteract));
+        if (world.State.Match?.Phase == Matches.MatchPhase.Finished)
+        {
+            patches.Clear();
+            contacts.Clear();
+        }
+
         advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract));
-        bool changed = !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) || missiles.Count > 0;
+        bool changed = !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) || missiles.Count > 0 || !patches.SequenceEqual(_patches) || !contacts.SequenceEqual(_contacts) || journal.Count > 0;
         foreach (var removed in _slots.Values.Where(slot => slot.Item != HeldItem.None && !slots.ContainsKey(slot.Vehicle)))
         {
             world.Events.Record(EventCategory.Item, "Removed", target: removed.Vehicle, cause: removed.Item.ToString(), context: "life ended or reset", tick: input.Tick);
@@ -228,6 +274,10 @@ public sealed class ItemAuthority
 
         _missiles.Clear();
         _missiles.AddRange(advanced);
+        _patches.Clear();
+        _patches.AddRange(patches);
+        _contacts.Clear();
+        _contacts.AddRange(contacts);
         _pending.Clear();
         Events = events.AsReadOnly();
         if (changed)

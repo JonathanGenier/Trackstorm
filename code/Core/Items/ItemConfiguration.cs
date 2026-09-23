@@ -3,6 +3,9 @@ namespace Trackstorm.Core.Items;
 /// <summary>Host-owned bounded tuning. Linear falloff reaches zero at the edge.</summary>
 public sealed record ItemConfiguration
 {
+    /// <summary>Maximum persistent patches; lowering this cap never deletes existing hazards.</summary>
+    public int MaximumOilPatches { get; init; } = 16;
+
     /// <summary>HP restored to a living vehicle.</summary>
     public float WrenchHeal { get; init; } = 35;
     /// <summary>Metres per second along the launch forward direction.</summary>
@@ -19,7 +22,7 @@ public sealed record ItemConfiguration
     /// <summary>Rejects nonfinite or excessive host configuration before simulation.</summary>
     public void Validate()
     {
-        if (!float.IsFinite(WrenchHeal) || WrenchHeal < 0 || WrenchHeal > 10000 ||
+        if (MaximumOilPatches is < 1 or > ItemAuthority.MaximumPatches || !float.IsFinite(WrenchHeal) || WrenchHeal < 0 || WrenchHeal > 10000 ||
             !float.IsFinite(MissileSpeed) || MissileSpeed <= 0 || MissileSpeed > 300 ||
             MissileLifetimeTicks is < 1 or > 3600 || !float.IsFinite(ExplosionRadius) || ExplosionRadius <= 0 || ExplosionRadius > 100 ||
             !float.IsFinite(MaximumDamage) || MaximumDamage < 0 || MaximumDamage > 10000 ||

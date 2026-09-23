@@ -10,7 +10,6 @@ namespace Trackstorm.Core.Tests.Items;
 [TestFixture]
 internal sealed class ItemRegistryTests
 {
-    [TestCase(HeldItem.Oil)]
     [TestCase(HeldItem.Nitro)]
     public void UnimplementedUseRetainsExactSlotAcrossResumeAndReset(HeldItem item)
     {

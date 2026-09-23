@@ -13,7 +13,8 @@ public sealed class VehicleStepRequest
     /// <param name="reset">Explicit new-life pose, or null to continue the current life.</param>
     /// <param name="repair">Repair request for a living vehicle.</param>
     /// <param name="repairCause">Allowlisted source of repair.</param>
-    public VehicleStepRequest(ulong vehicleId, InputFrame input, VehicleObservation observation, IEnumerable<VehicleEffectRequest>? effects = null, VehiclePhysicsState? reset = null, float repair = 0, string repairCause = "repair")
+    /// <param name="oilSpin">Signed entry spin requested by item authority.</param>
+    public VehicleStepRequest(ulong vehicleId, InputFrame input, VehicleObservation observation, IEnumerable<VehicleEffectRequest>? effects = null, VehiclePhysicsState? reset = null, float repair = 0, string repairCause = "repair", float oilSpin = 0)
     {
         ArgumentNullException.ThrowIfNull(observation);
         if (vehicleId == 0 || !float.IsFinite(repair))
@@ -32,6 +33,8 @@ public sealed class VehicleStepRequest
             ArgumentNullException.ThrowIfNull(effect);
         }
 
+        if (!float.IsFinite(oilSpin) || Math.Abs(oilSpin) > 3) { throw new ArgumentException("Invalid oil spin."); }
+        OilSpin = oilSpin;
         VehicleId = vehicleId;
         Input = input;
         Observation = observation;
@@ -41,6 +44,8 @@ public sealed class VehicleStepRequest
         RepairCause = repairCause == "Wrench" ? "Wrench" : "repair";
     }
 
+    /// <summary>Authoritative entry yaw impulse; zero continues the existing timer.</summary>
+    public float OilSpin { get; }
     /// <summary>Registered identity.</summary>
     public ulong VehicleId { get; }
     /// <summary>Ordered logical input.</summary>
