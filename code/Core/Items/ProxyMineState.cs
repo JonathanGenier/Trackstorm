@@ -42,6 +42,9 @@ public sealed record ProxyMineState(ulong Id, ulong Owner, Vector3 Position, Vec
             Vector3 offset = point - Position;
             if (offset.LengthSquared() > 0.0001f) { force = Vector3.Normalize(offset) * AttractionForce(offset.Length(), configuration); }
         }
+        // A seated installation remains at rest until the field actually pulls it. Once moving,
+        // gravity and drag continue normally even when the target leaves the field.
+        if (force == Vector3.Zero && Velocity == Vector3.Zero) { return this; }
         // Gravity plus viscous drag retain momentum rather than snapping toward the target.
         Vector3 velocity = VehicleMovement.Limit(Velocity + (force / Mass - Vector3.UnitY * 9.81f - Velocity * 1.8f) / 60, 40);
         return this with { Position = Position + velocity / 60, Velocity = velocity };

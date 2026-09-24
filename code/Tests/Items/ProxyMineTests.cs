@@ -43,6 +43,20 @@ internal sealed class ProxyMineTests
     }
 
     [Test]
+    public void InstalledMineRemainsDormantAfterSeatingUntilAnInRangeVehiclePullsIt()
+    {
+        var host = new HostVehicleSession(99);
+        Grant(host); Step(host);
+        var installed = host.Items.Mines.Single();
+        VehicleObservation Distant(VehicleSnapshot state) => new(new VehiclePhysicsState(installed.Position + Vector3.UnitX * 40, Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY);
+        for (int i = 0; i < 180; i++) { host.Step(default, Distant, moveMine: Move); }
+        Assert.That(host.Items.Mines.Single().Position, Is.EqualTo(installed.Position));
+        Assert.That(host.Items.Mines.Single().Velocity, Is.EqualTo(Vector3.Zero));
+        host.Step(default, state => new(new VehiclePhysicsState(installed.Position + Vector3.UnitX * 12, Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY), moveMine: Move);
+        Assert.That(host.Items.Mines.Single().Velocity.X, Is.GreaterThan(0));
+    }
+
+    [Test]
     public void FailedPlacementCapAndStaleUseRetainExactCapability()
     {
         var host = new HostVehicleSession(99);

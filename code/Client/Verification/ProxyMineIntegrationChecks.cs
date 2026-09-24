@@ -172,10 +172,11 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                 case 9 when host.Items.Mines.Count == 1:
                     _mine = host.Items.Mines.Single();
                     Check(_surface == 1 ? N.Vector3.Dot(_mine.Normal, Normal) > 0.995f : _mine.Position.Y > 20.84f, "slope/uneven placement");
+                    Position(2, new N.Vector3(-35,21.4f,0));
                     Focus(_mine.Position);
                     Next($"Surface {_surface}: authoritative position {_mine.Position}, normal {_mine.Normal}.");
                     break;
-                case 10 when _frames - _boundary == 15:
+                case 10 when _frames - _boundary == 45:
                     Check(host.Items.Mines.Single().Position == _mine!.Position, "slope/uneven stable seating");
                     Capture(_surface == 1 ? "slope.png" : "uneven.png");
                     // Drive over the still seated mine; zero magnetic force isolates contact detection.

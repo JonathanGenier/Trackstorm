@@ -69,7 +69,7 @@ internal sealed partial class ProxyMinePhysics : StaticBody3D
         var touching = GetWorld3D().DirectSpaceState.IntersectShape(overlap, 8)
             .Select(hit => hit["collider"].AsGodotObject()).OfType<NetworkVehicleBody>().OrderBy(body => body.VehicleId).FirstOrDefault();
         if (touching is not null) { return new(candidate with { Position = previous.Position }, touching.VehicleId); }
-        if (previous.SeatingTicks > 0) { return new(candidate); }
+        if (previous.SeatingTicks > 0 || (candidate.Position == previous.Position && candidate.Velocity == System.Numerics.Vector3.Zero)) { return new(candidate); }
         Vector3 velocity = VehicleBody.ToGodot(candidate.Velocity);
         Vector3 remaining = VehicleBody.ToGodot(candidate.Position - previous.Position);
         Vector3 support = VehicleBody.ToGodot(previous.Normal);

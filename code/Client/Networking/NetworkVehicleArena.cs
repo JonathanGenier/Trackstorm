@@ -136,7 +136,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             _pickups.Apply(publication);
             if (_driver.Host is not null)
             {
-                foreach (var impact in publication.Events.Where(outcome => outcome.Impact))
+                foreach (var impact in publication.Events.Where(outcome => outcome.Impact && outcome.Item == HeldItem.Missile))
                 {
                     foreach (var prop in Props)
                     {
