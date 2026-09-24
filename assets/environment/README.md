@@ -35,8 +35,9 @@ triangle counts, material names, collision counts, purpose and checksums.
 
 Tunnel/deck/piers remain owned by the existing [structural source](../maps/infield/STRUCTURES.md).
 No duplicate tunnel, grandstand, building, branded sign or invented debris category
-is added. Loose rocks cover the visible natural rubble need. Map-wide distribution,
-obstacle composition, lighting placement and route balance remain map dressing work.
+is added. Loose rocks cover the visible natural rubble need. Production distribution,
+rock composition and fixture placement are owned by the separate
+[map dressing source](../maps/infield/DRESSING.md); this library does not place them.
 
 ## Materials, collision and distance
 

@@ -39,6 +39,12 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'BuildDressing|infield_dressing|dressing_checks|check-dressing') {
+            Add-Runtime 'check-dressing.ps1'
+            Add-Runtime 'check-infield.ps1'
+            Add-Runtime 'check-oval.ps1'
+            Add-Manual 'Inspect dressed production map at driving height; drive routes, shoulders, jumps and two-car tunnel clearance.'
+        }
         if ($path -match 'Water|water_checks|check-water' -or $path -eq 'docs/features/water.md') {
             Add-Runtime 'check-water.ps1'
             Add-Manual 'Drive repeated shallow/deep Water entry/exit and run check-death-respawn.ps1 -Water -Impaired for eight-peer lifecycle replication.'

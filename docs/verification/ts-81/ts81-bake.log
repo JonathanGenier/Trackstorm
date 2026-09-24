@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Dressing baked: { "BoulderTall": 18, "RockSlab": 10, "BoulderLow": 96, "RockLedge": 7, "RockCluster": 16, "ScrubTall": 493, "DryGrassClump": 512, "GrassClump": 918, "ScrubLow": 524, "LightPole9m": 17, "Guardrail4m": 51 }; spatial foliage batches: 212

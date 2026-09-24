@@ -3,7 +3,8 @@
 The [Blender environment library](../../assets/environment/README.md) supplies
 sixteen independently reusable GLB scenes for the approved rocky off-road map
 direction: outcrops, scrub, grass, existing conifers and modular perimeter/drainage
-infrastructure. It is a library, not a placed production-map layer. The active
+infrastructure. The separate [production dressing layer](../../assets/maps/infield/DRESSING.md)
+instances its rocks, loose stones, low vegetation and perimeter fixtures. The active
 [oval and infield](oval-map.md) retain their terrain, routes, obstacles and structure.
 
 Blender owns editable metre-scale geometry and collision source meshes; Godot
