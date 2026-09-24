@@ -11,6 +11,13 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Evidence | Reports |
 | --- | --- |
 | Sustained percentage Nitro resource | [TS-157 verification evidence](ts-157.md) |
+| Surface-specific acceleration, progressive dirt recovery and split-contact handling | [TS-160 verification evidence](ts-160.md) |
+| Lifted vehicle suspension and chassis response | [TS-159 verification evidence](ts-159.md) |
+| Final integrated map optimization, collision/gameplay and performance | [TS-83 verification evidence](ts-83.md) |
+| Infield pickup placements | [TS-144 verification evidence](ts-144.md) |
+| Terrain detail, surface-reactive VFX and authoritative environment presets | [TS-82 verification evidence](ts-82.md) |
+| Production map environment dressing and route safety | [TS-81 verification evidence](ts-81.md) |
+| Reusable Blender environment asset library | [TS-80 verification evidence](ts-80.md) |
 | Two held items and active-slot switching | [TS-146 verification evidence](ts-146.md) |
 | Story verification | [TS-139 verification evidence](ts-139.md) |
 | Per-player category-balanced item distribution | [TS-145 verification evidence](ts-145.md) |

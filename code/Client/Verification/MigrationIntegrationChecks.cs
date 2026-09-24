@@ -65,7 +65,7 @@ public sealed partial class MigrationIntegrationChecks : Node
 
         _gateways[0].Listen(TransportEndpoint.DirectIp(_endpoints[0]));
         CreateDriver(0, 0, true);
-        Require(_drivers[0]!.Authority!.TryConfigure(0, new Dictionary<string, double> { ["vehicle.acceleration"] = 7 }, out _), "Original lobby host configures the session.");
+        Require(_drivers[0]!.Authority!.TryConfigure(0, new Dictionary<string, double> { ["environment.preset"] = (int)Core.Development.EnvironmentPreset.Night, ["vehicle.acceleration"] = 7 }, out _), "Original lobby host configures the session.");
         _configuration = _drivers[0]!.Authority!.Configuration;
         CreateDriver(1, Connect(1, 0), false);
     }
@@ -263,7 +263,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, HeldItem.Wrench);
             _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, HeldItem.Oil);
             Require(_arenas[1]!.Driver.Host!.Items.Switch(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, _arenas[1]!.Driver.Host!.World.GetVehicle(_drivers[nextHost]!.LocalPlayerId).LifeId, 1), "Select second held slot before migration.");
-            Require(_arenas[1]!.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 9, ["spawns.seed"] = 42, ["match.countdown_ticks"] = 600 }, out _), "First replacement configures normal gameplay owners.");
+            Require(_arenas[1]!.Driver.TryConfigure(new Dictionary<string, double> { ["environment.preset"] = (int)Core.Development.EnvironmentPreset.NeonSunset, ["vehicle.acceleration"] = 9, ["spawns.seed"] = 42, ["match.countdown_ticks"] = 600 }, out _), "First replacement configures normal gameplay owners.");
             _oil = OilRecoveryFixture.Seed(_arenas[1]!);
             _nitroOwner = _drivers[1]!.LocalPlayerId;
             Require(_arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _nitroOwner, HeldItem.Nitro), "Nitro uses the same authority before host loss.");
@@ -334,7 +334,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             ulong successor = _drivers[survivor]!.LocalPlayerId;
             Require(_drivers.Take(_players).Where((_, index) => index != 1).All(driver => driver!.State!.CurrentHostId == successor), "Second election converges on the lowest eligible stable ID.");
             Require(_arenas[0]!.Bodies.Count == _players && arena.Bodies.Count == _players && arena.Bodies[_drivers[survivor]!.LocalPlayerId] == _retainedBody, "No duplicate or replaced surviving vehicles.");
-            Require(arena.Driver.LocalItem?.Item == HeldItem.Wrench && arena.Driver.ItemState!.Spawns.Count == 20 && arena.Driver.Match!.Players.Count == _players, "Complete gameplay continuation with twenty placed oval pickups.");
+            Require(arena.Driver.LocalItem?.Item == HeldItem.Wrench && arena.Driver.ItemState!.Spawns.Count == 27 && arena.Driver.Match!.Players.Count == _players, "Complete gameplay continuation with twenty-seven map pickups.");
             Require(arena.Driver.LocalItem is { SecondItem: HeldItem.Oil, ActiveSlot: 1, SelectionRevision: 1 }, "Both held slots and selected second slot restore through host migration.");
             Require(arena.Driver.ItemState!.Slots.Single(slot => slot.Vehicle == _nitroOwner).Item == HeldItem.Nitro, "Nitro is retained on the disconnected former host across migration.");
             Require(arena.Driver.ItemState!.Patches.Count == 1 && arena.Driver.ItemState.Patches.Single() == _oil && arena.Driver.Host!.Items.Patches.Single() == _oil, "Persistent Oil survives host replacement exactly once, including departed owner.");

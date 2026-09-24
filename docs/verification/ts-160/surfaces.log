@@ -1,0 +1,54 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Imported native support includes Asphalt
+Imported native support includes Grass
+Imported native support includes Dirt
+Imported native support includes Mud
+Imported native support includes DeepMud
+Imported native support includes Rock
+Imported native support includes Concrete
+Imported native support includes Water
+Basin (-57, 0, -29): DeepMud; unchanged negative collision -1.796m
+Basin (77, 0, -35): Water; unchanged negative collision -1.795m
+Basin (-85, 0, 28): DeepMud; unchanged negative collision -1.793m
+Basin (85, 0, 28): DeepMud; unchanged negative collision -1.793m
+Production practice detects Grass: Grass; requested (-186, -2.1858501, -6), actual (-185.81966, -1.1333514, -5.978686)
+Host/prediction native adapter detects Grass: Grass
+Both adapters apply Grass handling for Grass
+Production practice detects Concrete: Concrete; requested (0, 6.3500004, 0), actual (0, 7.3509183, 0)
+Host/prediction native adapter detects Concrete: Concrete
+Both adapters apply Concrete handling for Concrete
+Production practice detects Dirt: Dirt; requested (-168, 0.46577263, 0), actual (-168.13507, 1.4807038, 0.08176674)
+Host/prediction native adapter detects Dirt: Dirt
+Both adapters apply Dirt handling for Dirt
+Production practice detects Rock: Rock; requested (-148, 3.0848694, -24), actual (-148.0199, 4.0754886, -23.968733)
+Host/prediction native adapter detects Rock: Rock
+Both adapters apply Asphalt handling for Rock
+Production practice detects Asphalt: Asphalt; requested (-112, 3.221775, -94), actual (-111.94313, 4.237334, -93.77678)
+Host/prediction native adapter detects Asphalt: Asphalt
+Both adapters apply Asphalt handling for Asphalt
+Production practice detects Mud: Mud; requested (-96, -0.2629776, 26), actual (-95.949875, 0.745428, 26.04198)
+Host/prediction native adapter detects Mud: Mud
+Both adapters apply Mud handling for Mud
+Production practice detects DeepMud: DeepMud; requested (-94, -0.63399315, 28), actual (-93.92108, 0.39566612, 27.99898)
+Host/prediction native adapter detects DeepMud: DeepMud
+Both adapters apply DeepMud handling for DeepMud
+Production practice detects Water: Water; requested (68, -0.6569271, -36), actual (68.09391, 0.40513822, -35.9256)
+Host/prediction native adapter detects Water: Water
+Both adapters apply Water handling for Water
+Driven oval-infield: Asphalt, Dirt; end (3.6795243E-06, 1.1445007, 57.3506); HP 1000
+Route retains native support after oval-infield
+Driven mud-west: Dirt, Grass, Mud, DeepMud; end (-56.56161, -0.6052213, -29.310898); HP 989.0884
+Route retains native support after mud-west
+Driven water-northeast: Dirt, Mud, DeepMud, Water; end (77.02144, -0.6087054, -34.6785); HP 774.9989
+Route retains native support after water-northeast
+Driven grass-shoulder: Dirt, Grass; end (-129.89929, 1.1030436, 14.653805); HP 1000
+Route retains native support after grass-shoulder
+Driven rock-shoulder: Dirt, Grass, Rock; end (-129.67725, 2.9599476, -23.983091); HP 1000
+Route retains native support after rock-shoulder
+Driven deck: Dirt, Concrete; end (1.388222, 7.4942417, -1.0245395E-07); HP 1000
+Route retains native support after deck
+Airborne detection clears instead of inventing current contact
+Existing Stats reads the local practice surface as Asphalt: Detected surface: Asphalt
+Source: local native support
+Surface integration passed: all eight identities, native adapters, driving transitions and Stats.

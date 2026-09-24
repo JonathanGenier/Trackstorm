@@ -116,13 +116,24 @@ public sealed partial class VehicleIntegrationChecks : Node
     {
         VehicleSnapshot authority = _arena.Player.Snapshot;
         Node3D localModel = _arena.Player.GetNode<Node3D>("WastelandVehicle");
-        Check(localModel.Transform.IsEqualApprox(Transform3D.Identity), "Static model is bound at the physics origin.");
+        Check(localModel.Transform.IsEqualApprox(Transform3D.Identity), "Existing model is bound at the physics origin.");
         Check(!Descendants(localModel).Any(node => node is CollisionObject3D or CollisionShape3D or AnimationPlayer or AnimationTree), "Visual asset has no collision or animation layer.");
         var meshes = Descendants(localModel).OfType<MeshInstance3D>().ToArray();
         Check(meshes.Length > 10 && meshes.All(mesh => mesh.Mesh is not null), "Vehicle asset resolves all base and conversion meshes.");
         Aabb bounds = meshes.Select(mesh => (localModel.GlobalTransform.AffineInverse() * mesh.GlobalTransform) * mesh.GetAabb()).Aggregate((left, right) => left.Merge(right));
         Check(Math.Abs(bounds.Size.X - VehicleDimensions.Width) < 0.001f && Math.Abs(bounds.Size.Z - VehicleDimensions.Length) < 0.001f, "Authored silhouette has the canonical real-world dimensions.");
-        Check(Math.Abs(bounds.Position.Y + VehicleDimensions.RideHeight) < 0.01f, "Static tires match the settled suspension ride height.");
+        // This fixture has advanced only three ticks; compare against current observations,
+        // not equilibrium or the formerly static tire mesh's baked rest position.
+        localModel.GetChildren().OfType<WheelPresentation>().Single()._Process(1);
+        string[] wheelNames = ["wheel-front-left", "wheel-front-right", "wheel-back-left", "wheel-back-right"];
+        var travel = authority.Movement.Wheels.Compression;
+        float[] compressions = [travel.X, travel.Y, travel.Z, travel.W];
+        for (int index = 0; index < wheelNames.Length; index++)
+        {
+            var tire = localModel.GetNode<MeshInstance3D>(wheelNames[index]);
+            float bottom = (tire.Transform * tire.GetAabb()).Position.Y;
+            Check(Math.Abs(bottom + _arena.Player.Configuration.SuspensionLength - compressions[index]) < 0.001f, wheelNames[index] + " follows current suspension compression.");
+        }
 
         var network = new Networking.NetworkVehicleBody { VehicleId = 999 };
         AddChild(network);
@@ -138,7 +149,7 @@ public sealed partial class VehicleIntegrationChecks : Node
         network.Apply(launched, true);
         network.PresentLocal(1f / 60);
         Check(remoteModel.GlobalTransform.IsEqualApprox(network.VisualTransform), "Complete local model follows prediction correction smoothing.");
-        Check(parts.All(part => part.Key.Transform.IsEqualApprox(part.Value)), "Reconciliation and interpolation do not articulate or detach model parts.");
+        Check(parts.All(part => part.Key.Transform.IsEqualApprox(part.Value)), "Root reconciliation and interpolation preserve relative mesh transforms; tire travel is observation-driven.");
         Check(ReferenceEquals(authority, _arena.Player.Snapshot), "Visual binding leaves committed authority unchanged.");
         network.QueueFree();
     }
@@ -414,7 +425,7 @@ public sealed partial class VehicleIntegrationChecks : Node
         int transitions = crossings.Zip(crossings.Skip(1)).Count(pair => pair.First.CurrentSurface != pair.Second.CurrentSurface);
         Check(transitions >= 4, "repeated native driving crosses Concrete and Mud in both directions");
         Check(crossings.Any(state => state.CurrentSurface == SurfaceType.Concrete && state.Physics.Position.Z < -12 && -state.Physics.LinearVelocity.Z > 13), "leaving mud restores baseline acceleration");
-        Check(crossings.All(state => VehiclePhysicsState.IsFinite(state.Physics.Position) && state.CommandSpeed <= 65.001f && state.Physics.AngularVelocity.Length() <= 8.001f && state.Physics.Position.Y is > 0.7f and < 1.1f), "coplanar repeated transitions remain supported and bounded without launches");
+        Check(crossings.All(state => VehiclePhysicsState.IsFinite(state.Physics.Position) && state.CommandSpeed <= 65.001f && state.Physics.AngularVelocity.Length() <= 8.001f && Math.Abs(state.Physics.Position.Y - VehicleDimensions.RideHeight) < 0.2f), "coplanar repeated transitions remain supported and bounded without launches");
         Check(crossings.Zip(crossings.Skip(1)).Where(pair => pair.First.CurrentSurface != pair.Second.CurrentSurface).All(pair => Numerics.Vector3.Distance(pair.First.Physics.LinearVelocity, pair.Second.Physics.LinearVelocity) < 1), "surface selection introduces no velocity impulse");
         File.WriteAllText(_output + ".surfaces.json", System.Text.Json.JsonSerializer.Serialize(crossings.SelectMany(state => new[] { state.Physics.Position.X, state.Physics.Position.Y, state.Physics.Position.Z, state.Physics.LinearVelocity.X, state.Physics.LinearVelocity.Y, state.Physics.LinearVelocity.Z, (float)state.CurrentSurface }).ToArray()));
         GD.Print($"Surface crossings: {transitions}; peak speed={crossings.Max(state => state.CommandSpeed):F2}");

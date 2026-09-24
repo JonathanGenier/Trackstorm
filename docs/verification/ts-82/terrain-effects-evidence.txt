@@ -1,0 +1,27 @@
+PASS: Wheel contacts resolve Asphalt
+PASS: Asphalt produces tracks: 28
+PASS: Wheel contacts resolve Concrete
+PASS: Concrete produces tracks: 28
+PASS: Wheel contacts resolve Dirt
+PASS: Dirt produces tracks: 80
+PASS: Wheel contacts resolve Grass
+PASS: Grass produces tracks: 80
+PASS: Wheel contacts resolve Mud
+PASS: Mud produces tracks: 80
+PASS: Wheel contacts resolve DeepMud
+PASS: DeepMud produces tracks: 80
+PASS: Wheel contacts resolve Water
+PASS: Water creates zero persistent marks
+PASS: Water samples generate wet interaction
+PASS: Repeated use wraps the fixed track buffer: 3468
+PASS: Repeated tire use creates no additional nodes
+PASS: Track storage stays bounded
+Eight vehicles, 2400 sustained physics frames in 38960 ms; scene nodes 296; no performance threshold inferred.
+Eight vehicles, density zero: 1200 physics frames in 15873 ms; existing marks still fade. This is not a full GPU profiler.
+PASS: Zero visual density suppresses emissions
+PASS: Preset applies without map reconstruction: ClearBlue
+PASS: Preset applies without map reconstruction: Night
+PASS: Preset applies without map reconstruction: EmberSky
+PASS: Preset applies without map reconstruction: Apocalypse
+PASS: Preset applies without map reconstruction: NeonSunset
+PASS: 100 repeated preset switches retain map topology

@@ -3,7 +3,7 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Client.Vehicles;
 
-/// <summary>Instantiates the shared static art beneath the caller's presentation transform.</summary>
+/// <summary>Instantiates the existing art beneath the caller's presentation transform.</summary>
 internal static class VehicleVisual
 {
     /// <summary>Shared sprung chassis envelope; tires are supported by wheel rays rather than solid cylinders.</summary>
@@ -32,13 +32,15 @@ internal static class VehicleVisual
         return new CollisionShape3D { Shape = new ConvexPolygonShape3D { Points = points.ToArray() } };
     }
 
-    /// <summary>Creates a visual only; no collision, authority or handling state is consulted.</summary>
+    /// <summary>Creates presentation only; optional suspension observations cannot change collision or authority.</summary>
     /// <param name="identification">Per-vehicle identification and existing combat feedback material.</param>
-    /// <returns>A caller-owned static model root.</returns>
-    internal static Node3D Create(Material identification)
+    /// <param name="suspension">Optional current movement observation and accepted tuning for tire travel.</param>
+    /// <returns>A caller-owned model root.</returns>
+    internal static Node3D Create(Material identification, Func<(VehicleState State, VehicleConfiguration Configuration)?>? suspension = null)
     {
         var model = GD.Load<PackedScene>("res://assets/vehicles/WastelandVehicle.tscn").Instantiate<Node3D>();
         model.GetNode<MeshInstance3D>("Identification").MaterialOverride = identification;
+        if (suspension is not null) { model.AddChild(new WheelPresentation { Source = suspension }); }
         return model;
     }
 }

@@ -443,7 +443,7 @@ public sealed partial class LobbyIntegrationChecks : Node
                 Require(_sessions.All(session => session.Arena!.Driver.Match!.Players.SequenceEqual(expectedScores)), "Fresh native bootstrap and existing peers retain identical Circus scores and damage watermarks.");
                 Require(expectedScores.Single(player => player.Player == 1).CircusScore == 12.5 && expectedScores.Single(player => player.Player == _sessions[7].Lobby!.LocalPlayerId).CircusScore == 0, "Existing banked points survive admission and the newcomer starts at zero.");
                 Require(_sessions.All(session => session.Arena!.Driver.Latest!.Vehicles.Select(vehicle => vehicle.State.VehicleId).Distinct().Count() == 8), "Every peer observes exactly eight unique vehicles.");
-                Require(_sessions[7].Arena!.Driver.ItemState!.Spawns.Count == 20, "Fresh bootstrap preserves the oval's twenty-marker pickup layout.");
+                Require(_sessions[7].Arena!.Driver.ItemState!.Spawns.Count == 27, "Fresh bootstrap preserves the map's twenty-seven-marker pickup layout.");
                 Capture("active-join.png");
                 _departedId = _sessions[7].Lobby!.LocalPlayerId;
                 _sessions[7].Leave();

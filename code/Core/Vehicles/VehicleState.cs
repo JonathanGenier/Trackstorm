@@ -18,8 +18,9 @@ public readonly record struct VehicleState
     /// <param name="landingIntensity">Landing feedback.</param>
     /// <param name="wheels">Per-wheel compression for presentation and replay diagnostics.</param>
     /// <param name="nitro">Complete temporary boost continuation.</param>
+    /// <param name="powerSlip">Progressive rear wheelspin grip loss.</param>
     /// <param name="oilTicks">Remaining temporary oil handling duration.</param>
-    public VehicleState(ulong tick, VehiclePhysicsState physics, bool grounded, bool drifting, float steeringAngle, float handbrake, SurfaceType currentSurface = SurfaceType.Concrete, float frontSlip = 0, float rearSlip = 0, float longitudinalAcceleration = 0, float lateralAcceleration = 0, float landingIntensity = 0, WheelSupport wheels = default, int oilTicks = 0, NitroState nitro = default)
+    public VehicleState(ulong tick, VehiclePhysicsState physics, bool grounded, bool drifting, float steeringAngle, float handbrake, SurfaceType currentSurface = SurfaceType.Concrete, float frontSlip = 0, float rearSlip = 0, float longitudinalAcceleration = 0, float lateralAcceleration = 0, float landingIntensity = 0, WheelSupport wheels = default, int oilTicks = 0, NitroState nitro = default, float powerSlip = 0)
     {
         _ = new VehiclePhysicsState(physics.Position, physics.Orientation, physics.LinearVelocity, physics.AngularVelocity);
         if (new[] { steeringAngle, handbrake, frontSlip, rearSlip, longitudinalAcceleration, lateralAcceleration, landingIntensity }.Any(value => !float.IsFinite(value)) || Math.Abs(steeringAngle) > 1 || handbrake is < 0 or > 1 || frontSlip is < 0 or > 1 || rearSlip is < 0 or > 1 || landingIntensity is < 0 or > 1 || Math.Abs(longitudinalAcceleration) > 1000 || Math.Abs(lateralAcceleration) > 1000)
@@ -28,6 +29,8 @@ public readonly record struct VehicleState
         }
 
         if (oilTicks is < 0 or > 120) { throw new ArgumentException("Invalid oil duration."); }
+        if (!float.IsFinite(powerSlip) || powerSlip is < 0 or > 1) { throw new ArgumentException("Invalid power slip."); }
+        PowerSlip = powerSlip;
         OilTicks = oilTicks;
         nitro.Validate();
         Nitro = nitro;
@@ -53,6 +56,8 @@ public readonly record struct VehicleState
 
     /// <summary>Remaining fixed steps of authoritative reduced tire grip.</summary>
     public int OilTicks { get; }
+    /// <summary>Progressive rear wheelspin lateral grip loss retained through reconciliation.</summary>
+    public float PowerSlip { get; }
     /// <summary>Authoritative temporary boost; default means inactive.</summary>
     public NitroState Nitro { get; init; }
     /// <summary>Last supported surface; airborne movement applies no surface effects.</summary>
@@ -84,6 +89,6 @@ public readonly record struct VehicleState
     /// <summary>Total commanded velocity magnitude for physics diagnostics, not player travel telemetry.</summary>
     public float CommandSpeed => Physics.LinearVelocity.Length();
     /// <summary>Revalidates all portable state fields at aggregate boundaries.</summary>
-    public void Validate() => _ = new VehicleState(Tick, Physics, Grounded, Drifting, SteeringAngle, Handbrake, CurrentSurface, FrontSlip, RearSlip, LongitudinalAcceleration, LateralAcceleration, LandingIntensity, Wheels, OilTicks, Nitro);
+    public void Validate() => _ = new VehicleState(Tick, Physics, Grounded, Drifting, SteeringAngle, Handbrake, CurrentSurface, FrontSlip, RearSlip, LongitudinalAcceleration, LateralAcceleration, LandingIntensity, Wheels, OilTicks, Nitro, PowerSlip);
 
 }

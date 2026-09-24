@@ -279,7 +279,9 @@ internal sealed class NitroTests
         var rest = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
         a = new VehicleMovement(config, rest).Step(drive, rest, Vector3.UnitY);
         b = new VehicleMovement(config, rest).Step(drive, rest, Vector3.UnitY, nitro: new NitroState(60, 2, 1.4f));
-        Assert.That(b.LongitudinalAcceleration, Is.GreaterThan(a.LongitudinalAcceleration * 1.1f));
+        // At rest both engine demands approach the same finite tire capacity.
+        Assert.That(b.LongitudinalAcceleration, Is.GreaterThan(a.LongitudinalAcceleration));
+        Assert.That(b.LongitudinalAcceleration, Is.LessThanOrEqualTo(config.TireFriction * config.Gravity * 0.5f));
     }
 
     [Test]

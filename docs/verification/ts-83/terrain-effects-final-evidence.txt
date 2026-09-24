@@ -1,0 +1,34 @@
+PASS: Wheel contacts resolve Asphalt
+PASS: Asphalt produces tracks: 28
+PASS: Wheel contacts resolve Concrete
+PASS: Concrete produces tracks: 28
+PASS: Wheel contacts resolve Dirt
+PASS: Dirt produces tracks: 80
+PASS: Wheel contacts resolve Grass
+PASS: Grass produces tracks: 80
+PASS: Wheel contacts resolve Mud
+PASS: Mud produces tracks: 80
+PASS: Wheel contacts resolve DeepMud
+PASS: DeepMud produces tracks: 80
+PASS: Wheel contacts resolve Water
+PASS: Water creates zero persistent marks
+PASS: Water samples generate wet interaction
+PASS: Repeated use wraps the fixed track buffer: 3468
+PASS: Repeated tire use creates no additional nodes
+PASS: Track storage stays bounded
+Eight vehicles, 2400 sustained physics frames in 17332 ms; scene nodes 296; no performance threshold inferred.
+Eight vehicles, density zero: 1200 physics frames in 8600 ms; existing marks still fade. This is not a full GPU profiler.
+PASS: Zero visual density suppresses emissions
+PASS: Expired tracks and wakes submit zero instances for all eight cars
+PASS: Resumed tracks contain only new segments, without reviving the expired ring
+Rendered map ClearBlue: 120 overview frames, p50=6.95 ms, p95=7.03 ms, p99=7.29 ms; draw calls=628, primitives=1014980, video memory=49416815 bytes.
+PASS: Preset applies without map reconstruction: ClearBlue
+Rendered map Night: 120 overview frames, p50=6.95 ms, p95=7.00 ms, p99=7.03 ms; draw calls=620, primitives=1011482, video memory=49416815 bytes.
+PASS: Preset applies without map reconstruction: Night
+Rendered map EmberSky: 120 overview frames, p50=6.95 ms, p95=7.04 ms, p99=7.54 ms; draw calls=618, primitives=1024360, video memory=49416815 bytes.
+PASS: Preset applies without map reconstruction: EmberSky
+Rendered map Apocalypse: 120 overview frames, p50=6.95 ms, p95=7.01 ms, p99=7.03 ms; draw calls=610, primitives=1023128, video memory=49416815 bytes.
+PASS: Preset applies without map reconstruction: Apocalypse
+Rendered map NeonSunset: 120 overview frames, p50=6.95 ms, p95=8.44 ms, p99=8.80 ms; draw calls=598, primitives=1016020, video memory=49416815 bytes.
+PASS: Preset applies without map reconstruction: NeonSunset
+PASS: 100 repeated preset switches retain map topology
