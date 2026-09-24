@@ -187,7 +187,7 @@ internal sealed class NitroTests
         var c = new VehicleConfiguration();
         var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(0, 0, -55), Vector3.Zero);
         var movement = new VehicleMovement(c, pose);
-        movement.Restore(new VehicleState(0, pose, true, false, 0, 0, nitro: new NitroState(60, 2, 1.4f)));
+        movement.Restore(new VehicleState(0, pose, true, false, 0, 0, nitro: new NitroState(60, 18000, 1.4f, 1)));
         float previous = 55;
         for (ulong tick = 1; tick <= 300; tick++)
         {
@@ -272,15 +272,16 @@ internal sealed class NitroTests
         var boosted = new VehicleMovement(config, pose);
         var drive = new InputFrame(1, 0, ushort.MaxValue, 0, InputButtons.UseItem, 0, 0);
         var a = normal.Step(drive, pose, Vector3.UnitY);
-        var b = boosted.Step(drive, pose, Vector3.UnitY, nitro: new NitroState(60, 2, 1.4f));
+        var b = boosted.Step(drive, pose, Vector3.UnitY, nitro: new NitroState(60, 18000, 1.4f, 1));
         Assert.That(-b.Physics.LinearVelocity.Z, Is.GreaterThan(-a.Physics.LinearVelocity.Z + 0.05));
         Assert.That(boosted.Configuration, Is.SameAs(config));
         Assert.That(config.ForwardSpeed, Is.EqualTo(new VehicleConfiguration().ForwardSpeed));
         var rest = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
         a = new VehicleMovement(config, rest).Step(drive, rest, Vector3.UnitY);
-        b = new VehicleMovement(config, rest).Step(drive, rest, Vector3.UnitY, nitro: new NitroState(60, 2, 1.4f));
-        // At rest both engine demands approach the same finite tire capacity.
-        Assert.That(b.LongitudinalAcceleration, Is.GreaterThan(a.LongitudinalAcceleration));
+        b = new VehicleMovement(config, rest).Step(drive, rest, Vector3.UnitY, nitro: new NitroState(60, 18000, 1.4f, 1));
+        // Rocket force does not masquerade as tire demand or consume the tire traction budget.
+        Assert.That(b.LongitudinalAcceleration, Is.EqualTo(a.LongitudinalAcceleration));
+        Assert.That(-b.Physics.LinearVelocity.Z, Is.GreaterThan(-a.Physics.LinearVelocity.Z));
         Assert.That(b.LongitudinalAcceleration, Is.LessThanOrEqualTo(config.TireFriction * config.Gravity * 0.5f));
     }
 
@@ -292,6 +293,31 @@ internal sealed class NitroTests
         Assert.That(host.World.GetVehicle(1).Movement.Nitro.Active, Is.True);
         for (int i = 0; i < 4; i++) { Step(host); }
         Assert.That(host.World.State.Match!.Players[0].CircusScore, Is.Zero);
+    }
+
+    [Test]
+    public void LiveRocketTuningRefreshesContinuationWithoutRefillingCharge()
+    {
+        var host = Create(60);
+        Activate(host);
+        double before = host.Items.Slots.Single().NitroCharge;
+        Assert.That(host.TryConfigure(0, new Dictionary<string, double>
+        {
+            ["items.nitro_forward_thrust"] = 9000,
+            ["items.nitro_airborne_thrust_scale"] = 0.35,
+            ["items.nitro_speed_multiplier"] = 1.7,
+            ["vehicle.overspeed_deceleration"] = 2,
+        }, out _), Is.True);
+        Step(host, held: true);
+        var continuation = host.World.GetVehicle(1).Movement.Nitro;
+        Assert.That(continuation.ForwardThrust, Is.EqualTo(9000));
+        Assert.That(continuation.AirborneThrustScale, Is.EqualTo(0.35f));
+        Assert.That(continuation.SpeedMultiplier, Is.EqualTo(1.7f));
+        Assert.That(host.Items.Slots.Single().NitroCharge, Is.LessThan(before));
+        var file = Core.Development.DeveloperSettingsFile.Read("{\"schema\":2}\n{\"key\":\"items.nitro_acceleration_multiplier\",\"value\":4}");
+        Assert.That(file.Configuration.Items.NitroForwardThrust, Is.EqualTo(18000));
+        var saved = file.Write(host.Configuration.Configuration);
+        Assert.That(Core.Development.DeveloperSettingsFile.Read(saved).Configuration, Is.EqualTo(host.Configuration.Configuration));
     }
 
     private static HostVehicleSession Create(int duration, int killTarget = 100, MatchMode mode = MatchMode.Circus)

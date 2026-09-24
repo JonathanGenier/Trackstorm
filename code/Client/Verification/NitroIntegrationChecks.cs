@@ -22,6 +22,11 @@ public sealed partial class NitroIntegrationChecks : Node
     private float _baseline;
     private bool _done;
     private bool _held;
+    private ushort _throttle = ushort.MaxValue;
+    private ushort _reverse;
+    private int _rocketScenario;
+    private float _rocketOnlySpeed;
+    private float _rocketStartSpeed;
     private readonly bool[] _press = new bool[2];
     private double[] _charges = [];
     private double[] _scores = [];
@@ -82,7 +87,7 @@ public sealed partial class NitroIntegrationChecks : Node
                 int peerIndex = _arenas.IndexOf(arena);
                 bool press = _press[peerIndex];
                 _press[peerIndex] = false;
-                arena.Advance(new Core.Input.InputFrame(0, 0, ushort.MaxValue, 0, _held ? Core.Input.InputButtons.UseItem : 0, press ? Core.Input.InputButtons.UseItem : 0, 0));
+                arena.Advance(new Core.Input.InputFrame(0, 0, _throttle, _reverse, _held ? Core.Input.InputButtons.UseItem : 0, press ? Core.Input.InputButtons.UseItem : 0, 0));
                 Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure);
             }
             Check(_frames - _boundary < 1800, $"Nitro stage {_stage} timeout");
@@ -98,8 +103,30 @@ public sealed partial class NitroIntegrationChecks : Node
             {
                 case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2):
                     Check(host.TryConfigure(0, new Dictionary<string, double> { ["match.countdown_ticks"] = 1, ["match.minimum_players"] = 1 }, out _), "short countdown");
+                    _stage = 100; _boundary = _frames;
+                    break;
+                case 100:
+                    PrepareRocketScenario();
+                    _stage = 101; _boundary = _frames;
+                    break;
+                case 101 when _frames - _boundary > 30:
+                    _rocketStartSpeed = host.World.GetVehicle(1).Speed;
+                    UseBoth();
+                    _stage = 102; _boundary = _frames;
+                    break;
+                case 102 when _frames - _boundary > 60:
+                    VerifyRocketScenario();
+                    _held = false;
+                    _stage = 103; _boundary = _frames;
+                    break;
+                case 103 when _frames - _boundary > 30:
+                    Check(host.World.State.Vehicles.All(v => !v.Movement.Nitro.Active), "rocket release ends thrust on both peers");
+                    if (++_rocketScenario < 6) { _stage = 100; _boundary = _frames; break; }
+                    foreach (ulong id in new ulong[] { 1, 2 }) { host.Items.RemovePlayer(id); }
+                    _throttle = ushort.MaxValue; _reverse = 0;
                     Position();
-                    Next("Two native UDP peers drive on the same isolated flat platform.");
+                    _stage = 0;
+                    Next("Rocket scenarios complete; normal-drive and sustained-resource comparison begins.");
                     break;
                 case 1 when _frames - _boundary > 360:
                     _baseline = host.World.GetVehicle(1).Speed;
@@ -206,13 +233,44 @@ public sealed partial class NitroIntegrationChecks : Node
         _press[1] = true;
     }
 
-    private void Position()
+    private void PrepareRocketScenario()
+    {
+        var host = _arenas[0].Driver.Host!;
+        foreach (ulong id in new ulong[] { 1, 2 }) { host.Items.RemovePlayer(id); }
+        _held = false;
+        _throttle = _rocketScenario == 2 ? ushort.MaxValue : (ushort)0;
+        _reverse = _rocketScenario == 3 ? ushort.MaxValue : (ushort)0;
+        Check(host.TryConfigure(0, new Dictionary<string, double> { ["items.nitro_airborne_thrust_scale"] = _rocketScenario == 5 ? 0 : 1 }, out _), "airborne live tuning");
+        Position(_rocketScenario == 1 ? 10 : 0, _rocketScenario >= 4 ? 100 : 21.4f);
+    }
+
+    private void VerifyRocketScenario()
+    {
+        var host = _arenas[0].Driver.Host!;
+        float speed = -host.World.GetVehicle(1).Movement.Physics.LinearVelocity.Z;
+        Check(host.Items.Slots.All(s => s.NitroCharge is > 50 and < 100), "activation-time consumption independent of pedals/support");
+        Check(host.World.State.Match!.Players.All(p => p.CircusScore == 0), "no points for thrust/airborne motion below normal top speed");
+        switch (_rocketScenario)
+        {
+            case 0: Check(_rocketStartSpeed < 0.1f && speed > 8, "Nitro launches from complete rest without throttle"); _rocketOnlySpeed = speed; break;
+            case 1: Check(speed > _rocketStartSpeed + 5, "Nitro accelerates coasting car without throttle"); break;
+            case 2: Check(speed > _rocketOnlySpeed + 1, "drivetrain and rocket combine"); break;
+            case 3: Check(speed > 0 && speed < _rocketOnlySpeed, "reverse opposes but never reverses rocket force"); break;
+            case 4: Check(!host.World.GetVehicle(1).Movement.Grounded && speed > 8, "airborne rocket propels without wheels"); break;
+            case 5: Check(!host.World.GetVehicle(1).Movement.Grounded && Math.Abs(speed) < 0.1f, "runtime zero airborne scale disables thrust while charge drains"); break;
+        }
+        string line = $"Rocket scenario {_rocketScenario}: start {_rocketStartSpeed:0.00}, forward {speed:0.00} m/s; charge {host.Items.Slots[0].NitroCharge:0.00}%; Circus zero.";
+        _evidence.Add(line); GD.Print(line);
+        Capture($"rocket-{_rocketScenario}.png");
+    }
+
+    private void Position(float speed = 40, float height = 21.4f)
     {
         var host = _arenas[0].Driver.Host!;
         var w = host.World.State;
         host.World.Restore(new(w.Tick, w.LastInput, w.Vehicles.Select(v =>
         {
-            var pose = new VehiclePhysicsState(new N.Vector3(v.VehicleId == 1 ? -8 : 8, 21.4f, 1200), N.Quaternion.Identity, new N.Vector3(0, 0, -40), N.Vector3.Zero);
+            var pose = new VehiclePhysicsState(new N.Vector3(v.VehicleId == 1 ? -8 : 8, height, 1200), N.Quaternion.Identity, new N.Vector3(0, 0, -speed), N.Vector3.Zero);
             _arenas[0].Bodies[v.VehicleId].Apply(pose);
             return new VehicleSnapshot(v.VehicleId, v.LifeId, new VehicleState(w.Tick, pose, true, false, 0, 0), v.Damage, pose);
         }), w.Match));
