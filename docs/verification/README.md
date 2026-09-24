@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Reusable Blender environment asset library | [TS-80 verification evidence](ts-80.md) |
 | Two held items and active-slot switching | [TS-146 verification evidence](ts-146.md) |
 | Story verification | [TS-139 verification evidence](ts-139.md) |
 | Per-player category-balanced item distribution | [TS-145 verification evidence](ts-145.md) |
