@@ -6,7 +6,9 @@ The Play Menu is the lobby browser inside the persistent [MenuShell](startup.md)
 
 `DevelopmentSession` routes Main Menu Play and Play Menu Back. The departing assembly accelerates upward over 0.34 seconds and clears before the destination becomes visible. Play drops for 0.46 seconds, catches and performs one restrained five-design-pixel settle for 0.36 seconds. Main Menu reuses its original drop/catch/settle; the Loader entrance is unchanged. Input is blocked throughout each rig's motion, and held logical actions must release before dispatch resumes. No transition calls MenuShell media APIs.
 
-Free Play remains disabled with Coming Soon. Host Game opens a native name/access-code form that invokes the existing coordinator Create operation. Back returns to Main Menu. The developer Direct-IP action exposes the existing fallback controls. Joined Lobby remains a separate authority-driven presentation; `OnlineLobbyPanel` retains its membership/rename/leave controls.
+Free Play remains disabled with Coming Soon. Host Game opens a native name/access-code form that invokes the existing coordinator Create operation. Back returns to Main Menu. The developer Direct-IP action exposes the existing fallback controls. The [joined Lobby](match-entry.md) is a separate authority-driven 3D staging presentation with its own host/client controls.
+
+EOS login/retry remains in Play; logout is available in personal Settings, including the frontend Settings shortcut, and returns through cleanup to Main Menu. Active online lobby rename is under the host's joined Lobby Settings.
 
 Logical input uses the existing remappable player binding owner, with 0.4-second repeat delay and 0.12-second navigation repeat. Mouse and keyboard/controller focus share red selected/hover treatment. Search retains native text entry and caret editing. Up/Down traverses controls, including text fields and scrolling rows. Filter opens a modal choice list: directions highlight, Accept selects, and Cancel discards. Covering Settings/DevTools suspend underlying activation.
 

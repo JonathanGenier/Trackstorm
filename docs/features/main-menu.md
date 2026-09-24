@@ -1,6 +1,6 @@
 # Main Menu
 
-The frontend presents Play, disabled Garage / Coming Soon, Settings and Quit. `DevelopmentSession` supplies the existing browser, Settings and cleanup-aware Quit actions to `HangingMainMenu`. Browser, lobby, Settings and gameplay presentation retain their existing owners. The separate Settings shortcut remains available on other frontend screens but is hidden on the Main Menu.
+The frontend presents Play, disabled Garage / Coming Soon, Settings and Quit. `DevelopmentSession` supplies the existing browser, Settings and cleanup-aware Quit actions to `HangingMainMenu`. Browser, lobby, Settings and gameplay presentation retain their existing owners. The separate Settings shortcut remains available on the browser/admission screens; Main Menu and joined Lobby supply their own Settings actions.
 
 This is the only Main Menu presentation. The [Play Menu](play-menu.md) owns discovery and reconnect presentation; the legacy `LobbyBrowser` panel is retained only for the explicit Direct-IP fallback. Both are created hidden. Passive saved-session metadata lookup cannot take over the Main Menu. Returning with Direct-IP Back clears its selection; Game Menu and Podium returns share the existing cleanup gate. Local-practice return uses the same fully wired session composition as startup. Navigation synchronously disables Main Menu targets; Play hoists its visible rig clear before destination controls appear.
 

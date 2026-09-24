@@ -10,6 +10,9 @@ internal sealed partial class SettingsPanel : CanvasLayer
 {
     private readonly MenuPresentation _panel = new() { Size = new Vector2(640, 680) };
     private readonly MenuNavigation _navigation = new();
+    private readonly Button _logout = new() { Text = "EOS logout (leave online session)" };
+    internal Func<bool> CanLogoutOnline { get; set; } = () => false;
+    internal Action LogoutOnline { get; set; } = () => { };
     private readonly Dictionary<MenuPage, VBoxContainer> _pages = new();
     private readonly Control _root = new() { MouseFilter = Control.MouseFilterEnum.Ignore };
     private readonly ColorRect _shade = new() { Color = new Color(0, 0, 0, 0.48f) };
@@ -121,6 +124,8 @@ internal sealed partial class SettingsPanel : CanvasLayer
         }
 
         AddButton(column, "Developer Options", () => OpenDeveloperTools());
+        column.AddChild(_logout);
+        _logout.Pressed += () => { if (CanLogoutOnline()) { Close(); LogoutOnline(); } };
 
         var retry = new Button { Text = "Save now / retry" };
         retry.Pressed += () => _settings.Flush();
@@ -319,6 +324,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        _logout.Visible = CanLogoutOnline();
         bool arena = ArenaAvailable();
         if (ExitStatus() is { } exitStatus)
         {

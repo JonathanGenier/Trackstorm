@@ -11,6 +11,8 @@ public static class MatchEntryCodec
     public const byte Synchronized = 2;
     /// <summary>Host completed the initial barrier and permits match entry.</summary>
     public const byte Released = 3;
+    /// <summary>Admitted client could not complete initial match entry.</summary>
+    public const byte Failed = 4;
 
     /// <summary>Identifies this protocol without accepting its contents.</summary>
     /// <param name="data">Complete inner payload.</param>
@@ -23,7 +25,7 @@ public static class MatchEntryCodec
     /// <returns>Reliable inner payload.</returns>
     public static byte[] Encode(ulong match, byte kind)
     {
-        if (match == 0 || kind is < Loaded or > Released)
+        if (match == 0 || kind is < Loaded or > Failed)
         {
             throw new ArgumentException("Invalid match entry message.");
         }
@@ -43,7 +45,7 @@ public static class MatchEntryCodec
     /// <returns>Validated action.</returns>
     public static byte Decode(ReadOnlySpan<byte> data, ulong match)
     {
-        if (data.Length != 12 || !IsEntry(data) || data[2] != 1 || data[3] is < Loaded or > Released || match == 0 || BinaryPrimitives.ReadUInt64LittleEndian(data[4..]) != match)
+        if (data.Length != 12 || !IsEntry(data) || data[2] != 1 || data[3] is < Loaded or > Failed || match == 0 || BinaryPrimitives.ReadUInt64LittleEndian(data[4..]) != match)
         {
             throw new ArgumentException("Invalid match entry envelope.");
         }

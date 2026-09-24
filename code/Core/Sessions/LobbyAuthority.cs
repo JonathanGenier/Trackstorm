@@ -52,7 +52,7 @@ public sealed class LobbyAuthority
     /// <param name="host">Elected stable identity.</param>
     /// <param name="epoch">Exactly the next authority epoch.</param>
     /// <param name="survivorPeers">Active replacement-host transport bindings for every continuing lobby survivor.</param>
-    /// <returns>New authority with Ready cleared and no inherited transport handles.</returns>
+    /// <returns>New authority preserving lobby readiness; arena readiness clears and transport handles are rebound explicitly.</returns>
     public static LobbyAuthority Restore(LobbyRestoreState checkpoint, ulong host, ulong epoch, IReadOnlyDictionary<ulong, ulong>? survivorPeers = null)
     {
         var previous = checkpoint.State;
@@ -62,7 +62,7 @@ public sealed class LobbyAuthority
         }
 
         SessionPlayer[] restoredPlayers = previous.ReconnectPolicy == SessionReconnectPolicy.FreshJoin
-            ? previous.Players.Where(player => player.Id != previous.CurrentHostId).Select(player => player with { Ready = false, Connected = true, RetainedHost = false }).ToArray()
+            ? previous.Players.Where(player => player.Id != previous.CurrentHostId).Select(player => player with { Connected = true, RetainedHost = false }).ToArray()
             : previous.Players.Select(player => player with { Ready = false, Connected = player.Id == host, RetainedHost = player.RetainedHost || player.Id == previous.CurrentHostId }).ToArray();
         var result = new LobbyAuthority(previous.Session, previous.Players.Single(player => player.Id == host).Name)
         {

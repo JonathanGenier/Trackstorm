@@ -10,6 +10,32 @@ namespace Trackstorm.Transport.Tests;
 /// <summary>Application entry cannot mistake local loading for completed multiplayer synchronization.</summary>
 internal sealed partial class VehicleNetworkDriverTests
 {
+    /// <summary>Only a valid admitted, reliable, current-generation entry failure can request recovery.</summary>
+    [Test]
+    public void EntryFailureIsAuthenticatedBeforeAndDuringLoading()
+    {
+        using var wire = new DriverGateway();
+        var lobby = StartJoinHost(wire);
+        int requests = 0;
+        lobby.RecoverMatchEntry = () => { requests++; return true; };
+        byte[] Inner(ulong match) => MatchEntryCodec.Encode(match, MatchEntryCodec.Failed);
+        byte[] Envelope(ulong match, ulong epoch = 1) => ConnectionEnvelope.Encode(lobby.State!.Session, 1, Inner(match), epoch);
+        wire.Receive(new TransportMessage(99, Envelope(lobby.State!.Match), TransportDelivery.Reliable));
+        wire.Receive(new TransportMessage(2, Envelope(lobby.State.Match + 1), TransportDelivery.Reliable));
+        wire.Receive(new TransportMessage(2, Envelope(lobby.State.Match, 2), TransportDelivery.Reliable));
+        wire.Receive(new TransportMessage(2, Envelope(lobby.State.Match), TransportDelivery.Unreliable));
+        lobby.Pump(0);
+        Assert.That(requests, Is.Zero);
+        wire.Receive(new TransportMessage(2, Envelope(lobby.State.Match), TransportDelivery.Reliable));
+        lobby.Pump(0);
+        Assert.That(requests, Is.EqualTo(1), "Host resources need not be loaded to recover.");
+        lobby.RecoverMatchEntry = () => lobby.Request(LobbyCommand.Return);
+        wire.Receive(new TransportMessage(2, Envelope(lobby.State.Match), TransportDelivery.Reliable));
+        lobby.Pump(0, _ => Assert.Fail("Entry failure must not reach gameplay."));
+        Assert.That(lobby.State.Phase, Is.EqualTo(SessionPhase.Lobby));
+        Assert.That(lobby.State.Players.Count, Is.EqualTo(2));
+    }
+
     /// <summary>The host freezes at tick zero until the loaded client installs and acknowledges its checkpoint.</summary>
     [Test]
     public void InitialEntryWaitsForCheckpointAndHostRelease()

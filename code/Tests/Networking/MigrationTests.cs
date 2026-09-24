@@ -14,6 +14,25 @@ namespace Trackstorm.Core.Tests.Networking;
 [TestFixture]
 internal sealed class MigrationTests
 {
+    /// <summary>Lobby authority transfer retains survivor readiness, selected map and accepted configuration.</summary>
+    [Test]
+    public void LobbyMigrationPreservesReadinessMapAndConfiguration()
+    {
+        var lobby = new LobbyAuthority(100, "Host");
+        lobby.Join(10, GameVersion.Current.ToString(), "Successor", "successor");
+        lobby.Join(20, GameVersion.Current.ToString(), "Ready", "ready");
+        lobby.Join(30, GameVersion.Current.ToString(), "Waiting", "waiting");
+        lobby.SetReady(20, true);
+        lobby.SelectMap(0, MatchMap.OldMap);
+        lobby.TryConfigure(0, new Dictionary<string, double> { ["match.kill_target"] = 9 }, out _);
+        var restored = LobbyAuthority.Restore(lobby.Capture("host"), 2, 2);
+        Assert.That(restored.State.Players.Select(player => (player.Id, player.Ready)), Is.EqualTo(new[] { (2UL, false), (3UL, true), (4UL, false) }));
+        Assert.That(restored.State.Map, Is.EqualTo(MatchMap.OldMap));
+        Assert.That(restored.Configuration, Is.EqualTo(lobby.Configuration));
+        Assert.That(restored.State.CanStart, Is.False);
+        Assert.That(restored.State.CurrentHostId, Is.EqualTo(2));
+    }
+
     /// <summary>The read-only route survives checkpoint encoding but cannot alias the private session key.</summary>
     [Test]
     public void CheckpointRoutingIsOptionalBoundedAndSeparateFromLeaseSession()
@@ -119,7 +138,7 @@ internal sealed class MigrationTests
         Assert.Throws<InvalidOperationException>(() => election.Commit());
         Assert.That(replacement.State.Session, Is.EqualTo(100));
         Assert.That(replacement.State.Players.Select(player => player.Id), Is.EqualTo(new ulong[] { 2 }));
-        Assert.That(replacement.State.Players.All(player => !player.Ready), Is.True);
+        Assert.That(replacement.State.Players.All(player => player.Ready), Is.True);
         Assert.That(replacement.Resume(50, GameVersion.Current.ToString(), 100, 1, 1, "host"), Is.False);
         Assert.That(replacement.Join(50, GameVersion.Current.ToString(), "Former host", "host"), Is.EqualTo(3));
         var second = new MigrationCheckpoint(2, replacement.Capture("client"), null, null);

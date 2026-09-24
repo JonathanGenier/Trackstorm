@@ -101,6 +101,8 @@ internal sealed class SessionMigration
     internal string Status => _failed ? "Host migration failed" : Negotiating ? "Migrating host — agreeing and restoring match" : Frozen ? "Host connection interrupted — waiting for recovery" : string.Empty;
     /// <summary>Last retained authenticated subject mapping, used only for migration/rebind admission.</summary>
     internal IReadOnlyDictionary<ulong, string>? Subjects => _retained.LastOrDefault()?.State.Lobby.Subjects;
+    /// <summary>Lobby revision at the latest externally recoverable boundary, if present.</summary>
+    internal ulong? LobbyRevision => _retained.LastOrDefault()?.State.Lobby.State.Revision;
     /// <summary>Configuration revision at the latest externally recoverable boundary, if present.</summary>
     internal ulong? ConfigurationRevision => _retained.LastOrDefault()?.State.Lobby.Configuration.Revision;
     /// <summary>Secret-free migration progress and checkpoint counters for DevTools Stats.</summary>

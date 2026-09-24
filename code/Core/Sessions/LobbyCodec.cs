@@ -42,6 +42,7 @@ public static class LobbyCodec
             "Session unavailable" => "Session unavailable",
             "Join bootstrap failed" => "Join bootstrap failed",
             "Access denied" => "Access denied",
+            "Removed by host" => "Removed by host",
             _ => "Resume rejected",
         };
     }
