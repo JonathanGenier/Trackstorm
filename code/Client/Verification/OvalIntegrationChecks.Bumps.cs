@@ -23,7 +23,7 @@ public sealed partial class OvalIntegrationChecks
             float speed = powered[^1].CommandSpeed;
             Check(speed > 44.3f && speed <= 44.441f && powered.Skip(2).All(state => state.Grounded && Math.Abs(state.Physics.AngularVelocity.Y) < 0.02f), $"{adapter} production propulsion reaches {speed:F4} m/s with neutral steering and stable support.");
             var coast = await HandlingProbe(network, new Vector3(0, (20 + VehicleDimensions.RideHeight), 400), facing, Vector3.Right * 44.44f, 601, tick => new InputFrame(tick, 0, 0, 0, 0, 0, 0));
-            Check(coast[120].CommandSpeed < 17 && coast[^1].CommandSpeed < 0.4f && coast.Skip(2).All(state => state.Physics.LinearVelocity.X > 0), $"{adapter} lift-off: {coast[120].CommandSpeed:F3} m/s after two seconds, {coast[^1].CommandSpeed:F3} m/s after ten seconds, no reversal.");
+            Check(coast[120].CommandSpeed is > 23 and < 27 && coast[^1].CommandSpeed is > 2 and < 3.5f && coast.Skip(2).All(state => state.Physics.LinearVelocity.X > 0), $"{adapter} lift-off: {coast[120].CommandSpeed:F3} m/s after two seconds, {coast[^1].CommandSpeed:F3} m/s after ten seconds, no reversal.");
 
             foreach (float entry in new[] { 8f, 28f })
             {

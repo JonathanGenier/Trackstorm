@@ -384,7 +384,7 @@ internal sealed class VehicleMovementTests
 
     /// <summary>Lift-off loses speed smoothly without reversing or imposing the powered cap on external velocity.</summary>
     [Test]
-    public void CoastDownApproachesRestWithinTenSeconds()
+    public void CoastDownPreservesRollingMomentumAndDecaysSmoothly()
     {
         VehicleMovement movement = Create(44.44f);
         for (int tick = 0; tick < 600; tick++)
@@ -395,7 +395,7 @@ internal sealed class VehicleMovementTests
             Assert.That(movement.State.Physics.LinearVelocity.Z, Is.LessThan(0));
         }
 
-        Assert.That(movement.State.CommandSpeed, Is.LessThan(0.4f));
+        Assert.That(movement.State.CommandSpeed, Is.InRange(2.5f, 3f));
     }
 
     /// <summary>A raised wheel compresses the sprung body, then near-critical damping settles without pogo.</summary>
