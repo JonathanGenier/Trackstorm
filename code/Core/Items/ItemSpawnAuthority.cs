@@ -11,23 +11,27 @@ public sealed class ItemSpawnAuthority
     private readonly Func<HeldItem>? _select;
     private readonly Dictionary<string, ArenaSpawn> _markers;
     private readonly Dictionary<string, ItemSpawnState> _states;
-    private ItemRandom? _random;
+    private readonly ItemSelectionRandom _random;
+    private readonly bool _customSelector;
     private ulong _tick;
 
-    /// <summary>Registers exactly the validated arena markers and owns an independent selection stream.</summary>
+    /// <summary>Registers validated markers using the host match's shared selection stream.</summary>
     /// <param name="arena">Actual validated arena contract.</param>
     /// <param name="items">The match's sole inventory owner.</param>
+    /// <param name="random">The host match's single item-selection stream.</param>
     /// <param name="configuration">Host tuning.</param>
     /// <param name="selector">Optional deterministic test seam.</param>
-    public ItemSpawnAuthority(ArenaConfiguration arena, ItemAuthority items, ItemSpawnConfiguration? configuration = null, Func<HeldItem>? selector = null)
+    public ItemSpawnAuthority(ArenaConfiguration arena, ItemAuthority items, ItemSelectionRandom random, ItemSpawnConfiguration? configuration = null, Func<HeldItem>? selector = null)
     {
         ArgumentNullException.ThrowIfNull(arena);
         ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(random);
         Configuration = configuration ?? new();
         Configuration.Validate();
         _items = items;
-        _random = selector is null ? new ItemRandom(unchecked((ulong)Configuration.Seed)) : null;
-        _select = selector ?? (() => _random!.Next(Configuration));
+        _random = random;
+        _customSelector = selector is not null;
+        _select = selector ?? (() => Configuration.SelectItem(_random));
         _markers = arena.Items.ToDictionary(marker => marker.Id, StringComparer.Ordinal);
         _states = arena.Items.ToDictionary(marker => marker.Id, marker => new ItemSpawnState(marker.Id, true, 0, 0, 0, HeldItem.None), StringComparer.Ordinal);
     }
@@ -39,16 +43,15 @@ public sealed class ItemSpawnAuthority
     /// <summary>Detached state in canonical marker order.</summary>
     public IReadOnlyList<ItemSpawnState> States => _states.Values.OrderBy(state => state.Id, StringComparer.Ordinal).ToArray();
 
-    /// <summary>Complete production selector continuation; custom test selectors cannot be migrated.</summary>
-    public ulong RandomState => _random?.State ?? throw new InvalidOperationException("A custom selector has no portable checkpoint.");
+    /// <summary>Match stream continuation; custom fixture selectors have no portable checkpoint.</summary>
+    public ulong RandomState => !_customSelector ? _random.State : throw new InvalidOperationException("A custom selector has no portable checkpoint.");
 
     /// <summary>Installs a validated publication's pickup boundary without awarding items again.</summary>
     /// <param name="publication">Validated complete state sharing the restored world tick.</param>
     /// <param name="revision">Saved mutation revision.</param>
-    /// <param name="randomState">Exact selector continuation.</param>
-    public void Restore(ItemPublication publication, ulong revision, ulong randomState)
+    public void Restore(ItemPublication publication, ulong revision)
     {
-        if (_random is null || !_markers.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(publication.Spawns.Select(spawn => spawn.Id)))
+        if (!_markers.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(publication.Spawns.Select(spawn => spawn.Id)))
         {
             throw new ArgumentException("Checkpoint pickup layout or selector is incompatible.");
         }
@@ -61,7 +64,6 @@ public sealed class ItemSpawnAuthority
 
         _tick = publication.World.Tick;
         Revision = revision;
-        _random = new ItemRandom(randomState);
     }
 
     /// <summary>Reactivates due spawns using only committed authoritative time.</summary>
@@ -127,11 +129,6 @@ public sealed class ItemSpawnAuthority
     internal void ApplyConfiguration(ItemSpawnConfiguration configuration)
     {
         configuration.Validate();
-        if (configuration.Seed != Configuration.Seed)
-        {
-            _random = _random is null ? null : new ItemRandom(unchecked((ulong)configuration.Seed));
-        }
-
         Configuration = configuration;
     }
 
