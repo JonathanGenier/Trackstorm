@@ -58,6 +58,10 @@ func _initialize() -> void:
 	structures.name = "InfieldStructures"
 	map.add_child(structures)
 	structures.owner = map
+	var dressing := load("res://scenes/maps/infield_dressing.tscn").instantiate() as Node3D
+	dressing.name = "EnvironmentDressing"
+	map.add_child(dressing)
+	dressing.owner = map
 	var packed := PackedScene.new()
 	assert(packed.pack(map) == OK)
 	assert(ResourceSaver.save(packed, "res://scenes/maps/oval_foundation.tscn") == OK)

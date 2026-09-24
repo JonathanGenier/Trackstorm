@@ -188,6 +188,7 @@ public sealed partial class InfieldIntegrationChecks : Node3D
             }
 
             await StructureImpacts();
+            await DressingImpacts(map);
 
             foreach (int direction in new[] { -1, 1 })
             {
