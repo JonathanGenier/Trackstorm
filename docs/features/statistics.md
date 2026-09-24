@@ -125,3 +125,5 @@ physical-controller ergonomics or separate-PC authenticated EOS connectivity.
 Combat diagnostics include each vehicle's authoritative remaining Oil traction duration. Arena diagnostics include the current persistent patch count from the existing item publication.
 
 The Global/Session tab also shows the local vehicle's current [material identity](surfaces.md), sampled from native support independently of the selected player and confirmed gameplay state. Airborne or unauthored support is unavailable. This read-only field has no Configs controls.
+
+The selected player's Item category balance section reads the existing authority/publication state: normalized credit and pickup count for each registered category, total successful pickups, and last selected category/item. A player without history displays zeroes. Death and reconnect preserve these values; a new match starts fresh. See [item distribution](item-spawns.md#per-player-category-credit).

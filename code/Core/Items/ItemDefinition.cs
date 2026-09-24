@@ -12,6 +12,8 @@ namespace Trackstorm.Core.Items;
 public sealed record ItemDefinition(HeldItem Identity, string Key, string DisplayName, int DefaultWeight,
     string PresentationKey, string PickupAudio, string? UseAudio, string? ImpactAudio)
 {
+    /// <summary>Combat-economy allocation shared with other items in this category.</summary>
+    public required ItemCategory Category { get; init; }
     /// <summary>Whether this build implements authoritative use.</summary>
     public bool CanUse => Handler is not null;
 

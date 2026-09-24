@@ -208,14 +208,16 @@ internal sealed class ItemSpawnTests
             new ItemSpawnConfiguration { Weights = new ItemSpawnConfiguration().Weights.SetItems(ItemRegistry.All.Select(item => new KeyValuePair<HeldItem, int>(item.Identity, 0))) },
         })
         {
-            Assert.Throws<ArgumentException>(() => configuration.SelectItem(new ItemSelectionRandom(1)));
+            Assert.Throws<ArgumentException>(() => configuration.Validate());
         }
 
         var tuning = new ItemSpawnConfiguration { Weights = new ItemSpawnConfiguration().Weights.SetItem(HeldItem.Missile, 3), Seed = 17 };
         var first = new ItemSelectionRandom(17);
         var second = new ItemSelectionRandom(17);
-        var sequence = Enumerable.Range(0, 1000).Select(_ => tuning.SelectItem(first)).ToArray();
-        Assert.That(sequence, Is.EqualTo(Enumerable.Range(0, 1000).Select(_ => tuning.SelectItem(second)).ToArray()));
+        var firstBalance = new PlayerItemBalance { Player = 1 };
+        var secondBalance = new PlayerItemBalance { Player = 1 };
+        var sequence = Enumerable.Range(0, 1000).Select(_ => (firstBalance = firstBalance.Select(tuning, first)).SelectedItem).ToArray();
+        Assert.That(sequence, Is.EqualTo(Enumerable.Range(0, 1000).Select(_ => (secondBalance = secondBalance.Select(tuning, second)).SelectedItem).ToArray()));
         Assert.That(sequence, Is.SupersetOf(ItemRegistry.All.Select(item => item.Identity)));
         Assert.That(sequence.Count(item => item == HeldItem.Missile), Is.InRange(400, 600));
     }

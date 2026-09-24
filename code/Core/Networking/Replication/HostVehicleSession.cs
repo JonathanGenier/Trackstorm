@@ -120,7 +120,7 @@ public sealed class HostVehicleSession
             result.RegisterSpawns(result.World.Arena, continuation.Spawns);
             result.Spawns!.Restore(checkpoint.Items, continuation.SpawnRevision);
         }
-        else if (checkpoint.Items.Spawns.Count != 0)
+        else if (checkpoint.Items.Spawns.Count != 0 || checkpoint.Items.Balances.Count != 0)
         {
             throw new ArgumentException("Missing pickup continuation.");
         }
@@ -281,7 +281,7 @@ public sealed class HostVehicleSession
         var vehicle = new VehicleSnapshot(player, 1, new VehicleState(World.State.Tick, spawn, false, false, 0, 0), new VehicleHealth(Configuration.Configuration.Damage).State, spawn);
         var current = Snapshot();
         var world = new WorldSnapshot(SessionId, current.Tick, current.Vehicles.Append(new ReplicatedVehicle(vehicle, 0)), Configuration.Revision);
-        var items = new ItemPublication(revision, world, Items.Slots, Items.Missiles, [], Spawns?.States, Items.Patches, Items.OilContacts);
+        var items = new ItemPublication(revision, world, Items.Slots, Items.Missiles, [], Spawns?.States, Items.Patches, Items.OilContacts, Spawns?.Balances);
         var match = Matches.MatchAuthority.Join(World.State.Match!, current.Tick, player);
         return new ResumeCheckpoint(items, match, props, Configuration);
     }
@@ -366,6 +366,7 @@ public sealed class HostVehicleSession
         {
             World.LeaveVehicle(entry.Vehicle);
             Items.RemovePlayer(entry.Vehicle);
+            Spawns?.RemovePlayer(entry.Vehicle);
         }
     }
 
@@ -403,6 +404,7 @@ public sealed class HostVehicleSession
         {
             World.LeaveVehicle(player);
             Items.RemovePlayer(player);
+            Spawns?.RemovePlayer(player);
         }
     }
 

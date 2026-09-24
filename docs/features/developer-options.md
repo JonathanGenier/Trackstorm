@@ -18,7 +18,7 @@ Configuration actions and their feedback disappear on Stats and Logs and for non
 
 ## Authority and runtime application
 
-Core `GameplayConfiguration` composes the existing vehicle, damage, item, spawn, respawn and match records. `GameplayOptions` is the explicit 97-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
+Core `GameplayConfiguration` composes the existing vehicle, damage, item, spawn, respawn and match records. `GameplayOptions` is the explicit 100-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
 
 Live scalar tuning additionally rejects positive values below 0.0001: subnormal mass/axle lengths can overflow fixed-step divisions despite passing older positive-only checks. Zero remains allowed where the owning rule explicitly supports it. Collision/respawn timers are bounded to one hour and the simulation clock remains fixed at 60 Hz.
 
@@ -30,7 +30,7 @@ Native `NetworkVehicleBody` observation receives the same configuration as Core 
 
 ## Replication and recovery
 
-The reliable version-eight `TC` message carries arena generation, configuration revision and all 97 values (757 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
+The reliable version-ten `TC` message carries arena generation, configuration revision and all 100 values (821 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
 
 The host sends configuration before its reliable world boundary on admission or edits. Version-six `TS` world snapshots include the configuration revision; clients reject world/item boundaries for a different revision, preventing mismatched simulation. Subsequent unreliable snapshots recover normal movement after an ordered tuning change. EOS lobby metadata does not store gameplay tuning. Discovery compatibility is `trackstorm-lobby-9`.
 
@@ -208,3 +208,5 @@ Concrete, Dirt, Grass, Mud and Deep Mud each expose Grip, Drag and Acceleration 
 
 Apply, Cancel, Reset, validation, host-local schema-two persistence, version-eight complete reliable configuration and existing resume/migration checkpoints carry all 97 values. New keys missing from saved files use canonical defaults. Old explicit Concrete/Mud overrides remain user tuning; Reset plus Apply selects the new defaults. No file migration silently overwrites those choices. The existing UI/UDP/persistence harness iterates all catalog controls; Core trajectory tests exercise every surface multiplier and checkpoint round trips.
 The **Water** category adds five [water controls](water.md#gameplay-and-tuning) through the same authority, validation, persistence and recovery path. The complete configuration layout is version 9.
+
+Item category target weights use the same Configs catalog and persistence/replication path. See [per-player category credit](item-spawns.md#per-player-category-credit) for normalization, empty-category behavior and live tuning continuity.
