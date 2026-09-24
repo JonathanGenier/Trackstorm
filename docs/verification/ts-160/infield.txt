@@ -1,0 +1,1311 @@
+Blender infield imports at identity metre scale.
+Original flat floor has no active visual or collision; negative basins are usable.
+Terrain was authored against the retained TS-74 topology manifest.
+Preserved basin (-57, 0, -29): negative terrain support { "position": (-57.0, -1.795714, -29.0), "normal": (0.004201, 0.999939, 0.010222), "face_index": 157994, "collider_id": 49962551846, "collider": StaticBody3D:<StaticBody3D#49962551846>, "shape": 0, "rid": RID(3573412790274) }.
+Preserved basin (77, 0, -35): negative terrain support { "position": (77.0, -1.795455, -35.0), "normal": (0.013839, 0.999868, 0.008476), "face_index": 201417, "collider_id": 49962551846, "collider": StaticBody3D:<StaticBody3D#49962551846>, "shape": 0, "rid": RID(3573412790274) }.
+Preserved basin (-85, 0, 28): negative terrain support { "position": (-85.0, -1.793176, 28.0), "normal": (-0.000698, 0.99996, -0.008958), "face_index": 202287, "collider_id": 49962551846, "collider": StaticBody3D:<StaticBody3D#49962551846>, "shape": 0, "rid": RID(3573412790274) }.
+Preserved basin (85, 0, 28): negative terrain support { "position": (85.0, -1.793235, 28.0), "normal": (0.000571, 0.999963, -0.008572), "face_index": 201110, "collider_id": 49962551846, "collider": StaticBody3D:<StaticBody3D#49962551846>, "shape": 0, "rid": RID(3573412790274) }.
+WestLoop: width 12.0 m versus 2.662 m vehicle width.
+EastLoop: width 12.0 m versus 2.662 m vehicle width.
+NorthLink: width 12.0 m versus 2.662 m vehicle width.
+WestShortcut: width 14.0 m versus 2.662 m vehicle width.
+EastShortcut: width 14.0 m versus 2.662 m vehicle width.
+NorthSouth: width 16.0 m versus 2.662 m vehicle width.
+SouthWestEntry: width 16.0 m versus 2.662 m vehicle width.
+SouthEastEntry: width 16.0 m versus 2.662 m vehicle width.
+NorthWestEntry: width 16.0 m versus 2.662 m vehicle width.
+NorthEastEntry: width 16.0 m versus 2.662 m vehicle width.
+Tunnel has 18 m clear north/south opening.
+Approved east/west crossing is open across the top deck.
+Imported tunnel roof has usable collision at 5.5 m clearance.
+Production Blender structures retain metre-scale identity transform.
+Inherited graybox tunnel meshes and child colliders are removed at import.
+Production structures import 44 static colliders, including one continuous deck road.
+InfieldStructures: layer 1, driving-deck classification True; supports/barriers remain obstacles.
+EastNorthCapital: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastNorthDrainInvert: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastNorthDrainLip1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastNorthDrainLip-1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastNorthFoundation: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastNorthPier: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastNorthRetainingWing: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastSouthCapital: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastSouthDrainInvert: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastSouthDrainLip1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastSouthDrainLip-1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastSouthFoundation: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastSouthPier: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastSouthRetainingWing: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestEdgeBeam1: layer 1, driving-deck classification True; supports/barriers remain obstacles.
+EastWestEdgeBeam-1: layer 1, driving-deck classification True; supports/barriers remain obstacles.
+EastWestParapet1_0: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet1_1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet1_2: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet1_3: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet1_4: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet-1_0: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet-1_1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet-1_2: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet-1_3: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet-1_4: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+NorthSouthEdgeBeam1: layer 1, driving-deck classification True; supports/barriers remain obstacles.
+NorthSouthEdgeBeam-1: layer 1, driving-deck classification True; supports/barriers remain obstacles.
+TunnelSoffit: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestNorthCapital: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestNorthDrainInvert: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestNorthDrainLip1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestNorthDrainLip-1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestNorthFoundation: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestNorthPier: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestNorthRetainingWing: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestSouthCapital: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestSouthDrainInvert: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestSouthDrainLip1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestSouthDrainLip-1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestSouthFoundation: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestSouthPier: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestSouthRetainingWing: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+North/south clear at x=-8, y=0.3.
+North/south clear at x=-7, y=0.3.
+North/south clear at x=-6, y=0.3.
+North/south clear at x=-5, y=0.3.
+North/south clear at x=-4, y=0.3.
+North/south clear at x=-3, y=0.3.
+North/south clear at x=-2, y=0.3.
+North/south clear at x=-1, y=0.3.
+North/south clear at x=0, y=0.3.
+North/south clear at x=1, y=0.3.
+North/south clear at x=2, y=0.3.
+North/south clear at x=3, y=0.3.
+North/south clear at x=4, y=0.3.
+North/south clear at x=5, y=0.3.
+North/south clear at x=6, y=0.3.
+North/south clear at x=7, y=0.3.
+North/south clear at x=8, y=0.3.
+North/south clear at x=-8, y=2.
+North/south clear at x=-7, y=2.
+North/south clear at x=-6, y=2.
+North/south clear at x=-5, y=2.
+North/south clear at x=-4, y=2.
+North/south clear at x=-3, y=2.
+North/south clear at x=-2, y=2.
+North/south clear at x=-1, y=2.
+North/south clear at x=0, y=2.
+North/south clear at x=1, y=2.
+North/south clear at x=2, y=2.
+North/south clear at x=3, y=2.
+North/south clear at x=4, y=2.
+North/south clear at x=5, y=2.
+North/south clear at x=6, y=2.
+North/south clear at x=7, y=2.
+North/south clear at x=8, y=2.
+North/south clear at x=-8, y=5.45.
+North/south clear at x=-7, y=5.45.
+North/south clear at x=-6, y=5.45.
+North/south clear at x=-5, y=5.45.
+North/south clear at x=-4, y=5.45.
+North/south clear at x=-3, y=5.45.
+North/south clear at x=-2, y=5.45.
+North/south clear at x=-1, y=5.45.
+North/south clear at x=0, y=5.45.
+North/south clear at x=1, y=5.45.
+North/south clear at x=2, y=5.45.
+North/south clear at x=3, y=5.45.
+North/south clear at x=4, y=5.45.
+North/south clear at x=5, y=5.45.
+North/south clear at x=6, y=5.45.
+North/south clear at x=7, y=5.45.
+North/south clear at x=8, y=5.45.
+Pier (-10,-10) has front/back collision.
+Dirt meets deck at x=-12 without a gap.
+Retaining wing at (-10,-10) has solid collision.
+Drain invert at (-10,-10) has solid collision.
+Pier (-10,10) has front/back collision.
+Dirt meets deck at x=-12 without a gap.
+Retaining wing at (-10,10) has solid collision.
+Drain invert at (-10,10) has solid collision.
+Jump-facing end x=-10 has no blocking parapet.
+Deck parapet on z=-10 has solid collision.
+Pier (10,-10) has front/back collision.
+Dirt meets deck at x=12 without a gap.
+Retaining wing at (10,-10) has solid collision.
+Drain invert at (10,-10) has solid collision.
+Pier (10,10) has front/back collision.
+Dirt meets deck at x=12 without a gap.
+Retaining wing at (10,10) has solid collision.
+Drain invert at (10,10) has solid collision.
+Jump-facing end x=10 has no blocking parapet.
+Deck parapet on z=10 has solid collision.
+51 crossing-envelope rays verify retained north/south underpass clearance.
+Tabletop probe (-15,-10) has support.
+Full-width tabletop at (-15,-10) matches unchanged 6.35 m deck.
+Tabletop probe (-15,-7) has support.
+Full-width tabletop at (-15,-7) matches unchanged 6.35 m deck.
+Tabletop probe (-15,0) has support.
+Full-width tabletop at (-15,0) matches unchanged 6.35 m deck.
+Tabletop probe (-15,7) has support.
+Full-width tabletop at (-15,7) matches unchanged 6.35 m deck.
+Tabletop probe (-15,10) has support.
+Full-width tabletop at (-15,10) matches unchanged 6.35 m deck.
+Tabletop probe (-15,14) has support.
+Tabletop probe (-15,-14) has support.
+Mirrored side slopes at x=-15, z=±14 match within imported mesh tolerance.
+Tabletop probe (-15,18) has support.
+Tabletop probe (-15,-18) has support.
+Mirrored side slopes at x=-15, z=±18 match within imported mesh tolerance.
+Tabletop probe (-15,22) has support.
+Tabletop probe (-15,-22) has support.
+Mirrored side slopes at x=-15, z=±22 match within imported mesh tolerance.
+Tabletop probe (-40,-10) has support.
+Full-width tabletop at (-40,-10) matches unchanged 6.35 m deck.
+Tabletop probe (-40,-7) has support.
+Full-width tabletop at (-40,-7) matches unchanged 6.35 m deck.
+Tabletop probe (-40,0) has support.
+Full-width tabletop at (-40,0) matches unchanged 6.35 m deck.
+Tabletop probe (-40,7) has support.
+Full-width tabletop at (-40,7) matches unchanged 6.35 m deck.
+Tabletop probe (-40,10) has support.
+Full-width tabletop at (-40,10) matches unchanged 6.35 m deck.
+Tabletop probe (-40,14) has support.
+Tabletop probe (-40,-14) has support.
+Mirrored side slopes at x=-40, z=±14 match within imported mesh tolerance.
+Tabletop probe (-40,18) has support.
+Tabletop probe (-40,-18) has support.
+Mirrored side slopes at x=-40, z=±18 match within imported mesh tolerance.
+Tabletop probe (-40,22) has support.
+Tabletop probe (-40,-22) has support.
+Mirrored side slopes at x=-40, z=±22 match within imported mesh tolerance.
+Tabletop probe (-65,-10) has support.
+Full-width tabletop at (-65,-10) matches unchanged 6.35 m deck.
+Tabletop probe (-65,-7) has support.
+Full-width tabletop at (-65,-7) matches unchanged 6.35 m deck.
+Tabletop probe (-65,0) has support.
+Full-width tabletop at (-65,0) matches unchanged 6.35 m deck.
+Tabletop probe (-65,7) has support.
+Full-width tabletop at (-65,7) matches unchanged 6.35 m deck.
+Tabletop probe (-65,10) has support.
+Full-width tabletop at (-65,10) matches unchanged 6.35 m deck.
+Tabletop probe (-65,14) has support.
+Tabletop probe (-65,-14) has support.
+Mirrored side slopes at x=-65, z=±14 match within imported mesh tolerance.
+Tabletop probe (-65,18) has support.
+Tabletop probe (-65,-18) has support.
+Mirrored side slopes at x=-65, z=±18 match within imported mesh tolerance.
+Tabletop probe (-65,22) has support.
+Tabletop probe (-65,-22) has support.
+Mirrored side slopes at x=-65, z=±22 match within imported mesh tolerance.
+Tabletop probe (15,-10) has support.
+Full-width tabletop at (15,-10) matches unchanged 6.35 m deck.
+Tabletop probe (15,-7) has support.
+Full-width tabletop at (15,-7) matches unchanged 6.35 m deck.
+Tabletop probe (15,0) has support.
+Full-width tabletop at (15,0) matches unchanged 6.35 m deck.
+Tabletop probe (15,7) has support.
+Full-width tabletop at (15,7) matches unchanged 6.35 m deck.
+Tabletop probe (15,10) has support.
+Full-width tabletop at (15,10) matches unchanged 6.35 m deck.
+Tabletop probe (15,14) has support.
+Tabletop probe (15,-14) has support.
+Mirrored side slopes at x=15, z=±14 match within imported mesh tolerance.
+Tabletop probe (15,18) has support.
+Tabletop probe (15,-18) has support.
+Mirrored side slopes at x=15, z=±18 match within imported mesh tolerance.
+Tabletop probe (15,22) has support.
+Tabletop probe (15,-22) has support.
+Mirrored side slopes at x=15, z=±22 match within imported mesh tolerance.
+Tabletop probe (40,-10) has support.
+Full-width tabletop at (40,-10) matches unchanged 6.35 m deck.
+Tabletop probe (40,-7) has support.
+Full-width tabletop at (40,-7) matches unchanged 6.35 m deck.
+Tabletop probe (40,0) has support.
+Full-width tabletop at (40,0) matches unchanged 6.35 m deck.
+Tabletop probe (40,7) has support.
+Full-width tabletop at (40,7) matches unchanged 6.35 m deck.
+Tabletop probe (40,10) has support.
+Full-width tabletop at (40,10) matches unchanged 6.35 m deck.
+Tabletop probe (40,14) has support.
+Tabletop probe (40,-14) has support.
+Mirrored side slopes at x=40, z=±14 match within imported mesh tolerance.
+Tabletop probe (40,18) has support.
+Tabletop probe (40,-18) has support.
+Mirrored side slopes at x=40, z=±18 match within imported mesh tolerance.
+Tabletop probe (40,22) has support.
+Tabletop probe (40,-22) has support.
+Mirrored side slopes at x=40, z=±22 match within imported mesh tolerance.
+Tabletop probe (65,-10) has support.
+Full-width tabletop at (65,-10) matches unchanged 6.35 m deck.
+Tabletop probe (65,-7) has support.
+Full-width tabletop at (65,-7) matches unchanged 6.35 m deck.
+Tabletop probe (65,0) has support.
+Full-width tabletop at (65,0) matches unchanged 6.35 m deck.
+Tabletop probe (65,7) has support.
+Full-width tabletop at (65,7) matches unchanged 6.35 m deck.
+Tabletop probe (65,10) has support.
+Full-width tabletop at (65,10) matches unchanged 6.35 m deck.
+Tabletop probe (65,14) has support.
+Tabletop probe (65,-14) has support.
+Mirrored side slopes at x=65, z=±14 match within imported mesh tolerance.
+Tabletop probe (65,18) has support.
+Tabletop probe (65,-18) has support.
+Mirrored side slopes at x=65, z=±18 match within imported mesh tolerance.
+Tabletop probe (65,22) has support.
+Tabletop probe (65,-22) has support.
+Mirrored side slopes at x=65, z=±22 match within imported mesh tolerance.
+Tabletop probe (-15,-8) has support.
+Tabletop probe (-14.75,-8) has support.
+Deck/earth seam support (-14.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14.5,-8) has support.
+Deck/earth seam support (-14.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14.25,-8) has support.
+Deck/earth seam support (-14.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14,-8) has support.
+Deck/earth seam support (-14,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.75,-8) has support.
+Deck/earth seam support (-13.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.5,-8) has support.
+Deck/earth seam support (-13.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.25,-8) has support.
+Deck/earth seam support (-13.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13,-8) has support.
+Deck/earth seam support (-13,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.75,-8) has support.
+Deck/earth seam support (-12.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.5,-8) has support.
+Deck/earth seam support (-12.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.25,-8) has support.
+Deck/earth seam support (-12.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12,-8) has support.
+Deck/earth seam support (-12,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.75,-8) has support.
+Deck/earth seam support (-11.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.5,-8) has support.
+Deck/earth seam support (-11.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.25,-8) has support.
+Deck/earth seam support (-11.25,-8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (-11,-8) has support.
+Deck/earth seam support (-11,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.75,-8) has support.
+Deck/earth seam support (-10.75,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.5,-8) has support.
+Deck/earth seam support (-10.5,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.25,-8) has support.
+Deck/earth seam support (-10.25,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10,-8) has support.
+Deck/earth seam support (-10,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.75,-8) has support.
+Deck/earth seam support (-9.75,-8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.5,-8) has support.
+Deck/earth seam support (-9.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.25,-8) has support.
+Deck/earth seam support (-9.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-9,-8) has support.
+Deck/earth seam support (-9,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.75,-8) has support.
+Deck/earth seam support (-8.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.5,-8) has support.
+Deck/earth seam support (-8.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.25,-8) has support.
+Deck/earth seam support (-8.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8,-8) has support.
+Deck/earth seam support (-8,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.75,-8) has support.
+Deck/earth seam support (-7.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.5,-8) has support.
+Deck/earth seam support (-7.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.25,-8) has support.
+Deck/earth seam support (-7.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7,-8) has support.
+Deck/earth seam support (-7,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.75,-8) has support.
+Deck/earth seam support (-6.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.5,-8) has support.
+Deck/earth seam support (-6.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.25,-8) has support.
+Deck/earth seam support (-6.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6,-8) has support.
+Deck/earth seam support (-6,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.75,-8) has support.
+Deck/earth seam support (-5.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.5,-8) has support.
+Deck/earth seam support (-5.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.25,-8) has support.
+Deck/earth seam support (-5.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5,-8) has support.
+Deck/earth seam support (-5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.75,-8) has support.
+Deck/earth seam support (-4.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.5,-8) has support.
+Deck/earth seam support (-4.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.25,-8) has support.
+Deck/earth seam support (-4.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4,-8) has support.
+Deck/earth seam support (-4,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.75,-8) has support.
+Deck/earth seam support (-3.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.5,-8) has support.
+Deck/earth seam support (-3.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.25,-8) has support.
+Deck/earth seam support (-3.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3,-8) has support.
+Deck/earth seam support (-3,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.75,-8) has support.
+Deck/earth seam support (-2.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.5,-8) has support.
+Deck/earth seam support (-2.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.25,-8) has support.
+Deck/earth seam support (-2.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2,-8) has support.
+Deck/earth seam support (-2,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.75,-8) has support.
+Deck/earth seam support (-1.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.5,-8) has support.
+Deck/earth seam support (-1.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.25,-8) has support.
+Deck/earth seam support (-1.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1,-8) has support.
+Deck/earth seam support (-1,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.75,-8) has support.
+Deck/earth seam support (-0.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.5,-8) has support.
+Deck/earth seam support (-0.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.25,-8) has support.
+Deck/earth seam support (-0.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0,-8) has support.
+Deck/earth seam support (0,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.25,-8) has support.
+Deck/earth seam support (0.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.5,-8) has support.
+Deck/earth seam support (0.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.75,-8) has support.
+Deck/earth seam support (0.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1,-8) has support.
+Deck/earth seam support (1,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.25,-8) has support.
+Deck/earth seam support (1.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.5,-8) has support.
+Deck/earth seam support (1.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.75,-8) has support.
+Deck/earth seam support (1.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2,-8) has support.
+Deck/earth seam support (2,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.25,-8) has support.
+Deck/earth seam support (2.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.5,-8) has support.
+Deck/earth seam support (2.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.75,-8) has support.
+Deck/earth seam support (2.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3,-8) has support.
+Deck/earth seam support (3,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.25,-8) has support.
+Deck/earth seam support (3.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.5,-8) has support.
+Deck/earth seam support (3.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.75,-8) has support.
+Deck/earth seam support (3.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4,-8) has support.
+Deck/earth seam support (4,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.25,-8) has support.
+Deck/earth seam support (4.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.5,-8) has support.
+Deck/earth seam support (4.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.75,-8) has support.
+Deck/earth seam support (4.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5,-8) has support.
+Deck/earth seam support (5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.25,-8) has support.
+Deck/earth seam support (5.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.5,-8) has support.
+Deck/earth seam support (5.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.75,-8) has support.
+Deck/earth seam support (5.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6,-8) has support.
+Deck/earth seam support (6,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.25,-8) has support.
+Deck/earth seam support (6.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.5,-8) has support.
+Deck/earth seam support (6.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.75,-8) has support.
+Deck/earth seam support (6.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7,-8) has support.
+Deck/earth seam support (7,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.25,-8) has support.
+Deck/earth seam support (7.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.5,-8) has support.
+Deck/earth seam support (7.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.75,-8) has support.
+Deck/earth seam support (7.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8,-8) has support.
+Deck/earth seam support (8,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.25,-8) has support.
+Deck/earth seam support (8.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.5,-8) has support.
+Deck/earth seam support (8.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.75,-8) has support.
+Deck/earth seam support (8.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9,-8) has support.
+Deck/earth seam support (9,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.25,-8) has support.
+Deck/earth seam support (9.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.5,-8) has support.
+Deck/earth seam support (9.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.75,-8) has support.
+Deck/earth seam support (9.75,-8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (10,-8) has support.
+Deck/earth seam support (10,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.25,-8) has support.
+Deck/earth seam support (10.25,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.5,-8) has support.
+Deck/earth seam support (10.5,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.75,-8) has support.
+Deck/earth seam support (10.75,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (11,-8) has support.
+Deck/earth seam support (11,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (11.25,-8) has support.
+Deck/earth seam support (11.25,-8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (11.5,-8) has support.
+Deck/earth seam support (11.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (11.75,-8) has support.
+Deck/earth seam support (11.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12,-8) has support.
+Deck/earth seam support (12,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.25,-8) has support.
+Deck/earth seam support (12.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.5,-8) has support.
+Deck/earth seam support (12.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.75,-8) has support.
+Deck/earth seam support (12.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13,-8) has support.
+Deck/earth seam support (13,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.25,-8) has support.
+Deck/earth seam support (13.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.5,-8) has support.
+Deck/earth seam support (13.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.75,-8) has support.
+Deck/earth seam support (13.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14,-8) has support.
+Deck/earth seam support (14,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.25,-8) has support.
+Deck/earth seam support (14.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.5,-8) has support.
+Deck/earth seam support (14.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.75,-8) has support.
+Deck/earth seam support (14.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (15,-8) has support.
+Deck/earth seam support (15,-8) height=6.350; retained shallow beam crown has no blocking step.
+Both upper ends open at z=-8.
+Tabletop probe (-15,0) has support.
+Tabletop probe (-14.75,0) has support.
+Deck/earth seam support (-14.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14.5,0) has support.
+Deck/earth seam support (-14.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14.25,0) has support.
+Deck/earth seam support (-14.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14,0) has support.
+Deck/earth seam support (-14,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.75,0) has support.
+Deck/earth seam support (-13.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.5,0) has support.
+Deck/earth seam support (-13.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.25,0) has support.
+Deck/earth seam support (-13.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13,0) has support.
+Deck/earth seam support (-13,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.75,0) has support.
+Deck/earth seam support (-12.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.5,0) has support.
+Deck/earth seam support (-12.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.25,0) has support.
+Deck/earth seam support (-12.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12,0) has support.
+Deck/earth seam support (-12,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.75,0) has support.
+Deck/earth seam support (-11.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.5,0) has support.
+Deck/earth seam support (-11.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.25,0) has support.
+Deck/earth seam support (-11.25,0) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (-11,0) has support.
+Deck/earth seam support (-11,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.75,0) has support.
+Deck/earth seam support (-10.75,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.5,0) has support.
+Deck/earth seam support (-10.5,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.25,0) has support.
+Deck/earth seam support (-10.25,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10,0) has support.
+Deck/earth seam support (-10,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.75,0) has support.
+Deck/earth seam support (-9.75,0) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.5,0) has support.
+Deck/earth seam support (-9.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.25,0) has support.
+Deck/earth seam support (-9.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-9,0) has support.
+Deck/earth seam support (-9,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.75,0) has support.
+Deck/earth seam support (-8.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.5,0) has support.
+Deck/earth seam support (-8.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.25,0) has support.
+Deck/earth seam support (-8.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8,0) has support.
+Deck/earth seam support (-8,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.75,0) has support.
+Deck/earth seam support (-7.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.5,0) has support.
+Deck/earth seam support (-7.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.25,0) has support.
+Deck/earth seam support (-7.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7,0) has support.
+Deck/earth seam support (-7,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.75,0) has support.
+Deck/earth seam support (-6.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.5,0) has support.
+Deck/earth seam support (-6.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.25,0) has support.
+Deck/earth seam support (-6.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6,0) has support.
+Deck/earth seam support (-6,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.75,0) has support.
+Deck/earth seam support (-5.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.5,0) has support.
+Deck/earth seam support (-5.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.25,0) has support.
+Deck/earth seam support (-5.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5,0) has support.
+Deck/earth seam support (-5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.75,0) has support.
+Deck/earth seam support (-4.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.5,0) has support.
+Deck/earth seam support (-4.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.25,0) has support.
+Deck/earth seam support (-4.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4,0) has support.
+Deck/earth seam support (-4,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.75,0) has support.
+Deck/earth seam support (-3.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.5,0) has support.
+Deck/earth seam support (-3.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.25,0) has support.
+Deck/earth seam support (-3.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3,0) has support.
+Deck/earth seam support (-3,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.75,0) has support.
+Deck/earth seam support (-2.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.5,0) has support.
+Deck/earth seam support (-2.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.25,0) has support.
+Deck/earth seam support (-2.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2,0) has support.
+Deck/earth seam support (-2,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.75,0) has support.
+Deck/earth seam support (-1.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.5,0) has support.
+Deck/earth seam support (-1.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.25,0) has support.
+Deck/earth seam support (-1.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1,0) has support.
+Deck/earth seam support (-1,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.75,0) has support.
+Deck/earth seam support (-0.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.5,0) has support.
+Deck/earth seam support (-0.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.25,0) has support.
+Deck/earth seam support (-0.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0,0) has support.
+Deck/earth seam support (0,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.25,0) has support.
+Deck/earth seam support (0.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.5,0) has support.
+Deck/earth seam support (0.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.75,0) has support.
+Deck/earth seam support (0.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1,0) has support.
+Deck/earth seam support (1,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.25,0) has support.
+Deck/earth seam support (1.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.5,0) has support.
+Deck/earth seam support (1.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.75,0) has support.
+Deck/earth seam support (1.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2,0) has support.
+Deck/earth seam support (2,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.25,0) has support.
+Deck/earth seam support (2.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.5,0) has support.
+Deck/earth seam support (2.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.75,0) has support.
+Deck/earth seam support (2.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3,0) has support.
+Deck/earth seam support (3,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.25,0) has support.
+Deck/earth seam support (3.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.5,0) has support.
+Deck/earth seam support (3.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.75,0) has support.
+Deck/earth seam support (3.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4,0) has support.
+Deck/earth seam support (4,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.25,0) has support.
+Deck/earth seam support (4.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.5,0) has support.
+Deck/earth seam support (4.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.75,0) has support.
+Deck/earth seam support (4.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5,0) has support.
+Deck/earth seam support (5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.25,0) has support.
+Deck/earth seam support (5.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.5,0) has support.
+Deck/earth seam support (5.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.75,0) has support.
+Deck/earth seam support (5.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6,0) has support.
+Deck/earth seam support (6,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.25,0) has support.
+Deck/earth seam support (6.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.5,0) has support.
+Deck/earth seam support (6.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.75,0) has support.
+Deck/earth seam support (6.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7,0) has support.
+Deck/earth seam support (7,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.25,0) has support.
+Deck/earth seam support (7.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.5,0) has support.
+Deck/earth seam support (7.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.75,0) has support.
+Deck/earth seam support (7.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8,0) has support.
+Deck/earth seam support (8,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.25,0) has support.
+Deck/earth seam support (8.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.5,0) has support.
+Deck/earth seam support (8.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.75,0) has support.
+Deck/earth seam support (8.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9,0) has support.
+Deck/earth seam support (9,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.25,0) has support.
+Deck/earth seam support (9.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.5,0) has support.
+Deck/earth seam support (9.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.75,0) has support.
+Deck/earth seam support (9.75,0) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (10,0) has support.
+Deck/earth seam support (10,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.25,0) has support.
+Deck/earth seam support (10.25,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.5,0) has support.
+Deck/earth seam support (10.5,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.75,0) has support.
+Deck/earth seam support (10.75,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (11,0) has support.
+Deck/earth seam support (11,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (11.25,0) has support.
+Deck/earth seam support (11.25,0) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (11.5,0) has support.
+Deck/earth seam support (11.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (11.75,0) has support.
+Deck/earth seam support (11.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12,0) has support.
+Deck/earth seam support (12,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.25,0) has support.
+Deck/earth seam support (12.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.5,0) has support.
+Deck/earth seam support (12.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.75,0) has support.
+Deck/earth seam support (12.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13,0) has support.
+Deck/earth seam support (13,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.25,0) has support.
+Deck/earth seam support (13.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.5,0) has support.
+Deck/earth seam support (13.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.75,0) has support.
+Deck/earth seam support (13.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14,0) has support.
+Deck/earth seam support (14,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.25,0) has support.
+Deck/earth seam support (14.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.5,0) has support.
+Deck/earth seam support (14.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.75,0) has support.
+Deck/earth seam support (14.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (15,0) has support.
+Deck/earth seam support (15,0) height=6.350; retained shallow beam crown has no blocking step.
+Both upper ends open at z=0.
+Tabletop probe (-15,8) has support.
+Tabletop probe (-14.75,8) has support.
+Deck/earth seam support (-14.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14.5,8) has support.
+Deck/earth seam support (-14.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14.25,8) has support.
+Deck/earth seam support (-14.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14,8) has support.
+Deck/earth seam support (-14,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.75,8) has support.
+Deck/earth seam support (-13.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.5,8) has support.
+Deck/earth seam support (-13.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.25,8) has support.
+Deck/earth seam support (-13.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13,8) has support.
+Deck/earth seam support (-13,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.75,8) has support.
+Deck/earth seam support (-12.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.5,8) has support.
+Deck/earth seam support (-12.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.25,8) has support.
+Deck/earth seam support (-12.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12,8) has support.
+Deck/earth seam support (-12,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.75,8) has support.
+Deck/earth seam support (-11.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.5,8) has support.
+Deck/earth seam support (-11.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.25,8) has support.
+Deck/earth seam support (-11.25,8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (-11,8) has support.
+Deck/earth seam support (-11,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.75,8) has support.
+Deck/earth seam support (-10.75,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.5,8) has support.
+Deck/earth seam support (-10.5,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.25,8) has support.
+Deck/earth seam support (-10.25,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10,8) has support.
+Deck/earth seam support (-10,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.75,8) has support.
+Deck/earth seam support (-9.75,8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.5,8) has support.
+Deck/earth seam support (-9.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.25,8) has support.
+Deck/earth seam support (-9.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-9,8) has support.
+Deck/earth seam support (-9,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.75,8) has support.
+Deck/earth seam support (-8.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.5,8) has support.
+Deck/earth seam support (-8.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.25,8) has support.
+Deck/earth seam support (-8.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8,8) has support.
+Deck/earth seam support (-8,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.75,8) has support.
+Deck/earth seam support (-7.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.5,8) has support.
+Deck/earth seam support (-7.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.25,8) has support.
+Deck/earth seam support (-7.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7,8) has support.
+Deck/earth seam support (-7,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.75,8) has support.
+Deck/earth seam support (-6.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.5,8) has support.
+Deck/earth seam support (-6.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.25,8) has support.
+Deck/earth seam support (-6.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6,8) has support.
+Deck/earth seam support (-6,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.75,8) has support.
+Deck/earth seam support (-5.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.5,8) has support.
+Deck/earth seam support (-5.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.25,8) has support.
+Deck/earth seam support (-5.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5,8) has support.
+Deck/earth seam support (-5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.75,8) has support.
+Deck/earth seam support (-4.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.5,8) has support.
+Deck/earth seam support (-4.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.25,8) has support.
+Deck/earth seam support (-4.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4,8) has support.
+Deck/earth seam support (-4,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.75,8) has support.
+Deck/earth seam support (-3.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.5,8) has support.
+Deck/earth seam support (-3.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.25,8) has support.
+Deck/earth seam support (-3.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3,8) has support.
+Deck/earth seam support (-3,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.75,8) has support.
+Deck/earth seam support (-2.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.5,8) has support.
+Deck/earth seam support (-2.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.25,8) has support.
+Deck/earth seam support (-2.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2,8) has support.
+Deck/earth seam support (-2,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.75,8) has support.
+Deck/earth seam support (-1.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.5,8) has support.
+Deck/earth seam support (-1.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.25,8) has support.
+Deck/earth seam support (-1.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1,8) has support.
+Deck/earth seam support (-1,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.75,8) has support.
+Deck/earth seam support (-0.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.5,8) has support.
+Deck/earth seam support (-0.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.25,8) has support.
+Deck/earth seam support (-0.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0,8) has support.
+Deck/earth seam support (0,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.25,8) has support.
+Deck/earth seam support (0.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.5,8) has support.
+Deck/earth seam support (0.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.75,8) has support.
+Deck/earth seam support (0.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1,8) has support.
+Deck/earth seam support (1,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.25,8) has support.
+Deck/earth seam support (1.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.5,8) has support.
+Deck/earth seam support (1.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.75,8) has support.
+Deck/earth seam support (1.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2,8) has support.
+Deck/earth seam support (2,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.25,8) has support.
+Deck/earth seam support (2.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.5,8) has support.
+Deck/earth seam support (2.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.75,8) has support.
+Deck/earth seam support (2.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3,8) has support.
+Deck/earth seam support (3,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.25,8) has support.
+Deck/earth seam support (3.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.5,8) has support.
+Deck/earth seam support (3.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.75,8) has support.
+Deck/earth seam support (3.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4,8) has support.
+Deck/earth seam support (4,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.25,8) has support.
+Deck/earth seam support (4.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.5,8) has support.
+Deck/earth seam support (4.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.75,8) has support.
+Deck/earth seam support (4.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5,8) has support.
+Deck/earth seam support (5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.25,8) has support.
+Deck/earth seam support (5.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.5,8) has support.
+Deck/earth seam support (5.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.75,8) has support.
+Deck/earth seam support (5.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6,8) has support.
+Deck/earth seam support (6,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.25,8) has support.
+Deck/earth seam support (6.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.5,8) has support.
+Deck/earth seam support (6.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.75,8) has support.
+Deck/earth seam support (6.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7,8) has support.
+Deck/earth seam support (7,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.25,8) has support.
+Deck/earth seam support (7.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.5,8) has support.
+Deck/earth seam support (7.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.75,8) has support.
+Deck/earth seam support (7.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8,8) has support.
+Deck/earth seam support (8,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.25,8) has support.
+Deck/earth seam support (8.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.5,8) has support.
+Deck/earth seam support (8.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.75,8) has support.
+Deck/earth seam support (8.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9,8) has support.
+Deck/earth seam support (9,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.25,8) has support.
+Deck/earth seam support (9.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.5,8) has support.
+Deck/earth seam support (9.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.75,8) has support.
+Deck/earth seam support (9.75,8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (10,8) has support.
+Deck/earth seam support (10,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.25,8) has support.
+Deck/earth seam support (10.25,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.5,8) has support.
+Deck/earth seam support (10.5,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.75,8) has support.
+Deck/earth seam support (10.75,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (11,8) has support.
+Deck/earth seam support (11,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (11.25,8) has support.
+Deck/earth seam support (11.25,8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (11.5,8) has support.
+Deck/earth seam support (11.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (11.75,8) has support.
+Deck/earth seam support (11.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12,8) has support.
+Deck/earth seam support (12,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.25,8) has support.
+Deck/earth seam support (12.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.5,8) has support.
+Deck/earth seam support (12.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.75,8) has support.
+Deck/earth seam support (12.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13,8) has support.
+Deck/earth seam support (13,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.25,8) has support.
+Deck/earth seam support (13.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.5,8) has support.
+Deck/earth seam support (13.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.75,8) has support.
+Deck/earth seam support (13.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14,8) has support.
+Deck/earth seam support (14,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.25,8) has support.
+Deck/earth seam support (14.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.5,8) has support.
+Deck/earth seam support (14.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.75,8) has support.
+Deck/earth seam support (14.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (15,8) has support.
+Deck/earth seam support (15,8) height=6.350; retained shallow beam crown has no blocking step.
+Both upper ends open at z=8.
+Exactly seven infield singles extend the twenty oval locations.
+Baked map markers exactly match the seven-marker authoring scene.
+PickupEasySouth: supported initial pose.
+PickupEasySouth: setup settles without damage at (-91.858246, 0.7193537, 73.27544).
+PickupEasySouth: entire route driven using production physics/input; progress 18/20, position (-66.25673, 1.2477584, 48.833187), velocity (11.538454, -1.1646419, -7.9111376); peak centerline error 1.61 m, unsupported frames 0, final HP 1000.
+PickupEasySouth: no collision damage (1000/1000); launch , landing , flight 0 frames.
+EasySouth: authoritative award at (-72.08364, 1.4838893, 52.72866), minimum distance 1.151 m, airborne=False, maximum immersion=0.000 m.
+EasySouth: complete collection route remains dry.
+PickupEasyNorth: supported initial pose.
+PickupEasyNorth: setup settles without damage at (47.763523, 3.5095563, -51.15981).
+PickupEasyNorth: entire route driven using production physics/input; progress 32/34, position (111.59777, 1.1438301, -55.62261), velocity (13.962097, 0.001980573, 1.075069); peak centerline error 1.02 m, unsupported frames 0, final HP 1000.
+PickupEasyNorth: no collision damage (1000/1000); launch , landing , flight 0 frames.
+EasyNorth: authoritative award at (67.81698, 2.2177043, -54.584286), minimum distance 1.671 m, airborne=False, maximum immersion=0.000 m.
+EasyNorth: complete collection route remains dry.
+PickupUnderpass: supported initial pose.
+PickupUnderpass: setup settles without damage at (0, 1.1389773, -30).
+PickupUnderpass: entire route driven using production physics/input; progress 39/41, position (2.1569788E-06, 1.1443975, 28.115614), velocity (7.029266E-07, -4.7832727E-05, 14.011827); peak centerline error 0.75 m, unsupported frames 0, final HP 1000.
+PickupUnderpass: no collision damage (1000/1000); launch , landing , flight 0 frames.
+Underpass: authoritative award at (8.3651963E-07, 1.1436667, -2.7056172), minimum distance 1.148 m, airborne=False, maximum immersion=0.000 m.
+Underpass: complete collection route remains dry.
+PickupWaterEdge: supported initial pose.
+PickupWaterEdge: setup settles without damage at (52.21908, 2.5163913, -42.751873).
+PickupWaterEdge: entire route driven using production physics/input; progress 39/41, position (100.392815, 1.142914, -42.983345), velocity (12.02923, 0.0047353804, 0.03464444); peak centerline error 0.68 m, unsupported frames 0, final HP 1000.
+PickupWaterEdge: no collision damage (1000/1000); launch , landing , flight 0 frames.
+WaterEdge: authoritative award at (74.40293, 1.3377374, -42.979248), minimum distance 1.110 m, airborne=False, maximum immersion=0.000 m.
+WaterEdge: complete collection route remains dry.
+PickupWestTurn: supported initial pose.
+PickupWestTurn: setup settles without damage at (-164.15128, 3.2670677, -10.219748).
+PickupWestTurn: entire route driven using production physics/input; progress 36/38, position (-122.9279, 0.94012845, 42.624866), velocity (10.638692, 0.18744385, 5.5403967); peak centerline error 1.06 m, unsupported frames 0, final HP 1000.
+PickupWestTurn: no collision damage (1000/1000); launch , landing , flight 0 frames.
+WestTurn: authoritative award at (-155.97874, 1.0716095, 12.563892), minimum distance 1.184 m, airborne=False, maximum immersion=0.000 m.
+WestTurn: complete collection route remains dry.
+PickupEastBerm: supported initial pose.
+PickupEastBerm: setup settles without damage at (147.54121, 1.1389624, 23.96374).
+PickupEastBerm: entire route driven using production physics/input; progress 32/34, position (93.07831, 1.3756102, 49.59894), velocity (-11.884457, 1.427844, 0.8208051); peak centerline error 1.02 m, unsupported frames 0, final HP 1000.
+PickupEastBerm: no collision damage (1000/1000); launch , landing , flight 0 frames.
+EastBerm: authoritative award at (128.39154, 0.87669635, 39.581764), minimum distance 1.131 m, airborne=False, maximum immersion=0.000 m.
+EastBerm: complete collection route remains dry.
+PickupSkillJump14: supported initial pose.
+PickupSkillJump14: setup settles without damage at (-125, 1.1389774, 0).
+PickupSkillJump14: real launch (-80.626465, 7.1334577, 0.0032847766), landing (-70.56236, 8.067747, 0.0030387284), longest flight 0.92s, peak origin 8.59m, peak origin clearance 3.62m, launch horizontal speed 11.43m/s, airborne horizontal travel 10.06m; recovered grounded.
+PickupSkillJump14: lands on raised dirt tabletop at corridor metre 54.44.
+PickupSkillJump14: entire route driven using production physics/input; progress 49/51, position (-27.55364, 7.4942784, 0.00023675186), velocity (14.085846, 0.0005965084, 0.001677734); peak centerline error 1.00 m, unsupported frames 55, final HP 1000.
+PickupSkillJump14: no collision damage (1000/1000); launch (-80.626465, 7.1334577, 0.0032847766), landing (-70.56236, 8.067747, 0.0030387284), flight 55 frames.
+SkillJump14: authoritative award at (-75.97428, 8.49187, 0.0032317776), minimum distance 2.064 m, airborne=True, maximum immersion=0.000 m.
+SkillJump14: complete collection route remains dry.
+SkillJump14: awarded during the intended airborne trajectory.
+PickupSkillJump16: supported initial pose.
+PickupSkillJump16: setup settles without damage at (-125, 1.1389774, 0).
+PickupSkillJump16: real launch (-80.47156, 7.2145224, -0.0036798008), landing (-64.66773, 8.114136, 0.07113414), longest flight 1.23s, peak origin 9.42m, peak origin clearance 3.98m, launch horizontal speed 13.21m/s, airborne horizontal travel 15.80m; recovered grounded.
+PickupSkillJump16: lands on raised dirt tabletop at corridor metre 60.33.
+PickupSkillJump16: entire route driven using production physics/input; progress 49/51, position (-27.702902, 7.491498, -0.0045393268), velocity (16.050482, 0.008193016, -0.028469104); peak centerline error 1.00 m, unsupported frames 74, final HP 1000.
+PickupSkillJump16: no collision damage (1000/1000); launch (-80.47156, 7.2145224, -0.0036798008), landing (-64.66773, 8.114136, 0.07113414), flight 74 frames.
+SkillJump16: authoritative award at (-76.23083, 8.81628, 0.018868374), minimum distance 1.382 m, airborne=True, maximum immersion=0.000 m.
+SkillJump16: complete collection route remains dry.
+SkillJump16: awarded during the intended airborne trajectory.
+PickupSkillJump18: supported initial pose.
+PickupSkillJump18: setup settles without damage at (-125, 1.1389774, 0).
+PickupSkillJump18: real launch (-80.37171, 7.2929473, 0.12053688), landing (-58.47063, 8.122964, 0.51449), longest flight 1.50s, peak origin 10.31m, peak origin clearance 4.27m, launch horizontal speed 14.98m/s, airborne horizontal travel 21.90m; recovered grounded.
+PickupSkillJump18: lands on raised dirt tabletop at corridor metre 66.53.
+PickupSkillJump18: entire route driven using production physics/input; progress 49/51, position (-27.531898, 7.4806466, 0.22436851), velocity (18.014982, 0.0337203, -0.32688573); peak centerline error 1.10 m, unsupported frames 90, final HP 1000.
+PickupSkillJump18: no collision damage (1000/1000); launch (-80.37171, 7.2929473, 0.12053688), landing (-58.47063, 8.122964, 0.51449), flight 90 frames.
+SkillJump18: authoritative award at (-76.32765, 9.007274, 0.20192985), minimum distance 0.985 m, airborne=True, maximum immersion=0.000 m.
+SkillJump18: complete collection route remains dry.
+SkillJump18: awarded during the intended airborne trajectory.
+PickupOrdinaryCrossing6: supported initial pose.
+PickupOrdinaryCrossing6: setup settles without damage at (-125, 1.1389774, 0).
+PickupOrdinaryCrossing6: entire route driven using production physics/input; progress 124/126, position (122.11727, 1.1444362, 4.608198E-05), velocity (6.0758066, -1.8015504E-05, -3.1188476E-05); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+PickupOrdinaryCrossing6: no collision damage (1000/1000); launch , landing , flight 0 frames.
+Ordinary tabletop crossing at 6 m/s cannot collect skill pickup; nearest 3.922 m exceeds three-metre radius.
+PickupOrdinaryCrossing10: supported initial pose.
+PickupOrdinaryCrossing10: setup settles without damage at (-125, 1.1389774, 0).
+PickupOrdinaryCrossing10: entire route driven using production physics/input; progress 124/126, position (122.24939, 1.1441177, -2.8193437E-05), velocity (10.031396, 0.0009796917, -4.351487E-05); peak centerline error 1.00 m, unsupported frames 74, final HP 1000.
+PickupOrdinaryCrossing10: no collision damage (1000/1000); launch (-80.88471, 6.834479, 6.616071E-05), landing (-75.961815, 6.71251, -0.00029158825), flight 38 frames.
+Ordinary tabletop crossing at 10 m/s cannot collect skill pickup; nearest 4.130 m exceeds three-metre radius.
+PickupUnderpassExclusion: supported initial pose.
+PickupUnderpassExclusion: setup settles without damage at (0, 1.1389773, -30).
+PickupUnderpassExclusion: entire route driven using production physics/input; progress 39/41, position (2.1569788E-06, 1.1443975, 28.115614), velocity (7.029266E-07, -4.7832727E-05, 14.011827); peak centerline error 0.75 m, unsupported frames 0, final HP 1000.
+PickupUnderpassExclusion: no collision damage (1000/1000); launch , landing , flight 0 frames.
+Underpass traversal cannot collect elevated skill pickup.
+Tabletop probe (77,-49) has support.
+Poor shoreline line collects then enters actual water: immersion 1.012 m at (77.00689, -0.029545683, -37.86487).
+Tabletop probe (-91.8311,72.8496) has support.
+Hosted easy-south: progress 18/20, collected True (expected True), nearest 1.148 m, depth 0.000 m, HP 1000, deviation 1.594 m; award (-72.150955, 1.4767904, 52.793995), airborne=False.
+Tabletop probe (47.8287,-51.2111) has support.
+Hosted easy-north: progress 32/34, collected True (expected True), nearest 1.672 m, depth 0.000 m, HP 1000, deviation 1.015 m; award (67.799545, 2.219231, -54.580933), airborne=False.
+Tabletop probe (0,-30) has support.
+Hosted underpass: progress 39/41, collected True (expected True), nearest 1.148 m, depth 0.000 m, HP 1000, deviation 0.746 m; award (1.903556E-07, 1.1436877, -2.7036624), airborne=False.
+Tabletop probe (52,-43) has support.
+Hosted water-edge: progress 39/41, collected True (expected True), nearest 1.109 m, depth 0.000 m, HP 1000, deviation 0.666 m; award (74.42035, 1.3358966, -42.9753), airborne=False.
+Tabletop probe (-164.0518,-10.887) has support.
+Hosted west-turn: progress 36/38, collected True (expected True), nearest 1.185 m, depth 0.000 m, HP 1000, deviation 1.047 m; award (-155.98329, 1.070237, 12.54764), airborne=False.
+Tabletop probe (147.5421,23.9633) has support.
+Hosted east-berm: progress 32/34, collected True (expected True), nearest 1.131 m, depth 0.000 m, HP 1000, deviation 1.013 m; award (128.39203, 0.876893, 39.58794), airborne=False.
+Tabletop probe (-125,0) has support.
+Hosted skill-14: progress 39/41, collected True (expected True), nearest 1.998 m, depth 0.000 m, HP 1000, deviation 1.249 m; award (-76.079735, 8.529433, 0.0027343736), airborne=True.
+Hosted skill award is airborne.
+Tabletop probe (-125,0) has support.
+Hosted skill-16: progress 39/41, collected True (expected True), nearest 1.282 m, depth 0.000 m, HP 1000, deviation 1.247 m; award (-76.2081, 8.909924, 0.0099085225), airborne=True.
+Hosted skill award is airborne.
+Tabletop probe (-125,0) has support.
+Hosted skill-18: progress 39/41, collected True (expected True), nearest 0.755 m, depth 0.000 m, HP 1000, deviation 1.243 m; award (-76.32184, 9.176818, 0.014442006), airborne=True.
+Hosted skill award is airborne.
+Tabletop probe (-125,0) has support.
+Hosted ordinary-crossing: progress 39/41, collected False (expected False), nearest 3.926 m, depth 0.000 m, HP 1000, deviation 1.875 m; award (0, 0, 0), airborne=False.
+Tabletop probe (-80,0) has support.
+Hosted ordinary-tabletop: progress 39/41, collected False (expected False), nearest 3.942 m, depth 0.000 m, HP 1000, deviation 1.312 m; award (0, 0, 0), airborne=False.
+Tabletop probe (0,-30) has support.
+Hosted underpass-exclusion: progress 39/41, collected False (expected False), nearest 74.608 m, depth 0.000 m, HP 1000, deviation 0.746 m; award (0, 0, 0), airborne=False.
+StructureNorthSouth0_-1: supported initial pose.
+StructureNorthSouth0_-1: setup settles without damage at (0, 1.1389773, 24).
+StructureNorthSouth0_-1: entire route driven using production physics/input; progress 23/25, position (-6.208179E-07, 1.1443903, -21.274218), velocity (-5.804147E-08, -2.2158027E-05, -13.999242); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+StructureNorthSouth0_-1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+StructureEastWest0_-1: supported initial pose.
+StructureEastWest0_-1: setup settles without damage at (24, 7.488977, 0).
+StructureEastWest0_-1: entire route driven using production physics/input; progress 23/25, position (-21.296352, 7.4950027, -1.6152518E-06), velocity (-14.053566, -0.0091551095, -6.34182E-07); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+StructureEastWest0_-1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+StructureNorthSouth0_1: supported initial pose.
+StructureNorthSouth0_1: setup settles without damage at (0, 1.1389773, -24).
+StructureNorthSouth0_1: entire route driven using production physics/input; progress 23/25, position (6.640011E-07, 1.1443903, 21.274218), velocity (7.2208266E-08, -2.2158027E-05, 13.999242); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+StructureNorthSouth0_1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+StructureEastWest0_1: supported initial pose.
+StructureEastWest0_1: setup settles without damage at (-24, 7.488977, 0).
+StructureEastWest0_1: entire route driven using production physics/input; progress 23/25, position (21.296352, 7.4950027, -1.6769782E-06), velocity (14.053566, -0.0091551095, -6.8936646E-07); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+StructureEastWest0_1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+StructureNorthSouth1_-1: supported initial pose.
+StructureNorthSouth1_-1: setup settles without damage at (0, 1.1389773, 24).
+StructureNorthSouth1_-1: entire route driven using production physics/input; progress 23/25, position (-6.208179E-07, 1.1443903, -21.274218), velocity (-5.804147E-08, -2.2158027E-05, -13.999242); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+StructureNorthSouth1_-1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+StructureEastWest1_-1: supported initial pose.
+StructureEastWest1_-1: setup settles without damage at (24, 7.488977, 0).
+StructureEastWest1_-1: entire route driven using production physics/input; progress 23/25, position (-21.296352, 7.4950027, -1.6152518E-06), velocity (-14.053566, -0.0091551095, -6.34182E-07); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+StructureEastWest1_-1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+StructureNorthSouth1_1: supported initial pose.
+StructureNorthSouth1_1: setup settles without damage at (0, 1.1389773, -24).
+StructureNorthSouth1_1: entire route driven using production physics/input; progress 23/25, position (6.640011E-07, 1.1443903, 21.274218), velocity (7.2208266E-08, -2.2158027E-05, 13.999242); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+StructureNorthSouth1_1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+StructureEastWest1_1: supported initial pose.
+StructureEastWest1_1: setup settles without damage at (-24, 7.488977, 0).
+StructureEastWest1_1: entire route driven using production physics/input; progress 23/25, position (21.296352, 7.4950027, -1.6769782E-06), velocity (14.053566, -0.0091551095, -6.8936646E-07); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+StructureEastWest1_1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+StructureNorthSouth2_-1: supported initial pose.
+StructureNorthSouth2_-1: setup settles without damage at (0, 1.1389773, 24).
+StructureNorthSouth2_-1: entire route driven using production physics/input; progress 23/25, position (-6.208179E-07, 1.1443903, -21.274218), velocity (-5.804147E-08, -2.2158027E-05, -13.999242); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+StructureNorthSouth2_-1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+StructureEastWest2_-1: supported initial pose.
+StructureEastWest2_-1: setup settles without damage at (24, 7.488977, 0).
+StructureEastWest2_-1: entire route driven using production physics/input; progress 23/25, position (-21.296352, 7.4950027, -1.6152518E-06), velocity (-14.053566, -0.0091551095, -6.34182E-07); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+StructureEastWest2_-1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+StructureNorthSouth2_1: supported initial pose.
+StructureNorthSouth2_1: setup settles without damage at (0, 1.1389773, -24).
+StructureNorthSouth2_1: entire route driven using production physics/input; progress 23/25, position (6.640011E-07, 1.1443903, 21.274218), velocity (7.2208266E-08, -2.2158027E-05, 13.999242); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+StructureNorthSouth2_1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+StructureEastWest2_1: supported initial pose.
+StructureEastWest2_1: setup settles without damage at (-24, 7.488977, 0).
+StructureEastWest2_1: entire route driven using production physics/input; progress 23/25, position (21.296352, 7.4950027, -1.6769782E-06), velocity (14.053566, -0.0091551095, -6.8936646E-07); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+StructureEastWest2_1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+Pier impact begins at the requested native setup pose.
+Structure impact -1/0: native 15 m/s pier approach from underpass stopped outside solid, furthest x=6.73, HP=955.8096; stable repeated reset/impact.
+Pier impact begins at the requested native setup pose.
+Structure impact -1/1: native 15 m/s pier approach from underpass stopped outside solid, furthest x=6.73, HP=955.8096; stable repeated reset/impact.
+Pier impact begins at the requested native setup pose.
+Structure impact 1/0: native 15 m/s pier approach from underpass stopped outside solid, furthest x=6.73, HP=955.8096; stable repeated reset/impact.
+Pier impact begins at the requested native setup pose.
+Structure impact 1/1: native 15 m/s pier approach from underpass stopped outside solid, furthest x=6.73, HP=955.8096; stable repeated reset/impact.
+Three distinct production rock landmarks remain placed.
+Tabletop probe (-34.051483,56.004753) has support.
+Dressing impact BoulderTall_000/-0.25: 10 m/s native approach contacts placed rocks without crossing landmark center; closest=6.37 m, approach-side distance=6.36 m, peak speed=9.58 m/s, HP=982.2007; contacts=/root/InfieldIntegrationChecks/OvalFoundation/EnvironmentDressing/RockLandmarks/BoulderTall_000/BoulderTall/BoulderTallCollision.
+Tabletop probe (-38.980064,52.69336) has support.
+Dressing impact BoulderTall_000/0.25: 10 m/s native approach contacts placed rocks without crossing landmark center; closest=5.78 m, approach-side distance=5.76 m, peak speed=8.55 m/s, HP=992.24493; contacts=/root/InfieldIntegrationChecks/OvalFoundation/EnvironmentDressing/SouthWestIsland/BoulderTall_011/BoulderTall/BoulderTallCollision,/root/InfieldIntegrationChecks/OvalFoundation/EnvironmentDressing/RockLandmarks/BoulderTall_000/BoulderTall/BoulderTallCollision.
+Tabletop probe (34.330963,-60.702545) has support.
+Dressing impact BoulderTall_001/-0.25: 10 m/s native approach contacts placed rocks without crossing landmark center; closest=8.11 m, approach-side distance=7.88 m, peak speed=9.84 m/s, HP=977.9036; contacts=/root/InfieldIntegrationChecks/OvalFoundation/EnvironmentDressing/NorthEastRidge/RockCluster_002/RockCluster/ClusterCollision2,/root/InfieldIntegrationChecks/OvalFoundation/EnvironmentDressing/NorthEastRidge/RockCluster_002/RockCluster/ClusterCollision0.
+Tabletop probe (39.370216,-57.562138) has support.
+Dressing impact BoulderTall_001/0.25: 10 m/s native approach contacts placed rocks without crossing landmark center; closest=5.40 m, approach-side distance=5.40 m, peak speed=9.87 m/s, HP=977.1662; contacts=/root/InfieldIntegrationChecks/OvalFoundation/EnvironmentDressing/RockLandmarks/BoulderTall_001/BoulderTall/BoulderTallCollision,/root/InfieldIntegrationChecks/OvalFoundation/EnvironmentDressing/NorthEastRidge/RockCluster_002/RockCluster/ClusterCollision0.
+Tabletop probe (131.16551,-13.986178) has support.
+Dressing impact BoulderTall_002/-0.25: 10 m/s native approach contacts placed rocks without crossing landmark center; closest=4.98 m, approach-side distance=4.98 m, peak speed=11.32 m/s, HP=962.55676; contacts=/root/InfieldIntegrationChecks/OvalFoundation/EnvironmentDressing/EastTurn/RockLedge_002/RockLedge/LedgeCollision1,/root/InfieldIntegrationChecks/OvalFoundation/EnvironmentDressing/RockLandmarks/BoulderTall_002/BoulderTall/BoulderTallCollision.
+Tabletop probe (131.66203,-8.06928) has support.
+Dressing impact BoulderTall_002/0.25: 10 m/s native approach contacts placed rocks without crossing landmark center; closest=5.36 m, approach-side distance=5.36 m, peak speed=9.72 m/s, HP=987.117; contacts=/root/InfieldIntegrationChecks/OvalFoundation/EnvironmentDressing/RockLandmarks/BoulderTall_002/BoulderTall/BoulderTallCollision.
+TabletopSlow-1: supported initial pose.
+TabletopSlow-1: setup settles without damage at (125, 1.1389774, 0).
+TabletopSlow-1: entire route driven using production physics/input; progress 124/126, position (-122.15528, 1.144438, -4.306365E-05), velocity (-6.066562, -3.4719706E-06, 3.440729E-05); peak centerline error 1.00 m, unsupported frames 2, final HP 1000.
+TabletopSlow-1: no collision damage (1000/1000); launch , landing , flight 2 frames.
+TabletopAcross-1_-7: supported initial pose.
+TabletopAcross-1_-7: setup settles without damage at (65, 7.488977, -7).
+TabletopAcross-1_-7: entire route driven using production physics/input; progress 64/66, position (-62.259224, 7.4944267, -7.000061), velocity (-10.093386, 0.0001103431, 6.569852E-05); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+TabletopAcross-1_-7: no collision damage (1000/1000); launch , landing , flight 0 frames.
+TabletopAcross-1_0: supported initial pose.
+TabletopAcross-1_0: setup settles without damage at (65, 7.488977, 0).
+TabletopAcross-1_0: entire route driven using production physics/input; progress 64/66, position (-62.255547, 7.494426, -4.7179715E-06), velocity (-10.09059, 6.54012E-05, -5.1011546E-07); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+TabletopAcross-1_0: no collision damage (1000/1000); launch , landing , flight 0 frames.
+TabletopAcross-1_7: supported initial pose.
+TabletopAcross-1_7: setup settles without damage at (65, 7.488977, 7).
+TabletopAcross-1_7: entire route driven using production physics/input; progress 64/66, position (-62.25608, 7.494426, 7.000064), velocity (-10.090614, 6.5386295E-05, -8.7194196E-05); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+TabletopAcross-1_7: no collision damage (1000/1000); launch , landing , flight 0 frames.
+TabletopSide-1_-1: supported initial pose.
+TabletopSide-1_-1: setup settles without damage at (0, 1.1389773, -38).
+TabletopSide-1_-1: entire route driven using production physics/input; progress 40/42, position (-44.994682, 7.49422, 8.189127), velocity (-0.013992164, 0.00067700446, 8.032138); peak centerline error 2.21 m, unsupported frames 0, final HP 1000.
+TabletopSide-1_-1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+TabletopSide1_-1: supported initial pose.
+TabletopSide1_-1: setup settles without damage at (0, 1.1389773, -38).
+TabletopSide1_-1: entire route driven using production physics/input; progress 40/42, position (44.994587, 7.4942284, 8.223393), velocity (0.014695052, 0.0008725822, 8.08496); peak centerline error 2.22 m, unsupported frames 0, final HP 1000.
+TabletopSide1_-1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+TabletopSlow1: supported initial pose.
+TabletopSlow1: setup settles without damage at (-125, 1.1389774, 0).
+TabletopSlow1: entire route driven using production physics/input; progress 124/126, position (122.11727, 1.1444362, 4.608198E-05), velocity (6.0758066, -1.8015504E-05, -3.1188476E-05); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+TabletopSlow1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+TabletopAcross1_-7: supported initial pose.
+TabletopAcross1_-7: setup settles without damage at (-65, 7.488977, -7).
+TabletopAcross1_-7: entire route driven using production physics/input; progress 64/66, position (62.256054, 7.494426, -7.0000644), velocity (10.090612, 6.5386295E-05, 8.704146E-05); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+TabletopAcross1_-7: no collision damage (1000/1000); launch , landing , flight 0 frames.
+TabletopAcross1_0: supported initial pose.
+TabletopAcross1_0: setup settles without damage at (-65, 7.488977, 0).
+TabletopAcross1_0: entire route driven using production physics/input; progress 64/66, position (62.256855, 7.494426, -8.068378E-06), velocity (10.090295, 6.54161E-05, -6.9115214E-07); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+TabletopAcross1_0: no collision damage (1000/1000); launch , landing , flight 0 frames.
+TabletopAcross1_7: supported initial pose.
+TabletopAcross1_7: setup settles without damage at (-65, 7.488977, 7).
+TabletopAcross1_7: entire route driven using production physics/input; progress 64/66, position (62.25921, 7.4944267, 7.000064), velocity (10.093383, 0.0001103282, -9.026187E-05); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+TabletopAcross1_7: no collision damage (1000/1000); launch , landing , flight 0 frames.
+TabletopSide-1_1: supported initial pose.
+TabletopSide-1_1: setup settles without damage at (0, 1.1389773, 38).
+TabletopSide-1_1: entire route driven using production physics/input; progress 40/42, position (-44.994503, 7.494187, -8.147882), velocity (-0.01455172, 0.0010766834, -8.005166); peak centerline error 2.22 m, unsupported frames 0, final HP 1000.
+TabletopSide-1_1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+TabletopSide1_1: supported initial pose.
+TabletopSide1_1: setup settles without damage at (0, 1.1389773, 38).
+TabletopSide1_1: entire route driven using production physics/input; progress 40/42, position (44.994854, 7.49408, -8.261104), velocity (0.014175552, 0.0013611466, -7.961378); peak centerline error 2.22 m, unsupported frames 0, final HP 1000.
+TabletopSide1_1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+WestLoop: supported initial pose.
+WestLoop: setup settles without damage at (-18, 7.488977, 0).
+WestLoop: entire route driven using production physics/input; progress 190/192, position (-18.147682, 7.471537, 1.5629909), velocity (0.7948716, 0.052782446, -10.04484); peak centerline error 1.16 m, unsupported frames 0, final HP 1000.
+WestLoop: no collision damage (1000/1000); launch , landing , flight 0 frames.
+EastLoop: supported initial pose.
+EastLoop: setup settles without damage at (18, 7.488977, 0).
+EastLoop: entire route driven using production physics/input; progress 190/192, position (18.135906, 7.472391, 1.4300952), velocity (-0.7965797, 0.051509187, -9.970681); peak centerline error 1.16 m, unsupported frames 0, final HP 1000.
+EastLoop: no collision damage (1000/1000); launch , landing , flight 0 frames.
+NorthLink: supported initial pose.
+NorthLink: setup settles without damage at (-145.42215, 3.2955806, -36.724163).
+NorthLink: entire route driven using production physics/input; progress 157/159, position (144.89648, 3.251904, -37.064194), velocity (7.139516, 1.171531, 6.9376593); peak centerline error 1.31 m, unsupported frames 0, final HP 1000.
+NorthLink: no collision damage (1000/1000); launch , landing , flight 0 frames.
+WestShortcut: supported initial pose.
+WestShortcut: setup settles without damage at (-151, 1.1389772, 20).
+WestShortcut: entire route driven using production physics/input; progress 77/79, position (-1.4311938, 7.494261, 1.9268713E-05), velocity (10.052285, -0.003725648, 0.00015399071); peak centerline error 1.14 m, unsupported frames 34, final HP 1000.
+WestShortcut: no collision damage (1000/1000); launch (-80.62921, 6.811359, 0.7836011), landing (-76.28764, 6.60427, 0.12572816), flight 34 frames.
+EastShortcut: supported initial pose.
+EastShortcut: setup settles without damage at (0, 7.417361, 3.637979E-12).
+EastShortcut: entire route driven using production physics/input; progress 77/79, position (149.62845, 1.1443369, 19.56723), velocity (9.58937, 0.0002566278, 3.0537984); peak centerline error 1.16 m, unsupported frames 32, final HP 1000.
+EastShortcut: no collision damage (1000/1000); launch (86.453415, 5.0784955, 1.9411489), landing (91.14948, 2.4214087, 2.7530074), flight 32 frames.
+NorthSouth: supported initial pose.
+NorthSouth: setup settles without damage at (0, 1.1389773, -82).
+NorthSouth: entire route driven using production physics/input; progress 83/85, position (-5.5879696E-06, 1.1444211, 80.42733), velocity (-7.338687E-07, -0.00018125772, 10.035038); peak centerline error 1.12 m, unsupported frames 0, final HP 1000.
+NorthSouth: no collision damage (1000/1000); launch , landing , flight 0 frames.
+SouthWestEntry: supported initial pose.
+SouthWestEntry: setup settles without damage at (-90.127396, 1.0326366, 80.95381).
+SouthWestEntry: entire route driven using production physics/input; progress 23/25, position (-66.29081, 1.2245848, 48.86931), velocity (8.268057, -0.79761165, -5.4904394); peak centerline error 1.57 m, unsupported frames 0, final HP 1000.
+SouthWestEntry: no collision damage (1000/1000); launch , landing , flight 0 frames.
+SouthEastEntry: supported initial pose.
+SouthEastEntry: setup settles without damage at (90.126785, 1.032789, 80.94344).
+SouthEastEntry: entire route driven using production physics/input; progress 23/25, position (66.257195, 1.2234558, 48.84758), velocity (-8.285509, -0.7926187, -5.503964); peak centerline error 1.60 m, unsupported frames 0, final HP 1000.
+SouthEastEntry: no collision damage (1000/1000); launch , landing , flight 0 frames.
+NorthWestEntry: supported initial pose.
+NorthWestEntry: setup settles without damage at (-90.0947, 1.0322223, -80.935036).
+NorthWestEntry: entire route driven using production physics/input; progress 18/20, position (-73.56341, 1.640385, -55.958126), velocity (8.457537, 0.8749425, 5.23817); peak centerline error 1.30 m, unsupported frames 0, final HP 1000.
+NorthWestEntry: no collision damage (1000/1000); launch , landing , flight 0 frames.
+NorthEastEntry: supported initial pose.
+NorthEastEntry: setup settles without damage at (90.098366, 1.0322052, -80.94595).
+NorthEastEntry: entire route driven using production physics/input; progress 18/20, position (73.43813, 1.652873, -55.879852), velocity (-8.523147, 0.8870041, 5.2800064); peak centerline error 1.32 m, unsupported frames 0, final HP 1000.
+NorthEastEntry: no collision damage (1000/1000); launch , landing , flight 0 frames.
+WestJump14: supported initial pose.
+WestJump14: setup settles without damage at (-125, 1.1389774, 0).
+WestJump14: real launch (-80.626465, 7.1334577, 0.0032847766), landing (-70.56236, 8.067747, 0.0030387284), longest flight 0.92s, peak origin 8.59m, peak origin clearance 3.62m, launch horizontal speed 11.43m/s, airborne horizontal travel 10.06m; recovered grounded.
+WestJump14: lands on raised dirt tabletop at corridor metre 54.44.
+WestJump14: entire route driven using production physics/input; progress 49/51, position (-27.55364, 7.4942784, 0.00023675186), velocity (14.085846, 0.0005965084, 0.001677734); peak centerline error 1.00 m, unsupported frames 55, final HP 1000.
+WestJump14: no collision damage (1000/1000); launch (-80.626465, 7.1334577, 0.0032847766), landing (-70.56236, 8.067747, 0.0030387284), flight 55 frames.
+WestJump16: supported initial pose.
+WestJump16: setup settles without damage at (-125, 1.1389774, 0).
+WestJump16: real launch (-80.47156, 7.2145224, -0.0036798008), landing (-64.66773, 8.114136, 0.07113414), longest flight 1.23s, peak origin 9.42m, peak origin clearance 3.98m, launch horizontal speed 13.21m/s, airborne horizontal travel 15.80m; recovered grounded.
+WestJump16: lands on raised dirt tabletop at corridor metre 60.33.
+WestJump16: entire route driven using production physics/input; progress 49/51, position (-27.702902, 7.491498, -0.0045393268), velocity (16.050482, 0.008193016, -0.028469104); peak centerline error 1.00 m, unsupported frames 74, final HP 1000.
+WestJump16: no collision damage (1000/1000); launch (-80.47156, 7.2145224, -0.0036798008), landing (-64.66773, 8.114136, 0.07113414), flight 74 frames.
+WestJump18: supported initial pose.
+WestJump18: setup settles without damage at (-125, 1.1389774, 0).
+WestJump18: real launch (-80.37171, 7.2929473, 0.12053688), landing (-58.47063, 8.122964, 0.51449), longest flight 1.50s, peak origin 10.31m, peak origin clearance 4.27m, launch horizontal speed 14.98m/s, airborne horizontal travel 21.90m; recovered grounded.
+WestJump18: lands on raised dirt tabletop at corridor metre 66.53.
+WestJump18: entire route driven using production physics/input; progress 49/51, position (-27.531898, 7.4806466, 0.22436851), velocity (18.014982, 0.0337203, -0.32688573); peak centerline error 1.10 m, unsupported frames 90, final HP 1000.
+WestJump18: no collision damage (1000/1000); launch (-80.37171, 7.2929473, 0.12053688), landing (-58.47063, 8.122964, 0.51449), flight 90 frames.
+EastJump14: supported initial pose.
+EastJump14: setup settles without damage at (125, 1.1389774, 0).
+EastJump14: real launch (80.609604, 7.1456013, 0.0020944576), landing (70.28303, 8.07066, 0.0054464107), longest flight 0.93s, peak origin 8.63m, peak origin clearance 3.65m, launch horizontal speed 11.51m/s, airborne horizontal travel 10.33m; recovered grounded.
+EastJump14: lands on raised dirt tabletop at corridor metre 54.72.
+EastJump14: entire route driven using production physics/input; progress 49/51, position (27.702242, 7.49425, -8.701986E-05), velocity (-13.995691, 0.00054851174, 0.0013564527); peak centerline error 1.00 m, unsupported frames 56, final HP 1000.
+EastJump14: no collision damage (1000/1000); launch (80.609604, 7.1456013, 0.0020944576), landing (70.28303, 8.07066, 0.0054464107), flight 56 frames.
+EastJump16: supported initial pose.
+EastJump16: setup settles without damage at (125, 1.1389774, 0).
+EastJump16: real launch (80.44968, 7.2599745, 0.0015212562), landing (64.21786, 8.085362, 0.013352833), longest flight 1.27s, peak origin 9.52m, peak origin clearance 4.05m, launch horizontal speed 13.19m/s, airborne horizontal travel 16.23m; recovered grounded.
+EastJump16: lands on raised dirt tabletop at corridor metre 60.78.
+EastJump16: entire route driven using production physics/input; progress 49/51, position (27.533321, 7.491279, 0.00087129435), velocity (-16.011753, 0.008709475, -0.0059833233); peak centerline error 1.00 m, unsupported frames 76, final HP 1000.
+EastJump16: no collision damage (1000/1000); launch (80.44968, 7.2599745, 0.0015212562), landing (64.21786, 8.085362, 0.013352833), flight 76 frames.
+EastJump18: supported initial pose.
+EastJump18: setup settles without damage at (125, 1.1389774, 0).
+EastJump18: real launch (80.41207, 7.2759285, -0.0021968707), landing (57.97557, 8.056095, 0.013713216), longest flight 1.55s, peak origin 10.45m, peak origin clearance 4.35m, launch horizontal speed 14.84m/s, airborne horizontal travel 22.44m; recovered grounded.
+EastJump18: lands on raised dirt tabletop at corridor metre 67.02.
+EastJump18: entire route driven using production physics/input; progress 49/51, position (27.486334, 7.4797196, -0.0021098736), velocity (-17.941505, 0.03593503, 0.038786333); peak centerline error 1.00 m, unsupported frames 93, final HP 1000.
+EastJump18: no collision damage (1000/1000); launch (80.41207, 7.2759285, -0.0021968707), landing (57.97557, 8.056095, 0.013713216), flight 93 frames.
+BasinRecovery-57--29: supported initial pose.
+BasinRecovery-57--29: setup settles without damage at (-77, 1.1389773, -29).
+BasinRecovery-57--29: entire route driven using production physics/input; progress 19/21, position (-39.828564, 1.1356473, -29.016653), velocity (7.0955286, 0.12937135, 0.041713685); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+BasinRecovery-57--29: no collision damage (1000/1000); launch , landing , flight 0 frames.
+BasinRecovery-85-28: supported initial pose.
+BasinRecovery-85-28: setup settles without damage at (-105.33194, 0.86673325, 28.012928).
+BasinRecovery-85-28: entire route driven using production physics/input; progress 19/21, position (-67.83455, 1.2720034, 28.015146), velocity (7.9980173, 0.30155742, -0.021217331); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+BasinRecovery-85-28: no collision damage (1000/1000); launch , landing , flight 0 frames.
+BasinRecovery85-28: supported initial pose.
+BasinRecovery85-28: setup settles without damage at (65.63692, 1.3883445, 28.041098).
+BasinRecovery85-28: entire route driven using production physics/input; progress 19/21, position (102.1793, 0.97468543, 28.001583), velocity (7.955046, -0.26932704, -0.003587205); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+BasinRecovery85-28: no collision damage (1000/1000); launch , landing , flight 0 frames.
+TerrainToBank-1: supported initial pose.
+TerrainToBank-1: setup settles without damage at (-158.76045, 1.7225361, 0.118194036).
+TerrainToBank-1: entire route driven using production physics/input; progress 19/21, position (-197.14857, 6.0123, -0.00018476338), velocity (-6.4833946, 4.6031785, -3.8226044E-05); peak centerline error 1.40 m, unsupported frames 0, final HP 1000.
+TerrainToBank-1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+TerrainToBank1: supported initial pose.
+TerrainToBank1: setup settles without damage at (158.73698, 1.719643, 0.11817675).
+TerrainToBank1: entire route driven using production physics/input; progress 19/21, position (197.20851, 6.0543995, -0.00017604159), velocity (6.423633, 4.5610023, -3.993607E-05); peak centerline error 1.42 m, unsupported frames 0, final HP 1000.
+TerrainToBank1: no collision damage (1000/1000); launch , landing , flight 0 frames.
+ConnectedLoopTour: supported initial pose.
+ConnectedLoopTour: setup settles without damage at (-18, 7.488977, 0).
+ConnectedLoopTour: entire route driven using production physics/input; progress 399/401, position (18.140568, 7.470736, 1.4737313), velocity (-0.79888964, 0.054878637, -10.053665); peak centerline error 3.04 m, unsupported frames 0, final HP 1000.
+ConnectedLoopTour: no collision damage (1000/1000); launch , landing , flight 0 frames.
+TwoCarTunnel: supported initial pose.
+TwoCarTunnel: setup settles without damage at (-3.5, 1.1389773, -60).
+TwoCarTunnel: entire route driven using production physics/input; progress 59/61, position (-3.5, 1.1444256, 57.21799), velocity (2.75822E-07, 0.00011391938, 9.947239); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+TwoCarTunnel: no collision damage (1000/1000); launch , landing , flight 0 frames.
+Second production car traverses tunnel alongside first without damage.
+Case filter exercised at least one driving scenario.

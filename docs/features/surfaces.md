@@ -29,7 +29,9 @@ identity is unavailable, not an invented material.
 `WheelSuspension` resolves native support hit positions through
 `SurfaceIdentityResolver`. The center support ray wins; if it misses, the last
 supported wheel in the fixed FL/FR/RL/RR order wins. Mixed wheel contacts thus
-have a deterministic single support identity. Both practice and host/client
+have a deterministic diagnostic support identity. Each wheel also reports its own
+handling material: Core uses those contacts for tire capacity, drive, drag and
+track-width traction torque. A center ray cannot hide one side touching grass. Both practice and host/client
 prediction use this same observation path, without map names or basin coordinates
 in vehicle code. No support, inactive vehicles and airborne observations clear
 the current material. Wheel-specific visual feedback resolves its own

@@ -1,0 +1,98 @@
+[
+  {
+    "Player": 1,
+    "Roster": 8,
+    "Tick": 1443,
+    "Snapshots": 0,
+    "Immediate": 0,
+    "P99": 0,
+    "Max": 0,
+    "Large": 0,
+    "FrameP99": 1115.611,
+    "Grounded": true
+  },
+  {
+    "Player": 7,
+    "Roster": 8,
+    "Tick": 926,
+    "Snapshots": 305,
+    "Immediate": 849,
+    "P99": 2.0362225,
+    "Max": 2.1820762,
+    "Large": 0,
+    "FrameP99": 348.958,
+    "Grounded": true
+  },
+  {
+    "Player": 4,
+    "Roster": 8,
+    "Tick": 977,
+    "Snapshots": 322,
+    "Immediate": 830,
+    "P99": 1.791479,
+    "Max": 3.2987442,
+    "Large": 1,
+    "FrameP99": 635.372,
+    "Grounded": true
+  },
+  {
+    "Player": 8,
+    "Roster": 8,
+    "Tick": 947,
+    "Snapshots": 311,
+    "Immediate": 838,
+    "P99": 1.5976746,
+    "Max": 5.678242,
+    "Large": 1,
+    "FrameP99": 256.915,
+    "Grounded": true
+  },
+  {
+    "Player": 2,
+    "Roster": 8,
+    "Tick": 832,
+    "Snapshots": 273,
+    "Immediate": 840,
+    "P99": 1.8036321,
+    "Max": 5.0011926,
+    "Large": 1,
+    "FrameP99": 278.841,
+    "Grounded": true
+  },
+  {
+    "Player": 6,
+    "Roster": 8,
+    "Tick": 912,
+    "Snapshots": 302,
+    "Immediate": 840,
+    "P99": 3.0303395,
+    "Max": 5.6693463,
+    "Large": 4,
+    "FrameP99": 339.341,
+    "Grounded": true
+  },
+  {
+    "Player": 3,
+    "Roster": 8,
+    "Tick": 1066,
+    "Snapshots": 355,
+    "Immediate": 829,
+    "P99": 1.8261591,
+    "Max": 4.634932,
+    "Large": 2,
+    "FrameP99": 2221.506,
+    "Grounded": true
+  },
+  {
+    "Player": 5,
+    "Roster": 8,
+    "Tick": 1144,
+    "Snapshots": 379,
+    "Immediate": 811,
+    "P99": 1.7043209,
+    "Max": 4.324292,
+    "Large": 2,
+    "FrameP99": 592.215,
+    "Grounded": true
+  }
+]

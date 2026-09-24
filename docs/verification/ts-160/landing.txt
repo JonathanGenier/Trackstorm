@@ -1,0 +1,341 @@
+west-native-upright initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-upright tick=31 phase=Recovery hp=1000.00 terrain=True local=<-0.14714685, -0.77983713, 1.2676544> normal=<0, 1, 0> severity=12.98
+west-native-upright tick=32 phase=Recovery hp=1000.00 terrain=True local=<0.42393845, -0.9154961, -1.2672272> normal=<0.011727483, 0.9994033, 0.032489825> severity=9.61
+west-native-upright tick=33 phase=Recovery hp=1000.00 terrain=True local=<-1.0267913, -0.78560257, -1.2870903> normal=<-0.02077765, 0.9977913, -0.06309382> severity=0.90
+west-native-upright tick=34 phase=Recovery hp=1000.00 terrain=True local=<-1.3277143, -0.6899066, -1.2952423> normal=<0, 1, 0> severity=0.00
+west-native-upright tick=35 phase=Recovery hp=1000.00 terrain=True local=<-1.3302, -0.6690922, -1.2964058> normal=<0, 1, 0> severity=0.00
+RESULT west-native-upright: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=19, forgivenFrames=5, kick=False, position=<-61.405518, 7.468378, -0.0117797>, velocity=<0.41180667, 0.06271681, -0.012204513>
+west-native-yawed initial observed velocity=<8, -12, 0>, angular=<0, 0, 0>
+west-native-yawed tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.2151184, -0.78425217, -1.2326684> normal=<0, 1, 0> severity=13.30
+west-native-yawed tick=32 phase=Recovery hp=1000.00 terrain=True local=<-1.0226173, -1.0073559, 0.4113341> normal=<-0.1384601, 0.9891622, 0.0488569> severity=14.73
+west-native-yawed tick=33 phase=Recovery hp=1000.00 terrain=True local=<1.2650223, -0.8948412, 1.0175531> normal=<0, 1, 0> severity=4.95
+west-native-yawed tick=34 phase=Recovery hp=1000.00 terrain=True local=<-1.3152771, -0.7922957, -1.2696595> normal=<-0.014875496, 0.99943537, -0.030128127> severity=0.00
+west-native-yawed tick=35 phase=Recovery hp=1000.00 terrain=True local=<1.3037338, -0.7613354, -1.2933226> normal=<0, 1, 0> severity=0.00
+RESULT west-native-yawed: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=28, forgivenFrames=7, kick=False, position=<-57.683712, 7.4607077, -0.11255628>, velocity=<-0.0008076177, 0.08079535, -0.09221074>
+west-native-spin initial observed velocity=<8, -12, 0>, angular=<0, 3, 0>
+west-native-spin tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.1321006, -0.76852274, 1.2139435> normal=<0, 1, 0> severity=13.00
+west-native-spin tick=32 phase=Recovery hp=1000.00 terrain=True local=<-0.80760825, -0.98073864, -1.4152756> normal=<-0.005905088, 0.98567796, 0.16853513> severity=13.37
+west-native-spin tick=33 phase=Recovery hp=1000.00 terrain=True local=<1.3347769, -0.770771, -0.5329399> normal=<0, 1, 0> severity=1.82
+west-native-spin tick=34 phase=Recovery hp=1000.00 terrain=True local=<-1.2833545, -0.74849606, -0.791317> normal=<0, 1, 0> severity=0.00
+west-native-spin tick=35 phase=Recovery hp=1000.00 terrain=True local=<1.3255048, -0.7069087, 1.2182617> normal=<0, 1, 0> severity=0.00
+RESULT west-native-spin: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=24, forgivenFrames=6, kick=False, position=<-51.964535, 7.461357, -0.63852876>, velocity=<4.035158, 0.079264045, -0.7431484>
+west-native-bank initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-bank tick=31 phase=Recovery hp=1000.00 terrain=True local=<0.9999161, -0.77662456, 0.597518> normal=<0, 1, 0> severity=12.98
+west-native-bank tick=32 phase=Recovered hp=1000.00 terrain=True local=<-1.3300095, -0.68587536, -0.59591126> normal=<0, 1, 0> severity=0.00
+west-native-bank tick=33 phase=Recovered hp=1000.00 terrain=True local=<1.3311996, -0.67666256, 1.3004149> normal=<0, 1, 0> severity=0.00
+RESULT west-native-bank: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=12, forgivenFrames=3, kick=False, position=<0.016424473, 1.1146526, 95.999306>, velocity=<0.0119355405, 0.07150149, 2.280879E-07>
+west-native-roll35 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-roll35 tick=29 phase=Recovery hp=1000.00 terrain=True local=<1.2325695, -0.84975815, 1.2092972> normal=<0, 1, 0> severity=13.71
+west-native-roll35 tick=30 phase=Recovery hp=1000.00 terrain=True local=<1.2409726, -0.6991527, -1.3084679> normal=<0.004180519, 0.97042537, 0.24136525> severity=0.00
+west-native-roll35 tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.1986965, -0.6701057, -1.3038216> normal=<0.0018194749, 0.9939791, 0.10955513> severity=0.37
+west-native-roll35 tick=32 phase=Recovery hp=1000.00 terrain=True local=<-0.89571947, -0.67191505, -1.292717> normal=<0, 1, 0> severity=11.83
+west-native-roll35 tick=34 phase=Recovery hp=1000.00 terrain=True local=<-1.3233721, -0.6613884, 1.2977638> normal=<0, 1, 0> severity=2.45
+RESULT west-native-roll35: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=31, forgivenFrames=8, kick=False, position=<-62.41212, 7.4615803, -0.19500953>, velocity=<-0.3007903, 0.07873672, -0.004030328>
+west-native-pitch25 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-pitch25 tick=30 phase=Recovery hp=1000.00 terrain=True local=<-1.2733512, -0.89342403, 1.2583656> normal=<0, 1, 0> severity=11.82
+west-native-pitch25 tick=31 phase=Recovery hp=1000.00 terrain=False local=<1.5013975, -0.67740726, 0.4676361> normal=<-0.012422788, 0.102993935, -0.9946044> severity=0.00
+west-native-pitch25 tick=32 phase=Recovery hp=1000.00 terrain=True local=<1.3130531, -0.6824689, 1.2803345> normal=<0.03194111, 0.9958659, 0.0850347> severity=0.00
+west-native-pitch25 tick=33 phase=Recovery hp=1000.00 terrain=True local=<1.3062961, -0.7300451, -0.9537811> normal=<0.031608857, 0.9957456, 0.08655441> severity=6.10
+west-native-pitch25 tick=34 phase=Recovery hp=1000.00 terrain=True local=<1.3190014, -0.67755985, -1.2728081> normal=<0.055336047, 0.99832225, 0.017050661> severity=0.00
+west-native-pitch25 tick=35 phase=Recovery hp=1000.00 terrain=True local=<-1.2435158, -0.7025349, -1.2934494> normal=<-0.00840953, 0.9996038, -0.026860703> severity=4.03
+RESULT west-native-pitch25: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=29, forgivenFrames=8, kick=False, position=<-61.176853, 7.469022, -0.17713568>, velocity=<0.4918351, 0.061185136, 0.0084960805>
+west-native-roll45 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-roll45 tick=28 phase=Recovery hp=1000.00 terrain=True local=<1.2431347, -0.74731636, 1.2802582> normal=<0, 1, 0> severity=14.27
+west-native-roll45 tick=29 phase=Recovery hp=1000.00 terrain=True local=<1.246418, -0.7176914, -0.34983444> normal=<0.021845624, 0.99807197, 0.05809571> severity=0.00
+west-native-roll45 tick=30 phase=Recovery hp=1000.00 terrain=True local=<1.2609998, -0.68966436, -1.3059387> normal=<0, 1, 0> severity=0.00
+west-native-roll45 tick=34 phase=Recovery hp=1000.00 terrain=True local=<-1.3300273, -0.6827254, -1.0091782> normal=<0.051882513, 0.9851691, 0.16355464> severity=8.45
+west-native-roll45 tick=35 phase=Recovery hp=1000.00 terrain=True local=<-1.3337084, -0.6706314, -1.291317> normal=<0, 1, 0> severity=0.00
+RESULT west-native-roll45: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=15, forgivenFrames=5, kick=False, position=<-62.055195, 7.4570265, -0.2487853>, velocity=<-0.055962823, 0.089467585, -0.0023703265>
+west-native-pitch35 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-pitch35 tick=29 phase=Recovery hp=1000.00 terrain=True local=<-1.1573819, -0.8096943, 1.2546272> normal=<0, 1, 0> severity=12.73
+west-native-pitch35 tick=30 phase=Recovery hp=1000.00 terrain=True local=<1.0859272, -0.81178474, 1.2593117> normal=<0.0015732277, 0.9958155, 0.091373004> severity=5.58
+west-native-pitch35 tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.3180318, -0.68709564, 1.2772675> normal=<0.018667571, 0.99864304, 0.04861707> severity=0.00
+west-native-pitch35 tick=32 phase=Recovery hp=1000.00 terrain=True local=<1.3177105, -0.6629591, 1.2916985> normal=<0.018667571, 0.99864304, 0.04861707> severity=0.00
+west-native-pitch35 tick=33 phase=Recovery hp=1000.00 terrain=True local=<1.3240564, -0.6590781, 1.3002167> normal=<0, 1, 0> severity=0.00
+west-native-pitch35 tick=34 phase=Recovery hp=1000.00 terrain=True local=<1.3243669, -0.6581845, 1.3065453> normal=<0, 1, 0> severity=0.05
+west-native-pitch35 tick=35 phase=Recovery hp=1000.00 terrain=True local=<1.3549385, -0.683918, -1.3705635> normal=<-0.25316292, 0.68128276, -0.6868496> severity=3.65
+RESULT west-native-pitch35: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=33, forgivenFrames=10, kick=False, position=<-61.168915, 7.4617367, -0.068108305>, velocity=<0.43924373, 0.07836133, -0.027790278>
+west-native-side initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-side tick=28 phase=Crash hp=937.62 terrain=True local=<1.4565814, -0.68208104, 0.35730743> normal=<0, 1, 0> severity=16.48
+west-native-side tick=29 phase=Crash hp=937.62 terrain=True local=<1.4022183, -0.57639456, -1.5006561> normal=<-0.031224454, 0.99520403, -0.09270408> severity=1.80
+west-native-side tick=30 phase=Crash hp=937.62 terrain=True local=<1.3409193, -0.6727612, -1.2816315> normal=<0, 1, 0> severity=0.00
+west-native-side tick=31 phase=Crash hp=937.62 terrain=True local=<1.3281729, -0.6792756, -1.2839546> normal=<0, 1, 0> severity=0.00
+west-native-side tick=32 phase=Crash hp=937.62 terrain=True local=<1.3249555, -0.68211246, -1.2931519> normal=<-0.07560783, 0.9971373, -0.00084911135> severity=0.00
+west-native-side tick=33 phase=Crash hp=937.62 terrain=True local=<1.3217752, -0.6930281, -1.2806549> normal=<0, 1, 0> severity=0.00
+RESULT west-native-side: HP=937.62, phases=Driving,Airborne,Crash, contacts=24, forgivenFrames=0, kick=False, position=<-60.12143, 7.423035, -0.2133359>, velocity=<1.2620015, 0.16901737, 0.11040357>
+west-native-roof initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-roof tick=30 phase=Crash hp=936.29 terrain=True local=<-0.20931102, 1.2789149, 1.9362793> normal=<0, 1, 0> severity=16.74
+west-native-roof tick=31 phase=Crash hp=936.29 terrain=True local=<-0.6981547, 1.449244, -2.05262> normal=<0.1533483, 0.98718303, 0.04420395> severity=17.63
+west-native-roof tick=32 phase=Crash hp=936.29 terrain=True local=<1.0193735, 1.0570116, -2.3927765> normal=<0, 1, 0> severity=0.00
+west-native-roof tick=33 phase=Crash hp=936.29 terrain=True local=<-0.69905555, 1.1063375, 2.2210617> normal=<-0.03029059, 0.99939895, 0.016859392> severity=2.02
+west-native-roof tick=34 phase=Crash hp=936.29 terrain=True local=<1.2935663, 1.0740056, -2.4044685> normal=<0, 1, 0> severity=1.56
+RESULT west-native-roof: HP=936.29, phases=Driving,Airborne,Crash, contacts=284, forgivenFrames=0, kick=False, position=<-61.323208, 7.281013, 0.28321233>, velocity=<-0.059536032, -0.26205269, 0.050039876>
+west-native-front initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-front tick=25 phase=Crash hp=942.96 terrain=True local=<1.0787374, -0.11730957, 2.5401554> normal=<0.2128049, 0.9770947, 0> severity=15.40
+west-native-front tick=26 phase=Crash hp=942.96 terrain=True local=<0.75419503, -0.20848465, 2.3918018> normal=<0, 1, 0> severity=0.00
+west-native-front tick=27 phase=Crash hp=942.96 terrain=True local=<-1.0884423, -0.19664764, 2.370162> normal=<0, 1, 0> severity=0.00
+RESULT west-native-front: HP=942.96, phases=Driving,Airborne,Crash, contacts=12, forgivenFrames=0, kick=False, position=<-57.403675, 7.4029117, -0.011004242>, velocity=<2.8060677, 0.21673849, -0.009434851>
+west-native-rear initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-rear tick=24 phase=Crash hp=944.01 terrain=True local=<-0.42073688, -0.28461075, -2.514164> normal=<0, 1, 0> severity=15.20
+west-native-rear tick=25 phase=Crash hp=944.01 terrain=True local=<1.3334446, -0.25357056, -2.4586582> normal=<0, 1, 0> severity=0.22
+west-native-rear tick=26 phase=Crash hp=944.01 terrain=True local=<1.1082436, -0.23702621, -2.4580345> normal=<0.010688209, 0.9995585, 0.027722543> severity=0.00
+RESULT west-native-rear: HP=944.01, phases=Driving,Airborne,Crash, contacts=11, forgivenFrames=0, kick=False, position=<-64.92727, 7.4110775, 0.43725178>, velocity=<-1.7417692, 0.19733816, 0.02297566>
+west-native-tumble initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-tumble tick=31 phase=Recovery hp=1000.00 terrain=True local=<-0.14714685, -0.77983713, 1.2676544> normal=<0, 1, 0> severity=12.98
+west-native-tumble tick=32 phase=Recovery hp=1000.00 terrain=True local=<0.42393845, -0.9154961, -1.2672272> normal=<0.011727483, 0.9994033, 0.032489825> severity=9.61
+west-native-tumble tick=33 phase=Recovery hp=1000.00 terrain=True local=<-1.0267913, -0.78560257, -1.2870903> normal=<-0.02077765, 0.9977913, -0.06309382> severity=0.90
+west-native-tumble tick=34 phase=Recovery hp=1000.00 terrain=True local=<-1.3277143, -0.6899066, -1.2952423> normal=<0, 1, 0> severity=0.00
+west-native-tumble tick=35 phase=Recovery hp=1000.00 terrain=True local=<-1.3302, -0.6690922, -1.2964058> normal=<0, 1, 0> severity=0.00
+west-native-tumble tick=41 phase=Recovered hp=1000.00 terrain=True local=<-1.2005879, -1.0531831, -1.2818146> normal=<-0.2353401, 0.6731589, -0.7010508> severity=0.00
+west-native-tumble tick=219 phase=Crash hp=945.77 terrain=True local=<-1.3772068, -0.23758125, 2.2646637> normal=<0, 1, 0> severity=14.84
+RESULT west-native-tumble: HP=945.77, phases=Driving,Airborne,Recovery,Recovered,Crash, contacts=44, forgivenFrames=6, kick=True, position=<-56.14391, 7.494994, 1.445542>, velocity=<0.09840192, 1.1339784E-05, 0.026979094>
+west-native-obstacle initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-obstacle tick=18 phase=Airborne hp=970.63 terrain=False local=<1.3311552, -0.7886858, -1.3005753> normal=<0, 1, 0> severity=9.87
+west-native-obstacle tick=19 phase=Airborne hp=970.63 terrain=False local=<1.3311547, -0.6891384, -1.3005753> normal=<0, 1, 0> severity=4.10
+west-native-obstacle tick=20 phase=Airborne hp=970.63 terrain=False local=<1.3311552, -0.6743727, -1.3005753> normal=<0, 1, 0> severity=0.00
+RESULT west-native-obstacle: HP=970.63, phases=Driving,Airborne, contacts=12, forgivenFrames=0, kick=False, position=<-62, 10.976439, 4.778896E-06>, velocity=<4.576455E-05, 0.043732435, 2.5256327E-06>
+west-native-vehicle initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-vehicle tick=16 phase=Airborne hp=972.26 terrain=False local=<1.331155, -0.77364445, -1.3005791> normal=<0, 1, 0> severity=9.55
+west-native-vehicle tick=17 phase=Airborne hp=972.26 terrain=False local=<1.3311551, -0.683795, -1.3005791> normal=<0, 1, 0> severity=4.16
+RESULT west-native-vehicle: HP=972.26, phases=Driving,Airborne, contacts=8, forgivenFrames=0, kick=False, position=<-62, 11.434581, 4.8832776E-06>, velocity=<4.579462E-05, 0.03885287, 2.5554361E-06>
+west-native-air-roll initial observed velocity=<0, -12, 0>, angular=<2.8, 0, 0>
+west-native-air-roll tick=27 phase=Crash hp=939.99 terrain=True local=<1.4149058, -0.7464082, 1.2702827> normal=<0, 1, 0> severity=16.00
+west-native-air-roll tick=28 phase=Crash hp=939.99 terrain=True local=<1.3631907, -0.72130203, -1.2766266> normal=<0, 1, 0> severity=1.91
+west-native-air-roll tick=29 phase=Crash hp=939.99 terrain=True local=<1.3295543, -0.686069, -1.2914886> normal=<0, 1, 0> severity=1.10
+west-native-air-roll tick=30 phase=Crash hp=939.99 terrain=True local=<1.3242127, -0.68266094, -1.2916832> normal=<0, 1, 0> severity=0.00
+RESULT west-native-air-roll: HP=939.99, phases=Driving,Airborne,Crash, contacts=14, forgivenFrames=0, kick=False, position=<-60.381546, 7.4583554, -0.53559995>, velocity=<1.0412931, 0.08618292, 0.07928383>
+west-network-upright initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-network-upright tick=31 phase=Recovery hp=1000.00 terrain=True local=<-0.15634823, -0.65779305, 1.300293> normal=<0, 1, 0> severity=13.96
+RESULT west-network-upright: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=4, forgivenFrames=1, kick=False, position=<-62, 7.4633493, 0>, velocity=<0, 0.074571565, 0>
+west-network-yawed initial observed velocity=<8, -12, 0>, angular=<0, 0, 0>
+west-network-yawed tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.3316422, -0.6583843, -1.1409433> normal=<0, 1, 0> severity=13.96
+RESULT west-network-yawed: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=8, forgivenFrames=1, kick=False, position=<-57.381615, 7.4637, -8.117321E-12>, velocity=<5.9263593E-06, 0.07373914, -7.995435E-12>
+west-network-spin initial observed velocity=<8, -12, 0>, angular=<0, 3, 0>
+west-network-spin tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.3311667, -0.6583595, 1.3010521> normal=<0, 1, 0> severity=13.96
+RESULT west-network-spin: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=5, forgivenFrames=1, kick=False, position=<-50.49802, 7.463469, -0.7719844>, velocity=<5.277782, 0.074289575, -0.8392547>
+west-network-bank initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-network-bank tick=31 phase=Recovery hp=1000.00 terrain=True local=<1, -0.6577913, 0.59779996> normal=<0, 1, 0> severity=13.96
+RESULT west-network-bank: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=4, forgivenFrames=1, kick=False, position=<0, 1.11335, 96>, velocity=<0, 0.07457057, 0>
+west-network-roll35 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-network-roll35 tick=29 phase=Recovery hp=1000.00 terrain=True local=<1.3318243, -0.6585684, 1.300293> normal=<0, 1, 0> severity=15.60
+RESULT west-network-roll35: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=4, forgivenFrames=1, kick=False, position=<-62, 7.4754715, 0>, velocity=<0, 0.046007216, 0>
+west-network-pitch25 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-network-pitch25 tick=30 phase=Recovery hp=1000.00 terrain=True local=<-1.145101, -0.6575432, 1.300415> normal=<0, 1, 0> severity=15.27
+RESULT west-network-pitch25: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=4, forgivenFrames=1, kick=False, position=<-62, 7.4753504, 0>, velocity=<0, 0.04625775, 0>
+west-network-roll45 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-network-roll45 tick=29 phase=Recovery hp=1000.00 terrain=True local=<1.331526, -0.6576896, 1.300293> normal=<0, 1, 0> severity=15.60
+RESULT west-network-roll45: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=4, forgivenFrames=1, kick=False, position=<-62, 7.4703507, 0>, velocity=<0, 0.058069617, 0>
+west-network-pitch35 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-network-pitch35 tick=29 phase=Recovery hp=1000.00 terrain=True local=<-1.1984538, -0.65732956, 1.300396> normal=<0, 1, 0> severity=15.60
+RESULT west-network-pitch35: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=4, forgivenFrames=1, kick=False, position=<-62, 7.469743, 0>, velocity=<0, 0.05946049, 0>
+west-network-side initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-network-side tick=28 phase=Crash hp=937.93 terrain=True local=<1.3316212, -0.65723765, 1.300293> normal=<0, 1, 0> severity=16.41
+west-network-side tick=29 phase=Crash hp=937.93 terrain=True local=<1.3330731, -0.6577233, 1.300293> normal=<0, 1, 0> severity=0.16
+west-network-side tick=30 phase=Crash hp=937.93 terrain=True local=<1.3330541, -0.657779, 1.300293> normal=<0, 1, 0> severity=0.16
+west-network-side tick=31 phase=Crash hp=937.93 terrain=True local=<1.3330288, -0.6578405, 1.253273> normal=<0, 1, 0> severity=0.16
+west-network-side tick=32 phase=Crash hp=937.93 terrain=True local=<1.333003, -0.6579077, 1.253273> normal=<0, 1, 0> severity=0.16
+RESULT west-network-side: HP=937.93, phases=Driving,Airborne,Crash, contacts=28, forgivenFrames=0, kick=False, position=<-62, 7.4344, -0.00079190184>, velocity=<0, 0.14266512, 0>
+west-network-roof initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-network-roof tick=30 phase=Crash hp=936.29 terrain=True local=<0.15894857, 0.95632076, 2.3530655> normal=<0, 1, 0> severity=16.74
+west-network-roof tick=31 phase=Crash hp=936.29 terrain=True local=<0.15894857, 0.95808506, 2.3530655> normal=<0, 1, 0> severity=0.16
+west-network-roof tick=32 phase=Crash hp=936.29 terrain=True local=<0.15894857, 0.95808506, 2.3530655> normal=<0, 1, 0> severity=0.16
+west-network-roof tick=33 phase=Crash hp=936.29 terrain=True local=<0.15894857, 0.95808506, 2.3530655> normal=<0, 1, 0> severity=0.16
+west-network-roof tick=34 phase=Crash hp=936.29 terrain=True local=<0.15894857, 0.95808506, 2.3530655> normal=<0, 1, 0> severity=0.16
+RESULT west-network-roof: HP=936.29, phases=Driving,Airborne,Crash, contacts=284, forgivenFrames=0, kick=False, position=<-62, 7.308085, 0>, velocity=<0, 0, 0>
+west-network-front initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-network-front tick=25 phase=Crash hp=940.38 terrain=True local=<-0.8062664, -0.17148209, 2.3534918> normal=<0, 1, 0> severity=15.92
+RESULT west-network-front: HP=940.38, phases=Driving,Airborne,Crash, contacts=4, forgivenFrames=0, kick=False, position=<-62, 7.393354, 0>, velocity=<0, 0.23915407, 0>
+west-network-rear initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-network-rear tick=25 phase=Crash hp=940.38 terrain=True local=<-1.3292781, -0.17170715, -2.4578438> normal=<0, 1, 0> severity=15.92
+RESULT west-network-rear: HP=940.38, phases=Driving,Airborne,Crash, contacts=4, forgivenFrames=0, kick=False, position=<-62, 7.385809, 0>, velocity=<0, 0.25689948, 0>
+west-network-tumble initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-network-tumble tick=31 phase=Recovery hp=1000.00 terrain=True local=<-0.15634823, -0.65779305, 1.300293> normal=<0, 1, 0> severity=13.96
+west-network-tumble tick=210 phase=Crash hp=949.58 terrain=True local=<-1.3317647, 0.95614403, 2.1181183> normal=<0, 1, 0> severity=14.08
+west-network-tumble tick=216 phase=Crash hp=949.58 terrain=True local=<-1.3313184, -0.6571145, 1.300293> normal=<0, 1, 0> severity=0.98
+west-network-tumble tick=217 phase=Crash hp=949.58 terrain=True local=<-1.3345003, -0.65756667, 1.300293> normal=<0, 1, 0> severity=0.16
+west-network-tumble tick=218 phase=Crash hp=949.58 terrain=True local=<-1.333138, -0.65746444, 1.300293> normal=<0, 1, 0> severity=0.16
+RESULT west-network-tumble: HP=949.58, phases=Driving,Airborne,Recovery,Recovered,Crash, contacts=44, forgivenFrames=1, kick=True, position=<-61.999653, 7.494921, -0.013277339>, velocity=<0, 5.528331E-06, 0>
+west-network-obstacle initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-network-obstacle tick=18 phase=Airborne hp=965.72 terrain=False local=<1.3311554, -0.65735435, -1.3005753> normal=<-0, 1, 0> severity=10.86
+RESULT west-network-obstacle: HP=965.72, phases=Driving,Airborne, contacts=4, forgivenFrames=0, kick=False, position=<-62, 10.975813, 0>, velocity=<0, 0.045209423, 0>
+west-network-vehicle initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-network-vehicle tick=17 phase=Airborne hp=971.45 terrain=False local=<-1.3311554, -0.65798664, 1.300293> normal=<0, 1, 0> severity=9.71
+RESULT west-network-vehicle: HP=971.45, phases=Driving,Airborne, contacts=4, forgivenFrames=0, kick=False, position=<-62, 11.432615, 0>, velocity=<0, 0.043485016, 0>
+west-network-air-roll initial observed velocity=<0, -12, 0>, angular=<2.8, 0, 0>
+west-network-air-roll tick=28 phase=Crash hp=937.93 terrain=True local=<1.3321328, -0.65765214, 1.253273> normal=<0, 1, 0> severity=16.41
+west-network-air-roll tick=29 phase=Crash hp=937.93 terrain=True local=<1.3329287, -0.65806484, 1.253273> normal=<0, 1, 0> severity=0.16
+west-network-air-roll tick=30 phase=Crash hp=937.93 terrain=True local=<1.3329344, -0.6580508, 1.253273> normal=<0, 1, 0> severity=0.16
+west-network-air-roll tick=31 phase=Crash hp=937.93 terrain=True local=<1.3329315, -0.65805006, 1.253273> normal=<0, 1, 0> severity=0.16
+west-network-air-roll tick=32 phase=Crash hp=937.93 terrain=True local=<1.3329272, -0.6580634, 1.253273> normal=<0, 1, 0> severity=0.16
+RESULT west-network-air-roll: HP=937.93, phases=Driving,Airborne,Crash, contacts=36, forgivenFrames=0, kick=False, position=<-62, 7.443763, 0>, velocity=<0, 0.120396554, 0>
+east-native-upright initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-native-upright tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.2657814, -0.83458614, 1.211338> normal=<0, 1, 0> severity=12.98
+east-native-upright tick=32 phase=Recovery hp=1000.00 terrain=True local=<-0.9209411, -0.99183273, -1.2858391> normal=<-0.0029365781, 0.9854697, 0.16982588> severity=13.44
+east-native-upright tick=33 phase=Recovery hp=1000.00 terrain=True local=<1.3246207, -0.73847437, -0.5066414> normal=<0, 1, 0> severity=0.74
+east-native-upright tick=34 phase=Recovery hp=1000.00 terrain=True local=<-1.3039733, -0.7474003, 1.2323074> normal=<0, 1, 0> severity=0.00
+east-native-upright tick=35 phase=Recovery hp=1000.00 terrain=True local=<1.3327601, -0.699121, -0.80055237> normal=<0, 1, 0> severity=0.00
+RESULT east-native-upright: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=24, forgivenFrames=6, kick=False, position=<61.921978, 7.4615383, 0.1037155>, velocity=<-0.05314265, 0.0788393, -0.00057862006>
+east-native-yawed initial observed velocity=<-8, -12, 0>, angular=<0, 0, 0>
+east-native-yawed tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.2149658, -0.78613377, 1.2768233> normal=<0, 1, 0> severity=13.30
+east-native-yawed tick=32 phase=Recovery hp=1000.00 terrain=True local=<-1.0177956, -1.0147654, -0.69713616> normal=<0.13875385, 0.9891525, 0.04821491> severity=15.18
+east-native-yawed tick=33 phase=Recovery hp=1000.00 terrain=True local=<1.2688904, -0.88018847, -0.9498618> normal=<0, 1, 0> severity=4.80
+east-native-yawed tick=34 phase=Recovery hp=1000.00 terrain=True local=<-1.0114975, -0.78770876, 1.2940214> normal=<0.012403499, 0.9993233, 0.03462805> severity=0.00
+east-native-yawed tick=35 phase=Recovery hp=1000.00 terrain=True local=<1.2995338, -0.7659993, 1.0213056> normal=<-0.007579079, 0.99973387, -0.021790707> severity=0.00
+RESULT east-native-yawed: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=28, forgivenFrames=7, kick=False, position=<57.679447, 7.460449, -0.12084697>, velocity=<-0.000142068, 0.08140375, -0.09437785>
+east-native-spin initial observed velocity=<-8, -12, 0>, angular=<0, 3, 0>
+east-native-spin tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.205823, -0.7744708, 0.48522568> normal=<0, 1, 0> severity=13.00
+east-native-spin tick=32 phase=Recovery hp=1000.00 terrain=True local=<-0.8060925, -0.9815588, -1.4153595> normal=<0.005391207, 0.9855507, -0.16929491> severity=13.38
+east-native-spin tick=33 phase=Recovery hp=1000.00 terrain=True local=<1.3354528, -0.77024746, -0.532917> normal=<0, 1, 0> severity=1.82
+east-native-spin tick=34 phase=Recovery hp=1000.00 terrain=True local=<-1.3036907, -0.7490034, 0.63902664> normal=<0, 1, 0> severity=0.00
+east-native-spin tick=35 phase=Recovery hp=1000.00 terrain=True local=<1.3259301, -0.7074938, 1.2176285> normal=<0, 1, 0> severity=0.00
+RESULT east-native-spin: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=24, forgivenFrames=6, kick=False, position=<51.958794, 7.4613214, 0.6368779>, velocity=<-4.0390544, 0.07934789, 0.7437971>
+east-native-bank initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-native-bank tick=31 phase=Recovery hp=1000.00 terrain=True local=<0.9999161, -0.77662456, 0.597518> normal=<0, 1, 0> severity=12.98
+east-native-bank tick=32 phase=Recovered hp=1000.00 terrain=True local=<-1.3300095, -0.68587536, -0.59591126> normal=<0, 1, 0> severity=0.00
+east-native-bank tick=33 phase=Recovered hp=1000.00 terrain=True local=<1.3311996, -0.67666256, 1.3004149> normal=<0, 1, 0> severity=0.00
+RESULT east-native-bank: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=12, forgivenFrames=3, kick=False, position=<0.016424473, 1.1146526, 95.999306>, velocity=<0.0119355405, 0.07150149, 2.280879E-07>
+east-native-roll35 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-native-roll35 tick=29 phase=Recovery hp=1000.00 terrain=True local=<1.2215375, -0.8355098, -1.2921638> normal=<0, 1, 0> severity=13.71
+east-native-roll35 tick=30 phase=Recovery hp=1000.00 terrain=True local=<1.2677203, -0.6884413, 1.1083527> normal=<0, 1, 0> severity=0.00
+east-native-roll35 tick=33 phase=Recovery hp=1000.00 terrain=True local=<-1.2123765, -0.7992773, 1.288044> normal=<-0.0016804303, 0.99710226, 0.07605458> severity=11.39
+east-native-roll35 tick=34 phase=Recovery hp=1000.00 terrain=True local=<-0.83737457, -0.68031883, -1.300003> normal=<0, 1, 0> severity=0.21
+east-native-roll35 tick=35 phase=Recovery hp=1000.00 terrain=True local=<1.254128, -0.70415306, -1.2964058> normal=<-0.007207538, 0.99968123, -0.024198523> severity=1.39
+RESULT east-native-roll35: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=28, forgivenFrames=7, kick=False, position=<61.93836, 7.459242, 0.19493248>, velocity=<-0.04730524, 0.08424924, 0.00025469702>
+east-native-pitch25 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-native-pitch25 tick=30 phase=Recovery hp=1000.00 terrain=True local=<0.7121196, -0.8099842, 1.2573013> normal=<0, 1, 0> severity=11.82
+east-native-pitch25 tick=31 phase=Recovery hp=1000.00 terrain=True local=<-1.0670037, -0.808136, 1.4599915> normal=<-0.26395604, 0.95725405, 0.11828695> severity=6.30
+east-native-pitch25 tick=32 phase=Recovery hp=1000.00 terrain=True local=<-1.3119351, -0.7062831, 1.289341> normal=<0, 1, 0> severity=0.01
+east-native-pitch25 tick=33 phase=Recovery hp=1000.00 terrain=True local=<-1.05576, -0.717746, -1.2885132> normal=<0.017837374, 0.9982712, 0.056003604> severity=8.42
+east-native-pitch25 tick=34 phase=Recovery hp=1000.00 terrain=True local=<1.0396585, -0.6912308, -1.2971878> normal=<0, 1, 0> severity=4.30
+RESULT east-native-pitch25: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=25, forgivenFrames=7, kick=False, position=<61.220417, 7.4666386, 0.025560962>, velocity=<-0.46104515, 0.066814184, -0.028351543>
+east-native-roll45 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-native-roll45 tick=28 phase=Recovery hp=1000.00 terrain=True local=<1.2314355, -0.73587656, -0.6523895> normal=<0, 1, 0> severity=14.27
+east-native-roll45 tick=35 phase=Recovery hp=1000.00 terrain=True local=<-1.3137839, -0.7455926, 1.2888641> normal=<0, 1, 0> severity=7.21
+east-native-roll45 tick=36 phase=Recovery hp=1000.00 terrain=True local=<-1.3216196, -0.6831727, -0.24348068> normal=<0, 1, 0> severity=0.01
+east-native-roll45 tick=37 phase=Recovery hp=1000.00 terrain=True local=<-1.3254297, -0.6682992, -1.2330971> normal=<-0.013019206, 0.9990825, -0.040799998> severity=0.00
+east-native-roll45 tick=38 phase=Recovery hp=1000.00 terrain=True local=<-1.3270028, -0.6700692, -1.2325134> normal=<-0.013019206, 0.9990825, -0.040799998> severity=0.00
+RESULT east-native-roll45: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=19, forgivenFrames=5, kick=False, position=<61.87688, 7.4569793, 0.268713>, velocity=<-0.09790853, 0.08957839, 0.0006219819>
+east-native-pitch35 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-native-pitch35 tick=29 phase=Recovery hp=1000.00 terrain=True local=<0.89833283, -0.7526989, 1.2459564> normal=<0, 1, 0> severity=12.73
+east-native-pitch35 tick=30 phase=Recovery hp=1000.00 terrain=True local=<-1.1754332, -0.89502335, 1.1955566> normal=<-0.001967161, 0.9934936, 0.11387121> severity=9.10
+east-native-pitch35 tick=31 phase=Recovery hp=1000.00 terrain=True local=<-1.190156, -0.69858074, 1.2761803> normal=<-0.0007685563, 0.99909574, 0.042510774> severity=0.00
+east-native-pitch35 tick=32 phase=Recovery hp=1000.00 terrain=True local=<-1.3240871, -0.6674824, 1.2895088> normal=<0, 1, 0> severity=0.00
+east-native-pitch35 tick=35 phase=Recovery hp=1000.00 terrain=True local=<-1.3086686, -0.72066283, -1.1377449> normal=<-0.03752588, 0.9925361, -0.116033584> severity=4.96
+east-native-pitch35 tick=36 phase=Recovery hp=1000.00 terrain=True local=<1.3269393, -0.6971793, -1.2876205> normal=<0, 1, 0> severity=3.69
+RESULT east-native-pitch35: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=28, forgivenFrames=8, kick=False, position=<61.029774, 7.4615316, 0.039186575>, velocity=<-0.5478859, 0.07885067, 0.015950112>
+east-native-side initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-native-side tick=28 phase=Crash hp=937.62 terrain=True local=<1.4589543, -0.681424, -0.4806633> normal=<0, 1, 0> severity=16.48
+east-native-side tick=29 phase=Crash hp=937.62 terrain=True local=<1.3503346, -0.67227733, 1.2483635> normal=<0, 1, 0> severity=0.00
+east-native-side tick=30 phase=Crash hp=937.62 terrain=True local=<1.3317142, -0.6776267, 1.2476006> normal=<0, 1, 0> severity=0.00
+east-native-side tick=37 phase=Crash hp=937.62 terrain=True local=<1.3188376, -0.6854274, 1.2954216> normal=<0, 1, 0> severity=0.49
+east-native-side tick=38 phase=Crash hp=937.62 terrain=True local=<1.3154306, -0.6898484, 1.2951698> normal=<0, 1, 0> severity=0.55
+east-native-side tick=39 phase=Crash hp=937.62 terrain=True local=<1.3123231, -0.6933286, 1.2322769> normal=<0, 1, 0> severity=0.06
+RESULT east-native-side: HP=937.62, phases=Driving,Airborne,Crash, contacts=32, forgivenFrames=0, kick=False, position=<62.206623, 7.418785, 0.26959017>, velocity=<0.1384711, 0.17910558, -0.000439331>
+east-native-roof initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-native-roof tick=30 phase=Crash hp=936.29 terrain=True local=<-0.82810616, 1.165432, -2.1304169> normal=<0, 1, 0> severity=16.74
+east-native-roof tick=31 phase=Crash hp=936.29 terrain=True local=<0.95929337, 1.6130548, 1.6969872> normal=<0.08518919, 0.97982824, 0.1807748> severity=20.96
+east-native-roof tick=32 phase=Crash hp=936.29 terrain=True local=<0.80960846, 1.3714337, -2.3230362> normal=<0.009016444, 0.9995582, 0.028321173> severity=4.58
+east-native-roof tick=33 phase=Crash hp=936.29 terrain=True local=<-1.2251797, 1.1270518, 0.07640457> normal=<0, 1, 0> severity=4.52
+east-native-roof tick=34 phase=Crash hp=936.29 terrain=True local=<1.291276, 1.0134225, -1.742733> normal=<0, 1, 0> severity=0.53
+RESULT east-native-roof: HP=936.29, phases=Driving,Airborne,Crash, contacts=284, forgivenFrames=0, kick=False, position=<62.019375, 7.2789307, 0.055519585>, velocity=<-0.07541085, -0.28669366, 0.07464206>
+east-native-front initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-native-front tick=25 phase=Crash hp=942.96 terrain=True local=<1.0786448, -0.11798859, 2.540061> normal=<-0.2128049, 0.9770947, 0> severity=15.40
+east-native-front tick=26 phase=Crash hp=942.96 terrain=True local=<0.7542312, -0.20848846, 2.3919144> normal=<0, 1, 0> severity=0.00
+east-native-front tick=27 phase=Crash hp=942.96 terrain=True local=<-1.0995908, -0.19651794, 2.3703165> normal=<0, 1, 0> severity=0.00
+RESULT east-native-front: HP=942.96, phases=Driving,Airborne,Crash, contacts=12, forgivenFrames=0, kick=False, position=<57.379097, 7.402894, 0.009403972>, velocity=<-2.8220801, 0.21677896, 0.007996646>
+east-native-rear initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-native-rear tick=24 phase=Crash hp=944.01 terrain=True local=<0.69845164, -0.30587387, -2.4981136> normal=<0, 1, 0> severity=15.20
+east-native-rear tick=25 phase=Crash hp=944.01 terrain=True local=<-0.8366363, -0.34762955, -2.5196896> normal=<-0.00082148664, 0.9978393, 0.065697886> severity=3.71
+east-native-rear tick=26 phase=Crash hp=944.01 terrain=True local=<-0.8608102, -0.27618408, -2.454134> normal=<0.01818624, 0.9984246, 0.053081088> severity=0.00
+east-native-rear tick=55 phase=Crash hp=944.01 terrain=True local=<-1.3013997, -0.7012272, 1.1648903> normal=<0.21762446, 0.97592163, 0.014717093> severity=1.95
+east-native-rear tick=56 phase=Crash hp=944.01 terrain=True local=<-1.3074913, -0.6803932, 1.2632294> normal=<0, 1, 0> severity=0.00
+east-native-rear tick=57 phase=Crash hp=944.01 terrain=True local=<-1.3108273, -0.67938805, 1.2627487> normal=<0, 1, 0> severity=0.00
+RESULT east-native-rear: HP=944.01, phases=Driving,Airborne,Crash, contacts=17, forgivenFrames=0, kick=False, position=<64.24696, 7.423201, 0.7826005>, velocity=<1.295159, 0.16841853, 0.096755855>
+east-native-tumble initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-native-tumble tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.2657814, -0.83458614, 1.211338> normal=<0, 1, 0> severity=12.98
+east-native-tumble tick=32 phase=Recovery hp=1000.00 terrain=True local=<-0.9209411, -0.99183273, -1.2858391> normal=<-0.0029365781, 0.9854697, 0.16982588> severity=13.44
+east-native-tumble tick=33 phase=Recovery hp=1000.00 terrain=True local=<1.3246207, -0.73847437, -0.5066414> normal=<0, 1, 0> severity=0.74
+east-native-tumble tick=34 phase=Recovery hp=1000.00 terrain=True local=<-1.3039733, -0.7474003, 1.2323074> normal=<0, 1, 0> severity=0.00
+east-native-tumble tick=35 phase=Recovery hp=1000.00 terrain=True local=<1.3327601, -0.699121, -0.80055237> normal=<0, 1, 0> severity=0.00
+east-native-tumble tick=223 phase=Crash hp=948.71 terrain=True local=<1.4685898, -0.6513996, 1.4163475> normal=<0.11664669, 0.979188, 0.1660856> severity=13.94
+RESULT east-native-tumble: HP=948.71, phases=Driving,Airborne,Recovery,Recovered,Crash, contacts=86, forgivenFrames=6, kick=True, position=<60.28072, 7.494994, 1.7755314>, velocity=<-0.039586384, 1.1339784E-05, 0.020579671>
+east-native-obstacle initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-native-obstacle tick=18 phase=Airborne hp=970.63 terrain=False local=<-1.3311547, -0.78868675, -1.3005753> normal=<-0, 1, -0> severity=9.87
+east-native-obstacle tick=19 phase=Airborne hp=970.63 terrain=False local=<-1.3311551, -0.6891384, -1.3005753> normal=<-0, 1, -0> severity=2.45
+east-native-obstacle tick=20 phase=Airborne hp=970.63 terrain=False local=<-1.3311553, -0.6743727, -1.3005753> normal=<-0, 1, -0> severity=0.00
+RESULT east-native-obstacle: HP=970.63, phases=Driving,Airborne, contacts=12, forgivenFrames=0, kick=False, position=<62, 10.976439, 1.2581862E-06>, velocity=<2.1671663E-05, 0.043732435, -1.397856E-07>
+east-native-vehicle initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-native-vehicle tick=16 phase=Airborne hp=972.26 terrain=False local=<-1.3311547, -0.7736454, 1.300293> normal=<-0, 1, -0> severity=9.55
+east-native-vehicle tick=17 phase=Airborne hp=972.26 terrain=False local=<-1.3311552, -0.6837959, 1.300293> normal=<-0, 1, -0> severity=2.48
+RESULT east-native-vehicle: HP=972.26, phases=Driving,Airborne, contacts=8, forgivenFrames=0, kick=False, position=<62, 11.434581, 1.1989923E-06>, velocity=<-2.203493E-05, 0.038852856, -1.8160823E-07>
+east-native-air-roll initial observed velocity=<0, -12, 0>, angular=<-2.8, 0, 0>
+east-native-air-roll tick=27 phase=Crash hp=939.99 terrain=True local=<1.3941517, -0.72427845, -0.46831512> normal=<0, 1, 0> severity=16.00
+east-native-air-roll tick=28 phase=Crash hp=939.99 terrain=True local=<1.3554506, -0.69414616, 0.37450027> normal=<0.028170835, 0.9996031, -0.0003183749> severity=0.00
+east-native-air-roll tick=29 phase=Crash hp=939.99 terrain=True local=<1.3309078, -0.67485666, 1.2888947> normal=<0, 1, 0> severity=0.00
+east-native-air-roll tick=30 phase=Crash hp=939.99 terrain=True local=<1.326376, -0.67407703, 1.2884636> normal=<0, 1, 0> severity=0.00
+east-native-air-roll tick=31 phase=Crash hp=939.99 terrain=True local=<1.3256092, -0.6775055, 1.286541> normal=<0, 1, 0> severity=0.00
+RESULT east-native-air-roll: HP=939.99, phases=Driving,Airborne,Crash, contacts=18, forgivenFrames=0, kick=False, position=<63.593838, 7.4543133, 0.569861>, velocity=<1.030927, 0.095742494, -0.06737042>
+east-network-upright initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-network-upright tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.3311554, -0.65779305, 1.0244904> normal=<0, 1, 0> severity=13.96
+RESULT east-network-upright: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=4, forgivenFrames=1, kick=False, position=<62, 7.4633493, 0>, velocity=<0, 0.074571565, 0>
+east-network-yawed initial observed velocity=<-8, -12, 0>, angular=<0, 0, 0>
+east-network-yawed tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.3316383, -0.6583843, 1.300291> normal=<-0, 1, 0> severity=13.96
+RESULT east-network-yawed: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=8, forgivenFrames=1, kick=False, position=<57.381615, 7.4637, -6.168555E-07>, velocity=<-5.9263593E-06, 0.07373914, -4.7519012E-07>
+east-network-spin initial observed velocity=<-8, -12, 0>, angular=<0, 3, 0>
+east-network-spin tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.3311665, -0.65836, 1.3010521> normal=<0, 1, -0> severity=13.96
+RESULT east-network-spin: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=5, forgivenFrames=1, kick=False, position=<50.498024, 7.463469, 0.7719865>, velocity=<-5.277781, 0.07428956, 0.83925784>
+east-network-bank initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-network-bank tick=31 phase=Recovery hp=1000.00 terrain=True local=<1, -0.6577913, 0.59779996> normal=<0, 1, 0> severity=13.96
+RESULT east-network-bank: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=4, forgivenFrames=1, kick=False, position=<0, 1.11335, 96>, velocity=<0, 0.07457057, 0>
+east-network-roll35 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-network-roll35 tick=29 phase=Recovery hp=1000.00 terrain=True local=<1.3318243, -0.6585684, -0.8381119> normal=<0, 1, 0> severity=15.60
+RESULT east-network-roll35: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=4, forgivenFrames=1, kick=False, position=<62, 7.4754715, 0>, velocity=<0, 0.046007216, 0>
+east-network-pitch25 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-network-pitch25 tick=30 phase=Recovery hp=1000.00 terrain=True local=<1.3311554, -0.6575432, 1.300415> normal=<-0, 1, 0> severity=15.27
+RESULT east-network-pitch25: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=4, forgivenFrames=1, kick=False, position=<62, 7.4753504, 0>, velocity=<0, 0.046257764, 0>
+east-network-roll45 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-network-roll45 tick=29 phase=Recovery hp=1000.00 terrain=True local=<1.331526, -0.6576896, -1.2745476> normal=<0, 1, 0> severity=15.60
+RESULT east-network-roll45: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=4, forgivenFrames=1, kick=False, position=<62, 7.4703507, 0>, velocity=<0, 0.05806963, 0>
+east-network-pitch35 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-network-pitch35 tick=29 phase=Recovery hp=1000.00 terrain=True local=<1.3311554, -0.65732956, 1.300396> normal=<0, 1, 0> severity=15.60
+RESULT east-network-pitch35: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=4, forgivenFrames=1, kick=False, position=<62, 7.469743, 0>, velocity=<0, 0.05946049, 0>
+east-network-side initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-network-side tick=28 phase=Crash hp=937.93 terrain=True local=<1.3316212, -0.65723765, -0.7628746> normal=<-0, 1, 0> severity=16.41
+east-network-side tick=29 phase=Crash hp=937.93 terrain=True local=<1.3330741, -0.6577238, -0.65646744> normal=<-0, 1, 0> severity=0.16
+east-network-side tick=30 phase=Crash hp=937.93 terrain=True local=<1.3330545, -0.6577792, -0.53351974> normal=<-0, 1, 0> severity=0.16
+east-network-side tick=31 phase=Crash hp=937.93 terrain=True local=<1.3330288, -0.6578405, -1.2658882> normal=<0, 1, 0> severity=0.16
+east-network-side tick=32 phase=Crash hp=937.93 terrain=True local=<1.333003, -0.6579077, -1.1128654> normal=<0, 1, 0> severity=0.16
+RESULT east-network-side: HP=937.93, phases=Driving,Airborne,Crash, contacts=28, forgivenFrames=0, kick=False, position=<62.000202, 7.4344, 0.00088004745>, velocity=<0, 0.14266512, 0>
+east-network-roof initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-network-roof tick=30 phase=Crash hp=936.29 terrain=True local=<-1.3311553, 0.95632076, -2.2460518> normal=<-0, 1, 0> severity=16.74
+east-network-roof tick=31 phase=Crash hp=936.29 terrain=True local=<-1.3311553, 0.95808506, -2.2460518> normal=<-0, 1, 0> severity=0.16
+east-network-roof tick=32 phase=Crash hp=936.29 terrain=True local=<-1.3311553, 0.95808506, -2.2460518> normal=<-0, 1, 0> severity=0.16
+east-network-roof tick=33 phase=Crash hp=936.29 terrain=True local=<-1.3311553, 0.95808506, -2.2460518> normal=<-0, 1, 0> severity=0.16
+east-network-roof tick=34 phase=Crash hp=936.29 terrain=True local=<-1.3311553, 0.95808506, -2.2460518> normal=<-0, 1, 0> severity=0.16
+RESULT east-network-roof: HP=936.29, phases=Driving,Airborne,Crash, contacts=284, forgivenFrames=0, kick=False, position=<62, 7.308085, 0>, velocity=<0, 0, 0>
+east-network-front initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-network-front tick=25 phase=Crash hp=940.38 terrain=True local=<1.3311554, -0.17148209, 2.3534918> normal=<0, 1, 0> severity=15.92
+RESULT east-network-front: HP=940.38, phases=Driving,Airborne,Crash, contacts=4, forgivenFrames=0, kick=False, position=<62, 7.393354, 0>, velocity=<0, 0.23915407, 0>
+east-network-rear initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-network-rear tick=25 phase=Crash hp=940.38 terrain=True local=<1.3311554, -0.17170715, -2.4578438> normal=<0, 1, 0> severity=15.92
+RESULT east-network-rear: HP=940.38, phases=Driving,Airborne,Crash, contacts=4, forgivenFrames=0, kick=False, position=<62, 7.3858094, 0>, velocity=<0, 0.25689852, 0>
+east-network-tumble initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-network-tumble tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.3311554, -0.65779305, 1.0244904> normal=<0, 1, 0> severity=13.96
+east-network-tumble tick=210 phase=Crash hp=949.58 terrain=True local=<1.3317647, 0.95614403, -2.2243347> normal=<-0, 1, 0> severity=14.08
+east-network-tumble tick=216 phase=Crash hp=949.58 terrain=True local=<1.3313184, -0.6571145, -0.6843872> normal=<-0, 1, 0> severity=0.98
+east-network-tumble tick=217 phase=Crash hp=949.58 terrain=True local=<1.333468, -0.6574222, -1.2110977> normal=<-0, 1, 0> severity=0.16
+east-network-tumble tick=218 phase=Crash hp=949.58 terrain=True local=<1.3331404, -0.6574649, -1.1731453> normal=<-0, 1, 0> severity=0.16
+RESULT east-network-tumble: HP=949.58, phases=Driving,Airborne,Recovery,Recovered,Crash, contacts=44, forgivenFrames=1, kick=True, position=<62.002182, 7.494921, -0.014339339>, velocity=<0, 5.2303076E-06, 0>
+east-network-obstacle initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-network-obstacle tick=18 phase=Airborne hp=965.72 terrain=False local=<-1.3311554, -0.65735435, -1.3005753> normal=<-0, 1, -0> severity=10.86
+RESULT east-network-obstacle: HP=965.72, phases=Driving,Airborne, contacts=4, forgivenFrames=0, kick=False, position=<62, 10.975813, 0>, velocity=<0, 0.045209423, 0>
+east-network-vehicle initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+east-network-vehicle tick=17 phase=Airborne hp=971.45 terrain=False local=<-1.3311554, -0.65798664, 1.300293> normal=<0, 1, 0> severity=9.71
+RESULT east-network-vehicle: HP=971.45, phases=Driving,Airborne, contacts=4, forgivenFrames=0, kick=False, position=<62, 11.432615, 0>, velocity=<0, 0.043485016, 0>
+east-network-air-roll initial observed velocity=<0, -12, 0>, angular=<-2.8, 0, 0>
+east-network-air-roll tick=28 phase=Crash hp=937.93 terrain=True local=<1.3321328, -0.65765214, -0.67386246> normal=<0, 1, 0> severity=16.41
+east-network-air-roll tick=29 phase=Crash hp=937.93 terrain=True local=<1.3329287, -0.65806484, -0.7435074> normal=<0, 1, 0> severity=0.16
+east-network-air-roll tick=30 phase=Crash hp=937.93 terrain=True local=<1.3329344, -0.6580508, -0.77539825> normal=<0, 1, 0> severity=0.16
+east-network-air-roll tick=31 phase=Crash hp=937.93 terrain=True local=<1.3329315, -0.65805006, -0.7740898> normal=<0, 1, 0> severity=0.16
+east-network-air-roll tick=32 phase=Crash hp=937.93 terrain=True local=<1.3329268, -0.65806365, -0.74373627> normal=<0, 1, 0> severity=0.16
+RESULT east-network-air-roll: HP=937.93, phases=Driving,Airborne,Crash, contacts=36, forgivenFrames=0, kick=False, position=<62, 7.443763, 0>, velocity=<0, 0.120396554, 0>

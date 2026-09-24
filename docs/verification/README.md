@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Surface-specific acceleration, progressive dirt recovery and split-contact handling | [TS-160 verification evidence](ts-160.md) |
 | Lifted vehicle suspension and chassis response | [TS-159 verification evidence](ts-159.md) |
 | Final integrated map optimization, collision/gameplay and performance | [TS-83 verification evidence](ts-83.md) |
 | Infield pickup placements | [TS-144 verification evidence](ts-144.md) |
