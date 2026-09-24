@@ -1,0 +1,16 @@
+00:09.453  blend            | Read blend: "C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\assets\maps\oval\source\OvalFoundation.blend"
+00:09.531  blend            | Read blend: "C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\assets\maps\oval\source\OvalEnvironment.blend"
+00:09.546  blend            | Read blend: "C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\assets\maps\infield\source\InfieldTerrain.blend"
+00:09.906  blend            | Read blend: "C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\assets\maps\infield\source\InfieldStructures.blend"
+PASS manifest: terrain-sources.json
+PASS manifest: surface-sources.json
+PASS manifest: structures-sources.json
+PASS oval retained master/environment asset hashes
+PASS reopen: assets/maps/oval/source/OvalFoundation.blend meshes= 9 vertices= 7633
+PASS reopen: assets/maps/oval/source/OvalEnvironment.blend meshes= 3 vertices= 1620
+PASS reopen: assets/maps/infield/source/InfieldTerrain.blend meshes= 50 vertices= 205615
+PASS reopen: assets/maps/infield/source/InfieldStructures.blend meshes= 53 vertices= 424
+Map source audit passed; no regeneration or writes performed.
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

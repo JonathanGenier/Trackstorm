@@ -15,9 +15,11 @@ func _post_import(scene: Node) -> Object:
 			if material == null:
 				continue
 			if material.resource_name == "Concrete":
-				instance.set_surface_override_material(index, load("res://assets/arena/materials/Concrete.tres"))
+				instance.mesh.surface_set_material(index, load("res://assets/arena/materials/Concrete.tres"))
 			elif material.resource_name == "Rock":
-				instance.set_surface_override_material(index, load("res://assets/environment/Rock.tres"))
+				# Replace the imported slot so unused embedded texture copies are not
+				# retained underneath a per-instance override in every loaded asset.
+				instance.mesh.surface_set_material(index, load("res://assets/environment/Rock.tres"))
 			else:
 				material.vertex_color_use_as_albedo = true
 				if asset_name in ["FirMature", "PineOpen", "SpruceYoung"]:

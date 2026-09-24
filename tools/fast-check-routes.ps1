@@ -154,6 +154,10 @@ function Get-FastCheckPlan {
         }
 
         # Maps / arena.
+        if ($path -match '^assets/(maps|environment)/' -or $path -match '^scenes/maps/' -or
+            $path -match 'map_budget_checks|check-map-budget') {
+            Add-Runtime 'check-map-budget.ps1'
+        }
         if ($path -match '^code/(Core|Client)/Arenas/' -or
             $path -match '^scenes/arena/' -or
             $path -eq 'docs/features/arena.md') {

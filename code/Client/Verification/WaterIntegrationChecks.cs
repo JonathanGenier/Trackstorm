@@ -41,6 +41,7 @@ public sealed partial class WaterIntegrationChecks : Node3D
             AddChild(GD.Load<PackedScene>(Arenas.ActiveMap.ScenePath).Instantiate<Node3D>());
             await Frames(4);
             Check(GetTree().GetNodesInGroup("water_terrain").Count > 0, "Imported water field and level are registered");
+            VerifyWaterRenderBounds();
             if (DisplayServer.GetName() != "headless")
             {
                 AddChild(new WorldEnvironment { Environment = GD.Load<Godot.Environment>("res://assets/maps/oval/Daylight.tres") });
@@ -109,6 +110,30 @@ public sealed partial class WaterIntegrationChecks : Node3D
         }
         catch (Exception error) { _advance = false; Log(error.ToString()); GD.PushError(error.ToString()); GetTree().Quit(1); }
     }
+    private void VerifyWaterRenderBounds()
+    {
+        var water = (MeshInstance3D)FindChild("WaterSurface", true, false);
+        var material = (ShaderMaterial)water.MaterialOverride;
+        Vector4 bounds = material.GetShaderParameter("surface_bounds").AsVector4();
+        Vector2 origin = material.GetShaderParameter("water_origin").AsVector2();
+        Check(origin.IsEqualApprox(new Vector2(water.Position.X, water.Position.Z)), "Water shading retains the field's original coordinates");
+        var plane = (PlaneMesh)water.Mesh;
+        Check(plane.Size.X * plane.Size.Y < bounds.Z * bounds.W / 100, $"Water render area reduced from {bounds.Z * bounds.W:F0} to {plane.Size.X * plane.Size.Y:F2} square metres");
+        using var image = ((Texture2D)material.GetShaderParameter("surface_field")).GetImage();
+        int wet = 0;
+        for (int y = 0; y < image.GetHeight(); y++)
+        for (int x = 0; x < image.GetWidth(); x++)
+        {
+            if (image.GetPixel(x, y).A < .5f) { continue; }
+            Vector2 point = new(bounds.X + (x + .5f) * bounds.Z / image.GetWidth(), bounds.Y + (y + .5f) * bounds.W / image.GetHeight());
+            Vector2 margin = plane.Size / 2 - (point - origin).Abs();
+            if (margin.X < bounds.Z / image.GetWidth() || margin.Y < bounds.W / image.GetHeight())
+            { throw new InvalidOperationException("Water crop clips the field or bilinear guard band."); }
+            wet++;
+        }
+        Check(wet > 0, $"All {wet} water texels and their filtering margins remain inside the rendered surface");
+    }
+
     private async Task Start(bool network, Vector3 position, float yaw = 0)
     {
         _world = new(new(60), new RespawnConfiguration { DelayTicks = 60 });

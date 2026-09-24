@@ -45,7 +45,9 @@ All visible components have packed smart-projected UV islands and semantic mater
 slots. Rocks use original generated 512px mineral albedo/normal maps; concrete uses
 the existing licensed Concrete textures, with world-triplanar metre tiling. Organic and metal slots retain
 Blender PBR colors/roughness and exported vertex variation. The import hook matches
-the conifer darkening already used by the oval forest baker; leaves are two-sided
+the shared Rock/Concrete mesh slots directly, so unused embedded materials and
+their duplicate texture references are not retained beneath instance overrides.
+Conifer darkening matches the oval forest baker; leaves are two-sided
 opaque geometry with no alpha sorting or texture dependencies.
 
 Rocks combine asymmetrical fracture planes with small coherent erosion and mineral
@@ -91,6 +93,10 @@ Keep the original editable components in the blend. Update the manifest measurem
 and hashes and repeat source/native checks after manual edits. Do not export catalogue
 offsets or change collision suffixes. The `source/.gdignore` excludes Blender files
 from automatic Godot import/export.
+
+After changing only an import hook, explicitly reimport the affected GLBs in the
+editor. An already populated cache may survive `--editor --import` when the GLB
+bytes are unchanged. A fresh cache rebuilds from the committed hook and source.
 
 The native fixture checks bounds/orientation, identity transforms, UV/color/material
 channels, shared resources, collision types/counts, open drainage and repeated rigid

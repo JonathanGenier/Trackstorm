@@ -20,6 +20,10 @@ manual sculpting first. One unit is one metre; there is no runtime scale or
 procedural terrain generation. Position compression and automatic LODs are
 disabled in the tracked GLB import configuration.
 
+Changes to `ImportTerrain.gd` require explicit reimport of `infield_terrain.glb`
+when using an existing Godot cache. This applies the derived water-plane crop;
+it does not require rerunning Blender or changing the retained source geometry.
+
 The mesh subdivides all 916 original oval inner-edge segments into 220 radial
 rings (201,521 vertices, 402,124 triangles). Its outside vertices exactly match
 the original boundary. A twenty-eight-metre collar follows the bank's inward grade
@@ -65,9 +69,9 @@ The runtime fixture checks primary lane support and slope, negative basin
 collision, all ten original routes, jump launch/landing/recovery, the connected
 loop tour and two cars sharing the tunnel. `-Case <prefix>` runs selected driving
 scenarios with the common geometry checks; omit it for the complete suite.
-The current vehicle slope-start limitation described in [vehicles](../../../docs/features/vehicles.md)
-can block recovery from a stationary uphill pose; a supported mesh does not
-guarantee a successful restart. The oval fixture retains its road,
+Standing-start traction is verified separately on representative grades by the
+[terrain-handling suite](../../../docs/features/vehicles.md); a supported mesh
+alone does not guarantee a successful restart at arbitrary grades. The oval fixture retains its road,
 grid, containment, pickup, handling and practice checks and verifies continuous
 support around all 916 terrain rim sections. Runtime evidence and limitations
 belong in the Story verification report, not this authoring contract.
