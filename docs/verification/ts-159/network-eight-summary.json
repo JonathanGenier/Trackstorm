@@ -1,0 +1,82 @@
+[
+  {
+    "Peer": "player-0",
+    "Roster": 8,
+    "ErrorP99": 0,
+    "ErrorMaximum": 0,
+    "LargeCorrections": 0,
+    "FrameP99ms": 1876.747,
+    "Grounded": true,
+    "HP": 969.1665
+  },
+  {
+    "Peer": "player-1",
+    "Roster": 8,
+    "ErrorP99": 2.542208,
+    "ErrorMaximum": 4.2832994,
+    "LargeCorrections": 2,
+    "FrameP99ms": 2760.176,
+    "Grounded": true,
+    "HP": 1000
+  },
+  {
+    "Peer": "player-2",
+    "Roster": 8,
+    "ErrorP99": 2.0385122,
+    "ErrorMaximum": 5.173269,
+    "LargeCorrections": 2,
+    "FrameP99ms": 585.942,
+    "Grounded": true,
+    "HP": 1000
+  },
+  {
+    "Peer": "player-3",
+    "Roster": 8,
+    "ErrorP99": 2.2471476,
+    "ErrorMaximum": 4.9408517,
+    "LargeCorrections": 1,
+    "FrameP99ms": 603.851,
+    "Grounded": true,
+    "HP": 994.73804
+  },
+  {
+    "Peer": "player-4",
+    "Roster": 8,
+    "ErrorP99": 2.7898803,
+    "ErrorMaximum": 4.192292,
+    "LargeCorrections": 3,
+    "FrameP99ms": 505.044,
+    "Grounded": true,
+    "HP": 1000
+  },
+  {
+    "Peer": "player-5",
+    "Roster": 8,
+    "ErrorP99": 2.4640791,
+    "ErrorMaximum": 4.4030347,
+    "LargeCorrections": 1,
+    "FrameP99ms": 531.664,
+    "Grounded": true,
+    "HP": 1000
+  },
+  {
+    "Peer": "player-6",
+    "Roster": 8,
+    "ErrorP99": 2.6935923,
+    "ErrorMaximum": 3.8967006,
+    "LargeCorrections": 1,
+    "FrameP99ms": 381.142,
+    "Grounded": true,
+    "HP": 1000
+  },
+  {
+    "Peer": "player-7",
+    "Roster": 8,
+    "ErrorP99": 2.670736,
+    "ErrorMaximum": 5.396693,
+    "LargeCorrections": 3,
+    "FrameP99ms": 629.436,
+    "Grounded": true,
+    "HP": 1000
+  }
+]

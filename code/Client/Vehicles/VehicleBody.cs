@@ -59,7 +59,7 @@ public sealed partial class VehicleBody : RigidBody3D
         PhysicsMaterialOverride = new PhysicsMaterial { Friction = 0.15f, Bounce = 0.05f };
         AddChild(VehicleVisual.CreateCollision());
         var identification = new StandardMaterial3D { AlbedoColor = Paint, Roughness = 0.8f };
-        AddChild(VehicleVisual.Create(identification));
+        AddChild(VehicleVisual.Create(identification, () => (State, Configuration)));
         _feedback.Initialize(identification, Paint);
         AddChild(_feedback);
         AddChild(new TireFeedback { Source = () => (GlobalTransform, Snapshot, Configuration) });

@@ -131,7 +131,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                     }
                     double current = option.Read(_host.DeveloperConfiguration);
                     double value = option.Boolean ? 1 - current : option.Integral ? current + 1 : current * 1.05;
-                    // The scaled default is close to the existing one-metre validation ceiling.
+                    // Exercise shortening the live suspension as well as increasing other scalars.
                     if (option.Key == "vehicle.suspension_length")
                     {
                         value = current * 0.95;
@@ -182,7 +182,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Set("items.missile_speed", 75);
                 Press("Apply Settings");
                 await Until(() => _client.Arena!.Driver.Configuration == _host.Arena.Driver.Configuration, "final tuned boundary");
-                Set("vehicle.suspension_length", 0.9);
+                Set("vehicle.suspension_length", 1.8);
                 Press("Apply Settings");
                 await Frames(4);
                 var suspensionState = _host.Arena.Driver.LocalState!;
@@ -192,7 +192,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Press("Apply Settings");
                 var shortened = hostBody.Observe(suspensionState).Wheels;
                 Check(extended != shortened, "UI suspension length changes native wheel ray support");
-                Set("vehicle.suspension_length", 0.8);
+                Set("vehicle.suspension_length", GameplayConfiguration.HostedDefaults.Vehicle.SuspensionLength);
                 Press("Apply Settings");
                 Check(_host.GiveDeveloperItem(HeldItem.Wrench), "fixture grants wrench through existing authority");
                 Check(_host.Arena.Driver.LocalItem?.Item == HeldItem.Wrench, "Give Wrench uses current host slot");

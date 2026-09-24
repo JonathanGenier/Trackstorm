@@ -103,7 +103,11 @@ public sealed class VehicleMovement
 
                 Vector3 offset = Vector3.Transform(new Vector3(index % 2 == 0 ? -VehicleDimensions.WheelTrack / 2 : VehicleDimensions.WheelTrack / 2, 0, index < 2 ? -c.Wheelbase / 2 : c.Wheelbase / 2), observed.Orientation);
                 float wheelVelocity = Vector3.Dot(observed.LinearVelocity + Vector3.Cross(observed.AngularVelocity, offset), groundNormal);
-                float force = Math.Clamp((compression[index] * c.WheelSpring) - (wheelVelocity * c.WheelDamping), 0, c.Gravity * 6) / 4;
+                float bump = Math.Max(0, compression[index] - c.WheelBumpStart);
+                float damper = wheelVelocity < 0 ? c.WheelDamping : c.WheelReboundDamping;
+                // Point-velocity damping avoids injecting a velocity impulse at a terrain seam.
+                // Progressive end resistance remains bounded; excessive landings reach native chassis contact.
+                float force = Math.Clamp((compression[index] * c.WheelSpring) + (bump * bump * c.WheelBumpSpring) - (wheelVelocity * damper), 0, c.Gravity * 6) / 4;
                 normalLoad += force;
                 suspensionTorque += Vector3.Cross(offset, groundNormal * force);
             }

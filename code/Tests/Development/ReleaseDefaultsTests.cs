@@ -36,9 +36,12 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("vehicle.chassis_compliance", 0.004000000189989805d)]
     [TestCase("vehicle.maximum_chassis_tilt", 0.1599999964237213d)]
     [TestCase("vehicle.stability_damping", 0.6499999761581421d)]
-    [TestCase("vehicle.suspension_length", (double)(VehicleDimensions.RideHeight + (9.81f / 100)))]
-    [TestCase("vehicle.wheel_spring", 100d)]
-    [TestCase("vehicle.wheel_damping", 20d)]
+    [TestCase("vehicle.suspension_length", (double)(VehicleDimensions.RideHeight + (9.81f / 30)))]
+    [TestCase("vehicle.wheel_spring", 30d)]
+    [TestCase("vehicle.wheel_damping", 7d)]
+    [TestCase("vehicle.wheel_rebound_damping", 15d)]
+    [TestCase("vehicle.wheel_bump_start", (double)0.55f)]
+    [TestCase("vehicle.wheel_bump_spring", 140d)]
     [TestCase("vehicle.gravity", 9.8100004196167d)]
     [TestCase("vehicle.maximum_physics_speed", 65d)]
     [TestCase("vehicle.maximum_angular_speed", 8d)]
@@ -80,7 +83,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(101));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(104));
         Assert.That(defaults.Items.MaximumOilPatches, Is.EqualTo(16));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);

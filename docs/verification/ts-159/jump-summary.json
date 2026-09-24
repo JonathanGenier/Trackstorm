@@ -1,0 +1,74 @@
+[
+  {
+    "Case": "EastJump14-suspension",
+    "AirFrames": 55,
+    "Preload": 0.82747006,
+    "LandingCompression": 0.5179305,
+    "FinalVerticalSpeed": 0.000541687,
+    "LateRebound": 0.11551753
+  },
+  {
+    "Case": "EastJump16-suspension",
+    "AirFrames": 72,
+    "Preload": 0.84092087,
+    "LandingCompression": 0.67927736,
+    "FinalVerticalSpeed": 0.006029755,
+    "LateRebound": 0.17897123
+  },
+  {
+    "Case": "EastJump18-suspension",
+    "AirFrames": 80,
+    "Preload": 0.83545923,
+    "LandingCompression": 0.7328789,
+    "FinalVerticalSpeed": 0.014206052,
+    "LateRebound": 0.18750769
+  },
+  {
+    "Case": "PickupSkillJump14-suspension",
+    "AirFrames": 53,
+    "Preload": 0.8331074,
+    "LandingCompression": 0.4959085,
+    "FinalVerticalSpeed": 0.0005172342,
+    "LateRebound": 0.11516464
+  },
+  {
+    "Case": "PickupSkillJump16-suspension",
+    "AirFrames": 73,
+    "Preload": 0.83206356,
+    "LandingCompression": 0.6608848,
+    "FinalVerticalSpeed": 0.0060180426,
+    "LateRebound": 0.17850754
+  },
+  {
+    "Case": "PickupSkillJump18-suspension",
+    "AirFrames": 82,
+    "Preload": 0.8298696,
+    "LandingCompression": 0.7088458,
+    "FinalVerticalSpeed": 0.014281869,
+    "LateRebound": 0.18137398
+  },
+  {
+    "Case": "WestJump14-suspension",
+    "AirFrames": 53,
+    "Preload": 0.8331074,
+    "LandingCompression": 0.4959085,
+    "FinalVerticalSpeed": 0.0005172342,
+    "LateRebound": 0.11516464
+  },
+  {
+    "Case": "WestJump16-suspension",
+    "AirFrames": 73,
+    "Preload": 0.83206356,
+    "LandingCompression": 0.6608848,
+    "FinalVerticalSpeed": 0.0060180426,
+    "LateRebound": 0.17850754
+  },
+  {
+    "Case": "WestJump18-suspension",
+    "AirFrames": 82,
+    "Preload": 0.8298696,
+    "LandingCompression": 0.7088458,
+    "FinalVerticalSpeed": 0.014281869,
+    "LateRebound": 0.18137398
+  }
+]
