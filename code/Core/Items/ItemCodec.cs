@@ -4,7 +4,7 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-six reliable item protocol. Requests carry no claimed player or outcome.</summary>
+/// <summary>Bounded version-seven reliable item protocol. Requests carry no claimed player or outcome.</summary>
 public static class ItemCodec
 {
     /// <summary>Recognizes only this protocol's magic; complete decode remains mandatory.</summary>
@@ -108,6 +108,16 @@ public static class ItemCodec
             writer.Write(missile.RemainingTicks);
         }
 
+        writer.Write((byte)state.Mines.Count);
+        foreach (var mine in state.Mines)
+        {
+            writer.Write(mine.Id);
+            writer.Write(mine.Owner);
+            Vector(writer, mine.Position);
+            Vector(writer, mine.Velocity);
+            Vector(writer, mine.Normal);
+            writer.Write(mine.SeatingTicks);
+        }
         writer.Write((byte)state.Patches.Count);
         foreach (var patch in state.Patches)
         {
@@ -185,6 +195,11 @@ public static class ItemCodec
             missiles[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), reader.ReadInt32());
         }
 
+        var mines = new ProxyMineState[Count(reader, ItemAuthority.MaximumMines)];
+        for (int i = 0; i < mines.Length; i++)
+        {
+            mines[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), Vector(reader), reader.ReadInt32());
+        }
         var patches = new OilPatch[Count(reader, ItemAuthority.MaximumPatches)];
         for (int i = 0; i < patches.Length; i++)
         {
@@ -215,7 +230,7 @@ public static class ItemCodec
             }
             balances[i] = new() { Player = player, Total = total, SelectedItem = selected, Credits = credits.ToImmutable(), Counts = counts.ToImmutable() };
         }
-        var events = new ItemEvent[Count(reader, ItemAuthority.MaximumProjectiles + 8)];
+        var events = new ItemEvent[Count(reader, ItemAuthority.MaximumProjectiles + ItemAuthority.MaximumMines + 8)];
         for (int i = 0; i < events.Length; i++)
         {
             ulong token = reader.ReadUInt64();
@@ -226,14 +241,14 @@ public static class ItemCodec
             events[i] = new(token, owner, item, position, impact);
         }
 
-        return new ItemPublication(revision, world, slots, missiles, events, spawns, patches, contacts, balances);
+        return new ItemPublication(revision, world, slots, missiles, events, spawns, patches, contacts, balances, mines);
     });
 
     private static byte[] Write(byte kind, Action<BinaryWriter> encode)
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 6, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 7, kind });
         encode(writer);
         if (stream.Length > 32768)
         {
@@ -245,7 +260,7 @@ public static class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 6 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 7 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }

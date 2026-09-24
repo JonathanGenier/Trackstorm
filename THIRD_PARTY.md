@@ -71,3 +71,5 @@ Kenney Weapon Pack (2016-01-20), original author publication at https://opengame
 ## Infield material field
 
 The original material control field and UV pass are recorded in [surface-sources.json](assets/maps/infield/surface-sources.json). Runtime shading reuses the existing original oval grass and CC0 Poly Haven Asphalt 04 detail and Concrete material listed above. No new third-party assets were acquired. The Jira concept is an art-direction reference and is not redistributed as a runtime asset.
+
+Proxy Mine's HUD SVG (`assets/hud/ProxyMine.svg`) and procedural body/beacon (`code/Client/Items/ProxyMineVisual.cs`) are original project-authored assets. Its impact reuses the already recorded Kenney particles and arena audio; no new third-party asset or dependency was acquired.

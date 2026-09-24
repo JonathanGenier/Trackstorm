@@ -16,7 +16,8 @@ public sealed class ItemPublication
     /// <param name="patches">Complete match-owned oil hazards.</param>
     /// <param name="balances">Per-player current-match category history.</param>
     /// <param name="oilContacts">Entry latches preserved across recovery.</param>
-    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null, IEnumerable<OilPatch>? patches = null, IEnumerable<OilContact>? oilContacts = null, IEnumerable<PlayerItemBalance>? balances = null)
+    /// <param name="mines">Complete magnetic hazards.</param>
+    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null, IEnumerable<OilPatch>? patches = null, IEnumerable<OilContact>? oilContacts = null, IEnumerable<PlayerItemBalance>? balances = null, IEnumerable<ProxyMineState>? mines = null)
     {
         var inventory = slots.ToArray();
         var projectiles = missiles.ToArray();
@@ -29,7 +30,7 @@ public sealed class ItemPublication
             inventory.SelectMany(slot => new[] { slot.Token, slot.SecondToken }).Where(token => token != 0).GroupBy(token => token).Any(group => group.Count() > 1) ||
             projectiles.Length > ItemAuthority.MaximumProjectiles || projectiles.Select(missile => missile.Id).Distinct().Count() != projectiles.Length ||
             projectiles.Any(missile => missile.Id == 0 || missile.Owner == 0 || !VehiclePhysicsState.IsFinite(missile.Position) || !VehiclePhysicsState.IsFinite(missile.Velocity) || missile.Velocity.Length() is <= 0 or > 301 || missile.RemainingTicks is < 1 or > 3600) ||
-            outcomes.Length > ItemAuthority.MaximumProjectiles + 8 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || ItemRegistry.Find(outcome.Item)?.CanUse != true || !VehiclePhysicsState.IsFinite(outcome.Position) || (outcome.Impact && outcome.Item != HeldItem.Missile)))
+            outcomes.Length > ItemAuthority.MaximumProjectiles + ItemAuthority.MaximumMines + 8 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || ItemRegistry.Find(outcome.Item)?.CanUse != true || !VehiclePhysicsState.IsFinite(outcome.Position) || (outcome.Impact && outcome.Item is not (HeldItem.Missile or HeldItem.ProxyMine))))
         {
             throw new ArgumentException("Invalid item publication.");
         }
@@ -61,6 +62,13 @@ public sealed class ItemPublication
         {
             throw new ArgumentException("Invalid pickup history roster.");
         }
+        var hazards = mines?.ToArray() ?? [];
+        foreach (var mine in hazards) { mine.Validate(); }
+        if (hazards.Length > ItemAuthority.MaximumMines || hazards.Select(mine => mine.Id).Distinct().Count() != hazards.Length ||
+            hazards.Any(mine => projectiles.Any(p => p.Id == mine.Id) || oil.Any(p => p.Id == mine.Id) ||
+                inventory.Any(slot => (slot.Token == mine.Id && slot.Item != HeldItem.None) || (slot.SecondToken == mine.Id && slot.SecondItem != HeldItem.None))))
+        { throw new ArgumentException("Invalid mine continuation."); }
+        Mines = Array.AsReadOnly(hazards);
         Balances = Array.AsReadOnly(history);
         Patches = Array.AsReadOnly(oil);
         OilContacts = Array.AsReadOnly(contacts);
@@ -77,6 +85,8 @@ public sealed class ItemPublication
 
     /// <summary>Complete persistent hazards.</summary>
     public IReadOnlyList<OilPatch> Patches { get; }
+    /// <summary>Complete magnetic hazards, including velocity and initial seating timer.</summary>
+    public IReadOnlyList<ProxyMineState> Mines { get; }
     /// <summary>Per-life entry latches.</summary>
     public IReadOnlyList<OilContact> OilContacts { get; }
     /// <summary>Complete marker state and last claim.</summary>

@@ -14,6 +14,7 @@ internal sealed class MatchTests
     /// <param name="source">Authoritative damage category.</param>
     [TestCase("missile")]
     [TestCase("collision")]
+    [TestCase("proxy-mine")]
     public void ValidDeathScoresOnceAndSurvivesRestore(string source)
     {
         var world = Create();

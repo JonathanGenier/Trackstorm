@@ -12,7 +12,7 @@ Arena disconnect and intentional Leave retire input ownership while retaining th
 
 ## Attribution, Duplicate Protection and Winner
 
-Scoring consumes the existing authoritative lethal `DamageEvent` and vehicle `LifeId` in the same atomic world commit. A positive lethal missile or vehicle-collision event credits its instigator only when that identity is a different player still in the authoritative roster. Collision attribution follows the existing receiving-vehicle rule: the other vehicle is the source of a damaging contact. Mutual lethal contacts can therefore produce mutual credit before the target is reached.
+Scoring consumes the existing authoritative lethal `DamageEvent` and vehicle `LifeId` in the same atomic world commit. A positive lethal missile, Proxy Mine or vehicle-collision event credits its instigator only when that identity is a different player still in the authoritative roster. Collision attribution follows the existing receiving-vehicle rule: the other vehicle is the source of a damaging contact. Mutual lethal contacts can therefore produce mutual credit before the target is reached.
 
 Self-destruction, world/prop collisions, missing players, unsupported damage categories and unattributed deaths award no kill. Each scored victim gets one death. Attribution uses the actual lethal event at the current fixed tick; it does not fall back to an older attacker for a later environmental death. Existing damage context is sufficient, so there is no additional history buffer or expiry timer and no assist credit.
 
@@ -88,3 +88,5 @@ The [Event Log](event-log.md) records phase changes and winner plus the existing
 Every Active Circus tick with a living boosted vehicle banks `NitroPointsPerSecond / TicksPerSecond` through `CircusScoring.Bank`, using current K/D after that tick's combat. The default 10 base points/second is configurable as `match.nitro_points_per_second` (0–1,000,000). Awards apply throughout the active duration regardless of throttle, speed or support.
 
 Death/reset and the terminal match batch earn no Nitro points. FirstToTarget allows the boost without Circus awards. Sequential atomic simulation consumes each tick once; checkpoint restoration resumes totals and duration without replaying awards. Existing HUD/standings consume the same score total and Nitro category. Version-six match messages permit 56 awards (eight vehicles × seven categories) within the existing 16 KiB limit. Active Nitro uses the existing reliable match publication cadence.
+
+Proxy Mine contact damage uses the existing applied-health event sequence and instigator attribution, and lethal damage participates in the existing kill rule. As with Missile, nonlethal item-damage Circus points are not currently awarded: item damage must be connected through a shared authoritative scoring rule rather than presentation events or a mine-specific score path.

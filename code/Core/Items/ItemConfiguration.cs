@@ -3,6 +3,18 @@ namespace Trackstorm.Core.Items;
 /// <summary>Host-owned bounded tuning. Linear falloff reaches zero at the edge.</summary>
 public sealed record ItemConfiguration
 {
+    /// <summary>Contact damage, applied once through vehicle health authority.</summary>
+    public float MineDamage { get; init; } = 100;
+    /// <summary>Invisible magnetic field extent in metres.</summary>
+    public float MineAttractionRadius { get; init; } = 24;
+    /// <summary>Weak field baseline in Newtons, ramped continuously from zero at the boundary.</summary>
+    public float MineMinimumForce { get; init; } = 12;
+    /// <summary>Close-range magnetic force in Newtons.</summary>
+    public float MineMaximumForce { get; init; } = 1000;
+    /// <summary>Power exponent controlling the distance-to-force curve.</summary>
+    public float MineFalloff { get; init; } = 2.5f;
+    /// <summary>Contact impulse in Newton seconds.</summary>
+    public float MineKnockback { get; init; } = 24000;
     /// <summary>Boost duration at the fixed simulation rate; captured when consumed.</summary>
     public int NitroDurationTicks { get; init; } = 300;
     /// <summary>Forward engine demand multiplier while boosted.</summary>
@@ -29,6 +41,13 @@ public sealed record ItemConfiguration
     /// <summary>Rejects nonfinite or excessive host configuration before simulation.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(MineDamage) || MineDamage is < 0 or > 10000 ||
+            !float.IsFinite(MineAttractionRadius) || MineAttractionRadius is < 1 or > 100 ||
+            !float.IsFinite(MineMinimumForce) || MineMinimumForce is < 0 or > 10000 ||
+            !float.IsFinite(MineMaximumForce) || MineMaximumForce < MineMinimumForce || MineMaximumForce > 10000 ||
+            !float.IsFinite(MineFalloff) || MineFalloff is < 1 or > 8 ||
+            !float.IsFinite(MineKnockback) || MineKnockback is < 0 or > 1000000)
+        { throw new ArgumentException("Invalid Proxy Mine tuning."); }
         new Vehicles.NitroState(NitroDurationTicks, NitroAccelerationMultiplier, NitroSpeedMultiplier).Validate();
         if (NitroDurationTicks == 0) { throw new ArgumentException("Nitro requires a positive duration."); }
         if (MaximumOilPatches is < 1 or > ItemAuthority.MaximumPatches || !float.IsFinite(WrenchHeal) || WrenchHeal < 0 || WrenchHeal > 10000 ||

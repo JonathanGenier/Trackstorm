@@ -170,6 +170,8 @@ internal sealed class VehicleNetworkDriver : IDisposable
     internal Func<IReadOnlyList<(string Spawn, ulong Vehicle)>>? ObservePickups { get; set; }
     /// <summary>Host-only ground projection for persistent oil deployment.</summary>
     internal Func<ItemSlot, VehiclePhysicsState, OilPatch?>? PlaceOil { get; set; }
+    internal Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? PlaceMine { get; set; }
+    internal Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? MoveMine { get; set; }
     /// <summary>Latest complete reliable item state.</summary>
     internal ItemPublication? ItemState { get; private set; }
     /// <summary>Current local slot; no predicted consumption.</summary>
@@ -301,7 +303,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 RequestItemUse();
             }
 
-            Host.Step(input, observe, CollideMissile, PlaceOil);
+            Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine);
             if (Host.Spawns is not null && ObservePickups is not null)
             {
                 foreach (var contact in ObservePickups().Distinct().OrderBy(contact => contact.Spawn, StringComparer.Ordinal).ThenBy(contact => contact.Vehicle))
@@ -342,7 +344,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
 
             if (_publishedSpawnRevision != (Host.Spawns?.Revision ?? 0) || _publishedItemRevision != Host.Items.Revision || _rosterChanged)
             {
-                ItemState = new ItemPublication(++_itemPublication, Latest, Host.Items.Slots, Host.Items.Missiles, Host.Items.Events, Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances);
+                ItemState = new ItemPublication(++_itemPublication, Latest, Host.Items.Slots, Host.Items.Missiles, Host.Items.Events, Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines);
                 byte[] items = ItemCodec.EncodeState(ItemState);
                 foreach (ulong peer in _assigned)
                 {
@@ -657,7 +659,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
     {
         _lobby!.Authority!.RetainConfiguration(Host!.Configuration);
         WorldSnapshot world = Host!.Snapshot();
-        var items = new ItemPublication(Math.Max(1, _itemPublication), world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances);
+        var items = new ItemPublication(Math.Max(1, _itemPublication), world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines);
         var state = Host.World.State.Match!;
         var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode);
         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());
@@ -696,7 +698,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
     private void SendCheckpoint(ulong peer)
     {
         WorldSnapshot world = Host!.Snapshot();
-        var items = new ItemPublication(++_itemPublication, world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances);
+        var items = new ItemPublication(++_itemPublication, world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines);
         var state = Host.World.State.Match!;
         var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode);
         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());

@@ -124,6 +124,10 @@ internal sealed partial class NetworkVehicleArena : Node3D
         };
         _driver.CollideMissile = CollideMissile;
         _driver.PlaceOil = PlaceOil;
+        var mines = new Items.ProxyMinePhysics();
+        AddChild(mines);
+        _driver.PlaceMine = mines.Place;
+        _driver.MoveMine = mines.Move;
         _driver.ItemsReceived += publication =>
         {
             _items.Apply(publication);

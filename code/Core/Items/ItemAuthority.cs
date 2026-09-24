@@ -17,6 +17,11 @@ public sealed class ItemAuthority
     public const int MaximumPatches = 32;
     private readonly List<OilPatch> _patches = new();
     private readonly List<OilContact> _contacts = new();
+    /// <summary>Bounded persistent magnetic hazards per match.</summary>
+    public const int MaximumMines = 16;
+    private readonly List<ProxyMineState> _mines = new();
+    /// <summary>Complete mine motion and seating state for replication and recovery.</summary>
+    public IReadOnlyList<ProxyMineState> Mines => _mines.ToArray();
     private ulong _token;
 
     /// <summary>Creates a match-scoped item authority.</summary>
@@ -51,7 +56,7 @@ public sealed class ItemAuthority
     /// <param name="token">Highest ever issued token in this match.</param>
     public void Restore(ItemPublication publication, ulong revision, ulong token)
     {
-        if (publication.Events.Count != 0 || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token || slot.SecondToken > token) ||
+        if (publication.Events.Count != 0 || publication.Mines.Any(mine => mine.Id > token) || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token || slot.SecondToken > token) ||
             publication.Spawns.Any(spawn => spawn.Token > token) || publication.Missiles.Any(missile => missile.Id > token ||
                 !publication.World.Vehicles.Any(vehicle => vehicle.State.VehicleId == missile.Owner && vehicle.State.CanInteract)))
         {
@@ -68,6 +73,8 @@ public sealed class ItemAuthority
         _missiles.AddRange(publication.Missiles);
         _patches.Clear();
         _patches.AddRange(publication.Patches);
+        _mines.Clear();
+        _mines.AddRange(publication.Mines);
         _contacts.Clear();
         _contacts.AddRange(publication.OilContacts);
         _pending.Clear();
@@ -156,12 +163,15 @@ public sealed class ItemAuthority
     /// <param name="requests">Complete native observation batch.</param>
     /// <param name="collide">Host collision adapter returning a hit fraction in [0,1], or null.</param>
     /// <param name="placeOil">Host-only ground projection; null rejects deployment.</param>
-    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null)
+    /// <param name="placeMine">Host terrain installation query.</param>
+    /// <param name="moveMine">Host sweep and contact query.</param>
+    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null)
     {
         var slots = new Dictionary<ulong, ItemSlot>(_slots);
         var missiles = new List<MissileState>(_missiles);
         var events = new List<ItemEvent>();
         var patches = new List<OilPatch>(_patches);
+        var mines = new List<ProxyMineState>(_mines);
         var contacts = new List<OilContact>();
         var spins = new Dictionary<ulong, float>();
         var journal = new List<RuntimeEvent>();
@@ -191,7 +201,7 @@ public sealed class ItemAuthority
             VehicleStepRequest request = requests.Single(value => value.VehicleId == pair.Key);
             var handler = ItemRegistry.Find(slot.Item)?.Handler;
             if (request.Reset.HasValue || handler is null || (slot.Item == HeldItem.Nitro && (world.GetVehicle(slot.Vehicle).Movement.Nitro.Active || world.State.Match is { Phase: not Matches.MatchPhase.Active })) ||
-                !handler.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts))
+                !handler.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts, mines, moveMine is null ? null : placeMine))
             {
                 continue;
             }
@@ -221,6 +231,32 @@ public sealed class ItemAuthority
             }
         }
 
+        var movingMines = new List<ProxyMineState>();
+        foreach (var mine in mines.OrderBy(mine => mine.Id))
+        {
+            if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { break; }
+            var targets = requests.Where(request => world.GetVehicle(request.VehicleId).CanInteract && !request.Reset.HasValue).OrderBy(request => request.VehicleId).ToArray();
+            var nearest = targets.OrderBy(request => Vector3.DistanceSquared(mine.Position, request.Observation.Physics.Position)).FirstOrDefault();
+            Vector3? target = nearest?.Observation.Physics.Position;
+            if (moveMine is null) { movingMines.Add(mine); continue; }
+            var candidate = mine.Advance(target, Configuration);
+            var motion = moveMine(mine, candidate);
+            motion.State.Validate();
+            if (motion.State.Id != mine.Id || motion.State.Owner != mine.Owner || motion.State.SeatingTicks != candidate.SeatingTicks ||
+                Vector3.Distance(motion.State.Position, candidate.Position) > 2 ||
+                (motion.ContactVehicle != 0 && !requests.Any(request => request.VehicleId == motion.ContactVehicle)))
+            { throw new ArgumentException("Invalid host mine motion observation."); }
+            var contact = targets.FirstOrDefault(request => request.VehicleId == motion.ContactVehicle);
+            if (contact is not null)
+            {
+                Vector3 outward = contact.Observation.Physics.Position - motion.State.Position;
+                outward.Y = Math.Max(0.7f, outward.Y);
+                var effect = new DamageEffect(Configuration.MineDamage, Vector3.Normalize(outward) * Configuration.MineKnockback, Vector3.Zero);
+                effects[contact.VehicleId].Add(new VehicleEffectRequest(effect, new DamageContext("proxy-mine", mine.Owner, "contact-detonation")));
+                events.Add(new ItemEvent(mine.Id, mine.Owner, HeldItem.ProxyMine, motion.State.Position, true));
+            }
+            else { movingMines.Add(motion.State); }
+        }
         var advanced = new List<MissileState>();
         foreach (MissileState missile in missiles)
         {
@@ -273,11 +309,12 @@ public sealed class ItemAuthority
         if (world.State.Match?.Phase == Matches.MatchPhase.Finished)
         {
             patches.Clear();
+            movingMines.Clear();
             contacts.Clear();
         }
 
         advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract));
-        bool changed = !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) || missiles.Count > 0 || !patches.SequenceEqual(_patches) || !contacts.SequenceEqual(_contacts) || journal.Count > 0;
+        bool changed = !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) || missiles.Count > 0 || !patches.SequenceEqual(_patches) || !contacts.SequenceEqual(_contacts) || journal.Count > 0 || !movingMines.SequenceEqual(_mines);
         foreach (var removed in _slots.Values.Where(slot => !slots.ContainsKey(slot.Vehicle)).SelectMany(slot => new[] { slot, slot with { Token = slot.SecondToken, Item = slot.SecondItem } }).Where(slot => slot.Item != HeldItem.None))
         {
             world.Events.Record(EventCategory.Item, "Removed", target: removed.Vehicle, cause: removed.Item.ToString(), context: "life ended or reset", tick: input.Tick);
@@ -296,6 +333,8 @@ public sealed class ItemAuthority
 
         _missiles.Clear();
         _missiles.AddRange(advanced);
+        _mines.Clear();
+        _mines.AddRange(movingMines);
         _patches.Clear();
         _patches.AddRange(patches);
         _contacts.Clear();

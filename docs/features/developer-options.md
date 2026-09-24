@@ -210,3 +210,7 @@ Apply, Cancel, Reset, validation, host-local schema-two persistence, version-eig
 The **Water** category adds five [water controls](water.md#gameplay-and-tuning) through the same authority, validation, persistence and recovery path. The complete configuration layout is version 9.
 
 Item category target weights use the same Configs catalog and persistence/replication path. See [per-player category credit](item-spawns.md#per-player-category-credit) for normalization, empty-category behavior and live tuning continuity.
+
+## Proxy Mine tuning
+
+The six `items.mine_*` controls and registry-generated `spawns.proxy_mine_weight` use the same Configs draft/apply, host validation, local schema-two persistence, replication and recovery owners. The catalog now contains 107 keys and uses gameplay configuration wire version eleven. [Magnetic Proxy Mine](items.md#magnetic-proxy-mine) defines defaults, units, force curve and live-effect semantics. Invalid minimum/maximum force pairs reject the complete transaction. No presentation-only damage or force configuration exists.

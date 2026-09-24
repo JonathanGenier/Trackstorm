@@ -12,6 +12,7 @@ namespace Trackstorm.Client.Verification;
 public sealed partial class MigrationIntegrationChecks : Node
 {
     private OilPatch? _oil;
+    private ulong _mine;
     private readonly DevelopmentSession?[] _presentations = new DevelopmentSession?[3];
     private readonly Dictionary<ulong, (Node3D Root, int Slot)>[] _showcases = [new(), new(), new()];
     private readonly GameNetworkingSocketsTransport[] _gateways = new GameNetworkingSocketsTransport[3];
@@ -265,6 +266,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             Require(_arenas[1]!.Driver.Host!.Items.Switch(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, _arenas[1]!.Driver.Host!.World.GetVehicle(_drivers[nextHost]!.LocalPlayerId).LifeId, 1), "Select second held slot before migration.");
             Require(_arenas[1]!.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 9, ["spawns.seed"] = 42, ["match.countdown_ticks"] = 600 }, out _), "First replacement configures normal gameplay owners.");
             _oil = OilRecoveryFixture.Seed(_arenas[1]!);
+            _mine = ProxyMineRecoveryFixture.Seed(_arenas[1]!, _arenas.Take(_players).Select(arena => arena!));
             _nitroOwner = _drivers[1]!.LocalPlayerId;
             Require(_arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _nitroOwner, HeldItem.Nitro), "Nitro uses the same authority before host loss.");
             _configuration = _arenas[1]!.Driver.Configuration;
@@ -343,6 +345,8 @@ public sealed partial class MigrationIntegrationChecks : Node
                 Require(arena.Driver.Host!.World.GetVehicle(_nitroOwner).Movement.Nitro is { RemainingTicks: > 0 and < 3600, AccelerationMultiplier: 2, SpeedMultiplier: 1.4f }, "Nitro continues without restarting after host migration.");
                 GD.Print("Nitro migration verified: active timer and multipliers retained; Circus totals restore without historical awards.");
             }
+            Require(arena.Driver.Host!.Items.Mines.Single().Id == _mine && arena.Driver.ItemState!.Mines.Single().Id == _mine, "Proxy Mine survives host replacement exactly once.");
+            GD.Print("Proxy Mine migration verified: same hazard survives authority replacement.");
             OvalGameplayAssertions.Verify(arena);
             Require(_arenas[0]!.Driver.Configuration == _configuration && arena.Driver.Configuration == _configuration, "Successive hosts retain configuration revision and ignore successor-local presets.");
             Require(CategoryBalanceRecoveryFixture.Signature(arena.Driver.Host!.Spawns!.Balances) == _categoryHistory, "Host migration retains exact per-player category history.");

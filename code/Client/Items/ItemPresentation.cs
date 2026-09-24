@@ -7,6 +7,7 @@ namespace Trackstorm.Client.Items;
 /// <summary>Reconstructable Kenney projectile and particle effects; no collision or gameplay mutation.</summary>
 internal sealed partial class ItemPresentation : Node3D
 {
+    private readonly Dictionary<ulong, Node3D> _mines = new();
     private readonly Dictionary<ulong, Node3D> _oil = new();
     private readonly Dictionary<ulong, Node3D> _missiles = new();
     private readonly List<(Node3D Node, float Age, float Lifetime)> _bursts = new();
@@ -63,6 +64,22 @@ internal sealed partial class ItemPresentation : Node3D
     /// <param name="state">Accepted authority state.</param>
     internal void Apply(ItemPublication state)
     {
+        foreach (ulong id in _mines.Keys.Except(state.Mines.Select(mine => mine.Id)).ToArray())
+        {
+            _mines[id].QueueFree();
+            _mines.Remove(id);
+        }
+        foreach (var mine in state.Mines)
+        {
+            if (!_mines.TryGetValue(mine.Id, out var node))
+            {
+                node = new ProxyMineVisual();
+                AddChild(node);
+                _mines.Add(mine.Id, node);
+            }
+            node.Position = VehicleBody.ToGodot(mine.Position);
+            node.Quaternion = new Quaternion(Vector3.Up, VehicleBody.ToGodot(mine.Normal));
+        }
         foreach (ulong id in _oil.Keys.Except(state.Patches.Select(patch => patch.Id)).ToArray())
         {
             _oil[id].QueueFree();
