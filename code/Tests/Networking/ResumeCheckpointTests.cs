@@ -53,6 +53,8 @@ internal sealed class ResumeCheckpointTests
         host.RegisterSpawns(PrototypeArena.Configuration);
         host.JoinPlayer(10, 2);
         host.Items.Grant(host.World, 2, HeldItem.Wrench);
+        host.Items.Grant(host.World, 2, HeldItem.Oil);
+        Assert.That(host.SwitchItem(10, 100, 1, 1), Is.True);
         for (uint sequence = 1; sequence <= 5; sequence++)
         {
             host.Receive(10, 100, [new SequencedInput(sequence, default)]);

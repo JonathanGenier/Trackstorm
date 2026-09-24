@@ -12,6 +12,29 @@ namespace Trackstorm.Core.Tests.Items;
 [TestFixture]
 internal sealed class ItemSpawnTests
 {
+    [Test]
+    public void TwoSuccessfulPickupsFillDistinctSlotsAndFullInventoryDoesNotDraw()
+    {
+        var host = Host();
+        Place(host, 1, "item-01");
+        Assert.That(host.Spawns!.TryPickup(host.World, "item-01", 1), Is.True);
+        var first = host.Items.Slots.Single();
+        Place(host, 1, "item-02");
+        Assert.That(host.Spawns.TryPickup(host.World, "item-02", 1), Is.True);
+        var full = host.Items.Slots.Single();
+        Assert.That(full.Full, Is.True);
+        Assert.That((full.Token, full.Item), Is.EqualTo((first.Token, first.Item)));
+        Assert.That(full.SecondToken, Is.GreaterThan(first.Token));
+        Assert.That(host.Spawns.States.Single(s => s.Id == "item-02").Token, Is.EqualTo(full.SecondToken));
+        Assert.That(host.Spawns.Balances.Single().Total, Is.EqualTo(2));
+        ulong random = host.ItemSelectionRandom.State;
+        Place(host, 1, "item-03");
+        Assert.That(host.Spawns.TryPickup(host.World, "item-03", 1), Is.False);
+        Assert.That(host.ItemSelectionRandom.State, Is.EqualTo(random));
+        Assert.That(host.Spawns.Balances.Single().Total, Is.EqualTo(2));
+        Assert.That(host.Items.Slots.Single(), Is.EqualTo(full));
+        Assert.That(host.Spawns.States.Single(s => s.Id == "item-03").Available, Is.True);
+    }
     /// <summary>Fresh matches choose independent authoritative seeds and keep each in effective tuning.</summary>
     [Test]
     public void FreshMatchesStartWithIndependentItemSeeds()
@@ -135,6 +158,7 @@ internal sealed class ItemSpawnTests
         Assert.That(host.Spawns.TryPickup(host.World, "item-01", 1), Is.False);
         Place(host, 1, "item-01");
         host.Items.Grant(host.World, 1, HeldItem.Missile);
+        host.Items.Grant(host.World, 1, HeldItem.Oil);
         var original = host.Items.Slots.Single();
         Assert.That(host.Spawns.TryPickup(host.World, "item-01", 1), Is.False);
         Assert.That(host.Items.Slots.Single(), Is.EqualTo(original));

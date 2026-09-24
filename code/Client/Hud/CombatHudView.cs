@@ -20,6 +20,11 @@ internal sealed record CombatHudView(string Health, double HealthFill, string Sp
     internal string Timer => "--:--";
     /// <summary>Accessible item name, also used below its silhouette.</summary>
     internal string ItemName => ItemRegistry.Find(Item)?.DisplayName.ToUpperInvariant() ?? "EMPTY";
+    /// <summary>Confirmed second physical slot.</summary>
+    internal HeldItem SecondItem { get; init; }
+    /// <summary>Confirmed selection, independent of occupancy.</summary>
+    internal byte ActiveSlot { get; init; }
+    internal string SecondItemName => ItemRegistry.Find(SecondItem)?.DisplayName.ToUpperInvariant() ?? "EMPTY";
 
     /// <summary>Projects one existing local/replicated boundary without changing it.</summary>
     /// <param name="state">Local vehicle boundary.</param>
@@ -29,7 +34,9 @@ internal sealed record CombatHudView(string Health, double HealthFill, string Sp
     internal static CombatHudView From(VehicleSnapshot state, ItemSlot? slot, SpeedUnit unit)
     {
         HeldItem item = state.CanInteract && slot?.Vehicle == state.VehicleId && slot.Life == state.LifeId ? slot.Item : HeldItem.None;
-        return new CombatHudView(FormatHealth(state.Damage.CurrentHP, state.Damage.MaxHP), NormalizeHealth(state.Damage.CurrentHP, state.Damage.MaxHP), ConvertSpeed(state.Speed, unit).ToString("0", CultureInfo.InvariantCulture), UnitSuffix(unit), NormalizeSpeed(state.Speed), ItemRegistry.Find(item) is not null ? item : HeldItem.None);
+        bool valid = state.CanInteract && slot?.Vehicle == state.VehicleId && slot.Life == state.LifeId;
+        return new CombatHudView(FormatHealth(state.Damage.CurrentHP, state.Damage.MaxHP), NormalizeHealth(state.Damage.CurrentHP, state.Damage.MaxHP), ConvertSpeed(state.Speed, unit).ToString("0", CultureInfo.InvariantCulture), UnitSuffix(unit), NormalizeSpeed(state.Speed), ItemRegistry.Find(item) is not null ? item : HeldItem.None)
+        { SecondItem = valid && ItemRegistry.Find(slot!.SecondItem) is not null ? slot.SecondItem : HeldItem.None, ActiveSlot = valid ? slot!.ActiveSlot : (byte)0 };
     }
 
     /// <summary>Presentation conversion from metres per second.</summary>

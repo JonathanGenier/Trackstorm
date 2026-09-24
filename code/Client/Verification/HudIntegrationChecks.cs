@@ -53,7 +53,7 @@ public sealed partial class HudIntegrationChecks : Node
                 Require(hud.Displayed!.Item == sample.Item3, "Native item mapping");
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 using Image frame = viewport.GetTexture().GetImage();
-                pixels.Add((RedPixels(frame, new Rect2I(131, 619, 275, 14)), RedPixels(frame, new Rect2I(934, 585, 211, 99))));
+                pixels.Add((RedPixels(frame, new Rect2I(131, 619, 275, 14)), RedPixels(frame, new Rect2I(814, 585, 211, 99))));
                 Require(frame.SavePng(System.IO.Path.Combine(output, $"state-{sample.Item1:0}-{sample.Item3}.png")) == Error.Ok, "State screenshot");
             }
 
@@ -61,6 +61,9 @@ public sealed partial class HudIntegrationChecks : Node
             Require(pixels[0].Speed > pixels[1].Speed && pixels[1].Speed > pixels[2].Speed && pixels[2].Speed < pixels[0].Speed / 5, "Rendered speed arc decreases to empty");
 
             VehicleSnapshot before = state;
+            slot = slot! with { SecondToken = 2, SecondItem = HeldItem.Missile, ActiveSlot = 1, SelectionRevision = 1 };
+            hud.Refresh();
+            Require(hud.Displayed!.SecondItem == HeldItem.Missile && hud.Displayed.ActiveSlot == 1, "Both slots and selected second slot render simultaneously");
             settings.UpdateSettings(settings.Current with { SpeedUnit = SpeedUnit.MilesPerHour });
             hud.Refresh();
             Require(hud.Displayed!.Speed == "124" && hud.Displayed.Unit == "mph", "Preferred units");

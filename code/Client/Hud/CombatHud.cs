@@ -25,6 +25,10 @@ internal sealed partial class CombatHud : CanvasLayer
     private Label _nitro = null!;
     private Label _timer = null!;
     private TextureRect _itemIcon = null!;
+    private TextureRect _secondItemIcon = null!;
+    private Label _secondItemName = null!;
+    private Label _firstSelection = null!;
+    private Label _secondSelection = null!;
     private ShaderMaterial _healthMaterial = null!;
     private ShaderMaterial _speedMaterial = null!;
     private readonly Dictionary<HeldItem, Texture2D> _itemIcons = new();
@@ -84,6 +88,13 @@ internal sealed partial class CombatHud : CanvasLayer
         }
         var timer = Component("Timer", new Vector2(220, 73.333f), 3, steel);
         _timer = Text(timer, "TimerValue", new Rect2(58, 14, 99, 36), 34);
+        var secondItem = Component("Item", new Vector2(112.5f, 150), 2, steel);
+        secondItem.Name = "SecondItem";
+        _secondItemName = Text(secondItem, "ItemName", new Rect2(17, 111, 84, 22), 18);
+        _secondItemIcon = new TextureRect { Name = "ItemIcon", Position = new Vector2(25, 48), Size = new Vector2(70, 55), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = Control.MouseFilterEnum.Ignore };
+        secondItem.AddChild(_secondItemIcon);
+        _firstSelection = Text(item, "Selection", new Rect2(12, 15, 94, 24), 15);
+        _secondSelection = Text(secondItem, "Selection", new Rect2(12, 15, 94, 24), 15);
         _standing.Text = "--";
         _timer.Text = "--:--";
         BuildCircusScore();
@@ -123,6 +134,12 @@ internal sealed partial class CombatHud : CanvasLayer
             _unit.Text = view.Unit;
             _itemName.Text = view.ItemName;
             _itemIcon.Texture = _itemIcons.GetValueOrDefault(view.Item);
+            _secondItemName.Text = view.SecondItemName;
+            _secondItemIcon.Texture = _itemIcons.GetValueOrDefault(view.SecondItem);
+            _firstSelection.Text = view.ActiveSlot == 0 ? "1 • ACTIVE" : "1";
+            _secondSelection.Text = view.ActiveSlot == 1 ? "2 • ACTIVE" : "2";
+            _firstSelection.Modulate = view.ActiveSlot == 0 ? new Color("ffd166") : new Color("aaa79e");
+            _secondSelection.Modulate = view.ActiveSlot == 1 ? new Color("ffd166") : new Color("aaa79e");
             _healthMaterial.SetShaderParameter("fill", view.HealthFill);
             _speedMaterial.SetShaderParameter("fill", view.SpeedFill);
         }
@@ -231,8 +248,9 @@ internal sealed partial class CombatHud : CanvasLayer
         }
 
         _components[0].Position = new Vector2(margin, viewport.Y - (147 * scale) - margin);
-        _components[2].Position = new Vector2(viewport.X - (112.5f * scale) - margin, viewport.Y - (150 * scale) - margin);
-        _components[1].Position = new Vector2(viewport.X - (354 * scale) - margin, viewport.Y - (187.5f * scale) - margin + (9 * scale));
+        _components[2].Position = new Vector2(viewport.X - (232.5f * scale) - margin, viewport.Y - (150 * scale) - margin);
+        _components[4].Position = new Vector2(viewport.X - (112.5f * scale) - margin, viewport.Y - (150 * scale) - margin);
+        _components[1].Position = new Vector2(viewport.X - (474 * scale) - margin, viewport.Y - (187.5f * scale) - margin + (9 * scale));
         _components[3].Position = new Vector2((viewport.X - (220 * scale)) / 2, 12 * scale);
         _scorePanel.Scale = Vector2.One * scale;
         _scorePanel.Position = new Vector2(margin, 120 * scale);

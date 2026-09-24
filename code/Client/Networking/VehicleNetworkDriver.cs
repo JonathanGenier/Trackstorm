@@ -12,6 +12,9 @@ namespace Trackstorm.Client.Networking;
 /// <summary>Connects the transport's byte seam to Core authority/prediction at fixed tick boundaries.</summary>
 internal sealed class VehicleNetworkDriver : IDisposable
 {
+    private ulong _switchLife;
+    private ulong _switchRevision;
+
     private readonly ITransportGateway _gateway;
     private readonly ulong _serverPeer;
     private readonly HashSet<ulong> _assigned = new();
@@ -171,6 +174,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
     internal ItemPublication? ItemState { get; private set; }
     /// <summary>Current local slot; no predicted consumption.</summary>
     internal ItemSlot? LocalItem => (Host?.Items.Slots ?? ItemState?.Slots)?.SingleOrDefault(slot => slot.Vehicle == LocalVehicleId);
+
     /// <summary>Host gameplay owner, or null on clients.</summary>
     internal HostVehicleSession? Host { get; private set; }
     /// <summary>Client prediction, created only after reliable assignment and a valid snapshot.</summary>
@@ -291,6 +295,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
             }
 
             RosterChanged?.Invoke(Host.Snapshot());
+            if ((input.Pressed & InputButtons.SwitchItem) != 0) { RequestItemSwitch(); }
             if ((input.Pressed & InputButtons.UseItem) != 0)
             {
                 RequestItemUse();
@@ -378,6 +383,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 inputs.NeutralizePending();
             }
 
+            if ((input.Pressed & InputButtons.SwitchItem) != 0) { RequestItemSwitch(); }
             if ((input.Pressed & InputButtons.UseItem) != 0)
             {
                 RequestItemUse();
@@ -433,11 +439,30 @@ internal sealed class VehicleNetworkDriver : IDisposable
     /// <returns>Whether the authoritative countdown override was accepted.</returns>
     internal bool ForceDeveloperStart() => IsActive && Host?.ForceStart(0) == true;
 
+    /// <summary>Sends ordered selection intent; presentation continues to use confirmed ownership.</summary>
+    internal bool RequestItemSwitch()
+    {
+        if (!AllowsParticipation || LocalState is not { CanInteract: true } state) { return false; }
+        var inventory = LocalItem;
+        if (_switchLife != state.LifeId) { _switchLife = state.LifeId; _switchRevision = 0; }
+        ulong revision = checked(Math.Max(_switchRevision, inventory?.SelectionRevision ?? 0) + 1);
+        bool accepted = Host is not null ? Host.SwitchItem(0, _session, state.LifeId, revision)
+            : Send(new TransportMessage(ServerPeer, ItemCodec.EncodeSwitch(_session, state.LifeId, revision), TransportDelivery.Reliable));
+        if (accepted) { _switchRevision = revision; }
+        return accepted;
+    }
     /// <summary>Submits the local slot capability reliably; never creates a predicted item effect.</summary>
     /// <returns>Whether queued locally or sent to the host.</returns>
     internal bool RequestItemUse()
     {
-        ItemSlot? slot = LocalItem;
+        ItemSlot? inventory = LocalItem;
+        // Ordered reliable intent can use the requested slot before its confirmation arrives.
+        // This chooses a known capability only; ownership and outcomes remain host-authoritative.
+        if (Host is null && inventory is not null && inventory.Life == _switchLife && _switchRevision > inventory.SelectionRevision)
+        {
+            inventory = inventory with { ActiveSlot = (byte)(inventory.ActiveSlot ^ ((_switchRevision - inventory.SelectionRevision) & 1)) };
+        }
+        ItemSlot? slot = inventory?.Active;
         if (!AllowsParticipation || LocalState?.CanInteract != true || slot is null || slot.Item == HeldItem.None)
         {
             return false;
@@ -703,6 +728,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         _inputs = null;
         Latest = world;
         ItemState = checkpoint.Items;
+        _switchLife = _switchRevision = 0;
         Match = checkpoint.Match;
         PropSnapshot = checkpoint.Props;
         _lastLifecycleTick = world.Tick;
@@ -967,6 +993,12 @@ internal sealed class VehicleNetworkDriver : IDisposable
 
                 if (Host is not null)
                 {
+                    if (ItemCodec.IsSwitch(message.Payload.Span))
+                    {
+                        var selection = ItemCodec.DecodeSwitch(message.Payload.Span);
+                        if (!Host.SwitchItem(message.RemotePeerId, selection.Session, selection.Life, selection.Revision)) { RejectedPackets++; }
+                        return;
+                    }
                     var request = ItemCodec.DecodeUse(message.Payload.Span);
                     if (!Host.UseItem(message.RemotePeerId, request.Session, request.Life, request.Token))
                     {

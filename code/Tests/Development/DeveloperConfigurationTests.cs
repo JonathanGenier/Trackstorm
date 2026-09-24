@@ -210,7 +210,7 @@ internal sealed class DeveloperConfigurationTests
         Edit(host, ("items.wrench_heal", 7));
         Assert.That(host.GiveItem(42, HeldItem.Wrench), Is.False);
         Assert.That(host.GiveItem(0, HeldItem.Wrench), Is.True);
-        Assert.That(host.GiveItem(0, HeldItem.Missile), Is.False);
+        Assert.That(host.GiveItem(0, HeldItem.Missile), Is.True);
         Use(host);
         host.Step(default, Observe);
         Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(57));

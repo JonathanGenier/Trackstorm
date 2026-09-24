@@ -1,6 +1,7 @@
 using System.Numerics;
 using Trackstorm.Client.Networking;
 using Trackstorm.Core.Input;
+using Trackstorm.Core.Items;
 using Trackstorm.Core.Matches;
 using Trackstorm.Core.Networking.Replication;
 using Trackstorm.Core.Networking.Transport;
@@ -15,6 +16,31 @@ internal sealed partial class VehicleNetworkDriverTests
 {
     private const ulong ServerPeer = 42;
     private const ulong Session = 99;
+
+    [Test]
+    public void SwitchCommandsAreReliableOrderedAndCannotSelectAnotherPlayer()
+    {
+        using var gateway = ConnectedGateway();
+        using var driver = new VehicleNetworkDriver(gateway, Session);
+        driver.Advance(default, Observe);
+        var host = driver.Host!;
+        host.Items.Grant(host.World, 1, HeldItem.Missile);
+        host.Items.Grant(host.World, 2, HeldItem.Missile);
+        host.Items.Grant(host.World, 2, HeldItem.Wrench);
+        var inventory = host.Items.Slots.Single(s => s.Vehicle == 2);
+        byte[] selection = ItemCodec.EncodeSwitch(Session, inventory.Life, 1);
+        gateway.Receive(new(ServerPeer, selection, TransportDelivery.Unreliable));
+        driver.Advance(default, Observe);
+        Assert.That(host.Items.Slots.Single(s => s.Vehicle == 2).ActiveSlot, Is.Zero);
+        gateway.Receive(new(ServerPeer, selection, TransportDelivery.Reliable));
+        gateway.Receive(new(ServerPeer, selection, TransportDelivery.Reliable));
+        gateway.Receive(new(ServerPeer, ItemCodec.EncodeUse(Session, inventory.Life, inventory.SecondToken), TransportDelivery.Reliable));
+        driver.Advance(default, Observe);
+        Assert.That(host.Items.Slots.Single(s => s.Vehicle == 1).ActiveSlot, Is.Zero);
+        Assert.That(host.Items.Slots.Single(s => s.Vehicle == 2), Is.EqualTo(inventory with { ActiveSlot = 1, SelectionRevision = 1, SecondItem = HeldItem.None }));
+        Assert.That(host.Items.Missiles, Is.Empty);
+        Assert.That(driver.RejectedPackets, Is.EqualTo(2));
+    }
 
     /// <summary>Only clients expose snapshot freshness; host diagnostics render the metric as unavailable.</summary>
     [Test]
@@ -171,6 +197,7 @@ internal sealed partial class VehicleNetworkDriverTests
         host.Join(ServerPeer);
         host.RegisterSpawns(Trackstorm.Core.Arenas.PrototypeArena.Configuration);
         host.Items.Grant(host.World, 2, Trackstorm.Core.Items.HeldItem.Wrench);
+        host.Items.Grant(host.World, 2, Trackstorm.Core.Items.HeldItem.Missile);
         host.Step(default, Observe);
         byte[] payload = Trackstorm.Core.Items.ItemCodec.EncodeState(new Trackstorm.Core.Items.ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, host.Items.Events, host.Spawns!.States));
         int events = 0;
@@ -183,6 +210,13 @@ internal sealed partial class VehicleNetworkDriverTests
         driver.Advance(default, Observe);
         Assert.That(driver.ItemState!.Spawns, Is.EqualTo(host.Spawns!.States));
         Assert.That(driver.LocalItem!.Item, Is.EqualTo(Trackstorm.Core.Items.HeldItem.Wrench));
+        Assert.That(driver.RequestItemSwitch(), Is.True);
+        Assert.That(ItemCodec.DecodeSwitch(gateway.Sent[^1].Payload.Span).Revision, Is.EqualTo(1));
+        Assert.That(driver.LocalItem.ActiveSlot, Is.Zero, "HUD selection is confirmed only.");
+        Assert.That(driver.RequestItemUse(), Is.True);
+        Assert.That(ItemCodec.DecodeUse(gateway.Sent[^1].Payload.Span).Token, Is.EqualTo(driver.LocalItem.SecondToken));
+        Assert.That(driver.RequestItemSwitch(), Is.True);
+        Assert.That(ItemCodec.DecodeSwitch(gateway.Sent[^1].Payload.Span).Revision, Is.EqualTo(2));
         Assert.That(driver.RequestItemUse(), Is.True);
         Assert.That(gateway.Sent[^1].Delivery, Is.EqualTo(TransportDelivery.Reliable));
         Assert.That(driver.LocalItem.Item, Is.EqualTo(Trackstorm.Core.Items.HeldItem.Wrench), "Request cannot predict authoritative consumption.");

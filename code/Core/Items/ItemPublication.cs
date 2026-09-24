@@ -9,7 +9,7 @@ public sealed class ItemPublication
     /// <summary>Copies and validates every nested record before publication.</summary>
     /// <param name="revision">Strictly increasing host publication identity.</param>
     /// <param name="world">Authoritative HP/movement outcome at the same boundary.</param>
-    /// <param name="slots">At most one slot per active player.</param>
+    /// <param name="slots">At most one two-slot inventory record per player.</param>
     /// <param name="missiles">Bounded active projectiles.</param>
     /// <param name="events">This step's launch/repair/impact effects.</param>
     /// <param name="spawns">Complete configured spawn state.</param>
@@ -22,7 +22,11 @@ public sealed class ItemPublication
         var projectiles = missiles.ToArray();
         var outcomes = events.ToArray();
         if (revision == 0 || inventory.Length > 8 || inventory.Select(slot => slot.Vehicle).Distinct().Count() != inventory.Length ||
-            inventory.Any(slot => slot.Token == 0 || (slot.Item != HeldItem.None && ItemRegistry.Find(slot.Item) is null) || !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == slot.Vehicle && vehicle.State.LifeId == slot.Life)) ||
+            inventory.Any(slot => slot.ActiveSlot > 1 ||
+                (slot.Token == 0 && slot.Item != HeldItem.None) || (slot.SecondToken == 0 && slot.SecondItem != HeldItem.None) ||
+                (slot.Item != HeldItem.None && ItemRegistry.Find(slot.Item) is null) || (slot.SecondItem != HeldItem.None && ItemRegistry.Find(slot.SecondItem) is null) ||
+                !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == slot.Vehicle && vehicle.State.LifeId == slot.Life)) ||
+            inventory.SelectMany(slot => new[] { slot.Token, slot.SecondToken }).Where(token => token != 0).GroupBy(token => token).Any(group => group.Count() > 1) ||
             projectiles.Length > ItemAuthority.MaximumProjectiles || projectiles.Select(missile => missile.Id).Distinct().Count() != projectiles.Length ||
             projectiles.Any(missile => missile.Id == 0 || missile.Owner == 0 || !VehiclePhysicsState.IsFinite(missile.Position) || !VehiclePhysicsState.IsFinite(missile.Velocity) || missile.Velocity.Length() is <= 0 or > 301 || missile.RemainingTicks is < 1 or > 3600) ||
             outcomes.Length > ItemAuthority.MaximumProjectiles + 8 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || ItemRegistry.Find(outcome.Item)?.CanUse != true || !VehiclePhysicsState.IsFinite(outcome.Position) || (outcome.Impact && outcome.Item != HeldItem.Missile)))
@@ -82,7 +86,7 @@ public sealed class ItemPublication
     public ulong Revision { get; }
     /// <summary>Complete authoritative vehicle outcome.</summary>
     public WorldSnapshot World { get; }
-    /// <summary>One slot per player.</summary>
+    /// <summary>Both fixed slots and selection in one record per player.</summary>
     public IReadOnlyList<ItemSlot> Slots { get; }
     /// <summary>Authoritative projectiles.</summary>
     public IReadOnlyList<MissileState> Missiles { get; }

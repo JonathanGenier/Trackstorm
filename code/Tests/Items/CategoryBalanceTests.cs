@@ -131,7 +131,8 @@ internal sealed class CategoryBalanceTests
         var rng = host.ItemSelectionRandom.State;
         Assert.That(host.Spawns.TryPickup(host.World, "item-01", 1), Is.False);
         Assert.That(host.ItemSelectionRandom.State, Is.EqualTo(rng));
-        Assert.That(host.GiveItem(0, HeldItem.Wrench), Is.False);
+        Assert.That(host.GiveItem(0, HeldItem.Wrench), Is.True);
+        Assert.That(host.GiveItem(0, HeldItem.Oil), Is.False);
         Assert.That(host.Spawns.Balances.Single(), Is.SameAs(first));
         Pickup(host, 2, "item-02");
         Assert.That(host.Spawns.Balances.Single(b => b.Player == 1), Is.SameAs(first));

@@ -4,13 +4,33 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-five reliable item protocol. Requests carry no claimed player or outcome.</summary>
+/// <summary>Bounded version-six reliable item protocol. Requests carry no claimed player or outcome.</summary>
 public static class ItemCodec
 {
     /// <summary>Recognizes only this protocol's magic; complete decode remains mandatory.</summary>
     /// <param name="bytes">Transport payload.</param>
     /// <returns>Whether this is an item envelope.</returns>
     public static bool IsItem(ReadOnlySpan<byte> bytes) => bytes.Length >= 2 && bytes[0] == 0x54 && bytes[1] == 0x49;
+
+    /// <summary>Identifies selection intent; decoding still validates the whole message.</summary>
+    public static bool IsSwitch(ReadOnlySpan<byte> bytes) => IsItem(bytes) && bytes.Length >= 4 && bytes[3] == 3;
+
+    /// <summary>Encodes an ordered life-scoped selection command without a claimed player.</summary>
+    public static byte[] EncodeSwitch(ulong session, ulong life, ulong revision) => Write(3, writer =>
+    {
+        if (session == 0 || life == 0 || revision == 0) { throw new ArgumentException("Invalid switch command."); }
+        writer.Write(session);
+        writer.Write(life);
+        writer.Write(revision);
+    });
+
+    /// <summary>Decodes a complete selection command, rejecting stale layouts and malformed data.</summary>
+    public static (ulong Session, ulong Life, ulong Revision) DecodeSwitch(ReadOnlySpan<byte> bytes) => Read(bytes, 3, reader =>
+    {
+        var value = (Session: reader.ReadUInt64(), Life: reader.ReadUInt64(), Revision: reader.ReadUInt64());
+        if (value.Session == 0 || value.Life == 0 || value.Revision == 0) { throw new ArgumentException("Invalid switch command."); }
+        return value;
+    });
 
     /// <summary>Encodes an exact ownership capability in the match generation.</summary>
     /// <param name="session">Arena generation.</param>
@@ -72,6 +92,10 @@ public static class ItemCodec
             writer.Write(slot.Life);
             writer.Write(slot.Token);
             writer.Write((byte)slot.Item);
+            writer.Write(slot.SecondToken);
+            writer.Write((byte)slot.SecondItem);
+            writer.Write(slot.ActiveSlot);
+            writer.Write(slot.SelectionRevision);
         }
 
         writer.Write((byte)state.Missiles.Count);
@@ -151,7 +175,8 @@ public static class ItemCodec
         var slots = new ItemSlot[Count(reader, 8)];
         for (int i = 0; i < slots.Length; i++)
         {
-            slots[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), (HeldItem)reader.ReadByte());
+            slots[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), (HeldItem)reader.ReadByte())
+            { SecondToken = reader.ReadUInt64(), SecondItem = (HeldItem)reader.ReadByte(), ActiveSlot = reader.ReadByte(), SelectionRevision = reader.ReadUInt64() };
         }
 
         var missiles = new MissileState[Count(reader, ItemAuthority.MaximumProjectiles)];
@@ -208,7 +233,7 @@ public static class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 5, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 6, kind });
         encode(writer);
         if (stream.Length > 32768)
         {
@@ -220,7 +245,7 @@ public static class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 5 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 6 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }

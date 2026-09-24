@@ -39,4 +39,6 @@ public enum InputAction
     CameraUp,
     /// <summary>Local camera look down.</summary>
     CameraDown,
+    /// <summary>Switch between the two held-item slots.</summary>
+    SwitchItem,
 }
