@@ -4,8 +4,7 @@ The designated Water field uses the existing [surface identity](surfaces.md) on
 Blender-authored terrain. The terrain import registers `water_terrain` and a local
 `water_level` of -0.45 m. A non-colliding plane at that level uses the same field
 alpha threshold (0.5) as material identity. The existing terrain mesh and collision
-are unchanged. Final wakes, splashes, shoreline treatment and water audio remain
-visual-effects work.
+are unchanged. Runtime ripples, shoreline treatment, wakes and splashes belong to [terrain effects](terrain-effects.md). Water audio remains outside that presentation system.
 
 ## Observation and ownership
 

@@ -12,6 +12,7 @@ namespace Trackstorm.Client.Networking;
 internal sealed partial class NetworkVehicleArena : Node3D
 {
     private readonly Dictionary<ulong, NetworkVehicleBody> _bodies = new();
+    private readonly Arenas.EnvironmentPresentation _environment = new();
     private readonly VehicleChaseCamera _camera = new() { Name = "ChaseCamera", Current = true, Fov = 65 };
     private readonly RemoteInterpolation _interpolation = new();
     private readonly Items.ItemPresentation _items = new();
@@ -72,18 +73,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
     {
         // Network visuals already interpolate and smooth corrections explicitly.
         PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off;
-        AddChild(new WorldEnvironment
-        {
-            Environment = _layout is null ? GD.Load<Godot.Environment>("res://assets/maps/oval/Daylight.tres") : new Godot.Environment
-            {
-                BackgroundMode = Godot.Environment.BGMode.Color,
-                BackgroundColor = new Color("172235"),
-                AmbientLightSource = Godot.Environment.AmbientSource.Color,
-                AmbientLightColor = new Color("b9d6ed"),
-                AmbientLightEnergy = 0.65f,
-            }
-        });
-        AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-55, -25, 0), LightEnergy = 1.4f, ShadowEnabled = true });
+        AddChild(_environment);
+        _environment.Apply(_driver.Configuration.Configuration.Environment);
         if (_layout is not null)
         {
             _layout.Replica = _driver.Host is null;
@@ -170,6 +161,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        _environment.Apply(_driver.Configuration.Configuration.Environment);
         if (ApplicationEntry && !_driver.EntryReady)
         {
             return;

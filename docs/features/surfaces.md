@@ -32,7 +32,7 @@ supported wheel in the fixed FL/FR/RL/RR order wins. Mixed wheel contacts thus
 have a deterministic single support identity. Both practice and host/client
 prediction use this same observation path, without map names or basin coordinates
 in vehicle code. No support, inactive vehicles and airborne observations clear
-the current material. Future wheel-specific consumers can resolve their own
+the current material. Wheel-specific visual feedback resolves its own
 contact positions through the same resolver.
 
 ## Current map
@@ -65,3 +65,5 @@ existing Stats projection/panel. Visual output is in `.godot/surface-checks`.
 The infield and oval harnesses own wider route/collision continuity checks.
 
 [Vehicles](vehicles.md) · [Feature index](README.md)
+
+[Terrain effects](terrain-effects.md) resolves wheel contacts through this same identity system for visual tracks, dust, mud spray and water feedback. Visual detail never modifies the field or handling classification.

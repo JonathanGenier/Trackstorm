@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Terrain detail, surface-reactive VFX and authoritative environment presets | [TS-82 verification evidence](ts-82.md) |
 | Production map environment dressing and route safety | [TS-81 verification evidence](ts-81.md) |
 | Reusable Blender environment asset library | [TS-80 verification evidence](ts-80.md) |
 | Two held items and active-slot switching | [TS-146 verification evidence](ts-146.md) |

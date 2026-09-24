@@ -6,6 +6,7 @@ public static class GameplayOptions
     /// <summary>Stable allowlist of editable gameplay settings.</summary>
     public static IReadOnlyList<GameplayOption> All { get; } = Array.AsReadOnly<GameplayOption>(
     [
+        new("environment.preset", "Sky / Environment", "Environment preset", true, c => (int)c.Environment, (c, v) => c with { Environment = (EnvironmentPreset)checked((int)v) }),
         new("vehicle.mass", "Vehicle", "Mass", false, c => c.Vehicle.Mass, (c, v) => c with { Vehicle = c.Vehicle with { Mass = checked((float)v) } }),
         new("vehicle.acceleration", "Vehicle", "Acceleration", false, c => c.Vehicle.Acceleration, (c, v) => c with { Vehicle = c.Vehicle with { Acceleration = checked((float)v) } }),
         new("vehicle.braking", "Vehicle", "Braking", false, c => c.Vehicle.Braking, (c, v) => c with { Vehicle = c.Vehicle with { Braking = checked((float)v) } }),

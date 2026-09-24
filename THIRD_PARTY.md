@@ -72,3 +72,7 @@ Kenney Weapon Pack (2016-01-20), original author publication at https://opengame
 ## Infield material field
 
 The original material control field and UV pass are recorded in [surface-sources.json](assets/maps/infield/surface-sources.json). Runtime shading reuses the existing original oval grass and CC0 Poly Haven Asphalt 04 detail and Concrete material listed above. No new third-party assets were acquired. The Jira concept is an art-direction reference and is not redistributed as a runtime asset.
+
+## Runtime terrain effects
+
+[Terrain/environment shaders](assets/effects) and infield shader additions are original project-authored runtime code. Tire dust/mud/splash emitters reuse the existing CC0 Kenney smoke_01 particle texture from the item asset manifest. No new third-party acquisition or authored mesh is introduced.

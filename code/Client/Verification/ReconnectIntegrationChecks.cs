@@ -262,7 +262,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             _retainedScore = _arenas[0].Driver.Host!.World.State.Match!.Players.Single(score => score.Player == _player);
             _retainedRank = Standings()!.Rows.Single(row => row.PlayerId == _player).Rank;
             _resumeAt = _elapsed + 125;
-            Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 7, ["damage.max_hp"] = 1500, ["items.missile_speed"] = 60, ["spawns.cooldown_ticks"] = 90 }, out _), "Live host configuration commits before interruption.");
+            Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["environment.preset"] = (int)Core.Development.EnvironmentPreset.EmberSky, ["vehicle.acceleration"] = 7, ["damage.max_hp"] = 1500, ["items.missile_speed"] = 60, ["spawns.cooldown_ticks"] = 90 }, out _), "Live host configuration commits before interruption.");
             _arenas[0].Driver.Host!.Items.Grant(_arenas[0].Driver.Host!.World, _player, HeldItem.Oil);
             _arenas[0].Driver.Host!.Items.Grant(_arenas[0].Driver.Host!.World, _player, HeldItem.Wrench);
             Require(_arenas[0].Driver.Host!.Items.Switch(_arenas[0].Driver.Host!.World, _player, _arenas[0].Driver.Host!.World.GetVehicle(_player).LifeId, 1), "Select second slot before reconnect.");

@@ -45,19 +45,7 @@ public sealed partial class VehicleArena : Node3D
         AddChild(_destruction);
         AddChild(_audio);
         _audio.Initialize(1);
-        AddChild(new WorldEnvironment
-        {
-            Environment = !LegacyTestLayout && !PrototypeMapForVerification ? GD.Load<Godot.Environment>("res://assets/maps/oval/Daylight.tres") : new Godot.Environment
-            {
-                BackgroundMode = Godot.Environment.BGMode.Color,
-                BackgroundColor = new Color("172235"),
-                AmbientLightSource = Godot.Environment.AmbientSource.Color,
-                AmbientLightColor = new Color("b9d6ed"),
-                AmbientLightEnergy = 0.65f,
-            }
-
-        });
-        AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-55, -25, 0), LightEnergy = 1.4f, ShadowEnabled = true });
+        AddChild(new Arenas.EnvironmentPresentation());
         if (LegacyTestLayout)
         {
             // Coplanar, non-overlapping floor tiles keep the mud boundary free of physical steps.
