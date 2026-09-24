@@ -17,7 +17,7 @@ The multiplayer panel shows **Initializing**, **Authenticating**, **Online**, **
 
 The **Developer fallback: Direct-IP / LAN** toggle at the top remains accessible without EOS. It reveals address controls; normal EOS mode hides them. A scrollable menu keeps recovery controls reachable when configuration guidance wraps. EOS state is presented only here, not in a second floating identity panel.
 
-For a single-machine native check with valid configuration: wait for **Online** and enabled **Host Game**, create a Public lobby, note its count/name, rename it, close it, refresh, and repeat at least three times. Check service-side discovery from another profile/PC using the procedure below. A single local profile cannot prove another member's join or notification behavior.
+For a single-machine native check with valid configuration: wait for **Online** and enabled **Host Game**, create a Public lobby, note its count/name, use **Lobby Settings → Rename lobby**, close it, refresh, and repeat at least three times. EOS logout is in personal **Settings → EOS logout (leave online session)**, both idle and while joined; it waits for authoritative leave and online cleanup before sign-out. Login/retry remains in Play. Check service-side discovery from another profile/PC using the procedure below. A single local profile cannot prove another member's join or notification behavior.
 
 ## Lobby discovery configuration and checks
 
