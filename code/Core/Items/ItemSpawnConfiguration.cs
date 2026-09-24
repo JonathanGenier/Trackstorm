@@ -53,12 +53,23 @@ public sealed record ItemSpawnConfiguration
         return hash.ToHashCode();
     }
 
-    /// <summary>Creates an independent seeded weighted selection stream.</summary>
-    /// <returns>A host-only selector.</returns>
-    public Func<HeldItem> CreateSelector()
+    /// <summary>Selects an item with the match's existing authoritative stream.</summary>
+    public HeldItem SelectItem(ItemSelectionRandom random)
     {
         Validate();
-        var random = new ItemRandom(unchecked((ulong)Seed));
-        return () => random.Next(this);
+        ArgumentNullException.ThrowIfNull(random);
+        int draw = random.Next((int)Weights.Values.Sum(weight => (long)weight));
+        foreach (var definition in ItemRegistry.All)
+        {
+            int weight = Weights[definition.Identity];
+            if (draw < weight)
+            {
+                return definition.Identity;
+            }
+
+            draw -= weight;
+        }
+
+        throw new InvalidOperationException("Validated item distribution has no selection.");
     }
 }

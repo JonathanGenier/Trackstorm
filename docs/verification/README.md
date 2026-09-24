@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Authoritative item seed per match | [TS-140 verification evidence](ts-140.md) |
 | Story verification | [TS-139 verification evidence](ts-139.md) |
 | Shallow/deep water, host tuning and lifecycle | [TS-79 verification evidence](ts-79.md) |
 | Terrain handling, Configs and uphill starts | [TS-78 verification evidence](ts-78.md) |

@@ -93,7 +93,7 @@ public sealed partial class OvalIntegrationChecks
             Quaternion rotation = Basis.LookingAt(tangent, normal).GetRotationQuaternion();
             world.AddVehicle(1, new(), new(), new VehiclePhysicsState(VehicleBody.ToCore(start), new System.Numerics.Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W), VehicleBody.ToCore(tangent * 36), System.Numerics.Vector3.Zero));
             var items = new ItemAuthority();
-            var pickups = new ItemSpawnAuthority(config, items);
+            var pickups = new ItemSpawnAuthority(config, items, new ItemSelectionRandom(1));
             proxy.Apply(world.GetVehicle(1));
             await Frames(2);
             bool collected = false;

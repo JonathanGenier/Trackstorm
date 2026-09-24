@@ -417,7 +417,7 @@ internal sealed partial class VehicleNetworkDriverTests
         var host = new VehicleNetworkDriver(hostGateway, Session);
         hostGateway.Receive(new TransportMessage(ServerPeer, Payload(99, 50), TransportDelivery.Reliable));
         host.Advance(default, Observe);
-        Assert.That(host.Configuration.Revision, Is.Zero);
+        Assert.That(host.Configuration.Revision, Is.EqualTo(1), "A fresh match records its new item seed as a tuning revision.");
         Assert.That(host.RejectedPackets, Is.EqualTo(1));
     }
 
