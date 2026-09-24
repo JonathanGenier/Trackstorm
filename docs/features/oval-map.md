@@ -47,7 +47,7 @@ Collision layer/mask 1 matches [vehicle queries](vehicles.md); unmarked static b
 Each marker has `slot_length_m=6` and `slot_width_m=3` metadata, and its -Z axis
 points along the racing direction. These are reusable authored poses, not live
 player identities. `ActiveMap` loads this scene and reads the actual marker
-positions and yaw values in stable name order before gameplay authority is created. It adds 0.2 m to the original marker height for the rescaled vehicle, placing the origin at 1.05 m before suspension settles at 0.9 m.
+positions and yaw values in stable name order before gameplay authority is created. It adds 0.45 m to the original marker height for the lifted vehicle, placing the origin at 1.30 m before suspension settles near 1.145 m.
 Both `VehicleArena` practice and `NetworkVehicleArena` supply that validated
 `ArenaConfiguration` to the existing simulation. Initial admission, slot reuse,
 practice reset and death/respawn use the same eight grid transforms.

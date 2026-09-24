@@ -75,11 +75,17 @@ public sealed record VehicleConfiguration
     /// <summary>Weak yaw damping; never targets a commanded yaw or drift angle.</summary>
     public float StabilityDamping { get; init; } = 0.65f;
     /// <summary>Fully extended suspension ray length in metres.</summary>
-    public float SuspensionLength { get; init; } = VehicleDimensions.RideHeight + (9.81f / 100);
+    public float SuspensionLength { get; init; } = VehicleDimensions.RideHeight + (9.81f / 30);
     /// <summary>Vertical spring stiffness per unit sprung mass.</summary>
-    public float WheelSpring { get; init; } = 100;
-    /// <summary>Vertical wheel damping per unit sprung mass.</summary>
-    public float WheelDamping { get; init; } = 20;
+    public float WheelSpring { get; init; } = 30;
+    /// <summary>Compression damping per unit sprung mass; acts on chassis point velocity.</summary>
+    public float WheelDamping { get; init; } = 7;
+    /// <summary>Extension damping per unit sprung mass, controlling recovery without pulling tires down.</summary>
+    public float WheelReboundDamping { get; init; } = 15;
+    /// <summary>Compression where progressive bump resistance begins, in metres.</summary>
+    public float WheelBumpStart { get; init; } = 0.55f;
+    /// <summary>Additional acceleration per squared metre beyond bump engagement.</summary>
+    public float WheelBumpSpring { get; init; } = 140;
     /// <summary>Gravity acceleration.</summary>
     public float Gravity { get; init; } = 9.81f;
     /// <summary>Safety bound on total velocity, including external impulses.</summary>
@@ -115,7 +121,7 @@ public sealed record VehicleConfiguration
             throw new ArgumentException("Drive traction reserve must be a finite fraction.");
         }
 
-        if (TicksPerSecond is < 30 or > 240 || new[] { StopSpeed, SuspensionLength, WheelSpring, WheelDamping, Mass, Acceleration, Braking, ReverseAcceleration, ForwardSpeed, ReverseSpeed, Grip, SteeringAngle, SteeringSpeed, SteeringResponse, Wheelbase, TireFriction, LoadHeight, HandbrakeBraking, HandbrakeGrip, HandbrakeResponse, TractionRecovery, CoastDrag, ReferenceMass, SuspensionSpring, SuspensionDamping, ChassisCompliance, MaximumChassisTilt, Gravity, MaximumPhysicsSpeed, MaximumAngularSpeed }.Any(value => !float.IsFinite(value) || value <= 0 || value > 10000) || SuspensionLength > 1 || HandbrakeGrip > 1 || SteeringAngle > 1 || MaximumChassisTilt > 0.5f || !float.IsFinite(StabilityDamping) || StabilityDamping < 0 || StabilityDamping > 1 || ForwardSpeed > MaximumPhysicsSpeed || ReverseSpeed > ForwardSpeed)
+        if (TicksPerSecond is < 30 or > 240 || new[] { StopSpeed, SuspensionLength, WheelSpring, WheelDamping, WheelReboundDamping, WheelBumpStart, WheelBumpSpring, Mass, Acceleration, Braking, ReverseAcceleration, ForwardSpeed, ReverseSpeed, Grip, SteeringAngle, SteeringSpeed, SteeringResponse, Wheelbase, TireFriction, LoadHeight, HandbrakeBraking, HandbrakeGrip, HandbrakeResponse, TractionRecovery, CoastDrag, ReferenceMass, SuspensionSpring, SuspensionDamping, ChassisCompliance, MaximumChassisTilt, Gravity, MaximumPhysicsSpeed, MaximumAngularSpeed }.Any(value => !float.IsFinite(value) || value <= 0 || value > 10000) || SuspensionLength > 2 || WheelBumpStart >= 1 || HandbrakeGrip > 1 || SteeringAngle > 1 || MaximumChassisTilt > 0.5f || !float.IsFinite(StabilityDamping) || StabilityDamping < 0 || StabilityDamping > 1 || ForwardSpeed > MaximumPhysicsSpeed || ReverseSpeed > ForwardSpeed)
         {
             throw new ArgumentException("Vehicle tuning requires finite positive values and consistent speed/grip limits.");
         }

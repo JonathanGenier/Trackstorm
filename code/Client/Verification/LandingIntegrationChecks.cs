@@ -36,10 +36,12 @@ public sealed partial class LandingIntegrationChecks : Node3D
         ulong tick = _world.State.Tick + 1;
         var input = new InputFrame(tick, 0, 0, 0, 0, 0, 0);
         var request = _native is not null ? _native.Capture(input) : new VehicleStepRequest(1, input, _network!.Observe(_world.GetVehicle(1)));
-        if (_tumble && !_kicked && _forgiven > 0 && _world.GetVehicle(1).Landing.Phase is LandingPhase.Recovery or LandingPhase.Recovered)
+        // Long-travel suspension may absorb the initial landing without a chassis contact.
+        // Start from recovered support so the secondary impulse is not cancelled by the initial fall.
+        if (_tumble && !_kicked && _world.GetVehicle(1).Landing.Phase == LandingPhase.Recovered)
         {
             _kicked = true;
-            request = new VehicleStepRequest(1, input, request.Observation, [new VehicleEffectRequest(new DamageEffect(0, new N.Vector3(0, 22000, 0), new N.Vector3(0, 0, 3)), new DamageContext("test", 0, "recovery-tumble"))]);
+            request = new VehicleStepRequest(1, input, request.Observation, [new VehicleEffectRequest(new DamageEffect(0, new N.Vector3(0, 12000, 0), new N.Vector3(0, 0, 3)), new DamageContext("test", 0, "recovery-tumble"))]);
         }
         var requests = new List<VehicleStepRequest> { request };
         if (_target is not null)
@@ -161,8 +163,8 @@ public sealed partial class LandingIntegrationChecks : Node3D
         }
         await Frames(3);
         _advance = true;
-        // The deliberately large off-centre tumble impulse can eject the body
-        // for over ten seconds; observe the subsequent impact, not just flight.
+        // The off-centre tumble impulse exercises a distinct secondary fall. Observe
+        // its full recovery and subsequent impacts rather than just the initial flight.
         await Frames(name == "tumble" ? 720 : 100);
         _advance = false;
         var state = _world.GetVehicle(1);

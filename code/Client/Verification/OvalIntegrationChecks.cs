@@ -131,6 +131,7 @@ public sealed partial class OvalIntegrationChecks : Node3D
         catch (Exception exception)
         {
             _advance = false;
+            System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
             GD.PushError(exception.ToString());
             GetTree().Quit(1);
         }
@@ -425,7 +426,7 @@ public sealed partial class OvalIntegrationChecks : Node3D
         Node3D model = _vehicle.GetNode<Node3D>("WastelandVehicle");
         MeshInstance3D[] meshes = model.GetChildren().OfType<MeshInstance3D>().ToArray();
         Aabb bounds = meshes.Select(mesh => mesh.Transform * mesh.GetAabb()).Aggregate((left, right) => left.Merge(right));
-        Check(Math.Abs(bounds.Size.Z - 4.81f) < 0.001f && Math.Abs(bounds.Size.X - 2.662311f) < 0.001f && Math.Abs(bounds.Size.Y - 1.856070f) < 0.001f, $"Production silhouette measures {bounds.Size} metres.");
+        Check(Math.Abs(bounds.Size.Z - 4.81f) < 0.001f && Math.Abs(bounds.Size.X - 2.662311f) < 0.001f && Math.Abs(bounds.End.Y - 0.956070f) < 0.001f, $"Production silhouette measures {bounds.Size} metres.");
         Check(model.Scale.IsEqualApprox(Vector3.One) && meshes.All(mesh => mesh.Scale.IsEqualApprox(Vector3.One)), "Blender geometry has applied scale; runtime nodes remain unit scale.");
         CollisionShape3D collision = _vehicle.GetChildren().OfType<CollisionShape3D>().Single();
         Vector3[] hull = ((ConvexPolygonShape3D)collision.Shape).Points;
@@ -451,6 +452,6 @@ public sealed partial class OvalIntegrationChecks : Node3D
         Aabb body = model.GetNode<MeshInstance3D>("body").GetAabb();
         Check(Math.Abs(collisionBounds.Position.Y - body.Position.Y) < 0.001f && Math.Abs(collisionBounds.End.Y - bounds.End.Y) < 0.001f, "Collision spans the visible underbody through the roof identification panel.");
         float clearance = _vehicle.Position.Y + body.Position.Y;
-        Check(clearance is > 0.2f and < 0.3f, $"Settled body clearance is {clearance:F3} m.");
+        Check(clearance is >= 0.40f and <= 0.49f, $"Settled body clearance is {clearance:F3} m.");
     }
 }

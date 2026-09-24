@@ -48,7 +48,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         Color paint = Color.FromHsv((VehicleId * 0.13f) % 1, 0.7f, 0.9f);
         _damageMaterial = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/items/materials/DamageFlash.gdshader") };
         _damageMaterial.SetShaderParameter("paint", paint);
-        _visual.AddChild(VehicleVisual.Create(_damageMaterial));
+        _visual.AddChild(VehicleVisual.Create(_damageMaterial, () => _feedbackState is { } state ? (state.Movement, _configuration) : null));
         _nitroTrail = Items.ItemPresentation.Particles(Core.Items.ItemRegistry.Find(Core.Items.HeldItem.Nitro)!.ActiveVfx!, false, 0.18f);
         _nitroTrail.Amount = 64;
         ((StandardMaterial3D)((QuadMesh)_nitroTrail.DrawPass1).Material).AlbedoColor = new Color(0.15f, 0.65f, 1);

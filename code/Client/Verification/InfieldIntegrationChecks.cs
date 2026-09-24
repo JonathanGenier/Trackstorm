@@ -434,9 +434,16 @@ public sealed partial class InfieldIntegrationChecks : Node3D
         _drive = true;
         bool airCaptured = false;
         bool landingCaptured = false;
+        var suspensionSamples = new List<object>();
         for (int frame = 0; frame < 9000 && _progress < points.Length - 2; frame++)
         {
             await Frames(1);
+            if (jump)
+            {
+                var state = _vehicle.State;
+                var travel = state.Wheels.Compression;
+                suspensionSamples.Add(new { Frame = frame, state.Grounded, X = _vehicle.Position.X, Y = _vehicle.Position.Y, VerticalSpeed = _vehicle.LinearVelocity.Y, Compression = new[] { travel.X, travel.Y, travel.Z, travel.W }, PitchRollSpeed = new[] { _vehicle.AngularVelocity.X, _vehicle.AngularVelocity.Z } });
+            }
             if (_vehicle.DamageState.CurrentHP < _vehicle.DamageState.MaxHP)
             {
                 throw new InvalidOperationException($"{name}: first damaging contact at {_vehicle.Position}, velocity {_vehicle.LinearVelocity}, HP {_vehicle.DamageState.CurrentHP}.");
@@ -471,6 +478,7 @@ public sealed partial class InfieldIntegrationChecks : Node3D
         _drive = false;
         if (jump)
         {
+            System.IO.File.WriteAllText(System.IO.Path.Combine(_output, name + "-suspension.json"), JsonSerializer.Serialize(suspensionSamples));
             Check(_longestFlight >= 4 && _landing is not null && _vehicle.State.Grounded, $"{name}: real launch {_launch}, landing {_landing}, longest flight {_longestFlight / 60f:F2}s, peak origin {_peakHeight:F2}m, peak origin clearance {_peakClearance:F2}m, launch horizontal speed {_launchSpeed:F2}m/s, airborne horizontal travel {((_landing!.Value - _launch!.Value) with { Y = 0 }).Length():F2}m; recovered grounded.");
             float landingDistance = Math.Abs(_landing!.Value.X - points[0].X);
             Check(landingDistance >= 42 && landingDistance <= 100 && _landing.Value.Y >= 5.4f, $"{name}: lands on raised dirt tabletop at corridor metre {landingDistance:F2}.");
