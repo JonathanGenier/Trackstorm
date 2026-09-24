@@ -91,6 +91,7 @@ internal sealed partial class JoinedLobby : Control
     {
         if (!Visible || !CanNavigate) return;
         SampleNavigation(true);
+        if (GetViewport().GuiGetFocusOwner() is LineEdit && @event is InputEventKey { Keycode: Key.Left or Key.Right or Key.Home or Key.End }) return;
         if (Session.NavigationInput is not null && (@event.IsAction("ui_accept") || @event.IsAction("ui_up") || @event.IsAction("ui_down") || @event.IsAction("ui_left") || @event.IsAction("ui_right") || @event.IsAction("ui_cancel"))) GetViewport().SetInputAsHandled();
     }
 
@@ -175,6 +176,7 @@ internal sealed partial class JoinedLobby : Control
             bool previous = _held.GetValueOrDefault(action);
             _held[action] = held;
             if (!dispatch || !held || previous) continue;
+            if (GetViewport().GuiGetFocusOwner() is LineEdit && action is InputAction.MenuLeft or InputAction.MenuRight) continue;
             if (action == InputAction.MenuCancel) { _dialog.Close(); continue; }
             Control[] controls = _dialog.Visible ? _dialog.Controls : _cars.Values.OrderBy(car => car.Slot).Select(car => car.Target).Concat(BottomButtons).Where(button => button.Visible && !button.Disabled).Cast<Control>().ToArray();
             MenuFocusNavigation.Navigate(action, controls, GetViewport().GuiGetFocusOwner());

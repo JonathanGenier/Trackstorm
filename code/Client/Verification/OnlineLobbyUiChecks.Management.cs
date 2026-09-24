@@ -11,12 +11,13 @@ public sealed partial class OnlineLobbyUiChecks
 {
     private async Task VerifyManagement()
     {
+        _session.SetFrontendPresentation(false, 1);
         foreach (string role in new[] { "idle", "host", "client" })
         {
             var provider = new UiProvider();
             using var coordinator = new OnlineLobbyCoordinator(provider, new OnlineProductUserId(new string('1', 32)));
             using var gateway = new ManagementGateway();
-            var session = new DevelopmentSession { OnlineCoordinator = () => coordinator, OnlineStatus = () => EosLobbyStatus.Connected };
+            var session = new DevelopmentSession { NavigationInput = new Input.PlayerInputAdapter(_bindings), OnlineCoordinator = () => coordinator, OnlineStatus = () => EosLobbyStatus.Connected };
             int logouts = 0;
             session.OnlineLogout = () =>
             {
@@ -51,6 +52,18 @@ public sealed partial class OnlineLobbyUiChecks
                     Capture("management-lobby-settings");
                     Press("Rename lobby");
                     var edit = Descendants(session).OfType<LineEdit>().Single(node => node.IsVisibleInTree() && node.PlaceholderText == "Lobby name");
+                    edit.CaretColumn = edit.Text.Length;
+                    foreach (var (key, expected) in new[] { (Key.Left, edit.Text.Length - 1), (Key.Right, edit.Text.Length), (Key.Home, 0), (Key.End, edit.Text.Length) })
+                    {
+                        foreach (bool pressed in new[] { true, false })
+                        {
+                            using var inputEvent = new InputEventKey { Keycode = key, PhysicalKeycode = key, Pressed = pressed };
+                            Godot.Input.ParseInputEvent(inputEvent);
+                            Godot.Input.FlushBufferedEvents();
+                            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                        }
+                        Require(edit.HasFocus() && edit.CaretColumn == expected, $"Rename {key} did not preserve native caret editing.");
+                    }
                     edit.Text = "Renamed Game";
                     Press("Save name");
                     Require(coordinator.Active!.Name == "Renamed Game", "Host rename UI did not reach coordinator.");
@@ -97,6 +110,7 @@ public sealed partial class OnlineLobbyUiChecks
             session.QueueFree();
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         }
+        _session.SetFrontendPresentation(true, 1);
         GD.Print("Online management passed: host rename preserves state; client rename rejected; Settings logout idle/host/client waits for authoritative and delayed membership cleanup.");
     }
 
