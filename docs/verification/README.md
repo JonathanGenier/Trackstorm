@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Two held items and active-slot switching | [TS-146 verification evidence](ts-146.md) |
 | Per-player category-balanced item distribution | [TS-145 verification evidence](ts-145.md) |
 | Authoritative item seed per match | [TS-140 verification evidence](ts-140.md) |
 | Shallow/deep water, host tuning and lifecycle | [TS-79 verification evidence](ts-79.md) |

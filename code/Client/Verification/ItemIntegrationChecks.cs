@@ -29,6 +29,7 @@ public sealed partial class ItemIntegrationChecks : Node
     private int _scenario;
     private ulong _token;
     private double _impactSeen;
+    private double _selectionSeen;
     private float _propPeakSpeed;
     private bool _finished;
     private int _cleanupFrames;
@@ -166,8 +167,48 @@ public sealed partial class ItemIntegrationChecks : Node
         switch (_stage)
         {
             case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Driver.LocalState is not null):
+                _arenas[0].GrantItems(HeldItem.Missile);
                 _arenas[0].GrantItems(HeldItem.Wrench);
                 Next("Eight native peers assigned and initialized.");
+                _stage = 10;
+                break;
+            case 10 when _arenas.All(arena => arena.Driver.LocalItem?.Full == true):
+                foreach (var arena in _arenas)
+                {
+                    _input.Adapter.Enabled = true;
+                    _input.Adapter.Observe();
+                    using InputEvent press = arena == _arenas[1]
+                        ? new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.DpadRight, Pressed = true }
+                        : new InputEventKey { PhysicalKeycode = Key.E, Pressed = true };
+                    Godot.Input.ParseInputEvent(press);
+                    Godot.Input.FlushBufferedEvents();
+                    _input.Adapter.Observe();
+                    using InputEvent release = (InputEvent)press.Duplicate();
+                    if (release is InputEventKey key) { key.Pressed = false; }
+                    if (release is InputEventJoypadButton button) { button.Pressed = false; }
+                    Godot.Input.ParseInputEvent(release);
+                    Godot.Input.FlushBufferedEvents();
+                    _input.Adapter.Observe();
+                    var frame = _input.Adapter.Capture(0);
+                    Require((frame.Pressed & InputButtons.SwitchItem) != 0, "Keyboard/controller switch tap survives between ticks.");
+                    arena.Advance(frame);
+                    Require((_input.Adapter.Capture(0).Pressed & InputButtons.SwitchItem) == 0, "A switch tap sends one edge.");
+                    Require(arena.Driver.RequestItemUse(), "Immediate use after switch targets the requested second-slot capability.");
+                }
+                Next("E and D-pad Right switch all eight players; immediate use selects Wrench in slot two.");
+                break;
+            case 11 when _arenas.All(arena => arena.Driver.LocalItem is { Item: HeldItem.Missile, SecondItem: HeldItem.None, ActiveSlot: 1 }):
+                if (_selectionSeen == 0) { _selectionSeen = _elapsed; return; }
+                if (_elapsed - _selectionSeen < 0.25) { return; }
+                Require(host.Items.Missiles.Count == 0, "Using slot two never launches the retained slot-one Missile.");
+                Require(_events.All(events => events.Count(outcome => outcome.Item == HeldItem.Wrench) == 8), "Eight second-slot uses resolve once on every peer.");
+                Capture("two-slots-selected-empty.png");
+                foreach (var arena in _arenas) { Require(arena.Driver.RequestItemSwitch(), "Switch back to first slot."); }
+                foreach (var vehicle in host.World.State.Vehicles) { host.Items.RemovePlayer(vehicle.VehicleId); }
+                _arenas[0].GrantItems(HeldItem.Wrench);
+                foreach (var events in _events) { events.Clear(); }
+                _stage = 1;
+                _started = _elapsed;
                 break;
             case 1 when AllHeld(HeldItem.Wrench):
                 UseAll();

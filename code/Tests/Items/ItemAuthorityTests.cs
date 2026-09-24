@@ -11,6 +11,65 @@ namespace Trackstorm.Core.Tests.Items;
 [TestFixture]
 internal sealed class ItemAuthorityTests
 {
+    [Test]
+    public void TwoSlotsSwitchUseAndRestoreRemainPerPlayer()
+    {
+        var host = Host(40);
+        host.Join(42);
+        Assert.That(host.Items.Grant(host.World, 1, HeldItem.Missile), Is.True);
+        Assert.That(host.Items.Grant(host.World, 1, HeldItem.Wrench), Is.True);
+        Assert.That(host.Items.Grant(host.World, 1, HeldItem.Oil), Is.False);
+        host.Items.Grant(host.World, 2, HeldItem.Oil);
+        var before = host.Items.Slots.Single(s => s.Vehicle == 1);
+        var other = host.Items.Slots.Single(s => s.Vehicle == 2);
+        Assert.That(host.UseItem(0, 99, 1, before.SecondToken), Is.False, "Inactive capability cannot be spent.");
+        Assert.That(host.SwitchItem(42, 99, 1, 1), Is.True);
+        Assert.That(host.Items.Slots.Single(s => s.Vehicle == 1), Is.EqualTo(before));
+        Assert.That(host.SwitchItem(0, 98, 1, 1), Is.False);
+        Assert.That(host.SwitchItem(0, 99, 2, 1), Is.False);
+        Assert.That(host.SwitchItem(0, 99, 1, 1), Is.True);
+        Assert.That(host.SwitchItem(0, 99, 1, 1), Is.False);
+        Assert.That(host.UseItem(0, 99, 1, before.Token), Is.False);
+        Assert.That(host.UseItem(0, 99, 1, before.SecondToken), Is.True);
+        Assert.That(host.SwitchItem(0, 99, 1, 2), Is.True, "Later switching does not retarget an accepted use.");
+        host.Step(default, Observe);
+        var after = host.Items.Slots.Single(s => s.Vehicle == 1);
+        Assert.That((after.Item, after.SecondItem, after.ActiveSlot), Is.EqualTo((HeldItem.Missile, HeldItem.None, 0)));
+        Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(75));
+        Assert.That(host.Items.Slots.Single(s => s.Vehicle == 2).Item, Is.EqualTo(other.Item));
+        Assert.That(host.Items.Grant(host.World, 1, HeldItem.Oil), Is.True);
+        Assert.That(host.SwitchItem(0, 99, 1, 3), Is.True);
+        var publication = ItemCodec.DecodeState(ItemCodec.EncodeState(new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [])));
+        var restored = new ItemAuthority();
+        restored.Restore(publication, host.Items.Revision, host.Items.TokenHighWater);
+        Assert.That(restored.Slots, Is.EqualTo(host.Items.Slots));
+        Assert.That(restored.RequestUse(host.World, 1, 1, before.SecondToken), Is.False);
+        Assert.That(restored.Switch(host.World, 1, 1, 3), Is.False);
+        Assert.That(restored.Switch(host.World, 1, 1, 4), Is.True);
+        Assert.Throws<ArgumentException>(() => restored.Restore(publication, 1, before.SecondToken));
+        restored.RemovePlayer(1);
+        Assert.That(restored.Slots.Single().Vehicle, Is.EqualTo(2));
+        Assert.That(Host().Items.Slots, Is.Empty, "A new match has neither inventory nor selection history.");
+    }
+
+    [Test]
+    public void EmptySelectionAndSwitchProtocolAreBounded()
+    {
+        var host = Host();
+        Assert.That(host.SwitchItem(0, 99, 1, 1), Is.True);
+        host.Items.Grant(host.World, 1, HeldItem.Wrench);
+        Assert.That(host.Items.Slots.Single().Active.Item, Is.EqualTo(HeldItem.None));
+        Assert.That(host.UseItem(0, 99, 1, host.Items.Slots.Single().Token), Is.False);
+        var bytes = ItemCodec.EncodeSwitch(99, 1, 2);
+        Assert.That(ItemCodec.DecodeSwitch(bytes), Is.EqualTo((99ul, 1ul, 2ul)));
+        Assert.Throws<ArgumentException>(() => ItemCodec.DecodeUse(bytes));
+        Assert.Throws<ArgumentException>(() => ItemCodec.DecodeSwitch(bytes[..^1]));
+        bytes[2] = 5;
+        Assert.Throws<ArgumentException>(() => ItemCodec.DecodeSwitch(bytes));
+        var slots = host.Items.Slots;
+        Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), [slots[0] with { ActiveSlot = 2 }], [], []));
+        Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), [slots[0] with { SecondToken = slots[0].Token, SecondItem = HeldItem.Oil }], [], []));
+    }
     /// <summary>Repair is configurable, clamps, and consumes even when no HP changes.</summary>
     /// <param name="hp">Starting health.</param>
     /// <param name="expected">Resulting health.</param>
@@ -42,15 +101,16 @@ internal sealed class ItemAuthorityTests
         Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(57));
     }
 
-    /// <summary>No second slot, stale-token consumption, duplicate launch, or client-selected identity is possible.</summary>
+    /// <summary>No third slot, stale-token consumption, duplicate launch, or client-selected identity is possible.</summary>
     [Test]
     public void SlotCapabilitiesRejectInvalidAndRepeatedRequests()
     {
         var host = Host();
         host.Join(42);
         Assert.That(host.Items.Grant(host.World, 2, HeldItem.Missile), Is.True);
+        Assert.That(host.Items.Grant(host.World, 2, HeldItem.Wrench), Is.True);
         var slot = host.Items.Slots.Single();
-        Assert.That(host.Items.Grant(host.World, 2, HeldItem.Wrench), Is.False);
+        Assert.That(host.Items.Grant(host.World, 2, HeldItem.Oil), Is.False);
         Assert.That(host.Items.Grant(host.World, 99, HeldItem.Wrench), Is.False);
         Assert.That(host.Items.Grant(host.World, 1, (HeldItem)255), Is.False);
         Assert.That(host.UseItem(99, 99, 1, slot.Token), Is.False);

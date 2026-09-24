@@ -2,7 +2,7 @@
 
 ## Purpose and Behavior
 
-Player input converts keyboard and one assigned gamepad into engine-independent, per-tick input suitable for vehicle gameplay and recorded replay. Logical controls include accelerate, brake/reverse, left/right steering, handbrake, use item, leaderboard, menu navigation, accept, cancel, and pause. The vehicle decides whether a brake request means braking or reversing; input does not implement vehicle rules.
+Player input converts keyboard and one assigned gamepad into engine-independent, per-tick input suitable for vehicle gameplay and recorded replay. Logical controls include accelerate, brake/reverse, left/right steering, handbrake, use item, switch item, leaderboard, menu navigation, accept, cancel, and pause. The vehicle decides whether a brake request means braking or reversing; input does not implement vehicle rules.
 
 The current main scene owns one `PlayerInput` node. It publishes `FrameCaptured(InputFrame)` and updates `LatestFrame` once per Godot physics callback, starting at tick 1. The simulation bootstrap consumes that event synchronously. Active arenas use the fixed callback for simulation/prediction; the lobby consumes networking only, leaving the gameplay tick at zero. Event callbacks observe digital transitions between captures so a quick item or leaderboard tap is retained. Menu input continues while the tree is paused. Application focus loss suppresses axes and releases held controls; focus restoration samples current device state.
 
@@ -22,7 +22,7 @@ Gameplay consumers receive only `InputFrame`. The Client bootstrap consumes the 
 
 ## InputFrame and Determinism
 
-The immutable value frame contains a 64-bit unsigned tick, signed steering in `[-32767,32767]`, independent unsigned throttle and brake in `[0,65535]`, and three 16-bit digital masks: held, pressed, and released. Digital bits cover handbrake (the stable `Drift` bit), item, leaderboard, four menu directions, accept, cancel, and pause. Steering direction actions become the signed axis rather than duplicating direction bits in the frame.
+The immutable value frame contains a 64-bit unsigned tick, signed steering in `[-32767,32767]`, independent unsigned throttle and brake in `[0,65535]`, and three 16-bit digital masks: held, pressed, and released. Digital bits cover handbrake (the stable `Drift` bit), item use, item switch (bit 1024), leaderboard, four menu directions, accept, cancel, and pause. Steering direction actions become the signed axis rather than duplicating direction bits in the frame.
 
 Pressed/released mean at least one transition since the previous capture. Both can be set for a tap entirely between ticks; held reflects the final state. Pending edges are consumed once, so repeated fixed updates do not repeat an item press. Multiple complete taps inside one tick coalesce. These masks intentionally record edges rather than requiring a replay consumer to infer them from successive held states, which would lose short taps.
 
@@ -43,6 +43,7 @@ Analog conditioning clamps finite samples to `[-1,1]`, maps magnitudes at or bel
 | Menu navigation | Arrow keys | D-pad |
 | Menu accept | Enter | A / bottom face button |
 | Menu cancel | Escape | B / right face button |
+| Switch active item | E | D-pad Right |
 | Pause | P | Start |
 | Camera intent | Hold RMB and move mouse | Right stick X/Y |
 
@@ -57,6 +58,8 @@ Legacy saves did not distinguish untouched defaults from custom overrides. At bi
 Analog dead zone defaults to `0.15` and accepts finite values in `[0,1)`. Digital actions bound to analog axes activate above `0.5` after conditioning. `InvertSteering` negates resolved steering before quantization and publication; positive becomes negative, negative becomes positive, and neutral remains neutral. Pedals are nonnegative magnitudes and are not negated. Signed axis bindings allow choosing the appropriate physical half-axis for pedals or buttons.
 
 ## Invariants, Interactions, and Intentional Limitations
+
+SwitchItem uses the same aggregate press-edge capture as UseItem. A short E/D-pad Right tap survives between fixed ticks and holding does not repeat. Gameplay, diagnostics and focus suppression require releasing either action before another press can act, preventing a held menu-navigation D-pad input from switching inventory on close. Saved bindings remain intact; a missing SwitchItem override inherits the new defaults. Switch and use in the same frame select first, then submit the selected capability through the existing reliable item path.
 
 Network application sessions apply the [Game Loop participation gate](game-loop.md) after capture: synchronization and authoritative Active are both required for driving or item use. Countdown and Finished retain neutral command sequencing/prediction; the host independently enforces the same phase rule and clears pending controls. Logical menu/standings capture remains available. Local loading completion or a displayed countdown reaching zero cannot enable participation.
 

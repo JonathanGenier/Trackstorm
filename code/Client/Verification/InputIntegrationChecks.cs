@@ -31,6 +31,7 @@ public sealed partial class InputIntegrationChecks : Node
             VerifyAnalogAndIndependentLeaderboard();
             VerifyRemappingAndMultipleBindings();
             VerifyTapFocusAndTickCapture();
+            VerifySwitchSuppression();
             _player.GameplayAvailable = () => true;
             _player._Process(0);
             if (DisplayServer.GetName() != "headless")
@@ -61,8 +62,29 @@ public sealed partial class InputIntegrationChecks : Node
         InputAction.Brake => frame.Brake == 65535,
         InputAction.SteerLeft => frame.Steering == -32767,
         InputAction.SteerRight => frame.Steering == 32767,
+        InputAction.SwitchItem => (frame.Held & InputButtons.SwitchItem) != 0,
         _ => (frame.Held & (InputButtons)(1 << ((int)action - (int)InputAction.Drift))) != 0,
     };
+
+    private void VerifySwitchSuppression()
+    {
+        _player.Adapter.Bindings.RestoreDefaults();
+        foreach (bool diagnostic in new[] { false, true })
+        {
+            Send(new InputEventKey { PhysicalKeycode = Key.E, Pressed = true });
+            _player.Adapter.GameplaySuppressed = !diagnostic;
+            _player.Adapter.DiagnosticSuppressed = diagnostic;
+            Check((_player.Adapter.Capture(0).Pressed & InputButtons.SwitchItem) == 0, "UI suppresses pending switch");
+            _player.Adapter.GameplaySuppressed = _player.Adapter.DiagnosticSuppressed = false;
+            Check((_player.Adapter.Capture(0).Pressed & InputButtons.SwitchItem) == 0, "Held switch must release after UI closes");
+            Send(new InputEventKey { PhysicalKeycode = Key.E, Pressed = false });
+            _player.Adapter.Capture(0);
+            Send(new InputEventKey { PhysicalKeycode = Key.E, Pressed = true });
+            Send(new InputEventKey { PhysicalKeycode = Key.E, Pressed = false });
+            Check((_player.Adapter.Capture(0).Pressed & InputButtons.SwitchItem) != 0, "Fresh short switch tap survives");
+            Check((_player.Adapter.Capture(0).Pressed & InputButtons.SwitchItem) == 0, "Switch does not repeat");
+        }
+    }
 
     private static void SetPressed(InputEvent @event, bool pressed)
     {
@@ -137,7 +159,7 @@ public sealed partial class InputIntegrationChecks : Node
         foreach (InputAction action in Enum.GetValues<InputAction>())
         {
             var bindings = InputMap.ActionGetEvents(PlayerInputBindings.Name(action));
-            Check(bindings.Count == (action >= InputAction.CameraLeft ? 1 : 2), $"{action} has keyboard and gamepad defaults");
+            Check(bindings.Count == (action >= InputAction.CameraLeft && action <= InputAction.CameraDown ? 1 : 2), $"{action} has keyboard and gamepad defaults");
             foreach (InputEvent binding in bindings)
             {
                 using var pressed = (InputEvent)binding.Duplicate();
@@ -156,7 +178,7 @@ public sealed partial class InputIntegrationChecks : Node
                     frame = _player.Adapter.Capture(tick);
                 }
 
-                Check(action >= InputAction.CameraLeft ? _player.Adapter.CameraIntent.Length() > 0 : ActionActive(frame, action), $"{action} reaches logical frame");
+                Check(action >= InputAction.CameraLeft && action <= InputAction.CameraDown ? _player.Adapter.CameraIntent.Length() > 0 : ActionActive(frame, action), $"{action} reaches logical frame");
                 SetPressed(pressed, false);
                 Send(pressed);
                 Check(_player.Adapter.Bindings.Strength(action, 0.15f) == 0, $"{action} releases");

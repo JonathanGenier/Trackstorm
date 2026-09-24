@@ -9,6 +9,7 @@ internal sealed class PlayerInputAdapter
     [
         (InputAction.Drift, InputButtons.Drift),
         (InputAction.UseItem, InputButtons.UseItem),
+        (InputAction.SwitchItem, InputButtons.SwitchItem),
         (InputAction.Leaderboard, InputButtons.Leaderboard),
         (InputAction.MenuUp, InputButtons.MenuUp),
         (InputAction.MenuDown, InputButtons.MenuDown),
@@ -25,6 +26,7 @@ internal sealed class PlayerInputAdapter
     private float _brake;
     private float _steering;
     private bool _itemNeedsRelease;
+    private bool _switchNeedsRelease;
     private bool _enabled = true;
     private bool _gameplaySuppressed;
     private bool _diagnosticSuppressed;
@@ -115,6 +117,7 @@ internal sealed class PlayerInputAdapter
         if (!Enabled || GameplaySuppressed || DiagnosticSuppressed)
         {
             _itemNeedsRelease = true;
+            _switchNeedsRelease = true;
         }
 
         if (Enabled && !GameplaySuppressed && !DiagnosticSuppressed)
@@ -122,6 +125,11 @@ internal sealed class PlayerInputAdapter
             foreach ((InputAction action, InputButtons button) in DigitalActions)
             {
                 float strength = Bindings.Strength(action, DeadZone);
+                if (action == InputAction.SwitchItem)
+                {
+                    _switchNeedsRelease &= strength > 0.5f;
+                    if (_switchNeedsRelease) { continue; }
+                }
                 if (action == InputAction.UseItem)
                 {
                     _itemNeedsRelease &= strength > 0.5f;

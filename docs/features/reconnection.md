@@ -48,6 +48,8 @@ Checkpoint item events and score deltas are empty: current state is restored wit
 
 ## Recovery and Restart
 
+Both held slots, their independent grant tokens, the selected index and life-scoped selection watermark travel in the nested complete item publication. Resume installs that exact boundary and clears pending local selection/use bookkeeping without replaying item effects. Match reset constructs a fresh authority with two empty slots and the first slot selected.
+
 The client shows **Connection interrupted**, **Reconnecting**, **Resume succeeded**, **Resume rejected** or **Session unavailable**. Re-establishment starts after one second and retries at two-second intervals. Neither transport resume nor EOS membership recovery expires a player reservation locally. Explicit Leave cancels recovery. Migration attempts retain their independent bounded fencing/agreement failure policy; a failed attempt never deletes the remote player reservation and the saved locator permits a later same-match retry. Player Ping stays unavailable until transport, admission and the arena checkpoint are current. Fresh handles/nonces own fresh samples; EOS latency-sample expiry remains independent.
 
 Recovery is entered only from an explicit local EOS membership departure/closure

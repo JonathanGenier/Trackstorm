@@ -24,7 +24,7 @@ internal sealed class InputFrameTests
     [Test]
     public void Serialization_RoundTripsBoundaryFrames()
     {
-        InputFrame[] frames = [default, new(ulong.MaxValue, 32767, 65535, 65535, (InputButtons)1023, (InputButtons)1023, (InputButtons)1023)];
+        InputFrame[] frames = [default, new(ulong.MaxValue, 32767, 65535, 65535, (InputButtons)2047, (InputButtons)2047, (InputButtons)2047)];
         foreach (InputFrame frame in frames)
         {
             byte[] bytes = new byte[InputFrame.SerializedSize];

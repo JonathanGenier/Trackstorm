@@ -4,7 +4,7 @@ using Trackstorm.Core.Events;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Match-owned spawn clock and atomic distribution into the existing single-slot authority.</summary>
+/// <summary>Match-owned spawn clock and atomic distribution into the existing two-slot authority.</summary>
 public sealed class ItemSpawnAuthority
 {
     private readonly ItemAuthority _items;
@@ -111,7 +111,7 @@ public sealed class ItemSpawnAuthority
         var player = world.State.Vehicles.SingleOrDefault(state => state.VehicleId == vehicle);
         if (player is null || !player.CanInteract ||
             Vector3.DistanceSquared(player.Movement.Physics.Position, _markers[id].Position) > Configuration.PickupRadius * Configuration.PickupRadius ||
-            _items.Slots.Any(slot => slot.Vehicle == vehicle && slot.Life == player.LifeId && slot.Item != HeldItem.None))
+            _items.Slots.Any(slot => slot.Vehicle == vehicle && slot.Life == player.LifeId && slot.Full))
         {
             return false;
         }
@@ -133,7 +133,7 @@ public sealed class ItemSpawnAuthority
 
         if (balance is not null) { _balances[vehicle] = balance; }
         ItemSlot granted = _items.Slots.Single(slot => slot.Vehicle == vehicle);
-        _states[id] = new ItemSpawnState(id, false, activation, vehicle, granted.Token, item);
+        _states[id] = new ItemSpawnState(id, false, activation, vehicle, Math.Max(granted.Token, granted.SecondToken), item);
         Revision++;
         world.Events.Record(EventCategory.Item, "Picked up", actor: vehicle, cause: item.ToString(), context: id, tick: _tick);
         return true;

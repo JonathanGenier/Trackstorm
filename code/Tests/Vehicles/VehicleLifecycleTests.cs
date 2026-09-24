@@ -72,6 +72,8 @@ internal sealed class VehicleLifecycleTests
             if (items.Slots.Count == 0)
             {
                 Assert.That(items.Grant(world, 1, HeldItem.Missile), Is.True);
+                Assert.That(items.Grant(world, 1, HeldItem.Wrench), Is.True);
+                Assert.That(items.Switch(world, 1, world.GetVehicle(1).LifeId, 1), Is.True);
             }
 
             ItemSlot old = items.Slots.Single();
@@ -95,6 +97,9 @@ internal sealed class VehicleLifecycleTests
             {
                 Assert.That(items.Slots.Single().Item, Is.EqualTo(HeldItem.Missile));
                 Assert.That(items.Slots.Single().Token, Is.GreaterThan(old.Token));
+                Assert.That(items.Slots.Single().SecondToken, Is.GreaterThan(old.SecondToken));
+                Assert.That(items.Slots.Single().SecondItem, Is.EqualTo(HeldItem.Wrench));
+                Assert.That(items.Slots.Single().ActiveSlot, Is.EqualTo(1));
                 Assert.That(items.Slots.Single().Life, Is.EqualTo(alive.LifeId));
             }
         }

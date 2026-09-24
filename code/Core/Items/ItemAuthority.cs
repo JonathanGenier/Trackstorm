@@ -51,7 +51,7 @@ public sealed class ItemAuthority
     /// <param name="token">Highest ever issued token in this match.</param>
     public void Restore(ItemPublication publication, ulong revision, ulong token)
     {
-        if (publication.Events.Count != 0 || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token) ||
+        if (publication.Events.Count != 0 || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token || slot.SecondToken > token) ||
             publication.Spawns.Any(spawn => spawn.Token > token) || publication.Missiles.Any(missile => missile.Id > token ||
                 !publication.World.Vehicles.Any(vehicle => vehicle.State.VehicleId == missile.Owner && vehicle.State.CanInteract)))
         {
@@ -104,12 +104,17 @@ public sealed class ItemAuthority
     {
         VehicleSnapshot? state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
         if (state is null || !state.CanInteract || ItemRegistry.Find(item) is null ||
-            (_slots.TryGetValue(vehicle, out var previous) && previous.Life == state.LifeId && previous.Item != HeldItem.None))
+            (_slots.TryGetValue(vehicle, out var previous) && previous.Life == state.LifeId && previous.Full))
         {
             return false;
         }
 
-        _slots[vehicle] = new ItemSlot(vehicle, state.LifeId, checked(++_token), item);
+        var inventory = _slots.GetValueOrDefault(vehicle);
+        if (inventory is null || inventory.Life != state.LifeId) { inventory = new(vehicle, state.LifeId, 0, HeldItem.None); }
+        ulong token = checked(++_token);
+        _slots[vehicle] = inventory.Item == HeldItem.None
+            ? inventory with { Token = token, Item = item }
+            : inventory with { SecondToken = token, SecondItem = item };
         Revision++;
         if (!pickup)
         {
@@ -129,8 +134,20 @@ public sealed class ItemAuthority
     {
         VehicleSnapshot? state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
         return state is not null && state.CanInteract && state.LifeId == life &&
-            _slots.TryGetValue(vehicle, out var slot) && slot.Life == life && slot.Token == token && ItemRegistry.Find(slot.Item)?.CanUse == true &&
+            _slots.TryGetValue(vehicle, out var slot) && slot.Life == life && slot.Active.Token == token && ItemRegistry.Find(slot.Active.Item)?.CanUse == true &&
             _pending.TryAdd(vehicle, token);
+    }
+
+    /// <summary>Switches the sender's selected slot once per ordered, life-scoped command.</summary>
+    public bool Switch(Simulation.Simulation world, ulong vehicle, ulong life, ulong revision)
+    {
+        var state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
+        if (state is null || !state.CanInteract || state.LifeId != life || revision == 0) { return false; }
+        var inventory = _slots.GetValueOrDefault(vehicle) ?? new ItemSlot(vehicle, life, 0, HeldItem.None);
+        if (inventory.Life != life || revision <= inventory.SelectionRevision) { return false; }
+        _slots[vehicle] = inventory with { ActiveSlot = (byte)(inventory.ActiveSlot ^ ((revision - inventory.SelectionRevision) & 1)), SelectionRevision = revision };
+        Revision++;
+        return true;
     }
 
     /// <summary>Evaluates uses and swept projectiles, then atomically commits item state after the vehicle batch succeeds.</summary>
@@ -162,11 +179,15 @@ public sealed class ItemAuthority
 
         foreach (var pair in _pending.OrderBy(pair => pair.Key))
         {
-            if (!slots.TryGetValue(pair.Key, out var slot) || !world.GetVehicle(pair.Key).CanInteract || slot.Token != pair.Value || slot.Item == HeldItem.None)
+            if (!slots.TryGetValue(pair.Key, out var inventory) || !world.GetVehicle(pair.Key).CanInteract)
             {
                 continue;
             }
 
+            // Use is bound to the selection at request acceptance, even if a later switch arrives before the step.
+            byte usedIndex = inventory.Token == pair.Value ? (byte)0 : (byte)1;
+            ItemSlot slot = (inventory with { ActiveSlot = usedIndex }).Active;
+            if (slot.Token != pair.Value || slot.Item == HeldItem.None) { continue; }
             VehicleStepRequest request = requests.Single(value => value.VehicleId == pair.Key);
             var handler = ItemRegistry.Find(slot.Item)?.Handler;
             if (request.Reset.HasValue || handler is null || (slot.Item == HeldItem.Nitro && (world.GetVehicle(slot.Vehicle).Movement.Nitro.Active || world.State.Match is { Phase: not Matches.MatchPhase.Active })) ||
@@ -176,7 +197,7 @@ public sealed class ItemAuthority
             }
 
             events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, request.Observation.Physics.Position, false));
-            slots[pair.Key] = slot with { Item = HeldItem.None };
+            slots[pair.Key] = usedIndex == 0 ? inventory with { Item = HeldItem.None } : inventory with { SecondItem = HeldItem.None };
         }
 
         if (world.State.Match?.Phase != Matches.MatchPhase.Finished)
@@ -244,7 +265,7 @@ public sealed class ItemAuthority
             }
             else if (state.LifeId != pair.Value.Life)
             {
-                slots[pair.Key] = new ItemSlot(pair.Key, state.LifeId, checked(++_token), pair.Value.Item);
+                slots[pair.Key] = pair.Value with { Life = state.LifeId, Token = pair.Value.Token == 0 ? 0 : checked(++_token), SecondToken = pair.Value.SecondToken == 0 ? 0 : checked(++_token), SelectionRevision = 0 };
             }
         }
 
@@ -257,7 +278,7 @@ public sealed class ItemAuthority
 
         advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract));
         bool changed = !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) || missiles.Count > 0 || !patches.SequenceEqual(_patches) || !contacts.SequenceEqual(_contacts) || journal.Count > 0;
-        foreach (var removed in _slots.Values.Where(slot => slot.Item != HeldItem.None && !slots.ContainsKey(slot.Vehicle)))
+        foreach (var removed in _slots.Values.Where(slot => !slots.ContainsKey(slot.Vehicle)).SelectMany(slot => new[] { slot, slot with { Token = slot.SecondToken, Item = slot.SecondItem } }).Where(slot => slot.Item != HeldItem.None))
         {
             world.Events.Record(EventCategory.Item, "Removed", target: removed.Vehicle, cause: removed.Item.ToString(), context: "life ended or reset", tick: input.Tick);
         }

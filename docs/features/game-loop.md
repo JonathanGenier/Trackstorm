@@ -41,7 +41,7 @@ Reset means **dispose and reconstruct**, never rewind a live simulation or reuse
 | Match-scoped: reconstructed for each arena generation | Session-scoped: owned outside Game Loop |
 | --- | --- |
 | Context, countdown, phase, completion tick/outcome/results, Circus banked score/K/D/streak/pending stunt state, score totals/wins, consumed-life and damage watermarks, one-shot Force Start | Logical session, connected identities/names, transport bindings, selected map, authority epoch and effective host tuning |
-| Simulation tick/input, vehicles/lives/HP/respawn timers and physical memory, item slots/tokens/pending uses/projectiles and pickup timers | Session event journal and online membership/coordination |
+| Simulation tick/input, vehicles/lives/HP/respawn timers and physical memory, both held slots/tokens, active selection, selection watermark, pending uses/projectiles and pickup timers | Session event journal and online membership/coordination |
 | Admission/loading acknowledgements, prediction/retransmission/interpolation histories, replication baselines, native arena and effects | Match reservations/departed identities are held by session authority **through Finished**; only explicit abandonment or surrounding session Return/Leave rules clear them |
 
 The next host session constructs fresh simulation, mode, vehicles and items at tick zero with zero scores/watermarks, no winner/deadline/result, initial vehicle lives and empty inventory/projectiles. The loader/sync barrier must complete again. Connected session players and host tuning survive Return; ready flags reset and disconnected reservations/departed history clear under the existing lobby rules. Local disposal itself never grants or revokes remote reconnect rights.

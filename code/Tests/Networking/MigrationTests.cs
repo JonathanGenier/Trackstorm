@@ -233,6 +233,8 @@ internal sealed class MigrationTests
         host.JoinPlayer(20, 3);
         host.RegisterSpawns(map);
         host.Items.Grant(host.World, 3, heldItem);
+        host.Items.Grant(host.World, 3, HeldItem.Wrench);
+        Assert.That(host.SwitchItem(20, host.SessionId, 1, 1), Is.True);
         host.Items.Grant(host.World, 2, HeldItem.Missile);
         host.UseItem(10, host.SessionId, 1, host.Items.Slots.Single(slot => slot.Vehicle == 2).Token);
         host.Step(default, Observe);

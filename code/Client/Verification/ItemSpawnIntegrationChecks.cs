@@ -177,6 +177,8 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 Require(host.Spawns!.Balances.Count == 8 && host.Spawns.Balances.All(b => b.Total == (b.Player == _winner ? 2ul : 1ul)), "Only successful per-player pickups count.");
                 Require(_arenas.All(arena => CategoryBalanceRecoveryFixture.Signature(arena.Driver.ItemState!.Balances) == CategoryBalanceRecoveryFixture.Signature(host.Spawns.Balances)), "Per-player diagnostics replicate exactly.");
                 Capture("all-claimed.png");
+                foreach (var vehicle in host.World.State.Vehicles) { Require(host.Items.Grant(host.World, vehicle.VehicleId, HeldItem.Oil), "Fill remaining slot without changing category history."); }
+                _distributed = host.Items.Slots.ToArray();
                 // Stay in range: occupied slots must not reclaim when the cooldown elapses.
                 Next("All eight spawn locations awarded once, with all four item types replicated normally.");
                 break;
@@ -188,7 +190,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 Capture("occupied-slots.png");
                 _evidence.Add($"All {PickupCount} pickups are available after cooldown, including under occupied vehicles. No duplicate awards or overwritten grants.");
                 Require(host.TryConfigure(0, new Dictionary<string, double> { ["spawns.cooldown_ticks"] = 1 }, out _), "Repeated pickup fixture configures a one-tick cooldown.");
-                foreach (var vehicle in host.World.State.Vehicles) { host.Items.RemovePlayer(vehicle.VehicleId); }
+                foreach (var vehicle in host.World.State.Vehicles) { host.Items.RemovePlayer(vehicle.VehicleId); host.Items.Grant(host.World, vehicle.VehicleId, HeldItem.Wrench); }
                 PositionPlayers(false, true);
                 Next("Repeat 32 pickup rounds per player; fixture clears inventory between rounds without invoking item effects.");
                 break;
@@ -198,7 +200,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 _balanceRounds++;
                 if (_balanceRounds < 32)
                 {
-                    foreach (var vehicle in host.World.State.Vehicles) { host.Items.RemovePlayer(vehicle.VehicleId); }
+                    foreach (var vehicle in host.World.State.Vehicles) { host.Items.RemovePlayer(vehicle.VehicleId); host.Items.Grant(host.World, vehicle.VehicleId, HeldItem.Wrench); }
                     PositionPlayers(false, true);
                     break;
                 }

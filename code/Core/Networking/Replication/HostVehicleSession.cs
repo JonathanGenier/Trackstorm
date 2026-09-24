@@ -265,6 +265,13 @@ public sealed class HostVehicleSession
         return accepted;
     }
 
+    /// <summary>Resolves selection intent using the same sender and participation authority as use.</summary>
+    public bool SwitchItem(ulong peer, ulong session, ulong life, ulong revision)
+    {
+        ulong vehicle = peer == 0 ? HostPlayerId : _peers.TryGetValue(peer, out var entry) ? entry.Vehicle : 0;
+        return AllowsParticipation && session == SessionId && vehicle != 0 && Items.Switch(World, vehicle, life, revision);
+    }
+
     /// <summary>Builds the complete current boundary and proposed spawn without adding a simulation participant.</summary>
     /// <param name="player">New lobby-assigned identity.</param>
     /// <param name="revision">Reliable item publication sequence.</param>

@@ -44,6 +44,7 @@ internal sealed class PlayerInputBindings : IDisposable
         using var mouse = new InputEventMouseButton { ButtonIndex = MouseButton.Left };
         using var itemButton = Button(JoyButton.A, gamepadDevice);
         Replace(InputAction.UseItem, mouse, itemButton);
+        Set(InputAction.SwitchItem, Key.E, Button(JoyButton.DpadRight, gamepadDevice));
         Set(InputAction.Leaderboard, Key.Tab, Button(JoyButton.Back, gamepadDevice));
         Set(InputAction.MenuUp, Key.Up, Button(JoyButton.DpadUp, gamepadDevice));
         Set(InputAction.MenuDown, Key.Down, Button(JoyButton.DpadDown, gamepadDevice));

@@ -26,4 +26,6 @@ public enum InputButtons : ushort
     MenuCancel = 256,
     /// <summary>Pause.</summary>
     Pause = 512,
+    /// <summary>Switch the active held-item slot.</summary>
+    SwitchItem = 1024,
 }

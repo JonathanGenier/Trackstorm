@@ -108,11 +108,14 @@ internal sealed class AudioEventProjection
         foreach (ItemSlot slot in state.Slots)
         {
             ulong previous = _slots.GetValueOrDefault(slot.Vehicle);
-            _slots[slot.Vehicle] = slot.Token;
-            if (!initialize && slot.Token > previous && slot.Item != HeldItem.None)
+            _slots[slot.Vehicle] = Math.Max(slot.Token, slot.SecondToken);
+            foreach (var held in new[] { (slot.Token, slot.Item), (Token: slot.SecondToken, Item: slot.SecondItem) })
             {
-                var vehicle = state.World.Vehicles.Single(entry => entry.State.VehicleId == slot.Vehicle).State;
-                Emit(Enum.Parse<AudioCue>(ItemRegistry.Find(slot.Item)!.PickupAudio), vehicle.Movement.Physics.Position);
+                if (!initialize && held.Token > previous && held.Item != HeldItem.None)
+                {
+                    var vehicle = state.World.Vehicles.Single(entry => entry.State.VehicleId == slot.Vehicle).State;
+                    Emit(Enum.Parse<AudioCue>(ItemRegistry.Find(held.Item)!.PickupAudio), vehicle.Movement.Physics.Position);
+                }
             }
         }
 

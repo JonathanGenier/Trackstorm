@@ -264,6 +264,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
             _resumeAt = _elapsed + 125;
             Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 7, ["damage.max_hp"] = 1500, ["items.missile_speed"] = 60, ["spawns.cooldown_ticks"] = 90 }, out _), "Live host configuration commits before interruption.");
             _arenas[0].Driver.Host!.Items.Grant(_arenas[0].Driver.Host!.World, _player, HeldItem.Oil);
+            _arenas[0].Driver.Host!.Items.Grant(_arenas[0].Driver.Host!.World, _player, HeldItem.Wrench);
+            Require(_arenas[0].Driver.Host!.Items.Switch(_arenas[0].Driver.Host!.World, _player, _arenas[0].Driver.Host!.World.GetVehicle(_player).LifeId, 1), "Select second slot before reconnect.");
             Drop();
             _stage = 5;
         }
@@ -281,6 +283,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             Require(_arenas[0].Bodies[_player].GetNode<RemoteVehicleTag>("PlayerTag") == _originalTag, "Three reconnects retain exactly the same remote tag.");
             Require(_arenas[1].Driver.ItemState!.Patches.Count == 1 && _arenas[1].Driver.ItemState!.Patches.Single() == _oil, "Complete persistent Oil patch survives each native reconnect without duplication.");
             Require(_arenas[1].Driver.LocalItem?.Item == HeldItem.Oil, "Oil identity survives match-long retention and three reconnects.");
+            Require(_arenas[1].Driver.LocalItem is { SecondItem: HeldItem.Wrench, ActiveSlot: 1, SelectionRevision: 1 }, "Second slot and selection survive reconnect exactly.");
             Require(_arenas[1].Driver.ItemState?.Spawns.Count == 20 && _arenas[1].Driver.Match?.Players.Count == 2, "Twenty-marker oval pickup layout and match state arrive in the checkpoint.");
             Require(CategoryBalanceRecoveryFixture.Signature(_arenas[1].Driver.ItemState!.Balances) == _categoryHistory, "Reconnect retains exact per-player credits, counts and last selection.");
             GD.Print("Category history verified after reconnect " + _resyncs);
