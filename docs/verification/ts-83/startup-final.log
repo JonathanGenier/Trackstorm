@@ -1,0 +1,6 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Startup pointer fixture window: (64, 64) -> (1280, 720) (headless).
+Startup integration passed: phase-aware recovery, drop input gating, mixed keyboard/controller/mouse navigation, disabled Garage, repeated navigation, stable targets, Settings/browser return, and persistent MenuShell media.
+Godot startup exit code: 0; success marker: Startup integration passed: phase-aware recovery, drop input gating, mixed keyboard/controller/mouse navigation, disabled Garage, repeated navigation, stable targets, Settings/browser return, and persistent MenuShell media.; diagnostics: .
+Startup integration checks passed.

@@ -105,6 +105,18 @@ written to `.godot/infield-checks/`.
 
 ## Verification
 
+`check-map-budget.ps1 -GodotPath <exe>` inventories the actual production scene's
+unique meshes/materials/textures, base triangle counts, LOD surfaces, spatial
+MultiMesh batches and static collision resources. It uses a real renderer and
+writes `.godot/map-budget-checks/inventory.json`. Instanced base-triangle totals
+are unculled inventory, not per-frame rendering cost. Terrain and road retain
+their exact collision and full-resolution visible geometry to preserve contact,
+rim and jump precision; decorative library meshes use native LODs and ground
+cover has local distance limits. No occlusion volumes are added to the open map.
+Rendered preset measurements and repeated feedback checks are described in
+[terrain effects](terrain-effects.md); multi-process physics timings remain in
+the [network vehicle harness](vehicle-networking.md).
+
 ### Infield item route choices
 
 Seven single markers extend the oval layout through the same authoritative item

@@ -63,11 +63,21 @@ fragment rather than the world-origin distance. Density can be reduced or disabl
 by a future local optimization policy; no new user setting or replicated authority
 is introduced. Resources are released with the owning vehicle/arena.
 
+Once every segment in a track or wake batch expires, its visible instance count
+returns to zero, eliminating transparent submissions while idle. Restarting a
+batch exposes only newly written segments. Wheel sampling reuses one native ray
+query and exclusion list per vehicle and fetches water terrain once per sampling
+pass; there is no cached map ownership or new authoritative state.
+
 ## Verification routes
 
 `check-terrain-effects.ps1 -GodotPath <exe> [-Visual]` drives the real native vehicle
 on isolated authored material fixtures, checks every required response, wraps the
 bounded buffer repeatedly and renders all five packages on the production map.
+It also verifies expired-batch retirement/restart and records 120 rendered overview
+frame intervals per preset, draw calls, primitives and reported video memory.
+These include scheduling/vsync and are not isolated GPU timings or a hardware-wide
+performance guarantee.
 The existing surface, water, oval/infield and dressing checks cover imported map
 identity and driving/collision. Configs checks exercise the named selector, normal
 Apply, both UDP participants, map-instance retention and process-restart persistence.

@@ -1,0 +1,20 @@
+map-budget-final PASS 7s
+environment-final PASS 23s
+dressing-final PASS 9s
+oval-final PASS 109s
+terrain-effects-final PASS 41s
+surfaces-final PASS 13s
+terrain-handling-final PASS 19s
+water-final PASS 49s
+landing-final PASS 16s
+configs-final FAIL Developer Options write verification failed.
+spawns-final PASS 58s
+spawns-impaired-final PASS 71s
+items-final PASS 8s
+death-water-final PASS 51s
+network-two-final PASS 42s
+network-eight-final FAIL Network vehicle instance 1 failed. Artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\ca96eecdc1b54affbb52c8329eee7768
+reconnect-final PASS 143s
+migration-final PASS 13s
+camera-drive-final PASS 3s
+startup-final PASS 26s

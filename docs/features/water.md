@@ -6,6 +6,13 @@ Blender-authored terrain. The terrain import registers `water_terrain` and a loc
 alpha threshold (0.5) as material identity. The existing terrain mesh and collision
 are unchanged. Runtime ripples, shoreline treatment, wakes and splashes belong to [terrain effects](terrain-effects.md). Water audio remains outside that presentation system.
 
+At import, the visual plane is cropped to the field's alpha >= 0.5 texel bounds
+with a bilinear-filter guard band. The shader retains original field/world
+coordinates for the shoreline and ripples. This reduces discarded fragments and
+improves visibility culling without changing the water field or immersion rules.
+The native water harness checks every wet texel and its filtering margin against
+the imported plane.
+
 ## Observation and ownership
 
 Client `WaterObservation` samples the center and four tire-footprint positions

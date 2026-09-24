@@ -1,0 +1,133 @@
+{
+	"collision_instances": 560,
+	"distance_limited_batches": 212,
+	"lod_surfaces": 25,
+	"mesh_instances": 274,
+	"multimesh_batches": 260,
+	"multimesh_instances": 3311,
+	"nodes": 1913,
+	"textures": [
+		{
+			"height": 1024,
+			"path": "res://assets/maps/oval/grass_albedo.png",
+			"width": 1024
+		},
+		{
+			"height": 1024,
+			"path": "res://assets/maps/oval/grass_normal.png",
+			"width": 1024
+		},
+		{
+			"height": 1024,
+			"path": "res://assets/maps/oval/grass_variation.png",
+			"width": 1024
+		},
+		{
+			"height": 1024,
+			"path": "res://assets/arena/polyhaven/asphalt_04/asphalt_04_diff_1k.jpg",
+			"width": 1024
+		},
+		{
+			"height": 1024,
+			"path": "res://assets/arena/polyhaven/asphalt_04/asphalt_04_rough_1k.jpg",
+			"width": 1024
+		},
+		{
+			"height": 1024,
+			"path": "res://assets/arena/polyhaven/asphalt_04/asphalt_04_nor_gl_1k.jpg",
+			"width": 1024
+		},
+		{
+			"height": 1024,
+			"path": "res://assets/maps/oval/ground_macro.png",
+			"width": 1024
+		},
+		{
+			"height": 1024,
+			"path": "res://assets/arena/polyhaven/concrete/concrete_diff_1k.jpg",
+			"width": 1024
+		},
+		{
+			"height": 1024,
+			"path": "res://assets/arena/polyhaven/concrete/concrete_rough_1k.jpg",
+			"width": 1024
+		},
+		{
+			"height": 1024,
+			"path": "res://assets/arena/polyhaven/concrete/concrete_nor_gl_1k.jpg",
+			"width": 1024
+		},
+		{
+			"height": 512,
+			"path": "res://assets/maps/infield/surface_field.png",
+			"width": 1024
+		},
+		{
+			"height": 512,
+			"path": "res://assets/environment/models/BoulderTall_StoneAlbedo.png",
+			"width": 512
+		},
+		{
+			"height": 512,
+			"path": "res://assets/environment/models/BoulderTall_StoneNormal.png",
+			"width": 512
+		},
+		{
+			"height": 512,
+			"path": "res://assets/environment/textures/StoneAlbedo.png",
+			"width": 512
+		},
+		{
+			"height": 512,
+			"path": "res://assets/environment/textures/StoneNormal.png",
+			"width": 512
+		},
+		{
+			"height": 512,
+			"path": "res://assets/environment/models/RockSlab_StoneAlbedo.png",
+			"width": 512
+		},
+		{
+			"height": 512,
+			"path": "res://assets/environment/models/RockSlab_StoneNormal.png",
+			"width": 512
+		},
+		{
+			"height": 512,
+			"path": "res://assets/environment/models/BoulderLow_StoneAlbedo.png",
+			"width": 512
+		},
+		{
+			"height": 512,
+			"path": "res://assets/environment/models/BoulderLow_StoneNormal.png",
+			"width": 512
+		},
+		{
+			"height": 512,
+			"path": "res://assets/environment/models/RockLedge_StoneAlbedo.png",
+			"width": 512
+		},
+		{
+			"height": 512,
+			"path": "res://assets/environment/models/RockLedge_StoneNormal.png",
+			"width": 512
+		},
+		{
+			"height": 512,
+			"path": "res://assets/environment/models/RockCluster_StoneAlbedo.png",
+			"width": 512
+		},
+		{
+			"height": 512,
+			"path": "res://assets/environment/models/RockCluster_StoneNormal.png",
+			"width": 512
+		}
+	],
+	"unique_concave_triangles": 417772,
+	"unique_convex_points": 3401,
+	"unique_materials": 40,
+	"unique_mesh_triangles": 455088,
+	"unique_meshes": 73,
+	"unique_shapes": 288,
+	"visible_base_triangles": 9108778
+}

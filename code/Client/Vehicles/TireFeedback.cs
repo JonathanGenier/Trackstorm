@@ -7,6 +7,10 @@ namespace Trackstorm.Client.Vehicles;
 internal sealed partial class TireFeedback : Node3D
 {
     internal const int Capacity = 512;
+    private const float MarkLifetime = 20;
+    private const float WakeLifetime = .9f;
+    private readonly PhysicsRayQueryParameters3D _ray = new() { CollisionMask = 1 };
+    private readonly Godot.Collections.Array<Rid> _excluded = new();
     private readonly Vector3?[] _previous = new Vector3?[4];
     private readonly SurfaceIdentity?[] _surfaces = new SurfaceIdentity?[4];
     private readonly GpuParticles3D[] _spray = new GpuParticles3D[4];
@@ -22,6 +26,9 @@ internal sealed partial class TireFeedback : Node3D
     private float _elapsed;
     private float _sampleTime;
     private int _next;
+    private int _markCount;
+    private float _lastMark = -MarkLifetime;
+    private float _lastWake = -WakeLifetime;
     private ulong _life;
     internal Func<(Transform3D Pose, VehicleSnapshot State, VehicleConfiguration Configuration)?> Source { get; init; } = () => null;
     // A later local optimization setting can lower density without touching session state.
@@ -36,6 +43,8 @@ internal sealed partial class TireFeedback : Node3D
         TopLevel = true;
         GlobalTransform = Transform3D.Identity;
         PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off;
+        _excluded.Add(((PhysicsBody3D)GetParent()).GetRid());
+        _ray.Exclude = _excluded;
         _material = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/effects/TireTrack.gdshader") };
         _mesh = new PlaneMesh { Size = Vector2.One, Material = _material };
         _instances = new MultiMesh { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, UseColors = true, UseCustomData = true, Mesh = _mesh, InstanceCount = Capacity, VisibleInstanceCount = 0 };
@@ -59,6 +68,18 @@ internal sealed partial class TireFeedback : Node3D
         _elapsed += (float)delta;
         _material.SetShaderParameter("elapsed", _elapsed);
         _wakeMaterial.SetShaderParameter("elapsed", _elapsed);
+        // Fully transparent batches still cost draw submission and fragment work.
+        // Reset the ring only once every resident segment has expired.
+        if (_markCount > 0 && _elapsed - _lastMark >= MarkLifetime)
+        {
+            _instances.VisibleInstanceCount = 0;
+            _markCount = _next = 0;
+        }
+        if (_wakeCount > 0 && _elapsed - _lastWake >= WakeLifetime)
+        {
+            _wakes.VisibleInstanceCount = 0;
+            _wakeCount = _nextWake = 0;
+        }
         _sampleTime += (float)delta;
         if (_sampleTime < .05f / Math.Clamp(Density, .25f, 1)) { return; }
         _sampleTime = 0;
@@ -70,77 +91,81 @@ internal sealed partial class TireFeedback : Node3D
         }
         if (_life != source.State.LifeId) { Stop(); _life = source.State.LifeId; }
         float speed = source.State.Speed;
-        int wheel = 0;
-        foreach (float z in new[] { -source.Configuration.Wheelbase / 2, source.Configuration.Wheelbase / 2 })
+        var waterTerrains = GetTree().GetNodesInGroup("water_terrain");
+        var space = GetWorld3D().DirectSpaceState;
+        for (int wheel = 0; wheel < 4; wheel++)
         {
-            foreach (float x in new[] { -VehicleDimensions.WheelTrack / 2, VehicleDimensions.WheelTrack / 2 })
+            float z = (wheel < 2 ? -1 : 1) * source.Configuration.Wheelbase / 2;
+            float x = (wheel % 2 == 0 ? -1 : 1) * VehicleDimensions.WheelTrack / 2;
+            Vector3 origin = source.Pose * new Vector3(x, 0, z);
+            _ray.From = origin;
+            _ray.To = origin - source.Pose.Basis.Y * (source.Configuration.SuspensionLength + .08f);
+            using var hit = space.IntersectRay(_ray);
+            Vector3? waterPoint = FindWater(origin, waterTerrains);
+            if (waterPoint is null && (hit.Count == 0 || hit["normal"].AsVector3().Y < .55f || !source.State.Movement.Grounded))
             {
-                Vector3 origin = source.Pose * new Vector3(x, 0, z);
-                using var ray = PhysicsRayQueryParameters3D.Create(origin, origin - source.Pose.Basis.Y * (source.Configuration.SuspensionLength + .08f), 1,
-                    new Godot.Collections.Array<Rid> { ((PhysicsBody3D)GetParent()).GetRid() });
-                var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
-                Vector3? waterPoint = FindWater(origin);
-                if (waterPoint is null && (hit.Count == 0 || hit["normal"].AsVector3().Y < .55f || !source.State.Movement.Grounded))
-                {
-                    _previous[wheel] = null;
-                    _spray[wheel++].Emitting = false;
-                    continue;
-                }
-                var identity = waterPoint.HasValue ? SurfaceIdentity.Water : SurfaceIdentityResolver.Resolve(hit["collider"].AsGodotObject(), hit["position"].AsVector3());
-                Vector3 point = waterPoint ?? hit["position"].AsVector3();
-                Vector3 normal = waterPoint.HasValue ? Vector3.Up : hit["normal"].AsVector3();
-                bool soft = identity is SurfaceIdentity.Dirt or SurfaceIdentity.Grass or SurfaceIdentity.Mud or SurfaceIdentity.DeepMud;
-                bool water = identity == SurfaceIdentity.Water;
-                if (identity is { } observed) { _observed.Add(observed); }
-                if (water)
-                {
-                    WaterSamples++;
-                    if (speed > .7f && wheel >= 2)
-                    {
-                        _wakes.SetInstanceTransform(_nextWake, new Transform3D(Basis.Identity.Scaled(new Vector3(1.2f,1,1.8f)), point + Vector3.Up*.025f));
-                        _wakes.SetInstanceCustomData(_nextWake, new Color(_elapsed,0,0,0));
-                        _nextWake = (_nextWake+1)%32;
-                        _wakes.VisibleInstanceCount = Math.Min(++_wakeCount,32);
-                    }
-                }
-                var style = Style(identity);
-                var spray = _spray[wheel];
-                spray.GlobalPosition = point + normal * .06f;
-                spray.Emitting = speed > 2 && (soft || water);
-                var process = (ParticleProcessMaterial)spray.ProcessMaterial;
-                process.Direction = (normal - source.Pose.Basis.Z * .3f).Normalized();
-                process.Spread = water ? 65 : 40;
-                process.InitialVelocityMin = water ? 1.5f : .5f;
-                process.InitialVelocityMax = Math.Clamp(speed * (water ? .35f : .12f), 1, 6);
-                process.Gravity = new Vector3(0, water || identity is SurfaceIdentity.Mud or SurfaceIdentity.DeepMud ? -8 : .3f, 0);
-                process.ScaleMin = water ? .06f : .1f;
-                process.ScaleMax = water ? .22f : identity is SurfaceIdentity.Dirt ? .8f : .25f;
-                ((StandardMaterial3D)((QuadMesh)spray.DrawPass1).Material).AlbedoColor = water ? new Color(.6f, .8f, .85f, .6f) : new Color(style.Color, .35f);
-                bool mark = speed > .8f && !water && (soft || identity is SurfaceIdentity.Asphalt or SurfaceIdentity.Concrete && source.State.Movement.Drifting);
-                if (mark && _surfaces[wheel] == identity && _previous[wheel] is { } previous)
-                {
-                    Vector3 direction = point - previous;
-                    float length = direction.Length();
-                    if (length is > .12f and < 3.5f)
-                    {
-                        Vector3 forward = direction.Slide(normal).Normalized();
-                        if (!forward.IsZeroApprox())
-                        {
-                            var basis = new Basis(normal.Cross(forward).Normalized() * style.Width, normal, forward * (length + .08f));
-                            _instances.SetInstanceTransform(_next, new Transform3D(basis, (point + previous) / 2 + normal * .018f));
-                            _instances.SetInstanceColor(_next, style.Color);
-                            _instances.SetInstanceCustomData(_next, new Color(_elapsed, 20, style.Roughness, soft ? 1 : 0));
-                            _next = (_next + 1) % Capacity;
-                            MarksWritten++;
-                            _instances.VisibleInstanceCount = Math.Min(Capacity, MarksWritten);
-                            _previous[wheel] = point;
-                        }
-                    }
-                    else if (length >= 3.5f) { _previous[wheel] = point; }
-                }
-                else { _previous[wheel] = mark ? point : null; }
-                _surfaces[wheel++] = identity;
+                _previous[wheel] = null;
+                _spray[wheel].Emitting = false;
+                continue;
             }
+            var identity = waterPoint.HasValue ? SurfaceIdentity.Water : SurfaceIdentityResolver.Resolve(hit["collider"].AsGodotObject(), hit["position"].AsVector3());
+            Vector3 point = waterPoint ?? hit["position"].AsVector3();
+            Vector3 normal = waterPoint.HasValue ? Vector3.Up : hit["normal"].AsVector3();
+            bool soft = identity is SurfaceIdentity.Dirt or SurfaceIdentity.Grass or SurfaceIdentity.Mud or SurfaceIdentity.DeepMud;
+            bool water = identity == SurfaceIdentity.Water;
+            if (identity is { } observed) { _observed.Add(observed); }
+            if (water)
+            {
+                WaterSamples++;
+                if (speed > .7f && wheel >= 2)
+                {
+                    _wakes.SetInstanceTransform(_nextWake, new Transform3D(Basis.Identity.Scaled(new Vector3(1.2f,1,1.8f)), point + Vector3.Up*.025f));
+                    _wakes.SetInstanceCustomData(_nextWake, new Color(_elapsed,0,0,0));
+                    _nextWake = (_nextWake+1)%32;
+                    _wakeCount = Math.Min(_wakeCount + 1, 32);
+                    _wakes.VisibleInstanceCount = _wakeCount;
+                    _lastWake = _elapsed;
+                }
+            }
+            var style = Style(identity);
+            var spray = _spray[wheel];
+            spray.GlobalPosition = point + normal * .06f;
+            spray.Emitting = speed > 2 && (soft || water);
+            var process = (ParticleProcessMaterial)spray.ProcessMaterial;
+            process.Direction = (normal - source.Pose.Basis.Z * .3f).Normalized();
+            process.Spread = water ? 65 : 40;
+            process.InitialVelocityMin = water ? 1.5f : .5f;
+            process.InitialVelocityMax = Math.Clamp(speed * (water ? .35f : .12f), 1, 6);
+            process.Gravity = new Vector3(0, water || identity is SurfaceIdentity.Mud or SurfaceIdentity.DeepMud ? -8 : .3f, 0);
+            process.ScaleMin = water ? .06f : .1f;
+            process.ScaleMax = water ? .22f : identity is SurfaceIdentity.Dirt ? .8f : .25f;
+            ((StandardMaterial3D)((QuadMesh)spray.DrawPass1).Material).AlbedoColor = water ? new Color(.6f, .8f, .85f, .6f) : new Color(style.Color, .35f);
+            bool mark = speed > .8f && !water && (soft || identity is SurfaceIdentity.Asphalt or SurfaceIdentity.Concrete && source.State.Movement.Drifting);
+            if (mark && _surfaces[wheel] == identity && _previous[wheel] is { } previous)
+            {
+                Vector3 direction = point - previous;
+                float length = direction.Length();
+                if (length is > .12f and < 3.5f)
+                {
+                    Vector3 forward = direction.Slide(normal).Normalized();
+                    if (!forward.IsZeroApprox())
+                    {
+                        var basis = new Basis(normal.Cross(forward).Normalized() * style.Width, normal, forward * (length + .08f));
+                        _instances.SetInstanceTransform(_next, new Transform3D(basis, (point + previous) / 2 + normal * .018f));
+                        _instances.SetInstanceColor(_next, style.Color);
+                        _instances.SetInstanceCustomData(_next, new Color(_elapsed, MarkLifetime, style.Roughness, soft ? 1 : 0));
+                        _next = (_next + 1) % Capacity;
+                        MarksWritten++;
+                        _markCount = Math.Min(Capacity, _markCount + 1);
+                        _instances.VisibleInstanceCount = _markCount;
+                        _lastMark = _elapsed;
+                        _previous[wheel] = point;
+                    }
+                }
+                else if (length >= 3.5f) { _previous[wheel] = point; }
+            }
+            else { _previous[wheel] = mark ? point : null; }
+            _surfaces[wheel] = identity;
         }
     }
 
@@ -155,9 +180,9 @@ internal sealed partial class TireFeedback : Node3D
         _ => (Colors.Transparent, 0, 1),
     };
 
-    private Vector3? FindWater(Vector3 origin)
+    private Vector3? FindWater(Vector3 origin, Godot.Collections.Array<Node> waterTerrains)
     {
-        foreach (var member in GetTree().GetNodesInGroup("water_terrain"))
+        foreach (var member in waterTerrains)
         {
             if (member is not Node3D terrain || terrain.GetWorld3D() != GetWorld3D() || !terrain.HasMeta("water_level") || !terrain.HasMeta("surface_bounds")) { continue; }
             Vector4 bounds = terrain.GetMeta("surface_bounds").AsVector4();
@@ -179,6 +204,7 @@ internal sealed partial class TireFeedback : Node3D
 
     public override void _ExitTree()
     {
+        _ray.Dispose();
         _marks.Multimesh = null;
         _instances.Dispose();
         _wakes.Dispose();

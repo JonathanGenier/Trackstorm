@@ -21,6 +21,10 @@ authoring. Imported native LODs simplify visuals independently of explicit conve
 collision pieces. Vegetation and elevated detail collision exclusions, hard
 cutoffs and MultiMesh placement guidance are defined in the asset notes.
 
+Shared Rock/Concrete materials replace imported mesh slots directly. Unused
+embedded texture/material copies are therefore not retained underneath overrides;
+the Blender source and authored UV/material identities remain unchanged.
+
 `check-environment.ps1 -GodotPath <path> -Visual` exercises native import,
 resource reuse, scale/orientation, materials, collision and rendered views in an
 isolated gallery plus temporary map context. Its rigid-body impacts are asset

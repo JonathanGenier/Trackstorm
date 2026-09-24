@@ -125,6 +125,16 @@ public sealed partial class TerrainEffectsChecks : Node3D
             }
             _evidence.Add($"Eight vehicles, density zero: 1200 physics frames in {Time.GetTicksMsec()-started} ms; existing marks still fade. This is not a full GPU profiler.");
             Check(effects.MarksWritten == stopped, "Zero visual density suppresses emissions");
+            await Frames(10);
+            Check(_cars.All(car => car.GetChildren().OfType<TireFeedback>().Single().GetChildren()
+                .OfType<MultiMeshInstance3D>().All(batch => batch.Multimesh.VisibleInstanceCount == 0)),
+                "Expired tracks and wakes submit zero instances for all eight cars");
+            effects.Density = 1;
+            _car.ResetBody(Physics(new Vector3(0,.9f,15), new Vector3(0,0,-9)));
+            await Frames(12);
+            Check(effects.MarksWritten > stopped && effects.GetChildren().OfType<MultiMeshInstance3D>()
+                .Single(batch => batch.Multimesh.InstanceCount == TireFeedback.Capacity).Multimesh.VisibleInstanceCount is > 0 and < 32,
+                "Resumed tracks contain only new segments, without reviving the expired ring");
             _drive = false;
             _car = null;
             foreach (var car in _cars) { car.QueueFree(); }
@@ -141,6 +151,7 @@ public sealed partial class TerrainEffectsChecks : Node3D
                 environment.Apply(preset);
                 await View("preset-" + preset, new Vector3(-125,13,57), new Vector3(-15,4,-25));
                 await View("overview-" + preset, new Vector3(-185,105,140), Vector3.Zero);
+                await MeasureRenderedMap(preset);
                 Check(environment.Current == preset && Descendants(map) == mapNodes, "Preset applies without map reconstruction: " + preset);
             }
             for (int repeat = 0; repeat < 20; repeat++)
@@ -162,6 +173,25 @@ public sealed partial class TerrainEffectsChecks : Node3D
 
     private static VehiclePhysicsState Physics(Vector3 position, Vector3 velocity = default) => new(VehicleBody.ToCore(position), N.Quaternion.Identity, VehicleBody.ToCore(velocity), N.Vector3.Zero);
     private static int Descendants(Node node) => 1 + node.GetChildren().Sum(Descendants);
+    private async Task MeasureRenderedMap(EnvironmentPreset preset)
+    {
+        if (DisplayServer.GetName() == "headless") { return; }
+        // Real frame intervals include renderer, scheduling and vsync. Do not label them GPU timings.
+        var samples = new List<double>();
+        ulong previous = Time.GetTicksUsec();
+        for (int i = 0; i < 120; i++)
+        {
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            ulong now = Time.GetTicksUsec();
+            samples.Add((now - previous) / 1000.0);
+            previous = now;
+        }
+        samples.Sort();
+        _evidence.Add($"Rendered map {preset}: 120 overview frames, p50={samples[60]:F2} ms, p95={samples[114]:F2} ms, p99={samples[118]:F2} ms; " +
+            $"draw calls={Godot.Performance.GetMonitor(Godot.Performance.Monitor.RenderTotalDrawCallsInFrame)}, " +
+            $"primitives={Godot.Performance.GetMonitor(Godot.Performance.Monitor.RenderTotalPrimitivesInFrame)}, " +
+            $"video memory={Godot.Performance.GetMonitor(Godot.Performance.Monitor.RenderVideoMemUsed)} bytes.");
+    }
     private async Task Frames(int count) { for (int i=0;i<count;i++) { await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame); } }
     private async Task View(string name, Vector3 position, Vector3 target)
     {

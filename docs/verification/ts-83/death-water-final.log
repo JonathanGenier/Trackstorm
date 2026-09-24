@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Cycle 1: water death, all eight peers Dead/Respawning/Alive, respawn tick 429, reset physics/HP/items/VFX verified.
+Cycle 2: water death, all eight peers Dead/Respawning/Alive, respawn tick 869, reset physics/HP/items/VFX verified.
+Cycle 3: water death, all eight peers Dead/Respawning/Alive, respawn tick 1306, reset physics/HP/items/VFX verified.
+Cycle 4: water death, all eight peers Dead/Respawning/Alive, respawn tick 1744, reset physics/HP/items/VFX verified.
+Death/respawn integration passed.
+Death/respawn verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\death-checks\55c6fa094aa84eb98a13e6ac3ed337d0
