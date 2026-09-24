@@ -1429,6 +1429,29 @@ internal sealed partial class OnlineLobbyTests
         Assert.That(host.State!.Players.Count, Is.EqualTo(arena ? 2 : 1));
     }
 
+    [Test]
+    public void HostKickRemovesBindingPublishesReasonAndRejectsRejoinUntilDisconnect()
+    {
+        using var wire = new Gateway();
+        var host = new LobbyNetworkDriver(wire, 100, 0, "Host");
+        wire.ConnectPeer(20);
+        wire.ReceiveJoin(20, "Guest", GameVersion.Current.ToString());
+        host.Pump(0);
+        ulong player = host.Authority!.PlayerId(20);
+        Assert.That(host.Kick(host.LocalPlayerId), Is.False);
+        Assert.That(host.Kick(999), Is.False);
+        wire.Sent.Clear();
+        Assert.That(host.Kick(player), Is.True);
+        Assert.That(host.State!.Players.Select(row => row.Id), Is.EquivalentTo(new[] { host.LocalPlayerId }));
+        Assert.That(host.Authority.Peers, Is.Empty);
+        Assert.That(LobbyCodec.DecodeRejection(wire.Sent.Single().Payload.Span), Is.EqualTo("Removed by host"));
+        wire.ReceiveJoin(20, "Guest", GameVersion.Current.ToString());
+        host.Pump(0);
+        Assert.That(host.State.Players.Count, Is.EqualTo(1));
+        host.Pump(1.1);
+        Assert.That(wire.Connections[20], Is.EqualTo(TransportConnectionState.Disconnected));
+    }
+
     private static void ConfirmReservation(OnlineLobbyCoordinator coordinator, Gateway gateway, Trackstorm.Client.Networking.LobbyNetworkDriver driver, ulong peer, ulong session, ulong player, ulong generation, ulong epoch = 1)
     {
         Assert.That(LobbyCodec.DecodeCommand(gateway.Sent.Last().Payload.Span).Command, Is.EqualTo(LobbyCommand.InspectReservation));

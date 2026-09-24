@@ -19,7 +19,7 @@ public sealed class LobbySnapshot
         MatchParticipant[] history = (departed ?? []).Take(Matches.MatchState.MaximumPlayers + 1).ToArray();
         if (session == 0 || revision == 0 || match < session || !Enum.IsDefined(phase) || !Enum.IsDefined(map) ||
             (phase == SessionPhase.Arena && match == session) || copy.Length is < 1 or > 8 ||
-            copy.Any(player => player is null || (phase == SessionPhase.Lobby && (!player.Connected || player.RetainedHost)) || player.Id == 0 || player.Generation == 0 || (!player.Connected && player.Ready) || player.Name != PlayerName.Sanitize(player.Name)) ||
+            copy.Any(player => player is null || (phase == SessionPhase.Lobby && (!player.Connected || player.RetainedHost)) || player.Id == 0 || player.Generation == 0 || (!player.Connected && (player.Id == CurrentHostId || player.Ready)) || player.Name != PlayerName.Sanitize(player.Name)) ||
             copy.Select(player => player.Id).Distinct().Count() != copy.Length || authorityEpoch == 0 || !copy.Any(player => player.Id == currentHostId && player.Connected))
         {
             throw new ArgumentException("Invalid lobby state.");
@@ -63,6 +63,6 @@ public sealed class LobbySnapshot
     public IReadOnlyList<SessionPlayer> Players { get; }
     /// <summary>Offline match history; never grants admission, ownership or reconnect authorization.</summary>
     public IReadOnlyList<MatchParticipant> Departed { get; }
-    /// <summary>Development policy: one through eight connected players, all explicitly ready.</summary>
-    public bool CanStart => Phase == SessionPhase.Lobby && Players.All(player => player.Connected && player.Ready);
+    /// <summary>One through eight connected players; every non-host must explicitly be ready.</summary>
+    public bool CanStart => Phase == SessionPhase.Lobby && Players.All(player => player.Connected && (player.Id == CurrentHostId || player.Ready));
 }

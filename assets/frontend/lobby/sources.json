@@ -1,0 +1,27 @@
+{
+  "story": "TS-139",
+  "reference": {
+    "filename": "ChatGPT Image Sep 23, 2026, 05_52_30 PM.png",
+    "sha256": "6aa55e595224161ceb079eec2ca8f19efd8a6a2db2e1c6015138417e4494ff71",
+    "provenance": "User-supplied approved visual target, 2026-09-23"
+  },
+  "background": {
+    "file": "CarnageCircus.png",
+    "tool": "Built-in imagegen edit",
+    "prompt_summary": "Environment-only edit of the approved TS-139 mockup: preserve its wide camera composition, industrial circus tent and scaffolding, warm carnival bulbs, theatrical lighting, smoke, clown entrance and CARNAGE CIRCUS sign, wet reflective platform and chains. Remove all eight vehicles, vehicle shadows, nameplates, HOST/READY text, Current Map panel and bottom UI; reconstruct the background with no vehicles or UI. Keep the platform lip near 75% height for live 3D compositing.",
+    "source_output": "exec-f924d3d9-a8fe-441d-a05a-3d7cd08c57c7.png",
+    "sha256": "09928e0b2f114e97deb0c51d76159a12133388e998fb35fde3895dab14cb9cc0"
+  },
+  "map_previews": [
+    {
+      "file": "OldMap.png",
+      "sha256": "a473338269ac689e71b71f59c3e20fe00abef4ed6500100e509d7dae7d02e144",
+      "source": "Existing production map scene, Godot 4.7.2 native render via render-map-previews.gd"
+    },
+    {
+      "file": "NewMap.png",
+      "sha256": "cdde3f9902b9629ee512ee1be645a51998e69834e27c9c6f8295a94d631b9d94",
+      "source": "Existing production map scene, Godot 4.7.2 native render via render-map-previews.gd"
+    }
+  ]
+}

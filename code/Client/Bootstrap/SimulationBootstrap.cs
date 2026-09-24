@@ -254,7 +254,9 @@ public sealed partial class SimulationBootstrap : Node
         };
         session.SetFrontendPresentation(presentFrontend, presentFrontend ? 1 : 0);
         AddChild(session);
-        panel.ShowFrontendShortcut = () => session.Stage != ApplicationStage.MainMenu;
+        panel.ShowFrontendShortcut = () => session.Stage is not (ApplicationStage.MainMenu or ApplicationStage.Lobby);
+        panel.CanLogoutOnline = () => session.CanLogoutOnline;
+        panel.LogoutOnline = session.LogoutOnline;
         return session;
     }
 

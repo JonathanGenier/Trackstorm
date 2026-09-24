@@ -197,7 +197,9 @@ internal sealed class VehicleNetworkDriver : IDisposable
     internal VehicleSnapshot? LocalState => Host?.World.GetVehicle(LocalVehicleId) ?? Prediction?.State;
     /// <summary>Completed application handoff; absent throughout local loading or authoritative recovery.</summary>
     internal SynchronizedMatchContext? EntryContext { get; private set; }
-    /// <summary>Whether presentation may expose this completely initialized match.</summary>
+    /// <summary>Monotonic initial entry release for this generation; temporary resynchronization never clears it.</summary>
+    internal bool InitialEntryReleased => _entryReleased;
+    /// <summary>Current synchronized entry readiness, including temporary recovery gates.</summary>
     internal bool EntryReady => !_disposed && (!_applicationEntry || (EntryContext is not null && IsActive));
 
     /// <summary>Local controls require synchronization and the accepted authoritative phase, never a local countdown.</summary>
