@@ -8,7 +8,7 @@ public sealed record VehicleConfiguration
     /// <summary>Compacted soil retains controllable drive with modest rolling resistance.</summary>
     public SurfaceModifiers Dirt { get; init; } = new(0.85f, 1.15f, 0.95f);
     /// <summary>Vegetation reduces tire purchase and adds rolling resistance.</summary>
-    public SurfaceModifiers Grass { get; init; } = new(0.72f, 1.4f, 0.9f);
+    public SurfaceModifiers Grass { get; init; } = new(0.62f, 1.4f, 0.9f);
     /// <summary>Soft ground has less grip/acceleration and greater resistance.</summary>
     public SurfaceModifiers Mud { get; init; } = new(0.6f, 2.5f, 0.85f);
     /// <summary>Saturated soil bogs at speed while retaining usable low-speed drive.</summary>
@@ -25,9 +25,9 @@ public sealed record VehicleConfiguration
     /// <summary>Body mass in kilograms.</summary>
     public float Mass { get; init; } = 900;
     /// <summary>Forward acceleration in metres per second squared.</summary>
-    public float Acceleration { get; init; } = 11;
+    public float Acceleration { get; init; } = 16;
     /// <summary>Braking deceleration.</summary>
-    public float Braking { get; init; } = 14;
+    public float Braking { get; init; } = 17;
     /// <summary>Residual opposing speed snapped to rest before reversing, in m/s.</summary>
     public float StopSpeed { get; init; } = 0.05f;
     /// <summary>Reverse acceleration.</summary>
@@ -41,9 +41,17 @@ public sealed record VehicleConfiguration
     /// <summary>Maximum low-speed wheel angle in radians.</summary>
     public float SteeringAngle { get; init; } = 0.6f;
     /// <summary>Speed in m/s at which wheel authority starts calming substantially.</summary>
-    public float SteeringSpeed { get; init; } = 11;
+    public float SteeringSpeed { get; init; } = 12;
     /// <summary>Wheel angle transition rate in radians per second.</summary>
     public float SteeringResponse { get; init; } = 2.4f;
+    /// <summary>Time constant for progressive wheel corrections, lengthened with speed.</summary>
+    public float SteeringSmoothing { get; init; } = 0.1f;
+    /// <summary>Maximum dirt rear lateral grip loss under sustained power.</summary>
+    public float DirtPowerSlip { get; init; } = 0.22f;
+    /// <summary>Wheelspin buildup rate per second.</summary>
+    public float PowerSlipResponse { get; init; } = 2;
+    /// <summary>Wheelspin recovery rate per second on throttle reduction.</summary>
+    public float PowerSlipRecovery { get; init; } = 2.5f;
     /// <summary>Distance between axle centers in metres.</summary>
     public float Wheelbase { get; init; } = VehicleDimensions.Wheelbase;
     /// <summary>Tire friction coefficient; combined demands share this budget.</summary>
@@ -61,7 +69,7 @@ public sealed record VehicleConfiguration
     /// <summary>Handbrake release response per second, permitting gradual traction recovery.</summary>
     public float TractionRecovery { get; init; } = 3;
     /// <summary>Rolling resistance per second.</summary>
-    public float CoastDrag { get; init; } = 0.5f;
+    public float CoastDrag { get; init; } = 0.28f;
     /// <summary>Reference mass for engine and brake forces, so heavier tuning retains inertia.</summary>
     public float ReferenceMass { get; init; } = 900;
     /// <summary>Pitch/roll spring stiffness per second squared.</summary>
@@ -75,11 +83,17 @@ public sealed record VehicleConfiguration
     /// <summary>Weak yaw damping; never targets a commanded yaw or drift angle.</summary>
     public float StabilityDamping { get; init; } = 0.65f;
     /// <summary>Fully extended suspension ray length in metres.</summary>
-    public float SuspensionLength { get; init; } = VehicleDimensions.RideHeight + (9.81f / 100);
+    public float SuspensionLength { get; init; } = VehicleDimensions.RideHeight + (9.81f / 30);
     /// <summary>Vertical spring stiffness per unit sprung mass.</summary>
-    public float WheelSpring { get; init; } = 100;
-    /// <summary>Vertical wheel damping per unit sprung mass.</summary>
-    public float WheelDamping { get; init; } = 20;
+    public float WheelSpring { get; init; } = 30;
+    /// <summary>Compression damping per unit sprung mass; acts on chassis point velocity.</summary>
+    public float WheelDamping { get; init; } = 7;
+    /// <summary>Extension damping per unit sprung mass, controlling recovery without pulling tires down.</summary>
+    public float WheelReboundDamping { get; init; } = 15;
+    /// <summary>Compression where progressive bump resistance begins, in metres.</summary>
+    public float WheelBumpStart { get; init; } = 0.55f;
+    /// <summary>Additional acceleration per squared metre beyond bump engagement.</summary>
+    public float WheelBumpSpring { get; init; } = 140;
     /// <summary>Gravity acceleration.</summary>
     public float Gravity { get; init; } = 9.81f;
     /// <summary>Safety bound on total velocity, including external impulses.</summary>
@@ -105,6 +119,13 @@ public sealed record VehicleConfiguration
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(SteeringSmoothing) || SteeringSmoothing is < 0.01f or > 1 ||
+            !float.IsFinite(DirtPowerSlip) || DirtPowerSlip is < 0 or > 0.8f ||
+            !float.IsFinite(PowerSlipResponse) || PowerSlipResponse is < 0.1f or > 20 ||
+            !float.IsFinite(PowerSlipRecovery) || PowerSlipRecovery is < 0.1f or > 20)
+        {
+            throw new ArgumentException("Invalid progressive handling tuning.");
+        }
         if (!float.IsFinite(DeepWaterDepth) || DeepWaterDepth is < 0.01f or > 100 ||
             !float.IsFinite(WaterDamagePerSecond) || WaterDamagePerSecond is < 0 or > 10000)
         {
@@ -115,7 +136,7 @@ public sealed record VehicleConfiguration
             throw new ArgumentException("Drive traction reserve must be a finite fraction.");
         }
 
-        if (TicksPerSecond is < 30 or > 240 || new[] { StopSpeed, SuspensionLength, WheelSpring, WheelDamping, Mass, Acceleration, Braking, ReverseAcceleration, ForwardSpeed, ReverseSpeed, Grip, SteeringAngle, SteeringSpeed, SteeringResponse, Wheelbase, TireFriction, LoadHeight, HandbrakeBraking, HandbrakeGrip, HandbrakeResponse, TractionRecovery, CoastDrag, ReferenceMass, SuspensionSpring, SuspensionDamping, ChassisCompliance, MaximumChassisTilt, Gravity, MaximumPhysicsSpeed, MaximumAngularSpeed }.Any(value => !float.IsFinite(value) || value <= 0 || value > 10000) || SuspensionLength > 1 || HandbrakeGrip > 1 || SteeringAngle > 1 || MaximumChassisTilt > 0.5f || !float.IsFinite(StabilityDamping) || StabilityDamping < 0 || StabilityDamping > 1 || ForwardSpeed > MaximumPhysicsSpeed || ReverseSpeed > ForwardSpeed)
+        if (TicksPerSecond is < 30 or > 240 || new[] { StopSpeed, SuspensionLength, WheelSpring, WheelDamping, WheelReboundDamping, WheelBumpStart, WheelBumpSpring, Mass, Acceleration, Braking, ReverseAcceleration, ForwardSpeed, ReverseSpeed, Grip, SteeringAngle, SteeringSpeed, SteeringResponse, Wheelbase, TireFriction, LoadHeight, HandbrakeBraking, HandbrakeGrip, HandbrakeResponse, TractionRecovery, CoastDrag, ReferenceMass, SuspensionSpring, SuspensionDamping, ChassisCompliance, MaximumChassisTilt, Gravity, MaximumPhysicsSpeed, MaximumAngularSpeed }.Any(value => !float.IsFinite(value) || value <= 0 || value > 10000) || SuspensionLength > 2 || WheelBumpStart >= 1 || HandbrakeGrip > 1 || SteeringAngle > 1 || MaximumChassisTilt > 0.5f || !float.IsFinite(StabilityDamping) || StabilityDamping < 0 || StabilityDamping > 1 || ForwardSpeed > MaximumPhysicsSpeed || ReverseSpeed > ForwardSpeed)
         {
             throw new ArgumentException("Vehicle tuning requires finite positive values and consistent speed/grip limits.");
         }

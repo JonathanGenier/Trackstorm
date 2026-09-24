@@ -6,6 +6,7 @@ public static class GameplayOptions
     /// <summary>Stable allowlist of editable gameplay settings.</summary>
     public static IReadOnlyList<GameplayOption> All { get; } = Array.AsReadOnly<GameplayOption>(
     [
+        new("environment.preset", "Sky / Environment", "Environment preset", true, c => (int)c.Environment, (c, v) => c with { Environment = (EnvironmentPreset)checked((int)v) }),
         new("vehicle.mass", "Vehicle", "Mass", false, c => c.Vehicle.Mass, (c, v) => c with { Vehicle = c.Vehicle with { Mass = checked((float)v) } }),
         new("vehicle.acceleration", "Vehicle", "Acceleration", false, c => c.Vehicle.Acceleration, (c, v) => c with { Vehicle = c.Vehicle with { Acceleration = checked((float)v) } }),
         new("vehicle.braking", "Vehicle", "Braking", false, c => c.Vehicle.Braking, (c, v) => c with { Vehicle = c.Vehicle with { Braking = checked((float)v) } }),
@@ -17,6 +18,10 @@ public static class GameplayOptions
         new("vehicle.steering_angle", "Vehicle", "SteeringAngle", false, c => c.Vehicle.SteeringAngle, (c, v) => c with { Vehicle = c.Vehicle with { SteeringAngle = checked((float)v) } }),
         new("vehicle.steering_speed", "Vehicle", "SteeringSpeed", false, c => c.Vehicle.SteeringSpeed, (c, v) => c with { Vehicle = c.Vehicle with { SteeringSpeed = checked((float)v) } }),
         new("vehicle.steering_response", "Vehicle", "SteeringResponse", false, c => c.Vehicle.SteeringResponse, (c, v) => c with { Vehicle = c.Vehicle with { SteeringResponse = checked((float)v) } }),
+        new("vehicle.steering_smoothing", "Vehicle", "Steering smoothing", false, c => c.Vehicle.SteeringSmoothing, (c, v) => c with { Vehicle = c.Vehicle with { SteeringSmoothing = checked((float)v) } }),
+        new("vehicle.dirt_power_slip", "Vehicle", "Dirt power slip", false, c => c.Vehicle.DirtPowerSlip, (c, v) => c with { Vehicle = c.Vehicle with { DirtPowerSlip = checked((float)v) } }),
+        new("vehicle.power_slip_response", "Vehicle", "Power slip buildup", false, c => c.Vehicle.PowerSlipResponse, (c, v) => c with { Vehicle = c.Vehicle with { PowerSlipResponse = checked((float)v) } }),
+        new("vehicle.power_slip_recovery", "Vehicle", "Power slip recovery", false, c => c.Vehicle.PowerSlipRecovery, (c, v) => c with { Vehicle = c.Vehicle with { PowerSlipRecovery = checked((float)v) } }),
         new("vehicle.wheelbase", "Vehicle", "Wheelbase", false, c => c.Vehicle.Wheelbase, (c, v) => c with { Vehicle = c.Vehicle with { Wheelbase = checked((float)v) } }),
         new("vehicle.tire_friction", "Vehicle", "TireFriction", false, c => c.Vehicle.TireFriction, (c, v) => c with { Vehicle = c.Vehicle with { TireFriction = checked((float)v) } }),
         new("vehicle.drive_traction_reserve", "Vehicle", "DriveTractionReserve", false, c => c.Vehicle.DriveTractionReserve, (c, v) => c with { Vehicle = c.Vehicle with { DriveTractionReserve = checked((float)v) } }),
@@ -35,6 +40,9 @@ public static class GameplayOptions
         new("vehicle.suspension_length", "Vehicle", "SuspensionLength", false, c => c.Vehicle.SuspensionLength, (c, v) => c with { Vehicle = c.Vehicle with { SuspensionLength = checked((float)v) } }),
         new("vehicle.wheel_spring", "Vehicle", "WheelSpring", false, c => c.Vehicle.WheelSpring, (c, v) => c with { Vehicle = c.Vehicle with { WheelSpring = checked((float)v) } }),
         new("vehicle.wheel_damping", "Vehicle", "WheelDamping", false, c => c.Vehicle.WheelDamping, (c, v) => c with { Vehicle = c.Vehicle with { WheelDamping = checked((float)v) } }),
+        new("vehicle.wheel_rebound_damping", "Vehicle", "Wheel rebound damping", false, c => c.Vehicle.WheelReboundDamping, (c, v) => c with { Vehicle = c.Vehicle with { WheelReboundDamping = checked((float)v) } }),
+        new("vehicle.wheel_bump_start", "Vehicle", "Wheel bump engagement (m)", false, c => c.Vehicle.WheelBumpStart, (c, v) => c with { Vehicle = c.Vehicle with { WheelBumpStart = checked((float)v) } }),
+        new("vehicle.wheel_bump_spring", "Vehicle", "Wheel progressive bump spring", false, c => c.Vehicle.WheelBumpSpring, (c, v) => c with { Vehicle = c.Vehicle with { WheelBumpSpring = checked((float)v) } }),
         new("vehicle.gravity", "Vehicle", "Gravity", false, c => c.Vehicle.Gravity, (c, v) => c with { Vehicle = c.Vehicle with { Gravity = checked((float)v) } }),
         new("vehicle.maximum_physics_speed", "Vehicle", "MaximumPhysicsSpeed", false, c => c.Vehicle.MaximumPhysicsSpeed, (c, v) => c with { Vehicle = c.Vehicle with { MaximumPhysicsSpeed = checked((float)v) } }),
         new("vehicle.maximum_angular_speed", "Vehicle", "MaximumAngularSpeed", false, c => c.Vehicle.MaximumAngularSpeed, (c, v) => c with { Vehicle = c.Vehicle with { MaximumAngularSpeed = checked((float)v) } }),

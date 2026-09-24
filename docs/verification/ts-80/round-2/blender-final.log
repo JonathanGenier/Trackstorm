@@ -1,0 +1,138 @@
+C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\assets\environment\BuildLibrary.py:34: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  mat.use_nodes = True
+Warning: No mesh data to join
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+10:55:55 | INFO: Starting glTF 2.0 export
+10:55:55 | INFO: Extracting primitive: Icosphere.001
+10:55:55 | INFO: Primitives created: 1
+10:55:55 | INFO: Extracting primitive: Icosphere.002
+10:55:55 | INFO: Primitives created: 1
+10:55:55 | INFO: Finished glTF 2.0 export in 0.15857911109924316 s
+
+Warning: No mesh data to join
+10:55:55 | INFO: Starting glTF 2.0 export
+10:55:55 | INFO: Extracting primitive: Icosphere.004
+10:55:55 | INFO: Primitives created: 1
+10:55:55 | INFO: Extracting primitive: Icosphere.005
+10:55:55 | INFO: Primitives created: 1
+10:55:55 | INFO: Finished glTF 2.0 export in 0.03625035285949707 s
+
+Warning: No mesh data to join
+10:55:55 | INFO: Starting glTF 2.0 export
+10:55:55 | INFO: Extracting primitive: Icosphere.007
+10:55:55 | INFO: Primitives created: 1
+10:55:55 | INFO: Extracting primitive: Icosphere.008
+10:55:55 | INFO: Primitives created: 1
+10:55:55 | INFO: Finished glTF 2.0 export in 0.021328449249267578 s
+
+10:55:55 | INFO: Starting glTF 2.0 export
+10:55:55 | INFO: Extracting primitive: Icosphere.012
+10:55:55 | INFO: Primitives created: 1
+10:55:55 | INFO: Extracting primitive: Icosphere.013
+10:55:55 | INFO: Primitives created: 1
+10:55:55 | INFO: Extracting primitive: Icosphere.014
+10:55:55 | INFO: Primitives created: 1
+10:55:55 | INFO: Extracting primitive: Icosphere.015
+10:55:55 | INFO: Primitives created: 1
+10:55:55 | INFO: Finished glTF 2.0 export in 0.06063723564147949 s
+
+10:55:56 | INFO: Starting glTF 2.0 export
+10:55:56 | INFO: Extracting primitive: Icosphere.022
+10:55:56 | INFO: Primitives created: 1
+10:55:56 | INFO: Extracting primitive: Icosphere.023
+10:55:56 | INFO: Primitives created: 1
+10:55:56 | INFO: Extracting primitive: Icosphere.024
+10:55:56 | INFO: Primitives created: 1
+10:55:56 | INFO: Extracting primitive: Icosphere.025
+10:55:56 | INFO: Primitives created: 1
+10:55:56 | INFO: Extracting primitive: Icosphere.026
+10:55:56 | INFO: Primitives created: 1
+10:55:56 | INFO: Finished glTF 2.0 export in 0.05566668510437012 s
+
+10:56:00 | INFO: Starting glTF 2.0 export
+10:56:00 | INFO: Extracting primitive: Cone.077
+10:56:00 | INFO: Primitives created: 2
+10:56:00 | INFO: Finished glTF 2.0 export in 0.04467368125915527 s
+
+10:56:08 | INFO: Starting glTF 2.0 export
+10:56:08 | INFO: Extracting primitive: Cone.231
+10:56:08 | INFO: Primitives created: 2
+10:56:08 | INFO: Finished glTF 2.0 export in 0.05151486396789551 s
+
+Warning: No mesh data to join
+10:56:09 | INFO: Starting glTF 2.0 export
+10:56:09 | INFO: Extracting primitive: Blades.001
+10:56:09 | INFO: Primitives created: 1
+10:56:09 | INFO: Finished glTF 2.0 export in 0.029241085052490234 s
+
+Warning: No mesh data to join
+10:56:09 | INFO: Starting glTF 2.0 export
+10:56:09 | INFO: Extracting primitive: Blades.003
+10:56:09 | INFO: Primitives created: 1
+10:56:09 | INFO: Finished glTF 2.0 export in 0.03240633010864258 s
+
+Warning: No mesh data to join
+10:56:09 | INFO: Starting glTF 2.0 export
+10:56:09 | INFO: Extracting primitive: Cone.308
+10:56:09 | INFO: Primitives created: 1
+10:56:09 | INFO: Extracting primitive: Conifer0.001
+10:56:09 | INFO: Primitives created: 4
+10:56:09 | INFO: Finished glTF 2.0 export in 0.0817708969116211 s
+
+Warning: No mesh data to join
+10:56:10 | INFO: Starting glTF 2.0 export
+10:56:10 | INFO: Extracting primitive: Cone.309
+10:56:10 | INFO: Primitives created: 1
+10:56:10 | INFO: Extracting primitive: Conifer1.001
+10:56:10 | INFO: Primitives created: 4
+10:56:10 | INFO: Finished glTF 2.0 export in 0.06629705429077148 s
+
+Warning: No mesh data to join
+10:56:10 | INFO: Starting glTF 2.0 export
+10:56:10 | INFO: Extracting primitive: Cone.310
+10:56:10 | INFO: Primitives created: 1
+10:56:10 | INFO: Extracting primitive: Conifer2.001
+10:56:10 | INFO: Primitives created: 4
+10:56:10 | INFO: Finished glTF 2.0 export in 0.0726022720336914 s
+
+10:56:12 | INFO: Starting glTF 2.0 export
+10:56:12 | INFO: Extracting primitive: Cube.003
+10:56:12 | INFO: Primitives created: 2
+10:56:12 | INFO: Extracting primitive: Cube.002
+10:56:12 | INFO: Primitives created: 1
+10:56:12 | INFO: Finished glTF 2.0 export in 0.0435481071472168 s
+
+10:56:12 | INFO: Starting glTF 2.0 export
+10:56:12 | INFO: Extracting primitive: BarrierCast.002
+10:56:12 | INFO: Primitives created: 2
+10:56:12 | INFO: Extracting primitive: BarrierCast.001
+10:56:12 | INFO: Primitives created: 1
+10:56:12 | INFO: Finished glTF 2.0 export in 0.059668540954589844 s
+
+10:56:15 | INFO: Starting glTF 2.0 export
+10:56:15 | INFO: Extracting primitive: Cube.017
+10:56:15 | INFO: Primitives created: 4
+10:56:15 | INFO: Extracting primitive: Cone.324
+10:56:15 | INFO: Primitives created: 1
+10:56:15 | INFO: Extracting primitive: Cube.016
+10:56:15 | INFO: Primitives created: 1
+10:56:15 | INFO: Finished glTF 2.0 export in 0.08149981498718262 s
+
+10:56:16 | INFO: Starting glTF 2.0 export
+10:56:16 | INFO: Extracting primitive: Cube.027
+10:56:16 | INFO: Primitives created: 1
+10:56:16 | INFO: Extracting primitive: Cube.030
+10:56:16 | INFO: Primitives created: 1
+10:56:16 | INFO: Extracting primitive: Cube.028
+10:56:16 | INFO: Primitives created: 1
+10:56:16 | INFO: Extracting primitive: Cube.029
+10:56:16 | INFO: Primitives created: 1
+10:56:16 | INFO: Finished glTF 2.0 export in 0.02167487144470215 s
+00:30.969  image.write      | ERROR OpenImageIO write failed: Could not open file "\.thumbnails\large\blender_17244_5654ecbe9fa4b6916896e532e51f1d22.png.png"
+
+Info: Saved as "EnvironmentLibrary.blend"
+Environment library exported: 16 assets
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

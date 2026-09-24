@@ -1,0 +1,9 @@
+ERROR: System.InvalidOperationException: Host connection ended while sending; rejoin the lobby.
+   at Trackstorm.Client.Verification.NetworkVehicleChecks._PhysicsProcess(Double delta) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\NetworkVehicleChecks.cs:line 166
+   at: void Trackstorm.Client.Verification.NetworkVehicleChecks._PhysicsProcess(double) (res://code/Client/Verification/NetworkVehicleChecks.cs:166)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.NetworkVehicleChecks._PhysicsProcess(double) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\NetworkVehicleChecks.cs:166)
+       [2] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2648)
+       [3] bool Trackstorm.Client.Verification.NetworkVehicleChecks.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Verification.NetworkVehicleChecks_ScriptMethods.generated.cs:90)
+       [4] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

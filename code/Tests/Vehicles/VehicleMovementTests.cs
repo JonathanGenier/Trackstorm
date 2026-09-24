@@ -384,7 +384,7 @@ internal sealed class VehicleMovementTests
 
     /// <summary>Lift-off loses speed smoothly without reversing or imposing the powered cap on external velocity.</summary>
     [Test]
-    public void CoastDownApproachesRestWithinTenSeconds()
+    public void CoastDownPreservesRollingMomentumAndDecaysSmoothly()
     {
         VehicleMovement movement = Create(44.44f);
         for (int tick = 0; tick < 600; tick++)
@@ -395,7 +395,7 @@ internal sealed class VehicleMovementTests
             Assert.That(movement.State.Physics.LinearVelocity.Z, Is.LessThan(0));
         }
 
-        Assert.That(movement.State.CommandSpeed, Is.LessThan(0.4f));
+        Assert.That(movement.State.CommandSpeed, Is.InRange(2.5f, 3f));
     }
 
     /// <summary>A raised wheel compresses the sprung body, then near-critical damping settles without pogo.</summary>
@@ -424,6 +424,38 @@ internal sealed class VehicleMovementTests
         TestContext.WriteLine($"12 cm bump: chassis rise {peak:F3} m, minimum compression {minimumCompression:F3} m");
         Assert.That(peak, Is.InRange(0.02f, 0.09f));
         Assert.That(minimumCompression, Is.GreaterThan(0));
+    }
+
+    /// <summary>Independent damping controls affect only their direction and never create tensile ground support.</summary>
+    [Test]
+    public void CompressionAndReboundDampingHaveDistinctResponses()
+    {
+        float Step(float speed, VehicleConfiguration tuning)
+        {
+            var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.UnitY * speed, Vector3.Zero);
+            return new VehicleMovement(tuning, body).Step(Frame(1), body, Vector3.UnitY, wheels: new WheelSupport(new Vector4(0.4f))).Physics.LinearVelocity.Y;
+        }
+
+        var baseline = new VehicleConfiguration();
+        Assert.That(Step(-1, baseline with { WheelDamping = 22 }), Is.GreaterThan(Step(-1, baseline)));
+        Assert.That(Step(-1, baseline with { WheelReboundDamping = 30 }), Is.EqualTo(Step(-1, baseline)));
+        Assert.That(Step(0.2f, baseline with { WheelReboundDamping = 30 }), Is.LessThan(Step(0.2f, baseline)));
+        Assert.That(Step(0.2f, baseline with { WheelDamping = 22 }), Is.EqualTo(Step(0.2f, baseline)));
+        Assert.That(Step(10, baseline), Is.EqualTo(10 - baseline.Gravity / 60).Within(0.00001f));
+    }
+
+    /// <summary>Bump resistance adds support only near end stroke, remains bounded, and preserves airborne gravity.</summary>
+    [Test]
+    public void ProgressiveEndResistanceIsBoundedAndRequiresContact()
+    {
+        var tuning = new VehicleConfiguration();
+        var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        float Step(float compression, VehicleConfiguration config) => new VehicleMovement(config, body).Step(Frame(1), body, Vector3.UnitY, wheels: new WheelSupport(new Vector4(compression))).Physics.LinearVelocity.Y;
+        Assert.That(Step(0.3f, tuning with { WheelBumpSpring = 280 }), Is.EqualTo(Step(0.3f, tuning)));
+        Assert.That(Step(0.5f, tuning with { WheelBumpStart = 0.4f }), Is.GreaterThan(Step(0.5f, tuning)));
+        Assert.That(Step(0.7f, tuning with { WheelBumpSpring = 280 }), Is.GreaterThan(Step(0.7f, tuning)));
+        Assert.That(Step(1, tuning with { WheelBumpSpring = 10000 }), Is.LessThanOrEqualTo(5 * tuning.Gravity / 60 + 0.00001f));
+        Assert.That(Step(0, tuning), Is.EqualTo(-tuning.Gravity / 60));
     }
 
     private static VehicleMovement Create(float speed = 0) => new(new VehicleConfiguration(), new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(0, 0, -speed), Vector3.Zero));

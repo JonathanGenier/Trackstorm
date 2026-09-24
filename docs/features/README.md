@@ -21,10 +21,12 @@ Start with the system being changed. Read its document and only the integration 
 | [Arena audio](audio.md) | Vehicle/combat feedback, arena playlist, buses and committed CC0 sounds | [Settings](settings.md), [items](items.md), [matches](matches.md) |
 | [Vehicles and damage](vehicles.md) | Movement, suspension, surfaces, HP, collision/effect contracts | [Arena](arena.md), [camera](camera.md), [lifecycle](death-respawn.md), [replication](vehicle-networking.md) |
 | [Surface/material identity](surfaces.md) | Authored materials, native support identity, handling mapping and local Stats | [Vehicles](vehicles.md), [oval map](oval-map.md), [Stats](statistics.md) |
+| [Terrain effects and environments](terrain-effects.md) | Surface detail, bounded tire tracks, dust/mud/water feedback and authoritative environment presets | [Surfaces](surfaces.md), [Developer Options](developer-options.md), [oval map](oval-map.md) |
 | [Water interaction](water.md) | Immersion, resistance, deep-water damage, Configs and lifecycle | [Surfaces](surfaces.md), [vehicles](vehicles.md), [lifecycle](death-respawn.md) |
 | [Chase camera](camera.md) | Local orientation, free-look/recentering, inertia and feedback | [Input](input.md), [vehicles](vehicles.md), [replication](vehicle-networking.md) |
 | [Combat arena](arena.md) | Retained prototype fixture, markers, props and materials | [Vehicles](vehicles.md), [pickups](item-spawns.md), [replication](vehicle-networking.md) |
 | [Banked oval map](oval-map.md) | Active practice/gameplay map, Blender source, infield terrain and jump corridors, real scale, banking, eight player grid spawns and collision | [Combat arena](arena.md), [vehicles](vehicles.md) |
+| [Environment asset library](environment-library.md) | Reusable Blender rocks, vegetation and modular infrastructure, source/import pipeline, collision and LOD strategy | [Banked oval map](oval-map.md) |
 | [Transport foundation](transport.md) | Opaque gateway, endpoints, GNS fallback and legacy state envelope | [Vehicle networking](vehicle-networking.md), [sessions](sessions.md), [EOS P2P](eos-p2p.md) |
 | [Vehicle networking](vehicle-networking.md) | Host input, snapshots, prediction and reconciliation | [Transport](transport.md), [vehicles](vehicles.md), [sessions](sessions.md) |
 | [Session flow](sessions.md) | Admission, Ready/Start/Return and Direct-IP development UI | [EOS lobbies](eos-lobbies.md), [vehicle networking](vehicle-networking.md), [matches](matches.md) |

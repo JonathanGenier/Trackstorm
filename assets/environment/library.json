@@ -1,0 +1,480 @@
+{
+  "provenance": "Original Trackstorm Blender-authored modular kit. Conifers derived from existing OvalEnvironment.blend.",
+  "reference": "TS-74 attachment 10017 art direction and current oval/infield implementation; no reference pixels redistributed.",
+  "units": "metres",
+  "blender": "5.2.2 LTS",
+  "orientation": "Blender +Z up, glTF Y-up; ground-centred origins; linear modules extend along X.",
+  "assets": [
+    {
+      "id": "BoulderTall",
+      "model": "models/BoulderTall.glb",
+      "purpose": "Infield rock islands and shoulder outcrops",
+      "snap_m": 0,
+      "blender_bounds": [
+        [
+          -1.4616,
+          1.63
+        ],
+        [
+          -1.3045,
+          1.2915
+        ],
+        [
+          0.0,
+          1.7384
+        ]
+      ],
+      "triangles": 1048,
+      "collision_parts": 1,
+      "collision": "convex pieces",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Rock"
+      ]
+    },
+    {
+      "id": "BoulderLow",
+      "model": "models/BoulderLow.glb",
+      "purpose": "Infield rock islands and shoulder outcrops",
+      "snap_m": 0,
+      "blender_bounds": [
+        [
+          -0.968,
+          0.9759
+        ],
+        [
+          -0.7035,
+          0.7057
+        ],
+        [
+          0.0,
+          0.8081
+        ]
+      ],
+      "triangles": 1048,
+      "collision_parts": 1,
+      "collision": "convex pieces",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Rock"
+      ]
+    },
+    {
+      "id": "RockSlab",
+      "model": "models/RockSlab.glb",
+      "purpose": "Infield rock islands and shoulder outcrops",
+      "snap_m": 0,
+      "blender_bounds": [
+        [
+          -2.1427,
+          1.6948
+        ],
+        [
+          -1.198,
+          1.2043
+        ],
+        [
+          0.0,
+          1.0337
+        ]
+      ],
+      "triangles": 1048,
+      "collision_parts": 1,
+      "collision": "convex pieces",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Rock"
+      ]
+    },
+    {
+      "id": "RockCluster",
+      "model": "models/RockCluster.glb",
+      "purpose": "Reusable three-rock cluster for reserved obstacle islands",
+      "snap_m": 0,
+      "blender_bounds": [
+        [
+          -2.3389,
+          2.0911
+        ],
+        [
+          -1.3986,
+          1.3119
+        ],
+        [
+          0.0,
+          1.7826
+        ]
+      ],
+      "triangles": 3144,
+      "collision_parts": 3,
+      "collision": "convex pieces",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Rock"
+      ]
+    },
+    {
+      "id": "RockLedge",
+      "model": "models/RockLedge.glb",
+      "purpose": "Short fractured rock face embedded in infield slopes; overlap irregular ends",
+      "snap_m": 0,
+      "blender_bounds": [
+        [
+          -2.799,
+          2.7354
+        ],
+        [
+          -1.6109,
+          1.8472
+        ],
+        [
+          0.0,
+          3.4986
+        ]
+      ],
+      "triangles": 4192,
+      "collision_parts": 4,
+      "collision": "convex pieces",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Rock"
+      ]
+    },
+    {
+      "id": "ScrubLow",
+      "model": "models/ScrubLow.glb",
+      "purpose": "Low scrub on non-driving dirt/grass shoulders",
+      "snap_m": 0,
+      "blender_bounds": [
+        [
+          -0.739,
+          0.659
+        ],
+        [
+          -0.7129,
+          0.7975
+        ],
+        [
+          -0.0102,
+          0.8895
+        ]
+      ],
+      "triangles": 4972,
+      "collision_parts": 0,
+      "collision": "none",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Bark",
+        "Leaf"
+      ]
+    },
+    {
+      "id": "ScrubTall",
+      "model": "models/ScrubTall.glb",
+      "purpose": "Low scrub on non-driving dirt/grass shoulders",
+      "snap_m": 0,
+      "blender_bounds": [
+        [
+          -0.8104,
+          0.5596
+        ],
+        [
+          -0.6862,
+          0.8075
+        ],
+        [
+          -0.0074,
+          1.2995
+        ]
+      ],
+      "triangles": 4972,
+      "collision_parts": 0,
+      "collision": "none",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Bark",
+        "Leaf"
+      ]
+    },
+    {
+      "id": "GrassClump",
+      "model": "models/GrassClump.glb",
+      "purpose": "Small opaque two-sided grass tufts for terrain edges; no wheel obstruction",
+      "snap_m": 0,
+      "blender_bounds": [
+        [
+          -0.7064,
+          0.5548
+        ],
+        [
+          -0.7535,
+          0.758
+        ],
+        [
+          -0.001,
+          0.4934
+        ]
+      ],
+      "triangles": 1700,
+      "collision_parts": 0,
+      "collision": "none",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Leaf"
+      ]
+    },
+    {
+      "id": "DryGrassClump",
+      "model": "models/DryGrassClump.glb",
+      "purpose": "Small opaque two-sided grass tufts for terrain edges; no wheel obstruction",
+      "snap_m": 0,
+      "blender_bounds": [
+        [
+          -0.7698,
+          0.6041
+        ],
+        [
+          -0.7374,
+          0.7353
+        ],
+        [
+          -0.001,
+          0.6318
+        ]
+      ],
+      "triangles": 2100,
+      "collision_parts": 0,
+      "collision": "none",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "DryGrass"
+      ]
+    },
+    {
+      "id": "FirMature",
+      "model": "models/FirMature.glb",
+      "purpose": "Existing oval conifer silhouette, individually placeable with trunk-only collision",
+      "snap_m": 0,
+      "blender_bounds": [
+        [
+          -3.2701,
+          3.4167
+        ],
+        [
+          -3.1196,
+          3.611
+        ],
+        [
+          -0.0772,
+          16.4
+        ]
+      ],
+      "triangles": 1072,
+      "collision_parts": 1,
+      "collision": "convex pieces",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Bark.001",
+        "NeedlesDark",
+        "Needles",
+        "NeedlesSun"
+      ]
+    },
+    {
+      "id": "PineOpen",
+      "model": "models/PineOpen.glb",
+      "purpose": "Existing oval conifer silhouette, individually placeable with trunk-only collision",
+      "snap_m": 0,
+      "blender_bounds": [
+        [
+          -4.3556,
+          4.7147
+        ],
+        [
+          -3.5251,
+          3.5326
+        ],
+        [
+          -0.1147,
+          14.9303
+        ]
+      ],
+      "triangles": 686,
+      "collision_parts": 1,
+      "collision": "convex pieces",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Bark.001",
+        "NeedlesDark",
+        "Needles",
+        "NeedlesSun"
+      ]
+    },
+    {
+      "id": "SpruceYoung",
+      "model": "models/SpruceYoung.glb",
+      "purpose": "Existing oval conifer silhouette, individually placeable with trunk-only collision",
+      "snap_m": 0,
+      "blender_bounds": [
+        [
+          -1.7636,
+          2.1142
+        ],
+        [
+          -1.8803,
+          1.9096
+        ],
+        [
+          -0.0958,
+          8.4
+        ]
+      ],
+      "triangles": 840,
+      "collision_parts": 1,
+      "collision": "convex pieces",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Bark.001",
+        "NeedlesDark",
+        "Needles",
+        "NeedlesSun"
+      ]
+    },
+    {
+      "id": "Guardrail4m",
+      "model": "models/Guardrail4m.glb",
+      "purpose": "Restrained modular perimeter/service barrier; snap along local X",
+      "snap_m": 4,
+      "blender_bounds": [
+        [
+          -2.0,
+          2.0
+        ],
+        [
+          -0.12,
+          0.07
+        ],
+        [
+          0.0,
+          1.3
+        ]
+      ],
+      "triangles": 344,
+      "collision_parts": 1,
+      "collision": "convex pieces",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Steel",
+        "DarkSteel"
+      ]
+    },
+    {
+      "id": "Barrier3m",
+      "model": "models/Barrier3m.glb",
+      "purpose": "Concrete modular service/perimeter protection; snap along local X",
+      "snap_m": 3,
+      "blender_bounds": [
+        [
+          -1.5,
+          1.5
+        ],
+        [
+          -0.36,
+          0.36
+        ],
+        [
+          0.0,
+          1.1055
+        ]
+      ],
+      "triangles": 180,
+      "collision_parts": 1,
+      "collision": "convex pieces",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Concrete",
+        "DarkSteel"
+      ]
+    },
+    {
+      "id": "LightPole9m",
+      "model": "models/LightPole9m.glb",
+      "purpose": "Twin downward floodlight fixture for outer arena infrastructure; mesh only, no light budget implied",
+      "snap_m": 0,
+      "blender_bounds": [
+        [
+          -0.795,
+          0.795
+        ],
+        [
+          -0.35,
+          0.35
+        ],
+        [
+          0.0,
+          8.825
+        ]
+      ],
+      "triangles": 880,
+      "collision_parts": 2,
+      "collision": "convex pieces",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Concrete",
+        "DarkSteel",
+        "Steel",
+        "Lens"
+      ]
+    },
+    {
+      "id": "DrainChannel2m",
+      "model": "models/DrainChannel2m.glb",
+      "purpose": "Open U-channel matching existing tunnel drains; local X flow axis, open ends",
+      "snap_m": 2,
+      "blender_bounds": [
+        [
+          -1.0,
+          1.0
+        ],
+        [
+          -0.45,
+          0.45
+        ],
+        [
+          0.0,
+          0.5
+        ]
+      ],
+      "triangles": 324,
+      "collision_parts": 3,
+      "collision": "convex pieces",
+      "lod": "Godot import-generated screen-space LOD; collision remains full source",
+      "materials": [
+        "Concrete"
+      ]
+    }
+  ],
+  "files": {
+    "BuildLibrary.py": "349696740cbec1e5b11160c7c2fd2d534d70fe56f9551f9d4b666382f966272d",
+    "source/EnvironmentLibrary.blend": "efd901d7938434f6a04ba4415da05edf0c0ccad64d8a4c2e25b623dfeaaaccc4",
+    "textures/StoneAlbedo.png": "967cc8f0eeb9e803b2cd380c04d70f734b1b55fb520b9628380fd897a59fc3b9",
+    "textures/StoneNormal.png": "cab3ea4a5c7b82533aa193355036e61d2c208110317f8d841ec05d31cd160cf3",
+    "models/BoulderTall.glb": "fed445d4a32604c00bd4bdbe29c25c36b384b232ec7814246b792b654a739812",
+    "models/BoulderLow.glb": "f66f0ed5673e958fdca9cac16636e991d635106f3b4dd451ae9ca5ef060ff731",
+    "models/RockSlab.glb": "94124ecf449a8d0f607df43e3f29cc4fa4bf322f24bfe0f1dbb8e454eb574516",
+    "models/RockCluster.glb": "138e3cf4df5d10b6613045a1a752dc1811ff9d6705f6b969ffcfb9acb1316828",
+    "models/RockLedge.glb": "1973eaf648e066d57b0267529aa5cd70f81e6f14ab71d81c670e0a1a2e9d8a27",
+    "models/ScrubLow.glb": "d7a6138a4d6a182d2c2c729f65a73db30358fbe365340046d8e48788364153f4",
+    "models/ScrubTall.glb": "0a27793203138b5a847dc40fcb798b6f5a0b4aeae29c2be73ce0b5c38cb452da",
+    "models/GrassClump.glb": "a3408a42acfb4cd0199c215e069556a8a2bf4ae0393cb46ca9b05bf16eb2b07c",
+    "models/DryGrassClump.glb": "f5782a2529fafadc98d27b0d51b61ad7ed2a03393df9b107147e9f4af9262ee2",
+    "models/FirMature.glb": "c2b4329dae6909fd6aca596b5c510f9ce17088c71bab18893b0f0d479bc00de0",
+    "models/PineOpen.glb": "73b7ff47e52e2f44ead77c0d8b22ed771167030a92b8c1cc92b9c83f3eeb924b",
+    "models/SpruceYoung.glb": "858d0e258ad0ea2a26c621825e1cf75de7708fa089886e0815739af3ad5e9bc2",
+    "models/Guardrail4m.glb": "29617fd97b4a8488fd672fb91e55748462e567c7dc566a458f10fbc9ce77d0f1",
+    "models/Barrier3m.glb": "8908f7b5f8b0a68b7ca5b75e36a965cd3f9bba2c2c71a42373beb59cb5033807",
+    "models/LightPole9m.glb": "29e121ac53038d284a58303540d9bc083209f305f07552194e9247fd111ea41d",
+    "models/DrainChannel2m.glb": "8574ad37bf44d3501862b6ba02d758aba9c677494d7fc3c90f8c80e3e7935f5b"
+  },
+  "conifer_source_sha256": "6f663c94112c348b0665fafca07c528303a873276e626e44d9e480d5898f4684"
+}

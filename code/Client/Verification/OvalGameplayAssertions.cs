@@ -30,7 +30,7 @@ internal static class OvalGameplayAssertions
     internal static void VerifyMap(Node3D map, ArenaConfiguration configuration)
     {
         var authored = ActiveMap.ReadConfiguration(map);
-        if (map.SceneFilePath != ActiveMap.ScenePath || !configuration.Players.SequenceEqual(authored.Players) || configuration.Items.Count != 20 || !configuration.Items.SequenceEqual(authored.Items) ||
+        if (map.SceneFilePath != ActiveMap.ScenePath || !configuration.Players.SequenceEqual(authored.Players) || configuration.Items.Count != 27 || !configuration.Items.SequenceEqual(authored.Items) ||
             configuration.Players.Any(marker => PrototypeArena.Configuration.Players.Any(old => old.Position == marker.Position)) ||
             map.FindChildren("*", "RigidBody3D", true, false).Count != 0 || map.FindChildren("*", "CombatArena", true, false).Count != 0)
         {

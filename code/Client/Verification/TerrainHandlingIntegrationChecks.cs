@@ -57,6 +57,7 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
                     previous = speed;
                     await Drive(network, entry.Item1, entry.Item2);
                 }
+                await SplitContact(network);
             }
             GD.Print("Terrain handling integration passed: both adapters, six surfaces, slope starts, steering, handbrake recovery and transitions.");
             GetTree().Quit();
@@ -68,6 +69,58 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
             GD.PushError(error.ToString());
             GetTree().Quit(1);
         }
+    }
+
+    private async Task SplitContact(bool network)
+    {
+        var roads = new List<StaticBody3D>();
+        foreach (bool left in new[] { true, false })
+        {
+            var road = new StaticBody3D { Position = new(left ? -50 : 50, -1, 0), CollisionLayer = 1, CollisionMask = 2 };
+            road.SetMeta("surface_identity", left ? "Grass" : "Asphalt");
+            road.AddToGroup("landing_terrain");
+            road.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(100, 2, 200) } });
+            AddChild(road);
+            roads.Add(road);
+        }
+        await Frames(3);
+        _world = new(new Core.Simulation.SimulationConfiguration(60));
+        var pose = new VehiclePhysicsState(new(0, VehicleDimensions.RideHeight, 0), N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
+        var damage = new DamageConfiguration { MaxHP = 1000, CollisionScale = 5 };
+        _world.AddVehicle(1, new(), damage, pose);
+        if (network)
+        {
+            _network = new NetworkVehicleBody { VehicleId = 1 };
+            AddChild(_network);
+            _network.Apply(pose);
+        }
+        else
+        {
+            _native = new VehicleBody { Position = VehicleBody.ToGodot(pose.Position), DamageConfiguration = damage };
+            _native.Initialize(_world);
+            AddChild(_native);
+        }
+        await Frames(2);
+        PhysicsBody3D body = _native is not null ? _native : _network!;
+        var observation = WheelSuspension.Observe(body, body.GlobalTransform, new());
+        Check(observation.Wheels.FrontLeft == SurfaceType.Grass && observation.Wheels.RearLeft == SurfaceType.Grass &&
+            observation.Wheels.FrontRight == SurfaceType.Asphalt && observation.Wheels.RearRight == SurfaceType.Asphalt,
+            $"{network}: split Grass/Asphalt contacts retain all four native wheel materials");
+        _steer = 0;
+        _throttle = ushort.MaxValue;
+        _buttons = 0;
+        _advance = true;
+        await Frames(15);
+        var state = _world.GetVehicle(1);
+        Check(state.Movement.Physics.AngularVelocity.Y > 0.01f && state.Speed > 0.5f && state.Damage.CurrentHP == 1000,
+            $"{network}: partial grass creates physical traction yaw {state.Movement.Physics.AngularVelocity.Y:F4} rad/s with continuing drive {state.Speed:F3} m/s");
+        _advance = false;
+        _native?.QueueFree();
+        _network?.QueueFree();
+        _native = null;
+        _network = null;
+        foreach (var road in roads) { road.QueueFree(); }
+        await Frames(3);
     }
 
     private async Task<float> Drive(bool network, SurfaceIdentity identity, float degrees)

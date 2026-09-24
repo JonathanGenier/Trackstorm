@@ -21,6 +21,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     private float _flash;
     private GpuParticles3D _nitroTrail = null!;
     private ulong _life;
+    private VehicleSnapshot? _feedbackState;
     private bool _lifeCorrectionPending;
     /// <summary>Host-assigned identity used only to attribute contact observations.</summary>
     internal ulong VehicleId { get; init; }
@@ -43,10 +44,11 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         AddChild(VehicleVisual.CreateCollision());
         AddChild(_visual);
         _visual.TopLevel = true;
+        AddChild(new TireFeedback { Source = () => _feedbackState is { } state ? (VisualTransform, state, _configuration) : null });
         Color paint = Color.FromHsv((VehicleId * 0.13f) % 1, 0.7f, 0.9f);
         _damageMaterial = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/items/materials/DamageFlash.gdshader") };
         _damageMaterial.SetShaderParameter("paint", paint);
-        _visual.AddChild(VehicleVisual.Create(_damageMaterial));
+        _visual.AddChild(VehicleVisual.Create(_damageMaterial, () => _feedbackState is { } state ? (state.Movement, _configuration) : null));
         _nitroTrail = Items.ItemPresentation.Particles(Core.Items.ItemRegistry.Find(Core.Items.HeldItem.Nitro)!.ActiveVfx!, false, 0.18f);
         _nitroTrail.Amount = 64;
         ((StandardMaterial3D)((QuadMesh)_nitroTrail.DrawPass1).Material).AlbedoColor = new Color(0.15f, 0.65f, 1);
@@ -260,6 +262,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     /// <param name="state">Freshest accepted aggregate, never an old reliable outcome.</param>
     internal void SynchronizeLifecycle(VehicleSnapshot state)
     {
+        _feedbackState = state;
         _nitroTrail.Emitting = state.CanInteract && state.Movement.Nitro.Active;
         if (_life != state.LifeId)
         {

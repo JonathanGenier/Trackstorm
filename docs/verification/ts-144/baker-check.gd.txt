@@ -1,0 +1,23 @@
+extends SceneTree
+func _initialize():
+	var map := Node3D.new()
+	map.name = "BakeCheck"
+	var geometry := load("res://assets/maps/oval/oval_foundation.glb").instantiate() as Node3D
+	geometry.name = "Geometry"
+	map.add_child(geometry)
+	geometry.owner = map
+	var content := Node3D.new()
+	content.name = "MapContent"
+	map.add_child(content)
+	content.owner = map
+	var measurements: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/maps/oval/measurements.json"))
+	load("res://assets/maps/oval/BuildOvalContent.gd").bake(map, measurements)
+	var committed := load("res://scenes/maps/oval_foundation.tscn").instantiate() as Node3D
+	assert(map.get_node("ItemSpawns").get_child_count() == 27)
+	for marker in map.get_node("ItemSpawns").get_children():
+		assert(marker.position.is_equal_approx(committed.get_node("ItemSpawns/" + str(marker.name)).position))
+		assert(marker.owner == map)
+	print("Baker execution PASS: all 27 marker names/positions match committed scene, with correct ownership; no files regenerated.")
+	map.free()
+	committed.free()
+	quit()

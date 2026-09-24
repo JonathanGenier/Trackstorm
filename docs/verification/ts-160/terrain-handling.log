@@ -1,0 +1,139 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+practice-Asphalt-0 uses authored support profile
+practice-Asphalt-0: from rest progress 243.229 m, speed 44.396 m/s
+practice-Asphalt-0 traversable without damage
+practice-Asphalt-0 responds to steering
+practice-Asphalt-0 recovers upright after handbrake and steering
+practice-Asphalt-0 retains drive after release
+practice-Asphalt-0 returns to asphalt and accelerates continuously
+False: acceleration order Asphalt, 8s speed 44.396 m/s < 340282346638528859811704183484516925440.000
+practice-Asphalt-20 uses authored support profile
+practice-Asphalt-20: from rest progress 169.301 m, speed 39.021 m/s
+practice-Asphalt-20 traversable without damage
+practice-Concrete-0 uses authored support profile
+practice-Concrete-0: from rest progress 237.810 m, speed 44.373 m/s
+practice-Concrete-0 traversable without damage
+practice-Concrete-0 responds to steering
+practice-Concrete-0 recovers upright after handbrake and steering
+practice-Concrete-0 retains drive after release
+practice-Concrete-0 returns to asphalt and accelerates continuously
+False: acceleration order Concrete, 8s speed 44.373 m/s < 44.396
+practice-Concrete-20 uses authored support profile
+practice-Concrete-20: from rest progress 157.422 m, speed 37.378 m/s
+practice-Concrete-20 traversable without damage
+practice-Dirt-0 uses authored support profile
+practice-Dirt-0: from rest progress 211.412 m, speed 42.582 m/s
+practice-Dirt-0 traversable without damage
+practice-Dirt-0 responds to steering
+practice-Dirt-0 recovers upright after handbrake and steering
+practice-Dirt-0 retains drive after release
+practice-Dirt-0 returns to asphalt and accelerates continuously
+False: acceleration order Dirt, 8s speed 42.582 m/s < 44.373
+practice-Dirt-20 uses authored support profile
+practice-Dirt-20: from rest progress 118.179 m, speed 27.868 m/s
+practice-Dirt-20 traversable without damage
+practice-Grass-0 uses authored support profile
+practice-Grass-0: from rest progress 138.426 m, speed 30.103 m/s
+practice-Grass-0 traversable without damage
+practice-Grass-0 responds to steering
+practice-Grass-0 recovers upright after handbrake and steering
+practice-Grass-0 retains drive after release
+practice-Grass-0 returns to asphalt and accelerates continuously
+False: acceleration order Grass, 8s speed 30.103 m/s < 42.582
+practice-Grass-15 uses authored support profile
+practice-Grass-15: from rest progress 72.286 m, speed 15.828 m/s
+practice-Grass-15 traversable without damage
+practice-Mud-0 uses authored support profile
+practice-Mud-0: from rest progress 74.539 m, speed 12.667 m/s
+practice-Mud-0 traversable without damage
+practice-Mud-0 responds to steering
+practice-Mud-0 recovers upright after handbrake and steering
+practice-Mud-0 retains drive after release
+practice-Mud-0 returns to asphalt and accelerates continuously
+False: acceleration order Mud, 8s speed 12.667 m/s < 30.103
+practice-Mud-12 uses authored support profile
+practice-Mud-12: from rest progress 45.111 m, speed 7.681 m/s
+practice-Mud-12 traversable without damage
+practice-DeepMud-0 uses authored support profile
+practice-DeepMud-0: from rest progress 28.433 m, speed 4.014 m/s
+practice-DeepMud-0 traversable without damage
+practice-DeepMud-0 responds to steering
+practice-DeepMud-0 recovers upright after handbrake and steering
+practice-DeepMud-0 retains drive after release
+practice-DeepMud-0 returns to asphalt and accelerates continuously
+False: acceleration order DeepMud, 8s speed 4.014 m/s < 12.667
+practice-DeepMud-10 uses authored support profile
+practice-DeepMud-10: from rest progress 17.076 m, speed 2.414 m/s
+practice-DeepMud-10 traversable without damage
+False: split Grass/Asphalt contacts retain all four native wheel materials
+False: partial grass creates physical traction yaw 0.0651 rad/s with continuing drive 1.674 m/s
+network-Asphalt-0 uses authored support profile
+network-Asphalt-0: from rest progress 243.223 m, speed 44.396 m/s
+network-Asphalt-0 traversable without damage
+network-Asphalt-0 responds to steering
+network-Asphalt-0 recovers upright after handbrake and steering
+network-Asphalt-0 retains drive after release
+network-Asphalt-0 returns to asphalt and accelerates continuously
+True: acceleration order Asphalt, 8s speed 44.396 m/s < 340282346638528859811704183484516925440.000
+network-Asphalt-20 uses authored support profile
+network-Asphalt-20: from rest progress 169.266 m, speed 39.018 m/s
+network-Asphalt-20 traversable without damage
+network-Concrete-0 uses authored support profile
+network-Concrete-0: from rest progress 237.802 m, speed 44.373 m/s
+network-Concrete-0 traversable without damage
+network-Concrete-0 responds to steering
+network-Concrete-0 recovers upright after handbrake and steering
+network-Concrete-0 retains drive after release
+network-Concrete-0 returns to asphalt and accelerates continuously
+True: acceleration order Concrete, 8s speed 44.373 m/s < 44.396
+network-Concrete-20 uses authored support profile
+network-Concrete-20: from rest progress 157.380 m, speed 37.372 m/s
+network-Concrete-20 traversable without damage
+network-Dirt-0 uses authored support profile
+network-Dirt-0: from rest progress 211.396 m, speed 42.582 m/s
+network-Dirt-0 traversable without damage
+network-Dirt-0 responds to steering
+network-Dirt-0 recovers upright after handbrake and steering
+network-Dirt-0 retains drive after release
+network-Dirt-0 returns to asphalt and accelerates continuously
+True: acceleration order Dirt, 8s speed 42.582 m/s < 44.373
+network-Dirt-20 uses authored support profile
+network-Dirt-20: from rest progress 118.124 m, speed 27.856 m/s
+network-Dirt-20 traversable without damage
+network-Grass-0 uses authored support profile
+network-Grass-0: from rest progress 138.381 m, speed 30.093 m/s
+network-Grass-0 traversable without damage
+network-Grass-0 responds to steering
+network-Grass-0 recovers upright after handbrake and steering
+network-Grass-0 retains drive after release
+network-Grass-0 returns to asphalt and accelerates continuously
+True: acceleration order Grass, 8s speed 30.093 m/s < 42.582
+network-Grass-15 uses authored support profile
+network-Grass-15: from rest progress 72.236 m, speed 15.814 m/s
+network-Grass-15 traversable without damage
+network-Mud-0 uses authored support profile
+network-Mud-0: from rest progress 74.511 m, speed 12.660 m/s
+network-Mud-0 traversable without damage
+network-Mud-0 responds to steering
+network-Mud-0 recovers upright after handbrake and steering
+network-Mud-0 retains drive after release
+network-Mud-0 returns to asphalt and accelerates continuously
+True: acceleration order Mud, 8s speed 12.660 m/s < 30.093
+network-Mud-12 uses authored support profile
+network-Mud-12: from rest progress 45.083 m, speed 7.674 m/s
+network-Mud-12 traversable without damage
+network-DeepMud-0 uses authored support profile
+network-DeepMud-0: from rest progress 28.422 m, speed 4.012 m/s
+network-DeepMud-0 traversable without damage
+network-DeepMud-0 responds to steering
+network-DeepMud-0 recovers upright after handbrake and steering
+network-DeepMud-0 retains drive after release
+network-DeepMud-0 returns to asphalt and accelerates continuously
+True: acceleration order DeepMud, 8s speed 4.012 m/s < 12.660
+network-DeepMud-10 uses authored support profile
+network-DeepMud-10: from rest progress 17.066 m, speed 2.412 m/s
+network-DeepMud-10 traversable without damage
+True: split Grass/Asphalt contacts retain all four native wheel materials
+True: partial grass creates physical traction yaw 0.0651 rad/s with continuing drive 1.674 m/s
+Terrain handling integration passed: both adapters, six surfaces, slope starts, steering, handbrake recovery and transitions.

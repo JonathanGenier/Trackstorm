@@ -58,6 +58,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
             Check(!Descendants(_devTools.Configs).OfType<Label>().Any(label => label.Text.Contains("AuthorityEpoch:", StringComparison.Ordinal) || label.Text.Contains("Transport:", StringComparison.Ordinal)), "Configs does not duplicate read-only network diagnostics");
             if (phase == "read")
             {
+                Check(_host.DeveloperConfiguration.Environment == EnvironmentPreset.NeonSunset, "process restart restores environment identity");
                 Check(_host.DeveloperConfiguration.Vehicle.Acceleration == 7, "full process restart restores host tuning");
                 Press("Force Start");
                 await Until(() => _host.Arena?.Driver.Match?.Phase == MatchPhase.Active, "solo Force Start uses normal countdown and Active phase");
@@ -101,12 +102,8 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Check(_host.Lobby.Request(LobbyCommand.Start), "normal Start");
                 await Until(() => _client.Arena?.Driver.Match?.Phase == MatchPhase.Active, "normal Active match");
                 await Frames(20);
-                // New matches intentionally randomize only the pickup seed (TS-140).
-                var expectedDefaults = GameplayConfiguration.HostedDefaults with
-                {
-                    Spawns = GameplayConfiguration.HostedDefaults.Spawns with { Seed = _host.Arena!.Driver.Configuration.Configuration.Spawns.Seed },
-                };
-                Check(_host.Arena.Driver.Configuration.Configuration == expectedDefaults, "production arena uses hosted defaults with its fresh match seed");
+                var expectedDefaults = GameplayConfiguration.HostedDefaults with { Spawns = GameplayConfiguration.HostedDefaults.Spawns with { Seed = _host.Arena!.Driver.Configuration.Configuration.Spawns.Seed } };
+                Check(_host.Arena.Driver.Configuration.Configuration == expectedDefaults, "production arena retains hosted defaults with the fresh authoritative match seed");
                 Check(!Descendants(_bootstrap).OfType<Button>().Any(button => button.Text == "Arena tools"), "separate Arena Tools retired");
                 Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Name == "ForceStart"), "Configs contains no duplicate Force Start action");
                 Check(Descendants(_devTools).OfType<Button>().Single(button => button.Name == "ForceStart").IsVisibleInTree(), "Force Start is available from the DevTools shell");
@@ -134,7 +131,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                     }
                     double current = option.Read(_host.DeveloperConfiguration);
                     double value = option.Boolean ? 1 - current : option.Integral ? current + 1 : current * 1.05;
-                    // The scaled default is close to the existing one-metre validation ceiling.
+                    // Exercise shortening the live suspension as well as increasing other scalars.
                     if (option.Key == "vehicle.suspension_length")
                     {
                         value = current * 0.95;
@@ -155,6 +152,20 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
 
                 Press("Apply Settings");
 
+                var selector = Descendants(_devTools.Configs).OfType<OptionButton>().Single(button => button.Name == "environment_preset");
+                Check(selector.ItemCount == 5, "five named environment presets in Configs");
+                var originalMap = _host.Arena!.Map;
+                foreach (var preset in Enum.GetValues<EnvironmentPreset>())
+                {
+                    Check(selector.GetItemText(selector.GetItemIndex((int)preset)) == Arenas.EnvironmentPresentation.DisplayName(preset), "stable readable preset name: " + preset);
+                    Set("environment.preset", (int)preset);
+                    Press("Apply Settings");
+                    await Until(() => _client.Arena!.Driver.Configuration == _host.Arena.Driver.Configuration, "environment synchronized: " + preset);
+                    await Frames(3);
+                    Check(_host.Arena.GetChildren().OfType<Arenas.EnvironmentPresentation>().Single().Current == preset &&
+                        _client.Arena!.GetChildren().OfType<Arenas.EnvironmentPresentation>().Single().Current == preset, "both runtimes present " + preset);
+                    Check(ReferenceEquals(originalMap, _host.Arena.Map), "preset switching retains map instance");
+                }
                 await CheckDraftActions();
                 await CheckRedesign();
                 ulong revision = _host.Arena!.Driver.Configuration.Revision;
@@ -165,12 +176,13 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Check(!_client.ConfigureDeveloperOptions(new Dictionary<string, double> { ["vehicle.mass"] = 200 }, out _), "joined client cannot mutate");
                 Check(!_client.GiveDeveloperItem(HeldItem.Missile) && !_client.ForceDeveloperStart(), "joined client cannot invoke actions");
                 Set("match.minimum_players", 2);
+                Set("environment.preset", (int)EnvironmentPreset.NeonSunset);
                 Set("vehicle.acceleration", 7);
                 Set("items.wrench_heal", 17);
                 Set("items.missile_speed", 75);
                 Press("Apply Settings");
                 await Until(() => _client.Arena!.Driver.Configuration == _host.Arena.Driver.Configuration, "final tuned boundary");
-                Set("vehicle.suspension_length", 0.9);
+                Set("vehicle.suspension_length", 1.8);
                 Press("Apply Settings");
                 await Frames(4);
                 var suspensionState = _host.Arena.Driver.LocalState!;
@@ -180,12 +192,12 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Press("Apply Settings");
                 var shortened = hostBody.Observe(suspensionState).Wheels;
                 Check(extended != shortened, "UI suspension length changes native wheel ray support");
-                Set("vehicle.suspension_length", 0.8);
+                Set("vehicle.suspension_length", GameplayConfiguration.HostedDefaults.Vehicle.SuspensionLength);
                 Press("Apply Settings");
                 Check(_host.GiveDeveloperItem(HeldItem.Wrench), "fixture grants wrench through existing authority");
                 Check(_host.Arena.Driver.LocalItem?.Item == HeldItem.Wrench, "Give Wrench uses current host slot");
-                Check(_host.GiveDeveloperItem(HeldItem.Oil), "second held slot accepts a distinct item");
-                Check(!_host.GiveDeveloperItem(HeldItem.Missile), "two occupied slots cannot be overwritten");
+                Check(_host.GiveDeveloperItem(HeldItem.Wrench), "fixture fills the second inventory slot");
+                Check(!_host.GiveDeveloperItem(HeldItem.Missile), "full inventory cannot be overwritten");
                 Check(_host.Arena.Driver.RequestItemUse(), "normal Wrench use");
                 await Until(() => _host.Arena.Driver.LocalItem?.Item == HeldItem.None, "normal Wrench consumption");
                 Check(_host.GiveDeveloperItem(HeldItem.Missile), "fixture grants missile through existing authority");
@@ -438,7 +450,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         foreach (var option in GameplayOptions.All)
         {
             var control = Descendants(_devTools.Configs).OfType<Control>().Single(control => control.Name == option.Key.Replace('.', '_'));
-            values[option.Key] = control is CheckButton toggle ? (toggle.ButtonPressed ? 1 : 0) : double.Parse(((LineEdit)control).Text, CultureInfo.InvariantCulture);
+            values[option.Key] = control is OptionButton presets ? presets.GetSelectedId() : control is CheckButton toggle ? (toggle.ButtonPressed ? 1 : 0) : double.Parse(((LineEdit)control).Text, CultureInfo.InvariantCulture);
         }
 
         Check(GameplayOptions.TryApply(GameplayConfiguration.HostedDefaults, values, out var configuration, out _), "staged editor values form a valid configuration");
@@ -450,7 +462,12 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
     private void Set(string key, double value)
     {
         var control = Descendants(_devTools.Configs).OfType<Control>().Single(control => control.Name == key.Replace('.', '_'));
-        if (control is CheckButton toggle)
+        if (control is OptionButton presets)
+        {
+            presets.Select(presets.GetItemIndex((int)value));
+            presets.EmitSignal(OptionButton.SignalName.ItemSelected, presets.Selected);
+        }
+        else if (control is CheckButton toggle)
         {
             toggle.ButtonPressed = value == 1;
         }

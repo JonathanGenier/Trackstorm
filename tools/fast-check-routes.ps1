@@ -39,6 +39,17 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'TireFeedback|TireTrack|EnvironmentPresentation|EnvironmentPreset|EnvironmentSky|TerrainEffects|terrain_effects|check-terrain-effects') {
+            Add-Runtime 'check-terrain-effects.ps1'
+            Add-Runtime 'check-developer-options.ps1'
+            Add-Manual 'Inspect all five environment packages at driving height; drive every surface, repeat tire effects and check Water splashes without persistent marks. Exercise environment replication and recovery.'
+        }
+        if ($path -match 'BuildDressing|infield_dressing|dressing_checks|check-dressing') {
+            Add-Runtime 'check-dressing.ps1'
+            Add-Runtime 'check-infield.ps1'
+            Add-Runtime 'check-oval.ps1'
+            Add-Manual 'Inspect dressed production map at driving height; drive routes, shoulders, jumps and two-car tunnel clearance.'
+        }
         if ($path -match 'Water|water_checks|check-water' -or $path -eq 'docs/features/water.md') {
             Add-Runtime 'check-water.ps1'
             Add-Manual 'Drive repeated shallow/deep Water entry/exit and run check-death-respawn.ps1 -Water -Impaired for eight-peer lifecycle replication.'
@@ -51,6 +62,11 @@ function Get-FastCheckPlan {
         # when the same change also contains production/runtime files.
         if ($path -match '^docs/features/' -and -not $hasProductionChanges) {
             continue
+        }
+
+        if ($path -match '^assets/environment/' -or $path -match 'environment_library_checks|check-environment' -or $path -eq 'docs/features/environment-library.md') {
+            Add-Runtime 'check-environment.ps1'
+            Add-Manual 'Render check-environment.ps1 -Visual and inspect asset scale, materials, modular reuse and distance transitions.'
         }
 
         if ($path -match '^code/Core/' -or $path -match '^code/Tests/') {
@@ -138,6 +154,10 @@ function Get-FastCheckPlan {
         }
 
         # Maps / arena.
+        if ($path -match '^assets/(maps|environment)/' -or $path -match '^scenes/maps/' -or
+            $path -match 'map_budget_checks|check-map-budget') {
+            Add-Runtime 'check-map-budget.ps1'
+        }
         if ($path -match '^code/(Core|Client)/Arenas/' -or
             $path -match '^scenes/arena/' -or
             $path -eq 'docs/features/arena.md') {

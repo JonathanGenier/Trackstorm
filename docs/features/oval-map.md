@@ -17,8 +17,9 @@ OvalFoundation (Node3D, identity)
 │   └── player-01 … player-08 (Marker3D)
 ├── InfieldTerrain (Blender terrain collision)
 ├── InfieldStructures (Blender junction structure and obstacle collision)
-├── ItemSpawns (five triple rows and five singles)
-└── MapContent (concrete perimeter, upper collision, exterior ground and forest)
+├── ItemSpawns (twenty oval pickups and seven infield singles)
+├── MapContent (concrete perimeter, upper collision, exterior ground and forest)
+└── EnvironmentDressing (shared rocks, ground-cover batches and exterior fixtures)
 ```
 
 One Blender unit and one Godot world unit are one metre. Blender exports Y-up;
@@ -46,14 +47,14 @@ Collision layer/mask 1 matches [vehicle queries](vehicles.md); unmarked static b
 Each marker has `slot_length_m=6` and `slot_width_m=3` metadata, and its -Z axis
 points along the racing direction. These are reusable authored poses, not live
 player identities. `ActiveMap` loads this scene and reads the actual marker
-positions and yaw values in stable name order before gameplay authority is created. It adds 0.2 m to the original marker height for the rescaled vehicle, placing the origin at 1.05 m before suspension settles at 0.9 m.
+positions and yaw values in stable name order before gameplay authority is created. It adds 0.45 m to the original marker height for the lifted vehicle, placing the origin at 1.30 m before suspension settles near 1.145 m.
 Both `VehicleArena` practice and `NetworkVehicleArena` supply that validated
 `ArenaConfiguration` to the existing simulation. Initial admission, slot reuse,
 practice reset and death/respawn use the same eight grid transforms.
 `VehicleNetworkDriver` retains the contract when restoring migrated authority;
 resume checkpoints retain existing vehicle poses without resetting the map slots.
 
-The oval contains 20 scene-authored item markers: five transverse rows with pickups at 3, 9 and 15 m across the 18 m surface, plus five singles. Locations follow the Jira placement reference relative to the grid, projected onto actual master sections; its legacy dimensions are not used. The existing network arena registers, observes, distributes and replicates these markers through the existing pickup system. Optional old-map prop snapshots remain absent. Local rigid-body practice retains its existing driving-only role; pickup acquisition and inventory remain owned by hosted gameplay. Old Map retains its own eight pickups.
+The map contains 27 scene-authored item markers. Twenty remain on the oval: five transverse rows with pickups at 3, 9 and 15 m across the 18 m surface, plus five singles. Locations follow the Jira placement reference relative to the grid, projected onto actual master sections; its legacy dimensions are not used. The existing network arena registers, observes, distributes and replicates these markers through the existing pickup system. Optional old-map prop snapshots remain absent. Local rigid-body practice retains its existing driving-only role; pickup acquisition and inventory remain owned by hosted gameplay. Old Map retains its own eight pickups.
 
 `ActiveMap.ScenePath` identifies New Map and the practice default. Multiplayer selection belongs to `LobbySnapshot.Map`. Application/menu entry,
 vehicle configuration, cameras, HUD, audio/music, networking and player lifecycle
@@ -88,7 +89,7 @@ panels share a continuous Blender-authored collision slab across their joints.
 A twenty-eight-metre collar follows the original bank's inward grade at all 916 rim
 sections and eases into the terrain. The original oval road and collision stay
 unchanged. The old flat infield collider is replaced so it cannot fill the basins
-or compete with wheel support. The shared material field blends dirt into grass shoulders and identifies wet soil, rock and the designated Water basin. [Water interaction](water.md) adds a shared-field waterline and hazard; environment dressing remains later work.
+or compete with wheel support. The shared material field blends dirt into grass shoulders and identifies wet soil, rock and the designated Water basin. [Water interaction](water.md) adds a shared-field waterline and hazard. The separate [environment dressing layer](../../assets/maps/infield/DRESSING.md) places shared library rock formations, loose rubble, low vegetation and exterior fixtures while protecting routes and recovery shoulders.
 
 `check-infield.ps1 -GodotPath <path> -Visual` checks imported route support,
 tunnel clearance and production-vehicle driving along all ten routes and both
@@ -104,6 +105,54 @@ written to `.godot/infield-checks/`.
 
 ## Verification
 
+`check-map-budget.ps1 -GodotPath <exe>` inventories the actual production scene's
+unique meshes/materials/textures, base triangle counts, LOD surfaces, spatial
+MultiMesh batches and static collision resources. It uses a real renderer and
+writes `.godot/map-budget-checks/inventory.json`. Instanced base-triangle totals
+are unculled inventory, not per-frame rendering cost. Terrain and road retain
+their exact collision and full-resolution visible geometry to preserve contact,
+rim and jump precision; decorative library meshes use native LODs and ground
+cover has local distance limits. No occlusion volumes are added to the open map.
+Rendered preset measurements and repeated feedback checks are described in
+[terrain effects](terrain-effects.md); multi-process physics timings remain in
+the [network vehicle harness](vehicle-networking.md).
+
+### Infield item route choices
+
+Seven single markers extend the oval layout through the same authoritative item
+system. The scriptless authoring scene `scenes/maps/infield_pickups.tscn` is copied
+into the map's existing `ItemSpawns` by `BuildOvalContent.gd`; its positions are
+world metres measured against the imported production collision. No pickup adds
+collision or changes terrain. The generic item pool and three-dimensional 3 m
+default collection radius remain unchanged.
+
+| Marker suffix | Position (X, Y, Z), m | Driving choice |
+| --- | --- | --- |
+| `01-trail` | -70, 0.439, 51 | Easy southwest entry merging into the southern loop. |
+| `02-north` | 70, 0.812, -56 | Easy northern connector line. |
+| `03-tunnel` | 0, 0, 0 | Normal north/south underpass route; separate from upper travel. |
+| `04-water` | 77, 0.101, -43 | Dry north bank of the northeast Water basin; turning inward risks immersion. |
+| `05-jump` | -74, 10.65, 0 | West kicker's airborne approach to the raised tabletop. |
+| `06-turn` | -155, 0, 15 | West loop turn exiting toward the shortcut junction. |
+| `07-berm` | 126, -0.235, 41 | East loop's southern turn, rewarding the longer outside route. |
+
+All IDs start with `item-infield-`. The elevated marker's collection sphere stays
+above an ordinary supported vehicle; the intended 14–18 m/s west jump can enter
+it airborne and recover on the tabletop. Custom host pickup-radius tuning can
+change that skill requirement; the authored layout targets default gameplay.
+The water-edge line runs along Z=-43, outside immersion, but a poor inward line
+can claim the pickup and continue into the existing deep-water hazard.
+
+`check-infield.ps1 -Case Pickup` drives each route with native practice physics
+and the hosted collision adapter, checks airborne awards, ordinary-crossing and
+underpass exclusions, dry shoreline collection and a poor line into water.
+`-Visual` renders all seven markers under each of the five environment presets.
+The fixture also checks the bake against its authoring scene. Multiplayer
+contention, full-inventory rejection, cooldown and repeated replicated outcomes
+remain covered by `check-item-spawns.ps1 -Oval`, with optional `-Impaired`.
+
+### Existing geometry and oval routes
+
 `check-oval.ps1 -GodotPath <Godot .NET executable>` loads the committed map and
 checks imported coordinates, transforms, road dimensions, collision equivalence,
 22,900 raycasts over every road section and closure, adjacent normal continuity,
@@ -117,7 +166,7 @@ them back to the grid and verifies existing music playback.
 reference. Evidence is written beneath `.godot/oval-checks/`. This establishes
 repeatable high-speed drivability with one automated vehicle; it does not establish human control feel or multiplayer racing balance. Normal menu/lobby, separate-process networking,
 death/respawn, reconnect and migration fixtures verify the active map contract,
-20-marker pickup state and absent old-map prop state and preserved global systems. The separate-process driving
+27-marker pickup state and absent old-map prop state and preserved global systems. The separate-process driving
 route turns into the infield so its replication checks do not depend on old walls.
 
 [Feature index](README.md)
@@ -130,9 +179,9 @@ The exterior ground annulus starts at the outer rim and extends 700 m outward. I
 
 Asphalt reuses the acquired Poly Haven Asphalt 04 maps, with a neutral tint and 2 m world-triplanar tiling. The foundation infield and exterior use original seamless 2 m grass albedo/normal maps with mipmaps and high roughness. The sculpted infield uses the shared dirt/grass/wet-soil/rock/water material field; the exterior remains textured grass. Surface identities select the shared Core handling profiles.
 
-The existing practice and network arena owners select `Daylight.tres` for the oval, retaining their single sun and WorldEnvironment. Old Map keeps its existing lighting. The oval resource supplies a blue procedural sky, cool ambient fill and filmic tonemapping without glare effects or competing map-owned lighting.
+Practice and network arena owners compose the [environment presentation](terrain-effects.md) around their map. Clear Blue is the default; hosted sessions apply the authoritative Configs selection to the existing single directional light and WorldEnvironment without rebuilding map content. `Daylight.tres` remains a fixed lighting resource for focused historical map fixtures.
 
-The oval runtime harness additionally checks all boundary seams at four heights, high-speed and airborne impacts through both production adapters, and 36 m/s driving approaches to every pickup through the existing Core pickup authority. `check-item-spawns.ps1 -Oval` runs the existing eight-peer UDP contention/cooldown/occupied-slot checks against the 20-marker map; its simultaneous distribution stage exercises the first eight markers, while the oval harness covers all 20 individual approaches.
+The oval runtime harness additionally checks all boundary seams at four heights, high-speed and airborne impacts through both production adapters, and 36 m/s driving approaches to every oval pickup through the existing Core pickup authority. `check-item-spawns.ps1 -Oval` runs the existing eight-peer UDP contention/cooldown/occupied-slot checks against the 27-marker map; its simultaneous distribution stage exercises the seven infield markers and first oval single, while the oval harness covers all 20 oval approaches.
 
 The asphalt retains its separate seamless 64 m multiply layer. Grass combines two-metre blade detail with a restrained 16 m isotropic variation tile: its small, low-contrast variations avoid broad light/dark bands at driving height. Both UV sets use world triplanar mapping and mipmaps.
 

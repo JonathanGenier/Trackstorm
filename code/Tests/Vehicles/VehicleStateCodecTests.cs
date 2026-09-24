@@ -13,9 +13,9 @@ internal sealed class VehicleStateCodecTests
     public void Snapshot_RoundTripsEveryField()
     {
         var physics = new VehiclePhysicsState(new Vector3(1, 2, 3), Quaternion.CreateFromAxisAngle(Vector3.UnitY, 0.7f), new Vector3(-4, 5, 6), new Vector3(0.1f, 0.2f, 0.3f));
-        var state = new VehicleState(9876, physics, true, true, 0.25f, 0.7f, SurfaceType.Mud, 0.3f, 0.8f, -4, 5, 0.4f, new WheelSupport(new Vector4(0.1f, 0.2f, 0.3f, 0.4f)));
+        var state = new VehicleState(9876, physics, true, true, 0.25f, 0.7f, SurfaceType.Mud, 0.3f, 0.8f, -4, 5, 0.4f, new WheelSupport(new Vector4(0.1f, 0.2f, 0.3f, 0.4f)), powerSlip: 0.17f);
         byte[] bytes = VehicleStateCodec.Encode(state);
-        Assert.That(bytes.Length, Is.EqualTo(119));
+        Assert.That(bytes.Length, Is.EqualTo(123));
         Assert.That(BinaryPrimitives.ReadUInt64LittleEndian(bytes.AsSpan(1)), Is.EqualTo(9876));
         Assert.That(VehicleStateCodec.Decode(bytes), Is.EqualTo(state));
     }
@@ -29,7 +29,7 @@ internal sealed class VehicleStateCodecTests
         Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes.AsSpan(1)));
         bytes[0] = 2;
         Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes));
-        bytes[0] = 5;
+        bytes[0] = 6;
         bytes[61] = 128;
         Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes));
         bytes[61] = 0;

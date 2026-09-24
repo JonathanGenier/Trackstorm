@@ -14,6 +14,11 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+Assert-True ((Get-FastCheckPlan -Paths @("assets/environment/ImportAsset.gd")).RuntimeScripts -contains "check-map-budget.ps1") "Map resource changes route native budget inventory."
+Assert-True ((Get-FastCheckPlan -Paths @("code/Client/Vehicles/TireFeedback.cs")).RuntimeScripts -contains "check-terrain-effects.ps1") "Surface feedback routes bounded native effects verification."
+Assert-True ((Get-FastCheckPlan -Paths @("code/Core/Development/EnvironmentPreset.cs")).RuntimeScripts -contains "check-developer-options.ps1") "Environment selection routes authoritative Configs verification."
+Assert-True ((Get-FastCheckPlan -Paths @("scenes/maps/infield_dressing.tscn")).RuntimeScripts -contains "check-dressing.ps1") "Production dressing routes native clearance verification."
+Assert-True ((Get-FastCheckPlan -Paths @("assets/environment/models/BoulderTall.glb")).RuntimeScripts -contains "check-environment.ps1") "Environment assets route their native library verification."
 Assert-True ((Get-FastCheckPlan -Paths @("code/Client/Vehicles/WaterObservation.cs")).RuntimeScripts -contains "check-water.ps1") "Water observations route native water verification."
 Assert-True ((Get-FastCheckPlan -Paths @("code/Client/Vehicles/SurfaceIdentityResolver.cs")).RuntimeScripts -contains "check-surfaces.ps1") "Material identity changes route native surface verification."
 Assert-True ((Get-FastCheckPlan -Paths @("check-nitro.ps1")).RuntimeScripts -contains "check-nitro.ps1") "Nitro harness changes retain native verification."

@@ -14,6 +14,7 @@ internal static class WheelSuspension
     internal static (WheelSupport Wheels, Vector3 Normal, SurfaceType Surface, Vector3 TerrainNormal, SurfaceIdentity? Identity) Observe(PhysicsBody3D body, Transform3D pose, VehicleConfiguration configuration)
     {
         float[] compression = new float[4];
+        SurfaceType?[] wheelSurfaces = new SurfaceType?[4];
         Vector3 normal = Vector3.Zero;
         Vector3 terrainNormal = Vector3.Zero;
         SurfaceType surface = SurfaceType.Concrete;
@@ -33,6 +34,7 @@ internal static class WheelSuspension
                     if (hit["collider"].AsGodotObject() is Node terrain && terrain.IsInGroup("landing_terrain")) { terrainNormal += hit["normal"].AsVector3(); }
                     surface = (hit["collider"].AsGodotObject() as SurfaceBody)?.Surface ?? SurfaceType.Concrete;
                     identity = SurfaceIdentityResolver.Resolve(hit["collider"].AsGodotObject(), hit["position"].AsVector3());
+                    wheelSurfaces[index] = SurfaceHandling.Resolve(identity, surface);
                 }
 
                 index++;
@@ -47,6 +49,6 @@ internal static class WheelSuspension
             identity = SurfaceIdentityResolver.Resolve(centerHit["collider"].AsGodotObject(), centerHit["position"].AsVector3());
         }
 
-        return (new WheelSupport(new System.Numerics.Vector4(compression[0], compression[1], compression[2], compression[3])), normal.IsZeroApprox() ? Vector3.Zero : normal.Normalized(), SurfaceHandling.Resolve(identity, surface), terrainNormal.IsZeroApprox() ? Vector3.Zero : terrainNormal.Normalized(), identity);
+        return (new WheelSupport(new System.Numerics.Vector4(compression[0], compression[1], compression[2], compression[3]), wheelSurfaces[0], wheelSurfaces[1], wheelSurfaces[2], wheelSurfaces[3]), normal.IsZeroApprox() ? Vector3.Zero : normal.Normalized(), SurfaceHandling.Resolve(identity, surface), terrainNormal.IsZeroApprox() ? Vector3.Zero : terrainNormal.Normalized(), identity);
     }
 }

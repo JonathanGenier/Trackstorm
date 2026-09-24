@@ -13,6 +13,7 @@ internal sealed class MapPickupCapacityTests
     [TestCase(0)]
     [TestCase(8)]
     [TestCase(20)]
+    [TestCase(27)]
     public void MapCountsRoundTrip(int count)
     {
         var original = PrototypeArena.Configuration;
@@ -31,7 +32,7 @@ internal sealed class MapPickupCapacityTests
     public void ExcessiveCountsFail()
     {
         var original = PrototypeArena.Configuration;
-        var markers = Enumerable.Range(0, 21).Select(i => new ArenaSpawn($"pickup-{i:00}", new Vector3(i, 1, 0), 0)).ToArray();
+        var markers = Enumerable.Range(0, 28).Select(i => new ArenaSpawn($"pickup-{i:00}", new Vector3(i, 1, 0), 0)).ToArray();
         Assert.Throws<ArgumentException>(() => new ArenaConfiguration(original.Minimum, original.Maximum, original.Players, markers, original.Surfaces));
         var host = new HostVehicleSession(1);
         Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, host.Items.Events,
