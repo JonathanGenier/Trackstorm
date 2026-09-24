@@ -63,7 +63,9 @@ public sealed class VehicleMovement
         if (!float.IsFinite(oilSpin) || Math.Abs(oilSpin) > 3) { throw new ArgumentException("Invalid oil spin."); }
         int oilTicks = oilSpin != 0 && driveEnabled ? 120 : Math.Max(0, State.OilTicks - 1);
         nitro.Validate();
-        NitroState boost = !driveEnabled || clearNitro ? default : nitro.Active ? nitro : State.Nitro.Advance();
+        bool usingNitro = (input.Held & InputButtons.UseItem) != 0 && !clearNitro;
+        NitroState boost = !driveEnabled ? default : usingNitro && nitro.Active ? nitro :
+            usingNitro ? State.Nitro.Advance() : State.Nitro.Active || State.Nitro.Recovering ? NitroState.Recovery : default;
         VehicleConfiguration c = Configuration;
         float forwardSpeed = boost.Active ? Math.Min(c.MaximumPhysicsSpeed, c.ForwardSpeed * boost.SpeedMultiplier) : c.ForwardSpeed;
         float acceleration = boost.Active ? c.Acceleration * boost.AccelerationMultiplier : c.Acceleration;
@@ -199,6 +201,18 @@ public sealed class VehicleMovement
             angular += tireNormal * (halfAxle * (rearForce - frontForce) / inertiaPerMass * dt);
             angular -= tireNormal * (Vector3.Dot(angular, tireNormal) * (1 - MathF.Exp(-c.StabilityDamping * dt)));
         }
+
+        // Remove only excess road speed at a bounded rate, preserving direction and vertical motion.
+        float roadSpeed = new Vector2(velocity.X, velocity.Z).Length();
+        if (boost.Recovering && roadSpeed > forwardSpeed)
+        {
+            float reduction = Math.Min(roadSpeed - forwardSpeed, c.OverspeedDeceleration * dt);
+            float scale = (roadSpeed - reduction) / roadSpeed;
+            velocity.X *= scale;
+            velocity.Z *= scale;
+        }
+
+        if (boost.Recovering && roadSpeed <= forwardSpeed) { boost = default; }
 
         // Chassis load response acts on the physical body, using the same forces that consume tire grip.
         Vector3 desiredUp = grounded ? groundNormal : Vector3.UnitY;

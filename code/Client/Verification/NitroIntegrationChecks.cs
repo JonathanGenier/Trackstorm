@@ -21,6 +21,11 @@ public sealed partial class NitroIntegrationChecks : Node
     private int _boundary;
     private float _baseline;
     private bool _done;
+    private bool _held;
+    private readonly bool[] _press = new bool[2];
+    private double[] _charges = [];
+    private double[] _scores = [];
+    private float _releaseSpeed;
     private readonly List<string> _evidence = new();
 
     public override void _Ready()
@@ -74,7 +79,10 @@ public sealed partial class NitroIntegrationChecks : Node
             _frames++;
             foreach (var arena in _arenas)
             {
-                arena.Advance(new Core.Input.InputFrame(0, 0, ushort.MaxValue, 0, 0, 0, 0));
+                int peerIndex = _arenas.IndexOf(arena);
+                bool press = _press[peerIndex];
+                _press[peerIndex] = false;
+                arena.Advance(new Core.Input.InputFrame(0, 0, ushort.MaxValue, 0, _held ? Core.Input.InputButtons.UseItem : 0, press ? Core.Input.InputButtons.UseItem : 0, 0));
                 Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure);
             }
             Check(_frames - _boundary < 1800, $"Nitro stage {_stage} timeout");
@@ -100,40 +108,60 @@ public sealed partial class NitroIntegrationChecks : Node
                     Next($"Normal drive settles at {_baseline:0.00} m/s; both players request Nitro.");
                     break;
                 case 2 when host.World.State.Vehicles.All(v => v.Movement.Nitro.Active) && _arenas[1].Driver.LocalState!.Movement.Nitro.Active:
-                    Check(host.Items.Slots.All(s => s.Item == HeldItem.None), "both slots consumed");
-                    Next("Host and client observe active boost from normal local/remote use; both slots consumed once.");
+                    Check(host.Items.Slots.All(s => s.Item == HeldItem.Nitro && s.NitroCharge is > 0 and < 100 && s.SecondItem == HeldItem.Wrench), "independent retained Nitro and second slot");
+                    Next("Both peers sustain Nitro; charge drains while Wrench remains in the second slot.");
                     break;
-                case 3 when _frames - _boundary > 220:
-                    float speed = host.World.GetVehicle(1).Speed;
-                    Check(speed > _baseline * 1.2f, $"boosted speed {speed}");
+                case 3 when _frames - _boundary > 180:
+                    _releaseSpeed = host.World.GetVehicle(1).Speed;
+                    Check(_releaseSpeed > _baseline * 1.2f, $"boosted speed {_releaseSpeed}");
                     Check(_arenas[1].Driver.LocalState!.Speed > _baseline * 1.2f, "remote boost motion");
-                    Check(host.World.State.Match!.Players.All(p => p.CircusScore > 30), "duration score");
-                    Capture("active-nitro.png");
-                    Next($"Native boosted speed reaches {speed:0.00} m/s; both authoritative totals include duration points.");
+                    _charges = host.Items.Slots.Select(s => s.NitroCharge).ToArray();
+                    _scores = host.World.State.Match!.Players.Select(p => p.CircusScore).ToArray();
+                    Check(_scores.All(s => s > 0), "actual overspeed score");
+                    Capture("partial-nitro.png");
+                    _held = false;
+                    Next($"Boost reaches {_releaseSpeed:0.00} m/s; released at {_charges[0]:0.00}% charge.");
                     break;
-                case 4 when host.World.State.Vehicles.All(v => !v.Movement.Nitro.Active) && !_arenas[1].Driver.LocalState!.Movement.Nitro.Active:
-                    Check(host.Configuration.Configuration.Vehicle.ForwardSpeed < 45, "canonical cap unchanged");
-                    Check(host.TryConfigure(0, new Dictionary<string, double> { ["items.nitro_duration_ticks"] = 60 }, out _), "short repeat tuning");
+                case 4 when _frames - _boundary > 30:
+                    Check(host.World.State.Vehicles.All(v => !v.Movement.Nitro.Active), "release removes boost");
+                    Check(Math.Abs(host.Items.Slots[0].NitroCharge - _charges[0]) < 0.00001, "host release preserves charge");
+                    Check(host.Items.Slots[1].NitroCharge <= _charges[1] && host.Items.Slots[1].NitroCharge > _charges[1] - 10, "remote release bounded by input delivery");
+                    _charges = host.Items.Slots.Select(s => s.NitroCharge).ToArray();
+                    float recovering = host.World.GetVehicle(1).Speed;
+                    Check(recovering > _baseline && recovering < _releaseSpeed && _releaseSpeed - recovering < 3, "smooth recovery without snapping or sudden braking");
+                    Check(host.World.State.Match!.Players.Zip(_scores).All(p => p.First.CircusScore > p.Second), "overspeed scoring continues after release");
+                    Capture("released-nitro.png");
+                    Next($"Release recovery remains at {recovering:0.00} m/s with continuing authoritative overspeed awards.");
+                    break;
+                case 5 when _frames - _boundary > 360:
+                    Check(host.World.State.Vehicles.All(v => v.Speed <= host.Configuration.Configuration.Vehicle.ForwardSpeed + 0.01f), "recovery reaches normal speed");
+                    Check(host.Items.Slots.Select(s => s.NitroCharge).SequenceEqual(_charges), "idle charge retained on both peers");
+                    Check(!host.World.State.Match!.Awards.Any(a => a.Category == Core.Matches.CircusScoreCategory.Nitro), "no Nitro scoring at normal speed");
                     UseBoth();
-                    Next("Both peers expire cleanly; canonical tuning is unchanged. Beginning repeated one-second boosts.");
+                    Next("Recovery reaches normal speed and overspeed scoring stops; reuse begins with retained charge.");
                     break;
-                case 5:
-                    if (_frames - _boundary == 40) { Check(host.World.State.Vehicles.All(v => v.Movement.Nitro.Active), "repeated activation"); }
-                    if (_frames - _boundary > 90)
-                    {
-                        Check(host.World.State.Vehicles.All(v => !v.Movement.Nitro.Active), "repeated expiry");
-                        if (host.World.Events.Entries.Count(e => e.Kind == "Used" && e.Cause == "Nitro") < 8)
-                        {
-                            UseBoth();
-                            _boundary = _frames;
-                        }
-                        else { Next("Four activations per vehicle complete with bounded expiry and no accumulated boost."); }
-                    }
+                case 6 when _frames - _boundary > 30:
+                    Check(host.World.State.Vehicles.All(v => v.Movement.Nitro.Active), "repeat activation");
+                    Check(host.Items.Slots.Zip(_charges).All(p => p.First.NitroCharge < p.Second), "reuse drains same resources");
+                    _held = false;
+                    Next("Second activation drains the same grant tokens, followed by another release.");
                     break;
-                case 6 when _frames - _boundary > 10:
-                    Check(_arenas[1].Driver.Match!.Players.All(p => p.CircusScore > 79), "remote score publication");
-                    Check(host.World.Events.Entries.Count(e => e.Kind == "Effect ended" && e.Cause == "Nitro") == 8, "one expiry per use");
-                    Capture("expired-nitro.png");
+                case 7 when _frames - _boundary > 30:
+                    Check(host.World.State.Vehicles.All(v => !v.Movement.Nitro.Active), "second release");
+                    UseBoth();
+                    Next("Third activation continues until resource exhaustion.");
+                    break;
+                case 8 when host.Items.Slots.All(s => s.Item == HeldItem.None && s.NitroCharge == 0):
+                    Check(host.Items.Slots.All(s => s.SecondItem == HeldItem.Wrench), "depletion leaves second slot intact");
+                    _held = false;
+                    Next("Both Nitro resources reach zero and clear only their physical slots.");
+                    break;
+                case 9 when _frames - _boundary > 30:
+                    Check(_arenas[1].Driver.LocalItem is { Item: HeldItem.None, NitroCharge: 0, SecondItem: HeldItem.Wrench }, "remote depletion publication");
+                    Check(host.World.State.Vehicles.All(v => !v.Movement.Nitro.Active), "exhaustion ends boost");
+                    Check(_arenas[1].Driver.Match!.Players.All(p => p.CircusScore > 0), "remote score publication");
+                    Check(host.World.Events.Entries.Count(e => e.Kind == "Exhausted" && e.Cause == "Nitro") == 2, "one disposal per grant");
+                    Capture("exhausted-nitro.png");
                     GD.Print("Nitro integration passed: " + string.Join("\n", _evidence));
                     _done = true; _boundary = _frames;
                     foreach (var arena in _arenas) { arena.QueueFree(); }
@@ -152,19 +180,30 @@ public sealed partial class NitroIntegrationChecks : Node
     private void UseBoth()
     {
         var host = _arenas[0].Driver.Host!;
-        foreach (ulong id in new ulong[] { 1, 2 }) { Check(host.Items.Grant(host.World, id, HeldItem.Nitro), "grant"); }
-        Check(_arenas[0].Driver.RequestItemUse(), "host request");
+        _held = true;
+        foreach (ulong id in new ulong[] { 1, 2 })
+        {
+            if (!host.Items.Slots.Any(s => s.Vehicle == id))
+            {
+                Check(host.Items.Grant(host.World, id, HeldItem.Nitro), "grant");
+                Check(host.Items.Grant(host.World, id, HeldItem.Wrench), "second slot grant");
+            }
+        }
+        _press[0] = true;
         // Remote acquisition is published on the next step, so send the same authenticated request
         // via its transport only after the confirmed slot arrives.
-        _arenas[1].Driver.ItemsReceived += RequestRemote;
+        if (_arenas[1].Driver.LocalItem?.Item == HeldItem.Nitro)
+        {
+            _press[1] = true;
+        }
+        else { _arenas[1].Driver.ItemsReceived += RequestRemote; }
     }
 
     private void RequestRemote(ItemPublication publication)
     {
         if (_arenas[1].Driver.LocalItem?.Item != HeldItem.Nitro) { return; }
         _arenas[1].Driver.ItemsReceived -= RequestRemote;
-        Check(_arenas[1].Driver.RequestItemUse(), "remote request");
-        Check(_arenas[1].Driver.RequestItemUse(), "duplicate remote request delivered for authority rejection");
+        _press[1] = true;
     }
 
     private void Position()

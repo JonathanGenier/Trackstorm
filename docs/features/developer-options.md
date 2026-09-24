@@ -18,7 +18,7 @@ Configuration actions and their feedback disappear on Stats and Logs and for non
 
 ## Authority and runtime application
 
-Core `GameplayConfiguration` composes the existing vehicle, damage, item, spawn, respawn and match records. `GameplayOptions` is the explicit 100-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
+Core `GameplayConfiguration` composes the existing vehicle, damage, item, spawn, respawn and match records. `GameplayOptions` is the explicit 101-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
 
 Live scalar tuning additionally rejects positive values below 0.0001: subnormal mass/axle lengths can overflow fixed-step divisions despite passing older positive-only checks. Zero remains allowed where the owning rule explicitly supports it. Collision/respawn timers are bounded to one hour and the simulation clock remains fixed at 60 Hz.
 
@@ -200,7 +200,7 @@ The read-only [Event Log](event-log.md) records accepted tuning keys with old/ne
 
 Item spawn weights are generated from the shared item registry (spawns.wrench_weight, spawns.missile_weight, spawns.oil_weight, spawns.nitro_weight). Zero excludes an item; the complete pool must retain positive total weight. All four default to one. Oil uses the normal deployment path; Nitro uses the normal activation path and retains its slot while already boosted. The Oil patch bound is editable as items.maximum_oil_patches (1–32, default 16); lowering it preserves existing patches. The version-seven gameplay configuration payload includes the complete distribution in resume and migration checkpoints.
 
-Nitro adds `items.nitro_duration_ticks`, `items.nitro_acceleration_multiplier`, `items.nitro_speed_multiplier`, and `match.nitro_points_per_second` to the existing 83-key configuration catalog. Item settings are captured at activation; score rate edits affect subsequent active ticks. Ordinary validation, persistence, replication and recovery apply. See [Nitro](items.md#temporary-nitro-boost) for lifecycle and bounds.
+Nitro exposes `items.nitro_consumption_per_second`, `items.nitro_acceleration_multiplier`, `items.nitro_speed_multiplier`, `vehicle.overspeed_deceleration`, and `match.nitro_points_per_second` through the existing catalog. Live edits affect subsequent authoritative intervals without refilling charge. Ordinary validation, persistence, version-eleven configuration replication and recovery apply. See [Nitro](items.md#sustained-nitro-resource).
 
 ## Surface tuning
 

@@ -12,7 +12,7 @@ public sealed record MatchConfiguration
     /// <summary>Participants needed to begin the countdown.</summary>
     public int MinimumPlayers { get; init; } = 2;
 
-    /// <summary>Base points per second throughout active Nitro, independent of driving input.</summary>
+    /// <summary>Base points per second of authoritative overspeed above the normal forward limit.</summary>
     public double NitroPointsPerSecond { get; init; } = 10;
 
     /// <summary>Base Circus points per valid kill.</summary>

@@ -101,7 +101,8 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Check(_host.Lobby.Request(LobbyCommand.Start), "normal Start");
                 await Until(() => _client.Arena?.Driver.Match?.Phase == MatchPhase.Active, "normal Active match");
                 await Frames(20);
-                Check(_host.Arena!.Driver.Configuration.Configuration == GameplayConfiguration.HostedDefaults, "production arena uses the same hosted defaults");
+                // Production match entry intentionally chooses a fresh pickup seed; all balance values remain defaults.
+                Check(GameplayOptions.All.Where(option => option.Key != "spawns.seed").All(option => option.Read(_host.Arena!.Driver.Configuration.Configuration) == option.Read(GameplayConfiguration.HostedDefaults)), "production arena uses hosted defaults with its match-owned pickup seed");
                 Check(!Descendants(_bootstrap).OfType<Button>().Any(button => button.Text == "Arena tools"), "separate Arena Tools retired");
                 Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.Name == "ForceStart"), "Configs contains no duplicate Force Start action");
                 Check(Descendants(_devTools).OfType<Button>().Single(button => button.Name == "ForceStart").IsVisibleInTree(), "Force Start is available from the DevTools shell");
@@ -179,7 +180,8 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Press("Apply Settings");
                 Check(_host.GiveDeveloperItem(HeldItem.Wrench), "fixture grants wrench through existing authority");
                 Check(_host.Arena.Driver.LocalItem?.Item == HeldItem.Wrench, "Give Wrench uses current host slot");
-                Check(!_host.GiveDeveloperItem(HeldItem.Missile), "occupied slot cannot be overwritten");
+                Check(_host.GiveDeveloperItem(HeldItem.Oil), "second physical slot accepts an independent item");
+                Check(!_host.GiveDeveloperItem(HeldItem.Missile), "two occupied slots cannot be overwritten");
                 Check(_host.Arena.Driver.RequestItemUse(), "normal Wrench use");
                 await Until(() => _host.Arena.Driver.LocalItem?.Item == HeldItem.None, "normal Wrench consumption");
                 Check(_host.GiveDeveloperItem(HeldItem.Missile), "fixture grants missile through existing authority");

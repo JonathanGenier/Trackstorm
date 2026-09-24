@@ -252,10 +252,11 @@ public sealed class HostVehicleSession
     /// <param name="session">Arena generation.</param>
     /// <param name="life">Vehicle life.</param>
     /// <param name="token">Issued slot token.</param>
-    public bool UseItem(ulong peer, ulong session, ulong life, ulong token)
+    /// <param name="inputSequence">Optional originating input sequence, binding remote sustained activation to its captured frame.</param>
+    public bool UseItem(ulong peer, ulong session, ulong life, ulong token, uint? inputSequence = null)
     {
         ulong vehicle = peer == 0 ? HostPlayerId : _peers.TryGetValue(peer, out var entry) ? entry.Vehicle : 0;
-        bool accepted = AllowsParticipation && session == SessionId && vehicle != 0 && Items.RequestUse(World, vehicle, life, token);
+        bool accepted = AllowsParticipation && session == SessionId && vehicle != 0 && Items.RequestUse(World, vehicle, life, token, inputSequence);
         if (!accepted && (!_lastUseRejection.HasValue || World.State.Tick - _lastUseRejection.Value >= TickRate))
         {
             _lastUseRejection = World.State.Tick;
@@ -464,7 +465,7 @@ public sealed class HostVehicleSession
         InputFrame hostInput = new SequencedInput(0, local).AtTick(tick);
         inputs.Add(HostPlayerId, hostInput);
         var previous = World.State.Vehicles.ToDictionary(state => state.VehicleId);
-        Items.Step(World, hostInput, World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray(), collide ?? ((_, _) => null), placeOil);
+        Items.Step(World, hostInput, World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray(), collide ?? ((_, _) => null), placeOil, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged));
         foreach (var peer in _peers.Values)
         {
             VehicleSnapshot state = World.GetVehicle(peer.Vehicle);

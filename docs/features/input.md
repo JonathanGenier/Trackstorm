@@ -74,3 +74,5 @@ Network application sessions apply the [Game Loop participation gate](game-loop.
 [Feature index](README.md)
 
 The [Event Log](event-log.md) reserves F3 and owns a separate local diagnostic suppression flag. Closing it does not clear Settings suppression; the existing item-release guard prevents click-through use.
+
+Nitro uses the same UseItem action with sustained held state following a capability-bound press. Release/suppression stops charge consumption and boosted drive on the next authoritative step; other items retain one-press use. Remote Nitro presses are associated with the originating input sequence across reliable item and sequenced driving delivery. Switching slots disengages Nitro without discarding charge.

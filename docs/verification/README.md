@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Sustained percentage Nitro resource | [TS-157 verification evidence](ts-157.md) |
 | Two held items and active-slot switching | [TS-146 verification evidence](ts-146.md) |
 | Story verification | [TS-139 verification evidence](ts-139.md) |
 | Per-player category-balanced item distribution | [TS-145 verification evidence](ts-145.md) |

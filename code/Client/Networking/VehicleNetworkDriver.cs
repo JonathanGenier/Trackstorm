@@ -386,7 +386,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
             if ((input.Pressed & InputButtons.SwitchItem) != 0) { RequestItemSwitch(); }
             if ((input.Pressed & InputButtons.UseItem) != 0)
             {
-                RequestItemUse();
+                RequestItemUse(inputs.NextSequence);
             }
 
             if (inputs.IsFull)
@@ -453,7 +453,8 @@ internal sealed class VehicleNetworkDriver : IDisposable
     }
     /// <summary>Submits the local slot capability reliably; never creates a predicted item effect.</summary>
     /// <returns>Whether queued locally or sent to the host.</returns>
-    internal bool RequestItemUse()
+    /// <param name="inputSequence">Originating captured frame when called from the remote input loop.</param>
+    internal bool RequestItemUse(uint? inputSequence = null)
     {
         ItemSlot? inventory = LocalItem;
         // Ordered reliable intent can use the requested slot before its confirmation arrives.
@@ -473,7 +474,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
             return Host.UseItem(0, _session, slot.Life, slot.Token);
         }
 
-        return Send(new TransportMessage(ServerPeer, ItemCodec.EncodeUse(_session, slot.Life, slot.Token), TransportDelivery.Reliable));
+        return Send(new TransportMessage(ServerPeer, ItemCodec.EncodeUse(_session, slot.Life, slot.Token, inputSequence), TransportDelivery.Reliable));
     }
 
     private bool Send(TransportMessage message)
@@ -1000,7 +1001,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
                         return;
                     }
                     var request = ItemCodec.DecodeUse(message.Payload.Span);
-                    if (!Host.UseItem(message.RemotePeerId, request.Session, request.Life, request.Token))
+                    if (!Host.UseItem(message.RemotePeerId, request.Session, request.Life, request.Token, request.InputSequence))
                     {
                         RejectedPackets++;
                     }

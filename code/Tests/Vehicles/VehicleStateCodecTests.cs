@@ -29,7 +29,7 @@ internal sealed class VehicleStateCodecTests
         Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes.AsSpan(1)));
         bytes[0] = 2;
         Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes));
-        bytes[0] = 5;
+        bytes[0] = 6;
         bytes[61] = 128;
         Assert.Throws<ArgumentException>(() => VehicleStateCodec.Decode(bytes));
         bytes[61] = 0;
