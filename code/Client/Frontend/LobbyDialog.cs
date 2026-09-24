@@ -11,9 +11,11 @@ internal sealed class LobbyDialog
     private readonly ColorRect _shade = new() { Color = new Color(0, 0, 0, 0.68f), Size = new Vector2(1280, 720), Visible = false, MouseFilter = Control.MouseFilterEnum.Stop };
     private readonly VBoxContainer _content = new() { Position = new Vector2(402, 237), Size = new Vector2(476, 280) };
     private readonly List<Control> _controls = new();
+    private readonly Panel _backing = new() { Position = new Vector2(375, 210), Size = new Vector2(530, 335), MouseFilter = Control.MouseFilterEnum.Stop };
     private ulong? _target;
     private ulong _session;
     private ulong _epoch;
+    private Action? _refresh;
     internal bool Visible => _shade.Visible;
     internal Control[] Controls => _controls.ToArray();
 
@@ -22,9 +24,8 @@ internal sealed class LobbyDialog
         _owner = owner;
         _canvas = canvas;
         canvas.AddChild(_shade);
-        var backing = new Panel { Position = new Vector2(375, 210), Size = new Vector2(530, 335), MouseFilter = Control.MouseFilterEnum.Stop };
-        backing.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("191512"), BorderColor = new Color("92704e"), BorderWidthBottom = 3, BorderWidthTop = 3, BorderWidthLeft = 3, BorderWidthRight = 3 });
-        _shade.AddChild(backing);
+        _backing.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("191512"), BorderColor = new Color("92704e"), BorderWidthBottom = 3, BorderWidthTop = 3, BorderWidthLeft = 3, BorderWidthRight = 3 });
+        _shade.AddChild(_backing);
         _shade.AddChild(_content);
         _content.AddThemeConstantOverride("separation", 12);
     }
@@ -39,6 +40,7 @@ internal sealed class LobbyDialog
     internal void ValidateTarget()
     {
         if (Visible && (!Authorized || _target is { } id && (_owner.Session.Lobby!.State!.Players.All(player => player.Id != id || !player.Connected) || id == _owner.Session.Lobby.State.CurrentHostId))) Close();
+        if (Visible) _refresh?.Invoke();
     }
 
     private bool Authorized => _owner.CanHostAct && _owner.Session.Lobby!.State is { } state && state.Session == _session && state.AuthorityEpoch == _epoch;
@@ -47,6 +49,8 @@ internal sealed class LobbyDialog
     {
         foreach (Node child in _content.GetChildren()) { _content.RemoveChild(child); child.QueueFree(); }
         _controls.Clear();
+        _backing.Size = new Vector2(530, 335);
+        _refresh = null;
         _target = null;
         _session = _owner.Session.Lobby!.State!.Session;
         _epoch = _owner.Session.Lobby.State.AuthorityEpoch;
@@ -74,7 +78,7 @@ internal sealed class LobbyDialog
         _controls.Add(button);
     }
 
-    private void FocusCancel() => _controls.Last().GrabFocus();
+    private void FocusCancel() => (_controls.OfType<Button>().LastOrDefault(button => button.Text == "Cancel") ?? _controls.Last()).GrabFocus();
 
     internal void ShowParticipant(ulong id, bool confirm = false)
     {
@@ -127,6 +131,37 @@ internal sealed class LobbyDialog
             else targetLabel.Text = error;
         });
         Button("Cancel", Close);
+        if (_owner.Session.OnlineCoordinator() is { IsHost: true })
+        {
+            _backing.Size = new Vector2(530, 400);
+            Button("Rename lobby", ShowRename);
+        }
         FocusCancel();
+    }
+
+    private void ShowRename()
+    {
+        var coordinator = _owner.Session.OnlineCoordinator();
+        if (coordinator is not { IsHost: true, Active: not null }) return;
+        string lobbyId = coordinator.Active.Id;
+        Begin("RENAME LOBBY");
+        var name = new LineEdit { Text = coordinator.Active.Name, PlaceholderText = "Lobby name", MaxLength = 48, CustomMinimumSize = new Vector2(0, 43) };
+        _content.AddChild(name);
+        _controls.Add(name);
+        var status = Label("Only the lobby name will change.");
+        Button("Save name", () =>
+        {
+            if (!ReferenceEquals(coordinator, _owner.Session.OnlineCoordinator()) || !coordinator.IsHost || coordinator.Active?.Id != lobbyId) { Close(); return; }
+            coordinator.Rename(name.Text);
+            status.Text = coordinator.Status;
+        });
+        Button("Back", ShowSettings);
+        _refresh = () =>
+        {
+            if (!ReferenceEquals(coordinator, _owner.Session.OnlineCoordinator()) || !coordinator.IsHost || coordinator.Active?.Id != lobbyId) { Close(); return; }
+            status.Text = coordinator.Status;
+            ((Button)_controls[1]).Disabled = coordinator.Busy;
+        };
+        name.GrabFocus();
     }
 }

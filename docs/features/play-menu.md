@@ -8,6 +8,8 @@ The Play Menu is the lobby browser inside the persistent [MenuShell](startup.md)
 
 Free Play remains disabled with Coming Soon. Host Game opens a native name/access-code form that invokes the existing coordinator Create operation. Back returns to Main Menu. The developer Direct-IP action exposes the existing fallback controls. The [joined Lobby](match-entry.md) is a separate authority-driven 3D staging presentation with its own host/client controls.
 
+EOS login/retry remains in Play; logout is available in personal Settings, including the frontend Settings shortcut, and returns through cleanup to Main Menu. Active online lobby rename is under the host's joined Lobby Settings.
+
 Logical input uses the existing remappable player binding owner, with 0.4-second repeat delay and 0.12-second navigation repeat. Mouse and keyboard/controller focus share red selected/hover treatment. Search retains native text entry and caret editing. Up/Down traverses controls, including text fields and scrolling rows. Filter opens a modal choice list: directions highlight, Accept selects, and Cancel discards. Covering Settings/DevTools suspend underlying activation.
 
 ## Discovery projection

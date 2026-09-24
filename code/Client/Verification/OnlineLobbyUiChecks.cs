@@ -48,6 +48,7 @@ public sealed partial class OnlineLobbyUiChecks : Node
         SetProcess(false);
         try
         {
+            await VerifyManagement();
             _coordinator.Tick();
             for (int frame = 0; frame < 20; frame++)
             {
@@ -388,6 +389,8 @@ public sealed partial class OnlineLobbyUiChecks : Node
         internal Action? CompleteCreate { get; set; }
         internal bool DeferLookup { get; set; }
         internal Action? CompleteLookup { get; set; }
+        internal bool DeferLeave { get; set; }
+        internal Action? CompleteLeave { get; set; }
         public void Search(Action<IReadOnlyList<OnlineLobby>, string?> completed) => completed(new[] { new OnlineLobby("public", "Arena Public", _remote, 100, LobbyAccess.Public, 2, 8, OnlineLobby.CurrentProtocol, true, null), new OnlineLobby("locked", "Private Game", _remote, 200, LobbyAccess.Locked, 3, 8, OnlineLobby.CurrentProtocol, true, _credential), new OnlineLobby("incompatible", "Different build", _remote, 300, LobbyAccess.Public, 1, 8, OnlineLobby.CurrentProtocol, true, null) { Version = new GameVersion(GameVersion.Current.Release, GameVersion.Current.Revision == 0 ? 1 : GameVersion.Current.Revision - 1).ToString() } }, null);
         public void Lookup(string id, Action<OnlineLobbyLookup> completed)
         {
@@ -429,8 +432,9 @@ public sealed partial class OnlineLobbyUiChecks : Node
         public void SetJoinable(string id, bool open, Action<OnlineLobby?, string?> completed) => completed(_active, null);
         public void Leave(string id, bool destroy, Action<string?> completed)
         {
-            _active = null;
-            completed(null);
+            void Finish() { _active = null; completed(null); }
+            if (DeferLeave) CompleteLeave = Finish;
+            else Finish();
         }
 
         public IDisposable Watch(string id, Action<OnlineLobby?, OnlineLobbyUpdate> changed, Action<OnlineProductUserId>? retired = null) => new Subscription();

@@ -33,6 +33,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     private string _message = "Choose or host a game. Up to 8 players; non-host players must be ready.";
     private ulong _arenaGeneration;
     private bool _leaving;
+    private bool _logoutAfterLeave;
     private bool _forceStart;
     private double _eventMilliseconds;
     private int _eventRejected;
@@ -85,6 +86,16 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     internal Func<EosLobbyStatus> OnlineStatus { get; set; } = () => EosLobbyStatus.Unavailable;
     /// <summary>Explicit login/retry action supplied by the identity owner.</summary>
     internal Action OnlineLogin { get; set; } = () => { };
+    /// <summary>Identity-owner logout, invoked only after session and membership cleanup.</summary>
+    internal Action OnlineLogout { get; set; } = () => { };
+    internal bool CanLogoutOnline => !_logoutAfterLeave && OnlineStatus().CanLogout;
+
+    internal void LogoutOnline()
+    {
+        if (!CanLogoutOnline) return;
+        _logoutAfterLeave = true;
+        ReturnToMainMenu();
+    }
 
     /// <summary>Production lobby exposed for runtime integration verification.</summary>
     internal LobbyNetworkDriver? Lobby => _lobby;
@@ -327,6 +338,12 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <param name="input">Captured local input.</param>
     internal void Advance(InputFrame input)
     {
+        if (_logoutAfterLeave && LeaveComplete)
+        {
+            _logoutAfterLeave = false;
+            OnlineLogout();
+        }
+
         if (_exitToMenu && LeaveComplete)
         {
             _exitToMenu = false;
