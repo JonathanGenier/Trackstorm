@@ -565,7 +565,7 @@ internal sealed class EosP2pTransportTests
             var state = checkpoint.Lobby.State;
             var wrong = new LobbySnapshot(state.Session, state.Revision, state.Match, state.Phase, state.Players, state.CurrentHostId, 2);
             var lobby = checkpoint.Lobby;
-            bytes = MigrationCheckpointCodec.Encode(new MigrationCheckpoint(100, new LobbyRestoreState(wrong, lobby.Tick, lobby.NextId, lobby.Subjects), captured.Arena, captured.Host));
+            bytes = MigrationCheckpointCodec.Encode(new MigrationCheckpoint(100, new LobbyRestoreState(wrong, lobby.Tick, lobby.NextId, lobby.Subjects, lobby.Configuration), captured.Arena, captured.Host));
         }
 
         byte[] packet = [(byte)'T', (byte)'X', 1, .. bytes];

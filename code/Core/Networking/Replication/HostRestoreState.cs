@@ -23,7 +23,7 @@ public sealed record HostRestoreState
     public ulong ItemRevision { get; init; }
     /// <summary>Committed pickup mutation revision.</summary>
     public ulong SpawnRevision { get; init; }
-    /// <summary>Complete production selector continuation.</summary>
+    /// <summary>Complete match-owned item-selection stream continuation.</summary>
     public ulong RandomState { get; init; }
     /// <summary>Highest allocated vehicle identity.</summary>
     public ulong NextVehicle { get; init; }

@@ -2,6 +2,7 @@ using System.Numerics;
 using Trackstorm.Core.Arenas;
 using Trackstorm.Core.Items;
 using Trackstorm.Core.Networking.Replication;
+using Trackstorm.Core.Sessions;
 using Trackstorm.Core.Simulation;
 using Trackstorm.Core.Vehicles;
 
@@ -11,6 +12,53 @@ namespace Trackstorm.Core.Tests.Items;
 [TestFixture]
 internal sealed class ItemSpawnTests
 {
+    /// <summary>Fresh matches choose independent authoritative seeds and keep each in effective tuning.</summary>
+    [Test]
+    public void FreshMatchesStartWithIndependentItemSeeds()
+    {
+        var lobby = new LobbyAuthority(100, "Host");
+        var seeds = new HashSet<int>();
+        for (ulong match = 1; match <= 8; match++)
+        {
+            var host = new HostVehicleSession(match, configuration: lobby.Configuration.Configuration,
+                configurationRevision: lobby.Configuration.Revision, randomizeItemSeed: true);
+            host.RegisterSpawns(PrototypeArena.Configuration);
+            int seed = host.Configuration.Configuration.Spawns.Seed;
+            Assert.That(host.Configuration.Revision, Is.EqualTo(lobby.Configuration.Revision + 1));
+            Assert.That(host.Spawns!.Configuration.Seed, Is.EqualTo(seed));
+            Assert.That(host.Spawns.RandomState, Is.EqualTo(unchecked((ulong)seed)));
+            lobby.RetainConfiguration(host.Configuration);
+            seeds.Add(seed);
+        }
+
+        Assert.That(seeds.Count, Is.GreaterThan(1));
+    }
+
+    /// <summary>A future policy can draw first, then select an item from the same match stream.</summary>
+    [Test]
+    public void SequentialDecisionsShareOneMatchOwnedStream()
+    {
+        var tuning = new ItemSpawnConfiguration { Seed = 17 };
+        var first = new HostVehicleSession(1, configuration: new() { Spawns = tuning });
+        var replay = new HostVehicleSession(2, configuration: new() { Spawns = tuning });
+        first.RegisterSpawns(PrototypeArena.Configuration);
+        replay.RegisterSpawns(PrototypeArena.Configuration);
+
+        int firstPreselection = first.ItemSelectionRandom.Next(3);
+        int replayPreselection = replay.ItemSelectionRandom.Next(3);
+        Assert.That(firstPreselection, Is.EqualTo(replayPreselection));
+        Assert.That(first.Spawns!.RandomState, Is.EqualTo(first.ItemSelectionRandom.State));
+        Assert.That(first.ItemSelectionRandom.State, Is.Not.EqualTo((ulong)tuning.Seed));
+
+        Place(first, 1, "item-01");
+        Place(replay, 1, "item-01");
+        Assert.That(first.Spawns.TryPickup(first.World, "item-01", 1), Is.True);
+        Assert.That(replay.Spawns!.TryPickup(replay.World, "item-01", 1), Is.True);
+        Assert.That(first.Items.Slots.Single().Item, Is.EqualTo(replay.Items.Slots.Single().Item));
+        Assert.That(first.ItemSelectionRandom.State, Is.EqualTo(replay.ItemSelectionRandom.State));
+        Assert.That(first.Spawns.RandomState, Is.EqualTo(first.ItemSelectionRandom.State));
+    }
+
     /// <summary>Registration preserves actual configuration IDs and is permitted once per match.</summary>
     [Test]
     public void RegistersExactlyActualMarkers()
@@ -27,6 +75,18 @@ internal sealed class ItemSpawnTests
         var started = new HostVehicleSession(2);
         started.Step(default, Observe);
         Assert.Throws<InvalidOperationException>(() => started.RegisterSpawns(arena));
+    }
+
+    /// <summary>An invalid fixture override cannot reset the match stream before registration fails.</summary>
+    [Test]
+    public void InvalidSpawnOverrideLeavesMatchStreamUntouched()
+    {
+        var host = new HostVehicleSession(1);
+        ulong initialState = host.ItemSelectionRandom.State;
+        Assert.Throws<ArgumentException>(() => host.RegisterSpawns(PrototypeArena.Configuration,
+            new ItemSpawnConfiguration { Seed = 99, CooldownTicks = 0 }));
+        Assert.That(host.ItemSelectionRandom.State, Is.EqualTo(initialState));
+        Assert.That(host.Spawns, Is.Null);
     }
 
     /// <summary>Two same-tick contacts and retries produce exactly one grant and one cooldown.</summary>
@@ -148,14 +208,14 @@ internal sealed class ItemSpawnTests
             new ItemSpawnConfiguration { Weights = new ItemSpawnConfiguration().Weights.SetItems(ItemRegistry.All.Select(item => new KeyValuePair<HeldItem, int>(item.Identity, 0))) },
         })
         {
-            Assert.Throws<ArgumentException>(() => configuration.CreateSelector());
+            Assert.Throws<ArgumentException>(() => configuration.SelectItem(new ItemSelectionRandom(1)));
         }
 
         var tuning = new ItemSpawnConfiguration { Weights = new ItemSpawnConfiguration().Weights.SetItem(HeldItem.Missile, 3), Seed = 17 };
-        var first = tuning.CreateSelector();
-        var second = tuning.CreateSelector();
-        var sequence = Enumerable.Range(0, 1000).Select(_ => first()).ToArray();
-        Assert.That(sequence, Is.EqualTo(Enumerable.Range(0, 1000).Select(_ => second()).ToArray()));
+        var first = new ItemSelectionRandom(17);
+        var second = new ItemSelectionRandom(17);
+        var sequence = Enumerable.Range(0, 1000).Select(_ => tuning.SelectItem(first)).ToArray();
+        Assert.That(sequence, Is.EqualTo(Enumerable.Range(0, 1000).Select(_ => tuning.SelectItem(second)).ToArray()));
         Assert.That(sequence, Is.SupersetOf(ItemRegistry.All.Select(item => item.Identity)));
         Assert.That(sequence.Count(item => item == HeldItem.Missile), Is.InRange(400, 600));
     }
