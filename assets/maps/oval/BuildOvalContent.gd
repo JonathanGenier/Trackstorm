@@ -75,6 +75,15 @@ static func bake(map: Node3D, measurements: Dictionary) -> void:
 			marker(map,markers,inner,outer,groups[group],3.0+lane*6.0,"item-triple-%02d-%d" % [group+1,lane+1])
 	for i in singles.size():
 		marker(map,markers,inner,outer,singles[i][0],singles[i][1],"item-single-%02d" % (i+1))
+	# Authored infield route choices; heights measured against production collision.
+	# Keep this scriptless marker scene independent of the immutable oval rows.
+	var infield_pickups := load("res://scenes/maps/infield_pickups.tscn").instantiate() as Node3D
+	for pickup in infield_pickups.get_children():
+		pickup.owner = null
+		infield_pickups.remove_child(pickup)
+		markers.add_child(pickup)
+		pickup.owner = map
+	infield_pickups.free()
 	# Exterior annulus follows the banked rim and slopes into forest ground, never covering infield.
 	var ground := SurfaceTool.new()
 	ground.begin(Mesh.PRIMITIVE_TRIANGLES)

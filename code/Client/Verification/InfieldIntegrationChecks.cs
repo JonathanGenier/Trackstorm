@@ -96,6 +96,7 @@ public sealed partial class InfieldIntegrationChecks : Node3D
         var results = _simulation.Step(input, observations);
         _vehicle.Apply(results[0]);
         _vehicle.Publish();
+        ObservePickupRoute();
         if (_companion is not null)
         {
             _companion.Apply(results[1]);
@@ -163,8 +164,9 @@ public sealed partial class InfieldIntegrationChecks : Node3D
             await Frames(90);
             if (DisplayServer.GetName() != "headless")
             {
-                AddChild(new WorldEnvironment { Environment = GD.Load<Godot.Environment>("res://assets/maps/oval/Daylight.tres") });
-                AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-65, -25, 0), LightEnergy = 1.4f, ShadowEnabled = true });
+                _pickupEnvironment = new Arenas.EnvironmentPresentation();
+                AddChild(_pickupEnvironment);
+                _pickupEnvironment.Apply(Core.Development.EnvironmentPreset.ClearBlue);
                 _camera = new Camera3D { Current = true, Near = 1, Far = 1800, Fov = 55 };
                 AddChild(_camera);
                 await View("overview", new Vector3(0, 285, 190), Vector3.Zero);
@@ -174,6 +176,8 @@ public sealed partial class InfieldIntegrationChecks : Node3D
                 await View("west-layout", new Vector3(-100, 95, 65), new Vector3(-85, 0, 0));
                 await View("tabletop", new Vector3(-85, 40, 65), new Vector3(-25, 4, 0));
             }
+
+            await VerifyPickupRoutes(map, routes);
 
             // Repeated underpass and elevated deck crossing in both directions.
             // These scenarios precede the wider terrain suite so its known
