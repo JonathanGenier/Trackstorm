@@ -65,7 +65,7 @@ public sealed partial class MigrationIntegrationChecks : Node
 
         _gateways[0].Listen(TransportEndpoint.DirectIp(_endpoints[0]));
         CreateDriver(0, 0, true);
-        Require(_drivers[0]!.Authority!.TryConfigure(0, new Dictionary<string, double> { ["vehicle.acceleration"] = 7 }, out _), "Original lobby host configures the session.");
+        Require(_drivers[0]!.Authority!.TryConfigure(0, new Dictionary<string, double> { ["environment.preset"] = (int)Core.Development.EnvironmentPreset.Night, ["vehicle.acceleration"] = 7 }, out _), "Original lobby host configures the session.");
         _configuration = _drivers[0]!.Authority!.Configuration;
         CreateDriver(1, Connect(1, 0), false);
     }
@@ -263,7 +263,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, HeldItem.Wrench);
             _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, HeldItem.Oil);
             Require(_arenas[1]!.Driver.Host!.Items.Switch(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, _arenas[1]!.Driver.Host!.World.GetVehicle(_drivers[nextHost]!.LocalPlayerId).LifeId, 1), "Select second held slot before migration.");
-            Require(_arenas[1]!.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 9, ["spawns.seed"] = 42, ["match.countdown_ticks"] = 600 }, out _), "First replacement configures normal gameplay owners.");
+            Require(_arenas[1]!.Driver.TryConfigure(new Dictionary<string, double> { ["environment.preset"] = (int)Core.Development.EnvironmentPreset.NeonSunset, ["vehicle.acceleration"] = 9, ["spawns.seed"] = 42, ["match.countdown_ticks"] = 600 }, out _), "First replacement configures normal gameplay owners.");
             _oil = OilRecoveryFixture.Seed(_arenas[1]!);
             _nitroOwner = _drivers[1]!.LocalPlayerId;
             Require(_arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _nitroOwner, HeldItem.Nitro), "Nitro uses the same authority before host loss.");

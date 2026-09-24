@@ -62,6 +62,7 @@ public sealed partial class VehicleBody : RigidBody3D
         AddChild(VehicleVisual.Create(identification));
         _feedback.Initialize(identification, Paint);
         AddChild(_feedback);
+        AddChild(new TireFeedback { Source = () => (GlobalTransform, Snapshot, Configuration) });
     }
 
     /// <summary>Converts a native vector at the engine boundary.</summary>

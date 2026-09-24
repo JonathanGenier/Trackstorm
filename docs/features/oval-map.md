@@ -131,7 +131,7 @@ The exterior ground annulus starts at the outer rim and extends 700 m outward. I
 
 Asphalt reuses the acquired Poly Haven Asphalt 04 maps, with a neutral tint and 2 m world-triplanar tiling. The foundation infield and exterior use original seamless 2 m grass albedo/normal maps with mipmaps and high roughness. The sculpted infield uses the shared dirt/grass/wet-soil/rock/water material field; the exterior remains textured grass. Surface identities select the shared Core handling profiles.
 
-The existing practice and network arena owners select `Daylight.tres` for the oval, retaining their single sun and WorldEnvironment. Old Map keeps its existing lighting. The oval resource supplies a blue procedural sky, cool ambient fill and filmic tonemapping without glare effects or competing map-owned lighting.
+Practice and network arena owners compose the [environment presentation](terrain-effects.md) around their map. Clear Blue is the default; hosted sessions apply the authoritative Configs selection to the existing single directional light and WorldEnvironment without rebuilding map content. `Daylight.tres` remains a fixed lighting resource for focused historical map fixtures.
 
 The oval runtime harness additionally checks all boundary seams at four heights, high-speed and airborne impacts through both production adapters, and 36 m/s driving approaches to every pickup through the existing Core pickup authority. `check-item-spawns.ps1 -Oval` runs the existing eight-peer UDP contention/cooldown/occupied-slot checks against the 20-marker map; its simultaneous distribution stage exercises the first eight markers, while the oval harness covers all 20 individual approaches.
 

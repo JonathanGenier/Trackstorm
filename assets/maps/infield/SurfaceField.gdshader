@@ -31,7 +31,14 @@ void fragment() {
     vec3 grass = texture(grass_albedo,p*.5).rgb * vec3(.49,.46,.34);
     grass = mix(grass,vec3(.13,.108,.054),.22+noise(p*.35)*.16);
     float soil_detail = noise(p*6.7)*.10+noise(p*.8)*.12+.89;
+    // Metre-scaled visual detail only: never feed these values into the identity field.
+    float gravel = smoothstep(.76,.86,noise(p*23.0));
+    float erosion = smoothstep(.57,.67,noise(vec2(p.x*1.8,p.y*.16)+noise(p*.4)*2.0));
+    float cracks = 1.0-smoothstep(.018,.055,abs(noise(p*2.4)-.5));
+    grass *= mix(.87,1.1,noise(p*1.3));
     vec3 dirt = vec3(.215,.167,.112)*(grain*.55+.72)*macro*soil_detail;
+    dirt *= 1.0-erosion*.12-cracks*.1;
+    dirt = mix(dirt,vec3(.25,.23,.18),gravel*.36);
     vec3 rock = vec3(.17,.175,.16)*(grain*.8+.6)*macro;
     vec3 mud = vec3(.075,.05,.029)*(grain*.35+.8);
     vec3 deep = vec3(.041,.027,.016)*(grain*.25+.85);
@@ -41,8 +48,12 @@ void fragment() {
     float mud_weight = smoothstep(.05,.45,field.g);
     base = mix(base,mud,mud_weight);
     base = mix(base,deep,smoothstep(.45,.85,field.g));
+    float wet_edge = smoothstep(.08,.3,field.g) * (1.0-smoothstep(.45,.8,field.g));
+    float puddle = smoothstep(.66,.78,noise(p*1.5))*mud_weight;
+    base *= 1.0-wet_edge*noise(p*5.0)*.16;
     ALBEDO = mix(base,water,field.a);
     ROUGHNESS = mix(mix(.96,.58,mud_weight),.24,field.a);
+    ROUGHNESS = mix(ROUGHNESS,.3,puddle*.75);
     SPECULAR = mix(.18,.5,field.a);
     NORMAL_MAP = mix(texture(grass_normal,p*.5).rgb,texture(ground_normal,p*.55).rgb,max(field.r,max(field.g,field.b)));
     NORMAL_MAP_DEPTH = mix(.4,.07,field.a);

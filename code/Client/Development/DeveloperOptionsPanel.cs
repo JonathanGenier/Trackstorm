@@ -80,7 +80,17 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
                 var label = ConfigurationLabel(text);
                 rows.AddChild(label);
                 Control editor;
-                if (option.Boolean)
+                if (option.Key == "environment.preset")
+                {
+                    var presets = new OptionButton();
+                    foreach (var preset in Enum.GetValues<EnvironmentPreset>())
+                    {
+                        presets.AddItem(Arenas.EnvironmentPresentation.DisplayName(preset), (int)preset);
+                    }
+                    presets.ItemSelected += index => StageValue(option.Key, presets.GetItemId((int)index).ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    editor = presets;
+                }
+                else if (option.Boolean)
                 {
                     var toggle = new CheckButton();
                     toggle.Toggled += value => StageValue(option.Key, value ? "1" : "0");
@@ -351,7 +361,11 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         foreach (var option in GameplayOptions.All)
         {
             string value = _draft.Get(option.Key);
-            if (_editors[option.Key] is CheckButton toggle)
+            if (_editors[option.Key] is OptionButton presets)
+            {
+                presets.Select(presets.GetItemIndex(int.Parse(value, System.Globalization.CultureInfo.InvariantCulture)));
+            }
+            else if (_editors[option.Key] is CheckButton toggle)
             {
                 toggle.ButtonPressed = value == "1";
                 toggle.Text = value == "1" ? "On" : "Off";

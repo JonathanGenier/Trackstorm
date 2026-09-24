@@ -39,6 +39,11 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'TireFeedback|TireTrack|EnvironmentPresentation|EnvironmentPreset|EnvironmentSky|TerrainEffects|terrain_effects|check-terrain-effects') {
+            Add-Runtime 'check-terrain-effects.ps1'
+            Add-Runtime 'check-developer-options.ps1'
+            Add-Manual 'Inspect all five environment packages at driving height; drive every surface, repeat tire effects and check Water splashes without persistent marks. Exercise environment replication and recovery.'
+        }
         if ($path -match 'BuildDressing|infield_dressing|dressing_checks|check-dressing') {
             Add-Runtime 'check-dressing.ps1'
             Add-Runtime 'check-infield.ps1'
