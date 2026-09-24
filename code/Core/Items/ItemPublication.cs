@@ -14,8 +14,9 @@ public sealed class ItemPublication
     /// <param name="events">This step's launch/repair/impact effects.</param>
     /// <param name="spawns">Complete configured spawn state.</param>
     /// <param name="patches">Complete match-owned oil hazards.</param>
+    /// <param name="balances">Per-player current-match category history.</param>
     /// <param name="oilContacts">Entry latches preserved across recovery.</param>
-    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null, IEnumerable<OilPatch>? patches = null, IEnumerable<OilContact>? oilContacts = null)
+    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null, IEnumerable<OilPatch>? patches = null, IEnumerable<OilContact>? oilContacts = null, IEnumerable<PlayerItemBalance>? balances = null)
     {
         var inventory = slots.ToArray();
         var projectiles = missiles.ToArray();
@@ -49,6 +50,14 @@ public sealed class ItemPublication
         {
             throw new ArgumentException("Invalid oil continuation.");
         }
+        var history = balances?.ToArray() ?? [];
+        foreach (var balance in history) { balance.Validate(); }
+        if (history.Length > 8 || history.Select(b => b.Player).Distinct().Count() != history.Length ||
+            history.Any(b => !world.Vehicles.Any(v => v.State.VehicleId == b.Player)))
+        {
+            throw new ArgumentException("Invalid pickup history roster.");
+        }
+        Balances = Array.AsReadOnly(history);
         Patches = Array.AsReadOnly(oil);
         OilContacts = Array.AsReadOnly(contacts);
         Spawns = Array.AsReadOnly(pickups);
@@ -58,6 +67,9 @@ public sealed class ItemPublication
         Missiles = Array.AsReadOnly(projectiles);
         Events = Array.AsReadOnly(outcomes);
     }
+
+    /// <summary>Complete per-player category continuation and pickup diagnostics.</summary>
+    public IReadOnlyList<PlayerItemBalance> Balances { get; }
 
     /// <summary>Complete persistent hazards.</summary>
     public IReadOnlyList<OilPatch> Patches { get; }

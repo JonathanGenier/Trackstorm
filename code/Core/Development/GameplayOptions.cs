@@ -85,6 +85,8 @@ public static class GameplayOptions
         new("vehicle.mud.grip", "Mud", "Grip multiplier", false, c => c.Vehicle.Mud.Grip, (c, v) => c with { Vehicle = c.Vehicle with { Mud = new(checked((float)v), c.Vehicle.Mud.Drag, c.Vehicle.Mud.Acceleration) } }),
         new("vehicle.mud.drag", "Mud", "Drag multiplier", false, c => c.Vehicle.Mud.Drag, (c, v) => c with { Vehicle = c.Vehicle with { Mud = new(c.Vehicle.Mud.Grip, checked((float)v), c.Vehicle.Mud.Acceleration) } }),
         new("vehicle.mud.acceleration", "Mud", "Acceleration multiplier", false, c => c.Vehicle.Mud.Acceleration, (c, v) => c with { Vehicle = c.Vehicle with { Mud = new(c.Vehicle.Mud.Grip, c.Vehicle.Mud.Drag, checked((float)v)) } }),
+        .. Items.ItemRegistry.Categories.Select(category => new GameplayOption($"spawns.category_{category.Key}_weight", "Item categories", $"{category.Identity}Weight", true,
+            c => c.Spawns.CategoryWeights[category.Identity], (c, v) => c with { Spawns = c.Spawns with { CategoryWeights = c.Spawns.CategoryWeights.SetItem(category.Identity, checked((int)v)) } })),
         .. Items.ItemRegistry.All.Select(item => new GameplayOption($"spawns.{item.Key}_weight", "Item spawns", $"{item.DisplayName}Weight", true,
             c => c.Spawns.Weights[item.Identity], (c, v) => c with { Spawns = c.Spawns with { Weights = c.Spawns.Weights.SetItem(item.Identity, checked((int)v)) } })),
         new("vehicle.dirt.grip", "Dirt", "Grip multiplier", false, c => c.Vehicle.Dirt.Grip, (c, v) => c with { Vehicle = c.Vehicle with { Dirt = new(checked((float)v), c.Vehicle.Dirt.Drag, c.Vehicle.Dirt.Acceleration) } }),

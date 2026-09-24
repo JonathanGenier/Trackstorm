@@ -55,6 +55,11 @@ internal static class RuntimeStatistics
         }
 
         var player = VehicleStatistics.Capture(vehicles.SingleOrDefault(value => value.VehicleId == selected), slots, tick).ToList();
+        var balances = driver?.Host?.Spawns?.Balances ?? driver?.ItemState?.Balances;
+        var balance = balances?.SingleOrDefault(b => b.Player == selected);
+        player.Add(new("Item category balance", balances is null ? "Unavailable" :
+            $"Total pickups: {balance?.Total ?? 0} · Last category: {balance?.SelectedCategory?.ToString() ?? "None"} · Last item: {balance?.SelectedItem.ToString() ?? "None"}\n" +
+            string.Join("\n", ItemRegistry.Categories.Select(c => $"{c.Identity}: credit {balance?.Credits[c.Identity] ?? 0:0.######} · pickups {balance?.Counts[c.Identity] ?? 0}"))));
         var member = roster?.Players.SingleOrDefault(value => value.Id == selected);
         int? ping = roster is null || lobby is null ? null : lobby.Latency.Get(roster, selected);
         var rank = match is null ? null : MatchRanking.Create(match, players).SingleOrDefault(value => value.PlayerId == selected);

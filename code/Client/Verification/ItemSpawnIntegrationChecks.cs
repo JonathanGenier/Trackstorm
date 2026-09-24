@@ -23,6 +23,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
     private double _elapsed;
     private double _started;
     private int _stage;
+    private int _balanceRounds;
     private ulong _winner;
     private ItemSlot[] _distributed = Array.Empty<ItemSlot>();
     private bool _finished;
@@ -71,7 +72,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 AddChild(viewport);
             }
 
-            var arena = new NetworkVehicleArena { PrototypeMapForVerification = !Oval, SpawnConfiguration = new ItemSpawnConfiguration { CooldownTicks = 180, Seed = 6 } };
+            var arena = new NetworkVehicleArena { PrototypeMapForVerification = !Oval, SpawnConfiguration = new ItemSpawnConfiguration { CooldownTicks = 180, Seed = 41 } };
             arena.Initialize(gateway, index == 0 ? 88ul : 0, server);
             viewport.AddChild(arena);
             _arenas.Add(arena);
@@ -173,6 +174,8 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                     Require(host.Items.Slots.Single(value => value.Vehicle == slot.Vehicle) == slot, "Unavailable item use preserves the issued capability.");
                 }
 
+                Require(host.Spawns!.Balances.Count == 8 && host.Spawns.Balances.All(b => b.Total == (b.Player == _winner ? 2ul : 1ul)), "Only successful per-player pickups count.");
+                Require(_arenas.All(arena => CategoryBalanceRecoveryFixture.Signature(arena.Driver.ItemState!.Balances) == CategoryBalanceRecoveryFixture.Signature(host.Spawns.Balances)), "Per-player diagnostics replicate exactly.");
                 Capture("all-claimed.png");
                 // Stay in range: occupied slots must not reclaim when the cooldown elapses.
                 Next("All eight spawn locations awarded once, with all four item types replicated normally.");
@@ -184,6 +187,31 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 Require(_arenas.All(arena => arena.GetChildren().OfType<Items.ItemPresentation>().Single().GetChildCount() == 0), "Held inventory creates no world presentation for local or remote vehicles.");
                 Capture("occupied-slots.png");
                 _evidence.Add($"All {PickupCount} pickups are available after cooldown, including under occupied vehicles. No duplicate awards or overwritten grants.");
+                Require(host.TryConfigure(0, new Dictionary<string, double> { ["spawns.cooldown_ticks"] = 1 }, out _), "Repeated pickup fixture configures a one-tick cooldown.");
+                foreach (var vehicle in host.World.State.Vehicles) { host.Items.RemovePlayer(vehicle.VehicleId); }
+                PositionPlayers(false, true);
+                Next("Repeat 32 pickup rounds per player; fixture clears inventory between rounds without invoking item effects.");
+                break;
+            case 5 when host.Spawns!.Balances.All(b => b.Total == (b.Player == _winner ? 2ul : 1ul) + (ulong)_balanceRounds + 1) && _arenas.All(arena => arena.Driver.ItemState!.Slots.Count == 8 && arena.Driver.ItemState.Slots.All(s => s.Item != HeldItem.None)):
+                string signature = CategoryBalanceRecoveryFixture.Signature(host.Spawns!.Balances);
+                if (!_arenas.All(arena => CategoryBalanceRecoveryFixture.Signature(arena.Driver.ItemState!.Balances) == signature)) { break; }
+                _balanceRounds++;
+                if (_balanceRounds < 32)
+                {
+                    foreach (var vehicle in host.World.State.Vehicles) { host.Items.RemovePlayer(vehicle.VehicleId); }
+                    PositionPlayers(false, true);
+                    break;
+                }
+                foreach (var balance in host.Spawns.Balances)
+                {
+                    Require(balance.Total == (_winner == balance.Player ? 34ul : 33ul), "Exact repeated per-player pickup total.");
+                    foreach (var category in ItemRegistry.Categories)
+                    {
+                        decimal target = balance.Total * (category.Identity == ItemCategory.Weapon ? 0.5m : 0.25m);
+                        Require(Math.Abs(balance.Counts[category.Identity] - target) < 3, "Independent 50/25/25 convergence.");
+                    }
+                }
+                _evidence.Add("32 repeated rounds across eight native peers; exact replicated per-player credits/counts and target convergence: " + signature);
                 System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
                 GD.Print("Item spawn integration passed: " + string.Join("\n", _evidence));
                 Cleanup();

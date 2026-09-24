@@ -1,9 +1,10 @@
 using System.Numerics;
+using System.Collections.Immutable;
 using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-four reliable item protocol. Requests carry no claimed player or outcome.</summary>
+/// <summary>Bounded version-five reliable item protocol. Requests carry no claimed player or outcome.</summary>
 public static class ItemCodec
 {
     /// <summary>Recognizes only this protocol's magic; complete decode remains mandatory.</summary>
@@ -100,6 +101,20 @@ public static class ItemCodec
             writer.Write(contact.Life);
         }
 
+        writer.Write((byte)state.Balances.Count);
+        foreach (var balance in state.Balances)
+        {
+            writer.Write(balance.Player);
+            writer.Write(balance.Total);
+            writer.Write((byte)balance.SelectedItem);
+            writer.Write((byte)ItemRegistry.Categories.Count);
+            foreach (var category in ItemRegistry.Categories)
+            {
+                writer.Write((byte)category.Identity);
+                writer.Write(balance.Credits[category.Identity]);
+                writer.Write(balance.Counts[category.Identity]);
+            }
+        }
         writer.Write((byte)state.Events.Count);
         foreach (var outcome in state.Events)
         {
@@ -158,6 +173,23 @@ public static class ItemCodec
             contacts[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64());
         }
 
+        var balances = new PlayerItemBalance[Count(reader, 8)];
+        for (int i = 0; i < balances.Length; i++)
+        {
+            ulong player = reader.ReadUInt64();
+            ulong total = reader.ReadUInt64();
+            var selected = (HeldItem)reader.ReadByte();
+            if (reader.ReadByte() != ItemRegistry.Categories.Count) { throw new ArgumentException("Invalid category roster."); }
+            var credits = ImmutableDictionary.CreateBuilder<ItemCategory, decimal>();
+            var counts = ImmutableDictionary.CreateBuilder<ItemCategory, ulong>();
+            foreach (var category in ItemRegistry.Categories)
+            {
+                if (reader.ReadByte() != (byte)category.Identity) { throw new ArgumentException("Invalid category identity."); }
+                credits.Add(category.Identity, reader.ReadDecimal());
+                counts.Add(category.Identity, reader.ReadUInt64());
+            }
+            balances[i] = new() { Player = player, Total = total, SelectedItem = selected, Credits = credits.ToImmutable(), Counts = counts.ToImmutable() };
+        }
         var events = new ItemEvent[Count(reader, ItemAuthority.MaximumProjectiles + 8)];
         for (int i = 0; i < events.Length; i++)
         {
@@ -169,14 +201,14 @@ public static class ItemCodec
             events[i] = new(token, owner, item, position, impact);
         }
 
-        return new ItemPublication(revision, world, slots, missiles, events, spawns, patches, contacts);
+        return new ItemPublication(revision, world, slots, missiles, events, spawns, patches, contacts, balances);
     });
 
     private static byte[] Write(byte kind, Action<BinaryWriter> encode)
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 4, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 5, kind });
         encode(writer);
         if (stream.Length > 32768)
         {
@@ -188,7 +220,7 @@ public static class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 4 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 5 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }
