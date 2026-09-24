@@ -29,7 +29,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
     private bool _finished;
     private int _cleanupFrames;
     private bool Oval => OS.GetCmdlineUserArgs().Contains("--spawn-oval");
-    private int PickupCount => Oval ? 20 : 8;
+    private int PickupCount => Oval ? 27 : 8;
 
     /// <inheritdoc/>
     public override void _Ready()

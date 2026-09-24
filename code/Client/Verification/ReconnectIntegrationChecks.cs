@@ -284,7 +284,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             Require(_arenas[1].Driver.ItemState!.Patches.Count == 1 && _arenas[1].Driver.ItemState!.Patches.Single() == _oil, "Complete persistent Oil patch survives each native reconnect without duplication.");
             Require(_arenas[1].Driver.LocalItem?.Item == HeldItem.Oil, "Oil identity survives match-long retention and three reconnects.");
             Require(_arenas[1].Driver.LocalItem is { SecondItem: HeldItem.Wrench, ActiveSlot: 1, SelectionRevision: 1 }, "Second slot and selection survive reconnect exactly.");
-            Require(_arenas[1].Driver.ItemState?.Spawns.Count == 20 && _arenas[1].Driver.Match?.Players.Count == 2, "Twenty-marker oval pickup layout and match state arrive in the checkpoint.");
+            Require(_arenas[1].Driver.ItemState?.Spawns.Count == 27 && _arenas[1].Driver.Match?.Players.Count == 2, "Twenty-seven-marker map pickup layout and match state arrive in the checkpoint.");
             Require(CategoryBalanceRecoveryFixture.Signature(_arenas[1].Driver.ItemState!.Balances) == _categoryHistory, "Reconnect retains exact per-player credits, counts and last selection.");
             GD.Print("Category history verified after reconnect " + _resyncs);
             OvalGameplayAssertions.Verify(_arenas[1]);

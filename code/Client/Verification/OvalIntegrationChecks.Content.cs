@@ -14,7 +14,7 @@ public sealed partial class OvalIntegrationChecks
     private async Task VerifyContent()
     {
         var config = ActiveMap.ReadConfiguration(_map);
-        Check(config.Items.Count == 20, "Five triple rows and five single pickups are registered from scene markers.");
+        Check(config.Items.Count == 27, "Twenty oval and seven infield pickups are registered from scene markers.");
         var markers = _map.GetNode("ItemSpawns").GetChildren().OfType<Marker3D>().ToArray();
         var forest = _map.GetNode("MapContent").GetChildren().OfType<MultiMeshInstance3D>().ToArray();
         Check(forest.Length == 48 && forest.Sum(batch => batch.Multimesh.InstanceCount) == 864, "Forest uses 864 instances in 48 spatial batches.");
@@ -81,7 +81,7 @@ public sealed partial class OvalIntegrationChecks
 
         _advance = false;
         _vehicle.CollisionLayer = 0;
-        foreach (Marker3D marker in markers)
+        foreach (Marker3D marker in markers.Where(marker => marker.HasMeta("source_section")))
         {
             int section = marker.GetMeta("source_section").AsInt32();
             Vector3 tangent = (_centers[(section + 1) % _centers.Length] - _centers[(section + _centers.Length - 1) % _centers.Length]).Normalized();

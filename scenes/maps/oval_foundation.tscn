@@ -2507,3 +2507,25 @@ metadata/source_section = 871
 [node name="InfieldStructures" parent="." instance=ExtResource("infield_structures")]
 
 [node name="EnvironmentDressing" parent="." instance=ExtResource("environment_dressing")]
+
+
+[node name="item-infield-01-trail" type="Marker3D" parent="ItemSpawns"]
+position = Vector3(-70, 0.439, 51)
+
+[node name="item-infield-02-north" type="Marker3D" parent="ItemSpawns"]
+position = Vector3(70, 0.812, -56)
+
+[node name="item-infield-03-tunnel" type="Marker3D" parent="ItemSpawns"]
+position = Vector3(0, 0, 0)
+
+[node name="item-infield-04-water" type="Marker3D" parent="ItemSpawns"]
+position = Vector3(77, 0.101, -43)
+
+[node name="item-infield-05-jump" type="Marker3D" parent="ItemSpawns"]
+position = Vector3(-74, 10.65, 0)
+
+[node name="item-infield-06-turn" type="Marker3D" parent="ItemSpawns"]
+position = Vector3(-155, 0, 15)
+
+[node name="item-infield-07-berm" type="Marker3D" parent="ItemSpawns"]
+position = Vector3(126, -0.235, 41)
