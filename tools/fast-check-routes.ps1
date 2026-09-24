@@ -53,6 +53,11 @@ function Get-FastCheckPlan {
             continue
         }
 
+        if ($path -match '^assets/environment/' -or $path -match 'environment_library_checks|check-environment' -or $path -eq 'docs/features/environment-library.md') {
+            Add-Runtime 'check-environment.ps1'
+            Add-Manual 'Render check-environment.ps1 -Visual and inspect asset scale, materials, modular reuse and distance transitions.'
+        }
+
         if ($path -match '^code/Core/' -or $path -match '^code/Tests/') {
             $coreTests = $true
         }
