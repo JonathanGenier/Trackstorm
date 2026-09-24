@@ -11,6 +11,8 @@ public sealed record ItemSpawnConfiguration
     public float PickupRadius { get; init; } = 3;
     /// <summary>Nonnegative weights for every registered identity; zero excludes an item.</summary>
     public ImmutableDictionary<HeldItem, int> Weights { get; init; } = ItemRegistry.All.ToImmutableDictionary(item => item.Identity, item => item.DefaultWeight);
+    /// <summary>Nonnegative category targets; empty item categories are excluded and remaining targets normalized.</summary>
+    public ImmutableDictionary<ItemCategory, int> CategoryWeights { get; init; } = ItemRegistry.Categories.ToImmutableDictionary(c => c.Identity, c => c.DefaultWeight);
     /// <summary>Reproducible match selection seed.</summary>
     public int Seed { get; init; } = 1;
 
@@ -24,6 +26,13 @@ public sealed record ItemSpawnConfiguration
         {
             throw new ArgumentException("Pickup tuning requires bounded cooldown/radius and a nonempty registered weighted pool.");
         }
+        if (CategoryWeights is null || CategoryWeights.Count != ItemRegistry.Categories.Count ||
+            ItemRegistry.Categories.Any(c => !CategoryWeights.ContainsKey(c.Identity)) ||
+            CategoryWeights.Values.Any(w => w < 0) || CategoryWeights.Values.Sum(w => (long)w) > int.MaxValue ||
+            !ItemRegistry.All.Any(i => Weights[i.Identity] > 0 && CategoryWeights[i.Category] > 0))
+        {
+            throw new ArgumentException("Category targets require a usable positive registered distribution.");
+        }
     }
 
     /// <summary>Value equality includes distribution contents, independent of dictionary allocation.</summary>
@@ -31,6 +40,7 @@ public sealed record ItemSpawnConfiguration
     /// <returns>Whether every tuning value matches.</returns>
     public bool Equals(ItemSpawnConfiguration? other) => other is not null &&
         CooldownTicks == other.CooldownTicks && PickupRadius == other.PickupRadius && Seed == other.Seed &&
+        CategoryWeights.Count == other.CategoryWeights.Count && CategoryWeights.All(p => other.CategoryWeights.TryGetValue(p.Key, out int value) && value == p.Value) &&
         (ReferenceEquals(Weights, other.Weights) || (Weights is not null && other.Weights is not null &&
         Weights.Count == other.Weights.Count && Weights.All(pair => other.Weights.TryGetValue(pair.Key, out int value) && value == pair.Value)));
 
@@ -50,16 +60,18 @@ public sealed record ItemSpawnConfiguration
             }
         }
 
+        foreach (var pair in CategoryWeights.OrderBy(p => p.Key)) { hash.Add(pair.Key); hash.Add(pair.Value); }
         return hash.ToHashCode();
     }
 
     /// <summary>Selects an item with the match's existing authoritative stream.</summary>
-    public HeldItem SelectItem(ItemSelectionRandom random)
+    internal HeldItem SelectItem(ItemSelectionRandom random, ItemCategory category)
     {
         Validate();
         ArgumentNullException.ThrowIfNull(random);
-        int draw = random.Next((int)Weights.Values.Sum(weight => (long)weight));
-        foreach (var definition in ItemRegistry.All)
+        var pool = ItemRegistry.All.Where(i => i.Category == category).ToArray();
+        int draw = random.Next((int)pool.Sum(i => (long)Weights[i.Identity]));
+        foreach (var definition in pool)
         {
             int weight = Weights[definition.Identity];
             if (draw < weight)

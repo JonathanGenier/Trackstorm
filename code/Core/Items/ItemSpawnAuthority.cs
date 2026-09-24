@@ -13,6 +13,7 @@ public sealed class ItemSpawnAuthority
     private readonly Dictionary<string, ItemSpawnState> _states;
     private readonly ItemSelectionRandom _random;
     private readonly bool _customSelector;
+    private readonly Dictionary<ulong, PlayerItemBalance> _balances = new();
     private ulong _tick;
 
     /// <summary>Registers validated markers using the host match's shared selection stream.</summary>
@@ -31,7 +32,7 @@ public sealed class ItemSpawnAuthority
         _items = items;
         _random = random;
         _customSelector = selector is not null;
-        _select = selector ?? (() => Configuration.SelectItem(_random));
+        _select = selector;
         _markers = arena.Items.ToDictionary(marker => marker.Id, StringComparer.Ordinal);
         _states = arena.Items.ToDictionary(marker => marker.Id, marker => new ItemSpawnState(marker.Id, true, 0, 0, 0, HeldItem.None), StringComparer.Ordinal);
     }
@@ -42,6 +43,14 @@ public sealed class ItemSpawnAuthority
     public ulong Revision { get; private set; }
     /// <summary>Detached state in canonical marker order.</summary>
     public IReadOnlyList<ItemSpawnState> States => _states.Values.OrderBy(state => state.Id, StringComparer.Ordinal).ToArray();
+
+    /// <summary>Detached successful pickup diagnostics, retained through death and disconnected reservations.</summary>
+    public IReadOnlyList<PlayerItemBalance> Balances => _balances.Values.OrderBy(b => b.Player).ToArray();
+
+    internal void RemovePlayer(ulong player)
+    {
+        if (_balances.Remove(player)) { Revision++; }
+    }
 
     /// <summary>Match stream continuation; custom fixture selectors have no portable checkpoint.</summary>
     public ulong RandomState => !_customSelector ? _random.State : throw new InvalidOperationException("A custom selector has no portable checkpoint.");
@@ -56,6 +65,8 @@ public sealed class ItemSpawnAuthority
             throw new ArgumentException("Checkpoint pickup layout or selector is incompatible.");
         }
 
+        _balances.Clear();
+        foreach (var balance in publication.Balances) { _balances.Add(balance.Player, balance); }
         _states.Clear();
         foreach (var state in publication.Spawns)
         {
@@ -106,7 +117,9 @@ public sealed class ItemSpawnAuthority
         }
 
         ulong activation = checked(_tick + (ulong)Configuration.CooldownTicks);
-        HeldItem item = _select!.Invoke();
+        ulong randomBefore = _random.State;
+        var balance = _customSelector ? null : (_balances.GetValueOrDefault(vehicle) ?? new PlayerItemBalance { Player = vehicle }).Select(Configuration, _random);
+        HeldItem item = balance?.SelectedItem ?? _select!.Invoke();
         if (ItemRegistry.Find(item) is null)
         {
             throw new InvalidOperationException("Pickup selector returned an item outside the configured pool.");
@@ -114,9 +127,11 @@ public sealed class ItemSpawnAuthority
 
         if (!_items.Grant(world, vehicle, item, pickup: true))
         {
+            _random.Restore(randomBefore);
             return false;
         }
 
+        if (balance is not null) { _balances[vehicle] = balance; }
         ItemSlot granted = _items.Slots.Single(slot => slot.Vehicle == vehicle);
         _states[id] = new ItemSpawnState(id, false, activation, vehicle, granted.Token, item);
         Revision++;

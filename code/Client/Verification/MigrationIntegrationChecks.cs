@@ -30,6 +30,7 @@ public sealed partial class MigrationIntegrationChecks : Node
     private PackedScene _preparedMap = null!;
     private NetworkVehicleBody? _retainedBody;
     private Core.Development.GameplayConfigurationState? _configuration;
+    private string _categoryHistory = string.Empty;
     private ulong _randomState;
     private ulong _nitroOwner;
     private Core.Matches.MatchPhase _matchPhase;
@@ -257,6 +258,8 @@ public sealed partial class MigrationIntegrationChecks : Node
             arena.Driver.Match?.Phase == (_players == 2 ? Core.Matches.MatchPhase.Countdown : Core.Matches.MatchPhase.Active)))
         {
             int nextHost = _players == 2 ? 0 : 2;
+            _categoryHistory = CategoryBalanceRecoveryFixture.Seed(_arenas[1]!);
+            GD.Print("Category pickup history before migration: " + _categoryHistory);
             _arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, HeldItem.Wrench);
             Require(_arenas[1]!.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 9, ["spawns.seed"] = 42, ["match.countdown_ticks"] = 600 }, out _), "First replacement configures normal gameplay owners.");
             _oil = OilRecoveryFixture.Seed(_arenas[1]!);
@@ -339,6 +342,8 @@ public sealed partial class MigrationIntegrationChecks : Node
             }
             OvalGameplayAssertions.Verify(arena);
             Require(_arenas[0]!.Driver.Configuration == _configuration && arena.Driver.Configuration == _configuration, "Successive hosts retain configuration revision and ignore successor-local presets.");
+            Require(CategoryBalanceRecoveryFixture.Signature(arena.Driver.Host!.Spawns!.Balances) == _categoryHistory, "Host migration retains exact per-player category history.");
+            GD.Print("Category history verified after authority migration: " + _categoryHistory);
             Require(arena.Driver.Host!.Spawns!.RandomState == _randomState, "Migrated RNG continuation.");
             Require(arena.Driver.Match!.Phase == _matchPhase && arena.Driver.Match.CountdownAtTick == _countdownAtTick, "Migration preserves the current phase and absolute countdown deadline.");
             Require(!arena.Driver.ForceDeveloperStart(), "Replacement cannot restart an existing Countdown or Active phase.");

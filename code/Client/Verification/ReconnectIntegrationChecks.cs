@@ -26,6 +26,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
     private string _output = string.Empty;
     private double _elapsed;
     private double _captureAt;
+    private string _categoryHistory = string.Empty;
     private int _stage;
     private int _resyncs;
     private OilPatch? _oil;
@@ -251,6 +252,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
         }
         else if (_stage == 4 && _arenas[1].Driver.Prediction is not null && _arenas[1].Driver.Match?.Phase == Trackstorm.Core.Matches.MatchPhase.Active)
         {
+            _categoryHistory = CategoryBalanceRecoveryFixture.Seed(_arenas[0]);
+            GD.Print("Category pickup history before reconnect: " + _categoryHistory);
             _oil = OilRecoveryFixture.Seed(_arenas[0]);
             Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["match.nitro_points_per_second"] = 0 }, out _), "Disable duration score only in the retention fixture to preserve its fixed rank assertions.");
             NitroRecoveryFixture.Seed(_arenas[0], _player);
@@ -279,6 +282,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
             Require(_arenas[1].Driver.ItemState!.Patches.Count == 1 && _arenas[1].Driver.ItemState!.Patches.Single() == _oil, "Complete persistent Oil patch survives each native reconnect without duplication.");
             Require(_arenas[1].Driver.LocalItem?.Item == HeldItem.Oil, "Oil identity survives match-long retention and three reconnects.");
             Require(_arenas[1].Driver.ItemState?.Spawns.Count == 20 && _arenas[1].Driver.Match?.Players.Count == 2, "Twenty-marker oval pickup layout and match state arrive in the checkpoint.");
+            Require(CategoryBalanceRecoveryFixture.Signature(_arenas[1].Driver.ItemState!.Balances) == _categoryHistory, "Reconnect retains exact per-player credits, counts and last selection.");
+            GD.Print("Category history verified after reconnect " + _resyncs);
             OvalGameplayAssertions.Verify(_arenas[1]);
             if (_resyncs < 3)
             {
@@ -341,6 +346,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             _host.Authority.SetReady(0, true);
             Require(_host.Authority.Start(0), "Next match starts after leaving results.");
             var next = new HostVehicleSession(_host.State.Match);
+            Require(next.Spawns?.Balances.Count is null or 0, "True new match clears category history.");
             Require(next.SessionId > previous && next.World.State.Match!.Players.Count == 1 && next.World.State.Match.Players.All(score => score.Kills == 0 && score.Deaths == 0), "New match generation starts fresh without retained offline rows or totals.");
             Require(_arenas[0].Driver.Host!.Items.Patches.Count == 0 && next.Items.Patches.Count == 0, "Finished and the next match contain no Oil hazards.");
             Cleanup();
