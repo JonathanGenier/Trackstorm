@@ -128,7 +128,8 @@ internal sealed partial class JoinedLobby : Control
             float scale = car.Slot >= 5 ? 1.02f : 0.85f;
             car.Root.Scale = Vector3.One * scale;
             car.Root.Position = origin + ray * (-origin.Y / ray.Y) + new Vector3(0, 0.9f * scale, 0);
-            car.Root.RotationDegrees = new Vector3(0, 180 + (Feet[car.Slot].X - 640) / 40, 0);
+            float side = Feet[car.Slot].X - 640;
+            car.Root.RotationDegrees = new Vector3(0, 180 + Math.Sign(side) * 22 + side / 40, 0);
             Vector2 point = _camera.UnprojectPosition(car.Root.Position + new Vector3(0, 1.7f * scale, 0));
             if (!point.IsFinite()) continue;
             car.Target.Position = new Vector2(Math.Clamp(point.X - 74, 12, 1120), point.Y - 40 + (car.Slot >= 5 ? 26 : 0));
