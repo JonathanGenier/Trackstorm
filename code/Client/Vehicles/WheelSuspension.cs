@@ -27,7 +27,7 @@ internal static class WheelSuspension
                 Vector3 origin = pose * new Vector3(x, 0, z);
                 using var query = PhysicsRayQueryParameters3D.Create(origin, origin + (-pose.Basis.Y * configuration.SuspensionLength), body.CollisionMask, new Godot.Collections.Array<Rid> { body.GetRid() });
                 var hit = body.GetWorld3D().DirectSpaceState.IntersectRay(query);
-                if (hit.Count > 0 && hit["normal"].AsVector3().Y >= 0.55f)
+                if (hit.Count > 0 && hit["normal"].AsVector3().Y >= 0.55f && !EnvironmentContact.IsObstacle(hit["collider"].AsGodotObject(), hit["normal"].AsVector3()))
                 {
                     compression[index] = Math.Clamp(configuration.SuspensionLength - origin.DistanceTo(hit["position"].AsVector3()), 0, 1);
                     normal += hit["normal"].AsVector3();
@@ -43,7 +43,7 @@ internal static class WheelSuspension
 
         using var center = PhysicsRayQueryParameters3D.Create(pose.Origin, pose.Origin + (-pose.Basis.Y * configuration.SuspensionLength), body.CollisionMask, new Godot.Collections.Array<Rid> { body.GetRid() });
         var centerHit = body.GetWorld3D().DirectSpaceState.IntersectRay(center);
-        if (centerHit.Count > 0 && centerHit["normal"].AsVector3().Y >= 0.55f)
+        if (centerHit.Count > 0 && centerHit["normal"].AsVector3().Y >= 0.55f && !EnvironmentContact.IsObstacle(centerHit["collider"].AsGodotObject(), centerHit["normal"].AsVector3()))
         {
             surface = (centerHit["collider"].AsGodotObject() as SurfaceBody)?.Surface ?? SurfaceType.Concrete;
             identity = SurfaceIdentityResolver.Resolve(centerHit["collider"].AsGodotObject(), centerHit["position"].AsVector3());

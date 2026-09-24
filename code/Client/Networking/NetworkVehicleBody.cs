@@ -127,6 +127,11 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         }
 
         var transform = new Transform3D(new Basis(orientation), VehicleBody.ToGodot(state.Position));
+        Vector3 incomingVelocity = velocity;
+        Vector3 incomingAngular = angular;
+        Transform3D initialTransform = transform;
+        Vector3 initialSupport = Vector3.Zero;
+        bool sampledObstacleSupport = false;
         Vector3 remaining = velocity / 60;
         Vector3 support = Vector3.Zero;
         SurfaceType surface = SurfaceType.Concrete;
@@ -149,6 +154,10 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
             for (int i = 0; i < result.GetCollisionCount(); i++)
             {
                 Vector3 normal = result.GetCollisionNormal(i).Normalized();
+                if (EnvironmentContact.IsObstacle(result.GetCollider(i), normal))
+                {
+                    normal = EnvironmentContact.ExposedNormal(this, transform.Origin, result.GetCollisionPoint(i), normal);
+                }
                 Vector3 relative = velocity - result.GetColliderVelocity(i);
                 var other = result.GetCollider(i) as NetworkVehicleBody;
                 if (PushProps && result.GetCollider(i) is RigidBody3D prop && !prop.Freeze && pushed.Add(prop.GetInstanceId()))
@@ -157,14 +166,24 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                     prop.ApplyCentralImpulse(-normal * Math.Min(1800, closing * prop.Mass));
                 }
 
-                contacts.Add(new VehicleContact(VehicleBody.ToCore(relative), VehicleBody.ToCore(normal), 0, other?.VehicleId ?? 0, result.GetCollider(i) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= 0.55f, VehicleBody.ToCore(transform.AffineInverse() * result.GetCollisionPoint(i))));
-                if (normal.Y >= 0.55f)
+                bool obstacle = EnvironmentContact.IsObstacle(result.GetCollider(i), normal);
+                if (obstacle && !sampledObstacleSupport)
+                {
+                    initialSupport = WheelSuspension.Observe(this, initialTransform, _configuration).Normal;
+                    sampledObstacleSupport = true;
+                }
+                contacts.Add(new VehicleContact(VehicleBody.ToCore(obstacle ? incomingVelocity : relative), VehicleBody.ToCore(normal), 0, other?.VehicleId ?? 0, result.GetCollider(i) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= 0.55f, VehicleBody.ToCore(transform.AffineInverse() * result.GetCollisionPoint(i)), obstacle));
+                if (normal.Y >= 0.55f && !obstacle)
                 {
                     support = normal;
                     surface = (result.GetCollider(i) as SurfaceBody)?.Surface ?? SurfaceType.Concrete;
                 }
 
-                if (normal.Y < 0.55f)
+                if (obstacle)
+                {
+                    normal = VehicleBody.ToGodot(EnvironmentCollision.ResponseNormal(VehicleBody.ToCore(normal), VehicleBody.ToCore(initialSupport)));
+                }
+                else if (normal.Y < 0.55f)
                 {
                     float closing = Math.Max(0, -relative.Dot(normal));
                     Vector3 deltaVelocity = normal * closing;
@@ -197,7 +216,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         {
             using var ray = PhysicsRayQueryParameters3D.Create(transform.Origin, transform.Origin + (Vector3.Down * (0.62f * VehicleDimensions.Scale)), CollisionMask, new Godot.Collections.Array<Rid> { GetRid() });
             var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
-            if (hit.Count > 0 && hit["normal"].AsVector3().Y >= 0.55f)
+            if (hit.Count > 0 && hit["normal"].AsVector3().Y >= 0.55f && !EnvironmentContact.IsObstacle(hit["collider"].AsGodotObject(), hit["normal"].AsVector3()))
             {
                 support = hit["normal"].AsVector3().Normalized();
                 surface = (hit["collider"].AsGodotObject() as SurfaceBody)?.Surface ?? SurfaceType.Concrete;
@@ -210,6 +229,20 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         {
             support = suspension.Normal;
             surface = suspension.Surface;
+        }
+
+        if (contacts.Any(contact => contact.StaticObstacle))
+        {
+            var incoming = new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(incomingVelocity), VehicleBody.ToCore(incomingAngular));
+            var resolved = EnvironmentCollision.Resolve(incoming, VehicleBody.ToCore(initialSupport), contacts, _configuration);
+            velocity = VehicleBody.ToGodot(resolved.LinearVelocity);
+            angular = VehicleBody.ToGodot(VehicleMovement.Limit(resolved.AngularVelocity + VehicleBody.ToCore(angular - incomingAngular), _configuration.MaximumAngularSpeed));
+            // Retain independent support/ceiling and movable-body constraints from the same sweep.
+            foreach (var contact in contacts.Where(contact => !contact.StaticObstacle))
+            {
+                Vector3 normal = VehicleBody.ToGodot(contact.Normal);
+                if (velocity.Dot(normal) < 0) { velocity = velocity.Slide(normal); }
+            }
         }
 
         return new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts, surface, suspension.Wheels, VehicleBody.ToCore(suspension.TerrainNormal), WaterObservation.Observe(this, transform));

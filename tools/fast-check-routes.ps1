@@ -120,6 +120,10 @@ function Get-FastCheckPlan {
         }
 
         # Vehicles, simulation and camera.
+        if ($path -match '^code/(Core|Client)/Vehicles/' -or $path -match 'EnvironmentCollision|environment_collision|check-environment-collision' -or $path -eq 'code/Client/Networking/NetworkVehicleBody.cs') {
+            Add-Runtime 'check-environment-collisions.ps1'
+            Add-Extended 'check-environment-collision-network.ps1'
+        }
         if ($path -match '^code/(Core|Client)/Vehicles/' -or $path -match 'TerrainHandling|terrain_handling|check-terrain-handling') {
             Add-Runtime 'check-terrain-handling.ps1'
             Add-Manual 'Drive all normal surfaces and transitions; restart uphill on infield grades; verify host tuning and client prediction.'

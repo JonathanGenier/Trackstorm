@@ -76,7 +76,9 @@ internal sealed class VehicleAuthority
         foreach (VehicleContact contact in observed.Contacts)
         {
             if (VehicleLanding.Forgives(landing, observed, contact)) { continue; }
-            float candidate = VehicleDamageMath.CollisionSeverity(contact.RelativeVelocity, contact.Normal, contact.Impulse, _movementConfiguration.Mass);
+            float candidate = contact.StaticObstacle
+                ? EnvironmentCollision.Severity(contact.RelativeVelocity, EnvironmentCollision.ResponseNormal(contact.Normal, observed.Support))
+                : VehicleDamageMath.CollisionSeverity(contact.RelativeVelocity, contact.Normal, contact.Impulse, _movementConfiguration.Mass);
             if (candidate > severity)
             {
                 severity = candidate;
