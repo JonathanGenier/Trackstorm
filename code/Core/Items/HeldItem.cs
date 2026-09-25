@@ -13,4 +13,6 @@ public enum HeldItem : byte
     Oil = 3,
     /// <summary>Temporary boost identity.</summary>
     Nitro = 4,
+    /// <summary>Magnetic contact deployable.</summary>
+    ProxyMine = 5,
 }

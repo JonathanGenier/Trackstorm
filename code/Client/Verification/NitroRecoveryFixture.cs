@@ -14,6 +14,6 @@ internal static class NitroRecoveryFixture
             if (!host.Items.Grant(host.World, player, HeldItem.Nitro)) { throw new InvalidOperationException("Nitro recovery fixture requires an empty slot."); }
         }
         var slots = host.Items.Slots.Select(s => s.Vehicle == player ? s with { NitroCharge = 37.5, EngagedToken = 0 } : s);
-        host.Items.Restore(new ItemPublication(Math.Max(1, host.Items.Revision), host.Snapshot(), slots, host.Items.Missiles, [], host.Spawns?.States, host.Items.Patches, host.Items.OilContacts, host.Spawns?.Balances), host.Items.Revision + 1, host.Items.TokenHighWater);
+        host.Items.Restore(new ItemPublication(Math.Max(1, host.Items.Revision), host.Snapshot(), slots, host.Items.Missiles, [], host.Spawns?.States, host.Items.Patches, host.Items.OilContacts, host.Spawns?.Balances, host.Items.Mines), host.Items.Revision + 1, host.Items.TokenHighWater);
     }
 }
