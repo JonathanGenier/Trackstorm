@@ -1,9 +1,9 @@
 Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
 
-Transport peer 1: Connecting; None; 
-Transport peer 1: Connecting; None; 
-Transport peer 1: Connected; None; 
-Transport peer 1: Connected; None; 
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
 MISSED driver=0 speed=8 offset=2.8 phase=6 sweptClosest=2.9992
 claim boundary: native=3.5125, Core=3.4535, observed=False
 tick 3258: before=3.5125, after=3.4535, segment=3.4535, speed=6.99
