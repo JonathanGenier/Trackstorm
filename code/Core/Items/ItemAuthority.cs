@@ -178,6 +178,7 @@ public sealed class ItemAuthority
         var patches = new List<OilPatch>(_patches);
         var mines = new List<ProxyMineState>(_mines);
         var contacts = new List<OilContact>();
+        var oilTriggers = new List<OilTrigger>();
         var spins = new Dictionary<ulong, float>();
         var journal = new List<RuntimeEvent>();
         var repair = new Dictionary<ulong, float>();
@@ -287,6 +288,7 @@ public sealed class ItemAuthority
                     {
                         // Multiple simultaneous entries share one bounded physical response.
                         spins.TryAdd(vehicle.VehicleId, ((patch.Id ^ vehicle.VehicleId) & 1) == 0 ? 2.6f : -2.6f);
+                        oilTriggers.Add(new(patch.Id, patch.Owner, vehicle.VehicleId, vehicle.LifeId));
                         journal.Add(new RuntimeEvent { Category = EventCategory.Item, Kind = "Oil triggered", Actor = patch.Owner, Target = vehicle.VehicleId, Cause = "Oil", Tick = input.Tick });
                     }
                 }
@@ -367,7 +369,7 @@ public sealed class ItemAuthority
             }
         }
 
-        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, request.Observation, effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, spins.GetValueOrDefault(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro || !boosts.ContainsKey(request.VehicleId))).ToArray(), journal.Concat(events.Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray());
+        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, request.Observation, effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, spins.GetValueOrDefault(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro || !boosts.ContainsKey(request.VehicleId))).ToArray(), journal.Concat(events.Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray(), oilTriggers);
         foreach (var pair in slots.ToArray())
         {
             VehicleSnapshot state = world.GetVehicle(pair.Key);
