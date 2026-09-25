@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two native UDP peers drive on the same isolated flat platform.
+Normal drive settles at 44.44 m/s; both players request Nitro.
+Host and client observe active boost from normal local/remote use; both slots consumed once.
+Native boosted speed reaches 62.17 m/s; both authoritative totals include duration points.
+Both peers expire cleanly; canonical tuning is unchanged. Beginning repeated one-second boosts.
+Four activations per vehicle complete with bounded expiry and no accumulated boost.
+Nitro integration passed: Two native UDP peers drive on the same isolated flat platform.
+Normal drive settles at 44.44 m/s; both players request Nitro.
+Host and client observe active boost from normal local/remote use; both slots consumed once.
+Native boosted speed reaches 62.17 m/s; both authoritative totals include duration points.
+Both peers expire cleanly; canonical tuning is unchanged. Beginning repeated one-second boosts.
+Four activations per vehicle complete with bounded expiry and no accumulated boost.

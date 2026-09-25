@@ -56,7 +56,7 @@ public sealed partial class VehicleBody : RigidBody3D
         MaxContactsReported = 16;
         CenterOfMassMode = CenterOfMassModeEnum.Custom;
         CenterOfMass = new Vector3(0, (-0.25f * VehicleDimensions.Scale) + VehicleDimensions.OriginShift, 0);
-        PhysicsMaterialOverride = new PhysicsMaterial { Friction = 0.15f, Bounce = 0.05f };
+        PhysicsMaterialOverride = new PhysicsMaterial { Friction = 0.15f, Bounce = 0, Absorbent = true };
         AddChild(VehicleVisual.CreateCollision());
         var identification = new StandardMaterial3D { AlbedoColor = Paint, Roughness = 0.8f };
         AddChild(VehicleVisual.Create(identification, () => (State, Configuration)));
@@ -113,11 +113,22 @@ public sealed partial class VehicleBody : RigidBody3D
         float closestSupport = float.PositiveInfinity;
         ulong supportId = ulong.MaxValue;
         var contacts = new List<VehicleContact>();
+        Numerics.Vector3 incomingVelocity = State.Physics.LinearVelocity;
+        Numerics.Vector3 incomingAngular = State.Physics.AngularVelocity;
+        foreach (var effect in Snapshot.Effects)
+        {
+            incomingVelocity += effect.Effect.Impulse / Configuration.Mass;
+            incomingAngular += Numerics.Vector3.Cross(effect.Effect.Offset, effect.Effect.Impulse) / (Configuration.Mass * Configuration.Wheelbase * Configuration.Wheelbase / 3);
+        }
         for (int contact = 0; contact < body.GetContactCount(); contact++)
         {
             // Godot contact normals refer to the local body but are expressed in world space.
             Vector3 normal = body.GetContactLocalNormal(contact);
-            if (normal.Y >= 0.55f)
+            if (EnvironmentContact.IsObstacle(body.GetContactColliderObject(contact), normal))
+            {
+                normal = EnvironmentContact.ExposedNormal(this, body.Transform.Origin, body.GetContactLocalPosition(contact), normal);
+            }
+            if (normal.Y >= 0.55f && !EnvironmentContact.IsObstacle(body.GetContactColliderObject(contact), normal))
             {
                 support += normal;
                 Vector3 offset = body.GetContactLocalPosition(contact) - body.Transform.Origin;
@@ -134,7 +145,8 @@ public sealed partial class VehicleBody : RigidBody3D
 
             Vector3 relative = body.GetContactLocalVelocityAtPosition(contact) - body.GetContactColliderVelocityAtPosition(contact);
             var other = body.GetContactColliderObject(contact) as VehicleBody;
-            contacts.Add(new VehicleContact(ToCore(relative), ToCore(normal.Normalized()), body.GetContactImpulse(contact).Length(), other?.VehicleId ?? 0, body.GetContactColliderObject(contact) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= 0.55f, ToCore(body.Transform.AffineInverse() * body.GetContactLocalPosition(contact))));
+            bool obstacle = EnvironmentContact.IsObstacle(body.GetContactColliderObject(contact), normal);
+            contacts.Add(new VehicleContact(obstacle ? incomingVelocity : ToCore(relative), ToCore(normal.Normalized()), body.GetContactImpulse(contact).Length(), other?.VehicleId ?? 0, body.GetContactColliderObject(contact) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= 0.55f, ToCore(body.Transform.AffineInverse() * body.GetContactLocalPosition(contact)), obstacle));
         }
 
         // Prefer the center's surface while retaining native contact normals for existing slope handling.
@@ -146,7 +158,7 @@ public sealed partial class VehicleBody : RigidBody3D
             if (hit.Count > 0)
             {
                 Vector3 normal = hit["normal"].AsVector3();
-                if (normal.Y >= 0.55f)
+                if (normal.Y >= 0.55f && !EnvironmentContact.IsObstacle(hit["collider"].AsGodotObject(), normal))
                 {
                     if (support.IsZeroApprox())
                     {
@@ -166,7 +178,20 @@ public sealed partial class VehicleBody : RigidBody3D
             surface = suspension.Surface;
         }
 
-        var observation = new VehicleObservation(Observe(body.Transform, body.LinearVelocity, body.AngularVelocity), ToCore(support.IsZeroApprox() ? Vector3.Zero : support.Normalized()), contacts, surface, suspension.Wheels, ToCore(suspension.TerrainNormal), WaterObservation.Observe(this, body.Transform));
+        var physics = Observe(body.Transform, body.LinearVelocity, body.AngularVelocity);
+        if (contacts.Any(contact => contact.StaticObstacle) && !contacts.Any(contact => contact.OtherVehicleId != 0))
+        {
+            var incoming = new VehiclePhysicsState(physics.Position, physics.Orientation, incomingVelocity, incomingAngular);
+            physics = EnvironmentCollision.Resolve(incoming, ToCore(support.IsZeroApprox() ? Vector3.Zero : support.Normalized()), contacts, Configuration);
+            Numerics.Vector3 velocity = physics.LinearVelocity;
+            foreach (var contact in contacts.Where(contact => !contact.StaticObstacle))
+            {
+                float closing = Math.Max(0, -Numerics.Vector3.Dot(velocity, contact.Normal));
+                velocity += contact.Normal * closing;
+            }
+            physics = new(physics.Position, physics.Orientation, velocity, physics.AngularVelocity);
+        }
+        var observation = new VehicleObservation(physics, ToCore(support.IsZeroApprox() ? Vector3.Zero : support.Normalized()), contacts, surface, suspension.Wheels, ToCore(suspension.TerrainNormal), WaterObservation.Observe(this, body.Transform));
         return new VehicleStepRequest(VehicleId, InputSource?.Invoke(input.Tick) ?? input, observation, _effects, _reset);
     }
 
