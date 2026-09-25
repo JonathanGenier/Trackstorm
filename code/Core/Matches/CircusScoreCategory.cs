@@ -11,4 +11,6 @@ public enum CircusScoreCategory : byte
     TopSpeed = 6,
     /// <summary>Authoritative overspeed, including recovery after Nitro release.</summary>
     Nitro = 7,
+    /// <summary>Confirmed rival entry into an owned Oil patch.</summary>
+    Oil = 8,
 }

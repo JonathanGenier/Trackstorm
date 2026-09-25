@@ -198,8 +198,9 @@ public sealed class Simulation
     /// <param name="input">Next tick.</param>
     /// <param name="requests">Complete vehicle request batch.</param>
     /// <param name="precedingEvents">Authority-staged item outcomes.</param>
+    /// <param name="oilTriggers">New Oil entries staged with this batch.</param>
     /// <returns>Committed vehicle results.</returns>
-    internal IReadOnlyList<VehicleStepResult> Step(InputFrame input, IReadOnlyList<VehicleStepRequest> requests, IReadOnlyList<RuntimeEvent>? precedingEvents)
+    internal IReadOnlyList<VehicleStepResult> Step(InputFrame input, IReadOnlyList<VehicleStepRequest> requests, IReadOnlyList<RuntimeEvent>? precedingEvents, IReadOnlyList<Items.OilTrigger>? oilTriggers = null)
     {
         ArgumentNullException.ThrowIfNull(requests);
         ulong nextTick = checked(State.Tick + 1);
@@ -222,7 +223,7 @@ public sealed class Simulation
         }).ToArray();
         VehicleSnapshot[] transitions = candidates.Select(result => result.Snapshot)
             .Where(state => state.Lifecycle != _vehicles[state.VehicleId].Snapshot.Lifecycle || state.LifeId != _vehicles[state.VehicleId].Snapshot.LifeId).ToArray();
-        Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Advance(State.Match, _developmentStart ? MatchRules! with { MinimumPlayers = 1 } : MatchRules!, nextTick, candidates, State.Vehicles.ToDictionary(vehicle => vehicle.VehicleId), id => _vehicles[id].MovementConfiguration);
+        Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Advance(State.Match, _developmentStart ? MatchRules! with { MinimumPlayers = 1 } : MatchRules!, nextTick, candidates, State.Vehicles.ToDictionary(vehicle => vehicle.VehicleId), id => _vehicles[id].MovementConfiguration, oilTriggers);
         if (match?.Phase is Matches.MatchPhase.Active or Matches.MatchPhase.Finished)
         {
             _developmentStart = false;
