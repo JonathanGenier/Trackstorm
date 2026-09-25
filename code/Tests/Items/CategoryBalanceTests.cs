@@ -122,6 +122,45 @@ internal sealed class CategoryBalanceTests
     }
 
     [Test]
+    public void LiveItemWeightsPreserveCommittedItemsAndIndependentHistoryForEveryPlayer()
+    {
+        var host = Host();
+        host.JoinPlayer(20, 2);
+        Pickup(host, 1, "item-01");
+        Pickup(host, 2, "item-02");
+        var balances = host.Spawns!.Balances.ToArray();
+        var slots = host.Items.Slots.ToArray();
+        var spawns = host.Spawns.States.ToArray();
+        ulong random = host.ItemSelectionRandom.State;
+        var edits = ItemRegistry.All.ToDictionary(item => $"spawns.{item.Key}_weight", item => item.Identity == HeldItem.Nitro ? 7d : 0d);
+        var before = host.Configuration;
+        Assert.That(host.TryConfigure(20, edits, out _), Is.False);
+        Assert.That(host.Configuration, Is.EqualTo(before));
+        Assert.That(host.TryConfigure(0, edits, out _), Is.True);
+        EqualBalances(balances, host.Spawns.Balances);
+        Assert.That(host.Items.Slots, Is.EqualTo(slots));
+        Assert.That(host.Spawns.States, Is.EqualTo(spawns));
+        Assert.That(host.ItemSelectionRandom.State, Is.EqualTo(random));
+        Assert.That(host.Configuration.Configuration.Spawns.CategoryWeights, Is.EqualTo(before.Configuration.Spawns.CategoryWeights));
+
+        host.Suspend(20);
+        Assert.That(host.ResumePlayer(30, 2), Is.True);
+        var checkpoint = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(Checkpoint(host)));
+        var replacement = HostVehicleSession.Restore(checkpoint, host.CaptureAuthority(), 2);
+        Assert.That(replacement.Configuration, Is.EqualTo(host.Configuration));
+        foreach (var authority in new[] { host, replacement })
+        {
+            Pickup(authority, 1, "item-03");
+            Assert.That(authority.Spawns!.Balances.Single(b => b.Player == 2).Total, Is.EqualTo(1));
+            Pickup(authority, 2, "item-04");
+            Assert.That(authority.Items.Slots.Select(slot => slot.SecondItem), Is.All.EqualTo(HeldItem.Nitro));
+            Assert.That(authority.Spawns.Balances.Select(b => b.Total), Is.All.EqualTo(2));
+        }
+        EqualBalances(host.Spawns.Balances, replacement.Spawns!.Balances);
+        Assert.That(replacement.ItemSelectionRandom.State, Is.EqualTo(host.ItemSelectionRandom.State));
+    }
+
+    [Test]
     public void PickupsAreIndependentAndRejectedOrDeveloperGrantsDoNotCount()
     {
         var host = Host();

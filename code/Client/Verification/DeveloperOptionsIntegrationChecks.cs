@@ -173,6 +173,13 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 }
                 await CheckDraftActions();
                 await CheckRedesign();
+                var distributionSearch = Descendants(_devTools.Configs).OfType<LineEdit>().Single(editor => editor.Name == "ConfigSearch");
+                distributionSearch.Text = "weight";
+                distributionSearch.EmitSignal(LineEdit.SignalName.TextChanged, distributionSearch.Text);
+                await Frames(3);
+                await Capture("distribution-weights");
+                distributionSearch.Text = string.Empty;
+                distributionSearch.EmitSignal(LineEdit.SignalName.TextChanged, distributionSearch.Text);
                 ulong revision = _host.Arena!.Driver.Configuration.Revision;
                 Set("vehicle.mass", -1);
                 Press("Apply Settings");

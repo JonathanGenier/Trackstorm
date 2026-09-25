@@ -25,6 +25,13 @@ internal static class CategoryBalanceRecoveryFixture
             }
         }
         host.World.Restore(boundary);
+        string history = Signature(host.Spawns!.Balances);
+        ulong random = host.ItemSelectionRandom.State;
+        var weights = ItemRegistry.All.Select((item, index) => (Key: $"spawns.{item.Key}_weight", Value: (double)(index + 2))).ToDictionary(pair => pair.Key, pair => pair.Value);
+        if (!host.TryConfigure(0, weights, out _) || host.ItemSelectionRandom.State != random || Signature(host.Spawns.Balances) != history)
+        {
+            throw new InvalidOperationException("Live distribution tuning must preserve recovery history and RNG.");
+        }
         return Signature(host.Spawns!.Balances);
     }
 
