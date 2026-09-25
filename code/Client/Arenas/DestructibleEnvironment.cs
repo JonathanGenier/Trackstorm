@@ -10,7 +10,7 @@ internal sealed class DestructibleEnvironment
     private readonly Node3D _map;
     private readonly Node3D[] _rocks;
     private readonly (MultiMeshInstance3D Batch, int Index, Transform3D Pose)[] _plants;
-    private readonly Dictionary<Node3D, Transform3D> _authored = new();
+    private readonly EnvironmentLayout _layout;
     private readonly Dictionary<int, (MeshInstance3D Visual, StaticBody3D Support)> _pieces = new();
     private readonly Mesh _pieceMesh;
     private readonly byte[] _stages;
@@ -18,31 +18,31 @@ internal sealed class DestructibleEnvironment
     private readonly ulong[] _clearAt;
     private readonly Dictionary<MultiMeshInstance3D, float[]> _buffers = new();
     private readonly System.Numerics.Vector3[] _offsets;
-    private readonly float _smallScale;
+    private readonly float _pieceDiameter;
 
     internal DestructibleEnvironment(Node3D map)
     {
         _map = map;
         _rocks = Rocks(map);
+        _layout = ReadLayout(map)!;
         _plants = Plants(map);
-        _stages = new byte[_rocks.Length];
+        _stages = new byte[_layout.Rocks.Count];
         _cleared = new bool[_plants.Length];
         _clearAt = new ulong[_plants.Length];
-        _offsets = new System.Numerics.Vector3[_rocks.Length];
+        _offsets = new System.Numerics.Vector3[_layout.Rocks.Count];
         foreach (var batch in _plants.Select(p => p.Batch).Distinct())
         {
             batch.Multimesh = (MultiMesh)batch.Multimesh.Duplicate();
             _buffers.Add(batch, batch.Multimesh.Buffer);
         }
-        _smallScale = _rocks.Where(r => r.Name.ToString().StartsWith("BoulderLow_", StringComparison.Ordinal)).Select(r => r.Scale.X).DefaultIfEmpty(0.25f).Min();
         var template = GD.Load<PackedScene>("res://assets/environment/models/BoulderLow.glb").Instantiate<Node3D>();
         _pieceMesh = template.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>().First().Mesh;
+        _pieceDiameter = Diameter(_pieceMesh.GetAabb().Size);
         template.Free();
         for (int i = 0; i < _rocks.Length; i++)
         {
             var rock = _rocks[i];
-            _authored.Add(rock, rock.Transform);
-            foreach (var collider in rock.FindChildren("*", "StaticBody3D", true, false).OfType<StaticBody3D>()) { collider.SetMeta("environment_rock", i + 1); }
+            foreach (var collider in rock.FindChildren("*", "StaticBody3D", true, false).OfType<StaticBody3D>()) { collider.SetMeta("environment_rock", i * EnvironmentLayout.PiecesPerRock + 1); }
         }
     }
 
@@ -50,30 +50,40 @@ internal sealed class DestructibleEnvironment
     {
         if (!map.HasNode("EnvironmentDressing")) { return null; }
         var rocks = Rocks(map);
-        float smallest = rocks.Where(r => r.Name.ToString().StartsWith("BoulderLow_", StringComparison.Ordinal)).Select(r => r.Scale.X).DefaultIfEmpty(0.25f).Min();
+        float Size(Node3D rock)
+        {
+            var mesh = rock.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>().First();
+            return Diameter(mesh.Mesh.GetAabb().Size * MapPose(mesh, map).Basis.Scale);
+        }
+        float smallest = rocks.Where(r => r.Name.ToString().StartsWith("BoulderLow_", StringComparison.Ordinal)).Select(Size).DefaultIfEmpty(0.5f).Min();
         return new(rocks.Select(r => VehicleBody.ToCore(MapPose(r, map).Origin)), Plants(map).Select(p => VehicleBody.ToCore((MapPose(p.Batch, map) * p.Pose).Origin)),
-            rocks.Select(r => (byte)(r.Name.ToString().StartsWith("BoulderLow_", StringComparison.Ordinal) && r.Scale.X <= smallest * 1.5f ? 3 : 1)));
+            rocks.Select(r => Math.Max(smallest, Size(r))), smallest);
     }
+
+    private static float Diameter(Vector3 size) => MathF.Cbrt(Math.Abs(size.X * size.Y * size.Z));
 
     internal static ushort RockId(GodotObject? collider) => collider is Node node && node.HasMeta("environment_rock") ? (ushort)node.GetMeta("environment_rock").AsInt32() : (ushort)0;
 
     internal void Apply(EnvironmentSnapshot snapshot, bool reseed = false)
     {
-        if (snapshot.Rocks.Count != _rocks.Length || snapshot.Plants.Count != _plants.Length) { throw new ArgumentException("Native environment layout mismatch."); }
-        for (int i = 0; i < _rocks.Length; i++)
+        if (snapshot.Rocks.Count != _layout.Rocks.Count || snapshot.Plants.Count != _plants.Length) { throw new ArgumentException("Native environment layout mismatch."); }
+        for (int i = 0; i < _layout.Rocks.Count; i++)
         {
             var state = snapshot.Rocks[i];
-            var original = _rocks[i];
+            var original = _rocks[i / EnvironmentLayout.PiecesPerRock];
             bool changed = _stages[i] != state.Stage || _offsets[i] != state.Offset || reseed;
             _offsets[i] = state.Offset;
             if (_stages[i] != state.Stage)
             {
                 _stages[i] = state.Stage;
-                original.Visible = state.Stage == 1;
-                foreach (var collider in original.FindChildren("*", "StaticBody3D", true, false).OfType<StaticBody3D>())
+                if (i % EnvironmentLayout.PiecesPerRock == 0)
                 {
-                    collider.CollisionLayer = state.Stage == 1 ? 1u : 0u;
-                    collider.CollisionMask = state.Stage == 1 ? 1u : 0u;
+                    original.Visible = state.Stage == 1;
+                    foreach (var collider in original.FindChildren("*", "StaticBody3D", true, false).OfType<StaticBody3D>())
+                    {
+                        collider.CollisionLayer = state.Stage == 1 ? 1u : 0u;
+                        collider.CollisionMask = state.Stage == 1 ? 1u : 0u;
+                    }
                 }
                 if (state.Stage > 1 && !_pieces.ContainsKey(i))
                 {
@@ -96,13 +106,22 @@ internal sealed class DestructibleEnvironment
                     piece.Support.CollisionLayer = state.Stage > 1 ? 8u : 0u;
                 }
             }
-            if (state.Stage == 1 || !changed) { continue; }
+            if (state.Stage < 2 || !changed) { continue; }
             Vector3 position = MapPose(original, _map).Origin + VehicleBody.ToGodot(state.Offset);
             using var ray = PhysicsRayQueryParameters3D.Create(position + Vector3.Up * 3, position + Vector3.Down * 8, 1);
             var hit = _map.GetWorld3D().DirectSpaceState.IntersectRay(ray);
+            // Practice cars share map layer 1; a rock must stay on terrain while
+            // the car passes over it, rather than being projected onto its roof.
+            var excluded = new Godot.Collections.Array<Rid>();
+            while (hit.Count > 0 && hit["collider"].AsGodotObject() is VehicleBody vehicle)
+            {
+                excluded.Add(vehicle.GetRid());
+                ray.Exclude = excluded;
+                hit = _map.GetWorld3D().DirectSpaceState.IntersectRay(ray);
+            }
             if (hit.Count > 0) { position.Y = hit["position"].AsVector3().Y; }
-            float scale = state.Stage == 3 ? _smallScale : Math.Max(_smallScale * 1.5f, Math.Min(0.8f, _authored[original].Basis.Scale.X * 0.55f));
-            _pieces[i].Visual.Transform = new Transform3D(Basis.FromEuler(new Vector3(0, original.Rotation.Y, 0)).Scaled(Vector3.One * scale), position);
+            float scale = _layout.Size(i, state.Stage) / _pieceDiameter;
+            _pieces[i].Visual.Transform = new Transform3D(Basis.FromEuler(new Vector3(0, original.Rotation.Y + (i % EnvironmentLayout.PiecesPerRock) * 2.39996f, 0)).Scaled(Vector3.One * scale), position);
             _pieces[i].Support.Position = position;
         }
         var dirty = new HashSet<MultiMeshInstance3D>();

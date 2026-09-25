@@ -1,10 +1,11 @@
-param([Parameter(Mandatory)][string]$GodotPath, [switch]$NoBuild)
+param([Parameter(Mandatory)][string]$GodotPath, [switch]$NoBuild, [switch]$TuningOnly)
 $ErrorActionPreference = 'Stop'
 if (-not $NoBuild) {
     dotnet build Trackstorm.Client.csproj -c Debug -warnaserror
     if ($LASTEXITCODE -ne 0) { throw 'Destructible environment build failed.' }
 }
 $arguments = @('--path', $PSScriptRoot, '--fixed-fps', '60', 'res://scenes/verification/destructible_environment_checks.tscn')
+if ($TuningOnly) { $arguments += @('--', '--destruction-tuning') }
 # Like the map-budget harness, use the real renderer: dummy rendering does not
 # retain all MultiMesh transform data needed to verify clearing and reset.
 $log = & $GodotPath @arguments 2>&1

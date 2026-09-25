@@ -46,7 +46,8 @@ internal sealed class NativeTransportTests
             client.Connect(TransportEndpoint.DirectIp(address));
         }
 
-        PumpUntil(() => host.Connections.Count == 7 && clients.All(c => c.ConnectionState == TransportConnectionState.Connected));
+        PumpUntil(() => host.Connections.Count == 7 && host.Connections.Values.All(state => state == TransportConnectionState.Connected) &&
+            clients.All(c => c.ConnectionState == TransportConnectionState.Connected));
         Assert.That(host.Connections.Values, Is.All.EqualTo(TransportConnectionState.Connected));
         for (int i = 0; i < 2; i++)
         {

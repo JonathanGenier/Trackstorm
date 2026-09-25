@@ -10,6 +10,9 @@ public sealed class EnvironmentAuthority
     public const int MaximumMoving = 16;
     public const float IntactHealth = 180;
     public const float BrokenHealth = 60;
+    public static float Health(byte stage) => stage == 1 ? IntactHealth : Math.Max(20, BrokenHealth * MathF.Pow(0.72f, stage - 2));
+    /// <summary>Normal closing speed preserves glancing-contact rejection while rewarding solid impacts.</summary>
+    public static float ImpactDamage(float severity) => Math.Min(360, 10 * MathF.Pow(Math.Max(0, severity - 3), 1.5f));
     private readonly EnvironmentLayout _layout;
     private EnvironmentRockState[] _rocks;
     private bool[] _plants;
@@ -27,6 +30,15 @@ public sealed class EnvironmentAuthority
     public void Restore(EnvironmentSnapshot snapshot)
     {
         if (snapshot.Rocks.Count != _layout.Rocks.Count || snapshot.Plants.Count != _layout.Plants.Count) { throw new ArgumentException("Environment layout mismatch."); }
+        for (int i = 0; i < snapshot.Rocks.Count; i++)
+        {
+            var rock = snapshot.Rocks[i];
+            if (rock.Stage > _layout.FinalStage(i) || (i % EnvironmentLayout.PiecesPerRock == 0 && rock.Stage == 0) ||
+                (i % EnvironmentLayout.PiecesPerRock != 0 && rock.Stage == 1) || (rock.Stage == _layout.FinalStage(i) && rock.Damage != 0)) { throw new ArgumentException("Invalid size-dependent rock continuation."); }
+            int root = i / EnvironmentLayout.PiecesPerRock * EnvironmentLayout.PiecesPerRock;
+            if ((_layout.InitialStages[root] == 2 && rock.Stage != _layout.InitialStages[i]) ||
+                (snapshot.Rocks[root].Stage == 1 && i != root && rock.Stage != 0)) { throw new ArgumentException("Impossible rock split continuation."); }
+        }
         _rocks = snapshot.Rocks.ToArray();
         _plants = snapshot.Plants.ToArray();
         _tick = snapshot.Tick;
@@ -45,8 +57,11 @@ public sealed class EnvironmentAuthority
             {
                 int index = contact.EnvironmentRock - 1;
                 if (index < 0 || index >= _rocks.Length || tick < _rocks[index].ImpactReadyTick) { continue; }
-                float severity = Math.Max(0, -Vector3.Dot(contact.RelativeVelocity, contact.Normal));
-                damage[index] = Math.Max(damage[index], Math.Min(120, Math.Max(0, severity - 4) * 12));
+                // Sloping authored faces must not hide a solid horizontal car impact.
+                // Keep tangential glances harmless and exclude nearly horizontal roof/support contacts.
+                Vector3 face = new(contact.Normal.X, 0, contact.Normal.Z);
+                float severity = face.LengthSquared() < 0.0625f ? 0 : Math.Max(0, -Vector3.Dot(contact.RelativeVelocity, Vector3.Normalize(face)));
+                damage[index] = Math.Max(damage[index], ImpactDamage(severity));
                 pushes[index] = contact.RelativeVelocity;
             }
             for (int i = 0; i < _plants.Length; i++)
@@ -55,16 +70,19 @@ public sealed class EnvironmentAuthority
             }
             for (int i = 0; i < _rocks.Length; i++)
             {
-                if (_rocks[i].Stage == 1 || !UnderVehicle(_layout.Rocks[i] + _rocks[i].Offset, observation.Physics, 0.6f)) { continue; }
+                if (_rocks[i].Stage == 0 || (_rocks[i].Stage == 1 && _layout.Size(i, 1) > 1.2f) ||
+                    !UnderVehicle(_layout.Rocks[i] + _rocks[i].Offset, observation.Physics, Math.Min(2, _layout.Size(i, _rocks[i].Stage) * 0.4f))) { continue; }
+                if (_rocks[i].Stage == 1 && observation.Contacts.Any(c => c.EnvironmentRock == i + 1)) { continue; }
                 Vector3 velocity = observation.Physics.LinearVelocity;
                 pushes[i] = velocity;
-                if (tick >= _rocks[i].ImpactReadyTick) { damage[i] = Math.Max(damage[i], Math.Min(120, Math.Max(0, velocity.Length() - 2) * 12)); }
+                if (tick >= _rocks[i].ImpactReadyTick) { damage[i] = Math.Max(damage[i], ImpactDamage(new Vector2(velocity.X, velocity.Z).Length())); }
             }
         }
         foreach (var impact in events.Where(e => e.Impact && e.Item is HeldItem.Missile or HeldItem.Salvo))
         {
             for (int i = 0; i < _rocks.Length; i++)
             {
+                if (_rocks[i].Stage == 0) { continue; }
                 var effect = items.Explosion(impact.Position, _layout.Rocks[i] + _rocks[i].Offset, impact.Item);
                 damage[i] += effect.Damage;
                 pushes[i] += effect.Impulse / 1000;
@@ -78,12 +96,24 @@ public sealed class EnvironmentAuthority
         for (int i = 0; i < _rocks.Length; i++)
         {
             var rock = _rocks[i];
-            if (damage[i] > 0 && rock.Stage < 3)
+            if (rock.Stage == 0) { continue; }
+            if (damage[i] > 0 && rock.Stage < _layout.FinalStage(i))
             {
                 float total = rock.Damage + damage[i];
-                rock = total >= (rock.Stage == 1 ? IntactHealth : BrokenHealth)
-                    ? rock with { Stage = (byte)(rock.Stage + 1), Damage = 0, ImpactReadyTick = tick + 12 }
-                    : rock with { Damage = total, ImpactReadyTick = tick + 12 };
+                if (total >= Health(rock.Stage))
+                {
+                    rock = rock with { Stage = (byte)(rock.Stage + 1), Damage = 0, ImpactReadyTick = tick + 12 };
+                    int root = i / EnvironmentLayout.PiecesPerRock * EnvironmentLayout.PiecesPerRock;
+                    int sibling = Enumerable.Range(root, EnvironmentLayout.PiecesPerRock).FirstOrDefault(slot => slot != i && _rocks[slot].Stage == 0, -1);
+                    if (sibling >= 0)
+                    {
+                        float angle = (root * 0.37f) + (i % EnvironmentLayout.PiecesPerRock * 2.39996f);
+                        Vector3 separation = new Vector3(MathF.Cos(angle), 0, MathF.Sin(angle)) * Math.Min(1.6f, _layout.Size(i, rock.Stage) * 0.45f);
+                        _rocks[sibling] = rock with { Offset = Bounded(rock.Offset + separation), Velocity = default };
+                        rock = rock with { Offset = Bounded(rock.Offset - separation) };
+                    }
+                }
+                else { rock = rock with { Damage = total, ImpactReadyTick = tick + 12 }; }
             }
             if (rock.Stage > 1)
             {
@@ -100,6 +130,8 @@ public sealed class EnvironmentAuthority
         }
         _tick = tick;
     }
+
+    private static Vector3 Bounded(Vector3 offset) => offset.LengthSquared() > 64 ? Vector3.Normalize(offset) * 8 : offset;
 
     private static bool UnderVehicle(Vector3 point, VehiclePhysicsState physics, float margin)
     {

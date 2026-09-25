@@ -30,14 +30,15 @@ public sealed partial class DestructibleEnvironmentChecks : Node3D
             var production = ActiveMap.Load();
             AddChild(production);
             var configuration = ActiveMap.ReadConfiguration(production);
-            Check(configuration.Environment is { Rocks.Count: 147, Plants.Count: 2447 }, "actual production rock/plant coverage");
+            Check(configuration.Environment is { RootCount: 147, Rocks.Count: 588, Plants.Count: 2447 }, "actual production rock/plant coverage");
             var productionView = new DestructibleEnvironment(production);
             var productionAuthority = new EnvironmentAuthority(configuration.Environment!);
             productionView.Apply(productionAuthority.Snapshot(1, 0), true);
             await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
             production.QueueFree();
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            foreach (bool network in new[] { false, true })
+            bool tuningOnly = OS.GetCmdlineUserArgs().Contains("--destruction-tuning");
+            foreach (bool network in tuningOnly ? Array.Empty<bool>() : new[] { false, true })
             {
                 await Scenario(network, 1, 22);
                 await Scenario(network, 2, 12);
@@ -45,14 +46,20 @@ public sealed partial class DestructibleEnvironmentChecks : Node3D
                 await Scenario(network, 3, 22);
                 await Scenario(network, 3, 35);
             }
-            await NetworkConvergence();
+            foreach (float size in new[] { 0.5f, 1f, 2f })
+            foreach (float speed in new[] { 2f, 9f, 22f })
+            foreach (float angle in new[] { 0f, Mathf.Pi / 4 })
+            {
+                await Scenario(true, 1, speed, size, angle, true);
+            }
+            if (!tuningOnly) { await NetworkConvergence(); }
             GD.Print($"Destructible environment checks: failures={_failures}");
             GetTree().Quit(_failures == 0 ? 0 : 1);
         }
         catch (Exception exception) { GD.PushError(exception.ToString()); GetTree().Quit(1); }
     }
 
-    private async Task Scenario(bool network, byte stage, float speed)
+    private async Task Scenario(bool network, byte stage, float speed, float rockScale = 1, float angle = 0, bool tuning = false)
     {
         var fixture = new Node3D(); AddChild(fixture);
         var floor = new StaticBody3D(); floor.AddToGroup("landing_terrain");
@@ -61,7 +68,7 @@ public sealed partial class DestructibleEnvironmentChecks : Node3D
         fixture.AddChild(floor);
         var dressing = new Node3D { Name = "EnvironmentDressing" }; fixture.AddChild(dressing);
         var rock = GD.Load<PackedScene>("res://assets/environment/models/BoulderLow.glb").Instantiate<Node3D>();
-        rock.Name = "BoulderLow_000"; dressing.AddChild(rock);
+        rock.Name = "BoulderLow_000"; rock.Scale = Vector3.One * rockScale; dressing.AddChild(rock);
         // Retain a real smallest-production-size reference away from the driving line.
         var small = GD.Load<PackedScene>("res://assets/environment/models/BoulderLow.glb").Instantiate<Node3D>();
         small.Name = "BoulderLow_001"; small.Position = new(8, 0, 0); small.Scale = Vector3.One * 0.25f; dressing.AddChild(small);
@@ -72,29 +79,33 @@ public sealed partial class DestructibleEnvironmentChecks : Node3D
         batch.Multimesh.Buffer = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 6]; cover.AddChild(batch); plant.Free();
         var layout = DestructibleEnvironment.ReadLayout(fixture)!;
         var authority = new EnvironmentAuthority(layout);
-        authority.Restore(new(1, 0, [new(stage, 0, 0, default, default), new(3, 0, 0, default, default)], [false]));
+        var initial = authority.Snapshot(1, 0).Rocks.ToArray();
+        initial[0] = new(stage == 3 ? layout.FinalStage(0) : stage, 0, 0, default, default);
+        authority.Restore(new(1, 0, initial, [false]));
         var presentation = new DestructibleEnvironment(fixture);
         presentation.Apply(authority.Snapshot(1, 0), true);
         var world = new Core.Simulation.Simulation(new Core.Simulation.SimulationConfiguration(60));
         var damage = new DamageConfiguration { MaxHP = 10000, CollisionScale = 5 };
-        var pose = new VehiclePhysicsState(new(stage == 3 ? 0.8165f : 0, VehicleDimensions.RideHeight, 16), N.Quaternion.Identity, new(0, 0, -speed), N.Vector3.Zero);
+        var orientation = N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitY, angle);
+        var pose = new VehiclePhysicsState(N.Vector3.Transform(new(stage == 3 ? 0.8165f : 0, VehicleDimensions.RideHeight, tuning ? 4 + rockScale * 2 : 16), orientation), orientation, N.Vector3.Transform(new(0, 0, -speed), orientation), N.Vector3.Zero);
         world.AddVehicle(1, new(), damage, pose);
         VehicleBody? body = null; NetworkVehicleBody? proxy = null;
         if (network) { proxy = new() { VehicleId = 1 }; fixture.AddChild(proxy); proxy.Apply(world.GetVehicle(1)); }
         else { body = new() { Position = VehicleBody.ToGodot(pose.Position), LinearVelocity = VehicleBody.ToGodot(pose.LinearVelocity), DamageConfiguration = damage }; body.Initialize(world); fixture.AddChild(body); }
-        float up = 0, rotation = 0;
+        float up = 0, rotation = 0, pieceHeight = 0;
         bool plantCleared = false; int contacts = 0;
         var traces = new List<object>();
         var items = new ItemAuthority(new() { MaximumDamage = 300 });
         for (int frame = 0; frame < 240; frame++)
         {
             await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
-            var input = new InputFrame(world.State.Tick + 1, 0, ushort.MaxValue, 0, 0, 0, 0);
+            var input = new InputFrame(world.State.Tick + 1, 0, !tuning || world.GetVehicle(1).Speed < speed ? ushort.MaxValue : (ushort)0, 0, 0, 0, 0);
             var observation = network ? proxy!.Observe(world.GetVehicle(1)) : body!.Capture(input).Observation;
             var request = new VehicleStepRequest(1, input, observation);
             var result = world.Step(input, [request])[0];
             authority.Advance(input.Tick, [request], [], items);
             presentation.Apply(authority.Snapshot(1, input.Tick));
+            if (fixture.GetNodeOrNull<Node3D>("BrokenRock0") is { Visible: true } piece) { pieceHeight = Math.Max(pieceHeight, piece.Position.Y); }
             if (network) { proxy!.Apply(result.Snapshot); } else { body!.Apply(result); }
             up = Math.Max(up, observation.Physics.LinearVelocity.Y);
             rotation = Math.Max(rotation, observation.Physics.AngularVelocity.Length());
@@ -108,21 +119,32 @@ public sealed partial class DestructibleEnvironmentChecks : Node3D
             }
         }
         var final = authority.Snapshot(1, world.State.Tick);
-        Check(plantCleared, $"{network} plant drive-over clears");
-        Check(batch.Multimesh.GetInstanceTransform(0).Basis.Scale.LengthSquared() == 0, "plant presentation cleared");
-        if (stage == 1)
+        Check(pieceHeight < 0.01f, $"{network} broken rocks stay on ground beneath cars: {pieceHeight}");
+        if (!tuning)
         {
-            Check(contacts > 0 && final.Rocks[0].Damage > 0, $"{network} actual static-rock impact contributes damage");
-            authority.Advance(world.State.Tick + 1, [], [new(1, 1, HeldItem.Missile, N.Vector3.Zero, true)], items);
-            Check(authority.Snapshot(1, world.State.Tick + 1).Rocks[0].Stage == 2, "weapon and vehicle share staged damage");
+            Check(plantCleared, $"{network} plant drive-over clears");
+            Check(batch.Multimesh.GetInstanceTransform(0).Basis.Scale.LengthSquared() == 0, "plant presentation cleared");
         }
-        if (stage == 2) { Check(final.Rocks[0].Stage == 3, $"{network} movable rock breaks on drive-over"); }
+        if (tuning)
+        {
+            Check(contacts > 0 || (rockScale == 0.5f && world.GetVehicle(1).ObservedPhysics.Position.Z < 0), "tuning case reaches imported chassis contact or small-rock wheel footprint");
+            if (speed == 2) { Check(final.Rocks[0].Stage == 1 && final.Rocks[0].Damage < 20, "low-speed brush preserves rock"); }
+            else { Check(final.Rocks[0].Stage > 1 || final.Rocks[0].Damage > 10, "meaningful impact degrades rock"); }
+            if (speed == 22 && angle == 0) { Check(final.Rocks[0].Stage > 1, "strong straight impact produces visible split"); }
+        }
+        if (stage == 1 && !tuning)
+        {
+            Check(contacts > 0 && final.Rocks[0].Stage > 1, $"{network} solid native impact visibly breaks rock");
+            authority.Advance(world.State.Tick + 1, [], [new(1, 1, HeldItem.Missile, N.Vector3.Zero, true)], items);
+            Check(authority.Snapshot(1, world.State.Tick + 1).Rocks[0].Stage > 1, "weapon and vehicle share staged damage");
+        }
+        if (stage == 2) { Check(final.Rocks[0].Stage > 2, $"{network} movable rock degrades on drive-over"); }
         if (stage == 3)
         {
             Check(contacts == 0 && up < 1.5f && rotation < 1 && world.GetVehicle(1).ObservedPhysics.Position.Z < -15 && world.GetVehicle(1).ObservedPhysics.Position.Y > 1, $"{network} smallest rock stable drive-over at {speed}");
         }
-        GD.Print($"destructible native network={network} stage={stage} speed={speed}: up={up:F3} angular={rotation:F3} contactCount={contacts} end={world.GetVehicle(1).ObservedPhysics.Position} rock={final.Rocks[0]} plant={plantCleared}");
-        System.IO.File.WriteAllText(System.IO.Path.Combine(_directory, $"{network}-{stage}-{speed}.json"), System.Text.Json.JsonSerializer.Serialize(traces));
+        GD.Print($"destructible native network={network} stage={stage} speed={speed} size={rockScale} angle={angle:F2} tuning={tuning}: up={up:F3} angular={rotation:F3} contactCount={contacts} end={world.GetVehicle(1).ObservedPhysics.Position} root={final.Rocks[0]} pieces={final.Rocks.Count(r => r.Stage > 0)} finalDepth={layout.FinalStage(0)} plant={plantCleared}");
+        System.IO.File.WriteAllText(System.IO.Path.Combine(_directory, $"{network}-{stage}-{speed}-{rockScale}-{angle:F2}-{tuning}.json"), System.Text.Json.JsonSerializer.Serialize(traces));
         presentation.Apply(new EnvironmentAuthority(layout).Snapshot(2, 0), true);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         if (DisplayServer.GetName() != "headless") { await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw); }
@@ -169,12 +191,14 @@ public sealed partial class DestructibleEnvironmentChecks : Node3D
             EnvironmentRecoveryFixture.Verify(arenas[2]);
             var host = arenas[0].Driver.Host!;
             var current = host.Environment!.Snapshot(host.SessionId, host.World.State.Tick);
-            host.Environment.Restore(new(current.Session, current.Tick, current.Rocks.Select(_ => new EnvironmentRockState(3, 0, 0, default, default)), current.Plants.Select(_ => true)));
+            var layout = arenas[0].MapConfiguration.Environment!;
+            host.Environment.Restore(new(current.Session, current.Tick, current.Rocks.Select((_, i) =>
+                layout.InitialStages[i / 4 * 4] == 2 && i % 4 != 0 ? default : new EnvironmentRockState(layout.FinalStage(i), 0, 0, new((i % 4) * 0.6f, 0, 0), default)), current.Plants.Select(_ => true)));
             await Frames(600);
             foreach (var arena in arenas)
             {
                 var state = arena.Driver.EnvironmentState!;
-                Check(state.Rocks.All(r => r.Stage == 3) && state.Plants.All(p => p), "complete destruction converges and stays cleared under loss");
+                Check(state.Rocks.Select((r, i) => r.Stage == 0 || r.Stage == arena.MapConfiguration.Environment!.FinalStage(i)).All(x => x) && state.Plants.All(p => p), "complete destruction converges and stays cleared under loss");
                 Check(arena.Map.FindChildren("*", "RigidBody3D", true, false).Count == 0, "no unbounded dynamic debris");
             }
             GD.Print("Environment UDP convergence: three native worlds, late join, 30ms delay/5ms jitter/2% loss, all 147 rocks and 2447 plants, 600-tick sustained cleared state.");

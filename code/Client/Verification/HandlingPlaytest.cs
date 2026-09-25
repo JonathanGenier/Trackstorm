@@ -24,6 +24,7 @@ public sealed partial class HandlingPlaytest : Node3D
     private bool _ready;
     private StaticBody3D? _road;
     private Core.Arenas.EnvironmentAuthority? _environment;
+    private Core.Arenas.EnvironmentLayout? _environmentLayout;
     private Arenas.DestructibleEnvironment? _environmentView;
     private readonly Core.Items.ItemAuthority _items = new(new() { MaximumDamage = 300 });
     private readonly List<Core.Items.ItemEvent> _impacts = new();
@@ -45,8 +46,9 @@ public sealed partial class HandlingPlaytest : Node3D
         {
             var map = Arenas.ActiveMap.Load(); AddChild(map);
             var layout = Arenas.DestructibleEnvironment.ReadLayout(map)!;
+            _environmentLayout = layout;
             _environment = new(layout); _environmentView = new(map);
-            System.IO.File.WriteAllText(System.IO.Path.Combine(_directory, "environment-layout.json"), JsonSerializer.Serialize(new { rocks = layout.Rocks.Select(p => new[] { p.X, p.Y, p.Z }), plants = layout.Plants.Select(p => new[] { p.X, p.Y, p.Z }) }));
+            System.IO.File.WriteAllText(System.IO.Path.Combine(_directory, "environment-layout.json"), JsonSerializer.Serialize(new { layout.MinimumSize, profiles = layout.Sizes.Select((size, root) => new { root, size, finalStage = layout.FinalStage(root * 4) }), rocks = layout.Rocks.Select(p => new[] { p.X, p.Y, p.Z }), plants = layout.Plants.Select(p => new[] { p.X, p.Y, p.Z }) }));
         }
         AddChild(new WorldEnvironment { Environment = GD.Load<Godot.Environment>("res://assets/maps/oval/Daylight.tres") });
         AddChild(new DirectionalLight3D { RotationDegrees = new(-55, -25, 0), LightEnergy = 1.4f });
@@ -121,7 +123,7 @@ public sealed partial class HandlingPlaytest : Node3D
             if (_environment is not null)
             {
                 var environment = _environment.Snapshot(1, input.Tick);
-                System.IO.File.WriteAllText(System.IO.Path.Combine(_directory, "environment.json"), JsonSerializer.Serialize(new { environment.Tick, rocks = environment.Rocks.Select(r => new { r.Stage, r.Damage, offset = r.Offset.ToString() }), destroyedPlants = environment.Plants.Count(p => p) }));
+                System.IO.File.WriteAllText(System.IO.Path.Combine(_directory, "environment.json"), JsonSerializer.Serialize(new { environment.Tick, rocks = environment.Rocks.Select((r, i) => new { r.Stage, r.Damage, size = r.Stage == 0 ? 0 : _environmentLayout!.Size(i, r.Stage), offset = new[] { r.Offset.X, r.Offset.Y, r.Offset.Z } }), destroyedPlants = environment.Plants.Count(p => p) }));
             }
             CallDeferred(MethodName.Capture);
         }
