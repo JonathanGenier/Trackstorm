@@ -170,3 +170,6 @@ $playPlan = Get-FastCheckPlan -Paths @("code/Client/Frontend/HangingPlayMenu.cs"
 Assert-True ($playPlan.RuntimeScripts -contains "check-play-menu.ps1") "Play Menu presentation changes must route the runtime interaction harness."
 $salvoPlan = Get-FastCheckPlan -Paths @("code/Client/Items/SalvoMarker.cs")
 Assert-True ($salvoPlan.RuntimeScripts -contains "check-salvo.ps1") "Salvo marker changes must route the native marker privacy harness."
+$destructionPlan = Get-FastCheckPlan -Paths @("code/Core/Arenas/EnvironmentAuthority.cs")
+Assert-True ($destructionPlan.RuntimeScripts -contains "check-destructible-environment.ps1") "Destruction changes must route native interaction verification."
+Assert-True ($destructionPlan.ExtendedScripts -contains "check-migration.ps1") "Destruction changes must route recovery verification."

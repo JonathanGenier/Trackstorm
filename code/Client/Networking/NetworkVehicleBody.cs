@@ -172,7 +172,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                     initialSupport = WheelSuspension.Observe(this, initialTransform, _configuration).Normal;
                     sampledObstacleSupport = true;
                 }
-                contacts.Add(new VehicleContact(VehicleBody.ToCore(obstacle ? incomingVelocity : relative), VehicleBody.ToCore(normal), 0, other?.VehicleId ?? 0, result.GetCollider(i) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= 0.55f, VehicleBody.ToCore(transform.AffineInverse() * result.GetCollisionPoint(i)), obstacle));
+                contacts.Add(new VehicleContact(VehicleBody.ToCore(obstacle ? incomingVelocity : relative), VehicleBody.ToCore(normal), 0, other?.VehicleId ?? 0, result.GetCollider(i) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= 0.55f, VehicleBody.ToCore(transform.AffineInverse() * result.GetCollisionPoint(i)), obstacle, Arenas.DestructibleEnvironment.RockId(result.GetCollider(i))));
                 if (normal.Y >= 0.55f && !obstacle)
                 {
                     support = normal;

@@ -23,10 +23,15 @@ public sealed partial class HandlingPlaytest : Node3D
     private readonly List<object> _trace = new();
     private bool _ready;
     private StaticBody3D? _road;
+    private Core.Arenas.EnvironmentAuthority? _environment;
+    private Core.Arenas.EnvironmentLayout? _environmentLayout;
+    private Arenas.DestructibleEnvironment? _environmentView;
+    private readonly Core.Items.ItemAuthority _items = new(new() { MaximumDamage = 300 });
+    private readonly List<Core.Items.ItemEvent> _impacts = new();
 
     public override void _Ready()
     {
-        _directory = ProjectSettings.GlobalizePath("res://.godot/ts-160/playtest");
+        _directory = ProjectSettings.GlobalizePath(OS.GetCmdlineUserArgs().Contains("--destructible-playtest") ? "res://.godot/ts-162/playtest" : "res://.godot/ts-160/playtest");
         System.IO.Directory.CreateDirectory(_directory);
         if (OS.GetCmdlineUserArgs().Contains("--handling-flat"))
         {
@@ -37,7 +42,14 @@ public sealed partial class HandlingPlaytest : Node3D
             _road.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(2000, 2, 2000) }, Position = new(0, -1, 0), MaterialOverride = new StandardMaterial3D { AlbedoColor = new("947454") } });
             AddChild(_road);
         }
-        else { AddChild(GD.Load<PackedScene>("res://scenes/maps/oval_foundation.tscn").Instantiate()); }
+        else
+        {
+            var map = Arenas.ActiveMap.Load(); AddChild(map);
+            var layout = Arenas.DestructibleEnvironment.ReadLayout(map)!;
+            _environmentLayout = layout;
+            _environment = new(layout); _environmentView = new(map);
+            System.IO.File.WriteAllText(System.IO.Path.Combine(_directory, "environment-layout.json"), JsonSerializer.Serialize(new { layout.MinimumSize, profiles = layout.Sizes.Select((size, root) => new { root, size, finalStage = layout.FinalStage(root * 4) }), rocks = layout.Rocks.Select(p => new[] { p.X, p.Y, p.Z }), plants = layout.Plants.Select(p => new[] { p.X, p.Y, p.Z }) }));
+        }
         AddChild(new WorldEnvironment { Environment = GD.Load<Godot.Environment>("res://assets/maps/oval/Daylight.tres") });
         AddChild(new DirectionalLight3D { RotationDegrees = new(-55, -25, 0), LightEnergy = 1.4f });
         _world = new(new Core.Simulation.SimulationConfiguration(60));
@@ -75,6 +87,7 @@ public sealed partial class HandlingPlaytest : Node3D
                 _throttle = (ushort)(Math.Clamp(command.GetProperty("throttle").GetSingle(), 0, 1) * ushort.MaxValue);
                 _brake = (ushort)(Math.Clamp(command.GetProperty("brake").GetSingle(), 0, 1) * ushort.MaxValue);
                 _buttons = command.TryGetProperty("handbrake", out var handbrake) && handbrake.GetBoolean() ? InputButtons.Drift : 0;
+                if (command.TryGetProperty("blast", out var blast)) { _impacts.Add(new((ulong)(_world.State.Tick + 1), 1, Core.Items.HeldItem.Missile, new(blast[0].GetSingle(), blast[1].GetSingle(), blast[2].GetSingle()), true)); }
                 if (command.TryGetProperty("spawn", out var spawn))
                 {
                     float yaw = command.GetProperty("yaw").GetSingle();
@@ -91,7 +104,10 @@ public sealed partial class HandlingPlaytest : Node3D
         }
         if (_remaining <= 0) { return; }
         var input = new InputFrame(_world.State.Tick + 1, _steer, _throttle, _brake, _buttons, 0, 0);
-        _body.Apply(_world.Step(input, new[] { _body.Capture(input) })[0]);
+        var request = _body.Capture(input);
+        _body.Apply(_world.Step(input, new[] { request })[0]);
+        _environment?.Advance(input.Tick, [request], _impacts, _items); _impacts.Clear();
+        if (_environment is not null) { _environmentView!.Apply(_environment.Snapshot(1, input.Tick)); }
         var state = _world.GetVehicle(1);
         var p = state.Movement.Physics;
         N.Vector3 forward = N.Vector3.Transform(-N.Vector3.UnitZ, p.Orientation);
@@ -104,6 +120,11 @@ public sealed partial class HandlingPlaytest : Node3D
         {
             _body.Freeze = true;
             System.IO.File.WriteAllText(System.IO.Path.Combine(_directory, "trace.json"), JsonSerializer.Serialize(_trace));
+            if (_environment is not null)
+            {
+                var environment = _environment.Snapshot(1, input.Tick);
+                System.IO.File.WriteAllText(System.IO.Path.Combine(_directory, "environment.json"), JsonSerializer.Serialize(new { environment.Tick, rocks = environment.Rocks.Select((r, i) => new { r.Stage, r.Damage, size = r.Stage == 0 ? 0 : _environmentLayout!.Size(i, r.Stage), offset = new[] { r.Offset.X, r.Offset.Y, r.Offset.Z } }), destroyedPlants = environment.Plants.Count(p => p) }));
+            }
             CallDeferred(MethodName.Capture);
         }
     }

@@ -31,3 +31,5 @@ isolated gallery plus temporary map context. Its rigid-body impacts are asset
 collision verification, not a production-car or final placement test. The fixture
 does not write to the production map. Source reopen/UV/provenance verification
 uses Blender's `AuditLibrary.py`.
+
+[Destructible environment](destructible-environment.md) adds match-owned staged rocks and cleared soft cover. Both native adapters consume the same Core state; version-three resume checkpoints and nested migration retain damage, stages, movement continuation and plant bits without replaying impacts. New matches restore authored state.

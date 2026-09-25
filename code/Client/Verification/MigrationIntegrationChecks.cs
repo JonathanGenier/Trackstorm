@@ -65,6 +65,13 @@ public sealed partial class MigrationIntegrationChecks : Node
             AddChild(_views[i]);
         }
 
+        // Warm imported native geometry before starting the fixture's real clocks.
+        // Three independent clients otherwise share one process's cold mesh/JIT stall.
+        var warmMap = _preparedMap.Instantiate<Node3D>();
+        _views[0].AddChild(warmMap);
+        var warmLayout = Arenas.DestructibleEnvironment.ReadLayout(warmMap)!;
+        new Arenas.DestructibleEnvironment(warmMap).Apply(new Core.Arenas.EnvironmentAuthority(warmLayout).Snapshot(1, 0));
+        warmMap.Free();
         _gateways[0].Listen(TransportEndpoint.DirectIp(_endpoints[0]));
         CreateDriver(0, 0, true);
         Require(_drivers[0]!.Authority!.TryConfigure(0, new Dictionary<string, double> { ["environment.preset"] = (int)Core.Development.EnvironmentPreset.Night, ["vehicle.acceleration"] = 7 }, out _), "Original lobby host configures the session.");
@@ -238,7 +245,8 @@ public sealed partial class MigrationIntegrationChecks : Node
 
             _stage = 5;
         }
-        else if (_stage == 5 && _drivers[1]!.State!.CanStart)
+        else if (_stage == 5 && _drivers[1]!.State!.CanStart &&
+            _drivers.Take(_players).All(driver => driver!.Migration!.LobbyRevision == driver.State!.Revision))
         {
             Require(_drivers[1]!.SelectMap(MatchMap.NewMap), "Replacement controls the authoritative map.");
             Require(_drivers[1]!.Request(LobbyCommand.Start), "Replacement can start normally.");
@@ -246,15 +254,22 @@ public sealed partial class MigrationIntegrationChecks : Node
         }
         else if (_stage == 6 && _drivers.Take(_players).All(driver => driver!.State!.Phase == SessionPhase.Arena))
         {
-            for (int i = 0; i < _players; i++)
+            // Independent machines prepare their arena concurrently. Keep pumping the
+            // already live peers between this single-process fixture's native worlds.
+            // Bring up the authority first so it can publish arena checkpoints
+            // while this process prepares the remaining client worlds.
+            int i = _arenas[1] is null ? 1 : Array.FindIndex(_arenas, 0, _players, arena => arena is null);
+            if (i >= 0)
             {
+                ulong start = Time.GetTicksMsec();
                 var arena = new NetworkVehicleArena { ApplicationEntry = true, PreparedMap = _preparedMap };
                 arena.Initialize(_gateways[i], i == 1 ? _drivers[i]!.State!.Match : 0, _drivers[i]!.ServerPeer, _drivers[i], i == 1 ? _drivers[i]!.Authority!.Configuration.Configuration : new() { Vehicle = new() { Acceleration = 80 } });
                 _views[i].AddChild(arena);
                 _arenas[i] = arena;
+                GD.Print($"Migration native arena {i} prepared in {Time.GetTicksMsec() - start} ms.");
             }
 
-            _stage = 61;
+            if (_arenas.Take(_players).All(arena => arena is not null)) { _stage = 61; }
         }
         else if (_stage == 61 && _arenas.Take(_players).All(arena => arena!.Driver.EntryReady &&
             arena.Driver.Match?.Phase == (_players == 2 ? Core.Matches.MatchPhase.Countdown : Core.Matches.MatchPhase.Active)))
@@ -267,6 +282,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             Require(_arenas[1]!.Driver.Host!.Items.Switch(_arenas[1]!.Driver.Host!.World, _drivers[nextHost]!.LocalPlayerId, _arenas[1]!.Driver.Host!.World.GetVehicle(_drivers[nextHost]!.LocalPlayerId).LifeId, 1), "Select second held slot before migration.");
             Require(_arenas[1]!.Driver.TryConfigure(new Dictionary<string, double> { ["environment.preset"] = (int)Core.Development.EnvironmentPreset.NeonSunset, ["vehicle.acceleration"] = 9, ["spawns.seed"] = 42, ["match.countdown_ticks"] = 600 }, out _), "First replacement configures normal gameplay owners.");
             _oil = OilRecoveryFixture.Seed(_arenas[1]!);
+            EnvironmentRecoveryFixture.Seed(_arenas[1]!);
             _mine = ProxyMineRecoveryFixture.Seed(_arenas[1]!, _arenas.Take(_players).Select(arena => arena!));
             _nitroOwner = _drivers[1]!.LocalPlayerId;
             Require(_arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _nitroOwner, HeldItem.Nitro), "Nitro uses the same authority before host loss.");
@@ -351,6 +367,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             }
             Require(arena.Driver.Host!.Items.Mines.Single().Id == _mine && arena.Driver.ItemState!.Mines.Single().Id == _mine, "Proxy Mine survives host replacement exactly once.");
             GD.Print("Proxy Mine migration verified: same hazard survives authority replacement.");
+            EnvironmentRecoveryFixture.Verify(arena);
             OvalGameplayAssertions.Verify(arena);
             Require(_arenas[0]!.Driver.Configuration == _configuration && arena.Driver.Configuration == _configuration, "Successive hosts retain configuration revision and ignore successor-local presets.");
             Require(CategoryBalanceRecoveryFixture.Signature(arena.Driver.Host!.Spawns!.Balances) == _categoryHistory, "Host migration retains exact per-player category history.");

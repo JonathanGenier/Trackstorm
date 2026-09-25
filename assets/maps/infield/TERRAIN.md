@@ -75,3 +75,5 @@ alone does not guarantee a successful restart at arbitrary grades. The oval fixt
 grid, containment, pickup, handling and practice checks and verifies continuous
 support around all 916 terrain rim sections. Runtime evidence and limitations
 belong in the Story verification report, not this authoring contract.
+
+Both kicker-to-tabletop valleys are filled in BuildTerrain.py using the existing terrain vertices and faces. Takeoff faces at |x| >= 83 and the 6.35 m deck remain unchanged. The new fill rises from the 4.8 m lip and merges into existing lateral terrain without stacked collision shapes. Regenerate with BuildTerrain.py followed by BuildSurfaces.py, then import and run the Tabletop and jump cases.

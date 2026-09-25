@@ -21,7 +21,8 @@ public static class ResumeCheckpointCodec
         byte[] match = MatchCodec.Encode(checkpoint.Items.World.Session, checkpoint.Match);
         byte[] props = checkpoint.Props is null ? [] : VehicleNetworkCodec.EncodeProps(checkpoint.Props);
         byte[] configuration = Development.GameplayConfigurationCodec.Encode(checkpoint.Items.World.Session, checkpoint.Configuration);
-        byte[] result = new byte[19 + items.Length + match.Length + props.Length + configuration.Length];
+        byte[] environment = checkpoint.Environment is null ? [] : Arenas.EnvironmentCodec.Encode(checkpoint.Environment);
+        byte[] result = new byte[23 + items.Length + match.Length + props.Length + configuration.Length + environment.Length];
         if (result.Length > 65000)
         {
             throw new ArgumentException("Resume checkpoint exceeds transport bounds.");
@@ -29,15 +30,17 @@ public static class ResumeCheckpointCodec
 
         result[0] = (byte)'T';
         result[1] = (byte)'R';
-        result[2] = 2;
+        result[2] = 3;
         BinaryPrimitives.WriteInt32LittleEndian(result.AsSpan(3), items.Length);
         BinaryPrimitives.WriteInt32LittleEndian(result.AsSpan(7), match.Length);
         BinaryPrimitives.WriteInt32LittleEndian(result.AsSpan(11), props.Length);
         BinaryPrimitives.WriteInt32LittleEndian(result.AsSpan(15), configuration.Length);
-        items.CopyTo(result, 19);
-        match.CopyTo(result, 19 + items.Length);
-        props.CopyTo(result, 19 + items.Length + match.Length);
-        configuration.CopyTo(result, 19 + items.Length + match.Length + props.Length);
+        BinaryPrimitives.WriteInt32LittleEndian(result.AsSpan(19), environment.Length);
+        items.CopyTo(result, 23);
+        match.CopyTo(result, 23 + items.Length);
+        props.CopyTo(result, 23 + items.Length + match.Length);
+        configuration.CopyTo(result, 23 + items.Length + match.Length + props.Length);
+        environment.CopyTo(result, 23 + items.Length + match.Length + props.Length + configuration.Length);
         return result;
     }
 
@@ -46,7 +49,7 @@ public static class ResumeCheckpointCodec
     /// <param name="bytes">Complete reliable payload.</param>
     public static ResumeCheckpoint Decode(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length is < 19 or > 65000 || !IsCheckpoint(bytes) || bytes[2] != 2)
+        if (bytes.Length is < 23 or > 65000 || !IsCheckpoint(bytes) || bytes[2] != 3)
         {
             throw new ArgumentException("Invalid resume checkpoint.");
         }
@@ -55,19 +58,20 @@ public static class ResumeCheckpointCodec
         int matchLength = BinaryPrimitives.ReadInt32LittleEndian(bytes[7..]);
         int propsLength = BinaryPrimitives.ReadInt32LittleEndian(bytes[11..]);
         int configurationLength = BinaryPrimitives.ReadInt32LittleEndian(bytes[15..]);
-        if (itemsLength <= 0 || matchLength <= 0 || propsLength < 0 || configurationLength <= 0 || (long)itemsLength + matchLength + propsLength + configurationLength != bytes.Length - 19)
+        int environmentLength = BinaryPrimitives.ReadInt32LittleEndian(bytes[19..]);
+        if (environmentLength < 0 || itemsLength <= 0 || matchLength <= 0 || propsLength < 0 || configurationLength <= 0 || (long)itemsLength + matchLength + propsLength + configurationLength + environmentLength != bytes.Length - 23)
         {
             throw new ArgumentException("Invalid checkpoint lengths.");
         }
 
-        var items = ItemCodec.DecodeState(bytes.Slice(19, itemsLength));
-        var match = MatchCodec.Decode(bytes.Slice(19 + itemsLength, matchLength));
-        var configuration = Development.GameplayConfigurationCodec.Decode(bytes[(19 + itemsLength + matchLength + propsLength)..]);
+        var items = ItemCodec.DecodeState(bytes.Slice(23, itemsLength));
+        var match = MatchCodec.Decode(bytes.Slice(23 + itemsLength, matchLength));
+        var configuration = Development.GameplayConfigurationCodec.Decode(bytes.Slice(23 + itemsLength + matchLength + propsLength, configurationLength));
         if (match.Session != items.World.Session || configuration.Session != items.World.Session)
         {
             throw new ArgumentException("Checkpoint session mismatch.");
         }
 
-        return new ResumeCheckpoint(items, match.State, propsLength == 0 ? null : VehicleNetworkCodec.DecodeProps(bytes.Slice(19 + itemsLength + matchLength, propsLength)), configuration.State);
+        return new ResumeCheckpoint(items, match.State, propsLength == 0 ? null : VehicleNetworkCodec.DecodeProps(bytes.Slice(23 + itemsLength + matchLength, propsLength)), configuration.State, environmentLength == 0 ? null : Arenas.EnvironmentCodec.Decode(bytes[(23 + itemsLength + matchLength + propsLength + configurationLength)..]));
     }
 }
