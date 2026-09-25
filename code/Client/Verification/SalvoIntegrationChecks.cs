@@ -17,6 +17,9 @@ public sealed partial class SalvoIntegrationChecks : Node
     private readonly List<SubViewport> _views = [];
     private readonly List<List<ItemEvent>> _events = [];
     private readonly List<string> _evidence = [];
+    private readonly Dictionary<ulong, (ulong Tick, N.Vector3 Target)> _launches = [];
+    private Vector3? _firstMarker;
+    private bool _markerMoved;
     private readonly Input.PlayerInput _input = new();
     private int _frame;
     private int _boundary;
@@ -75,6 +78,10 @@ public sealed partial class SalvoIntegrationChecks : Node
         {
             if (_done && Play) { _input.Adapter.Enabled = GetWindow().HasFocus(); }
             var playInput = _done && Play ? _input.Adapter.Capture((ulong)_frame) : default;
+            if (!_done && _wave == 1 && _stage == 3)
+            {
+                playInput = new((ulong)_frame, 8000, ushort.MaxValue, 0, 0, 0, 0);
+            }
             if (playInput.Pressed != 0) { GD.Print($"Interactive input: {playInput.Pressed}"); }
             foreach (var arena in _arenas)
             {
@@ -120,9 +127,24 @@ public sealed partial class SalvoIntegrationChecks : Node
                     Check(_arenas[ShooterIndex].Driver.RequestItemUse(), "Switched-back remote use");
                     _stage = 3; _boundary = _frame; break;
                 case 3:
+                    foreach (var round in host.Items.Missiles.Where(m => m.Arc?.ElapsedTicks == 1))
+                    {
+                        _launches.TryAdd(round.Id, (host.World.State.Tick, round.Arc!.Target));
+                    }
                     if (host.Items.Missiles.Any(m => m.Launched))
                     {
                         Check(_arenas.Where(a => a.Driver.LocalVehicleId != Shooter).All(a => !a.SalvoMarker.Visible), "Other peers cannot see firing marker");
+                        if (_wave == 1 && _arenas[ShooterIndex].SalvoMarker.Visible)
+                        {
+                            var marker = _arenas[ShooterIndex].SalvoMarker;
+                            Check(marker.RingCount == 1, "Moving aim uses one current guide, never old locked targets");
+                            var center = marker.SurfaceVertices.Aggregate(Vector3.Zero, (sum, v) => sum + v) / marker.SurfaceVertices.Count;
+                            _firstMarker ??= center;
+                            if (center.DistanceTo(_firstMarker.Value) > 3) { _markerMoved = true; }
+                            var aim = SalvoFlight.Aim(_arenas[ShooterIndex].LocalState!.Movement.Physics, host.Items.Configuration.SalvoRange);
+                            Check(new Vector2(center.X - aim.X, center.Z - aim.Z).Length() < 4, "Marker follows current vehicle forward aim during the volley");
+                            if (_frame - _boundary == 90) { Capture(ShooterIndex, "moving-aim.png"); }
+                        }
                         if (!_captured && _frame - _boundary > 28) { Capture(ShooterIndex, "owner-arc.png"); _captured = true; }
                     }
                     if (_events.All(events => events.Count(e => e.Impact) == 5))
@@ -133,10 +155,16 @@ public sealed partial class SalvoIntegrationChecks : Node
                             Check(events.SequenceEqual(_events[0]), "Identical ordered salvo events on all peers");
                             Check(events.Where(e => e.Impact).Select(e => e.Token).Distinct().Count() == 5, "Unique explosion identities");
                         }
-                        Check(host.World.State.Vehicles.Where(v => v.VehicleId != Shooter).All(v => v.Damage.CurrentHP < 1000), "Multiple native targets damaged");
+                        var launches = _launches.Values.OrderBy(l => l.Tick).ToArray();
+                        Check(launches.Length == 5 && launches.Zip(launches.Skip(1)).All(pair => pair.Second.Tick - pair.First.Tick == 30), "Five launches spaced exactly half a second apart");
+                        if (_wave == 1)
+                        {
+                            Check(_markerMoved && N.Vector3.Distance(launches[0].Target, launches[^1].Target) > 5, "Driving and steering move the marker and later launch targets");
+                        }
+                        else { Check(host.World.State.Vehicles.Where(v => v.VehicleId != Shooter).All(v => v.Damage.CurrentHP < 1000), "Multiple native targets damaged"); }
                         Check(host.Items.Slots.Single(s => s.Vehicle == Shooter).SecondItem == HeldItem.Wrench, "Second slot unchanged");
                         Capture(ShooterIndex, "owner-impact.png");
-                        Next($"Wave {_wave + 1}: five matching launches/impacts, damage to both targets, remote marker privacy.");
+                        Next($"Wave {_wave + 1}: five matching half-second launches/impacts, {(_wave == 1 ? "moving aim and launch targets" : "damage to both targets")}, remote marker privacy.");
                     }
                     break;
                 case 4 when _frame - _boundary > 45:
@@ -144,6 +172,7 @@ public sealed partial class SalvoIntegrationChecks : Node
                     if (++_wave < 3)
                     {
                         foreach (var events in _events) { events.Clear(); }
+                        _launches.Clear(); _firstMarker = null; _markerMoved = false;
                         Position();
                         Check(host.Items.Grant(host.World, Shooter, HeldItem.Salvo), "Repeated use regrant");
                         if (Shooter == 1) { Check(host.Items.Grant(host.World, Shooter, HeldItem.Wrench), "Host second slot"); }

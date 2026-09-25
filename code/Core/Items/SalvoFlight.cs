@@ -3,7 +3,7 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Portable parabolic flight fixed at use, including unlaunched rounds for checkpoint continuation.</summary>
+/// <summary>Portable parabola committed at each launch, including reserved rounds for checkpoint continuation.</summary>
 public sealed record SalvoFlight(Vector3 Origin, Vector3 Target, float Height, int DurationTicks, int ElapsedTicks, int DelayTicks, ulong Life)
 {
     /// <summary>Analytic arc; integer time avoids integration drift at the intended impact point.</summary>
@@ -13,7 +13,7 @@ public sealed record SalvoFlight(Vector3 Origin, Vector3 Target, float Height, i
         return Vector3.Lerp(Origin, Target, t) + Vector3.UnitY * (4 * Height * t * (1 - t));
     }
 
-    /// <summary>Starts above the current host-observed vehicle while preserving the firing-time target.</summary>
+    /// <summary>Starts above the current host-observed vehicle toward this round's committed target.</summary>
     public SalvoFlight Launch(Vector3 origin, float speed)
     {
         var curve = this with { Origin = origin, DurationTicks = 60 };
@@ -41,5 +41,14 @@ public sealed record SalvoFlight(Vector3 Origin, Vector3 Target, float Height, i
         forward.Y = 0;
         forward = forward.LengthSquared() > 0.0001f ? Vector3.Normalize(forward) : -Vector3.UnitZ;
         return pose.Position + forward * range;
+    }
+
+    /// <summary>Projects the host's current forward aim without accepting a nearby or displaced target.</summary>
+    internal static Vector3? ProjectTarget(VehiclePhysicsState pose, float range, Func<Vector3, Vector3?>? ground)
+    {
+        Vector3 aim = Aim(pose, range);
+        return ground?.Invoke(aim) is Vector3 target && VehiclePhysicsState.IsFinite(target) &&
+            Math.Abs(target.X - aim.X) <= 0.01f && Math.Abs(target.Z - aim.Z) <= 0.01f && Math.Abs(target.Y - aim.Y) <= 200
+            ? target : null;
     }
 }

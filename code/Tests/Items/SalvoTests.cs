@@ -11,22 +11,23 @@ namespace Trackstorm.Core.Tests.Items;
 internal sealed class SalvoTests
 {
     [Test]
-    public void LaterRoundsFollowMovingLauncherButNeverRetargetWithSteering()
+    public void LaterRoundsFollowCurrentPositionAndHeadingWhileFlyingRoundsKeepTheirTarget()
     {
         var host = new HostVehicleSession(99);
         GrantUse(host); host.Step(default, Observe, ground: Ground);
         var target = host.Items.Missiles[0].Arc!.Target;
         var origin = host.World.GetVehicle(1).ObservedPhysics.Position;
         var moving = new VehiclePhysicsState(origin + Vector3.UnitX * 10, Quaternion.CreateFromAxisAngle(Vector3.UnitY, 1.5f), Vector3.Zero, Vector3.Zero);
-        for (int i = 0; i < 6; i++) { host.Step(default, _ => new(moving, Vector3.UnitY), ground: Ground); }
+        for (int i = 0; i < 30; i++) { host.Step(default, _ => new(moving, Vector3.UnitY), ground: Ground); }
         var round = host.Items.Missiles.Single(m => m.Arc!.ElapsedTicks == 1);
         Assert.That(round.Arc!.Origin, Is.EqualTo(moving.Position + Vector3.UnitY * 3));
-        Assert.That(round.Arc.Target, Is.EqualTo(target));
-        Assert.That(host.Items.Missiles.All(m => m.Arc!.Target == target), Is.True);
+        Assert.That(round.Arc.Target, Is.EqualTo(Ground(SalvoFlight.Aim(moving, 65))));
+        Assert.That(round.Arc.Target, Is.Not.EqualTo(target));
+        Assert.That(host.Items.Missiles.Single(m => m.Arc!.ElapsedTicks > 1).Arc!.Target, Is.EqualTo(target));
     }
 
     [Test]
-    public void FiveSeparateLaunchesKeepFixedTargetAndProduceFiveImpacts()
+    public void FiveHalfSecondLaunchesProduceFiveImpactsForStationaryVehicle()
     {
         var host = new HostVehicleSession(99);
         GrantUse(host);
@@ -34,7 +35,7 @@ internal sealed class SalvoTests
         var impacts = new List<ItemEvent>();
         Vector3? target = null;
         float highest = 0;
-        for (int i = 0; i < 160; i++)
+        for (int i = 0; i < 240; i++)
         {
             host.Step(default, Observe, ground: Ground);
             if (i == 0)
@@ -56,7 +57,7 @@ internal sealed class SalvoTests
                 if (e.Impact) { impacts.Add(e); } else { launches.Add(host.World.State.Tick); }
             }
         }
-        Assert.That(launches, Is.EqualTo(new ulong[] { 1, 7, 13, 19, 25 }));
+        Assert.That(launches, Is.EqualTo(new ulong[] { 1, 31, 61, 91, 121 }));
         Assert.That(highest, Is.GreaterThan(12));
         Assert.That(impacts.Count, Is.EqualTo(5));
         Assert.That(impacts.All(e => e.Item == HeldItem.Salvo && e.Position == target), Is.True);
@@ -75,17 +76,37 @@ internal sealed class SalvoTests
         var restored = HostVehicleSession.Restore(checkpoint, host.CaptureAuthority(), 2);
         Assert.That(restored.Items.Events, Is.Empty);
         Assert.That(restored.Items.Missiles, Is.EqualTo(host.Items.Missiles));
-        for (int i = 0; i < 130; i++)
+        var start = host.World.GetVehicle(1).Movement.Physics.Position;
+        for (int i = 0; i < 240; i++)
         {
-            host.Step(default, Observe, ground: Ground);
-            restored.Step(default, Observe, ground: Ground);
+            var moving = new VehiclePhysicsState(start + Vector3.UnitX * (i * 0.05f), Quaternion.CreateFromAxisAngle(Vector3.UnitY, i * 0.002f), Vector3.Zero, Vector3.Zero);
+            VehicleObservation ObserveMoving(VehicleSnapshot v) => v.VehicleId == 1 ? new(moving, Vector3.UnitY) : Observe(v);
+            host.Step(default, ObserveMoving, ground: Ground);
+            restored.Step(default, ObserveMoving, ground: Ground);
             Assert.That(restored.Items.Missiles, Is.EqualTo(host.Items.Missiles));
             Assert.That(restored.Items.Events, Is.EqualTo(host.Items.Events));
         }
+        Assert.That(restored.Items.Missiles, Is.Empty);
         GrantUse(restored, 2);
         restored.Step(default, Observe, ground: Ground);
         Assert.That(restored.Items.Missiles.Count, Is.EqualTo(5));
         Assert.That(restored.Items.Missiles.Min(m => m.Id), Is.GreaterThan(publication.Missiles.Max(m => m.Id)));
+    }
+
+    [Test]
+    public void MissingGroundAtLaterLaunchCancelsOnlyThatRoundInsteadOfUsingOldAim()
+    {
+        var host = new HostVehicleSession(99, new ItemConfiguration { SalvoCount = 3, SalvoIntervalTicks = 2 });
+        GrantUse(host); host.Step(default, Observe, ground: Ground);
+        var ids = host.Items.Missiles.Select(m => m.Id).ToArray();
+        host.Step(default, Observe);
+        host.Step(default, Observe);
+        Assert.That(host.Items.Missiles.Select(m => m.Id), Is.EquivalentTo(new[] { ids[0], ids[2] }));
+        Assert.That(host.Items.Events, Is.Empty);
+        host.Step(default, Observe, ground: Ground);
+        host.Step(default, Observe, ground: Ground);
+        Assert.That(host.Items.Events.Single().Token, Is.EqualTo(ids[2]));
+        Assert.That(host.Items.Missiles.All(m => m.Launched), Is.True);
     }
 
     [Test]

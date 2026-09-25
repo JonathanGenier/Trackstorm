@@ -3,7 +3,7 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Reserves the entire salvo atomically; all rounds share the firing-time host target.</summary>
+/// <summary>Reserves the entire salvo atomically; pending targets are resolved again at each launch.</summary>
 internal sealed class SalvoUseHandler : IItemUseHandler
 {
     public bool Stage(ItemSlot slot, VehiclePhysicsState pose, ItemConfiguration configuration,
@@ -12,9 +12,7 @@ internal sealed class SalvoUseHandler : IItemUseHandler
         Func<ulong> nextToken, Func<Vector3, Vector3?>? ground)
     {
         if (missiles.Count + configuration.SalvoCount > ItemAuthority.MaximumProjectiles) { return false; }
-        Vector3 aim = SalvoFlight.Aim(pose, configuration.SalvoRange);
-        if (ground?.Invoke(aim) is not Vector3 target || !VehiclePhysicsState.IsFinite(target) ||
-            Math.Abs(target.X - aim.X) > 0.01f || Math.Abs(target.Z - aim.Z) > 0.01f || Math.Abs(target.Y - aim.Y) > 200) { return false; }
+        if (SalvoFlight.ProjectTarget(pose, configuration.SalvoRange, ground) is not Vector3 target) { return false; }
         Vector3 origin = pose.Position + Vector3.UnitY * configuration.SalvoLaunchHeight;
         // Speed is mean travel speed along a sampled parabola, rather than its horizontal chord.
         var curve = new SalvoFlight(origin, target, configuration.SalvoArcHeight, 60, 0, 0, slot.Life);

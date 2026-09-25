@@ -329,10 +329,13 @@ public sealed class ItemAuthority
                 }
                 if (arc.ElapsedTicks == 0)
                 {
-                    Vector3 origin = requests.Single(r => r.VehicleId == missile.Owner).Observation.Physics.Position + Vector3.UnitY * Configuration.SalvoLaunchHeight;
-                    var launch = arc.Launch(origin, Configuration.SalvoSpeed);
-                    // A vehicle teleported far outside the portable world bound cancels this round.
-                    if (Vector3.Distance(origin, arc.Target) > 600 || launch.DurationTicks > 3600) { continue; }
+                    var pose = requests.Single(r => r.VehicleId == missile.Owner).Observation.Physics;
+                    // Pending rounds follow the vehicle; airborne rounds never change their committed arc.
+                    if (SalvoFlight.ProjectTarget(pose, Configuration.SalvoRange, ground) is not Vector3 target) { continue; }
+                    Vector3 origin = pose.Position + Vector3.UnitY * Configuration.SalvoLaunchHeight;
+                    var launch = (arc with { Target = target }).Launch(origin, Configuration.SalvoSpeed);
+                    // Keep launched continuation within the portable validation bounds.
+                    if (Vector3.Distance(origin, target) is < 1 or > 600 || launch.DurationTicks > 3600) { continue; }
                     missile = missile with { Position = origin, RemainingTicks = launch.DurationTicks, Arc = launch };
                     events.Add(new(missile.Id, missile.Owner, missile.Item, origin, false));
                 }

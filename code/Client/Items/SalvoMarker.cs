@@ -31,14 +31,10 @@ internal sealed partial class SalvoMarker : MeshInstance3D
         var targets = new List<Vector3>();
         if (active && local is { CanInteract: true })
         {
-            if (inventory?.Life == local.LifeId && inventory.Active.Item == HeldItem.Salvo)
+            if ((inventory?.Life == local.LifeId && inventory.Active.Item == HeldItem.Salvo) ||
+                state?.Missiles.Any(m => m.Owner == local.VehicleId && m.Arc?.Life == local.LifeId) == true)
             {
                 targets.Add(VehicleBody.ToGodot(SalvoFlight.Aim(local.Movement.Physics, tuning.SalvoRange)));
-            }
-            if (state is not null)
-            {
-                targets.AddRange(state.Missiles.Where(m => m.Owner == local.VehicleId && m.Arc?.Life == local.LifeId)
-                    .Select(m => VehicleBody.ToGodot(m.Arc!.Target)).Distinct());
             }
         }
         if (targets.Count == 0) { Visible = false; RingCount = 0; SurfaceVertices = []; _remaining = 0; return; }

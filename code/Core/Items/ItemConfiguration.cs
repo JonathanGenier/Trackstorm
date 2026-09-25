@@ -6,7 +6,7 @@ public sealed record ItemConfiguration
     /// <summary>Rounds per salvo.</summary>
     public int SalvoCount { get; init; } = 5;
     /// <summary>Launch interval at 60 Hz.</summary>
-    public int SalvoIntervalTicks { get; init; } = 6;
+    public int SalvoIntervalTicks { get; init; } = 30;
     /// <summary>Fixed forward range (m).</summary>
     public float SalvoRange { get; init; } = 65;
     /// <summary>Height above vehicle (m).</summary>

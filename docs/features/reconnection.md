@@ -89,4 +89,6 @@ Nitro percentages for both physical slots and the engaged grant capability are i
 
 Magnetic Proxy Mine state also travels in the complete item checkpoint: stable grant ID, deployer, pose/support normal, linear velocity and initial seating timer. The host continues mine physics while players are disconnected. Reconnection and fresh admission reconstruct current hazards without replaying historical detonation; match completion/reset clears them. See [mine ownership](items.md#magnetic-proxy-mine).
 
-Salvo's scheduled/in-flight continuation is embedded by item protocol version nine in the existing checkpoint. It preserves the firing-time target, delayed rounds, arc progress and unique IDs without replaying historical events. The impact ring is reconstructed only for the local owner and is absent from checkpoint data. See [arcing Salvo](items.md#arcing-salvo).
+Salvo's scheduled/in-flight continuation is embedded by item protocol version nine in the existing checkpoint. It preserves each launched round's committed target, delayed rounds, arc progress and unique IDs without replaying historical events. The impact ring is reconstructed only for the local owner and is absent from checkpoint data. See [arcing Salvo](items.md#arcing-salvo).
+
+Pending Salvo rounds resolve the current host-observed forward aim when they launch after recovery; already flying rounds retain their committed arcs. The local guide follows current vehicle aim.
