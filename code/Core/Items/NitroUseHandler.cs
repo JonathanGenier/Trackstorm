@@ -9,7 +9,7 @@ internal sealed class NitroUseHandler : IItemUseHandler
         List<MissileState> missiles, Dictionary<ulong, float> repairs, List<OilPatch> patches,
         Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil, Dictionary<ulong, NitroState> boosts)
     {
-        boosts.Add(slot.Vehicle, new(configuration.NitroDurationTicks, configuration.NitroAccelerationMultiplier, configuration.NitroSpeedMultiplier));
+        boosts.Add(slot.Vehicle, new(Math.Clamp((int)Math.Ceiling(slot.NitroCharge * 60 / configuration.NitroConsumptionPerSecond), 1, 3600), configuration.NitroForwardThrust, configuration.NitroSpeedMultiplier, configuration.NitroAirborneThrustScale));
         return true;
     }
 }

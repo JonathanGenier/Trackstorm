@@ -63,10 +63,12 @@ public sealed class VehicleMovement
         if (!float.IsFinite(oilSpin) || Math.Abs(oilSpin) > 3) { throw new ArgumentException("Invalid oil spin."); }
         int oilTicks = oilSpin != 0 && driveEnabled ? 120 : Math.Max(0, State.OilTicks - 1);
         nitro.Validate();
-        NitroState boost = !driveEnabled || clearNitro ? default : nitro.Active ? nitro : State.Nitro.Advance();
+        bool usingNitro = (input.Held & InputButtons.UseItem) != 0 && !clearNitro;
+        NitroState boost = !driveEnabled ? default : usingNitro && nitro.Active ? nitro :
+            usingNitro ? State.Nitro.Advance() : State.Nitro.Active || State.Nitro.Recovering ? NitroState.Recovery : default;
         VehicleConfiguration c = Configuration;
         float forwardSpeed = boost.Active ? Math.Min(c.MaximumPhysicsSpeed, c.ForwardSpeed * boost.SpeedMultiplier) : c.ForwardSpeed;
-        float acceleration = boost.Active ? c.Acceleration * boost.AccelerationMultiplier : c.Acceleration;
+        float acceleration = c.Acceleration;
         if (!float.IsFinite(waterDepth) || waterDepth is < 0 or > 1000) { throw new ArgumentOutOfRangeException(nameof(waterDepth)); }
         if (waterDepth > 0) { surface = SurfaceType.Water; }
         _ = c.ResolveSurface(surface);
@@ -74,6 +76,7 @@ public sealed class VehicleMovement
         bool grounded = groundNormal.Y >= 0.55f;
         SurfaceType currentSurface = grounded ? surface : State.CurrentSurface;
         Vector3 forward = Vector3.Transform(-Vector3.UnitZ, observed.Orientation);
+        Vector3 rocketForward = forward;
         Vector3 right = Vector3.Transform(Vector3.UnitX, observed.Orientation);
         Vector3 up = Vector3.Transform(Vector3.UnitY, observed.Orientation);
         Vector3 tireNormal = grounded ? groundNormal : up;
@@ -229,6 +232,27 @@ public sealed class VehicleMovement
             angular += tireNormal * (VehicleDimensions.WheelTrack / 2 * (fr.Drive + rr.Drive - fl.Drive - rl.Drive) / inertiaPerMass * dt);
             angular -= tireNormal * (Vector3.Dot(angular, tireNormal) * (1 - MathF.Exp(-c.StabilityDamping * dt)));
         }
+
+        // Rocket thrust is a central force along the chassis, independent of pedals and tire contact.
+        // Only its added forward velocity is bounded; existing momentum is never clamped to the drive cap.
+        if (boost.Active)
+        {
+            float thrust = boost.ForwardThrust / c.Mass * (grounded ? 1 : boost.AirborneThrustScale);
+            float addition = Math.Min(thrust * dt, Math.Max(0, forwardSpeed - Vector3.Dot(velocity, rocketForward)));
+            velocity += rocketForward * addition;
+        }
+
+        // Remove only excess road speed at a bounded rate, preserving direction and vertical motion.
+        float roadSpeed = new Vector2(velocity.X, velocity.Z).Length();
+        if (boost.Recovering && roadSpeed > forwardSpeed)
+        {
+            float reduction = Math.Min(roadSpeed - forwardSpeed, c.OverspeedDeceleration * dt);
+            float scale = (roadSpeed - reduction) / roadSpeed;
+            velocity.X *= scale;
+            velocity.Z *= scale;
+        }
+
+        if (boost.Recovering && roadSpeed <= forwardSpeed) { boost = default; }
 
         // Chassis load response acts on the physical body, using the same forces that consume tire grip.
         Vector3 desiredUp = grounded ? groundNormal : Vector3.UnitY;

@@ -21,7 +21,7 @@ public static class GameplayConfigurationCodec
         byte[] bytes = new byte[21 + (GameplayOptions.All.Count * 8)];
         bytes[0] = (byte)'T';
         bytes[1] = (byte)'C';
-        bytes[2] = 13;
+        bytes[2] = 14;
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(3), session);
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(11), state.Revision);
         BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(19), (ushort)GameplayOptions.All.Count);
@@ -38,7 +38,7 @@ public static class GameplayConfigurationCodec
     /// <param name="bytes">Complete bounded wire payload.</param>
     public static (ulong Session, GameplayConfigurationState State) Decode(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != 21 + (GameplayOptions.All.Count * 8) || !IsConfiguration(bytes) || bytes[2] != 13 ||
+        if (bytes.Length != 21 + (GameplayOptions.All.Count * 8) || !IsConfiguration(bytes) || bytes[2] != 14 ||
             BinaryPrimitives.ReadUInt16LittleEndian(bytes[19..]) != GameplayOptions.All.Count)
         {
             throw new ArgumentException("Invalid gameplay configuration message.");

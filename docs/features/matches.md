@@ -83,8 +83,8 @@ Authority restoration, epoch fencing, checkpoint cadence and migration limits ar
 
 The [Event Log](event-log.md) records phase changes and winner plus the existing committed scored-death deltas. It adds no alternative kill-attribution rules.
 
-## Nitro duration scoring
+## Nitro overspeed scoring
 
-Every Active Circus tick with a living boosted vehicle banks `NitroPointsPerSecond / TicksPerSecond` through `CircusScoring.Bank`, using current K/D after that tick's combat. The default 10 base points/second is configurable as `match.nitro_points_per_second` (0–1,000,000). Awards apply throughout the active duration regardless of throttle, speed or support.
+Every Active Circus tick with a living, non-reset vehicle whose authoritative observed horizontal `VehicleSnapshot.Speed` exceeds its configured normal `ForwardSpeed` banks `NitroPointsPerSecond / TicksPerSecond` through `CircusScoring.Bank`. Active input/effect alone earns nothing. Actual overspeed can continue after release/exhaustion, and stops earning when speed returns to the normal range. This condition also includes externally produced authoritative overspeed; no Client or item notification awards points.
 
-Death/reset and the terminal match batch earn no Nitro points. FirstToTarget allows the boost without Circus awards. Sequential atomic simulation consumes each tick once; checkpoint restoration resumes totals and duration without replaying awards. Existing HUD/standings consume the same score total and Nitro category. Version-six match messages permit 56 awards (eight vehicles × seven categories) within the existing 16 KiB limit. Active Nitro uses the existing reliable match publication cadence.
+The default 10 base points/second is configured by `match.nitro_points_per_second` (0–1,000,000), with live edits affecting subsequent ticks. The current fractional K/D multiplier applies after the tick's combat. FirstToTarget, dead/reset vehicles and the terminal batch earn no Nitro points. Sequential atomic simulation scores each interval once; restored totals and complete checkpoints never replay historical awards. HUD and standings consume the same Circus total and Nitro category, preserving existing reliable revision and duplicate protection.

@@ -1,0 +1,50 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\ts157-scrape\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\ts157-scrape\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\ts157-scrape\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.44
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+practice-scrape: contactTicks=170, speed=8.95, hp=1000.0, peakUp=0.01, peakAngular=0.10, position=<1000.666, 1.1444318, -58.088623>
+practice-direct: contactTicks=90, speed=0.00, hp=900.0, peakUp=0.04, peakAngular=1.20, position=<999.4751, 1.1436365, 0.009507374>
+practice-oblique: contactTicks=83, speed=2.48, hp=903.1, peakUp=0.01, peakAngular=0.87, position=<1000.2158, 1.1415223, -13.938743>
+practice-nitro-scrape: contactTicks=149, speed=23.66, hp=1000.0, peakUp=0.01, peakAngular=0.07, position=<1000.6687, 1.1438552, -95.80677>
+practice-nitro-scrape: boosted 37.16, released 23.66 m/s
+practice-seams: contactTicks=170, speed=8.28, hp=1000.0, peakUp=0.02, peakAngular=0.10, position=<1000.51575, 1.1416905, -56.989277>
+practice-corner: contactTicks=170, speed=0.00, hp=914.6, peakUp=0.05, peakAngular=1.03, position=<1000.62006, 1.1431391, -31.523207>
+practice-nitro-corner: contactTicks=149, speed=0.00, hp=900.0, peakUp=0.05, peakAngular=1.20, position=<1000.6264, 1.1366796, -31.548975>
+practice-exit: contactTicks=4, speed=14.95, hp=1000.0, peakUp=0.01, peakAngular=0.09, position=<1004.33307, 1.1449571, -70.10078>
+practice-repeated-direct-0: contactTicks=90, speed=0.00, hp=900.0, peakUp=0.04, peakAngular=1.20, position=<999.4751, 1.1436365, 0.009507374>
+practice-repeated-direct-1: contactTicks=90, speed=0.00, hp=900.0, peakUp=0.04, peakAngular=1.20, position=<999.4751, 1.1436365, 0.009507374>
+practice-repeated-direct-2: contactTicks=90, speed=0.00, hp=900.0, peakUp=0.04, peakAngular=1.20, position=<999.4751, 1.1436365, 0.009507374>
+practice-rock: contactTicks=83, speed=0.00, hp=900.0, peakUp=0.00, peakAngular=1.20, position=<1000.04877, 1.194562, -8.801554>
+practice-pillar: contactTicks=88, speed=0.00, hp=900.0, peakUp=0.03, peakAngular=1.16, position=<1006.53625, 1.1420217, 0.0062703616>
+practice-pillar-offcenter: contactTicks=88, speed=0.00, hp=900.0, peakUp=0.02, peakAngular=1.20, position=<1006.52856, 1.1426326, 0.010991804>
+practice-oval: contactTicks=335, sections=358, speed=40.61, hp=1000.0, peakAngular=0.45, peakSupportSpeed=0.61
+practice-oval-rocket: contactTicks=283, sections=133, speed=1.01, hp=1000.0, peakAngular=0.58, peakSupportSpeed=0.25
+practice-oval-rocket: start 17.81, boosted 30.24, released 11.38, boost/release contacts 140/77
+network-scrape: contactTicks=171, speed=7.65, hp=1000.0, peakUp=0.01, peakAngular=0.11, position=<1000.4576, 1.1433358, -55.731987>
+network-direct: contactTicks=44, speed=0.00, hp=900.0, peakUp=0.00, peakAngular=1.20, position=<999.3904, 1.1446692, 0.0007801902>
+network-oblique: contactTicks=67, speed=1.68, hp=903.1, peakUp=0.01, peakAngular=1.03, position=<1000.05585, 1.142044, -12.774066>
+network-nitro-scrape: contactTicks=150, speed=23.01, hp=1000.0, peakUp=0.01, peakAngular=0.09, position=<1000.5651, 1.1434371, -94.80578>
+network-nitro-scrape: boosted 36.66, released 23.01 m/s
+network-seams: contactTicks=171, speed=7.65, hp=1000.0, peakUp=0.01, peakAngular=0.11, position=<1000.4576, 1.1433358, -55.732033>
+network-corner: contactTicks=60, speed=0.00, hp=917.9, peakUp=0.02, peakAngular=1.06, position=<1000.4545, 1.1443347, -31.436926>
+network-nitro-corner: contactTicks=147, speed=0.00, hp=900.0, peakUp=0.03, peakAngular=1.20, position=<1000.5601, 1.1442595, -31.543295>
+network-exit: contactTicks=4, speed=14.92, hp=1000.0, peakUp=0.01, peakAngular=0.11, position=<1005.5163, 1.144918, -69.880775>
+network-repeated-direct-0: contactTicks=44, speed=0.00, hp=900.0, peakUp=0.00, peakAngular=1.20, position=<999.3904, 1.1446692, 0.0007801902>
+network-repeated-direct-1: contactTicks=44, speed=0.00, hp=900.0, peakUp=0.00, peakAngular=1.20, position=<999.3904, 1.1446692, 0.0007801902>
+network-repeated-direct-2: contactTicks=44, speed=0.00, hp=900.0, peakUp=0.00, peakAngular=1.20, position=<999.3904, 1.1446692, 0.0007801902>
+network-rock: contactTicks=15, speed=0.00, hp=900.0, peakUp=0.00, peakAngular=0.20, position=<999.9761, 1.144696, -8.185698>
+network-pillar: contactTicks=5, speed=0.00, hp=900.0, peakUp=0.02, peakAngular=1.15, position=<1006.51514, 1.1426426, 0.14102775>
+network-pillar-offcenter: contactTicks=1, speed=0.02, hp=900.0, peakUp=0.02, peakAngular=1.20, position=<1006.51306, 1.1431886, 0.16002049>
+network-oval: contactTicks=287, sections=356, speed=41.53, hp=1000.0, peakAngular=0.51, peakSupportSpeed=0.38
+network-oval-rocket: contactTicks=261, sections=160, speed=2.84, hp=1000.0, peakAngular=0.44, peakSupportSpeed=0.30
+network-oval-rocket: start 19.65, boosted 33.49, released 15.65, boost/release contacts 140/54
+Environment collision checks: failures=0

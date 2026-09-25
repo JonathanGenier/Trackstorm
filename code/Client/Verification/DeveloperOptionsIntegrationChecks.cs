@@ -131,8 +131,8 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                     }
                     double current = option.Read(_host.DeveloperConfiguration);
                     double value = option.Boolean ? 1 - current : option.Integral ? current + 1 : current * 1.05;
-                    // Exercise shortening the live suspension as well as increasing other scalars.
-                    if (option.Key == "vehicle.suspension_length")
+                    // Shorten suspension and reduce the airborne fraction from its canonical maximum.
+                    if (option.Key is "vehicle.suspension_length" or "items.nitro_airborne_thrust_scale")
                     {
                         value = current * 0.95;
                     }

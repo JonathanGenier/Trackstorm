@@ -22,6 +22,8 @@ public sealed class InputHistory
 
     /// <summary>Last host-confirmed command identity.</summary>
     public uint LastAcknowledged { get; private set; }
+    /// <summary>Identity the next captured frame will receive, including wrap.</summary>
+    public uint NextSequence => unchecked(_sequence + 1);
     /// <summary>Ordered immutable view of outstanding commands.</summary>
     public IReadOnlyList<SequencedInput> Pending => _pending.AsReadOnly();
     /// <summary>Whether another command can be retained safely.</summary>
