@@ -1,0 +1,163 @@
+[
+  {
+    "File": "player-0.json",
+    "Host": true,
+    "Tick": 1498,
+    "HP": 961.5216,
+    "ErrorP99": 0,
+    "FrameTime": {
+      "Samples": 416,
+      "Mean": 72.8765985576923,
+      "P50": 17.125,
+      "P95": 173.979,
+      "P99": 1547.908,
+      "Maximum": 2271.351
+    },
+    "SimulationStepTime": {
+      "Samples": 1441,
+      "Mean": 16.705846634281766,
+      "P50": 16.158,
+      "P95": 49.729,
+      "P99": 80.686,
+      "Maximum": 162.74
+    }
+  },
+  {
+    "File": "player-1.json",
+    "Host": false,
+    "Tick": 1617,
+    "HP": 963.60266,
+    "ErrorP99": 2.7076378,
+    "FrameTime": {
+      "Samples": 122,
+      "Mean": 122.08518032786884,
+      "P50": 18.268,
+      "P95": 718.779,
+      "P99": 1234.173,
+      "Maximum": 1534.313
+    },
+    "SimulationStepTime": {
+      "Samples": 960,
+      "Mean": 7.983538541666669,
+      "P50": 0.322,
+      "P95": 14.147,
+      "P99": 246.88,
+      "Maximum": 617.669
+    }
+  },
+  {
+    "File": "player-2.json",
+    "Host": false,
+    "Tick": 1227,
+    "HP": 979.3358,
+    "ErrorP99": 2.149252,
+    "FrameTime": {
+      "Samples": 36,
+      "Mean": 472.2641944444444,
+      "P50": 292.973,
+      "P95": 2050.486,
+      "P99": 2186.795,
+      "Maximum": 2186.795
+    },
+    "SimulationStepTime": {
+      "Samples": 960,
+      "Mean": 8.787929166666666,
+      "P50": 0.301,
+      "P95": 12.437,
+      "P99": 326.218,
+      "Maximum": 438.306
+    }
+  },
+  {
+    "File": "player-3.json",
+    "Host": false,
+    "Tick": 1507,
+    "HP": 1000,
+    "ErrorP99": 2.371332,
+    "FrameTime": {
+      "Samples": 34,
+      "Mean": 433.56205882352936,
+      "P50": 346.175,
+      "P95": 1206.411,
+      "P99": 1490.739,
+      "Maximum": 1490.739
+    },
+    "SimulationStepTime": {
+      "Samples": 960,
+      "Mean": 10.076006250000002,
+      "P50": 0.592,
+      "P95": 35.164,
+      "P99": 278.964,
+      "Maximum": 613.828
+    }
+  },
+  {
+    "File": "player-4.json",
+    "Host": false,
+    "Tick": 1617,
+    "HP": 997.24475,
+    "ErrorP99": 2.0662208,
+    "FrameTime": {
+      "Samples": 238,
+      "Mean": 62.65868907563025,
+      "P50": 16.439,
+      "P95": 297.32,
+      "P99": 1075.632,
+      "Maximum": 1871.067
+    },
+    "SimulationStepTime": {
+      "Samples": 960,
+      "Mean": 6.740708333333335,
+      "P50": 0.294,
+      "P95": 13.061,
+      "P99": 260.491,
+      "Maximum": 422.654
+    }
+  },
+  {
+    "File": "player-6.json",
+    "Host": false,
+    "Tick": 1475,
+    "HP": 950.6048,
+    "ErrorP99": 2.5053072,
+    "FrameTime": {
+      "Samples": 21,
+      "Mean": 983.5084761904761,
+      "P50": 841.438,
+      "P95": 2216.088,
+      "P99": 2451.719,
+      "Maximum": 2451.719
+    },
+    "SimulationStepTime": {
+      "Samples": 960,
+      "Mean": 12.365617708333334,
+      "P50": 0.321,
+      "P95": 26.785,
+      "P99": 334.585,
+      "Maximum": 770.147
+    }
+  },
+  {
+    "File": "player-7.json",
+    "Host": false,
+    "Tick": 1617,
+    "HP": 994.76666,
+    "ErrorP99": 2.1468475,
+    "FrameTime": {
+      "Samples": 166,
+      "Mean": 88.14741566265062,
+      "P50": 16.808,
+      "P95": 566.281,
+      "P99": 1202.191,
+      "Maximum": 1424.826
+    },
+    "SimulationStepTime": {
+      "Samples": 960,
+      "Mean": 10.167329166666669,
+      "P50": 0.294,
+      "P95": 14.581,
+      "P99": 318.407,
+      "Maximum": 887.838
+    }
+  }
+]

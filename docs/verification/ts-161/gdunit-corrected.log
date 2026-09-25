@@ -1,0 +1,95 @@
+
+>> Client build
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.27
+
+>> GdUnit4 plugin import
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+It was recognized that GdUnit4 is running in a test environment, therefore the GdUnit4 plugin will not be executed!
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] update_scripts_classes | Started Registering global classes... (17 steps)
+[   0% ] update_scripts_classes |
+[   5% ] update_scripts_classes |
+[  11% ] update_scripts_classes |
+[  16% ] update_scripts_classes |
+[  22% ] update_scripts_classes |
+[  27% ] update_scripts_classes |
+[  33% ] update_scripts_classes |
+[  38% ] update_scripts_classes |
+[  44% ] update_scripts_classes |
+[  50% ] update_scripts_classes |
+[  55% ] update_scripts_classes |
+[  61% ] update_scripts_classes |
+[  66% ] update_scripts_classes |
+[  72% ] update_scripts_classes |
+[  77% ] update_scripts_classes |
+[  83% ] update_scripts_classes |
+[  88% ] update_scripts_classes |
+[ DONE ] update_scripts_classes
+
+[   0% ] loading_editor_layout | Started Loading editor (5 steps)
+[   0% ] loading_editor_layout | Loading editor layout...
+[  16% ] loading_editor_layout | Loading docks...
+[  33% ] loading_editor_layout | Reopening scenes...
+[  50% ] loading_editor_layout | Loading central editor layout...
+[  66% ] loading_editor_layout | Loading plugin window layout...
+[  83% ] loading_editor_layout | Editor layout ready.
+[ DONE ] loading_editor_layout
+
+Godot import exit code: 0; diagnostics: .
+
+>> GdUnit4 Client tests
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+[2J[H
+--------------------------------------------------------------------------------------------------
+GdUnit4 Comandline Tool
+--------------------------------------------------------------------------------------------------
+Disabled fail fast!
+Set write reports to C:/Users/orsin/AppData/Roaming/Godot/app_userdata/Trackstorm/trackstorm-gdunit-reports
+
+Headless mode is ignored by option '--ignoreHeadlessMode'"
+
+Please note that tests that use UI interaction do not work correctly in headless mode.
+Godot 'InputEvents' are not transported by the Godot engine in headless mode and therefore
+have no effect in the test!
+
+Scanning for test suites in: res://test/Client
+Installing GdUnit4 session system hooks.
+Session hook 'GdUnitHtmlTestReporter' installed.
+Session hook 'GdUnitXMLTestReporter' installed.
+Run Test Suite: res://test/Client/Bootstrap/SimulationBootstrapTest.gd
+  res://test/Client/Bootstrap/SimulationBootstrapTest.gd > test_main_scene_composes_lobby_without_advancing_gameplay STARTED
+  res://test/Client/Bootstrap/SimulationBootstrapTest.gd > test_main_scene_composes_lobby_without_advancing_gameplay PASSED 2s 642ms
+
+Statistics: 1 test cases | 0 errors | 0 failures | 0 flaky | 0 skipped | 0 orphans | PASSED 2s 652ms
+
+
+Overall Summary: 1 test cases | 0 errors | 0 failures | 0 flaky | 0 skipped | 0 orphans |
+Executed test suites: (1/1)
+Executed test cases : (1/1)
+Total execution time: 2s 652ms
+ Open XML Report at: file://C:/Users/orsin/AppData/Roaming/Godot/app_userdata/Trackstorm/trackstorm-gdunit-reports/report_22/results.xml
+Open HTML Report at: file://C:/Users/orsin/AppData/Roaming/Godot/app_userdata/Trackstorm/trackstorm-gdunit-reports/report_22/index.html
+Exit code: 0
+Run dispose test resources
+
+GdUnit4 checks passed.
