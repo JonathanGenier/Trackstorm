@@ -4,7 +4,7 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-seven reliable item protocol. Requests carry no claimed player or outcome.</summary>
+/// <summary>Bounded version-eight reliable item protocol. Requests carry no claimed player or outcome.</summary>
 public static class ItemCodec
 {
     /// <summary>Recognizes only this protocol's magic; complete decode remains mandatory.</summary>
@@ -118,6 +118,17 @@ public static class ItemCodec
             Vector(writer, missile.Position);
             Vector(writer, missile.Velocity);
             writer.Write(missile.RemainingTicks);
+            writer.Write(missile.Arc is not null);
+            if (missile.Arc is { } arc)
+            {
+                Vector(writer, arc.Origin);
+                Vector(writer, arc.Target);
+                writer.Write(arc.Height);
+                writer.Write(arc.DurationTicks);
+                writer.Write(arc.ElapsedTicks);
+                writer.Write(arc.DelayTicks);
+                writer.Write(arc.Life);
+            }
         }
 
         writer.Write((byte)state.Patches.Count);
@@ -195,6 +206,8 @@ public static class ItemCodec
         for (int i = 0; i < missiles.Length; i++)
         {
             missiles[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), reader.ReadInt32());
+            bool arcing = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid arc flag.") };
+            if (arcing) { missiles[i] = missiles[i] with { Arc = new(Vector(reader), Vector(reader), reader.ReadSingle(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadUInt64()) }; }
         }
 
         var patches = new OilPatch[Count(reader, ItemAuthority.MaximumPatches)];
@@ -227,7 +240,7 @@ public static class ItemCodec
             }
             balances[i] = new() { Player = player, Total = total, SelectedItem = selected, Credits = credits.ToImmutable(), Counts = counts.ToImmutable() };
         }
-        var events = new ItemEvent[Count(reader, ItemAuthority.MaximumProjectiles + 8)];
+        var events = new ItemEvent[Count(reader, ItemAuthority.MaximumProjectiles * 2 + 8)];
         for (int i = 0; i < events.Length; i++)
         {
             ulong token = reader.ReadUInt64();
@@ -245,7 +258,7 @@ public static class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 7, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 8, kind });
         encode(writer);
         if (stream.Length > 32768)
         {
@@ -257,7 +270,7 @@ public static class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 7 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 8 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }

@@ -6,5 +6,5 @@ namespace Trackstorm.Core.Items;
 internal interface IItemUseHandler
 {
     bool Stage(ItemSlot slot, VehiclePhysicsState pose, ItemConfiguration configuration,
-        List<MissileState> missiles, Dictionary<ulong, float> repairs, List<OilPatch> patches, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil, Dictionary<ulong, NitroState> boosts);
+        List<MissileState> missiles, Dictionary<ulong, float> repairs, List<OilPatch> patches, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil, Dictionary<ulong, NitroState> boosts, Func<ulong> nextToken, Func<System.Numerics.Vector3, System.Numerics.Vector3?>? ground);
 }

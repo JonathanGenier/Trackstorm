@@ -170,6 +170,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
     internal Func<IReadOnlyList<(string Spawn, ulong Vehicle)>>? ObservePickups { get; set; }
     /// <summary>Host-only ground projection for persistent oil deployment.</summary>
     internal Func<ItemSlot, VehiclePhysicsState, OilPatch?>? PlaceOil { get; set; }
+    internal Func<System.Numerics.Vector3, System.Numerics.Vector3?>? ProjectSalvoGround { get; set; }
     /// <summary>Latest complete reliable item state.</summary>
     internal ItemPublication? ItemState { get; private set; }
     /// <summary>Current local slot; no predicted consumption.</summary>
@@ -301,7 +302,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 RequestItemUse();
             }
 
-            Host.Step(input, observe, CollideMissile, PlaceOil);
+            Host.Step(input, observe, CollideMissile, PlaceOil, ProjectSalvoGround);
             if (Host.Spawns is not null && ObservePickups is not null)
             {
                 foreach (var contact in ObservePickups().Distinct().OrderBy(contact => contact.Spawn, StringComparer.Ordinal).ThenBy(contact => contact.Vehicle))
@@ -641,6 +642,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         ObserveProps = null;
         CollideMissile = null;
         PlaceOil = null;
+        ProjectSalvoGround = null;
         ObservePickups = null;
         RosterChanged = null;
         LocalCorrected = null;

@@ -439,7 +439,8 @@ public sealed class HostVehicleSession
     /// <param name="observe">Native collision solver or deterministic test seam.</param>
     /// <param name="collide">Optional host projectile collision seam.</param>
     /// <param name="placeOil">Host terrain query for oil deployment.</param>
-    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null)
+    /// <param name="ground">Host terrain projection for fixed-range salvo targeting.</param>
+    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<Vector3, Vector3?>? ground = null)
     {
         ulong tick = checked(World.State.Tick + 1);
         if (!AllowsParticipation)
@@ -465,7 +466,7 @@ public sealed class HostVehicleSession
         InputFrame hostInput = new SequencedInput(0, local).AtTick(tick);
         inputs.Add(HostPlayerId, hostInput);
         var previous = World.State.Vehicles.ToDictionary(state => state.VehicleId);
-        Items.Step(World, hostInput, World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray(), collide ?? ((_, _) => null), placeOil, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged));
+        Items.Step(World, hostInput, World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray(), collide ?? ((_, _) => null), placeOil, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground);
         foreach (var peer in _peers.Values)
         {
             VehicleSnapshot state = World.GetVehicle(peer.Vehicle);

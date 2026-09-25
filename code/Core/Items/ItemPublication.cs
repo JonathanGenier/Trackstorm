@@ -21,6 +21,14 @@ public sealed class ItemPublication
         var inventory = slots.ToArray();
         var projectiles = missiles.ToArray();
         var outcomes = events.ToArray();
+        foreach (var missile in projectiles)
+        {
+            if (missile.Arc is not { } arc) { continue; }
+            arc.Validate();
+            if (missile.RemainingTicks != arc.DurationTicks - arc.ElapsedTicks || Vector3Distance(missile.Position, arc.At(arc.ElapsedTicks)) > 0.01f ||
+                !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == missile.Owner && vehicle.State.LifeId == arc.Life && vehicle.State.CanInteract))
+            { throw new ArgumentException("Inconsistent salvo continuation."); }
+        }
         if (revision == 0 || inventory.Length > 8 || inventory.Select(slot => slot.Vehicle).Distinct().Count() != inventory.Length ||
             inventory.Any(slot => slot.ActiveSlot > 1 ||
                 !ValidCharge(slot.Item, slot.NitroCharge) || !ValidCharge(slot.SecondItem, slot.SecondNitroCharge) ||
@@ -30,8 +38,8 @@ public sealed class ItemPublication
                 !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == slot.Vehicle && vehicle.State.LifeId == slot.Life)) ||
             inventory.SelectMany(slot => new[] { slot.Token, slot.SecondToken }).Where(token => token != 0).GroupBy(token => token).Any(group => group.Count() > 1) ||
             projectiles.Length > ItemAuthority.MaximumProjectiles || projectiles.Select(missile => missile.Id).Distinct().Count() != projectiles.Length ||
-            projectiles.Any(missile => missile.Id == 0 || missile.Owner == 0 || !VehiclePhysicsState.IsFinite(missile.Position) || !VehiclePhysicsState.IsFinite(missile.Velocity) || missile.Velocity.Length() is <= 0 or > 301 || missile.RemainingTicks is < 1 or > 3600) ||
-            outcomes.Length > ItemAuthority.MaximumProjectiles + 8 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || ItemRegistry.Find(outcome.Item)?.CanUse != true || !VehiclePhysicsState.IsFinite(outcome.Position) || (outcome.Impact && outcome.Item != HeldItem.Missile)))
+            projectiles.Any(missile => missile.Id == 0 || missile.Owner == 0 || !VehiclePhysicsState.IsFinite(missile.Position) || !VehiclePhysicsState.IsFinite(missile.Velocity) || missile.Velocity.Length() <= 0 || missile.Velocity.Length() > (missile.Arc is null ? 301 : 1000) || missile.RemainingTicks is < 1 or > 3600) ||
+            outcomes.Length > ItemAuthority.MaximumProjectiles * 2 + 8 || outcomes.Any(outcome => outcome.Token == 0 || outcome.Owner == 0 || ItemRegistry.Find(outcome.Item)?.CanUse != true || !VehiclePhysicsState.IsFinite(outcome.Position) || (outcome.Impact && outcome.Item is not (HeldItem.Missile or HeldItem.Salvo))))
         {
             throw new ArgumentException("Invalid item publication.");
         }
@@ -76,6 +84,8 @@ public sealed class ItemPublication
 
     private static bool ValidCharge(HeldItem item, double charge) => double.IsFinite(charge) &&
         (item == HeldItem.Nitro ? charge is > 0 and <= 100 : charge == 0);
+
+    private static float Vector3Distance(System.Numerics.Vector3 a, System.Numerics.Vector3 b) => System.Numerics.Vector3.Distance(a, b);
 
     /// <summary>Complete per-player category continuation and pickup diagnostics.</summary>
     public IReadOnlyList<PlayerItemBalance> Balances { get; }
