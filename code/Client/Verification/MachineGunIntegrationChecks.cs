@@ -25,7 +25,10 @@ public sealed partial class MachineGunIntegrationChecks : Node
     private bool _done;
     private bool _movingTarget;
     private bool _tracking;
-    private float _playRange = 7;
+    private float _playRange = 10;
+    private int _shots;
+    private int _hits;
+    private double _nearHitRate;
     private Label? _playStatus;
     private int _remaining;
     private float _health;
@@ -94,6 +97,14 @@ public sealed partial class MachineGunIntegrationChecks : Node
             {
                 case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2):
                     Check(host.TryConfigure(0, new Dictionary<string, double> { ["match.countdown_ticks"] = 1, ["match.minimum_players"] = 1, ["damage.max_hp"] = 10000 }, out _), "fixture health and countdown");
+                    var ray = _arenas[0].Driver.RaycastWeapon!;
+                    _arenas[0].Driver.RaycastWeapon = (owner, start, end) =>
+                    {
+                        Check(Math.Abs(N.Vector3.Distance(start, end) - 25) < 0.001, "25 m native hard ray length");
+                        var hit = ray(owner, start, end);
+                        if (_stage == 3) { _shots++; if (hit is { Vehicle: > 0 }) { _hits++; } }
+                        return hit;
+                    };
                     Next("Two native UDP peers admitted; elevated isolated fixture separates weapon rays from map obstacles.");
                     break;
                 case 1 when OS.GetCmdlineUserArgs().Contains("--machine-gun-playtest"):
@@ -107,6 +118,7 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     break;
                 case 2 when _frames - _boundary > 30:
                     _health = host.World.GetVehicle(targetId).Damage.CurrentHP;
+                    _shots = 0; _hits = 0;
                     _held = true; _press = true;
                     Next("Held input starts through the production driver.");
                     break;
@@ -114,9 +126,11 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     _held = false;
                     float loss = _health - host.World.GetVehicle(targetId).Damage.CurrentHP;
                     var slot = host.Items.Slots.Single(s => s.Vehicle == shooterId);
-                    Check(slot.Ammo!.Remaining is > 430 and < 470, $"two-second round budget {slot.Ammo.Remaining}");
+                    Check(slot.Ammo!.Remaining is > 690 and < 750, $"two-second round budget {slot.Ammo.Remaining}");
                     if (_scenario is 0 or 4) { Check(loss > 100 && loss < 200, $"close-range pressure {loss}"); _nearLoss = loss; }
-                    if (_scenario == 1) { Check(loss > 0 && loss < _nearLoss * 0.8f, $"native falloff {loss}"); }
+                    if (_scenario == 0) { _nearHitRate = _hits / (double)_shots; }
+                    if (_scenario == 1) { Check(loss > 0 && loss < _nearLoss * 0.5f, $"native falloff {loss}"); Check(_hits / (double)_shots < _nearHitRate * 0.8, "far hit reliability below close range"); }
+                    GD.Print($"Native pattern scenario {_scenario}: {_hits}/{_shots} vehicle hits.");
                     if (_scenario is 2 or 3) { Check(loss == 0, $"range/cover rejects damage {loss}"); }
                     Capture($"firing-{_scenario}.png");
                     Next($"Scenario {_scenario}: {loss:0.00} HP loss; {slot.Ammo.Remaining} rounds remain.");
@@ -135,7 +149,7 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     break;
                 case 6 when host.Items.Slots.Single(s => s.Vehicle == 2).Item == HeldItem.None:
                     _held = false;
-                    Check(Math.Abs((_frames - _boundary) - _remaining * 60.0 / 25) < 35, "remaining firing duration matches discrete ammo");
+                    Check(Math.Abs((_frames - _boundary) - _remaining * 60.0 / 40) < 35, "remaining firing duration matches discrete ammo");
                     Check(host.Items.Slots.Single(s => s.Vehicle == 2).SecondItem == HeldItem.Wrench, "full depletion preserves Wrench");
                     Next("Remote magazine exhausted on schedule through the authoritative held-item lifecycle.");
                     break;
@@ -162,7 +176,7 @@ public sealed partial class MachineGunIntegrationChecks : Node
     {
         var host = _arenas[0].Driver.Host!;
         var world = host.World.State;
-        float distance = _stage == 8 ? _playRange : _scenario switch { 1 => 10, 2 => 14, _ => 6 };
+        float distance = _stage == 8 ? _playRange : _scenario switch { 1 => 24, 2 => 28, _ => 8 };
         float lateral = _stage == 8 && _movingTarget ? 3 * MathF.Sin(_frames / 90f) : 0;
         host.World.Restore(new(world.Tick, world.LastInput, world.Vehicles.Select(v =>
         {
@@ -206,7 +220,7 @@ public sealed partial class MachineGunIntegrationChecks : Node
         Button("Fire / release", () => { _held = !_held; _press = _held; });
         Button("Moving / stationary target", () => _movingTarget = !_movingTarget);
         Button("Tracking / fixed aim", () => _tracking = !_tracking);
-        foreach (float range in new[] { 3f, 7f, 11f, 14f }) { Button($"Range {range} m", () => _playRange = range); }
+        foreach (float range in new[] { 5f, 15f, 24f, 28f }) { Button($"Range {range} m", () => _playRange = range); }
         Button("Refill magazine", Refill);
         Button("Finish playtest", () => { _done = true; _boundary = _frames; foreach (var arena in _arenas) { arena.QueueFree(); } foreach (var gateway in _gateways) { gateway.Dispose(); } GetTree().Quit(); });
         Refill();

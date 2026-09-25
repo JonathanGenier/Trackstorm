@@ -30,21 +30,21 @@ public sealed record ItemConfiguration
     /// <summary>Marker surface offset (m).</summary>
     public float SalvoMarkerLift { get; init; } = 0.12f;
     /// <summary>Acquired rounds; existing magazines keep their capacity.</summary>
-    public int MachineGunCapacity { get; init; } = 500;
+    public int MachineGunCapacity { get; init; } = 800;
     /// <summary>Rounds per second, bounded to one round per fixed step.</summary>
-    public double MachineGunFireRate { get; init; } = 25;
+    public double MachineGunFireRate { get; init; } = 40;
     /// <summary>Maximum damaging ray length in metres.</summary>
-    public float MachineGunRange { get; init; } = 10;
+    public float MachineGunRange { get; init; } = 25;
     /// <summary>Near-range HP per round.</summary>
-    public float MachineGunDamage { get; init; } = 3.5f;
+    public float MachineGunDamage { get; init; } = 2.25f;
     /// <summary>Distance where damage begins fading.</summary>
-    public float MachineGunFalloffStart { get; init; } = 5;
+    public float MachineGunFalloffStart { get; init; } = 12;
     /// <summary>Power exponent of the fade to zero at maximum range.</summary>
     public float MachineGunFalloff { get; init; } = 1.5f;
     /// <summary>Half-angle of the uniform spread cone in degrees.</summary>
-    public float MachineGunSpread { get; init; } = 3;
+    public float MachineGunSpread { get; init; } = 6;
     /// <summary>Near-range central impulse per round in Newton seconds.</summary>
-    public float MachineGunKnockback { get; init; } = 12;
+    public float MachineGunKnockback { get; init; } = 8;
     /// <summary>Render one tracer per this many rounds, including the first.</summary>
     public int MachineGunTracerEvery { get; init; } = 2;
     /// <summary>Contact damage, applied once through vehicle health authority.</summary>

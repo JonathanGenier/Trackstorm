@@ -12,7 +12,7 @@ namespace Trackstorm.Core.Tests.Items;
 internal sealed class MachineGunTests
 {
     [Test]
-    public void FiveHundredActualRoundsExhaustInTwentySecondsAndCannotRepeat()
+    public void EightHundredActualRoundsExhaustInTwentySecondsAndCannotRepeat()
     {
         var host = Create();
         var slot = Grant(host);
@@ -20,18 +20,18 @@ internal sealed class MachineGunTests
         WeaponRayHit? Miss(ulong owner, Vector3 start, Vector3 end)
         {
             Assert.That(owner, Is.EqualTo(1));
-            Assert.That(Vector3.Distance(start, end), Is.EqualTo(10).Within(0.00001));
+            Assert.That(Vector3.Distance(start, end), Is.EqualTo(25).Within(0.00001));
             shots++;
             return null;
         }
         for (int i = 0; i < 1199; i++) { Step(host, true, Miss); }
-        Assert.That(shots, Is.EqualTo(499));
+        Assert.That(shots, Is.EqualTo(799));
         Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(1));
         Step(host, true, Miss);
-        Assert.That(shots, Is.EqualTo(500));
+        Assert.That(shots, Is.EqualTo(800));
         Assert.That(host.Items.Slots.Single(), Is.EqualTo(slot with { Item = HeldItem.None, Ammo = null }));
         for (int i = 0; i < 60; i++) { Step(host, true, Miss); }
-        Assert.That(shots, Is.EqualTo(500));
+        Assert.That(shots, Is.EqualTo(800));
         Assert.That(host.UseItem(0, 99, slot.Life, slot.Token), Is.False);
         Assert.That(host.World.Events.Entries.Count(e => e.Kind == "Exhausted"), Is.EqualTo(1));
     }
@@ -42,7 +42,7 @@ internal sealed class MachineGunTests
         var host = Create();
         var first = Grant(host);
         for (int i = 0; i < 60; i++) { Step(host, true); }
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(475));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(760));
         Step(host);
         var paused = host.Items.Slots.Single();
         for (int i = 0; i < 30; i++) { Step(host); }
@@ -51,7 +51,7 @@ internal sealed class MachineGunTests
         Assert.That(host.Items.Grant(host.World, 1, HeldItem.Wrench), Is.False);
         Assert.That(host.SwitchItem(0, 99, 1, 1), Is.True);
         Step(host, true);
-        Assert.That(host.Items.Slots.Single().SecondAmmo!.Remaining, Is.EqualTo(500));
+        Assert.That(host.Items.Slots.Single().SecondAmmo!.Remaining, Is.EqualTo(800));
         Assert.That(host.UseItem(0, 99, 1, first.Token), Is.False);
         var second = host.Items.Slots.Single();
         Assert.That(host.UseItem(0, 99, 1, second.SecondToken), Is.True);
@@ -63,9 +63,10 @@ internal sealed class MachineGunTests
         Assert.That(host.UseItem(0, 99, 1, second.SecondToken), Is.False);
     }
 
-    [TestCase(0.3f, 3.5f)]
-    [TestCase(0.5f, 3.5f)]
-    [TestCase(0.75f, 1.2374369f)]
+    [TestCase(0.2f, 2.25f)]
+    [TestCase(0.48f, 2.25f)]
+    [TestCase(0.6f, 1.5179850334160123f)]
+    [TestCase(0.8f, 0.5366887554340751f)]
     [TestCase(1f, 0f)]
     public void NativeClosestHitAppliesBoundedFalloffAndAttributedSmallImpulse(float fraction, float damage)
     {
@@ -78,11 +79,11 @@ internal sealed class MachineGunTests
         {
             Assert.That(target.Damage.LastDamage!.Attribution.Source, Is.EqualTo("machine-gun"));
             Assert.That(target.Damage.LastDamage.Attribution.InstigatorId, Is.EqualTo(1));
-            Assert.That(target.Effects.Single().Effect.Impulse.Length(), Is.EqualTo(12 * damage / 3.5).Within(0.001));
+            Assert.That(target.Effects.Single().Effect.Impulse.Length(), Is.EqualTo(8 * damage / 2.25).Within(0.001));
         }
         else { Assert.That(target.Damage.LastDamage, Is.Null); }
         Assert.That(host.World.State.Match!.Players.Single(p => p.Player == 1).CircusScore, Is.Zero);
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(499));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(799));
     }
 
     [Test]
@@ -91,10 +92,10 @@ internal sealed class MachineGunTests
         var host = Create(new() { MachineGunFireRate = 60 });
         Grant(host);
         host.Step(Held, Observe);
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(500));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(800));
         Step(host, true, (_, _, _) => new(0.1f, 0));
         Step(host, true);
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(498));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(798));
         Assert.That(host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(1000));
     }
 
@@ -112,7 +113,7 @@ internal sealed class MachineGunTests
         Assert.That(host.World.State.Tick, Is.EqualTo(tick));
         Assert.That(host.Items.Slots.Single(), Is.EqualTo(slot));
         Step(host, true);
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(499));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(799));
     }
 
     [Test]
@@ -201,11 +202,11 @@ internal sealed class MachineGunTests
         Assert.That(host.UseItem(10, 99, 1, slot.Token, 3), Is.True);
         host.Receive(10, 99, [new SequencedInput(1, Held)]); Step(host);
         host.Receive(10, 99, [new SequencedInput(2, default)]); Step(host);
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(500));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(800));
         host.Receive(10, 99, [new SequencedInput(3, Held)]); Step(host);
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(499));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(799));
         host.Suspend(10); Step(host);
-        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(499));
+        Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(799));
     }
 
     [Test]
@@ -219,6 +220,43 @@ internal sealed class MachineGunTests
         Assert.That(host.World.State.Match.Players.Single(p => p.Player == 1).CircusScore, Is.EqualTo(host.Configuration.Configuration.Match.BaseKillPoints));
         Step(host);
         Assert.That(host.World.State.Match.Players.Single(p => p.Player == 1).Kills, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void DefaultConeExpandsWithDistanceAndFollowsEveryCurrentOrientation()
+    {
+        var host = Create();
+        Grant(host);
+        var slopes = new List<Vector2>();
+        for (int tick = 0; tick < 1200; tick++)
+        {
+            // Change heading and pitch every tick: a cached launch orientation cannot pass.
+            var orientation = Quaternion.CreateFromYawPitchRoll(tick * 0.01f, 0.15f * MathF.Sin(tick * 0.03f), 0);
+            host.Step(Held, state => new(new VehiclePhysicsState(state.ObservedPhysics.Position, orientation, Vector3.Zero, Vector3.Zero), Vector3.UnitY),
+                raycastWeapon: (_, start, end) =>
+                {
+                    Assert.That(Vector3.Distance(start, end), Is.EqualTo(25).Within(0.0001));
+                    var local = Vector3.Transform(Vector3.Normalize(end - start), Quaternion.Inverse(orientation));
+                    Assert.That(-local.Z, Is.GreaterThanOrEqualTo(MathF.Cos(MathF.PI / 30) - 0.000001));
+                    slopes.Add(new(local.X / -local.Z, local.Y / -local.Z));
+                    return null;
+                });
+        }
+        Assert.That(slopes.Count, Is.EqualTo(800));
+        var rates = new List<double>();
+        foreach (float distance in new[] { 5f, 15f, 24f })
+        {
+            var pattern = slopes.Select(p => p * distance).ToArray();
+            float width = pattern.Max(p => p.X) - pattern.Min(p => p.X);
+            int hits = pattern.Count(p => Math.Abs(p.X) <= 1 && Math.Abs(p.Y) <= 0.75);
+            rates.Add(hits / 800.0);
+            TestContext.Out.WriteLine($"Cone plane {distance} m: width {width:F4} m, 2 x 1.5 m target {hits}/800 ({hits / 8.0:F2}%).");
+            Assert.That(width, Is.InRange(distance * 0.19f, distance * 0.211f));
+        }
+        Assert.That(rates[0], Is.EqualTo(1));
+        Assert.That(rates[1], Is.InRange(0.3, 0.7));
+        Assert.That(rates[2], Is.LessThan(rates[1] * 0.65));
+        Assert.That(new ItemConfiguration().MachineGunDamage * 800, Is.EqualTo(1800));
     }
 
     private static InputFrame Held => new(0, 0, 0, 0, InputButtons.UseItem, 0, 0);
