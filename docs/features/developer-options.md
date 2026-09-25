@@ -1,5 +1,11 @@
 # Host Developer Options
 
+The existing Configs shell also contains explicitly local [tire-effect graphics
+controls](terrain-effects.md#local-configs-tuning), available without host authority.
+They share search, staged Apply/Cancel/Reset and close protection, but persist through
+player preferences and never change a synchronized configuration revision. Host-only
+gameplay sections and actions retain the authority rules below.
+
 The Stats tab's Network Diagnostics show the canonical [Trackstorm game version](game-versioning.md), including when no multiplayer session is active.
 
 Those online migration diagnostics include trusted fencing status, granted epoch and remaining conservative local permission, separately from the EOS membership proof. They never display the private lease session key, fencing token or identity JWT. See [authority leases](authority-leases.md).

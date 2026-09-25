@@ -77,8 +77,13 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 await Until(() => _client.Lobby?.State?.Players.Count == 2, "real UDP client admission");
                 _devTools.Configs.Session = () => _client;
                 await Frames(2);
-                Check(!Descendants(_devTools.Configs).OfType<LineEdit>().Any(editor => editor.IsVisibleInTree()), "joined client's Configs hides host-only settings");
-                Check(!Descendants(_devTools.Configs).OfType<Button>().Any(button => button.IsVisibleInTree()), "joined client's Configs hides mutation actions");
+                Check(!Descendants(_devTools.Configs).OfType<LineEdit>().Any(editor => editor.IsVisibleInTree() && editor.Name != "ConfigSearch" && !editor.Name.ToString().StartsWith("tire_", StringComparison.Ordinal)), "joined client's Configs hides host-only settings");
+                Check(Descendants(_devTools.Configs).OfType<LineEdit>().Any(editor => editor.IsVisibleInTree() && editor.Name == "tire_lifetime"), "joined client retains local tire graphics controls");
+                var sharedBeforeLocalEdit = _host.DeveloperConfiguration;
+                Set("tire.grass.duration", .5);
+                Check(_devTools.Configs.Apply(), "Joined client can apply local surface graphics without host authority");
+                await Frames(10);
+                Check(_host.DeveloperConfiguration == sharedBeforeLocalEdit && _client.DeveloperConfiguration == sharedBeforeLocalEdit, "Local surface tuning leaves both synchronized gameplay configurations unchanged");
                 _devTools.Configs.Session = () => _host;
                 await Frames(20);
                 string hostDiagnostics = DeveloperDiagnostics.Capture(_host);

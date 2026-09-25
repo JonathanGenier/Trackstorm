@@ -1,4 +1,7 @@
 using Godot;
+using Trackstorm.Core.Settings;
+using Trackstorm.Client.Development;
+using Trackstorm.Client.Settings;
 using Trackstorm.Client.Arenas;
 using Trackstorm.Client.Vehicles;
 using Trackstorm.Core.Development;
@@ -21,10 +24,19 @@ public sealed partial class TerrainEffectsChecks : Node3D
     private bool _hard;
     private bool _stress;
     private string _output = string.Empty;
+    private readonly double[] _frameTimes = new double[12000];
+    private int _frameCount;
+    private ulong _previousFrame;
 
     public override void _Ready() => CallDeferred(MethodName.Run);
     public override void _PhysicsProcess(double delta)
     {
+        if (_stress && _frameCount < _frameTimes.Length)
+        {
+            ulong now = Time.GetTicksUsec();
+            if (_previousFrame > 0) { _frameTimes[_frameCount++] = (now - _previousFrame) / 1000.0; }
+            _previousFrame = now;
+        }
         if (_car is null) { return; }
         var input = new InputFrame(++_tick, _hard ? (short)16000 : (short)0, _drive ? ushort.MaxValue : (ushort)0, 0, 0, 0, _hard ? InputButtons.Drift : InputButtons.None);
         var result = _simulation.Step(input, _cars.Select(car => car.Capture(_stress || car == _car ? input : new InputFrame(_tick, 0, 0, 0, 0, 0, 0))).ToArray());
@@ -64,6 +76,20 @@ public sealed partial class TerrainEffectsChecks : Node3D
             }
 
             var effects = _car.GetChildren().OfType<TireFeedback>().Single();
+            var batch = TireMarkBatch.For(this);
+            var player = new Input.PlayerInput();
+            AddChild(player);
+            player.SetPhysicsProcess(false);
+            var settings = new PlayerSettingsController();
+            string settingsPath = System.IO.Path.Combine(_output, "tire-settings.json");
+            settings.Initialize(player.Adapter, settingsPath);
+            AddChild(settings);
+            settings.UpdateSettings(settings.Current with { TireEffects = TireEffectSettings.Defaults });
+            batch.SettingsSource = () => settings.Current.TireEffects;
+            var shell = new DevToolsShell();
+            shell.Initialize(player.Adapter);
+            shell.Configs.LocalSettings = settings;
+            AddChild(shell);
             await Frames(10);
             int surfaceIndex = 0;
             foreach (var identity in new[] { SurfaceIdentity.Asphalt, SurfaceIdentity.Concrete, SurfaceIdentity.Dirt, SurfaceIdentity.Grass, SurfaceIdentity.Mud, SurfaceIdentity.DeepMud, SurfaceIdentity.Water })
@@ -104,37 +130,49 @@ public sealed partial class TerrainEffectsChecks : Node3D
             _camera.LookAt(Vector3.Zero);
             await Frames(3);
             int nodes = Descendants(this);
+            long retainedStart = GC.GetTotalMemory(true);
             ulong started = Time.GetTicksMsec();
-            for (int repetition = 0; repetition < 24; repetition++)
+            for (int repetition = 0; repetition < 120; repetition++)
             {
                 for (int slot = 0; slot < _cars.Count; slot++) { _cars[slot].ResetBody(Physics(new Vector3(-49+slot*14,.9f,15), new Vector3(0,0,-9))); }
                 await Frames(100);
+                if (repetition % 24 == 23)
+                {
+                    Check(batch.Submitted <= batch.Budget && Descendants(this) == nodes, $"Stress checkpoint {repetition + 1}: bounded nodes and submissions");
+                    _evidence.Add($"Checkpoint {repetition + 1}: managed retained={GC.GetTotalMemory(true)}, engine static={Godot.Performance.GetMonitor(Godot.Performance.Monitor.MemoryStatic)}, video={Godot.Performance.GetMonitor(Godot.Performance.Monitor.RenderVideoMemUsed)}, draw calls={Godot.Performance.GetMonitor(Godot.Performance.Monitor.RenderTotalDrawCallsInFrame)}, alive={batch.Alive}, submitted={batch.Submitted}.");
+                }
             }
-            Check(_cars.All(car => car.GetChildren().OfType<TireFeedback>().Single().MarksWritten > TireFeedback.Capacity * 2), "Repeated use wraps the fixed track buffer: " + effects.MarksWritten);
+            Check(batch.Recycled > 0 && batch.Written > batch.Budget, "Eight-car repeated use recycles the shared ring: written=" + batch.Written + ", recycled=" + batch.Recycled);
             Check(Descendants(this) == nodes, "Repeated tire use creates no additional nodes");
-            Check(effects.GetChildren().OfType<MultiMeshInstance3D>().Single(node => node.Multimesh.InstanceCount == TireFeedback.Capacity).Multimesh.InstanceCount == TireFeedback.Capacity, "Track storage stays bounded");
-            _evidence.Add($"Eight vehicles, 2400 sustained physics frames in {Time.GetTicksMsec()-started} ms; scene nodes {nodes}; no performance threshold inferred.");
+            Check(batch.Submitted <= batch.Budget && batch.GetChildren().OfType<MultiMeshInstance3D>().Single().Multimesh.InstanceCount == TireMarkBatch.MaximumCapacity, "Arena-wide track geometry remains fixed and active submissions obey budget");
+            _evidence.Add($"Eight vehicles, 12000 sustained physics frames in {Time.GetTicksMsec()-started} ms; scene nodes {nodes}; no performance threshold inferred.");
+            _evidence.Add($"Retained managed bytes: start={retainedStart}, end={GC.GetTotalMemory(true)}; alive={batch.Alive}, submitted={batch.Submitted}, written={batch.Written}, recycled={batch.Recycled}.");
+            Array.Sort(_frameTimes, 0, _frameCount);
+            _evidence.Add($"Eight-car observed frame intervals ({_frameCount}): p50={_frameTimes[_frameCount / 2]:F2} ms, p95={_frameTimes[(int)(_frameCount * .95)]:F2} ms, p99={_frameTimes[(int)(_frameCount * .99)]:F2} ms; includes rendering/scheduling, not isolated GPU time.");
             await View("eight-car-stress", new Vector3(0,35,30), Vector3.Zero);
             foreach (var car in _cars) { car.GetChildren().OfType<TireFeedback>().Single().Density = 0; }
             int stopped = effects.MarksWritten;
             started = Time.GetTicksMsec();
-            for (int repetition = 0; repetition < 12; repetition++)
+            for (int repetition = 0; repetition < 37; repetition++)
             {
                 for (int slot = 0; slot < _cars.Count; slot++) { _cars[slot].ResetBody(Physics(new Vector3(-49+slot*14,.9f,15), new Vector3(0,0,-9))); }
                 await Frames(100);
+                if (repetition == 28) { await View("fade-near-expiry", new Vector3(0,35,30), Vector3.Zero); }
             }
-            _evidence.Add($"Eight vehicles, density zero: 1200 physics frames in {Time.GetTicksMsec()-started} ms; existing marks still fade. This is not a full GPU profiler.");
+            _evidence.Add($"Eight vehicles, density zero: 3700 physics frames in {Time.GetTicksMsec()-started} ms; existing marks still fade. This is not a full GPU profiler.");
             Check(effects.MarksWritten == stopped, "Zero visual density suppresses emissions");
             await Frames(10);
-            Check(_cars.All(car => car.GetChildren().OfType<TireFeedback>().Single().GetChildren()
+            Check(batch.Submitted == 0 && _cars.All(car => car.GetChildren().OfType<TireFeedback>().Single().GetChildren()
                 .OfType<MultiMeshInstance3D>().All(batch => batch.Multimesh.VisibleInstanceCount == 0)),
                 "Expired tracks and wakes submit zero instances for all eight cars");
+            await View("fade-expired", new Vector3(0,35,30), Vector3.Zero);
             effects.Density = 1;
             _car.ResetBody(Physics(new Vector3(0,.9f,15), new Vector3(0,0,-9)));
             await Frames(12);
-            Check(effects.MarksWritten > stopped && effects.GetChildren().OfType<MultiMeshInstance3D>()
-                .Single(batch => batch.Multimesh.InstanceCount == TireFeedback.Capacity).Multimesh.VisibleInstanceCount is > 0 and < 32,
+            Check(effects.MarksWritten > stopped && batch.Submitted is > 0 and < 32,
                 "Resumed tracks contain only new segments, without reviving the expired ring");
+            await VerifyTuning(shell, settings, batch, pad);
+            shell.QueueFree();
             _drive = false;
             _car = null;
             foreach (var car in _cars) { car.QueueFree(); }
@@ -172,6 +210,85 @@ public sealed partial class TerrainEffectsChecks : Node3D
     }
 
     private static VehiclePhysicsState Physics(Vector3 position, Vector3 velocity = default) => new(VehicleBody.ToCore(position), N.Quaternion.Identity, VehicleBody.ToCore(velocity), N.Vector3.Zero);
+    private async Task VerifyTuning(DevToolsShell shell, PlayerSettingsController settings, TireMarkBatch batch, StaticBody3D pad)
+    {
+        shell.Open(DevToolsTab.Configs);
+        await Frames(20);
+        LineEdit Editor(string key) => FindEditors(shell.Configs).Single(editor => editor.Name == key.Replace('.', '_'));
+        void Set(string key, string value) => Editor(key).Text = value;
+        float baselineWidth = batch.LastTransform.Basis.X.Length();
+        Set("tire.width", "2"); Set("tire.intensity", "0.5"); Set("tire.lifetime", "4");
+        Set("tire.dirt.duration", "0.5"); Set("tire.fade", "0.5"); Set("tire.budget", "256");
+        Check(shell.Configs.HasUnappliedChanges && settings.Current.TireEffects["tire.width"] == 1, "Local Configs stages edits without runtime mutation");
+        Check(shell.Configs.Apply(), "Local Configs Apply saves preferences without session authority");
+        _car!.ResetBody(Physics(new Vector3(0,.9f,15), new Vector3(0,0,-9)));
+        await Frames(30);
+        if (DisplayServer.GetName() != "headless")
+        {
+            Check(Math.Abs(batch.LastTransform.Basis.X.Length() - baselineWidth * 2) < .01f, $"Width control changes native segment geometry: {baselineWidth:F3} -> {batch.LastTransform.Basis.X.Length():F3}");
+            Check(Math.Abs(batch.LastColor.A - TireFeedback.Style(SurfaceIdentity.Dirt).Color.A * .5f) < .01f, "Intensity control changes native segment alpha");
+            Check(Math.Abs(batch.LastData.G - 2) < .01f && Math.Abs(batch.LastData.B - 1) < .01f, "Global/per-surface duration and fade controls reach the shader");
+        }
+        else { _evidence.Add("UNVERIFIED in headless: dummy renderer has no MultiMesh buffer readback; width/alpha/shader checks require -Visual."); }
+        foreach (var car in _cars) { car.GetChildren().OfType<TireFeedback>().Single().Density = 1; }
+        for (int i = 0; i < 5; i++)
+        {
+            for (int slot = 0; slot < _cars.Count; slot++) { _cars[slot].ResetBody(Physics(new Vector3(-49+slot*14,.9f,15), new Vector3(0,0,-9))); }
+            await Frames(100);
+        }
+        Check(batch.Budget == 256 && batch.Submitted == 256, "Lower runtime budget stays bounded under eight-car emission");
+        Set("tire.quality", "0"); Check(shell.Configs.Apply(), "Zero quality applies through Configs");
+        await Frames(10);
+        long stopped = batch.Written;
+        await Frames(130);
+        Check(batch.Written == stopped && batch.Submitted == 0, "Quality zero stops all marks while tuned disturbance expires");
+        Set("tire.budget", "999999"); Check(!shell.Configs.Apply() && batch.Budget == 256, "Unsafe budget is rejected without a runtime partial commit");
+        shell.Configs.Cancel();
+        Check(Editor("tire.budget").Text == "256" && !shell.Configs.HasUnappliedChanges, "Cancel restores accepted local graphics");
+        var restored = PlayerSettingsJson.Deserialize(System.IO.File.ReadAllText(System.IO.Path.Combine(_output, "tire-settings.json")));
+        Check(restored.TireEffects["tire.width"] == 2 && restored.TireEffects["tire.dirt.duration"] == .5f, "Local graphics persistence contains accepted surface tuning");
+        Set("tire.quality", "1");
+        foreach (var (surface, key) in new[] { (SurfaceIdentity.Asphalt, "asphalt"), (SurfaceIdentity.Concrete, "concrete"), (SurfaceIdentity.Dirt, "dirt"), (SurfaceIdentity.Grass, "grass"), (SurfaceIdentity.Mud, "mud"), (SurfaceIdentity.DeepMud, "deep_mud") })
+        {
+            Set($"tire.{key}.duration", "0.25");
+            Check(shell.Configs.Apply(), $"{surface} duration applies through Configs");
+            pad.SetMeta("surface_identity", surface.ToString());
+            _hard = surface is SurfaceIdentity.Asphalt or SurfaceIdentity.Concrete;
+            long before = batch.Written;
+            _car.ResetBody(Physics(new Vector3(0,.9f,15), _hard ? new Vector3(7,0,-9) : new Vector3(0,0,-9)));
+            await Frames(35);
+            Check(batch.Written > before, $"{surface} emits with edited duration");
+            if (DisplayServer.GetName() != "headless") { Check(Math.Abs(batch.LastData.G - 1) < .01f, $"{surface} edited duration reaches native shader data"); }
+        }
+        pad.SetMeta("surface_identity", "Dirt"); _hard = false;
+        foreach (var car in _cars) { car.GetChildren().OfType<TireFeedback>().Single().Density = car == _car ? 1 : 0; }
+        async Task<long> DriveSample()
+        {
+            _car.ResetBody(Physics(new Vector3(0,.9f,15), new Vector3(0,0,-9)));
+            await Frames(3);
+            long before = batch.Written;
+            await Frames(60);
+            return batch.Written - before;
+        }
+        long dense = await DriveSample();
+        Set("tire.dirt.density", "0.2"); Check(shell.Configs.Apply(), "Surface density applies");
+        long sparse = await DriveSample();
+        Check(sparse > 0 && sparse < dense, $"Surface density reduces actual emission: dense={dense}, sparse={sparse}");
+        Set("tire.speed", "30"); Check(shell.Configs.Apply(), "Speed threshold applies");
+        Check(await DriveSample() == 0, "High minimum speed suppresses actual emission");
+        Set("tire.speed", "0.8"); Set("tire.distance", "20"); Check(shell.Configs.Apply(), "Distance control applies");
+        Check(await DriveSample() == 0, "Short visibility distance culls actual emission");
+        Set("tire.distance", "100"); Check(shell.Configs.Apply(), "Distance restores");
+        Check(await DriveSample() > 0, "Restored visibility distance resumes actual emission");
+        if (DisplayServer.GetName() != "headless")
+        {
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            using var image = GetViewport().GetTexture().GetImage();
+            image.SavePng(System.IO.Path.Combine(_output, "tire-configs.png"));
+        }
+        shell.Close();
+    }
+    private static IEnumerable<LineEdit> FindEditors(Node node) => node.GetChildren().SelectMany(child => FindEditors(child)).Concat(node is LineEdit editor ? new[] { editor } : Array.Empty<LineEdit>());
     private static int Descendants(Node node) => 1 + node.GetChildren().Sum(Descendants);
     private async Task MeasureRenderedMap(EnvironmentPreset preset)
     {

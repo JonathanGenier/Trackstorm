@@ -6,6 +6,8 @@ namespace Trackstorm.Core.Settings;
 /// <summary>Validated, immutable local preference data. Contains no device, filesystem, or engine APIs.</summary>
 public sealed record PlayerSettings
 {
+    /// <summary>Local cosmetic mark preferences, excluded from synchronized gameplay.</summary>
+    public TireEffectSettings TireEffects { get; init; } = TireEffectSettings.Defaults;
     private double _masterVolume = 1;
     private double _musicVolume = 1;
     private double _sfxVolume = 1;
