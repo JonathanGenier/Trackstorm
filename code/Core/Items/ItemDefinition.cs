@@ -15,7 +15,10 @@ public sealed record ItemDefinition(HeldItem Identity, string Key, string Displa
     /// <summary>Combat-economy allocation shared with other items in this category.</summary>
     public required ItemCategory Category { get; init; }
     /// <summary>Whether this build implements authoritative use.</summary>
-    public bool CanUse => Handler is not null;
+    public bool CanUse => Handler is not null || Sustained;
+
+    /// <summary>Requires capability-bound held input across fixed steps.</summary>
+    public bool Sustained { get; init; }
 
     /// <summary>Use-effect texture hook, resolved only after a committed outcome.</summary>
     public string? UseVfx { get; init; }

@@ -10,7 +10,7 @@ internal static class AudioRouting
     {
         AudioCue.EngineIdle or AudioCue.EngineLow or AudioCue.EngineHigh or AudioCue.Skid or
             AudioCue.Collision or AudioCue.HeavyCollision or AudioCue.Damage or AudioCue.Destruction => "Vehicle",
-        AudioCue.MissileFire or AudioCue.MissileTravel or AudioCue.MissileImpact or AudioCue.Explosion => "Weapons",
+        AudioCue.MachineGunFire or AudioCue.MissileFire or AudioCue.MissileTravel or AudioCue.MissileImpact or AudioCue.Explosion => "Weapons",
         AudioCue.Ambience => "SFX",
         _ => "UI",
     };

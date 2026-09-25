@@ -266,6 +266,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             _mine = ProxyMineRecoveryFixture.Seed(_arenas[0], _arenas);
             Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["match.nitro_points_per_second"] = 0 }, out _), "Disable overspeed score only in the retention fixture to preserve its fixed rank assertions.");
             NitroRecoveryFixture.Seed(_arenas[0], _player);
+            MachineGunRecoveryFixture.Seed(_arenas[0], 1);
             _originalBody = _arenas[1].Bodies[_player];
             SetScores(false);
             _retainedScore = _arenas[0].Driver.Host!.World.State.Match!.Players.Single(score => score.Player == _player);
@@ -292,6 +293,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             Require(_arenas[1].Driver.ItemState!.Patches.Count == 1 && _arenas[1].Driver.ItemState!.Patches.Single() == _oil, "Complete persistent Oil patch survives each native reconnect without duplication.");
             Require(_arenas[1].Driver.LocalItem is { Item: HeldItem.Nitro, NitroCharge: 37.5 }, "Returning player retains partial Nitro through match-long retention and three reconnects.");
             Require(_arenas[1].Driver.LocalItem is { SecondItem: HeldItem.Wrench, ActiveSlot: 1, SelectionRevision: 1 }, "Second slot and selection survive reconnect exactly.");
+            MachineGunRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, 1);
             Require(_arenas[1].Driver.ItemState?.Spawns.Count == 27 && _arenas[1].Driver.Match?.Players.Count == 2, "Twenty-seven-marker map pickup layout and match state arrive in the checkpoint.");
             Require(CategoryBalanceRecoveryFixture.Signature(_arenas[1].Driver.ItemState!.Balances) == _categoryHistory, "Reconnect retains exact per-player credits, counts and last selection.");
             GD.Print("Category history verified after reconnect " + _resyncs);

@@ -294,6 +294,7 @@ public sealed partial class MigrationIntegrationChecks : Node
                     }));
                 world.Restore(new Core.Simulation.SimulationState(boundary.Tick, boundary.LastInput, vehicles, match));
                 NitroRecoveryFixture.Seed(arena, _nitroOwner);
+                MachineGunRecoveryFixture.Seed(arena, _nitroOwner);
                 _circusBoundaries[match.Revision] = match;
                 arena.Driver.MatchReceived += state => _circusBoundaries[state.Revision] = state;
             }
@@ -316,6 +317,7 @@ public sealed partial class MigrationIntegrationChecks : Node
                     Require(_arenas[survivor]!.Driver.LocalState is not null &&
                         _arenas[survivor]!.Driver.ItemState!.Slots.Single(s => s.Vehicle == _nitroOwner).NitroCharge == 37.5,
                         "Partial Nitro charge survives selected checkpoint installation.");
+                    MachineGunRecoveryFixture.Verify(_arenas[survivor]!.Driver.ItemState!, _nitroOwner);
                     Require(restored.Awards.Count == 0 && restored.Changes.Count == 0, "Migration does not replay prior Circus awards.");
                 }
             };

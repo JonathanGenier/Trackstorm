@@ -133,10 +133,10 @@ internal sealed partial class CombatHud : CanvasLayer
             _speed.Text = view.Speed;
             _unit.Text = view.Unit;
             SetItemLabel(_itemName, view.ItemName, view.Item);
-            _itemIcon.Size = new Vector2(70, view.Item == HeldItem.Nitro ? 38 : 55);
+            _itemIcon.Size = new Vector2(70, ItemRegistry.Find(view.Item)?.Sustained == true ? 38 : 55);
             _itemIcon.Texture = _itemIcons.GetValueOrDefault(view.Item);
             SetItemLabel(_secondItemName, view.SecondItemName, view.SecondItem);
-            _secondItemIcon.Size = new Vector2(70, view.SecondItem == HeldItem.Nitro ? 38 : 55);
+            _secondItemIcon.Size = new Vector2(70, ItemRegistry.Find(view.SecondItem)?.Sustained == true ? 38 : 55);
             _secondItemIcon.Texture = _itemIcons.GetValueOrDefault(view.SecondItem);
             _firstSelection.Text = view.ActiveSlot == 0 ? "1 • ACTIVE" : "1";
             _secondSelection.Text = view.ActiveSlot == 1 ? "2 • ACTIVE" : "2";
@@ -160,11 +160,11 @@ internal sealed partial class CombatHud : CanvasLayer
 
     private static void SetItemLabel(Label label, string name, HeldItem item)
     {
-        bool charge = item == HeldItem.Nitro;
-        label.Text = charge ? name.Replace(" ", "\n", StringComparison.Ordinal) : name;
+        bool charge = ItemRegistry.Find(item)?.Sustained == true;
+        label.Text = charge ? name.Insert(name.LastIndexOf(' '), "\n").Remove(name.LastIndexOf(' ') + 1, 1) : name;
         label.Position = new Vector2(17, charge ? 88 : 111);
         label.Size = new Vector2(84, charge ? 40 : 22);
-        label.AddThemeFontSizeOverride("font_size", charge ? 16 : 18);
+        label.AddThemeFontSizeOverride("font_size", item == HeldItem.MachineGun ? 11 : charge ? 16 : 18);
     }
 
     private TextureRect Component(string name, Vector2 size, int kind, Texture2D steel)

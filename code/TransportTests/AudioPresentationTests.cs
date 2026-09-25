@@ -56,7 +56,7 @@ internal sealed class AudioPresentationTests
     public void CategoriesRouteExplicitly()
     {
         AudioCue[] vehicle = [AudioCue.EngineIdle, AudioCue.EngineLow, AudioCue.EngineHigh, AudioCue.Skid, AudioCue.Collision, AudioCue.HeavyCollision, AudioCue.Damage, AudioCue.Destruction];
-        AudioCue[] weapons = [AudioCue.MissileFire, AudioCue.MissileTravel, AudioCue.MissileImpact, AudioCue.Explosion];
+        AudioCue[] weapons = [AudioCue.MachineGunFire, AudioCue.MissileFire, AudioCue.MissileTravel, AudioCue.MissileImpact, AudioCue.Explosion];
         foreach (AudioCue cue in Enum.GetValues<AudioCue>())
         {
             string expected = vehicle.Contains(cue) ? "Vehicle" : weapons.Contains(cue) ? "Weapons" : cue == AudioCue.Ambience ? "SFX" : "UI";

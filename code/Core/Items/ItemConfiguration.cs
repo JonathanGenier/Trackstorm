@@ -3,6 +3,24 @@ namespace Trackstorm.Core.Items;
 /// <summary>Host-owned bounded tuning. Linear falloff reaches zero at the edge.</summary>
 public sealed record ItemConfiguration
 {
+    /// <summary>Acquired rounds; existing magazines keep their capacity.</summary>
+    public int MachineGunCapacity { get; init; } = 500;
+    /// <summary>Rounds per second, bounded to one round per fixed step.</summary>
+    public double MachineGunFireRate { get; init; } = 25;
+    /// <summary>Maximum damaging ray length in metres.</summary>
+    public float MachineGunRange { get; init; } = 10;
+    /// <summary>Near-range HP per round.</summary>
+    public float MachineGunDamage { get; init; } = 3.5f;
+    /// <summary>Distance where damage begins fading.</summary>
+    public float MachineGunFalloffStart { get; init; } = 5;
+    /// <summary>Power exponent of the fade to zero at maximum range.</summary>
+    public float MachineGunFalloff { get; init; } = 1.5f;
+    /// <summary>Half-angle of the uniform spread cone in degrees.</summary>
+    public float MachineGunSpread { get; init; } = 3;
+    /// <summary>Near-range central impulse per round in Newton seconds.</summary>
+    public float MachineGunKnockback { get; init; } = 12;
+    /// <summary>Render one tracer per this many rounds, including the first.</summary>
+    public int MachineGunTracerEvery { get; init; } = 2;
     /// <summary>Contact damage, applied once through vehicle health authority.</summary>
     public float MineDamage { get; init; } = 100;
     /// <summary>Invisible magnetic field extent in metres.</summary>
@@ -44,6 +62,14 @@ public sealed record ItemConfiguration
     /// <summary>Rejects nonfinite or excessive host configuration before simulation.</summary>
     public void Validate()
     {
+        if (MachineGunCapacity is < 1 or > 10000 || !double.IsFinite(MachineGunFireRate) || MachineGunFireRate is < 1 or > 60 ||
+            !float.IsFinite(MachineGunRange) || MachineGunRange is < 1 or > 50 ||
+            !float.IsFinite(MachineGunDamage) || MachineGunDamage is < 0 or > 1000 ||
+            !float.IsFinite(MachineGunFalloffStart) || MachineGunFalloffStart < 0 || MachineGunFalloffStart >= MachineGunRange ||
+            !float.IsFinite(MachineGunFalloff) || MachineGunFalloff is < 0.1f or > 8 ||
+            !float.IsFinite(MachineGunSpread) || MachineGunSpread is < 0 or > 30 ||
+            !float.IsFinite(MachineGunKnockback) || MachineGunKnockback is < 0 or > 1000 || MachineGunTracerEvery is < 1 or > 25)
+        { throw new ArgumentException("Invalid machine gun tuning."); }
         if (!float.IsFinite(MineDamage) || MineDamage is < 0 or > 10000 ||
             !float.IsFinite(MineAttractionRadius) || MineAttractionRadius is < 1 or > 100 ||
             !float.IsFinite(MineMinimumForce) || MineMinimumForce is < 0 or > 10000 ||

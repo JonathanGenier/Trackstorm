@@ -165,6 +165,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
     /// <summary>Latest accepted complete prop publication.</summary>
     internal Trackstorm.Core.Arenas.ArenaPropSnapshot? PropSnapshot { get; private set; }
     /// <summary>Native swept collision query, host only.</summary>
+    internal Func<ulong, System.Numerics.Vector3, System.Numerics.Vector3, WeaponRayHit?>? RaycastWeapon { get; set; }
     internal Func<MissileState, System.Numerics.Vector3, float?>? CollideMissile { get; set; }
     /// <summary>Host-only ground projection for persistent oil deployment.</summary>
     internal Func<ItemSlot, VehiclePhysicsState, OilPatch?>? PlaceOil { get; set; }
@@ -301,7 +302,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 RequestItemUse();
             }
 
-            Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine);
+            Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine, RaycastWeapon);
             Host.CollectPickups();
 
             Latest = Host.Snapshot();
@@ -634,6 +635,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         _entrySynchronized.Clear();
         ObserveProps = null;
         CollideMissile = null;
+        RaycastWeapon = null;
         PlaceOil = null;
         RosterChanged = null;
         LocalCorrected = null;

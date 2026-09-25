@@ -243,7 +243,7 @@ internal sealed class ItemSpawnTests
         var sequence = Enumerable.Range(0, 1000).Select(_ => (firstBalance = firstBalance.Select(tuning, first)).SelectedItem).ToArray();
         Assert.That(sequence, Is.EqualTo(Enumerable.Range(0, 1000).Select(_ => (secondBalance = secondBalance.Select(tuning, second)).SelectedItem).ToArray()));
         Assert.That(sequence, Is.SupersetOf(ItemRegistry.All.Select(item => item.Identity)));
-        Assert.That(sequence.Count(item => item == HeldItem.Missile), Is.InRange(400, 600));
+        Assert.That(sequence.Count(item => item == HeldItem.Missile), Is.InRange(325, 425));
     }
 
     /// <summary>Replicated claims preserve cooldown and grant identity; malformed and old envelopes fail closed.</summary>

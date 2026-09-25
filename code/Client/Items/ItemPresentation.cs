@@ -124,6 +124,11 @@ internal sealed partial class ItemPresentation : Node3D
 
         foreach (var outcome in state.Events)
         {
+            if (outcome.Item == HeldItem.MachineGun)
+            {
+                if (outcome.Tracer) { Tracer(outcome); }
+                continue;
+            }
             var definition = ItemRegistry.Find(outcome.Item)!;
             string? texture = outcome.Impact ? definition.ImpactVfx : definition.UseVfx;
             if (texture is null)
@@ -141,6 +146,27 @@ internal sealed partial class ItemPresentation : Node3D
 
             _bursts.Add((burst, 0, outcome.Impact ? 1.3f : 0.5f));
         }
+    }
+
+    private void Tracer(ItemEvent outcome)
+    {
+        Vector3 start = VehicleBody.ToGodot(outcome.Origin);
+        Vector3 end = VehicleBody.ToGodot(outcome.Position);
+        Vector3 segment = end - start;
+        // Bounded presentation only: delivery catch-up cannot create an unbounded burst pool.
+        if (_bursts.Count >= 128) { return; }
+        var root = new Node3D();
+        AddChild(root);
+        var material = new StandardMaterial3D { ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded, AlbedoColor = new Color(1, 0.76f, 0.25f), EmissionEnabled = true, Emission = new Color(1, 0.4f, 0.08f) };
+        if (segment.Length() > 0.01f)
+        {
+            root.AddChild(new MeshInstance3D { Position = (start + end) / 2, Quaternion = new Quaternion(Vector3.Up, segment.Normalized()),
+                Mesh = new CylinderMesh { TopRadius = 0.018f, BottomRadius = 0.018f, Height = segment.Length(), RadialSegments = 6 }, MaterialOverride = material,
+                CastShadow = GeometryInstance3D.ShadowCastingSetting.Off });
+        }
+        root.AddChild(new MeshInstance3D { Position = start + segment.Normalized() * Math.Min(2.2f, segment.Length()), Mesh = new SphereMesh { Radius = 0.10f, Height = 0.20f }, MaterialOverride = material });
+        if (outcome.Impact) { root.AddChild(new MeshInstance3D { Position = end, Mesh = new SphereMesh { Radius = 0.07f, Height = 0.14f }, MaterialOverride = material }); }
+        _bursts.Add((root, 0, 0.055f));
     }
 
     private static Node3D Rocket()

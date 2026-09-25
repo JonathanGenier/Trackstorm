@@ -70,13 +70,13 @@ internal sealed class CombatHudTests
         VehicleSnapshot initial = State(850, 1000, 10);
         foreach (HeldItem item in Enum.GetValues<HeldItem>())
         {
-            var slot = new ItemSlot(1, 1, 7, item) { SecondToken = 8, SecondItem = HeldItem.Oil, ActiveSlot = 1 };
+            var slot = new ItemSlot(1, 1, 7, item) { Ammo = item == HeldItem.MachineGun ? new(500, 500) : null, SecondToken = 8, SecondItem = HeldItem.Oil, ActiveSlot = 1 };
             CombatHudView view = CombatHudView.From(initial, slot, SpeedUnit.KilometresPerHour);
             Assert.That(view.Item, Is.EqualTo(item));
             Assert.That(view.SecondItem, Is.EqualTo(HeldItem.Oil));
             Assert.That(view.ActiveSlot, Is.EqualTo(1));
             Assert.That(CombatHudView.From(initial, slot with { Vehicle = 2 }, 0).SecondItem, Is.EqualTo(HeldItem.None));
-            Assert.That(view.ItemName, Is.EqualTo(item == HeldItem.None ? "EMPTY" : item == HeldItem.Nitro ? "NITRO 100%" : item == HeldItem.ProxyMine ? "PROXY MINE" : item.ToString().ToUpperInvariant()));
+            Assert.That(view.ItemName, Is.EqualTo(item == HeldItem.None ? "EMPTY" : item == HeldItem.Nitro ? "NITRO 100%" : item == HeldItem.MachineGun ? "MACHINE GUN 100%" : item == HeldItem.ProxyMine ? "PROXY MINE" : item.ToString().ToUpperInvariant()));
             Assert.That(view.Standing, Is.EqualTo("--"));
             Assert.That(view.Timer, Is.EqualTo("--:--"));
             Assert.That(view.HealthFill, Is.EqualTo(0.85));

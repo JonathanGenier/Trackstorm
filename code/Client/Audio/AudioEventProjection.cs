@@ -121,6 +121,12 @@ internal sealed class AudioEventProjection
 
         foreach (ItemEvent outcome in state.Events)
         {
+            if (outcome.Item == HeldItem.MachineGun)
+            {
+                // Shot publications have a unique revision; the grant token intentionally repeats.
+                if (!initialize) { Emit(AudioCue.MachineGunFire, outcome.Origin); }
+                continue;
+            }
             var identity = (outcome.Token, outcome.Impact);
             if (!_itemEvents.Add(identity))
             {

@@ -219,6 +219,7 @@ internal sealed partial class ArenaAudio : Node3D
         else
         {
             var voice = new AudioStreamPlayer3D { Stream = stream, Bus = AudioRouting.Bus(cue), Position = Vehicles.VehicleBody.ToGodot(position), MaxDistance = 80, UnitSize = 12, VolumeDb = -12 };
+            if (cue == AudioCue.MachineGunFire) { voice.PitchScale = 1.8f; voice.VolumeDb = -16; voice.MaxDistance = 35; }
             AddChild(voice);
             _voices.Add(voice);
             voice.Finished += () => Retire(voice);
