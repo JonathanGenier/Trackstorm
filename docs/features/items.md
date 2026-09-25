@@ -68,6 +68,8 @@ An entry adds a deterministic signed 2.6 rad/s yaw impulse around support normal
 
 Reliable complete item state and nested resume/migration checkpoints contain every patch and current entry latch. Vehicle state carries ongoing handling recovery. Reconstructing or rolling back a checkpoint replaces state rather than replaying historical triggers; the token high-water mark prevents reused patch IDs. World presentation is a thin dark reflective disk oriented to the stored normal; it owns no collider. Event Log records Oil use and per-target entry, while Stats exposes patch count and remaining traction duration. No new audio asset or use cue is introduced.
 
+Oil patch `Owner` is the authoritative stable deployment identity and is already serialized with each patch for ordinary publications and complete recovery. New rival entries that actually apply the Oil effect bank 50 base points times the owner's current K/D through [match scoring](matches.md#oil-trigger-scoring); self-entries bank zero. Restored contact latches prevent historical entries from scoring again. The native Oil harness checks zero self awards, one award per rival entry, re-entry and exact reliable score totals on three peers, including fresh late admission.
+
 check-oil.ps1 -GodotPath <exe> exercises native banked placement, real local UDP peers, fresh late admission, owner/peer effects, sustained recovery, single-entry/re-entry and the cap. -Impaired adds outbound delay/jitter/loss; -Visual captures the banked hazard. Reconnect and migration harnesses additionally seed a committed patch to isolate recovery and check exact restoration without duplication. These are local tests, not Internet/EOS multi-device evidence.
 
 ## Sustained Nitro resource

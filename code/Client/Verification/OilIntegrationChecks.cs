@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using Godot;
 using Trackstorm.Client.Networking;
 using Trackstorm.Core.Items;
+using Trackstorm.Core.Matches;
 using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Vehicles;
 using N = System.Numerics;
@@ -22,6 +23,10 @@ public sealed partial class OilIntegrationChecks : Node
     private OilPatch? _patch;
     private bool _done;
     private readonly List<string> _evidence = new();
+    private readonly Dictionary<ulong, MatchState> _matches = new();
+    private readonly double[] _oilPoints = new double[3];
+    private bool Play => OS.GetCmdlineUserArgs().Contains("--oil-play");
+    private Label? _playStatus;
     private static readonly N.Vector3 Normal = N.Vector3.Transform(N.Vector3.UnitY, N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, 0.25f));
     private static readonly N.Quaternion Rotation = N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, 0.25f);
 
@@ -53,6 +58,19 @@ public sealed partial class OilIntegrationChecks : Node
         _views.Add(view);
         var arena = new NetworkVehicleArena { PrototypeMapForVerification = true };
         arena.Initialize(gateway, index == 0 ? 88ul : 0, server);
+        arena.Driver.MatchReceived += match =>
+        {
+            if (index == 0) { _matches[match.Revision] = match; }
+            else
+            {
+                Check(_matches.TryGetValue(match.Revision, out var authoritative) && match.Players.SequenceEqual(authoritative.Players), "exact reliable score revision");
+            }
+            foreach (var award in match.Awards.Where(a => a.Category == CircusScoreCategory.Oil))
+            {
+                Check(award.Player == 1 && award.Points == 50, "Oil owner receives one 50-point award");
+                _oilPoints[index] += award.Points;
+            }
+        };
         view.AddChild(arena);
         var bank = new StaticBody3D { Position = new Vector3(0, 20, 0), Rotation = new Vector3(0, 0, 0.25f), CollisionLayer = 1 };
         bank.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(40, 1, 40) } });
@@ -67,7 +85,7 @@ public sealed partial class OilIntegrationChecks : Node
 
     public override void _PhysicsProcess(double delta)
     {
-        if (_done) { if (++_frames > _boundary + 20) { GetTree().Quit(); } return; }
+        if (_done && !Play) { if (++_frames > _boundary + 20) { GetTree().Quit(); } return; }
         try
         {
             _frames++;
@@ -76,11 +94,16 @@ public sealed partial class OilIntegrationChecks : Node
                 arena.Advance(default);
                 Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure);
             }
-            Check(_frames - _boundary < 1800, $"Oil stage {_stage} timeout");
             var host = _arenas[0].Driver.Host!;
+            if (_done)
+            {
+                _playStatus!.Text = $"Oil awards: host {_oilPoints[0]}, peer {_oilPoints[1]}, late peer {_oilPoints[2]}\nOwner traction ticks: {host.World.GetVehicle(1).Movement.OilTicks}; rival: {host.World.GetVehicle(2).Movement.OilTicks}";
+                return;
+            }
+            Check(_frames - _boundary < 1800, $"Oil stage {_stage} timeout");
             switch (_stage)
             {
-                case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2):
+                case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2) && host.World.State.Match?.Phase == MatchPhase.Active:
                     Position(1, new N.Vector3(0, 20, 0) + Normal * 1.4f);
                     Check(host.Items.Grant(host.World, 1, HeldItem.Oil), "grant");
                     Check(_arenas[0].Driver.RequestItemUse(), "ordinary host use");
@@ -101,6 +124,7 @@ public sealed partial class OilIntegrationChecks : Node
                     break;
                 case 3 when host.World.GetVehicle(1).Movement.OilTicks > 0:
                     Check(Math.Abs(N.Vector3.Dot(host.World.GetVehicle(1).Movement.Physics.AngularVelocity, Normal)) > 1.5f, "physical spin");
+                    Check(_oilPoints.All(points => points == 0), "self-trigger awards zero offensive points");
 
                     Next("Deployer is vulnerable: native movement received a strong spin and temporary traction loss.");
                     break;
@@ -112,6 +136,7 @@ public sealed partial class OilIntegrationChecks : Node
                     Next("Oil persists after handling recovery; another vehicle enters.");
                     break;
                 case 5 when host.World.GetVehicle(2).Movement.OilTicks > 0:
+                    Check(_oilPoints[0] == 50, "rival trigger banks 50");
                     Position(2, _patch!.Position + Normal * 0.9f);
                     Next("Remote vehicle receives the same authoritative effect.");
                     break;
@@ -119,6 +144,7 @@ public sealed partial class OilIntegrationChecks : Node
                     Check(host.Items.OilContacts.Any(c => c.Vehicle == 2), "inside latch");
                     int count = host.World.Events.Entries.Count(e => e.Kind == "Oil triggered" && e.Target == 2);
                     Check(count == 1, "staying does not retrigger");
+                    Check(_oilPoints[0] == 50, "remaining inside does not score again");
                     Position(2, _patch!.Position + Normal * 0.9f + new N.Vector3(0, 0, 10));
                     Next("Remaining within the patch emits one entry outcome.");
                     break;
@@ -132,14 +158,16 @@ public sealed partial class OilIntegrationChecks : Node
                     Check(_arenas[0].Driver.RequestItemUse(), "request at cap");
                     Next("Re-entry emits exactly one new outcome; testing the configured active bound.");
                     break;
-                case 9 when _frames - _boundary > 5:
+                case 9 when _frames - _boundary > 5 && _oilPoints.All(points => points == 100):
                     Check(host.Items.Patches.Count == 1 && host.Items.Slots.Single().Item == HeldItem.Oil, "cap leaves held");
+                    _evidence.Add("Self-trigger scored zero; two distinct rival entries banked 50 each, with exact reliable totals on all three peers.");
                     var path = ProjectSettings.GlobalizePath("res://.godot/oil-checks");
                     System.IO.Directory.CreateDirectory(path);
                     System.IO.File.WriteAllLines(System.IO.Path.Combine(path, "evidence.txt"), _evidence);
                     GD.Print("Oil integration passed: " + string.Join("\n", _evidence));
                     _done = true;
                     _boundary = _frames;
+                    if (Play) { BeginPlay(); break; }
                     foreach (var arena in _arenas) { arena.QueueFree(); }
                     foreach (var gateway in _gateways) { gateway.Dispose(); }
                     break;
@@ -151,6 +179,32 @@ public sealed partial class OilIntegrationChecks : Node
             foreach (var gateway in _gateways) { gateway.Dispose(); }
             GetTree().Quit(1);
         }
+    }
+
+    private void BeginPlay()
+    {
+        var layer = new CanvasLayer(); AddChild(layer);
+        var panel = new VBoxContainer { Position = new Vector2(20, 20) }; layer.AddChild(panel);
+        _playStatus = new Label(); panel.AddChild(_playStatus);
+        foreach (ulong id in new ulong[] { 1, 2 })
+        {
+            var button = new Button { Text = id == 1 ? "Drive owner through Oil" : "Drive rival through Oil" };
+            button.Pressed += () =>
+            {
+                Position(id, _patch!.Position + Normal * 0.9f + new N.Vector3(0, 0, 5), new N.Vector3(0, 0, -8));
+                GD.Print($"Interactive Oil crossing requested for player {id}.");
+            };
+            panel.AddChild(button);
+        }
+        var quit = new Button { Text = "Finish playtest" };
+        quit.Pressed += () =>
+        {
+            Capture("interactive-oil.png");
+            GD.Print($"Interactive Oil final awards: {string.Join(", ", _oilPoints)}");
+            foreach (var gateway in _gateways) { gateway.Dispose(); }
+            GetTree().Quit();
+        };
+        panel.AddChild(quit);
     }
 
     private void Position(ulong id, N.Vector3 position, N.Vector3 velocity = default)

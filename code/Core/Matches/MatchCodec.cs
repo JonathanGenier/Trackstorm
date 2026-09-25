@@ -18,7 +18,7 @@ public static class MatchCodec
         ArgumentNullException.ThrowIfNull(state);
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x4d, 6 });
+        writer.Write(new byte[] { 0x54, 0x4d, 7 });
         writer.Write(session);
         writer.Write(state.Tick);
         writer.Write(state.Revision);
@@ -84,7 +84,7 @@ public static class MatchCodec
     /// <returns>Session and complete validated state.</returns>
     public static (ulong Session, MatchState State) Decode(ReadOnlySpan<byte> bytes)
     {
-        if (!IsMatch(bytes) || bytes.Length is < 52 or > 16384 || bytes[2] != 6)
+        if (!IsMatch(bytes) || bytes.Length is < 52 or > 18432 || bytes[2] != 7)
         {
             throw new ArgumentException("Invalid match header or size.");
         }
@@ -149,7 +149,7 @@ public static class MatchCodec
             }
 
             int awardCount = reader.ReadByte();
-            if (awardCount > 56)
+            if (awardCount > MatchState.MaximumAwards)
             {
                 throw new ArgumentException("Invalid Circus award count.");
             }

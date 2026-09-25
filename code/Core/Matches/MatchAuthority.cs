@@ -27,8 +27,9 @@ internal static class MatchAuthority
     /// <param name="results">Complete candidate vehicle roster and applied damage outcomes.</param>
     /// <param name="previousVehicles">Previous authoritative poses and support.</param>
     /// <param name="vehicleRules">Registered per-vehicle movement tuning.</param>
+    /// <param name="oilTriggers">New entries staged in this authoritative batch.</param>
     /// <returns>Validated candidate match state.</returns>
-    internal static MatchState Advance(MatchState previous, MatchConfiguration configuration, ulong tick, IReadOnlyList<VehicleStepResult> results, IReadOnlyDictionary<ulong, VehicleSnapshot> previousVehicles, Func<ulong, VehicleConfiguration> vehicleRules)
+    internal static MatchState Advance(MatchState previous, MatchConfiguration configuration, ulong tick, IReadOnlyList<VehicleStepResult> results, IReadOnlyDictionary<ulong, VehicleSnapshot> previousVehicles, Func<ulong, VehicleConfiguration> vehicleRules, IReadOnlyList<Items.OilTrigger>? oilTriggers = null)
     {
         if (previous.Phase == MatchPhase.Finished)
         {
@@ -129,6 +130,21 @@ internal static class MatchAuthority
             if (lifecycle.Phase == GameLoopPhase.Finished)
             {
                 break;
+            }
+        }
+
+        // Retained Oil owners need a score identity, not a living or connected vehicle.
+        if (configuration.Mode == MatchMode.Circus && lifecycle.AllowsGameplay)
+        {
+            foreach (var trigger in (oilTriggers ?? []).Distinct())
+            {
+                var target = results.Single(result => result.Snapshot.VehicleId == trigger.Vehicle);
+                if (trigger.Owner != trigger.Vehicle && scores.TryGetValue(trigger.Owner, out var owner) &&
+                    !target.Reset && target.Snapshot.CanInteract && target.Snapshot.LifeId == trigger.Life &&
+                    target.Snapshot.Movement.OilTicks == 120)
+                {
+                    scores[trigger.Owner] = CircusScoring.Bank(owner, 50, awards, CircusScoreCategory.Oil);
+                }
             }
         }
 

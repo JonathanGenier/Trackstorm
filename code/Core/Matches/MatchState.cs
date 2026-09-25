@@ -6,6 +6,9 @@ public sealed class MatchState
     /// <summary>Bound on lifetime participants, including departed players, for reliable packet sizing.</summary>
     public const int MaximumPlayers = 256;
 
+    /// <summary>Seven existing sources for eight vehicles plus up to 32 retained Oil owners.</summary>
+    public const int MaximumAwards = 88;
+
     /// <summary>Copies and validates a complete match boundary before it can be published.</summary>
     /// <param name="tick">Simulation tick of the latest match change.</param>
     /// <param name="revision">Monotonic publication identity.</param>
@@ -39,7 +42,7 @@ public sealed class MatchState
             deaths.Length > 8 || deaths.Select(death => death.Victim).Distinct().Count() != deaths.Length ||
             deaths.Any(death => death.Life == 0 || !scores.Any(player => player.Player == death.Victim && player.Deaths > 0 && player.ProcessedLife == death.Life) ||
                 (death.Killer != 0 && (death.Killer == death.Victim || !scores.Any(player => player.Player == death.Killer && player.Kills > 0)))) ||
-            scoreAwards.Length > 56 || scoreAwards.Any(award => award.Player == 0 || !Enum.IsDefined(award.Category) || !double.IsFinite(award.Points) || award.Points <= 0 || !scores.Any(player => player.Player == award.Player)) ||
+            scoreAwards.Length > MaximumAwards || scoreAwards.Any(award => award.Player == 0 || !Enum.IsDefined(award.Category) || !double.IsFinite(award.Points) || award.Points <= 0 || !scores.Any(player => player.Player == award.Player)) ||
             scoreAwards.Select(award => (award.Player, award.Category)).Distinct().Count() != scoreAwards.Length ||
             scoreAwards.GroupBy(award => award.Player).Any(group => !double.IsFinite(group.Sum(award => award.Points)) || group.Sum(award => award.Points) > scores.Single(player => player.Player == group.Key).CircusScore))
         {
