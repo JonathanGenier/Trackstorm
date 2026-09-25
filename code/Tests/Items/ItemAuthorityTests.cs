@@ -255,7 +255,7 @@ internal sealed class ItemAuthorityTests
         Assert.Throws<ArgumentException>(() => ItemCodec.DecodeState(bytes.Concat(new byte[] { 0 }).ToArray()));
         bytes[2] = 99;
         Assert.Throws<ArgumentException>(() => ItemCodec.DecodeState(bytes));
-        Assert.That(ItemCodec.DecodeUse(ItemCodec.EncodeUse(99, 1, 4)), Is.EqualTo((99ul, 1ul, 4ul)));
+        Assert.That(ItemCodec.DecodeUse(ItemCodec.EncodeUse(99, 1, 4)), Is.EqualTo((99ul, 1ul, 4ul, (uint?)null)));
         Assert.Throws<ArgumentException>(() => ItemCodec.DecodeUse(new byte[28]));
         Assert.Throws<ArgumentException>(() => new ItemAuthority(new ItemConfiguration { MissileSpeed = float.NaN }));
     }

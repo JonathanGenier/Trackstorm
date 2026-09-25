@@ -193,8 +193,8 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 Require(_arenas[1].LocalState!.Movement.Nitro == nitro, "Nitro restored exactly before prediction.");
                 if (_resyncs <= 3)
                 {
-                    Require(_resyncs == 1 ? !nitro.Active : nitro is { RemainingTicks: > 0 and < 3600 }, "Long offline expiry and active short reconnect preserve Nitro duration.");
-                    GD.Print($"Nitro reconnect {_resyncs}: remaining {nitro.RemainingTicks}, exact checkpoint state.");
+                    Require(!nitro.Active && _arenas[1].Driver.LocalItem?.NitroCharge == 37.5, "Offline neutral input preserves exact partial Nitro charge across all reconnects.");
+                    GD.Print($"Nitro reconnect {_resyncs}: remaining {nitro.RemainingTicks}, exact checkpoint state and returning player charge 37.5%.");
                 }
                 var camera = _arenas[1].GetNode<Vehicles.VehicleChaseCamera>("ChaseCamera");
                 var cameraPose = _arenas[1].Bodies[_player].VisualTransform;
@@ -264,7 +264,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             GD.Print("Category pickup history before reconnect: " + _categoryHistory);
             _oil = OilRecoveryFixture.Seed(_arenas[0]);
             _mine = ProxyMineRecoveryFixture.Seed(_arenas[0], _arenas);
-            Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["match.nitro_points_per_second"] = 0 }, out _), "Disable duration score only in the retention fixture to preserve its fixed rank assertions.");
+            Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["match.nitro_points_per_second"] = 0 }, out _), "Disable overspeed score only in the retention fixture to preserve its fixed rank assertions.");
             NitroRecoveryFixture.Seed(_arenas[0], _player);
             _originalBody = _arenas[1].Bodies[_player];
             SetScores(false);
@@ -272,7 +272,6 @@ public sealed partial class ReconnectIntegrationChecks : Node
             _retainedRank = Standings()!.Rows.Single(row => row.PlayerId == _player).Rank;
             _resumeAt = _elapsed + 125;
             Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["environment.preset"] = (int)Core.Development.EnvironmentPreset.EmberSky, ["vehicle.acceleration"] = 7, ["damage.max_hp"] = 1500, ["items.missile_speed"] = 60, ["spawns.cooldown_ticks"] = 90 }, out _), "Live host configuration commits before interruption.");
-            _arenas[0].Driver.Host!.Items.Grant(_arenas[0].Driver.Host!.World, _player, HeldItem.Oil);
             _arenas[0].Driver.Host!.Items.Grant(_arenas[0].Driver.Host!.World, _player, HeldItem.Wrench);
             Require(_arenas[0].Driver.Host!.Items.Switch(_arenas[0].Driver.Host!.World, _player, _arenas[0].Driver.Host!.World.GetVehicle(_player).LifeId, 1), "Select second slot before reconnect.");
             Drop();
@@ -291,7 +290,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             RemoteVehicleTagChecks.Verify(_arenas[1], _client);
             Require(_arenas[0].Bodies[_player].GetNode<RemoteVehicleTag>("PlayerTag") == _originalTag, "Three reconnects retain exactly the same remote tag.");
             Require(_arenas[1].Driver.ItemState!.Patches.Count == 1 && _arenas[1].Driver.ItemState!.Patches.Single() == _oil, "Complete persistent Oil patch survives each native reconnect without duplication.");
-            Require(_arenas[1].Driver.LocalItem?.Item == HeldItem.Oil, "Oil identity survives match-long retention and three reconnects.");
+            Require(_arenas[1].Driver.LocalItem is { Item: HeldItem.Nitro, NitroCharge: 37.5 }, "Returning player retains partial Nitro through match-long retention and three reconnects.");
             Require(_arenas[1].Driver.LocalItem is { SecondItem: HeldItem.Wrench, ActiveSlot: 1, SelectionRevision: 1 }, "Second slot and selection survive reconnect exactly.");
             Require(_arenas[1].Driver.ItemState?.Spawns.Count == 27 && _arenas[1].Driver.Match?.Players.Count == 2, "Twenty-seven-marker map pickup layout and match state arrive in the checkpoint.");
             Require(CategoryBalanceRecoveryFixture.Signature(_arenas[1].Driver.ItemState!.Balances) == _categoryHistory, "Reconnect retains exact per-player credits, counts and last selection.");

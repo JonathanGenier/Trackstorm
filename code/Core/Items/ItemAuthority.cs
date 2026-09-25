@@ -11,7 +11,7 @@ public sealed class ItemAuthority
     /// <summary>Bounds simultaneous blast batches within the existing 16 KiB vehicle envelope.</summary>
     public const int MaximumProjectiles = 16;
     private readonly Dictionary<ulong, ItemSlot> _slots = new();
-    private readonly Dictionary<ulong, ulong> _pending = new();
+    private readonly Dictionary<ulong, (ulong Token, ulong Expires, uint? InputSequence)> _pending = new();
     private readonly List<MissileState> _missiles = new();
     /// <summary>Portable hard ceiling on match hazards.</summary>
     public const int MaximumPatches = 32;
@@ -120,8 +120,8 @@ public sealed class ItemAuthority
         if (inventory is null || inventory.Life != state.LifeId) { inventory = new(vehicle, state.LifeId, 0, HeldItem.None); }
         ulong token = checked(++_token);
         _slots[vehicle] = inventory.Item == HeldItem.None
-            ? inventory with { Token = token, Item = item }
-            : inventory with { SecondToken = token, SecondItem = item };
+            ? inventory with { Token = token, Item = item, NitroCharge = item == HeldItem.Nitro ? 100 : 0 }
+            : inventory with { SecondToken = token, SecondItem = item, SecondNitroCharge = item == HeldItem.Nitro ? 100 : 0 };
         Revision++;
         if (!pickup)
         {
@@ -137,12 +137,13 @@ public sealed class ItemAuthority
     /// <param name="vehicle">Identity resolved from the actual transport sender.</param>
     /// <param name="life">Requested life generation.</param>
     /// <param name="token">Exact ownership token observed by the player.</param>
-    public bool RequestUse(Simulation.Simulation world, ulong vehicle, ulong life, ulong token)
+    /// <param name="inputSequence">Optional originating input sequence, binding remote sustained activation to its captured frame.</param>
+    public bool RequestUse(Simulation.Simulation world, ulong vehicle, ulong life, ulong token, uint? inputSequence = null)
     {
         VehicleSnapshot? state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
         return state is not null && state.CanInteract && state.LifeId == life &&
             _slots.TryGetValue(vehicle, out var slot) && slot.Life == life && slot.Active.Token == token && ItemRegistry.Find(slot.Active.Item)?.CanUse == true &&
-            _pending.TryAdd(vehicle, token);
+            _pending.TryAdd(vehicle, (token, checked(world.State.Tick + 15), inputSequence));
     }
 
     /// <summary>Switches the sender's selected slot once per ordered, life-scoped command.</summary>
@@ -152,7 +153,7 @@ public sealed class ItemAuthority
         if (state is null || !state.CanInteract || state.LifeId != life || revision == 0) { return false; }
         var inventory = _slots.GetValueOrDefault(vehicle) ?? new ItemSlot(vehicle, life, 0, HeldItem.None);
         if (inventory.Life != life || revision <= inventory.SelectionRevision) { return false; }
-        _slots[vehicle] = inventory with { ActiveSlot = (byte)(inventory.ActiveSlot ^ ((revision - inventory.SelectionRevision) & 1)), SelectionRevision = revision };
+        _slots[vehicle] = inventory with { ActiveSlot = (byte)(inventory.ActiveSlot ^ ((revision - inventory.SelectionRevision) & 1)), SelectionRevision = revision, EngagedToken = 0 };
         Revision++;
         return true;
     }
@@ -165,7 +166,8 @@ public sealed class ItemAuthority
     /// <param name="placeOil">Host-only ground projection; null rejects deployment.</param>
     /// <param name="placeMine">Host terrain installation query.</param>
     /// <param name="moveMine">Host sweep and contact query.</param>
-    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null)
+    /// <param name="acknowledgedInputs">Host-consumed remote input sequences; never client-authored acknowledgements.</param>
+    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null)
     {
         var slots = new Dictionary<ulong, ItemSlot>(_slots);
         var missiles = new List<MissileState>(_missiles);
@@ -177,6 +179,7 @@ public sealed class ItemAuthority
         var journal = new List<RuntimeEvent>();
         var repair = new Dictionary<ulong, float>();
         var boosts = new Dictionary<ulong, NitroState>();
+        var waiting = new Dictionary<ulong, (ulong Token, ulong Expires, uint? InputSequence)>();
         var effects = requests.ToDictionary(request => request.VehicleId, request => request.Effects.ToList());
         foreach (var pair in slots.ToArray())
         {
@@ -195,12 +198,36 @@ public sealed class ItemAuthority
             }
 
             // Use is bound to the selection at request acceptance, even if a later switch arrives before the step.
-            byte usedIndex = inventory.Token == pair.Value ? (byte)0 : (byte)1;
+            byte usedIndex = inventory.Token == pair.Value.Token ? (byte)0 : (byte)1;
             ItemSlot slot = (inventory with { ActiveSlot = usedIndex }).Active;
-            if (slot.Token != pair.Value || slot.Item == HeldItem.None) { continue; }
+            if (slot.Token != pair.Value.Token || slot.Item == HeldItem.None) { continue; }
             VehicleStepRequest request = requests.Single(value => value.VehicleId == pair.Key);
             var handler = ItemRegistry.Find(slot.Item)?.Handler;
-            if (request.Reset.HasValue || handler is null || (slot.Item == HeldItem.Nitro && (world.GetVehicle(slot.Vehicle).Movement.Nitro.Active || world.State.Match is { Phase: not Matches.MatchPhase.Active })) ||
+            if (slot.Item == HeldItem.Nitro)
+            {
+                // Tie network presses to their input boundary so a rapid re-press cannot be
+                // consumed by the preceding held/release frame on the other delivery channel.
+                if (pair.Value.InputSequence is uint sequence && acknowledgedInputs is not null &&
+                    Networking.Replication.NetworkSequence.IsNewer(sequence, acknowledgedInputs.GetValueOrDefault(pair.Key)))
+                {
+                    if (input.Tick < pair.Value.Expires) { waiting.Add(pair.Key, pair.Value); }
+                    continue;
+                }
+                // Reliable use and sequenced driving input can arrive in either order.
+                if ((request.Input.Held & InputButtons.UseItem) == 0 && (request.Input.Released & InputButtons.UseItem) == 0 && input.Tick < pair.Value.Expires)
+                {
+                    waiting.Add(pair.Key, pair.Value);
+                }
+                if (!request.Reset.HasValue && inventory.Active.Token == slot.Token &&
+                    world.State.Match is not { Phase: not Matches.MatchPhase.Active } &&
+                    (request.Input.Held & InputButtons.UseItem) != 0 && inventory.EngagedToken != slot.Token)
+                {
+                    slots[pair.Key] = inventory with { EngagedToken = slot.Token };
+                    events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, request.Observation.Physics.Position, false));
+                }
+                continue;
+            }
+            if (request.Reset.HasValue || handler is null ||
                 !handler.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts, mines, moveMine is null ? null : placeMine))
             {
                 continue;
@@ -208,6 +235,28 @@ public sealed class ItemAuthority
 
             events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, request.Observation.Physics.Position, false));
             slots[pair.Key] = usedIndex == 0 ? inventory with { Item = HeldItem.None } : inventory with { SecondItem = HeldItem.None };
+        }
+
+        foreach (var request in requests)
+        {
+            if (!slots.TryGetValue(request.VehicleId, out var inventory)) { continue; }
+            var slot = inventory.Active;
+            bool engaged = slot.Item == HeldItem.Nitro && inventory.EngagedToken == slot.Token &&
+                world.GetVehicle(slot.Vehicle).CanInteract && !request.Reset.HasValue &&
+                world.State.Match is not { Phase: not Matches.MatchPhase.Active } &&
+                (request.Input.Held & InputButtons.UseItem) != 0;
+            if (!engaged)
+            {
+                slots[request.VehicleId] = inventory with { EngagedToken = 0 };
+                continue;
+            }
+            ItemRegistry.Find(HeldItem.Nitro)!.Handler!.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts);
+            double remaining = Math.Max(0, slot.NitroCharge - Configuration.NitroConsumptionPerSecond / 60);
+            if (remaining < 1e-9) { remaining = 0; }
+            slots[request.VehicleId] = inventory.ActiveSlot == 0
+                ? inventory with { NitroCharge = remaining, Item = remaining == 0 ? HeldItem.None : HeldItem.Nitro, EngagedToken = remaining == 0 ? 0 : inventory.EngagedToken }
+                : inventory with { SecondNitroCharge = remaining, SecondItem = remaining == 0 ? HeldItem.None : HeldItem.Nitro, EngagedToken = remaining == 0 ? 0 : inventory.EngagedToken };
+            if (remaining == 0) { boosts.Remove(request.VehicleId); journal.Add(new RuntimeEvent { Category = EventCategory.Item, Kind = "Exhausted", Actor = slot.Vehicle, Cause = "Nitro", Tick = input.Tick }); }
         }
 
         if (world.State.Match?.Phase != Matches.MatchPhase.Finished)
@@ -291,7 +340,7 @@ public sealed class ItemAuthority
             }
         }
 
-        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, request.Observation, effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, spins.GetValueOrDefault(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro)).ToArray(), journal.Concat(events.Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray());
+        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, request.Observation, effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, spins.GetValueOrDefault(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro || !boosts.ContainsKey(request.VehicleId))).ToArray(), journal.Concat(events.Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray());
         foreach (var pair in slots.ToArray())
         {
             VehicleSnapshot state = world.GetVehicle(pair.Key);
@@ -301,7 +350,7 @@ public sealed class ItemAuthority
             }
             else if (state.LifeId != pair.Value.Life)
             {
-                slots[pair.Key] = pair.Value with { Life = state.LifeId, Token = pair.Value.Token == 0 ? 0 : checked(++_token), SecondToken = pair.Value.SecondToken == 0 ? 0 : checked(++_token), SelectionRevision = 0 };
+                slots[pair.Key] = pair.Value with { Life = state.LifeId, Token = pair.Value.Token == 0 ? 0 : checked(++_token), SecondToken = pair.Value.SecondToken == 0 ? 0 : checked(++_token), SelectionRevision = 0, EngagedToken = 0 };
             }
         }
 
@@ -340,6 +389,7 @@ public sealed class ItemAuthority
         _contacts.Clear();
         _contacts.AddRange(contacts);
         _pending.Clear();
+        foreach (var pending in waiting) { _pending.Add(pending.Key, pending.Value); }
         Events = events.AsReadOnly();
         if (changed)
         {

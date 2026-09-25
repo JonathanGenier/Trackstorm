@@ -4,7 +4,7 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-seven reliable item protocol. Requests carry no claimed player or outcome.</summary>
+/// <summary>Bounded version-eight reliable item protocol. Requests carry no claimed player or outcome.</summary>
 public static class ItemCodec
 {
     /// <summary>Recognizes only this protocol's magic; complete decode remains mandatory.</summary>
@@ -37,7 +37,8 @@ public static class ItemCodec
     /// <param name="life">Vehicle life.</param>
     /// <param name="token">Granted item token.</param>
     /// <returns>Reliable use bytes.</returns>
-    public static byte[] EncodeUse(ulong session, ulong life, ulong token) => Write(1, writer =>
+    /// <param name="inputSequence">Optional originating input sequence, binding remote sustained activation to its captured frame.</param>
+    public static byte[] EncodeUse(ulong session, ulong life, ulong token, uint? inputSequence = null) => Write(1, writer =>
     {
         if (session == 0 || life == 0 || token == 0)
         {
@@ -47,14 +48,22 @@ public static class ItemCodec
         writer.Write(session);
         writer.Write(life);
         writer.Write(token);
+        writer.Write(inputSequence.HasValue);
+        writer.Write(inputSequence.GetValueOrDefault());
     });
 
     /// <summary>Decodes use intent without trusting client identity.</summary>
     /// <param name="bytes">Complete request.</param>
     /// <returns>Generation, life and token.</returns>
-    public static (ulong Session, ulong Life, ulong Token) DecodeUse(ReadOnlySpan<byte> bytes) => Read(bytes, 1, reader =>
+    public static (ulong Session, ulong Life, ulong Token, uint? InputSequence) DecodeUse(ReadOnlySpan<byte> bytes) => Read(bytes, 1, reader =>
     {
-        var value = (Session: reader.ReadUInt64(), Life: reader.ReadUInt64(), Token: reader.ReadUInt64());
+        ulong session = reader.ReadUInt64();
+        ulong life = reader.ReadUInt64();
+        ulong token = reader.ReadUInt64();
+        bool sequenced = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid input sequence flag.") };
+        uint sequence = reader.ReadUInt32();
+        if (!sequenced && sequence != 0) { throw new ArgumentException("Invalid unsequenced use."); }
+        var value = (Session: session, Life: life, Token: token, InputSequence: sequenced ? (uint?)sequence : null);
         if (value.Session == 0 || value.Life == 0 || value.Token == 0)
         {
             throw new ArgumentException("Invalid use capability.");
@@ -96,6 +105,9 @@ public static class ItemCodec
             writer.Write((byte)slot.SecondItem);
             writer.Write(slot.ActiveSlot);
             writer.Write(slot.SelectionRevision);
+            writer.Write(slot.NitroCharge);
+            writer.Write(slot.SecondNitroCharge);
+            writer.Write(slot.EngagedToken);
         }
 
         writer.Write((byte)state.Missiles.Count);
@@ -186,7 +198,7 @@ public static class ItemCodec
         for (int i = 0; i < slots.Length; i++)
         {
             slots[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), (HeldItem)reader.ReadByte())
-            { SecondToken = reader.ReadUInt64(), SecondItem = (HeldItem)reader.ReadByte(), ActiveSlot = reader.ReadByte(), SelectionRevision = reader.ReadUInt64() };
+            { SecondToken = reader.ReadUInt64(), SecondItem = (HeldItem)reader.ReadByte(), ActiveSlot = reader.ReadByte(), SelectionRevision = reader.ReadUInt64(), NitroCharge = reader.ReadDouble(), SecondNitroCharge = reader.ReadDouble(), EngagedToken = reader.ReadUInt64() };
         }
 
         var missiles = new MissileState[Count(reader, ItemAuthority.MaximumProjectiles)];
@@ -248,7 +260,7 @@ public static class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 7, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 8, kind });
         encode(writer);
         if (stream.Length > 32768)
         {
@@ -260,7 +272,7 @@ public static class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 7 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 8 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }

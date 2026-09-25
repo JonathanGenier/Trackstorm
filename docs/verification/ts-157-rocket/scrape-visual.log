@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.78 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+practice-oval-rocket: contactTicks=283, sections=133, speed=1.01, hp=1000.0, peakAngular=0.58, peakSupportSpeed=0.25
+practice-oval-rocket: start 17.81, boosted 30.24, released 11.38, boost/release contacts 140/77
+network-oval-rocket: contactTicks=261, sections=160, speed=2.84, hp=1000.0, peakAngular=0.44, peakSupportSpeed=0.30
+network-oval-rocket: start 19.65, boosted 33.49, released 15.65, boost/release contacts 140/54
+Environment collision checks: failures=0

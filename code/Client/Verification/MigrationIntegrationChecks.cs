@@ -314,8 +314,8 @@ public sealed partial class MigrationIntegrationChecks : Node
                     Require(_circusBoundaries.TryGetValue(restored.Revision, out var original) && restored.Players.SequenceEqual(original.Players), "Selected checkpoint restores exact Circus score, K/D, streak and pending flight state.");
                     Require(restored.Mode == Core.Matches.MatchMode.Circus && restored.Players.All(row => row.CircusScore > 0 && row.Stunts is not null), "Migration retains the configured Circus mode and unbanked stunts.");
                     Require(_arenas[survivor]!.Driver.LocalState is not null &&
-                        _arenas[survivor]!.Driver.Latest!.Vehicles.Single(v => v.State.VehicleId == _nitroOwner).State.Movement.Nitro.Active,
-                        "Active Nitro survives selected checkpoint installation.");
+                        _arenas[survivor]!.Driver.ItemState!.Slots.Single(s => s.Vehicle == _nitroOwner).NitroCharge == 37.5,
+                        "Partial Nitro charge survives selected checkpoint installation.");
                     Require(restored.Awards.Count == 0 && restored.Changes.Count == 0, "Migration does not replay prior Circus awards.");
                 }
             };
@@ -342,8 +342,8 @@ public sealed partial class MigrationIntegrationChecks : Node
             Require(arena.Driver.ItemState!.Patches.Count == 1 && arena.Driver.ItemState.Patches.Single() == _oil && arena.Driver.Host!.Items.Patches.Single() == _oil, "Persistent Oil survives host replacement exactly once, including departed owner.");
             if (_players == 3)
             {
-                Require(arena.Driver.Host!.World.GetVehicle(_nitroOwner).Movement.Nitro is { RemainingTicks: > 0 and < 3600, AccelerationMultiplier: 2, SpeedMultiplier: 1.4f }, "Nitro continues without restarting after host migration.");
-                GD.Print("Nitro migration verified: active timer and multipliers retained; Circus totals restore without historical awards.");
+                Require(!arena.Driver.Host!.World.GetVehicle(_nitroOwner).Movement.Nitro.Active && arena.Driver.Host.Items.Slots.Single(s => s.Vehicle == _nitroOwner).NitroCharge == 37.5, "Nitro charge remains intact and inactive without held input after migration.");
+                GD.Print("Nitro migration verified: partial charge retained without unwanted activation; Circus totals restore without historical awards.");
             }
             Require(arena.Driver.Host!.Items.Mines.Single().Id == _mine && arena.Driver.ItemState!.Mines.Single().Id == _mine, "Proxy Mine survives host replacement exactly once.");
             GD.Print("Proxy Mine migration verified: same hazard survives authority replacement.");

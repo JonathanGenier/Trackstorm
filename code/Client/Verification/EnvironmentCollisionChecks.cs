@@ -95,10 +95,11 @@ public sealed partial class EnvironmentCollisionChecks : Node3D
         for (int tick = 0; tick < ticks; tick++)
         {
             await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
-            var input = new InputFrame(world.State.Tick + 1, 0, name.StartsWith("nitro", StringComparison.Ordinal) ? ushort.MaxValue : (ushort)0, 0, 0, 0, 0);
+            bool nitro = name.StartsWith("nitro", StringComparison.Ordinal);
+            var input = new InputFrame(world.State.Tick + 1, 0, nitro ? ushort.MaxValue : (ushort)0, 0, nitro ? InputButtons.UseItem : 0, 0, 0);
             VehicleObservation observation = network ? proxy!.Observe(world.GetVehicle(1)) : body!.Capture(input).Observation;
             if (observation.Contacts.Any(contact => contact.StaticObstacle)) { contactTicks++; }
-            var request = new VehicleStepRequest(1, input, observation, nitro: tick == 0 && name.StartsWith("nitro", StringComparison.Ordinal) ? new NitroState(300, 2, 1.4f) : default);
+            var request = new VehicleStepRequest(1, input, observation, nitro: tick == 0 && nitro ? new NitroState(300, 18000, 1.4f, 1) : default);
             var result = world.Step(input, [request])[0];
             if (network) { proxy!.Apply(result.Snapshot); } else { body!.Apply(result); }
             var p = observation.Physics;

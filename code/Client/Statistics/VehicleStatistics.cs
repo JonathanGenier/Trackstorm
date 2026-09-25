@@ -25,7 +25,7 @@ internal static class VehicleStatistics
         var wheels = movement.Wheels.Compression;
         var slot = slots?.SingleOrDefault(value => value.Vehicle == state.VehicleId && value.Life == state.LifeId);
         string item = slots is null ? "Unavailable" : !state.CanInteract ? "Inactive" : $"{slot?.Active.Item ?? HeldItem.None} · Slots: {slot?.Item ?? HeldItem.None} / {slot?.SecondItem ?? HeldItem.None} · Active: {(slot?.ActiveSlot ?? 0) + 1}";
-        string combat = $"Held item: {item} · Can interact: {state.CanInteract}\nOil traction remaining: {movement.OilTicks / 60f:0.00} s\nNitro remaining: {movement.Nitro.RemainingTicks / 60f:0.00} s · Acceleration ×{movement.Nitro.AccelerationMultiplier:0.0} · Speed ×{movement.Nitro.SpeedMultiplier:0.0}\n" +
+        string combat = $"Held item: {item} · Can interact: {state.CanInteract}\nOil traction remaining: {movement.OilTicks / 60f:0.00} s\nNitro charge: {slot?.NitroCharge ?? 0:0.0}% / {slot?.SecondNitroCharge ?? 0:0.0}% · Boost active: {movement.Nitro.Active} · Recovering: {movement.Nitro.Recovering} · Thrust {movement.Nitro.ForwardThrust:0} N · Air ×{movement.Nitro.AirborneThrustScale:0.0} · Speed ×{movement.Nitro.SpeedMultiplier:0.0}\n" +
                 (damage.LastDamage is { } hit ? FormattableString.Invariant($"Last damage: {hit.Amount:0.##} HP at tick {hit.Tick}; instigator vehicle {hit.Attribution.InstigatorId}\n") : "Last damage: none this life\n") +
                 $"Last damaging collision tick: {damage.LastCollisionTick?.ToString(CultureInfo.InvariantCulture) ?? "none"}\nRespawn: {(state.RespawnAtTick is { } deadline ? Remaining(deadline, tick) : "No pending deadline")}";
         return

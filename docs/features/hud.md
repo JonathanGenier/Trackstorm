@@ -40,4 +40,4 @@ Core tests exercise configured capacities through join, wire round-trip and pred
 
 [Feature index](README.md)
 
-A compact registry-named Nitro countdown appears above speed while the local vehicle's restored/predicted movement state is boosted. Inventory, health and speed remain visible. The existing Circus feedback list accepts the authoritative Nitro award category; all score calculations remain in Core.
+Each held Nitro slot shows its own authoritative remaining percentage beneath the Nitro name; full, partial and EMPTY exhaustion use the existing fixed-slot frame. The icon is shortened within that frame to keep both lines legible. A compact NITRO BOOST indication appears above speed only while the local vehicle is boosted. Inventory, health and speed remain visible. The existing Circus feedback list accepts the authoritative Nitro award category; all score calculations remain in Core.

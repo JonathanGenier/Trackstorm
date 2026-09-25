@@ -15,12 +15,15 @@ public sealed record ItemConfiguration
     public float MineFalloff { get; init; } = 2.5f;
     /// <summary>Contact impulse in Newton seconds.</summary>
     public float MineKnockback { get; init; } = 24000;
-    /// <summary>Boost duration at the fixed simulation rate; captured when consumed.</summary>
-    public int NitroDurationTicks { get; init; } = 300;
-    /// <summary>Forward engine demand multiplier while boosted.</summary>
-    public float NitroAccelerationMultiplier { get; init; } = 2;
+    /// <summary>Percentage points consumed per second of held use.</summary>
+    public double NitroConsumptionPerSecond { get; init; } = 20;
+    /// <summary>Independent forward thrust in newtons, unaffected by throttle or tire traction.</summary>
+    public float NitroForwardThrust { get; init; } = 18000;
     /// <summary>Forward drive cap multiplier, still bounded by vehicle physics safety limits.</summary>
     public float NitroSpeedMultiplier { get; init; } = 1.4f;
+
+    /// <summary>Fraction of rocket thrust available without driveable wheel support; zero disables airborne thrust.</summary>
+    public float NitroAirborneThrustScale { get; init; } = 1;
 
     /// <summary>Maximum persistent patches; lowering this cap never deletes existing hazards.</summary>
     public int MaximumOilPatches { get; init; } = 16;
@@ -48,8 +51,8 @@ public sealed record ItemConfiguration
             !float.IsFinite(MineFalloff) || MineFalloff is < 1 or > 8 ||
             !float.IsFinite(MineKnockback) || MineKnockback is < 0 or > 1000000)
         { throw new ArgumentException("Invalid Proxy Mine tuning."); }
-        new Vehicles.NitroState(NitroDurationTicks, NitroAccelerationMultiplier, NitroSpeedMultiplier).Validate();
-        if (NitroDurationTicks == 0) { throw new ArgumentException("Nitro requires a positive duration."); }
+        new Vehicles.NitroState(1, NitroForwardThrust, NitroSpeedMultiplier, NitroAirborneThrustScale).Validate();
+        if (!double.IsFinite(NitroConsumptionPerSecond) || NitroConsumptionPerSecond is < 2 or > 6000) { throw new ArgumentException("Nitro consumption must be 2–6000 percentage points per second."); }
         if (MaximumOilPatches is < 1 or > ItemAuthority.MaximumPatches || !float.IsFinite(WrenchHeal) || WrenchHeal < 0 || WrenchHeal > 10000 ||
             !float.IsFinite(MissileSpeed) || MissileSpeed <= 0 || MissileSpeed > 300 ||
             MissileLifetimeTicks is < 1 or > 3600 || !float.IsFinite(ExplosionRadius) || ExplosionRadius <= 0 || ExplosionRadius > 100 ||

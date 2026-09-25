@@ -1,0 +1,33 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.78 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Rocket scenario 0: start 0.00, forward 17.74 m/s; charge 79.67%; Circus zero.
+Rocket scenario 1: start 8.69, forward 24.25 m/s; charge 79.67%; Circus zero.
+Rocket scenario 2: start 4.45, forward 33.49 m/s; charge 79.67%; Circus zero.
+Rocket scenario 3: start 2.77, forward 6.42 m/s; charge 79.67%; Circus zero.
+Rocket scenario 4: start 0.00, forward 20.33 m/s; charge 79.67%; Circus zero.
+Rocket scenario 5: start 0.00, forward -0.00 m/s; charge 79.67%; Circus zero.
+Rocket scenarios complete; normal-drive and sustained-resource comparison begins.
+Normal drive settles at 44.44 m/s; both players request Nitro.
+Both peers sustain Nitro; charge drains while Wrench remains in the second slot.
+Boost reaches 62.22 m/s; released at 35.33% charge.
+Release recovery remains at 60.72 m/s with continuing authoritative overspeed awards.
+Recovery reaches normal speed and overspeed scoring stops; reuse begins with retained charge.
+Second activation drains the same grant tokens, followed by another release.
+Third activation continues until resource exhaustion.
+Both Nitro resources reach zero and clear only their physical slots.
+Nitro integration passed: Rocket scenario 0: start 0.00, forward 17.74 m/s; charge 79.67%; Circus zero.
+Rocket scenario 1: start 8.69, forward 24.25 m/s; charge 79.67%; Circus zero.
+Rocket scenario 2: start 4.45, forward 33.49 m/s; charge 79.67%; Circus zero.
+Rocket scenario 3: start 2.77, forward 6.42 m/s; charge 79.67%; Circus zero.
+Rocket scenario 4: start 0.00, forward 20.33 m/s; charge 79.67%; Circus zero.
+Rocket scenario 5: start 0.00, forward -0.00 m/s; charge 79.67%; Circus zero.
+Rocket scenarios complete; normal-drive and sustained-resource comparison begins.
+Normal drive settles at 44.44 m/s; both players request Nitro.
+Both peers sustain Nitro; charge drains while Wrench remains in the second slot.
+Boost reaches 62.22 m/s; released at 35.33% charge.
+Release recovery remains at 60.72 m/s with continuing authoritative overspeed awards.
+Recovery reaches normal speed and overspeed scoring stops; reuse begins with retained charge.
+Second activation drains the same grant tokens, followed by another release.
+Third activation continues until resource exhaustion.
+Both Nitro resources reach zero and clear only their physical slots.

@@ -132,9 +132,11 @@ internal sealed partial class CombatHud : CanvasLayer
             _health.Text = view.Health;
             _speed.Text = view.Speed;
             _unit.Text = view.Unit;
-            _itemName.Text = view.ItemName;
+            SetItemLabel(_itemName, view.ItemName, view.Item);
+            _itemIcon.Size = new Vector2(70, view.Item == HeldItem.Nitro ? 38 : 55);
             _itemIcon.Texture = _itemIcons.GetValueOrDefault(view.Item);
-            _secondItemName.Text = view.SecondItemName;
+            SetItemLabel(_secondItemName, view.SecondItemName, view.SecondItem);
+            _secondItemIcon.Size = new Vector2(70, view.SecondItem == HeldItem.Nitro ? 38 : 55);
             _secondItemIcon.Texture = _itemIcons.GetValueOrDefault(view.SecondItem);
             _firstSelection.Text = view.ActiveSlot == 0 ? "1 • ACTIVE" : "1";
             _secondSelection.Text = view.ActiveSlot == 1 ? "2 • ACTIVE" : "2";
@@ -145,7 +147,7 @@ internal sealed partial class CombatHud : CanvasLayer
         }
 
         _nitro.Visible = state.Movement.Nitro.Active;
-        _nitro.Text = $"{ItemRegistry.Find(HeldItem.Nitro)!.DisplayName.ToUpperInvariant()}  {state.Movement.Nitro.RemainingTicks / 60f:0.0}s";
+        _nitro.Text = "NITRO BOOST";
         ulong player = Player();
         CircusHudView? score = null;
         foreach (MatchState update in MatchUpdates())
@@ -154,6 +156,15 @@ internal sealed partial class CombatHud : CanvasLayer
         }
 
         RenderCircusScore(_scoreFeedback.Project(Match(), player, _milliseconds) ?? score);
+    }
+
+    private static void SetItemLabel(Label label, string name, HeldItem item)
+    {
+        bool charge = item == HeldItem.Nitro;
+        label.Text = charge ? name.Replace(" ", "\n", StringComparison.Ordinal) : name;
+        label.Position = new Vector2(17, charge ? 88 : 111);
+        label.Size = new Vector2(84, charge ? 40 : 22);
+        label.AddThemeFontSizeOverride("font_size", charge ? 16 : 18);
     }
 
     private TextureRect Component(string name, Vector2 size, int kind, Texture2D steel)

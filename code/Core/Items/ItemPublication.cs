@@ -24,6 +24,8 @@ public sealed class ItemPublication
         var outcomes = events.ToArray();
         if (revision == 0 || inventory.Length > 8 || inventory.Select(slot => slot.Vehicle).Distinct().Count() != inventory.Length ||
             inventory.Any(slot => slot.ActiveSlot > 1 ||
+                !ValidCharge(slot.Item, slot.NitroCharge) || !ValidCharge(slot.SecondItem, slot.SecondNitroCharge) ||
+                (slot.EngagedToken != 0 && (slot.Active.Item != HeldItem.Nitro || slot.EngagedToken != slot.Active.Token)) ||
                 (slot.Token == 0 && slot.Item != HeldItem.None) || (slot.SecondToken == 0 && slot.SecondItem != HeldItem.None) ||
                 (slot.Item != HeldItem.None && ItemRegistry.Find(slot.Item) is null) || (slot.SecondItem != HeldItem.None && ItemRegistry.Find(slot.SecondItem) is null) ||
                 !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == slot.Vehicle && vehicle.State.LifeId == slot.Life)) ||
@@ -79,6 +81,9 @@ public sealed class ItemPublication
         Missiles = Array.AsReadOnly(projectiles);
         Events = Array.AsReadOnly(outcomes);
     }
+
+    private static bool ValidCharge(HeldItem item, double charge) => double.IsFinite(charge) &&
+        (item == HeldItem.Nitro ? charge is > 0 and <= 100 : charge == 0);
 
     /// <summary>Complete per-player category continuation and pickup diagnostics.</summary>
     public IReadOnlyList<PlayerItemBalance> Balances { get; }

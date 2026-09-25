@@ -60,6 +60,18 @@ public sealed partial class HudIntegrationChecks : Node
             Require(pixels[0].Health > pixels[1].Health && pixels[1].Health > pixels[2].Health && pixels[2].Health < pixels[0].Health / 10, "Rendered health fill decreases to empty");
             Require(pixels[0].Speed > pixels[1].Speed && pixels[1].Speed > pixels[2].Speed && pixels[2].Speed < pixels[0].Speed / 5, "Rendered speed arc decreases to empty");
 
+            foreach (double charge in new[] { 100.0, 37.5, 0.1, 0.0 })
+            {
+                slot = new ItemSlot(state.VehicleId, state.LifeId, 1, charge == 0 ? HeldItem.None : HeldItem.Nitro)
+                { NitroCharge = charge, SecondToken = 2, SecondItem = HeldItem.Nitro, SecondNitroCharge = 65, ActiveSlot = 1 };
+                hud.Refresh();
+                Require(hud.Displayed!.ItemName == (charge == 0 ? "EMPTY" : $"NITRO {Math.Ceiling(charge):0}%"), "Authoritative charge label and exhaustion");
+                Require(hud.Displayed.SecondItemName == "NITRO 65%", "Independent second-slot charge");
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                using Image frame = viewport.GetTexture().GetImage();
+                Require(frame.SavePng(System.IO.Path.Combine(output, $"nitro-{charge:0.0}.png")) == Error.Ok, "Charge screenshot");
+            }
+            slot = slot! with { Item = HeldItem.Nitro, NitroCharge = 37.5, SecondItem = HeldItem.Missile, SecondNitroCharge = 0 };
             VehicleSnapshot before = state;
             slot = slot! with { SecondToken = 2, SecondItem = HeldItem.Missile, ActiveSlot = 1, SelectionRevision = 1 };
             hud.Refresh();

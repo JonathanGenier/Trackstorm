@@ -1,0 +1,76 @@
+--- a/code/Client/Verification/EnvironmentCollisionChecks.cs
++++ b/code/Client/Verification/EnvironmentCollisionChecks.cs
+@@ -16 +16 @@
+-    public override void _Ready() => CallDeferred(MethodName.Run);
++    public override void _Ready() { AddChild(new Arenas.EnvironmentPresentation()); CallDeferred(MethodName.Run); }
+@@ -25,0 +26 @@
++                if (OS.GetCmdlineUserArgs().Contains("--rocket-visual")) { await Oval(network, true); continue; }
+@@ -38,0 +40 @@
++                await Oval(network, true);
+@@ -93,0 +96 @@
++        float releaseSpeed = 0;
+@@ -98 +101 @@
+-            var input = new InputFrame(world.State.Tick + 1, 0, name.StartsWith("nitro", StringComparison.Ordinal) ? ushort.MaxValue : (ushort)0, 0, 0, 0, 0);
++            var input = new InputFrame(world.State.Tick + 1, 0, 0, 0, name.StartsWith("nitro", StringComparison.Ordinal) && (name != "nitro-scrape" || tick < 120) ? InputButtons.UseItem : 0, 0, 0);
+@@ -101 +104 @@
+-            var request = new VehicleStepRequest(1, input, observation, nitro: tick == 0 && name.StartsWith("nitro", StringComparison.Ordinal) ? new NitroState(300, 2, 1.4f) : default);
++            var request = new VehicleStepRequest(1, input, observation, nitro: tick == 0 && name.StartsWith("nitro", StringComparison.Ordinal) ? new NitroState(300, 18000, 1.4f, 1) : default);
+@@ -103 +106,2 @@
+-            if (network) { proxy!.Apply(result.Snapshot); } else { body!.Apply(result); }
++            if (network) { proxy!.Apply(result.Snapshot); proxy.PresentRemote(result.Snapshot.Movement.Physics); } else { body!.Apply(result); }
++            if (tick == 119) { releaseSpeed = result.Snapshot.Speed; }
+@@ -124,0 +129,6 @@
++        if (name == "nitro-scrape")
++        {
++            GD.Print($"{label}: boosted {releaseSpeed:F2}, released {end.Speed:F2} m/s");
++            Check(releaseSpeed > initialVelocity.Length() + 3, label + " net acceleration against scrape drag");
++            Check(end.Speed < releaseSpeed - 1, label + " release restores ordinary scrape speed loss");
++        }
+@@ -130 +140 @@
+-    private async Task Oval(bool network)
++    private async Task Oval(bool network, bool rocket = false)
+@@ -150,0 +161 @@
++        var camera = new Camera3D(); AddChild(camera); camera.MakeCurrent();
+@@ -151,0 +163,2 @@
++        float boostStart = 0, boostEnd = 0, releaseEnd = 0;
++        int boostContacts = 0, releaseContacts = 0;
+@@ -162,0 +176,2 @@
++            camera.Position = position + new Vector3(13, 9, 13);
++            camera.LookAt(position);
+@@ -164 +179 @@
+-            Vector3 target = outer[lookahead].MoveToward(inner[lookahead], 0.8f) - position;
++            Vector3 target = outer[lookahead].MoveToward(inner[lookahead], rocket ? -0.3f : 0.8f) - position;
+@@ -167 +182 @@
+-            var input = new InputFrame(world.State.Tick + 1, (short)(Math.Clamp(-angle * 3, -1, 1) * short.MaxValue), ushort.MaxValue, 0, 0, 0, 0);
++            var input = new InputFrame(world.State.Tick + 1, (short)(Math.Clamp(-angle * 3, -1, 1) * short.MaxValue), rocket ? (ushort)0 : ushort.MaxValue, 0, rocket && tick >= 100 && tick < 240 ? InputButtons.UseItem : 0, 0, 0);
+@@ -169,3 +184,11 @@
+-            if (observation.Contacts.Any(contact => contact.StaticObstacle)) { contacts++; }
+-            var result = world.Step(input, [new VehicleStepRequest(1, input, observation)])[0];
+-            if (network) { proxy!.Apply(result.Snapshot); } else { body!.Apply(result); }
++            if (observation.Contacts.Any(contact => contact.StaticObstacle)) { contacts++; if (tick >= 100 && tick < 240) { boostContacts++; } if (tick >= 240 && tick < 340) { releaseContacts++; } }
++            var result = world.Step(input, [new VehicleStepRequest(1, input, observation, nitro: rocket && tick == 100 ? new NitroState(300, 18000, 1.4f, 1) : default)])[0];
++            if (network) { proxy!.Apply(result.Snapshot); proxy.PresentRemote(result.Snapshot.Movement.Physics); } else { body!.Apply(result); }
++            if (tick == 100) { boostStart = result.Snapshot.Speed; }
++            if (tick == 239) { boostEnd = result.Snapshot.Speed; }
++            if (tick == 339) { releaseEnd = result.Snapshot.Speed; }
++            if (rocket && tick is 239 or 339 && DisplayServer.GetName() != "headless")
++            {
++                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
++                GetViewport().GetTexture().GetImage().SavePng(System.IO.Path.Combine(_directory, $"{(network ? "network" : "practice")}-oval-rocket-{tick}.png"));
++            }
+@@ -176 +199 @@
+-        string label = network ? "network-oval" : "practice-oval";
++        string label = (network ? "network-oval" : "practice-oval") + (rocket ? "-rocket" : "");
+@@ -180,2 +203,7 @@
+-        Check(contacts > 60 && progress > 130, label + " sustained barrier travel through turn");
+-        Check(end.Speed > 15, label + " maintains movement through sustained scrape");
++        if (rocket)
++        {
++            GD.Print($"{label}: start {boostStart:F2}, boosted {boostEnd:F2}, released {releaseEnd:F2}, boost/release contacts {boostContacts}/{releaseContacts}");
++            Check(boostContacts > 20 && releaseContacts > 20 && boostEnd > boostStart + 2 && releaseEnd < boostEnd - 1, label + " accelerates while scraping then loses speed on release");
++        }
++        Check(contacts > 60 && (rocket || progress > 130), label + " sustained barrier travel through turn");
++        Check(rocket || end.Speed > 15, label + " maintains movement through sustained scrape");
+@@ -183 +211 @@
+-        body?.QueueFree(); proxy?.QueueFree(); map.QueueFree();
++        body?.QueueFree(); proxy?.QueueFree(); map.QueueFree(); camera.QueueFree();

@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Eight peers see exactly 27 configured active pickups; two remote vehicles enter one pickup together.
+Exactly one remote contestant won; all eight peers show matching inactive spawn, cooldown and item token.
+Authoritative cooldown reactivates on every peer; all eight vehicles approach separate pickups.
+All eight spawn locations awarded once, with all four item types replicated normally.
+Repeat 32 pickup rounds per player; fixture clears inventory between rounds without invoking item effects.
+Item spawn integration passed: Eight peers see exactly 27 configured active pickups; two remote vehicles enter one pickup together.
+Exactly one remote contestant won; all eight peers show matching inactive spawn, cooldown and item token.
+Authoritative cooldown reactivates on every peer; all eight vehicles approach separate pickups.
+All eight spawn locations awarded once, with all four item types replicated normally.
+All 27 pickups are available after cooldown, including under occupied vehicles. No duplicate awards or overwritten grants.
+Repeat 32 pickup rounds per player; fixture clears inventory between rounds without invoking item effects.
+32 repeated rounds across eight native peers; exact replicated per-player credits/counts and target convergence: 1:33:Missile:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8;2:34:Oil:Weapon=1.0/16,Consumable=-0.50/9,Droppable=-0.50/9;3:33:Oil:Weapon=0.5/16,Consumable=0.25/8,Droppable=-0.75/9;4:33:Missile:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8;5:33:Missile:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8;6:33:Oil:Weapon=0.5/16,Consumable=0.25/8,Droppable=-0.75/9;7:33:Missile:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8;8:33:Missile:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8
