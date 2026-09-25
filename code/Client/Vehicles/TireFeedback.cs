@@ -1,23 +1,22 @@
 using Godot;
 using Trackstorm.Core.Vehicles;
+using Trackstorm.Core.Settings;
 
 namespace Trackstorm.Client.Vehicles;
 
 /// <summary>Bounded wheel-contact presentation, independent of native forces and authoritative observations.</summary>
 internal sealed partial class TireFeedback : Node3D
 {
-    internal const int Capacity = 512;
-    private const float MarkLifetime = 20;
-    private const float WakeLifetime = .9f;
+    // Continuity guard, not a styling control: bounds bridging across missing support/teleports.
+    private const float MaximumSegmentLength = 8;
+    private TireMarkBatch _batch = null!;
+    private float _wakeLifetime = .9f;
     private readonly PhysicsRayQueryParameters3D _ray = new() { CollisionMask = 1 };
     private readonly Godot.Collections.Array<Rid> _excluded = new();
     private readonly Vector3?[] _previous = new Vector3?[4];
     private readonly SurfaceIdentity?[] _surfaces = new SurfaceIdentity?[4];
     private readonly GpuParticles3D[] _spray = new GpuParticles3D[4];
-    private readonly MultiMeshInstance3D _marks = new() { CastShadow = GeometryInstance3D.ShadowCastingSetting.Off };
-    private MultiMesh _instances = null!;
-    private ShaderMaterial _material = null!;
-    private PlaneMesh _mesh = null!;
+
     private MultiMesh _wakes = null!;
     private ShaderMaterial _wakeMaterial = null!;
     private PlaneMesh _wakeMesh = null!;
@@ -25,18 +24,42 @@ internal sealed partial class TireFeedback : Node3D
     private int _wakeCount;
     private float _elapsed;
     private float _sampleTime;
-    private int _next;
-    private int _markCount;
-    private float _lastMark = -MarkLifetime;
-    private float _lastWake = -WakeLifetime;
+
+    private float _lastWake = -3;
     private ulong _life;
     internal Func<(Transform3D Pose, VehicleSnapshot State, VehicleConfiguration Configuration)?> Source { get; init; } = () => null;
-    // A later local optimization setting can lower density without touching session state.
+    // Verification/embedding multiplier; player tuning comes from the arena settings source.
     internal float Density { get; set; } = 1;
     internal int MarksWritten { get; private set; }
     internal int WaterSamples { get; private set; }
     internal IReadOnlySet<SurfaceIdentity> Observed => _observed;
     private readonly HashSet<SurfaceIdentity> _observed = new();
+    private readonly float[] _wakeTimes = new float[4];
+    private readonly (float Duration, float Width, float Intensity, float Fade, float Density, float Speed)[] _profiles = new (float, float, float, float, float, float)[7];
+    private TireEffectSettings? _tuning;
+    private float _duration, _width, _intensity, _fade, _spacing, _speed, _spraySpeed, _slip, _distance, _quality;
+
+    private void RefreshTuning(TireEffectSettings tuning)
+    {
+        if (ReferenceEquals(_tuning, tuning)) { return; }
+        _tuning = tuning;
+        _duration = tuning["tire.lifetime"]; _width = tuning["tire.width"]; _intensity = tuning["tire.intensity"];
+        _fade = tuning["tire.fade"]; _spacing = tuning["tire.spacing"]; _speed = tuning["tire.speed"];
+        _spraySpeed = tuning["tire.spray_speed"];
+        _slip = tuning["tire.slip"]; _distance = tuning["tire.distance"]; _quality = tuning["tire.quality"];
+        string[] surfaces = ["asphalt", "concrete", "dirt", "grass", "mud", "deep_mud", "water"];
+        for (int i = 0; i < surfaces.Length; i++)
+        {
+            string key = "tire." + surfaces[i] + ".";
+            _profiles[i] = (tuning[key + "duration"], tuning[key + "width"], tuning[key + "intensity"], tuning[key + "fade"], tuning[key + "density"], tuning[key + "speed"]);
+        }
+    }
+
+    private (float Duration, float Width, float Intensity, float Fade, float Density, float Speed) Profile(SurfaceIdentity? identity) => _profiles[identity switch
+    {
+        SurfaceIdentity.Asphalt => 0, SurfaceIdentity.Concrete => 1, SurfaceIdentity.Dirt => 2,
+        SurfaceIdentity.Grass => 3, SurfaceIdentity.Mud => 4, SurfaceIdentity.DeepMud => 5, _ => 6,
+    }];
 
     public override void _Ready()
     {
@@ -45,11 +68,7 @@ internal sealed partial class TireFeedback : Node3D
         PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off;
         _excluded.Add(((PhysicsBody3D)GetParent()).GetRid());
         _ray.Exclude = _excluded;
-        _material = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/effects/TireTrack.gdshader") };
-        _mesh = new PlaneMesh { Size = Vector2.One, Material = _material };
-        _instances = new MultiMesh { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, UseColors = true, UseCustomData = true, Mesh = _mesh, InstanceCount = Capacity, VisibleInstanceCount = 0 };
-        _marks.Multimesh = _instances;
-        AddChild(_marks);
+        _batch = TireMarkBatch.For(GetParent().GetParent());
         _wakeMaterial = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/effects/WaterWake.gdshader") };
         _wakeMesh = new PlaneMesh { Size = Vector2.One, Material = _wakeMaterial };
         _wakes = new MultiMesh { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, UseCustomData = true, Mesh = _wakeMesh, InstanceCount = 32, VisibleInstanceCount = 0 };
@@ -66,25 +85,29 @@ internal sealed partial class TireFeedback : Node3D
     public override void _PhysicsProcess(double delta)
     {
         _elapsed += (float)delta;
-        _material.SetShaderParameter("elapsed", _elapsed);
-        _wakeMaterial.SetShaderParameter("elapsed", _elapsed);
-        // Fully transparent batches still cost draw submission and fragment work.
-        // Reset the ring only once every resident segment has expired.
-        if (_markCount > 0 && _elapsed - _lastMark >= MarkLifetime)
+        if (_elapsed >= 3600)
         {
-            _instances.VisibleInstanceCount = 0;
-            _markCount = _next = 0;
+            _elapsed = 0;
+            _lastWake = -3;
+            _wakeCount = _nextWake = 0;
+            Array.Clear(_wakeTimes);
+            _wakes.VisibleInstanceCount = 0;
         }
-        if (_wakeCount > 0 && _elapsed - _lastWake >= WakeLifetime)
+        var tuning = _batch.Settings;
+        RefreshTuning(tuning);
+        _wakeMaterial.SetShaderParameter("elapsed", _elapsed);
+        _wakeMaterial.SetShaderParameter("visibility_distance", _distance);
+        if (_wakeCount > 0 && _elapsed - _lastWake >= _wakeLifetime)
         {
             _wakes.VisibleInstanceCount = 0;
             _wakeCount = _nextWake = 0;
+            _wakeLifetime = .1f;
         }
         _sampleTime += (float)delta;
-        if (_sampleTime < .05f / Math.Clamp(Density, .25f, 1)) { return; }
+        if (_sampleTime < .05f / Math.Clamp(Density * _quality, .5f, 1)) { return; }
         _sampleTime = 0;
-        if (Density <= 0 || Source() is not { } source || !source.State.CanInteract ||
-            GetViewport().GetCamera3D() is { } camera && camera.GlobalPosition.DistanceSquaredTo(source.Pose.Origin) > 10000)
+        if (Density * _quality <= 0 || Source() is not { } source || !source.State.CanInteract ||
+            GetViewport().GetCamera3D() is { } camera && camera.GlobalPosition.DistanceSquaredTo(source.Pose.Origin) > _distance * _distance)
         {
             Stop();
             return;
@@ -113,24 +136,29 @@ internal sealed partial class TireFeedback : Node3D
             Vector3 normal = waterPoint.HasValue ? Vector3.Up : hit["normal"].AsVector3();
             bool soft = identity is SurfaceIdentity.Dirt or SurfaceIdentity.Grass or SurfaceIdentity.Mud or SurfaceIdentity.DeepMud;
             bool water = identity == SurfaceIdentity.Water;
+            var profile = Profile(identity);
+            float density = profile.Density * Density * _quality;
             if (identity is { } observed) { _observed.Add(observed); }
             if (water)
             {
                 WaterSamples++;
-                if (speed > .7f && wheel >= 2)
+                if (speed > _speed * profile.Speed && density > 0 && wheel >= 2 && _elapsed - _wakeTimes[wheel] >= .05f / density)
                 {
-                    _wakes.SetInstanceTransform(_nextWake, new Transform3D(Basis.Identity.Scaled(new Vector3(1.2f,1,1.8f)), point + Vector3.Up*.025f));
-                    _wakes.SetInstanceCustomData(_nextWake, new Color(_elapsed,0,0,0));
+                    _wakes.SetInstanceTransform(_nextWake, new Transform3D(Basis.Identity.Scaled(new Vector3(1.2f * _width * profile.Width,1,1.8f * _width * profile.Width)), point + Vector3.Up*.025f));
+                    _wakes.SetInstanceCustomData(_nextWake, new Color(_elapsed, profile.Duration, Math.Min(profile.Duration, profile.Duration * _fade * profile.Fade), Math.Clamp(_intensity * profile.Intensity, 0, 2)));
                     _nextWake = (_nextWake+1)%32;
                     _wakeCount = Math.Min(_wakeCount + 1, 32);
                     _wakes.VisibleInstanceCount = _wakeCount;
                     _lastWake = _elapsed;
+                    _wakeTimes[wheel] = _elapsed;
+                    _wakeLifetime = Math.Max(_wakeLifetime, profile.Duration);
                 }
             }
             var style = Style(identity);
             var spray = _spray[wheel];
             spray.GlobalPosition = point + normal * .06f;
-            spray.Emitting = speed > 2 && (soft || water);
+            spray.Emitting = density > 0 && speed > _spraySpeed * profile.Speed && (soft || water);
+            spray.AmountRatio = Math.Clamp(density, 0, 1);
             var process = (ParticleProcessMaterial)spray.ProcessMaterial;
             process.Direction = (normal - source.Pose.Basis.Z * .3f).Normalized();
             process.Spread = water ? 65 : 40;
@@ -139,30 +167,28 @@ internal sealed partial class TireFeedback : Node3D
             process.Gravity = new Vector3(0, water || identity is SurfaceIdentity.Mud or SurfaceIdentity.DeepMud ? -8 : .3f, 0);
             process.ScaleMin = water ? .06f : .1f;
             process.ScaleMax = water ? .22f : identity is SurfaceIdentity.Dirt ? .8f : .25f;
-            ((StandardMaterial3D)((QuadMesh)spray.DrawPass1).Material).AlbedoColor = water ? new Color(.6f, .8f, .85f, .6f) : new Color(style.Color, .35f);
-            bool mark = speed > .8f && !water && (soft || identity is SurfaceIdentity.Asphalt or SurfaceIdentity.Concrete && source.State.Movement.Drifting);
+            ((StandardMaterial3D)((QuadMesh)spray.DrawPass1).Material).AlbedoColor = water ? new Color(.6f, .8f, .85f, Math.Clamp(.6f * _intensity * profile.Intensity, 0, 1)) : new Color(style.Color, Math.Clamp(.35f * _intensity * profile.Intensity, 0, 1));
+            float slip = wheel < 2 ? source.State.Movement.FrontSlip : source.State.Movement.RearSlip;
+            bool mark = density > 0 && speed > _speed * profile.Speed && !water && (soft || identity is SurfaceIdentity.Asphalt or SurfaceIdentity.Concrete && source.State.Movement.Drifting && slip >= _slip);
             if (mark && _surfaces[wheel] == identity && _previous[wheel] is { } previous)
             {
                 Vector3 direction = point - previous;
                 float length = direction.Length();
-                if (length is > .12f and < 3.5f)
+                if (length >= Math.Min(MaximumSegmentLength * .75f, _spacing / Math.Max(density, .01f)) && length < MaximumSegmentLength)
                 {
                     Vector3 forward = direction.Slide(normal).Normalized();
                     if (!forward.IsZeroApprox())
                     {
-                        var basis = new Basis(normal.Cross(forward).Normalized() * style.Width, normal, forward * (length + .08f));
-                        _instances.SetInstanceTransform(_next, new Transform3D(basis, (point + previous) / 2 + normal * .018f));
-                        _instances.SetInstanceColor(_next, style.Color);
-                        _instances.SetInstanceCustomData(_next, new Color(_elapsed, MarkLifetime, style.Roughness, soft ? 1 : 0));
-                        _next = (_next + 1) % Capacity;
+                        var basis = new Basis(normal.Cross(forward).Normalized() * style.Width * _width * profile.Width, normal, forward * (length + .08f));
+                        float duration = _duration * profile.Duration;
+                        _batch.Write(new Transform3D(basis, (point + previous) / 2 + normal * .018f),
+                            new Color(style.Color, Math.Clamp(style.Color.A * _intensity * profile.Intensity, 0, 1)),
+                            duration, Math.Clamp(duration * _fade * profile.Fade, .01f, duration), style.Roughness, soft);
                         MarksWritten++;
-                        _markCount = Math.Min(Capacity, _markCount + 1);
-                        _instances.VisibleInstanceCount = _markCount;
-                        _lastMark = _elapsed;
                         _previous[wheel] = point;
                     }
                 }
-                else if (length >= 3.5f) { _previous[wheel] = point; }
+                else if (length >= MaximumSegmentLength) { _previous[wheel] = point; }
             }
             else { _previous[wheel] = mark ? point : null; }
             _surfaces[wheel] = identity;
@@ -205,13 +231,11 @@ internal sealed partial class TireFeedback : Node3D
     public override void _ExitTree()
     {
         _ray.Dispose();
-        _marks.Multimesh = null;
-        _instances.Dispose();
+
         _wakes.Dispose();
         _wakeMesh.Dispose();
         _wakeMaterial.Dispose();
-        _mesh.Dispose();
-        _material?.Dispose();
+
         foreach (var emitter in _spray)
         {
             var mesh = (QuadMesh)emitter.DrawPass1!;

@@ -24,6 +24,13 @@ The control editor replaces keyboard/mouse bindings when a key or mouse button i
 
 ## Ownership and Persistence
 
+The optional version-one `tireEffects` object stores the allowlisted local
+[tire-effect Configs controls](terrain-effects.md#local-configs-tuning). Missing
+or invalid keys default independently. They use this same settings controller and
+file, but are edited through staged Configs actions rather than immediate player
+preference sliders. They are available on each device independently and never
+enter host gameplay configuration or network recovery state.
+
 Settings and its category pages release gameplay mouse capture through the existing local-input suppression gate. The [input owner](input.md) keeps a normal native pointer available alongside keyboard/controller focus navigation, and restores capture when the player returns to gameplay. Settings controls do not own or restore mouse modes themselves.
 
 Core owns immutable, engine-independent preference data, the stable speed-unit enum, defaults, validation/clamping, and a reusable JSON codec with no filesystem access. Binding tokens are opaque to Core: Core associates copied read-only token lists with logical actions, while the Client input system owns native token encoding, interpretation, and validation. Preferences do not enter authoritative simulation state or replicated messages.
