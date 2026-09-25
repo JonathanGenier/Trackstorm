@@ -58,13 +58,13 @@ public sealed partial class MachineGunIntegrationChecks : Node
             view.AddChild(arena);
             view.AddChild(new Hud.CombatHud { Vehicle = () => arena.Driver.LocalState, Slot = () => arena.Driver.LocalItem,
                 Match = () => arena.Driver.Match, Player = () => arena.Driver.LocalVehicleId });
-            var floor = new StaticBody3D { Position = new(0, 20, 0), CollisionLayer = 1 };
-            floor.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(100, 1, 100) } });
-            floor.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(100, 1, 100) }, MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.23f, 0.25f, 0.28f) } });
+            var floor = new StaticBody3D { Position = new(0, 200, 0), CollisionLayer = 1 };
+            floor.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(200, 1, 200) } });
+            floor.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(200, 1, 200) }, MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.23f, 0.25f, 0.28f) } });
             arena.AddChild(floor);
-            var camera = new Camera3D { Position = new(6, 26, 9) };
+            var camera = new Camera3D { Position = new(6, 206, 9) };
             arena.AddChild(camera);
-            camera.LookAt(new Vector3(0, 21, -4)); camera.MakeCurrent();
+            camera.LookAt(new Vector3(0, 201, -4)); camera.MakeCurrent();
             _arenas.Add(arena);
         }
     }
@@ -100,7 +100,7 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     var ray = _arenas[0].Driver.RaycastWeapon!;
                     _arenas[0].Driver.RaycastWeapon = (owner, start, end) =>
                     {
-                        Check(Math.Abs(N.Vector3.Distance(start, end) - 25) < 0.001, "25 m native hard ray length");
+                        Check(Math.Abs(N.Vector3.Distance(start, end) - 75) < 0.001, "75 m native hard ray length");
                         var hit = ray(owner, start, end);
                         if (_stage == 3) { _shots++; if (hit is { Vehicle: > 0 }) { _hits++; } }
                         return hit;
@@ -122,12 +122,13 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     _held = true; _press = true;
                     Next("Held input starts through the production driver.");
                     break;
-                case 3 when _frames - _boundary > 120:
+                case 3 when _frames - _boundary > (_scenario == 1 ? 360 : 120):
                     _held = false;
                     float loss = _health - host.World.GetVehicle(targetId).Damage.CurrentHP;
                     var slot = host.Items.Slots.Single(s => s.Vehicle == shooterId);
-                    Check(slot.Ammo!.Remaining is > 690 and < 750, $"two-second round budget {slot.Ammo.Remaining}");
-                    if (_scenario is 0 or 4) { Check(loss > 100 && loss < 200, $"close-range pressure {loss}"); _nearLoss = loss; }
+                    int expectedRounds = _scenario == 1 ? 320 : 640;
+                    Check(Math.Abs(slot.Ammo!.Remaining - expectedRounds) < 30, $"sustained round budget {slot.Ammo.Remaining}");
+                    if (_scenario is 0 or 4) { Check(loss > 200 && loss < 400, $"close-range pressure {loss}"); _nearLoss = loss; }
                     if (_scenario == 0)
                     {
                         _nearHitRate = _hits / (double)_shots;
@@ -158,7 +159,7 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     break;
                 case 6 when host.Items.Slots.Single(s => s.Vehicle == 2).Item == HeldItem.None:
                     _held = false;
-                    Check(Math.Abs((_frames - _boundary) - _remaining * 60.0 / 40) < 35, "remaining firing duration matches discrete ammo");
+                    Check(Math.Abs((_frames - _boundary) - _remaining * 60.0 / 80) < 35, "remaining firing duration matches discrete ammo");
                     Check(host.Items.Slots.Single(s => s.Vehicle == 2).SecondItem == HeldItem.Wrench, "full depletion preserves Wrench");
                     Next("Remote magazine exhausted on schedule through the authoritative held-item lifecycle.");
                     break;
@@ -185,14 +186,14 @@ public sealed partial class MachineGunIntegrationChecks : Node
     {
         var host = _arenas[0].Driver.Host!;
         var world = host.World.State;
-        float distance = _stage == 8 ? _playRange : _scenario switch { 1 => 24, 2 => 28, _ => 8 };
+        float distance = _stage == 8 ? _playRange : _scenario switch { 1 => 70, 2 => 78, _ => 8 };
         float lateral = _stage == 8 && _movingTarget ? 3 * MathF.Sin(_frames / 90f) : 0;
         host.World.Restore(new(world.Tick, world.LastInput, world.Vehicles.Select(v =>
         {
             bool shooter = v.VehicleId == (_scenario == 4 ? 2ul : 1ul);
             // Stationary controlled geometry isolates range/HP from driver accuracy; ordinary movement is untouched.
             var orientation = shooter && _stage == 8 && _tracking ? N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitY, -MathF.Atan2(lateral, distance)) : N.Quaternion.Identity;
-            var pose = new VehiclePhysicsState(new N.Vector3(shooter ? 0 : lateral, 21.65f, shooter ? 0 : -distance), orientation, N.Vector3.Zero, N.Vector3.Zero);
+            var pose = new VehiclePhysicsState(new N.Vector3(shooter ? 0 : lateral, 201.65f, shooter ? 0 : -distance), orientation, N.Vector3.Zero, N.Vector3.Zero);
             _arenas[0].Bodies[v.VehicleId].Apply(pose);
             return new VehicleSnapshot(v.VehicleId, v.LifeId, new VehicleState(world.Tick, pose, true, false, 0, 0), v.Damage, pose);
         }), world.Match));
@@ -201,7 +202,7 @@ public sealed partial class MachineGunIntegrationChecks : Node
             var wall = arena.GetNodeOrNull<StaticBody3D>("WeaponCover");
             if (_scenario == 3 && wall is null)
             {
-                wall = new StaticBody3D { Name = "WeaponCover", Position = new Vector3(0, 22, -3), CollisionLayer = 1 };
+                wall = new StaticBody3D { Name = "WeaponCover", Position = new Vector3(0, 202, -3), CollisionLayer = 1 };
                 wall.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(8, 4, 0.5f) } });
                 wall.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(8, 4, 0.5f) } });
                 arena.AddChild(wall);
@@ -229,7 +230,7 @@ public sealed partial class MachineGunIntegrationChecks : Node
         Button("Fire / release", () => { _held = !_held; _press = _held; });
         Button("Moving / stationary target", () => _movingTarget = !_movingTarget);
         Button("Tracking / fixed aim", () => _tracking = !_tracking);
-        foreach (float range in new[] { 5f, 15f, 24f, 28f }) { Button($"Range {range} m", () => _playRange = range); }
+        foreach (float range in new[] { 5f, 15f, 70f, 78f }) { Button($"Range {range} m", () => _playRange = range); }
         Button("Refill magazine", Refill);
         Button("Finish playtest", () => { _done = true; _boundary = _frames; foreach (var arena in _arenas) { arena.QueueFree(); } foreach (var gateway in _gateways) { gateway.Dispose(); } GetTree().Quit(); });
         Refill();

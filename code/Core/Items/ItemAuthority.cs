@@ -272,11 +272,11 @@ public sealed class ItemAuthority
                 var ammo = slot.Ammo!;
                 double phase = ammo.Phase + Configuration.MachineGunFireRate / 60;
                 int remainingRounds = ammo.Remaining;
-                if (phase >= 1 - 1e-12)
+                while (remainingRounds > 0 && phase >= 1 - 1e-12)
                 {
                     phase = Math.Max(0, phase - 1);
                     var pose = request.Observation.Physics;
-                    Vector3 direction = MachineGunShot.Direction(slot.Token, ammo.Capacity - ammo.Remaining, pose.Orientation, Configuration.MachineGunSpread);
+                    Vector3 direction = MachineGunShot.Direction(slot.Token, ammo.Capacity - remainingRounds, pose.Orientation, Configuration.MachineGunSpread);
                     Vector3 end = pose.Position + direction * Configuration.MachineGunRange;
                     var hit = raycastWeapon(slot.Vehicle, pose.Position, end);
                     if (hit is not null)
@@ -296,7 +296,7 @@ public sealed class ItemAuthority
                         }
                     }
                     events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, end, hit is not null)
-                    { Origin = pose.Position, Tracer = (ammo.Capacity - ammo.Remaining) % Configuration.MachineGunTracerEvery == 0 });
+                    { Origin = pose.Position, Tracer = (ammo.Capacity - remainingRounds) % Configuration.MachineGunTracerEvery == 0 });
                     remainingRounds--;
                 }
                 MachineGunAmmo? remainingAmmo = remainingRounds == 0 ? null : ammo with { Remaining = remainingRounds, Phase = phase };

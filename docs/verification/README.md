@@ -10,7 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
-| TS-167 close-range machine gun | [800/40/25 m balance, impact sparks, interactive/native recovery evidence; Round 3 critique 8.2 PASS](ts-167.md) |
+| TS-167 close-range machine gun | [800 rounds / 80 rps / 75 m, 10-second depletion, native and interactive evidence; prior-profile Round 3 critique 8.2 PASS is historical](ts-167.md) |
 
 | Story verification | [TS-156 verification evidence](ts-156.md) |
 | Story verification | [TS-165 verification evidence](ts-165.md) |

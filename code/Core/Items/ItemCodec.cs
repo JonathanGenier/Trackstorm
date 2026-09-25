@@ -263,7 +263,7 @@ public static class ItemCodec
             }
             balances[i] = new() { Player = player, Total = total, SelectedItem = selected, Credits = credits.ToImmutable(), Counts = counts.ToImmutable() };
         }
-        var events = new ItemEvent[Count(reader, ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 8)];
+        var events = new ItemEvent[Count(reader, ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 16)];
         for (int i = 0; i < events.Length; i++)
         {
             ulong token = reader.ReadUInt64();
