@@ -127,6 +127,7 @@ internal sealed partial class ItemPresentation : Node3D
             if (outcome.Item == HeldItem.MachineGun)
             {
                 if (outcome.Tracer) { Tracer(outcome); }
+                if (outcome.Impact) { BulletImpact(outcome); }
                 continue;
             }
             var definition = ItemRegistry.Find(outcome.Item)!;
@@ -167,6 +168,33 @@ internal sealed partial class ItemPresentation : Node3D
         root.AddChild(new MeshInstance3D { Position = start + segment.Normalized() * Math.Min(2.2f, segment.Length()), Mesh = new SphereMesh { Radius = 0.10f, Height = 0.20f }, MaterialOverride = material });
         if (outcome.Impact) { root.AddChild(new MeshInstance3D { Position = end, Mesh = new SphereMesh { Radius = 0.07f, Height = 0.14f }, MaterialOverride = material }); }
         _bursts.Add((root, 0, 0.055f));
+    }
+
+    private void BulletImpact(ItemEvent outcome)
+    {
+        if (_bursts.Count >= 128) { return; }
+        Vector3 incoming = VehicleBody.ToGodot(outcome.Position - outcome.Origin).Normalized();
+        var root = new Node3D { Position = VehicleBody.ToGodot(outcome.Position) - incoming * 0.025f };
+        AddChild(root);
+        var sparks = Particles("spark_01", true, 0.22f);
+        sparks.Name = "BulletImpactSparks";
+        sparks.Amount = 6;
+        // The publication has a hit point, not a surface normal: scatter back along the incoming ray.
+        var process = (ParticleProcessMaterial)sparks.ProcessMaterial;
+        process.Direction = -incoming;
+        process.Spread = 65;
+        process.InitialVelocityMin = 1.5f;
+        process.InitialVelocityMax = 4;
+        process.Gravity = new Vector3(0, -8, 0);
+        process.ScaleMin = 0.04f;
+        process.ScaleMax = 0.11f;
+        process.ColorRamp = new GradientTexture1D { Gradient = new Gradient
+        {
+            Colors = new[] { new Color(1, 1, 0.8f, 1), new Color(1, 0.6f, 0.15f, 0.9f), new Color(1, 0.25f, 0.02f, 0) },
+            Offsets = new[] { 0f, 0.35f, 1f },
+        } };
+        root.AddChild(sparks);
+        _bursts.Add((root, 0, 0.3f));
     }
 
     private static Node3D Rocket()

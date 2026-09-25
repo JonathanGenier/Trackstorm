@@ -128,7 +128,16 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     var slot = host.Items.Slots.Single(s => s.Vehicle == shooterId);
                     Check(slot.Ammo!.Remaining is > 690 and < 750, $"two-second round budget {slot.Ammo.Remaining}");
                     if (_scenario is 0 or 4) { Check(loss > 100 && loss < 200, $"close-range pressure {loss}"); _nearLoss = loss; }
-                    if (_scenario == 0) { _nearHitRate = _hits / (double)_shots; }
+                    if (_scenario == 0)
+                    {
+                        _nearHitRate = _hits / (double)_shots;
+                        foreach (var arena in _arenas)
+                        {
+                            int impacts = arena.FindChildren("BulletImpactSparks", "GPUParticles3D", true, false).Count;
+                            Check(impacts > 0 && impacts <= 128, "bounded hit particles on both peers");
+                            GD.Print($"Native impact feedback: {impacts} live spark emitters on peer {arena.Driver.LocalVehicleId}.");
+                        }
+                    }
                     if (_scenario == 1) { Check(loss > 0 && loss < _nearLoss * 0.5f, $"native falloff {loss}"); Check(_hits / (double)_shots < _nearHitRate * 0.8, "far hit reliability below close range"); }
                     GD.Print($"Native pattern scenario {_scenario}: {_hits}/{_shots} vehicle hits.");
                     if (_scenario is 2 or 3) { Check(loss == 0, $"range/cover rejects damage {loss}"); }
