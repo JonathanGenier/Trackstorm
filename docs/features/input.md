@@ -22,7 +22,7 @@ Gameplay consumers receive only `InputFrame`. The Client bootstrap consumes the 
 
 ## InputFrame and Determinism
 
-The immutable value frame contains a 64-bit unsigned tick, signed steering in `[-32767,32767]`, independent unsigned throttle and brake in `[0,65535]`, and three 16-bit digital masks: held, pressed, and released. Digital bits cover handbrake (the stable `Drift` bit), item use, item switch (bit 1024), leaderboard, four menu directions, accept, cancel, and pause. Steering direction actions become the signed axis rather than duplicating direction bits in the frame.
+The immutable value frame contains a 64-bit unsigned tick, signed steering in `[-32767,32767]`, independent unsigned throttle and brake in `[0,65535]`, and three 16-bit digital masks: held, pressed, and released. Digital bits cover handbrake (the stable `Drift` bit), item use, item switch (bit 1024), Air Roll (bit 2048), leaderboard, four menu directions, accept, cancel, and pause. Steering direction actions become the signed axis rather than duplicating direction bits in the frame.
 
 Pressed/released mean at least one transition since the previous capture. Both can be set for a tap entirely between ticks; held reflects the final state. Pending edges are consumed once, so repeated fixed updates do not repeat an item press. Multiple complete taps inside one tick coalesce. These masks intentionally record edges rather than requiring a replay consumer to infer them from successive held states, which would lose short taps.
 
@@ -38,6 +38,7 @@ Analog conditioning clamps finite samples to `[-1,1]`, maps magnitudes at or bel
 | Brake/reverse | S | Left trigger |
 | Steer left/right | A / D | Left stick X negative/positive |
 | Handbrake | Space | B / right face button |
+| Air Roll (held) | Shift | Left shoulder |
 | Use item | Left mouse button | A / bottom face button |
 | Leaderboard | Tab | Back |
 | Menu navigation | Arrow keys | D-pad |
@@ -76,3 +77,5 @@ Network application sessions apply the [Game Loop participation gate](game-loop.
 The [Event Log](event-log.md) reserves F3 and owns a separate local diagnostic suppression flag. Closing it does not clear Settings suppression; the existing item-release guard prevents click-through use.
 
 Nitro uses the same UseItem action with sustained held state following a capability-bound press. Release/suppression stops charge consumption and boosted drive on the next authoritative step; other items retain one-press use. Remote Nitro presses are associated with the originating input sequence across reliable item and sequenced driving delivery. Switching slots disengages Nitro without discarding charge.
+
+Air Roll uses the ordinary held-button mask, remapping, preference persistence and focus/UI suppression. Missing saved overrides inherit Shift/left shoulder; explicit unbinding remains supported. Settings accepts Shift itself as a physical key while rejecting modified key combinations. While air control is active, throttle means nose-down pitch, brake means nose-up pitch, and signed steering means yaw or (with Air Roll) roll. The normal input shaping, inversion and analog settings still apply before Core's airborne response. See [airborne rotation](vehicles.md#player-controlled-airborne-rotation).

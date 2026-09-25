@@ -6,6 +6,18 @@ public static class GameplayOptions
     /// <summary>Stable allowlist of editable gameplay settings.</summary>
     public static IReadOnlyList<GameplayOption> All { get; } = Array.AsReadOnly<GameplayOption>(
     [
+        new("vehicle.air_delay", "Air control", "Activation delay (s)", false, c => c.Vehicle.AirDelay, (c, v) => c with { Vehicle = c.Vehicle with { AirDelay = checked((float)v) } }),
+        new("vehicle.air_pitch_rate", "Air control", "Pitch rate (rad/s)", false, c => c.Vehicle.AirPitchRate, (c, v) => c with { Vehicle = c.Vehicle with { AirPitchRate = checked((float)v) } }),
+        new("vehicle.air_yaw_rate", "Air control", "Yaw rate (rad/s)", false, c => c.Vehicle.AirYawRate, (c, v) => c with { Vehicle = c.Vehicle with { AirYawRate = checked((float)v) } }),
+        new("vehicle.air_roll_rate", "Air control", "Roll rate (rad/s)", false, c => c.Vehicle.AirRollRate, (c, v) => c with { Vehicle = c.Vehicle with { AirRollRate = checked((float)v) } }),
+        new("vehicle.air_pitch_acceleration", "Air control", "Pitch acceleration (rad/s2)", false, c => c.Vehicle.AirPitchAcceleration, (c, v) => c with { Vehicle = c.Vehicle with { AirPitchAcceleration = checked((float)v) } }),
+        new("vehicle.air_yaw_acceleration", "Air control", "Yaw acceleration (rad/s2)", false, c => c.Vehicle.AirYawAcceleration, (c, v) => c with { Vehicle = c.Vehicle with { AirYawAcceleration = checked((float)v) } }),
+        new("vehicle.air_roll_acceleration", "Air control", "Roll acceleration (rad/s2)", false, c => c.Vehicle.AirRollAcceleration, (c, v) => c with { Vehicle = c.Vehicle with { AirRollAcceleration = checked((float)v) } }),
+        new("vehicle.air_stabilization", "Air control", "Residual rotation damping (1/s)", false, c => c.Vehicle.AirStabilization, (c, v) => c with { Vehicle = c.Vehicle with { AirStabilization = checked((float)v) } }),
+        new("vehicle.air_stabilization_response", "Air control", "Stabilization ramp (s)", false, c => c.Vehicle.AirStabilizationResponse, (c, v) => c with { Vehicle = c.Vehicle with { AirStabilizationResponse = checked((float)v) } }),
+        new("vehicle.air_input_response", "Air control", "Input smoothing (s)", false, c => c.Vehicle.AirInputResponse, (c, v) => c with { Vehicle = c.Vehicle with { AirInputResponse = checked((float)v) } }),
+        new("vehicle.air_dead_zone", "Air control", "Air input dead zone", false, c => c.Vehicle.AirDeadZone, (c, v) => c with { Vehicle = c.Vehicle with { AirDeadZone = checked((float)v) } }),
+        new("vehicle.support_normal_minimum", "Air control", "Minimum ground normal Y", false, c => c.Vehicle.SupportNormalMinimum, (c, v) => c with { Vehicle = c.Vehicle with { SupportNormalMinimum = checked((float)v) } }),
         new("environment.preset", "Sky / Environment", "Environment preset", true, c => (int)c.Environment, (c, v) => c with { Environment = (EnvironmentPreset)checked((int)v) }),
         new("vehicle.mass", "Vehicle", "Mass", false, c => c.Vehicle.Mass, (c, v) => c with { Vehicle = c.Vehicle with { Mass = checked((float)v) } }),
         new("vehicle.acceleration", "Vehicle", "Acceleration", false, c => c.Vehicle.Acceleration, (c, v) => c with { Vehicle = c.Vehicle with { Acceleration = checked((float)v) } }),

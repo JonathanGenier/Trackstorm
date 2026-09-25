@@ -283,7 +283,7 @@ internal sealed partial class SettingsPanel : CanvasLayer
 
         InputEvent? candidate = @event switch
         {
-            InputEventKey key when key.Pressed && !key.Echo && !key.CtrlPressed && !key.AltPressed && !key.ShiftPressed && !key.MetaPressed && key.PhysicalKeycode != Key.None => new InputEventKey { PhysicalKeycode = key.PhysicalKeycode },
+            InputEventKey key when key.Pressed && !key.Echo && !key.CtrlPressed && !key.AltPressed && (!key.ShiftPressed || key.PhysicalKeycode == Key.Shift) && !key.MetaPressed && key.PhysicalKeycode != Key.None => new InputEventKey { PhysicalKeycode = key.PhysicalKeycode },
             InputEventMouseButton mouse when mouse.Pressed && !mouse.CtrlPressed && !mouse.AltPressed && !mouse.ShiftPressed && !mouse.MetaPressed => new InputEventMouseButton { ButtonIndex = mouse.ButtonIndex },
             InputEventJoypadButton button when button.Pressed => new InputEventJoypadButton { Device = button.Device, ButtonIndex = button.ButtonIndex },
             InputEventJoypadMotion axis when Math.Abs(axis.AxisValue) > 0.6 => new InputEventJoypadMotion { Device = axis.Device, Axis = axis.Axis, AxisValue = Math.Sign(axis.AxisValue) },
