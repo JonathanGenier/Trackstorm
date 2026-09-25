@@ -60,6 +60,17 @@ public sealed partial class HudIntegrationChecks : Node
             Require(pixels[0].Health > pixels[1].Health && pixels[1].Health > pixels[2].Health && pixels[2].Health < pixels[0].Health / 10, "Rendered health fill decreases to empty");
             Require(pixels[0].Speed > pixels[1].Speed && pixels[1].Speed > pixels[2].Speed && pixels[2].Speed < pixels[0].Speed / 5, "Rendered speed arc decreases to empty");
 
+            foreach (int shots in new[] { 5, 4, 1, 0 })
+            {
+                slot = new ItemSlot(state.VehicleId, state.LifeId, 1, shots > 0 ? HeldItem.Salvo : HeldItem.None)
+                { SalvoShots = shots, SecondToken = 2, SecondItem = HeldItem.Salvo, SecondSalvoShots = 3 };
+                hud.Refresh();
+                Require(hud.Displayed!.ItemName == (shots > 0 ? $"SALVO {shots}" : "EMPTY"), "Salvo remaining shots and exhaustion");
+                Require(hud.Displayed.SecondItemName == "SALVO 3", "Independent second-slot ammunition");
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                using Image frame = viewport.GetTexture().GetImage();
+                Require(frame.SavePng(System.IO.Path.Combine(output, $"salvo-{shots}.png")) == Error.Ok, "Ammunition screenshot");
+            }
             foreach (double charge in new[] { 100.0, 37.5, 0.1, 0.0 })
             {
                 slot = new ItemSlot(state.VehicleId, state.LifeId, 1, charge == 0 ? HeldItem.None : HeldItem.Nitro)

@@ -11,6 +11,21 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class AudioPresentationTests
 {
+    [Test]
+    public void SalvoNextShotCapabilityDoesNotSoundLikeAnotherPickup()
+    {
+        var projection = new AudioEventProjection();
+        var cues = new List<AudioCue>();
+        projection.Cue += (cue, _) => cues.Add(cue);
+        var world = new WorldSnapshot(1, 1, [new ReplicatedVehicle(State(), 0)]);
+        var slot = new ItemSlot(1, 1, 1, HeldItem.Salvo);
+        projection.Items(new(1, world, [slot], [], []));
+        projection.Items(new(2, world, [slot with { Token = 2, SalvoShots = 4 }], [], [new(1, 1, HeldItem.Salvo, Vector3.Zero, false)]));
+        Assert.That(cues, Is.EqualTo(new[] { AudioCue.MissileFire }));
+        projection.Items(new(3, world, [new(1, 1, 3, HeldItem.Salvo)], [], []));
+        Assert.That(cues.Last(), Is.EqualTo(AudioCue.WeaponPickup));
+    }
+
     /// <summary>Every starting position advances through the defined sequence with one random call.</summary>
     [Test]
     public void PlaylistCyclesAndResets()

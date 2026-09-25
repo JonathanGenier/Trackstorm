@@ -103,6 +103,4 @@ Nitro percentages and engaged capability are retained in the nested item publica
 
 The nested item boundary also retains every [Proxy Mine](items.md#magnetic-proxy-mine), including force-integrated velocity, support normal and remaining seating ticks. The successor resumes those numeric states through its own native terrain queries without a second native physics authority or target cache. Mines remain match-owned after deployer departure; historical detonations are never replayed.
 
-Salvo restores scheduled rounds and flying arcs through the existing item checkpoint, including each flying round's committed target, cadence/progress, life and unique IDs. The token high-water mark includes reserved rounds. No marker state participates in election or checkpoint agreement. See [arcing Salvo](items.md#arcing-salvo).
-
-Pending Salvo rounds resolve the current host-observed forward aim when they launch after recovery; already flying rounds retain their committed arcs. The local guide follows current vehicle aim.
+Salvo retains both physical slots' partial ammunition and cooldown ready ticks plus committed flying arcs through item protocol version ten in the existing checkpoint. Unfired ammunition has no scheduled projectile. After recovery, each new press samples current host-observed forward aim; already flying rounds retain their arcs. Retired shot capabilities reject replay, and historical effects are not replayed. The local guide follows current aim and is never checkpoint state. See [arcing Salvo](items.md#arcing-salvo).

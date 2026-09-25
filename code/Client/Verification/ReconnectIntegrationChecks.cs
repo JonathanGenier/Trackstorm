@@ -17,7 +17,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Real UDP and native Godot worlds exercising the production resume boundary with a trusted test identity.</summary>
 public sealed partial class ReconnectIntegrationChecks : Node
 {
-    private readonly Dictionary<ulong, IReadOnlyList<MissileState>> _salvoBoundaries = new();
+    private readonly Dictionary<ulong, ItemPublication> _salvoBoundaries = new();
     private readonly List<GameNetworkingSocketsTransport> _gateways = new();
     private readonly List<SubViewport> _views = new();
     private readonly List<NetworkVehicleArena> _arenas = new();
@@ -175,7 +175,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 _arenas.Add(arena);
             }
 
-            _arenas[0].Driver.ItemsReceived += state => _salvoBoundaries[state.World.Tick] = state.Missiles;
+            _arenas[0].Driver.ItemsReceived += state => _salvoBoundaries[state.World.Tick] = state;
             _arenas[1].Driver.Resynchronized += world =>
             {
                 if (_originalBody is null)

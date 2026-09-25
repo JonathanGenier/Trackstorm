@@ -3,7 +3,7 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Reserves the entire salvo atomically; pending targets are resolved again at each launch.</summary>
+/// <summary>Stages one individually requested shot; unused ammunition stays in the inventory.</summary>
 internal sealed class SalvoUseHandler : IItemUseHandler
 {
     public bool Stage(ItemSlot slot, VehiclePhysicsState pose, ItemConfiguration configuration,
@@ -11,17 +11,13 @@ internal sealed class SalvoUseHandler : IItemUseHandler
         Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil, Dictionary<ulong, NitroState> boosts, List<ProxyMineState> mines, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine,
         Func<ulong> nextToken, Func<Vector3, Vector3?>? ground)
     {
-        if (missiles.Count + configuration.SalvoCount > ItemAuthority.MaximumProjectiles) { return false; }
+        if (slot.SalvoShots <= 0 || missiles.Count >= ItemAuthority.MaximumProjectiles) { return false; }
         if (SalvoFlight.ProjectTarget(pose, configuration.SalvoRange, ground) is not Vector3 target) { return false; }
         Vector3 origin = pose.Position + Vector3.UnitY * configuration.SalvoLaunchHeight;
         // Speed is mean travel speed along a sampled parabola, rather than its horizontal chord.
-        var curve = new SalvoFlight(origin, target, configuration.SalvoArcHeight, 60, 0, 0, slot.Life);
-        int duration = curve.Launch(origin, configuration.SalvoSpeed).DurationTicks;
-        for (int i = 0; i < configuration.SalvoCount; i++)
-        {
-            var arc = curve with { DurationTicks = duration, DelayTicks = i * configuration.SalvoIntervalTicks };
-            missiles.Add(new(i == 0 ? slot.Token : nextToken(), slot.Vehicle, origin, (arc.At(1) - origin) * 60, duration) { Arc = arc });
-        }
+        var arc = new SalvoFlight(origin, target, configuration.SalvoArcHeight, 60, 0, slot.Life).Launch(origin, configuration.SalvoSpeed);
+        if (Vector3.Distance(origin, target) is < 1 or > 600 || arc.DurationTicks > 3600) { return false; }
+        missiles.Add(new(slot.Token, slot.Vehicle, origin, (arc.At(1) - origin) * 60, arc.DurationTicks) { Arc = arc });
         return true;
     }
 }

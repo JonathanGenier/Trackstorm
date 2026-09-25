@@ -120,8 +120,8 @@ public sealed class ItemAuthority
         if (inventory is null || inventory.Life != state.LifeId) { inventory = new(vehicle, state.LifeId, 0, HeldItem.None); }
         ulong token = checked(++_token);
         _slots[vehicle] = inventory.Item == HeldItem.None
-            ? inventory with { Token = token, Item = item, NitroCharge = item == HeldItem.Nitro ? 100 : 0 }
-            : inventory with { SecondToken = token, SecondItem = item, SecondNitroCharge = item == HeldItem.Nitro ? 100 : 0 };
+            ? inventory with { Token = token, Item = item, NitroCharge = item == HeldItem.Nitro ? 100 : 0, SalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SalvoReadyTick = 0 }
+            : inventory with { SecondToken = token, SecondItem = item, SecondNitroCharge = item == HeldItem.Nitro ? 100 : 0, SecondSalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SecondSalvoReadyTick = 0 };
         Revision++;
         if (!pickup)
         {
@@ -230,14 +230,24 @@ public sealed class ItemAuthority
                 }
                 continue;
             }
-            if (request.Reset.HasValue || handler is null ||
+            if (request.Reset.HasValue || handler is null || (slot.Item == HeldItem.Salvo && input.Tick < slot.SalvoReadyTick) ||
                 !handler.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts, mines, moveMine is null ? null : placeMine, NextToken, ground))
             {
                 continue;
             }
 
             if (slot.Item != HeldItem.Salvo) { events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, request.Observation.Physics.Position, false)); }
-            slots[pair.Key] = usedIndex == 0 ? inventory with { Item = HeldItem.None } : inventory with { SecondItem = HeldItem.None };
+            if (slot.Item == HeldItem.Salvo)
+            {
+                int remaining = slot.SalvoShots - 1;
+                // Retire each shot's capability so delayed/replayed requests cannot spend the next round.
+                ulong next = remaining > 0 ? NextToken() : slot.Token;
+                ulong ready = remaining > 0 ? checked(input.Tick + (ulong)Configuration.SalvoIntervalTicks) : 0;
+                slots[pair.Key] = usedIndex == 0
+                    ? inventory with { Item = remaining > 0 ? HeldItem.Salvo : HeldItem.None, Token = next, SalvoShots = remaining, SalvoReadyTick = ready }
+                    : inventory with { SecondItem = remaining > 0 ? HeldItem.Salvo : HeldItem.None, SecondToken = next, SecondSalvoShots = remaining, SecondSalvoReadyTick = ready };
+            }
+            else { slots[pair.Key] = usedIndex == 0 ? inventory with { Item = HeldItem.None } : inventory with { SecondItem = HeldItem.None }; }
         }
 
         foreach (var request in requests)
@@ -322,22 +332,9 @@ public sealed class ItemAuthority
             {
                 if (world.State.Match?.Phase == Matches.MatchPhase.Finished ||
                     world.GetVehicle(missile.Owner).LifeId != arc.Life || requests.Any(request => request.VehicleId == missile.Owner && request.Reset.HasValue)) { continue; }
-                if (arc.DelayTicks > 0)
-                {
-                    advanced.Add(missile with { Arc = arc with { DelayTicks = arc.DelayTicks - 1 } });
-                    continue;
-                }
                 if (arc.ElapsedTicks == 0)
                 {
-                    var pose = requests.Single(r => r.VehicleId == missile.Owner).Observation.Physics;
-                    // Pending rounds follow the vehicle; airborne rounds never change their committed arc.
-                    if (SalvoFlight.ProjectTarget(pose, Configuration.SalvoRange, ground) is not Vector3 target) { continue; }
-                    Vector3 origin = pose.Position + Vector3.UnitY * Configuration.SalvoLaunchHeight;
-                    var launch = (arc with { Target = target }).Launch(origin, Configuration.SalvoSpeed);
-                    // Keep launched continuation within the portable validation bounds.
-                    if (Vector3.Distance(origin, target) is < 1 or > 600 || launch.DurationTicks > 3600) { continue; }
-                    missile = missile with { Position = origin, RemainingTicks = launch.DurationTicks, Arc = launch };
-                    events.Add(new(missile.Id, missile.Owner, missile.Item, origin, false));
+                    events.Add(new(missile.Id, missile.Owner, missile.Item, arc.Origin, false));
                 }
             }
 

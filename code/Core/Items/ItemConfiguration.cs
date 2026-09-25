@@ -3,9 +3,9 @@ namespace Trackstorm.Core.Items;
 /// <summary>Host-owned bounded tuning. Linear falloff reaches zero at the edge.</summary>
 public sealed record ItemConfiguration
 {
-    /// <summary>Rounds per salvo.</summary>
+    /// <summary>Individually fired shots per pickup.</summary>
     public int SalvoCount { get; init; } = 5;
-    /// <summary>Launch interval at 60 Hz.</summary>
+    /// <summary>Minimum interval between presses accepted as shots, at 60 Hz.</summary>
     public int SalvoIntervalTicks { get; init; } = 30;
     /// <summary>Fixed forward range (m).</summary>
     public float SalvoRange { get; init; } = 65;

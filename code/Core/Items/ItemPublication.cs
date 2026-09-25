@@ -33,6 +33,8 @@ public sealed class ItemPublication
         if (revision == 0 || inventory.Length > 8 || inventory.Select(slot => slot.Vehicle).Distinct().Count() != inventory.Length ||
             inventory.Any(slot => slot.ActiveSlot > 1 ||
                 !ValidCharge(slot.Item, slot.NitroCharge) || !ValidCharge(slot.SecondItem, slot.SecondNitroCharge) ||
+                !ValidSalvo(slot.Item, slot.SalvoShots, slot.SalvoReadyTick, world.Tick) ||
+                !ValidSalvo(slot.SecondItem, slot.SecondSalvoShots, slot.SecondSalvoReadyTick, world.Tick) ||
                 (slot.EngagedToken != 0 && (slot.Active.Item != HeldItem.Nitro || slot.EngagedToken != slot.Active.Token)) ||
                 (slot.Token == 0 && slot.Item != HeldItem.None) || (slot.SecondToken == 0 && slot.SecondItem != HeldItem.None) ||
                 (slot.Item != HeldItem.None && ItemRegistry.Find(slot.Item) is null) || (slot.SecondItem != HeldItem.None && ItemRegistry.Find(slot.SecondItem) is null) ||
@@ -92,6 +94,10 @@ public sealed class ItemPublication
 
     private static bool ValidCharge(HeldItem item, double charge) => double.IsFinite(charge) &&
         (item == HeldItem.Nitro ? charge is > 0 and <= 100 : charge == 0);
+
+    private static bool ValidSalvo(HeldItem item, int shots, ulong ready, ulong tick) => item == HeldItem.Salvo
+        ? shots is >= 1 and <= 16 && (ready <= tick || ready - tick <= 60)
+        : shots == 0 && ready == 0;
 
     private static float Vector3Distance(System.Numerics.Vector3 a, System.Numerics.Vector3 b) => System.Numerics.Vector3.Distance(a, b);
 

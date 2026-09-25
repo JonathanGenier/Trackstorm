@@ -3,8 +3,8 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Portable parabola committed at each launch, including reserved rounds for checkpoint continuation.</summary>
-public sealed record SalvoFlight(Vector3 Origin, Vector3 Target, float Height, int DurationTicks, int ElapsedTicks, int DelayTicks, ulong Life)
+/// <summary>Portable parabola committed by an individual shot, retained for checkpoint continuation.</summary>
+public sealed record SalvoFlight(Vector3 Origin, Vector3 Target, float Height, int DurationTicks, int ElapsedTicks, ulong Life)
 {
     /// <summary>Analytic arc; integer time avoids integration drift at the intended impact point.</summary>
     public Vector3 At(int tick)
@@ -19,7 +19,7 @@ public sealed record SalvoFlight(Vector3 Origin, Vector3 Target, float Height, i
         var curve = this with { Origin = origin, DurationTicks = 60 };
         float length = 0;
         for (int i = 1; i <= 60; i++) { length += Vector3.Distance(curve.At(i - 1), curve.At(i)); }
-        return this with { Origin = origin, DurationTicks = Math.Max(1, (int)Math.Ceiling(length / speed * 60)), DelayTicks = 0 };
+        return this with { Origin = origin, DurationTicks = Math.Max(1, (int)Math.Ceiling(length / speed * 60)) };
     }
 
     /// <summary>Rejects malformed continuation before restore or publication.</summary>
@@ -27,8 +27,7 @@ public sealed record SalvoFlight(Vector3 Origin, Vector3 Target, float Height, i
     {
         if (!VehiclePhysicsState.IsFinite(Origin) || !VehiclePhysicsState.IsFinite(Target) ||
             !float.IsFinite(Height) || Height is < 1 or > 60 || DurationTicks is < 1 or > 3600 ||
-            ElapsedTicks < 0 || ElapsedTicks >= DurationTicks || DelayTicks is < 0 or > 900 ||
-            (DelayTicks > 0 && ElapsedTicks != 0) || Life == 0 || Vector3.Distance(Origin, Target) is < 1 or > 600)
+            ElapsedTicks < 0 || ElapsedTicks >= DurationTicks || Life == 0 || Vector3.Distance(Origin, Target) is < 1 or > 600)
         {
             throw new ArgumentException("Invalid salvo continuation.");
         }

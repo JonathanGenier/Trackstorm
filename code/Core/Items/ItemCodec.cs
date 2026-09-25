@@ -4,7 +4,7 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-nine reliable item protocol. Requests carry no claimed player or outcome.</summary>
+/// <summary>Bounded version-ten reliable item protocol. Requests carry no claimed player or outcome.</summary>
 public static class ItemCodec
 {
     /// <summary>Recognizes only this protocol's magic; complete decode remains mandatory.</summary>
@@ -108,6 +108,10 @@ public static class ItemCodec
             writer.Write(slot.NitroCharge);
             writer.Write(slot.SecondNitroCharge);
             writer.Write(slot.EngagedToken);
+            writer.Write(slot.SalvoShots);
+            writer.Write(slot.SecondSalvoShots);
+            writer.Write(slot.SalvoReadyTick);
+            writer.Write(slot.SecondSalvoReadyTick);
         }
 
         writer.Write((byte)state.Missiles.Count);
@@ -126,7 +130,6 @@ public static class ItemCodec
                 writer.Write(arc.Height);
                 writer.Write(arc.DurationTicks);
                 writer.Write(arc.ElapsedTicks);
-                writer.Write(arc.DelayTicks);
                 writer.Write(arc.Life);
             }
         }
@@ -209,7 +212,8 @@ public static class ItemCodec
         for (int i = 0; i < slots.Length; i++)
         {
             slots[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), (HeldItem)reader.ReadByte())
-            { SecondToken = reader.ReadUInt64(), SecondItem = (HeldItem)reader.ReadByte(), ActiveSlot = reader.ReadByte(), SelectionRevision = reader.ReadUInt64(), NitroCharge = reader.ReadDouble(), SecondNitroCharge = reader.ReadDouble(), EngagedToken = reader.ReadUInt64() };
+            { SecondToken = reader.ReadUInt64(), SecondItem = (HeldItem)reader.ReadByte(), ActiveSlot = reader.ReadByte(), SelectionRevision = reader.ReadUInt64(), NitroCharge = reader.ReadDouble(), SecondNitroCharge = reader.ReadDouble(), EngagedToken = reader.ReadUInt64(),
+                SalvoShots = reader.ReadInt32(), SecondSalvoShots = reader.ReadInt32(), SalvoReadyTick = reader.ReadUInt64(), SecondSalvoReadyTick = reader.ReadUInt64() };
         }
 
         var missiles = new MissileState[Count(reader, ItemAuthority.MaximumProjectiles)];
@@ -217,7 +221,7 @@ public static class ItemCodec
         {
             missiles[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), reader.ReadInt32());
             bool arcing = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid arc flag.") };
-            if (arcing) { missiles[i] = missiles[i] with { Arc = new(Vector(reader), Vector(reader), reader.ReadSingle(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadUInt64()) }; }
+            if (arcing) { missiles[i] = missiles[i] with { Arc = new(Vector(reader), Vector(reader), reader.ReadSingle(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadUInt64()) }; }
         }
 
         var mines = new ProxyMineState[Count(reader, ItemAuthority.MaximumMines)];
@@ -273,7 +277,7 @@ public static class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 9, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 10, kind });
         encode(writer);
         if (stream.Length > 32768)
         {
@@ -285,7 +289,7 @@ public static class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 9 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 10 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }
