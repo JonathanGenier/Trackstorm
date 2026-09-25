@@ -223,7 +223,7 @@ Item category target weights use the same Configs catalog and persistence/replic
 
 ## Proxy Mine tuning
 
-The six `items.mine_*` controls and registry-generated `spawns.proxy_mine_weight` use the same Configs draft/apply, host validation, local schema-two persistence, replication and recovery owners. The catalog contains 117 keys and uses gameplay configuration wire version fifteen. [Magnetic Proxy Mine](items.md#magnetic-proxy-mine) defines defaults, units, force curve and live-effect semantics. Invalid minimum/maximum force pairs reject the complete transaction. No presentation-only damage or force configuration exists.
+The six `items.mine_*` controls and registry-generated `spawns.proxy_mine_weight` use the same Configs draft/apply, host validation, local schema-two persistence, replication and recovery owners. The catalog contains 131 keys and uses gameplay configuration wire version sixteen. [Magnetic Proxy Mine](items.md#magnetic-proxy-mine) defines defaults, units, force curve and live-effect semantics. Invalid minimum/maximum force pairs reject the complete transaction. No presentation-only damage or force configuration exists.
 
 The [environment preset](terrain-effects.md) uses "environment.preset" in the same configuration, persistence, revision and recovery boundary. Its identity is session-owned; Godot lighting values remain Client presentation.
 

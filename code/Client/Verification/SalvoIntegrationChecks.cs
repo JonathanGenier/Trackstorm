@@ -73,9 +73,12 @@ public sealed partial class SalvoIntegrationChecks : Node
         if (_done && !Play) { if (_frame > _boundary + 20) { GetTree().Quit(); } return; }
         try
         {
+            if (_done && Play) { _input.Adapter.Enabled = GetWindow().HasFocus(); }
+            var playInput = _done && Play ? _input.Adapter.Capture((ulong)_frame) : default;
+            if (playInput.Pressed != 0) { GD.Print($"Interactive input: {playInput.Pressed}"); }
             foreach (var arena in _arenas)
             {
-                arena.Advance(_done && Play && arena == _arenas[1] ? _input.Adapter.Capture(0) : default);
+                arena.Advance(arena == _arenas[1] ? playInput : default);
                 Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure);
             }
             var host = _arenas[0].Driver.Host!;
@@ -149,7 +152,17 @@ public sealed partial class SalvoIntegrationChecks : Node
                     else
                     {
                         _done = true; _boundary = _frame;
-                        if (Play) { _wave = 0; Position(); }
+                        if (Play)
+                        {
+                            _wave = 0; Position();
+                            GD.Print($"Interactive Salvo ready: input enabled {_input.Adapter.Enabled}, window focus {GetWindow().HasFocus()}.");
+                        }
+                        else
+                        {
+                            foreach (var arena in _arenas) { arena.QueueFree(); }
+                            foreach (var gateway in _gateways) { gateway.Dispose(); }
+                            _gateways.Clear();
+                        }
                         System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
                         GD.Print("Salvo integration passed: three peers, three salvos, banked marker privacy, 15 replicated impacts and multiple targets.");
                     }
@@ -174,7 +187,11 @@ public sealed partial class SalvoIntegrationChecks : Node
 
     private void Capture(int peer, string name)
     {
-        if (DisplayServer.GetName() != "headless") { _views[peer].GetTexture().GetImage().SavePng(System.IO.Path.Combine(_output, name)); }
+        if (DisplayServer.GetName() != "headless")
+        {
+            using var image = _views[peer].GetTexture().GetImage();
+            image.SavePng(System.IO.Path.Combine(_output, name));
+        }
     }
     private void Next(string evidence) { GD.Print(evidence); _evidence.Add(evidence); _stage++; _boundary = _frame; }
     private static void Check(bool condition, string message) { if (!condition) { throw new InvalidOperationException(message); } }

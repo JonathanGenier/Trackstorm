@@ -168,3 +168,5 @@ finally {
 
 $playPlan = Get-FastCheckPlan -Paths @("code/Client/Frontend/HangingPlayMenu.cs")
 Assert-True ($playPlan.RuntimeScripts -contains "check-play-menu.ps1") "Play Menu presentation changes must route the runtime interaction harness."
+$salvoPlan = Get-FastCheckPlan -Paths @("code/Client/Items/SalvoMarker.cs")
+Assert-True ($salvoPlan.RuntimeScripts -contains "check-salvo.ps1") "Salvo marker changes must route the native marker privacy harness."

@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.78 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Three UDP peers joined; native bank prepared.
+Remote player receives Salvo and second-slot Wrench.
+Wave 1: five matching launches/impacts, damage to both targets, remote marker privacy.
+Banked ring visible only to owner; remote use sent over UDP.
+Wave 2: five matching launches/impacts, damage to both targets, remote marker privacy.
+Banked ring visible only to owner; remote use sent over UDP.
+Wave 3: five matching launches/impacts, damage to both targets, remote marker privacy.
+Interactive Salvo ready: input enabled False, window focus True.
+Salvo integration passed: three peers, three salvos, banked marker privacy, 15 replicated impacts and multiple targets.
+Interactive input: UseItem
+Interactive input: UseItem

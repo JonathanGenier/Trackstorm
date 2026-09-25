@@ -25,7 +25,7 @@ internal static class SalvoRecoveryFixture
 
     internal static void Verify(ItemPublication state, IReadOnlyDictionary<ulong, IReadOnlyList<MissileState>> boundaries)
     {
-        if (!boundaries.TryGetValue(state.World.Tick, out var expected) || expected.Count != 5 || !state.Missiles.SequenceEqual(expected))
+        if (!boundaries.TryGetValue(state.World.Tick, out var expected) || expected.Count != 5 || state.Events.Count != 0 || !state.Missiles.SequenceEqual(expected))
         { throw new InvalidOperationException("Salvo recovery did not install exact scheduled and in-flight rounds."); }
         GDPrint(state);
     }
