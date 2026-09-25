@@ -30,7 +30,7 @@ Accepting a larger checkpoint retires older two-player copies, and a currently l
 
 ## Complete checkpoint
 
-The version-five `TC` migration checkpoint composes the existing complete version-two `TR` resume codecs with authority continuation:
+The version-five `TC` migration checkpoint composes the existing complete version-three `TR` resume codecs with authority continuation:
 
 - Stable session, match generation, host, epoch, roster, reconnect generations and disconnected roster records, session clock, player allocation high-water mark, private lease session key, optional read-only routing address and former-host retention flags. Only the read-only address may enter a local resume file; the private key remains in memory.
 - Simulation tick; complete vehicle aggregates, transforms, commanded and observed linear/angular velocity, handling/surface state, HP, damage attribution, collision cooldowns, accepted physical effects, life generations and respawn deadlines.
@@ -106,3 +106,5 @@ The nested item boundary also retains every [Proxy Mine](items.md#magnetic-proxy
 Salvo retains both physical slots' partial ammunition and cooldown ready ticks plus committed flying arcs through item protocol version eleven in the existing checkpoint. Unfired ammunition has no scheduled projectile. After recovery, each new press samples current host-observed forward aim; already flying rounds retain their arcs. Retired shot capabilities reject replay, and historical effects are not replayed. The local guide follows current aim and is never checkpoint state. See [arcing Salvo](items.md#arcing-salvo).
 
 Machine Gun continuation uses the nested item boundary for each physical slot's remaining rounds, acquisition capacity and fractional firing phase. Neutral input after migration stops sustained fire; subsequent accepted use resumes from that exact resource state and deterministic shot ordinal without replaying historical shot events.
+
+[Destructible environment](destructible-environment.md) adds match-owned staged rocks and cleared soft cover. Both native adapters consume the same Core state; version-three resume checkpoints and nested migration retain damage, stages, movement continuation and plant bits without replaying impacts. New matches restore authored state.

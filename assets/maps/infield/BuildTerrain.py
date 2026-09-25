@@ -107,6 +107,18 @@ profile_height = end_height * side_profile
 radius = 2.0
 fill = np.maximum(shoulder, profile_height) + np.maximum(radius - np.abs(profile_height - shoulder), 0)**2 / (4 * radius)
 y = baseline_y * (1 - end_blend) + fill * end_blend
+# TS-162: bridge each preserved 4.8 m kicker lip directly onto the 6.35 m
+# tabletop, in this same continuous mesh/collider. Ease upward beyond the
+# unchanged takeoff face without the former dip caused by blending to baseline.
+lip_distance = np.clip(83 - np.abs(x), 0, 13)
+fill_grade = .55
+blend_length = 2 * (deck_height - 4.8) / fill_grade
+rise_distance = np.minimum(lip_distance, blend_length)
+lip_height = 4.8 + fill_grade * rise_distance - fill_grade * rise_distance**2 / (2 * blend_length)
+# A bounded lateral grade adds material only where needed; multiplying the
+# raised top by the old narrow kicker taper would steepen adjacent route edges.
+lip_fill = lip_height - .45 * np.maximum(np.abs(z) - 6, 0)
+y = np.where((np.abs(x) < 83) & (np.abs(x) >= 70) & (np.abs(z) < 28.25), np.maximum(y, lip_fill), y)
 assert np.array_equal(y[np.abs(x) >= 83], baseline_y[np.abs(x) >= 83])
 assert np.array_equal(y[np.abs(z) >= 28.25], baseline_y[np.abs(z) >= 28.25])
 

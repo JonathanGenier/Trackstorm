@@ -149,6 +149,8 @@ internal sealed class DeveloperConfigurationTests
     [TestCase("vehicle.mud.drag", 8)]
     [TestCase("vehicle.mud.acceleration", 0.1)]
     [TestCase("vehicle.dirt.grip", 0.1)]
+    [TestCase("vehicle.dirt_steering_reserve", 0)]
+    [TestCase("vehicle.dirt_recovery", 0)]
     [TestCase("vehicle.dirt.drag", 8)]
     [TestCase("vehicle.dirt.acceleration", 0.1)]
     [TestCase("vehicle.grass.grip", 0.1)]
@@ -165,7 +167,7 @@ internal sealed class DeveloperConfigurationTests
         Pose(baseline, 1, physics);
         Pose(tuned, 1, physics);
         Edit(tuned, (key, value));
-        SurfaceType surface = key.Split('.')[1] switch { "mud" => SurfaceType.Mud, "dirt" => SurfaceType.Dirt, "grass" => SurfaceType.Grass, "deep_mud" => SurfaceType.DeepMud, _ => SurfaceType.Concrete };
+        SurfaceType surface = key.Split('.')[1] switch { "mud" => SurfaceType.Mud, "dirt" or "dirt_steering_reserve" or "dirt_recovery" => SurfaceType.Dirt, "grass" => SurfaceType.Grass, "deep_mud" => SurfaceType.DeepMud, _ => SurfaceType.Concrete };
         bool handbrake = key.Contains("handbrake", StringComparison.Ordinal);
         var input = new InputFrame(0, 16000, 50000, 0, handbrake ? InputButtons.Drift : 0, 0, 0);
         for (int tick = 0; tick < 30; tick++)

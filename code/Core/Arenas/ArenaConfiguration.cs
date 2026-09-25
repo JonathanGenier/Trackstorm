@@ -18,7 +18,8 @@ public sealed class ArenaConfiguration
     /// <param name="players">Stable player slots.</param>
     /// <param name="items">Stable item locations.</param>
     /// <param name="surfaces">Authored surface identifiers.</param>
-    public ArenaConfiguration(Vector3 minimum, Vector3 maximum, IEnumerable<ArenaSpawn> players, IEnumerable<ArenaSpawn> items, IEnumerable<SurfaceType> surfaces)
+    /// <param name="environment">Optional authored destructible identities.</param>
+    public ArenaConfiguration(Vector3 minimum, Vector3 maximum, IEnumerable<ArenaSpawn> players, IEnumerable<ArenaSpawn> items, IEnumerable<SurfaceType> surfaces, EnvironmentLayout? environment = null)
     {
         ArgumentNullException.ThrowIfNull(players);
         ArgumentNullException.ThrowIfNull(items);
@@ -29,6 +30,7 @@ public sealed class ArenaConfiguration
         }
 
         Minimum = minimum;
+        Environment = environment;
         Maximum = maximum;
         ArenaSpawn[] playerArray = players.ToArray();
         ArenaSpawn[] itemArray = items.ToArray();
@@ -76,6 +78,7 @@ public sealed class ArenaConfiguration
 
     /// <summary>Inclusive world bounds.</summary>
     public Vector3 Minimum { get; }
+    public EnvironmentLayout? Environment { get; }
     /// <summary>Inclusive world bounds.</summary>
     public Vector3 Maximum { get; }
     /// <summary>Stable slot order used by the host.</summary>

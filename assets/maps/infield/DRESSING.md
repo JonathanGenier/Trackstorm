@@ -57,3 +57,5 @@ basins and a two-car tunnel traversal. Its `Dressing` case also checks native
 approaches into placed landmarks. Scenario resets are test setup, not proof of
 free-driving recovery from every crevice. Actual results/limitations belong in
 the Story verification report.
+
+Runtime interaction is now owned by [destructible environment](../../../docs/features/destructible-environment.md). The authored scene remains the reset source. Arena-owned copies of batched plant transforms prevent one match from changing imported resources; structural fixtures and unreachable exterior trees are excluded.

@@ -27,6 +27,7 @@ Start with the system being changed. Read its document and only the integration 
 | [Combat arena](arena.md) | Retained prototype fixture, markers, props and materials | [Vehicles](vehicles.md), [pickups](item-spawns.md), [replication](vehicle-networking.md) |
 | [Banked oval map](oval-map.md) | Active practice/gameplay map, Blender source, infield terrain and jump corridors, real scale, banking, eight player grid spawns and collision | [Combat arena](arena.md), [vehicles](vehicles.md) |
 | [Environment asset library](environment-library.md) | Reusable Blender rocks, vegetation and modular infrastructure, source/import pipeline, collision and LOD strategy | [Banked oval map](oval-map.md) |
+| [Destructible environment](destructible-environment.md) | Staged production rocks, soft plants, bounded movement and complete match recovery | [Vehicles](vehicles.md), [items](items.md), [oval map](oval-map.md) |
 | [Transport foundation](transport.md) | Opaque gateway, endpoints, GNS fallback and legacy state envelope | [Vehicle networking](vehicle-networking.md), [sessions](sessions.md), [EOS P2P](eos-p2p.md) |
 | [Vehicle networking](vehicle-networking.md) | Host input, snapshots, prediction and reconciliation | [Transport](transport.md), [vehicles](vehicles.md), [sessions](sessions.md) |
 | [Session flow](sessions.md) | Admission, Ready/Start/Return and Direct-IP development UI | [EOS lobbies](eos-lobbies.md), [vehicle networking](vehicle-networking.md), [matches](matches.md) |

@@ -365,7 +365,7 @@ internal sealed partial class DevToolsShell : CanvasLayer
         }
 
         SelectedTab = tab;
-        Configs.SetConfigurationFooterVisible(tab == DevToolsTab.Configs && Configs.Session()?.IsDeveloperHost == true);
+        Configs.SetConfigurationFooterVisible(tab == DevToolsTab.Configs && Configs.CanConfigure);
         foreach ((DevToolsTab candidate, Control content) in _content)
         {
             bool selected = candidate == tab;

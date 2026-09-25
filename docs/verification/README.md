@@ -11,6 +11,10 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Evidence | Reports |
 | --- | --- |
 | TS-167 close-range machine gun | [Authority, native firing, recovery, tuning and runtime critique](ts-167.md) |
+
+| Story verification | [TS-165 verification evidence](ts-165.md) |
+| Story verification | [TS-162 verification evidence](ts-162.md) |
+| Dirt driving and arcade drift recovery | [TS-166 verification evidence](ts-166.md) |
 | Arcing Salvo and owner-local impact marker | [TS-148 verification evidence](ts-148.md) |
 | Magnetic Proxy Mine and authoritative swept pickup reliability | [TS-147 verification evidence](ts-147.md) |
 | Sustained percentage Nitro rocket thrust and loot reachability investigation | [TS-157 verification evidence](ts-157.md) |

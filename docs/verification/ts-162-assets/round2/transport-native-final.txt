@@ -1,0 +1,17 @@
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed HostAndSevenClientsRejectExcessAndReconnect [109 ms]
+  Error Message:
+     Assert.That(host.Connections.Values, Is.All.EqualTo(TransportConnectionState.Connected))
+  Expected: all items equal to Connected
+  But was:  < Connected, Connected, Connected, Connected, Connected, Connected, Connecting >
+  First non-matching item at index [6]:  Connecting
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.NativeTransportTests.HostAndSevenClientsRejectExcessAndReconnect() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\NativeTransportTests.cs:line 50
+
+1)    at Trackstorm.Transport.Tests.NativeTransportTests.HostAndSevenClientsRejectExcessAndReconnect() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\NativeTransportTests.cs:line 50
+
+
+
+Failed!  - Failed:     1, Passed:    10, Skipped:     0, Total:    11, Duration: 1 m 19 s - Trackstorm.Transport.Tests.dll (net10.0)

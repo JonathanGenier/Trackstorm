@@ -39,11 +39,17 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'DestructibleEnvironment|EnvironmentAuthority|EnvironmentLayout|EnvironmentRockState|EnvironmentSnapshot|EnvironmentCodec|EnvironmentRecoveryFixture|destructible_environment|check-destructible-environment') {
+            Add-Runtime 'check-destructible-environment.ps1'
+            Add-Extended 'check-reconnect.ps1'
+            Add-Extended 'check-migration.ps1'
+            Add-Manual 'Drive production rocks, plants and both tabletop transitions; inspect smallest-rock stability and repeated destruction with recovery.'
+        }
         if ($path -match 'Salvo|salvo_checks|check-salvo') {
             Add-Runtime 'check-salvo.ps1'
             Add-Manual 'Play Salvo from the chase camera; inspect terrain-conforming marker privacy on remote peers and repeated use. Run impaired salvo, reconnect and migration checks.'
         }
-        if ($path -match 'TireFeedback|TireTrack|EnvironmentPresentation|EnvironmentPreset|EnvironmentSky|TerrainEffects|terrain_effects|check-terrain-effects') {
+        if ($path -match 'TireFeedback|TireMarkBatch|TireEffect|TireTrack|WaterWake|EnvironmentPresentation|EnvironmentPreset|EnvironmentSky|TerrainEffects|terrain_effects|check-terrain-effects') {
             Add-Runtime 'check-terrain-effects.ps1'
             Add-Runtime 'check-developer-options.ps1'
             Add-Manual 'Inspect all five environment packages at driving height; drive every surface, repeat tire effects and check Water splashes without persistent marks. Exercise environment replication and recovery.'

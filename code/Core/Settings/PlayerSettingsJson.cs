@@ -19,6 +19,7 @@ public static class PlayerSettingsJson
             musicVolume = settings.MusicVolume,
             sfxVolume = settings.SfxVolume,
             cameraShakeIntensity = settings.CameraShakeIntensity,
+            tireEffects = settings.TireEffects.Values,
             fullscreen = settings.Fullscreen,
             windowWidth = settings.WindowWidth,
             windowHeight = settings.WindowHeight,
@@ -88,6 +89,16 @@ public static class PlayerSettingsJson
                 }
             }
 
+            if (root.TryGetProperty("tireEffects", out JsonElement tire) && tire.ValueKind == JsonValueKind.Object)
+            {
+                var effects = TireEffectSettings.Defaults;
+                foreach (var option in TireEffectSettings.Options)
+                {
+                    double value = Number(tire, option.Key, option.Default);
+                    if (effects.TryApply(new Dictionary<string, double> { [option.Key] = value }, out var accepted, out _)) { effects = accepted; }
+                }
+                settings = settings with { TireEffects = effects };
+            }
             return settings;
         }
         catch (JsonException)

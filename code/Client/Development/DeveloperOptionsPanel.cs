@@ -3,6 +3,7 @@ using Trackstorm.Client.Networking;
 using Trackstorm.Client.Vehicles;
 using Trackstorm.Core.Development;
 using Trackstorm.Core.Networking.Transport;
+using Trackstorm.Core.Settings;
 
 namespace Trackstorm.Client.Development;
 
@@ -33,6 +34,14 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     private DeveloperOptionsFeedbackState _feedbackState;
     private Button _resetButton = null!;
     private bool _configurationFooterVisible;
+    private bool _hostAuthority;
+    private bool _tireSaveFailed;
+    private readonly Dictionary<string, LineEdit> _tireEditors = new();
+    private readonly HashSet<Control> _localSections = new();
+    internal Settings.PlayerSettingsController? LocalSettings { get; set; }
+    private TireEffectSettings _tireBaseline = TireEffectSettings.Defaults;
+    internal bool CanConfigure => Session()?.IsDeveloperHost == true || LocalSettings is not null;
+    private bool TireDirty => _tireEditors.Any(pair => !float.TryParse(pair.Value.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float value) || value != _tireBaseline[pair.Key]);
 
     /// <summary>Current production session supplied by composition.</summary>
     internal Func<DevelopmentSession?> Session { get; set; } = () => null;
@@ -43,7 +52,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     /// <summary>Right-side action row extended by the shell-owned Close button.</summary>
     internal HBoxContainer FooterActions => _footerActions;
     /// <summary>Whether closing needs an explicit decision, including invalid editor text.</summary>
-    internal bool HasUnappliedChanges => _draft.IsDirty || NetworkDirty;
+    internal bool HasUnappliedChanges => _draft.IsDirty || NetworkDirty || TireDirty;
     private bool NetworkDirty => _simulation.Where((value, index) => value.Value != _appliedSimulation[index]).Any();
 
     /// <inheritdoc/>
@@ -111,6 +120,30 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             }
         }
 
+        if (LocalSettings is not null)
+        {
+            _tireBaseline = LocalSettings.Current.TireEffects;
+            foreach (var group in TireEffectSettings.Options.GroupBy(option => option.Group))
+            {
+                var section = new VBoxContainer();
+                settings.AddChild(section);
+                _localSections.Add(section);
+                section.AddChild(new Label { Text = group.Key.ToUpperInvariant() });
+                var rows = ConfigurationRows(section);
+                var entries = new List<(Label Label, Control Editor, string Search)>();
+                _sections.Add((section, entries));
+                foreach (var option in group)
+                {
+                    var label = ConfigurationLabel(option.Label);
+                    var editor = new LineEdit { Name = option.Key.Replace('.', '_'), MaxLength = 24, SelectAllOnFocus = true, CustomMinimumSize = new Vector2(150, 36), TooltipText = $"{option.Key}: {option.Minimum}–{option.Maximum}. Local graphics only. Changes affect new emissions; budget changes clear existing marks." };
+                    _tireEditors.Add(option.Key, editor);
+                    rows.AddChild(label); rows.AddChild(editor);
+                    entries.Add((label, editor, $"{group.Key} {option.Label} {option.Key}"));
+                    editor.TextChanged += _ => { ColorTireValues(); UpdateFeedback(); };
+                }
+            }
+            RenderTireValues(_tireBaseline);
+        }
         settings.AddChild(_network);
         _network.AddChild(new Label { Text = "LOCAL NETWORK SIMULATION · Direct-IP only, process-wide, not saved.", AutowrapMode = TextServer.AutowrapMode.WordSmart });
         string[] names = ["Latency (ms)", "Jitter (ms)", "Loss (%)", "Reorder (%)", "Reorder delay (ms)"];
@@ -158,13 +191,16 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         });
         AddChild(_status);
         RenderValues();
+        Filter();
     }
 
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
         var session = Session();
-        _host.Visible = session?.IsDeveloperHost == true;
+        bool hostAuthority = session?.IsDeveloperHost == true;
+        if (_hostAuthority != hostAuthority) { _hostAuthority = hostAuthority; Filter(); }
+        _host.Visible = DeveloperTools.Enabled && CanConfigure;
         SetConfigurationFooterVisible(_host.Visible && IsVisibleInTree());
         _practice.Visible = DeveloperTools.Enabled && Practice() is not null;
         if (HasUnappliedChanges)
@@ -196,15 +232,15 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         _elapsed = 0;
         Filter();
         _availability.Text = !DeveloperTools.Enabled ? "Developer tools are disabled in this build."
-            : _host.Visible ? (NetworkSimulationControl.Supported(session?.Gateway)
+            : session?.IsDeveloperHost == true ? (NetworkSimulationControl.Supported(session?.Gateway)
                 ? "Host controls · Apply validates, synchronizes and saves gameplay tuning"
                 : "Host controls · local network simulation unavailable for this transport")
-            : _practice.Visible ? "Local practice tools. Host a multiplayer session for gameplay tuning."
+            : LocalSettings is not null ? "Local tire graphics · Apply saves on this device. Host a session for gameplay tuning."
             : "Configs require current host authority. Host a session to access tuning and developer actions.";
         object? owner = (object?)session?.Arena?.Driver ?? session?.Lobby;
         ulong revision = session?.Arena?.Driver.Configuration.Revision ?? session?.Lobby?.Authority?.Configuration.Revision ?? 0;
         ulong epoch = session?.Lobby?.State?.AuthorityEpoch ?? 0;
-        if (_host.Visible && (!ReferenceEquals(_owner, owner) || epoch != _authorityEpoch || (!_draft.IsDirty && revision != _revision)))
+        if (session?.IsDeveloperHost == true && (!ReferenceEquals(_owner, owner) || epoch != _authorityEpoch || (!_draft.IsDirty && revision != _revision)))
         {
             RefreshValues();
         }
@@ -221,6 +257,21 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     /// <returns>Whether all requested values were accepted.</returns>
     internal bool Apply()
     {
+        var tireEdits = new Dictionary<string, double>();
+        foreach (var (key, editor) in _tireEditors)
+        {
+            if (!double.TryParse(editor.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double value))
+            {
+                _status.Text = $"Invalid local graphics value: {key}";
+                return false;
+            }
+            tireEdits[key] = value;
+        }
+        if (!_tireBaseline.TryApply(tireEdits, out var tire, out string tireError)) { _status.Text = tireError; return false; }
+        if (Session()?.IsDeveloperHost != true && LocalSettings is not null)
+        {
+            return ApplyTireValues(tire);
+        }
         if (!_draft.TryGetEdits(out var edits, out string error))
         {
             _status.Text = error;
@@ -261,12 +312,19 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             return false;
         }
 
+        if (LocalSettings is not null && (TireDirty || _tireSaveFailed))
+        {
+            if (!ApplyTireValues(tire)) { return false; }
+            _status.Text = session.DeveloperSettings?.Status ?? "Local graphics saved; host persistence unavailable.";
+        }
         return true;
     }
 
     /// <summary>Discards unapplied edits and restores currently effective values.</summary>
     internal void Cancel()
     {
+        _tireBaseline = LocalSettings?.Current.TireEffects ?? TireEffectSettings.Defaults;
+        RenderTireValues(_tireBaseline);
         _draft.Discard(Session()?.DeveloperConfiguration ?? GameplayConfiguration.HostedDefaults);
         RenderValues();
         for (int i = 0; i < _simulation.Count; i++)
@@ -327,6 +385,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
 
     private void Reset()
     {
+        if (LocalSettings is not null) { RenderTireValues(TireEffectSettings.Defaults); UpdateFeedback(); }
         if (Session()?.IsDeveloperHost != true)
         {
             return;
@@ -440,7 +499,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         bool any = false;
         foreach (var (section, rows) in _sections)
         {
-            bool available = section != _network || NetworkSimulationControl.Supported(Session()?.Gateway);
+            bool available = _localSections.Contains(section) || Session()?.IsDeveloperHost == true && (section != _network || NetworkSimulationControl.Supported(Session()?.Gateway));
             bool found = false;
             foreach (var row in rows)
             {
@@ -457,5 +516,30 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     }
 
     private void Report(bool success, string accepted, string rejected) => _status.Text = success ? accepted : rejected;
+
+    private bool ApplyTireValues(TireEffectSettings tire)
+    {
+        LocalSettings!.UpdateSettings(LocalSettings.Current with { TireEffects = tire });
+        _tireBaseline = tire;
+        bool saved = LocalSettings.Flush();
+        _tireSaveFailed = !saved;
+        _status.Text = LocalSettings.SaveStatus;
+        SetFeedback(DeveloperOptionsFeedbackState.Applied);
+        return saved;
+    }
+
+    private void RenderTireValues(TireEffectSettings settings)
+    {
+        foreach (var (key, editor) in _tireEditors) { editor.Text = settings[key].ToString("G", System.Globalization.CultureInfo.InvariantCulture); }
+        ColorTireValues();
+    }
+
+    private void ColorTireValues()
+    {
+        foreach (var (key, editor) in _tireEditors)
+        {
+            ValueColor(editor, float.TryParse(editor.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float value) && value == TireEffectSettings.Defaults[key]);
+        }
+    }
 
 }

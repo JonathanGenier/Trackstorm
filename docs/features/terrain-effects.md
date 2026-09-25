@@ -55,19 +55,86 @@ permits wet feedback where the tire footprint is immersed without wheel support.
 | Rock / unavailable | No tire marks |
 
 These are visual strips and particles, not physical ruts or grass removal. Each
-vehicle has a fixed 512-segment track ring, a 32-ripple wake ring and four 24-particle
-emitters. Marks fade over 20 seconds (or are overwritten sooner); wakes expire in
-0.9 seconds. Airborne/destroyed cars, teleports and life transitions break track
-continuity. Sampling stops beyond 100 m; track shader distance fading uses each
-fragment rather than the world-origin distance. Density can be reduced or disabled
-by a future local optimization policy; no new user setting or replicated authority
-is introduced. Resources are released with the owning vehicle/arena.
+vehicle retains a 32-ripple wake ring and four 24-particle emitters. All vehicles
+in an arena share one `TireMarkBatch` with one draw batch and one fixed allocation
+of 65,536 quad slots (262,144 mesh-instance vertices / 131,072 triangles at the
+absolute ceiling). Its default active submission budget is 49,152 segments;
+eight cars emitting four segments at 20 Hz for 60 seconds require at most 38,400.
+The ring overwrites its oldest slot when full. No segment creates a node, material,
+mesh or network message. Marks default to 60 seconds, with full intensity through
+42 seconds and a smooth final 18-second fade. Expired quads collapse in the vertex
+shader so they incur no transparent fragment overdraw. Once the last possible
+expiry passes, the whole batch submits zero instances. Submission count includes
+expired slots until that reset or recycling; it always remains below the budget.
+The fixed allocation never grows with time, distance travelled or player count.
+Budget edits retire the existing batch immediately without reallocating storage.
+
+Wakes default to 0.9 seconds and never enter the persistent ring. Airborne/destroyed
+cars, surface changes, missing support, teleports and life transitions break track
+continuity. Sampling stops beyond 100 m by default; fragment distance fading uses
+camera-relative fragment position. Marks are arena-owned and survive a vehicle's
+removal until expiry; wakes/emitters are vehicle-owned. All resources end with
+their respective scene owners. The mark clock rebases hourly to retain shader
+precision; the short wake ring clears at its hourly clock boundary.
 
 Once every segment in a track or wake batch expires, its visible instance count
 returns to zero, eliminating transparent submissions while idle. Restarting a
 batch exposes only newly written segments. Wheel sampling reuses one native ray
 query and exclusion list per vehicle and fetches water terrain once per sampling
 pass; there is no cached map ownership or new authoritative state.
+
+## Local Configs tuning
+
+**Developer Options > Configs > Tire marks · Local graphics** and the seven
+**Tire effects** surface groups use the existing shell's search, staged Apply,
+Cancel, Reset, dirty-close protection and default colors. They are available to
+hosts, joined clients and local practice. These values only control local graphics;
+they use `PlayerSettingsController` and `player-settings.json` (`tireEffects`),
+never `GameplayOptions`, host tuning revisions, migration checkpoints or wire
+messages. Existing session-owned environment/gameplay settings keep their normal
+host-only authority. Files without the new keys use defaults; invalid saved keys
+default independently. Invalid staged values reject the entire local transaction.
+Apply reports a local save failure and supports retry without losing accepted tuning.
+
+| Stable key | Default; accepted range | Runtime effect |
+| --- | --- | --- |
+| `tire.lifetime` | 60 s; 1–180 | Base duration for newly emitted persistent marks |
+| `tire.fade` | 0.3; 0.01–1 | Fraction of total lifetime spent fading; fade delay is the remaining fraction |
+| `tire.width` | 1; 0.1–3 | Multiplies strip and wake width |
+| `tire.intensity` | 1; 0–2 | Multiplies mark/wake/spray alpha, clamped to valid alpha |
+| `tire.spacing` | 0.35 m; 0.1–2 | Minimum distance between successive strip endpoints |
+| `tire.speed` | 0.8 m/s; 0–30 | Base mark/wake speed threshold |
+| `tire.spray_speed` | 2 m/s; 0–30 | Base dust/debris/splash speed threshold |
+| `tire.slip` | 0.35; 0–1 | Front/rear slip threshold for the corresponding hard-surface tires; confirmed drifting is also required |
+| `tire.budget` | 49,152; integer 256–65,536 | Arena-wide submitted segment cap; oldest-first recycling |
+| `tire.distance` | 100 m; 20–250 | Emission culling and shader distance fade |
+| `tire.quality` | 1; 0–1 | Local sampling/spacing/spray density; zero stops emission while existing marks fade |
+
+For each `surface` in `asphalt`, `concrete`, `dirt`, `grass`, `mud`,
+`deep_mud`, and `water`, `tire.<surface>.*` exposes:
+
+| Suffix | Default; accepted range | Runtime effect |
+| --- | --- | --- |
+| `duration` | 1; 0.05–2 (persistent surfaces) | Multiplies base duration: dirt/grass/mud/deep-mud disturbance can each recover independently |
+| `duration` (Water) | 0.9 s; 0.1–3 | Absolute wake duration, independent of persistent mark lifetime |
+| `width` | 1; 0.1–3 | Multiplies the distinct surface's authored width |
+| `intensity` | 1; 0–2 | Multiplies the distinct surface's opacity and spray alpha |
+| `fade` | 1; 0.1–3 | Multiplies global fade fraction, capped to the full duration |
+| `density` | 1; 0–1 | Multiplies spacing/emission/spray density; zero disables that surface |
+| `speed` | 1; 0–10 | Multiplies the base emission speed threshold |
+
+Changes affect subsequent emissions; existing marks retain their born-time style,
+duration and fade. Distance changes affect existing visibility immediately.
+Lower quality reduces sampling to at most 10 Hz and increases spacing; spacing
+saturates at 6 m so a nonzero setting cannot accidentally suppress every strip.
+Maximum segment length is an 8 m continuity/teleport guard, not a style control.
+The fixed four wheels, maximum 20 Hz contact cadence, wake/particle capacities,
+support-normal rejection, surface lift, segment overlap, shader tread/noise pattern,
+material RGB/roughness and particle gravity/spread are structural or authored
+identity choices. They remain fixed to preserve contact safety and distinct TS-82
+art direction; width/alpha/duration/density provide the applicable runtime controls.
+There is no separate cleanup threshold: expiry and the active budget fully define
+retirement. No terrain vertices, collision, handling or surface identities change.
 
 ## Verification routes
 

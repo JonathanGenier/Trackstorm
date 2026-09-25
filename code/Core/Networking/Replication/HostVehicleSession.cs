@@ -54,6 +54,7 @@ public sealed class HostVehicleSession
         World.Events = events ?? new EventStream();
         World.Events.Record(EventCategory.Match, "Created");
         Items = new ItemAuthority(effective.Items);
+        Environment = arena?.Environment is { } layout ? new Arenas.EnvironmentAuthority(layout) : null;
         ItemSelectionRandom = new ItemSelectionRandom(unchecked((ulong)effective.Spawns.Seed));
         World.AddVehicle(hostPlayerId, effective.Vehicle, effective.Damage, Spawn(0));
         _nextVehicle = hostPlayerId;
@@ -68,6 +69,7 @@ public sealed class HostVehicleSession
 
     /// <summary>Match-scoped item gameplay authority.</summary>
     public ItemAuthority Items { get; }
+    public Arenas.EnvironmentAuthority? Environment { get; }
 
     /// <summary>One host-owned stream for every sequential item-selection decision in this match.</summary>
     public ItemSelectionRandom ItemSelectionRandom { get; }
@@ -130,6 +132,8 @@ public sealed class HostVehicleSession
         result.ItemSelectionRandom.Restore(continuation.RandomState);
         result.World.Restore(new SimulationState(world.Tick, new InputFrame(world.Tick, 0, 0, 0, 0, 0, 0), world.Vehicles.Select(vehicle => vehicle.State), checkpoint.Match));
         result.Items.Restore(checkpoint.Items, continuation.ItemRevision, continuation.Token);
+        if ((result.Environment is null) != (checkpoint.Environment is null)) { throw new ArgumentException("Missing environment recovery state."); }
+        if (checkpoint.Environment is { } environment) { result.Environment!.Restore(environment); }
         result._nextVehicle = continuation.NextVehicle;
         result.World.Events = events ?? new EventStream();
         return result;
@@ -293,7 +297,7 @@ public sealed class HostVehicleSession
         var world = new WorldSnapshot(SessionId, current.Tick, current.Vehicles.Append(new ReplicatedVehicle(vehicle, 0)), Configuration.Revision);
         var items = new ItemPublication(revision, world, Items.Slots, Items.Missiles, [], Spawns?.States, Items.Patches, Items.OilContacts, Spawns?.Balances, Items.Mines);
         var match = Matches.MatchAuthority.Join(World.State.Match!, current.Tick, player);
-        return new ResumeCheckpoint(items, match, props, Configuration);
+        return new ResumeCheckpoint(items, match, props, Configuration, Environment?.Snapshot(SessionId, World.State.Tick));
     }
 
     /// <summary>Creates a fresh participant only after bootstrap receipt, rechecking live spawn clearance.</summary>
@@ -473,7 +477,12 @@ public sealed class HostVehicleSession
         InputFrame hostInput = new SequencedInput(0, local).AtTick(tick);
         inputs.Add(HostPlayerId, hostInput);
         var previous = World.State.Vehicles.ToDictionary(state => state.VehicleId);
-        Items.Step(World, hostInput, World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray(), collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground, raycastWeapon);
+        var observations = World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray();
+        Items.Step(World, hostInput, observations, collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground, raycastWeapon);
+        if (AllowsParticipation)
+        {
+            Environment?.Advance(tick, observations.Where(r => previous[r.VehicleId].CanInteract).ToArray(), Items.Events, Items);
+        }
         foreach (var peer in _peers.Values)
         {
             VehicleSnapshot state = World.GetVehicle(peer.Vehicle);

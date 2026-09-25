@@ -146,7 +146,7 @@ public sealed partial class VehicleBody : RigidBody3D
             Vector3 relative = body.GetContactLocalVelocityAtPosition(contact) - body.GetContactColliderVelocityAtPosition(contact);
             var other = body.GetContactColliderObject(contact) as VehicleBody;
             bool obstacle = EnvironmentContact.IsObstacle(body.GetContactColliderObject(contact), normal);
-            contacts.Add(new VehicleContact(obstacle ? incomingVelocity : ToCore(relative), ToCore(normal.Normalized()), body.GetContactImpulse(contact).Length(), other?.VehicleId ?? 0, body.GetContactColliderObject(contact) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= 0.55f, ToCore(body.Transform.AffineInverse() * body.GetContactLocalPosition(contact)), obstacle));
+            contacts.Add(new VehicleContact(obstacle ? incomingVelocity : ToCore(relative), ToCore(normal.Normalized()), body.GetContactImpulse(contact).Length(), other?.VehicleId ?? 0, body.GetContactColliderObject(contact) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= 0.55f, ToCore(body.Transform.AffineInverse() * body.GetContactLocalPosition(contact)), obstacle, Arenas.DestructibleEnvironment.RockId(body.GetContactColliderObject(contact))));
         }
 
         // Prefer the center's surface while retaining native contact normals for existing slope handling.

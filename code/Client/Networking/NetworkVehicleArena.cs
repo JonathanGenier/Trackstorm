@@ -26,6 +26,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private VehicleNetworkDriver _driver = null!;
     private LobbyNetworkDriver? _lobby;
     private Arenas.CombatArena? _layout;
+    private Arenas.DestructibleEnvironment? _destructibles;
     private ulong _collisionLife;
     private ulong _collisionTick;
     internal Input.PlayerInputAdapter? CameraInput { get => _camera.InputSource; set => _camera.InputSource = value; }
@@ -83,6 +84,11 @@ internal sealed partial class NetworkVehicleArena : Node3D
         }
 
         AddChild(Map);
+        if (MapConfiguration.Environment is not null)
+        {
+            _destructibles = new(Map);
+            _driver.EnvironmentReceived += state => _destructibles.Apply(state);
+        }
         foreach (var prop in Props)
         {
             prop.Freeze = ApplicationEntry || _driver.Host is null;
@@ -258,6 +264,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.Resynchronized += snapshot =>
         {
             _camera.ResetFollow();
+            if (_driver.EnvironmentState is { } environment) { _destructibles?.Apply(environment, true); }
             _audio.ApplyVehicles(snapshot.Vehicles.Select(vehicle => vehicle.State), true);
             _audio.ApplyItems(_driver.ItemState!, true);
             _audio.ApplyMatch(_driver.Match!, true);
@@ -405,7 +412,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
 
         Vector3 start = VehicleBody.ToGodot(missile.Position);
         Vector3 finish = VehicleBody.ToGodot(end);
-        using var ray = PhysicsRayQueryParameters3D.Create(start, finish, 3, exclude);
+        using var ray = PhysicsRayQueryParameters3D.Create(start, finish, 3 | 16, exclude);
         ray.HitFromInside = true;
         var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
         return hit.Count == 0 ? null : Math.Clamp(start.DistanceTo(hit["position"].AsVector3()) / start.DistanceTo(finish), 0, 1);

@@ -24,7 +24,7 @@ public sealed class VehicleObservation
         VehicleContact[] copy = contacts?.ToArray() ?? [];
         foreach (VehicleContact contact in copy)
         {
-            _ = new VehicleContact(contact.RelativeVelocity, contact.Normal, contact.Impulse, contact.OtherVehicleId, contact.Terrain, contact.LocalPosition, contact.StaticObstacle);
+            _ = new VehicleContact(contact.RelativeVelocity, contact.Normal, contact.Impulse, contact.OtherVehicleId, contact.Terrain, contact.LocalPosition, contact.StaticObstacle, contact.EnvironmentRock);
         }
 
         if (!Enum.IsDefined(surface))
