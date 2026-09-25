@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Boundary (-1, 0, 0): furthest=58.10, final=(-57.497353, 1.126611, -0.0020709776)
+Boundary (1, 0, 0): furthest=58.10, final=(57.478004, 1.1256739, 0.009066691)
+Boundary (0, 0, -1): furthest=48.10, final=(-0.009666385, 1.1257678, -47.49591)
+Boundary (0, 0, 1): furthest=48.10, final=(0.0096661905, 1.1257677, 47.49591)
+Arena integration passed: 91 assertions. Artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\arena-checks\4c5ed3d242fc4647a0b64b3a7681b51a
+Arena verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\arena-checks\4c5ed3d242fc4647a0b64b3a7681b51a

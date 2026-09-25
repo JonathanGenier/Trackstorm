@@ -39,28 +39,11 @@ static func bake(map: Node3D, measurements: Dictionary) -> void:
 		for face in [[0,2,1],[0,3,2],[3,7,6],[3,6,2],[4,5,6],[4,6,7]]:
 			for index: int in face:
 				barrier.add_vertex(points[index])
-	# Four-section collision spans avoid hundreds of redundant physics shapes.
-	# A 5 cm exterior offset keeps the chord outside the curved road surface.
-	for i in range(0, outer.size(), 4):
-		var j := (i + 4) % outer.size()
-		var na := Vector3(outer[i].x-inner[i].x, 0, outer[i].z-inner[i].z).normalized()
-		var nb := Vector3(outer[j].x-inner[j].x, 0, outer[j].z-inner[j].z).normalized()
-		var a := outer[i] + na*.05
-		var b := outer[j] + nb*.05
-		# Overlapping solid convex prisms: thickness is exterior, usable road stays 18 m.
-		# Vertical extent includes the visible barrier and invisible upper containment.
-		var tangent := (b-a).normalized()*.025
-		var hull := PackedVector3Array()
-		for endpoint in [[a-tangent,na],[b+tangent,nb]]:
-			var p: Vector3 = endpoint[0]
-			var n: Vector3 = endpoint[1]
-			for offset in [Vector3.ZERO,n*4.0]:
-				hull.append(p+offset-Vector3.UP*2)
-				hull.append(Vector3(p.x,45,p.z)+offset)
-		var shape := ConvexPolygonShape3D.new()
-		shape.points = hull
-		var collider := child(map, wall, CollisionShape3D.new(), "Section%03d" % i) as CollisionShape3D
-		collider.shape = shape
+	# One continuous collision skin has no buried module caps to snag the chassis.
+	var shape := load("res://assets/maps/oval/BuildContainment.gd").create_shape(measurements) as ConcavePolygonShape3D
+	assert(ResourceSaver.save(shape, "res://assets/maps/oval/ContainmentCollision.tres") == OK)
+	var collider := child(map, wall, CollisionShape3D.new(), "ContinuousPerimeter") as CollisionShape3D
+	collider.shape = load("res://assets/maps/oval/ContainmentCollision.tres")
 	barrier.generate_normals()
 	var concrete := child(map, content, MeshInstance3D.new(), "ConcreteBarrier") as MeshInstance3D
 	concrete.mesh = barrier.commit()
