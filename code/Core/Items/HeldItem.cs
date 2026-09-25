@@ -13,6 +13,8 @@ public enum HeldItem : byte
     Oil = 3,
     /// <summary>Temporary boost identity.</summary>
     Nitro = 4,
-    /// <summary>Fixed-range arcing missile salvo. Identity five is reserved for Proxy Mine.</summary>
+    /// <summary>Magnetic contact deployable.</summary>
+    ProxyMine = 5,
+    /// <summary>Fixed-range arcing missile salvo.</summary>
     Salvo = 6,
 }

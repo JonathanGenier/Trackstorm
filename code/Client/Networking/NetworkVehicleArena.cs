@@ -99,26 +99,13 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.Host?.RegisterSpawns(markers, SpawnConfiguration);
         AddChild(_pickups);
         _pickups.Initialize(markers);
-        _driver.ObservePickups = () =>
-        {
-            var contacts = new List<(string Spawn, ulong Vehicle)>();
-            foreach (var marker in Map.GetNodeOrNull<Node3D>("ItemSpawns")?.GetChildren().OfType<Marker3D>() ?? Enumerable.Empty<Marker3D>())
-            {
-                foreach (var pair in _bodies)
-                {
-                    float radius = _driver.Configuration.Configuration.Spawns.PickupRadius;
-                    if (pair.Value.GlobalPosition.DistanceSquaredTo(marker.GlobalPosition) <= radius * radius)
-                    {
-                        contacts.Add((marker.Name.ToString(), pair.Key));
-                    }
-                }
-            }
-
-            return contacts;
-        };
         _driver.CollideMissile = CollideMissile;
         _driver.PlaceOil = PlaceOil;
         _driver.ProjectSalvoGround = point => SalvoGround(VehicleBody.ToGodot(point)) is { } hit ? VehicleBody.ToCore(hit.Position) : null;
+        var mines = new Items.ProxyMinePhysics();
+        AddChild(mines);
+        _driver.PlaceMine = mines.Place;
+        _driver.MoveMine = mines.Move;
         _driver.ItemsReceived += publication =>
         {
             _items.Apply(publication);
@@ -127,7 +114,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             _pickups.Apply(publication);
             if (_driver.Host is not null)
             {
-                foreach (var impact in publication.Events.Where(outcome => outcome.Impact))
+                foreach (var impact in publication.Events.Where(outcome => outcome.Impact && outcome.Item is HeldItem.Missile or HeldItem.Salvo))
                 {
                     foreach (var prop in Props)
                     {

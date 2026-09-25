@@ -31,6 +31,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
     private int _stage;
     private int _resyncs;
     private OilPatch? _oil;
+    private ulong _mine;
     private ulong _player;
     private NetworkVehicleBody? _originalBody;
     private RemoteVehicleTag? _originalTag;
@@ -122,6 +123,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
         catch (Exception exception)
         {
             GD.PrintErr(exception);
+
             Cleanup();
             GetTree().Quit(1);
         }
@@ -184,6 +186,12 @@ public sealed partial class ReconnectIntegrationChecks : Node
 
                 _resyncs++;
                 SalvoRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, _salvoBoundaries);
+                if (_resyncs <= 3)
+                {
+                    Require(_arenas[1].Driver.ItemState!.Mines.Single().Id == _mine, "Mine identity restored exactly once.");
+                    Require(_arenas[1].Driver.ItemState!.Mines.SequenceEqual(_arenas[0].Driver.Host!.Items.Mines), "Complete mine pose/velocity/seating continuation restored.");
+                    GD.Print($"Proxy Mine reconnect {_resyncs}: complete state restored without impact replay.");
+                }
                 var nitro = world.Vehicles.Single(v => v.State.VehicleId == _player).State.Movement.Nitro;
                 Require(_arenas[1].LocalState!.Movement.Nitro == nitro, "Nitro restored exactly before prediction.");
                 if (_resyncs <= 3)
@@ -258,6 +266,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             _categoryHistory = CategoryBalanceRecoveryFixture.Seed(_arenas[0]);
             GD.Print("Category pickup history before reconnect: " + _categoryHistory);
             _oil = OilRecoveryFixture.Seed(_arenas[0]);
+            _mine = ProxyMineRecoveryFixture.Seed(_arenas[0], _arenas);
             Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["match.nitro_points_per_second"] = 0 }, out _), "Disable overspeed score only in the retention fixture to preserve its fixed rank assertions.");
             NitroRecoveryFixture.Seed(_arenas[0], _player);
             _originalBody = _arenas[1].Bodies[_player];
@@ -354,6 +363,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             Require(next.Spawns?.Balances.Count is null or 0, "True new match clears category history.");
             Require(next.SessionId > previous && next.World.State.Match!.Players.Count == 1 && next.World.State.Match.Players.All(score => score.Kills == 0 && score.Deaths == 0), "New match generation starts fresh without retained offline rows or totals.");
             Require(_arenas[0].Driver.Host!.Items.Patches.Count == 0 && next.Items.Patches.Count == 0, "Finished and the next match contain no Oil hazards.");
+            Require(next.Items.Mines.Count == 0 && _arenas[0].Driver.Host!.Items.Mines.Count == 0, "Finished and new match clear Proxy Mines.");
             Cleanup();
             _finished = true;
         }

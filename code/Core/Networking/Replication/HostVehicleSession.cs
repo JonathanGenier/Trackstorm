@@ -21,6 +21,8 @@ public sealed class HostVehicleSession
     private readonly bool _requireActiveMatch;
     private ulong _nextVehicle = 1;
     private ulong? _lastUseRejection;
+    private IReadOnlyDictionary<ulong, VehicleSnapshot>? _pickupStart;
+    private SimulationState? _pickupEnd;
 
     /// <summary>Starts one host vehicle in a caller-identified session.</summary>
     /// <param name="sessionId">Nonzero identity supplied by the outer session lifetime.</param>
@@ -289,7 +291,7 @@ public sealed class HostVehicleSession
         var vehicle = new VehicleSnapshot(player, 1, new VehicleState(World.State.Tick, spawn, false, false, 0, 0), new VehicleHealth(Configuration.Configuration.Damage).State, spawn);
         var current = Snapshot();
         var world = new WorldSnapshot(SessionId, current.Tick, current.Vehicles.Append(new ReplicatedVehicle(vehicle, 0)), Configuration.Revision);
-        var items = new ItemPublication(revision, world, Items.Slots, Items.Missiles, [], Spawns?.States, Items.Patches, Items.OilContacts, Spawns?.Balances);
+        var items = new ItemPublication(revision, world, Items.Slots, Items.Missiles, [], Spawns?.States, Items.Patches, Items.OilContacts, Spawns?.Balances, Items.Mines);
         var match = Matches.MatchAuthority.Join(World.State.Match!, current.Tick, player);
         return new ResumeCheckpoint(items, match, props, Configuration);
     }
@@ -440,8 +442,12 @@ public sealed class HostVehicleSession
     /// <param name="collide">Optional host projectile collision seam.</param>
     /// <param name="placeOil">Host terrain query for oil deployment.</param>
     /// <param name="ground">Host terrain projection for fixed-range salvo targeting.</param>
-    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<Vector3, Vector3?>? ground = null)
+    /// <param name="placeMine">Host terrain installation query.</param>
+    /// <param name="moveMine">Host sweep and contact query.</param>
+    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, Func<Vector3, Vector3?>? ground = null)
     {
+        _pickupStart = null;
+        _pickupEnd = null;
         ulong tick = checked(World.State.Tick + 1);
         if (!AllowsParticipation)
         {
@@ -466,7 +472,7 @@ public sealed class HostVehicleSession
         InputFrame hostInput = new SequencedInput(0, local).AtTick(tick);
         inputs.Add(HostPlayerId, hostInput);
         var previous = World.State.Vehicles.ToDictionary(state => state.VehicleId);
-        Items.Step(World, hostInput, World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray(), collide ?? ((_, _) => null), placeOil, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground);
+        Items.Step(World, hostInput, World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray(), collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground);
         foreach (var peer in _peers.Values)
         {
             VehicleSnapshot state = World.GetVehicle(peer.Vehicle);
@@ -477,6 +483,21 @@ public sealed class HostVehicleSession
         }
 
         Spawns?.Advance(World);
+        _pickupStart = previous;
+        _pickupEnd = World.State;
+    }
+
+    /// <summary>Processes the latest committed movement once, using only host-owned positions and registered markers.</summary>
+    public void CollectPickups()
+    {
+        var previous = _pickupStart;
+        bool current = _pickupEnd == World.State;
+        _pickupStart = null;
+        _pickupEnd = null;
+        if (previous is not null && current && AllowsParticipation && World.State.Match?.Phase != Matches.MatchPhase.Finished)
+        {
+            Spawns?.Collect(World, previous);
+        }
     }
 
     /// <summary>Captures the complete active roster and per-owner input confirmations.</summary>

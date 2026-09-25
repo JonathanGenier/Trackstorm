@@ -20,7 +20,7 @@ internal static class SalvoRecoveryFixture
             return new MissileState(++token, owner.VehicleId, arc.At(arc.ElapsedTicks), (arc.At(arc.ElapsedTicks + 1) - arc.At(arc.ElapsedTicks)) * 60, arc.DurationTicks - arc.ElapsedTicks) { Arc = arc };
         }).ToArray();
         host.Items.Restore(new(Math.Max(1, host.Items.Revision), host.Snapshot(), host.Items.Slots, rounds, [], host.Spawns?.States,
-            host.Items.Patches, host.Items.OilContacts, host.Spawns?.Balances), host.Items.Revision + 1, token);
+            host.Items.Patches, host.Items.OilContacts, host.Spawns?.Balances, host.Items.Mines), host.Items.Revision + 1, token);
     }
 
     internal static void Verify(ItemPublication state, IReadOnlyDictionary<ulong, IReadOnlyList<MissileState>> boundaries)
