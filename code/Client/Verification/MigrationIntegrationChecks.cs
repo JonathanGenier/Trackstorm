@@ -11,6 +11,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Two or three real UDP peers and isolated Godot worlds; identity is an explicit local test seam.</summary>
 public sealed partial class MigrationIntegrationChecks : Node
 {
+    private readonly Dictionary<ulong, Core.Items.ItemPublication> _salvoBoundaries = new();
     private OilPatch? _oil;
     private ulong _mine;
     private readonly DevelopmentSession?[] _presentations = new DevelopmentSession?[3];
@@ -34,6 +35,7 @@ public sealed partial class MigrationIntegrationChecks : Node
     private string _categoryHistory = string.Empty;
     private ulong _randomState;
     private ulong _nitroOwner;
+    private ulong _machineGunOwner;
     private Core.Matches.MatchPhase _matchPhase;
     private ulong? _countdownAtTick;
     private readonly Dictionary<ulong, Core.Matches.MatchState> _circusBoundaries = new();
@@ -294,10 +296,13 @@ public sealed partial class MigrationIntegrationChecks : Node
                     }));
                 world.Restore(new Core.Simulation.SimulationState(boundary.Tick, boundary.LastInput, vehicles, match));
                 NitroRecoveryFixture.Seed(arena, _nitroOwner);
-                MachineGunRecoveryFixture.Seed(arena, _nitroOwner);
+                _machineGunOwner = _drivers[2]!.LocalPlayerId;
+                MachineGunRecoveryFixture.Seed(arena, _machineGunOwner);
                 _circusBoundaries[match.Revision] = match;
                 arena.Driver.MatchReceived += state => _circusBoundaries[state.Revision] = state;
             }
+            SalvoRecoveryFixture.Seed(_arenas[1]!);
+            _arenas[1]!.Driver.ItemsReceived += state => _salvoBoundaries[state.World.Tick] = state;
             _boundary = _frames;
             _stage = 7;
         }
@@ -307,6 +312,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             _retainedBody = _arenas[survivor]!.Bodies[_drivers[survivor]!.LocalPlayerId];
             _arenas[survivor]!.Driver.Resynchronized += _ =>
             {
+                SalvoRecoveryFixture.Verify(_arenas[survivor]!.Driver.ItemState!, _salvoBoundaries);
                 Require(_arenas[survivor]!.Driver.Inputs!.Pending.Count == 0, "No old pending input.");
                 Require(_arenas[survivor]!.Driver.History!.Snapshots.Count == 1, "Interpolation reseeded at one boundary.");
                 if (_players == 3)
@@ -317,7 +323,7 @@ public sealed partial class MigrationIntegrationChecks : Node
                     Require(_arenas[survivor]!.Driver.LocalState is not null &&
                         _arenas[survivor]!.Driver.ItemState!.Slots.Single(s => s.Vehicle == _nitroOwner).NitroCharge == 37.5,
                         "Partial Nitro charge survives selected checkpoint installation.");
-                    MachineGunRecoveryFixture.Verify(_arenas[survivor]!.Driver.ItemState!, _nitroOwner);
+                    MachineGunRecoveryFixture.Verify(_arenas[survivor]!.Driver.ItemState!, _machineGunOwner);
                     Require(restored.Awards.Count == 0 && restored.Changes.Count == 0, "Migration does not replay prior Circus awards.");
                 }
             };

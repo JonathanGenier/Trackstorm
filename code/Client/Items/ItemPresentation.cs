@@ -102,13 +102,13 @@ internal sealed partial class ItemPresentation : Node3D
             node.Quaternion = new Quaternion(Vector3.Up, VehicleBody.ToGodot(patch.Normal));
         }
 
-        foreach (ulong id in _missiles.Keys.Except(state.Missiles.Select(missile => missile.Id)).ToArray())
+        foreach (ulong id in _missiles.Keys.Except(state.Missiles.Where(missile => missile.Launched).Select(missile => missile.Id)).ToArray())
         {
             _missiles[id].QueueFree();
             _missiles.Remove(id);
         }
 
-        foreach (var missile in state.Missiles)
+        foreach (var missile in state.Missiles.Where(missile => missile.Launched))
         {
             if (!_missiles.TryGetValue(missile.Id, out var node))
             {

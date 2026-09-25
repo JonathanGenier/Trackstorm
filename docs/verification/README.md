@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Arcing Salvo and owner-local impact marker | [TS-148 verification evidence](ts-148.md) |
 | Magnetic Proxy Mine and authoritative swept pickup reliability | [TS-147 verification evidence](ts-147.md) |
 | Sustained percentage Nitro rocket thrust and loot reachability investigation | [TS-157 verification evidence](ts-157.md) |
 | Story verification | [TS-161 verification evidence](ts-161.md) |

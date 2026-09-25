@@ -16,6 +16,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private readonly VehicleChaseCamera _camera = new() { Name = "ChaseCamera", Current = true, Fov = 65 };
     private readonly RemoteInterpolation _interpolation = new();
     private readonly Items.ItemPresentation _items = new();
+    private readonly Items.SalvoMarker _salvoMarker = new();
+    internal Items.SalvoMarker SalvoMarker => _salvoMarker;
     private readonly VehicleDestructionEffects _destruction = new();
     private readonly Audio.ArenaAudio _audio = new();
     private readonly Items.ItemSpawnPresentation _pickups = new();
@@ -87,6 +89,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         }
 
         AddChild(_items);
+        AddChild(_salvoMarker);
         AddChild(_destruction);
         AddChild(_audio);
         _driver.LifecycleReceived += snapshot => _audio.ApplyVehicles(snapshot.Vehicles.Select(vehicle => vehicle.State));
@@ -99,6 +102,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.CollideMissile = CollideMissile;
         _driver.RaycastWeapon = RaycastWeapon;
         _driver.PlaceOil = PlaceOil;
+        _driver.ProjectSalvoGround = point => SalvoGround(VehicleBody.ToGodot(point)) is { } hit ? VehicleBody.ToCore(hit.Position) : null;
         var mines = new Items.ProxyMinePhysics();
         AddChild(mines);
         _driver.PlaceMine = mines.Place;
@@ -111,11 +115,11 @@ internal sealed partial class NetworkVehicleArena : Node3D
             _pickups.Apply(publication);
             if (_driver.Host is not null)
             {
-                foreach (var impact in publication.Events.Where(outcome => outcome.Impact && outcome.Item == HeldItem.Missile))
+                foreach (var impact in publication.Events.Where(outcome => outcome.Impact && outcome.Item is HeldItem.Missile or HeldItem.Salvo))
                 {
                     foreach (var prop in Props)
                     {
-                        var effect = _driver.Host.Items.Explosion(impact.Position, VehicleBody.ToCore(prop.GlobalPosition));
+                        var effect = _driver.Host.Items.Explosion(impact.Position, VehicleBody.ToCore(prop.GlobalPosition), impact.Item);
                         prop.ApplyCentralImpulse(VehicleBody.ToGodot(effect.Impulse));
                     }
                 }
@@ -150,6 +154,9 @@ internal sealed partial class NetworkVehicleArena : Node3D
     public override void _Process(double delta)
     {
         _environment.Apply(_driver.Configuration.Configuration.Environment);
+        _salvoMarker.Refresh(delta, _driver.LocalState, _driver.LocalItem, _driver.ItemState,
+            _driver.Configuration.Configuration.Items, _driver.IsActive && (!ApplicationEntry || _driver.EntryReady) &&
+            _driver.Match?.Phase is not (Core.Matches.MatchPhase.Finished or Core.Matches.MatchPhase.Waiting or Core.Matches.MatchPhase.Countdown), SalvoGround);
         if (ApplicationEntry && !_driver.EntryReady)
         {
             return;
@@ -334,6 +341,14 @@ internal sealed partial class NetworkVehicleArena : Node3D
                 _driver.Host.Items.Grant(_driver.Host.World, vehicle.VehicleId, item);
             }
         }
+    }
+
+    private (Vector3 Position, Vector3 Normal)? SalvoGround(Vector3 point)
+    {
+        using var ray = PhysicsRayQueryParameters3D.Create(point + Vector3.Up * 100, point - Vector3.Up * 200, 1);
+        var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
+        return hit.Count > 0 && hit["collider"].AsGodotObject() is StaticBody3D
+            ? (hit["position"].AsVector3(), hit["normal"].AsVector3().Normalized()) : null;
     }
 
     private OilPatch? PlaceOil(ItemSlot slot, VehiclePhysicsState pose)

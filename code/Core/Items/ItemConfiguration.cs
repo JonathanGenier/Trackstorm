@@ -3,6 +3,32 @@ namespace Trackstorm.Core.Items;
 /// <summary>Host-owned bounded tuning. Linear falloff reaches zero at the edge.</summary>
 public sealed record ItemConfiguration
 {
+    /// <summary>Individually fired shots per pickup.</summary>
+    public int SalvoCount { get; init; } = 5;
+    /// <summary>Minimum interval between presses accepted as shots, at 60 Hz.</summary>
+    public int SalvoIntervalTicks { get; init; } = 30;
+    /// <summary>Fixed forward range (m).</summary>
+    public float SalvoRange { get; init; } = 65;
+    /// <summary>Height above vehicle (m).</summary>
+    public float SalvoLaunchHeight { get; init; } = 3;
+    /// <summary>Parabola height above chord (m).</summary>
+    public float SalvoArcHeight { get; init; } = 12;
+    /// <summary>Mean flight speed (m/s).</summary>
+    public float SalvoSpeed { get; init; } = 85;
+    /// <summary>Blast radius (m).</summary>
+    public float SalvoBlastRadius { get; init; } = 7;
+    /// <summary>Maximum damage per round.</summary>
+    public float SalvoDamage { get; init; } = 65;
+    /// <summary>Damage and impulse falloff exponent.</summary>
+    public float SalvoFalloff { get; init; } = 1;
+    /// <summary>Maximum impulse (N s).</summary>
+    public float SalvoImpulse { get; init; } = 3500;
+    /// <summary>Marker radius relative to blast.</summary>
+    public float SalvoMarkerScale { get; init; } = 1;
+    /// <summary>Marker ring width (m).</summary>
+    public float SalvoMarkerWidth { get; init; } = 0.45f;
+    /// <summary>Marker surface offset (m).</summary>
+    public float SalvoMarkerLift { get; init; } = 0.12f;
     /// <summary>Acquired rounds; existing magazines keep their capacity.</summary>
     public int MachineGunCapacity { get; init; } = 500;
     /// <summary>Rounds per second, bounded to one round per fixed step.</summary>
@@ -62,6 +88,19 @@ public sealed record ItemConfiguration
     /// <summary>Rejects nonfinite or excessive host configuration before simulation.</summary>
     public void Validate()
     {
+        if (!double.IsFinite(SalvoCount) || SalvoCount < 1 || SalvoCount > 16) { throw new ArgumentException("Invalid salvo count."); }
+        if (!double.IsFinite(SalvoIntervalTicks) || SalvoIntervalTicks < 1 || SalvoIntervalTicks > 60) { throw new ArgumentException("Invalid salvo interval_ticks."); }
+        if (!double.IsFinite(SalvoRange) || SalvoRange < 25 || SalvoRange > 250) { throw new ArgumentException("Invalid salvo range."); }
+        if (!double.IsFinite(SalvoLaunchHeight) || SalvoLaunchHeight < 1 || SalvoLaunchHeight > 10) { throw new ArgumentException("Invalid salvo launch_height."); }
+        if (!double.IsFinite(SalvoArcHeight) || SalvoArcHeight < 1 || SalvoArcHeight > 60) { throw new ArgumentException("Invalid salvo arc_height."); }
+        if (!double.IsFinite(SalvoSpeed) || SalvoSpeed < 20 || SalvoSpeed > 200) { throw new ArgumentException("Invalid salvo speed."); }
+        if (!double.IsFinite(SalvoBlastRadius) || SalvoBlastRadius < 1 || SalvoBlastRadius > 30) { throw new ArgumentException("Invalid salvo blast_radius."); }
+        if (!double.IsFinite(SalvoDamage) || SalvoDamage < 0 || SalvoDamage > 1000) { throw new ArgumentException("Invalid salvo damage."); }
+        if (!double.IsFinite(SalvoFalloff) || SalvoFalloff < 0.25 || SalvoFalloff > 4) { throw new ArgumentException("Invalid salvo falloff."); }
+        if (!double.IsFinite(SalvoImpulse) || SalvoImpulse < 0 || SalvoImpulse > 50000) { throw new ArgumentException("Invalid salvo impulse."); }
+        if (!double.IsFinite(SalvoMarkerScale) || SalvoMarkerScale < 0.5 || SalvoMarkerScale > 2) { throw new ArgumentException("Invalid salvo marker_scale."); }
+        if (!double.IsFinite(SalvoMarkerWidth) || SalvoMarkerWidth < 0.1 || SalvoMarkerWidth > 2) { throw new ArgumentException("Invalid salvo marker_width."); }
+        if (!double.IsFinite(SalvoMarkerLift) || SalvoMarkerLift < 0.02 || SalvoMarkerLift > 0.5) { throw new ArgumentException("Invalid salvo marker_lift."); }
         if (MachineGunCapacity is < 1 or > 10000 || !double.IsFinite(MachineGunFireRate) || MachineGunFireRate is < 1 or > 60 ||
             !float.IsFinite(MachineGunRange) || MachineGunRange is < 1 or > 50 ||
             !float.IsFinite(MachineGunDamage) || MachineGunDamage is < 0 or > 1000 ||

@@ -9,7 +9,7 @@ namespace Trackstorm.Client.Audio;
 internal sealed class AudioEventProjection
 {
     private readonly Dictionary<ulong, VehicleMemory> _vehicles = new();
-    private readonly Dictionary<ulong, ulong> _slots = new();
+    private readonly Dictionary<ulong, ItemSlot> _slots = new();
     private readonly HashSet<(ulong Token, bool Impact)> _itemEvents = new();
     private readonly Queue<(ulong Token, bool Impact)> _eventOrder = new();
     private ulong _itemsRevision;
@@ -107,11 +107,13 @@ internal sealed class AudioEventProjection
         _itemsRevision = state.Revision;
         foreach (ItemSlot slot in state.Slots)
         {
-            ulong previous = _slots.GetValueOrDefault(slot.Vehicle);
-            _slots[slot.Vehicle] = Math.Max(slot.Token, slot.SecondToken);
-            foreach (var held in new[] { (slot.Token, slot.Item), (Token: slot.SecondToken, Item: slot.SecondItem) })
+            var before = _slots.GetValueOrDefault(slot.Vehicle);
+            ulong previous = Math.Max(before?.Token ?? 0, before?.SecondToken ?? 0);
+            _slots[slot.Vehicle] = slot;
+            foreach (var held in new[] { (slot.Token, slot.Item, Before: before?.Token), (Token: slot.SecondToken, Item: slot.SecondItem, Before: before?.SecondToken) })
             {
-                if (!initialize && held.Token > previous && held.Item != HeldItem.None)
+                bool nextShot = held.Item == HeldItem.Salvo && state.Events.Any(e => !e.Impact && e.Item == HeldItem.Salvo && e.Owner == slot.Vehicle && e.Token == held.Before);
+                if (!initialize && held.Token > previous && held.Item != HeldItem.None && !nextShot)
                 {
                     var vehicle = state.World.Vehicles.Single(entry => entry.State.VehicleId == slot.Vehicle).State;
                     Emit(Enum.Parse<AudioCue>(ItemRegistry.Find(held.Item)!.PickupAudio), vehicle.Movement.Physics.Position);

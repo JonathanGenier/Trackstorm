@@ -12,6 +12,17 @@ namespace Trackstorm.Transport.Tests;
 internal sealed class CombatHudTests
 {
     [Test]
+    public void SalvoShowsIndependentRemainingShotsInBothSlots()
+    {
+        var slot = new ItemSlot(1, 1, 1, HeldItem.Salvo) { SalvoShots = 4, SecondToken = 2, SecondItem = HeldItem.Salvo, SecondSalvoShots = 2, ActiveSlot = 1 };
+        var view = CombatHudView.From(State(850, 1000, 0), slot, 0);
+        Assert.That(view.ItemName, Is.EqualTo("SALVO 4"));
+        Assert.That(view.SecondItemName, Is.EqualTo("SALVO 2"));
+        Assert.That(view.ActiveSlot, Is.EqualTo(1));
+        Assert.That(CombatHudView.From(State(850, 1000, 0), slot with { Item = HeldItem.None, SalvoShots = 0 }, 0).ItemName, Is.EqualTo("EMPTY"));
+    }
+
+    [Test]
     public void NonCircusModeClearsCircusPresentationAndNextMatchStartsWithoutFeedback()
     {
         var feedback = new CircusScoreFeedback();
@@ -76,7 +87,7 @@ internal sealed class CombatHudTests
             Assert.That(view.SecondItem, Is.EqualTo(HeldItem.Oil));
             Assert.That(view.ActiveSlot, Is.EqualTo(1));
             Assert.That(CombatHudView.From(initial, slot with { Vehicle = 2 }, 0).SecondItem, Is.EqualTo(HeldItem.None));
-            Assert.That(view.ItemName, Is.EqualTo(item == HeldItem.None ? "EMPTY" : item == HeldItem.Nitro ? "NITRO 100%" : item == HeldItem.MachineGun ? "MACHINE GUN 100%" : item == HeldItem.ProxyMine ? "PROXY MINE" : item.ToString().ToUpperInvariant()));
+            Assert.That(view.ItemName, Is.EqualTo(item == HeldItem.None ? "EMPTY" : item == HeldItem.Nitro ? "NITRO 100%" : item == HeldItem.ProxyMine ? "PROXY MINE" : item == HeldItem.MachineGun ? "MACHINE GUN 100%" : item == HeldItem.Salvo ? "SALVO 5" : item.ToString().ToUpperInvariant()));
             Assert.That(view.Standing, Is.EqualTo("--"));
             Assert.That(view.Timer, Is.EqualTo("--:--"));
             Assert.That(view.HealthFill, Is.EqualTo(0.85));

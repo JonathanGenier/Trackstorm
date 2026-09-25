@@ -120,8 +120,8 @@ public sealed class ItemAuthority
         if (inventory is null || inventory.Life != state.LifeId) { inventory = new(vehicle, state.LifeId, 0, HeldItem.None); }
         ulong token = checked(++_token);
         _slots[vehicle] = inventory.Item == HeldItem.None
-            ? inventory with { Token = token, Item = item, NitroCharge = item == HeldItem.Nitro ? 100 : 0, Ammo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null }
-            : inventory with { SecondToken = token, SecondItem = item, SecondNitroCharge = item == HeldItem.Nitro ? 100 : 0, SecondAmmo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null };
+            ? inventory with { Token = token, Item = item, NitroCharge = item == HeldItem.Nitro ? 100 : 0, SalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SalvoReadyTick = 0, Ammo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null }
+            : inventory with { SecondToken = token, SecondItem = item, SecondNitroCharge = item == HeldItem.Nitro ? 100 : 0, SecondSalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SecondSalvoReadyTick = 0, SecondAmmo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null };
         Revision++;
         if (!pickup)
         {
@@ -167,9 +167,12 @@ public sealed class ItemAuthority
     /// <param name="placeMine">Host terrain installation query.</param>
     /// <param name="moveMine">Host sweep and contact query.</param>
     /// <param name="acknowledgedInputs">Host-consumed remote input sequences; never client-authored acknowledgements.</param>
-    /// <param name="raycastWeapon">Host-only closest collision on an authoritative weapon segment.</param>
-    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null)
+    /// <param name="raycastWeapon">Host closest collision on an authoritative weapon ray.</param>
+    /// <param name="ground">Host terrain projection at the fixed salvo range; missing terrain rejects use.</param>
+    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null)
     {
+        ulong token = _token;
+        ulong NextToken() => checked(++token);
         var slots = new Dictionary<ulong, ItemSlot>(_slots);
         var missiles = new List<MissileState>(_missiles);
         var events = new List<ItemEvent>();
@@ -228,14 +231,24 @@ public sealed class ItemAuthority
                 }
                 continue;
             }
-            if (request.Reset.HasValue || handler is null ||
-                !handler.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts, mines, moveMine is null ? null : placeMine))
+            if (request.Reset.HasValue || handler is null || (slot.Item == HeldItem.Salvo && input.Tick < slot.SalvoReadyTick) ||
+                !handler.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts, mines, moveMine is null ? null : placeMine, NextToken, ground))
             {
                 continue;
             }
 
-            events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, request.Observation.Physics.Position, false));
-            slots[pair.Key] = usedIndex == 0 ? inventory with { Item = HeldItem.None } : inventory with { SecondItem = HeldItem.None };
+            if (slot.Item != HeldItem.Salvo) { events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, request.Observation.Physics.Position, false)); }
+            if (slot.Item == HeldItem.Salvo)
+            {
+                int remaining = slot.SalvoShots - 1;
+                // Retire each shot's capability so delayed/replayed requests cannot spend the next round.
+                ulong next = remaining > 0 ? NextToken() : slot.Token;
+                ulong ready = remaining > 0 ? checked(input.Tick + (ulong)Configuration.SalvoIntervalTicks) : 0;
+                slots[pair.Key] = usedIndex == 0
+                    ? inventory with { Item = remaining > 0 ? HeldItem.Salvo : HeldItem.None, Token = next, SalvoShots = remaining, SalvoReadyTick = ready }
+                    : inventory with { SecondItem = remaining > 0 ? HeldItem.Salvo : HeldItem.None, SecondToken = next, SecondSalvoShots = remaining, SecondSalvoReadyTick = ready };
+            }
+            else { slots[pair.Key] = usedIndex == 0 ? inventory with { Item = HeldItem.None } : inventory with { SecondItem = HeldItem.None }; }
         }
 
         foreach (var request in requests)
@@ -293,7 +306,7 @@ public sealed class ItemAuthority
                 if (remainingAmmo is null) { journal.Add(new RuntimeEvent { Category = EventCategory.Item, Kind = "Exhausted", Actor = slot.Vehicle, Cause = "MachineGun", Tick = input.Tick }); }
                 continue;
             }
-            ItemRegistry.Find(HeldItem.Nitro)!.Handler!.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts, mines, placeMine);
+            ItemRegistry.Find(HeldItem.Nitro)!.Handler!.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts, mines, placeMine, NextToken, ground);
             double remaining = Math.Max(0, slot.NitroCharge - Configuration.NitroConsumptionPerSecond / 60);
             if (remaining < 1e-9) { remaining = 0; }
             slots[request.VehicleId] = inventory.ActiveSlot == 0
@@ -350,15 +363,27 @@ public sealed class ItemAuthority
             else { movingMines.Add(motion.State); }
         }
         var advanced = new List<MissileState>();
-        foreach (MissileState missile in missiles)
+        foreach (MissileState scheduled in missiles)
         {
+            var missile = scheduled;
             if (!world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract))
             {
                 continue;
             }
 
-            Vector3 end = missile.Position + (missile.Velocity / 60);
+            if (missile.Arc is { } arc)
+            {
+                if (world.State.Match?.Phase == Matches.MatchPhase.Finished ||
+                    world.GetVehicle(missile.Owner).LifeId != arc.Life || requests.Any(request => request.VehicleId == missile.Owner && request.Reset.HasValue)) { continue; }
+                if (arc.ElapsedTicks == 0)
+                {
+                    events.Add(new(missile.Id, missile.Owner, missile.Item, arc.Origin, false));
+                }
+            }
+
+            Vector3 end = missile.Arc is { } flight ? flight.At(flight.ElapsedTicks + 1) : missile.Position + (missile.Velocity / 60);
             float? hit = collide(missile, end);
+            if (hit is null && missile.Arc is not null && missile.RemainingTicks == 1) { hit = 1; }
             if (hit is float fraction)
             {
                 if (!float.IsFinite(fraction) || fraction < 0 || fraction > 1)
@@ -367,19 +392,21 @@ public sealed class ItemAuthority
                 }
 
                 Vector3 center = Vector3.Lerp(missile.Position, end, fraction);
-                events.Add(new ItemEvent(missile.Id, missile.Owner, HeldItem.Missile, center, true));
+                events.Add(new ItemEvent(missile.Id, missile.Owner, missile.Item, center, true));
                 foreach (VehicleStepRequest request in requests)
                 {
-                    DamageEffect effect = Explosion(center, request.Observation.Physics.Position);
+                    DamageEffect effect = Explosion(center, request.Observation.Physics.Position, missile.Item);
                     if (effect.Damage > 0 || effect.Impulse != Vector3.Zero)
                     {
-                        effects[request.VehicleId].Add(new VehicleEffectRequest(effect, new DamageContext("missile", missile.Owner, "radial-explosion")));
+                        effects[request.VehicleId].Add(new VehicleEffectRequest(effect, new DamageContext(missile.Arc is null ? "missile" : "salvo", missile.Owner, missile.Arc is null ? "radial-explosion" : $"radial-explosion:{missile.Id}")));
                     }
                 }
             }
             else if (missile.RemainingTicks > 1)
             {
-                advanced.Add(missile with { Position = end, RemainingTicks = missile.RemainingTicks - 1 });
+                advanced.Add(missile with { Position = end, RemainingTicks = missile.RemainingTicks - 1,
+                    Velocity = missile.Arc is null ? missile.Velocity : (end - missile.Position) * 60,
+                    Arc = missile.Arc is { } continuation ? continuation with { ElapsedTicks = continuation.ElapsedTicks + 1 } : null });
             }
         }
 
@@ -393,7 +420,7 @@ public sealed class ItemAuthority
             }
             else if (state.LifeId != pair.Value.Life)
             {
-                slots[pair.Key] = pair.Value with { Life = state.LifeId, Token = pair.Value.Token == 0 ? 0 : checked(++_token), SecondToken = pair.Value.SecondToken == 0 ? 0 : checked(++_token), SelectionRevision = 0, EngagedToken = 0 };
+                slots[pair.Key] = pair.Value with { Life = state.LifeId, Token = pair.Value.Token == 0 ? 0 : NextToken(), SecondToken = pair.Value.SecondToken == 0 ? 0 : NextToken(), SelectionRevision = 0, EngagedToken = 0 };
             }
         }
 
@@ -406,6 +433,7 @@ public sealed class ItemAuthority
         }
 
         advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract));
+        if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { advanced.RemoveAll(missile => missile.Arc is not null); }
         bool changed = !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) || missiles.Count > 0 || !patches.SequenceEqual(_patches) || !contacts.SequenceEqual(_contacts) || journal.Count > 0 || !movingMines.SequenceEqual(_mines);
         foreach (var removed in _slots.Values.Where(slot => !slots.ContainsKey(slot.Vehicle)).SelectMany(slot => new[] { slot, slot with { Token = slot.SecondToken, Item = slot.SecondItem } }).Where(slot => slot.Item != HeldItem.None))
         {
@@ -420,11 +448,12 @@ public sealed class ItemAuthority
 
         foreach (var removed in missiles.Where(missile => !advanced.Any(value => value.Id == missile.Id) && !events.Any(value => value.Token == missile.Id && value.Impact)))
         {
-            world.Events.Record(EventCategory.Item, "Projectile removed", actor: removed.Owner, cause: "Missile", context: removed.RemainingTicks <= 1 ? "lifetime expired" : "owner inactive", tick: input.Tick);
+            world.Events.Record(EventCategory.Item, "Projectile removed", actor: removed.Owner, cause: removed.Item.ToString(), context: removed.RemainingTicks <= 1 ? "lifetime expired" : "owner inactive", tick: input.Tick);
         }
 
         _missiles.Clear();
         _missiles.AddRange(advanced);
+        _token = token;
         _mines.Clear();
         _mines.AddRange(movingMines);
         _patches.Clear();
@@ -444,7 +473,15 @@ public sealed class ItemAuthority
     /// <returns>Damage and impulse, zero at/outside the radius.</returns>
     /// <param name="center">Impact point.</param>
     /// <param name="target">Target center.</param>
-    public DamageEffect Explosion(Vector3 center, Vector3 target) => VehicleDamageMath.Explosion(center, target, Configuration.ExplosionRadius, Configuration.MaximumDamage, Configuration.MaximumImpulse, Vector3.Zero);
+    /// <param name="item">Authoritative exploding item identity.</param>
+    public DamageEffect Explosion(Vector3 center, Vector3 target, HeldItem item = HeldItem.Missile)
+    {
+        if (item != HeldItem.Salvo) { return VehicleDamageMath.Explosion(center, target, Configuration.ExplosionRadius, Configuration.MaximumDamage, Configuration.MaximumImpulse, Vector3.Zero); }
+        float linear = Math.Clamp(1 - Vector3.Distance(center, target) / Configuration.SalvoBlastRadius, 0, 1);
+        float scale = linear > 0 ? MathF.Pow(linear, Configuration.SalvoFalloff) / linear : 0;
+        var unit = VehicleDamageMath.Explosion(center, target, Configuration.SalvoBlastRadius, 1, 1, Vector3.Zero);
+        return new(unit.Damage * scale * Configuration.SalvoDamage, unit.Impulse * (scale * Configuration.SalvoImpulse), Vector3.Zero);
+    }
     /// <summary>Updates the existing authority; in-flight speed changes preserve direction and remaining lifetime.</summary>
     /// <param name="configuration">Validated effective gameplay tuning.</param>
     internal void ApplyConfiguration(ItemConfiguration configuration)
@@ -455,6 +492,7 @@ public sealed class ItemAuthority
             for (int i = 0; i < _missiles.Count; i++)
             {
                 var missile = _missiles[i];
+                if (missile.Arc is not null) { continue; }
                 _missiles[i] = missile with { Velocity = Vector3.Normalize(missile.Velocity) * configuration.MissileSpeed };
             }
 

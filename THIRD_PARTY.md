@@ -69,6 +69,8 @@ The upstream glTF API labels shared resolution-independent binary geometry with 
 
 Kenney Weapon Pack (2016-01-20), original author publication at https://opengameart.org/content/weapon-pack, and Particle Pack 1.1 (archive license) from https://kenney.nl/assets/particle-pack are CC0. Only the rocket mesh/material, fire, smoke and spark textures are included. Original licenses and file/archive hashes are under `assets/items`. The original Weapon Pack mirror was approved for acquisition because its old Kenney page is unavailable. Projectile/pickup materials and the damage-flash shader are project-created.
 
+Salvo reuses those rocket/particle assets and the existing arena audio. Its [HUD silhouette](assets/hud/Salvo.svg) and procedural terrain marker are original project work, recorded in [HUD provenance](assets/hud/sources.json); no additional third-party asset or dependency was acquired.
+
 ## Infield material field
 
 The original material control field and UV pass are recorded in [surface-sources.json](assets/maps/infield/surface-sources.json). Runtime shading reuses the existing original oval grass and CC0 Poly Haven Asphalt 04 detail and Concrete material listed above. No new third-party assets were acquired. The Jira concept is an art-direction reference and is not redistributed as a runtime asset.

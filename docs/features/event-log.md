@@ -20,7 +20,7 @@ The panel fills the shell's available content area and shows millisecond elapsed
 | Network | Disconnect, grace entry/expiry, rebind, local recovery progress/failure, bounded rejection summaries, configuration application |
 | Match | Creation, Waiting/Countdown/Active/Finished transitions, winner when available |
 | Lifecycle | Spawn/despawn, death, respawn waiting, respawn, authoritative scored kill attribution |
-| Damage | Each committed hit, exact applied amount, attacker, target, Missile/map collision/vehicle collision/explosion cause, remaining/max HP |
+| Damage | Each committed hit, exact applied amount, attacker, target, Missile/Salvo/map collision/vehicle collision/explosion cause, remaining/max HP |
 | Healing | Actual repair amount and source, including Wrench |
 | Item | Grant, pickup, pickup activation, use/impact, projectile expiry/removal, inventory removal at life boundaries |
 | Developer | Give Item and Force Start results, changed setting keys/old/new values, configuration rejection, practice reset/blast |

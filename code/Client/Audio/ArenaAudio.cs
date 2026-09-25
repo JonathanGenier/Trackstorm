@@ -111,7 +111,7 @@ internal sealed partial class ArenaAudio : Node3D
     internal void ApplyItems(ItemPublication state, bool seed = false)
     {
         _events.Items(state, seed);
-        foreach (ulong id in _rockets.Keys.Except(state.Missiles.Select(missile => missile.Id)).ToArray())
+        foreach (ulong id in _rockets.Keys.Except(state.Missiles.Where(missile => missile.Launched).Select(missile => missile.Id)).ToArray())
         {
             _rockets[id].Stop();
             _rockets[id].Stream = null;
@@ -119,7 +119,7 @@ internal sealed partial class ArenaAudio : Node3D
             _rockets.Remove(id);
         }
 
-        foreach (MissileState missile in state.Missiles)
+        foreach (MissileState missile in state.Missiles.Where(missile => missile.Launched))
         {
             if (!_rockets.TryGetValue(missile.Id, out AudioStreamPlayer3D? rocket))
             {

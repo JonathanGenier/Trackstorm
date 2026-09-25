@@ -169,6 +169,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
     internal Func<MissileState, System.Numerics.Vector3, float?>? CollideMissile { get; set; }
     /// <summary>Host-only ground projection for persistent oil deployment.</summary>
     internal Func<ItemSlot, VehiclePhysicsState, OilPatch?>? PlaceOil { get; set; }
+    internal Func<System.Numerics.Vector3, System.Numerics.Vector3?>? ProjectSalvoGround { get; set; }
     internal Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? PlaceMine { get; set; }
     internal Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? MoveMine { get; set; }
     /// <summary>Latest complete reliable item state.</summary>
@@ -302,7 +303,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 RequestItemUse();
             }
 
-            Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine, RaycastWeapon);
+            Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine, ProjectSalvoGround, RaycastWeapon);
             Host.CollectPickups();
 
             Latest = Host.Snapshot();
@@ -637,6 +638,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         CollideMissile = null;
         RaycastWeapon = null;
         PlaceOil = null;
+        ProjectSalvoGround = null;
         RosterChanged = null;
         LocalCorrected = null;
         PropsReceived = null;

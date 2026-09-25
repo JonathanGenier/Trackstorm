@@ -12,7 +12,7 @@ Arena disconnect and intentional Leave retire input ownership while retaining th
 
 ## Attribution, Duplicate Protection and Winner
 
-Scoring consumes the existing authoritative lethal `DamageEvent` and vehicle `LifeId` in the same atomic world commit. A positive lethal missile, Proxy Mine or vehicle-collision event credits its instigator only when that identity is a different player still in the authoritative roster. Collision attribution follows the existing receiving-vehicle rule: the other vehicle is the source of a damaging contact. Mutual lethal contacts can therefore produce mutual credit before the target is reached.
+Scoring consumes the existing authoritative lethal `DamageEvent` and vehicle `LifeId` in the same atomic world commit. A positive lethal missile, Salvo, Proxy Mine or vehicle-collision event credits its instigator only when that identity is a different player still in the authoritative roster. Collision attribution follows the existing receiving-vehicle rule: the other vehicle is the source of a damaging contact. Mutual lethal contacts can therefore produce mutual credit before the target is reached.
 
 Self-destruction, world/prop collisions, missing players, unsupported damage categories and unattributed deaths award no kill. Each scored victim gets one death. Attribution uses the actual lethal event at the current fixed tick; it does not fall back to an older attacker for a later environmental death. Existing damage context is sufficient, so there is no additional history buffer or expiry timer and no assist credit.
 
