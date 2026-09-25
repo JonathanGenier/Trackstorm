@@ -48,6 +48,10 @@ public sealed record VehicleConfiguration
     public float SteeringSmoothing { get; init; } = 0.1f;
     /// <summary>Maximum dirt rear lateral grip loss under sustained power.</summary>
     public float DirtPowerSlip { get; init; } = 0.22f;
+    /// <summary>Front dirt tire budget reserved for wheel direction during saturated slides.</summary>
+    public float DirtSteeringReserve { get; init; } = 0.65f;
+    /// <summary>Dirt slide yaw recovery response per second; zero disables the arcade assist.</summary>
+    public float DirtRecovery { get; init; } = 4;
     /// <summary>Wheelspin buildup rate per second.</summary>
     public float PowerSlipResponse { get; init; } = 2;
     /// <summary>Wheelspin recovery rate per second on throttle reduction.</summary>
@@ -122,6 +126,8 @@ public sealed record VehicleConfiguration
     public void Validate()
     {
         if (!float.IsFinite(SteeringSmoothing) || SteeringSmoothing is < 0.01f or > 1 ||
+            !float.IsFinite(DirtSteeringReserve) || DirtSteeringReserve is < 0 or > 1 ||
+            !float.IsFinite(DirtRecovery) || DirtRecovery is < 0 or > 10 ||
             !float.IsFinite(DirtPowerSlip) || DirtPowerSlip is < 0 or > 0.8f ||
             !float.IsFinite(PowerSlipResponse) || PowerSlipResponse is < 0.1f or > 20 ||
             !float.IsFinite(PowerSlipRecovery) || PowerSlipRecovery is < 0.1f or > 20)

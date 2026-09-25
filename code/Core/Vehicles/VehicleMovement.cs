@@ -205,6 +205,16 @@ public sealed class VehicleMovement
             float rearGrip = (1 - handbrake * (1 - c.HandbrakeGrip)) * (1 - powerSlip);
             var fl = Tire(frontDemand * frontLeftShare, frontLong * frontLeftShare, frontCapacity * frontLeftShare * profiles[0].Grip);
             var fr = Tire(frontDemand * (1 - frontLeftShare), frontLong * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * profiles[1].Grip);
+            // Reserve part of saturated front dirt traction for the filtered wheel direction.
+            // This changes force allocation, not the surface's friction budget or drive demand.
+            // Half authority near a 22-degree slide; the speed floor calms parking-speed input.
+            float slide = lateral * lateral / (0.16f * longitudinal * longitudinal + lateral * lateral + 4);
+            float steeringDemand = longitudinal * MathF.Tan(wheel) * response * 0.5f;
+            if (driveEnabled && waterDepth == 0 && (!wheels.HasValue || frontTotal > 0))
+            {
+                if (materials[0] == SurfaceType.Dirt) { fl = DirtFront(fl, frontLong * frontLeftShare, steeringDemand * frontLeftShare, frontCapacity * frontLeftShare * profiles[0].Grip, slide * c.DirtSteeringReserve); }
+                if (materials[1] == SurfaceType.Dirt) { fr = DirtFront(fr, frontLong * (1 - frontLeftShare), steeringDemand * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * profiles[1].Grip, slide * c.DirtSteeringReserve); }
+            }
             var rl = Tire(rearDemand * rearLeftShare, rearLong * rearLeftShare, rearCapacity * rearLeftShare * profiles[2].Grip, rearGrip, driveReserve);
             var rr = Tire(rearDemand * (1 - rearLeftShare), rearLong * (1 - rearLeftShare), rearCapacity * (1 - rearLeftShare) * profiles[3].Grip, rearGrip, driveReserve);
             float frontForce = fl.Side + fr.Side;
@@ -231,6 +241,18 @@ public sealed class VehicleMovement
             // Split material contact creates torque through the existing track-width lever arm.
             angular += tireNormal * (VehicleDimensions.WheelTrack / 2 * (fr.Drive + rr.Drive - fl.Drive - rl.Drive) / inertiaPerMass * dt);
             angular -= tireNormal * (Vector3.Dot(angular, tireNormal) * (1 - MathF.Exp(-c.StabilityDamping * dt)));
+            float frontDirt = waterDepth > 0 || (wheels.HasValue && frontTotal == 0) ? 0 : (materials[0] == SurfaceType.Dirt ? frontLeftShare : 0) + (materials[1] == SurfaceType.Dirt ? 1 - frontLeftShare : 0);
+            if (driveEnabled && frontDirt > 0 && c.DirtRecovery > 0 && tireLoad > 0)
+            {
+                // A bounded arcade correction arrests runaway yaw while retaining tire-driven
+                // translation and handbrake initiation. No heading, velocity or drift-mode snap.
+                float yawLimit = totalGrip * c.Dirt.Grip / Math.Max(steeringSpeed, 2);
+                float intendedYaw = Math.Clamp(-longitudinal * MathF.Tan(wheel) / c.Wheelbase, -yawLimit, yawLimit);
+                float currentYaw = Vector3.Dot(angular, tireNormal);
+                float correction = (intendedYaw - currentYaw) * (1 - MathF.Exp(-c.DirtRecovery * slide * frontDirt * (1 - 0.75f * handbrake) * dt));
+                float authority = frontCapacity * c.Dirt.Grip * frontDirt * halfAxle / inertiaPerMass * dt;
+                angular += tireNormal * Math.Clamp(correction, -authority, authority);
+            }
         }
 
         // Rocket thrust is a central force along the chassis, independent of pedals and tire contact.
@@ -289,6 +311,14 @@ public sealed class VehicleMovement
         }
 
         State = state;
+    }
+
+    private static (float Side, float Drive, float Slip) DirtFront((float Side, float Drive, float Slip) tire, float braking, float steering, float capacity, float reserve)
+    {
+        var directed = Tire(steering, braking, capacity);
+        float available = MathF.Sqrt(Math.Max(0, capacity * capacity - tire.Drive * tire.Drive));
+        float side = tire.Side + (Math.Clamp(directed.Side, -available, available) - tire.Side) * reserve;
+        return (side, tire.Drive, tire.Slip);
     }
 
     private static (float Side, float Drive, float Slip) Tire(float lateral, float longitudinal, float capacity, float lateralFraction = 1, float driveReserve = 0)
