@@ -36,7 +36,7 @@
   ],
   "compositionReference": "https://jonathangenier.atlassian.net/rest/api/3/attachment/content/10002",
   "originalWork": [
-    "Wrench.svg, Missile.svg, Oil.svg, Nitro.svg and Salvo.svg are project-created silhouettes. Oil/Nitro are original vector artwork for the generic item roster; no external assets were acquired.",
+    "Wrench.svg, Missile.svg, Oil.svg, Nitro.svg, Salvo.svg and MachineGun.svg are project-created silhouettes; no external assets were acquired for these silhouettes.",
     "Component.gdshader preserves the source textures and masks example values at runtime."
   ]
 }
