@@ -109,3 +109,5 @@ Related systems: [vehicles](vehicles.md), [items](items.md), [pickups](item-spaw
 
 [Feature index](README.md)
 Item pickup/use audio resolves the shared item registry hooks. Wrench/Missile retain their existing cues; Oil/Nitro currently share the weapon pickup cue and emit no use cue. Oil placement is communicated by its persistent world surface; Nitro use remains unavailable. Registry lookup does not change token/event replay protection or authority ownership.
+
+Salvo retains ammunition between presses. Rotating its accepted-shot capability does not produce another pickup cue; each confirmed shot still uses the registry fire cue and each impact retains its own event identity.

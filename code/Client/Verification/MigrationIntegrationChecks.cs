@@ -11,6 +11,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Two or three real UDP peers and isolated Godot worlds; identity is an explicit local test seam.</summary>
 public sealed partial class MigrationIntegrationChecks : Node
 {
+    private readonly Dictionary<ulong, Core.Items.ItemPublication> _salvoBoundaries = new();
     private OilPatch? _oil;
     private ulong _mine;
     private readonly DevelopmentSession?[] _presentations = new DevelopmentSession?[3];
@@ -297,6 +298,8 @@ public sealed partial class MigrationIntegrationChecks : Node
                 _circusBoundaries[match.Revision] = match;
                 arena.Driver.MatchReceived += state => _circusBoundaries[state.Revision] = state;
             }
+            SalvoRecoveryFixture.Seed(_arenas[1]!);
+            _arenas[1]!.Driver.ItemsReceived += state => _salvoBoundaries[state.World.Tick] = state;
             _boundary = _frames;
             _stage = 7;
         }
@@ -306,6 +309,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             _retainedBody = _arenas[survivor]!.Bodies[_drivers[survivor]!.LocalPlayerId];
             _arenas[survivor]!.Driver.Resynchronized += _ =>
             {
+                SalvoRecoveryFixture.Verify(_arenas[survivor]!.Driver.ItemState!, _salvoBoundaries);
                 Require(_arenas[survivor]!.Driver.Inputs!.Pending.Count == 0, "No old pending input.");
                 Require(_arenas[survivor]!.Driver.History!.Snapshots.Count == 1, "Interpolation reseeded at one boundary.");
                 if (_players == 3)

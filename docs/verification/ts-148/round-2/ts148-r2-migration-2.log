@@ -1,0 +1,7 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Category pickup history before migration: 2:3:Missile:Weapon=-0.5/2,Consumable=0.75/0,Droppable=-0.25/1;3:3:Oil:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1
+Salvo recovery verified: exact five-round continuation at tick 130; no historical events.
+Proxy Mine migration verified: same hazard survives authority replacement.
+Category history verified after authority migration: 2:3:Missile:Weapon=-0.5/2,Consumable=0.75/0,Droppable=-0.25/1;3:3:Oil:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1
+Migration integration passed: 2 native UDP peers; intentional lobby host leave; former-host fresh join; active native match authority loss; sequential epochs; retained vehicles; prediction reset; item/spawn/match restore. Identity is a trusted test seam, not real EOS.

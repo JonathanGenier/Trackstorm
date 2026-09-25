@@ -15,6 +15,7 @@ internal sealed class ItemRegistryTests
     [TestCase(HeldItem.Oil)]
     [TestCase(HeldItem.Nitro)]
     [TestCase(HeldItem.ProxyMine)]
+    [TestCase(HeldItem.Salvo)]
     public void SingleWeightedItemClaimsAndRoundTripsWithoutSecondAuthority(HeldItem item)
     {
         var tuning = new ItemSpawnConfiguration();

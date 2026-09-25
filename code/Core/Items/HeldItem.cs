@@ -15,4 +15,6 @@ public enum HeldItem : byte
     Nitro = 4,
     /// <summary>Magnetic contact deployable.</summary>
     ProxyMine = 5,
+    /// <summary>Fixed-range arcing missile salvo.</summary>
+    Salvo = 6,
 }

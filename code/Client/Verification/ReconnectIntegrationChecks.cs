@@ -17,6 +17,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Real UDP and native Godot worlds exercising the production resume boundary with a trusted test identity.</summary>
 public sealed partial class ReconnectIntegrationChecks : Node
 {
+    private readonly Dictionary<ulong, ItemPublication> _salvoBoundaries = new();
     private readonly List<GameNetworkingSocketsTransport> _gateways = new();
     private readonly List<SubViewport> _views = new();
     private readonly List<NetworkVehicleArena> _arenas = new();
@@ -174,6 +175,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 _arenas.Add(arena);
             }
 
+            _arenas[0].Driver.ItemsReceived += state => _salvoBoundaries[state.World.Tick] = state;
             _arenas[1].Driver.Resynchronized += world =>
             {
                 if (_originalBody is null)
@@ -183,6 +185,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 }
 
                 _resyncs++;
+                SalvoRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, _salvoBoundaries);
                 if (_resyncs <= 3)
                 {
                     Require(_arenas[1].Driver.ItemState!.Mines.Single().Id == _mine, "Mine identity restored exactly once.");
@@ -431,7 +434,12 @@ public sealed partial class ReconnectIntegrationChecks : Node
         };
     }
 
-    private ulong Reconnect() => _elapsed < _resumeAt ? throw new InvalidOperationException("Simulated interrupted route") : _gateways[1].Connect(TransportEndpoint.DirectIp(_endpoint));
+    private ulong Reconnect()
+    {
+        if (_elapsed < _resumeAt) { throw new InvalidOperationException("Simulated interrupted route"); }
+        if (_arenas.Count > 0) { SalvoRecoveryFixture.Seed(_arenas[0]); }
+        return _gateways[1].Connect(TransportEndpoint.DirectIp(_endpoint));
+    }
 
     private MatchStandingsView? Standings() => _arenas.Count == 0 ? null : MatchStandingsView.From(_host.State, _arenas[0].Driver.Host!.World.State.Match, 1, InputButtons.Leaderboard, id => _host.Latency.Get(_host.State!, id));
 

@@ -7,7 +7,7 @@ internal sealed class OilUseHandler : IItemUseHandler
 {
     public bool Stage(ItemSlot slot, VehiclePhysicsState pose, ItemConfiguration configuration,
         List<MissileState> missiles, Dictionary<ulong, float> repairs, List<OilPatch> patches,
-        Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil, Dictionary<ulong, NitroState> boosts, List<ProxyMineState> mines, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine)
+        Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil, Dictionary<ulong, NitroState> boosts, List<ProxyMineState> mines, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine, Func<ulong> nextToken, Func<System.Numerics.Vector3, System.Numerics.Vector3?>? ground)
     {
         if (patches.Count >= configuration.MaximumOilPatches || placeOil?.Invoke(slot, pose) is not OilPatch patch)
         {

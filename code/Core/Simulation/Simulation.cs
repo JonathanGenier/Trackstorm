@@ -353,6 +353,7 @@ public sealed class Simulation
     private static string SafeCause(DamageContext attribution) => attribution.Source switch
     {
         "missile" => "Missile",
+        "salvo" => "Salvo",
         "collision" => attribution.InstigatorId == 0 ? "map collision" : "vehicle collision",
         "explosion" => "explosion",
         _ => "gameplay effect",

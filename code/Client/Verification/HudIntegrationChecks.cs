@@ -42,7 +42,7 @@ public sealed partial class HudIntegrationChecks : Node
             settings.UpdateSettings(settings.Current with { ShowFps = true, ShowPing = true });
             preferences.SetConnectionTelemetry(new(Networking.ConnectionDiagnosticState.Reconnecting, default));
             var pixels = new List<(int Health, int Speed)>();
-            foreach (var sample in new[] { (1000f, 200 / 3.6f, HeldItem.None), (500f, 100 / 3.6f, HeldItem.Wrench), (0f, 0f, HeldItem.None), (850f, 200 / 3.6f, HeldItem.Missile), (850f, 200 / 3.6f, HeldItem.Oil), (850f, 200 / 3.6f, HeldItem.Nitro) })
+            foreach (var sample in new[] { (1000f, 200 / 3.6f, HeldItem.None), (500f, 100 / 3.6f, HeldItem.Wrench), (0f, 0f, HeldItem.None), (850f, 200 / 3.6f, HeldItem.Missile), (850f, 200 / 3.6f, HeldItem.Oil), (850f, 200 / 3.6f, HeldItem.Nitro), (850f, 200 / 3.6f, HeldItem.ProxyMine), (850f, 200 / 3.6f, HeldItem.Salvo) })
             {
                 state = Sample(state, sample.Item1, sample.Item2);
                 slot = new ItemSlot(state.VehicleId, state.LifeId, 1, sample.Item3);
@@ -60,6 +60,17 @@ public sealed partial class HudIntegrationChecks : Node
             Require(pixels[0].Health > pixels[1].Health && pixels[1].Health > pixels[2].Health && pixels[2].Health < pixels[0].Health / 10, "Rendered health fill decreases to empty");
             Require(pixels[0].Speed > pixels[1].Speed && pixels[1].Speed > pixels[2].Speed && pixels[2].Speed < pixels[0].Speed / 5, "Rendered speed arc decreases to empty");
 
+            foreach (int shots in new[] { 5, 4, 1, 0 })
+            {
+                slot = new ItemSlot(state.VehicleId, state.LifeId, 1, shots > 0 ? HeldItem.Salvo : HeldItem.None)
+                { SalvoShots = shots, SecondToken = 2, SecondItem = HeldItem.Salvo, SecondSalvoShots = 3 };
+                hud.Refresh();
+                Require(hud.Displayed!.ItemName == (shots > 0 ? $"SALVO {shots}" : "EMPTY"), "Salvo remaining shots and exhaustion");
+                Require(hud.Displayed.SecondItemName == "SALVO 3", "Independent second-slot ammunition");
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                using Image frame = viewport.GetTexture().GetImage();
+                Require(frame.SavePng(System.IO.Path.Combine(output, $"salvo-{shots}.png")) == Error.Ok, "Ammunition screenshot");
+            }
             foreach (double charge in new[] { 100.0, 37.5, 0.1, 0.0 })
             {
                 slot = new ItemSlot(state.VehicleId, state.LifeId, 1, charge == 0 ? HeldItem.None : HeldItem.Nitro)

@@ -36,9 +36,11 @@ public sealed partial class PickupDriveChecks : Node
     private float MotionOffset => new[] { 0f, 1.5f, 2.8f }[(_motionTrial / 10) % 3];
     private bool OldMap => OS.GetCmdlineUserArgs().Contains("--pickup-old-map");
     private string MarkerId => OldMap ? "item-03" : "item-triple-01-2";
-    private int DriverIndex => _trial / 9;
-    private int Case => _trial % 9;
-    private HeldItem Selected => Case < 5 ? ItemRegistry.All[Case].Identity : Case == 5 ? HeldItem.Wrench : Case == 6 ? HeldItem.ProxyMine : HeldItem.Missile;
+    private static int RosterCount => ItemRegistry.All.Count;
+    private static int CasesPerDriver => RosterCount + 4;
+    private int DriverIndex => _trial / CasesPerDriver;
+    private int Case => _trial % CasesPerDriver;
+    private HeldItem Selected => Case < RosterCount ? ItemRegistry.All[Case].Identity : Case == RosterCount ? HeldItem.Wrench : Case == RosterCount + 1 ? HeldItem.ProxyMine : HeldItem.Missile;
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -108,14 +110,19 @@ public sealed partial class PickupDriveChecks : Node
                     var slot = authority.Items.Slots.Single(s => s.Vehicle == player);
                     var spawn = authority.Spawns!.States.Single(s => s.Id == marker.Id);
                     Require(_nearest < 3, "The native car physically crossed the box radius.");
-                    if (Case == 7)
+                    if (Case == RosterCount + 2)
                         Require(slot.Full && authority.Items.TokenHighWater == _tokenBefore && authority.Spawns.RandomState == _randomBefore && spawn.Available, "Full inventory preserves box, tokens and RNG.");
                     else
                         Require(spawn.ClaimedBy == player && spawn.Item == Selected && spawn.Token > _tokenBefore && (slot.Item == Selected || slot.SecondItem == Selected), "Normal driving awards the selected registered item.");
                     Require(_sessions.All(s => s.Arena!.Driver.ItemState!.Slots.Contains(slot)), "Host and remote hold identical two-slot state.");
-                    GD.Print($"Driver {DriverIndex}, case {Case}, closest {_nearest:F3} m, inventory {slot.Item}/{slot.SecondItem}: {(Case == 7 ? "full rejection" : Selected)} passed.");
+                    if (Selected == HeldItem.Salvo)
+                    {
+                        Require(_sessions[DriverIndex].Arena!.SalvoMarker.Visible, "Acquired Salvo projects its local marker onto the production map.");
+                        Require(!_sessions[1 - DriverIndex].Arena!.SalvoMarker.Visible, "The other application peer cannot see that marker.");
+                    }
+                    GD.Print($"Driver {DriverIndex}, case {Case}, closest {_nearest:F3} m, inventory {slot.Item}/{slot.SecondItem}: {(Case == RosterCount + 2 ? "full rejection" : Selected)} passed.");
                     if (DisplayServer.GetName() != "headless") _views[DriverIndex].GetTexture().GetImage().SavePng(System.IO.Path.Combine(_output, $"driver-{DriverIndex}-case-{Case}.png"));
-                    if (Case == 7) Require(_sessions[DriverIndex].Arena!.Driver.RequestItemUse(), "Consume first-slot Wrench through normal input command before retry.");
+                    if (Case == RosterCount + 2) Require(_sessions[DriverIndex].Arena!.Driver.RequestItemUse(), "Consume first-slot Wrench through normal input command before retry.");
                     _trial++;
                     _boundary = _frames;
                     _stage = 4;
@@ -123,8 +130,8 @@ public sealed partial class PickupDriveChecks : Node
             }
             else if (_stage == 4 && _frames - _boundary > 90)
             {
-                if (_trial < 18) Prepare();
-                else { GD.Print("Pickup drive passed: both application peers acquired all five items, two sequential slots, full rejection and use/retry."); Finish(); }
+                if (_trial < CasesPerDriver * 2) Prepare();
+                else { GD.Print("Pickup drive passed: both application peers acquired every registered item, two sequential slots, full rejection and use/retry."); Finish(); }
             }
         }
         catch (Exception exception) { GD.PrintErr(exception); GetTree().Quit(1); }
@@ -201,7 +208,7 @@ public sealed partial class PickupDriveChecks : Node
         var arena = _sessions[0].Arena!;
         var authority = arena.Driver.Host!;
         ulong player = _sessions[DriverIndex].Arena!.Driver.LocalVehicleId;
-        if (Case <= 5) authority.Items.RemovePlayer(player); // Isolate each pool trial; never grant an item directly.
+        if (Case <= RosterCount) authority.Items.RemovePlayer(player); // Isolate each pool trial; never grant an item directly.
         var edits = ItemRegistry.All.ToDictionary(i => $"spawns.{i.Key}_weight", i => i.Identity == Selected ? 1d : 0d);
         edits["spawns.cooldown_ticks"] = 60;
         Require(arena.Driver.TryConfigure(edits, out string error), error);
