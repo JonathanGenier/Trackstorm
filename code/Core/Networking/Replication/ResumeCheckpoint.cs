@@ -12,7 +12,8 @@ public sealed class ResumeCheckpoint
     /// <param name="match">Current score totals, winner and consumed-life watermarks.</param>
     /// <param name="props">Optional current native prop poses.</param>
     /// <param name="configuration">Validated effective gameplay tuning.</param>
-    public ResumeCheckpoint(ItemPublication items, MatchState match, ArenaPropSnapshot? props, Development.GameplayConfigurationState? configuration = null)
+    /// <param name="environment">Complete current-match destruction boundary.</param>
+    public ResumeCheckpoint(ItemPublication items, MatchState match, ArenaPropSnapshot? props, Development.GameplayConfigurationState? configuration = null, EnvironmentSnapshot? environment = null)
     {
         configuration ??= new(items.World.ConfigurationRevision, new() { Damage = new() { MaxHP = items.World.Vehicles[0].State.Damage.MaxHP }, Match = new() { KillTarget = match.KillTarget, Mode = match.Mode } });
         if (items.Events.Count != 0 || match.Changes.Count != 0 || match.Awards.Count != 0 || match.Tick > items.World.Tick ||
@@ -31,6 +32,8 @@ public sealed class ResumeCheckpoint
         Match = match;
         Props = props;
         Configuration = configuration;
+        if (environment is not null && (environment.Session != items.World.Session || environment.Tick != items.World.Tick)) { throw new ArgumentException("Environment checkpoint boundary mismatch."); }
+        Environment = environment;
     }
 
     /// <summary>Complete authoritative vehicle/item boundary.</summary>
@@ -39,6 +42,7 @@ public sealed class ResumeCheckpoint
     public MatchState Match { get; }
     /// <summary>Host-observed movable arena state.</summary>
     public ArenaPropSnapshot? Props { get; }
+    public EnvironmentSnapshot? Environment { get; }
     /// <summary>Effective tuning installed before reconstructing prediction or gameplay state.</summary>
     public Development.GameplayConfigurationState Configuration { get; }
 }

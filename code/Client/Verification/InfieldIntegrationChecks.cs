@@ -34,6 +34,9 @@ public sealed partial class InfieldIntegrationChecks : Node3D
     private string _caseFilter = string.Empty;
     private Camera3D? _camera;
     private string _output = string.Empty;
+    private Core.Arenas.EnvironmentAuthority? _destructibles;
+    private Arenas.DestructibleEnvironment? _destructibleView;
+    private readonly Core.Items.ItemAuthority _environmentItems = new();
 
     /// <inheritdoc/>
     public override void _Ready() => CallDeferred(MethodName.Run);
@@ -94,6 +97,8 @@ public sealed partial class InfieldIntegrationChecks : Node3D
         InputFrame companionInput = new(_tick, 0, _companionDrive && _companion is not null && _companion.LinearVelocity.Length() < 10 ? (ushort)40000 : (ushort)0, 0, 0, 0, 0);
         var observations = _companion is null ? new[] { _vehicle.Capture(input) } : new[] { _vehicle.Capture(input), _companion.Capture(companionInput) };
         var results = _simulation.Step(input, observations);
+        _destructibles?.Advance(input.Tick, observations, [], _environmentItems);
+        if (_destructibles is not null) { _destructibleView!.Apply(_destructibles.Snapshot(1, input.Tick)); }
         _vehicle.Apply(results[0]);
         _vehicle.Publish();
         ObservePickupRoute();
@@ -152,6 +157,9 @@ public sealed partial class InfieldIntegrationChecks : Node3D
             Check(!ClearRay(new Vector3(0, 5, 0), new Vector3(0, 6, 0)), "Imported tunnel roof has usable collision at 5.5 m clearance.");
             CheckStructures(map);
             CheckTabletop();
+            _destructibles = new(Arenas.DestructibleEnvironment.ReadLayout(map)!);
+            _destructibleView = new(map);
+            _destructibleView.Apply(_destructibles.Snapshot(1, 0), true);
             _vehicle = new VehicleBody { Position = new Vector3(0, 1, 70), DamageConfiguration = new DamageConfiguration { MaxHP = 1000, CollisionScale = 5 } };
             _simulation.AddVehicle(1, _vehicle.Configuration, _vehicle.DamageConfiguration, new VehiclePhysicsState(new Numerics.Vector3(0, 1, 70), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero));
             _vehicle.Initialize(_simulation);
@@ -329,6 +337,20 @@ public sealed partial class InfieldIntegrationChecks : Node3D
 
     private void CheckTabletop()
     {
+        foreach (int direction in new[] { -1, 1 })
+        {
+            foreach (float z in new[] { -5f, 0f, 5f })
+            {
+                float previous = SurfaceHeight(direction * 83, z);
+                for (float distance = 0.25f; distance <= 13; distance += 0.25f)
+                {
+                    float height = SurfaceHeight(direction * (83 - distance), z);
+                    Check(height >= previous - 0.02f && height - previous < 0.22f, $"Continuous kicker-to-tabletop fill: side={direction}, d={distance}, z={z}, height={height:F3}, previous={previous:F3}.");
+                    previous = height;
+                }
+                Check(Math.Abs(previous - 6.35f) < 0.03f, "Both kicker fills reach unchanged tabletop height.");
+            }
+        }
         foreach (int end in new[] { -1, 1 })
         {
             foreach (float x in new[] { 15f, 40f, 65f })

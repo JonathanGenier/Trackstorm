@@ -39,6 +39,12 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'DestructibleEnvironment|EnvironmentAuthority|EnvironmentLayout|EnvironmentRockState|EnvironmentSnapshot|EnvironmentCodec|EnvironmentRecoveryFixture|destructible_environment|check-destructible-environment') {
+            Add-Runtime 'check-destructible-environment.ps1'
+            Add-Extended 'check-reconnect.ps1'
+            Add-Extended 'check-migration.ps1'
+            Add-Manual 'Drive production rocks, plants and both tabletop transitions; inspect smallest-rock stability and repeated destruction with recovery.'
+        }
         if ($path -match 'Salvo|salvo_checks|check-salvo') {
             Add-Runtime 'check-salvo.ps1'
             Add-Manual 'Play Salvo from the chase camera; inspect terrain-conforming marker privacy on remote peers and repeated use. Run impaired salvo, reconnect and migration checks.'

@@ -42,6 +42,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
     private double _entrySeconds;
     private double _entryRequestSeconds;
     private bool _disposed;
+    private Trackstorm.Core.Arenas.EnvironmentSnapshot? _publishedEnvironment;
     private readonly Func<bool>? _admissionOpen;
     private readonly Func<ulong, bool>? _activateJoin;
 
@@ -146,6 +147,8 @@ internal sealed class VehicleNetworkDriver : IDisposable
     internal event Action<Trackstorm.Core.Arenas.ArenaPropSnapshot>? PropsReceived;
     /// <summary>Reliable item and outcome presentation callback.</summary>
     internal event Action<ItemPublication>? ItemsReceived;
+    internal event Action<Trackstorm.Core.Arenas.EnvironmentSnapshot>? EnvironmentReceived;
+    internal Trackstorm.Core.Arenas.EnvironmentSnapshot? EnvironmentState { get; private set; }
     /// <summary>Ordered reliable lifecycle boundaries, including ones superseded by newer movement snapshots.</summary>
     internal event Action<WorldSnapshot>? LifecycleReceived;
     /// <summary>Once-per-revision authoritative totals, score deltas and phase/winner changes.</summary>
@@ -304,6 +307,19 @@ internal sealed class VehicleNetworkDriver : IDisposable
 
             Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine, ProjectSalvoGround);
             Host.CollectPickups();
+            if (Host.Environment is { } environment)
+            {
+                EnvironmentState = environment.Snapshot(_session, Host.World.State.Tick);
+                EnvironmentReceived?.Invoke(EnvironmentState);
+                if (Host.World.State.Tick % HostVehicleSession.SnapshotInterval == 0 &&
+                    (_rosterChanged || _publishedEnvironment is null || Host.World.State.Tick % 60 == 0 ||
+                     !EnvironmentState.Rocks.SequenceEqual(_publishedEnvironment.Rocks) || !EnvironmentState.Plants.SequenceEqual(_publishedEnvironment.Plants)))
+                {
+                    byte[] state = Trackstorm.Core.Arenas.EnvironmentCodec.Encode(EnvironmentState);
+                    foreach (ulong peer in _assigned) { Send(new TransportMessage(peer, state, TransportDelivery.Unreliable)); }
+                    _publishedEnvironment = EnvironmentState;
+                }
+            }
 
             Latest = Host.Snapshot();
             MatchState match = Host.World.State.Match!;
@@ -641,6 +657,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         LocalCorrected = null;
         PropsReceived = null;
         ItemsReceived = null;
+        EnvironmentReceived = null;
         LifecycleReceived = null;
         MatchReceived = null;
         Resynchronized = null;
@@ -657,7 +674,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         var state = Host.World.State.Match!;
         var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode);
         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());
-        return (new ResumeCheckpoint(items, match, props, Host.Configuration), Host.CaptureAuthority());
+        return (new ResumeCheckpoint(items, match, props, Host.Configuration, Host.Environment?.Snapshot(_session, world.Tick)), Host.CaptureAuthority());
     }
 
     private void RestoreMigration(MigrationCheckpoint checkpoint, bool host)
@@ -696,11 +713,16 @@ internal sealed class VehicleNetworkDriver : IDisposable
         var state = Host.World.State.Match!;
         var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode);
         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());
-        Send(new TransportMessage(peer, ResumeCheckpointCodec.Encode(new ResumeCheckpoint(items, match, props, Host.Configuration)), TransportDelivery.Reliable));
+        Send(new TransportMessage(peer, ResumeCheckpointCodec.Encode(new ResumeCheckpoint(items, match, props, Host.Configuration, Host.Environment?.Snapshot(_session, world.Tick))), TransportDelivery.Reliable));
     }
 
     private void ApplyCheckpoint(ResumeCheckpoint checkpoint)
     {
+        if ((_arena?.Environment is null) != (checkpoint.Environment is null) ||
+            (checkpoint.Environment is { } environment && (environment.Rocks.Count != _arena!.Environment!.Rocks.Count || environment.Plants.Count != _arena.Environment.Plants.Count)))
+        {
+            throw new ArgumentException("Checkpoint environment layout mismatch.");
+        }
         WorldSnapshot world = checkpoint.Items.World;
         var local = world.Vehicles.SingleOrDefault(vehicle => vehicle.State.VehicleId == LocalVehicleId);
         if (world.Session != _session || local is null || _lobby is null || (_generation == _lobby.Generation && !_awaitingCheckpoint))
@@ -727,6 +749,8 @@ internal sealed class VehicleNetworkDriver : IDisposable
         _switchLife = _switchRevision = 0;
         Match = checkpoint.Match;
         PropSnapshot = checkpoint.Props;
+        EnvironmentState = checkpoint.Environment;
+        if (EnvironmentState is not null) { EnvironmentReceived?.Invoke(EnvironmentState); }
         _lastLifecycleTick = world.Tick;
         _snapshotAge = 0;
         _generation = _lobby.Generation;
@@ -977,6 +1001,16 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 }
 
                 MatchReceived?.Invoke(Match);
+                return;
+            }
+
+            if (Trackstorm.Core.Arenas.EnvironmentCodec.IsEnvironment(message.Payload.Span))
+            {
+                if (Host is not null || message.RemotePeerId != ServerPeer) { throw new ArgumentException("Only current host may publish destruction."); }
+                var state = Trackstorm.Core.Arenas.EnvironmentCodec.Decode(message.Payload.Span);
+                if (state.Session != _session || state.Tick <= (EnvironmentState?.Tick ?? 0) || _arena?.Environment is not { } layout || state.Rocks.Count != layout.Rocks.Count || state.Plants.Count != layout.Plants.Count) { return; }
+                EnvironmentState = state;
+                EnvironmentReceived?.Invoke(state);
                 return;
             }
 

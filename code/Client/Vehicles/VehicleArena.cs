@@ -14,6 +14,10 @@ public sealed partial class VehicleArena : Node3D
     private MeshInstance3D? _blast;
     private float _blastSeconds;
     private Arenas.CombatArena? _layout;
+    private Arenas.DestructibleEnvironment? _destructibles;
+    private Core.Arenas.EnvironmentAuthority? _environmentAuthority;
+    private readonly Core.Items.ItemAuthority _environmentItems = new();
+    private readonly List<Core.Items.ItemEvent> _environmentImpacts = new();
     internal Input.PlayerInputAdapter? CameraInput { get => _camera.InputSource; set => _camera.InputSource = value; }
     /// <summary>Local camera preferences, independent of vehicle configuration.</summary>
     internal Settings.PlayerSettingsController? CameraSettings { get => _camera.SettingsSource; set => _camera.SettingsSource = value; }
@@ -85,6 +89,7 @@ public sealed partial class VehicleArena : Node3D
 
             AddChild(Map);
             var markers = _layout?.ValidateScene() ?? Arenas.ActiveMap.ReadConfiguration(Map);
+            if (markers.Environment is { } environment) { _destructibles = new(Map); _environmentAuthority = new(environment); }
             Simulation = new Trackstorm.Core.Simulation.Simulation(new Trackstorm.Core.Simulation.SimulationConfiguration(60), new RespawnConfiguration(), markers);
             for (int slot = 0; slot < Core.Arenas.ArenaConfiguration.SpawnCount; slot++)
             {
@@ -151,6 +156,9 @@ public sealed partial class VehicleArena : Node3D
         var requests = _vehicles.Select(vehicle => vehicle.Capture(vehicle == Player ? input : neutral)).ToArray();
         _camera.ObserveCollision(requests[0].Observation, Player.Configuration.Mass);
         IReadOnlyList<VehicleStepResult> results = Simulation.Step(input, requests);
+        _environmentAuthority?.Advance(input.Tick, requests.Where(r => Simulation.GetVehicle(r.VehicleId).CanInteract).ToArray(), _environmentImpacts, _environmentItems);
+        _environmentImpacts.Clear();
+        if (_environmentAuthority is not null) { _destructibles!.Apply(_environmentAuthority.Snapshot(1, input.Tick)); }
         _destruction.Apply(Simulation.State.Vehicles);
         _audio.ApplyVehicles(Simulation.State.Vehicles);
         for (int index = 0; index < _vehicles.Count; index++)
@@ -182,6 +190,7 @@ public sealed partial class VehicleArena : Node3D
 
         Simulation.Events.Record(Core.Events.EventCategory.Developer, "Detonate nearby", actor: 1);
         _layout?.Explode(center);
+        _environmentImpacts.Add(new(1, Player.VehicleId, Core.Items.HeldItem.Missile, VehicleBody.ToCore(center), true));
         _audio.PracticeExplosion(center);
         _blast?.QueueFree();
         _blast = new MeshInstance3D
@@ -201,6 +210,11 @@ public sealed partial class VehicleArena : Node3D
         if (!LegacyTestLayout)
         {
             _layout?.ResetProps();
+            if (Simulation.Arena.Environment is { } layout)
+            {
+                _environmentAuthority = new(layout); _environmentImpacts.Clear();
+                _destructibles!.Apply(_environmentAuthority.Snapshot(1, Simulation.State.Tick), true);
+            }
             for (int slot = 0; slot < _vehicles.Count; slot++)
             {
                 _vehicles[slot].ResetBody(Simulation.Arena.Spawn(slot));
