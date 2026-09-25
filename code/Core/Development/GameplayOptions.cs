@@ -20,6 +20,8 @@ public static class GameplayOptions
         new("vehicle.steering_response", "Vehicle", "SteeringResponse", false, c => c.Vehicle.SteeringResponse, (c, v) => c with { Vehicle = c.Vehicle with { SteeringResponse = checked((float)v) } }),
         new("vehicle.steering_smoothing", "Vehicle", "Steering smoothing", false, c => c.Vehicle.SteeringSmoothing, (c, v) => c with { Vehicle = c.Vehicle with { SteeringSmoothing = checked((float)v) } }),
         new("vehicle.dirt_power_slip", "Vehicle", "Dirt power slip", false, c => c.Vehicle.DirtPowerSlip, (c, v) => c with { Vehicle = c.Vehicle with { DirtPowerSlip = checked((float)v) } }),
+        new("vehicle.dirt_steering_reserve", "Dirt", "Slide steering reserve", false, c => c.Vehicle.DirtSteeringReserve, (c, v) => c with { Vehicle = c.Vehicle with { DirtSteeringReserve = checked((float)v) } }),
+        new("vehicle.dirt_recovery", "Dirt", "Slide yaw recovery (per second)", false, c => c.Vehicle.DirtRecovery, (c, v) => c with { Vehicle = c.Vehicle with { DirtRecovery = checked((float)v) } }),
         new("vehicle.power_slip_response", "Vehicle", "Power slip buildup", false, c => c.Vehicle.PowerSlipResponse, (c, v) => c with { Vehicle = c.Vehicle with { PowerSlipResponse = checked((float)v) } }),
         new("vehicle.power_slip_recovery", "Vehicle", "Power slip recovery", false, c => c.Vehicle.PowerSlipRecovery, (c, v) => c with { Vehicle = c.Vehicle with { PowerSlipRecovery = checked((float)v) } }),
         new("vehicle.wheelbase", "Vehicle", "Wheelbase", false, c => c.Vehicle.Wheelbase, (c, v) => c with { Vehicle = c.Vehicle with { Wheelbase = checked((float)v) } }),
