@@ -296,7 +296,7 @@ public sealed partial class MigrationIntegrationChecks : Node
                     }));
                 world.Restore(new Core.Simulation.SimulationState(boundary.Tick, boundary.LastInput, vehicles, match));
                 NitroRecoveryFixture.Seed(arena, _nitroOwner);
-                _machineGunOwner = _drivers[2]!.LocalPlayerId;
+                _machineGunOwner = _drivers[0]!.LocalPlayerId;
                 MachineGunRecoveryFixture.Seed(arena, _machineGunOwner);
                 _circusBoundaries[match.Revision] = match;
                 arena.Driver.MatchReceived += state => _circusBoundaries[state.Revision] = state;

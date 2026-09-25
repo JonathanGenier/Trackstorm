@@ -208,6 +208,19 @@ internal sealed class MachineGunTests
         Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(499));
     }
 
+    [Test]
+    public void LethalRoundUsesExistingKillAttributionWithoutDamageScore()
+    {
+        var host = Create(new() { MachineGunFireRate = 60, MachineGunDamage = 1000, MachineGunSpread = 0 });
+        Grant(host);
+        Step(host, true, (_, _, _) => new(0.3f, 2));
+        Assert.That(host.World.GetVehicle(2).Damage.Destroyed, Is.True);
+        Assert.That(host.World.State.Match!.Players.Single(p => p.Player == 1).Kills, Is.EqualTo(1));
+        Assert.That(host.World.State.Match.Players.Single(p => p.Player == 1).CircusScore, Is.EqualTo(host.Configuration.Configuration.Match.BaseKillPoints));
+        Step(host);
+        Assert.That(host.World.State.Match.Players.Single(p => p.Player == 1).Kills, Is.EqualTo(1));
+    }
+
     private static InputFrame Held => new(0, 0, 0, 0, InputButtons.UseItem, 0, 0);
     private static HostVehicleSession Create(ItemConfiguration? items = null)
     {

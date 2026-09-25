@@ -208,7 +208,7 @@ public sealed partial class MachineGunIntegrationChecks : Node
         Button("Tracking / fixed aim", () => _tracking = !_tracking);
         foreach (float range in new[] { 3f, 7f, 11f, 14f }) { Button($"Range {range} m", () => _playRange = range); }
         Button("Refill magazine", Refill);
-        Button("Finish playtest", () => { foreach (var gateway in _gateways) { gateway.Dispose(); } GetTree().Quit(); });
+        Button("Finish playtest", () => { _done = true; _boundary = _frames; foreach (var arena in _arenas) { arena.QueueFree(); } foreach (var gateway in _gateways) { gateway.Dispose(); } GetTree().Quit(); });
         Refill();
     }
 
