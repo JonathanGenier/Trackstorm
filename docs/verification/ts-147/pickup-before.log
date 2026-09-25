@@ -1,0 +1,453 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connected; None; 
+Transport peer 1: Connected; None; 
+MISSED driver=0 speed=8 offset=2.8 phase=6 sweptClosest=2.9992
+claim boundary: native=3.5125, Core=3.4535, observed=False
+tick 3258: before=3.5125, after=3.4535, segment=3.4535, speed=6.99
+claim boundary: native=3.4535, Core=3.3976, observed=False
+tick 3259: before=3.4535, after=3.3976, segment=3.3976, speed=6.96
+claim boundary: native=3.3976, Core=3.3450, observed=False
+tick 3260: before=3.3976, after=3.3450, segment=3.3450, speed=6.94
+claim boundary: native=3.3450, Core=3.2958, observed=False
+tick 3261: before=3.3450, after=3.2958, segment=3.2958, speed=6.91
+claim boundary: native=3.2958, Core=3.2501, observed=False
+tick 3262: before=3.2958, after=3.2501, segment=3.2501, speed=6.88
+claim boundary: native=3.2501, Core=3.2080, observed=False
+tick 3263: before=3.2501, after=3.2080, segment=3.2080, speed=6.85
+claim boundary: native=3.2080, Core=3.1695, observed=False
+tick 3264: before=3.2080, after=3.1695, segment=3.1695, speed=6.82
+claim boundary: native=3.1695, Core=3.1348, observed=False
+tick 3265: before=3.1695, after=3.1348, segment=3.1348, speed=6.80
+claim boundary: native=3.1348, Core=3.1039, observed=False
+tick 3266: before=3.1348, after=3.1039, segment=3.1039, speed=6.77
+claim boundary: native=3.1039, Core=3.0769, observed=False
+tick 3267: before=3.1039, after=3.0769, segment=3.0769, speed=6.74
+claim boundary: native=3.0769, Core=3.0539, observed=False
+tick 3268: before=3.0769, after=3.0539, segment=3.0539, speed=6.71
+claim boundary: native=3.0539, Core=3.0349, observed=False
+tick 3269: before=3.0539, after=3.0349, segment=3.0349, speed=6.69
+claim boundary: native=3.0349, Core=3.0199, observed=False
+tick 3270: before=3.0349, after=3.0199, segment=3.0199, speed=6.66
+claim boundary: native=3.0199, Core=3.0090, observed=False
+tick 3271: before=3.0199, after=3.0090, segment=3.0090, speed=6.63
+claim boundary: native=3.0090, Core=3.0021, observed=False
+tick 3272: before=3.0090, after=3.0021, segment=3.0021, speed=6.61
+claim boundary: native=3.0021, Core=2.9993, observed=False
+tick 3273: before=3.0021, after=2.9993, segment=2.9993, speed=6.58
+claim boundary: native=2.9993, Core=3.0004, observed=True
+tick 3274: before=2.9993, after=3.0004, segment=2.9992, speed=6.55
+claim boundary: native=3.0004, Core=3.0054, observed=False
+tick 3275: before=3.0004, after=3.0054, segment=3.0004, speed=6.53
+claim boundary: native=3.0054, Core=3.0143, observed=False
+tick 3276: before=3.0054, after=3.0143, segment=3.0054, speed=6.50
+claim boundary: native=3.0143, Core=3.0269, observed=False
+tick 3277: before=3.0143, after=3.0269, segment=3.0143, speed=6.47
+claim boundary: native=3.0269, Core=3.0432, observed=False
+tick 3278: before=3.0269, after=3.0432, segment=3.0269, speed=6.45
+claim boundary: native=3.0432, Core=3.0631, observed=False
+tick 3279: before=3.0432, after=3.0631, segment=3.0432, speed=6.42
+claim boundary: native=3.0631, Core=3.0865, observed=False
+tick 3280: before=3.0631, after=3.0865, segment=3.0631, speed=6.39
+claim boundary: native=3.0865, Core=3.1132, observed=False
+tick 3281: before=3.0865, after=3.1132, segment=3.0865, speed=6.37
+claim boundary: native=3.1132, Core=3.1432, observed=False
+tick 3282: before=3.1132, after=3.1432, segment=3.1132, speed=6.34
+claim boundary: native=3.1432, Core=3.1762, observed=False
+tick 3283: before=3.1432, after=3.1762, segment=3.1432, speed=6.32
+claim boundary: native=3.1762, Core=3.2123, observed=False
+tick 3284: before=3.1762, after=3.2123, segment=3.1762, speed=6.29
+claim boundary: native=3.2123, Core=3.2511, observed=False
+tick 3285: before=3.2123, after=3.2511, segment=3.2123, speed=6.26
+claim boundary: native=3.2511, Core=3.2926, observed=False
+tick 3286: before=3.2511, after=3.2926, segment=3.2511, speed=6.24
+claim boundary: native=3.2926, Core=3.3365, observed=False
+tick 3287: before=3.2926, after=3.3365, segment=3.2926, speed=6.21
+claim boundary: native=3.3365, Core=3.3829, observed=False
+tick 3288: before=3.3365, after=3.3829, segment=3.3365, speed=6.19
+claim boundary: native=3.3829, Core=3.4316, observed=False
+tick 3289: before=3.3829, after=3.4316, segment=3.3829, speed=6.16
+claim boundary: native=3.4316, Core=3.4824, observed=False
+tick 3290: before=3.4316, after=3.4824, segment=3.4316, speed=6.14
+claim boundary: native=3.4824, Core=3.5351, observed=False
+tick 3291: before=3.4824, after=3.5351, segment=3.4824, speed=6.11
+MISSED driver=0 speed=40 offset=2.8 phase=7 sweptClosest=2.9507
+claim boundary: native=3.8763, Core=3.4910, observed=False
+tick 4589: before=3.8763, after=3.4910, segment=3.4910, speed=38.92
+claim boundary: native=3.4910, Core=3.1930, observed=False
+tick 4590: before=3.4910, after=3.1930, segment=3.1930, speed=38.74
+claim boundary: native=3.1930, Core=3.0067, observed=False
+tick 4591: before=3.1930, after=3.0067, segment=3.0067, speed=38.56
+claim boundary: native=3.0067, Core=2.9513, observed=False
+tick 4592: before=3.0067, after=2.9513, segment=2.9507, speed=38.39
+claim boundary: native=2.9513, Core=3.0323, observed=True
+tick 4593: before=2.9513, after=3.0323, segment=2.9513, speed=38.21
+claim boundary: native=3.0323, Core=3.2378, observed=False
+tick 4594: before=3.0323, after=3.2378, segment=3.0323, speed=38.04
+claim boundary: native=3.2378, Core=3.5445, observed=False
+tick 4595: before=3.2378, after=3.5445, segment=3.2378, speed=37.86
+MISSED driver=0 speed=40 offset=2.8 phase=8 sweptClosest=2.9492
+claim boundary: native=3.5235, Core=3.2160, observed=False
+tick 4623: before=3.5235, after=3.2160, segment=3.2160, speed=38.74
+claim boundary: native=3.2160, Core=3.0179, observed=False
+tick 4624: before=3.2160, after=3.0179, segment=3.0179, speed=38.56
+claim boundary: native=3.0179, Core=2.9492, observed=False
+tick 4625: before=3.0179, after=2.9492, segment=2.9492, speed=38.39
+claim boundary: native=2.9492, Core=3.0171, observed=True
+tick 4626: before=2.9492, after=3.0171, segment=2.9492, speed=38.21
+claim boundary: native=3.0171, Core=3.2112, observed=False
+tick 4627: before=3.0171, after=3.2112, segment=3.0171, speed=38.04
+claim boundary: native=3.2112, Core=3.5091, observed=False
+tick 4628: before=3.2112, after=3.5091, segment=3.2112, speed=37.86
+MISSED driver=0 speed=40 offset=2.8 phase=9 sweptClosest=2.9470
+claim boundary: native=3.5544, Core=3.2380, observed=False
+tick 4656: before=3.5544, after=3.2380, segment=3.2380, speed=38.74
+claim boundary: native=3.2380, Core=3.0288, observed=False
+tick 4657: before=3.2380, after=3.0288, segment=3.0288, speed=38.56
+claim boundary: native=3.0288, Core=2.9476, observed=False
+tick 4658: before=3.0288, after=2.9476, segment=2.9476, speed=38.39
+claim boundary: native=2.9476, Core=3.0030, observed=True
+tick 4659: before=2.9476, after=3.0030, segment=2.9470, speed=38.21
+claim boundary: native=3.0030, Core=3.1862, observed=False
+tick 4660: before=3.0030, after=3.1862, segment=3.0030, speed=38.04
+claim boundary: native=3.1862, Core=3.4755, observed=False
+tick 4661: before=3.1862, after=3.4755, segment=3.1862, speed=37.86
+claim boundary: native=3.4755, Core=3.8457, observed=False
+tick 4662: before=3.4755, after=3.8457, segment=3.4755, speed=37.69
+MISSED driver=0 speed=65 offset=2.8 phase=0 sweptClosest=2.9330
+claim boundary: native=4.0354, Core=3.3921, observed=False
+tick 5185: before=4.0354, after=3.3921, segment=3.3921, speed=64.10
+claim boundary: native=3.3921, Core=3.0023, observed=False
+tick 5186: before=3.3921, after=3.0023, segment=3.0023, speed=63.80
+claim boundary: native=3.0023, Core=2.9625, observed=False
+tick 5187: before=3.0023, after=2.9625, segment=2.9330, speed=63.51
+claim boundary: native=2.9625, Core=3.2809, observed=True
+tick 5188: before=2.9625, after=3.2809, segment=2.9625, speed=63.22
+claim boundary: native=3.2809, Core=3.8661, observed=False
+tick 5189: before=3.2809, after=3.8661, segment=3.2809, speed=62.93
+MISSED driver=0 speed=65 offset=2.8 phase=1 sweptClosest=2.9547
+claim boundary: native=4.1261, Core=3.4665, observed=False
+tick 5210: before=4.1261, after=3.4665, segment=3.4665, speed=64.10
+claim boundary: native=3.4665, Core=3.0485, observed=False
+tick 5211: before=3.4665, after=3.0485, segment=3.0485, speed=63.80
+claim boundary: native=3.0485, Core=2.9707, observed=False
+tick 5212: before=3.0485, after=2.9707, segment=2.9547, speed=63.51
+claim boundary: native=2.9707, Core=3.2528, observed=True
+tick 5213: before=2.9707, after=3.2528, segment=2.9707, speed=63.21
+claim boundary: native=3.2528, Core=3.8121, observed=False
+tick 5214: before=3.2528, after=3.8121, segment=3.2528, speed=62.92
+MISSED driver=0 speed=65 offset=2.8 phase=2 sweptClosest=2.9551
+claim boundary: native=3.5247, Core=3.0774, observed=False
+tick 5236: before=3.5247, after=3.0774, segment=3.0774, speed=63.80
+claim boundary: native=3.0774, Core=2.9618, observed=False
+tick 5237: before=3.0774, after=2.9618, segment=2.9551, speed=63.51
+claim boundary: native=2.9618, Core=3.2093, observed=True
+tick 5238: before=2.9618, after=3.2093, segment=2.9618, speed=63.21
+claim boundary: native=3.2093, Core=3.7449, observed=False
+tick 5239: before=3.2093, after=3.7449, segment=3.2093, speed=62.92
+MISSED driver=0 speed=65 offset=2.8 phase=3 sweptClosest=2.9556
+claim boundary: native=3.5852, Core=3.1098, observed=False
+tick 5261: before=3.5852, after=3.1098, segment=3.1098, speed=63.80
+claim boundary: native=3.1098, Core=2.9570, observed=False
+tick 5262: before=3.1098, after=2.9570, segment=2.9556, speed=63.51
+claim boundary: native=2.9570, Core=3.1692, observed=True
+tick 5263: before=2.9570, after=3.1692, segment=2.9570, speed=63.21
+claim boundary: native=3.1692, Core=3.6799, observed=False
+tick 5264: before=3.1692, after=3.6799, segment=3.1692, speed=62.92
+MISSED driver=0 speed=65 offset=2.8 phase=4 sweptClosest=2.9546
+claim boundary: native=3.6446, Core=3.1430, observed=False
+tick 5286: before=3.6446, after=3.1430, segment=3.1430, speed=63.80
+claim boundary: native=3.1430, Core=2.9546, observed=False
+tick 5287: before=3.1430, after=2.9546, segment=2.9546, speed=63.51
+claim boundary: native=2.9546, Core=3.1320, observed=True
+tick 5288: before=2.9546, after=3.1320, segment=2.9546, speed=63.21
+claim boundary: native=3.1320, Core=3.6179, observed=False
+tick 5289: before=3.1320, after=3.6179, segment=3.1320, speed=62.92
+MISSED driver=0 speed=65 offset=2.8 phase=5 sweptClosest=2.9526
+claim boundary: native=3.7031, Core=3.1769, observed=False
+tick 5311: before=3.7031, after=3.1769, segment=3.1769, speed=63.80
+claim boundary: native=3.1769, Core=2.9548, observed=False
+tick 5312: before=3.1769, after=2.9548, segment=2.9548, speed=63.51
+claim boundary: native=2.9548, Core=3.0982, observed=True
+tick 5313: before=2.9548, after=3.0982, segment=2.9526, speed=63.21
+claim boundary: native=3.0982, Core=3.5591, observed=False
+tick 5314: before=3.0982, after=3.5591, segment=3.0982, speed=62.92
+MISSED driver=0 speed=65 offset=2.8 phase=6 sweptClosest=2.9306
+claim boundary: native=3.7593, Core=3.2027, observed=False
+tick 5336: before=3.7593, after=3.2027, segment=3.2027, speed=63.80
+claim boundary: native=3.2027, Core=2.9399, observed=False
+tick 5337: before=3.2027, after=2.9399, segment=2.9399, speed=63.51
+claim boundary: native=2.9399, Core=3.0433, observed=True
+tick 5338: before=2.9399, after=3.0433, segment=2.9306, speed=63.22
+claim boundary: native=3.0433, Core=3.4758, observed=False
+tick 5339: before=3.0433, after=3.4758, segment=3.0433, speed=62.93
+claim boundary: native=3.4758, Core=4.1319, observed=False
+tick 5340: before=3.4758, after=4.1319, segment=3.4758, speed=62.64
+MISSED driver=0 speed=65 offset=2.8 phase=7 sweptClosest=2.9598
+claim boundary: native=3.8500, Core=3.2740, observed=False
+tick 5361: before=3.8500, after=3.2740, segment=3.2740, speed=63.80
+claim boundary: native=3.2740, Core=2.9795, observed=False
+tick 5362: before=3.2740, after=2.9795, segment=2.9795, speed=63.51
+claim boundary: native=2.9795, Core=3.0441, observed=True
+tick 5363: before=2.9795, after=3.0441, segment=2.9598, speed=63.21
+claim boundary: native=3.0441, Core=3.4434, observed=False
+tick 5364: before=3.0441, after=3.4434, segment=3.0441, speed=62.92
+claim boundary: native=3.4434, Core=4.0767, observed=False
+tick 5365: before=3.4434, after=4.0767, segment=3.4434, speed=62.63
+MISSED driver=0 speed=65 offset=2.8 phase=8 sweptClosest=2.9602
+claim boundary: native=3.9164, Core=3.3194, observed=False
+tick 5386: before=3.9164, after=3.3194, segment=3.3194, speed=63.80
+claim boundary: native=3.3194, Core=2.9933, observed=False
+tick 5387: before=3.3194, after=2.9933, segment=2.9933, speed=63.51
+claim boundary: native=2.9933, Core=3.0222, observed=True
+tick 5388: before=2.9933, after=3.0222, segment=2.9602, speed=63.21
+claim boundary: native=3.0222, Core=3.3925, observed=False
+tick 5389: before=3.0222, after=3.3925, segment=3.0222, speed=62.92
+claim boundary: native=3.3925, Core=4.0072, observed=False
+tick 5390: before=3.3925, after=4.0072, segment=3.3925, speed=62.63
+MISSED driver=0 speed=65 offset=2.8 phase=9 sweptClosest=2.9615
+claim boundary: native=3.9805, Core=3.3648, observed=False
+tick 5411: before=3.9805, after=3.3648, segment=3.3648, speed=63.80
+claim boundary: native=3.3648, Core=3.0104, observed=False
+tick 5412: before=3.3648, after=3.0104, segment=3.0104, speed=63.51
+claim boundary: native=3.0104, Core=3.0058, observed=False
+tick 5413: before=3.0104, after=3.0058, segment=2.9615, speed=63.21
+claim boundary: native=3.0058, Core=3.3481, observed=False
+tick 5414: before=3.0058, after=3.3481, segment=3.0058, speed=62.92
+claim boundary: native=3.3481, Core=3.9445, observed=False
+tick 5415: before=3.3481, after=3.9445, segment=3.3481, speed=62.63
+MISSED driver=1 speed=8 offset=2.8 phase=6 sweptClosest=2.9992
+claim boundary: native=3.5125, Core=3.4535, observed=False
+tick 8508: before=3.5125, after=3.4535, segment=3.4535, speed=6.99
+claim boundary: native=3.4535, Core=3.3976, observed=False
+tick 8509: before=3.4535, after=3.3976, segment=3.3976, speed=6.96
+claim boundary: native=3.3976, Core=3.3450, observed=False
+tick 8510: before=3.3976, after=3.3450, segment=3.3450, speed=6.94
+claim boundary: native=3.3450, Core=3.2958, observed=False
+tick 8511: before=3.3450, after=3.2958, segment=3.2958, speed=6.91
+claim boundary: native=3.2958, Core=3.2501, observed=False
+tick 8512: before=3.2958, after=3.2501, segment=3.2501, speed=6.88
+claim boundary: native=3.2501, Core=3.2080, observed=False
+tick 8513: before=3.2501, after=3.2080, segment=3.2080, speed=6.85
+claim boundary: native=3.2080, Core=3.1695, observed=False
+tick 8514: before=3.2080, after=3.1695, segment=3.1695, speed=6.82
+claim boundary: native=3.1695, Core=3.1348, observed=False
+tick 8515: before=3.1695, after=3.1348, segment=3.1348, speed=6.80
+claim boundary: native=3.1348, Core=3.1039, observed=False
+tick 8516: before=3.1348, after=3.1039, segment=3.1039, speed=6.77
+claim boundary: native=3.1039, Core=3.0769, observed=False
+tick 8517: before=3.1039, after=3.0769, segment=3.0769, speed=6.74
+claim boundary: native=3.0769, Core=3.0539, observed=False
+tick 8518: before=3.0769, after=3.0539, segment=3.0539, speed=6.71
+claim boundary: native=3.0539, Core=3.0349, observed=False
+tick 8519: before=3.0539, after=3.0349, segment=3.0349, speed=6.69
+claim boundary: native=3.0349, Core=3.0199, observed=False
+tick 8520: before=3.0349, after=3.0199, segment=3.0199, speed=6.66
+claim boundary: native=3.0199, Core=3.0090, observed=False
+tick 8521: before=3.0199, after=3.0090, segment=3.0090, speed=6.63
+claim boundary: native=3.0090, Core=3.0021, observed=False
+tick 8522: before=3.0090, after=3.0021, segment=3.0021, speed=6.61
+claim boundary: native=3.0021, Core=2.9993, observed=False
+tick 8523: before=3.0021, after=2.9993, segment=2.9993, speed=6.58
+claim boundary: native=2.9993, Core=3.0004, observed=True
+tick 8524: before=2.9993, after=3.0004, segment=2.9992, speed=6.55
+claim boundary: native=3.0004, Core=3.0054, observed=False
+tick 8525: before=3.0004, after=3.0054, segment=3.0004, speed=6.53
+claim boundary: native=3.0054, Core=3.0143, observed=False
+tick 8526: before=3.0054, after=3.0143, segment=3.0054, speed=6.50
+claim boundary: native=3.0143, Core=3.0269, observed=False
+tick 8527: before=3.0143, after=3.0269, segment=3.0143, speed=6.47
+claim boundary: native=3.0269, Core=3.0432, observed=False
+tick 8528: before=3.0269, after=3.0432, segment=3.0269, speed=6.45
+claim boundary: native=3.0432, Core=3.0631, observed=False
+tick 8529: before=3.0432, after=3.0631, segment=3.0432, speed=6.42
+claim boundary: native=3.0631, Core=3.0865, observed=False
+tick 8530: before=3.0631, after=3.0865, segment=3.0631, speed=6.39
+claim boundary: native=3.0865, Core=3.1132, observed=False
+tick 8531: before=3.0865, after=3.1132, segment=3.0865, speed=6.37
+claim boundary: native=3.1132, Core=3.1432, observed=False
+tick 8532: before=3.1132, after=3.1432, segment=3.1132, speed=6.34
+claim boundary: native=3.1432, Core=3.1762, observed=False
+tick 8533: before=3.1432, after=3.1762, segment=3.1432, speed=6.32
+claim boundary: native=3.1762, Core=3.2123, observed=False
+tick 8534: before=3.1762, after=3.2123, segment=3.1762, speed=6.29
+claim boundary: native=3.2123, Core=3.2511, observed=False
+tick 8535: before=3.2123, after=3.2511, segment=3.2123, speed=6.26
+claim boundary: native=3.2511, Core=3.2926, observed=False
+tick 8536: before=3.2511, after=3.2926, segment=3.2511, speed=6.24
+claim boundary: native=3.2926, Core=3.3365, observed=False
+tick 8537: before=3.2926, after=3.3365, segment=3.2926, speed=6.21
+claim boundary: native=3.3365, Core=3.3829, observed=False
+tick 8538: before=3.3365, after=3.3829, segment=3.3365, speed=6.19
+claim boundary: native=3.3829, Core=3.4316, observed=False
+tick 8539: before=3.3829, after=3.4316, segment=3.3829, speed=6.16
+claim boundary: native=3.4316, Core=3.4824, observed=False
+tick 8540: before=3.4316, after=3.4824, segment=3.4316, speed=6.14
+claim boundary: native=3.4824, Core=3.5351, observed=False
+tick 8541: before=3.4824, after=3.5351, segment=3.4824, speed=6.11
+MISSED driver=1 speed=40 offset=2.8 phase=7 sweptClosest=2.9507
+claim boundary: native=3.8763, Core=3.4910, observed=False
+tick 9839: before=3.8763, after=3.4910, segment=3.4910, speed=38.92
+claim boundary: native=3.4910, Core=3.1930, observed=False
+tick 9840: before=3.4910, after=3.1930, segment=3.1930, speed=38.74
+claim boundary: native=3.1930, Core=3.0067, observed=False
+tick 9841: before=3.1930, after=3.0067, segment=3.0067, speed=38.56
+claim boundary: native=3.0067, Core=2.9513, observed=False
+tick 9842: before=3.0067, after=2.9513, segment=2.9507, speed=38.39
+claim boundary: native=2.9513, Core=3.0323, observed=True
+tick 9843: before=2.9513, after=3.0323, segment=2.9513, speed=38.21
+claim boundary: native=3.0323, Core=3.2378, observed=False
+tick 9844: before=3.0323, after=3.2378, segment=3.0323, speed=38.04
+claim boundary: native=3.2378, Core=3.5445, observed=False
+tick 9845: before=3.2378, after=3.5445, segment=3.2378, speed=37.86
+MISSED driver=1 speed=40 offset=2.8 phase=8 sweptClosest=2.9492
+claim boundary: native=3.5235, Core=3.2160, observed=False
+tick 9873: before=3.5235, after=3.2160, segment=3.2160, speed=38.74
+claim boundary: native=3.2160, Core=3.0179, observed=False
+tick 9874: before=3.2160, after=3.0179, segment=3.0179, speed=38.56
+claim boundary: native=3.0179, Core=2.9492, observed=False
+tick 9875: before=3.0179, after=2.9492, segment=2.9492, speed=38.39
+claim boundary: native=2.9492, Core=3.0171, observed=True
+tick 9876: before=2.9492, after=3.0171, segment=2.9492, speed=38.21
+claim boundary: native=3.0171, Core=3.2112, observed=False
+tick 9877: before=3.0171, after=3.2112, segment=3.0171, speed=38.04
+claim boundary: native=3.2112, Core=3.5091, observed=False
+tick 9878: before=3.2112, after=3.5091, segment=3.2112, speed=37.86
+MISSED driver=1 speed=40 offset=2.8 phase=9 sweptClosest=2.9470
+claim boundary: native=3.5544, Core=3.2380, observed=False
+tick 9906: before=3.5544, after=3.2380, segment=3.2380, speed=38.74
+claim boundary: native=3.2380, Core=3.0288, observed=False
+tick 9907: before=3.2380, after=3.0288, segment=3.0288, speed=38.56
+claim boundary: native=3.0288, Core=2.9476, observed=False
+tick 9908: before=3.0288, after=2.9476, segment=2.9476, speed=38.39
+claim boundary: native=2.9476, Core=3.0030, observed=True
+tick 9909: before=2.9476, after=3.0030, segment=2.9470, speed=38.21
+claim boundary: native=3.0030, Core=3.1862, observed=False
+tick 9910: before=3.0030, after=3.1862, segment=3.0030, speed=38.04
+claim boundary: native=3.1862, Core=3.4755, observed=False
+tick 9911: before=3.1862, after=3.4755, segment=3.1862, speed=37.86
+claim boundary: native=3.4755, Core=3.8457, observed=False
+tick 9912: before=3.4755, after=3.8457, segment=3.4755, speed=37.69
+MISSED driver=1 speed=65 offset=2.8 phase=0 sweptClosest=2.9330
+claim boundary: native=4.0354, Core=3.3921, observed=False
+tick 10435: before=4.0354, after=3.3921, segment=3.3921, speed=64.10
+claim boundary: native=3.3921, Core=3.0023, observed=False
+tick 10436: before=3.3921, after=3.0023, segment=3.0023, speed=63.80
+claim boundary: native=3.0023, Core=2.9625, observed=False
+tick 10437: before=3.0023, after=2.9625, segment=2.9330, speed=63.51
+claim boundary: native=2.9625, Core=3.2809, observed=True
+tick 10438: before=2.9625, after=3.2809, segment=2.9625, speed=63.22
+claim boundary: native=3.2809, Core=3.8661, observed=False
+tick 10439: before=3.2809, after=3.8661, segment=3.2809, speed=62.93
+MISSED driver=1 speed=65 offset=2.8 phase=1 sweptClosest=2.9547
+claim boundary: native=4.1261, Core=3.4665, observed=False
+tick 10460: before=4.1261, after=3.4665, segment=3.4665, speed=64.10
+claim boundary: native=3.4665, Core=3.0485, observed=False
+tick 10461: before=3.4665, after=3.0485, segment=3.0485, speed=63.80
+claim boundary: native=3.0485, Core=2.9707, observed=False
+tick 10462: before=3.0485, after=2.9707, segment=2.9547, speed=63.51
+claim boundary: native=2.9707, Core=3.2528, observed=True
+tick 10463: before=2.9707, after=3.2528, segment=2.9707, speed=63.21
+claim boundary: native=3.2528, Core=3.8121, observed=False
+tick 10464: before=3.2528, after=3.8121, segment=3.2528, speed=62.92
+MISSED driver=1 speed=65 offset=2.8 phase=2 sweptClosest=2.9551
+claim boundary: native=3.5247, Core=3.0774, observed=False
+tick 10486: before=3.5247, after=3.0774, segment=3.0774, speed=63.80
+claim boundary: native=3.0774, Core=2.9618, observed=False
+tick 10487: before=3.0774, after=2.9618, segment=2.9551, speed=63.51
+claim boundary: native=2.9618, Core=3.2093, observed=True
+tick 10488: before=2.9618, after=3.2093, segment=2.9618, speed=63.21
+claim boundary: native=3.2093, Core=3.7449, observed=False
+tick 10489: before=3.2093, after=3.7449, segment=3.2093, speed=62.92
+MISSED driver=1 speed=65 offset=2.8 phase=3 sweptClosest=2.9556
+claim boundary: native=3.5852, Core=3.1098, observed=False
+tick 10511: before=3.5852, after=3.1098, segment=3.1098, speed=63.80
+claim boundary: native=3.1098, Core=2.9570, observed=False
+tick 10512: before=3.1098, after=2.9570, segment=2.9556, speed=63.51
+claim boundary: native=2.9570, Core=3.1692, observed=True
+tick 10513: before=2.9570, after=3.1692, segment=2.9570, speed=63.21
+claim boundary: native=3.1692, Core=3.6799, observed=False
+tick 10514: before=3.1692, after=3.6799, segment=3.1692, speed=62.92
+MISSED driver=1 speed=65 offset=2.8 phase=4 sweptClosest=2.9546
+claim boundary: native=3.6446, Core=3.1430, observed=False
+tick 10536: before=3.6446, after=3.1430, segment=3.1430, speed=63.80
+claim boundary: native=3.1430, Core=2.9546, observed=False
+tick 10537: before=3.1430, after=2.9546, segment=2.9546, speed=63.51
+claim boundary: native=2.9546, Core=3.1320, observed=True
+tick 10538: before=2.9546, after=3.1320, segment=2.9546, speed=63.21
+claim boundary: native=3.1320, Core=3.6179, observed=False
+tick 10539: before=3.1320, after=3.6179, segment=3.1320, speed=62.92
+MISSED driver=1 speed=65 offset=2.8 phase=5 sweptClosest=2.9526
+claim boundary: native=3.7031, Core=3.1769, observed=False
+tick 10561: before=3.7031, after=3.1769, segment=3.1769, speed=63.80
+claim boundary: native=3.1769, Core=2.9548, observed=False
+tick 10562: before=3.1769, after=2.9548, segment=2.9548, speed=63.51
+claim boundary: native=2.9548, Core=3.0982, observed=True
+tick 10563: before=2.9548, after=3.0982, segment=2.9526, speed=63.21
+claim boundary: native=3.0982, Core=3.5591, observed=False
+tick 10564: before=3.0982, after=3.5591, segment=3.0982, speed=62.92
+MISSED driver=1 speed=65 offset=2.8 phase=6 sweptClosest=2.9306
+claim boundary: native=3.7593, Core=3.2027, observed=False
+tick 10586: before=3.7593, after=3.2027, segment=3.2027, speed=63.80
+claim boundary: native=3.2027, Core=2.9399, observed=False
+tick 10587: before=3.2027, after=2.9399, segment=2.9399, speed=63.51
+claim boundary: native=2.9399, Core=3.0433, observed=True
+tick 10588: before=2.9399, after=3.0433, segment=2.9306, speed=63.22
+claim boundary: native=3.0433, Core=3.4758, observed=False
+tick 10589: before=3.0433, after=3.4758, segment=3.0433, speed=62.93
+claim boundary: native=3.4758, Core=4.1319, observed=False
+tick 10590: before=3.4758, after=4.1319, segment=3.4758, speed=62.64
+MISSED driver=1 speed=65 offset=2.8 phase=7 sweptClosest=2.9598
+claim boundary: native=3.8500, Core=3.2740, observed=False
+tick 10611: before=3.8500, after=3.2740, segment=3.2740, speed=63.80
+claim boundary: native=3.2740, Core=2.9795, observed=False
+tick 10612: before=3.2740, after=2.9795, segment=2.9795, speed=63.51
+claim boundary: native=2.9795, Core=3.0441, observed=True
+tick 10613: before=2.9795, after=3.0441, segment=2.9598, speed=63.21
+claim boundary: native=3.0441, Core=3.4434, observed=False
+tick 10614: before=3.0441, after=3.4434, segment=3.0441, speed=62.92
+claim boundary: native=3.4434, Core=4.0767, observed=False
+tick 10615: before=3.4434, after=4.0767, segment=3.4434, speed=62.63
+MISSED driver=1 speed=65 offset=2.8 phase=8 sweptClosest=2.9602
+claim boundary: native=3.9164, Core=3.3194, observed=False
+tick 10636: before=3.9164, after=3.3194, segment=3.3194, speed=63.80
+claim boundary: native=3.3194, Core=2.9933, observed=False
+tick 10637: before=3.3194, after=2.9933, segment=2.9933, speed=63.51
+claim boundary: native=2.9933, Core=3.0222, observed=True
+tick 10638: before=2.9933, after=3.0222, segment=2.9602, speed=63.21
+claim boundary: native=3.0222, Core=3.3925, observed=False
+tick 10639: before=3.0222, after=3.3925, segment=3.0222, speed=62.92
+claim boundary: native=3.3925, Core=4.0072, observed=False
+tick 10640: before=3.3925, after=4.0072, segment=3.3925, speed=62.63
+MISSED driver=1 speed=65 offset=2.8 phase=9 sweptClosest=2.9615
+claim boundary: native=3.9805, Core=3.3648, observed=False
+tick 10661: before=3.9805, after=3.3648, segment=3.3648, speed=63.80
+claim boundary: native=3.3648, Core=3.0104, observed=False
+tick 10662: before=3.3648, after=3.0104, segment=3.0104, speed=63.51
+claim boundary: native=3.0104, Core=3.0058, observed=False
+tick 10663: before=3.0104, after=3.0058, segment=2.9615, speed=63.21
+claim boundary: native=3.0058, Core=3.3481, observed=False
+tick 10664: before=3.0058, after=3.3481, segment=3.0058, speed=62.92
+claim boundary: native=3.3481, Core=3.9445, observed=False
+tick 10665: before=3.3481, after=3.9445, segment=3.3481, speed=62.63
+driver=0 speed=8 offset=0: 10/10
+driver=0 speed=8 offset=1.5: 10/10
+driver=0 speed=8 offset=2.8: 9/10
+driver=0 speed=40 offset=0: 10/10
+driver=0 speed=40 offset=1.5: 10/10
+driver=0 speed=40 offset=2.8: 7/10
+driver=0 speed=65 offset=0: 10/10
+driver=0 speed=65 offset=1.5: 10/10
+driver=0 speed=65 offset=2.8: 0/10
+driver=1 speed=8 offset=0: 10/10
+driver=1 speed=8 offset=1.5: 10/10
+driver=1 speed=8 offset=2.8: 9/10
+driver=1 speed=40 offset=0: 10/10
+driver=1 speed=40 offset=1.5: 10/10
+driver=1 speed=40 offset=2.8: 7/10
+driver=1 speed=65 offset=0: 10/10
+driver=1 speed=65 offset=1.5: 10/10
+driver=1 speed=65 offset=2.8: 0/10
+Pickup motion attempts: 152/180.

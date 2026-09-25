@@ -14,6 +14,9 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+foreach ($path in @('code/Core/Items/ItemSpawnAuthority.cs', 'code/Client/Verification/PickupDriveChecks.cs', 'scenes/verification/pickup_drive_checks.tscn')) {
+    Assert-True ((Get-FastCheckPlan -Paths @($path)).RuntimeScripts -contains 'check-pickup-drive.ps1') 'Pickup authority and moving-crossing changes require production drive-through verification.'
+}
 Assert-True ((Get-FastCheckPlan -Paths @("assets/environment/ImportAsset.gd")).RuntimeScripts -contains "check-map-budget.ps1") "Map resource changes route native budget inventory."
 Assert-True ((Get-FastCheckPlan -Paths @("code/Client/Vehicles/TireFeedback.cs")).RuntimeScripts -contains "check-terrain-effects.ps1") "Surface feedback routes bounded native effects verification."
 Assert-True ((Get-FastCheckPlan -Paths @("code/Core/Development/EnvironmentPreset.cs")).RuntimeScripts -contains "check-developer-options.ps1") "Environment selection routes authoritative Configs verification."

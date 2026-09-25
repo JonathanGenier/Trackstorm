@@ -204,6 +204,9 @@ function Get-FastCheckPlan {
         if ($path -match '(?i)Nitro') { Add-Runtime 'check-nitro.ps1' }
 
         # Items and lifecycle.
+        if ($path -match '(?i)PickupDrive|MovingPickup|pickup_drive|check-pickup-drive|ItemSpawnAuthority|HostVehicleSession|NetworkVehicleArena|VehicleNetworkDriver') {
+            Add-Runtime 'check-pickup-drive.ps1'
+        }
         if ($path -match '^code/(Core|Client)/Items/' -or $path -eq 'docs/features/items.md') {
             Add-Runtime 'check-items.ps1'
             Add-Runtime 'check-oil.ps1'

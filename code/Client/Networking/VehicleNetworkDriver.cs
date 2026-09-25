@@ -166,8 +166,6 @@ internal sealed class VehicleNetworkDriver : IDisposable
     internal Trackstorm.Core.Arenas.ArenaPropSnapshot? PropSnapshot { get; private set; }
     /// <summary>Native swept collision query, host only.</summary>
     internal Func<MissileState, System.Numerics.Vector3, float?>? CollideMissile { get; set; }
-    /// <summary>Host native proximity candidates; Core revalidates each contact.</summary>
-    internal Func<IReadOnlyList<(string Spawn, ulong Vehicle)>>? ObservePickups { get; set; }
     /// <summary>Host-only ground projection for persistent oil deployment.</summary>
     internal Func<ItemSlot, VehiclePhysicsState, OilPatch?>? PlaceOil { get; set; }
     internal Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? PlaceMine { get; set; }
@@ -304,13 +302,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
             }
 
             Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine);
-            if (Host.Spawns is not null && ObservePickups is not null)
-            {
-                foreach (var contact in ObservePickups().Distinct().OrderBy(contact => contact.Spawn, StringComparer.Ordinal).ThenBy(contact => contact.Vehicle))
-                {
-                    Host.Spawns.TryPickup(Host.World, contact.Spawn, contact.Vehicle);
-                }
-            }
+            Host.CollectPickups();
 
             Latest = Host.Snapshot();
             MatchState match = Host.World.State.Match!;
@@ -642,7 +634,6 @@ internal sealed class VehicleNetworkDriver : IDisposable
         ObserveProps = null;
         CollideMissile = null;
         PlaceOil = null;
-        ObservePickups = null;
         RosterChanged = null;
         LocalCorrected = null;
         PropsReceived = null;

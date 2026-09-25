@@ -96,23 +96,6 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.Host?.RegisterSpawns(markers, SpawnConfiguration);
         AddChild(_pickups);
         _pickups.Initialize(markers);
-        _driver.ObservePickups = () =>
-        {
-            var contacts = new List<(string Spawn, ulong Vehicle)>();
-            foreach (var marker in Map.GetNodeOrNull<Node3D>("ItemSpawns")?.GetChildren().OfType<Marker3D>() ?? Enumerable.Empty<Marker3D>())
-            {
-                foreach (var pair in _bodies)
-                {
-                    float radius = _driver.Configuration.Configuration.Spawns.PickupRadius;
-                    if (pair.Value.GlobalPosition.DistanceSquaredTo(marker.GlobalPosition) <= radius * radius)
-                    {
-                        contacts.Add((marker.Name.ToString(), pair.Key));
-                    }
-                }
-            }
-
-            return contacts;
-        };
         _driver.CollideMissile = CollideMissile;
         _driver.PlaceOil = PlaceOil;
         var mines = new Items.ProxyMinePhysics();

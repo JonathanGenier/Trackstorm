@@ -1,6 +1,7 @@
 using System.Numerics;
 using Trackstorm.Core.Arenas;
 using Trackstorm.Core.Events;
+using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Items;
 
@@ -102,6 +103,26 @@ public sealed class ItemSpawnAuthority
     /// <param name="id">Reported marker ID.</param>
     /// <param name="vehicle">Host-observed vehicle identity.</param>
     public bool TryPickup(Simulation.Simulation world, string id, ulong vehicle)
+        => TryPickup(world, id, vehicle, null);
+
+    /// <summary>Collects one committed host movement boundary in the existing marker/player contention order.</summary>
+    internal void Collect(Simulation.Simulation world, IReadOnlyDictionary<ulong, VehicleSnapshot> previous)
+    {
+        foreach (string id in _markers.Keys.Order(StringComparer.Ordinal))
+        {
+            foreach (var player in world.State.Vehicles.OrderBy(player => player.VehicleId))
+            {
+                // A reset/respawn is a discontinuity, never a drive across the intervening pickups.
+                if (previous.TryGetValue(player.VehicleId, out var before) && before.CanInteract &&
+                    before.LifeId == player.LifeId && before.Movement.Tick + 1 == player.Movement.Tick)
+                {
+                    TryPickup(world, id, player.VehicleId, before.Movement.Physics.Position);
+                }
+            }
+        }
+    }
+
+    private bool TryPickup(Simulation.Simulation world, string id, ulong vehicle, Vector3? previous)
     {
         if (world.State.Tick != _tick || !_states.TryGetValue(id, out var spawn) || !spawn.Available)
         {
@@ -110,7 +131,7 @@ public sealed class ItemSpawnAuthority
 
         var player = world.State.Vehicles.SingleOrDefault(state => state.VehicleId == vehicle);
         if (player is null || !player.CanInteract ||
-            Vector3.DistanceSquared(player.Movement.Physics.Position, _markers[id].Position) > Configuration.PickupRadius * Configuration.PickupRadius ||
+            !Intersects(previous ?? player.Movement.Physics.Position, player.Movement.Physics.Position, _markers[id].Position) ||
             _items.Slots.Any(slot => slot.Vehicle == vehicle && slot.Life == player.LifeId && slot.Full))
         {
             return false;
@@ -137,6 +158,14 @@ public sealed class ItemSpawnAuthority
         Revision++;
         world.Events.Record(EventCategory.Item, "Picked up", actor: vehicle, cause: item.ToString(), context: id, tick: _tick);
         return true;
+    }
+
+    private bool Intersects(Vector3 start, Vector3 end, Vector3 marker)
+    {
+        Vector3 movement = end - start;
+        float lengthSquared = movement.LengthSquared();
+        float fraction = lengthSquared > 0 ? Math.Clamp(Vector3.Dot(marker - start, movement) / lengthSquared, 0, 1) : 0;
+        return Vector3.DistanceSquared(start + movement * fraction, marker) <= Configuration.PickupRadius * Configuration.PickupRadius;
     }
 
     /// <summary>Updates future claims without resetting existing cooldowns or consuming a random draw.</summary>

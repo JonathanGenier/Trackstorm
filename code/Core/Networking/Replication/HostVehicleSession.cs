@@ -21,6 +21,8 @@ public sealed class HostVehicleSession
     private readonly bool _requireActiveMatch;
     private ulong _nextVehicle = 1;
     private ulong? _lastUseRejection;
+    private IReadOnlyDictionary<ulong, VehicleSnapshot>? _pickupStart;
+    private SimulationState? _pickupEnd;
 
     /// <summary>Starts one host vehicle in a caller-identified session.</summary>
     /// <param name="sessionId">Nonzero identity supplied by the outer session lifetime.</param>
@@ -442,6 +444,8 @@ public sealed class HostVehicleSession
     /// <param name="moveMine">Host sweep and contact query.</param>
     public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null)
     {
+        _pickupStart = null;
+        _pickupEnd = null;
         ulong tick = checked(World.State.Tick + 1);
         if (!AllowsParticipation)
         {
@@ -477,6 +481,21 @@ public sealed class HostVehicleSession
         }
 
         Spawns?.Advance(World);
+        _pickupStart = previous;
+        _pickupEnd = World.State;
+    }
+
+    /// <summary>Processes the latest committed movement once, using only host-owned positions and registered markers.</summary>
+    public void CollectPickups()
+    {
+        var previous = _pickupStart;
+        bool current = _pickupEnd == World.State;
+        _pickupStart = null;
+        _pickupEnd = null;
+        if (previous is not null && current && AllowsParticipation && World.State.Match?.Phase != Matches.MatchPhase.Finished)
+        {
+            Spawns?.Collect(World, previous);
+        }
     }
 
     /// <summary>Captures the complete active roster and per-owner input confirmations.</summary>
