@@ -41,4 +41,6 @@ public enum InputAction
     CameraDown,
     /// <summary>Switch between the two held-item slots.</summary>
     SwitchItem,
+    /// <summary>Hold to replace airborne yaw with roll.</summary>
+    AirRoll,
 }

@@ -107,6 +107,31 @@ public sealed record VehicleConfiguration
     /// <summary>Safety bound on angular velocity.</summary>
     public float MaximumAngularSpeed { get; init; } = 8;
 
+    /// <summary>Activation delay (s).</summary>
+    public float AirDelay { get; init; } = 0.15f;
+    /// <summary>Pitch rate (rad/s).</summary>
+    public float AirPitchRate { get; init; } = 2.8f;
+    /// <summary>Yaw rate (rad/s).</summary>
+    public float AirYawRate { get; init; } = 2.4f;
+    /// <summary>Roll rate (rad/s).</summary>
+    public float AirRollRate { get; init; } = 3.6f;
+    /// <summary>Pitch acceleration (rad/s2).</summary>
+    public float AirPitchAcceleration { get; init; } = 16;
+    /// <summary>Yaw acceleration (rad/s2).</summary>
+    public float AirYawAcceleration { get; init; } = 14;
+    /// <summary>Roll acceleration (rad/s2).</summary>
+    public float AirRollAcceleration { get; init; } = 20;
+    /// <summary>Residual rotation damping (1/s).</summary>
+    public float AirStabilization { get; init; } = 8;
+    /// <summary>Stabilization ramp (s).</summary>
+    public float AirStabilizationResponse { get; init; } = 0.08f;
+    /// <summary>Input smoothing (s).</summary>
+    public float AirInputResponse { get; init; } = 0.06f;
+    /// <summary>Air input dead zone.</summary>
+    public float AirDeadZone { get; init; } = 0.08f;
+    /// <summary>Minimum ground normal Y.</summary>
+    public float SupportNormalMinimum { get; init; } = 0.55f;
+
     /// <summary>Resolves explicit surface tuning without engine or mutable state.</summary>
     /// <param name="surface">Supported surface identifier.</param>
     /// <returns>Configured handling multipliers.</returns>
@@ -125,6 +150,16 @@ public sealed record VehicleConfiguration
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(AirDelay) || AirDelay is < 0 or > 2 ||
+            new[] { AirPitchRate, AirYawRate, AirRollRate }.Any(v => !float.IsFinite(v) || v is < 0 or > 8) ||
+            new[] { AirPitchAcceleration, AirYawAcceleration, AirRollAcceleration }.Any(v => !float.IsFinite(v) || v is < 0.1f or > 60) ||
+            new[] { AirInputResponse, AirStabilizationResponse }.Any(v => !float.IsFinite(v) || v is < 0.01f or > 1) ||
+            !float.IsFinite(AirStabilization) || AirStabilization is < 0 or > 30 ||
+            !float.IsFinite(AirDeadZone) || AirDeadZone is < 0 or > 0.5f ||
+            !float.IsFinite(SupportNormalMinimum) || SupportNormalMinimum is < 0.55f or > 1)
+        {
+            throw new ArgumentException("Invalid air-control tuning.");
+        }
         if (!float.IsFinite(SteeringSmoothing) || SteeringSmoothing is < 0.01f or > 1 ||
             !float.IsFinite(DirtSteeringReserve) || DirtSteeringReserve is < 0 or > 1 ||
             !float.IsFinite(DirtRecovery) || DirtRecovery is < 0 or > 10 ||

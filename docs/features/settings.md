@@ -50,3 +50,5 @@ The diagnostics display consumes a fresh provider-neutral connection projection 
 `check-settings.ps1 -GodotPath <Godot .NET executable>` checks isolated local storage, save failure/retry, and restart persistence across two separate Godot processes. It exercises restored bindings/inversion, native bus values, malformed overrides, absence of the retired speed control, and independent diagnostics flags. Adding `-Visual` launches rendered Godot, exercises UI signals and native input events, checks display preview/confirmation/reversion and window sizing, and saves UI screenshots under an isolated `.godot/settings-checks` directory. Core NUnit tests cover defaults, stable JSON round trips, invalid/missing values, volume boundaries, unknown actions, and immutable binding snapshots. Synthetic input and bus-state checks do not establish physical-controller ergonomics, audible output, or behavior on every display backend.
 
 [Feature index](README.md)
+
+Controls includes the held Air Roll action (Shift / left shoulder). It uses normal remapping, explicit unbinding and persistence; standalone Shift is accepted during physical-key capture. See [input](input.md).
