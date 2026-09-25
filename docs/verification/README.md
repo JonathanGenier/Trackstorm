@@ -10,7 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
-| Sustained percentage Nitro rocket thrust | [TS-157 verification evidence](ts-157.md) |
+| Sustained percentage Nitro rocket thrust and loot reachability investigation | [TS-157 verification evidence](ts-157.md) |
 | Story verification | [TS-161 verification evidence](ts-161.md) |
 | Surface-specific acceleration, progressive dirt recovery and split-contact handling | [TS-160 verification evidence](ts-160.md) |
 | Lifted vehicle suspension and chassis response | [TS-159 verification evidence](ts-159.md) |
