@@ -1,0 +1,309 @@
+
+## final-spawns
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Eight peers see exactly 27 configured active pickups; two remote vehicles enter one pickup together.
+Exactly one remote contestant won; all eight peers show matching inactive spawn, cooldown and item token.
+Authoritative cooldown reactivates on every peer; all eight vehicles approach separate pickups.
+All eight spawn locations awarded once, with all four item types replicated normally.
+Repeat 32 pickup rounds per player; fixture clears inventory between rounds without invoking item effects.
+Item spawn integration passed: Eight peers see exactly 27 configured active pickups; two remote vehicles enter one pickup together.
+Exactly one remote contestant won; all eight peers show matching inactive spawn, cooldown and item token.
+Authoritative cooldown reactivates on every peer; all eight vehicles approach separate pickups.
+All eight spawn locations awarded once, with all four item types replicated normally.
+All 27 pickups are available after cooldown, including under occupied vehicles. No duplicate awards or overwritten grants.
+Repeat 32 pickup rounds per player; fixture clears inventory between rounds without invoking item effects.
+32 repeated rounds across eight native peers; exact replicated per-player credits/counts and target convergence: 1:33:Missile:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8;2:34:Oil:Weapon=1.0/16,Consumable=-0.50/9,Droppable=-0.50/9;3:33:Oil:Weapon=0.5/16,Consumable=0.25/8,Droppable=-0.75/9;4:33:Missile:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8;5:33:Missile:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8;6:33:Oil:Weapon=0.5/16,Consumable=0.25/8,Droppable=-0.75/9;7:33:Missile:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8;8:33:Missile:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8
+Item spawn verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\spawn-checks\eebed344f355422da1c4787520af67f9
+
+## final-items
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Eight native peers assigned and initialized.
+E and D-pad Right switch all eight players; immediate use selects Wrench in slot two.
+All eight use Wrench at full HP, including repeated requests.
+Every full-health use consumed once and replicated; preparing damaged Wrench use.
+All eight damaged players use Wrench.
+Damaged Wrench outcomes match on all eight peers.
+Remote client requested missile scenario 0; host owns creation.
+Remote client requested missile scenario 1; host owns creation.
+Remote client requested missile scenario 2; host owns creation.
+Remote client requested missile scenario 3; host owns creation.
+Item integration passed: Eight native peers assigned and initialized.
+E and D-pad Right switch all eight players; immediate use selects Wrench in slot two.
+All eight use Wrench at full HP, including repeated requests.
+Every full-health use consumed once and replicated; preparing damaged Wrench use.
+All eight damaged players use Wrench.
+Damaged Wrench outcomes match on all eight peers.
+Remote client requested missile scenario 0; host owns creation.
+Scenario 0: one remote launch/impact on every peer at <-40, 1.0030501, -2.6469328>; host-only damage/impulse.
+Remote client requested missile scenario 1; host owns creation.
+Scenario 1: one remote launch/impact on every peer at <8, 1.0084455, -5.400002>; host-only damage/impulse.
+Remote client requested missile scenario 2; host owns creation.
+Scenario 2: one remote launch/impact on every peer at <-17, 1.0084455, 2>; host-only damage/impulse.
+Remote client requested missile scenario 3; host owns creation.
+Scenario 3: one remote launch/impact on every peer at <-45, 1.0084455, -50>; host-only damage/impulse.
+Vehicles, movable prop, static container and arena boundary all stop missiles. VFX consume replicated events only.
+Item verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\item-checks\cbf73c506bf1422f9a053dbbf5f43fbc
+
+## final-oil
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two native UDP peers ready; Oil requested through the normal held slot.
+Host terrain query deployed on a 14-degree bank; peer received the exact patch.
+Fresh late join restored one identical patch without duplication; owner enters at speed.
+Deployer is vulnerable: native movement received a strong spin and temporary traction loss.
+Oil persists after handling recovery; another vehicle enters.
+Remote vehicle receives the same authoritative effect.
+Remaining within the patch emits one entry outcome.
+Vehicle exits and re-enters.
+Re-entry emits exactly one new outcome; testing the configured active bound.
+Oil integration passed: Two native UDP peers ready; Oil requested through the normal held slot.
+Host terrain query deployed on a 14-degree bank; peer received the exact patch.
+Fresh late join restored one identical patch without duplication; owner enters at speed.
+Deployer is vulnerable: native movement received a strong spin and temporary traction loss.
+Oil persists after handling recovery; another vehicle enters.
+Remote vehicle receives the same authoritative effect.
+Remaining within the patch emits one entry outcome.
+Vehicle exits and re-enters.
+Re-entry emits exactly one new outcome; testing the configured active bound.
+
+## merged-nitro
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Rocket scenario 0: start 0.00, forward 17.74 m/s; charge 79.67%; Circus zero.
+Rocket scenario 1: start 8.69, forward 24.25 m/s; charge 79.67%; Circus zero.
+Rocket scenario 2: start 4.45, forward 33.49 m/s; charge 79.67%; Circus zero.
+Rocket scenario 3: start 2.77, forward 6.42 m/s; charge 79.67%; Circus zero.
+Rocket scenario 4: start 0.00, forward 20.33 m/s; charge 79.67%; Circus zero.
+Rocket scenario 5: start 0.00, forward -0.00 m/s; charge 79.67%; Circus zero.
+Rocket scenarios complete; normal-drive and sustained-resource comparison begins.
+Normal drive settles at 44.44 m/s; both players request Nitro.
+Both peers sustain Nitro; charge drains while Wrench remains in the second slot.
+Boost reaches 62.22 m/s; released at 36.00% charge.
+Release recovery remains at 60.72 m/s with continuing authoritative overspeed awards.
+Recovery reaches normal speed and overspeed scoring stops; reuse begins with retained charge.
+Second activation drains the same grant tokens, followed by another release.
+Third activation continues until resource exhaustion.
+Both Nitro resources reach zero and clear only their physical slots.
+Nitro integration passed: Rocket scenario 0: start 0.00, forward 17.74 m/s; charge 79.67%; Circus zero.
+Rocket scenario 1: start 8.69, forward 24.25 m/s; charge 79.67%; Circus zero.
+Rocket scenario 2: start 4.45, forward 33.49 m/s; charge 79.67%; Circus zero.
+Rocket scenario 3: start 2.77, forward 6.42 m/s; charge 79.67%; Circus zero.
+Rocket scenario 4: start 0.00, forward 20.33 m/s; charge 79.67%; Circus zero.
+Rocket scenario 5: start 0.00, forward -0.00 m/s; charge 79.67%; Circus zero.
+Rocket scenarios complete; normal-drive and sustained-resource comparison begins.
+Normal drive settles at 44.44 m/s; both players request Nitro.
+Both peers sustain Nitro; charge drains while Wrench remains in the second slot.
+Boost reaches 62.22 m/s; released at 36.00% charge.
+Release recovery remains at 60.72 m/s with continuing authoritative overspeed awards.
+Recovery reaches normal speed and overspeed scoring stops; reuse begins with retained charge.
+Second activation drains the same grant tokens, followed by another release.
+Third activation continues until resource exhaustion.
+Both Nitro resources reach zero and clear only their physical slots.
+
+## merged-mine
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Two UDP peers ready; ordinary host Proxy Mine use requested.
+Mine installed on the real flat platform, with terrain clearance and seated timer.
+Initial seating remains exactly stable; fresh late admission started.
+Late join reconstructed the persistent mine. Outer-radius force trial begins.
+Outer pull produced 0.087 m/s after ten native ticks.
+Mid pull produced 1.366 m/s after ten native ticks.
+Close pull produced 4.371 m/s; moving remote vehicle approaches for contact.
+Contact detonated once, applying 60 HP and 24000 N.s to the remote vehicle.
+Replicated removal/HP and native knockback passed; stationary target trial requested.
+Repeated host use magnetically reached a stationary vehicle and detonated without target movement.
+Surface 1: authoritative position <49.91656, 20.761015, 4.5>, normal <-0.24740396, 0.9689124, 0>.
+Stable terrain seating captured; drive-over contact trial with attraction disabled.
+Bank drive-over passed; uneven terrain deployment requested.
+Surface 2: authoritative position <99.99731, 20.953457, 4.497638>, normal <-0.004620304, 0.9999883, -0.0014207117>.
+Stable terrain seating captured; drive-over contact trial with attraction disabled.
+Uneven terrain drive-over detonated and consumed the mine once; repeated remote use passed.
+Proxy Mine integration passed: Two UDP peers ready; ordinary host Proxy Mine use requested.
+Mine installed on the real flat platform, with terrain clearance and seated timer.
+Initial seating remains exactly stable; fresh late admission started.
+Late join reconstructed the persistent mine. Outer-radius force trial begins.
+Outer pull produced 0.087 m/s after ten native ticks.
+Mid pull produced 1.366 m/s after ten native ticks.
+Close pull produced 4.371 m/s; moving remote vehicle approaches for contact.
+Contact detonated once, applying 60 HP and 24000 N.s to the remote vehicle.
+Repeated host use magnetically reached a stationary vehicle and detonated without target movement.
+Surface 1: authoritative position <49.91656, 20.761015, 4.5>, normal <-0.24740396, 0.9689124, 0>.
+Stable terrain seating captured; drive-over contact trial with attraction disabled.
+Surface 2: authoritative position <99.99731, 20.953457, 4.497638>, normal <-0.004620304, 0.9999883, -0.0014207117>.
+Stable terrain seating captured; drive-over contact trial with attraction disabled.
+Uneven terrain drive-over detonated and consumed the mine once; repeated remote use passed.
+
+## final-reconnect
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Diagnostics: Direct-IP current Ping observed through neutral projection.
+Remote tags passed over two-peer UDP: damaged snapshot, actual Wrench healing, collision death, timed respawn, matching host/client names and no local tags.
+Category pickup history before reconnect: 1:3:ProxyMine:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;3:3:Missile:Weapon=-0.5/2,Consumable=0.75/0,Droppable=-0.25/1
+Proxy Mine reconnect 1: complete state restored without impact replay.
+Nitro reconnect 1: remaining 0, exact checkpoint state and returning player charge 37.5%.
+Category history verified after reconnect 1
+Proxy Mine reconnect 2: complete state restored without impact replay.
+Nitro reconnect 2: remaining 0, exact checkpoint state and returning player charge 37.5%.
+Category history verified after reconnect 2
+Proxy Mine reconnect 3: complete state restored without impact replay.
+Nitro reconnect 3: remaining 0, exact checkpoint state and returning player charge 37.5%.
+Category history verified after reconnect 3
+Reconnect integration passed: immediate lobby removal/fresh admission, three arena resyncs including 125 seconds offline, native body reuse, prediction/interpolation reset, held-item/spawn/match continuity, dimmed retained standings, final results and new-generation reset over real UDP. EOS identity and initial scores are test seams.
+
+## final-migration
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Category pickup history before migration: 2:3:Missile:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;3:3:Missile:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;4:3:Nitro:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1
+Nitro migration verified: partial charge retained without unwanted activation; Circus totals restore without historical awards.
+Proxy Mine migration verified: same hazard survives authority replacement.
+Category history verified after authority migration: 2:3:Missile:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;3:3:Missile:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;4:3:Nitro:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1
+Migration integration passed: 3 native UDP peers; intentional lobby host leave; former-host fresh join; active native match authority loss; sequential epochs; retained vehicles; prediction reset; item/spawn/match restore. Identity is a trusted test seam, not real EOS.
+
+## final-migration-two-integrated
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Category pickup history before migration: 2:3:Oil:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;3:3:Missile:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1
+Proxy Mine migration verified: same hazard survives authority replacement.
+Category history verified after authority migration: 2:3:Oil:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;3:3:Missile:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1
+Migration integration passed: 2 native UDP peers; intentional lobby host leave; former-host fresh join; active native match authority loss; sequential epochs; retained vehicles; prediction reset; item/spawn/match restore. Identity is a trusted test seam, not real EOS.
+
+## final-match
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Native nonlethal ram: actual applied HP banks Circus score without a kill; all eight UDP peers agree on complete scoring state.
+Cycle 1: missile death, all eight peers agree on Circus score/streak/watermarks, kills, winner and Dead/Respawning/Alive, respawn tick 429, reset physics/HP/items/VFX verified.
+Cycle 2: collision death, all eight peers agree on Circus score/streak/watermarks, kills, winner and Dead/Respawning/Alive, respawn tick 629, reset physics/HP/items/VFX verified.
+Cycle 3: missile death, all eight peers agree on Circus score/streak/watermarks, kills, winner and Dead/Respawning/Alive, respawn tick 855, reset physics/HP/items/VFX verified.
+Cycle 4: collision death, all eight peers agree on Circus score/streak/watermarks, kills, winner and Dead/Respawning/Alive, respawn tick 1054, reset physics/HP/items/VFX verified.
+Cycle 5: missile death, all eight peers agree on Circus score/streak/watermarks, kills, winner and Dead/Respawning/Alive, respawn tick 1283, reset physics/HP/items/VFX verified.
+Cycle 6: collision death, all eight peers agree on Circus score/streak/watermarks, kills, winner and Dead/Respawning/Alive, respawn tick 1483, reset physics/HP/items/VFX verified.
+Match integration passed.
+Match verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\match-checks\9d85b086c62040409460b5f31f798839
+
+## final-network-integrated
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+{"Rendered":false,"FrameTime":{"Samples":1368,"Mean":16.65744152046783,"P50":16.661,"P95":17.066,"P99":26.965,"Maximum":37.346},"SimulationStepTime":{"Samples":1441,"Mean":3.7538834142956214,"P50":3.359,"P95":7.422,"P99":15.971,"Maximum":25.444},"FrameStalls":[],"Host":true,"Map":"res://scenes/maps/oval_foundation.tscn","LargestRoster":2,"LocalVehicle":1,"Tick":1443,"Snapshots":0,"ImmediateFrames":0,"DriftFrames":0,"HandbrakeFrames":79,"ErrorP99":0,"ErrorMaximum":0,"InterpolationDelay":0,"LargeCorrections":0,"CorrectionDetails":[],"LastAcknowledged":0,"Position":[31.939507,1.1449393,71.37128],"HP":961.96906,"Grounded":true,"PropTick":null,"PropTravel":0,"PropReplicaError":0,"PropPositions":null}
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+{"Rendered":false,"FrameTime":{"Samples":872,"Mean":16.965936926605487,"P50":16.511,"P95":18.322,"P99":34.642,"Maximum":157.51},"SimulationStepTime":{"Samples":960,"Mean":1.268516666666666,"P50":0.345,"P95":2.014,"P99":23.265,"Maximum":58.502},"FrameStalls":[{"Seconds":5.583333333333319,"Milliseconds":114.997,"Tick":367,"SnapshotAge":0},{"Seconds":5.699999999999985,"Milliseconds":157.51,"Tick":377,"SnapshotAge":0.03333333333333333}],"Host":false,"Map":"res://scenes/maps/oval_foundation.tscn","LargestRoster":2,"LocalVehicle":2,"Tick":992,"Snapshots":318,"ImmediateFrames":674,"DriftFrames":29,"HandbrakeFrames":79,"ErrorP99":0.08698783,"ErrorMaximum":7.038976,"InterpolationDelay":76.68720862012226,"LargeCorrections":1,"CorrectionDetails":[{"Seconds":1.2833333333333337,"Error":7.038976,"Tick":117,"Ack":59,"Pending":18,"SnapshotAge":0.06666666666666667,"FrameMilliseconds":16.42,"HP":1000,"Position":"\u003C0.47332323, 1.1406047, 86.007866\u003E","Speed":2.8831794}],"LastAcknowledged":950,"Position":[29.827091,1.1449986,63.95567],"HP":966.5805,"Grounded":true,"PropTick":null,"PropTravel":0,"PropReplicaError":0,"PropPositions":null}
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+
+Network vehicle verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\network-vehicle-checks\cdf4cbe0a7df466b93b69b9b6112e439
+
+## final-native-transport
+Test run for C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    11, Skipped:     0, Total:    11, Duration: 1 m 18 s - Trackstorm.Transport.Tests.dll (net10.0)
+
+## final-startup-integrated
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+
+## final-old-map-cleanup
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connected; None; 
+Transport peer 1: Connected; None; 
+Driver 0, case 0, closest 1.107 m, inventory Wrench/None: Wrench passed.
+Driver 0, case 1, closest 1.107 m, inventory Missile/None: Missile passed.
+Driver 0, case 2, closest 1.107 m, inventory Oil/None: Oil passed.
+Driver 0, case 3, closest 1.107 m, inventory Nitro/None: Nitro passed.
+Driver 0, case 4, closest 1.107 m, inventory ProxyMine/None: ProxyMine passed.
+Driver 0, case 5, closest 1.107 m, inventory Wrench/None: Wrench passed.
+Driver 0, case 6, closest 1.107 m, inventory Wrench/ProxyMine: ProxyMine passed.
+Driver 0, case 7, closest 1.107 m, inventory Wrench/ProxyMine: full rejection passed.
+Driver 0, case 8, closest 1.107 m, inventory Missile/ProxyMine: Missile passed.
+Driver 1, case 0, closest 1.110 m, inventory Wrench/None: Wrench passed.
+Driver 1, case 1, closest 1.110 m, inventory Missile/None: Missile passed.
+Driver 1, case 2, closest 1.110 m, inventory Oil/None: Oil passed.
+Driver 1, case 3, closest 1.110 m, inventory Nitro/None: Nitro passed.
+Driver 1, case 4, closest 1.110 m, inventory ProxyMine/None: ProxyMine passed.
+Driver 1, case 5, closest 1.110 m, inventory Wrench/None: Wrench passed.
+Driver 1, case 6, closest 1.110 m, inventory Wrench/ProxyMine: ProxyMine passed.
+Driver 1, case 7, closest 1.110 m, inventory Wrench/ProxyMine: full rejection passed.
+Driver 1, case 8, closest 1.110 m, inventory Missile/ProxyMine: Missile passed.
+Pickup drive passed: both application peers acquired all five items, two sequential slots, full rejection and use/retry.
+Transport peer 1: Disconnected; LocalRequest; Local disconnect
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connected; None; 
+Transport peer 1: Connected; None; 
+Driver 0, case 0, closest 1.112 m, inventory Wrench/None: Wrench passed.
+Driver 0, case 1, closest 1.112 m, inventory Missile/None: Missile passed.
+Driver 0, case 2, closest 1.112 m, inventory Oil/None: Oil passed.
+Driver 0, case 3, closest 1.112 m, inventory Nitro/None: Nitro passed.
+Driver 0, case 4, closest 1.112 m, inventory ProxyMine/None: ProxyMine passed.
+Driver 0, case 5, closest 1.112 m, inventory Wrench/None: Wrench passed.
+Driver 0, case 6, closest 1.112 m, inventory Wrench/ProxyMine: ProxyMine passed.
+Driver 0, case 7, closest 1.112 m, inventory Wrench/ProxyMine: full rejection passed.
+Driver 0, case 8, closest 1.112 m, inventory Missile/ProxyMine: Missile passed.
+Driver 1, case 0, closest 1.111 m, inventory Wrench/None: Wrench passed.
+Driver 1, case 1, closest 1.111 m, inventory Missile/None: Missile passed.
+Driver 1, case 2, closest 1.113 m, inventory Oil/None: Oil passed.
+Driver 1, case 3, closest 1.113 m, inventory Nitro/None: Nitro passed.
+Driver 1, case 4, closest 1.111 m, inventory ProxyMine/None: ProxyMine passed.
+Driver 1, case 5, closest 1.111 m, inventory Wrench/None: Wrench passed.
+Driver 1, case 6, closest 1.113 m, inventory Wrench/ProxyMine: ProxyMine passed.
+Driver 1, case 7, closest 1.113 m, inventory Wrench/ProxyMine: full rejection passed.
+Driver 1, case 8, closest 1.111 m, inventory Missile/ProxyMine: Missile passed.
+Pickup drive passed: both application peers acquired all five items, two sequential slots, full rejection and use/retry.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connected; None; 
+Transport peer 1: Connected; None; 
+driver=0 speed=8 offset=0: 10/10
+driver=0 speed=8 offset=1.5: 10/10
+driver=0 speed=8 offset=2.8: 10/10
+driver=0 speed=40 offset=0: 10/10
+driver=0 speed=40 offset=1.5: 10/10
+driver=0 speed=40 offset=2.8: 10/10
+driver=0 speed=65 offset=0: 10/10
+driver=0 speed=65 offset=1.5: 10/10
+driver=0 speed=65 offset=2.8: 10/10
+driver=1 speed=8 offset=0: 10/10
+driver=1 speed=8 offset=1.5: 10/10
+driver=1 speed=8 offset=2.8: 10/10
+driver=1 speed=40 offset=0: 10/10
+driver=1 speed=40 offset=1.5: 10/10
+driver=1 speed=40 offset=2.8: 10/10
+driver=1 speed=65 offset=0: 10/10
+driver=1 speed=65 offset=1.5: 10/10
+driver=1 speed=65 offset=2.8: 10/10
+driver=0 speed=8 offset=0: 10/10; measured crossing speed 6.50–6.53 m/s
+driver=0 speed=8 offset=1.5: 10/10; measured crossing speed 6.53–6.56 m/s
+driver=0 speed=8 offset=2.8: 10/10; measured crossing speed 6.55–6.58 m/s
+driver=0 speed=40 offset=0: 10/10; measured crossing speed 38.21–38.38 m/s
+driver=0 speed=40 offset=1.5: 10/10; measured crossing speed 38.21–38.39 m/s
+driver=0 speed=40 offset=2.8: 10/10; measured crossing speed 38.21–38.39 m/s
+driver=0 speed=65 offset=0: 10/10; measured crossing speed 63.22–63.51 m/s
+driver=0 speed=65 offset=1.5: 10/10; measured crossing speed 63.22–63.51 m/s
+driver=0 speed=65 offset=2.8: 10/10; measured crossing speed 63.21–63.51 m/s
+driver=1 speed=8 offset=0: 10/10; measured crossing speed 6.50–6.53 m/s
+driver=1 speed=8 offset=1.5: 10/10; measured crossing speed 6.53–6.56 m/s
+driver=1 speed=8 offset=2.8: 10/10; measured crossing speed 6.55–6.58 m/s
+driver=1 speed=40 offset=0: 10/10; measured crossing speed 38.21–38.38 m/s
+driver=1 speed=40 offset=1.5: 10/10; measured crossing speed 38.21–38.39 m/s
+driver=1 speed=40 offset=2.8: 10/10; measured crossing speed 38.21–38.39 m/s
+driver=1 speed=65 offset=0: 10/10; measured crossing speed 63.22–63.51 m/s
+driver=1 speed=65 offset=1.5: 10/10; measured crossing speed 63.22–63.51 m/s
+driver=1 speed=65 offset=2.8: 10/10; measured crossing speed 63.21–63.51 m/s
+Pickup motion attempts: 180/180.
+Pickup drive verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\pickup-drive-checks\814d1fb499de4640baf52091b152d5e8

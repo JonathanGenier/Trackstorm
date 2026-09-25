@@ -78,6 +78,7 @@ public sealed partial class PickupDriveChecks : Node
             for (int i = 0; i < _sessions.Count; i++)
                 _sessions[i].Advance(new InputFrame((ulong)_frames, 0, _stage == 3 && i == DriverIndex ? ushort.MaxValue : (ushort)0, 0, 0, 0, 0));
             if (_stage == 6) { AdvanceMotion(before!); return; }
+            if (_stage == 7) { if (_frames - _boundary > 120) GetTree().Quit(); return; }
             if (_frames - _boundary > 1800) throw new InvalidOperationException($"Pickup drive stage {_stage} timed out.");
             var host = _sessions[0];
             if (_stage == 0 && _sessions.All(s => s.Lobby?.State?.Players.Count == 2))
@@ -123,7 +124,7 @@ public sealed partial class PickupDriveChecks : Node
             else if (_stage == 4 && _frames - _boundary > 90)
             {
                 if (_trial < 18) Prepare();
-                else { GD.Print("Pickup drive passed: both application peers acquired all five items, two sequential slots, full rejection and use/retry."); GetTree().Quit(); _stage = 5; }
+                else { GD.Print("Pickup drive passed: both application peers acquired all five items, two sequential slots, full rejection and use/retry."); Finish(); }
             }
         }
         catch (Exception exception) { GD.PrintErr(exception); GetTree().Quit(1); }
@@ -167,6 +168,7 @@ public sealed partial class PickupDriveChecks : Node
         float closest = N.Vector3.Distance(a + d * t, marker.Position);
         if (closest < _segmentNearest) { _segmentNearest = closest; _crossingSpeed = d.Length() * 60; }
         if (closest < 3.5f) _motionTrace.Add($"tick {host.World.State.Tick}: before={N.Vector3.Distance(a, marker.Position):F4}, after={N.Vector3.Distance(b, marker.Position):F4}, segment={closest:F4}, speed={d.Length() * 60:F2}");
+        Require(_frames - _boundary < 1800, "Motion and replicated inventory must converge within thirty seconds.");
         if (++_motionTicks < Math.Ceiling(14 / MotionSpeed * 60) + 12) return;
         bool success = host.Items.Slots.Any(s => s.Vehicle == before.VehicleId && (s.Token > _tokenBefore || s.SecondToken > _tokenBefore));
         if (success && _sessions.Any(s => !s.Arena!.Driver.ItemState!.Slots.Contains(host.Items.Slots.Single(v => v.Vehicle == before.VehicleId)))) return;
@@ -184,8 +186,14 @@ public sealed partial class PickupDriveChecks : Node
         GD.Print(string.Join("\n", lines));
         GD.Print($"Pickup motion attempts: {_successes}/180.");
         Require(_successes == 180, "Every valid native crossing must acquire an item.");
-        GetTree().Quit();
-        _stage = 5;
+        Finish();
+    }
+
+    private void Finish()
+    {
+        foreach (var session in _sessions) session.Leave();
+        _stage = 7;
+        _boundary = _frames;
     }
 
     private void Prepare()
@@ -218,6 +226,3 @@ public sealed partial class PickupDriveChecks : Node
         if (!condition) throw new InvalidOperationException(message);
     }
 }
-
-
-

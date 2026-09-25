@@ -250,7 +250,7 @@ public sealed class ItemAuthority
                 slots[request.VehicleId] = inventory with { EngagedToken = 0 };
                 continue;
             }
-            ItemRegistry.Find(HeldItem.Nitro)!.Handler!.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts);
+            ItemRegistry.Find(HeldItem.Nitro)!.Handler!.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts, mines, placeMine);
             double remaining = Math.Max(0, slot.NitroCharge - Configuration.NitroConsumptionPerSecond / 60);
             if (remaining < 1e-9) { remaining = 0; }
             slots[request.VehicleId] = inventory.ActiveSlot == 0
