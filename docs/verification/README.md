@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Story verification | [TS-168 verification evidence](ts-168.md) |
 | Story verification | [TS-156 verification evidence](ts-156.md) |
 | Story verification | [TS-165 verification evidence](ts-165.md) |
 | Story verification | [TS-162 verification evidence](ts-162.md) |
