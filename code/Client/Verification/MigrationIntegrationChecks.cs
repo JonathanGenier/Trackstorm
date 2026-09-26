@@ -16,7 +16,7 @@ public sealed partial class MigrationIntegrationChecks : Node
     private ulong _mine;
     private readonly DevelopmentSession?[] _presentations = new DevelopmentSession?[3];
     private readonly Dictionary<ulong, (Node3D Root, int Slot)>[] _showcases = [new(), new(), new()];
-    private readonly GameNetworkingSocketsTransport[] _gateways = new GameNetworkingSocketsTransport[3];
+    private readonly ReplicationTrafficGateway[] _gateways = new ReplicationTrafficGateway[3];
     private readonly LobbyNetworkDriver?[] _drivers = new LobbyNetworkDriver?[3];
     private readonly NetworkVehicleArena?[] _arenas = new NetworkVehicleArena?[3];
     private readonly SubViewport[] _views = new SubViewport[3];
@@ -55,7 +55,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             int index = i;
             using var reservation = new UdpClient(new IPEndPoint(IPAddress.Loopback, 0));
             _endpoints[i] = $"127.0.0.1:{((IPEndPoint)reservation.Client.LocalEndPoint!).Port}";
-            _gateways[i] = new GameNetworkingSocketsTransport();
+            _gateways[i] = new ReplicationTrafficGateway();
             _gateways[i].ConnectionChanged += change =>
             {
                 if (change.State == TransportConnectionState.Connected && _connecting[index].TryDequeue(out string? subject))

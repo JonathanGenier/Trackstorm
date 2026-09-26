@@ -1,0 +1,47 @@
+Test run for C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 12 of 12 NUnit test cases using Current Discovery mode, Non-Explicit run
+CODEC_ALLOCATION players=2, fullEncodeDecodeBytesPerPair=13896.72, motionEncodeDecodeBytesPerPair=1432; 1000 repetitions; excludes publication construction/native marshalling.
+
+CODEC_ALLOCATION players=8, fullEncodeDecodeBytesPerPair=44338.88, motionEncodeDecodeBytesPerPair=2392; 1000 repetitions; excludes publication construction/native marshalling.
+
+{"players":2,"scenario":"driving","simulatedSeconds":10,"hostAllocations":13723728,"clientAdvanceAllocations":4204400,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TM-Reliable","bytes":35190,"messages":90,"peak":391},{"protocol":"TS-Unreliable","bytes":92600,"messages":200,"peak":463}]}
+
+{"players":8,"scenario":"driving","simulatedSeconds":10,"hostAllocations":35912096,"clientAdvanceAllocations":44247968,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TM-Reliable","bytes":836010,"messages":630,"peak":1327},{"protocol":"TS-Unreliable","bytes":2471000,"messages":1400,"peak":1765}]}
+
+{"players":2,"scenario":"missile","simulatedSeconds":10,"hostAllocations":15589928,"clientAdvanceAllocations":4262600,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":8100,"messages":10,"peak":855},{"protocol":"TJ-Unreliable","bytes":32400,"messages":300,"peak":108},{"protocol":"TM-Reliable","bytes":35190,"messages":90,"peak":391},{"protocol":"TS-Unreliable","bytes":92600,"messages":200,"peak":463}]}
+
+{"players":8,"scenario":"missile","simulatedSeconds":10,"hostAllocations":41513176,"clientAdvanceAllocations":46406880,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":214410,"messages":70,"peak":3243},{"protocol":"TJ-Unreliable","bytes":730800,"messages":2100,"peak":348},{"protocol":"TM-Reliable","bytes":836010,"messages":630,"peak":1327},{"protocol":"TS-Unreliable","bytes":2471000,"messages":1400,"peak":1765}]}
+
+{"players":2,"scenario":"oil","simulatedSeconds":10,"hostAllocations":16506728,"clientAdvanceAllocations":4047480,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":5485,"messages":5,"peak":1313},{"protocol":"TM-Reliable","bytes":35190,"messages":90,"peak":391},{"protocol":"TS-Unreliable","bytes":92600,"messages":200,"peak":463}]}
+
+  Passed MeasureProjectileCodecAllocation(2) [154 ms]
+  Passed MeasureProjectileCodecAllocation(8) [79 ms]
+  Passed MeasureReplicationTraffic(2,"driving") [145 ms]
+  Passed MeasureReplicationTraffic(8,"driving") [479 ms]
+  Passed MeasureReplicationTraffic(2,"missile") [94 ms]
+  Passed MeasureReplicationTraffic(8,"missile") [223 ms]
+  Passed MeasureReplicationTraffic(2,"oil") [40 ms]
+{"players":8,"scenario":"oil","simulatedSeconds":10,"hostAllocations":47712200,"clientAdvanceAllocations":44389888,"rejected":35,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":418915,"messages":105,"peak":5051},{"protocol":"TM-Reliable","bytes":836010,"messages":630,"peak":1327},{"protocol":"TS-Unreliable","bytes":2471000,"messages":1400,"peak":1765}]}
+
+{"players":2,"scenario":"nitro","simulatedSeconds":10,"hostAllocations":20778680,"clientAdvanceAllocations":10055480,"rejected":130,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":270672,"messages":398,"peak":765},{"protocol":"TM-Reliable","bytes":249016,"messages":586,"peak":425},{"protocol":"TS-Unreliable","bytes":92600,"messages":200,"peak":463}]}
+
+{"players":8,"scenario":"nitro","simulatedSeconds":10,"hostAllocations":58216816,"clientAdvanceAllocations":162189392,"rejected":910,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TI-Reliable","bytes":7085694,"messages":2786,"peak":2883},{"protocol":"TM-Reliable","bytes":6000274,"messages":4102,"peak":1463},{"protocol":"TS-Unreliable","bytes":2471000,"messages":1400,"peak":1765}]}
+
+{"players":2,"scenario":"circus","simulatedSeconds":10,"hostAllocations":13101432,"clientAdvanceAllocations":3855360,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TM-Reliable","bytes":36885,"messages":95,"peak":459},{"protocol":"TS-Unreliable","bytes":92600,"messages":200,"peak":463}]}
+
+{"players":8,"scenario":"circus","simulatedSeconds":10,"hostAllocations":33584912,"clientAdvanceAllocations":40578520,"rejected":0,"note":"Application payload bytes, deterministic transport/flat observation; allocations include simulation/prediction, not isolated codec cost. Excludes session/migration and native framing.","publications":[{"protocol":"TM-Reliable","bytes":875175,"messages":665,"peak":1599},{"protocol":"TS-Unreliable","bytes":2471000,"messages":1400,"peak":1765}]}
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed MeasureReplicationTraffic(8,"oil") [164 ms]
+  Passed MeasureReplicationTraffic(2,"nitro") [64 ms]
+  Passed MeasureReplicationTraffic(8,"nitro") [301 ms]
+  Passed MeasureReplicationTraffic(2,"circus") [22 ms]
+  Passed MeasureReplicationTraffic(8,"circus") [84 ms]
+
+Test Run Successful.
+Total tests: 12
+     Passed: 12
+ Total time: 2.3012 Seconds

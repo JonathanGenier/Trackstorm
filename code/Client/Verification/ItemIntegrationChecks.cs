@@ -15,7 +15,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Eight real UDP peers with isolated Godot worlds exercising production item use and collision adapters.</summary>
 public sealed partial class ItemIntegrationChecks : Node
 {
-    private readonly List<GameNetworkingSocketsTransport> _gateways = new();
+    private readonly List<ReplicationTrafficGateway> _gateways = new();
     private readonly List<NetworkVehicleArena> _arenas = new();
     private readonly List<Hud.CombatHud> _huds = new();
     private readonly List<List<ItemEvent>> _events = new();
@@ -54,7 +54,7 @@ public sealed partial class ItemIntegrationChecks : Node
         reservation.Close();
         for (int index = 0; index < 8; index++)
         {
-            var gateway = new GameNetworkingSocketsTransport();
+            var gateway = new ReplicationTrafficGateway();
             _gateways.Add(gateway);
             ulong server = 0;
             if (index == 0)

@@ -36,6 +36,8 @@ public sealed class ItemAuthority
     public ItemConfiguration Configuration { get; private set; }
     /// <summary>Changed ownership/projectile state revision.</summary>
     public ulong Revision { get; private set; }
+    /// <summary>Reliable ownership/outcome revision; ordinary continuing projectile motion does not advance it.</summary>
+    public ulong ReliableRevision { get; private set; }
     /// <summary>Read-only detached inventory.</summary>
     public IReadOnlyList<ItemSlot> Slots => _slots.Values.OrderBy(slot => slot.Vehicle).ToArray();
     /// <summary>Read-only detached projectile state.</summary>
@@ -80,6 +82,7 @@ public sealed class ItemAuthority
         _pending.Clear();
         Events = Array.Empty<ItemEvent>();
         Revision = revision;
+        ReliableRevision = revision;
         _token = token;
     }
 
@@ -98,6 +101,7 @@ public sealed class ItemAuthority
         if (changed)
         {
             Revision++;
+            ReliableRevision++;
         }
     }
 
@@ -123,6 +127,7 @@ public sealed class ItemAuthority
             ? inventory with { Token = token, Item = item, NitroCharge = item == HeldItem.Nitro ? 100 : 0, SalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SalvoReadyTick = 0, Ammo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null }
             : inventory with { SecondToken = token, SecondItem = item, SecondNitroCharge = item == HeldItem.Nitro ? 100 : 0, SecondSalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SecondSalvoReadyTick = 0, SecondAmmo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null };
         Revision++;
+        ReliableRevision++;
         if (!pickup)
         {
             world.Events.Record(EventCategory.Item, "Granted", target: vehicle, cause: item.ToString(), life: state.LifeId, tick: world.State.Tick);
@@ -155,6 +160,7 @@ public sealed class ItemAuthority
         if (inventory.Life != life || revision <= inventory.SelectionRevision) { return false; }
         _slots[vehicle] = inventory with { ActiveSlot = (byte)(inventory.ActiveSlot ^ ((revision - inventory.SelectionRevision) & 1)), SelectionRevision = revision, EngagedToken = 0 };
         Revision++;
+        ReliableRevision++;
         return true;
     }
 
@@ -455,7 +461,11 @@ public sealed class ItemAuthority
 
         advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract));
         if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { advanced.RemoveAll(missile => missile.Arc is not null); }
-        bool changed = !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) || missiles.Count > 0 || !patches.SequenceEqual(_patches) || !contacts.SequenceEqual(_contacts) || journal.Count > 0 || !movingMines.SequenceEqual(_mines);
+        bool reliableChanged = !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) ||
+            !patches.SequenceEqual(_patches) || !contacts.SequenceEqual(_contacts) || journal.Count > 0 ||
+            !movingMines.SequenceEqual(_mines) || events.Count > 0 ||
+            !_missiles.Select(missile => missile.Id).SequenceEqual(advanced.Select(missile => missile.Id));
+        bool changed = reliableChanged || missiles.Count > 0;
         foreach (var removed in _slots.Values.Where(slot => !slots.ContainsKey(slot.Vehicle)).SelectMany(slot => new[] { slot, slot with { Token = slot.SecondToken, Item = slot.SecondItem } }).Where(slot => slot.Item != HeldItem.None))
         {
             world.Events.Record(EventCategory.Item, "Removed", target: removed.Vehicle, cause: removed.Item.ToString(), context: "life ended or reset", tick: input.Tick);
@@ -487,6 +497,7 @@ public sealed class ItemAuthority
         if (changed)
         {
             Revision++;
+            if (reliableChanged) { ReliableRevision++; }
         }
     }
 
@@ -518,6 +529,7 @@ public sealed class ItemAuthority
             }
 
             Revision++;
+            ReliableRevision++;
         }
 
         Configuration = configuration;

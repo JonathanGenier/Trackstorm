@@ -1,0 +1,112 @@
+[
+  {
+    "Players": 2,
+    "Scenario": "driving",
+    "BeforeBytesPerSecond": 30285.8,
+    "AfterBytesPerSecond": 12779.0,
+    "ReductionPercent": 57.81,
+    "BeforeReliableBytesPerSecond": 21025.8,
+    "AfterReliableBytesPerSecond": 3519.0,
+    "BeforeMessagesPerSecond": 73.8,
+    "AfterMessagesPerSecond": 29.0
+  },
+  {
+    "Players": 8,
+    "Scenario": "driving",
+    "BeforeBytesPerSecond": 746358.2,
+    "AfterBytesPerSecond": 330701.0,
+    "ReductionPercent": 55.69,
+    "BeforeReliableBytesPerSecond": 499258.2,
+    "AfterReliableBytesPerSecond": 83601.0,
+    "BeforeMessagesPerSecond": 516.6,
+    "AfterMessagesPerSecond": 203.0
+  },
+  {
+    "Players": 2,
+    "Scenario": "missile",
+    "BeforeBytesPerSecond": 54165.8,
+    "AfterBytesPerSecond": 16829.0,
+    "ReductionPercent": 68.93,
+    "BeforeReliableBytesPerSecond": 44905.8,
+    "AfterReliableBytesPerSecond": 4329.0,
+    "BeforeMessagesPerSecond": 104.8,
+    "AfterMessagesPerSecond": 60.0
+  },
+  {
+    "Players": 8,
+    "Scenario": "missile",
+    "BeforeBytesPerSecond": 1376589.2,
+    "AfterBytesPerSecond": 425222.0,
+    "ReductionPercent": 69.11,
+    "BeforeReliableBytesPerSecond": 1129489.2,
+    "AfterReliableBytesPerSecond": 105042.0,
+    "BeforeMessagesPerSecond": 733.6,
+    "AfterMessagesPerSecond": 420.0
+  },
+  {
+    "Players": 2,
+    "Scenario": "oil",
+    "BeforeBytesPerSecond": 30834.3,
+    "AfterBytesPerSecond": 13327.5,
+    "ReductionPercent": 56.78,
+    "BeforeReliableBytesPerSecond": 21574.3,
+    "AfterReliableBytesPerSecond": 4067.5,
+    "BeforeMessagesPerSecond": 74.3,
+    "AfterMessagesPerSecond": 29.5
+  },
+  {
+    "Players": 8,
+    "Scenario": "oil",
+    "BeforeBytesPerSecond": 788249.7,
+    "AfterBytesPerSecond": 372592.5,
+    "ReductionPercent": 52.73,
+    "BeforeReliableBytesPerSecond": 541149.7,
+    "AfterReliableBytesPerSecond": 125492.5,
+    "BeforeMessagesPerSecond": 527.1,
+    "AfterMessagesPerSecond": 213.5
+  },
+  {
+    "Players": 2,
+    "Scenario": "nitro",
+    "BeforeBytesPerSecond": 61375.2,
+    "AfterBytesPerSecond": 61228.8,
+    "ReductionPercent": 0.24,
+    "BeforeReliableBytesPerSecond": 52115.2,
+    "AfterReliableBytesPerSecond": 51968.8,
+    "BeforeMessagesPerSecond": 118.8,
+    "AfterMessagesPerSecond": 118.4
+  },
+  {
+    "Players": 8,
+    "Scenario": "nitro",
+    "BeforeBytesPerSecond": 1558922.4,
+    "AfterBytesPerSecond": 1555696.8,
+    "ReductionPercent": 0.21,
+    "BeforeReliableBytesPerSecond": 1311822.4,
+    "AfterReliableBytesPerSecond": 1308596.8,
+    "BeforeMessagesPerSecond": 831.6,
+    "AfterMessagesPerSecond": 828.8
+  },
+  {
+    "Players": 2,
+    "Scenario": "circus",
+    "BeforeBytesPerSecond": 30377.1,
+    "AfterBytesPerSecond": 12948.5,
+    "ReductionPercent": 57.37,
+    "BeforeReliableBytesPerSecond": 21117.1,
+    "AfterReliableBytesPerSecond": 3688.5,
+    "BeforeMessagesPerSecond": 74.1,
+    "AfterMessagesPerSecond": 29.5
+  },
+  {
+    "Players": 8,
+    "Scenario": "circus",
+    "BeforeBytesPerSecond": 748416.9,
+    "AfterBytesPerSecond": 334617.5,
+    "ReductionPercent": 55.29,
+    "BeforeReliableBytesPerSecond": 501316.9,
+    "AfterReliableBytesPerSecond": 87517.5,
+    "BeforeMessagesPerSecond": 518.7,
+    "AfterMessagesPerSecond": 206.5
+  }
+]

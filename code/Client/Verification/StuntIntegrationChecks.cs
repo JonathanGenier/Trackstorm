@@ -15,9 +15,10 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Native motion and UDP stunt observation on an isolated flat test platform.</summary>
 public sealed partial class StuntIntegrationChecks : Node
 {
-    private readonly List<GameNetworkingSocketsTransport> _transports = new();
+    private readonly List<ReplicationTrafficGateway> _transports = new();
     private readonly List<NetworkVehicleArena> _arenas = new();
     private readonly List<string> _evidence = new();
+    private readonly Dictionary<ulong, MatchState> _boundaries = new();
     private InputFrame _input;
     private bool _running;
     private string _output = string.Empty;
@@ -55,7 +56,7 @@ public sealed partial class StuntIntegrationChecks : Node
             reservation.Close();
             for (int i = 0; i < 2; i++)
             {
-                var gateway = new GameNetworkingSocketsTransport();
+                var gateway = new ReplicationTrafficGateway();
                 _transports.Add(gateway);
                 ulong server = 0;
                 if (i == 0)
@@ -73,11 +74,24 @@ public sealed partial class StuntIntegrationChecks : Node
                 platform.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(600, 1, 600) } });
                 viewport.AddChild(platform);
                 _arenas.Add(arena);
+                if (i == 0)
+                {
+                    arena.Driver.MatchReceived += match =>
+                    {
+                        _boundaries[match.Revision] = match;
+                        if (_boundaries.Count > 512) { _boundaries.Remove(_boundaries.Keys.Min()); }
+                    };
+                }
+                else
+                {
+                    arena.Driver.MatchReceived += match => Require(_boundaries.TryGetValue(match.Revision, out var boundary) &&
+                        match.Players.SequenceEqual(boundary.Players), "Received pending/banked state exactly matches its authoritative revision.");
+                }
             }
             _running = true;
             await Until(() => _arenas.All(arena => arena.Driver.Match?.Phase == MatchPhase.Active), 600, "two native peers enter Active");
-            // Only scoring tiers change for the short native drift. Vehicle physics remains production tuning.
-            Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["match.drift_tier_seconds"] = 0.1 }, out var error), error);
+            // The isolated platform is deliberately outside the oval; exclude perimeter damage from this stunt fixture.
+            Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["match.drift_tier_seconds"] = 0.1, ["vehicle.oob.damage"] = 0 }, out var error), error);
             Place(new(12, 0, -27));
             _input = new(0, 0, 0, 0, InputButtons.Drift, 0, 0);
             double before = Score.CircusScore;
@@ -168,7 +182,8 @@ public sealed partial class StuntIntegrationChecks : Node
 
     private async Task Agree()
     {
-        await Until(() => _arenas.All(arena => arena.Driver.Match!.Players.SequenceEqual(Host.World.State.Match!.Players)), 180, "UDP peers agree on complete pending/banked state");
+        ulong boundary = Host.World.State.Match!.Revision;
+        await Until(() => _arenas.All(arena => arena.Driver.Match!.Revision >= boundary), 180, "UDP peers receive the completed scoring boundary");
     }
 
     private async Task Until(Func<bool> predicate, int frames, string message)
