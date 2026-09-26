@@ -28,8 +28,9 @@ internal static class MatchAuthority
     /// <param name="previousVehicles">Previous authoritative poses and support.</param>
     /// <param name="vehicleRules">Registered per-vehicle movement tuning.</param>
     /// <param name="oilTriggers">New entries staged in this authoritative batch.</param>
+    /// <param name="synchronizedStart">The application handoff owns start; roster thresholds cannot start or restart it.</param>
     /// <returns>Validated candidate match state.</returns>
-    internal static MatchState Advance(MatchState previous, MatchConfiguration configuration, ulong tick, IReadOnlyList<VehicleStepResult> results, IReadOnlyDictionary<ulong, VehicleSnapshot> previousVehicles, Func<ulong, VehicleConfiguration> vehicleRules, IReadOnlyList<Items.OilTrigger>? oilTriggers = null)
+    internal static MatchState Advance(MatchState previous, MatchConfiguration configuration, ulong tick, IReadOnlyList<VehicleStepResult> results, IReadOnlyDictionary<ulong, VehicleSnapshot> previousVehicles, Func<ulong, VehicleConfiguration> vehicleRules, IReadOnlyList<Items.OilTrigger>? oilTriggers = null, bool synchronizedStart = false)
     {
         if (previous.Phase == MatchPhase.Finished)
         {
@@ -51,7 +52,12 @@ internal static class MatchAuthority
         GameLoopState lifecycle = previous.Lifecycle;
         if (lifecycle.Phase is GameLoopPhase.Initialization or GameLoopPhase.Countdown)
         {
-            if (vehicles.Length < configuration.MinimumPlayers)
+            if (synchronizedStart)
+            {
+                lifecycle = lifecycle.Phase == GameLoopPhase.Countdown ? lifecycle.Advance(tick)
+                    : new GameLoopState(tick, GameLoopPhase.Initialization, durationTicks: lifecycle.DurationTicks);
+            }
+            else if (vehicles.Length < configuration.MinimumPlayers)
             {
                 lifecycle = new GameLoopState(tick, GameLoopPhase.Initialization, durationTicks: lifecycle.DurationTicks);
             }

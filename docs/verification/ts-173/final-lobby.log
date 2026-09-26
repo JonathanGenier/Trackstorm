@@ -1,0 +1,137 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None;
+Transport peer 2: Connecting; None;
+Transport peer 3: Connecting; None;
+Transport peer 4: Connecting; None;
+Transport peer 5: Connecting; None;
+Transport peer 6: Connecting; None;
+Transport peer 7: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+Transport peer 2: Connected; None;
+Transport peer 3: Connected; None;
+Transport peer 4: Connected; None;
+Transport peer 5: Connected; None;
+Transport peer 6: Connected; None;
+Transport peer 7: Connected; None;
+Lobby stage -6: Host selected a vehicle nameplate and kicked its authoritative participant.
+Lobby stage -5: Kicked client cleaned up; seven peers removed its vehicle. Fresh join remains allowed.
+Transport peer 7: Disconnected; RemoteRequest; Transport stopped
+Transport peer 8: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 8: Connected; None;
+Lobby stage -4: Unexpected lobby transport loss injected.
+Transport peer 8: Disconnected; RemoteRequest; Transport stopped
+Transport peer 1: Disconnected; Shutdown; Transport stopped
+Lobby stage -3: Disconnect removed the displayed identity; fresh reconnect requested.
+Transport peer 9: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 9: Connected; None;
+Lobby stage -2: Client Quit used cleanup-gated Main Menu return.
+Transport peer 9: Disconnected; RemoteRequest; Transport stopped
+Lobby stage -1: Quit left no stale showcase; joining for eight-player match checks.
+Transport peer 10: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 10: Connected; None;
+Lobby stage 0: Eight production UIs joined; names and IDs match; unready start rejected.
+Lobby stage 1: Targeted ready replicated to all eight peers.
+Lobby stage 2: Targeted unready replicated to all peers.
+Lobby stage 3: Non-host start intent submitted over the real transport.
+Lobby stage 30: Host rejected non-host start; eight non-overlapping labels verified at 640, 1280 and 1600 widths; host load failure armed.
+Lobby stage 31: Host resource failure recovered through authoritative Return with all eight memberships preserved.
+Lobby stage 32: Client resource failure armed for the next accepted generation.
+Lobby stage 33: Client failure notification recovered all eight peers to one authoritative lobby.
+Lobby stage 4: Retry starts one fresh generation after both recoverable load failures.
+Remote tag native boundaries passed: full/damaged/healed/zero/respawn, Unicode, rotations, depth testing and stable node identity (synthetic snapshots).
+Lobby stage 5: All eight peers entered Podium with retained Finished results; host explicitly returned.
+Lobby stage 6: Return preserved identities and cleared readiness on every peer.
+Lobby stage 7: Ready client left the lobby.
+Lobby stage 8: Disconnect removal replicated to all remaining peers; rejoining.
+Transport peer 10: Disconnected; RemoteRequest; Transport stopped
+Transport peer 11: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 11: Connected; None;
+Lobby stage 9: Replacement joined with fresh identity; readying second match.
+Lobby stage 10: Second host start issued on the retained session connection.
+Lobby stage 11: Second Finished handoff succeeded; client departed during results.
+Lobby stage 12: Arena departure retained the vehicle; host ended the match.
+Transport peer 11: Disconnected; RemoteRequest; Transport stopped
+Lobby stage 13: Return released the eighth reservation; readying seven players for active admission.
+Lobby stage 14: Seven-player match started before fresh client joins.
+Lobby stage 15: Fresh eighth client joining after authoritative gameplay is active.
+Transport peer 12: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 12: Connected; None;
+Transport peer 1: Disconnected; Shutdown; Transport stopped
+Transport peer 12: Disconnected; RemoteRequest; Transport stopped
+Transport peer 13: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 13: Connected; None;
+Lobby stage 16: Fresh client bootstrapped into active native gameplay exactly once; testing retained-slot capacity.
+Lobby stage 17: Attempted fresh admission with seven connected plus one retained participant.
+Transport peer 13: Disconnected; RemoteRequest; Transport stopped
+Transport peer 14: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 14: Connected; None;
+Lobby stage 18: Authoritative retained-slot rejection preserved all eight vehicles; host closed the session.
+Transport peer 1: Disconnected; RemoteRequest; Transport stopped
+Transport peer 1: Disconnected; RemoteRequest; Transport stopped
+Transport peer 1: Disconnected; RemoteRequest; Transport stopped
+Transport peer 1: Disconnected; RemoteRequest; Transport stopped
+Transport peer 1: Disconnected; RemoteRequest; Transport stopped
+Transport peer 1: Disconnected; RemoteRequest; Transport stopped
+Lobby integration passed: Host selected a vehicle nameplate and kicked its authoritative participant.
+Kicked client cleaned up; seven peers removed its vehicle. Fresh join remains allowed.
+Unexpected lobby transport loss injected.
+Disconnect removed the displayed identity; fresh reconnect requested.
+Client Quit used cleanup-gated Main Menu return.
+Quit left no stale showcase; joining for eight-player match checks.
+Eight production UIs joined; names and IDs match; unready start rejected.
+Targeted ready replicated to all eight peers.
+Targeted unready replicated to all peers.
+Non-host start intent submitted over the real transport.
+Host rejected non-host start; eight non-overlapping labels verified at 640, 1280 and 1600 widths; host load failure armed.
+Host resource failure recovered through authoritative Return with all eight memberships preserved.
+Client resource failure armed for the next accepted generation.
+Client failure notification recovered all eight peers to one authoritative lobby.
+Retry starts one fresh generation after both recoverable load failures.
+Authenticated late Failed packet rejected while initial release was retained but EntryReady was false after authority unfreeze.
+All eight peers entered Podium with retained Finished results; host explicitly returned.
+Return preserved identities and cleared readiness on every peer.
+Ready client left the lobby.
+Disconnect removal replicated to all remaining peers; rejoining.
+Replacement joined with fresh identity; readying second match.
+Second host start issued on the retained session connection.
+Second Finished handoff succeeded; client departed during results.
+Arena departure retained the vehicle; host ended the match.
+Return released the eighth reservation; readying seven players for active admission.
+Seven-player match started before fresh client joins.
+Fresh eighth client joining after authoritative gameplay is active.
+Interrupted the fresh client after roster assignment and before checkpoint activation.
+Interrupted bootstrap released its slot without a vehicle or score row; retrying fresh admission.
+Fresh client bootstrapped into active native gameplay exactly once; testing retained-slot capacity.
+Attempted fresh admission with seven connected plus one retained participant.
+Authoritative retained-slot rejection preserved all eight vehicles; host closed the session.
+Host loss returned all clients to Host/Join and removed every arena.
+Lobby verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\lobby-checks\f9a8a1820c054ff3819038cf50932a20

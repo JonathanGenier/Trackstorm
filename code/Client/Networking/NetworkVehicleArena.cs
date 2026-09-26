@@ -22,6 +22,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private readonly Audio.ArenaAudio _audio = new();
     private readonly Items.ItemSpawnPresentation _pickups = new();
     private readonly Label _matchLabel = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
+    private readonly Hud.RaceCountdown _countdown = new();
+    internal string CountdownText => _countdown.Displayed;
     private string _developerDiagnostics = string.Empty;
     private VehicleNetworkDriver _driver = null!;
     private LobbyNetworkDriver? _lobby;
@@ -154,11 +156,15 @@ internal sealed partial class NetworkVehicleArena : Node3D
         var matchPanel = new PanelContainer { AnchorRight = 1, OffsetLeft = 24, OffsetRight = -24, OffsetTop = 90, MouseFilter = Control.MouseFilterEnum.Ignore };
         layer.AddChild(matchPanel);
         matchPanel.AddChild(_matchLabel);
+        var countdownLayer = new CanvasLayer { Layer = 2 };
+        AddChild(countdownLayer);
+        countdownLayer.AddChild(_countdown);
     }
 
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        _countdown.Refresh(_driver.Match, _driver.Latest?.Tick ?? 0, _driver.EntryReady && _driver.IsActive, delta);
         _environment.Apply(_driver.Configuration.Configuration.Environment);
         _salvoMarker.Refresh(delta, _driver.LocalState, _driver.LocalItem, _driver.ItemState,
             _driver.Configuration.Configuration.Items, _driver.IsActive && (!ApplicationEntry || _driver.EntryReady) &&

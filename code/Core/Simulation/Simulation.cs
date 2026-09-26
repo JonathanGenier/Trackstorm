@@ -11,6 +11,7 @@ public sealed class Simulation
 {
     private Dictionary<ulong, VehicleAuthority> _vehicles = new();
     private bool _developmentStart;
+    private readonly bool _synchronizedStart;
     /// <summary>
     /// Initializes a new instance of the <see cref="Simulation"/> class.
     /// </summary>
@@ -18,8 +19,10 @@ public sealed class Simulation
     /// <param name="respawn">Optional authoritative respawning; absent for isolated movement/replay fixtures.</param>
     /// <param name="arena">Validated spawn contract, defaulting to the production arena.</param>
     /// <param name="match">Optional authoritative match rules; enabled in multiplayer arenas.</param>
-    public Simulation(SimulationConfiguration configuration, RespawnConfiguration? respawn = null, Arenas.ArenaConfiguration? arena = null, Matches.MatchConfiguration? match = null)
+    /// <param name="synchronizedStart">Application matches start only through the complete roster handoff.</param>
+    public Simulation(SimulationConfiguration configuration, RespawnConfiguration? respawn = null, Arenas.ArenaConfiguration? arena = null, Matches.MatchConfiguration? match = null, bool synchronizedStart = false)
     {
+        _synchronizedStart = synchronizedStart;
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         respawn?.Validate();
         Respawn = respawn;
@@ -92,6 +95,16 @@ public sealed class Simulation
         }
 
         MatchEntry = entry.Context;
+        if (_synchronizedStart)
+        {
+            entry.StartCountdown(checked((ulong)Configuration.TicksPerSecond * 5));
+            var previous = State.Match!;
+            var countdown = new Matches.MatchState(State.Tick, checked(previous.Revision + 1), previous.KillTarget,
+                Matches.MatchPhase.Countdown, entry.State!.CountdownAtTick, null, previous.Players,
+                mode: previous.Mode, durationTicks: previous.DurationTicks);
+            State = new SimulationState(State.Tick, State.LastInput, State.Vehicles, countdown);
+            Events.Record(EventCategory.Match, countdown.Phase.ToString(), tick: State.Tick);
+        }
         return true;
     }
 
@@ -223,7 +236,7 @@ public sealed class Simulation
         }).ToArray();
         VehicleSnapshot[] transitions = candidates.Select(result => result.Snapshot)
             .Where(state => state.Lifecycle != _vehicles[state.VehicleId].Snapshot.Lifecycle || state.LifeId != _vehicles[state.VehicleId].Snapshot.LifeId).ToArray();
-        Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Advance(State.Match, _developmentStart ? MatchRules! with { MinimumPlayers = 1 } : MatchRules!, nextTick, candidates, State.Vehicles.ToDictionary(vehicle => vehicle.VehicleId), id => _vehicles[id].MovementConfiguration, oilTriggers);
+        Matches.MatchState? match = State.Match is null ? null : Matches.MatchAuthority.Advance(State.Match, _developmentStart ? MatchRules! with { MinimumPlayers = 1 } : MatchRules!, nextTick, candidates, State.Vehicles.ToDictionary(vehicle => vehicle.VehicleId), id => _vehicles[id].MovementConfiguration, oilTriggers, _synchronizedStart);
         if (match?.Phase is Matches.MatchPhase.Active or Matches.MatchPhase.Finished)
         {
             _developmentStart = false;
@@ -332,7 +345,7 @@ public sealed class Simulation
             }
 
             ulong? deadline = match.CountdownAtTick;
-            if (deadline.HasValue && configuration.Match.CountdownTicks != MatchRules!.CountdownTicks)
+            if (!_synchronizedStart && deadline.HasValue && configuration.Match.CountdownTicks != MatchRules!.CountdownTicks)
             {
                 deadline = checked(State.Tick + configuration.Match.CountdownTicks);
             }

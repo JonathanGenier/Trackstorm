@@ -168,6 +168,8 @@ finally {
 }
 
 $playPlan = Get-FastCheckPlan -Paths @("code/Client/Frontend/HangingPlayMenu.cs")
+$startPlan = Get-FastCheckPlan -Paths @("code/Client/Hud/RaceCountdown.cs")
+Assert-True ($startPlan.RuntimeScripts -contains "check-match-start.ps1") "Countdown changes must exercise staggered native multiplayer starts."
 Assert-True ($playPlan.RuntimeScripts -contains "check-play-menu.ps1") "Play Menu presentation changes must route the runtime interaction harness."
 $salvoPlan = Get-FastCheckPlan -Paths @("code/Client/Items/SalvoMarker.cs")
 Assert-True ($salvoPlan.RuntimeScripts -contains "check-salvo.ps1") "Salvo marker changes must route the native marker privacy harness."

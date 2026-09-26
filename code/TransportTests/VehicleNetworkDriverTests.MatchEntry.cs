@@ -10,6 +10,64 @@ namespace Trackstorm.Transport.Tests;
 /// <summary>Application entry cannot mistake local loading for completed multiplayer synchronization.</summary>
 internal sealed partial class VehicleNetworkDriverTests
 {
+    [TestCase(2, false)]
+    [TestCase(4, false)]
+    [TestCase(4, true)]
+    public void EveryConnectedParticipantMustSynchronizeBeforeOneFiveSecondStart(int players, bool leave)
+    {
+        using var wire = new DriverGateway();
+        var lobby = new LobbyNetworkDriver(wire, Session, 0, "Host");
+        for (ulong peer = 2; peer <= (ulong)players; peer++)
+        {
+            wire.ConnectPeer(peer);
+            lobby.Authority!.Join(peer, GameVersion.Current.ToString(), $"Player {peer}");
+            lobby.Authority.SetReady(peer, true);
+        }
+        Assert.That(lobby.Request(LobbyCommand.Start), Is.True);
+        using var host = new VehicleNetworkDriver(wire, lobby.State!.Match, lobby: lobby, applicationEntry: true);
+        void SendEntry(ulong peer, byte kind, ulong? match = null) => wire.Receive(new TransportMessage(peer,
+            ConnectionEnvelope.Encode(Session, 1, MatchEntryCodec.Encode(match ?? lobby.State.Match, kind)), TransportDelivery.Reliable));
+        for (ulong peer = 2; peer <= (ulong)players; peer++)
+        {
+            SendEntry(peer, MatchEntryCodec.Synchronized); // Reordered: no prepared checkpoint yet.
+            SendEntry(peer, MatchEntryCodec.Loaded);
+            host.Advance(Drive(), Observe);
+            Assert.That(host.EntryReady, Is.False);
+            if (peer == (ulong)players) break;
+            SendEntry(peer, MatchEntryCodec.Synchronized);
+            SendEntry(peer, MatchEntryCodec.Synchronized);
+            host.Advance(Drive(), Observe);
+            Assert.That(host.Host!.World.State.Tick, Is.Zero);
+        }
+        for (int tick = 0; tick < 900; tick++) host.Advance(Drive(), Observe);
+        Assert.That(host.Host!.World.State.Tick, Is.Zero, "A slow final participant blocks the entire roster.");
+        Assert.That(host.AllowsParticipation, Is.False);
+        SendEntry((ulong)players, MatchEntryCodec.Synchronized, lobby.State.Match + 1);
+        host.Advance(default, Observe);
+        Assert.That(host.EntryReady, Is.False);
+        if (leave) wire.Disconnect((ulong)players);
+        else SendEntry((ulong)players, MatchEntryCodec.Synchronized);
+        host.Advance(Drive(), Observe);
+        Assert.That(host.EntryReady, Is.True);
+        Assert.That(host.Match!.CountdownAtTick, Is.EqualTo(300));
+        Assert.That(lobby.ArenaAdmissionOpen!(), Is.False, "New entrants cannot change the settled starting roster.");
+        while (host.Host.World.State.Tick < 300)
+        {
+            SendEntry(2, MatchEntryCodec.Loaded);
+            SendEntry(2, MatchEntryCodec.Synchronized);
+            host.Advance(Drive(), Observe);
+            Assert.That(host.Host.World.State.LastInput.Accelerate, Is.Zero);
+            Assert.That(host.Match.Lifecycle.RemainingMatchTicks(host.Host.World.State.Tick), Is.EqualTo(36000));
+        }
+        Assert.That(host.Match.ActiveStartedAtTick, Is.EqualTo(300));
+        Assert.That(lobby.ArenaAdmissionOpen!(), Is.True, "Ordinary active-match admission remains available after GO.");
+        SendEntry(2, MatchEntryCodec.Synchronized);
+        host.Advance(Drive(), Observe);
+        Assert.That(host.Match.Phase, Is.EqualTo(MatchPhase.Active));
+        Assert.That(host.Match.ActiveStartedAtTick, Is.EqualTo(300));
+        Assert.That(host.Match.Lifecycle.RemainingMatchTicks(301), Is.EqualTo(35999));
+    }
+
     /// <summary>Only a valid admitted, reliable, current-generation entry failure can request recovery.</summary>
     [Test]
     public void EntryFailureIsAuthenticatedBeforeAndDuringLoading()
@@ -37,8 +95,9 @@ internal sealed partial class VehicleNetworkDriverTests
     }
 
     /// <summary>The host freezes at tick zero until the loaded client installs and acknowledges its checkpoint.</summary>
-    [Test]
-    public void InitialEntryWaitsForCheckpointAndHostRelease()
+    [TestCase(false)]
+    [TestCase(true)]
+    public void InitialEntryWaitsForCheckpointAndHostRelease(bool reorderedRelease)
     {
         using var hostWire = new DriverGateway();
         hostWire.ConnectPeer(2);
@@ -68,11 +127,20 @@ internal sealed partial class VehicleNetworkDriverTests
         Assert.That(client.Inputs!.Pending, Is.Empty);
         Transfer(clientWire, hostWire, ServerPeer, 2);
         host.Advance(Drive(), Observe);
+        if (reorderedRelease)
+        {
+            clientWire.Receive(new TransportMessage(ServerPeer, ConnectionEnvelope.Encode(Session, 1,
+                MatchEntryCodec.Encode(lobby.State.Match, MatchEntryCodec.Released)), TransportDelivery.Reliable));
+            client.Advance(Drive(), Observe);
+            Assert.That(client.EntryReady, Is.False, "An early host release cannot replace the checkpoint.");
+            Assert.That(client.AllowsParticipation, Is.False);
+        }
         Transfer(hostWire, clientWire, 2, ServerPeer);
         client.Advance(Drive(), Observe);
         Assert.That(client.Prediction, Is.Not.Null);
-        Assert.That(client.EntryReady, Is.False, "Installed resources and checkpoint still need host release.");
-        Assert.That(client.Inputs!.Pending, Is.Empty);
+        Assert.That(client.EntryReady, Is.EqualTo(reorderedRelease), "Entry needs both checkpoint and host release in either arrival order.");
+        Assert.That(client.AllowsParticipation, Is.False, "Entry release alone is not GO.");
+        Assert.That(client.Inputs!.Pending.All(command => command.Frame.Accelerate == 0), Is.True);
         Assert.That(host.Host.World.State.Tick, Is.Zero);
         Transfer(clientWire, hostWire, ServerPeer, 2);
         host.Advance(default, Observe);
@@ -85,6 +153,7 @@ internal sealed partial class VehicleNetworkDriverTests
         Assert.That(client.Match!.Phase, Is.EqualTo(MatchPhase.Countdown));
         Assert.That(client.Match.CountdownAtTick, Is.EqualTo(host.Match!.CountdownAtTick));
         Assert.That(client.AllowsParticipation, Is.False);
+        byte[] oldCountdown = ConnectionEnvelope.Encode(Session, 1, MatchCodec.Encode(lobby.State.Match, client.Match));
 
         TransportMessage? activation = null;
         ulong deadline = host.Match.CountdownAtTick!.Value;
@@ -116,6 +185,13 @@ internal sealed partial class VehicleNetworkDriverTests
         Assert.That(client.AllowsParticipation, Is.True);
         Assert.That(client.Match.Phase, Is.EqualTo(MatchPhase.Active));
         Assert.That(client.Inputs!.Pending.Last().Frame.Accelerate, Is.EqualTo(ushort.MaxValue));
+        int rejectedAfterGo = client.RejectedPackets;
+        clientWire.Receive(new TransportMessage(ServerPeer, oldCountdown, TransportDelivery.Reliable));
+        clientWire.Receive(new TransportMessage(ServerPeer, activation.Value.Payload, TransportDelivery.Reliable));
+        client.Advance(Drive(), Observe);
+        Assert.That(client.RejectedPackets, Is.EqualTo(rejectedAfterGo + 2));
+        Assert.That(client.Match.Phase, Is.EqualTo(MatchPhase.Active));
+        Assert.That(client.Match.ActiveStartedAtTick, Is.EqualTo(deadline));
     }
 
     /// <summary>A missing peer cannot leave a partially simulated host running forever.</summary>
@@ -170,7 +246,7 @@ internal sealed partial class VehicleNetworkDriverTests
         var lobby = StartJoinHost(hostWire);
         var host = new VehicleNetworkDriver(hostWire, lobby.State!.Match, lobby: lobby, applicationEntry: true);
         ReleaseEntry(hostWire, lobby, host);
-        for (int tick = 0; tick < 190; tick++)
+        for (int tick = 0; tick < 310; tick++)
         {
             host.Advance(default, Observe);
         }

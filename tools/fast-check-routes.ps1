@@ -39,6 +39,9 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'MatchStart|RaceCountdown|match_start_checks|check-match-start' -or $path -eq 'code/TransportTests/VehicleNetworkDriverTests.MatchEntry.cs') {
+            Add-Runtime 'check-match-start.ps1'
+        }
         if ($path -match 'IntegratedDriving|integrated_driving|check-integrated-driving') {
             Add-Runtime 'check-integrated-driving.ps1'
         }
