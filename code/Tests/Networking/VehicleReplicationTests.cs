@@ -17,7 +17,7 @@ internal sealed class VehicleReplicationTests
         var prediction = new PredictedVehicle(host.Snapshot().Vehicles[1]);
         for (int i = 0; i < PredictedVehicle.MaximumPredictionSteps; i++) { prediction.Predict(Drive(), Observe); }
         var held = prediction.State;
-        for (int i = 0; i < 42; i++) { prediction.Predict(Drive(), Observe); }
+        for (int i = PredictedVehicle.MaximumPredictionSteps; i < 60; i++) { prediction.Predict(Drive(), Observe); }
         Assert.That(prediction.IsPredictionLimited, Is.True);
         Assert.That(prediction.State, Is.EqualTo(held));
         Assert.That(prediction.History.Pending.Count, Is.EqualTo(60));

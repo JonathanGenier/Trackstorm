@@ -1,0 +1,36 @@
+Test run for C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Explicit run
+CORRECTION tick=131; vehicle=3; error=0.2303; scheduleLag=0.0015; age=0.0007; pending=8; clientAck=111; authorityAck=114; hostTick=132; snapshotTick=129
+CORRECTION tick=153; vehicle=4; error=0.1986; scheduleLag=0.0009; age=0.0001; pending=9; clientAck=132; authorityAck=136; hostTick=154; snapshotTick=150
+NUnit Adapter 5.0.0.0: Test execution complete
+  Failed TenMinuteEightPlayerImpairmentSoak [2 s]
+  Error Message:
+     Each actually delivered probe must be rejected by the driver.
+Assert.That(client.RejectedPackets, Is.EqualTo(rejected + 1))
+  Expected: 7
+  But was:  6
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.<>c__DisplayClass3_1.<RunVehicleLoop>b__1() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 86
+   at Trackstorm.Transport.Tests.ObservedImpairmentGateway.TryReceive(TransportMessage& message) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\ObservedImpairmentGateway.cs:line 36
+   at Trackstorm.Client.Networking.ReliableMessageGateway.TryReceive(TransportMessage& message) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Networking\ReliableMessageGateway.cs:line 105
+   at Trackstorm.Client.Networking.VehicleNetworkDriver.Advance(InputFrame input, Func`2 observe) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Networking\VehicleNetworkDriver.cs:line 294
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 134
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.TenMinuteEightPlayerImpairmentSoak() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 43
+
+1)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.<>c__DisplayClass3_1.<RunVehicleLoop>b__1() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 86
+   at Trackstorm.Transport.Tests.ObservedImpairmentGateway.TryReceive(TransportMessage& message) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\ObservedImpairmentGateway.cs:line 36
+   at Trackstorm.Client.Networking.ReliableMessageGateway.TryReceive(TransportMessage& message) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Networking\ReliableMessageGateway.cs:line 105
+   at Trackstorm.Client.Networking.VehicleNetworkDriver.Advance(InputFrame input, Func`2 observe) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Networking\VehicleNetworkDriver.cs:line 294
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 134
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.TenMinuteEightPlayerImpairmentSoak() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 43
+
+
+
+Total tests: 1
+     Failed: 1
+Test Run Failed.
+ Total time: 3.1809 Seconds

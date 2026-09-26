@@ -1,0 +1,74 @@
+
+>> Core tests
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+Test run for C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed ExactConfirmationInstallsAuthoritativeStatusButNeverSkipsImpulses(False) [33 ms]
+  Error Message:
+     Assert.That(prediction.ConfirmedPredictions, Is.EqualTo(impulse ? 0 : 1))
+  Expected: 1
+  But was:  0
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Networking.VehicleReplicationTests.ExactConfirmationInstallsAuthoritativeStatusButNeverSkipsImpulses(Boolean impulse) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\Networking\VehicleReplicationTests.cs:line 338
+
+1)    at Trackstorm.Core.Tests.Networking.VehicleReplicationTests.ExactConfirmationInstallsAuthoritativeStatusButNeverSkipsImpulses(Boolean impulse) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\Networking\VehicleReplicationTests.cs:line 338
+
+
+  Failed ExactConfirmationInstallsAuthoritativeStatusButNeverSkipsImpulses(True) [< 1 ms]
+  Error Message:
+     Assert.That(observedEffects, Is.EqualTo(impulse ? 1 : 0))
+  Expected: 1
+  But was:  0
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Networking.VehicleReplicationTests.ExactConfirmationInstallsAuthoritativeStatusButNeverSkipsImpulses(Boolean impulse) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\Networking\VehicleReplicationTests.cs:line 337
+   at InvokeStub_VehicleReplicationTests.ExactConfirmationInstallsAuthoritativeStatusButNeverSkipsImpulses(Object, Span`1)
+
+1)    at Trackstorm.Core.Tests.Networking.VehicleReplicationTests.ExactConfirmationInstallsAuthoritativeStatusButNeverSkipsImpulses(Boolean impulse) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\Networking\VehicleReplicationTests.cs:line 337
+   at InvokeStub_VehicleReplicationTests.ExactConfirmationInstallsAuthoritativeStatusButNeverSkipsImpulses(Object, Span`1)
+
+
+  Failed ExactConfirmationPreservesUnacknowledgedPredictionWithoutReplay [< 1 ms]
+  Error Message:
+     Assert.That(prediction.ConfirmedPredictions, Is.EqualTo(1))
+  Expected: 1
+  But was:  0
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Networking.VehicleReplicationTests.ExactConfirmationPreservesUnacknowledgedPredictionWithoutReplay() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\Networking\VehicleReplicationTests.cs:line 278
+
+1)    at Trackstorm.Core.Tests.Networking.VehicleReplicationTests.ExactConfirmationPreservesUnacknowledgedPredictionWithoutReplay() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\Networking\VehicleReplicationTests.cs:line 278
+
+
+  Failed MismatchOrNeutralizedCommandsStillReplayInOrder(False) [2 ms]
+  Error Message:
+     Assert.That(replayed, Is.EqualTo(new ulong[] { 2, 3 }))
+  Expected is <System.UInt64[2]>, actual is <System.Collections.Generic.List`1[System.UInt64]> with 0 elements
+  Values differ at index [0]
+  Missing:  < 2, 3 >
+  Stack Trace:
+     at Trackstorm.Core.Tests.Networking.VehicleReplicationTests.MismatchOrNeutralizedCommandsStillReplayInOrder(Boolean neutralized) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\Networking\VehicleReplicationTests.cs:line 308
+
+1)    at Trackstorm.Core.Tests.Networking.VehicleReplicationTests.MismatchOrNeutralizedCommandsStillReplayInOrder(Boolean neutralized) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\Networking\VehicleReplicationTests.cs:line 308
+
+
+  Failed MismatchOrNeutralizedCommandsStillReplayInOrder(True) [< 1 ms]
+  Error Message:
+     Assert.That(replayed, Is.EqualTo(new ulong[] { 2, 3 }))
+  Expected is <System.UInt64[2]>, actual is <System.Collections.Generic.List`1[System.UInt64]> with 0 elements
+  Values differ at index [0]
+  Missing:  < 2, 3 >
+  Stack Trace:
+     at Trackstorm.Core.Tests.Networking.VehicleReplicationTests.MismatchOrNeutralizedCommandsStillReplayInOrder(Boolean neutralized) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\Networking\VehicleReplicationTests.cs:line 308
+   at InvokeStub_VehicleReplicationTests.MismatchOrNeutralizedCommandsStillReplayInOrder(Object, Span`1)
+
+1)    at Trackstorm.Core.Tests.Networking.VehicleReplicationTests.MismatchOrNeutralizedCommandsStillReplayInOrder(Boolean neutralized) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\Networking\VehicleReplicationTests.cs:line 308
+   at InvokeStub_VehicleReplicationTests.MismatchOrNeutralizedCommandsStillReplayInOrder(Object, Span`1)
+
+
+
+Failed!  - Failed:     5, Passed:   892, Skipped:     0, Total:   897, Duration: 6 s - Trackstorm.Core.Tests.dll (net10.0)

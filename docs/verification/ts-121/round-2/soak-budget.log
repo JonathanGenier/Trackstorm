@@ -1,0 +1,35 @@
+Test run for C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Explicit run
+CORRECTION tick=852; vehicle=3; error=0.2240; scheduleLag=0.0007; age=0.0004; pending=9; clientAck=830; authorityAck=834; hostTick=853; snapshotTick=849
+SOAK seconds=59.98; tick=3600; managed=15665616; private=35102720; working=94478336; handles=446; threads=20; peakPending=20; peakSnapshotAge=0.2878; received=8019; staleDelivered=2016; controlledDrops=0; gc2=1
+SOAK seconds=119.98; tick=7200; managed=5843168; private=34881536; working=94347264; handles=446; threads=20; peakPending=22; peakSnapshotAge=0.2163; received=16064; staleDelivered=4026; controlledDrops=0; gc2=1
+SOAK seconds=179.98; tick=10800; managed=9580976; private=36728832; working=96448512; handles=444; threads=18; peakPending=22; peakSnapshotAge=0.1826; received=24114; staleDelivered=6039; controlledDrops=0; gc2=2
+SOAK seconds=239.98; tick=14400; managed=13871192; private=36696064; working=96366592; handles=444; threads=18; peakPending=19; peakSnapshotAge=0.1510; received=32185; staleDelivered=8070; controlledDrops=0; gc2=2
+SOAK seconds=299.99; tick=18000; managed=5345192; private=37244928; working=96993280; handles=444; threads=21; peakPending=20; peakSnapshotAge=0.1663; received=40215; staleDelivered=10093; controlledDrops=0; gc2=2
+CORRECTION tick=19505; vehicle=3; error=0.1425; scheduleLag=0.0003; age=0.0000; pending=9; clientAck=19483; authorityAck=19486; hostTick=19506; snapshotTick=19503
+SOAK seconds=359.99; tick=21600; managed=9303288; private=37609472; working=97591296; handles=441; threads=20; peakPending=21; peakSnapshotAge=0.1836; received=48298; staleDelivered=12100; controlledDrops=0; gc2=3
+SOAK seconds=419.98; tick=25200; managed=12832032; private=37875712; working=97832960; handles=444; threads=18; peakPending=20; peakSnapshotAge=0.1510; received=56348; staleDelivered=14106; controlledDrops=0; gc2=3
+SOAK seconds=479.98; tick=28800; managed=4049416; private=37429248; working=97513472; handles=441; threads=17; peakPending=20; peakSnapshotAge=0.1507; received=64416; staleDelivered=16108; controlledDrops=0; gc2=4
+SOAK seconds=539.98; tick=32400; managed=8825024; private=38739968; working=98557952; handles=444; threads=18; peakPending=19; peakSnapshotAge=0.1511; received=72464; staleDelivered=18126; controlledDrops=0; gc2=4
+SOAK seconds=599.99; tick=36000; managed=12390600; private=38387712; working=98308096; handles=441; threads=19; peakPending=21; peakSnapshotAge=0.1831; received=80530; staleDelivered=20149; controlledDrops=0; gc2=5
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=2894; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2871; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2875; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2880; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2882; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2860; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2887; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0326m; steady p99=0.0000m; steady max=0.2240m; steady >1cm=5; max pending at completion=13
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=80503; p99=0.0000m; max=0.2240m; snapshots/client=11491; stale packets rejected
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed TenMinuteEightPlayerImpairmentSoak [10 m]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 10.0097 Minutes

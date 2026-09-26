@@ -1,0 +1,18 @@
+  Trackstorm.Core -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\third_party\eos\bin\Release\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\mono\temp\bin\Release\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+Test run for C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Explicit run
+CORRECTION tick=466; vehicle=8; error=0.1260; scheduleLag=0.0003; age=0.0004; pending=10; clientAck=442; authorityAck=447; hostTick=467; snapshotTick=462
+CORRECTION tick=1020; vehicle=5; error=0.1674; scheduleLag=0.0018; age=0.0001; pending=9; clientAck=985; authorityAck=989; hostTick=1021; snapshotTick=1017
+CORRECTION tick=1208; vehicle=2; error=0.1137; scheduleLag=0.0020; age=0.0001; pending=8; clientAck=1187; authorityAck=1190; hostTick=1209; snapshotTick=1206
+CORRECTION tick=1623; vehicle=6; error=0.1243; scheduleLag=0.0007; age=0.0001; pending=9; clientAck=1601; authorityAck=1605; hostTick=1624; snapshotTick=1620
+SOAK seconds=59.98; tick=3600; managed=7068168; private=36106240; working=96591872; handles=444; threads=20; peakPending=18; peakSnapshotAge=0.4534; received=10423; staleDelivered=2003; controlledDrops=0; refreshRequests=5492; gc2=1
+SOAK seconds=119.99; tick=7200; managed=14203416; private=35602432; working=96202752; handles=444; threads=20; peakPending=18; peakSnapshotAge=0.1499; received=20807; staleDelivered=4018; controlledDrops=0; refreshRequests=11050; gc2=1
+HOLD tick=9473; vehicle=2; scheduleLag=0.0015; age=0.1343; pending=19; clientAck=9442; authorityAck=9454; hostTick=9474; snapshotTick=9462
+HOLD tick=9474; vehicle=2; scheduleLag=0.0014; age=0.1508; pending=20; clientAck=9442; authorityAck=9455; hostTick=9475; snapshotTick=9462
+CORRECTION tick=9475; vehicle=2; error=0.4961; scheduleLag=0.0004; age=0.0000; pending=11; clientAck=9451; authorityAck=9456; hostTick=9476; snapshotTick=9471

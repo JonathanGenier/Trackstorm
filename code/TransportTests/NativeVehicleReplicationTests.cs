@@ -66,6 +66,8 @@ internal sealed class NativeVehicleReplicationTests
             int limitedDuringProbe = 0;
             int peakPending = 0;
             double peakAge = 0;
+            int diagnosticCount = 0;
+            double scheduleLag = 0;
             foreach (int index in Enumerable.Range(1, players - 1))
             {
                 var gateway = new GameNetworkingSocketsTransport();
@@ -95,6 +97,8 @@ internal sealed class NativeVehicleReplicationTests
                     float error = client.Prediction!.PredictionError;
                     errors.Add(error);
                     (ticks < 120 ? startup : steady).Add(error);
+                    if (error > 0.1f && diagnosticCount++ < 100)
+                        TestContext.Progress.WriteLine($"CORRECTION tick={ticks}; vehicle={client.LocalVehicleId}; error={error:F4}; scheduleLag={scheduleLag:F4}; age={client.SnapshotAge:F4}; pending={client.Inputs!.Pending.Count}; clientAck={client.Inputs.LastAcknowledged}; authorityAck={host.Host!.Snapshot().Vehicles.Single(vehicle => vehicle.State.VehicleId == client.LocalVehicleId).AcknowledgedInput}; hostTick={host.Latest?.Tick}; snapshotTick={client.Latest?.Tick}");
                 };
                 clients.Add(client);
             }
@@ -112,6 +116,7 @@ internal sealed class NativeVehicleReplicationTests
                 }
 
                 int phaseTick = ticks % 720;
+                scheduleLag = Math.Max(0, clock.Elapsed.TotalSeconds - ticks / 60.0);
                 InputFrame input = phaseTick < 300
                     ? new InputFrame(0, (short)(Math.Sin(phaseTick / 60.0) * 18000), 65535, 0, phaseTick is > 100 and < 240 ? InputButtons.Drift : 0, 0, 0)
                     : new InputFrame(0, 0, 0, 65535, 0, 0, 0);
@@ -137,6 +142,8 @@ internal sealed class NativeVehicleReplicationTests
                     {
                         limitedFrames++;
                         if (phaseTick is >= 300 and < 390) { limitedDuringProbe++; }
+                        if (diagnosticCount++ < 100)
+                            TestContext.Progress.WriteLine($"HOLD tick={ticks}; vehicle={client.LocalVehicleId}; scheduleLag={scheduleLag:F4}; age={client.SnapshotAge:F4}; pending={client.Inputs!.Pending.Count}; clientAck={client.Inputs.LastAcknowledged}; authorityAck={host.Host!.Snapshot().Vehicles.Single(vehicle => vehicle.State.VehicleId == client.LocalVehicleId).AcknowledgedInput}; hostTick={host.Latest?.Tick}; snapshotTick={client.Latest?.Tick}");
                     }
                     peakPending = Math.Max(peakPending, client.Inputs?.Pending.Count ?? 0);
                     peakAge = Math.Max(peakAge, client.SnapshotAge ?? 0);
@@ -146,6 +153,14 @@ internal sealed class NativeVehicleReplicationTests
                 if (phaseTick == 150)
                 {
                     stale = VehicleNetworkCodec.EncodeSnapshot(host.Latest!);
+                }
+
+                if (phaseTick == 300)
+                {
+                    // A delayed publication can legitimately contain the captured boundary while fresh.
+                    // Arm the observer only once every client has moved beyond that boundary.
+                    ulong staleTick = VehicleNetworkCodec.DecodeSnapshot(stale!).Tick;
+                    Assert.That(clients.All(client => client.Latest?.Tick > staleTick), Is.True);
                     foreach (var seam in observed) { seam.StaleProbe = stale; }
                 }
 
@@ -163,7 +178,7 @@ internal sealed class NativeVehicleReplicationTests
                 if (ticks % 3600 == 0)
                 {
                     using var process = Process.GetCurrentProcess();
-                    TestContext.WriteLine($"SOAK seconds={clock.Elapsed.TotalSeconds:F2}; tick={ticks}; managed={GC.GetTotalMemory(false)}; private={process.PrivateMemorySize64}; working={process.WorkingSet64}; handles={process.HandleCount}; threads={process.Threads.Count}; peakPending={peakPending}; peakSnapshotAge={peakAge:F4}; received={clients.Sum(client => client.ReceivedSnapshots)}; staleDelivered={observed.Sum(seam => seam.DeliveredStale)}; controlledDrops={observed.Sum(seam => seam.DroppedSnapshots)}; gc2={GC.CollectionCount(2)}");
+                    TestContext.Progress.WriteLine($"SOAK seconds={clock.Elapsed.TotalSeconds:F2}; tick={ticks}; managed={GC.GetTotalMemory(false)}; private={process.PrivateMemorySize64}; working={process.WorkingSet64}; handles={process.HandleCount}; threads={process.Threads.Count}; peakPending={peakPending}; peakSnapshotAge={peakAge:F4}; received={clients.Sum(client => client.ReceivedSnapshots)}; staleDelivered={observed.Sum(seam => seam.DeliveredStale)}; controlledDrops={observed.Sum(seam => seam.DroppedSnapshots)}; gc2={GC.CollectionCount(2)}");
                     peakPending = 0;
                     peakAge = 0;
                 }

@@ -1,0 +1,774 @@
+  Trackstorm.Core -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\third_party\eos\bin\Release\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\mono\temp\bin\Release\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+Test run for C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 15 of 16 NUnit test cases using Current Discovery mode, Non-Explicit run
+Reliable=100/100; unreliable=78/100; ping=85ms; incoming loss=0.22222221; outgoing loss=
+
+  Passed AdversePacketsPreserveReliableOrderAndExposeDiagnostics [5 s]
+  Passed ConnectionAndEstablishedTimeoutsReleaseResources [12 s]
+  Passed HostAndSevenClientsRejectExcessAndReconnect [89 ms]
+  Passed OccupiedListenerReportsBindErrorAndCanRecoverAfterOwnerCloses [2 ms]
+  Passed RejectsInvalidOperationsAndBoundsReceiveQueue [57 ms]
+  Passed RepeatedHostJoinAndStopReleasesListenerAndPeers [182 ms]
+CORRECTION tick=50; vehicle=8; error=0.1055; scheduleLag=0.0023; age=0.0004; pending=7; clientAck=30; authorityAck=34; hostTick=51; snapshotTick=48
+CORRECTION tick=54; vehicle=4; error=0.1112; scheduleLag=0.0011; age=0.0001; pending=7; clientAck=34; authorityAck=37; hostTick=55; snapshotTick=51
+CORRECTION tick=55; vehicle=8; error=0.1196; scheduleLag=0.0004; age=0.0000; pending=8; clientAck=34; authorityAck=39; hostTick=56; snapshotTick=51
+CORRECTION tick=57; vehicle=7; error=0.1169; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=34; authorityAck=39; hostTick=58; snapshotTick=54
+CORRECTION tick=57; vehicle=8; error=0.1253; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=36; authorityAck=41; hostTick=58; snapshotTick=54
+CORRECTION tick=57; vehicle=4; error=0.1197; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=36; authorityAck=40; hostTick=58; snapshotTick=54
+CORRECTION tick=58; vehicle=5; error=0.1225; scheduleLag=0.0020; age=0.0001; pending=9; clientAck=36; authorityAck=42; hostTick=59; snapshotTick=54
+CORRECTION tick=59; vehicle=7; error=0.1225; scheduleLag=0.0005; age=0.0000; pending=6; clientAck=38; authorityAck=41; hostTick=60; snapshotTick=57
+CORRECTION tick=59; vehicle=8; error=0.1309; scheduleLag=0.0005; age=0.0000; pending=6; clientAck=40; authorityAck=43; hostTick=60; snapshotTick=57
+CORRECTION tick=63; vehicle=4; error=0.1367; scheduleLag=0.0012; age=0.0000; pending=7; clientAck=43; authorityAck=46; hostTick=64; snapshotTick=60
+CORRECTION tick=64; vehicle=5; error=0.1395; scheduleLag=0.0006; age=0.0000; pending=8; clientAck=43; authorityAck=48; hostTick=65; snapshotTick=60
+CORRECTION tick=65; vehicle=4; error=0.1423; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=45; authorityAck=48; hostTick=66; snapshotTick=63
+CORRECTION tick=75; vehicle=4; error=0.1704; scheduleLag=0.0010; age=0.0001; pending=7; clientAck=55; authorityAck=59; hostTick=76; snapshotTick=72
+CORRECTION tick=77; vehicle=7; error=0.1732; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=55; authorityAck=58; hostTick=78; snapshotTick=75
+CORRECTION tick=77; vehicle=8; error=0.1815; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=57; authorityAck=60; hostTick=78; snapshotTick=75
+CORRECTION tick=77; vehicle=5; error=0.1760; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=57; authorityAck=60; hostTick=78; snapshotTick=75
+CORRECTION tick=86; vehicle=7; error=0.1980; scheduleLag=0.0022; age=0.0000; pending=6; clientAck=65; authorityAck=68; hostTick=87; snapshotTick=84
+CORRECTION tick=86; vehicle=8; error=0.2060; scheduleLag=0.0022; age=0.0000; pending=6; clientAck=67; authorityAck=70; hostTick=87; snapshotTick=84
+CORRECTION tick=86; vehicle=4; error=0.2006; scheduleLag=0.0022; age=0.0000; pending=7; clientAck=66; authorityAck=70; hostTick=87; snapshotTick=84
+CORRECTION tick=86; vehicle=5; error=0.2006; scheduleLag=0.0022; age=0.0000; pending=6; clientAck=67; authorityAck=70; hostTick=87; snapshotTick=84
+CORRECTION tick=91; vehicle=4; error=0.2140; scheduleLag=0.0009; age=0.0000; pending=8; clientAck=70; authorityAck=75; hostTick=92; snapshotTick=87
+CORRECTION tick=99; vehicle=5; error=0.2350; scheduleLag=0.0015; age=0.0000; pending=8; clientAck=78; authorityAck=82; hostTick=100; snapshotTick=96
+CORRECTION tick=102; vehicle=7; error=0.2402; scheduleLag=0.0018; age=0.0000; pending=8; clientAck=79; authorityAck=84; hostTick=103; snapshotTick=99
+CORRECTION tick=105; vehicle=7; error=0.2478; scheduleLag=0.0004; age=0.0000; pending=7; clientAck=83; authorityAck=87; hostTick=106; snapshotTick=102
+CORRECTION tick=111; vehicle=6; error=0.2481; scheduleLag=0.0015; age=0.0000; pending=8; clientAck=88; authorityAck=93; hostTick=112; snapshotTick=108
+CORRECTION tick=114; vehicle=6; error=0.2448; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=92; authorityAck=96; hostTick=115; snapshotTick=111
+CORRECTION tick=114; vehicle=5; error=0.2473; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=94; authorityAck=97; hostTick=115; snapshotTick=111
+CORRECTION tick=117; vehicle=3; error=0.2483; scheduleLag=0.0008; age=0.0000; pending=8; clientAck=96; authorityAck=101; hostTick=118; snapshotTick=114
+CORRECTION tick=117; vehicle=4; error=0.2432; scheduleLag=0.0008; age=0.0000; pending=8; clientAck=96; authorityAck=101; hostTick=118; snapshotTick=114
+CORRECTION tick=117; vehicle=5; error=0.2432; scheduleLag=0.0008; age=0.0000; pending=8; clientAck=96; authorityAck=101; hostTick=118; snapshotTick=114
+CORRECTION tick=120; vehicle=3; error=0.2443; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=100; authorityAck=104; hostTick=121; snapshotTick=117
+CORRECTION tick=120; vehicle=4; error=0.2392; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=100; authorityAck=104; hostTick=121; snapshotTick=117
+CORRECTION tick=120; vehicle=5; error=0.2392; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=100; authorityAck=104; hostTick=121; snapshotTick=117
+CORRECTION tick=123; vehicle=7; error=0.2328; scheduleLag=0.0009; age=0.0000; pending=8; clientAck=100; authorityAck=105; hostTick=124; snapshotTick=120
+CORRECTION tick=126; vehicle=7; error=0.2290; scheduleLag=0.0018; age=0.0000; pending=7; clientAck=104; authorityAck=108; hostTick=127; snapshotTick=123
+CORRECTION tick=132; vehicle=8; error=0.2290; scheduleLag=0.0012; age=0.0000; pending=8; clientAck=111; authorityAck=116; hostTick=133; snapshotTick=129
+CORRECTION tick=135; vehicle=8; error=0.2251; scheduleLag=0.0018; age=0.0000; pending=7; clientAck=115; authorityAck=119; hostTick=136; snapshotTick=132
+CORRECTION tick=138; vehicle=8; error=0.2212; scheduleLag=0.0017; age=0.0000; pending=8; clientAck=117; authorityAck=122; hostTick=139; snapshotTick=135
+CORRECTION tick=141; vehicle=7; error=0.2095; scheduleLag=0.0016; age=0.0001; pending=8; clientAck=118; authorityAck=123; hostTick=142; snapshotTick=138
+CORRECTION tick=141; vehicle=8; error=0.2171; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=121; authorityAck=125; hostTick=142; snapshotTick=138
+CORRECTION tick=141; vehicle=5; error=0.2120; scheduleLag=0.0016; age=0.0000; pending=8; clientAck=120; authorityAck=125; hostTick=142; snapshotTick=138
+CORRECTION tick=145; vehicle=7; error=0.2038; scheduleLag=0.0005; age=0.0000; pending=8; clientAck=122; authorityAck=127; hostTick=146; snapshotTick=141
+CORRECTION tick=147; vehicle=8; error=0.2084; scheduleLag=0.0011; age=0.0000; pending=8; clientAck=126; authorityAck=131; hostTick=148; snapshotTick=144
+CORRECTION tick=147; vehicle=5; error=0.2033; scheduleLag=0.0011; age=0.0000; pending=7; clientAck=127; authorityAck=131; hostTick=148; snapshotTick=144
+CORRECTION tick=149; vehicle=2; error=0.2052; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=130; authorityAck=133; hostTick=150; snapshotTick=147
+CORRECTION tick=149; vehicle=8; error=0.2052; scheduleLag=0.0016; age=0.0000; pending=6; clientAck=130; authorityAck=133; hostTick=150; snapshotTick=147
+CORRECTION tick=154; vehicle=3; error=0.1968; scheduleLag=0.0011; age=0.0000; pending=9; clientAck=132; authorityAck=138; hostTick=155; snapshotTick=150
+CORRECTION tick=155; vehicle=3; error=0.1951; scheduleLag=0.0005; age=0.0000; pending=6; clientAck=136; authorityAck=139; hostTick=156; snapshotTick=153
+CORRECTION tick=155; vehicle=5; error=0.1902; scheduleLag=0.0005; age=0.0000; pending=7; clientAck=135; authorityAck=139; hostTick=156; snapshotTick=153
+CORRECTION tick=157; vehicle=2; error=0.1914; scheduleLag=0.0005; age=0.0000; pending=8; clientAck=137; authorityAck=142; hostTick=158; snapshotTick=153
+CORRECTION tick=159; vehicle=5; error=0.1828; scheduleLag=0.0019; age=0.0000; pending=7; clientAck=139; authorityAck=143; hostTick=160; snapshotTick=156
+CORRECTION tick=160; vehicle=7; error=0.1785; scheduleLag=0.0002; age=0.0000; pending=9; clientAck=136; authorityAck=142; hostTick=161; snapshotTick=156
+CORRECTION tick=166; vehicle=7; error=0.1660; scheduleLag=0.0003; age=0.0000; pending=8; clientAck=143; authorityAck=148; hostTick=167; snapshotTick=162
+CORRECTION tick=175; vehicle=4; error=0.1466; scheduleLag=0.0001; age=0.0000; pending=9; clientAck=153; authorityAck=158; hostTick=176; snapshotTick=171
+CORRECTION tick=177; vehicle=8; error=0.1452; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=156; authorityAck=161; hostTick=178; snapshotTick=174
+CORRECTION tick=179; vehicle=6; error=0.1338; scheduleLag=0.0005; age=0.0000; pending=7; clientAck=157; authorityAck=161; hostTick=180; snapshotTick=177
+CORRECTION tick=179; vehicle=8; error=0.1396; scheduleLag=0.0005; age=0.0000; pending=6; clientAck=160; authorityAck=163; hostTick=180; snapshotTick=177
+CORRECTION tick=182; vehicle=4; error=0.1272; scheduleLag=0.0008; age=0.0000; pending=6; clientAck=163; authorityAck=166; hostTick=183; snapshotTick=180
+CORRECTION tick=183; vehicle=6; error=0.1225; scheduleLag=0.0013; age=0.0000; pending=7; clientAck=161; authorityAck=165; hostTick=184; snapshotTick=180
+CORRECTION tick=183; vehicle=5; error=0.1242; scheduleLag=0.0013; age=0.0000; pending=8; clientAck=162; authorityAck=166; hostTick=184; snapshotTick=180
+CORRECTION tick=186; vehicle=7; error=0.1135; scheduleLag=0.0009; age=0.0000; pending=8; clientAck=163; authorityAck=168; hostTick=187; snapshotTick=183
+CORRECTION tick=189; vehicle=7; error=0.1043; scheduleLag=0.0002; age=0.0000; pending=7; clientAck=167; authorityAck=171; hostTick=190; snapshotTick=186
+CORRECTION tick=278; vehicle=4; error=0.1052; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=258; authorityAck=262; hostTick=279; snapshotTick=276
+CORRECTION tick=279; vehicle=3; error=0.1080; scheduleLag=0.0002; age=0.0000; pending=7; clientAck=259; authorityAck=263; hostTick=280; snapshotTick=276
+CORRECTION tick=282; vehicle=4; error=0.1166; scheduleLag=0.0014; age=0.0000; pending=7; clientAck=262; authorityAck=266; hostTick=283; snapshotTick=279
+CORRECTION tick=282; vehicle=5; error=0.1166; scheduleLag=0.0014; age=0.0000; pending=8; clientAck=261; authorityAck=266; hostTick=283; snapshotTick=279
+CORRECTION tick=285; vehicle=3; error=0.1251; scheduleLag=0.0008; age=0.0000; pending=8; clientAck=264; authorityAck=269; hostTick=286; snapshotTick=282
+CORRECTION tick=287; vehicle=3; error=0.1308; scheduleLag=0.0012; age=0.0000; pending=6; clientAck=268; authorityAck=271; hostTick=288; snapshotTick=285
+CORRECTION tick=289; vehicle=8; error=0.1365; scheduleLag=0.0003; age=0.0000; pending=9; clientAck=267; authorityAck=273; hostTick=290; snapshotTick=285
+CORRECTION tick=289; vehicle=5; error=0.1365; scheduleLag=0.0003; age=0.0000; pending=8; clientAck=268; authorityAck=273; hostTick=290; snapshotTick=285
+CORRECTION tick=291; vehicle=8; error=0.1421; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=271; authorityAck=275; hostTick=292; snapshotTick=288
+CORRECTION tick=292; vehicle=2; error=0.1447; scheduleLag=0.0006; age=0.0000; pending=7; clientAck=273; authorityAck=278; hostTick=293; snapshotTick=288
+CORRECTION tick=293; vehicle=2; error=0.1475; scheduleLag=0.0024; age=0.0000; pending=6; clientAck=275; authorityAck=279; hostTick=294; snapshotTick=291
+CORRECTION tick=295; vehicle=3; error=0.1534; scheduleLag=0.0003; age=0.0000; pending=9; clientAck=273; authorityAck=278; hostTick=296; snapshotTick=291
+CORRECTION tick=297; vehicle=2; error=0.1587; scheduleLag=0.0009; age=0.0000; pending=6; clientAck=279; authorityAck=281; hostTick=298; snapshotTick=294
+CORRECTION tick=297; vehicle=6; error=0.1563; scheduleLag=0.0009; age=0.0000; pending=6; clientAck=276; authorityAck=278; hostTick=298; snapshotTick=294
+CORRECTION tick=298; vehicle=3; error=0.1618; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=277; authorityAck=282; hostTick=299; snapshotTick=294
+CORRECTION tick=299; vehicle=3; error=0.1646; scheduleLag=0.0004; age=0.0000; pending=7; clientAck=279; authorityAck=283; hostTick=300; snapshotTick=297
+CORRECTION tick=300; vehicle=2; error=0.1671; scheduleLag=0.0000; age=0.0000; pending=7; clientAck=281; authorityAck=285; hostTick=301; snapshotTick=297
+CORRECTION tick=300; vehicle=6; error=0.1646; scheduleLag=0.0000; age=0.0000; pending=7; clientAck=278; authorityAck=282; hostTick=301; snapshotTick=297
+CORRECTION tick=300; vehicle=7; error=0.1674; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=277; authorityAck=282; hostTick=301; snapshotTick=297
+CORRECTION tick=301; vehicle=8; error=0.1701; scheduleLag=0.0019; age=0.0000; pending=9; clientAck=279; authorityAck=285; hostTick=302; snapshotTick=297
+CORRECTION tick=303; vehicle=3; error=0.1757; scheduleLag=0.0017; age=0.0000; pending=7; clientAck=283; authorityAck=287; hostTick=304; snapshotTick=300
+CORRECTION tick=303; vehicle=8; error=0.1757; scheduleLag=0.0017; age=0.0001; pending=7; clientAck=283; authorityAck=287; hostTick=304; snapshotTick=300
+CORRECTION tick=304; vehicle=7; error=0.1785; scheduleLag=0.0005; age=0.0000; pending=8; clientAck=281; authorityAck=286; hostTick=305; snapshotTick=300
+CORRECTION tick=308; vehicle=8; error=0.1428; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=288; authorityAck=292; hostTick=309; snapshotTick=306
+CORRECTION tick=310; vehicle=7; error=0.1366; scheduleLag=0.0009; age=0.0000; pending=9; clientAck=286; authorityAck=291; hostTick=311; snapshotTick=306
+CORRECTION tick=314; vehicle=6; error=0.1240; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=292; authorityAck=296; hostTick=315; snapshotTick=312
+CORRECTION tick=314; vehicle=8; error=0.1239; scheduleLag=0.0010; age=0.0000; pending=6; clientAck=295; authorityAck=298; hostTick=315; snapshotTick=312
+CORRECTION tick=318; vehicle=7; error=0.1112; scheduleLag=0.0002; age=0.0000; pending=7; clientAck=296; authorityAck=300; hostTick=319; snapshotTick=315
+CORRECTION tick=318; vehicle=4; error=0.1112; scheduleLag=0.0002; age=0.0000; pending=8; clientAck=297; authorityAck=302; hostTick=319; snapshotTick=315
+CORRECTION tick=319; vehicle=6; error=0.1080; scheduleLag=0.0001; age=0.0000; pending=8; clientAck=296; authorityAck=300; hostTick=320; snapshotTick=315
+CORRECTION tick=321; vehicle=4; error=0.1016; scheduleLag=0.0013; age=0.0000; pending=7; clientAck=301; authorityAck=305; hostTick=322; snapshotTick=318
+CORRECTION tick=433; vehicle=5; error=0.1118; scheduleLag=0.0010; age=0.0001; pending=9; clientAck=411; authorityAck=416; hostTick=434; snapshotTick=429
+CORRECTION tick=435; vehicle=5; error=0.1146; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=415; authorityAck=418; hostTick=436; snapshotTick=432
+CORRECTION tick=438; vehicle=7; error=0.1188; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=415; authorityAck=420; hostTick=439; snapshotTick=435
+CORRECTION tick=439; vehicle=5; error=0.1202; scheduleLag=0.0000; age=0.0000; pending=9; clientAck=417; authorityAck=422; hostTick=440; snapshotTick=435
+CORRECTION tick=440; vehicle=3; error=0.1217; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=420; authorityAck=423; hostTick=441; snapshotTick=438
+CORRECTION tick=441; vehicle=7; error=0.1230; scheduleLag=0.0013; age=0.0000; pending=7; clientAck=419; authorityAck=423; hostTick=442; snapshotTick=438
+CORRECTION tick=443; vehicle=6; error=0.1258; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=421; authorityAck=425; hostTick=444; snapshotTick=441
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+startup max=0.2483m; steady p99=0.2038m; steady max=0.2443m; steady >1cm=263; max pending at completion=11
+players=8; outbound delay=30ms; jitter=10ms; loss=0%; corrections=1621; p99=0.2171m; max=0.2483m; snapshots/client=231; stale packets rejected
+
+TenMinuteEightPlayerImpairmentSoak: Sustained native soak; run separately from the ordinary fast gate.
+  Failed EightPlayerControlledSnapshotLossConverges [12 s]
+  Error Message:
+     Repeated decimetre corrections are a quality regression.
+Assert.That(steadyP99, Is.LessThan(0.1))
+  Expected: less than 0.10000000000000001d
+  But was:  0.203780919f
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 180
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.EightPlayerControlledSnapshotLossConverges() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 39
+
+1)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.<>c__DisplayClass3_0.<RunVehicleLoop>b__0() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 208
+   at NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 180
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.EightPlayerControlledSnapshotLossConverges() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 39
+
+
+  Standard Output Messages:
+ CORRECTION tick=50; vehicle=8; error=0.1055; scheduleLag=0.0023; age=0.0004; pending=7; clientAck=30; authorityAck=34; hostTick=51; snapshotTick=48
+ CORRECTION tick=54; vehicle=4; error=0.1112; scheduleLag=0.0011; age=0.0001; pending=7; clientAck=34; authorityAck=37; hostTick=55; snapshotTick=51
+ CORRECTION tick=55; vehicle=8; error=0.1196; scheduleLag=0.0004; age=0.0000; pending=8; clientAck=34; authorityAck=39; hostTick=56; snapshotTick=51
+ CORRECTION tick=57; vehicle=7; error=0.1169; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=34; authorityAck=39; hostTick=58; snapshotTick=54
+ CORRECTION tick=57; vehicle=8; error=0.1253; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=36; authorityAck=41; hostTick=58; snapshotTick=54
+ CORRECTION tick=57; vehicle=4; error=0.1197; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=36; authorityAck=40; hostTick=58; snapshotTick=54
+ CORRECTION tick=58; vehicle=5; error=0.1225; scheduleLag=0.0020; age=0.0001; pending=9; clientAck=36; authorityAck=42; hostTick=59; snapshotTick=54
+ CORRECTION tick=59; vehicle=7; error=0.1225; scheduleLag=0.0005; age=0.0000; pending=6; clientAck=38; authorityAck=41; hostTick=60; snapshotTick=57
+ CORRECTION tick=59; vehicle=8; error=0.1309; scheduleLag=0.0005; age=0.0000; pending=6; clientAck=40; authorityAck=43; hostTick=60; snapshotTick=57
+ CORRECTION tick=63; vehicle=4; error=0.1367; scheduleLag=0.0012; age=0.0000; pending=7; clientAck=43; authorityAck=46; hostTick=64; snapshotTick=60
+ CORRECTION tick=64; vehicle=5; error=0.1395; scheduleLag=0.0006; age=0.0000; pending=8; clientAck=43; authorityAck=48; hostTick=65; snapshotTick=60
+ CORRECTION tick=65; vehicle=4; error=0.1423; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=45; authorityAck=48; hostTick=66; snapshotTick=63
+ CORRECTION tick=75; vehicle=4; error=0.1704; scheduleLag=0.0010; age=0.0001; pending=7; clientAck=55; authorityAck=59; hostTick=76; snapshotTick=72
+ CORRECTION tick=77; vehicle=7; error=0.1732; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=55; authorityAck=58; hostTick=78; snapshotTick=75
+ CORRECTION tick=77; vehicle=8; error=0.1815; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=57; authorityAck=60; hostTick=78; snapshotTick=75
+ CORRECTION tick=77; vehicle=5; error=0.1760; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=57; authorityAck=60; hostTick=78; snapshotTick=75
+ CORRECTION tick=86; vehicle=7; error=0.1980; scheduleLag=0.0022; age=0.0000; pending=6; clientAck=65; authorityAck=68; hostTick=87; snapshotTick=84
+ CORRECTION tick=86; vehicle=8; error=0.2060; scheduleLag=0.0022; age=0.0000; pending=6; clientAck=67; authorityAck=70; hostTick=87; snapshotTick=84
+ CORRECTION tick=86; vehicle=4; error=0.2006; scheduleLag=0.0022; age=0.0000; pending=7; clientAck=66; authorityAck=70; hostTick=87; snapshotTick=84
+ CORRECTION tick=86; vehicle=5; error=0.2006; scheduleLag=0.0022; age=0.0000; pending=6; clientAck=67; authorityAck=70; hostTick=87; snapshotTick=84
+ CORRECTION tick=91; vehicle=4; error=0.2140; scheduleLag=0.0009; age=0.0000; pending=8; clientAck=70; authorityAck=75; hostTick=92; snapshotTick=87
+ CORRECTION tick=99; vehicle=5; error=0.2350; scheduleLag=0.0015; age=0.0000; pending=8; clientAck=78; authorityAck=82; hostTick=100; snapshotTick=96
+ CORRECTION tick=102; vehicle=7; error=0.2402; scheduleLag=0.0018; age=0.0000; pending=8; clientAck=79; authorityAck=84; hostTick=103; snapshotTick=99
+ CORRECTION tick=105; vehicle=7; error=0.2478; scheduleLag=0.0004; age=0.0000; pending=7; clientAck=83; authorityAck=87; hostTick=106; snapshotTick=102
+ CORRECTION tick=111; vehicle=6; error=0.2481; scheduleLag=0.0015; age=0.0000; pending=8; clientAck=88; authorityAck=93; hostTick=112; snapshotTick=108
+ CORRECTION tick=114; vehicle=6; error=0.2448; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=92; authorityAck=96; hostTick=115; snapshotTick=111
+ CORRECTION tick=114; vehicle=5; error=0.2473; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=94; authorityAck=97; hostTick=115; snapshotTick=111
+ CORRECTION tick=117; vehicle=3; error=0.2483; scheduleLag=0.0008; age=0.0000; pending=8; clientAck=96; authorityAck=101; hostTick=118; snapshotTick=114
+ CORRECTION tick=117; vehicle=4; error=0.2432; scheduleLag=0.0008; age=0.0000; pending=8; clientAck=96; authorityAck=101; hostTick=118; snapshotTick=114
+ CORRECTION tick=117; vehicle=5; error=0.2432; scheduleLag=0.0008; age=0.0000; pending=8; clientAck=96; authorityAck=101; hostTick=118; snapshotTick=114
+ CORRECTION tick=120; vehicle=3; error=0.2443; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=100; authorityAck=104; hostTick=121; snapshotTick=117
+ CORRECTION tick=120; vehicle=4; error=0.2392; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=100; authorityAck=104; hostTick=121; snapshotTick=117
+ CORRECTION tick=120; vehicle=5; error=0.2392; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=100; authorityAck=104; hostTick=121; snapshotTick=117
+ CORRECTION tick=123; vehicle=7; error=0.2328; scheduleLag=0.0009; age=0.0000; pending=8; clientAck=100; authorityAck=105; hostTick=124; snapshotTick=120
+ CORRECTION tick=126; vehicle=7; error=0.2290; scheduleLag=0.0018; age=0.0000; pending=7; clientAck=104; authorityAck=108; hostTick=127; snapshotTick=123
+ CORRECTION tick=132; vehicle=8; error=0.2290; scheduleLag=0.0012; age=0.0000; pending=8; clientAck=111; authorityAck=116; hostTick=133; snapshotTick=129
+ CORRECTION tick=135; vehicle=8; error=0.2251; scheduleLag=0.0018; age=0.0000; pending=7; clientAck=115; authorityAck=119; hostTick=136; snapshotTick=132
+ CORRECTION tick=138; vehicle=8; error=0.2212; scheduleLag=0.0017; age=0.0000; pending=8; clientAck=117; authorityAck=122; hostTick=139; snapshotTick=135
+ CORRECTION tick=141; vehicle=7; error=0.2095; scheduleLag=0.0016; age=0.0001; pending=8; clientAck=118; authorityAck=123; hostTick=142; snapshotTick=138
+ CORRECTION tick=141; vehicle=8; error=0.2171; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=121; authorityAck=125; hostTick=142; snapshotTick=138
+ CORRECTION tick=141; vehicle=5; error=0.2120; scheduleLag=0.0016; age=0.0000; pending=8; clientAck=120; authorityAck=125; hostTick=142; snapshotTick=138
+ CORRECTION tick=145; vehicle=7; error=0.2038; scheduleLag=0.0005; age=0.0000; pending=8; clientAck=122; authorityAck=127; hostTick=146; snapshotTick=141
+ CORRECTION tick=147; vehicle=8; error=0.2084; scheduleLag=0.0011; age=0.0000; pending=8; clientAck=126; authorityAck=131; hostTick=148; snapshotTick=144
+ CORRECTION tick=147; vehicle=5; error=0.2033; scheduleLag=0.0011; age=0.0000; pending=7; clientAck=127; authorityAck=131; hostTick=148; snapshotTick=144
+ CORRECTION tick=149; vehicle=2; error=0.2052; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=130; authorityAck=133; hostTick=150; snapshotTick=147
+ CORRECTION tick=149; vehicle=8; error=0.2052; scheduleLag=0.0016; age=0.0000; pending=6; clientAck=130; authorityAck=133; hostTick=150; snapshotTick=147
+ CORRECTION tick=154; vehicle=3; error=0.1968; scheduleLag=0.0011; age=0.0000; pending=9; clientAck=132; authorityAck=138; hostTick=155; snapshotTick=150
+ CORRECTION tick=155; vehicle=3; error=0.1951; scheduleLag=0.0005; age=0.0000; pending=6; clientAck=136; authorityAck=139; hostTick=156; snapshotTick=153
+ CORRECTION tick=155; vehicle=5; error=0.1902; scheduleLag=0.0005; age=0.0000; pending=7; clientAck=135; authorityAck=139; hostTick=156; snapshotTick=153
+ CORRECTION tick=157; vehicle=2; error=0.1914; scheduleLag=0.0005; age=0.0000; pending=8; clientAck=137; authorityAck=142; hostTick=158; snapshotTick=153
+ CORRECTION tick=159; vehicle=5; error=0.1828; scheduleLag=0.0019; age=0.0000; pending=7; clientAck=139; authorityAck=143; hostTick=160; snapshotTick=156
+ CORRECTION tick=160; vehicle=7; error=0.1785; scheduleLag=0.0002; age=0.0000; pending=9; clientAck=136; authorityAck=142; hostTick=161; snapshotTick=156
+ CORRECTION tick=166; vehicle=7; error=0.1660; scheduleLag=0.0003; age=0.0000; pending=8; clientAck=143; authorityAck=148; hostTick=167; snapshotTick=162
+ CORRECTION tick=175; vehicle=4; error=0.1466; scheduleLag=0.0001; age=0.0000; pending=9; clientAck=153; authorityAck=158; hostTick=176; snapshotTick=171
+ CORRECTION tick=177; vehicle=8; error=0.1452; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=156; authorityAck=161; hostTick=178; snapshotTick=174
+ CORRECTION tick=179; vehicle=6; error=0.1338; scheduleLag=0.0005; age=0.0000; pending=7; clientAck=157; authorityAck=161; hostTick=180; snapshotTick=177
+ CORRECTION tick=179; vehicle=8; error=0.1396; scheduleLag=0.0005; age=0.0000; pending=6; clientAck=160; authorityAck=163; hostTick=180; snapshotTick=177
+ CORRECTION tick=182; vehicle=4; error=0.1272; scheduleLag=0.0008; age=0.0000; pending=6; clientAck=163; authorityAck=166; hostTick=183; snapshotTick=180
+ CORRECTION tick=183; vehicle=6; error=0.1225; scheduleLag=0.0013; age=0.0000; pending=7; clientAck=161; authorityAck=165; hostTick=184; snapshotTick=180
+ CORRECTION tick=183; vehicle=5; error=0.1242; scheduleLag=0.0013; age=0.0000; pending=8; clientAck=162; authorityAck=166; hostTick=184; snapshotTick=180
+ CORRECTION tick=186; vehicle=7; error=0.1135; scheduleLag=0.0009; age=0.0000; pending=8; clientAck=163; authorityAck=168; hostTick=187; snapshotTick=183
+ CORRECTION tick=189; vehicle=7; error=0.1043; scheduleLag=0.0002; age=0.0000; pending=7; clientAck=167; authorityAck=171; hostTick=190; snapshotTick=186
+ CORRECTION tick=278; vehicle=4; error=0.1052; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=258; authorityAck=262; hostTick=279; snapshotTick=276
+ CORRECTION tick=279; vehicle=3; error=0.1080; scheduleLag=0.0002; age=0.0000; pending=7; clientAck=259; authorityAck=263; hostTick=280; snapshotTick=276
+ CORRECTION tick=282; vehicle=4; error=0.1166; scheduleLag=0.0014; age=0.0000; pending=7; clientAck=262; authorityAck=266; hostTick=283; snapshotTick=279
+ CORRECTION tick=282; vehicle=5; error=0.1166; scheduleLag=0.0014; age=0.0000; pending=8; clientAck=261; authorityAck=266; hostTick=283; snapshotTick=279
+ CORRECTION tick=285; vehicle=3; error=0.1251; scheduleLag=0.0008; age=0.0000; pending=8; clientAck=264; authorityAck=269; hostTick=286; snapshotTick=282
+ CORRECTION tick=287; vehicle=3; error=0.1308; scheduleLag=0.0012; age=0.0000; pending=6; clientAck=268; authorityAck=271; hostTick=288; snapshotTick=285
+ CORRECTION tick=289; vehicle=8; error=0.1365; scheduleLag=0.0003; age=0.0000; pending=9; clientAck=267; authorityAck=273; hostTick=290; snapshotTick=285
+ CORRECTION tick=289; vehicle=5; error=0.1365; scheduleLag=0.0003; age=0.0000; pending=8; clientAck=268; authorityAck=273; hostTick=290; snapshotTick=285
+ CORRECTION tick=291; vehicle=8; error=0.1421; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=271; authorityAck=275; hostTick=292; snapshotTick=288
+ CORRECTION tick=292; vehicle=2; error=0.1447; scheduleLag=0.0006; age=0.0000; pending=7; clientAck=273; authorityAck=278; hostTick=293; snapshotTick=288
+ CORRECTION tick=293; vehicle=2; error=0.1475; scheduleLag=0.0024; age=0.0000; pending=6; clientAck=275; authorityAck=279; hostTick=294; snapshotTick=291
+ CORRECTION tick=295; vehicle=3; error=0.1534; scheduleLag=0.0003; age=0.0000; pending=9; clientAck=273; authorityAck=278; hostTick=296; snapshotTick=291
+ CORRECTION tick=297; vehicle=2; error=0.1587; scheduleLag=0.0009; age=0.0000; pending=6; clientAck=279; authorityAck=281; hostTick=298; snapshotTick=294
+ CORRECTION tick=297; vehicle=6; error=0.1563; scheduleLag=0.0009; age=0.0000; pending=6; clientAck=276; authorityAck=278; hostTick=298; snapshotTick=294
+ CORRECTION tick=298; vehicle=3; error=0.1618; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=277; authorityAck=282; hostTick=299; snapshotTick=294
+ CORRECTION tick=299; vehicle=3; error=0.1646; scheduleLag=0.0004; age=0.0000; pending=7; clientAck=279; authorityAck=283; hostTick=300; snapshotTick=297
+ CORRECTION tick=300; vehicle=2; error=0.1671; scheduleLag=0.0000; age=0.0000; pending=7; clientAck=281; authorityAck=285; hostTick=301; snapshotTick=297
+ CORRECTION tick=300; vehicle=6; error=0.1646; scheduleLag=0.0000; age=0.0000; pending=7; clientAck=278; authorityAck=282; hostTick=301; snapshotTick=297
+ CORRECTION tick=300; vehicle=7; error=0.1674; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=277; authorityAck=282; hostTick=301; snapshotTick=297
+ CORRECTION tick=301; vehicle=8; error=0.1701; scheduleLag=0.0019; age=0.0000; pending=9; clientAck=279; authorityAck=285; hostTick=302; snapshotTick=297
+ CORRECTION tick=303; vehicle=3; error=0.1757; scheduleLag=0.0017; age=0.0000; pending=7; clientAck=283; authorityAck=287; hostTick=304; snapshotTick=300
+ CORRECTION tick=303; vehicle=8; error=0.1757; scheduleLag=0.0017; age=0.0001; pending=7; clientAck=283; authorityAck=287; hostTick=304; snapshotTick=300
+ CORRECTION tick=304; vehicle=7; error=0.1785; scheduleLag=0.0005; age=0.0000; pending=8; clientAck=281; authorityAck=286; hostTick=305; snapshotTick=300
+ CORRECTION tick=308; vehicle=8; error=0.1428; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=288; authorityAck=292; hostTick=309; snapshotTick=306
+ CORRECTION tick=310; vehicle=7; error=0.1366; scheduleLag=0.0009; age=0.0000; pending=9; clientAck=286; authorityAck=291; hostTick=311; snapshotTick=306
+ CORRECTION tick=314; vehicle=6; error=0.1240; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=292; authorityAck=296; hostTick=315; snapshotTick=312
+ CORRECTION tick=314; vehicle=8; error=0.1239; scheduleLag=0.0010; age=0.0000; pending=6; clientAck=295; authorityAck=298; hostTick=315; snapshotTick=312
+ CORRECTION tick=318; vehicle=7; error=0.1112; scheduleLag=0.0002; age=0.0000; pending=7; clientAck=296; authorityAck=300; hostTick=319; snapshotTick=315
+ CORRECTION tick=318; vehicle=4; error=0.1112; scheduleLag=0.0002; age=0.0000; pending=8; clientAck=297; authorityAck=302; hostTick=319; snapshotTick=315
+ CORRECTION tick=319; vehicle=6; error=0.1080; scheduleLag=0.0001; age=0.0000; pending=8; clientAck=296; authorityAck=300; hostTick=320; snapshotTick=315
+ CORRECTION tick=321; vehicle=4; error=0.1016; scheduleLag=0.0013; age=0.0000; pending=7; clientAck=301; authorityAck=305; hostTick=322; snapshotTick=318
+ CORRECTION tick=433; vehicle=5; error=0.1118; scheduleLag=0.0010; age=0.0001; pending=9; clientAck=411; authorityAck=416; hostTick=434; snapshotTick=429
+ CORRECTION tick=435; vehicle=5; error=0.1146; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=415; authorityAck=418; hostTick=436; snapshotTick=432
+ CORRECTION tick=438; vehicle=7; error=0.1188; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=415; authorityAck=420; hostTick=439; snapshotTick=435
+ CORRECTION tick=439; vehicle=5; error=0.1202; scheduleLag=0.0000; age=0.0000; pending=9; clientAck=417; authorityAck=422; hostTick=440; snapshotTick=435
+ CORRECTION tick=440; vehicle=3; error=0.1217; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=420; authorityAck=423; hostTick=441; snapshotTick=438
+ CORRECTION tick=441; vehicle=7; error=0.1230; scheduleLag=0.0013; age=0.0000; pending=7; clientAck=419; authorityAck=423; hostTick=442; snapshotTick=438
+ CORRECTION tick=443; vehicle=6; error=0.1258; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=421; authorityAck=425; hostTick=444; snapshotTick=441
+ prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+ delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+ delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+ delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+ delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+ delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+ delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+ delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+ startup max=0.2483m; steady p99=0.2038m; steady max=0.2443m; steady >1cm=263; max pending at completion=11
+ players=8; outbound delay=30ms; jitter=10ms; loss=0%; corrections=1621; p99=0.2171m; max=0.2483m; snapshots/client=231; stale packets rejected
+
+
+  Skipped TenMinuteEightPlayerImpairmentSoak [< 1 ms]
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0000m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=4
+players=2; outbound delay=0ms; jitter=0ms; loss=0%; corrections=238; p99=0.0000m; max=0.0000m; snapshots/client=239; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,0,0,0.0f,0.0f) [12 s]
+CORRECTION tick=49; vehicle=2; error=0.1111; scheduleLag=0.0005; age=0.0000; pending=4; clientAck=36; authorityAck=38; hostTick=50; snapshotTick=48
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.1111m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=6
+players=2; outbound delay=30ms; jitter=0ms; loss=0%; corrections=237; p99=0.0000m; max=0.1111m; snapshots/client=238; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,30,0,0.0f,0.0f) [12 s]
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0000m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=6
+players=2; outbound delay=25ms; jitter=5ms; loss=0%; corrections=237; p99=0.0000m; max=0.0000m; snapshots/client=238; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,25,5,0.0f,0.0f) [12 s]
+CORRECTION tick=147; vehicle=2; error=0.2023; scheduleLag=0.0003; age=0.0000; pending=7; clientAck=124; authorityAck=127; hostTick=148; snapshotTick=144
+CORRECTION tick=150; vehicle=2; error=0.1977; scheduleLag=0.0007; age=0.0000; pending=8; clientAck=126; authorityAck=130; hostTick=151; snapshotTick=147
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0382m; steady p99=0.0000m; steady max=0.2023m; steady >1cm=2; max pending at completion=11
+players=2; outbound delay=50ms; jitter=10ms; loss=0%; corrections=234; p99=0.0000m; max=0.2023m; snapshots/client=235; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,50,10,0.0f,0.0f) [12 s]
+CORRECTION tick=84; vehicle=2; error=0.2220; scheduleLag=0.0009; age=0.0000; pending=2; clientAck=78; authorityAck=79; hostTick=85; snapshotTick=84
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.2220m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=5
+players=2; outbound delay=0ms; jitter=0ms; loss=2%; corrections=233; p99=0.0000m; max=0.2220m; snapshots/client=234; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,0,0,2.0f,0.0f) [11 s]
+CORRECTION tick=63; vehicle=7; error=0.1395; scheduleLag=0.0004; age=0.0000; pending=8; clientAck=42; authorityAck=47; hostTick=64; snapshotTick=60
+CORRECTION tick=66; vehicle=7; error=0.1479; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=46; authorityAck=50; hostTick=67; snapshotTick=63
+CORRECTION tick=78; vehicle=2; error=0.1897; scheduleLag=0.0001; age=0.0000; pending=8; clientAck=60; authorityAck=65; hostTick=79; snapshotTick=75
+CORRECTION tick=80; vehicle=2; error=0.1952; scheduleLag=0.0018; age=0.0000; pending=6; clientAck=64; authorityAck=67; hostTick=81; snapshotTick=78
+CORRECTION tick=86; vehicle=3; error=0.2033; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=66; authorityAck=70; hostTick=87; snapshotTick=84
+CORRECTION tick=90; vehicle=3; error=0.2140; scheduleLag=0.0013; age=0.0000; pending=7; clientAck=70; authorityAck=74; hostTick=91; snapshotTick=87
+CORRECTION tick=101; vehicle=7; error=0.2427; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=81; authorityAck=85; hostTick=102; snapshotTick=99
+CORRECTION tick=104; vehicle=7; error=0.2504; scheduleLag=0.0015; age=0.0000; pending=6; clientAck=85; authorityAck=88; hostTick=105; snapshotTick=102
+CORRECTION tick=149; vehicle=2; error=0.2118; scheduleLag=0.0014; age=0.0000; pending=5; clientAck=134; authorityAck=136; hostTick=150; snapshotTick=147
+CORRECTION tick=149; vehicle=3; error=0.2043; scheduleLag=0.0014; age=0.0000; pending=5; clientAck=131; authorityAck=133; hostTick=150; snapshotTick=147
+CORRECTION tick=153; vehicle=3; error=0.1978; scheduleLag=0.0008; age=0.0000; pending=7; clientAck=133; authorityAck=137; hostTick=154; snapshotTick=150
+CORRECTION tick=156; vehicle=2; error=0.2000; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=139; authorityAck=143; hostTick=157; snapshotTick=153
+CORRECTION tick=161; vehicle=5; error=0.1812; scheduleLag=0.0015; age=0.0000; pending=7; clientAck=141; authorityAck=145; hostTick=162; snapshotTick=159
+CORRECTION tick=164; vehicle=5; error=0.1749; scheduleLag=0.0017; age=0.0000; pending=6; clientAck=145; authorityAck=148; hostTick=165; snapshotTick=162
+CORRECTION tick=173; vehicle=4; error=0.1363; scheduleLag=0.0001; age=0.0000; pending=5; clientAck=145; authorityAck=147; hostTick=174; snapshotTick=171
+CORRECTION tick=173; vehicle=5; error=0.1563; scheduleLag=0.0001; age=0.0000; pending=5; clientAck=155; authorityAck=157; hostTick=174; snapshotTick=171
+CORRECTION tick=174; vehicle=3; error=0.1538; scheduleLag=0.0003; age=0.0000; pending=6; clientAck=155; authorityAck=158; hostTick=175; snapshotTick=171
+CORRECTION tick=176; vehicle=3; error=0.1486; scheduleLag=0.0011; age=0.0000; pending=6; clientAck=157; authorityAck=159; hostTick=177; snapshotTick=174
+CORRECTION tick=176; vehicle=4; error=0.1298; scheduleLag=0.0011; age=0.0000; pending=6; clientAck=147; authorityAck=150; hostTick=177; snapshotTick=174
+CORRECTION tick=176; vehicle=5; error=0.1486; scheduleLag=0.0011; age=0.0000; pending=6; clientAck=157; authorityAck=159; hostTick=177; snapshotTick=174
+CORRECTION tick=180; vehicle=3; error=0.1348; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=159; authorityAck=164; hostTick=181; snapshotTick=177
+CORRECTION tick=180; vehicle=5; error=0.1348; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=159; authorityAck=164; hostTick=181; snapshotTick=177
+CORRECTION tick=182; vehicle=3; error=0.1290; scheduleLag=0.0001; age=0.0000; pending=6; clientAck=163; authorityAck=166; hostTick=183; snapshotTick=180
+CORRECTION tick=183; vehicle=5; error=0.1260; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=163; authorityAck=167; hostTick=184; snapshotTick=180
+CORRECTION tick=185; vehicle=6; error=0.1200; scheduleLag=0.0009; age=0.0000; pending=7; clientAck=165; authorityAck=168; hostTick=186; snapshotTick=183
+CORRECTION tick=191; vehicle=6; error=0.1010; scheduleLag=0.0017; age=0.0000; pending=6; clientAck=172; authorityAck=175; hostTick=192; snapshotTick=189
+CORRECTION tick=279; vehicle=6; error=0.1080; scheduleLag=0.0011; age=0.0000; pending=7; clientAck=259; authorityAck=263; hostTick=280; snapshotTick=276
+CORRECTION tick=279; vehicle=8; error=0.1080; scheduleLag=0.0011; age=0.0000; pending=8; clientAck=258; authorityAck=262; hostTick=280; snapshotTick=276
+CORRECTION tick=285; vehicle=8; error=0.1251; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=265; authorityAck=269; hostTick=286; snapshotTick=282
+CORRECTION tick=312; vehicle=6; error=0.1303; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=291; authorityAck=296; hostTick=313; snapshotTick=309
+CORRECTION tick=312; vehicle=8; error=0.1303; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=291; authorityAck=296; hostTick=313; snapshotTick=309
+CORRECTION tick=314; vehicle=6; error=0.1240; scheduleLag=0.0014; age=0.0000; pending=6; clientAck=295; authorityAck=298; hostTick=315; snapshotTick=312
+CORRECTION tick=314; vehicle=8; error=0.1240; scheduleLag=0.0014; age=0.0000; pending=6; clientAck=295; authorityAck=298; hostTick=315; snapshotTick=312
+CORRECTION tick=321; vehicle=2; error=0.1015; scheduleLag=0.0019; age=0.0000; pending=8; clientAck=303; authorityAck=308; hostTick=322; snapshotTick=318
+CORRECTION tick=321; vehicle=7; error=0.1016; scheduleLag=0.0019; age=0.0000; pending=8; clientAck=300; authorityAck=304; hostTick=322; snapshotTick=318
+CORRECTION tick=425; vehicle=5; error=0.1005; scheduleLag=0.0014; age=0.0000; pending=7; clientAck=405; authorityAck=408; hostTick=426; snapshotTick=423
+CORRECTION tick=435; vehicle=2; error=0.1133; scheduleLag=0.0015; age=0.0000; pending=6; clientAck=419; authorityAck=422; hostTick=436; snapshotTick=432
+CORRECTION tick=435; vehicle=3; error=0.1132; scheduleLag=0.0015; age=0.0000; pending=6; clientAck=416; authorityAck=419; hostTick=436; snapshotTick=432
+CORRECTION tick=438; vehicle=2; error=0.1175; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=421; authorityAck=425; hostTick=439; snapshotTick=435
+CORRECTION tick=438; vehicle=3; error=0.1174; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=418; authorityAck=422; hostTick=439; snapshotTick=435
+CORRECTION tick=438; vehicle=5; error=0.1188; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=418; authorityAck=422; hostTick=439; snapshotTick=435
+CORRECTION tick=456; vehicle=5; error=0.1441; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=435; authorityAck=440; hostTick=457; snapshotTick=453
+CORRECTION tick=459; vehicle=5; error=0.1482; scheduleLag=0.0011; age=0.0000; pending=7; clientAck=439; authorityAck=443; hostTick=460; snapshotTick=456
+CORRECTION tick=489; vehicle=4; error=0.1132; scheduleLag=0.0019; age=0.0000; pending=8; clientAck=458; authorityAck=463; hostTick=490; snapshotTick=486
+CORRECTION tick=491; vehicle=4; error=0.1122; scheduleLag=0.0015; age=0.0000; pending=6; clientAck=462; authorityAck=465; hostTick=492; snapshotTick=489
+CORRECTION tick=492; vehicle=3; error=0.1116; scheduleLag=0.0011; age=0.0000; pending=8; clientAck=471; authorityAck=476; hostTick=493; snapshotTick=489
+CORRECTION tick=495; vehicle=3; error=0.1100; scheduleLag=0.0019; age=0.0000; pending=7; clientAck=475; authorityAck=479; hostTick=496; snapshotTick=492
+CORRECTION tick=495; vehicle=5; error=0.1100; scheduleLag=0.0019; age=0.0000; pending=8; clientAck=474; authorityAck=479; hostTick=496; snapshotTick=492
+CORRECTION tick=501; vehicle=5; error=0.1070; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=481; authorityAck=485; hostTick=502; snapshotTick=498
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=54; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.2504m; steady p99=0.1348m; steady max=0.2118m; steady >1cm=92; max pending at completion=13
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1577; p99=0.1482m; max=0.2504m; snapshots/client=217; stale packets rejected
+
+  Failed VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,0.0f) [12 s]
+  Error Message:
+     Repeated decimetre corrections are a quality regression.
+Assert.That(steadyP99, Is.LessThan(0.1))
+  Expected: less than 0.10000000000000001d
+  But was:  0.134800032f
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 180
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 34
+   at InvokeStub_NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Object, Span`1)
+
+1)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.<>c__DisplayClass3_0.<RunVehicleLoop>b__0() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 208
+   at NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 180
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 34
+   at InvokeStub_NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Object, Span`1)
+
+
+  Standard Output Messages:
+ CORRECTION tick=63; vehicle=7; error=0.1395; scheduleLag=0.0004; age=0.0000; pending=8; clientAck=42; authorityAck=47; hostTick=64; snapshotTick=60
+ CORRECTION tick=66; vehicle=7; error=0.1479; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=46; authorityAck=50; hostTick=67; snapshotTick=63
+ CORRECTION tick=78; vehicle=2; error=0.1897; scheduleLag=0.0001; age=0.0000; pending=8; clientAck=60; authorityAck=65; hostTick=79; snapshotTick=75
+ CORRECTION tick=80; vehicle=2; error=0.1952; scheduleLag=0.0018; age=0.0000; pending=6; clientAck=64; authorityAck=67; hostTick=81; snapshotTick=78
+ CORRECTION tick=86; vehicle=3; error=0.2033; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=66; authorityAck=70; hostTick=87; snapshotTick=84
+ CORRECTION tick=90; vehicle=3; error=0.2140; scheduleLag=0.0013; age=0.0000; pending=7; clientAck=70; authorityAck=74; hostTick=91; snapshotTick=87
+ CORRECTION tick=101; vehicle=7; error=0.2427; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=81; authorityAck=85; hostTick=102; snapshotTick=99
+ CORRECTION tick=104; vehicle=7; error=0.2504; scheduleLag=0.0015; age=0.0000; pending=6; clientAck=85; authorityAck=88; hostTick=105; snapshotTick=102
+ CORRECTION tick=149; vehicle=2; error=0.2118; scheduleLag=0.0014; age=0.0000; pending=5; clientAck=134; authorityAck=136; hostTick=150; snapshotTick=147
+ CORRECTION tick=149; vehicle=3; error=0.2043; scheduleLag=0.0014; age=0.0000; pending=5; clientAck=131; authorityAck=133; hostTick=150; snapshotTick=147
+ CORRECTION tick=153; vehicle=3; error=0.1978; scheduleLag=0.0008; age=0.0000; pending=7; clientAck=133; authorityAck=137; hostTick=154; snapshotTick=150
+ CORRECTION tick=156; vehicle=2; error=0.2000; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=139; authorityAck=143; hostTick=157; snapshotTick=153
+ CORRECTION tick=161; vehicle=5; error=0.1812; scheduleLag=0.0015; age=0.0000; pending=7; clientAck=141; authorityAck=145; hostTick=162; snapshotTick=159
+ CORRECTION tick=164; vehicle=5; error=0.1749; scheduleLag=0.0017; age=0.0000; pending=6; clientAck=145; authorityAck=148; hostTick=165; snapshotTick=162
+ CORRECTION tick=173; vehicle=4; error=0.1363; scheduleLag=0.0001; age=0.0000; pending=5; clientAck=145; authorityAck=147; hostTick=174; snapshotTick=171
+ CORRECTION tick=173; vehicle=5; error=0.1563; scheduleLag=0.0001; age=0.0000; pending=5; clientAck=155; authorityAck=157; hostTick=174; snapshotTick=171
+ CORRECTION tick=174; vehicle=3; error=0.1538; scheduleLag=0.0003; age=0.0000; pending=6; clientAck=155; authorityAck=158; hostTick=175; snapshotTick=171
+ CORRECTION tick=176; vehicle=3; error=0.1486; scheduleLag=0.0011; age=0.0000; pending=6; clientAck=157; authorityAck=159; hostTick=177; snapshotTick=174
+ CORRECTION tick=176; vehicle=4; error=0.1298; scheduleLag=0.0011; age=0.0000; pending=6; clientAck=147; authorityAck=150; hostTick=177; snapshotTick=174
+ CORRECTION tick=176; vehicle=5; error=0.1486; scheduleLag=0.0011; age=0.0000; pending=6; clientAck=157; authorityAck=159; hostTick=177; snapshotTick=174
+ CORRECTION tick=180; vehicle=3; error=0.1348; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=159; authorityAck=164; hostTick=181; snapshotTick=177
+ CORRECTION tick=180; vehicle=5; error=0.1348; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=159; authorityAck=164; hostTick=181; snapshotTick=177
+ CORRECTION tick=182; vehicle=3; error=0.1290; scheduleLag=0.0001; age=0.0000; pending=6; clientAck=163; authorityAck=166; hostTick=183; snapshotTick=180
+ CORRECTION tick=183; vehicle=5; error=0.1260; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=163; authorityAck=167; hostTick=184; snapshotTick=180
+ CORRECTION tick=185; vehicle=6; error=0.1200; scheduleLag=0.0009; age=0.0000; pending=7; clientAck=165; authorityAck=168; hostTick=186; snapshotTick=183
+ CORRECTION tick=191; vehicle=6; error=0.1010; scheduleLag=0.0017; age=0.0000; pending=6; clientAck=172; authorityAck=175; hostTick=192; snapshotTick=189
+ CORRECTION tick=279; vehicle=6; error=0.1080; scheduleLag=0.0011; age=0.0000; pending=7; clientAck=259; authorityAck=263; hostTick=280; snapshotTick=276
+ CORRECTION tick=279; vehicle=8; error=0.1080; scheduleLag=0.0011; age=0.0000; pending=8; clientAck=258; authorityAck=262; hostTick=280; snapshotTick=276
+ CORRECTION tick=285; vehicle=8; error=0.1251; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=265; authorityAck=269; hostTick=286; snapshotTick=282
+ CORRECTION tick=312; vehicle=6; error=0.1303; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=291; authorityAck=296; hostTick=313; snapshotTick=309
+ CORRECTION tick=312; vehicle=8; error=0.1303; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=291; authorityAck=296; hostTick=313; snapshotTick=309
+ CORRECTION tick=314; vehicle=6; error=0.1240; scheduleLag=0.0014; age=0.0000; pending=6; clientAck=295; authorityAck=298; hostTick=315; snapshotTick=312
+ CORRECTION tick=314; vehicle=8; error=0.1240; scheduleLag=0.0014; age=0.0000; pending=6; clientAck=295; authorityAck=298; hostTick=315; snapshotTick=312
+ CORRECTION tick=321; vehicle=2; error=0.1015; scheduleLag=0.0019; age=0.0000; pending=8; clientAck=303; authorityAck=308; hostTick=322; snapshotTick=318
+ CORRECTION tick=321; vehicle=7; error=0.1016; scheduleLag=0.0019; age=0.0000; pending=8; clientAck=300; authorityAck=304; hostTick=322; snapshotTick=318
+ CORRECTION tick=425; vehicle=5; error=0.1005; scheduleLag=0.0014; age=0.0000; pending=7; clientAck=405; authorityAck=408; hostTick=426; snapshotTick=423
+ CORRECTION tick=435; vehicle=2; error=0.1133; scheduleLag=0.0015; age=0.0000; pending=6; clientAck=419; authorityAck=422; hostTick=436; snapshotTick=432
+ CORRECTION tick=435; vehicle=3; error=0.1132; scheduleLag=0.0015; age=0.0000; pending=6; clientAck=416; authorityAck=419; hostTick=436; snapshotTick=432
+ CORRECTION tick=438; vehicle=2; error=0.1175; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=421; authorityAck=425; hostTick=439; snapshotTick=435
+ CORRECTION tick=438; vehicle=3; error=0.1174; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=418; authorityAck=422; hostTick=439; snapshotTick=435
+ CORRECTION tick=438; vehicle=5; error=0.1188; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=418; authorityAck=422; hostTick=439; snapshotTick=435
+ CORRECTION tick=456; vehicle=5; error=0.1441; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=435; authorityAck=440; hostTick=457; snapshotTick=453
+ CORRECTION tick=459; vehicle=5; error=0.1482; scheduleLag=0.0011; age=0.0000; pending=7; clientAck=439; authorityAck=443; hostTick=460; snapshotTick=456
+ CORRECTION tick=489; vehicle=4; error=0.1132; scheduleLag=0.0019; age=0.0000; pending=8; clientAck=458; authorityAck=463; hostTick=490; snapshotTick=486
+ CORRECTION tick=491; vehicle=4; error=0.1122; scheduleLag=0.0015; age=0.0000; pending=6; clientAck=462; authorityAck=465; hostTick=492; snapshotTick=489
+ CORRECTION tick=492; vehicle=3; error=0.1116; scheduleLag=0.0011; age=0.0000; pending=8; clientAck=471; authorityAck=476; hostTick=493; snapshotTick=489
+ CORRECTION tick=495; vehicle=3; error=0.1100; scheduleLag=0.0019; age=0.0000; pending=7; clientAck=475; authorityAck=479; hostTick=496; snapshotTick=492
+ CORRECTION tick=495; vehicle=5; error=0.1100; scheduleLag=0.0019; age=0.0000; pending=8; clientAck=474; authorityAck=479; hostTick=496; snapshotTick=492
+ CORRECTION tick=501; vehicle=5; error=0.1070; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=481; authorityAck=485; hostTick=502; snapshotTick=498
+ prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+ delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=54; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable
+ startup max=0.2504m; steady p99=0.1348m; steady max=0.2118m; steady >1cm=92; max pending at completion=13
+ players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1577; p99=0.1482m; max=0.2504m; snapshots/client=217; stale packets rejected
+
+
+CORRECTION tick=36; vehicle=2; error=0.1407; scheduleLag=0.0001; age=0.0000; pending=8; clientAck=16; authorityAck=22; hostTick=37; snapshotTick=33
+CORRECTION tick=53; vehicle=2; error=0.1168; scheduleLag=0.0008; age=0.0000; pending=5; clientAck=36; authorityAck=39; hostTick=54; snapshotTick=51
+CORRECTION tick=59; vehicle=2; error=0.1337; scheduleLag=0.0019; age=0.0000; pending=6; clientAck=41; authorityAck=45; hostTick=60; snapshotTick=57
+CORRECTION tick=63; vehicle=2; error=0.1450; scheduleLag=0.0002; age=0.0000; pending=6; clientAck=45; authorityAck=48; hostTick=64; snapshotTick=60
+CORRECTION tick=66; vehicle=2; error=0.1535; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=47; authorityAck=51; hostTick=67; snapshotTick=63
+CORRECTION tick=77; vehicle=2; error=0.1842; scheduleLag=0.0010; age=0.0000; pending=5; clientAck=60; authorityAck=63; hostTick=78; snapshotTick=75
+CORRECTION tick=84; vehicle=2; error=0.2033; scheduleLag=0.0014; age=0.0000; pending=7; clientAck=65; authorityAck=69; hostTick=85; snapshotTick=81
+CORRECTION tick=159; vehicle=2; error=0.1943; scheduleLag=0.0006; age=0.0000; pending=6; clientAck=141; authorityAck=144; hostTick=160; snapshotTick=156
+CORRECTION tick=162; vehicle=2; error=0.1883; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=143; authorityAck=147; hostTick=163; snapshotTick=159
+CORRECTION tick=165; vehicle=2; error=0.1796; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=145; authorityAck=150; hostTick=166; snapshotTick=162
+CORRECTION tick=167; vehicle=2; error=0.1751; scheduleLag=0.0010; age=0.0000; pending=6; clientAck=149; authorityAck=152; hostTick=168; snapshotTick=165
+CORRECTION tick=309; vehicle=2; error=0.1428; scheduleLag=0.0006; age=0.0000; pending=6; clientAck=291; authorityAck=294; hostTick=310; snapshotTick=306
+CORRECTION tick=311; vehicle=2; error=0.1365; scheduleLag=0.0019; age=0.0000; pending=6; clientAck=293; authorityAck=296; hostTick=312; snapshotTick=309
+CORRECTION tick=320; vehicle=2; error=0.1079; scheduleLag=0.0009; age=0.0000; pending=5; clientAck=303; authorityAck=306; hostTick=321; snapshotTick=318
+CORRECTION tick=426; vehicle=2; error=0.1006; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=407; authorityAck=411; hostTick=427; snapshotTick=423
+CORRECTION tick=431; vehicle=2; error=0.1077; scheduleLag=0.0010; age=0.0000; pending=5; clientAck=414; authorityAck=416; hostTick=432; snapshotTick=429
+CORRECTION tick=434; vehicle=2; error=0.1119; scheduleLag=0.0003; age=0.0000; pending=6; clientAck=416; authorityAck=419; hostTick=435; snapshotTick=432
+CORRECTION tick=444; vehicle=2; error=0.1260; scheduleLag=0.0014; age=0.0000; pending=6; clientAck=426; authorityAck=429; hostTick=445; snapshotTick=441
+CORRECTION tick=445; vehicle=2; error=0.1274; scheduleLag=0.0009; age=0.0000; pending=5; clientAck=428; authorityAck=430; hostTick=446; snapshotTick=444
+CORRECTION tick=450; vehicle=2; error=0.1344; scheduleLag=0.0008; age=0.0000; pending=6; clientAck=432; authorityAck=436; hostTick=451; snapshotTick=447
+CORRECTION tick=455; vehicle=2; error=0.1414; scheduleLag=0.0002; age=0.0000; pending=6; clientAck=437; authorityAck=440; hostTick=456; snapshotTick=453
+CORRECTION tick=463; vehicle=2; error=0.1284; scheduleLag=0.0005; age=0.0000; pending=7; clientAck=444; authorityAck=448; hostTick=464; snapshotTick=459
+CORRECTION tick=464; vehicle=2; error=0.1278; scheduleLag=0.0011; age=0.0000; pending=6; clientAck=446; authorityAck=449; hostTick=465; snapshotTick=462
+CORRECTION tick=473; vehicle=2; error=0.1220; scheduleLag=0.0018; age=0.0000; pending=7; clientAck=454; authorityAck=458; hostTick=474; snapshotTick=471
+CORRECTION tick=476; vehicle=2; error=0.1203; scheduleLag=0.0017; age=0.0000; pending=6; clientAck=458; authorityAck=462; hostTick=477; snapshotTick=474
+CORRECTION tick=479; vehicle=2; error=0.1192; scheduleLag=0.0020; age=0.0000; pending=5; clientAck=462; authorityAck=465; hostTick=480; snapshotTick=477
+CORRECTION tick=491; vehicle=2; error=0.1127; scheduleLag=0.0008; age=0.0000; pending=6; clientAck=473; authorityAck=476; hostTick=492; snapshotTick=489
+CORRECTION tick=501; vehicle=2; error=0.1076; scheduleLag=0.0016; age=0.0000; pending=6; clientAck=483; authorityAck=486; hostTick=502; snapshotTick=498
+CORRECTION tick=503; vehicle=2; error=0.1066; scheduleLag=0.0011; age=0.0000; pending=6; clientAck=485; authorityAck=488; hostTick=504; snapshotTick=501
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.2033m; steady p99=0.1796m; steady max=0.1943m; steady >1cm=65; max pending at completion=7
+players=2; outbound delay=30ms; jitter=10ms; loss=2%; corrections=228; p99=0.1842m; max=0.2033m; snapshots/client=231; stale packets rejected
+
+  Failed VehicleLoopConvergesAcrossNetworkConditions(2,30,10,2.0f,10.0f) [12 s]
+  Error Message:
+     Repeated decimetre corrections are a quality regression.
+Assert.That(steadyP99, Is.LessThan(0.1))
+  Expected: less than 0.10000000000000001d
+  But was:  0.179648787f
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 180
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 34
+   at InvokeStub_NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Object, Span`1)
+
+1)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.<>c__DisplayClass3_0.<RunVehicleLoop>b__0() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 208
+   at NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 180
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 34
+   at InvokeStub_NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Object, Span`1)
+
+
+  Standard Output Messages:
+ CORRECTION tick=36; vehicle=2; error=0.1407; scheduleLag=0.0001; age=0.0000; pending=8; clientAck=16; authorityAck=22; hostTick=37; snapshotTick=33
+ CORRECTION tick=53; vehicle=2; error=0.1168; scheduleLag=0.0008; age=0.0000; pending=5; clientAck=36; authorityAck=39; hostTick=54; snapshotTick=51
+ CORRECTION tick=59; vehicle=2; error=0.1337; scheduleLag=0.0019; age=0.0000; pending=6; clientAck=41; authorityAck=45; hostTick=60; snapshotTick=57
+ CORRECTION tick=63; vehicle=2; error=0.1450; scheduleLag=0.0002; age=0.0000; pending=6; clientAck=45; authorityAck=48; hostTick=64; snapshotTick=60
+ CORRECTION tick=66; vehicle=2; error=0.1535; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=47; authorityAck=51; hostTick=67; snapshotTick=63
+ CORRECTION tick=77; vehicle=2; error=0.1842; scheduleLag=0.0010; age=0.0000; pending=5; clientAck=60; authorityAck=63; hostTick=78; snapshotTick=75
+ CORRECTION tick=84; vehicle=2; error=0.2033; scheduleLag=0.0014; age=0.0000; pending=7; clientAck=65; authorityAck=69; hostTick=85; snapshotTick=81
+ CORRECTION tick=159; vehicle=2; error=0.1943; scheduleLag=0.0006; age=0.0000; pending=6; clientAck=141; authorityAck=144; hostTick=160; snapshotTick=156
+ CORRECTION tick=162; vehicle=2; error=0.1883; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=143; authorityAck=147; hostTick=163; snapshotTick=159
+ CORRECTION tick=165; vehicle=2; error=0.1796; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=145; authorityAck=150; hostTick=166; snapshotTick=162
+ CORRECTION tick=167; vehicle=2; error=0.1751; scheduleLag=0.0010; age=0.0000; pending=6; clientAck=149; authorityAck=152; hostTick=168; snapshotTick=165
+ CORRECTION tick=309; vehicle=2; error=0.1428; scheduleLag=0.0006; age=0.0000; pending=6; clientAck=291; authorityAck=294; hostTick=310; snapshotTick=306
+ CORRECTION tick=311; vehicle=2; error=0.1365; scheduleLag=0.0019; age=0.0000; pending=6; clientAck=293; authorityAck=296; hostTick=312; snapshotTick=309
+ CORRECTION tick=320; vehicle=2; error=0.1079; scheduleLag=0.0009; age=0.0000; pending=5; clientAck=303; authorityAck=306; hostTick=321; snapshotTick=318
+ CORRECTION tick=426; vehicle=2; error=0.1006; scheduleLag=0.0010; age=0.0000; pending=7; clientAck=407; authorityAck=411; hostTick=427; snapshotTick=423
+ CORRECTION tick=431; vehicle=2; error=0.1077; scheduleLag=0.0010; age=0.0000; pending=5; clientAck=414; authorityAck=416; hostTick=432; snapshotTick=429
+ CORRECTION tick=434; vehicle=2; error=0.1119; scheduleLag=0.0003; age=0.0000; pending=6; clientAck=416; authorityAck=419; hostTick=435; snapshotTick=432
+ CORRECTION tick=444; vehicle=2; error=0.1260; scheduleLag=0.0014; age=0.0000; pending=6; clientAck=426; authorityAck=429; hostTick=445; snapshotTick=441
+ CORRECTION tick=445; vehicle=2; error=0.1274; scheduleLag=0.0009; age=0.0000; pending=5; clientAck=428; authorityAck=430; hostTick=446; snapshotTick=444
+ CORRECTION tick=450; vehicle=2; error=0.1344; scheduleLag=0.0008; age=0.0000; pending=6; clientAck=432; authorityAck=436; hostTick=451; snapshotTick=447
+ CORRECTION tick=455; vehicle=2; error=0.1414; scheduleLag=0.0002; age=0.0000; pending=6; clientAck=437; authorityAck=440; hostTick=456; snapshotTick=453
+ CORRECTION tick=463; vehicle=2; error=0.1284; scheduleLag=0.0005; age=0.0000; pending=7; clientAck=444; authorityAck=448; hostTick=464; snapshotTick=459
+ CORRECTION tick=464; vehicle=2; error=0.1278; scheduleLag=0.0011; age=0.0000; pending=6; clientAck=446; authorityAck=449; hostTick=465; snapshotTick=462
+ CORRECTION tick=473; vehicle=2; error=0.1220; scheduleLag=0.0018; age=0.0000; pending=7; clientAck=454; authorityAck=458; hostTick=474; snapshotTick=471
+ CORRECTION tick=476; vehicle=2; error=0.1203; scheduleLag=0.0017; age=0.0000; pending=6; clientAck=458; authorityAck=462; hostTick=477; snapshotTick=474
+ CORRECTION tick=479; vehicle=2; error=0.1192; scheduleLag=0.0020; age=0.0000; pending=5; clientAck=462; authorityAck=465; hostTick=480; snapshotTick=477
+ CORRECTION tick=491; vehicle=2; error=0.1127; scheduleLag=0.0008; age=0.0000; pending=6; clientAck=473; authorityAck=476; hostTick=492; snapshotTick=489
+ CORRECTION tick=501; vehicle=2; error=0.1076; scheduleLag=0.0016; age=0.0000; pending=6; clientAck=483; authorityAck=486; hostTick=502; snapshotTick=498
+ CORRECTION tick=503; vehicle=2; error=0.1066; scheduleLag=0.0011; age=0.0000; pending=6; clientAck=485; authorityAck=488; hostTick=504; snapshotTick=501
+ prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+ delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+ startup max=0.2033m; steady p99=0.1796m; steady max=0.1943m; steady >1cm=65; max pending at completion=7
+ players=2; outbound delay=30ms; jitter=10ms; loss=2%; corrections=228; p99=0.1842m; max=0.2033m; snapshots/client=231; stale packets rejected
+
+
+CORRECTION tick=50; vehicle=3; error=0.1055; scheduleLag=0.0007; age=0.0000; pending=6; clientAck=31; authorityAck=34; hostTick=51; snapshotTick=48
+CORRECTION tick=50; vehicle=4; error=0.1055; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=30; authorityAck=34; hostTick=51; snapshotTick=48
+CORRECTION tick=53; vehicle=5; error=0.1140; scheduleLag=0.0017; age=0.0000; pending=7; clientAck=33; authorityAck=36; hostTick=54; snapshotTick=51
+CORRECTION tick=55; vehicle=4; error=0.1196; scheduleLag=0.0019; age=0.0000; pending=8; clientAck=34; authorityAck=38; hostTick=56; snapshotTick=51
+CORRECTION tick=59; vehicle=4; error=0.1309; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=39; authorityAck=43; hostTick=60; snapshotTick=57
+CORRECTION tick=59; vehicle=7; error=0.1282; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=39; authorityAck=42; hostTick=60; snapshotTick=57
+CORRECTION tick=63; vehicle=4; error=0.1422; scheduleLag=0.0008; age=0.0000; pending=7; clientAck=43; authorityAck=47; hostTick=64; snapshotTick=60
+CORRECTION tick=63; vehicle=5; error=0.1422; scheduleLag=0.0008; age=0.0000; pending=7; clientAck=43; authorityAck=47; hostTick=64; snapshotTick=60
+CORRECTION tick=66; vehicle=4; error=0.1507; scheduleLag=0.0019; age=0.0000; pending=8; clientAck=45; authorityAck=50; hostTick=67; snapshotTick=63
+CORRECTION tick=68; vehicle=6; error=0.1508; scheduleLag=0.0007; age=0.0000; pending=6; clientAck=49; authorityAck=52; hostTick=69; snapshotTick=66
+CORRECTION tick=69; vehicle=4; error=0.1591; scheduleLag=0.0003; age=0.0000; pending=7; clientAck=49; authorityAck=53; hostTick=70; snapshotTick=66
+CORRECTION tick=69; vehicle=7; error=0.1564; scheduleLag=0.0003; age=0.0000; pending=7; clientAck=49; authorityAck=52; hostTick=70; snapshotTick=66
+CORRECTION tick=72; vehicle=5; error=0.1676; scheduleLag=0.0017; age=0.0000; pending=8; clientAck=51; authorityAck=56; hostTick=73; snapshotTick=69
+CORRECTION tick=74; vehicle=5; error=0.1731; scheduleLag=0.0013; age=0.0000; pending=6; clientAck=55; authorityAck=58; hostTick=75; snapshotTick=72
+CORRECTION tick=74; vehicle=7; error=0.1704; scheduleLag=0.0013; age=0.0000; pending=7; clientAck=54; authorityAck=58; hostTick=75; snapshotTick=72
+CORRECTION tick=77; vehicle=7; error=0.1787; scheduleLag=0.0012; age=0.0000; pending=6; clientAck=58; authorityAck=61; hostTick=78; snapshotTick=75
+CORRECTION tick=81; vehicle=8; error=0.1870; scheduleLag=0.0012; age=0.0000; pending=8; clientAck=59; authorityAck=64; hostTick=82; snapshotTick=78
+CORRECTION tick=84; vehicle=8; error=0.1952; scheduleLag=0.0002; age=0.0000; pending=7; clientAck=63; authorityAck=67; hostTick=85; snapshotTick=81
+CORRECTION tick=88; vehicle=3; error=0.2114; scheduleLag=0.0011; age=0.0000; pending=9; clientAck=66; authorityAck=72; hostTick=89; snapshotTick=84
+CORRECTION tick=89; vehicle=3; error=0.2140; scheduleLag=0.0006; age=0.0000; pending=6; clientAck=70; authorityAck=73; hostTick=90; snapshotTick=87
+CORRECTION tick=92; vehicle=8; error=0.2167; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=71; authorityAck=76; hostTick=93; snapshotTick=90
+CORRECTION tick=92; vehicle=6; error=0.2167; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=72; authorityAck=76; hostTick=93; snapshotTick=90
+CORRECTION tick=96; vehicle=2; error=0.2008; scheduleLag=0.0008; age=0.0000; pending=6; clientAck=67; authorityAck=70; hostTick=97; snapshotTick=93
+CORRECTION tick=97; vehicle=8; error=0.4570; scheduleLag=0.0012; age=0.0000; pending=7; clientAck=76; authorityAck=80; hostTick=98; snapshotTick=93
+CORRECTION tick=97; vehicle=6; error=0.2298; scheduleLag=0.0012; age=0.0000; pending=8; clientAck=76; authorityAck=81; hostTick=98; snapshotTick=93
+CORRECTION tick=98; vehicle=2; error=0.2061; scheduleLag=0.0004; age=0.0000; pending=6; clientAck=69; authorityAck=72; hostTick=99; snapshotTick=96
+CORRECTION tick=99; vehicle=8; error=0.2324; scheduleLag=0.0012; age=0.0000; pending=7; clientAck=78; authorityAck=82; hostTick=100; snapshotTick=96
+CORRECTION tick=99; vehicle=7; error=0.2376; scheduleLag=0.0012; age=0.0000; pending=8; clientAck=78; authorityAck=82; hostTick=100; snapshotTick=96
+CORRECTION tick=102; vehicle=3; error=0.2479; scheduleLag=0.0018; age=0.0000; pending=8; clientAck=81; authorityAck=86; hostTick=103; snapshotTick=99
+CORRECTION tick=106; vehicle=3; error=0.2580; scheduleLag=0.0013; age=0.0000; pending=8; clientAck=85; authorityAck=90; hostTick=107; snapshotTick=102
+CORRECTION tick=106; vehicle=5; error=0.2580; scheduleLag=0.0013; age=0.0000; pending=9; clientAck=84; authorityAck=90; hostTick=107; snapshotTick=102
+CORRECTION tick=108; vehicle=5; error=0.2630; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=88; authorityAck=92; hostTick=109; snapshotTick=105
+CORRECTION tick=110; vehicle=2; error=0.2283; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=80; authorityAck=84; hostTick=111; snapshotTick=108
+CORRECTION tick=110; vehicle=4; error=0.2564; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=90; authorityAck=94; hostTick=111; snapshotTick=108
+CORRECTION tick=110; vehicle=7; error=0.2655; scheduleLag=0.0001; age=0.0000; pending=6; clientAck=91; authorityAck=93; hostTick=111; snapshotTick=108
+CORRECTION tick=112; vehicle=5; error=0.2548; scheduleLag=0.0009; age=0.0000; pending=9; clientAck=90; authorityAck=96; hostTick=113; snapshotTick=108
+CORRECTION tick=113; vehicle=2; error=0.2256; scheduleLag=0.0007; age=0.0000; pending=6; clientAck=84; authorityAck=87; hostTick=114; snapshotTick=111
+CORRECTION tick=114; vehicle=5; error=0.2524; scheduleLag=0.0009; age=0.0000; pending=7; clientAck=94; authorityAck=98; hostTick=115; snapshotTick=111
+CORRECTION tick=114; vehicle=7; error=0.2499; scheduleLag=0.0009; age=0.0000; pending=8; clientAck=93; authorityAck=98; hostTick=115; snapshotTick=111
+CORRECTION tick=115; vehicle=4; error=0.2511; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=94; authorityAck=99; hostTick=116; snapshotTick=111
+CORRECTION tick=117; vehicle=6; error=0.2432; scheduleLag=0.0008; age=0.0000; pending=8; clientAck=96; authorityAck=101; hostTick=118; snapshotTick=114
+CORRECTION tick=117; vehicle=7; error=0.2458; scheduleLag=0.0008; age=0.0000; pending=7; clientAck=97; authorityAck=101; hostTick=118; snapshotTick=114
+CORRECTION tick=119; vehicle=8; error=0.2406; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=98; authorityAck=102; hostTick=120; snapshotTick=117
+CORRECTION tick=119; vehicle=5; error=0.2456; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=99; authorityAck=103; hostTick=120; snapshotTick=117
+CORRECTION tick=119; vehicle=6; error=0.2406; scheduleLag=0.0007; age=0.0000; pending=6; clientAck=100; authorityAck=103; hostTick=120; snapshotTick=117
+CORRECTION tick=123; vehicle=8; error=0.2353; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=102; authorityAck=106; hostTick=124; snapshotTick=120
+CORRECTION tick=123; vehicle=3; error=0.2404; scheduleLag=0.0016; age=0.0000; pending=8; clientAck=102; authorityAck=107; hostTick=124; snapshotTick=120
+CORRECTION tick=123; vehicle=5; error=0.2404; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=103; authorityAck=107; hostTick=124; snapshotTick=120
+CORRECTION tick=124; vehicle=7; error=0.2366; scheduleLag=0.0001; age=0.0000; pending=9; clientAck=102; authorityAck=108; hostTick=125; snapshotTick=120
+CORRECTION tick=126; vehicle=8; error=0.2315; scheduleLag=0.0020; age=0.0000; pending=8; clientAck=104; authorityAck=109; hostTick=127; snapshotTick=123
+CORRECTION tick=126; vehicle=4; error=0.2366; scheduleLag=0.0020; age=0.0000; pending=8; clientAck=105; authorityAck=110; hostTick=127; snapshotTick=123
+CORRECTION tick=128; vehicle=4; error=0.2341; scheduleLag=0.0010; age=0.0000; pending=6; clientAck=109; authorityAck=112; hostTick=129; snapshotTick=126
+CORRECTION tick=129; vehicle=8; error=0.2277; scheduleLag=0.0014; age=0.0000; pending=7; clientAck=108; authorityAck=112; hostTick=130; snapshotTick=126
+CORRECTION tick=129; vehicle=3; error=0.2328; scheduleLag=0.0014; age=0.0000; pending=7; clientAck=109; authorityAck=113; hostTick=130; snapshotTick=126
+CORRECTION tick=129; vehicle=7; error=0.2303; scheduleLag=0.0014; age=0.0000; pending=7; clientAck=109; authorityAck=113; hostTick=130; snapshotTick=126
+CORRECTION tick=134; vehicle=2; error=0.1995; scheduleLag=0.0013; age=0.0000; pending=5; clientAck=106; authorityAck=108; hostTick=135; snapshotTick=132
+CORRECTION tick=138; vehicle=2; error=0.1943; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=108; authorityAck=112; hostTick=139; snapshotTick=135
+CORRECTION tick=144; vehicle=3; error=0.2128; scheduleLag=0.0006; age=0.0000; pending=8; clientAck=123; authorityAck=128; hostTick=145; snapshotTick=141
+CORRECTION tick=144; vehicle=5; error=0.2128; scheduleLag=0.0006; age=0.0000; pending=8; clientAck=123; authorityAck=128; hostTick=145; snapshotTick=141
+CORRECTION tick=145; vehicle=6; error=0.2063; scheduleLag=0.0001; age=0.0000; pending=9; clientAck=123; authorityAck=129; hostTick=146; snapshotTick=141
+CORRECTION tick=145; vehicle=7; error=0.2088; scheduleLag=0.0001; age=0.0000; pending=9; clientAck=123; authorityAck=129; hostTick=146; snapshotTick=141
+CORRECTION tick=146; vehicle=3; error=0.2099; scheduleLag=0.0006; age=0.0000; pending=6; clientAck=127; authorityAck=130; hostTick=147; snapshotTick=144
+CORRECTION tick=146; vehicle=5; error=0.2099; scheduleLag=0.0006; age=0.0000; pending=6; clientAck=127; authorityAck=130; hostTick=147; snapshotTick=144
+CORRECTION tick=147; vehicle=6; error=0.2033; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=127; authorityAck=131; hostTick=148; snapshotTick=144
+CORRECTION tick=150; vehicle=7; error=0.2011; scheduleLag=0.0018; age=0.0000; pending=7; clientAck=130; authorityAck=134; hostTick=151; snapshotTick=147
+CORRECTION tick=153; vehicle=5; error=0.1986; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=132; authorityAck=137; hostTick=154; snapshotTick=150
+CORRECTION tick=155; vehicle=3; error=0.1950; scheduleLag=0.0009; age=0.0000; pending=7; clientAck=135; authorityAck=139; hostTick=156; snapshotTick=153
+CORRECTION tick=156; vehicle=6; error=0.1884; scheduleLag=0.0018; age=0.0000; pending=8; clientAck=135; authorityAck=140; hostTick=157; snapshotTick=153
+CORRECTION tick=159; vehicle=3; error=0.1875; scheduleLag=0.0008; age=0.0000; pending=7; clientAck=139; authorityAck=143; hostTick=160; snapshotTick=156
+CORRECTION tick=159; vehicle=5; error=0.1875; scheduleLag=0.0008; age=0.0000; pending=7; clientAck=139; authorityAck=143; hostTick=160; snapshotTick=156
+CORRECTION tick=159; vehicle=6; error=0.1828; scheduleLag=0.0008; age=0.0000; pending=7; clientAck=139; authorityAck=143; hostTick=160; snapshotTick=156
+CORRECTION tick=165; vehicle=8; error=0.1705; scheduleLag=0.0007; age=0.0000; pending=8; clientAck=143; authorityAck=148; hostTick=166; snapshotTick=162
+CORRECTION tick=168; vehicle=8; error=0.1637; scheduleLag=0.0000; age=0.0000; pending=7; clientAck=147; authorityAck=151; hostTick=169; snapshotTick=165
+CORRECTION tick=168; vehicle=6; error=0.1638; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=147; authorityAck=152; hostTick=169; snapshotTick=165
+CORRECTION tick=172; vehicle=6; error=0.1542; scheduleLag=0.0012; age=0.0000; pending=8; clientAck=151; authorityAck=156; hostTick=173; snapshotTick=168
+CORRECTION tick=177; vehicle=4; error=0.1452; scheduleLag=0.0018; age=0.0000; pending=8; clientAck=156; authorityAck=161; hostTick=178; snapshotTick=174
+CORRECTION tick=177; vehicle=5; error=0.1452; scheduleLag=0.0018; age=0.0000; pending=8; clientAck=156; authorityAck=160; hostTick=178; snapshotTick=174
+CORRECTION tick=179; vehicle=4; error=0.1396; scheduleLag=0.0002; age=0.0000; pending=6; clientAck=160; authorityAck=163; hostTick=180; snapshotTick=177
+CORRECTION tick=182; vehicle=5; error=0.1308; scheduleLag=0.0004; age=0.0000; pending=6; clientAck=163; authorityAck=166; hostTick=183; snapshotTick=180
+CORRECTION tick=185; vehicle=6; error=0.1182; scheduleLag=0.0014; age=0.0002; pending=7; clientAck=165; authorityAck=169; hostTick=186; snapshotTick=183
+CORRECTION tick=190; vehicle=5; error=0.1059; scheduleLag=0.0013; age=0.0000; pending=9; clientAck=168; authorityAck=174; hostTick=191; snapshotTick=186
+CORRECTION tick=190; vehicle=6; error=0.1027; scheduleLag=0.0013; age=0.0000; pending=8; clientAck=169; authorityAck=173; hostTick=191; snapshotTick=186
+CORRECTION tick=191; vehicle=4; error=0.1026; scheduleLag=0.0005; age=0.0000; pending=7; clientAck=171; authorityAck=175; hostTick=192; snapshotTick=189
+CORRECTION tick=279; vehicle=4; error=0.1080; scheduleLag=0.0001; age=0.0000; pending=8; clientAck=258; authorityAck=263; hostTick=280; snapshotTick=276
+CORRECTION tick=281; vehicle=7; error=0.1111; scheduleLag=0.0004; age=0.0000; pending=7; clientAck=261; authorityAck=265; hostTick=282; snapshotTick=279
+CORRECTION tick=284; vehicle=7; error=0.1197; scheduleLag=0.0005; age=0.0000; pending=6; clientAck=265; authorityAck=268; hostTick=285; snapshotTick=282
+CORRECTION tick=285; vehicle=4; error=0.1251; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=265; authorityAck=269; hostTick=286; snapshotTick=282
+CORRECTION tick=293; vehicle=8; error=0.1478; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=272; authorityAck=276; hostTick=294; snapshotTick=291
+CORRECTION tick=297; vehicle=8; error=0.1591; scheduleLag=0.0004; age=0.0000; pending=7; clientAck=276; authorityAck=280; hostTick=298; snapshotTick=294
+CORRECTION tick=299; vehicle=4; error=0.1646; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=279; authorityAck=283; hostTick=300; snapshotTick=297
+CORRECTION tick=299; vehicle=7; error=0.1621; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=279; authorityAck=283; hostTick=300; snapshotTick=297
+CORRECTION tick=303; vehicle=7; error=0.1732; scheduleLag=0.0004; age=0.0000; pending=7; clientAck=283; authorityAck=287; hostTick=304; snapshotTick=300
+CORRECTION tick=304; vehicle=4; error=0.1785; scheduleLag=0.0003; age=0.0000; pending=8; clientAck=283; authorityAck=288; hostTick=305; snapshotTick=300
+CORRECTION tick=309; vehicle=7; error=0.1371; scheduleLag=0.0015; age=0.0000; pending=8; clientAck=288; authorityAck=293; hostTick=310; snapshotTick=306
+CORRECTION tick=311; vehicle=6; error=0.1334; scheduleLag=0.0011; age=0.0000; pending=7; clientAck=291; authorityAck=295; hostTick=312; snapshotTick=309
+CORRECTION tick=311; vehicle=7; error=0.1308; scheduleLag=0.0011; age=0.0000; pending=6; clientAck=292; authorityAck=295; hostTick=312; snapshotTick=309
+CORRECTION tick=315; vehicle=6; error=0.1208; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=295; authorityAck=298; hostTick=316; snapshotTick=312
+CORRECTION tick=317; vehicle=4; error=0.1144; scheduleLag=0.0020; age=0.0000; pending=7; clientAck=297; authorityAck=301; hostTick=318; snapshotTick=315
+CORRECTION tick=319; vehicle=6; error=0.2129; scheduleLag=0.0015; age=0.0000; pending=10; clientAck=296; authorityAck=303; hostTick=320; snapshotTick=315
+CORRECTION tick=321; vehicle=4; error=0.1016; scheduleLag=0.0018; age=0.0000; pending=7; clientAck=301; authorityAck=305; hostTick=322; snapshotTick=318
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.4570m; steady p99=0.2099m; steady max=0.2404m; steady >1cm=303; max pending at completion=11
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1588; p99=0.2404m; max=0.4570m; snapshots/client=224; stale packets rejected
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Failed VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,10.0f) [12 s]
+  Error Message:
+     Repeated decimetre corrections are a quality regression.
+Assert.That(steadyP99, Is.LessThan(0.1))
+  Expected: less than 0.10000000000000001d
+  But was:  0.209868774f
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 180
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 34
+   at InvokeStub_NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Object, Span`1)
+
+1)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.<>c__DisplayClass3_0.<RunVehicleLoop>b__0() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 208
+   at NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 180
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 34
+   at InvokeStub_NativeVehicleReplicationTests.VehicleLoopConvergesAcrossNetworkConditions(Object, Span`1)
+
+
+  Standard Output Messages:
+ CORRECTION tick=50; vehicle=3; error=0.1055; scheduleLag=0.0007; age=0.0000; pending=6; clientAck=31; authorityAck=34; hostTick=51; snapshotTick=48
+ CORRECTION tick=50; vehicle=4; error=0.1055; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=30; authorityAck=34; hostTick=51; snapshotTick=48
+ CORRECTION tick=53; vehicle=5; error=0.1140; scheduleLag=0.0017; age=0.0000; pending=7; clientAck=33; authorityAck=36; hostTick=54; snapshotTick=51
+ CORRECTION tick=55; vehicle=4; error=0.1196; scheduleLag=0.0019; age=0.0000; pending=8; clientAck=34; authorityAck=38; hostTick=56; snapshotTick=51
+ CORRECTION tick=59; vehicle=4; error=0.1309; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=39; authorityAck=43; hostTick=60; snapshotTick=57
+ CORRECTION tick=59; vehicle=7; error=0.1282; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=39; authorityAck=42; hostTick=60; snapshotTick=57
+ CORRECTION tick=63; vehicle=4; error=0.1422; scheduleLag=0.0008; age=0.0000; pending=7; clientAck=43; authorityAck=47; hostTick=64; snapshotTick=60
+ CORRECTION tick=63; vehicle=5; error=0.1422; scheduleLag=0.0008; age=0.0000; pending=7; clientAck=43; authorityAck=47; hostTick=64; snapshotTick=60
+ CORRECTION tick=66; vehicle=4; error=0.1507; scheduleLag=0.0019; age=0.0000; pending=8; clientAck=45; authorityAck=50; hostTick=67; snapshotTick=63
+ CORRECTION tick=68; vehicle=6; error=0.1508; scheduleLag=0.0007; age=0.0000; pending=6; clientAck=49; authorityAck=52; hostTick=69; snapshotTick=66
+ CORRECTION tick=69; vehicle=4; error=0.1591; scheduleLag=0.0003; age=0.0000; pending=7; clientAck=49; authorityAck=53; hostTick=70; snapshotTick=66
+ CORRECTION tick=69; vehicle=7; error=0.1564; scheduleLag=0.0003; age=0.0000; pending=7; clientAck=49; authorityAck=52; hostTick=70; snapshotTick=66
+ CORRECTION tick=72; vehicle=5; error=0.1676; scheduleLag=0.0017; age=0.0000; pending=8; clientAck=51; authorityAck=56; hostTick=73; snapshotTick=69
+ CORRECTION tick=74; vehicle=5; error=0.1731; scheduleLag=0.0013; age=0.0000; pending=6; clientAck=55; authorityAck=58; hostTick=75; snapshotTick=72
+ CORRECTION tick=74; vehicle=7; error=0.1704; scheduleLag=0.0013; age=0.0000; pending=7; clientAck=54; authorityAck=58; hostTick=75; snapshotTick=72
+ CORRECTION tick=77; vehicle=7; error=0.1787; scheduleLag=0.0012; age=0.0000; pending=6; clientAck=58; authorityAck=61; hostTick=78; snapshotTick=75
+ CORRECTION tick=81; vehicle=8; error=0.1870; scheduleLag=0.0012; age=0.0000; pending=8; clientAck=59; authorityAck=64; hostTick=82; snapshotTick=78
+ CORRECTION tick=84; vehicle=8; error=0.1952; scheduleLag=0.0002; age=0.0000; pending=7; clientAck=63; authorityAck=67; hostTick=85; snapshotTick=81
+ CORRECTION tick=88; vehicle=3; error=0.2114; scheduleLag=0.0011; age=0.0000; pending=9; clientAck=66; authorityAck=72; hostTick=89; snapshotTick=84
+ CORRECTION tick=89; vehicle=3; error=0.2140; scheduleLag=0.0006; age=0.0000; pending=6; clientAck=70; authorityAck=73; hostTick=90; snapshotTick=87
+ CORRECTION tick=92; vehicle=8; error=0.2167; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=71; authorityAck=76; hostTick=93; snapshotTick=90
+ CORRECTION tick=92; vehicle=6; error=0.2167; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=72; authorityAck=76; hostTick=93; snapshotTick=90
+ CORRECTION tick=96; vehicle=2; error=0.2008; scheduleLag=0.0008; age=0.0000; pending=6; clientAck=67; authorityAck=70; hostTick=97; snapshotTick=93
+ CORRECTION tick=97; vehicle=8; error=0.4570; scheduleLag=0.0012; age=0.0000; pending=7; clientAck=76; authorityAck=80; hostTick=98; snapshotTick=93
+ CORRECTION tick=97; vehicle=6; error=0.2298; scheduleLag=0.0012; age=0.0000; pending=8; clientAck=76; authorityAck=81; hostTick=98; snapshotTick=93
+ CORRECTION tick=98; vehicle=2; error=0.2061; scheduleLag=0.0004; age=0.0000; pending=6; clientAck=69; authorityAck=72; hostTick=99; snapshotTick=96
+ CORRECTION tick=99; vehicle=8; error=0.2324; scheduleLag=0.0012; age=0.0000; pending=7; clientAck=78; authorityAck=82; hostTick=100; snapshotTick=96
+ CORRECTION tick=99; vehicle=7; error=0.2376; scheduleLag=0.0012; age=0.0000; pending=8; clientAck=78; authorityAck=82; hostTick=100; snapshotTick=96
+ CORRECTION tick=102; vehicle=3; error=0.2479; scheduleLag=0.0018; age=0.0000; pending=8; clientAck=81; authorityAck=86; hostTick=103; snapshotTick=99
+ CORRECTION tick=106; vehicle=3; error=0.2580; scheduleLag=0.0013; age=0.0000; pending=8; clientAck=85; authorityAck=90; hostTick=107; snapshotTick=102
+ CORRECTION tick=106; vehicle=5; error=0.2580; scheduleLag=0.0013; age=0.0000; pending=9; clientAck=84; authorityAck=90; hostTick=107; snapshotTick=102
+ CORRECTION tick=108; vehicle=5; error=0.2630; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=88; authorityAck=92; hostTick=109; snapshotTick=105
+ CORRECTION tick=110; vehicle=2; error=0.2283; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=80; authorityAck=84; hostTick=111; snapshotTick=108
+ CORRECTION tick=110; vehicle=4; error=0.2564; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=90; authorityAck=94; hostTick=111; snapshotTick=108
+ CORRECTION tick=110; vehicle=7; error=0.2655; scheduleLag=0.0001; age=0.0000; pending=6; clientAck=91; authorityAck=93; hostTick=111; snapshotTick=108
+ CORRECTION tick=112; vehicle=5; error=0.2548; scheduleLag=0.0009; age=0.0000; pending=9; clientAck=90; authorityAck=96; hostTick=113; snapshotTick=108
+ CORRECTION tick=113; vehicle=2; error=0.2256; scheduleLag=0.0007; age=0.0000; pending=6; clientAck=84; authorityAck=87; hostTick=114; snapshotTick=111
+ CORRECTION tick=114; vehicle=5; error=0.2524; scheduleLag=0.0009; age=0.0000; pending=7; clientAck=94; authorityAck=98; hostTick=115; snapshotTick=111
+ CORRECTION tick=114; vehicle=7; error=0.2499; scheduleLag=0.0009; age=0.0000; pending=8; clientAck=93; authorityAck=98; hostTick=115; snapshotTick=111
+ CORRECTION tick=115; vehicle=4; error=0.2511; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=94; authorityAck=99; hostTick=116; snapshotTick=111
+ CORRECTION tick=117; vehicle=6; error=0.2432; scheduleLag=0.0008; age=0.0000; pending=8; clientAck=96; authorityAck=101; hostTick=118; snapshotTick=114
+ CORRECTION tick=117; vehicle=7; error=0.2458; scheduleLag=0.0008; age=0.0000; pending=7; clientAck=97; authorityAck=101; hostTick=118; snapshotTick=114
+ CORRECTION tick=119; vehicle=8; error=0.2406; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=98; authorityAck=102; hostTick=120; snapshotTick=117
+ CORRECTION tick=119; vehicle=5; error=0.2456; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=99; authorityAck=103; hostTick=120; snapshotTick=117
+ CORRECTION tick=119; vehicle=6; error=0.2406; scheduleLag=0.0007; age=0.0000; pending=6; clientAck=100; authorityAck=103; hostTick=120; snapshotTick=117
+ CORRECTION tick=123; vehicle=8; error=0.2353; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=102; authorityAck=106; hostTick=124; snapshotTick=120
+ CORRECTION tick=123; vehicle=3; error=0.2404; scheduleLag=0.0016; age=0.0000; pending=8; clientAck=102; authorityAck=107; hostTick=124; snapshotTick=120
+ CORRECTION tick=123; vehicle=5; error=0.2404; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=103; authorityAck=107; hostTick=124; snapshotTick=120
+ CORRECTION tick=124; vehicle=7; error=0.2366; scheduleLag=0.0001; age=0.0000; pending=9; clientAck=102; authorityAck=108; hostTick=125; snapshotTick=120
+ CORRECTION tick=126; vehicle=8; error=0.2315; scheduleLag=0.0020; age=0.0000; pending=8; clientAck=104; authorityAck=109; hostTick=127; snapshotTick=123
+ CORRECTION tick=126; vehicle=4; error=0.2366; scheduleLag=0.0020; age=0.0000; pending=8; clientAck=105; authorityAck=110; hostTick=127; snapshotTick=123
+ CORRECTION tick=128; vehicle=4; error=0.2341; scheduleLag=0.0010; age=0.0000; pending=6; clientAck=109; authorityAck=112; hostTick=129; snapshotTick=126
+ CORRECTION tick=129; vehicle=8; error=0.2277; scheduleLag=0.0014; age=0.0000; pending=7; clientAck=108; authorityAck=112; hostTick=130; snapshotTick=126
+ CORRECTION tick=129; vehicle=3; error=0.2328; scheduleLag=0.0014; age=0.0000; pending=7; clientAck=109; authorityAck=113; hostTick=130; snapshotTick=126
+ CORRECTION tick=129; vehicle=7; error=0.2303; scheduleLag=0.0014; age=0.0000; pending=7; clientAck=109; authorityAck=113; hostTick=130; snapshotTick=126
+ CORRECTION tick=134; vehicle=2; error=0.1995; scheduleLag=0.0013; age=0.0000; pending=5; clientAck=106; authorityAck=108; hostTick=135; snapshotTick=132
+ CORRECTION tick=138; vehicle=2; error=0.1943; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=108; authorityAck=112; hostTick=139; snapshotTick=135
+ CORRECTION tick=144; vehicle=3; error=0.2128; scheduleLag=0.0006; age=0.0000; pending=8; clientAck=123; authorityAck=128; hostTick=145; snapshotTick=141
+ CORRECTION tick=144; vehicle=5; error=0.2128; scheduleLag=0.0006; age=0.0000; pending=8; clientAck=123; authorityAck=128; hostTick=145; snapshotTick=141
+ CORRECTION tick=145; vehicle=6; error=0.2063; scheduleLag=0.0001; age=0.0000; pending=9; clientAck=123; authorityAck=129; hostTick=146; snapshotTick=141
+ CORRECTION tick=145; vehicle=7; error=0.2088; scheduleLag=0.0001; age=0.0000; pending=9; clientAck=123; authorityAck=129; hostTick=146; snapshotTick=141
+ CORRECTION tick=146; vehicle=3; error=0.2099; scheduleLag=0.0006; age=0.0000; pending=6; clientAck=127; authorityAck=130; hostTick=147; snapshotTick=144
+ CORRECTION tick=146; vehicle=5; error=0.2099; scheduleLag=0.0006; age=0.0000; pending=6; clientAck=127; authorityAck=130; hostTick=147; snapshotTick=144
+ CORRECTION tick=147; vehicle=6; error=0.2033; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=127; authorityAck=131; hostTick=148; snapshotTick=144
+ CORRECTION tick=150; vehicle=7; error=0.2011; scheduleLag=0.0018; age=0.0000; pending=7; clientAck=130; authorityAck=134; hostTick=151; snapshotTick=147
+ CORRECTION tick=153; vehicle=5; error=0.1986; scheduleLag=0.0010; age=0.0000; pending=8; clientAck=132; authorityAck=137; hostTick=154; snapshotTick=150
+ CORRECTION tick=155; vehicle=3; error=0.1950; scheduleLag=0.0009; age=0.0000; pending=7; clientAck=135; authorityAck=139; hostTick=156; snapshotTick=153
+ CORRECTION tick=156; vehicle=6; error=0.1884; scheduleLag=0.0018; age=0.0000; pending=8; clientAck=135; authorityAck=140; hostTick=157; snapshotTick=153
+ CORRECTION tick=159; vehicle=3; error=0.1875; scheduleLag=0.0008; age=0.0000; pending=7; clientAck=139; authorityAck=143; hostTick=160; snapshotTick=156
+ CORRECTION tick=159; vehicle=5; error=0.1875; scheduleLag=0.0008; age=0.0000; pending=7; clientAck=139; authorityAck=143; hostTick=160; snapshotTick=156
+ CORRECTION tick=159; vehicle=6; error=0.1828; scheduleLag=0.0008; age=0.0000; pending=7; clientAck=139; authorityAck=143; hostTick=160; snapshotTick=156
+ CORRECTION tick=165; vehicle=8; error=0.1705; scheduleLag=0.0007; age=0.0000; pending=8; clientAck=143; authorityAck=148; hostTick=166; snapshotTick=162
+ CORRECTION tick=168; vehicle=8; error=0.1637; scheduleLag=0.0000; age=0.0000; pending=7; clientAck=147; authorityAck=151; hostTick=169; snapshotTick=165
+ CORRECTION tick=168; vehicle=6; error=0.1638; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=147; authorityAck=152; hostTick=169; snapshotTick=165
+ CORRECTION tick=172; vehicle=6; error=0.1542; scheduleLag=0.0012; age=0.0000; pending=8; clientAck=151; authorityAck=156; hostTick=173; snapshotTick=168
+ CORRECTION tick=177; vehicle=4; error=0.1452; scheduleLag=0.0018; age=0.0000; pending=8; clientAck=156; authorityAck=161; hostTick=178; snapshotTick=174
+ CORRECTION tick=177; vehicle=5; error=0.1452; scheduleLag=0.0018; age=0.0000; pending=8; clientAck=156; authorityAck=160; hostTick=178; snapshotTick=174
+ CORRECTION tick=179; vehicle=4; error=0.1396; scheduleLag=0.0002; age=0.0000; pending=6; clientAck=160; authorityAck=163; hostTick=180; snapshotTick=177
+ CORRECTION tick=182; vehicle=5; error=0.1308; scheduleLag=0.0004; age=0.0000; pending=6; clientAck=163; authorityAck=166; hostTick=183; snapshotTick=180
+ CORRECTION tick=185; vehicle=6; error=0.1182; scheduleLag=0.0014; age=0.0002; pending=7; clientAck=165; authorityAck=169; hostTick=186; snapshotTick=183
+ CORRECTION tick=190; vehicle=5; error=0.1059; scheduleLag=0.0013; age=0.0000; pending=9; clientAck=168; authorityAck=174; hostTick=191; snapshotTick=186
+ CORRECTION tick=190; vehicle=6; error=0.1027; scheduleLag=0.0013; age=0.0000; pending=8; clientAck=169; authorityAck=173; hostTick=191; snapshotTick=186
+ CORRECTION tick=191; vehicle=4; error=0.1026; scheduleLag=0.0005; age=0.0000; pending=7; clientAck=171; authorityAck=175; hostTick=192; snapshotTick=189
+ CORRECTION tick=279; vehicle=4; error=0.1080; scheduleLag=0.0001; age=0.0000; pending=8; clientAck=258; authorityAck=263; hostTick=280; snapshotTick=276
+ CORRECTION tick=281; vehicle=7; error=0.1111; scheduleLag=0.0004; age=0.0000; pending=7; clientAck=261; authorityAck=265; hostTick=282; snapshotTick=279
+ CORRECTION tick=284; vehicle=7; error=0.1197; scheduleLag=0.0005; age=0.0000; pending=6; clientAck=265; authorityAck=268; hostTick=285; snapshotTick=282
+ CORRECTION tick=285; vehicle=4; error=0.1251; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=265; authorityAck=269; hostTick=286; snapshotTick=282
+ CORRECTION tick=293; vehicle=8; error=0.1478; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=272; authorityAck=276; hostTick=294; snapshotTick=291
+ CORRECTION tick=297; vehicle=8; error=0.1591; scheduleLag=0.0004; age=0.0000; pending=7; clientAck=276; authorityAck=280; hostTick=298; snapshotTick=294
+ CORRECTION tick=299; vehicle=4; error=0.1646; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=279; authorityAck=283; hostTick=300; snapshotTick=297
+ CORRECTION tick=299; vehicle=7; error=0.1621; scheduleLag=0.0016; age=0.0000; pending=7; clientAck=279; authorityAck=283; hostTick=300; snapshotTick=297
+ CORRECTION tick=303; vehicle=7; error=0.1732; scheduleLag=0.0004; age=0.0000; pending=7; clientAck=283; authorityAck=287; hostTick=304; snapshotTick=300
+ CORRECTION tick=304; vehicle=4; error=0.1785; scheduleLag=0.0003; age=0.0000; pending=8; clientAck=283; authorityAck=288; hostTick=305; snapshotTick=300
+ CORRECTION tick=309; vehicle=7; error=0.1371; scheduleLag=0.0015; age=0.0000; pending=8; clientAck=288; authorityAck=293; hostTick=310; snapshotTick=306
+ CORRECTION tick=311; vehicle=6; error=0.1334; scheduleLag=0.0011; age=0.0000; pending=7; clientAck=291; authorityAck=295; hostTick=312; snapshotTick=309
+ CORRECTION tick=311; vehicle=7; error=0.1308; scheduleLag=0.0011; age=0.0000; pending=6; clientAck=292; authorityAck=295; hostTick=312; snapshotTick=309
+ CORRECTION tick=315; vehicle=6; error=0.1208; scheduleLag=0.0001; age=0.0000; pending=7; clientAck=295; authorityAck=298; hostTick=316; snapshotTick=312
+ CORRECTION tick=317; vehicle=4; error=0.1144; scheduleLag=0.0020; age=0.0000; pending=7; clientAck=297; authorityAck=301; hostTick=318; snapshotTick=315
+ CORRECTION tick=319; vehicle=6; error=0.2129; scheduleLag=0.0015; age=0.0000; pending=10; clientAck=296; authorityAck=303; hostTick=320; snapshotTick=315
+ CORRECTION tick=321; vehicle=4; error=0.1016; scheduleLag=0.0018; age=0.0000; pending=7; clientAck=301; authorityAck=305; hostTick=322; snapshotTick=318
+ prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+ delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=57; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+ startup max=0.4570m; steady p99=0.2099m; steady max=0.2404m; steady >1cm=303; max pending at completion=11
+ players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1588; p99=0.2404m; max=0.4570m; snapshots/client=224; stale packets rejected
+
+
+
+Test Run Failed.
+Total tests: 15
+     Passed: 11
+     Failed: 4
+ Total time: 2.1450 Minutes

@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=True, entry=False, maximum=0, startup=0, steady=0, snaps=0; full report: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\735b5a7f73c340df9174770e90800baf\player-0.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":31.6583127,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":1389,"messages":1,"peak":1389},{"peer":1,"protocol":"TD","delivery":"Unreliable","bytes":411761,"messages":81,"peak":5117},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":1685,"messages":1,"peak":1685},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":573,"messages":3,"peak":191},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":483,"messages":2,"peak":463},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":223559,"messages":437,"peak":524}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=False, entry=False, maximum=0.37370926, startup=0.3737092614173889, steady=0, snaps=0; full report: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\735b5a7f73c340df9174770e90800baf\player-1.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":23.3658795,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":116131,"messages":961,"peak":121}]}
+
+Network vehicle verification artifacts: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\735b5a7f73c340df9174770e90800baf

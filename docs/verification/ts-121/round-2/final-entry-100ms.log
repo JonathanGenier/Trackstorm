@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=True, entry=True, maximum=0, startup=0, steady=0, snaps=0; full report: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\908536d7849e4dd5b4baf3f77c8fe7fc\player-0.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":38.0917493,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TD","delivery":"Reliable","bytes":2840,"messages":2,"peak":1420},{"peer":1,"protocol":"TE","delivery":"Reliable","bytes":9779,"messages":6,"peak":4345},{"peer":1,"protocol":"TG","delivery":"Reliable","bytes":12659,"messages":8,"peak":8348},{"peer":1,"protocol":"TG","delivery":"Unreliable","bytes":722392,"messages":621,"peak":5144},{"peer":1,"protocol":"TL","delivery":"Reliable","bytes":324,"messages":3,"peak":108},{"peer":1,"protocol":"TP","delivery":"Reliable","bytes":1904,"messages":28,"peak":68}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=False, entry=True, maximum=0.16865721, startup=0.04017436504364014, steady=0.16865721344947815, snaps=0; full report: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\908536d7849e4dd5b4baf3f77c8fe7fc\player-1.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":29.7518021,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TG","delivery":"Reliable","bytes":78,"messages":2,"peak":39},{"peer":1,"protocol":"TG","delivery":"Unreliable","bytes":186774,"messages":1263,"peak":148},{"peer":1,"protocol":"TL","delivery":"Reliable","bytes":1841,"messages":12,"peak":154}]}
+
+Network vehicle verification artifacts: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\908536d7849e4dd5b4baf3f77c8fe7fc

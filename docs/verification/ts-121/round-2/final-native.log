@@ -1,0 +1,101 @@
+Test run for C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 15 of 16 NUnit test cases using Current Discovery mode, Non-Explicit run
+Reliable=100/100; unreliable=78/100; ping=77ms; incoming loss=0.1851852; outgoing loss=
+
+  Passed AdversePacketsPreserveReliableOrderAndExposeDiagnostics [5 s]
+  Passed ConnectionAndEstablishedTimeoutsReleaseResources [12 s]
+CORRECTION tick=65; vehicle=4; error=0.1423; scheduleLag=0.0016; age=0.0004; pending=7; clientAck=44; authorityAck=47; hostTick=66; snapshotTick=63
+  Passed HostAndSevenClientsRejectExcessAndReconnect [88 ms]
+  Passed OccupiedListenerReportsBindErrorAndCanRecoverAfterOwnerCloses [3 ms]
+  Passed RejectsInvalidOperationsAndBoundsReceiveQueue [59 ms]
+  Passed RepeatedHostJoinAndStopReleasesListenerAndPeers [161 ms]
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+startup max=0.1423m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=11
+players=8; outbound delay=30ms; jitter=10ms; loss=0%; corrections=1617; p99=0.0000m; max=0.1423m; snapshots/client=231; stale packets rejected
+
+TenMinuteEightPlayerImpairmentSoak: Sustained native soak; run separately from the ordinary fast gate.
+  Passed EightPlayerControlledSnapshotLossConverges [12 s]
+  Skipped TenMinuteEightPlayerImpairmentSoak [< 1 ms]
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0000m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=4
+players=2; outbound delay=0ms; jitter=0ms; loss=0%; corrections=238; p99=0.0000m; max=0.0000m; snapshots/client=239; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,0,0,0.0f,0.0f) [12 s]
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0773m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=6
+players=2; outbound delay=30ms; jitter=0ms; loss=0%; corrections=237; p99=0.0000m; max=0.0773m; snapshots/client=238; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,30,0,0.0f,0.0f) [11 s]
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0214m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=6
+players=2; outbound delay=25ms; jitter=5ms; loss=0%; corrections=237; p99=0.0000m; max=0.0214m; snapshots/client=238; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,25,5,0.0f,0.0f) [12 s]
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0382m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=11
+players=2; outbound delay=50ms; jitter=10ms; loss=0%; corrections=234; p99=0.0000m; max=0.0382m; snapshots/client=235; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,50,10,0.0f,0.0f) [11 s]
+CORRECTION tick=63; vehicle=2; error=0.1618; scheduleLag=0.0004; age=0.0000; pending=2; clientAck=56; authorityAck=57; hostTick=64; snapshotTick=63
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.1618m; steady p99=0.0000m; steady max=0.0631m; steady >1cm=1; max pending at completion=6
+players=2; outbound delay=0ms; jitter=0ms; loss=2%; corrections=232; p99=0.0000m; max=0.1618m; snapshots/client=233; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,0,0,2.0f,0.0f) [12 s]
+CORRECTION tick=105; vehicle=8; error=0.1766; scheduleLag=0.0011; age=0.0000; pending=8; clientAck=54; authorityAck=58; hostTick=106; snapshotTick=102
+CORRECTION tick=108; vehicle=7; error=0.2605; scheduleLag=0.0001; age=0.0000; pending=8; clientAck=87; authorityAck=91; hostTick=109; snapshotTick=105
+CORRECTION tick=125; vehicle=3; error=0.2379; scheduleLag=0.0006; age=0.0000; pending=7; clientAck=105; authorityAck=108; hostTick=126; snapshotTick=123
+CORRECTION tick=182; vehicle=4; error=0.1309; scheduleLag=0.0007; age=0.0000; pending=7; clientAck=162; authorityAck=165; hostTick=183; snapshotTick=180
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=56; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.2605m; steady p99=0.0000m; steady max=0.2379m; steady >1cm=4; max pending at completion=12
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1571; p99=0.0000m; max=0.2605m; snapshots/client=216; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,0.0f) [11 s]
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.0773m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=8
+players=2; outbound delay=30ms; jitter=10ms; loss=2%; corrections=229; p99=0.0000m; max=0.0773m; snapshots/client=231; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,30,10,2.0f,10.0f) [11 s]
+CORRECTION tick=54; vehicle=2; error=0.1196; scheduleLag=0.0018; age=0.0000; pending=8; clientAck=35; authorityAck=39; hostTick=55; snapshotTick=51
+CORRECTION tick=86; vehicle=4; error=0.2033; scheduleLag=0.0000; age=0.0000; pending=8; clientAck=65; authorityAck=68; hostTick=87; snapshotTick=84
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=58; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=59; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.2033m; steady p99=0.0000m; steady max=0.0441m; steady >1cm=1; max pending at completion=12
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1556; p99=0.0000m; max=0.2033m; snapshots/client=219; stale packets rejected
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,10.0f) [12 s]
+
+Test Run Successful.
+Total tests: 15
+     Passed: 15
+ Total time: 2.1203 Minutes
