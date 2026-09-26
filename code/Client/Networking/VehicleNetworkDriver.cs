@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Trackstorm.Core.Development;
 using Trackstorm.Core.Input;
 using Trackstorm.Core.Items;
@@ -26,7 +27,8 @@ internal sealed class VehicleNetworkDriver : IDisposable
     private readonly HashSet<ulong> _entrySynchronized = new();
     private InputHistory? _inputs;
     private ulong _session;
-    private double _snapshotAge;
+    private readonly Func<double> _seconds;
+    private double _lastSnapshotSeconds;
     private WorldSnapshot? _pendingSnapshot;
     private int _predictionSteps;
     private ulong _itemPublication;
@@ -57,8 +59,11 @@ internal sealed class VehicleNetworkDriver : IDisposable
     /// <param name="configuration">Validated effective gameplay tuning.</param>
     /// <param name="arena">Active map's validated player and optional pickup markers.</param>
     /// <param name="applicationEntry">Require the application loading barrier before simulation.</param>
-    internal VehicleNetworkDriver(ITransportGateway gateway, ulong hostSession, ulong serverPeer = 0, LobbyNetworkDriver? lobby = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null, Trackstorm.Core.Arenas.ArenaConfiguration? arena = null, bool applicationEntry = false)
+    /// <param name="seconds">Optional controlled monotonic presentation clock for tests.</param>
+    internal VehicleNetworkDriver(ITransportGateway gateway, ulong hostSession, ulong serverPeer = 0, LobbyNetworkDriver? lobby = null, DamageConfiguration? damageConfiguration = null, GameplayConfiguration? configuration = null, Trackstorm.Core.Arenas.ArenaConfiguration? arena = null, bool applicationEntry = false, Func<double>? seconds = null)
     {
+        _seconds = seconds ?? (() => (double)Stopwatch.GetTimestamp() / Stopwatch.Frequency);
+        _lastSnapshotSeconds = _seconds();
         _applicationEntry = applicationEntry;
         _entryReleased = !applicationEntry || (hostSession == 0 && lobby?.NeedsArenaCheckpoint == true);
         _arena = arena;
@@ -195,7 +200,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
     /// <summary>Host-assigned local vehicle identity.</summary>
     internal ulong LocalVehicleId { get; private set; }
     /// <summary>Seconds since a valid snapshot arrived on a client, or null when this host-owned metric is not applicable.</summary>
-    internal double? SnapshotAge => Host is null ? _snapshotAge : null;
+    internal double? SnapshotAge => Host is null ? Math.Max(0, _seconds() - _lastSnapshotSeconds) : null;
     /// <summary>Sequenced commands retained after assignment, including before prediction can be initialized.</summary>
     internal InputHistory? Inputs => Prediction?.History ?? _inputs;
     /// <summary>Observed protocol rejection count.</summary>
@@ -265,7 +270,6 @@ internal sealed class VehicleNetworkDriver : IDisposable
         }
         else
         {
-            _snapshotAge += 1.0 / HostVehicleSession.TickRate;
             if (!_gateway.Connections.TryGetValue(ServerPeer, out var state) || state == TransportConnectionState.Disconnected)
             {
                 if (_lobby?.Reconnect is null)
@@ -787,7 +791,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         EnvironmentState = checkpoint.Environment;
         if (EnvironmentState is not null) { EnvironmentReceived?.Invoke(EnvironmentState); }
         _lastLifecycleTick = world.Tick;
-        _snapshotAge = 0;
+        _lastSnapshotSeconds = _seconds();
         _generation = _lobby.Generation;
         _awaitingCheckpoint = false;
         EntryContext = null;
@@ -934,7 +938,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
 
         Latest = snapshot;
         _pendingSnapshot = snapshot;
-        _snapshotAge = 0;
+        _lastSnapshotSeconds = _seconds();
         ReceivedSnapshots++;
         if (!deferPrediction) { FlushPrediction(observe); }
         return true;

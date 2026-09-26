@@ -1,0 +1,8 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Cycle 1: out-of-bounds death, all eight peers Dead/Respawning/Alive, respawn tick 783, reset physics/HP/items/VFX verified.
+Cycle 2: out-of-bounds death, all eight peers Dead/Respawning/Alive, respawn tick 1587, reset physics/HP/items/VFX verified.
+Cycle 3: out-of-bounds death, all eight peers Dead/Respawning/Alive, respawn tick 2386, reset physics/HP/items/VFX verified.
+Cycle 4: out-of-bounds death, all eight peers Dead/Respawning/Alive, respawn tick 3193, reset physics/HP/items/VFX verified.
+Death/respawn integration passed.
+Death/respawn verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\death-checks\aabe988f716947acbbcdd331021604b6

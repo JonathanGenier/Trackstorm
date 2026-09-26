@@ -89,7 +89,7 @@ internal sealed partial class VehicleNetworkDriverTests
 
     /// <summary>Only clients expose snapshot freshness; host diagnostics render the metric as unavailable.</summary>
     [Test]
-    public void SnapshotAgeIsClientOnly()
+    public void SnapshotAgeIsClientOnlyAndTracksElapsedTimeInsteadOfCatchUpSteps()
     {
         using var hostGateway = new DriverGateway();
         var host = new VehicleNetworkDriver(hostGateway, Session);
@@ -99,9 +99,13 @@ internal sealed partial class VehicleNetworkDriverTests
         Assert.That(NetworkVehicleArena.FormatSnapshotAge(host.SnapshotAge), Is.EqualTo("N/A"));
 
         using var clientGateway = ConnectedGateway();
-        var client = new VehicleNetworkDriver(clientGateway, 0, ServerPeer);
-        client.Advance(default, Observe);
-        Assert.That(client.SnapshotAge, Is.EqualTo(1.0 / HostVehicleSession.TickRate).Within(0.000001));
+        double seconds = 10;
+        var client = new VehicleNetworkDriver(clientGateway, 0, ServerPeer, seconds: () => seconds);
+        seconds += 0.05;
+        for (int tick = 0; tick < 64; tick++) { client.Advance(default, Observe); }
+        Assert.That(client.SnapshotAge, Is.EqualTo(0.05).Within(0.000001), "Catch-up ticks cannot manufacture over a second of snapshot age.");
+        seconds += 1;
+        Assert.That(client.SnapshotAge, Is.EqualTo(1.05).Within(0.000001), "A frame stall ages the last boundary even without simulation callbacks.");
     }
 
     /// <summary>Post-assignment inputs are sent before authority arrives, then acknowledged and replayed exactly once.</summary>
@@ -109,7 +113,8 @@ internal sealed partial class VehicleNetworkDriverTests
     public void DelayedFirstSnapshotAdoptsAcknowledgesAndReplaysQueuedInputs()
     {
         using var gateway = ConnectedGateway();
-        var client = new VehicleNetworkDriver(gateway, 0, ServerPeer);
+        double seconds = 10;
+        var client = new VehicleNetworkDriver(gateway, 0, ServerPeer, seconds: () => seconds);
         InputFrame first = Drive(1000, InputButtons.Drift, InputButtons.Drift, 0);
         InputFrame second = Drive(2000, 0, 0, InputButtons.Drift);
         InputFrame third = Drive(3000, 0, InputButtons.UseItem, InputButtons.UseItem);
@@ -151,12 +156,14 @@ internal sealed partial class VehicleNetworkDriverTests
         Assert.That(client.SnapshotAge, Is.Zero);
 
         int rejectedBeforeDuplicate = client.RejectedPackets;
+        seconds += 0.25;
         gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeSnapshot(firstSnapshot), TransportDelivery.Unreliable));
         expected.Predict(fourth, Observe);
         client.Advance(fourth, Observe);
 
         Assert.That(client.RejectedPackets, Is.EqualTo(rejectedBeforeDuplicate + 1));
         Assert.That(client.ReceivedSnapshots, Is.EqualTo(1));
+        Assert.That(client.SnapshotAge, Is.EqualTo(0.25), "Stale traffic cannot refresh snapshot age.");
         Assert.That(client.Prediction.History.Pending.Select(input => input.Sequence), Is.EqualTo(new uint[] { 2, 3, 4 }));
         Assert.That(client.Prediction.State, Is.EqualTo(expected.State), "A duplicate first snapshot must not replay retained inputs again.");
     }

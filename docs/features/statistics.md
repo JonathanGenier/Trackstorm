@@ -34,6 +34,9 @@ show reconciliations, corrections above 1 cm and at least 10 cm, 1 m and 3 m, pl
 error. Pending input count and the explicit 300 ms prediction-horizon hold distinguish a
 stalled authority stream from presentation smoothing. These are local diagnostics; no
 client metric changes authority. See [vehicle networking](vehicle-networking.md).
+Client snapshot age uses monotonic elapsed time since the latest accepted boundary,
+including time spent in a frame stall. Catch-up simulation callbacks do not inflate it,
+and rejected stale traffic does not reset it. Hosts display this client metric as unavailable.
 
 Global/Session and Player/Vehicle use separate tabs. Close stays outside scrolling;
 the player selector remains above the player tab's independently scrolling values.

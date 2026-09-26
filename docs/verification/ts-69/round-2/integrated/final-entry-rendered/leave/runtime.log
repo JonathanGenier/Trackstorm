@@ -1,0 +1,7 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+VERIFIED: 4 players; first 3 loaded, final scene delayed ten seconds; authority remains tick zero.
+Entry correction quality player 2: startup 40 reconciliations; >1cm 0; >=10cm 0; >=1m 0; >=3m 0; max 0.000 m; steady 90 reconciliations; >1cm 0; >=10cm 0; >=1m 0; >=3m 0; max 0.000 m; hard snaps 0
+Entry correction quality player 3: startup 40 reconciliations; >1cm 0; >=10cm 0; >=1m 0; >=3m 0; max 0.000 m; steady 91 reconciliations; >1cm 0; >=10cm 0; >=1m 0; >=3m 0; max 0.000 m; hard snaps 0
+Match start integration passed: players=4, leave=True, reconnect=False, checkpoint installations=1, GO tick=300; neutral controls and native vehicles before GO; timer starts at GO; sequences=5,4,3,2,1,GO / 5,4,3,2,1,GO / 5,4,3,2,1,GO /
