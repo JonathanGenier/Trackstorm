@@ -12,7 +12,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
 {
     private readonly VBoxContainer _host = new() { Visible = false, SizeFlagsVertical = SizeFlags.ExpandFill };
     private readonly VBoxContainer _practice = new() { Visible = false };
-    private readonly VBoxContainer _network = new() { Visible = false };
+    private ConfigsAccordion _network = null!;
     private readonly Label _availability = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly Label _status = new() { AutowrapMode = TextServer.AutowrapMode.WordSmart };
     private readonly Label _feedback = new() { Name = "ConfigFeedback", Visible = false, VerticalAlignment = VerticalAlignment.Center };
@@ -21,7 +21,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     private readonly LineEdit _search = new() { Name = "ConfigSearch", PlaceholderText = "Search settings by label or category…", ClearButtonEnabled = true };
     private readonly Label _noResults = new() { Text = "No settings match your search.", Visible = false };
     private readonly Dictionary<string, Control> _editors = new(StringComparer.Ordinal);
-    private readonly List<(Control Section, List<(Label Label, Control Editor, string Search)> Rows)> _sections = new();
+    private readonly List<(ConfigsAccordion Section, List<(Label Label, Control Editor, string Search)> Rows)> _sections = new();
     private readonly DeveloperOptionsDraft _draft = new();
     private readonly List<SpinBox> _simulation = new();
     private readonly double[] _appliedSimulation = new double[5];
@@ -77,12 +77,11 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         settings.AddChild(_noResults);
         foreach (var group in GameplayOptions.All.GroupBy(option => option.Group))
         {
-            var section = new VBoxContainer();
+            var section = new ConfigsAccordion(group.Key, () => ResetCategory(group.Key));
             settings.AddChild(section);
-            section.AddChild(new Label { Text = group.Key.ToUpperInvariant() });
             if (group.Key is "Item categories" or "Item spawns")
             {
-                section.AddChild(new Label
+                section.Body.AddChild(new Label
                 {
                     Text = group.Key == "Item categories"
                         ? "Server-wide category targets (default 2:1:1). Each player retains independent category history."
@@ -90,7 +89,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
                     AutowrapMode = TextServer.AutowrapMode.WordSmart,
                 });
             }
-            var rows = ConfigurationRows(section);
+            var rows = ConfigurationRows(section.Body);
             var entries = new List<(Label Label, Control Editor, string Search)>();
             _sections.Add((section, entries));
             foreach (var option in group)
@@ -122,6 +121,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
                     editor = number;
                 }
 
+                editor.CustomMinimumSize = new Vector2(150, 36);
                 editor.Name = option.Key.Replace('.', '_');
                 editor.TooltipText = option.Label + (option.Label.EndsWith("Ticks", StringComparison.Ordinal) ? " (60 ticks = 1 second)" : string.Empty);
                 _editors.Add(option.Key, editor);
@@ -135,11 +135,10 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             _tireBaseline = LocalSettings.Current.TireEffects;
             foreach (var group in TireEffectSettings.Options.GroupBy(option => option.Group))
             {
-                var section = new VBoxContainer();
+                var section = new ConfigsAccordion(group.Key, () => ResetTireCategory(group.Key));
                 settings.AddChild(section);
                 _localSections.Add(section);
-                section.AddChild(new Label { Text = group.Key.ToUpperInvariant() });
-                var rows = ConfigurationRows(section);
+                var rows = ConfigurationRows(section.Body);
                 var entries = new List<(Label Label, Control Editor, string Search)>();
                 _sections.Add((section, entries));
                 foreach (var option in group)
@@ -154,11 +153,12 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             }
             RenderTireValues(_tireBaseline);
         }
+        _network = new ConfigsAccordion("Local network simulation", ResetNetworkCategory);
         settings.AddChild(_network);
-        _network.AddChild(new Label { Text = "LOCAL NETWORK SIMULATION · Direct-IP only, process-wide, not saved.", AutowrapMode = TextServer.AutowrapMode.WordSmart });
+        _network.Body.AddChild(new Label { Text = "Direct-IP only, process-wide, not saved.", AutowrapMode = TextServer.AutowrapMode.WordSmart });
         string[] names = ["Latency (ms)", "Jitter (ms)", "Loss (%)", "Reorder (%)", "Reorder delay (ms)"];
         int[] maxima = [5000, 1000, 100, 100, 5000];
-        var networkRows = ConfigurationRows(_network);
+        var networkRows = ConfigurationRows(_network.Body);
         var networkEntries = new List<(Label Label, Control Editor, string Search)>();
         _sections.Add((_network, networkEntries));
         for (int i = 0; i < names.Length; i++)
@@ -403,12 +403,48 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
 
         _draft.ResetToDefaults();
         RenderValues();
-        foreach (var value in _simulation)
-        {
-            value.Value = 0;
-        }
+        StageNetworkDefaults();
 
         _status.Text = "Game defaults staged. Press Apply Settings to apply them.";
+        UpdateFeedback();
+    }
+
+    private void ResetCategory(string group)
+    {
+        if (Session()?.IsDeveloperHost != true) { return; }
+        _draft.ResetCategoryToDefaults(group);
+        RenderValues(group);
+        CategoryResetFeedback(group);
+    }
+
+    private void ResetTireCategory(string group)
+    {
+        if (LocalSettings is null) { return; }
+        foreach (var option in TireEffectSettings.Options.Where(option => option.Group == group))
+        {
+            _tireEditors[option.Key].Text = TireEffectSettings.Defaults[option.Key].ToString("G", System.Globalization.CultureInfo.InvariantCulture);
+        }
+        ColorTireValues();
+        CategoryResetFeedback(group);
+    }
+
+    private void ResetNetworkCategory()
+    {
+        if (Session()?.IsDeveloperHost != true || !NetworkSimulationControl.Supported(Session()?.Gateway)) { return; }
+        StageNetworkDefaults();
+        CategoryResetFeedback("Local network simulation");
+    }
+
+    private void StageNetworkDefaults()
+    {
+        var defaults = new NetworkSimulation();
+        double[] values = [defaults.LatencyMilliseconds, defaults.JitterMilliseconds, defaults.LossPercent, defaults.ReorderPercent, defaults.ReorderMilliseconds];
+        for (int i = 0; i < _simulation.Count; i++) { _simulation[i].Value = values[i]; }
+    }
+
+    private void CategoryResetFeedback(string group)
+    {
+        _status.Text = $"{group} defaults staged. Press Apply Settings to apply them.";
         UpdateFeedback();
     }
 
@@ -424,10 +460,10 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         UpdateFeedback();
     }
 
-    private void RenderValues()
+    private void RenderValues(string? group = null)
     {
         _refreshing = true;
-        foreach (var option in GameplayOptions.All)
+        foreach (var option in GameplayOptions.All.Where(option => group is null || option.Group == group))
         {
             string value = _draft.Get(option.Key);
             if (_editors[option.Key] is OptionButton presets)
@@ -519,6 +555,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             }
 
             section.Visible = found;
+            section.Reveal(words.Length > 0);
             any |= found;
         }
 
