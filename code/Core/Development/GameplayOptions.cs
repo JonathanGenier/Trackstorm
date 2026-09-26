@@ -129,6 +129,7 @@ public static class GameplayOptions
         new("match.base_kill_points", "Match", "BaseKillPoints", false, c => c.Match.BaseKillPoints, (c, v) => c with { Match = c.Match with { BaseKillPoints = v } }, doublePrecision: true),
         new("match.kill_streak_bonus_step", "Match", "KillStreakBonusStep", false, c => c.Match.KillStreakBonusStep, (c, v) => c with { Match = c.Match with { KillStreakBonusStep = v } }, doublePrecision: true),
         new("match.collision_points_per_damage", "Match", "CollisionPointsPerDamage", false, c => c.Match.CollisionPointsPerDamage, (c, v) => c with { Match = c.Match with { CollisionPointsPerDamage = v } }, doublePrecision: true),
+        new("match.item_points_per_damage", "Match", "ItemPointsPerDamage", false, c => c.Match.ItemPointsPerDamage, (c, v) => c with { Match = c.Match with { ItemPointsPerDamage = v } }, doublePrecision: true),
         new("match.drift_minimum_speed", "Circus stunts", "DriftMinimumSpeed", false, c => c.Match.DriftMinimumSpeed, (c, v) => c with { Match = c.Match with { DriftMinimumSpeed = v } }, doublePrecision: true),
         new("match.drift_minimum_seconds", "Circus stunts", "DriftMinimumSeconds", false, c => c.Match.DriftMinimumSeconds, (c, v) => c with { Match = c.Match with { DriftMinimumSeconds = v } }, doublePrecision: true),
         new("match.drift_rate", "Circus stunts", "DriftRate", false, c => c.Match.DriftRate, (c, v) => c with { Match = c.Match with { DriftRate = v } }, doublePrecision: true),

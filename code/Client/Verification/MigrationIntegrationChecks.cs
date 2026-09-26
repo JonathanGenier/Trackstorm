@@ -288,7 +288,6 @@ public sealed partial class MigrationIntegrationChecks : Node
             _mine = ProxyMineRecoveryFixture.Seed(_arenas[1]!, _arenas.Take(_players).Select(arena => arena!));
             _nitroOwner = _drivers[1]!.LocalPlayerId;
             Require(_arenas[1]!.Driver.Host!.Items.Grant(_arenas[1]!.Driver.Host!.World, _nitroOwner, HeldItem.Nitro), "Nitro uses the same authority before host loss.");
-            _configuration = _arenas[1]!.Driver.Configuration;
             _randomState = _arenas[1]!.Driver.Host!.Spawns!.RandomState;
             if (_players == 3)
             {
@@ -315,9 +314,11 @@ public sealed partial class MigrationIntegrationChecks : Node
                 NitroRecoveryFixture.Seed(arena, _nitroOwner);
                 _machineGunOwner = _drivers[0]!.LocalPlayerId;
                 MachineGunRecoveryFixture.Seed(arena, _machineGunOwner);
-                _circusBoundaries[match.Revision] = match;
+                ItemDamageRecoveryFixture.Seed(arena, arena.Driver.Host!.HostPlayerId);
+                _circusBoundaries[arena.Driver.Host!.World.State.Match!.Revision] = arena.Driver.Host.World.State.Match!;
                 arena.Driver.MatchReceived += state => _circusBoundaries[state.Revision] = state;
             }
+            _configuration = _arenas[1]!.Driver.Host!.Configuration;
             SalvoRecoveryFixture.Seed(_arenas[1]!);
             _arenas[1]!.Driver.ItemsReceived += state => _salvoBoundaries[state.World.Tick] = state;
             _boundary = _frames;

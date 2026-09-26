@@ -13,6 +13,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Three real UDP peers, native banked terrain, local marker privacy and repeated salvos.</summary>
 public sealed partial class SalvoIntegrationChecks : Node
 {
+    private readonly ItemDamageScoringCheck _scoring = new();
     private readonly List<GameNetworkingSocketsTransport> _gateways = [];
     private readonly List<NetworkVehicleArena> _arenas = [];
     private readonly List<SubViewport> _views = [];
@@ -61,12 +62,14 @@ public sealed partial class SalvoIntegrationChecks : Node
             var arena = new NetworkVehicleArena { PrototypeMapForVerification = true };
             arena.Initialize(gateway, i == 0 ? 88ul : 0, server);
             view.AddChild(arena);
-            view.AddChild(new Hud.CombatHud { Vehicle = () => arena.LocalState, Slot = () => arena.Driver.LocalItem });
+            view.AddChild(new Hud.CombatHud { Vehicle = () => arena.LocalState, Slot = () => arena.Driver.LocalItem, Match = () => arena.Driver.Match, Player = () => arena.Driver.LocalVehicleId });
             var bank = new StaticBody3D { Position = new(0, 20, 0), Rotation = new(0, 0, 0.12f), CollisionLayer = 1 };
             bank.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(600, 1, 600) } });
             bank.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(600, 1, 600) }, MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.24f, 0.28f, 0.3f) } });
             arena.AddChild(bank);
             _arenas.Add(arena);
+            bool authority = i == 0;
+            arena.Driver.MatchReceived += match => _scoring.Observe(match, authority);
             var events = new List<ItemEvent>(); _events.Add(events);
             arena.Driver.ItemsReceived += p => events.AddRange(p.Events.Where(e => e.Item == HeldItem.Salvo));
         }
@@ -91,7 +94,9 @@ public sealed partial class SalvoIntegrationChecks : Node
             if (_done && playInput.Pressed != 0) { GD.Print($"Interactive input: {playInput.Pressed}"); }
             foreach (var arena in _arenas)
             {
+                var before = arena.Driver.Host?.World.State;
                 arena.Advance(arena == _arenas[_done ? 1 : ShooterIndex] ? playInput : default);
+                if (before is not null) { _scoring.Verify(arena.Driver.Host!, before.Value, "Salvo"); }
                 Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure);
             }
             var host = _arenas[0].Driver.Host!;
@@ -125,7 +130,7 @@ public sealed partial class SalvoIntegrationChecks : Node
                     }
                     Check(_arenas[ShooterIndex].Driver.RequestItemUse(), "Remote capability use");
                     Next("Banked ring visible only to owner; remote use sent over UDP."); break;
-                case 20 when _arenas[ShooterIndex].Driver.LocalItem?.Active.Item == HeldItem.Wrench && _frame - _boundary > 10:
+                case 20 when _arenas[ShooterIndex].Driver.LocalItem?.Active.Item == HeldItem.Wrench && !_arenas[ShooterIndex].SalvoMarker.Visible && _frame - _boundary > 10:
                     Check(!_arenas[ShooterIndex].SalvoMarker.Visible, "Switch away clears unused aiming marker");
                     Check(_arenas[ShooterIndex].Driver.RequestItemSwitch(), "Switch back");
                     _stage = 21; _boundary = _frame; break;
@@ -182,6 +187,7 @@ public sealed partial class SalvoIntegrationChecks : Node
                     break;
                 case 4 when _frame - _boundary > 45:
                     Check(_arenas.All(a => !a.SalvoMarker.Visible), "Marker clears after final round on all peers");
+                    Capture(ShooterIndex, $"score-wave-{_wave + 1}.png");
                     if (++_wave < 3)
                     {
                         foreach (var events in _events) { events.Clear(); }
@@ -193,6 +199,8 @@ public sealed partial class SalvoIntegrationChecks : Node
                     }
                     else
                     {
+                        Check(_scoring.Hits >= 20 && _scoring.Points > 0, "Repeated multi-target Salvo damage scores through the shared authority");
+                        Next($"Item scoring verified: {_scoring.Hits} applied rival hits, {_scoring.Points:0.######} points; all received peer revisions agree.");
                         _done = true; _boundary = _frame;
                         if (Play)
                         {
@@ -223,7 +231,7 @@ public sealed partial class SalvoIntegrationChecks : Node
             float x = v.VehicleId == Shooter ? 0 : v.VehicleId == 3 ? 3 : -2;
             var pose = new VehiclePhysicsState(new N.Vector3(x, 22 + x * 0.12f, v.VehicleId == Shooter ? 70 : 5), N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
             _arenas[0].Bodies[v.VehicleId].Apply(pose);
-            return new VehicleSnapshot(v.VehicleId, v.LifeId, new VehicleState(state.Tick, pose, true, false, 0, 0), new VehicleDamageState(1000, 1000, null, null), pose);
+            return new VehicleSnapshot(v.VehicleId, v.LifeId, new VehicleState(state.Tick, pose, true, false, 0, 0), new VehicleDamageState(1000, 1000, v.Damage.LastDamage, v.Damage.LastCollisionTick), pose);
         }), state.Match));
     }
 

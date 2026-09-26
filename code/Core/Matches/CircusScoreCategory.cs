@@ -13,4 +13,6 @@ public enum CircusScoreCategory : byte
     Nitro = 7,
     /// <summary>Confirmed rival entry into an owned Oil patch.</summary>
     Oil = 8,
+    /// <summary>Actual authoritative HP removed by registered damaging items.</summary>
+    ItemDamage = 9,
 }

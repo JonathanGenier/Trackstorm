@@ -96,6 +96,7 @@ internal sealed class CircusScoreFeedback
     private static string Name(CircusScoreCategory category) => category switch
     {
         CircusScoreCategory.LongJump => "LONG JUMP",
+        CircusScoreCategory.ItemDamage => "ITEM DAMAGE",
         CircusScoreCategory.TopSpeed => "TOP SPEED",
         _ => category.ToString().ToUpperInvariant(),
     };

@@ -29,19 +29,19 @@ internal sealed class CircusScoringTests
     {
         var world = Create();
         Hit(world, 2, 1, "missile", 100);
-        Assert.That(Score(world, 1), Is.EqualTo(new PlayerScore(1, 1, 0, 0, 0) { CircusScore = 100, KillStreak = 1 }));
+        Assert.That(Score(world, 1), Is.EqualTo(new PlayerScore(1, 1, 0, 0, 0) { CircusScore = 200, KillStreak = 1 }));
         Reset(world, 2);
         Hit(world, 2, 1, "missile", 100);
-        Assert.That(Score(world, 1).CircusScore, Is.EqualTo(350));
+        Assert.That(Score(world, 1).CircusScore, Is.EqualTo(550));
         Assert.That(Score(world, 1).KillStreak, Is.EqualTo(2));
         Hit(world, 1, 0, "environment", 100);
-        Assert.That(Score(world, 1).CircusScore, Is.EqualTo(350));
+        Assert.That(Score(world, 1).CircusScore, Is.EqualTo(550));
         Assert.That(Score(world, 1).KillStreak, Is.Zero);
         Assert.That(Score(world, 1).KdMultiplier, Is.EqualTo(1));
         Reset(world, 1);
         Reset(world, 2);
         Hit(world, 2, 1, "missile", 100);
-        Assert.That(Score(world, 1).CircusScore, Is.EqualTo(500));
+        Assert.That(Score(world, 1).CircusScore, Is.EqualTo(800));
         Assert.That(Score(world, 1).KillStreak, Is.EqualTo(1));
     }
 
@@ -55,19 +55,19 @@ internal sealed class CircusScoringTests
         Hit(world, 2, 1, "missile", 100);
         Reset(world, 2);
         Hit(world, 2, 1, "collision", 10);
-        Assert.That(Score(world, 1).CircusScore, Is.EqualTo(390));
+        Assert.That(Score(world, 1).CircusScore, Is.EqualTo(590));
         Assert.That(Score(world, 1).Kills, Is.EqualTo(2));
         Assert.That(world.State.Match!.Awards, Is.EqualTo(new[] { new CircusScoreAward(1, CircusScoreCategory.Collision, 40) }));
         Hit(world, 2, 1, "collision", 1000);
         // Remaining 90 HP * 2 conversion * x2, followed by (100 + 50) * x3.
-        Assert.That(Score(world, 1).CircusScore, Is.EqualTo(1200));
+        Assert.That(Score(world, 1).CircusScore, Is.EqualTo(1400));
         Assert.That(world.State.Match!.Awards, Is.EqualTo(new[]
         {
             new CircusScoreAward(1, CircusScoreCategory.Collision, 360),
             new CircusScoreAward(1, CircusScoreCategory.Kill, 450),
         }));
         Hit(world, 2, 1, "collision", 1000);
-        Assert.That(Score(world, 1).CircusScore, Is.EqualTo(1200));
+        Assert.That(Score(world, 1).CircusScore, Is.EqualTo(1400));
     }
 
     /// <summary>All applied hits survive intervening sources in the same candidate batch.</summary>
@@ -77,7 +77,7 @@ internal sealed class CircusScoringTests
         var world = Create();
         Step(world, vehicle => vehicle.VehicleId == 2 ? [Effect(10, "collision", 1), Effect(5, "missile", 1), Effect(7, "collision", 1)] : []);
         Assert.That(world.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(78));
-        Assert.That(Score(world, 1).CircusScore, Is.EqualTo(17));
+        Assert.That(Score(world, 1).CircusScore, Is.EqualTo(22));
         Assert.That(Score(world, 2).ProcessedDamageSequence, Is.EqualTo(3));
     }
 
@@ -107,11 +107,11 @@ internal sealed class CircusScoringTests
         Assert.That(Score(restored, 1).CircusScore, Is.EqualTo(54), "A new life's sequence one is a new application.");
     }
 
-    /// <summary>Only valid opponent collision damage scores; zero contacts and non-collision hits do not.</summary>
+    /// <summary>Invalid attribution and unsupported nonlethal sources do not score.</summary>
     [TestCase(0ul, "collision")]
     [TestCase(2ul, "collision")]
     [TestCase(99ul, "collision")]
-    [TestCase(1ul, "missile")]
+    [TestCase(1ul, "environment")]
     public void InvalidOrOtherNonlethalSourcesDoNotBank(ulong attacker, string source)
     {
         var world = Create();
@@ -181,18 +181,20 @@ internal sealed class CircusScoringTests
     [Test]
     public void WireAndTuningPreserveFractionalValuesAndValidateBounds()
     {
-        var configuration = new GameplayConfiguration { Match = new() { BaseKillPoints = 123.5, KillStreakBonusStep = 7.25, CollisionPointsPerDamage = 0.5 } };
+        var configuration = new GameplayConfiguration { Match = new() { BaseKillPoints = 123.5, KillStreakBonusStep = 7.25, CollisionPointsPerDamage = 0.5, ItemPointsPerDamage = 0.125 } };
         Assert.That(GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(1, new(2, configuration))).State.Configuration, Is.EqualTo(configuration));
         var oldFile = DeveloperSettingsFile.Read("{\"schema\":2}\n{\"key\":\"match.kill_target\",\"value\":20}");
         Assert.That(oldFile.Configuration.Match.BaseKillPoints, Is.EqualTo(100));
         Assert.That(oldFile.Configuration.Match.KillStreakBonusStep, Is.EqualTo(25));
         Assert.That(oldFile.Configuration.Match.CollisionPointsPerDamage, Is.EqualTo(1));
+        Assert.That(oldFile.Configuration.Match.ItemPointsPerDamage, Is.EqualTo(1));
         Assert.That(DeveloperSettingsFile.Read(oldFile.Write(configuration)).Configuration, Is.EqualTo(configuration));
         foreach (double value in new[] { -1d, double.NaN, double.PositiveInfinity, 1000001d })
         {
             Assert.Throws<ArgumentException>(() => new MatchConfiguration { BaseKillPoints = value }.Validate());
             Assert.Throws<ArgumentException>(() => new MatchConfiguration { KillStreakBonusStep = value }.Validate());
             Assert.Throws<ArgumentException>(() => new MatchConfiguration { CollisionPointsPerDamage = value }.Validate());
+            Assert.Throws<ArgumentException>(() => new MatchConfiguration { ItemPointsPerDamage = value }.Validate());
         }
 
         var scores = Enumerable.Range(1, 256).Select(id => new PlayerScore((ulong)id, 2, 1, 0, 1) { CircusScore = 125.125, KillStreak = 1, ProcessedDamageLife = 2, ProcessedDamageSequence = 3 });

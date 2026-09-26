@@ -18,7 +18,7 @@ public static class MatchCodec
         ArgumentNullException.ThrowIfNull(state);
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x4d, 8 });
+        writer.Write(new byte[] { 0x54, 0x4d, 9 });
         writer.Write(session);
         writer.Write(state.Tick);
         writer.Write(state.Revision);
@@ -87,7 +87,7 @@ public static class MatchCodec
     /// <returns>Session and complete validated state.</returns>
     public static (ulong Session, MatchState State) Decode(ReadOnlySpan<byte> bytes)
     {
-        if (!IsMatch(bytes) || bytes.Length is < 76 or > 18432 || bytes[2] != 8)
+        if (!IsMatch(bytes) || bytes.Length is < 76 or > 18432 || bytes[2] != 9)
         {
             throw new ArgumentException("Invalid match header or size.");
         }

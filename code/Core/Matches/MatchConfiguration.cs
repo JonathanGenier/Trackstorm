@@ -23,6 +23,8 @@ public sealed record MatchConfiguration
     public double KillStreakBonusStep { get; init; } = 25;
     /// <summary>Base Circus points per actual collision HP removed from another participant.</summary>
     public double CollisionPointsPerDamage { get; init; } = 1;
+    /// <summary>Base Circus points per actual item HP removed from a rival participant.</summary>
+    public double ItemPointsPerDamage { get; init; } = 1;
 
     /// <summary>Minimum horizontal metres per second for a physical drift.</summary>
     public double DriftMinimumSpeed { get; init; } = 5;
@@ -67,7 +69,7 @@ public sealed record MatchConfiguration
     public void Validate()
     {
         if (!Enum.IsDefined(Mode) || DurationTicks is < 1 or > 216000 || KillTarget is < 1 or > 1000000 || CountdownTicks is < 1 or > 36000 || MinimumPlayers is < 1 or > 8 ||
-            !ValidPoints(NitroPointsPerSecond) || !ValidPoints(BaseKillPoints) || !ValidPoints(KillStreakBonusStep) || !ValidPoints(CollisionPointsPerDamage) || !ValidPoints(DriftRate) || !ValidPoints(DriftTierStep) ||
+            !ValidPoints(NitroPointsPerSecond) || !ValidPoints(BaseKillPoints) || !ValidPoints(KillStreakBonusStep) || !ValidPoints(CollisionPointsPerDamage) || !ValidPoints(ItemPointsPerDamage) || !ValidPoints(DriftRate) || !ValidPoints(DriftTierStep) ||
             !ValidPoints(AirtimeRate) || !ValidPoints(AirtimeTierStep) || !ValidPoints(JumpPointsPerMetre) ||
             !Bounded(DriftMinimumSpeed, 0.1, 65) || !Bounded(DriftMinimumSeconds, 0.01, 60) ||
             !Bounded(AirtimeMinimumSeconds, 0.01, 60) || !Bounded(DriftTierSeconds, 0.01, 60) || !Bounded(AirtimeTierSeconds, 0.01, 60) ||

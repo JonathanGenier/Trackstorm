@@ -103,7 +103,7 @@ internal sealed class ResumeCheckpointTests
         Assert.That(checkpoint.Items.World.Vehicles.Single(v => v.State.VehicleId == 2).State.RespawnAtTick, Is.EqualTo(dead.RespawnAtTick));
         Assert.That(checkpoint.Match.Changes, Is.Empty);
         Assert.That(checkpoint.Match.Players.Single(p => p.Player == 1).Kills, Is.EqualTo(1));
-        Assert.That(checkpoint.Match.Players.Single(p => p.Player == 1).CircusScore, Is.EqualTo(100));
+        Assert.That(checkpoint.Match.Players.Single(p => p.Player == 1).CircusScore, Is.EqualTo(200));
         Assert.That(checkpoint.Match.Players.Single(p => p.Player == 1).KillStreak, Is.EqualTo(1));
         Assert.That(checkpoint.Match.Players.Single(p => p.Player == 2).ProcessedLife, Is.EqualTo(dead.LifeId));
         Assert.That(host.ResumePlayer(20, 2), Is.True);
@@ -165,8 +165,11 @@ internal sealed class ResumeCheckpointTests
     private static VehicleObservation Observe(VehicleSnapshot state) => new(state.Movement.Physics, Vector3.UnitY);
 
     /// <summary>Nonlethal banked points, tuning and sequence memory survive actual checkpoint/authority reconstruction.</summary>
-    [Test]
-    public void CircusCollisionAndLiveTuningContinueAcrossAuthorityRestore()
+    [TestCase("collision", "match.collision_points_per_damage")]
+    [TestCase("missile", "match.item_points_per_damage")]
+    [TestCase("proxy-mine", "match.item_points_per_damage")]
+    [TestCase("salvo", "match.item_points_per_damage")]
+    public void CircusDamageAndLiveTuningContinueAcrossAuthorityRestore(string source, string key)
     {
         var host = new HostVehicleSession(100, matchConfiguration: new MatchConfiguration { CountdownTicks = 1, KillTarget = 20 });
         host.JoinPlayer(10, 2);
@@ -176,19 +179,22 @@ internal sealed class ResumeCheckpointTests
         {
             ["match.base_kill_points"] = 80,
             ["match.kill_streak_bonus_step"] = 10,
-            ["match.collision_points_per_damage"] = 2.5,
+            [key] = 2.5,
         }, out _), Is.True);
 
         void Hit(HostVehicleSession authority, float damage, ulong reset = 0)
         {
             var frame = new InputFrame(authority.World.State.Tick + 1, 0, 0, 0, 0, 0, 0);
             authority.World.Step(frame, authority.World.State.Vehicles.Select(vehicle => new VehicleStepRequest(vehicle.VehicleId, frame, Observe(vehicle),
-                vehicle.VehicleId == 2 && reset == 0 ? [new VehicleEffectRequest(new DamageEffect(damage, Vector3.Zero, Vector3.Zero), new DamageContext("collision", 1, "restore"))] : [],
+                vehicle.VehicleId == 2 && reset == 0 ? [new VehicleEffectRequest(new DamageEffect(damage, Vector3.Zero, Vector3.Zero), new DamageContext(source, 1, "restore"))] : [],
                 reset: vehicle.VehicleId == reset ? vehicle.ObservedPhysics : null)).ToArray());
         }
 
         Hit(host, 10);
         Assert.That(host.World.State.Match!.Players[0].CircusScore, Is.EqualTo(25));
+        var preview = host.PrepareJoin(3, 1)!;
+        Assert.That(preview.Match.Players.Take(2), Is.EqualTo(host.World.State.Match!.Players));
+        Assert.That(preview.Match.Players.Last().CircusScore, Is.Zero);
         host.Suspend(10);
         var state = host.World.State.Match!;
         var retained = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode);
@@ -201,6 +207,6 @@ internal sealed class ResumeCheckpointTests
         Assert.That(restored.World.State.Match!.Players[0].CircusScore, Is.EqualTo(330));
         Hit(restored, 0, 2);
         Hit(restored, 1000);
-        Assert.That(restored.World.State.Match!.Players[0].CircusScore, Is.EqualTo(760), "New life earns 250 collision points at x1 then (80 + 10) kill points at x2.");
+        Assert.That(restored.World.State.Match!.Players[0].CircusScore, Is.EqualTo(760), "New life earns 250 damage points at x1 then (80 + 10) kill points at x2.");
     }
 }

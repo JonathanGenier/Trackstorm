@@ -278,6 +278,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             MachineGunRecoveryFixture.Seed(_arenas[0], 1);
             _originalBody = _arenas[1].Bodies[_player];
             SetScores(false);
+            ItemDamageRecoveryFixture.Seed(_arenas[0], _player);
             _retainedScore = _arenas[0].Driver.Host!.World.State.Match!.Players.Single(score => score.Player == _player);
             _retainedRank = Standings()!.Rows.Single(row => row.PlayerId == _player).Rank;
             _resumeAt = _elapsed + 125;

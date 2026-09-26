@@ -12,6 +12,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Native flat/banked/uneven placement, distance-force trials, contacts and real UDP state delivery.</summary>
 public sealed partial class ProxyMineIntegrationChecks : Node
 {
+    private readonly ItemDamageScoringCheck _scoring = new();
     private readonly List<GameNetworkingSocketsTransport> _gateways = new();
     private readonly List<NetworkVehicleArena> _arenas = new();
     private readonly List<SubViewport> _views = new();
@@ -86,6 +87,7 @@ public sealed partial class ProxyMineIntegrationChecks : Node
         camera.LookAt(new Vector3(0, 20, 2));
         camera.MakeCurrent();
         _arenas.Add(arena);
+        arena.Driver.MatchReceived += match => _scoring.Observe(match, index == 0);
     }
 
     public override void _PhysicsProcess(double delta)
@@ -94,13 +96,13 @@ public sealed partial class ProxyMineIntegrationChecks : Node
         try
         {
             _frames++;
-            foreach (var arena in _arenas) { arena.Advance(default); Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure); }
+            foreach (var arena in _arenas) { var before = arena.Driver.Host?.World.State; arena.Advance(default); if (before is not null) { _scoring.Verify(arena.Driver.Host!, before.Value, "gameplay effect"); } Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure); }
             Check(_frames - _boundary < 1200, $"Mine stage {_stage} timeout; mines={_arenas[0].Driver.Host?.Items.Mines.Count}");
             var host = _arenas[0].Driver.Host!;
             switch (_stage)
             {
                 case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2):
-                    Check(host.TryConfigure(0, new Dictionary<string,double> { ["items.mine_damage"] = 60 }, out _), "damage tuning");
+                    Check(host.TryConfigure(0, new Dictionary<string,double> { ["items.mine_damage"] = 60, ["match.countdown_ticks"] = 1, ["match.item_points_per_damage"] = 0.5 }, out _), "damage tuning");
                     Position(1, new N.Vector3(0,21.4f,0));
                     Position(2, new N.Vector3(-35,21.4f,0));
                     Grant(1);
@@ -191,6 +193,8 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                     else { Next("Uneven terrain drive-over detonated and consumed the mine once; repeated remote use passed."); }
                     break;
                 case 12 when _frames - _boundary > 20 && _arenas.All(a => a.Driver.ItemState?.Mines.Count == 0):
+                    Check(_scoring.Hits >= 2 && _scoring.Points >= 60, "Repeated mine contacts award configured applied-damage points");
+                    _evidence.Add($"Item scoring verified: {_scoring.Hits} rival hits, {_scoring.Points} points; host, remote and late-join publications agree.");
                     var path = ProjectSettings.GlobalizePath("res://.godot/mine-checks");
                     System.IO.Directory.CreateDirectory(path);
                     System.IO.File.WriteAllLines(System.IO.Path.Combine(path, "evidence.txt"), _evidence);

@@ -90,10 +90,18 @@ internal static class MatchAuthority
                 victim = victim with { ProcessedDamageLife = vehicle.LifeId, ProcessedDamageSequence = applied.Sequence };
                 scores[victim.Player] = victim;
                 ulong attacker = applied.Attribution.InstigatorId;
-                if (configuration.Mode == MatchMode.Circus && lifecycle.AllowsGameplay && applied.Attribution.Source == "collision" && attacker != victim.Player &&
-                    scores.ContainsKey(attacker) && vehicles.Any(candidate => candidate.VehicleId == attacker))
+                if (configuration.Mode == MatchMode.Circus && lifecycle.AllowsGameplay && applied.Amount > 0 && attacker != victim.Player &&
+                    scores.ContainsKey(attacker))
                 {
-                    scores[attacker] = CircusScoring.Bank(scores[attacker], applied.Amount * configuration.CollisionPointsPerDamage, awards, CircusScoreCategory.Collision);
+                    if (applied.Attribution.Source == "collision" && vehicles.Any(candidate => candidate.VehicleId == attacker))
+                    {
+                        scores[attacker] = CircusScoring.Bank(scores[attacker], applied.Amount * configuration.CollisionPointsPerDamage, awards, CircusScoreCategory.Collision);
+                    }
+                    else if (Items.ItemRegistry.All.Any(item => item.DamageSource == applied.Attribution.Source))
+                    {
+                        // Persistent hazards retain their owner even after that vehicle leaves.
+                        scores[attacker] = CircusScoring.Bank(scores[attacker], applied.Amount * configuration.ItemPointsPerDamage, awards, CircusScoreCategory.ItemDamage);
+                    }
                 }
             }
 

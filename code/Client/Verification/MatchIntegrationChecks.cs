@@ -15,6 +15,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Eight native UDP peers complete six kills without finishing, then time expiry through real missile/ram deaths, then verify the frozen result through another death and respawn.</summary>
 public sealed partial class MatchIntegrationChecks : Node
 {
+    private readonly ItemDamageScoringCheck _itemScoring = new();
     private readonly List<GameNetworkingSocketsTransport> _gateways = new();
     private readonly List<NetworkVehicleArena> _arenas = new();
     private readonly List<List<VehicleSnapshot>> _boundaries = new();
@@ -137,7 +138,9 @@ public sealed partial class MatchIntegrationChecks : Node
             {
                 // Actively try driving/using during the wait; authority and prediction must suppress it.
                 bool inactive = arena.Driver.LocalState?.CanInteract == false;
+                var before = arena.Driver.Host?.World.State;
                 arena.Advance(inactive ? new InputFrame(0, 32767, 65535, 0, InputButtons.Drift | InputButtons.UseItem, InputButtons.UseItem, 0) : default);
+                if (before is not null) { _itemScoring.Verify(arena.Driver.Host!, before.Value, "Missile"); }
                 Require(arena.Driver.Failure.Length == 0, arena.Driver.Failure);
             }
 
@@ -310,7 +313,8 @@ public sealed partial class MatchIntegrationChecks : Node
                     Require(ReferenceEquals(_final, host.World.State.Match), "Respawning cannot alter final match state.");
                 }
 
-                string evidence = $"Cycle {_cycle + 1}: {(_cycle % 2 == 0 ? "missile" : "collision")} death, all eight peers agree on Circus score/streak/watermarks, kills, winner and Dead/Respawning/Alive, respawn tick {_deadline}, reset physics/HP/items/VFX verified.";
+                Require(_cycle != 0 || _itemScoring.Hits > 0, "Native Straight Missile awards actual applied damage separately from kills.");
+                string evidence = $"Item damage: {_itemScoring.Hits} hits / {_itemScoring.Points:0.######} points. Cycle {_cycle + 1}: {(_cycle % 2 == 0 ? "missile" : "collision")} death, all eight peers agree on Circus score/streak/watermarks, kills, winner and Dead/Respawning/Alive, respawn tick {_deadline}, reset physics/HP/items/VFX verified.";
                 _evidence.Add(evidence);
                 GD.Print(evidence);
                 if (_cycle == 5)
