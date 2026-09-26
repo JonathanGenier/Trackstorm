@@ -82,6 +82,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks
             Check(HasStatus("Could not save export"), "unwritable export destination gives retryable feedback");
             panel.Cancel();
         }
+        await CheckImports();
         Check(!_host.DeveloperSettings!.Current.Equals(_host.DeveloperConfiguration), "session changes do not overwrite the local defaults owner");
         await Capture("client-shared-configs");
         _lateClient.Leave();

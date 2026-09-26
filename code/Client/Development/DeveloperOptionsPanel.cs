@@ -38,6 +38,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     private bool _tireSaveFailed;
     private Dictionary<string, double>? _submittedEdits;
     private Button _exportButton = null!;
+    private Button _importButton = null!;
     private readonly Dictionary<string, LineEdit> _tireEditors = new();
     private readonly HashSet<Control> _localSections = new();
     internal Settings.PlayerSettingsController? LocalSettings { get; set; }
@@ -75,6 +76,9 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         _exportButton = Button(searchActions, "Export Changes", ExportChanges);
         _exportButton.TooltipText = "Save confirmed session differences from game defaults. Unapplied edits are excluded.";
         _exportButton.CustomMinimumSize = new Vector2(150, 40);
+        _importButton = Button(searchActions, "Import Configs", ImportConfigs);
+        _importButton.TooltipText = "Load only listed settings into the gameplay draft. Unlisted settings stay unchanged. Review, then Apply Settings to share them.";
+        _importButton.CustomMinimumSize = new Vector2(135, 40);
         _search.TextChanged += _ => Filter();
         var legend = new Label { Text = "Blue: default · Red: modified · Apply commits edits; resets apply immediately", AutowrapMode = TextServer.AutowrapMode.WordSmart };
         legend.AddThemeFontSizeOverride("font_size", 14);
@@ -256,7 +260,8 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         object? owner = (object?)session?.Arena?.Driver ?? session?.Lobby;
         ulong revision = session?.Arena?.Driver.Configuration.Revision ?? session?.Lobby?.Configuration?.Revision ?? 0;
         ulong epoch = session?.Lobby?.State?.AuthorityEpoch ?? 0;
-        _exportButton.Disabled = _exportText is not null || session?.CanConfigureDeveloperOptions != true;
+        _exportButton.Disabled = _exportText is not null || _importOwner is not null || session?.CanConfigureDeveloperOptions != true;
+        _importButton.Disabled = _exportText is not null || _importOwner is not null || AwaitingConfirmation || session?.CanConfigureDeveloperOptions != true;
         if (!ReferenceEquals(_owner, owner) || epoch != _authorityEpoch)
         {
             _submittedEdits = null;

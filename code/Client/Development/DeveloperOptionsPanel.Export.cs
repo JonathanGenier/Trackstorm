@@ -34,7 +34,7 @@ internal sealed partial class DeveloperOptionsPanel
 
     private void ExportChanges()
     {
-        if (_exportText is not null || Session() is not { CanConfigureDeveloperOptions: true } session) return;
+        if (_exportText is not null || _importOwner is not null || Session() is not { CanConfigureDeveloperOptions: true } session) return;
         // Capture one confirmed boundary when the action is invoked, independently of drafts/dialog duration.
         _exportText = ConfigurationChangesExport.Format(session.DeveloperConfiguration, GameVersion.Current.ToString(), DateTimeOffset.UtcNow);
         if (_exportDialog is null)
