@@ -215,15 +215,15 @@ public sealed partial class InfieldIntegrationChecks : Node3D
 
                 foreach (int end in new[] { -1, 1 })
                 {
-                    // Start on the existing flat junction approach, then turn onto
-                    // the side slope. This tests a continuous driven approach
-                    // without the known unrelated stationary uphill-start defect.
+                    // Use the open junction shoulder, then turn onto the side slope.
+                    // The old x=45/z=38 arc crosses authored dressing rocks; it is
+                    // not a collision-free side-climb line on the production map.
                     Vector3[] sideApproach = Enumerable.Range(0, 16)
-                        .Select(i => new Vector3(end * i * 2, 0, direction * 38))
+                        .Select(i => new Vector3(end * i, 0, direction * 34))
                         .Concat(Enumerable.Range(1, 9).Select(i => new Vector3(
-                            end * (30 + 15 * Mathf.Sin(i * Mathf.Pi / 18)), 0,
-                            direction * (23 + 15 * Mathf.Cos(i * Mathf.Pi / 18)))))
-                        .Concat(Enumerable.Range(1, 17).Select(i => new Vector3(end * 45, 0, direction * (23 - i * 2))))
+                            end * (15 + 15 * Mathf.Sin(i * Mathf.Pi / 18)), 0,
+                            direction * (19 + 15 * Mathf.Cos(i * Mathf.Pi / 18)))))
+                        .Concat(Enumerable.Range(1, 15).Select(i => new Vector3(end * 30, 0, direction * (19 - i * 2))))
                         .ToArray();
                     await Drive($"TabletopSide{end}_{direction}", sideApproach, 10, 8);
                 }

@@ -6,6 +6,16 @@ public static class GameplayOptions
     /// <summary>Stable allowlist of editable gameplay settings.</summary>
     public static IReadOnlyList<GameplayOption> All { get; } = Array.AsReadOnly<GameplayOption>(
     [
+        new("vehicle.wall_drag", "Collision", "Wall drag (0–5 /s)", false, c => c.Vehicle.WallDrag, (c, v) => c with { Vehicle = c.Vehicle with { WallDrag = checked((float)v) } }),
+        new("vehicle.crash_dissipation", "Collision", "Crash dissipation (0–1)", false, c => c.Vehicle.CrashDissipation, (c, v) => c with { Vehicle = c.Vehicle with { CrashDissipation = checked((float)v) } }),
+        new("vehicle.crash_rotation", "Collision", "Crash rotation (0–1)", false, c => c.Vehicle.CrashRotation, (c, v) => c with { Vehicle = c.Vehicle with { CrashRotation = checked((float)v) } }),
+        new("vehicle.crash_angular_limit", "Collision", "Crash angular change (0–3 rad/s)", false, c => c.Vehicle.CrashAngularLimit, (c, v) => c with { Vehicle = c.Vehicle with { CrashAngularLimit = checked((float)v) } }),
+        new("environment.health_scale", "Destruction", "Stage health multiplier (0.1–10)", false, c => c.Destruction.HealthScale, (c, v) => c with { Destruction = c.Destruction with { HealthScale = checked((float)v) } }),
+        new("environment.impact_threshold", "Destruction", "Impact threshold (0–20 m/s)", false, c => c.Destruction.ImpactThreshold, (c, v) => c with { Destruction = c.Destruction with { ImpactThreshold = checked((float)v) } }),
+        new("environment.impact_scale", "Destruction", "Impact damage coefficient (0–100)", false, c => c.Destruction.ImpactScale, (c, v) => c with { Destruction = c.Destruction with { ImpactScale = checked((float)v) } }),
+        new("environment.piece_speed", "Destruction", "Piece speed limit (0–6 m/s)", false, c => c.Destruction.PieceSpeed, (c, v) => c with { Destruction = c.Destruction with { PieceSpeed = checked((float)v) } }),
+        new("environment.push_scale", "Destruction", "Impact speed transfer (0–1)", false, c => c.Destruction.PushScale, (c, v) => c with { Destruction = c.Destruction with { PushScale = checked((float)v) } }),
+        new("environment.velocity_retention", "Destruction", "Velocity retention per tick (0–0.99)", false, c => c.Destruction.VelocityRetention, (c, v) => c with { Destruction = c.Destruction with { VelocityRetention = checked((float)v) } }),
         new("vehicle.air_delay", "Air control", "Activation delay (s)", false, c => c.Vehicle.AirDelay, (c, v) => c with { Vehicle = c.Vehicle with { AirDelay = checked((float)v) } }),
         new("vehicle.air_pitch_rate", "Air control", "Pitch rate (rad/s)", false, c => c.Vehicle.AirPitchRate, (c, v) => c with { Vehicle = c.Vehicle with { AirPitchRate = checked((float)v) } }),
         new("vehicle.air_yaw_rate", "Air control", "Yaw rate (rad/s)", false, c => c.Vehicle.AirYawRate, (c, v) => c with { Vehicle = c.Vehicle with { AirYawRate = checked((float)v) } }),

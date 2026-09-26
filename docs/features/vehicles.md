@@ -162,3 +162,9 @@ The native adapters expose the current [material identity](surfaces.md) through 
 The explicit verification scene `scenes/verification/handling_playtest.tscn` uses the production practice adapter on the real oval/infield map. Add `-- --handling-flat` for an isolated surface fixture. Atomically replace `.godot/ts-160/playtest/input.json` with a unique `id`, `frames` (1–600), normalized `steer`, `throttle`, `brake`, and optional `handbrake`. Optional `spawn` (three coordinates), `yaw` (radians), and `speed` initialize a fixture; optional `surface` selects a flat-fixture material. The scene pauses between bounded input segments for observation, preserves commanded velocities on resume, and writes per-tick `trace.json` and rendered `view.png`. Run only one instance per workspace. This scene is never loaded by production gameplay. Segment-based observation does not establish physical-controller ergonomics or continuous human play.
 
 [Destructible environment](destructible-environment.md) adds match-owned staged rocks and cleared soft cover. Both native adapters consume the same Core state; version-three resume checkpoints and nested migration retain damage, stages, movement continuation and plant bits without replaying impacts. New matches restore authored state.
+
+The existing static-response coefficients are live host controls under Configs → Collision:
+wall resistance, direct-crash dissipation, eccentric rotation and maximum per-contact
+angular change. Production defaults remain 0.18/s, 0.95, 0.08 and 1.2 rad/s. Both native
+adapters read the accepted `VehicleConfiguration`; no response adds restitution or changes
+separate damage rules. See [control bounds and fixed invariants](developer-options.md#collision-and-destruction-tuning).

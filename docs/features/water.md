@@ -81,3 +81,9 @@ applicable. Core `WaterTests` covers boundaries, repeated exposure, authoritativ
 configuration, persistence, codec/checkpoint recovery and prediction ownership.
 
 [Vehicles](vehicles.md) · [Developer Options](developer-options.md) · [Lifecycle](death-respawn.md) · [Networking](vehicle-networking.md)
+
+The native water-exit fixture checks departure beyond X=97 and at least one continuous
+second of dry driving with full health. Its timeout is ten seconds, but it stops after
+the exit contract is satisfied; an uninterrupted ten-second full-throttle trajectory
+continues far beyond the pond into unrelated eastern terrain. Water deaths, respawns
+and input-driven shallow/deep entry are checked separately through both adapters.
