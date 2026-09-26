@@ -15,6 +15,7 @@ namespace Trackstorm.Client.Hud;
 internal sealed record CombatHudView(string Health, double HealthFill, string Speed, string Unit, double SpeedFill, HeldItem Item)
 {
     /// <summary>Position supplied by the same authoritative standings projection as the board.</summary>
+    internal bool OutOfBounds { get; init; }
     internal string Standing { get; init; } = "--";
     /// <summary>Authoritative match-time projection; untimed modes retain the placeholder.</summary>
     internal string Timer { get; init; } = "--:--";
@@ -55,7 +56,7 @@ internal sealed record CombatHudView(string Health, double HealthFill, string Sp
         HeldItem item = state.CanInteract && slot?.Vehicle == state.VehicleId && slot.Life == state.LifeId ? slot.Item : HeldItem.None;
         bool valid = state.CanInteract && slot?.Vehicle == state.VehicleId && slot.Life == state.LifeId;
         return new CombatHudView(FormatHealth(state.Damage.CurrentHP, state.Damage.MaxHP), NormalizeHealth(state.Damage.CurrentHP, state.Damage.MaxHP), ConvertSpeed(state.Speed, unit).ToString("0", CultureInfo.InvariantCulture), UnitSuffix(unit), NormalizeSpeed(state.Speed), ItemRegistry.Find(item) is not null ? item : HeldItem.None)
-        { NitroCharge = valid ? slot!.ResourcePercentage : 0, SecondNitroCharge = valid ? slot!.SecondResourcePercentage : 0,
+        { OutOfBounds = state.CanInteract && state.OutOfBounds, NitroCharge = valid ? slot!.ResourcePercentage : 0, SecondNitroCharge = valid ? slot!.SecondResourcePercentage : 0,
             SalvoShots = valid ? slot!.SalvoShots : 0, SecondSalvoShots = valid ? slot!.SecondSalvoShots : 0,
             SecondItem = valid && ItemRegistry.Find(slot!.SecondItem) is not null ? slot.SecondItem : HeldItem.None, ActiveSlot = valid ? slot!.ActiveSlot : (byte)0 };
     }

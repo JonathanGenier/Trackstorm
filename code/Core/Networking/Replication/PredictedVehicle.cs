@@ -127,6 +127,6 @@ public sealed class PredictedVehicle
         }
 
         // Prediction owns movement only: collision observations cannot kill, heal or respawn a player.
-        Restore(new VehicleSnapshot(_vehicle, previous.LifeId, movement, previous.Damage, physics, lifecycle: previous.Lifecycle, respawnAtTick: previous.RespawnAtTick, landing: previous.Landing));
+        Restore(new VehicleSnapshot(_vehicle, previous.LifeId, movement, previous.Damage, physics, lifecycle: previous.Lifecycle, respawnAtTick: previous.RespawnAtTick, landing: previous.Landing, outOfBounds: previous.OutOfBounds));
     }
 }

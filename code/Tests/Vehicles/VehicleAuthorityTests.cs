@@ -199,7 +199,7 @@ internal sealed class VehicleAuthorityTests
     {
         VehicleSnapshot snapshot = Create().GetVehicle(1);
         byte[] bytes = VehicleSnapshotCodec.Encode(snapshot);
-        Assert.That(bytes[0], Is.EqualTo(3));
+        Assert.That(bytes[0], Is.EqualTo(4));
         JsonObject json = JsonNode.Parse(Encoding.UTF8.GetString(bytes[1..]))!.AsObject();
         byte[] movement = Convert.FromBase64String(json["Movement"]!.GetValue<string>());
         Assert.That(movement.Length, Is.EqualTo(VehicleStateCodec.SerializedSize));
@@ -283,5 +283,5 @@ internal sealed class VehicleAuthorityTests
 
     private static void Advance(CoreSimulation simulation, InputFrame input) => simulation.Step(input, [Request(1, input), Request(2, input)]);
 
-    private static VehicleSnapshot DecodeJson(JsonObject json) => VehicleSnapshotCodec.Decode(new byte[] { 2 }.Concat(Encoding.UTF8.GetBytes(json.ToJsonString())).ToArray());
+    private static VehicleSnapshot DecodeJson(JsonObject json) => VehicleSnapshotCodec.Decode(new byte[] { 4 }.Concat(Encoding.UTF8.GetBytes(json.ToJsonString())).ToArray());
 }

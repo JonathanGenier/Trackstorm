@@ -23,6 +23,8 @@ public sealed record VehicleConfiguration
     public float DeepWaterDepth { get; init; } = 1.0f;
     /// <summary>Continuous deep-water damage per second, through ordinary health authority.</summary>
     public float WaterDamagePerSecond { get; init; } = 250;
+    /// <summary>Environmental HP/s after leaving the authored arena perimeter.</summary>
+    public float OutOfBoundsDamagePerSecond { get; init; } = 100;
 
     /// <summary>Fixed frequency; independent of rendering.</summary>
     public int TicksPerSecond { get; init; } = 60;
@@ -194,6 +196,8 @@ public sealed record VehicleConfiguration
         {
             throw new ArgumentException("Invalid progressive handling tuning.");
         }
+        if (!float.IsFinite(OutOfBoundsDamagePerSecond) || OutOfBoundsDamagePerSecond is < 0 or > 10000)
+        { throw new ArgumentException("Out-of-bounds damage must be 0–10000 HP/s."); }
         if (!float.IsFinite(DeepWaterDepth) || DeepWaterDepth is < 0.01f or > 100 ||
             !float.IsFinite(WaterDamagePerSecond) || WaterDamagePerSecond is < 0 or > 10000)
         {

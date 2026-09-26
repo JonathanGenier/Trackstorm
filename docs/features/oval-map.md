@@ -18,7 +18,7 @@ OvalFoundation (Node3D, identity)
 ├── InfieldTerrain (Blender terrain collision)
 ├── InfieldStructures (Blender junction structure and obstacle collision)
 ├── ItemSpawns (twenty oval pickups and seven infield singles)
-├── MapContent (concrete perimeter, upper collision, exterior ground and forest)
+├── MapContent (concrete perimeter, catch fence, exterior ground and forest)
 └── EnvironmentDressing (shared rocks, ground-cover batches and exterior fixtures)
 ```
 
@@ -40,7 +40,7 @@ banking rather than approximating it from art.
 The road's 10,992 triangles form one continuous static concave collision shape;
 the active infield uses the separate Blender terrain's 402,124-triangle imported
 static shape. The retained foundation floor is hidden and has no active collider.
-No runtime collision generation or solidified road undersides are added. The offline content bake adds the outer barrier and containment described below. Grid paint and the separate verification car have no map collision.
+No runtime collision generation or solidified road undersides are added. The offline content bake adds the outer barrier and physical perimeter described below. Grid paint and the separate verification car have no map collision.
 Collision layer/mask 1 matches [vehicle queries](vehicles.md); unmarked static bodies retain the legacy Concrete handling profile. The shared [material identity system](surfaces.md) selects Core handling profiles.
 
 `PlayerSpawns` follows the existing arena's stable `Marker3D` naming convention.
@@ -173,7 +173,11 @@ route turns into the infield so its replication checks do not depend on old wall
 
 ## Outer boundary and environment
 
-`BuildOvalContent.gd`, called by the existing offline scene baker, follows every one of the 916 measured outer sections. The visible concrete strip is 1.3 m above the local rim and 1.2 m thick outward. One continuous closed concave collision perimeter follows all 916 master sections with 7,328 triangles. Its inner face sits 5 cm outside the rim, extends four metres outward, begins two metres below the rim and ends at world y=45 m. Shared section boundaries eliminate the buried convex end caps that could snag vehicle sweeps. `BuildContainment.gd` regenerates only this collision resource; the regular scene baker uses the same function. This bounds ordinary driving and blast launches; arbitrary teleports and unbounded externally injected forces are outside that contract. Upper collision has no visible mesh. No inner containment exists and the infield remains accessible.
+`BuildOvalContent.gd` invokes `BuildPerimeter.gd` offline. Its physical perimeter follows all 916 measured outer sections. Concrete rises 1.3 m above the local rim, is 1.2 m thick outward and extends 2 m below the rim, closing bottom gaps. Its closed continuous collision skin shares the rendered concrete vertices, without buried module end caps.
+
+The welded metal catch mesh rises from the concrete to 6.8 m above the local rim. Its upper profile curves from 0.65 m outward to 1.1 m inward. Curved steel posts and continuous rails make its finite extent visible. Fence collision follows the same curved surface as the rendered mesh; vehicle-scale collision treats the small wire openings as a continuous sheet. The shader and support geometry are original project assets based on the supplied racetrack concept, with no photograph pixels redistributed. No collision extends above the visible top. Ordinary impacts are caught; a sufficiently high ballistic launch can clear it.
+
+The baker stores the concrete's outer X/Z edge and a -30 m below-map floor as plain scene metadata. `ActiveMap` passes this polygon to Core. [Out-of-bounds authority](out-of-bounds.md) evaluates host-observed vehicle centers against that authored contour, with no height ceiling or world-origin radius approximation. The map remains scriptless.
 
 The exterior ground annulus starts at the outer rim and extends 700 m outward. It has no gameplay collision. 864 conifers occupy 48 spatial MultiMesh batches, using original Blender-authored mature fir, open-crowned pine and young spruce silhouettes. Deterministic irregular stands mix all three variants across depth, with varied size, aspect and orientation. Tree centers retain at least 12 m setback and 3.5 m mutual spacing; foliage stays outside the boundary. No per-tree runtime scripts or physics are added. Source and regeneration commands are in the oval asset notes.
 
@@ -185,7 +189,7 @@ The oval runtime harness additionally checks all boundary seams at four heights,
 
 The asphalt retains its separate seamless 64 m multiply layer. Grass combines two-metre blade detail with a restrained 16 m isotropic variation tile: its small, low-contrast variations avoid broad light/dark bands at driving height. Both UV sets use world triplanar mapping and mipmaps.
 
-Driveable road and infield collision bodies carry the persistent landing_terrain group for [landing damage classification](vehicles.md#terrain-landing-recovery). The scene baker and terrain import hook retain this metadata. The reachable tunnel deck and edge beams also carry this group; remaining structural and outer-containment colliders remain obstacles. The existing contact-normal filter still treats side impacts as obstacles.
+Driveable road and infield collision bodies carry the persistent landing_terrain group for [landing damage classification](vehicles.md#terrain-landing-recovery). The scene baker and terrain import hook retain this metadata. The reachable tunnel deck and edge beams also carry this group; remaining structural and perimeter colliders remain obstacles. The existing contact-normal filter still treats side impacts as obstacles.
 
 The two kicker-to-tabletop fills continue from the unchanged 4.8 m lips to the unchanged 6.35 m tabletop inside the existing terrain mesh and collider. The authored kicker faces remain unchanged. Local rounded fill removes the former dip on both sides; the native tabletop check samples monotonic support across each connection. Production dressing now follows [destructible environment](destructible-environment.md) state owned by the arena.
 

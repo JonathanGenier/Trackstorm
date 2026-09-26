@@ -24,30 +24,7 @@ static func bake(map: Node3D, measurements: Dictionary) -> void:
 	for section: Array in sections:
 		inner.append(vec(section[0]))
 		outer.append(vec(section[1]))
-	# Closed strip follows every master section, with its inner face exactly at the outer edge.
-	var barrier := SurfaceTool.new()
-	barrier.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var wall := child(map, content, StaticBody3D.new(), "OuterContainment") as StaticBody3D
-	wall.set_meta("surface_identity", load("res://assets/arena/materials/Concrete.tres").get_meta("surface_identity"))
-	for i in outer.size():
-		var j := (i + 1) % outer.size()
-		var a := outer[i]
-		var b := outer[j]
-		var na := Vector3(a.x-inner[i].x, 0, a.z-inner[i].z).normalized()
-		var nb := Vector3(b.x-inner[j].x, 0, b.z-inner[j].z).normalized()
-		var points: Array[Vector3] = [a-Vector3.UP*.3,b-Vector3.UP*.3,b+Vector3.UP*1.3,a+Vector3.UP*1.3,a+na*1.2-Vector3.UP*.3,b+nb*1.2-Vector3.UP*.3,b+nb*1.2+Vector3.UP*1.3,a+na*1.2+Vector3.UP*1.3]
-		for face in [[0,2,1],[0,3,2],[3,7,6],[3,6,2],[4,5,6],[4,6,7]]:
-			for index: int in face:
-				barrier.add_vertex(points[index])
-	# One continuous collision skin has no buried module caps to snag the chassis.
-	var shape := load("res://assets/maps/oval/BuildContainment.gd").create_shape(measurements) as ConcavePolygonShape3D
-	assert(ResourceSaver.save(shape, "res://assets/maps/oval/ContainmentCollision.tres") == OK)
-	var collider := child(map, wall, CollisionShape3D.new(), "ContinuousPerimeter") as CollisionShape3D
-	collider.shape = load("res://assets/maps/oval/ContainmentCollision.tres")
-	barrier.generate_normals()
-	var concrete := child(map, content, MeshInstance3D.new(), "ConcreteBarrier") as MeshInstance3D
-	concrete.mesh = barrier.commit()
-	concrete.material_override = load("res://assets/arena/materials/Concrete.tres")
+	load("res://assets/maps/oval/BuildPerimeter.gd").bake(map, content, measurements)
 	# Reference image placement only: approximate X/Z targets projected to master sections.
 	# Bottom is +Z, grid faces +X. Lanes are 3/9/15 m across the 18 m surface.
 	var markers := child(map, map, Node3D.new(), "ItemSpawns")

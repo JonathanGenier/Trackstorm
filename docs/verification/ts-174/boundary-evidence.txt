@@ -1,0 +1,64 @@
+16488 native rays: continuous below-rim concrete and curved fence; clear space above top.
+False/0: 40 m/s impact at 1m contained; maximum outward center -2.016m.
+False/0: 40 m/s impact at 3.5m contained; maximum outward center -1.959m.
+Rendered False-fence-impact
+False/0: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+Rendered False-escape
+False: measured 98.335 HP loss over 59 native ticks (100 HP/s).
+False: HUD reads confirmed OOB state.
+False: below-map exterior remains OOB.
+False: 100 HP/s OOB causes ordinary death.
+False: clean full-health respawn and warning cleared.
+True/0: 40 m/s impact at 1m contained; maximum outward center -2.469m.
+True/0: 40 m/s impact at 3.5m contained; maximum outward center -2.063m.
+Rendered True-fence-impact
+True/0: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+Rendered True-escape
+True: measured 98.335 HP loss over 59 native ticks (100 HP/s).
+True: HUD reads confirmed OOB state.
+True: below-map exterior remains OOB.
+True: 100 HP/s OOB causes ordinary death.
+True: clean full-health respawn and warning cleared.
+False/114: 40 m/s impact at 1m contained; maximum outward center -2.086m.
+False/114: 40 m/s impact at 3.5m contained; maximum outward center -1.938m.
+False/114: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+True/114: 40 m/s impact at 1m contained; maximum outward center -2.461m.
+True/114: 40 m/s impact at 3.5m contained; maximum outward center -2.008m.
+True/114: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+False/229: 40 m/s impact at 1m contained; maximum outward center -2.000m.
+False/229: 40 m/s impact at 3.5m contained; maximum outward center -1.945m.
+False/229: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+True/229: 40 m/s impact at 1m contained; maximum outward center -2.492m.
+True/229: 40 m/s impact at 3.5m contained; maximum outward center -2.025m.
+True/229: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+False/343: 40 m/s impact at 1m contained; maximum outward center -2.000m.
+False/343: 40 m/s impact at 3.5m contained; maximum outward center -1.945m.
+False/343: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+True/343: 40 m/s impact at 1m contained; maximum outward center -2.471m.
+True/343: 40 m/s impact at 3.5m contained; maximum outward center -2.018m.
+True/343: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+False/458: 40 m/s impact at 1m contained; maximum outward center -2.016m.
+False/458: 40 m/s impact at 3.5m contained; maximum outward center -1.959m.
+False/458: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+True/458: 40 m/s impact at 1m contained; maximum outward center -2.469m.
+True/458: 40 m/s impact at 3.5m contained; maximum outward center -2.063m.
+True/458: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+False/572: 40 m/s impact at 1m contained; maximum outward center -2.086m.
+False/572: 40 m/s impact at 3.5m contained; maximum outward center -1.938m.
+False/572: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+True/572: 40 m/s impact at 1m contained; maximum outward center -2.461m.
+True/572: 40 m/s impact at 3.5m contained; maximum outward center -2.008m.
+True/572: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+False/687: 40 m/s impact at 1m contained; maximum outward center -2.000m.
+False/687: 40 m/s impact at 3.5m contained; maximum outward center -1.945m.
+False/687: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+True/687: 40 m/s impact at 1m contained; maximum outward center -2.492m.
+True/687: 40 m/s impact at 3.5m contained; maximum outward center -2.025m.
+True/687: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+False/801: 40 m/s impact at 1m contained; maximum outward center -2.000m.
+False/801: 40 m/s impact at 3.5m contained; maximum outward center -1.945m.
+False/801: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+True/801: 40 m/s impact at 1m contained; maximum outward center -2.469m.
+True/801: 40 m/s impact at 3.5m contained; maximum outward center -2.018m.
+True/801: ballistic 32m/s outward + 28m/s upward launch cleared finite fence.
+Rendered perimeter-overview
