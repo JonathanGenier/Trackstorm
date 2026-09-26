@@ -77,7 +77,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <summary>Active provider capability boundary for local network simulation.</summary>
     internal ITransportGateway? Gateway => _gateway;
     /// <summary>Current host tuning for lobby or arena editing.</summary>
-    internal Core.Development.GameplayConfiguration DeveloperConfiguration => _arena?.Driver.Configuration.Configuration ?? _lobby?.Authority?.Configuration.Configuration ?? Core.Development.GameplayConfiguration.HostedDefaults;
+    internal Core.Development.GameplayConfiguration DeveloperConfiguration => _arena?.Driver.Configuration.Configuration ?? _lobby?.Configuration?.Configuration ?? Core.Development.GameplayConfiguration.HostedDefaults;
 
     /// <summary>Authenticated online coordinator supplied by application composition.</summary>
     internal Func<OnlineLobbyCoordinator?> OnlineCoordinator { get; set; } = () => null;
@@ -569,7 +569,7 @@ internal sealed partial class DevelopmentSession : CanvasLayer
         error = "Only the current host can edit settings in the lobby.";
         if (Stage != ApplicationStage.Lobby || OverlayOpen() || _lobby is not { Authority: not null, Reconnecting: false, Failure.Length: 0 } || _lobby.Migration?.Frozen == true || edits.Keys.Any(key => key is not ("match.mode" or "match.kill_target"))) return false;
         if (!_lobby.Authority.TryConfigure(0, edits, out error)) return false;
-        DeveloperSettings?.Save(_lobby.Authority.Configuration.Configuration);
+
         return true;
     }
 
@@ -632,43 +632,12 @@ internal sealed partial class DevelopmentSession : CanvasLayer
     /// <param name="error">Safe validation feedback.</param>
     internal bool ConfigureDeveloperOptions(IReadOnlyDictionary<string, double> edits, out string error)
     {
-        error = "Only the authoritative host may change gameplay tuning.";
-        if (!IsDeveloperHost)
-        {
-            return false;
-        }
-
-        var previousConfiguration = DeveloperConfiguration;
-        Core.Development.GameplayConfiguration accepted;
-        if (_arena is not null)
-        {
-            if (!_arena.Driver.TryConfigure(edits, out error))
-            {
-                return false;
-            }
-
-            accepted = _arena.Driver.Configuration.Configuration;
-        }
-        else if (!_lobby!.Authority!.TryConfigure(0, edits, out error))
-        {
-            return false;
-        }
-        else
-        {
-            accepted = _lobby.Authority.Configuration.Configuration;
-        }
-
-        if (_arena is null)
-        {
-            foreach (var option in Core.Development.GameplayOptions.All.Where(option => option.Read(previousConfiguration) != option.Read(accepted)))
-            {
-                Events.Record(Core.Events.EventCategory.Developer, "Setting changed", actor: _lobby!.LocalPlayerId, context: option.Key, amount: option.Read(accepted), previous: option.Read(previousConfiguration));
-            }
-        }
-
-        DeveloperSettings?.Save(accepted);
-        return true;
+        error = "Shared configuration is unavailable.";
+        return CanConfigureDeveloperOptions && _lobby!.RequestConfiguration(edits, out error);
     }
+
+    internal bool CanConfigureDeveloperOptions => Development.DeveloperTools.Enabled && !_leaving &&
+        _lobby?.CanConfigure == true && (_arena is null || _arena.Driver.IsActive);
 
     /// <summary>Uses existing inventory authority; a joined client never sends a grant request.</summary>
     /// <returns>Whether the operation was accepted.</returns>

@@ -201,9 +201,11 @@ internal sealed class EosP2pTransportTests
         using var pair = new MigrationPair();
         pair.StartArena(waiting: true);
         var edits = new Dictionary<string, double> { ["vehicle.acceleration"] = 7, ["damage.max_hp"] = 230, ["spawns.seed"] = 42, ["items.wrench_heal"] = 17 };
-        Assert.That(pair.HostVehicles!.TryConfigure(edits, out _), Is.True);
+        Assert.That(pair.Client.RequestConfiguration(edits, out _), Is.True);
         pair.Step(120);
-        var expected = pair.HostVehicles.Configuration;
+        var expected = pair.HostVehicles!.Configuration;
+        Assert.That(pair.Client.ConfigurationResult!.Value.Error, Is.Empty);
+        Assert.That(pair.ClientVehicles!.Configuration, Is.EqualTo(expected));
         ulong rng = pair.HostVehicles.Host!.Spawns!.RandomState;
         var retiredDriver = pair.HostVehicles;
         pair.Link.HostWire.DropOutgoing = pair.Link.ClientWire.DropOutgoing = true;

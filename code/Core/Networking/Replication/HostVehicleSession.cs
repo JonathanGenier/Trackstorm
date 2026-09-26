@@ -155,15 +155,15 @@ public sealed class HostVehicleSession
         NextVehicle = _nextVehicle,
     };
 
-    /// <summary>Only trusted local host requests may commit an atomic gameplay tuning transaction.</summary>
+    /// <summary>The host validates requests from its local user or an admitted connected peer.</summary>
     /// <returns>Whether the operation was accepted.</returns>
     /// <param name="peer">Actual sender; zero denotes the trusted local host.</param>
     /// <param name="edits">Stable gameplay keys and requested values.</param>
     /// <param name="error">Safe validation feedback.</param>
     public bool TryConfigure(ulong peer, IReadOnlyDictionary<string, double> edits, out string error)
     {
-        error = "Only the authoritative host may change gameplay tuning.";
-        if (peer != 0 || !GameplayOptions.TryApply(Configuration.Configuration, edits, out var candidate, out error))
+        error = "Only connected participants may request gameplay tuning.";
+        if ((peer != 0 && !_peers.ContainsKey(peer)) || !GameplayOptions.TryApply(Configuration.Configuration, edits, out var candidate, out error))
         {
             World.Events.Record(EventCategory.Developer, "Configuration rejected", actor: peer == 0 ? HostPlayerId : 0, cause: "invalid values or unauthorized sender");
             return false;
@@ -188,7 +188,7 @@ public sealed class HostVehicleSession
             Configuration = next;
             foreach (var option in GameplayOptions.All.Where(option => option.Read(previous) != option.Read(candidate)))
             {
-                World.Events.Record(EventCategory.Developer, "Setting changed", actor: HostPlayerId, context: option.Key, amount: option.Read(candidate), previous: option.Read(previous));
+                World.Events.Record(EventCategory.Developer, "Setting changed", actor: peer == 0 ? HostPlayerId : _peers[peer].Vehicle, context: option.Key, amount: option.Read(candidate), previous: option.Read(previous));
             }
 
             World.Events.Record(EventCategory.Network, "Configuration applied", amount: next.Revision);
@@ -196,7 +196,7 @@ public sealed class HostVehicleSession
         }
         catch (Exception exception) when (exception is ArgumentException or OverflowException)
         {
-            World.Events.Record(EventCategory.Developer, "Configuration rejected", actor: HostPlayerId, cause: "runtime validation failed");
+            World.Events.Record(EventCategory.Developer, "Configuration rejected", actor: peer == 0 ? HostPlayerId : _peers[peer].Vehicle, cause: "runtime validation failed");
             error = exception.Message;
             return false;
         }
