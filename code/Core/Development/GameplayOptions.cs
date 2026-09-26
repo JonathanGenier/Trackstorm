@@ -111,7 +111,7 @@ public static class GameplayOptions
         new("items.salvo_marker_lift", "Salvo", "Marker surface offset (m)", false, c => c.Items.SalvoMarkerLift, (c, v) => c with { Items = c.Items with { SalvoMarkerLift = checked((float)v) } }),
         new("vehicle.oil_grip_reduction", "Oil", "Lateral grip reduction (fraction)", false, c => c.Vehicle.OilGripReduction, (c, v) => c with { Vehicle = c.Vehicle with { OilGripReduction = checked((float)v) } }),
         new("vehicle.oil_recovery_seconds", "Oil", "Traction recovery (seconds)", false, c => c.Vehicle.OilRecoverySeconds, (c, v) => c with { Vehicle = c.Vehicle with { OilRecoverySeconds = checked((float)v) } }),
-        new("items.oil_enemy_contacts", "Oil", "Distinct enemies before removal", true, c => c.Items.OilEnemyContacts, (c, v) => c with { Items = c.Items with { OilEnemyContacts = checked((int)v) } }),
+        new("items.oil_enemy_contacts", "Oil", "Vehicle passes before removal", true, c => c.Items.OilPasses, (c, v) => c with { Items = c.Items with { OilPasses = checked((int)v) } }),
         new("items.oil_lifetime_seconds", "Oil", "Maximum patch lifetime (seconds)", false, c => c.Items.OilLifetimeSeconds, (c, v) => c with { Items = c.Items with { OilLifetimeSeconds = checked((float)v) } }),
         new("items.wrench_heal", "Items", "WrenchHeal", false, c => c.Items.WrenchHeal, (c, v) => c with { Items = c.Items with { WrenchHeal = checked((float)v) } }),
         new("items.missile_speed", "Items", "MissileSpeed", false, c => c.Items.MissileSpeed, (c, v) => c with { Items = c.Items with { MissileSpeed = checked((float)v) } }),

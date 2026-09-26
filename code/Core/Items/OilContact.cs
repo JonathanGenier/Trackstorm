@@ -1,4 +1,4 @@
 namespace Trackstorm.Core.Items;
 
-/// <summary>Patch-lifetime enemy history: stable vehicle identity counts once across all lives.</summary>
+/// <summary>Current successful overlap latch. A new pass requires leaving or starting a new life.</summary>
 public sealed record OilContact(ulong Patch, ulong Vehicle, ulong Life);

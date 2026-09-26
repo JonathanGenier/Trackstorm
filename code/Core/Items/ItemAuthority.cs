@@ -47,7 +47,7 @@ public sealed class ItemAuthority
     public ulong TokenHighWater => _token;
     /// <summary>Complete persistent hazards, independent of deployer lifetime.</summary>
     public IReadOnlyList<OilPatch> Patches => _patches.ToArray();
-    /// <summary>Patch-lifetime distinct enemy history for authority continuation.</summary>
+    /// <summary>Current overlap latches preserved across authority continuation.</summary>
     public IReadOnlyList<OilContact> OilContacts => _contacts.ToArray();
 
     /// <summary>Restores committed ownership without pending commands or historical effects.</summary>
@@ -93,7 +93,7 @@ public sealed class ItemAuthority
     {
         _pending.Remove(vehicle);
         bool changed = _slots.Remove(vehicle);
-
+        changed |= _contacts.RemoveAll(contact => contact.Vehicle == vehicle) > 0;
         changed |= _missiles.RemoveAll(missile => missile.Owner == vehicle) > 0;
         if (changed)
         {
@@ -178,10 +178,9 @@ public sealed class ItemAuthority
         var events = new List<ItemEvent>();
         var patches = _patches.Where(patch => patch.ExpiresAtTick > input.Tick).ToList();
         var mines = new List<ProxyMineState>(_mines);
-        var activePatchIds = patches.Select(patch => patch.Id).ToHashSet();
-        var contacts = _contacts.Where(contact => activePatchIds.Contains(contact.Patch)).ToList();
-        var affected = contacts.Select(contact => (contact.Patch, contact.Vehicle)).ToHashSet();
-        var contactCounts = contacts.GroupBy(contact => contact.Patch).ToDictionary(group => group.Key, group => group.Count());
+        var contacts = new List<OilContact>();
+        var priorContacts = _contacts.ToHashSet();
+        var contactCounts = patches.ToDictionary(patch => patch.Id, patch => patch.PassesUsed);
         var oilTriggers = new List<OilTrigger>();
         var oilVehicles = new HashSet<ulong>();
         var journal = new List<RuntimeEvent>();
@@ -334,11 +333,12 @@ public sealed class ItemAuthority
                 foreach (var patch in patches.OrderBy(patch => patch.Id))
                 {
                     if (!patch.Contains(request.Observation)) { continue; }
-                    if (contactCounts.GetValueOrDefault(patch.Id) >= patch.EnemyContacts) { continue; }
+                    var contact = new OilContact(patch.Id, vehicle.VehicleId, vehicle.LifeId);
+                    if (!priorContacts.Contains(contact) && contactCounts.GetValueOrDefault(patch.Id) >= patch.PassLimit) { continue; }
                     oilVehicles.Add(vehicle.VehicleId);
-                    if (patch.Owner != vehicle.VehicleId && affected.Add((patch.Id, vehicle.VehicleId)))
+                    contacts.Add(contact);
+                    if (!priorContacts.Contains(contact))
                     {
-                        contacts.Add(new OilContact(patch.Id, vehicle.VehicleId, vehicle.LifeId));
                         contactCounts[patch.Id] = contactCounts.GetValueOrDefault(patch.Id) + 1;
                         oilTriggers.Add(new(patch.Id, patch.Owner, vehicle.VehicleId, vehicle.LifeId));
                     }
@@ -434,17 +434,17 @@ public sealed class ItemAuthority
             }
         }
 
-        // Only successful new effects consume contacts. Prior history survives death, departure and new lives.
-        var priorContacts = _contacts.ToHashSet();
-        contacts.RemoveAll(contact => !priorContacts.Contains(contact) && !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == contact.Vehicle && vehicle.LifeId == contact.Life && vehicle.CanInteract && vehicle.Movement.OilTicks > 0));
+        // Commit only successful effects. Expired overlaps release their latch, never their consumed pass.
+        contacts.RemoveAll(contact => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == contact.Vehicle && vehicle.LifeId == contact.Life && vehicle.CanInteract && vehicle.Movement.OilTicks > 0));
         var patchOwners = patches.ToDictionary(patch => patch.Id, patch => patch.Owner);
         foreach (var contact in contacts.Where(contact => !priorContacts.Contains(contact)))
         {
             world.Events.Record(EventCategory.Item, "Oil triggered", actor: patchOwners[contact.Patch], target: contact.Vehicle, cause: "Oil", tick: input.Tick);
         }
-        contactCounts = contacts.GroupBy(contact => contact.Patch).ToDictionary(group => group.Key, group => group.Count());
-        patches.RemoveAll(patch => contactCounts.GetValueOrDefault(patch.Id) >= patch.EnemyContacts);
-        activePatchIds = patches.Select(patch => patch.Id).ToHashSet();
+        contactCounts = contacts.Where(contact => !priorContacts.Contains(contact)).GroupBy(contact => contact.Patch).ToDictionary(group => group.Key, group => group.Count());
+        for (int i = 0; i < patches.Count; i++) { patches[i] = patches[i] with { PassesUsed = patches[i].PassesUsed + contactCounts.GetValueOrDefault(patches[i].Id) }; }
+        patches.RemoveAll(patch => patch.PassesUsed >= patch.PassLimit);
+        var activePatchIds = patches.Select(patch => patch.Id).ToHashSet();
         contacts.RemoveAll(contact => !activePatchIds.Contains(contact.Patch));
         if (world.State.Match?.Phase == Matches.MatchPhase.Finished)
         {

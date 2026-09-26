@@ -4,10 +4,10 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-twelve reliable item protocol. Requests carry no claimed player or outcome.</summary>
+/// <summary>Bounded version-thirteen reliable item protocol. Requests carry no claimed player or outcome.</summary>
 public static class ItemCodec
 {
-    /// <summary>Accommodates the maximum lifetime-derived Oil set and its distinct-contact history.</summary>
+    /// <summary>Accommodates the maximum lifetime-derived Oil set and its pass counts and overlap latches.</summary>
     public const int MaximumBytes = 64 * 1024 * 1024;
 
     private static int WideCount(BinaryReader reader, int maximum)
@@ -169,7 +169,8 @@ public static class ItemCodec
                 Vector(writer, patch.Normal);
                 writer.Write(patch.Radius);
                 writer.Write(patch.ExpiresAtTick);
-                writer.Write((byte)patch.EnemyContacts);
+                writer.Write((byte)patch.PassLimit);
+                writer.Write((byte)patch.PassesUsed);
             }
             writer.Write(state.OilContacts.Count);
             foreach (var contact in state.OilContacts)
@@ -265,7 +266,7 @@ public static class ItemCodec
             patches = new OilPatch[WideCount(reader, ItemAuthority.MaximumPatches)];
             for (int i = 0; i < patches.Length; i++)
             {
-                patches[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), reader.ReadSingle()) { ExpiresAtTick = reader.ReadUInt64(), EnemyContacts = reader.ReadByte() };
+                patches[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), reader.ReadSingle()) { ExpiresAtTick = reader.ReadUInt64(), PassLimit = reader.ReadByte(), PassesUsed = reader.ReadByte() };
             }
             int contactCount = WideCount(reader, ItemAuthority.MaximumPatches * 6);
             contacts = new OilContact[contactCount];
@@ -310,7 +311,7 @@ public static class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 12, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 13, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
@@ -322,7 +323,7 @@ public static class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 12 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 13 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }

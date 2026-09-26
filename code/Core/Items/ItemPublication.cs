@@ -15,7 +15,7 @@ public sealed class ItemPublication
     /// <param name="spawns">Complete configured spawn state.</param>
     /// <param name="patches">Complete match-owned oil hazards.</param>
     /// <param name="balances">Per-player current-match category history.</param>
-    /// <param name="oilContacts">Distinct enemy history preserved for each patch's lifetime.</param>
+    /// <param name="oilContacts">Current overlap latches; consumed passes are retained on each patch.</param>
     /// <param name="mines">Complete magnetic hazards.</param>
     public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null, IEnumerable<OilPatch>? patches = null, IEnumerable<OilContact>? oilContacts = null, IEnumerable<PlayerItemBalance>? balances = null, IEnumerable<ProxyMineState>? mines = null)
     {
@@ -64,8 +64,9 @@ public sealed class ItemPublication
         var contactCounts = contacts.GroupBy(contact => contact.Patch).ToDictionary(group => group.Key, group => group.Count());
         if (oil.Length > ItemAuthority.MaximumPatches || oil.Any(patch => !patchIds.TryAdd(patch.Id, patch) || patch.ExpiresAtTick <= world.Tick || patch.ExpiresAtTick - world.Tick > 36000) ||
             contacts.Length > ItemAuthority.MaximumPatches * 6 || contacts.Select(contact => (contact.Patch, contact.Vehicle)).Distinct().Count() != contacts.Length ||
-            contacts.Any(contact => contact.Vehicle == 0 || contact.Life == 0 || !patchIds.TryGetValue(contact.Patch, out var patch) || patch.Owner == contact.Vehicle) ||
-            oil.Any(patch => contactCounts.GetValueOrDefault(patch.Id) >= patch.EnemyContacts))
+            contacts.Any(contact => contact.Vehicle == 0 || contact.Life == 0 || !patchIds.ContainsKey(contact.Patch) ||
+                !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == contact.Vehicle && vehicle.State.LifeId == contact.Life && vehicle.State.CanInteract)) ||
+            oil.Any(patch => contactCounts.GetValueOrDefault(patch.Id) > patch.PassesUsed))
         {
             throw new ArgumentException("Invalid oil continuation.");
         }

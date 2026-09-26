@@ -81,7 +81,7 @@ Complete match checkpoints also carry sparse [pending stunt state](matches.md#ci
 
 The [Play Menu](play-menu.md) replaces its list with the retained validation/decision panel. Its Yes / No controls use the existing Reconnect / Leave Match actions; no new reservation or cleanup authority is introduced.
 
-All five registered item identities retain their exact life/token through the existing item checkpoint. Nitro remains held when use is unavailable. Oil inventory, patches with their original owner/deadline/contact budget, and distinct enemy history restore through the complete item state. Vehicle movement restores the remaining traction recovery timer without adding rotation. Local HUD reconstruction reads the same confirmed slot, while vehicle reconstruction creates no held-item world model.
+All five registered item identities retain their exact life/token through the existing item checkpoint. Nitro remains held when use is unavailable. Oil inventory, patches with their original owner/deadline/pass budget, consumed pass counts and current overlap latches restore through the complete item state. Vehicle movement restores the remaining traction recovery timer without adding rotation. Local HUD reconstruction reads the same confirmed slot, while vehicle reconstruction creates no held-item world model.
 
 Nitro charge travels in both inventory slots while its active prediction budget and inactive speed-recovery continuation travel in movement. Native reconnect checks retain a seeded 37.5% resource across long-offline and repeated reconnects. The separate Nitro harness exercises normal consumption and overspeed awards; checkpoint fixtures do not substitute for that activation evidence.
 

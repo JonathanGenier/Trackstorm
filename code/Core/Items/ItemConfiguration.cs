@@ -69,8 +69,8 @@ public sealed record ItemConfiguration
     /// <summary>Fraction of rocket thrust available without driveable wheel support; zero disables airborne thrust.</summary>
     public float NitroAirborneThrustScale { get; init; } = 1;
 
-    /// <summary>Number of distinct enemies a newly deployed patch affects before removal.</summary>
-    public int OilEnemyContacts { get; init; } = 2;
+    /// <summary>Number of successful vehicle passes before removal, including repeated and owner passes.</summary>
+    public int OilPasses { get; init; } = 2;
     /// <summary>Maximum lifetime of new patches in seconds at the authoritative 60 Hz clock.</summary>
     public float OilLifetimeSeconds { get; init; } = 60;
 
@@ -120,7 +120,7 @@ public sealed record ItemConfiguration
         { throw new ArgumentException("Invalid Proxy Mine tuning."); }
         new Vehicles.NitroState(1, NitroForwardThrust, NitroSpeedMultiplier, NitroAirborneThrustScale).Validate();
         if (!double.IsFinite(NitroConsumptionPerSecond) || NitroConsumptionPerSecond is < 2 or > 6000) { throw new ArgumentException("Nitro consumption must be 2–6000 percentage points per second."); }
-        if (OilEnemyContacts is < 1 or > 7 || !float.IsFinite(OilLifetimeSeconds) || OilLifetimeSeconds is < 1 or > 600 ||
+        if (OilPasses is < 1 or > 7 || !float.IsFinite(OilLifetimeSeconds) || OilLifetimeSeconds is < 1 or > 600 ||
             !float.IsFinite(WrenchHeal) || WrenchHeal < 0 || WrenchHeal > 10000 ||
             !float.IsFinite(MissileSpeed) || MissileSpeed <= 0 || MissileSpeed > 300 ||
             MissileLifetimeTicks is < 1 or > 3600 || !float.IsFinite(ExplosionRadius) || ExplosionRadius <= 0 || ExplosionRadius > 100 ||

@@ -126,58 +126,63 @@ public sealed partial class OilIntegrationChecks : Node
                     Check(Math.Abs(N.Vector3.Dot(host.World.GetVehicle(1).Movement.Physics.AngularVelocity, Normal)) < 0.5f, "no forced entry yaw");
                     Check(_oilPoints.All(points => points == 0), "self-trigger awards zero offensive points");
 
-                    Next("Owner receives temporary traction loss without a forced spin, score or consumed contact.");
+                    Next("Owner receives temporary traction loss without a forced spin, score; one pass is consumed.");
                     break;
                 case 4 when _frames - _boundary > 180:
                     Capture("banked-oil.png");
-                    Check(host.Items.Patches.Count == 1, "persistent after duration");
+                    Check(host.Items.Patches.Single().PassesUsed == 1, "first owner pass remains consumed after leaving");
                     Check(host.World.GetVehicle(1).Movement.OilTicks == 0, "effect recovers");
-                    Position(2, _patch!.Position + Normal * 0.9f);
-                    Next("Oil persists after handling recovery; another vehicle enters.");
+                    Position(1, _patch!.Position + Normal * 0.9f);
+                    Next("Owner exits, recovers, and returns for a second pass.");
                     break;
-                case 5 when host.World.GetVehicle(2).Movement.OilTicks > 0:
-                    Check(_oilPoints[0] == 50, "rival trigger banks 50");
-                    Position(2, _patch!.Position + Normal * 0.9f);
-                    Next("Remote vehicle receives the same authoritative effect.");
+                case 5 when _frames - _boundary > 5 && _arenas.All(a => a.Driver.ItemState?.Patches.Count == 0):
+                    Check(_oilPoints.All(points => points == 0), "two owner passes score zero");
+                    Position(1, new N.Vector3(0, 20, 0) + Normal * 1.4f);
+                    Check(host.Items.Grant(host.World, 1, HeldItem.Oil) && _arenas[0].Driver.RequestItemUse(), "repeat deployment after owner consumption");
+                    Next("The owner's second pass removed the patch on all peers without score; deploy again.");
                     break;
-                case 6 when _frames - _boundary > 3:
+                case 6 when _arenas.All(a => a.Driver.ItemState?.Patches.Count == 1):
+                    _patch = host.Items.Patches.Single();
+                    Position(1, new N.Vector3(-10, 20, 0) + Normal * 1.4f);
+                    Position(2, _patch.Position + Normal * 0.9f);
+                    Next("Remote enemy begins the first pass through a new patch.");
+                    break;
+                case 7 when host.World.GetVehicle(2).Movement.OilTicks > 0:
+                    Check(_oilPoints[0] == 50 && host.Items.Patches.Single().PassesUsed == 1, "enemy first pass banks 50 and consumes one pass");
+                    Next("Remote first pass applied and scored once; remain inside.");
+                    break;
+                case 8 when _frames - _boundary > 5:
                     Check(host.Items.OilContacts.Any(c => c.Vehicle == 2), "inside latch");
-                    int count = host.World.Events.Entries.Count(e => e.Kind == "Oil triggered" && e.Target == 2);
-                    Check(count == 1, "staying does not retrigger");
-                    Check(_oilPoints[0] == 50, "remaining inside does not score again");
-                    Position(2, _patch!.Position + Normal * 0.9f + new N.Vector3(0, 0, 10));
-                    Next("Remaining within the patch emits one entry outcome.");
-                    break;
-                case 7 when _frames - _boundary > 3:
-                    Position(2, _patch!.Position + Normal * 0.9f);
-                    Next("Vehicle exits and re-enters.");
-                    break;
-                case 8 when _frames - _boundary > 10:
-                    Check(_oilPoints[0] == 50 && host.Items.OilContacts.Count == 1, "repeat enemy never consumes or scores twice");
+                    Check(_oilPoints[0] == 50 && host.Items.Patches.Single().PassesUsed == 1, "continuous overlap never consumes another pass");
                     Position(1, new N.Vector3(0, 20, 0) + N.Vector3.Transform(new N.Vector3(10, 0, 0), Rotation) + Normal * 1.4f);
-                    Check(host.Items.Grant(host.World, 1, HeldItem.Oil), "regrant");
-                    Check(_arenas[0].Driver.RequestItemUse(), "request with active patch");
-                    Next("Repeated enemy re-entry did not score again; deploying another simultaneous patch.");
+                    Check(host.Items.Grant(host.World, 1, HeldItem.Oil) && _arenas[0].Driver.RequestItemUse(), "deployment remains available with an active patch");
+                    Next("Continuous overlap counted once; deploy another simultaneous patch.");
                     break;
                 case 9 when _frames - _boundary > 5 && _arenas.All(a => a.Driver.ItemState?.Patches.Count == 2):
                     Check(host.Items.Slots.Single().Item == HeldItem.None, "new Oil consumed with active patches");
-                    Position(3, _patch!.Position + Normal * 0.9f);
-                    Next("Two simultaneous patches replicated; second distinct enemy enters the original patch.");
+                    Position(2, _patch!.Position + Normal * 0.9f + new N.Vector3(0, 0, 10));
+                    Next("Two simultaneous patches replicated; enemy leaves the original patch.");
                     break;
-                case 10 when _frames - _boundary > 5 && _oilPoints.Take(3).All(points => points == 100) && _arenas.All(a => a.Driver.ItemState?.Patches.Count == 1):
-                    Check(host.Items.Patches.All(p => p.Id != _patch!.Id), "second distinct enemy removed only original patch");
-                    _evidence.Add("Self-trigger scored zero; two distinct enemies banked 50 each, with exact reliable totals on all three peers.");
+                case 10 when _frames - _boundary > 5:
+                    Check(!host.Items.OilContacts.Any(c => c.Patch == _patch!.Id && c.Vehicle == 2), "exit releases overlap latch");
+                    Position(2, _patch!.Position + Normal * 0.9f);
+                    Next("The same enemy returns for the second pass.");
+                    break;
+                case 11 when _frames - _boundary > 5 && _oilPoints.Take(3).All(points => points == 100) && _arenas.All(a => a.Driver.ItemState?.Patches.Count == 1):
+                    Check(host.Items.Patches.All(p => p.Id != _patch!.Id), "same enemy's second pass removed only the original patch");
+                    Check(host.Items.Patches.Single().PassesUsed == 0, "separate patch budget is untouched");
+                    _evidence.Add("Two owner passes removed their patch for zero points; two passes by the same enemy removed another patch and banked 50 each on all three peers.");
                     _patch = OilRecoveryFixture.Seed(_arenas[0]);
-                    Next("Seeded 1,500 detached patches to exercise a state publication larger than one native message.");
+                    Next("Seeded 1,500 detached patches with one consumed pass to exercise complete continuation.");
                     break;
-                case 11 when _arenas.All(a => a.Driver.ItemState?.Patches.Count == OilRecoveryFixture.PatchCount):
+                case 12 when _arenas.All(a => a.Driver.ItemState?.Patches.Count == OilRecoveryFixture.PatchCount):
                     foreach (var arena in _arenas) { OilRecoveryFixture.Verify(arena.Driver.ItemState!, _patch!); }
                     AddPeer();
-                    Next("Large publication converged atomically on existing peers; fourth peer requests a complete join checkpoint.");
+                    Next("Large publication converged atomically; a fourth peer requests a complete join checkpoint.");
                     break;
-                case 12 when _arenas.All(a => a.Driver.ItemState?.Patches.Count == OilRecoveryFixture.PatchCount && a.Driver.Latest?.Vehicles.Count == 4):
+                case 13 when _arenas.All(a => a.Driver.ItemState?.Patches.Count == OilRecoveryFixture.PatchCount && a.Driver.Latest?.Vehicles.Count == 4):
                     foreach (var arena in _arenas) { OilRecoveryFixture.Verify(arena.Driver.ItemState!, _patch!); }
-                    _evidence.Add("All four peers retain 1,500 identical patch identities, absolute deadlines and distinct-contact history after chunked fresh admission.");
+                    _evidence.Add("All four peers retain 1,500 exact patch identities, deadlines and consumed-pass counts after fresh admission.");
                     var path = ProjectSettings.GlobalizePath("res://.godot/oil-checks");
                     System.IO.Directory.CreateDirectory(path);
                     System.IO.File.WriteAllLines(System.IO.Path.Combine(path, "evidence.txt"), _evidence);

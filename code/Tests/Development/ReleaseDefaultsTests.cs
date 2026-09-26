@@ -106,7 +106,7 @@ internal sealed class ReleaseDefaultsTests
     {
         var defaults = GameplayConfiguration.HostedDefaults;
         Assert.That(GameplayOptions.All.Count, Is.EqualTo(170));
-        Assert.That(defaults.Items.OilEnemyContacts, Is.EqualTo(2));
+        Assert.That(defaults.Items.OilPasses, Is.EqualTo(2));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);
         var restored = DeveloperSettingsFile.Read(file.Write(defaults), defaults);

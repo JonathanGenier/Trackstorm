@@ -11,6 +11,19 @@ namespace Trackstorm.Core.Tests.Items;
 internal sealed class OilScoringTests
 {
     [Test]
+    public void TwoOwnerPassesRemovePatchWithoutScore()
+    {
+        var host = Create();
+        for (int i = 0; i < 130; i++) { Step(host, 1); }
+        Assert.That(host.Items.Patches.Single().PassesUsed, Is.EqualTo(1));
+        Assert.That(Score(host), Is.Zero);
+        Step(host);
+        Step(host, 1);
+        Assert.That(host.Items.Patches, Is.Empty);
+        Assert.That(Score(host), Is.Zero);
+    }
+
+    [Test]
     public void ManyRetainedOwnersCanScoreTheSameEnemyWithoutTheFormerPatchAwardBound()
     {
         var host = Create();
@@ -39,15 +52,13 @@ internal sealed class OilScoringTests
     }
 
     [Test]
-    public void DistinctRivalBanksOnceSelfAndReentryNeverBank()
+    public void EnemyReentryBanksAgainUsingCurrentKd()
     {
         var host = Create();
-        Step(host, 1);
-        Assert.That(Score(host), Is.Zero);
-        Step(host, 1, 2);
+        Step(host, 2);
         Assert.That(Score(host), Is.EqualTo(50));
         Assert.That(host.World.State.Match!.Awards.Single(), Is.EqualTo(new CircusScoreAward(1, CircusScoreCategory.Oil, 50)));
-        for (int i = 0; i < 130; i++) { Step(host, 1, 2); }
+        for (int i = 0; i < 130; i++) { Step(host, 2); }
         Assert.That(Score(host), Is.EqualTo(50));
         Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(105));
         Step(host);
@@ -55,14 +66,10 @@ internal sealed class OilScoringTests
         var m = w.Match!;
         host.World.Restore(new(w.Tick, w.LastInput, w.Vehicles, new MatchState(m.Tick, m.Revision + 1, m.KillTarget, m.Phase, null, null,
             m.Players.Select(p => p.Player == 1 ? p with { Kills = 3, Deaths = 1, ProcessedLife = 1 } : p with { Deaths = 3, ProcessedLife = 1 }))));
-        Step(host, 1, 2);
-        Assert.That(Score(host), Is.EqualTo(50));
+        Step(host, 2);
+        Assert.That(Score(host), Is.EqualTo(125), "Second pass by the same enemy uses the owner's current K/D.");
         var decoded = MatchCodec.Decode(MatchCodec.Encode(99, host.World.State.Match!)).State;
         Assert.That(decoded.Players, Is.EqualTo(host.World.State.Match!.Players));
-        Assert.That(decoded.Awards, Is.Empty);
-        host.JoinPlayer(20, 3);
-        Step(host, 3);
-        Assert.That(Score(host), Is.EqualTo(125), "Second distinct enemy uses the owner's current K/D.");
         Assert.That(host.Items.Patches, Is.Empty);
     }
 
@@ -84,10 +91,13 @@ internal sealed class OilScoringTests
         Assert.That(Score(restored), Is.EqualTo(50));
         // The former host is a retained identity after authority replacement.
         restored.ExpirePlayer(1);
-        Step(restored);
         Step(restored, 2);
         Assert.That(Score(restored), Is.EqualTo(50));
         Assert.That(restored.Items.Patches.Single().Owner, Is.EqualTo(1));
+        Step(restored);
+        Step(restored, 2);
+        Assert.That(Score(restored), Is.EqualTo(100), "Retired owner receives the second enemy pass.");
+        Assert.That(restored.Items.Patches, Is.Empty);
     }
 
     [TestCase(false)]
@@ -128,7 +138,7 @@ internal sealed class OilScoringTests
         Assert.That(host.World.GetVehicle(1).LifeId, Is.EqualTo(2));
         Assert.That(host.Items.Patches.Single().Id, Is.EqualTo(patch.Id));
         Step(host, 1, 2);
-        Assert.That(Score(host), Is.EqualTo(50), "Self entry and a previously affected rival earn nothing.");
+        Assert.That(Score(host), Is.EqualTo(50), "Owner consumes the final pass without offensive score.");
     }
 
     [Test]

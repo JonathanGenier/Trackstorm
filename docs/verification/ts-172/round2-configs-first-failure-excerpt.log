@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.78 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Developer Options integration passed: read; 14 assertions.
+Fatal error.
+ERROR: FATAL: Condition "csharp_lang && !csharp_lang->script_bindings.is_empty()" is true.
+   at: _instance_binding_free_callback (modules/mono/csharp_script.cpp:1220)
+ERROR: Leaked unsafe reference to object: ():<Theme#-9223372003635886473>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<StyleBoxFlat#-9223371992512591723>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: (res://assets/devtools/force-start.svg):<CompressedTexture2D#-9223371992143492952>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<StyleBoxFlat#-9223371992026052441>
