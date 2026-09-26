@@ -6,7 +6,10 @@ param (
     [int]$Latency = 0,
     [int]$Jitter = 0,
     [float]$Loss = 0,
+    [ValidateRange(1, 64)]
+    [int]$CatchUpSteps = 8,
     [switch]$Visual,
+    [switch]$CaptureDuringDriving,
     [switch]$PrototypeMap,
     [switch]$IsolateHost,
     [switch]$NoBuild
@@ -35,11 +38,12 @@ try {
         $duration = if ($index -eq 0) { 24 } else { 16 }
         $output = Join-Path $networkOutput "player-$index"
         if ($Visual -and $index -eq 1) {
-            $visualArguments = @('--path', $PSScriptRoot, 'res://scenes/verification/network_vehicle_checks.tscn', '--', "--network-check-$role=127.0.0.1:$port", "--network-check-players=$Players", "--network-check-seconds=$duration", "--network-check-latency=$Latency", "--network-check-jitter=$Jitter", "--network-check-loss=$($Loss.ToString([System.Globalization.CultureInfo]::InvariantCulture))", "--network-check-output=$output")
+            $visualArguments = @('--path', $PSScriptRoot, 'res://scenes/verification/network_vehicle_checks.tscn', '--', "--network-check-$role=127.0.0.1:$port", "--network-check-players=$Players", "--network-check-catch-up=$CatchUpSteps", "--network-check-seconds=$duration", "--network-check-latency=$Latency", "--network-check-jitter=$Jitter", "--network-check-loss=$($Loss.ToString([System.Globalization.CultureInfo]::InvariantCulture))", "--network-check-output=$output")
             if ($PrototypeMap) { $visualArguments += '--network-check-prototype' }
+            if ($CaptureDuringDriving) { $visualArguments += '--network-check-capture-during-driving' }
             continue
         }
-        $arguments = @('--path', "`"$PSScriptRoot`"", 'res://scenes/verification/network_vehicle_checks.tscn', '--', "--network-check-$role=127.0.0.1:$port", "--network-check-players=$Players", "--network-check-seconds=$duration", "--network-check-latency=$Latency", "--network-check-jitter=$Jitter", "--network-check-loss=$($Loss.ToString([System.Globalization.CultureInfo]::InvariantCulture))", "`"--network-check-output=$output`"")
+        $arguments = @('--path', "`"$PSScriptRoot`"", 'res://scenes/verification/network_vehicle_checks.tscn', '--', "--network-check-$role=127.0.0.1:$port", "--network-check-players=$Players", "--network-check-catch-up=$CatchUpSteps", "--network-check-seconds=$duration", "--network-check-latency=$Latency", "--network-check-jitter=$Jitter", "--network-check-loss=$($Loss.ToString([System.Globalization.CultureInfo]::InvariantCulture))", "`"--network-check-output=$output`"")
         if (-not $Visual -or $index -ne 1) { $arguments = @('--headless') + $arguments }
         if ($PrototypeMap) { $arguments += '--network-check-prototype' }
         $processes[$index] = Start-Process -FilePath $GodotPath -ArgumentList $arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput "$output.log" -RedirectStandardError "$output.errors.log"

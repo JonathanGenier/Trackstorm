@@ -214,8 +214,9 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
 
         if (velocity.Y <= 1)
         {
-            using var ray = PhysicsRayQueryParameters3D.Create(transform.Origin, transform.Origin + (Vector3.Down * (0.62f * VehicleDimensions.Scale)), CollisionMask, new Godot.Collections.Array<Rid> { GetRid() });
-            var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
+            var excluded = new Godot.Collections.Array<Rid> { GetRid() };
+            using var ray = PhysicsRayQueryParameters3D.Create(transform.Origin, transform.Origin + (Vector3.Down * (0.62f * VehicleDimensions.Scale)), CollisionMask, excluded);
+            using var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
             if (hit.Count > 0 && hit["normal"].AsVector3().Y >= _configuration.SupportNormalMinimum && !EnvironmentContact.IsObstacle(hit["collider"].AsGodotObject(), hit["normal"].AsVector3()))
             {
                 support = hit["normal"].AsVector3().Normalized();
@@ -245,7 +246,8 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
             }
         }
 
-        return new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts, surface, suspension.Wheels, VehicleBody.ToCore(suspension.TerrainNormal), WaterObservation.Observe(this, transform));
+        float waterDepth = WaterObservation.Observe(this, transform);
+        return new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts, surface, suspension.Wheels, VehicleBody.ToCore(suspension.TerrainNormal), waterDepth);
     }
 
     /// <summary>Reconstructs the collision proxy immediately; rendering retains its own correction offset.</summary>
