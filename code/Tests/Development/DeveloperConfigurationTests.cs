@@ -21,7 +21,7 @@ internal sealed class DeveloperConfigurationTests
         var host = new HostVehicleSession(9);
         host.Join(42);
         var before = host.Configuration;
-        Assert.That(host.TryConfigure(42, new Dictionary<string, double> { ["vehicle.acceleration"] = 20 }, out _), Is.False);
+        Assert.That(host.TryConfigure(99, new Dictionary<string, double> { ["vehicle.acceleration"] = 20 }, out _), Is.False);
         Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["vehicle.acceleration"] = 20, ["vehicle.mass"] = -1 }, out _), Is.False);
         Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["vehicle.acceleration"] = 20, ["vehicle.mass"] = 1e-40 }, out _), Is.False);
         Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["vehicle.wheelbase"] = 1e-40 }, out _), Is.False);

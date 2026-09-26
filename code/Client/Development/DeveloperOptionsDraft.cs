@@ -9,13 +9,14 @@ internal sealed class DeveloperOptionsDraft
     private readonly Dictionary<string, string> _values = new(StringComparer.Ordinal);
     private GameplayConfiguration _baseline = GameplayConfiguration.HostedDefaults;
     private bool _replaceAll;
+    private readonly HashSet<string> _importedKeys = new(StringComparer.Ordinal);
     private readonly HashSet<string> _resetGroups = new(StringComparer.Ordinal);
 
     /// <summary>Starts with an editable production preset before a session is attached.</summary>
     internal DeveloperOptionsDraft() => Discard(GameplayConfiguration.HostedDefaults);
 
     /// <summary>Whether edits must survive automatic runtime refresh.</summary>
-    internal bool IsDirty => GameplayOptions.All.Any(option => !Matches(option, _baseline));
+    internal bool IsDirty => _importedKeys.Count > 0 || GameplayOptions.All.Any(option => !Matches(option, _baseline));
 
     /// <summary>Compares parsed editor values with the canonical hosted preset, independently of edit history.</summary>
     /// <param name="option">Catalog setting and its actual numeric type.</param>
@@ -35,6 +36,29 @@ internal sealed class DeveloperOptionsDraft
         _values[key] = value;
     }
 
+    /// <summary>Refreshes untouched fields while keeping explicit drafts visibly unapplied.</summary>
+    internal void Rebase(GameplayConfiguration current)
+    {
+        var unchanged = GameplayOptions.All.Where(option => !_importedKeys.Contains(option.Key) && Matches(option, _baseline)).ToArray();
+        Populate(current, unchanged);
+        _baseline = current;
+    }
+
+    /// <summary>Replaces submitted fields after host confirmation, preserving later and unrelated edits.</summary>
+    internal void Accept(IReadOnlyDictionary<string, double> submitted, GameplayConfiguration current)
+    {
+        foreach (var option in GameplayOptions.All.Where(option => submitted.ContainsKey(option.Key)))
+        {
+            if (double.TryParse(Get(option.Key), NumberStyles.Float, CultureInfo.InvariantCulture, out double value) &&
+                (option.Integral || option.DoublePrecision ? value == submitted[option.Key] : (float)value == (float)submitted[option.Key]))
+                Populate(current, [option]);
+        }
+        _replaceAll = false;
+        _resetGroups.Clear();
+        _importedKeys.ExceptWith(submitted.Keys);
+        Rebase(current);
+    }
+
     /// <summary>Discards pending changes in favor of the current authoritative values.</summary>
     /// <param name="current">Current accepted gameplay configuration.</param>
     internal void Discard(GameplayConfiguration current)
@@ -43,6 +67,7 @@ internal sealed class DeveloperOptionsDraft
         Populate(current);
         _replaceAll = false;
         _resetGroups.Clear();
+        _importedKeys.Clear();
     }
 
     /// <summary>Stages the complete production preset until the user explicitly applies it.</summary>
@@ -50,6 +75,17 @@ internal sealed class DeveloperOptionsDraft
     {
         Populate(GameplayConfiguration.HostedDefaults);
         _replaceAll = true;
+    }
+
+    /// <summary>Stages only imported keys, retaining other drafts and their normal refresh behavior.</summary>
+    internal void Import(IReadOnlyDictionary<string, double> edits)
+    {
+        foreach (var option in GameplayOptions.All.Where(option => edits.ContainsKey(option.Key)))
+        {
+            double value = edits[option.Key];
+            _values[option.Key] = option.Integral || option.DoublePrecision ? value.ToString("R", CultureInfo.InvariantCulture) : ((float)value).ToString("R", CultureInfo.InvariantCulture);
+            _importedKeys.Add(option.Key);
+        }
     }
 
     /// <summary>Stages one complete catalog category without disturbing other pending text.</summary>
@@ -77,7 +113,7 @@ internal sealed class DeveloperOptionsDraft
             }
 
             // A reset includes every requested category field, even if authority changed after opening.
-            if (_replaceAll || _resetGroups.Contains(option.Group) || !Matches(option, _baseline))
+            if (_replaceAll || _resetGroups.Contains(option.Group) || _importedKeys.Contains(option.Key) || !Matches(option, _baseline))
             {
                 edits.Add(option.Key, value);
             }

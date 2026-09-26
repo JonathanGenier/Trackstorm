@@ -134,7 +134,7 @@ internal sealed class CategoryBalanceTests
         ulong random = host.ItemSelectionRandom.State;
         var edits = ItemRegistry.All.ToDictionary(item => $"spawns.{item.Key}_weight", item => item.Identity == HeldItem.Nitro ? 7d : 0d);
         var before = host.Configuration;
-        Assert.That(host.TryConfigure(20, edits, out _), Is.False);
+        Assert.That(host.TryConfigure(999, edits, out _), Is.False);
         Assert.That(host.Configuration, Is.EqualTo(before));
         Assert.That(host.TryConfigure(0, edits, out _), Is.True);
         EqualBalances(balances, host.Spawns.Balances);

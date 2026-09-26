@@ -212,7 +212,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 Require(_arenas[1].Driver.History!.Snapshots.Count == 1, "Interpolation data contains only the fresh boundary.");
                 Require(_arenas[1].Bodies[_player] == _originalBody, "The native vehicle is reused, never duplicated.");
                 Require(_arenas[1].LocalState!.Damage == world.Vehicles.Single(v => v.State.VehicleId == _player).State.Damage, "Current HP is restored.");
-                Require(_arenas[1].Driver.Configuration == _arenas[0].Driver.Configuration, "Current host tuning and revision are restored before prediction.");
+                Require(_arenas[1].Driver.Configuration == _arenas[0].Driver.Configuration && _arenas[1].Driver.Configuration.Configuration.Items.WrenchHeal == 123, "Client-originated shared tuning and current host revision are restored before prediction.");
                 Require(_arenas[1].Driver.Match!.Players.SequenceEqual(_arenas[0].Driver.Host!.World.State.Match!.Players), "Resume preserves complete Circus totals, streaks, multiplier inputs and damage watermarks.");
                 var resumedMatch = _arenas[1].Driver.Match!;
                 var hostMatch = _arenas[0].Driver.Host!.World.State.Match!;
@@ -223,6 +223,11 @@ public sealed partial class ReconnectIntegrationChecks : Node
             _stage = 40;
         }
         else if (_stage == 40 && _arenas[1].Driver.Match?.Phase == Trackstorm.Core.Matches.MatchPhase.Active)
+        {
+            Require(_client.RequestConfiguration(new Dictionary<string, double> { ["items.wrench_heal"] = 123 }, out _), "Client requests shared tuning before reconnect.");
+            _stage = 400;
+        }
+        else if (_stage == 400 && !_client.ConfigurationPending && _arenas.All(arena => arena.Driver.Configuration.Configuration.Items.WrenchHeal == 123))
         {
             _originalTag = _arenas[0].Bodies[_player].GetNode<RemoteVehicleTag>("PlayerTag");
             RestoreHealthFixture(false);

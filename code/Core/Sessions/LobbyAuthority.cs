@@ -138,15 +138,15 @@ public sealed class LobbyAuthority
         Configuration = configuration;
     }
 
-    /// <summary>Applies an authenticated local host's lobby tuning edit through the existing configuration rules.</summary>
+    /// <summary>Applies an admitted participant's lobby tuning edit through the existing configuration rules.</summary>
     /// <param name="peer">Actual sender; zero denotes the local authority.</param>
     /// <param name="edits">Allowlisted tuning transaction.</param>
     /// <param name="error">Safe validation feedback.</param>
     /// <returns>Whether the transaction is accepted.</returns>
     public bool TryConfigure(ulong peer, IReadOnlyDictionary<string, double> edits, out string error)
     {
-        error = "Only the lobby authority may change session tuning.";
-        if (peer != 0 || State.Phase != SessionPhase.Lobby || !Development.GameplayOptions.TryApply(Configuration.Configuration, edits, out var candidate, out error))
+        error = "Only connected session participants may request tuning.";
+        if ((peer != 0 && (PlayerId(peer) == 0 || IsPendingJoin(peer))) || State.Phase != SessionPhase.Lobby || !Development.GameplayOptions.TryApply(Configuration.Configuration, edits, out var candidate, out error))
         {
             return false;
         }

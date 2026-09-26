@@ -203,7 +203,7 @@ internal sealed class SalvoTests
         Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.salvo_range"] = 80, ["items.salvo_speed"] = 100, ["items.salvo_damage"] = 40, ["items.missile_speed"] = 100 }, out _), Is.True);
         Assert.That(host.Items.Missiles, Is.EqualTo(before));
         Assert.That(GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(99, host.Configuration)).State, Is.EqualTo(host.Configuration));
-        Assert.That(host.TryConfigure(42, new Dictionary<string, double> { ["items.salvo_count"] = 1 }, out _), Is.False);
+        Assert.That(host.TryConfigure(999, new Dictionary<string, double> { ["items.salvo_count"] = 1 }, out _), Is.False);
         Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.salvo_count"] = 17 }, out _), Is.False);
         var broken = before[0] with { Arc = before[0].Arc! with { ElapsedTicks = 9999 } };
         Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), host.Items.Slots, [broken], []));

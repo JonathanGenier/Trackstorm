@@ -40,7 +40,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks
         string Text(string key) => ((LineEdit)Editor(key)).Text;
         string path = System.IO.Path.Combine(_directory, "settings.json.developer.jsonl");
         var before = _host.Arena!.Driver.Configuration;
-        string persisted = System.IO.File.ReadAllText(path);
+        bool persisted = System.IO.File.Exists(path);
         var names = GameplayOptions.All.Select(option => option.Group).Distinct()
             .Concat(TireEffectSettings.Options.Select(option => option.Group).Distinct()).Append("Local network simulation");
         Check(sections.Select(section => Header(section).Text[2..]).SequenceEqual(names), "every category remains in catalog order");
@@ -78,8 +78,9 @@ public sealed partial class DeveloperOptionsIntegrationChecks
             Check(editor.GetThemeColor("font_color") == new Color("69b7ff"), "reset immediately restores default blue: " + option.Key);
         }
         Check(Text("items.machine_gun_damage") == "12" && Text("items.nitro_forward_thrust") == "21000" && Text("vehicle.mass") == "1234" && Text("tire.grass.duration").StartsWith("0.5", StringComparison.Ordinal) && latency.Value == 25, "category reset retains every unrelated staged owner");
-        Check(_host.Arena.Driver.Configuration == before && System.IO.File.ReadAllText(path) == persisted, "category reset leaves effective revision and persistence untouched");
-        Check(panel.HasUnappliedChanges && HasStatus("Salvo defaults staged"), "category reset participates in existing unsaved feedback");
+        Check(_host.Arena.Driver.Configuration.Configuration.Items.SalvoCount == GameplayConfiguration.HostedDefaults.Items.SalvoCount && System.IO.File.Exists(path) == persisted, "category reset applies to authority without persistence");
+        before = _host.Arena.Driver.Configuration;
+        Check(panel.HasUnappliedChanges && HasStatus("Shared defaults applied"), "category reset participates in existing unsaved feedback");
         await Frames(3);
         await Capture("accordion-filtered-reset");
         Search(string.Empty);
@@ -93,7 +94,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks
         Check(accepted.Configuration.Items.SalvoCount == GameplayConfiguration.HostedDefaults.Items.SalvoCount && accepted.Configuration.Items.MachineGunDamage == 12 && accepted.Configuration.Vehicle.Mass == 1234, "combined staged values reach host authority");
         Check(accepted.Revision == before.Revision + 1, "combined category reset advances one revision");
         await Until(() => _client!.Arena!.Driver.Configuration == accepted, "combined category reset synchronizes over UDP");
-        Check(new DeveloperSettingsStore(path).LoadForHost() == accepted.Configuration, "combined category reset persists accepted gameplay");
+        Check(!System.IO.File.Exists(path), "combined reset does not persist session tuning");
 
         Set("items.machine_gun_damage", 19);
         Reset(salvo).EmitSignal(BaseButton.SignalName.Pressed);
@@ -114,7 +115,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks
         Check(latency.Value == 25, "Cancel restores previously applied network impairment after category reset");
         Press("Reset to Defaults");
         Check(ReadEditors() == GameplayConfiguration.HostedDefaults && latency.Value == 0 && Text("tire.dirt.duration") == TireEffectSettings.Defaults["tire.dirt.duration"].ToString("G", System.Globalization.CultureInfo.InvariantCulture), "global reset while filtering still stages all categories");
-        Check(_host.Arena.Driver.Configuration == accepted, "global reset stays unapplied");
+        Check(_host.Arena.Driver.Configuration.Configuration == GameplayConfiguration.HostedDefaults, "global reset applies shared defaults immediately");
         panel.Cancel();
         Search(string.Empty);
         latency.Value = 0;

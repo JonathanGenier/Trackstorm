@@ -5,7 +5,7 @@ using Trackstorm.Core.Sessions;
 namespace Trackstorm.Client.Networking;
 
 /// <summary>Routes reliable session intents and publications over the existing caller-owned gateway.</summary>
-internal sealed class LobbyNetworkDriver
+internal sealed partial class LobbyNetworkDriver
 {
     private readonly ITransportGateway _gateway;
     private readonly string _name;
@@ -120,6 +120,7 @@ internal sealed class LobbyNetworkDriver
         Authority = local == host ? restored : null;
         _clientEvents.ResetAuthority(checkpoint.Lobby.Tick * 1000 / 60);
         _eventSent.Clear();
+        ResetConfigurationChannel(restored.Configuration);
         _replica = new LobbyReplica();
         if (Authority is null)
         {
@@ -322,7 +323,11 @@ internal sealed class LobbyNetworkDriver
                 continue;
             }
 
-            if (LobbyCodec.IsLobby(message.Payload.Span))
+            if (IsConfigurationChannel(message.Payload.Span))
+            {
+                ReceiveConfiguration(message);
+            }
+            else if (LobbyCodec.IsLobby(message.Payload.Span))
             {
                 Receive(message);
             }
@@ -351,6 +356,8 @@ internal sealed class LobbyNetworkDriver
         }
 
         Publish();
+        PublishConfiguration();
+        AdvanceConfigurationRequest();
         PublishEvents();
         if (_loggedResume != ResumeStatus)
         {

@@ -41,6 +41,7 @@ public sealed partial class MenuIntegrationChecks : Node
     {
         try
         {
+            Engine.MaxFps = 60;
             _directory = OS.GetCmdlineUserArgs().Single(argument => argument.StartsWith("--menu-output=", StringComparison.Ordinal))[14..];
             using (var reservation = new System.Net.Sockets.UdpClient(new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 0)))
             {

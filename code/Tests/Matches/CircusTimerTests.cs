@@ -96,7 +96,7 @@ internal sealed class CircusTimerTests
         Step(host); Step(host);
         for (int i = 0; i < 60; i++) Step(host);
         ulong? started = host.World.State.Match!.ActiveStartedAtTick;
-        Assert.That(host.TryConfigure(10, new Dictionary<string, double> { ["match.duration_ticks"] = 600 }, out _), Is.False);
+        Assert.That(host.TryConfigure(999, new Dictionary<string, double> { ["match.duration_ticks"] = 600 }, out _), Is.False);
         Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["match.duration_ticks"] = 600 }, out _), Is.True);
         Assert.That(host.World.State.Match!.ActiveStartedAtTick, Is.EqualTo(started));
         Assert.That(host.World.State.Match.Lifecycle.RemainingMatchTicks(host.World.State.Tick), Is.EqualTo(540));

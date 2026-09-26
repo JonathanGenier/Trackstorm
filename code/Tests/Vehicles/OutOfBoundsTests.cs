@@ -77,12 +77,13 @@ internal sealed class OutOfBoundsTests
     }
 
     [Test]
-    public void HostTuningPersistsAndZeroDamageStillClassifiesBelowMap()
+    public void HostValidatedClientTuningPersistsAndZeroDamageStillClassifiesBelowMap()
     {
         var host = new HostVehicleSession(9, arena: Arena(), configuration: GameplayConfiguration.HostedDefaults);
         host.Join(42);
         var edits = new Dictionary<string,double>{{"vehicle.oob.damage",0}};
-        Assert.That(host.TryConfigure(42,edits,out _),Is.False);
+        Assert.That(host.TryConfigure(999,edits,out _),Is.False);
+        Assert.That(host.TryConfigure(42,edits,out _),Is.True);
         Assert.That(host.TryConfigure(0,edits,out _),Is.True);
         var config = host.Configuration.Configuration;
         Assert.That(GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(9,host.Configuration)).State.Configuration,Is.EqualTo(config));

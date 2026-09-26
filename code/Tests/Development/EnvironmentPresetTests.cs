@@ -18,8 +18,8 @@ internal sealed class EnvironmentPresetTests
         host.Join(42);
         var vehicles = host.World.State.Vehicles.ToArray();
         var edits = new Dictionary<string, double> { ["environment.preset"] = (int)preset };
-        Assert.That(host.TryConfigure(42, edits, out _), Is.False);
-        Assert.That(host.TryConfigure(0, edits, out _), Is.True);
+        Assert.That(host.TryConfigure(99, edits, out _), Is.False);
+        Assert.That(host.TryConfigure(42, edits, out _), Is.True);
         Assert.That(host.Configuration.Configuration.Environment, Is.EqualTo(preset));
         Assert.That(host.World.State.Vehicles, Is.EqualTo(vehicles));
         var file = DeveloperSettingsFile.Read(string.Empty);
@@ -27,7 +27,7 @@ internal sealed class EnvironmentPresetTests
         var checkpoint = new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), [], [], []), host.World.State.Match!, null, host.Configuration);
         var restored = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(checkpoint));
         Assert.That(restored.Configuration, Is.EqualTo(host.Configuration));
-        Assert.That(host.TryConfigure(0, edits, out _), Is.True);
+        Assert.That(host.TryConfigure(42, edits, out _), Is.True);
         Assert.That(host.Configuration.Revision, Is.EqualTo(preset == EnvironmentPreset.ClearBlue ? 0 : 1));
     }
 

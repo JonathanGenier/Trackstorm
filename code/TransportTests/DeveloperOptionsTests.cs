@@ -11,6 +11,29 @@ internal sealed class DeveloperOptionsTests
     private string _directory = string.Empty;
     private string _path = string.Empty;
 
+    [Test]
+    public void ImportedKeysRemainExplicitAcrossExternalEditsWhileUnlistedFieldsConverge()
+    {
+        var draft = new DeveloperOptionsDraft();
+        var defaults = GameplayConfiguration.HostedDefaults;
+        draft.Import(new Dictionary<string, double> { ["vehicle.mass"] = defaults.Vehicle.Mass });
+        Assert.That(draft.IsDirty, Is.True, "An explicit import waits for Apply even when initially equal.");
+        var changed = defaults with { Vehicle = defaults.Vehicle with { Mass = 1200, Acceleration = 21 } };
+        draft.Rebase(changed);
+        Assert.That(draft.TryGetEdits(out var edits, out _), Is.True);
+        Assert.That(edits.Keys, Is.EquivalentTo(new[] { "vehicle.mass" }));
+        Assert.That(edits["vehicle.mass"], Is.EqualTo(defaults.Vehicle.Mass));
+        Assert.That(draft.Get("vehicle.acceleration"), Is.EqualTo("21"));
+        draft.Accept(new Dictionary<string, double> { ["items.machine_gun_damage"] = defaults.Items.MachineGunDamage }, changed);
+        Assert.That(draft.IsDirty, Is.True, "A reset in another category cannot discard imported intent.");
+        draft.Accept(edits, defaults with { Vehicle = defaults.Vehicle with { Acceleration = 21 } });
+        Assert.That(draft.IsDirty, Is.False);
+        draft.Import(new Dictionary<string, double> { ["vehicle.mass"] = 1300 });
+        draft.Discard(changed);
+        Assert.That(draft.IsDirty, Is.False);
+        Assert.That(draft.Get("vehicle.mass"), Is.EqualTo("1200"));
+    }
+
     /// <summary>Every catalog group resets as a whole, retains exact unrelated text and requests only its own defaults.</summary>
     [Test]
     public void CategoryResetPreservesOtherDraftsAndCoversTheWholeCategory()

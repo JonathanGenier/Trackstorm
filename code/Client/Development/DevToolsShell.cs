@@ -226,6 +226,8 @@ internal sealed partial class DevToolsShell : CanvasLayer
             return;
         }
 
+        if (Configs.AwaitingConfirmation) return;
+
         if (Configs.HasUnappliedChanges)
         {
             _decisionFocus = GetViewport().GuiGetFocusOwner();

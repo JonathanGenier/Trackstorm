@@ -27,7 +27,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
     public override void _Ready() => CallDeferred(MethodName.Run);
 
     /// <inheritdoc/>
-    public override void _PhysicsProcess(double delta) => _client?.Advance(default);
+    public override void _PhysicsProcess(double delta) { _client?.Advance(default); _lateClient?.Advance(default); }
 
     /// <summary>Exercises actual UI commands and exits nonzero on any missing gameplay or persistence boundary.</summary>
     public async void Run()
@@ -64,11 +64,11 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
             await CheckInitialAccordionState();
             if (phase == "read")
             {
-                Check(_host.DeveloperConfiguration.Environment == EnvironmentPreset.NeonSunset, "process restart restores environment identity");
-                Check(_host.DeveloperConfiguration.Vehicle.Acceleration == 7, "full process restart restores host tuning");
+                Check(_host.DeveloperConfiguration.Environment == GameplayConfiguration.HostedDefaults.Environment, "process restart does not retain session environment");
+                Check(_host.DeveloperConfiguration.Vehicle.Acceleration == GameplayConfiguration.HostedDefaults.Vehicle.Acceleration, "full process restart does not retain session tuning");
                 Press("Force Start");
                 await Until(() => _host.Arena?.Driver.Match?.Phase == MatchPhase.Active, "solo Force Start uses normal countdown and Active phase");
-                Check(_host.Arena!.Driver.Configuration.Configuration.Vehicle.Acceleration == 7, "persisted values become authoritative arena configuration");
+                Check(_host.Arena!.Driver.Configuration.Configuration.Vehicle.Acceleration == GameplayConfiguration.HostedDefaults.Vehicle.Acceleration, "persisted values become authoritative arena configuration");
                 Check(_host.Arena.Driver.Configuration.Configuration.Match.MinimumPlayers == 2, "Force Start does not change normal player rules");
             }
             else
@@ -82,12 +82,13 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 _client.Open(false, endpoint, "Joined player");
                 await Until(() => _client.Lobby?.State?.Players.Count == 2, "real UDP client admission");
                 _devTools.Configs.Session = () => _client;
-                await Frames(2);
-                Check(!Descendants(_devTools.Configs).OfType<LineEdit>().Any(editor => editor.IsVisibleInTree() && editor.Name != "ConfigSearch" && !editor.Name.ToString().StartsWith("tire_", StringComparison.Ordinal)), "joined client's Configs hides host-only settings");
+                await Frames(20);
+                Check(Descendants(_devTools.Configs).OfType<LineEdit>().Any(editor => editor.IsVisibleInTree() && editor.Name == "vehicle_mass"), "joined client sees shared gameplay settings");
                 Check(Descendants(_devTools.Configs).OfType<LineEdit>().Any(editor => editor.IsVisibleInTree() && editor.Name == "tire_lifetime"), "joined client retains local tire graphics controls");
                 var sharedBeforeLocalEdit = _host.DeveloperConfiguration;
                 Set("tire.grass.duration", .5);
-                Check(_devTools.Configs.Apply(), "Joined client can apply local surface graphics without host authority");
+                _devTools.Configs.Apply();
+                await Until(() => !_devTools.Configs.AwaitingConfirmation, "client local-graphics Apply completes");
                 await Frames(10);
                 Check(_host.DeveloperConfiguration == sharedBeforeLocalEdit && _client.DeveloperConfiguration == sharedBeforeLocalEdit, "Local surface tuning leaves both synchronized gameplay configurations unchanged");
                 _devTools.Configs.Session = () => _host;
@@ -128,7 +129,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 }
 
                 Press("Apply Settings");
-                Check(Descendants(_devTools.Configs).OfType<Label>().Any(label => label.Text == "Host tuning saved."), "real GNS accepts all five UI impairment controls");
+                Check(Descendants(_devTools.Configs).OfType<Label>().Any(label => label.Text == "Shared session settings applied."), "real GNS accepts all five UI impairment controls");
                 foreach (var option in GameplayOptions.All)
                 {
                     if (option.Key == "match.mode")
@@ -200,7 +201,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Press("Apply Settings");
                 Check(_host.Arena.Driver.Configuration.Revision == revision, "invalid UI edit cannot commit");
                 Press("Cancel");
-                Check(!_client.ConfigureDeveloperOptions(new Dictionary<string, double> { ["vehicle.mass"] = 200 }, out _), "joined client cannot mutate");
+                await CheckSharedClients(endpoint);
                 Check(!_client.GiveDeveloperItem(HeldItem.Missile) && !_client.ForceDeveloperStart(), "joined client cannot invoke actions");
                 Set("match.minimum_players", 2);
                 Set("environment.preset", (int)EnvironmentPreset.NeonSunset);
@@ -299,56 +300,28 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
     {
         string path = System.IO.Path.Combine(_directory, "settings.json.developer.jsonl");
         var before = _host.Arena!.Driver.Configuration;
-        string persisted = System.IO.File.ReadAllText(path);
         Set("damage.max_hp", 2500);
         Set("vehicle.acceleration", 99);
         Press("Cancel");
-        Check(_host.Arena.Driver.Configuration == before, "Discard does not mutate live configuration or revision");
-        Check(ReadEditors() == before.Configuration, "Discard restores all current authoritative values");
-        Check(System.IO.File.ReadAllText(path) == persisted, "Discard does not write persistence");
-
+        Check(_host.Arena.Driver.Configuration == before && ReadEditors() == before.Configuration, "Cancel restores authority without changing it");
         Set("vehicle.mass", -1);
         Press("Reset to Defaults");
-        await Frames(20);
-        Check(ReadEditors() == GameplayConfiguration.HostedDefaults, "Reset stages the complete production defaults including 1000 HP");
-        Check(_host.Arena.Driver.Configuration == before, "Reset does not mutate live configuration or revision");
-        Check(_host.DeveloperSettings!.Current == before.Configuration, "Reset does not mutate the host persistence owner");
-        Check(System.IO.File.ReadAllText(path) == persisted, "Reset does not write persistence");
+        var reset = _host.Arena.Driver.Configuration;
+        Check(reset.Configuration == GameplayConfiguration.HostedDefaults && reset.Revision == before.Revision + (before.Configuration == GameplayConfiguration.HostedDefaults ? 0UL : 1UL), "global Reset immediately commits one authoritative transaction");
+        await Until(() => _client!.Arena!.Driver.Configuration == reset, "global Reset synchronizes normally");
+        Check(!System.IO.File.Exists(path), "accepted edits and resets never create a permanent defaults file");
         var hp = Descendants(_devTools.Configs).OfType<LineEdit>().Single(editor => editor.Name == "damage_max_hp");
         hp.EmitSignal(LineEdit.SignalName.TextSubmitted, hp.Text);
-        Check(_host.Arena.Driver.Configuration == before, "submitting numeric text does not bypass Apply Settings");
-
-        Press("Apply Settings");
-        var reset = _host.Arena.Driver.Configuration;
-        Check(reset.Configuration == GameplayConfiguration.HostedDefaults && reset.Revision == before.Revision + 1, "Reset plus Apply commits the default configuration once");
-        await Until(() => _client!.Arena!.Driver.Configuration == reset, "Reset plus Apply synchronizes normally");
-        Check(new DeveloperSettingsStore(path).LoadForHost() == GameplayConfiguration.HostedDefaults, "Reset plus Apply replaces persisted host tuning");
-
-        persisted = System.IO.File.ReadAllText(path);
+        Check(_host.Arena.Driver.Configuration == reset, "numeric Enter does not commit");
         var mass = Descendants(_devTools.Configs).OfType<LineEdit>().Single(editor => editor.Name == "vehicle_mass");
         mass.Text = "invalid";
         mass.EmitSignal(LineEdit.SignalName.TextChanged, mass.Text);
         Press("Apply Settings");
-        Check(_host.Arena.Driver.Configuration == reset && HasStatus("Invalid value:"), "Apply reports malformed text without committing");
+        Check(_host.Arena.Driver.Configuration == reset && HasStatus("Invalid value:"), "malformed editor text is rejected");
         Set("vehicle.mass", -1);
         Press("Apply Settings");
-        Check(_host.Arena.Driver.Configuration == reset, "Apply still enforces authoritative configuration validation");
-        Check(System.IO.File.ReadAllText(path) == persisted, "rejected Apply does not write persistence");
+        Check(_host.Arena.Driver.Configuration == reset, "Core rejects unsafe values atomically");
         Press("Cancel");
-
-        // A directory at the temporary file path deterministically fails saving without changing permissions.
-        System.IO.Directory.CreateDirectory(path + ".tmp");
-        Set("vehicle.acceleration", 8);
-        Press("Apply Settings");
-        var accepted = _host.Arena.Driver.Configuration;
-        Check(accepted.Configuration.Vehicle.Acceleration == 8 && accepted.Revision == reset.Revision + 1, "failed persistence retains accepted live tuning");
-        Check(_host.DeveloperSettings.Current == accepted.Configuration && HasStatus("saving failed. Press Apply Settings to retry."), "save failure and Apply retry are clearly surfaced");
-        Check(System.IO.File.ReadAllText(path) == persisted, "failed persistence preserves the prior file");
-        System.IO.Directory.Delete(path + ".tmp");
-        Press("Apply Settings");
-        Check(_host.Arena.Driver.Configuration == accepted, "unchanged Apply retry does not advance revision");
-        Check(new DeveloperSettingsStore(path).LoadForHost() == accepted.Configuration && HasStatus("Host tuning saved."), "unchanged Apply retries and persists successfully");
-        await Until(() => _client!.Arena!.Driver.Configuration == accepted, "client retains the accepted retry boundary");
     }
 
     private async Task CheckRedesign()
@@ -390,6 +363,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         }
 
         Press("Cancel");
+        before = _host.Arena.Driver.Configuration;
         Set("vehicle.mass", 1234);
         Check(panel.HasUnappliedChanges && mass.GetThemeColor("font_color") == new Color("ff7979"), "staged override is dirty and red");
         Check(feedback.IsVisibleInTree() && feedback.Text == "Unsaved changes", "gameplay draft shows Unsaved changes feedback");
@@ -455,25 +429,10 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         Check(mass.Text == "1234", "Cancel restores effective override rather than defaults");
         Check(feedback.IsVisibleInTree() && feedback.Text == "Changes discarded", "Cancel confirmation remains associated with the footer");
         Set("vehicle.mass", 1200);
-        string temporary = System.IO.Path.Combine(_directory, "settings.json.developer.jsonl.tmp");
-        System.IO.Directory.CreateDirectory(temporary);
-        try
-        {
-            Press("Close");
-            Press("Apply");
-            Check(_devTools.IsOpen && HasStatus("saving failed"), "close Apply keeps persistence failure visible");
-            Check(feedback.IsVisibleInTree() && feedback.Text == "Settings applied" && feedback.GetThemeColor("font_color") == new Color("46b85d"), "authoritative Apply shows green success feedback despite persistence failure");
-        }
-        finally
-        {
-            System.IO.Directory.Delete(temporary);
-        }
-
-        var accepted = _host.Arena.Driver.Configuration;
         Press("Apply Settings");
-        Check(_host.Arena.Driver.Configuration == accepted && HasStatus("Host tuning saved"), "retry saves without another revision");
-        Check(feedback.IsVisibleInTree() && feedback.Text == "Settings applied", "successful persistence retry shows Settings applied feedback");
-        await Until(() => _client!.Arena!.Driver.Configuration == accepted, "save-failure retry retains synchronized values");
+        var accepted = _host.Arena.Driver.Configuration;
+        Check(HasStatus("Shared session settings applied"), "success describes session state without claiming persistence");
+        await Until(() => _client!.Arena!.Driver.Configuration == accepted, "updated settings synchronize");
     }
 
     private GameplayConfiguration ReadEditors()
