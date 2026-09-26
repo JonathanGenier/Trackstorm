@@ -26,6 +26,7 @@ internal sealed record CombatHudView(string Health, double HealthFill, string Sp
     internal double SecondNitroCharge { get; init; }
     private static string Name(HeldItem item, double charge, int shots) => item switch
     {
+        HeldItem.MachineGun => $"MACHINE GUN {Math.Ceiling(charge):0}%",
         HeldItem.Nitro => $"NITRO {Math.Ceiling(charge):0}%",
         HeldItem.Salvo => $"SALVO {shots}",
         _ => ItemRegistry.Find(item)?.DisplayName.ToUpperInvariant() ?? "EMPTY",
@@ -46,7 +47,7 @@ internal sealed record CombatHudView(string Health, double HealthFill, string Sp
         HeldItem item = state.CanInteract && slot?.Vehicle == state.VehicleId && slot.Life == state.LifeId ? slot.Item : HeldItem.None;
         bool valid = state.CanInteract && slot?.Vehicle == state.VehicleId && slot.Life == state.LifeId;
         return new CombatHudView(FormatHealth(state.Damage.CurrentHP, state.Damage.MaxHP), NormalizeHealth(state.Damage.CurrentHP, state.Damage.MaxHP), ConvertSpeed(state.Speed, unit).ToString("0", CultureInfo.InvariantCulture), UnitSuffix(unit), NormalizeSpeed(state.Speed), ItemRegistry.Find(item) is not null ? item : HeldItem.None)
-        { NitroCharge = valid ? slot!.NitroCharge : 0, SecondNitroCharge = valid ? slot!.SecondNitroCharge : 0,
+        { NitroCharge = valid ? slot!.ResourcePercentage : 0, SecondNitroCharge = valid ? slot!.SecondResourcePercentage : 0,
             SalvoShots = valid ? slot!.SalvoShots : 0, SecondSalvoShots = valid ? slot!.SecondSalvoShots : 0,
             SecondItem = valid && ItemRegistry.Find(slot!.SecondItem) is not null ? slot.SecondItem : HeldItem.None, ActiveSlot = valid ? slot!.ActiveSlot : (byte)0 };
     }

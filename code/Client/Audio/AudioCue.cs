@@ -5,6 +5,8 @@ internal enum AudioCue
 {
     /// <summary>Engine Idle.</summary>
     EngineIdle,
+    /// <summary>Short confirmed machine-gun report.</summary>
+    MachineGunFire,
     /// <summary>Engine Low.</summary>
     EngineLow,
     /// <summary>Engine High.</summary>

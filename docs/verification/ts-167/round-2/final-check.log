@@ -1,0 +1,106 @@
+Trackstorm Story version: expected '0.0.16'; actual '0.0.16'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm Story version: expected '0.1.15'; actual '0.1.15'.
+Trackstorm Story version: expected '0.2.1'; actual '0.2.1'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm Story version: expected '0.2.1'; actual '0.2.1'.
+Trackstorm Story version: expected '0.0.15'; actual '0.0.15'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.0.15.0'; actual file/product '0.0.15.0'.
+Trackstorm export preset versions: expected '0.0.15.0'; actual file/product '0.0.15.0'.
+Trackstorm export preset versions: expected '0.0.15.0'; actual file/product '0.0.15.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm Story version: expected '0.1.2'; actual '0.1.2'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.0'.
+Trackstorm Story version: expected '0.1.0'; actual '0.1.0'.
+Trackstorm export preset versions: expected '0.1.0.0'; actual file/product '0.1.0.0'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.1'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Synchronized canonical Story version and tracked export preset to '0.1.1'.
+Trackstorm Story version: expected '0.1.1'; actual '0.1.1'.
+Trackstorm export preset versions: expected '0.1.1.0'; actual file/product '0.1.1.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.2.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Synchronized canonical Story version and tracked export preset to '0.2.0'.
+Trackstorm Story version: expected '0.2.0'; actual '0.2.0'.
+Trackstorm export preset versions: expected '0.2.0.0'; actual file/product '0.2.0.0'.
+Version rules: 108 checks passed.
+
+>> Workflow helper regression tests
+Created ts-999.md
+Added TS-999 to docs/verification/README.md
+ts-999.md already exists; leaving it unchanged.
+Verification index already links ts-999.md.
+Docs-only iteration selected; no build/test command required.
+
+Fast targeted checks passed. Run ./check.ps1 before final Story handoff.
+Workflow helper regression tests passed.
+
+>> Frontend media verifier regression tests
+Frontend media verifier regression test passed.
+
+>> Frontend media materialization and checksums
+Frontend media verified: 5 materialized files.
+
+>> Restore
+  Determining projects to restore...
+  Restored C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\Trackstorm.Transport.Tests.csproj (in 174 ms).
+  4 of 5 projects are up-to-date for restore.
+
+>> Debug build and analyzers
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.75
+
+>> Release build and analyzers
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Release\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\ExportRelease\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.97
+
+>> Core tests
+Test run for C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   750, Skipped:     0, Total:   750, Duration: 4 s - Trackstorm.Core.Tests.dll (net10.0)
+
+>> Transport conversion tests
+Test run for C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   358, Skipped:     0, Total:   358, Duration: 7 s - Trackstorm.Transport.Tests.dll (net10.0)
+
+All checks passed.

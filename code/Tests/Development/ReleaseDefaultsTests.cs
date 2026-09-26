@@ -105,7 +105,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(155));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(165));
         Assert.That(defaults.Items.MaximumOilPatches, Is.EqualTo(16));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);

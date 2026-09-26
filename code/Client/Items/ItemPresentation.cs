@@ -124,6 +124,12 @@ internal sealed partial class ItemPresentation : Node3D
 
         foreach (var outcome in state.Events)
         {
+            if (outcome.Item == HeldItem.MachineGun)
+            {
+                if (outcome.Tracer) { Tracer(outcome); }
+                if (outcome.Impact) { BulletImpact(outcome); }
+                continue;
+            }
             var definition = ItemRegistry.Find(outcome.Item)!;
             string? texture = outcome.Impact ? definition.ImpactVfx : definition.UseVfx;
             if (texture is null)
@@ -141,6 +147,54 @@ internal sealed partial class ItemPresentation : Node3D
 
             _bursts.Add((burst, 0, outcome.Impact ? 1.3f : 0.5f));
         }
+    }
+
+    private void Tracer(ItemEvent outcome)
+    {
+        Vector3 start = VehicleBody.ToGodot(outcome.Origin);
+        Vector3 end = VehicleBody.ToGodot(outcome.Position);
+        Vector3 segment = end - start;
+        // Bounded presentation only: delivery catch-up cannot create an unbounded burst pool.
+        if (_bursts.Count >= 128) { return; }
+        var root = new Node3D();
+        AddChild(root);
+        var material = new StandardMaterial3D { ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded, AlbedoColor = new Color(1, 0.76f, 0.25f), EmissionEnabled = true, Emission = new Color(1, 0.4f, 0.08f) };
+        if (segment.Length() > 0.01f)
+        {
+            root.AddChild(new MeshInstance3D { Position = (start + end) / 2, Quaternion = new Quaternion(Vector3.Up, segment.Normalized()),
+                Mesh = new CylinderMesh { TopRadius = 0.018f, BottomRadius = 0.018f, Height = segment.Length(), RadialSegments = 6 }, MaterialOverride = material,
+                CastShadow = GeometryInstance3D.ShadowCastingSetting.Off });
+        }
+        root.AddChild(new MeshInstance3D { Position = start + segment.Normalized() * Math.Min(2.2f, segment.Length()), Mesh = new SphereMesh { Radius = 0.10f, Height = 0.20f }, MaterialOverride = material });
+        if (outcome.Impact) { root.AddChild(new MeshInstance3D { Position = end, Mesh = new SphereMesh { Radius = 0.07f, Height = 0.14f }, MaterialOverride = material }); }
+        _bursts.Add((root, 0, 0.055f));
+    }
+
+    private void BulletImpact(ItemEvent outcome)
+    {
+        if (_bursts.Count >= 128) { return; }
+        Vector3 incoming = VehicleBody.ToGodot(outcome.Position - outcome.Origin).Normalized();
+        var root = new Node3D { Position = VehicleBody.ToGodot(outcome.Position) - incoming * 0.025f };
+        AddChild(root);
+        var sparks = Particles("spark_01", true, 0.22f);
+        sparks.Name = "BulletImpactSparks";
+        sparks.Amount = 6;
+        // The publication has a hit point, not a surface normal: scatter back along the incoming ray.
+        var process = (ParticleProcessMaterial)sparks.ProcessMaterial;
+        process.Direction = -incoming;
+        process.Spread = 65;
+        process.InitialVelocityMin = 1.5f;
+        process.InitialVelocityMax = 4;
+        process.Gravity = new Vector3(0, -8, 0);
+        process.ScaleMin = 0.04f;
+        process.ScaleMax = 0.11f;
+        process.ColorRamp = new GradientTexture1D { Gradient = new Gradient
+        {
+            Colors = new[] { new Color(1, 1, 0.8f, 1), new Color(1, 0.6f, 0.15f, 0.9f), new Color(1, 0.25f, 0.02f, 0) },
+            Offsets = new[] { 0f, 0.35f, 1f },
+        } };
+        root.AddChild(sparks);
+        _bursts.Add((root, 0, 0.3f));
     }
 
     private static Node3D Rocket()

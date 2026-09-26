@@ -71,7 +71,7 @@ internal sealed class AudioPresentationTests
     public void CategoriesRouteExplicitly()
     {
         AudioCue[] vehicle = [AudioCue.EngineIdle, AudioCue.EngineLow, AudioCue.EngineHigh, AudioCue.Skid, AudioCue.Collision, AudioCue.HeavyCollision, AudioCue.Damage, AudioCue.Destruction];
-        AudioCue[] weapons = [AudioCue.MissileFire, AudioCue.MissileTravel, AudioCue.MissileImpact, AudioCue.Explosion];
+        AudioCue[] weapons = [AudioCue.MachineGunFire, AudioCue.MissileFire, AudioCue.MissileTravel, AudioCue.MissileImpact, AudioCue.Explosion];
         foreach (AudioCue cue in Enum.GetValues<AudioCue>())
         {
             string expected = vehicle.Contains(cue) ? "Vehicle" : weapons.Contains(cue) ? "Weapons" : cue == AudioCue.Ambience ? "SFX" : "UI";
@@ -200,6 +200,24 @@ internal sealed class AudioPresentationTests
         projection.Match(active);
         projection.Match(active, true);
         Assert.That(cues, Is.EqualTo(new[] { AudioCue.Countdown, AudioCue.Countdown, AudioCue.MatchStart }));
+    }
+
+    [Test]
+    public void MachineGunSoundsEachNewRoundButNeverDuplicateOrSeededPublications()
+    {
+        var projection = new AudioEventProjection();
+        var cues = new List<AudioCue>();
+        projection.Cue += (cue, _) => cues.Add(cue);
+        var world = new WorldSnapshot(1, 1, [new ReplicatedVehicle(State(), 0)]);
+        var slot = new ItemSlot(1, 1, 1, HeldItem.MachineGun) { Ammo = new(500, 500) };
+        projection.Items(new(1, world, [slot], [], []));
+        var shot = new ItemEvent(1, 1, HeldItem.MachineGun, Vector3.UnitZ, true);
+        var publication = new ItemPublication(2, world, [slot with { Ammo = new(499, 500) }], [], [shot]);
+        projection.Items(publication);
+        projection.Items(publication);
+        projection.Items(new(3, world, [slot with { Ammo = new(498, 500) }], [], [shot]));
+        projection.Items(new(4, world, [slot], [], [shot]), true);
+        Assert.That(cues, Is.EqualTo(new[] { AudioCue.MachineGunFire, AudioCue.MachineGunFire }));
     }
 
     private static VehicleSnapshot State(ulong life = 1, ulong tick = 1, float hp = 100, ulong sequence = 0)

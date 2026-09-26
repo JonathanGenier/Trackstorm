@@ -14,7 +14,7 @@ validates, commits and saves through the existing configuration path. Cancel and
 Reset retain their normal semantics. Stable identities are ClearBlue=0, Night=1,
 EmberSky=2, Apocalypse=3 and NeonSunset=4. Unknown/fractional identities reject the
 complete transaction. New saved files need no schema migration; missing keys use
-Clear Blue. The complete configuration wire layout is version 19 with 155 values.
+Clear Blue. The complete configuration wire layout is version 20 with 165 values.
 
 The accepted configuration travels through normal reliable revision ordering,
 admission, reconnect and host-migration checkpoints. Joined clients never use

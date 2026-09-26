@@ -448,7 +448,8 @@ public sealed class HostVehicleSession
     /// <param name="ground">Host terrain projection for fixed-range salvo targeting.</param>
     /// <param name="placeMine">Host terrain installation query.</param>
     /// <param name="moveMine">Host sweep and contact query.</param>
-    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, Func<Vector3, Vector3?>? ground = null)
+    /// <param name="raycastWeapon">Host closest collision on an authoritative weapon ray.</param>
+    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null)
     {
         _pickupStart = null;
         _pickupEnd = null;
@@ -477,7 +478,7 @@ public sealed class HostVehicleSession
         inputs.Add(HostPlayerId, hostInput);
         var previous = World.State.Vehicles.ToDictionary(state => state.VehicleId);
         var observations = World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray();
-        Items.Step(World, hostInput, observations, collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground);
+        Items.Step(World, hostInput, observations, collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground, raycastWeapon);
         if (AllowsParticipation)
         {
             Environment?.Advance(tick, observations.Where(r => previous[r.VehicleId].CanInteract).ToArray(), Items.Events, Items, Configuration.Configuration.Destruction);
