@@ -305,7 +305,7 @@ function Get-FastCheckPlan {
             Add-Runtime 'check-event-log.ps1'
         }
 
-        if ($path -eq 'docs/features/developer-options.md' -or $path -match '(?i)DeveloperOptions') {
+        if ($path -eq 'docs/features/developer-options.md' -or $path -match '(?i)DeveloperOptions|ConfigurationRequest|ConfigurationChangesExport|LobbyNetworkDriver.Configuration|SharedConfiguration') {
             Add-Runtime 'check-developer-options.ps1'
         }
 

@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Shared DevTools configuration and export | [TS-183 verification evidence](ts-183.md) |
 | Full-roster authoritative match start | [TS-173 verification evidence](ts-173.md) |
 | Oil handling and repeat-pass lifecycle | [TS-172 verification evidence](ts-172.md) |
 | Configs accordions and category resets | [TS-170 verification evidence](ts-170.md) |

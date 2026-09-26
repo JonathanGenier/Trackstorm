@@ -36,6 +36,7 @@ public sealed partial class MenuIntegrationChecks : Node
     {
         try
         {
+            Engine.MaxFps = 60;
             _directory = OS.GetCmdlineUserArgs().Single(argument => argument.StartsWith("--menu-output=", StringComparison.Ordinal))[14..];
             using (var reservation = new System.Net.Sockets.UdpClient(new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 0)))
             {
@@ -60,10 +61,10 @@ public sealed partial class MenuIntegrationChecks : Node
             CheckCursor(true, "gameplay captures mouse");
             VerifyFocus(true);
             VerifyMouseItem();
-            Check(_session.Arena!.Driver.Match?.Phase == MatchPhase.Waiting, "solo match is Waiting");
+            Check(_session.Arena!.Driver.Match?.Phase == MatchPhase.Countdown, "solo application entry starts its synchronized countdown");
             Tap(Key.Escape);
             await Frames(2);
-            Check(_menu.CurrentPage == MenuPage.Game, "ESC opens in solo Waiting arena");
+            Check(_menu.CurrentPage == MenuPage.Game, "ESC opens during solo countdown");
             Check(!_menu.GetTree().Paused, "menu does not pause tree");
             Check(_player.Adapter.GameplaySuppressed, "local gameplay suppressed");
             CheckCursor(false, "ESC releases mouse immediately");
@@ -206,14 +207,14 @@ public sealed partial class MenuIntegrationChecks : Node
             Check(_session.Stage == ApplicationStage.MainMenu && _session.MainMenu.Interactive, "Leave returns to the chain-hung Main Menu, not the browser");
             CheckCursor(false, "leaving arena restores Main Menu pointer");
             await EnterArena();
-            Check(_session.Arena!.Driver.Match?.Phase == MatchPhase.Waiting, "reenter has fresh Waiting state");
+            Check(_session.Arena!.Driver.Match?.Phase == MatchPhase.Countdown, "reenter has fresh synchronized countdown");
             _session.Leave();
             await Frames(3);
             await VerifyRemoteProgress();
             Tap(Key.Escape);
             Press("Quit");
             Check(_session.LeaveComplete && _session.Arena is null, "Quit invokes production session cleanup before exit");
-            GD.Print($"Menu integration passed: {_assertions} assertions; solo Waiting, navigation, settings, leave and production Quit.");
+            GD.Print($"Menu integration passed: {_assertions} assertions; solo countdown, navigation, settings, leave and production Quit.");
             _bootstrap.QueueFree();
             await Frames(4);
             // Headless frames can finish before the audio thread releases stopped playback resources.

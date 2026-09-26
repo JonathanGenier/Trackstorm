@@ -336,19 +336,19 @@ internal sealed class MigrationTests
 
     /// <summary>Lobby tuning is session state and survives both serialization and successive authority transfers.</summary>
     [Test]
-    public void LobbyConfigurationSurvivesSuccessiveMigrationAndRejectsClientEdits()
+    public void LobbyConfigurationSurvivesSuccessiveMigrationAndRejectsUnknownSenders()
     {
         var lobby = new LobbyAuthority(100, "Host");
         lobby.Join(10, GameVersion.Current.ToString(), "Client", "client");
         var edits = new Dictionary<string, double> { ["vehicle.acceleration"] = 7, ["spawns.seed"] = 42 };
-        Assert.That(lobby.TryConfigure(10, edits, out _), Is.False);
+        Assert.That(lobby.TryConfigure(999, edits, out _), Is.False);
         Assert.That(lobby.TryConfigure(0, edits, out _), Is.True);
         var checkpoint = MigrationCheckpointCodec.Decode(MigrationCheckpointCodec.Encode(new MigrationCheckpoint(1, lobby.Capture("host"), null, null)));
         var successor = LobbyAuthority.Restore(checkpoint.Lobby, 2, 2);
         Assert.That(successor.Configuration, Is.EqualTo(lobby.Configuration));
         Assert.That(successor.Resume(50, GameVersion.Current.ToString(), 100, 1, 1, "host"), Is.False);
         Assert.That(successor.Join(50, GameVersion.Current.ToString(), "Former host", "host"), Is.EqualTo(3));
-        Assert.That(successor.TryConfigure(50, edits, out _), Is.False);
+        Assert.That(successor.TryConfigure(999, edits, out _), Is.False);
         Assert.That(successor.TryConfigure(0, new Dictionary<string, double> { ["vehicle.acceleration"] = 9 }, out _), Is.True);
         var next = LobbyAuthority.Restore(successor.Capture("client"), 3, 3);
         Assert.That(next.Configuration, Is.EqualTo(successor.Configuration));

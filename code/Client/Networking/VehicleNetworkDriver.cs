@@ -83,6 +83,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
             _admissionOpen = () => Host?.CanJoin == true && EntryReady && IsActive &&
                 (!_applicationEntry || Host.World.State.Match?.Phase == MatchPhase.Active);
             lobby.ArenaAdmissionOpen = _admissionOpen;
+            lobby.ConfigureArena = ConfigurePeer;
             _activateJoin = peer =>
             {
                 if (Host is null || !_preparedJoins.Contains(peer) || !Host.ActivateJoin(peer, lobby.Authority!.PlayerId(peer)))
@@ -428,14 +429,22 @@ internal sealed class VehicleNetworkDriver : IDisposable
         }
     }
 
-    /// <summary>Commits local host edits; there is deliberately no client-to-host tuning message.</summary>
+    /// <summary>Commits a host-validated transaction and refreshes native consumers.</summary>
     /// <returns>Whether the operation was accepted.</returns>
     /// <param name="edits">Stable gameplay keys and requested values.</param>
     /// <param name="error">Safe validation feedback.</param>
-    internal bool TryConfigure(IReadOnlyDictionary<string, double> edits, out string error)
+    internal bool TryConfigure(IReadOnlyDictionary<string, double> edits, out string error) => TryConfigure(0, edits, out error);
+
+    private (bool Accepted, string Error) ConfigurePeer(ulong peer, IReadOnlyDictionary<string, double> edits)
+    {
+        bool accepted = TryConfigure(peer, edits, out string error);
+        return (accepted, error);
+    }
+
+    private bool TryConfigure(ulong peer, IReadOnlyDictionary<string, double> edits, out string error)
     {
         error = "Only the authoritative host may change gameplay tuning.";
-        if (Host is null || !IsActive || !Host.TryConfigure(0, edits, out error))
+        if (Host is null || !IsActive || !Host.TryConfigure(peer, edits, out error))
         {
             return false;
         }
@@ -621,6 +630,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         _disposed = true;
         if (_lobby is not null)
         {
+            if (_lobby.ConfigureArena == ConfigurePeer) _lobby.ConfigureArena = null;
             if (_lobby.ActivateJoin == _activateJoin)
             {
                 _lobby.ActivateJoin = null;

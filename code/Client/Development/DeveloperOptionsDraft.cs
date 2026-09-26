@@ -35,6 +35,28 @@ internal sealed class DeveloperOptionsDraft
         _values[key] = value;
     }
 
+    /// <summary>Refreshes untouched fields while keeping explicit drafts visibly unapplied.</summary>
+    internal void Rebase(GameplayConfiguration current)
+    {
+        var unchanged = GameplayOptions.All.Where(option => Matches(option, _baseline)).ToArray();
+        Populate(current, unchanged);
+        _baseline = current;
+    }
+
+    /// <summary>Replaces submitted fields after host confirmation, preserving later and unrelated edits.</summary>
+    internal void Accept(IReadOnlyDictionary<string, double> submitted, GameplayConfiguration current)
+    {
+        foreach (var option in GameplayOptions.All.Where(option => submitted.ContainsKey(option.Key)))
+        {
+            if (double.TryParse(Get(option.Key), NumberStyles.Float, CultureInfo.InvariantCulture, out double value) &&
+                (option.Integral || option.DoublePrecision ? value == submitted[option.Key] : (float)value == (float)submitted[option.Key]))
+                Populate(current, [option]);
+        }
+        _replaceAll = false;
+        _resetGroups.Clear();
+        Rebase(current);
+    }
+
     /// <summary>Discards pending changes in favor of the current authoritative values.</summary>
     /// <param name="current">Current accepted gameplay configuration.</param>
     internal void Discard(GameplayConfiguration current)

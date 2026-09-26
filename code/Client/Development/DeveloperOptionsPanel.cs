@@ -7,7 +7,7 @@ using Trackstorm.Core.Settings;
 
 namespace Trackstorm.Client.Development;
 
-/// <summary>Single Settings/F1 surface; only Apply commits its editor draft through current authority.</summary>
+/// <summary>Single Settings/F1 surface; Apply submits drafts and resets submit defaults through current authority.</summary>
 internal sealed partial class DeveloperOptionsPanel : VBoxContainer
 {
     private readonly VBoxContainer _host = new() { Visible = false, SizeFlagsVertical = SizeFlags.ExpandFill };
@@ -36,11 +36,14 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     private bool _configurationFooterVisible;
     private bool _hostAuthority;
     private bool _tireSaveFailed;
+    private Dictionary<string, double>? _submittedEdits;
+    private Button _exportButton = null!;
     private readonly Dictionary<string, LineEdit> _tireEditors = new();
     private readonly HashSet<Control> _localSections = new();
     internal Settings.PlayerSettingsController? LocalSettings { get; set; }
     private TireEffectSettings _tireBaseline = TireEffectSettings.Defaults;
-    internal bool CanConfigure => Session()?.IsDeveloperHost == true || LocalSettings is not null;
+    internal bool AwaitingConfirmation => _submittedEdits is not null;
+    internal bool CanConfigure => Session()?.CanConfigureDeveloperOptions == true || LocalSettings is not null;
     private bool TireDirty => _tireEditors.Any(pair => !float.TryParse(pair.Value.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float value) || value != _tireBaseline[pair.Key]);
 
     /// <summary>Current production session supplied by composition.</summary>
@@ -52,7 +55,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     /// <summary>Right-side action row extended by the shell-owned Close button.</summary>
     internal HBoxContainer FooterActions => _footerActions;
     /// <summary>Whether closing needs an explicit decision, including invalid editor text.</summary>
-    internal bool HasUnappliedChanges => _draft.IsDirty || NetworkDirty || TireDirty;
+    internal bool HasUnappliedChanges => _submittedEdits is not null || _draft.IsDirty || NetworkDirty || TireDirty;
     private bool NetworkDirty => _simulation.Where((value, index) => value.Value != _appliedSimulation[index]).Any();
 
     /// <inheritdoc/>
@@ -65,9 +68,15 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         _status.AddThemeFontSizeOverride("font_size", 16);
         AddChild(_availability);
         AddChild(_host);
-        _host.AddChild(_search);
+        var searchActions = new HBoxContainer();
+        _host.AddChild(searchActions);
+        _search.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        searchActions.AddChild(_search);
+        _exportButton = Button(searchActions, "Export Changes", ExportChanges);
+        _exportButton.TooltipText = "Save confirmed session differences from game defaults. Unapplied edits are excluded.";
+        _exportButton.CustomMinimumSize = new Vector2(150, 40);
         _search.TextChanged += _ => Filter();
-        var legend = new Label { Text = "Blue: game default · Red: modified · Changes are staged until Apply Settings", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        var legend = new Label { Text = "Blue: default · Red: modified · Apply commits edits; resets apply immediately", AutowrapMode = TextServer.AutowrapMode.WordSmart };
         legend.AddThemeFontSizeOverride("font_size", 14);
         _host.AddChild(legend);
         var scroll = new ScrollContainer { Name = "SettingsScroll", SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, FollowFocus = true };
@@ -208,7 +217,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     public override void _Process(double delta)
     {
         var session = Session();
-        bool hostAuthority = session?.IsDeveloperHost == true;
+        bool hostAuthority = session?.CanConfigureDeveloperOptions == true;
         if (_hostAuthority != hostAuthority) { _hostAuthority = hostAuthority; Filter(); }
         _host.Visible = DeveloperTools.Enabled && CanConfigure;
         SetConfigurationFooterVisible(_host.Visible && IsVisibleInTree());
@@ -242,17 +251,41 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         _elapsed = 0;
         Filter();
         _availability.Text = !DeveloperTools.Enabled ? "Developer tools are disabled in this build."
-            : session?.IsDeveloperHost == true ? (NetworkSimulationControl.Supported(session?.Gateway)
-                ? "Host controls · Apply validates, synchronizes and saves gameplay tuning"
-                : "Host controls · local network simulation unavailable for this transport")
-            : LocalSettings is not null ? "Local tire graphics · Apply saves on this device. Host a session for gameplay tuning."
-            : "Configs require current host authority. Host a session to access tuning and developer actions.";
+            : session?.CanConfigureDeveloperOptions == true ? "Shared session tuning · Host validates all edits"
+            : "Shared tuning unavailable during connection/synchronization. Local graphics remain device-local.";
         object? owner = (object?)session?.Arena?.Driver ?? session?.Lobby;
-        ulong revision = session?.Arena?.Driver.Configuration.Revision ?? session?.Lobby?.Authority?.Configuration.Revision ?? 0;
+        ulong revision = session?.Arena?.Driver.Configuration.Revision ?? session?.Lobby?.Configuration?.Revision ?? 0;
         ulong epoch = session?.Lobby?.State?.AuthorityEpoch ?? 0;
-        if (session?.IsDeveloperHost == true && (!ReferenceEquals(_owner, owner) || epoch != _authorityEpoch || (!_draft.IsDirty && revision != _revision)))
+        _exportButton.Disabled = _exportText is not null || session?.CanConfigureDeveloperOptions != true;
+        if (!ReferenceEquals(_owner, owner) || epoch != _authorityEpoch)
         {
-            RefreshValues();
+            _submittedEdits = null;
+            _draft.Discard(session?.DeveloperConfiguration ?? GameplayConfiguration.HostedDefaults);
+            RenderValues();
+        }
+        if (_submittedEdits is not null && session?.Lobby is { ConfigurationPending: false, ConfigurationResult: { } result })
+        {
+            if (result.Error.Length > 0)
+            {
+                _submittedEdits = null;
+                _draft.Rebase(session.DeveloperConfiguration);
+                RenderValues();
+                _status.Text = result.Error;
+                UpdateFeedback();
+            }
+            else if (revision >= result.Revision)
+            {
+                _draft.Accept(_submittedEdits, session.DeveloperConfiguration);
+                _submittedEdits = null;
+                RenderValues();
+                _status.Text = "Shared session settings applied.";
+                SetFeedback(HasUnappliedChanges ? DeveloperOptionsFeedbackState.Unsaved : DeveloperOptionsFeedbackState.Applied);
+            }
+        }
+        if (revision != _revision && session?.CanConfigureDeveloperOptions == true && _submittedEdits is null)
+        {
+            _draft.Rebase(session.DeveloperConfiguration);
+            RenderValues();
         }
 
         if (_host.Visible)
@@ -267,6 +300,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     /// <returns>Whether all requested values were accepted.</returns>
     internal bool Apply()
     {
+        if (AwaitingConfirmation) return false;
         var tireEdits = new Dictionary<string, double>();
         foreach (var (key, editor) in _tireEditors)
         {
@@ -278,7 +312,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             tireEdits[key] = value;
         }
         if (!_tireBaseline.TryApply(tireEdits, out var tire, out string tireError)) { _status.Text = tireError; return false; }
-        if (Session()?.IsDeveloperHost != true && LocalSettings is not null)
+        if (Session()?.CanConfigureDeveloperOptions != true && LocalSettings is not null)
         {
             return ApplyTireValues(tire);
         }
@@ -298,6 +332,13 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             return false;
         }
 
+        if (session.Lobby?.ConfigurationPending == true)
+        {
+            _submittedEdits = edits;
+            _status.Text = "Waiting for host confirmation…";
+            if (LocalSettings is not null && (TireDirty || _tireSaveFailed)) ApplyTireValues(tire);
+            return false;
+        }
         RefreshValues();
         if (NetworkDirty)
         {
@@ -315,24 +356,16 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             }
         }
 
-        _status.Text = session.DeveloperSettings?.Status ?? "Tuning applied; persistence unavailable.";
+        _status.Text = "Shared session settings applied.";
         SetFeedback(DeveloperOptionsFeedbackState.Applied);
-        if (session.DeveloperSettings?.LastSaveSucceeded == false)
-        {
-            return false;
-        }
-
-        if (LocalSettings is not null && (TireDirty || _tireSaveFailed))
-        {
-            if (!ApplyTireValues(tire)) { return false; }
-            _status.Text = session.DeveloperSettings?.Status ?? "Local graphics saved; host persistence unavailable.";
-        }
+        if (LocalSettings is not null && (TireDirty || _tireSaveFailed) && !ApplyTireValues(tire)) return false;
         return true;
     }
 
     /// <summary>Discards unapplied edits and restores currently effective values.</summary>
     internal void Cancel()
     {
+        if (_submittedEdits is not null) { _status.Text = "A submitted request cannot be cancelled. Waiting for host confirmation…"; return; }
         _tireBaseline = LocalSettings?.Current.TireEffects ?? TireEffectSettings.Defaults;
         RenderTireValues(_tireBaseline);
         _draft.Discard(Session()?.DeveloperConfiguration ?? GameplayConfiguration.HostedDefaults);
@@ -396,25 +429,27 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
     private void Reset()
     {
         if (LocalSettings is not null) { RenderTireValues(TireEffectSettings.Defaults); UpdateFeedback(); }
-        if (Session()?.IsDeveloperHost != true)
+        if (Session()?.CanConfigureDeveloperOptions != true)
         {
             return;
         }
 
+        if (_submittedEdits is not null) return;
         _draft.ResetToDefaults();
         RenderValues();
         StageNetworkDefaults();
 
-        _status.Text = "Game defaults staged. Press Apply Settings to apply them.";
+        SubmitReset(null);
         UpdateFeedback();
     }
 
     private void ResetCategory(string group)
     {
-        if (Session()?.IsDeveloperHost != true) { return; }
+        if (Session()?.CanConfigureDeveloperOptions != true) { return; }
+        if (_submittedEdits is not null) return;
         _draft.ResetCategoryToDefaults(group);
         RenderValues(group);
-        CategoryResetFeedback(group);
+        SubmitReset(group);
     }
 
     private void ResetTireCategory(string group)
@@ -430,7 +465,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
 
     private void ResetNetworkCategory()
     {
-        if (Session()?.IsDeveloperHost != true || !NetworkSimulationControl.Supported(Session()?.Gateway)) { return; }
+        if (Session()?.CanConfigureDeveloperOptions != true || !NetworkSimulationControl.Supported(Session()?.Gateway)) { return; }
         StageNetworkDefaults();
         CategoryResetFeedback("Local network simulation");
     }
@@ -450,7 +485,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
 
     private void RefreshValues()
     {
-        if (Session() is not { IsDeveloperHost: true } session)
+        if (Session() is not { CanConfigureDeveloperOptions: true } session)
         {
             return;
         }
@@ -545,7 +580,7 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
         bool any = false;
         foreach (var (section, rows) in _sections)
         {
-            bool available = _localSections.Contains(section) || Session()?.IsDeveloperHost == true && (section != _network || NetworkSimulationControl.Supported(Session()?.Gateway));
+            bool available = _localSections.Contains(section) || Session()?.CanConfigureDeveloperOptions == true && (section != _network || Session()?.IsDeveloperHost == true && NetworkSimulationControl.Supported(Session()?.Gateway));
             bool found = false;
             foreach (var row in rows)
             {

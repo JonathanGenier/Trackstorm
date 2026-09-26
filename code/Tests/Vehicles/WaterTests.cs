@@ -92,13 +92,13 @@ internal sealed class WaterTests
     }
 
     [Test]
-    public void HostEditsChangeDepthAndDamageWhileClientsCannotApplyThem()
+    public void HostValidatedClientEditsChangeDepthAndDamage()
     {
         var host = new HostVehicleSession(9);
         host.Join(42);
         var edits = new Dictionary<string, double> { ["vehicle.water.depth"] = 2, ["vehicle.water.damage"] = 600 };
-        Assert.That(host.TryConfigure(42, edits, out _), Is.False);
-        Assert.That(host.TryConfigure(0, edits, out _), Is.True);
+        Assert.That(host.TryConfigure(999, edits, out _), Is.False);
+        Assert.That(host.TryConfigure(42, edits, out _), Is.True);
         void Advance(float depth)
         {
             var frame = new InputFrame(host.World.State.Tick + 1, 0, 0, 0, 0, 0, 0);
