@@ -50,7 +50,7 @@ public sealed class HostVehicleSession
             effective = effective with { Spawns = effective.Spawns with { Seed = RandomNumberGenerator.GetInt32(int.MaxValue) } };
         }
         Configuration = new GameplayConfigurationState(randomizeItemSeed ? checked(configurationRevision + 1) : configurationRevision, effective);
-        World = new Simulation.Simulation(new SimulationConfiguration(TickRate), effective.Respawn, arena, effective.Match);
+        World = new Simulation.Simulation(new SimulationConfiguration(TickRate), effective.Respawn, arena, effective.Match, synchronizedStart: requireActiveMatch);
         World.Events = events ?? new EventStream();
         World.Events.Record(EventCategory.Match, "Created");
         Items = new ItemAuthority(effective.Items);

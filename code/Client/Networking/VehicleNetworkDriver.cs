@@ -80,7 +80,8 @@ internal sealed class VehicleNetworkDriver : IDisposable
 
         if (lobby is not null)
         {
-            _admissionOpen = () => Host?.CanJoin == true && EntryReady && IsActive;
+            _admissionOpen = () => Host?.CanJoin == true && EntryReady && IsActive &&
+                (!_applicationEntry || Host.World.State.Match?.Phase == MatchPhase.Active);
             lobby.ArenaAdmissionOpen = _admissionOpen;
             _activateJoin = peer =>
             {
@@ -693,6 +694,9 @@ internal sealed class VehicleNetworkDriver : IDisposable
         _preparedJoins.Clear();
         _entryPrepared.Clear();
         _entrySynchronized.Clear();
+        // The recovered authority boundary decides whether the initial start was committed.
+        // Local receipt of the old release must neither restart Countdown nor skip a Waiting barrier.
+        _entryReleased = !_applicationEntry || checkpoint.Arena.Match.Phase != MatchPhase.Waiting;
         _awaitingCheckpoint = true;
         // A new authority epoch may restore an older complete configuration boundary.
         _receivedConfiguration = false;
@@ -885,8 +889,10 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 throw new ArgumentException("Unauthorized loading acknowledgement.");
             }
         }
-        else if (message.RemotePeerId == ServerPeer && kind == MatchEntryCodec.Released && !_awaitingCheckpoint)
+        else if (message.RemotePeerId == ServerPeer && kind == MatchEntryCodec.Released)
         {
+            // Remember an early release, but IsActive still requires complete checkpoint installation.
+            // A duplicated/reordered release can never advance the authoritative match phase.
             _entryReleased = true;
         }
         else

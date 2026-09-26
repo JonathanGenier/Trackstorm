@@ -22,7 +22,7 @@ internal sealed class GameLoopParticipationTests
         Assert.That(host.UseItem(0, 99, slot.Life, slot.Token), Is.False);
         Assert.That(host.SwitchItem(0, 99, slot.Life, 1), Is.False);
         Assert.That(host.Receive(10, 99, [new(1, Drive()), new(2, Drive()), new(3, Drive())]), Is.True);
-        for (int tick = 0; tick < 4; tick++)
+        for (int tick = 0; tick < 300; tick++)
         {
             host.Step(Drive(), Observe);
             Assert.That(host.World.State.LastInput.Accelerate, Is.Zero);
@@ -45,7 +45,7 @@ internal sealed class GameLoopParticipationTests
     public void FinishedNeutralizesPreviouslyAcceptedCommands()
     {
         var host = Create();
-        for (int tick = 0; tick < 4; tick++)
+        for (int tick = 0; tick < 300; tick++)
         {
             host.Step(default, Observe);
         }
@@ -78,7 +78,7 @@ internal sealed class GameLoopParticipationTests
         host.Step(default, Observe);
         if (phase != MatchPhase.Countdown)
         {
-            for (int tick = 0; tick < 3; tick++)
+            for (int tick = 0; tick < 299; tick++)
             {
                 host.Step(default, Observe);
             }
@@ -125,6 +125,7 @@ internal sealed class GameLoopParticipationTests
     {
         var host = new HostVehicleSession(99, matchConfiguration: new() { CountdownTicks = 3, KillTarget = 1 }, requireActiveMatch: true);
         host.JoinPlayer(10, 2);
+        Assert.That(host.World.InitializeMatch(new(99, 0, [1, 2])), Is.True);
         return host;
     }
 

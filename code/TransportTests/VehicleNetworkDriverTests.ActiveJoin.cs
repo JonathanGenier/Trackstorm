@@ -26,7 +26,7 @@ internal sealed partial class VehicleNetworkDriverTests
             ReleaseEntry(hostWire, lobby, host);
         }
 
-        for (int tick = 0; tick < 190; tick++)
+        for (int tick = 0; tick < 310; tick++)
         {
             host.Advance(default, Observe);
         }
