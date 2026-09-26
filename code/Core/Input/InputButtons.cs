@@ -4,28 +4,30 @@ namespace Trackstorm.Core.Input;
 [Flags]
 public enum InputButtons : ushort
 {
-    /// <summary>No controls.</summary>
-    None = 0,
-    /// <summary>Physical handbrake intent; stable bit/name retained for existing recorded inputs.</summary>
-    Drift = 1,
-    /// <summary>Use item.</summary>
-    UseItem = 2,
-    /// <summary>Leaderboard.</summary>
-    Leaderboard = 4,
-    /// <summary>Menu up.</summary>
-    MenuUp = 8,
-    /// <summary>Menu down.</summary>
-    MenuDown = 16,
-    /// <summary>Menu left.</summary>
-    MenuLeft = 32,
-    /// <summary>Menu right.</summary>
-    MenuRight = 64,
-    /// <summary>Menu accept.</summary>
-    MenuAccept = 128,
-    /// <summary>Menu cancel.</summary>
-    MenuCancel = 256,
-    /// <summary>Pause.</summary>
-    Pause = 512,
-    /// <summary>Switch the active held-item slot.</summary>
-    SwitchItem = 1024,
+	/// <summary>No controls.</summary>
+	None = 0,
+	/// <summary>Physical handbrake intent; stable bit/name retained for existing recorded inputs.</summary>
+	Drift = 1,
+	/// <summary>Use item.</summary>
+	UseItem = 2,
+	/// <summary>Leaderboard.</summary>
+	Leaderboard = 4,
+	/// <summary>Menu up.</summary>
+	MenuUp = 8,
+	/// <summary>Menu down.</summary>
+	MenuDown = 16,
+	/// <summary>Menu left.</summary>
+	MenuLeft = 32,
+	/// <summary>Menu right.</summary>
+	MenuRight = 64,
+	/// <summary>Menu accept.</summary>
+	MenuAccept = 128,
+	/// <summary>Menu cancel.</summary>
+	MenuCancel = 256,
+	/// <summary>Pause.</summary>
+	Pause = 512,
+	/// <summary>Switch the active held-item slot.</summary>
+	SwitchItem = 1024,
+	/// <summary>Hold to replace airborne yaw with roll.</summary>
+	AirRoll = 2048,
 }

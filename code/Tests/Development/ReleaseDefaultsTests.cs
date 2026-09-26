@@ -10,6 +10,18 @@ internal sealed class ReleaseDefaultsTests
     /// <summary>Every persisted gameplay key maps to its exact approved canonical value.</summary>
     /// <param name="key">Approved stable persistence key.</param>
     /// <param name="expected">Exact persisted numeric value, including float-to-double expansion.</param>
+    [TestCase("vehicle.air_delay", (double)0.15f)]
+    [TestCase("vehicle.air_pitch_rate", (double)2.8f)]
+    [TestCase("vehicle.air_yaw_rate", (double)2.4f)]
+    [TestCase("vehicle.air_roll_rate", (double)3.6f)]
+    [TestCase("vehicle.air_pitch_acceleration", 16d)]
+    [TestCase("vehicle.air_yaw_acceleration", 14d)]
+    [TestCase("vehicle.air_roll_acceleration", 20d)]
+    [TestCase("vehicle.air_stabilization", 8d)]
+    [TestCase("vehicle.air_stabilization_response", (double)0.08f)]
+    [TestCase("vehicle.air_input_response", (double)0.06f)]
+    [TestCase("vehicle.air_dead_zone", (double)0.08f)]
+    [TestCase("vehicle.support_normal_minimum", (double)0.55f)]
     [TestCase("vehicle.mass", 900d)]
     [TestCase("vehicle.acceleration", 16d)]
     [TestCase("vehicle.braking", 17d)]
@@ -83,7 +95,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(143));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(155));
         Assert.That(defaults.Items.MaximumOilPatches, Is.EqualTo(16));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);

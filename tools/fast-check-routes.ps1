@@ -39,6 +39,11 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'AirControl|air_control|check-air-control' -or $path -eq 'code/Core/Vehicles/VehicleMovement.cs') {
+            Add-Runtime 'check-air-control.ps1'
+            Add-Extended 'check-network-vehicles.ps1'
+            Add-Extended 'check-reconnect.ps1'
+        }
         if ($path -match 'DestructibleEnvironment|EnvironmentAuthority|EnvironmentLayout|EnvironmentRockState|EnvironmentSnapshot|EnvironmentCodec|EnvironmentRecoveryFixture|destructible_environment|check-destructible-environment') {
             Add-Runtime 'check-destructible-environment.ps1'
             Add-Extended 'check-reconnect.ps1'

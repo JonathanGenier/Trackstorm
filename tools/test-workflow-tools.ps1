@@ -14,6 +14,7 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+Assert-True ((Get-FastCheckPlan -Paths @('code/Core/Vehicles/VehicleMovement.cs')).RuntimeScripts -contains 'check-air-control.ps1') 'Vehicle movement changes require air-control verification.'
 foreach ($path in @('code/Core/Items/ItemSpawnAuthority.cs', 'code/Client/Verification/PickupDriveChecks.cs', 'scenes/verification/pickup_drive_checks.tscn')) {
     Assert-True ((Get-FastCheckPlan -Paths @($path)).RuntimeScripts -contains 'check-pickup-drive.ps1') 'Pickup authority and moving-crossing changes require production drive-through verification.'
 }
