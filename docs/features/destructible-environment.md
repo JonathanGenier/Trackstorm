@@ -102,3 +102,22 @@ Internet/EOS behavior or multi-device performance.
 
 See [vehicles](vehicles.md), [items](items.md), [oval map](oval-map.md),
 [reconnection](reconnection.md) and [host migration](host-migration.md).
+
+## Live balance and integrated validation
+
+Host [Configs](developer-options.md#collision-and-destruction-tuning) exposes stage-health,
+vehicle-impact threshold/coefficient and broken-piece speed/transfer/retention controls.
+Defaults retain the behavior above. `GameplayConfiguration.Destruction` owns these values;
+the host passes the accepted configuration into `EnvironmentAuthority.Advance`. Existing
+partial damage stays in canonical stage-health units when health tuning changes; new
+damage is divided by the current health multiplier. Lower speed limits clamp moving pieces
+at the next boundary. Practice uses the same canonical defaults. Configuration version
+19 and existing complete recovery checkpoints carry all values; no new environment-state
+layout is needed.
+
+`check-integrated-driving.ps1 -GodotPath <exe>` runs eight native cars for 90 simulated
+seconds on both production dirt loops with persistent tracks and destructible views.
+Committed weapon outcomes are a fixture seam; ordinary authority processes them plus
+native vehicle contacts. The check measures progress, health, support/tipping, bounded
+marks/piece nodes and rendered frame intervals. It does not substitute for separate-process
+multiplayer validation.

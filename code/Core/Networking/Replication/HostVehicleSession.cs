@@ -481,7 +481,7 @@ public sealed class HostVehicleSession
         Items.Step(World, hostInput, observations, collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground, raycastWeapon);
         if (AllowsParticipation)
         {
-            Environment?.Advance(tick, observations.Where(r => previous[r.VehicleId].CanInteract).ToArray(), Items.Events, Items);
+            Environment?.Advance(tick, observations.Where(r => previous[r.VehicleId].CanInteract).ToArray(), Items.Events, Items, Configuration.Configuration.Destruction);
         }
         foreach (var peer in _peers.Values)
         {

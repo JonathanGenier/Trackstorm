@@ -7,6 +7,8 @@ namespace Trackstorm.Core.Development;
 /// <summary>One effective session tuning boundary composed from the existing gameplay owners.</summary>
 public sealed record GameplayConfiguration
 {
+    /// <summary>Authoritative destructible-environment balance.</summary>
+    public Arenas.EnvironmentTuning Destruction { get; init; } = new();
     /// <summary>Session-owned discrete environment selection, retained through recovery.</summary>
     public EnvironmentPreset Environment { get; init; } = EnvironmentPreset.ClearBlue;
     /// <summary>Production asphalt tuning before host-local overrides; all vehicle consumers share the same defaults.</summary>
@@ -33,6 +35,8 @@ public sealed record GameplayConfiguration
     /// <summary>Validates all owning rules and the production fixed-rate/timer boundary.</summary>
     public void Validate()
     {
+        ArgumentNullException.ThrowIfNull(Destruction);
+        Destruction.Validate();
         if (!Enum.IsDefined(Environment)) { throw new ArgumentException("Unknown environment preset."); }
         ArgumentNullException.ThrowIfNull(Vehicle);
         ArgumentNullException.ThrowIfNull(Damage);
