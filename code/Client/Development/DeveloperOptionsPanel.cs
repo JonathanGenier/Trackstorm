@@ -80,6 +80,16 @@ internal sealed partial class DeveloperOptionsPanel : VBoxContainer
             var section = new VBoxContainer();
             settings.AddChild(section);
             section.AddChild(new Label { Text = group.Key.ToUpperInvariant() });
+            if (group.Key is "Item categories" or "Item spawns")
+            {
+                section.AddChild(new Label
+                {
+                    Text = group.Key == "Item categories"
+                        ? "Server-wide category targets (default 2:1:1). Each player retains independent category history."
+                        : "Relative weights within each category: 2 gives twice the chance of 1; 0 excludes the item. Apply Settings affects future rolls for everyone and preserves held items and history.",
+                    AutowrapMode = TextServer.AutowrapMode.WordSmart,
+                });
+            }
             var rows = ConfigurationRows(section);
             var entries = new List<(Label Label, Control Editor, string Search)>();
             _sections.Add((section, entries));
