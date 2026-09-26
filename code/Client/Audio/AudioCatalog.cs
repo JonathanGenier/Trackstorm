@@ -8,6 +8,7 @@ internal static class AudioCatalog
     /// <returns>The selected presentation value.</returns>
     internal static string Path(AudioCue cue) => "res://assets/audio/" + cue switch
     {
+        AudioCue.MachineGunFire => "kenney/impact/impactMetal_light_000.ogg",
         AudioCue.EngineIdle => "freesound/vehicle/idle.wav",
         AudioCue.EngineLow => "freesound/vehicle/low.wav",
         AudioCue.EngineHigh => "freesound/vehicle/high.wav",

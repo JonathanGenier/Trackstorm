@@ -17,4 +17,6 @@ public enum HeldItem : byte
     ProxyMine = 5,
     /// <summary>Fixed-range arcing missile salvo.</summary>
     Salvo = 6,
+    /// <summary>Close-range sustained ballistic weapon.</summary>
+    MachineGun = 7,
 }

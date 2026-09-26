@@ -355,6 +355,7 @@ public sealed class Simulation
     {
         "missile" => "Missile",
         "salvo" => "Salvo",
+        "machine-gun" => "Machine Gun",
         "collision" => attribution.InstigatorId == 0 ? "map collision" : "vehicle collision",
         "explosion" => "explosion",
         _ => "gameplay effect",

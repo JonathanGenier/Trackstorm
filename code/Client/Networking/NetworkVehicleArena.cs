@@ -106,6 +106,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         AddChild(_pickups);
         _pickups.Initialize(markers);
         _driver.CollideMissile = CollideMissile;
+        _driver.RaycastWeapon = RaycastWeapon;
         _driver.PlaceOil = PlaceOil;
         _driver.ProjectSalvoGround = point => SalvoGround(VehicleBody.ToGodot(point)) is { } hit ? VehicleBody.ToCore(hit.Position) : null;
         var mines = new Items.ProxyMinePhysics();
@@ -385,6 +386,20 @@ internal sealed partial class NetworkVehicleArena : Node3D
             }
         }
         return new OilPatch(slot.Token, slot.Vehicle, new System.Numerics.Vector3(center.X, center.Y, center.Z), new System.Numerics.Vector3(normal.X, normal.Y, normal.Z), 3);
+    }
+
+    private WeaponRayHit? RaycastWeapon(ulong ownerId, System.Numerics.Vector3 origin, System.Numerics.Vector3 end)
+    {
+        var exclude = new Godot.Collections.Array<Rid>();
+        if (_bodies.TryGetValue(ownerId, out var owner)) { exclude.Add(owner.GetRid()); }
+        Vector3 start = VehicleBody.ToGodot(origin);
+        Vector3 finish = VehicleBody.ToGodot(end);
+        using var ray = PhysicsRayQueryParameters3D.Create(start, finish, 3, exclude);
+        ray.HitFromInside = true;
+        var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
+        if (hit.Count == 0) { return null; }
+        float fraction = Math.Clamp(start.DistanceTo(hit["position"].AsVector3()) / start.DistanceTo(finish), 0, 1);
+        return new(fraction, (hit["collider"].AsGodotObject() as NetworkVehicleBody)?.VehicleId ?? 0);
     }
 
     private float? CollideMissile(MissileState missile, System.Numerics.Vector3 end)

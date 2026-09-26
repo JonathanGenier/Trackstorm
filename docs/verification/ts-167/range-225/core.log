@@ -1,0 +1,13 @@
+
+>> Core tests
+  Determining projects to restore...
+  Restored C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\Trackstorm.Core.csproj (in 50 ms).
+  Restored C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\Trackstorm.Core.Tests.csproj (in 348 ms).
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+Test run for C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   785, Skipped:     0, Total:   785, Duration: 4 s - Trackstorm.Core.Tests.dll (net10.0)
+
+Fast targeted checks passed. Run ./check.ps1 before final Story handoff.

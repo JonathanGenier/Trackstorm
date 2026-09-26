@@ -29,6 +29,24 @@ public sealed record ItemConfiguration
     public float SalvoMarkerWidth { get; init; } = 0.45f;
     /// <summary>Marker surface offset (m).</summary>
     public float SalvoMarkerLift { get; init; } = 0.12f;
+    /// <summary>Acquired rounds; existing magazines keep their capacity.</summary>
+    public int MachineGunCapacity { get; init; } = 800;
+    /// <summary>Rounds per second, bounded to two rounds per fixed step.</summary>
+    public double MachineGunFireRate { get; init; } = 80;
+    /// <summary>Maximum damaging ray length in metres.</summary>
+    public float MachineGunRange { get; init; } = 225;
+    /// <summary>Near-range HP per round.</summary>
+    public float MachineGunDamage { get; init; } = 2.25f;
+    /// <summary>Distance where damage begins fading.</summary>
+    public float MachineGunFalloffStart { get; init; } = 12;
+    /// <summary>Power exponent of the fade to zero at maximum range.</summary>
+    public float MachineGunFalloff { get; init; } = 1.5f;
+    /// <summary>Half-angle of the uniform spread cone in degrees.</summary>
+    public float MachineGunSpread { get; init; } = 6;
+    /// <summary>Near-range central impulse per round in Newton seconds.</summary>
+    public float MachineGunKnockback { get; init; } = 8;
+    /// <summary>Render one tracer per this many rounds, including the first.</summary>
+    public int MachineGunTracerEvery { get; init; } = 2;
     /// <summary>Contact damage, applied once through vehicle health authority.</summary>
     public float MineDamage { get; init; } = 100;
     /// <summary>Invisible magnetic field extent in metres.</summary>
@@ -83,6 +101,14 @@ public sealed record ItemConfiguration
         if (!double.IsFinite(SalvoMarkerScale) || SalvoMarkerScale < 0.5 || SalvoMarkerScale > 2) { throw new ArgumentException("Invalid salvo marker_scale."); }
         if (!double.IsFinite(SalvoMarkerWidth) || SalvoMarkerWidth < 0.1 || SalvoMarkerWidth > 2) { throw new ArgumentException("Invalid salvo marker_width."); }
         if (!double.IsFinite(SalvoMarkerLift) || SalvoMarkerLift < 0.02 || SalvoMarkerLift > 0.5) { throw new ArgumentException("Invalid salvo marker_lift."); }
+        if (MachineGunCapacity is < 1 or > 10000 || !double.IsFinite(MachineGunFireRate) || MachineGunFireRate is < 1 or > 120 ||
+            !float.IsFinite(MachineGunRange) || MachineGunRange is < 1 or > 300 ||
+            !float.IsFinite(MachineGunDamage) || MachineGunDamage is < 0 or > 1000 ||
+            !float.IsFinite(MachineGunFalloffStart) || MachineGunFalloffStart < 0 || MachineGunFalloffStart >= MachineGunRange ||
+            !float.IsFinite(MachineGunFalloff) || MachineGunFalloff is < 0.1f or > 8 ||
+            !float.IsFinite(MachineGunSpread) || MachineGunSpread is < 0 or > 30 ||
+            !float.IsFinite(MachineGunKnockback) || MachineGunKnockback is < 0 or > 1000 || MachineGunTracerEvery is < 1 or > 25)
+        { throw new ArgumentException("Invalid machine gun tuning."); }
         if (!float.IsFinite(MineDamage) || MineDamage is < 0 or > 10000 ||
             !float.IsFinite(MineAttractionRadius) || MineAttractionRadius is < 1 or > 100 ||
             !float.IsFinite(MineMinimumForce) || MineMinimumForce is < 0 or > 10000 ||
