@@ -1,0 +1,1224 @@
+Actual startup reaches Main Menu
+Two production sessions admitted
+Rematch rejected before Finished
+Connected lobby readied
+Normal lobby Start accepted
+Initial Loader/Sync and countdown complete
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=1; generation=4699051257700827458; managed=7300080; private=529342464; handles=494; nodes=5930; objects=11755; orphans=0; inputPending=11; snapshots=20; hostEvents=50; clientEvents=48
+Locally restored authoritative checkpoint clears stale Podium (host fixture)
+Ordinary phase packets cannot roll a remote Finished state backward
+Restoring the original authoritative final checkpoint returns to Podium
+Podium fits (1280, 720)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Podium fits (640, 360)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Compact controller Down selects action in next row
+Compact keyboard Up returns to preceding action row
+Podium fits (2560, 1080)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+ESC opens Game Menu above Podium
+ESC closes overlay and restores Podium navigation
+Controller Left selects adjacent destination
+Controller Right restores Main Menu selection
+Controller Start opens Game Menu above Podium
+Closing Game Menu preserves selected Podium destination
+Stats overlays Podium
+Stats close preserves focus and does not dispatch held Accept into Podium
+8-result layout fits (1280, 720)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Layout preserves authoritative result ordering/object
+8-result layout fits (640, 360)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Layout preserves authoritative result ordering/object
+Keyboard advances to retained-results page
+Controller returns to first results page
+10-result layout fits (1280, 720)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Layout preserves authoritative result ordering/object
+Keyboard advances to retained-results page
+Controller returns to first results page
+10-result layout fits (640, 360)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Layout preserves authoritative result ordering/object
+Keyboard advances to retained-results page
+Controller returns to first results page
+No-winner outcome does not invent a winner
+Two-player results hide unnecessary paging
+Unbound native Enter cannot bypass logical navigation
+Controller Accept starts rematch through Loader
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=2; generation=4699051257700827459; managed=7433656; private=554524672; handles=494; nodes=6377; objects=12665; orphans=0; inputPending=9; snapshots=20; hostEvents=99; clientEvents=98
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=3; generation=4699051257700827460; managed=7453528; private=557846528; handles=494; nodes=6377; objects=12665; orphans=0; inputPending=9; snapshots=20; hostEvents=147; clientEvents=147
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=4; generation=4699051257700827461; managed=7480472; private=555941888; handles=493; nodes=6377; objects=12665; orphans=0; inputPending=9; snapshots=20; hostEvents=195; clientEvents=195
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=5; generation=4699051257700827462; managed=7501880; private=558362624; handles=493; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=243; clientEvents=244
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=6; generation=4699051257700827463; managed=7532040; private=555646976; handles=493; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=292; clientEvents=292
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=7; generation=4699051257700827464; managed=7557072; private=555122688; handles=493; nodes=6377; objects=12665; orphans=0; inputPending=8; snapshots=20; hostEvents=340; clientEvents=341
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=8; generation=4699051257700827465; managed=7580640; private=555032576; handles=493; nodes=6377; objects=12665; orphans=0; inputPending=9; snapshots=20; hostEvents=388; clientEvents=388
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=9; generation=4699051257700827466; managed=7609560; private=553291776; handles=491; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=436; clientEvents=439
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=10; generation=4699051257700827467; managed=7636984; private=557514752; handles=491; nodes=6377; objects=12665; orphans=0; inputPending=12; snapshots=20; hostEvents=484; clientEvents=488
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=11; generation=4699051257700827468; managed=7670192; private=555864064; handles=491; nodes=6377; objects=12665; orphans=0; inputPending=8; snapshots=20; hostEvents=532; clientEvents=537
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=12; generation=4699051257700827469; managed=7696960; private=555835392; handles=491; nodes=6377; objects=12665; orphans=0; inputPending=11; snapshots=20; hostEvents=580; clientEvents=586
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=13; generation=4699051257700827470; managed=7722344; private=556769280; handles=491; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=628; clientEvents=635
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=14; generation=4699051257700827471; managed=8396280; private=550825984; handles=496; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=676; clientEvents=683
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=15; generation=4699051257700827472; managed=8421872; private=559378432; handles=496; nodes=6377; objects=12665; orphans=0; inputPending=9; snapshots=20; hostEvents=724; clientEvents=732
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=16; generation=4699051257700827473; managed=8448224; private=554946560; handles=497; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=772; clientEvents=781
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=17; generation=4699051257700827474; managed=8474792; private=558911488; handles=498; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=820; clientEvents=830
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=18; generation=4699051257700827475; managed=8499744; private=553267200; handles=492; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=868; clientEvents=878
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=19; generation=4699051257700827476; managed=8525888; private=558575616; handles=495; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=915; clientEvents=927
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=20; generation=4699051257700827477; managed=8552232; private=559878144; handles=495; nodes=6377; objects=12665; orphans=0; inputPending=11; snapshots=20; hostEvents=963; clientEvents=976
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=21; generation=4699051257700827478; managed=8582280; private=555266048; handles=491; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=1011; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=22; generation=4699051257700827479; managed=8593800; private=558399488; handles=489; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=23; generation=4699051257700827480; managed=8586144; private=558919680; handles=490; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=24; generation=4699051257700827481; managed=8587080; private=555139072; handles=490; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=25; generation=4699051257700827482; managed=8587400; private=558555136; handles=487; nodes=6377; objects=12665; orphans=0; inputPending=11; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=26; generation=4699051257700827483; managed=8587704; private=563060736; handles=490; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=27; generation=4699051257700827484; managed=8587848; private=561737728; handles=490; nodes=6377; objects=12665; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=28; generation=4699051257700827485; managed=8588424; private=563355648; handles=487; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=29; generation=4699051257700827486; managed=8588784; private=563875840; handles=490; nodes=6377; objects=12665; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=30; generation=4699051257700827487; managed=8589424; private=564264960; handles=490; nodes=6377; objects=12665; orphans=0; inputPending=8; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=31; generation=4699051257700827488; managed=8590400; private=564269056; handles=490; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=32; generation=4699051257700827489; managed=8590408; private=566493184; handles=489; nodes=6377; objects=12665; orphans=0; inputPending=8; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=33; generation=4699051257700827490; managed=8591560; private=565080064; handles=489; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=34; generation=4699051257700827491; managed=8592368; private=566767616; handles=490; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=35; generation=4699051257700827492; managed=8592720; private=560615424; handles=490; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=36; generation=4699051257700827493; managed=8592728; private=565866496; handles=490; nodes=6377; objects=12665; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=37; generation=4699051257700827494; managed=8593344; private=566734848; handles=491; nodes=6377; objects=12665; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=38; generation=4699051257700827495; managed=8594232; private=564879360; handles=492; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=39; generation=4699051257700827496; managed=8594472; private=565731328; handles=492; nodes=6377; objects=12665; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=40; generation=4699051257700827497; managed=8595336; private=562159616; handles=493; nodes=6377; objects=12665; orphans=0; inputPending=8; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=41; generation=4699051257700827498; managed=8595808; private=565383168; handles=493; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=42; generation=4699051257700827499; managed=8596104; private=564686848; handles=497; nodes=6377; objects=12665; orphans=0; inputPending=8; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=43; generation=4699051257700827500; managed=8604768; private=566214656; handles=494; nodes=6377; objects=12665; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=44; generation=4699051257700827501; managed=8605000; private=566394880; handles=494; nodes=6377; objects=12665; orphans=0; inputPending=8; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=45; generation=4699051257700827502; managed=8606144; private=565149696; handles=495; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=46; generation=4699051257700827503; managed=8606288; private=566718464; handles=495; nodes=6377; objects=12665; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=47; generation=4699051257700827504; managed=8606512; private=563290112; handles=498; nodes=6377; objects=12665; orphans=0; inputPending=8; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=48; generation=4699051257700827505; managed=8607488; private=566124544; handles=495; nodes=6377; objects=12665; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=49; generation=4699051257700827506; managed=8608744; private=565653504; handles=495; nodes=6377; objects=12665; orphans=0; inputPending=12; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=50; generation=4699051257700827507; managed=8608792; private=565338112; handles=495; nodes=6377; objects=12665; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Return to Lobby reaches joined state on both peers
+Return clears readiness and all match runtime
+Connected lobby readied
+Normal lobby Start accepted
+Initial Loader/Sync and countdown complete
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Enabled Podium action: End Match
+End Match ends shared match through authoritative Return
+Connected lobby readied
+Normal lobby Start accepted
+Initial Loader/Sync and countdown complete
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Enabled Podium action: Main Menu
+Client Main Menu waits for reliable Leave cleanup
+Finished retains disconnected participant reservation
+Retained Podium results stay frozen and offline participant dims
+Enabled Podium action: Main Menu
+Main Menu restores MenuShell after cleanup
+Same MenuShell resumes with no stale match state
+Solo verification match reaches Active
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Enabled Podium action: Quit Game
+Podium Quit uses production controlled cleanup

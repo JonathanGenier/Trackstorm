@@ -19,6 +19,7 @@ public sealed partial class EosIntegrationChecks : Node
     private int _p2pFrames;
     private bool _p2pLeaving;
     private ulong _p2pStartedAt;
+    private string _stage = "native initialization";
 
     /// <inheritdoc />
     public override void _Ready()
@@ -85,7 +86,7 @@ public sealed partial class EosIntegrationChecks : Node
     }
 
     /// <inheritdoc />
-    public override void _Process(double delta)
+    public override void _PhysicsProcess(double delta)
     {
         if (_identity is null)
         {
@@ -129,8 +130,10 @@ public sealed partial class EosIntegrationChecks : Node
                 }
             }
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            // Stage labels are fixture-owned; never print provider exception messages or credentials.
+            GD.Print($"EOS verification failed during {_stage}: {exception.GetType().Name}");
             Fail();
         }
     }
@@ -146,6 +149,7 @@ public sealed partial class EosIntegrationChecks : Node
 
     private void StartCycle()
     {
+        _stage = "identity login";
         _identity!.Start(_configuration!);
         _identity.Login();
     }
@@ -154,6 +158,7 @@ public sealed partial class EosIntegrationChecks : Node
     {
         if (_lobby is null)
         {
+            _stage = "lobby creation";
             _lobby = new OnlineLobbyCoordinator(_identity!.CreateLobbyProvider(), _identity.ProductUserId!);
             _lobby.Create("Trackstorm P2P verification", LobbyAccess.Public, null);
         }
@@ -190,6 +195,7 @@ public sealed partial class EosIntegrationChecks : Node
 
         if (_transport is null)
         {
+            _stage = "P2P listen and authority proof";
             _transport = _identity!.CreateTransport(_lobby, null);
             _transport.Listen(EosP2pTransport.Endpoint(_lobby.Active, _lobby.Identity));
             _gameplay = new DevelopmentSession { OnlineCoordinator = () => _lobby, OnlineStatus = () => EosLobbyStatus.Connected };
@@ -216,14 +222,25 @@ public sealed partial class EosIntegrationChecks : Node
             {
                 throw new InvalidOperationException("EOS host could not enter the arena through lobby authority.");
             }
+            _stage = "match loading/synchronization/countdown";
+            _p2pFrames = 1;
+            _p2pStartedAt = Time.GetTicksMsec();
         }
 
-        if (++_p2pFrames < 20)
+        // Application entry is asynchronous. Twenty frames after Start is not a loading barrier.
+        if (_gameplay.Arena?.Driver.EntryReady != true || _gameplay.Arena.Driver.Match?.Phase != Core.Matches.MatchPhase.Active)
+        {
+            if (Time.GetTicksMsec() - _p2pStartedAt >= 45000)
+                throw new InvalidOperationException("EOS match entry did not reach synchronized Active gameplay.");
+            return false;
+        }
+        if (++_p2pFrames <= 20)
         {
             return false;
         }
 
-        if (_gameplay.Arena is null || !_gameplay.Lobby!.Request(LobbyCommand.Return))
+        _stage = "arena return";
+        if (!_gameplay.Lobby!.Request(LobbyCommand.Return))
         {
             throw new InvalidOperationException("EOS host arena/return integration failed.");
         }
@@ -243,6 +260,7 @@ public sealed partial class EosIntegrationChecks : Node
         _transport.Dispose();
         _transport = null;
         _p2pLeaving = true;
+        _stage = "lobby cleanup";
         _lobby.Leave();
         return false;
     }

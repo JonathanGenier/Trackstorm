@@ -53,6 +53,8 @@ public sealed partial class PostMatchIntegrationChecks : Node
             using (var reservation = new System.Net.Sockets.UdpClient(new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 0)))
                 _endpoint = $"127.0.0.1:{((System.Net.IPEndPoint)reservation.Client.LocalEndPoint!).Port}";
             _host.Open(true, _endpoint, "Podium host");
+            if (OS.GetCmdlineUserArgs().Contains("--post-match-impaired"))
+                _host.Gateway!.ConfigureSimulation(new Core.Networking.Transport.NetworkSimulation(30, 10, 2, 10, 25));
             var view = new SubViewport { Size = new Vector2I(1280, 720), OwnWorld3D = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled };
             AddChild(view);
             _client = new DevelopmentSession();
@@ -73,6 +75,17 @@ public sealed partial class PostMatchIntegrationChecks : Node
                 Check(ReferenceEquals(context.Results, _host.GetNode<PodiumScene>("PodiumScene").Displayed!.Results), "Podium presents the exact detached Core result");
                 Check(_client.PostMatch!.Results.Standings.SequenceEqual(context.Results.Standings), "Both peers display identical authoritative results");
                 Check(!shell.MediaPlaying, "MenuShell stays suspended during Podium");
+                using (var process = System.Diagnostics.Process.GetCurrentProcess())
+                {
+                    // Comparable settled boundaries; explicit collection separates retained managed data from allocation churn.
+                    long managed = GC.GetTotalMemory(true);
+                    int hostEvents = _host.Lobby!.Events.Entries.Count;
+                    int clientEvents = _client.Lobby!.Events.Entries.Count;
+                    Check(hostEvents <= 1024 && clientEvents <= 1024, "Session journals remain bounded through rematch");
+                    string sample = $"REMATCH_RESOURCE cycle={cycle + 1}; generation={context.Roster.Match}; managed={managed}; private={process.PrivateMemorySize64}; handles={process.HandleCount}; nodes={Performance.GetMonitor(Performance.Monitor.ObjectNodeCount)}; objects={Performance.GetMonitor(Performance.Monitor.ObjectCount)}; orphans={Performance.GetMonitor(Performance.Monitor.ObjectOrphanNodeCount)}; inputPending={oldClient.Inputs?.Pending.Count}; snapshots={oldClient.History?.Snapshots.Count}; hostEvents={hostEvents}; clientEvents={clientEvents}";
+                    GD.Print(sample);
+                    _evidence.Add(sample);
+                }
                 if (cycle == 0)
                 {
                     var world = _host.Arena!.Driver.Host!.World;
@@ -144,6 +157,9 @@ public sealed partial class PostMatchIntegrationChecks : Node
                     Check(_host.Lobby!.State!.Match == context.Roster.Match + 1, "Rematch advances generation exactly once");
                     Check(_host.Arena!.Driver.Match is { Winner: null } fresh && fresh.Phase != MatchPhase.Finished && fresh.Players.All(row => row.Kills == 0 && row.Deaths == 0 && row.Wins == 0 && row.ProcessedLife == 0 && row.CircusScore == 0 && row.KillStreak == 0 && row.Stunts is null && row.ProcessedDamageLife == 0 && row.ProcessedDamageSequence == 0), "Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history");
                     Check(_host.FinalResults is null && _client.FinalResults is null, "Neither peer leaks old results");
+                    Check(_host.Arena.Driver.Host!.Items.Slots.All(slot => slot.Item == Core.Items.HeldItem.None) &&
+                        _host.Arena.Driver.Host.Items.Missiles.Count == 0 && _host.Arena.Driver.Host.Items.Patches.Count == 0,
+                        "Fresh generation has no held resources, projectiles or persistent Oil");
                     await Until(() => _host.Arena?.Driver.Match?.Phase == MatchPhase.Active && _client.Arena?.Driver.Match?.Phase == MatchPhase.Active, "Fresh countdown reaches Active");
                 }
             }

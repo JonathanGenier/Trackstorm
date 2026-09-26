@@ -32,4 +32,6 @@ The post-match harness also verifies native keyboard/controller focus restoratio
 
 These checks do not prove separate-PC EOS connectivity, live service failure/retry, Internet soak behavior, audible quality or physical-controller ergonomics.
 
+`-Impaired` applies process-wide GNS outbound delay of 30 ms, jitter of 10 ms, 2% loss and 10% reordering with up to 25 ms extra delay. Each Finished boundary reports collected managed memory, process private bytes/handles, native node/object/orphan counts, pending inputs, snapshot history and bounded session-journal sizes. The collection is explicit verification instrumentation; process memory includes engine and fixture costs. `check-network-soak.ps1` combines fifty such cycles with a separate ten-minute eight-player native UDP driving soak. These are complementary fixtures, not a single full-game Internet session.
+
 [Feature index](README.md) · [Game Loop](game-loop.md) · [Match entry](match-entry.md) · [Sessions](sessions.md) · [Reconnection](reconnection.md) · [Standings](standings.md)

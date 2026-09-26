@@ -2,6 +2,7 @@ param (
     [Parameter(Mandatory)] [string]$GodotPath,
     [switch]$Visual,
     [switch]$NoBuild,
+    [switch]$Impaired,
     [ValidateRange(3, 50)] [int]$Cycles = 3,
     [switch]$CollectDuringLoading,
     [switch]$ResourcesOnly
@@ -16,6 +17,7 @@ New-Item -ItemType Directory -Path $postMatchOutput -Force | Out-Null
 $arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/post_match_checks.tscn', '--', "--post-match-output=$postMatchOutput", "--post-match-cycles=$Cycles")
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
 if ($CollectDuringLoading) { $arguments += '--post-match-gc' }
+if ($Impaired) { $arguments += '--post-match-impaired' }
 if ($ResourcesOnly) { $arguments += '--post-match-resources-only' }
 $log = & $GodotPath @arguments 2>&1
 $exitCode = $LASTEXITCODE
