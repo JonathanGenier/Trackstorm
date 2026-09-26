@@ -247,7 +247,7 @@ public sealed class Simulation
             candidates = candidates.Select(result =>
             {
                 var v = result.Snapshot;
-                return new VehicleStepResult(new VehicleSnapshot(v.VehicleId, v.LifeId, v.Movement with { Nitro = default }, v.Damage, v.ObservedPhysics, v.Effects, v.Lifecycle, v.RespawnAtTick, v.Landing), result.Effects, result.DamageEvents.ToList(), result.Reset);
+                return new VehicleStepResult(new VehicleSnapshot(v.VehicleId, v.LifeId, v.Movement with { Nitro = default }, v.Damage, v.ObservedPhysics, v.Effects, v.Lifecycle, v.RespawnAtTick, v.Landing, v.OutOfBounds), result.Effects, result.DamageEvents.ToList(), result.Reset);
             }).ToArray();
         }
 

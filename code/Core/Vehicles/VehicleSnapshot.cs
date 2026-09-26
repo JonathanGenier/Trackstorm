@@ -13,7 +13,8 @@ public sealed record VehicleSnapshot
     /// <param name="lifecycle">Participation state; omitted snapshots infer Alive/Dead from HP.</param>
     /// <param name="respawnAtTick">Host deadline, retained throughout the inactive life.</param>
     /// <param name="landing">Complete landing episode continuation.</param>
-    public VehicleSnapshot(ulong vehicleId, ulong lifeId, VehicleState movement, VehicleDamageState damage, VehiclePhysicsState observedPhysics, IEnumerable<VehicleEffectRequest>? effects = null, VehicleLifecycle? lifecycle = null, ulong? respawnAtTick = null, LandingState landing = default)
+    /// <param name="outOfBounds">Authoritative life-scoped exterior hazard.</param>
+    public VehicleSnapshot(ulong vehicleId, ulong lifeId, VehicleState movement, VehicleDamageState damage, VehiclePhysicsState observedPhysics, IEnumerable<VehicleEffectRequest>? effects = null, VehicleLifecycle? lifecycle = null, ulong? respawnAtTick = null, LandingState landing = default, bool outOfBounds = false)
     {
         ArgumentNullException.ThrowIfNull(damage);
         movement.Validate();
@@ -33,6 +34,8 @@ public sealed record VehicleSnapshot
             throw new ArgumentException("Incoherent vehicle lifecycle.");
         }
 
+        if (outOfBounds && Lifecycle != VehicleLifecycle.Alive) { throw new ArgumentException("Inactive lives cannot retain OOB state."); }
+        OutOfBounds = outOfBounds;
         landing.Validate();
         Landing = landing;
         RespawnAtTick = respawnAtTick;
@@ -52,6 +55,8 @@ public sealed record VehicleSnapshot
 
     /// <summary>Complete terrain landing/crash continuation.</summary>
     public LandingState Landing { get; }
+    /// <summary>Host-classified exterior exposure, latched until this life ends.</summary>
+    public bool OutOfBounds { get; }
     /// <summary>Stable identity.</summary>
     public ulong VehicleId { get; }
     /// <summary>Life generation, distinct from the global movement tick.</summary>

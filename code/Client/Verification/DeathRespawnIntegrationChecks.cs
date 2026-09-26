@@ -31,8 +31,11 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
     private bool _finished;
     private int _cleanupFrames;
     private bool _captured;
+    private readonly HashSet<int> _simultaneousDeadPeers = new();
+    private readonly HashSet<int> _simultaneousSpawnPeers = new();
+    private bool OutOfBounds => OS.GetCmdlineUserArgs().Contains("--death-oob");
     private bool Water => OS.GetCmdlineUserArgs().Contains("--death-water");
-    private string Cause => Water ? "water" : _cycle % 2 == 0 ? "missile" : "collision";
+    private string Cause => OutOfBounds ? "out-of-bounds" : Water ? "water" : _cycle % 2 == 0 ? "missile" : "collision";
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -46,7 +49,8 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
         reservation.Close();
         for (int index = 0; index < 8; index++)
         {
-            var gateway = new GameNetworkingSocketsTransport();
+            // Eight full native worlds are constructed synchronously before transport pumping.
+            var gateway = new GameNetworkingSocketsTransport(60000);
             _gateways.Add(gateway);
             ulong server = 0;
             if (index == 0)
@@ -83,10 +87,17 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
             impactWall.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(1, 4, 8) } });
             arena.AddChild(impactWall);
             _arenas.Add(arena);
+            int peerIndex = index;
             var outcomes = new List<VehicleSnapshot>();
             _boundaries.Add(outcomes);
             arena.Driver.LifecycleReceived += snapshot =>
             {
+                if (OutOfBounds && _arenas.Count == 8)
+                {
+                    var second = snapshot.Vehicles.SingleOrDefault(v => v.State.VehicleId == _arenas[2].Driver.LocalVehicleId)?.State;
+                    if (second?.LifeId == _life && second.Lifecycle == VehicleLifecycle.Dead && !second.OutOfBounds && second.Damage.LastDamage?.Attribution.Source == "out-of-bounds") _simultaneousDeadPeers.Add(peerIndex);
+                    if (second?.LifeId == _life + 1 && second.CanInteract && !second.OutOfBounds && second.Damage.CurrentHP == 1000) _simultaneousSpawnPeers.Add(peerIndex);
+                }
                 VehicleSnapshot? state = snapshot.Vehicles.SingleOrDefault(vehicle => vehicle.State.VehicleId == _victim)?.State;
                 if (state is not null)
                 {
@@ -117,7 +128,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
                 // Actively try driving/using during the wait; authority and prediction must suppress it.
                 bool inactive = arena.Driver.LocalState?.CanInteract == false;
                 arena.Advance(inactive ? new InputFrame(0, 32767, 65535, 0, InputButtons.Drift | InputButtons.UseItem, InputButtons.UseItem, 0) : default);
-                Require(arena.Driver.Failure.Length == 0, arena.Driver.Failure);
+                Require(arena.Driver.Failure.Length == 0, $"stage={_stage}, elapsed={_elapsed:F2}, peer={_arenas.IndexOf(arena)}: {arena.Driver.Failure}");
             }
 
             Require(_elapsed - _started < 20, $"Death stage {_stage}, cycle {_cycle} timed out.");
@@ -142,6 +153,13 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
     private void Scenario()
     {
         HostVehicleSession host = _arenas[0].Driver.Host!;
+        if (OutOfBounds && _stage == 2 && _elapsed - _started > 1 && host.World.GetVehicle(_victim).CanInteract)
+        {
+            foreach(var arena in _arenas)
+            {
+                Require(arena.Driver.Latest!.Vehicles.Where(v => v.State.VehicleId == _victim || v.State.VehicleId == _arenas[2].Driver.LocalVehicleId).All(v=>v.State.OutOfBounds), "All peers see both independent OOB states.");
+            }
+        }
         switch (_stage)
         {
             case 0 when _arenas.All(arena => arena.Driver.Latest?.Vehicles.Count == 8 && arena.Driver.LocalState is not null && arena.Driver.ItemState is not null):
@@ -157,7 +175,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
                 // Allow setup snapshots and inventory grants to reach every peer before launching.
                 if (_elapsed - _started > 0.4)
                 {
-                    if (!Water && _cycle % 2 == 0)
+                    if (!Water && !OutOfBounds && _cycle % 2 == 0)
                     {
                         Require(_arenas[2].Driver.RequestItemUse(), "Remote shooter submits its issued missile.");
                     }
@@ -197,7 +215,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
                     Require(!_arenas[1].Driver.RequestItemUse(), "Dead local item button rejected.");
                 }
 
-                if (_boundaries.All(outcomes => outcomes.Any(state => state.LifeId == _life + 1 && state.CanInteract)))
+                if (_boundaries.All(outcomes => outcomes.Any(state => state.LifeId == _life + 1 && state.CanInteract)) && (!OutOfBounds || _simultaneousSpawnPeers.Count == 8))
                 {
                     foreach (var outcomes in _boundaries)
                     {
@@ -214,7 +232,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
                     foreach (var arena in _arenas)
                     {
                         Require(arena.Bodies[_victim].CollisionLayer == 2 && arena.Bodies[_victim].IsPresented, "Respawn re-enables native collision and presentation.");
-                        Require(arena.Destruction.BurstCount == _cycle + 1 && arena.Destruction.ActiveBursts == 0, "One VFX per death and no accumulated transient bursts.");
+                        Require(arena.Destruction.BurstCount == (_cycle + 1) * (OutOfBounds ? 2 : 1) && arena.Destruction.ActiveBursts == 0, "One VFX per death and no accumulated transient bursts.");
                         Require(arena.Bodies[_victim].Smoothing.Offset.Length() < 0.01f, $"Respawn does not retain a correction offset: {arena.Bodies[_victim].Smoothing.Offset}.");
                     }
 
@@ -226,6 +244,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
             case 4 when _elapsed - _started > 0.25:
                 // Capture after the renderer has presented the new life, before arranging the next scenario.
                 Capture($"respawn-{_cycle}.png");
+                if (OutOfBounds) Require(_simultaneousDeadPeers.Count == 8 && _simultaneousSpawnPeers.Count == 8, "Both OOB players died/respawned across all eight peers.");
                 string evidence = $"Cycle {_cycle + 1}: {Cause} death, all eight peers Dead/Respawning/Alive, respawn tick {_deadline}, reset physics/HP/items/VFX verified.";
                 _evidence.Add(evidence);
                 GD.Print(evidence);
@@ -249,6 +268,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
         var host = _arenas[0].Driver.Host!;
         ulong shooter = _arenas[2].Driver.LocalVehicleId;
         _life = host.World.GetVehicle(_victim).LifeId;
+        _simultaneousDeadPeers.Clear(); _simultaneousSpawnPeers.Clear();
         foreach (var outcomes in _boundaries)
         {
             outcomes.Clear();
@@ -270,11 +290,15 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
                 pose = new VehiclePhysicsState(new Numerics.Vector3(-40, 0.6f, 5), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
             }
 
-            return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(state.Damage.MaxHP, state.VehicleId == _victim && !Water ? 20 : state.Damage.MaxHP, null, null), pose);
+            if (OutOfBounds && (state.VehicleId == _victim || state.VehicleId == shooter))
+            {
+                pose = new VehiclePhysicsState(new Numerics.Vector3(state.VehicleId == _victim ? 350 : -350, _cycle % 2 == 0 ? 20 : -60, 0), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero);
+            }
+            return new VehicleSnapshot(state.VehicleId, state.LifeId, new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), new VehicleDamageState(state.Damage.MaxHP, state.VehicleId == _victim && !Water && !OutOfBounds ? 20 : state.Damage.MaxHP, null, null), pose);
         }).ToArray();
         host.World.Restore(new SimulationState(host.World.State.Tick, host.World.State.LastInput, states, host.World.State.Match));
         Require(host.Items.Grant(host.World, _victim, HeldItem.Wrench), "Victim holds an item before death.");
-        if (!Water && _cycle % 2 == 0)
+        if (!Water && !OutOfBounds && _cycle % 2 == 0)
         {
             Require(host.Items.Grant(host.World, shooter, HeldItem.Missile), "Shooter receives a missile.");
         }

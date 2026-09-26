@@ -268,7 +268,7 @@ internal sealed class VehicleReplicationTests
 
     [TestCase(false)]
     [TestCase(true)]
-    public void ExactConfirmationInstallsHealthButNeverSkipsAuthoritativeImpulses(bool impulse)
+    public void ExactConfirmationInstallsAuthoritativeStatusButNeverSkipsImpulses(bool impulse)
     {
         var host = new HostVehicleSession(99);
         host.Join(42);
@@ -281,7 +281,7 @@ internal sealed class VehicleReplicationTests
         var state = boundary.State;
         var damage = new VehicleDamageState(state.Damage.MaxHP, state.Damage.MaxHP - 10, null, null);
         var effects = impulse ? new[] { new VehicleEffectRequest(new DamageEffect(0, Vector3.UnitX * 900, Vector3.Zero), new DamageContext("test", 1, "impulse")) } : [];
-        var authority = new VehicleSnapshot(2, state.LifeId, state.Movement, damage, state.ObservedPhysics, effects);
+        var authority = new VehicleSnapshot(2, state.LifeId, state.Movement, damage, state.ObservedPhysics, effects, outOfBounds: true);
         int observedEffects = 0;
         prediction.Reconcile(new(authority, boundary.AcknowledgedInput), current =>
         {
@@ -289,8 +289,11 @@ internal sealed class VehicleReplicationTests
             return Observe(current);
         });
         Assert.That(prediction.State.Damage, Is.EqualTo(damage));
+        Assert.That(prediction.State.OutOfBounds, Is.True, "Both cached confirmation and replay install host-owned exposure immediately.");
         Assert.That(observedEffects, Is.EqualTo(impulse ? 1 : 0));
         Assert.That(prediction.ConfirmedPredictions, Is.EqualTo(impulse ? 0 : 1));
+        prediction.Predict(Drive(), Observe);
+        Assert.That(prediction.State.OutOfBounds, Is.True, "Local movement cannot clear confirmed exposure.");
     }
 
     /// <summary>Complete eight-vehicle snapshots are compact and malformed payloads fail before publication.</summary>
@@ -306,7 +309,7 @@ internal sealed class VehicleReplicationTests
         host.Step(Drive(), Observe);
         WorldSnapshot expected = host.Snapshot();
         byte[] bytes = VehicleNetworkCodec.EncodeSnapshot(expected);
-        Assert.That(bytes.Length, Is.EqualTo(1757));
+        Assert.That(bytes.Length, Is.EqualTo(1765));
         WorldSnapshot decoded = VehicleNetworkCodec.DecodeSnapshot(bytes);
         Assert.That(decoded.Tick, Is.EqualTo(expected.Tick));
         Assert.That(decoded.Session, Is.EqualTo(99));

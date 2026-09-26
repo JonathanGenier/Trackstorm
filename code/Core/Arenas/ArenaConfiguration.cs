@@ -19,7 +19,8 @@ public sealed class ArenaConfiguration
     /// <param name="items">Stable item locations.</param>
     /// <param name="surfaces">Authored surface identifiers.</param>
     /// <param name="environment">Optional authored destructible identities.</param>
-    public ArenaConfiguration(Vector3 minimum, Vector3 maximum, IEnumerable<ArenaSpawn> players, IEnumerable<ArenaSpawn> items, IEnumerable<SurfaceType> surfaces, EnvironmentLayout? environment = null)
+    /// <param name="boundary">Optional authored exterior gameplay boundary.</param>
+    public ArenaConfiguration(Vector3 minimum, Vector3 maximum, IEnumerable<ArenaSpawn> players, IEnumerable<ArenaSpawn> items, IEnumerable<SurfaceType> surfaces, EnvironmentLayout? environment = null, ArenaBoundary? boundary = null)
     {
         ArgumentNullException.ThrowIfNull(players);
         ArgumentNullException.ThrowIfNull(items);
@@ -29,6 +30,7 @@ public sealed class ArenaConfiguration
             throw new ArgumentException("Arena bounds must be finite and have positive extent.");
         }
 
+        Boundary = boundary;
         Minimum = minimum;
         Environment = environment;
         Maximum = maximum;
@@ -78,6 +80,8 @@ public sealed class ArenaConfiguration
 
     /// <summary>Inclusive world bounds.</summary>
     public Vector3 Minimum { get; }
+    /// <summary>Authored gameplay perimeter; absent for legacy arenas.</summary>
+    public ArenaBoundary? Boundary { get; }
     public EnvironmentLayout? Environment { get; }
     /// <summary>Inclusive world bounds.</summary>
     public Vector3 Maximum { get; }

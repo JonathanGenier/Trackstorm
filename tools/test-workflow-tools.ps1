@@ -176,3 +176,7 @@ Assert-True ($salvoPlan.RuntimeScripts -contains "check-salvo.ps1") "Salvo marke
 $destructionPlan = Get-FastCheckPlan -Paths @("code/Core/Arenas/EnvironmentAuthority.cs")
 Assert-True ($destructionPlan.RuntimeScripts -contains "check-destructible-environment.ps1") "Destruction changes must route native interaction verification."
 Assert-True ($destructionPlan.ExtendedScripts -contains "check-migration.ps1") "Destruction changes must route recovery verification."
+
+$boundaryPlan = Get-FastCheckPlan -Paths @("code/Core/Arenas/ArenaBoundary.cs")
+Assert-True ($boundaryPlan.RuntimeScripts -contains "check-boundary.ps1") "Arena boundaries require native finite-fence and escape coverage."
+Assert-True ($boundaryPlan.ExtendedScripts -contains "check-death-respawn.ps1") "Arena boundaries require native multiplayer lifecycle coverage."

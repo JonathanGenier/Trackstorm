@@ -22,6 +22,7 @@ Start with the system being changed. Read its document and only the integration 
 | [Vehicles and damage](vehicles.md) | Movement, player air control, suspension, surfaces, HP, collision/effect contracts | [Arena](arena.md), [camera](camera.md), [lifecycle](death-respawn.md), [replication](vehicle-networking.md) |
 | [Surface/material identity](surfaces.md) | Authored materials, native support identity, handling mapping and local Stats | [Vehicles](vehicles.md), [oval map](oval-map.md), [Stats](statistics.md) |
 | [Terrain effects and environments](terrain-effects.md) | Surface detail, bounded tire tracks, dust/mud/water feedback and authoritative environment presets | [Surfaces](surfaces.md), [Developer Options](developer-options.md), [oval map](oval-map.md) |
+| [Out-of-bounds damage](out-of-bounds.md) | Finite perimeter, authored boundary, environmental damage, confirmed warning and host tuning | [Oval map](oval-map.md), [vehicles](vehicles.md), [lifecycle](death-respawn.md), [networking](vehicle-networking.md) |
 | [Water interaction](water.md) | Immersion, resistance, deep-water damage, Configs and lifecycle | [Surfaces](surfaces.md), [vehicles](vehicles.md), [lifecycle](death-respawn.md) |
 | [Chase camera](camera.md) | Local orientation, free-look/recentering, inertia and feedback | [Input](input.md), [vehicles](vehicles.md), [replication](vehicle-networking.md) |
 | [Combat arena](arena.md) | Retained prototype fixture, markers, props and materials | [Vehicles](vehicles.md), [pickups](item-spawns.md), [replication](vehicle-networking.md) |

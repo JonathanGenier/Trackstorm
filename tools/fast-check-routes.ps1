@@ -39,6 +39,12 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'ArenaBoundary|OutOfBounds|BoundaryIntegration|BuildPerimeter|CatchFence|boundary_checks|check-boundary') {
+            Add-Runtime 'check-boundary.ps1'
+            Add-Extended 'check-death-respawn.ps1'
+            Add-Manual 'Run check-death-respawn.ps1 -OutOfBounds -Impaired; observe normal impacts, inward catch fence and successful ballistic escapes with OOB feedback through respawn.'
+        }
+
         if ($path -match 'MatchStart|RaceCountdown|match_start_checks|check-match-start' -or $path -eq 'code/TransportTests/VehicleNetworkDriverTests.MatchEntry.cs') {
             Add-Runtime 'check-match-start.ps1'
         }

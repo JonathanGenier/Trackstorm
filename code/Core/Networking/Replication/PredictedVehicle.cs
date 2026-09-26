@@ -119,7 +119,7 @@ public sealed class PredictedVehicle
             // predicted suffix, but install host-owned health/lifecycle/landing immediately.
             Restore(new VehicleSnapshot(_vehicle, authoritative.State.LifeId, continuation.Movement,
                 authoritative.State.Damage, continuation.ObservedPhysics, lifecycle: authoritative.State.Lifecycle,
-                respawnAtTick: authoritative.State.RespawnAtTick, landing: authoritative.State.Landing));
+                respawnAtTick: authoritative.State.RespawnAtTick, landing: authoritative.State.Landing, outOfBounds: authoritative.State.OutOfBounds));
             foreach (uint sequence in _predicted.Keys.Where(sequence => !NetworkSequence.IsNewer(sequence, authoritative.AcknowledgedInput)).ToArray())
             {
                 _predicted.Remove(sequence);
@@ -160,7 +160,7 @@ public sealed class PredictedVehicle
         }
 
         // Prediction owns movement only: collision observations cannot kill, heal or respawn a player.
-        Restore(new VehicleSnapshot(_vehicle, previous.LifeId, movement, previous.Damage, physics, lifecycle: previous.Lifecycle, respawnAtTick: previous.RespawnAtTick, landing: previous.Landing));
+        Restore(new VehicleSnapshot(_vehicle, previous.LifeId, movement, previous.Damage, physics, lifecycle: previous.Lifecycle, respawnAtTick: previous.RespawnAtTick, landing: previous.Landing, outOfBounds: previous.OutOfBounds));
         _predicted[input.Sequence] = (input.Frame, State);
     }
 }

@@ -5,7 +5,7 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Networking.Replication;
 
-/// <summary>Version-ten binary gameplay messages with life-scoped inputs and authoritative lifecycle state.</summary>
+/// <summary>Version-eleven binary gameplay messages with life-scoped inputs and authoritative lifecycle state.</summary>
 public static class VehicleNetworkCodec
 {
     /// <summary>Reliable session assignment message kind.</summary>
@@ -23,7 +23,7 @@ public static class VehicleNetworkCodec
     /// <param name="bytes">Complete transport payload.</param>
     public static byte Kind(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || bytes[0] != 0x54 || bytes[1] != 0x53 || bytes[2] != 10 || bytes[3] is < Welcome or > Props)
+        if (bytes.Length is < 4 or > MaximumBytes || bytes[0] != 0x54 || bytes[1] != 0x53 || bytes[2] != 11 || bytes[3] is < Welcome or > Props)
         {
             throw new ArgumentException("Invalid vehicle network header.");
         }
@@ -161,6 +161,7 @@ public static class VehicleNetworkCodec
                 writer.Write(deadline);
             }
 
+            writer.Write(state.OutOfBounds);
             writer.Write((byte)state.Landing.Phase);
             writer.Write(state.Landing.UnsupportedTicks);
             writer.Write(state.Landing.RecoveryTicks);
@@ -228,6 +229,7 @@ public static class VehicleNetworkCodec
             ulong life = reader.ReadUInt64();
             var lifecycle = (VehicleLifecycle)reader.ReadByte();
             ulong? deadline = ReadFlag(reader) ? reader.ReadUInt64() : null;
+            bool outOfBounds = ReadFlag(reader);
             var landing = new LandingState((LandingPhase)reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
             uint ack = reader.ReadUInt32();
             VehicleState movement = VehicleStateCodec.Decode(reader.ReadBytes(VehicleStateCodec.SerializedSize));
@@ -248,7 +250,7 @@ public static class VehicleNetworkCodec
             float hp = reader.ReadSingle();
             DamageEvent? damage = ReadFlag(reader) ? new DamageEvent(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadSingle(), new DamageContext(reader.ReadString(), reader.ReadUInt64(), reader.ReadString()), ReadFlag(reader)) : null;
             ulong? collision = ReadFlag(reader) ? reader.ReadUInt64() : null;
-            var state = new VehicleSnapshot(id, life, movement, new VehicleDamageState(maxHP, hp, damage, collision), observed, effects, lifecycle, deadline, landing);
+            var state = new VehicleSnapshot(id, life, movement, new VehicleDamageState(maxHP, hp, damage, collision), observed, effects, lifecycle, deadline, landing, outOfBounds);
             // Portable bounds are validated here; the receiver checks the negotiated tuning revision.
             movement.Validate();
             new DamageConfiguration { MaxHP = maxHP }.Validate();
@@ -263,7 +265,7 @@ public static class VehicleNetworkCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, new UTF8Encoding(false, true), true);
-        writer.Write(new byte[] { 0x54, 0x53, 10, kind });
+        writer.Write(new byte[] { 0x54, 0x53, 11, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
