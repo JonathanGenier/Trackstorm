@@ -168,7 +168,7 @@ internal sealed class ProxyMineTests
     public void LethalMineUsesExistingKillRuleAndFinishedClearsOtherHazardsInSameCommit()
     {
         var host = new HostVehicleSession(99, new ItemConfiguration { MineDamage = 10000 },
-            matchConfiguration: new() { MinimumPlayers = 1, CountdownTicks = 1, KillTarget = 1 });
+            matchConfiguration: new() { Mode = Trackstorm.Core.Matches.MatchMode.FirstToTarget, MinimumPlayers = 1, CountdownTicks = 1, KillTarget = 1 });
         host.JoinPlayer(10, 2);
         Step(host); Step(host);
         Grant(host); Step(host);

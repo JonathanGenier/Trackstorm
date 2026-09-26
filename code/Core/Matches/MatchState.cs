@@ -20,23 +20,27 @@ public sealed class MatchState
     /// <param name="changes">Deaths scored in this publication.</param>
     /// <param name="awards">Committed Circus awards aggregated by player and source category.</param>
     /// <param name="mode">Authoritative match-scoped scoring policy.</param>
-    public MatchState(ulong tick, ulong revision, int killTarget, MatchPhase phase, ulong? countdownAtTick, ulong? winner, IEnumerable<PlayerScore> players, IEnumerable<ScoredDeath>? changes = null, IEnumerable<CircusScoreAward>? awards = null, MatchMode mode = MatchMode.Circus)
+    /// <param name="activeStartedAtTick">Retained Active entry tick; isolated fixtures default to this boundary.</param>
+    /// <param name="durationTicks">Configured Circus Active duration.</param>
+    /// <param name="recoveryElapsedTicks">Authoritative elapsed time accounted for during checkpoint recovery.</param>
+    public MatchState(ulong tick, ulong revision, int killTarget, MatchPhase phase, ulong? countdownAtTick, ulong? winner, IEnumerable<PlayerScore> players, IEnumerable<ScoredDeath>? changes = null, IEnumerable<CircusScoreAward>? awards = null, MatchMode mode = MatchMode.Circus, ulong? activeStartedAtTick = null, ulong durationTicks = 36000, ulong recoveryElapsedTicks = 0)
     {
         PlayerScore[] scores = players.OrderBy(player => player.Player).ToArray();
         ScoredDeath[] deaths = changes?.ToArray() ?? [];
         CircusScoreAward[] scoreAwards = awards?.ToArray() ?? [];
-        if (!Enum.IsDefined(mode) || killTarget is < 1 or > 1000000 || !Enum.IsDefined(phase) || scores.Length > MaximumPlayers ||
+        if (!Enum.IsDefined(mode) || recoveryElapsedTicks > 216000 || (phase is MatchPhase.Waiting or MatchPhase.Countdown && recoveryElapsedTicks != 0) || durationTicks is < 1 or > 216000 || killTarget is < 1 or > 1000000 || !Enum.IsDefined(phase) || scores.Length > MaximumPlayers ||
             (mode != MatchMode.Circus && (scoreAwards.Length != 0 || scores.Any(player => player.CircusScore != 0 || player.KillStreak != 0 || player.Stunts is not null))) ||
-            scores.Any(player => player.Player == 0 || player.Kills < 0 || player.Kills > killTarget || player.Deaths < 0 || player.Wins is < 0 or > 1 || (player.Deaths > 0 && player.ProcessedLife == 0)) ||
+            scores.Any(player => player.Player == 0 || player.Kills < 0 || (mode == MatchMode.FirstToTarget && player.Kills > killTarget) || player.Deaths < 0 || player.Wins is < 0 or > 1 || (player.Deaths > 0 && player.ProcessedLife == 0)) ||
             scores.Any(player => !double.IsFinite(player.CircusScore) || player.CircusScore < 0 || player.KillStreak < 0 || player.KillStreak > player.Kills ||
                 (player.ProcessedDamageLife == 0) != (player.ProcessedDamageSequence == 0)) ||
             scores.Count(player => player.Stunts is not null) > 8 ||
             scores.Any(player => player.Stunts is { } stunt && (phase != MatchPhase.Active || !stunt.IsValid(tick) || !double.IsFinite(player.PendingStuntScore))) ||
             scores.Select(player => player.Player).Distinct().Count() != scores.Length ||
             (phase == MatchPhase.Countdown) != countdownAtTick.HasValue || (countdownAtTick.HasValue && countdownAtTick <= tick) ||
-            (phase == MatchPhase.Finished) != winner.HasValue ||
-            (winner.HasValue && !scores.Any(player => player.Player == winner && player.Kills == killTarget && player.Wins == 1)) ||
-            scores.Any(player => player.Wins != (player.Player == winner ? 1 : 0) || (player.Kills == killTarget && player.Player != winner)) ||
+            (phase == MatchPhase.Finished && scores.Length > 0) != winner.HasValue ||
+            (winner.HasValue && !scores.Any(player => player.Player == winner && (mode == MatchMode.Circus || player.Kills == killTarget) && player.Wins == 1)) ||
+            (winner.HasValue && mode == MatchMode.Circus && MatchRanking.Order(scores).First().Player != winner) ||
+            scores.Any(player => player.Wins != (player.Player == winner ? 1 : 0) || (mode == MatchMode.FirstToTarget && player.Kills == killTarget && player.Player != winner)) ||
             (phase is MatchPhase.Waiting or MatchPhase.Countdown && scores.Any(player => player.Kills != 0 || player.Deaths != 0 || player.CircusScore != 0)) ||
             scores.Sum(player => (long)player.Kills) > scores.Sum(player => (long)player.Deaths) ||
             deaths.Length > 8 || deaths.Select(death => death.Victim).Distinct().Count() != deaths.Length ||
@@ -59,6 +63,9 @@ public sealed class MatchState
         Players = Array.AsReadOnly(scores);
         Changes = Array.AsReadOnly(deaths);
         Awards = Array.AsReadOnly(scoreAwards);
+        ActiveStartedAtTick = activeStartedAtTick ?? (phase is MatchPhase.Active or MatchPhase.Finished ? tick : null);
+        DurationTicks = durationTicks;
+        RecoveryElapsedTicks = recoveryElapsedTicks;
         GameLoopPhase lifecyclePhase = phase switch
         {
             MatchPhase.Waiting => GameLoopPhase.Initialization,
@@ -67,7 +74,9 @@ public sealed class MatchState
             MatchPhase.Finished => GameLoopPhase.Finished,
             _ => throw new ArgumentException("Invalid match phase."),
         };
-        Lifecycle = new GameLoopState(tick, lifecyclePhase, countdownAtTick, winner.HasValue ? new MatchOutcome("kill-target", winner) : null);
+        Lifecycle = new GameLoopState(tick, lifecyclePhase, countdownAtTick,
+            phase == MatchPhase.Finished ? new MatchOutcome(mode == MatchMode.Circus ? "time-limit" : "kill-target", winner) : null,
+            ActiveStartedAtTick, mode == MatchMode.Circus ? durationTicks : 0, recoveryElapsedTicks);
         FinalResults = phase == MatchPhase.Finished ? FinalMatchResults.From(this) : null;
     }
 
@@ -83,6 +92,12 @@ public sealed class MatchState
     public MatchPhase Phase { get; }
     /// <summary>Core deadline; null outside countdown.</summary>
     public ulong? CountdownAtTick { get; }
+    /// <summary>Absolute Active entry tick, preserved by complete publications and checkpoints.</summary>
+    public ulong? ActiveStartedAtTick { get; }
+    /// <summary>Host-configured Circus Active duration.</summary>
+    public ulong DurationTicks { get; }
+    /// <summary>Consumed match ticks across authority recovery pauses and rollback.</summary>
+    public ulong RecoveryElapsedTicks { get; }
     /// <summary>Immutable winner after finish.</summary>
     public ulong? Winner { get; }
     /// <summary>Current-match scores, including departed participants.</summary>

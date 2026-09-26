@@ -101,7 +101,7 @@ internal sealed class MatchTests
     public void FirstToTargetFreezesOneWinner(int target)
     {
         Assert.That(new MatchConfiguration().KillTarget, Is.EqualTo(5));
-        var world = Create(new MatchConfiguration { KillTarget = target, CountdownTicks = 1 });
+        var world = Create(new MatchConfiguration { Mode = MatchMode.FirstToTarget, KillTarget = target, CountdownTicks = 1 });
         Active(world);
         for (int kill = 1; kill <= target; kill++)
         {
@@ -135,7 +135,7 @@ internal sealed class MatchTests
     [Test]
     public void SimultaneousDeathsHaveOneStableWinner()
     {
-        var world = Create(new MatchConfiguration { KillTarget = 1, CountdownTicks = 1 });
+        var world = Create(new MatchConfiguration { Mode = MatchMode.FirstToTarget, KillTarget = 1, CountdownTicks = 1 });
         Active(world);
         ulong tick = world.State.Tick + 1;
         var requests = world.State.Vehicles.Reverse().Select(vehicle => new VehicleStepRequest(vehicle.VehicleId, Frame(tick), new VehicleObservation(vehicle.ObservedPhysics, Vector3.UnitY), [new VehicleEffectRequest(new DamageEffect(100, Vector3.Zero, Vector3.Zero), new DamageContext("missile", vehicle.VehicleId == 1 ? 2ul : 1ul, "simultaneous"))])).ToArray();
@@ -167,7 +167,7 @@ internal sealed class MatchTests
     {
         foreach (int target in new[] { 0, -1, 1000001 })
         {
-            Assert.Throws<ArgumentException>(() => new MatchConfiguration { KillTarget = target }.Validate());
+            Assert.Throws<ArgumentException>(() => new MatchConfiguration { Mode = MatchMode.FirstToTarget, KillTarget = target }.Validate());
         }
 
         Assert.Throws<ArgumentException>(() => new MatchConfiguration { CountdownTicks = 0 }.Validate());
@@ -181,7 +181,7 @@ internal sealed class MatchTests
         }
 
         Assert.Throws<ArgumentException>(() => MatchCodec.Decode([.. bytes, 0]));
-        Assert.Throws<ArgumentException>(() => new MatchState(1, 1, 5, MatchPhase.Finished, null, 1, [new PlayerScore(1, 0, 0, 1, 0)]));
+        Assert.Throws<ArgumentException>(() => new MatchState(1, 1, 5, MatchPhase.Finished, null, 1, [new PlayerScore(1, 0, 0, 1, 0)], mode: MatchMode.FirstToTarget));
         Assert.Throws<ArgumentException>(() => new MatchState(1, 1, 5, MatchPhase.Active, null, null, [new PlayerScore(1, 0, 0, 0, 0), new PlayerScore(1, 0, 0, 0, 0)]));
         Assert.That(MatchCodec.Encode(99, MatchCodec.Decode(bytes).State), Is.EqualTo(bytes));
     }

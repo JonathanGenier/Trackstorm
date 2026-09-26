@@ -16,8 +16,16 @@ internal sealed record CombatHudView(string Health, double HealthFill, string Sp
 {
     /// <summary>Position supplied by the same authoritative standings projection as the board.</summary>
     internal string Standing { get; init; } = "--";
-    /// <summary>Intentional timer placeholder; no presentation clock masquerades as a match clock.</summary>
-    internal string Timer => "--:--";
+    /// <summary>Authoritative match-time projection; untimed modes retain the placeholder.</summary>
+    internal string Timer { get; init; } = "--:--";
+    /// <summary>Ceiling to whole seconds keeps the full starting minute and reaches zero only at expiry.</summary>
+    internal static string FormatTimer(Core.Matches.MatchState? match, ulong authoritativeTick)
+    {
+        if (match?.Mode != Core.Matches.MatchMode.Circus) return "--:--";
+        ulong ticks = match.Lifecycle.RemainingMatchTicks(Math.Max(match.Tick, authoritativeTick));
+        ulong seconds = (ticks + 59) / 60;
+        return string.Create(CultureInfo.InvariantCulture, $"{seconds / 60:00}:{seconds % 60:00}");
+    }
     /// <summary>Accessible item name, also used below its silhouette.</summary>
     internal string ItemName => Name(Item, NitroCharge, SalvoShots);
     internal int SalvoShots { get; init; }

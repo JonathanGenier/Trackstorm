@@ -65,6 +65,8 @@ internal sealed class RetainedMatchTests
             Score(host, victim, 1);
         }
 
+        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["match.duration_ticks"] = host.World.State.Tick - host.World.State.Match!.ActiveStartedAtTick!.Value + 1 }, out _), Is.True);
+        host.Step(default, state => new(state.ObservedPhysics, Vector3.UnitY));
         MatchState final = host.World.State.Match;
         FinalMatchResults results = final.FinalResults!;
         Assert.That((final.Phase, final.KillTarget, final.Winner), Is.EqualTo((MatchPhase.Finished, 5, 1ul)));

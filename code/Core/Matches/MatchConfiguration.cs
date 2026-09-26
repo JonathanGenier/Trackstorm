@@ -5,8 +5,10 @@ public sealed record MatchConfiguration
 {
     /// <summary>Scoring mode, selected before countdown and retained for this match.</summary>
     public MatchMode Mode { get; init; } = MatchMode.Circus;
-    /// <summary>Required kills, defaulting to first-to-five.</summary>
+    /// <summary>Required kills for FirstToTarget only; Circus ignores this threshold.</summary>
     public int KillTarget { get; init; } = 5;
+    /// <summary>Active Circus duration in fixed ticks; ten minutes at the production 60 Hz rate.</summary>
+    public ulong DurationTicks { get; init; } = 36000;
     /// <summary>Three seconds at the production 60 Hz rate.</summary>
     public ulong CountdownTicks { get; init; } = 180;
     /// <summary>Participants needed to begin the countdown.</summary>
@@ -64,7 +66,7 @@ public sealed record MatchConfiguration
     /// <summary>Rejects unusable or unbounded configuration.</summary>
     public void Validate()
     {
-        if (!Enum.IsDefined(Mode) || KillTarget is < 1 or > 1000000 || CountdownTicks is < 1 or > 36000 || MinimumPlayers is < 1 or > 8 ||
+        if (!Enum.IsDefined(Mode) || DurationTicks is < 1 or > 216000 || KillTarget is < 1 or > 1000000 || CountdownTicks is < 1 or > 36000 || MinimumPlayers is < 1 or > 8 ||
             !ValidPoints(NitroPointsPerSecond) || !ValidPoints(BaseKillPoints) || !ValidPoints(KillStreakBonusStep) || !ValidPoints(CollisionPointsPerDamage) || !ValidPoints(DriftRate) || !ValidPoints(DriftTierStep) ||
             !ValidPoints(AirtimeRate) || !ValidPoints(AirtimeTierStep) || !ValidPoints(JumpPointsPerMetre) ||
             !Bounded(DriftMinimumSpeed, 0.1, 65) || !Bounded(DriftMinimumSeconds, 0.01, 60) ||

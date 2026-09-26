@@ -359,7 +359,7 @@ internal sealed class MigrationTests
     [Test]
     public void RestoredDeathPreservesAttributionScoreAndRespawnDeadline()
     {
-        var host = new HostVehicleSession(101, respawnConfiguration: new RespawnConfiguration { DelayTicks = 4 }, matchConfiguration: new MatchConfiguration { CountdownTicks = 1, KillTarget = 1 });
+        var host = new HostVehicleSession(101, respawnConfiguration: new RespawnConfiguration { DelayTicks = 4 }, matchConfiguration: new MatchConfiguration { CountdownTicks = 1, DurationTicks = 1, KillTarget = 1 });
         host.JoinPlayer(10, 2);
         host.JoinPlayer(20, 3);
         host.Step(default, Observe);
@@ -368,7 +368,7 @@ internal sealed class MigrationTests
         var frame = new InputFrame(tick, 0, 0, 0, 0, 0, 0);
         host.World.Step(frame, host.World.State.Vehicles.Select(vehicle => new VehicleStepRequest(vehicle.VehicleId, frame, Observe(vehicle), vehicle.VehicleId == 3 ? [new VehicleEffectRequest(new DamageEffect(100, Vector3.Zero, Vector3.Zero), new DamageContext("missile", 2, "migration-test"))] : [])).ToArray());
         var match = host.World.State.Match!;
-        var boundary = new MatchState(match.Tick, match.Revision, match.KillTarget, match.Phase, match.CountdownAtTick, match.Winner, match.Players);
+        var boundary = new MatchState(match.Tick, match.Revision, match.KillTarget, match.Phase, match.CountdownAtTick, match.Winner, match.Players, activeStartedAtTick: match.ActiveStartedAtTick, durationTicks: match.DurationTicks, recoveryElapsedTicks: match.RecoveryElapsedTicks);
         var dead = host.World.GetVehicle(3);
         var checkpoint = new ResumeCheckpoint(new ItemPublication(1, host.Snapshot(), [], [], []), boundary, null, host.Configuration);
         var restored = HostVehicleSession.Restore(ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(checkpoint)), host.CaptureAuthority(), 2);

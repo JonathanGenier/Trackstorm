@@ -6,6 +6,22 @@ namespace Trackstorm.Core.Tests.Matches;
 [TestFixture]
 internal sealed class GameLoopTests
 {
+    [Test]
+    public void GenericModeTimerStartsAtActiveAndModeReportsCompletionOnce()
+    {
+        using var loop = new GameLoop(true, 60);
+        Assert.That(loop.Initialize(new(1, 500, [1])), Is.True);
+        Assert.That(loop.StartCountdown(3), Is.True);
+        for (ulong tick = 501; tick <= 503; tick++) Assert.That(loop.Advance(tick), Is.True);
+        Assert.That(loop.State!.ActiveStartedAtTick, Is.EqualTo(503));
+        Assert.That(loop.State.RemainingMatchTicks(503), Is.EqualTo(60));
+        for (ulong tick = 504; tick <= 563; tick++) Assert.That(loop.Advance(tick), Is.True);
+        Assert.That(loop.State.RemainingMatchTicks(563), Is.Zero);
+        Assert.That(loop.State.Phase, Is.EqualTo(GameLoopPhase.Active), "Only mode completion selects an outcome.");
+        Assert.That(loop.ReportCompletion(new("time-limit", 1)), Is.True);
+        Assert.That(loop.ReportCompletion(new("time-limit", 1)), Is.False);
+        Assert.That(loop.State.RemainingMatchTicks(0), Is.Zero);
+    }
     /// <summary>Every phase is observable and gameplay is permitted only in Active.</summary>
     [Test]
     public void SynchronizedHandoffProgressesThroughEveryPhase()

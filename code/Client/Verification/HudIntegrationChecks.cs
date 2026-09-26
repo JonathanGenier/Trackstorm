@@ -36,6 +36,21 @@ public sealed partial class HudIntegrationChecks : Node
             AddChild(settings);
             var hud = new CombatHud { Vehicle = () => state, Slot = () => slot, Units = () => settings.Current.SpeedUnit };
             viewport.AddChild(hud);
+            var timerMatch = new Core.Matches.MatchState(180, 1, 5, Core.Matches.MatchPhase.Active, null, null,
+                [new Core.Matches.PlayerScore(1, 0, 0, 0, 0)], activeStartedAtTick: 180);
+            ulong timerTick = 180;
+            hud.Match = () => timerMatch;
+            hud.AuthoritativeTick = () => timerTick;
+            foreach (var sample in new[] { (180ul, "10:00"), (240ul, "09:59"), (36120ul, "00:01"), (36180ul, "00:00") })
+            {
+                timerTick = sample.Item1;
+                hud.Refresh();
+                Require(hud.FindChildren("TimerValue", "Label", true, false).OfType<Label>().Single().Text == sample.Item2, "Existing top timer label reads the authoritative time");
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                using Image timerFrame = viewport.GetTexture().GetImage();
+                Require(timerFrame.SavePng(System.IO.Path.Combine(output, $"timer-{sample.Item2.Replace(':', '-')}.png")) == Error.Ok, "Timer screenshot");
+            }
+            hud.Match = () => null;
             var preferences = new Settings.SettingsPanel();
             preferences.Initialize(settings, input.Adapter);
             viewport.AddChild(preferences);

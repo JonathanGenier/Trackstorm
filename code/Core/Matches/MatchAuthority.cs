@@ -17,7 +17,7 @@ internal static class MatchAuthority
             return previous;
         }
 
-        return new MatchState(tick, checked(previous.Revision + 1), previous.KillTarget, previous.Phase, previous.CountdownAtTick, previous.Winner, previous.Players.Append(new PlayerScore(player, 0, 0, 0, 0)), mode: previous.Mode);
+        return new MatchState(tick, checked(previous.Revision + 1), previous.KillTarget, previous.Phase, previous.CountdownAtTick, previous.Winner, previous.Players.Append(new PlayerScore(player, 0, 0, 0, 0)), mode: previous.Mode, activeStartedAtTick: previous.ActiveStartedAtTick, durationTicks: previous.DurationTicks, recoveryElapsedTicks: previous.RecoveryElapsedTicks);
     }
 
     /// <summary>Consumes authoritative destroyed lives once, in stable victim order.</summary>
@@ -36,17 +36,28 @@ internal static class MatchAuthority
             return previous;
         }
 
+        // A live shortening or recovery can exhaust the budget between simulation steps.
+        // Commit through the same finish contract before accepting any more scoring outcomes.
+        if (previous.Mode == MatchMode.Circus && previous.Lifecycle.AllowsGameplay && previous.Lifecycle.RemainingMatchTicks(tick - 1) == 0)
+        {
+            ulong? winner = previous.Players.Count == 0 ? null : MatchRanking.Order(previous.Players).First().Player;
+            var finished = previous.Lifecycle.Advance(tick).Finish(new MatchOutcome("time-limit", winner));
+            return new MatchState(tick, checked(previous.Revision + 1), previous.KillTarget, MatchPhase.Finished, null, finished.Outcome!.Winner,
+                previous.Players.Select(score => score with { Wins = score.Player == winner ? 1 : 0, Stunts = null }),
+                mode: previous.Mode, activeStartedAtTick: previous.ActiveStartedAtTick, durationTicks: previous.DurationTicks, recoveryElapsedTicks: previous.RecoveryElapsedTicks);
+        }
+
         VehicleSnapshot[] vehicles = results.Select(result => result.Snapshot).ToArray();
         GameLoopState lifecycle = previous.Lifecycle;
         if (lifecycle.Phase is GameLoopPhase.Initialization or GameLoopPhase.Countdown)
         {
             if (vehicles.Length < configuration.MinimumPlayers)
             {
-                lifecycle = new GameLoopState(tick, GameLoopPhase.Initialization);
+                lifecycle = new GameLoopState(tick, GameLoopPhase.Initialization, durationTicks: lifecycle.DurationTicks);
             }
             else if (lifecycle.Phase == GameLoopPhase.Initialization)
             {
-                var initialized = new GameLoopState(tick, GameLoopPhase.Initialization);
+                var initialized = new GameLoopState(tick, GameLoopPhase.Initialization, durationTicks: lifecycle.DurationTicks);
                 lifecycle = initialized.StartCountdown(configuration.CountdownTicks);
             }
             else
@@ -113,7 +124,7 @@ internal static class MatchAuthority
                         credited = credited with { KillStreak = checked(credited.KillStreak + 1) };
                         credited = CircusScoring.Bank(credited, configuration.BaseKillPoints + ((credited.KillStreak - 1) * configuration.KillStreakBonusStep), awards, CircusScoreCategory.Kill);
                     }
-                    MatchOutcome? outcome = FirstToTargetMode.Evaluate(credited, configuration.KillTarget);
+                    MatchOutcome? outcome = configuration.Mode == MatchMode.FirstToTarget ? FirstToTargetMode.Evaluate(credited, configuration.KillTarget) : null;
                     if (outcome is not null)
                     {
                         lifecycle = lifecycle.Finish(outcome);
@@ -164,6 +175,17 @@ internal static class MatchAuthority
             }
         }
 
+        // The final Active interval is scored before the mode reports one terminal outcome.
+        if (configuration.Mode == MatchMode.Circus && lifecycle.AllowsGameplay && lifecycle.RemainingMatchTicks(tick) == 0)
+        {
+            ulong? winner = scores.Count == 0 ? null : MatchRanking.Order(scores.Values).First().Player;
+            foreach (ulong id in scores.Keys.ToArray())
+            {
+                scores[id] = scores[id] with { Wins = id == winner ? 1 : 0, Stunts = null };
+            }
+            lifecycle = lifecycle.Finish(new MatchOutcome("time-limit", winner));
+        }
+
         if (lifecycle.Phase == previous.Lifecycle.Phase && lifecycle.CountdownAtTick == previous.CountdownAtTick && scores.Values.OrderBy(score => score.Player).SequenceEqual(previous.Players))
         {
             return previous;
@@ -179,6 +201,6 @@ internal static class MatchAuthority
         };
         var publishedAwards = awards.GroupBy(award => (award.Player, award.Category))
             .Select(group => new CircusScoreAward(group.Key.Player, group.Key.Category, group.Sum(award => award.Points)));
-        return new MatchState(tick, checked(previous.Revision + 1), configuration.KillTarget, phase, lifecycle.CountdownAtTick, lifecycle.Outcome?.Winner, scores.Values, changes, publishedAwards, configuration.Mode);
+        return new MatchState(tick, checked(previous.Revision + 1), configuration.KillTarget, phase, lifecycle.CountdownAtTick, lifecycle.Outcome?.Winner, scores.Values, changes, publishedAwards, configuration.Mode, lifecycle.ActiveStartedAtTick, configuration.DurationTicks, lifecycle.RecoveryElapsedTicks);
     }
 }

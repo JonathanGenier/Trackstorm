@@ -46,6 +46,8 @@ internal sealed partial class CombatHud : CanvasLayer
     internal Func<string> Position { get; set; } = () => "--";
     /// <summary>Accepted authoritative match state; null keeps non-Circus practice presentation unchanged.</summary>
     internal Func<MatchState?> Match { get; set; } = () => null;
+    /// <summary>Latest accepted authoritative world tick; never a presentation or prediction clock.</summary>
+    internal Func<ulong> AuthoritativeTick { get; set; } = () => 0;
     /// <summary>Every accepted revision, preserving deltas when several arrive in one rendered frame.</summary>
     internal Func<IReadOnlyList<MatchState>> MatchUpdates { get; set; } = () => Array.Empty<MatchState>();
     /// <summary>Stable local participant identity used to select authoritative Circus state.</summary>
@@ -124,11 +126,12 @@ internal sealed partial class CombatHud : CanvasLayer
             return;
         }
 
-        CombatHudView view = CombatHudView.From(state, Slot(), Units()) with { Standing = Position() };
+        CombatHudView view = CombatHudView.From(state, Slot(), Units()) with { Standing = Position(), Timer = CombatHudView.FormatTimer(Match(), AuthoritativeTick()) };
         if (view != _displayed)
         {
             _displayed = view;
             _standing.Text = view.Standing;
+            _timer.Text = view.Timer;
             _health.Text = view.Health;
             _speed.Text = view.Speed;
             _unit.Text = view.Unit;

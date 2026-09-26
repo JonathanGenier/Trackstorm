@@ -12,7 +12,7 @@ using Numerics = System.Numerics;
 
 namespace Trackstorm.Client.Verification;
 
-/// <summary>Eight native UDP peers complete first-to-five through real missile/ram deaths, then verify the frozen result through another death and respawn.</summary>
+/// <summary>Eight native UDP peers complete six kills without finishing, then time expiry through real missile/ram deaths, then verify the frozen result through another death and respawn.</summary>
 public sealed partial class MatchIntegrationChecks : Node
 {
     private readonly List<GameNetworkingSocketsTransport> _gateways = new();
@@ -84,7 +84,7 @@ public sealed partial class MatchIntegrationChecks : Node
             _arenas.Add(arena);
             if (index == 1)
             {
-                viewport.AddChild(new Hud.CombatHud { Vehicle = () => arena.LocalState, Slot = () => arena.Driver.LocalItem });
+                viewport.AddChild(new Hud.CombatHud { Vehicle = () => arena.LocalState, Slot = () => arena.Driver.LocalItem, Match = () => arena.Driver.Match, AuthoritativeTick = () => arena.Driver.Latest?.Tick ?? 0 });
             }
 
             int peerIndex = index;
@@ -195,6 +195,14 @@ public sealed partial class MatchIntegrationChecks : Node
                 _nonlethal = false;
                 Prepare();
                 break;
+            case 12 when _arenas.All(arena => arena.Driver.Match?.Phase == Core.Matches.MatchPhase.Finished) && _view.GetChildren().OfType<Hud.CombatHud>().Single().Displayed?.Timer == "00:00":
+                _final = host.World.State.Match;
+                Require(_finishes.All(count => count == 1), "Timer expiry emits one Finished publication per peer.");
+                Require(_arenas.All(arena => arena.Driver.Match!.Winner == _arenas[2].Driver.LocalVehicleId), "Highest Circus score wins on every peer.");
+                Require(_view.GetChildren().OfType<Hud.CombatHud>().Single().Displayed!.Timer == "00:00", "Existing top HUD reaches zero on authoritative expiry.");
+                GD.Print("Six kills remain Active; live duration edit expires once; existing HUD reaches 00:00 and all eight peers agree on score-based results.");
+                Prepare();
+                break;
             case 1:
                 // Allow setup snapshots and inventory grants to reach every peer before launching.
                 if (_elapsed - _started > 0.4)
@@ -225,12 +233,12 @@ public sealed partial class MatchIntegrationChecks : Node
                 foreach (var arena in _arenas)
                 {
                     var match = arena.Driver.Match!;
-                    Require(match.Players.Single(player => player.Player == shooter).Kills == Math.Min(5, _cycle + 1), "Every peer has the same killer total.");
-                    Require(match.Players.Single(player => player.Player == _victim).Deaths == Math.Min(5, _cycle + 1), "Every peer has the same victim total.");
+                    Require(match.Players.Single(player => player.Player == shooter).Kills == Math.Min(6, _cycle + 1), "Every peer has the same killer total.");
+                    Require(match.Players.Single(player => player.Player == _victim).Deaths == Math.Min(6, _cycle + 1), "Every peer has the same victim total.");
                     Require(match.Players.Where(player => player.Player != shooter).All(player => player.Kills == 0), "No bystander receives a kill.");
                     Require(_publishedMatches.TryGetValue(match.Revision, out var published) && match.Players.SequenceEqual(published.Players), "Every peer agrees on Circus totals, pending stunts, streaks, K/D and damage identities at its received revision.");
-                    Require(match.Players.Single(player => player.Player == shooter).KillStreak == Math.Min(5, _cycle + 1), "Consecutive authoritative kills advance the Circus streak.");
-                    if (_cycle >= 4)
+                    Require(match.Players.Single(player => player.Player == shooter).KillStreak == Math.Min(6, _cycle + 1), "Consecutive authoritative kills advance the Circus streak.");
+                    if (_cycle >= 6)
                     {
                         Require(match.Phase == Core.Matches.MatchPhase.Finished && match.Winner == shooter && match.Players.Single(player => player.Player == shooter).Wins == 1, "All peers finish with one authoritative winner.");
                         Require(_finishes.All(count => count == 1), "Each peer presents the finished boundary exactly once.");
@@ -239,12 +247,12 @@ public sealed partial class MatchIntegrationChecks : Node
                     }
                 }
 
-                if (_cycle == 4)
+                if (_cycle == 6)
                 {
                     _final = host.World.State.Match;
                 }
 
-                if (_cycle == 5)
+                if (_cycle == 6)
                 {
                     Require(ReferenceEquals(_final, host.World.State.Match), "Post-finish lethal combat cannot mutate the result.");
                 }
@@ -297,7 +305,7 @@ public sealed partial class MatchIntegrationChecks : Node
             case 4 when _elapsed - _started > 0.25:
                 // Capture after the renderer has presented the new life, before arranging the next scenario.
                 Capture($"respawn-{_cycle}.png");
-                if (_cycle >= 4)
+                if (_cycle >= 6)
                 {
                     Require(ReferenceEquals(_final, host.World.State.Match), "Respawning cannot alter final match state.");
                 }
@@ -305,7 +313,17 @@ public sealed partial class MatchIntegrationChecks : Node
                 string evidence = $"Cycle {_cycle + 1}: {(_cycle % 2 == 0 ? "missile" : "collision")} death, all eight peers agree on Circus score/streak/watermarks, kills, winner and Dead/Respawning/Alive, respawn tick {_deadline}, reset physics/HP/items/VFX verified.";
                 _evidence.Add(evidence);
                 GD.Print(evidence);
-                if (++_cycle == 6)
+                if (_cycle == 5)
+                {
+                    Require(host.World.State.Match!.Phase == Core.Matches.MatchPhase.Active && _finishes.All(count => count == 0), "Six kills never finish Circus.");
+                    var match = host.World.State.Match;
+                    Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["match.duration_ticks"] = host.World.State.Tick - match.ActiveStartedAtTick!.Value + 120 }, out _), "Host shortens duration through runtime options without restarting.");
+                    _cycle++;
+                    _stage = 12;
+                    _started = _elapsed;
+                    break;
+                }
+                if (++_cycle == 7)
                 {
                     System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
                     GD.Print("Match integration passed.");

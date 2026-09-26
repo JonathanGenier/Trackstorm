@@ -225,11 +225,12 @@ public sealed partial class PostMatchIntegrationChecks : Node
                 ? new Core.Vehicles.VehicleSnapshot(vehicle.VehicleId, (ulong)match.KillTarget, vehicle.Movement, vehicle.Damage, vehicle.ObservedPhysics)
                 : vehicle).ToArray();
             world.Restore(new SimulationState(state.Tick, state.LastInput, vehicles, active));
+            Check(_host.Arena!.Driver.TryConfigure(new Dictionary<string, double> { ["match.duration_ticks"] = 1 }, out _), "Host configures one remaining Active tick");
             var frame = new InputFrame(state.Tick + 1, 0, 0, 0, 0, 0, 0);
             world.Step(frame, world.State.Vehicles.Select(vehicle => new Core.Vehicles.VehicleStepRequest(vehicle.VehicleId, frame,
                 new Core.Vehicles.VehicleObservation(vehicle.ObservedPhysics, System.Numerics.Vector3.UnitY), vehicle.VehicleId == victim
                     ? [new Core.Vehicles.VehicleEffectRequest(new Core.Vehicles.DamageEffect(100000, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero), new Core.Vehicles.DamageContext("missile", winner, "Circus completion check"))] : [])).ToArray());
-            Check(world.State.Match!.Phase == MatchPhase.Finished && world.State.Match.Players.All(row => row.Stunts is null), "Configured kill target completes Circus through Game Loop and cancels pending stunts");
+            Check(world.State.Match!.Phase == MatchPhase.Finished && world.State.Match.Players.All(row => row.Stunts is null), "Authoritative timer completes Circus through Game Loop and cancels pending stunts");
         }
         else
         {
@@ -243,6 +244,7 @@ public sealed partial class PostMatchIntegrationChecks : Node
         var podium = _host.GetNode<PodiumScene>("PodiumScene");
         string score = Hud.CircusHudView.FormatPoints(_host.PostMatch!.Results.Standings[0].CircusScore);
         Check(podium.FindChildren("*", "Label", true, false).OfType<Label>().Any(label => label.Text == score && label.IsVisibleInTree()), "Podium renders frozen authoritative Circus score");
+        Check(_host.Arena!.Driver.TryConfigure(new Dictionary<string, double> { ["match.duration_ticks"] = 36000 }, out _), "Finished tuning preserves results and prepares a normal next match");
     }
 
     private static IEnumerable<Button> Buttons(Node node) => node.FindChildren("*", "Button", true, false).OfType<Button>();
