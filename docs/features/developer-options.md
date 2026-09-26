@@ -65,7 +65,7 @@ Host-local schema 2 migrates the old default wheelbase, load height and suspensi
 | `vehicle.steering_response` | `VehicleConfiguration.SteeringResponse` | 2.4f |
 | `vehicle.tire_friction` | `VehicleConfiguration.TireFriction` | 1.65f |
 | `vehicle.coast_drag` | `VehicleConfiguration.CoastDrag` | 0.28f |
-| `vehicle.suspension_length` | `VehicleConfiguration.SuspensionLength` | 1.472f (1.165 + 9.81 / 30) |
+| `vehicle.suspension_length` | `VehicleConfiguration.SuspensionLength` | 1.472f (1.155 + 9.81 / 30) |
 | `vehicle.wheel_spring` | `VehicleConfiguration.WheelSpring` | 30 |
 | `vehicle.wheel_damping` | `VehicleConfiguration.WheelDamping` | 7 |
 | `vehicle.wheel_rebound_damping` | `VehicleConfiguration.WheelReboundDamping` | 15 |
