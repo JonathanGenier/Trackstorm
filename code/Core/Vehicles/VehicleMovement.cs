@@ -44,10 +44,10 @@ public sealed class VehicleMovement
     /// <param name="wheels">Optional independent spring observations.</param>
     /// <param name="nitro">New authoritative activation; prediction only continues existing state.</param>
     /// <param name="clearNitro">Explicit match boundary expiry.</param>
-    /// <param name="oilSpin">Host entry impulse; prediction only continues restored handling memory.</param>
+    /// <param name="oilContact">Host-confirmed overlap refreshes recovery; prediction continues restored handling memory.</param>
     /// <param name="waterDepth">Immersion from the shared native observation.</param>
     /// <returns>Next movement snapshot and commanded velocities.</returns>
-    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null, float oilSpin = 0, NitroState nitro = default, bool clearNitro = false, float waterDepth = 0)
+    public VehicleState Step(InputFrame input, VehiclePhysicsState observed, Vector3 groundNormal, bool driveEnabled = true, SurfaceType surface = SurfaceType.Concrete, WheelSupport? wheels = null, bool oilContact = false, NitroState nitro = default, bool clearNitro = false, float waterDepth = 0)
     {
         if (input.Tick != checked(State.Tick + 1))
         {
@@ -60,8 +60,8 @@ public sealed class VehicleMovement
             throw new ArgumentException("Ground support must be a unit normal or zero.", nameof(groundNormal));
         }
 
-        if (!float.IsFinite(oilSpin) || Math.Abs(oilSpin) > 3) { throw new ArgumentException("Invalid oil spin."); }
-        int oilTicks = oilSpin != 0 && driveEnabled ? 120 : Math.Max(0, State.OilTicks - 1);
+        int recoveryTicks = (int)MathF.Ceiling(Configuration.OilRecoverySeconds * Configuration.TicksPerSecond);
+        int oilTicks = !driveEnabled ? 0 : oilContact ? recoveryTicks : Math.Max(0, State.OilTicks - 1);
         nitro.Validate();
         bool usingNitro = (input.Held & InputButtons.UseItem) != 0 && !clearNitro;
         NitroState boost = !driveEnabled ? default : usingNitro && nitro.Active ? nitro :
@@ -90,7 +90,6 @@ public sealed class VehicleMovement
 
         Vector3 velocity = Limit(observed.LinearVelocity, c.MaximumPhysicsSpeed);
         Vector3 angular = Limit(observed.AngularVelocity, c.MaximumAngularSpeed);
-        if (grounded && driveEnabled && oilSpin != 0) { angular = Limit(angular + tireNormal * oilSpin, c.MaximumAngularSpeed); }
         float normalLoad = 0;
         Vector3 suspensionTorque = Vector3.Zero;
         if (grounded && wheels is WheelSupport supports)
@@ -192,7 +191,8 @@ public sealed class VehicleMovement
 
             float tireLoad = wheels.HasValue ? normalLoad : c.Gravity * groundNormal.Y;
             // Missing wheel forces already reduce normalLoad; do not discount their absence twice.
-            float totalGrip = c.TireFriction * tireLoad * (oilTicks > 0 ? 0.08f + 0.92f * Math.Clamp(1 - oilTicks / 30f, 0, 1) : 1);
+            float totalGrip = c.TireFriction * tireLoad;
+            float oilGrip = 1 - c.OilGripReduction * Math.Clamp((float)oilTicks / recoveryTicks, 0, 1);
             float frontCapacity = totalGrip * frontLoad;
             float rearCapacity = totalGrip * (1 - frontLoad);
             float yaw = Vector3.Dot(angular, tireNormal);
@@ -217,8 +217,8 @@ public sealed class VehicleMovement
             }
             var rl = Tire(rearDemand * rearLeftShare, rearLong * rearLeftShare, rearCapacity * rearLeftShare * profiles[2].Grip, rearGrip, driveReserve);
             var rr = Tire(rearDemand * (1 - rearLeftShare), rearLong * (1 - rearLeftShare), rearCapacity * (1 - rearLeftShare) * profiles[3].Grip, rearGrip, driveReserve);
-            float frontForce = fl.Side + fr.Side;
-            float rearForce = rl.Side + rr.Side;
+            float frontForce = (fl.Side + fr.Side) * oilGrip;
+            float rearForce = (rl.Side + rr.Side) * oilGrip;
             float frontDrive = fl.Drive + fr.Drive;
             float rearDrive = rl.Drive + rr.Drive;
             frontSlip = fl.Slip * frontLeftShare + fr.Slip * (1 - frontLeftShare);
@@ -250,7 +250,7 @@ public sealed class VehicleMovement
                 float intendedYaw = Math.Clamp(-longitudinal * MathF.Tan(wheel) / c.Wheelbase, -yawLimit, yawLimit);
                 float currentYaw = Vector3.Dot(angular, tireNormal);
                 float correction = (intendedYaw - currentYaw) * (1 - MathF.Exp(-c.DirtRecovery * slide * frontDirt * (1 - 0.75f * handbrake) * dt));
-                float authority = frontCapacity * c.Dirt.Grip * frontDirt * halfAxle / inertiaPerMass * dt;
+                float authority = frontCapacity * oilGrip * c.Dirt.Grip * frontDirt * halfAxle / inertiaPerMass * dt;
                 angular += tireNormal * Math.Clamp(correction, -authority, authority);
             }
         }

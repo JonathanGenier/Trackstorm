@@ -1,0 +1,12 @@
+
+>> Core tests
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+Test run for C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   864, Skipped:     0, Total:   864, Duration: 6 s - Trackstorm.Core.Tests.dll (net10.0)
+
+Fast targeted checks passed. Run ./check.ps1 before final Story handoff.

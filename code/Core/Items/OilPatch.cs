@@ -6,10 +6,17 @@ namespace Trackstorm.Core.Items;
 /// <summary>Persistent match-owned surface hazard. The grant token is its stable identity.</summary>
 public sealed record OilPatch(ulong Id, ulong Owner, Vector3 Position, Vector3 Normal, float Radius)
 {
+    /// <summary>Absolute simulation cleanup deadline; retained through recovery.</summary>
+    public ulong ExpiresAtTick { get; init; } = 3600;
+    /// <summary>Pass budget captured from tuning at deployment, including owner passes.</summary>
+    public int PassLimit { get; init; } = 2;
+    /// <summary>Successful entry passes already consumed; leaving does not refund them.</summary>
+    public int PassesUsed { get; init; }
     /// <summary>Rejects invalid portable placement data.</summary>
     public void Validate()
     {
-        if (Id == 0 || Owner == 0 || !VehiclePhysicsState.IsFinite(Position) ||
+        if (ExpiresAtTick == 0 || PassLimit is < 1 or > 7 || PassesUsed < 0 || PassesUsed >= PassLimit ||
+            Id == 0 || Owner == 0 || !VehiclePhysicsState.IsFinite(Position) ||
             !VehiclePhysicsState.IsFinite(Normal) || Math.Abs(Normal.LengthSquared() - 1) > 0.001f ||
             Normal.Y < 0.55f || !float.IsFinite(Radius) || Radius is < 1 or > 5)
         {

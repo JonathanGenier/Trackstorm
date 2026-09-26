@@ -29,7 +29,7 @@ public readonly record struct VehicleState
             throw new ArgumentException("Invalid handling state.");
         }
 
-        if (oilTicks is < 0 or > 120) { throw new ArgumentException("Invalid oil duration."); }
+        if (oilTicks is < 0 or > 2400) { throw new ArgumentException("Invalid oil duration."); }
         if (!float.IsFinite(powerSlip) || powerSlip is < 0 or > 1) { throw new ArgumentException("Invalid power slip."); }
         air.Validate();
         Air = air;

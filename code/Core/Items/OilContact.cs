@@ -1,4 +1,4 @@
 namespace Trackstorm.Core.Items;
 
-/// <summary>Entry latch scoped to one patch and vehicle life; retained by authority recovery.</summary>
+/// <summary>Current successful overlap latch. A new pass requires leaving or starting a new life.</summary>
 public sealed record OilContact(ulong Patch, ulong Vehicle, ulong Life);

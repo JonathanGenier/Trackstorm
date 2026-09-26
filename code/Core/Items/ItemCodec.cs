@@ -4,9 +4,18 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-eleven reliable item protocol. Requests carry no claimed player or outcome.</summary>
+/// <summary>Bounded version-thirteen reliable item protocol. Requests carry no claimed player or outcome.</summary>
 public static class ItemCodec
 {
+    /// <summary>Accommodates the maximum lifetime-derived Oil set and its pass counts and overlap latches.</summary>
+    public const int MaximumBytes = 64 * 1024 * 1024;
+
+    private static int WideCount(BinaryReader reader, int maximum)
+    {
+        int count = reader.ReadInt32();
+        if (count < 0 || count > maximum || count > reader.BaseStream.Length - reader.BaseStream.Position) { throw new ArgumentException("Invalid item count."); }
+        return count;
+    }
     /// <summary>Recognizes only this protocol's magic; complete decode remains mandatory.</summary>
     /// <param name="bytes">Transport payload.</param>
     /// <returns>Whether this is an item envelope.</returns>
@@ -74,8 +83,9 @@ public static class ItemCodec
 
     /// <summary>Encodes complete reliable item and HP outcomes.</summary>
     /// <param name="state">Validated host publication.</param>
+    /// <param name="previous">Prior ordered publication; unchanged Oil may reference its exact revision. Omit for checkpoints.</param>
     /// <returns>Bounded bytes.</returns>
-    public static byte[] EncodeState(ItemPublication state) => Write(2, writer =>
+    public static byte[] EncodeState(ItemPublication state, ItemPublication? previous = null) => Write(2, writer =>
     {
         writer.Write(state.Revision);
         byte[] world = VehicleNetworkCodec.EncodeSnapshot(state.World);
@@ -146,21 +156,29 @@ public static class ItemCodec
             Vector(writer, mine.Normal);
             writer.Write(mine.SeatingTicks);
         }
-        writer.Write((byte)state.Patches.Count);
-        foreach (var patch in state.Patches)
+        bool reuseOil = previous is not null && previous.World.Session == state.World.Session && previous.Revision < state.Revision && previous.Patches.SequenceEqual(state.Patches) && previous.OilContacts.SequenceEqual(state.OilContacts);
+        writer.Write(reuseOil ? previous!.Revision : 0);
+        if (!reuseOil)
         {
-            writer.Write(patch.Id);
-            writer.Write(patch.Owner);
-            Vector(writer, patch.Position);
-            Vector(writer, patch.Normal);
-            writer.Write(patch.Radius);
-        }
-        writer.Write((ushort)state.OilContacts.Count);
-        foreach (var contact in state.OilContacts)
-        {
-            writer.Write(contact.Patch);
-            writer.Write(contact.Vehicle);
-            writer.Write(contact.Life);
+            writer.Write(state.Patches.Count);
+            foreach (var patch in state.Patches)
+            {
+                writer.Write(patch.Id);
+                writer.Write(patch.Owner);
+                Vector(writer, patch.Position);
+                Vector(writer, patch.Normal);
+                writer.Write(patch.Radius);
+                writer.Write(patch.ExpiresAtTick);
+                writer.Write((byte)patch.PassLimit);
+                writer.Write((byte)patch.PassesUsed);
+            }
+            writer.Write(state.OilContacts.Count);
+            foreach (var contact in state.OilContacts)
+            {
+                writer.Write(contact.Patch);
+                writer.Write(contact.Vehicle);
+                writer.Write(contact.Life);
+            }
         }
 
         writer.Write((byte)state.Balances.Count);
@@ -192,8 +210,9 @@ public static class ItemCodec
 
     /// <summary>Rejects malformed counts, flags, versions, values and trailing data before state is accepted.</summary>
     /// <param name="bytes">Complete host publication.</param>
+    /// <param name="previous">Prior ordered publication, required only for a referenced Oil baseline.</param>
     /// <returns>Validated detached state.</returns>
-    public static ItemPublication DecodeState(ReadOnlySpan<byte> bytes) => Read(bytes, 2, reader =>
+    public static ItemPublication DecodeState(ReadOnlySpan<byte> bytes, ItemPublication? previous = null) => Read(bytes, 2, reader =>
     {
         ulong revision = reader.ReadUInt64();
         int length = reader.ReadInt32();
@@ -233,17 +252,28 @@ public static class ItemCodec
         {
             mines[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), Vector(reader), reader.ReadInt32());
         }
-        var patches = new OilPatch[Count(reader, ItemAuthority.MaximumPatches)];
-        for (int i = 0; i < patches.Length; i++)
+        ulong oilBaseline = reader.ReadUInt64();
+        OilPatch[] patches;
+        OilContact[] contacts;
+        if (oilBaseline != 0)
         {
-            patches[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), reader.ReadSingle());
+            if (previous is null || previous.Revision != oilBaseline || oilBaseline >= revision || previous.World.Session != world.Session) { throw new ArgumentException("Missing Oil publication baseline."); }
+            patches = previous.Patches.ToArray();
+            contacts = previous.OilContacts.ToArray();
         }
-        int contactCount = reader.ReadUInt16();
-        if (contactCount > ItemAuthority.MaximumPatches * 8) { throw new ArgumentException("Excessive oil contacts."); }
-        var contacts = new OilContact[contactCount];
-        for (int i = 0; i < contacts.Length; i++)
+        else
         {
-            contacts[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64());
+            patches = new OilPatch[WideCount(reader, ItemAuthority.MaximumPatches)];
+            for (int i = 0; i < patches.Length; i++)
+            {
+                patches[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), reader.ReadSingle()) { ExpiresAtTick = reader.ReadUInt64(), PassLimit = reader.ReadByte(), PassesUsed = reader.ReadByte() };
+            }
+            int contactCount = WideCount(reader, ItemAuthority.MaximumPatches * 6);
+            contacts = new OilContact[contactCount];
+            for (int i = 0; i < contacts.Length; i++)
+            {
+                contacts[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64());
+            }
         }
 
         var balances = new PlayerItemBalance[Count(reader, 8)];
@@ -281,9 +311,9 @@ public static class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 11, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 13, kind });
         encode(writer);
-        if (stream.Length > 32768)
+        if (stream.Length > MaximumBytes)
         {
             throw new ArgumentException("Item payload too large.");
         }
@@ -293,7 +323,7 @@ public static class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 11 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 13 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }

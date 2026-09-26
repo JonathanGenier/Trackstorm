@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace Trackstorm.Core.Vehicles;
 
-/// <summary>Explicit version-eight movement snapshot encoding, independent of engine and CLR layouts.</summary>
+/// <summary>Explicit version-nine movement snapshot encoding, independent of engine and CLR layouts.</summary>
 public static class VehicleStateCodec
 {
     /// <summary>Version, tick, thirteen physics floats, flags, surface, handling floats and a two-byte oil timer.</summary>
@@ -11,12 +11,12 @@ public static class VehicleStateCodec
 
     /// <summary>Encodes a validated snapshot with little-endian IEEE floats and integers.</summary>
     /// <param name="state">Movement snapshot.</param>
-    /// <returns>Exactly one version-eight snapshot.</returns>
+    /// <returns>Exactly one version-nine snapshot.</returns>
     public static byte[] Encode(VehicleState state)
     {
         state.Validate();
         byte[] bytes = new byte[SerializedSize];
-        bytes[0] = 8;
+        bytes[0] = 9;
         BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(1), state.Tick);
         Vector3 p = state.Physics.Position;
         Quaternion q = state.Physics.Orientation;
@@ -57,9 +57,9 @@ public static class VehicleStateCodec
     /// <returns>Validated movement state.</returns>
     public static VehicleState Decode(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != SerializedSize || bytes[0] != 8 || (bytes[61] & ~3) != 0)
+        if (bytes.Length != SerializedSize || bytes[0] != 9 || (bytes[61] & ~3) != 0)
         {
-            throw new ArgumentException("Expected one version-eight movement snapshot.", nameof(bytes));
+            throw new ArgumentException("Expected one version-nine movement snapshot.", nameof(bytes));
         }
 
         float[] values = new float[13];

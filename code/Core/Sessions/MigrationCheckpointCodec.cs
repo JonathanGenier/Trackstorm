@@ -7,8 +7,8 @@ namespace Trackstorm.Core.Sessions;
 /// <summary>Versioned bounded checkpoint with digest integrity and existing nested gameplay codecs.</summary>
 public static class MigrationCheckpointCodec
 {
-    /// <summary>Leaves room for transport and control framing.</summary>
-    public const int MaximumBytes = 64000;
+    /// <summary>Bounds the complete recovery boundary including JSON base64 expansion.</summary>
+    public const int MaximumBytes = 96 * 1024 * 1024;
 
     /// <summary>Serializes validated state without presentation events or native objects.</summary>
     /// <param name="checkpoint">Complete boundary.</param>

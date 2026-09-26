@@ -3,6 +3,10 @@ namespace Trackstorm.Core.Vehicles;
 /// <summary>Validated arcade tuning shared by local, replay, and future authority drivers.</summary>
 public sealed record VehicleConfiguration
 {
+    /// <summary>Fraction of lateral tire grip lost on Oil; propulsion and steering remain available.</summary>
+    public float OilGripReduction { get; init; } = 0.5f;
+    /// <summary>Seconds of progressive lateral-grip recovery after the last supported Oil contact.</summary>
+    public float OilRecoverySeconds { get; init; } = 1.75f;
     /// <summary>Cast surface, slightly below the unmodified asphalt baseline.</summary>
     public SurfaceModifiers Concrete { get; init; } = new(0.95f, 1, 0.98f);
     /// <summary>Compacted soil retains controllable drive with modest rolling resistance.</summary>
@@ -159,6 +163,11 @@ public sealed record VehicleConfiguration
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(OilGripReduction) || OilGripReduction is < 0 or > 0.8f ||
+            !float.IsFinite(OilRecoverySeconds) || OilRecoverySeconds is < 0.1f or > 10)
+        {
+            throw new ArgumentException("Oil requires grip reduction 0–0.8 and recovery 0.1–10 seconds.");
+        }
         if (!float.IsFinite(WallDrag) || WallDrag is < 0 or > 5 ||
             !float.IsFinite(CrashDissipation) || CrashDissipation is < 0 or > 1 ||
             !float.IsFinite(CrashRotation) || CrashRotation is < 0 or > 1 ||

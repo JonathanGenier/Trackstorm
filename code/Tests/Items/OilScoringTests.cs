@@ -11,27 +11,66 @@ namespace Trackstorm.Core.Tests.Items;
 internal sealed class OilScoringTests
 {
     [Test]
-    public void RivalEntryBanksOnceSelfEntryNeverBanksAndReentryUsesCurrentKd()
+    public void TwoOwnerPassesRemovePatchWithoutScore()
     {
         var host = Create();
-        Step(host, 1);
+        for (int i = 0; i < 130; i++) { Step(host, 1); }
+        Assert.That(host.Items.Patches.Single().PassesUsed, Is.EqualTo(1));
         Assert.That(Score(host), Is.Zero);
-        Step(host, 1, 2);
+        Step(host);
+        Step(host, 1);
+        Assert.That(host.Items.Patches, Is.Empty);
+        Assert.That(Score(host), Is.Zero);
+    }
+
+    [Test]
+    public void ManyRetainedOwnersCanScoreTheSameEnemyWithoutTheFormerPatchAwardBound()
+    {
+        var host = Create();
+        var w = host.World.State;
+        var m = w.Match!;
+        var players = m.Players.Concat(Enumerable.Range(3, 254).Select(id => new PlayerScore((ulong)id, 0, 0, 0, 0))).ToArray();
+        host.World.Restore(new(w.Tick, w.LastInput, w.Vehicles, new(m.Tick, m.Revision + 1, m.KillTarget, m.Phase, null, null, players)));
+        var patches = Enumerable.Range(3, 254).Select(id => new OilPatch((ulong)id, (ulong)id, Vector3.Zero, Vector3.UnitY, 3)).ToArray();
+        host.Items.Restore(new(1, host.Snapshot(), [], [], [], patches: patches), 1, 256);
+        Step(host, 2);
+        Assert.That(host.World.State.Match!.Awards.Count, Is.EqualTo(254));
+        Assert.That(host.World.State.Match.Awards.All(award => award.Points == 50), Is.True);
+        var decoded = MatchCodec.Decode(MatchCodec.Encode(99, host.World.State.Match)).State;
+        Assert.That(decoded.Awards, Is.EqualTo(host.World.State.Match.Awards));
+        Step(host, 2);
+        Assert.That(host.World.State.Match.Players.Where(player => player.Player >= 3).All(player => player.CircusScore == 50), Is.True);
+    }
+
+    [Test]
+    public void AwardCountBeyondOneByteRoundTripsAllRetainedOwners()
+    {
+        var players = Enumerable.Range(1, 256).Select(id => new PlayerScore((ulong)id, 0, 0, 0, 0) { CircusScore = 50 }).ToArray();
+        var awards = players.Select(p => new CircusScoreAward(p.Player, CircusScoreCategory.Oil, 50)).ToArray();
+        var state = new MatchState(1, 1, 100, MatchPhase.Active, null, null, players, awards: awards);
+        Assert.That(MatchCodec.Decode(MatchCodec.Encode(99, state)).State.Awards, Is.EqualTo(awards));
+    }
+
+    [Test]
+    public void EnemyReentryBanksAgainUsingCurrentKd()
+    {
+        var host = Create();
+        Step(host, 2);
         Assert.That(Score(host), Is.EqualTo(50));
         Assert.That(host.World.State.Match!.Awards.Single(), Is.EqualTo(new CircusScoreAward(1, CircusScoreCategory.Oil, 50)));
-        for (int i = 0; i < 130; i++) { Step(host, 1, 2); }
+        for (int i = 0; i < 130; i++) { Step(host, 2); }
         Assert.That(Score(host), Is.EqualTo(50));
-        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.Zero);
+        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(105));
         Step(host);
         var w = host.World.State;
         var m = w.Match!;
         host.World.Restore(new(w.Tick, w.LastInput, w.Vehicles, new MatchState(m.Tick, m.Revision + 1, m.KillTarget, m.Phase, null, null,
             m.Players.Select(p => p.Player == 1 ? p with { Kills = 3, Deaths = 1, ProcessedLife = 1 } : p with { Deaths = 3, ProcessedLife = 1 }))));
-        Step(host, 1, 2);
-        Assert.That(Score(host), Is.EqualTo(125));
+        Step(host, 2);
+        Assert.That(Score(host), Is.EqualTo(125), "Second pass by the same enemy uses the owner's current K/D.");
         var decoded = MatchCodec.Decode(MatchCodec.Encode(99, host.World.State.Match!)).State;
         Assert.That(decoded.Players, Is.EqualTo(host.World.State.Match!.Players));
-        Assert.That(decoded.Awards.Single().Points, Is.EqualTo(75));
+        Assert.That(host.Items.Patches, Is.Empty);
     }
 
     [Test]
@@ -52,15 +91,18 @@ internal sealed class OilScoringTests
         Assert.That(Score(restored), Is.EqualTo(50));
         // The former host is a retained identity after authority replacement.
         restored.ExpirePlayer(1);
+        Step(restored, 2);
+        Assert.That(Score(restored), Is.EqualTo(50));
+        Assert.That(restored.Items.Patches.Single().Owner, Is.EqualTo(1));
         Step(restored);
         Step(restored, 2);
-        Assert.That(Score(restored), Is.EqualTo(100));
-        Assert.That(restored.Items.Patches.Single().Owner, Is.EqualTo(1));
+        Assert.That(Score(restored), Is.EqualTo(100), "Retired owner receives the second enemy pass.");
+        Assert.That(restored.Items.Patches, Is.Empty);
     }
 
     [TestCase(false)]
     [TestCase(true)]
-    public void LethalOrResetBatchCannotScoreAnUnappliedSpin(bool reset)
+    public void LethalOrResetBatchCannotScoreAnUnappliedEffect(bool reset)
     {
         var host = Create();
         var input = new InputFrame(host.World.State.Tick + 1, 0, 0, 0, 0, 0, 0);
@@ -94,9 +136,9 @@ internal sealed class OilScoringTests
         Assert.That(Score(host), Is.EqualTo(50), "Rebind cannot replay an existing entry.");
         for (int i = 0; i < 400 && !host.World.GetVehicle(1).CanInteract; i++) { Step(host); }
         Assert.That(host.World.GetVehicle(1).LifeId, Is.EqualTo(2));
-        Assert.That(host.Items.Patches.Single(), Is.EqualTo(patch));
+        Assert.That(host.Items.Patches.Single().Id, Is.EqualTo(patch.Id));
         Step(host, 1, 2);
-        Assert.That(Score(host), Is.EqualTo(100), "Respawned owner's self entry earns nothing; new rival entry earns 50.");
+        Assert.That(Score(host), Is.EqualTo(50), "Owner consumes the final pass without offensive score.");
     }
 
     [Test]
@@ -109,7 +151,7 @@ internal sealed class OilScoringTests
         host.Step(default, v => Observe(v, false), placeOil: (s, _) => new OilPatch(s.Token, s.Vehicle, Vector3.Zero, Vector3.UnitY, 3));
         Step(host, 2);
         Assert.That(Score(host), Is.EqualTo(100));
-        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(120));
+        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(105));
         Step(host, 2);
         Assert.That(Score(host), Is.EqualTo(100));
     }
@@ -133,7 +175,7 @@ internal sealed class OilScoringTests
     {
         var host = Create(mode, active);
         Step(host, 2);
-        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(120));
+        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(105));
         Assert.That(Score(host), Is.Zero);
     }
 
