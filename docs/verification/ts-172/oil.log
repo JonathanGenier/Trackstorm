@@ -1,0 +1,29 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.78 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Two native UDP peers ready; Oil requested through the normal held slot.
+Host terrain query deployed on a 14-degree bank; peer received the exact patch.
+Fresh late join restored one identical patch without duplication; owner enters at speed.
+Owner receives temporary traction loss without a forced spin, score or consumed contact.
+Oil persists after handling recovery; another vehicle enters.
+Remote vehicle receives the same authoritative effect.
+Remaining within the patch emits one entry outcome.
+Vehicle exits and re-enters.
+Repeated enemy re-entry did not score again; deploying another simultaneous patch.
+Two simultaneous patches replicated; second distinct enemy enters the original patch.
+Seeded 1,500 detached patches to exercise a state publication larger than one native message.
+Large publication converged atomically on existing peers; fourth peer requests a complete join checkpoint.
+Oil integration passed: Two native UDP peers ready; Oil requested through the normal held slot.
+Host terrain query deployed on a 14-degree bank; peer received the exact patch.
+Fresh late join restored one identical patch without duplication; owner enters at speed.
+Owner receives temporary traction loss without a forced spin, score or consumed contact.
+Oil persists after handling recovery; another vehicle enters.
+Remote vehicle receives the same authoritative effect.
+Remaining within the patch emits one entry outcome.
+Vehicle exits and re-enters.
+Repeated enemy re-entry did not score again; deploying another simultaneous patch.
+Two simultaneous patches replicated; second distinct enemy enters the original patch.
+Self-trigger scored zero; two distinct enemies banked 50 each, with exact reliable totals on all three peers.
+Seeded 1,500 detached patches to exercise a state publication larger than one native message.
+Large publication converged atomically on existing peers; fourth peer requests a complete join checkpoint.
+All four peers retain 1,500 identical patch identities, absolute deadlines and distinct-contact history after chunked fresh admission.

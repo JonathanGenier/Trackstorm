@@ -24,7 +24,7 @@ public sealed partial class OilIntegrationChecks : Node
     private bool _done;
     private readonly List<string> _evidence = new();
     private readonly Dictionary<ulong, MatchState> _matches = new();
-    private readonly double[] _oilPoints = new double[3];
+    private readonly double[] _oilPoints = new double[4];
     private bool Play => OS.GetCmdlineUserArgs().Contains("--oil-play");
     private Label? _playStatus;
     private static readonly N.Vector3 Normal = N.Vector3.Transform(N.Vector3.UnitY, N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, 0.25f));
@@ -118,15 +118,15 @@ public sealed partial class OilIntegrationChecks : Node
                     Next("Host terrain query deployed on a 14-degree bank; peer received the exact patch.");
                     break;
                 case 2 when _arenas.All(a => a.Driver.ItemState?.Patches.Count == 1 && a.Driver.Latest?.Vehicles.Count == 3):
-                    Check(_arenas.All(a => a.Driver.ItemState!.Patches.Single() == _patch), "late join exact patch");
+                    Check(_arenas.All(a => a.Driver.ItemState!.Patches.Single().Id == _patch!.Id), "late join exact patch");
                     Position(1, _patch!.Position + Normal * 0.9f, new N.Vector3(0, 0, -15));
                     Next("Fresh late join restored one identical patch without duplication; owner enters at speed.");
                     break;
                 case 3 when host.World.GetVehicle(1).Movement.OilTicks > 0:
-                    Check(Math.Abs(N.Vector3.Dot(host.World.GetVehicle(1).Movement.Physics.AngularVelocity, Normal)) > 1.5f, "physical spin");
+                    Check(Math.Abs(N.Vector3.Dot(host.World.GetVehicle(1).Movement.Physics.AngularVelocity, Normal)) < 0.5f, "no forced entry yaw");
                     Check(_oilPoints.All(points => points == 0), "self-trigger awards zero offensive points");
 
-                    Next("Deployer is vulnerable: native movement received a strong spin and temporary traction loss.");
+                    Next("Owner receives temporary traction loss without a forced spin, score or consumed contact.");
                     break;
                 case 4 when _frames - _boundary > 180:
                     Capture("banked-oil.png");
@@ -152,15 +152,32 @@ public sealed partial class OilIntegrationChecks : Node
                     Position(2, _patch!.Position + Normal * 0.9f);
                     Next("Vehicle exits and re-enters.");
                     break;
-                case 8 when host.World.Events.Entries.Count(e => e.Kind == "Oil triggered" && e.Target == 2) == 2:
-                    Check(host.TryConfigure(0, new Dictionary<string, double> { ["items.maximum_oil_patches"] = 1 }, out _), "configure cap");
+                case 8 when _frames - _boundary > 10:
+                    Check(_oilPoints[0] == 50 && host.Items.OilContacts.Count == 1, "repeat enemy never consumes or scores twice");
+                    Position(1, new N.Vector3(0, 20, 0) + N.Vector3.Transform(new N.Vector3(10, 0, 0), Rotation) + Normal * 1.4f);
                     Check(host.Items.Grant(host.World, 1, HeldItem.Oil), "regrant");
-                    Check(_arenas[0].Driver.RequestItemUse(), "request at cap");
-                    Next("Re-entry emits exactly one new outcome; testing the configured active bound.");
+                    Check(_arenas[0].Driver.RequestItemUse(), "request with active patch");
+                    Next("Repeated enemy re-entry did not score again; deploying another simultaneous patch.");
                     break;
-                case 9 when _frames - _boundary > 5 && _oilPoints.All(points => points == 100):
-                    Check(host.Items.Patches.Count == 1 && host.Items.Slots.Single().Item == HeldItem.Oil, "cap leaves held");
-                    _evidence.Add("Self-trigger scored zero; two distinct rival entries banked 50 each, with exact reliable totals on all three peers.");
+                case 9 when _frames - _boundary > 5 && _arenas.All(a => a.Driver.ItemState?.Patches.Count == 2):
+                    Check(host.Items.Slots.Single().Item == HeldItem.None, "new Oil consumed with active patches");
+                    Position(3, _patch!.Position + Normal * 0.9f);
+                    Next("Two simultaneous patches replicated; second distinct enemy enters the original patch.");
+                    break;
+                case 10 when _frames - _boundary > 5 && _oilPoints.Take(3).All(points => points == 100) && _arenas.All(a => a.Driver.ItemState?.Patches.Count == 1):
+                    Check(host.Items.Patches.All(p => p.Id != _patch!.Id), "second distinct enemy removed only original patch");
+                    _evidence.Add("Self-trigger scored zero; two distinct enemies banked 50 each, with exact reliable totals on all three peers.");
+                    _patch = OilRecoveryFixture.Seed(_arenas[0]);
+                    Next("Seeded 1,500 detached patches to exercise a state publication larger than one native message.");
+                    break;
+                case 11 when _arenas.All(a => a.Driver.ItemState?.Patches.Count == OilRecoveryFixture.PatchCount):
+                    foreach (var arena in _arenas) { OilRecoveryFixture.Verify(arena.Driver.ItemState!, _patch!); }
+                    AddPeer();
+                    Next("Large publication converged atomically on existing peers; fourth peer requests a complete join checkpoint.");
+                    break;
+                case 12 when _arenas.All(a => a.Driver.ItemState?.Patches.Count == OilRecoveryFixture.PatchCount && a.Driver.Latest?.Vehicles.Count == 4):
+                    foreach (var arena in _arenas) { OilRecoveryFixture.Verify(arena.Driver.ItemState!, _patch!); }
+                    _evidence.Add("All four peers retain 1,500 identical patch identities, absolute deadlines and distinct-contact history after chunked fresh admission.");
                     var path = ProjectSettings.GlobalizePath("res://.godot/oil-checks");
                     System.IO.Directory.CreateDirectory(path);
                     System.IO.File.WriteAllLines(System.IO.Path.Combine(path, "evidence.txt"), _evidence);

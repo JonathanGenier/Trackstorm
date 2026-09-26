@@ -7,6 +7,8 @@ namespace Trackstorm.Core.Networking.Replication;
 /// <summary>Bounded compound reliable checkpoint using the existing gameplay codecs.</summary>
 public static class ResumeCheckpointCodec
 {
+    /// <summary>Complete item boundary plus existing bounded configuration, match and environment state.</summary>
+    public const int MaximumBytes = ItemCodec.MaximumBytes + 65536;
     /// <summary>Recognizes a checkpoint before ordinary gameplay decoding.</summary>
     /// <returns>Whether checkpoint magic matches.</returns>
     /// <param name="bytes">Complete nested payload.</param>
@@ -23,7 +25,7 @@ public static class ResumeCheckpointCodec
         byte[] configuration = Development.GameplayConfigurationCodec.Encode(checkpoint.Items.World.Session, checkpoint.Configuration);
         byte[] environment = checkpoint.Environment is null ? [] : Arenas.EnvironmentCodec.Encode(checkpoint.Environment);
         byte[] result = new byte[23 + items.Length + match.Length + props.Length + configuration.Length + environment.Length];
-        if (result.Length > 65000)
+        if (result.Length > MaximumBytes)
         {
             throw new ArgumentException("Resume checkpoint exceeds transport bounds.");
         }
@@ -49,7 +51,7 @@ public static class ResumeCheckpointCodec
     /// <param name="bytes">Complete reliable payload.</param>
     public static ResumeCheckpoint Decode(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length is < 23 or > 65000 || !IsCheckpoint(bytes) || bytes[2] != 3)
+        if (bytes.Length is < 23 or > MaximumBytes || !IsCheckpoint(bytes) || bytes[2] != 3)
         {
             throw new ArgumentException("Invalid resume checkpoint.");
         }

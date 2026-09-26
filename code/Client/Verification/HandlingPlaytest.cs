@@ -28,10 +28,11 @@ public sealed partial class HandlingPlaytest : Node3D
     private Arenas.DestructibleEnvironment? _environmentView;
     private readonly Core.Items.ItemAuthority _items = new(new() { MaximumDamage = 300 });
     private readonly List<Core.Items.ItemEvent> _impacts = new();
+    private Core.Items.OilPatch? _oil;
 
     public override void _Ready()
     {
-        _directory = ProjectSettings.GlobalizePath(OS.GetCmdlineUserArgs().Contains("--destructible-playtest") ? "res://.godot/ts-162/playtest" : "res://.godot/ts-160/playtest");
+        _directory = ProjectSettings.GlobalizePath(OS.GetCmdlineUserArgs().Contains("--oil-playtest") ? "res://.godot/ts-172/playtest" : OS.GetCmdlineUserArgs().Contains("--destructible-playtest") ? "res://.godot/ts-162/playtest" : "res://.godot/ts-160/playtest");
         System.IO.Directory.CreateDirectory(_directory);
         if (OS.GetCmdlineUserArgs().Contains("--handling-flat"))
         {
@@ -82,6 +83,11 @@ public sealed partial class HandlingPlaytest : Node3D
                     _road.SetMeta("surface_identity", surface.GetString()!);
                 }
                 _lastCommand = text;
+                if (command.TryGetProperty("oilPatch", out var oil))
+                {
+                    _oil = oil.ValueKind == JsonValueKind.Null ? null : new Core.Items.OilPatch(1, 2,
+                        new(oil[0].GetSingle(), oil[1].GetSingle(), oil[2].GetSingle()), N.Vector3.UnitY, 3);
+                }
                 _remaining = Math.Clamp(command.GetProperty("frames").GetInt32(), 1, 600);
                 _steer = (short)(Math.Clamp(command.GetProperty("steer").GetSingle(), -1, 1) * short.MaxValue);
                 _throttle = (ushort)(Math.Clamp(command.GetProperty("throttle").GetSingle(), 0, 1) * ushort.MaxValue);
@@ -105,6 +111,11 @@ public sealed partial class HandlingPlaytest : Node3D
         if (_remaining <= 0) { return; }
         var input = new InputFrame(_world.State.Tick + 1, _steer, _throttle, _brake, _buttons, 0, 0);
         var request = _body.Capture(input);
+        if (_oil?.Contains(request.Observation) == true)
+        {
+            request = new(request.VehicleId, request.Input, request.Observation, request.Effects, request.Reset,
+                request.Repair, request.RepairCause, oilContact: true);
+        }
         _body.Apply(_world.Step(input, new[] { request })[0]);
         _environment?.Advance(input.Tick, [request], _impacts, _items); _impacts.Clear();
         if (_environment is not null) { _environmentView!.Apply(_environment.Snapshot(1, input.Tick)); }
@@ -112,7 +123,7 @@ public sealed partial class HandlingPlaytest : Node3D
         var p = state.Movement.Physics;
         N.Vector3 forward = N.Vector3.Transform(-N.Vector3.UnitZ, p.Orientation);
         N.Vector3 right = N.Vector3.Transform(N.Vector3.UnitX, p.Orientation);
-        _trace.Add(new { tick = state.Movement.Tick, position = new[] { p.Position.X, p.Position.Y, p.Position.Z }, speed = state.Speed, yaw = p.AngularVelocity.Y, lateral = N.Vector3.Dot(p.LinearVelocity, right), longitudinal = N.Vector3.Dot(p.LinearVelocity, forward), slip = state.Movement.PowerSlip, surface = state.Movement.CurrentSurface.ToString(), grounded = state.Movement.Grounded, hp = state.Damage.CurrentHP });
+        _trace.Add(new { tick = state.Movement.Tick, position = new[] { p.Position.X, p.Position.Y, p.Position.Z }, speed = state.Speed, yaw = p.AngularVelocity.Y, lateral = N.Vector3.Dot(p.LinearVelocity, right), longitudinal = N.Vector3.Dot(p.LinearVelocity, forward), slip = state.Movement.PowerSlip, oilTicks = state.Movement.OilTicks, steering = state.Movement.SteeringAngle, surface = state.Movement.CurrentSurface.ToString(), grounded = state.Movement.Grounded, hp = state.Damage.CurrentHP });
         Vector3 position = VehicleBody.ToGodot(p.Position);
         _camera.Position = position - VehicleBody.ToGodot(forward) * 10 + Vector3.Up * 5;
         _camera.LookAt(position + Vector3.Up * 0.5f);

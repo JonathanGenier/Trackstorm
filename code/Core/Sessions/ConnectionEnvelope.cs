@@ -13,7 +13,7 @@ public static class ConnectionEnvelope
     /// <returns>Detached wire envelope.</returns>
     public static byte[] Encode(ulong session, ulong generation, ReadOnlySpan<byte> payload, ulong authorityEpoch = 1)
     {
-        if (session == 0 || generation == 0 || authorityEpoch == 0 || payload.Length > 65000)
+        if (session == 0 || generation == 0 || authorityEpoch == 0 || payload.Length > Networking.Replication.ResumeCheckpointCodec.MaximumBytes)
         {
             throw new ArgumentException("Invalid connection boundary.");
         }
@@ -37,7 +37,7 @@ public static class ConnectionEnvelope
     /// <returns>Detached nested payload.</returns>
     public static byte[] Decode(ReadOnlySpan<byte> bytes, ulong session, ulong generation, ulong authorityEpoch = 1)
     {
-        if (bytes.Length is < 27 or > 65027 || bytes[0] != 'T' || bytes[1] != 'G' || bytes[2] != 2 ||
+        if (bytes.Length is < 27 or > Networking.Replication.ResumeCheckpointCodec.MaximumBytes + 27 || bytes[0] != 'T' || bytes[1] != 'G' || bytes[2] != 2 ||
             BinaryPrimitives.ReadUInt64LittleEndian(bytes[3..]) != session || BinaryPrimitives.ReadUInt64LittleEndian(bytes[11..]) != generation ||
             BinaryPrimitives.ReadUInt64LittleEndian(bytes[19..]) != authorityEpoch)
         {

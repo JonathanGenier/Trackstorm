@@ -11,6 +11,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Evidence | Reports |
 | --- | --- |
 | Full-roster authoritative match start | [TS-173 verification evidence](ts-173.md) |
+| Oil handling and distinct-contact lifecycle | [TS-172 verification evidence](ts-172.md) |
 | Configs accordions and category resets | [TS-170 verification evidence](ts-170.md) |
 | Authoritative item-damage Circus score | [TS-155: applied damage, repeated/multi-target scoring and recovery](ts-155.md) |
 | Timed Circus and authoritative HUD | [TS-171: timer expiry, native reconnect/migration, frozen score results and runtime critique](ts-171.md) |

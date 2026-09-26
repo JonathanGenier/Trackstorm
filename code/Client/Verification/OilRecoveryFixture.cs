@@ -6,6 +6,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Seeds a committed hazard to isolate recovery from separately exercised native deployment.</summary>
 internal static class OilRecoveryFixture
 {
+    internal const int PatchCount = 1500;
     internal static OilPatch Seed(NetworkVehicleArena arena)
     {
         var host = arena.Driver.Host!;
@@ -13,11 +14,21 @@ internal static class OilRecoveryFixture
         if (!host.Items.Grant(host.World, owner, HeldItem.Oil)) { throw new InvalidOperationException("Oil recovery fixture needs an empty slot."); }
         var slot = host.Items.Slots.Single(slot => slot.Vehicle == owner);
         var pose = host.World.GetVehicle(owner).Movement.Physics;
-        var patch = new OilPatch(slot.Token, owner, pose.Position - System.Numerics.Vector3.UnitY * 0.9f, System.Numerics.Vector3.UnitY, 3);
+        var patch = new OilPatch(slot.Token, owner, pose.Position + System.Numerics.Vector3.UnitX * 40 - System.Numerics.Vector3.UnitY * 0.9f, System.Numerics.Vector3.UnitY, 3) { ExpiresAtTick = host.World.State.Tick + 36000 };
+        ulong token = host.Items.TokenHighWater;
+        var patches = Enumerable.Range(0, PatchCount).Select(i => i == 0 ? patch : patch with { Id = token + (ulong)i, Position = patch.Position + System.Numerics.Vector3.UnitX * (100 + i * 7) }).ToArray();
+        ulong enemy = host.World.State.Vehicles.First(vehicle => vehicle.VehicleId != owner).VehicleId;
+        var contacts = new[] { new OilContact(patch.Id, enemy, host.World.GetVehicle(enemy).LifeId) };
         var state = new ItemPublication(Math.Max(1, host.Items.Revision), host.Snapshot(),
             host.Items.Slots.Select(value => value.Vehicle == owner ? value with { Item = HeldItem.None } : value),
-            host.Items.Missiles, [], host.Spawns?.States, [patch]);
-        host.Items.Restore(state, host.Items.Revision + 1, host.Items.TokenHighWater);
+            host.Items.Missiles, [], host.Spawns?.States, patches, contacts);
+        host.Items.Restore(state, host.Items.Revision + 1, token + PatchCount - 1);
         return patch;
+    }
+
+    internal static void Verify(ItemPublication state, OilPatch patch)
+    {
+        if (state.Patches.Count != PatchCount || state.Patches.Single(p => p.Id == patch.Id) != patch || state.OilContacts.Count != 1 || state.OilContacts[0].Patch != patch.Id)
+        { throw new InvalidOperationException("Large Oil continuation lost ownership, deadline or distinct enemy history."); }
     }
 }

@@ -14,6 +14,26 @@ namespace Trackstorm.Transport.Tests;
 [TestFixture]
 internal sealed class EosP2pTransportTests
 {
+    [Test]
+    public void LargeReliableBoundaryUsesProductionEosFramingWithoutExceedingNativeQueue()
+    {
+        using var pair = new Pair();
+        pair.Pump();
+        var host = ReliableMessageGateway.For(pair.Host);
+        var client = ReliableMessageGateway.For(pair.Client);
+        byte[] payload = new byte[250000]; new Random(172).NextBytes(payload);
+        host.Send(new(pair.Host.Connections.Single(p => p.Value == TransportConnectionState.Connected).Key, payload));
+        byte[]? received = null;
+        for (int i = 0; i < 20; i++)
+        {
+            host.Poll(); client.Poll();
+            Assert.That(host.TryReceive(out _), Is.False);
+            if (client.TryReceive(out var message)) { Assert.That(received, Is.Null); received = message.Payload.ToArray(); }
+        }
+        Assert.That(received, Is.EqualTo(payload));
+        Assert.That(pair.Client.ConnectionState, Is.EqualTo(TransportConnectionState.Connected));
+    }
+
     /// <summary>A fresh participant bootstraps through production EOS framing after the host is already active.</summary>
     [Test]
     public void FreshActiveJoinUsesEosCheckpointAndActivationPath()

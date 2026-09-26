@@ -229,7 +229,7 @@ public sealed class Simulation
         VehicleStepResult[] candidates = requests.OrderBy(request => request.VehicleId).Select(request =>
         {
             var observation = new VehicleObservation(request.Observation.Physics, request.Observation.Support, request.Observation.Contacts.Where(contact => Participates(contact.OtherVehicleId)), request.Observation.Surface, request.Observation.Wheels, request.Observation.TerrainSupport, request.Observation.WaterDepth);
-            var filtered = new VehicleStepRequest(request.VehicleId, request.Input, observation, request.Effects.Where(effect => Participates(effect.Attribution.InstigatorId)), request.Reset, request.Repair, request.RepairCause, request.OilSpin, request.Nitro, request.ClearNitro || State.Match is { Phase: not Matches.MatchPhase.Active });
+            var filtered = new VehicleStepRequest(request.VehicleId, request.Input, observation, request.Effects.Where(effect => Participates(effect.Attribution.InstigatorId)), request.Reset, request.Repair, request.RepairCause, request.OilContact, request.Nitro, request.ClearNitro || State.Match is { Phase: not Matches.MatchPhase.Active });
             VehicleStepResult candidate = _vehicles[request.VehicleId].Prepare(filtered, Respawn, Arena, reserved.Values.ToArray());
             reserved[request.VehicleId] = candidate.Snapshot;
             return candidate;

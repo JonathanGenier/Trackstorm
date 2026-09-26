@@ -185,6 +185,14 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 distributionSearch.EmitSignal(LineEdit.SignalName.TextChanged, distributionSearch.Text);
                 await Frames(3);
                 await Capture("distribution-weights");
+                distributionSearch.Text = "Oil";
+                distributionSearch.EmitSignal(LineEdit.SignalName.TextChanged, distributionSearch.Text);
+                await Frames(3);
+                foreach (string key in new[] { "vehicle_oil_grip_reduction", "vehicle_oil_recovery_seconds", "items_oil_enemy_contacts", "items_oil_lifetime_seconds" })
+                {
+                    Check(Descendants(_devTools.Configs).OfType<LineEdit>().Any(editor => editor.Name == key && editor.IsVisibleInTree()), "Oil tuning visible in Configs: " + key);
+                }
+                await Capture("oil-configs");
                 distributionSearch.Text = string.Empty;
                 distributionSearch.EmitSignal(LineEdit.SignalName.TextChanged, distributionSearch.Text);
                 ulong revision = _host.Arena!.Driver.Configuration.Revision;
@@ -227,6 +235,11 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 Check(_host.Arena.Driver.Configuration.Configuration.Damage.MaxHP == _host.Arena.Driver.LocalState!.Damage.MaxHP, "UI max HP affects live vehicle");
                 Check(_client.Arena!.Driver.LocalState!.Damage.MaxHP == _host.Arena.Driver.LocalState.Damage.MaxHP, "client max HP matches authority");
                 var accelerationEditor = Descendants(_devTools.Configs).OfType<LineEdit>().Single(editor => editor.Name == "vehicle_acceleration");
+                if (DisplayServer.GetName() != "headless")
+                {
+                    GetWindow().GrabFocus();
+                    await Until(() => GetWindow().HasFocus(), "visual controller fixture owns window focus");
+                }
                 accelerationEditor.GrabFocus();
                 await Frames(3);
                 await Capture("developer-options-values");

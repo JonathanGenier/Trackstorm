@@ -366,7 +366,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             Require(arena.Driver.LocalItem?.Item == HeldItem.Wrench && arena.Driver.ItemState!.Spawns.Count == 27 && arena.Driver.Match!.Players.Count == _players, "Complete gameplay continuation with twenty-seven map pickups.");
             Require(arena.Driver.LocalItem is { SecondItem: HeldItem.Oil, ActiveSlot: 1, SelectionRevision: 1 }, "Both held slots and selected second slot restore through host migration.");
             Require(arena.Driver.ItemState!.Slots.Single(slot => slot.Vehicle == _nitroOwner).Item == HeldItem.Nitro, "Nitro is retained on the disconnected former host across migration.");
-            Require(arena.Driver.ItemState!.Patches.Count == 1 && arena.Driver.ItemState.Patches.Single() == _oil && arena.Driver.Host!.Items.Patches.Single() == _oil, "Persistent Oil survives host replacement exactly once, including departed owner.");
+            OilRecoveryFixture.Verify(arena.Driver.ItemState!, _oil!);
             if (_players == 3)
             {
                 Require(!arena.Driver.Host!.World.GetVehicle(_nitroOwner).Movement.Nitro.Active && arena.Driver.Host.Items.Slots.Single(s => s.Vehicle == _nitroOwner).NitroCharge == 37.5, "Nitro charge remains intact and inactive without held input after migration.");

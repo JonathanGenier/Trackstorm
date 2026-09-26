@@ -1,4 +1,4 @@
 namespace Trackstorm.Core.Items;
 
-/// <summary>Entry latch scoped to one patch and vehicle life; retained by authority recovery.</summary>
+/// <summary>Patch-lifetime enemy history: stable vehicle identity counts once across all lives.</summary>
 public sealed record OilContact(ulong Patch, ulong Vehicle, ulong Life);
