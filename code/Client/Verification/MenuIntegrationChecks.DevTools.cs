@@ -13,6 +13,22 @@ public sealed partial class MenuIntegrationChecks
         var numbers = Descendants(_devTools.Configs).OfType<LineEdit>().Where(editor => editor.GetParent() is GridContainer).ToArray();
         LineEdit mass = numbers.Single(editor => editor.Name == "vehicle_mass");
         LineEdit acceleration = numbers.Single(editor => editor.Name == "vehicle_acceleration");
+        var category = Descendants(_devTools.Configs).OfType<ConfigsAccordion>().First();
+        var header = category.GetChildren().OfType<Button>().Single();
+        Check(!category.Body.IsVisibleInTree(), "category starts collapsed before native input");
+        header.GrabFocus();
+        Joy(JoyButton.A);
+        Check(category.Body.IsVisibleInTree() && GetViewport().GuiGetFocusOwner() == header, "controller Accept expands category and retains header focus");
+        Joy(JoyButton.A);
+        Check(!category.Body.IsVisibleInTree(), "controller Accept collapses category");
+        Tap(Key.Enter);
+        Check(category.Body.IsVisibleInTree(), "keyboard Accept expands category");
+        Tap(Key.Enter);
+        Check(!category.Body.IsVisibleInTree(), "keyboard Accept collapses category");
+        foreach (var section in Descendants(_devTools.Configs).OfType<ConfigsAccordion>())
+        {
+            section.GetChildren().OfType<Button>().Single().EmitSignal(BaseButton.SignalName.Pressed);
+        }
         mass.GrabFocus();
         Joy(JoyButton.DpadDown);
         Check(GetViewport().GuiGetFocusOwner() == acceleration, "controller Down leaves numeric editor exactly once");
@@ -133,7 +149,7 @@ public sealed partial class MenuIntegrationChecks
                 var label = rows.GetChild<Label>(0);
                 Control editor = rows.GetChild<Control>(1);
                 Check(editor.GetGlobalRect().Position.X - label.GetGlobalRect().End.X <= 17, "label and value columns retain compact spacing");
-                Check(Math.Abs(editor.GetGlobalRect().Position.X - column) < 1, "gameplay and network rows share the value column");
+                Check(Math.Abs(editor.GetGlobalRect().Position.X - column) < 1, $"gameplay and network rows share the value column: {editor.Name} at {editor.GetGlobalRect().Position.X}, expected {column}, viewport {size}");
             }
 
             foreach (LineEdit number in numbers)
@@ -148,7 +164,7 @@ public sealed partial class MenuIntegrationChecks
             await Frames(3);
             Check(scroll.ScrollVertical > 0, "focus follows last numeric editor through vertical scrolling");
             Rect2 viewport = GetViewport().GetVisibleRect();
-            var reset = Buttons(_devTools).Single(button => button.Text == "Reset to Defaults");
+            var reset = Buttons(_devTools.Configs.Footer).Single(button => button.Text == "Reset to Defaults");
             var apply = Buttons(_devTools).Single(button => button.Text == "Apply Settings");
             var cancel = Buttons(_devTools).Single(button => button.Text == "Cancel");
             var close = Buttons(_devTools).Single(button => button.Text == "Close");

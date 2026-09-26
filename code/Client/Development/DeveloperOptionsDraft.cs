@@ -9,6 +9,7 @@ internal sealed class DeveloperOptionsDraft
     private readonly Dictionary<string, string> _values = new(StringComparer.Ordinal);
     private GameplayConfiguration _baseline = GameplayConfiguration.HostedDefaults;
     private bool _replaceAll;
+    private readonly HashSet<string> _resetGroups = new(StringComparer.Ordinal);
 
     /// <summary>Starts with an editable production preset before a session is attached.</summary>
     internal DeveloperOptionsDraft() => Discard(GameplayConfiguration.HostedDefaults);
@@ -41,6 +42,7 @@ internal sealed class DeveloperOptionsDraft
         _baseline = current;
         Populate(current);
         _replaceAll = false;
+        _resetGroups.Clear();
     }
 
     /// <summary>Stages the complete production preset until the user explicitly applies it.</summary>
@@ -48,6 +50,14 @@ internal sealed class DeveloperOptionsDraft
     {
         Populate(GameplayConfiguration.HostedDefaults);
         _replaceAll = true;
+    }
+
+    /// <summary>Stages one complete catalog category without disturbing other pending text.</summary>
+    /// <param name="group">Existing catalog category to reset.</param>
+    internal void ResetCategoryToDefaults(string group)
+    {
+        Populate(GameplayConfiguration.HostedDefaults, GameplayOptions.All.Where(option => option.Group == group));
+        _resetGroups.Add(group);
     }
 
     /// <summary>Parses a request for the existing authority path; owning Core rules still validate it.</summary>
@@ -66,8 +76,8 @@ internal sealed class DeveloperOptionsDraft
                 return false;
             }
 
-            // Reset replaces the whole preset, including fields changed by authority after the editor opened.
-            if (_replaceAll || !Matches(option, _baseline))
+            // A reset includes every requested category field, even if authority changed after opening.
+            if (_replaceAll || _resetGroups.Contains(option.Group) || !Matches(option, _baseline))
             {
                 edits.Add(option.Key, value);
             }
@@ -83,9 +93,9 @@ internal sealed class DeveloperOptionsDraft
             && (option.Integral || option.DoublePrecision ? value : (float)value) == option.Read(configuration);
     }
 
-    private void Populate(GameplayConfiguration configuration)
+    private void Populate(GameplayConfiguration configuration, IEnumerable<GameplayOption>? options = null)
     {
-        foreach (var option in GameplayOptions.All)
+        foreach (var option in options ?? GameplayOptions.All)
         {
             double value = option.Read(configuration);
             _values[option.Key] = option.Integral || option.DoublePrecision ? value.ToString("G", CultureInfo.InvariantCulture) : ((float)value).ToString("G", CultureInfo.InvariantCulture);

@@ -56,6 +56,12 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
             await Frames(20);
             Check(_devTools.IsOpen && _devTools.SelectedTab == DevToolsTab.Configs, "F1 opens unified DevTools on Configs");
             Check(!Descendants(_devTools.Configs).OfType<Label>().Any(label => label.Text.Contains("AuthorityEpoch:", StringComparison.Ordinal) || label.Text.Contains("Transport:", StringComparison.Ordinal)), "Configs does not duplicate read-only network diagnostics");
+            if (phase == "inspect")
+            {
+                GD.Print("Developer Options interactive inspection ready; isolated local host and settings.");
+                return;
+            }
+            await CheckInitialAccordionState();
             if (phase == "read")
             {
                 Check(_host.DeveloperConfiguration.Environment == EnvironmentPreset.NeonSunset, "process restart restores environment identity");
@@ -171,6 +177,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                         _client.Arena!.GetChildren().OfType<Arenas.EnvironmentPresentation>().Single().Current == preset, "both runtimes present " + preset);
                     Check(ReferenceEquals(originalMap, _host.Arena.Map), "preset switching retains map instance");
                 }
+                await CheckAccordions();
                 await CheckDraftActions();
                 await CheckRedesign();
                 var distributionSearch = Descendants(_devTools.Configs).OfType<LineEdit>().Single(editor => editor.Name == "ConfigSearch");
@@ -491,7 +498,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
         }
     }
 
-    private void Press(string text) => Descendants(_bootstrap).OfType<Button>().Single(button => button.IsVisibleInTree() && button.Text == text).EmitSignal(BaseButton.SignalName.Pressed);
+    private void Press(string text) => Descendants(text == "Reset to Defaults" ? _devTools.Configs.Footer : _bootstrap).OfType<Button>().Single(button => button.IsVisibleInTree() && button.Text == text).EmitSignal(BaseButton.SignalName.Pressed);
 
     private void Tap(Key key)
     {

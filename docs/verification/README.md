@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Configs accordions and category resets | [TS-170 verification evidence](ts-170.md) |
 | Authoritative item-damage Circus score | [TS-155: applied damage, repeated/multi-target scoring and recovery](ts-155.md) |
 | Timed Circus and authoritative HUD | [TS-171: timer expiry, native reconnect/migration, frozen score results and runtime critique](ts-171.md) |
 | Integrated map driving and production tuning | [TS-163 verification evidence](ts-163.md) |

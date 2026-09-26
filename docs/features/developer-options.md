@@ -22,6 +22,24 @@ The shared shell keeps Reset to Defaults at bottom-left and Apply Settings, Canc
 
 Configuration actions and their feedback disappear on Stats and Logs and for non-hosts, while shell-owned Close remains available. Close, Escape and logical Cancel/Pause protect pending edits even after switching tabs, using an in-panel Apply / Discard / Stay decision. Stay (or Escape on the decision) retains drafts and focus. Discard restores effective values and closes. A validation or authoritative rejection returns to Configs with its error and no green confirmation. An authoritative success shows green **Settings applied**; if host-local persistence then fails, the persistence failure remains visible and close remains incomplete so the user can retry. Authority/session changes retain the existing draft-reset policy; staging never becomes a second configuration authority.
 
+Each catalog category is an independent accordion, initially collapsed. Headers show
+an expand/collapse indicator; multiple categories may stay open. Disclosure state
+lasts for the runtime panel's lifetime, including tab switches and closing/reopening
+DevTools, without a persisted preference. Collapsing hides the category body and its
+reset action without changing its staged values. Search temporarily expands matching
+categories and disables their disclosure headers while filtering, so matches cannot
+be hidden. Clearing search restores the previous open/closed state.
+
+Every accordion contains **Reset to Defaults**, using the same dark/red-border
+style as the persistent global reset. It stages the entire owning category even
+when search hides some rows, retaining exact unrelated staged text and updating
+value colors immediately. Gameplay category defaults come from
+`GameplayConfiguration.HostedDefaults` through the existing draft/catalog; local
+tire categories use `TireEffectSettings.Defaults`, and local network simulation uses
+`NetworkSimulation` defaults. Both category and global resets remain unapplied
+until the existing Apply transaction succeeds; Cancel and dirty-close protection
+continue to use the same draft baselines. Reset does not change accordion state.
+
 ## Authority and runtime application
 
 Core `GameplayConfiguration` composes the existing vehicle, damage, item, spawn, respawn and match records plus destruction tuning and the shared environment identity. `GameplayOptions` is the explicit 167-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.

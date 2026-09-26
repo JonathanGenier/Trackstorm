@@ -11,6 +11,53 @@ internal sealed class DeveloperOptionsTests
     private string _directory = string.Empty;
     private string _path = string.Empty;
 
+    /// <summary>Every catalog group resets as a whole, retains exact unrelated text and requests only its own defaults.</summary>
+    [Test]
+    public void CategoryResetPreservesOtherDraftsAndCoversTheWholeCategory()
+    {
+        foreach (string group in GameplayOptions.All.Select(option => option.Group).Distinct())
+        {
+            var draft = new DeveloperOptionsDraft();
+            var canonical = GameplayOptions.All.ToDictionary(option => option.Key, option => draft.Get(option.Key));
+            foreach (var option in GameplayOptions.All) { draft.Set(option.Key, "invalid " + option.Key); }
+            draft.ResetCategoryToDefaults(group);
+            draft.ResetCategoryToDefaults(group);
+            foreach (var option in GameplayOptions.All)
+            {
+                Assert.That(draft.Get(option.Key), Is.EqualTo(option.Group == group ? canonical[option.Key] : "invalid " + option.Key), group + ": " + option.Key);
+            }
+            Assert.That(draft.TryGetEdits(out _, out _), Is.False, "Unrelated invalid input still prevents Apply.");
+            draft.Discard(GameplayConfiguration.HostedDefaults);
+            draft.ResetCategoryToDefaults(group);
+            Assert.That(draft.IsDirty, Is.False, "An already-default category is idempotent.");
+            Assert.That(draft.TryGetEdits(out var edits, out _), Is.True);
+            Assert.That(edits.Keys, Is.EquivalentTo(GameplayOptions.All.Where(option => option.Group == group).Select(option => option.Key)));
+            draft.Discard(GameplayConfiguration.HostedDefaults);
+            Assert.That(draft.TryGetEdits(out edits, out _), Is.True);
+            Assert.That(edits, Is.Empty, "Cancel clears the category-reset request.");
+        }
+    }
+
+    /// <summary>Reset plus unrelated edits uses the same host transaction, even with a stale editor baseline.</summary>
+    [Test]
+    public void CategoryResetAndUnrelatedEditsCommitTogetherThroughAuthority()
+    {
+        var host = Host();
+        var draft = new DeveloperOptionsDraft();
+        draft.Discard(host.Configuration.Configuration);
+        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.salvo_count"] = 8, ["vehicle.mass"] = 1200 }, out _), Is.True);
+        var before = host.Configuration;
+        draft.Set("items.machine_gun_damage", "12");
+        draft.ResetCategoryToDefaults("Salvo");
+        Assert.That(host.Configuration, Is.EqualTo(before));
+        Assert.That(draft.TryGetEdits(out var edits, out _), Is.True);
+        Assert.That(host.TryConfigure(0, edits, out _), Is.True);
+        Assert.That(host.Configuration.Configuration.Items.SalvoCount, Is.EqualTo(GameplayConfiguration.HostedDefaults.Items.SalvoCount));
+        Assert.That(host.Configuration.Configuration.Items.MachineGunDamage, Is.EqualTo(12));
+        Assert.That(host.Configuration.Configuration.Vehicle.Mass, Is.EqualTo(1200), "Unrelated authority changes are retained.");
+        Assert.That(host.Configuration.Revision, Is.EqualTo(before.Revision + 1));
+    }
+
     /// <summary>Classification compares typed values, never edit history or rounded display strings.</summary>
     [Test]
     public void DefaultsAndDirtyStateUseActualConfigurationValues()
