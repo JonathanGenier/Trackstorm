@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=False, entry=False, maximum=0.14760177, startup=0.14760176837444305, steady=0, snaps=0; full report: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\network-vehicle-checks\970b6565dc2a4847be20b45e88a22f39\player-1.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.

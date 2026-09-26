@@ -37,6 +37,8 @@ in vehicle code. No support, inactive vehicles and airborne observations clear
 the current material. Wheel-specific visual feedback resolves its own
 contact positions through the same resolver.
 
+Each suspension observation reuses one native ray query in the same FL/FR/RL/RR/center order. Fixed-size scratch values live on the stack and hit dictionaries are disposed after sampling, reducing allocation during network replay. Native observations are still fresh on every step; no material or collision-result cache is introduced by this reuse.
+
 ## Current map
 
 The [banked oval](oval-map.md) uses Asphalt; cast structures and outer containment

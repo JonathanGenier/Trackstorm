@@ -1,0 +1,308 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Imported native support includes Asphalt
+Imported native support includes Grass
+Imported native support includes Dirt
+Imported native support includes Mud
+Imported native support includes DeepMud
+Imported native support includes Rock
+Imported native support includes Concrete
+Imported native support includes Water
+Basin (-57, 0, -29): DeepMud; unchanged negative collision -1.796m
+Basin (77, 0, -35): Water; unchanged negative collision -1.795m
+Basin (-85, 0, 28): DeepMud; unchanged negative collision -1.793m
+Basin (85, 0, 28): DeepMud; unchanged negative collision -1.793m
+Production practice detects Concrete: Concrete; requested (0, 6.3500004, 0), actual (0, 7.3509183, 0)
+Host/prediction native adapter detects Concrete: Concrete
+Both adapters apply Concrete handling for Concrete
+Production practice detects Grass: Grass; requested (-186, -2.1858501, -6), actual (-185.81993, -1.1334162, -5.9786844)
+Host/prediction native adapter detects Grass: Grass
+Both adapters apply Grass handling for Grass
+Production practice detects Dirt: Dirt; requested (-168, 0.46577263, 0), actual (-168.1351, 1.4806006, 0.081856415)
+Host/prediction native adapter detects Dirt: Dirt
+Both adapters apply Dirt handling for Dirt
+Production practice detects Rock: Rock; requested (-148, 3.0848694, -24), actual (-148.0199, 4.0754886, -23.968733)
+Host/prediction native adapter detects Rock: Rock
+Both adapters apply Asphalt handling for Rock
+Production practice detects Asphalt: Asphalt; requested (-112, 3.221775, -94), actual (-111.94314, 4.237335, -93.77745)
+Host/prediction native adapter detects Asphalt: Asphalt
+Both adapters apply Asphalt handling for Asphalt
+Production practice detects Mud: Mud; requested (-96, -0.2629776, 26), actual (-95.94987, 0.74542737, 26.04198)
+Host/prediction native adapter detects Mud: Mud
+Both adapters apply Mud handling for Mud
+Production practice detects DeepMud: DeepMud; requested (-94, -0.63399315, 28), actual (-93.92117, 0.3956026, 27.998951)
+Host/prediction native adapter detects DeepMud: DeepMud
+Both adapters apply DeepMud handling for DeepMud
+Production practice detects Water: Water; requested (68, -0.6569271, -36), actual (68.09388, 0.40506655, -35.925705)
+Host/prediction native adapter detects Water: Water
+Both adapters apply Water handling for Water
+Driven oval-infield: Asphalt, Dirt; end (1.7489803, 1.1444821, 57.36797); HP 1000
+Route retains native support after oval-infield
+Driven mud-west: Dirt, Grass, Mud, DeepMud; end (-56.877655, -0.6211335, -29.226637); HP 988.8314
+Route retains native support after mud-west
+Driven water-northeast: Dirt, Mud, DeepMud, Water; end (77.021454, -0.60870534, -34.6785); HP 774.9989
+Route retains native support after water-northeast
+Driven grass-shoulder: Dirt, Grass; end (-129.89928, 1.1030693, 14.653792); HP 1000
+Route retains native support after grass-shoulder
+Driven rock-shoulder: Dirt, Grass, Rock; end (-129.67725, 2.9599473, -23.983088); HP 1000
+Route retains native support after rock-shoulder
+Driven deck: Dirt, Concrete; end (1.388222, 7.4942417, -1.0245395E-07); HP 1000
+Route retains native support after deck
+Airborne detection clears instead of inventing current contact
+Existing Stats reads the local practice surface as Asphalt: Detected surface: Asphalt
+Source: local native support
+Surface integration passed: all eight identities, native adapters, driving transitions and Stats.
+ERROR: FATAL: Condition "!rc_owner" is true.
+   at: _instance_binding_reference_callback (modules/mono/csharp_script.cpp:1264)
+ERROR: Leaked unsafe reference to object: BoulderLow_Icosphere_005 (res://assets/environment/models/BoulderLow.glb::ArrayMesh_rke1f):<ArrayMesh#-9223371594439587715>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: RockCluster_Icosphere_015 (res://assets/environment/models/RockCluster.glb::ArrayMesh_3odi4):<ArrayMesh#-9223371593885940180>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: RockLedge_Icosphere_026 (res://assets/environment/models/RockLedge.glb::ArrayMesh_4o40n):<ArrayMesh#-9223371594154375039>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: RockSlab_Icosphere_008 (res://assets/environment/models/RockSlab.glb::ArrayMesh_gbp1e):<ArrayMesh#-9223371594674469344>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559358427478>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559341650263>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559324872986>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559308095828>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559291318613>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559274541337>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559257764178>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559240986963>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559224209688>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559207432528>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559190655313>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559173878039>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559157100878>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559140323663>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559123546390>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559106769228>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559089992013>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559073214741>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559056437578>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371559039660363>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371558771224899>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371558754447684>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557244498121>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557227720904>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557210943707>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557194166469>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557177389237>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557160612027>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557143834797>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557127057597>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557110280352>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557093503156>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557076725921>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557059948713>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557043171496>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557026394305>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371557009617068>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556992839864>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556976062629>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556959285412>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556942508261>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556925731007>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556908953830>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556892176572>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556875399389>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556858622180>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556841844895>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556825067678>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556808290461>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556791513244>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556774736027>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556757958810>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556741181593>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556724404376>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556707627159>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556690849942>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556674072725>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556657295508>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556640518291>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556623741074>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556606963857>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556590186640>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556573409423>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556556632206>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556539854989>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556523077772>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556506300555>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556489523338>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556472746121>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556455968904>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556439191687>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556422414470>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556405637253>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556388860036>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556372082819>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556355305602>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556338528385>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556321751168>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556304973951>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556288196734>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556271419517>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556254642300>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556237865083>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556221087866>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556204310649>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556187533432>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556170756215>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556153978998>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556137201781>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556120424564>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556103647347>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556086870130>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556070092913>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556053315696>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556036538479>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556019761262>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371556002984045>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371555986206828>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371555969429611>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371555952652394>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371555935875177>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371555919097960>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371555902320743>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371555885543526>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371555868766309>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<MultiMesh#-9223371555851989092>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<PhysicsMaterial#-9223371546255421206>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<ConvexPolygonShape3D#-9223371546221866772>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<StandardMaterial3D#-9223371546205089555>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<PhysicsMaterial#-9223371545265565409>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<ConvexPolygonShape3D#-9223371545232010975>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<StandardMaterial3D#-9223371545215233758>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<PhysicsMaterial#-9223371544275709612>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<ConvexPolygonShape3D#-9223371544242155178>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<StandardMaterial3D#-9223371544225377961>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<BoxShape3D#-9223371542832868972>
+   at: finalize (modules/mono/csharp_script.cpp:179)
+ERROR: Leaked unsafe reference to object: ():<SphereShape3D#-9223371542782537321>
+   at: finalize (modules/monFatal error.
+0xC000001D
+   at Godot.NativeInterop.NativeFuncs.godotsharp_internal_refcounted_disposed(IntPtr, IntPtr, Godot.NativeInterop.godot_bool)
+   at Godot.GodotObject.Dispose(Boolean)
+   at Godot.GodotObject.Finalize()
+   at System.GC.RunFinalizers()
+Exception: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\check-surfaces.ps1:13
+Line |
+  13 |      throw 'Surface integration failed; see .godot/surface-checks.'
+     |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Surface integration failed; see .godot/surface-checks.

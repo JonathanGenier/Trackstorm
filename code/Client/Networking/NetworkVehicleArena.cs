@@ -65,6 +65,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
     internal VehicleSnapshot? LocalState => _driver.LocalState;
     /// <summary>Measured render-buffer delay for diagnostics and runtime checks.</summary>
     internal double InterpolationDelay => _interpolation.DelayMilliseconds;
+    internal double InterpolationTimelineDelay => _interpolation.TimelineDelayMilliseconds;
+    internal int InterpolationRecoveries => _interpolation.BufferRecoveries;
     /// <summary>Existing runtime diagnostics presented by DevTools Stats.</summary>
     internal string DeveloperDiagnostics => _developerDiagnostics;
 

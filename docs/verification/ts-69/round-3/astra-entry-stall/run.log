@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=True, entry=True, maximum=0, startup=0, steady=0, snaps=0; full report: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\network-vehicle-checks\cb95ed8c0bf74cdcad17d05a650cd27e\player-0.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Network vehicle metrics: host=False, entry=True, maximum=0.8863772, startup=0.886377215385437, steady=0.025416724383831024, snaps=0; full report: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\network-vehicle-checks\cb95ed8c0bf74cdcad17d05a650cd27e\player-1.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+
+Network vehicle verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\network-vehicle-checks\cb95ed8c0bf74cdcad17d05a650cd27e

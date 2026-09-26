@@ -21,12 +21,14 @@ internal sealed class NativeVehicleReplicationTests
     /// <param name="latency">Per-direction native outbound delay in milliseconds.</param>
     /// <param name="jitter">Average outbound jitter in milliseconds.</param>
     /// <param name="loss">Outbound packet loss percentage.</param>
-    [TestCase(2, 0, 0, 0f)]
-    [TestCase(2, 30, 0, 0f)]
-    [TestCase(2, 50, 10, 0f)]
-    [TestCase(2, 0, 0, 2f)]
-    [TestCase(8, 30, 10, 2f)]
-    public void VehicleLoopConvergesAcrossNetworkConditions(int players, int latency, int jitter, float loss)
+    /// <param name="reorder">Outbound reordering percentage.</param>
+    [TestCase(2, 0, 0, 0f, 0f)]
+    [TestCase(2, 30, 0, 0f, 0f)]
+    [TestCase(2, 50, 10, 0f, 0f)]
+    [TestCase(2, 0, 0, 2f, 0f)]
+    [TestCase(8, 30, 10, 2f, 0f)]
+    [TestCase(2, 30, 10, 2f, 10f)]
+    public void VehicleLoopConvergesAcrossNetworkConditions(int players, int latency, int jitter, float loss, float reorder)
     {
         var gateways = new List<GameNetworkingSocketsTransport>();
         try
@@ -38,21 +40,29 @@ internal sealed class NativeVehicleReplicationTests
             reservation.Close();
             string endpoint = $"127.0.0.1:{port}";
             hostGateway.Listen(TransportEndpoint.DirectIp(endpoint));
-            hostGateway.ConfigureSimulation(new NetworkSimulation(latency, jitter, loss, 0, 0));
+            hostGateway.ConfigureSimulation(new NetworkSimulation(latency, jitter, loss, reorder, 25));
             var host = new VehicleNetworkDriver(hostGateway, 99);
             var clients = new List<VehicleNetworkDriver>();
             var errors = new List<float>();
+            var startup = new List<float>();
+            var steady = new List<float>();
+            int ticks = 0;
+            int limitedFrames = 0;
             foreach (int index in Enumerable.Range(1, players - 1))
             {
                 var gateway = new GameNetworkingSocketsTransport();
                 gateways.Add(gateway);
                 var client = new VehicleNetworkDriver(gateway, 0, gateway.Connect(TransportEndpoint.DirectIp(endpoint)));
-                client.LocalCorrected += _ => errors.Add(client.Prediction!.PredictionError);
+                client.LocalCorrected += _ =>
+                {
+                    float error = client.Prediction!.PredictionError;
+                    errors.Add(error);
+                    (ticks < 120 ? startup : steady).Add(error);
+                };
                 clients.Add(client);
             }
 
             var clock = Stopwatch.StartNew();
-            int ticks = 0;
             byte[]? stale = null;
             bool injected = false;
             bool immediate = false;
@@ -85,6 +95,7 @@ internal sealed class NativeVehicleReplicationTests
                     }
 
                     Assert.That(client.Failure, Is.Empty);
+                    if (client.Prediction?.IsPredictionLimited == true) { limitedFrames++; }
                 }
 
                 if (ticks == 150)
@@ -92,7 +103,7 @@ internal sealed class NativeVehicleReplicationTests
                     stale = VehicleNetworkCodec.EncodeSnapshot(host.Latest!);
                 }
 
-                if (ticks == 300 && stale is not null)
+                if (ticks is >= 300 and <= 304 && stale is not null)
                 {
                     foreach (ulong peer in hostGateway.Connections.Keys)
                     {
@@ -106,6 +117,7 @@ internal sealed class NativeVehicleReplicationTests
             }
 
             Assert.That(immediate, Is.True, "Local prediction must advance without a fresh acknowledgement.");
+            Assert.That(limitedFrames, Is.Zero, "Supported WAN conditions must not exhaust the speculative horizon.");
             Assert.That(injected, Is.True);
             Assert.That(host.Host!.World.State.Vehicles.Count, Is.EqualTo(players));
             foreach (VehicleNetworkDriver client in clients)
@@ -121,7 +133,12 @@ internal sealed class NativeVehicleReplicationTests
 
             errors.Sort();
             float p99 = errors[(int)((errors.Count - 1) * 0.99)];
-            Assert.That(p99, Is.LessThan(1), "Routine corrections should stay below visible hard-snap scale.");
+            steady.Sort();
+            float steadyP99 = steady[(int)((steady.Count - 1) * 0.99)];
+            Assert.That(steadyP99, Is.LessThan(0.1), "Repeated decimetre corrections are a quality regression.");
+            Assert.That(steady.Max(), Is.LessThan(0.5), "A percentile must not hide an isolated ordinary-driving correction.");
+            Assert.That(startup.Max(), Is.LessThan(0.75), "Startup is independently gated, not hidden in a long settled window.");
+            TestContext.WriteLine($"startup max={startup.Max():F4}m; steady p99={steadyP99:F4}m; steady max={steady.Max():F4}m; steady >1cm={steady.Count(error => error > 0.01f)}; max pending at completion={clients.Max(client => client.Inputs!.Pending.Count)}");
             TestContext.WriteLine($"players={players}; outbound delay={latency}ms; jitter={jitter}ms; loss={loss}%; corrections={errors.Count}; p99={p99:F4}m; max={errors.Max():F4}m; snapshots/client={clients.Min(client => client.ReceivedSnapshots)}; stale packets rejected");
         }
         finally

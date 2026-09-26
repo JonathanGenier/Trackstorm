@@ -13,6 +13,7 @@ public sealed partial class MigrationProcessChecks : Node
     private GameNetworkingSocketsTransport _gateway = null!;
     private LobbyNetworkDriver _driver = null!;
     private NetworkVehicleArena? _arena;
+    private PackedScene _preparedMap = null!;
     private int _role;
     private int _assigned;
     private int _frames;
@@ -31,6 +32,14 @@ public sealed partial class MigrationProcessChecks : Node
         _role = int.Parse(arguments["--migration-role"], System.Globalization.CultureInfo.InvariantCulture);
         _ports = arguments["--migration-ports"].Split(',');
         _directory = arguments["--migration-output"];
+        // Match production resource preparation and the in-process migration fixture:
+        // cold map construction must not block this participant's live heartbeat.
+        _preparedMap = GD.Load<PackedScene>(Arenas.ActiveMap.ScenePath);
+        var warmMap = _preparedMap.Instantiate<Node3D>();
+        AddChild(warmMap);
+        var warmLayout = Arenas.DestructibleEnvironment.ReadLayout(warmMap)!;
+        new Arenas.DestructibleEnvironment(warmMap).Apply(new Core.Arenas.EnvironmentAuthority(warmLayout).Snapshot(1, 0));
+        warmMap.Free();
         _gateway = new GameNetworkingSocketsTransport();
         _gateway.ConnectionChanged += change =>
         {
@@ -105,7 +114,7 @@ public sealed partial class MigrationProcessChecks : Node
 
                     if (_driver.State.Phase == SessionPhase.Arena)
                     {
-                        _arena = new NetworkVehicleArena();
+                        _arena = new NetworkVehicleArena { PreparedMap = _preparedMap };
                         _arena.Initialize(_gateway, _role == 0 ? _driver.State.Match : 0, _driver.ServerPeer, _driver);
                         AddChild(_arena);
                     }

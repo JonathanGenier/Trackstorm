@@ -76,6 +76,10 @@ internal static class RuntimeStatistics
             $"Incoming/outgoing quality: {quality?.IncomingQuality?.ToString("P1") ?? "Unavailable"} / {quality?.OutgoingQuality?.ToString("P1") ?? "Unavailable"}\n" +
             $"Estimated incoming/outgoing loss: {quality?.IncomingLoss?.ToString("P1") ?? "Unavailable"} / {quality?.OutgoingLoss?.ToString("P1") ?? "Unavailable"}";
         player.Add(new("Player networking / prediction", predictionText));
+        if (prediction is not null)
+        {
+            player.Add(new("Correction quality (local client)", $"Startup (first 2s): {driver!.StartupCorrections}\nSteady state: {driver.SteadyCorrections}\nPending inputs: {driver.Inputs?.Pending.Count ?? 0}\nPrediction held for acknowledgements: {prediction.IsPredictionLimited}"));
+        }
         return new(players, selected, global, player);
     }
 

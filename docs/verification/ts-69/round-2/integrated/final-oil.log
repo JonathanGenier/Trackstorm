@@ -1,0 +1,30 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two native UDP peers ready; Oil requested through the normal held slot.
+Host terrain query deployed on a 14-degree bank; peer received the exact patch.
+Fresh late join restored one identical patch without duplication; owner enters at speed.
+Owner receives temporary traction loss without a forced spin, score; one pass is consumed.
+Owner exits, recovers, and returns for a second pass.
+The owner's second pass removed the patch on all peers without score; deploy again.
+Remote enemy begins the first pass through a new patch.
+Remote first pass applied and scored once; remain inside.
+Continuous overlap counted once; deploy another simultaneous patch.
+Two simultaneous patches replicated; enemy leaves the original patch.
+The same enemy returns for the second pass.
+Seeded 1,500 detached patches with one consumed pass to exercise complete continuation.
+Large publication converged atomically; a fourth peer requests a complete join checkpoint.
+Oil integration passed: Two native UDP peers ready; Oil requested through the normal held slot.
+Host terrain query deployed on a 14-degree bank; peer received the exact patch.
+Fresh late join restored one identical patch without duplication; owner enters at speed.
+Owner receives temporary traction loss without a forced spin, score; one pass is consumed.
+Owner exits, recovers, and returns for a second pass.
+The owner's second pass removed the patch on all peers without score; deploy again.
+Remote enemy begins the first pass through a new patch.
+Remote first pass applied and scored once; remain inside.
+Continuous overlap counted once; deploy another simultaneous patch.
+Two simultaneous patches replicated; enemy leaves the original patch.
+The same enemy returns for the second pass.
+Two owner passes removed their patch for zero points; two passes by the same enemy removed another patch and banked 50 each on all three peers.
+Seeded 1,500 detached patches with one consumed pass to exercise complete continuation.
+Large publication converged atomically; a fourth peer requests a complete join checkpoint.
+All four peers retain 1,500 exact patch identities, deadlines and consumed-pass counts after fresh admission.

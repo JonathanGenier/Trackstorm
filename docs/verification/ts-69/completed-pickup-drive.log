@@ -1,0 +1,75 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+Driver 0, case 0, closest 1.112 m, inventory Wrench/None: Wrench passed.
+Driver 0, case 1, closest 1.112 m, inventory Missile/None: Missile passed.
+Driver 0, case 2, closest 1.112 m, inventory Oil/None: Oil passed.
+Driver 0, case 3, closest 1.112 m, inventory Nitro/None: Nitro passed.
+Driver 0, case 4, closest 1.112 m, inventory ProxyMine/None: ProxyMine passed.
+Driver 0, case 5, closest 1.112 m, inventory Salvo/None: Salvo passed.
+Driver 0, case 6, closest 1.112 m, inventory MachineGun/None: MachineGun passed.
+Driver 0, case 7, closest 1.112 m, inventory Wrench/None: Wrench passed.
+Driver 0, case 8, closest 1.112 m, inventory Wrench/ProxyMine: ProxyMine passed.
+Driver 0, case 9, closest 1.112 m, inventory Wrench/ProxyMine: full rejection passed.
+Driver 0, case 10, closest 1.112 m, inventory Missile/ProxyMine: Missile passed.
+Driver 1, case 0, closest 1.108 m, inventory Wrench/None: Wrench passed.
+Driver 1, case 1, closest 1.108 m, inventory Missile/None: Missile passed.
+Driver 1, case 2, closest 1.108 m, inventory Oil/None: Oil passed.
+Driver 1, case 3, closest 1.108 m, inventory Nitro/None: Nitro passed.
+Driver 1, case 4, closest 1.108 m, inventory ProxyMine/None: ProxyMine passed.
+Driver 1, case 5, closest 1.108 m, inventory Salvo/None: Salvo passed.
+Driver 1, case 6, closest 1.108 m, inventory MachineGun/None: MachineGun passed.
+Driver 1, case 7, closest 1.108 m, inventory Wrench/None: Wrench passed.
+Driver 1, case 8, closest 1.108 m, inventory Wrench/ProxyMine: ProxyMine passed.
+Driver 1, case 9, closest 1.108 m, inventory Wrench/ProxyMine: full rejection passed.
+Driver 1, case 10, closest 1.108 m, inventory Missile/ProxyMine: Missile passed.
+Pickup drive passed: both application peers acquired every registered item, two sequential slots, full rejection and use/retry.
+Transport peer 1: Disconnected; LocalRequest; Local disconnect
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+driver=0 speed=8 offset=0: 10/10
+driver=0 speed=8 offset=1.5: 10/10
+driver=0 speed=8 offset=2.8: 10/10
+driver=0 speed=40 offset=0: 10/10
+driver=0 speed=40 offset=1.5: 10/10
+driver=0 speed=40 offset=2.8: 10/10
+driver=0 speed=65 offset=0: 10/10
+driver=0 speed=65 offset=1.5: 10/10
+driver=0 speed=65 offset=2.8: 10/10
+driver=1 speed=8 offset=0: 10/10
+driver=1 speed=8 offset=1.5: 10/10
+driver=1 speed=8 offset=2.8: 10/10
+driver=1 speed=40 offset=0: 10/10
+driver=1 speed=40 offset=1.5: 10/10
+driver=1 speed=40 offset=2.8: 10/10
+driver=1 speed=65 offset=0: 10/10
+driver=1 speed=65 offset=1.5: 10/10
+driver=1 speed=65 offset=2.8: 10/10
+driver=0 speed=8 offset=0: 10/10; measured crossing speed 6.50–6.53 m/s
+driver=0 speed=8 offset=1.5: 10/10; measured crossing speed 6.53–6.56 m/s
+driver=0 speed=8 offset=2.8: 10/10; measured crossing speed 6.55–6.58 m/s
+driver=0 speed=40 offset=0: 10/10; measured crossing speed 38.21–38.38 m/s
+driver=0 speed=40 offset=1.5: 10/10; measured crossing speed 38.21–38.39 m/s
+driver=0 speed=40 offset=2.8: 10/10; measured crossing speed 38.21–38.39 m/s
+driver=0 speed=65 offset=0: 10/10; measured crossing speed 63.22–63.51 m/s
+driver=0 speed=65 offset=1.5: 10/10; measured crossing speed 63.22–63.51 m/s
+driver=0 speed=65 offset=2.8: 10/10; measured crossing speed 63.21–63.51 m/s
+driver=1 speed=8 offset=0: 10/10; measured crossing speed 6.50–6.53 m/s
+driver=1 speed=8 offset=1.5: 10/10; measured crossing speed 6.53–6.56 m/s
+driver=1 speed=8 offset=2.8: 10/10; measured crossing speed 6.55–6.58 m/s
+driver=1 speed=40 offset=0: 10/10; measured crossing speed 38.21–38.38 m/s
+driver=1 speed=40 offset=1.5: 10/10; measured crossing speed 38.21–38.39 m/s
+driver=1 speed=40 offset=2.8: 10/10; measured crossing speed 38.21–38.39 m/s
+driver=1 speed=65 offset=0: 10/10; measured crossing speed 63.22–63.51 m/s
+driver=1 speed=65 offset=1.5: 10/10; measured crossing speed 63.22–63.51 m/s
+driver=1 speed=65 offset=2.8: 10/10; measured crossing speed 63.21–63.51 m/s
+Pickup motion attempts: 180/180.
+Transport peer 1: Disconnected; LocalRequest; Local disconnect
+Pickup drive verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\pickup-drive-checks\cca165e2b486439694c26f57a9e81bd3

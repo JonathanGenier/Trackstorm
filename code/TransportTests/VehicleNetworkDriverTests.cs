@@ -17,6 +17,51 @@ internal sealed partial class VehicleNetworkDriverTests
     private const ulong ServerPeer = 42;
     private const ulong Session = 99;
 
+    [TestCase(false)]
+    [TestCase(true)]
+    public void SnapshotBurstReplaysNewestBoundaryAndPreservesReliableOrder(bool reliableBoundary)
+    {
+        using var gateway = ConnectedGateway();
+        using var client = new VehicleNetworkDriver(gateway, 0, ServerPeer);
+        var host = new HostVehicleSession(Session);
+        host.Join(ServerPeer);
+        gateway.Receive(new(ServerPeer, VehicleNetworkCodec.EncodeWelcome(Session, 2), TransportDelivery.Reliable));
+        gateway.Receive(new(ServerPeer, Core.Development.GameplayConfigurationCodec.Encode(Session, new(0, new())), TransportDelivery.Reliable));
+        gateway.Receive(new(ServerPeer, VehicleNetworkCodec.EncodeSnapshot(host.Snapshot()), TransportDelivery.Unreliable));
+        for (int i = 0; i < 20; i++) { client.Advance(Drive(), Observe); }
+        var corrections = new List<ulong>();
+        client.LocalCorrected += _ => corrections.Add(client.Latest!.Tick);
+        int boundaries = 0;
+        client.LifecycleReceived += world =>
+        {
+            Assert.That(client.Prediction!.History.LastAcknowledged, Is.EqualTo(9));
+            Assert.That(world.Tick, Is.EqualTo(9));
+            boundaries++;
+        };
+        WorldSnapshot? stale = null;
+        for (uint i = 1; i <= 18; i++)
+        {
+            host.Receive(ServerPeer, Session, [new(i, Drive())]);
+            host.Step(default, Observe);
+            if (i % 3 == 0)
+            {
+                WorldSnapshot snapshot = host.Snapshot();
+                stale ??= snapshot;
+                gateway.Receive(new(ServerPeer, VehicleNetworkCodec.EncodeSnapshot(snapshot), reliableBoundary && i == 9 ? TransportDelivery.Reliable : TransportDelivery.Unreliable));
+            }
+        }
+        gateway.Receive(new(ServerPeer, VehicleNetworkCodec.EncodeSnapshot(stale!), TransportDelivery.Unreliable));
+        client.Advance(Drive(), Observe);
+        Assert.That(corrections, Is.EqualTo(reliableBoundary ? new ulong[] { 6, 9, 18 } : new ulong[] { 18 }));
+        Assert.That(boundaries, Is.EqualTo(reliableBoundary ? 1 : 0));
+        Assert.That(client.ReceivedSnapshots, Is.EqualTo(7));
+        Assert.That(client.History!.Snapshots.Count, Is.EqualTo(7));
+        Assert.That(client.RejectedPackets, Is.EqualTo(1));
+        var expected = new PredictedVehicle(host.Snapshot().Vehicles.Single(vehicle => vehicle.State.VehicleId == 2));
+        foreach (var input in client.Inputs!.Pending) { expected.Predict(input.Frame, Observe); }
+        Assert.That(client.LocalState, Is.EqualTo(expected.State));
+    }
+
     [Test]
     public void SwitchCommandsAreReliableOrderedAndCannotSelectAnotherPlayer()
     {
@@ -44,7 +89,7 @@ internal sealed partial class VehicleNetworkDriverTests
 
     /// <summary>Only clients expose snapshot freshness; host diagnostics render the metric as unavailable.</summary>
     [Test]
-    public void SnapshotAgeIsClientOnly()
+    public void SnapshotAgeIsClientOnlyAndTracksElapsedTimeInsteadOfCatchUpSteps()
     {
         using var hostGateway = new DriverGateway();
         var host = new VehicleNetworkDriver(hostGateway, Session);
@@ -54,9 +99,13 @@ internal sealed partial class VehicleNetworkDriverTests
         Assert.That(NetworkVehicleArena.FormatSnapshotAge(host.SnapshotAge), Is.EqualTo("N/A"));
 
         using var clientGateway = ConnectedGateway();
-        var client = new VehicleNetworkDriver(clientGateway, 0, ServerPeer);
-        client.Advance(default, Observe);
-        Assert.That(client.SnapshotAge, Is.EqualTo(1.0 / HostVehicleSession.TickRate).Within(0.000001));
+        double seconds = 10;
+        var client = new VehicleNetworkDriver(clientGateway, 0, ServerPeer, seconds: () => seconds);
+        seconds += 0.05;
+        for (int tick = 0; tick < 64; tick++) { client.Advance(default, Observe); }
+        Assert.That(client.SnapshotAge, Is.EqualTo(0.05).Within(0.000001), "Catch-up ticks cannot manufacture over a second of snapshot age.");
+        seconds += 1;
+        Assert.That(client.SnapshotAge, Is.EqualTo(1.05).Within(0.000001), "A frame stall ages the last boundary even without simulation callbacks.");
     }
 
     /// <summary>Post-assignment inputs are sent before authority arrives, then acknowledged and replayed exactly once.</summary>
@@ -64,7 +113,8 @@ internal sealed partial class VehicleNetworkDriverTests
     public void DelayedFirstSnapshotAdoptsAcknowledgesAndReplaysQueuedInputs()
     {
         using var gateway = ConnectedGateway();
-        var client = new VehicleNetworkDriver(gateway, 0, ServerPeer);
+        double seconds = 10;
+        var client = new VehicleNetworkDriver(gateway, 0, ServerPeer, seconds: () => seconds);
         InputFrame first = Drive(1000, InputButtons.Drift, InputButtons.Drift, 0);
         InputFrame second = Drive(2000, 0, 0, InputButtons.Drift);
         InputFrame third = Drive(3000, 0, InputButtons.UseItem, InputButtons.UseItem);
@@ -106,12 +156,14 @@ internal sealed partial class VehicleNetworkDriverTests
         Assert.That(client.SnapshotAge, Is.Zero);
 
         int rejectedBeforeDuplicate = client.RejectedPackets;
+        seconds += 0.25;
         gateway.Receive(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeSnapshot(firstSnapshot), TransportDelivery.Unreliable));
         expected.Predict(fourth, Observe);
         client.Advance(fourth, Observe);
 
         Assert.That(client.RejectedPackets, Is.EqualTo(rejectedBeforeDuplicate + 1));
         Assert.That(client.ReceivedSnapshots, Is.EqualTo(1));
+        Assert.That(client.SnapshotAge, Is.EqualTo(0.25), "Stale traffic cannot refresh snapshot age.");
         Assert.That(client.Prediction.History.Pending.Select(input => input.Sequence), Is.EqualTo(new uint[] { 2, 3, 4 }));
         Assert.That(client.Prediction.State, Is.EqualTo(expected.State), "A duplicate first snapshot must not replay retained inputs again.");
     }

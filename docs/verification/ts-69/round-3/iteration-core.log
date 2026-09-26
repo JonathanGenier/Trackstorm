@@ -1,0 +1,7 @@
+
+>> Core tests
+  Determining projects to restore...
+C:\Program Files\dotnet\sdk\10.0.401\NuGet.targets(782,5): error : Failed to read NuGet.Config due to unauthorized access. Path: 'C:\Users\j_gen\AppData\Roaming\NuGet\NuGet.Config'. [C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\Trackstorm.Core.csproj]
+C:\Program Files\dotnet\sdk\10.0.401\NuGet.targets(782,5): error :   Access to the path 'C:\Users\j_gen\AppData\Roaming\NuGet\NuGet.Config' is denied. [C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\Trackstorm.Core.csproj]
+C:\Program Files\dotnet\sdk\10.0.401\NuGet.targets(782,5): error : Failed to read NuGet.Config due to unauthorized access. Path: 'C:\Users\j_gen\AppData\Roaming\NuGet\NuGet.Config'. [C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\Trackstorm.Core.Tests.csproj]
+C:\Program Files\dotnet\sdk\10.0.401\NuGet.targets(782,5): error :   Access to the path 'C:\Users\j_gen\AppData\Roaming\NuGet\NuGet.Config' is denied. [C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\Trackstorm.Core.Tests.csproj]

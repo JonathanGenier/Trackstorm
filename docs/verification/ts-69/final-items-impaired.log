@@ -1,0 +1,28 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Eight native peers assigned and initialized.
+E and D-pad Right switch all eight players; immediate use selects Wrench in slot two.
+All eight use Wrench at full HP, including repeated requests.
+Every full-health use consumed once and replicated; preparing damaged Wrench use.
+All eight damaged players use Wrench.
+Damaged Wrench outcomes match on all eight peers.
+Remote client requested missile scenario 0; host owns creation.
+Remote client requested missile scenario 1; host owns creation.
+Remote client requested missile scenario 2; host owns creation.
+Remote client requested missile scenario 3; host owns creation.
+Item integration passed: Eight native peers assigned and initialized.
+E and D-pad Right switch all eight players; immediate use selects Wrench in slot two.
+All eight use Wrench at full HP, including repeated requests.
+Every full-health use consumed once and replicated; preparing damaged Wrench use.
+All eight damaged players use Wrench.
+Damaged Wrench outcomes match on all eight peers.
+Remote client requested missile scenario 0; host owns creation.
+Scenario 0: one remote launch/impact on every peer at <-40, 1.0186131, -2.6469328>; host-only damage/impulse.
+Remote client requested missile scenario 1; host owns creation.
+Scenario 1: one remote launch/impact on every peer at <8, 1.0186131, -5.400002>; host-only damage/impulse.
+Remote client requested missile scenario 2; host owns creation.
+Scenario 2: one remote launch/impact on every peer at <-17, 1.0186131, 2>; host-only damage/impulse.
+Remote client requested missile scenario 3; host owns creation.
+Scenario 3: one remote launch/impact on every peer at <-45, 1.0186131, -50>; host-only damage/impulse.
+Vehicles, movable prop, static container and arena boundary all stop missiles. VFX consume replicated events only.
+Item verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\item-checks\803494e39d1147cba7c9cfb3f4af0c43

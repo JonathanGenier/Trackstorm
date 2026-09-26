@@ -1,0 +1,6 @@
+System.InvalidOperationException: Host migration failed: authority fencing could not be established. Leave and choose a lobby.
+   at Trackstorm.Client.Verification.MigrationProcessChecks._PhysicsProcess(Double delta) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\MigrationProcessChecks.cs:line 141
+WARNING: 4 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 1 resources still in use at exit.
+   at: clear (core/io/resource.cpp:817)

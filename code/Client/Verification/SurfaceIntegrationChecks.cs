@@ -153,6 +153,13 @@ public sealed partial class SurfaceIntegrationChecks : Node3D
             }
 
             System.IO.File.WriteAllLines(System.IO.Path.Combine(_output,"evidence.txt"),_evidence);
+            // Stop callbacks and release native arena/audio resources while the scene tree
+            // and mixer still run, before Godot begins terminal managed-resource shutdown.
+            _practice = null;
+            canvas.QueueFree();
+            practice.QueueFree();
+            await Frames(6);
+            await Task.Delay(100);
             GD.Print("Surface integration passed: all eight identities, native adapters, driving transitions and Stats.");
             GetTree().Quit();
         }

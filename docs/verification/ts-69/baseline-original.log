@@ -1,0 +1,29 @@
+  Determining projects to restore...
+  Restored C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\Trackstorm.Client.csproj (in 166 ms).
+  Restored C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\Trackstorm.Transport.Tests.csproj (in 166 ms).
+  Restored C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\Trackstorm.Core.Tests.csproj (in 166 ms).
+  2 of 5 projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:06.51
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+{"Rendered":false,"FrameTime":{"Samples":1333,"Mean":16.68057464366091,"P50":16.668,"P95":17.857,"P99":28.204,"Maximum":67.335},"SimulationStepTime":{"Samples":1441,"Mean":5.340225537820957,"P50":6.486,"P95":7.199,"P99":16.542,"Maximum":27.996},"FrameStalls":[],"Host":true,"Map":"res://scenes/maps/oval_foundation.tscn","LargestRoster":2,"LocalVehicle":1,"Tick":1443,"Snapshots":0,"ImmediateFrames":0,"DriftFrames":0,"HandbrakeFrames":79,"ErrorP99":0,"ErrorMaximum":0,"InterpolationDelay":0,"LargeCorrections":0,"CorrectionDetails":[],"LastAcknowledged":0,"Position":[40.76401,1.1430676,64.40862],"HP":964.9087,"Grounded":true,"PropTick":null,"PropTravel":0,"PropReplicaError":0,"PropPositions":null}
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+{"Rendered":false,"FrameTime":{"Samples":163,"Mean":96.24572392638036,"P50":16.656,"P95":897.414,"P99":1252.556,"Maximum":1259.765},"SimulationStepTime":{"Samples":960,"Mean":15.012865625,"P50":6.082,"P95":43.126,"P99":54.973,"Maximum":69.023},"FrameStalls":[{"Seconds":3.7999999999999914,"Milliseconds":105.329,"Tick":256,"SnapshotAge":0},{"Seconds":3.899999999999991,"Milliseconds":104.781,"Tick":263,"SnapshotAge":0.03333333333333333},{"Seconds":4.016666666666658,"Milliseconds":149.122,"Tick":272,"SnapshotAge":0.016666666666666666},{"Seconds":4.166666666666657,"Milliseconds":193.407,"Tick":283,"SnapshotAge":0},{"Seconds":4.34999999999999,"Milliseconds":210.618,"Tick":296,"SnapshotAge":0.016666666666666666},{"Seconds":4.566666666666656,"Milliseconds":248.62,"Tick":311,"SnapshotAge":0.03333333333333333},{"Seconds":4.816666666666655,"Milliseconds":303.321,"Tick":329,"SnapshotAge":0},{"Seconds":5.116666666666654,"Milliseconds":442.02,"Tick":355,"SnapshotAge":0},{"Seconds":5.549999999999986,"Milliseconds":580.883,"Tick":388,"SnapshotAge":0},{"Seconds":6.133333333333317,"Milliseconds":707.468,"Tick":434,"SnapshotAge":0.05},{"Seconds":6.849999999999981,"Milliseconds":897.414,"Tick":485,"SnapshotAge":0},{"Seconds":7.749999999999978,"Milliseconds":958.459,"Tick":546,"SnapshotAge":0.05},{"Seconds":8.700000000000012,"Milliseconds":1146.644,"Tick":613,"SnapshotAge":0.03333333333333333},{"Seconds":9.766666666666731,"Milliseconds":1197.32,"Tick":686,"SnapshotAge":0.03333333333333333},{"Seconds":10.833333333333451,"Milliseconds":1252.556,"Tick":761,"SnapshotAge":0.03333333333333333},{"Seconds":11.90000000000017,"Milliseconds":1200.352,"Tick":834,"SnapshotAge":0.05},{"Seconds":12.96666666666689,"Milliseconds":1259.765,"Tick":908,"SnapshotAge":0},{"Seconds":14.03333333333361,"Milliseconds":1088.678,"Tick":976,"SnapshotAge":0.06666666666666667},{"Seconds":15.10000000000033,"Milliseconds":1042.202,"Tick":1040,"SnapshotAge":0.09999999999999999}],"Host":false,"Map":"res://scenes/maps/oval_foundation.tscn","LargestRoster":2,"LocalVehicle":2,"Tick":1094,"Snapshots":360,"ImmediateFrames":629,"DriftFrames":47,"HandbrakeFrames":79,"ErrorP99":0.6026706,"ErrorMaximum":7.0516214,"InterpolationDelay":1647.1362465060697,"LargeCorrections":1,"CorrectionDetails":[{"Seconds":1.3000000000000003,"Error":7.0516214,"Tick":50,"Ack":52,"Pending":26,"SnapshotAge":0.05,"FrameMilliseconds":5.17,"HP":1000,"Position":"\u003C1.0276234, 1.1349263, 85.999054\u003E","Speed":4.395576},{"Seconds":1.35,"Error":1.0165967,"Tick":36,"Ack":72,"Pending":9,"SnapshotAge":0.05,"FrameMilliseconds":16.719,"HP":1000,"Position":"\u003C0.23997587, 1.1412512, 86.00741\u003E","Speed":1.9369928}],"LastAcknowledged":944,"Position":[17.342426,1.1450394,67.266174],"HP":982.3983,"Grounded":true,"PropTick":null,"PropTravel":0,"PropReplicaError":0,"PropPositions":null}
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+
+Network vehicle verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\network-vehicle-checks\a8852c866b1548ca80548136d1dfa617
