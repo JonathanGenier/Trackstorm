@@ -45,3 +45,5 @@ Core tests exercise configured capacities through join, wire round-trip and pred
 Each held Nitro slot shows its own authoritative remaining percentage beneath the Nitro name; full, partial and EMPTY exhaustion use the existing fixed-slot frame. The icon is shortened within that frame to keep both lines legible. A compact NITRO BOOST indication appears above speed only while the local vehicle is boosted. Inventory, health and speed remain visible. The existing Circus feedback list accepts the authoritative Nitro award category; all score calculations remain in Core.
 
 Each held Machine Gun slot projects its authoritative remaining rounds as a percentage beneath the Machine Gun name. Full and partially depleted magazines use the existing fixed slot frame, and zero ammunition clears the item to EMPTY. This presentation reads replicated slot state only; firing cadence and ammunition ownership remain in Core.
+
+[Out-of-bounds damage](out-of-bounds.md) uses the authored oval perimeter, existing health/lifecycle authority and confirmed HUD feedback. Its life-scoped state survives tuning and checkpoint recovery; prediction never originates it.

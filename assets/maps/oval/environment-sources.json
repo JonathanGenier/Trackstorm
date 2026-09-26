@@ -9,7 +9,7 @@
     },
     {
       "path": "BuildOvalContent.gd",
-      "sha256": "0f09b216e10e5f1f08f7fdc085334a01c66122e2323ffd06606ad8fca6edfb39"
+      "sha256": "359736df1a6e57642c7598654f2095daa2d584524465a5b25a58df5f5767d568"
     },
     {
       "path": "source/OvalEnvironment.blend",
@@ -34,6 +34,15 @@
     {
       "path": "grass_variation.png",
       "sha256": "2ee80c84bec2a131872ab6964546a15d2737e8eb8c657bcc8c35dcd47b02b761"
+    },
+    {
+      "path": "BuildPerimeter.gd",
+      "sha256": "bdabe1701ad4e4d3bd6de1354674f63677a153d5547622d7e00e9295940f93af"
+    },
+    {
+      "path": "CatchFence.gdshader",
+      "sha256": "e7e7102ec002d5f73f0e4cfc9f4e018a12ef4c4962ac802cfaa679b1cac0aafc"
     }
-  ]
+  ],
+  "perimeter_reference": "TS-174 attachment 10084 Concrete barrier.png: user-supplied design concept only; no reference image pixels redistributed. Original offline concrete/fence geometry and welded-mesh shader."
 }

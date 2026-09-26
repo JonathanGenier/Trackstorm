@@ -308,6 +308,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 RequestItemUse();
             }
 
+            var previousVehicles = Host.World.State.Vehicles;
             Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine, ProjectSalvoGround, RaycastWeapon);
             Host.CollectPickups();
             if (Host.Environment is { } environment)
@@ -343,7 +344,8 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 _publishedMatchRevision = match.Revision;
             }
 
-            if (_rosterChanged || Host.World.LifecycleChanges.Count > 0)
+            if (_rosterChanged || Host.World.LifecycleChanges.Count > 0 ||
+                Host.World.State.Vehicles.Any(v => previousVehicles.Any(p => p.VehicleId == v.VehicleId && p.OutOfBounds != v.OutOfBounds)))
             {
                 byte[] lifecycle = VehicleNetworkCodec.EncodeSnapshot(Latest);
                 foreach (ulong peer in _assigned)

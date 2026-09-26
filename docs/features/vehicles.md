@@ -168,3 +168,5 @@ wall resistance, direct-crash dissipation, eccentric rotation and maximum per-co
 angular change. Production defaults remain 0.18/s, 0.95, 0.08 and 1.2 rad/s. Both native
 adapters read the accepted `VehicleConfiguration`; no response adds restitution or changes
 separate damage rules. See [control bounds and fixed invariants](developer-options.md#collision-and-destruction-tuning).
+
+[Out-of-bounds damage](out-of-bounds.md) uses the authored oval perimeter, existing health/lifecycle authority and confirmed HUD feedback. Its life-scoped state survives tuning and checkpoint recovery; prediction never originates it.

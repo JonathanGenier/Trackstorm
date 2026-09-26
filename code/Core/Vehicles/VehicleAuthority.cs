@@ -98,6 +98,12 @@ internal sealed class VehicleAuthority
             events.Add(waterDamage);
         }
 
+        bool outOfBounds = !request.Reset.HasValue &&
+            (previous.OutOfBounds || arena.Boundary is not null && !arena.Boundary.Contains(observed.Physics.Position));
+        if (outOfBounds && health.ApplyDamage(_movementConfiguration.OutOfBoundsDamagePerSecond / _movementConfiguration.TicksPerSecond,
+            new DamageContext("out-of-bounds", 0, "arena-exterior"), request.Input.Tick) is DamageEvent boundaryDamage)
+        { events.Add(boundaryDamage); }
+
         health.Repair(request.Repair);
         VehicleState next = movement.Step(request.Input, observed.Physics, observed.Support, !health.State.Destroyed, observed.Surface, observed.Wheels, !request.Reset.HasValue && request.OilContact, request.Reset.HasValue ? default : request.Nitro, request.ClearNitro || request.Reset.HasValue, observed.WaterDepth);
         IReadOnlyList<VehicleEffectRequest> acceptedEffects = health.State.Destroyed ? Array.Empty<VehicleEffectRequest>() : request.Effects;
@@ -107,7 +113,7 @@ internal sealed class VehicleAuthority
             next = new VehicleState(request.Input.Tick, stationary, false, false, 0, 0);
         }
 
-        var snapshot = new VehicleSnapshot(previous.VehicleId, request.Reset.HasValue ? checked(previous.LifeId + 1) : previous.LifeId, next, health.State, observed.Physics, acceptedEffects, respawnAtTick: health.State.Destroyed && respawn is not null ? checked(request.Input.Tick + respawn.DelayTicks) : null, landing: health.State.Destroyed ? default : landing);
+        var snapshot = new VehicleSnapshot(previous.VehicleId, request.Reset.HasValue ? checked(previous.LifeId + 1) : previous.LifeId, next, health.State, observed.Physics, acceptedEffects, respawnAtTick: health.State.Destroyed && respawn is not null ? checked(request.Input.Tick + respawn.DelayTicks) : null, landing: health.State.Destroyed ? default : landing, outOfBounds: !health.State.Destroyed && outOfBounds);
         return new VehicleStepResult(snapshot, acceptedEffects, events, request.Reset.HasValue);
     }
 
@@ -138,7 +144,7 @@ internal sealed class VehicleAuthority
         var adjusted = new VehicleState(m.Tick, m.Physics, m.Grounded, m.Drifting, Math.Clamp(m.SteeringAngle, -movement.SteeringAngle, movement.SteeringAngle), m.Handbrake, m.CurrentSurface, m.FrontSlip, m.RearSlip, m.LongitudinalAcceleration, m.LateralAcceleration, m.LandingIntensity, m.Wheels, Math.Min(2400, oilTicks), m.Nitro, m.PowerSlip, m.Air);
         var health = new VehicleDamageState(damage.MaxHP, previous.Damage.CurrentHP / previous.Damage.MaxHP * damage.MaxHP, previous.Damage.LastDamage, previous.Damage.LastCollisionTick);
         var result = new VehicleAuthority(previous.VehicleId, movement, damage, previous.ObservedPhysics);
-        result.Commit(new VehicleSnapshot(previous.VehicleId, previous.LifeId, adjusted, health, previous.ObservedPhysics, previous.Effects, previous.Lifecycle, previous.RespawnAtTick, previous.Landing));
+        result.Commit(new VehicleSnapshot(previous.VehicleId, previous.LifeId, adjusted, health, previous.ObservedPhysics, previous.Effects, previous.Lifecycle, previous.RespawnAtTick, previous.Landing, previous.OutOfBounds));
         return result;
     }
 

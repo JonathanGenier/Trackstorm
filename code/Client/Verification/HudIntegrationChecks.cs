@@ -51,6 +51,13 @@ public sealed partial class HudIntegrationChecks : Node
                 Require(timerFrame.SavePng(System.IO.Path.Combine(output, $"timer-{sample.Item2.Replace(':', '-')}.png")) == Error.Ok, "Timer screenshot");
             }
             hud.Match = () => null;
+            state = new VehicleSnapshot(state.VehicleId,state.LifeId,state.Movement,state.Damage,state.ObservedPhysics,outOfBounds:true);
+            hud.Refresh();
+            Require(hud.Displayed!.OutOfBounds && hud.FindChild("OutOfBounds",true,false) is Label { Visible:true, Text: "OUT OF BOUNDS\nARENA HAZARD • LOSING HEALTH" }, "Authoritative OOB warning renders");
+            state = Sample(state,0,0); hud.Refresh();
+            Require(!hud.Displayed!.OutOfBounds && hud.FindChild("OutOfBounds",true,false) is Label { Visible:false }, "Death clears OOB warning");
+            state = Sample(state,1000,0); hud.Refresh();
+
             var preferences = new Settings.SettingsPanel();
             preferences.Initialize(settings, input.Adapter);
             viewport.AddChild(preferences);
