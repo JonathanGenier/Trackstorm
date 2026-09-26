@@ -1,0 +1,16 @@
+Test run for C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Non-Explicit run
+Cone plane 5 m: width 1.0465 m, 2 x 1.5 m target 800/800 (100.00%).
+Cone plane 15 m: width 3.1395 m, 2 x 1.5 m target 286/800 (35.75%).
+Cone plane 224 m: width 46.8831 m, 2 x 1.5 m target 4/800 (0.50%).
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed DefaultConeExpandsWithDistanceAndFollowsEveryCurrentOrientation [160 ms]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 0.6506 Seconds

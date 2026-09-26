@@ -20,7 +20,7 @@ internal sealed class MachineGunTests
         WeaponRayHit? Miss(ulong owner, Vector3 start, Vector3 end)
         {
             Assert.That(owner, Is.EqualTo(1));
-            Assert.That(Vector3.Distance(start, end), Is.EqualTo(75).Within(0.00001));
+            Assert.That(Vector3.Distance(start, end), Is.EqualTo(225).Within(0.0001));
             shots++;
             return null;
         }
@@ -63,10 +63,10 @@ internal sealed class MachineGunTests
         Assert.That(host.UseItem(0, 99, 1, second.SecondToken), Is.False);
     }
 
-    [TestCase(0.1f, 2.25f)]
-    [TestCase(0.16f, 2.25f)]
-    [TestCase(0.6f, 0.739355953f)]
-    [TestCase(0.8f, 0.261401805f)]
+    [TestCase(0.02f, 2.25f)]
+    [TestCase(12f / 225f, 2.25f)]
+    [TestCase(0.6f, 0.6179834963276867f)]
+    [TestCase(0.8f, 0.21849016045733952f)]
     [TestCase(1f, 0f)]
     public void NativeClosestHitAppliesBoundedFalloffAndAttributedSmallImpulse(float fraction, float damage)
     {
@@ -214,7 +214,7 @@ internal sealed class MachineGunTests
     {
         var host = Create(new() { MachineGunFireRate = 60, MachineGunDamage = 1000, MachineGunSpread = 0 });
         Grant(host);
-        Step(host, true, (_, _, _) => new(0.1f, 2));
+        Step(host, true, (_, _, _) => new(0.02f, 2));
         Assert.That(host.World.GetVehicle(2).Damage.Destroyed, Is.True);
         Assert.That(host.World.State.Match!.Players.Single(p => p.Player == 1).Kills, Is.EqualTo(1));
         Assert.That(host.World.State.Match.Players.Single(p => p.Player == 1).CircusScore, Is.EqualTo(host.Configuration.Configuration.Match.BaseKillPoints));
@@ -235,7 +235,7 @@ internal sealed class MachineGunTests
             host.Step(Held, state => new(new VehiclePhysicsState(state.ObservedPhysics.Position, orientation, Vector3.Zero, Vector3.Zero), Vector3.UnitY),
                 raycastWeapon: (_, start, end) =>
                 {
-                    Assert.That(Vector3.Distance(start, end), Is.EqualTo(75).Within(0.0001));
+                    Assert.That(Vector3.Distance(start, end), Is.EqualTo(225).Within(0.0001));
                     var local = Vector3.Transform(Vector3.Normalize(end - start), Quaternion.Inverse(orientation));
                     Assert.That(-local.Z, Is.GreaterThanOrEqualTo(MathF.Cos(MathF.PI / 30) - 0.000001));
                     slopes.Add(new(local.X / -local.Z, local.Y / -local.Z));
@@ -244,7 +244,7 @@ internal sealed class MachineGunTests
         }
         Assert.That(slopes.Count, Is.EqualTo(800));
         var rates = new List<double>();
-        foreach (float distance in new[] { 5f, 15f, 74f })
+        foreach (float distance in new[] { 5f, 15f, 224f })
         {
             var pattern = slopes.Select(p => p * distance).ToArray();
             float width = pattern.Max(p => p.X) - pattern.Min(p => p.X);
@@ -265,7 +265,7 @@ internal sealed class MachineGunTests
         var host = Create(new() { MachineGunFireRate = 120 });
         Grant(host);
         var ends = new List<Vector3>();
-        Step(host, true, (_, _, end) => { ends.Add(end); return new(0.1f, 2); });
+        Step(host, true, (_, _, end) => { ends.Add(end); return new(0.02f, 2); });
         Assert.That(ends.Count, Is.EqualTo(2));
         Assert.That(ends[0], Is.Not.EqualTo(ends[1]));
         Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.EqualTo(798));
@@ -294,7 +294,7 @@ internal sealed class MachineGunTests
         var slot = Grant(host);
         ulong tick = host.World.State.Tick;
         int rays = 0;
-        Assert.Throws<ArgumentException>(() => Step(host, true, (_, _, _) => ++rays == 1 ? new(0.1f, 2) : new(float.NaN, 2)));
+        Assert.Throws<ArgumentException>(() => Step(host, true, (_, _, _) => ++rays == 1 ? new(0.02f, 2) : new(float.NaN, 2)));
         Assert.That(host.World.State.Tick, Is.EqualTo(tick));
         Assert.That(host.Items.Slots.Single(), Is.EqualTo(slot));
         Assert.That(host.World.GetVehicle(2).Damage.CurrentHP, Is.EqualTo(1000));

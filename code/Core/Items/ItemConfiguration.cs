@@ -34,7 +34,7 @@ public sealed record ItemConfiguration
     /// <summary>Rounds per second, bounded to two rounds per fixed step.</summary>
     public double MachineGunFireRate { get; init; } = 80;
     /// <summary>Maximum damaging ray length in metres.</summary>
-    public float MachineGunRange { get; init; } = 75;
+    public float MachineGunRange { get; init; } = 225;
     /// <summary>Near-range HP per round.</summary>
     public float MachineGunDamage { get; init; } = 2.25f;
     /// <summary>Distance where damage begins fading.</summary>
@@ -102,7 +102,7 @@ public sealed record ItemConfiguration
         if (!double.IsFinite(SalvoMarkerWidth) || SalvoMarkerWidth < 0.1 || SalvoMarkerWidth > 2) { throw new ArgumentException("Invalid salvo marker_width."); }
         if (!double.IsFinite(SalvoMarkerLift) || SalvoMarkerLift < 0.02 || SalvoMarkerLift > 0.5) { throw new ArgumentException("Invalid salvo marker_lift."); }
         if (MachineGunCapacity is < 1 or > 10000 || !double.IsFinite(MachineGunFireRate) || MachineGunFireRate is < 1 or > 120 ||
-            !float.IsFinite(MachineGunRange) || MachineGunRange is < 1 or > 100 ||
+            !float.IsFinite(MachineGunRange) || MachineGunRange is < 1 or > 300 ||
             !float.IsFinite(MachineGunDamage) || MachineGunDamage is < 0 or > 1000 ||
             !float.IsFinite(MachineGunFalloffStart) || MachineGunFalloffStart < 0 || MachineGunFalloffStart >= MachineGunRange ||
             !float.IsFinite(MachineGunFalloff) || MachineGunFalloff is < 0.1f or > 8 ||

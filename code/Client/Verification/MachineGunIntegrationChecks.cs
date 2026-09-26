@@ -59,8 +59,8 @@ public sealed partial class MachineGunIntegrationChecks : Node
             view.AddChild(new Hud.CombatHud { Vehicle = () => arena.Driver.LocalState, Slot = () => arena.Driver.LocalItem,
                 Match = () => arena.Driver.Match, Player = () => arena.Driver.LocalVehicleId });
             var floor = new StaticBody3D { Position = new(0, 200, 0), CollisionLayer = 1 };
-            floor.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(200, 1, 200) } });
-            floor.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(200, 1, 200) }, MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.23f, 0.25f, 0.28f) } });
+            floor.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(600, 1, 600) } });
+            floor.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(600, 1, 600) }, MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.23f, 0.25f, 0.28f) } });
             arena.AddChild(floor);
             var camera = new Camera3D { Position = new(6, 206, 9) };
             arena.AddChild(camera);
@@ -100,7 +100,7 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     var ray = _arenas[0].Driver.RaycastWeapon!;
                     _arenas[0].Driver.RaycastWeapon = (owner, start, end) =>
                     {
-                        Check(Math.Abs(N.Vector3.Distance(start, end) - 75) < 0.001, "75 m native hard ray length");
+                        Check(Math.Abs(N.Vector3.Distance(start, end) - 225) < 0.001, "225 m native hard ray length");
                         var hit = ray(owner, start, end);
                         if (_stage == 3) { _shots++; if (hit is { Vehicle: > 0 }) { _hits++; } }
                         return hit;
@@ -186,7 +186,7 @@ public sealed partial class MachineGunIntegrationChecks : Node
     {
         var host = _arenas[0].Driver.Host!;
         var world = host.World.State;
-        float distance = _stage == 8 ? _playRange : _scenario switch { 1 => 70, 2 => 78, _ => 8 };
+        float distance = _stage == 8 ? _playRange : _scenario switch { 1 => 150, 2 => 228, _ => 8 };
         float lateral = _stage == 8 && _movingTarget ? 3 * MathF.Sin(_frames / 90f) : 0;
         host.World.Restore(new(world.Tick, world.LastInput, world.Vehicles.Select(v =>
         {
@@ -230,7 +230,7 @@ public sealed partial class MachineGunIntegrationChecks : Node
         Button("Fire / release", () => { _held = !_held; _press = _held; });
         Button("Moving / stationary target", () => _movingTarget = !_movingTarget);
         Button("Tracking / fixed aim", () => _tracking = !_tracking);
-        foreach (float range in new[] { 5f, 15f, 70f, 78f }) { Button($"Range {range} m", () => _playRange = range); }
+        foreach (float range in new[] { 5f, 75f, 150f, 228f }) { Button($"Range {range} m", () => _playRange = range); }
         Button("Refill magazine", Refill);
         Button("Finish playtest", () => { _done = true; _boundary = _frames; foreach (var arena in _arenas) { arena.QueueFree(); } foreach (var gateway in _gateways) { gateway.Dispose(); } GetTree().Quit(); });
         Refill();

@@ -1,0 +1,25 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+native-pitch: rotation=4.061 peak=2.800 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=3.667
+native-yaw: rotation=3.485 peak=2.400 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=3.667
+native-roll: rotation=5.214 peak=3.600 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=3.667
+native-combined: rotation=6.609 peak=4.561 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=3.667
+native-sustained: rotation=10.014 peak=3.600 releaseSpeed=0.0000 lateOrientationDrift=0.0007 landings=0 grounded=False airSeconds=5.000
+native-crooked: rotation=1.142 peak=3.742 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=3.667
+native-landing: rotation=0.000 peak=0.000 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+native-repeat: rotation=0.000 peak=0.000 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+native-repeat: 4 landing transitions
+native-correction: rotation=1.003 peak=3.620 releaseSpeed=0.0126 lateOrientationDrift=0.0800 landings=1 grounded=True airSeconds=0.000
+native-heading: rotation=1.147 peak=2.388 releaseSpeed=0.0013 lateOrientationDrift=0.0085 landings=1 grounded=True airSeconds=0.000
+network-pitch: rotation=4.061 peak=2.800 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=3.667
+network-yaw: rotation=3.485 peak=2.400 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=3.667
+network-roll: rotation=5.214 peak=3.600 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=3.667
+network-combined: rotation=6.609 peak=4.561 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=3.667
+network-sustained: rotation=10.014 peak=3.600 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=5.000
+network-crooked: rotation=1.142 peak=3.742 releaseSpeed=0.0000 lateOrientationDrift=0.0007 landings=0 grounded=False airSeconds=3.667
+network-landing: rotation=0.000 peak=0.000 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+network-repeat: rotation=0.000 peak=0.000 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+network-repeat: 4 landing transitions
+network-correction: rotation=1.003 peak=3.620 releaseSpeed=0.0129 lateOrientationDrift=0.0547 landings=1 grounded=True airSeconds=0.000
+network-heading: rotation=1.147 peak=2.388 releaseSpeed=0.0023 lateOrientationDrift=0.0115 landings=1 grounded=True airSeconds=0.000
+Air control integration passed: 20 production-adapter scenarios.
