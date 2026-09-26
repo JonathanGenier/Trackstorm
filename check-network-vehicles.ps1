@@ -10,12 +10,20 @@ param (
     [int]$CatchUpSteps = 8,
     [switch]$Visual,
     [switch]$CaptureDuringDriving,
+    [switch]$ApplicationEntry,
+    [ValidateSet('before-ready', 'after-ready', 'driving')]
+    [string]$StallBoundary = 'driving',
+    [ValidateRange(0, 2000)]
+    [int]$StallMilliseconds = 0,
     [switch]$PrototypeMap,
     [switch]$IsolateHost,
     [switch]$NoBuild
 )
 
 $ErrorActionPreference = 'Stop'
+if ($StallMilliseconds -gt 0 -and $StallBoundary -ne 'driving' -and -not $ApplicationEntry) {
+    throw 'Readiness-boundary stalls require -ApplicationEntry.'
+}
 if ($IsolateHost -and (-not $IsWindows -or [Environment]::ProcessorCount -lt 4 -or [Environment]::ProcessorCount -gt 62)) {
     throw 'Host CPU isolation requires Windows with 4-62 logical processors.'
 }
@@ -41,11 +49,15 @@ try {
             $visualArguments = @('--path', $PSScriptRoot, 'res://scenes/verification/network_vehicle_checks.tscn', '--', "--network-check-$role=127.0.0.1:$port", "--network-check-players=$Players", "--network-check-catch-up=$CatchUpSteps", "--network-check-seconds=$duration", "--network-check-latency=$Latency", "--network-check-jitter=$Jitter", "--network-check-loss=$($Loss.ToString([System.Globalization.CultureInfo]::InvariantCulture))", "--network-check-output=$output")
             if ($PrototypeMap) { $visualArguments += '--network-check-prototype' }
             if ($CaptureDuringDriving) { $visualArguments += '--network-check-capture-during-driving' }
+            if ($ApplicationEntry) { $visualArguments += '--network-check-entry' }
+            $visualArguments += "--network-check-stall-boundary=$StallBoundary", "--network-check-stall-ms=$StallMilliseconds"
             continue
         }
         $arguments = @('--path', "`"$PSScriptRoot`"", 'res://scenes/verification/network_vehicle_checks.tscn', '--', "--network-check-$role=127.0.0.1:$port", "--network-check-players=$Players", "--network-check-catch-up=$CatchUpSteps", "--network-check-seconds=$duration", "--network-check-latency=$Latency", "--network-check-jitter=$Jitter", "--network-check-loss=$($Loss.ToString([System.Globalization.CultureInfo]::InvariantCulture))", "`"--network-check-output=$output`"")
         if (-not $Visual -or $index -ne 1) { $arguments = @('--headless') + $arguments }
         if ($PrototypeMap) { $arguments += '--network-check-prototype' }
+        if ($ApplicationEntry) { $arguments += '--network-check-entry' }
+        $arguments += "--network-check-stall-boundary=$StallBoundary", "--network-check-stall-ms=$StallMilliseconds"
         $processes[$index] = Start-Process -FilePath $GodotPath -ArgumentList $arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput "$output.log" -RedirectStandardError "$output.errors.log"
         if ($IsolateHost) {
             # Diagnostic scheduling control only: never changes simulation or acceptance thresholds.

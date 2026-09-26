@@ -1,0 +1,13 @@
+corrected-stall-standalone PASS
+corrected-stall-entry-2 PASS
+corrected-stall-entry-3 PASS
+corrected-before-ready PASS
+corrected-after-ready PASS
+near-zero PASS
+wan50 PASS
+wan100-jitter PASS
+loss2 PASS
+eight-1 PASS
+eight-2 FAIL
+rendered-wan60 PASS
+entry-wan100 PASS

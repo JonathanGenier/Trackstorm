@@ -1,0 +1,22 @@
+
+>> Core tests
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+Test run for C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed StalledSenderStopsHeldControlsAfterRedundancyWindowAndResumesInOrder [13 ms]
+  Error Message:
+     Assert.That(held.Pressed, Is.Zero)
+  Expected: 0
+  But was:  None
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Networking.VehicleReplicationTests.StalledSenderStopsHeldControlsAfterRedundancyWindowAndResumesInOrder() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\Networking\VehicleReplicationTests.cs:line 164
+
+1)    at Trackstorm.Core.Tests.Networking.VehicleReplicationTests.StalledSenderStopsHeldControlsAfterRedundancyWindowAndResumesInOrder() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\Networking\VehicleReplicationTests.cs:line 164
+
+
+
+Failed!  - Failed:     1, Passed:   895, Skipped:     0, Total:   896, Duration: 5 s - Trackstorm.Core.Tests.dll (net10.0)

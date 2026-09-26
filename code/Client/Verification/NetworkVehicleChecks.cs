@@ -45,6 +45,13 @@ public sealed partial class NetworkVehicleChecks : Node
     private ulong _startupMilliseconds;
     private bool _propsLaunched;
     private bool _prototype;
+    private LobbyNetworkDriver? _lobby;
+    private bool _applicationEntry;
+    private bool _host;
+    private string _stallBoundary = string.Empty;
+    private int _stallMilliseconds;
+    private bool _stalled;
+    private readonly List<object> _trace = new();
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -68,6 +75,10 @@ public sealed partial class NetworkVehicleChecks : Node
         _players = int.Parse(Value("--network-check-players", "2"), System.Globalization.CultureInfo.InvariantCulture);
         _output = Value("--network-check-output");
         string host = Value("--network-check-host");
+        _host = host.Length > 0;
+        _applicationEntry = args.Contains("--network-check-entry", StringComparer.Ordinal);
+        _stallBoundary = Value("--network-check-stall-boundary");
+        _stallMilliseconds = int.Parse(Value("--network-check-stall-ms", "0"), System.Globalization.CultureInfo.InvariantCulture);
         _gateway = new GameNetworkingSocketsTransport();
         _gateway.ConfigureSimulation(new NetworkSimulation(int.Parse(Value("--network-check-latency", "0"), System.Globalization.CultureInfo.InvariantCulture), int.Parse(Value("--network-check-jitter", "0"), System.Globalization.CultureInfo.InvariantCulture), float.Parse(Value("--network-check-loss", "0"), System.Globalization.CultureInfo.InvariantCulture), 0, 0));
         ulong peer = 0;
@@ -82,18 +93,28 @@ public sealed partial class NetworkVehicleChecks : Node
 
         _prototype = args.Contains("--network-check-prototype", StringComparer.Ordinal);
         _serverPeer = peer;
-        _arena = new NetworkVehicleArena { PrototypeMapForVerification = _prototype };
-        _arena.Initialize(_gateway, host.Length > 0 ? 12345ul : 0, peer);
+        if (_applicationEntry)
+        {
+            _lobby = new LobbyNetworkDriver(_gateway, _host ? 12345ul : 0, peer, _host ? "Host" : "Client");
+        }
+        else CreateArena();
+    }
+
+    private void CreateArena()
+    {
+        _arena = new NetworkVehicleArena { PrototypeMapForVerification = _prototype, ApplicationEntry = _applicationEntry };
+        _arena.Initialize(_gateway, _host ? _lobby?.State?.Match ?? 12345ul : 0, _serverPeer, _lobby);
         _arena.Driver.LocalCorrected += state =>
         {
             var prediction = _arena.Driver.Prediction!;
+            Trace("correction");
             _errors.Add(prediction.PredictionError);
             (_seconds < 2 ? _startupErrors : _steadyErrors).Add(prediction.PredictionError);
             if (_seconds < 2) { _startupHardSnaps = _arena.Bodies[state.VehicleId].Smoothing.HardSnaps; }
             if (prediction.PredictionError >= 0.1 && _largeCorrectionDetails.Count < 128)
             {
                 var authority = _arena.Driver.Latest!.Vehicles.Single(vehicle => vehicle.State.VehicleId == state.VehicleId).State;
-                _largeCorrectionDetails.Add(new { Seconds = _seconds, Error = prediction.PredictionError, Tick = state.Movement.Tick, AuthorityTick = authority.Movement.Tick, Life = state.LifeId, Lifecycle = state.Lifecycle.ToString(), Effects = authority.Effects.Count, DamageTick = authority.Damage.LastDamage?.Tick, Ack = prediction.History.LastAcknowledged, Pending = prediction.History.Pending.Count, SnapshotAge = _arena.Driver.SnapshotAge, FrameMilliseconds = _frameMilliseconds.LastOrDefault(), HP = state.Damage.CurrentHP, Position = state.Movement.Physics.Position.ToString(), Speed = state.Speed });
+                _largeCorrectionDetails.Add(new { Seconds = _seconds, Error = prediction.PredictionError, Tick = state.Movement.Tick, AuthorityTick = authority.Movement.Tick, Life = state.LifeId, Lifecycle = state.Lifecycle.ToString(), Effects = authority.Effects.Count, DamageTick = authority.Damage.LastDamage?.Tick, Damage = authority.Damage.LastDamage, Ack = prediction.History.LastAcknowledged, Pending = prediction.History.Pending.Count, SnapshotAge = _arena.Driver.SnapshotAge, FrameMilliseconds = _frameMilliseconds.LastOrDefault(), HP = state.Damage.CurrentHP, Position = state.Movement.Physics.Position.ToString(), Speed = state.Speed });
             }
         };
         AddChild(_arena);
@@ -107,12 +128,40 @@ public sealed partial class NetworkVehicleChecks : Node
             return;
         }
 
+        if (_arena is null)
+        {
+            _lobby!.Pump(delta);
+            if (_lobby.State?.Phase == Trackstorm.Core.Sessions.SessionPhase.Lobby)
+            {
+                if (!_host) _lobby.Request(Trackstorm.Core.Sessions.LobbyCommand.Ready, true);
+                else if (_lobby.State.Players.Count == _players && _lobby.State.CanStart) _lobby.Request(Trackstorm.Core.Sessions.LobbyCommand.Start);
+            }
+            if (_lobby.State?.Phase == Trackstorm.Core.Sessions.SessionPhase.Arena) CreateArena();
+            return;
+        }
+
         var driver = _arena.Driver;
+        bool boundary = _stallBoundary switch
+        {
+            "before-ready" => !driver.EntryReady,
+            "after-ready" => driver.EntryReady,
+            "driving" => _started && _seconds >= 0.1,
+            _ => false,
+        };
+        if (!_host && !_stalled && _stallMilliseconds > 0 && boundary)
+        {
+            _stalled = true;
+            Trace("stall-before");
+            System.Threading.Thread.Sleep(_stallMilliseconds);
+            Trace("stall-after");
+        }
+        Trace("before-step");
         if (!_started)
         {
             _arena.Advance(default);
             _largestRoster = Math.Max(_largestRoster, driver.Latest?.Vehicles.Count ?? 0);
-            _started = _largestRoster == _players && driver.LocalState is not null;
+            Trace("after-step");
+            _started = _largestRoster == _players && driver.LocalState is not null && (!_applicationEntry || driver.AllowsParticipation);
             if (_started && !_prototype)
             {
                 var spawn = _arena.MapConfiguration.Spawn((int)driver.LocalVehicleId - 1).Position;
@@ -167,6 +216,7 @@ public sealed partial class NetworkVehicleChecks : Node
             ulong stepStarted = Time.GetTicksUsec();
             long allocated = GC.GetAllocatedBytesForCurrentThread();
             _arena.Advance(input);
+            Trace("after-step");
             _stepAllocatedBytes.Add(GC.GetAllocatedBytesForCurrentThread() - allocated);
             _stepMilliseconds.Add((Time.GetTicksUsec() - stepStarted) / 1000.0);
             _maximumPending = Math.Max(_maximumPending, driver.Inputs?.Pending.Count ?? 0);
@@ -216,6 +266,7 @@ public sealed partial class NetworkVehicleChecks : Node
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        if (_arena is null) return;
         ulong now = Time.GetTicksUsec();
         if (_started && !_done && _lastFrameMicroseconds != 0)
         {
@@ -242,6 +293,24 @@ public sealed partial class NetworkVehicleChecks : Node
     {
         _gateway.ConfigureSimulation(new());
         _gateway.Dispose();
+    }
+
+    private void Trace(string boundary)
+    {
+        if (_stallMilliseconds == 0 || _trace.Count >= 2400 || _seconds > 3) return;
+        var driver = _arena.Driver;
+        var authority = driver.Host?.Snapshot() ?? driver.Latest;
+        _trace.Add(new
+        {
+            WallTicks = System.Diagnostics.Stopwatch.GetTimestamp(), Boundary = boundary, Seconds = _seconds,
+            EntryReady = driver.EntryReady, Released = driver.InitialEntryReleased, Participation = driver.AllowsParticipation,
+            AuthorityTick = authority?.Tick, PredictedTick = driver.LocalState?.Movement.Tick,
+            Ack = driver.Inputs?.LastAcknowledged, Next = driver.Inputs?.NextSequence, Pending = driver.Inputs?.Pending.Count,
+            Error = driver.Prediction?.PredictionError,
+            Vehicles = authority?.Vehicles.Select(v => new { Id = v.State.VehicleId, Ack = v.AcknowledgedInput,
+                Position = v.State.Movement.Physics.Position.ToString(), Velocity = v.State.Movement.Physics.LinearVelocity.ToString() }).ToArray(),
+            Position = driver.LocalState?.Movement.Physics.Position.ToString(),
+        });
     }
 
     /// <summary>Releases the arena while native audio can still process queued stop commands before process shutdown.</summary>
@@ -300,6 +369,12 @@ public sealed partial class NetworkVehicleChecks : Node
         var report = new
         {
             Rendered = DisplayServer.GetName() != "headless",
+            ApplicationEntry = _applicationEntry,
+            StallBoundary = _stallBoundary,
+            StallMilliseconds = _stallMilliseconds,
+            StallInjected = _stalled,
+            TraceFrequency = System.Diagnostics.Stopwatch.Frequency,
+            Trace = _trace,
             CaptureDuringDriving = _captureDuringDriving,
             InDriveCaptureMilliseconds = _captureMilliseconds,
             FrameTime = Timing(_frameMilliseconds),
@@ -351,7 +426,7 @@ public sealed partial class NetworkVehicleChecks : Node
             System.IO.File.WriteAllText(_output + ".json", json);
         }
 
-        GD.Print(json);
+        GD.Print($"Network vehicle metrics: host={_host}, entry={_applicationEntry}, maximum={report.ErrorMaximum}, startup={_startupErrors.DefaultIfEmpty().Max()}, steady={_steadyErrors.DefaultIfEmpty().Max()}, snaps={report.HardSnaps}; full report: {_output}.json");
         bool invalidProps = _prototype ? props is null || propTravel < 0.5f || (driver.Host is null && propReplicaError > 0.01f) : props is not null;
         bool unsupported = !_prototype && (!driver.LocalState.Movement.Grounded || position.Y < 0);
         double steadyP99 = _steadyErrors.Order().ElementAtOrDefault(Math.Min(_steadyErrors.Count - 1, (int)(_steadyErrors.Count * 0.99)));
@@ -359,7 +434,7 @@ public sealed partial class NetworkVehicleChecks : Node
             (_startupErrors.DefaultIfEmpty().Max() >= 1 || steadyP99 >= 0.25 ||
              _steadyErrors.DefaultIfEmpty().Max() >= 1 || _arena.Bodies[driver.LocalVehicleId].Smoothing.HardSnaps > 0 ||
              _steadyLimitedFrames > (_players == 2 ? 0 : 12));
-        if (invalidProps || unsupported || poorCorrections || _largestRoster != _players || driver.LocalState.Movement.Tick < 600 || (driver.Host is null && (driver.ReceivedSnapshots < 100 || _immediate < 100 || p99 >= 3)))
+        if (invalidProps || unsupported || poorCorrections || (!_host && _stallMilliseconds > 0 && !_stalled) || _largestRoster != _players || driver.LocalState.Movement.Tick < 600 || (driver.Host is null && (driver.ReceivedSnapshots < 100 || _immediate < 100 || p99 >= 3)))
         {
             throw new InvalidOperationException("Network vehicle runtime acceptance checks failed; inspect the recorded metrics.");
         }

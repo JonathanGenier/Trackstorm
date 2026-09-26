@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Disconnected; RemoteRequest; Transport stopped
+Post-match integration passed: 135 assertions.
+Post-match verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\post-match-checks\5cc24c74f66f45b59c5dfb194850a8cf

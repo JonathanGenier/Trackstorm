@@ -150,6 +150,30 @@ internal sealed class VehicleReplicationTests
         Assert.That(host.LastAcknowledged, Is.EqualTo(5));
     }
 
+    [Test]
+    public void StalledSenderStopsHeldControlsAfterRedundancyWindowAndResumesInOrder()
+    {
+        var host = new HostInputBuffer();
+        var drive = new InputFrame(0, 12000, ushort.MaxValue, 0, InputButtons.UseItem, InputButtons.UseItem, 0);
+        Assert.That(host.Receive([new(1, drive)]), Is.True);
+        Assert.That(host.Consume(1).Pressed, Is.EqualTo(InputButtons.UseItem));
+        for (ulong tick = 2; tick <= 4; tick++)
+        {
+            var held = host.Consume(tick);
+            Assert.That(held.Accelerate, Is.EqualTo(ushort.MaxValue));
+            Assert.That(held.Pressed, Is.EqualTo(InputButtons.None));
+        }
+        for (ulong tick = 5; tick <= 46; tick++)
+        {
+            Assert.That(host.Consume(tick), Is.EqualTo(new InputFrame(tick, 0, 0, 0, 0, 0, 0)));
+            Assert.That(host.LastAcknowledged, Is.EqualTo(1), "Silence never invents acknowledgements.");
+        }
+        Assert.That(host.Receive([new(1, drive)]), Is.False);
+        Assert.That(host.Receive([new(2, Drive(-18000))]), Is.True);
+        Assert.That(host.Consume(47).Steering, Is.EqualTo(-18000));
+        Assert.That(host.LastAcknowledged, Is.EqualTo(2));
+    }
+
     /// <summary>A delivery burst cannot leave controls permanently seconds behind, including sequence wrap.</summary>
     /// <param name="origin">Initial stream identity.</param>
     [TestCase(0u)]

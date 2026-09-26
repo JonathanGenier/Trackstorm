@@ -7,6 +7,7 @@ public sealed class HostInputBuffer
 {
     /// <summary>At most 100 ms of queued controls; excess backlog is retired, never simulated as extra ticks.</summary>
     public const int MaximumQueuedInputs = 6;
+    private const int RedundancyWaitTicks = InputHistory.Redundancy - 1;
     private readonly Dictionary<uint, SequencedInput> _pending = new();
     private uint _newestPacket;
     private int _missingTicks;
@@ -67,7 +68,7 @@ public sealed class HostInputBuffer
 
     /// <summary>Consumes the next command, briefly waits for redundancy, then retires a lost gap.</summary>
     /// <param name="tick">Next host simulation tick.</param>
-    /// <returns>One command, briefly held controls without repeated edges, or neutral input after 250 ms silence.</returns>
+    /// <returns>One command, held controls during the redundancy wait without repeated edges, then neutral input.</returns>
     public InputFrame Consume(ulong tick)
     {
         if (_pending.Count > MaximumQueuedInputs)
@@ -85,10 +86,10 @@ public sealed class HostInputBuffer
         uint next = unchecked(LastAcknowledged + 1);
         if (!_pending.ContainsKey(next))
         {
-            _missingTicks = Math.Min(16, _missingTicks + 1);
+            _missingTicks = Math.Min(RedundancyWaitTicks + 1, _missingTicks + 1);
         }
 
-        if (!_pending.ContainsKey(next) && _missingTicks >= 3 && _pending.Count > 0)
+        if (!_pending.ContainsKey(next) && _missingTicks >= RedundancyWaitTicks && _pending.Count > 0)
         {
             next = _pending.Keys.MinBy(sequence => unchecked(sequence - LastAcknowledged));
         }
@@ -101,7 +102,10 @@ public sealed class HostInputBuffer
             return _held;
         }
 
-        return _missingTicks > 15 ? new InputFrame(tick, 0, 0, 0, 0, 0, 0)
+        // A stalled sender cannot confirm continued throttle/steering. Bridge the same
+        // short redundancy window used for loss recovery, then let physics coast.
+        // Reusing controls longer creates authority-only acceleration during a frame stall.
+        return _missingTicks > RedundancyWaitTicks ? new InputFrame(tick, 0, 0, 0, 0, 0, 0)
             : new InputFrame(tick, _held.Steering, _held.Accelerate, _held.Brake, _held.Held, 0, 0);
     }
 }
