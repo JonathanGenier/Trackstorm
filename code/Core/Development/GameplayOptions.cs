@@ -168,6 +168,7 @@ public static class GameplayOptions
         new("vehicle.water.grip", "Water", "Grip multiplier", false, c => c.Vehicle.Water.Grip, (c, v) => c with { Vehicle = c.Vehicle with { Water = new(checked((float)v), c.Vehicle.Water.Drag, c.Vehicle.Water.Acceleration) } }),
         new("vehicle.water.drag", "Water", "Drag multiplier", false, c => c.Vehicle.Water.Drag, (c, v) => c with { Vehicle = c.Vehicle with { Water = new(c.Vehicle.Water.Grip, checked((float)v), c.Vehicle.Water.Acceleration) } }),
         new("vehicle.water.acceleration", "Water", "Acceleration multiplier", false, c => c.Vehicle.Water.Acceleration, (c, v) => c with { Vehicle = c.Vehicle with { Water = new(c.Vehicle.Water.Grip, c.Vehicle.Water.Drag, checked((float)v)) } }),
+        new("vehicle.oob.damage", "Arena boundary", "Out-of-bounds damage (HP/s)", false, c => c.Vehicle.OutOfBoundsDamagePerSecond, (c, v) => c with { Vehicle = c.Vehicle with { OutOfBoundsDamagePerSecond = checked((float)v) } }),
         new("vehicle.water.depth", "Water", "Deep-water threshold (m)", false, c => c.Vehicle.DeepWaterDepth, (c, v) => c with { Vehicle = c.Vehicle with { DeepWaterDepth = checked((float)v) } }),
         new("vehicle.water.damage", "Water", "Deep-water damage (HP/s)", false, c => c.Vehicle.WaterDamagePerSecond, (c, v) => c with { Vehicle = c.Vehicle with { WaterDamagePerSecond = checked((float)v) } }),
     ]);

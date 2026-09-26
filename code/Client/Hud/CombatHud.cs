@@ -23,6 +23,7 @@ internal sealed partial class CombatHud : CanvasLayer
     private Label _unit = null!;
     private Label _itemName = null!;
     private Label _nitro = null!;
+    private Label _outOfBounds = null!;
     private Label _timer = null!;
     private TextureRect _itemIcon = null!;
     private TextureRect _secondItemIcon = null!;
@@ -99,6 +100,10 @@ internal sealed partial class CombatHud : CanvasLayer
         _secondSelection = Text(secondItem, "Selection", new Rect2(12, 15, 94, 24), 15);
         _standing.Text = "--";
         _timer.Text = "--:--";
+        _outOfBounds = Text(_root, "OutOfBounds", new Rect2(0, 0, 500, 70), 26);
+        _outOfBounds.Text = "OUT OF BOUNDS\nARENA HAZARD • LOSING HEALTH";
+        _outOfBounds.AddThemeColorOverride("font_color", new Color("ff6255"));
+        _outOfBounds.Visible = false;
         BuildCircusScore();
         _root.Resized += Layout;
         Layout();
@@ -149,6 +154,7 @@ internal sealed partial class CombatHud : CanvasLayer
             _speedMaterial.SetShaderParameter("fill", view.SpeedFill);
         }
 
+        _outOfBounds.Visible = state.CanInteract && state.OutOfBounds;
         _nitro.Visible = state.Movement.Nitro.Active;
         _nitro.Text = "NITRO BOOST";
         ulong player = Player();
@@ -256,6 +262,8 @@ internal sealed partial class CombatHud : CanvasLayer
         Vector2 viewport = _root.Size;
         float scale = Math.Min(viewport.X / 1280, viewport.Y / 720);
         float margin = 16 * scale;
+        _outOfBounds.Scale = Vector2.One * scale;
+        _outOfBounds.Position = new Vector2((viewport.X - 500 * scale) / 2, 106 * scale);
         foreach (Control component in _components)
         {
             component.Scale = Vector2.One * scale;

@@ -47,3 +47,5 @@ The [Event Log](event-log.md) consumes committed lifecycle transitions once, ind
 Fresh active admission preserves existing HP, life generations and absolute respawn deadlines through the shared checkpoint. Client reseeding suppresses historical destruction/respawn feedback. The new vehicle uses the existing marker-clearance selector at admission and again at activation, without moving or respawning existing vehicles. See [session activation](sessions.md#fresh-admission-during-an-arena).
 
 [Circus pending stunts](matches.md#circus-stunt-detection-and-banking) are cancelled in the lethal candidate before landing/threshold completion can bank. Reset/respawn life changes also cancel pending events; all previously banked Circus points remain permanent for the match.
+
+[Out-of-bounds damage](out-of-bounds.md) uses the authored oval perimeter, existing health/lifecycle authority and confirmed HUD feedback. Its life-scoped state survives tuning and checkpoint recovery; prediction never originates it.

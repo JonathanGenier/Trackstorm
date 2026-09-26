@@ -159,9 +159,9 @@ public sealed partial class OvalIntegrationChecks : Node3D
         _evidence.Add(message);
     }
 
-    private (Vector3 Position, Vector3 Normal, GodotObject Body) Hit(Vector3 expected)
+    private (Vector3 Position, Vector3 Normal, GodotObject Body) Hit(Vector3 expected, float above = 15)
     {
-        using var query = PhysicsRayQueryParameters3D.Create(expected + (Vector3.Up * 15), expected - (Vector3.Up * 15));
+        using var query = PhysicsRayQueryParameters3D.Create(expected + (Vector3.Up * above), expected - (Vector3.Up * 15));
         Godot.Collections.Dictionary result = GetWorld3D().DirectSpaceState.IntersectRay(query);
         if (result.Count == 0)
         {
@@ -246,7 +246,8 @@ public sealed partial class OvalIntegrationChecks : Node3D
                 foreach (float across in new[] { 0.01f, 0.25f, 0.5f, 0.75f, 0.99f })
                 {
                     Vector3 expected = inner.Lerp(outer, across);
-                    var hit = Hit(expected);
+                    // Probe below the inward-curving catch fence to inspect the unchanged road.
+                    var hit = Hit(expected, 0.5f);
                     if (hit.Body != trackBody || hit.Normal.Y < 0.8f)
                     {
                         throw new InvalidOperationException($"Wrong road collision or inverted normal at section {index}.");

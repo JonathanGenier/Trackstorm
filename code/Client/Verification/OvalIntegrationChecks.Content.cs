@@ -40,7 +40,7 @@ public sealed partial class OvalIntegrationChecks
                 $"{row.Key}: exactly three pickups, six metre separation, three metre edge clearance.");
         }
 
-        Node wall = _map.GetNode("MapContent/OuterContainment");
+        Node wall = _map.GetNode("MapContent/PhysicalPerimeter");
         int rays = 0;
         for (int i = 0; i < _outer.Length; i++)
         {
@@ -51,9 +51,9 @@ public sealed partial class OvalIntegrationChecks
                 Vector3 direction = (point - _inner[i].Lerp(_inner[j], t));
                 direction.Y = 0;
                 direction = direction.Normalized();
-                foreach (float height in new[] { 0.6f, 3f, 15f, 30f })
+                foreach (float height in new[] { -1f, 0.6f, 3f, 6f })
                 {
-                    using var query = PhysicsRayQueryParameters3D.Create(point + Vector3.Up * height - direction * 2, point + Vector3.Up * height + direction * 6);
+                    using var query = PhysicsRayQueryParameters3D.Create(point + Vector3.Up * height + direction * 1.4f, point + Vector3.Up * height - direction * 2);
                     var hit = GetWorld3D().DirectSpaceState.IntersectRay(query);
                     if (hit.Count == 0 || hit["collider"].AsGodotObject() != wall) { throw new InvalidOperationException($"Missing containment section {i}, fraction {t}, height {height} m."); }
                     rays++;
@@ -61,7 +61,7 @@ public sealed partial class OvalIntegrationChecks
             }
         }
 
-        Check(true, $"{rays} native perimeter rays cover every seam, midsection and upper wall through 30 m above track.");
+        Check(true, $"{rays} native perimeter rays cover every seam, midsection and finite concrete/fence surfaces.");
         foreach (int i in new[] { 0, 114, 229, 343, 458, 572, 687, 801 })
         {
             Vector3 outward = _outer[i] - _inner[i];
@@ -69,10 +69,10 @@ public sealed partial class OvalIntegrationChecks
             outward = outward.Normalized();
             foreach (bool network in new[] { false, true })
             {
-                foreach (float elevation in new[] { 1f, 8f })
+                foreach (float elevation in new[] { 1f, 3f })
                 {
                     Vector3 start = _outer[i] - outward * 8 + Vector3.Up * elevation;
-                    var states = await HandlingProbe(network, start, Basis.LookingAt(outward), outward * 55 + Vector3.Up * (elevation > 1 ? 12 : 0), 90, tick => new InputFrame(tick, 0, ushort.MaxValue, 0, 0, 0, 0));
+                    var states = await HandlingProbe(network, start, Basis.LookingAt(outward), outward * 55 + Vector3.Zero, 90, tick => new InputFrame(tick, 0, ushort.MaxValue, 0, 0, 0, 0));
                     float escape = states.Max(state => (VehicleBody.ToGodot(state.Physics.Position) - _outer[i]).Dot(outward));
                     Check(escape < 0.15f && states.All(state => VehiclePhysicsState.IsFinite(state.Physics.Position)), $"{(network ? "Network" : "Practice")} 55 m/s impact/launch at section {i}, elevation {elevation}: outermost center {escape:F3} m relative to boundary.");
                 }
