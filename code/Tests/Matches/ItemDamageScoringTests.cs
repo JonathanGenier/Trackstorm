@@ -114,16 +114,16 @@ internal sealed class ItemDamageScoringTests
         Hit(firstToTarget, "missile", 1000);
         Assert.That(Score(firstToTarget), Is.Zero);
         Assert.That(firstToTarget.State.Match!.Players[0].Kills, Is.EqualTo(1));
-        var terminal = Create(target: 1);
+        var terminal = Create(target: 1, duration: 1);
         Hit(terminal, "missile", 1000);
         double final = Score(terminal);
         Step(terminal, v => v.VehicleId == 3 ? [Effect("salvo", 10)] : []);
         Assert.That(Score(terminal), Is.EqualTo(final));
     }
 
-    private static Core.Simulation.Simulation Create(bool active = true, double rate = 0.5, MatchMode mode = MatchMode.Circus, int target = 20)
+    private static Core.Simulation.Simulation Create(bool active = true, double rate = 0.5, MatchMode mode = MatchMode.Circus, int target = 20, ulong duration = 36000)
     {
-        var world = new Core.Simulation.Simulation(new(60), match: new MatchConfiguration { CountdownTicks = 1, KillTarget = target, ItemPointsPerDamage = rate, Mode = mode });
+        var world = new Core.Simulation.Simulation(new(60), match: new MatchConfiguration { CountdownTicks = 1, KillTarget = target, ItemPointsPerDamage = rate, Mode = mode, DurationTicks = duration });
         for (ulong id = 1; id <= 3; id++) { world.AddVehicle(id, new(), new(), new(new Vector3(id * 10, 1, 0), Quaternion.Identity, Vector3.Zero, Vector3.Zero)); }
         if (active) { Step(world); Step(world); }
         return world;

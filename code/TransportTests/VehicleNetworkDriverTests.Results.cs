@@ -51,7 +51,7 @@ internal sealed partial class VehicleNetworkDriverTests
             driver.Advance(default, Observe);
             FinalMatchResults result = driver.FinalResults!;
             Assert.That(result.Outcome.Winner, Is.EqualTo(1));
-            Assert.That(result.Standings, Is.EqualTo(new FinalMatchStanding[] { new(1, 1, 100, 1, 0, 1), new(2, 2, 0, 0, 1, 0) }));
+            Assert.That(result.Standings, Is.EqualTo(new FinalMatchStanding[] { new(1, 1, 200, 1, 0, 1), new(2, 2, 0, 0, 1, 0) }));
             for (int tick = 0; tick < 200; tick++)
             {
                 driver.Advance(Drive(), Observe);

@@ -13,6 +13,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Two real UDP peers exercising native weapon rays, feedback and sustained resource ownership.</summary>
 public sealed partial class MachineGunIntegrationChecks : Node
 {
+    private readonly ItemDamageScoringCheck _scoring = new();
     private readonly List<GameNetworkingSocketsTransport> _gateways = new();
     private readonly List<NetworkVehicleArena> _arenas = new();
     private readonly List<SubViewport> _views = new();
@@ -66,6 +67,8 @@ public sealed partial class MachineGunIntegrationChecks : Node
             arena.AddChild(camera);
             camera.LookAt(new Vector3(0, 201, -4)); camera.MakeCurrent();
             _arenas.Add(arena);
+            bool authority = i == 0;
+            arena.Driver.MatchReceived += match => _scoring.Observe(match, authority);
         }
     }
 
@@ -79,7 +82,9 @@ public sealed partial class MachineGunIntegrationChecks : Node
             for (int i = 0; i < _arenas.Count; i++)
             {
                 bool shooter = i == (_scenario == 4 ? 1 : 0);
+                var before = _arenas[i].Driver.Host?.World.State;
                 _arenas[i].Advance(new InputFrame(0, 0, 0, 0, shooter && _held ? InputButtons.UseItem : 0, shooter && _press ? InputButtons.UseItem : 0, 0));
+                if (before is not null) { _scoring.Verify(_arenas[i].Driver.Host!, before.Value, "Machine Gun"); }
                 Check(_arenas[i].Driver.Failure.Length == 0, _arenas[i].Driver.Failure);
             }
             _press = false;
@@ -165,7 +170,8 @@ public sealed partial class MachineGunIntegrationChecks : Node
                     break;
                 case 7 when _frames - _boundary > 60:
                     Check(_arenas[1].Driver.LocalItem is { Item: HeldItem.None, Ammo: null, SecondItem: HeldItem.Wrench }, "remote exhaustion HUD boundary");
-                    Check(host.World.State.Match!.Players.All(p => p.CircusScore == 0), "no item-damage Circus scoring");
+                    Check(_scoring.Hits > 300 && _scoring.Points > 0, "Distinct sustained bullet damage banks once per application");
+                    _evidence.Add($"Item scoring verified: {_scoring.Hits} applied bullet hits, {_scoring.Points:0.######} points; host and remote publications agree.");
                     Capture("exhausted.png");
                     GD.Print("Machine gun integration passed: " + string.Join("\n", _evidence));
                     _done = true; _boundary = _frames;

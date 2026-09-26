@@ -23,7 +23,7 @@ internal sealed class ItemDamageScoringCheck
     internal void Verify(HostVehicleSession host, SimulationState before, string cause)
     {
         var after = host.World.State;
-        if (after.Tick == before.Tick || before.Match?.Phase == MatchPhase.Finished) { return; }
+        if (after.Tick == before.Tick || before.Match?.Phase == MatchPhase.Finished || before.Match?.Lifecycle.RemainingMatchTicks(before.Tick) == 0) { return; }
         var match = after.Match!;
         if (match.Revision == before.Match!.Revision) { return; }
         var expected = new Dictionary<ulong, double>();
@@ -41,9 +41,9 @@ internal sealed class ItemDamageScoringCheck
             {
                 scores[death.Victim] = scores[death.Victim] with { Deaths = scores[death.Victim].Deaths + 1 };
                 if (death.Killer != 0) { scores[death.Killer] = scores[death.Killer] with { Kills = scores[death.Killer].Kills + 1 }; }
-                if (death.Killer == match.Winner) { break; }
+                if (match.Mode == MatchMode.FirstToTarget && death.Killer == match.Winner) { break; }
             }
-            if (match.Winner is ulong winner && scores[winner].Kills == match.KillTarget) { break; }
+            if (match.Mode == MatchMode.FirstToTarget && match.Winner is ulong winner && scores[winner].Kills == match.KillTarget) { break; }
         }
         foreach (var row in match.Players)
         {

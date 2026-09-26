@@ -1,0 +1,33 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two UDP peers ready; ordinary host Proxy Mine use requested.
+Mine installed on the real flat platform, with terrain clearance and seated timer.
+Initial seating remains exactly stable; fresh late admission started.
+Late join reconstructed the persistent mine. Outer-radius force trial begins.
+Outer pull produced 0.087 m/s after ten native ticks.
+Mid pull produced 1.366 m/s after ten native ticks.
+Close pull produced 4.371 m/s; moving remote vehicle approaches for contact.
+Contact detonated once, applying 60 HP and 24000 N.s to the remote vehicle.
+Replicated removal/HP and native knockback passed; stationary target trial requested.
+Repeated host use magnetically reached a stationary vehicle and detonated without target movement.
+Surface 1: authoritative position <49.899643, 20.756695, 4.5000005>, normal <-0.24740396, 0.9689124, 0>.
+Stable terrain seating captured; drive-over contact trial with attraction disabled.
+Bank drive-over passed; uneven terrain deployment requested.
+Surface 2: authoritative position <99.99731, 20.953457, 4.497638>, normal <-0.004620304, 0.9999883, -0.0014207117>.
+Stable terrain seating captured; drive-over contact trial with attraction disabled.
+Uneven terrain drive-over detonated and consumed the mine once; repeated remote use passed.
+Proxy Mine integration passed: Two UDP peers ready; ordinary host Proxy Mine use requested.
+Mine installed on the real flat platform, with terrain clearance and seated timer.
+Initial seating remains exactly stable; fresh late admission started.
+Late join reconstructed the persistent mine. Outer-radius force trial begins.
+Outer pull produced 0.087 m/s after ten native ticks.
+Mid pull produced 1.366 m/s after ten native ticks.
+Close pull produced 4.371 m/s; moving remote vehicle approaches for contact.
+Contact detonated once, applying 60 HP and 24000 N.s to the remote vehicle.
+Repeated host use magnetically reached a stationary vehicle and detonated without target movement.
+Surface 1: authoritative position <49.899643, 20.756695, 4.5000005>, normal <-0.24740396, 0.9689124, 0>.
+Stable terrain seating captured; drive-over contact trial with attraction disabled.
+Surface 2: authoritative position <99.99731, 20.953457, 4.497638>, normal <-0.004620304, 0.9999883, -0.0014207117>.
+Stable terrain seating captured; drive-over contact trial with attraction disabled.
+Uneven terrain drive-over detonated and consumed the mine once; repeated remote use passed.
+Item scoring verified: 2 rival hits, 60 points; host, remote and late-join publications agree.

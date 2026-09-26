@@ -216,7 +216,7 @@ Nitro exposes `items.nitro_consumption_per_second`, `items.nitro_forward_thrust`
 
 ## Progressive handling controls
 
-The Dirt category exposes `vehicle.dirt_steering_reserve` (default 0.65, range 0–1) and `vehicle.dirt_recovery` (default 4/s, range 0–10/s). These control front-wheel authority during saturated slides and bounded slide-yaw recovery respectively; zero disables the corresponding contribution. They use the existing complete host Apply/Cancel/Reset transaction, schema-two file defaults for missing keys, configuration version twenty, and resume/migration configuration boundary. `DirtRecoveryTests` checks isolation, recovery and continuation; `DeveloperConfigurationTests` checks each control's actual trajectory effect. No additional serialized vehicle memory is introduced.
+The Dirt category exposes `vehicle.dirt_steering_reserve` (default 0.65, range 0–1) and `vehicle.dirt_recovery` (default 4/s, range 0–10/s). These control front-wheel authority during saturated slides and bounded slide-yaw recovery respectively; zero disables the corresponding contribution. They use the existing complete host Apply/Cancel/Reset transaction, schema-two file defaults for missing keys, configuration version twenty-two, and resume/migration configuration boundary. `DirtRecoveryTests` checks isolation, recovery and continuation; `DeveloperConfigurationTests` checks each control's actual trajectory effect. No additional serialized vehicle memory is introduced.
 
 The Vehicle category exposes `vehicle.steering_smoothing` (0.1 seconds), `vehicle.dirt_power_slip` (0.22 maximum rear lateral grip reduction), `vehicle.power_slip_response` (2/s) and `vehicle.power_slip_recovery` (2.5/s). They use the same host Apply/Reset, persistence, reliable revision and checkpoint paths. Steering smoothing accepts 0.01–1 seconds, power slip 0–0.8, and the two rates 0.1–20/s. Existing braking defaults to 17 m/s² and grass grip to 0.62. [Vehicles](vehicles.md) owns the force and recovery semantics.
 
@@ -224,14 +224,14 @@ The Vehicle category exposes `vehicle.steering_smoothing` (0.1 seconds), `vehicl
 
 Concrete, Dirt, Grass, Mud and Deep Mud each expose Grip, Drag and Acceleration multipliers under their searchable category. Keys are `vehicle.concrete.*`, `vehicle.dirt.*`, `vehicle.grass.*`, `vehicle.mud.*` and `vehicle.deep_mud.*`, with suffixes `grip`, `drag`, `acceleration`. Each maps directly to the matching `VehicleConfiguration` record used by movement; [vehicles](vehicles.md#terrain-handling-profiles) owns default values and force semantics. Asphalt retains existing vehicle controls rather than a second surface authority. Host overrides may intentionally depart from the default ordering.
 
-Apply, Cancel, Reset, validation, host-local schema-two persistence, version-twenty-two complete reliable configuration and existing resume/migration checkpoints carry all 166 values. New keys missing from saved files use canonical defaults. Old explicit Concrete/Mud overrides remain user tuning; Reset plus Apply selects the new defaults. No file migration silently overwrites those choices. The existing UI/UDP/persistence harness iterates all catalog controls; Core trajectory tests exercise every surface multiplier and checkpoint round trips.
+Apply, Cancel, Reset, validation, host-local schema-two persistence, version-twenty-two complete reliable configuration and existing resume/migration checkpoints carry all 167 values. New keys missing from saved files use canonical defaults. Old explicit Concrete/Mud overrides remain user tuning; Reset plus Apply selects the new defaults. No file migration silently overwrites those choices. The existing UI/UDP/persistence harness iterates all catalog controls; Core trajectory tests exercise every surface multiplier and checkpoint round trips.
 The **Water** category adds five [water controls](water.md#gameplay-and-tuning) through the same authority, validation, persistence and recovery path. The complete configuration layout is described above.
 
 Item category target weights use the same Configs catalog and persistence/replication path. See [per-player category credit](item-spawns.md#per-player-category-credit) for normalization, empty-category behavior and live tuning continuity.
 
 ## Proxy Mine tuning
 
-The six `items.mine_*` controls and registry-generated `spawns.proxy_mine_weight` use the same Configs draft/apply, host validation, local schema-two persistence, replication and recovery owners. The catalog contains 166 keys and uses gameplay configuration wire version twenty. [Magnetic Proxy Mine](items.md#magnetic-proxy-mine) defines defaults, units, force curve and live-effect semantics. Invalid minimum/maximum force pairs reject the complete transaction. No presentation-only damage or force configuration exists.
+The six `items.mine_*` controls and registry-generated `spawns.proxy_mine_weight` use the same Configs draft/apply, host validation, local schema-two persistence, replication and recovery owners. The catalog contains 167 keys and uses gameplay configuration wire version twenty-two. [Magnetic Proxy Mine](items.md#magnetic-proxy-mine) defines defaults, units, force curve and live-effect semantics. Invalid minimum/maximum force pairs reject the complete transaction. No presentation-only damage or force configuration exists.
 
 The [environment preset](terrain-effects.md) uses "environment.preset" in the same configuration, persistence, revision and recovery boundary. Its identity is session-owned; Godot lighting values remain Client presentation.
 
@@ -270,7 +270,7 @@ The Air control category uses the same staged Apply/Cancel/Reset, validation, ho
 Collision and Destruction use the existing host Apply/Cancel/Reset, validation,
 schema-two persistence, reliable revision and resume/migration boundary. New keys
 missing from saved files use production defaults; explicit overrides remain until
-Reset plus Apply. Configuration wire version 21 carries all 166 keys.
+Reset plus Apply. Configuration wire version 22 carries all 167 keys.
 
 | Key | Default | Range / unit |
 | --- | ---: | --- |
