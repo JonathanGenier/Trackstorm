@@ -163,6 +163,10 @@ public sealed partial class MatchStartChecks : Node
                     for (int i = 0; i < _count - (_leave ? 1 : 0); i++)
                     {
                         var driver = _arenas[i]!.Driver;
+                        if (driver.Prediction is not null)
+                        {
+                            GD.Print($"Entry correction quality player {driver.LocalVehicleId}: startup {driver.StartupCorrections}; steady {driver.SteadyCorrections}; hard snaps {_arenas[i]!.Bodies[driver.LocalVehicleId].Smoothing.HardSnaps}");
+                        }
                         Require(driver.EntryReady && driver.AllowsParticipation && driver.Match!.ActiveStartedAtTick == 300, "Participant did not share authoritative GO.");
                         Require(_arenas[i]!.CountdownText.Length == 0, "GO did not clear.");
                         Require(_values[i].Contains("GO"), "GO was not rendered.");

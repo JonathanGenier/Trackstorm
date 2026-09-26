@@ -1,0 +1,16 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Eight peers see exactly 27 configured active pickups; two remote vehicles enter one pickup together.
+Exactly one remote contestant won; all eight peers show matching inactive spawn, cooldown and item token.
+Authoritative cooldown reactivates on every peer; all eight vehicles approach separate pickups.
+All eight spawn locations awarded once, with registered item identities replicated normally.
+Repeat 32 pickup rounds per player; fixture clears inventory between rounds without invoking item effects.
+Item spawn integration passed: Eight peers see exactly 27 configured active pickups; two remote vehicles enter one pickup together.
+Exactly one remote contestant won; all eight peers show matching inactive spawn, cooldown and item token.
+Authoritative cooldown reactivates on every peer; all eight vehicles approach separate pickups.
+All eight spawn locations awarded once, with registered item identities replicated normally.
+All 27 pickups are available after cooldown, including under occupied vehicles. No duplicate awards or overwritten grants.
+Repeat 32 pickup rounds per player; fixture clears inventory between rounds without invoking item effects.
+After round 16, host changed each category to its last registered item (Machine Gun, Nitro, Proxy Mine); subsequent rounds verify the new pool for all eight players without resetting history or RNG.
+32 repeated rounds across eight native peers; exact replicated per-player credits/counts and target convergence: 1:33:MachineGun:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8;2:34:ProxyMine:Weapon=1.0/16,Consumable=-0.50/9,Droppable=-0.50/9;3:33:ProxyMine:Weapon=0.5/16,Consumable=0.25/8,Droppable=-0.75/9;4:33:MachineGun:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8;5:33:MachineGun:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8;6:33:ProxyMine:Weapon=0.5/16,Consumable=0.25/8,Droppable=-0.75/9;7:33:MachineGun:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8;8:33:MachineGun:Weapon=-0.5/17,Consumable=0.25/8,Droppable=0.25/8
+Item spawn verification artifacts: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\spawn-checks\44c36253400b4d3cbc5e39118f202d18

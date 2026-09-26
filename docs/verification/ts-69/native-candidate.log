@@ -1,0 +1,42 @@
+  Determining projects to restore...
+  Restored C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\Trackstorm.Client.csproj (in 156 ms).
+  3 of 4 projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Release\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Release\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+Test run for C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 6 of 6 NUnit test cases using Current Discovery mode, Non-Explicit run
+startup max=0.0000m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=5
+players=2; outbound delay=0ms; jitter=0ms; loss=0%; corrections=239; p99=0.0000m; max=0.0000m; snapshots/client=240; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,0,0,0.0f,0.0f) [12 s]
+startup max=0.0186m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=6
+players=2; outbound delay=30ms; jitter=0ms; loss=0%; corrections=237; p99=0.0000m; max=0.0186m; snapshots/client=238; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,30,0,0.0f,0.0f) [11 s]
+startup max=0.0298m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=11
+players=2; outbound delay=50ms; jitter=10ms; loss=0%; corrections=234; p99=0.0000m; max=0.0298m; snapshots/client=235; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,50,10,0.0f,0.0f) [12 s]
+startup max=0.0745m; steady p99=0.0000m; steady max=0.1252m; steady >1cm=1; max pending at completion=6
+players=2; outbound delay=0ms; jitter=0ms; loss=2%; corrections=235; p99=0.0000m; max=0.1252m; snapshots/client=236; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,0,0,2.0f,0.0f) [12 s]
+startup max=0.0886m; steady p99=0.0000m; steady max=0.2417m; steady >1cm=2; max pending at completion=12
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=1586; p99=0.0000m; max=0.2417m; snapshots/client=225; stale packets rejected
+
+  Passed VehicleLoopConvergesAcrossNetworkConditions(8,30,10,2.0f,0.0f) [12 s]
+startup max=0.0000m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=8
+players=2; outbound delay=30ms; jitter=10ms; loss=2%; corrections=228; p99=0.0000m; max=0.0000m; snapshots/client=230; stale packets rejected
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed VehicleLoopConvergesAcrossNetworkConditions(2,30,10,2.0f,10.0f) [12 s]
+
+Test Run Successful.
+Total tests: 6
+     Passed: 6
+ Total time: 1.2098 Minutes

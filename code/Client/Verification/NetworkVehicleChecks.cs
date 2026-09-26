@@ -10,6 +10,17 @@ namespace Trackstorm.Client.Verification;
 public sealed partial class NetworkVehicleChecks : Node
 {
     private readonly List<float> _errors = new();
+    private readonly List<double> _startupErrors = new();
+    private readonly List<double> _steadyErrors = new();
+    private readonly List<double> _snapshotAges = new();
+    private readonly List<double> _interpolationDelays = new();
+    private readonly List<double> _pings = new();
+    private readonly List<double> _timelineDelays = new();
+    private int _maximumPending;
+    private int _limitedFrames;
+    private int _steadyLimitedFrames;
+    private int _startupHardSnaps;
+    private ulong _serverPeer;
     private readonly List<object> _largeCorrectionDetails = new();
     private readonly List<double> _frameMilliseconds = new();
     private readonly List<double> _stepMilliseconds = new();
@@ -64,15 +75,19 @@ public sealed partial class NetworkVehicleChecks : Node
         }
 
         _prototype = args.Contains("--network-check-prototype", StringComparer.Ordinal);
+        _serverPeer = peer;
         _arena = new NetworkVehicleArena { PrototypeMapForVerification = _prototype };
         _arena.Initialize(_gateway, host.Length > 0 ? 12345ul : 0, peer);
         _arena.Driver.LocalCorrected += state =>
         {
             var prediction = _arena.Driver.Prediction!;
             _errors.Add(prediction.PredictionError);
+            (_seconds < 2 ? _startupErrors : _steadyErrors).Add(prediction.PredictionError);
+            if (_seconds < 2) { _startupHardSnaps = _arena.Bodies[state.VehicleId].Smoothing.HardSnaps; }
             if (prediction.PredictionError >= 1 && _largeCorrectionDetails.Count < 128)
             {
-                _largeCorrectionDetails.Add(new { Seconds = _seconds, Error = prediction.PredictionError, Tick = state.Movement.Tick, Ack = prediction.History.LastAcknowledged, Pending = prediction.History.Pending.Count, SnapshotAge = _arena.Driver.SnapshotAge, FrameMilliseconds = _frameMilliseconds.LastOrDefault(), HP = state.Damage.CurrentHP, Position = state.Movement.Physics.Position.ToString(), Speed = state.Speed });
+                var authority = _arena.Driver.Latest!.Vehicles.Single(vehicle => vehicle.State.VehicleId == state.VehicleId).State;
+                _largeCorrectionDetails.Add(new { Seconds = _seconds, Error = prediction.PredictionError, Tick = state.Movement.Tick, AuthorityTick = authority.Movement.Tick, Life = state.LifeId, Lifecycle = state.Lifecycle.ToString(), Effects = authority.Effects.Count, DamageTick = authority.Damage.LastDamage?.Tick, Ack = prediction.History.LastAcknowledged, Pending = prediction.History.Pending.Count, SnapshotAge = _arena.Driver.SnapshotAge, FrameMilliseconds = _frameMilliseconds.LastOrDefault(), HP = state.Damage.CurrentHP, Position = state.Movement.Physics.Position.ToString(), Speed = state.Speed });
             }
         };
         AddChild(_arena);
@@ -122,6 +137,7 @@ public sealed partial class NetworkVehicleChecks : Node
 
         uint? ack = driver.Prediction?.History.LastAcknowledged;
         int? pending = driver.Prediction?.History.Pending.Count;
+        ulong? predictedTick = driver.LocalState?.Movement.Tick;
         short steering = _seconds is > 1 and < 6 ? (short)18000 : (short)0;
         if (!_prototype)
         {
@@ -145,8 +161,18 @@ public sealed partial class NetworkVehicleChecks : Node
             ulong stepStarted = Time.GetTicksUsec();
             _arena.Advance(input);
             _stepMilliseconds.Add((Time.GetTicksUsec() - stepStarted) / 1000.0);
+            _maximumPending = Math.Max(_maximumPending, driver.Inputs?.Pending.Count ?? 0);
+            if (driver.Prediction?.IsPredictionLimited == true)
+            {
+                _limitedFrames++;
+                if (_seconds >= 2) { _steadyLimitedFrames++; }
+            }
+            if (driver.SnapshotAge is double age) { _snapshotAges.Add(age * 1000); }
+            _interpolationDelays.Add(_arena.InterpolationDelay);
+            _timelineDelays.Add(_arena.InterpolationTimelineDelay);
+            if (_serverPeer != 0 && _gateway.GetStatistics(_serverPeer).PingMilliseconds is int ping) { _pings.Add(ping); }
             _largestRoster = Math.Max(_largestRoster, driver.Latest?.Vehicles.Count ?? 0);
-            if (ack.HasValue && ack == driver.Prediction!.History.LastAcknowledged && driver.Prediction.History.Pending.Count > pending)
+            if (ack.HasValue && ack == driver.Prediction!.History.LastAcknowledged && driver.Prediction.History.Pending.Count > pending && driver.LocalState!.Movement.Tick > predictedTick)
             {
                 _immediate++;
             }
@@ -271,6 +297,21 @@ public sealed partial class NetworkVehicleChecks : Node
             HandbrakeFrames = _handbrakeFrames,
             ErrorP99 = p99,
             ErrorMaximum = _errors.Count > 0 ? _errors.Max() : 0,
+            Startup = Corrections(_startupErrors, Math.Min(2, _seconds)),
+            Steady = Corrections(_steadyErrors, Math.Max(0, _seconds - 2)),
+            SnapshotAgeMilliseconds = Timing(_snapshotAges),
+            BufferedDelayMilliseconds = Timing(_interpolationDelays),
+            ReceivedTimelineDelayMilliseconds = Timing(_timelineDelays),
+            InterpolationRecoveries = _arena.InterpolationRecoveries,
+            PingMilliseconds = Timing(_pings),
+            MaximumPending = _maximumPending,
+            PredictionLimitedFrames = _limitedFrames,
+            SteadyPredictionLimitedFrames = _steadyLimitedFrames,
+            FinalPending = driver.Inputs?.Pending.Count,
+            HardSnaps = _arena.Bodies[driver.LocalVehicleId].Smoothing.HardSnaps,
+            StartupHardSnaps = _startupHardSnaps,
+            SteadyHardSnaps = _arena.Bodies[driver.LocalVehicleId].Smoothing.HardSnaps - _startupHardSnaps,
+            ExactPredictionConfirmations = driver.Prediction?.ConfirmedPredictions,
             InterpolationDelay = _arena.InterpolationDelay,
             LargeCorrections = _errors.Count(error => error >= 3),
             CorrectionDetails = _largeCorrectionDetails,
@@ -307,5 +348,16 @@ public sealed partial class NetworkVehicleChecks : Node
         double Percentile(double fraction) => ordered.Length == 0 ? 0 : ordered[Math.Min(ordered.Length - 1, (int)(ordered.Length * fraction))];
         return new { Samples = ordered.Length, Mean = ordered.Length == 0 ? 0 : ordered.Average(), P50 = Percentile(0.5), P95 = Percentile(0.95), P99 = Percentile(0.99), Maximum = ordered.LastOrDefault() };
     }
+
+    private static object Corrections(List<double> samples, double seconds) => new
+    {
+        Distribution = Timing(samples),
+        AboveCentimetrePerSecond = seconds > 0 ? samples.Count(value => value > 0.01) / seconds : 0,
+        UnderCentimetre = samples.Count(value => value <= 0.01),
+        CentimetreToDecimetre = samples.Count(value => value > 0.01 && value < 0.1),
+        DecimetreToMetre = samples.Count(value => value >= 0.1 && value < 1),
+        MetreToThree = samples.Count(value => value >= 1 && value < 3),
+        AtLeastThree = samples.Count(value => value >= 3),
+    };
 
 }

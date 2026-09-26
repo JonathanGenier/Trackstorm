@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Vehicle synchronization quality and measured limitations | [TS-69: prediction, reconciliation, interpolation and impairment evidence](ts-69.md) |
 | Full-roster authoritative match start | [TS-173 verification evidence](ts-173.md) |
 | Configs accordions and category resets | [TS-170 verification evidence](ts-170.md) |
 | Authoritative item-damage Circus score | [TS-155: applied damage, repeated/multi-target scoring and recovery](ts-155.md) |

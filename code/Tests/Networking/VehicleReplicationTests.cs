@@ -9,6 +9,42 @@ namespace Trackstorm.Core.Tests.Networking;
 [TestFixture]
 internal sealed class VehicleReplicationTests
 {
+    [Test]
+    public void ProlongedAcknowledgementStallBoundsSpeculationWithoutDroppingInput()
+    {
+        var host = new HostVehicleSession(99);
+        host.Join(42);
+        var prediction = new PredictedVehicle(host.Snapshot().Vehicles[1]);
+        for (int i = 0; i < PredictedVehicle.MaximumPredictionSteps; i++) { prediction.Predict(Drive(), Observe); }
+        var held = prediction.State;
+        for (int i = 0; i < 42; i++) { prediction.Predict(Drive(), Observe); }
+        Assert.That(prediction.IsPredictionLimited, Is.True);
+        Assert.That(prediction.State, Is.EqualTo(held));
+        Assert.That(prediction.History.Pending.Count, Is.EqualTo(60));
+        Assert.That(prediction.History.GetRedundancy()[^1].Sequence, Is.EqualTo(60));
+        host.Receive(42, 99, prediction.History.GetRedundancy());
+        for (int i = 0; i < 6; i++) { host.Step(default, Observe); }
+        Assert.That(prediction.Reconcile(host.Snapshot().Vehicles[1], Observe), Is.True);
+        Assert.That(prediction.IsPredictionLimited, Is.False);
+        Assert.That(prediction.History.Pending, Is.Empty);
+        Assert.That(prediction.State.Movement, Is.EqualTo(host.World.GetVehicle(2).Movement));
+        prediction.Predict(Drive(-18000), Observe);
+        Assert.That(prediction.State.Movement.Tick, Is.EqualTo(host.World.State.Tick + 1));
+    }
+
+    [Test]
+    public void StartupReplayUsesSameBoundAsLivePrediction()
+    {
+        var host = new HostVehicleSession(99);
+        host.Join(42);
+        var history = new InputHistory();
+        for (int i = 0; i < 90; i++) { history.Add(Drive()); }
+        int observed = 0;
+        var prediction = new PredictedVehicle(host.Snapshot().Vehicles[1], history, state => { observed++; return Observe(state); });
+        Assert.That(observed, Is.EqualTo(PredictedVehicle.MaximumPredictionSteps));
+        Assert.That(prediction.History.Pending.Count, Is.EqualTo(90));
+        Assert.That(prediction.IsPredictionLimited, Is.True);
+    }
     /// <summary>Lifecycle contact filtering and movement-only prediction retain the same wheel observations.</summary>
     [Test]
     public void HostAndPredictionPreserveWheelSupport()
@@ -169,9 +205,9 @@ internal sealed class VehicleReplicationTests
         Assert.That(host.Snapshot().Vehicles.Count, Is.EqualTo(8));
     }
 
-    /// <summary>Apply-authority then ordered replay converges exactly with uninterrupted prediction.</summary>
+    /// <summary>An exactly confirmed historical boundary retains the already predicted suffix without native queries.</summary>
     [Test]
-    public void ReconciliationReplaysUnacknowledgedInputsInOrder()
+    public void ExactConfirmationPreservesUnacknowledgedPredictionWithoutReplay()
     {
         var host = new HostVehicleSession(99);
         host.Join(42);
@@ -194,11 +230,67 @@ internal sealed class VehicleReplicationTests
             return Observe(state);
         });
         Assert.That(accepted, Is.True);
-        Assert.That(replayed, Is.EqualTo(new ulong[] { 2, 3 }));
+        Assert.That(replayed, Is.Empty);
+        Assert.That(prediction.ConfirmedPredictions, Is.EqualTo(1));
         Assert.That(prediction.State.Movement, Is.EqualTo(expected));
         Assert.That(prediction.History.Pending.Select(input => input.Sequence), Is.EqualTo(new uint[] { 3, 4 }));
         Assert.That(prediction.PredictionError, Is.Zero);
         Assert.That(prediction.Reconcile(host.Snapshot().Vehicles[1], Observe), Is.False);
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void MismatchOrNeutralizedCommandsStillReplayInOrder(bool neutralized)
+    {
+        var host = new HostVehicleSession(99);
+        host.Join(42);
+        var prediction = new PredictedVehicle(host.Snapshot().Vehicles[1]);
+        for (int i = 0; i < 4; i++) { prediction.Predict(Drive((short)(i * 3000)), Observe); }
+        host.Receive(42, 99, prediction.History.GetRedundancy());
+        VehicleObservation Changed(VehicleSnapshot state)
+        {
+            var observed = Observe(state);
+            var p = observed.Physics;
+            return new(new(p.Position + Vector3.UnitX, p.Orientation, p.LinearVelocity, p.AngularVelocity), Vector3.UnitY);
+        }
+        host.Step(default, neutralized ? Observe : Changed);
+        host.Step(default, Observe);
+        if (neutralized) { prediction.History.NeutralizePending(); }
+        var authoritative = host.Snapshot().Vehicles[1];
+        var expected = new PredictedVehicle(authoritative);
+        foreach (var input in prediction.History.Pending.Skip(2)) { expected.Predict(input.Frame, Observe); }
+        var replayed = new List<ulong>();
+        Assert.That(prediction.Reconcile(authoritative, state => { replayed.Add(state.Movement.Tick); return Observe(state); }), Is.True);
+        Assert.That(replayed, Is.EqualTo(new ulong[] { 2, 3 }));
+        Assert.That(prediction.State.Movement, Is.EqualTo(expected.State.Movement));
+        Assert.That(prediction.ConfirmedPredictions, Is.Zero);
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void ExactConfirmationInstallsHealthButNeverSkipsAuthoritativeImpulses(bool impulse)
+    {
+        var host = new HostVehicleSession(99);
+        host.Join(42);
+        var prediction = new PredictedVehicle(host.Snapshot().Vehicles[1]);
+        for (int i = 0; i < 4; i++) { prediction.Predict(Drive(), Observe); }
+        host.Receive(42, 99, prediction.History.GetRedundancy());
+        host.Step(default, Observe);
+        host.Step(default, Observe);
+        var boundary = host.Snapshot().Vehicles[1];
+        var state = boundary.State;
+        var damage = new VehicleDamageState(state.Damage.MaxHP, state.Damage.MaxHP - 10, null, null);
+        var effects = impulse ? new[] { new VehicleEffectRequest(new DamageEffect(0, Vector3.UnitX * 900, Vector3.Zero), new DamageContext("test", 1, "impulse")) } : [];
+        var authority = new VehicleSnapshot(2, state.LifeId, state.Movement, damage, state.ObservedPhysics, effects);
+        int observedEffects = 0;
+        prediction.Reconcile(new(authority, boundary.AcknowledgedInput), current =>
+        {
+            observedEffects += current.Effects.Count;
+            return Observe(current);
+        });
+        Assert.That(prediction.State.Damage, Is.EqualTo(damage));
+        Assert.That(observedEffects, Is.EqualTo(impulse ? 1 : 0));
+        Assert.That(prediction.ConfirmedPredictions, Is.EqualTo(impulse ? 0 : 1));
     }
 
     /// <summary>Complete eight-vehicle snapshots are compact and malformed payloads fail before publication.</summary>

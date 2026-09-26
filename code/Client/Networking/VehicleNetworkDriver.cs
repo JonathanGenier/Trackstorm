@@ -27,6 +27,8 @@ internal sealed class VehicleNetworkDriver : IDisposable
     private InputHistory? _inputs;
     private ulong _session;
     private double _snapshotAge;
+    private WorldSnapshot? _pendingSnapshot;
+    private int _predictionSteps;
     private ulong _itemPublication;
     private ulong _publishedItemRevision = ulong.MaxValue;
     private bool _rosterChanged = true;
@@ -200,6 +202,8 @@ internal sealed class VehicleNetworkDriver : IDisposable
     internal int RejectedPackets { get; private set; }
     /// <summary>Accepted authoritative snapshot count.</summary>
     internal int ReceivedSnapshots { get; private set; }
+    internal CorrectionQuality StartupCorrections { get; private set; } = new();
+    internal CorrectionQuality SteadyCorrections { get; private set; } = new();
     /// <summary>Explicit stopped-session diagnostic, empty during normal operation.</summary>
     internal string Failure { get; private set; } = string.Empty;
     /// <summary>Whether this arena generation still belongs to the live lobby.</summary>
@@ -232,6 +236,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         if (_lobby is not null)
         {
             _lobby.Pump(1.0 / HostVehicleSession.TickRate, message => Receive(message, observe));
+            FlushPrediction(observe);
             if (_lobby.Failure.Length > 0 || _lobby.State?.Phase != SessionPhase.Arena || _lobby.State.Match != _session)
             {
                 return;
@@ -276,6 +281,8 @@ internal sealed class VehicleNetworkDriver : IDisposable
         {
             Receive(message, observe);
         }
+
+        FlushPrediction(observe);
 
         if (Failure.Length > 0)
         {
@@ -421,6 +428,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
             else
             {
                 Prediction.Predict(input, observe);
+                _predictionSteps = Math.Min(120, _predictionSteps + 1);
             }
 
             Send(new TransportMessage(ServerPeer, VehicleNetworkCodec.EncodeInputs(_session, inputs.GetRedundancy(), LocalState?.LifeId ?? 1), TransportDelivery.Unreliable));
@@ -646,6 +654,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         Prediction = null;
         History = null;
         Latest = null;
+        _pendingSnapshot = null;
         ItemState = null;
         PropSnapshot = null;
         _inputs = null;
@@ -760,6 +769,10 @@ internal sealed class VehicleNetworkDriver : IDisposable
         _receivedConfiguration = true;
         ConfigurationChanged?.Invoke(_configuration.Configuration);
         History = history;
+        _pendingSnapshot = null;
+        _predictionSteps = 0;
+        StartupCorrections = new();
+        SteadyCorrections = new();
         Prediction = prediction;
         _inputs = null;
         Latest = world;
@@ -901,26 +914,44 @@ internal sealed class VehicleNetworkDriver : IDisposable
         }
     }
 
-    private bool AcceptSnapshot(WorldSnapshot snapshot, Func<VehicleSnapshot, VehicleObservation> observe)
+    private bool AcceptSnapshot(WorldSnapshot snapshot, Func<VehicleSnapshot, VehicleObservation> observe, bool deferPrediction = false)
     {
         ReplicatedVehicle? local = snapshot.Vehicles.SingleOrDefault(vehicle => vehicle.State.VehicleId == LocalVehicleId);
         if (!_receivedConfiguration || snapshot.ConfigurationRevision != Configuration.Revision || local is null ||
             local.State.Damage.MaxHP != Configuration.Configuration.Damage.MaxHP ||
             Math.Abs(local.State.Movement.SteeringAngle) > Configuration.Configuration.Vehicle.SteeringAngle ||
-            Inputs is not InputHistory inputs || !inputs.CanAcknowledge(local.AcknowledgedInput) || History is null || !History.Add(snapshot))
+            Inputs is not InputHistory inputs || !inputs.CanAcknowledge(local.AcknowledgedInput) ||
+            (_pendingSnapshot?.Vehicles.Single(vehicle => vehicle.State.VehicleId == LocalVehicleId).AcknowledgedInput is uint pendingAck &&
+                local.AcknowledgedInput != pendingAck && !NetworkSequence.IsNewer(local.AcknowledgedInput, pendingAck)) ||
+            History is null || !History.Add(snapshot))
         {
             return false;
         }
 
         Latest = snapshot;
+        _pendingSnapshot = snapshot;
+        _snapshotAge = 0;
+        ReceivedSnapshots++;
+        if (!deferPrediction) { FlushPrediction(observe); }
+        return true;
+    }
+
+    // Keep all ordered samples for remote rendering, but replay only the newest movement
+    // boundary in a receive burst. Reliable control/outcome boundaries flush first.
+    private void FlushPrediction(Func<VehicleSnapshot, VehicleObservation> observe)
+    {
+        if (_pendingSnapshot is not { } snapshot) { return; }
+        _pendingSnapshot = null;
+        ReplicatedVehicle local = snapshot.Vehicles.Single(vehicle => vehicle.State.VehicleId == LocalVehicleId);
         RosterChanged?.Invoke(snapshot);
         if (Prediction is null)
         {
-            Prediction = new PredictedVehicle(local, inputs, observe, Configuration.Configuration);
+            Prediction = new PredictedVehicle(local, Inputs!, observe, Configuration.Configuration);
             _inputs = null;
         }
         else if (Prediction.Reconcile(local, observe))
         {
+            (_predictionSteps < 120 ? StartupCorrections : SteadyCorrections).Record(Prediction.PredictionError);
             LocalCorrected?.Invoke(Prediction.State);
         }
         else
@@ -928,13 +959,11 @@ internal sealed class VehicleNetworkDriver : IDisposable
             RejectedPackets++;
         }
 
-        _snapshotAge = 0;
-        ReceivedSnapshots++;
-        return true;
     }
 
     private void Receive(TransportMessage message, Func<VehicleSnapshot, VehicleObservation> observe)
     {
+        if (message.Delivery == TransportDelivery.Reliable) { FlushPrediction(observe); }
         if (!_gateway.Connections.TryGetValue(message.RemotePeerId, out var connection) || connection != TransportConnectionState.Connected)
         {
             RejectedPackets++;
@@ -1132,7 +1161,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
                         throw new ArgumentException("Stale lifecycle publication.");
                     }
 
-                    if (AcceptSnapshot(snapshot, observe))
+                    if (AcceptSnapshot(snapshot, observe, deferPrediction: true))
                     {
                         return;
                     }

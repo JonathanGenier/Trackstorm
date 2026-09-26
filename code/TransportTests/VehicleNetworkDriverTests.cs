@@ -17,6 +17,51 @@ internal sealed partial class VehicleNetworkDriverTests
     private const ulong ServerPeer = 42;
     private const ulong Session = 99;
 
+    [TestCase(false)]
+    [TestCase(true)]
+    public void SnapshotBurstReplaysNewestBoundaryAndPreservesReliableOrder(bool reliableBoundary)
+    {
+        using var gateway = ConnectedGateway();
+        using var client = new VehicleNetworkDriver(gateway, 0, ServerPeer);
+        var host = new HostVehicleSession(Session);
+        host.Join(ServerPeer);
+        gateway.Receive(new(ServerPeer, VehicleNetworkCodec.EncodeWelcome(Session, 2), TransportDelivery.Reliable));
+        gateway.Receive(new(ServerPeer, Core.Development.GameplayConfigurationCodec.Encode(Session, new(0, new())), TransportDelivery.Reliable));
+        gateway.Receive(new(ServerPeer, VehicleNetworkCodec.EncodeSnapshot(host.Snapshot()), TransportDelivery.Unreliable));
+        for (int i = 0; i < 20; i++) { client.Advance(Drive(), Observe); }
+        var corrections = new List<ulong>();
+        client.LocalCorrected += _ => corrections.Add(client.Latest!.Tick);
+        int boundaries = 0;
+        client.LifecycleReceived += world =>
+        {
+            Assert.That(client.Prediction!.History.LastAcknowledged, Is.EqualTo(9));
+            Assert.That(world.Tick, Is.EqualTo(9));
+            boundaries++;
+        };
+        WorldSnapshot? stale = null;
+        for (uint i = 1; i <= 18; i++)
+        {
+            host.Receive(ServerPeer, Session, [new(i, Drive())]);
+            host.Step(default, Observe);
+            if (i % 3 == 0)
+            {
+                WorldSnapshot snapshot = host.Snapshot();
+                stale ??= snapshot;
+                gateway.Receive(new(ServerPeer, VehicleNetworkCodec.EncodeSnapshot(snapshot), reliableBoundary && i == 9 ? TransportDelivery.Reliable : TransportDelivery.Unreliable));
+            }
+        }
+        gateway.Receive(new(ServerPeer, VehicleNetworkCodec.EncodeSnapshot(stale!), TransportDelivery.Unreliable));
+        client.Advance(Drive(), Observe);
+        Assert.That(corrections, Is.EqualTo(reliableBoundary ? new ulong[] { 6, 9, 18 } : new ulong[] { 18 }));
+        Assert.That(boundaries, Is.EqualTo(reliableBoundary ? 1 : 0));
+        Assert.That(client.ReceivedSnapshots, Is.EqualTo(7));
+        Assert.That(client.History!.Snapshots.Count, Is.EqualTo(7));
+        Assert.That(client.RejectedPackets, Is.EqualTo(1));
+        var expected = new PredictedVehicle(host.Snapshot().Vehicles.Single(vehicle => vehicle.State.VehicleId == 2));
+        foreach (var input in client.Inputs!.Pending) { expected.Predict(input.Frame, Observe); }
+        Assert.That(client.LocalState, Is.EqualTo(expected.State));
+    }
+
     [Test]
     public void SwitchCommandsAreReliableOrderedAndCannotSelectAnotherPlayer()
     {

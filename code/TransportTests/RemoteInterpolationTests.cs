@@ -48,8 +48,8 @@ internal sealed class RemoteInterpolationTests
         var clock = new RemoteInterpolation();
         history.Add(Snapshot(60, 0));
         clock.Advance(history, 0, 0);
-        Assert.That(clock.RenderTick, Is.EqualTo(54));
-        Assert.That(clock.DelayMilliseconds, Is.EqualTo(100));
+        Assert.That(clock.RenderTick, Is.EqualTo(60));
+        Assert.That(clock.DelayMilliseconds, Is.Zero, "One sample can only be held at its actual endpoint.");
         double previous = clock.RenderTick;
         for (int frame = 1; frame <= 120; frame++)
         {
@@ -63,6 +63,32 @@ internal sealed class RemoteInterpolationTests
         clock.Advance(history, 1.0 / 60, 0);
         Assert.That(clock.RenderTick, Is.InRange(60, 61.1));
         Assert.Throws<ArgumentOutOfRangeException>(() => clock.Advance(history, -1, 0));
+    }
+
+    [Test]
+    public void StableStreamAvoidsFixedHundredMillisecondDelayAndRecoversAfterStall()
+    {
+        var history = new SnapshotHistory(99);
+        var clock = new RemoteInterpolation();
+        double previous = 0;
+        int holds = 0;
+        for (ulong tick = 3; tick < 603; tick++)
+        {
+            if (tick % 3 == 0) { history.Add(Snapshot(tick, tick)); }
+            clock.Advance(history, 1.0 / 60, (tick % 3) / 60.0);
+            Assert.That(clock.RenderTick, Is.InRange(previous, history.Snapshots[^1].Tick));
+            if (tick > 120 && clock.RenderTick == previous) { holds++; }
+            previous = clock.RenderTick;
+        }
+
+        Assert.That(clock.TimelineDelayMilliseconds, Is.LessThan(65));
+        Assert.That(holds, Is.Zero, "Steady delivery must not repeatedly hold remote movement.");
+        history.Add(Snapshot(720, 720));
+        clock.Advance(history, 1.0 / 60, 0);
+        Assert.That(clock.DelayMilliseconds, Is.LessThanOrEqualTo(150));
+        Assert.That(clock.BufferRecoveries, Is.GreaterThan(0));
+        clock.Reset();
+        Assert.That(clock.BufferRecoveries, Is.Zero);
     }
 
     private static WorldSnapshot Snapshot(ulong tick, float x, ulong life = 1)

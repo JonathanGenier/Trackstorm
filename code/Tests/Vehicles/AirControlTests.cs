@@ -97,6 +97,11 @@ internal sealed class AirControlTests
             prediction.Predict(frame, Flight);
             host.Step(frame, Flight);
             Assert.That(prediction.State.Movement, Is.EqualTo(host.World.GetVehicle(1).Movement));
+            if (i % HostVehicleSession.SnapshotInterval == 0)
+            {
+                // Model ordinary acknowledgements while comparing each prediction before correction.
+                prediction.Reconcile(new(host.World.GetVehicle(1), unchecked(prediction.History.NextSequence - 1)), Flight);
+            }
             if (i == 7 || i == 30)
             {
                 var snapshot = VehicleSnapshotCodec.Decode(VehicleSnapshotCodec.Encode(host.World.GetVehicle(1)));

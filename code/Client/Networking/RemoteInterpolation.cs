@@ -7,13 +7,20 @@ namespace Trackstorm.Client.Networking;
 /// <summary>Render-time sampling of ordered Core snapshot data, with endpoint holding and no extrapolation.</summary>
 internal sealed class RemoteInterpolation
 {
-    /// <summary>Two snapshot intervals behind authority absorb ordinary jitter at 20 Hz.</summary>
-    internal const double DelayTicks = 6;
+    /// <summary>One publication interval on a stable stream; measured arrival variation adds bounded headroom.</summary>
+    internal const double DelayTicks = HostVehicleSession.SnapshotInterval;
     private bool _initialized;
+    private ulong _latestTick;
+    private double _arrivalSeconds;
+    private double _jitterTicks;
     /// <summary>Monotonic presentation cursor in host ticks.</summary>
     internal double RenderTick { get; private set; }
     /// <summary>Actual buffered delay behind the most recently received host tick.</summary>
     internal double DelayMilliseconds { get; private set; }
+    /// <summary>Delay relative to the locally advancing received timeline; excludes unknown one-way transit.</summary>
+    internal double TimelineDelayMilliseconds { get; private set; }
+    /// <summary>Explicit cursor recoveries after a stall exhausts the presentation buffer.</summary>
+    internal int BufferRecoveries { get; private set; }
 
     /// <summary>Samples a remote pose, clamping before/after known data and never blending distinct lives.</summary>
     /// <param name="history">Ordered immutable snapshots.</param>
@@ -67,6 +74,11 @@ internal sealed class RemoteInterpolation
         _initialized = false;
         RenderTick = 0;
         DelayMilliseconds = 0;
+        TimelineDelayMilliseconds = 0;
+        _latestTick = 0;
+        _arrivalSeconds = 0;
+        _jitterTicks = 0;
+        BufferRecoveries = 0;
     }
 
     /// <summary>Advances a smooth clock without resetting it on each jittered packet arrival.</summary>
@@ -86,19 +98,40 @@ internal sealed class RemoteInterpolation
         }
 
         double latest = history.Snapshots[^1].Tick;
-        double desired = latest - DelayTicks + (snapshotAge * HostVehicleSession.TickRate);
+        _arrivalSeconds += seconds;
+        _jitterTicks = Math.Max(0, _jitterTicks - seconds * 0.25);
+        if (_initialized && history.Snapshots[^1].Tick != _latestTick)
+        {
+            double variation = Math.Abs((_arrivalSeconds * HostVehicleSession.TickRate) - (latest - _latestTick));
+            _jitterTicks = Math.Clamp(Math.Max(_jitterTicks, variation), 0, DelayTicks);
+            _arrivalSeconds = 0;
+        }
+
+        _latestTick = history.Snapshots[^1].Tick;
+        double targetDelay = DelayTicks + _jitterTicks;
+        double desired = latest - targetDelay + (snapshotAge * HostVehicleSession.TickRate);
         if (!_initialized)
         {
-            RenderTick = Math.Clamp(desired, 0, latest);
+            RenderTick = Math.Clamp(desired, history.Snapshots[0].Tick, latest);
             _initialized = true;
+            _arrivalSeconds = 0;
         }
         else
         {
             double rate = Math.Clamp(1 + ((desired - RenderTick) * 0.05), 0.9, 1.1);
             RenderTick = Math.Min(latest, RenderTick + (seconds * HostVehicleSession.TickRate * rate));
+            // A slow rate correction cannot recover seconds of scheduling debt. Resume
+            // within retained data after a stall; ordinary jitter still uses the smooth clock.
+            double oldestUseful = Math.Max(history.Snapshots[0].Tick, latest - targetDelay - DelayTicks);
+            if (RenderTick < oldestUseful)
+            {
+                RenderTick = Math.Max(oldestUseful, latest - targetDelay);
+                BufferRecoveries++;
+            }
         }
 
         DelayMilliseconds = Math.Max(0, latest - RenderTick) * 1000 / HostVehicleSession.TickRate;
+        TimelineDelayMilliseconds = DelayMilliseconds + snapshotAge * 1000;
     }
 
 }
