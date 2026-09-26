@@ -8,10 +8,13 @@ namespace Trackstorm.Core.Networking.Replication;
 /// <summary>Reuses the authoritative simulation for immediate prediction and ordered replay.</summary>
 public sealed class PredictedVehicle
 {
+    /// <summary>At most 300 ms of speculative movement ahead of confirmed input; longer stalls retain controls for transport but hold prediction.</summary>
+    public const int MaximumPredictionSteps = 18;
     private readonly Simulation.Simulation _world = new(new SimulationConfiguration(HostVehicleSession.TickRate));
     private readonly ulong _vehicle;
     private ulong _lastSnapshotTick;
     private Development.GameplayConfiguration _configuration;
+    private readonly Dictionary<uint, (InputFrame Input, VehicleSnapshot State)> _predicted = new(MaximumPredictionSteps);
 
     /// <summary>Initializes from an authoritative spawn boundary.</summary>
     /// <param name="initial">Assigned local vehicle.</param>
@@ -46,7 +49,7 @@ public sealed class PredictedVehicle
         History = history;
         Restore(initial.State);
         History.Acknowledge(initial.AcknowledgedInput);
-        foreach (SequencedInput input in History.Pending)
+        foreach (SequencedInput input in History.Pending.Take(MaximumPredictionSteps))
         {
             Step(input, observe);
         }
@@ -60,6 +63,10 @@ public sealed class PredictedVehicle
     public VehicleSnapshot State => _world.GetVehicle(_vehicle);
     /// <summary>Distance between old and corrected present-time predictions after replay.</summary>
     public float PredictionError { get; private set; }
+    /// <summary>Authority has fallen beyond the speculative movement horizon; acknowledgements are required to advance again.</summary>
+    public bool IsPredictionLimited => History.Pending.Count > MaximumPredictionSteps;
+    /// <summary>Exact historical movement confirmations that required no external collision replay.</summary>
+    public long ConfirmedPredictions { get; private set; }
 
     /// <summary>Installs host tuning without discarding acknowledged input history or inventing health changes.</summary>
     /// <param name="configuration">Validated effective gameplay tuning.</param>
@@ -67,12 +74,17 @@ public sealed class PredictedVehicle
     {
         _world.ApplyConfiguration(configuration);
         _configuration = configuration;
+        _predicted.Clear();
     }
 
     /// <summary>Predicts before any reply from the host is needed.</summary>
     /// <param name="input">Immediately captured logical input.</param>
     /// <param name="observe">Same collision adapter used by host simulation.</param>
-    public void Predict(InputFrame input, Func<VehicleSnapshot, VehicleObservation> observe) => Step(History.Add(input), observe);
+    public void Predict(InputFrame input, Func<VehicleSnapshot, VehicleObservation> observe)
+    {
+        SequencedInput retained = History.Add(input);
+        if (!IsPredictionLimited) { Step(retained, observe); }
+    }
 
     /// <summary>Applies authority, retires confirmed inputs, then replays remaining commands in sequence order.</summary>
     /// <returns>Whether the snapshot was accepted.</returns>
@@ -87,6 +99,12 @@ public sealed class PredictedVehicle
         }
 
         Vector3 before = State.Movement.Physics.Position;
+        VehicleSnapshot continuation = State;
+        bool confirmed = !IsPredictionLimited &&
+            _predicted.TryGetValue(authoritative.AcknowledgedInput, out var predicted) &&
+            predicted.State.Movement == authoritative.State.Movement &&
+            predicted.State.LifeId == authoritative.State.LifeId && predicted.State.Lifecycle == authoritative.State.Lifecycle &&
+            authoritative.State.Effects.Count == 0;
         if (State.LifeId != authoritative.State.LifeId || State.Lifecycle != authoritative.State.Lifecycle)
         {
             History.NeutralizePending();
@@ -94,9 +112,24 @@ public sealed class PredictedVehicle
 
         Restore(authoritative.State);
         History.Acknowledge(authoritative.AcknowledgedInput);
-        foreach (SequencedInput input in History.Pending)
+        if (confirmed && History.Pending.Count > 0 && History.Pending.All(input =>
+                _predicted.TryGetValue(input.Sequence, out var cached) && cached.Input == input.Frame))
         {
-            Step(input, observe);
+            // Exact confirmation includes tick and every movement field. Preserve the already
+            // predicted suffix, but install host-owned health/lifecycle/landing immediately.
+            Restore(new VehicleSnapshot(_vehicle, authoritative.State.LifeId, continuation.Movement,
+                authoritative.State.Damage, continuation.ObservedPhysics, lifecycle: authoritative.State.Lifecycle,
+                respawnAtTick: authoritative.State.RespawnAtTick, landing: authoritative.State.Landing, outOfBounds: authoritative.State.OutOfBounds));
+            foreach (uint sequence in _predicted.Keys.Where(sequence => !NetworkSequence.IsNewer(sequence, authoritative.AcknowledgedInput)).ToArray())
+            {
+                _predicted.Remove(sequence);
+            }
+            ConfirmedPredictions++;
+        }
+        else
+        {
+            _predicted.Clear();
+            foreach (SequencedInput input in History.Pending.Take(MaximumPredictionSteps)) { Step(input, observe); }
         }
 
         _lastSnapshotTick = authoritative.State.Movement.Tick;
@@ -128,5 +161,6 @@ public sealed class PredictedVehicle
 
         // Prediction owns movement only: collision observations cannot kill, heal or respawn a player.
         Restore(new VehicleSnapshot(_vehicle, previous.LifeId, movement, previous.Damage, physics, lifecycle: previous.Lifecycle, respawnAtTick: previous.RespawnAtTick, landing: previous.Landing, outOfBounds: previous.OutOfBounds));
+        _predicted[input.Sequence] = (input.Frame, State);
     }
 }

@@ -1,0 +1,21 @@
+transport PASS
+lobby PASS
+match-start PASS
+items-impaired PASS
+oil-impaired PASS
+nitro-impaired PASS
+pickup-drive PASS
+spawns-impaired PASS
+lifecycle-impaired PASS
+match-impaired PASS
+reconnect PASS
+migration-two PASS
+migration-three PASS
+migration-process-two FAIL Timed out waiting for 1-ready.json; inspect C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\migration-process-checks\8d19b0305a6244f6a1a8ca5af1301f38
+migration-process-three FAIL Timed out waiting for 1-ready.json; inspect C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\migration-process-checks\8b069349c5824a6ab945f9ab41aa0cc5
+contact PASS
+statistics PASS
+menu FAIL Menu integration failed or did not complete.
+post-match PASS
+eos-native PASS
+eos-p2p FAIL EOS process cycle 1 failed.

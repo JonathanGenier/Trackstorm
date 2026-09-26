@@ -26,7 +26,12 @@ public sealed partial class MenuIntegrationChecks : Node
     private string _endpoint = string.Empty;
 
     /// <inheritdoc/>
-    public override void _Ready() => CallDeferred(MethodName.Run);
+    public override void _Ready()
+    {
+        // Frame-bounded waits must allow the production five-second countdown to elapse.
+        Engine.MaxFps = 60;
+        CallDeferred(MethodName.Run);
+    }
 
     /// <inheritdoc/>
     public override void _PhysicsProcess(double delta) => _remote?.Advance(new InputFrame(0, 0, 30000, 0, 0, 0, 0));
@@ -60,10 +65,10 @@ public sealed partial class MenuIntegrationChecks : Node
             CheckCursor(true, "gameplay captures mouse");
             VerifyFocus(true);
             VerifyMouseItem();
-            Check(_session.Arena!.Driver.Match?.Phase == MatchPhase.Waiting, "solo match is Waiting");
+            Check(_session.Arena!.Driver.Match?.Phase == MatchPhase.Countdown, "synchronized solo match starts Countdown");
             Tap(Key.Escape);
             await Frames(2);
-            Check(_menu.CurrentPage == MenuPage.Game, "ESC opens in solo Waiting arena");
+            Check(_menu.CurrentPage == MenuPage.Game, "ESC opens during solo Countdown");
             Check(!_menu.GetTree().Paused, "menu does not pause tree");
             Check(_player.Adapter.GameplaySuppressed, "local gameplay suppressed");
             CheckCursor(false, "ESC releases mouse immediately");
@@ -206,14 +211,14 @@ public sealed partial class MenuIntegrationChecks : Node
             Check(_session.Stage == ApplicationStage.MainMenu && _session.MainMenu.Interactive, "Leave returns to the chain-hung Main Menu, not the browser");
             CheckCursor(false, "leaving arena restores Main Menu pointer");
             await EnterArena();
-            Check(_session.Arena!.Driver.Match?.Phase == MatchPhase.Waiting, "reenter has fresh Waiting state");
+            Check(_session.Arena!.Driver.Match?.Phase == MatchPhase.Countdown, "reenter has a fresh synchronized Countdown");
             _session.Leave();
             await Frames(3);
             await VerifyRemoteProgress();
             Tap(Key.Escape);
             Press("Quit");
             Check(_session.LeaveComplete && _session.Arena is null, "Quit invokes production session cleanup before exit");
-            GD.Print($"Menu integration passed: {_assertions} assertions; solo Waiting, navigation, settings, leave and production Quit.");
+            GD.Print($"Menu integration passed: {_assertions} assertions; solo Countdown, navigation, settings, leave and production Quit.");
             _bootstrap.QueueFree();
             await Frames(4);
             // Headless frames can finish before the audio thread releases stopped playback resources.
@@ -329,7 +334,7 @@ public sealed partial class MenuIntegrationChecks : Node
         Check(lobby.Cars.Values.Single().Root == visual && visual.GetChildCount() == 2, "Vehicle art refresh preserves identity and replaces only model");
         await Capture("joined-lobby");
         Check(_session.StartFromLobby(), "solo host Start uses existing readiness and match authority without Ready UI");
-        await Until(() => _session.Arena?.Driver.Match is not null, "arena initialized");
+        await Until(() => _session.Arena?.Driver.EntryReady == true && _session.Arena.Driver.Match is not null, "arena synchronized");
         await Frames(2);
         CheckCursor(true, "arena entry restores capture");
     }
