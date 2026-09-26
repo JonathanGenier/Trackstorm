@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Timed Circus and authoritative HUD | [TS-171: timer expiry, native reconnect/migration, frozen score results and runtime critique](ts-171.md) |
 | Integrated map driving and production tuning | [TS-163 verification evidence](ts-163.md) |
 | Story verification | [TS-169 verification evidence](ts-169.md) |
 | TS-167 close-range machine gun | [225 m range and saved 10 m override correction; 785 Core / native recovery checks, fresh runtime evidence; prior critique historical](ts-167.md) |

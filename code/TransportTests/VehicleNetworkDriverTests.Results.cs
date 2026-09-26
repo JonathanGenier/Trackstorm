@@ -34,7 +34,7 @@ internal sealed partial class VehicleNetworkDriverTests
             Assert.That(driver.FinalResults, Is.Null);
             Assert.That(driver.EntryReady, Is.False);
             ReleaseEntry(wire, lobby, driver);
-            Assert.That(driver.TryConfigure(new Dictionary<string, double> { ["match.kill_target"] = 1 }, out _), Is.True);
+            Assert.That(driver.TryConfigure(new Dictionary<string, double> { ["match.duration_ticks"] = 2 }, out _), Is.True);
             while (driver.Match!.Phase != MatchPhase.Active)
             {
                 driver.Advance(default, Observe);

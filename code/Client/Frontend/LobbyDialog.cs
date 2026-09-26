@@ -121,8 +121,8 @@ internal sealed class LobbyDialog
         _content.AddChild(mode);
         _controls.Add(mode);
         var target = new HSlider { MinValue = 1, MaxValue = Math.Max(100, config.KillTarget), Step = 1, Value = config.KillTarget, CustomMinimumSize = new Vector2(0, 26) };
-        var targetLabel = Label($"Kill target: {config.KillTarget}");
-        target.ValueChanged += value => targetLabel.Text = $"Kill target: {value:0}";
+        var targetLabel = Label($"Kill target (First to Target only): {config.KillTarget}");
+        target.ValueChanged += value => targetLabel.Text = $"Kill target (First to Target only): {value:0}";
         _content.AddChild(target);
         _controls.Add(target);
         Button("Apply", () =>

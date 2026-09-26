@@ -15,10 +15,10 @@ public sealed class ResumeCheckpoint
     /// <param name="environment">Complete current-match destruction boundary.</param>
     public ResumeCheckpoint(ItemPublication items, MatchState match, ArenaPropSnapshot? props, Development.GameplayConfigurationState? configuration = null, EnvironmentSnapshot? environment = null)
     {
-        configuration ??= new(items.World.ConfigurationRevision, new() { Damage = new() { MaxHP = items.World.Vehicles[0].State.Damage.MaxHP }, Match = new() { KillTarget = match.KillTarget, Mode = match.Mode } });
+        configuration ??= new(items.World.ConfigurationRevision, new() { Damage = new() { MaxHP = items.World.Vehicles[0].State.Damage.MaxHP }, Match = new() { KillTarget = match.KillTarget, Mode = match.Mode, DurationTicks = match.DurationTicks } });
         if (items.Events.Count != 0 || match.Changes.Count != 0 || match.Awards.Count != 0 || match.Tick > items.World.Tick ||
             (props is not null && (props.Session != items.World.Session || props.Tick != items.World.Tick)) ||
-            configuration.Revision != items.World.ConfigurationRevision || configuration.Configuration.Match.KillTarget != match.KillTarget || configuration.Configuration.Match.Mode != match.Mode ||
+            configuration.Revision != items.World.ConfigurationRevision || configuration.Configuration.Match.KillTarget != match.KillTarget || configuration.Configuration.Match.Mode != match.Mode || (match.Phase != MatchPhase.Finished && configuration.Configuration.Match.DurationTicks != match.DurationTicks) ||
             items.World.Vehicles.Any(vehicle => vehicle.State.Damage.MaxHP != configuration.Configuration.Damage.MaxHP ||
                 Math.Abs(vehicle.State.Movement.SteeringAngle) > configuration.Configuration.Vehicle.SteeringAngle))
         {

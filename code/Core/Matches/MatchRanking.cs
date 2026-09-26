@@ -3,6 +3,9 @@ namespace Trackstorm.Core.Matches;
 /// <summary>Single ranking rule for all match consumers; never consumes network diagnostics.</summary>
 public static class MatchRanking
 {
+    internal static IOrderedEnumerable<PlayerScore> Order(IEnumerable<PlayerScore> scores) => scores
+        .OrderByDescending(player => player.CircusScore).ThenByDescending(player => player.Kills)
+        .ThenBy(player => player.Deaths).ThenBy(player => player.Player);
     /// <summary>Ranks participants by Circus score, kills, deaths and stable identity. The recorded final winner remains first.</summary>
     /// <param name="match">Authoritative immutable match boundary.</param>
     /// <param name="participants">Occupied roster and retained match-history identities.</param>
@@ -17,12 +20,8 @@ public static class MatchRanking
         }
 
         var totals = match.Players.ToDictionary(player => player.Player);
-        return Array.AsReadOnly(ids.Select(id => totals.GetValueOrDefault(id, new PlayerScore(id, 0, 0, 0, 0)))
+        return Array.AsReadOnly(Order(ids.Select(id => totals.GetValueOrDefault(id, new PlayerScore(id, 0, 0, 0, 0))))
             .OrderByDescending(player => player.Player == match.Winner)
-            .ThenByDescending(player => player.CircusScore)
-            .ThenByDescending(player => player.Kills)
-            .ThenBy(player => player.Deaths)
-            .ThenBy(player => player.Player)
             .Select((player, index) => new MatchStanding(player.Player, index + 1, player.CircusScore, player.Kills, player.Deaths)).ToArray());
     }
 }

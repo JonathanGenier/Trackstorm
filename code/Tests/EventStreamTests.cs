@@ -144,7 +144,7 @@ internal sealed class EventStreamTests
     [Test]
     public void ScoredKillIsAttributedOnceBeforeMatchFinish()
     {
-        var host = new HostVehicleSession(10, matchConfiguration: new Core.Matches.MatchConfiguration { MinimumPlayers = 1, CountdownTicks = 1, KillTarget = 1 });
+        var host = new HostVehicleSession(10, matchConfiguration: new Core.Matches.MatchConfiguration { MinimumPlayers = 1, CountdownTicks = 1, DurationTicks = 1, KillTarget = 1 });
         host.Join(20);
         host.Step(default, Observe);
         host.Step(default, Observe);

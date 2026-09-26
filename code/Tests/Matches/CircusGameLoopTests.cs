@@ -27,10 +27,11 @@ internal sealed class CircusGameLoopTests
             Assert.That(host.World.State.Match.Lifecycle.AllowsGameplay, Is.True);
             for (int i = 0; i < 60; i++) Step(host, moving: true);
             Assert.That(host.World.State.Match.Players[0].Stunts is not null, Is.EqualTo(mode == MatchMode.Circus));
+            if (mode == MatchMode.Circus) Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["match.duration_ticks"] = 61 }, out _), Is.True);
             Hit(host, 1000);
             var final = host.World.State.Match;
             Assert.That(final!.Phase, Is.EqualTo(MatchPhase.Finished));
-            Assert.That(final.Lifecycle.Outcome, Is.EqualTo(new MatchOutcome("kill-target", 1)));
+            Assert.That(final.Lifecycle.Outcome, Is.EqualTo(new MatchOutcome(mode == MatchMode.Circus ? "time-limit" : "kill-target", 1)));
             Assert.That(final.Players[0].CircusScore, Is.EqualTo(mode == MatchMode.Circus ? 190 : 0));
             Assert.That(final.Players[0].KillStreak, Is.EqualTo(mode == MatchMode.Circus ? 1 : 0));
             Assert.That(final.Players.All(row => row.Stunts is null), Is.True, "Completion discards outstanding stunts, without banking them.");
@@ -113,7 +114,7 @@ internal sealed class CircusGameLoopTests
     private static ResumeCheckpoint Checkpoint(HostVehicleSession host)
     {
         var state = host.World.State.Match!;
-        var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode);
+        var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode, activeStartedAtTick: state.ActiveStartedAtTick, durationTicks: state.DurationTicks, recoveryElapsedTicks: state.RecoveryElapsedTicks);
         return ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(new(new ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, []), match, null, host.Configuration)));
     }
 
