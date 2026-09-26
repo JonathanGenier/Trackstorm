@@ -39,12 +39,16 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'IntegratedDriving|integrated_driving|check-integrated-driving') {
+            Add-Runtime 'check-integrated-driving.ps1'
+        }
         if ($path -match 'AirControl|air_control|check-air-control' -or $path -eq 'code/Core/Vehicles/VehicleMovement.cs') {
             Add-Runtime 'check-air-control.ps1'
             Add-Extended 'check-network-vehicles.ps1'
             Add-Extended 'check-reconnect.ps1'
         }
-        if ($path -match 'DestructibleEnvironment|EnvironmentAuthority|EnvironmentLayout|EnvironmentRockState|EnvironmentSnapshot|EnvironmentCodec|EnvironmentRecoveryFixture|destructible_environment|check-destructible-environment') {
+        if ($path -match 'DestructibleEnvironment|EnvironmentAuthority|EnvironmentTuning|EnvironmentLayout|EnvironmentRockState|EnvironmentSnapshot|EnvironmentCodec|EnvironmentRecoveryFixture|destructible_environment|check-destructible-environment') {
+            Add-Runtime 'check-integrated-driving.ps1'
             Add-Runtime 'check-destructible-environment.ps1'
             Add-Extended 'check-reconnect.ps1'
             Add-Extended 'check-migration.ps1'
@@ -55,6 +59,7 @@ function Get-FastCheckPlan {
             Add-Manual 'Play Salvo from the chase camera; inspect terrain-conforming marker privacy on remote peers and repeated use. Run impaired salvo, reconnect and migration checks.'
         }
         if ($path -match 'TireFeedback|TireMarkBatch|TireEffect|TireTrack|WaterWake|EnvironmentPresentation|EnvironmentPreset|EnvironmentSky|TerrainEffects|terrain_effects|check-terrain-effects') {
+            Add-Runtime 'check-integrated-driving.ps1'
             Add-Runtime 'check-terrain-effects.ps1'
             Add-Runtime 'check-developer-options.ps1'
             Add-Manual 'Inspect all five environment packages at driving height; drive every surface, repeat tire effects and check Water splashes without persistent marks. Exercise environment replication and recovery.'

@@ -132,6 +132,15 @@ public sealed record VehicleConfiguration
     /// <summary>Minimum ground normal Y.</summary>
     public float SupportNormalMinimum { get; init; } = 0.55f;
 
+    /// <summary>Static-obstacle tangential resistance per second.</summary>
+    public float WallDrag { get; init; } = 0.18f;
+    /// <summary>Fraction of residual lateral motion removed by a direct crash.</summary>
+    public float CrashDissipation { get; init; } = 0.95f;
+    /// <summary>Eccentric static-impact angular response multiplier.</summary>
+    public float CrashRotation { get; init; } = 0.08f;
+    /// <summary>Maximum angular velocity change from one static manifold, rad/s.</summary>
+    public float CrashAngularLimit { get; init; } = 1.2f;
+
     /// <summary>Resolves explicit surface tuning without engine or mutable state.</summary>
     /// <param name="surface">Supported surface identifier.</param>
     /// <returns>Configured handling multipliers.</returns>
@@ -150,6 +159,13 @@ public sealed record VehicleConfiguration
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(WallDrag) || WallDrag is < 0 or > 5 ||
+            !float.IsFinite(CrashDissipation) || CrashDissipation is < 0 or > 1 ||
+            !float.IsFinite(CrashRotation) || CrashRotation is < 0 or > 1 ||
+            !float.IsFinite(CrashAngularLimit) || CrashAngularLimit is < 0 or > 3)
+        {
+            throw new ArgumentException("Collision tuning requires wall drag 0–5/s, dissipation/rotation 0–1 and angular change 0–3 rad/s.");
+        }
         if (!float.IsFinite(AirDelay) || AirDelay is < 0 or > 2 ||
             new[] { AirPitchRate, AirYawRate, AirRollRate }.Any(v => !float.IsFinite(v) || v is < 0 or > 8) ||
             new[] { AirPitchAcceleration, AirYawAcceleration, AirRollAcceleration }.Any(v => !float.IsFinite(v) || v is < 0.1f or > 60) ||

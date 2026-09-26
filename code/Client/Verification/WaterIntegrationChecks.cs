@@ -87,8 +87,20 @@ public sealed partial class WaterIntegrationChecks : Node3D
                     _advance = true; _throttle = 65535;
                     await Frames(1);
                     Check(_lastDepth is > 0 and < 1, $"{network}/{exit}: shallow starting immersion {_lastDepth:F3}");
-                    await Frames(600);
-                    Check(_lastDepth == 0 && _world.GetVehicle(1).Damage.CurrentHP == 1000, $"{network}/{exit}: drives out of shallow water without damage or sticky state; depth={_lastDepth:F3}, HP={_world.GetVehicle(1).Damage.CurrentHP:F2}, position={_world.GetVehicle(1).ObservedPhysics.Position}");
+                    // Verify departure and a sustained dry continuation. Driving for a
+                    // fixed ten seconds now reaches unrelated east-bank terrain at x=170.
+                    int dryFrames = 0;
+                    for (int frame = 0; frame < 600 && (dryFrames < 60 || _world.GetVehicle(1).ObservedPhysics.Position.X < 97); frame++)
+                    {
+                        await Frames(1);
+                        dryFrames = _lastDepth == 0 ? dryFrames + 1 : 0;
+                        if (_world.GetVehicle(1).Damage.CurrentHP < 1000)
+                        {
+                            Log($"{network}/{exit}: first exit damage at frame {frame}, position={_world.GetVehicle(1).ObservedPhysics.Position}, depth={_lastDepth:F3}, grounded={_world.GetVehicle(1).Movement.Grounded}");
+                            break;
+                        }
+                    }
+                    Check(_lastDepth == 0 && dryFrames >= 60 && _world.GetVehicle(1).ObservedPhysics.Position.X >= 97 && _world.GetVehicle(1).Damage.CurrentHP == 1000, $"{network}/{exit}: drives out of shallow water without damage or sticky state; dryFrames={dryFrames}, depth={_lastDepth:F3}, HP={_world.GetVehicle(1).Damage.CurrentHP:F2}, position={_world.GetVehicle(1).ObservedPhysics.Position}");
                     await Stop();
                 }
                 // Drive into the basin from the wet-soil bank, observing the actual transition.

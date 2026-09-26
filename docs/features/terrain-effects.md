@@ -14,7 +14,7 @@ validates, commits and saves through the existing configuration path. Cancel and
 Reset retain their normal semantics. Stable identities are ClearBlue=0, Night=1,
 EmberSky=2, Apocalypse=3 and NeonSunset=4. Unknown/fractional identities reject the
 complete transaction. New saved files need no schema migration; missing keys use
-Clear Blue. The complete configuration wire layout is version 11 with 101 values.
+Clear Blue. The complete configuration wire layout is version 20 with 165 values.
 
 The accepted configuration travels through normal reliable revision ordering,
 admission, reconnect and host-migration checkpoints. Joined clients never use
@@ -150,3 +150,8 @@ identity and driving/collision. Configs checks exercise the named selector, norm
 Apply, both UDP participants, map-instance retention and process-restart persistence.
 Reconnect and migration checks carry nondefault environment identities through the
 existing recovery paths. Actual results and limitations belong in Story evidence.
+
+The rendered `check-integrated-driving.ps1` additionally exercises default persistent
+marks with eight moving cars and repeated rock/plant changes on the production map.
+It reports actual frame intervals and bounded submissions; these are machine-specific
+observations, not a hardware-wide performance guarantee.

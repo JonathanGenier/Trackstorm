@@ -72,6 +72,9 @@ public sealed partial class InfieldIntegrationChecks
                     frame >= 90 && speed < targetSpeed ? (ushort)40000 : (ushort)0,
                     speed > targetSpeed + 1 ? (ushort)18000 : (ushort)0, 0, 0, 0);
                 var observation = proxy.Observe(world.GetVehicle(1));
+                // Pedals command pitch in flight; the route follower must release them
+                // just like the practice route driver when holding the takeoff attitude.
+                if (!world.GetVehicle(1).Movement.Grounded) { input = new InputFrame(input.Tick, 0, 0, 0, 0, 0, 0); }
                 depth = Math.Max(depth, observation.WaterDepth);
                 world.Step(input, new[] { new VehicleStepRequest(1, input, observation) });
                 proxy.Apply(world.GetVehicle(1));
