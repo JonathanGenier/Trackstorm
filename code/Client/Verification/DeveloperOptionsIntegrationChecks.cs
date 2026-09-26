@@ -61,6 +61,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                 GD.Print("Developer Options interactive inspection ready; isolated local host and settings.");
                 return;
             }
+            await CheckInitialAccordionState();
             if (phase == "read")
             {
                 Check(_host.DeveloperConfiguration.Environment == EnvironmentPreset.NeonSunset, "process restart restores environment identity");

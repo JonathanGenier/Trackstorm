@@ -22,7 +22,7 @@ The shared shell keeps Reset to Defaults at bottom-left and Apply Settings, Canc
 
 Configuration actions and their feedback disappear on Stats and Logs and for non-hosts, while shell-owned Close remains available. Close, Escape and logical Cancel/Pause protect pending edits even after switching tabs, using an in-panel Apply / Discard / Stay decision. Stay (or Escape on the decision) retains drafts and focus. Discard restores effective values and closes. A validation or authoritative rejection returns to Configs with its error and no green confirmation. An authoritative success shows green **Settings applied**; if host-local persistence then fails, the persistence failure remains visible and close remains incomplete so the user can retry. Authority/session changes retain the existing draft-reset policy; staging never becomes a second configuration authority.
 
-Each catalog category is an independent accordion, initially expanded. Headers show
+Each catalog category is an independent accordion, initially collapsed. Headers show
 an expand/collapse indicator; multiple categories may stay open. Disclosure state
 lasts for the runtime panel's lifetime, including tab switches and closing/reopening
 DevTools, without a persisted preference. Collapsing hides the category body and its

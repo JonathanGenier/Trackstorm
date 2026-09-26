@@ -7,6 +7,22 @@ namespace Trackstorm.Client.Verification;
 
 public sealed partial class DeveloperOptionsIntegrationChecks
 {
+    private async Task CheckInitialAccordionState()
+    {
+        var sections = Descendants(_devTools.Configs).OfType<ConfigsAccordion>().ToArray();
+        Check(sections.All(section => !section.Body.IsVisibleInTree()), "fresh Configs categories begin collapsed");
+        await Capture("accordion-initial-collapsed");
+        var search = Descendants(_devTools.Configs).OfType<LineEdit>().Single(editor => editor.Name == "ConfigSearch");
+        search.Text = "salvo shots";
+        search.EmitSignal(LineEdit.SignalName.TextChanged, search.Text);
+        Check(sections.Count(section => section.Body.IsVisibleInTree()) == 1, "fresh collapsed Configs exposes matching search category");
+        search.Text = string.Empty;
+        search.EmitSignal(LineEdit.SignalName.TextChanged, search.Text);
+        Check(sections.All(section => !section.Body.IsVisibleInTree()), "clearing initial search restores collapsed defaults");
+        foreach (var section in sections) { section.GetChildren().OfType<Button>().Single().EmitSignal(BaseButton.SignalName.Pressed); }
+        Check(sections.All(section => section.Body.IsVisibleInTree()), "all categories can be opened together for editing");
+    }
+
     private async Task CheckAccordions()
     {
         var panel = _devTools.Configs;
@@ -30,7 +46,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks
         Check(sections.Select(section => Header(section).Text[2..]).SequenceEqual(names), "every category remains in catalog order");
         foreach (var section in sections)
         {
-            Check(section.Body.IsVisibleInTree() && Reset(section).Icon is not null, "category begins expanded with its own styled reset");
+            Check(section.Body.IsVisibleInTree() && Reset(section).Icon is not null, "opened category contains its own styled reset");
             Header(section).EmitSignal(BaseButton.SignalName.Pressed);
             Check(!section.Body.IsVisibleInTree() && Header(section).Text.StartsWith("▸", StringComparison.Ordinal), "header collapses category body and reset");
             Header(section).EmitSignal(BaseButton.SignalName.Pressed);

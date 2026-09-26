@@ -7,7 +7,7 @@ internal sealed partial class ConfigsAccordion : VBoxContainer
 {
     private readonly Button _header;
     private readonly string _title;
-    private bool _expanded = true;
+    private bool _expanded;
 
     internal ConfigsAccordion(string title, Action reset)
     {

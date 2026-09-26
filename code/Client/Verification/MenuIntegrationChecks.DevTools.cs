@@ -15,15 +15,20 @@ public sealed partial class MenuIntegrationChecks
         LineEdit acceleration = numbers.Single(editor => editor.Name == "vehicle_acceleration");
         var category = Descendants(_devTools.Configs).OfType<ConfigsAccordion>().First();
         var header = category.GetChildren().OfType<Button>().Single();
+        Check(!category.Body.IsVisibleInTree(), "category starts collapsed before native input");
         header.GrabFocus();
         Joy(JoyButton.A);
-        Check(!category.Body.IsVisibleInTree() && GetViewport().GuiGetFocusOwner() == header, "controller Accept collapses category and retains header focus");
+        Check(category.Body.IsVisibleInTree() && GetViewport().GuiGetFocusOwner() == header, "controller Accept expands category and retains header focus");
         Joy(JoyButton.A);
-        Check(category.Body.IsVisibleInTree(), "controller Accept reopens category");
+        Check(!category.Body.IsVisibleInTree(), "controller Accept collapses category");
+        Tap(Key.Enter);
+        Check(category.Body.IsVisibleInTree(), "keyboard Accept expands category");
         Tap(Key.Enter);
         Check(!category.Body.IsVisibleInTree(), "keyboard Accept collapses category");
-        Tap(Key.Enter);
-        Check(category.Body.IsVisibleInTree(), "keyboard Accept reopens category");
+        foreach (var section in Descendants(_devTools.Configs).OfType<ConfigsAccordion>())
+        {
+            section.GetChildren().OfType<Button>().Single().EmitSignal(BaseButton.SignalName.Pressed);
+        }
         mass.GrabFocus();
         Joy(JoyButton.DpadDown);
         Check(GetViewport().GuiGetFocusOwner() == acceleration, "controller Down leaves numeric editor exactly once");
