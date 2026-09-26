@@ -27,7 +27,7 @@ public sealed partial class NetworkVehicleChecks : Node
     private readonly List<double> _stepAllocatedBytes = new();
     private readonly List<object> _frameStalls = new();
     private ulong _lastFrameMicroseconds;
-    private GameNetworkingSocketsTransport _gateway = null!;
+    private ReplicationTrafficGateway _gateway = null!;
     private NetworkVehicleArena _arena = null!;
     private double _seconds;
     private double _duration;
@@ -79,7 +79,7 @@ public sealed partial class NetworkVehicleChecks : Node
         _applicationEntry = args.Contains("--network-check-entry", StringComparer.Ordinal);
         _stallBoundary = Value("--network-check-stall-boundary");
         _stallMilliseconds = int.Parse(Value("--network-check-stall-ms", "0"), System.Globalization.CultureInfo.InvariantCulture);
-        _gateway = new GameNetworkingSocketsTransport();
+        _gateway = new ReplicationTrafficGateway();
         _gateway.ConfigureSimulation(new NetworkSimulation(int.Parse(Value("--network-check-latency", "0"), System.Globalization.CultureInfo.InvariantCulture), int.Parse(Value("--network-check-jitter", "0"), System.Globalization.CultureInfo.InvariantCulture), float.Parse(Value("--network-check-loss", "0"), System.Globalization.CultureInfo.InvariantCulture), 0, 0));
         ulong peer = 0;
         if (host.Length > 0)

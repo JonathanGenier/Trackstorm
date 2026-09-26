@@ -8,6 +8,14 @@ namespace Trackstorm.Client.Audio;
 /// <summary>Arena-owned audio presentation. Teardown owns every voice and all playlist state.</summary>
 internal sealed partial class ArenaAudio : Node3D
 {
+    /// <summary>Moves existing travel loops without replaying reliable launches or impacts.</summary>
+    internal void ApplyProjectileMotion(IReadOnlyList<MissileState> missiles)
+    {
+        foreach (var missile in missiles)
+        {
+            if (_rockets.TryGetValue(missile.Id, out var rocket)) { rocket.Position = Vehicles.VehicleBody.ToGodot(missile.Position); }
+        }
+    }
     private readonly AudioEventProjection _events = new();
     private readonly ArenaPlaylist _playlist = new(Random.Shared.Next);
     private readonly AudioStreamPlayer _music = new() { Bus = "Music", VolumeDb = -14 };

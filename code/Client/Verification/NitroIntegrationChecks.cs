@@ -12,7 +12,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Native two-peer driving, repeated Nitro use, score publication and clean expiry.</summary>
 public sealed partial class NitroIntegrationChecks : Node
 {
-    private readonly List<GameNetworkingSocketsTransport> _gateways = new();
+    private readonly List<ReplicationTrafficGateway> _gateways = new();
     private readonly List<NetworkVehicleArena> _arenas = new();
     private readonly List<SubViewport> _views = new();
     private string _endpoint = "";
@@ -46,7 +46,7 @@ public sealed partial class NitroIntegrationChecks : Node
     private void AddPeer()
     {
         int index = _arenas.Count;
-        var gateway = new GameNetworkingSocketsTransport();
+        var gateway = new ReplicationTrafficGateway();
         ulong server = 0;
         if (index == 0)
         {

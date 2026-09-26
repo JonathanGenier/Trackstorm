@@ -13,7 +13,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Native terrain placement, real UDP state delivery and sustained oil handling exercise.</summary>
 public sealed partial class OilIntegrationChecks : Node
 {
-    private readonly List<GameNetworkingSocketsTransport> _gateways = new();
+    private readonly List<ReplicationTrafficGateway> _gateways = new();
     private readonly List<NetworkVehicleArena> _arenas = new();
     private readonly List<SubViewport> _views = new();
     private string _endpoint = "";
@@ -43,7 +43,7 @@ public sealed partial class OilIntegrationChecks : Node
     private void AddPeer()
     {
         int index = _arenas.Count;
-        var gateway = new GameNetworkingSocketsTransport();
+        var gateway = new ReplicationTrafficGateway();
         ulong server = 0;
         if (index == 0)
         {

@@ -18,7 +18,7 @@ namespace Trackstorm.Client.Verification;
 public sealed partial class ReconnectIntegrationChecks : Node
 {
     private readonly Dictionary<ulong, ItemPublication> _salvoBoundaries = new();
-    private readonly List<GameNetworkingSocketsTransport> _gateways = new();
+    private readonly List<ReplicationTrafficGateway> _gateways = new();
     private readonly List<SubViewport> _views = new();
     private readonly List<NetworkVehicleArena> _arenas = new();
     private LobbyNetworkDriver _host = null!;
@@ -59,7 +59,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
         reservation.Close();
         for (int i = 0; i < 2; i++)
         {
-            var gateway = new GameNetworkingSocketsTransport();
+            var gateway = new ReplicationTrafficGateway();
             _gateways.Add(gateway);
             var view = new SubViewport { Size = new Vector2I(1280, 720), OwnWorld3D = true, RenderTargetUpdateMode = i == 1 ? SubViewport.UpdateMode.Always : SubViewport.UpdateMode.Disabled };
             _views.Add(view);

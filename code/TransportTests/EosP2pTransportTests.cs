@@ -1390,11 +1390,14 @@ internal sealed class EosP2pTransportTests
     /// <summary>Measures production framing and vehicle replication with deterministic in-memory delivery.</summary>
     /// <param name="players">Total players including the host.</param>
     /// <param name="reorderMixed">Reverse independent vehicle/prop datagrams on every publication.</param>
-    [TestCase(2, false)]
-    [TestCase(8, false)]
-    [TestCase(2, true)]
-    [TestCase(8, true)]
-    public void MeasuresVehicleTrafficThroughEosFraming(int players, bool reorderMixed)
+    /// <param name="projectileTraffic">Add repeated full-roster flight to the mixed unreliable receive window.</param>
+    [TestCase(2, false, false)]
+    [TestCase(8, false, false)]
+    [TestCase(2, true, false)]
+    [TestCase(8, true, false)]
+    [TestCase(2, true, true)]
+    [TestCase(8, true, true)]
+    public void MeasuresVehicleTrafficThroughEosFraming(int players, bool reorderMixed, bool projectileTraffic)
     {
         var routes = new Dictionary<OnlineProductUserId, EosP2pWire>();
         var gateways = new List<EosP2pTransport>();
@@ -1426,6 +1429,15 @@ internal sealed class EosP2pTransportTests
 
             for (int tick = 0; tick < 600; tick++)
             {
+                if (projectileTraffic && tick is 30 or 330)
+                {
+                    foreach (var vehicle in host.Host!.World.State.Vehicles)
+                    {
+                        host.Host.Items.Grant(host.Host.World, vehicle.VehicleId, Core.Items.HeldItem.Missile);
+                        var slot = host.Host.Items.Slots.Single(slot => slot.Vehicle == vehicle.VehicleId);
+                        host.Host.Items.RequestUse(host.Host.World, vehicle.VehicleId, slot.Life, slot.Active.Token);
+                    }
+                }
                 host.Advance(default, Observe);
                 if (reorderMixed)
                 {
@@ -1442,7 +1454,8 @@ internal sealed class EosP2pTransportTests
                     if (reorderMixed && tick >= 12)
                     {
                         Assert.That(client.Latest!.Tick, Is.GreaterThanOrEqualTo((ulong)(tick - 2)));
-                        Assert.That(client.PropSnapshot!.Tick, Is.EqualTo(client.Latest.Tick));
+                        Assert.That(client.PropSnapshot!.Tick, Is.EqualTo((ulong)((tick + 1) / 3 * 3)), "Independent prop snapshots retain the full 20 Hz cadence even during projectile flight.");
+                        Assert.That(client.Latest.Tick - client.PropSnapshot.Tick, Is.LessThanOrEqualTo(projectileTraffic ? 2ul : 0ul), "A reliable launch/outcome may carry a newer world between ordinary snapshot ticks.");
                         Assert.That(client.Inputs!.LastAcknowledged, Is.GreaterThanOrEqualTo((uint)(tick - 5)));
                         Assert.That(client.Inputs.Pending.Count, Is.LessThanOrEqualTo(4), "Reordering unrelated publications must not stall acknowledgements.");
                     }
@@ -1456,7 +1469,7 @@ internal sealed class EosP2pTransportTests
                 Assert.That(clients.All(client => client.PropSnapshot!.Tick == 600 && client.Latest!.Tick == 600 && client.ReceivedSnapshots >= 200), Is.True);
             }
 
-            TestContext.WriteLine($"FAKE NATIVE, 10 simulated seconds, players={players}; host sent={hostGateway.SentPackets}, received={hostGateway.ReceivedPackets}, mean packet={hostGateway.SentBytes / (double)hostGateway.SentPackets:F1}B, peak={hostGateway.PeakPacketBytes}B, peak gateway poll={hostGateway.PeakPollMilliseconds:F3}ms; RTT/loss and SDK Tick NOT measured");
+            TestContext.WriteLine($"FAKE NATIVE, 10 simulated seconds, players={players}, projectiles={projectileTraffic}; host sent={hostGateway.SentPackets}, received={hostGateway.ReceivedPackets}, mean packet={hostGateway.SentBytes / (double)hostGateway.SentPackets:F1}B, peak={hostGateway.PeakPacketBytes}B, peak gateway poll={hostGateway.PeakPollMilliseconds:F3}ms; RTT/loss and SDK Tick NOT measured");
         }
         finally
         {

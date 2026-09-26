@@ -149,6 +149,19 @@ internal sealed partial class ItemPresentation : Node3D
         }
     }
 
+    /// <summary>Moves only already-created representations; unreliable traffic cannot create an outcome.</summary>
+    internal void ApplyProjectileMotion(IReadOnlyList<MissileState> missiles)
+    {
+        foreach (var missile in missiles)
+        {
+            if (_missiles.TryGetValue(missile.Id, out var node))
+            {
+                node.Position = VehicleBody.ToGodot(missile.Position);
+                node.Quaternion = new Quaternion(Vector3.Forward, VehicleBody.ToGodot(missile.Velocity).Normalized());
+            }
+        }
+    }
+
     private void Tracer(ItemEvent outcome)
     {
         Vector3 start = VehicleBody.ToGodot(outcome.Origin);

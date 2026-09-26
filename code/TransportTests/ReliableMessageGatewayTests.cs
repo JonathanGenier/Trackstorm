@@ -8,6 +8,23 @@ namespace Trackstorm.Transport.Tests;
 internal sealed class ReliableMessageGatewayTests
 {
     [Test]
+    public void StalledCheckpointBoundsReliableBacklogWhileMotionRemainsIndependent()
+    {
+        var a = new Wire(); var b = new Wire(); a.Other = b; b.Other = a;
+        var sender = new ReliableMessageGateway(a);
+        sender.Send(new(1, RandomPayload(180000)));
+        for (int i = 0; i < 255; i++) { sender.Send(new(1, new byte[] { 1 })); }
+        sender.Send(new(1, new byte[] { (byte)'T', (byte)'J' }, TransportDelivery.Unreliable));
+        Assert.That(a.Sent.Count, Is.EqualTo(3), "Two outstanding chunks plus independent unreliable motion; queued reliable packets do not grow native backlog.");
+        Assert.Throws<InvalidOperationException>(() => sender.Send(new(1, new byte[] { 1 })));
+        Assert.That(a.ConnectionState, Is.EqualTo(TransportConnectionState.Disconnected));
+        sender.Stop();
+        a.Connect(TransportEndpoint.DirectIp("127.0.0.1:1"));
+        sender.Send(new(1, new byte[] { 2 }));
+        Assert.That(a.Sent[^1].Payload.ToArray(), Is.EqualTo(new byte[] { 2 }), "Terminal overflow releases all pending continuation.");
+    }
+
+    [Test]
     public void LargeBoundaryIsAtomicPacedAndPreservesFollowingReliableOrder()
     {
         var a = new Wire(); var b = new Wire(); a.Other = b; b.Other = a;

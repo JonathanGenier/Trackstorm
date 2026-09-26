@@ -117,6 +117,11 @@ internal sealed partial class NetworkVehicleArena : Node3D
         AddChild(mines);
         _driver.PlaceMine = mines.Place;
         _driver.MoveMine = mines.Move;
+        _driver.ProjectileMotionReceived += missiles =>
+        {
+            _items.ApplyProjectileMotion(missiles);
+            _audio.ApplyProjectileMotion(missiles);
+        };
         _driver.ItemsReceived += publication =>
         {
             _items.Apply(publication);

@@ -37,6 +37,8 @@ internal sealed class VehicleNetworkDriver : IDisposable
     private ulong? _lastLifecycleTick;
     private ulong _publishedSpawnRevision = ulong.MaxValue;
     private ulong _publishedMatchRevision = ulong.MaxValue;
+    private MatchState? _publishedMatch;
+    private ulong _projectileMotionTick;
     private ulong _generation;
     private bool _awaitingCheckpoint;
     private GameplayConfigurationState _configuration = new(0, new());
@@ -157,6 +159,8 @@ internal sealed class VehicleNetworkDriver : IDisposable
     internal event Action<Trackstorm.Core.Arenas.ArenaPropSnapshot>? PropsReceived;
     /// <summary>Reliable item and outcome presentation callback.</summary>
     internal event Action<ItemPublication>? ItemsReceived;
+    /// <summary>Replaceable host projectile presentation; reliable item state owns creation and removal.</summary>
+    internal event Action<IReadOnlyList<MissileState>>? ProjectileMotionReceived;
     internal event Action<Trackstorm.Core.Arenas.EnvironmentSnapshot>? EnvironmentReceived;
     internal Trackstorm.Core.Arenas.EnvironmentSnapshot? EnvironmentState { get; private set; }
     /// <summary>Ordered reliable lifecycle boundaries, including ones superseded by newer movement snapshots.</summary>
@@ -339,7 +343,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
 
             Latest = Host.Snapshot();
             MatchState match = Host.World.State.Match!;
-            if (_rosterChanged || match.Revision != _publishedMatchRevision)
+            if (_rosterChanged || (match.Revision != _publishedMatchRevision && ShouldPublishMatch(match)))
             {
                 byte[] payload = MatchCodec.Encode(_session, match);
                 foreach (ulong peer in _assigned)
@@ -354,7 +358,10 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 }
 
                 _publishedMatchRevision = match.Revision;
+                _publishedMatch = match;
             }
+            // The local host observes every committed boundary, even when only pending stunt progress changes.
+            if (Match is null || Match.Revision != match.Revision) { Match = match; MatchReceived?.Invoke(match); }
 
             if (_rosterChanged || Host.World.LifecycleChanges.Count > 0 ||
                 Host.World.State.Vehicles.Any(v => previousVehicles.Any(p => p.VehicleId == v.VehicleId && p.OutOfBounds != v.OutOfBounds)))
@@ -368,7 +375,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 LifecycleReceived?.Invoke(Latest);
             }
 
-            if (_publishedSpawnRevision != (Host.Spawns?.Revision ?? 0) || _publishedItemRevision != Host.Items.Revision || _rosterChanged)
+            if (_publishedSpawnRevision != (Host.Spawns?.Revision ?? 0) || _publishedItemRevision != Host.Items.ReliableRevision || _rosterChanged)
             {
                 var previousItems = _rosterChanged ? null : ItemState;
                 ItemState = new ItemPublication(++_itemPublication, Latest, Host.Items.Slots, Host.Items.Missiles, Host.Items.Events, Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines);
@@ -379,8 +386,16 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 }
 
                 _publishedSpawnRevision = Host.Spawns?.Revision ?? 0;
-                _publishedItemRevision = Host.Items.Revision;
+                _publishedItemRevision = Host.Items.ReliableRevision;
+                _projectileMotionTick = Latest.Tick;
                 ItemsReceived?.Invoke(ItemState);
+            }
+            else if (ItemState is not null && ItemState.Missiles.Count > 0)
+            {
+                var missiles = Host.Items.Missiles;
+                byte[] motion = ProjectileMotionCodec.Encode(ItemState, Latest.Tick, missiles);
+                foreach (ulong peer in _assigned) { Send(new(peer, motion, TransportDelivery.Unreliable)); }
+                ProjectileMotionReceived?.Invoke(missiles);
             }
 
             _rosterChanged = false;
@@ -667,6 +682,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
 
         Host = null;
         Match = null;
+        _publishedMatch = null;
         EntryContext = null;
         Prediction = null;
         History = null;
@@ -688,6 +704,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         LocalCorrected = null;
         PropsReceived = null;
         ItemsReceived = null;
+        ProjectileMotionReceived = null;
         EnvironmentReceived = null;
         LifecycleReceived = null;
         MatchReceived = null;
@@ -696,6 +713,23 @@ internal sealed class VehicleNetworkDriver : IDisposable
     }
 
     private ulong GetObservedTick() => Host?.World.State.Tick ?? Latest?.Tick ?? 0;
+
+    // Only replaceable pending progress may wait up to 100 ms. Every committed score,
+    // consumed outcome, roster, mode/configuration and phase boundary stays immediate/reliable.
+    private bool ShouldPublishMatch(MatchState match)
+    {
+        var previous = _publishedMatch;
+        if (previous is null || Host!.World.State.Tick % 6 == 0 || match.Phase != previous.Phase ||
+            match.Mode != previous.Mode || match.KillTarget != previous.KillTarget || match.CountdownAtTick != previous.CountdownAtTick ||
+            match.ActiveStartedAtTick != previous.ActiveStartedAtTick || match.DurationTicks != previous.DurationTicks ||
+            match.RecoveryElapsedTicks != previous.RecoveryElapsedTicks || match.Winner != previous.Winner || match.Players.Count != previous.Players.Count)
+        { return true; }
+        for (int i = 0; i < match.Players.Count; i++)
+        {
+            if ((match.Players[i] with { Stunts = previous.Players[i].Stunts }) != previous.Players[i]) { return true; }
+        }
+        return false;
+    }
     private MatchState? GetObservedMatch() => Host?.World.State.Match ?? Match;
 
     private (ResumeCheckpoint Arena, HostRestoreState Host) CaptureMigration()
@@ -732,6 +766,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         _publishedItemRevision = ulong.MaxValue;
         _publishedSpawnRevision = ulong.MaxValue;
         _publishedMatchRevision = ulong.MaxValue;
+        _publishedMatch = null;
         ApplyCheckpoint(checkpoint.Arena);
         if (Host is not null)
         {
@@ -795,6 +830,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         _inputs = null;
         Latest = world;
         ItemState = checkpoint.Items;
+        _projectileMotionTick = checkpoint.Items.World.Tick;
         _switchLife = _switchRevision = 0;
         Match = checkpoint.Match;
         PropSnapshot = checkpoint.Props;
@@ -1081,6 +1117,19 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 return;
             }
 
+            if (ProjectileMotionCodec.IsMotion(message.Payload.Span))
+            {
+                if (Host is not null || message.RemotePeerId != ServerPeer || message.Delivery != TransportDelivery.Unreliable || ItemState is null)
+                { throw new ArgumentException("Projectile motion requires the current host and reliable membership."); }
+                var motion = ProjectileMotionCodec.Decode(message.Payload.Span, ItemState);
+                if (motion.Tick > _projectileMotionTick)
+                {
+                    _projectileMotionTick = motion.Tick;
+                    ProjectileMotionReceived?.Invoke(motion.Missiles);
+                }
+                return;
+            }
+
             if (ItemCodec.IsItem(message.Payload.Span))
             {
                 if (message.Delivery != TransportDelivery.Reliable)
@@ -1117,6 +1166,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 }
 
                 ItemState = publication;
+                _projectileMotionTick = publication.World.Tick;
                 AcceptSnapshot(publication.World, observe);
                 ItemsReceived?.Invoke(publication);
                 return;
