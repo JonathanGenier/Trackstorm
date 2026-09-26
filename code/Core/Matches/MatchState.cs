@@ -6,8 +6,8 @@ public sealed class MatchState
     /// <summary>Bound on lifetime participants, including departed players, for reliable packet sizing.</summary>
     public const int MaximumPlayers = 256;
 
-    /// <summary>Seven existing sources for eight vehicles plus up to 32 retained Oil owners.</summary>
-    public const int MaximumAwards = 88;
+    /// <summary>Eight sources for eight vehicles, 32 retained Oil owners and 16 retained mine owners.</summary>
+    public const int MaximumAwards = 112;
 
     /// <summary>Copies and validates a complete match boundary before it can be published.</summary>
     /// <param name="tick">Simulation tick of the latest match change.</param>

@@ -186,8 +186,8 @@ internal sealed class StuntScoringTests
     public void SparseCodecFitsFullHistoryAndRejectsMalformedPendingMemory()
     {
         var pending = new StuntState { Life = 1, Tick = 100, Drift = new(30, 2), Airtime = new(30, 3), TopSpeed = new(30, 4), JumpOrigin = Vector3.One, JumpDistance = 10, LongJumpBasePoints = 20 };
-        var rows = Enumerable.Range(1, 256).Select(id => new PlayerScore((ulong)id, 0, 0, 0, 0) { CircusScore = id <= 32 ? 100 : 0, Stunts = id <= 8 ? pending : null }).ToArray();
-        var awards = Enumerable.Range(1, 8).SelectMany(player => Enum.GetValues<CircusScoreCategory>().Select(category => new CircusScoreAward((ulong)player, category, 1))).Concat(Enumerable.Range(9, 24).Select(player => new CircusScoreAward((ulong)player, CircusScoreCategory.Oil, 50))).ToArray();
+        var rows = Enumerable.Range(1, 256).Select(id => new PlayerScore((ulong)id, 0, 0, 0, 0) { CircusScore = id <= 48 ? 100 : 0, Stunts = id <= 8 ? pending : null }).ToArray();
+        var awards = Enumerable.Range(1, 8).SelectMany(player => Enum.GetValues<CircusScoreCategory>().Select(category => new CircusScoreAward((ulong)player, category, 1))).Concat(Enumerable.Range(9, 24).Select(player => new CircusScoreAward((ulong)player, CircusScoreCategory.Oil, 50))).Concat(Enumerable.Range(33, 16).Select(player => new CircusScoreAward((ulong)player, CircusScoreCategory.ItemDamage, 50))).ToArray();
         var state = new MatchState(100, 1, 20, MatchPhase.Active, null, null, rows, awards: awards);
         var bytes = MatchCodec.Encode(1, state);
         Assert.That(bytes.Length, Is.LessThan(18432));

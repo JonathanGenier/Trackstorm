@@ -24,7 +24,7 @@ Configuration actions and their feedback disappear on Stats and Logs and for non
 
 ## Authority and runtime application
 
-Core `GameplayConfiguration` composes the existing vehicle, damage, item, spawn, respawn and match records plus destruction tuning and the shared environment identity. `GameplayOptions` is the explicit 165-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
+Core `GameplayConfiguration` composes the existing vehicle, damage, item, spawn, respawn and match records plus destruction tuning and the shared environment identity. `GameplayOptions` is the explicit 166-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
 
 Live scalar tuning additionally rejects positive values below 0.0001: subnormal mass/axle lengths can overflow fixed-step divisions despite passing older positive-only checks. Zero remains allowed where the owning rule explicitly supports it. Collision/respawn timers are bounded to one hour and the simulation clock remains fixed at 60 Hz.
 
@@ -36,7 +36,7 @@ Native `NetworkVehicleBody` observation receives the same configuration as Core 
 
 ## Replication and recovery
 
-The reliable version-twenty `TC` message carries arena generation, configuration revision and all 165 values (1341 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
+The reliable version-twenty-one `TC` message carries arena generation, configuration revision and all 166 values (1349 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
 
 The host sends configuration before its reliable world boundary on admission or edits. Version-six `TS` world snapshots include the configuration revision; clients reject world/item boundaries for a different revision, preventing mismatched simulation. Subsequent unreliable snapshots recover normal movement after an ordered tuning change. EOS lobby metadata does not store gameplay tuning. Discovery compatibility is `trackstorm-lobby-9`.
 
@@ -264,7 +264,7 @@ The Air control category uses the same staged Apply/Cancel/Reset, validation, ho
 | `air_dead_zone` | 0.08 | Additional airborne logical-axis dead zone |
 | `support_normal_minimum` | 0.55 | Ground/wheel support minimum world-normal Y; range 0.55–1 |
 
-`VehicleMovement` consumes the first eleven values through the existing authority and prediction paths; the last value also reaches both native adapters and wheel ray observations. No orientation target, leveling strength or redundant torque multiplier exists. `AirControlTests`, native `check-air-control.ps1`, and release-default coverage verify this mapping and continuation. Configuration version 20 carries the complete 165-key catalog; old layouts are rejected.
+`VehicleMovement` consumes the first eleven values through the existing authority and prediction paths; the last value also reaches both native adapters and wheel ray observations. No orientation target, leveling strength or redundant torque multiplier exists. `AirControlTests`, native `check-air-control.ps1`, and release-default coverage verify this mapping and continuation. Configuration version 20 carries the complete 166-key catalog; old layouts are rejected.
 ## Collision and destruction tuning
 
 Collision and Destruction use the existing host Apply/Cancel/Reset, validation,
@@ -303,3 +303,5 @@ Fixed timestep, wheel count, unilateral support ceiling and authored collision h
 likewise remain physics invariants. Surface, suspension, handling and air-control values
 use the existing vehicle catalog; local tire graphics use the separate table in
 [terrain effects](terrain-effects.md#local-configs-tuning).
+
+Item damage contributes to Circus through `match.item_points_per_damage` (default 1, range 0–1,000,000), using actual rival HP removed and authoritative attacker K/D. Live edits affect future damage only; zero disables damage contribution without changing kill scoring. The setting uses the existing host-only transaction, schema-two persistence and complete recovery configuration. Missing persisted keys default to 1.
