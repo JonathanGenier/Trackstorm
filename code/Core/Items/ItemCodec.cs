@@ -4,7 +4,7 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-ten reliable item protocol. Requests carry no claimed player or outcome.</summary>
+/// <summary>Bounded version-eleven reliable item protocol. Requests carry no claimed player or outcome.</summary>
 public static class ItemCodec
 {
     /// <summary>Recognizes only this protocol's magic; complete decode remains mandatory.</summary>
@@ -112,6 +112,8 @@ public static class ItemCodec
             writer.Write(slot.SecondSalvoShots);
             writer.Write(slot.SalvoReadyTick);
             writer.Write(slot.SecondSalvoReadyTick);
+            Ammo(writer, slot.Ammo);
+            Ammo(writer, slot.SecondAmmo);
         }
 
         writer.Write((byte)state.Missiles.Count);
@@ -183,6 +185,8 @@ public static class ItemCodec
             writer.Write((byte)outcome.Item);
             Vector(writer, outcome.Position);
             writer.Write(outcome.Impact);
+            Vector(writer, outcome.Origin);
+            writer.Write(outcome.Tracer);
         }
     });
 
@@ -213,7 +217,7 @@ public static class ItemCodec
         {
             slots[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), (HeldItem)reader.ReadByte())
             { SecondToken = reader.ReadUInt64(), SecondItem = (HeldItem)reader.ReadByte(), ActiveSlot = reader.ReadByte(), SelectionRevision = reader.ReadUInt64(), NitroCharge = reader.ReadDouble(), SecondNitroCharge = reader.ReadDouble(), EngagedToken = reader.ReadUInt64(),
-                SalvoShots = reader.ReadInt32(), SecondSalvoShots = reader.ReadInt32(), SalvoReadyTick = reader.ReadUInt64(), SecondSalvoReadyTick = reader.ReadUInt64() };
+                SalvoShots = reader.ReadInt32(), SecondSalvoShots = reader.ReadInt32(), SalvoReadyTick = reader.ReadUInt64(), SecondSalvoReadyTick = reader.ReadUInt64(), Ammo = Ammo(reader), SecondAmmo = Ammo(reader) };
         }
 
         var missiles = new MissileState[Count(reader, ItemAuthority.MaximumProjectiles)];
@@ -259,7 +263,7 @@ public static class ItemCodec
             }
             balances[i] = new() { Player = player, Total = total, SelectedItem = selected, Credits = credits.ToImmutable(), Counts = counts.ToImmutable() };
         }
-        var events = new ItemEvent[Count(reader, ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 8)];
+        var events = new ItemEvent[Count(reader, ItemAuthority.MaximumProjectiles * 2 + ItemAuthority.MaximumMines + 16)];
         for (int i = 0; i < events.Length; i++)
         {
             ulong token = reader.ReadUInt64();
@@ -267,7 +271,7 @@ public static class ItemCodec
             var item = (HeldItem)reader.ReadByte();
             Vector3 position = Vector(reader);
             bool impact = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid impact flag.") };
-            events[i] = new(token, owner, item, position, impact);
+            events[i] = new(token, owner, item, position, impact) { Origin = Vector(reader), Tracer = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid tracer flag.") } };
         }
 
         return new ItemPublication(revision, world, slots, missiles, events, spawns, patches, contacts, balances, mines);
@@ -277,7 +281,7 @@ public static class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 10, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 11, kind });
         encode(writer);
         if (stream.Length > 32768)
         {
@@ -289,7 +293,7 @@ public static class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 10 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > 32768 || !IsItem(bytes) || bytes[2] != 11 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }
@@ -312,6 +316,22 @@ public static class ItemCodec
             throw new ArgumentException("Truncated item data.", exception);
         }
     }
+
+    private static void Ammo(BinaryWriter writer, MachineGunAmmo? ammo)
+    {
+        writer.Write(ammo is not null);
+        if (ammo is null) { return; }
+        writer.Write(ammo.Remaining);
+        writer.Write(ammo.Capacity);
+        writer.Write(ammo.Phase);
+    }
+
+    private static MachineGunAmmo? Ammo(BinaryReader reader) => reader.ReadByte() switch
+    {
+        0 => null,
+        1 => new(reader.ReadInt32(), reader.ReadInt32(), reader.ReadDouble()),
+        _ => throw new ArgumentException("Invalid ammunition flag."),
+    };
 
     private static int Count(BinaryReader reader, int maximum)
     {

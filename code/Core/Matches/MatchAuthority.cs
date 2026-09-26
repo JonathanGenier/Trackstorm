@@ -98,7 +98,7 @@ internal static class MatchAuthority
                 victim = victim with { Deaths = checked(victim.Deaths + 1), KillStreak = 0 };
                 scores[victim.Player] = victim;
                 DamageEvent? damage = vehicle.Damage.LastDamage;
-                ulong killer = damage is { DestroyedTransition: true } && damage.Tick == tick && damage.Attribution.Source is "missile" or "proxy-mine" or "salvo" or "collision"
+                ulong killer = damage is { DestroyedTransition: true } && damage.Tick == tick && damage.Attribution.Source is "missile" or "proxy-mine" or "salvo" or "machine-gun" or "collision"
                     ? damage.Attribution.InstigatorId : 0;
                 if (killer == victim.Player || !scores.ContainsKey(killer) || !vehicles.Any(candidate => candidate.VehicleId == killer))
                 {

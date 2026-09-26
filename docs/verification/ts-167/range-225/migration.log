@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Migration native arena 1 prepared in 102 ms.
+Migration native arena 0 prepared in 60 ms.
+Migration native arena 2 prepared in 41 ms.
+Category pickup history before migration: 2:3:ProxyMine:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;3:3:Nitro:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;4:3:Missile:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1
+Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 321; no historical events.
+Machine gun recovery verified: 299/800 rounds, phase 0.25, no historical shot.
+Nitro migration verified: partial charge retained without unwanted activation; Circus totals restore without historical awards.
+Proxy Mine migration verified: same hazard survives authority replacement.
+Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
+Category history verified after authority migration: 2:3:ProxyMine:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;3:3:Nitro:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1;4:3:Missile:Weapon=0.5/1,Consumable=-0.25/1,Droppable=-0.25/1
+Migration integration passed: 3 native UDP peers; intentional lobby host leave; former-host fresh join; active native match authority loss; sequential epochs; retained vehicles; prediction reset; item/spawn/match restore. Identity is a trusted test seam, not real EOS.

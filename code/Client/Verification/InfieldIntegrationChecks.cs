@@ -93,6 +93,9 @@ public sealed partial class InfieldIntegrationChecks : Node3D
             }
         }
 
+        // Route following controls road speed. In flight these pedals now command pitch,
+        // so release them rather than asking the jump fixture to nose-dive.
+        if (!_vehicle.State.Grounded) { steering = 0; throttle = 0; brake = 0; }
         var input = new InputFrame(++_tick, steering, throttle, brake, 0, 0, 0);
         InputFrame companionInput = new(_tick, 0, _companionDrive && _companion is not null && _companion.LinearVelocity.Length() < 10 ? (ushort)40000 : (ushort)0, 0, 0, 0, 0);
         var observations = _companion is null ? new[] { _vehicle.Capture(input) } : new[] { _vehicle.Capture(input), _companion.Capture(companionInput) };

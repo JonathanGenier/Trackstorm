@@ -71,6 +71,8 @@ Kenney Weapon Pack (2016-01-20), original author publication at https://opengame
 
 Salvo reuses those rocket/particle assets and the existing arena audio. Its [HUD silhouette](assets/hud/Salvo.svg) and procedural terrain marker are original project work, recorded in [HUD provenance](assets/hud/sources.json); no additional third-party asset or dependency was acquired.
 
+Machine Gun reuses the existing Kenney Impact audio already covered by the Arena audio registry. Its [HUD silhouette](assets/hud/MachineGun.svg) and procedural tracer presentation are original project work recorded in [HUD provenance](assets/hud/sources.json); no additional third-party asset or dependency was acquired.
+
 ## Infield material field
 
 The original material control field and UV pass are recorded in [surface-sources.json](assets/maps/infield/surface-sources.json). Runtime shading reuses the existing original oval grass and CC0 Poly Haven Asphalt 04 detail and Concrete material listed above. No new third-party assets were acquired. The Jira concept is an art-direction reference and is not redistributed as a runtime asset.

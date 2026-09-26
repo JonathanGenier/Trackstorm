@@ -172,8 +172,8 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                     initialSupport = WheelSuspension.Observe(this, initialTransform, _configuration).Normal;
                     sampledObstacleSupport = true;
                 }
-                contacts.Add(new VehicleContact(VehicleBody.ToCore(obstacle ? incomingVelocity : relative), VehicleBody.ToCore(normal), 0, other?.VehicleId ?? 0, result.GetCollider(i) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= 0.55f, VehicleBody.ToCore(transform.AffineInverse() * result.GetCollisionPoint(i)), obstacle, Arenas.DestructibleEnvironment.RockId(result.GetCollider(i))));
-                if (normal.Y >= 0.55f && !obstacle)
+                contacts.Add(new VehicleContact(VehicleBody.ToCore(obstacle ? incomingVelocity : relative), VehicleBody.ToCore(normal), 0, other?.VehicleId ?? 0, result.GetCollider(i) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= _configuration.SupportNormalMinimum, VehicleBody.ToCore(transform.AffineInverse() * result.GetCollisionPoint(i)), obstacle, Arenas.DestructibleEnvironment.RockId(result.GetCollider(i))));
+                if (normal.Y >= _configuration.SupportNormalMinimum && !obstacle)
                 {
                     support = normal;
                     surface = (result.GetCollider(i) as SurfaceBody)?.Surface ?? SurfaceType.Concrete;
@@ -183,7 +183,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                 {
                     normal = VehicleBody.ToGodot(EnvironmentCollision.ResponseNormal(VehicleBody.ToCore(normal), VehicleBody.ToCore(initialSupport)));
                 }
-                else if (normal.Y < 0.55f)
+                else if (normal.Y < _configuration.SupportNormalMinimum)
                 {
                     float closing = Math.Max(0, -relative.Dot(normal));
                     Vector3 deltaVelocity = normal * closing;
@@ -216,7 +216,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         {
             using var ray = PhysicsRayQueryParameters3D.Create(transform.Origin, transform.Origin + (Vector3.Down * (0.62f * VehicleDimensions.Scale)), CollisionMask, new Godot.Collections.Array<Rid> { GetRid() });
             var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
-            if (hit.Count > 0 && hit["normal"].AsVector3().Y >= 0.55f && !EnvironmentContact.IsObstacle(hit["collider"].AsGodotObject(), hit["normal"].AsVector3()))
+            if (hit.Count > 0 && hit["normal"].AsVector3().Y >= _configuration.SupportNormalMinimum && !EnvironmentContact.IsObstacle(hit["collider"].AsGodotObject(), hit["normal"].AsVector3()))
             {
                 support = hit["normal"].AsVector3().Normalized();
                 surface = (hit["collider"].AsGodotObject() as SurfaceBody)?.Surface ?? SurfaceType.Concrete;

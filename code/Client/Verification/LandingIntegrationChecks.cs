@@ -34,7 +34,13 @@ public sealed partial class LandingIntegrationChecks : Node3D
     {
         if (!_advance) { return; }
         ulong tick = _world.State.Tick + 1;
-        var input = new InputFrame(tick, 0, 0, 0, 0, 0, 0);
+        // These high-angle fixtures previously relied on automatic airborne leveling.
+        // Supply explicit pilot correction now; intentional air-roll holds its command.
+        bool rollCorrection = _case.EndsWith("-roll45", StringComparison.Ordinal) && tick is >= 10 and <= 17;
+        bool pitchCorrection = _case.EndsWith("-pitch35", StringComparison.Ordinal) && tick is >= 10 and <= 17;
+        bool airRoll = _case.EndsWith("-air-roll", StringComparison.Ordinal);
+        var input = new InputFrame(tick, rollCorrection ? (short)-32767 : airRoll ? (short)32767 : (short)0,
+            pitchCorrection ? (ushort)65535 : (ushort)0, 0, rollCorrection || airRoll ? InputButtons.AirRoll : 0, 0, 0);
         var request = _native is not null ? _native.Capture(input) : new VehicleStepRequest(1, input, _network!.Observe(_world.GetVehicle(1)));
         // Long-travel suspension may absorb the initial landing without a chassis contact.
         // Start from recovered support so the secondary impulse is not cancelled by the initial fall.

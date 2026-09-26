@@ -8,6 +8,7 @@ internal sealed class PlayerInputAdapter
     private static readonly (InputAction Action, InputButtons Button)[] DigitalActions =
     [
         (InputAction.Drift, InputButtons.Drift),
+        (InputAction.AirRoll, InputButtons.AirRoll),
         (InputAction.UseItem, InputButtons.UseItem),
         (InputAction.SwitchItem, InputButtons.SwitchItem),
         (InputAction.Leaderboard, InputButtons.Leaderboard),

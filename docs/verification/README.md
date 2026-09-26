@@ -11,6 +11,11 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Evidence | Reports |
 | --- | --- |
 | Story verification | [TS-169 verification evidence](ts-169.md) |
+
+| TS-167 close-range machine gun | [225 m range and saved 10 m override correction; 785 Core / native recovery checks, fresh runtime evidence; prior critique historical](ts-167.md) |
+
+
+| Story verification | [TS-168 verification evidence](ts-168.md) |
 | Story verification | [TS-156 verification evidence](ts-156.md) |
 | Story verification | [TS-165 verification evidence](ts-165.md) |
 | Story verification | [TS-162 verification evidence](ts-162.md) |

@@ -73,7 +73,7 @@ public sealed class VehicleMovement
         if (waterDepth > 0) { surface = SurfaceType.Water; }
         _ = c.ResolveSurface(surface);
         float dt = 1f / c.TicksPerSecond;
-        bool grounded = groundNormal.Y >= 0.55f;
+        bool grounded = groundNormal.Y >= c.SupportNormalMinimum;
         SurfaceType currentSurface = grounded ? surface : State.CurrentSurface;
         Vector3 forward = Vector3.Transform(-Vector3.UnitZ, observed.Orientation);
         Vector3 rocketForward = forward;
@@ -277,18 +277,37 @@ public sealed class VehicleMovement
         if (boost.Recovering && roadSpeed <= forwardSpeed) { boost = default; }
 
         // Chassis load response acts on the physical body, using the same forces that consume tire grip.
-        Vector3 desiredUp = grounded ? groundNormal : Vector3.UnitY;
+        AirControlState air = default;
         if (grounded)
         {
+            Vector3 desiredUp = groundNormal;
             desiredUp -= forward * Math.Clamp(longAcceleration * c.ChassisCompliance, -c.MaximumChassisTilt, c.MaximumChassisTilt);
             desiredUp -= right * Math.Clamp(sideAcceleration * c.ChassisCompliance, -c.MaximumChassisTilt, c.MaximumChassisTilt);
+            angular += Vector3.Cross(up, Vector3.Normalize(desiredUp)) * c.SuspensionSpring * dt;
+            Vector3 tiltVelocity = angular - (tireNormal * Vector3.Dot(angular, tireNormal));
+            angular -= tiltVelocity * (1 - MathF.Exp(-c.SuspensionDamping * dt));
         }
-
-        Vector3 spring = Vector3.Cross(up, Vector3.Normalize(desiredUp));
-        angular += spring * (grounded ? c.SuspensionSpring : 3) * dt;
-        float damping = MathF.Exp(-(grounded ? c.SuspensionDamping : 0.5f) * dt);
-        Vector3 tiltVelocity = angular - (tireNormal * Vector3.Dot(angular, tireNormal));
-        angular -= tiltVelocity * (1 - damping);
+        else
+        {
+            float seconds = Math.Min(60, State.Air.Seconds + dt);
+            air = new AirControlState(seconds, Vector3.Zero, Vector3.Zero);
+            if (driveEnabled && seconds + 0.000001f >= c.AirDelay)
+            {
+                float pitch = InputAxis.Normalize(brake - throttle, c.AirDeadZone);
+                float turn = InputAxis.Normalize(steerIntent, c.AirDeadZone);
+                bool roll = (input.Held & InputButtons.AirRoll) != 0;
+                Vector3 target = new(pitch, roll ? 0 : -turn, roll ? -turn : 0);
+                Vector3 intent = Vector3.Lerp(State.Air.Input, target, 1 - MathF.Exp(-dt / c.AirInputResponse));
+                Vector3 stabilization = Vector3.Lerp(State.Air.Stabilization, Vector3.One - Vector3.Abs(target), 1 - MathF.Exp(-dt / c.AirStabilizationResponse));
+                Vector3 local = Vector3.Transform(angular, Quaternion.Conjugate(observed.Orientation));
+                local = new Vector3(
+                    AirAxis(local.X, intent.X, target.X, stabilization.X, c.AirPitchRate, c.AirPitchAcceleration, c, dt),
+                    AirAxis(local.Y, intent.Y, target.Y, stabilization.Y, c.AirYawRate, c.AirYawAcceleration, c, dt),
+                    AirAxis(local.Z, intent.Z, target.Z, stabilization.Z, c.AirRollRate, c.AirRollAcceleration, c, dt));
+                angular = Vector3.Transform(local, observed.Orientation);
+                air = new AirControlState(seconds, intent, stabilization);
+            }
+        }
         velocity += groundNormal * normalLoad * dt;
         angular += suspensionTorque / (c.Wheelbase * c.Wheelbase / 3) * dt;
 
@@ -296,7 +315,7 @@ public sealed class VehicleMovement
         float landing = grounded && !State.Grounded ? Math.Clamp(-State.Physics.LinearVelocity.Y / 12, 0, 1) : Math.Max(0, State.LandingIntensity - (dt * 3));
         bool sliding = grounded && Math.Abs(lateral) > 1 && rearSlip > 0.35f;
         var physics = new VehiclePhysicsState(observed.Position, observed.Orientation, Limit(velocity, c.MaximumPhysicsSpeed), Limit(angular, c.MaximumAngularSpeed));
-        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oilTicks, boost, powerSlip);
+        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oilTicks, boost, powerSlip, air);
         return State;
     }
 
@@ -313,6 +332,15 @@ public sealed class VehicleMovement
         State = state;
     }
 
+    private static float AirAxis(float velocity, float intent, float target, float stabilization, float rate, float acceleration, VehicleConfiguration c, float dt)
+    {
+        // Only a held command seeks an angular rate. Release damps velocity, never orientation.
+        if (target != 0)
+        {
+            return velocity + Math.Clamp(intent * rate - velocity, -acceleration * dt, acceleration * dt);
+        }
+        return velocity * MathF.Exp(-c.AirStabilization * stabilization * dt);
+    }
     private static (float Side, float Drive, float Slip) DirtFront((float Side, float Drive, float Slip) tire, float braking, float steering, float capacity, float reserve)
     {
         var directed = Tire(steering, braking, capacity);

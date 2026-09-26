@@ -120,8 +120,8 @@ public sealed class ItemAuthority
         if (inventory is null || inventory.Life != state.LifeId) { inventory = new(vehicle, state.LifeId, 0, HeldItem.None); }
         ulong token = checked(++_token);
         _slots[vehicle] = inventory.Item == HeldItem.None
-            ? inventory with { Token = token, Item = item, NitroCharge = item == HeldItem.Nitro ? 100 : 0, SalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SalvoReadyTick = 0 }
-            : inventory with { SecondToken = token, SecondItem = item, SecondNitroCharge = item == HeldItem.Nitro ? 100 : 0, SecondSalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SecondSalvoReadyTick = 0 };
+            ? inventory with { Token = token, Item = item, NitroCharge = item == HeldItem.Nitro ? 100 : 0, SalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SalvoReadyTick = 0, Ammo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null }
+            : inventory with { SecondToken = token, SecondItem = item, SecondNitroCharge = item == HeldItem.Nitro ? 100 : 0, SecondSalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SecondSalvoReadyTick = 0, SecondAmmo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null };
         Revision++;
         if (!pickup)
         {
@@ -167,8 +167,9 @@ public sealed class ItemAuthority
     /// <param name="placeMine">Host terrain installation query.</param>
     /// <param name="moveMine">Host sweep and contact query.</param>
     /// <param name="acknowledgedInputs">Host-consumed remote input sequences; never client-authored acknowledgements.</param>
+    /// <param name="raycastWeapon">Host closest collision on an authoritative weapon ray.</param>
     /// <param name="ground">Host terrain projection at the fixed salvo range; missing terrain rejects use.</param>
-    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null)
+    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null)
     {
         ulong token = _token;
         ulong NextToken() => checked(++token);
@@ -207,7 +208,7 @@ public sealed class ItemAuthority
             if (slot.Token != pair.Value.Token || slot.Item == HeldItem.None) { continue; }
             VehicleStepRequest request = requests.Single(value => value.VehicleId == pair.Key);
             var handler = ItemRegistry.Find(slot.Item)?.Handler;
-            if (slot.Item == HeldItem.Nitro)
+            if (ItemRegistry.Find(slot.Item)?.Sustained == true)
             {
                 // Tie network presses to their input boundary so a rapid re-press cannot be
                 // consumed by the preceding held/release frame on the other delivery channel.
@@ -227,7 +228,7 @@ public sealed class ItemAuthority
                     (request.Input.Held & InputButtons.UseItem) != 0 && inventory.EngagedToken != slot.Token)
                 {
                     slots[pair.Key] = inventory with { EngagedToken = slot.Token };
-                    events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, request.Observation.Physics.Position, false));
+                    if (slot.Item != HeldItem.MachineGun) { events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, request.Observation.Physics.Position, false)); }
                 }
                 continue;
             }
@@ -255,13 +256,55 @@ public sealed class ItemAuthority
         {
             if (!slots.TryGetValue(request.VehicleId, out var inventory)) { continue; }
             var slot = inventory.Active;
-            bool engaged = slot.Item == HeldItem.Nitro && inventory.EngagedToken == slot.Token &&
+            bool engaged = ItemRegistry.Find(slot.Item)?.Sustained == true && inventory.EngagedToken == slot.Token &&
                 world.GetVehicle(slot.Vehicle).CanInteract && !request.Reset.HasValue &&
                 world.State.Match is not { Phase: not Matches.MatchPhase.Active } &&
                 (request.Input.Held & InputButtons.UseItem) != 0;
             if (!engaged)
             {
                 slots[request.VehicleId] = inventory with { EngagedToken = 0 };
+                continue;
+            }
+            if (slot.Item == HeldItem.MachineGun)
+            {
+                // No native observation provider means no round was fired and no resource is spent.
+                if (raycastWeapon is null) { continue; }
+                var ammo = slot.Ammo!;
+                double phase = ammo.Phase + Configuration.MachineGunFireRate / 60;
+                int remainingRounds = ammo.Remaining;
+                while (remainingRounds > 0 && phase >= 1 - 1e-12)
+                {
+                    phase = Math.Max(0, phase - 1);
+                    var pose = request.Observation.Physics;
+                    Vector3 direction = MachineGunShot.Direction(slot.Token, ammo.Capacity - remainingRounds, pose.Orientation, Configuration.MachineGunSpread);
+                    Vector3 end = pose.Position + direction * Configuration.MachineGunRange;
+                    var hit = raycastWeapon(slot.Vehicle, pose.Position, end);
+                    if (hit is not null)
+                    {
+                        if (!float.IsFinite(hit.Fraction) || hit.Fraction is < 0 or > 1 || hit.Vehicle == slot.Vehicle ||
+                            (hit.Vehicle != 0 && !effects.ContainsKey(hit.Vehicle)))
+                        { throw new ArgumentException("Invalid host weapon ray observation."); }
+                        end = Vector3.Lerp(pose.Position, end, hit.Fraction);
+                        if (hit.Vehicle != 0 && world.GetVehicle(hit.Vehicle).CanInteract && !requests.Single(value => value.VehicleId == hit.Vehicle).Reset.HasValue)
+                        {
+                            float fade = MachineGunShot.Falloff(hit.Fraction * Configuration.MachineGunRange, Configuration);
+                            if (fade > 0)
+                            {
+                                var effect = new DamageEffect(Configuration.MachineGunDamage * fade, direction * (Configuration.MachineGunKnockback * fade), Vector3.Zero);
+                                effects[hit.Vehicle].Add(new VehicleEffectRequest(effect, new DamageContext("machine-gun", slot.Vehicle, "bullet")));
+                            }
+                        }
+                    }
+                    events.Add(new ItemEvent(slot.Token, slot.Vehicle, slot.Item, end, hit is not null)
+                    { Origin = pose.Position, Tracer = (ammo.Capacity - remainingRounds) % Configuration.MachineGunTracerEvery == 0 });
+                    remainingRounds--;
+                }
+                MachineGunAmmo? remainingAmmo = remainingRounds == 0 ? null : ammo with { Remaining = remainingRounds, Phase = phase };
+                var remainingItem = remainingAmmo is null ? HeldItem.None : HeldItem.MachineGun;
+                slots[request.VehicleId] = inventory.ActiveSlot == 0
+                    ? inventory with { Ammo = remainingAmmo, Item = remainingItem, EngagedToken = remainingAmmo is null ? 0 : inventory.EngagedToken }
+                    : inventory with { SecondAmmo = remainingAmmo, SecondItem = remainingItem, EngagedToken = remainingAmmo is null ? 0 : inventory.EngagedToken };
+                if (remainingAmmo is null) { journal.Add(new RuntimeEvent { Category = EventCategory.Item, Kind = "Exhausted", Actor = slot.Vehicle, Cause = "MachineGun", Tick = input.Tick }); }
                 continue;
             }
             ItemRegistry.Find(HeldItem.Nitro)!.Handler!.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts, mines, placeMine, NextToken, ground);
@@ -369,7 +412,7 @@ public sealed class ItemAuthority
             }
         }
 
-        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, request.Observation, effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, spins.GetValueOrDefault(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro || !boosts.ContainsKey(request.VehicleId))).ToArray(), journal.Concat(events.Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray(), oilTriggers);
+        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, request.Observation, effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, spins.GetValueOrDefault(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro || !boosts.ContainsKey(request.VehicleId))).ToArray(), journal.Concat(events.Where(outcome => outcome.Item != HeldItem.MachineGun).Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray(), oilTriggers);
         foreach (var pair in slots.ToArray())
         {
             VehicleSnapshot state = world.GetVehicle(pair.Key);

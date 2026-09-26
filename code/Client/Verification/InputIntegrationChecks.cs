@@ -62,6 +62,7 @@ public sealed partial class InputIntegrationChecks : Node
         InputAction.Brake => frame.Brake == 65535,
         InputAction.SteerLeft => frame.Steering == -32767,
         InputAction.SteerRight => frame.Steering == 32767,
+        InputAction.AirRoll => (frame.Held & InputButtons.AirRoll) != 0,
         InputAction.SwitchItem => (frame.Held & InputButtons.SwitchItem) != 0,
         _ => (frame.Held & (InputButtons)(1 << ((int)action - (int)InputAction.Drift))) != 0,
     };

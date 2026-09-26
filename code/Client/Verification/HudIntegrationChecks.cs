@@ -82,7 +82,12 @@ public sealed partial class HudIntegrationChecks : Node
                 using Image frame = viewport.GetTexture().GetImage();
                 Require(frame.SavePng(System.IO.Path.Combine(output, $"nitro-{charge:0.0}.png")) == Error.Ok, "Charge screenshot");
             }
-            slot = slot! with { Item = HeldItem.Nitro, NitroCharge = 37.5, SecondItem = HeldItem.Missile, SecondNitroCharge = 0 };
+            slot = new ItemSlot(state.VehicleId, state.LifeId, 1, HeldItem.MachineGun)
+            { Ammo = new(187, 500), SecondToken = 2, SecondItem = HeldItem.MachineGun, SecondAmmo = new(1, 500) };
+            hud.Refresh();
+            Require(hud.Displayed!.ItemName == "MACHINE GUN 38%" && hud.Displayed.SecondItemName == "MACHINE GUN 1%", "Independent discrete ammo percentages");
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            using (Image frame = viewport.GetTexture().GetImage()) { frame.SavePng(System.IO.Path.Combine(output, "machine-gun-partial.png")); }
             VehicleSnapshot before = state;
             slot = slot! with { SecondToken = 2, SecondItem = HeldItem.Missile, ActiveSlot = 1, SelectionRevision = 1 };
             hud.Refresh();
