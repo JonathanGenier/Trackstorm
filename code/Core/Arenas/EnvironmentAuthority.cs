@@ -7,12 +7,11 @@ namespace Trackstorm.Core.Arenas;
 /// <summary>Match-owned staged destruction driven by accepted observations and committed item impacts.</summary>
 public sealed class EnvironmentAuthority
 {
+    private static readonly EnvironmentTuning DefaultTuning = new();
     public const int MaximumMoving = 16;
     public const float IntactHealth = 180;
     public const float BrokenHealth = 60;
     public static float Health(byte stage) => stage == 1 ? IntactHealth : Math.Max(20, BrokenHealth * MathF.Pow(0.72f, stage - 2));
-    /// <summary>Normal closing speed preserves glancing-contact rejection while rewarding solid impacts.</summary>
-    public static float ImpactDamage(float severity) => Math.Min(360, 10 * MathF.Pow(Math.Max(0, severity - 3), 1.5f));
     private readonly EnvironmentLayout _layout;
     private EnvironmentRockState[] _rocks;
     private bool[] _plants;
@@ -45,9 +44,12 @@ public sealed class EnvironmentAuthority
     }
 
     /// <summary>Called once after the existing world/item transaction commits; repeated ticks do nothing.</summary>
-    public void Advance(ulong tick, IReadOnlyList<VehicleStepRequest> requests, IReadOnlyList<ItemEvent> events, ItemAuthority items)
+    public void Advance(ulong tick, IReadOnlyList<VehicleStepRequest> requests, IReadOnlyList<ItemEvent> events, ItemAuthority items, EnvironmentTuning? tuning = null)
     {
+        tuning ??= DefaultTuning;
+        tuning.Validate();
         if (tick <= _tick) { return; }
+        float VehicleDamage(float speed) => Math.Min(360, tuning.ImpactScale * MathF.Pow(Math.Max(0, speed - tuning.ImpactThreshold), 1.5f));
         var damage = new float[_rocks.Length];
         var pushes = new Vector3[_rocks.Length];
         foreach (var request in requests)
@@ -61,7 +63,7 @@ public sealed class EnvironmentAuthority
                 // Keep tangential glances harmless and exclude nearly horizontal roof/support contacts.
                 Vector3 face = new(contact.Normal.X, 0, contact.Normal.Z);
                 float severity = face.LengthSquared() < 0.0625f ? 0 : Math.Max(0, -Vector3.Dot(contact.RelativeVelocity, Vector3.Normalize(face)));
-                damage[index] = Math.Max(damage[index], ImpactDamage(severity));
+                damage[index] = Math.Max(damage[index], VehicleDamage(severity));
                 pushes[index] = contact.RelativeVelocity;
             }
             for (int i = 0; i < _plants.Length; i++)
@@ -75,7 +77,7 @@ public sealed class EnvironmentAuthority
                 if (_rocks[i].Stage == 1 && observation.Contacts.Any(c => c.EnvironmentRock == i + 1)) { continue; }
                 Vector3 velocity = observation.Physics.LinearVelocity;
                 pushes[i] = velocity;
-                if (tick >= _rocks[i].ImpactReadyTick) { damage[i] = Math.Max(damage[i], ImpactDamage(new Vector2(velocity.X, velocity.Z).Length())); }
+                if (tick >= _rocks[i].ImpactReadyTick) { damage[i] = Math.Max(damage[i], VehicleDamage(new Vector2(velocity.X, velocity.Z).Length())); }
             }
         }
         foreach (var impact in events.Where(e => e.Impact && e.Item is HeldItem.Missile or HeldItem.Salvo))
@@ -99,7 +101,9 @@ public sealed class EnvironmentAuthority
             if (rock.Stage == 0) { continue; }
             if (damage[i] > 0 && rock.Stage < _layout.FinalStage(i))
             {
-                float total = rock.Damage + damage[i];
+                // Store damage in canonical stage-health units. Live health edits
+                // affect subsequent impacts without invalidating saved partial damage.
+                float total = rock.Damage + damage[i] / tuning.HealthScale;
                 if (total >= Health(rock.Stage))
                 {
                     rock = rock with { Stage = (byte)(rock.Stage + 1), Damage = 0, ImpactReadyTick = tick + 12 };
@@ -117,9 +121,9 @@ public sealed class EnvironmentAuthority
             }
             if (rock.Stage > 1)
             {
-                Vector3 velocity = rock.Velocity * 0.9f;
+                Vector3 velocity = VehicleMovement.Limit(rock.Velocity * tuning.VelocityRetention, tuning.PieceSpeed);
                 Vector3 push = new(pushes[i].X, 0, pushes[i].Z);
-                if (push.LengthSquared() > 0.01f) { velocity = Vector3.Normalize(push) * Math.Min(6, push.Length() * 0.35f); }
+                if (push.LengthSquared() > 0.01f) { velocity = Vector3.Normalize(push) * Math.Min(tuning.PieceSpeed, push.Length() * tuning.PushScale); }
                 if (velocity.LengthSquared() < 0.01f || moving >= MaximumMoving) { velocity = default; }
                 else { moving++; }
                 Vector3 offset = rock.Offset + velocity / 60;

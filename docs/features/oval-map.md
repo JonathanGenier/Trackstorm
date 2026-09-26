@@ -188,3 +188,20 @@ The asphalt retains its separate seamless 64 m multiply layer. Grass combines tw
 Driveable road and infield collision bodies carry the persistent landing_terrain group for [landing damage classification](vehicles.md#terrain-landing-recovery). The scene baker and terrain import hook retain this metadata. The reachable tunnel deck and edge beams also carry this group; remaining structural and outer-containment colliders remain obstacles. The existing contact-normal filter still treats side impacts as obstacles.
 
 The two kicker-to-tabletop fills continue from the unchanged 4.8 m lips to the unchanged 6.35 m tabletop inside the existing terrain mesh and collider. The authored kicker faces remain unchanged. Local rounded fill removes the former dip on both sides; the native tabletop check samples monotonic support across each connection. Production dressing now follows [destructible environment](destructible-environment.md) state owned by the arena.
+
+## Integrated production validation
+
+`check-oval.ps1` drives three continuous full-throttle laps from rest, with no Nitro,
+wall assistance or speed override, and requires reaching at least 99% of the configured
+powered cap while retaining support. Its steering driver remains an automated input
+fixture, not proof of human feel. Infield practice and hosted pickup route drivers
+release pedals/steering in flight because those inputs intentionally command air rotation.
+The side-climb fixture enters through the open junction shoulder at X=±30; the older
+X=±45/Z=±38 approach crossed visible production dressing rocks.
+
+`check-integrated-driving.ps1` combines eight native production cars, both dirt loops,
+90 simulated seconds of driving, default persistent tire marks, native plant contact and
+repeated committed weapon-impact outcomes on production rocks. It records all-car route
+progress, health, tipping/support, piece/plant state, mark budgets and rendered frame
+intervals in `.godot/integrated-driving-checks/`. This single-process load scenario is
+complemented by the existing UDP vehicle/collision/destruction checks.

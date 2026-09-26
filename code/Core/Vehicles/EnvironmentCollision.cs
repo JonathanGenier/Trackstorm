@@ -42,7 +42,7 @@ public static class EnvironmentCollision
                 strongest = severity;
                 Vector3 lever = Vector3.Transform(contact.LocalPosition, incoming.Orientation);
                 // A severe eccentric crash retains geometry-driven rotation. A scrape cannot build spin.
-                torque = Vector3.Cross(lever, normal * severity) * (0.08f / (configuration.Wheelbase * configuration.Wheelbase / 3));
+                torque = Vector3.Cross(lever, normal * severity) * (configuration.CrashRotation / (configuration.Wheelbase * configuration.Wheelbase / 3));
             }
         }
 
@@ -51,10 +51,10 @@ public static class EnvironmentCollision
         Vector3 vertical = up * Vector3.Dot(velocity, up);
         float directness = strongest / Math.Max(0.001f, incoming.LinearVelocity.Length());
         // A direct face in a multi-face manifold must also dissipate lateral motion introduced by a bevel.
-        float crashRetention = 1 - 0.95f * directness * directness;
+        float crashRetention = 1 - configuration.CrashDissipation * directness * directness;
         // Time-based resistance is applied once, independent of manifold/slide count or Nitro state.
-        velocity = vertical + (velocity - vertical) * crashRetention * MathF.Exp(-0.18f / configuration.TicksPerSecond);
-        Vector3 angular = incoming.AngularVelocity + VehicleMovement.Limit(torque, 1.2f);
+        velocity = vertical + (velocity - vertical) * crashRetention * MathF.Exp(-configuration.WallDrag / configuration.TicksPerSecond);
+        Vector3 angular = incoming.AngularVelocity + VehicleMovement.Limit(torque, configuration.CrashAngularLimit);
         return new(incoming.Position, incoming.Orientation, velocity, VehicleMovement.Limit(angular, configuration.MaximumAngularSpeed));
     }
 }

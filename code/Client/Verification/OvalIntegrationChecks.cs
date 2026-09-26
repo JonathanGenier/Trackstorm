@@ -77,8 +77,8 @@ public sealed partial class OvalIntegrationChecks : Node3D
             Vector3 forward = -_vehicle.GlobalBasis.Z;
             float angle = new Vector3(forward.X, 0, forward.Z).SignedAngleTo(new Vector3(target.X, 0, target.Z), Vector3.Up);
             steering = (short)(Math.Clamp(-angle * 3, -1, 1) * short.MaxValue);
-            throttle = _vehicle.LinearVelocity.Length() < 43 ? ushort.MaxValue : (ushort)0;
-            _maximumSpeed = Math.Max(_maximumSpeed, _vehicle.LinearVelocity.Length());
+            throttle = ushort.MaxValue;
+            _maximumSpeed = Math.Max(_maximumSpeed, _vehicle.Snapshot.Speed);
             _drivingFrames++;
             _supportedFrames += _vehicle.State.Grounded ? 1 : 0;
             if (_vehicle.State.Grounded)
@@ -409,7 +409,8 @@ public sealed partial class OvalIntegrationChecks : Node3D
         }
 
         _drive = false;
-        Check(_maximumSpeed > 40 && _supportedFrames > _drivingFrames * 0.99f && _maximumNormalSpeed < 2, $"Sustained high-speed support: peak {_maximumSpeed:F3} m/s, grounded {_supportedFrames}/{_drivingFrames}, peak normal speed {_maximumNormalSpeed:F3} m/s.");
+        Check(_vehicle.DamageState.CurrentHP == _vehicle.DamageState.MaxHP, "Three full-throttle laps retain full health without wall assistance.");
+        Check(_maximumSpeed >= _vehicle.Configuration.ForwardSpeed * 0.99f && _supportedFrames > _drivingFrames * 0.99f && _maximumNormalSpeed < 2, $"Sustained full-throttle support from rest: peak {_maximumSpeed:F3} m/s (target {_vehicle.Configuration.ForwardSpeed:F3}), grounded {_supportedFrames}/{_drivingFrames}, peak normal speed {_maximumNormalSpeed:F3} m/s.");
         Check(_progress - _start >= _centers.Length * 3, $"Production VehicleBody completed three banked loops, maximum centerline deviation {_maximumLaneError:F3} m, without sustained support loss.");
     }
 

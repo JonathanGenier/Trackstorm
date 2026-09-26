@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Integrated map driving and production tuning | [TS-163 verification evidence](ts-163.md) |
 | Story verification | [TS-168 verification evidence](ts-168.md) |
 | Story verification | [TS-156 verification evidence](ts-156.md) |
 | Story verification | [TS-165 verification evidence](ts-165.md) |
