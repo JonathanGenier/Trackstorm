@@ -12,6 +12,25 @@ namespace Trackstorm.Transport.Tests;
 internal sealed class CombatHudTests
 {
     [Test]
+    public void TimerUsesAuthoritativeTimeAcrossCountdownJoinRecoveryAndFinish()
+    {
+        var rows = new[] { new PlayerScore(1, 0, 0, 0, 0) };
+        var countdown = new MatchState(100, 1, 5, MatchPhase.Countdown, 180, null, rows);
+        Assert.That(CombatHudView.FormatTimer(countdown, 179), Is.EqualTo("10:00"));
+        var active = new MatchState(180, 2, 5, MatchPhase.Active, null, null, rows, activeStartedAtTick: 180);
+        Assert.That(CombatHudView.FormatTimer(active, 180), Is.EqualTo("10:00"));
+        Assert.That(CombatHudView.FormatTimer(active, 181), Is.EqualTo("10:00"));
+        Assert.That(CombatHudView.FormatTimer(active, 240), Is.EqualTo("09:59"));
+        Assert.That(CombatHudView.FormatTimer(MatchCodec.Decode(MatchCodec.Encode(1, active)).State, 7380), Is.EqualTo("08:00"));
+        var recovery = new MatchState(7380, 3, 5, MatchPhase.Active, null, null, rows, activeStartedAtTick: 180, recoveryElapsedTicks: 120);
+        Assert.That(CombatHudView.FormatTimer(recovery, 7380), Is.EqualTo("07:58"));
+        Assert.That(CombatHudView.FormatTimer(recovery, 36060), Is.EqualTo("00:00"));
+        Assert.That(recovery.Phase, Is.EqualTo(MatchPhase.Active), "Display reaching zero never finishes authority.");
+        var final = new MatchState(36060, 4, 5, MatchPhase.Finished, null, 1, [rows[0] with { Wins = 1 }], activeStartedAtTick: 180, recoveryElapsedTicks: 120);
+        Assert.That(CombatHudView.FormatTimer(final, 1), Is.EqualTo("00:00"));
+        Assert.That(CombatHudView.FormatTimer(null, 0), Is.EqualTo("--:--"));
+    }
+    [Test]
     public void SalvoShowsIndependentRemainingShotsInBothSlots()
     {
         var slot = new ItemSlot(1, 1, 1, HeldItem.Salvo) { SalvoShots = 4, SecondToken = 2, SecondItem = HeldItem.Salvo, SecondSalvoShots = 2, ActiveSlot = 1 };

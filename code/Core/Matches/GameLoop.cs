@@ -4,13 +4,16 @@ namespace Trackstorm.Core.Matches;
 public sealed class GameLoop : IDisposable
 {
     private readonly bool _isAuthority;
+    private readonly ulong _durationTicks;
     private bool _disposed;
 
     /// <summary>Creates an uninitialized owner or read-only client; authority cannot change during its lifetime.</summary>
     /// <param name="isAuthority">Trusted composition decision, never a value taken from a client packet.</param>
-    public GameLoop(bool isAuthority)
+    /// <param name="durationTicks">Optional mode-configured Active time limit.</param>
+    public GameLoop(bool isAuthority, ulong durationTicks = 0)
     {
         _isAuthority = isAuthority;
+        _durationTicks = durationTicks;
     }
 
     /// <summary>Completed loading handoff; absent before initialization.</summary>
@@ -36,7 +39,7 @@ public sealed class GameLoop : IDisposable
         }
 
         Context = context;
-        State = new GameLoopState(context.Tick, GameLoopPhase.Initialization);
+        State = new GameLoopState(context.Tick, GameLoopPhase.Initialization, durationTicks: _durationTicks);
         Revision++;
         return true;
     }
@@ -46,7 +49,7 @@ public sealed class GameLoop : IDisposable
     /// <returns>False for unauthorized, invalid, duplicate or out-of-order requests.</returns>
     public bool StartCountdown(ulong durationTicks)
     {
-        if (!_isAuthority || State?.Phase != GameLoopPhase.Initialization || durationTicks == 0 || durationTicks > ulong.MaxValue - State.Tick)
+        if (!_isAuthority || State?.Phase != GameLoopPhase.Initialization || durationTicks == 0 || durationTicks > ulong.MaxValue - State.Tick || _durationTicks > ulong.MaxValue - State.Tick - durationTicks)
         {
             return false;
         }

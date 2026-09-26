@@ -155,7 +155,7 @@ internal sealed class CircusScoringTests
 
     /// <summary>Victim ordering controls same-tick death/reset and kill awards regardless of request order.</summary>
     [Test]
-    public void MutualLethalCollisionsUseStableOrderAndFreezeAtTarget()
+    public void MutualLethalCollisionsUseStableOrderWithoutKillTargetFinish()
     {
         foreach (int target in new[] { 1, 20 })
         {
@@ -171,15 +171,9 @@ internal sealed class CircusScoringTests
 
             Assert.That(MatchCodec.Encode(1, reversed.State.Match!), Is.EqualTo(MatchCodec.Encode(1, world.State.Match!)));
             Assert.That(Score(world, 2).CircusScore, Is.EqualTo(200));
-            Assert.That(Score(world, 1).CircusScore, Is.EqualTo(target == 1 ? 0 : 200));
-            Assert.That(Score(world, 2).KillStreak, Is.EqualTo(target == 1 ? 1 : 0));
-            if (target == 1)
-            {
-                var frozen = world.State.Match;
-                Reset(world, 1);
-                Hit(world, 1, 2, "collision", 10);
-                Assert.That(world.State.Match, Is.SameAs(frozen));
-            }
+            Assert.That(Score(world, 1).CircusScore, Is.EqualTo(200));
+            Assert.That(Score(world, 2).KillStreak, Is.EqualTo(0));
+            Assert.That(world.State.Match!.Phase, Is.EqualTo(MatchPhase.Active));
         }
     }
 

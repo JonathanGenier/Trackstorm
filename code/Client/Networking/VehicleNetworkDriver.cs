@@ -102,6 +102,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 lobby.Migration.MapConfiguration = _arena;
                 lobby.Migration.RestoreArena = RestoreMigration;
                 lobby.Migration.ObservedTick = GetObservedTick;
+                lobby.Migration.ObservedMatch = GetObservedMatch;
             }
 
             if (lobby.State?.Phase != SessionPhase.Arena)
@@ -633,6 +634,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
                 migration.CaptureArena = null;
                 migration.RestoreArena = null;
                 migration.ObservedTick = null;
+                migration.ObservedMatch = null;
                 migration.MapConfiguration = null;
             }
         }
@@ -667,6 +669,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
     }
 
     private ulong GetObservedTick() => Host?.World.State.Tick ?? Latest?.Tick ?? 0;
+    private MatchState? GetObservedMatch() => Host?.World.State.Match ?? Match;
 
     private (ResumeCheckpoint Arena, HostRestoreState Host) CaptureMigration()
     {
@@ -674,7 +677,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         WorldSnapshot world = Host!.Snapshot();
         var items = new ItemPublication(Math.Max(1, _itemPublication), world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines);
         var state = Host.World.State.Match!;
-        var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode);
+        var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode, activeStartedAtTick: state.ActiveStartedAtTick, durationTicks: state.DurationTicks, recoveryElapsedTicks: state.RecoveryElapsedTicks);
         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());
         return (new ResumeCheckpoint(items, match, props, Host.Configuration, Host.Environment?.Snapshot(_session, world.Tick)), Host.CaptureAuthority());
     }
@@ -700,6 +703,15 @@ internal sealed class VehicleNetworkDriver : IDisposable
         _publishedSpawnRevision = ulong.MaxValue;
         _publishedMatchRevision = ulong.MaxValue;
         ApplyCheckpoint(checkpoint.Arena);
+        if (Host is not null)
+        {
+            Host.World.AccountMatchRecoveryTime(_lobby!.Migration!.MatchRecoveryTicks);
+            if (Match!.Revision != Host.World.State.Match!.Revision)
+            {
+                Match = Host.World.State.Match;
+                MatchReceived?.Invoke(Match);
+            }
+        }
         if (!host)
         {
             // The replacement must independently authorize this fresh connection before gameplay resumes.
@@ -713,7 +725,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         WorldSnapshot world = Host!.Snapshot();
         var items = new ItemPublication(++_itemPublication, world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines);
         var state = Host.World.State.Match!;
-        var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode);
+        var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode, activeStartedAtTick: state.ActiveStartedAtTick, durationTicks: state.DurationTicks, recoveryElapsedTicks: state.RecoveryElapsedTicks);
         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());
         Send(new TransportMessage(peer, ResumeCheckpointCodec.Encode(new ResumeCheckpoint(items, match, props, Host.Configuration, Host.Environment?.Snapshot(_session, world.Tick))), TransportDelivery.Reliable));
     }

@@ -177,7 +177,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         {
             string phase = match.Phase == Core.Matches.MatchPhase.Finished ? $"FINISHED — Player {match.Winner} wins!"
                 : match.Phase == Core.Matches.MatchPhase.Countdown ? $"COUNTDOWN — {Math.Ceiling(Math.Max(0, (double)match.CountdownAtTick!.Value - (_driver.Latest?.Tick ?? 0)) / HostVehicleSession.TickRate):0}"
-                : match.Phase == Core.Matches.MatchPhase.Waiting ? "WAITING FOR PLAYERS" : $"FIRST TO {match.KillTarget}";
+                : match.Phase == Core.Matches.MatchPhase.Waiting ? "WAITING FOR PLAYERS" : match.Mode == Core.Matches.MatchMode.Circus ? "CIRCUS" : $"FIRST TO {match.KillTarget}";
             _matchLabel.Text = phase;
         }
 

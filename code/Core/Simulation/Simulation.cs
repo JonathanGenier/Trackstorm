@@ -28,7 +28,7 @@ public sealed class Simulation
         MatchRules = match;
         if (match is not null)
         {
-            State = new SimulationState(0, default, match: new Matches.MatchState(0, 0, match.KillTarget, Matches.MatchPhase.Waiting, null, null, [], mode: match.Mode));
+            State = new SimulationState(0, default, match: new Matches.MatchState(0, 0, match.KillTarget, Matches.MatchPhase.Waiting, null, null, [], mode: match.Mode, durationTicks: match.DurationTicks));
         }
 
     }
@@ -154,7 +154,7 @@ public sealed class Simulation
         if (match is not null && match.Players.Any(player => player.Player == vehicleId && player.Stunts is not null))
         {
             match = new Matches.MatchState(State.Tick, checked(match.Revision + 1), match.KillTarget, match.Phase, match.CountdownAtTick, match.Winner,
-                match.Players.Select(player => player.Player == vehicleId ? player with { Stunts = null } : player), mode: match.Mode);
+                match.Players.Select(player => player.Player == vehicleId ? player with { Stunts = null } : player), mode: match.Mode, activeStartedAtTick: match.ActiveStartedAtTick, durationTicks: match.DurationTicks, recoveryElapsedTicks: match.RecoveryElapsedTicks);
         }
         State = new SimulationState(State.Tick, State.LastInput, _vehicles.Values.Select(vehicle => vehicle.Snapshot), match);
     }
@@ -170,7 +170,7 @@ public sealed class Simulation
     public void Restore(SimulationState state)
     {
         if ((state.Match is null) != (MatchRules is null) || (state.Match is not null &&
-            (state.Match.Mode != MatchRules!.Mode || state.Match.KillTarget != MatchRules.KillTarget || (state.Match.Phase != Matches.MatchPhase.Finished && state.Vehicles.Any(vehicle => !state.Match.Players.Any(player => player.Player == vehicle.VehicleId))))))
+            (state.Match.Mode != MatchRules!.Mode || state.Match.KillTarget != MatchRules.KillTarget || (state.Match.Phase != Matches.MatchPhase.Finished && state.Match.DurationTicks != MatchRules.DurationTicks) || (state.Match.Phase != Matches.MatchPhase.Finished && state.Vehicles.Any(vehicle => !state.Match.Players.Any(player => player.Player == vehicle.VehicleId))))))
         {
             throw new ArgumentException("Restoration requires the complete configured match state.", nameof(state));
         }
@@ -321,7 +321,7 @@ public sealed class Simulation
         if (match is not null && configuration.Match != MatchRules)
         {
             if (configuration.Match.KillTarget != match.KillTarget &&
-                (match.Phase == Matches.MatchPhase.Finished || match.Players.Any(player => player.Kills >= configuration.Match.KillTarget)))
+                (match.Phase == Matches.MatchPhase.Finished || (match.Mode == Matches.MatchMode.FirstToTarget && match.Players.Any(player => player.Kills >= configuration.Match.KillTarget))))
             {
                 throw new ArgumentException("Kill target must exceed existing scores and cannot change a finished result.");
             }
@@ -339,7 +339,7 @@ public sealed class Simulation
 
             if (match.Phase != Matches.MatchPhase.Finished)
             {
-                match = new Matches.MatchState(State.Tick, checked(match.Revision + 1), configuration.Match.KillTarget, match.Phase, deadline, match.Winner, match.Players, mode: configuration.Match.Mode);
+                match = new Matches.MatchState(State.Tick, checked(match.Revision + 1), configuration.Match.KillTarget, match.Phase, deadline, match.Winner, match.Players, mode: configuration.Match.Mode, activeStartedAtTick: match.ActiveStartedAtTick, durationTicks: configuration.Match.DurationTicks, recoveryElapsedTicks: match.RecoveryElapsedTicks);
             }
         }
 
@@ -349,6 +349,33 @@ public sealed class Simulation
         Respawn = Respawn is null ? null : configuration.Respawn;
         MatchRules = MatchRules is null ? null : configuration.Match;
         State = state;
+    }
+
+    /// <summary>Accounts for elapsed recovery time supplied by the trusted successor, without replaying simulation or scoring.</summary>
+    /// <param name="ticks">Ticks since the selected checkpoint, measured by the migration owner.</param>
+    public void AccountMatchRecoveryTime(ulong ticks)
+    {
+        if (State.Match is not { Mode: Matches.MatchMode.Circus } match || match.Phase is not (Matches.MatchPhase.Active or Matches.MatchPhase.Countdown) || ticks == 0) return;
+        ulong? started = match.ActiveStartedAtTick;
+        if (match.Phase == Matches.MatchPhase.Countdown)
+        {
+            ulong countdownRemaining = match.CountdownAtTick!.Value - State.Tick;
+            if (ticks < countdownRemaining)
+            {
+                var countdown = new Matches.MatchState(State.Tick, checked(match.Revision + 1), match.KillTarget, match.Phase,
+                    match.CountdownAtTick - ticks, null, match.Players, mode: match.Mode, durationTicks: match.DurationTicks);
+                State = new SimulationState(State.Tick, State.LastInput, State.Vehicles, countdown);
+                return;
+            }
+            // Rebase the recovered Active entry to this coherent simulation boundary;
+            // only time after the original countdown deadline consumes the match budget.
+            ticks -= countdownRemaining;
+            started = State.Tick;
+        }
+        var adjusted = new Matches.MatchState(State.Tick, checked(match.Revision + 1), match.KillTarget, Matches.MatchPhase.Active, null, null,
+            match.Players, mode: match.Mode, activeStartedAtTick: started, durationTicks: match.DurationTicks,
+            recoveryElapsedTicks: Math.Min(216000, match.RecoveryElapsedTicks + Math.Min(216000, ticks)));
+        State = new SimulationState(State.Tick, State.LastInput, State.Vehicles, adjusted);
     }
 
     private static string SafeCause(DamageContext attribution) => attribution.Source switch

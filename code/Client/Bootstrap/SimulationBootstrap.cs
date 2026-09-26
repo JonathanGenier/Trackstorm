@@ -190,6 +190,7 @@ public sealed partial class SimulationBootstrap : Node
             Units = () => _settings.Current.SpeedUnit,
             Position = () => _session?.Standings.Position ?? "--",
             Match = () => _session?.Arena?.Driver.Match,
+            AuthoritativeTick = () => _session?.Arena?.Driver.Latest?.Tick ?? 0,
             MatchUpdates = () => _session?.DrainMatchPresentation() ?? Array.Empty<Core.Matches.MatchState>(),
             Player = () => _session?.Lobby?.LocalPlayerId ?? 0,
         };

@@ -38,6 +38,7 @@ public sealed partial class MigrationIntegrationChecks : Node
     private ulong _machineGunOwner;
     private Core.Matches.MatchPhase _matchPhase;
     private ulong? _countdownAtTick;
+    private ulong _remainingMatchTicks;
     private readonly Dictionary<ulong, Core.Matches.MatchState> _circusBoundaries = new();
 
     /// <inheritdoc/>
@@ -347,6 +348,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             _retiredAt[1] = TimeProvider.System.GetTimestamp();
             _matchPhase = _arenas[1]!.Driver.Match!.Phase;
             _countdownAtTick = _arenas[1]!.Driver.Match!.CountdownAtTick;
+            _remainingMatchTicks = _arenas[1]!.Driver.Match!.Lifecycle.RemainingMatchTicks(_arenas[1]!.Driver.Latest!.Tick);
             _gateways[1].Stop();
             _drivers[1] = null;
             _arenas[1]!.QueueFree();
@@ -378,7 +380,20 @@ public sealed partial class MigrationIntegrationChecks : Node
             Require(CategoryBalanceRecoveryFixture.Signature(arena.Driver.Host!.Spawns!.Balances) == _categoryHistory, "Host migration retains exact per-player category history.");
             GD.Print("Category history verified after authority migration: " + _categoryHistory);
             Require(arena.Driver.Host!.Spawns!.RandomState == _randomState, "Migrated RNG continuation.");
-            Require(arena.Driver.Match!.Phase == _matchPhase && arena.Driver.Match.CountdownAtTick == _countdownAtTick, "Migration preserves the current phase and absolute countdown deadline.");
+            Require(_matchPhase == Core.Matches.MatchPhase.Countdown
+                ? arena.Driver.Match!.Phase is Core.Matches.MatchPhase.Countdown or Core.Matches.MatchPhase.Active &&
+                    (!arena.Driver.Match.CountdownAtTick.HasValue || arena.Driver.Match.CountdownAtTick <= _countdownAtTick)
+                : arena.Driver.Match!.Phase == _matchPhase, "Migration continues the current lifecycle without restarting countdown.");
+            if (arena.Driver.Match.Phase == Core.Matches.MatchPhase.Countdown)
+                Require(arena.Driver.Match.Lifecycle.RemainingMatchTicks(arena.Driver.Latest!.Tick) == 36000, "Recovery countdown never consumes the Active budget.");
+            if (_matchPhase == Core.Matches.MatchPhase.Active)
+            {
+                ulong remaining = arena.Driver.Match.Lifecycle.RemainingMatchTicks(arena.Driver.Latest!.Tick);
+                Require(remaining <= _remainingMatchTicks && _remainingMatchTicks - remaining < 1200,
+                    "Migration never adds time and deducts only the bounded recovery interval.");
+                Require(arena.Driver.Match.RecoveryElapsedTicks > 0, "Successor accounts for time since the selected checkpoint.");
+                GD.Print($"Circus timer migration verified: {_remainingMatchTicks} -> {remaining} remaining ticks, recovery debit {arena.Driver.Match.RecoveryElapsedTicks}; score boundary retained.");
+            }
             Require(!arena.Driver.ForceDeveloperStart(), "Replacement cannot restart an existing Countdown or Active phase.");
             Require(arena.Driver.TryConfigure(new Dictionary<string, double> { ["vehicle.acceleration"] = 11 }, out _), "Second replacement can edit live tuning.");
             if (_players == 3)

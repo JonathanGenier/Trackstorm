@@ -80,6 +80,7 @@ internal static class RuntimeStatistics
     }
 
     private static string MatchText(MatchState? match, ulong tick) => match is null ? "Match rules: unavailable in this context" :
-        $"Match: {match.Phase} · First to {match.KillTarget} kills · Winner: {match.Winner?.ToString() ?? "None"}\n" +
-        (match.CountdownAtTick is { } deadline ? "Countdown: " + VehicleStatistics.Remaining(deadline, tick) : "Match time limit: none (kill-target rules)");
+        $"Match: {match.Phase} · {match.Mode} · Winner: {match.Winner?.ToString() ?? "None"}\n" +
+        (match.CountdownAtTick is { } deadline ? "Countdown: " + VehicleStatistics.Remaining(deadline, tick) :
+            match.Mode == MatchMode.Circus ? "Match remaining: " + Hud.CombatHudView.FormatTimer(match, tick) : $"First to {match.KillTarget} kills");
 }

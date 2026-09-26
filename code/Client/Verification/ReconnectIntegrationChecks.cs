@@ -214,6 +214,11 @@ public sealed partial class ReconnectIntegrationChecks : Node
                 Require(_arenas[1].LocalState!.Damage == world.Vehicles.Single(v => v.State.VehicleId == _player).State.Damage, "Current HP is restored.");
                 Require(_arenas[1].Driver.Configuration == _arenas[0].Driver.Configuration, "Current host tuning and revision are restored before prediction.");
                 Require(_arenas[1].Driver.Match!.Players.SequenceEqual(_arenas[0].Driver.Host!.World.State.Match!.Players), "Resume preserves complete Circus totals, streaks, multiplier inputs and damage watermarks.");
+                var resumedMatch = _arenas[1].Driver.Match!;
+                var hostMatch = _arenas[0].Driver.Host!.World.State.Match!;
+                Require(resumedMatch.ActiveStartedAtTick == hostMatch.ActiveStartedAtTick && resumedMatch.DurationTicks == hostMatch.DurationTicks &&
+                    resumedMatch.Lifecycle.RemainingMatchTicks(world.Tick) == hostMatch.Lifecycle.RemainingMatchTicks(world.Tick), "Reconnect installs exact authoritative remaining match time.");
+                GD.Print($"Circus timer reconnect {_resyncs}: {Hud.CombatHudView.FormatTimer(resumedMatch, world.Tick)}, start {resumedMatch.ActiveStartedAtTick}, complete standings retained.");
             };
             _stage = 40;
         }
@@ -350,7 +355,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
         {
             Require(_arenas[0].Driver.Host!.World.State.Vehicles.Count == 2, "Disconnected vehicle remains in the active match.");
             SetScores(true);
-            Require(Standings() is { Finished: true, Visible: true, WinnerName: "Host" }, "Finished retains the complete result and winner.");
+            Require(Standings() is { Finished: true, Visible: true, WinnerName: "Client" }, "Finished retains the complete result and winner.");
             VerifyRow(false);
             _captureAt = _elapsed;
             _stage = 8;
@@ -462,7 +467,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
     {
         var world = _arenas[0].Driver.Host!.World;
         MatchState previous = world.State.Match!;
-        var match = new MatchState(world.State.Tick, previous.Revision + 1, previous.KillTarget, finished ? MatchPhase.Finished : MatchPhase.Active, null, finished ? 1ul : null, previous.Players.Select(score => score with { Kills = score.Player == _player ? 2 : finished ? 5 : 1, Deaths = score.Player == _player ? 1 : finished ? 6 : 2, Wins = finished && score.Player == 1 ? 1 : 0, ProcessedLife = Math.Max(1, score.ProcessedLife), CircusScore = score.Player == _player ? 375.5 : 125.25, KillStreak = 1 }));
+        var match = new MatchState(world.State.Tick, previous.Revision + 1, previous.KillTarget, finished ? MatchPhase.Finished : MatchPhase.Active, null, finished ? _player : null, previous.Players.Select(score => score with { Kills = score.Player == _player ? 2 : finished ? 5 : 1, Deaths = score.Player == _player ? 1 : finished ? 6 : 2, Wins = finished && score.Player == _player ? 1 : 0, ProcessedLife = Math.Max(1, score.ProcessedLife), CircusScore = score.Player == _player ? 375.5 : 125.25, KillStreak = 1 }), activeStartedAtTick: previous.ActiveStartedAtTick, durationTicks: previous.DurationTicks, recoveryElapsedTicks: previous.RecoveryElapsedTicks);
         // Scoring itself is exercised by the match harness; this fixture isolates retention and presentation.
         world.Restore(new SimulationState(world.State.Tick, world.State.LastInput, world.State.Vehicles.Select(v => !finished ? v :
             new VehicleSnapshot(v.VehicleId, v.LifeId, v.Movement with { Nitro = default }, v.Damage, v.ObservedPhysics, v.Effects, v.Lifecycle, v.RespawnAtTick)), match));

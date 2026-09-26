@@ -18,7 +18,7 @@ public static class MatchCodec
         ArgumentNullException.ThrowIfNull(state);
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x4d, 8 });
+        writer.Write(new byte[] { 0x54, 0x4d, 9 });
         writer.Write(session);
         writer.Write(state.Tick);
         writer.Write(state.Revision);
@@ -27,6 +27,9 @@ public static class MatchCodec
         writer.Write((byte)state.Mode);
         writer.Write(state.CountdownAtTick ?? 0);
         writer.Write(state.Winner ?? 0);
+        writer.Write(state.ActiveStartedAtTick ?? ulong.MaxValue);
+        writer.Write(state.DurationTicks);
+        writer.Write(state.RecoveryElapsedTicks);
         writer.Write((ushort)state.Players.Count);
         foreach (PlayerScore score in state.Players)
         {
@@ -84,7 +87,7 @@ public static class MatchCodec
     /// <returns>Session and complete validated state.</returns>
     public static (ulong Session, MatchState State) Decode(ReadOnlySpan<byte> bytes)
     {
-        if (!IsMatch(bytes) || bytes.Length is < 52 or > 18432 || bytes[2] != 8)
+        if (!IsMatch(bytes) || bytes.Length is < 76 or > 18432 || bytes[2] != 9)
         {
             throw new ArgumentException("Invalid match header or size.");
         }
@@ -102,6 +105,13 @@ public static class MatchCodec
             var mode = (MatchMode)reader.ReadByte();
             ulong deadline = reader.ReadUInt64();
             ulong winner = reader.ReadUInt64();
+            ulong started = reader.ReadUInt64();
+            ulong duration = reader.ReadUInt64();
+            ulong recoveryElapsed = reader.ReadUInt64();
+            if ((phase is MatchPhase.Active or MatchPhase.Finished) != (started != ulong.MaxValue))
+            {
+                throw new ArgumentException("Invalid Active timer boundary.");
+            }
             int count = reader.ReadUInt16();
             if (session == 0 || count > MatchState.MaximumPlayers)
             {
@@ -165,7 +175,7 @@ public static class MatchCodec
                 throw new ArgumentException("Trailing match data.");
             }
 
-            return (session, new MatchState(tick, revision, target, phase, deadline == 0 ? null : deadline, winner == 0 ? null : winner, players, deaths, awards, mode));
+            return (session, new MatchState(tick, revision, target, phase, deadline == 0 ? null : deadline, winner == 0 ? null : winner, players, deaths, awards, mode, started == ulong.MaxValue ? null : started, duration, recoveryElapsed));
         }
         catch (EndOfStreamException exception)
         {

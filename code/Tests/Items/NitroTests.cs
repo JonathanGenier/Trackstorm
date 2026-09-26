@@ -237,6 +237,7 @@ internal sealed class NitroTests
         var host = Create(60, killTarget: 1);
         host.JoinPlayer(10, 2);
         Activate(host);
+        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["match.duration_ticks"] = 1 }, out _), Is.True);
         var frame = new InputFrame(host.World.State.Tick + 1, 0, 0, 0, 0, 0, 0);
         host.Items.Step(host.World, frame, host.World.State.Vehicles.Select(v => new VehicleStepRequest(v.VehicleId, frame, Observe(v),
             v.VehicleId == 2 ? [new VehicleEffectRequest(new DamageEffect(10000, Vector3.Zero, Vector3.Zero), new DamageContext("missile", 1, "test"))] : [])).ToArray(), (_, _) => null);

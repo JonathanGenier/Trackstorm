@@ -90,6 +90,10 @@ internal sealed class SessionMigration
     internal Action? ReleaseAuthority { get; set; }
     /// <summary>Latest locally observed world tick, used to reject excessive rollback.</summary>
     internal Func<ulong>? ObservedTick { get; set; }
+    /// <summary>Accepted match boundary; Finished may never be rolled back into Active.</summary>
+    internal Func<Core.Matches.MatchState?>? ObservedMatch { get; set; }
+    /// <summary>Time since the selected external checkpoint, measured locally with a monotonic clock.</summary>
+    internal ulong MatchRecoveryTicks { get; private set; }
     /// <summary>Blocks input, commands and gameplay advancement during lost authority or agreement.</summary>
     internal bool Frozen { get; private set; }
     /// <summary>True only while survivor transport is being coordinated.</summary>
@@ -366,6 +370,10 @@ internal sealed class SessionMigration
     {
         var checkpoint = retained.State;
         ulong tick = checkpoint.Arena?.Items.World.Tick ?? 0;
+        if (ObservedMatch?.Invoke()?.Phase == Core.Matches.MatchPhase.Finished && checkpoint.Arena?.Match.Phase != Core.Matches.MatchPhase.Finished)
+        {
+            return false;
+        }
         ulong observed = ObservedTick?.Invoke() ?? tick;
         ulong maximumRollbackTicks = (ulong)(MaximumRecoverableCheckpointAgeSeconds * HostVehicleSession.TickRate);
         var current = _lobby.State!;
@@ -559,6 +567,11 @@ internal sealed class SessionMigration
 
         var checkpoint = retained.State;
         bool host = _lobby.LocalPlayerId == _candidate;
+        ulong checkpointTick = checkpoint.Arena?.Items.World.Tick ?? 0;
+        ulong observedTick = ObservedTick?.Invoke() ?? checkpointTick;
+        double elapsed = Math.Max(0, _time.GetElapsedTime(retained.RetainedAt, _time.GetTimestamp()).TotalSeconds);
+        MatchRecoveryTicks = Math.Max(observedTick > checkpointTick ? observedTick - checkpointTick : 0,
+            (ulong)Math.Min(216000, Math.Floor(elapsed * HostVehicleSession.TickRate)));
         IReadOnlyDictionary<ulong, ulong>? survivorPeers = host && checkpoint.Lobby.State.ReconnectPolicy == SessionReconnectPolicy.FreshJoin
             ? _voterPeers.ToDictionary(pair => pair.Key, pair => pair.Value)
             : null;

@@ -290,7 +290,7 @@ internal sealed class DeveloperConfigurationTests
     {
         var host = new HostVehicleSession(9);
         host.Join(42);
-        Edit(host, ("match.countdown_ticks", 1), ("match.kill_target", 2), ("respawn.delay_ticks", 1));
+        Edit(host, ("match.mode", 0), ("match.countdown_ticks", 1), ("match.kill_target", 2), ("respawn.delay_ticks", 1));
         host.Step(default, Observe);
         host.Step(default, Observe);
         Hit(host, 2, 100);
