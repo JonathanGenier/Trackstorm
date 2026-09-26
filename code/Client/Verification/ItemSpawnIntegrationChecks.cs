@@ -200,7 +200,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 _balanceRounds++;
                 if (_balanceRounds > 16)
                 {
-                    Require(host.Spawns.Balances.All(balance => balance.SelectedItem == ItemRegistry.All.First(item => item.Category == balance.SelectedCategory).Identity), "Every player uses the live category-local item pool.");
+                    Require(host.Spawns.Balances.All(balance => balance.SelectedItem == ItemRegistry.All.Last(item => item.Category == balance.SelectedCategory).Identity), "Every player uses the live category-local item pool.");
                     Require(_arenas.All(arena => arena.Driver.Configuration == host.Configuration), "Live distribution configuration agrees on all eight peers.");
                 }
                 if (_balanceRounds == 16)
@@ -209,12 +209,12 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                     var spawns = host.Spawns.States.ToArray();
                     ulong random = host.ItemSelectionRandom.State;
                     var edits = ItemRegistry.All.ToDictionary(item => $"spawns.{item.Key}_weight", item =>
-                        ItemRegistry.All.First(candidate => candidate.Category == item.Category).Identity == item.Identity ? 7d : 0d);
+                        ItemRegistry.All.Last(candidate => candidate.Category == item.Category).Identity == item.Identity ? 7d : 0d);
                     Require(host.TryConfigure(0, edits, out _), "Host changes every item weight during repeated multiplayer pickups.");
                     Require(CategoryBalanceRecoveryFixture.Signature(host.Spawns.Balances) == signature, "Live item weights preserve all player histories.");
                     Require(host.Items.Slots.SequenceEqual(slots) && host.Spawns.States.SequenceEqual(spawns), "Live item weights preserve held grants and committed claims.");
                     Require(host.ItemSelectionRandom.State == random, "Live item weights preserve RNG continuation.");
-                    _evidence.Add("After round 16, host changed each category to one weighted item; subsequent rounds verify the new pool for all eight players without resetting history or RNG.");
+                    _evidence.Add("After round 16, host changed each category to its last registered item (Machine Gun, Nitro, Proxy Mine); subsequent rounds verify the new pool for all eight players without resetting history or RNG.");
                 }
                 if (_balanceRounds < 32)
                 {
