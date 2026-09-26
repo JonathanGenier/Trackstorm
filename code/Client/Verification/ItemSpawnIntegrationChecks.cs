@@ -161,7 +161,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
             case 3 when _arenas.All(arena => arena.Pickups.ActiveCount == PickupCount - 8):
                 var expected = host.Items.Slots;
                 _distributed = expected.ToArray();
-                Require(expected.Count == 8 && ItemRegistry.All.All(item => expected.Any(slot => slot.Item == item.Identity)), "Normal weighted pickups distribute all four registered items across eight slots.");
+                Require(expected.Count == 8 && expected.All(slot => ItemRegistry.Find(slot.Item) is not null), "Normal weighted pickups award registered items to all eight players; random draws do not guarantee roster coverage in eight slots.");
                 Require(_arenas.All(arena => arena.Driver.ItemState!.Slots.SequenceEqual(expected) && arena.Driver.ItemState.Spawns.SequenceEqual(host.Spawns!.States)), "All inventory and spawn outcomes agree across eight peers.");
                 foreach (var arena in _arenas.Where(arena => ItemRegistry.Find(arena.Driver.LocalItem!.Item)?.CanUse == false))
                 {
@@ -180,7 +180,7 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 foreach (var vehicle in host.World.State.Vehicles) { Require(host.Items.Grant(host.World, vehicle.VehicleId, HeldItem.Oil), "Fill remaining slot without changing category history."); }
                 _distributed = host.Items.Slots.ToArray();
                 // Stay in range: occupied slots must not reclaim when the cooldown elapses.
-                Next("All eight spawn locations awarded once, with all four item types replicated normally.");
+                Next("All eight spawn locations awarded once, with registered item identities replicated normally.");
                 break;
             case 4 when _arenas.All(arena => arena.Pickups.ActiveCount == PickupCount) && _elapsed - _started > 4:
                 Require(host.Items.Slots.All(slot => slot.Item != HeldItem.None), "Occupied slots retain their grants.");
@@ -198,6 +198,24 @@ public sealed partial class ItemSpawnIntegrationChecks : Node
                 string signature = CategoryBalanceRecoveryFixture.Signature(host.Spawns!.Balances);
                 if (!_arenas.All(arena => CategoryBalanceRecoveryFixture.Signature(arena.Driver.ItemState!.Balances) == signature)) { break; }
                 _balanceRounds++;
+                if (_balanceRounds > 16)
+                {
+                    Require(host.Spawns.Balances.All(balance => balance.SelectedItem == ItemRegistry.All.Last(item => item.Category == balance.SelectedCategory).Identity), "Every player uses the live category-local item pool.");
+                    Require(_arenas.All(arena => arena.Driver.Configuration == host.Configuration), "Live distribution configuration agrees on all eight peers.");
+                }
+                if (_balanceRounds == 16)
+                {
+                    var slots = host.Items.Slots.ToArray();
+                    var spawns = host.Spawns.States.ToArray();
+                    ulong random = host.ItemSelectionRandom.State;
+                    var edits = ItemRegistry.All.ToDictionary(item => $"spawns.{item.Key}_weight", item =>
+                        ItemRegistry.All.Last(candidate => candidate.Category == item.Category).Identity == item.Identity ? 7d : 0d);
+                    Require(host.TryConfigure(0, edits, out _), "Host changes every item weight during repeated multiplayer pickups.");
+                    Require(CategoryBalanceRecoveryFixture.Signature(host.Spawns.Balances) == signature, "Live item weights preserve all player histories.");
+                    Require(host.Items.Slots.SequenceEqual(slots) && host.Spawns.States.SequenceEqual(spawns), "Live item weights preserve held grants and committed claims.");
+                    Require(host.ItemSelectionRandom.State == random, "Live item weights preserve RNG continuation.");
+                    _evidence.Add("After round 16, host changed each category to its last registered item (Machine Gun, Nitro, Proxy Mine); subsequent rounds verify the new pool for all eight players without resetting history or RNG.");
+                }
                 if (_balanceRounds < 32)
                 {
                     foreach (var vehicle in host.World.State.Vehicles) { host.Items.RemovePlayer(vehicle.VehicleId); host.Items.Grant(host.World, vehicle.VehicleId, HeldItem.Wrench); }
