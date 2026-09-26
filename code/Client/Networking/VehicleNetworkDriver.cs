@@ -63,7 +63,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         _entryReleased = !applicationEntry || (hostSession == 0 && lobby?.NeedsArenaCheckpoint == true);
         _arena = arena;
         _lobby = lobby;
-        _gateway = gateway;
+        _gateway = ReliableMessageGateway.For(gateway);
         _serverPeer = serverPeer;
         _session = hostSession;
         if (hostSession != 0)
@@ -363,8 +363,9 @@ internal sealed class VehicleNetworkDriver : IDisposable
 
             if (_publishedSpawnRevision != (Host.Spawns?.Revision ?? 0) || _publishedItemRevision != Host.Items.Revision || _rosterChanged)
             {
+                var previousItems = _rosterChanged ? null : ItemState;
                 ItemState = new ItemPublication(++_itemPublication, Latest, Host.Items.Slots, Host.Items.Missiles, Host.Items.Events, Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines);
-                byte[] items = ItemCodec.EncodeState(ItemState);
+                byte[] items = ItemCodec.EncodeState(ItemState, previousItems);
                 foreach (ulong peer in _assigned)
                 {
                     Send(new TransportMessage(peer, items, TransportDelivery.Reliable));
@@ -735,6 +736,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
 
     private void SendCheckpoint(ulong peer)
     {
+        _rosterChanged = true; // Resume establishes a new full Oil baseline before subsequent references.
         WorldSnapshot world = Host!.Snapshot();
         var items = new ItemPublication(++_itemPublication, world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines);
         var state = Host.World.State.Match!;
@@ -1092,7 +1094,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
                     throw new ArgumentException("Only the assigned host can publish item outcomes.");
                 }
 
-                ItemPublication publication = ItemCodec.DecodeState(message.Payload.Span);
+                ItemPublication publication = ItemCodec.DecodeState(message.Payload.Span, ItemState);
                 if (!_receivedConfiguration || publication.World.Session != _session || publication.World.ConfigurationRevision != Configuration.Revision || publication.Revision <= (ItemState?.Revision ?? 0))
                 {
                     throw new ArgumentException("Stale item publication.");

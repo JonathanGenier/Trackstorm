@@ -18,7 +18,7 @@ public static class MatchCodec
         ArgumentNullException.ThrowIfNull(state);
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x4d, 9 });
+        writer.Write(new byte[] { 0x54, 0x4d, 10 });
         writer.Write(session);
         writer.Write(state.Tick);
         writer.Write(state.Revision);
@@ -71,7 +71,7 @@ public static class MatchCodec
             writer.Write(change.Killer);
         }
 
-        writer.Write((byte)state.Awards.Count);
+        writer.Write((ushort)state.Awards.Count);
         foreach (CircusScoreAward award in state.Awards)
         {
             writer.Write(award.Player);
@@ -87,7 +87,7 @@ public static class MatchCodec
     /// <returns>Session and complete validated state.</returns>
     public static (ulong Session, MatchState State) Decode(ReadOnlySpan<byte> bytes)
     {
-        if (!IsMatch(bytes) || bytes.Length is < 76 or > 18432 || bytes[2] != 9)
+        if (!IsMatch(bytes) || bytes.Length is < 77 or > 24576 || bytes[2] != 10)
         {
             throw new ArgumentException("Invalid match header or size.");
         }
@@ -158,7 +158,7 @@ public static class MatchCodec
                 deaths[index] = new ScoredDeath(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64());
             }
 
-            int awardCount = reader.ReadByte();
+            int awardCount = reader.ReadUInt16();
             if (awardCount > MatchState.MaximumAwards)
             {
                 throw new ArgumentException("Invalid Circus award count.");

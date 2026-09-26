@@ -51,7 +51,7 @@ internal sealed class LobbyNetworkDriver
     /// <param name="gameVersion">Runtime build identity; defaults to the canonical provider.</param>
     internal LobbyNetworkDriver(ITransportGateway gateway, ulong session, ulong serverPeer, string name, Func<ulong, bool>? admission = null, ulong expectedSession = 0, Func<ulong, string?>? identity = null, ulong expectedEpoch = 1, GameVersion? gameVersion = null)
     {
-        _gateway = gateway;
+        _gateway = ReliableMessageGateway.For(gateway);
         _name = name;
         _version = gameVersion ?? GameVersion.Current;
         _admission = admission;

@@ -50,7 +50,7 @@ internal sealed class SessionMigration
     internal SessionMigration(LobbyNetworkDriver lobby, ITransportGateway gateway, string subject, Func<ulong, string?> identity, Func<string, bool, ulong> rebind, TimeProvider? time = null)
     {
         _lobby = lobby;
-        _gateway = gateway;
+        _gateway = ReliableMessageGateway.For(gateway);
         _subject = subject;
         _identity = identity;
         _rebind = rebind;

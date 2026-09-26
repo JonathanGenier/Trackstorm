@@ -166,7 +166,7 @@ internal static class MatchAuthority
                 var target = results.Single(result => result.Snapshot.VehicleId == trigger.Vehicle);
                 if (trigger.Owner != trigger.Vehicle && scores.TryGetValue(trigger.Owner, out var owner) &&
                     !target.Reset && target.Snapshot.CanInteract && target.Snapshot.LifeId == trigger.Life &&
-                    target.Snapshot.Movement.OilTicks == 120)
+                    target.Snapshot.Movement.OilTicks > 0)
                 {
                     scores[trigger.Owner] = CircusScoring.Bank(owner, 50, awards, CircusScoreCategory.Oil);
                 }
