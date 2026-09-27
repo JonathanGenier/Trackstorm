@@ -72,7 +72,7 @@ internal sealed partial class CarDeployment : Node
         float lift = Mathf.SmoothStep(0, 1, Mathf.Clamp((progress - 0.45f) / 0.55f, 0, 1));
         _left.Rotation = new Vector3(0, 0, 1.70f * lid);
         _right.Rotation = new Vector3(0, 0, -1.70f * lid);
-        _rack.Position = new Vector3(0, -0.08f + (1.42f * lift), 1.47f);
+        _rack.Position = new Vector3(_rack.Position.X, -0.08f + (1.42f * lift), _rack.Position.Z);
         foreach (Node3D piston in _pistons)
         {
             float extension = 0.21f + (1.42f * lift);

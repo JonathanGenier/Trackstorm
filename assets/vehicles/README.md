@@ -59,7 +59,8 @@ weapon rule or network message. Network gameplay drives the mechanism through `C
 `WheelPresentation` reads accepted speed, steering and per-wheel compression.
 Existing offline interpolation and network presentation roots remain unchanged.
 No Core driving force, collision, authority or input rule is changed. Shared
-configuration adds the two deployment speeds and advances its wire schema. The physical 2.601105 m wheelbase stays aligned. The visual tire
+configuration adds the two deployment speeds and advances its wire schema. The physical wheelbase remains 2.601105 m; the authored visual wheelbase is
+3.101105 m, with each axle moved 0.25 m outward. The visual tire
 centres are widened to ±1.16 m while existing support rays remain at ±0.8165335 m;
 this deliberate presentation offset avoids a handling redesign. Narrow terrain
 edges are consequently approximated by the unchanged physical supports.
@@ -67,7 +68,7 @@ edges are consequently approximated by the unchanged physical supports.
 ## Validation
 
 `check-car-articulation.ps1 -GodotPath <exe> -Visual` drives the production adapter,
-checks articulation/deployment and saves captures and traces under `.godot/ts259-car`.
+checks articulation/deployment and saves captures and traces under `.godot/ts259-round2/car`.
 Use the regular vehicle/network/oval checks for surrounding integration.
 Current Story evidence and limitations belong in `docs/verification/ts-259.md`.
 The previous Kenney-based master and source remain as historical editable assets.
@@ -88,3 +89,13 @@ oxide chips. Steel independently uses the same shader with higher roughness and
 no clearcoat. Existing rubber texture provenance remains unchanged. Godot's
 Compatibility renderer and production environment lighting determine the final
 reflection appearance; the Blender material is an editable preview.
+
+The extended door/cabin span carries the added length through the body. Lower
+quarter shoulders, narrower elliptical openings, inset tubs, a door/quarter-light
+pillar and fixed rear-deck shoulders retain editable individual panels. Arch armor
+crowns are approximately 0.52 m above the model origin (previously 0.64 m); the
+shoulder is approximately 0.495 m. Full default steering and representative travel
+poses are audited against the rubber surfaces. Physical supports and the simplified
+collision hull do not follow the additional visual length; obstacle/edge contact
+remains an approximation. The rack preserves its authored longitudinal position
+(1.72 m aft) throughout deployment.

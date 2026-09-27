@@ -10,7 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
-| Production Car refinement | [TS-259 visual, deployment-speed and runtime evidence](ts-259.md) |
+| Production Car refinement | [TS-259 proportion refinement, deployment and Round 1/2 runtime evidence](ts-259.md) |
 | Dynamic physical two-slot Item HUD foundation | [TS-222 verification evidence](ts-222.md) |
 | Production Car model, articulation and item-driven hydraulic rack | [TS-164 second-pass verification evidence](ts-164.md) |
 | Runtime asset loader ownership | [TS-208 audit, lifecycle verification and exceptions](ts-208.md) |

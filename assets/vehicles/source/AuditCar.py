@@ -12,6 +12,8 @@ for side in ['L','R']:
     required += [prefix+side for prefix in ['Headlight_','TailRunning_','Brake_','Reverse_']]
     required += ['WeaponMount_'+side+'_Front','WeaponMount_'+side+'_Rear']
 assert all(bpy.data.objects.get(name) for name in required)
+wheelbase=abs(bpy.data.objects['WheelCarrier_FL'].location.y-bpy.data.objects['WheelCarrier_RL'].location.y)
+assert abs(wheelbase-3.101105)<.0001
 meshes=[o for o in scene.objects if o.type=='MESH']
 assert all(all(math.isfinite(c) for c in v.co) for o in meshes for v in o.data.vertices)
 assert all(o.data.materials for o in meshes)
@@ -28,8 +30,8 @@ for frame in [1,13,25,36,48,60,68,75,88,100]:
     assert abs(bottom+.25)<.005
     samples.append({'frame':frame,'rack_height':rack.location.z,'lid_angle':left.rotation_euler.y,'piston_bottom':bottom})
 scene.frame_set(1)
-result={'result':'PASS','meshes':len(meshes),'vertices':sum(len(o.data.vertices) for o in meshes),'polygons':sum(len(o.data.polygons) for o in meshes),'required_nodes':len(required),'deployment_samples':samples}
-out=ROOT.parents[1]/'.godot/ts259-car/blender-audit.json';out.parent.mkdir(parents=True,exist_ok=True)
+result={'result':'PASS','visual_wheelbase_m':wheelbase,'meshes':len(meshes),'vertices':sum(len(o.data.vertices) for o in meshes),'polygons':sum(len(o.data.polygons) for o in meshes),'required_nodes':len(required),'deployment_samples':samples}
+out=ROOT.parents[1]/'.godot/ts259-round2/blender-audit.json';out.parent.mkdir(parents=True,exist_ok=True)
 # Rubber versus chassis surface overlap at representative full-travel/steer poses.
 # This supplements runtime observation; it is not a physics/contact redesign.
 from mathutils import Matrix
@@ -51,8 +53,8 @@ for corner in ['FL','FR','RL','RR']:
     carrier=bpy.data.objects['WheelCarrier_'+corner]
     evaluated=tire.evaluated_get(deps); m=evaluated.to_mesh()
     local=carrier.matrix_world.inverted() @ tire.matrix_world
-    for compression in [0,.327,.50,.7165]:
-        for steer in ([-.5,0,.5] if corner.startswith('F') else [0]):
+    for compression in [0,.15,.327,.50,.60,.7165]:
+        for steer in ([-.6,-.3,0,.3,.6] if corner.startswith('F') else [0]):
             center=carrier.location.copy();center.z=-1.472+compression+.582
             transform=Matrix.Translation(center) @ Matrix.Rotation(steer,4,'Z') @ local
             tree=BVHTree.FromPolygons([transform @ v.co for v in m.vertices],[tuple(f.vertices) for f in m.polygons])
