@@ -36,6 +36,7 @@
   ],
   "compositionReference": "https://jonathangenier.atlassian.net/rest/api/3/attachment/content/10002",
   "originalWork": [
+    "TS-222 ItemHudFrame.cs is original native geometry using the existing Health.png steel sample. The user-approved ChatGPT Image Sep 27, 2026, 01_24_38 PM.png guides composition only; its pixels are not distributed. Existing icons and neutral shared resource meters are placeholders for later item-specific visual Stories.",
     "Wrench.svg, Missile.svg, Oil.svg, Nitro.svg, Salvo.svg and MachineGun.svg are project-created silhouettes; no external assets were acquired for these silhouettes.",
     "Component.gdshader preserves the source textures and masks example values at runtime."
   ]

@@ -21,18 +21,15 @@ internal sealed partial class CombatHud : CanvasLayer
     private Label _health = null!;
     private Label _speed = null!;
     private Label _unit = null!;
-    private Label _itemName = null!;
     private Label _nitro = null!;
     private Label _outOfBounds = null!;
     private Label _timer = null!;
-    private TextureRect _itemIcon = null!;
-    private TextureRect _secondItemIcon = null!;
-    private Label _secondItemName = null!;
-    private Label _firstSelection = null!;
-    private Label _secondSelection = null!;
+    private readonly Control _itemAssembly = new() { Name = "ItemAssembly", MouseFilter = Control.MouseFilterEnum.Ignore, Size = new Vector2(532, 188) };
+    private readonly ItemHudSlot _firstSlot = new() { Name = "FirstSlot", Position = new Vector2(234, 72) };
+    private readonly ItemHudSlot _secondSlot = new() { Name = "SecondSlot", Position = new Vector2(372, 72) };
     private ShaderMaterial _healthMaterial = null!;
     private ShaderMaterial _speedMaterial = null!;
-    private readonly Dictionary<HeldItem, Texture2D> _itemIcons = new();
+    private readonly Dictionary<string, Texture2D> _itemIcons = new(StringComparer.Ordinal);
 
     private CombatHudView? _displayed;
     private double _milliseconds;
@@ -75,29 +72,27 @@ internal sealed partial class CombatHud : CanvasLayer
         _healthMaterial = (ShaderMaterial)health.Material;
         _standing = Text(health, "Standing", new Rect2(32, 39, 68, 56), 43);
         _health = Text(health, "HealthValue", new Rect2(291, 88, 109, 26), 23);
+        _root.AddChild(_itemAssembly);
+        var frame = new ItemHudFrame { Name = "ItemFrame", Position = new Vector2(220, 70), MouseFilter = Control.MouseFilterEnum.Ignore };
+        _itemAssembly.AddChild(frame);
         var speed = Component("Speed", new Vector2(250, 187.5f), 1, steel);
+        speed.Reparent(_itemAssembly, false);
+        _components.Remove(speed);
         _speedMaterial = (ShaderMaterial)speed.Material;
         _speed = Text(speed, "SpeedValue", new Rect2(73, 78, 108, 57), 49);
         _unit = Text(speed, "SpeedUnit", new Rect2(88, 137, 78, 20), 19);
         _nitro = Text(speed, "NitroActive", new Rect2(20, -24, 220, 22), 18);
         _nitro.AddThemeColorOverride("font_color", new Color("ffd166"));
-        var item = Component("Item", new Vector2(112.5f, 150), 2, steel);
-        _itemName = Text(item, "ItemName", new Rect2(17, 111, 84, 22), 18);
-        _itemIcon = new TextureRect { Name = "ItemIcon", Position = new Vector2(25, 48), Size = new Vector2(70, 55), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = Control.MouseFilterEnum.Ignore };
-        item.AddChild(_itemIcon);
+        _itemAssembly.AddChild(_firstSlot);
+        _itemAssembly.AddChild(_secondSlot);
+        _firstSlot.Initialize(1);
+        _secondSlot.Initialize(2);
         foreach (var definition in ItemRegistry.All)
         {
-            _itemIcons.Add(definition.Identity, Bootstrap.StartupController.LoadResource<Texture2D>($"res://assets/hud/{definition.PresentationKey}.svg"));
+            _itemIcons.Add(definition.PresentationKey, Bootstrap.StartupController.LoadResource<Texture2D>($"res://assets/hud/{definition.PresentationKey}.svg"));
         }
         var timer = Component("Timer", new Vector2(220, 73.333f), 3, steel);
         _timer = Text(timer, "TimerValue", new Rect2(58, 14, 99, 36), 34);
-        var secondItem = Component("Item", new Vector2(112.5f, 150), 2, steel);
-        secondItem.Name = "SecondItem";
-        _secondItemName = Text(secondItem, "ItemName", new Rect2(17, 111, 84, 22), 18);
-        _secondItemIcon = new TextureRect { Name = "ItemIcon", Position = new Vector2(25, 48), Size = new Vector2(70, 55), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = Control.MouseFilterEnum.Ignore };
-        secondItem.AddChild(_secondItemIcon);
-        _firstSelection = Text(item, "Selection", new Rect2(12, 15, 94, 24), 15);
-        _secondSelection = Text(secondItem, "Selection", new Rect2(12, 15, 94, 24), 15);
         _standing.Text = "--";
         _timer.Text = "--:--";
         _outOfBounds = Text(_root, "OutOfBounds", new Rect2(0, 0, 500, 70), 26);
@@ -140,16 +135,8 @@ internal sealed partial class CombatHud : CanvasLayer
             _health.Text = view.Health;
             _speed.Text = view.Speed;
             _unit.Text = view.Unit;
-            SetItemLabel(_itemName, view.ItemName, view.Item);
-            _itemIcon.Size = new Vector2(70, ItemRegistry.Find(view.Item)?.Sustained == true ? 38 : 55);
-            _itemIcon.Texture = _itemIcons.GetValueOrDefault(view.Item);
-            SetItemLabel(_secondItemName, view.SecondItemName, view.SecondItem);
-            _secondItemIcon.Size = new Vector2(70, ItemRegistry.Find(view.SecondItem)?.Sustained == true ? 38 : 55);
-            _secondItemIcon.Texture = _itemIcons.GetValueOrDefault(view.SecondItem);
-            _firstSelection.Text = view.ActiveSlot == 0 ? "1 • ACTIVE" : "1";
-            _secondSelection.Text = view.ActiveSlot == 1 ? "2 • ACTIVE" : "2";
-            _firstSelection.Modulate = view.ActiveSlot == 0 ? new Color("ffd166") : new Color("aaa79e");
-            _secondSelection.Modulate = view.ActiveSlot == 1 ? new Color("ffd166") : new Color("aaa79e");
+            _firstSlot.Apply(view.FirstSlot, view.ActiveSlot == 0, 1, _itemIcons.GetValueOrDefault(view.FirstSlot.IconKey ?? string.Empty));
+            _secondSlot.Apply(view.SecondSlot, view.ActiveSlot == 1, 2, _itemIcons.GetValueOrDefault(view.SecondSlot.IconKey ?? string.Empty));
             _healthMaterial.SetShaderParameter("fill", view.HealthFill);
             _speedMaterial.SetShaderParameter("fill", view.SpeedFill);
         }
@@ -165,15 +152,6 @@ internal sealed partial class CombatHud : CanvasLayer
         }
 
         RenderCircusScore(_scoreFeedback.Project(Match(), player, _milliseconds) ?? score);
-    }
-
-    private static void SetItemLabel(Label label, string name, HeldItem item)
-    {
-        bool charge = ItemRegistry.Find(item)?.Sustained == true;
-        label.Text = charge ? name.Insert(name.LastIndexOf(' '), "\n").Remove(name.LastIndexOf(' ') + 1, 1) : name;
-        label.Position = new Vector2(17, charge ? 88 : 111);
-        label.Size = new Vector2(84, charge ? 40 : 22);
-        label.AddThemeFontSizeOverride("font_size", item == HeldItem.MachineGun ? 11 : charge ? 16 : 18);
     }
 
     private TextureRect Component(string name, Vector2 size, int kind, Texture2D steel)
@@ -270,10 +248,9 @@ internal sealed partial class CombatHud : CanvasLayer
         }
 
         _components[0].Position = new Vector2(margin, viewport.Y - (147 * scale) - margin);
-        _components[2].Position = new Vector2(viewport.X - (232.5f * scale) - margin, viewport.Y - (150 * scale) - margin);
-        _components[4].Position = new Vector2(viewport.X - (112.5f * scale) - margin, viewport.Y - (150 * scale) - margin);
-        _components[1].Position = new Vector2(viewport.X - (474 * scale) - margin, viewport.Y - (187.5f * scale) - margin + (9 * scale));
-        _components[3].Position = new Vector2((viewport.X - (220 * scale)) / 2, 12 * scale);
+        _itemAssembly.Scale = Vector2.One * scale;
+        _itemAssembly.Position = new Vector2(viewport.X - (532 * scale) - margin, viewport.Y - (176 * scale) - margin);
+        _components[1].Position = new Vector2((viewport.X - (220 * scale)) / 2, 12 * scale);
         _scorePanel.Scale = Vector2.One * scale;
         _scorePanel.Position = new Vector2(margin, 120 * scale);
         _scoreCounter.Scale = Vector2.One * scale;
