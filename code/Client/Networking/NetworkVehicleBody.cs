@@ -19,7 +19,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     private ShaderMaterial _damageMaterial = null!;
     private float _previousHP = 100;
     private float _flash;
-    private GpuParticles3D _nitroTrail = null!;
+    private BoostExhaust _boost = null!;
     private ulong _life;
     internal CarRackPresentation Rack { get; private set; } = null!;
     private VehicleSnapshot? _feedbackState;
@@ -53,27 +53,8 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         _visual.AddChild(model);
         Rack = new CarRackPresentation();
         model.AddChild(Rack);
-        _nitroTrail = Items.ItemPresentation.Particles(Core.Items.ItemRegistry.Find(Core.Items.HeldItem.Nitro)!.ActiveVfx!, false, 0.18f);
-        _nitroTrail.Amount = 64;
-        ((StandardMaterial3D)((QuadMesh)_nitroTrail.DrawPass1).Material).AlbedoColor = new Color(0.15f, 0.65f, 1);
-        ((ParticleProcessMaterial)_nitroTrail.ProcessMaterial).ScaleMax = 0.25f;
-        _nitroTrail.Position = new Vector3(0, 0.6f, 1.9f);
-        _nitroTrail.Emitting = false;
-        _visual.AddChild(_nitroTrail);
-    }
-
-    /// <inheritdoc/>
-    public override void _ExitTree()
-    {
-        // These procedural resources are owned by this emitter, not shared imported assets.
-        var process = _nitroTrail.ProcessMaterial;
-        var mesh = _nitroTrail.DrawPass1 as QuadMesh;
-        var material = mesh?.Material;
-        _nitroTrail.ProcessMaterial = null;
-        _nitroTrail.DrawPass1 = null;
-        process?.Dispose();
-        material?.Dispose();
-        mesh?.Dispose();
+        _boost = new BoostExhaust { Source = () => _feedbackState };
+        _visual.AddChild(_boost);
     }
 
     /// <inheritdoc/>
@@ -290,6 +271,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     internal void Reseed(VehicleSnapshot state)
     {
         Rack.Reset();
+        _boost.Reset();
         _initialized = false;
         _flash = 0;
         _previousHP = state.Damage.CurrentHP;
@@ -304,7 +286,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     {
         if (_life != state.LifeId || !state.CanInteract) { Rack.Reset(); }
         _feedbackState = state;
-        _nitroTrail.Emitting = state.CanInteract && state.Movement.Nitro.Active;
+
         if (_life != state.LifeId)
         {
             _life = state.LifeId;

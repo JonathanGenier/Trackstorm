@@ -104,7 +104,7 @@ public sealed partial class CarRackChecks : Node
             await Frames(90);
             Check(_arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Respawn starts with closed empty rack");
             Check(host.Items.Grant(host.World, Shooter, HeldItem.Nitro), "New-life pickup");
-            await Until(() => AllPresent(HeldItem.Nitro), "New-life rack deploys normally");
+            await Until(() => AllPresent(HeldItem.Nitro), "New-life Nitro leaves rack clear for chassis jet");
             await Frames(90, 0, 0, 40000, 7000);
             Check(_arenas[1].LocalState!.Movement.CommandSpeed > 3, "Normal driving with deployed rack");
             await Capture("driving-equipped");
@@ -139,7 +139,9 @@ public sealed partial class CarRackChecks : Node
         catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
     }
 
-    private bool AllPresent(HeldItem item) => _arenas.All(a => a.Bodies.TryGetValue(Shooter, out var body) && body.Rack.PresentedItem == item && body.Rack.Progress >= 0.999f);
+    private bool AllPresent(HeldItem item) => _arenas.All(a => a.Bodies.TryGetValue(Shooter, out var body) &&
+        (item == HeldItem.Nitro ? a.Driver.ItemState?.Slots.Any(slot => slot.Vehicle == Shooter && slot.Active.Item == item) == true && body.Rack.PresentedItem == HeldItem.None && body.Rack.Progress == 0 :
+        body.Rack.PresentedItem == item && body.Rack.Progress >= 0.999f));
     private async Task Frames(int count, InputButtons held = 0, InputButtons released = 0, ushort throttle = 0, short steer = 0)
     {
         for (int i = 0; i < count; i++)

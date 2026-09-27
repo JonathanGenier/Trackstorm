@@ -41,7 +41,7 @@ internal sealed partial class CarRackPresentation : Node
         if (!alive) { return; }
         if (inventory?.Life != life) { inventory = null; }
         ItemSlot? active = inventory?.Active;
-        var outcome = events.LastOrDefault(e => (e.Item == HeldItem.MachineGun || !e.Impact) &&
+        var outcome = events.LastOrDefault(e => e.Item != HeldItem.Nitro && (e.Item == HeldItem.MachineGun || !e.Impact) &&
             (e.Token == active?.Token || e.Token == _previous?.Active.Token));
         bool used = outcome is not null;
         bool selection = inventory is not null && (_previous is null || inventory.ActiveSlot != _previous.ActiveSlot || inventory.SelectionRevision != _previous.SelectionRevision);
@@ -53,6 +53,14 @@ internal sealed partial class CarRackPresentation : Node
             _replace = _mounted != HeldItem.None;
             _usePending = false;
             _useTime = 0;
+        }
+        // Nitro now owns a chassis-mounted rear jet. Never deploy its obsolete rack placeholder.
+        if (active?.Item == HeldItem.Nitro)
+        {
+            _desired = HeldItem.None;
+            _usePending = false;
+            _previous = inventory;
+            return;
         }
         _desired = _suppressed ? HeldItem.None : active?.Item ?? HeldItem.None;
         _engaged = inventory is { EngagedToken: > 0 };
@@ -114,7 +122,7 @@ internal sealed partial class CarRackPresentation : Node
             {
                 _useTime = Math.Max(0, _useTime - (float)delta);
                 float pulse = MathF.Sin(_useTime * 45) * 0.025f;
-                _payload.Position += _mounted == HeldItem.Nitro ? new Vector3(0, 0, -pulse) : new Vector3(0, pulse, pulse);
+                _payload.Position += new Vector3(0, pulse, pulse);
                 if (_useTime == 0 && !_engaged)
                 {
                     _usePending = false;

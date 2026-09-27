@@ -1,0 +1,28 @@
+{
+  "author": "Original Trackstorm project work",
+  "tool": "5.2.2 LTS",
+  "source": "source/BoostJet.blend",
+  "export": "BoostJet.glb",
+  "reference": "../source/TrackstormCar.blend",
+  "reference_sha256": "0ffa023ea8631cb3b7536ba3e7e8404a2806f5ba5bafa8eaf83123b90eaa8d25",
+  "coordinates": "metres; Blender +Y forward/+Z up; Godot -Z forward/+Y up",
+  "deployment": {
+    "sleeve_rearward_m": 0.35,
+    "nozzle_rearward_m": 0.72,
+    "outlet_stowed_godot": [
+      0,
+      0.055,
+      2.875
+    ],
+    "outlet_deployed_godot": [
+      0,
+      0.055,
+      3.595
+    ]
+  },
+  "no_car_geometry_exported": true,
+  "sha256": {
+    "BoostJet.glb": "4360c92ede7be3473968df81850f1dfd763394d10981f536f556b00d1d555c03",
+    "BoostJet.blend": "9a781fd58edc6653797309bdede62d82cf0d4626bb0b196612d5af37dc6a824e"
+  }
+}

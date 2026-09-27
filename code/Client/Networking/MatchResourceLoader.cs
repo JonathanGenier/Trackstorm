@@ -8,6 +8,9 @@ internal sealed class MatchResourceLoader
 {
     private static readonly string[] Resources =
     [
+        "res://assets/effects/BoostFlame.gdshader",
+        "res://assets/effects/BoostThroat.gdshader",
+        Vehicles.BoostExhaust.AssetPath,
         "res://assets/items/materials/DamageFlash.gdshader",
         "res://assets/audio/project/music/Welcome to the Carnage Circus Arena.mp3",
         "res://assets/audio/project/music/Welcome to the Carnage Circus Arena 2.mp3",
@@ -48,7 +51,7 @@ internal sealed class MatchResourceLoader
             path.StartsWith("res://assets/environment/", StringComparison.Ordinal) ||
             path.StartsWith("res://assets/maps/", StringComparison.Ordinal) ||
             path.StartsWith("res://assets/audio/", StringComparison.Ordinal) ||
-            path == Arenas.ActiveMap.ScenePath || path == "res://scenes/arena/prototype_arena.tscn"))
+            path == Vehicles.BoostExhaust.AssetPath || path == Arenas.ActiveMap.ScenePath || path == "res://scenes/arena/prototype_arena.tscn"))
             throw new ArgumentException("Not a match resource.", nameof(path));
         return ResourceLoader.Load<T>(path) ?? throw new InvalidOperationException($"Missing match resource: {path}");
     }

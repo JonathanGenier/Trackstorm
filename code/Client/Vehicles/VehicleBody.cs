@@ -60,6 +60,7 @@ public sealed partial class VehicleBody : RigidBody3D
         AddChild(VehicleVisual.CreateCollision());
         var identification = new StandardMaterial3D { AlbedoColor = Paint, Roughness = 0.8f };
         AddChild(VehicleVisual.Create(identification, () => (State, Configuration)));
+        AddChild(new BoostExhaust { Source = () => Snapshot });
         _feedback.Initialize(identification, Paint);
         AddChild(_feedback);
         AddChild(new TireFeedback { Source = () => (GlobalTransform, Snapshot, Configuration) });
