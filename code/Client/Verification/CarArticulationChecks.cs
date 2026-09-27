@@ -12,7 +12,7 @@ public sealed partial class CarArticulationChecks : Node3D
     private Node3D _model = null!;
     private int _assertions;
     private readonly List<object> _trace = new();
-    private readonly string _output = "res://.godot/ts164-car";
+    private readonly string _output = "res://.godot/ts259-car";
 
     public override void _Ready() => CallDeferred(MethodName.Run);
 
@@ -30,6 +30,14 @@ public sealed partial class CarArticulationChecks : Node3D
             for (int i = 0; i < 150; i++) { await Step(); }
             await Capture("front-closed", new Vector3(5, 2.9f, -6));
             await Capture("rear-closed", new Vector3(-5, 2.9f, 6));
+            await Capture("front", new Vector3(0, 1.2f, -6.4f));
+            await Capture("rear", new Vector3(0, 1.2f, 6.4f));
+            await Capture("left", new Vector3(-6.8f, .8f, 0));
+            await Capture("right", new Vector3(6.8f, .8f, 0));
+            await Capture("high-front", new Vector3(-4.5f, 4.8f, -5));
+            await Capture("high-rear", new Vector3(4.5f, 4.8f, 5));
+            await Capture("top-closed", new Vector3(0, 8, .01f));
+            VerifyIndependentSpeeds();
             await Capture("suspension-front", new Vector3(2.8f, -0.15f, -3.7f));
             Check(_model.GetNode<Node3D>("WeaponRack").Position.Y < 0, "Rack rests inside the rear compartment.");
             string[] names = ["FL", "FR", "RL", "RR"];
@@ -57,11 +65,11 @@ public sealed partial class CarArticulationChecks : Node3D
                 for (int i = 0; i < 110; i++)
                 {
                     await Step();
-                    if (cycle == 0 && i == 30) { await Capture("lids-opening", new Vector3(-4, 3.8f, 5)); }
-                    if (cycle == 0 && i == 65) { await Capture("rack-rising", new Vector3(-4, 3.8f, 5)); }
+                    if (cycle == 0 && i == 6) { await Capture("lids-opening", new Vector3(-4, 3.8f, 5)); }
+                    if (cycle == 0 && i == 22) { await Capture("rack-rising", new Vector3(-4, 3.8f, 5)); }
                 }
                 var rack = _model.GetNode<Node3D>("WeaponRack");
-                Check(Math.Abs(rack.Position.Y - 0.82f) < .002f, "Rack reaches deployed height.");
+                Check(Math.Abs(rack.Position.Y - 1.34f) < .002f, "Rack reaches deployed height.");
                 Check(Math.Abs(_model.GetNode<Node3D>("TrunkHinge_L").Rotation.Z) > 1.69f, "Lid clears rack before full lift.");
                 foreach (string mount in new[] { "WeaponMount_L_Front", "WeaponMount_R_Front", "WeaponMount_L_Rear", "WeaponMount_R_Rear" })
                 {
@@ -109,6 +117,45 @@ public sealed partial class CarArticulationChecks : Node3D
             GetTree().Quit();
         }
         catch (Exception exception) { GD.PushError(exception.ToString()); GetTree().Quit(1); }
+    }
+
+    private void VerifyIndependentSpeeds()
+    {
+        CarDeployment deployment = _model.GetChildren().OfType<CarDeployment>().Single();
+        var original = _arena.Player.Configuration;
+        deployment.SetProcess(false);
+        foreach (var speeds in new[] { (Trunk: 3f, Rack: 3f), (Trunk: 1f, Rack: 3f), (Trunk: 3f, Rack: 1f) })
+        {
+            _arena.Player.Configuration = original with { TrunkDeploymentSpeed = speeds.Trunk, RackDeploymentSpeed = speeds.Rack };
+            deployment.ResetPose();
+            deployment.Deployed = true;
+            int lidSteps = 0;
+            while (deployment.Progress < .45f - .00001f && lidSteps < 10000) { deployment._Process(.001); lidSteps++; }
+            Check(Math.Abs(lidSteps * .001f - .72f / speeds.Trunk) < .002f, "Independent trunk duration at " + speeds);
+            int rackSteps = 0;
+            while (deployment.Progress < 1 && rackSteps < 10000) { deployment._Process(.001); rackSteps++; }
+            Check(Math.Abs(rackSteps * .001f - .88f / speeds.Rack) < .002f, "Independent rack duration at " + speeds);
+            Node3D rack = _model.GetNode<Node3D>("WeaponRack");
+            float lampTop = Descendants(_model).OfType<MeshInstance3D>().Where(m => m.Name.ToString().StartsWith("RoofAuxLight", StringComparison.Ordinal))
+                .Max(m => (_model.GlobalTransform.AffineInverse() * m.GlobalTransform * m.GetAabb()).End.Y);
+            Check(rack.Position.Y > lampTop + .15f, "Deployed rack clears roof lenses with margin.");
+            deployment.Deployed = false;
+            deployment._Process(.88 / speeds.Rack);
+            Check(Math.Abs(deployment.Progress - .45f) < .0001f, "Rack retracts fully before trunk closing.");
+            deployment._Process(.72 / speeds.Trunk);
+            Check(deployment.Progress < .0001f, "Independent reverse travel closes fully.");
+        }
+        deployment.ResetPose();
+        deployment.Deployed = true;
+        deployment._Process(.12);
+        float before = deployment.Progress;
+        _arena.Player.Configuration = original with { TrunkDeploymentSpeed = 1 };
+        deployment.Deployed = false;
+        deployment._Process(.1);
+        Check(deployment.Progress > 0 && deployment.Progress < before, "Retuned mid-trunk reversal retains continuous pose.");
+        deployment.ResetPose();
+        _arena.Player.Configuration = original;
+        deployment.SetProcess(true);
     }
 
     private async Task Step(ushort throttle = 0, short steer = 0, ushort brake = 0)

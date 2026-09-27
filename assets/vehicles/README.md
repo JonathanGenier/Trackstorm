@@ -6,14 +6,17 @@ used by startup, Lobby, practice, matches and Podium; it instances the new GLB.
 
 ## Authoring and import
 
-Run Blender in background mode with `--python assets/vehicles/source/BuildCar.py`,
-then `--python assets/vehicles/source/FinalizeCar.py`. The second pass poses the
-suspension, adds coil springs, keys hydraulic extension and batches stencils.
-Both scripts use Blender mesh authoring and retain the master; no runtime mesh
-construction substitutes for it. Reopening/editing the master directly is supported;
-regeneration deliberately rebuilds the design, so preserve manual refinements first.
-Export selected production hierarchy as GLB, +Y up, applied modifiers, no animation.
-The Blender authoring coordinates are +Y forward / +Z up; Godot uses -Z forward.
+Edit `source/TrackstormCar.blend` directly. This is the retained production master,
+including the refined loose armor panels, 96×32 tire carcasses, staggered tread,
+cage rails, exhaust shields and telescopic hydraulic sleeves. Do not run the
+historical `BuildCar.py` / `FinalizeCar.py` on it: those rebuild the earlier design
+and overwrite subsequent manual refinements.
+
+Run Blender with `--background --python-exit-code 1 --python
+assets/vehicles/source/ExportCar.py` to export a temporary material-batched copy.
+The exporter does not overwrite the editable master. It preserves articulated
+nodes, sockets, lamps and identification. Export uses +Y up, applied modifiers
+and no animation. Blender coordinates are +Y forward / +Z up; Godot uses -Z forward.
 
 The committed GLB import configuration runs `ImportCar.gd`, flattening only the
 identity file root and binding shared materials. Paint/steel use an original
@@ -24,10 +27,10 @@ separate. Godot generates mesh LODs. Blender source is excluded from Godot impor
 
 ## Reference resolution
 
-All ten TS-164 attachments informed the design: both front three-quarter views,
+All ten TS-259 attachments informed the design: both front three-quarter views,
 side profile, front/rear elevations, elevated front/rear views, orthographic sheet,
-and Car Closed/Open. The coherent design retains a rust-red armored coupe,
-window grids, round headlights, four roof lamps, riveted extended fenders, tubular
+and Car Closed/Open. The coherent design retains a deep-red armored coupe,
+window grids, round headlights, four roof lamps, narrow riveted wheel-arch armor, tubular
 guards, side exhausts and radial mechanical stencils. The closed/open pair defines
 two outward-opening rear deck halves around an internal lift rack. Weapons are
 intentionally absent; this asset provides only their mounting structure.
@@ -40,21 +43,23 @@ intentionally absent; this asset provides only their mounting structure.
   stretch/aim between attachments and hubs. Coil meshes inherit the shock sleeve.
 - `TrunkHinge_L/R`: longitudinal hinges. `WeaponRack`: vertical lift with four
   stable `WeaponMount_L/R_Front/Rear` empties and socket plates.
-- `LiftCylinder_*`, `LiftPiston_*`: visible hydraulic sleeves and telescoping rods.
+- `LiftCylinder_*`, `LiftStage1_*`, `LiftStage2_*`, `LiftPiston_*`: visible hydraulic sleeves and telescoping rods.
 - `Headlight_*`, `RoofAuxLight_*`, `TailRunning_*`, `Brake_*`, `Reverse_*`, and
   `RearIndicator_*`: independently addressable lens meshes/materials.
 - `Identification`: existing per-player color and combat-flash surface.
 
 Blender timeline frames 1–25 open the deck, 25–48 raise the rack, 48–60 hold,
 60–75 retract and 75–100 close. Runtime `CarDeployment` reproduces the ordered
-path in 1.6 seconds each way and permits smooth reversal. Its `Deployed` property
+path with independent trunk/rack speed multipliers. Defaults of 3 give 0.24 s
+trunk travel and 0.2933 s rack travel (0.5333 s total) in either direction.
+Accepted live retuning preserves the current pose and permits smooth reversal. Its `Deployed` property
 is a Client presentation seam for inventory presentation, not a new gameplay input,
 weapon rule or network message. Network gameplay drives the mechanism through `CarRackPresentation` from confirmed inventory and use outcomes; see `docs/features/items.md`.
 
 `WheelPresentation` reads accepted speed, steering and per-wheel compression.
 Existing offline interpolation and network presentation roots remain unchanged.
-No Core physics, force, tuning, collision, authority, serialization or input rule
-is changed. The physical 2.601105 m wheelbase stays aligned. The visual tire
+No Core driving force, collision, authority or input rule is changed. Shared
+configuration adds the two deployment speeds and advances its wire schema. The physical 2.601105 m wheelbase stays aligned. The visual tire
 centres are widened to ±1.16 m while existing support rays remain at ±0.8165335 m;
 this deliberate presentation offset avoids a handling redesign. Narrow terrain
 edges are consequently approximated by the unchanged physical supports.
@@ -62,12 +67,24 @@ edges are consequently approximated by the unchanged physical supports.
 ## Validation
 
 `check-car-articulation.ps1 -GodotPath <exe> -Visual` drives the production adapter,
-checks articulation/deployment and saves captures and traces under `.godot/ts164-car`.
+checks articulation/deployment and saves captures and traces under `.godot/ts259-car`.
 Use the regular vehicle/network/oval checks for surrounding integration.
-Current Story evidence and limitations belong in `docs/verification/ts-164.md`.
+Current Story evidence and limitations belong in `docs/verification/ts-259.md`.
 The previous Kenney-based master and source remain as historical editable assets.
 
 The quarter panels include integrated shoulder surfaces and recessed wheel tubs.
 Tire carcasses are 0.525 m wide before tread, versus 0.30 m in the first pass.
 AuditCar.py samples rubber/chassis surface intersections across steering/travel;
 its numerical sample is supplementary to native driving and visual review.
+
+The raised rack origin is 1.34 m above the model origin (1.42 m of travel);
+mounts remain 0.17 m above it. Nested sleeves make the longer hydraulic travel
+read as a telescopic mechanism. Default speed multipliers and accepted session
+values use the normal shared configuration catalog; no weapon rule or firing
+latency depends on this presentation animation.
+
+Paint uses a low-roughness red topcoat, specular/clearcoat response and sparse
+oxide chips. Steel independently uses the same shader with higher roughness and
+no clearcoat. Existing rubber texture provenance remains unchanged. Godot's
+Compatibility renderer and production environment lighting determine the final
+reflection appearance; the Blender material is an editable preview.

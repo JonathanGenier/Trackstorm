@@ -2,4 +2,4 @@
 [ext_resource type="Shader" path="res://assets/vehicles/materials/CarPaint.gdshader" id="1"]
 [resource]
 shader = ExtResource("1")
-shader_parameter/paint_color = Color(0.24, 0.045, 0.025, 1)
+shader_parameter/paint_color = Color(0.38, 0.012, 0.028, 1)

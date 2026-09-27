@@ -18,7 +18,7 @@ public sealed partial class CarRackChecks : Node
     private readonly List<SubViewport> _views = [];
     private readonly List<string> _evidence = [];
     private readonly List<ItemEvent> _events = [];
-    private readonly string _output = "res://.godot/ts164-round2";
+    private readonly string _output = "res://.godot/ts259-rack";
     private int _checks;
     private ulong Shooter => _arenas[1].Driver.LocalVehicleId;
 
