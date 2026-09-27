@@ -236,7 +236,7 @@ internal sealed partial class CombatHud : CanvasLayer
     private void Layout()
     {
         Vector2 viewport = _root.Size;
-        float scale = Math.Min(viewport.X / 1280, viewport.Y / 720);
+        float scale = 0.85f * Math.Min(viewport.X / 1280, viewport.Y / 720);
         float margin = 16 * scale;
         _outOfBounds.Scale = Vector2.One * scale;
         _outOfBounds.Position = new Vector2((viewport.X - 500 * scale) / 2, 106 * scale);

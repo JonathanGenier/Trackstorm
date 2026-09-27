@@ -75,7 +75,7 @@ public sealed partial class HudIntegrationChecks : Node
                 Require(hud.Displayed!.Item == sample.Item3, "Native item mapping");
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 using Image frame = viewport.GetTexture().GetImage();
-                pixels.Add((RedPixels(frame, new Rect2I(131, 619, 275, 14)), RedPixels(frame, new Rect2I(758, 565, 169, 92))));
+                pixels.Add((RedPixels(frame, ScreenArea(hud, "Health", new Rect2(115, 62, 275, 14))), RedPixels(frame, ScreenArea(hud, "ItemAssembly", new Rect2(94, 61, 169, 92)))));
                 Require(frame.SavePng(System.IO.Path.Combine(output, $"state-{sample.Item1:0}-{sample.Item3}.png")) == Error.Ok, "State screenshot");
             }
 
@@ -103,7 +103,7 @@ public sealed partial class HudIntegrationChecks : Node
                 Require(hud.Displayed.SecondItemName == "NITRO 65%", "Independent second-slot charge");
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 using Image frame = viewport.GetTexture().GetImage();
-                resourcePixels.Add((GoldPixels(frame, new Rect2I(985, 632, 90, 14)), GoldPixels(frame, new Rect2I(1123, 632, 90, 14))));
+                resourcePixels.Add((GoldPixels(frame, ScreenArea(hud, "FirstSlot", new Rect2(11, 40, 90, 14))), GoldPixels(frame, ScreenArea(hud, "SecondSlot", new Rect2(11, 40, 90, 14)))));
                 Require(frame.SavePng(System.IO.Path.Combine(output, $"nitro-{charge:0.0}.png")) == Error.Ok, "Charge screenshot");
             }
             Require(resourcePixels[0].First > resourcePixels[1].First && resourcePixels[1].First > resourcePixels[3].First, "Rendered resource meter drains and disappears at exhaustion");
@@ -176,7 +176,7 @@ public sealed partial class HudIntegrationChecks : Node
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             using (Image frame = isolated.GetTexture().GetImage())
-            using (Image composition = frame.GetRegion(new Rect2I(664, 504, 600, 200)))
+            using (Image composition = frame.GetRegion(ScreenArea(referenceHud, "ItemAssembly", new Rect2(0, 0, 600, 200))))
             {
                 Require(composition.SavePng(System.IO.Path.Combine(output, "foundation-reference-composition.png")) == Error.Ok, "Reference comparison native component capture");
             }
@@ -214,6 +214,13 @@ public sealed partial class HudIntegrationChecks : Node
         Require(value.Visible == (resource is not null) && value.Text == (resource ?? string.Empty), "Optional slot-local resource clears on replacement");
         Require(((Label)slot.FindChild("Selection", true, false)).Text.Contains("ACTIVE", StringComparison.Ordinal) == active, "Confirmed physical selection");
         Require(((TextureRect)slot.FindChild("ItemIcon", true, false)).Visible == (name != "EMPTY"), "Empty slots clear their icons");
+    }
+
+    private static Rect2I ScreenArea(CombatHud hud, string node, Rect2 localArea)
+    {
+        var control = (Control)hud.FindChild(node, true, false);
+        return new Rect2I((Vector2I)(control.GlobalPosition + localArea.Position * control.GetGlobalTransform().Scale),
+            (Vector2I)(localArea.Size * control.GetGlobalTransform().Scale));
     }
 
     private static int RedPixels(Image frame, Rect2I area)
