@@ -69,7 +69,7 @@ internal sealed partial class TireFeedback : Node3D
         _excluded.Add(((PhysicsBody3D)GetParent()).GetRid());
         _ray.Exclude = _excluded;
         _batch = TireMarkBatch.For(GetParent().GetParent());
-        _wakeMaterial = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/effects/WaterWake.gdshader") };
+        _wakeMaterial = new ShaderMaterial { Shader = Networking.MatchResourceLoader.LoadResource<Shader>("res://assets/effects/WaterWake.gdshader") };
         _wakeMesh = new PlaneMesh { Size = Vector2.One, Material = _wakeMaterial };
         _wakes = new MultiMesh { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, UseCustomData = true, Mesh = _wakeMesh, InstanceCount = 32, VisibleInstanceCount = 0 };
         AddChild(new MultiMeshInstance3D { Multimesh = _wakes, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off });

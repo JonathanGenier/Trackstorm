@@ -13,7 +13,7 @@ internal static class ActiveMap
 
     /// <summary>Loads a fresh map without introducing gameplay nodes or legacy arena content.</summary>
     /// <returns>The scene-owned foundation.</returns>
-    internal static Node3D Load() => GD.Load<PackedScene>(ScenePath).Instantiate<Node3D>();
+    internal static Node3D Load() => Networking.MatchResourceLoader.LoadResource<PackedScene>(ScenePath).Instantiate<Node3D>();
 
     /// <summary>Reads the actual scene markers in stable slot order, without duplicating their coordinates in code.</summary>
     /// <param name="map">An identity-transform foundation instance.</param>

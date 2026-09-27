@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Runtime asset loader ownership | [TS-208 audit, lifecycle verification and exceptions](ts-208.md) |
 | Approved gameplay default promotion | [TS-204 verification evidence](ts-204.md) |
 | Multiplayer impairment, soak and repeated-session validation | [TS-121 verification evidence](ts-121.md) |
 | Vehicle prediction acknowledgement headroom | [TS-209 verification evidence](ts-209.md) |

@@ -45,6 +45,23 @@ internal sealed class DeveloperSettingsStore
     /// <returns>Most recent accepted host tuning.</returns>
     internal GameplayConfiguration LoadForHost() => Current;
 
+    /// <summary>Reads a user-selected config export without caching it or applying it to host settings.
+    /// The bound also holds if the file grows while the picker is open; decoding remains strict UTF-8.</summary>
+    internal static bool TryReadImport(string path, out string text)
+    {
+        using var file = File.OpenRead(path);
+        byte[] bytes = new byte[ConfigurationChangesImport.MaximumLength + 1];
+        int count = 0;
+        while (count < bytes.Length)
+        {
+            int read = file.Read(bytes, count, bytes.Length - count);
+            if (read == 0) break;
+            count += read;
+        }
+        text = count > ConfigurationChangesImport.MaximumLength ? string.Empty : new UTF8Encoding(false, true).GetString(bytes, 0, count);
+        return count <= ConfigurationChangesImport.MaximumLength;
+    }
+
     /// <summary>Persists a successfully accepted host transaction with atomic replacement.</summary>
     /// <returns>Whether the operation was accepted.</returns>
     /// <param name="configuration">Validated effective gameplay tuning.</param>

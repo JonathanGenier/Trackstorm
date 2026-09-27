@@ -11,7 +11,7 @@ internal sealed partial class StandingsMetal : Control
     internal bool ShowLeader { get; set; } = true;
 
     /// <inheritdoc/>
-    public override void _Ready() => _steel = GD.Load<Texture2D>("res://assets/hud/Health.png");
+    public override void _Ready() => _steel = Bootstrap.StartupController.LoadResource<Texture2D>("res://assets/hud/Health.png");
 
     /// <inheritdoc/>
     public override void _Draw()

@@ -50,7 +50,7 @@ public sealed partial class SurfaceIntegrationChecks : Node3D
             {
                 for (int z = -94; z <= 94; z += 2)
                 {
-                    var hit = Ray(x, z);
+                    using var hit = Ray(x, z);
                     if (hit.Count == 0) { continue; }
                     var identity = SurfaceIdentityResolver.Resolve(hit["collider"].AsGodotObject(), hit["position"].AsVector3());
                     Check(identity.HasValue, $"Authored support at {x},{z}", false);
@@ -60,10 +60,10 @@ public sealed partial class SurfaceIntegrationChecks : Node3D
 
             foreach (SurfaceIdentity identity in Enum.GetValues<SurfaceIdentity>()) { Check(locations.ContainsKey(identity), "Imported native support includes " + identity); }
             // Use the broad driving slab, not a narrow pier/parapet top, for a whole-car probe.
-            locations[SurfaceIdentity.Concrete] = Ray(0, 0)["position"].AsVector3();
+            using (var deck = Ray(0, 0)) locations[SurfaceIdentity.Concrete] = deck["position"].AsVector3();
             foreach (var basin in new[] { new Vector3(-57, 0, -29), new Vector3(77, 0, -35), new Vector3(-85, 0, 28), new Vector3(85, 0, 28) })
             {
-                var hit = Ray(basin.X, basin.Z);
+                using var hit = Ray(basin.X, basin.Z);
                 var identity = SurfaceIdentityResolver.Resolve(hit["collider"].AsGodotObject(), hit["position"].AsVector3());
                 Check(identity == (basin.X == 77 ? SurfaceIdentity.Water : SurfaceIdentity.DeepMud), $"Basin {basin}: {identity}; unchanged negative collision {hit["position"].AsVector3().Y:F3}m");
             }
@@ -112,7 +112,7 @@ public sealed partial class SurfaceIntegrationChecks : Node3D
                 ("rock-shoulder",locations[SurfaceIdentity.Rock]-new Vector3(6,0,0),-Mathf.Pi/2,180,new[]{SurfaceIdentity.Rock}),
                 ("deck",new Vector3(-19,0,0),-Mathf.Pi/2,150,new[]{SurfaceIdentity.Dirt,SurfaceIdentity.Concrete}) })
             {
-                var hit = Ray(route.Item2.X, route.Item2.Z);
+                using var hit = Ray(route.Item2.X, route.Item2.Z);
                 Vector3 start = hit["position"].AsVector3() + Vector3.Up * .9f;
                 Quaternion rotation = new(Vector3.Up, route.Item3);
                 Vector3 velocity = new Basis(rotation) * Vector3.Forward * 7;
@@ -159,7 +159,14 @@ public sealed partial class SurfaceIntegrationChecks : Node3D
             canvas.QueueFree();
             practice.QueueFree();
             await Frames(6);
-            await Task.Delay(100);
+            // Fixed-fps checks can run hundreds of simulated frames before the real audio
+            // mixer wakes. Keep the tree alive for wall-clock time, on the Godot thread.
+            ulong mixerDeadline = Time.GetTicksMsec() + 250;
+            while (Time.GetTicksMsec() < mixerDeadline) await Frames(1);
+            // Settle the scan's managed native wrappers before terminal engine teardown.
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            await Frames(2);
             GD.Print("Surface integration passed: all eight identities, native adapters, driving transitions and Stats.");
             GetTree().Quit();
         }

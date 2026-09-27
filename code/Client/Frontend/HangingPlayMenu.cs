@@ -92,7 +92,7 @@ internal sealed partial class HangingPlayMenu : Control
         Add(_rig, new ColorRect { Color = new Color("151210"), MouseFilter = MouseFilterEnum.Ignore }, new Rect2(78, 355, 1205, 391));
         Picture("Fame.png", new Rect2(0, 350, 1672, 480), new Rect2(0, 328, 1360, 465));
         var flag = Picture("Flag.png", null, new Rect2(970, 200, 305, 173));
-        var cloth = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/frontend/play-menu/Fabric.gdshader") };
+        var cloth = new ShaderMaterial { Shader = Bootstrap.StartupController.LoadResource<Shader>("res://assets/frontend/play-menu/Fabric.gdshader") };
         flag.Material = cloth;
         _host = ArtButton("Host_button.png", new Rect2(0, 95, 2172, 530), new Rect2(500, 235, 440, 114), "Host Game", () => OpenPage("host"));
         var free = ArtButton("Free_Play_Button.png", new Rect2(0, 60, 2172, 560), new Rect2(90, 240, 390, 105), "Free Play — Coming Soon", () => { });
@@ -450,7 +450,7 @@ internal sealed partial class HangingPlayMenu : Control
     private Button ArtButton(string file, Rect2 region, Rect2 bounds, string text, Action action)
     {
         var button = PlainButton(text, action);
-        var texture = new AtlasTexture { Atlas = GD.Load<Texture2D>("res://assets/frontend/play-menu/" + file), Region = region };
+        var texture = new AtlasTexture { Atlas = Bootstrap.StartupController.LoadResource<Texture2D>("res://assets/frontend/play-menu/" + file), Region = region };
         foreach (string state in new[] { "normal", "hover", "pressed", "focus", "disabled" })
             button.AddThemeStyleboxOverride(state, new StyleBoxTexture { Texture = texture, ModulateColor = state == "disabled" ? new Color(0.45f, 0.45f, 0.45f) : state is "hover" or "focus" ? new Color(1, 0.55f, 0.42f) : Colors.White });
         button.AddThemeColorOverride("font_color", Colors.Transparent);
@@ -464,7 +464,7 @@ internal sealed partial class HangingPlayMenu : Control
     }
     private TextureRect Picture(string file, Rect2? region, Rect2 bounds)
     {
-        Texture2D texture = GD.Load<Texture2D>("res://assets/frontend/play-menu/" + file);
+        Texture2D texture = Bootstrap.StartupController.LoadResource<Texture2D>("res://assets/frontend/play-menu/" + file);
         if (region is Rect2 crop) texture = new AtlasTexture { Atlas = texture, Region = crop };
         var picture = new TextureRect { Texture = texture, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, MouseFilter = MouseFilterEnum.Ignore };
         Add(_rig, picture, bounds);
@@ -511,7 +511,7 @@ internal sealed partial class HangingPlayMenu : Control
     }
     public override void _Draw()
     {
-        var texture = GD.Load<Texture2D>("res://assets/frontend/main-menu/Chain.png");
+        var texture = Bootstrap.StartupController.LoadResource<Texture2D>("res://assets/frontend/main-menu/Chain.png");
         DrawSetTransform(_layout.Position, 0, _layout.Scale);
         foreach (float x in new[] { 225f, 475f, 895f, 1145f })
             for (float y = 0; y < 183 + _rig.Position.Y; y += 40)

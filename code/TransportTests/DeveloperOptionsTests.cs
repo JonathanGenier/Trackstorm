@@ -12,6 +12,32 @@ internal sealed class DeveloperOptionsTests
     private string _path = string.Empty;
 
     [Test]
+    public void ImportAcquisitionReadsFreshBytesAndReleasesTheFile()
+    {
+        File.WriteAllText(_path, "first");
+        Assert.That(DeveloperSettingsStore.TryReadImport(_path, out var first), Is.True);
+        Assert.That(first, Is.EqualTo("first"));
+        File.WriteAllText(_path, "second");
+        Assert.That(DeveloperSettingsStore.TryReadImport(_path, out var second), Is.True);
+        Assert.That(second, Is.EqualTo("second"));
+        using var exclusive = File.Open(_path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+    }
+
+    [Test]
+    public void ImportAcquisitionEnforcesByteBoundAndStrictUtf8()
+    {
+        File.WriteAllBytes(_path, Enumerable.Repeat((byte)'a', ConfigurationChangesImport.MaximumLength).ToArray());
+        Assert.That(DeveloperSettingsStore.TryReadImport(_path, out var text), Is.True);
+        Assert.That(text.Length, Is.EqualTo(ConfigurationChangesImport.MaximumLength));
+        File.AppendAllText(_path, "a");
+        Assert.That(DeveloperSettingsStore.TryReadImport(_path, out text), Is.False);
+        Assert.That(text, Is.Empty);
+        File.WriteAllBytes(_path, [0xff]);
+        Assert.Throws<System.Text.DecoderFallbackException>(() => DeveloperSettingsStore.TryReadImport(_path, out _));
+        using var exclusive = File.Open(_path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+    }
+
+    [Test]
     public void ImportedKeysRemainExplicitAcrossExternalEditsWhileUnlistedFieldsConverge()
     {
         var draft = new DeveloperOptionsDraft();

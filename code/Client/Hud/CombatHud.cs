@@ -70,7 +70,7 @@ internal sealed partial class CombatHud : CanvasLayer
         Layer = 1;
         AddChild(_root);
         _root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        Texture2D steel = GD.Load<Texture2D>("res://assets/hud/Health.png");
+        Texture2D steel = Bootstrap.StartupController.LoadResource<Texture2D>("res://assets/hud/Health.png");
         var health = Component("Health", new Vector2(440, 147), 0, steel);
         _healthMaterial = (ShaderMaterial)health.Material;
         _standing = Text(health, "Standing", new Rect2(32, 39, 68, 56), 43);
@@ -87,7 +87,7 @@ internal sealed partial class CombatHud : CanvasLayer
         item.AddChild(_itemIcon);
         foreach (var definition in ItemRegistry.All)
         {
-            _itemIcons.Add(definition.Identity, GD.Load<Texture2D>($"res://assets/hud/{definition.PresentationKey}.svg"));
+            _itemIcons.Add(definition.Identity, Bootstrap.StartupController.LoadResource<Texture2D>($"res://assets/hud/{definition.PresentationKey}.svg"));
         }
         var timer = Component("Timer", new Vector2(220, 73.333f), 3, steel);
         _timer = Text(timer, "TimerValue", new Rect2(58, 14, 99, 36), 34);
@@ -178,12 +178,12 @@ internal sealed partial class CombatHud : CanvasLayer
 
     private TextureRect Component(string name, Vector2 size, int kind, Texture2D steel)
     {
-        var material = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/hud/Component.gdshader") };
+        var material = new ShaderMaterial { Shader = Bootstrap.StartupController.LoadResource<Shader>("res://assets/hud/Component.gdshader") };
         material.SetShaderParameter("component", kind);
         // The temporary Variant owns a native texture reference; release it after the material copies it.
         using var steelParameter = Variant.From(steel);
         material.SetShaderParameter("steel", steelParameter);
-        var control = new TextureRect { Name = name, Size = size, Texture = GD.Load<Texture2D>($"res://assets/hud/{name}.png"), Material = material, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, MouseFilter = Control.MouseFilterEnum.Ignore };
+        var control = new TextureRect { Name = name, Size = size, Texture = Bootstrap.StartupController.LoadResource<Texture2D>($"res://assets/hud/{name}.png"), Material = material, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, MouseFilter = Control.MouseFilterEnum.Ignore };
         _root.AddChild(control);
         _components.Add(control);
         return control;

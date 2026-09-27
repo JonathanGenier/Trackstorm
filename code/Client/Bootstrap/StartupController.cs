@@ -48,6 +48,30 @@ internal sealed partial class StartupController : Node
         "res://assets/audio/kenney/interface/tick_001.ogg",
     ];
 
+    /// <summary>Acquires shared presentation assets, reusing Godot's cache without extending their lifetime.
+    /// Preloaded assets remain retained by this controller; lazy assets remain owned by their consumers.
+    /// Standalone scenes use this same path without requiring the production startup sequence.</summary>
+    internal static T LoadResource<T>(string path) where T : Resource
+    {
+        if (!OwnsResource(path)) throw new ArgumentException("Not an application resource.", nameof(path));
+        return ResourceLoader.Load<T>(path) ?? throw new InvalidOperationException($"Missing application resource: {path}");
+    }
+
+    /// <summary>Optional lobby previews preserve their existing absent-image fallback.</summary>
+    internal static Texture2D? LoadOptionalTexture(string path)
+    {
+        if (!OwnsResource(path)) throw new ArgumentException("Not an application resource.", nameof(path));
+        return ResourceLoader.Exists(path) ? LoadResource<Texture2D>(path) : null;
+    }
+
+    /// <summary>Shared UI, interface audio and vehicle art used by both Lobby and gameplay.</summary>
+    internal static bool OwnsResource(string path) =>
+        path.StartsWith("res://assets/frontend/", StringComparison.Ordinal) ||
+        path.StartsWith("res://assets/hud/", StringComparison.Ordinal) ||
+        path.StartsWith("res://assets/devtools/", StringComparison.Ordinal) ||
+        path.StartsWith("res://assets/audio/kenney/interface/", StringComparison.Ordinal) ||
+        path == FrontendMusicPath || path == "res://assets/vehicles/WastelandVehicle.tscn";
+
     private readonly StartupFlow _flow = new();
     private readonly List<Resource> _resources = new();
     private SplashScreen? _splash;

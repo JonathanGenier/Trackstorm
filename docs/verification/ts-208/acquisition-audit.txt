@@ -1,0 +1,33 @@
+code/Client\Networking\GnsRuntime.cs:41:                    _library = NativeLibrary.Load(Path.Combine(directory, "GameNetworkingSockets.dll"), typeof(GameNetworkingSockets).Assembly, DllImportSearchPath.UseDllDirectoryForDependencies);
+code/Client\Bootstrap\StartupController.cs:57:        return ResourceLoader.Load<T>(path) ?? throw new InvalidOperationException($"Missing application resource: {path}");
+code/Client\Bootstrap\StartupController.cs:64:        return ResourceLoader.Exists(path) ? LoadResource<Texture2D>(path) : null;
+code/Client\Bootstrap\StartupController.cs:231:            Error request = ResourceLoader.LoadThreadedRequest(path, useSubThreads: true);
+code/Client\Bootstrap\StartupController.cs:241:        ResourceLoader.ThreadLoadStatus status = ResourceLoader.LoadThreadedGetStatus(path);
+code/Client\Bootstrap\StartupController.cs:242:        if (status == ResourceLoader.ThreadLoadStatus.InProgress)
+code/Client\Bootstrap\StartupController.cs:247:        if (status != ResourceLoader.ThreadLoadStatus.Loaded)
+code/Client\Bootstrap\StartupController.cs:252:        Resource resource = ResourceLoader.LoadThreadedGet(path) ?? throw new InvalidOperationException($"Frontend resource could not be loaded: {path}");
+code/Client\Bootstrap\StartupController.cs:280:                    Error request = ResourceLoader.LoadThreadedRequest(path, useSubThreads: true);
+code/Client\Bootstrap\StartupController.cs:292:                ResourceLoader.ThreadLoadStatus status = ResourceLoader.LoadThreadedGetStatus(path, itemProgress);
+code/Client\Bootstrap\StartupController.cs:293:                if (status == ResourceLoader.ThreadLoadStatus.InProgress)
+code/Client\Bootstrap\StartupController.cs:300:                if (status != ResourceLoader.ThreadLoadStatus.Loaded)
+code/Client\Bootstrap\StartupController.cs:305:                Resource resource = ResourceLoader.LoadThreadedGet(path) ?? throw new InvalidOperationException($"Required resource could not be loaded: {path}");
+code/Client\Bootstrap\SimulationBootstrap.cs:65:            GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, "res://scenes/verification/statistic_checks.tscn");
+code/Client\Networking\MatchResourceLoader.cs:53:        return ResourceLoader.Load<T>(path) ?? throw new InvalidOperationException($"Missing match resource: {path}");
+code/Client\Networking\MatchResourceLoader.cs:84:            if (ResourceLoader.GetCachedRef(path) is { } cached)
+code/Client\Networking\MatchResourceLoader.cs:94:            if (ResourceLoader.LoadThreadedRequest(path, useSubThreads: false) != Error.Ok)
+code/Client\Networking\MatchResourceLoader.cs:103:        var status = ResourceLoader.LoadThreadedGetStatus(path);
+code/Client\Networking\MatchResourceLoader.cs:104:        if (status == ResourceLoader.ThreadLoadStatus.InProgress)
+code/Client\Networking\MatchResourceLoader.cs:109:        if (status != ResourceLoader.ThreadLoadStatus.Loaded)
+code/Client\Networking\MatchResourceLoader.cs:114:        Resource resource = ResourceLoader.LoadThreadedGet(path) ?? throw new InvalidOperationException("Missing match resource.");
+code/Client\Networking\MatchResourceLoader.cs:122:        var status = ResourceLoader.LoadThreadedGetStatus(_paths[_index]);
+code/Client\Networking\MatchResourceLoader.cs:123:        if (!wait && status == ResourceLoader.ThreadLoadStatus.InProgress) return false;
+code/Client\Networking\MatchResourceLoader.cs:124:        if (status is ResourceLoader.ThreadLoadStatus.Loaded or ResourceLoader.ThreadLoadStatus.InProgress)
+code/Client\Networking\MatchResourceLoader.cs:125:            ResourceLoader.LoadThreadedGet(_paths[_index]);
+code/Client\Online\EosProcessRuntime.cs:45:                    _library = NativeLibrary.Load(Path.Combine(AppContext.BaseDirectory, "EOSSDK-Win64-Shipping.dll"), typeof(PlatformInterface).Assembly, DllImportSearchPath.UseDllDirectoryForDependencies);
+code/Client\Settings\PlayerSettingsStore.cs:24:                ? PlayerSettingsJson.Deserialize(File.ReadAllText(_path)) : new PlayerSettings();
+code/Client\Settings\PlayerSettingsStore.cs:42:            using (var stream = new FileStream(temporary, FileMode.Create, FileAccess.Write, FileShare.None))
+code/Client\Development\DeveloperSettingsStore.cs:23:                _file = DeveloperSettingsFile.Read(new FileInfo(path).Length <= 65536 ? File.ReadAllText(path) : new string(' ', 65537), defaults);
+code/Client\Development\DeveloperSettingsStore.cs:52:        using var file = File.OpenRead(path);
+code/Client\Online\EosConfiguration.cs:42:            var configuration = JsonSerializer.Deserialize<EosConfiguration>(File.ReadAllText(path), new JsonSerializerOptions
+code/Client\Online\LeaseEndpointConfiguration.cs:12:        using var stream = typeof(LeaseEndpointConfiguration).Assembly.GetManifestResourceStream("Trackstorm.Client.AuthorityLeaseEndpoint.json")
+code/Client\Online\ResumeLocatorStore.cs:22:                var locator = JsonSerializer.Deserialize<ResumeLocator>(File.ReadAllText(path));

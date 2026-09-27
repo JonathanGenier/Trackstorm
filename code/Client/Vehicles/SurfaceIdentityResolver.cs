@@ -16,7 +16,7 @@ internal static class SurfaceIdentityResolver
             string path = node.GetMeta("surface_field").AsString();
             if (!Fields.TryGetValue(path, out var image))
             {
-                image = GD.Load<Texture2D>(path).GetImage();
+                image = Networking.MatchResourceLoader.LoadResource<Texture2D>(path).GetImage();
                 if (image.IsCompressed()) { image.Decompress(); }
                 Fields.Add(path, image);
             }

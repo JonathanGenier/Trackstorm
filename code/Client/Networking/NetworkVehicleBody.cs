@@ -46,7 +46,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         _visual.TopLevel = true;
         AddChild(new TireFeedback { Source = () => _feedbackState is { } state ? (VisualTransform, state, _configuration) : null });
         Color paint = Color.FromHsv((VehicleId * 0.13f) % 1, 0.7f, 0.9f);
-        _damageMaterial = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/items/materials/DamageFlash.gdshader") };
+        _damageMaterial = new ShaderMaterial { Shader = Networking.MatchResourceLoader.LoadResource<Shader>("res://assets/items/materials/DamageFlash.gdshader") };
         _damageMaterial.SetShaderParameter("paint", paint);
         _visual.AddChild(VehicleVisual.Create(_damageMaterial, () => _feedbackState is { } state ? (state.Movement, _configuration) : null));
         _nitroTrail = Items.ItemPresentation.Particles(Core.Items.ItemRegistry.Find(Core.Items.HeldItem.Nitro)!.ActiveVfx!, false, 0.18f);

@@ -167,7 +167,7 @@ internal sealed partial class ArenaAudio : Node3D
 
     private static AudioStream LoopStream(AudioCue cue)
     {
-        AudioStream stream = (AudioStream)GD.Load<AudioStream>(AudioCatalog.Path(cue)).Duplicate();
+        AudioStream stream = (AudioStream)Networking.MatchResourceLoader.LoadResource<AudioStream>(AudioCatalog.Path(cue)).Duplicate();
         if (stream is AudioStreamWav wav)
         {
             wav.LoopMode = AudioStreamWav.LoopModeEnum.Forward;
@@ -202,7 +202,7 @@ internal sealed partial class ArenaAudio : Node3D
 
     private void PlaySong()
     {
-        _music.Stream = GD.Load<AudioStream>(AudioCatalog.Song(_playlist.Index));
+        _music.Stream = Networking.MatchResourceLoader.LoadResource<AudioStream>(AudioCatalog.Song(_playlist.Index));
         _music.Play();
     }
 
@@ -214,7 +214,7 @@ internal sealed partial class ArenaAudio : Node3D
             return;
         }
 
-        AudioStream stream = GD.Load<AudioStream>(AudioCatalog.Path(cue));
+        AudioStream stream = Networking.MatchResourceLoader.LoadResource<AudioStream>(AudioCatalog.Path(cue));
         bool local = cue is AudioCue.Kill or AudioCue.Death or AudioCue.Countdown or AudioCue.MatchStart or AudioCue.MatchEnd or AudioCue.EndSting;
         if (local)
         {

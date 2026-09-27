@@ -57,7 +57,7 @@ internal sealed partial class HangingMainMenu : Control
         AddChild(version);
         AddChild(_layout);
         _layout.AddChild(_art);
-        _chain = new AtlasTexture { Atlas = GD.Load<Texture2D>("res://assets/frontend/main-menu/Chain.png"), Region = new Rect2(277, 92, 170, 258) };
+        _chain = new AtlasTexture { Atlas = Bootstrap.StartupController.LoadResource<Texture2D>("res://assets/frontend/main-menu/Chain.png"), Region = new Rect2(277, 92, 170, 258) };
         Resized += Layout;
     }
 
@@ -170,7 +170,7 @@ internal sealed partial class HangingMainMenu : Control
     private static TextureRect Picture(string file, Vector2 position, Vector2 size) => new()
     {
         ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-        Texture = GD.Load<Texture2D>("res://assets/frontend/main-menu/" + file), Position = position, Size = size,
+        Texture = Bootstrap.StartupController.LoadResource<Texture2D>("res://assets/frontend/main-menu/" + file), Position = position, Size = size,
         MouseFilter = MouseFilterEnum.Ignore,
     };
 
@@ -178,7 +178,7 @@ internal sealed partial class HangingMainMenu : Control
     {
         var flag = Picture(file, position, size);
         flag.FlipH = flip;
-        var material = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/frontend/main-menu/Fabric.gdshader") };
+        var material = new ShaderMaterial { Shader = Bootstrap.StartupController.LoadResource<Shader>("res://assets/frontend/main-menu/Fabric.gdshader") };
         material.SetShaderParameter("phase", phase);
         flag.Material = material;
         _art.AddChild(flag);

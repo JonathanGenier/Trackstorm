@@ -36,6 +36,23 @@ internal sealed class MatchResourceLoader
     private int _index;
     private bool _requested;
 
+    /// <summary>Acquires match content through the existing loader, retaining the original lazy timing
+    /// and Godot cache reuse. Consumers own returned resources; this adds no global retention.
+    /// Shared presentation content delegates to the application loader, including interface cues.</summary>
+    internal static T LoadResource<T>(string path) where T : Resource
+    {
+        if (Bootstrap.StartupController.OwnsResource(path)) return Bootstrap.StartupController.LoadResource<T>(path);
+        if (!(path.StartsWith("res://assets/arena/", StringComparison.Ordinal) ||
+            path.StartsWith("res://assets/items/", StringComparison.Ordinal) ||
+            path.StartsWith("res://assets/effects/", StringComparison.Ordinal) ||
+            path.StartsWith("res://assets/environment/", StringComparison.Ordinal) ||
+            path.StartsWith("res://assets/maps/", StringComparison.Ordinal) ||
+            path.StartsWith("res://assets/audio/", StringComparison.Ordinal) ||
+            path == Arenas.ActiveMap.ScenePath || path == "res://scenes/arena/prototype_arena.tscn"))
+            throw new ArgumentException("Not a match resource.", nameof(path));
+        return ResourceLoader.Load<T>(path) ?? throw new InvalidOperationException($"Missing match resource: {path}");
+    }
+
     /// <summary>Chooses only the authoritative map and match-specific resources.</summary>
     /// <param name="map">Supported authoritative map.</param>
     internal MatchResourceLoader(MatchMap map)

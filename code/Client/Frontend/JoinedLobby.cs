@@ -41,7 +41,7 @@ internal sealed partial class JoinedLobby : Control
         AddChild(letterbox);
         letterbox.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         AddChild(_canvas);
-        _canvas.AddChild(new TextureRect { ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, Texture = GD.Load<Texture2D>("res://assets/frontend/lobby/CarnageCircus.png"), Size = new Vector2(1280, 720), MouseFilter = MouseFilterEnum.Ignore });
+        _canvas.AddChild(new TextureRect { ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, Texture = Bootstrap.StartupController.LoadResource<Texture2D>("res://assets/frontend/lobby/CarnageCircus.png"), Size = new Vector2(1280, 720), MouseFilter = MouseFilterEnum.Ignore });
         var display = new SubViewportContainer { Size = new Vector2(1280, 720), MouseFilter = MouseFilterEnum.Ignore };
         _canvas.AddChild(display);
         display.AddChild(_view);
@@ -157,7 +157,7 @@ internal sealed partial class JoinedLobby : Control
         {
             _shownMap = state.Map;
             string path = $"res://assets/frontend/lobby/{state.Map}.png";
-            _preview.Texture = ResourceLoader.Exists(path) ? GD.Load<Texture2D>(path) : null;
+            _preview.Texture = Bootstrap.StartupController.LoadOptionalTexture(path);
         }
         _status.Text = Session.LobbyNotice.Length > 0 ? Session.LobbyNotice : !CanAct ? Session.Lobby.Migration?.Status ?? "Waiting for session…" : host ? state.CanStart ? "All players ready · Start when you're ready" : "Waiting for players to ready up" : "Ready up when you're prepared to enter the arena";
     }
@@ -201,7 +201,7 @@ internal sealed partial class JoinedLobby : Control
         _canvas.AddChild(control);
     }
 
-    internal static StyleBoxTexture Plate() => new() { Texture = new AtlasTexture { Atlas = GD.Load<Texture2D>("res://assets/frontend/main-menu/Plate.png"), Region = new Rect2(0, 75, 2172, 540) }, ContentMarginLeft = 12, ContentMarginRight = 12 };
+    internal static StyleBoxTexture Plate() => new() { Texture = new AtlasTexture { Atlas = Bootstrap.StartupController.LoadResource<Texture2D>("res://assets/frontend/main-menu/Plate.png"), Region = new Rect2(0, 75, 2172, 540) }, ContentMarginLeft = 12, ContentMarginRight = 12 };
 
     internal static void Style(Button button)
     {

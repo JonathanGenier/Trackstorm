@@ -46,7 +46,7 @@ internal sealed partial class EnvironmentPresentation : Node3D
         };
         _world.Environment = null;
         ReleaseResources();
-        _material = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/effects/EnvironmentSky.gdshader") };
+        _material = new ShaderMaterial { Shader = Networking.MatchResourceLoader.LoadResource<Shader>("res://assets/effects/EnvironmentSky.gdshader") };
         _material.SetShaderParameter("zenith", new Color(p.Zenith));
         _material.SetShaderParameter("horizon", new Color(p.Horizon));
         _material.SetShaderParameter("light_color", new Color(p.Light));

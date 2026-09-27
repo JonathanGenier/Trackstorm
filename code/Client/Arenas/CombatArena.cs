@@ -19,11 +19,11 @@ public sealed partial class CombatArena : Node3D
     /// <inheritdoc/>
     public override void _Ready()
     {
-        var asphalt = GD.Load<StandardMaterial3D>("res://assets/arena/materials/Asphalt.tres");
-        var concrete = GD.Load<StandardMaterial3D>("res://assets/arena/materials/Concrete.tres");
-        var rust = GD.Load<StandardMaterial3D>("res://assets/arena/materials/Rust.tres");
-        var sheet = GD.Load<StandardMaterial3D>("res://assets/arena/materials/Sheet.tres");
-        var mud = GD.Load<StandardMaterial3D>("res://assets/arena/materials/Mud.tres");
+        var asphalt = Networking.MatchResourceLoader.LoadResource<StandardMaterial3D>("res://assets/arena/materials/Asphalt.tres");
+        var concrete = Networking.MatchResourceLoader.LoadResource<StandardMaterial3D>("res://assets/arena/materials/Concrete.tres");
+        var rust = Networking.MatchResourceLoader.LoadResource<StandardMaterial3D>("res://assets/arena/materials/Rust.tres");
+        var sheet = Networking.MatchResourceLoader.LoadResource<StandardMaterial3D>("res://assets/arena/materials/Sheet.tres");
+        var mud = Networking.MatchResourceLoader.LoadResource<StandardMaterial3D>("res://assets/arena/materials/Mud.tres");
         AddChild(new MeshInstance3D { Position = new Vector3(0, -2.05f, 0), Mesh = new BoxMesh { Size = new Vector3(180, 0.1f, 150) }, MaterialOverride = asphalt });
         // A grid partition produces flush, disjoint floor colliders, including both mud regions.
         float[] xs = { -60, -36, -24, 24, 36, 60 };
@@ -134,7 +134,7 @@ public sealed partial class CombatArena : Node3D
 
     private static void AddModel(Node3D parent, string asset, Vector3 size, Vector3 center, Material? material)
     {
-        Node3D model = GD.Load<PackedScene>("res://assets/arena/" + asset).Instantiate<Node3D>();
+        Node3D model = Networking.MatchResourceLoader.LoadResource<PackedScene>("res://assets/arena/" + asset).Instantiate<Node3D>();
         var wrapper = new Node3D();
         parent.AddChild(wrapper);
         wrapper.AddChild(model);

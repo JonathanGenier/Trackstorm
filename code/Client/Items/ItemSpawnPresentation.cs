@@ -36,8 +36,8 @@ internal sealed partial class ItemSpawnPresentation : Node3D
     /// <param name="arena">Validated scene markers.</param>
     internal void Initialize(ArenaConfiguration arena)
     {
-        var mesh = GD.Load<Mesh>("res://assets/items/kenney/weapons/ammo_rocket.obj");
-        var material = GD.Load<StandardMaterial3D>("res://assets/items/materials/Pickup.tres");
+        var mesh = Networking.MatchResourceLoader.LoadResource<Mesh>("res://assets/items/kenney/weapons/ammo_rocket.obj");
+        var material = Networking.MatchResourceLoader.LoadResource<StandardMaterial3D>("res://assets/items/materials/Pickup.tres");
         Aabb bounds = mesh.GetAabb();
         float scale = 1.8f / Math.Max(bounds.Size.X, Math.Max(bounds.Size.Y, bounds.Size.Z));
         foreach (var marker in arena.Items)
