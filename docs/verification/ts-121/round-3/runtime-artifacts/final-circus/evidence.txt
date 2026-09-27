@@ -1,0 +1,6 @@
+Native drift: 127 uninterrupted ticks, 47.916667 peak pending base points, total award 47.916667 (includes any concurrent Top Speed).
+Native top speed: 120 ticks produced 10.000000 pending base points; braking banked once.
+Native jump at 10 m/s: 148 airborne ticks and 24.434814 m observed before landing; banked 79.766235 including independent speed awards.
+Native jump at 20 m/s: 148 airborne ticks and 48.878662 m observed before landing; banked 139.554565 including independent speed awards.
+Native jump at 46.661995 m/s: 148 airborne ticks and 114.026123 m observed before landing; banked 348.151733 including independent speed awards.
+Native airborne death: applied lethal Core effect discarded pending flight/Top Speed; respawn and both UDP peers retained prior banked score.

@@ -1,0 +1,58 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=True, entry=False, maximum=0, startup=0, steady=0, snaps=0; full report: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\ca20476c27984991b061994cb58416b8\player-0.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":32.2392482,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":4167,"messages":3,"peak":1389},{"peer":1,"protocol":"TD","delivery":"Unreliable","bytes":1036756,"messages":192,"peak":5481},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":8945,"messages":3,"peak":3118},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":17663,"messages":30,"peak":627},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":5299,"messages":4,"peak":1896},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":893794,"messages":437,"peak":2180},{"peer":2,"protocol":"TC","delivery":"Reliable","bytes":1389,"messages":1,"peak":1389},{"peer":2,"protocol":"TD","delivery":"Unreliable","bytes":1031275,"messages":191,"peak":5481},{"peer":2,"protocol":"TI","delivery":"Reliable","bytes":2987,"messages":1,"peak":2987},{"peer":2,"protocol":"TM","delivery":"Reliable","bytes":16575,"messages":28,"peak":627},{"peer":2,"protocol":"TS","delivery":"Reliable","bytes":1785,"messages":2,"peak":1765},{"peer":2,"protocol":"TS","delivery":"Unreliable","bytes":892176,"messages":436,"peak":2180},{"peer":3,"protocol":"TC","delivery":"Reliable","bytes":4167,"messages":3,"peak":1389},{"peer":3,"protocol":"TD","delivery":"Unreliable","bytes":1036756,"messages":192,"peak":5481},{"peer":3,"protocol":"TI","delivery":"Reliable","bytes":8945,"messages":3,"peak":3118},{"peer":3,"protocol":"TM","delivery":"Reliable","bytes":17663,"messages":30,"peak":627},{"peer":3,"protocol":"TS","delivery":"Reliable","bytes":5299,"messages":4,"peak":1896},{"peer":3,"protocol":"TS","delivery":"Unreliable","bytes":893794,"messages":437,"peak":2180},{"peer":4,"protocol":"TC","delivery":"Reliable","bytes":2778,"messages":2,"peak":1389},{"peer":4,"protocol":"TD","delivery":"Unreliable","bytes":1031275,"messages":191,"peak":5481},{"peer":4,"protocol":"TI","delivery":"Reliable","bytes":6105,"messages":2,"peak":3118},{"peer":4,"protocol":"TM","delivery":"Reliable","bytes":17119,"messages":29,"peak":627},{"peer":4,"protocol":"TS","delivery":"Reliable","bytes":3681,"messages":3,"peak":1896},{"peer":4,"protocol":"TS","delivery":"Unreliable","bytes":892176,"messages":436,"peak":2180},{"peer":5,"protocol":"TC","delivery":"Reliable","bytes":5556,"messages":4,"peak":1389},{"peer":5,"protocol":"TD","delivery":"Unreliable","bytes":1036756,"messages":192,"peak":5481},{"peer":5,"protocol":"TI","delivery":"Reliable","bytes":8945,"messages":3,"peak":3118},{"peer":5,"protocol":"TM","delivery":"Reliable","bytes":17663,"messages":30,"peak":627},{"peer":5,"protocol":"TS","delivery":"Reliable","bytes":5299,"messages":4,"peak":1896},{"peer":5,"protocol":"TS","delivery":"Unreliable","bytes":893794,"messages":437,"peak":2180},{"peer":6,"protocol":"TC","delivery":"Reliable","bytes":4167,"messages":3,"peak":1389},{"peer":6,"protocol":"TD","delivery":"Unreliable","bytes":1036756,"messages":192,"peak":5481},{"peer":6,"protocol":"TI","delivery":"Reliable","bytes":8945,"messages":3,"peak":3118},{"peer":6,"protocol":"TM","delivery":"Reliable","bytes":17663,"messages":30,"peak":627},{"peer":6,"protocol":"TS","delivery":"Reliable","bytes":5299,"messages":4,"peak":1896},{"peer":6,"protocol":"TS","delivery":"Unreliable","bytes":893794,"messages":437,"peak":2180},{"peer":7,"protocol":"TC","delivery":"Reliable","bytes":6945,"messages":5,"peak":1389},{"peer":7,"protocol":"TD","delivery":"Unreliable","bytes":1053199,"messages":195,"peak":5481},{"peer":7,"protocol":"TI","delivery":"Reliable","bytes":12831,"messages":5,"peak":3118},{"peer":7,"protocol":"TM","delivery":"Reliable","bytes":18751,"messages":32,"peak":627},{"peer":7,"protocol":"TS","delivery":"Reliable","bytes":6741,"messages":6,"peak":1896},{"peer":7,"protocol":"TS","delivery":"Unreliable","bytes":914269,"messages":472,"peak":2180}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.78 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Network vehicle metrics: host=False, entry=False, maximum=0.14560616, startup=0.1456061601638794, steady=0.13893121480941772, snaps=0; full report: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\ca20476c27984991b061994cb58416b8\player-1.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":25.1037105,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":115981,"messages":961,"peak":121}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=False, entry=False, maximum=0.37204587, startup=0.3720458745956421, steady=0.11123005300760269, snaps=0; full report: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\ca20476c27984991b061994cb58416b8\player-2.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":23.8548604,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":116131,"messages":961,"peak":121}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=False, entry=False, maximum=0.58538985, startup=0.3924952447414398, steady=0.5853898525238037, snaps=0; full report: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\ca20476c27984991b061994cb58416b8\player-3.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":23.8431331,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":116131,"messages":961,"peak":121}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=False, entry=False, maximum=0.26494876, startup=0.2649487555027008, steady=0.11785275489091873, snaps=0; full report: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\ca20476c27984991b061994cb58416b8\player-4.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":23.8919741,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":116131,"messages":961,"peak":121}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=False, entry=False, maximum=0.20582208, startup=0.20582208037376404, steady=0.19159188866615295, snaps=0; full report: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\ca20476c27984991b061994cb58416b8\player-5.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":23.8857751,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":116131,"messages":961,"peak":121}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=False, entry=False, maximum=0.3093793, startup=0.30937930941581726, steady=0.1994258463382721, snaps=0; full report: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\ca20476c27984991b061994cb58416b8\player-6.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":23.8577765,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":116131,"messages":961,"peak":121}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=False, entry=False, maximum=0.38966778, startup=0.3896677792072296, steady=0, snaps=0; full report: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\ca20476c27984991b061994cb58416b8\player-7.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":23.881191,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":116131,"messages":961,"peak":121}]}
+
+Network vehicle verification artifacts: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\network-vehicle-checks\ca20476c27984991b061994cb58416b8

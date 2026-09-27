@@ -1,0 +1,12 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.78 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connecting; None; 
+Transport peer 1: Connected; None; 
+Transport peer 1: Connected; None; 
+REMATCH_RESOURCE cycle=1; generation=6089459163247712566; managed=7365968; private=1193467904; handles=757; nodes=5933; objects=11638; orphans=0; inputPending=12; snapshots=20; hostEvents=66; clientEvents=65
+REMATCH_RESOURCE cycle=2; generation=6089459163247712567; managed=7613368; private=1246806016; handles=754; nodes=6380; objects=12545; orphans=0; inputPending=11; snapshots=20; hostEvents=131; clientEvents=134
+REMATCH_RESOURCE cycle=3; generation=6089459163247712568; managed=7643592; private=1240387584; handles=754; nodes=6380; objects=12545; orphans=0; inputPending=10; snapshots=20; hostEvents=195; clientEvents=200
+Post-match integration passed: 205 assertions.
+Post-match verification artifacts: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\post-match-checks\92bbfd5a334f40548f2ff5506ff008f5

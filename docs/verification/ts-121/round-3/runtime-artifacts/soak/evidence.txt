@@ -1,0 +1,2024 @@
+Actual startup reaches Main Menu
+Two production sessions admitted
+Rematch rejected before Finished
+Connected lobby readied
+Normal lobby Start accepted
+Initial Loader/Sync and countdown complete
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=1; generation=6779335884088423234; managed=7218808; private=527941632; handles=483; nodes=5933; objects=11772; orphans=0; inputPending=14; snapshots=20; hostEvents=66; clientEvents=66
+Locally restored authoritative checkpoint clears stale Podium (host fixture)
+Ordinary phase packets cannot roll a remote Finished state backward
+Restoring the original authoritative final checkpoint returns to Podium
+Podium fits (1280, 720)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Podium fits (640, 360)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Compact controller Down selects action in next row
+Compact keyboard Up returns to preceding action row
+Podium fits (2560, 1080)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+ESC opens Game Menu above Podium
+ESC closes overlay and restores Podium navigation
+Controller Left selects adjacent destination
+Controller Right restores Main Menu selection
+Controller Start opens Game Menu above Podium
+Closing Game Menu preserves selected Podium destination
+Stats overlays Podium
+Stats close preserves focus and does not dispatch held Accept into Podium
+8-result layout fits (1280, 720)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Layout preserves authoritative result ordering/object
+8-result layout fits (640, 360)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Layout preserves authoritative result ordering/object
+Keyboard advances to retained-results page
+Controller returns to first results page
+10-result layout fits (1280, 720)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Layout preserves authoritative result ordering/object
+Keyboard advances to retained-results page
+Controller returns to first results page
+10-result layout fits (640, 360)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Layout preserves authoritative result ordering/object
+Keyboard advances to retained-results page
+Controller returns to first results page
+No-winner outcome does not invent a winner
+Two-player results hide unnecessary paging
+Unbound native Enter cannot bypass logical navigation
+Controller Accept starts rematch through Loader
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=2; generation=6779335884088423235; managed=7504112; private=549384192; handles=485; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=131; clientEvents=135
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=3; generation=6779335884088423236; managed=7535664; private=554840064; handles=485; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=194; clientEvents=201
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=4; generation=6779335884088423237; managed=7574192; private=551071744; handles=485; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=257; clientEvents=267
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=5; generation=6779335884088423238; managed=7607576; private=550928384; handles=483; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=321; clientEvents=334
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=6; generation=6779335884088423239; managed=7645376; private=555692032; handles=483; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=385; clientEvents=401
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=7; generation=6779335884088423240; managed=7682888; private=551227392; handles=483; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=449; clientEvents=468
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=8; generation=6779335884088423241; managed=7725200; private=551063552; handles=483; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=513; clientEvents=534
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=9; generation=6779335884088423242; managed=7761392; private=550780928; handles=483; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=577; clientEvents=601
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=10; generation=6779335884088423243; managed=7796000; private=554061824; handles=483; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=640; clientEvents=667
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=11; generation=6779335884088423244; managed=7831536; private=551694336; handles=483; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=704; clientEvents=734
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=12; generation=6779335884088423245; managed=7868096; private=550154240; handles=480; nodes=6380; objects=12682; orphans=0; inputPending=13; snapshots=20; hostEvents=768; clientEvents=801
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=13; generation=6779335884088423246; managed=7907296; private=546996224; handles=479; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=832; clientEvents=868
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=14; generation=6779335884088423247; managed=8563288; private=549773312; handles=483; nodes=6380; objects=12682; orphans=0; inputPending=8; snapshots=20; hostEvents=895; clientEvents=933
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=15; generation=6779335884088423248; managed=8625368; private=554770432; handles=483; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=958; clientEvents=999
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=16; generation=6779335884088423249; managed=8648344; private=558825472; handles=480; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=1022; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=17; generation=6779335884088423250; managed=8649224; private=557322240; handles=480; nodes=6380; objects=12682; orphans=0; inputPending=8; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=18; generation=6779335884088423251; managed=8650624; private=557244416; handles=478; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=19; generation=6779335884088423252; managed=8651992; private=554434560; handles=478; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=20; generation=6779335884088423253; managed=8651616; private=554184704; handles=481; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=21; generation=6779335884088423254; managed=8651824; private=556814336; handles=482; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=22; generation=6779335884088423255; managed=8653304; private=556789760; handles=482; nodes=6380; objects=12682; orphans=0; inputPending=12; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=23; generation=6779335884088423256; managed=8652824; private=553680896; handles=482; nodes=6380; objects=12682; orphans=0; inputPending=8; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=24; generation=6779335884088423257; managed=8653280; private=552865792; handles=482; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=25; generation=6779335884088423258; managed=8653760; private=555044864; handles=482; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=26; generation=6779335884088423259; managed=8662592; private=557309952; handles=479; nodes=6380; objects=12682; orphans=0; inputPending=8; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=27; generation=6779335884088423260; managed=8671328; private=554336256; handles=483; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=28; generation=6779335884088423261; managed=8663592; private=553467904; handles=480; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=29; generation=6779335884088423262; managed=8672680; private=558125056; handles=483; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=30; generation=6779335884088423263; managed=8664936; private=554688512; handles=483; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=31; generation=6779335884088423264; managed=8673288; private=563085312; handles=483; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=32; generation=6779335884088423265; managed=8674000; private=563281920; handles=482; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=33; generation=6779335884088423266; managed=8648608; private=559157248; handles=482; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=34; generation=6779335884088423267; managed=8666936; private=559247360; handles=482; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=35; generation=6779335884088423268; managed=8668024; private=560766976; handles=488; nodes=6380; objects=12682; orphans=0; inputPending=12; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=36; generation=6779335884088423269; managed=8668064; private=563134464; handles=490; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=37; generation=6779335884088423270; managed=8677536; private=558964736; handles=490; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=38; generation=6779335884088423271; managed=8669344; private=559390720; handles=490; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=39; generation=6779335884088423272; managed=8669960; private=563572736; handles=493; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=40; generation=6779335884088423273; managed=8670280; private=563367936; handles=490; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=41; generation=6779335884088423274; managed=8671568; private=558854144; handles=490; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=42; generation=6779335884088423275; managed=8668816; private=565194752; handles=490; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=43; generation=6779335884088423276; managed=8646008; private=564621312; handles=492; nodes=6380; objects=12682; orphans=0; inputPending=8; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=44; generation=6779335884088423277; managed=8679728; private=562933760; handles=486; nodes=6380; objects=12682; orphans=0; inputPending=14; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=45; generation=6779335884088423278; managed=8673592; private=567181312; handles=486; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=46; generation=6779335884088423279; managed=8674056; private=561659904; handles=486; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=47; generation=6779335884088423280; managed=8674864; private=565768192; handles=486; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=48; generation=6779335884088423281; managed=8649240; private=566099968; handles=489; nodes=6380; objects=12682; orphans=0; inputPending=8; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=49; generation=6779335884088423282; managed=8675616; private=569647104; handles=486; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=50; generation=6779335884088423283; managed=8676656; private=569651200; handles=486; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+Return to Lobby reaches joined state on both peers
+Return clears readiness and all match runtime
+Connected lobby readied
+Normal lobby Start accepted
+Initial Loader/Sync and countdown complete
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Enabled Podium action: End Match
+End Match ends shared match through authoritative Return
+Connected lobby readied
+Normal lobby Start accepted
+Initial Loader/Sync and countdown complete
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Enabled Podium action: Main Menu
+Client Main Menu waits for reliable Leave cleanup
+Finished retains disconnected participant reservation
+Retained Podium results stay frozen and offline participant dims
+Enabled Podium action: Main Menu
+Main Menu restores MenuShell after cleanup
+Same MenuShell resumes with no stale match state
+Solo verification match reaches Active
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Enabled Podium action: Quit Game
+Podium Quit uses production controlled cleanup

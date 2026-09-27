@@ -1,0 +1,33 @@
+Host selected a vehicle nameplate and kicked its authoritative participant.
+Kicked client cleaned up; seven peers removed its vehicle. Fresh join remains allowed.
+Unexpected lobby transport loss injected.
+Disconnect removed the displayed identity; fresh reconnect requested.
+Client Quit used cleanup-gated Main Menu return.
+Quit left no stale showcase; joining for eight-player match checks.
+Eight production UIs joined; names and IDs match; unready start rejected.
+Targeted ready replicated to all eight peers.
+Targeted unready replicated to all peers.
+Non-host start intent submitted over the real transport.
+Host rejected non-host start; eight non-overlapping labels verified at 640, 1280 and 1600 widths; host load failure armed.
+Host resource failure recovered through authoritative Return with all eight memberships preserved.
+Client resource failure armed for the next accepted generation.
+Client failure notification recovered all eight peers to one authoritative lobby.
+Retry starts one fresh generation after both recoverable load failures.
+Authenticated late Failed packet rejected while initial release was retained but EntryReady was false after authority unfreeze.
+All eight peers entered Podium with retained Finished results; host explicitly returned.
+Return preserved identities and cleared readiness on every peer.
+Ready client left the lobby.
+Disconnect removal replicated to all remaining peers; rejoining.
+Replacement joined with fresh identity; readying second match.
+Second host start issued on the retained session connection.
+Second Finished handoff succeeded; client departed during results.
+Arena departure retained the vehicle; host ended the match.
+Return released the eighth reservation; readying seven players for active admission.
+Seven-player match started before fresh client joins.
+Fresh eighth client joining after authoritative gameplay is active.
+Interrupted the fresh client after roster assignment and before checkpoint activation.
+Interrupted bootstrap released its slot without a vehicle or score row; retrying fresh admission.
+Fresh client bootstrapped into active native gameplay exactly once; testing retained-slot capacity.
+Attempted fresh admission with seven connected plus one retained participant.
+Authoritative retained-slot rejection preserved all eight vehicles; host closed the session.
+Host loss returned all clients to Host/Join and removed every arena.

@@ -1,0 +1,72 @@
+[
+  {
+    "profile": "entry-100ms",
+    "startup": 0.030287504196166992,
+    "steady": 0.0,
+    "p99": 0.0,
+    "holds": 0.0,
+    "steadyHolds": 0.0,
+    "pending": 16.0,
+    "snaps": 0.0
+  },
+  {
+    "profile": "entry-eight",
+    "startup": 0.016631722450256348,
+    "steady": 0.09964499622583389,
+    "p99": 0.028387106955051422,
+    "holds": 0.0,
+    "steadyHolds": 0.0,
+    "pending": 19.0,
+    "snaps": 0.0
+  },
+  {
+    "profile": "final-vehicles-100ms",
+    "startup": 0.45564043521881104,
+    "steady": 0.0,
+    "p99": 0.0,
+    "holds": 0.0,
+    "steadyHolds": 0.0,
+    "pending": 24.0,
+    "snaps": 0.0
+  },
+  {
+    "profile": "final-vehicles-50ms",
+    "startup": 0.2587164044380188,
+    "steady": 0.0047324104234576225,
+    "p99": 0.0,
+    "holds": 0.0,
+    "steadyHolds": 0.0,
+    "pending": 20.0,
+    "snaps": 0.0
+  },
+  {
+    "profile": "final-vehicles-baseline",
+    "startup": 0.14721351861953735,
+    "steady": 0.0,
+    "p99": 0.0,
+    "holds": 0.0,
+    "steadyHolds": 0.0,
+    "pending": 12.0,
+    "snaps": 0.0
+  },
+  {
+    "profile": "final-vehicles-eight",
+    "startup": 0.3924952447414398,
+    "steady": 0.5853898525238037,
+    "p99": 0.1341319978237152,
+    "holds": 0.0,
+    "steadyHolds": 0.0,
+    "pending": 22.0,
+    "snaps": 0.0
+  },
+  {
+    "profile": "final-vehicles-loss",
+    "startup": 0.25405940413475037,
+    "steady": 0.1547141671180725,
+    "p99": 0.0,
+    "holds": 0.0,
+    "steadyHolds": 0.0,
+    "pending": 17.0,
+    "snaps": 0.0
+  }
+]
