@@ -31,7 +31,7 @@ retaining the previous session's values.
 For the local predicted vehicle, correction quality separates the first two seconds after
 initialization/checkpoint installation from steady state. Constant-space cumulative counts
 show reconciliations, corrections above 1 cm and at least 10 cm, 1 m and 3 m, plus maximum
-error. Pending input count and the explicit 300 ms prediction-horizon hold distinguish a
+error. Pending input count and the explicit 400 ms prediction-horizon hold distinguish a
 stalled authority stream from presentation smoothing. These are local diagnostics; no
 client metric changes authority. See [vehicle networking](vehicle-networking.md).
 Client snapshot age uses monotonic elapsed time since the latest accepted boundary,

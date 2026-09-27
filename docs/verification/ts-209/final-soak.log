@@ -1,0 +1,40 @@
+Test run for C:\Users\j_gen\.codex\worktrees\prediction-impairment\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\.codex\worktrees\prediction-impairment\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Explicit run
+CORRECTION tick=51; vehicle=5; error=0.1111; scheduleLag=0.0002; age=0.0005; pending=9; clientAck=29; authorityAck=33; hostTick=52; snapshotTick=48
+CORRECTION tick=74; vehicle=4; error=0.1731; scheduleLag=0.0001; age=0.0001; pending=7; clientAck=54; authorityAck=57; hostTick=75; snapshotTick=72
+CORRECTION tick=132; vehicle=8; error=0.2264; scheduleLag=0.0017; age=0.0000; pending=9; clientAck=109; authorityAck=113; hostTick=133; snapshotTick=129
+CORRECTION tick=441; vehicle=3; error=0.1232; scheduleLag=0.0014; age=0.0001; pending=9; clientAck=420; authorityAck=424; hostTick=442; snapshotTick=438
+CORRECTION tick=461; vehicle=2; error=0.1291; scheduleLag=0.0012; age=0.0001; pending=8; clientAck=441; authorityAck=444; hostTick=462; snapshotTick=459
+SOAK seconds=59.98; tick=3600; managed=16196232; private=35594240; working=94650368; handles=454; threads=20; peakPending=19; peakSnapshotAge=0.3207; received=8027; staleDelivered=2015; controlledDrops=0; gc2=1
+CORRECTION tick=3921; vehicle=3; error=0.1016; scheduleLag=0.0002; age=0.0001; pending=10; clientAck=3899; authorityAck=3903; hostTick=3922; snapshotTick=3918
+SOAK seconds=119.99; tick=7200; managed=6877848; private=35065856; working=94916608; handles=454; threads=20; peakPending=19; peakSnapshotAge=0.1514; received=16085; staleDelivered=4035; controlledDrops=0; gc2=1
+SOAK seconds=179.98; tick=10800; managed=10943256; private=37228544; working=97124352; handles=452; threads=18; peakPending=19; peakSnapshotAge=0.1658; received=24148; staleDelivered=6050; controlledDrops=0; gc2=2
+SOAK seconds=239.98; tick=14400; managed=15142792; private=37150720; working=97214464; handles=452; threads=18; peakPending=20; peakSnapshotAge=0.1658; received=32221; staleDelivered=8073; controlledDrops=0; gc2=2
+SOAK seconds=299.99; tick=18000; managed=7086448; private=37629952; working=97521664; handles=449; threads=19; peakPending=20; peakSnapshotAge=0.1501; received=40277; staleDelivered=10103; controlledDrops=0; gc2=2
+SOAK seconds=359.98; tick=21600; managed=10587488; private=37490688; working=97771520; handles=449; threads=19; peakPending=18; peakSnapshotAge=0.1484; received=48333; staleDelivered=12117; controlledDrops=0; gc2=3
+SOAK seconds=419.98; tick=25200; managed=14321504; private=37171200; working=97542144; handles=449; threads=17; peakPending=20; peakSnapshotAge=0.1508; received=56379; staleDelivered=14139; controlledDrops=0; gc2=3
+CORRECTION tick=26094; vehicle=4; error=0.1492; scheduleLag=0.0013; age=0.0002; pending=10; clientAck=26071; authorityAck=26075; hostTick=26095; snapshotTick=26091
+SOAK seconds=479.98; tick=28800; managed=6322920; private=37564416; working=97980416; handles=449; threads=17; peakPending=19; peakSnapshotAge=0.1498; received=64450; staleDelivered=16181; controlledDrops=0; gc2=4
+SOAK seconds=539.99; tick=32400; managed=11297392; private=38600704; working=98799616; handles=449; threads=17; peakPending=21; peakSnapshotAge=0.1686; received=72518; staleDelivered=18188; controlledDrops=0; gc2=4
+SOAK seconds=599.99; tick=36000; managed=15355720; private=38342656; working=98750464; handles=449; threads=19; peakPending=20; peakSnapshotAge=0.1671; received=80602; staleDelivered=20221; controlledDrops=0; gc2=5
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=2900; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2899; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2886; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2902; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2867; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2887; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2880; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.1731m; steady p99=0.0000m; steady max=0.2264m; steady >1cm=10; max pending at completion=13
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=80566; p99=0.0000m; max=0.2264m; snapshots/client=11505; stale packets rejected
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed TenMinuteEightPlayerImpairmentSoak [10 m]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 10.0094 Minutes
