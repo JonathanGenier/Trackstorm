@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+System.InvalidOperationException: Deployed Oil survives its owner's lethal finish and reaches both final worlds
+   at Trackstorm.Client.Verification.PostMatchIntegrationChecks.Check(Boolean condition, String message) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\PostMatchIntegrationChecks.cs:line 482
+   at Trackstorm.Client.Verification.PostMatchIntegrationChecks.Run() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\PostMatchIntegrationChecks.cs:line 76
+WARNING: 36 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 8 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

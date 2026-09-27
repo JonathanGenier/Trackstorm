@@ -1,0 +1,211 @@
+[
+  {
+    "profile": "entry-100ms",
+    "player": "player-1",
+    "startup": 0.030287504196166992,
+    "steady": 0,
+    "p99": 0,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 16,
+    "snaps": 0
+  },
+  {
+    "profile": "entry-eight",
+    "player": "player-1",
+    "startup": 0.006314516067504883,
+    "steady": 0.08397113531827927,
+    "p99": 0,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 16,
+    "snaps": 0
+  },
+  {
+    "profile": "entry-eight",
+    "player": "player-2",
+    "startup": 0.013208866119384766,
+    "steady": 0,
+    "p99": 0,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 18,
+    "snaps": 0
+  },
+  {
+    "profile": "entry-eight",
+    "player": "player-3",
+    "startup": 0.011372685432434082,
+    "steady": 0.03888292983174324,
+    "p99": 0.00052055245032534,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 15,
+    "snaps": 0
+  },
+  {
+    "profile": "entry-eight",
+    "player": "player-4",
+    "startup": 0.016631722450256348,
+    "steady": 0.09964499622583389,
+    "p99": 0.028387106955051422,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 19,
+    "snaps": 0
+  },
+  {
+    "profile": "entry-eight",
+    "player": "player-5",
+    "startup": 0.016631722450256348,
+    "steady": 0.08830226957798004,
+    "p99": 0.0063470532186329365,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 15,
+    "snaps": 0
+  },
+  {
+    "profile": "entry-eight",
+    "player": "player-6",
+    "startup": 0.011372685432434082,
+    "steady": 0.04975000396370888,
+    "p99": 0.012956954538822174,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 17,
+    "snaps": 0
+  },
+  {
+    "profile": "entry-eight",
+    "player": "player-7",
+    "startup": 0.011372685432434082,
+    "steady": 0.002492945408448577,
+    "p99": 0,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 16,
+    "snaps": 0
+  },
+  {
+    "profile": "final-vehicles-100ms",
+    "player": "player-1",
+    "startup": 0.45564043521881104,
+    "steady": 0,
+    "p99": 0,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 24,
+    "snaps": 0
+  },
+  {
+    "profile": "final-vehicles-50ms",
+    "player": "player-1",
+    "startup": 0.2587164044380188,
+    "steady": 0.0047324104234576225,
+    "p99": 0,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 20,
+    "snaps": 0
+  },
+  {
+    "profile": "final-vehicles-baseline",
+    "player": "player-1",
+    "startup": 0.14721351861953735,
+    "steady": 0,
+    "p99": 0,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 12,
+    "snaps": 0
+  },
+  {
+    "profile": "final-vehicles-eight",
+    "player": "player-1",
+    "startup": 0.1456061601638794,
+    "steady": 0.13893121480941772,
+    "p99": 0.006007327698171139,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 20,
+    "snaps": 0
+  },
+  {
+    "profile": "final-vehicles-eight",
+    "player": "player-2",
+    "startup": 0.3720458745956421,
+    "steady": 0.11123005300760269,
+    "p99": 0.029063839465379715,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 21,
+    "snaps": 0
+  },
+  {
+    "profile": "final-vehicles-eight",
+    "player": "player-3",
+    "startup": 0.3924952447414398,
+    "steady": 0.5853898525238037,
+    "p99": 0.057022593915462494,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 21,
+    "snaps": 0
+  },
+  {
+    "profile": "final-vehicles-eight",
+    "player": "player-4",
+    "startup": 0.2649487555027008,
+    "steady": 0.11785275489091873,
+    "p99": 0.05484364554286003,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 22,
+    "snaps": 0
+  },
+  {
+    "profile": "final-vehicles-eight",
+    "player": "player-5",
+    "startup": 0.20582208037376404,
+    "steady": 0.19159188866615295,
+    "p99": 0.1105944886803627,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 21,
+    "snaps": 0
+  },
+  {
+    "profile": "final-vehicles-eight",
+    "player": "player-6",
+    "startup": 0.30937930941581726,
+    "steady": 0.1994258463382721,
+    "p99": 0.1341319978237152,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 21,
+    "snaps": 0
+  },
+  {
+    "profile": "final-vehicles-eight",
+    "player": "player-7",
+    "startup": 0.3896677792072296,
+    "steady": 0,
+    "p99": 0,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 22,
+    "snaps": 0
+  },
+  {
+    "profile": "final-vehicles-loss",
+    "player": "player-1",
+    "startup": 0.25405940413475037,
+    "steady": 0.1547141671180725,
+    "p99": 0,
+    "holds": 0,
+    "steadyHolds": 0,
+    "pending": 17,
+    "snaps": 0
+  }
+]

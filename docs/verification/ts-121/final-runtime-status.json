@@ -1,0 +1,202 @@
+[
+  {
+    "name": "final-native",
+    "command": "dotnet test code/TransportTests/Trackstorm.Transport.Tests.csproj -c Release --no-build --filter 'TestCategory=Native' --logger 'console;verbosity=normal'; if ($LASTEXITCODE -ne 0) { throw 'Native tests failed' }",
+    "startedUtc": "2026-09-26T21:03:39.1405070Z",
+    "seconds": 127.888697,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-vehicles-baseline",
+    "command": "./check-network-vehicles.ps1 -GodotPath $godot -NoBuild -Visual -CaptureDuringDriving",
+    "startedUtc": "2026-09-26T21:05:47.0342698Z",
+    "seconds": 32.130344,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-vehicles-50ms",
+    "command": "./check-network-vehicles.ps1 -GodotPath $godot -NoBuild -Latency 25 -Jitter 5",
+    "startedUtc": "2026-09-26T21:06:19.1656925Z",
+    "seconds": 32.310138,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-vehicles-100ms",
+    "command": "./check-network-vehicles.ps1 -GodotPath $godot -NoBuild -Latency 50 -Jitter 10",
+    "startedUtc": "2026-09-26T21:06:51.4772246Z",
+    "seconds": 32.3496924,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-vehicles-loss",
+    "command": "./check-network-vehicles.ps1 -GodotPath $godot -NoBuild -Loss 2",
+    "startedUtc": "2026-09-26T21:07:23.8281213Z",
+    "seconds": 32.1513732,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-vehicles-eight",
+    "command": "./check-network-vehicles.ps1 -GodotPath $godot -NoBuild -Players 8 -Latency 30 -Jitter 10 -Loss 2",
+    "startedUtc": "2026-09-26T21:07:55.9807851Z",
+    "seconds": 33.2929795,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-items",
+    "command": "./check-items.ps1 -GodotPath $godot -NoBuild -Impaired -Visual",
+    "startedUtc": "2026-09-26T21:08:29.2749523Z",
+    "seconds": 8.3659468,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-oil",
+    "command": "./check-oil.ps1 -GodotPath $godot -NoBuild -Impaired",
+    "startedUtc": "2026-09-26T21:08:37.6420011Z",
+    "seconds": 8.3618417,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-nitro",
+    "command": "./check-nitro.ps1 -GodotPath $godot -NoBuild -Impaired",
+    "startedUtc": "2026-09-26T21:08:46.0049356Z",
+    "seconds": 32.2143861,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-circus",
+    "command": "./check-stunts.ps1 -GodotPath $godot -NoBuild -Impaired",
+    "startedUtc": "2026-09-26T21:09:18.2203349Z",
+    "seconds": 27.5514075,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-match",
+    "command": "./check-match.ps1 -GodotPath $godot -NoBuild -Impaired",
+    "startedUtc": "2026-09-26T21:09:45.7726563Z",
+    "seconds": 39.5689121,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-salvo",
+    "command": "./check-salvo.ps1 -GodotPath $godot -NoBuild -Impaired",
+    "startedUtc": "2026-09-26T21:10:25.3427782Z",
+    "seconds": 18.0434565,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-spawns",
+    "command": "./check-item-spawns.ps1 -GodotPath $godot -NoBuild -Impaired -Oval",
+    "startedUtc": "2026-09-26T21:10:43.3871448Z",
+    "seconds": 28.2565313,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-entry",
+    "command": "./check-match-start.ps1 -GodotPath $godot -NoBuild",
+    "startedUtc": "2026-09-26T21:11:11.6447895Z",
+    "seconds": 81.9629639,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-lobby",
+    "command": "./check-lobby.ps1 -GodotPath $godot -NoBuild",
+    "startedUtc": "2026-09-26T21:12:33.6087269Z",
+    "seconds": 23.3295932,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-reconnect",
+    "command": "./check-reconnect.ps1 -GodotPath $godot -NoBuild",
+    "startedUtc": "2026-09-26T21:12:56.9392949Z",
+    "seconds": 142.3776125,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-migration-three",
+    "command": "./check-migration.ps1 -GodotPath $godot -NoBuild -Players 3",
+    "startedUtc": "2026-09-26T21:15:19.3177927Z",
+    "seconds": 13.816781,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-migration-two",
+    "command": "./check-migration.ps1 -GodotPath $godot -NoBuild -Players 2",
+    "startedUtc": "2026-09-26T21:15:33.1355531Z",
+    "seconds": 10.4802723,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-migration-process",
+    "command": "./check-migration-processes.ps1 -GodotPath $godot -NoBuild -Players 3",
+    "startedUtc": "2026-09-26T21:15:43.6168123Z",
+    "seconds": 13.1976224,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-standings",
+    "command": "./check-standings.ps1 -GodotPath $godot -NoBuild -Visual",
+    "startedUtc": "2026-09-26T21:15:56.8153795Z",
+    "seconds": 13.9262288,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-events",
+    "command": "./check-event-log.ps1 -GodotPath $godot -NoBuild",
+    "startedUtc": "2026-09-26T21:16:10.7425246Z",
+    "seconds": 11.2620446,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-godot-transport",
+    "command": "& $godot --headless --path $PWD res://scenes/verification/transport_checks.tscn --quit-after 20000; if ($LASTEXITCODE -ne 0) { throw 'Godot transport failed' }",
+    "startedUtc": "2026-09-26T21:16:22.0055804Z",
+    "seconds": 0.4747624,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-eos-lifecycle",
+    "command": "./check-eos.ps1 -GodotPath $godot",
+    "startedUtc": "2026-09-26T21:16:22.4814447Z",
+    "seconds": 1.4814422,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-eos-authenticated",
+    "command": "./check-eos.ps1 -GodotPath $godot -P2p",
+    "startedUtc": "2026-09-26T21:16:23.9638001Z",
+    "seconds": 3.0026229,
+    "passed": false,
+    "error": "EOS process cycle 1 failed."
+  },
+  {
+    "name": "final-startup",
+    "command": "& $godot --headless --path $PWD --quit-after 180; if ($LASTEXITCODE -ne 0) { throw 'Startup failed' }",
+    "startedUtc": "2026-09-26T21:16:26.9675192Z",
+    "seconds": 1.5985133,
+    "passed": true,
+    "error": ""
+  }
+]

@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Multiplayer impairment, soak and repeated-session validation | [TS-121 verification evidence](ts-121.md) |
 | Vehicle prediction acknowledgement headroom | [TS-209 verification evidence](ts-209.md) |
 | Vehicle synchronization quality, controlled startup stalls and measured limitations | [TS-69: prediction, reconciliation, interpolation and impairment evidence](ts-69.md) |
 | Shared DevTools configuration, export and import | [TS-183 verification evidence](ts-183.md) |

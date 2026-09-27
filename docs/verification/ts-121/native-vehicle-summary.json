@@ -1,0 +1,67 @@
+[
+  {
+    "profile": "baseline",
+    "clients": 1,
+    "meanRttMs": 0.0,
+    "maxSnapshotAgeMs": 56.80799999390729,
+    "maxSteadyCorrection": 0.35690316557884216,
+    "maxSteadyP99": 0.0,
+    "maxPending": 10.0,
+    "steadyHoldTicks": 0.0,
+    "hardSnaps": 0.0,
+    "totalHoldTicks": 0.0,
+    "maxStartupCorrection": 0.15331733226776123
+  },
+  {
+    "profile": "50ms",
+    "clients": 1,
+    "meanRttMs": 54.253125,
+    "maxSnapshotAgeMs": 67.13059998583049,
+    "maxSteadyCorrection": 0.1599029004573822,
+    "maxSteadyP99": 0.0,
+    "maxPending": 20.0,
+    "steadyHoldTicks": 0.0,
+    "hardSnaps": 0.0,
+    "totalHoldTicks": 4.0,
+    "maxStartupCorrection": 0.22256989777088165
+  },
+  {
+    "profile": "100ms",
+    "clients": 1,
+    "meanRttMs": 108.23333333333333,
+    "maxSnapshotAgeMs": 67.33230000827461,
+    "maxSteadyCorrection": 0.0,
+    "maxSteadyP99": 0.0,
+    "maxPending": 24.0,
+    "steadyHoldTicks": 0.0,
+    "hardSnaps": 0.0,
+    "totalHoldTicks": 9.0,
+    "maxStartupCorrection": 0.10634735971689224
+  },
+  {
+    "profile": "loss",
+    "clients": 1,
+    "meanRttMs": 0.0,
+    "maxSnapshotAgeMs": 83.80550000583753,
+    "maxSteadyCorrection": 0.0,
+    "maxSteadyP99": 0.0,
+    "maxPending": 17.0,
+    "steadyHoldTicks": 0.0,
+    "hardSnaps": 0.0,
+    "totalHoldTicks": 0.0,
+    "maxStartupCorrection": 0.25405940413475037
+  },
+  {
+    "profile": "eight",
+    "clients": 7,
+    "meanRttMs": 76.078125,
+    "maxSnapshotAgeMs": 366.5421000041533,
+    "maxSteadyCorrection": 0.2904475927352905,
+    "maxSteadyP99": 0.13648992776870728,
+    "maxPending": 40.0,
+    "steadyHoldTicks": 0.0,
+    "hardSnaps": 0.0,
+    "totalHoldTicks": 198.0,
+    "maxStartupCorrection": 0.3580167293548584
+  }
+]

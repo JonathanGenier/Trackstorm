@@ -1,0 +1,43 @@
+  Trackstorm.Core -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\third_party\eos\bin\Release\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\mono\temp\bin\Release\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+Test run for C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Non-Explicit run
+Refresh at 183, age=0.06666666666666643, pending=10
+Refresh at 186, age=0.1166666666666667, pending=13
+Refresh at 190, age=0.18333333333333313, pending=17
+Hold at 192, age=0.21666666666666679, pending=19
+Hold at 193, age=0.2333333333333334, pending=20
+Refresh at 193, age=0.2333333333333334, pending=20
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Failed LostPeriodicSnapshotsRecoverWithoutExtendingPredictionOrReliableTraffic [245 ms]
+  Error Message:
+     Assert.That(limited, Is.Zero)
+  Expected: 0
+  But was:  2
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.VehicleNetworkDriverTests.LostPeriodicSnapshotsRecoverWithoutExtendingPredictionOrReliableTraffic() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\VehicleNetworkDriverTests.Refresh.cs:line 55
+
+1)    at Trackstorm.Transport.Tests.VehicleNetworkDriverTests.LostPeriodicSnapshotsRecoverWithoutExtendingPredictionOrReliableTraffic() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\VehicleNetworkDriverTests.Refresh.cs:line 55
+
+
+  Standard Output Messages:
+ Refresh at 183, age=0.06666666666666643, pending=10
+ Refresh at 186, age=0.1166666666666667, pending=13
+ Refresh at 190, age=0.18333333333333313, pending=17
+ Hold at 192, age=0.21666666666666679, pending=19
+ Hold at 193, age=0.2333333333333334, pending=20
+ Refresh at 193, age=0.2333333333333334, pending=20
+
+
+
+Total tests: 1
+     Failed: 1
+ Total time: 2.4292 Seconds
+Test Run Failed.

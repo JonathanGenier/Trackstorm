@@ -1,0 +1,50 @@
+Test run for C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Explicit run
+SOAK seconds=59.98; tick=3600; managed=12739240; private=35352576; working=94453760; handles=452; threads=20; peakPending=21; peakSnapshotAge=0.2042; received=7897; staleDelivered=2014; controlledDrops=158; gc2=1
+SOAK seconds=119.98; tick=7200; managed=13104824; private=34668544; working=93925376; handles=449; threads=19; peakPending=20; peakSnapshotAge=0.1674; received=15791; staleDelivered=4040; controlledDrops=318; gc2=1
+SOAK seconds=179.99; tick=10800; managed=14321464; private=36880384; working=96133120; handles=447; threads=17; peakPending=22; peakSnapshotAge=0.1997; received=23686; staleDelivered=6058; controlledDrops=480; gc2=2
+SOAK seconds=239.99; tick=14400; managed=3500032; private=36675584; working=95973376; handles=450; threads=18; peakPending=22; peakSnapshotAge=0.1820; received=31612; staleDelivered=8080; controlledDrops=642; gc2=2
+SOAK seconds=299.98; tick=18000; managed=5023928; private=37449728; working=96641024; handles=450; threads=20; peakPending=21; peakSnapshotAge=0.1666; received=39491; staleDelivered=10099; controlledDrops=802; gc2=2
+SOAK seconds=359.98; tick=21600; managed=6151960; private=37330944; working=96665600; handles=450; threads=20; peakPending=20; peakSnapshotAge=0.1654; received=47402; staleDelivered=12122; controlledDrops=963; gc2=3
+SOAK seconds=419.98; tick=25200; managed=7683464; private=37351424; working=96727040; handles=447; threads=17; peakPending=21; peakSnapshotAge=0.1841; received=55317; staleDelivered=14149; controlledDrops=1125; gc2=3
+SOAK seconds=479.99; tick=28800; managed=8686704; private=37195776; working=96727040; handles=447; threads=17; peakPending=22; peakSnapshotAge=0.1835; received=63206; staleDelivered=16160; controlledDrops=1287; gc2=4
+SOAK seconds=539.99; tick=32400; managed=11326392; private=38473728; working=97398784; handles=450; threads=18; peakPending=22; peakSnapshotAge=0.2180; received=71122; staleDelivered=18179; controlledDrops=1448; gc2=4
+SOAK seconds=599.98; tick=36000; managed=12501912; private=38342656; working=97521664; handles=450; threads=20; peakPending=23; peakSnapshotAge=0.2178; received=79027; staleDelivered=20198; controlledDrops=1609; gc2=4
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Failed TenMinuteEightPlayerImpairmentSoak [10 m]
+  Error Message:
+     Supported WAN conditions must not exhaust the speculative horizon.
+Assert.That(limitedFrames, Is.Zero)
+  Expected: 0
+  But was:  160
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 42
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.TenMinuteEightPlayerImpairmentSoak() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 38
+
+1)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 42
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.TenMinuteEightPlayerImpairmentSoak() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 38
+
+
+  Standard Output Messages:
+ SOAK seconds=59.98; tick=3600; managed=12739240; private=35352576; working=94453760; handles=452; threads=20; peakPending=21; peakSnapshotAge=0.2042; received=7897; staleDelivered=2014; controlledDrops=158; gc2=1
+ SOAK seconds=119.98; tick=7200; managed=13104824; private=34668544; working=93925376; handles=449; threads=19; peakPending=20; peakSnapshotAge=0.1674; received=15791; staleDelivered=4040; controlledDrops=318; gc2=1
+ SOAK seconds=179.99; tick=10800; managed=14321464; private=36880384; working=96133120; handles=447; threads=17; peakPending=22; peakSnapshotAge=0.1997; received=23686; staleDelivered=6058; controlledDrops=480; gc2=2
+ SOAK seconds=239.99; tick=14400; managed=3500032; private=36675584; working=95973376; handles=450; threads=18; peakPending=22; peakSnapshotAge=0.1820; received=31612; staleDelivered=8080; controlledDrops=642; gc2=2
+ SOAK seconds=299.98; tick=18000; managed=5023928; private=37449728; working=96641024; handles=450; threads=20; peakPending=21; peakSnapshotAge=0.1666; received=39491; staleDelivered=10099; controlledDrops=802; gc2=2
+ SOAK seconds=359.98; tick=21600; managed=6151960; private=37330944; working=96665600; handles=450; threads=20; peakPending=20; peakSnapshotAge=0.1654; received=47402; staleDelivered=12122; controlledDrops=963; gc2=3
+ SOAK seconds=419.98; tick=25200; managed=7683464; private=37351424; working=96727040; handles=447; threads=17; peakPending=21; peakSnapshotAge=0.1841; received=55317; staleDelivered=14149; controlledDrops=1125; gc2=3
+ SOAK seconds=479.99; tick=28800; managed=8686704; private=37195776; working=96727040; handles=447; threads=17; peakPending=22; peakSnapshotAge=0.1835; received=63206; staleDelivered=16160; controlledDrops=1287; gc2=4
+ SOAK seconds=539.99; tick=32400; managed=11326392; private=38473728; working=97398784; handles=450; threads=18; peakPending=22; peakSnapshotAge=0.2180; received=71122; staleDelivered=18179; controlledDrops=1448; gc2=4
+ SOAK seconds=599.98; tick=36000; managed=12501912; private=38342656; working=97521664; handles=450; threads=20; peakPending=23; peakSnapshotAge=0.2178; received=79027; staleDelivered=20198; controlledDrops=1609; gc2=4
+
+
+
+Total tests: 1
+     Failed: 1
+ Total time: 10.0093 Minutes
+Test Run Failed.

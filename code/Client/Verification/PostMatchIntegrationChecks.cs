@@ -4,6 +4,7 @@ using Trackstorm.Client.Input;
 using Trackstorm.Client.Networking;
 using Trackstorm.Client.PostMatch;
 using Trackstorm.Core.Input;
+using Trackstorm.Core.Items;
 using Trackstorm.Core.Matches;
 using Trackstorm.Core.Sessions;
 using Trackstorm.Core.Simulation;
@@ -19,12 +20,15 @@ public sealed partial class PostMatchIntegrationChecks : Node
     private string _output = string.Empty;
     private string _endpoint = string.Empty;
     private bool _collectDuringLoading;
+    private bool _nitroHeld;
+    private bool _nitroPressed;
     private readonly List<string> _evidence = new();
 
     public override void _Ready() => CallDeferred(MethodName.Run);
     public override void _PhysicsProcess(double delta)
     {
-        _client?.Advance(default);
+        _client?.Advance(new InputFrame(0, 0, 0, 0, _nitroHeld ? InputButtons.UseItem : 0, _nitroPressed ? InputButtons.UseItem : 0, 0));
+        _nitroPressed = false;
         if (_collectDuringLoading && _host?.LoadingMatch == true) GC.Collect();
     }
 
@@ -53,6 +57,8 @@ public sealed partial class PostMatchIntegrationChecks : Node
             using (var reservation = new System.Net.Sockets.UdpClient(new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 0)))
                 _endpoint = $"127.0.0.1:{((System.Net.IPEndPoint)reservation.Client.LocalEndPoint!).Port}";
             _host.Open(true, _endpoint, "Podium host");
+            if (OS.GetCmdlineUserArgs().Contains("--post-match-impaired"))
+                _host.Gateway!.ConfigureSimulation(new Core.Networking.Transport.NetworkSimulation(30, 10, 2, 10, 25));
             var view = new SubViewport { Size = new Vector2I(1280, 720), OwnWorld3D = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled };
             AddChild(view);
             _client = new DevelopmentSession();
@@ -65,7 +71,11 @@ public sealed partial class PostMatchIntegrationChecks : Node
             int cycles = int.Parse(OS.GetCmdlineUserArgs().Single(arg => arg.StartsWith("--post-match-cycles=", StringComparison.Ordinal))[20..], System.Globalization.CultureInfo.InvariantCulture);
             for (int cycle = 0; cycle < cycles; cycle++)
             {
+                ulong oil = await ExerciseResources();
                 await FinishMatch();
+                await Until(() => !_host.Arena!.Driver.Host!.Items.Patches.Any(patch => patch.Id == oil) &&
+                    !_client.Arena!.Driver.ItemState!.Patches.Any(patch => patch.Id == oil),
+                    "Finished clears deployed Oil authoritatively on both peers");
                 Check(!_client.NavigatePostMatch(PostMatchDestination.Rematch) && !_client.NavigatePostMatch(PostMatchDestination.Lobby) && !_client.NavigatePostMatch(PostMatchDestination.EndMatch), "Non-host cannot navigate the shared match");
                 var context = _host.PostMatch!;
                 var oldHost = _host.Arena!.Driver;
@@ -73,6 +83,17 @@ public sealed partial class PostMatchIntegrationChecks : Node
                 Check(ReferenceEquals(context.Results, _host.GetNode<PodiumScene>("PodiumScene").Displayed!.Results), "Podium presents the exact detached Core result");
                 Check(_client.PostMatch!.Results.Standings.SequenceEqual(context.Results.Standings), "Both peers display identical authoritative results");
                 Check(!shell.MediaPlaying, "MenuShell stays suspended during Podium");
+                using (var process = System.Diagnostics.Process.GetCurrentProcess())
+                {
+                    // Comparable settled boundaries; explicit collection separates retained managed data from allocation churn.
+                    long managed = GC.GetTotalMemory(true);
+                    int hostEvents = _host.Lobby!.Events.Entries.Count;
+                    int clientEvents = _client.Lobby!.Events.Entries.Count;
+                    Check(hostEvents <= 1024 && clientEvents <= 1024, "Session journals remain bounded through rematch");
+                    string sample = $"REMATCH_RESOURCE cycle={cycle + 1}; generation={context.Roster.Match}; managed={managed}; private={process.PrivateMemorySize64}; handles={process.HandleCount}; nodes={Performance.GetMonitor(Performance.Monitor.ObjectNodeCount)}; objects={Performance.GetMonitor(Performance.Monitor.ObjectCount)}; orphans={Performance.GetMonitor(Performance.Monitor.ObjectOrphanNodeCount)}; inputPending={oldClient.Inputs?.Pending.Count}; snapshots={oldClient.History?.Snapshots.Count}; hostEvents={hostEvents}; clientEvents={clientEvents}";
+                    GD.Print(sample);
+                    _evidence.Add(sample);
+                }
                 if (cycle == 0)
                 {
                     var world = _host.Arena!.Driver.Host!.World;
@@ -144,6 +165,9 @@ public sealed partial class PostMatchIntegrationChecks : Node
                     Check(_host.Lobby!.State!.Match == context.Roster.Match + 1, "Rematch advances generation exactly once");
                     Check(_host.Arena!.Driver.Match is { Winner: null } fresh && fresh.Phase != MatchPhase.Finished && fresh.Players.All(row => row.Kills == 0 && row.Deaths == 0 && row.Wins == 0 && row.ProcessedLife == 0 && row.CircusScore == 0 && row.KillStreak == 0 && row.Stunts is null && row.ProcessedDamageLife == 0 && row.ProcessedDamageSequence == 0), "Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history");
                     Check(_host.FinalResults is null && _client.FinalResults is null, "Neither peer leaks old results");
+                    Check(_host.Arena.Driver.Host!.Items.Slots.All(slot => slot.Item == HeldItem.None && slot.SecondItem == HeldItem.None && slot.NitroCharge == 0 && slot.SecondNitroCharge == 0) &&
+                        _host.Arena.Driver.Host.Items.Missiles.Count == 0 && _host.Arena.Driver.Host.Items.Patches.Count == 0,
+                        "Fresh generation has no held resources, projectiles or persistent Oil");
                     await Until(() => _host.Arena?.Driver.Match?.Phase == MatchPhase.Active && _client.Arena?.Driver.Match?.Phase == MatchPhase.Active, "Fresh countdown reaches Active");
                 }
             }
@@ -201,6 +225,40 @@ public sealed partial class PostMatchIntegrationChecks : Node
         await Until(() => _host.Lobby.State!.CanStart, "Connected lobby readied");
         Check(_host.Lobby.Request(LobbyCommand.Start), "Normal lobby Start accepted");
         await Until(() => _host.Arena?.Driver.Match?.Phase == MatchPhase.Active && _client.Arena?.Driver.Match?.Phase == MatchPhase.Active, "Initial Loader/Sync and countdown complete");
+    }
+
+    private async Task<ulong> ExerciseResources()
+    {
+        var host = _host.Arena!.Driver.Host!;
+        var remote = _client!.Arena!.Driver;
+        ulong player = remote.LocalVehicleId;
+        await Frames(30); // Let the newly spawned native wheels settle before terrain placement.
+        Check(host.Items.Grant(host.World, player, HeldItem.Oil), "Fresh match grants Oil through item authority");
+        await Until(() => remote.LocalItem?.Active.Item == HeldItem.Oil, "Remote receives this generation's Oil capability");
+        ulong token = remote.LocalItem!.Active.Token;
+        Check(remote.RequestItemUse(), "Remote submits native Oil deployment");
+        await Until(() => host.Items.Patches.Any(patch => patch.Id == token) && remote.ItemState!.Patches.Any(patch => patch.Id == token), "One authoritative Oil deployment reaches both peers");
+        Check(host.Items.Patches.Count(patch => patch.Id == token) == 1, "Oil capability produces exactly one persistent patch");
+        Check(host.Items.Grant(host.World, player, HeldItem.Nitro), "Consumed Oil slot accepts Nitro in the same generation");
+        await Until(() => remote.LocalItem?.Active.Item == HeldItem.Nitro, "Remote receives Nitro capability");
+        _nitroHeld = _nitroPressed = true;
+        await Until(() => host.World.GetVehicle(player).Movement.Nitro.Active && remote.LocalState!.Movement.Nitro.Active, "Native remote Nitro activation converges");
+        await Frames(30);
+        _nitroHeld = false;
+        await Until(() => !host.World.GetVehicle(player).Movement.Nitro.Active && !remote.LocalState!.Movement.Nitro.Active, "Nitro release stops thrust on both peers");
+        await Until(() => remote.LocalItem!.Active.NitroCharge == host.Items.Slots.Single(slot => slot.Vehicle == player).Active.NitroCharge, "Released partial Nitro resource converges exactly");
+        Check(remote.LocalItem!.Active.NitroCharge is > 0 and < 100, "Partial Nitro is retained before lethal finish/rematch cleanup");
+        ulong life = host.World.GetVehicle(player).LifeId;
+        var frame = new InputFrame(host.World.State.Tick + 1, 0, 0, 0, 0, 0, 0);
+        host.World.Step(frame, host.World.State.Vehicles.Select(vehicle => new Core.Vehicles.VehicleStepRequest(vehicle.VehicleId, frame,
+            new Core.Vehicles.VehicleObservation(vehicle.ObservedPhysics, System.Numerics.Vector3.UnitY), vehicle.VehicleId == player
+                ? [new Core.Vehicles.VehicleEffectRequest(new Core.Vehicles.DamageEffect(100000, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero), new Core.Vehicles.DamageContext("missile", host.HostPlayerId, "Oil owner death check"))] : [])).ToArray());
+        await Until(() => remote.LocalState?.CanInteract == false, "Oil owner death reaches the remote native world while match remains Active");
+        Check(host.World.State.Match!.Phase == MatchPhase.Active && host.Items.Patches.Any(patch => patch.Id == token) &&
+            remote.ItemState!.Patches.Any(patch => patch.Id == token), "Oil survives its owner's death in the active generation");
+        await Until(() => remote.LocalState is { CanInteract: true } state && state.LifeId > life, "Owner respawns through the authoritative native lifecycle");
+        Check(host.Items.Patches.Any(patch => patch.Id == token) && remote.ItemState!.Patches.Any(patch => patch.Id == token), "Oil survives owner respawn without duplicate deployment");
+        return token;
     }
 
     private async Task FinishMatch(bool withClient = true)

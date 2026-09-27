@@ -14,6 +14,9 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+Assert-True ((Get-FastCheckPlan -Paths @('code/Client/Verification/EosIntegrationChecks.cs')).RuntimeScripts -contains 'check-eos.ps1') 'EOS harness changes must route native lifecycle verification and retain authenticated follow-up guidance.'
+Assert-True ((Get-FastCheckPlan -Paths @('code/TransportTests/NativeVehicleReplicationTests.cs')).ExtendedScripts -contains 'check-network-soak.ps1') 'Native impairment changes must identify opt-in sustained soak coverage.'
+Assert-True ((Get-FastCheckPlan -Paths @('code/Client/Verification/PostMatchIntegrationChecks.cs')).RuntimeScripts -contains 'check-post-match.ps1') 'Rematch harness changes must route native lifecycle verification.'
 Assert-True ((Get-FastCheckPlan -Paths @('code/Core/Vehicles/VehicleMovement.cs')).RuntimeScripts -contains 'check-air-control.ps1') 'Vehicle movement changes require air-control verification.'
 foreach ($path in @('code/Core/Items/ItemSpawnAuthority.cs', 'code/Client/Verification/PickupDriveChecks.cs', 'scenes/verification/pickup_drive_checks.tscn')) {
     Assert-True ((Get-FastCheckPlan -Paths @($path)).RuntimeScripts -contains 'check-pickup-drive.ps1') 'Pickup authority and moving-crossing changes require production drive-through verification.'

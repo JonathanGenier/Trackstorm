@@ -1,0 +1,84 @@
+Test run for C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Explicit run
+SOAK seconds=59.98; tick=3600; managed=14251696; private=35213312; working=94658560; handles=451; threads=20; peakPending=19; peakSnapshotAge=0.8350; received=8028; staleDelivered=2030; controlledDrops=0; gc2=1
+SOAK seconds=119.98; tick=7200; managed=15117808; private=35024896; working=94527488; handles=448; threads=19; peakPending=19; peakSnapshotAge=0.1663; received=16075; staleDelivered=4054; controlledDrops=0; gc2=1
+SOAK seconds=179.98; tick=10800; managed=4706176; private=37130240; working=96710656; handles=446; threads=17; peakPending=21; peakSnapshotAge=0.1818; received=24142; staleDelivered=6074; controlledDrops=0; gc2=2
+SOAK seconds=239.99; tick=14400; managed=6648856; private=36585472; working=96321536; handles=449; threads=18; peakPending=23; peakSnapshotAge=0.2329; received=32207; staleDelivered=8101; controlledDrops=0; gc2=2
+SOAK seconds=299.98; tick=18000; managed=8862064; private=37228544; working=96915456; handles=449; threads=20; peakPending=20; peakSnapshotAge=0.1504; received=40268; staleDelivered=10115; controlledDrops=0; gc2=2
+SOAK seconds=359.98; tick=21600; managed=10346304; private=37298176; working=97095680; handles=449; threads=20; peakPending=21; peakSnapshotAge=0.1668; received=48326; staleDelivered=12136; controlledDrops=0; gc2=3
+SOAK seconds=419.98; tick=25200; managed=12023408; private=36888576; working=96780288; handles=446; threads=17; peakPending=23; peakSnapshotAge=0.2179; received=56385; staleDelivered=14147; controlledDrops=0; gc2=3
+SOAK seconds=479.99; tick=28800; managed=13487184; private=37171200; working=96985088; handles=446; threads=17; peakPending=21; peakSnapshotAge=0.1685; received=64430; staleDelivered=16160; controlledDrops=0; gc2=4
+SOAK seconds=539.99; tick=32400; managed=16421904; private=38121472; working=97660928; handles=449; threads=18; peakPending=19; peakSnapshotAge=0.1668; received=72496; staleDelivered=18179; controlledDrops=0; gc2=4
+SOAK seconds=599.98; tick=36000; managed=4909368; private=38117376; working=97783808; handles=449; threads=20; peakPending=20; peakSnapshotAge=0.1677; received=80551; staleDelivered=20193; controlledDrops=0; gc2=5
+prediction-limited client ticks=77; during probe window plus 0.5s drain=12; elsewhere=65
+delivered stale probes=2903; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2879; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2881; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2883; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2895; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2880; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2872; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.1394m; steady p99=0.0000m; steady max=0.7391m; steady >1cm=57; max pending at completion=13
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=80514; p99=0.0000m; max=0.7391m; snapshots/client=11477; stale packets rejected
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Failed TenMinuteEightPlayerImpairmentSoak [10 m]
+  Error Message:
+   Multiple failures or warnings in test:
+  1)   Supported WAN conditions must not exhaust the speculative horizon.
+Assert.That(limitedFrames, Is.Zero)
+  Expected: 0
+  But was:  77
+
+  2)   A percentile must not hide an isolated ordinary-driving correction.
+Assert.That(steady.Max(), Is.LessThan(0.5))
+  Expected: less than 0.5d
+  But was:  0.7390607f
+
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 173
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.TenMinuteEightPlayerImpairmentSoak() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 43
+
+1)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.<>c__DisplayClass3_0.<RunVehicleLoop>b__0() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 177
+   at NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 173
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.TenMinuteEightPlayerImpairmentSoak() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 43
+
+2)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.<>c__DisplayClass3_0.<RunVehicleLoop>b__0() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 202
+   at NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 173
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.TenMinuteEightPlayerImpairmentSoak() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 43
+
+
+  Standard Output Messages:
+ SOAK seconds=59.98; tick=3600; managed=14251696; private=35213312; working=94658560; handles=451; threads=20; peakPending=19; peakSnapshotAge=0.8350; received=8028; staleDelivered=2030; controlledDrops=0; gc2=1
+ SOAK seconds=119.98; tick=7200; managed=15117808; private=35024896; working=94527488; handles=448; threads=19; peakPending=19; peakSnapshotAge=0.1663; received=16075; staleDelivered=4054; controlledDrops=0; gc2=1
+ SOAK seconds=179.98; tick=10800; managed=4706176; private=37130240; working=96710656; handles=446; threads=17; peakPending=21; peakSnapshotAge=0.1818; received=24142; staleDelivered=6074; controlledDrops=0; gc2=2
+ SOAK seconds=239.99; tick=14400; managed=6648856; private=36585472; working=96321536; handles=449; threads=18; peakPending=23; peakSnapshotAge=0.2329; received=32207; staleDelivered=8101; controlledDrops=0; gc2=2
+ SOAK seconds=299.98; tick=18000; managed=8862064; private=37228544; working=96915456; handles=449; threads=20; peakPending=20; peakSnapshotAge=0.1504; received=40268; staleDelivered=10115; controlledDrops=0; gc2=2
+ SOAK seconds=359.98; tick=21600; managed=10346304; private=37298176; working=97095680; handles=449; threads=20; peakPending=21; peakSnapshotAge=0.1668; received=48326; staleDelivered=12136; controlledDrops=0; gc2=3
+ SOAK seconds=419.98; tick=25200; managed=12023408; private=36888576; working=96780288; handles=446; threads=17; peakPending=23; peakSnapshotAge=0.2179; received=56385; staleDelivered=14147; controlledDrops=0; gc2=3
+ SOAK seconds=479.99; tick=28800; managed=13487184; private=37171200; working=96985088; handles=446; threads=17; peakPending=21; peakSnapshotAge=0.1685; received=64430; staleDelivered=16160; controlledDrops=0; gc2=4
+ SOAK seconds=539.99; tick=32400; managed=16421904; private=38121472; working=97660928; handles=449; threads=18; peakPending=19; peakSnapshotAge=0.1668; received=72496; staleDelivered=18179; controlledDrops=0; gc2=4
+ SOAK seconds=599.98; tick=36000; managed=4909368; private=38117376; working=97783808; handles=449; threads=20; peakPending=20; peakSnapshotAge=0.1677; received=80551; staleDelivered=20193; controlledDrops=0; gc2=5
+ prediction-limited client ticks=77; during probe window plus 0.5s drain=12; elsewhere=65
+ delivered stale probes=2903; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=2879; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=2881; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=2883; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=2895; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=2880; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=2872; controlled dropped snapshots=0; native loss is configured, not individually observable
+ startup max=0.1394m; steady p99=0.0000m; steady max=0.7391m; steady >1cm=57; max pending at completion=13
+ players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=80514; p99=0.0000m; max=0.7391m; snapshots/client=11477; stale packets rejected
+
+
+
+Total tests: 1
+     Failed: 1
+Test Run Failed.
+ Total time: 10.0100 Minutes

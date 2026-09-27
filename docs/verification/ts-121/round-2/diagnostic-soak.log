@@ -1,0 +1,266 @@
+  Trackstorm.Core -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\third_party\eos\bin\Release\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\mono\temp\bin\Release\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+Test run for C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Explicit run
+CORRECTION tick=50; vehicle=7; error=0.1055; scheduleLag=0.0005; age=0.0004; pending=8; clientAck=29; authorityAck=32; hostTick=51; snapshotTick=48
+HOLD tick=219; vehicle=8; scheduleLag=0.0003; age=0.1320; pending=19; clientAck=185; authorityAck=198; hostTick=220; snapshotTick=207
+CORRECTION tick=312; vehicle=3; error=0.1303; scheduleLag=0.0005; age=0.0001; pending=9; clientAck=290; authorityAck=294; hostTick=313; snapshotTick=309
+CORRECTION tick=1950; vehicle=6; error=0.1026; scheduleLag=0.0009; age=0.0000; pending=9; clientAck=1918; authorityAck=1922; hostTick=1951; snapshotTick=1947
+HOLD tick=2976; vehicle=8; scheduleLag=0.0019; age=0.1507; pending=19; clientAck=2942; authorityAck=2955; hostTick=2977; snapshotTick=2964
+HOLD tick=2977; vehicle=8; scheduleLag=0.0013; age=0.1668; pending=20; clientAck=2942; authorityAck=2956; hostTick=2978; snapshotTick=2964
+HOLD tick=2978; vehicle=8; scheduleLag=0.0015; age=0.1835; pending=21; clientAck=2942; authorityAck=2957; hostTick=2979; snapshotTick=2964
+CORRECTION tick=2979; vehicle=8; error=0.6898; scheduleLag=0.0013; age=0.0001; pending=9; clientAck=2954; authorityAck=2958; hostTick=2980; snapshotTick=2976
+SOAK seconds=59.98; tick=3600; managed=4869592; private=35524608; working=96333824; handles=443; threads=20; peakPending=21; peakSnapshotAge=0.3687; received=8058; staleDelivered=2022; controlledDrops=0; gc2=1
+HOLD tick=6633; vehicle=8; scheduleLag=0.0009; age=0.1658; pending=19; clientAck=6599; authorityAck=6612; hostTick=6634; snapshotTick=6621
+CORRECTION tick=6634; vehicle=8; error=0.1938; scheduleLag=0.0014; age=0.0000; pending=10; clientAck=6608; authorityAck=6613; hostTick=6635; snapshotTick=6630
+HOLD tick=6722; vehicle=5; scheduleLag=0.0017; age=0.1175; pending=19; clientAck=6691; authorityAck=6703; hostTick=6723; snapshotTick=6711
+SOAK seconds=119.98; tick=7200; managed=7910480; private=35901440; working=96628736; handles=443; threads=20; peakPending=19; peakSnapshotAge=0.1658; received=16126; staleDelivered=4035; controlledDrops=0; gc2=1
+SOAK seconds=179.98; tick=10800; managed=12113208; private=37588992; working=98185216; handles=438; threads=17; peakPending=18; peakSnapshotAge=0.1340; received=24189; staleDelivered=6059; controlledDrops=0; gc2=2
+HOLD tick=11496; vehicle=8; scheduleLag=0.0005; age=0.1336; pending=19; clientAck=11462; authorityAck=11475; hostTick=11497; snapshotTick=11484
+HOLD tick=11658; vehicle=8; scheduleLag=0.0015; age=0.1509; pending=19; clientAck=11624; authorityAck=11637; hostTick=11659; snapshotTick=11646
+CORRECTION tick=11659; vehicle=8; error=0.2162; scheduleLag=0.0005; age=0.0000; pending=10; clientAck=11633; authorityAck=11638; hostTick=11660; snapshotTick=11655
+HOLD tick=11993; vehicle=6; scheduleLag=0.0002; age=0.1331; pending=19; clientAck=11952; authorityAck=11964; hostTick=11994; snapshotTick=11982
+CORRECTION tick=11994; vehicle=6; error=0.1219; scheduleLag=0.0007; age=0.0000; pending=10; clientAck=11961; authorityAck=11965; hostTick=11995; snapshotTick=11991
+HOLD tick=13475; vehicle=5; scheduleLag=0.0005; age=0.1334; pending=19; clientAck=13444; authorityAck=13456; hostTick=13476; snapshotTick=13464
+CORRECTION tick=13476; vehicle=5; error=0.1002; scheduleLag=0.0004; age=0.0000; pending=10; clientAck=13453; authorityAck=13457; hostTick=13477; snapshotTick=13473
+SOAK seconds=239.98; tick=14400; managed=3723912; private=37433344; working=98250752; handles=441; threads=18; peakPending=19; peakSnapshotAge=0.1510; received=32267; staleDelivered=8071; controlledDrops=0; gc2=2
+HOLD tick=16739; vehicle=6; scheduleLag=0.0002; age=0.1482; pending=19; clientAck=16698; authorityAck=16710; hostTick=16740; snapshotTick=16728
+CORRECTION tick=16740; vehicle=6; error=0.1358; scheduleLag=0.0010; age=0.0000; pending=10; clientAck=16707; authorityAck=16711; hostTick=16741; snapshotTick=16737
+CORRECTION tick=17355; vehicle=7; error=0.1705; scheduleLag=0.0003; age=0.0001; pending=10; clientAck=17332; authorityAck=17336; hostTick=17356; snapshotTick=17352
+SOAK seconds=299.98; tick=18000; managed=8073624; private=37662720; working=98557952; handles=438; threads=19; peakPending=19; peakSnapshotAge=0.1482; received=40330; staleDelivered=10077; controlledDrops=0; gc2=2
+HOLD tick=18027; vehicle=2; scheduleLag=0.0014; age=0.1504; pending=19; clientAck=17998; authorityAck=18011; hostTick=18028; snapshotTick=18015
+HOLD tick=18038; vehicle=7; scheduleLag=0.0003; age=0.1333; pending=19; clientAck=18007; authorityAck=18019; hostTick=18039; snapshotTick=18027
+HOLD tick=18200; vehicle=3; scheduleLag=0.0005; age=0.1170; pending=19; clientAck=18169; authorityAck=18181; hostTick=18201; snapshotTick=18189
+HOLD tick=18275; vehicle=3; scheduleLag=0.0001; age=0.1165; pending=19; clientAck=18244; authorityAck=18256; hostTick=18276; snapshotTick=18264
+HOLD tick=18276; vehicle=3; scheduleLag=0.0000; age=0.1331; pending=20; clientAck=18244; authorityAck=18257; hostTick=18277; snapshotTick=18264
+CORRECTION tick=18277; vehicle=3; error=0.1961; scheduleLag=0.0024; age=0.0000; pending=11; clientAck=18253; authorityAck=18258; hostTick=18278; snapshotTick=18273
+HOLD tick=19103; vehicle=5; scheduleLag=0.0001; age=0.1484; pending=19; clientAck=19072; authorityAck=19084; hostTick=19104; snapshotTick=19092
+HOLD tick=19547; vehicle=6; scheduleLag=0.0018; age=0.1340; pending=19; clientAck=19506; authorityAck=19518; hostTick=19548; snapshotTick=19536
+CORRECTION tick=19548; vehicle=6; error=0.2509; scheduleLag=0.0004; age=0.0001; pending=10; clientAck=19515; authorityAck=19519; hostTick=19549; snapshotTick=19545
+HOLD tick=20048; vehicle=6; scheduleLag=0.0006; age=0.1333; pending=19; clientAck=20007; authorityAck=20019; hostTick=20049; snapshotTick=20037
+HOLD tick=20210; vehicle=3; scheduleLag=0.0011; age=0.1329; pending=19; clientAck=20179; authorityAck=20191; hostTick=20211; snapshotTick=20199
+HOLD tick=20211; vehicle=3; scheduleLag=0.0010; age=0.1494; pending=20; clientAck=20179; authorityAck=20192; hostTick=20212; snapshotTick=20199
+CORRECTION tick=20212; vehicle=3; error=0.2030; scheduleLag=0.0004; age=0.0000; pending=11; clientAck=20188; authorityAck=20193; hostTick=20213; snapshotTick=20208
+HOLD tick=20324; vehicle=5; scheduleLag=0.0018; age=0.1351; pending=19; clientAck=20293; authorityAck=20305; hostTick=20325; snapshotTick=20313
+HOLD tick=20325; vehicle=5; scheduleLag=0.0003; age=0.1503; pending=20; clientAck=20293; authorityAck=20306; hostTick=20326; snapshotTick=20313
+CORRECTION tick=20326; vehicle=5; error=0.3434; scheduleLag=0.0015; age=0.0001; pending=11; clientAck=20302; authorityAck=20307; hostTick=20327; snapshotTick=20322
+SOAK seconds=359.98; tick=21600; managed=11148704; private=38539264; working=99033088; handles=438; threads=19; peakPending=20; peakSnapshotAge=0.1504; received=48348; staleDelivered=12085; controlledDrops=0; gc2=3
+HOLD tick=21611; vehicle=7; scheduleLag=0.0010; age=0.1491; pending=19; clientAck=21580; authorityAck=21592; hostTick=21612; snapshotTick=21600
+HOLD tick=21656; vehicle=3; scheduleLag=0.0020; age=0.1504; pending=19; clientAck=21625; authorityAck=21637; hostTick=21657; snapshotTick=21645
+CORRECTION tick=21657; vehicle=3; error=0.1170; scheduleLag=0.0019; age=0.0000; pending=10; clientAck=21634; authorityAck=21638; hostTick=21658; snapshotTick=21654
+HOLD tick=22310; vehicle=6; scheduleLag=0.0010; age=0.1492; pending=19; clientAck=22269; authorityAck=22281; hostTick=22311; snapshotTick=22299
+HOLD tick=22550; vehicle=7; scheduleLag=0.0007; age=0.1497; pending=19; clientAck=22519; authorityAck=22531; hostTick=22551; snapshotTick=22539
+HOLD tick=23076; vehicle=8; scheduleLag=0.0004; age=0.1654; pending=19; clientAck=23042; authorityAck=23055; hostTick=23077; snapshotTick=23064
+HOLD tick=23077; vehicle=8; scheduleLag=0.0014; age=0.1831; pending=20; clientAck=23042; authorityAck=23056; hostTick=23078; snapshotTick=23064
+HOLD tick=23078; vehicle=8; scheduleLag=0.0019; age=0.2003; pending=21; clientAck=23042; authorityAck=23057; hostTick=23079; snapshotTick=23064
+HOLD tick=23079; vehicle=8; scheduleLag=0.0015; age=0.2165; pending=22; clientAck=23042; authorityAck=23058; hostTick=23080; snapshotTick=23064
+CORRECTION tick=23080; vehicle=8; error=0.2596; scheduleLag=0.0014; age=0.0000; pending=10; clientAck=23054; authorityAck=23059; hostTick=23081; snapshotTick=23076
+HOLD tick=23210; vehicle=7; scheduleLag=0.0002; age=0.1316; pending=19; clientAck=23179; authorityAck=23191; hostTick=23211; snapshotTick=23199
+CORRECTION tick=23211; vehicle=7; error=0.1592; scheduleLag=0.0012; age=0.0001; pending=10; clientAck=23188; authorityAck=23192; hostTick=23212; snapshotTick=23208
+SOAK seconds=419.98; tick=25200; managed=14960088; private=38469632; working=99012608; handles=438; threads=17; peakPending=22; peakSnapshotAge=0.2165; received=56393; staleDelivered=14102; controlledDrops=0; gc2=3
+HOLD tick=25706; vehicle=3; scheduleLag=0.0010; age=0.1502; pending=19; clientAck=25675; authorityAck=25687; hostTick=25707; snapshotTick=25695
+CORRECTION tick=25707; vehicle=3; error=0.1045; scheduleLag=0.0015; age=0.0000; pending=10; clientAck=25684; authorityAck=25688; hostTick=25708; snapshotTick=25704
+HOLD tick=26309; vehicle=5; scheduleLag=0.0016; age=0.1340; pending=19; clientAck=26278; authorityAck=26290; hostTick=26310; snapshotTick=26298
+HOLD tick=26310; vehicle=5; scheduleLag=0.0007; age=0.1498; pending=20; clientAck=26278; authorityAck=26291; hostTick=26311; snapshotTick=26298
+CORRECTION tick=26311; vehicle=5; error=0.1010; scheduleLag=0.0011; age=0.0000; pending=11; clientAck=26287; authorityAck=26292; hostTick=26312; snapshotTick=26307
+HOLD tick=27053; vehicle=6; scheduleLag=0.0016; age=0.1350; pending=19; clientAck=27012; authorityAck=27024; hostTick=27054; snapshotTick=27042
+HOLD tick=27054; vehicle=6; scheduleLag=0.0016; age=0.1518; pending=20; clientAck=27012; authorityAck=27025; hostTick=27055; snapshotTick=27042
+CORRECTION tick=27055; vehicle=6; error=0.1686; scheduleLag=0.0002; age=0.0000; pending=11; clientAck=27021; authorityAck=27026; hostTick=27056; snapshotTick=27051
+HOLD tick=27090; vehicle=4; scheduleLag=0.0001; age=0.1660; pending=19; clientAck=27059; authorityAck=27072; hostTick=27091; snapshotTick=27078
+CORRECTION tick=27091; vehicle=4; error=0.1357; scheduleLag=0.0001; age=0.0000; pending=10; clientAck=27068; authorityAck=27073; hostTick=27092; snapshotTick=27087
+HOLD tick=27671; vehicle=3; scheduleLag=0.0016; age=0.1164; pending=19; clientAck=27640; authorityAck=27652; hostTick=27672; snapshotTick=27660
+CORRECTION tick=27672; vehicle=3; error=0.1334; scheduleLag=0.0018; age=0.0000; pending=10; clientAck=27649; authorityAck=27653; hostTick=27673; snapshotTick=27669
+SOAK seconds=479.98; tick=28800; managed=6786888; private=37273600; working=98496512; handles=438; threads=17; peakPending=20; peakSnapshotAge=0.1660; received=64457; staleDelivered=16133; controlledDrops=0; gc2=4
+HOLD tick=28805; vehicle=7; scheduleLag=0.0007; age=0.1337; pending=19; clientAck=28774; authorityAck=28786; hostTick=28806; snapshotTick=28794
+HOLD tick=29033; vehicle=5; scheduleLag=0.0004; age=0.1327; pending=19; clientAck=29002; authorityAck=29014; hostTick=29034; snapshotTick=29022
+HOLD tick=29034; vehicle=5; scheduleLag=0.0019; age=0.1509; pending=20; clientAck=29002; authorityAck=29015; hostTick=29035; snapshotTick=29022
+HOLD tick=29480; vehicle=7; scheduleLag=0.0004; age=0.1332; pending=19; clientAck=29449; authorityAck=29461; hostTick=29481; snapshotTick=29469
+HOLD tick=31448; vehicle=7; scheduleLag=0.0002; age=0.1492; pending=19; clientAck=31417; authorityAck=31429; hostTick=31449; snapshotTick=31437
+CORRECTION tick=31449; vehicle=7; error=0.1137; scheduleLag=0.0006; age=0.0001; pending=10; clientAck=31426; authorityAck=31430; hostTick=31450; snapshotTick=31446
+HOLD tick=31613; vehicle=6; scheduleLag=0.0014; age=0.1343; pending=19; clientAck=31572; authorityAck=31584; hostTick=31614; snapshotTick=31602
+HOLD tick=31614; vehicle=6; scheduleLag=0.0003; age=0.1497; pending=20; clientAck=31572; authorityAck=31585; hostTick=31615; snapshotTick=31602
+CORRECTION tick=31615; vehicle=6; error=0.1050; scheduleLag=0.0018; age=0.0000; pending=11; clientAck=31581; authorityAck=31586; hostTick=31616; snapshotTick=31611
+CORRECTION tick=31730; vehicle=8; error=0.1000; scheduleLag=0.0004; age=0.0000; pending=9; clientAck=31705; authorityAck=31708; hostTick=31731; snapshotTick=31728
+HOLD tick=32021; vehicle=3; scheduleLag=0.0013; age=0.1174; pending=19; clientAck=31990; authorityAck=32002; hostTick=32022; snapshotTick=32010
+HOLD tick=32022; vehicle=3; scheduleLag=0.0019; age=0.1346; pending=20; clientAck=31990; authorityAck=32003; hostTick=32023; snapshotTick=32010
+SOAK seconds=539.98; tick=32400; managed=12766824; private=38404096; working=99135488; handles=438; threads=17; peakPending=20; peakSnapshotAge=0.1509; received=72566; staleDelivered=18151; controlledDrops=0; gc2=4
+HOLD tick=32504; vehicle=8; scheduleLag=0.0004; age=0.1154; pending=19; clientAck=32470; authorityAck=32482; hostTick=32505; snapshotTick=32493
+CORRECTION tick=32505; vehicle=8; error=0.2469; scheduleLag=0.0008; age=0.0000; pending=10; clientAck=32479; authorityAck=32483; hostTick=32506; snapshotTick=32502
+HOLD tick=32942; vehicle=8; scheduleLag=0.0009; age=0.1339; pending=19; clientAck=32908; authorityAck=32920; hostTick=32943; snapshotTick=32931
+HOLD tick=33302; vehicle=7; scheduleLag=0.0010; age=0.1495; pending=19; clientAck=33271; authorityAck=33283; hostTick=33303; snapshotTick=33291
+HOLD tick=33303; vehicle=7; scheduleLag=0.0005; age=0.1656; pending=20; clientAck=33271; authorityAck=33284; hostTick=33304; snapshotTick=33291
+CORRECTION tick=33304; vehicle=7; error=0.2516; scheduleLag=0.0019; age=0.0001; pending=11; clientAck=33280; authorityAck=33285; hostTick=33305; snapshotTick=33300
+HOLD tick=34257; vehicle=4; scheduleLag=0.0006; age=0.1324; pending=19; clientAck=34226; authorityAck=34239; hostTick=34258; snapshotTick=34245
+HOLD tick=34730; vehicle=6; scheduleLag=0.0001; age=0.1166; pending=19; clientAck=34689; authorityAck=34701; hostTick=34731; snapshotTick=34719
+CORRECTION tick=34731; vehicle=6; error=0.1592; scheduleLag=0.0005; age=0.0000; pending=10; clientAck=34698; authorityAck=34702; hostTick=34732; snapshotTick=34728
+HOLD tick=34961; vehicle=3; scheduleLag=0.0000; age=0.1486; pending=19; clientAck=34930; authorityAck=34942; hostTick=34962; snapshotTick=34950
+HOLD tick=34967; vehicle=6; scheduleLag=0.0010; age=0.1501; pending=19; clientAck=34926; authorityAck=34938; hostTick=34968; snapshotTick=34956
+HOLD tick=34968; vehicle=6; scheduleLag=0.0019; age=0.1673; pending=20; clientAck=34926; authorityAck=34939; hostTick=34969; snapshotTick=34956
+CORRECTION tick=34969; vehicle=6; error=0.1517; scheduleLag=0.0008; age=0.0000; pending=11; clientAck=34935; authorityAck=34940; hostTick=34970; snapshotTick=34965
+HOLD tick=35186; vehicle=6; scheduleLag=0.0008; age=0.1156; pending=19; clientAck=35145; authorityAck=35157; hostTick=35187; snapshotTick=35175
+HOLD tick=35621; vehicle=3; scheduleLag=0.0001; age=0.1327; pending=19; clientAck=35590; authorityAck=35602; hostTick=35622; snapshotTick=35610
+HOLD tick=35622; vehicle=3; scheduleLag=0.0006; age=0.1499; pending=20; clientAck=35590; authorityAck=35603; hostTick=35623; snapshotTick=35610
+SOAK seconds=599.98; tick=36000; managed=3904088; private=38469632; working=99303424; handles=438; threads=19; peakPending=20; peakSnapshotAge=0.1673; received=80631; staleDelivered=20167; controlledDrops=0; gc2=5
+prediction-limited client ticks=60; during probe window plus 0.5s drain=7; elsewhere=53
+delivered stale probes=2882; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2894; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2886; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2888; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2864; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2877; controlled dropped snapshots=0; native loss is configured, not individually observable
+delivered stale probes=2876; controlled dropped snapshots=0; native loss is configured, not individually observable
+startup max=0.1055m; steady p99=0.0000m; steady max=0.6898m; steady >1cm=51; max pending at completion=13
+players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=80606; p99=0.0000m; max=0.6898m; snapshots/client=11493; stale packets rejected
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Failed TenMinuteEightPlayerImpairmentSoak [10 m]
+  Error Message:
+   Multiple failures or warnings in test:
+  1)   Supported WAN conditions must not exhaust the speculative horizon.
+Assert.That(limitedFrames, Is.Zero)
+  Expected: 0
+  But was:  60
+
+  2)   A percentile must not hide an isolated ordinary-driving correction.
+Assert.That(steady.Max(), Is.LessThan(0.5))
+  Expected: less than 0.5d
+  But was:  0.689848423f
+
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 180
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.TenMinuteEightPlayerImpairmentSoak() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 43
+
+1)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.<>c__DisplayClass3_0.<RunVehicleLoop>b__0() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 184
+   at NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 180
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.TenMinuteEightPlayerImpairmentSoak() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 43
+
+2)    at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.<>c__DisplayClass3_0.<RunVehicleLoop>b__0() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 209
+   at NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.RunVehicleLoop(Int32 players, Int32 latency, Int32 jitter, Single loss, Single reorder, Int32 durationTicks, Boolean controlledLoss) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 180
+   at Trackstorm.Transport.Tests.NativeVehicleReplicationTests.TenMinuteEightPlayerImpairmentSoak() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\NativeVehicleReplicationTests.cs:line 43
+
+
+  Standard Output Messages:
+ CORRECTION tick=50; vehicle=7; error=0.1055; scheduleLag=0.0005; age=0.0004; pending=8; clientAck=29; authorityAck=32; hostTick=51; snapshotTick=48
+ HOLD tick=219; vehicle=8; scheduleLag=0.0003; age=0.1320; pending=19; clientAck=185; authorityAck=198; hostTick=220; snapshotTick=207
+ CORRECTION tick=312; vehicle=3; error=0.1303; scheduleLag=0.0005; age=0.0001; pending=9; clientAck=290; authorityAck=294; hostTick=313; snapshotTick=309
+ CORRECTION tick=1950; vehicle=6; error=0.1026; scheduleLag=0.0009; age=0.0000; pending=9; clientAck=1918; authorityAck=1922; hostTick=1951; snapshotTick=1947
+ HOLD tick=2976; vehicle=8; scheduleLag=0.0019; age=0.1507; pending=19; clientAck=2942; authorityAck=2955; hostTick=2977; snapshotTick=2964
+ HOLD tick=2977; vehicle=8; scheduleLag=0.0013; age=0.1668; pending=20; clientAck=2942; authorityAck=2956; hostTick=2978; snapshotTick=2964
+ HOLD tick=2978; vehicle=8; scheduleLag=0.0015; age=0.1835; pending=21; clientAck=2942; authorityAck=2957; hostTick=2979; snapshotTick=2964
+ CORRECTION tick=2979; vehicle=8; error=0.6898; scheduleLag=0.0013; age=0.0001; pending=9; clientAck=2954; authorityAck=2958; hostTick=2980; snapshotTick=2976
+ SOAK seconds=59.98; tick=3600; managed=4869592; private=35524608; working=96333824; handles=443; threads=20; peakPending=21; peakSnapshotAge=0.3687; received=8058; staleDelivered=2022; controlledDrops=0; gc2=1
+ HOLD tick=6633; vehicle=8; scheduleLag=0.0009; age=0.1658; pending=19; clientAck=6599; authorityAck=6612; hostTick=6634; snapshotTick=6621
+ CORRECTION tick=6634; vehicle=8; error=0.1938; scheduleLag=0.0014; age=0.0000; pending=10; clientAck=6608; authorityAck=6613; hostTick=6635; snapshotTick=6630
+ HOLD tick=6722; vehicle=5; scheduleLag=0.0017; age=0.1175; pending=19; clientAck=6691; authorityAck=6703; hostTick=6723; snapshotTick=6711
+ SOAK seconds=119.98; tick=7200; managed=7910480; private=35901440; working=96628736; handles=443; threads=20; peakPending=19; peakSnapshotAge=0.1658; received=16126; staleDelivered=4035; controlledDrops=0; gc2=1
+ SOAK seconds=179.98; tick=10800; managed=12113208; private=37588992; working=98185216; handles=438; threads=17; peakPending=18; peakSnapshotAge=0.1340; received=24189; staleDelivered=6059; controlledDrops=0; gc2=2
+ HOLD tick=11496; vehicle=8; scheduleLag=0.0005; age=0.1336; pending=19; clientAck=11462; authorityAck=11475; hostTick=11497; snapshotTick=11484
+ HOLD tick=11658; vehicle=8; scheduleLag=0.0015; age=0.1509; pending=19; clientAck=11624; authorityAck=11637; hostTick=11659; snapshotTick=11646
+ CORRECTION tick=11659; vehicle=8; error=0.2162; scheduleLag=0.0005; age=0.0000; pending=10; clientAck=11633; authorityAck=11638; hostTick=11660; snapshotTick=11655
+ HOLD tick=11993; vehicle=6; scheduleLag=0.0002; age=0.1331; pending=19; clientAck=11952; authorityAck=11964; hostTick=11994; snapshotTick=11982
+ CORRECTION tick=11994; vehicle=6; error=0.1219; scheduleLag=0.0007; age=0.0000; pending=10; clientAck=11961; authorityAck=11965; hostTick=11995; snapshotTick=11991
+ HOLD tick=13475; vehicle=5; scheduleLag=0.0005; age=0.1334; pending=19; clientAck=13444; authorityAck=13456; hostTick=13476; snapshotTick=13464
+ CORRECTION tick=13476; vehicle=5; error=0.1002; scheduleLag=0.0004; age=0.0000; pending=10; clientAck=13453; authorityAck=13457; hostTick=13477; snapshotTick=13473
+ SOAK seconds=239.98; tick=14400; managed=3723912; private=37433344; working=98250752; handles=441; threads=18; peakPending=19; peakSnapshotAge=0.1510; received=32267; staleDelivered=8071; controlledDrops=0; gc2=2
+ HOLD tick=16739; vehicle=6; scheduleLag=0.0002; age=0.1482; pending=19; clientAck=16698; authorityAck=16710; hostTick=16740; snapshotTick=16728
+ CORRECTION tick=16740; vehicle=6; error=0.1358; scheduleLag=0.0010; age=0.0000; pending=10; clientAck=16707; authorityAck=16711; hostTick=16741; snapshotTick=16737
+ CORRECTION tick=17355; vehicle=7; error=0.1705; scheduleLag=0.0003; age=0.0001; pending=10; clientAck=17332; authorityAck=17336; hostTick=17356; snapshotTick=17352
+ SOAK seconds=299.98; tick=18000; managed=8073624; private=37662720; working=98557952; handles=438; threads=19; peakPending=19; peakSnapshotAge=0.1482; received=40330; staleDelivered=10077; controlledDrops=0; gc2=2
+ HOLD tick=18027; vehicle=2; scheduleLag=0.0014; age=0.1504; pending=19; clientAck=17998; authorityAck=18011; hostTick=18028; snapshotTick=18015
+ HOLD tick=18038; vehicle=7; scheduleLag=0.0003; age=0.1333; pending=19; clientAck=18007; authorityAck=18019; hostTick=18039; snapshotTick=18027
+ HOLD tick=18200; vehicle=3; scheduleLag=0.0005; age=0.1170; pending=19; clientAck=18169; authorityAck=18181; hostTick=18201; snapshotTick=18189
+ HOLD tick=18275; vehicle=3; scheduleLag=0.0001; age=0.1165; pending=19; clientAck=18244; authorityAck=18256; hostTick=18276; snapshotTick=18264
+ HOLD tick=18276; vehicle=3; scheduleLag=0.0000; age=0.1331; pending=20; clientAck=18244; authorityAck=18257; hostTick=18277; snapshotTick=18264
+ CORRECTION tick=18277; vehicle=3; error=0.1961; scheduleLag=0.0024; age=0.0000; pending=11; clientAck=18253; authorityAck=18258; hostTick=18278; snapshotTick=18273
+ HOLD tick=19103; vehicle=5; scheduleLag=0.0001; age=0.1484; pending=19; clientAck=19072; authorityAck=19084; hostTick=19104; snapshotTick=19092
+ HOLD tick=19547; vehicle=6; scheduleLag=0.0018; age=0.1340; pending=19; clientAck=19506; authorityAck=19518; hostTick=19548; snapshotTick=19536
+ CORRECTION tick=19548; vehicle=6; error=0.2509; scheduleLag=0.0004; age=0.0001; pending=10; clientAck=19515; authorityAck=19519; hostTick=19549; snapshotTick=19545
+ HOLD tick=20048; vehicle=6; scheduleLag=0.0006; age=0.1333; pending=19; clientAck=20007; authorityAck=20019; hostTick=20049; snapshotTick=20037
+ HOLD tick=20210; vehicle=3; scheduleLag=0.0011; age=0.1329; pending=19; clientAck=20179; authorityAck=20191; hostTick=20211; snapshotTick=20199
+ HOLD tick=20211; vehicle=3; scheduleLag=0.0010; age=0.1494; pending=20; clientAck=20179; authorityAck=20192; hostTick=20212; snapshotTick=20199
+ CORRECTION tick=20212; vehicle=3; error=0.2030; scheduleLag=0.0004; age=0.0000; pending=11; clientAck=20188; authorityAck=20193; hostTick=20213; snapshotTick=20208
+ HOLD tick=20324; vehicle=5; scheduleLag=0.0018; age=0.1351; pending=19; clientAck=20293; authorityAck=20305; hostTick=20325; snapshotTick=20313
+ HOLD tick=20325; vehicle=5; scheduleLag=0.0003; age=0.1503; pending=20; clientAck=20293; authorityAck=20306; hostTick=20326; snapshotTick=20313
+ CORRECTION tick=20326; vehicle=5; error=0.3434; scheduleLag=0.0015; age=0.0001; pending=11; clientAck=20302; authorityAck=20307; hostTick=20327; snapshotTick=20322
+ SOAK seconds=359.98; tick=21600; managed=11148704; private=38539264; working=99033088; handles=438; threads=19; peakPending=20; peakSnapshotAge=0.1504; received=48348; staleDelivered=12085; controlledDrops=0; gc2=3
+ HOLD tick=21611; vehicle=7; scheduleLag=0.0010; age=0.1491; pending=19; clientAck=21580; authorityAck=21592; hostTick=21612; snapshotTick=21600
+ HOLD tick=21656; vehicle=3; scheduleLag=0.0020; age=0.1504; pending=19; clientAck=21625; authorityAck=21637; hostTick=21657; snapshotTick=21645
+ CORRECTION tick=21657; vehicle=3; error=0.1170; scheduleLag=0.0019; age=0.0000; pending=10; clientAck=21634; authorityAck=21638; hostTick=21658; snapshotTick=21654
+ HOLD tick=22310; vehicle=6; scheduleLag=0.0010; age=0.1492; pending=19; clientAck=22269; authorityAck=22281; hostTick=22311; snapshotTick=22299
+ HOLD tick=22550; vehicle=7; scheduleLag=0.0007; age=0.1497; pending=19; clientAck=22519; authorityAck=22531; hostTick=22551; snapshotTick=22539
+ HOLD tick=23076; vehicle=8; scheduleLag=0.0004; age=0.1654; pending=19; clientAck=23042; authorityAck=23055; hostTick=23077; snapshotTick=23064
+ HOLD tick=23077; vehicle=8; scheduleLag=0.0014; age=0.1831; pending=20; clientAck=23042; authorityAck=23056; hostTick=23078; snapshotTick=23064
+ HOLD tick=23078; vehicle=8; scheduleLag=0.0019; age=0.2003; pending=21; clientAck=23042; authorityAck=23057; hostTick=23079; snapshotTick=23064
+ HOLD tick=23079; vehicle=8; scheduleLag=0.0015; age=0.2165; pending=22; clientAck=23042; authorityAck=23058; hostTick=23080; snapshotTick=23064
+ CORRECTION tick=23080; vehicle=8; error=0.2596; scheduleLag=0.0014; age=0.0000; pending=10; clientAck=23054; authorityAck=23059; hostTick=23081; snapshotTick=23076
+ HOLD tick=23210; vehicle=7; scheduleLag=0.0002; age=0.1316; pending=19; clientAck=23179; authorityAck=23191; hostTick=23211; snapshotTick=23199
+ CORRECTION tick=23211; vehicle=7; error=0.1592; scheduleLag=0.0012; age=0.0001; pending=10; clientAck=23188; authorityAck=23192; hostTick=23212; snapshotTick=23208
+ SOAK seconds=419.98; tick=25200; managed=14960088; private=38469632; working=99012608; handles=438; threads=17; peakPending=22; peakSnapshotAge=0.2165; received=56393; staleDelivered=14102; controlledDrops=0; gc2=3
+ HOLD tick=25706; vehicle=3; scheduleLag=0.0010; age=0.1502; pending=19; clientAck=25675; authorityAck=25687; hostTick=25707; snapshotTick=25695
+ CORRECTION tick=25707; vehicle=3; error=0.1045; scheduleLag=0.0015; age=0.0000; pending=10; clientAck=25684; authorityAck=25688; hostTick=25708; snapshotTick=25704
+ HOLD tick=26309; vehicle=5; scheduleLag=0.0016; age=0.1340; pending=19; clientAck=26278; authorityAck=26290; hostTick=26310; snapshotTick=26298
+ HOLD tick=26310; vehicle=5; scheduleLag=0.0007; age=0.1498; pending=20; clientAck=26278; authorityAck=26291; hostTick=26311; snapshotTick=26298
+ CORRECTION tick=26311; vehicle=5; error=0.1010; scheduleLag=0.0011; age=0.0000; pending=11; clientAck=26287; authorityAck=26292; hostTick=26312; snapshotTick=26307
+ HOLD tick=27053; vehicle=6; scheduleLag=0.0016; age=0.1350; pending=19; clientAck=27012; authorityAck=27024; hostTick=27054; snapshotTick=27042
+ HOLD tick=27054; vehicle=6; scheduleLag=0.0016; age=0.1518; pending=20; clientAck=27012; authorityAck=27025; hostTick=27055; snapshotTick=27042
+ CORRECTION tick=27055; vehicle=6; error=0.1686; scheduleLag=0.0002; age=0.0000; pending=11; clientAck=27021; authorityAck=27026; hostTick=27056; snapshotTick=27051
+ HOLD tick=27090; vehicle=4; scheduleLag=0.0001; age=0.1660; pending=19; clientAck=27059; authorityAck=27072; hostTick=27091; snapshotTick=27078
+ CORRECTION tick=27091; vehicle=4; error=0.1357; scheduleLag=0.0001; age=0.0000; pending=10; clientAck=27068; authorityAck=27073; hostTick=27092; snapshotTick=27087
+ HOLD tick=27671; vehicle=3; scheduleLag=0.0016; age=0.1164; pending=19; clientAck=27640; authorityAck=27652; hostTick=27672; snapshotTick=27660
+ CORRECTION tick=27672; vehicle=3; error=0.1334; scheduleLag=0.0018; age=0.0000; pending=10; clientAck=27649; authorityAck=27653; hostTick=27673; snapshotTick=27669
+ SOAK seconds=479.98; tick=28800; managed=6786888; private=37273600; working=98496512; handles=438; threads=17; peakPending=20; peakSnapshotAge=0.1660; received=64457; staleDelivered=16133; controlledDrops=0; gc2=4
+ HOLD tick=28805; vehicle=7; scheduleLag=0.0007; age=0.1337; pending=19; clientAck=28774; authorityAck=28786; hostTick=28806; snapshotTick=28794
+ HOLD tick=29033; vehicle=5; scheduleLag=0.0004; age=0.1327; pending=19; clientAck=29002; authorityAck=29014; hostTick=29034; snapshotTick=29022
+ HOLD tick=29034; vehicle=5; scheduleLag=0.0019; age=0.1509; pending=20; clientAck=29002; authorityAck=29015; hostTick=29035; snapshotTick=29022
+ HOLD tick=29480; vehicle=7; scheduleLag=0.0004; age=0.1332; pending=19; clientAck=29449; authorityAck=29461; hostTick=29481; snapshotTick=29469
+ HOLD tick=31448; vehicle=7; scheduleLag=0.0002; age=0.1492; pending=19; clientAck=31417; authorityAck=31429; hostTick=31449; snapshotTick=31437
+ CORRECTION tick=31449; vehicle=7; error=0.1137; scheduleLag=0.0006; age=0.0001; pending=10; clientAck=31426; authorityAck=31430; hostTick=31450; snapshotTick=31446
+ HOLD tick=31613; vehicle=6; scheduleLag=0.0014; age=0.1343; pending=19; clientAck=31572; authorityAck=31584; hostTick=31614; snapshotTick=31602
+ HOLD tick=31614; vehicle=6; scheduleLag=0.0003; age=0.1497; pending=20; clientAck=31572; authorityAck=31585; hostTick=31615; snapshotTick=31602
+ CORRECTION tick=31615; vehicle=6; error=0.1050; scheduleLag=0.0018; age=0.0000; pending=11; clientAck=31581; authorityAck=31586; hostTick=31616; snapshotTick=31611
+ CORRECTION tick=31730; vehicle=8; error=0.1000; scheduleLag=0.0004; age=0.0000; pending=9; clientAck=31705; authorityAck=31708; hostTick=31731; snapshotTick=31728
+ HOLD tick=32021; vehicle=3; scheduleLag=0.0013; age=0.1174; pending=19; clientAck=31990; authorityAck=32002; hostTick=32022; snapshotTick=32010
+ HOLD tick=32022; vehicle=3; scheduleLag=0.0019; age=0.1346; pending=20; clientAck=31990; authorityAck=32003; hostTick=32023; snapshotTick=32010
+ SOAK seconds=539.98; tick=32400; managed=12766824; private=38404096; working=99135488; handles=438; threads=17; peakPending=20; peakSnapshotAge=0.1509; received=72566; staleDelivered=18151; controlledDrops=0; gc2=4
+ HOLD tick=32504; vehicle=8; scheduleLag=0.0004; age=0.1154; pending=19; clientAck=32470; authorityAck=32482; hostTick=32505; snapshotTick=32493
+ CORRECTION tick=32505; vehicle=8; error=0.2469; scheduleLag=0.0008; age=0.0000; pending=10; clientAck=32479; authorityAck=32483; hostTick=32506; snapshotTick=32502
+ HOLD tick=32942; vehicle=8; scheduleLag=0.0009; age=0.1339; pending=19; clientAck=32908; authorityAck=32920; hostTick=32943; snapshotTick=32931
+ HOLD tick=33302; vehicle=7; scheduleLag=0.0010; age=0.1495; pending=19; clientAck=33271; authorityAck=33283; hostTick=33303; snapshotTick=33291
+ HOLD tick=33303; vehicle=7; scheduleLag=0.0005; age=0.1656; pending=20; clientAck=33271; authorityAck=33284; hostTick=33304; snapshotTick=33291
+ CORRECTION tick=33304; vehicle=7; error=0.2516; scheduleLag=0.0019; age=0.0001; pending=11; clientAck=33280; authorityAck=33285; hostTick=33305; snapshotTick=33300
+ HOLD tick=34257; vehicle=4; scheduleLag=0.0006; age=0.1324; pending=19; clientAck=34226; authorityAck=34239; hostTick=34258; snapshotTick=34245
+ HOLD tick=34730; vehicle=6; scheduleLag=0.0001; age=0.1166; pending=19; clientAck=34689; authorityAck=34701; hostTick=34731; snapshotTick=34719
+ CORRECTION tick=34731; vehicle=6; error=0.1592; scheduleLag=0.0005; age=0.0000; pending=10; clientAck=34698; authorityAck=34702; hostTick=34732; snapshotTick=34728
+ HOLD tick=34961; vehicle=3; scheduleLag=0.0000; age=0.1486; pending=19; clientAck=34930; authorityAck=34942; hostTick=34962; snapshotTick=34950
+ HOLD tick=34967; vehicle=6; scheduleLag=0.0010; age=0.1501; pending=19; clientAck=34926; authorityAck=34938; hostTick=34968; snapshotTick=34956
+ HOLD tick=34968; vehicle=6; scheduleLag=0.0019; age=0.1673; pending=20; clientAck=34926; authorityAck=34939; hostTick=34969; snapshotTick=34956
+ CORRECTION tick=34969; vehicle=6; error=0.1517; scheduleLag=0.0008; age=0.0000; pending=11; clientAck=34935; authorityAck=34940; hostTick=34970; snapshotTick=34965
+ HOLD tick=35186; vehicle=6; scheduleLag=0.0008; age=0.1156; pending=19; clientAck=35145; authorityAck=35157; hostTick=35187; snapshotTick=35175
+ HOLD tick=35621; vehicle=3; scheduleLag=0.0001; age=0.1327; pending=19; clientAck=35590; authorityAck=35602; hostTick=35622; snapshotTick=35610
+ HOLD tick=35622; vehicle=3; scheduleLag=0.0006; age=0.1499; pending=20; clientAck=35590; authorityAck=35603; hostTick=35623; snapshotTick=35610
+ SOAK seconds=599.98; tick=36000; managed=3904088; private=38469632; working=99303424; handles=438; threads=19; peakPending=20; peakSnapshotAge=0.1673; received=80631; staleDelivered=20167; controlledDrops=0; gc2=5
+ prediction-limited client ticks=60; during probe window plus 0.5s drain=7; elsewhere=53
+ delivered stale probes=2882; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=2894; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=2886; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=2888; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=2864; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=2877; controlled dropped snapshots=0; native loss is configured, not individually observable
+ delivered stale probes=2876; controlled dropped snapshots=0; native loss is configured, not individually observable
+ startup max=0.1055m; steady p99=0.0000m; steady max=0.6898m; steady >1cm=51; max pending at completion=13
+ players=8; outbound delay=30ms; jitter=10ms; loss=2%; corrections=80606; p99=0.0000m; max=0.6898m; snapshots/client=11493; stale packets rejected
+
+
+
+Total tests: 1
+     Failed: 1
+ Total time: 10.0479 Minutes
+Test Run Failed.

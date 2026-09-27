@@ -1,0 +1,44 @@
+{
+  "branch": "ts-121-jg",
+  "main": "fc384f6",
+  "version": "0.1.75",
+  "godot": "4.7.2 .NET",
+  "targetedTransport": 403,
+  "core": 896,
+  "transport": 403,
+  "native": 15,
+  "shortEightPlayer": {
+    "heldTicks": 0,
+    "startupMaxMeters": 0.1254,
+    "steadyMaxMeters": 0.2251,
+    "steadyP99Meters": 0,
+    "finalPendingMax": 12,
+    "staleDeliveredRejected": 407
+  },
+  "soak": {
+    "ticks": 36000,
+    "sampledSeconds": 599.99,
+    "clientTicks": 252000,
+    "heldTicks": 0,
+    "heldDuringProbe": 0,
+    "heldElsewhere": 0,
+    "startupMaxMeters": 0.187,
+    "steadyMaxMeters": 0.2011,
+    "steadyP99Meters": 0,
+    "acceptedSnapshots": 80794,
+    "staleDeliveredRejected": 20121,
+    "minutePendingMax": [
+      20,
+      19,
+      20,
+      20,
+      19,
+      20,
+      20,
+      20,
+      20,
+      22
+    ],
+    "finalPendingMax": 13
+  }
+}

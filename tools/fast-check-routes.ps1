@@ -39,6 +39,12 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'NativeVehicleReplicationTests|ObservedImpairmentGateway|check-network-soak') {
+            Add-Extended 'check-network-soak.ps1'
+        }
+        if ($path -match 'PostMatchIntegrationChecks|check-post-match') {
+            Add-Runtime 'check-post-match.ps1'
+        }
         if ($path -match 'ArenaBoundary|OutOfBounds|BoundaryIntegration|BuildPerimeter|CatchFence|boundary_checks|check-boundary') {
             Add-Runtime 'check-boundary.ps1'
             Add-Extended 'check-death-respawn.ps1'
@@ -296,8 +302,9 @@ function Get-FastCheckPlan {
             Add-Runtime 'check-online-lobby.ps1'
         }
 
-        if ($path -eq 'docs/features/eos-identity.md' -or $path -match '(?i)EosIdentity') {
+        if ($path -eq 'docs/features/eos-identity.md' -or $path -match '(?i)EosIdentity|EosIntegrationChecks|check-eos\.ps1') {
             Add-Runtime 'check-eos.ps1'
+            Add-Manual 'Run check-eos.ps1 -Authenticate / -P2p when development deployment access is available; native SDK initialization alone does not establish authenticated gameplay.'
         }
 
         if ($path -eq 'docs/features/eos-p2p.md' -or $path -match '(?i)EosP2p') {

@@ -1,0 +1,226 @@
+[
+  {
+    "name": "final-vehicles-baseline",
+    "command": "./check-network-vehicles.ps1 -GodotPath $godot -NoBuild -Visual",
+    "startedUtc": "2026-09-27T04:34:33.4146142Z",
+    "seconds": 32.2643904,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-vehicles-50ms",
+    "command": "./check-network-vehicles.ps1 -GodotPath $godot -NoBuild -Latency 25 -Jitter 5",
+    "startedUtc": "2026-09-27T04:35:05.6924459Z",
+    "seconds": 32.3894842,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-vehicles-100ms",
+    "command": "./check-network-vehicles.ps1 -GodotPath $godot -NoBuild -Latency 50 -Jitter 10",
+    "startedUtc": "2026-09-27T04:35:38.0838310Z",
+    "seconds": 32.1878494,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-vehicles-loss",
+    "command": "./check-network-vehicles.ps1 -GodotPath $godot -NoBuild -Loss 2",
+    "startedUtc": "2026-09-27T04:36:10.2728088Z",
+    "seconds": 32.1506122,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-vehicles-eight",
+    "command": "./check-network-vehicles.ps1 -GodotPath $godot -NoBuild -Players 8 -Latency 30 -Jitter 10 -Loss 2 -Visual",
+    "startedUtc": "2026-09-27T04:36:42.4245743Z",
+    "seconds": 32.8489455,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "entry-100ms",
+    "command": "./check-network-vehicles.ps1 -GodotPath $godot -NoBuild -ApplicationEntry -Latency 50 -Jitter 10",
+    "startedUtc": "2026-09-27T04:37:15.2753744Z",
+    "seconds": 38.4053234,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "entry-eight",
+    "command": "./check-network-vehicles.ps1 -GodotPath $godot -NoBuild -ApplicationEntry -Players 8 -Latency 30 -Jitter 10 -Loss 2 -Visual",
+    "startedUtc": "2026-09-27T04:37:53.6817940Z",
+    "seconds": 39.6543146,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "native-contact",
+    "command": "./check-environment-collision-network.ps1 -GodotPath $godot -NoBuild",
+    "startedUtc": "2026-09-27T04:38:33.3395169Z",
+    "seconds": 11.0210271,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "podium-visual",
+    "command": "./check-post-match.ps1 -GodotPath $godot -NoBuild -Visual -Impaired -Cycles 3",
+    "startedUtc": "2026-09-27T04:38:44.3617254Z",
+    "seconds": 62.5663829,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-items",
+    "command": "./check-items.ps1 -GodotPath $godot -NoBuild -Impaired -Visual",
+    "startedUtc": "2026-09-27T04:39:46.9296867Z",
+    "seconds": 8.6620695,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-oil",
+    "command": "./check-oil.ps1 -GodotPath $godot -NoBuild -Impaired",
+    "startedUtc": "2026-09-27T04:39:55.5935804Z",
+    "seconds": 8.4275519,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-nitro",
+    "command": "./check-nitro.ps1 -GodotPath $godot -NoBuild -Impaired",
+    "startedUtc": "2026-09-27T04:40:04.0220910Z",
+    "seconds": 32.8418768,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-circus",
+    "command": "./check-stunts.ps1 -GodotPath $godot -NoBuild -Impaired",
+    "startedUtc": "2026-09-27T04:40:36.8649250Z",
+    "seconds": 27.4348763,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-match",
+    "command": "./check-match.ps1 -GodotPath $godot -NoBuild -Impaired",
+    "startedUtc": "2026-09-27T04:41:04.3007989Z",
+    "seconds": 39.5655186,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-salvo",
+    "command": "./check-salvo.ps1 -GodotPath $godot -NoBuild -Impaired",
+    "startedUtc": "2026-09-27T04:41:43.8672755Z",
+    "seconds": 18.2411216,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-spawns",
+    "command": "./check-item-spawns.ps1 -GodotPath $godot -NoBuild -Impaired -Oval",
+    "startedUtc": "2026-09-27T04:42:02.1096964Z",
+    "seconds": 28.6287616,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-entry",
+    "command": "./check-match-start.ps1 -GodotPath $godot -NoBuild",
+    "startedUtc": "2026-09-27T04:42:30.7394436Z",
+    "seconds": 81.7963428,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-lobby",
+    "command": "./check-lobby.ps1 -GodotPath $godot -NoBuild",
+    "startedUtc": "2026-09-27T04:43:52.5368009Z",
+    "seconds": 23.276926,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-reconnect",
+    "command": "./check-reconnect.ps1 -GodotPath $godot -NoBuild",
+    "startedUtc": "2026-09-27T04:44:15.8147483Z",
+    "seconds": 142.2663535,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-migration-three",
+    "command": "./check-migration.ps1 -GodotPath $godot -NoBuild -Players 3",
+    "startedUtc": "2026-09-27T04:46:38.0819825Z",
+    "seconds": 13.838465,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-migration-two",
+    "command": "./check-migration.ps1 -GodotPath $godot -NoBuild -Players 2",
+    "startedUtc": "2026-09-27T04:46:51.9213539Z",
+    "seconds": 10.4787148,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-migration-process",
+    "command": "./check-migration-processes.ps1 -GodotPath $godot -NoBuild -Players 3",
+    "startedUtc": "2026-09-27T04:47:02.4009692Z",
+    "seconds": 13.2764121,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-standings",
+    "command": "./check-standings.ps1 -GodotPath $godot -NoBuild -Visual",
+    "startedUtc": "2026-09-27T04:47:15.6785116Z",
+    "seconds": 13.9379598,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-events",
+    "command": "./check-event-log.ps1 -GodotPath $godot -NoBuild",
+    "startedUtc": "2026-09-27T04:47:29.6179682Z",
+    "seconds": 11.1901464,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-godot-transport",
+    "command": "& $godot --headless --path $PWD res://scenes/verification/transport_checks.tscn --quit-after 20000; if ($LASTEXITCODE -ne 0) { throw 'Godot transport failed' }",
+    "startedUtc": "2026-09-27T04:47:40.8090848Z",
+    "seconds": 0.4653135,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-eos-lifecycle",
+    "command": "./check-eos.ps1 -GodotPath $godot",
+    "startedUtc": "2026-09-27T04:47:41.2774432Z",
+    "seconds": 1.4803149,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-eos-authenticated",
+    "command": "./check-eos.ps1 -GodotPath $godot -P2p",
+    "startedUtc": "2026-09-27T04:47:42.7587515Z",
+    "seconds": 72.5488089,
+    "passed": true,
+    "error": ""
+  },
+  {
+    "name": "final-startup",
+    "command": "& $godot --headless --path $PWD --quit-after 180; if ($LASTEXITCODE -ne 0) { throw 'Startup failed' }",
+    "startedUtc": "2026-09-27T04:48:55.3085501Z",
+    "seconds": 1.5714513,
+    "passed": true,
+    "error": ""
+  }
+]

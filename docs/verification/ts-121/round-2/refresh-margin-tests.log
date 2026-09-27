@@ -1,0 +1,33 @@
+  Trackstorm.Core -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\third_party\eos\bin\Release\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\mono\temp\bin\Release\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+Test run for C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 4 of 4 NUnit test cases using Current Discovery mode, Non-Explicit run
+Refresh at 183, age=0.06666666666666643, pending=10
+Refresh at 185, age=0.10000000000000009, pending=12
+Refresh at 187, age=0.1333333333333333, pending=14
+Refresh at 189, age=0.16666666666666652, pending=16
+Refresh at 191, age=0.19999999999999973, pending=18
+Hold at 192, age=0.21666666666666679, pending=19
+Hold at 193, age=0.2333333333333334, pending=20
+Refresh at 193, age=0.2333333333333334, pending=20
+
+Refresh at 183, age=0.06666666666666643, pending=10
+Refresh at 185, age=0.10000000000000009, pending=12
+Refresh at 187, age=0.1333333333333333, pending=14
+Refresh at 192, age=0.050000000000000266, pending=10
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed LostPeriodicSnapshotsRecoverWithoutExtendingPredictionOrReliableTraffic(False) [204 ms]
+  Passed LostPeriodicSnapshotsRecoverWithoutExtendingPredictionOrReliableTraffic(True) [40 ms]
+  Passed RefreshCodecRejectsMalformedAndOldProtocolRequests [4 ms]
+  Passed RefreshValidatesSenderGenerationDeliveryAndBoundsResponseCadence [3 ms]
+
+Test Run Successful.
+Total tests: 4
+     Passed: 4
+ Total time: 2.6133 Seconds

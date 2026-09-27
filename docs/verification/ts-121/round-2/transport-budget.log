@@ -1,0 +1,21 @@
+  Trackstorm.Core -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\third_party\eos\bin\Release\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\mono\temp\bin\Release\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+Test run for C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 2 of 2 NUnit test cases using Current Discovery mode, Non-Explicit run
+RTT=100ms; dropped publications=4; peak pending=20; held ticks=0
+
+RTT=100ms; dropped publications=12; peak pending=44; held ticks=20
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed DelayedAcknowledgementsRecoverWithinBudgetAndHoldDuringOutage(4,False) [212 ms]
+  Passed DelayedAcknowledgementsRecoverWithinBudgetAndHoldDuringOutage(12,True) [41 ms]
+
+Test Run Successful.
+Total tests: 2
+     Passed: 2
+ Total time: 2.8195 Seconds

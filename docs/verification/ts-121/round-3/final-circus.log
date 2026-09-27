@@ -1,0 +1,12 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Native drift: 127 uninterrupted ticks, 47.916667 peak pending base points, total award 47.916667 (includes any concurrent Top Speed).
+Native top speed: 120 ticks produced 10.000000 pending base points; braking banked once.
+Native jump at 10 m/s: 148 airborne ticks and 24.434814 m observed before landing; banked 79.766235 including independent speed awards.
+Native jump at 20 m/s: 148 airborne ticks and 48.878662 m observed before landing; banked 139.554565 including independent speed awards.
+Native jump at 46.661995 m/s: 148 airborne ticks and 114.026123 m observed before landing; banked 348.151733 including independent speed awards.
+Native airborne death: applied lethal Core effect discarded pending flight/Top Speed; respawn and both UDP peers retained prior banked score.
+Stunt integration passed.
+REPLICATION_TRAFFIC {"seconds":26.5047082,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":2778,"messages":2,"peak":1389},{"peer":1,"protocol":"TD","delivery":"Unreliable","bytes":125825,"messages":25,"peak":5033},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":3370,"messages":2,"peak":1685},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":139191,"messages":460,"peak":342},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":4452,"messages":10,"peak":545},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":240757,"messages":490,"peak":545}]}
+REPLICATION_TRAFFIC {"seconds":24.7978571,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":177478,"messages":1468,"peak":121}]}
+Stunt verification artifacts: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\stunt-checks\a4dac43f3f1e46fdbc08fa3938cdf32d

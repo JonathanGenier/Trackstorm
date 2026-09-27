@@ -1,0 +1,34 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Rocket scenario 0: start 0.00, forward 17.74 m/s; charge 79.67%; Circus zero.
+Rocket scenario 1: start 8.69, forward 24.25 m/s; charge 79.67%; Circus zero.
+Rocket scenario 2: start 4.45, forward 33.49 m/s; charge 79.67%; Circus zero.
+Rocket scenario 3: start 2.77, forward 6.42 m/s; charge 79.67%; Circus zero.
+Rocket scenario 4: start 0.00, forward 20.33 m/s; charge 79.67%; Circus zero.
+Rocket scenario 5: start 0.00, forward -0.00 m/s; charge 79.67%; Circus zero.
+Rocket scenarios complete; normal-drive and sustained-resource comparison begins.
+Normal drive settles at 44.44 m/s; both players request Nitro.
+Both peers sustain Nitro; charge drains while Wrench remains in the second slot.
+Boost reaches 62.22 m/s; released at 36.00% charge.
+Release recovery remains at 60.72 m/s with continuing authoritative overspeed awards.
+Recovery reaches normal speed and overspeed scoring stops; reuse begins with retained charge.
+Second activation drains the same grant tokens, followed by another release.
+Third activation continues until resource exhaustion.
+Both Nitro resources reach zero and clear only their physical slots.
+Nitro integration passed: Rocket scenario 0: start 0.00, forward 17.74 m/s; charge 79.67%; Circus zero.
+Rocket scenario 1: start 8.69, forward 24.25 m/s; charge 79.67%; Circus zero.
+Rocket scenario 2: start 4.45, forward 33.49 m/s; charge 79.67%; Circus zero.
+Rocket scenario 3: start 2.77, forward 6.42 m/s; charge 79.67%; Circus zero.
+Rocket scenario 4: start 0.00, forward 20.33 m/s; charge 79.67%; Circus zero.
+Rocket scenario 5: start 0.00, forward -0.00 m/s; charge 79.67%; Circus zero.
+Rocket scenarios complete; normal-drive and sustained-resource comparison begins.
+Normal drive settles at 44.44 m/s; both players request Nitro.
+Both peers sustain Nitro; charge drains while Wrench remains in the second slot.
+Boost reaches 62.22 m/s; released at 36.00% charge.
+Release recovery remains at 60.72 m/s with continuing authoritative overspeed awards.
+Recovery reaches normal speed and overspeed scoring stops; reuse begins with retained charge.
+Second activation drains the same grant tokens, followed by another release.
+Third activation continues until resource exhaustion.
+Both Nitro resources reach zero and clear only their physical slots.
+REPLICATION_TRAFFIC {"seconds":32.1151306,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":4167,"messages":3,"peak":1389},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":684981,"messages":721,"peak":994},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":349334,"messages":833,"peak":425},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":1409,"messages":4,"peak":463},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":407682,"messages":1276,"peak":463}]}
+REPLICATION_TRAFFIC {"seconds":31.8590008,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":297,"messages":9,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":225757,"messages":1867,"peak":121}]}

@@ -1,0 +1,205 @@
+Actual startup reaches Main Menu
+Two production sessions admitted
+Rematch rejected before Finished
+Connected lobby readied
+Normal lobby Start accepted
+Initial Loader/Sync and countdown complete
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=1; generation=6089459163247712566; managed=7365968; private=1193467904; handles=757; nodes=5933; objects=11638; orphans=0; inputPending=12; snapshots=20; hostEvents=66; clientEvents=65
+Locally restored authoritative checkpoint clears stale Podium (host fixture)
+Ordinary phase packets cannot roll a remote Finished state backward
+Restoring the original authoritative final checkpoint returns to Podium
+Podium fits (1280, 720)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Captured podium-1280x720
+Podium fits (640, 360)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Compact controller Down selects action in next row
+Compact keyboard Up returns to preceding action row
+Captured podium-640x360
+Podium fits (2560, 1080)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Captured podium-2560x1080
+ESC opens Game Menu above Podium
+ESC closes overlay and restores Podium navigation
+Podium releases native mouse capture
+Controller Left selects adjacent destination
+Controller Right restores Main Menu selection
+Controller Start opens Game Menu above Podium
+Closing Game Menu preserves selected Podium destination
+Stats overlays Podium
+Stats close preserves focus and does not dispatch held Accept into Podium
+Captured podium-restored-main-menu-focus
+8-result layout fits (1280, 720)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Layout preserves authoritative result ordering/object
+Captured podium-8-long-name-1280x720
+8-result layout fits (640, 360)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Layout preserves authoritative result ordering/object
+Captured podium-8-long-name-640x360
+Captured podium-long-name-tooltip
+Keyboard advances to retained-results page
+Captured podium-8-page2-640x360
+Controller returns to first results page
+10-result layout fits (1280, 720)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Layout preserves authoritative result ordering/object
+Captured podium-10-long-name-1280x720
+Keyboard advances to retained-results page
+Captured podium-10-page2-1280x720
+Controller returns to first results page
+10-result layout fits (640, 360)
+All Podium hit targets fit content bounds
+Podium action and paging hit targets do not overlap
+Layout preserves authoritative result ordering/object
+Captured podium-10-long-name-640x360
+Keyboard advances to retained-results page
+Captured podium-10-page2-640x360
+Controller returns to first results page
+No-winner outcome does not invent a winner
+Captured podium-no-winner-640x360
+Two-player results hide unnecessary paging
+Unbound native Enter cannot bypass logical navigation
+Controller Accept starts rematch through Loader
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=2; generation=6089459163247712567; managed=7613368; private=1246806016; handles=754; nodes=6380; objects=12545; orphans=0; inputPending=11; snapshots=20; hostEvents=131; clientEvents=134
+Enabled Podium action: Rematch
+Rematch immediately enters Loader with no arena/results
+Rematch disposes host match state
+Rapid duplicate rematch rejected
+Remote sees Loader before new Game Loop
+Both peers finish fresh Loader/Sync
+Old client prediction and results disposed
+Rematch advances generation exactly once
+Fresh mode has no winner, Circus totals, streaks, pending stunts or consumed-outcome history
+Neither peer leaks old results
+Fresh generation has no held resources, projectiles or persistent Oil
+Fresh countdown reaches Active
+Fresh match grants Oil through item authority
+Remote receives this generation's Oil capability
+Remote submits native Oil deployment
+One authoritative Oil deployment reaches both peers
+Oil capability produces exactly one persistent patch
+Consumed Oil slot accepts Nitro in the same generation
+Remote receives Nitro capability
+Native remote Nitro activation converges
+Nitro release stops thrust on both peers
+Released partial Nitro resource converges exactly
+Partial Nitro is retained before lethal finish/rematch cleanup
+Oil owner death reaches the remote native world while match remains Active
+Oil survives its owner's death in the active generation
+Owner respawns through the authoritative native lifecycle
+Oil survives owner respawn without duplicate deployment
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Finished clears deployed Oil authoritatively on both peers
+Non-host cannot navigate the shared match
+Podium presents the exact detached Core result
+Both peers display identical authoritative results
+MenuShell stays suspended during Podium
+Session journals remain bounded through rematch
+REMATCH_RESOURCE cycle=3; generation=6089459163247712568; managed=7643592; private=1240387584; handles=754; nodes=6380; objects=12545; orphans=0; inputPending=10; snapshots=20; hostEvents=195; clientEvents=200
+Return to Lobby reaches joined state on both peers
+Return clears readiness and all match runtime
+Connected lobby readied
+Normal lobby Start accepted
+Initial Loader/Sync and countdown complete
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Enabled Podium action: End Match
+End Match ends shared match through authoritative Return
+Connected lobby readied
+Normal lobby Start accepted
+Initial Loader/Sync and countdown complete
+Host configures one remaining Active tick
+Authoritative timer completes Circus through Game Loop and cancels pending stunts
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Enabled Podium action: Main Menu
+Client Main Menu waits for reliable Leave cleanup
+Finished retains disconnected participant reservation
+Retained Podium results stay frozen and offline participant dims
+Enabled Podium action: Main Menu
+Main Menu restores MenuShell after cleanup
+Same MenuShell resumes with no stale match state
+Solo verification match reaches Active
+Authoritative Finished transitions to dedicated Podium
+Podium renders frozen authoritative Circus score
+Finished tuning preserves results and prepares a normal next match
+Enabled Podium action: Quit Game
+Podium Quit uses production controlled cleanup
