@@ -1,0 +1,134 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:14.89
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Two native UDP peers ready
+Fixture configuration accepted
+Pickup Wrench
+Two occupied slots
+Wrench visible to owner and other peer
+Captured wrench-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Wrench
+Confirmed use/fire outcome for Wrench
+Use retracts and closes on both peers
+Use preserves second physical slot
+Captured wrench-used-closed
+Pickup Missile
+Two occupied slots
+Missile visible to owner and other peer
+Captured missile-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Missile
+Confirmed use/fire outcome for Missile
+Use retracts and closes on both peers
+Use preserves second physical slot
+Captured missile-used-closed
+Pickup Oil
+Two occupied slots
+Oil visible to owner and other peer
+Captured oil-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Oil
+Confirmed use/fire outcome for Oil
+Use retracts and closes on both peers
+Use preserves second physical slot
+Captured oil-used-closed
+Pickup Nitro
+Two occupied slots
+Nitro visible to owner and other peer
+Captured nitro-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Nitro
+Confirmed use/fire outcome for Nitro
+Use retracts and closes on both peers
+Use preserves second physical slot
+Captured nitro-used-closed
+Pickup Proxy Mine
+Two occupied slots
+Proxy Mine visible to owner and other peer
+Captured proxy_mine-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Proxy Mine
+Confirmed use/fire outcome for Proxy Mine
+Use retracts and closes on both peers
+Use preserves second physical slot
+Captured proxy_mine-used-closed
+Pickup Salvo
+Two occupied slots
+Salvo visible to owner and other peer
+Captured salvo-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Salvo
+Confirmed use/fire outcome for Salvo
+Use retracts and closes on both peers
+Use preserves second physical slot
+Captured salvo-used-closed
+Pickup Machine Gun
+Two occupied slots
+Machine Gun visible to owner and other peer
+Captured machine_gun-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Machine Gun
+Confirmed use/fire outcome for Machine Gun
+Use retracts and closes on both peers
+Use preserves second physical slot
+Captured machine_gun-used-closed
+Duplicate first grant
+Duplicate second grant
+Duplicate first selected
+Duplicate switch
+Duplicate switch retracts despite equal item type
+Duplicate second re-deployed
+Recovery reconstructs selected duplicate without use replay
+Death removes rack payload
+Respawn starts with closed empty rack
+New-life pickup
+New-life rack deploys normally
+Normal driving with deployed rack
+Captured driving-equipped
+Native proximity pickup fills selected slot
+Authoritative marker claim recorded
+Actual pickup deploys correct rack on both peers
+Captured proximity-pickup
+Rapid-use first slot
+Rapid-use second slot
+Rapid-use setup visible
+Immediate switch command
+Immediate switched use command
+Immediate switched use confirmed
+Consumed switched Wrench presented rather than old Salvo
+Rapid switched use closes coherently
+Rapid use preserves unselected Salvo
+Car rack integration passed: 119 checks; seven items, switching/use, duplicates, lifecycle and two UDP peers.

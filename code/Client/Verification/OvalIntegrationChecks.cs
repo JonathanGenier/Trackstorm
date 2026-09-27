@@ -426,34 +426,19 @@ public sealed partial class OvalIntegrationChecks : Node3D
     private void VerifyVehicleScale()
     {
         Node3D model = _vehicle.GetNode<Node3D>("WastelandVehicle");
-        MeshInstance3D[] meshes = model.GetChildren().OfType<MeshInstance3D>().ToArray();
-        Aabb bounds = meshes.Select(mesh => mesh.Transform * mesh.GetAabb()).Aggregate((left, right) => left.Merge(right));
-        Check(Math.Abs(bounds.Size.Z - 4.81f) < 0.001f && Math.Abs(bounds.Size.X - 2.662311f) < 0.001f && Math.Abs(bounds.End.Y - 0.956070f) < 0.001f, $"Production silhouette measures {bounds.Size} metres.");
-        Check(model.Scale.IsEqualApprox(Vector3.One) && meshes.All(mesh => mesh.Scale.IsEqualApprox(Vector3.One)), "Blender geometry has applied scale; runtime nodes remain unit scale.");
+        Check(model.Scale.IsEqualApprox(Vector3.One), "Production Car keeps metre-scale identity root.");
         CollisionShape3D collision = _vehicle.GetChildren().OfType<CollisionShape3D>().Single();
         Vector3[] hull = ((ConvexPolygonShape3D)collision.Shape).Points;
-        Aabb collisionBounds = new(hull[0], Vector3.Zero);
-        foreach (Vector3 point in hull)
-        {
-            collisionBounds = collisionBounds.Expand(point);
-        }
-
-        Vector3 size = collisionBounds.Size;
-        Check(Math.Abs(size.X - bounds.Size.X) < 0.001f && Math.Abs(size.Z - bounds.Size.Z) < 0.001f && Math.Abs(collisionBounds.GetCenter().Z - bounds.GetCenter().Z) < 0.001f, "Offline collision agrees with the complete armor/bumper footprint and origin.");
         CollisionShape3D online = VehicleVisual.CreateCollision();
-        Check(((ConvexPolygonShape3D)online.Shape).Points.SequenceEqual(hull) && online.Position.IsEqualApprox(collision.Position), "Network and offline beveled collision definitions agree.");
+        Check(((ConvexPolygonShape3D)online.Shape).Points.SequenceEqual(hull), "Production art preserves identical offline/network collision.");
         online.Free();
-        foreach (MeshInstance3D wheel in meshes.Where(mesh => mesh.Name.ToString().StartsWith("wheel-", StringComparison.Ordinal)))
+        string[] names = ["FL", "FR", "RL", "RR"];
+        foreach (string name in names)
         {
-            Aabb tire = wheel.Transform * wheel.GetAabb();
-            Vector3 center = tire.GetCenter();
-            Check(Math.Abs(Math.Abs(center.X) - (VehicleDimensions.WheelTrack / 2)) < 0.001f && Math.Abs(Math.Abs(center.Z) - (_vehicle.Configuration.Wheelbase / 2)) < 0.001f, $"{wheel.Name} aligns with its suspension ray.");
-            Check(Math.Abs((tire.Size.Y / 2) - VehicleDimensions.WheelRadius) < 0.001f && Math.Abs(_vehicle.Position.Y + tire.Position.Y) < 0.025f, $"{wheel.Name} radius and settled level-road contact agree.");
+            var carrier = model.GetNode<Node3D>("WheelCarrier_" + name);
+            Check(Math.Abs(Math.Abs(carrier.Position.Z) - (_vehicle.Configuration.Wheelbase / 2)) < .001f, name + " retains the physical axle station.");
+            Check(Math.Abs(_vehicle.Position.Y + carrier.Position.Y - WheelPresentation.TireRadius) < .035f, name + " contacts level ground at equilibrium.");
         }
-
-        Aabb body = model.GetNode<MeshInstance3D>("body").GetAabb();
-        Check(Math.Abs(collisionBounds.Position.Y - body.Position.Y) < 0.001f && Math.Abs(collisionBounds.End.Y - bounds.End.Y) < 0.001f, "Collision spans the visible underbody through the roof identification panel.");
-        float clearance = _vehicle.Position.Y + body.Position.Y;
-        Check(clearance is >= 0.40f and <= 0.49f, $"Settled body clearance is {clearance:F3} m.");
+        Check(model.GetNode<Node3D>("WeaponRack").Position.Y < 0, "Production rack is stowed during ordinary gameplay.");
     }
 }

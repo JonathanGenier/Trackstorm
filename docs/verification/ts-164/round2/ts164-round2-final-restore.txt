@@ -1,0 +1,4 @@
+  Determining projects to restore...
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\Epic.OnlineServices.csproj (in 217 ms).
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\Trackstorm.Core.csproj (in 217 ms).
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\Trackstorm.Client.csproj (in 572 ms).
