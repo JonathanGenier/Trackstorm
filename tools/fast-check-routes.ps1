@@ -39,6 +39,10 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'CarRack|RackItemVisual|car_rack|check-car-rack') {
+            Add-Runtime 'check-car-rack.ps1'
+            Add-Manual 'Inspect selected rack payloads, two-slot switching, sustained use and remote visibility.'
+        }
         if ($path -match 'CarArticulation|car_articulation|check-car-articulation|CarDeployment|WheelPresentation|assets/vehicles/') {
             Add-Runtime 'check-car-articulation.ps1'
             Add-Manual 'Inspect production Car silhouette, suspension clearance, steering, tire spin and trunk/rack deployment through rendered driving.'

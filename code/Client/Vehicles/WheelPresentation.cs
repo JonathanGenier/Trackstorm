@@ -9,9 +9,9 @@ internal sealed partial class WheelPresentation : Node
     internal const float TireRadius = 0.582f;
     private Node3D[] _wheels = [];
     private Node3D[] _spins = [];
-    private readonly Node3D[,] _links = new Node3D[4, 3];
-    private readonly Vector3[,] _anchors = new Vector3[4, 3];
-    private Node3D[] _rods = [];
+    private readonly Node3D[,] _links = new Node3D[4, 4];
+    private readonly Vector3[,] _anchors = new Vector3[4, 4];
+    private readonly Node3D[,] _rods = new Node3D[4, 2];
     private Node3D _model = null!;
     private bool _initialized;
     private float _spin;
@@ -24,11 +24,15 @@ internal sealed partial class WheelPresentation : Node
         string[] names = ["FL", "FR", "RL", "RR"];
         _wheels = names.Select(name => _model.GetNode<Node3D>("WheelCarrier_" + name)).ToArray();
         _spins = names.Select((name, index) => _wheels[index].GetNode<Node3D>("WheelSpin_" + name)).ToArray();
-        _rods = names.Select(name => _model.GetNode<Node3D>("ShockRod_" + name)).ToArray();
-        string[] suffixes = ["A", "B", "Upper"];
         for (int index = 0; index < 4; index++)
         {
-            for (int part = 0; part < 3; part++)
+            _rods[index, 0] = _model.GetNode<Node3D>("ShockRod_" + names[index]);
+            _rods[index, 1] = _model.GetNode<Node3D>("ShockRod2_" + names[index]);
+        }
+        string[] suffixes = ["A", "B", "Upper", "Upper2"];
+        for (int index = 0; index < 4; index++)
+        {
+            for (int part = 0; part < 4; part++)
             {
                 _anchors[index, part] = _model.GetNode<Node3D>($"SuspensionAnchor_{names[index]}_{suffixes[part]}").Position;
                 _links[index, part] = _model.GetNode<Node3D>($"SuspensionLink_{names[index]}_{suffixes[part]}");
@@ -52,16 +56,16 @@ internal sealed partial class WheelPresentation : Node
             wheel.Position = new Vector3(wheel.Position.X, Mathf.Lerp(wheel.Position.Y, target, blend), wheel.Position.Z);
             wheel.Rotation = new Vector3(0, index < 2 ? -sample.State.SteeringAngle : 0, 0);
             _spins[index].Rotation = new Vector3(_spin, 0, 0);
-            for (int part = 0; part < 3; part++)
+            for (int part = 0; part < 4; part++)
             {
                 Vector3 anchor = _anchors[index, part];
-                Vector3 hub = wheel.Position + new Vector3(index % 2 == 0 ? 0.12f : -0.12f, -0.04f, 0);
+                Vector3 hub = wheel.Position + new Vector3(index % 2 == 0 ? 0.14f : -0.14f, -0.04f, part == 2 ? 0.17f : part == 3 ? -0.17f : 0);
                 Node3D link = _links[index, part];
-                if (part == 2)
+                if (part >= 2)
                 {
                     Vector3 middle = anchor.Lerp(hub, 0.57f);
                     Align(link, anchor, middle);
-                    Align(_rods[index], middle, hub);
+                    Align(_rods[index, part - 2], middle, hub);
                 }
                 else { Align(link, anchor, hub); }
             }

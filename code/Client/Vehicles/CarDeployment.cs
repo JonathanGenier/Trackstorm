@@ -14,6 +14,17 @@ internal sealed partial class CarDeployment : Node
     /// <summary>Requested presentation pose. This adds no gameplay action or replicated state.</summary>
     internal bool Deployed { get; set; }
 
+    /// <summary>Current mechanical path position, zero closed and one raised.</summary>
+    internal float Progress => _progress;
+
+    /// <summary>Discards old-life animation memory at an authoritative lifecycle boundary.</summary>
+    internal void ResetPose()
+    {
+        Deployed = false;
+        _progress = 0;
+        ApplyPose(0);
+    }
+
     /// <inheritdoc/>
     public override void _Ready()
     {

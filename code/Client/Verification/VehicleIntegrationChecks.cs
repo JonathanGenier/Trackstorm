@@ -121,7 +121,7 @@ public sealed partial class VehicleIntegrationChecks : Node
         var meshes = Descendants(localModel).OfType<MeshInstance3D>().ToArray();
         Check(meshes.Length > 10 && meshes.All(mesh => mesh.Mesh is not null), "Vehicle asset resolves all base and conversion meshes.");
         Aabb bounds = meshes.Select(mesh => (localModel.GlobalTransform.AffineInverse() * mesh.GlobalTransform) * mesh.GetAabb()).Aggregate((left, right) => left.Merge(right));
-        Check(bounds.Size.X is > 2.4f and < 2.8f && bounds.Size.Z is > 4.5f and < 4.9f, "Production Car retains the established gameplay envelope.");
+        Check(bounds.Size.X is > 2.7f and < 3.05f && bounds.Size.Z is > 4.5f and < 4.9f, "Production Car has the approved wide visual stance and retained length.");
         // This fixture has advanced only three ticks; compare against current observations,
         // not equilibrium or the formerly static tire mesh's baked rest position.
         localModel.GetChildren().OfType<WheelPresentation>().Single()._Process(1);

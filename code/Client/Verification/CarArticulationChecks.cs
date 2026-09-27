@@ -30,8 +30,14 @@ public sealed partial class CarArticulationChecks : Node3D
             for (int i = 0; i < 150; i++) { await Step(); }
             await Capture("front-closed", new Vector3(5, 2.9f, -6));
             await Capture("rear-closed", new Vector3(-5, 2.9f, 6));
+            await Capture("suspension-front", new Vector3(2.8f, -0.15f, -3.7f));
             Check(_model.GetNode<Node3D>("WeaponRack").Position.Y < 0, "Rack rests inside the rear compartment.");
             string[] names = ["FL", "FR", "RL", "RR"];
+            foreach (string corner in names)
+            {
+                Check(_model.HasNode("ShockRod_" + corner) && _model.HasNode("ShockRod2_" + corner), "Two shock rods at " + corner);
+                Check(_model.HasNode("SuspensionLink_" + corner + "_Upper2"), "Second articulated shock sleeve at " + corner);
+            }
             Vector3[] rotations = names.Select(n => _model.GetNode<Node3D>($"WheelCarrier_{n}/WheelSpin_{n}").Rotation).ToArray();
             for (int i = 0; i < 90; i++) { await Step(ushort.MaxValue, 6000); }
             for (int i = 0; i < 4; i++)

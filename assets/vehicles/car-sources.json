@@ -1,5 +1,5 @@
 {
-  "authoring": "Original project geometry authored in Blender 5.2.2 for TS-164; no reference pixels or third-party model redistributed.",
+  "authoring": "Original project geometry authored and refined in Blender 5.2.2 for TS-164; all ten references re-inspected for the approved second pass. No reference pixels or third-party model redistributed.",
   "reference_issue": "https://jonathangenier.atlassian.net/browse/TS-164",
   "reference_attachments": {
     "10134": "01_front_left_3-4.png",
@@ -15,11 +15,12 @@
   },
   "materials": "Original paint/steel weathering shader; existing CC0 Poly Haven rubber maps recorded in sources.json. Blender base materials retained in master; Godot bindings in ImportCar.gd.",
   "sha256": {
-    "source/TrackstormCar.blend": "c0d747f01c56a1d00f5b3353fa694b12523e93a2ebce3d900668b34f2e6f2691",
-    "TrackstormCar.glb": "f6960d6d4aede0b3c2ba8b69e804006b9d7b5d4f848540b6db0d1cd4b1b88479",
-    "source/BuildCar.py": "8dff59bdb3283ad13049c8f4782621e7e3b641871667c7cbfae4ea4d9c98074a",
-    "source/FinalizeCar.py": "f2a42dd2831a9eaefeca6a240e012a1b708c377e2df9a03f25aaff1c1f304952",
-    "source/AuditCar.py": "c86dcbf41913ae01cf27a859aaa11b05b5a805a57064ddc72bc474953cd0697a",
-    "materials/CarPaint.gdshader": "c4b1132c3fac4e5598dd814dcb6880772baf129a012bee1ba8f456975017a67e"
-  }
+    "source/TrackstormCar.blend": "0ffa023ea8631cb3b7536ba3e7e8404a2806f5ba5bafa8eaf83123b90eaa8d25",
+    "TrackstormCar.glb": "f0ff10fad43bded64821879b100fa28667fbebd632f0aa5b37699a5066d21173",
+    "source/BuildCar.py": "7e46e072a10f0b302d0b01140cf7ce63e6bfbe00ce6bd29dfee059995bbe3916",
+    "source/FinalizeCar.py": "74101d79a1740015797a5a6a3d1ac5136e1cd821c4b2c8ecd219948ddd4f8bc9",
+    "source/AuditCar.py": "970d00d165a79fa33f8893fbd783a587d641fa85529196f343ba6336f25fe863",
+    "materials/CarPaint.gdshader": "676765538837ab948fef6da671c166e0a35f3f7444e9428815871206167dcea8"
+  },
+  "second_pass": "Integrated quarters and wheel tubs; 0.525 m tire carcass width; two articulated shocks per wheel. Rack reuses existing registered Missile/Proxy Mine art; other items use user-approved labelled boxes in Client code."
 }

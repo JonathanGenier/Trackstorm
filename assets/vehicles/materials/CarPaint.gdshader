@@ -12,9 +12,9 @@ void fragment() {
     vec3 p=local_position;
     float grain=noise3(p*180.0);
     float wear=noise3(p*13.0)*0.55+noise3(p*43.0)*0.3+noise3(p*3.0)*0.15;
-    float chips=smoothstep(0.54,0.65,wear);
+    float chips=smoothstep(0.62,0.74,wear);
     vec3 oxide=mix(vec3(0.055,0.035,0.02),vec3(0.22,0.105,0.045),grain);
-    ALBEDO=mix(paint_color.rgb*(0.78+grain*0.3),oxide,chips);
+    ALBEDO=mix(paint_color.rgb*(0.86+grain*0.16),oxide,chips);
     METALLIC=mix(0.58,0.15,chips);
     ROUGHNESS=0.56+chips*0.28+grain*0.08;
 }

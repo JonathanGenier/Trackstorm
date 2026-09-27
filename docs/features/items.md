@@ -2,7 +2,7 @@
 
 ## Behavior and Acquisition
 
-Network arenas register Wrench, Missile, Oil, Nitro, Proxy Mine, Salvo and Machine Gun, with two fixed held slots per player. Acquisition fills the first empty slot without changing selection or replacing either held item. **E** or controller **D-pad Right** switches the active slot, including empty slots; use targets only the selected item. Switching and use together in a captured frame switch first. Oil deploys a persistent terrain-aligned hazard. Nitro retains its slot as a percentage resource: hold use to boost, release to preserve charge, and reuse until exhausted. Use **LMB** or controller **A** through the remappable **UseItem** action. One press generates one capability-bound request; discrete items do not repeat while held. Nitro and Machine Gun require held input to sustain use; a tap released before the next tick consumes neither charge nor ammunition. Empty-slot requests fail safely. Only the local held-item HUD shows confirmed ownership. There is no held-item world model on any vehicle. The host development grant API grants registered items to the living host's first empty slot; they cannot overwrite either occupied slot. The internal all-vehicle grant seam remains for integration fixtures. Normal acquisition happens by driving within range of an available arena pickup, as described in [item spawning](item-spawns.md). Local rigid-body practice retains its generic blast demonstration on the same developer page.
+Network arenas register Wrench, Missile, Oil, Nitro, Proxy Mine, Salvo and Machine Gun, with two fixed held slots per player. Acquisition fills the first empty slot without changing selection or replacing either held item. **E** or controller **D-pad Right** switches the active slot, including empty slots; use targets only the selected item. Switching and use together in a captured frame switch first. Oil deploys a persistent terrain-aligned hazard. Nitro retains its slot as a percentage resource: hold use to boost, release to preserve charge, and reuse until exhausted. Use **LMB** or controller **A** through the remappable **UseItem** action. One press generates one capability-bound request; discrete items do not repeat while held. Nitro and Machine Gun require held input to sustain use; a tap released before the next tick consumes neither charge nor ammunition. Empty-slot requests fail safely. The local HUD and vehicle rack show confirmed selected ownership; remote racks use the same accepted item publication. The host development grant API grants registered items to the living host's first empty slot; they cannot overwrite either occupied slot. The internal all-vehicle grant seam remains for integration fixtures. Normal acquisition happens by driving within range of an available arena pickup, as described in [item spawning](item-spawns.md). Local rigid-body practice retains its generic blast demonstration on the same developer page.
 
 Wrench repairs 500 HP by default, clamped to the vehicle's existing maximum. A living player can always consume it at full health: zero effective healing still clears the slot and produces a confirmed use outcome. It cannot revive a destroyed vehicle.
 
@@ -42,7 +42,7 @@ Core evaluates item candidates against the complete observation batch, queues re
 
 ## Presentation and Assets
 
-Client `ItemPresentation` reconstructs the Kenney Weapon Pack rocket mesh with a project-created dark metallic orange-emissive `StandardMaterial3D`. The pickup marker retains its rust-colored bright material; inventory has no floating or overhead world representation. Kenney Particle Pack fire, smoke and spark textures drive GPU particle launch/impact effects and a world-space `GpuParticles3D` trail. The parameter-controlled `DamageFlash.gdshader` flashes the chassis on confirmed HP loss. [Arena audio](audio.md) separately consumes confirmed item outcomes for missile fire/travel/impact/explosion and Wrench use; new grant tokens drive distinct pickup sounds. These effects have no collision or HP authority. All presentation nodes are owned by the arena and removed on teardown; transient bursts have bounded lifetimes.
+Client `ItemPresentation` reconstructs the Kenney Weapon Pack rocket mesh with a project-created dark metallic orange-emissive `StandardMaterial3D`. The pickup marker retains its rust-colored bright material; selected inventory is mounted on the Car rack after its hydraulic deployment. Kenney Particle Pack fire, smoke and spark textures drive GPU particle launch/impact effects and a world-space `GpuParticles3D` trail. The parameter-controlled `DamageFlash.gdshader` flashes the chassis on confirmed HP loss. [Arena audio](audio.md) separately consumes confirmed item outcomes for missile fire/travel/impact/explosion and Wrench use; new grant tokens drive distinct pickup sounds. These effects have no collision or HP authority. All presentation nodes are owned by the arena and removed on teardown; transient bursts have bounded lifetimes.
 
 `assets/items/sources.json` records source URLs, archive/file hashes, selected files, CC0 licenses and the original author's Weapon Pack mirror. Native materials and the damage shader are project-created; no plugin or optional dissolve shader is introduced.
 
@@ -147,3 +147,28 @@ Runtime keys `items.salvo_*` cover count (1–16), interval_ticks (1–60), rang
 Item protocol version ten carries remaining shots and absolute ready ticks in each physical slot alongside flying arcs and owner life. There are no scheduled automatic rounds. Each accepted shot retires its capability and assigns a fresh token to remaining ammunition, rejecting replayed use requests; this continuation does not emit another pickup sound. Allocation and consumption commit only after the world step succeeds. Resume/migration restore partial ammunition, cooldowns and flying rounds without replaying old events. Owner reset, death or permanent departure removes their rounds; disconnected retained players continue under the existing authority. Finished removes Salvo rounds, and new matches begin empty. Effects reuse existing licensed rocket/particle/audio assets; the HUD SVG is project-original.
 
 `check-salvo.ps1 -GodotPath <exe> [-Visual] [-Impaired]` exercises three UDP peers in isolated native worlds: repeated salvos, five separately pressed launches/impacts per peer, held-input non-repeat and replicated ammunition, driving/steering with a moving guide and per-launch targets, two blast targets, second-slot preservation, chase-camera captures, banked ring geometry and owner-only visibility. Reconnect/migration fixtures seed partial ammunition, cooldowns and slow flying rounds to isolate exact checkpoint installation. These local fixtures do not establish Internet/EOS or independent-device coverage.
+
+## Vehicle rack presentation
+
+`CarRackPresentation` consumes accepted item slots, life/participation and use events
+for every network body. It adds no Core state, packet, inventory rule or firing delay.
+A selected acquisition opens the split deck, raises the rack, then reveals its payload.
+Selecting another physical slot retracts/closes before presenting the latest selection;
+selection revisions distinguish duplicate items. Rapid changes coalesce to the current
+selection. Confirmed use gives a short payload motion cue alongside existing world
+VFX/audio, then retracts/closes. Sustained Nitro/Machine Gun stay presented while their
+accepted engagement is active and close after release. Using a stowed remaining item
+can replay deployment without delaying its authoritative effect.
+
+The payload scales in/out only above the compartment's clearance height. Reconstructable
+animation memory suppresses automatic reopening after use until another selection or
+acquisition. Death/life change removes the payload immediately. Checkpoint reseeding
+clears animation memory and reconstructs current selected ownership without replaying
+historical shots; exact pre-disconnect animation phase is intentionally not replicated.
+
+Missile reuses the registered rocket mesh; Proxy Mine reuses its existing visual.
+Wrench, Oil, Nitro, Salvo and Machine Gun use small colour-coded labelled boxes by
+explicit art direction. These are temporary representations, not new weapon models.
+Nitro's eventual rear-facing engine is future art. `check-car-rack.ps1` exercises the
+catalog, two physical slots, duplicate types, use/switch transitions, native proximity
+pickup and lifecycle/restoration presentation through two local UDP peers.

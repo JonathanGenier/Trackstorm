@@ -1,0 +1,62 @@
+[
+  {
+    "check": "vehicle",
+    "result": "PASS",
+    "seconds": 30.7743801
+  },
+  {
+    "check": "oval",
+    "result": "PASS",
+    "seconds": 23.9705946
+  },
+  {
+    "check": "items",
+    "result": "PASS",
+    "seconds": 7.2582354
+  },
+  {
+    "check": "item-spawns",
+    "result": "PASS",
+    "seconds": 11.3220202
+  },
+  {
+    "check": "machine-gun",
+    "result": "PASS",
+    "seconds": 39.0623215
+  },
+  {
+    "check": "salvo",
+    "result": "PASS",
+    "seconds": 17.8298516
+  },
+  {
+    "check": "nitro",
+    "result": "PASS",
+    "seconds": 33.1478997
+  },
+  {
+    "check": "mine",
+    "result": "PASS",
+    "seconds": 6.4109852
+  },
+  {
+    "check": "death-respawn",
+    "result": "PASS",
+    "seconds": 29.6943681
+  },
+  {
+    "check": "reconnect",
+    "result": "PASS",
+    "seconds": 145.7997266
+  },
+  {
+    "check": "car-rack",
+    "result": "PASS",
+    "seconds": 113.5567338
+  },
+  {
+    "check": "car-articulation",
+    "result": "PASS",
+    "seconds": 14.8689511
+  }
+]

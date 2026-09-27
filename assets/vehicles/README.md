@@ -36,7 +36,7 @@ intentionally absent; this asset provides only their mounting structure.
 
 - `WheelCarrier_FL/FR/RL/RR`: suspension translation and front steering.
 - Their `WheelSpin_*` children: rotation about local X; nominal tread radius 0.582 m.
-- `SuspensionAnchor_*`: chassis attachments. `SuspensionLink_*` and `ShockRod_*`
+- `SuspensionAnchor_*`: chassis attachments. `Upper`/`Upper2` and `ShockRod`/`ShockRod2` form two shocks at every wheel. `SuspensionLink_*` and `ShockRod_*`
   stretch/aim between attachments and hubs. Coil meshes inherit the shock sleeve.
 - `TrunkHinge_L/R`: longitudinal hinges. `WeaponRack`: vertical lift with four
   stable `WeaponMount_L/R_Front/Rear` empties and socket plates.
@@ -48,14 +48,14 @@ intentionally absent; this asset provides only their mounting structure.
 Blender timeline frames 1–25 open the deck, 25–48 raise the rack, 48–60 hold,
 60–75 retract and 75–100 close. Runtime `CarDeployment` reproduces the ordered
 path in 1.6 seconds each way and permits smooth reversal. Its `Deployed` property
-is a Client presentation seam for later integration, not a new gameplay input,
-weapon rule or network message. Normal gameplay keeps the rack stowed.
+is a Client presentation seam for inventory presentation, not a new gameplay input,
+weapon rule or network message. Network gameplay drives the mechanism through `CarRackPresentation` from confirmed inventory and use outcomes; see `docs/features/items.md`.
 
 `WheelPresentation` reads accepted speed, steering and per-wheel compression.
 Existing offline interpolation and network presentation roots remain unchanged.
 No Core physics, force, tuning, collision, authority, serialization or input rule
 is changed. The physical 2.601105 m wheelbase stays aligned. The visual tire
-centres are widened to ±1.03 m while existing support rays remain at ±0.8165335 m;
+centres are widened to ±1.16 m while existing support rays remain at ±0.8165335 m;
 this deliberate presentation offset avoids a handling redesign. Narrow terrain
 edges are consequently approximated by the unchanged physical supports.
 
@@ -66,3 +66,8 @@ checks articulation/deployment and saves captures and traces under `.godot/ts164
 Use the regular vehicle/network/oval checks for surrounding integration.
 Current Story evidence and limitations belong in `docs/verification/ts-164.md`.
 The previous Kenney-based master and source remain as historical editable assets.
+
+The quarter panels include integrated shoulder surfaces and recessed wheel tubs.
+Tire carcasses are 0.525 m wide before tread, versus 0.30 m in the first pass.
+AuditCar.py samples rubber/chassis surface intersections across steering/travel;
+its numerical sample is supplementary to native driving and visual review.

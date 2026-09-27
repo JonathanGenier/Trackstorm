@@ -125,6 +125,18 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.ItemsReceived += publication =>
         {
             _items.Apply(publication);
+            foreach (var vehicle in publication.World.Vehicles)
+            {
+                // A reliable item outcome can arrive behind a newer lifecycle snapshot.
+                var state = _driver.Latest?.Vehicles.FirstOrDefault(v => v.State.VehicleId == vehicle.State.VehicleId)?.State ?? vehicle.State;
+                if (state.LifeId != vehicle.State.LifeId) { continue; }
+                if (_bodies.TryGetValue(state.VehicleId, out var body))
+                {
+                    body.Rack.Observe(state.LifeId, state.CanInteract,
+                        publication.Slots.FirstOrDefault(slot => slot.Vehicle == state.VehicleId),
+                        publication.Events.Where(outcome => outcome.Owner == state.VehicleId));
+                }
+            }
             _audio.ApplyVehicles(publication.World.Vehicles.Select(vehicle => vehicle.State));
             _audio.ApplyItems(publication);
             _pickups.Apply(publication);
@@ -444,7 +456,8 @@ internal sealed partial class NetworkVehicleArena : Node3D
         foreach (ReplicatedVehicle vehicle in snapshot.Vehicles)
         {
             ulong id = vehicle.State.VehicleId;
-            if (!_bodies.TryGetValue(id, out var body))
+            bool created = !_bodies.TryGetValue(id, out var body);
+            if (created)
             {
                 body = new NetworkVehicleBody { Name = $"Vehicle{id}", VehicleId = id, PushProps = _driver.Host is not null };
                 body.ApplyConfiguration(_driver.Configuration.Configuration.Vehicle);
@@ -459,10 +472,15 @@ internal sealed partial class NetworkVehicleArena : Node3D
             }
             else if (_driver.Host is not null || id != _driver.LocalVehicleId)
             {
-                body.Apply(vehicle.State);
+                body!.Apply(vehicle.State);
             }
 
-            body.SynchronizeLifecycle(vehicle.State);
+            body!.SynchronizeLifecycle(vehicle.State);
+            if (created)
+            {
+                body.Rack.Observe(vehicle.State.LifeId, vehicle.State.CanInteract,
+                    _driver.ItemState?.Slots.FirstOrDefault(slot => slot.Vehicle == id), []);
+            }
         }
     }
 

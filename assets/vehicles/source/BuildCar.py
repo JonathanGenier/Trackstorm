@@ -100,11 +100,11 @@ grille('WindshieldGuard',[(-.69,.465,.93),(.69,.465,.93)],[(-.83,.945,.40),(.83,
 grille('RearWindowGuard',[(-.69,-.535,.92),(.69,-.535,.92)],[(-.81,-.94,.41),(.81,-.94,.41)],12,dark)
 for side in [-1,1]:
     x=side*.85
-    panel('DoorArmor',[(x,-.58,-.32),(x,.64,-.32),(x,.75,.36),(x,-.69,.40)])
+    panel('DoorArmor',[(x,-.54,-.32),(x,.54,-.32),(x,.75,.36),(x,-.69,.40)])
     panel('SideGlass',[(x,-.64,.44),(x,.67,.44),(side*.71,.40,.90),(side*.71,-.47,.90)],glass)
     for y0,y1,z0,z1 in [(.75,.42,.39,.94),(-.70,-.51,.4,.94)]:
         rod('CabinPillar',(x,y0,z0),(side*.71,y1,z1),.045,dark)
-    rod('DoorSill',(x,-.69,-.34),(x,.74,-.34),.055,steel)
+    rod('DoorSill',(x,-.56,-.34),(x,.56,-.34),.055,steel)
     rod('WindowBelt',(x,-.71,.41),(x,.77,.41),.034,steel)
     for i in range(9):
         y=-.53+i*.125
@@ -114,9 +114,9 @@ for side in [-1,1]:
         rod('SideWindowCross',(side*(.865-.14*t),-.61+.14*t,z),(side*(.865-.14*t),.64-.25*t,z),.01,dark,n=6)
     box('DoorHandle',(side*.88,-.39,.27),(.055,.17,.035),chrome)
     box('DoorHinge',(side*.88,.52,.12),(.055,.06,.14),steel)
-    rod('RockSlider',(side*.96,-.73,-.40),(side*.96,.75,-.40),.052,steel)
-    rod('SideExhaust',(side*.91,-.65,-.29),(side*.91,.64,-.29),.055,chrome)
-    for yy in [-.60,.56]:
+    rod('RockSlider',(side*.96,-.56,-.40),(side*.96,.56,-.40),.052,steel)
+    rod('SideExhaust',(side*.91,-.53,-.29),(side*.91,.53,-.29),.055,chrome)
+    for yy in [-.50,.50]:
         rod('SliderMount',(side*.5,yy,-.34),(side*.96,yy,-.4),.025,steel)
     box('MirrorArm',(side*.96,.64,.48),(.27,.035,.045),dark)
     box('ArmoredMirror',(side*1.08,.62,.5),(.15,.12,.11),red)
@@ -134,21 +134,41 @@ for x in [-.76,.76]:
     rod('BonnetRail',(x,.9,.435),(x,2.09,.31),.022,steel)
     box('HoodLatch',(x,1.91,.33),(.065,.14,.035),chrome)
 
-# Raised arched fenders leave an actual opening, not a wheel intersecting a box.
+# Integrated quarter panels: polygonal wheel opening, flared lip, upper shoulder
+# and an inner wheel tub form one continuous body assembly, like the references.
 for side in [-1,1]:
-    for y in [-1.3005525,1.3005525]:
-        verts=[]
-        for j in range(19):
-            a=.20+(pi-.40)*j/18
-            for x,r in [(side*.84,.85),(side*1.25,.85),(side*1.25,.92),(side*.84,.92)]:
-                verts.append((x,y+cos(a)*r,-.29+sin(a)*r))
-        faces=[]
-        for j in range(18):
-            for k in range(4): faces.append((j*4+k,j*4+(k+1)%4,(j+1)*4+(k+1)%4,(j+1)*4+k))
-        mesh('ArmoredWheelArch',verts,faces,red)
-        for j in range(1,18,2):
-            a=.20+(pi-.40)*j/18
-            rod('FenderBolt',(side*1.255,y+cos(a)*.89,-.29+sin(a)*.89),(side*1.27,y+cos(a)*.89,-.29+sin(a)*.89),.018,chrome,n=8)
+    for yy in [-1.3005525,1.3005525]:
+        profile=[(-.85,-.29),(-.82,.03),(-.70,.28),(-.46,.48),(-.23,.54),(.23,.54),(.46,.48),(.70,.28),(.82,.03),(.85,-.29)]
+        verts=[]; faces=[]
+        for dy,z in profile:
+            # Inner lip -> flare -> quarter-panel shoulder -> bonnet/deck seam.
+            top=max(z+.10,.45)
+            verts.extend([(side*1.31,yy+dy,z),(side*1.34,yy+dy,z+.085),
+                          (side*1.10,yy+dy,top),(side*.82,yy+dy,.52)])
+        for j in range(len(profile)-1):
+            for k in range(3):faces.append((j*4+k,j*4+k+1,(j+1)*4+k+1,(j+1)*4+k))
+        o=mesh('IntegratedQuarter',verts,faces,red,bevel=.018)
+        sol=o.modifiers.new('Quarter armor thickness','SOLIDIFY');sol.thickness=.028
+        # Broad dark tub follows the opening and closes the view above/behind tire.
+        v=[];f=[]
+        for dy,z in profile:
+            v.extend([(side*.53,yy+dy,min(z,.32)),(side*.82,yy+dy,min(z,.46)),
+                      (side*1.10,yy+dy,z+.025),(side*1.30,yy+dy,z+.015)])
+        for j in range(len(profile)-1):
+            for k in range(3): f.append((j*4+k,j*4+k+1,(j+1)*4+k+1,(j+1)*4+k))
+        liner=mesh('WheelWellLiner',v,f,dark,bevel=.008)
+        liner.modifiers.new('Tub thickness','SOLIDIFY').thickness=.025
+        # Recessed inboard wheelhouse and chassis ribs avoid an empty open shell.
+        panel('WheelhouseBack',[(side*.53,yy-.80,-.3),(side*.53,yy+.80,-.3),
+            (side*.53,yy+.80,.32),(side*.53,yy-.80,.32)],dark)
+        for dy in [-.65,0,.65]:
+            rod('WheelhouseRib',(side*.56,yy+dy,-.2),(side*.56,yy+dy,.32),.022,steel)
+        for j,(dy,z) in enumerate(profile[1:-1]):
+            rod('FlareFastener',(side*1.345,yy+dy,z+.07),(side*1.359,yy+dy,z+.07),.016,chrome,n=8)
+        # Quarter termination closes the armor down to the sill/fascia.
+        for dy in [-.85,.85]:
+            panel('QuarterEnd',[(side*.82,yy+dy,-.29),(side*1.31,yy+dy,-.29),
+                  (side*1.10,yy+dy,.53),(side*.82,yy+dy,.52)],red)
 
 # Front fascia, recessed lamps, grille and tubular push bar.
 box('FrontFascia',(0,2.13,.07),(1.83,.13,.40),red)
@@ -220,34 +240,36 @@ rack.location.z=-.08
 # Four steering carriers, tire spin pivots, and separate suspension attachment points.
 for idx,(side,y) in enumerate([(-1,1.3005525),(1,1.3005525),(-1,-1.3005525),(1,-1.3005525)]):
     name=['FL','FR','RL','RR'][idx]
-    carrier=empty('WheelCarrier_'+name,(side*1.03,y,-.565),root)
+    carrier=empty('WheelCarrier_'+name,(side*1.16,y,-.565),root)
     wheel=empty('WheelSpin_'+name,parent=carrier)
     # Rounded tire carcass, oriented around local X.
     bpy.ops.mesh.primitive_torus_add(major_radius=.405,minor_radius=.15,major_segments=48,minor_segments=12)
     o=bpy.context.object; o.rotation_euler.y=pi/2
+    o.scale.z=1.75
     finish(o,'Tire_'+name,rubber,wheel)
     for j in range(36):
         a=2*pi*j/36
         for row in [-1,0,1]:
             t=a+row*.027
-            tread=box('Tread_'+name,(row*.105,sin(t)*.548,cos(t)*.548),(.10,.093,.067),rubber,wheel,.008)
+            tread=box('Tread_'+name,(row*.175,sin(t)*.548,cos(t)*.548),(.17,.10,.067),rubber,wheel,.008)
             tread.rotation_euler.x=-t; tread.rotation_euler.z=row*.22
-    rod('WheelRim_'+name,(-.15,0,0),(.15,0,0),.29,dark,wheel,32)
-    rod('Beadlock_'+name,(side*.155,0,0),(side*.175,0,0),.31,steel,wheel,40)
-    rod('RecessedRim_'+name,(side*.177,0,0),(side*.181,0,0),.26,dark,wheel,32)
-    rod('Hub_'+name,(side*.182,0,0),(side*.205,0,0),.11,steel,wheel,16)
+    rod('WheelRim_'+name,(-.25,0,0),(.25,0,0),.29,dark,wheel,32)
+    rod('Beadlock_'+name,(side*.255,0,0),(side*.275,0,0),.31,steel,wheel,40)
+    rod('RecessedRim_'+name,(side*.277,0,0),(side*.281,0,0),.26,dark,wheel,32)
+    rod('Hub_'+name,(side*.282,0,0),(side*.305,0,0),.11,steel,wheel,16)
     for j in range(12):
         a=2*pi*j/12
-        rod('BeadBolt',(side*.18,sin(a)*.283,cos(a)*.283),(side*.19,sin(a)*.283,cos(a)*.283),.011,chrome,wheel,8)
+        rod('BeadBolt',(side*.28,sin(a)*.283,cos(a)*.283),(side*.29,sin(a)*.283,cos(a)*.283),.011,chrome,wheel,8)
     for j in range(6):
         a=2*pi*j/6
-        spoke=box('WheelSpoke',(side*.18,sin(a)*.175,cos(a)*.175),(.02,.045,.16),steel,wheel,.004)
+        spoke=box('WheelSpoke',(side*.28,sin(a)*.175,cos(a)*.175),(.02,.045,.16),steel,wheel,.004)
         spoke.rotation_euler.x=-a
-    for suffix,yy,zz in [('A',-.18,-.32),('B',.18,-.32),('Upper',0,.19)]:
-        empty('SuspensionAnchor_'+name+'_'+suffix,(side*.48,y+yy,zz),root)
+    for suffix,yy,zz in [('A',-.18,-.32),('B',.18,-.32),('Upper',-.17,.42),('Upper2',.17,.42)]:
+        empty('SuspensionAnchor_'+name+'_'+suffix,(side*(.69 if suffix.startswith('Upper') else .48),y+yy,zz),root)
         # Meshes authored along local +Z, runtime aligns their endpoints.
-        rod('SuspensionLink_'+name+'_'+suffix,(0,0,0),(0,0,1),.028 if suffix!='Upper' else .055,steel if suffix!='Upper' else dark,root)
+        rod('SuspensionLink_'+name+'_'+suffix,(0,0,0),(0,0,1),.055 if suffix.startswith('Upper') else .028,dark if suffix.startswith('Upper') else steel,root)
     rod('ShockRod_'+name,(0,0,0),(0,0,1),.021,chrome,root)
+    rod('ShockRod2_'+name,(0,0,0),(0,0,1),.021,chrome,root)
 
 # Original radial stencil, matching the reference set's weathered mechanical emblem.
 def emblem(name,pos,axis,size,parent=root):
@@ -259,22 +281,24 @@ def emblem(name,pos,axis,size,parent=root):
         o.rotation_euler.z=-a
     bpy.ops.mesh.primitive_torus_add(major_radius=size*.49,minor_radius=size*.035,major_segments=32,minor_segments=6)
     finish(bpy.context.object,'StencilRing',cream,e)
-    for x in [-1,1]:
-        box('StencilEye',(x*size*.15,size*.07,.005),(size*.10,size*.17,.005),cream,e,0)
-    box('StencilJaw',(0,-size*.15,.005),(size*.29,size*.11,.005),cream,e,0)
+    for sign in [-1,1]:
+        mesh('StencilCore',[(-size*.12,sign*size*.08,.005),(0,sign*size*.38,.005),(size*.12,sign*size*.08,.005),(0,sign*size*.03,.005)],[(0,1,2,3)],cream,e,0)
 emblem('HoodEmblem',(0,1.76,.322),'top',.31)
 emblem('RoofEmblem',(0,-.08,.977),'top',.30)
 for side in [-1,1]: emblem('DoorEmblem',(side*.884,.03,.045),'side',.29)
 
 # Small existing per-player color/damage-flash surface, separate from authored paint.
 box('Identification',(0,-.38,.980),(.42,.11,.012),cream)
+for o in list(scene.objects):
+    if o.name.startswith(('Bonnet','HoodScoop','ScoopMouth','ScoopVent','HoodLatch','HoodEmblem')):
+        o.location.z += .12
 # Batch static detail and each rotating wheel by material. Lamps, mechanisms,
 # attachment empties and the identification surface remain individually addressable.
 groups={}
 for o in list(scene.objects):
     if o.type!='MESH' or o.name=='Identification': continue
     if o.data.materials[0].name.startswith('Light_'): continue
-    if o.name.startswith(('SuspensionLink_','ShockRod_','LiftPiston_')): continue
+    if o.name.startswith(('SuspensionLink_','ShockRod_','ShockRod2_','LiftPiston_')): continue
     p=o.parent
     if p==root or (p and p.name.startswith('WheelSpin_')):
         groups.setdefault((p,o.data.materials[0]),[]).append(o)

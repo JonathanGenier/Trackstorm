@@ -21,6 +21,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     private float _flash;
     private GpuParticles3D _nitroTrail = null!;
     private ulong _life;
+    internal CarRackPresentation Rack { get; private set; } = null!;
     private VehicleSnapshot? _feedbackState;
     private bool _lifeCorrectionPending;
     /// <summary>Host-assigned identity used only to attribute contact observations.</summary>
@@ -48,7 +49,10 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         Color paint = Color.FromHsv((VehicleId * 0.13f) % 1, 0.7f, 0.9f);
         _damageMaterial = new ShaderMaterial { Shader = Networking.MatchResourceLoader.LoadResource<Shader>("res://assets/items/materials/DamageFlash.gdshader") };
         _damageMaterial.SetShaderParameter("paint", paint);
-        _visual.AddChild(VehicleVisual.Create(_damageMaterial, () => _feedbackState is { } state ? (state.Movement, _configuration) : null));
+        var model = VehicleVisual.Create(_damageMaterial, () => _feedbackState is { } state ? (state.Movement, _configuration) : null);
+        _visual.AddChild(model);
+        Rack = new CarRackPresentation();
+        model.AddChild(Rack);
         _nitroTrail = Items.ItemPresentation.Particles(Core.Items.ItemRegistry.Find(Core.Items.HeldItem.Nitro)!.ActiveVfx!, false, 0.18f);
         _nitroTrail.Amount = 64;
         ((StandardMaterial3D)((QuadMesh)_nitroTrail.DrawPass1).Material).AlbedoColor = new Color(0.15f, 0.65f, 1);
@@ -285,6 +289,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     /// <param name="state">Fresh authoritative vehicle state.</param>
     internal void Reseed(VehicleSnapshot state)
     {
+        Rack.Reset();
         _initialized = false;
         _flash = 0;
         _previousHP = state.Damage.CurrentHP;
@@ -297,6 +302,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     /// <param name="state">Freshest accepted aggregate, never an old reliable outcome.</param>
     internal void SynchronizeLifecycle(VehicleSnapshot state)
     {
+        if (_life != state.LifeId || !state.CanInteract) { Rack.Reset(); }
         _feedbackState = state;
         _nitroTrail.Emitting = state.CanInteract && state.Movement.Nitro.Active;
         if (_life != state.LifeId)

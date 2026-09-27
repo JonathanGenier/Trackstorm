@@ -1,0 +1,1 @@
+PASS: 67 native assertions. Actual acceleration, steering, four tire rotations, three complete deployment cycles and one reversal. Rendered captures when display is available.
