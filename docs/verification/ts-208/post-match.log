@@ -1,0 +1,12 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+REMATCH_RESOURCE cycle=1; generation=396146926883269458; managed=7306600; private=527896576; handles=495; nodes=5933; objects=11772; orphans=0; inputPending=4; snapshots=20; hostEvents=56; clientEvents=55
+REMATCH_RESOURCE cycle=2; generation=396146926883269459; managed=7435432; private=558751744; handles=495; nodes=6380; objects=12682; orphans=0; inputPending=2; snapshots=20; hostEvents=110; clientEvents=112
+REMATCH_RESOURCE cycle=3; generation=396146926883269460; managed=7463544; private=562274304; handles=494; nodes=6380; objects=12682; orphans=0; inputPending=3; snapshots=20; hostEvents=164; clientEvents=168
+Transport peer 1: Disconnected; RemoteRequest; Transport stopped
+Post-match integration passed: 191 assertions.
+Post-match verification artifacts: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\post-match-checks\da5e550a033646a59c165400b363e6ce

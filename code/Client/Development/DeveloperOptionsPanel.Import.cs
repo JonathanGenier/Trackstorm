@@ -41,18 +41,7 @@ internal sealed partial class DeveloperOptionsPanel
             if (!ReferenceEquals(_importOwner, ImportOwner()) || Session()?.Lobby?.State?.AuthorityEpoch != _importEpoch ||
                 Session()?.CanConfigureDeveloperOptions != true || AwaitingConfirmation)
             { _status.Text = "Session changed. Reopen Import Configs to try again."; return; }
-            // Bounded read even if the file grows or changes while the picker is open.
-            using var file = System.IO.File.OpenRead(path);
-            byte[] bytes = new byte[ConfigurationChangesImport.MaximumLength + 1];
-            int count = 0;
-            while (count < bytes.Length)
-            {
-                int read = file.Read(bytes, count, bytes.Length - count);
-                if (read == 0) break;
-                count += read;
-            }
-            if (count > ConfigurationChangesImport.MaximumLength) { _status.Text = "Config file exceeds 64 KiB."; return; }
-            string text = new System.Text.UTF8Encoding(false, true).GetString(bytes, 0, count);
+            if (!DeveloperSettingsStore.TryReadImport(path, out string text)) { _status.Text = "Config file exceeds 64 KiB."; return; }
             if (!ConfigurationChangesImport.TryParse(text, Session()!.DeveloperConfiguration, out var edits, out string version, out string error))
             { _status.Text = error; return; }
             _draft.Import(edits);

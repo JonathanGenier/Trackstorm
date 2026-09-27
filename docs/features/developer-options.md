@@ -1,5 +1,7 @@
 # Shared Developer Options
 
+User-selected config exports are acquired by `DeveloperSettingsStore.TryReadImport` using a bounded, uncached, strict UTF-8 read. The panel retains session/epoch checks, parsing into its draft and existing status feedback; reading a file does not apply or persist settings. Local settings and config imports stay with their filesystem store rather than the Godot asset loaders.
+
 Settings > Developer Options and F1 open Configs in the shared [DevTools shell](devtools.md). Host and admitted connected clients can edit the same session gameplay configuration. Core on the host validates every requested transaction; clients hold confirmed replicas and editor drafts, never an independent gameplay configuration owner. Force Start and item-grant APIs retain their host-only authority.
 
 Numeric edits remain staged until **Apply Settings**. Clients show pending confirmation and keep the shell open until the host accepts or rejects the request. Invalid transactions leave gameplay unchanged and retain editable text with feedback. **Cancel** restores confirmed values; it cannot recall a request already sent. Fields without local edits refresh when other peers change configuration; explicit drafts remain marked as unsaved. Session/arena or authority-epoch changes reset drafts. Controls are unavailable during recovery or match synchronization.

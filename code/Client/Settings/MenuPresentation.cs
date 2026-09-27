@@ -8,7 +8,7 @@ internal sealed partial class MenuPresentation : Control
     private Texture2D _steel = null!;
 
     /// <inheritdoc/>
-    public override void _Ready() => _steel = GD.Load<Texture2D>("res://assets/hud/Health.png");
+    public override void _Ready() => _steel = Bootstrap.StartupController.LoadResource<Texture2D>("res://assets/hud/Health.png");
 
     /// <inheritdoc/>
     public override void _Draw()

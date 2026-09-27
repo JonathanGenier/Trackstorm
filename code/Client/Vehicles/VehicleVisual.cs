@@ -38,7 +38,7 @@ internal static class VehicleVisual
     /// <returns>A caller-owned model root.</returns>
     internal static Node3D Create(Material identification, Func<(VehicleState State, VehicleConfiguration Configuration)?>? suspension = null)
     {
-        var model = GD.Load<PackedScene>("res://assets/vehicles/WastelandVehicle.tscn").Instantiate<Node3D>();
+        var model = Bootstrap.StartupController.LoadResource<PackedScene>("res://assets/vehicles/WastelandVehicle.tscn").Instantiate<Node3D>();
         model.GetNode<MeshInstance3D>("Identification").MaterialOverride = identification;
         if (suspension is not null) { model.AddChild(new WheelPresentation { Source = suspension }); }
         return model;

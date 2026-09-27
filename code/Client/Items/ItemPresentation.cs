@@ -43,7 +43,7 @@ internal sealed partial class ItemPresentation : Node3D
             Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
             ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
             BillboardMode = BaseMaterial3D.BillboardModeEnum.Enabled,
-            AlbedoTexture = GD.Load<Texture2D>($"res://assets/items/kenney/particles/{texture}.png"),
+            AlbedoTexture = Networking.MatchResourceLoader.LoadResource<Texture2D>($"res://assets/items/kenney/particles/{texture}.png"),
             AlbedoColor = texture == "smoke_01" ? new Color(0.3f, 0.32f, 0.35f, 0.5f) : new Color(1, 0.35f, 0.05f),
         };
         return new GpuParticles3D
@@ -213,10 +213,10 @@ internal sealed partial class ItemPresentation : Node3D
     private static Node3D Rocket()
     {
         var root = new Node3D();
-        var mesh = GD.Load<Mesh>("res://assets/items/kenney/weapons/ammo_rocket.obj");
+        var mesh = Networking.MatchResourceLoader.LoadResource<Mesh>("res://assets/items/kenney/weapons/ammo_rocket.obj");
         Aabb bounds = mesh.GetAabb();
         float scale = 1.5f / Math.Max(bounds.Size.X, Math.Max(bounds.Size.Y, bounds.Size.Z));
-        root.AddChild(new MeshInstance3D { Mesh = mesh, Scale = Vector3.One * scale, Position = -bounds.GetCenter() * scale, MaterialOverride = GD.Load<StandardMaterial3D>("res://assets/items/materials/Projectile.tres") });
+        root.AddChild(new MeshInstance3D { Mesh = mesh, Scale = Vector3.One * scale, Position = -bounds.GetCenter() * scale, MaterialOverride = Networking.MatchResourceLoader.LoadResource<StandardMaterial3D>("res://assets/items/materials/Projectile.tres") });
         return root;
     }
 

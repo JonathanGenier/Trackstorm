@@ -309,6 +309,17 @@ public sealed partial class PostMatchIntegrationChecks : Node
 
     private async Task CheckWarmResourceHandoff()
     {
+        var steel = StartupController.LoadResource<Texture2D>("res://assets/hud/Health.png");
+        Check(ReferenceEquals(steel, StartupController.LoadResource<Texture2D>("res://assets/hud/Health.png")), "Application acquisition reuses live native textures");
+        Check(StartupController.LoadOptionalTexture("res://assets/frontend/lobby/absent-preview.png") is null, "Optional preview remains absent without a load error");
+        var vehicle = StartupController.LoadResource<PackedScene>("res://assets/vehicles/WastelandVehicle.tscn");
+        var first = vehicle.Instantiate<Node3D>();
+        var second = vehicle.Instantiate<Node3D>();
+        Check(first != second && ReferenceEquals(vehicle, MatchResourceLoader.LoadResource<PackedScene>("res://assets/vehicles/WastelandVehicle.tscn")), "Lobby and match share vehicle asset with independent scene instances");
+        first.Free();
+        second.Free();
+        var cue = StartupController.LoadResource<AudioStream>(Audio.AudioCatalog.Path(Audio.AudioCue.MatchStart));
+        Check(ReferenceEquals(cue, MatchResourceLoader.LoadResource<AudioStream>(Audio.AudioCatalog.Path(Audio.AudioCue.MatchStart))), "Match interface cue delegates to shared application acquisition");
         foreach (var map in new[] { MatchMap.OldMap, MatchMap.NewMap })
         {
             var retained = new MatchResourceLoader(map);
@@ -326,6 +337,8 @@ public sealed partial class PostMatchIntegrationChecks : Node
                 Check(warm.Progress > previous, "Cached resource handoff progresses on the main thread without a worker/poll round trip");
             }
             Check(ReferenceEquals(retained.MapScene, warm.MapScene), "Warm loader retains the same cached map asset");
+            string path = map == MatchMap.OldMap ? "res://scenes/arena/prototype_arena.tscn" : Arenas.ActiveMap.ScenePath;
+            Check(ReferenceEquals(retained.MapScene, MatchResourceLoader.LoadResource<PackedScene>(path)), "Lazy map acquisition reuses the prepared scene");
             GC.KeepAlive(retained);
         }
     }

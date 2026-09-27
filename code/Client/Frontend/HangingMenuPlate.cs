@@ -14,11 +14,11 @@ internal sealed partial class HangingMenuPlate : Control
     {
         MouseFilter = MouseFilterEnum.Ignore;
         Size = new Vector2(780, 180);
-        _treatment = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/frontend/main-menu/Plate.gdshader") };
+        _treatment = new ShaderMaterial { Shader = Bootstrap.StartupController.LoadResource<Shader>("res://assets/frontend/main-menu/Plate.gdshader") };
         var plate = new TextureRect
         {
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-            Texture = new AtlasTexture { Atlas = GD.Load<Texture2D>("res://assets/frontend/main-menu/Plate.png"), Region = new Rect2(0, 75, 2172, 540) },
+            Texture = new AtlasTexture { Atlas = Bootstrap.StartupController.LoadResource<Texture2D>("res://assets/frontend/main-menu/Plate.png"), Region = new Rect2(0, 75, 2172, 540) },
             Size = Size,
             MouseFilter = MouseFilterEnum.Ignore, Material = _treatment,
         };
@@ -26,7 +26,7 @@ internal sealed partial class HangingMenuPlate : Control
         var icon = new TextureRect
         {
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-            Texture = new AtlasTexture { Atlas = GD.Load<Texture2D>("res://assets/frontend/main-menu/Icons.png"), Region = new Rect2(entry.Icon % 2 * 627, entry.Icon / 2 * 627, 627, 627) },
+            Texture = new AtlasTexture { Atlas = Bootstrap.StartupController.LoadResource<Texture2D>("res://assets/frontend/main-menu/Icons.png"), Region = new Rect2(entry.Icon % 2 * 627, entry.Icon / 2 * 627, 627, 627) },
             Position = new Vector2(125, 32), Size = new Vector2(112, 112),
             MouseFilter = MouseFilterEnum.Ignore,
         };

@@ -28,7 +28,7 @@ internal static class DevToolsButtonPresentation
     /// <param name="treatment">Semantic color treatment.</param>
     internal static void Configure(Button button, string icon, Treatment treatment)
     {
-        button.Icon = GD.Load<Texture2D>($"res://assets/devtools/{icon}.svg");
+        button.Icon = Bootstrap.StartupController.LoadResource<Texture2D>($"res://assets/devtools/{icon}.svg");
         button.TooltipText = button.Text;
         button.CustomMinimumSize = new Vector2(Math.Max(button.CustomMinimumSize.X, 104), Math.Max(button.CustomMinimumSize.Y, 40));
         button.AddThemeColorOverride("font_color", Colors.White);

@@ -35,7 +35,7 @@ internal sealed class DestructibleEnvironment
             batch.Multimesh = (MultiMesh)batch.Multimesh.Duplicate();
             _buffers.Add(batch, batch.Multimesh.Buffer);
         }
-        var template = GD.Load<PackedScene>("res://assets/environment/models/BoulderLow.glb").Instantiate<Node3D>();
+        var template = Networking.MatchResourceLoader.LoadResource<PackedScene>("res://assets/environment/models/BoulderLow.glb").Instantiate<Node3D>();
         _pieceMesh = template.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>().First().Mesh;
         _pieceDiameter = Diameter(_pieceMesh.GetAabb().Size);
         template.Free();

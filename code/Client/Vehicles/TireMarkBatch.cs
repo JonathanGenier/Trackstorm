@@ -52,7 +52,7 @@ internal sealed partial class TireMarkBatch : Node3D
         TopLevel = true;
         GlobalTransform = Transform3D.Identity;
         PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off;
-        _material = new ShaderMaterial { Shader = GD.Load<Shader>("res://assets/effects/TireTrack.gdshader") };
+        _material = new ShaderMaterial { Shader = Networking.MatchResourceLoader.LoadResource<Shader>("res://assets/effects/TireTrack.gdshader") };
         _mesh = new PlaneMesh { Size = Vector2.One, Material = _material };
         _instances = new MultiMesh { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, UseColors = true, UseCustomData = true, Mesh = _mesh, InstanceCount = MaximumCapacity, VisibleInstanceCount = 0 };
         _view.Multimesh = _instances;

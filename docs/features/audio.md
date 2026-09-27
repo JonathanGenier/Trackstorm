@@ -8,6 +8,8 @@ The [startup MenuShell](startup.md) owns the unchanged TS-85 main-menu MP3 as se
 
 ## Music and arena lifecycle
 
+Arena stream acquisition goes through `MatchResourceLoader`, which delegates shared interface cues to `StartupController`. Preload timing, playlist advancement and consumer retention are unchanged. Looping effects still duplicate the cached source before changing loop flags, so one-shot assets remain unmodified.
+
 Arena map entry starts music immediately, including a lone player waiting for
 others and local practice without match rules. `ArenaAudio._Ready` starts the
 playlist; arena exit stops playback, releases streams and resets its index.
