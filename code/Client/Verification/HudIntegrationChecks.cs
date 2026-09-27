@@ -103,11 +103,23 @@ public sealed partial class HudIntegrationChecks : Node
                 Require(hud.Displayed.SecondItemName == "NITRO 65%", "Independent second-slot charge");
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 using Image frame = viewport.GetTexture().GetImage();
-                resourcePixels.Add((GoldPixels(frame, ScreenArea(hud, "FirstSlot", new Rect2(11, 40, 90, 14))), GoldPixels(frame, ScreenArea(hud, "SecondSlot", new Rect2(11, 40, 90, 14)))));
+                resourcePixels.Add((BoostPixels(frame, ScreenArea(hud, "FirstSlot", new Rect2(9, 40, 96, 14))), BoostPixels(frame, ScreenArea(hud, "SecondSlot", new Rect2(9, 40, 96, 14)))));
                 Require(frame.SavePng(System.IO.Path.Combine(output, $"nitro-{charge:0.0}.png")) == Error.Ok, "Charge screenshot");
             }
             Require(resourcePixels[0].First > resourcePixels[1].First && resourcePixels[1].First > resourcePixels[3].First, "Rendered resource meter drains and disappears at exhaustion");
             Require(resourcePixels.All(value => value.Second == resourcePixels[0].Second), "Other physical slot meter remains unchanged while the first drains");
+            Require(resourcePixels[0].Second > 0, "Boost has a visible slot-local thrust meter");
+            slot = new ItemSlot(state.VehicleId, state.LifeId, 1, HeldItem.MachineGun)
+            { Ammo = new(187, 500), SecondToken = 2, SecondItem = HeldItem.Nitro, SecondNitroCharge = 42, ActiveSlot = 0 };
+            hud.Refresh();
+            CheckSlot(hud, "FirstSlot", "MACHINE GUN", "38%", true);
+            CheckSlot(hud, "SecondSlot", "NITRO", "42%", false);
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            using (Image frame = viewport.GetTexture().GetImage())
+            {
+                Require(BoostPixels(frame, ScreenArea(hud, "SecondSlot", new Rect2(9, 40, 96, 14))) > 0, "Second slot renders Boost identity independently of first-slot ammunition");
+                Require(frame.SavePng(System.IO.Path.Combine(output, "boost-second-with-machine-gun.png")) == Error.Ok, "Second-slot Boost screenshot");
+            }
             slot = new ItemSlot(state.VehicleId, state.LifeId, 1, HeldItem.MachineGun)
             { Ammo = new(187, 500), SecondToken = 2, SecondItem = HeldItem.MachineGun, SecondAmmo = new(1, 500) };
             hud.Refresh();
@@ -150,6 +162,8 @@ public sealed partial class HudIntegrationChecks : Node
             hud.Refresh();
             Require(hud.Displayed!.Speed == "124" && hud.Displayed.Unit == "mph", "Preferred units");
             Require(ReferenceEquals(before, state), "Unit change is presentation only");
+            slot = validInventory with { Item = HeldItem.MachineGun, Ammo = new(187, 500), SecondItem = HeldItem.Nitro, SecondNitroCharge = 42 };
+            hud.Refresh();
             foreach (Vector2I size in new[] { new Vector2I(640, 360), new Vector2I(960, 540), new Vector2I(1280, 720), new Vector2I(1600, 900), new Vector2I(1920, 1080), new Vector2I(2560, 1440), new Vector2I(3840, 2160), new Vector2I(1024, 768), new Vector2I(2560, 1080) })
             {
                 viewport.Size = size;
@@ -214,6 +228,7 @@ public sealed partial class HudIntegrationChecks : Node
         Require(value.Visible == (resource is not null) && value.Text == (resource ?? string.Empty), "Optional slot-local resource clears on replacement");
         Require(((Label)slot.FindChild("Selection", true, false)).Text.Contains("ACTIVE", StringComparison.Ordinal) == active, "Confirmed physical selection");
         Require(((TextureRect)slot.FindChild("ItemIcon", true, false)).Visible == (name != "EMPTY"), "Empty slots clear their icons");
+        Require(((Label)slot.FindChild("BoostIdentity", true, false)).Visible == (name == "NITRO"), "Boost-specific art follows physical slot ownership");
     }
 
     private static Rect2I ScreenArea(CombatHud hud, string node, Rect2 localArea)
@@ -241,7 +256,7 @@ public sealed partial class HudIntegrationChecks : Node
         return count;
     }
 
-    private static int GoldPixels(Image frame, Rect2I area)
+    private static int BoostPixels(Image frame, Rect2I area)
     {
         int count = 0;
         for (int y = area.Position.Y; y < area.End.Y; y++)
@@ -249,7 +264,7 @@ public sealed partial class HudIntegrationChecks : Node
             for (int x = area.Position.X; x < area.End.X; x++)
             {
                 Color pixel = frame.GetPixel(x, y);
-                if (pixel.R > .25f && pixel.G > .15f && pixel.R > pixel.G * 1.08f && pixel.G > pixel.B * 1.5f) count++;
+                if (pixel.B > .4f && pixel.G > .25f && pixel.B > pixel.R * 1.6f) count++;
             }
         }
         return count;

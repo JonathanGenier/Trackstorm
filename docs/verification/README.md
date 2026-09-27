@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Boost-specific physical-slot Item HUD variant | [TS-177 verification evidence](ts-177.md) |
 | Dynamic physical two-slot Item HUD foundation | [TS-222 verification evidence](ts-222.md) |
 | Production Car model, articulation and item-driven hydraulic rack | [TS-164 second-pass verification evidence](ts-164.md) |
 | Runtime asset loader ownership | [TS-208 audit, lifecycle verification and exceptions](ts-208.md) |
