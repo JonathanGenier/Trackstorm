@@ -12,6 +12,48 @@ namespace Trackstorm.Transport.Tests;
 internal sealed class CombatHudTests
 {
     [Test]
+    public void ResourcesBelongToPhysicalSlotsAndDisappearWithOccupancy()
+    {
+        var state = State(850, 1000, 10);
+        var inventory = new ItemSlot(1, 1, 1, HeldItem.Nitro)
+        { NitroCharge = 37.5, SecondToken = 2, SecondItem = HeldItem.Nitro, SecondNitroCharge = 81.25 };
+        var view = CombatHudView.From(state, inventory, 0);
+        Assert.That(view.FirstSlot.Resource, Is.EqualTo(new ItemHudResource("38%", .375)));
+        Assert.That(view.SecondSlot.Resource, Is.EqualTo(new ItemHudResource("82%", .8125)));
+        var switched = CombatHudView.From(state, inventory with { ActiveSlot = 1 }, 0);
+        Assert.That(switched.FirstSlot, Is.EqualTo(view.FirstSlot));
+        Assert.That(switched.SecondSlot, Is.EqualTo(view.SecondSlot));
+        foreach (HeldItem replacement in new[] { HeldItem.None, HeldItem.Wrench, HeldItem.Oil, HeldItem.Missile, HeldItem.ProxyMine, (HeldItem)255 })
+        {
+            var replaced = CombatHudView.From(state, inventory with { Item = replacement }, 0);
+            Assert.That(replaced.FirstSlot.Resource, Is.Null, "Unrelated stale resource fields cannot leak into a replacement item.");
+            Assert.That(replaced.SecondSlot, Is.EqualTo(view.SecondSlot));
+        }
+        foreach (var invalid in new[] { inventory with { Life = 2 }, inventory with { Vehicle = 2 }, null })
+        {
+            var unavailable = CombatHudView.From(state, invalid, 0);
+            Assert.That(unavailable.FirstSlot, Is.EqualTo(ItemHudSlotView.Empty));
+            Assert.That(unavailable.SecondSlot, Is.EqualTo(ItemHudSlotView.Empty));
+        }
+        Assert.That(CombatHudView.From(State(0, 1000, 0), inventory, 0).FirstSlot, Is.EqualTo(ItemHudSlotView.Empty));
+        Assert.That(inventory.NitroCharge, Is.EqualTo(37.5));
+    }
+
+    [Test]
+    public void ResourceAdaptersRetainExistingSemanticsWithoutInventingCapacity()
+    {
+        var inventory = new ItemSlot(1, 1, 1, HeldItem.MachineGun)
+        { Ammo = new(187, 500), SecondItem = HeldItem.MachineGun, SecondAmmo = new(1, 100) };
+        var view = CombatHudView.From(State(850, 1000, 0), inventory, 0);
+        Assert.That(view.FirstSlot.Resource, Is.EqualTo(new ItemHudResource("38%", .374)));
+        Assert.That(view.SecondSlot.Resource, Is.EqualTo(new ItemHudResource("1%", .01)));
+        var salvo = ItemHudSlotView.From(inventory with { Item = HeldItem.Salvo, SalvoShots = 16 }, false);
+        Assert.That(salvo.Resource, Is.EqualTo(new ItemHudResource("16", null)));
+        var unknown = ItemHudSlotView.From(inventory with { Item = (HeldItem)255 }, false);
+        Assert.That(unknown, Is.EqualTo(ItemHudSlotView.Empty));
+    }
+
+    [Test]
     public void TimerUsesAuthoritativeTimeAcrossCountdownJoinRecoveryAndFinish()
     {
         var rows = new[] { new PlayerScore(1, 0, 0, 0, 0) };

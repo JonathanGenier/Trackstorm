@@ -75,7 +75,7 @@ public sealed partial class HudIntegrationChecks : Node
                 Require(hud.Displayed!.Item == sample.Item3, "Native item mapping");
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 using Image frame = viewport.GetTexture().GetImage();
-                pixels.Add((RedPixels(frame, new Rect2I(131, 619, 275, 14)), RedPixels(frame, new Rect2I(814, 585, 211, 99))));
+                pixels.Add((RedPixels(frame, ScreenArea(hud, "Health", new Rect2(115, 62, 275, 14))), RedPixels(frame, ScreenArea(hud, "ItemAssembly", new Rect2(94, 61, 169, 92)))));
                 Require(frame.SavePng(System.IO.Path.Combine(output, $"state-{sample.Item1:0}-{sample.Item3}.png")) == Error.Ok, "State screenshot");
             }
 
@@ -93,6 +93,7 @@ public sealed partial class HudIntegrationChecks : Node
                 using Image frame = viewport.GetTexture().GetImage();
                 Require(frame.SavePng(System.IO.Path.Combine(output, $"salvo-{shots}.png")) == Error.Ok, "Ammunition screenshot");
             }
+            var resourcePixels = new List<(int First, int Second)>();
             foreach (double charge in new[] { 100.0, 37.5, 0.1, 0.0 })
             {
                 slot = new ItemSlot(state.VehicleId, state.LifeId, 1, charge == 0 ? HeldItem.None : HeldItem.Nitro)
@@ -102,14 +103,45 @@ public sealed partial class HudIntegrationChecks : Node
                 Require(hud.Displayed.SecondItemName == "NITRO 65%", "Independent second-slot charge");
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 using Image frame = viewport.GetTexture().GetImage();
+                resourcePixels.Add((GoldPixels(frame, ScreenArea(hud, "FirstSlot", new Rect2(11, 40, 90, 14))), GoldPixels(frame, ScreenArea(hud, "SecondSlot", new Rect2(11, 40, 90, 14)))));
                 Require(frame.SavePng(System.IO.Path.Combine(output, $"nitro-{charge:0.0}.png")) == Error.Ok, "Charge screenshot");
             }
+            Require(resourcePixels[0].First > resourcePixels[1].First && resourcePixels[1].First > resourcePixels[3].First, "Rendered resource meter drains and disappears at exhaustion");
+            Require(resourcePixels.All(value => value.Second == resourcePixels[0].Second), "Other physical slot meter remains unchanged while the first drains");
             slot = new ItemSlot(state.VehicleId, state.LifeId, 1, HeldItem.MachineGun)
             { Ammo = new(187, 500), SecondToken = 2, SecondItem = HeldItem.MachineGun, SecondAmmo = new(1, 500) };
             hud.Refresh();
             Require(hud.Displayed!.ItemName == "MACHINE GUN 38%" && hud.Displayed.SecondItemName == "MACHINE GUN 1%", "Independent discrete ammo percentages");
+            CheckSlot(hud, "FirstSlot", "MACHINE GUN", "38%", true);
+            CheckSlot(hud, "SecondSlot", "MACHINE GUN", "1%", false);
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             using (Image frame = viewport.GetTexture().GetImage()) { frame.SavePng(System.IO.Path.Combine(output, "machine-gun-partial.png")); }
+            // Exercise replacement/clear through the production binding, including deliberately stale resource fields.
+            foreach (bool second in new[] { false, true })
+            {
+                foreach (HeldItem replacement in new[] { HeldItem.None, HeldItem.Wrench, HeldItem.Oil, HeldItem.Salvo, HeldItem.Nitro, HeldItem.MachineGun, HeldItem.None })
+                {
+                    slot = second ? slot! with { SecondItem = replacement, SecondSalvoShots = 3, SecondNitroCharge = 62.5, ActiveSlot = 1 }
+                        : slot! with { Item = replacement, SalvoShots = 3, NitroCharge = 62.5, ActiveSlot = 0 };
+                    hud.Refresh();
+                    string? resource = replacement switch { HeldItem.Salvo => "3", HeldItem.Nitro => "63%", HeldItem.MachineGun => second ? "1%" : "38%", _ => null };
+                    CheckSlot(hud, second ? "SecondSlot" : "FirstSlot", ItemRegistry.Find(replacement)?.DisplayName.ToUpperInvariant() ?? "EMPTY", resource, true);
+                    await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                }
+            }
+            slot = slot! with { Item = HeldItem.Nitro, NitroCharge = 37.5, SecondItem = HeldItem.Nitro, SecondNitroCharge = 65, ActiveSlot = 1 };
+            hud.Refresh();
+            CheckSlot(hud, "FirstSlot", "NITRO", "38%", false);
+            CheckSlot(hud, "SecondSlot", "NITRO", "65%", true);
+            ItemSlot validInventory = slot;
+            foreach (ItemSlot? invalidInventory in new[] { slot with { Life = slot.Life + 1 }, slot with { Vehicle = slot.Vehicle + 1 }, null })
+            {
+                slot = invalidInventory;
+                hud.Refresh();
+                CheckSlot(hud, "FirstSlot", "EMPTY", null, true);
+                CheckSlot(hud, "SecondSlot", "EMPTY", null, false);
+            }
+            slot = validInventory;
             VehicleSnapshot before = state;
             slot = slot! with { SecondToken = 2, SecondItem = HeldItem.Missile, ActiveSlot = 1, SelectionRevision = 1 };
             hud.Refresh();
@@ -125,10 +157,30 @@ public sealed partial class HudIntegrationChecks : Node
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 Require(hud.Displayed!.Standing == "--" && hud.Displayed.Timer == "--:--", "Placeholders");
                 Require(preferences.DiagnosticsBounds.Position.X >= size.X / 2.0f && preferences.DiagnosticsBounds.End.X <= size.X, "Diagnostics fit the upper-right region");
+                var assembly = (Control)hud.FindChild("ItemAssembly", true, false);
+                var health = (Control)hud.FindChild("Health", true, false);
+                Require(assembly.GetGlobalRect().Position.X > health.GetGlobalRect().End.X, "Separate HP and item assembly never overlap");
+                Require(assembly.GetGlobalRect().End.X <= size.X && assembly.GetGlobalRect().End.Y <= size.Y && assembly.GetGlobalRect().Position.Y >= 0, "Unified assembly fits the viewport");
                 using Image frame = viewport.GetTexture().GetImage();
                 Require(frame.SavePng(System.IO.Path.Combine(output, $"hud-{size.X}x{size.Y}.png")) == Error.Ok, "Resolution screenshot");
             }
 
+            // A transparent native render of the real component makes reference comparison reviewable.
+            var isolated = new SubViewport { Size = new Vector2I(1280, 720), TransparentBg = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Always };
+            AddChild(isolated);
+            VehicleSnapshot referenceState = Sample(state, 1000, 2 / 3.6f);
+            var referenceSlot = new ItemSlot(state.VehicleId, state.LifeId, 1, HeldItem.Nitro)
+            { NitroCharge = 78, SecondToken = 2, SecondItem = HeldItem.MachineGun, SecondAmmo = new(320, 500) };
+            var referenceHud = new CombatHud { Vehicle = () => referenceState, Slot = () => referenceSlot };
+            isolated.AddChild(referenceHud);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            using (Image frame = isolated.GetTexture().GetImage())
+            using (Image composition = frame.GetRegion(ScreenArea(referenceHud, "ItemAssembly", new Rect2(0, 0, 600, 200))))
+            {
+                Require(composition.SavePng(System.IO.Path.Combine(output, "foundation-reference-composition.png")) == Error.Ok, "Reference comparison native component capture");
+            }
+            isolated.QueueFree();
             hud.Vehicle = () => null;
             hud.Refresh();
             Require(!hud.Visible && hud.Displayed is null, "No stale HUD outside match");
@@ -154,6 +206,23 @@ public sealed partial class HudIntegrationChecks : Node
         return new VehicleSnapshot(previous.VehicleId, previous.LifeId, new VehicleState(0, pose, false, false, 0, 0), new VehicleDamageState(1000, hp, null, null), pose);
     }
 
+    private static void CheckSlot(CombatHud hud, string node, string name, string? resource, bool active)
+    {
+        var slot = (Control)hud.FindChild(node, true, false);
+        Require(((Label)slot.FindChild("ItemName", true, false)).Text == name, "Physical slot identity label");
+        var value = (Label)slot.FindChild("ResourceValue", true, false);
+        Require(value.Visible == (resource is not null) && value.Text == (resource ?? string.Empty), "Optional slot-local resource clears on replacement");
+        Require(((Label)slot.FindChild("Selection", true, false)).Text.Contains("ACTIVE", StringComparison.Ordinal) == active, "Confirmed physical selection");
+        Require(((TextureRect)slot.FindChild("ItemIcon", true, false)).Visible == (name != "EMPTY"), "Empty slots clear their icons");
+    }
+
+    private static Rect2I ScreenArea(CombatHud hud, string node, Rect2 localArea)
+    {
+        var control = (Control)hud.FindChild(node, true, false);
+        return new Rect2I((Vector2I)(control.GlobalPosition + localArea.Position * control.GetGlobalTransform().Scale),
+            (Vector2I)(localArea.Size * control.GetGlobalTransform().Scale));
+    }
+
     private static int RedPixels(Image frame, Rect2I area)
     {
         int count = 0;
@@ -169,6 +238,20 @@ public sealed partial class HudIntegrationChecks : Node
             }
         }
 
+        return count;
+    }
+
+    private static int GoldPixels(Image frame, Rect2I area)
+    {
+        int count = 0;
+        for (int y = area.Position.Y; y < area.End.Y; y++)
+        {
+            for (int x = area.Position.X; x < area.End.X; x++)
+            {
+                Color pixel = frame.GetPixel(x, y);
+                if (pixel.R > .25f && pixel.G > .15f && pixel.R > pixel.G * 1.08f && pixel.G > pixel.B * 1.5f) count++;
+            }
+        }
         return count;
     }
 
