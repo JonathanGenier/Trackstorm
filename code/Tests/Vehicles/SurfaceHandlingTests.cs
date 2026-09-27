@@ -14,7 +14,7 @@ internal sealed class SurfaceHandlingTests
     public void Configuration_ResolvesConfiguredAndDefaultMultipliers()
     {
         var defaults = new VehicleConfiguration();
-        Assert.That(defaults.ResolveSurface(SurfaceType.Concrete), Is.EqualTo(new SurfaceModifiers(0.95f, 1, 0.98f)));
+        Assert.That(defaults.ResolveSurface(SurfaceType.Concrete), Is.EqualTo(new SurfaceModifiers(1.5f, 1, 0.98f)));
         Assert.That(defaults.ResolveSurface(SurfaceType.Mud), Is.EqualTo(new SurfaceModifiers(0.6f, 2.5f, 0.85f)));
         var custom = defaults with { Concrete = new(0.8f, 2, 0.7f), Mud = new(0.3f, 5, 0.2f) };
         Assert.That(custom.ResolveSurface(SurfaceType.Concrete), Is.EqualTo(custom.Concrete));

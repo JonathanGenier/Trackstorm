@@ -36,18 +36,18 @@ Reset is a queued new-life intent. Core increments `LifeId`, clears health/event
 
 Core retains stable `SurfaceType` values Concrete = 0 and Mud = 1, and adds Asphalt = 2, Dirt = 3, Grass = 4 and DeepMud = 5. `SurfaceHandling` maps the existing [material identities](surfaces.md) into these portable profiles. `WheelSuspension` supplies center-selected diagnostic identity and individual wheel materials to practice, host and prediction; detection is not duplicated. Unauthored fixtures retain their explicit `SurfaceBody` profile (otherwise Concrete). Rock retains the neutral Asphalt baseline. [Water](water.md) adds profile 6, immersion observations and deep-water damage through this same authority.
 
-`VehicleConfiguration` owns immutable grip, drag and acceleration multipliers. Asphalt is always (1, 1, 1), using the existing vehicle baseline. Defaults deliberately order Asphalt > Concrete > Dirt > Grass > Mud > Deep Mud:
+`VehicleConfiguration` owns immutable grip, drag and acceleration multipliers. Asphalt is always (1, 1, 1), using the existing vehicle baseline. Approved defaults give Concrete the highest grip and Dirt and Grass equal grip, with distinct drag and drive responses:
 
 | Surface | Grip | Drag | Drive |
 | --- | ---: | ---: | ---: |
 | Asphalt | 1 | 1 | 1 |
-| Concrete | 0.95 | 1 | 0.98 |
-| Dirt | 0.85 | 1.15 | 0.95 |
-| Grass | 0.62 | 1.4 | 0.9 |
+| Concrete | 1.5 | 1 | 0.98 |
+| Dirt | 1.25 | 1.15 | 0.95 |
+| Grass | 1.25 | 1.4 | 0.9 |
 | Mud | 0.6 | 2.5 | 0.85 |
 | Deep Mud | 0.5 | 5 | 0.8 |
 
-Grip scales the asphalt tire coefficient (1.65), giving effective coefficients from 1.57 on Concrete to 0.825 in Deep Mud. Velocity-dependent rolling resistance creates bogging without a static force that prevents every start. Rear-axle grip still bounds climbing; not every grade below the support-normal cutoff is climbable on every material. The defaults are gameplay tuning, not a claim to measured soil properties. [Configs](developer-options.md) exposes all five editable profiles through the existing host transaction; deliberate overrides can change their ordering. Multipliers remain finite and bounded 0–100, including zero to disable a contribution.
+Grip scales the asphalt tire coefficient (1.65), giving effective coefficients from 2.475 on Concrete to 0.825 in Deep Mud. Velocity-dependent rolling resistance creates bogging without a static force that prevents every start. Rear-axle grip still bounds climbing; not every grade below the support-normal cutoff is climbable on every material. The defaults are gameplay tuning, not a claim to measured soil properties. [Configs](developer-options.md) exposes all five editable profiles through the existing host transaction; deliberate overrides can change their ordering. Multipliers remain finite and bounded 0–100, including zero to disable a contribution.
 
 Core receives surface and wheel observations through `VehicleObservation` on the fixed boundary. Grip scales the combined tire budget, acceleration scales forward/reverse engine demand, and drag scales rolling resistance. Under power, additional resistance is `CoastDrag * max(0, drag - 1)`; coasting uses `CoastDrag * drag`. Surface transitions change force rates without resetting momentum, steering or handbrake recovery. All paths use `VehicleMovement.Step` with identical configuration.
 
@@ -55,11 +55,11 @@ Core receives surface and wheel observations through `VehicleObservation` on the
 
 ### Dirt slide recovery
 
-Dirt adds a bounded arcade assist to the existing axle model. A smooth squared lateral-speed ratio supplies half authority near a 22-degree slide, with a 2 m/s speed floor; the diagnostic sliding flag never switches physics modes. Supported front Dirt contacts reserve up to `DirtSteeringReserve` (0.65) of lateral force allocation for the filtered front-wheel direction. The blended force remains inside the existing combined tire budget and does not change braking demand. This keeps countersteering readable when ordinary lateral demand is saturated.
+Dirt adds a bounded arcade assist to the existing axle model. A smooth squared lateral-speed ratio supplies half authority near a 22-degree slide, with a 2 m/s speed floor; the diagnostic sliding flag never switches physics modes. Supported front Dirt contacts reserve up to `DirtSteeringReserve` (0.95) of lateral force allocation for the filtered front-wheel direction. The blended force remains inside the existing combined tire budget and does not change braking demand. This keeps countersteering readable when ordinary lateral demand is saturated.
 
 `DirtRecovery` (4/s) progressively brings slide yaw toward the filtered wheel's turning direction. The requested rate is bounded by available dirt traction and road speed; each tick's correction is limited by supported front traction and the existing axle inertia. The handbrake reduces this assist to one quarter at full engagement, preserving intentional initiation. It never sets heading or linear velocity, adds propulsion, resets handling memory or uses a target drift angle. Missing front support, flight, disabled driving and Water immersion cannot enable it. Mixed contacts weight the assist by front Dirt support; Oil's reduced traction also bounds it.
 
-Asphalt and unrelated surfaces keep the original force and yaw path. Dirt's grip, drag, acceleration and power-slip defaults remain unchanged. Straight dirt acceleration is unchanged, preserving kicker approach performance. Existing state and prediction restoration need no extra memory. [Configs](developer-options.md#progressive-handling-controls) owns both tuning controls and their ordinary persistence/replication path.
+Asphalt and unrelated surfaces keep the original force and yaw path. Dirt's drag, acceleration and power-slip defaults remain unchanged. Straight dirt acceleration is unchanged, preserving kicker approach performance. Existing state and prediction restoration need no extra memory. [Configs](developer-options.md#progressive-handling-controls) owns both tuning controls and their ordinary persistence/replication path.
 
 ## Health, Collision Damage and Combat Hooks
 

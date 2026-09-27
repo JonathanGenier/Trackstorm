@@ -12,23 +12,29 @@ internal sealed class TerrainHandlingTests
     private static readonly SurfaceType[] Ladder = [SurfaceType.Asphalt, SurfaceType.Concrete, SurfaceType.Dirt, SurfaceType.Grass, SurfaceType.Mud, SurfaceType.DeepMud];
 
     [Test]
-    public void DefaultSurfacesOrderAccelerationGripAndSustainedProgress()
+    public void DefaultSurfacesRetainDistinctResponsesAndSustainedProgress()
     {
-        float previousSpeed = float.MaxValue;
-        float previousLateralCorrection = float.MaxValue;
+        var corrections = new Dictionary<SurfaceType, float>();
+        var speeds = new Dictionary<SurfaceType, float>();
         foreach (SurfaceType surface in Ladder)
         {
             var initial = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(6, 0, -10), Vector3.Zero);
             var lateral = new VehicleMovement(new(), initial);
             var state = lateral.Step(new InputFrame(1, 0, 0, 0, 0, 0, 0), initial, Vector3.UnitY, surface: surface);
             float correction = 6 - state.Physics.LinearVelocity.X;
-            Assert.That(correction, Is.LessThan(previousLateralCorrection), surface.ToString());
-            previousLateralCorrection = correction;
+            Assert.That(correction, Is.GreaterThan(0), surface.ToString());
+            corrections.Add(surface, correction);
             float speed = Drive(surface, 0, 480);
-            Assert.That(speed, Is.GreaterThan(1).And.LessThan(previousSpeed), surface.ToString());
-            previousSpeed = speed;
+            Assert.That(speed, Is.GreaterThan(1), surface.ToString());
+            speeds.Add(surface, speed);
         }
 
+        Assert.That(corrections[SurfaceType.Concrete], Is.GreaterThan(corrections[SurfaceType.Asphalt]));
+        Assert.That(corrections[SurfaceType.Dirt], Is.Not.EqualTo(corrections[SurfaceType.Asphalt]));
+        Assert.That(corrections[SurfaceType.Grass], Is.Not.EqualTo(corrections[SurfaceType.Asphalt]));
+        Assert.That(corrections[SurfaceType.DeepMud], Is.LessThan(corrections[SurfaceType.Mud]));
+        Assert.That(speeds[SurfaceType.Grass], Is.LessThan(speeds[SurfaceType.Dirt]));
+        Assert.That(speeds[SurfaceType.DeepMud], Is.LessThan(speeds[SurfaceType.Mud]));
         Assert.That(Drive(SurfaceType.DeepMud, 0, 1200), Is.LessThan(Drive(SurfaceType.Mud, 0, 1200) * 0.55f));
     }
 

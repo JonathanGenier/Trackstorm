@@ -34,7 +34,7 @@ internal sealed class HandlingRecoveryTests
     }
 
     [Test]
-    public void SplitGrassContactReducesDriveAndProducesMirroredPhysicalTorque()
+    public void SplitGrassContactChangesDriveAndProducesMirroredPhysicalTorque()
     {
         var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(0, 0, -10), Vector3.Zero);
         VehicleState Run(SurfaceType left, SurfaceType right)
@@ -47,8 +47,8 @@ internal sealed class HandlingRecoveryTests
         var leftGrass = Run(SurfaceType.Grass, SurfaceType.Asphalt);
         var rightGrass = Run(SurfaceType.Asphalt, SurfaceType.Grass);
         var grass = Run(SurfaceType.Grass, SurfaceType.Grass);
-        Assert.That(leftGrass.LongitudinalAcceleration, Is.LessThan(asphalt.LongitudinalAcceleration).And.GreaterThan(grass.LongitudinalAcceleration));
-        Assert.That(leftGrass.Physics.AngularVelocity.Y, Is.GreaterThan(0));
+        Assert.That(leftGrass.LongitudinalAcceleration, Is.GreaterThan(asphalt.LongitudinalAcceleration).And.LessThan(grass.LongitudinalAcceleration));
+        Assert.That(leftGrass.Physics.AngularVelocity.Y, Is.LessThan(0));
         Assert.That(rightGrass.Physics.AngularVelocity.Y, Is.EqualTo(-leftGrass.Physics.AngularVelocity.Y).Within(0.00001));
         Assert.That(asphalt.Physics.AngularVelocity.Y, Is.Zero);
     }

@@ -20,7 +20,7 @@ internal sealed class OilTests
         for (int i = 0; i < 130; i++) { Step(host, vehicle); }
         Assert.That(host.Items.Patches.Single().PassesUsed, Is.EqualTo(1));
         Assert.That(host.Items.OilContacts.Single().Vehicle, Is.EqualTo(vehicle));
-        Assert.That(host.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(105));
+        Assert.That(host.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(30));
         Step(host);
         Assert.That(host.Items.OilContacts, Is.Empty);
         Assert.That(host.Items.Patches.Single().PassesUsed, Is.EqualTo(1));
@@ -28,7 +28,7 @@ internal sealed class OilTests
         Assert.That(host.Items.Patches, Is.Empty);
         Assert.That(host.Items.OilContacts, Is.Empty);
         Assert.That(host.World.Events.Entries.Count(e => e.Kind == "Oil triggered"), Is.EqualTo(2));
-        Assert.That(host.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(105));
+        Assert.That(host.World.GetVehicle(vehicle).Movement.OilTicks, Is.EqualTo(30));
     }
 
     [TestCase(1ul, 2ul)]
@@ -39,8 +39,8 @@ internal sealed class OilTests
         Deploy(host);
         Step(host, first, second);
         Assert.That(host.Items.Patches, Is.Empty);
-        Assert.That(host.World.GetVehicle(first).Movement.OilTicks, Is.EqualTo(105));
-        Assert.That(host.World.GetVehicle(second).Movement.OilTicks, Is.EqualTo(105));
+        Assert.That(host.World.GetVehicle(first).Movement.OilTicks, Is.EqualTo(30));
+        Assert.That(host.World.GetVehicle(second).Movement.OilTicks, Is.EqualTo(30));
     }
 
     [TestCase(1ul, false)]
@@ -173,7 +173,7 @@ internal sealed class OilTests
         var baseline = dry.Step(input, pose, Vector3.UnitY);
         var slippery = oil.Step(input, pose, Vector3.UnitY, oilContact: true);
         Assert.That(slippery.SteeringAngle, Is.EqualTo(baseline.SteeringAngle).And.Not.Zero);
-        Assert.That(slippery.LateralAcceleration, Is.EqualTo(baseline.LateralAcceleration * 0.5f).Within(0.001));
+        Assert.That(slippery.LateralAcceleration, Is.EqualTo(baseline.LateralAcceleration * 0.9f).Within(0.001));
         Assert.That(slippery.LongitudinalAcceleration, Is.EqualTo(baseline.LongitudinalAcceleration));
         Assert.That(Math.Abs(slippery.Physics.AngularVelocity.Y), Is.LessThan(0.3));
         var replay = new VehicleMovement(new(), pose);

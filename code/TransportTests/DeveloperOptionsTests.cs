@@ -307,7 +307,7 @@ internal sealed class DeveloperOptionsTests
         Assert.That(configuration.Vehicle.Acceleration, Is.EqualTo(16));
         Assert.That(configuration.Vehicle.TireFriction, Is.EqualTo(1.65f));
         Assert.That(configuration.Damage.CollisionScale, Is.EqualTo(5));
-        Assert.That(configuration.Items.MissileSpeed, Is.EqualTo(70));
+        Assert.That(configuration.Items.MissileSpeed, Is.EqualTo(120));
         Assert.That(configuration.Items.ExplosionRadius, Is.EqualTo(12));
         Assert.That(configuration.Items.MaximumDamage, Is.EqualTo(300));
     }

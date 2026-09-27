@@ -96,11 +96,11 @@ Host-local schema 2 migrates the old default wheelbase, load height and suspensi
 | `vehicle.traction_recovery` | `VehicleConfiguration.TractionRecovery` | 3 |
 | `vehicle.chassis_compliance` | `VehicleConfiguration.ChassisCompliance` | 0.004f |
 | `damage.collision_scale` | `DamageConfiguration.CollisionScale` | 5 |
-| `items.missile_speed` | `ItemConfiguration.MissileSpeed` | 70 |
+| `items.missile_speed` | `ItemConfiguration.MissileSpeed` | 120 |
 | `items.explosion_radius` | `ItemConfiguration.ExplosionRadius` | 12 |
 | `items.maximum_damage` | `ItemConfiguration.MaximumDamage` | 300 |
 
-The remaining persisted values already match this preset, including HP, item spawning, respawn and match rules. The complete stable-key ownership map below applies to the complete catalog. Decimal float literals retain the exact binary32 values represented by persisted JSON doubles; no tolerance or approximate tuning is used. `ReleaseDefaultsTests` checks every approved numeric value exactly and verifies validation, persistence and network round trips.
+The remaining persisted values use their owning Core defaults, including HP, item spawning, respawn and match rules. The approved tuning sets dirt steering reserve to 0.95; Dirt and Grass grip to 1.25; Concrete grip to 1.5; Oil grip reduction and recovery to 0.1 and 0.5 seconds; Wrench healing to 500 HP; Proxy Mine damage, radius, force range and impulse to 250 HP, 30 m, 1000–2000 N and 18000 N s; and Salvo speed, blast radius, damage and marker scale/width/lift to 150 m/s, 10 m, 250 HP and 0.5/0.5 m/0.05 m. The canonical spawn seed is 34272265; a fresh application match generates its own authoritative seed as described in [item spawning](item-spawns.md). The complete stable-key ownership map below applies to the catalog. Decimal float literals retain exact binary32 values represented by persisted JSON doubles. `ReleaseDefaultsTests` checks approved numeric values exactly and verifies validation, persistence and network round trips.
 
 ### Circus stunt tuning
 
@@ -240,9 +240,9 @@ Nitro exposes `items.nitro_consumption_per_second`, `items.nitro_forward_thrust`
 
 ## Progressive handling controls
 
-The Dirt category exposes `vehicle.dirt_steering_reserve` (default 0.65, range 0–1) and `vehicle.dirt_recovery` (default 4/s, range 0–10/s). These control front-wheel authority during saturated slides and bounded slide-yaw recovery respectively; zero disables the corresponding contribution. They use the existing complete shared Apply/Cancel and authoritative Reset transaction, schema-two file defaults for missing keys, configuration version twenty-two, and resume/migration configuration boundary. `DirtRecoveryTests` checks isolation, recovery and continuation; `DeveloperConfigurationTests` checks each control's actual trajectory effect. No additional serialized vehicle memory is introduced.
+The Dirt category exposes `vehicle.dirt_steering_reserve` (default 0.95, range 0–1) and `vehicle.dirt_recovery` (default 4/s, range 0–10/s). These control front-wheel authority during saturated slides and bounded slide-yaw recovery respectively; zero disables the corresponding contribution. They use the existing complete shared Apply/Cancel and authoritative Reset transaction, schema-two file defaults for missing keys, configuration version twenty-two, and resume/migration configuration boundary. `DirtRecoveryTests` checks isolation, recovery and continuation; `DeveloperConfigurationTests` checks each control's actual trajectory effect. No additional serialized vehicle memory is introduced.
 
-The Vehicle category exposes `vehicle.steering_smoothing` (0.1 seconds), `vehicle.dirt_power_slip` (0.22 maximum rear lateral grip reduction), `vehicle.power_slip_response` (2/s) and `vehicle.power_slip_recovery` (2.5/s). They use the same shared Apply/Reset, session state, reliable revision and checkpoint paths. Steering smoothing accepts 0.01–1 seconds, power slip 0–0.8, and the two rates 0.1–20/s. Existing braking defaults to 17 m/s² and grass grip to 0.62. [Vehicles](vehicles.md) owns the force and recovery semantics.
+The Vehicle category exposes `vehicle.steering_smoothing` (0.1 seconds), `vehicle.dirt_power_slip` (0.22 maximum rear lateral grip reduction), `vehicle.power_slip_response` (2/s) and `vehicle.power_slip_recovery` (2.5/s). They use the same shared Apply/Reset, session state, reliable revision and checkpoint paths. Steering smoothing accepts 0.01–1 seconds, power slip 0–0.8, and the two rates 0.1–20/s. Braking defaults to 17 m/s² and grass grip to 1.25. [Vehicles](vehicles.md) owns the force and recovery semantics.
 
 ## Surface tuning
 
@@ -347,8 +347,8 @@ The Oil accordion contains four host-authoritative keys, using the ordinary stag
 
 | Key | Default | Range |
 | --- | ---: | --- |
-| `vehicle.oil_grip_reduction` | 0.5 | 0–0.8 fraction of lateral force removed |
-| `vehicle.oil_recovery_seconds` | 1.75 | 0.1–10 seconds after supported overlap ends |
+| `vehicle.oil_grip_reduction` | 0.1 | 0–0.8 fraction of lateral force removed |
+| `vehicle.oil_recovery_seconds` | 0.5 | 0.1–10 seconds after supported overlap ends |
 | `items.oil_enemy_contacts` | 2 | 1–7 vehicle passes, including the owner |
 | `items.oil_lifetime_seconds` | 60 | 1–600 seconds |
 

@@ -14,7 +14,7 @@ public sealed record ItemSpawnConfiguration
     /// <summary>Nonnegative category targets; empty item categories are excluded and remaining targets normalized.</summary>
     public ImmutableDictionary<ItemCategory, int> CategoryWeights { get; init; } = ItemRegistry.Categories.ToImmutableDictionary(c => c.Identity, c => c.DefaultWeight);
     /// <summary>Reproducible match selection seed.</summary>
-    public int Seed { get; init; } = 1;
+    public int Seed { get; init; } = 34272265;
 
     /// <summary>Rejects invalid timing, range, unknown/missing identities and empty or overflowing pools.</summary>
     public void Validate()
