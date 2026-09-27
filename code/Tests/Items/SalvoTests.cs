@@ -13,7 +13,7 @@ internal sealed class SalvoTests
     [Test]
     public void LaterRoundsFollowCurrentPositionAndHeadingWhileFlyingRoundsKeepTheirTarget()
     {
-        var host = new HostVehicleSession(99);
+        var host = new HostVehicleSession(99, new ItemConfiguration { SalvoSpeed = 85 });
         GrantUse(host); host.Step(default, Observe, ground: Ground);
         var target = host.Items.Missiles[0].Arc!.Target;
         var origin = host.World.GetVehicle(1).ObservedPhysics.Position;

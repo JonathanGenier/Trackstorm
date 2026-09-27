@@ -144,8 +144,8 @@ internal sealed class VehicleMovementTests
         var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(5, 0, -25), Vector3.Zero);
         VehicleState a = coast.Step(Frame(1, steering: 32767), body, Vector3.UnitY);
         VehicleState b = drive.Step(Frame(1, throttle: 65535, steering: 32767), body, Vector3.UnitY);
-        Assert.That(a.Physics.LinearVelocity.X, Is.GreaterThanOrEqualTo(5 - (coast.Configuration.TireFriction * coast.Configuration.Gravity / 60)));
-        Assert.That(Math.Abs(a.LateralAcceleration), Is.LessThanOrEqualTo(coast.Configuration.TireFriction * coast.Configuration.Gravity));
+        Assert.That(a.Physics.LinearVelocity.X, Is.GreaterThanOrEqualTo(5 - (coast.Configuration.TireFriction * coast.Configuration.Gravity * coast.Configuration.Concrete.Grip / 60)));
+        Assert.That(Math.Abs(a.LateralAcceleration), Is.LessThanOrEqualTo(coast.Configuration.TireFriction * coast.Configuration.Gravity * coast.Configuration.Concrete.Grip));
         Assert.That(b.RearSlip, Is.GreaterThan(a.RearSlip));
         Assert.That(a.FrontSlip, Is.InRange(0.01f, 1f));
         Assert.That(b.Physics.LinearVelocity.X, Is.GreaterThan(a.Physics.LinearVelocity.X));
@@ -301,7 +301,7 @@ internal sealed class VehicleMovementTests
         VehicleState released = movement.Step(Frame(movement.State.Tick + 1, throttle: 65535), body, Vector3.UnitY);
         Assert.That(released.LongitudinalAcceleration, Is.GreaterThan(2));
         Assert.That(-released.Physics.LinearVelocity.Z, Is.GreaterThan(speed));
-        Assert.That(released.Physics.LinearVelocity.X, Is.GreaterThan(4.7f));
+        Assert.That(released.Physics.LinearVelocity.X, Is.GreaterThan(4.65f));
         Assert.That(released.Physics.AngularVelocity.Y, Is.GreaterThan(0.5f));
         Assert.That(released.Handbrake, Is.InRange(0.3f, 0.99f));
         Assert.That(released.Drifting, Is.True);

@@ -60,7 +60,7 @@ internal sealed class OilScoringTests
         Assert.That(host.World.State.Match!.Awards.Single(), Is.EqualTo(new CircusScoreAward(1, CircusScoreCategory.Oil, 50)));
         for (int i = 0; i < 130; i++) { Step(host, 2); }
         Assert.That(Score(host), Is.EqualTo(50));
-        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(105));
+        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(30));
         Step(host);
         var w = host.World.State;
         var m = w.Match!;
@@ -151,7 +151,7 @@ internal sealed class OilScoringTests
         host.Step(default, v => Observe(v, false), placeOil: (s, _) => new OilPatch(s.Token, s.Vehicle, Vector3.Zero, Vector3.UnitY, 3));
         Step(host, 2);
         Assert.That(Score(host), Is.EqualTo(100));
-        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(105));
+        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(30));
         Step(host, 2);
         Assert.That(Score(host), Is.EqualTo(100));
     }
@@ -175,7 +175,7 @@ internal sealed class OilScoringTests
     {
         var host = Create(mode, active);
         Step(host, 2);
-        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(105));
+        Assert.That(host.World.GetVehicle(2).Movement.OilTicks, Is.EqualTo(30));
         Assert.That(Score(host), Is.Zero);
     }
 

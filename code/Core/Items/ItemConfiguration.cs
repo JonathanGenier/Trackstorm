@@ -14,21 +14,21 @@ public sealed record ItemConfiguration
     /// <summary>Parabola height above chord (m).</summary>
     public float SalvoArcHeight { get; init; } = 12;
     /// <summary>Mean flight speed (m/s).</summary>
-    public float SalvoSpeed { get; init; } = 85;
+    public float SalvoSpeed { get; init; } = 150;
     /// <summary>Blast radius (m).</summary>
-    public float SalvoBlastRadius { get; init; } = 7;
+    public float SalvoBlastRadius { get; init; } = 10;
     /// <summary>Maximum damage per round.</summary>
-    public float SalvoDamage { get; init; } = 65;
+    public float SalvoDamage { get; init; } = 250;
     /// <summary>Damage and impulse falloff exponent.</summary>
     public float SalvoFalloff { get; init; } = 1;
     /// <summary>Maximum impulse (N s).</summary>
     public float SalvoImpulse { get; init; } = 3500;
     /// <summary>Marker radius relative to blast.</summary>
-    public float SalvoMarkerScale { get; init; } = 1;
+    public float SalvoMarkerScale { get; init; } = 0.5f;
     /// <summary>Marker ring width (m).</summary>
-    public float SalvoMarkerWidth { get; init; } = 0.45f;
+    public float SalvoMarkerWidth { get; init; } = 0.5f;
     /// <summary>Marker surface offset (m).</summary>
-    public float SalvoMarkerLift { get; init; } = 0.12f;
+    public float SalvoMarkerLift { get; init; } = 0.05f;
     /// <summary>Acquired rounds; existing magazines keep their capacity.</summary>
     public int MachineGunCapacity { get; init; } = 800;
     /// <summary>Rounds per second, bounded to two rounds per fixed step.</summary>
@@ -48,17 +48,17 @@ public sealed record ItemConfiguration
     /// <summary>Render one tracer per this many rounds, including the first.</summary>
     public int MachineGunTracerEvery { get; init; } = 2;
     /// <summary>Contact damage, applied once through vehicle health authority.</summary>
-    public float MineDamage { get; init; } = 100;
+    public float MineDamage { get; init; } = 250;
     /// <summary>Invisible magnetic field extent in metres.</summary>
-    public float MineAttractionRadius { get; init; } = 24;
+    public float MineAttractionRadius { get; init; } = 30;
     /// <summary>Weak field baseline in Newtons, ramped continuously from zero at the boundary.</summary>
-    public float MineMinimumForce { get; init; } = 12;
+    public float MineMinimumForce { get; init; } = 1000;
     /// <summary>Close-range magnetic force in Newtons.</summary>
-    public float MineMaximumForce { get; init; } = 1000;
+    public float MineMaximumForce { get; init; } = 2000;
     /// <summary>Power exponent controlling the distance-to-force curve.</summary>
     public float MineFalloff { get; init; } = 2.5f;
     /// <summary>Contact impulse in Newton seconds.</summary>
-    public float MineKnockback { get; init; } = 24000;
+    public float MineKnockback { get; init; } = 18000;
     /// <summary>Percentage points consumed per second of held use.</summary>
     public double NitroConsumptionPerSecond { get; init; } = 20;
     /// <summary>Independent forward thrust in newtons, unaffected by throttle or tire traction.</summary>
@@ -75,9 +75,9 @@ public sealed record ItemConfiguration
     public float OilLifetimeSeconds { get; init; } = 60;
 
     /// <summary>HP restored to a living vehicle.</summary>
-    public float WrenchHeal { get; init; } = 35;
+    public float WrenchHeal { get; init; } = 500;
     /// <summary>Metres per second along the launch forward direction.</summary>
-    public float MissileSpeed { get; init; } = 45;
+    public float MissileSpeed { get; init; } = 120;
     /// <summary>Fixed 60 Hz steps before removal without an explosion.</summary>
     public int MissileLifetimeTicks { get; init; } = 300;
     /// <summary>Explosion radius in metres.</summary>

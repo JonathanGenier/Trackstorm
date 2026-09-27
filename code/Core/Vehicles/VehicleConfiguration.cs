@@ -4,15 +4,15 @@ namespace Trackstorm.Core.Vehicles;
 public sealed record VehicleConfiguration
 {
     /// <summary>Fraction of lateral tire grip lost on Oil; propulsion and steering remain available.</summary>
-    public float OilGripReduction { get; init; } = 0.5f;
+    public float OilGripReduction { get; init; } = 0.1f;
     /// <summary>Seconds of progressive lateral-grip recovery after the last supported Oil contact.</summary>
-    public float OilRecoverySeconds { get; init; } = 1.75f;
-    /// <summary>Cast surface, slightly below the unmodified asphalt baseline.</summary>
-    public SurfaceModifiers Concrete { get; init; } = new(0.95f, 1, 0.98f);
+    public float OilRecoverySeconds { get; init; } = 0.5f;
+    /// <summary>Cast surface handling profile.</summary>
+    public SurfaceModifiers Concrete { get; init; } = new(1.5f, 1, 0.98f);
     /// <summary>Compacted soil retains controllable drive with modest rolling resistance.</summary>
-    public SurfaceModifiers Dirt { get; init; } = new(0.85f, 1.15f, 0.95f);
-    /// <summary>Vegetation reduces tire purchase and adds rolling resistance.</summary>
-    public SurfaceModifiers Grass { get; init; } = new(0.62f, 1.4f, 0.9f);
+    public SurfaceModifiers Dirt { get; init; } = new(1.25f, 1.15f, 0.95f);
+    /// <summary>Vegetation handling profile with added rolling resistance.</summary>
+    public SurfaceModifiers Grass { get; init; } = new(1.25f, 1.4f, 0.9f);
     /// <summary>Soft ground has less grip/acceleration and greater resistance.</summary>
     public SurfaceModifiers Mud { get; init; } = new(0.6f, 2.5f, 0.85f);
     /// <summary>Saturated soil bogs at speed while retaining usable low-speed drive.</summary>
@@ -55,7 +55,7 @@ public sealed record VehicleConfiguration
     /// <summary>Maximum dirt rear lateral grip loss under sustained power.</summary>
     public float DirtPowerSlip { get; init; } = 0.22f;
     /// <summary>Front dirt tire budget reserved for wheel direction during saturated slides.</summary>
-    public float DirtSteeringReserve { get; init; } = 0.65f;
+    public float DirtSteeringReserve { get; init; } = 0.95f;
     /// <summary>Dirt slide yaw recovery response per second; zero disables the arcade assist.</summary>
     public float DirtRecovery { get; init; } = 4;
     /// <summary>Wheelspin buildup rate per second.</summary>

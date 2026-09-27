@@ -226,7 +226,7 @@ public sealed partial class ItemIntegrationChecks : Node
                 Next("All eight damaged players use Wrench.");
                 break;
             case 4 when AllHeld(HeldItem.None):
-                Require(_arenas.All(arena => arena.Driver.ItemState!.World.Vehicles.All(vehicle => vehicle.State.Damage.CurrentHP == 75)), "35 HP healing replicates to every peer.");
+                Require(_arenas.All(arena => arena.Driver.ItemState!.World.Vehicles.All(vehicle => vehicle.State.Damage.CurrentHP == 540)), "500 HP healing replicates to every peer.");
                 PrepareMissile();
                 Next("Damaged Wrench outcomes match on all eight peers.");
                 break;

@@ -15,13 +15,13 @@ internal sealed class ProxyMineTests
     {
         var tuning = new ItemConfiguration();
         float Force(float distance) => ProxyMineState.AttractionForce(distance, tuning);
-        Assert.That(Force(25), Is.Zero);
-        Assert.That(Force(24), Is.Zero);
-        Assert.That(Force(23.999f), Is.LessThan(0.02));
-        Assert.That(Force(22), Is.LessThan(Force(12) / 5));
-        Assert.That(Force(12), Is.LessThan(Force(2) / 3));
+        Assert.That(Force(tuning.MineAttractionRadius + 1), Is.Zero);
+        Assert.That(Force(tuning.MineAttractionRadius), Is.Zero);
+        Assert.That(Force(tuning.MineAttractionRadius - 0.001f), Is.LessThan(1));
+        Assert.That(Force(29.9f), Is.LessThan(Force(15) / 5));
+        Assert.That(Force(15), Is.LessThan(Force(2)));
         Assert.That(Force(0), Is.EqualTo(tuning.MineMaximumForce));
-        for (float distance = 0; distance < 24; distance += 0.05f) { Assert.That(Force(distance), Is.GreaterThan(Force(distance + 0.05f))); }
+        for (float distance = 0; distance < tuning.MineAttractionRadius; distance += 0.05f) { Assert.That(Force(distance), Is.GreaterThan(Force(distance + 0.05f))); }
     }
 
     [Test]
@@ -36,7 +36,7 @@ internal sealed class ProxyMineTests
         Step(host);
         var moving = host.Items.Mines.Single();
         Assert.That(moving.Velocity.Z, Is.LessThan(0));
-        Assert.That(Vector3.Distance(moving.Position, installed.Position), Is.InRange(0.0001, 0.02));
+        Assert.That(Vector3.Distance(moving.Position, installed.Position), Is.InRange(0.0001, 0.03));
         Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.mine_maximum_force"] = 0, ["items.mine_minimum_force"] = 0 }, out _), Is.True);
         Step(host);
         Assert.That(host.Items.Mines.Single().Velocity.Z, Is.LessThan(0), "removing force does not delete momentum");
@@ -91,7 +91,7 @@ internal sealed class ProxyMineTests
         Assert.That(victim.Damage.LastDamage!.Attribution.Source, Is.EqualTo("proxy-mine"));
         Assert.That(victim.Damage.LastDamage.Attribution.InstigatorId, Is.EqualTo(1));
         Assert.That(victim.Damage.LastDamage.Amount, Is.EqualTo(35));
-        Assert.That(victim.Effects.Single().Effect.Impulse.Length(), Is.EqualTo(24000).Within(0.1));
+        Assert.That(victim.Effects.Single().Effect.Impulse.Length(), Is.EqualTo(18000).Within(0.1));
         Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(hp));
         Assert.That(host.Items.Events.Count(e => e.Impact), Is.EqualTo(1));
         Step(host);

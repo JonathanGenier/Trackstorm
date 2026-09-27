@@ -283,7 +283,7 @@ internal sealed class NitroTests
         // Rocket force does not masquerade as tire demand or consume the tire traction budget.
         Assert.That(b.LongitudinalAcceleration, Is.EqualTo(a.LongitudinalAcceleration));
         Assert.That(-b.Physics.LinearVelocity.Z, Is.GreaterThan(-a.Physics.LinearVelocity.Z));
-        Assert.That(b.LongitudinalAcceleration, Is.LessThanOrEqualTo(config.TireFriction * config.Gravity * 0.5f));
+        Assert.That(b.LongitudinalAcceleration, Is.LessThanOrEqualTo(config.TireFriction * config.Gravity * config.Concrete.Grip));
     }
 
     [Test]

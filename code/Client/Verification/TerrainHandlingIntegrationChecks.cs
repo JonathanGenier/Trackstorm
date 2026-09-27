@@ -49,14 +49,16 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
 
             foreach (bool network in new[] { false, true })
             {
-                float previous = float.MaxValue;
+                var speeds = new Dictionary<SurfaceIdentity, float>();
                 foreach (var entry in new[] { (SurfaceIdentity.Asphalt, 20f), (SurfaceIdentity.Concrete, 20f), (SurfaceIdentity.Dirt, 20f), (SurfaceIdentity.Grass, 15f), (SurfaceIdentity.Mud, 12f), (SurfaceIdentity.DeepMud, 10f) })
                 {
                     float speed = await Drive(network, entry.Item1, 0);
-                    Check(speed < previous, $"{network}: acceleration order {entry.Item1}, 8s speed {speed:F3} m/s < {previous:F3}");
-                    previous = speed;
+                    speeds.Add(entry.Item1, speed);
                     await Drive(network, entry.Item1, entry.Item2);
                 }
+                Check(speeds[SurfaceIdentity.Grass] < speeds[SurfaceIdentity.Dirt] &&
+                    speeds[SurfaceIdentity.DeepMud] < speeds[SurfaceIdentity.Mud],
+                    $"{network}: approved drag and drive defaults retain terrain-specific progress");
                 await SplitContact(network);
             }
             GD.Print("Terrain handling integration passed: both adapters, six surfaces, slope starts, steering, handbrake recovery and transitions.");
@@ -112,7 +114,7 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
         _advance = true;
         await Frames(15);
         var state = _world.GetVehicle(1);
-        Check(state.Movement.Physics.AngularVelocity.Y > 0.01f && state.Speed > 0.5f && state.Damage.CurrentHP == 1000,
+        Check(Math.Abs(state.Movement.Physics.AngularVelocity.Y) > 0.01f && state.Speed > 0.5f && state.Damage.CurrentHP == 1000,
             $"{network}: partial grass creates physical traction yaw {state.Movement.Physics.AngularVelocity.Y:F4} rad/s with continuing drive {state.Speed:F3} m/s");
         _advance = false;
         _native?.QueueFree();

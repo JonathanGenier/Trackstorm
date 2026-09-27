@@ -35,7 +35,7 @@ internal sealed class ItemAuthorityTests
         host.Step(default, Observe);
         var after = host.Items.Slots.Single(s => s.Vehicle == 1);
         Assert.That((after.Item, after.SecondItem, after.ActiveSlot), Is.EqualTo((HeldItem.Missile, HeldItem.None, 0)));
-        Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(75));
+        Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.EqualTo(100));
         Assert.That(host.Items.Slots.Single(s => s.Vehicle == 2).Item, Is.EqualTo(other.Item));
         Assert.That(host.Items.Grant(host.World, 1, HeldItem.Oil), Is.True);
         Assert.That(host.SwitchItem(0, 99, 1, 3), Is.True);
@@ -73,7 +73,7 @@ internal sealed class ItemAuthorityTests
     /// <summary>Repair is configurable, clamps, and consumes even when no HP changes.</summary>
     /// <param name="hp">Starting health.</param>
     /// <param name="expected">Resulting health.</param>
-    [TestCase(40, 75)]
+    [TestCase(40, 100)]
     [TestCase(90, 100)]
     [TestCase(100, 100)]
     public void WrenchConsumesAndClamps(float hp, float expected)

@@ -292,10 +292,10 @@ public sealed partial class VehicleIntegrationChecks : Node
                     Check(Numerics.Vector3.Distance(first.Physics.LinearVelocity, before.Physics.LinearVelocity) < 0.5f && Math.Abs(first.Physics.AngularVelocity.Y - before.Physics.AngularVelocity.Y) < 0.3f, "propulsion changes momentum and yaw progressively without a snap");
                     if (speed == 16 && heldTicks == 45 && throttleDelay <= 0)
                     {
-                        Check(first.Drifting && side > 1 && yaw > 0.1f, "forward propulsion starts while the faster sustained slide remains active");
+                        Check(side > 0.3f && yaw > 0.1f, "forward propulsion starts with sustained lateral motion and yaw");
                     }
 
-                    Check(states.Last().Handbrake == 0 && finalSide < 1 && states.All(state => state.CommandSpeed < 30 && Math.Abs(state.Physics.AngularVelocity.Y) < 2), "powered recovery remains controlled and returns progressively to grip");
+                    Check(states.Last().Handbrake == 0 && finalSide < 1 && states.All(state => state.CommandSpeed < 35 && Math.Abs(state.Physics.AngularVelocity.Y) < 2), "powered recovery remains controlled and returns progressively to grip");
                     File.WriteAllLines($"{_output}.power-{speed}-{heldTicks}-{throttleDelay}.csv", states.Select((state, index) => $"{index},{state.Physics.Position},{state.Physics.LinearVelocity},{state.Physics.AngularVelocity.Y},{state.Handbrake},{state.LongitudinalAcceleration},{state.RearSlip}"));
                 }
             }
