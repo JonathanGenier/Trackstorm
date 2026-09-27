@@ -32,11 +32,20 @@
       "license": "Project-supplied approved implementation asset; no third-party license asserted.",
       "source": "https://jonathangenier.atlassian.net/rest/api/3/attachment/content/10003",
       "file": "Timer.png"
+    },
+    {
+      "sourceName": "ChatGPT Image Sep 27, 2026, 01_24_38 PM.png",
+      "file": "ItemAssembly.png",
+      "sha256": "5ca367d058fe724e0bc744b0692c5a0d0e2fa97a7d7fee1def27f829181c1c7e",
+      "sourceSha256": "6b565a52ccab541101a930b4df70753af5be1376ed5277d419c29499d6eb9086",
+      "source": "User-supplied approved TS-222 concept in the implementation conversation, 2026-09-27",
+      "provenance": "Built-in imagegen precise-object edit of the approved concept: blank transparent shared chassis with all baked numbers, icons and resource bars removed. Exact prompt and runtime mapping in README.md.",
+      "license": "Project-supplied approved design and generated derivative; no new third-party license asserted."
     }
   ],
   "compositionReference": "https://jonathangenier.atlassian.net/rest/api/3/attachment/content/10002",
   "originalWork": [
-    "TS-222 ItemHudFrame.cs is original native geometry using the existing Health.png steel sample. The user-approved ChatGPT Image Sep 27, 2026, 01_24_38 PM.png guides composition only; its pixels are not distributed. Existing icons and neutral shared resource meters are placeholders for later item-specific visual Stories.",
+    "ItemAssembly.png is the reference-derived blank shared chassis. ItemAssembly.gdshader drives its authored gauge ticks; ItemHudSlot draws live optional resource bars. Existing SVG item icons remain placeholders for downstream item-specific visual Stories.",
     "Wrench.svg, Missile.svg, Oil.svg, Nitro.svg, Salvo.svg and MachineGun.svg are project-created silhouettes; no external assets were acquired for these silhouettes.",
     "Component.gdshader preserves the source textures and masks example values at runtime."
   ]

@@ -15,14 +15,14 @@ internal sealed partial class ItemHudSlot : Control
     internal void Initialize(int number)
     {
         MouseFilter = MouseFilterEnum.Ignore;
-        Size = new Vector2(136, 92);
-        AddLabel(_selection, "Selection", new Rect2(8, 4, 120, 18), 12);
-        AddLabel(_name, "ItemName", new Rect2(6, 65, 124, 19), 13);
-        AddLabel(_resource, "ResourceValue", new Rect2(8, 70, 120, 22), 18);
+        Size = new Vector2(112, 80);
+        AddLabel(_selection, "Selection", new Rect2(1, -12, 110, 14), 10);
+        AddLabel(_name, "ItemName", new Rect2(0, 42, 112, 26), 18);
+        AddLabel(_resource, "ResourceValue", new Rect2(0, 57, 112, 23), 20);
         _selection.Text = number.ToString(System.Globalization.CultureInfo.InvariantCulture);
         _icon.Name = "ItemIcon";
-        _icon.Position = new Vector2(40, 24);
-        _icon.Size = new Vector2(56, 38);
+        _icon.Position = new Vector2(26, 0);
+        _icon.Size = new Vector2(60, 35);
         _icon.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
         _icon.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
         _icon.MouseFilter = MouseFilterEnum.Ignore;
@@ -37,11 +37,11 @@ internal sealed partial class ItemHudSlot : Control
         _selection.Text = selected ? $"{number} • ACTIVE" : number.ToString(System.Globalization.CultureInfo.InvariantCulture);
         _selection.Modulate = selected ? new Color("ffd166") : new Color("aaa79e");
         _name.Text = view.Name;
-        _name.Position = new Vector2(6, view.Resource is null ? 65 : 43);
+        _name.Visible = view.Resource is null;
         _name.Modulate = view.Item == Core.Items.HeldItem.None ? new Color("aaa79e") : Colors.White;
         _icon.Texture = icon;
         _icon.Visible = icon is not null;
-        _icon.Size = new Vector2(56, view.Resource is null ? 38 : 21);
+        _icon.Size = new Vector2(60, 35);
         _resource.Visible = view.Resource is not null;
         _resource.Text = view.Resource?.Text ?? string.Empty;
         QueueRedraw();
@@ -49,15 +49,18 @@ internal sealed partial class ItemHudSlot : Control
 
     public override void _Draw()
     {
-        if (_selected) DrawLine(new Vector2(26, 22), new Vector2(110, 22), new Color("dba455"), 1);
+        if (_selected) DrawLine(new Vector2(16, 0), new Vector2(96, 0), new Color("dba455"), 1);
         if (_view?.Resource?.Fraction is not double fraction) return;
-        DrawRect(new Rect2(14, 63, 108, 8), new Color("060708"));
-        for (int cell = 0; cell < 5; cell++)
+        DrawRect(new Rect2(8, 37, 96, 20), new Color("030404"));
+        DrawRect(new Rect2(9, 38, 94, 18), new Color("3b3933"), false, 1);
+        for (int cell = 0; cell < 4; cell++)
         {
-            var rect = new Rect2(16 + cell * 21, 65, 19, 4);
-            DrawRect(rect, new Color("302c28"));
-            float filled = (float)Math.Clamp(fraction * 5 - cell, 0, 1);
-            DrawRect(new Rect2(rect.Position, new Vector2(rect.Size.X * filled, rect.Size.Y)), new Color("d7b478"));
+            var rect = new Rect2(11 + cell * 23, 40, 21, 14);
+            DrawRect(rect, new Color("272317"));
+            float filled = (float)Math.Clamp(fraction * 4 - cell, 0, 1);
+            var content = new Rect2(rect.Position, new Vector2(rect.Size.X * filled, rect.Size.Y));
+            DrawRect(content, new Color("d6ab32"));
+            DrawRect(new Rect2(content.Position, new Vector2(content.Size.X, 3)), new Color("ecc34e"));
         }
     }
 

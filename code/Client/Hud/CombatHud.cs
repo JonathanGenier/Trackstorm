@@ -24,9 +24,9 @@ internal sealed partial class CombatHud : CanvasLayer
     private Label _nitro = null!;
     private Label _outOfBounds = null!;
     private Label _timer = null!;
-    private readonly Control _itemAssembly = new() { Name = "ItemAssembly", MouseFilter = Control.MouseFilterEnum.Ignore, Size = new Vector2(532, 188) };
-    private readonly ItemHudSlot _firstSlot = new() { Name = "FirstSlot", Position = new Vector2(234, 72) };
-    private readonly ItemHudSlot _secondSlot = new() { Name = "SecondSlot", Position = new Vector2(372, 72) };
+    private readonly Control _itemAssembly = new() { Name = "ItemAssembly", MouseFilter = Control.MouseFilterEnum.Ignore, Size = new Vector2(600, 200) };
+    private readonly ItemHudSlot _firstSlot = new() { Name = "FirstSlot", Position = new Vector2(310, 88) };
+    private readonly ItemHudSlot _secondSlot = new() { Name = "SecondSlot", Position = new Vector2(448, 88) };
     private ShaderMaterial _healthMaterial = null!;
     private ShaderMaterial _speedMaterial = null!;
     private readonly Dictionary<string, Texture2D> _itemIcons = new(StringComparer.Ordinal);
@@ -73,15 +73,13 @@ internal sealed partial class CombatHud : CanvasLayer
         _standing = Text(health, "Standing", new Rect2(32, 39, 68, 56), 43);
         _health = Text(health, "HealthValue", new Rect2(291, 88, 109, 26), 23);
         _root.AddChild(_itemAssembly);
-        var frame = new ItemHudFrame { Name = "ItemFrame", Position = new Vector2(220, 70), MouseFilter = Control.MouseFilterEnum.Ignore };
+        var frame = new ItemHudFrame { Name = "ItemFrame" };
         _itemAssembly.AddChild(frame);
-        var speed = Component("Speed", new Vector2(250, 187.5f), 1, steel);
-        speed.Reparent(_itemAssembly, false);
-        _components.Remove(speed);
-        _speedMaterial = (ShaderMaterial)speed.Material;
-        _speed = Text(speed, "SpeedValue", new Rect2(73, 78, 108, 57), 49);
-        _unit = Text(speed, "SpeedUnit", new Rect2(88, 137, 78, 20), 19);
-        _nitro = Text(speed, "NitroActive", new Rect2(20, -24, 220, 22), 18);
+        _speedMaterial = frame.GaugeMaterial;
+        _speed = Text(_itemAssembly, "SpeedValue", new Rect2(123, 77, 116, 68), 58);
+        _speed.AddThemeFontOverride("font", new FontVariation { BaseFont = ThemeDB.FallbackFont, VariationEmbolden = 1.0f });
+        _unit = Text(_itemAssembly, "SpeedUnit", new Rect2(141, 145, 82, 22), 20);
+        _nitro = Text(_itemAssembly, "NitroActive", new Rect2(70, -12, 220, 22), 18);
         _nitro.AddThemeColorOverride("font_color", new Color("ffd166"));
         _itemAssembly.AddChild(_firstSlot);
         _itemAssembly.AddChild(_secondSlot);
@@ -249,7 +247,7 @@ internal sealed partial class CombatHud : CanvasLayer
 
         _components[0].Position = new Vector2(margin, viewport.Y - (147 * scale) - margin);
         _itemAssembly.Scale = Vector2.One * scale;
-        _itemAssembly.Position = new Vector2(viewport.X - (532 * scale) - margin, viewport.Y - (176 * scale) - margin);
+        _itemAssembly.Position = new Vector2(viewport.X - (600 * scale) - margin, viewport.Y - (200 * scale) - margin);
         _components[1].Position = new Vector2((viewport.X - (220 * scale)) / 2, 12 * scale);
         _scorePanel.Scale = Vector2.One * scale;
         _scorePanel.Position = new Vector2(margin, 120 * scale);
