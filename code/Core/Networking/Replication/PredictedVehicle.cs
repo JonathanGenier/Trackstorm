@@ -8,8 +8,11 @@ namespace Trackstorm.Core.Networking.Replication;
 /// <summary>Reuses the authoritative simulation for immediate prediction and ordered replay.</summary>
 public sealed class PredictedVehicle
 {
-    /// <summary>At most 300 ms of speculative movement ahead of confirmed input; longer stalls retain controls for transport but hold prediction.</summary>
-    public const int MaximumPredictionSteps = 18;
+    /// <summary>At most 400 ms of speculative movement ahead of confirmed input; longer stalls retain controls for transport but hold prediction.</summary>
+    // The bound includes input transit/host queueing AND delayed snapshot acknowledgements.
+    // Clustered loss at 20 Hz can exceed 18 outstanding inputs while the host advances normally.
+    // Keep this fixed: an outage must not extend its own speculation allowance.
+    public const int MaximumPredictionSteps = 24;
     private readonly Simulation.Simulation _world = new(new SimulationConfiguration(HostVehicleSession.TickRate));
     private readonly ulong _vehicle;
     private ulong _lastSnapshotTick;
