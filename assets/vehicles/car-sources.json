@@ -1,0 +1,25 @@
+{
+  "authoring": "Original project geometry authored in Blender 5.2.2 for TS-164; no reference pixels or third-party model redistributed.",
+  "reference_issue": "https://jonathangenier.atlassian.net/browse/TS-164",
+  "reference_attachments": {
+    "10134": "01_front_left_3-4.png",
+    "10129": "02_front_right_3-4.png",
+    "10127": "03_left_side_profile.png",
+    "10128": "05_front_view.png",
+    "10131": "06_rear_view.png",
+    "10132": "07_high_front_left_3-4.png",
+    "10133": "08_high_rear_right_3-4.png",
+    "10135": "10_reference_sheet_top_and_orthographic_views.png",
+    "10126": "Car Closed.png",
+    "10130": "Car Open.png"
+  },
+  "materials": "Original paint/steel weathering shader; existing CC0 Poly Haven rubber maps recorded in sources.json. Blender base materials retained in master; Godot bindings in ImportCar.gd.",
+  "sha256": {
+    "source/TrackstormCar.blend": "c0d747f01c56a1d00f5b3353fa694b12523e93a2ebce3d900668b34f2e6f2691",
+    "TrackstormCar.glb": "f6960d6d4aede0b3c2ba8b69e804006b9d7b5d4f848540b6db0d1cd4b1b88479",
+    "source/BuildCar.py": "8dff59bdb3283ad13049c8f4782621e7e3b641871667c7cbfae4ea4d9c98074a",
+    "source/FinalizeCar.py": "f2a42dd2831a9eaefeca6a240e012a1b708c377e2df9a03f25aaff1c1f304952",
+    "source/AuditCar.py": "c86dcbf41913ae01cf27a859aaa11b05b5a805a57064ddc72bc474953cd0697a",
+    "materials/CarPaint.gdshader": "c4b1132c3fac4e5598dd814dcb6880772baf129a012bee1ba8f456975017a67e"
+  }
+}

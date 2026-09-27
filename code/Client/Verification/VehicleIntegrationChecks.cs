@@ -121,17 +121,17 @@ public sealed partial class VehicleIntegrationChecks : Node
         var meshes = Descendants(localModel).OfType<MeshInstance3D>().ToArray();
         Check(meshes.Length > 10 && meshes.All(mesh => mesh.Mesh is not null), "Vehicle asset resolves all base and conversion meshes.");
         Aabb bounds = meshes.Select(mesh => (localModel.GlobalTransform.AffineInverse() * mesh.GlobalTransform) * mesh.GetAabb()).Aggregate((left, right) => left.Merge(right));
-        Check(Math.Abs(bounds.Size.X - VehicleDimensions.Width) < 0.001f && Math.Abs(bounds.Size.Z - VehicleDimensions.Length) < 0.001f, "Authored silhouette has the canonical real-world dimensions.");
+        Check(bounds.Size.X is > 2.4f and < 2.8f && bounds.Size.Z is > 4.5f and < 4.9f, "Production Car retains the established gameplay envelope.");
         // This fixture has advanced only three ticks; compare against current observations,
         // not equilibrium or the formerly static tire mesh's baked rest position.
         localModel.GetChildren().OfType<WheelPresentation>().Single()._Process(1);
-        string[] wheelNames = ["wheel-front-left", "wheel-front-right", "wheel-back-left", "wheel-back-right"];
+        string[] wheelNames = ["WheelCarrier_FL", "WheelCarrier_FR", "WheelCarrier_RL", "WheelCarrier_RR"];
         var travel = authority.Movement.Wheels.Compression;
         float[] compressions = [travel.X, travel.Y, travel.Z, travel.W];
         for (int index = 0; index < wheelNames.Length; index++)
         {
-            var tire = localModel.GetNode<MeshInstance3D>(wheelNames[index]);
-            float bottom = (tire.Transform * tire.GetAabb()).Position.Y;
+            var tire = localModel.GetNode<Node3D>(wheelNames[index]);
+            float bottom = tire.Position.Y - WheelPresentation.TireRadius;
             Check(Math.Abs(bottom + _arena.Player.Configuration.SuspensionLength - compressions[index]) < 0.001f, wheelNames[index] + " follows current suspension compression.");
         }
 

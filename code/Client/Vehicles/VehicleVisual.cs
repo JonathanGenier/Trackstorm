@@ -40,6 +40,7 @@ internal static class VehicleVisual
     {
         var model = Bootstrap.StartupController.LoadResource<PackedScene>("res://assets/vehicles/WastelandVehicle.tscn").Instantiate<Node3D>();
         model.GetNode<MeshInstance3D>("Identification").MaterialOverride = identification;
+        model.AddChild(new CarDeployment());
         if (suspension is not null) { model.AddChild(new WheelPresentation { Source = suspension }); }
         return model;
     }

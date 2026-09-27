@@ -1,22 +1,68 @@
-# Static gameplay vehicle
+# Production Trackstorm Car
 
-Trackstorm's existing salvage combat car is preserved: the Kenney Car Kit 3.1 hatchback conversion, armor, guards, welds, windshield protection and exhaust stacks. No replacement or licensed production-car design is introduced. Existing CC0 sources and textures remain recorded in `sources.json`.
+`source/TrackstormCar.blend` is the editable Blender 5.2 master. `TrackstormCar.glb`
+is its game export. `WastelandVehicle.tscn` retains the established resource path
+used by startup, Lobby, practice, matches and Podium; it instances the new GLB.
 
-## Blender authoring
+## Authoring and import
 
-`source/LegacyVehicle.glb` preserves the complete previous Godot-authored design exported from the parent revision. `RescaleVehicle.py`, run with Blender 5.2 in background mode, imports that design, uniformly scales its measured 3.505 m overall length to 4.81 m, applies transforms to every mesh and saves `source/WastelandVehicle.blend` and `WastelandVehicle.glb`. The production blend is editable; source files are excluded from automatic Godot import by `.gdignore`.
+Run Blender in background mode with `--python assets/vehicles/source/BuildCar.py`,
+then `--python assets/vehicles/source/FinalizeCar.py`. The second pass poses the
+suspension, adds coil springs, keys hydraulic extension and batches stencils.
+Both scripts use Blender mesh authoring and retain the master; no runtime mesh
+construction substitutes for it. Reopening/editing the master directly is supported;
+regeneration deliberately rebuilds the design, so preserve manual refinements first.
+Export selected production hierarchy as GLB, +Y up, applied modifiers, no animation.
+The Blender authoring coordinates are +Y forward / +Z up; Godot uses -Z forward.
 
-One Blender/Godot unit is one metre. Scale is 1.3723252515; the origin receives a +0.108659 m vertical adjustment after scaling. Forward remains Godot -Z. Production root and mesh transforms have unit scale. Measurements are recorded in `measurements.json`:
+The committed GLB import configuration runs `ImportCar.gd`, flattening only the
+identity file root and binding shared materials. Paint/steel use an original
+3D weathering shader; rubber reuses the existing licensed Poly Haven maps.
+All mesh UVs remain available for subsequent texture authoring. Static detail and
+wheel surfaces are batched by material; lamps, hinges, links and sockets remain
+separate. Godot generates mesh LODs. Blender source is excluded from Godot import.
 
-- Overall length × width × height: 4.810 × 2.662311 × 1.856070 m.
-- Wheelbase: 2.601105 m; tire-center track: 1.633067 m.
-- Vertical tire radius: 0.485803 m (the original slight fore/aft tire ellipticity is preserved).
-- Tire bottom: -0.9 m relative to the body origin. Default level-road equilibrium puts it at road height; lowest body clearance is approximately 0.243 m.
+## Reference resolution
 
-After exporting/importing the GLB, run `godot --headless --path . --script assets/vehicles/BuildVehicle.gd`. This script only binds the original Godot materials in a thin inherited scene. It never constructs or rescales production geometry. Existing Body, Tire and Armor triplanar resources remain in use; Trim preserves the original graphite color. The per-instance identification material remains controlled by `VehicleVisual`.
+All ten TS-164 attachments informed the design: both front three-quarter views,
+side profile, front/rear elevations, elevated front/rear views, orthographic sheet,
+and Car Closed/Open. The coherent design retains a rust-red armored coupe,
+window grids, round headlights, four roof lamps, riveted extended fenders, tubular
+guards, side exhausts and radial mechanical stencils. The closed/open pair defines
+two outward-opening rear deck halves around an internal lift rack. Weapons are
+intentionally absent; this asset provides only their mounting structure.
 
-## Runtime definition
+## Rig contract
 
-`Core.Vehicles.VehicleDimensions` records the shared spatial contract. Both native practice and network prediction use the same unscaled sprung box envelope, matching the armor/bumper footprint and including the roof. Wheels remain static visual geometry supported by four rays at the measured tire centers; there are no solid wheel colliders or articulation. The box intentionally approximates the detailed silhouette and does not reproduce individual armor pieces.
+- `WheelCarrier_FL/FR/RL/RR`: suspension translation and front steering.
+- Their `WheelSpin_*` children: rotation about local X; nominal tread radius 0.582 m.
+- `SuspensionAnchor_*`: chassis attachments. `SuspensionLink_*` and `ShockRod_*`
+  stretch/aim between attachments and hubs. Coil meshes inherit the shock sleeve.
+- `TrunkHinge_L/R`: longitudinal hinges. `WeaponRack`: vertical lift with four
+  stable `WeaponMount_L/R_Front/Rear` empties and socket plates.
+- `LiftCylinder_*`, `LiftPiston_*`: visible hydraulic sleeves and telescoping rods.
+- `Headlight_*`, `RoofAuxLight_*`, `TailRunning_*`, `Brake_*`, `Reverse_*`, and
+  `RearIndicator_*`: independently addressable lens meshes/materials.
+- `Identification`: existing per-player color and combat-flash surface.
 
-The settled origin is 0.9 m above level ground. Suspension extension adds the existing gravity/spring equilibrium compression (0.0654 m); spring/damper tuning is unchanged. Mass, propulsion, braking, speed caps, friction and steering tuning are unchanged. Wheelbase, load-height and collision/inertia geometry change only to match scale. Chase distance and height increase by the same scale factor. Spawn clearance uses a conservative 5.6 m circle to accommodate arbitrary headings; existing oval grid spacing is sufficient. ActiveMap adds 0.2 m to its original spawn marker heights, so the new tires initially clear the road.
+Blender timeline frames 1–25 open the deck, 25–48 raise the rack, 48–60 hold,
+60–75 retract and 75–100 close. Runtime `CarDeployment` reproduces the ordered
+path in 1.6 seconds each way and permits smooth reversal. Its `Deployed` property
+is a Client presentation seam for later integration, not a new gameplay input,
+weapon rule or network message. Normal gameplay keeps the rack stowed.
+
+`WheelPresentation` reads accepted speed, steering and per-wheel compression.
+Existing offline interpolation and network presentation roots remain unchanged.
+No Core physics, force, tuning, collision, authority, serialization or input rule
+is changed. The physical 2.601105 m wheelbase stays aligned. The visual tire
+centres are widened to ±1.03 m while existing support rays remain at ±0.8165335 m;
+this deliberate presentation offset avoids a handling redesign. Narrow terrain
+edges are consequently approximated by the unchanged physical supports.
+
+## Validation
+
+`check-car-articulation.ps1 -GodotPath <exe> -Visual` drives the production adapter,
+checks articulation/deployment and saves captures and traces under `.godot/ts164-car`.
+Use the regular vehicle/network/oval checks for surrounding integration.
+Current Story evidence and limitations belong in `docs/verification/ts-164.md`.
+The previous Kenney-based master and source remain as historical editable assets.
