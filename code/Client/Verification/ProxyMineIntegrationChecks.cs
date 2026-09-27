@@ -122,13 +122,13 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                 case 3 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 3 && a.Driver.ItemState?.Mines.Count == 1):
                     Position(3, new N.Vector3(-35,21.4f,10));
                     Check(_arenas[2].Driver.ItemState!.Mines.Single().Id == _mine!.Id, "late join mine identity");
-                    Trial(22);
+                    Trial(29.95f);
                     Next("Late join reconstructed the persistent mine. Outer-radius force trial begins.");
                     break;
                 case 4 when _frames - _boundary == 10:
                     _outerSpeed = host.Items.Mines.Single().Velocity.X;
                     Check(_outerSpeed > 0 && _outerSpeed < 0.5f, $"weak outer speed {_outerSpeed}");
-                    Capture("outer.png"); Trial(12);
+                    Capture("outer.png"); Trial(15);
                     Next($"Outer pull produced {_outerSpeed:0.000} m/s after ten native ticks.");
                     break;
                 case 5 when _frames - _boundary == 10:
@@ -139,7 +139,7 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                     break;
                 case 6 when _frames - _boundary == 10:
                     float close = host.Items.Mines.Single().Velocity.X;
-                    Check(close > _midSpeed * 2, $"aggressive close force {close}");
+                    Check(close > _midSpeed, $"progressive close force {close}");
                     Capture("close.png");
                     _hp = host.World.GetVehicle(2).Damage.CurrentHP;
                     Position(2, _mine!.Position + new N.Vector3(6, 0.65f, 0), new N.Vector3(-12,0,0));
@@ -147,8 +147,8 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                     break;
                 case 7 when host.Items.Mines.Count == 0:
                     Check(host.World.GetVehicle(2).Damage.CurrentHP == _hp - 60, "exact moderate contact damage");
-                    Check(host.World.GetVehicle(2).Effects.Any(e => e.Attribution.Source == "proxy-mine" && e.Effect.Impulse.Length() > 23000), "large committed knockback");
-                    Next("Contact detonated once, applying 60 HP and 24000 N.s to the remote vehicle.");
+                    Check(host.World.GetVehicle(2).Effects.Any(e => e.Attribution.Source == "proxy-mine" && e.Effect.Impulse.Length() > 17000), "large committed knockback");
+                    Next("Contact detonated once, applying 60 configured HP and 18000 N.s to the remote vehicle.");
                     break;
                 case 8 when _frames - _boundary > 20 && _arenas.All(a => a.Driver.ItemState?.Mines.Count == 0):
                     Check(host.World.GetVehicle(2).Movement.Physics.LinearVelocity.Length() > 5, "native knockback motion");

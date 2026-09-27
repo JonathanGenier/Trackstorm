@@ -186,7 +186,7 @@ internal sealed class DeveloperOptionsTests
         Assert.That(draft.IsDirty, Is.True);
         Assert.That(draft.Get("damage.max_hp"), Is.EqualTo("1000"));
         Assert.That(draft.Get("vehicle.acceleration"), Is.EqualTo("16"));
-        Assert.That(draft.Get("items.missile_speed"), Is.EqualTo("70"));
+        Assert.That(draft.Get("items.missile_speed"), Is.EqualTo("120"));
         Assert.That(host.Configuration, Is.EqualTo(before));
         Assert.That(store.Current, Is.EqualTo(before.Configuration));
         Assert.That(File.ReadAllText(_path), Is.EqualTo(persisted));
