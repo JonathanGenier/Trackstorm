@@ -10,7 +10,8 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
-| Story verification | [TS-164 second-pass verification evidence](ts-164.md) |
+| Dynamic physical two-slot Item HUD foundation | [TS-222 verification evidence](ts-222.md) |
+| Production Car model, articulation and item-driven hydraulic rack | [TS-164 second-pass verification evidence](ts-164.md) |
 | Runtime asset loader ownership | [TS-208 audit, lifecycle verification and exceptions](ts-208.md) |
 | Approved gameplay default promotion | [TS-204 verification evidence](ts-204.md) |
 | Multiplayer impairment, soak and repeated-session validation | [TS-121 verification evidence](ts-121.md) |

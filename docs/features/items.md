@@ -110,7 +110,7 @@ Complete item publications/checkpoints carry both percentages and the engaged ca
 
 Death/new-life reset and Finished clear the vehicle effect; inventory follows the existing death-retention policy. Retained inventory transfers partial charge with its fresh life tokens and no engaged use. Resume and migration install the selected boundary without historical use or score replay, then neutral/rebound input determines whether use can continue. Epoch rollback retains its existing checkpoint semantics.
 
-Both local HUD slots show the registry identity and authoritative charge percentage (rounded upward to a whole percent while nonempty), with EMPTY at exhaustion. A separate NITRO BOOST indication and existing flame trail reflect active movement only. Stats shows both charge values, activation and recovery. Existing assets/audio hooks and item ownership boundaries remain in place.
+Both local HUD slots use the shared [dynamic HUD assembly](hud.md) to show registry identity and their independent authoritative charge percentage (rounded upward to a whole percent while nonempty), with EMPTY and no resource presentation at exhaustion. A separate NITRO BOOST indication and existing flame trail reflect active movement only. Stats shows both charge values, activation and recovery. Existing assets/audio hooks and item ownership boundaries remain in place.
 
 `check-nitro.ps1 -GodotPath <exe> [-Impaired] [-Visual]` exercises two native UDP peers, partial release/reuse, zero-charge disposal, second-slot isolation, boosted speed, bounded recovery, and overspeed scoring before/after release. HUD checks render independent percentages at supported resolutions. Reconnect/migration fixtures preserve a partial resource alongside the existing complete-world checks; Core tests additionally replace authority during active use and verify neutralization and reuse.
 
@@ -148,27 +148,11 @@ Item protocol version ten carries remaining shots and absolute ready ticks in ea
 
 `check-salvo.ps1 -GodotPath <exe> [-Visual] [-Impaired]` exercises three UDP peers in isolated native worlds: repeated salvos, five separately pressed launches/impacts per peer, held-input non-repeat and replicated ammunition, driving/steering with a moving guide and per-launch targets, two blast targets, second-slot preservation, chase-camera captures, banked ring geometry and owner-only visibility. Reconnect/migration fixtures seed partial ammunition, cooldowns and slow flying rounds to isolate exact checkpoint installation. These local fixtures do not establish Internet/EOS or independent-device coverage.
 
+
 ## Vehicle rack presentation
 
-`CarRackPresentation` consumes accepted item slots, life/participation and use events
-for every network body. It adds no Core state, packet, inventory rule or firing delay.
-A selected acquisition opens the split deck, raises the rack, then reveals its payload.
-Selecting another physical slot retracts/closes before presenting the latest selection;
-selection revisions distinguish duplicate items. Rapid changes coalesce to the current
-selection. Confirmed use gives a short payload motion cue alongside existing world
-VFX/audio, then retracts/closes. Sustained Nitro/Machine Gun stay presented while their
-accepted engagement is active and close after release. Using a stowed remaining item
-can replay deployment without delaying its authoritative effect.
+`CarRackPresentation` consumes accepted item slots, life/participation and use events for every network body. It adds no Core state, packet, inventory rule or firing delay. A selected acquisition opens the split deck, raises the rack, then reveals its payload. Selecting another physical slot retracts/closes before presenting the latest selection; selection revisions distinguish duplicate items. Rapid changes coalesce to the current selection. Confirmed use gives a short payload motion cue alongside existing world VFX/audio, then retracts/closes. Sustained Nitro/Machine Gun stay presented while their accepted engagement is active and close after release. Using a stowed remaining item can replay deployment without delaying its authoritative effect.
 
-The payload scales in/out only above the compartment's clearance height. Reconstructable
-animation memory suppresses automatic reopening after use until another selection or
-acquisition. Death/life change removes the payload immediately. Checkpoint reseeding
-clears animation memory and reconstructs current selected ownership without replaying
-historical shots; exact pre-disconnect animation phase is intentionally not replicated.
+The payload scales in/out only above the compartment's clearance height. Reconstructable animation memory suppresses automatic reopening after use until another selection or acquisition. Death/life change removes the payload immediately. Checkpoint reseeding clears animation memory and reconstructs current selected ownership without replaying historical shots; exact pre-disconnect animation phase is intentionally not replicated.
 
-Missile reuses the registered rocket mesh; Proxy Mine reuses its existing visual.
-Wrench, Oil, Nitro, Salvo and Machine Gun use small colour-coded labelled boxes by
-explicit art direction. These are temporary representations, not new weapon models.
-Nitro's eventual rear-facing engine is future art. `check-car-rack.ps1` exercises the
-catalog, two physical slots, duplicate types, use/switch transitions, native proximity
-pickup and lifecycle/restoration presentation through two local UDP peers.
+Missile reuses the registered rocket mesh; Proxy Mine reuses its existing visual. Wrench, Oil, Nitro, Salvo and Machine Gun use small colour-coded labelled boxes by explicit art direction. These are temporary representations, not new weapon models. Nitro's eventual rear-facing engine is future art. `check-car-rack.ps1` exercises the catalog, two physical slots, duplicate types, use/switch transitions, native proximity pickup and lifecycle/restoration presentation through two local UDP peers.
