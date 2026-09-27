@@ -1,0 +1,59 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Epic.OnlineServices -> C:\Users\j_gen\.codex\worktrees\prediction-impairment\Trackstorm\third_party\eos\bin\Release\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Core -> C:\Users\j_gen\.codex\worktrees\prediction-impairment\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Trackstorm.Client -> C:\Users\j_gen\.codex\worktrees\prediction-impairment\Trackstorm\.godot\mono\temp\bin\Release\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\.codex\worktrees\prediction-impairment\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+Test run for C:\Users\j_gen\.codex\worktrees\prediction-impairment\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\j_gen\.codex\worktrees\prediction-impairment\Trackstorm\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 2 of 2 NUnit test cases using Current Discovery mode, Non-Explicit run
+delay ticks=2; holds=0; peak pending=17; input transit/host lag=4; return acknowledgement lag=14; steady max=0.7407; snapshot drops=9/500; input drops=29
+
+delay ticks=3; holds=0; peak pending=18; input transit/host lag=5; return acknowledgement lag=14; steady max=0.7407; snapshot drops=9/500; input drops=29
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Failed ClusteredSnapshotLossWithInputJitterKeepsPredictionResponsive(2) [369 ms]
+  Error Message:
+     Assert.That(maximumCorrection, Is.LessThan(0.5f))
+  Expected: less than 0.5f
+  But was:  0.740706146f
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.VehicleNetworkDriverTests.ClusteredSnapshotLossWithInputJitterKeepsPredictionResponsive(Int32 delayTicks) in C:\Users\j_gen\.codex\worktrees\prediction-impairment\Trackstorm\code\TransportTests\VehicleNetworkDriverTests.PredictionImpairment.cs:line 66
+
+1)    at Trackstorm.Transport.Tests.VehicleNetworkDriverTests.<>c__DisplayClass36_0.<ClusteredSnapshotLossWithInputJitterKeepsPredictionResponsive>b__1() in C:\Users\j_gen\.codex\worktrees\prediction-impairment\Trackstorm\code\TransportTests\VehicleNetworkDriverTests.PredictionImpairment.cs:line 71
+   at NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)
+   at Trackstorm.Transport.Tests.VehicleNetworkDriverTests.ClusteredSnapshotLossWithInputJitterKeepsPredictionResponsive(Int32 delayTicks) in C:\Users\j_gen\.codex\worktrees\prediction-impairment\Trackstorm\code\TransportTests\VehicleNetworkDriverTests.PredictionImpairment.cs:line 66
+
+
+  Standard Output Messages:
+ delay ticks=2; holds=0; peak pending=17; input transit/host lag=4; return acknowledgement lag=14; steady max=0.7407; snapshot drops=9/500; input drops=29
+
+
+  Failed ClusteredSnapshotLossWithInputJitterKeepsPredictionResponsive(3) [156 ms]
+  Error Message:
+     Assert.That(maximumCorrection, Is.LessThan(0.5f))
+  Expected: less than 0.5f
+  But was:  0.740704536f
+
+  Stack Trace:
+     at Trackstorm.Transport.Tests.VehicleNetworkDriverTests.ClusteredSnapshotLossWithInputJitterKeepsPredictionResponsive(Int32 delayTicks) in C:\Users\j_gen\.codex\worktrees\prediction-impairment\Trackstorm\code\TransportTests\VehicleNetworkDriverTests.PredictionImpairment.cs:line 66
+   at InvokeStub_VehicleNetworkDriverTests.ClusteredSnapshotLossWithInputJitterKeepsPredictionResponsive(Object, Span`1)
+
+1)    at Trackstorm.Transport.Tests.VehicleNetworkDriverTests.<>c__DisplayClass36_0.<ClusteredSnapshotLossWithInputJitterKeepsPredictionResponsive>b__1() in C:\Users\j_gen\.codex\worktrees\prediction-impairment\Trackstorm\code\TransportTests\VehicleNetworkDriverTests.PredictionImpairment.cs:line 71
+   at NUnit.Framework.Assert.Multiple(TestDelegate testDelegate)
+   at Trackstorm.Transport.Tests.VehicleNetworkDriverTests.ClusteredSnapshotLossWithInputJitterKeepsPredictionResponsive(Int32 delayTicks) in C:\Users\j_gen\.codex\worktrees\prediction-impairment\Trackstorm\code\TransportTests\VehicleNetworkDriverTests.PredictionImpairment.cs:line 66
+   at InvokeStub_VehicleNetworkDriverTests.ClusteredSnapshotLossWithInputJitterKeepsPredictionResponsive(Object, Span`1)
+
+
+  Standard Output Messages:
+ delay ticks=3; holds=0; peak pending=18; input transit/host lag=5; return acknowledgement lag=14; steady max=0.7407; snapshot drops=9/500; input drops=29
+
+
+
+Test Run Failed.
+Total tests: 2
+     Failed: 2
+ Total time: 3.0486 Seconds

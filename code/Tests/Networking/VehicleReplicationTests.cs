@@ -17,11 +17,13 @@ internal sealed class VehicleReplicationTests
         var prediction = new PredictedVehicle(host.Snapshot().Vehicles[1]);
         for (int i = 0; i < PredictedVehicle.MaximumPredictionSteps; i++) { prediction.Predict(Drive(), Observe); }
         var held = prediction.State;
-        for (int i = 0; i < 42; i++) { prediction.Predict(Drive(), Observe); }
+        Assert.That(held.Movement.Tick, Is.LessThanOrEqualTo(24), "No authority must never permit more than 400 ms speculation.");
+        for (int i = PredictedVehicle.MaximumPredictionSteps; i < InputHistory.Capacity; i++) { prediction.Predict(Drive(), Observe); }
         Assert.That(prediction.IsPredictionLimited, Is.True);
         Assert.That(prediction.State, Is.EqualTo(held));
-        Assert.That(prediction.History.Pending.Count, Is.EqualTo(60));
-        Assert.That(prediction.History.GetRedundancy()[^1].Sequence, Is.EqualTo(60));
+        Assert.That(prediction.History.Pending.Count, Is.EqualTo(InputHistory.Capacity));
+        Assert.That(prediction.History.GetRedundancy()[^1].Sequence, Is.EqualTo(InputHistory.Capacity));
+        Assert.Throws<InvalidOperationException>(() => prediction.Predict(Drive(), Observe));
         host.Receive(42, 99, prediction.History.GetRedundancy());
         for (int i = 0; i < 6; i++) { host.Step(default, Observe); }
         Assert.That(prediction.Reconcile(host.Snapshot().Vehicles[1], Observe), Is.True);

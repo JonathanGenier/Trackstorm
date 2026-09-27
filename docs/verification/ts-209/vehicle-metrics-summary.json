@@ -1,0 +1,62 @@
+[
+  {
+    "name": "vehicles-baseline",
+    "startupMax": 0.1953124850988388,
+    "steadyMax": 0.0,
+    "steadyP99Max": 0.0,
+    "holds": 0.0,
+    "steadyHolds": 0.0,
+    "hardSnaps": 0.0,
+    "pendingMax": 13.0
+  },
+  {
+    "name": "vehicles-50ms",
+    "startupMax": 0.3315489590167999,
+    "steadyMax": 0.06207229569554329,
+    "steadyP99Max": 0.0,
+    "holds": 0.0,
+    "steadyHolds": 0.0,
+    "hardSnaps": 0.0,
+    "pendingMax": 20.0
+  },
+  {
+    "name": "vehicles-100ms",
+    "startupMax": 0.43177762627601624,
+    "steadyMax": 0.0,
+    "steadyP99Max": 0.0,
+    "holds": 1.0,
+    "steadyHolds": 0.0,
+    "hardSnaps": 0.0,
+    "pendingMax": 25.0
+  },
+  {
+    "name": "vehicles-loss",
+    "startupMax": 0.2501766085624695,
+    "steadyMax": 0.0011176355183124542,
+    "steadyP99Max": 0.0,
+    "holds": 0.0,
+    "steadyHolds": 0.0,
+    "hardSnaps": 0.0,
+    "pendingMax": 21.0
+  },
+  {
+    "name": "vehicles-eight",
+    "startupMax": 0.5837369561195374,
+    "steadyMax": 0.19091306626796722,
+    "steadyP99Max": 0.10975539684295654,
+    "holds": 11.0,
+    "steadyHolds": 0.0,
+    "hardSnaps": 0.0,
+    "pendingMax": 28.0
+  },
+  {
+    "name": "entry-eight",
+    "startupMax": 0.04719555377960205,
+    "steadyMax": 0.40374723076820374,
+    "steadyP99Max": 0.1741005927324295,
+    "holds": 0.0,
+    "steadyHolds": 0.0,
+    "hardSnaps": 0.0,
+    "pendingMax": 18.0
+  }
+]
