@@ -8,10 +8,8 @@ namespace Trackstorm.Core.Networking.Replication;
 /// <summary>Reuses the authoritative simulation for immediate prediction and ordered replay.</summary>
 public sealed class PredictedVehicle
 {
-    /// <summary>At most 400 ms of speculative movement ahead of confirmed input; longer stalls retain controls for transport but hold prediction.</summary>
-    // Outstanding commands include the round trip, the host's 100 ms input queue,
-    // and publication/loss recovery. A 300 ms total can expire during supported jitter.
-    public const int MaximumPredictionSteps = 24;
+    /// <summary>At most 300 ms of speculative movement ahead of confirmed input; longer stalls retain controls for transport but hold prediction.</summary>
+    public const int MaximumPredictionSteps = 18;
     private readonly Simulation.Simulation _world = new(new SimulationConfiguration(HostVehicleSession.TickRate));
     private readonly ulong _vehicle;
     private ulong _lastSnapshotTick;

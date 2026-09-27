@@ -1,0 +1,63 @@
+ERROR: Failed to open 'user://logs/godot2026-09-26T22.21.46.log'.
+   at: copy (core/io/dir_access.cpp:429)
+ERROR: Failed to open log file for writing: user://logs/godot.log
+   at: rotate_file (core/io/logger.cpp:169)
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+REMATCH_RESOURCE cycle=1; generation=9179402149313335966; managed=7169872; private=520507392; handles=467; nodes=5933; objects=11772; orphans=0; inputPending=11; snapshots=20; hostEvents=66; clientEvents=65
+REMATCH_RESOURCE cycle=2; generation=9179402149313335967; managed=7506048; private=552775680; handles=469; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=130; clientEvents=134
+REMATCH_RESOURCE cycle=3; generation=9179402149313335968; managed=7537344; private=561852416; handles=469; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=194; clientEvents=201
+REMATCH_RESOURCE cycle=4; generation=9179402149313335969; managed=7575024; private=564305920; handles=470; nodes=6380; objects=12682; orphans=0; inputPending=7; snapshots=20; hostEvents=257; clientEvents=266
+REMATCH_RESOURCE cycle=5; generation=9179402149313335970; managed=7609288; private=563019776; handles=469; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=321; clientEvents=332
+REMATCH_RESOURCE cycle=6; generation=9179402149313335971; managed=7646752; private=562782208; handles=469; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=385; clientEvents=399
+REMATCH_RESOURCE cycle=7; generation=9179402149313335972; managed=7681848; private=564183040; handles=469; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=449; clientEvents=464
+REMATCH_RESOURCE cycle=8; generation=9179402149313335973; managed=7725248; private=559742976; handles=469; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=513; clientEvents=532
+REMATCH_RESOURCE cycle=9; generation=9179402149313335974; managed=7762136; private=566542336; handles=469; nodes=6380; objects=12682; orphans=0; inputPending=13; snapshots=20; hostEvents=577; clientEvents=599
+REMATCH_RESOURCE cycle=10; generation=9179402149313335975; managed=7797064; private=563613696; handles=469; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=641; clientEvents=666
+REMATCH_RESOURCE cycle=11; generation=9179402149313335976; managed=7831904; private=563175424; handles=469; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=704; clientEvents=731
+REMATCH_RESOURCE cycle=12; generation=9179402149313335977; managed=7866880; private=561668096; handles=465; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=768; clientEvents=797
+REMATCH_RESOURCE cycle=13; generation=9179402149313335978; managed=7906800; private=566444032; handles=463; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=832; clientEvents=865
+REMATCH_RESOURCE cycle=14; generation=9179402149313335979; managed=7942640; private=562692096; handles=463; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=896; clientEvents=932
+REMATCH_RESOURCE cycle=15; generation=9179402149313335980; managed=7978632; private=563240960; handles=463; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=960; clientEvents=999
+REMATCH_RESOURCE cycle=16; generation=9179402149313335981; managed=7976632; private=563765248; handles=463; nodes=6380; objects=12682; orphans=0; inputPending=12; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=17; generation=9179402149313335982; managed=8002632; private=564682752; handles=460; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=18; generation=9179402149313335983; managed=8000408; private=563183616; handles=461; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=19; generation=9179402149313335984; managed=8003416; private=563814400; handles=461; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=20; generation=9179402149313335985; managed=8004328; private=567603200; handles=464; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=21; generation=9179402149313335986; managed=7980144; private=565567488; handles=464; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=22; generation=9179402149313335987; managed=8006584; private=567746560; handles=461; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=23; generation=9179402149313335988; managed=8006952; private=567582720; handles=462; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=24; generation=9179402149313335989; managed=8007400; private=562237440; handles=465; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=25; generation=9179402149313335990; managed=8008160; private=564924416; handles=465; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=26; generation=9179402149313335991; managed=8664952; private=567271424; handles=466; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=27; generation=9179402149313335992; managed=8673784; private=570576896; handles=469; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=28; generation=9179402149313335993; managed=8674360; private=566509568; handles=466; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=29; generation=9179402149313335994; managed=8666784; private=571363328; handles=466; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=30; generation=9179402149313335995; managed=8667336; private=569237504; handles=467; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=31; generation=9179402149313335996; managed=8641488; private=567562240; handles=467; nodes=6380; objects=12682; orphans=0; inputPending=8; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=32; generation=9179402149313335997; managed=8668832; private=566517760; handles=466; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=33; generation=9179402149313335998; managed=8669360; private=568774656; handles=466; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=34; generation=9179402149313335999; managed=8669776; private=566677504; handles=471; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=35; generation=9179402149313336000; managed=8670776; private=571498496; handles=472; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=36; generation=9179402149313336001; managed=8671088; private=570417152; handles=472; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=37; generation=9179402149313336002; managed=8671408; private=571097088; handles=472; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=38; generation=9179402149313336003; managed=8672424; private=571162624; handles=472; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=39; generation=9179402149313336004; managed=8672664; private=567427072; handles=472; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=40; generation=9179402149313336005; managed=8672904; private=572104704; handles=475; nodes=6380; objects=12682; orphans=0; inputPending=8; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=41; generation=9179402149313336006; managed=8673704; private=570736640; handles=472; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=42; generation=9179402149313336007; managed=8674176; private=571817984; handles=473; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=43; generation=9179402149313336008; managed=8673800; private=567214080; handles=469; nodes=6380; objects=12682; orphans=0; inputPending=8; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=44; generation=9179402149313336009; managed=8675120; private=566423552; handles=470; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=45; generation=9179402149313336010; managed=8675840; private=568750080; handles=470; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=46; generation=9179402149313336011; managed=8672016; private=566792192; handles=472; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=47; generation=9179402149313336012; managed=8676488; private=567386112; handles=472; nodes=6380; objects=12682; orphans=0; inputPending=9; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=48; generation=9179402149313336013; managed=8677032; private=571498496; handles=472; nodes=6380; objects=12682; orphans=0; inputPending=10; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=49; generation=9179402149313336014; managed=8677720; private=566161408; handles=472; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=1024; clientEvents=1024
+REMATCH_RESOURCE cycle=50; generation=9179402149313336015; managed=8678280; private=570712064; handles=473; nodes=6380; objects=12682; orphans=0; inputPending=11; snapshots=20; hostEvents=1024; clientEvents=1024
+Post-match integration passed: 2024 assertions.
