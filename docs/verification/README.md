@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Arcade trophy-truck driving, suspension, landings and multiplayer limitations | [TS-197 verification evidence](ts-197.md) |
 | Blender/Python root-artifact investigation and guarded car workflow | [TS-260 verification evidence](ts-260.md) |
 | Production Car refinement | [TS-259 proportion refinement, deployment and Round 1/2/3/4/5/6/7/8 runtime evidence](ts-259.md) |
 | Dynamic physical two-slot Item HUD foundation | [TS-222 verification evidence](ts-222.md) |

@@ -54,7 +54,7 @@ public static class EnvironmentCollision
         float crashRetention = 1 - configuration.CrashDissipation * directness * directness;
         // Time-based resistance is applied once, independent of manifold/slide count or Nitro state.
         velocity = vertical + (velocity - vertical) * crashRetention * MathF.Exp(-configuration.WallDrag / configuration.TicksPerSecond);
-        Vector3 angular = incoming.AngularVelocity + VehicleMovement.Limit(torque, configuration.CrashAngularLimit);
+        Vector3 angular = incoming.AngularVelocity + (configuration.CrashAngularLimit == 0 ? Vector3.Zero : VehicleMovement.Limit(torque, configuration.CrashAngularLimit));
         return new(incoming.Position, incoming.Orientation, velocity, VehicleMovement.Limit(angular, configuration.MaximumAngularSpeed));
     }
 }

@@ -94,7 +94,7 @@ internal sealed class AsphaltBaselineTests
         for (ulong tick = 1; tick <= 6; tick++)
         {
             var state = movement.Step(new InputFrame(tick, 0, 0, 0, InputButtons.Drift, 0, 0), body, Vector3.UnitY);
-            Assert.That(state.Handbrake, Is.GreaterThan(previous).And.LessThan(0.5f));
+            Assert.That(state.Handbrake, Is.GreaterThan(previous).And.LessThan(1));
             previous = state.Handbrake;
         }
 

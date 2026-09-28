@@ -39,6 +39,9 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'TrophyTruck|trophy_truck|check-trophy-truck|VehicleCollision|NetworkVehicleBody') {
+            Add-Runtime 'check-trophy-truck.ps1'
+        }
         if ($path -match 'CarRack|RackItemVisual|car_rack|check-car-rack') {
             Add-Runtime 'check-car-rack.ps1'
             Add-Manual 'Inspect selected rack payloads, two-slot switching, sustained use and remote visibility.'
@@ -175,6 +178,7 @@ function Get-FastCheckPlan {
             $path -eq 'docs/features/vehicles.md' -or
             $path -eq 'scenes/verification/vehicle_checks.tscn') {
             Add-Runtime 'check-vehicle.ps1'
+            Add-Runtime 'check-trophy-truck.ps1'
             Add-Runtime 'check-landing.ps1'
             Add-Manual 'Drive/playtest the affected vehicle behavior, including multiple cars when collisions or shared physics are material.'
         }

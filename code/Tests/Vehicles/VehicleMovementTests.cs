@@ -78,7 +78,7 @@ internal sealed class VehicleMovementTests
         VehicleMovement high = Create(40);
         VehicleMovement analog = Create(2);
         GroundStep(low, steering: 32767);
-        Assert.That(low.State.SteeringAngle, Is.InRange(0.035f, 0.045f));
+        Assert.That(low.State.SteeringAngle, Is.InRange(0.055f, 0.07f));
         for (int index = 0; index < 60; index++)
         {
             low.Step(Frame(low.State.Tick + 1, steering: 32767), Create(2).State.Physics, Vector3.UnitY);
@@ -315,7 +315,8 @@ internal sealed class VehicleMovementTests
     [TestCase(SurfaceType.Concrete, true)]
     public void SlidingDriveRespectsPedalAndFrictionBudget(SurfaceType surface, bool reverse)
     {
-        var tuning = new VehicleConfiguration();
+        // Isolate rear propulsion so its friction budget can be reconstructed from total acceleration and yaw.
+        var tuning = new VehicleConfiguration { FrontDriveShare = 0 };
         var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(20, 0, reverse ? 5 : -5), Vector3.Zero);
         float previous = 0;
         foreach (ushort pedal in new ushort[] { 0, 500, 4000, 16000, 65535 })

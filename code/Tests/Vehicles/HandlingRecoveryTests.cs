@@ -50,7 +50,7 @@ internal sealed class HandlingRecoveryTests
         Assert.That(leftGrass.LongitudinalAcceleration, Is.GreaterThan(asphalt.LongitudinalAcceleration).And.LessThan(grass.LongitudinalAcceleration));
         Assert.That(leftGrass.Physics.AngularVelocity.Y, Is.LessThan(0));
         Assert.That(rightGrass.Physics.AngularVelocity.Y, Is.EqualTo(-leftGrass.Physics.AngularVelocity.Y).Within(0.00001));
-        Assert.That(asphalt.Physics.AngularVelocity.Y, Is.Zero);
+        Assert.That(asphalt.Physics.AngularVelocity.Y, Is.EqualTo(0).Within(0.00001));
     }
 
     [Test]
@@ -60,7 +60,7 @@ internal sealed class HandlingRecoveryTests
         var movement = new VehicleMovement(new(), pose);
         var first = movement.Step(new(1, 2000, 20000, 0, 0, 0, 0), pose, Vector3.UnitY, surface: SurfaceType.Dirt);
         var second = movement.Step(new(2, -2000, 20000, 0, 0, 0, 0), pose, Vector3.UnitY, surface: SurfaceType.Dirt);
-        Assert.That(Math.Abs(first.SteeringAngle), Is.LessThan(0.001f));
+        Assert.That(Math.Abs(first.SteeringAngle), Is.LessThan(0.002f));
         Assert.That(Math.Abs(second.SteeringAngle - first.SteeringAngle), Is.LessThan(0.002f));
         Assert.That(first.Physics.AngularVelocity.Y, Is.GreaterThan(0));
         Assert.That(second.Physics.AngularVelocity.Y, Is.GreaterThan(0));

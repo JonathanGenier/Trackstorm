@@ -33,11 +33,13 @@ public sealed record VehicleConfiguration
     /// <summary>Fixed frequency; independent of rendering.</summary>
     public int TicksPerSecond { get; init; } = 60;
     /// <summary>Body mass in kilograms.</summary>
-    public float Mass { get; init; } = 900;
+    public float Mass { get; init; } = 1400;
     /// <summary>Forward acceleration in metres per second squared.</summary>
-    public float Acceleration { get; init; } = 16;
+    public float Acceleration { get; init; } = 40;
     /// <summary>Braking deceleration.</summary>
-    public float Braking { get; init; } = 17;
+    public float Braking { get; init; } = 28;
+    /// <summary>Engine demand sent to the front axle; the rear handbrake interrupts all engine drive.</summary>
+    public float FrontDriveShare { get; init; } = 0.35f;
     /// <summary>Residual opposing speed snapped to rest before reversing, in m/s.</summary>
     public float StopSpeed { get; init; } = 0.05f;
     /// <summary>Reverse acceleration.</summary>
@@ -47,15 +49,15 @@ public sealed record VehicleConfiguration
     /// <summary>Reverse drive limit.</summary>
     public float ReverseSpeed { get; init; } = 11;
     /// <summary>Lateral grip response per second.</summary>
-    public float Grip { get; init; } = 12;
+    public float Grip { get; init; } = 18;
     /// <summary>Maximum low-speed wheel angle in radians.</summary>
     public float SteeringAngle { get; init; } = 0.6f;
     /// <summary>Speed in m/s at which wheel authority starts calming substantially.</summary>
-    public float SteeringSpeed { get; init; } = 12;
+    public float SteeringSpeed { get; init; } = 16;
     /// <summary>Wheel angle transition rate in radians per second.</summary>
-    public float SteeringResponse { get; init; } = 2.4f;
+    public float SteeringResponse { get; init; } = 3.8f;
     /// <summary>Time constant for progressive wheel corrections, lengthened with speed.</summary>
-    public float SteeringSmoothing { get; init; } = 0.1f;
+    public float SteeringSmoothing { get; init; } = 0.06f;
     /// <summary>Maximum dirt rear lateral grip loss under sustained power.</summary>
     public float DirtPowerSlip { get; init; } = 0.22f;
     /// <summary>Front dirt tire budget reserved for wheel direction during saturated slides.</summary>
@@ -69,17 +71,17 @@ public sealed record VehicleConfiguration
     /// <summary>Distance between axle centers in metres.</summary>
     public float Wheelbase { get; init; } = VehicleDimensions.Wheelbase;
     /// <summary>Tire friction coefficient; combined demands share this budget.</summary>
-    public float TireFriction { get; init; } = 1.65f;
+    public float TireFriction { get; init; } = 1.9f;
     /// <summary>Rear traction share available to propulsion despite lateral saturation; zero disables allocation.</summary>
     public float DriveTractionReserve { get; init; } = 0.55f;
     /// <summary>Effective center-of-mass height for longitudinal/lateral load transfer.</summary>
     public float LoadHeight { get; init; } = 0.45f * VehicleDimensions.Scale;
     /// <summary>Rear braking deceleration at reference mass.</summary>
-    public float HandbrakeBraking { get; init; } = 12;
+    public float HandbrakeBraking { get; init; } = 30;
     /// <summary>Rear lateral grip fraction with the handbrake fully engaged.</summary>
-    public float HandbrakeGrip { get; init; } = 0.6f;
+    public float HandbrakeGrip { get; init; } = 0.25f;
     /// <summary>Handbrake application response per second.</summary>
-    public float HandbrakeResponse { get; init; } = 4;
+    public float HandbrakeResponse { get; init; } = 8;
     /// <summary>Handbrake release response per second, permitting gradual traction recovery.</summary>
     public float TractionRecovery { get; init; } = 3;
     /// <summary>Horizontal overspeed recovery in m/s² above the effective drive limit.</summary>
@@ -99,17 +101,17 @@ public sealed record VehicleConfiguration
     /// <summary>Weak yaw damping; never targets a commanded yaw or drift angle.</summary>
     public float StabilityDamping { get; init; } = 0.65f;
     /// <summary>Fully extended suspension ray length in metres.</summary>
-    public float SuspensionLength { get; init; } = VehicleDimensions.RideHeight + (9.81f / 30);
+    public float SuspensionLength { get; init; } = VehicleDimensions.RideHeight + (9.81f / 22);
     /// <summary>Vertical spring stiffness per unit sprung mass.</summary>
-    public float WheelSpring { get; init; } = 30;
+    public float WheelSpring { get; init; } = 22;
     /// <summary>Compression damping per unit sprung mass; acts on chassis point velocity.</summary>
-    public float WheelDamping { get; init; } = 7;
+    public float WheelDamping { get; init; } = 10;
     /// <summary>Extension damping per unit sprung mass, controlling recovery without pulling tires down.</summary>
-    public float WheelReboundDamping { get; init; } = 15;
+    public float WheelReboundDamping { get; init; } = 11;
     /// <summary>Compression where progressive bump resistance begins, in metres.</summary>
-    public float WheelBumpStart { get; init; } = 0.55f;
+    public float WheelBumpStart { get; init; } = 0.6f;
     /// <summary>Additional acceleration per squared metre beyond bump engagement.</summary>
-    public float WheelBumpSpring { get; init; } = 140;
+    public float WheelBumpSpring { get; init; } = 260;
     /// <summary>Gravity acceleration.</summary>
     public float Gravity { get; init; } = 9.81f;
     /// <summary>Safety bound on total velocity, including external impulses.</summary>
@@ -146,9 +148,9 @@ public sealed record VehicleConfiguration
     public float WallDrag { get; init; } = 0.18f;
     /// <summary>Fraction of residual lateral motion removed by a direct crash.</summary>
     public float CrashDissipation { get; init; } = 0.95f;
-    /// <summary>Eccentric static-impact angular response multiplier.</summary>
+    /// <summary>Eccentric obstacle/vehicle impact angular response multiplier.</summary>
     public float CrashRotation { get; init; } = 0.08f;
-    /// <summary>Maximum angular velocity change from one static manifold, rad/s.</summary>
+    /// <summary>Maximum angular velocity change from one obstacle/vehicle manifold, rad/s.</summary>
     public float CrashAngularLimit { get; init; } = 1.2f;
 
     /// <summary>Resolves explicit surface tuning without engine or mutable state.</summary>
@@ -169,6 +171,10 @@ public sealed record VehicleConfiguration
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(FrontDriveShare) || FrontDriveShare is < 0 or > 1)
+        {
+            throw new ArgumentException("Front drive share must be a finite fraction.");
+        }
         if (!float.IsFinite(TrunkDeploymentSpeed) || TrunkDeploymentSpeed is < 0.1f or > 10 ||
             !float.IsFinite(RackDeploymentSpeed) || RackDeploymentSpeed is < 0.1f or > 10)
         {

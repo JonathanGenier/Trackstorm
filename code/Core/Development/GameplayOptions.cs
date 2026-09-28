@@ -6,6 +6,7 @@ public static class GameplayOptions
     /// <summary>Stable allowlist of editable gameplay settings.</summary>
     public static IReadOnlyList<GameplayOption> All { get; } = Array.AsReadOnly<GameplayOption>(
     [
+        new("vehicle.front_drive_share", "Vehicle", "Front drive share (0–1)", false, c => c.Vehicle.FrontDriveShare, (c, v) => c with { Vehicle = c.Vehicle with { FrontDriveShare = checked((float)v) } }),
         new("vehicle.trunk_deployment_speed", "Car deployment", "Trunk speed (0.1–10×)", false, c => c.Vehicle.TrunkDeploymentSpeed, (c, v) => c with { Vehicle = c.Vehicle with { TrunkDeploymentSpeed = checked((float)v) } }),
         new("vehicle.rack_deployment_speed", "Car deployment", "Weapon rack speed (0.1–10×)", false, c => c.Vehicle.RackDeploymentSpeed, (c, v) => c with { Vehicle = c.Vehicle with { RackDeploymentSpeed = checked((float)v) } }),
         new("vehicle.wall_drag", "Collision", "Wall drag (0–5 /s)", false, c => c.Vehicle.WallDrag, (c, v) => c with { Vehicle = c.Vehicle with { WallDrag = checked((float)v) } }),

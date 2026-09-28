@@ -75,7 +75,7 @@ internal sealed class DeveloperConfigurationTests
         var file = DeveloperSettingsFile.Read(text);
         Assert.That(file.Configuration.Vehicle.ForwardSpeed, Is.EqualTo(35));
         Assert.That(file.Configuration.Damage.MaxHP, Is.EqualTo(250));
-        Assert.That(file.Configuration.Vehicle.Mass, Is.EqualTo(900));
+        Assert.That(file.Configuration.Vehicle.Mass, Is.EqualTo(new VehicleConfiguration().Mass));
         Assert.That(file.Configuration.Respawn.ClearHeldItemOnDeath, Is.False);
         Assert.That(file.RejectedRecords, Is.EqualTo(2));
         string written = file.Write(file.Configuration);
@@ -84,7 +84,7 @@ internal sealed class DeveloperConfigurationTests
         Assert.That(DeveloperSettingsFile.Read(written).Configuration, Is.EqualTo(file.Configuration));
         var future = DeveloperSettingsFile.Read("{\"schema\":999}\n{\"key\":\"vehicle.mass\",\"value\":500}");
         Assert.That(future.CanSave, Is.False);
-        Assert.That(future.Configuration.Vehicle.Mass, Is.EqualTo(900));
+        Assert.That(future.Configuration.Vehicle.Mass, Is.EqualTo(new VehicleConfiguration().Mass));
         Assert.Throws<InvalidOperationException>(() => future.Write(new()));
     }
 

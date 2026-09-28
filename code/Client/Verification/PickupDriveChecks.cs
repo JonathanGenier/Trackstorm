@@ -33,7 +33,9 @@ public sealed partial class PickupDriveChecks : Node
     private readonly Dictionary<string, (int Attempts, int Successes, float MinSpeed, float MaxSpeed)> _counts = [];
     private int MotionDriver => _motionTrial / 90;
     private float MotionSpeed => new[] { 8f, 40f, 65f }[(_motionTrial / 30) % 3];
-    private float MotionOffset => new[] { 0f, 1.5f, 2.8f }[(_motionTrial / 10) % 3];
+    // Pickup distance is three-dimensional. Keep the grazing centerline inside
+    // the 3 m sphere after the tall production chassis settles to its ride height.
+    private float MotionOffset => new[] { 0f, 1.5f, MathF.Sqrt(9 - VehicleDimensions.RideHeight * VehicleDimensions.RideHeight) - 0.1f }[(_motionTrial / 10) % 3];
     private bool OldMap => OS.GetCmdlineUserArgs().Contains("--pickup-old-map");
     private string MarkerId => OldMap ? "item-03" : "item-triple-01-2";
     private static int RosterCount => ItemRegistry.All.Count;
@@ -182,7 +184,7 @@ public sealed partial class PickupDriveChecks : Node
         string key = $"driver={MotionDriver} speed={MotionSpeed} offset={MotionOffset}";
         var count = _counts.GetValueOrDefault(key);
         _counts[key] = (count.Attempts + 1, count.Successes + (success ? 1 : 0), count.Attempts == 0 ? _crossingSpeed : Math.Min(count.MinSpeed, _crossingSpeed), Math.Max(count.MaxSpeed, _crossingSpeed));
-        Require(_segmentNearest <= 3, "Only geometrically valid crossings count in the reliability sample.");
+        Require(_segmentNearest <= 3, $"Only geometrically valid crossings count in the reliability sample: {key}, nearest {_segmentNearest:F4} m.");
         if (success) _successes++;
         else GD.Print($"MISSED {key} phase={_motionTrial % 10} sweptClosest={_segmentNearest:F4}\n" + string.Join("\n", _motionTrace));
         _motionTrial++;

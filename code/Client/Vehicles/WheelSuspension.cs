@@ -32,7 +32,7 @@ internal static class WheelSuspension
             query.From = origin;
             query.To = origin + (-pose.Basis.Y * configuration.SuspensionLength);
             using var hit = space.IntersectRay(query);
-            if (hit.Count > 0 && hit["normal"].AsVector3().Y >= configuration.SupportNormalMinimum && !EnvironmentContact.IsObstacle(hit["collider"].AsGodotObject(), hit["normal"].AsVector3()))
+            if (hit.Count > 0 && hit["collider"].AsGodotObject() is not (VehicleBody or Networking.NetworkVehicleBody) && hit["normal"].AsVector3().Y >= configuration.SupportNormalMinimum && !EnvironmentContact.IsObstacle(hit["collider"].AsGodotObject(), hit["normal"].AsVector3()))
             {
                 compression[index] = Math.Clamp(configuration.SuspensionLength - origin.DistanceTo(hit["position"].AsVector3()), 0, 1);
                 normal += hit["normal"].AsVector3();
@@ -46,7 +46,7 @@ internal static class WheelSuspension
         query.From = pose.Origin;
         query.To = pose.Origin + (-pose.Basis.Y * configuration.SuspensionLength);
         using var centerHit = space.IntersectRay(query);
-        if (centerHit.Count > 0 && centerHit["normal"].AsVector3().Y >= configuration.SupportNormalMinimum && !EnvironmentContact.IsObstacle(centerHit["collider"].AsGodotObject(), centerHit["normal"].AsVector3()))
+        if (centerHit.Count > 0 && centerHit["collider"].AsGodotObject() is not (VehicleBody or Networking.NetworkVehicleBody) && centerHit["normal"].AsVector3().Y >= configuration.SupportNormalMinimum && !EnvironmentContact.IsObstacle(centerHit["collider"].AsGodotObject(), centerHit["normal"].AsVector3()))
         {
             surface = (centerHit["collider"].AsGodotObject() as SurfaceBody)?.Surface ?? SurfaceType.Concrete;
             identity = SurfaceIdentityResolver.Resolve(centerHit["collider"].AsGodotObject(), centerHit["position"].AsVector3());

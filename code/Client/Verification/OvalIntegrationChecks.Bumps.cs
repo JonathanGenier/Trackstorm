@@ -106,7 +106,9 @@ public sealed partial class OvalIntegrationChecks
         foreach (bool network in new[] { false, true })
         foreach (float drop in new[] { 0.5f, 1.5f, 4f })
         {
-            var states = await HandlingProbe(network, new Vector3(-8, 20 + VehicleDimensions.RideHeight + drop, 400), facing, Vector3.Right * 12, 300, tick => new InputFrame(tick, 0, ushort.MaxValue, 0, 0, 0, 0));
+            // Neutral pedals preserve the initial four-wheel attitude. Holding
+            // throttle in flight deliberately commands the existing nose-down aerial.
+            var states = await HandlingProbe(network, new Vector3(-8, 20 + VehicleDimensions.RideHeight + drop, 400), facing, Vector3.Right * 12, 300, tick => new InputFrame(tick, 0, 0, 0, 0, 0, 0));
             int contact = states.FindIndex(state => state.Grounded);
             float compression = states.Max(state => state.Wheels.Compression.X);
             float rebound = states.Skip(contact + 30).Max(state => state.Physics.LinearVelocity.Y);

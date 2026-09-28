@@ -80,7 +80,9 @@ public sealed partial class CarArticulationChecks : Node3D
                 Check(_model.HasNode("SuspensionLink_" + corner + "_Upper2"), "Second articulated shock sleeve at " + corner);
             }
             Vector3[] rotations = names.Select(n => _model.GetNode<Node3D>($"WheelCarrier_{n}/WheelSpin_{n}").Rotation).ToArray();
-            for (int i = 0; i < 90; i++) { await Step(ushort.MaxValue, 6000); }
+            // The stronger drivetrain reaches the yard ramp during the old 90-tick
+            // approach; keep the lamp test on the flat where pedals mean braking.
+            for (int i = 0; i < 60; i++) { await Step(ushort.MaxValue, 6000); }
             for (int i = 0; i < 4; i++)
             {
                 Node3D carrier = _model.GetNode<Node3D>("WheelCarrier_" + names[i]);

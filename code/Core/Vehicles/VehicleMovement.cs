@@ -175,8 +175,14 @@ public sealed class VehicleMovement
             float handbrakeStop = Math.Min(c.HandbrakeBraking * brakeApplication * forceScale, Math.Max(0, (Math.Abs(longitudinal) / dt) - stopping));
             float frontLong = -Math.Sign(longitudinal) * stopping * 0.65f;
             float driveAcceleration = Math.Clamp(drive * forceScale, -Math.Max(0, c.ReverseSpeed + longitudinal) / dt, Math.Max(0, forwardSpeed - longitudinal) / dt);
-            // A locked rear axle cannot transmit engine drive against its handbrake.
-            float rearLong = (driveAcceleration * (1 - brakeApplication)) - (Math.Sign(longitudinal) * ((stopping * 0.35f) + handbrakeStop));
+            // Configurable surface multipliers can be extreme; keep accepted force diagnostics
+            // inside the portable handling-state contract as well as the velocity safety bound.
+            driveAcceleration = Math.Clamp(driveAcceleration, -1000, 1000);
+            // Rear-biased all-wheel drive makes front support useful on climbs. The handbrake
+            // interrupts engine torque so front drive cannot pull against a deliberately locked rear.
+            float engine = driveAcceleration * (1 - brakeApplication);
+            frontLong += engine * c.FrontDriveShare;
+            float rearLong = engine * (1 - c.FrontDriveShare) - (Math.Sign(longitudinal) * ((stopping * 0.35f) + handbrakeStop));
             float halfAxle = c.Wheelbase / 2;
             // Load transfer changes the traction budget; tire demands generate both translation and yaw.
             float frontLoad = Math.Clamp(0.5f - (State.LongitudinalAcceleration * c.LoadHeight / (c.Gravity * c.Wheelbase)), 0.2f, 0.8f);
@@ -186,6 +192,8 @@ public sealed class VehicleMovement
                 if (total > 0)
                 {
                     frontLoad = Math.Clamp((frontLoad + ((compression.X + compression.Y) / total)) / 2, 0.1f, 0.9f);
+                    if (frontTotal == 0) { frontLoad = 0; }
+                    if (rearTotal == 0) { frontLoad = 1; }
                 }
             }
 
@@ -203,17 +211,21 @@ public sealed class VehicleMovement
             float rearDemand = -rearSideSpeed * response * 0.5f;
             float driveReserve = driveAcceleration != 0 && handbrakeTarget == 0 ? c.DriveTractionReserve : 0;
             float rearGrip = (1 - handbrake * (1 - c.HandbrakeGrip)) * (1 - powerSlip);
-            var fl = Tire(frontDemand * frontLeftShare, frontLong * frontLeftShare, frontCapacity * frontLeftShare * profiles[0].Grip);
-            var fr = Tire(frontDemand * (1 - frontLeftShare), frontLong * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * profiles[1].Grip);
+            var fl = Tire(frontDemand * frontLeftShare, frontLong * frontLeftShare, frontCapacity * frontLeftShare * profiles[0].Grip, driveReserve: driveReserve);
+            var fr = Tire(frontDemand * (1 - frontLeftShare), frontLong * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * profiles[1].Grip, driveReserve: driveReserve);
             // Reserve part of saturated front dirt traction for the filtered wheel direction.
             // This changes force allocation, not the surface's friction budget or drive demand.
             // Half authority near a 22-degree slide; the speed floor calms parking-speed input.
             float slide = lateral * lateral / (0.16f * longitudinal * longitudinal + lateral * lateral + 4);
-            float steeringDemand = longitudinal * MathF.Tan(wheel) * response * 0.5f;
+            float steeringReserve = Math.Max(slide, handbrake * Math.Abs(steerIntent));
+            // During deliberate rear lock, retain directional authority through a broadside
+            // slide. Ordinary forward/reverse steering still uses signed longitudinal speed.
+            float steeringTravel = longitudinal + (steeringSpeed - longitudinal) * handbrake;
+            float steeringDemand = steeringTravel * MathF.Tan(wheel) * response * 0.5f;
             if (driveEnabled && waterDepth == 0 && (!wheels.HasValue || frontTotal > 0))
             {
-                if (materials[0] == SurfaceType.Dirt) { fl = DirtFront(fl, frontLong * frontLeftShare, steeringDemand * frontLeftShare, frontCapacity * frontLeftShare * profiles[0].Grip, slide * c.DirtSteeringReserve); }
-                if (materials[1] == SurfaceType.Dirt) { fr = DirtFront(fr, frontLong * (1 - frontLeftShare), steeringDemand * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * profiles[1].Grip, slide * c.DirtSteeringReserve); }
+                if (materials[0] == SurfaceType.Dirt) { fl = DirtFront(fl, frontLong * frontLeftShare, steeringDemand * frontLeftShare, frontCapacity * frontLeftShare * profiles[0].Grip, steeringReserve * c.DirtSteeringReserve); }
+                if (materials[1] == SurfaceType.Dirt) { fr = DirtFront(fr, frontLong * (1 - frontLeftShare), steeringDemand * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * profiles[1].Grip, steeringReserve * c.DirtSteeringReserve); }
             }
             var rl = Tire(rearDemand * rearLeftShare, rearLong * rearLeftShare, rearCapacity * rearLeftShare * profiles[2].Grip, rearGrip, driveReserve);
             var rr = Tire(rearDemand * (1 - rearLeftShare), rearLong * (1 - rearLeftShare), rearCapacity * (1 - rearLeftShare) * profiles[3].Grip, rearGrip, driveReserve);
@@ -247,9 +259,12 @@ public sealed class VehicleMovement
                 // A bounded arcade correction arrests runaway yaw while retaining tire-driven
                 // translation and handbrake initiation. No heading, velocity or drift-mode snap.
                 float yawLimit = totalGrip * c.Dirt.Grip / Math.Max(steeringSpeed, 2);
-                float intendedYaw = Math.Clamp(-longitudinal * MathF.Tan(wheel) / c.Wheelbase, -yawLimit, yawLimit);
+                float intendedYaw = Math.Clamp(-steeringTravel * MathF.Tan(wheel) / c.Wheelbase, -yawLimit, yawLimit);
                 float currentYaw = Vector3.Dot(angular, tireNormal);
-                float correction = (intendedYaw - currentYaw) * (1 - MathF.Exp(-c.DirtRecovery * slide * frontDirt * (1 - 0.75f * handbrake) * dt));
+                // Countersteering gets full recovery authority even while the rear is locked;
+                // only rotation already following the wheel retains the loose drift response.
+                float recovery = intendedYaw * currentYaw < 0 ? 1 : 1 - 0.75f * handbrake;
+                float correction = (intendedYaw - currentYaw) * (1 - MathF.Exp(-c.DirtRecovery * slide * frontDirt * recovery * dt));
                 float authority = frontCapacity * oilGrip * c.Dirt.Grip * frontDirt * halfAxle / inertiaPerMass * dt;
                 angular += tireNormal * Math.Clamp(correction, -authority, authority);
             }
@@ -280,12 +295,18 @@ public sealed class VehicleMovement
         AirControlState air = default;
         if (grounded)
         {
+            // Chassis contact on a roof/bumper is not suspension support. Preserve the crash
+            // attitude; only landable wheel support receives the ordinary ground attitude spring.
+            float supportedFraction = wheels is WheelSupport supportWheels
+                ? new[] { supportWheels.Compression.X, supportWheels.Compression.Y, supportWheels.Compression.Z, supportWheels.Compression.W }.Count(value => value > 0) / 4f
+                : 1;
+            float stability = VehicleLanding.Landable(observed.Orientation, groundNormal) ? supportedFraction : 0;
             Vector3 desiredUp = groundNormal;
             desiredUp -= forward * Math.Clamp(longAcceleration * c.ChassisCompliance, -c.MaximumChassisTilt, c.MaximumChassisTilt);
             desiredUp -= right * Math.Clamp(sideAcceleration * c.ChassisCompliance, -c.MaximumChassisTilt, c.MaximumChassisTilt);
-            angular += Vector3.Cross(up, Vector3.Normalize(desiredUp)) * c.SuspensionSpring * dt;
+            angular += Vector3.Cross(up, Vector3.Normalize(desiredUp)) * c.SuspensionSpring * stability * dt;
             Vector3 tiltVelocity = angular - (tireNormal * Vector3.Dot(angular, tireNormal));
-            angular -= tiltVelocity * (1 - MathF.Exp(-c.SuspensionDamping * dt));
+            angular -= tiltVelocity * (1 - MathF.Exp(-c.SuspensionDamping * stability * dt));
         }
         else
         {

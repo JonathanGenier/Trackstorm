@@ -42,6 +42,8 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     {
         CollisionLayer = 2;
         CollisionMask = 3;
+        Quaternion initialRotation = GlobalBasis.GetRotationQuaternion().Normalized();
+        _current = new(VehicleBody.ToCore(GlobalPosition), new Numerics.Quaternion(initialRotation.X, initialRotation.Y, initialRotation.Z, initialRotation.W), Numerics.Vector3.Zero, Numerics.Vector3.Zero);
         AddChild(VehicleVisual.CreateCollision());
         AddChild(_visual);
         _visual.TopLevel = true;
@@ -102,7 +104,8 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     /// <summary>Resolves the preceding Core command through bounded native sweep/slide queries.</summary>
     /// <returns>Solved numeric physics/support/contact observations for the next Core step.</returns>
     /// <param name="snapshot">Complete pre-solver command boundary.</param>
-    internal VehicleObservation Observe(VehicleSnapshot snapshot)
+    /// <param name="solveVehicles">Prediction resolves local contacts; host batching resolves both participants afterward.</param>
+    internal VehicleObservation Observe(VehicleSnapshot snapshot, bool solveVehicles = true)
     {
         if (!snapshot.CanInteract)
         {
@@ -162,8 +165,11 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                 {
                     normal = EnvironmentContact.ExposedNormal(this, transform.Origin, result.GetCollisionPoint(i), normal);
                 }
-                Vector3 relative = velocity - result.GetColliderVelocity(i);
                 var other = result.GetCollider(i) as NetworkVehicleBody;
+                Vector3 point = result.GetCollisionPoint(i);
+                Vector3 relative = other is null ? velocity - result.GetColliderVelocity(i) :
+                    incomingVelocity + incomingAngular.Cross(point - initialTransform.Origin) -
+                    VehicleBody.ToGodot(other._current.LinearVelocity + Numerics.Vector3.Cross(other._current.AngularVelocity, VehicleBody.ToCore(point) - other._current.Position));
                 if (PushProps && result.GetCollider(i) is RigidBody3D prop && !prop.Freeze && pushed.Add(prop.GetInstanceId()))
                 {
                     float closing = Math.Max(0, -relative.Dot(normal));
@@ -187,7 +193,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                 {
                     normal = VehicleBody.ToGodot(EnvironmentCollision.ResponseNormal(VehicleBody.ToCore(normal), VehicleBody.ToCore(initialSupport)));
                 }
-                else if (normal.Y < _configuration.SupportNormalMinimum)
+                else if (other is null && normal.Y < _configuration.SupportNormalMinimum)
                 {
                     float closing = Math.Max(0, -relative.Dot(normal));
                     Vector3 deltaVelocity = normal * closing;
@@ -199,7 +205,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                     velocity += deltaVelocity;
                 }
 
-                if (velocity.Dot(normal) < 0)
+                if (other is null && velocity.Dot(normal) < 0)
                 {
                     velocity = velocity.Slide(normal);
                 }
@@ -243,7 +249,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
             velocity = VehicleBody.ToGodot(resolved.LinearVelocity);
             angular = VehicleBody.ToGodot(VehicleMovement.Limit(resolved.AngularVelocity + VehicleBody.ToCore(angular - incomingAngular), _configuration.MaximumAngularSpeed));
             // Retain independent support/ceiling and movable-body constraints from the same sweep.
-            foreach (var contact in contacts.Where(contact => !contact.StaticObstacle))
+            foreach (var contact in contacts.Where(contact => !contact.StaticObstacle && contact.OtherVehicleId == 0))
             {
                 Vector3 normal = VehicleBody.ToGodot(contact.Normal);
                 if (velocity.Dot(normal) < 0) { velocity = velocity.Slide(normal); }
@@ -251,8 +257,47 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         }
 
         float waterDepth = WaterObservation.Observe(this, transform);
-        return new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts, surface, suspension.Wheels, VehicleBody.ToCore(suspension.TerrainNormal), waterDepth);
+        var observation = new VehicleObservation(new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin), new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular)), VehicleBody.ToCore(support), contacts, surface, suspension.Wheels, VehicleBody.ToCore(suspension.TerrainNormal), waterDepth);
+        if (solveVehicles)
+        {
+            // Prediction uses the latest remote proxy. The host solves both participants together
+            // below, including stationary targets that did not themselves produce a sweep contact.
+            foreach (var contact in contacts.Where(c => c.OtherVehicleId != 0).GroupBy(c => c.OtherVehicleId).Select(g => g.OrderBy(c => Numerics.Vector3.Dot(c.RelativeVelocity, c.Normal)).First()))
+            {
+                var otherBody = GetParent().GetChildren().OfType<NetworkVehicleBody>().FirstOrDefault(b => b.VehicleId == contact.OtherVehicleId);
+                if (otherBody is null) { continue; }
+                var point = observation.Physics.Position + Numerics.Vector3.Transform(contact.LocalPosition, observation.Physics.Orientation);
+                var resolved = VehicleCollision.ResolvePair(observation.Physics, _configuration, otherBody._current, otherBody._configuration, contact.Normal, point);
+                observation = WithPhysics(observation, resolved.First);
+            }
+        }
+        return observation;
     }
+
+    /// <summary>Observes one common host boundary, then resolves each vehicle pair once in stable identity order.</summary>
+    internal static Dictionary<ulong, VehicleObservation> ObserveBatch(IReadOnlyDictionary<ulong, NetworkVehicleBody> bodies, IEnumerable<VehicleSnapshot> snapshots)
+    {
+        var observations = snapshots.ToDictionary(s => s.VehicleId, s => bodies[s.VehicleId].Observe(s, false));
+        var pairs = new HashSet<(ulong, ulong)>();
+        foreach (ulong id in observations.Keys.Order().ToArray())
+        {
+            foreach (var contact in observations[id].Contacts.Where(c => c.OtherVehicleId != 0).OrderBy(c => Numerics.Vector3.Dot(c.RelativeVelocity, c.Normal)))
+            {
+                ulong other = contact.OtherVehicleId;
+                if (!observations.ContainsKey(other) || !pairs.Add((Math.Min(id, other), Math.Max(id, other)))) { continue; }
+                var first = observations[id];
+                var second = observations[other];
+                var point = first.Physics.Position + Numerics.Vector3.Transform(contact.LocalPosition, first.Physics.Orientation);
+                var resolved = VehicleCollision.ResolvePair(first.Physics, bodies[id]._configuration, second.Physics, bodies[other]._configuration, contact.Normal, point);
+                observations[id] = WithPhysics(first, resolved.First);
+                observations[other] = WithPhysics(second, resolved.Second);
+            }
+        }
+        return observations;
+    }
+
+    private static VehicleObservation WithPhysics(VehicleObservation observation, VehiclePhysicsState physics) =>
+        new(physics, observation.Support, observation.Contacts, observation.Surface, observation.Wheels, observation.TerrainSupport, observation.WaterDepth);
 
     /// <summary>Reconstructs the collision proxy immediately; rendering retains its own correction offset.</summary>
     /// <param name="state">Predicted or authoritative physics.</param>

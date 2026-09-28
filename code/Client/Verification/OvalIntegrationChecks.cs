@@ -436,7 +436,8 @@ public sealed partial class OvalIntegrationChecks : Node3D
         foreach (string name in names)
         {
             var carrier = model.GetNode<Node3D>("WheelCarrier_" + name);
-            Check(Math.Abs(Math.Abs(carrier.Position.Z) - (_vehicle.Configuration.Wheelbase / 2)) < .001f, name + " retains the physical axle station.");
+            // Production art lengthened its wheelbase independently of the retained handling rays.
+            Check(Math.Abs(Math.Abs(carrier.Position.Z) - (3.351105f / 2)) < .001f, name + " retains the production visual axle station.");
             Check(Math.Abs(_vehicle.Position.Y + carrier.Position.Y - WheelPresentation.TireRadius) < .035f, name + " contacts level ground at equilibrium.");
         }
         Check(model.GetNode<Node3D>("WeaponRack").Position.Y < 0, "Production rack is stowed during ordinary gameplay.");

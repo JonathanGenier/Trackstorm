@@ -53,7 +53,8 @@ internal sealed partial class WheelPresentation : Node
         for (int index = 0; index < _wheels.Length; index++)
         {
             float radius = TireRadius;
-            _spin[index] = Mathf.PosMod(_spin[index] - (speed * (float)delta / radius), Mathf.Tau);
+            float rotationSpeed = index < 2 ? speed : speed * (1 - sample.State.Handbrake);
+            _spin[index] = Mathf.PosMod(_spin[index] - (rotationSpeed * (float)delta / radius), Mathf.Tau);
             Node3D wheel = _wheels[index];
             float target = -sample.Configuration.SuspensionLength + values[index] + radius;
             wheel.Position = new Vector3(wheel.Position.X, Mathf.Lerp(wheel.Position.Y, target, blend), wheel.Position.Z);
