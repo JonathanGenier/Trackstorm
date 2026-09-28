@@ -3,6 +3,10 @@ namespace Trackstorm.Core.Vehicles;
 /// <summary>Validated arcade tuning shared by local, replay, and future authority drivers.</summary>
 public sealed record VehicleConfiguration
 {
+    /// <summary>Trunk mechanism speed relative to its original 0.72-second travel; independently tunable.</summary>
+    public float TrunkDeploymentSpeed { get; init; } = 3;
+    /// <summary>Rack mechanism speed relative to its original 0.88-second travel; independently tunable.</summary>
+    public float RackDeploymentSpeed { get; init; } = 3;
     /// <summary>Fraction of lateral tire grip lost on Oil; propulsion and steering remain available.</summary>
     public float OilGripReduction { get; init; } = 0.1f;
     /// <summary>Seconds of progressive lateral-grip recovery after the last supported Oil contact.</summary>
@@ -165,6 +169,11 @@ public sealed record VehicleConfiguration
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(TrunkDeploymentSpeed) || TrunkDeploymentSpeed is < 0.1f or > 10 ||
+            !float.IsFinite(RackDeploymentSpeed) || RackDeploymentSpeed is < 0.1f or > 10)
+        {
+            throw new ArgumentException("Trunk and rack deployment speeds must each be between 0.1 and 10.");
+        }
         if (!float.IsFinite(OilGripReduction) || OilGripReduction is < 0 or > 0.8f ||
             !float.IsFinite(OilRecoverySeconds) || OilRecoverySeconds is < 0.1f or > 10)
         {

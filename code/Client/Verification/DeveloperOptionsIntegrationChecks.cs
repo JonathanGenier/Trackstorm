@@ -155,6 +155,29 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                     Check(option.Read(accepted.Configuration) != current, "UI commits owning value: " + option.Key);
                     await Until(() => _client.Arena!.Driver.Configuration == accepted, "client effective value: " + option.Key);
                     Check(_client.Arena!.Driver.Configuration.Revision == accepted.Revision, "client revision: " + option.Key);
+                    if (option.Key is "vehicle.trunk_deployment_speed" or "vehicle.rack_deployment_speed")
+                    {
+                        await Frames(3);
+                        foreach (var arena in new[] { _host.Arena!, _client.Arena! })
+                        {
+                            foreach (var body in arena.Bodies.Values)
+                            {
+                                var mechanism = Descendants(body).OfType<Vehicles.CarDeployment>().Single();
+                                mechanism.ResetPose();
+                                mechanism.Deployed = true;
+                                mechanism._Process(.05);
+                                float trunk = arena.Driver.Configuration.Configuration.Vehicle.TrunkDeploymentSpeed;
+                                float rack = arena.Driver.Configuration.Configuration.Vehicle.RackDeploymentSpeed;
+                                Check(Math.Abs(mechanism.Progress - (.05f * trunk / 1.6f)) < .0001f, "UI accepted trunk speed drives native owner/observer mechanism");
+                                mechanism.ResetPose();
+                                mechanism.Deployed = true;
+                                mechanism._Process(.72 / trunk);
+                                mechanism._Process(.05);
+                                Check(Math.Abs(mechanism.Progress - (.45f + (.05f * rack / 1.6f))) < .0001f, "UI accepted rack speed drives native owner/observer mechanism");
+                                mechanism.ResetPose();
+                            }
+                        }
+                    }
                 }
 
                 foreach (var control in simulation)

@@ -81,4 +81,6 @@ Proxy Mine's HUD SVG (`assets/hud/ProxyMine.svg`) and procedural body/beacon (`c
 
 ## Runtime terrain effects
 
+The [Boost jet](assets/vehicles/boost/README.md), editable Blender source, flame mesh and runtime shaders are original Trackstorm work. [Its manifest](assets/vehicles/boost/sources.json) records source/export hashes, the linked unmodified production Car reference, and the user-approved built-in imagegen concept retained as design reference only. Smoke and sparks reuse the recorded CC0 Kenney `smoke_01` and `spark_01` textures. No new third-party asset or dependency is introduced. See [Boost exhaust](docs/features/boost-exhaust.md).
+
 [Terrain/environment shaders](assets/effects) and infield shader additions are original project-authored runtime code. Tire dust/mud/splash emitters reuse the existing CC0 Kenney smoke_01 particle texture from the item asset manifest. No new third-party acquisition or authored mesh is introduced.

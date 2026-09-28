@@ -12,8 +12,8 @@ internal sealed class ArenaConfigurationTests
     /// <summary>Admission and respawn reserve the larger vehicle footprint even at arbitrary headings.</summary>
     /// <param name="distance">Distance from the preferred marker.</param>
     /// <param name="available">Whether that marker has sufficient clearance.</param>
-    [TestCase(5.4f, false)]
-    [TestCase(5.7f, true)]
+    [TestCase(5.84f, false)]
+    [TestCase(5.86f, true)]
     public void ScaledVehicleClearanceControlsSpawnSelection(float distance, bool available)
     {
         var map = PrototypeArena.Configuration;

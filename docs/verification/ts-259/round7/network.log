@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=True, entry=False, maximum=0, startup=0, steady=0, snaps=0; full report: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\1d6e84cefbb641af88986ab0098a0ba1\player-0.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":32.9930051,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":1405,"messages":1,"peak":1405},{"peer":1,"protocol":"TD","delivery":"Unreliable","bytes":387240,"messages":76,"peak":5145},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":1685,"messages":1,"peak":1685},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":764,"messages":4,"peak":191},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":483,"messages":2,"peak":463},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":226301,"messages":442,"peak":524}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=False, entry=False, maximum=0.19257715, startup=0.19257715344429016, steady=0.19029150903224945, snaps=0; full report: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\1d6e84cefbb641af88986ab0098a0ba1\player-1.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":24.8961346,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":116081,"messages":961,"peak":121}]}
+
+Network vehicle verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\1d6e84cefbb641af88986ab0098a0ba1

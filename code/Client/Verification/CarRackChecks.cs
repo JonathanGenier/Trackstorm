@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Sockets;
 using Godot;
 using Trackstorm.Client.Networking;
+using Trackstorm.Client.Vehicles;
 using Trackstorm.Core.Input;
 using Trackstorm.Core.Items;
 using Trackstorm.Core.Networking.Transport;
@@ -18,7 +19,7 @@ public sealed partial class CarRackChecks : Node
     private readonly List<SubViewport> _views = [];
     private readonly List<string> _evidence = [];
     private readonly List<ItemEvent> _events = [];
-    private readonly string _output = "res://.godot/ts164-round2";
+    private readonly string _output = "res://.godot/ts259-rack";
     private int _checks;
     private ulong Shooter => _arenas[1].Driver.LocalVehicleId;
 
@@ -66,6 +67,10 @@ public sealed partial class CarRackChecks : Node
                 Check(host.Items.Grant(host.World, Shooter, item.Identity, pickup: true), "Pickup " + item.DisplayName);
                 Check(host.Items.Grant(host.World, Shooter, HeldItem.Wrench), "Two occupied slots");
                 await Until(() => AllPresent(item.Identity), item.DisplayName + " visible to owner and other peer");
+                if (item.Identity == HeldItem.Nitro)
+                {
+                    Check(_arenas.All(a => !a.Bodies[Shooter].Rack.Boost.FlameVisible && !a.Bodies[Shooter].Rack.Boost.SmokeEmitting), "Selected Nitro is ready without ignition on both peers");
+                }
                 await Capture(item.Key + "-equipped");
                 Check(_arenas[1].Driver.RequestItemSwitch(), "Switch away");
                 await Until(() => AllPresent(HeldItem.Wrench), "Wrench selected on both peers");
@@ -76,9 +81,53 @@ public sealed partial class CarRackChecks : Node
                 await Frames(item.Sustained ? 45 : 12, item.Sustained ? InputButtons.UseItem : 0);
                 await Frames(1, 0, InputButtons.UseItem);
                 await Until(() => _events.Count > before, "Confirmed use/fire outcome for " + item.DisplayName);
-                await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Use retracts and closes on both peers");
+                HeldItem remaining = _arenas[1].Driver.LocalItem?.Active.Item ?? HeldItem.None;
+                if (remaining == HeldItem.None)
+                {
+                    await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Depletion retracts and closes on both peers");
+                }
+                else
+                {
+                    await Frames(90);
+                    Check(AllPresent(remaining), "Usable item stays deployed after release on both peers");
+                    if (remaining == HeldItem.Nitro)
+                    {
+                        Check(_arenas.All(a => !a.Bodies[Shooter].Rack.Boost.FlameVisible && !a.Bodies[Shooter].Rack.Boost.SmokeEmitting), "Released Nitro stays extended without thrust effects on both peers");
+                    }
+                }
                 Check(_arenas[1].Driver.LocalItem?.SecondItem == HeldItem.Wrench, "Use preserves second physical slot");
-                await Capture(item.Key + "-used-closed");
+                await Capture(item.Key + "-after-use");
+            }
+            host.Items.RemovePlayer(Shooter);
+            await Frames(130);
+            Check(host.Items.Grant(host.World, Shooter, HeldItem.Salvo), "Five-shot lifecycle grant");
+            await Until(() => AllPresent(HeldItem.Salvo), "Multi-shot rack deployed");
+            Check(_arenas[1].Driver.RequestItemSwitch(), "Select empty physical slot");
+            await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Empty selection stays stowed");
+            await Frames(60);
+            Check(_arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Empty slot does not reopen");
+            Check(_arenas[1].Driver.RequestItemSwitch(), "Return to usable slot");
+            await Until(() => AllPresent(HeldItem.Salvo), "Usable slot opens again");
+            for (int shots = 4; shots >= 0; shots--)
+            {
+                Check(_arenas[1].Driver.RequestItemUse(), "Repeated shot accepted");
+                await Until(() => _arenas[1].Driver.LocalItem?.Active.SalvoShots == shots, "Confirmed remaining shots " + shots);
+                if (shots > 0)
+                {
+                    for (int frame = 0; frame < 90; frame++)
+                    {
+                        await Frames(1);
+                        if (!AllPresent(HeldItem.Salvo)) { throw new InvalidOperationException("Rack cycled between usable shots"); }
+                    }
+                    Check(AllPresent(HeldItem.Salvo), "Both peers remain fully deployed between shots");
+                }
+                else
+                {
+                    await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Final shot retracts both racks");
+                    await Frames(90);
+                    Check(_arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Depleted rack remains stowed");
+                    await Capture("salvo-depleted");
+                }
             }
             host.Items.RemovePlayer(Shooter);
             await Frames(130);
@@ -104,10 +153,18 @@ public sealed partial class CarRackChecks : Node
             await Frames(90);
             Check(_arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Respawn starts with closed empty rack");
             Check(host.Items.Grant(host.World, Shooter, HeldItem.Nitro), "New-life pickup");
-            await Until(() => AllPresent(HeldItem.Nitro), "New-life rack deploys normally");
+            await Until(() => AllPresent(HeldItem.Nitro), "New-life Nitro readies its rack-mounted jet");
             await Frames(90, 0, 0, 40000, 7000);
             Check(_arenas[1].LocalState!.Movement.CommandSpeed > 3, "Normal driving with deployed rack");
             await Capture("driving-equipped");
+            await Frames(10);
+            Check(Lamps().All(l => !l.Braking && !l.Reversing), "Both UDP peers show coasting lamps");
+            await Frames(8, brake: ushort.MaxValue);
+            Check(Lamps().All(l => l.Braking), "Both UDP peers show moving brake lamps");
+            await Capture("network-braking");
+            await Frames(180, brake: ushort.MaxValue);
+            Check(Lamps().All(l => l.Reversing && !l.Braking), "Both UDP peers show reverse lamps from accepted movement");
+            await Capture("network-reversing");
             host.Items.RemovePlayer(Shooter);
             await Frames(130);
             Position(1000, false, new N.Vector3(-46, 1.15f, 0));
@@ -139,15 +196,18 @@ public sealed partial class CarRackChecks : Node
         catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
     }
 
-    private bool AllPresent(HeldItem item) => _arenas.All(a => a.Bodies.TryGetValue(Shooter, out var body) && body.Rack.PresentedItem == item && body.Rack.Progress >= 0.999f);
-    private async Task Frames(int count, InputButtons held = 0, InputButtons released = 0, ushort throttle = 0, short steer = 0)
+    private bool AllPresent(HeldItem item) => _arenas.All(a => a.Bodies.TryGetValue(Shooter, out var body) &&
+        body.Rack.PresentedItem == item && body.Rack.Progress >= 0.999f &&
+        (item != HeldItem.Nitro || body.Rack.Boost.Deployment >= .999f));
+    private IEnumerable<CarLighting> Lamps() => _arenas.Select(a => a.Bodies[Shooter].Rack.GetParent<Node3D>().GetChildren().OfType<CarLighting>().Single());
+    private async Task Frames(int count, InputButtons held = 0, InputButtons released = 0, ushort throttle = 0, short steer = 0, ushort brake = 0)
     {
         for (int i = 0; i < count; i++)
         {
             await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
             for (int peer = 0; peer < _arenas.Count; peer++)
             {
-                _arenas[peer].Advance(peer == 1 ? new InputFrame(0, steer, throttle, 0, held, 0, released) : default);
+                _arenas[peer].Advance(peer == 1 ? new InputFrame(0, steer, throttle, brake, held, 0, released) : default);
                 if (_arenas[peer].Driver.Failure.Length > 0) { throw new InvalidOperationException(_arenas[peer].Driver.Failure); }
             }
         }
