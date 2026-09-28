@@ -32,6 +32,8 @@ public sealed partial class NitroIntegrationChecks : Node
     private double[] _scores = [];
     private float _releaseSpeed;
     private readonly List<string> _evidence = new();
+    private readonly HashSet<Vehicles.BoostExhaust> _releaseTails = new();
+    private readonly HashSet<Vehicles.BoostExhaust> _depletionBursts = new();
 
     public override void _Ready()
     {
@@ -91,6 +93,15 @@ public sealed partial class NitroIntegrationChecks : Node
                 Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure);
             }
             Check(_frames - _boundary < 1800, $"Nitro stage {_stage} timeout");
+            foreach (var exhaust in _arenas.SelectMany(a => a.Bodies.Values).Select(b => b.Rack.Boost))
+            {
+                if (_stage is 4 or 7 && exhaust.FlameEnergy is > .01f and < .95f)
+                {
+                    Check(!exhaust.DepletionBurst, "ordinary release does not report exhaustion");
+                    _releaseTails.Add(exhaust);
+                }
+                if (_stage is 8 or 9 && exhaust.DepletionBurst) { _depletionBursts.Add(exhaust); }
+            }
             var host = _arenas[0].Driver.Host!;
             if (host.World.State.Vehicles.Count > 0)
             {
@@ -185,8 +196,10 @@ public sealed partial class NitroIntegrationChecks : Node
                     _held = false;
                     Next("Both Nitro resources reach zero and clear only their physical slots.");
                     break;
-                case 9 when _frames - _boundary > 30:
+                case 9 when _frames - _boundary > 60:
                     CheckExhaust(false);
+                    Check(_releaseTails.Count == 4, "both vehicles wind down on both peer views");
+                    Check(_depletionBursts.Count == 4, "both vehicles signal confirmed exhaustion on both peer views");
                     Check(_arenas[1].Driver.LocalItem is { Item: HeldItem.None, NitroCharge: 0, SecondItem: HeldItem.Wrench }, "remote depletion publication");
                     Check(host.World.State.Vehicles.All(v => !v.Movement.Nitro.Active), "exhaustion ends boost");
                     Check(_arenas[1].Driver.Match!.Players.All(p => p.CircusScore > 0), "remote score publication");
@@ -295,7 +308,7 @@ public sealed partial class NitroIntegrationChecks : Node
             {
                 var exhaust = body.FindChild("BoostExhaust", true, false) as Vehicles.BoostExhaust;
                 Check(exhaust is not null, "each peer reconstructs shared Boost presentation");
-                if (!active) { Check(!exhaust!.FlameVisible && !exhaust.SmokeEmitting, "release/depletion cuts flame and smoke emission on both peers"); }
+                if (!active) { Check(!exhaust!.FlameVisible && !exhaust.SmokeEmitting, "release/depletion finishes bounded flame and smoke emission on both peers"); }
                 else if (arena == _arenas[0]) { Check(exhaust!.FlameVisible, "host view renders simultaneous local and remote Boost"); }
             }
         }

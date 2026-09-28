@@ -8,7 +8,7 @@ internal static class RackItemVisual
 {
     internal static Node3D Create(HeldItem item)
     {
-        if (item == HeldItem.Nitro) { throw new ArgumentException("Nitro uses the chassis Boost jet.", nameof(item)); }
+        if (item == HeldItem.Nitro) { throw new ArgumentException("Nitro uses the rack's persistent Boost jet.", nameof(item)); }
         var root = new Node3D { Name = "RackItem_" + item };
         var definition = ItemRegistry.Find(item) ?? throw new ArgumentOutOfRangeException(nameof(item));
         if (item == HeldItem.ProxyMine)

@@ -67,6 +67,10 @@ public sealed partial class CarRackChecks : Node
                 Check(host.Items.Grant(host.World, Shooter, item.Identity, pickup: true), "Pickup " + item.DisplayName);
                 Check(host.Items.Grant(host.World, Shooter, HeldItem.Wrench), "Two occupied slots");
                 await Until(() => AllPresent(item.Identity), item.DisplayName + " visible to owner and other peer");
+                if (item.Identity == HeldItem.Nitro)
+                {
+                    Check(_arenas.All(a => !a.Bodies[Shooter].Rack.Boost.FlameVisible && !a.Bodies[Shooter].Rack.Boost.SmokeEmitting), "Selected Nitro is ready without ignition on both peers");
+                }
                 await Capture(item.Key + "-equipped");
                 Check(_arenas[1].Driver.RequestItemSwitch(), "Switch away");
                 await Until(() => AllPresent(HeldItem.Wrench), "Wrench selected on both peers");
@@ -86,6 +90,10 @@ public sealed partial class CarRackChecks : Node
                 {
                     await Frames(90);
                     Check(AllPresent(remaining), "Usable item stays deployed after release on both peers");
+                    if (remaining == HeldItem.Nitro)
+                    {
+                        Check(_arenas.All(a => !a.Bodies[Shooter].Rack.Boost.FlameVisible && !a.Bodies[Shooter].Rack.Boost.SmokeEmitting), "Released Nitro stays extended without thrust effects on both peers");
+                    }
                 }
                 Check(_arenas[1].Driver.LocalItem?.SecondItem == HeldItem.Wrench, "Use preserves second physical slot");
                 await Capture(item.Key + "-after-use");
@@ -145,7 +153,7 @@ public sealed partial class CarRackChecks : Node
             await Frames(90);
             Check(_arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Respawn starts with closed empty rack");
             Check(host.Items.Grant(host.World, Shooter, HeldItem.Nitro), "New-life pickup");
-            await Until(() => AllPresent(HeldItem.Nitro), "New-life Nitro leaves rack clear for chassis jet");
+            await Until(() => AllPresent(HeldItem.Nitro), "New-life Nitro readies its rack-mounted jet");
             await Frames(90, 0, 0, 40000, 7000);
             Check(_arenas[1].LocalState!.Movement.CommandSpeed > 3, "Normal driving with deployed rack");
             await Capture("driving-equipped");
@@ -189,8 +197,8 @@ public sealed partial class CarRackChecks : Node
     }
 
     private bool AllPresent(HeldItem item) => _arenas.All(a => a.Bodies.TryGetValue(Shooter, out var body) &&
-        (item == HeldItem.Nitro ? a.Driver.ItemState?.Slots.Any(slot => slot.Vehicle == Shooter && slot.Active.Item == item) == true && body.Rack.PresentedItem == HeldItem.None && body.Rack.Progress == 0 :
-        body.Rack.PresentedItem == item && body.Rack.Progress >= 0.999f));
+        body.Rack.PresentedItem == item && body.Rack.Progress >= 0.999f &&
+        (item != HeldItem.Nitro || body.Rack.Boost.Deployment >= .999f));
     private IEnumerable<CarLighting> Lamps() => _arenas.Select(a => a.Bodies[Shooter].Rack.GetParent<Node3D>().GetChildren().OfType<CarLighting>().Single());
     private async Task Frames(int count, InputButtons held = 0, InputButtons released = 0, ushort throttle = 0, short steer = 0, ushort brake = 0)
     {

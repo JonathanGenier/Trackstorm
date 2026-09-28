@@ -51,10 +51,9 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         _damageMaterial.SetShaderParameter("paint", paint);
         var model = VehicleVisual.Create(_damageMaterial, () => _feedbackState is { } state ? (state.Movement, _configuration) : null);
         _visual.AddChild(model);
-        Rack = new CarRackPresentation();
-        model.AddChild(Rack);
         _boost = new BoostExhaust { Source = () => _feedbackState };
-        _visual.AddChild(_boost);
+        Rack = new CarRackPresentation { Boost = _boost };
+        model.AddChild(Rack);
     }
 
     /// <inheritdoc/>

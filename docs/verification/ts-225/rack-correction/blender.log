@@ -1,0 +1,44 @@
+C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\vehicles\boost\source\BuildBoostJet.py:33: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*color,1); m.use_nodes=True
+00:05.484  image.write      | ERROR OpenImageIO write failed: Could not open file "\.thumbnails\large\blender_58572_5aadead85376bd3081bc48d3cd2b5ab1.png.png"
+Extensions: writing cache failed ([WinError 5] Access is denied: 'C:\\Users\\j_gen\\AppData\\Roaming\\Blender Foundation\\Blender\\5.2').
+Warning: No mesh data to join
+Warning: No mesh data to join
+Warning: No mesh data to join
+Warning: No mesh data to join
+Info: Saved as "BoostJet.blend"
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+15:06:51 | INFO: Starting glTF 2.0 export
+15:06:51 | INFO: Extracting primitive: Cylinder.016
+15:06:51 | INFO: Primitives created: 1
+15:06:51 | INFO: Extracting primitive: ArmoredCollar
+15:06:51 | INFO: Primitives created: 1
+15:06:51 | INFO: Extracting primitive: Cylinder
+15:06:51 | INFO: Primitives created: 1
+15:06:51 | INFO: Extracting primitive: CollarRim
+15:06:51 | INFO: Primitives created: 1
+15:06:51 | INFO: Extracting primitive: InnerBarrel
+15:06:51 | INFO: Primitives created: 1
+15:06:51 | INFO: Extracting primitive: NozzleBody
+15:06:51 | INFO: Primitives created: 1
+15:06:51 | INFO: Extracting primitive: Throat
+15:06:51 | INFO: Primitives created: 1
+15:06:51 | INFO: Extracting primitive: Petal
+15:06:51 | INFO: Primitives created: 1
+15:06:51 | INFO: Extracting primitive: FlameSurface
+15:06:51 | INFO: Primitives created: 1
+15:06:51 | INFO: Extracting primitive: Cylinder.017
+15:06:51 | INFO: Primitives created: 1
+15:06:51 | INFO: Extracting primitive: Cylinder.019
+15:06:51 | INFO: Primitives created: 1
+15:06:51 | INFO: Extracting primitive: SlidingSleeve
+15:06:51 | INFO: Primitives created: 1
+15:06:51 | INFO: Extracting primitive: CoolingRing
+15:06:51 | INFO: Primitives created: 1
+15:06:51 | INFO: Finished glTF 2.0 export in 0.07813811302185059 s
+
+BOOST_AUTHORING_COMPLETE {"author": "Original Trackstorm project work", "tool": "5.2.2 LTS", "source": "source/BoostJet.blend", "export": "BoostJet.glb", "reference": "../source/TrackstormCar.blend", "reference_sha256": "be3c808a8d32fd995e2eab1cce24f5bf7139e3b686108b3b2a1d786985c0fbee", "coordinates": "metres; Blender +Y forward/+Z up; Godot -Z forward/+Y up; export relative to WeaponRack", "deployment": {"sleeve_rearward_m": 0.14, "nozzle_rearward_m": 0.28, "outlet_stowed_rack_local_godot": [0, 0.49, 0.395], "outlet_deployed_rack_local_godot": [0, 0.49, 0.675]}, "no_car_geometry_exported": true, "sha256": {"BoostJet.glb": "9e80797d8dc3afd599bf816156ebaee2e02e267338841302dbd987c8de21e669", "BoostJet.blend": "c823d3cec46b6a9f9afa32fd7de57121b7239f9dd1179a04a3340e951178b84e"}}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

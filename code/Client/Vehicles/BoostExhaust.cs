@@ -3,7 +3,7 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Client.Vehicles;
 
-/// <summary>One Blender-authored rear jet and its bounded VFX, reconstructed from accepted Boost state.</summary>
+/// <summary>Rack-mounted jet readied by selection; accepted Boost state alone ignites its bounded VFX.</summary>
 internal sealed partial class BoostExhaust : Node3D
 {
     internal const string AssetPath = "res://assets/vehicles/boost/BoostJet.glb";
@@ -14,24 +14,35 @@ internal sealed partial class BoostExhaust : Node3D
     private Node3D _nozzle = null!;
     private Node3D[] _rams = [];
     private Node3D _outlet = null!;
+    private Node3D _turbine = null!;
     private GpuParticles3D _smoke = null!;
     private GpuParticles3D _sparks = null!;
     private ShaderMaterial _throat = null!;
     private MeshInstance3D _throatMesh = null!;
     private float _progress;
     private float _age;
-    private float _release;
     private float _heat;
+    private float _ignitionTime;
+    private float _fanSpeed;
     private bool _burning;
+    private float _tailTime;
+    private float _tailStartEnergy;
+    private bool _depleted;
+    private bool _depletionPending;
     private bool _initialized;
     private bool _participating;
     private ulong _life;
     private Vector3 _previousPosition;
 
     internal Func<VehicleSnapshot?> Source { get; init; } = () => null;
+    internal bool Deploy { get; set; }
     internal float Deployment => _progress;
     internal bool FlameVisible => _flames.Any(flame => flame.Visible);
     internal bool SmokeEmitting => _smoke.Emitting;
+    internal bool SparksEmitting => _sparks.Emitting;
+    internal float FlameEnergy { get; private set; }
+    internal bool DepletionBurst => _depleted && _tailTime > 0;
+    internal float FanAngle => _turbine.Rotation.Z;
     internal Vector3 OutletPosition => _outlet.GlobalPosition;
 
     public override void _Ready()
@@ -44,6 +55,7 @@ internal sealed partial class BoostExhaust : Node3D
         _nozzle = mount.GetNode<Node3D>("Nozzle");
         _rams = [mount.GetNode<Node3D>("Ram_L"), mount.GetNode<Node3D>("Ram_R")];
         _outlet = _nozzle.GetNode<Node3D>("Outlet");
+        _turbine = _nozzle.GetNode<Node3D>("Turbine");
         var authored = _outlet.GetNode<MeshInstance3D>("FlameSurface");
         var shader = Networking.MatchResourceLoader.LoadResource<Shader>("res://assets/effects/BoostFlame.gdshader");
         for (int layer = 0; layer < 3; layer++)
@@ -64,10 +76,10 @@ internal sealed partial class BoostExhaust : Node3D
         _throatMesh = _nozzle.GetNode<MeshInstance3D>("Nozzle_Boost_Throat");
         _throat = Own(new ShaderMaterial { Shader = Networking.MatchResourceLoader.LoadResource<Shader>("res://assets/effects/BoostThroat.gdshader") });
         _throatMesh.MaterialOverride = _throat;
-        _smoke = CreateParticles("smoke_01", 96, 1.3f, new Color(.64f, .67f, .70f, .8f), 1, 2.3f, 4, 7, 20);
+        _smoke = CreateParticles("smoke_01", 192, 1.5f, new Color(.48f, .51f, .54f, .8f), 1.1f, 2.2f, 4, 7, 16);
         _smoke.Position = new Vector3(0, 0, .20f);
         _outlet.AddChild(_smoke);
-        _sparks = CreateParticles("spark_01", 10, .22f, new Color(1, .45f, .08f, .65f), .025f, .065f, 9, 16, 9);
+        _sparks = CreateParticles("spark_01", 24, .28f, new Color(1, .45f, .08f, .85f), .035f, .085f, 7, 12, 16);
         _outlet.AddChild(_sparks);
         ApplyPose();
     }
@@ -92,37 +104,75 @@ internal sealed partial class BoostExhaust : Node3D
         _participating = participating;
         bool active = participating && state!.Movement.Nitro.Active;
         float dt = Math.Min((float)delta, .1f);
-        _release = active ? 0 : _release + dt;
-        // Leave the outlet extended while the newest smoke clears, then retract smoothly.
-        float target = active ? 1 : _release < .18f ? _progress : 0;
-        _progress = Mathf.MoveToward(_progress, target, dt / (active ? .24f : .48f));
+        bool ready = participating && Deploy;
+        // Keep the outlet clear of the bay until the last combustion has finished.
+        bool finishing = _burning || _tailTime > 0 || _depletionPending;
+        _progress = Mathf.MoveToward(_progress, ready || finishing ? 1 : 0, dt / .24f);
         ApplyPose();
-        bool burning = active && _progress >= .999f;
+        bool firing = active && ready && _progress >= .999f;
+        // Each accepted activation primes locally; release discards any pending ignition.
+        _ignitionTime = firing ? _ignitionTime + dt : 0;
+        bool burning = firing && _ignitionTime >= .30f;
+        if (_depletionPending)
+        {
+            _depletionPending = false;
+            if (participating && _progress >= .999f)
+            {
+                _depleted = true;
+                _tailTime = .60f;
+                _tailStartEnergy = Math.Max(FlameEnergy, .65f);
+            }
+        }
+        else if (_burning && !burning && !DepletionBurst)
+        {
+            _depleted = false;
+            _tailTime = .45f;
+            _tailStartEnergy = FlameEnergy;
+        }
+        else { _tailTime = Math.Max(0, _tailTime - dt); }
+        if (burning) { _tailTime = 0; _depleted = false; }
+        _fanSpeed = Mathf.MoveToward(_fanSpeed, participating ? (firing ? 10 : 2) : 0, dt * 24);
+        _turbine.RotateObjectLocal(Vector3.Back, _fanSpeed * dt);
         if (burning && !_burning) { _age = 0; }
         _burning = burning;
         _age += dt;
-        _heat = Mathf.MoveToward(_heat, burning ? 1 : 0, dt * (burning ? 12 : 4));
+        float tail = _tailTime / (_depleted ? .60f : .45f);
+        float burst = DepletionBurst ? MathF.Sin(Mathf.Clamp((1 - tail) / .35f, 0, 1) * Mathf.Pi) : 0;
+        float decay = Mathf.SmoothStep(0, 1, tail);
+        FlameEnergy = burning ? Mathf.SmoothStep(0, .04f, _age) : _tailStartEnergy * decay * (1 + burst * .8f);
+        _heat = Mathf.MoveToward(_heat, Math.Min(1, FlameEnergy), dt * (burning ? 12 : 4));
         _throat.SetShaderParameter("heat", _heat);
         float distance = GetViewport().GetCamera3D()?.GlobalPosition.DistanceTo(GlobalPosition) ?? 0;
         float speed = Math.Clamp((state?.Speed ?? 0) / 65, 0, 1);
         for (int i = 0; i < _flames.Count; i++)
         {
-            _flames[i].Visible = burning && distance < 120;
-            if (!burning) { continue; }
-            _materials[i].SetShaderParameter("energy", Mathf.SmoothStep(0, .04f, _age));
+            _flames[i].Visible = FlameEnergy > .001f && distance < 120;
+            _materials[i].SetShaderParameter("energy", FlameEnergy);
+            _materials[i].SetShaderParameter("plume", burning ? 1 : .12f + .88f * decay);
+            _materials[i].SetShaderParameter("burst", burst);
+            _materials[i].SetShaderParameter("shutdown", DepletionBurst ? 1 - tail : 0);
             _materials[i].SetShaderParameter("age", _age);
             _materials[i].SetShaderParameter("speed", speed);
         }
-        _smoke.Emitting = burning && distance < 65;
-        _sparks.Emitting = burning && distance < 35;
+        _smoke.Emitting = (firing || _tailTime > 0) && distance < 65;
+        _smoke.AmountRatio = burning || DepletionBurst ? 1 : firing ? .55f : Math.Max(.05f, tail * .55f);
+        _sparks.Emitting = (firing || (DepletionBurst && tail > .45f)) && distance < 35;
+        _sparks.AmountRatio = burning ? .25f : 1;
     }
+
+    /// <summary>Confirmed disposal of the selected Nitro capability, never inferred from input or predicted ticks.</summary>
+    internal void Exhausted() => _depletionPending = true;
 
     /// <summary>Life, visibility, teleport and resync boundaries discard old jet pose and GPU history.</summary>
     internal void Reset()
     {
         _burning = false;
+        _depleted = _depletionPending = false;
+        _tailTime = _tailStartEnergy = FlameEnergy = 0;
         _progress = _heat = 0;
-        _release = 1;
+        _ignitionTime = _fanSpeed = 0;
+        _turbine.Rotation = Vector3.Zero;
+        Deploy = false;
         ApplyPose();
         _throat.SetShaderParameter("heat", 0);
         foreach (var flame in _flames) { flame.Visible = false; }
@@ -140,9 +190,9 @@ internal sealed partial class BoostExhaust : Node3D
     private void ApplyPose()
     {
         float p = Mathf.SmoothStep(0, 1, _progress);
-        _sleeve.Position = new Vector3(0, 0, .35f * p);
-        _nozzle.Position = new Vector3(0, 0, .72f * p);
-        foreach (var ram in _rams) { ram.Scale = new Vector3(1, 1, 1 + .72f * p / .26f); }
+        _sleeve.Position = new Vector3(0, 0, .14f * p);
+        _nozzle.Position = new Vector3(0, 0, .28f * p);
+        foreach (var ram in _rams) { ram.Scale = new Vector3(1, 1, 1 + .28f * p / .26f); }
     }
 
     private GpuParticles3D CreateParticles(string texture, int amount, float lifetime, Color color, float minScale, float maxScale, float minSpeed, float maxSpeed, float spread)

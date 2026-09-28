@@ -6,6 +6,9 @@ uniform float energy = 0.0;
 uniform float speed = 0.0;
 uniform float phase = 0.0;
 uniform float layer = 0.0;
+uniform float plume = 1.0;
+uniform float burst = 0.0;
+uniform float shutdown = 0.0;
 
 float hash(vec3 p) {
     p = fract(p * 0.3183099 + vec3(0.13, 0.27, 0.41));
@@ -27,6 +30,8 @@ void vertex() {
     VERTEX.z *= (.85 + speed * .36 + ignition * .32) * (1.0 + pulse * .11 * t);
     VERTEX.x += sin(clock * .67 - t * 14.0) * t * t * .24;
     VERTEX.y += sin(clock * .93 - t * 19.0) * t * t * .18;
+    VERTEX.xy *= mix(.35, 1.0, plume) * (1.0 + burst * .85);
+    VERTEX.z *= plume * (1.0 - burst * .25);
 }
 void fragment() {
     float t = 1.0 - UV.y; // glTF import uses top-origin V.
@@ -43,6 +48,8 @@ void fragment() {
     vec3 hot = mix(vec3(.12,.26,.80), vec3(.48,.72,1.0), core);
     vec3 tail = mix(vec3(1.0,.23,.018), vec3(.12,.4,.9), core);
     ALBEDO = mix(hot, tail, smoothstep(.03, .5, t)) * (1.0 + diamonds * .5);
+    ALBEDO = mix(ALBEDO, vec3(1.0, .42, .07), min(1.0, burst * .8 + shutdown * .6));
     ALPHA = energy * root * tip * edge * mix(torn, .6 + n * .4, core)
         * (1.0 - wisp * .28) * (.8 + exp(-age * 15.0) * .8);
+    ALPHA *= 1.0 - shutdown * (.3 + .25 * sin(TIME * 65.0 + t * 18.0));
 }
