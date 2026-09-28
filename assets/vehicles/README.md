@@ -12,8 +12,12 @@ cage rails, exhaust shields and telescopic hydraulic sleeves. Do not run the
 historical `BuildCar.py` / `FinalizeCar.py` on it: those rebuild the earlier design
 and overwrite subsequent manual refinements.
 
-Run Blender with `--background --python-exit-code 1 --python
-assets/vehicles/source/ExportCar.py` to export a temporary material-batched copy.
+Run `tools/run-car-blender-workflow.ps1 -BlenderPath <exe>` to export a temporary
+material-batched copy and audit it. The wrapper runs Blender with
+`--background --python-exit-code 1`, uses absolute in-repository script paths,
+and fails if the workflow adds or removes any repository-root entry. It reports
+unexpected entries and their Git status without deleting them, preserving evidence
+for investigation. Pass `-SkipAudit` only when an export-only iteration is intended.
 The exporter does not overwrite the editable master. It preserves articulated
 nodes, sockets, lamps, identification and named body panels. Export uses +Y up, applied modifiers
 and no animation. Blender coordinates are +Y forward / +Z up; Godot uses -Z forward.

@@ -3,7 +3,14 @@ from pathlib import Path
 import bpy,json,math,bmesh
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1]
-bpy.ops.wm.open_mainfile(filepath=str(ROOT/'source/TrackstormCar.blend'))
+REPOSITORY_ROOT=ROOT.parents[1]
+SOURCE=(ROOT/'source/TrackstormCar.blend').resolve()
+AUDIT_OUTPUT=(REPOSITORY_ROOT/'.godot/ts259-round8/blender-audit.json').resolve()
+if not (REPOSITORY_ROOT/'project.godot').is_file():
+    raise RuntimeError('Car audit could not identify the Trackstorm repository root')
+if SOURCE.parent != (ROOT/'source').resolve() or not AUDIT_OUTPUT.is_relative_to((REPOSITORY_ROOT/'.godot').resolve()):
+    raise RuntimeError('Car audit paths escaped their intentional asset or evidence directories')
+bpy.ops.wm.open_mainfile(filepath=str(SOURCE))
 scene=bpy.context.scene
 required=['Car','WeaponRack','Identification','TrunkHinge_L','TrunkHinge_R']
 for corner in ['FL','FR','RL','RR']:
@@ -52,7 +59,7 @@ for frame in [1,13,25,36,48,60,68,75,88,100]:
 scene.frame_set(1)
 result={'result':'PASS','visual_wheelbase_m':wheelbase,'meshes':len(meshes),'vertices':sum(len(o.data.vertices) for o in meshes),'polygons':sum(len(o.data.polygons) for o in meshes),'required_nodes':len(required),'deployment_samples':samples}
 result['tire_topology']=tire_topology
-out=ROOT.parents[1]/'.godot/ts259-round8/blender-audit.json';out.parent.mkdir(parents=True,exist_ok=True)
+out=AUDIT_OUTPUT;out.parent.mkdir(parents=True,exist_ok=True)
 # Rubber versus chassis surface overlap at representative full-travel/steer poses.
 # This supplements runtime observation; it is not a physics/contact redesign.
 from mathutils import Matrix
