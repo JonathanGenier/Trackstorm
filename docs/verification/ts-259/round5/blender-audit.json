@@ -1,0 +1,1106 @@
+{
+  "result": "PASS",
+  "visual_wheelbase_m": 3.351104974746704,
+  "meshes": 632,
+  "vertices": 77480,
+  "polygons": 69800,
+  "required_nodes": 41,
+  "deployment_samples": [
+    {
+      "frame": 1,
+      "rack_height": -0.07999999821186066,
+      "lid_angle": -0.0,
+      "piston_bottom": -0.25
+    },
+    {
+      "frame": 13,
+      "rack_height": -0.07999999821186066,
+      "lid_angle": -0.8500000238418579,
+      "piston_bottom": -0.25
+    },
+    {
+      "frame": 25,
+      "rack_height": -0.07999999821186066,
+      "lid_angle": -1.7000000476837158,
+      "piston_bottom": -0.25
+    },
+    {
+      "frame": 36,
+      "rack_height": 0.5837249159812927,
+      "lid_angle": -1.7000000476837158,
+      "piston_bottom": -0.24999982118606567
+    },
+    {
+      "frame": 48,
+      "rack_height": 1.340000033378601,
+      "lid_angle": -1.7000000476837158,
+      "piston_bottom": -0.24999994039535522
+    },
+    {
+      "frame": 60,
+      "rack_height": 1.340000033378601,
+      "lid_angle": -1.7000000476837158,
+      "piston_bottom": -0.24999994039535522
+    },
+    {
+      "frame": 68,
+      "rack_height": 0.5591050386428833,
+      "lid_angle": -1.7000000476837158,
+      "piston_bottom": -0.2500000596046448
+    },
+    {
+      "frame": 75,
+      "rack_height": -0.07999999821186066,
+      "lid_angle": -1.7000000476837158,
+      "piston_bottom": -0.25
+    },
+    {
+      "frame": 88,
+      "rack_height": -0.07999999821186066,
+      "lid_angle": -0.7990272045135498,
+      "piston_bottom": -0.25
+    },
+    {
+      "frame": 100,
+      "rack_height": -0.07999999821186066,
+      "lid_angle": 0.0,
+      "piston_bottom": -0.25
+    }
+  ],
+  "tire_topology": [
+    {
+      "corner": "FL",
+      "vertices": 2160,
+      "connected_closed_surface": true
+    },
+    {
+      "corner": "FR",
+      "vertices": 2160,
+      "connected_closed_surface": true
+    },
+    {
+      "corner": "RL",
+      "vertices": 2160,
+      "connected_closed_surface": true
+    },
+    {
+      "corner": "RR",
+      "vertices": 2160,
+      "connected_closed_surface": true
+    }
+  ],
+  "rubber_suspension_samples": [
+    {
+      "corner": "FL",
+      "compression": 0,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.15,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.15,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.15,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.15,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.15,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.327,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.327,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.327,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.327,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.327,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.5,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.5,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.5,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.5,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.5,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.6,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.6,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.6,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.6,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.6,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.7165,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.7165,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.7165,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.7165,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.7165,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.15,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.15,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.15,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.15,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.15,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.327,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.327,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.327,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.327,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.327,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.5,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.5,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.5,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.5,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.5,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.6,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.6,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.6,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.6,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.6,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.7165,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.7165,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.7165,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.7165,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.7165,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RL",
+      "compression": 0,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RL",
+      "compression": 0.15,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RL",
+      "compression": 0.327,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RL",
+      "compression": 0.5,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RL",
+      "compression": 0.6,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RL",
+      "compression": 0.7165,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RR",
+      "compression": 0,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RR",
+      "compression": 0.15,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RR",
+      "compression": 0.327,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RR",
+      "compression": 0.5,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RR",
+      "compression": 0.6,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RR",
+      "compression": 0.7165,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    }
+  ],
+  "contact_points": [],
+  "rubber_chassis_samples": [
+    {
+      "corner": "FL",
+      "compression": 0,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.15,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.15,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.15,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.15,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.15,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.327,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.327,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.327,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.327,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.327,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.5,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.5,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.5,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.5,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.5,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.6,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.6,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.6,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.6,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.6,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.7165,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.7165,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.7165,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.7165,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FL",
+      "compression": 0.7165,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.15,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.15,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.15,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.15,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.15,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.327,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.327,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.327,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.327,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.327,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.5,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.5,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.5,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.5,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.5,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.6,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.6,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.6,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.6,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.6,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.7165,
+      "steer": -0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.7165,
+      "steer": -0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.7165,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.7165,
+      "steer": 0.3,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "FR",
+      "compression": 0.7165,
+      "steer": 0.6,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RL",
+      "compression": 0,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RL",
+      "compression": 0.15,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RL",
+      "compression": 0.327,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RL",
+      "compression": 0.5,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RL",
+      "compression": 0.6,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RL",
+      "compression": 0.7165,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RR",
+      "compression": 0,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RR",
+      "compression": 0.15,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RR",
+      "compression": 0.327,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RR",
+      "compression": 0.5,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RR",
+      "compression": 0.6,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    },
+    {
+      "corner": "RR",
+      "compression": 0.7165,
+      "steer": 0,
+      "triangle_overlaps": 0,
+      "objects": []
+    }
+  ],
+  "clearance_surface_overlaps": 0
+}

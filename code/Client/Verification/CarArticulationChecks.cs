@@ -12,7 +12,7 @@ public sealed partial class CarArticulationChecks : Node3D
     private Node3D _model = null!;
     private int _assertions;
     private readonly List<object> _trace = new();
-    private readonly string _output = "res://.godot/ts259-round4/car";
+    private readonly string _output = "res://.godot/ts259-round5/car";
 
     public override void _Ready() => CallDeferred(MethodName.Run);
 
@@ -27,7 +27,7 @@ public sealed partial class CarArticulationChecks : Node3D
             AddChild(_camera);
             _camera.MakeCurrent();
             _model = _arena.Player.GetNode<Node3D>("WastelandVehicle");
-            Check(Math.Abs(Math.Abs(_model.GetNode<Node3D>("WheelCarrier_FL").Position.Z - _model.GetNode<Node3D>("WheelCarrier_RL").Position.Z) - 3.101105f) < 0.001f, "Refined visual wheelbase is 3.101105 metres.");
+            Check(Math.Abs(Math.Abs(_model.GetNode<Node3D>("WheelCarrier_FL").Position.Z - _model.GetNode<Node3D>("WheelCarrier_RL").Position.Z) - 3.351105f) < 0.001f, "Refined visual wheelbase is 3.351105 metres.");
             for (int i = 0; i < 150; i++) { await Step(); }
             await Capture("front-closed", new Vector3(5, 2.9f, -6));
             await Capture("rear-closed", new Vector3(-5, 2.9f, 6));
@@ -39,7 +39,7 @@ public sealed partial class CarArticulationChecks : Node3D
             await Capture("high-rear", new Vector3(4.5f, 4.8f, 5));
             await Capture("top-closed", new Vector3(0, 8, .01f));
             VerifyIndependentSpeeds();
-            Check(Math.Abs(_model.GetNode<Node3D>("WeaponRack").Position.Z - 1.72f) < 0.001f, "Deployment preserves the authored rear-bay position.");
+            Check(Math.Abs(_model.GetNode<Node3D>("WeaponRack").Position.Z - 1.845f) < 0.001f, "Deployment preserves the authored rear-bay position.");
             await Capture("suspension-front", new Vector3(2.8f, -0.15f, -3.7f));
             await Capture("suspension-rear", new Vector3(-2.8f, -.2f, 3.7f));
             VerifySuspensionMounts();

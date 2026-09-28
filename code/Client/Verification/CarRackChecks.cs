@@ -77,9 +77,49 @@ public sealed partial class CarRackChecks : Node
                 await Frames(item.Sustained ? 45 : 12, item.Sustained ? InputButtons.UseItem : 0);
                 await Frames(1, 0, InputButtons.UseItem);
                 await Until(() => _events.Count > before, "Confirmed use/fire outcome for " + item.DisplayName);
-                await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Use retracts and closes on both peers");
+                HeldItem remaining = _arenas[1].Driver.LocalItem?.Active.Item ?? HeldItem.None;
+                if (remaining == HeldItem.None)
+                {
+                    await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Depletion retracts and closes on both peers");
+                }
+                else
+                {
+                    await Frames(90);
+                    Check(AllPresent(remaining), "Usable item stays deployed after release on both peers");
+                }
                 Check(_arenas[1].Driver.LocalItem?.SecondItem == HeldItem.Wrench, "Use preserves second physical slot");
-                await Capture(item.Key + "-used-closed");
+                await Capture(item.Key + "-after-use");
+            }
+            host.Items.RemovePlayer(Shooter);
+            await Frames(130);
+            Check(host.Items.Grant(host.World, Shooter, HeldItem.Salvo), "Five-shot lifecycle grant");
+            await Until(() => AllPresent(HeldItem.Salvo), "Multi-shot rack deployed");
+            Check(_arenas[1].Driver.RequestItemSwitch(), "Select empty physical slot");
+            await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Empty selection stays stowed");
+            await Frames(60);
+            Check(_arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Empty slot does not reopen");
+            Check(_arenas[1].Driver.RequestItemSwitch(), "Return to usable slot");
+            await Until(() => AllPresent(HeldItem.Salvo), "Usable slot opens again");
+            for (int shots = 4; shots >= 0; shots--)
+            {
+                Check(_arenas[1].Driver.RequestItemUse(), "Repeated shot accepted");
+                await Until(() => _arenas[1].Driver.LocalItem?.Active.SalvoShots == shots, "Confirmed remaining shots " + shots);
+                if (shots > 0)
+                {
+                    for (int frame = 0; frame < 90; frame++)
+                    {
+                        await Frames(1);
+                        if (!AllPresent(HeldItem.Salvo)) { throw new InvalidOperationException("Rack cycled between usable shots"); }
+                    }
+                    Check(AllPresent(HeldItem.Salvo), "Both peers remain fully deployed between shots");
+                }
+                else
+                {
+                    await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Final shot retracts both racks");
+                    await Frames(90);
+                    Check(_arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0), "Depleted rack remains stowed");
+                    await Capture("salvo-depleted");
+                }
             }
             host.Items.RemovePlayer(Shooter);
             await Frames(130);

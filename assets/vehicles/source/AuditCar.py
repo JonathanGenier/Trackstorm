@@ -1,6 +1,6 @@
 """Reopen the retained Blender master and validate its editable rig and deployment envelope."""
 from pathlib import Path
-import bpy,json,math
+import bpy,json,math,bmesh
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1]
 bpy.ops.wm.open_mainfile(filepath=str(ROOT/'source/TrackstormCar.blend'))
@@ -13,7 +13,20 @@ for side in ['L','R']:
     required += ['WeaponMount_'+side+'_Front','WeaponMount_'+side+'_Rear']
 assert all(bpy.data.objects.get(name) for name in required)
 wheelbase=abs(bpy.data.objects['WheelCarrier_FL'].location.y-bpy.data.objects['WheelCarrier_RL'].location.y)
-assert abs(wheelbase-3.101105)<.0001
+assert abs(wheelbase-3.351105)<.0001
+tire_topology=[]
+for corner in ['FL','FR','RL','RR']:
+    tire=bpy.data.objects['WheelSpin_'+corner+'_Car_Rubber']
+    bm=bmesh.new();bm.from_mesh(tire.data)
+    assert all(edge.is_manifold for edge in bm.edges), 'Rubber must be a closed surface'
+    pending=[next(iter(bm.verts))];seen=set(pending)
+    while pending:
+        for edge in pending.pop().link_edges:
+            for vertex in edge.verts:
+                if vertex not in seen:seen.add(vertex);pending.append(vertex)
+    assert len(seen)==len(bm.verts), 'Tread must connect to the tire carcass'
+    tire_topology.append({'corner':corner,'vertices':len(bm.verts),'connected_closed_surface':True})
+    bm.free()
 meshes=[o for o in scene.objects if o.type=='MESH']
 assert all(all(math.isfinite(c) for c in v.co) for o in meshes for v in o.data.vertices)
 assert all(o.data.materials for o in meshes)
@@ -23,6 +36,7 @@ samples=[]
 for frame in [1,13,25,36,48,60,68,75,88,100]:
     scene.frame_set(frame); bpy.context.view_layer.update()
     rack=bpy.data.objects['WeaponRack']; left=bpy.data.objects['TrunkHinge_L']
+    assert abs(rack.location.y+1.845)<.0001, 'Rack keys must retain the extended bay station'
     assert rack.location.z<=1.35
     if rack.location.z>.0: assert abs(left.rotation_euler.y)>1.69
     piston=bpy.data.objects['LiftPiston_-1']
@@ -31,7 +45,8 @@ for frame in [1,13,25,36,48,60,68,75,88,100]:
     samples.append({'frame':frame,'rack_height':rack.location.z,'lid_angle':left.rotation_euler.y,'piston_bottom':bottom})
 scene.frame_set(1)
 result={'result':'PASS','visual_wheelbase_m':wheelbase,'meshes':len(meshes),'vertices':sum(len(o.data.vertices) for o in meshes),'polygons':sum(len(o.data.polygons) for o in meshes),'required_nodes':len(required),'deployment_samples':samples}
-out=ROOT.parents[1]/'.godot/ts259-round4/blender-audit.json';out.parent.mkdir(parents=True,exist_ok=True)
+result['tire_topology']=tire_topology
+out=ROOT.parents[1]/'.godot/ts259-round5/blender-audit.json';out.parent.mkdir(parents=True,exist_ok=True)
 # Rubber versus chassis surface overlap at representative full-travel/steer poses.
 # This supplements runtime observation; it is not a physics/contact redesign.
 from mathutils import Matrix

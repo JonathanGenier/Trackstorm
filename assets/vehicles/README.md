@@ -7,7 +7,7 @@ used by startup, Lobby, practice, matches and Podium; it instances the new GLB.
 ## Authoring and import
 
 Edit `source/TrackstormCar.blend` directly. This is the retained production master,
-including the refined loose armor panels, 96×32 tire carcasses, staggered tread,
+including the refined loose armor panels, continuous manifold tire carcasses, integrated staggered tread,
 cage rails, exhaust shields and telescopic hydraulic sleeves. Do not run the
 historical `BuildCar.py` / `FinalizeCar.py` on it: those rebuild the earlier design
 and overwrite subsequent manual refinements.
@@ -61,17 +61,18 @@ weapon rule or network message. Network gameplay drives the mechanism through `C
 
 `WheelPresentation` reads accepted speed, steering and per-wheel compression.
 Existing offline interpolation and network presentation roots remain unchanged.
-No Core driving force, collision, authority or input rule is changed. Shared
-configuration adds the two deployment speeds and advances its wire schema. The physical wheelbase remains 2.601105 m; the authored visual wheelbase is
-3.101105 m, with each axle moved 0.25 m outward. The visual tire
-centres are widened to ±1.16 m while existing support rays remain at ±0.8165335 m;
-this deliberate presentation offset avoids a handling redesign. Narrow terrain
-edges are consequently approximated by the unchanged physical supports.
+The visual wheelbase is 3.351105 m. Physical support spacing remains 2.601105 m
+to preserve accepted handling; the total longitudinal presentation offset is
+0.75 m. The collision
+hull length is 5.06 m, with a 5.85 m conservative spawn exclusion diameter.
+Visual tire centers are ±1.38 m front / ±1.30 m rear while lateral support rays
+remain at ±0.8165335 m. Narrow lateral terrain edges therefore remain an
+approximation. Force laws and authority ownership are unchanged.
 
 ## Validation
 
 `check-car-articulation.ps1 -GodotPath <exe> -Visual` drives the production adapter,
-checks articulation/deployment and saves captures and traces under `.godot/ts259-round4/car`.
+checks articulation/deployment and saves captures and traces under `.godot/ts259-round5/car`.
 Use the regular vehicle/network/oval checks for surrounding integration.
 Current Story evidence and limitations belong in `docs/verification/ts-259.md`.
 The previous Kenney-based master and source remain as historical editable assets.
@@ -102,13 +103,15 @@ through default steering and representative full travel without increasing the
 outer fender width or shoulder height. Rubber width remains 0.526 m; front/rear
 centres sit at +/-1.38 / +/-1.30 m. The rear rolling radius is 4.6% larger.
 Central coachwork is 25% wider, with pivot origins and deck geometry refitted;
-longitudinal coordinates and the 3.101105 m visual wheelbase are preserved.
+the door/cabin span carries the additional 0.25 m longitudinal extension.
 Twin warm-metal springs, mounting seats and extended hub brackets articulate
 with each carrier. Recessed rear bay walls expose the springs above the tires.
-Physical supports and the simplified
-collision hull do not follow the additional visual length; obstacle/edge contact
-remains an approximation. The rack preserves its authored longitudinal position
-(1.72 m aft) throughout deployment.
+The longitudinal physical axle stations preserve that documented visual offset. The rack retains
+its new authored longitudinal position (1.845 m aft) throughout deployment.
+The closed deck sheet meets the 0.425 m fender shoulder. Each rubber tire is one
+closed manifold mesh with 108 integrated broad tread blocks and rounded edges;
+the 0.526 m width and slightly larger rear radius remain. Hidden rear tubs clear
+full compression, and bonnet returns support the closed panel shut line.
 
 Glass panes remain separate during material batching for transparency sorting.
 `CarGlass.gdshader` uses low face-on opacity and stronger grazing reflections.
