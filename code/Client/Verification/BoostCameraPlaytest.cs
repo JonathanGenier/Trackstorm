@@ -99,7 +99,7 @@ public sealed partial class BoostCameraPlaytest : Node3D
         _trace.Add(new { frame = _frame, phase = Names[phase], speed = state.Speed, active = state.Movement.Nitro.Active,
             grounded = state.Movement.Grounded, fov = _camera.Fov, pullback = _camera.BoostMotion.PullBack,
             streaks = _camera.BoostMotion.StreakStrength, hp = state.Damage.CurrentHP });
-        if (!float.IsFinite(_camera.Fov) || _camera.Fov < 65 || _camera.Fov > 81.01f || !_camera.GlobalTransform.IsFinite())
+        if (!float.IsFinite(_camera.Fov) || _camera.Fov < 65 || _camera.Fov > 73.01f || !_camera.GlobalTransform.IsFinite())
         { GD.PushError("Boost camera escaped finite presentation bounds."); _done = true; GetTree().Quit(1); }
         if (OS.GetCmdlineUserArgs().Contains("--boost-camera-captures") && _frame % 15 == 0) { Capture(_frame); }
     }
@@ -121,7 +121,7 @@ public sealed partial class BoostCameraPlaytest : Node3D
         var active = new VehicleSnapshot(actual.VehicleId, actual.LifeId, actual.Movement with { Nitro = new(60, 18000, 1.4f, 1) }, actual.Damage, actual.ObservedPhysics);
         Transform3D pose = _cars[0].GlobalTransform;
         for (int i = 0; i < 120; i++) { _camera.Follow(pose, active, 1f / 60, _cars[0].GetRid()); }
-        if (_camera.Fov < 70) { throw new InvalidOperationException("Active Boost camera did not expand."); }
+        if (_camera.Fov < 68) { throw new InvalidOperationException("Active Boost camera did not expand."); }
         _camera.ResetFollow();
         _camera.Follow(pose, active, 1f / 60, _cars[0].GetRid());
         if (_camera.Fov != 65 || _camera.BoostMotion.PullBack != 0) { throw new InvalidOperationException("Reseed retained historical Boost camera state."); }
