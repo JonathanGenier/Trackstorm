@@ -6,11 +6,12 @@ namespace Trackstorm.Client.Vehicles;
 /// <summary>Animates the Blender Car rig from accepted movement; never feeds presentation into physics.</summary>
 internal sealed partial class WheelPresentation : Node
 {
-    internal const float TireRadius = 0.582f;
+    internal const float TireRadius = 0.54f;
     private Node3D[] _wheels = [];
     private Node3D[] _spins = [];
     private readonly Node3D[,] _links = new Node3D[4, 4];
     private readonly Vector3[,] _anchors = new Vector3[4, 4];
+    private readonly Vector3[,] _hubMounts = new Vector3[4, 4];
     private readonly Node3D[,] _rods = new Node3D[4, 2];
     private Node3D _model = null!;
     private bool _initialized;
@@ -35,6 +36,7 @@ internal sealed partial class WheelPresentation : Node
             for (int part = 0; part < 4; part++)
             {
                 _anchors[index, part] = _model.GetNode<Node3D>($"SuspensionAnchor_{names[index]}_{suffixes[part]}").Position;
+                _hubMounts[index, part] = _wheels[index].GetNode<Node3D>($"WheelLinkMount_{names[index]}_{suffixes[part]}").Position;
                 _links[index, part] = _model.GetNode<Node3D>($"SuspensionLink_{names[index]}_{suffixes[part]}");
             }
         }
@@ -59,7 +61,7 @@ internal sealed partial class WheelPresentation : Node
             for (int part = 0; part < 4; part++)
             {
                 Vector3 anchor = _anchors[index, part];
-                Vector3 hub = wheel.Position + new Vector3(index % 2 == 0 ? 0.14f : -0.14f, -0.04f, part == 2 ? 0.17f : part == 3 ? -0.17f : 0);
+                Vector3 hub = wheel.Transform * _hubMounts[index, part];
                 Node3D link = _links[index, part];
                 if (part >= 2)
                 {
@@ -78,6 +80,7 @@ internal sealed partial class WheelPresentation : Node
     private static void Align(Node3D link, Vector3 start, Vector3 end)
     {
         Vector3 direction = end - start;
-        link.Transform = new Transform3D(new Basis(new Quaternion(Vector3.Up, direction.Normalized())).Scaled(new Vector3(1, direction.Length(), 1)), (start + end) / 2);
+        Basis rotation = new(new Quaternion(Vector3.Up, direction.Normalized()));
+        link.Transform = new Transform3D(rotation * Basis.FromScale(new Vector3(1, direction.Length(), 1)), (start + end) / 2);
     }
 }

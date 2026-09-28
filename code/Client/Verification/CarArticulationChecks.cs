@@ -12,7 +12,7 @@ public sealed partial class CarArticulationChecks : Node3D
     private Node3D _model = null!;
     private int _assertions;
     private readonly List<object> _trace = new();
-    private readonly string _output = "res://.godot/ts259-round2/car";
+    private readonly string _output = "res://.godot/ts259-round3/car";
 
     public override void _Ready() => CallDeferred(MethodName.Run);
 
@@ -41,6 +41,8 @@ public sealed partial class CarArticulationChecks : Node3D
             VerifyIndependentSpeeds();
             Check(Math.Abs(_model.GetNode<Node3D>("WeaponRack").Position.Z - 1.72f) < 0.001f, "Deployment preserves the authored rear-bay position.");
             await Capture("suspension-front", new Vector3(2.8f, -0.15f, -3.7f));
+            await Capture("suspension-rear", new Vector3(-2.8f, -.2f, 3.7f));
+            VerifySuspensionMounts();
             Check(_model.GetNode<Node3D>("WeaponRack").Position.Y < 0, "Rack rests inside the rear compartment.");
             string[] names = ["FL", "FR", "RL", "RR"];
             foreach (string corner in names)
@@ -59,6 +61,7 @@ public sealed partial class CarArticulationChecks : Node3D
             }
             Check(_arena.Player.State.CommandSpeed > 3, "Production physics still accelerates the integrated Car.");
             await Capture("driving-turn", new Vector3(4, 2.3f, -5));
+            VerifySuspensionMounts();
             for (int i = 0; i < 90; i++) { await Step(0, 0, ushort.MaxValue); }
             CarDeployment deployment = _model.GetChildren().OfType<CarDeployment>().Single();
             for (int cycle = 0; cycle < 3; cycle++)
@@ -109,6 +112,7 @@ public sealed partial class CarArticulationChecks : Node3D
             }
             Check(maximum > .45f, "Native landing exercises substantial suspension compression.");
             Check(_arena.Player.State.Grounded, "Car settles after native drop and rebound.");
+            VerifySuspensionMounts();
             System.IO.File.WriteAllText(ProjectSettings.GlobalizePath(_output + "/trace.json"), System.Text.Json.JsonSerializer.Serialize(_trace));
             System.IO.File.WriteAllText(ProjectSettings.GlobalizePath(_output + "/results.txt"), $"PASS: {_assertions} native assertions. Actual acceleration, steering, four tire rotations, three complete deployment cycles and one reversal. Rendered captures when display is available.\n");
             GD.Print($"Car articulation passed: {_assertions} assertions.");
@@ -119,6 +123,27 @@ public sealed partial class CarArticulationChecks : Node3D
             GetTree().Quit();
         }
         catch (Exception exception) { GD.PushError(exception.ToString()); GetTree().Quit(1); }
+    }
+
+    private void VerifySuspensionMounts()
+    {
+        foreach (string corner in new[] { "FL", "FR", "RL", "RR" })
+        {
+            Node3D carrier = _model.GetNode<Node3D>("WheelCarrier_" + corner);
+            MeshInstance3D tire = carrier.GetNode<MeshInstance3D>($"WheelSpin_{corner}/WheelSpin_{corner}_Car_Rubber");
+            Aabb bounds = carrier.GlobalTransform.AffineInverse() * tire.GlobalTransform * tire.GetAabb();
+            Check(Math.Abs(bounds.Size.X - .526f) < .003f, "Tire width remains 0.526 metres at " + corner);
+            foreach (string suffix in new[] { "A", "B", "Upper", "Upper2" })
+            {
+                Node3D mount = carrier.GetNode<Node3D>($"WheelLinkMount_{corner}_{suffix}");
+                Check(Math.Abs(mount.Position.X) > .38f, "Suspension mount stays inboard of rubber at " + corner);
+                Node3D endPart = _model.GetNode<Node3D>(suffix is "A" or "B"
+                    ? $"SuspensionLink_{corner}_{suffix}"
+                    : (suffix == "Upper" ? "ShockRod_" : "ShockRod2_") + corner);
+                Vector3 end = endPart.GlobalTransform * new Vector3(0, .5f, 0);
+                Check(end.DistanceTo(mount.GlobalPosition) < .002f, "Articulated bar terminates on its hub bracket at " + corner + suffix);
+            }
+        }
     }
 
     private void VerifyIndependentSpeeds()

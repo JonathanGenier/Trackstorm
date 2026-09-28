@@ -31,7 +31,7 @@ for frame in [1,13,25,36,48,60,68,75,88,100]:
     samples.append({'frame':frame,'rack_height':rack.location.z,'lid_angle':left.rotation_euler.y,'piston_bottom':bottom})
 scene.frame_set(1)
 result={'result':'PASS','visual_wheelbase_m':wheelbase,'meshes':len(meshes),'vertices':sum(len(o.data.vertices) for o in meshes),'polygons':sum(len(o.data.polygons) for o in meshes),'required_nodes':len(required),'deployment_samples':samples}
-out=ROOT.parents[1]/'.godot/ts259-round2/blender-audit.json';out.parent.mkdir(parents=True,exist_ok=True)
+out=ROOT.parents[1]/'.godot/ts259-round3/blender-audit.json';out.parent.mkdir(parents=True,exist_ok=True)
 # Rubber versus chassis surface overlap at representative full-travel/steer poses.
 # This supplements runtime observation; it is not a physics/contact redesign.
 from mathutils import Matrix
@@ -48,6 +48,7 @@ for o in meshes:
 body=BVHTree.FromPolygons(static_verts,static_faces)
 clearances=[]
 contact_points=[]
+mechanical_clearances=[]
 for corner in ['FL','FR','RL','RR']:
     tire=bpy.data.objects['WheelSpin_'+corner+'_Car_Rubber']
     carrier=bpy.data.objects['WheelCarrier_'+corner]
@@ -55,9 +56,33 @@ for corner in ['FL','FR','RL','RR']:
     local=carrier.matrix_world.inverted() @ tire.matrix_world
     for compression in [0,.15,.327,.50,.60,.7165]:
         for steer in ([-.6,-.3,0,.3,.6] if corner.startswith('F') else [0]):
-            center=carrier.location.copy();center.z=-1.472+compression+.582
+            center=carrier.location.copy();center.z=-1.472+compression+.54
             transform=Matrix.Translation(center) @ Matrix.Rotation(steer,4,'Z') @ local
             tree=BVHTree.FromPolygons([transform @ v.co for v in m.vertices],[tuple(f.vertices) for f in m.polygons])
+            mechanical_verts=[];mechanical_faces=[];mechanical_names=[]
+            carrier_pose=Matrix.Translation(center) @ Matrix.Rotation(steer,4,'Z')
+            for part,suffix in enumerate(['A','B','Upper','Upper2']):
+                anchor=bpy.data.objects['SuspensionAnchor_'+corner+'_'+suffix].location
+                mount=bpy.data.objects['WheelLinkMount_'+corner+'_'+suffix]
+                hub=carrier_pose @ mount.location
+                middle=anchor.lerp(hub,.57) if part>=2 else hub
+                link=bpy.data.objects['SuspensionLink_'+corner+'_'+suffix]
+                segments=[(link,anchor,middle)]
+                if part>=2:segments.append((bpy.data.objects[('ShockRod_' if part==2 else 'ShockRod2_')+corner],middle,hub))
+                for segment,start,end in segments:
+                    direction=end-start
+                    pose=Matrix.Translation((start+end)/2) @ direction.to_track_quat('Z','Y').to_matrix().to_4x4() @ Matrix.Diagonal((1,1,direction.length,1))
+                    for component in [segment,*segment.children]:
+                        evaluated_component=component.evaluated_get(deps);mesh=evaluated_component.to_mesh()
+                        component_pose=pose if component==segment else pose @ component.matrix_local
+                        offset=len(mechanical_verts)
+                        mechanical_verts.extend(component_pose @ v.co for v in mesh.vertices)
+                        mechanical_faces.extend(tuple(offset+i for i in f.vertices) for f in mesh.polygons)
+                        mechanical_names.extend([component.name]*len(mesh.polygons))
+                        evaluated_component.to_mesh_clear()
+            mechanism=BVHTree.FromPolygons(mechanical_verts,mechanical_faces)
+            mechanical_pairs=mechanism.overlap(tree)
+            mechanical_clearances.append({'corner':corner,'compression':compression,'steer':steer,'triangle_overlaps':len(mechanical_pairs),'objects':sorted(set(mechanical_names[a] for a,b in mechanical_pairs))})
             pairs=body.overlap(tree)
             overlaps=len(pairs)
             if corner=='FL' and steer==0:
@@ -66,6 +91,9 @@ for corner in ['FL','FR','RL','RR']:
     evaluated.to_mesh_clear()
 print(json.dumps(clearances),flush=True)
 assert sum(x['triangle_overlaps'] for x in clearances)==0, 'Rubber intersects chassis in sampled travel/steering poses'
+print('MECHANICAL',json.dumps(mechanical_clearances),flush=True)
+assert sum(x['triangle_overlaps'] for x in mechanical_clearances)==0, 'Suspension bars/coils intersect rubber'
+result['rubber_suspension_samples']=mechanical_clearances
 result['contact_points']=contact_points
 result['rubber_chassis_samples']=clearances
 result['clearance_surface_overlaps']=sum(x['triangle_overlaps'] for x in clearances)

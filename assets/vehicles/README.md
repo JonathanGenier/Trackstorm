@@ -38,7 +38,10 @@ intentionally absent; this asset provides only their mounting structure.
 ## Rig contract
 
 - `WheelCarrier_FL/FR/RL/RR`: suspension translation and front steering.
-- Their `WheelSpin_*` children: rotation about local X; nominal tread radius 0.582 m.
+- Their `WheelSpin_*` children: rotation about local X; nominal tread radius 0.54 m.
+- `WheelLinkMount_<corner>_A/B/Upper/Upper2`: carrier-local inboard attachments,
+  rotated with steering. Lower arms and two shocks terminate on the hub bracket,
+  outside the rubber. Unit-length links scale along their rotated local axis.
 - `SuspensionAnchor_*`: chassis attachments. `Upper`/`Upper2` and `ShockRod`/`ShockRod2` form two shocks at every wheel. `SuspensionLink_*` and `ShockRod_*`
   stretch/aim between attachments and hubs. Coil meshes inherit the shock sleeve.
 - `TrunkHinge_L/R`: longitudinal hinges. `WeaponRack`: vertical lift with four
@@ -68,7 +71,7 @@ edges are consequently approximated by the unchanged physical supports.
 ## Validation
 
 `check-car-articulation.ps1 -GodotPath <exe> -Visual` drives the production adapter,
-checks articulation/deployment and saves captures and traces under `.godot/ts259-round2/car`.
+checks articulation/deployment and saves captures and traces under `.godot/ts259-round3/car`.
 Use the regular vehicle/network/oval checks for surrounding integration.
 Current Story evidence and limitations belong in `docs/verification/ts-259.md`.
 The previous Kenney-based master and source remain as historical editable assets.
@@ -93,8 +96,11 @@ reflection appearance; the Blender material is an editable preview.
 The extended door/cabin span carries the added length through the body. Lower
 quarter shoulders, narrower elliptical openings, inset tubs, a door/quarter-light
 pillar and fixed rear-deck shoulders retain editable individual panels. Arch armor
-crowns are approximately 0.52 m above the model origin (previously 0.64 m); the
-shoulder is approximately 0.495 m. Full default steering and representative travel
+crowns are approximately 0.32 m front / 0.20 m rear above the model origin;
+the flat shoulder is approximately 0.425 m. Lower opening lips reach 0.22 m front
+and 0.15 m rear. The front flare projects farther out to clear full steering at
+compression; wheel centres and 0.526 m rubber width are unchanged. Diameter is
+7.2% smaller than the previous 0.582 m-radius wheels. Full default steering and representative travel
 poses are audited against the rubber surfaces. Physical supports and the simplified
 collision hull do not follow the additional visual length; obstacle/edge contact
 remains an approximation. The rack preserves its authored longitudinal position
