@@ -52,7 +52,7 @@ for frame in [1,13,25,36,48,60,68,75,88,100]:
 scene.frame_set(1)
 result={'result':'PASS','visual_wheelbase_m':wheelbase,'meshes':len(meshes),'vertices':sum(len(o.data.vertices) for o in meshes),'polygons':sum(len(o.data.polygons) for o in meshes),'required_nodes':len(required),'deployment_samples':samples}
 result['tire_topology']=tire_topology
-out=ROOT.parents[1]/'.godot/ts259-round7/blender-audit.json';out.parent.mkdir(parents=True,exist_ok=True)
+out=ROOT.parents[1]/'.godot/ts259-round8/blender-audit.json';out.parent.mkdir(parents=True,exist_ok=True)
 # Rubber versus chassis surface overlap at representative full-travel/steer poses.
 # This supplements runtime observation; it is not a physics/contact redesign.
 from mathutils import Matrix
@@ -75,6 +75,30 @@ for i,name in enumerate(panel_names):
         assert not panel_trees[name].overlap(panel_trees[other]), name+' intersects '+other
 result['independent_body_panels']=panel_audit
 result['panel_surface_intersections']=0
+# Internal cage tubes must clear every finished body panel and transparent pane.
+cage_checks=[]
+envelope=[o for o in meshes if o.name.startswith(('BodyPanel_', 'BodyFrame_', 'Chassis_FastbackSail')) or o.data.materials[0].name=='Car_ArmoredGlass' or o.name=='Chassis_Car_OxideRed']
+def evaluated_tree(ob):
+    ev=ob.evaluated_get(deps);mesh=ev.to_mesh()
+    tree=BVHTree.FromPolygons([ob.matrix_world @ v.co for v in mesh.vertices],[tuple(f.vertices) for f in mesh.polygons]);ev.to_mesh_clear();return tree
+envelope_trees={o.name:evaluated_tree(o) for o in envelope}
+for cage in [o for o in meshes if o.name.startswith('InternalCage_')]:
+    tree=evaluated_tree(cage)
+    overlaps=[name for name,body_tree in envelope_trees.items() if tree.overlap(body_tree)]
+    assert not overlaps, cage.name+' intersects '+str(overlaps)
+    cage_checks.append({'name':cage.name,'body_glass_intersections':0})
+assert len(cage_checks)>=10
+result['internal_cage_clearance']=cage_checks
+rear_seats=[]
+for corner in ['RL','RR']:
+    for suffix in ['Upper','Upper2']:
+        seat=bpy.data.objects['SuspensionSeat_'+corner+'_'+suffix]
+        top=max((seat.matrix_world @ v.co).z for v in seat.data.vertices)
+        assert top<.37, 'Rear upper seat must remain beneath the deck underside'
+        assert not evaluated_tree(seat).overlap(panel_trees['TrunkLid_'+corner[-1]])
+        rear_seats.append({'name':seat.name,'top_z':top,'deck_underside_z':.37})
+result['rear_seats_beneath_deck']=rear_seats
+
 for o in meshes:
     if o.parent != bpy.data.objects['Car'] or o.name.startswith(('SuspensionLink_', 'ShockRod_', 'ShockRod2_')):continue
     evaluated=o.evaluated_get(deps); m=evaluated.to_mesh(); offset=len(static_verts)

@@ -87,7 +87,7 @@ approximation. Force laws and authority ownership are unchanged.
 ## Validation
 
 `check-car-articulation.ps1 -GodotPath <exe> -Visual` drives the production adapter,
-checks imported panel identity, articulation/deployment and saves captures and traces under `.godot/ts259-round7/car`.
+checks imported panel identity, articulation/deployment and saves captures and traces under `.godot/ts259-round8/car`.
 Use the regular vehicle/network/oval checks for surrounding integration.
 Current Story evidence and limitations belong in `docs/verification/ts-259.md`.
 The previous Kenney-based master and source remain as historical editable assets.
@@ -134,4 +134,20 @@ Glass panes remain separate during material batching for transparency sorting.
 accepted movement drives brake/reverse presentation for practice and remote cars.
 No authoritative lighting state or elaborate interior is required.
 
-The hood/front and split deck/rear extend 0.025 m at each end, with their cabin-side edges and wheelbase retained. Hood rails have capped ends and mounting feet; cage feet meet the quarters. Arch armor follows the quarter surfaces. The front guard joins the retained wrap rails, with chassis stays and a perforated skid plate. Separate body panels, narrow shut lines and all articulated mechanics remain intact.
+The hood/front now extends another 0.220 m and the split deck/rear another
+0.160 m beyond Round 7, with fixed cabin edges, axle stations and hinge pivots.
+Continuously rolled quarter sections and swept end corners replace flat shoulders.
+Arch armor and its short forged studs follow the formed sheets; shoulder vents
+use four visible mounting stays per grille. Hood rails retain their mounting feet and capped ends.
+
+The exterior cabin tubes and collars are replaced by painted pillars/roof edges
+and an internal safety cage with two hoops, roof rails, door bars, a diagonal,
+rear stays and feet tied into the floor. Export batches it independently as
+`InternalCage_Car_WornSteel` for inspection. Glass and protective window grids
+remain independent of the cage. The four rear upper shock anchors are at
+Blender X +/-0.88 m, Z 0.30 m (120 mm lower and 100 mm inward than Round 7).
+Their seats and connected sleeves/rods follow; braces meet the rear floor.
+The seats' upper surface is below the 0.37 m deck underside. Existing runtime
+articulation reads these authored anchors; no suspension force/travel changes
+are involved. AuditCar.py checks cage/body/glass intersections, deck-seat
+clearance, panel closure/separation and sampled tire/mechanism travel.

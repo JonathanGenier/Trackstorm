@@ -12,7 +12,7 @@ public sealed partial class CarArticulationChecks : Node3D
     private Node3D _model = null!;
     private int _assertions;
     private readonly List<object> _trace = new();
-    private readonly string _output = "res://.godot/ts259-round7/car";
+    private readonly string _output = "res://.godot/ts259-round8/car";
 
     public override void _Ready() => CallDeferred(MethodName.Run);
 
@@ -37,6 +37,19 @@ public sealed partial class CarArticulationChecks : Node3D
                 Check(panel?.Mesh is not null && panelMeshes.Add(panel.Mesh), path + " survives import as an independent physical panel.");
             }
             Check(Math.Abs(Math.Abs(_model.GetNode<Node3D>("WheelCarrier_FL").Position.Z - _model.GetNode<Node3D>("WheelCarrier_RL").Position.Z) - 3.351105f) < 0.001f, "Refined visual wheelbase is 3.351105 metres.");
+            MeshInstance3D cage = _model.GetNode<MeshInstance3D>("InternalCage_Car_WornSteel");
+            Aabb cageBounds = cage.GetAabb();
+            Check(cageBounds.End.Y < .90f && cageBounds.Position.X > -1.12f && cageBounds.End.X < 1.12f,
+                "Imported internal cage stays below the roof and inside the side-body envelope.");
+            foreach (string corner in new[] { "RL", "RR" })
+            {
+                foreach (string suffix in new[] { "Upper", "Upper2" })
+                {
+                    Vector3 mount = _model.GetNode<Node3D>($"SuspensionAnchor_{corner}_{suffix}").Position;
+                    Check(Math.Abs(mount.Y - .30f) < .001f && Math.Abs(Math.Abs(mount.X) - .88f) < .001f,
+                        corner + suffix + " retains the connected underdeck shock mount.");
+                }
+            }
             for (int i = 0; i < 150; i++) { await Step(); }
             Vector3 frontTireSize = _model.GetNode<MeshInstance3D>("WheelCarrier_FL/WheelSpin_FL/WheelSpin_FL_Car_Rubber").GetAabb().Size;
             foreach (string corner in new[] { "FL", "FR", "RL", "RR" })
