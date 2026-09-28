@@ -131,7 +131,7 @@ public sealed partial class VehicleIntegrationChecks : Node
         for (int index = 0; index < wheelNames.Length; index++)
         {
             var tire = localModel.GetNode<Node3D>(wheelNames[index]);
-            float bottom = tire.Position.Y - (index < 2 ? WheelPresentation.TireRadius : WheelPresentation.RearTireRadius);
+            float bottom = tire.Position.Y - WheelPresentation.TireRadius;
             Check(Math.Abs(bottom + _arena.Player.Configuration.SuspensionLength - compressions[index]) < 0.001f, wheelNames[index] + " follows current suspension compression.");
         }
 

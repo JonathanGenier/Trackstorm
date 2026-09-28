@@ -53,7 +53,7 @@ intentionally absent; this asset provides only their mounting structure.
 ## Rig contract
 
 - `WheelCarrier_FL/FR/RL/RR`: suspension translation and front steering.
-- Their `WheelSpin_*` children: rotation about local X; nominal tread radius 0.54 m front / 0.565 m rear.
+- Their `WheelSpin_*` children: rotation about local X; common nominal tread radius 0.54 m; identical 1.094 m outside tread diameter on all four tires.
 - `WheelLinkMount_<corner>_A/B/Upper/Upper2`: carrier-local inboard attachments,
   rotated with steering. Lower arms and two shocks terminate on the hub bracket,
   outside the rubber. Unit-length links scale along their rotated local axis.
@@ -87,7 +87,7 @@ approximation. Force laws and authority ownership are unchanged.
 ## Validation
 
 `check-car-articulation.ps1 -GodotPath <exe> -Visual` drives the production adapter,
-checks imported panel identity, articulation/deployment and saves captures and traces under `.godot/ts259-round6/car`.
+checks imported panel identity, articulation/deployment and saves captures and traces under `.godot/ts259-round7/car`.
 Use the regular vehicle/network/oval checks for surrounding integration.
 Current Story evidence and limitations belong in `docs/verification/ts-259.md`.
 The previous Kenney-based master and source remain as historical editable assets.
@@ -116,7 +116,7 @@ crowns/opening lips now reach approximately 0.42/0.40 m at their centre,
 inside the unchanged 0.425 m shoulder. The larger cutout clears the outboard tires
 through default steering and representative full travel without increasing the
 outer fender width or shoulder height. Rubber width remains 0.526 m; front/rear
-centres sit at +/-1.38 / +/-1.30 m. The rear rolling radius is 4.6% larger.
+centres sit at +/-1.38 / +/-1.30 m. All four rolling diameters and authored wheel-center heights match.
 Central coachwork is 25% wider, with pivot origins and deck geometry refitted;
 the door/cabin span carries the additional 0.25 m longitudinal extension.
 Twin warm-metal springs, mounting seats and extended hub brackets articulate
@@ -125,7 +125,7 @@ The longitudinal physical axle stations preserve that documented visual offset. 
 its new authored longitudinal position (1.845 m aft) throughout deployment.
 The closed deck sheet meets the 0.425 m fender shoulder. Each rubber tire is one
 closed manifold mesh with 108 integrated broad tread blocks and rounded edges;
-the 0.526 m width and slightly larger rear radius remain. Hidden rear tubs clear
+the 0.526 m width remains on all four wheels. Hidden rear tubs clear
 full compression, and bonnet returns support the closed panel shut line.
 
 Glass panes remain separate during material batching for transparency sorting.
@@ -133,3 +133,5 @@ Glass panes remain separate during material batching for transparency sorting.
 `CarLighting` creates per-instance lens materials and directional beams in Client;
 accepted movement drives brake/reverse presentation for practice and remote cars.
 No authoritative lighting state or elaborate interior is required.
+
+The hood/front and split deck/rear extend 0.025 m at each end, with their cabin-side edges and wheelbase retained. Hood rails have capped ends and mounting feet; cage feet meet the quarters. Arch armor follows the quarter surfaces. The front guard joins the retained wrap rails, with chassis stays and a perforated skid plate. Separate body panels, narrow shut lines and all articulated mechanics remain intact.

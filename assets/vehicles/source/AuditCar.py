@@ -25,8 +25,14 @@ for corner in ['FL','FR','RL','RR']:
             for vertex in edge.verts:
                 if vertex not in seen:seen.add(vertex);pending.append(vertex)
     assert len(seen)==len(bm.verts), 'Tread must connect to the tire carcass'
-    tire_topology.append({'corner':corner,'vertices':len(bm.verts),'connected_closed_surface':True})
+    spin=bpy.data.objects['WheelSpin_'+corner]
+    local=spin.matrix_world.inverted() @ tire.matrix_world
+    points=[local @ v.co for v in tire.data.vertices]
+    diameter=2*max(math.hypot(p.y,p.z) for p in points)
+    tire_topology.append({'corner':corner,'vertices':len(bm.verts),'connected_closed_surface':True,'outside_diameter_m':diameter,'width_m':max(p.x for p in points)-min(p.x for p in points)})
     bm.free()
+assert max(t['outside_diameter_m'] for t in tire_topology)-min(t['outside_diameter_m'] for t in tire_topology)<.00001, 'All four tires must have identical outside diameter'
+assert max(bpy.data.objects['WheelCarrier_'+c].location.z for c in ['FL','FR','RL','RR'])-min(bpy.data.objects['WheelCarrier_'+c].location.z for c in ['FL','FR','RL','RR'])<.00001, 'Authored wheel center heights must agree'
 meshes=[o for o in scene.objects if o.type=='MESH']
 assert all(all(math.isfinite(c) for c in v.co) for o in meshes for v in o.data.vertices)
 assert all(o.data.materials for o in meshes)
@@ -46,7 +52,7 @@ for frame in [1,13,25,36,48,60,68,75,88,100]:
 scene.frame_set(1)
 result={'result':'PASS','visual_wheelbase_m':wheelbase,'meshes':len(meshes),'vertices':sum(len(o.data.vertices) for o in meshes),'polygons':sum(len(o.data.polygons) for o in meshes),'required_nodes':len(required),'deployment_samples':samples}
 result['tire_topology']=tire_topology
-out=ROOT.parents[1]/'.godot/ts259-round6/blender-audit.json';out.parent.mkdir(parents=True,exist_ok=True)
+out=ROOT.parents[1]/'.godot/ts259-round7/blender-audit.json';out.parent.mkdir(parents=True,exist_ok=True)
 # Rubber versus chassis surface overlap at representative full-travel/steer poses.
 # This supplements runtime observation; it is not a physics/contact redesign.
 from mathutils import Matrix
@@ -87,7 +93,7 @@ for corner in ['FL','FR','RL','RR']:
     local=carrier.matrix_world.inverted() @ tire.matrix_world
     for compression in [0,.15,.327,.50,.60,.7165]:
         for steer in ([-.6,-.3,0,.3,.6] if corner.startswith('F') else [0]):
-            center=carrier.location.copy();center.z=-1.472+compression+(.54 if corner.startswith('F') else .565)
+            center=carrier.location.copy();center.z=-1.472+compression+.54
             transform=Matrix.Translation(center) @ Matrix.Rotation(steer,4,'Z') @ local
             tree=BVHTree.FromPolygons([transform @ v.co for v in m.vertices],[tuple(f.vertices) for f in m.polygons])
             mechanical_verts=[];mechanical_faces=[];mechanical_names=[]

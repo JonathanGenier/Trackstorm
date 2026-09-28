@@ -12,7 +12,7 @@ public sealed partial class CarArticulationChecks : Node3D
     private Node3D _model = null!;
     private int _assertions;
     private readonly List<object> _trace = new();
-    private readonly string _output = "res://.godot/ts259-round6/car";
+    private readonly string _output = "res://.godot/ts259-round7/car";
 
     public override void _Ready() => CallDeferred(MethodName.Run);
 
@@ -38,6 +38,13 @@ public sealed partial class CarArticulationChecks : Node3D
             }
             Check(Math.Abs(Math.Abs(_model.GetNode<Node3D>("WheelCarrier_FL").Position.Z - _model.GetNode<Node3D>("WheelCarrier_RL").Position.Z) - 3.351105f) < 0.001f, "Refined visual wheelbase is 3.351105 metres.");
             for (int i = 0; i < 150; i++) { await Step(); }
+            Vector3 frontTireSize = _model.GetNode<MeshInstance3D>("WheelCarrier_FL/WheelSpin_FL/WheelSpin_FL_Car_Rubber").GetAabb().Size;
+            foreach (string corner in new[] { "FL", "FR", "RL", "RR" })
+            {
+                Vector3 size = _model.GetNode<MeshInstance3D>($"WheelCarrier_{corner}/WheelSpin_{corner}/WheelSpin_{corner}_Car_Rubber").GetAabb().Size;
+                Check(Math.Abs(size.Y - frontTireSize.Y) < .0001f && Math.Abs(size.Z - frontTireSize.Z) < .0001f,
+                    corner + " has the same imported outside tire diameter as the front axle.");
+            }
             await Capture("front-closed", new Vector3(5, 2.9f, -6));
             await Capture("rear-closed", new Vector3(-5, 2.9f, 6));
             await Capture("front", new Vector3(0, 1.2f, -6.4f));

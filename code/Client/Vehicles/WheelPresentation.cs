@@ -7,7 +7,6 @@ namespace Trackstorm.Client.Vehicles;
 internal sealed partial class WheelPresentation : Node
 {
     internal const float TireRadius = 0.54f;
-    internal const float RearTireRadius = 0.565f;
     private Node3D[] _wheels = [];
     private Node3D[] _spins = [];
     private readonly Node3D[,] _links = new Node3D[4, 4];
@@ -53,7 +52,7 @@ internal sealed partial class WheelPresentation : Node
         float speed = System.Numerics.Vector3.Dot(sample.State.Physics.LinearVelocity, forward);
         for (int index = 0; index < _wheels.Length; index++)
         {
-            float radius = index < 2 ? TireRadius : RearTireRadius;
+            float radius = TireRadius;
             _spin[index] = Mathf.PosMod(_spin[index] - (speed * (float)delta / radius), Mathf.Tau);
             Node3D wheel = _wheels[index];
             float target = -sample.Configuration.SuspensionLength + values[index] + radius;
