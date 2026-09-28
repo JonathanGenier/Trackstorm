@@ -24,6 +24,7 @@ public sealed partial class ProxyMineIntegrationChecks : Node
     private float _outerSpeed;
     private float _midSpeed;
     private float _hp;
+    private float _bouncePeak;
     private int _surface;
     private bool _done;
     private readonly List<string> _evidence = new();
@@ -99,6 +100,7 @@ public sealed partial class ProxyMineIntegrationChecks : Node
             foreach (var arena in _arenas) { var before = arena.Driver.Host?.World.State; arena.Advance(default); if (before is not null) { _scoring.Verify(arena.Driver.Host!, before.Value, "gameplay effect"); } Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure); }
             Check(_frames - _boundary < 1200, $"Mine stage {_stage} timeout; mines={_arenas[0].Driver.Host?.Items.Mines.Count}");
             var host = _arenas[0].Driver.Host!;
+            if (_stage is 8 or 80) { _bouncePeak = Math.Max(_bouncePeak, host.World.GetVehicle(2).ObservedPhysics.Position.Y); }
             switch (_stage)
             {
                 case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2):
@@ -153,6 +155,12 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                 case 8 when _frames - _boundary > 20 && _arenas.All(a => a.Driver.ItemState?.Mines.Count == 0):
                     Check(host.World.GetVehicle(2).Movement.Physics.LinearVelocity.Length() > 5, "native knockback motion");
                     Check(_arenas.All(a => a.Driver.Latest!.Vehicles.Single(v => v.State.VehicleId == 2).State.Damage.CurrentHP <= _hp - 60), "replicated damage");
+                    _stage = 80; _boundary = _frames;
+                    break;
+                case 80 when _frames - _boundary >= 360:
+                    var settled = host.World.GetVehicle(2);
+                    Check(settled.Movement.Grounded && Math.Abs(settled.ObservedPhysics.LinearVelocity.Y) < 0.5f, "mine disturbance settles without sustained pogo");
+                    _evidence.Add($"Mine disturbance peak origin Y={_bouncePeak:F3}; after six seconds grounded={settled.Movement.Grounded}, vertical={settled.ObservedPhysics.LinearVelocity.Y:F3} m/s.");
                     Position(1, new N.Vector3(0,21.4f,0));
                     Position(2, new N.Vector3(8,21.4f,4.5f));
                     Grant(1);

@@ -58,6 +58,8 @@ public sealed record VehicleConfiguration
     public float SteeringResponse { get; init; } = 3.8f;
     /// <summary>Time constant for progressive wheel corrections, lengthened with speed.</summary>
     public float SteeringSmoothing { get; init; } = 0.06f;
+    /// <summary>Low/medium dirt corner authority multiplier; fades out by 28 m/s.</summary>
+    public float DirtCornering { get; init; } = 1;
     /// <summary>Maximum dirt rear lateral grip loss under sustained power.</summary>
     public float DirtPowerSlip { get; init; } = 0.22f;
     /// <summary>Front dirt tire budget reserved for wheel direction during saturated slides.</summary>
@@ -101,19 +103,19 @@ public sealed record VehicleConfiguration
     /// <summary>Weak yaw damping; never targets a commanded yaw or drift angle.</summary>
     public float StabilityDamping { get; init; } = 0.65f;
     /// <summary>Fully extended suspension ray length in metres.</summary>
-    public float SuspensionLength { get; init; } = VehicleDimensions.RideHeight + (9.81f / 22);
+    public float SuspensionLength { get; init; } = VehicleDimensions.RideHeight + (11f / 22);
     /// <summary>Vertical spring stiffness per unit sprung mass.</summary>
     public float WheelSpring { get; init; } = 22;
     /// <summary>Compression damping per unit sprung mass; acts on chassis point velocity.</summary>
     public float WheelDamping { get; init; } = 10;
     /// <summary>Extension damping per unit sprung mass, controlling recovery without pulling tires down.</summary>
-    public float WheelReboundDamping { get; init; } = 11;
+    public float WheelReboundDamping { get; init; } = 14;
     /// <summary>Compression where progressive bump resistance begins, in metres.</summary>
     public float WheelBumpStart { get; init; } = 0.6f;
     /// <summary>Additional acceleration per squared metre beyond bump engagement.</summary>
     public float WheelBumpSpring { get; init; } = 260;
     /// <summary>Gravity acceleration.</summary>
-    public float Gravity { get; init; } = 9.81f;
+    public float Gravity { get; init; } = 11;
     /// <summary>Safety bound on total velocity, including external impulses.</summary>
     public float MaximumPhysicsSpeed { get; init; } = 65;
     /// <summary>Safety bound on angular velocity.</summary>
@@ -122,11 +124,11 @@ public sealed record VehicleConfiguration
     /// <summary>Activation delay (s).</summary>
     public float AirDelay { get; init; } = 0.15f;
     /// <summary>Pitch rate (rad/s).</summary>
-    public float AirPitchRate { get; init; } = 2.8f;
+    public float AirPitchRate { get; init; } = 2.52f;
     /// <summary>Yaw rate (rad/s).</summary>
-    public float AirYawRate { get; init; } = 2.4f;
+    public float AirYawRate { get; init; } = 2.16f;
     /// <summary>Roll rate (rad/s).</summary>
-    public float AirRollRate { get; init; } = 3.6f;
+    public float AirRollRate { get; init; } = 3.24f;
     /// <summary>Pitch acceleration (rad/s2).</summary>
     public float AirPitchAcceleration { get; init; } = 16;
     /// <summary>Yaw acceleration (rad/s2).</summary>
@@ -143,6 +145,11 @@ public sealed record VehicleConfiguration
     public float AirDeadZone { get; init; } = 0.08f;
     /// <summary>Minimum ground normal Y.</summary>
     public float SupportNormalMinimum { get; init; } = 0.55f;
+
+    /// <summary>Quiet bad-attitude seconds before gradual rollover assistance starts.</summary>
+    public float CrashRecoveryDelay { get; init; } = 1.25f;
+    /// <summary>Assisted rollover target rate in rad/s; zero disables assistance.</summary>
+    public float CrashRecoveryRate { get; init; } = 1.2f;
 
     /// <summary>Static-obstacle tangential resistance per second.</summary>
     public float WallDrag { get; init; } = 0.18f;
@@ -223,6 +230,8 @@ public sealed record VehicleConfiguration
             throw new ArgumentException("Drive traction reserve must be a finite fraction.");
         }
 
+        if (!float.IsFinite(DirtCornering) || DirtCornering is < 0 or > 2) { throw new ArgumentException("Invalid dirt corner tuning."); }
+        if (!float.IsFinite(CrashRecoveryDelay) || CrashRecoveryDelay is < 0.5f or > 10 || !float.IsFinite(CrashRecoveryRate) || CrashRecoveryRate is < 0 or > 2) { throw new ArgumentException("Invalid crash recovery tuning."); }
         if (TicksPerSecond is < 30 or > 240 || new[] { StopSpeed, SuspensionLength, WheelSpring, WheelDamping, WheelReboundDamping, WheelBumpStart, WheelBumpSpring, Mass, Acceleration, Braking, ReverseAcceleration, ForwardSpeed, ReverseSpeed, OverspeedDeceleration, Grip, SteeringAngle, SteeringSpeed, SteeringResponse, Wheelbase, TireFriction, LoadHeight, HandbrakeBraking, HandbrakeGrip, HandbrakeResponse, TractionRecovery, CoastDrag, ReferenceMass, SuspensionSpring, SuspensionDamping, ChassisCompliance, MaximumChassisTilt, Gravity, MaximumPhysicsSpeed, MaximumAngularSpeed }.Any(value => !float.IsFinite(value) || value <= 0 || value > 10000) || SuspensionLength > 2 || WheelBumpStart >= 1 || HandbrakeGrip > 1 || SteeringAngle > 1 || MaximumChassisTilt > 0.5f || !float.IsFinite(StabilityDamping) || StabilityDamping < 0 || StabilityDamping > 1 || ForwardSpeed > MaximumPhysicsSpeed || ReverseSpeed > ForwardSpeed)
         {
             throw new ArgumentException("Vehicle tuning requires finite positive values and consistent speed/grip limits.");

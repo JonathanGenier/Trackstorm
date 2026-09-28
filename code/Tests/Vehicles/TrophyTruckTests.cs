@@ -86,6 +86,40 @@ internal sealed class TrophyTruckTests
     }
 
     [Test]
+    public void RecoveryWaitsThenContinuesExactlyAcrossRestoration()
+    {
+        var tuning = new VehicleConfiguration();
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI), Vector3.Zero, Vector3.Zero);
+        var movement = new VehicleMovement(tuning, pose);
+        for (ulong tick = 1; tick <= 120; tick++)
+        {
+            var input = new InputFrame(tick, 0, 0, 0, 0, 0, 0);
+            var restored = new VehicleMovement(tuning, pose);
+            restored.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(movement.State)));
+            var next = movement.Step(input, pose, Vector3.UnitY, wheels: default(WheelSupport));
+            Assert.That(restored.Step(input, pose, Vector3.UnitY, wheels: default(WheelSupport)), Is.EqualTo(next));
+            if (tick < 75) { Assert.That(next.Physics.AngularVelocity.Length(), Is.LessThan(0.00001f)); }
+        }
+        Assert.That(movement.State.Physics.AngularVelocity.Length(), Is.GreaterThan(1));
+        var airborne = movement.Step(new(121, 0, 0, 0, 0, 0, 0), pose, Vector3.Zero);
+        Assert.That(airborne.CrashSeconds, Is.Zero);
+        Assert.That(airborne.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
+    }
+
+    [Test]
+    public void ChassisContactDissipatesReboundWithoutChangingRawImpact()
+    {
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI), new(4, 15, 0), new(0, 0, 1));
+        var contact = new VehicleContact(new(4, -20, 0), Vector3.UnitY, 20000, 0, true, new(0, 1, 0));
+        var next = new VehicleMovement(new(), pose).Step(new(1, 0, 0, 0, 0, 0, 0), pose, Vector3.UnitY, wheels: default(WheelSupport), contacts: [contact]);
+        Assert.That(next.Physics.LinearVelocity.Y, Is.LessThan(0.5f));
+        Assert.That(next.Physics.LinearVelocity.X, Is.EqualTo(4).Within(0.1f));
+        Assert.That(next.Physics.AngularVelocity.Z, Is.InRange(0.9f, 1));
+        Assert.That(contact.RelativeVelocity.Y, Is.EqualTo(-20));
+        Assert.That(contact.Impulse, Is.EqualTo(20000));
+    }
+
+    [Test]
     public void LoadedSuspensionReleasesEnergyButResistsDeepCompressionProgressively()
     {
         var tuning = new VehicleConfiguration();

@@ -131,8 +131,8 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
         var road = new StaticBody3D { CollisionLayer = 1, CollisionMask = 2, Rotation = new(Mathf.DegToRad(degrees), 0, 0) };
         road.SetMeta("surface_identity", identity.ToString());
         road.AddToGroup("landing_terrain");
-        road.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(250, 2, 1200) }, Position = new(0, -1, 0) });
-        road.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(250, 2, 1200) }, Position = new(0, -1, 0), MaterialOverride = new StandardMaterial3D { AlbedoColor = identity switch { SurfaceIdentity.Grass => new("527038"), SurfaceIdentity.Mud => new("66503c"), SurfaceIdentity.DeepMud => new("3e3029"), SurfaceIdentity.Dirt => new("947454"), _ => new("686b70") } } });
+        road.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(1000, 2, 1200) }, Position = new(0, -1, 0) });
+        road.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(1000, 2, 1200) }, Position = new(0, -1, 0), MaterialOverride = new StandardMaterial3D { AlbedoColor = identity switch { SurfaceIdentity.Grass => new("527038"), SurfaceIdentity.Mud => new("66503c"), SurfaceIdentity.DeepMud => new("3e3029"), SurfaceIdentity.Dirt => new("947454"), _ => new("686b70") } } });
         AddChild(road);
         await Frames(3);
         _world = new(new Core.Simulation.SimulationConfiguration(60));
@@ -174,7 +174,7 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
             _steer = 0;
             await Frames(180);
             state = _world.GetVehicle(1);
-            Check(state.Movement.Grounded && state.Movement.Handbrake == 0 && N.Vector3.Transform(N.Vector3.UnitY, state.Movement.Physics.Orientation).Y > .9f, name + " recovers upright after handbrake and steering");
+            Check(state.Movement.Grounded && state.Movement.Handbrake == 0 && N.Vector3.Transform(N.Vector3.UnitY, state.Movement.Physics.Orientation).Y > .9f, $"{name} recovers upright after handbrake and steering: position={state.Movement.Physics.Position}, up={N.Vector3.Transform(N.Vector3.UnitY, state.Movement.Physics.Orientation).Y:F3}, grounded={state.Movement.Grounded}");
             Check(state.Movement.CommandSpeed > 1 && state.Damage.CurrentHP == 1000, name + " retains drive after release");
             // Change the authored material under a moving body; no velocity/reset shortcut.
             road.SetMeta("surface_identity", SurfaceIdentity.Asphalt.ToString());

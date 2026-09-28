@@ -62,7 +62,7 @@ internal sealed class VehicleMovementTests
     {
         VehicleMovement movement = Create();
         VehicleState state = movement.Step(Frame(1, throttle: 65535, steering: 32767, drift: true), movement.State.Physics, Vector3.UnitY, false);
-        Assert.That(state.Physics.LinearVelocity.Y, Is.EqualTo(-9.81f / 60).Within(0.000001));
+        Assert.That(state.Physics.LinearVelocity.Y, Is.EqualTo(-11f / 60).Within(0.000001));
         Assert.That(state.Physics.LinearVelocity.X, Is.Zero);
         Assert.That(state.Physics.LinearVelocity.Z, Is.Zero);
         Assert.That(state.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
@@ -175,10 +175,10 @@ internal sealed class VehicleMovementTests
         Assert.That(movement.State.Grounded, Is.True);
         movement.Step(Frame(2), movement.State.Physics, Vector3.Zero);
         Assert.That(movement.State.Grounded, Is.False);
-        Assert.That(movement.State.Physics.LinearVelocity.Y, Is.EqualTo(-9.81f / 30).Within(0.00001));
+        Assert.That(movement.State.Physics.LinearVelocity.Y, Is.EqualTo(-11f / 30).Within(0.00001));
         GroundStep(movement);
         Assert.That(movement.State.Grounded, Is.True);
-        Assert.That(movement.State.Physics.LinearVelocity.Y, Is.EqualTo(-9.81f / 60).Within(0.00001));
+        Assert.That(movement.State.Physics.LinearVelocity.Y, Is.EqualTo(-11f / 60).Within(0.00001));
     }
 
     /// <summary>Grip dissipates lateral motion; drifting retains more side slip.</summary>

@@ -21,6 +21,9 @@ public sealed partial class TrophyTruckChecks : Node3D
     private string _case = "";
     private string _output = "";
     private int _assertions;
+    private float _yawTravel;
+    private bool _chassisContact;
+    private float _rebound;
 
     public override void _Ready() => CallDeferred(MethodName.Run);
 
@@ -41,11 +44,17 @@ public sealed partial class TrophyTruckChecks : Node3D
             var p = s.ObservedPhysics;
             var w = s.Movement.Wheels.Compression;
             var up = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation);
+            if (s.VehicleId == 1)
+            {
+                _yawTravel += p.AngularVelocity.Y / 60;
+                _chassisContact |= requests.Single(r => r.VehicleId == 1).Observation.Contacts.Count > 0;
+                if (_chassisContact) { _rebound = Math.Max(_rebound, p.LinearVelocity.Y); }
+            }
             _trace.Add(new { tick, id = s.VehicleId, position = new[] { p.Position.X, p.Position.Y, p.Position.Z },
                 velocity = new[] { p.LinearVelocity.X, p.LinearVelocity.Y, p.LinearVelocity.Z },
                 angular = new[] { p.AngularVelocity.X, p.AngularVelocity.Y, p.AngularVelocity.Z }, up = up.Y,
                 compression = new[] { w.X, w.Y, w.Z, w.W }, s.Movement.Grounded, s.Movement.Handbrake,
-                s.Movement.SteeringAngle, hp = s.Damage.CurrentHP, contacts = requests.Single(r => r.VehicleId == s.VehicleId).Observation.Contacts.Count });
+                s.Movement.SteeringAngle, s.Movement.CrashSeconds, hp = s.Damage.CurrentHP, contacts = requests.Single(r => r.VehicleId == s.VehicleId).Observation.Contacts.Count });
         }
     }
 
@@ -58,10 +67,11 @@ public sealed partial class TrophyTruckChecks : Node3D
             foreach (bool network in new[] { false, true })
             {
                 await Driving(network);
-                foreach (var attitude in new[] { ("wheels", N.Quaternion.Identity), ("side", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, MathF.PI / 2)), ("roof", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, MathF.PI)), ("bumper", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, 1.3f)) })
+                await PowerCorners(network);
+                foreach (var attitude in new[] { ("wheels", N.Quaternion.Identity), ("side", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, MathF.PI / 2)), ("roof", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, MathF.PI)), ("bumper", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, 1.3f)), ("trunk", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, -1.3f)) })
                 {
                     await Setup(network, attitude.Item1, new(0, 5.5f, 0), attitude.Item2);
-                    await Frames(240);
+                    await Frames(600);
                     var final = _world.GetVehicle(1).ObservedPhysics;
                     Check(VehiclePhysicsState.IsFinite(final.LinearVelocity) && final.LinearVelocity.Length() < 8, _case + " settles with bounded motion");
                     if (attitude.Item1 == "wheels")
@@ -69,7 +79,9 @@ public sealed partial class TrophyTruckChecks : Node3D
                         Check(_world.GetVehicle(1).Movement.Grounded && N.Vector3.Transform(N.Vector3.UnitY, final.Orientation).Y > 0.95f, _case + " returns to level wheel support");
                         Check(Math.Abs(final.Position.Y - VehicleDimensions.RideHeight) < 0.08f, _case + " returns to ride height");
                     }
-                    if (attitude.Item1 == "roof") { Check(N.Vector3.Transform(N.Vector3.UnitY, final.Orientation).Y < -0.8f, _case + " remains consequential without automatic righting"); }
+                    if (attitude.Item1 is "roof" or "side") { Check(N.Vector3.Transform(N.Vector3.UnitY, final.Orientation).Y > 0.9f, _case + " gradually recovers after the crash"); }
+                    Check(_rebound < 1.5f, _case + " avoids a chassis-contact vertical launch");
+                    GD.Print($"{_case}: peak upward velocity after chassis contact={_rebound:F3}");
                     await Finish();
                 }
                 float equalMassTravel = 0;
@@ -122,7 +134,35 @@ public sealed partial class TrophyTruckChecks : Node3D
         await Finish();
     }
 
-    private async Task Setup(bool network, string name, N.Vector3 position, N.Quaternion orientation, N.Vector3 velocity = default)
+    private async Task PowerCorners(bool network)
+    {
+        foreach (float speed in new[] { 40 / 3.6f, 50 / 3.6f, 60 / 3.6f })
+        {
+            float baselineTurn = 0;
+            foreach (bool assisted in new[] { false, true })
+            {
+                await Setup(network, $"power-{speed * 3.6f:F0}-{assisted}", new(0, VehicleDimensions.RideHeight, 0), N.Quaternion.Identity,
+                    new(0, 0, -speed), new() { DirtCornering = assisted ? 1 : 0 });
+                _pilot = (tick, _) => new(tick, short.MaxValue, ushort.MaxValue, 0, 0, 0, 0);
+                await Frames(45);
+                if (assisted) { Check(Math.Abs(_yawTravel) > baselineTurn * 1.2f, _case + " carves at least 20% more heading within 0.75 seconds"); }
+                else { baselineTurn = Math.Abs(_yawTravel); }
+                await Frames(15);
+                var state = _world.GetVehicle(1);
+                var right = N.Vector3.Transform(N.Vector3.UnitX, state.ObservedPhysics.Orientation);
+                GD.Print($"{_case}: speed={state.Speed:F3} yaw={state.Movement.Physics.AngularVelocity.Y:F3} side={N.Vector3.Dot(right, state.ObservedPhysics.LinearVelocity):F3}");
+                Check(N.Vector3.Transform(N.Vector3.UnitY, state.ObservedPhysics.Orientation).Y > 0.9f, _case + " remains planted");
+                _pilot = (tick, _) => new(tick, 0, 40000, 0, 0, 0, 0);
+                await Frames(180);
+                state = _world.GetVehicle(1);
+                right = N.Vector3.Transform(N.Vector3.UnitX, state.ObservedPhysics.Orientation);
+                Check(Math.Abs(state.Movement.Physics.AngularVelocity.Y) < 0.1f && Math.Abs(N.Vector3.Dot(right, state.ObservedPhysics.LinearVelocity)) < 0.5f, _case + " straightens after release");
+                await Finish();
+            }
+        }
+    }
+
+    private async Task Setup(bool network, string name, N.Vector3 position, N.Quaternion orientation, N.Vector3 velocity = default, VehicleConfiguration? tuning = null)
     {
         _case = (network ? "network-" : "native-") + name;
         _fixture = new Node3D(); AddChild(_fixture);
@@ -130,9 +170,9 @@ public sealed partial class TrophyTruckChecks : Node3D
         road.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(2000, 2, 2000) }, Position = new(0, -1, 0) });
         _fixture.AddChild(road);
         _world = new(new(60));
-        _trace.Clear();
+        _trace.Clear(); _yawTravel = 0; _chassisContact = false; _rebound = 0;
         _pilot = (tick, _) => new(tick, 0, 0, 0, 0, 0, 0);
-        AddCar(network, 1, position, orientation, velocity, new());
+        AddCar(network, 1, position, orientation, velocity, tuning ?? new());
         await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
         _running = true;
     }

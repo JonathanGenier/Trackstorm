@@ -6,6 +6,9 @@ public static class GameplayOptions
     /// <summary>Stable allowlist of editable gameplay settings.</summary>
     public static IReadOnlyList<GameplayOption> All { get; } = Array.AsReadOnly<GameplayOption>(
     [
+        new("vehicle.dirt_cornering", "Vehicle", "Low/medium dirt cornering (0–2)", false, c => c.Vehicle.DirtCornering, (c, v) => c with { Vehicle = c.Vehicle with { DirtCornering = checked((float)v) } }),
+        new("vehicle.crash_recovery_delay", "Collision", "Recovery delay (0.5–10 s)", false, c => c.Vehicle.CrashRecoveryDelay, (c, v) => c with { Vehicle = c.Vehicle with { CrashRecoveryDelay = checked((float)v) } }),
+        new("vehicle.crash_recovery_rate", "Collision", "Recovery roll rate (0–2 rad/s)", false, c => c.Vehicle.CrashRecoveryRate, (c, v) => c with { Vehicle = c.Vehicle with { CrashRecoveryRate = checked((float)v) } }),
         new("vehicle.front_drive_share", "Vehicle", "Front drive share (0–1)", false, c => c.Vehicle.FrontDriveShare, (c, v) => c with { Vehicle = c.Vehicle with { FrontDriveShare = checked((float)v) } }),
         new("vehicle.trunk_deployment_speed", "Car deployment", "Trunk speed (0.1–10×)", false, c => c.Vehicle.TrunkDeploymentSpeed, (c, v) => c with { Vehicle = c.Vehicle with { TrunkDeploymentSpeed = checked((float)v) } }),
         new("vehicle.rack_deployment_speed", "Car deployment", "Weapon rack speed (0.1–10×)", false, c => c.Vehicle.RackDeploymentSpeed, (c, v) => c with { Vehicle = c.Vehicle with { RackDeploymentSpeed = checked((float)v) } }),

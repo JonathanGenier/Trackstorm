@@ -103,8 +103,9 @@ public sealed partial class OvalIntegrationChecks
         }
         rock.QueueFree();
         await Frames(2);
+        // Start even the smallest drop above the configured 0.5 m static droop.
         foreach (bool network in new[] { false, true })
-        foreach (float drop in new[] { 0.5f, 1.5f, 4f })
+        foreach (float drop in new[] { 0.6f, 1.5f, 4f })
         {
             // Neutral pedals preserve the initial four-wheel attitude. Holding
             // throttle in flight deliberately commands the existing nose-down aerial.

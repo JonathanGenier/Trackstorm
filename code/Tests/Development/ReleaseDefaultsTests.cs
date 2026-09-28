@@ -21,9 +21,9 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("environment.push_scale", (double)0.35f)]
     [TestCase("environment.velocity_retention", (double)0.9f)]
     [TestCase("vehicle.air_delay", (double)0.15f)]
-    [TestCase("vehicle.air_pitch_rate", (double)2.8f)]
-    [TestCase("vehicle.air_yaw_rate", (double)2.4f)]
-    [TestCase("vehicle.air_roll_rate", (double)3.6f)]
+    [TestCase("vehicle.air_pitch_rate", (double)2.52f)]
+    [TestCase("vehicle.air_yaw_rate", (double)2.16f)]
+    [TestCase("vehicle.air_roll_rate", (double)3.24f)]
     [TestCase("vehicle.air_pitch_acceleration", 16d)]
     [TestCase("vehicle.air_yaw_acceleration", 14d)]
     [TestCase("vehicle.air_roll_acceleration", 20d)]
@@ -59,13 +59,16 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("vehicle.chassis_compliance", 0.004000000189989805d)]
     [TestCase("vehicle.maximum_chassis_tilt", 0.1599999964237213d)]
     [TestCase("vehicle.stability_damping", 0.6499999761581421d)]
-    [TestCase("vehicle.suspension_length", (double)(VehicleDimensions.RideHeight + (9.81f / 22)))]
+    [TestCase("vehicle.suspension_length", (double)(VehicleDimensions.RideHeight + (11f / 22)))]
     [TestCase("vehicle.wheel_spring", 22d)]
     [TestCase("vehicle.wheel_damping", 10d)]
-    [TestCase("vehicle.wheel_rebound_damping", 11d)]
+    [TestCase("vehicle.wheel_rebound_damping", 14d)]
     [TestCase("vehicle.wheel_bump_start", (double)0.6f)]
     [TestCase("vehicle.wheel_bump_spring", 260d)]
-    [TestCase("vehicle.gravity", 9.8100004196167d)]
+    [TestCase("vehicle.gravity", 11d)]
+    [TestCase("vehicle.dirt_cornering", 1d)]
+    [TestCase("vehicle.crash_recovery_delay", 1.25d)]
+    [TestCase("vehicle.crash_recovery_rate", (double)1.2f)]
     [TestCase("vehicle.maximum_physics_speed", 65d)]
     [TestCase("vehicle.maximum_angular_speed", 8d)]
     [TestCase("vehicle.dirt_steering_reserve", (double)0.95f)]
@@ -122,7 +125,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(174));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(177));
         Assert.That(defaults.Items.OilPasses, Is.EqualTo(2));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);
