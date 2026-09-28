@@ -9,6 +9,9 @@ public sealed partial class VehicleChaseCamera : Camera3D
     private readonly ChaseCameraMotion _motion = new();
     private readonly CameraFreeLook _look = new();
     private readonly CameraObstruction _obstruction = new();
+    private readonly BoostCameraMotion _boost = new();
+    private CameraSpeedStreaks _streaks = null!;
+    private float _baseFov;
     private bool _initialized;
     private ulong _vehicle;
     private ulong _life;
@@ -59,6 +62,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
 
     /// <summary>Presentation diagnostics for runtime checks.</summary>
     internal ChaseCameraMotion Motion => _motion;
+    internal BoostCameraMotion BoostMotion => _boost;
     /// <summary>The existing local input owner; never a gameplay or replicated camera command.</summary>
     internal Input.PlayerInputAdapter? InputSource { get; set; }
     /// <summary>Local preferences supplied by composition; never replicated or read from disk here.</summary>
@@ -70,6 +74,8 @@ public sealed partial class VehicleChaseCamera : Camera3D
     internal void ResetFollow()
     {
         _initialized = false;
+        _boost.Reset();
+        if (IsNodeReady()) { Fov = _baseFov; _streaks.Reset(); _streaks.Hide(); }
         _look.Reset();
         InputSource?.ResetCameraMotion();
     }
@@ -79,6 +85,12 @@ public sealed partial class VehicleChaseCamera : Camera3D
     {
         TopLevel = true;
         PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off;
+        _baseFov = Fov;
+        var layer = new CanvasLayer { Layer = 0 };
+        AddChild(layer);
+        _streaks = new CameraSpeedStreaks { MouseFilter = Control.MouseFilterEnum.Ignore };
+        layer.AddChild(_streaks);
+        _streaks.Hide();
     }
 
     /// <inheritdoc/>
@@ -113,6 +125,8 @@ public sealed partial class VehicleChaseCamera : Camera3D
         if (reset)
         {
             _look.Reset();
+            _boost.Reset();
+            _streaks.Reset();
             InputSource?.ResetCameraMotion();
             _motion.Reset(state.ObservedPhysics.LinearVelocity);
             _motionTick = state.Movement.Tick;
@@ -140,6 +154,12 @@ public sealed partial class VehicleChaseCamera : Camera3D
 
         // The displayed pose already includes practice/network interpolation. Do not add yaw lag.
         _heading = heading;
+        if (state.CanInteract)
+        {
+            _boost.Advance(reset ? 0 : delta, state.Movement.Nitro.Active, state.Speed);
+        }
+        else { _boost.Reset(); }
+        Fov = Math.Clamp(_baseFov + _boost.FovExpansion, 1, 110);
         if (ShakeIntensity == 0)
         {
             _motion.ClearShake();
@@ -161,7 +181,15 @@ public sealed partial class VehicleChaseCamera : Camera3D
         }
 
         GlobalBasis = Basis.FromEuler(new Vector3(basePitch + _look.Pitch, _heading + _look.Yaw, 0));
-        float radius = MathF.Sqrt(distance * distance + (height - 0.5f) * (height - 0.5f));
+        // Radial outward flow only reads correctly while looking along actual travel.
+        // Suppress it during side/rear free-look or reverse motion rather than drawing false flow.
+        Vector3 velocity = VehicleBody.ToGodot(state.ObservedPhysics.LinearVelocity);
+        velocity.Y = 0;
+        Vector3 viewForward = -GlobalBasis.Z;
+        viewForward.Y = 0;
+        float alignment = velocity.LengthSquared() > 1 ? Math.Clamp((velocity.Normalized().Dot(viewForward.Normalized()) - 0.5f) * 2, 0, 1) : 0;
+        _streaks.Present(delta, state.Speed, _boost.StreakStrength * alignment, Current && state.CanInteract);
+        float radius = MathF.Sqrt(distance * distance + (height - 0.5f) * (height - 0.5f)) + _boost.PullBack;
         System.Numerics.Vector2 shake = _motion.ShakeOffset * Math.Clamp(MaximumShakeMetres, 0, 0.65f) * ShakeIntensity;
         Vector3 intent = _anchor + Vector3.Up * 0.5f + GlobalBasis.Z * radius
             + backward * _motion.Offset.Y + right * _motion.Offset.X;
