@@ -8,6 +8,7 @@ root=bpy.data.objects['Car'];groups={}
 for o in list(bpy.context.scene.objects):
  if o.type!='MESH' or o.parent!=root or o.name=='Identification':continue
  if o.data.materials[0].name.startswith('Light_') or o.name.startswith(('SuspensionLink_','ShockRod_','ShockRod2_','LiftPiston_')):continue
+ if o.data.materials[0].name=='Car_ArmoredGlass':continue # Separate panes sort independently.
  groups.setdefault(o.data.materials[0],[]).append(o)
 for mat,objects in groups.items():
  bpy.ops.object.select_all(action='DESELECT')

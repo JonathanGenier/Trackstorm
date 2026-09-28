@@ -13,17 +13,20 @@
     "10139": "Car Closed.png",
     "10140": "Car Open.png"
   },
-  "materials": "Original paint/steel weathering shader; existing CC0 Poly Haven rubber maps recorded in sources.json. Blender base materials retained in master; Godot bindings in ImportCar.gd.",
+  "materials": "Original paint/steel weathering and reflective alpha-glass shaders; original warm-metal spring material. Existing CC0 Poly Haven rubber maps recorded in sources.json. Blender base materials retained; Godot bindings in ImportCar.gd.",
   "sha256": {
-    "source/TrackstormCar.blend": "34196380ecefdfc0b8502cba3baea16260f300f4e14735522ea67babc76abcd7",
-    "TrackstormCar.glb": "2cef8e707f8d9b4a4ee767b636d12a9bb4a4e37d4ab2c3b04c5f72bef1207190",
+    "source/TrackstormCar.blend": "a4527b9189c982c77ce2f83309466814ab90afe9615c4e41020b5e9f93266db3",
+    "TrackstormCar.glb": "da9595383c51a1b502842f6ea4d8f9ae6683069deb0eb197722cbd6f4b25e8bd",
     "source/BuildCar.py": "7e46e072a10f0b302d0b01140cf7ce63e6bfbe00ce6bd29dfee059995bbe3916",
     "source/FinalizeCar.py": "74101d79a1740015797a5a6a3d1ac5136e1cd821c4b2c8ecd219948ddd4f8bc9",
-    "source/AuditCar.py": "1f11966469f139c1a78a9ebfdf145c34213daa99fff221f91d6ed6b24a9fa034",
+    "source/AuditCar.py": "b5dbe613ea6d8bb5a620054e404f62f55b025fc5c435d3c973c223b54ceb60f5",
     "materials/CarPaint.gdshader": "4cf4e74c46aef6a18cb8c4f2b1f57c4ce715f475e465901ecaedd522b5a25d6e",
-    "source/ExportCar.py": "e7ce248c67a7edd5b7d9a2698a740fa37f9ac7c943cf98d7a8f966ebd699d0f2",
+    "source/ExportCar.py": "aad47f11875e268b96d0ecb4ee01a74b749c00730e92eb4b5e66586346c9c171",
     "materials/CarPaint.tres": "8433f03e70134698694e09194911a3ee57d5d0a72554854e9eee5353e5485661",
-    "materials/CarSteel.tres": "0d10d9f9f7b547d6135e36a0585f116b901ae05a1afc4414543b734f01cd2486"
+    "materials/CarSteel.tres": "0d10d9f9f7b547d6135e36a0585f116b901ae05a1afc4414543b734f01cd2486",
+    "materials/CarGlass.gdshader": "fa9e3a5449aead6c7f90f7e89e01a692c92d5ba3d4eedff10224adfd5d14ff9e",
+    "materials/CarGlass.tres": "3457e8a9bf5eee2e9114b8b2d47db1e0825834d7661f5092c9c098b874f51461",
+    "ImportCar.gd": "702102b250ecdd5527bdffb92012b0ead6a34c237bec9c20224a9ed59f0c547b"
   },
-  "refinement": "Narrow curved quarters, 96x32 carcasses, staggered tread and sidewall lugs, cage rails, protected lamps, exhaust shields, bonnet crown, trunk stencils and stepped hydraulic sleeves. Original fixed physical supports and collision retained. Round 2 extends visual wheelbase by 0.50 m to 3.101105 m, stretches doors/cabin, replaces high pods with lower shoulder/arch surfaces and adds quarter-light pillars, shoulder vents and rear deck transitions. Physical supports/collision unchanged. Round 3 lowers and tightens arch lips, flattens/tapers the shoulders and refits end transitions. Radial wheel dimensions reduced 7.2% with axial width unchanged. Rebuilt unit-axis suspension links, explicit inboard carrier mounts, hub brackets and spindle stubs retain dual shocks; runtime scales each link along its rotated local axis."
+  "refinement": "Narrow curved quarters, 96x32 carcasses, staggered tread and sidewall lugs, cage rails, protected lamps, exhaust shields, bonnet crown, trunk stencils and stepped hydraulic sleeves. Original fixed physical supports and collision retained. Round 2 extends visual wheelbase by 0.50 m to 3.101105 m, stretches doors/cabin, replaces high pods with lower shoulder/arch surfaces and adds quarter-light pillars, shoulder vents and rear deck transitions. Physical supports/collision unchanged. Round 3 lowers and tightens arch lips, flattens/tapers the shoulders and refits end transitions. Radial wheel dimensions reduced 7.2% with axial width unchanged. Rebuilt unit-axis suspension links, explicit inboard carrier mounts, hub brackets and spindle stubs retain dual shocks; runtime scales each link along its rotated local axis. Round 4 widens central coachwork 25% without longitudinal scaling, moves tires slightly beyond existing fenders, adds 4.6% rear rolling radius, exposes twin thicker-wire coil-overs with mounting seats and extended hub brackets, and opens arch cutouts within the retained shoulder height. Transparent glass and Client-owned working lamps use the existing accepted movement stream."
 }

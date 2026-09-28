@@ -38,7 +38,7 @@ intentionally absent; this asset provides only their mounting structure.
 ## Rig contract
 
 - `WheelCarrier_FL/FR/RL/RR`: suspension translation and front steering.
-- Their `WheelSpin_*` children: rotation about local X; nominal tread radius 0.54 m.
+- Their `WheelSpin_*` children: rotation about local X; nominal tread radius 0.54 m front / 0.565 m rear.
 - `WheelLinkMount_<corner>_A/B/Upper/Upper2`: carrier-local inboard attachments,
   rotated with steering. Lower arms and two shocks terminate on the hub bracket,
   outside the rubber. Unit-length links scale along their rotated local axis.
@@ -71,7 +71,7 @@ edges are consequently approximated by the unchanged physical supports.
 ## Validation
 
 `check-car-articulation.ps1 -GodotPath <exe> -Visual` drives the production adapter,
-checks articulation/deployment and saves captures and traces under `.godot/ts259-round3/car`.
+checks articulation/deployment and saves captures and traces under `.godot/ts259-round4/car`.
 Use the regular vehicle/network/oval checks for surrounding integration.
 Current Story evidence and limitations belong in `docs/verification/ts-259.md`.
 The previous Kenney-based master and source remain as historical editable assets.
@@ -96,12 +96,22 @@ reflection appearance; the Blender material is an editable preview.
 The extended door/cabin span carries the added length through the body. Lower
 quarter shoulders, narrower elliptical openings, inset tubs, a door/quarter-light
 pillar and fixed rear-deck shoulders retain editable individual panels. Arch armor
-crowns are approximately 0.32 m front / 0.20 m rear above the model origin;
-the flat shoulder is approximately 0.425 m. Lower opening lips reach 0.22 m front
-and 0.15 m rear. The front flare projects farther out to clear full steering at
-compression; wheel centres and 0.526 m rubber width are unchanged. Diameter is
-7.2% smaller than the previous 0.582 m-radius wheels. Full default steering and representative travel
-poses are audited against the rubber surfaces. Physical supports and the simplified
+crowns/opening lips now reach approximately 0.42/0.40 m at their centre,
+inside the unchanged 0.425 m shoulder. The larger cutout clears the outboard tires
+through default steering and representative full travel without increasing the
+outer fender width or shoulder height. Rubber width remains 0.526 m; front/rear
+centres sit at +/-1.38 / +/-1.30 m. The rear rolling radius is 4.6% larger.
+Central coachwork is 25% wider, with pivot origins and deck geometry refitted;
+longitudinal coordinates and the 3.101105 m visual wheelbase are preserved.
+Twin warm-metal springs, mounting seats and extended hub brackets articulate
+with each carrier. Recessed rear bay walls expose the springs above the tires.
+Physical supports and the simplified
 collision hull do not follow the additional visual length; obstacle/edge contact
 remains an approximation. The rack preserves its authored longitudinal position
 (1.72 m aft) throughout deployment.
+
+Glass panes remain separate during material batching for transparency sorting.
+`CarGlass.gdshader` uses low face-on opacity and stronger grazing reflections.
+`CarLighting` creates per-instance lens materials and directional beams in Client;
+accepted movement drives brake/reverse presentation for practice and remote cars.
+No authoritative lighting state or elaborate interior is required.

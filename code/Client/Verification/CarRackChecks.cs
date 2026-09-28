@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Sockets;
 using Godot;
 using Trackstorm.Client.Networking;
+using Trackstorm.Client.Vehicles;
 using Trackstorm.Core.Input;
 using Trackstorm.Core.Items;
 using Trackstorm.Core.Networking.Transport;
@@ -108,6 +109,14 @@ public sealed partial class CarRackChecks : Node
             await Frames(90, 0, 0, 40000, 7000);
             Check(_arenas[1].LocalState!.Movement.CommandSpeed > 3, "Normal driving with deployed rack");
             await Capture("driving-equipped");
+            await Frames(10);
+            Check(Lamps().All(l => !l.Braking && !l.Reversing), "Both UDP peers show coasting lamps");
+            await Frames(8, brake: ushort.MaxValue);
+            Check(Lamps().All(l => l.Braking), "Both UDP peers show moving brake lamps");
+            await Capture("network-braking");
+            await Frames(180, brake: ushort.MaxValue);
+            Check(Lamps().All(l => l.Reversing && !l.Braking), "Both UDP peers show reverse lamps from accepted movement");
+            await Capture("network-reversing");
             host.Items.RemovePlayer(Shooter);
             await Frames(130);
             Position(1000, false, new N.Vector3(-46, 1.15f, 0));
@@ -140,14 +149,15 @@ public sealed partial class CarRackChecks : Node
     }
 
     private bool AllPresent(HeldItem item) => _arenas.All(a => a.Bodies.TryGetValue(Shooter, out var body) && body.Rack.PresentedItem == item && body.Rack.Progress >= 0.999f);
-    private async Task Frames(int count, InputButtons held = 0, InputButtons released = 0, ushort throttle = 0, short steer = 0)
+    private IEnumerable<CarLighting> Lamps() => _arenas.Select(a => a.Bodies[Shooter].Rack.GetParent<Node3D>().GetChildren().OfType<CarLighting>().Single());
+    private async Task Frames(int count, InputButtons held = 0, InputButtons released = 0, ushort throttle = 0, short steer = 0, ushort brake = 0)
     {
         for (int i = 0; i < count; i++)
         {
             await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
             for (int peer = 0; peer < _arenas.Count; peer++)
             {
-                _arenas[peer].Advance(peer == 1 ? new InputFrame(0, steer, throttle, 0, held, 0, released) : default);
+                _arenas[peer].Advance(peer == 1 ? new InputFrame(0, steer, throttle, brake, held, 0, released) : default);
                 if (_arenas[peer].Driver.Failure.Length > 0) { throw new InvalidOperationException(_arenas[peer].Driver.Failure); }
             }
         }

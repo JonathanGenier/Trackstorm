@@ -12,7 +12,7 @@ public sealed partial class CarArticulationChecks : Node3D
     private Node3D _model = null!;
     private int _assertions;
     private readonly List<object> _trace = new();
-    private readonly string _output = "res://.godot/ts259-round3/car";
+    private readonly string _output = "res://.godot/ts259-round4/car";
 
     public override void _Ready() => CallDeferred(MethodName.Run);
 
@@ -62,7 +62,20 @@ public sealed partial class CarArticulationChecks : Node3D
             Check(_arena.Player.State.CommandSpeed > 3, "Production physics still accelerates the integrated Car.");
             await Capture("driving-turn", new Vector3(4, 2.3f, -5));
             VerifySuspensionMounts();
-            for (int i = 0; i < 90; i++) { await Step(0, 0, ushort.MaxValue); }
+            CarLighting lamps = _model.GetChildren().OfType<CarLighting>().Single();
+            for (int i = 0; i < 10; i++) { await Step(); }
+            Check(!lamps.Braking && !lamps.Reversing, "Forward coasting does not illuminate brake/reverse lamps.");
+            for (int i = 0; i < 8; i++) { await Step(0, 0, ushort.MaxValue); }
+            Check(lamps.Braking, "Actual brake input activates lamps while moving forward.");
+            await Capture("braking", new Vector3(-4, 2, 5));
+            for (int i = 0; i < 150; i++) { await Step(0, 0, ushort.MaxValue); }
+            Check(lamps.Reversing && !lamps.Braking, "Reverse travel lights white lamps without falsely reporting braking.");
+            await Capture("reversing", new Vector3(-4, 2, 5));
+            var environment = Descendants(_arena).OfType<Trackstorm.Client.Arenas.EnvironmentPresentation>().Single();
+            environment.Apply(Trackstorm.Core.Development.EnvironmentPreset.Night);
+            await Capture("night-reverse", new Vector3(-4, 2, 5));
+            await Capture("night-headlights", new Vector3(4, 3, -7));
+            environment.Apply(Trackstorm.Core.Development.EnvironmentPreset.ClearBlue);
             CarDeployment deployment = _model.GetChildren().OfType<CarDeployment>().Single();
             for (int cycle = 0; cycle < 3; cycle++)
             {
