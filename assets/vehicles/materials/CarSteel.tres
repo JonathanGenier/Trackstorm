@@ -3,3 +3,5 @@
 [resource]
 shader = ExtResource("1")
 shader_parameter/paint_color = Color(0.16, 0.175, 0.165, 1)
+shader_parameter/paint_roughness = 0.42
+shader_parameter/coat_strength = 0.0
