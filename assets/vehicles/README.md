@@ -15,15 +15,30 @@ and overwrite subsequent manual refinements.
 Run Blender with `--background --python-exit-code 1 --python
 assets/vehicles/source/ExportCar.py` to export a temporary material-batched copy.
 The exporter does not overwrite the editable master. It preserves articulated
-nodes, sockets, lamps and identification. Export uses +Y up, applied modifiers
+nodes, sockets, lamps, identification and named body panels. Export uses +Y up, applied modifiers
 and no animation. Blender coordinates are +Y forward / +Z up; Godot uses -Z forward.
 
 The committed GLB import configuration runs `ImportCar.gd`, flattening only the
 identity file root and binding shared materials. Paint/steel use an original
 3D weathering shader; rubber reuses the existing licensed Poly Haven maps.
 All mesh UVs remain available for subsequent texture authoring. Static detail and
-wheel surfaces are batched by material; lamps, hinges, links and sockets remain
+wheel surfaces are batched by material; body panels, lamps, hinges, links and sockets remain
 separate. Godot generates mesh LODs. Blender source is excluded from Godot import.
+
+## Body panel contract
+
+`BodyPanel_Hood`, `BodyPanel_FrontFender_L/R`, `BodyPanel_Door_L/R` and
+`BodyPanel_RearQuarter_L/R` are separate formed sheets in both the editable master
+and game export. Their inward returns close the mesh edges; the gaps come from
+separated geometry, not painted outlines. The hood has an 8 mm nominal side gap,
+door leading/trailing gaps are 10 mm, and the split deck center gap is 10 mm.
+Rounded shoulder surfaces connect each quarter to its wheel opening and fascia.
+`BodyPanel_Rocker_L/R` sit below the doors; the lower cage stays inboard.
+
+`TrunkLid_L/R` retain their names beneath `TrunkHinge_L/R` and remain the two
+independent deck panels. Do not combine them with the static quarters or change
+their pivots when editing fit. These names preserve editable geometry only;
+there is no detachable-panel, damage or customization behavior.
 
 ## Reference resolution
 
@@ -72,7 +87,7 @@ approximation. Force laws and authority ownership are unchanged.
 ## Validation
 
 `check-car-articulation.ps1 -GodotPath <exe> -Visual` drives the production adapter,
-checks articulation/deployment and saves captures and traces under `.godot/ts259-round5/car`.
+checks imported panel identity, articulation/deployment and saves captures and traces under `.godot/ts259-round6/car`.
 Use the regular vehicle/network/oval checks for surrounding integration.
 Current Story evidence and limitations belong in `docs/verification/ts-259.md`.
 The previous Kenney-based master and source remain as historical editable assets.

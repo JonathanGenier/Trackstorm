@@ -12,7 +12,7 @@ public sealed partial class CarArticulationChecks : Node3D
     private Node3D _model = null!;
     private int _assertions;
     private readonly List<object> _trace = new();
-    private readonly string _output = "res://.godot/ts259-round5/car";
+    private readonly string _output = "res://.godot/ts259-round6/car";
 
     public override void _Ready() => CallDeferred(MethodName.Run);
 
@@ -27,6 +27,15 @@ public sealed partial class CarArticulationChecks : Node3D
             AddChild(_camera);
             _camera.MakeCurrent();
             _model = _arena.Player.GetNode<Node3D>("WastelandVehicle");
+            string[] panels = ["BodyPanel_Hood", "BodyPanel_FrontFender_L", "BodyPanel_FrontFender_R",
+                "BodyPanel_Door_L", "BodyPanel_Door_R", "BodyPanel_RearQuarter_L", "BodyPanel_RearQuarter_R",
+                "TrunkHinge_L/TrunkLid_L", "TrunkHinge_R/TrunkLid_R"];
+            var panelMeshes = new HashSet<Mesh>();
+            foreach (string path in panels)
+            {
+                MeshInstance3D? panel = _model.GetNodeOrNull<MeshInstance3D>(path);
+                Check(panel?.Mesh is not null && panelMeshes.Add(panel.Mesh), path + " survives import as an independent physical panel.");
+            }
             Check(Math.Abs(Math.Abs(_model.GetNode<Node3D>("WheelCarrier_FL").Position.Z - _model.GetNode<Node3D>("WheelCarrier_RL").Position.Z) - 3.351105f) < 0.001f, "Refined visual wheelbase is 3.351105 metres.");
             for (int i = 0; i < 150; i++) { await Step(); }
             await Capture("front-closed", new Vector3(5, 2.9f, -6));

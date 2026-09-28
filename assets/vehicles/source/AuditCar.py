@@ -46,13 +46,29 @@ for frame in [1,13,25,36,48,60,68,75,88,100]:
 scene.frame_set(1)
 result={'result':'PASS','visual_wheelbase_m':wheelbase,'meshes':len(meshes),'vertices':sum(len(o.data.vertices) for o in meshes),'polygons':sum(len(o.data.polygons) for o in meshes),'required_nodes':len(required),'deployment_samples':samples}
 result['tire_topology']=tire_topology
-out=ROOT.parents[1]/'.godot/ts259-round5/blender-audit.json';out.parent.mkdir(parents=True,exist_ok=True)
+out=ROOT.parents[1]/'.godot/ts259-round6/blender-audit.json';out.parent.mkdir(parents=True,exist_ok=True)
 # Rubber versus chassis surface overlap at representative full-travel/steer poses.
 # This supplements runtime observation; it is not a physics/contact redesign.
 from mathutils import Matrix
 from mathutils.bvhtree import BVHTree
 static_verts=[];static_faces=[];static_names=[]
 deps=bpy.context.evaluated_depsgraph_get()
+panel_names=['BodyPanel_Hood','TrunkLid_L','TrunkLid_R']
+panel_names += [f'BodyPanel_{role}_{side}' for role in ['FrontFender','Door','RearQuarter'] for side in ['L','R']]
+panel_trees={};panel_audit=[]
+for name in panel_names:
+    ob=bpy.data.objects[name];evaluated=ob.evaluated_get(deps);mesh=evaluated.to_mesh()
+    bm=bmesh.new();bm.from_mesh(mesh)
+    assert all(edge.is_manifold for edge in bm.edges), name+' must have closed formed edges'
+    bm.free()
+    panel_trees[name]=BVHTree.FromPolygons([ob.matrix_world @ v.co for v in mesh.vertices],[tuple(f.vertices) for f in mesh.polygons])
+    panel_audit.append({'name':name,'closed_surface':True,'vertices':len(mesh.vertices)})
+    evaluated.to_mesh_clear()
+for i,name in enumerate(panel_names):
+    for other in panel_names[i+1:]:
+        assert not panel_trees[name].overlap(panel_trees[other]), name+' intersects '+other
+result['independent_body_panels']=panel_audit
+result['panel_surface_intersections']=0
 for o in meshes:
     if o.parent != bpy.data.objects['Car'] or o.name.startswith(('SuspensionLink_', 'ShockRod_', 'ShockRod2_')):continue
     evaluated=o.evaluated_get(deps); m=evaluated.to_mesh(); offset=len(static_verts)
