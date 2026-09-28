@@ -1,0 +1,42 @@
+C:\Users\j_gen\Documents\Game Projects\Trackstorm\assets\vehicles\boost\source\BuildBoostJet.py:33: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*color,1); m.use_nodes=True
+Warning: No mesh data to join
+Warning: No mesh data to join
+Warning: No mesh data to join
+Warning: No mesh data to join
+Info: Saved as "BoostJet.blend"
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+16:49:36 | INFO: Starting glTF 2.0 export
+16:49:36 | INFO: Extracting primitive: Cube.001
+16:49:36 | INFO: Primitives created: 1
+16:49:36 | INFO: Extracting primitive: ArmoredCollar
+16:49:36 | INFO: Primitives created: 1
+16:49:36 | INFO: Extracting primitive: Cylinder.004
+16:49:36 | INFO: Primitives created: 1
+16:49:36 | INFO: Extracting primitive: Cylinder
+16:49:36 | INFO: Primitives created: 1
+16:49:36 | INFO: Extracting primitive: InnerBarrel
+16:49:36 | INFO: Primitives created: 1
+16:49:36 | INFO: Extracting primitive: NozzleBody
+16:49:36 | INFO: Primitives created: 1
+16:49:36 | INFO: Extracting primitive: Throat
+16:49:36 | INFO: Primitives created: 1
+16:49:36 | INFO: Extracting primitive: Petal
+16:49:36 | INFO: Primitives created: 1
+16:49:36 | INFO: Extracting primitive: FlameSurface
+16:49:36 | INFO: Primitives created: 1
+16:49:36 | INFO: Extracting primitive: Cylinder.017
+16:49:36 | INFO: Primitives created: 1
+16:49:36 | INFO: Extracting primitive: Cylinder.019
+16:49:36 | INFO: Primitives created: 1
+16:49:36 | INFO: Extracting primitive: SlidingSleeve
+16:49:36 | INFO: Primitives created: 1
+16:49:36 | INFO: Extracting primitive: CoolingRing
+16:49:36 | INFO: Primitives created: 1
+16:49:36 | INFO: Finished glTF 2.0 export in 0.068267822265625 s
+
+BOOST_AUTHORING_COMPLETE {"author": "Original Trackstorm project work", "tool": "5.2.2 LTS", "source": "source/BoostJet.blend", "export": "BoostJet.glb", "reference": "../source/TrackstormCar.blend", "reference_sha256": "0ffa023ea8631cb3b7536ba3e7e8404a2806f5ba5bafa8eaf83123b90eaa8d25", "coordinates": "metres; Blender +Y forward/+Z up; Godot -Z forward/+Y up", "deployment": {"sleeve_rearward_m": 0.35, "nozzle_rearward_m": 0.72, "outlet_stowed_godot": [0, 0.055, 2.875], "outlet_deployed_godot": [0, 0.055, 3.595]}, "no_car_geometry_exported": true, "sha256": {"BoostJet.glb": "4360c92ede7be3473968df81850f1dfd763394d10981f536f556b00d1d555c03", "BoostJet.blend": "9a781fd58edc6653797309bdede62d82cf0d4626bb0b196612d5af37dc6a824e"}}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

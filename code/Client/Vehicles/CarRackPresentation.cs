@@ -19,6 +19,8 @@ internal sealed partial class CarRackPresentation : Node
     private float _useTime;
     private ulong _life;
 
+    internal required BoostExhaust Boost { get; init; }
+
     internal HeldItem PresentedItem => _payload?.Visible == true ? _mounted : HeldItem.None;
     internal float Progress => _mechanism.Progress;
 
@@ -27,6 +29,8 @@ internal sealed partial class CarRackPresentation : Node
         Node3D model = GetParent<Node3D>();
         _mechanism = model.GetChildren().OfType<CarDeployment>().Single();
         _rack = model.GetNode<Node3D>("WeaponRack");
+        Boost.Visible = false;
+        _rack.AddChild(Boost);
     }
 
     /// <summary>Installs a fresh accepted publication, including remote inventories and recovery snapshots.</summary>
@@ -40,10 +44,17 @@ internal sealed partial class CarRackPresentation : Node
         if (!alive) { return; }
         if (inventory?.Life != life) { inventory = null; }
         ItemSlot? active = inventory?.Active;
-        var outcome = events.LastOrDefault(e => (e.Item == HeldItem.MachineGun || !e.Impact) &&
+        var outcome = events.LastOrDefault(e => e.Item != HeldItem.Nitro && (e.Item == HeldItem.MachineGun || !e.Impact) &&
             (e.Token == active?.Token || e.Token == _previous?.Active.Token));
         bool used = outcome is not null;
         bool selection = inventory is not null && (_previous is null || inventory.ActiveSlot != _previous.ActiveSlot || inventory.SelectionRevision != _previous.SelectionRevision);
+        // The same selected capability becoming empty is confirmed depletion. A missing
+        // publication, item switch, death or reseed must never replay this terminal cue.
+        if (!selection && _previous?.Active is { Item: HeldItem.Nitro } prior &&
+            active is { Item: HeldItem.None, NitroCharge: 0 } && active.Token == prior.Token)
+        {
+            Boost.Exhausted();
+        }
         bool acquired = active is not null && active.Item != HeldItem.None &&
             (_previous is null || active.Item != _previous.Active.Item || (active.Token != _previous.Active.Token && !used));
         if (selection || acquired)
@@ -54,7 +65,7 @@ internal sealed partial class CarRackPresentation : Node
         }
         // Authority clears depleted slots. Cooldown and trigger release do not empty them.
         _desired = active?.Item ?? HeldItem.None;
-        _engaged = inventory is { EngagedToken: > 0 };
+        _engaged = active?.Item != HeldItem.Nitro && inventory is { EngagedToken: > 0 };
         if (outcome is not null || (_previous is null && _engaged))
         {
             _useItem = outcome?.Item ?? active!.Item;
@@ -71,8 +82,8 @@ internal sealed partial class CarRackPresentation : Node
     internal void Reset()
     {
         _mechanism.ResetPose();
-        _payload?.QueueFree();
-        _payload = null;
+        ClearPayload();
+        Boost.Reset();
         _previous = null;
         _desired = _mounted = HeldItem.None;
         _replace = _usePending = _engaged = false;
@@ -81,13 +92,14 @@ internal sealed partial class CarRackPresentation : Node
 
     public override void _Process(double delta)
     {
+        Boost.Deploy = _mounted == HeldItem.Nitro && _desired == HeldItem.Nitro && !_replace && _mechanism.Progress >= .999f;
         if (_replace || (_desired != _mounted && _mounted != HeldItem.None))
         {
-            _mechanism.Deployed = false;
+            // Nest the barrel before lowering the rack through the open deck.
+            _mechanism.Deployed = _mounted == HeldItem.Nitro && Boost.Deployment > 0;
             if (_mechanism.Progress <= 0)
             {
-                _payload?.QueueFree();
-                _payload = null;
+                ClearPayload();
                 _mounted = HeldItem.None;
                 _replace = false;
             }
@@ -95,15 +107,21 @@ internal sealed partial class CarRackPresentation : Node
         else if (_mounted == HeldItem.None && _desired != HeldItem.None)
         {
             _mounted = _desired;
-            _payload = Items.RackItemVisual.Create(_mounted);
+            _payload = _mounted == HeldItem.Nitro ? Boost : Items.RackItemVisual.Create(_mounted);
             _payload.Visible = false;
-            _rack.AddChild(_payload);
+            if (_mounted != HeldItem.Nitro) { _rack.AddChild(_payload); }
             _mechanism.Deployed = true;
         }
         else { _mechanism.Deployed = _desired != HeldItem.None; }
 
         if (_payload is not null)
         {
+            if (_mounted == HeldItem.Nitro)
+            {
+                // The underslung chamber clears the bay floor before becoming visible.
+                _payload.Visible = _mechanism.Progress > .72f;
+                return;
+            }
             // Payload appears only above the compartment; scale in/out above clear height.
             float reveal = Mathf.SmoothStep(0, 1, Mathf.Clamp((_mechanism.Progress - 0.92f) / 0.08f, 0, 1));
             _payload.Visible = reveal > 0;
@@ -113,7 +131,7 @@ internal sealed partial class CarRackPresentation : Node
             {
                 _useTime = Math.Max(0, _useTime - (float)delta);
                 float pulse = MathF.Sin(_useTime * 45) * 0.025f;
-                _payload.Position += _mounted == HeldItem.Nitro ? new Vector3(0, 0, -pulse) : new Vector3(0, pulse, pulse);
+                _payload.Position += new Vector3(0, pulse, pulse);
                 if (_useTime == 0 && !_engaged)
                 {
                     _usePending = false;
@@ -121,5 +139,12 @@ internal sealed partial class CarRackPresentation : Node
                 }
             }
         }
+    }
+
+    private void ClearPayload()
+    {
+        if (_payload == Boost) { Boost.Visible = false; }
+        else { _payload?.QueueFree(); }
+        _payload = null;
     }
 }
