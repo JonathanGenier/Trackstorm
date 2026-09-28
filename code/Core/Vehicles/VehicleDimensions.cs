@@ -5,11 +5,11 @@ public static class VehicleDimensions
 {
     /// <summary>Uniform conversion from the preserved 3.505 metre design.</summary>
     public const float Scale = 4.81f / 3.505f;
-    /// <summary>Complete bumper-to-bumper length.</summary>
-    public const float Length = 4.81f;
+    /// <summary>Longitudinal collision envelope; cosmetic bumper rails extend beyond it.</summary>
+    public const float Length = 5.06f;
     /// <summary>Complete armor width.</summary>
     public const float Width = 1.94f * Scale;
-    /// <summary>Distance between authored axle centers.</summary>
+    /// <summary>Physical axle spacing, preserved independently of the cosmetic Car wheelbase.</summary>
     public const float Wheelbase = 1.8954f * Scale;
     /// <summary>Distance between left and right tire centers.</summary>
     public const float WheelTrack = 1.19f * Scale;
@@ -22,5 +22,5 @@ public static class VehicleDimensions
     /// <summary>Vertical translation baked after the uniform mesh conversion.</summary>
     public const float OriginShift = (0.735f * Scale) - 0.9f;
     /// <summary>Conservative horizontal diameter used to avoid overlapping arbitrary respawn headings.</summary>
-    public const float SpawnClearance = 5.6f;
+    public const float SpawnClearance = 5.85f;
 }

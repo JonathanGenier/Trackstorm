@@ -13,7 +13,6 @@ internal sealed partial class CarRackPresentation : Node
     private HeldItem _desired;
     private HeldItem _mounted;
     private bool _replace;
-    private bool _suppressed;
     private bool _usePending;
     private HeldItem _useItem;
     private bool _engaged;
@@ -49,7 +48,6 @@ internal sealed partial class CarRackPresentation : Node
             (_previous is null || active.Item != _previous.Active.Item || (active.Token != _previous.Active.Token && !used));
         if (selection || acquired)
         {
-            _suppressed = false;
             _replace = _mounted != HeldItem.None;
             _usePending = false;
             _useTime = 0;
@@ -59,10 +57,12 @@ internal sealed partial class CarRackPresentation : Node
         {
             _desired = HeldItem.None;
             _usePending = false;
+            _engaged = false;
             _previous = inventory;
             return;
         }
-        _desired = _suppressed ? HeldItem.None : active?.Item ?? HeldItem.None;
+        // Authority clears depleted slots. Cooldown and trigger release do not empty them.
+        _desired = active?.Item ?? HeldItem.None;
         _engaged = inventory is { EngagedToken: > 0 };
         if (outcome is not null || (_previous is null && _engaged))
         {
@@ -84,7 +84,7 @@ internal sealed partial class CarRackPresentation : Node
         _payload = null;
         _previous = null;
         _desired = _mounted = HeldItem.None;
-        _replace = _suppressed = _usePending = _engaged = false;
+        _replace = _usePending = _engaged = false;
         _useTime = 0;
     }
 
@@ -126,8 +126,7 @@ internal sealed partial class CarRackPresentation : Node
                 if (_useTime == 0 && !_engaged)
                 {
                     _usePending = false;
-                    _suppressed = true;
-                    _desired = HeldItem.None;
+                    _desired = _previous?.Active.Item ?? HeldItem.None;
                 }
             }
         }
