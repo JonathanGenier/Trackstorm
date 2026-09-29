@@ -1,0 +1,4 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.78 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Boost camera playtest passed: native entry/sustain/exit, repeated use, steering with three bodies, unboosted speed, airborne launch; bounded camera output, active reseed, unchanged vehicle snapshot. Boost frames 680, grounded 1508, airborne 292. Visual quality requires observation.

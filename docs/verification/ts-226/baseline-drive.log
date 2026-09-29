@@ -1,0 +1,16 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ERROR: System.InvalidOperationException: Native driving camera recenters after release
+   at Trackstorm.Client.Verification.CameraObstructionDrive.Require(Boolean condition, String message) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\CameraObstructionDrive.cs:line 124
+   at Trackstorm.Client.Verification.CameraObstructionDrive._Process(Double delta) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\CameraObstructionDrive.cs:line 75
+   at: void Trackstorm.Client.Verification.CameraObstructionDrive._Process(double) (res://code/Client/Verification/CameraObstructionDrive.cs:75)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.CameraObstructionDrive._Process(double) (C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\CameraObstructionDrive.cs:75)
+       [2] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2654)
+       [3] bool Trackstorm.Client.Verification.CameraObstructionDrive.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Verification.CameraObstructionDrive_ScriptMethods.generated.cs:80)
+       [4] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)
+WARNING: 34 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 7 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)
