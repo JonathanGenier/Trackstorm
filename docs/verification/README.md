@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Boost physical-slot HUD and approved worn-steel corner redesign | [TS-177 verification evidence](ts-177.md) |
 | Boost camera and speed sensation | [TS-226 native/rendered verification and runtime critique](ts-226.md) |
 | Blender/Python root-artifact investigation and guarded car workflow | [TS-260 verification evidence](ts-260.md) |
 | Production Car refinement | [TS-259 proportion refinement, deployment and Round 1/2/3/4/5/6/7/8 runtime evidence](ts-259.md) |

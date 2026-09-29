@@ -33,8 +33,6 @@ internal sealed partial class StartupController : Node
         "res://assets/frontend/play-menu/Free_Play_Button.png",
         "res://assets/frontend/play-menu/Fabric.gdshader",
         "res://assets/hud/Health.png",
-        "res://assets/hud/Item.png",
-        "res://assets/hud/Speed.png",
         "res://assets/hud/Timer.png",
         "res://assets/hud/Wrench.svg",
         "res://assets/hud/Missile.svg",
