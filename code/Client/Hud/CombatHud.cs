@@ -21,12 +21,11 @@ internal sealed partial class CombatHud : CanvasLayer
     private Label _health = null!;
     private Label _speed = null!;
     private Label _unit = null!;
-    private Label _nitro = null!;
     private Label _outOfBounds = null!;
     private Label _timer = null!;
-    private readonly Control _itemAssembly = new() { Name = "ItemAssembly", MouseFilter = Control.MouseFilterEnum.Ignore, Size = new Vector2(600, 200) };
-    private readonly ItemHudSlot _firstSlot = new() { Name = "FirstSlot", Position = new Vector2(310, 88) };
-    private readonly ItemHudSlot _secondSlot = new() { Name = "SecondSlot", Position = new Vector2(448, 88) };
+    private readonly Control _itemAssembly = new() { Name = "ItemAssembly", MouseFilter = Control.MouseFilterEnum.Ignore, Size = ItemHudFrame.DesignSize };
+    private readonly ItemHudSlot _firstSlot = new() { Name = "FirstSlot", Position = new Vector2(240, 48) };
+    private readonly ItemHudSlot _secondSlot = new() { Name = "SecondSlot", Position = new Vector2(430, 48) };
     private ShaderMaterial _healthMaterial = null!;
     private ShaderMaterial _speedMaterial = null!;
     private readonly Dictionary<string, Texture2D> _itemIcons = new(StringComparer.Ordinal);
@@ -76,18 +75,19 @@ internal sealed partial class CombatHud : CanvasLayer
         var frame = new ItemHudFrame { Name = "ItemFrame" };
         _itemAssembly.AddChild(frame);
         _speedMaterial = frame.GaugeMaterial;
-        _speed = Text(_itemAssembly, "SpeedValue", new Rect2(123, 77, 116, 68), 58);
-        _speed.AddThemeFontOverride("font", new FontVariation { BaseFont = ThemeDB.FallbackFont, VariationEmbolden = 1.0f });
-        _unit = Text(_itemAssembly, "SpeedUnit", new Rect2(141, 145, 82, 22), 20);
-        _nitro = Text(_itemAssembly, "NitroActive", new Rect2(70, -12, 220, 22), 18);
-        _nitro.AddThemeColorOverride("font_color", new Color("ffd166"));
+        Font instrumentFont = ItemHudFrame.CreateFont();
+        _speed = Text(_itemAssembly, "SpeedValue", new Rect2(68, 53, 130, 51), 42, instrumentFont);
+        _unit = Text(_itemAssembly, "SpeedUnit", new Rect2(94, 106, 78, 20), 16, instrumentFont);
         _itemAssembly.AddChild(_firstSlot);
         _itemAssembly.AddChild(_secondSlot);
-        _firstSlot.Initialize(1);
-        _secondSlot.Initialize(2);
+        _firstSlot.Initialize(1, instrumentFont);
+        _secondSlot.Initialize(2, instrumentFont);
         foreach (var definition in ItemRegistry.All)
         {
-            _itemIcons.Add(definition.PresentationKey, Bootstrap.StartupController.LoadResource<Texture2D>($"res://assets/hud/{definition.PresentationKey}.svg"));
+            Texture2D icon = Bootstrap.StartupController.LoadResource<Texture2D>($"res://assets/hud/{definition.PresentationKey}.svg");
+            // Center visible art, rather than the unequal transparent padding of different SVGs.
+            using Image pixels = icon.GetImage();
+            _itemIcons.Add(definition.PresentationKey, new AtlasTexture { Atlas = icon, Region = pixels.GetUsedRect(), FilterClip = true });
         }
         var timer = Component("Timer", new Vector2(220, 73.333f), 3, steel);
         _timer = Text(timer, "TimerValue", new Rect2(58, 14, 99, 36), 34);
@@ -133,15 +133,15 @@ internal sealed partial class CombatHud : CanvasLayer
             _health.Text = view.Health;
             _speed.Text = view.Speed;
             _unit.Text = view.Unit;
-            _firstSlot.Apply(view.FirstSlot, view.ActiveSlot == 0, 1, _itemIcons.GetValueOrDefault(view.FirstSlot.IconKey ?? string.Empty));
-            _secondSlot.Apply(view.SecondSlot, view.ActiveSlot == 1, 2, _itemIcons.GetValueOrDefault(view.SecondSlot.IconKey ?? string.Empty));
+            _firstSlot.Apply(view.FirstSlot, view.ActiveSlot == 0, _itemIcons.GetValueOrDefault(view.FirstSlot.IconKey ?? string.Empty));
+            _secondSlot.Apply(view.SecondSlot, view.ActiveSlot == 1, _itemIcons.GetValueOrDefault(view.SecondSlot.IconKey ?? string.Empty));
             _healthMaterial.SetShaderParameter("fill", view.HealthFill);
             _speedMaterial.SetShaderParameter("fill", view.SpeedFill);
         }
 
         _outOfBounds.Visible = state.CanInteract && state.OutOfBounds;
-        _nitro.Visible = state.Movement.Nitro.Active;
-        _nitro.Text = "NITRO BOOST";
+        _firstSlot.SetBoosting(state.CanInteract && state.Movement.Nitro.Active && view.ActiveSlot == 0);
+        _secondSlot.SetBoosting(state.CanInteract && state.Movement.Nitro.Active && view.ActiveSlot == 1);
         ulong player = Player();
         CircusHudView? score = null;
         foreach (MatchState update in MatchUpdates())
@@ -165,13 +165,15 @@ internal sealed partial class CombatHud : CanvasLayer
         return control;
     }
 
-    private Label Text(Control parent, string name, Rect2 rect, int size)
+    private Label Text(Control parent, string name, Rect2 rect, int size, Font? font = null)
     {
         var label = new Label { Name = name, Position = rect.Position, Size = rect.Size, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, MouseFilter = Control.MouseFilterEnum.Ignore };
+        if (font is not null) label.AddThemeFontOverride("font", font);
         label.AddThemeFontSizeOverride("font_size", size);
         label.AddThemeColorOverride("font_color", new Color("f3efdf"));
         label.AddThemeColorOverride("font_shadow_color", Colors.Black);
         label.AddThemeConstantOverride("shadow_offset_y", 1);
+        label.Size = rect.Size;
         parent.AddChild(label);
         return label;
     }
@@ -247,7 +249,7 @@ internal sealed partial class CombatHud : CanvasLayer
 
         _components[0].Position = new Vector2(margin, viewport.Y - (147 * scale) - margin);
         _itemAssembly.Scale = Vector2.One * scale;
-        _itemAssembly.Position = new Vector2(viewport.X - (600 * scale) - margin, viewport.Y - (200 * scale) - margin);
+        _itemAssembly.Position = viewport - ItemHudFrame.DesignSize * scale;
         _components[1].Position = new Vector2((viewport.X - (220 * scale)) / 2, 12 * scale);
         _scorePanel.Scale = Vector2.One * scale;
         _scorePanel.Position = new Vector2(margin, 120 * scale);
