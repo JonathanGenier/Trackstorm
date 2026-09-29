@@ -1,0 +1,38 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.78 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Rocket scenario 0: start 0.00, forward 17.74 m/s; charge 79.67%; Circus zero.
+Rocket scenario 1: start 8.69, forward 24.25 m/s; charge 79.67%; Circus zero.
+Rocket scenario 2: start 6.02, forward 38.21 m/s; charge 79.67%; Circus zero.
+Rocket scenario 3: start 3.30, forward 4.22 m/s; charge 79.67%; Circus zero.
+Rocket scenario 4: start 0.00, forward 20.33 m/s; charge 79.67%; Circus zero.
+Rocket scenario 5: start 0.00, forward -0.00 m/s; charge 79.67%; Circus zero.
+Rocket scenarios complete; normal-drive and sustained-resource comparison begins.
+Normal drive settles at 44.44 m/s; both players request Nitro.
+Both peers sustain Nitro; charge drains while Wrench remains in the second slot.
+Boost reaches 62.22 m/s; released at 38.67% charge.
+Release recovery remains at 60.72 m/s with continuing authoritative overspeed awards.
+Recovery reaches normal speed and overspeed scoring stops; reuse begins with retained charge.
+Second activation drains the same grant tokens, followed by another release.
+Third activation continues until resource exhaustion.
+Both Nitro resources reach zero and clear only their physical slots.
+Nitro integration passed: Rocket scenario 0: start 0.00, forward 17.74 m/s; charge 79.67%; Circus zero.
+Rocket scenario 1: start 8.69, forward 24.25 m/s; charge 79.67%; Circus zero.
+Rocket scenario 2: start 6.02, forward 38.21 m/s; charge 79.67%; Circus zero.
+Rocket scenario 3: start 3.30, forward 4.22 m/s; charge 79.67%; Circus zero.
+Rocket scenario 4: start 0.00, forward 20.33 m/s; charge 79.67%; Circus zero.
+Rocket scenario 5: start 0.00, forward -0.00 m/s; charge 79.67%; Circus zero.
+Rocket scenarios complete; normal-drive and sustained-resource comparison begins.
+Normal drive settles at 44.44 m/s; both players request Nitro.
+Both peers sustain Nitro; charge drains while Wrench remains in the second slot.
+Boost reaches 62.22 m/s; released at 38.67% charge.
+Release recovery remains at 60.72 m/s with continuing authoritative overspeed awards.
+Recovery reaches normal speed and overspeed scoring stops; reuse begins with retained charge.
+Boost VFX activation observed in native peer presentation state.
+Second activation drains the same grant tokens, followed by another release.
+Boost VFX cutoff observed in native peer presentation state.
+Third activation continues until resource exhaustion.
+Both Nitro resources reach zero and clear only their physical slots.
+Boost VFX cutoff observed in native peer presentation state.
+REPLICATION_TRAFFIC {"seconds":31.715329,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":4167,"messages":3,"peak":1389},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":657402,"messages":692,"peak":994},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":345639,"messages":823,"peak":425},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":1409,"messages":4,"peak":463},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":396819,"messages":1242,"peak":463}]}
+REPLICATION_TRAFFIC {"seconds":31.2618767,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":297,"messages":9,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":142802,"messages":1862,"peak":121}]}
