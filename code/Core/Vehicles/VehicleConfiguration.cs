@@ -35,11 +35,19 @@ public sealed record VehicleConfiguration
     /// <summary>Body mass in kilograms.</summary>
     public float Mass { get; init; } = 1400;
     /// <summary>Forward acceleration in metres per second squared.</summary>
-    public float Acceleration { get; init; } = 40;
+    public float Acceleration { get; init; } = 55;
     /// <summary>Braking deceleration.</summary>
-    public float Braking { get; init; } = 65;
+    public float Braking { get; init; } = 95;
     /// <summary>Engine demand sent to the front axle; the rear handbrake interrupts all engine drive.</summary>
-    public float FrontDriveShare { get; init; } = 0.35f;
+    public float FrontDriveShare { get; init; } = 0;
+    /// <summary>Driven rear tire longitudinal capacity multiplier; leaves lateral grip independent.</summary>
+    public float RearDriveGrip { get; init; } = 1.6f;
+    /// <summary>Service brake tire capacity multiplier at full pedal.</summary>
+    public float BrakeGrip { get; init; } = 1.5f;
+    /// <summary>Rear lateral grip loss from excess torque and steering commitment.</summary>
+    public float PowerOversteer { get; init; } = 0.8f;
+    /// <summary>Longitudinal traction loss at full wheelspin.</summary>
+    public float SpinDriveLoss { get; init; } = 0.7f;
     /// <summary>Residual opposing speed snapped to rest before reversing, in m/s.</summary>
     public float StopSpeed { get; init; } = 0.05f;
     /// <summary>Reverse acceleration.</summary>
@@ -49,13 +57,13 @@ public sealed record VehicleConfiguration
     /// <summary>Reverse drive limit.</summary>
     public float ReverseSpeed { get; init; } = 11;
     /// <summary>Lateral grip response per second.</summary>
-    public float Grip { get; init; } = 18;
+    public float Grip { get; init; } = 26;
     /// <summary>Maximum wheel angle in radians at every speed.</summary>
     public float SteeringAngle { get; init; } = 0.9f;
     /// <summary>Wheel angle transition rate in radians per second.</summary>
-    public float SteeringResponse { get; init; } = 3.8f;
+    public float SteeringResponse { get; init; } = 1.8f;
     /// <summary>Time constant for progressive wheel corrections, independent of speed.</summary>
-    public float SteeringSmoothing { get; init; } = 0.06f;
+    public float SteeringSmoothing { get; init; } = 0.12f;
     /// <summary>Low/medium dirt corner authority multiplier; fades out by 28 m/s.</summary>
     public float DirtCornering { get; init; } = 1;
     /// <summary>Speed through which the extra dirt tire budget is fully available, m/s.</summary>
@@ -196,6 +204,8 @@ public sealed record VehicleConfiguration
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(PowerOversteer) || PowerOversteer is < 0 or > .9f || !float.IsFinite(SpinDriveLoss) || SpinDriveLoss is < 0 or > .9f) { throw new ArgumentException("Invalid wheelspin tuning."); }
+        if (!float.IsFinite(RearDriveGrip) || RearDriveGrip is < 0.1f or > 4 || !float.IsFinite(BrakeGrip) || BrakeGrip is < 0.1f or > 4) { throw new ArgumentException("Invalid longitudinal tire grip."); }
         if (!float.IsFinite(FrontDriveShare) || FrontDriveShare is < 0 or > 1)
         {
             throw new ArgumentException("Front drive share must be a finite fraction.");

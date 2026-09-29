@@ -217,6 +217,12 @@ public sealed partial class TerrainEffectsChecks : Node3D
         LineEdit Editor(string key) => FindEditors(shell.Configs).Single(editor => editor.Name == key.Replace('.', '_'));
         void Set(string key, string value) => Editor(key).Text = value;
         float baselineWidth = batch.LastTransform.Basis.X.Length();
+        if (DisplayServer.GetName() != "headless")
+        {
+            var tire = (MeshInstance3D)_car!.FindChild("WheelSpin_RR_Car_Rubber", true, false);
+            float rubberWidth = tire.Mesh.GetAabb().Size.X * tire.GlobalBasis.X.Length();
+            Check(Math.Abs(baselineWidth - rubberWidth) < .01f, $"Track width matches rendered tire rubber: {baselineWidth:F3} / {rubberWidth:F3}");
+        }
         Set("tire.width", "2"); Set("tire.intensity", "0.5"); Set("tire.lifetime", "4");
         Set("tire.dirt.duration", "0.5"); Set("tire.fade", "0.5"); Set("tire.budget", "256");
         Check(shell.Configs.HasUnappliedChanges && settings.Current.TireEffects["tire.width"] == 1, "Local Configs stages edits without runtime mutation");

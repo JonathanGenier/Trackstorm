@@ -75,7 +75,7 @@ internal sealed class SurfaceHandlingTests
             foreach (bool drift in new[] { false, true })
             {
                 var movement = new VehicleMovement(tuning, Physics());
-                var input = new InputFrame(1, 18000, 0, 0, drift ? InputButtons.Drift : InputButtons.None, InputButtons.None, InputButtons.None);
+                var input = new InputFrame(1, 0, 0, 0, drift ? InputButtons.Drift : InputButtons.None, InputButtons.None, InputButtons.None);
                 VehicleState result = movement.Step(input, Physics(new Vector3(5, 0, -18)), Vector3.UnitY, surface: surface);
                 float coastingSpeed = 18 * MathF.Exp(-tuning.CoastDrag * modifiers.Drag / tuning.TicksPerSecond);
                 if (drift)

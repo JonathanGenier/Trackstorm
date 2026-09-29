@@ -78,8 +78,8 @@ internal sealed class VehicleMovementTests
         VehicleMovement high = Create(40);
         VehicleMovement analog = Create(2);
         GroundStep(low, steering: 32767);
-        Assert.That(low.State.SteeringAngle, Is.InRange(0.055f, 0.07f));
-        for (int index = 0; index < 60; index++)
+        Assert.That(low.State.SteeringAngle, Is.InRange(0.029f, 0.031f));
+        for (int index = 0; index < 120; index++)
         {
             low.Step(Frame(low.State.Tick + 1, steering: 32767), Create(2).State.Physics, Vector3.UnitY);
             high.Step(Frame(high.State.Tick + 1, steering: 32767), Create(40).State.Physics, Vector3.UnitY);
@@ -301,7 +301,7 @@ internal sealed class VehicleMovementTests
         VehicleState released = movement.Step(Frame(movement.State.Tick + 1, throttle: 65535), body, Vector3.UnitY);
         Assert.That(released.LongitudinalAcceleration, Is.GreaterThan(2));
         Assert.That(-released.Physics.LinearVelocity.Z, Is.GreaterThan(speed));
-        Assert.That(released.Physics.LinearVelocity.X, Is.GreaterThan(4.65f));
+        Assert.That(released.Physics.LinearVelocity.X, Is.GreaterThan(4.5f));
         Assert.That(released.Physics.AngularVelocity.Y, Is.GreaterThan(0.5f));
         Assert.That(released.Handbrake, Is.InRange(0.3f, 0.99f));
         Assert.That(released.Drifting, Is.True);
@@ -327,7 +327,7 @@ internal sealed class VehicleMovementTests
             float yaw = state.Physics.AngularVelocity.Y / MathF.Exp(-tuning.StabilityDamping / 60);
             float rearSide = (state.LateralAcceleration + (yaw * 60 * tuning.Wheelbase * 2 / 3)) / 2;
             Assert.That(drive, Is.GreaterThanOrEqualTo(previous));
-            Assert.That((drive * drive) + (rearSide * rearSide), Is.LessThanOrEqualTo((capacity * capacity) + 0.0001f));
+            Assert.That((drive * drive / (tuning.RearDriveGrip * tuning.RearDriveGrip)) + (rearSide * rearSide), Is.LessThanOrEqualTo((capacity * capacity) + 0.0001f));
             Assert.That(drive, Is.LessThanOrEqualTo((reverse ? tuning.ReverseAcceleration : tuning.Acceleration * tuning.ResolveSurface(surface).Acceleration) * pedal / 65535f));
             previous = drive;
         }

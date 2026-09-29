@@ -33,16 +33,16 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("vehicle.air_dead_zone", (double)0.08f)]
     [TestCase("vehicle.support_normal_minimum", (double)0.55f)]
     [TestCase("vehicle.mass", 1400d)]
-    [TestCase("vehicle.acceleration", 40d)]
-    [TestCase("vehicle.front_drive_share", (double)0.35f)]
-    [TestCase("vehicle.braking", 65d)]
+    [TestCase("vehicle.acceleration", 55d)]
+    [TestCase("vehicle.front_drive_share", 0d)]
+    [TestCase("vehicle.braking", 95d)]
     [TestCase("vehicle.stop_speed", 0.05000000074505806d)]
     [TestCase("vehicle.reverse_acceleration", 8d)]
     [TestCase("vehicle.forward_speed", 44.439998626708984d)]
     [TestCase("vehicle.reverse_speed", 11d)]
-    [TestCase("vehicle.grip", 18d)]
+    [TestCase("vehicle.grip", 26d)]
     [TestCase("vehicle.steering_angle", (double)0.9f)]
-    [TestCase("vehicle.steering_response", (double)3.8f)]
+    [TestCase("vehicle.steering_response", (double)1.8f)]
     [TestCase("vehicle.wheelbase", (double)VehicleDimensions.Wheelbase)]
     [TestCase("vehicle.tire_friction", (double)1.9f)]
     [TestCase("vehicle.drive_traction_reserve", 0.550000011920929d)]
@@ -124,7 +124,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(186));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(190));
         Assert.That(defaults.Items.OilPasses, Is.EqualTo(2));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);

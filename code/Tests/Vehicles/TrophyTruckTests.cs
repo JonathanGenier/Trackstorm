@@ -58,7 +58,7 @@ internal sealed class TrophyTruckTests
     }
 
     [Test]
-    public void FrontDriveImprovesClimbingAndUsesTheEstablishedConfigurationBoundary()
+    public void RearDriveClimbsAndUsesTheEstablishedConfigurationBoundary()
     {
         var tuning = new VehicleConfiguration();
         var orientation = Quaternion.CreateFromAxisAngle(Vector3.UnitX, 30 * MathF.PI / 180);
@@ -69,9 +69,10 @@ internal sealed class TrophyTruckTests
         VehicleState Drive(VehicleConfiguration c) => new VehicleMovement(c, pose).Step(input, pose, normal, surface: SurfaceType.Dirt, wheels: wheels);
         var forward = Vector3.Transform(-Vector3.UnitZ, orientation);
         Assert.That(Vector3.Dot(Drive(tuning).Physics.LinearVelocity, forward), Is.GreaterThan(0.1f));
-        Assert.That(Drive(tuning).LongitudinalAcceleration, Is.GreaterThan(Drive(tuning with { FrontDriveShare = 0 }).LongitudinalAcceleration));
+        Assert.That(Drive(tuning).LongitudinalAcceleration, Is.GreaterThan(Drive(tuning with { RearDriveGrip = 1 }).LongitudinalAcceleration));
+        Assert.That(tuning.FrontDriveShare, Is.Zero);
         var configuration = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.TryApply(configuration, new Dictionary<string, double> { ["vehicle.front_drive_share"] = 0.2 }, out var changed, out _), Is.True);
+        Assert.That(GameplayOptions.TryApply(configuration, new Dictionary<string, double> { ["vehicle.rear_drive_grip"] = 1.2 }, out var changed, out _), Is.True);
         Assert.That(GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(1, new(1, changed))).State.Configuration, Is.EqualTo(changed));
         Assert.That(GameplayOptions.TryApply(configuration, new Dictionary<string, double> { ["vehicle.front_drive_share"] = 1.1 }, out _, out _), Is.False);
     }

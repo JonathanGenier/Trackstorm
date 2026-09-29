@@ -9,6 +9,10 @@ namespace Trackstorm.Core.Tests.Vehicles;
 [TestFixture]
 internal sealed class TrophyTuningTests
 {
+    [TestCase("rear_drive_grip", 1)]
+    [TestCase("brake_grip", 1)]
+    [TestCase("power_oversteer", 0)]
+    [TestCase("spin_drive_loss", 0)]
     [TestCase("dirt_corner_full_speed", 16)]
     [TestCase("dirt_corner_fade_speed", 18)]
     [TestCase("dirt_corner_grip", 0)]
@@ -54,7 +58,11 @@ internal sealed class TrophyTuningTests
             new Dictionary<string,double> { ["vehicle.dirt_corner_full_speed"] = 30, ["vehicle.dirt_corner_fade_speed"] = 20 },
             new Dictionary<string,double> { ["vehicle.crash_recovery_ramp"] = 0 },
             new Dictionary<string,double> { ["vehicle.wheel_deep_damping"] = -1 },
-            new Dictionary<string,double> { ["vehicle.front_brake_share"] = 1.1 } })
+            new Dictionary<string,double> { ["vehicle.front_brake_share"] = 1.1 },
+            new Dictionary<string,double> { ["vehicle.rear_drive_grip"] = 0 },
+            new Dictionary<string,double> { ["vehicle.brake_grip"] = 4.1 },
+            new Dictionary<string,double> { ["vehicle.power_oversteer"] = 1 },
+            new Dictionary<string,double> { ["vehicle.spin_drive_loss"] = double.NaN } })
         {
             Assert.That(GameplayOptions.TryApply(defaults, change, out _, out _), Is.False);
         }

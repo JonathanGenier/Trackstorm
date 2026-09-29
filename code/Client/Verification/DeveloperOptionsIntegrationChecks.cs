@@ -142,7 +142,7 @@ public sealed partial class DeveloperOptionsIntegrationChecks : Node
                         continue;
                     }
                     double current = option.Read(_host.DeveloperConfiguration);
-                    double value = option.Boolean ? 1 - current : option.Integral ? current + 1 : current * 1.05;
+                    double value = option.Boolean ? 1 - current : option.Integral ? current + 1 : current == 0 ? 0.05 : current * 1.05;
                     // Shorten suspension and reduce the airborne fraction from its canonical maximum.
                     if (option.Key is "vehicle.suspension_length" or "items.nitro_airborne_thrust_scale" or "environment.piece_speed")
                     {

@@ -1,0 +1,100 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Core.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:07.78
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Drive check: end=<-0.00221402, 1.1179372, -36.92438>, peak speed=19.88, peak height=4.12, supported ticks=183
+Drift check: max handbrake=1, supported=144, drift ticks=75, end=<-21.553452, 1.1503232, 19.445568>
+Brake check: end velocity=<1.629726E-08, -0.0018111318, 11>, distance=1.87m
+Cornering: low radius=6.26m; fast radius=12.44m; front slip=0.76
+Steering onset: first wheel=0.030rad; yaw at 100ms=-0.263rad/s
+Recovery: initial side speed=4m/s; final=0.000m/s
+Handbrake recovery: entry=6, held=6, peak yaw=0.24, final side=0.000, speed=22.72
+Handbrake recovery: entry=6, held=45, peak yaw=0.35, final side=0.000, speed=13.54
+Handbrake recovery: entry=16, held=6, peak yaw=0.68, final side=0.000, speed=30.04
+Handbrake recovery: entry=16, held=45, peak yaw=2.55, final side=0.000, speed=16.57
+Power out: entry=6, held=6, throttle delay=-6, acceleration=18.021, side=0.688, yaw=0.629, recovery=0.750, final side=0.033, peak speed=34.946, peak yaw=0.631
+Power out: entry=6, held=6, throttle delay=0, acceleration=17.895, side=0.577, yaw=0.528, recovery=0.750, final side=0.028, peak speed=33.818, peak yaw=0.533
+Power out: entry=6, held=6, throttle delay=6, acceleration=22.324, side=0.248, yaw=0.337, recovery=0.450, final side=0.020, peak speed=31.838, peak yaw=0.533
+Power out: entry=6, held=45, throttle delay=-6, acceleration=21.797, side=0.049, yaw=0.044, recovery=0.950, final side=0.000, peak speed=42.479, peak yaw=0.543
+Power out: entry=6, held=45, throttle delay=0, acceleration=21.797, side=0.049, yaw=0.044, recovery=0.950, final side=0.000, peak speed=42.479, peak yaw=0.543
+Power out: entry=6, held=45, throttle delay=6, acceleration=21.910, side=0.026, yaw=0.023, recovery=0.650, final side=0.000, peak speed=41.878, peak yaw=0.543
+Power out: entry=16, held=6, throttle delay=-6, acceleration=5.190, side=0.830, yaw=1.689, recovery=0.750, final side=0.036, peak speed=37.631, peak yaw=1.839
+Power out: entry=16, held=6, throttle delay=0, acceleration=6.052, side=1.118, yaw=1.875, recovery=0.750, final side=0.029, peak speed=36.861, peak yaw=2.001
+Power out: entry=16, held=6, throttle delay=6, acceleration=13.605, side=0.429, yaw=2.026, recovery=0.450, final side=0.012, peak speed=36.191, peak yaw=2.034
+Power out: entry=16, held=45, throttle delay=-6, acceleration=13.252, side=3.247, yaw=2.983, recovery=0.950, final side=0.000, peak speed=41.075, peak yaw=3.616
+Power out: entry=16, held=45, throttle delay=0, acceleration=13.346, side=3.248, yaw=2.978, recovery=0.950, final side=0.000, peak speed=41.073, peak yaw=3.616
+Power out: entry=16, held=45, throttle delay=6, acceleration=14.708, side=2.857, yaw=2.317, recovery=0.650, final side=0.000, peak speed=40.899, peak yaw=3.616
+Acceleration: entry=0, final=36.376
+Acceleration: entry=4, final=38.772
+Acceleration: entry=12, final=41.938
+Brake recovery: first drive=19.424, before=0.247, after=25.327
+Collision HP: player=54.35, target=54.35
+Brush check: contacts=179, player HP=100.00, target HP=100.00
+Blast check: max height=1.65, peak angular=1.62, end=<-12.519822, 1.1465083, 12.699658>, HP=59.24
+Collision shake: intensity=0%, peak=0.000000m, HP=50.598, life=41
+Collision shake: intensity=25%, peak=0.070351m, HP=50.598, life=42
+Collision shake: intensity=50%, peak=0.140701m, HP=50.598, life=43
+Collision shake: intensity=100%, peak=0.281402m, HP=50.598, life=44
+Collision shake: intensity=100%, peak=0.281402m, HP=50.598, life=45
+Stationary speed: observed=0.0000 m/s, command=0.0028 m/s, HUD=Speed  0 km/h
+Reverse speed: observed=4.79 m/s, HUD=Speed  17 km/h
+Surface speed after 90 ticks: Concrete=36.38, Mud=15.46
+Surface crossings: 10; peak speed=33.71
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose, native life reset.
+Vehicle integration passed: 147 assertions.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Drive check: end=<-0.00221402, 1.1179372, -36.92438>, peak speed=19.88, peak height=4.12, supported ticks=183
+Drift check: max handbrake=1, supported=144, drift ticks=75, end=<-21.553452, 1.1503232, 19.445568>
+Brake check: end velocity=<1.629726E-08, -0.0018111318, 11>, distance=1.87m
+Cornering: low radius=6.26m; fast radius=12.44m; front slip=0.76
+Steering onset: first wheel=0.030rad; yaw at 100ms=-0.263rad/s
+Recovery: initial side speed=4m/s; final=0.000m/s
+Handbrake recovery: entry=6, held=6, peak yaw=0.24, final side=0.000, speed=22.72
+Handbrake recovery: entry=6, held=45, peak yaw=0.35, final side=0.000, speed=13.54
+Handbrake recovery: entry=16, held=6, peak yaw=0.68, final side=0.000, speed=30.04
+Handbrake recovery: entry=16, held=45, peak yaw=2.55, final side=0.000, speed=16.57
+Power out: entry=6, held=6, throttle delay=-6, acceleration=18.021, side=0.688, yaw=0.629, recovery=0.750, final side=0.033, peak speed=34.946, peak yaw=0.631
+Power out: entry=6, held=6, throttle delay=0, acceleration=17.895, side=0.577, yaw=0.528, recovery=0.750, final side=0.028, peak speed=33.818, peak yaw=0.533
+Power out: entry=6, held=6, throttle delay=6, acceleration=22.324, side=0.248, yaw=0.337, recovery=0.450, final side=0.020, peak speed=31.838, peak yaw=0.533
+Power out: entry=6, held=45, throttle delay=-6, acceleration=21.797, side=0.049, yaw=0.044, recovery=0.950, final side=0.000, peak speed=42.479, peak yaw=0.543
+Power out: entry=6, held=45, throttle delay=0, acceleration=21.797, side=0.049, yaw=0.044, recovery=0.950, final side=0.000, peak speed=42.479, peak yaw=0.543
+Power out: entry=6, held=45, throttle delay=6, acceleration=21.910, side=0.026, yaw=0.023, recovery=0.650, final side=0.000, peak speed=41.878, peak yaw=0.543
+Power out: entry=16, held=6, throttle delay=-6, acceleration=5.190, side=0.830, yaw=1.689, recovery=0.750, final side=0.036, peak speed=37.631, peak yaw=1.839
+Power out: entry=16, held=6, throttle delay=0, acceleration=6.052, side=1.118, yaw=1.875, recovery=0.750, final side=0.029, peak speed=36.861, peak yaw=2.001
+Power out: entry=16, held=6, throttle delay=6, acceleration=13.605, side=0.429, yaw=2.026, recovery=0.450, final side=0.012, peak speed=36.191, peak yaw=2.034
+Power out: entry=16, held=45, throttle delay=-6, acceleration=13.252, side=3.247, yaw=2.983, recovery=0.950, final side=0.000, peak speed=41.075, peak yaw=3.616
+Power out: entry=16, held=45, throttle delay=0, acceleration=13.346, side=3.248, yaw=2.978, recovery=0.950, final side=0.000, peak speed=41.073, peak yaw=3.616
+Power out: entry=16, held=45, throttle delay=6, acceleration=14.708, side=2.857, yaw=2.317, recovery=0.650, final side=0.000, peak speed=40.899, peak yaw=3.616
+Acceleration: entry=0, final=36.376
+Acceleration: entry=4, final=38.772
+Acceleration: entry=12, final=41.938
+Brake recovery: first drive=19.424, before=0.247, after=25.327
+Collision HP: player=54.35, target=54.35
+Brush check: contacts=179, player HP=100.00, target HP=100.00
+Blast check: max height=1.65, peak angular=1.62, end=<-12.519822, 1.1465083, 12.699658>, HP=59.24
+Collision shake: intensity=0%, peak=0.000000m, HP=50.598, life=41
+Collision shake: intensity=25%, peak=0.073140m, HP=50.598, life=42
+Collision shake: intensity=50%, peak=0.146281m, HP=50.598, life=43
+Collision shake: intensity=100%, peak=0.292561m, HP=50.598, life=44
+Collision shake: intensity=100%, peak=0.292561m, HP=50.598, life=45
+Stationary speed: observed=0.0000 m/s, command=0.0028 m/s, HUD=Speed  0 km/h
+Reverse speed: observed=4.79 m/s, HUD=Speed  17 km/h
+Surface speed after 90 ticks: Concrete=36.38, Mud=15.46
+Surface crossings: 10; peak speed=33.71
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose, native life reset.
+Vehicle integration passed: 147 assertions.
+Fixed-step replay matched across 30 and 144 render FPS (0.02 tolerance).
+Surface replay matched across 30 and 144 render FPS (0.02 tolerance).
+Vehicle verification artifacts: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\vehicle-checks\aa1b7ff2e42c4bdf83215bdac1213a6f

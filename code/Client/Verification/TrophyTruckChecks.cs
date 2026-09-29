@@ -24,6 +24,7 @@ public sealed partial class TrophyTruckChecks : Node3D
     private string _output = "";
     private int _assertions;
     private float _yawTravel;
+    private int _pairContactTicks;
     private bool _chassisContact;
     private float _rebound;
     private float _maximumCompression;
@@ -55,6 +56,7 @@ public sealed partial class TrophyTruckChecks : Node3D
             if (s.VehicleId == 1)
             {
                 _movementTrace.Add(s.Movement);
+                if (requests.Single(r => r.VehicleId == 1).Observation.Contacts.Any(c => c.OtherVehicleId != 0)) { _pairContactTicks++; }
                 _minimumUp = Math.Min(_minimumUp, up.Y);
                 _yawTravel += p.AngularVelocity.Y / 60;
                 _maximumCompression = Math.Max(_maximumCompression, Math.Max(Math.Max(w.X, w.Y), Math.Max(w.Z, w.W)));
@@ -83,6 +85,13 @@ public sealed partial class TrophyTruckChecks : Node3D
             }
             _output = ProjectSettings.GlobalizePath("res://.godot/ts-197/trophy");
             System.IO.Directory.CreateDirectory(_output);
+            if (OS.GetCmdlineUserArgs().Contains("--trophy-rwd"))
+            {
+                foreach (bool network in new[] { false, true }) { await RearDrive(network); }
+                GD.Print($"RWD handling checks passed: {_assertions} assertions.");
+                GetTree().Quit();
+                return;
+            }
             if (OS.GetCmdlineUserArgs().Contains("--trophy-contact"))
             {
                 foreach (bool network in new[] { false, true }) { await HighSpeedContact(network); }
@@ -99,6 +108,8 @@ public sealed partial class TrophyTruckChecks : Node3D
                 }
                 if (OS.GetCmdlineUserArgs().Contains("--trophy-polish")) { continue; }
                 await Driving(network);
+                await RearDrive(network);
+                await RepeatedContacts(network);
                 await PowerCorners(network);
                 await TightTurns(network);
                 await HardLandings(network);
@@ -352,7 +363,7 @@ public sealed partial class TrophyTruckChecks : Node3D
             position.Y = hit["position"].AsVector3().Y + VehicleDimensions.RideHeight + 0.1f;
         }
         _world = new(new(60));
-        _trace.Clear(); _movementTrace.Clear(); _yawTravel = 0; _chassisContact = false; _rebound = 0;
+        _trace.Clear(); _movementTrace.Clear(); _pairContactTicks = 0; _yawTravel = 0; _chassisContact = false; _rebound = 0;
         _maximumCompression = 0; _minimumHeight = position.Y;
         _pilot = (tick, _) => new(tick, 0, 0, 0, 0, 0, 0);
         if (OS.GetCmdlineUserArgs().Contains("--trophy-baseline"))

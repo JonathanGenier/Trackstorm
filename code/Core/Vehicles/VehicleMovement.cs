@@ -150,8 +150,6 @@ public sealed class VehicleMovement
             float driveModifier = profiles[2].Acceleration * rearLeftShare + profiles[3].Acceleration * (1 - rearLeftShare);
             float dirtShare = waterDepth > 0 ? 0 : (materials[2] == SurfaceType.Dirt ? rearLeftShare : 0) + (materials[3] == SurfaceType.Dirt ? 1 - rearLeftShare : 0);
             float spinTarget = driveEnabled ? dirtShare * Math.Min(0.8f, c.DirtPowerSlip * (1 + c.DirtCornerPowerSlip * dirtCorner * Math.Abs(steerIntent))) * throttle * throttle : 0;
-            float spinRate = spinTarget > State.PowerSlip ? c.PowerSlipResponse : c.PowerSlipRecovery;
-            powerSlip = State.PowerSlip + (spinTarget - State.PowerSlip) * (1 - MathF.Exp(-spinRate * dt));
             // Engage drive within one braking step of rest. Requiring exact zero can trap a
             // vehicle in perpetual braking when gravity adds downhill velocity between ticks.
             float forceScale = c.ReferenceMass / c.Mass;
@@ -184,8 +182,8 @@ public sealed class VehicleMovement
             // Configurable surface multipliers can be extreme; keep accepted force diagnostics
             // inside the portable handling-state contract as well as the velocity safety bound.
             driveAcceleration = Math.Clamp(driveAcceleration, -1000, 1000);
-            // Rear-biased all-wheel drive makes front support useful on climbs. The handbrake
-            // interrupts engine torque so front drive cannot pull against a deliberately locked rear.
+            // Production drive is rear-only; the existing configurable axle split remains available.
+            // The handbrake interrupts engine torque against a deliberately locked rear.
             float engine = driveAcceleration * (1 - brakeApplication);
             frontLong += engine * c.FrontDriveShare;
             float rearLong = engine * (1 - c.FrontDriveShare) - (Math.Sign(longitudinal) * ((stopping * (1 - c.FrontBrakeShare)) + handbrakeStop));
@@ -211,16 +209,27 @@ public sealed class VehicleMovement
             float oilGrip = 1 - c.OilGripReduction * Math.Clamp((float)oilTicks / recoveryTicks, 0, 1);
             float frontCapacity = totalGrip * frontLoad;
             float rearCapacity = totalGrip * (1 - frontLoad);
+            // Excess rear torque under committed steering consumes tire purchase.
+            // The same continuous demand produces a tight burnout from rest and a
+            // momentum-carrying power slide on entry; there is no donut mode or yaw impulse.
+            float torqueRatio = Math.Abs(engine * (1 - c.FrontDriveShare)) / Math.Max(1, rearCapacity * driveModifier);
+            float torqueSlip = c.PowerOversteer * throttle * throttle * Math.Abs(wheel) / c.SteeringAngle * Math.Clamp(torqueRatio - 1, 0, 1);
+            spinTarget = Math.Max(spinTarget, torqueSlip);
+            float spinRate = spinTarget > State.PowerSlip ? c.PowerSlipResponse : c.PowerSlipRecovery;
+            powerSlip = State.PowerSlip + (spinTarget - State.PowerSlip) * (1 - MathF.Exp(-spinRate * dt));
             float yaw = Vector3.Dot(angular, tireNormal);
-            float frontSideSpeed = lateral - (yaw * halfAxle) - (longitudinal * MathF.Tan(wheel));
+            float wheelSin = MathF.Sin(wheel), wheelCos = MathF.Cos(wheel);
+            float frontSideSpeed = (lateral - yaw * halfAxle) * wheelCos - longitudinal * wheelSin;
             float rearSideSpeed = lateral + (yaw * halfAxle);
             float response = Math.Min(c.Grip * forceScale, 1 / dt);
             float frontDemand = -frontSideSpeed * response * 0.5f;
             float rearDemand = -rearSideSpeed * response * 0.5f;
             float driveReserve = driveAcceleration != 0 && handbrakeTarget == 0 ? c.DriveTractionReserve : 0;
+            float brakeGrip = 1 + (c.BrakeGrip - 1) * (stopping > 0 ? Math.Max(throttle, brake) : 0);
+            float rearLongGrip = engine != 0 ? c.RearDriveGrip * (1 - c.SpinDriveLoss * powerSlip) : brakeGrip;
             float rearGrip = (1 - handbrake * (1 - c.HandbrakeGrip)) * (1 - powerSlip);
-            var fl = Tire(frontDemand * frontLeftShare, frontLong * frontLeftShare, frontCapacity * frontLeftShare * profiles[0].Grip, driveReserve: driveReserve);
-            var fr = Tire(frontDemand * (1 - frontLeftShare), frontLong * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * profiles[1].Grip, driveReserve: driveReserve);
+            var fl = Tire(frontDemand * frontLeftShare, frontLong * frontLeftShare, frontCapacity * frontLeftShare * profiles[0].Grip, driveReserve: driveReserve, longitudinalGrip: brakeGrip);
+            var fr = Tire(frontDemand * (1 - frontLeftShare), frontLong * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * profiles[1].Grip, driveReserve: driveReserve, longitudinalGrip: brakeGrip);
             // Reserve part of saturated front dirt traction for the filtered wheel direction.
             // This changes force allocation, not the surface's friction budget or drive demand.
             // Half authority near a 22-degree slide; the speed floor calms parking-speed input.
@@ -236,11 +245,11 @@ public sealed class VehicleMovement
                 if (materials[0] == SurfaceType.Dirt) { fl = DirtFront(fl, frontLong * frontLeftShare, steeringDemand * frontLeftShare, frontCapacity * frontLeftShare * profiles[0].Grip, steeringReserve * c.DirtSteeringReserve); }
                 if (materials[1] == SurfaceType.Dirt) { fr = DirtFront(fr, frontLong * (1 - frontLeftShare), steeringDemand * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * profiles[1].Grip, steeringReserve * c.DirtSteeringReserve); }
             }
-            var rl = Tire(rearDemand * rearLeftShare, rearLong * rearLeftShare, rearCapacity * rearLeftShare * profiles[2].Grip, rearGrip, driveReserve);
-            var rr = Tire(rearDemand * (1 - rearLeftShare), rearLong * (1 - rearLeftShare), rearCapacity * (1 - rearLeftShare) * profiles[3].Grip, rearGrip, driveReserve);
-            float frontForce = (fl.Side + fr.Side) * oilGrip;
+            var rl = Tire(rearDemand * rearLeftShare, rearLong * rearLeftShare, rearCapacity * rearLeftShare * profiles[2].Grip, rearGrip, driveReserve, rearLongGrip);
+            var rr = Tire(rearDemand * (1 - rearLeftShare), rearLong * (1 - rearLeftShare), rearCapacity * (1 - rearLeftShare) * profiles[3].Grip, rearGrip, driveReserve, rearLongGrip);
+            float frontForce = ((fl.Side + fr.Side) * wheelCos + (fl.Drive + fr.Drive) * wheelSin) * oilGrip;
             float rearForce = (rl.Side + rr.Side) * oilGrip;
-            float frontDrive = fl.Drive + fr.Drive;
+            float frontDrive = (fl.Drive + fr.Drive) * wheelCos - (fl.Side + fr.Side) * wheelSin * oilGrip;
             float rearDrive = rl.Drive + rr.Drive;
             frontSlip = fl.Slip * frontLeftShare + fr.Slip * (1 - frontLeftShare);
             rearSlip = rl.Slip * rearLeftShare + rr.Slip * (1 - rearLeftShare);
@@ -424,9 +433,10 @@ public sealed class VehicleMovement
         return (side, tire.Drive, tire.Slip);
     }
 
-    private static (float Side, float Drive, float Slip) Tire(float lateral, float longitudinal, float capacity, float lateralFraction = 1, float driveReserve = 0)
+    private static (float Side, float Drive, float Slip) Tire(float lateral, float longitudinal, float capacity, float lateralFraction = 1, float driveReserve = 0, float longitudinalGrip = 1)
     {
-        float demand = MathF.Sqrt((lateral * lateral) + (longitudinal * longitudinal));
+        float longitudinalDemand = longitudinal / longitudinalGrip;
+        float demand = MathF.Sqrt((lateral * lateral) + (longitudinalDemand * longitudinalDemand));
         if (demand < 0.00001f)
         {
             return (0, 0, 0);
@@ -444,10 +454,10 @@ public sealed class VehicleMovement
         float side = lateral * scale;
         if (driveReserve > 0)
         {
-            // Allocate propulsion inside the same friction circle, never above pedal demand or pure longitudinal traction.
-            float availableDrive = capacity * MathF.Tanh(Math.Abs(longitudinal) / capacity);
-            drive = Math.Sign(longitudinal) * Math.Max(Math.Abs(drive), Math.Min(capacity * driveReserve, availableDrive));
-            float remainingSide = MathF.Sqrt(Math.Max(0, (capacity * capacity) - (drive * drive)));
+            // Allocate propulsion inside the same friction ellipse, never above pedal demand or pure longitudinal traction.
+            float availableDrive = capacity * longitudinalGrip * MathF.Tanh(Math.Abs(longitudinal) / (capacity * longitudinalGrip));
+            drive = Math.Sign(longitudinal) * Math.Max(Math.Abs(drive), Math.Min(capacity * longitudinalGrip * driveReserve, availableDrive));
+            float remainingSide = MathF.Sqrt(Math.Max(0, (capacity * capacity) - (drive * drive / (longitudinalGrip * longitudinalGrip))));
             side = Math.Clamp(side, -remainingSide, remainingSide);
         }
 

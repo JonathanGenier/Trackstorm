@@ -6,6 +6,10 @@ public static class GameplayOptions
     /// <summary>Stable allowlist of editable gameplay settings.</summary>
     public static IReadOnlyList<GameplayOption> All { get; } = Array.AsReadOnly<GameplayOption>(
     [
+        new("vehicle.power_oversteer", "Vehicle", "Torque steering slip (0–0.9)", false, c => c.Vehicle.PowerOversteer, (c, v) => c with { Vehicle = c.Vehicle with { PowerOversteer = checked((float)v) } }),
+        new("vehicle.spin_drive_loss", "Vehicle", "Wheelspin drive loss (0–0.9)", false, c => c.Vehicle.SpinDriveLoss, (c, v) => c with { Vehicle = c.Vehicle with { SpinDriveLoss = checked((float)v) } }),
+        new("vehicle.rear_drive_grip", "Vehicle", "Rear drive traction (0.1–4)", false, c => c.Vehicle.RearDriveGrip, (c, v) => c with { Vehicle = c.Vehicle with { RearDriveGrip = checked((float)v) } }),
+        new("vehicle.brake_grip", "Vehicle", "Brake traction (0.1–4)", false, c => c.Vehicle.BrakeGrip, (c, v) => c with { Vehicle = c.Vehicle with { BrakeGrip = checked((float)v) } }),
         new("vehicle.dirt_corner_full_speed", "Dirt", "Full corner grip through (m/s)", false, c => c.Vehicle.DirtCornerFullSpeed, (c, v) => c with { Vehicle = c.Vehicle with { DirtCornerFullSpeed = checked((float)v) } }),
         new("vehicle.dirt_corner_fade_speed", "Dirt", "Corner grip fade end (m/s)", false, c => c.Vehicle.DirtCornerFadeSpeed, (c, v) => c with { Vehicle = c.Vehicle with { DirtCornerFadeSpeed = checked((float)v) } }),
         new("vehicle.dirt_corner_grip", "Dirt", "Corner grip boost (0–4)", false, c => c.Vehicle.DirtCornerGrip, (c, v) => c with { Vehicle = c.Vehicle with { DirtCornerGrip = checked((float)v) } }),

@@ -1,0 +1,129 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+practice-Asphalt-0 uses authored support profile
+practice-Asphalt-0: from rest progress 295.312 m, speed 44.440 m/s
+practice-Asphalt-0 traversable without damage
+practice-Asphalt-0 responds to steering
+practice-Asphalt-0 recovers upright after handbrake and steering: position=<59.564735, 1.1491205, -393.1112>, up=0.999, grounded=True
+practice-Asphalt-0 retains drive after release
+practice-Asphalt-0 returns to asphalt and accelerates continuously
+practice-Asphalt-20 uses authored support profile
+practice-Asphalt-20: from rest progress 271.714 m, speed 43.186 m/s
+practice-Asphalt-20 traversable without damage
+practice-Concrete-0 uses authored support profile
+practice-Concrete-0: from rest progress 304.509 m, speed 44.440 m/s
+practice-Concrete-0 traversable without damage
+practice-Concrete-0 responds to steering
+practice-Concrete-0 recovers upright after handbrake and steering: position=<93.411674, 1.1460013, -417.0359>, up=0.999, grounded=True
+practice-Concrete-0 retains drive after release
+practice-Concrete-0 returns to asphalt and accelerates continuously
+practice-Concrete-20 uses authored support profile
+practice-Concrete-20: from rest progress 286.525 m, speed 43.172 m/s
+practice-Concrete-20 traversable without damage
+practice-Dirt-0 uses authored support profile
+practice-Dirt-0: from rest progress 292.185 m, speed 43.816 m/s
+practice-Dirt-0 traversable without damage
+practice-Dirt-0 responds to steering
+practice-Dirt-0 recovers upright after handbrake and steering: position=<107.91062, 1.1440469, -388.79913>, up=0.999, grounded=True
+practice-Dirt-0 retains drive after release
+practice-Dirt-0 returns to asphalt and accelerates continuously
+practice-Dirt-20 uses authored support profile
+practice-Dirt-20: from rest progress 268.642 m, speed 42.416 m/s
+practice-Dirt-20 traversable without damage
+practice-Grass-0 uses authored support profile
+practice-Grass-0: from rest progress 285.033 m, speed 42.641 m/s
+practice-Grass-0 traversable without damage
+practice-Grass-0 responds to steering
+practice-Grass-0 recovers upright after handbrake and steering: position=<32.311947, 1.1498686, -355.33237>, up=0.999, grounded=True
+practice-Grass-0 retains drive after release
+practice-Grass-0 returns to asphalt and accelerates continuously
+practice-Grass-15 uses authored support profile
+practice-Grass-15: from rest progress 268.714 m, speed 41.441 m/s
+practice-Grass-15 traversable without damage
+practice-Mud-0 uses authored support profile
+practice-Mud-0: from rest progress 167.216 m, speed 28.923 m/s
+practice-Mud-0 traversable without damage
+practice-Mud-0 responds to steering
+practice-Mud-0 recovers upright after handbrake and steering: position=<16.264696, 1.1426266, -204.60735>, up=0.999, grounded=True
+practice-Mud-0 retains drive after release
+practice-Mud-0 returns to asphalt and accelerates continuously
+practice-Mud-12 uses authored support profile
+practice-Mud-12: from rest progress 133.113 m, speed 23.417 m/s
+practice-Mud-12 traversable without damage
+practice-DeepMud-0 uses authored support profile
+practice-DeepMud-0: from rest progress 63.620 m, speed 9.223 m/s
+practice-DeepMud-0 traversable without damage
+practice-DeepMud-0 responds to steering
+practice-DeepMud-0 recovers upright after handbrake and steering: position=<22.128752, 1.1437702, -63.204395>, up=1.000, grounded=True
+practice-DeepMud-0 retains drive after release
+practice-DeepMud-0 returns to asphalt and accelerates continuously
+practice-DeepMud-10 uses authored support profile
+practice-DeepMud-10: from rest progress 50.269 m, speed 7.342 m/s
+practice-DeepMud-10 traversable without damage
+False: approved drag and drive defaults retain terrain-specific progress
+False: split Grass/Asphalt contacts retain all four native wheel materials
+False: partial grass creates physical traction yaw -0.0510 rad/s with continuing drive 4.904 m/s
+network-Asphalt-0 uses authored support profile
+network-Asphalt-0: from rest progress 295.312 m, speed 44.440 m/s
+network-Asphalt-0 traversable without damage
+network-Asphalt-0 responds to steering
+network-Asphalt-0 recovers upright after handbrake and steering: position=<59.54224, 1.1491133, -393.1102>, up=0.999, grounded=True
+network-Asphalt-0 retains drive after release
+network-Asphalt-0 returns to asphalt and accelerates continuously
+network-Asphalt-20 uses authored support profile
+network-Asphalt-20: from rest progress 271.717 m, speed 43.186 m/s
+network-Asphalt-20 traversable without damage
+network-Concrete-0 uses authored support profile
+network-Concrete-0: from rest progress 304.509 m, speed 44.440 m/s
+network-Concrete-0 traversable without damage
+network-Concrete-0 responds to steering
+network-Concrete-0 recovers upright after handbrake and steering: position=<93.394844, 1.1458747, -417.0503>, up=0.999, grounded=True
+network-Concrete-0 retains drive after release
+network-Concrete-0 returns to asphalt and accelerates continuously
+network-Concrete-20 uses authored support profile
+network-Concrete-20: from rest progress 286.527 m, speed 43.172 m/s
+network-Concrete-20 traversable without damage
+network-Dirt-0 uses authored support profile
+network-Dirt-0: from rest progress 292.186 m, speed 43.816 m/s
+network-Dirt-0 traversable without damage
+network-Dirt-0 responds to steering
+network-Dirt-0 recovers upright after handbrake and steering: position=<107.95755, 1.1439917, -388.8216>, up=0.999, grounded=True
+network-Dirt-0 retains drive after release
+network-Dirt-0 returns to asphalt and accelerates continuously
+network-Dirt-20 uses authored support profile
+network-Dirt-20: from rest progress 268.646 m, speed 42.416 m/s
+network-Dirt-20 traversable without damage
+network-Grass-0 uses authored support profile
+network-Grass-0: from rest progress 285.036 m, speed 42.641 m/s
+network-Grass-0 traversable without damage
+network-Grass-0 responds to steering
+network-Grass-0 recovers upright after handbrake and steering: position=<32.294662, 1.1498395, -355.33417>, up=0.999, grounded=True
+network-Grass-0 retains drive after release
+network-Grass-0 returns to asphalt and accelerates continuously
+network-Grass-15 uses authored support profile
+network-Grass-15: from rest progress 268.719 m, speed 41.441 m/s
+network-Grass-15 traversable without damage
+network-Mud-0 uses authored support profile
+network-Mud-0: from rest progress 167.240 m, speed 28.930 m/s
+network-Mud-0 traversable without damage
+network-Mud-0 responds to steering
+network-Mud-0 recovers upright after handbrake and steering: position=<16.273808, 1.1426307, -204.64687>, up=0.999, grounded=True
+network-Mud-0 retains drive after release
+network-Mud-0 returns to asphalt and accelerates continuously
+network-Mud-12 uses authored support profile
+network-Mud-12: from rest progress 133.116 m, speed 23.419 m/s
+network-Mud-12 traversable without damage
+network-DeepMud-0 uses authored support profile
+network-DeepMud-0: from rest progress 63.616 m, speed 9.221 m/s
+network-DeepMud-0 traversable without damage
+network-DeepMud-0 responds to steering
+network-DeepMud-0 recovers upright after handbrake and steering: position=<22.13396, 1.1437616, -63.188972>, up=1.000, grounded=True
+network-DeepMud-0 retains drive after release
+network-DeepMud-0 returns to asphalt and accelerates continuously
+network-DeepMud-10 uses authored support profile
+network-DeepMud-10: from rest progress 50.265 m, speed 7.340 m/s
+network-DeepMud-10 traversable without damage
+True: approved drag and drive defaults retain terrain-specific progress
+True: split Grass/Asphalt contacts retain all four native wheel materials
+True: partial grass creates physical traction yaw -0.0510 rad/s with continuing drive 4.904 m/s
+Terrain handling integration passed: both adapters, six surfaces, slope starts, steering, handbrake recovery and transitions.

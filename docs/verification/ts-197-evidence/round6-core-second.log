@@ -1,0 +1,25 @@
+
+>> Core tests
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed EachVehicleOptionChangesActualSimulationCommands("vehicle.stop_speed",0.4d) [54 ms]
+  Error Message:
+     vehicle.stop_speed must affect actual movement, not merely stored configuration.
+Assert.That(changed, Is.True)
+  Expected: True
+  But was:  False
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Development.DeveloperConfigurationTests.EachVehicleOptionChangesActualSimulationCommands(String key, Double value) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Development\DeveloperConfigurationTests.cs:line 381
+   at InvokeStub_DeveloperConfigurationTests.EachVehicleOptionChangesActualSimulationCommands(Object, Span`1)
+
+1)    at Trackstorm.Core.Tests.Development.DeveloperConfigurationTests.EachVehicleOptionChangesActualSimulationCommands(String key, Double value) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Development\DeveloperConfigurationTests.cs:line 381
+   at InvokeStub_DeveloperConfigurationTests.EachVehicleOptionChangesActualSimulationCommands(Object, Span`1)
+
+
+
+Failed!  - Failed:     1, Passed:   950, Skipped:     0, Total:   951, Duration: 11 s - Trackstorm.Core.Tests.dll (net10.0)

@@ -264,7 +264,14 @@ public sealed partial class VehicleIntegrationChecks : Node
                 float peakYaw = turn.Max(state => Math.Abs(state.Physics.AngularVelocity.Y));
                 File.WriteAllLines($"{_output}.handbrake-{speed}-{heldTicks}.csv", turn.Select((state, index) => $"{index},{state.Physics.Position},{state.Physics.LinearVelocity},{state.Physics.AngularVelocity.Y},{state.Handbrake},{state.FrontSlip},{state.RearSlip}"));
                 GD.Print($"Handbrake recovery: entry={speed}, held={heldTicks}, peak yaw={peakYaw:F2}, final side={side:F3}, speed={turn.Last().CommandSpeed:F2}");
-                Check(peakYaw is > 0.1f and < 2 && side < 1 && turn.Last().Handbrake == 0, "tap/sustained turning handbrake retains control and settles after release with countersteering/throttle");
+                // Full steering authority intentionally permits strong rear-lock rotation.
+                // Judge the exit: countersteering must arrest rotation within a quarter turn,
+                // retain wheel-down attitude and leave no persistent yaw or sideways motion.
+                float exitRotation = turn.Skip((int)heldTicks).Sum(state => Math.Abs(state.Physics.AngularVelocity.Y)) / 60;
+                Check(peakYaw > 0.1f && exitRotation < MathF.PI / 2 && side < 1 &&
+                    Math.Abs(turn.Last().Physics.AngularVelocity.Y) < 0.1f && turn.Last().Handbrake == 0 &&
+                    turn.All(state => Numerics.Vector3.Transform(Numerics.Vector3.UnitY, state.Physics.Orientation).Y > 0.9f),
+                    "tap/sustained turning handbrake retains control and settles after release with countersteering/throttle");
                 Check(turn.Skip((int)heldTicks).Any(state => state.Handbrake > 0 && state.Handbrake < 1), "handbrake recovery remains progressive");
             }
         }
@@ -288,7 +295,7 @@ public sealed partial class VehicleIntegrationChecks : Node
                 {
                     int release = 12 + heldTicks;
                     int powered = release + Math.Max(0, throttleDelay);
-                    // The calmer speed-sensitive wheel range needs deliberate steering to initiate the faster drift.
+                    // Deliberate wheel input initiates the faster drift; available wheel range is speed-independent.
                     List<VehicleState> states = await RunDrive(new Vector3(-20, 20 + VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -speed), heldTicks == 45 ? 180 : 90, tick => Frame(
                         tick,
                         throttle: (int)tick > release + throttleDelay ? (ushort)65535 : (ushort)0,

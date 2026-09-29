@@ -1,0 +1,63 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+  Trackstorm.Core.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll
+  Trackstorm.Transport.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:06.55
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Drive check: end=<-0.00221402, 1.1179372, -36.92438>, peak speed=19.88, peak height=4.12, supported ticks=183
+Drift check: max handbrake=1, supported=144, drift ticks=75, end=<-21.553452, 1.1503232, 19.445568>
+Brake check: end velocity=<1.629726E-08, -0.0018111318, 11>, distance=1.87m
+Cornering: low radius=6.26m; fast radius=12.44m; front slip=0.76
+Steering onset: first wheel=0.030rad; yaw at 100ms=-0.263rad/s
+Recovery: initial side speed=4m/s; final=0.000m/s
+Handbrake recovery: entry=6, held=6, peak yaw=0.24, final side=0.000, speed=22.72
+Handbrake recovery: entry=6, held=45, peak yaw=0.35, final side=0.000, speed=13.54
+Handbrake recovery: entry=16, held=6, peak yaw=0.68, final side=0.000, speed=30.04
+Handbrake recovery: entry=16, held=45, peak yaw=2.55, final side=0.000, speed=16.57
+ERROR: System.InvalidOperationException: tap/sustained turning handbrake retains control and settles after release with countersteering/throttle
+   at Trackstorm.Client.Verification.VehicleIntegrationChecks.Check(Boolean condition, String message) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:line 608
+   at Trackstorm.Client.Verification.VehicleIntegrationChecks.VerifyResponsiveHandbrake() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:line 267
+   at Trackstorm.Client.Verification.VehicleIntegrationChecks.Run() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:line 64
+   at: void Trackstorm.Client.Verification.VehicleIntegrationChecks+<Run>d__11.MoveNext() (res://code/Client/Verification/VehicleIntegrationChecks.cs:64)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.VehicleIntegrationChecks+<Run>d__11.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:64)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)
+       [4] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [5] void System.Threading.Tasks.Task.RunContinuations(object)
+       [6] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [7] bool System.Threading.Tasks.Task.TrySetException(object)
+       [8] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [9] void Trackstorm.Client.Verification.VehicleIntegrationChecks+<VerifyResponsiveHandbrake>d__22.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:267)
+       [10] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [11] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)
+       [12] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [13] void System.Threading.Tasks.Task.RunContinuations(object)
+       [14] bool System.Threading.Tasks.Task`1.TrySetResult(TResult)
+       [15] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetExistingTaskResult(System.Threading.Tasks.Task`1[TResult], TResult)
+       [16] void Trackstorm.Client.Verification.VehicleIntegrationChecks+<RunDrive>d__18.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:194)
+       [17] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.ExecutionContextCallback(object)
+       [18] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [19] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)
+       [20] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [21] void System.Threading.Tasks.Task.RunContinuations(object)
+       [22] bool System.Threading.Tasks.Task.TrySetResult()
+       [23] bool System.Threading.Tasks.TaskCompletionSource.TrySetResult()
+       [24] void Trackstorm.Client.Verification.VehicleIntegrationChecks+<>c__DisplayClass18_0.<RunDrive>g__Observe|1(Trackstorm.Core.Vehicles.VehicleState) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:185)
+       [25] void Trackstorm.Client.Vehicles.VehicleBody.Publish() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Vehicles\VehicleBody.cs:235)
+       [26] void Trackstorm.Client.Vehicles.VehicleArena.Advance(Trackstorm.Core.Input.InputFrame) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Vehicles\VehicleArena.cs:171)
+       [27] void Trackstorm.Client.Verification.VehicleIntegrationChecks.Advance(Trackstorm.Core.Input.InputFrame) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:111)
+       [28] void Trackstorm.Client.Input.PlayerInput._PhysicsProcess(double) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Input\PlayerInput.cs:59)
+       [29] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2648)
+       [30] bool Trackstorm.Client.Input.PlayerInput.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Input.PlayerInput_ScriptMethods.generated.cs:100)
+       [31] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

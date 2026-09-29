@@ -1,0 +1,45 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ERROR: System.InvalidOperationException: Practice eleven repeated 12 cm bumps: rise 0.165 m, heave 0.672 m/s, recovery 0.0000 m/s, unsupported 0.
+   at Trackstorm.Client.Verification.OvalIntegrationChecks.Check(Boolean condition, String message) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OvalIntegrationChecks.cs:line 159
+   at Trackstorm.Client.Verification.OvalIntegrationChecks.VerifyBumpsAndCoasting() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OvalIntegrationChecks.Bumps.cs:line 88
+   at Trackstorm.Client.Verification.OvalIntegrationChecks.VerifyHandling() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OvalIntegrationChecks.Handling.cs:line 94
+   at Trackstorm.Client.Verification.OvalIntegrationChecks.Run() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OvalIntegrationChecks.cs:line 122
+   at: void Trackstorm.Client.Verification.OvalIntegrationChecks+<Run>d__27.MoveNext() (res://code/Client/Verification/OvalIntegrationChecks.cs:122)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.OvalIntegrationChecks+<Run>d__27.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OvalIntegrationChecks.cs:122)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [4] void System.Threading.Tasks.Task.RunContinuations(object)
+       [5] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [6] bool System.Threading.Tasks.Task.TrySetException(object)
+       [7] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [8] void Trackstorm.Client.Verification.OvalIntegrationChecks+<VerifyHandling>d__41.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OvalIntegrationChecks.Handling.cs:94)
+       [9] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [10] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [11] void System.Threading.Tasks.Task.RunContinuations(object)
+       [12] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [13] bool System.Threading.Tasks.Task.TrySetException(object)
+       [14] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [15] void Trackstorm.Client.Verification.OvalIntegrationChecks+<VerifyBumpsAndCoasting>d__0.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OvalIntegrationChecks.Bumps.cs:88)
+       [16] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [17] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [18] void System.Threading.Tasks.Task.RunContinuations(object)
+       [19] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetResult(TResult)
+       [20] void Trackstorm.Client.Verification.OvalIntegrationChecks+<HandlingProbe>d__1.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OvalIntegrationChecks.Bumps.cs:142)
+       [21] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [22] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [23] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [24] void System.Threading.Tasks.Task.RunContinuations(object)
+       [25] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetResult(TResult)
+       [26] void Trackstorm.Client.Verification.OvalIntegrationChecks+<Probe>d__44.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OvalIntegrationChecks.Handling.cs:149)
+       [27] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [28] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [29] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [30] void System.Threading.Tasks.Task.RunContinuations(object)
+       [31] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder.SetResult()
+       [32] void Trackstorm.Client.Verification.OvalIntegrationChecks+<Frames>d__30.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\OvalIntegrationChecks.cs:153)
+       [33] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [34] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [35] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)

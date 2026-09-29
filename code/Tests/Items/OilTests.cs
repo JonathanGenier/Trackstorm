@@ -174,7 +174,12 @@ internal sealed class OilTests
         var slippery = oil.Step(input, pose, Vector3.UnitY, oilContact: true);
         Assert.That(slippery.SteeringAngle, Is.EqualTo(baseline.SteeringAngle).And.Not.Zero);
         Assert.That(slippery.LateralAcceleration, Is.EqualTo(baseline.LateralAcceleration * 0.9f).Within(0.001));
-        Assert.That(slippery.LongitudinalAcceleration, Is.EqualTo(baseline.LongitudinalAcceleration));
+        // Steered lateral forces also project along the chassis; oil changes that scrub.
+        // With straight wheels the rear engine contribution must remain identical.
+        var straightInput = new InputFrame(1, 0, 65535, 0, 0, 0, 0);
+        var dryDrive = new VehicleMovement(new(), pose).Step(straightInput, pose, Vector3.UnitY);
+        var oilDrive = new VehicleMovement(new(), pose).Step(straightInput, pose, Vector3.UnitY, oilContact: true);
+        Assert.That(oilDrive.LongitudinalAcceleration, Is.EqualTo(dryDrive.LongitudinalAcceleration));
         Assert.That(Math.Abs(slippery.Physics.AngularVelocity.Y), Is.LessThan(0.3));
         var replay = new VehicleMovement(new(), pose);
         replay.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(slippery)));

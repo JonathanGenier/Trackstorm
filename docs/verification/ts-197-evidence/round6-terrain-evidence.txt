@@ -1,0 +1,84 @@
+PASS: Wheel contacts resolve Asphalt
+PASS: Asphalt produces tracks: 28
+PASS: Wheel contacts resolve Concrete
+PASS: Concrete produces tracks: 28
+PASS: Wheel contacts resolve Dirt
+PASS: Dirt produces tracks: 80
+PASS: Wheel contacts resolve Grass
+PASS: Grass produces tracks: 80
+PASS: Wheel contacts resolve Mud
+PASS: Mud produces tracks: 80
+PASS: Wheel contacts resolve DeepMud
+PASS: DeepMud produces tracks: 52
+PASS: Wheel contacts resolve Water
+PASS: Water creates zero persistent marks
+PASS: Water samples generate wet interaction
+PASS: Stress checkpoint 24: bounded nodes and submissions
+Checkpoint 24: managed retained=4741520, engine static=88918323, video=55549883, draw calls=2214, alive=24944, submitted=24944.
+PASS: Stress checkpoint 48: bounded nodes and submissions
+Checkpoint 48: managed retained=4783296, engine static=88918323, video=55549883, draw calls=2214, alive=36864, submitted=49152.
+PASS: Stress checkpoint 72: bounded nodes and submissions
+Checkpoint 72: managed retained=4829280, engine static=88918323, video=55549883, draw calls=2214, alive=36864, submitted=49152.
+PASS: Stress checkpoint 96: bounded nodes and submissions
+Checkpoint 96: managed retained=4871168, engine static=88918323, video=55549883, draw calls=2214, alive=36864, submitted=49152.
+PASS: Stress checkpoint 120: bounded nodes and submissions
+Checkpoint 120: managed retained=4913064, engine static=88918323, video=55549883, draw calls=2214, alive=36864, submitted=49152.
+PASS: Eight-car repeated use recycles the shared ring: written=123248, recycled=74096
+PASS: Repeated tire use creates no additional nodes
+PASS: Arena-wide track geometry remains fixed and active submissions obey budget
+Eight vehicles, 12000 sustained physics frames in 154726 ms; scene nodes 2787; no performance threshold inferred.
+Retained managed bytes: start=4075296, end=5175952; alive=36864, submitted=49152, written=123248, recycled=74096.
+Eight-car observed frame intervals (12000): p50=12.16 ms, p95=17.01 ms, p99=33.60 ms; includes rendering/scheduling, not isolated GPU time.
+Eight vehicles, density zero: 3700 physics frames in 45100 ms; existing marks still fade. This is not a full GPU profiler.
+PASS: Zero visual density suppresses emissions
+PASS: Expired tracks and wakes submit zero instances for all eight cars
+PASS: Resumed tracks contain only new segments, without reviving the expired ring
+PASS: Track width matches rendered tire rubber: 0.526 / 0.526
+PASS: Local Configs stages edits without runtime mutation
+PASS: Local Configs Apply saves preferences without session authority
+PASS: Width control changes native segment geometry: 0.526 -> 1.051
+PASS: Intensity control changes native segment alpha
+PASS: Global/per-surface duration and fade controls reach the shader
+PASS: Lower runtime budget stays bounded under eight-car emission
+PASS: Zero quality applies through Configs
+PASS: Quality zero stops all marks while tuned disturbance expires
+PASS: Unsafe budget is rejected without a runtime partial commit
+PASS: Cancel restores accepted local graphics
+PASS: Local graphics persistence contains accepted surface tuning
+PASS: Asphalt duration applies through Configs
+PASS: Asphalt emits with edited duration
+PASS: Asphalt edited duration reaches native shader data
+PASS: Concrete duration applies through Configs
+PASS: Concrete emits with edited duration
+PASS: Concrete edited duration reaches native shader data
+PASS: Dirt duration applies through Configs
+PASS: Dirt emits with edited duration
+PASS: Dirt edited duration reaches native shader data
+PASS: Grass duration applies through Configs
+PASS: Grass emits with edited duration
+PASS: Grass edited duration reaches native shader data
+PASS: Mud duration applies through Configs
+PASS: Mud emits with edited duration
+PASS: Mud edited duration reaches native shader data
+PASS: DeepMud duration applies through Configs
+PASS: DeepMud emits with edited duration
+PASS: DeepMud edited duration reaches native shader data
+PASS: Surface density applies
+PASS: Surface density reduces actual emission: dense=76, sparse=28
+PASS: Speed threshold applies
+PASS: High minimum speed suppresses actual emission
+PASS: Distance control applies
+PASS: Short visibility distance culls actual emission
+PASS: Distance restores
+PASS: Restored visibility distance resumes actual emission
+Rendered map ClearBlue: 120 overview frames, p50=6.95 ms, p95=8.00 ms, p99=8.56 ms; draw calls=632, primitives=1133254, video memory=70571537 bytes.
+PASS: Preset applies without map reconstruction: ClearBlue
+Rendered map Night: 120 overview frames, p50=6.95 ms, p95=7.17 ms, p99=8.17 ms; draw calls=624, primitives=1129756, video memory=70571537 bytes.
+PASS: Preset applies without map reconstruction: Night
+Rendered map EmberSky: 120 overview frames, p50=6.94 ms, p95=8.58 ms, p99=8.95 ms; draw calls=624, primitives=1199418, video memory=70571537 bytes.
+PASS: Preset applies without map reconstruction: EmberSky
+Rendered map Apocalypse: 120 overview frames, p50=6.94 ms, p95=8.13 ms, p99=8.57 ms; draw calls=616, primitives=1198186, video memory=70571537 bytes.
+PASS: Preset applies without map reconstruction: Apocalypse
+Rendered map NeonSunset: 120 overview frames, p50=6.94 ms, p95=7.82 ms, p99=8.77 ms; draw calls=604, primitives=1191078, video memory=70189633 bytes.
+PASS: Preset applies without map reconstruction: NeonSunset
+PASS: 100 repeated preset switches retain map topology
