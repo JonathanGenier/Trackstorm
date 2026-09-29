@@ -1,0 +1,66 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Drive check: end=<-0.0036183938, 1.1260759, -36.910866>, peak speed=19.46, peak height=4.09, supported ticks=183
+Drift check: max handbrake=1, supported=144, drift ticks=79, end=<-19.634144, 1.1493416, 18.890293>
+Brake check: end velocity=<-2.5868868E-10, -0.0022755116, 10.999999>, distance=2.67m
+Cornering: low radius=6.89m; fast radius=23.80m; front slip=0.28
+Steering onset: first wheel=0.063rad; yaw at 100ms=-0.393rad/s
+Recovery: initial side speed=4m/s; final=0.000m/s
+Handbrake recovery: entry=6, held=6, peak yaw=0.24, final side=0.000, speed=18.09
+Handbrake recovery: entry=6, held=45, peak yaw=0.36, final side=0.000, speed=9.97
+Handbrake recovery: entry=16, held=6, peak yaw=0.34, final side=0.000, speed=26.06
+Handbrake recovery: entry=16, held=45, peak yaw=1.48, final side=0.000, speed=15.01
+Power out: entry=6, held=6, throttle delay=-6, acceleration=19.273, side=0.531, yaw=0.530, recovery=0.750, final side=0.016, peak speed=30.121, peak yaw=0.535
+Power out: entry=6, held=6, throttle delay=0, acceleration=18.803, side=0.496, yaw=0.485, recovery=0.750, final side=0.015, peak speed=29.015, peak yaw=0.496
+Power out: entry=6, held=6, throttle delay=6, acceleration=20.168, side=0.019, yaw=0.210, recovery=0.450, final side=0.012, peak speed=27.104, peak yaw=0.496
+Power out: entry=6, held=45, throttle delay=-6, acceleration=20.133, side=0.075, yaw=0.073, recovery=0.950, final side=0.000, peak speed=38.270, peak yaw=0.510
+Power out: entry=6, held=45, throttle delay=0, acceleration=20.133, side=0.075, yaw=0.073, recovery=0.950, final side=0.000, peak speed=38.270, peak yaw=0.510
+Power out: entry=6, held=45, throttle delay=6, acceleration=20.163, side=0.050, yaw=0.045, recovery=0.650, final side=0.000, peak speed=37.106, peak yaw=0.510
+Power out: entry=16, held=6, throttle delay=-6, acceleration=18.324, side=0.319, yaw=1.290, recovery=0.750, final side=0.002, peak speed=36.752, peak yaw=1.290
+Power out: entry=16, held=6, throttle delay=0, acceleration=18.047, side=0.394, yaw=1.321, recovery=0.750, final side=0.000, peak speed=35.892, peak yaw=1.321
+Power out: entry=16, held=6, throttle delay=6, acceleration=18.737, side=0.805, yaw=0.879, recovery=0.450, final side=0.004, peak speed=34.346, peak yaw=1.313
+Power out: entry=16, held=45, throttle delay=-6, acceleration=15.758, side=4.377, yaw=3.745, recovery=0.950, final side=0.003, peak speed=36.572, peak yaw=3.751
+Power out: entry=16, held=45, throttle delay=0, acceleration=15.757, side=4.366, yaw=3.736, recovery=0.950, final side=0.002, peak speed=36.576, peak yaw=3.744
+Power out: entry=16, held=45, throttle delay=6, acceleration=16.465, side=4.291, yaw=3.287, recovery=0.650, final side=0.002, peak speed=35.937, peak yaw=3.744
+Acceleration: entry=0, final=30.083
+Acceleration: entry=4, final=33.299
+Acceleration: entry=12, final=38.434
+Brake recovery: first drive=19.163, before=0.044, after=20.717
+Collision HP: player=54.35, target=54.35
+Brush damage tick=4289, player=VehiclePhysicsState { Position = <25, 1.626775, -1.0473535>, Orientation = {X:0.15020904 Y:1.4006479E-08 Z:-7.448992E-07 W:0.98865426}, LinearVelocity = <-3.738178E-06, 0.9150501, -0.15707535>, AngularVelocity = <0.6346467, 2.1743434E-05, -2.7250999E-05> }, target=VehiclePhysicsState { Position = <25, 0.75671995, -5.203799>, Orientation = {X:0.024033478 Y:-1.9959101E-07 Z:-1.6676442E-07 W:0.99971116}, LinearVelocity = <-2.7156167E-07, 5.7070765, -0.8825427>, AngularVelocity = <-0.33999544, -1.3282552E-05, 4.03684E-06> }, HP=97.589355
+Brush check: contacts=130, player HP=97.59, target HP=97.59
+ERROR: System.InvalidOperationException: sustained minor contact does not drain either vehicle HP
+   at Trackstorm.Client.Verification.VehicleIntegrationChecks.Check(Boolean condition, String message) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:line 612
+   at Trackstorm.Client.Verification.VehicleIntegrationChecks.VerifyDamageAndExplosions() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:line 385
+   at Trackstorm.Client.Verification.VehicleIntegrationChecks.Run() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:line 67
+   at: void Trackstorm.Client.Verification.VehicleIntegrationChecks+<Run>d__11.MoveNext() (res://code/Client/Verification/VehicleIntegrationChecks.cs:67)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.VehicleIntegrationChecks+<Run>d__11.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:67)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [4] void System.Threading.Tasks.Task.RunContinuations(object)
+       [5] void System.Threading.Tasks.Task.FinishSlow(bool)
+       [6] bool System.Threading.Tasks.Task.TrySetException(object)
+       [7] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetException(System.Exception, System.Threading.Tasks.Task`1[TResult]&)
+       [8] void Trackstorm.Client.Verification.VehicleIntegrationChecks+<VerifyDamageAndExplosions>d__26.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:385)
+       [9] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [10] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [11] void System.Threading.Tasks.Task.RunContinuations(object)
+       [12] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetExistingTaskResult(System.Threading.Tasks.Task`1[TResult], TResult)
+       [13] void Trackstorm.Client.Verification.VehicleIntegrationChecks+<RunDrive>d__18.MoveNext() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:194)
+       [14] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.ExecutionContextCallback(object)
+       [15] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [16] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext()
+       [17] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [18] void System.Threading.Tasks.Task.RunContinuations(object)
+       [19] bool System.Threading.Tasks.Task.TrySetResult()
+       [20] bool System.Threading.Tasks.TaskCompletionSource.TrySetResult()
+       [21] void Trackstorm.Client.Verification.VehicleIntegrationChecks+<>c__DisplayClass18_0.<RunDrive>g__Observe|1(Trackstorm.Core.Vehicles.VehicleState) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:185)
+       [22] void Trackstorm.Client.Vehicles.VehicleBody.Publish() (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Vehicles\VehicleBody.cs:235)
+       [23] void Trackstorm.Client.Vehicles.VehicleArena.Advance(Trackstorm.Core.Input.InputFrame) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Vehicles\VehicleArena.cs:171)
+       [24] void Trackstorm.Client.Verification.VehicleIntegrationChecks.Advance(Trackstorm.Core.Input.InputFrame) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:111)
+       [25] void Trackstorm.Client.Input.PlayerInput._PhysicsProcess(double) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Input\PlayerInput.cs:59)
+       [26] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2648)
+       [27] bool Trackstorm.Client.Input.PlayerInput.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Input.PlayerInput_ScriptMethods.generated.cs:100)
+       [28] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

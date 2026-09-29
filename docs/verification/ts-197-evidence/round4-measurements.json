@@ -1,0 +1,739 @@
+{
+  "note": "Final candidate native traces at 60 Hz. Baseline uses previous suspension/braking settings. Downhill traces end after grounded z>42 to exclude the perimeter wall.",
+  "terrain": [
+    {
+      "case": "native-terrain-downhill--11",
+      "oldCompression": 0.79942673,
+      "newCompression": 0.672729,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "native-terrain-downhill-18",
+      "oldCompression": 0.91805404,
+      "newCompression": 0.7360999,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "native-terrain-downhill-30",
+      "oldCompression": 0.81183964,
+      "newCompression": 0.6947768,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "native-terrain-east--11",
+      "oldCompression": 0.64323044,
+      "newCompression": 0.59205973,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "native-terrain-east-18",
+      "oldCompression": 0.77291936,
+      "newCompression": 0.6535676,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "native-terrain-east-30",
+      "oldCompression": 0.94031405,
+      "newCompression": 0.74738955,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "native-terrain-oblique--11",
+      "oldCompression": 0.7241336,
+      "newCompression": 0.63975334,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "native-terrain-oblique-18",
+      "oldCompression": 0.8363882,
+      "newCompression": 0.71559185,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "native-terrain-oblique-30",
+      "oldCompression": 0.96513385,
+      "newCompression": 0.82070583,
+      "oldChassisFrames": 2,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "native-terrain-side--11",
+      "oldCompression": 0.72689015,
+      "newCompression": 0.6461099,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "native-terrain-side-18",
+      "oldCompression": 0.8315173,
+      "newCompression": 0.7178589,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "native-terrain-side-30",
+      "oldCompression": 0.98937804,
+      "newCompression": 0.7924165,
+      "oldChassisFrames": 2,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "native-terrain-west--11",
+      "oldCompression": 0.64323044,
+      "newCompression": 0.59205973,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "native-terrain-west-18",
+      "oldCompression": 0.77291936,
+      "newCompression": 0.6535676,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "native-terrain-west-30",
+      "oldCompression": 0.94031405,
+      "newCompression": 0.74738955,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-downhill--11",
+      "oldCompression": 0.8026994,
+      "newCompression": 0.67533576,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-downhill-18",
+      "oldCompression": 0.91838074,
+      "newCompression": 0.73715526,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-downhill-30",
+      "oldCompression": 0.812523,
+      "newCompression": 0.6952759,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-east--11",
+      "oldCompression": 0.64583266,
+      "newCompression": 0.59260607,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-east-18",
+      "oldCompression": 0.7766297,
+      "newCompression": 0.6555189,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-east-30",
+      "oldCompression": 0.94871265,
+      "newCompression": 0.74958193,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-oblique--11",
+      "oldCompression": 0.7261177,
+      "newCompression": 0.64095044,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-oblique-18",
+      "oldCompression": 0.84356606,
+      "newCompression": 0.71748525,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-oblique-30",
+      "oldCompression": 0.9207137,
+      "newCompression": 0.8209044,
+      "oldChassisFrames": 2,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-side--11",
+      "oldCompression": 0.7297159,
+      "newCompression": 0.64668846,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-side-18",
+      "oldCompression": 0.8331007,
+      "newCompression": 0.7178609,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-side-30",
+      "oldCompression": 0.96988934,
+      "newCompression": 0.7937007,
+      "oldChassisFrames": 1,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-west--11",
+      "oldCompression": 0.64583266,
+      "newCompression": 0.59260595,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-west-18",
+      "oldCompression": 0.7766297,
+      "newCompression": 0.6555189,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    },
+    {
+      "case": "network-terrain-west-30",
+      "oldCompression": 0.94871265,
+      "newCompression": 0.74958223,
+      "oldChassisFrames": 0,
+      "newChassisFrames": 0,
+      "finalGrounded": true
+    }
+  ],
+  "braking": [
+    {
+      "case": "native-brake-100-False",
+      "oldSeconds": 1.7166666666666666,
+      "newSeconds": 1.1666666666666667,
+      "oldPlanarDisplacement": 23.36378,
+      "newPlanarDisplacement": 15.353809
+    },
+    {
+      "case": "native-brake-100-True",
+      "oldSeconds": 1.8333333333333333,
+      "newSeconds": 1.05,
+      "oldPlanarDisplacement": 20.458756461363556,
+      "newPlanarDisplacement": 13.77280992302896
+    },
+    {
+      "case": "native-brake-150-False",
+      "oldSeconds": 2.533333333333333,
+      "newSeconds": 1.7,
+      "oldPlanarDisplacement": 51.51238,
+      "newPlanarDisplacement": 34.137543
+    },
+    {
+      "case": "native-brake-150-True",
+      "oldSeconds": 2.7333333333333334,
+      "newSeconds": 1.65,
+      "oldPlanarDisplacement": 45.86480321311654,
+      "newPlanarDisplacement": 33.44018850339251
+    },
+    {
+      "case": "native-brake-30-False",
+      "oldSeconds": 0.5166666666666667,
+      "newSeconds": 0.38333333333333336,
+      "oldPlanarDisplacement": 2.1334589,
+      "newPlanarDisplacement": 1.4020894
+    },
+    {
+      "case": "native-brake-30-True",
+      "oldSeconds": 0.5,
+      "newSeconds": 0.3,
+      "oldPlanarDisplacement": 2.0192281776541012,
+      "newPlanarDisplacement": 1.0641315399550157
+    },
+    {
+      "case": "native-brake-60-False",
+      "oldSeconds": 1.0333333333333334,
+      "newSeconds": 0.6833333333333333,
+      "oldPlanarDisplacement": 8.523697,
+      "newPlanarDisplacement": 5.5510697
+    },
+    {
+      "case": "native-brake-60-True",
+      "oldSeconds": 1.0833333333333333,
+      "newSeconds": 0.5833333333333334,
+      "oldPlanarDisplacement": 8.354760168961601,
+      "newPlanarDisplacement": 4.5941069781082495
+    },
+    {
+      "case": "network-brake-100-False",
+      "oldSeconds": 1.7166666666666666,
+      "newSeconds": 1.1666666666666667,
+      "oldPlanarDisplacement": 23.817657,
+      "newPlanarDisplacement": 15.805326
+    },
+    {
+      "case": "network-brake-100-True",
+      "oldSeconds": 1.8333333333333333,
+      "newSeconds": 1.05,
+      "oldPlanarDisplacement": 20.851195076863892,
+      "newPlanarDisplacement": 14.213503959545584
+    },
+    {
+      "case": "network-brake-150-False",
+      "oldSeconds": 2.533333333333333,
+      "newSeconds": 1.7,
+      "oldPlanarDisplacement": 52.19768,
+      "newPlanarDisplacement": 34.8199
+    },
+    {
+      "case": "network-brake-150-True",
+      "oldSeconds": 2.7333333333333334,
+      "newSeconds": 1.65,
+      "oldPlanarDisplacement": 46.476741490018426,
+      "newPlanarDisplacement": 34.10565425384895
+    },
+    {
+      "case": "network-brake-30-False",
+      "oldSeconds": 0.5166666666666667,
+      "newSeconds": 0.38333333333333336,
+      "oldPlanarDisplacement": 2.2653315,
+      "newPlanarDisplacement": 1.5332413
+    },
+    {
+      "case": "network-brake-30-True",
+      "oldSeconds": 0.5,
+      "newSeconds": 0.3,
+      "oldPlanarDisplacement": 2.1478382618008576,
+      "newPlanarDisplacement": 1.1937476547877026
+    },
+    {
+      "case": "network-brake-60-False",
+      "oldSeconds": 1.0333333333333334,
+      "newSeconds": 0.6833333333333333,
+      "oldPlanarDisplacement": 8.792721,
+      "newPlanarDisplacement": 5.8176947
+    },
+    {
+      "case": "network-brake-60-True",
+      "oldSeconds": 1.0833333333333333,
+      "newSeconds": 0.5833333333333334,
+      "oldPlanarDisplacement": 8.58979205256691,
+      "newPlanarDisplacement": 4.853587323471252
+    }
+  ],
+  "crashes": [
+    {
+      "case": "native-bumper",
+      "maxCompression": 0.7266553,
+      "chassisFrames": 22,
+      "peakYAfterContact": 2.388546,
+      "peakVyAfterContact": 0.030292436,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-hard-12",
+      "maxCompression": 0.7668972,
+      "chassisFrames": 0,
+      "peakYAfterContact": null,
+      "peakVyAfterContact": null,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-hard-4",
+      "maxCompression": 0.62611556,
+      "chassisFrames": 0,
+      "peakYAfterContact": null,
+      "peakVyAfterContact": null,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-hard-8",
+      "maxCompression": 0.7031585,
+      "chassisFrames": 0,
+      "peakYAfterContact": null,
+      "peakVyAfterContact": null,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-partial--1.57-False",
+      "maxCompression": 0.71690714,
+      "chassisFrames": 132,
+      "peakYAfterContact": 2.5779448,
+      "peakVyAfterContact": 0.02656512,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-partial--1.57-True",
+      "maxCompression": 0.71088266,
+      "chassisFrames": 94,
+      "peakYAfterContact": 2.7041914,
+      "peakVyAfterContact": 1.2789301,
+      "finalUp": 0.9999893,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-partial--2.1-False",
+      "maxCompression": 0.6973671,
+      "chassisFrames": 267,
+      "peakYAfterContact": 2.8616593,
+      "peakVyAfterContact": 0.4367957,
+      "finalUp": 1.0000001,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-partial--2.1-True",
+      "maxCompression": 0.69875336,
+      "chassisFrames": 269,
+      "peakYAfterContact": 2.8572855,
+      "peakVyAfterContact": 0.43678465,
+      "finalUp": 0.99998796,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-partial-1.57-False",
+      "maxCompression": 0.7295056,
+      "chassisFrames": 43,
+      "peakYAfterContact": 2.4793198,
+      "peakVyAfterContact": 0.01956065,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-partial-1.57-True",
+      "maxCompression": 0.7107566,
+      "chassisFrames": 4,
+      "peakYAfterContact": 2.3313594,
+      "peakVyAfterContact": 0.06725627,
+      "finalUp": 0.9999893,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-partial-2.1-False",
+      "maxCompression": 0.72311705,
+      "chassisFrames": 95,
+      "peakYAfterContact": 2.7902155,
+      "peakVyAfterContact": 0.009136379,
+      "finalUp": 1.0000001,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-partial-2.1-True",
+      "maxCompression": 0.75042075,
+      "chassisFrames": 29,
+      "peakYAfterContact": 2.8016481,
+      "peakVyAfterContact": 0.0830472,
+      "finalUp": 0.99998933,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-repeated-rolls",
+      "maxCompression": 1,
+      "chassisFrames": 580,
+      "peakYAfterContact": 1.5357854,
+      "peakVyAfterContact": 2.3789916,
+      "finalUp": 1.0000001,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-roof",
+      "maxCompression": 0.6972523,
+      "chassisFrames": 265,
+      "peakYAfterContact": 1.6380335,
+      "peakVyAfterContact": 0.436783,
+      "finalUp": 0.9999999,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-side",
+      "maxCompression": 0.6940133,
+      "chassisFrames": 143,
+      "peakYAfterContact": 1.479021,
+      "peakVyAfterContact": 0.1606158,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-trunk",
+      "maxCompression": 0.71428496,
+      "chassisFrames": 22,
+      "peakYAfterContact": 2.4982123,
+      "peakVyAfterContact": 0.017359585,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-two-wheel-pitch",
+      "maxCompression": 0.80351627,
+      "chassisFrames": 2,
+      "peakYAfterContact": 1.4300128,
+      "peakVyAfterContact": 0.12616009,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "native-two-wheel-roll",
+      "maxCompression": 0.69760823,
+      "chassisFrames": 13,
+      "peakYAfterContact": 1.4562818,
+      "peakVyAfterContact": -2.682209e-06,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-bumper",
+      "maxCompression": 0.6442125,
+      "chassisFrames": 127,
+      "peakYAfterContact": 2.4357014,
+      "peakVyAfterContact": 0.0025603324,
+      "finalUp": 0.99999994,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-hard-12",
+      "maxCompression": 0.76689684,
+      "chassisFrames": 0,
+      "peakYAfterContact": null,
+      "peakVyAfterContact": null,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-hard-4",
+      "maxCompression": 0.62611556,
+      "chassisFrames": 0,
+      "peakYAfterContact": null,
+      "peakVyAfterContact": null,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-hard-8",
+      "maxCompression": 0.70315844,
+      "chassisFrames": 0,
+      "peakYAfterContact": null,
+      "peakVyAfterContact": null,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-partial--1.57-False",
+      "maxCompression": 0.70202655,
+      "chassisFrames": 114,
+      "peakYAfterContact": 2.5886824,
+      "peakVyAfterContact": 0.006367445,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-partial--1.57-True",
+      "maxCompression": 0.7158991,
+      "chassisFrames": 48,
+      "peakYAfterContact": 2.7541742,
+      "peakVyAfterContact": 0.023704723,
+      "finalUp": 0.9999875,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-partial--2.1-False",
+      "maxCompression": 0.616837,
+      "chassisFrames": 132,
+      "peakYAfterContact": 2.9319563,
+      "peakVyAfterContact": 0.011766195,
+      "finalUp": 0.9999999,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-partial--2.1-True",
+      "maxCompression": 0.7039929,
+      "chassisFrames": 137,
+      "peakYAfterContact": 2.9714296,
+      "peakVyAfterContact": 0.024635226,
+      "finalUp": 0.99998754,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-partial-1.57-False",
+      "maxCompression": 0.6884826,
+      "chassisFrames": 111,
+      "peakYAfterContact": 2.4859939,
+      "peakVyAfterContact": 0.002387613,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-partial-1.57-True",
+      "maxCompression": 0.6691917,
+      "chassisFrames": 1,
+      "peakYAfterContact": 2.4344225,
+      "peakVyAfterContact": 0.03623894,
+      "finalUp": 0.99998754,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-partial-2.1-False",
+      "maxCompression": 0.6239487,
+      "chassisFrames": 133,
+      "peakYAfterContact": 2.8362777,
+      "peakVyAfterContact": 0.0068335235,
+      "finalUp": 0.99999994,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-partial-2.1-True",
+      "maxCompression": 0.6730884,
+      "chassisFrames": 68,
+      "peakYAfterContact": 2.826575,
+      "peakVyAfterContact": 0.0018584579,
+      "finalUp": 0.99998754,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-repeated-rolls",
+      "maxCompression": 0.77305275,
+      "chassisFrames": 463,
+      "peakYAfterContact": 2.623092,
+      "peakVyAfterContact": 2.1076896,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-roof",
+      "maxCompression": 0.7009592,
+      "chassisFrames": 185,
+      "peakYAfterContact": 1.640496,
+      "peakVyAfterContact": 0.12656897,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-side",
+      "maxCompression": 0.6960337,
+      "chassisFrames": 129,
+      "peakYAfterContact": 1.4861404,
+      "peakVyAfterContact": 0.09542668,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-trunk",
+      "maxCompression": 0.64520085,
+      "chassisFrames": 134,
+      "peakYAfterContact": 2.5348752,
+      "peakVyAfterContact": 0.006237462,
+      "finalUp": 0.99999994,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-two-wheel-pitch",
+      "maxCompression": 0.6653143,
+      "chassisFrames": 1,
+      "peakYAfterContact": 1.5435852,
+      "peakVyAfterContact": 0.002597198,
+      "finalUp": 0.99999994,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    },
+    {
+      "case": "network-two-wheel-roll",
+      "maxCompression": 0.6919737,
+      "chassisFrames": 148,
+      "peakYAfterContact": 1.4768478,
+      "peakVyAfterContact": 0.07586706,
+      "finalUp": 1,
+      "finalGrounded": true,
+      "finalCrashSeconds": 0
+    }
+  ],
+  "aerial": [
+    {
+      "adapter": "native",
+      "landings": 1,
+      "maxCompression": 0.91909844,
+      "chassisFrames": 0,
+      "finalUp": 0.9999996,
+      "finalGrounded": true
+    },
+    {
+      "adapter": "network",
+      "landings": 1,
+      "maxCompression": 0.88085717,
+      "chassisFrames": 0,
+      "finalUp": 0.9999998,
+      "finalGrounded": true
+    }
+  ]
+}

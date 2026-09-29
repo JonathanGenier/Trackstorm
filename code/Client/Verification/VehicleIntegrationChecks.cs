@@ -361,7 +361,8 @@ public sealed partial class VehicleIntegrationChecks : Node
 
     private async Task VerifyDamageAndExplosions()
     {
-        _arena.Target.ResetBody(new VehiclePhysicsState(new Numerics.Vector3(25, 0.5f, -5), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero));
+        // Start at ride height; a deeply precompressed target injects a vertical impact.
+        _arena.Target.ResetBody(new VehiclePhysicsState(new Numerics.Vector3(25, VehicleDimensions.RideHeight, -5), Numerics.Quaternion.Identity, Numerics.Vector3.Zero, Numerics.Vector3.Zero));
         int brushingTicks = 0;
         void ObserveBrush(VehicleState state)
         {

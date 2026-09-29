@@ -142,14 +142,15 @@ public sealed partial class HandlingPlaytest : Node3D
                 var environment = _environment.Snapshot(1, input.Tick);
                 System.IO.File.WriteAllText(System.IO.Path.Combine(_directory, "environment.json"), JsonSerializer.Serialize(new { environment.Tick, rocks = environment.Rocks.Select((r, i) => new { r.Stage, r.Damage, size = r.Stage == 0 ? 0 : _environmentLayout!.Size(i, r.Stage), offset = new[] { r.Offset.X, r.Offset.Y, r.Offset.Z } }), destroyedPlants = environment.Plants.Count(p => p) }));
             }
-            CallDeferred(MethodName.Capture);
+            CallDeferred(MethodName.Capture, _lastCommand);
         }
     }
 
-    private async void Capture()
+    private async void Capture(string completedCommand)
     {
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         using var image = GetViewport().GetTexture().GetImage();
         image.SavePng(System.IO.Path.Combine(_directory, "view.png"));
+        System.IO.File.WriteAllText(System.IO.Path.Combine(_directory, "completed-command.json"), completedCommand);
     }
 }

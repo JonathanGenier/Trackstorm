@@ -99,8 +99,10 @@ internal sealed class TrophyTruckTests
             var next = movement.Step(input, pose, Vector3.UnitY, wheels: default(WheelSupport));
             Assert.That(restored.Step(input, pose, Vector3.UnitY, wheels: default(WheelSupport)), Is.EqualTo(next));
             if (tick < 75) { Assert.That(next.Physics.AngularVelocity.Length(), Is.LessThan(0.00001f)); }
+            pose = new(pose.Position, pose.Orientation, Vector3.Zero, next.Physics.AngularVelocity);
         }
         Assert.That(movement.State.Physics.AngularVelocity.Length(), Is.GreaterThan(1));
+        pose = new(pose.Position, pose.Orientation, Vector3.Zero, Vector3.Zero);
         var airborne = movement.Step(new(121, 0, 0, 0, 0, 0, 0), pose, Vector3.Zero);
         Assert.That(airborne.CrashSeconds, Is.InRange(1.9f, 2f));
         Assert.That(airborne.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
@@ -138,7 +140,7 @@ internal sealed class TrophyTruckTests
         float c = Spring(0.8f, 0).Physics.LinearVelocity.Y;
         Assert.That(c - b, Is.GreaterThan((b - a) * 2));
         Assert.That(Spring(0.8f, 0.5f).Physics.LinearVelocity.Y, Is.GreaterThan(0.5f));
-        Assert.That(Spring(0.8f, -8).Physics.LinearVelocity.Y, Is.InRange(-6, -4));
+        Assert.That(Spring(0.8f, -8).Physics.LinearVelocity.Y, Is.InRange(-4, -2));
     }
 
     [Test]
@@ -156,6 +158,53 @@ internal sealed class TrophyTruckTests
         Assert.That(Vector3.Dot(pose.AngularVelocity, Vector3.Cross(Vector3.Transform(Vector3.UnitY, pose.Orientation), Vector3.UnitY)), Is.GreaterThan(0.5f));
         Assert.That(contact.RelativeVelocity, Is.EqualTo(new Vector3(6, 0, -8)));
         Assert.That(contact.Impulse, Is.EqualTo(15000));
+    }
+
+    [Test]
+    public void CrashAssistanceContinuesRollingMomentumInsteadOfReversingTowardUpright()
+    {
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 2), Vector3.Zero, new(0, 0, 0.6f));
+        var movement = new VehicleMovement(new(), pose);
+        movement.Restore(new(0, pose, true, false, 0, 0, crashSeconds: 2));
+        var state = movement.Step(new(1, 0, 0, 0, 0, 0, 0), pose, Vector3.UnitY, wheels: default(WheelSupport));
+        Assert.That(state.Physics.AngularVelocity.Z, Is.InRange(0.6f, 1.2f), "continues the roll through inversion with a bounded rate");
+        Assert.That(state.Physics.LinearVelocity.Y, Is.LessThanOrEqualTo(0));
+    }
+
+    [Test]
+    public void TwoWheelLandingDoesNotActivateCrashRotation()
+    {
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 1), Vector3.Zero, new(0, 0, -0.2f));
+        var tuning = new VehicleConfiguration();
+        VehicleState Step(float rate)
+        {
+            var movement = new VehicleMovement(tuning with { CrashRecoveryRate = rate }, pose);
+            movement.Restore(new(0, pose, true, false, 0, 0, crashSeconds: 2));
+            return movement.Step(new(1, 0, 0, 0, 0, 0, 0), pose, Vector3.UnitY, wheels: new(new(0.5f, 0, 0.5f, 0)));
+        }
+        Assert.That(Step(1.2f).Physics, Is.EqualTo(Step(0).Physics));
+        Assert.That(Step(1.2f).CrashSeconds, Is.Zero);
+    }
+
+    [Test]
+    public void CleanLandingAbsorbsReboundWithoutSuppressingOrdinaryRampRelease()
+    {
+        var falling = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(0, -12, -15), Vector3.Zero);
+        var observed = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(0, 1, -15), Vector3.Zero);
+        var landing = new VehicleMovement(new(), falling);
+        var ramp = new VehicleMovement(new(), falling);
+        ramp.Restore(new(0, falling, true, false, 0, 0));
+        var input = new InputFrame(1, 0, 0, 0, 0, 0, 0);
+        var wheels = new WheelSupport(new Vector4(0.8f));
+        var landed = landing.Step(input, observed, Vector3.UnitY, wheels: wheels);
+        var released = ramp.Step(input, observed, Vector3.UnitY, wheels: wheels);
+        Assert.That(landed.Physics.LinearVelocity.Y, Is.LessThan(released.Physics.LinearVelocity.Y * 0.8f));
+        Assert.That(landed.Physics.LinearVelocity.Z, Is.EqualTo(released.Physics.LinearVelocity.Z));
+        Assert.That(released.Physics.LinearVelocity.Y, Is.GreaterThan(observed.LinearVelocity.Y));
+        var restored = new VehicleMovement(new(), falling);
+        restored.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(landed)));
+        var next = new InputFrame(2, 0, 0, 0, 0, 0, 0);
+        Assert.That(restored.Step(next, observed, Vector3.UnitY, wheels: wheels), Is.EqualTo(landing.Step(next, observed, Vector3.UnitY, wheels: wheels)));
     }
 
     [Test]

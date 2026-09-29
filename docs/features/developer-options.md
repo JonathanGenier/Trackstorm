@@ -89,10 +89,10 @@ Host-local schema 2 migrates the old default wheelbase, load height and suspensi
 | `vehicle.coast_drag` | `VehicleConfiguration.CoastDrag` | 0.28f |
 | `vehicle.suspension_length` | `VehicleConfiguration.SuspensionLength` | VehicleDimensions.RideHeight + 11 / 22 |
 | `vehicle.wheel_spring` | `VehicleConfiguration.WheelSpring` | 22 |
-| `vehicle.wheel_damping` | `VehicleConfiguration.WheelDamping` | 10 |
-| `vehicle.wheel_rebound_damping` | `VehicleConfiguration.WheelReboundDamping` | 14 |
-| `vehicle.wheel_bump_start` | `VehicleConfiguration.WheelBumpStart` | 0.6 m |
-| `vehicle.wheel_bump_spring` | `VehicleConfiguration.WheelBumpSpring` | 900 |
+| `vehicle.wheel_damping` | `VehicleConfiguration.WheelDamping` | 12 |
+| `vehicle.wheel_rebound_damping` | `VehicleConfiguration.WheelReboundDamping` | 16 |
+| `vehicle.wheel_bump_start` | `VehicleConfiguration.WheelBumpStart` | 0.55 m |
+| `vehicle.wheel_bump_spring` | `VehicleConfiguration.WheelBumpSpring` | 3500 |
 | `vehicle.suspension_damping` | `VehicleConfiguration.SuspensionDamping` | 8 |
 | `vehicle.handbrake_response` | `VehicleConfiguration.HandbrakeResponse` | 8 |
 | `vehicle.traction_recovery` | `VehicleConfiguration.TractionRecovery` | 3 |
@@ -240,7 +240,7 @@ Nitro exposes `items.nitro_consumption_per_second`, `items.nitro_forward_thrust`
 
 The Dirt category exposes `vehicle.dirt_steering_reserve` (default 0.95, range 0–1) and `vehicle.dirt_recovery` (default 4/s, range 0–10/s). These control front-wheel authority during saturated slides and bounded slide-yaw recovery respectively; zero disables the corresponding contribution. They use the existing complete shared Apply/Cancel and authoritative Reset transaction, schema-two file defaults for missing keys, configuration version twenty-two, and resume/migration configuration boundary. `DirtRecoveryTests` checks isolation, recovery and continuation; `DeveloperConfigurationTests` checks each control's actual trajectory effect. No additional serialized vehicle memory is introduced.
 
-The Vehicle category exposes `vehicle.steering_smoothing` (0.06 seconds), `vehicle.dirt_power_slip` (0.22 maximum rear lateral grip reduction), `vehicle.power_slip_response` (2/s) and `vehicle.power_slip_recovery` (2.5/s). They use the same shared Apply/Reset, session state, reliable revision and checkpoint paths. Steering smoothing accepts 0.01–1 seconds, power slip 0–0.8, and the two rates 0.1–20/s. Braking defaults to 28 m/s² and grass grip to 1.25. [Vehicles](vehicles.md) owns the force and recovery semantics.
+The Vehicle category exposes `vehicle.steering_smoothing` (0.06 seconds), `vehicle.dirt_power_slip` (0.22 maximum rear lateral grip reduction), `vehicle.power_slip_response` (2/s) and `vehicle.power_slip_recovery` (2.5/s). They use the same shared Apply/Reset, session state, reliable revision and checkpoint paths. Steering smoothing accepts 0.01–1 seconds, power slip 0–0.8, and the two rates 0.1–20/s. Braking defaults to 65 m/s² and grass grip to 1.25. [Vehicles](vehicles.md) owns the force and recovery semantics.
 
 ## Surface tuning
 
@@ -290,7 +290,7 @@ The Air control category uses the same staged Apply/Cancel and immediate Reset, 
 ## Collision and destruction tuning
 
 Vehicle defaults target a 1400 kg arcade trophy truck: acceleration 40 and braking
-28 m/s² at the retained 900 kg reference mass, with faster steering and rear-lock
+65 m/s² at the retained 900 kg reference mass, with faster steering and rear-lock
 handbrake tuning. `vehicle.front_drive_share` defaults to 0.35, range 0–1, and uses
 the existing complete validation, Apply/Reset, persistence and recovery boundary.
 Configuration wire version 27 carries that key and the dirt-corner/crash-recovery controls (177 values). Existing saved overrides
@@ -376,4 +376,4 @@ use canonical defaults. Item authority and firing timing are unchanged. Native
 Developer Options checks measure both host and observer mechanisms after UI
 edits; articulation checks separately measure each duration and reversal.
 
-Low/medium Dirt corner strength (`vehicle.dirt_cornering`, 0–2), settled crash delay (`vehicle.crash_recovery_delay`, 0.5–10 seconds) and recovery roll rate (`vehicle.crash_recovery_rate`, 0–2 rad/s, zero disables) are ordinary host-validated vehicle options. They use the same draft/apply, persistence, reliable replication and retune path. Missing saved keys acquire defaults. Movement tests cover delayed activation/restoration and native trophy-truck trials cover powered cornering, release and crash recovery on both adapters.
+Low/medium Dirt corner strength (`vehicle.dirt_cornering`, 0–2), body-supported crash delay (`vehicle.crash_recovery_delay`, 0.5–10 seconds) and recovery roll rate (`vehicle.crash_recovery_rate`, 0–2 rad/s, zero disables) are ordinary host-validated vehicle options. They use the same draft/apply, persistence, reliable replication and retune path. Missing saved keys acquire defaults. Movement tests cover delayed activation/restoration and native trophy-truck trials cover powered cornering, release and crash recovery on both adapters.

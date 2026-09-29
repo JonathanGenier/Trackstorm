@@ -1,0 +1,23 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Network vehicle metrics: host=True, entry=True, maximum=0, startup=0, steady=0, snaps=0; full report: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\85e7f839d5474731b4e09d87a32ce000\player-0.json
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+REPLICATION_TRAFFIC {"seconds":46.6898324,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TD","delivery":"Reliable","bytes":2936,"messages":2,"peak":1468},{"peer":1,"protocol":"TE","delivery":"Reliable","bytes":10105,"messages":7,"peak":4345},{"peer":1,"protocol":"TG","delivery":"Reliable","bytes":12997,"messages":9,"peak":8404},{"peer":1,"protocol":"TG","delivery":"Unreliable","bytes":677031,"messages":512,"peak":5172},{"peer":1,"protocol":"TL","delivery":"Reliable","bytes":324,"messages":3,"peak":108},{"peer":1,"protocol":"TP","delivery":"Reliable","bytes":1496,"messages":22,"peak":68}]}
+
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+Network vehicle metrics: host=False, entry=True, maximum=0.7382056, startup=0.03262925148010254, steady=0.73820561170578, snaps=0; full report: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\network-vehicle-checks\85e7f839d5474731b4e09d87a32ce000\player-1.json
+REPLICATION_TRAFFIC {"seconds":29.7075929,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TG","delivery":"Reliable","bytes":312,"messages":8,"peak":39},{"peer":1,"protocol":"TG","delivery":"Unreliable","bytes":191806,"messages":1297,"peak":148},{"peer":1,"protocol":"TL","delivery":"Reliable","bytes":758,"messages":5,"peak":153}]}
+
+ERROR: System.InvalidOperationException: Network vehicle runtime acceptance checks failed; inspect the recorded metrics.
+   at Trackstorm.Client.Verification.NetworkVehicleChecks.Finish() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\NetworkVehicleChecks.cs:line 439
+   at Trackstorm.Client.Verification.NetworkVehicleChecks._PhysicsProcess(Double delta) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\NetworkVehicleChecks.cs:line 255
+   at: void Trackstorm.Client.Verification.NetworkVehicleChecks._PhysicsProcess(double) (res://code/Client/Verification/NetworkVehicleChecks.cs:255)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.NetworkVehicleChecks._PhysicsProcess(double) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\NetworkVehicleChecks.cs:255)
+       [2] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2648)
+       [3] bool Trackstorm.Client.Verification.NetworkVehicleChecks.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Verification.NetworkVehicleChecks_ScriptMethods.generated.cs:110)
+       [4] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

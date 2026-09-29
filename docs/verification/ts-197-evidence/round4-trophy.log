@@ -1,0 +1,381 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+native-brake-30-False: stop=0.383s distance=1.807m up=0.999
+native-brake-30-False brakes to rest without rollover
+native-brake-30-True: stop=0.300s distance=1.559m up=0.999
+native-brake-30-True brakes to rest without rollover
+native-brake-60-False: stop=0.683s distance=5.667m up=0.999
+native-brake-60-False brakes to rest without rollover
+native-brake-60-True: stop=0.583s distance=4.735m up=0.998
+native-brake-60-True brakes to rest without rollover
+native-brake-100-False: stop=1.167s distance=15.397m up=0.999
+native-brake-100-False brakes to rest without rollover
+native-brake-100-True: stop=1.050s distance=13.822m up=0.998
+native-brake-100-True brakes to rest without rollover
+native-brake-150-False: stop=1.700s distance=34.157m up=0.999
+native-brake-150-False brakes to rest without rollover
+native-brake-150-True: stop=1.650s distance=33.461m up=0.998
+native-brake-150-True brakes to rest without rollover
+native-terrain-west-18: compression=0.654 chassis=False rebound=0.000
+native-terrain-west-18 stays finite
+native-terrain-west-18 retains suspension travel without chassis impact
+native-terrain-west-30: compression=0.747 chassis=False rebound=0.000
+native-terrain-west-30 stays finite
+native-terrain-west-30 retains suspension travel without chassis impact
+native-terrain-west--11: compression=0.592 chassis=False rebound=0.000
+native-terrain-west--11 stays finite
+native-terrain-west--11 retains suspension travel without chassis impact
+native-terrain-east-18: compression=0.654 chassis=False rebound=0.000
+native-terrain-east-18 stays finite
+native-terrain-east-18 retains suspension travel without chassis impact
+native-terrain-east-30: compression=0.747 chassis=False rebound=0.000
+native-terrain-east-30 stays finite
+native-terrain-east-30 retains suspension travel without chassis impact
+native-terrain-east--11: compression=0.592 chassis=False rebound=0.000
+native-terrain-east--11 stays finite
+native-terrain-east--11 retains suspension travel without chassis impact
+native-terrain-side-18: compression=0.718 chassis=False rebound=0.000
+native-terrain-side-18 stays finite
+native-terrain-side-18 retains suspension travel without chassis impact
+native-terrain-side-30: compression=0.792 chassis=False rebound=0.000
+native-terrain-side-30 stays finite
+native-terrain-side-30 retains suspension travel without chassis impact
+native-terrain-side--11: compression=0.646 chassis=False rebound=0.000
+native-terrain-side--11 stays finite
+native-terrain-side--11 retains suspension travel without chassis impact
+native-terrain-oblique-18: compression=0.716 chassis=False rebound=0.000
+native-terrain-oblique-18 stays finite
+native-terrain-oblique-18 retains suspension travel without chassis impact
+native-terrain-oblique-30: compression=0.821 chassis=False rebound=0.000
+native-terrain-oblique-30 stays finite
+native-terrain-oblique-30 retains suspension travel without chassis impact
+native-terrain-oblique--11: compression=0.640 chassis=False rebound=0.000
+native-terrain-oblique--11 stays finite
+native-terrain-oblique--11 retains suspension travel without chassis impact
+native-terrain-downhill-18: compression=0.736 chassis=False rebound=0.000
+native-terrain-downhill-18 stays finite
+native-terrain-downhill-18 retains suspension travel without chassis impact
+native-terrain-downhill-30: compression=0.695 chassis=False rebound=0.000
+native-terrain-downhill-30 stays finite
+native-terrain-downhill-30 retains suspension travel without chassis impact
+native-terrain-downhill--11: compression=0.673 chassis=False rebound=0.000
+native-terrain-downhill--11 stays finite
+native-terrain-downhill--11 retains suspension travel without chassis impact
+native-driving reaches 100 km/h within two seconds on dirt
+native-driving responds to fast right steering
+native-driving rear lock supports aggressive opposite rotation
+native-driving held rear lock sustains requested rotation through a broadside slide
+native-driving release recovers a powered line
+native-power-40-False: speed=25.744 yaw=-0.572 side=-1.748
+native-power-40-False remains planted
+native-power-40-False straightens after release
+native-power-40-True carves at least 20% more heading within 0.75 seconds
+native-power-40-True: speed=27.464 yaw=-0.474 side=-4.267
+native-power-40-True remains planted
+native-power-40-True straightens after release
+native-power-50-False: speed=28.149 yaw=-0.503 side=-1.674
+native-power-50-False remains planted
+native-power-50-False straightens after release
+native-power-50-True carves at least 20% more heading within 0.75 seconds
+native-power-50-True: speed=29.544 yaw=-0.310 side=-2.548
+native-power-50-True remains planted
+native-power-50-True straightens after release
+native-power-60-False: speed=30.541 yaw=-0.455 side=-1.587
+native-power-60-False remains planted
+native-power-60-False straightens after release
+native-power-60-True carves at least 20% more heading within 0.75 seconds
+native-power-60-True: speed=31.568 yaw=-0.328 side=-1.693
+native-power-60-True remains planted
+native-power-60-True straightens after release
+native-tight-30: heading=4.589 speed=18.866
+native-tight-30 tight low-speed reversal retains high-speed limits
+native-tight-30 releases without sustained fishtailing
+native-tight-40: heading=4.016 speed=20.325
+native-tight-40 tight low-speed reversal retains high-speed limits
+native-tight-40 releases without sustained fishtailing
+native-tight-60: heading=2.802 speed=24.528
+native-tight-60 tight low-speed reversal retains high-speed limits
+native-tight-60 releases without sustained fishtailing
+native-tight-90: heading=1.545 speed=31.610
+native-tight-90 tight low-speed reversal retains high-speed limits
+native-tight-90 releases without sustained fishtailing
+native-tight-100: heading=1.394 speed=33.461
+native-tight-100 tight low-speed reversal retains high-speed limits
+native-tight-100 releases without sustained fishtailing
+native-tight-120: heading=1.257 speed=36.534
+native-tight-120 tight low-speed reversal retains high-speed limits
+native-tight-120 releases without sustained fishtailing
+native-tight-150: heading=1.140 speed=39.959
+native-tight-150 tight low-speed reversal retains high-speed limits
+native-tight-150 releases without sustained fishtailing
+native-hard-4: compression=0.626 minimum height=1.019
+native-hard-4 absorbs the drop without bottoming or chassis contact
+native-hard-4 settles back to wheel support
+native-hard-8: compression=0.703 minimum height=0.942
+native-hard-8 absorbs the drop without bottoming or chassis contact
+native-hard-8 settles back to wheel support
+native-hard-12: compression=0.767 minimum height=0.878
+native-hard-12 absorbs the drop without bottoming or chassis contact
+native-hard-12 settles back to wheel support
+native-partial--2.1-False: final up=1.000 height=1.145 rebound=0.437
+native-partial--2.1-False returns from diagonal bumper balance to its wheels
+native-partial--2.1-False dissipates chassis impact without a vertical launch
+native-partial--2.1-True: final up=1.000 height=1.145 rebound=0.437
+native-partial--2.1-True returns from diagonal bumper balance to its wheels
+native-partial--2.1-True dissipates chassis impact without a vertical launch
+native-partial--1.57-False: final up=1.000 height=1.145 rebound=0.027
+native-partial--1.57-False returns from diagonal bumper balance to its wheels
+native-partial--1.57-False dissipates chassis impact without a vertical launch
+native-partial--1.57-True: final up=1.000 height=1.145 rebound=1.279
+native-partial--1.57-True returns from diagonal bumper balance to its wheels
+native-partial--1.57-True dissipates chassis impact without a vertical launch
+native-partial-1.57-False: final up=1.000 height=1.145 rebound=0.020
+native-partial-1.57-False returns from diagonal bumper balance to its wheels
+native-partial-1.57-False dissipates chassis impact without a vertical launch
+native-partial-1.57-True: final up=1.000 height=1.145 rebound=0.067
+native-partial-1.57-True returns from diagonal bumper balance to its wheels
+native-partial-1.57-True dissipates chassis impact without a vertical launch
+native-partial-2.1-False: final up=1.000 height=1.145 rebound=0.009
+native-partial-2.1-False returns from diagonal bumper balance to its wheels
+native-partial-2.1-False dissipates chassis impact without a vertical launch
+native-partial-2.1-True: final up=1.000 height=1.145 rebound=0.083
+native-partial-2.1-True returns from diagonal bumper balance to its wheels
+native-partial-2.1-True dissipates chassis impact without a vertical launch
+native-repeated-rolls-0: lowest up=-0.253, final up=1.000, timer=0.000
+native-repeated-rolls repeats crash/recovery in the same life without a pose reset
+native-repeated-rolls-1: lowest up=-0.254, final up=1.000, timer=0.000
+native-repeated-rolls repeats crash/recovery in the same life without a pose reset
+native-repeated-rolls-2: lowest up=-0.281, final up=1.000, timer=0.000
+native-repeated-rolls repeats crash/recovery in the same life without a pose reset
+native-repeated-rolls-3: lowest up=-0.290, final up=1.000, timer=0.000
+native-repeated-rolls repeats crash/recovery in the same life without a pose reset
+native-wheels settles with bounded motion
+native-wheels returns to level wheel support
+native-wheels returns to ride height
+native-wheels avoids a chassis-contact vertical launch
+native-wheels: peak upward velocity after chassis contact=0.000
+native-two-wheel-roll settles with bounded motion
+native-two-wheel-roll gradually recovers after the crash
+native-two-wheel-roll avoids a chassis-contact vertical launch
+native-two-wheel-roll: peak upward velocity after chassis contact=0.000
+native-two-wheel-pitch settles with bounded motion
+native-two-wheel-pitch gradually recovers after the crash
+native-two-wheel-pitch avoids a chassis-contact vertical launch
+native-two-wheel-pitch: peak upward velocity after chassis contact=0.126
+native-side settles with bounded motion
+native-side gradually recovers after the crash
+native-side avoids a chassis-contact vertical launch
+native-side: peak upward velocity after chassis contact=0.161
+native-roof settles with bounded motion
+native-roof gradually recovers after the crash
+native-roof avoids a chassis-contact vertical launch
+native-roof: peak upward velocity after chassis contact=0.437
+native-bumper settles with bounded motion
+native-bumper avoids a chassis-contact vertical launch
+native-bumper: peak upward velocity after chassis contact=0.030
+native-trunk settles with bounded motion
+native-trunk avoids a chassis-contact vertical launch
+native-trunk: peak upward velocity after chassis contact=0.017
+native-rear-low does not add rebound speed
+native-rear-low displaces the target
+native-rear-medium does not add rebound speed
+native-rear-medium displaces the target
+native-rear-fast does not add rebound speed
+native-rear-fast displaces the target
+native-head-on does not add rebound speed
+native-head-on consumes opposed momentum
+native-heavy-rear does not add rebound speed
+native-heavy-rear displaces the target
+native-heavy-rear pushes a lighter target farther at the same impact speed
+native-glance does not add rebound speed
+native-glance displaces the target
+network-brake-30-False: stop=0.383s distance=1.911m up=0.999
+network-brake-30-False brakes to rest without rollover
+network-brake-30-True: stop=0.300s distance=1.651m up=0.999
+network-brake-30-True brakes to rest without rollover
+network-brake-60-False: stop=0.683s distance=5.929m up=0.999
+network-brake-60-False brakes to rest without rollover
+network-brake-60-True: stop=0.583s distance=4.987m up=0.998
+network-brake-60-True brakes to rest without rollover
+network-brake-100-False: stop=1.167s distance=15.847m up=0.999
+network-brake-100-False brakes to rest without rollover
+network-brake-100-True: stop=1.050s distance=14.261m up=0.998
+network-brake-100-True brakes to rest without rollover
+network-brake-150-False: stop=1.700s distance=34.839m up=0.999
+network-brake-150-False brakes to rest without rollover
+network-brake-150-True: stop=1.650s distance=34.126m up=0.998
+network-brake-150-True brakes to rest without rollover
+network-terrain-west-18: compression=0.656 chassis=False rebound=0.000
+network-terrain-west-18 stays finite
+network-terrain-west-18 retains suspension travel without chassis impact
+network-terrain-west-30: compression=0.750 chassis=False rebound=0.000
+network-terrain-west-30 stays finite
+network-terrain-west-30 retains suspension travel without chassis impact
+network-terrain-west--11: compression=0.593 chassis=False rebound=0.000
+network-terrain-west--11 stays finite
+network-terrain-west--11 retains suspension travel without chassis impact
+network-terrain-east-18: compression=0.656 chassis=False rebound=0.000
+network-terrain-east-18 stays finite
+network-terrain-east-18 retains suspension travel without chassis impact
+network-terrain-east-30: compression=0.750 chassis=False rebound=0.000
+network-terrain-east-30 stays finite
+network-terrain-east-30 retains suspension travel without chassis impact
+network-terrain-east--11: compression=0.593 chassis=False rebound=0.000
+network-terrain-east--11 stays finite
+network-terrain-east--11 retains suspension travel without chassis impact
+network-terrain-side-18: compression=0.718 chassis=False rebound=0.000
+network-terrain-side-18 stays finite
+network-terrain-side-18 retains suspension travel without chassis impact
+network-terrain-side-30: compression=0.794 chassis=False rebound=0.000
+network-terrain-side-30 stays finite
+network-terrain-side-30 retains suspension travel without chassis impact
+network-terrain-side--11: compression=0.647 chassis=False rebound=0.000
+network-terrain-side--11 stays finite
+network-terrain-side--11 retains suspension travel without chassis impact
+network-terrain-oblique-18: compression=0.717 chassis=False rebound=0.000
+network-terrain-oblique-18 stays finite
+network-terrain-oblique-18 retains suspension travel without chassis impact
+network-terrain-oblique-30: compression=0.821 chassis=False rebound=0.000
+network-terrain-oblique-30 stays finite
+network-terrain-oblique-30 retains suspension travel without chassis impact
+network-terrain-oblique--11: compression=0.641 chassis=False rebound=0.000
+network-terrain-oblique--11 stays finite
+network-terrain-oblique--11 retains suspension travel without chassis impact
+network-terrain-downhill-18: compression=0.737 chassis=False rebound=0.000
+network-terrain-downhill-18 stays finite
+network-terrain-downhill-18 retains suspension travel without chassis impact
+network-terrain-downhill-30: compression=0.695 chassis=False rebound=0.000
+network-terrain-downhill-30 stays finite
+network-terrain-downhill-30 retains suspension travel without chassis impact
+network-terrain-downhill--11: compression=0.675 chassis=False rebound=0.000
+network-terrain-downhill--11 stays finite
+network-terrain-downhill--11 retains suspension travel without chassis impact
+network-driving reaches 100 km/h within two seconds on dirt
+network-driving responds to fast right steering
+network-driving rear lock supports aggressive opposite rotation
+network-driving held rear lock sustains requested rotation through a broadside slide
+network-driving release recovers a powered line
+network-power-40-False: speed=25.744 yaw=-0.572 side=-1.747
+network-power-40-False remains planted
+network-power-40-False straightens after release
+network-power-40-True carves at least 20% more heading within 0.75 seconds
+network-power-40-True: speed=27.466 yaw=-0.474 side=-4.261
+network-power-40-True remains planted
+network-power-40-True straightens after release
+network-power-50-False: speed=28.149 yaw=-0.503 side=-1.673
+network-power-50-False remains planted
+network-power-50-False straightens after release
+network-power-50-True carves at least 20% more heading within 0.75 seconds
+network-power-50-True: speed=29.545 yaw=-0.310 side=-2.547
+network-power-50-True remains planted
+network-power-50-True straightens after release
+network-power-60-False: speed=30.541 yaw=-0.455 side=-1.587
+network-power-60-False remains planted
+network-power-60-False straightens after release
+network-power-60-True carves at least 20% more heading within 0.75 seconds
+network-power-60-True: speed=31.568 yaw=-0.328 side=-1.693
+network-power-60-True remains planted
+network-power-60-True straightens after release
+network-tight-30: heading=4.588 speed=18.868
+network-tight-30 tight low-speed reversal retains high-speed limits
+network-tight-30 releases without sustained fishtailing
+network-tight-40: heading=4.015 speed=20.327
+network-tight-40 tight low-speed reversal retains high-speed limits
+network-tight-40 releases without sustained fishtailing
+network-tight-60: heading=2.802 speed=24.529
+network-tight-60 tight low-speed reversal retains high-speed limits
+network-tight-60 releases without sustained fishtailing
+network-tight-90: heading=1.545 speed=31.610
+network-tight-90 tight low-speed reversal retains high-speed limits
+network-tight-90 releases without sustained fishtailing
+network-tight-100: heading=1.394 speed=33.461
+network-tight-100 tight low-speed reversal retains high-speed limits
+network-tight-100 releases without sustained fishtailing
+network-tight-120: heading=1.257 speed=36.534
+network-tight-120 tight low-speed reversal retains high-speed limits
+network-tight-120 releases without sustained fishtailing
+network-tight-150: heading=1.140 speed=39.959
+network-tight-150 tight low-speed reversal retains high-speed limits
+network-tight-150 releases without sustained fishtailing
+network-hard-4: compression=0.626 minimum height=1.019
+network-hard-4 absorbs the drop without bottoming or chassis contact
+network-hard-4 settles back to wheel support
+network-hard-8: compression=0.703 minimum height=0.942
+network-hard-8 absorbs the drop without bottoming or chassis contact
+network-hard-8 settles back to wheel support
+network-hard-12: compression=0.767 minimum height=0.878
+network-hard-12 absorbs the drop without bottoming or chassis contact
+network-hard-12 settles back to wheel support
+network-partial--2.1-False: final up=1.000 height=1.145 rebound=0.012
+network-partial--2.1-False returns from diagonal bumper balance to its wheels
+network-partial--2.1-False dissipates chassis impact without a vertical launch
+network-partial--2.1-True: final up=1.000 height=1.145 rebound=0.025
+network-partial--2.1-True returns from diagonal bumper balance to its wheels
+network-partial--2.1-True dissipates chassis impact without a vertical launch
+network-partial--1.57-False: final up=1.000 height=1.145 rebound=0.006
+network-partial--1.57-False returns from diagonal bumper balance to its wheels
+network-partial--1.57-False dissipates chassis impact without a vertical launch
+network-partial--1.57-True: final up=1.000 height=1.145 rebound=0.024
+network-partial--1.57-True returns from diagonal bumper balance to its wheels
+network-partial--1.57-True dissipates chassis impact without a vertical launch
+network-partial-1.57-False: final up=1.000 height=1.145 rebound=0.002
+network-partial-1.57-False returns from diagonal bumper balance to its wheels
+network-partial-1.57-False dissipates chassis impact without a vertical launch
+network-partial-1.57-True: final up=1.000 height=1.145 rebound=0.036
+network-partial-1.57-True returns from diagonal bumper balance to its wheels
+network-partial-1.57-True dissipates chassis impact without a vertical launch
+network-partial-2.1-False: final up=1.000 height=1.145 rebound=0.007
+network-partial-2.1-False returns from diagonal bumper balance to its wheels
+network-partial-2.1-False dissipates chassis impact without a vertical launch
+network-partial-2.1-True: final up=1.000 height=1.145 rebound=0.002
+network-partial-2.1-True returns from diagonal bumper balance to its wheels
+network-partial-2.1-True dissipates chassis impact without a vertical launch
+network-repeated-rolls-0: lowest up=-0.917, final up=1.000, timer=0.000
+network-repeated-rolls repeats crash/recovery in the same life without a pose reset
+network-repeated-rolls-1: lowest up=-0.988, final up=1.000, timer=0.000
+network-repeated-rolls repeats crash/recovery in the same life without a pose reset
+network-repeated-rolls-2: lowest up=-0.915, final up=1.000, timer=0.000
+network-repeated-rolls repeats crash/recovery in the same life without a pose reset
+network-repeated-rolls-3: lowest up=-0.995, final up=1.000, timer=0.000
+network-repeated-rolls repeats crash/recovery in the same life without a pose reset
+network-wheels settles with bounded motion
+network-wheels returns to level wheel support
+network-wheels returns to ride height
+network-wheels avoids a chassis-contact vertical launch
+network-wheels: peak upward velocity after chassis contact=0.000
+network-two-wheel-roll settles with bounded motion
+network-two-wheel-roll gradually recovers after the crash
+network-two-wheel-roll avoids a chassis-contact vertical launch
+network-two-wheel-roll: peak upward velocity after chassis contact=0.076
+network-two-wheel-pitch settles with bounded motion
+network-two-wheel-pitch gradually recovers after the crash
+network-two-wheel-pitch avoids a chassis-contact vertical launch
+network-two-wheel-pitch: peak upward velocity after chassis contact=0.003
+network-side settles with bounded motion
+network-side gradually recovers after the crash
+network-side avoids a chassis-contact vertical launch
+network-side: peak upward velocity after chassis contact=0.095
+network-roof settles with bounded motion
+network-roof gradually recovers after the crash
+network-roof avoids a chassis-contact vertical launch
+network-roof: peak upward velocity after chassis contact=0.127
+network-bumper settles with bounded motion
+network-bumper avoids a chassis-contact vertical launch
+network-bumper: peak upward velocity after chassis contact=0.003
+network-trunk settles with bounded motion
+network-trunk avoids a chassis-contact vertical launch
+network-trunk: peak upward velocity after chassis contact=0.006
+network-rear-low does not add rebound speed
+network-rear-low displaces the target
+network-rear-medium does not add rebound speed
+network-rear-medium displaces the target
+network-rear-fast does not add rebound speed
+network-rear-fast displaces the target
+network-head-on does not add rebound speed
+network-head-on consumes opposed momentum
+network-heavy-rear does not add rebound speed
+network-heavy-rear displaces the target
+network-heavy-rear pushes a lighter target farther at the same impact speed
+network-glance does not add rebound speed
+network-glance displaces the target
+Trophy truck integration passed: 262 assertions, both production adapters.

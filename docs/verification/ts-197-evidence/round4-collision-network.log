@@ -1,0 +1,7 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two impaired UDP peers: native shallow scraping remains non-damaging and continues along the wall.
+Contact participant 1: HP 924.113, latest source vehicle, position <-0.028774718, 21.144907, 999.9868>
+Contact participant 2: HP 924.113, latest source vehicle, position <6.0299397, 21.144909, 999.98505>
+Environment collision multiplayer passed: two native UDP peers, 30 ms delay / 5 ms jitter / 2% loss; scrape, crash and head-on vehicle damage agree; contact correction max=0.1728m (excludes deliberate new-life placement).
+Two impaired UDP peers: both partially inverted moving vehicles dissipate scraping and recover wheel-down; remote poses converge within 0.2m.

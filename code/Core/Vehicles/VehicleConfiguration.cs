@@ -37,7 +37,7 @@ public sealed record VehicleConfiguration
     /// <summary>Forward acceleration in metres per second squared.</summary>
     public float Acceleration { get; init; } = 40;
     /// <summary>Braking deceleration.</summary>
-    public float Braking { get; init; } = 28;
+    public float Braking { get; init; } = 65;
     /// <summary>Engine demand sent to the front axle; the rear handbrake interrupts all engine drive.</summary>
     public float FrontDriveShare { get; init; } = 0.35f;
     /// <summary>Residual opposing speed snapped to rest before reversing, in m/s.</summary>
@@ -107,13 +107,13 @@ public sealed record VehicleConfiguration
     /// <summary>Vertical spring stiffness per unit sprung mass.</summary>
     public float WheelSpring { get; init; } = 22;
     /// <summary>Compression damping per unit sprung mass; acts on chassis point velocity.</summary>
-    public float WheelDamping { get; init; } = 10;
+    public float WheelDamping { get; init; } = 12;
     /// <summary>Extension damping per unit sprung mass, controlling recovery without pulling tires down.</summary>
-    public float WheelReboundDamping { get; init; } = 14;
+    public float WheelReboundDamping { get; init; } = 16;
     /// <summary>Compression where progressive bump resistance begins, in metres.</summary>
-    public float WheelBumpStart { get; init; } = 0.6f;
+    public float WheelBumpStart { get; init; } = 0.55f;
     /// <summary>Additional acceleration per squared metre beyond bump engagement.</summary>
-    public float WheelBumpSpring { get; init; } = 900;
+    public float WheelBumpSpring { get; init; } = 3500;
     /// <summary>Gravity acceleration.</summary>
     public float Gravity { get; init; } = 11;
     /// <summary>Safety bound on total velocity, including external impulses.</summary>
@@ -146,9 +146,9 @@ public sealed record VehicleConfiguration
     /// <summary>Minimum ground normal Y.</summary>
     public float SupportNormalMinimum { get; init; } = 0.55f;
 
-    /// <summary>Quiet bad-attitude seconds before gradual rollover assistance starts.</summary>
+    /// <summary>Body-supported crash seconds before bounded rolling assistance starts.</summary>
     public float CrashRecoveryDelay { get; init; } = 1.25f;
-    /// <summary>Assisted rollover target rate in rad/s; zero disables assistance.</summary>
+    /// <summary>Minimum assisted rolling rate in rad/s; zero disables assistance.</summary>
     public float CrashRecoveryRate { get; init; } = 1.2f;
 
     /// <summary>Static-obstacle tangential resistance per second.</summary>

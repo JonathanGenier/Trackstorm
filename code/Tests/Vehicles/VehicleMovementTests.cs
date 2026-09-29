@@ -399,7 +399,7 @@ internal sealed class VehicleMovementTests
         Assert.That(movement.State.CommandSpeed, Is.InRange(2.5f, 3f));
     }
 
-    /// <summary>A raised wheel compresses the sprung body, then near-critical damping settles without pogo.</summary>
+    /// <summary>A raised wheel compresses the sprung body, then heavy damping settles without pogo.</summary>
     [Test]
     public void SuspensionAbsorbsBumpAndSettles()
     {
@@ -438,10 +438,10 @@ internal sealed class VehicleMovementTests
         }
 
         var baseline = new VehicleConfiguration();
-        Assert.That(Step(-1, baseline with { WheelDamping = 22 }), Is.GreaterThan(Step(-1, baseline)));
+        Assert.That(Step(-1, baseline with { WheelDamping = baseline.WheelDamping * 1.5f }), Is.GreaterThan(Step(-1, baseline)));
         Assert.That(Step(-1, baseline with { WheelReboundDamping = 30 }), Is.EqualTo(Step(-1, baseline)));
         Assert.That(Step(0.2f, baseline with { WheelReboundDamping = 30 }), Is.LessThan(Step(0.2f, baseline)));
-        Assert.That(Step(0.2f, baseline with { WheelDamping = 22 }), Is.EqualTo(Step(0.2f, baseline)));
+        Assert.That(Step(0.2f, baseline with { WheelDamping = baseline.WheelDamping * 1.5f }), Is.EqualTo(Step(0.2f, baseline)));
         Assert.That(Step(10, baseline), Is.EqualTo(10 - baseline.Gravity / 60).Within(0.00001f));
     }
 
@@ -452,10 +452,10 @@ internal sealed class VehicleMovementTests
         var tuning = new VehicleConfiguration();
         var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
         float Step(float compression, VehicleConfiguration config) => new VehicleMovement(config, body).Step(Frame(1), body, Vector3.UnitY, wheels: new WheelSupport(new Vector4(compression))).Physics.LinearVelocity.Y;
-        Assert.That(Step(0.3f, tuning with { WheelBumpSpring = 1200 }), Is.EqualTo(Step(0.3f, tuning)));
+        Assert.That(Step(0.3f, tuning with { WheelBumpSpring = tuning.WheelBumpSpring * 1.5f }), Is.EqualTo(Step(0.3f, tuning)));
         Assert.That(Step(0.5f, tuning with { WheelBumpStart = 0.4f }), Is.GreaterThan(Step(0.5f, tuning)));
-        Assert.That(Step(0.7f, tuning with { WheelBumpSpring = 1200 }), Is.GreaterThan(Step(0.7f, tuning)));
-        Assert.That(Step(1, tuning with { WheelBumpSpring = 10000 }), Is.LessThanOrEqualTo(17 * tuning.Gravity / 60 + 0.00001f));
+        Assert.That(Step(0.7f, tuning with { WheelBumpSpring = tuning.WheelBumpSpring * 1.5f }), Is.GreaterThan(Step(0.7f, tuning)));
+        Assert.That(Step(1, tuning with { WheelBumpSpring = 10000 }), Is.LessThanOrEqualTo(29 * tuning.Gravity / 60 + 0.00001f));
         Assert.That(Step(0, tuning), Is.EqualTo(-tuning.Gravity / 60));
     }
 

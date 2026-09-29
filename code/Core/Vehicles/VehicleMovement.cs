@@ -107,10 +107,11 @@ public sealed class VehicleMovement
                 float wheelVelocity = Vector3.Dot(observed.LinearVelocity + Vector3.Cross(observed.AngularVelocity, offset), groundNormal);
                 float bump = Math.Max(0, compression[index] - c.WheelBumpStart);
                 float deepTravel = bump / (1 - c.WheelBumpStart);
-                float damper = (wheelVelocity < 0 ? c.WheelDamping : c.WheelReboundDamping) * (1 + 3 * deepTravel * deepTravel);
+                float damper = (wheelVelocity < 0 ? c.WheelDamping : c.WheelReboundDamping) * (1 + 8 * deepTravel * deepTravel);
                 // Point-velocity damping avoids injecting a velocity impulse at a terrain seam.
                 // Progressive end resistance remains bounded; excessive landings reach native chassis contact.
-                float force = Math.Clamp((compression[index] * c.WheelSpring) + (bump * bump * c.WheelBumpSpring) - (wheelVelocity * damper), 0, c.Gravity * 18) / 4;
+                float force = Math.Clamp((compression[index] * c.WheelSpring) + (bump * bump * c.WheelBumpSpring) -
+                    wheelVelocity * damper, 0, c.Gravity * 30) / 4;
                 // A nearly sideways chassis cannot turn a short oblique ray into a vertical launch.
                 force *= MathF.Pow(Math.Clamp(Vector3.Dot(up, groundNormal), 0, 1), 4);
                 normalLoad += force;
@@ -305,30 +306,41 @@ public sealed class VehicleMovement
         // Brief separation while rocking on a bumper must not restart the whole delay.
         // No assistance is applied in flight; sustained flight or wheel-down attitude clears it.
         float crashSeconds = up.Y < 0.65f ? Math.Max(0, State.CrashSeconds - 2 * dt) : 0;
-        bool badAttitude = grounded && !VehicleLanding.Landable(observed.Orientation, groundNormal);
+        int wheelCount = wheels is WheelSupport crashWheels
+            ? (crashWheels.Compression.X > 0 ? 1 : 0) + (crashWheels.Compression.Y > 0 ? 1 : 0) +
+              (crashWheels.Compression.Z > 0 ? 1 : 0) + (crashWheels.Compression.W > 0 ? 1 : 0)
+            : 0;
+        // Two supported wheels retain suspension/player recovery, including a steep bank.
+        bool wheelRecovery = wheelCount >= 2 && Vector3.Dot(up, groundNormal) > 0.35f;
+        bool badAttitude = grounded && !wheelRecovery && !VehicleLanding.Landable(observed.Orientation, groundNormal);
         if (badAttitude && contacts is not null && contacts.Any(contact => contact.OtherVehicleId == 0 && contact.Normal.Y >= c.SupportNormalMinimum))
         {
-            // Dissipate solver separation velocity after chassis-first contact, without
-            // rewriting the raw relative impact information used by authority.
+            // Body contact absorbs separation and sliding energy. Preserve rolling momentum
+            // instead of arresting the crash and then rotating a stationary chassis upright.
             float separating = Vector3.Dot(velocity, groundNormal);
-            if (separating > 0.5f) { velocity -= groundNormal * (separating - 0.5f); }
+            if (separating > 0) { velocity -= groundNormal * separating; }
             Vector3 scraping = velocity - groundNormal * Vector3.Dot(velocity, groundNormal);
             velocity -= scraping * (1 - MathF.Exp(-2 * dt));
-            angular *= MathF.Exp(-3 * dt);
+            angular *= MathF.Exp(-0.65f * dt);
         }
-        if (driveEnabled && badAttitude && velocity.LengthSquared() < 36 && angular.LengthSquared() < 9)
+        if (driveEnabled && badAttitude)
         {
             crashSeconds = Math.Min(60, State.CrashSeconds + dt);
             if (crashSeconds >= c.CrashRecoveryDelay && c.CrashRecoveryRate > 0)
             {
-                Vector3 axis = Vector3.Cross(up, groundNormal);
-                // Exactly inverted has no cross-product direction; choose a consistent roll.
+                Vector3 rolling = angular - groundNormal * Vector3.Dot(angular, groundNormal);
+                // Continue the existing roll/flip, even past inversion. A stranded body has
+                // no momentum to preserve: choose the shortest tip, with a stable roof tie-break.
+                Vector3 axis = rolling.LengthSquared() > 0.0625f ? rolling : Vector3.Cross(up, groundNormal);
                 if (axis.LengthSquared() < 0.01f) { axis = rocketForward; }
                 axis = Vector3.Normalize(axis);
-                Vector3 target = axis * c.CrashRecoveryRate;
-                angular += (target - angular) * Math.Clamp((crashSeconds - c.CrashRecoveryDelay) / 0.5f, 0, 1);
+                // Build a rate floor over time: tiny per-step torque alone is canceled by
+                // resting roof contacts in the native solver. Orientation remains integrated.
+                float rate = c.CrashRecoveryRate * Math.Clamp((crashSeconds - c.CrashRecoveryDelay) / 0.75f, 0, 1);
+                angular += axis * Math.Max(0, rate - Vector3.Dot(angular, axis));
             }
         }
+        else if (wheelRecovery) { crashSeconds = 0; }
         AirControlState air = default;
         if (grounded)
         {
@@ -371,6 +383,13 @@ public sealed class VehicleMovement
 
         velocity -= Vector3.UnitY * (c.Gravity * dt);
         float landing = grounded && !State.Grounded ? Math.Clamp(-State.Physics.LinearVelocity.Y / 12, 0, 1) : Math.Max(0, State.LandingIntensity - (dt * 3));
+        // A clean landing dissipates the first compression/release cycle. Reuse the
+        // portable landing envelope; ordinary ramp loading and airborne input are untouched.
+        if (landing > 0 && grounded && wheelCount >= 3 && VehicleLanding.Landable(observed.Orientation, groundNormal))
+        {
+            float rebound = Math.Max(0, Vector3.Dot(velocity, groundNormal));
+            velocity -= groundNormal * rebound * (1 - MathF.Exp(-c.WheelReboundDamping * landing * dt));
+        }
         bool sliding = grounded && Math.Abs(lateral) > 1 && rearSlip > 0.35f;
         var physics = new VehiclePhysicsState(observed.Position, observed.Orientation, Limit(velocity, c.MaximumPhysicsSpeed), Limit(angular, c.MaximumAngularSpeed));
         State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oilTicks, boost, powerSlip, air, crashSeconds);

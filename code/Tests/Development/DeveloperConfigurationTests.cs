@@ -359,7 +359,7 @@ internal sealed class DeveloperConfigurationTests
             bool straight = scenario >= 18;
             if (straight)
             {
-                physics = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(0, 0, scenario % 2 == 0 ? -24 : 10), Vector3.Zero);
+                physics = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(0, 0, scenario == 19 ? -0.9f : scenario % 2 == 0 ? -24 : 10), Vector3.Zero);
             }
 
             foreach (var host in new[] { baseline, tuned })

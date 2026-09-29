@@ -15,7 +15,7 @@ public readonly record struct VehicleState
     /// <param name="rearSlip">Rear traction saturation.</param>
     /// <param name="longitudinalAcceleration">Longitudinal tire acceleration.</param>
     /// <param name="lateralAcceleration">Lateral tire acceleration.</param>
-    /// <param name="landingIntensity">Landing feedback.</param>
+    /// <param name="landingIntensity">Landing feedback and clean-landing rebound envelope.</param>
     /// <param name="wheels">Per-wheel compression for presentation and replay diagnostics.</param>
     /// <param name="nitro">Complete temporary boost continuation.</param>
     /// <param name="powerSlip">Progressive rear wheelspin grip loss.</param>
@@ -92,7 +92,7 @@ public readonly record struct VehicleState
     public float LongitudinalAcceleration { get; }
     /// <summary>Signed tire acceleration across the chassis, in m/s squared.</summary>
     public float LateralAcceleration { get; }
-    /// <summary>Landing compression impulse intensity; decays after contact.</summary>
+    /// <summary>Portable landing feedback and clean-landing rebound envelope; decays after contact.</summary>
     public float LandingIntensity { get; }
     /// <summary>Individual spring compression in metres.</summary>
     public WheelSupport Wheels { get; }

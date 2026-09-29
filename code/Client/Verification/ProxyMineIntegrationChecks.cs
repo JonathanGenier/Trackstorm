@@ -25,6 +25,8 @@ public sealed partial class ProxyMineIntegrationChecks : Node
     private float _midSpeed;
     private float _hp;
     private float _bouncePeak;
+    private float _knockbackPeak;
+    private N.Vector3 _knockbackOrigin;
     private int _surface;
     private bool _done;
     private readonly List<string> _evidence = new();
@@ -100,7 +102,12 @@ public sealed partial class ProxyMineIntegrationChecks : Node
             foreach (var arena in _arenas) { var before = arena.Driver.Host?.World.State; arena.Advance(default); if (before is not null) { _scoring.Verify(arena.Driver.Host!, before.Value, "gameplay effect"); } Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure); }
             Check(_frames - _boundary < 1200, $"Mine stage {_stage} timeout; mines={_arenas[0].Driver.Host?.Items.Mines.Count}");
             var host = _arenas[0].Driver.Host!;
-            if (_stage is 8 or 80) { _bouncePeak = Math.Max(_bouncePeak, host.World.GetVehicle(2).ObservedPhysics.Position.Y); }
+            if (_stage is 8 or 80)
+            {
+                var disturbed = host.World.GetVehicle(2).ObservedPhysics;
+                _bouncePeak = Math.Max(_bouncePeak, disturbed.Position.Y);
+                if (_stage == 8) { _knockbackPeak = Math.Max(_knockbackPeak, disturbed.LinearVelocity.Length()); }
+            }
             switch (_stage)
             {
                 case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2):
@@ -150,10 +157,14 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                 case 7 when host.Items.Mines.Count == 0:
                     Check(host.World.GetVehicle(2).Damage.CurrentHP == _hp - 60, "exact moderate contact damage");
                     Check(host.World.GetVehicle(2).Effects.Any(e => e.Attribution.Source == "proxy-mine" && e.Effect.Impulse.Length() > 17000), "large committed knockback");
+                    _knockbackOrigin = host.World.GetVehicle(2).ObservedPhysics.Position;
                     Next("Contact detonated once, applying 60 configured HP and 18000 N.s to the remote vehicle.");
                     break;
                 case 8 when _frames - _boundary > 20 && _arenas.All(a => a.Driver.ItemState?.Mines.Count == 0):
-                    Check(host.World.GetVehicle(2).Movement.Physics.LinearVelocity.Length() > 5, "native knockback motion");
+                    // Measure the native response interval, not speed near its ballistic apex.
+                    float displacement = N.Vector3.Distance(_knockbackOrigin, host.World.GetVehicle(2).ObservedPhysics.Position);
+                    Check(_knockbackPeak > 5 && displacement > 0.5f, "native knockback motion");
+                    _evidence.Add($"Mine native response: peak speed={_knockbackPeak:F3} m/s, displacement={displacement:F3} m before replicated removal.");
                     Check(_arenas.All(a => a.Driver.Latest!.Vehicles.Single(v => v.State.VehicleId == 2).State.Damage.CurrentHP <= _hp - 60), "replicated damage");
                     _stage = 80; _boundary = _frames;
                     break;
@@ -191,7 +202,9 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                     Capture(_surface == 1 ? "slope.png" : "uneven.png");
                     // Drive over the still seated mine; zero magnetic force isolates contact detection.
                     Check(host.TryConfigure(0, new Dictionary<string,double> { ["items.mine_minimum_force"] = 0, ["items.mine_maximum_force"] = 0 }, out _), "disable attraction for drive-over");
-                    Position(2, _mine.Position + _mine.Normal * 0.65f + new N.Vector3(0,0,5), new N.Vector3(0,0,-15));
+                    // Start at resting clearance instead of releasing a precompressed suspension
+                    // over the mine. The seated mine centre is 0.258 m above the terrain.
+                    Position(2, _mine.Position + _mine.Normal * (VehicleDimensions.RideHeight - 0.258f) + new N.Vector3(0,0,5), new N.Vector3(0,0,-15));
                     _hp = host.World.GetVehicle(2).Damage.CurrentHP;
                     Next("Stable terrain seating captured; drive-over contact trial with attraction disabled.");
                     break;

@@ -1,0 +1,77 @@
+[
+  {
+    "name": "landing",
+    "result": "PASS",
+    "seconds": 55.8935634
+  },
+  {
+    "name": "air",
+    "result": "PASS",
+    "seconds": 16.4638493
+  },
+  {
+    "name": "oval",
+    "result": "PASS",
+    "seconds": 81.0914261
+  },
+  {
+    "name": "terrain",
+    "result": "PASS",
+    "seconds": 38.1161695
+  },
+  {
+    "name": "environment",
+    "result": "PASS",
+    "seconds": 55.8838911
+  },
+  {
+    "name": "west",
+    "result": "PASS",
+    "seconds": 67.4324162
+  },
+  {
+    "name": "east",
+    "result": "PASS",
+    "seconds": 65.2391523
+  },
+  {
+    "name": "collision-network",
+    "result": "PASS",
+    "seconds": 26.0690925
+  },
+  {
+    "name": "mine",
+    "result": "FAIL: Proxy Mine integration failed.",
+    "seconds": 9.1209844
+  },
+  {
+    "name": "nitro",
+    "result": "FAIL: Nitro integration failed.",
+    "seconds": 66.4461296
+  },
+  {
+    "name": "vehicle",
+    "result": "FAIL: Vehicle checks failed at 30 render FPS.",
+    "seconds": 56.7016563
+  },
+  {
+    "name": "config",
+    "result": "PASS",
+    "seconds": 162.3622198
+  },
+  {
+    "name": "articulation",
+    "result": "PASS",
+    "seconds": 44.7021568
+  },
+  {
+    "name": "reconnect",
+    "result": "PASS",
+    "seconds": 238.6629628
+  },
+  {
+    "name": "startup",
+    "result": "PASS",
+    "seconds": 59.8563557
+  }
+]

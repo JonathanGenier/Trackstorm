@@ -17,6 +17,7 @@ public sealed partial class TrophyTruckChecks : Node3D
     private Func<ulong, ulong, InputFrame> _pilot = (tick, _) => new(tick, 0, 0, 0, 0, 0, 0);
     private readonly List<object> _trace = new();
     private Node3D _fixture = null!;
+    private Node3D? _map;
     private bool _running;
     private string _case = "";
     private string _output = "";
@@ -26,6 +27,8 @@ public sealed partial class TrophyTruckChecks : Node3D
     private float _rebound;
     private float _maximumCompression;
     private float _minimumHeight;
+    private float _minimumUp = 1;
+    private readonly List<VehicleEffectRequest> _effects = new();
     private readonly MatchResourceLoader _resources = new(Core.Sessions.MatchMap.OldMap);
 
     public override void _Ready() => CallDeferred(MethodName.Run);
@@ -37,7 +40,8 @@ public sealed partial class TrophyTruckChecks : Node3D
         var observations = _network.Count > 0 ? NetworkVehicleBody.ObserveBatch(_network, _world.State.Vehicles) : null;
         var requests = _world.State.Vehicles.Select(s => _native.TryGetValue(s.VehicleId, out var body)
             ? body.Capture(_pilot(tick, s.VehicleId))
-            : new VehicleStepRequest(s.VehicleId, _pilot(tick, s.VehicleId), observations![s.VehicleId])).ToArray();
+            : new VehicleStepRequest(s.VehicleId, _pilot(tick, s.VehicleId), observations![s.VehicleId], effects: s.VehicleId == 1 ? _effects : null)).ToArray();
+        _effects.Clear();
         var results = _world.Step(_pilot(tick, 1), requests);
         foreach (var result in results)
         {
@@ -49,6 +53,7 @@ public sealed partial class TrophyTruckChecks : Node3D
             var up = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation);
             if (s.VehicleId == 1)
             {
+                _minimumUp = Math.Min(_minimumUp, up.Y);
                 _yawTravel += p.AngularVelocity.Y / 60;
                 _maximumCompression = Math.Max(_maximumCompression, Math.Max(Math.Max(w.X, w.Y), Math.Max(w.Z, w.W)));
                 _minimumHeight = Math.Min(_minimumHeight, p.Position.Y);
@@ -78,12 +83,19 @@ public sealed partial class TrophyTruckChecks : Node3D
             System.IO.Directory.CreateDirectory(_output);
             foreach (bool network in new[] { false, true })
             {
+                if (!OS.GetCmdlineUserArgs().Contains("--trophy-dynamics"))
+                {
+                    await Braking(network);
+                    await TerrainTransitions(network);
+                }
+                if (OS.GetCmdlineUserArgs().Contains("--trophy-polish")) { continue; }
                 await Driving(network);
                 await PowerCorners(network);
                 await TightTurns(network);
                 await HardLandings(network);
                 await AwkwardCrashes(network);
-                foreach (var attitude in new[] { ("wheels", N.Quaternion.Identity), ("side", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, MathF.PI / 2)), ("roof", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, MathF.PI)), ("bumper", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, 1.3f)), ("trunk", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, -1.3f)) })
+                await RepeatedRolls(network);
+                foreach (var attitude in new[] { ("wheels", N.Quaternion.Identity), ("two-wheel-roll", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, 1)), ("two-wheel-pitch", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, 0.65f)), ("side", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, MathF.PI / 2)), ("roof", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, MathF.PI)), ("bumper", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, 1.3f)), ("trunk", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, -1.3f)) })
                 {
                     await Setup(network, attitude.Item1, new(0, 5.5f, 0), attitude.Item2);
                     await Frames(600);
@@ -94,7 +106,7 @@ public sealed partial class TrophyTruckChecks : Node3D
                         Check(_world.GetVehicle(1).Movement.Grounded && N.Vector3.Transform(N.Vector3.UnitY, final.Orientation).Y > 0.95f, _case + " returns to level wheel support");
                         Check(Math.Abs(final.Position.Y - VehicleDimensions.RideHeight) < 0.08f, _case + " returns to ride height");
                     }
-                    if (attitude.Item1 is "roof" or "side") { Check(N.Vector3.Transform(N.Vector3.UnitY, final.Orientation).Y > 0.9f, _case + " gradually recovers after the crash"); }
+                    if (attitude.Item1 is "roof" or "side" or "two-wheel-roll" or "two-wheel-pitch") { Check(N.Vector3.Transform(N.Vector3.UnitY, final.Orientation).Y > 0.9f, _case + " gradually recovers after the crash"); }
                     Check(_rebound < 1.5f, _case + " avoids a chassis-contact vertical launch");
                     GD.Print($"{_case}: peak upward velocity after chassis contact={_rebound:F3}");
                     await Finish();
@@ -125,6 +137,55 @@ public sealed partial class TrophyTruckChecks : Node3D
             GD.PushError(error.ToString());
             GetTree().Quit(1);
         }
+    }
+
+    private async Task Braking(bool network)
+    {
+        foreach (int kmh in new[] { 30, 60, 100, 150 })
+        foreach (bool turn in new[] { false, true })
+        {
+            await Setup(network, $"brake-{kmh}-{turn}", new(0, VehicleDimensions.RideHeight, 0), N.Quaternion.Identity, new(0, 0, -kmh / 3.6f));
+            _pilot = (tick, _) => new(tick, turn ? (short)16000 : (short)0, 0, ushort.MaxValue, 0, 0, 0);
+            int frames = 0;
+            while (_world.GetVehicle(1).Speed > 0.5f && frames++ < 300) { await Frames(1); }
+            var state = _world.GetVehicle(1);
+            GD.Print($"{_case}: stop={frames / 60f:F3}s distance={state.ObservedPhysics.Position.Length():F3}m up={N.Vector3.Transform(N.Vector3.UnitY, state.ObservedPhysics.Orientation).Y:F3}");
+            Check(frames < 300 && N.Vector3.Transform(N.Vector3.UnitY, state.ObservedPhysics.Orientation).Y > 0.9f, _case + " brakes to rest without rollover");
+            await Finish();
+        }
+    }
+
+    private async Task TerrainTransitions(bool network)
+    {
+        foreach (var route in new[] {
+            ("west", new N.Vector3(-115, VehicleDimensions.RideHeight, 0), -MathF.PI / 2),
+            ("east", new N.Vector3(115, VehicleDimensions.RideHeight, 0), MathF.PI / 2),
+            ("side", new N.Vector3(30, VehicleDimensions.RideHeight, 40), 0f),
+            ("oblique", new N.Vector3(25, VehicleDimensions.RideHeight, 40), -0.4f),
+            ("downhill", new N.Vector3(30, 6.35f + VehicleDimensions.RideHeight, 0), MathF.PI) })
+        foreach (float speed in new[] { 18f, 30f, -11f })
+        {
+            float yaw = route.Item3 + (speed < 0 ? MathF.PI : 0);
+            var orientation = N.Quaternion.CreateFromYawPitchRoll(yaw, 0, 0);
+            await Setup(network, $"terrain-{route.Item1}-{speed}", route.Item2, orientation,
+                N.Vector3.Transform(new(0, 0, -speed), orientation), productionMap: true);
+            // Coast across the authored transition so the test does not replace the player's
+            // requested entry speed with a path-following controller's automatic brake.
+            for (int frame = 0; frame < 300; frame++)
+            {
+                await Frames(1);
+                if (route.Item1 == "downhill" && _world.GetVehicle(1).ObservedPhysics.Position.Z > 42 && _world.GetVehicle(1).Movement.Grounded) { break; }
+            }
+            GD.Print($"{_case}: compression={_maximumCompression:F3} chassis={_chassisContact} rebound={_rebound:F3}");
+            Check(VehiclePhysicsState.IsFinite(_world.GetVehicle(1).ObservedPhysics.LinearVelocity), _case + " stays finite");
+            if (!OS.GetCmdlineUserArgs().Contains("--trophy-baseline"))
+            {
+                Check(_maximumCompression < 0.85f && !_chassisContact, _case + " retains suspension travel without chassis impact");
+            }
+            await Finish();
+        }
+        _map!.QueueFree(); _map = null;
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
     }
 
     private async Task Driving(bool network)
@@ -226,17 +287,58 @@ public sealed partial class TrophyTruckChecks : Node3D
         }
     }
 
-    private async Task Setup(bool network, string name, N.Vector3 position, N.Quaternion orientation, N.Vector3 velocity = default, VehicleConfiguration? tuning = null)
+    private async Task RepeatedRolls(bool network)
+    {
+        await Setup(network, "repeated-rolls", new(0, VehicleDimensions.RideHeight, 0), N.Quaternion.Identity);
+        await Frames(60);
+        for (int cycle = 0; cycle < 4; cycle++)
+        {
+            _minimumUp = 1;
+            var effect = new DamageEffect(0, new(cycle % 2 == 0 ? 20000 : -20000, 0, 0), new(0, 4, 0));
+            var attribution = new DamageContext("verification", 0, $"roll-{cycle}");
+            if (network) { _effects.Add(new(effect, attribution)); }
+            else { _native[1].ApplyEffect(effect, attribution); }
+            await Frames(600);
+            var state = _world.GetVehicle(1);
+            float up = N.Vector3.Transform(N.Vector3.UnitY, state.ObservedPhysics.Orientation).Y;
+            GD.Print($"{_case}-{cycle}: lowest up={_minimumUp:F3}, final up={up:F3}, timer={state.Movement.CrashSeconds:F3}");
+            Check(_minimumUp < 0.5f && up > 0.95f && state.Movement.Grounded && state.Movement.CrashSeconds == 0,
+                _case + " repeats crash/recovery in the same life without a pose reset");
+        }
+        await Finish();
+    }
+
+    private async Task Setup(bool network, string name, N.Vector3 position, N.Quaternion orientation, N.Vector3 velocity = default, VehicleConfiguration? tuning = null, bool productionMap = false)
     {
         _case = (network ? "network-" : "native-") + name;
         _fixture = new Node3D(); AddChild(_fixture);
-        var road = new StaticBody3D(); road.SetMeta("surface_identity", "Dirt"); road.AddToGroup("landing_terrain");
-        road.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(2000, 2, 2000) }, Position = new(0, -1, 0) });
-        _fixture.AddChild(road);
+        if (productionMap)
+        {
+            if (_map is null) { _map = Arenas.ActiveMap.Load(); AddChild(_map); }
+        }
+        else
+        {
+            var road = new StaticBody3D(); road.SetMeta("surface_identity", "Dirt"); road.AddToGroup("landing_terrain");
+            road.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(2000, 2, 2000) }, Position = new(0, -1, 0) });
+            _fixture.AddChild(road);
+        }
+        if (productionMap)
+        {
+            await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
+            // Start clear of the actual local terrain, not an assumed flat infield height.
+            using var ray = PhysicsRayQueryParameters3D.Create(new(position.X, 50, position.Z), new(position.X, -5, position.Z), 1);
+            var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
+            if (hit.Count == 0) { throw new InvalidOperationException("Missing terrain at fixture start"); }
+            position.Y = hit["position"].AsVector3().Y + VehicleDimensions.RideHeight + 0.1f;
+        }
         _world = new(new(60));
         _trace.Clear(); _yawTravel = 0; _chassisContact = false; _rebound = 0;
         _maximumCompression = 0; _minimumHeight = position.Y;
         _pilot = (tick, _) => new(tick, 0, 0, 0, 0, 0, 0);
+        if (OS.GetCmdlineUserArgs().Contains("--trophy-baseline"))
+        {
+            tuning = new() { Braking = 28, WheelDamping = 10, WheelReboundDamping = 14, WheelBumpStart = 0.6f, WheelBumpSpring = 900 };
+        }
         AddCar(network, 1, position, orientation, velocity, tuning ?? new());
         await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
         _running = true;
