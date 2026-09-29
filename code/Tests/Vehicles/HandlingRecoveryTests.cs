@@ -60,8 +60,9 @@ internal sealed class HandlingRecoveryTests
         var movement = new VehicleMovement(new(), pose);
         var first = movement.Step(new(1, 2000, 20000, 0, 0, 0, 0), pose, Vector3.UnitY, surface: SurfaceType.Dirt);
         var second = movement.Step(new(2, -2000, 20000, 0, 0, 0, 0), pose, Vector3.UnitY, surface: SurfaceType.Dirt);
-        Assert.That(Math.Abs(first.SteeringAngle), Is.LessThan(0.002f));
-        Assert.That(Math.Abs(second.SteeringAngle - first.SteeringAngle), Is.LessThan(0.002f));
+        float requested = 2000f / 32767 * movement.Configuration.SteeringAngle;
+        Assert.That(first.SteeringAngle, Is.InRange(0, requested));
+        Assert.That(Math.Abs(second.SteeringAngle - first.SteeringAngle), Is.LessThan(movement.Configuration.SteeringResponse / 60));
         Assert.That(first.Physics.AngularVelocity.Y, Is.GreaterThan(0));
         Assert.That(second.Physics.AngularVelocity.Y, Is.GreaterThan(0));
     }

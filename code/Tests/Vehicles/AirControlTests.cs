@@ -13,11 +13,11 @@ internal sealed class AirControlTests
     public void DelayRequiresContinuousFlightAndLandingClearsContinuation()
     {
         var movement = Create();
-        for (int i = 0; i < 8; i++) { Step(movement, throttle: 65535); }
+        for (int i = 0; i < 59; i++) { Step(movement, throttle: 65535); }
         Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
         Step(movement, grounded: true);
         Assert.That(movement.State.Air, Is.EqualTo(default(AirControlState)));
-        for (int i = 0; i < 8; i++) { Step(movement, throttle: 65535); }
+        for (int i = 0; i < 59; i++) { Step(movement, throttle: 65535); }
         Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
         Step(movement, throttle: 65535);
         Assert.That(movement.State.Physics.AngularVelocity.X, Is.LessThan(0));
@@ -61,7 +61,7 @@ internal sealed class AirControlTests
     public void SnapshotRestoreContinuesDelayInputAndReleaseExactly()
     {
         var source = Create();
-        for (int i = 0; i < 16; i++) { Step(source, throttle: 65535, steering: -32767, roll: true); }
+        for (int i = 0; i < 80; i++) { Step(source, throttle: 65535, steering: -32767, roll: true); }
         var restored = Create();
         restored.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(source.State)));
         for (int i = 0; i < 60; i++)

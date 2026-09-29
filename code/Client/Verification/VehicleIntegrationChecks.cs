@@ -238,7 +238,8 @@ public sealed partial class VehicleIntegrationChecks : Node
         Check(low[0].SteeringAngle is > 0.02f and < 0.07f && Math.Abs(low[5].Physics.AngularVelocity.Y) > 0.1f, "progressive steering starts on the first fixed tick and produces physical yaw within 100ms");
         Check(lowYaw > 0.15f && fastRadius > lowRadius * 1.5f, "fast entry runs a wider line than low-speed steering");
         Check(fast.Max(state => state.FrontSlip) > 0.1f, "high-speed steering has measurable front traction saturation");
-        List<VehicleState> lane = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -20), 60, tick => Frame(tick, steering: tick <= 30 ? (short)10000 : (short)-10000));
+        // A lane change requests about five degrees, independent of road speed.
+        List<VehicleState> lane = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -20), 60, tick => Frame(tick, steering: tick <= 30 ? (short)3000 : (short)-3000));
         Check(lane.All(state => Math.Abs(state.Physics.AngularVelocity.Y) < 1.5f) && Math.Abs(lane.Last().Physics.Position.X + 20) < 5, "high-speed lane change stays controlled");
         List<VehicleState> slide = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(4, 0, -14), 100, tick => Frame(tick, steering: tick < 25 ? (short)-7000 : (short)0));
         float finalSide = Math.Abs(Numerics.Vector3.Dot(slide.Last().Physics.LinearVelocity, Numerics.Vector3.Transform(Numerics.Vector3.UnitX, slide.Last().Physics.Orientation)));

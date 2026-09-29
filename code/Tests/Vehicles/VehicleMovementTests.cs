@@ -70,9 +70,9 @@ internal sealed class VehicleMovementTests
         Assert.That(state.Handbrake, Is.Zero);
     }
 
-    /// <summary>Actual wheel commands are progressive, precise and calmer at speed.</summary>
+    /// <summary>Actual wheel commands are progressive, precise and retain full range at speed.</summary>
     [Test]
-    public void Steering_IsProgressiveAndSpeedSensitive()
+    public void Steering_IsProgressiveWithFullRangeAtEverySpeed()
     {
         VehicleMovement low = Create(2);
         VehicleMovement high = Create(40);
@@ -86,8 +86,8 @@ internal sealed class VehicleMovementTests
             analog.Step(Frame(analog.State.Tick + 1, steering: 8192), Create(2).State.Physics, Vector3.UnitY);
         }
 
-        Assert.That(low.State.SteeringAngle, Is.GreaterThan(0.5f));
-        Assert.That(high.State.SteeringAngle, Is.LessThan(low.State.SteeringAngle / 3));
+        Assert.That(low.State.SteeringAngle, Is.EqualTo(low.Configuration.SteeringAngle).Within(0.0001f));
+        Assert.That(high.State.SteeringAngle, Is.EqualTo(low.State.SteeringAngle).Within(0.0001f));
         Assert.That(analog.State.SteeringAngle, Is.EqualTo(low.State.SteeringAngle / 4).Within(0.0001f));
     }
 

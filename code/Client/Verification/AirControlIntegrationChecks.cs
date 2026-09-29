@@ -24,6 +24,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
     private readonly List<string> _evidence = new();
     private string _output = "";
     private readonly List<object> _trace = new();
+    private static int DelayExtension => (int)MathF.Round((new VehicleConfiguration().AirDelay - 0.15f) * 60);
 
     public override void _Ready() => CallDeferred(MethodName.Run);
 
@@ -33,7 +34,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
     {
         if (!_advance) { return; }
         _frame++;
-        bool held = _frame <= (_case == "sustained" ? 180 : 100);
+        bool held = _frame <= (_case == "sustained" ? 180 : 100) + DelayExtension;
         short steer = held && _case is "yaw" or "roll" or "combined" or "sustained" ? (short)32767 : (short)0;
         ushort throttle = held && _case is "pitch" or "combined" ? (ushort)65535 : (ushort)0;
         bool roll = _case is "roll" or "combined" or "sustained";
@@ -69,7 +70,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
             _rotation += speed / 60;
             _peak = Math.Max(_peak, speed);
         }
-        if (_frame == (_case == "sustained" ? 240 : 160)) { _released = state.Physics.Orientation; }
+        if (_frame == (_case == "sustained" ? 240 : 160) + DelayExtension) { _released = state.Physics.Orientation; }
         if (_camera is not null)
         {
             Vector3 position = VehicleBody.ToGodot(state.Physics.Position);
@@ -136,7 +137,8 @@ public sealed partial class AirControlIntegrationChecks : Node3D
             _native.Initialize(_world); AddChild(_native);
         }
         await Frames(3); _advance = true;
-        await Frames(scenario == "sustained" ? 300 : 220); _advance = false;
+        // Retain the same active-input/release observation durations after the longer delay.
+        await Frames((scenario == "sustained" ? 300 : 220) + DelayExtension); _advance = false;
         var state = _world.GetVehicle(1).Movement;
         System.IO.File.WriteAllText(System.IO.Path.Combine(_output, $"{(network ? "network" : "native")}-{scenario}.json"), System.Text.Json.JsonSerializer.Serialize(_trace));
         float drift = 2 * MathF.Acos(Math.Clamp(Math.Abs(N.Quaternion.Dot(_released, state.Physics.Orientation)), 0, 1));

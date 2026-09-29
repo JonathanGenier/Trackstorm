@@ -322,7 +322,6 @@ internal sealed class DeveloperConfigurationTests
     [TestCase("vehicle.reverse_speed", 4)]
     [TestCase("vehicle.grip", 3)]
     [TestCase("vehicle.steering_angle", 0.3)]
-    [TestCase("vehicle.steering_speed", 8)]
     [TestCase("vehicle.steering_response", 2)]
     [TestCase("vehicle.wheelbase", 1.3)]
     [TestCase("vehicle.tire_friction", 0.5)]

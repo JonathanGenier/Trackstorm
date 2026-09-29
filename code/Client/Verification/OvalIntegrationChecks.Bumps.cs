@@ -27,7 +27,8 @@ public sealed partial class OvalIntegrationChecks
 
             foreach (float entry in new[] { 8f, 28f })
             {
-                var turn = await HandlingProbe(network, new Vector3(0, (20 + VehicleDimensions.RideHeight), 400), facing, Vector3.Right * entry, 120, tick => new InputFrame(tick, tick < 31 ? (short)8000 : (short)0, ushort.MaxValue, 0, 0, 0, 0));
+                // Ordinary correction requests about three degrees; full-lock is exercised separately.
+                var turn = await HandlingProbe(network, new Vector3(0, (20 + VehicleDimensions.RideHeight), 400), facing, Vector3.Right * entry, 120, tick => new InputFrame(tick, tick < 31 ? (short)2000 : (short)0, ushort.MaxValue, 0, 0, 0, 0));
                 float yaw = turn.Skip(2).Max(state => Math.Abs(state.Physics.AngularVelocity.Y));
                 float finalYaw = Math.Abs(turn[^1].Physics.AngularVelocity.Y);
                 Check(yaw is > 0.03f and < 0.8f && finalYaw < 0.1f && turn.Skip(2).All(state => state.Grounded), $"{adapter} ordinary {entry} m/s turn then neutral throttle: peak yaw {yaw:F3}, final yaw {finalYaw:F3} rad/s.");
@@ -57,7 +58,7 @@ public sealed partial class OvalIntegrationChecks
         Check(crest.Body == bump && Math.Abs(crest.Position.Y - 20.12f) < 0.001f && crest.Normal.Y > 0.99f, "Bump fixture exposes its upward-facing 12 cm crest to production wheel queries.");
         foreach (bool network in new[] { false, true })
         {
-            foreach (float entry in new[] { 6f, 12f, 20f })
+            foreach (float entry in new[] { 6f, 12f, 20f, 44.44f })
             {
                 var states = await HandlingProbe(network, new Vector3(-8, (20 + VehicleDimensions.RideHeight), 400), facing, Vector3.Right * entry, 240, tick => new InputFrame(tick, 0, ushort.MaxValue, 0, 0, 0, 0));
                 float rise = states.Skip(2).Max(state => state.Physics.Position.Y - (20 + VehicleDimensions.RideHeight));

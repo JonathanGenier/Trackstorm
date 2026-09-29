@@ -6,6 +6,16 @@ public static class GameplayOptions
     /// <summary>Stable allowlist of editable gameplay settings.</summary>
     public static IReadOnlyList<GameplayOption> All { get; } = Array.AsReadOnly<GameplayOption>(
     [
+        new("vehicle.dirt_corner_full_speed", "Dirt", "Full corner grip through (m/s)", false, c => c.Vehicle.DirtCornerFullSpeed, (c, v) => c with { Vehicle = c.Vehicle with { DirtCornerFullSpeed = checked((float)v) } }),
+        new("vehicle.dirt_corner_fade_speed", "Dirt", "Corner grip fade end (m/s)", false, c => c.Vehicle.DirtCornerFadeSpeed, (c, v) => c with { Vehicle = c.Vehicle with { DirtCornerFadeSpeed = checked((float)v) } }),
+        new("vehicle.dirt_corner_grip", "Dirt", "Corner grip boost (0–4)", false, c => c.Vehicle.DirtCornerGrip, (c, v) => c with { Vehicle = c.Vehicle with { DirtCornerGrip = checked((float)v) } }),
+        new("vehicle.dirt_corner_power_slip", "Dirt", "Corner power-slip boost (0–4)", false, c => c.Vehicle.DirtCornerPowerSlip, (c, v) => c with { Vehicle = c.Vehicle with { DirtCornerPowerSlip = checked((float)v) } }),
+        new("vehicle.front_brake_share", "Vehicle", "Front brake share (0–1)", false, c => c.Vehicle.FrontBrakeShare, (c, v) => c with { Vehicle = c.Vehicle with { FrontBrakeShare = checked((float)v) } }),
+        new("vehicle.wheel_deep_damping", "Vehicle", "Deep-travel damping boost (0–30)", false, c => c.Vehicle.WheelDeepDamping, (c, v) => c with { Vehicle = c.Vehicle with { WheelDeepDamping = checked((float)v) } }),
+        new("vehicle.landing_rebound_decay", "Vehicle", "Landing rebound decay (/s)", false, c => c.Vehicle.LandingReboundDecay, (c, v) => c with { Vehicle = c.Vehicle with { LandingReboundDecay = checked((float)v) } }),
+        new("vehicle.crash_recovery_ramp", "Collision", "Recovery ramp duration (s)", false, c => c.Vehicle.CrashRecoveryRamp, (c, v) => c with { Vehicle = c.Vehicle with { CrashRecoveryRamp = checked((float)v) } }),
+        new("vehicle.crash_slide_damping", "Collision", "Body scrape damping (/s)", false, c => c.Vehicle.CrashSlideDamping, (c, v) => c with { Vehicle = c.Vehicle with { CrashSlideDamping = checked((float)v) } }),
+        new("vehicle.crash_roll_damping", "Collision", "Body roll damping (/s)", false, c => c.Vehicle.CrashRollDamping, (c, v) => c with { Vehicle = c.Vehicle with { CrashRollDamping = checked((float)v) } }),
         new("vehicle.dirt_cornering", "Vehicle", "Low/medium dirt cornering (0â€“2)", false, c => c.Vehicle.DirtCornering, (c, v) => c with { Vehicle = c.Vehicle with { DirtCornering = checked((float)v) } }),
         new("vehicle.crash_recovery_delay", "Collision", "Recovery delay (0.5â€“10 s)", false, c => c.Vehicle.CrashRecoveryDelay, (c, v) => c with { Vehicle = c.Vehicle with { CrashRecoveryDelay = checked((float)v) } }),
         new("vehicle.crash_recovery_rate", "Collision", "Recovery roll rate (0â€“2 rad/s)", false, c => c.Vehicle.CrashRecoveryRate, (c, v) => c with { Vehicle = c.Vehicle with { CrashRecoveryRate = checked((float)v) } }),
@@ -44,7 +54,6 @@ public static class GameplayOptions
         new("vehicle.reverse_speed", "Vehicle", "ReverseSpeed", false, c => c.Vehicle.ReverseSpeed, (c, v) => c with { Vehicle = c.Vehicle with { ReverseSpeed = checked((float)v) } }),
         new("vehicle.grip", "Vehicle", "Grip", false, c => c.Vehicle.Grip, (c, v) => c with { Vehicle = c.Vehicle with { Grip = checked((float)v) } }),
         new("vehicle.steering_angle", "Vehicle", "SteeringAngle", false, c => c.Vehicle.SteeringAngle, (c, v) => c with { Vehicle = c.Vehicle with { SteeringAngle = checked((float)v) } }),
-        new("vehicle.steering_speed", "Vehicle", "SteeringSpeed", false, c => c.Vehicle.SteeringSpeed, (c, v) => c with { Vehicle = c.Vehicle with { SteeringSpeed = checked((float)v) } }),
         new("vehicle.steering_response", "Vehicle", "SteeringResponse", false, c => c.Vehicle.SteeringResponse, (c, v) => c with { Vehicle = c.Vehicle with { SteeringResponse = checked((float)v) } }),
         new("vehicle.steering_smoothing", "Vehicle", "Steering smoothing", false, c => c.Vehicle.SteeringSmoothing, (c, v) => c with { Vehicle = c.Vehicle with { SteeringSmoothing = checked((float)v) } }),
         new("vehicle.dirt_power_slip", "Vehicle", "Dirt power slip", false, c => c.Vehicle.DirtPowerSlip, (c, v) => c with { Vehicle = c.Vehicle with { DirtPowerSlip = checked((float)v) } }),

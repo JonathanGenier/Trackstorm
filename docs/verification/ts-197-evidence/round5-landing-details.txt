@@ -1,0 +1,58 @@
+west-native-upright initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+RESULT west-native-upright: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=0, forgivenFrames=0, kick=False, position=<-62, 7.4842033, 0>, velocity=<0, 0.016356096, 0>
+west-native-yawed initial observed velocity=<8, -12, 0>, angular=<0, 0, 0>
+RESULT west-native-yawed: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=0, forgivenFrames=0, kick=False, position=<-56.324398, 7.4848704, -0.85583854>, velocity=<0.40103483, 0.015308887, -0.85084695>
+west-native-spin initial observed velocity=<8, -12, 0>, angular=<0, 3, 0>
+RESULT west-native-spin: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=0, forgivenFrames=0, kick=False, position=<-50.35435, 7.4841895, -0.78441656>, velocity=<5.1952333, 0.016372263, -0.8522948>
+west-native-bank initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+RESULT west-native-bank: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=0, forgivenFrames=0, kick=False, position=<0, 1.1342027, 96>, velocity=<0, 0.016356915, 0>
+west-native-roll35 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-roll35 tick=28 phase=Recovery hp=1000.00 terrain=True local=<1.2473342, -0.83311844, 1.2754974> normal=<0, 1, 0> severity=13.11
+west-native-roll35 tick=29 phase=Recovery hp=1000.00 terrain=True local=<1.2576396, -0.75726557, -0.9923935> normal=<0.02403528, 0.9975678, 0.06542951> severity=0.00
+RESULT west-native-roll35: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=8, forgivenFrames=2, kick=False, position=<-61.844482, 7.5082784, -0.2346555>, velocity=<0.103852406, -0.030094087, 0.0016164259>
+west-native-pitch25 initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-pitch25 tick=30 phase=Recovery hp=1000.00 terrain=True local=<-1.3232046, -0.7144928, 1.2567673> normal=<0, 1, 0> severity=0.63
+west-native-pitch25 tick=31 phase=Recovery hp=1000.00 terrain=True local=<1.3276281, -0.75446033, 1.2621689> normal=<0, 1, 0> severity=0.00
+RESULT west-native-pitch25: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=8, forgivenFrames=2, kick=False, position=<-61.848442, 7.4954467, 0.00014285497>, velocity=<0.03625962, -0.002288714, -5.5807144E-05>
+west-native-roll45 initial observed velocity=<0, 0, 0>, angular=<0, 0, 0>
+west-native-roll45 tick=115 phase=Recovery hp=1000.00 terrain=True local=<1.3118567, -0.68154144, -1.210762> normal=<0, 1, 0> severity=2.89
+west-native-roll45 tick=116 phase=Recovery hp=1000.00 terrain=True local=<1.2846833, -0.7366195, 1.3011475> normal=<-0.0037977607, 0.9971495, 0.07535522> severity=0.00
+RESULT west-native-roll45: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=8, forgivenFrames=2, kick=False, position=<-62.01328, 7.493439, -0.17968298>, velocity=<-0.010090876, 0.0007799715, 1.7163879E-05>
+west-native-pitch35 initial observed velocity=<0, 0, 0>, angular=<0, 0, 0>
+RESULT west-native-pitch35: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=0, forgivenFrames=0, kick=False, position=<-61.865593, 7.486869, -1.3966919E-09>, velocity=<0, 0.012318179, 0>
+west-native-side initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-side tick=28 phase=Crash hp=935.25 terrain=True local=<1.4863362, -0.44087756, 1.108818> normal=<0, 1, 0> severity=16.95
+west-native-side tick=29 phase=Crash hp=935.25 terrain=True local=<1.7143741, 0.3911795, -2.114872> normal=<0.11901278, 0.9925854, 0.02470318> severity=16.21
+west-native-side tick=30 phase=Crash hp=935.25 terrain=True local=<1.4214697, -0.2532695, -2.3226776> normal=<0, 1, 0> severity=0.54
+west-native-side tick=31 phase=Crash hp=935.25 terrain=True local=<1.3808155, -0.6538261, 1.0187569> normal=<-0.009604139, 0.99926823, -0.03702452> severity=0.73
+west-native-side tick=32 phase=Crash hp=935.25 terrain=True local=<1.3505521, -0.56180334, -1.5112686> normal=<0, 1, 0> severity=0.47
+RESULT west-native-side: HP=935.25, phases=Driving,Airborne,Crash, contacts=292, forgivenFrames=0, kick=False, position=<-61.56799, 7.664998, 0.039190285>, velocity=<0.0277056, -0.19028941, -0.013566552>
+west-native-roof initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-roof tick=29 phase=Crash hp=934.33 terrain=True local=<0.1399766, 1.0708385, 2.3661385> normal=<0, 1, 0> severity=17.13
+west-native-roof tick=30 phase=Crash hp=934.33 terrain=True local=<-0.69083196, 1.3689036, -2.0685883> normal=<0.10869719, 0.9938593, 0.020704854> severity=23.07
+west-native-roof tick=31 phase=Crash hp=934.33 terrain=True local=<0.86453044, 1.2114849, 2.3950882> normal=<-0.03429824, 0.9990298, -0.027625108> severity=8.10
+west-native-roof tick=32 phase=Crash hp=934.33 terrain=True local=<-1.1830695, 1.1780572, -0.27518463> normal=<0, 1, 0> severity=0.00
+west-native-roof tick=33 phase=Crash hp=934.33 terrain=True local=<1.304972, 1.0598464, 2.4000206> normal=<-0.021340566, 0.99977183, -0.0009609556> severity=4.55
+RESULT west-native-roof: HP=934.33, phases=Driving,Airborne,Crash, contacts=288, forgivenFrames=0, kick=False, position=<-61.64771, 7.276123, -0.028473051>, velocity=<-0.010436263, -0.3317896, 0.0037813392>
+west-native-front initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-front tick=24 phase=Crash hp=938.92 terrain=True local=<-1.0715157, 0.24659729, 2.689353> normal=<0, 1, 0> severity=16.22
+west-native-front tick=25 phase=Crash hp=938.92 terrain=True local=<0.95493865, -0.18717575, 2.7086425> normal=<0.046026986, 0.99294037, 0.109320365> severity=8.08
+west-native-front tick=26 phase=Crash hp=938.92 terrain=True local=<0.91683483, -0.18821335, 2.5402524> normal=<0.022094404, 0.9979936, 0.05933556> severity=1.10
+west-native-front tick=27 phase=Crash hp=938.92 terrain=True local=<0.8945236, -0.1850853, 2.4974937> normal=<0.019215094, 0.9985051, 0.051170383> severity=0.57
+west-native-front tick=28 phase=Crash hp=938.92 terrain=True local=<1.30976, -0.17885208, 2.4824734> normal=<0, 1, 0> severity=0.54
+RESULT west-native-front: HP=938.92, phases=Driving,Airborne,Crash, contacts=111, forgivenFrames=0, kick=False, position=<-61.153984, 7.476086, 0.07577287>, velocity=<0.35742238, -0.0084952265, -0.09763153>
+west-native-rear initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-rear tick=23 phase=Crash hp=939.83 terrain=True local=<-1.2864883, 0.3418007, -2.6689997> normal=<0, 1, 0> severity=16.03
+west-native-rear tick=24 phase=Crash hp=939.83 terrain=True local=<0.9853668, -0.19203949, -2.6407146> normal=<0.009312139, 0.9996455, 0.024944577> severity=2.14
+west-native-rear tick=25 phase=Crash hp=939.83 terrain=True local=<1.2794384, -0.18386078, -2.5931635> normal=<0, 1, 0> severity=0.44
+west-native-rear tick=26 phase=Crash hp=939.83 terrain=True local=<1.2838119, -0.18175507, -2.5812187> normal=<0, 1, 0> severity=0.25
+west-native-rear tick=27 phase=Crash hp=939.83 terrain=True local=<1.2656558, -0.18248367, -2.5810165> normal=<0, 1, 0> severity=0.12
+RESULT west-native-rear: HP=939.83, phases=Driving,Airborne,Crash, contacts=140, forgivenFrames=0, kick=False, position=<-63.9474, 7.4741917, 0.42277586>, velocity=<-1.0314169, -0.011776298, 0.09075904>
+west-native-tumble initial observed velocity=<0, -12, 0>, angular=<0, 0, 0>
+west-native-tumble tick=34 phase=Recovered hp=1000.00 terrain=True local=<-1.4900892, -0.7816858, 0.3621292> normal=<0, 1, 0> severity=0.00
+west-native-tumble tick=170 phase=Recovery hp=1000.00 terrain=True local=<-1.2644513, -0.7077999, -0.19165039> normal=<0, 1, 0> severity=7.55
+west-native-tumble tick=171 phase=Recovery hp=1000.00 terrain=True local=<-1.2796344, -0.7091985, 1.3028412> normal=<0, 1, 0> severity=0.00
+RESULT west-native-tumble: HP=1000.00, phases=Driving,Airborne,Recovery,Recovered, contacts=12, forgivenFrames=3, kick=True, position=<-62.104115, 7.4950056, 0.051452138>, velocity=<-0.0018403302, -1.052022E-05, -9.576729E-06>
+System.InvalidOperationException: west-native-tumble meaningful crash did not damage.
+   at Trackstorm.Client.Verification.LandingIntegrationChecks.Drop(Boolean network, String name, Single yaw, Single roll, Single pitch) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\LandingIntegrationChecks.cs:line 197
+   at Trackstorm.Client.Verification.LandingIntegrationChecks.Run() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\LandingIntegrationChecks.cs:line 99

@@ -24,7 +24,8 @@ internal sealed class DirtRecoveryTests
         // Countersteering must arrest the original wrong-way rotation. At parking speeds
         // the unassisted tire model can overshoot farther; extra yaw is not better recovery.
         Assert.That(assisted.Physics.AngularVelocity.Y, Is.GreaterThan(0.2f));
-        if (speed >= 30) { Assert.That(assisted.Physics.AngularVelocity.Y, Is.GreaterThan(baseline.Physics.AngularVelocity.Y + 0.1f)); }
+        // Full wheel range now lets the unassisted tires overshoot even at high speed.
+        if (speed >= 30) { Assert.That(assisted.Physics.AngularVelocity.Y, Is.LessThan(baseline.Physics.AngularVelocity.Y)); }
         Assert.That(assisted.Physics.LinearVelocity.Length(), Is.GreaterThan(speed * 0.6f));
     }
 

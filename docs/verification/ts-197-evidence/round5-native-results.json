@@ -1,0 +1,60 @@
+[
+  {
+    "result": "PASS",
+    "check": "air-control"
+  },
+  {
+    "result": "FAIL",
+    "error": "Landing integration failed; see .godot/landing-checks.",
+    "check": "landing"
+  },
+  {
+    "result": "PASS",
+    "check": "terrain-handling"
+  },
+  {
+    "result": "FAIL",
+    "error": "Environment collision checks failed.",
+    "check": "environment-collisions"
+  },
+  {
+    "result": "PASS",
+    "check": "environment-collision-network"
+  },
+  {
+    "result": "PASS",
+    "check": "mine"
+  },
+  {
+    "result": "FAIL",
+    "error": "Nitro integration failed.",
+    "check": "nitro"
+  },
+  {
+    "result": "PASS",
+    "check": "reconnect"
+  },
+  {
+    "result": "FAIL",
+    "error": "Car articulation verification failed.",
+    "check": "car-articulation"
+  },
+  {
+    "result": "FAIL",
+    "error": "Infield integration failed; see .godot/infield-checks.",
+    "check": "infield"
+  },
+  {
+    "result": "FAIL",
+    "error": "Vehicle checks failed at 30 render FPS.",
+    "check": "vehicle"
+  },
+  {
+    "result": "PASS",
+    "check": "developer-options"
+  },
+  {
+    "result": "PASS",
+    "check": "startup"
+  }
+]

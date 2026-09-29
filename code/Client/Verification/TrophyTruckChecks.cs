@@ -16,6 +16,7 @@ public sealed partial class TrophyTruckChecks : Node3D
     private readonly Dictionary<ulong, NetworkVehicleBody> _network = new();
     private Func<ulong, ulong, InputFrame> _pilot = (tick, _) => new(tick, 0, 0, 0, 0, 0, 0);
     private readonly List<object> _trace = new();
+    private readonly List<VehicleState> _movementTrace = new();
     private Node3D _fixture = null!;
     private Node3D? _map;
     private bool _running;
@@ -53,6 +54,7 @@ public sealed partial class TrophyTruckChecks : Node3D
             var up = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation);
             if (s.VehicleId == 1)
             {
+                _movementTrace.Add(s.Movement);
                 _minimumUp = Math.Min(_minimumUp, up.Y);
                 _yawTravel += p.AngularVelocity.Y / 60;
                 _maximumCompression = Math.Max(_maximumCompression, Math.Max(Math.Max(w.X, w.Y), Math.Max(w.Z, w.W)));
@@ -64,7 +66,7 @@ public sealed partial class TrophyTruckChecks : Node3D
                 velocity = new[] { p.LinearVelocity.X, p.LinearVelocity.Y, p.LinearVelocity.Z },
                 angular = new[] { p.AngularVelocity.X, p.AngularVelocity.Y, p.AngularVelocity.Z }, up = up.Y,
                 compression = new[] { w.X, w.Y, w.Z, w.W }, s.Movement.Grounded, s.Movement.Handbrake,
-                s.Movement.SteeringAngle, s.Movement.CrashSeconds, hp = s.Damage.CurrentHP, contacts = requests.Single(r => r.VehicleId == s.VehicleId).Observation.Contacts.Count });
+                s.Movement.SteeringAngle, s.Movement.CrashSeconds, airSeconds = s.Movement.Air.Seconds, airInput = new[] { s.Movement.Air.Input.X, s.Movement.Air.Input.Y, s.Movement.Air.Input.Z }, hp = s.Damage.CurrentHP, contacts = requests.Single(r => r.VehicleId == s.VehicleId).Observation.Contacts.Count });
         }
     }
 
@@ -81,6 +83,13 @@ public sealed partial class TrophyTruckChecks : Node3D
             }
             _output = ProjectSettings.GlobalizePath("res://.godot/ts-197/trophy");
             System.IO.Directory.CreateDirectory(_output);
+            if (OS.GetCmdlineUserArgs().Contains("--trophy-contact"))
+            {
+                foreach (bool network in new[] { false, true }) { await HighSpeedContact(network); }
+                GD.Print($"Trophy contact diagnostics passed: {_assertions} assertions.");
+                GetTree().Quit();
+                return;
+            }
             foreach (bool network in new[] { false, true })
             {
                 if (!OS.GetCmdlineUserArgs().Contains("--trophy-dynamics"))
@@ -145,7 +154,16 @@ public sealed partial class TrophyTruckChecks : Node3D
         foreach (bool turn in new[] { false, true })
         {
             await Setup(network, $"brake-{kmh}-{turn}", new(0, VehicleDimensions.RideHeight, 0), N.Quaternion.Identity, new(0, 0, -kmh / 3.6f));
-            _pilot = (tick, _) => new(tick, turn ? (short)16000 : (short)0, 0, ushort.MaxValue, 0, 0, 0);
+            bool stoppedForward = false;
+            _pilot = (tick, _) =>
+            {
+                var body = _world.GetVehicle(1).ObservedPhysics;
+                float forwardSpeed = N.Vector3.Dot(body.LinearVelocity, N.Vector3.Transform(-N.Vector3.UnitZ, body.Orientation));
+                // Brake and reverse share a pedal. Release after forward motion stops,
+                // allowing residual lateral slip to settle without commanding reverse.
+                stoppedForward |= forwardSpeed < 0.5f;
+                return new(tick, turn && !stoppedForward ? (short)16000 : (short)0, 0, stoppedForward ? (ushort)0 : ushort.MaxValue, 0, 0, 0);
+            };
             int frames = 0;
             while (_world.GetVehicle(1).Speed > 0.5f && frames++ < 300) { await Frames(1); }
             var state = _world.GetVehicle(1);
@@ -246,8 +264,9 @@ public sealed partial class TrophyTruckChecks : Node3D
             _pilot = (tick, _) => new(tick, short.MaxValue, 18000, 0, 0, 0, 0);
             await Frames(120);
             GD.Print($"{_case}: heading={Math.Abs(_yawTravel):F3} speed={_world.GetVehicle(1).Speed:F3}");
-            Check(kmh <= 40 ? Math.Abs(_yawTravel) > MathF.PI : kmh < 100 || Math.Abs(_yawTravel) < 1.5f,
-                _case + " tight low-speed reversal retains high-speed limits");
+            Check(kmh > 40 || Math.Abs(_yawTravel) > MathF.PI, _case + " reverses direction tightly at low speed");
+            Check(Math.Abs(_world.GetVehicle(1).Movement.SteeringAngle) > 0.89f && _minimumUp > 0.9f,
+                _case + " retains full steering range and stays wheel-down");
             _pilot = (tick, _) => new(tick, 0, 40000, 0, 0, 0, 0);
             await Frames(180);
             Check(Math.Abs(_world.GetVehicle(1).Movement.Physics.AngularVelocity.Y) < 0.1f, _case + " releases without sustained fishtailing");
@@ -310,6 +329,7 @@ public sealed partial class TrophyTruckChecks : Node3D
 
     private async Task Setup(bool network, string name, N.Vector3 position, N.Quaternion orientation, N.Vector3 velocity = default, VehicleConfiguration? tuning = null, bool productionMap = false)
     {
+        _minimumUp = 1;
         _case = (network ? "network-" : "native-") + name;
         _fixture = new Node3D(); AddChild(_fixture);
         if (productionMap)
@@ -332,7 +352,7 @@ public sealed partial class TrophyTruckChecks : Node3D
             position.Y = hit["position"].AsVector3().Y + VehicleDimensions.RideHeight + 0.1f;
         }
         _world = new(new(60));
-        _trace.Clear(); _yawTravel = 0; _chassisContact = false; _rebound = 0;
+        _trace.Clear(); _movementTrace.Clear(); _yawTravel = 0; _chassisContact = false; _rebound = 0;
         _maximumCompression = 0; _minimumHeight = position.Y;
         _pilot = (tick, _) => new(tick, 0, 0, 0, 0, 0, 0);
         if (OS.GetCmdlineUserArgs().Contains("--trophy-baseline"))

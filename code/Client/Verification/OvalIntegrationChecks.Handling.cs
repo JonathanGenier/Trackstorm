@@ -22,7 +22,7 @@ public sealed partial class OvalIntegrationChecks
         {
             foreach (int direction in new[] { 1, -1 })
             {
-                foreach ((float entry, short steering) in new (float, short)[] { (42, 8000), (42, 16000), (42, 32767), (44.44f, 32767) })
+                foreach ((float entry, short steering) in new (float, short)[] { (42, 700), (42, 1400), (42, 32767), (44.44f, 32767) })
                 {
                     var corner = await HandlingProbe(network, center + (normal * VehicleDimensions.RideHeight), Basis.LookingAt(tangent * direction, normal), tangent * (entry * direction), 60, tick => new InputFrame(tick, (short)(-steering * direction), ushort.MaxValue, 0, 0, 0, 0));
                     var samples = corner.Skip(2).ToArray();
@@ -34,7 +34,11 @@ public sealed partial class OvalIntegrationChecks
                     });
                     float yaw = samples.Max(state => state.Physics.AngularVelocity.Length());
                     float rearSlip = samples.Max(state => state.RearSlip);
-                    Check(slipAngle < 0.15f && yaw < 1.2f && rearSlip < 0.5f && samples.All(state => state.Grounded) && samples[^1].CommandSpeed > 40,
+                    bool fullInput = steering == short.MaxValue;
+                    bool stable = fullInput
+                        ? samples.All(state => state.Grounded && state.CrashSeconds == 0) && Math.Abs(samples[^1].SteeringAngle) > 0.89f && yaw < 4
+                        : slipAngle < 0.15f && yaw < 1.2f && rearSlip < 0.5f && samples.All(state => state.Grounded) && samples[^1].CommandSpeed > 40;
+                    Check(stable,
                         $"{(network ? "Network" : "Practice")} {entry} m/s bank turn, direction {direction}, steering {steering}: slip angle {slipAngle:F3} rad, angular speed {yaw:F3} rad/s, rear slip {rearSlip:F3}, continuously supported, final speed {samples[^1].CommandSpeed:F3} m/s.");
                 }
             }

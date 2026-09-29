@@ -107,7 +107,7 @@ public sealed class VehicleMovement
                 float wheelVelocity = Vector3.Dot(observed.LinearVelocity + Vector3.Cross(observed.AngularVelocity, offset), groundNormal);
                 float bump = Math.Max(0, compression[index] - c.WheelBumpStart);
                 float deepTravel = bump / (1 - c.WheelBumpStart);
-                float damper = (wheelVelocity < 0 ? c.WheelDamping : c.WheelReboundDamping) * (1 + 8 * deepTravel * deepTravel);
+                float damper = (wheelVelocity < 0 ? c.WheelDamping : c.WheelReboundDamping) * (1 + c.WheelDeepDamping * deepTravel * deepTravel);
                 // Point-velocity damping avoids injecting a velocity impulse at a terrain seam.
                 // Progressive end resistance remains bounded; excessive landings reach native chassis contact.
                 float force = Math.Clamp((compression[index] * c.WheelSpring) + (bump * bump * c.WheelBumpSpring) -
@@ -123,12 +123,10 @@ public sealed class VehicleMovement
         float lateral = Vector3.Dot(velocity, right);
         float steerIntent = driveEnabled ? input.Steering / 32767f : 0;
         float steeringSpeed = MathF.Sqrt(longitudinal * longitudinal + lateral * lateral);
-        float dirtCorner = grounded && currentSurface == SurfaceType.Dirt ? c.DirtCornering * Math.Clamp((28 - steeringSpeed) / 20, 0, 1) : 0;
-        float wheelLimit = c.SteeringAngle / (1 + MathF.Pow(steeringSpeed / c.SteeringSpeed, 2));
-        wheelLimit *= 1 + 1.8f * dirtCorner;
-        wheelLimit = Math.Min(c.SteeringAngle, wheelLimit);
-        float smoothedWheel = State.SteeringAngle + (steerIntent * wheelLimit - State.SteeringAngle) *
-            (1 - MathF.Exp(-dt / (c.SteeringSmoothing * (1 + steeringSpeed / c.ForwardSpeed))));
+        float dirtCorner = grounded && currentSurface == SurfaceType.Dirt ? c.DirtCornering * Math.Clamp((c.DirtCornerFadeSpeed - steeringSpeed) / (c.DirtCornerFadeSpeed - c.DirtCornerFullSpeed), 0, 1) : 0;
+        // Input always retains the full wheel range. Tire forces/slip limit the resulting turn.
+        float smoothedWheel = State.SteeringAngle + (steerIntent * c.SteeringAngle - State.SteeringAngle) *
+            (1 - MathF.Exp(-dt / c.SteeringSmoothing));
         float wheel = DrivingInputShaping.Approach(State.SteeringAngle, smoothedWheel, c.SteeringResponse, dt);
         float handbrakeTarget = driveEnabled && (input.Held & InputButtons.Drift) != 0 ? 1 : 0;
         float handbrake = driveEnabled ? DrivingInputShaping.Approach(State.Handbrake, handbrakeTarget, handbrakeTarget > State.Handbrake ? c.HandbrakeResponse : c.TractionRecovery, dt) : 0;
@@ -151,7 +149,7 @@ public sealed class VehicleMovement
             float rearLeftShare = rearTotal > 0 ? compression.Z / rearTotal : 0.5f;
             float driveModifier = profiles[2].Acceleration * rearLeftShare + profiles[3].Acceleration * (1 - rearLeftShare);
             float dirtShare = waterDepth > 0 ? 0 : (materials[2] == SurfaceType.Dirt ? rearLeftShare : 0) + (materials[3] == SurfaceType.Dirt ? 1 - rearLeftShare : 0);
-            float spinTarget = driveEnabled ? dirtShare * Math.Min(0.8f, c.DirtPowerSlip * (1 + 1.5f * dirtCorner * Math.Abs(steerIntent))) * throttle * throttle : 0;
+            float spinTarget = driveEnabled ? dirtShare * Math.Min(0.8f, c.DirtPowerSlip * (1 + c.DirtCornerPowerSlip * dirtCorner * Math.Abs(steerIntent))) * throttle * throttle : 0;
             float spinRate = spinTarget > State.PowerSlip ? c.PowerSlipResponse : c.PowerSlipRecovery;
             powerSlip = State.PowerSlip + (spinTarget - State.PowerSlip) * (1 - MathF.Exp(-spinRate * dt));
             // Engage drive within one braking step of rest. Requiring exact zero can trap a
@@ -181,7 +179,7 @@ public sealed class VehicleMovement
             // Mechanical braking ends on release; the saved handbrake state still restores lateral grip progressively.
             float brakeApplication = handbrakeTarget > 0 ? handbrake : 0;
             float handbrakeStop = Math.Min(c.HandbrakeBraking * brakeApplication * forceScale, Math.Max(0, (Math.Abs(longitudinal) / dt) - stopping));
-            float frontLong = -Math.Sign(longitudinal) * stopping * 0.65f;
+            float frontLong = -Math.Sign(longitudinal) * stopping * c.FrontBrakeShare;
             float driveAcceleration = Math.Clamp(drive * forceScale, -Math.Max(0, c.ReverseSpeed + longitudinal) / dt, Math.Max(0, forwardSpeed - longitudinal) / dt);
             // Configurable surface multipliers can be extreme; keep accepted force diagnostics
             // inside the portable handling-state contract as well as the velocity safety bound.
@@ -190,7 +188,7 @@ public sealed class VehicleMovement
             // interrupts engine torque so front drive cannot pull against a deliberately locked rear.
             float engine = driveAcceleration * (1 - brakeApplication);
             frontLong += engine * c.FrontDriveShare;
-            float rearLong = engine * (1 - c.FrontDriveShare) - (Math.Sign(longitudinal) * ((stopping * 0.35f) + handbrakeStop));
+            float rearLong = engine * (1 - c.FrontDriveShare) - (Math.Sign(longitudinal) * ((stopping * (1 - c.FrontBrakeShare)) + handbrakeStop));
             float halfAxle = c.Wheelbase / 2;
             // Load transfer changes the traction budget; tire demands generate both translation and yaw.
             float frontLoad = Math.Clamp(0.5f - (State.LongitudinalAcceleration * c.LoadHeight / (c.Gravity * c.Wheelbase)), 0.2f, 0.8f);
@@ -209,7 +207,7 @@ public sealed class VehicleMovement
             // Missing wheel forces already reduce normalLoad; do not discount their absence twice.
             // Arcade corner authority fades with speed. Extra tire capacity turns the travel
             // direction as well as the nose, so tight steering does not become a stationary spin.
-            float totalGrip = c.TireFriction * tireLoad * (1 + 1.2f * dirtCorner * Math.Abs(steerIntent));
+            float totalGrip = c.TireFriction * tireLoad * (1 + c.DirtCornerGrip * dirtCorner * Math.Abs(steerIntent));
             float oilGrip = 1 - c.OilGripReduction * Math.Clamp((float)oilTicks / recoveryTicks, 0, 1);
             float frontCapacity = totalGrip * frontLoad;
             float rearCapacity = totalGrip * (1 - frontLoad);
@@ -320,8 +318,8 @@ public sealed class VehicleMovement
             float separating = Vector3.Dot(velocity, groundNormal);
             if (separating > 0) { velocity -= groundNormal * separating; }
             Vector3 scraping = velocity - groundNormal * Vector3.Dot(velocity, groundNormal);
-            velocity -= scraping * (1 - MathF.Exp(-2 * dt));
-            angular *= MathF.Exp(-0.65f * dt);
+            velocity -= scraping * (1 - MathF.Exp(-c.CrashSlideDamping * dt));
+            angular *= MathF.Exp(-c.CrashRollDamping * dt);
         }
         if (driveEnabled && badAttitude)
         {
@@ -336,7 +334,7 @@ public sealed class VehicleMovement
                 axis = Vector3.Normalize(axis);
                 // Build a rate floor over time: tiny per-step torque alone is canceled by
                 // resting roof contacts in the native solver. Orientation remains integrated.
-                float rate = c.CrashRecoveryRate * Math.Clamp((crashSeconds - c.CrashRecoveryDelay) / 0.75f, 0, 1);
+                float rate = c.CrashRecoveryRate * Math.Clamp((crashSeconds - c.CrashRecoveryDelay) / c.CrashRecoveryRamp, 0, 1);
                 angular += axis * Math.Max(0, rate - Vector3.Dot(angular, axis));
             }
         }
@@ -382,7 +380,7 @@ public sealed class VehicleMovement
         angular += suspensionTorque / (c.Wheelbase * c.Wheelbase / 3) * dt;
 
         velocity -= Vector3.UnitY * (c.Gravity * dt);
-        float landing = grounded && !State.Grounded ? Math.Clamp(-State.Physics.LinearVelocity.Y / 12, 0, 1) : Math.Max(0, State.LandingIntensity - (dt * 3));
+        float landing = grounded && !State.Grounded ? Math.Clamp(-State.Physics.LinearVelocity.Y / 12, 0, 1) : Math.Max(0, State.LandingIntensity - (dt * c.LandingReboundDecay));
         // A clean landing dissipates the first compression/release cycle. Reuse the
         // portable landing envelope; ordinary ramp loading and airborne input are untouched.
         if (landing > 0 && grounded && wheelCount >= 3 && VehicleLanding.Landable(observed.Orientation, groundNormal))
