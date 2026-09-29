@@ -1,0 +1,7 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.78 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Boost camera playtest passed: native entry/sustain/exit, rapid re-engagement, cancelled short primes, three simultaneously boosting bodies, steering, unboosted speed, airborne launch; integrated cutoff, bounded camera, active reseed, unchanged snapshot. Boost frames 992, grounded 2165, airborne 355, simultaneous flame 95, short pulse 56. Visual quality requires observation.
+Rollover framing: 125 frames; minimum lens-to-pivot distance 5.500m; final lens volume clear of world and chassis throughout all scenarios.
+Rollover camera Follow CPU p95=5.028ms, max=5.766ms; excludes render/GPU work.
+Boost camera evidence: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\ts-227\playtest
