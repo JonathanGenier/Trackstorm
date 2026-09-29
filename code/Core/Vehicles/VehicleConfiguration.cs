@@ -51,9 +51,9 @@ public sealed record VehicleConfiguration
     /// <summary>Lateral grip response per second.</summary>
     public float Grip { get; init; } = 18;
     /// <summary>Maximum low-speed wheel angle in radians.</summary>
-    public float SteeringAngle { get; init; } = 0.6f;
+    public float SteeringAngle { get; init; } = 0.9f;
     /// <summary>Speed in m/s at which wheel authority starts calming substantially.</summary>
-    public float SteeringSpeed { get; init; } = 16;
+    public float SteeringSpeed { get; init; } = 13;
     /// <summary>Wheel angle transition rate in radians per second.</summary>
     public float SteeringResponse { get; init; } = 3.8f;
     /// <summary>Time constant for progressive wheel corrections, lengthened with speed.</summary>
@@ -113,7 +113,7 @@ public sealed record VehicleConfiguration
     /// <summary>Compression where progressive bump resistance begins, in metres.</summary>
     public float WheelBumpStart { get; init; } = 0.6f;
     /// <summary>Additional acceleration per squared metre beyond bump engagement.</summary>
-    public float WheelBumpSpring { get; init; } = 260;
+    public float WheelBumpSpring { get; init; } = 900;
     /// <summary>Gravity acceleration.</summary>
     public float Gravity { get; init; } = 11;
     /// <summary>Safety bound on total velocity, including external impulses.</summary>

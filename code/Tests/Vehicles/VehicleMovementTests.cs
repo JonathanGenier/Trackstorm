@@ -452,10 +452,10 @@ internal sealed class VehicleMovementTests
         var tuning = new VehicleConfiguration();
         var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
         float Step(float compression, VehicleConfiguration config) => new VehicleMovement(config, body).Step(Frame(1), body, Vector3.UnitY, wheels: new WheelSupport(new Vector4(compression))).Physics.LinearVelocity.Y;
-        Assert.That(Step(0.3f, tuning with { WheelBumpSpring = 280 }), Is.EqualTo(Step(0.3f, tuning)));
+        Assert.That(Step(0.3f, tuning with { WheelBumpSpring = 1200 }), Is.EqualTo(Step(0.3f, tuning)));
         Assert.That(Step(0.5f, tuning with { WheelBumpStart = 0.4f }), Is.GreaterThan(Step(0.5f, tuning)));
-        Assert.That(Step(0.7f, tuning with { WheelBumpSpring = 280 }), Is.GreaterThan(Step(0.7f, tuning)));
-        Assert.That(Step(1, tuning with { WheelBumpSpring = 10000 }), Is.LessThanOrEqualTo(5 * tuning.Gravity / 60 + 0.00001f));
+        Assert.That(Step(0.7f, tuning with { WheelBumpSpring = 1200 }), Is.GreaterThan(Step(0.7f, tuning)));
+        Assert.That(Step(1, tuning with { WheelBumpSpring = 10000 }), Is.LessThanOrEqualTo(17 * tuning.Gravity / 60 + 0.00001f));
         Assert.That(Step(0, tuning), Is.EqualTo(-tuning.Gravity / 60));
     }
 

@@ -82,8 +82,8 @@ Host-local schema 2 migrates the old default wheelbase, load height and suspensi
 | `vehicle.stop_speed` | `VehicleConfiguration.StopSpeed` | 0.05f |
 | `vehicle.reverse_acceleration` | `VehicleConfiguration.ReverseAcceleration` | 8 |
 | `vehicle.forward_speed` | `VehicleConfiguration.ForwardSpeed` | 44.44f |
-| `vehicle.steering_angle` | `VehicleConfiguration.SteeringAngle` | 0.6f |
-| `vehicle.steering_speed` | `VehicleConfiguration.SteeringSpeed` | 16 |
+| `vehicle.steering_angle` | `VehicleConfiguration.SteeringAngle` | 0.9f |
+| `vehicle.steering_speed` | `VehicleConfiguration.SteeringSpeed` | 13 |
 | `vehicle.steering_response` | `VehicleConfiguration.SteeringResponse` | 3.8f |
 | `vehicle.tire_friction` | `VehicleConfiguration.TireFriction` | 1.9f |
 | `vehicle.coast_drag` | `VehicleConfiguration.CoastDrag` | 0.28f |
@@ -92,7 +92,7 @@ Host-local schema 2 migrates the old default wheelbase, load height and suspensi
 | `vehicle.wheel_damping` | `VehicleConfiguration.WheelDamping` | 10 |
 | `vehicle.wheel_rebound_damping` | `VehicleConfiguration.WheelReboundDamping` | 14 |
 | `vehicle.wheel_bump_start` | `VehicleConfiguration.WheelBumpStart` | 0.6 m |
-| `vehicle.wheel_bump_spring` | `VehicleConfiguration.WheelBumpSpring` | 260 |
+| `vehicle.wheel_bump_spring` | `VehicleConfiguration.WheelBumpSpring` | 900 |
 | `vehicle.suspension_damping` | `VehicleConfiguration.SuspensionDamping` | 8 |
 | `vehicle.handbrake_response` | `VehicleConfiguration.HandbrakeResponse` | 8 |
 | `vehicle.traction_recovery` | `VehicleConfiguration.TractionRecovery` | 3 |

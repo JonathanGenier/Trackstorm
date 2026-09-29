@@ -187,7 +187,9 @@ public sealed partial class NitroIntegrationChecks : Node
                     _held = false;
                     Next("Second activation drains the same grant tokens, followed by another release.");
                     break;
-                case 7 when _frames - _boundary > 30:
+                // The production release tail lasts 0.45 seconds after each peer observes
+                // release; allow impaired delivery plus presentation before checking cutoff.
+                case 7 when _frames - _boundary > 60:
                     Check(host.World.State.Vehicles.All(v => !v.Movement.Nitro.Active), "second release");
                     CheckExhaust(false);
                     UseBoth();

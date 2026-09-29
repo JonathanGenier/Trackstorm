@@ -24,6 +24,9 @@ public sealed partial class TrophyTruckChecks : Node3D
     private float _yawTravel;
     private bool _chassisContact;
     private float _rebound;
+    private float _maximumCompression;
+    private float _minimumHeight;
+    private readonly MatchResourceLoader _resources = new(Core.Sessions.MatchMap.OldMap);
 
     public override void _Ready() => CallDeferred(MethodName.Run);
 
@@ -47,6 +50,8 @@ public sealed partial class TrophyTruckChecks : Node3D
             if (s.VehicleId == 1)
             {
                 _yawTravel += p.AngularVelocity.Y / 60;
+                _maximumCompression = Math.Max(_maximumCompression, Math.Max(Math.Max(w.X, w.Y), Math.Max(w.Z, w.W)));
+                _minimumHeight = Math.Min(_minimumHeight, p.Position.Y);
                 _chassisContact |= requests.Single(r => r.VehicleId == 1).Observation.Contacts.Count > 0;
                 if (_chassisContact) { _rebound = Math.Max(_rebound, p.LinearVelocity.Y); }
             }
@@ -62,12 +67,22 @@ public sealed partial class TrophyTruckChecks : Node3D
     {
         try
         {
+            // Keep production match resources alive across the fixture's many vehicle rebuilds,
+            // just as the application match loader does for a running match.
+            while (!_resources.Complete)
+            {
+                _resources.Advance();
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            }
             _output = ProjectSettings.GlobalizePath("res://.godot/ts-197/trophy");
             System.IO.Directory.CreateDirectory(_output);
             foreach (bool network in new[] { false, true })
             {
                 await Driving(network);
                 await PowerCorners(network);
+                await TightTurns(network);
+                await HardLandings(network);
+                await AwkwardCrashes(network);
                 foreach (var attitude in new[] { ("wheels", N.Quaternion.Identity), ("side", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, MathF.PI / 2)), ("roof", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, MathF.PI)), ("bumper", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, 1.3f)), ("trunk", N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, -1.3f)) })
                 {
                     await Setup(network, attitude.Item1, new(0, 5.5f, 0), attitude.Item2);
@@ -162,6 +177,55 @@ public sealed partial class TrophyTruckChecks : Node3D
         }
     }
 
+    private async Task TightTurns(bool network)
+    {
+        foreach (int kmh in new[] { 30, 40, 60, 90, 100, 120, 150 })
+        {
+            await Setup(network, $"tight-{kmh}", new(0, VehicleDimensions.RideHeight, 0), N.Quaternion.Identity, new(0, 0, -kmh / 3.6f));
+            _pilot = (tick, _) => new(tick, short.MaxValue, 18000, 0, 0, 0, 0);
+            await Frames(120);
+            GD.Print($"{_case}: heading={Math.Abs(_yawTravel):F3} speed={_world.GetVehicle(1).Speed:F3}");
+            Check(kmh <= 40 ? Math.Abs(_yawTravel) > MathF.PI : kmh < 100 || Math.Abs(_yawTravel) < 1.5f,
+                _case + " tight low-speed reversal retains high-speed limits");
+            _pilot = (tick, _) => new(tick, 0, 40000, 0, 0, 0, 0);
+            await Frames(180);
+            Check(Math.Abs(_world.GetVehicle(1).Movement.Physics.AngularVelocity.Y) < 0.1f, _case + " releases without sustained fishtailing");
+            await Finish();
+        }
+    }
+
+    private async Task HardLandings(bool network)
+    {
+        foreach (float height in new[] { 4f, 8f, 12f })
+        {
+            await Setup(network, $"hard-{height}", new(0, VehicleDimensions.RideHeight + height, 0), N.Quaternion.Identity, new(0, 0, -15));
+            await Frames(480);
+            GD.Print($"{_case}: compression={_maximumCompression:F3} minimum height={_minimumHeight:F3}");
+            Check(!_chassisContact && _maximumCompression < 0.95f, _case + " absorbs the drop without bottoming or chassis contact");
+            var final = _world.GetVehicle(1);
+            Check(final.Movement.Grounded && Math.Abs(final.ObservedPhysics.Position.Y - VehicleDimensions.RideHeight) < 0.03f && Math.Abs(final.ObservedPhysics.LinearVelocity.Y) < 0.05f,
+                _case + " settles back to wheel support");
+            await Finish();
+        }
+    }
+
+    private async Task AwkwardCrashes(bool network)
+    {
+        foreach (float pitch in new[] { -2.1f, -1.57f, 1.57f, 2.1f })
+        foreach (bool powered in new[] { false, true })
+        {
+            await Setup(network, $"partial-{pitch}-{powered}", new(0, 3, 0), N.Quaternion.CreateFromYawPitchRoll(0, pitch, 0.3f), new(6, 0, -8));
+            _pilot = (tick, _) => new(tick, 0, powered ? ushort.MaxValue : (ushort)0, 0, 0, 0, 0);
+            await Frames(600);
+            var p = _world.GetVehicle(1).ObservedPhysics;
+            GD.Print($"{_case}: final up={N.Vector3.Transform(N.Vector3.UnitY, p.Orientation).Y:F3} height={p.Position.Y:F3} rebound={_rebound:F3}");
+            Check(N.Vector3.Transform(N.Vector3.UnitY, p.Orientation).Y > 0.95f && _world.GetVehicle(1).Movement.Grounded,
+                _case + " returns from diagonal bumper balance to its wheels");
+            Check(_rebound < 1.5f, _case + " dissipates chassis impact without a vertical launch");
+            await Finish();
+        }
+    }
+
     private async Task Setup(bool network, string name, N.Vector3 position, N.Quaternion orientation, N.Vector3 velocity = default, VehicleConfiguration? tuning = null)
     {
         _case = (network ? "network-" : "native-") + name;
@@ -171,6 +235,7 @@ public sealed partial class TrophyTruckChecks : Node3D
         _fixture.AddChild(road);
         _world = new(new(60));
         _trace.Clear(); _yawTravel = 0; _chassisContact = false; _rebound = 0;
+        _maximumCompression = 0; _minimumHeight = position.Y;
         _pilot = (tick, _) => new(tick, 0, 0, 0, 0, 0, 0);
         AddCar(network, 1, position, orientation, velocity, tuning ?? new());
         await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);

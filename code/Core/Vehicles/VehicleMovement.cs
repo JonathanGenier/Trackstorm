@@ -106,10 +106,11 @@ public sealed class VehicleMovement
                 Vector3 offset = Vector3.Transform(new Vector3(index % 2 == 0 ? -VehicleDimensions.WheelTrack / 2 : VehicleDimensions.WheelTrack / 2, 0, index < 2 ? -c.Wheelbase / 2 : c.Wheelbase / 2), observed.Orientation);
                 float wheelVelocity = Vector3.Dot(observed.LinearVelocity + Vector3.Cross(observed.AngularVelocity, offset), groundNormal);
                 float bump = Math.Max(0, compression[index] - c.WheelBumpStart);
-                float damper = wheelVelocity < 0 ? c.WheelDamping : c.WheelReboundDamping;
+                float deepTravel = bump / (1 - c.WheelBumpStart);
+                float damper = (wheelVelocity < 0 ? c.WheelDamping : c.WheelReboundDamping) * (1 + 3 * deepTravel * deepTravel);
                 // Point-velocity damping avoids injecting a velocity impulse at a terrain seam.
                 // Progressive end resistance remains bounded; excessive landings reach native chassis contact.
-                float force = Math.Clamp((compression[index] * c.WheelSpring) + (bump * bump * c.WheelBumpSpring) - (wheelVelocity * damper), 0, c.Gravity * 6) / 4;
+                float force = Math.Clamp((compression[index] * c.WheelSpring) + (bump * bump * c.WheelBumpSpring) - (wheelVelocity * damper), 0, c.Gravity * 18) / 4;
                 // A nearly sideways chassis cannot turn a short oblique ray into a vertical launch.
                 force *= MathF.Pow(Math.Clamp(Vector3.Dot(up, groundNormal), 0, 1), 4);
                 normalLoad += force;
@@ -121,9 +122,9 @@ public sealed class VehicleMovement
         float lateral = Vector3.Dot(velocity, right);
         float steerIntent = driveEnabled ? input.Steering / 32767f : 0;
         float steeringSpeed = MathF.Sqrt(longitudinal * longitudinal + lateral * lateral);
-        float dirtCorner = grounded && currentSurface == SurfaceType.Dirt ? c.DirtCornering * Math.Clamp((28 - steeringSpeed) / 12, 0, 1) : 0;
+        float dirtCorner = grounded && currentSurface == SurfaceType.Dirt ? c.DirtCornering * Math.Clamp((28 - steeringSpeed) / 20, 0, 1) : 0;
         float wheelLimit = c.SteeringAngle / (1 + MathF.Pow(steeringSpeed / c.SteeringSpeed, 2));
-        wheelLimit *= 1 + 0.45f * dirtCorner;
+        wheelLimit *= 1 + 1.8f * dirtCorner;
         wheelLimit = Math.Min(c.SteeringAngle, wheelLimit);
         float smoothedWheel = State.SteeringAngle + (steerIntent * wheelLimit - State.SteeringAngle) *
             (1 - MathF.Exp(-dt / (c.SteeringSmoothing * (1 + steeringSpeed / c.ForwardSpeed))));
@@ -205,7 +206,9 @@ public sealed class VehicleMovement
 
             float tireLoad = wheels.HasValue ? normalLoad : c.Gravity * groundNormal.Y;
             // Missing wheel forces already reduce normalLoad; do not discount their absence twice.
-            float totalGrip = c.TireFriction * tireLoad;
+            // Arcade corner authority fades with speed. Extra tire capacity turns the travel
+            // direction as well as the nose, so tight steering does not become a stationary spin.
+            float totalGrip = c.TireFriction * tireLoad * (1 + 1.2f * dirtCorner * Math.Abs(steerIntent));
             float oilGrip = 1 - c.OilGripReduction * Math.Clamp((float)oilTicks / recoveryTicks, 0, 1);
             float frontCapacity = totalGrip * frontLoad;
             float rearCapacity = totalGrip * (1 - frontLoad);
@@ -299,7 +302,9 @@ public sealed class VehicleMovement
         if (boost.Recovering && roadSpeed <= forwardSpeed) { boost = default; }
 
         // Chassis load response acts on the physical body, using the same forces that consume tire grip.
-        float crashSeconds = 0;
+        // Brief separation while rocking on a bumper must not restart the whole delay.
+        // No assistance is applied in flight; sustained flight or wheel-down attitude clears it.
+        float crashSeconds = up.Y < 0.65f ? Math.Max(0, State.CrashSeconds - 2 * dt) : 0;
         bool badAttitude = grounded && !VehicleLanding.Landable(observed.Orientation, groundNormal);
         if (badAttitude && contacts is not null && contacts.Any(contact => contact.OtherVehicleId == 0 && contact.Normal.Y >= c.SupportNormalMinimum))
         {
@@ -307,9 +312,11 @@ public sealed class VehicleMovement
             // rewriting the raw relative impact information used by authority.
             float separating = Vector3.Dot(velocity, groundNormal);
             if (separating > 0.5f) { velocity -= groundNormal * (separating - 0.5f); }
+            Vector3 scraping = velocity - groundNormal * Vector3.Dot(velocity, groundNormal);
+            velocity -= scraping * (1 - MathF.Exp(-2 * dt));
             angular *= MathF.Exp(-3 * dt);
         }
-        if (driveEnabled && badAttitude && velocity.LengthSquared() < 9 && angular.LengthSquared() < 4)
+        if (driveEnabled && badAttitude && velocity.LengthSquared() < 36 && angular.LengthSquared() < 9)
         {
             crashSeconds = Math.Min(60, State.CrashSeconds + dt);
             if (crashSeconds >= c.CrashRecoveryDelay && c.CrashRecoveryRate > 0)

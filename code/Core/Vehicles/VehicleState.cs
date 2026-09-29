@@ -20,7 +20,7 @@ public readonly record struct VehicleState
     /// <param name="nitro">Complete temporary boost continuation.</param>
     /// <param name="powerSlip">Progressive rear wheelspin grip loss.</param>
     /// <param name="air">Complete airborne control continuation.</param>
-    /// <param name="crashSeconds">Settled bad-attitude duration for delayed recovery.</param>
+    /// <param name="crashSeconds">Supported slow-crash duration, decaying across brief contact gaps, for delayed recovery.</param>
     /// <param name="oilTicks">Remaining temporary oil handling duration.</param>
     public VehicleState(ulong tick, VehiclePhysicsState physics, bool grounded, bool drifting, float steeringAngle, float handbrake, SurfaceType currentSurface = SurfaceType.Concrete, float frontSlip = 0, float rearSlip = 0, float longitudinalAcceleration = 0, float lateralAcceleration = 0, float landingIntensity = 0, WheelSupport wheels = default, int oilTicks = 0, NitroState nitro = default, float powerSlip = 0, AirControlState air = default, float crashSeconds = 0)
     {

@@ -186,7 +186,7 @@ internal sealed class VehicleAuthorityTests
         SimulationState before = simulation.State;
         VehicleSnapshot first = simulation.GetVehicle(1);
         VehicleSnapshot second = simulation.GetVehicle(2);
-        var invalid = new VehicleSnapshot(2, 1, new VehicleState(0, second.Movement.Physics, true, true, 0.9f, 0), second.Damage, second.ObservedPhysics);
+        var invalid = new VehicleSnapshot(2, 1, new VehicleState(0, second.Movement.Physics, true, true, 1f, 0), second.Damage, second.ObservedPhysics);
         var changed = new VehicleSnapshot(1, 2, first.Movement, first.Damage, first.ObservedPhysics);
         Assert.Throws<ArgumentException>(() => simulation.Restore(new SimulationState(0, default, [changed, invalid])));
         Assert.That(simulation.State, Is.EqualTo(before));

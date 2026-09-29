@@ -128,6 +128,9 @@ public sealed partial class LandingIntegrationChecks : Node3D
         if (hit.Count == 0 || hit["collider"].AsGodotObject() is not Node terrain || !terrain.IsInGroup("landing_terrain")) { throw new InvalidOperationException("TS-75 landing terrain metadata missing."); }
         Vector3 point = hit["position"].AsVector3();
         Quaternion rotation = (new Quaternion(Vector3.Up, Mathf.DegToRad(yaw + _side * 90)) * new Quaternion(Vector3.Forward, Mathf.DegToRad(roll)) * new Quaternion(Vector3.Right, Mathf.DegToRad(pitch)));
+        // A level platform now admits a clean suspension landing without chassis impact.
+        // Make this explicitly a side-first obstacle crash instead of requiring bottom-out.
+        if (name == "obstacle") { rotation *= new Quaternion(Vector3.Forward, MathF.PI / 2); }
         if (name == "bank") { Vector3 normal = hit["normal"].AsVector3(); rotation = Basis.LookingAt(Vector3.Right.Slide(normal).Normalized(), normal).GetRotationQuaternion(); }
         Vector3 position = point + Vector3.Up * 8;
         Vector3 velocity = new(name is "yawed" or "spin" ? -_side * 8 : 0, -12, 0);

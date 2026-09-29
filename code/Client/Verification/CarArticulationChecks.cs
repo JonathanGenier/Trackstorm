@@ -108,6 +108,10 @@ public sealed partial class CarArticulationChecks : Node3D
             await Capture("night-headlights", new Vector3(4, 3, -7));
             environment.Apply(Trackstorm.Core.Development.EnvironmentPreset.ClearBlue);
             CarDeployment deployment = _model.GetChildren().OfType<CarDeployment>().Single();
+            // These mechanism cycles deliberately command deployment directly. Suspend the
+            // inventory presenter, whose empty-slot state otherwise commands it closed.
+            var rackPresentation = _model.GetChildren().OfType<CarRackPresentation>().Single();
+            rackPresentation.SetProcess(false);
             for (int cycle = 0; cycle < 3; cycle++)
             {
                 deployment.Deployed = true;
@@ -134,6 +138,7 @@ public sealed partial class CarArticulationChecks : Node3D
             deployment.Deployed = false;
             for (int i = 0; i < 110; i++) { await Step(); }
             Check(_model.GetNode<Node3D>("TrunkHinge_R").Rotation.IsZeroApprox(), "Mid-deployment reversal returns to closed pose.");
+            rackPresentation.SetProcess(true);
             for (int i = 0; i < 4; i++)
             {
                 Node3D wheel = _model.GetNode<Node3D>("WheelCarrier_" + names[i]);
