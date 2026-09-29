@@ -165,6 +165,11 @@ function Get-FastCheckPlan {
             Add-Runtime 'check-startup.ps1'
         }
 
+        if ($path -match 'BoostCamera|CameraSpeedStreaks|boost_camera|check-boost-camera' -or $path -eq 'code/Client/Vehicles/VehicleChaseCamera.cs') {
+            Add-Runtime 'check-boost-camera.ps1'
+            Add-Manual 'Inspect rendered Boost entry/sustain/exit, rapid reuse, steering/traffic, high speed without Boost and airborne camera readability with check-boost-camera.ps1 -Visual.'
+        }
+
         # Vehicles, simulation and camera.
         if ($path -match '^code/(Core|Client)/Vehicles/' -or $path -match 'EnvironmentCollision|environment_collision|check-environment-collision' -or $path -eq 'code/Client/Networking/NetworkVehicleBody.cs') {
             Add-Runtime 'check-environment-collisions.ps1'

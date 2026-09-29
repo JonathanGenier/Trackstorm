@@ -1,1 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="96" height="72" viewBox="0 0 96 72"><path fill="#ddd9cb" d="M35 5h26v8H35zm0 13h26l7 10v34H28V28z"/><path fill="#d66a25" d="M49 26 36 46h11l-2 15 16-23H50l5-12z"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="54" viewBox="0 0 160 54">
+  <g fill="#f3efdf">
+    <path d="M21 7h60l9 7v26l-9 7H21zM13 12h6v30h-6l-5-7V19zM93 14h9v26h-9z"/>
+    <path d="M106 14l46 8-46 2zM106 30l39 8-39 2z"/>
+  </g>
+  <path fill="#181b1c" d="M14 20h5v14h-5zM25 10h3v34h-3zM78 11h4v32h-4z"/>
+</svg>
