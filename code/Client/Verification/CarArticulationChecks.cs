@@ -12,7 +12,7 @@ public sealed partial class CarArticulationChecks : Node3D
     private Node3D _model = null!;
     private int _assertions;
     private readonly List<object> _trace = new();
-    private readonly string _output = "res://.godot/ts164-car";
+    private readonly string _output = "res://.godot/ts259-round8/car";
 
     public override void _Ready() => CallDeferred(MethodName.Run);
 
@@ -27,10 +27,51 @@ public sealed partial class CarArticulationChecks : Node3D
             AddChild(_camera);
             _camera.MakeCurrent();
             _model = _arena.Player.GetNode<Node3D>("WastelandVehicle");
+            string[] panels = ["BodyPanel_Hood", "BodyPanel_FrontFender_L", "BodyPanel_FrontFender_R",
+                "BodyPanel_Door_L", "BodyPanel_Door_R", "BodyPanel_RearQuarter_L", "BodyPanel_RearQuarter_R",
+                "TrunkHinge_L/TrunkLid_L", "TrunkHinge_R/TrunkLid_R"];
+            var panelMeshes = new HashSet<Mesh>();
+            foreach (string path in panels)
+            {
+                MeshInstance3D? panel = _model.GetNodeOrNull<MeshInstance3D>(path);
+                Check(panel?.Mesh is not null && panelMeshes.Add(panel.Mesh), path + " survives import as an independent physical panel.");
+            }
+            Check(Math.Abs(Math.Abs(_model.GetNode<Node3D>("WheelCarrier_FL").Position.Z - _model.GetNode<Node3D>("WheelCarrier_RL").Position.Z) - 3.351105f) < 0.001f, "Refined visual wheelbase is 3.351105 metres.");
+            MeshInstance3D cage = _model.GetNode<MeshInstance3D>("InternalCage_Car_WornSteel");
+            Aabb cageBounds = cage.GetAabb();
+            Check(cageBounds.End.Y < .90f && cageBounds.Position.X > -1.12f && cageBounds.End.X < 1.12f,
+                "Imported internal cage stays below the roof and inside the side-body envelope.");
+            foreach (string corner in new[] { "RL", "RR" })
+            {
+                foreach (string suffix in new[] { "Upper", "Upper2" })
+                {
+                    Vector3 mount = _model.GetNode<Node3D>($"SuspensionAnchor_{corner}_{suffix}").Position;
+                    Check(Math.Abs(mount.Y - .30f) < .001f && Math.Abs(Math.Abs(mount.X) - .88f) < .001f,
+                        corner + suffix + " retains the connected underdeck shock mount.");
+                }
+            }
             for (int i = 0; i < 150; i++) { await Step(); }
+            Vector3 frontTireSize = _model.GetNode<MeshInstance3D>("WheelCarrier_FL/WheelSpin_FL/WheelSpin_FL_Car_Rubber").GetAabb().Size;
+            foreach (string corner in new[] { "FL", "FR", "RL", "RR" })
+            {
+                Vector3 size = _model.GetNode<MeshInstance3D>($"WheelCarrier_{corner}/WheelSpin_{corner}/WheelSpin_{corner}_Car_Rubber").GetAabb().Size;
+                Check(Math.Abs(size.Y - frontTireSize.Y) < .0001f && Math.Abs(size.Z - frontTireSize.Z) < .0001f,
+                    corner + " has the same imported outside tire diameter as the front axle.");
+            }
             await Capture("front-closed", new Vector3(5, 2.9f, -6));
             await Capture("rear-closed", new Vector3(-5, 2.9f, 6));
+            await Capture("front", new Vector3(0, 1.2f, -6.4f));
+            await Capture("rear", new Vector3(0, 1.2f, 6.4f));
+            await Capture("left", new Vector3(-6.8f, .8f, 0));
+            await Capture("right", new Vector3(6.8f, .8f, 0));
+            await Capture("high-front", new Vector3(-4.5f, 4.8f, -5));
+            await Capture("high-rear", new Vector3(4.5f, 4.8f, 5));
+            await Capture("top-closed", new Vector3(0, 8, .01f));
+            VerifyIndependentSpeeds();
+            Check(Math.Abs(_model.GetNode<Node3D>("WeaponRack").Position.Z - 1.845f) < 0.001f, "Deployment preserves the authored rear-bay position.");
             await Capture("suspension-front", new Vector3(2.8f, -0.15f, -3.7f));
+            await Capture("suspension-rear", new Vector3(-2.8f, -.2f, 3.7f));
+            VerifySuspensionMounts();
             Check(_model.GetNode<Node3D>("WeaponRack").Position.Y < 0, "Rack rests inside the rear compartment.");
             string[] names = ["FL", "FR", "RL", "RR"];
             foreach (string corner in names)
@@ -49,7 +90,21 @@ public sealed partial class CarArticulationChecks : Node3D
             }
             Check(_arena.Player.State.CommandSpeed > 3, "Production physics still accelerates the integrated Car.");
             await Capture("driving-turn", new Vector3(4, 2.3f, -5));
-            for (int i = 0; i < 90; i++) { await Step(0, 0, ushort.MaxValue); }
+            VerifySuspensionMounts();
+            CarLighting lamps = _model.GetChildren().OfType<CarLighting>().Single();
+            for (int i = 0; i < 10; i++) { await Step(); }
+            Check(!lamps.Braking && !lamps.Reversing, "Forward coasting does not illuminate brake/reverse lamps.");
+            for (int i = 0; i < 8; i++) { await Step(0, 0, ushort.MaxValue); }
+            Check(lamps.Braking, "Actual brake input activates lamps while moving forward.");
+            await Capture("braking", new Vector3(-4, 2, 5));
+            for (int i = 0; i < 150; i++) { await Step(0, 0, ushort.MaxValue); }
+            Check(lamps.Reversing && !lamps.Braking, "Reverse travel lights white lamps without falsely reporting braking.");
+            await Capture("reversing", new Vector3(-4, 2, 5));
+            var environment = Descendants(_arena).OfType<Trackstorm.Client.Arenas.EnvironmentPresentation>().Single();
+            environment.Apply(Trackstorm.Core.Development.EnvironmentPreset.Night);
+            await Capture("night-reverse", new Vector3(-4, 2, 5));
+            await Capture("night-headlights", new Vector3(4, 3, -7));
+            environment.Apply(Trackstorm.Core.Development.EnvironmentPreset.ClearBlue);
             CarDeployment deployment = _model.GetChildren().OfType<CarDeployment>().Single();
             for (int cycle = 0; cycle < 3; cycle++)
             {
@@ -57,11 +112,11 @@ public sealed partial class CarArticulationChecks : Node3D
                 for (int i = 0; i < 110; i++)
                 {
                     await Step();
-                    if (cycle == 0 && i == 30) { await Capture("lids-opening", new Vector3(-4, 3.8f, 5)); }
-                    if (cycle == 0 && i == 65) { await Capture("rack-rising", new Vector3(-4, 3.8f, 5)); }
+                    if (cycle == 0 && i == 6) { await Capture("lids-opening", new Vector3(-4, 3.8f, 5)); }
+                    if (cycle == 0 && i == 22) { await Capture("rack-rising", new Vector3(-4, 3.8f, 5)); }
                 }
                 var rack = _model.GetNode<Node3D>("WeaponRack");
-                Check(Math.Abs(rack.Position.Y - 0.82f) < .002f, "Rack reaches deployed height.");
+                Check(Math.Abs(rack.Position.Y - 1.34f) < .002f, "Rack reaches deployed height.");
                 Check(Math.Abs(_model.GetNode<Node3D>("TrunkHinge_L").Rotation.Z) > 1.69f, "Lid clears rack before full lift.");
                 foreach (string mount in new[] { "WeaponMount_L_Front", "WeaponMount_R_Front", "WeaponMount_L_Rear", "WeaponMount_R_Rear" })
                 {
@@ -99,6 +154,7 @@ public sealed partial class CarArticulationChecks : Node3D
             }
             Check(maximum > .45f, "Native landing exercises substantial suspension compression.");
             Check(_arena.Player.State.Grounded, "Car settles after native drop and rebound.");
+            VerifySuspensionMounts();
             System.IO.File.WriteAllText(ProjectSettings.GlobalizePath(_output + "/trace.json"), System.Text.Json.JsonSerializer.Serialize(_trace));
             System.IO.File.WriteAllText(ProjectSettings.GlobalizePath(_output + "/results.txt"), $"PASS: {_assertions} native assertions. Actual acceleration, steering, four tire rotations, three complete deployment cycles and one reversal. Rendered captures when display is available.\n");
             GD.Print($"Car articulation passed: {_assertions} assertions.");
@@ -109,6 +165,66 @@ public sealed partial class CarArticulationChecks : Node3D
             GetTree().Quit();
         }
         catch (Exception exception) { GD.PushError(exception.ToString()); GetTree().Quit(1); }
+    }
+
+    private void VerifySuspensionMounts()
+    {
+        foreach (string corner in new[] { "FL", "FR", "RL", "RR" })
+        {
+            Node3D carrier = _model.GetNode<Node3D>("WheelCarrier_" + corner);
+            MeshInstance3D tire = carrier.GetNode<MeshInstance3D>($"WheelSpin_{corner}/WheelSpin_{corner}_Car_Rubber");
+            Aabb bounds = carrier.GlobalTransform.AffineInverse() * tire.GlobalTransform * tire.GetAabb();
+            Check(Math.Abs(bounds.Size.X - .526f) < .003f, "Tire width remains 0.526 metres at " + corner);
+            foreach (string suffix in new[] { "A", "B", "Upper", "Upper2" })
+            {
+                Node3D mount = carrier.GetNode<Node3D>($"WheelLinkMount_{corner}_{suffix}");
+                Check(Math.Abs(mount.Position.X) > .38f, "Suspension mount stays inboard of rubber at " + corner);
+                Node3D endPart = _model.GetNode<Node3D>(suffix is "A" or "B"
+                    ? $"SuspensionLink_{corner}_{suffix}"
+                    : (suffix == "Upper" ? "ShockRod_" : "ShockRod2_") + corner);
+                Vector3 end = endPart.GlobalTransform * new Vector3(0, .5f, 0);
+                Check(end.DistanceTo(mount.GlobalPosition) < .002f, "Articulated bar terminates on its hub bracket at " + corner + suffix);
+            }
+        }
+    }
+
+    private void VerifyIndependentSpeeds()
+    {
+        CarDeployment deployment = _model.GetChildren().OfType<CarDeployment>().Single();
+        var original = _arena.Player.Configuration;
+        deployment.SetProcess(false);
+        foreach (var speeds in new[] { (Trunk: 3f, Rack: 3f), (Trunk: 1f, Rack: 3f), (Trunk: 3f, Rack: 1f) })
+        {
+            _arena.Player.Configuration = original with { TrunkDeploymentSpeed = speeds.Trunk, RackDeploymentSpeed = speeds.Rack };
+            deployment.ResetPose();
+            deployment.Deployed = true;
+            int lidSteps = 0;
+            while (deployment.Progress < .45f - .00001f && lidSteps < 10000) { deployment._Process(.001); lidSteps++; }
+            Check(Math.Abs(lidSteps * .001f - .72f / speeds.Trunk) < .002f, "Independent trunk duration at " + speeds);
+            int rackSteps = 0;
+            while (deployment.Progress < 1 && rackSteps < 10000) { deployment._Process(.001); rackSteps++; }
+            Check(Math.Abs(rackSteps * .001f - .88f / speeds.Rack) < .002f, "Independent rack duration at " + speeds);
+            Node3D rack = _model.GetNode<Node3D>("WeaponRack");
+            float lampTop = Descendants(_model).OfType<MeshInstance3D>().Where(m => m.Name.ToString().StartsWith("RoofAuxLight", StringComparison.Ordinal))
+                .Max(m => (_model.GlobalTransform.AffineInverse() * m.GlobalTransform * m.GetAabb()).End.Y);
+            Check(rack.Position.Y > lampTop + .15f, "Deployed rack clears roof lenses with margin.");
+            deployment.Deployed = false;
+            deployment._Process(.88 / speeds.Rack);
+            Check(Math.Abs(deployment.Progress - .45f) < .0001f, "Rack retracts fully before trunk closing.");
+            deployment._Process(.72 / speeds.Trunk);
+            Check(deployment.Progress < .0001f, "Independent reverse travel closes fully.");
+        }
+        deployment.ResetPose();
+        deployment.Deployed = true;
+        deployment._Process(.12);
+        float before = deployment.Progress;
+        _arena.Player.Configuration = original with { TrunkDeploymentSpeed = 1 };
+        deployment.Deployed = false;
+        deployment._Process(.1);
+        Check(deployment.Progress > 0 && deployment.Progress < before, "Retuned mid-trunk reversal retains continuous pose.");
+        deployment.ResetPose();
+        _arena.Player.Configuration = original;
+        deployment.SetProcess(true);
     }
 
     private async Task Step(ushort throttle = 0, short steer = 0, ushort brake = 0)

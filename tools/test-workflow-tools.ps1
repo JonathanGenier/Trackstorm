@@ -14,6 +14,11 @@ function Assert-True {
 . "$PSScriptRoot/fast-check-routes.ps1"
 
 # Route-selection regression coverage.
+foreach ($path in @('code/Client/Vehicles/BoostExhaust.cs', 'assets/vehicles/boost/BoostJet.glb', 'assets/effects/BoostFlame.gdshader')) {
+    $boostPlan = Get-FastCheckPlan -Paths @($path)
+    Assert-True ($boostPlan.RuntimeScripts -contains 'check-boost-exhaust.ps1') 'Boost changes require rendered lifecycle verification.'
+    Assert-True ($boostPlan.RuntimeScripts -contains 'check-nitro.ps1') 'Boost changes require authoritative native peer integration.'
+}
 Assert-True ((Get-FastCheckPlan -Paths @('code/Client/Verification/EosIntegrationChecks.cs')).RuntimeScripts -contains 'check-eos.ps1') 'EOS harness changes must route native lifecycle verification and retain authenticated follow-up guidance.'
 Assert-True ((Get-FastCheckPlan -Paths @('code/TransportTests/NativeVehicleReplicationTests.cs')).ExtendedScripts -contains 'check-network-soak.ps1') 'Native impairment changes must identify opt-in sustained soak coverage.'
 Assert-True ((Get-FastCheckPlan -Paths @('code/Client/Verification/PostMatchIntegrationChecks.cs')).RuntimeScripts -contains 'check-post-match.ps1') 'Rematch harness changes must route native lifecycle verification.'

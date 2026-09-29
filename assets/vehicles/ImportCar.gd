@@ -30,5 +30,6 @@ func _bind(node, paint, armor, tire):
 				"Car_OxideRed": node.mesh.surface_set_material(i, paint)
 				"Car_WornSteel": node.mesh.surface_set_material(i, armor)
 				"Car_Rubber": node.mesh.surface_set_material(i, tire)
+				"Car_ArmoredGlass": node.mesh.surface_set_material(i, load("res://assets/vehicles/materials/CarGlass.tres"))
 	for child in node.get_children():
 		_bind(child, paint, armor, tire)

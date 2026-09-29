@@ -247,6 +247,11 @@ function Get-FastCheckPlan {
         if ($path -match '(?i)ProxyMine|check-mine|mine_checks') { Add-Runtime 'check-mine.ps1' }
 
         if ($path -match '(?i)Nitro') { Add-Runtime 'check-nitro.ps1' }
+        if ($path -match '(?i)BoostExhaust|boost_exhaust|check-boost-exhaust|BoostFlame|BoostThroat|assets/vehicles/boost/') {
+            Add-Runtime 'check-boost-exhaust.ps1'
+            Add-Runtime 'check-nitro.ps1'
+            Add-Manual 'Observe rear jet deployment, ignition, turbulent thrust, cutoff, residual smoke and multiple simultaneous Boost effects.'
+        }
 
         # Items and lifecycle.
         if ($path -match '(?i)PickupDrive|MovingPickup|pickup_drive|check-pickup-drive|ItemSpawnAuthority|HostVehicleSession|NetworkVehicleArena|VehicleNetworkDriver') {

@@ -1,0 +1,69 @@
+C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\vehicles\boost\source\BuildBoostJet.py:33: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*color,1); m.use_nodes=True
+Warning: No mesh data to join
+Warning: No mesh data to join
+Warning: No mesh data to join
+Warning: No mesh data to join
+Warning: No mesh data to join
+Info: Saved as "BoostJet.blend"
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+15:41:10 | INFO: Starting glTF 2.0 export
+15:41:10 | INFO: Extracting primitive: Cylinder.017
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: FeedLine
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: Cylinder.022
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: Cylinder.015
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: Cube.004
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: Cube.002
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: RoundedIntakeShell
+15:41:10 | INFO: Primitives created: 2
+15:41:10 | INFO: Extracting primitive: Cylinder
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: Cylinder.012
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: CompressorCasing
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: Cylinder.037
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: ArmoredCollar
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: Cylinder.055
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: CasingBand
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: InnerBarrel
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: BearingRing
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: Cylinder.071
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: Throat
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: Petal
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: FlameSurface
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: TwistedBlade
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: TwistedBlade.001
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: Cylinder.068
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: Cylinder.070
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: SlidingSleeve
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Extracting primitive: CoolingRing
+15:41:10 | INFO: Primitives created: 1
+15:41:10 | INFO: Finished glTF 2.0 export in 0.0892033576965332 s
+
+BOOST_AUTHORING_COMPLETE {"author": "Original Trackstorm project work", "tool": "5.2.2 LTS", "source": "source/BoostJet.blend", "export": "BoostJet.glb", "reference": "../source/TrackstormCar.blend", "reference_sha256": "be3c808a8d32fd995e2eab1cce24f5bf7139e3b686108b3b2a1d786985c0fbee", "concept": {"path": "reference/ApprovedBoosterConcept.png", "provenance": "User-approved built-in imagegen sketch supplied 2026-09-28; design reference only", "sha256": "14048133d7024f1d0159d8b684fff07b64601f9e26ba95f1ee5ac45e1d1679d6"}, "coordinates": "metres; Blender +Y forward/+Z up; Godot -Z forward/+Y up; export relative to WeaponRack", "deployment": {"sleeve_rearward_m": 0.14, "nozzle_rearward_m": 0.28, "outlet_stowed_rack_local_godot": [0, -0.46, 0.395], "outlet_deployed_rack_local_godot": [0, -0.46, 0.675]}, "no_car_geometry_exported": true, "sha256": {"BoostJet.glb": "a8534e44942c152c73ad92d47808c583daff4fccbabe5c79fc121b0c065cef5d", "BoostJet.blend": "0e4bf28ccf39c7e3e1995b2ac46a49b50c60ffb3a22cb0aba36770eca690b534"}}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit
