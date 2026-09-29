@@ -14,8 +14,4 @@ Typography uses a Godot `SystemFont` with installed Impact, Roboto Condensed and
 
 Tool: built-in `image_gen.imagegen`, reference-guided precise-object edit, `transparent_background=true`; no CLI/API fallback. Exact production prompt: [corner-assembly-prompt.txt](corner-assembly-prompt.txt). The source concept was generated in the same conversation from the original HUD and approved by the user on 2026-09-28. The production derivative deliberately removes all baked data and selection, retaining the approved armor silhouette. Fidelity is assessed through native captures, not an asserted numerical similarity score.
 
-## Retained legacy artwork
-
-`ItemAssembly.png` (2172x724) and `ItemAssembly.gdshader` are the previous TS-222 chassis and gauge mask. They are no longer used by the runtime assembly. Their original source, output checksum and provenance remain in `sources.json`. Health.png and Timer.png remain in active use; Speed.png and Item.png remain legacy recorded components.
-
-Active thrust uses a slot-local cyan underline; it clears on release without removing remaining fuel. Legacy generation prompt: [item-assembly-legacy.md](item-assembly-legacy.md).
+Health.png and Timer.png remain in active use, together with the health/timer branches of Component.gdshader. Active thrust uses a slot-local cyan underline; it clears on release without removing remaining fuel.
