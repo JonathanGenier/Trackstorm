@@ -1,0 +1,70 @@
+[
+  {
+    "Name": "boost-camera",
+    "Result": "PASS"
+  },
+  {
+    "Name": "boost-exhaust",
+    "Result": "PASS"
+  },
+  {
+    "Name": "nitro",
+    "Result": "PASS"
+  },
+  {
+    "Name": "nitro-impaired",
+    "Result": "FAIL",
+    "Reason": "Nitro integration failed."
+  },
+  {
+    "Name": "camera",
+    "Result": "PASS"
+  },
+  {
+    "Name": "camera-shake",
+    "Result": "PASS"
+  },
+  {
+    "Name": "camera-obstruction",
+    "Result": "PASS"
+  },
+  {
+    "Name": "camera-obstruction-drive",
+    "Result": "FAIL",
+    "Reason": "Camera obstruction checks failed: C:\\Users\\j_gen\\Documents\\Game Projects\\Trackstorm\\.godot\\camera-obstruction-checks\\261afd031d90413e8e780820380912fc"
+  },
+  {
+    "Name": "car-rack",
+    "Result": "FAIL",
+    "Reason": "Car rack verification failed."
+  },
+  {
+    "Name": "network-vehicles",
+    "Result": "PASS"
+  },
+  {
+    "Name": "startup",
+    "Result": "PASS"
+  },
+  {
+    "Name": "environment-collisions",
+    "Result": "PASS"
+  },
+  {
+    "Name": "landing",
+    "Result": "PASS"
+  },
+  {
+    "Name": "terrain-handling",
+    "Result": "PASS"
+  },
+  {
+    "Name": "vehicle",
+    "Result": "FAIL",
+    "Reason": "Vehicle checks failed at 30 render FPS."
+  },
+  {
+    "Name": "environment-collision-network",
+    "Result": "PASS"
+  }
+]

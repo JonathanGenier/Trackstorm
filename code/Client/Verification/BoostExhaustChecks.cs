@@ -117,6 +117,7 @@ public sealed partial class BoostExhaustChecks : Node3D
                     var exhaust = FindExhaust(car);
                     if (exhaust.FlameVisible || exhaust.SmokeEmitting || exhaust.Deployment != 0) { throw new InvalidOperationException("Cutoff/new-life left active exhaust."); }
                 }
+                CheckSlowFrameCutoff();
                 _frameTimes.Sort();
                 GD.Print($"Boost VFX checks passed: repeated release/reignite, 1/8/32 production network visuals, new life; 32-car frame p95={_frameTimes[(int)(_frameTimes.Count * .95)]:0.00} ms (60 FPS cap). Render captures in .godot/ts225-vfx.");
                 if (OS.GetCmdlineUserArgs().Contains("--boost-loop")) { _time = 0; _capture = 0; _frameTimes.Clear(); _reseeded = false; _releaseEnergy = 1; _lastClipTime = 0; }
@@ -124,6 +125,37 @@ public sealed partial class BoostExhaustChecks : Node3D
             }
         }
         catch (Exception exception) { GD.PushError(exception.ToString()); GetTree().Quit(1); }
+    }
+
+    private void CheckSlowFrameCutoff()
+    {
+        // Exercise real production nodes with an elapsed-time hitch, not a simulated
+        // smaller frame delta. Both normal and confirmed-depletion tails must expire.
+        var car = _cars[0];
+        var physics = new VehiclePhysicsState(N.Vector3.Zero, N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
+        var damage = new VehicleDamageState(1000, 1000, null, null);
+        var active = new VehicleSnapshot(1, 3, new VehicleState(1, physics, true, false, 0, 0,
+            nitro: new NitroState(60, 18000, 1.4f, 1)), damage, physics);
+        var idle = new VehicleSnapshot(1, 3, new VehicleState(2, physics, true, false, 0, 0), damage, physics);
+        var exhaust = FindExhaust(car);
+        foreach (bool depletion in new[] { false, true })
+        {
+            car.Apply(active);
+            exhaust.Visible = true;
+            exhaust._Process(0);
+            exhaust.Deploy = true;
+            for (int i = 0; i < 60; i++) { exhaust._Process(1.0 / 60); }
+            if (!exhaust.FlameVisible) { throw new InvalidOperationException("Slow-frame fixture did not ignite."); }
+            car.Apply(idle);
+            if (depletion) { exhaust.Exhausted(); }
+            exhaust._Process(1.0 / 60);
+            if (!exhaust.FlameVisible) { throw new InvalidOperationException("Slow-frame fixture missed shutdown tail."); }
+            exhaust._Process(.7);
+            if (exhaust.FlameVisible || exhaust.SmokeEmitting || exhaust.SparksEmitting || exhaust.DepletionBurst)
+            { throw new InvalidOperationException("Elapsed-time hitch prolonged Boost combustion after shutdown."); }
+            exhaust.Reset();
+        }
+        GD.Print("Boost slow-frame cutoff passed: release and depletion expire across a 700 ms rendering hitch.");
     }
 
     public override void _UnhandledKeyInput(InputEvent @event)

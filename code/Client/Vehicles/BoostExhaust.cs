@@ -103,7 +103,9 @@ internal sealed partial class BoostExhaust : Node3D
         _life = state?.LifeId ?? 0;
         _participating = participating;
         bool active = participating && state!.Movement.Nitro.Active;
-        float dt = Math.Min((float)delta, .1f);
+        // Presentation deadlines use elapsed time, like the chase camera. Capping delta
+        // stretches release/depletion tails during slow frames and leaves stale thrust VFX.
+        float dt = Math.Max((float)delta, 0);
         bool ready = participating && Deploy;
         // Keep the outlet clear of the bay until the last combustion has finished.
         bool finishing = _burning || _tailTime > 0 || _depletionPending;

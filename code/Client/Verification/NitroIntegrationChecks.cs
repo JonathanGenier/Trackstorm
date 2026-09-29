@@ -34,6 +34,8 @@ public sealed partial class NitroIntegrationChecks : Node
     private readonly List<string> _evidence = new();
     private readonly HashSet<Vehicles.BoostExhaust> _releaseTails = new();
     private readonly HashSet<Vehicles.BoostExhaust> _depletionBursts = new();
+    private readonly Dictionary<Vehicles.BoostExhaust, double> _inactiveSeconds = new();
+    private readonly HashSet<Vehicles.BoostExhaust> _terminalActive = new();
 
     public override void _Ready()
     {
@@ -71,10 +73,8 @@ public sealed partial class NitroIntegrationChecks : Node
         bank.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(120, 1, 5000) } });
         bank.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(120, 1, 5000) }, MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.32f, 0.34f, 0.36f) } });
         arena.AddChild(bank);
-        var camera = new Camera3D { Name = "NitroCamera", Position = new Vector3(15, 35, 23) };
-        arena.AddChild(camera);
-        camera.LookAt(new Vector3(0, 20, 2));
-        camera.MakeCurrent();
+        // Keep the production local chase camera current so this fixture exercises
+        // exhaust, wind wisps and FOV together on both independently owned peer views.
         _arenas.Add(arena);
     }
 
@@ -93,8 +93,24 @@ public sealed partial class NitroIntegrationChecks : Node
                 Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure);
             }
             Check(_frames - _boundary < 1800, $"Nitro stage {_stage} timeout");
-            foreach (var exhaust in _arenas.SelectMany(a => a.Bodies.Values).Select(b => b.Rack.Boost))
+            foreach (var arena in _arenas)
+            foreach (var pair in arena.Bodies)
             {
+                var exhaust = pair.Value.Rack.Boost;
+                var accepted = arena.Driver.Latest?.Vehicles.SingleOrDefault(v => v.State.VehicleId == pair.Key)?.State;
+                // The unreliable inactive movement and reliable confirmed depletion
+                // can arrive separately. Give a newly confirmed terminal cue its own
+                // bounded .60-second tail, but never refresh the clock while it stays on.
+                _inactiveSeconds.TryGetValue(exhaust, out double inactive);
+                inactive = accepted is { CanInteract: true, Movement.Nitro.Active: true } ? 0 : inactive + delta;
+                if (exhaust.DepletionBurst && _terminalActive.Add(exhaust)) { inactive = 0; }
+                if (!exhaust.DepletionBurst) { _terminalActive.Remove(exhaust); }
+                _inactiveSeconds[exhaust] = inactive;
+                if (inactive > .75)
+                {
+                    Check(!exhaust.FlameVisible && !exhaust.SmokeEmitting && !exhaust.SparksEmitting,
+                        $"Boost emission stuck after {inactive:F3}s of inactive peer state");
+                }
                 if (_stage is 4 or 7 && exhaust.FlameEnergy is > .01f and < .95f)
                 {
                     Check(!exhaust.DepletionBurst, "ordinary release does not report exhaustion");
@@ -103,13 +119,6 @@ public sealed partial class NitroIntegrationChecks : Node
                 if (_stage is 8 or 9 && exhaust.DepletionBurst) { _depletionBursts.Add(exhaust); }
             }
             var host = _arenas[0].Driver.Host!;
-            if (host.World.State.Vehicles.Count > 0)
-            {
-                var position = Vehicles.VehicleBody.ToGodot(host.World.GetVehicle(1).Movement.Physics.Position);
-                var camera = _arenas[0].GetNode<Camera3D>("NitroCamera");
-                camera.Position = position + new Vector3(9, 6, 13);
-                camera.LookAt(position);
-            }
             switch (_stage)
             {
                 case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2):
@@ -150,6 +159,7 @@ public sealed partial class NitroIntegrationChecks : Node
                     Next("Both peers sustain Nitro; charge drains while Wrench remains in the second slot.");
                     break;
                 case 3 when _frames - _boundary > 180:
+                    CheckCameras(true);
                     _releaseSpeed = host.World.GetVehicle(1).Speed;
                     Check(_releaseSpeed > _baseline * 1.2f, $"boosted speed {_releaseSpeed}");
                     Check(_arenas[1].Driver.LocalState!.Speed > _baseline * 1.2f, "remote boost motion");
@@ -172,6 +182,7 @@ public sealed partial class NitroIntegrationChecks : Node
                     Next($"Release recovery remains at {recovering:0.00} m/s with continuing authoritative overspeed awards.");
                     break;
                 case 5 when _frames - _boundary > 360:
+                    CheckCameras(false);
                     Check(host.World.State.Vehicles.All(v => v.Speed <= host.Configuration.Configuration.Vehicle.ForwardSpeed + 0.01f), "recovery reaches normal speed");
                     Check(host.Items.Slots.Select(s => s.NitroCharge).SequenceEqual(_charges), "idle charge retained on both peers");
                     Check(!host.World.State.Match!.Awards.Any(a => a.Category == Core.Matches.CircusScoreCategory.Nitro), "no Nitro scoring at normal speed");
@@ -185,7 +196,9 @@ public sealed partial class NitroIntegrationChecks : Node
                     _held = false;
                     Next("Second activation drains the same grant tokens, followed by another release.");
                     break;
-                case 7 when _frames - _boundary > 30:
+                // Allow publication/input transit plus the accepted .45-second tail;
+                // the per-view timer above independently bounds the actual VFX lifetime.
+                case 7 when _frames - _boundary > 60:
                     Check(host.World.State.Vehicles.All(v => !v.Movement.Nitro.Active), "second release");
                     CheckExhaust(false);
                     UseBoth();
@@ -197,6 +210,7 @@ public sealed partial class NitroIntegrationChecks : Node
                     Next("Both Nitro resources reach zero and clear only their physical slots.");
                     break;
                 case 9 when _frames - _boundary > 60:
+                    CheckCameras(false, .025f);
                     CheckExhaust(false);
                     Check(_releaseTails.Count == 4, "both vehicles wind down on both peer views");
                     Check(_depletionBursts.Count == 4, "both vehicles signal confirmed exhaustion on both peer views");
@@ -313,6 +327,19 @@ public sealed partial class NitroIntegrationChecks : Node
             }
         }
         _evidence.Add($"Boost VFX {(active ? "activation" : "cutoff")} observed in native peer presentation state.");
+    }
+
+    private void CheckCameras(bool active, float cutoff = .005f)
+    {
+        foreach (var arena in _arenas)
+        {
+            var camera = arena.GetNode<Vehicles.VehicleChaseCamera>("ChaseCamera");
+            Check(camera.Current && camera.GlobalTransform.IsFinite(), "each peer owns a finite current chase camera");
+            Check(camera.Fov is >= 65 and <= 73.01f, "peer camera remains within presentation bounds");
+            Check(active ? camera.BoostMotion.PullBack > .5f : camera.BoostMotion.PullBack < cutoff,
+                active ? "both local peer cameras respond to sustained Boost" : "release/depletion returns both peer cameras toward normal despite overspeed");
+        }
+        _evidence.Add($"Integrated peer camera {(active ? "sustain" : "cutoff")} verified alongside authoritative Nitro and exhaust.");
     }
 
     private void Next(string text) { _evidence.Add(text); GD.Print(text); _stage++; _boundary = _frames; }

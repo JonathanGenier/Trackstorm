@@ -21,12 +21,19 @@ public sealed partial class BoostCameraPlaytest : Node3D
     private int _groundFrames;
     private int _airFrames;
     private string _output = "";
-    private static readonly string[] Names = ["enter-sustain-exit", "repeated-use", "steering-traffic", "high-speed-no-boost", "airborne-boost"];
+    private readonly List<BoostExhaust> _exhausts = new();
+    private int _simultaneousFrames;
+    private int _shortPulseFrames;
+    private bool _interactive;
+    private bool _manualBoost;
+    private short _manualSteer;
+    private static readonly string[] Names = ["enter-sustain-exit", "repeated-use", "steering-traffic", "high-speed-no-boost", "airborne-boost", "short-cancelled-pulses", "simultaneous-boost"];
 
     public override void _Ready()
     {
         Engine.MaxFps = 60;
-        _output = ProjectSettings.GlobalizePath("res://.godot/ts-226/playtest");
+        _interactive = OS.GetCmdlineUserArgs().Contains("--boost-interactive");
+        _output = ProjectSettings.GlobalizePath("res://.godot/ts-227/playtest");
         System.IO.Directory.CreateDirectory(_output);
         AddChild(Arenas.ActiveMap.Load());
         AddChild(new Arenas.EnvironmentPresentation());
@@ -37,6 +44,7 @@ public sealed partial class BoostCameraPlaytest : Node3D
             _world.AddVehicle((ulong)i + 1, new(), damage, Pose(i, false, 0));
             var body = new VehicleBody { VehicleId = (ulong)i + 1, DamageConfiguration = damage };
             body.Initialize(_world); AddChild(body); _cars.Add(body);
+            _exhausts.Add(body.FindChildren("*", "", true, false).OfType<BoostExhaust>().Single());
         }
         _camera = new VehicleChaseCamera { Current = true, Fov = 65, Far = 1500 };
         AddChild(_camera);
@@ -60,19 +68,22 @@ public sealed partial class BoostCameraPlaytest : Node3D
             int phase = _frame / 360;
             int frame = _frame % 360;
             if (phase >= Names.Length) { Finish(); return; }
-            bool active = phase switch { 0 => frame is >= 60 and < 240, 1 => frame >= 30 && frame < 270 && frame % 60 < 35,
-                2 => frame is >= 30 and < 240, 4 => frame is >= 30 and < 180, _ => false };
+            bool active = _interactive ? _manualBoost : phase switch { 0 => frame is >= 60 and < 240,
+                1 => frame is >= 30 and < 270 && (frame < 120 || frame % 48 < 40),
+                2 => frame is >= 30 and < 240, 4 => frame is >= 30 and < 180,
+                5 => frame is >= 60 and < 240 && frame % 24 < 8, 6 => frame is >= 60 and < 240, _ => false };
             if (frame == 0)
             {
-                for (int i = 0; i < _cars.Count; i++) { _cars[i].ResetBody(Pose(i, phase == 4, i == 0 ? phase == 3 ? 58 : 24 : 8)); }
+                for (int i = 0; i < _cars.Count; i++) { _cars[i].ResetBody(Pose(i, phase == 4, i == 0 || phase == 6 ? phase == 3 ? 58 : 24 : 8)); }
             }
             var requests = new List<VehicleStepRequest>();
             for (int i = 0; i < _cars.Count; i++)
             {
-                short steer = i == 0 && phase == 2 ? (short)(Math.Sin(frame / 70f) * 6500) : (short)0;
-                var input = new InputFrame(_world.State.Tick + 1, steer, phase == 4 ? (ushort)0 : ushort.MaxValue, 0, i == 0 && active ? InputButtons.UseItem : 0, 0, 0);
+                short steer = i == 0 && _interactive ? _manualSteer : i == 0 && phase == 2 ? (short)(Math.Sin(frame / 70f) * 6500) : (short)0;
+                bool boosting = active && (i == 0 || phase == 6);
+                var input = new InputFrame(_world.State.Tick + 1, steer, phase == 4 ? (ushort)0 : ushort.MaxValue, 0, boosting ? InputButtons.UseItem : 0, 0, 0);
                 var r = _cars[i].Capture(input);
-                requests.Add(new(r.VehicleId, r.Input, r.Observation, r.Effects, r.Reset, nitro: i == 0 && active ? new(2, 18000, 1.4f, 1) : default));
+                requests.Add(new(r.VehicleId, r.Input, r.Observation, r.Effects, r.Reset, nitro: boosting ? new(2, 18000, 1.4f, 1) : default));
             }
             var result = _world.Step(requests[0].Input, requests);
             for (int i = 0; i < _cars.Count; i++)
@@ -83,6 +94,7 @@ public sealed partial class BoostCameraPlaytest : Node3D
                     new Core.Items.ItemSlot((ulong)i + 1, _cars[i].Snapshot.LifeId, (ulong)i + 1, Core.Items.HeldItem.Nitro), []);
             }
             _frame++;
+            if (_interactive && _frame >= 359) { _frame = 1; }
         }
         catch (Exception ex) { GD.PushError(ex.ToString()); _done = true; GetTree().Quit(1); }
     }
@@ -95,14 +107,48 @@ public sealed partial class BoostCameraPlaytest : Node3D
         if (state.Movement.Grounded) { _groundFrames++; } else { _airFrames++; }
         _camera.Follow(_cars[0].GetGlobalTransformInterpolated(), state, (float)delta, _cars[0].GetRid());
         int phase = Math.Min(Names.Length - 1, (_frame - 1) / 360);
-        _label.Text = $"TS-226 | {Names[phase]} | {state.Speed * 3.6f:F0} km/h | Boost {state.Movement.Nitro.Active} | FOV {_camera.Fov:F1}";
+        _label.Text = $"TS-227 | {(_interactive ? "Interactive: Space Boost toggle, A/D steer, S center, R reset, Esc exit" : Names[phase])}\n{state.Speed * 3.6f:F0} km/h | Boost {state.Movement.Nitro.Active} | FOV {_camera.Fov:F1}";
         _trace.Add(new { frame = _frame, phase = Names[phase], speed = state.Speed, active = state.Movement.Nitro.Active,
             grounded = state.Movement.Grounded, fov = _camera.Fov, pullback = _camera.BoostMotion.PullBack,
-            streaks = _camera.BoostMotion.StreakStrength, hp = state.Damage.CurrentHP });
+            streaks = _camera.BoostMotion.StreakStrength, flame = _exhausts[0].FlameEnergy,
+            smoke = _exhausts[0].SmokeEmitting, hp = state.Damage.CurrentHP,
+            camera = new[] { _camera.GlobalPosition.X, _camera.GlobalPosition.Y, _camera.GlobalPosition.Z },
+            position = new[] { _cars[0].GlobalPosition.X, _cars[0].GlobalPosition.Y, _cars[0].GlobalPosition.Z },
+            up = new[] { _cars[0].GlobalBasis.Y.X, _cars[0].GlobalBasis.Y.Y, _cars[0].GlobalBasis.Y.Z } });
+        int localFrame = (_frame - 1) % 360;
+        if (!_interactive)
+        {
+            if (phase == 5 && localFrame > 60)
+            {
+                if (_exhausts[0].FlameVisible) { Fail("Cancelled short primes ignited a delayed flame."); return; }
+                if (state.Movement.Nitro.Active) { _shortPulseFrames++; }
+            }
+            if (phase == 6 && localFrame is > 120 and < 230 && _exhausts.All(e => e.FlameVisible)) { _simultaneousFrames++; }
+            // The repeated-use phase releases at frame 270: at least one second
+            // permits <2 cm of the deliberately exponential camera recovery.
+            if (localFrame > 330 && (_exhausts.Any(e => e.FlameVisible || e.SmokeEmitting || e.SparksEmitting) || _camera.BoostMotion.PullBack > .02f))
+            { Fail($"Integrated cutoff failed in {Names[phase]} frame {localFrame}: pull-back {_camera.BoostMotion.PullBack}, flame {_exhausts[0].FlameEnergy}."); return; }
+        }
         if (!float.IsFinite(_camera.Fov) || _camera.Fov < 65 || _camera.Fov > 73.01f || !_camera.GlobalTransform.IsFinite())
         { GD.PushError("Boost camera escaped finite presentation bounds."); _done = true; GetTree().Quit(1); }
         if (OS.GetCmdlineUserArgs().Contains("--boost-camera-captures") && _frame % 15 == 0) { Capture(_frame); }
     }
+
+    public override void _UnhandledKeyInput(InputEvent @event)
+    {
+        if (!_interactive || @event is not InputEventKey { Pressed: true, Echo: false } key) { return; }
+        switch (key.Keycode)
+        {
+            case Key.Space: _manualBoost = !_manualBoost; break;
+            case Key.A: _manualSteer = -6500; break;
+            case Key.D: _manualSteer = 6500; break;
+            case Key.S: _manualSteer = 0; break;
+            case Key.R: _frame = 0; _manualBoost = false; _manualSteer = 0; _camera.ResetFollow(); break;
+            case Key.Escape: GetTree().Quit(); break;
+        }
+    }
+
+    private void Fail(string message) { GD.PushError(message); _done = true; GetTree().Quit(1); }
 
     private async void Capture(int frame)
     {
@@ -115,7 +161,7 @@ public sealed partial class BoostCameraPlaytest : Node3D
     {
         _done = true;
         System.IO.File.WriteAllText(System.IO.Path.Combine(_output, "trace.json"), JsonSerializer.Serialize(_trace));
-        if (_boostFrames < 300 || _groundFrames < 300 || _airFrames < 30)
+        if (_boostFrames < 300 || _groundFrames < 300 || _airFrames < 30 || _simultaneousFrames < 60 || _shortPulseFrames < 40)
         { GD.PushError($"Fixture coverage missing: Boost {_boostFrames}, grounded {_groundFrames}, air {_airFrames}"); GetTree().Quit(1); return; }
         var actual = _cars[0].Snapshot;
         var active = new VehicleSnapshot(actual.VehicleId, actual.LifeId, actual.Movement with { Nitro = new(60, 18000, 1.4f, 1) }, actual.Damage, actual.ObservedPhysics);
@@ -126,7 +172,7 @@ public sealed partial class BoostCameraPlaytest : Node3D
         _camera.Follow(pose, active, 1f / 60, _cars[0].GetRid());
         if (_camera.Fov != 65 || _camera.BoostMotion.PullBack != 0) { throw new InvalidOperationException("Reseed retained historical Boost camera state."); }
         if (_cars[0].Snapshot != actual) { throw new InvalidOperationException("Camera changed authoritative vehicle state."); }
-        GD.Print($"Boost camera playtest passed: native entry/sustain/exit, repeated use, steering with three bodies, unboosted speed, airborne launch; bounded camera output, active reseed, unchanged vehicle snapshot. Boost frames {_boostFrames}, grounded {_groundFrames}, airborne {_airFrames}. Visual quality requires observation.");
+        GD.Print($"Boost camera playtest passed: native entry/sustain/exit, rapid re-engagement, cancelled short primes, three simultaneously boosting bodies, steering, unboosted speed, airborne launch; integrated cutoff, bounded camera, active reseed, unchanged snapshot. Boost frames {_boostFrames}, grounded {_groundFrames}, airborne {_airFrames}, simultaneous flame {_simultaneousFrames}, short pulse {_shortPulseFrames}. Visual quality requires observation.");
         GetTree().Quit();
     }
 }
