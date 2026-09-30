@@ -44,7 +44,8 @@ internal sealed partial class CarRackPresentation : Node
             _life = life;
         }
         if (!alive) { return; }
-        _mineReturning |= _placement is not null && placement is null;
+        // A newly accepted placement supersedes an unfinished empty-arm return.
+        _mineReturning = placement is null && (_mineReturning || _placement is not null);
         _placement = placement;
         if (_payload is Items.ProxyMineRack arm) { arm.Observe(placement); }
         if (inventory?.Life != life) { inventory = null; }
@@ -145,7 +146,7 @@ internal sealed partial class CarRackPresentation : Node
                 mine.ShowStored = _previous?.Active.Item == HeldItem.ProxyMine;
                 _payload.Position = Vector3.Zero;
                 _payload.Visible = _mechanism.Progress > .92f;
-                if (_mineReturning && !mine.Returning)
+                if (_placement is null && _mineReturning && !mine.Returning)
                 {
                     _mineReturning = false;
                     _desired = _previous?.Active.Item ?? HeldItem.None;

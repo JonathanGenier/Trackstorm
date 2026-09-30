@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using Godot;
+using Trackstorm.Client.Items;
 using Trackstorm.Client.Networking;
 using Trackstorm.Client.Vehicles;
 using Trackstorm.Core.Input;
@@ -60,6 +61,75 @@ public sealed partial class CarRackChecks : Node
             Position(1000, false);
             _arenas[1].Driver.ItemsReceived += p => _events.AddRange(p.Events.Where(e => e.Owner == Shooter));
             await Frames(90);
+            if (OS.GetCmdlineUserArgs().Contains("--consecutive-mines"))
+            {
+                host.Items.RemovePlayer(Shooter);
+                await Frames(130);
+                Position(1000, false, new N.Vector3(100, 21.65f, 35));
+                await Frames(20);
+                Check(host.Items.Grant(host.World, Shooter, HeldItem.ProxyMine), "First consecutive mine granted");
+                Check(host.Items.Grant(host.World, Shooter, HeldItem.ProxyMine), "Second consecutive mine granted");
+                await Until(() => AllPresent(HeldItem.ProxyMine), "First mine mounted on both peers");
+                Check(_arenas[1].Driver.RequestItemUse(), "First consecutive mine used");
+                await Until(() => host.Items.Mines.Any(m => m.Owner == Shooter && m.IsPlacing), "First mine placement starts");
+                ulong firstMine = host.Items.Mines.Single(m => m.Owner == Shooter && m.IsPlacing).Id;
+                await Until(() => host.Items.Mines.Any(m => m.Id == firstMine && !m.IsPlacing), "First mine releases");
+                Position(1000, false, new N.Vector3(150, 21.65f, 35));
+                ProxyMineRack[] arms = _arenas.Select(a => a.Bodies[Shooter].Rack.GetParent<Node3D>()
+                    .GetNode<Node3D>("WeaponRack").GetChildren().OfType<ProxyMineRack>().Single()).ToArray();
+                await Until(() => arms.All(arm => arm.Returning), "Empty arms begin returning on both peers");
+                Check(_arenas[1].Driver.RequestItemSwitch(), "Select second mine during empty return");
+                await Until(() => _arenas[1].Driver.LocalItem?.Active.Item == HeldItem.ProxyMine, "Second mine selected");
+                Check(arms.All(arm => arm.Returning), "Previous empty return remains unfinished at second use");
+                Check(_arenas[1].Driver.RequestItemUse(), "Second consecutive mine used");
+                await Until(() => host.Items.Mines.Any(m => m.Owner == Shooter && m.Id != firstMine && m.IsPlacing), "Second authoritative placement starts");
+                ulong secondMine = host.Items.Mines.Single(m => m.Owner == Shooter && m.Id != firstMine && m.IsPlacing).Id;
+                await Until(() => _arenas.All(a => a.Driver.ItemState?.Mines.Any(m => m.Id == secondMine && m.IsPlacing) == true),
+                    "Both peers receive second placement");
+                foreach (var arena in _arenas)
+                {
+                    var rack = arena.Bodies[Shooter].Rack;
+                    // Two process steps without another publication reproduce the reviewed gap.
+                    rack._Process(0);
+                    rack._Process(0);
+                    Check(rack.GetParent<Node3D>().GetChildren().OfType<CarDeployment>().Single().Deployed,
+                        "Second placement keeps the rack requested through a publication gap");
+                }
+                int activeFrames = 0;
+                int[] observedFrames = new int[_arenas.Count];
+                while (host.Items.Mines.Any(m => m.Id == secondMine && m.IsPlacing) && activeFrames < 90)
+                {
+                    await Frames(1);
+                    for (int peer = 0; peer < _arenas.Count; peer++)
+                    {
+                        var arena = _arenas[peer];
+                        if (arena.Driver.ItemState?.Mines.Any(m => m.Id == secondMine && m.IsPlacing) != true) { continue; }
+                        var rack = arena.Bodies[Shooter].Rack;
+                        if (rack.PresentedItem != HeldItem.ProxyMine || rack.Progress < .999f ||
+                            !arms[peer].GetChildren().OfType<ProxyMineVisual>().Single().Visible)
+                        {
+                            throw new InvalidOperationException($"Second active mine left the rack on peer {peer} at placement frame {activeFrames}");
+                        }
+                        observedFrames[peer]++;
+                    }
+                    activeFrames++;
+                    if (activeFrames == 30) { await Capture("second-mine-active"); }
+                }
+                Check(observedFrames.All(frames => frames >= 40), "Second mine stays mounted and visible through placement on both peers");
+                var secondState = host.Items.Mines.SingleOrDefault(m => m.Id == secondMine);
+                Check(activeFrames >= 45 && secondState is { IsPlacing: false },
+                    $"Second mine completes its full authoritative placement (frames {activeFrames}, ticks {secondState?.PlacementTicks}, car {host.World.GetVehicle(Shooter).Movement.Physics.Position})");
+                await Until(() => _arenas.All(a => a.Bodies[Shooter].Rack.Progress == 0),
+                    "Rack returns and stows after second release");
+                System.IO.File.WriteAllLines(ProjectSettings.GlobalizePath(_output + "/consecutive-mine-evidence.txt"), _evidence);
+                GD.Print($"Car rack consecutive mine passed: {_checks} checks on two UDP peers.");
+                foreach (var arena in _arenas) { arena.QueueFree(); }
+                foreach (var view in _views) { view.QueueFree(); }
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                GetTree().Quit();
+                return;
+            }
             foreach (ItemDefinition item in ItemRegistry.All)
             {
                 host.Items.RemovePlayer(Shooter);
@@ -189,6 +259,7 @@ public sealed partial class CarRackChecks : Node
             System.IO.File.WriteAllLines(ProjectSettings.GlobalizePath(_output + "/rack-evidence.txt"), _evidence);
             GD.Print($"Car rack integration passed: {_checks} checks; seven items, switching/use, duplicates, lifecycle and two UDP peers.");
             foreach (var arena in _arenas) { arena.QueueFree(); }
+            foreach (var view in _views) { view.QueueFree(); }
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             GetTree().Quit();
