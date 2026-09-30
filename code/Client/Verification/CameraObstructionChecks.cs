@@ -29,7 +29,7 @@ public sealed partial class CameraObstructionChecks : Node3D
     private float _maxCorrection;
     private string _output = string.Empty;
     private bool _baseline;
-    private static readonly string[] Names = ["Wall approach / hold", "Wall clears / recovery", "Thin barrier / low orbit", "Building corner orbit", "Moving solid prop", "Sloped terrain", "Repeated boundary crossings", "Shake beside wall", "Life reset", "Replacement reset", "Resume reset", "Scene reconstruction", "Production yard wall", "Production container", "Production barrier", "Production oval bank", "Overlapping target recovery", "Wide near plane", "Cramped ceiling"];
+    private static readonly string[] Names = ["Wall approach / hold", "Wall clears / recovery", "Thin barrier / low orbit", "Building corner orbit", "Moving solid prop", "Sloped terrain", "Repeated boundary crossings", "Shake beside wall", "Life reset", "Replacement reset", "Resume reset", "Scene reconstruction", "Production yard wall", "Production container", "Production barrier", "Production oval bank", "Overlapping target recovery", "Wide near plane", "Cramped ceiling", "Rolled chassis beside fence", "Rollover framing recovery", "Rolled chassis blocked left side", "Rollover framing reset"];
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -122,7 +122,9 @@ public sealed partial class CameraObstructionChecks : Node3D
                 if (_phase == 15 && time > 1 && time < 2) Send(new InputEventMouseMotion { ScreenRelative = new Vector2(150 * dt, 0) });
             }
             if (_phase == 16) position.Y = -0.45f;
-            var pose = new Transform3D(Basis.Identity, position);
+            if (_phase >= 19) position.Y = 3;
+            if (_phase is 20 or 22) position.Z = -20;
+            var pose = new Transform3D(_phase >= 19 ? Basis.FromEuler(new Vector3(0, 0, 1.4f)) : Basis.Identity, position);
             _car.GlobalTransform = pose;
             _followedBody.GlobalTransform = pose;
             _camera.Follow(pose, _state, dt, _followedBody.GetRid());
@@ -136,6 +138,20 @@ public sealed partial class CameraObstructionChecks : Node3D
             using var sphere = new SphereShape3D { Radius = 0.20f };
             using var query = new PhysicsShapeQueryParameters3D { Shape = sphere, Transform = new Transform3D(Basis.Identity, _camera.GlobalPosition), CollisionMask = 1, Margin = 0, Exclude = new Godot.Collections.Array<Rid> { _followedBody.GetRid() } };
             bool overlaps = GetWorld3D().DirectSpaceState.IntersectShape(query, 1).Count > 0;
+            if (_phase >= 19)
+            {
+                query.Exclude = new();
+                Require(GetWorld3D().DirectSpaceState.IntersectShape(query, 1).Count == 0, "Rollover lens stays outside both chassis and world");
+                if (_phase is 19 or 21)
+                {
+                    Require(_camera.RolloverFraming && distance >= 5.4f, "Blocked rolled chassis needs useful alternate framing");
+                    if (time > 2.8f) Require(step < .001f, "Stationary rollover framing must settle without jitter");
+                }
+                if (_phase is 20 or 22 && time > 2.8f)
+                {
+                    Require(!_camera.RolloverFraming && distance > 16, "Rollover recovery/reset restores ordinary chase");
+                }
+            }
             if (_baseline)
             {
                 if (overlaps)
@@ -195,10 +211,11 @@ public sealed partial class CameraObstructionChecks : Node3D
         _maxStep = 0;
         _maxCorrection = 0;
         Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
-        if (_phase != 1) _camera.ResetFollow();
+        if (_phase is not (1 or 20)) _camera.ResetFollow();
         _camera.Near = _phase == 17 ? 0.5f : 0.05f;
         _camera.Fov = _phase == 17 ? 90 : 65;
         _prop.Position = new Vector3(100, 4, 0);
+        _prop.Rotation = Vector3.Zero;
         _ceiling.Position = new Vector3(_phase == 18 ? 0 : 100, 3.2f, 0);
         _obstacle.Rotation = Vector3.Zero;
         Vector3 size = _phase switch { 2 => new(20, 2, 0.15f), 3 => new(8, 12, 8), 4 => new(4, 8, 2), 5 => new(30, 1, 30), 6 => new(6, 12, 1), _ => new(40, 12, 1) };
@@ -207,6 +224,12 @@ public sealed partial class CameraObstructionChecks : Node3D
         _obstacle.Position = _phase switch { 0 or 1 => new(0, 6, 16), 2 => new(0, 1, 6), 3 => new(-7, 6, 7), 5 => new(0, 4, 8), _ => new(0, 6, 8) };
         if (_phase == 5) _obstacle.Rotation = new Vector3(-0.55f, 0, 0);
         if (_phase == 18) _obstacle.Position = new Vector3(0, 6, 3);
+        if (_phase >= 19) _obstacle.Position = new Vector3(0, 6, 3);
+        if (_phase == 21)
+        {
+            _prop.Position = new Vector3(-3, 4, 0);
+            _prop.Rotation = new Vector3(0, MathF.PI / 2, 0);
+        }
         if (_phase is 4 or >= 12 and <= 16) _obstacle.Position = new Vector3(100, 6, 0);
         if (_phase == 15)
         {

@@ -1,0 +1,44 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+  Trackstorm.Core.Tests -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.98
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ERROR: System.InvalidOperationException: Production Car retains its width and includes the refined front/rear overhangs: (3.3700001, 2.1713367, 9.077997).
+   at Trackstorm.Client.Verification.VehicleIntegrationChecks.Check(Boolean condition, String message) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:line 593
+   at Trackstorm.Client.Verification.VehicleIntegrationChecks.VerifyVisualBinding() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:line 124
+   at Trackstorm.Client.Verification.VehicleIntegrationChecks.Run() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:line 59
+   at: void Trackstorm.Client.Verification.VehicleIntegrationChecks+<Run>d__11.MoveNext() (res://code/Client/Verification/VehicleIntegrationChecks.cs:59)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.VehicleIntegrationChecks+<Run>d__11.MoveNext() (C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:59)
+       [2] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [3] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)
+       [4] void System.Threading.Tasks.AwaitTaskContinuation.RunCallback(System.Threading.ContextCallback, object, System.Threading.Tasks.Task&)
+       [5] void System.Threading.Tasks.Task.RunContinuations(object)
+       [6] bool System.Threading.Tasks.Task`1.TrySetResult(TResult)
+       [7] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1.SetExistingTaskResult(System.Threading.Tasks.Task`1[TResult], TResult)
+       [8] void Trackstorm.Client.Verification.VehicleIntegrationChecks+<Settle>d__17.MoveNext() (C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\VehicleIntegrationChecks.cs:165)
+       [9] void System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, object)
+       [10] void System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1.MoveNext(System.Threading.Thread)
+       [11] void Godot.SignalAwaiter.SignalCallback(nint, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_bool*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/SignalAwaiter.cs:65)
+WARNING: 20 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)
+Exception: C:\Users\j_gen\Documents\Game Projects\Trackstorm\check-vehicle.ps1:18
+Line |
+  18 |  … tion passed:')) { throw "Vehicle checks failed at $fps render FPS." }
+     |                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Vehicle checks failed at 30 render FPS.
+
+

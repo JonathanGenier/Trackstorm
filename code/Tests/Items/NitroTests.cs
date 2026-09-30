@@ -12,6 +12,87 @@ namespace Trackstorm.Core.Tests.Items;
 internal sealed class NitroTests
 {
     [Test]
+    public void DeploymentGatesThrustAndChargeThenReadyReuseIsImmediate()
+    {
+        var host = Create(60);
+        Assert.That(host.Items.Grant(host.World, 1, HeldItem.Nitro), Is.True);
+        var slot = host.Items.Slots.Single();
+        Assert.That(host.UseItem(0, 99, slot.Life, slot.Token), Is.True);
+        for (int tick = 1; tick < ItemSlot.NitroDeploymentDurationTicks; tick++)
+        {
+            Step(host, held: true);
+            Assert.That(host.World.GetVehicle(1).Movement.Nitro.Active, Is.False);
+            Assert.That(host.Items.Slots.Single().NitroCharge, Is.EqualTo(100));
+            Assert.That(host.Items.Slots.Single().NitroDeploymentTicks, Is.EqualTo(ItemSlot.NitroDeploymentDurationTicks - tick));
+        }
+        Step(host, held: true);
+        Assert.That(host.Items.Slots.Single().NitroDeploymentTicks, Is.Zero);
+        Assert.That(host.World.GetVehicle(1).Movement.Nitro.Active, Is.True);
+        Assert.That(host.Items.Slots.Single().NitroCharge, Is.LessThan(100));
+        Step(host);
+        double charge = host.Items.Slots.Single().NitroCharge;
+        Assert.That(host.UseItem(0, 99, slot.Life, slot.Token), Is.True);
+        Step(host, held: true);
+        Assert.That(host.World.GetVehicle(1).Movement.Nitro.Active, Is.True);
+        Assert.That(host.Items.Slots.Single().NitroCharge, Is.LessThan(charge));
+    }
+
+    [Test]
+    public void ReleaseDuringDeploymentCancelsUseAndCheckpointRetainsRemainingTime()
+    {
+        var host = Create(60);
+        host.JoinPlayer(10, 2);
+        host.Items.Grant(host.World, 1, HeldItem.Nitro);
+        var slot = host.Items.Slots.Single();
+        host.UseItem(0, 99, slot.Life, slot.Token);
+        for (int tick = 0; tick < 12; tick++) { Step(host, held: true); }
+        var checkpoint = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(new(
+            new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], []), CurrentMatch(host), null, host.Configuration)));
+        var restored = HostVehicleSession.Restore(checkpoint, host.CaptureAuthority(), 1);
+        Assert.That(restored.Items.Slots.Single().NitroDeploymentTicks, Is.EqualTo(ItemSlot.NitroDeploymentDurationTicks - 12));
+        Step(restored); // Release clears engagement, not readiness progress.
+        for (int tick = 0; tick < 60; tick++) { Step(restored, held: true); }
+        Assert.That(restored.World.GetVehicle(1).Movement.Nitro.Active, Is.False);
+        Assert.That(restored.Items.Slots.Single().NitroCharge, Is.EqualTo(100));
+        foreach (int invalid in new[] { -1, ItemSlot.NitroDeploymentDurationTicks + 1 })
+        {
+            Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(),
+                [host.Items.Slots.Single() with { NitroDeploymentTicks = invalid }], [], []));
+        }
+    }
+
+    [Test]
+    public void SwitchingDuringDeploymentCancelsOldUseAndFailedStepPreservesCountdown()
+    {
+        var host = Create(60);
+        host.Items.Grant(host.World, 1, HeldItem.Nitro);
+        host.Items.Grant(host.World, 1, HeldItem.Nitro);
+        var original = host.Items.Slots.Single();
+        host.UseItem(0, 99, original.Life, original.Token);
+        for (int tick = 0; tick < 10; tick++) { Step(host, held: true); }
+        Assert.That(host.SwitchItem(0, 99, original.Life, 1), Is.True);
+        Assert.That(host.Items.Slots.Single().NitroDeploymentTicks, Is.EqualTo(ItemSlot.NitroDeploymentDurationTicks));
+        Step(host, held: true);
+        var selected = host.Items.Slots.Single();
+        Assert.That(selected.EngagedToken, Is.Zero);
+        Assert.That(selected.NitroCharge, Is.EqualTo(100));
+        Assert.That(selected.SecondNitroCharge, Is.EqualTo(100));
+        var wrong = new InputFrame(host.World.State.Tick + 2, 0, 0, 0, InputButtons.UseItem, 0, 0);
+        Assert.Throws<ArgumentException>(() => host.Items.Step(host.World, wrong,
+            [new VehicleStepRequest(1, wrong, Observe(host.World.GetVehicle(1)))], (_, _) => null));
+        Assert.That(host.Items.Slots.Single(), Is.EqualTo(selected));
+        Assert.That(host.SwitchItem(0, 99, original.Life, 1), Is.False);
+        Ready(host);
+        Step(host, held: true);
+        Assert.That(host.World.GetVehicle(1).Movement.Nitro.Active, Is.False);
+        Assert.That(host.UseItem(0, 99, original.Life, selected.SecondToken), Is.True);
+        Step(host, held: true);
+        Assert.That(host.World.GetVehicle(1).Movement.Nitro.Active, Is.True);
+        Assert.That(host.Items.Slots.Single().NitroCharge, Is.EqualTo(100));
+        Assert.That(host.Items.Slots.Single().SecondNitroCharge, Is.LessThan(100));
+    }
+
+    [Test]
     public void PartialReleaseRepeatedUseAndDepletionPreserveExactSlot()
     {
         var host = Create(10);
@@ -113,12 +194,14 @@ internal sealed class NitroTests
         var host = Create(10);
         Activate(host);
         host.Items.Grant(host.World, 1, HeldItem.Nitro);
+        Ready(host);
         Assert.That(host.SwitchItem(0, 99, 1, 1), Is.True);
         Step(host, held: true);
         Assert.That(host.World.GetVehicle(1).Movement.Nitro.Active, Is.False);
         var slot = host.Items.Slots.Single();
         Assert.That(slot.NitroCharge, Is.EqualTo(90));
         Assert.That(slot.SecondNitroCharge, Is.EqualTo(100));
+        Ready(host);
         Assert.That(host.UseItem(0, 99, 1, slot.SecondToken), Is.True);
         Step(host, held: true);
         Assert.That(host.Items.Slots.Single().NitroCharge, Is.EqualTo(90));
@@ -132,6 +215,7 @@ internal sealed class NitroTests
     {
         var host = Create(10);
         host.Items.Grant(host.World, 1, HeldItem.Nitro);
+        Ready(host);
         var slot = host.Items.Slots.Single();
         host.UseItem(0, 99, 1, slot.Token);
         Step(host);
@@ -151,6 +235,7 @@ internal sealed class NitroTests
         var host = Create(60);
         host.JoinPlayer(10, 2);
         host.Items.Grant(host.World, 2, HeldItem.Nitro);
+        Ready(host);
         var slot = host.Items.Slots.Single();
         host.UseItem(10, 99, slot.Life, slot.Token, 1);
         host.Receive(10, 99, [new SequencedInput(1, new InputFrame(0, 0, 0, 0, InputButtons.UseItem, InputButtons.UseItem, 0))]);
@@ -254,6 +339,7 @@ internal sealed class NitroTests
     {
         var host = Create(60);
         host.Items.Grant(host.World, 1, HeldItem.Nitro);
+        Ready(host);
         var slot = host.Items.Slots.Single();
         host.UseItem(0, 99, slot.Life, slot.Token);
         var wrong = new InputFrame(host.World.State.Tick + 2, 0, 0, 0, 0, 0, 0);
@@ -332,11 +418,17 @@ internal sealed class NitroTests
     private static ItemSlot Activate(HostVehicleSession host)
     {
         if (!host.Items.Slots.Any(s => s.Item == HeldItem.Nitro)) { Assert.That(host.Items.Grant(host.World, 1, HeldItem.Nitro), Is.True); }
+        Ready(host);
         var slot = host.Items.Slots.Single();
         Assert.That(host.UseItem(0, 99, slot.Life, slot.Token), Is.True);
         Assert.That(host.UseItem(0, 99, slot.Life, slot.Token), Is.False);
         Step(host, held: true);
         return slot;
+    }
+
+    private static void Ready(HostVehicleSession host)
+    {
+        while (host.Items.Slots.Any(slot => slot.NitroDeploymentTicks > 0)) { Step(host); }
     }
 
     private static void SetScore(HostVehicleSession host, int kills, int deaths)

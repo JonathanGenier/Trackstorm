@@ -14,6 +14,7 @@ public sealed partial class CameraObstructionDrive : Node
     private readonly List<object> _frames = new();
     private VehicleArena _arena = null!;
     private VehicleChaseCamera _camera = null!;
+    private readonly VehicleChaseCamera _reference = new() { Fov = 65 };
     private string _output = string.Empty;
     private float _time;
     private float _minimum = float.MaxValue;
@@ -30,6 +31,7 @@ public sealed partial class CameraObstructionDrive : Node
         _arena = new VehicleArena { LegacyTestLayout = true, CameraInput = _input.Adapter };
         AddChild(_arena);
         _camera = _arena.GetNode<VehicleChaseCamera>("ChaseCamera");
+        AddChild(_reference);
         _input.FrameCaptured += Advance;
         var canvas = new CanvasLayer();
         AddChild(canvas);
@@ -54,7 +56,9 @@ public sealed partial class CameraObstructionDrive : Node
             // Synthetic controls must remain active when the recorder window is not focused.
             _input.Adapter.Enabled = true;
             _input._Process(0);
-            Vector3 position = _arena.Player.GetGlobalTransformInterpolated().Origin;
+            Transform3D pose = _arena.Player.GetGlobalTransformInterpolated();
+            Vector3 position = pose.Origin;
+            _reference.Follow(pose, _arena.Player.Snapshot, (float)delta, _arena.Player.GetRid());
             float distance = _camera.GlobalPosition.DistanceTo(position + Vector3.Up * 0.5f);
             if (_time > 0.5f && _time < 10)
             {
@@ -70,9 +74,11 @@ public sealed partial class CameraObstructionDrive : Node
                 Send(new InputEventMouseMotion { ScreenRelative = new Vector2((float)delta * 500, 0) });
             }
             else Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
-            float yawOffset = Mathf.AngleDifference(_arena.Player.GetGlobalTransformInterpolated().Basis.GetEuler().Y, _camera.GlobalBasis.GetEuler().Y);
+            // This real drive rolls the car. The baseline is the no-input chase
+            // view (which retains a usable heading), not the inverted chassis Euler yaw.
+            float yawOffset = Mathf.AngleDifference(_reference.GlobalBasis.GetEuler().Y, _camera.GlobalBasis.GetEuler().Y);
             if (_time is > 6.85f and < 7) Require(Math.Abs(yawOffset) > 1, "Native driving must actually exercise free-look");
-            if (_time is > 9 and < 10) Require(Math.Abs(yawOffset) < 0.01f, "Native driving camera recenters after release");
+            if (_time is > 9 and < 10) Require(Math.Abs(yawOffset) < 0.01f, $"Native driving camera recenters to its no-input view after release: yaw={yawOffset}");
             if (!_reset && _time >= 10)
             {
                 Require(_minimum < 10 && _maximumZ > 30, "Real reverse input approaches the wall and contracts the camera");

@@ -63,6 +63,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     /// <summary>Presentation diagnostics for runtime checks.</summary>
     internal ChaseCameraMotion Motion => _motion;
     internal BoostCameraMotion BoostMotion => _boost;
+    internal bool RolloverFraming => _obstruction.Reframed;
     /// <summary>The existing local input owner; never a gameplay or replicated camera command.</summary>
     internal Input.PlayerInputAdapter? InputSource { get; set; }
     /// <summary>Local preferences supplied by composition; never replicated or read from disk here.</summary>
@@ -181,14 +182,6 @@ public sealed partial class VehicleChaseCamera : Camera3D
         }
 
         GlobalBasis = Basis.FromEuler(new Vector3(basePitch + _look.Pitch, _heading + _look.Yaw, 0));
-        // Radial outward flow only reads correctly while looking along actual travel.
-        // Suppress it during side/rear free-look or reverse motion rather than drawing false flow.
-        Vector3 velocity = VehicleBody.ToGodot(state.ObservedPhysics.LinearVelocity);
-        velocity.Y = 0;
-        Vector3 viewForward = -GlobalBasis.Z;
-        viewForward.Y = 0;
-        float alignment = velocity.LengthSquared() > 1 ? Math.Clamp((velocity.Normalized().Dot(viewForward.Normalized()) - 0.5f) * 2, 0, 1) : 0;
-        _streaks.Present(delta, state.Speed, _boost.StreakStrength * alignment, Current && state.CanInteract);
         float radius = MathF.Sqrt(distance * distance + (height - 0.5f) * (height - 0.5f)) + _boost.PullBack;
         System.Numerics.Vector2 shake = _motion.ShakeOffset * Math.Clamp(MaximumShakeMetres, 0, 0.65f) * ShakeIntensity;
         Vector3 intent = _anchor + Vector3.Up * 0.5f + GlobalBasis.Z * radius
@@ -200,8 +193,12 @@ public sealed partial class VehicleChaseCamera : Camera3D
         float aspect = viewport.X / Math.Max(1, viewport.Y);
         float half = Near * MathF.Tan(Mathf.DegToRad(Fov) * 0.5f);
         float planeRadius = MathF.Sqrt(Near * Near + half * half * (1 + (KeepAspect == KeepAspectEnum.Height ? aspect * aspect : 1 / (aspect * aspect))));
-        GlobalPosition = _obstruction.Resolve(GetWorld3D().DirectSpaceState, pose.Origin + Vector3.Up * 0.5f, desired, intent, Math.Max(0.25f, planeRadius + 0.05f), followedBody, delta, reset);
-        if (_obstruction.Lift > 0.001f)
+        GlobalPosition = _obstruction.Resolve(GetWorld3D().DirectSpaceState, pose.Origin + Vector3.Up * 0.5f, desired, intent, Math.Max(0.25f, planeRadius + 0.05f), followedBody, delta, reset, pose.Basis.Y.Y < .65f);
+        if (_obstruction.Reframed)
+        {
+            LookAt(pose.Origin + Vector3.Up * .5f, Vector3.Up);
+        }
+        else if (_obstruction.Lift > 0.001f)
         {
             // Only the cramped-view lift changes pitch, keeping the car framed below the
             // raised lens. Orbit intent and the normal chase basis remain untouched.
@@ -210,6 +207,14 @@ public sealed partial class VehicleChaseCamera : Camera3D
             float pitchCorrection = MathF.Atan2(offset.Y, horizontal) - MathF.Atan2(offset.Y - _obstruction.Lift, horizontal);
             GlobalBasis = GlobalBasis.Rotated(GlobalBasis.X, -pitchCorrection);
         }
+        // Use the final view, including rollover framing, to avoid false forward
+        // flow while looking sideways. Normal chase/Boost wisps are unchanged.
+        Vector3 velocity = VehicleBody.ToGodot(state.ObservedPhysics.LinearVelocity);
+        velocity.Y = 0;
+        Vector3 viewForward = -GlobalBasis.Z;
+        viewForward.Y = 0;
+        float alignment = velocity.LengthSquared() > 1 ? Math.Clamp((velocity.Normalized().Dot(viewForward.Normalized()) - 0.5f) * 2, 0, 1) : 0;
+        _streaks.Present(delta, state.Speed, _boost.StreakStrength * alignment, Current && state.CanInteract);
         _initialized = true;
     }
 }
