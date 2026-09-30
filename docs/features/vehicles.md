@@ -38,20 +38,20 @@ Reset is a queued new-life intent. Core increments `LifeId`, clears health/event
 
 ## Terrain handling profiles
 
-Core retains stable `SurfaceType` values Concrete = 0 and Mud = 1, and adds Asphalt = 2, Dirt = 3, Grass = 4 and DeepMud = 5. `SurfaceHandling` maps the existing [material identities](surfaces.md) into these portable profiles. `WheelSuspension` supplies center-selected diagnostic identity and individual wheel materials to practice, host and prediction; detection is not duplicated. Unauthored fixtures retain their explicit `SurfaceBody` profile (otherwise Concrete). Rock retains the neutral Asphalt baseline. [Water](water.md) adds profile 6, immersion observations and deep-water damage through this same authority.
+Core retains stable `SurfaceType` values Concrete = 0 and Mud = 1, and adds Asphalt = 2, Dirt = 3, Grass = 4 and DeepMud = 5. `SurfaceHandling` maps the existing [material identities](surfaces.md) into these portable profiles. `WheelSuspension` supplies center-selected diagnostic identity and individual wheel materials to practice, host and prediction; detection is not duplicated. Unauthored fixtures retain their explicit `SurfaceBody` profile (otherwise Concrete). Rock uses the configured Asphalt profile. [Water](water.md) adds profile 6, immersion observations and deep-water damage through this same authority.
 
-`VehicleConfiguration` owns immutable grip, drag and acceleration multipliers. Asphalt is always (1, 1, 1), using the existing vehicle baseline. Approved defaults give Concrete the highest grip and Dirt and Grass equal grip, with distinct drag and drive responses:
+`VehicleConfiguration` owns immutable grip, drag and acceleration multipliers. Asphalt uses an independently tunable grip multiplier with neutral drag/drive. Normal asphalt, dirt and grass purchase is deliberately strong for arcade control; concrete and soft-ground profiles retain their existing tuning:
 
 | Surface | Grip | Drag | Drive |
 | --- | ---: | ---: | ---: |
-| Asphalt | 1 | 1 | 1 |
+| Asphalt | 2 | 1 | 1 |
 | Concrete | 1.5 | 1 | 0.98 |
-| Dirt | 1.25 | 1.15 | 0.95 |
-| Grass | 1.25 | 1.4 | 0.9 |
+| Dirt | 2 | 1.15 | 0.95 |
+| Grass | 1.9 | 1.4 | 0.9 |
 | Mud | 0.6 | 2.5 | 0.85 |
 | Deep Mud | 0.5 | 5 | 0.8 |
 
-Grip scales the asphalt tire coefficient (1.9), giving effective coefficients from 2.85 on Concrete to 0.95 in Deep Mud. Velocity-dependent rolling resistance creates bogging without a static force that prevents every start. Supported-axle grip still bounds climbing; not every grade below the support-normal cutoff is climbable on every material. The defaults are gameplay tuning, not a claim to measured soil properties. [Configs](developer-options.md) exposes all five editable profiles through the existing host transaction; deliberate overrides can change their ordering. Multipliers remain finite and bounded 0–100, including zero to disable a contribution.
+Grip scales the asphalt tire coefficient (1.9), giving effective coefficients of 3.8 on Asphalt/Dirt, 3.61 on Grass, 2.85 on Concrete and 0.95 in Deep Mud. These increase supported tire authority, without adding downforce, gravity or suspension changes. Deliberate rear lock and power-slip still reduce rear purchase. Velocity-dependent rolling resistance creates bogging without a static force that prevents every start. Supported-axle grip still bounds climbing; not every grade below the support-normal cutoff is climbable on every material. The defaults are gameplay tuning, not a claim to measured soil properties. [Configs](developer-options.md) exposes asphalt grip and all existing editable profiles through the existing host transaction; deliberate overrides can change their ordering. Multipliers remain finite and bounded 0–100, including zero to disable a contribution.
 
 Core receives surface and wheel observations through `VehicleObservation` on the fixed boundary. Grip scales the combined tire budget, acceleration scales forward/reverse engine demand, and drag scales rolling resistance. Under power, additional resistance is `CoastDrag * max(0, drag - 1)`; coasting uses `CoastDrag * drag`. Surface transitions change force rates without resetting momentum, steering or handbrake recovery. All paths use `VehicleMovement.Step` with identical configuration.
 
@@ -63,7 +63,7 @@ Dirt adds a bounded arcade assist to the existing axle model. A smooth squared l
 
 `DirtRecovery` (4/s) progressively brings slide yaw toward the filtered wheel's turning direction. The requested rate is bounded by available dirt traction and road speed; each tick's correction is limited by supported front traction and the existing axle inertia. The handbrake reduces this assist to one quarter while yaw follows the requested turn, preserving deliberate rotation. Countersteering retains full recovery authority to arrest wrong-way yaw. Handbrake steering also reserves front Dirt traction in proportion to the held steering input, making rotation available before a large lateral slide develops. It never sets heading or linear velocity, adds propulsion, resets handling memory or uses a target drift angle. Missing front support, flight, disabled driving and Water immersion cannot enable it. Mixed contacts weight the assist by front Dirt support; Oil's reduced traction also bounds it.
 
-Asphalt and unrelated surfaces keep the original force and yaw path. Dirt's drag, acceleration and power-slip defaults remain unchanged. Straight dirt acceleration is unchanged, preserving kicker approach performance. Existing state and prediction restoration need no extra memory. [Configs](developer-options.md#progressive-handling-controls) owns both tuning controls and their ordinary persistence/replication path.
+Asphalt and unrelated surfaces keep the same force and yaw path, with the separately configured surface tire capacity. Dirt's drag, acceleration and power-slip defaults remain unchanged. Straight dirt acceleration is unchanged, preserving kicker approach performance. Existing state and prediction restoration need no extra memory. [Configs](developer-options.md#progressive-handling-controls) owns both tuning controls and their ordinary persistence/replication path.
 
 ## Health, Collision Damage and Combat Hooks
 

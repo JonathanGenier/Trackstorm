@@ -21,13 +21,13 @@ internal sealed class DrivingInputShapingTests
         }
 
         Assert.That(input, Is.EqualTo(1));
-        for (int tick = 0; tick < rate / 2; tick++)
+        for (int tick = 0; tick < rate * 2; tick++)
         {
             input = DrivingInputShaping.Approach(input, -1, tuning.SteeringReversal, 1f / rate);
         }
 
         Assert.That(input, Is.EqualTo(-1));
-        for (int tick = 0; tick < rate / 2; tick++)
+        for (int tick = 0; tick < rate; tick++)
         {
             input = DrivingInputShaping.Approach(input, 0, tuning.SteeringReturn, 1f / rate);
         }
@@ -50,23 +50,26 @@ internal sealed class DrivingInputShapingTests
         Assert.That(DrivingInputShaping.Approach(0, 100, 10, 1), Is.EqualTo(1));
     }
 
-    /// <summary>Digital intent reaches full steering in 50 ms and reverses within 100 ms.</summary>
+    /// <summary>Short digital presses retain fine intermediate targets; holding reaches the same full range.</summary>
     [Test]
-    public void SteeringRespondsWithinArcadeInputBudget()
+    public void SteeringTapsAreSmallAndHoldingRetainsFullRange()
     {
         var tuning = new DrivingInputShaping();
         float steering = 0;
-        for (int tick = 0; tick < 3; tick++)
+        for (int tick = 0; tick < 6; tick++)
         {
             steering = DrivingInputShaping.Approach(steering, 1, tuning.SteeringRise, 1f / 60);
         }
-
+        Assert.That(steering, Is.InRange(0.06f, 0.07f));
+        for (int tick = 0; tick < 120; tick++)
+        {
+            steering = DrivingInputShaping.Approach(steering, 1, tuning.SteeringRise, 1f / 60);
+        }
         Assert.That(steering, Is.EqualTo(1));
-        for (int tick = 0; tick < 6; tick++)
+        for (int tick = 0; tick < 180; tick++)
         {
             steering = DrivingInputShaping.Approach(steering, -1, steering > 0 ? tuning.SteeringReversal : tuning.SteeringRise, 1f / 60);
         }
-
         Assert.That(steering, Is.EqualTo(-1));
     }
 }

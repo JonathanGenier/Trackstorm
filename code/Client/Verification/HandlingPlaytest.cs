@@ -22,6 +22,9 @@ public sealed partial class HandlingPlaytest : Node3D
     private InputButtons _buttons;
     private readonly List<object> _trace = new();
     private bool _ready;
+    private Input.PlayerInputAdapter _physical = null!;
+    private bool _physicalSteering;
+    private bool _baseline;
     private StaticBody3D? _road;
     private Core.Arenas.EnvironmentAuthority? _environment;
     private Core.Arenas.EnvironmentLayout? _environmentLayout;
@@ -53,11 +56,14 @@ public sealed partial class HandlingPlaytest : Node3D
         }
         AddChild(new WorldEnvironment { Environment = GD.Load<Godot.Environment>("res://assets/maps/oval/Daylight.tres") });
         AddChild(new DirectionalLight3D { RotationDegrees = new(-55, -25, 0), LightEnergy = 1.4f });
+        _physical = new(new Input.PlayerInputBindings());
+        _baseline = OS.GetCmdlineUserArgs().Contains("--handling-baseline-grip");
         _world = new(new Core.Simulation.SimulationConfiguration(60));
         var pose = new VehiclePhysicsState(new(0, 3, 0), N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
         var damage = new DamageConfiguration { MaxHP = 1000, CollisionScale = 5 };
-        _world.AddVehicle(1, new(), damage, pose);
-        _body = new VehicleBody { Position = new(0, 3, 0), DamageConfiguration = damage, Freeze = true };
+        var tuning = _baseline ? new VehicleConfiguration { AsphaltGrip = 1, Dirt = new(1.25f, 1.15f, 0.95f), Grass = new(1.25f, 1.4f, 0.9f) } : new VehicleConfiguration();
+        _world.AddVehicle(1, tuning, damage, pose);
+        _body = new VehicleBody { Position = new(0, 3, 0), DamageConfiguration = damage, Configuration = tuning, Freeze = true };
         _body.Initialize(_world);
         AddChild(_body);
         _camera = new Camera3D { Current = true, Far = 1500, Position = new(0, 8, 12) };
@@ -119,6 +125,15 @@ public sealed partial class HandlingPlaytest : Node3D
                     }
                     _body.ResetBody(new(spawnPosition, orientation, N.Vector3.Transform(new(0, 0, -speed), orientation) + new N.Vector3(0, vertical, 0), N.Vector3.Zero));
                 }
+                _physicalSteering = command.TryGetProperty("keyboard", out var keyboard) && keyboard.GetBoolean();
+                bool analog = command.TryGetProperty("analog", out var analogValue) && analogValue.GetBoolean();
+                using var left = new InputEventKey { PhysicalKeycode = Key.A, Pressed = _physicalSteering && _steer < 0 };
+                using var rightKey = new InputEventKey { PhysicalKeycode = Key.D, Pressed = _physicalSteering && _steer > 0 };
+                using var stick = new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = analog ? _steer / 32767f : 0 };
+                Godot.Input.ParseInputEvent(left); Godot.Input.ParseInputEvent(rightKey); Godot.Input.ParseInputEvent(stick);
+                Godot.Input.FlushBufferedEvents();
+                _physicalSteering |= analog;
+                if (command.TryGetProperty("spawn", out _)) { _physical.Enabled = false; _physical.Capture(0); _physical.Enabled = true; }
                 _trace.Clear();
                 _body.Freeze = false;
                 // Godot clears velocities while frozen; resume the exact last command boundary.
@@ -127,7 +142,11 @@ public sealed partial class HandlingPlaytest : Node3D
             }
         }
         if (_remaining <= 0) { return; }
-        var input = new InputFrame(_world.State.Tick + 1, _steer, _throttle, _brake, _buttons, 0, 0);
+        var prior = _world.GetVehicle(1).Movement;
+        _physical.Shaping = !prior.Grounded && prior.Air.Seconds + 1f / 60 + 0.000001f >= _body.Configuration.AirDelay || _baseline
+            ? DrivingInputShaping.Aerial : Core.Development.GameplayConfiguration.HostedDefaults.Input;
+        short steering = _physicalSteering ? _physical.Capture(_world.State.Tick + 1).Steering : _steer;
+        var input = new InputFrame(_world.State.Tick + 1, steering, _throttle, _brake, _buttons, 0, 0);
         var request = _body.Capture(input);
         if (_oil?.Contains(request.Observation) == true)
         {
@@ -142,7 +161,7 @@ public sealed partial class HandlingPlaytest : Node3D
         N.Vector3 forward = N.Vector3.Transform(-N.Vector3.UnitZ, p.Orientation);
         N.Vector3 right = N.Vector3.Transform(N.Vector3.UnitX, p.Orientation);
         var w = state.Movement.Wheels.Compression;
-        _trace.Add(new { tick = state.Movement.Tick, position = new[] { p.Position.X, p.Position.Y, p.Position.Z }, velocity = new[] { p.LinearVelocity.X, p.LinearVelocity.Y, p.LinearVelocity.Z }, orientation = new[] { p.Orientation.X, p.Orientation.Y, p.Orientation.Z, p.Orientation.W }, compression = new[] { w.X, w.Y, w.Z, w.W }, support = new[] { request.Observation.Support.X, request.Observation.Support.Y, request.Observation.Support.Z }, contacts = request.Observation.Contacts.Count, up = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation).Y, speed = state.Speed, yaw = p.AngularVelocity.Y, lateral = N.Vector3.Dot(p.LinearVelocity, right), longitudinal = N.Vector3.Dot(p.LinearVelocity, forward), slip = state.Movement.PowerSlip, throttle = state.Movement.Throttle, oilTicks = state.Movement.OilTicks, steering = state.Movement.SteeringAngle, surface = state.Movement.CurrentSurface.ToString(), grounded = state.Movement.Grounded, airSeconds = state.Movement.Air.Seconds, airInput = new[] { state.Movement.Air.Input.X, state.Movement.Air.Input.Y, state.Movement.Air.Input.Z }, crashSeconds = state.Movement.CrashSeconds, angular = new[] { p.AngularVelocity.X, p.AngularVelocity.Y, p.AngularVelocity.Z }, hp = state.Damage.CurrentHP });
+        _trace.Add(new { tick = state.Movement.Tick, position = new[] { p.Position.X, p.Position.Y, p.Position.Z }, velocity = new[] { p.LinearVelocity.X, p.LinearVelocity.Y, p.LinearVelocity.Z }, orientation = new[] { p.Orientation.X, p.Orientation.Y, p.Orientation.Z, p.Orientation.W }, compression = new[] { w.X, w.Y, w.Z, w.W }, support = new[] { request.Observation.Support.X, request.Observation.Support.Y, request.Observation.Support.Z }, contacts = request.Observation.Contacts.Count, up = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation).Y, speed = state.Speed, yaw = p.AngularVelocity.Y, lateral = N.Vector3.Dot(p.LinearVelocity, right), longitudinal = N.Vector3.Dot(p.LinearVelocity, forward), slip = state.Movement.PowerSlip, throttle = state.Movement.Throttle, oilTicks = state.Movement.OilTicks, steering = state.Movement.SteeringAngle, inputSteering = input.Steering, frontSlip = state.Movement.FrontSlip, rearSlip = state.Movement.RearSlip, surface = state.Movement.CurrentSurface.ToString(), grounded = state.Movement.Grounded, airSeconds = state.Movement.Air.Seconds, airInput = new[] { state.Movement.Air.Input.X, state.Movement.Air.Input.Y, state.Movement.Air.Input.Z }, crashSeconds = state.Movement.CrashSeconds, angular = new[] { p.AngularVelocity.X, p.AngularVelocity.Y, p.AngularVelocity.Z }, hp = state.Damage.CurrentHP });
         Vector3 position = VehicleBody.ToGodot(p.Position);
         _camera.Position = position - VehicleBody.ToGodot(forward) * 10 + Vector3.Up * 5;
         _camera.LookAt(position + Vector3.Up * 0.5f);
@@ -158,6 +177,8 @@ public sealed partial class HandlingPlaytest : Node3D
             CallDeferred(MethodName.Capture, _lastCommand);
         }
     }
+
+    public override void _ExitTree() => _physical?.Bindings.Dispose();
 
     private async void Capture(string completedCommand)
     {

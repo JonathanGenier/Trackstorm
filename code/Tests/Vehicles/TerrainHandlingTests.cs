@@ -29,7 +29,7 @@ internal sealed class TerrainHandlingTests
             speeds.Add(surface, speed);
         }
 
-        Assert.That(corrections[SurfaceType.Concrete], Is.GreaterThan(corrections[SurfaceType.Asphalt]));
+        Assert.That(corrections[SurfaceType.Concrete], Is.LessThan(corrections[SurfaceType.Asphalt]));
         Assert.That(corrections[SurfaceType.Dirt], Is.Not.EqualTo(corrections[SurfaceType.Asphalt]));
         Assert.That(corrections[SurfaceType.Grass], Is.Not.EqualTo(corrections[SurfaceType.Asphalt]));
         Assert.That(corrections[SurfaceType.DeepMud], Is.LessThan(corrections[SurfaceType.Mud]));

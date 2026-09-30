@@ -3,6 +3,18 @@ namespace Trackstorm.Core.Input;
 /// <summary>Progressive digital intent, applied before recording frames. Analog samples bypass this helper.</summary>
 public sealed record DrivingInputShaping
 {
+    /// <summary>Approved airborne digital authority; ground precision must not slow aerial commands.</summary>
+    public static DrivingInputShaping Aerial { get; } = new() { SteeringRise = 20, SteeringReturn = 24, SteeringReversal = 30 };
+
+    /// <summary>Rejects invalid digital response rates before configuration publication.</summary>
+    public void Validate()
+    {
+        if (new[] { ThrottleRise, ThrottleRelease, BrakeRise, SteeringRise, SteeringReturn, SteeringReversal }.Any(value => !float.IsFinite(value) || value is < 0.1f or > 60))
+        {
+            throw new ArgumentException("Input response rates must be finite and between 0.1 and 60 per second.");
+        }
+    }
+
     /// <summary>Throttle rise per second.</summary>
     public float ThrottleRise { get; init; } = 10;
     /// <summary>Throttle release per second.</summary>
@@ -10,11 +22,11 @@ public sealed record DrivingInputShaping
     /// <summary>Brake rise per second.</summary>
     public float BrakeRise { get; init; } = 18;
     /// <summary>Steering rise per second.</summary>
-    public float SteeringRise { get; init; } = 20;
+    public float SteeringRise { get; init; } = 0.65f;
     /// <summary>Steering return per second.</summary>
-    public float SteeringReturn { get; init; } = 24;
+    public float SteeringReturn { get; init; } = 1.4f;
     /// <summary>Steering reversal per second.</summary>
-    public float SteeringReversal { get; init; } = 30;
+    public float SteeringReversal { get; init; } = 1.5f;
 
     /// <summary>Moves toward bounded intent without overshoot; finite rates and a fixed timestep are required.</summary>
     /// <param name="current">Previous shaped intent.</param>

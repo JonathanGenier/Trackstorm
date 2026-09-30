@@ -11,12 +11,14 @@ public sealed record VehicleConfiguration
     public float OilGripReduction { get; init; } = 0.1f;
     /// <summary>Seconds of progressive lateral-grip recovery after the last supported Oil contact.</summary>
     public float OilRecoverySeconds { get; init; } = 0.5f;
+    /// <summary>Asphalt tire capacity; neutral drag/drive retain approved power and coasting.</summary>
+    public float AsphaltGrip { get; init; } = 2;
     /// <summary>Cast surface handling profile.</summary>
     public SurfaceModifiers Concrete { get; init; } = new(1.5f, 1, 0.98f);
     /// <summary>Compacted soil retains controllable drive with modest rolling resistance.</summary>
-    public SurfaceModifiers Dirt { get; init; } = new(1.25f, 1.15f, 0.95f);
+    public SurfaceModifiers Dirt { get; init; } = new(2, 1.15f, 0.95f);
     /// <summary>Vegetation handling profile with added rolling resistance.</summary>
-    public SurfaceModifiers Grass { get; init; } = new(1.25f, 1.4f, 0.9f);
+    public SurfaceModifiers Grass { get; init; } = new(1.9f, 1.4f, 0.9f);
     /// <summary>Soft ground has less grip/acceleration and greater resistance.</summary>
     public SurfaceModifiers Mud { get; init; } = new(0.6f, 2.5f, 0.85f);
     /// <summary>Saturated soil bogs at speed while retaining usable low-speed drive.</summary>
@@ -197,7 +199,7 @@ public sealed record VehicleConfiguration
     {
         SurfaceType.Concrete => Concrete,
         SurfaceType.Mud => Mud,
-        SurfaceType.Asphalt => new(1, 1, 1),
+        SurfaceType.Asphalt => new(AsphaltGrip, 1, 1),
         SurfaceType.Dirt => Dirt,
         SurfaceType.Grass => Grass,
         SurfaceType.DeepMud => DeepMud,
@@ -208,6 +210,7 @@ public sealed record VehicleConfiguration
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(AsphaltGrip) || AsphaltGrip is < 0 or > 100) { throw new ArgumentException("Invalid asphalt grip."); }
         if (!float.IsFinite(PowerOversteer) || PowerOversteer is < 0 or > .9f || !float.IsFinite(SpinDriveLoss) || SpinDriveLoss is < 0 or > .9f) { throw new ArgumentException("Invalid wheelspin tuning."); }
         if (!float.IsFinite(RearDriveGrip) || RearDriveGrip is < 0.1f or > 4 || !float.IsFinite(BrakeGrip) || BrakeGrip is < 0.1f or > 4) { throw new ArgumentException("Invalid longitudinal tire grip."); }
         if (!float.IsFinite(FrontDriveShare) || FrontDriveShare is < 0 or > 1)

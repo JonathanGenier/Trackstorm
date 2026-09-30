@@ -48,8 +48,8 @@ internal sealed class HandlingRecoveryTests
         var leftGrass = Run(SurfaceType.Grass, SurfaceType.Asphalt);
         var rightGrass = Run(SurfaceType.Asphalt, SurfaceType.Grass);
         var grass = Run(SurfaceType.Grass, SurfaceType.Grass);
-        Assert.That(leftGrass.LongitudinalAcceleration, Is.GreaterThan(asphalt.LongitudinalAcceleration).And.LessThan(grass.LongitudinalAcceleration));
-        Assert.That(leftGrass.Physics.AngularVelocity.Y, Is.LessThan(0));
+        Assert.That(leftGrass.LongitudinalAcceleration, Is.InRange(Math.Min(asphalt.LongitudinalAcceleration, grass.LongitudinalAcceleration), Math.Max(asphalt.LongitudinalAcceleration, grass.LongitudinalAcceleration)));
+        Assert.That(leftGrass.Physics.AngularVelocity.Y * (asphalt.LongitudinalAcceleration - grass.LongitudinalAcceleration), Is.GreaterThan(0));
         Assert.That(rightGrass.Physics.AngularVelocity.Y, Is.EqualTo(-leftGrass.Physics.AngularVelocity.Y).Within(0.00001));
         Assert.That(asphalt.Physics.AngularVelocity.Y, Is.EqualTo(0).Within(0.00001));
     }

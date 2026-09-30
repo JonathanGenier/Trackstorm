@@ -6,6 +6,10 @@ public static class GameplayOptions
     /// <summary>Stable allowlist of editable gameplay settings.</summary>
     public static IReadOnlyList<GameplayOption> All { get; } = Array.AsReadOnly<GameplayOption>(
     [
+        new("input.steering_rise", "Input", "Digital steering buildup (/s)", false, c => c.Input.SteeringRise, (c, v) => c with { Input = c.Input with { SteeringRise = checked((float)v) } }),
+        new("input.steering_return", "Input", "Digital steering return (/s)", false, c => c.Input.SteeringReturn, (c, v) => c with { Input = c.Input with { SteeringReturn = checked((float)v) } }),
+        new("input.steering_reversal", "Input", "Digital steering reversal (/s)", false, c => c.Input.SteeringReversal, (c, v) => c with { Input = c.Input with { SteeringReversal = checked((float)v) } }),
+        new("vehicle.asphalt_grip", "Asphalt", "Grip multiplier", false, c => c.Vehicle.AsphaltGrip, (c, v) => c with { Vehicle = c.Vehicle with { AsphaltGrip = checked((float)v) } }),
         new("vehicle.power_oversteer", "Vehicle", "Torque steering slip (0–0.9)", false, c => c.Vehicle.PowerOversteer, (c, v) => c with { Vehicle = c.Vehicle with { PowerOversteer = checked((float)v) } }),
         new("vehicle.spin_drive_loss", "Vehicle", "Wheelspin drive loss (0–0.9)", false, c => c.Vehicle.SpinDriveLoss, (c, v) => c with { Vehicle = c.Vehicle with { SpinDriveLoss = checked((float)v) } }),
         new("vehicle.rear_drive_grip", "Vehicle", "Rear drive traction (0.1–4)", false, c => c.Vehicle.RearDriveGrip, (c, v) => c with { Vehicle = c.Vehicle with { RearDriveGrip = checked((float)v) } }),

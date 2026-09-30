@@ -1,7 +1,7 @@
 # Surface and material identity
 
 `SurfaceIdentity` names Asphalt, Grass, Dirt, Mud, Deep Mud, Rock, Concrete and
-Water. It describes material; Core `SurfaceHandling` maps the shared observation to the [vehicle handling profiles](vehicles.md#terrain-handling-profiles). Asphalt preserves the vehicle baseline, and Concrete, Dirt, Grass, Mud and Deep Mud have distinct host-tunable responses. Rock retains neutral baseline handling; [Water interaction](water.md) owns immersion, resistance and deep-water damage.
+Water. It describes material; Core `SurfaceHandling` maps the shared observation to the [vehicle handling profiles](vehicles.md#terrain-handling-profiles). Asphalt has host-tunable grip with neutral drag/drive, and Concrete, Dirt, Grass, Mud and Deep Mud have distinct host-tunable responses. Rock uses the Asphalt profile; [Water interaction](water.md) owns immersion, resistance and deep-water damage.
 
 ## Authoring and ownership
 
