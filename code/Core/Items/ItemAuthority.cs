@@ -98,6 +98,7 @@ public sealed class ItemAuthority
         bool changed = _slots.Remove(vehicle);
         changed |= _contacts.RemoveAll(contact => contact.Vehicle == vehicle) > 0;
         changed |= _missiles.RemoveAll(missile => missile.Owner == vehicle) > 0;
+        changed |= _mines.RemoveAll(mine => mine.Owner == vehicle && mine.IsPlacing) > 0;
         if (changed)
         {
             Revision++;
@@ -126,10 +127,6 @@ public sealed class ItemAuthority
         _slots[vehicle] = inventory.Item == HeldItem.None
             ? inventory with { Token = token, Item = item, NitroCharge = item == HeldItem.Nitro ? 100 : 0, SalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SalvoReadyTick = 0, Ammo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null }
             : inventory with { SecondToken = token, SecondItem = item, SecondNitroCharge = item == HeldItem.Nitro ? 100 : 0, SecondSalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SecondSalvoReadyTick = 0, SecondAmmo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null };
-        if (_slots[vehicle].Active is { Item: HeldItem.Nitro, Token: var selectedToken } && selectedToken == token)
-        {
-            _slots[vehicle] = _slots[vehicle] with { NitroDeploymentTicks = ItemSlot.NitroDeploymentDurationTicks };
-        }
         Revision++;
         ReliableRevision++;
         if (!pickup)
@@ -163,10 +160,6 @@ public sealed class ItemAuthority
         var inventory = _slots.GetValueOrDefault(vehicle) ?? new ItemSlot(vehicle, life, 0, HeldItem.None);
         if (inventory.Life != life || revision <= inventory.SelectionRevision) { return false; }
         _slots[vehicle] = inventory with { ActiveSlot = (byte)(inventory.ActiveSlot ^ ((revision - inventory.SelectionRevision) & 1)), SelectionRevision = revision, EngagedToken = 0 };
-        if (_slots[vehicle].ActiveSlot != inventory.ActiveSlot)
-        {
-            _slots[vehicle] = _slots[vehicle] with { NitroDeploymentTicks = _slots[vehicle].Active.Item == HeldItem.Nitro ? ItemSlot.NitroDeploymentDurationTicks : 0 };
-        }
         Revision++;
         ReliableRevision++;
         return true;
@@ -208,10 +201,6 @@ public sealed class ItemAuthority
             if (state is null || (!state.CanInteract && (world.Respawn?.ClearHeldItemOnDeath ?? true)) || state.LifeId != pair.Value.Life || requests.Any(request => request.VehicleId == pair.Key && request.Reset.HasValue))
             {
                 slots.Remove(pair.Key);
-            }
-            else if (pair.Value.NitroDeploymentTicks > 0 && state.CanInteract)
-            {
-                slots[pair.Key] = pair.Value with { NitroDeploymentTicks = pair.Value.NitroDeploymentTicks - 1 };
             }
         }
 
@@ -327,9 +316,6 @@ public sealed class ItemAuthority
                 if (remainingAmmo is null) { journal.Add(new RuntimeEvent { Category = EventCategory.Item, Kind = "Exhausted", Actor = slot.Vehicle, Cause = "MachineGun", Tick = input.Tick }); }
                 continue;
             }
-            // Deployment is committed with inventory, so delayed/replayed input and recovery
-            // cannot spend charge or apply thrust before the selected hardware is ready.
-            if (inventory.NitroDeploymentTicks > 0) { continue; }
             ItemRegistry.Find(HeldItem.Nitro)!.Handler!.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts, mines, placeMine, NextToken, ground);
             double remaining = Math.Max(0, slot.NitroCharge - Configuration.NitroConsumptionPerSecond / 60);
             if (remaining < 1e-9) { remaining = 0; }
@@ -372,13 +358,33 @@ public sealed class ItemAuthority
         {
             if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { break; }
             var targets = requests.Where(request => world.GetVehicle(request.VehicleId).CanInteract && !request.Reset.HasValue).OrderBy(request => request.VehicleId).ToArray();
+            if (mine.IsPlacing)
+            {
+                var owner = targets.FirstOrDefault(request => request.VehicleId == mine.Owner && world.GetVehicle(request.VehicleId).LifeId == mine.PlacementLife);
+                if (owner is null) { continue; }
+                var slot = new ItemSlot(mine.Owner, mine.PlacementLife, mine.Id, HeldItem.ProxyMine);
+                var placed = placeMine?.Invoke(slot, owner.Observation.Physics);
+                int remaining = Math.Max(0, mine.PlacementTicks - 1);
+                if (placed is not null)
+                {
+                    ProxyMineUseHandler.ValidatePlacement(placed, slot, owner.Observation.Physics);
+                    if (!ProxyMineUseHandler.Reachable(placed, owner.Observation.Physics)) { placed = null; }
+                }
+                if (placed is not null)
+                {
+                    movingMines.Add(remaining == 0 ? placed : placed with { PlacementLife = mine.PlacementLife, PlacementTicks = remaining });
+                }
+                else { movingMines.Add(mine with { PlacementTicks = Math.Max(remaining, ProxyMineState.PlacementLoweringTicks) }); }
+                // Ground release is its own boundary. The existing seating/contact simulation starts next step.
+                continue;
+            }
             var nearest = targets.OrderBy(request => Vector3.DistanceSquared(mine.Position, request.Observation.Physics.Position)).FirstOrDefault();
             Vector3? target = nearest?.Observation.Physics.Position;
             if (moveMine is null) { movingMines.Add(mine); continue; }
             var candidate = mine.Advance(target, Configuration);
             var motion = moveMine(mine, candidate);
             motion.State.Validate();
-            if (motion.State.Id != mine.Id || motion.State.Owner != mine.Owner || motion.State.SeatingTicks != candidate.SeatingTicks ||
+            if (motion.State.IsPlacing || motion.State.Id != mine.Id || motion.State.Owner != mine.Owner || motion.State.SeatingTicks != candidate.SeatingTicks ||
                 Vector3.Distance(motion.State.Position, candidate.Position) > 2 ||
                 (motion.ContactVehicle != 0 && !requests.Any(request => request.VehicleId == motion.ContactVehicle)))
             { throw new ArgumentException("Invalid host mine motion observation."); }
@@ -451,8 +457,7 @@ public sealed class ItemAuthority
             }
             else if (state.LifeId != pair.Value.Life)
             {
-                slots[pair.Key] = pair.Value with { Life = state.LifeId, Token = pair.Value.Token == 0 ? 0 : NextToken(), SecondToken = pair.Value.SecondToken == 0 ? 0 : NextToken(), SelectionRevision = 0, EngagedToken = 0,
-                    NitroDeploymentTicks = pair.Value.Active.Item == HeldItem.Nitro ? ItemSlot.NitroDeploymentDurationTicks : 0 };
+                slots[pair.Key] = pair.Value with { Life = state.LifeId, Token = pair.Value.Token == 0 ? 0 : NextToken(), SecondToken = pair.Value.SecondToken == 0 ? 0 : NextToken(), SelectionRevision = 0, EngagedToken = 0 };
             }
         }
 
@@ -476,6 +481,7 @@ public sealed class ItemAuthority
         }
 
         advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract));
+        movingMines.RemoveAll(mine => mine.IsPlacing && !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == mine.Owner && vehicle.LifeId == mine.PlacementLife && vehicle.CanInteract));
         if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { advanced.RemoveAll(missile => missile.Arc is not null); }
         bool reliableChanged = !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) ||
             !patches.SequenceEqual(_patches) || !contacts.SequenceEqual(_contacts) || journal.Count > 0 ||

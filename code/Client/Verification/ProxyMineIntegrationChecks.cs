@@ -1,8 +1,10 @@
 using System.Net;
 using System.Net.Sockets;
 using Godot;
-using Trackstorm.Client.Items;
 using Trackstorm.Client.Networking;
+using Trackstorm.Client.Items;
+using Trackstorm.Client.Vehicles;
+using Trackstorm.Core.Input;
 using Trackstorm.Core.Items;
 using Trackstorm.Core.Networking.Transport;
 using Trackstorm.Core.Vehicles;
@@ -27,6 +29,8 @@ public sealed partial class ProxyMineIntegrationChecks : Node
     private float _hp;
     private int _surface;
     private bool _done;
+    private InputFrame _presentationInput;
+    private bool _midPlacementJoin;
     private readonly List<string> _evidence = new();
     private static readonly N.Vector3 Normal = N.Vector3.Transform(N.Vector3.UnitY, N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, 0.25f));
     private static readonly N.Quaternion Rotation = N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, 0.25f);
@@ -62,7 +66,7 @@ public sealed partial class ProxyMineIntegrationChecks : Node
         view.AddChild(arena);
         for (int terrain = 0; terrain < 3; terrain++)
         {
-            var bank = new StaticBody3D { Position = new Vector3(terrain * 50, 20, 0), Rotation = terrain == 1 ? new Vector3(0, 0, 0.25f) : Vector3.Zero, CollisionLayer = 1 };
+            var bank = new StaticBody3D { PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off, Position = new Vector3(terrain * 50, 20, 0), Rotation = terrain == 1 ? new Vector3(0, 0, 0.25f) : Vector3.Zero, CollisionLayer = 1 };
             bank.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(42, 1, 42) } });
             bank.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(42, 1, 42) }, MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.32f, 0.34f, 0.36f) } });
             arena.AddChild(bank);
@@ -83,7 +87,7 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                 uneven.AddChild(new MeshInstance3D { Mesh = mesh, MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.4f,0.3f,0.2f), CullMode = BaseMaterial3D.CullModeEnum.Disabled } });
                 arena.AddChild(uneven);
             }
-        }        var camera = new Camera3D { Position = new Vector3(15, 35, 23) };
+        }        var camera = new Camera3D { PhysicsInterpolationMode = PhysicsInterpolationModeEnum.Off, Position = new Vector3(15, 35, 23) };
         arena.AddChild(camera);
         camera.LookAt(new Vector3(0, 20, 2));
         camera.MakeCurrent();
@@ -96,21 +100,31 @@ public sealed partial class ProxyMineIntegrationChecks : Node
         if (_done) { if (++_frames > _boundary + 20) { GetTree().Quit(); } return; }
         try
         {
-            if (_frames == 0) { VerifySupportConvergence(); }
             _frames++;
-            foreach (var arena in _arenas) { var before = arena.Driver.Host?.World.State; arena.Advance(default); if (before is not null) { _scoring.Verify(arena.Driver.Host!, before.Value, "gameplay effect"); } Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure); }
-            Check(_frames - _boundary < 1200, $"Mine stage {_stage} timeout; mines={_arenas[0].Driver.Host?.Items.Mines.Count}");
+            foreach (var arena in _arenas) { var before = arena.Driver.Host?.World.State; arena.Advance(arena == _arenas[0] ? _presentationInput : default); if (before is not null) { _scoring.Verify(arena.Driver.Host!, before.Value, "gameplay effect"); } Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure); }
+            Check(_frames - _boundary < (_stage == 1000 ? 6000 : 1200), $"Mine stage {_stage} timeout; mines={_arenas[0].Driver.Host?.Items.Mines.Count}");
             var host = _arenas[0].Driver.Host!;
+            if (_stage == 1 && _frames % 9 == 0) { Capture($"arm-placement-{_frames - _boundary:D3}.png"); }
+            if (_stage == 1 && _frames - _boundary == ProxyMineState.PlacementDurationTicks / 3) { AddPeer(); }
+            if (_stage == 1 && _arenas.Count == 3 && _arenas[2].Driver.ItemState?.Mines.Any(m => m.IsPlacing) == true)
+            {
+                _midPlacementJoin = true;
+                if (_frames % 15 == 0) { Capture($"arm-late-peer-{_frames - _boundary:D3}.png", 2); }
+            }
+            if (_stage == 2 && _frames % 3 == 0) { Capture($"arm-release-{_frames - _boundary:D3}.png"); }
             switch (_stage)
             {
                 case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2):
                     Check(host.TryConfigure(0, new Dictionary<string,double> { ["items.mine_damage"] = 60, ["match.countdown_ticks"] = 1, ["match.item_points_per_damage"] = 0.5 }, out _), "damage tuning");
                     Position(1, new N.Vector3(0,21.4f,0));
                     Position(2, new N.Vector3(-35,21.4f,0));
+                    var armCamera = _views[0].GetCamera3D();
+                    armCamera.Position = new Vector3(7, 24.5f, 8);
+                    armCamera.LookAt(new Vector3(0, 22, 2));
                     Grant(1);
                     Next("Two UDP peers ready; ordinary host Proxy Mine use requested.");
                     break;
-                case 1 when host.Items.Mines.Count == 1:
+                case 1 when host.Items.Mines.Count == 1 && !host.Items.Mines[0].IsPlacing:
                     _mine = host.Items.Mines.Single();
                     Check(Math.Abs(_mine.Position.Y - 20.758f) < 0.03, "flat terrain seating");
                     Next("Mine installed on the real flat platform, with terrain clearance and seated timer.");
@@ -118,8 +132,8 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                 case 2 when _frames - _boundary == 15:
                     Check(host.Items.Mines.Single().Position == _mine!.Position, "stable seating before attraction");
                     Position(1, new N.Vector3(-35,21.4f,-10));
-                    AddPeer();
-                    Next("Initial seating remains exactly stable; fresh late admission started.");
+                    Check(_midPlacementJoin, "Late admission reconstructed an unfinished authoritative arm placement");
+                    Next("Initial seating remains exactly stable; late admission reconstructed the mine during arm placement.");
                     break;
                 case 3 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 3 && a.Driver.ItemState?.Mines.Count == 1):
                     Position(3, new N.Vector3(-35,21.4f,10));
@@ -161,7 +175,7 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                     _stage = 81; _boundary = _frames;
                     GD.Print("Replicated removal/HP and native knockback passed; stationary target trial requested.");
                     break;
-                case 81 when host.Items.Mines.Count == 1:
+                case 81 when host.Items.Mines.Count == 1 && !host.Items.Mines[0].IsPlacing:
                     Position(1, new N.Vector3(-35,21.4f,-10));
                     _hp = host.World.GetVehicle(2).Damage.CurrentHP;
                     _stage = 82; _boundary = _frames;
@@ -173,7 +187,7 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                     GD.Print(_evidence[^1]);
                     _stage = 9; _boundary = _frames;
                     break;
-                case 9 when host.Items.Mines.Count == 1:
+                case 9 when host.Items.Mines.Count == 1 && !host.Items.Mines[0].IsPlacing:
                     _mine = host.Items.Mines.Single();
                     Check(_surface == 1 ? N.Vector3.Dot(_mine.Normal, Normal) > 0.995f : _mine.Position.Y > 20.84f, "slope/uneven placement");
                     Position(2, new N.Vector3(-35,21.4f,0));
@@ -197,38 +211,140 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                 case 12 when _frames - _boundary > 20 && _arenas.All(a => a.Driver.ItemState?.Mines.Count == 0):
                     Check(_scoring.Hits >= 2 && _scoring.Points >= 60, "Repeated mine contacts award configured applied-damage points");
                     _evidence.Add($"Item scoring verified: {_scoring.Hits} rival hits, {_scoring.Points} points; host, remote and late-join publications agree.");
-                    var path = ProjectSettings.GlobalizePath("res://.godot/mine-checks");
-                    System.IO.Directory.CreateDirectory(path);
-                    System.IO.File.WriteAllLines(System.IO.Path.Combine(path, "evidence.txt"), _evidence);
-                    GD.Print("Proxy Mine integration passed: " + string.Join("\n", _evidence));
-                    _done = true; _boundary = _frames;
-                    foreach (var arena in _arenas) { arena.QueueFree(); }
-                    foreach (var gateway in _gateways) { gateway.Dispose(); }
+                    _stage = 1000; _boundary = _frames;
+                    _ = PresentationTrials();
                     break;
             }
         }
         catch (Exception error) { GD.PrintErr(error); foreach (var gateway in _gateways) { gateway.Dispose(); } GetTree().Quit(1); }
     }
 
-    private static void VerifySupportConvergence()
+    private async Task PresentationTrials()
     {
-        Vector3[] supports = [Vector3.Up, new Vector3(-0.25f, 1, 0.1f).Normalized(), new Vector3(0.7f, 0.6f, 0.3f).Normalized()];
-        foreach (var support in supports)
+        try
         {
-            Vector3 normal = new Vector3(0.1f, 1, 0.2f).Normalized();
-            for (int tick = 0; tick < 1200; tick++)
+            var host = _arenas[0].Driver.Host!;
+            _surface = 0;
+            Position(2, new N.Vector3(-35, 21.4f, 0));
+            Position(3, new N.Vector3(-35, 21.4f, 10));
+            // Ordinary deployment creates all sixteen IDs. Zero force isolates the
+            // seated presentation; canonical magnetic tuning is restored below.
+            for (int i = 0; i < 16; i++)
             {
-                float before = normal.DistanceSquaredTo(support);
-                normal = ProxyMinePhysics.FollowSupport(normal, support);
-                Check(normal.IsFinite() && normal.IsNormalized(), $"Support normal remains finite/unit at tick {tick}");
-                Check(normal.DistanceSquaredTo(support) <= before + 0.0000001f, "Support alignment converges without overshoot");
+                Position(1, new N.Vector3(-6 + i % 4 * 4, 21.4f, 3 - i / 4 * 4));
+                Grant(1);
+                await Frames(ProxyMineState.PlacementDurationTicks + 40);
+                Check(host.Items.Mines.Count == i + 1, $"Deployment {i + 1}: expected {i + 1} mines, got {host.Items.Mines.Count}");
             }
-            Check(normal.DistanceTo(support) < 0.000001f, "Sustained support alignment reaches the surface normal");
+            Position(1, new N.Vector3(0, 21.4f, 17));
+            await Frames(60);
+            Check(_arenas.All(a => a.Driver.ItemState?.Mines.Count == 16), "Sixteen mines replicated on three UDP peers");
+            var visuals = Descendants(_arenas[0]).OfType<ProxyMineVisual>().ToArray();
+            Check(visuals.Length == 16, "Exactly sixteen world presentations");
+            Check(visuals.All(v => !Descendants(v).Any(n => n is CollisionObject3D or CollisionShape3D)), "Imported visuals contain no collision nodes");
+            var lenses = visuals.Select(v => Descendants(v).OfType<MeshInstance3D>().Single(m => m.Name == "BeaconLens")).ToArray();
+            Check(lenses.Select(l => l.Mesh.GetRid()).Distinct().Count() == 1, "Instances share imported lens geometry");
+            Check(lenses.Select(l => l.MaterialOverride.GetRid()).Distinct().Count() == 16, "Each beacon owns its pulse material");
+            var first = host.Items.Mines[0];
+            var camera = _views[0].GetCamera3D();
+            var point = new Vector3(first.Position.X, first.Position.Y, first.Position.Z);
+            camera.Position = point + new Vector3(1.7f, 1.2f, 2.1f);
+            camera.LookAt(point);
+            await Frames(3);
+            await CaptureDrawn("model-close.png");
+            camera.Position = new Vector3(14, 34, 20);
+            camera.LookAt(new Vector3(0, 20.7f, 1));
+            await Frames(3);
+            await CaptureDrawn("sixteen-seated.png");
+
+            // Real production chase camera, unchanged authored FOV/follow settings.
+            var chase = _arenas[0].GetNode<VehicleChaseCamera>("ChaseCamera");
+            chase.ResetFollow(); chase.MakeCurrent();
+            await Frames(60);
+            await CaptureDrawn("chase-sixteen-idle.png");
+            Check(host.TryConfigure(0, new Dictionary<string, double>
+            {
+                ["items.mine_minimum_force"] = 1000, ["items.mine_maximum_force"] = 2000,
+            }, out _), "Restore canonical magnetic force for multi-mine motion");
+            var start = host.Items.Mines.ToDictionary(m => m.Id, m => m.Position);
+            var impacts = new HashSet<ulong>();
+            int observedImpacts = 0;
+            void Observe(ItemPublication p)
+            {
+                foreach (var e in p.Events.Where(e => e.Item == HeldItem.ProxyMine && e.Impact))
+                {
+                    observedImpacts++;
+                    Check(impacts.Add(e.Token), "Each mine commits only one detonation event");
+                }
+            }
+            _arenas[0].Driver.ItemsReceived += Observe;
+            bool moved = false;
+            _presentationInput = new InputFrame(0, 0, 14000, 0, 0, 0, 0);
+            for (int i = 0; i < 180; i++)
+            {
+                await Frames(1);
+                moved |= host.Items.Mines.Any(m => start.TryGetValue(m.Id, out var p) && N.Vector3.DistanceSquared(p, m.Position) > .1f);
+                if (i % 6 == 0) { await CaptureDrawn($"chase-motion-{i:D3}.png"); }
+            }
+            _presentationInput = default;
+            _arenas[0].Driver.ItemsReceived -= Observe;
+            Check(moved, "Simultaneous mines move under existing native magnetic physics");
+            Check(observedImpacts > 0, "Multi-mine chase trial observed committed detonations");
+            _evidence.Add($"Sixteen ordinary deployments on three UDP peers; shared meshes, independent beacons and no imported collision. Production chase camera: 180 motion ticks, {impacts.Count} distinct committed detonations, {host.Items.Mines.Count} surviving mines.");
+            Check(host.TryConfigure(0, new Dictionary<string, double> { ["items.mine_minimum_force"] = 0, ["items.mine_maximum_force"] = 0 }, out _), "Isolate moving placement from surrounding hazards");
+            Position(1, new N.Vector3(100, 21.4f, -5));
+            Position(2, new N.Vector3(108, 21.4f, -5));
+            await Frames(60);
+            chase.ResetFollow();
+            Grant(1);
+            Check(host.Items.Grant(host.World, 2, HeldItem.ProxyMine), "Simultaneous remote placement grant");
+            await RequestRemoteUse();
+            _presentationInput = new InputFrame(0, 0, 8000, 0, 0, 0, 0);
+            N.Vector3 movingStart = host.World.GetVehicle(1).Movement.Physics.Position;
+            bool simultaneous = false;
+            ulong carried = host.Items.Mines.Single(m => m.Owner == 1 && m.IsPlacing).Id;
+            for (int i = 0; i < ProxyMineState.PlacementDurationTicks + 70; i++)
+            {
+                await Frames(1);
+                simultaneous |= host.Items.Mines.Count(m => m.IsPlacing) == 2;
+                if (i % 10 == 0) { await CaptureDrawn($"arm-chase-moving-{i:D3}.png"); }
+            }
+            _presentationInput = default;
+            Check(simultaneous, "Two cars exercised independent placement arms simultaneously");
+            Check(N.Vector3.Distance(host.World.GetVehicle(1).Movement.Physics.Position, movingStart) > 1, "Car moved during ground placement");
+            Check(host.Items.Mines.Any(m => m.Id == carried && !m.IsPlacing), "Moving placement reached actual ground and became active");
+            Check(_arenas.All(a => a.Driver.ItemState?.Mines.All(m => !m.IsPlacing) == true), "All peers observed both completed placements");
+            _evidence.Add("Late join reconstructed an unfinished placement; two cars later placed mines simultaneously while the host drove under the production chase camera. Both completed and replicated without replaying pickup outcomes.");
+            var path = ProjectSettings.GlobalizePath("res://.godot/mine-checks");
+            System.IO.Directory.CreateDirectory(path);
+            System.IO.File.WriteAllLines(System.IO.Path.Combine(path, "evidence.txt"), _evidence);
+            GD.Print("Proxy Mine integration passed: " + string.Join("\n", _evidence));
+            _done = true; _boundary = _frames;
+            foreach (var arena in _arenas) { arena.QueueFree(); }
+            foreach (var gateway in _gateways) { gateway.Dispose(); }
         }
-        Vector3 bank = new Vector3(0.5f, 1, 0).Normalized();
-        Vector3 step = ProxyMinePhysics.FollowSupport(Vector3.Up, bank);
-        Check(Mathf.Abs(Vector3.Up.AngleTo(step) - Vector3.Up.AngleTo(bank) * 0.2f) < 0.000001f, "Ordinary bank alignment retains its angular response");
-        GD.Print("Mine support convergence passed: flat/banked/uneven normals, 1200 ticks each, finite unit normals and unchanged bank response.");
+        catch (Exception error) { GD.PrintErr(error); GetTree().Quit(1); }
+    }
+
+    private async Task Frames(int count)
+    {
+        for (int i = 0; i < count; i++) { await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame); }
+    }
+
+    private async Task CaptureDrawn(string name)
+    {
+        if (DisplayServer.GetName() == "headless") { return; }
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        Capture(name);
+    }
+
+    private static IEnumerable<Node> Descendants(Node root)
+    {
+        foreach (var child in root.GetChildren())
+        {
+            yield return child;
+            foreach (var nested in Descendants(child)) { yield return nested; }
+        }
     }
 
     private void Grant(ulong player)
@@ -277,12 +393,12 @@ public sealed partial class ProxyMineIntegrationChecks : Node
         camera.Position = new Vector3(point.X + 6, point.Y + 5, point.Z + 8);
         camera.LookAt(new Vector3(point.X, point.Y, point.Z));
     }
-    private void Capture(string name)
+    private void Capture(string name, int peer = 0)
     {
         if (DisplayServer.GetName() == "headless") { return; }
         string path = ProjectSettings.GlobalizePath("res://.godot/mine-checks");
         System.IO.Directory.CreateDirectory(path);
-        _views[0].GetTexture().GetImage().SavePng(System.IO.Path.Combine(path, name));
+        _views[peer].GetTexture().GetImage().SavePng(System.IO.Path.Combine(path, name));
     }
     private void Next(string text) { _evidence.Add(text); GD.Print(text); _stage++; _boundary = _frames; }
     private static void Check(bool condition, string message) { if (!condition) { throw new InvalidOperationException(message); } }

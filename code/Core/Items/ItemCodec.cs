@@ -4,7 +4,7 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-fourteen reliable item protocol. Requests carry no claimed player or outcome.</summary>
+/// <summary>Bounded version-thirteen reliable item protocol. Requests carry no claimed player or outcome.</summary>
 public static class ItemCodec
 {
     /// <summary>Accommodates the maximum lifetime-derived Oil set and its pass counts and overlap latches.</summary>
@@ -118,7 +118,6 @@ public static class ItemCodec
             writer.Write(slot.NitroCharge);
             writer.Write(slot.SecondNitroCharge);
             writer.Write(slot.EngagedToken);
-            writer.Write((byte)slot.NitroDeploymentTicks);
             writer.Write(slot.SalvoShots);
             writer.Write(slot.SecondSalvoShots);
             writer.Write(slot.SalvoReadyTick);
@@ -156,6 +155,8 @@ public static class ItemCodec
             Vector(writer, mine.Velocity);
             Vector(writer, mine.Normal);
             writer.Write(mine.SeatingTicks);
+            writer.Write(mine.PlacementLife);
+            writer.Write(mine.PlacementTicks);
         }
         bool reuseOil = previous is not null && previous.World.Session == state.World.Session && previous.Revision < state.Revision && previous.Patches.SequenceEqual(state.Patches) && previous.OilContacts.SequenceEqual(state.OilContacts);
         writer.Write(reuseOil ? previous!.Revision : 0);
@@ -236,7 +237,7 @@ public static class ItemCodec
         for (int i = 0; i < slots.Length; i++)
         {
             slots[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), (HeldItem)reader.ReadByte())
-            { SecondToken = reader.ReadUInt64(), SecondItem = (HeldItem)reader.ReadByte(), ActiveSlot = reader.ReadByte(), SelectionRevision = reader.ReadUInt64(), NitroCharge = reader.ReadDouble(), SecondNitroCharge = reader.ReadDouble(), EngagedToken = reader.ReadUInt64(), NitroDeploymentTicks = reader.ReadByte(),
+            { SecondToken = reader.ReadUInt64(), SecondItem = (HeldItem)reader.ReadByte(), ActiveSlot = reader.ReadByte(), SelectionRevision = reader.ReadUInt64(), NitroCharge = reader.ReadDouble(), SecondNitroCharge = reader.ReadDouble(), EngagedToken = reader.ReadUInt64(),
                 SalvoShots = reader.ReadInt32(), SecondSalvoShots = reader.ReadInt32(), SalvoReadyTick = reader.ReadUInt64(), SecondSalvoReadyTick = reader.ReadUInt64(), Ammo = Ammo(reader), SecondAmmo = Ammo(reader) };
         }
 
@@ -251,7 +252,8 @@ public static class ItemCodec
         var mines = new ProxyMineState[Count(reader, ItemAuthority.MaximumMines)];
         for (int i = 0; i < mines.Length; i++)
         {
-            mines[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), Vector(reader), reader.ReadInt32());
+            mines[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), Vector(reader), reader.ReadInt32())
+            { PlacementLife = reader.ReadUInt64(), PlacementTicks = reader.ReadInt32() };
         }
         ulong oilBaseline = reader.ReadUInt64();
         OilPatch[] patches;

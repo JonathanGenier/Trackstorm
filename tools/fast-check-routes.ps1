@@ -249,12 +249,11 @@ function Get-FastCheckPlan {
 
         if ($path -match '(?i)MachineGun|machine_gun|check-machine-gun') { Add-Runtime 'check-machine-gun.ps1' }
 
-        if ($path -match '(?i)ProxyMine|check-mine|mine_checks') { Add-Runtime 'check-mine.ps1' }
+        if ($path -match '(?i)ProxyMine|proxy-mine|check-mine|mine_checks') { Add-Runtime 'check-mine.ps1' }
 
         if ($path -match '(?i)Nitro') { Add-Runtime 'check-nitro.ps1' }
         if ($path -match '(?i)BoostExhaust|boost_exhaust|check-boost-exhaust|BoostFlame|BoostThroat|assets/vehicles/boost/') {
             Add-Runtime 'check-boost-exhaust.ps1'
-            Add-Runtime 'check-boost-camera.ps1'
             Add-Runtime 'check-nitro.ps1'
             Add-Manual 'Observe rear jet deployment, ignition, turbulent thrust, cutoff, residual smoke and multiple simultaneous Boost effects.'
         }

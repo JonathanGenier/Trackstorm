@@ -10,3 +10,7 @@ $output = & $GodotPath @arguments 2>&1
 $code = $LASTEXITCODE
 $output | Write-Output
 if ($code -ne 0 -or $output -match 'ERROR:|WARNING:' -or -not ($output -match 'Car rack integration passed:')) { throw 'Car rack verification failed.' }
+$consecutive = & $GodotPath @($arguments + @('--', '--consecutive-mines')) 2>&1
+$code = $LASTEXITCODE
+$consecutive | Write-Output
+if ($code -ne 0 -or $consecutive -match 'ERROR:|WARNING:' -or -not ($consecutive -match 'Car rack consecutive mine passed:')) { throw 'Car rack consecutive mine verification failed.' }
