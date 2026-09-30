@@ -259,7 +259,10 @@ public sealed class VehicleMovement
             // road speed after a handbrake slide has rotated past broadside.
             steeringReserve *= 1 - handbrake;
             float steeringTravel = longitudinal;
-            float steeringDemand = steeringTravel * MathF.Tan(wheel) * response * 0.5f;
+            // The steered contact already moves laterally as the chassis yaws. Account
+            // for that velocity in the reserved demand, just as the ordinary tire does;
+            // otherwise a held turn keeps adding front torque after the nose follows.
+            float steeringDemand = (steeringTravel * MathF.Sin(wheel) + yaw * halfAxle * MathF.Cos(wheel)) * response * 0.5f;
             if (driveEnabled && waterDepth == 0 && (!wheels.HasValue || frontTotal > 0))
             {
                 if (materials[0] == SurfaceType.Dirt) { fl = DirtFront(fl, frontLong * frontLeftShare, steeringDemand * frontLeftShare, frontCapacity * frontLeftShare * profiles[0].Grip, steeringReserve * c.DirtSteeringReserve); }

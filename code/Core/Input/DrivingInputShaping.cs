@@ -20,7 +20,7 @@ public sealed record DrivingInputShaping
     }
 
     /// <summary>Ground stick precision exponent: one is linear, larger values soften small corrections without reducing full lock.</summary>
-    public float ControllerSteeringExponent { get; init; } = 2.4f;
+    public float ControllerSteeringExponent { get; init; } = 3.5f;
 
     /// <summary>Shapes a normalized analog steering sample while preserving sign, center and full articulation.</summary>
     /// <param name="value">Dead-zone-conditioned signed stick sample.</param>

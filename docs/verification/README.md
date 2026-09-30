@@ -10,7 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
-| Arcade trophy-truck handling, handbrake/controller polish, bank/pickup reconciliation and runtime/multiplayer evidence | [TS-197 verification evidence](ts-197.md) |
+| Arcade trophy-truck handling, sustained-turn rear alignment, controller precision and runtime/multiplayer evidence | [TS-197 verification evidence](ts-197.md) |
 | Proxy Mine explosion VFX, overlap and cleanup | [TS-250 verification and Astra runtime critique](ts-250.md) |
 | Story verification | [TS-227 verification evidence](ts-227.md) |
 | Proxy Mine production model, rack arm and ground placement | [TS-249 verification evidence](ts-249.md) |

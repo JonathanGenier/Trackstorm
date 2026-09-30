@@ -264,19 +264,31 @@ public sealed partial class TrophyTruckChecks : Node3D
         foreach (float speed in new[] { 40 / 3.6f, 50 / 3.6f, 60 / 3.6f })
         {
             float baselineTurn = 0;
+            float baselineTravel = 0;
             foreach (bool assisted in new[] { false, true })
             {
                 await Setup(network, $"power-{speed * 3.6f:F0}-{assisted}", new(0, VehicleDimensions.RideHeight, 0), N.Quaternion.Identity,
                     new(0, 0, -speed), new() { DirtCornering = assisted ? 1 : 0 });
                 _pilot = (tick, _) => new(tick, short.MaxValue, ushort.MaxValue, 0, 0, 0, 0);
                 await Frames(45);
-                if (assisted) { Check(Math.Abs(_yawTravel) > baselineTurn * 1.2f, _case + " carves at least 20% more heading within 0.75 seconds"); }
-                else { baselineTurn = Math.Abs(_yawTravel); }
+                var entryVelocity = _world.GetVehicle(1).ObservedPhysics.LinearVelocity;
+                float travel = Math.Abs(MathF.Atan2(entryVelocity.X, -entryVelocity.Z));
+                GD.Print($"{_case}: entry heading={Math.Abs(_yawTravel):F4} travel={travel:F4} baseline heading={baselineTurn:F4} travel={baselineTravel:F4}");
+                // More yaw alone can reward the unwanted rear swing. Require the travel
+                // direction to follow the stronger dirt turn, then observe the held turn.
+                if (assisted) { Check(Math.Abs(_yawTravel) > baselineTurn && travel > baselineTravel, _case + " turns both chassis and travel direction more directly within 0.75 seconds"); }
+                else { baselineTurn = Math.Abs(_yawTravel); baselineTravel = travel; }
                 await Frames(15);
                 var state = _world.GetVehicle(1);
                 var right = N.Vector3.Transform(N.Vector3.UnitX, state.ObservedPhysics.Orientation);
                 GD.Print($"{_case}: speed={state.Speed:F3} yaw={state.Movement.Physics.AngularVelocity.Y:F3} side={N.Vector3.Dot(right, state.ObservedPhysics.LinearVelocity):F3}");
                 Check(N.Vector3.Transform(N.Vector3.UnitY, state.ObservedPhysics.Orientation).Y > 0.9f, _case + " remains planted");
+                await Frames(120);
+                state = _world.GetVehicle(1);
+                right = N.Vector3.Transform(N.Vector3.UnitX, state.ObservedPhysics.Orientation);
+                float side = Math.Abs(N.Vector3.Dot(right, state.ObservedPhysics.LinearVelocity));
+                GD.Print($"{_case}: held 3 seconds speed={state.Speed:F3} side={side:F3} yaw={state.Movement.Physics.AngularVelocity.Y:F3}");
+                if (assisted) { Check(side < state.Speed * 0.25f && _minimumUp > 0.9f, _case + " sustains the powered turn with rear alignment and wheel support"); }
                 _pilot = (tick, _) => new(tick, 0, 40000, 0, 0, 0, 0);
                 await Frames(180);
                 state = _world.GetVehicle(1);

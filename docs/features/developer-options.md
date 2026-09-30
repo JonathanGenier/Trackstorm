@@ -465,7 +465,7 @@ remains latched even below the reverse tolerance.
 
 ### Controller steering precision and vehicle mass
 
-`input.controller_steering_exponent` defaults to 2.4, with finite bounds 1–4. After
+`input.controller_steering_exponent` defaults to 3.5, with finite bounds 1–4. After
 the analog dead zone, signed steering magnitude is raised to this exponent. One
 is linear; larger values give finer small corrections. Center and full stick
 remain exactly zero and full intent. This is independent of keyboard ramps,

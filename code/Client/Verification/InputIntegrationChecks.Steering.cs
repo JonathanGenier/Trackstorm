@@ -47,15 +47,33 @@ public sealed partial class InputIntegrationChecks
         for (ulong tick = 1; tick <= 90; tick++) { _player.Adapter.Capture(tick); }
         Send(new InputEventKey { PhysicalKeycode = Key.D, Pressed = false });
         Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = 0.575f });
-        Check(Math.Abs(_player.Adapter.Capture(0).Steering - 6208) <= 1, "analog half stick gives fine curved intent and takes ownership over the released keyboard tail");
+        Check(Math.Abs(_player.Adapter.Capture(0).Steering - 2896) <= 1, "analog half stick gives fine curved intent and takes ownership over the released keyboard tail");
         Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = 0 });
         foreach (float stick in new[] { 0.16f, 0.25f, 0.5f, 0.75f, 1f, 0f, -0.16f, -0.25f, -0.5f, -0.75f, -1f, 1f, -1f, 0f })
         {
             Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = stick });
             float normalized = InputAxis.Normalize(stick, _player.Adapter.DeadZone);
-            float expected = MathF.CopySign(MathF.Pow(Math.Abs(normalized), 2.4f), normalized);
+            float expected = MathF.CopySign(MathF.Pow(Math.Abs(normalized), 3.5f), normalized);
             Check(Math.Abs(_player.Adapter.Capture(0).Steering / 32767f - expected) < 0.00004f,
                 $"native stick {stick} preserves continuous curved steering {expected}, including center and reversals");
+        }
+        // Sweep actual native axis samples through binding/dead-zone/curve/recording.
+        // A three-degree jump would be visible here; wire resolution is about 0.0016 degree.
+        foreach (float sign in new[] { -1f, 1f })
+        {
+            int previous = 0;
+            var distinct = new HashSet<int>();
+            for (int sample = 150; sample <= 550; sample++)
+            {
+                Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = sign * sample / 1000f });
+                int intent = Math.Abs((int)_player.Adapter.Capture(0).Steering);
+                Check(intent >= previous && (intent - previous) * 0.9f * 180 / (32767 * MathF.PI) < 0.04f,
+                    "small native stick increments produce continuous subdegree wheel targets");
+                distinct.Add(intent);
+                if (sample == 400) { Check(intent * 0.9f * 180 / (32767 * MathF.PI) < 1, "40 percent raw stick retains subdegree precision"); }
+                previous = intent;
+            }
+            Check(distinct.Count > 300, "near-center native sweep retains hundreds of distinct analog targets");
         }
         _player.Adapter.Shaping = DrivingInputShaping.Aerial;
         Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = 0.575f });

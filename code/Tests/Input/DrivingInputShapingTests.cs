@@ -79,8 +79,8 @@ internal sealed class DrivingInputShapingTests
         var tuning = new DrivingInputShaping();
         foreach (float magnitude in new[] { 0f, 0.01f, 0.25f, 0.5f, 0.75f, 1f })
         {
-            Assert.That(tuning.ShapeControllerSteering(magnitude), Is.EqualTo(MathF.Pow(magnitude, 2.4f)).Within(0.000001f));
-            Assert.That(tuning.ShapeControllerSteering(-magnitude), Is.EqualTo(-MathF.Pow(magnitude, 2.4f)).Within(0.000001f));
+            Assert.That(tuning.ShapeControllerSteering(magnitude), Is.EqualTo(MathF.Pow(magnitude, 3.5f)).Within(0.000001f));
+            Assert.That(tuning.ShapeControllerSteering(-magnitude), Is.EqualTo(-MathF.Pow(magnitude, 3.5f)).Within(0.000001f));
             Assert.That(DrivingInputShaping.Aerial.ShapeControllerSteering(magnitude), Is.EqualTo(magnitude));
         }
         foreach (float invalid in new[] { float.NaN, float.PositiveInfinity, 0.99f, 4.01f })

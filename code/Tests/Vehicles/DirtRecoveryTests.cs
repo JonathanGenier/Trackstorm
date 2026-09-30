@@ -11,6 +11,29 @@ internal sealed class DirtRecoveryTests
 {
     private static readonly VehicleConfiguration Unassisted = new() { DirtSteeringReserve = 0, DirtRecovery = 0 };
 
+    [TestCase(-1f)]
+    [TestCase(1f)]
+    public void ReservedFrontTractionDoesNotAddYawWhenContactAlreadyFollowsWheel(float sign)
+    {
+        var tuning = new VehicleConfiguration { DirtRecovery = 0 };
+        short input = (short)(22000 * sign);
+        float wheel = input / 32767f * tuning.SteeringAngle;
+        // The front contact's velocity is already aligned with the requested wheel.
+        float yaw = -8 * MathF.Tan(wheel) / (tuning.Wheelbase / 2);
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(0, 0, -8), new(0, yaw, 0));
+        VehicleState Step(VehicleConfiguration c)
+        {
+            var movement = new VehicleMovement(c, pose);
+            movement.Restore(new(0, pose, true, false, wheel, 0, throttle: 1));
+            return movement.Step(new(1, input, ushort.MaxValue, 0, 0, 0, 0), pose, Vector3.UnitY, surface: SurfaceType.Dirt);
+        }
+        var assisted = Step(tuning);
+        var ordinary = Step(tuning with { DirtSteeringReserve = 0 });
+        Assert.That(assisted.Physics.AngularVelocity.Y, Is.EqualTo(ordinary.Physics.AngularVelocity.Y).Within(0.00001f),
+            "Front reserve must respond to contact velocity, not keep driving yaw from forward speed alone");
+        Assert.That(assisted.LateralAcceleration, Is.EqualTo(ordinary.LateralAcceleration).Within(0.0001f));
+    }
+
     [TestCase(8f)]
     [TestCase(18f)]
     [TestCase(30f)]
