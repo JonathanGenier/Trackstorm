@@ -360,6 +360,7 @@ public sealed partial class ProxyMineIntegrationChecks : Node
             }
         }
         _arenas[0].Driver.ItemsReceived += Observe;
+        var existingScars = Descendants(_arenas[0]).OfType<ProxyMineScar>().ToHashSet();
         int peak = 0;
         for (int frame = 0; frame < 50; frame++)
         {
@@ -378,8 +379,16 @@ public sealed partial class ProxyMineIntegrationChecks : Node
             if (frame is 20 or 50 or 80 or 120 or 179 or 220 or 239) { await CaptureDrawn($"overlap-tail-{frame:D3}.png"); }
         }
         Check(!Descendants(_arenas[0]).OfType<ProxyMineExplosion>().Any(), "Mine explosions free themselves after their lifetime");
+        var scars = Descendants(_arenas[0]).OfType<ProxyMineScar>()
+            .Where(scar => !existingScars.Contains(scar)).ToArray();
+        Check(scars.Length == 2, "Each authoritative overlap impact leaves one cosmetic ground scar");
+        foreach (var scar in scars) { scar._Process(ProxyMineScar.Duration); }
+        Check(scars.All(scar => scar.IsQueuedForDeletion()), "Minute-long cosmetic scars queue cleanup");
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        Check(scars.All(scar => !GodotObject.IsInstanceValid(scar)), "Minute-long cosmetic scars free themselves");
         Check(_arenas.All(a => a.Driver.ItemState?.Mines.Count == 0), "All three peers removed detonated mines");
-        _evidence.Add($"Two close overlapping authoritative impacts reached three peers; peak {peak} concurrent explosion nodes, zero after 240 cleanup ticks.");
+        _evidence.Add($"Two close overlapping authoritative impacts reached three peers; peak {peak} concurrent dust bursts, zero after 240 cleanup ticks. Two cosmetic scars remained, then expired at the 60-second lifetime.");
     }
 
     private async Task Frames(int count)
