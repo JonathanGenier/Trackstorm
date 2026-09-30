@@ -95,7 +95,16 @@ internal sealed partial class ProxyMinePhysics : StaticBody3D
             if (contact != 0 || remaining.LengthSquared() < 0.0000001f) { break; }
         }
         // Gradual orientation follows support without changing force-driven position or velocity.
-        var normalResult = VehicleBody.ToGodot(previous.Normal).Slerp(support, 0.2f).Normalized();
+        var normalResult = FollowSupport(VehicleBody.ToGodot(previous.Normal), support);
         return new(candidate with { Position = VehicleBody.ToCore(transform.Origin), Velocity = VehicleBody.ToCore(velocity), Normal = VehicleBody.ToCore(normalResult) }, contact);
+    }
+
+    internal static Vector3 FollowSupport(Vector3 previous, Vector3 support)
+    {
+        // As alignment converges, Slerp's cross-product axis can underflow and fail
+        // Godot's normalization check. Near-identical normals need no rotation axis.
+        return (previous.DistanceSquaredTo(support) < 0.000001f
+            ? previous.Lerp(support, 0.2f)
+            : previous.Slerp(support, 0.2f)).Normalized();
     }
 }

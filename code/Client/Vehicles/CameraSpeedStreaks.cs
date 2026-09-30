@@ -57,12 +57,13 @@ internal sealed partial class CameraSpeedStreaks : Control
     {
         Vector2 size = GetViewportRect().Size;
         Vector2 center = size * new Vector2(0.5f, 0.44f);
-        // Short-lived wisps radiate outwards through the periphery, never down fixed columns.
+        // Start in the middle-side bands, then travel offscreen. Even the longest
+        // tail stays outside the central third reserved for driving/aiming.
         for (int i = 0; i < Count; i++)
         {
             float phase = _progress[i];
             Vector2 ray = _edge[i] * size - center;
-            float radius = 0.80f + phase * 0.38f;
+            float radius = 0.48f + phase * 0.70f;
             Vector2 end = center + ray * radius;
             Vector2 start = center + ray * (radius - _length[i]);
             float alpha = MathF.Sin(phase * MathF.PI) * _opacity[i] * _strength;

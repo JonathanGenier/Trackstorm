@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Shake playtest: Collision 0%, peak=0.000px / 0.0000m, HP=50.598
+Shake playtest: Collision 50%, peak=4.862px / 0.1407m, HP=50.598
+Shake playtest: Collision 100%, peak=9.724px / 0.2814m, HP=50.598
+Shake playtest: Damage 0%, peak=0.000px / 0.0000m, HP=80.000
+Shake playtest: Damage 50%, peak=4.717px / 0.1384m, HP=80.000
+Shake playtest: Damage 100%, peak=9.434px / 0.2767m, HP=80.000
+Shake playtest: Minor contact 100%, peak=0.000px / 0.0000m, HP=100.000
+Shake playtest: Disable during damage / re-enable, peak=9.434px / 0.2767m, HP=80.000
+Shake playtest: Repeated damage, same life, peak=10.190px / 0.2989m, HP=60.000
+Camera shake playtest passed: real impacts/damage, projected pixels, zero/half/full, minor contacts, disable/re-enable and repeated damage.
+Camera shake verification artifacts: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\camera-shake-checks\e7a86536ce66486bab231ce8cd1435b6

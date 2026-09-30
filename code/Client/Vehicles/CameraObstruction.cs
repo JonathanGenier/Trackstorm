@@ -13,11 +13,18 @@ internal sealed class CameraObstruction : IDisposable
     private Vector3 _previousPivot;
     private Vector3 _previousIntent;
     private float _lift;
+    private float _framingYaw;
+    private float _framingClearTime;
+    private float _framingDistance;
 
     internal float Lift => _lift;
+    internal bool Reframed { get; private set; }
 
-    internal Vector3 Resolve(PhysicsDirectSpaceState3D space, Vector3 pivot, Vector3 desired, Vector3 intent, float radius, Rid followedBody, float delta, bool reset)
+    internal Vector3 Resolve(PhysicsDirectSpaceState3D space, Vector3 pivot, Vector3 desired, Vector3 intent, float radius, Rid followedBody, float delta, bool reset, bool rolled = false)
     {
+        Vector3 originalPivot = pivot;
+        Vector3 originalDesired = desired;
+        if (reset) { _framingYaw = 0; _framingClearTime = 0; Reframed = false; }
         _shape.Radius = radius;
         _query.Shape = _shape;
         _query.Exclude = followedBody.IsValid ? new Godot.Collections.Array<Rid> { followedBody } : new();
@@ -75,7 +82,65 @@ internal sealed class CameraObstruction : IDisposable
             _releaseDelay = Math.Max(0, _releaseDelay - delta);
             if (_releaseDelay == 0) _shortening = Mathf.Lerp(_shortening, shortening, ChaseCameraMotion.Blend(5, delta));
         }
-        return pivot + motion / length * Math.Max(0, length - _shortening);
+        Vector3 resolved = pivot + motion / length * Math.Max(0, length - _shortening);
+        return ResolveRollover(space, originalPivot, originalDesired, resolved, rolled, delta);
+    }
+
+    private Vector3 ResolveRollover(PhysicsDirectSpaceState3D space, Vector3 pivot, Vector3 desired, Vector3 resolved, bool rolled, float delta)
+    {
+        // A rolled chassis can reach above the ordinary raised pivot. Do not keep
+        // shortening that same blocked boom into the car: look along the free side
+        // of the bank instead. Every alternate boom uses the same world-volume sweep.
+        float normalDistance = pivot.DistanceTo(resolved);
+        if (!Reframed && (!rolled || normalDistance >= 5.5f)) return resolved;
+        if (!Reframed) _framingDistance = normalDistance;
+        _framingClearTime = normalDistance > 7 ? _framingClearTime + delta : 0;
+        Vector3 clear = ClearPivot(space, pivot);
+        Vector3 boom = desired - pivot;
+        float selected = _framingYaw;
+        bool found = false;
+        // Prefer continuity while obstructed, then the original heading after a
+        // clear interval. Sampling both sides avoids an arbitrary fence-side bias.
+        float preferred = _framingClearTime > .2f ? 0 : _framingYaw;
+        Span<(float Angle, float Score)> candidates = stackalloc (float, float)[25];
+        for (int step = -12; step <= 12; step++)
+        {
+            float angle = step * MathF.PI / 12;
+            candidates[step + 12] = (angle, Math.Abs(Mathf.AngleDifference(preferred, angle)) + Math.Abs(angle) * .15f);
+        }
+        candidates.Sort(static (a, b) => a.Score != b.Score ? a.Score.CompareTo(b.Score) : a.Angle.CompareTo(b.Angle));
+        // Rank cheap angular preferences first. Most frames need only the retained
+        // candidate's sweep, rather than 25 expensive queries against the track mesh.
+        foreach (var candidate in candidates)
+        {
+            Vector3 end = clear + boom.Rotated(Vector3.Up, candidate.Angle);
+            float allowed = AllowedDistance(space, clear, end);
+            if (allowed < 6.5f) continue;
+            selected = candidate.Angle;
+            found = true;
+            break;
+        }
+        if (!found) { Reframed = false; _framingYaw = 0; return resolved; }
+        float blended = Mathf.LerpAngle(_framingYaw, selected, ChaseCameraMotion.Blend(8, delta));
+        Vector3 direction = boom.Rotated(Vector3.Up, blended);
+        float distance = AllowedDistance(space, clear, clear + direction);
+        // Never ease through a blocked intermediate angle into the chassis.
+        if (distance < 5.5f)
+        {
+            blended = selected;
+            direction = boom.Rotated(Vector3.Up, blended);
+            distance = AllowedDistance(space, clear, clear + direction);
+        }
+        _framingYaw = blended;
+        Reframed = true;
+        _framingDistance = Math.Min(distance, Math.Max(5.5f, Mathf.Lerp(_framingDistance, distance, ChaseCameraMotion.Blend(5, delta))));
+        if (_framingClearTime > .2f && Math.Abs(_framingYaw) < .01f && Math.Abs(_framingDistance - normalDistance) < .1f)
+        {
+            Reframed = false;
+            _framingYaw = 0;
+            return resolved;
+        }
+        return clear + direction.Normalized() * _framingDistance;
     }
 
     private Vector3 ClearPivot(PhysicsDirectSpaceState3D space, Vector3 pivot)

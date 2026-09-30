@@ -100,6 +100,7 @@ public sealed partial class ProxyMineIntegrationChecks : Node
         if (_done) { if (++_frames > _boundary + 20) { GetTree().Quit(); } return; }
         try
         {
+            if (_frames == 0) { VerifySupportConvergence(); }
             _frames++;
             foreach (var arena in _arenas) { var before = arena.Driver.Host?.World.State; arena.Advance(arena == _arenas[0] ? _presentationInput : default); if (before is not null) { _scoring.Verify(arena.Driver.Host!, before.Value, "gameplay effect"); } Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure); }
             Check(_frames - _boundary < (_stage == 1000 ? 6000 : 1200), $"Mine stage {_stage} timeout; mines={_arenas[0].Driver.Host?.Items.Mines.Count}");
@@ -396,6 +397,27 @@ public sealed partial class ProxyMineIntegrationChecks : Node
             yield return child;
             foreach (var nested in Descendants(child)) { yield return nested; }
         }
+    }
+
+    private static void VerifySupportConvergence()
+    {
+        Vector3[] supports = [Vector3.Up, new Vector3(-0.25f, 1, 0.1f).Normalized(), new Vector3(0.7f, 0.6f, 0.3f).Normalized()];
+        foreach (var support in supports)
+        {
+            Vector3 normal = new Vector3(0.1f, 1, 0.2f).Normalized();
+            for (int tick = 0; tick < 1200; tick++)
+            {
+                float before = normal.DistanceSquaredTo(support);
+                normal = ProxyMinePhysics.FollowSupport(normal, support);
+                Check(normal.IsFinite() && normal.IsNormalized(), $"Support normal remains finite/unit at tick {tick}");
+                Check(normal.DistanceSquaredTo(support) <= before + 0.0000001f, "Support alignment converges without overshoot");
+            }
+            Check(normal.DistanceTo(support) < 0.000001f, "Sustained support alignment reaches the surface normal");
+        }
+        Vector3 bank = new Vector3(0.5f, 1, 0).Normalized();
+        Vector3 step = ProxyMinePhysics.FollowSupport(Vector3.Up, bank);
+        Check(Mathf.Abs(Vector3.Up.AngleTo(step) - Vector3.Up.AngleTo(bank) * 0.2f) < 0.000001f, "Ordinary bank alignment retains its angular response");
+        GD.Print("Mine support convergence passed: flat/banked/uneven normals, 1200 ticks each, finite unit normals and unchanged bank response.");
     }
 
     private void Grant(ulong player)
