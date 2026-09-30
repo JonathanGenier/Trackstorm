@@ -2,7 +2,7 @@ using Godot;
 
 namespace Trackstorm.Client.Items;
 
-/// <summary>Bounded fireball, rising smoke and impulse presentation of a confirmed mine detonation.</summary>
+/// <summary>Bounded fireball, mushroom smoke and impulse presentation of a confirmed mine detonation.</summary>
 internal sealed partial class ProxyMineExplosion : Node3D
 {
     internal const float Duration = 2.7f;
@@ -46,9 +46,11 @@ internal sealed partial class ProxyMineExplosion : Node3D
     };
     private readonly List<MeshInstance3D> _fireballs = new();
     private readonly List<ShaderMaterial> _fireMaterials = new();
-    private GpuParticles3D _smoke = null!;
+    private GpuParticles3D _smokeStem = null!;
+    private GpuParticles3D _smokeCap = null!;
     private float _age;
-    private bool _smokeStarted;
+    private bool _stemStarted;
+    private bool _capStarted;
 
     public override void _Ready()
     {
@@ -80,20 +82,32 @@ internal sealed partial class ProxyMineExplosion : Node3D
         }
         AddChild(Emitter("spark_01", 48, 0.58f, 4, 10, 0.045f, 0.13f,
             new Color(1, 0.65f, 0.19f), new Vector3(0, -9, 0)));
-        _smoke = Emitter("smoke_01", 64, 2.15f, 1.7f, 3.8f, 0.46f, 1.38f,
-            new Color(0.21f, 0.22f, 0.23f, 0.55f), new Vector3(0, 0.85f, 0));
-        _smoke.Position = new Vector3(0, 0.45f, 0);
-        _smoke.Emitting = false;
-        _smoke.Explosiveness = 0.72f;
-        var smokeProcess = (ParticleProcessMaterial)_smoke.ProcessMaterial;
-        smokeProcess.Direction = Vector3.Up;
-        smokeProcess.Spread = 34;
-        smokeProcess.ColorRamp = new GradientTexture1D { Gradient = new Gradient
-        {
-            Colors = [new Color(1, 1, 1, 0), new Color(1, 1, 1, 0.9f), new Color(1, 1, 1, 0.55f), new Color(1, 1, 1, 0)],
-            Offsets = [0f, 0.14f, 0.55f, 1f],
-        } };
-        AddChild(_smoke);
+        // Two small, separate plumes keep the narrow stem visible beneath a rounded cap.
+        _smokeStem = Emitter("smoke_01", 44, 1.85f, 1.55f, 2.25f, 0.34f, 0.72f,
+            new Color(0.2f, 0.21f, 0.22f, 0.48f), new Vector3(0, 0.4f, 0));
+        _smokeStem.Position = new Vector3(0, 0.35f, 0);
+        _smokeStem.Emitting = false;
+        _smokeStem.Explosiveness = 0.22f;
+        var stemProcess = (ParticleProcessMaterial)_smokeStem.ProcessMaterial;
+        stemProcess.Direction = Vector3.Up;
+        stemProcess.Spread = 13;
+        stemProcess.EmissionShape = ParticleProcessMaterial.EmissionShapeEnum.Sphere;
+        stemProcess.EmissionSphereRadius = 0.22f;
+        SetSmokeFade(stemProcess);
+        AddChild(_smokeStem);
+
+        _smokeCap = Emitter("smoke_01", 68, 1.95f, 1.3f, 2.2f, 0.55f, 1.0f,
+            new Color(0.23f, 0.23f, 0.23f, 0.42f), new Vector3(0, 0.2f, 0));
+        _smokeCap.Position = new Vector3(0, 2.25f, 0);
+        _smokeCap.Emitting = false;
+        _smokeCap.Explosiveness = 0.82f;
+        var capProcess = (ParticleProcessMaterial)_smokeCap.ProcessMaterial;
+        capProcess.Direction = Vector3.Up;
+        capProcess.Spread = 110;
+        capProcess.EmissionShape = ParticleProcessMaterial.EmissionShapeEnum.Sphere;
+        capProcess.EmissionSphereRadius = 0.32f;
+        SetSmokeFade(capProcess);
+        AddChild(_smokeCap);
         AddChild(Emitter("spark_01", 12, 0.85f, 2.5f, 6, 0.075f, 0.15f,
             new Color(0.31f, 0.28f, 0.25f, 0.9f), new Vector3(0, -8, 0)));
     }
@@ -120,11 +134,17 @@ internal sealed partial class ProxyMineExplosion : Node3D
         }
         _light.LightEnergy = 3.6f * flash + fireFade * Mathf.Min(2.2f, growth * 2.2f);
 
-        if (!_smokeStarted && _age >= 0.2f)
+        if (!_stemStarted && _age >= 0.24f)
         {
-            _smokeStarted = true;
-            _smoke.Restart();
-            _smoke.Emitting = true;
+            _stemStarted = true;
+            _smokeStem.Restart();
+            _smokeStem.Emitting = true;
+        }
+        if (!_capStarted && _age >= 0.53f)
+        {
+            _capStarted = true;
+            _smokeCap.Restart();
+            _smokeCap.Emitting = true;
         }
 
         // This thin, fading wave is cinematic only; the Mine still affects one contacted vehicle.
@@ -175,5 +195,14 @@ internal sealed partial class ProxyMineExplosion : Node3D
             DrawPass1 = new QuadMesh { Size = Vector2.One, Material = material },
             Emitting = true,
         };
+    }
+
+    private static void SetSmokeFade(ParticleProcessMaterial process)
+    {
+        process.ColorRamp = new GradientTexture1D { Gradient = new Gradient
+        {
+            Colors = [new Color(1, 1, 1, 0), new Color(1, 1, 1, 0.92f), new Color(1, 1, 1, 0.62f), new Color(1, 1, 1, 0)],
+            Offsets = [0f, 0.12f, 0.47f, 1f],
+        } };
     }
 }
