@@ -122,6 +122,7 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                 if (_frames % 15 == 0) { Capture($"arm-late-peer-{_frames - _boundary:D3}.png", 2); }
             }
             if (_stage == 2 && _frames % 3 == 0) { Capture($"arm-release-{_frames - _boundary:D3}.png"); }
+            if (_stage == 8 && _frames - _boundary <= 20) { _ = CaptureDrawn($"detonation-follow-{_frames - _boundary:D3}.png"); }
             switch (_stage)
             {
                 case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2):
@@ -175,6 +176,8 @@ public sealed partial class ProxyMineIntegrationChecks : Node
                     Check(host.World.GetVehicle(2).Damage.CurrentHP == _hp - 60, "exact moderate contact damage");
                     Check(host.World.GetVehicle(2).Effects.Any(e => e.Attribution.Source == "proxy-mine" && e.Effect.Impulse.Length() > 17000), "large committed knockback");
                     _knockbackOrigin = host.World.GetVehicle(2).ObservedPhysics.Position;
+                    Focus(_mine!.Position);
+                    _ = CaptureDrawn("detonation-contact.png");
                     Next("Contact detonated once, applying 60 configured HP and 18000 N.s to the remote vehicle.");
                     break;
                 case 8 when _frames - _boundary > 20 && _arenas.All(a => a.Driver.ItemState?.Mines.Count == 0):
@@ -337,6 +340,7 @@ public sealed partial class ProxyMineIntegrationChecks : Node
             Check(host.Items.Mines.Any(m => m.Id == carried && !m.IsPlacing), "Moving placement reached actual ground and became active");
             Check(_arenas.All(a => a.Driver.ItemState?.Mines.All(m => !m.IsPlacing) == true), "All peers observed both completed placements");
             _evidence.Add("Late join reconstructed an unfinished placement; two cars later placed mines simultaneously while the host drove under the production chase camera. Both completed and replicated without replaying pickup outcomes.");
+            await OverlapAndCleanupTrial();
             var path = ProjectSettings.GlobalizePath("res://.godot/mine-checks");
             System.IO.Directory.CreateDirectory(path);
             System.IO.File.WriteAllLines(System.IO.Path.Combine(path, "evidence.txt"), _evidence);
@@ -346,6 +350,66 @@ public sealed partial class ProxyMineIntegrationChecks : Node
             foreach (var gateway in _gateways) { gateway.Dispose(); }
         }
         catch (Exception error) { GD.PrintErr(error); GetTree().Quit(1); }
+    }
+
+    private async Task OverlapAndCleanupTrial()
+    {
+        var host = _arenas[0].Driver.Host!;
+        var available = host.Items.Mines.Where(m => !m.IsPlacing).Take(2).ToArray();
+        Check(available.Length == 2, "Two existing authoritative mines for overlapping detonation trial");
+        Position(1, new N.Vector3(-35, 21.4f, -10));
+        Position(2, new N.Vector3(0, 21.4f, 0));
+        Position(3, new N.Vector3(-35, 21.4f, 10));
+        var mines = available.Select((mine, index) => mine with
+        {
+            Position = new N.Vector3(-4, 20.758f, index == 0 ? -0.4f : 0.4f),
+            Velocity = new N.Vector3(25, 0, 0),
+            SeatingTicks = 0,
+        }).ToArray();
+        host.Items.Restore(new(1, host.Snapshot(), host.Items.Slots, [], [], mines: mines),
+            host.Items.Revision + 1, host.Items.TokenHighWater);
+        var overview = _arenas[0].GetChildren().OfType<Camera3D>().Single(camera => camera is not VehicleChaseCamera);
+        overview.Position = new Vector3(7, 25.75f, 8);
+        overview.LookAt(new Vector3(0, 20.75f, 0));
+        overview.MakeCurrent();
+        var impacts = new HashSet<ulong>();
+        void Observe(ItemPublication publication)
+        {
+            foreach (var outcome in publication.Events.Where(e => e.Item == HeldItem.ProxyMine && e.Impact))
+            {
+                Check(impacts.Add(outcome.Token), "Overlapping impacts retain distinct authoritative identities");
+            }
+        }
+        _arenas[0].Driver.ItemsReceived += Observe;
+        var existingScars = Descendants(_arenas[0]).OfType<ProxyMineScar>().ToHashSet();
+        int peak = 0;
+        for (int frame = 0; frame < 50; frame++)
+        {
+            await Frames(1);
+            int active = Descendants(_arenas[0]).OfType<ProxyMineExplosion>().Count();
+            peak = Math.Max(peak, active);
+            Check(active <= ItemAuthority.MaximumMines, "Cosmetic Mine explosion pool stays bounded");
+            if ((frame < 28 && frame % 2 == 0) || frame is 32 or 40 or 48) { await CaptureDrawn($"overlap-{frame:D3}.png"); }
+        }
+        _arenas[0].Driver.ItemsReceived -= Observe;
+        Check(impacts.Count == 2, "Two overlapping Mines each detonated once through authority");
+        Check(peak >= 2, "Overlapping committed impacts created distinct visual effects");
+        for (int frame = 0; frame < 240; frame++)
+        {
+            await Frames(1);
+            if (frame is 20 or 50 or 80 or 120 or 179 or 220 or 239) { await CaptureDrawn($"overlap-tail-{frame:D3}.png"); }
+        }
+        Check(!Descendants(_arenas[0]).OfType<ProxyMineExplosion>().Any(), "Mine explosions free themselves after their lifetime");
+        var scars = Descendants(_arenas[0]).OfType<ProxyMineScar>()
+            .Where(scar => !existingScars.Contains(scar)).ToArray();
+        Check(scars.Length == 2, "Each authoritative overlap impact leaves one cosmetic ground scar");
+        foreach (var scar in scars) { scar._Process(ProxyMineScar.Duration); }
+        Check(scars.All(scar => scar.IsQueuedForDeletion()), "Minute-long cosmetic scars queue cleanup");
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        Check(scars.All(scar => !GodotObject.IsInstanceValid(scar)), "Minute-long cosmetic scars free themselves");
+        Check(_arenas.All(a => a.Driver.ItemState?.Mines.Count == 0), "All three peers removed detonated mines");
+        _evidence.Add($"Two close overlapping authoritative impacts reached three peers; peak {peak} concurrent dust bursts, zero after 240 cleanup ticks. Two cosmetic scars remained, then expired at the 60-second lifetime.");
     }
 
     private async Task Frames(int count)
