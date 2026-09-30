@@ -104,7 +104,20 @@ public sealed partial class HandlingPlaytest : Node3D
                     float roll = command.TryGetProperty("roll", out var rollValue) ? rollValue.GetSingle() : 0;
                     float vertical = command.TryGetProperty("verticalSpeed", out var verticalValue) ? verticalValue.GetSingle() : 0;
                     var orientation = N.Quaternion.CreateFromYawPitchRoll(yaw, pitch, roll);
-                    _body.ResetBody(new(new(spawn[0].GetSingle(), spawn[1].GetSingle(), spawn[2].GetSingle()), orientation, N.Vector3.Transform(new(0, 0, -speed), orientation) + new N.Vector3(0, vertical, 0), N.Vector3.Zero));
+                    var spawnPosition = new N.Vector3(spawn[0].GetSingle(), spawn[1].GetSingle(), spawn[2].GetSingle());
+                    if (command.TryGetProperty("groundSpawn", out var groundSpawn) && groundSpawn.GetBoolean())
+                    {
+                        using var query = PhysicsRayQueryParameters3D.Create(new(spawnPosition.X, 100, spawnPosition.Z), new(spawnPosition.X, -100, spawnPosition.Z), 1, new() { _body.GetRid() });
+                        using var hit = GetWorld3D().DirectSpaceState.IntersectRay(query);
+                        if (hit.Count == 0) { throw new InvalidOperationException("Playtest spawn has no terrain."); }
+                        Vector3 normal = hit["normal"].AsVector3();
+                        spawnPosition = VehicleBody.ToCore(hit["position"].AsVector3() + normal * 1.145f);
+                        Vector3 heading = new(-MathF.Sin(yaw), 0, -MathF.Cos(yaw));
+                        heading = (heading - normal * heading.Dot(normal)).Normalized();
+                        var rotation = Basis.LookingAt(heading, normal).GetRotationQuaternion();
+                        orientation = new(rotation.X, rotation.Y, rotation.Z, rotation.W);
+                    }
+                    _body.ResetBody(new(spawnPosition, orientation, N.Vector3.Transform(new(0, 0, -speed), orientation) + new N.Vector3(0, vertical, 0), N.Vector3.Zero));
                 }
                 _trace.Clear();
                 _body.Freeze = false;
@@ -129,7 +142,7 @@ public sealed partial class HandlingPlaytest : Node3D
         N.Vector3 forward = N.Vector3.Transform(-N.Vector3.UnitZ, p.Orientation);
         N.Vector3 right = N.Vector3.Transform(N.Vector3.UnitX, p.Orientation);
         var w = state.Movement.Wheels.Compression;
-        _trace.Add(new { tick = state.Movement.Tick, position = new[] { p.Position.X, p.Position.Y, p.Position.Z }, velocity = new[] { p.LinearVelocity.X, p.LinearVelocity.Y, p.LinearVelocity.Z }, orientation = new[] { p.Orientation.X, p.Orientation.Y, p.Orientation.Z, p.Orientation.W }, compression = new[] { w.X, w.Y, w.Z, w.W }, contacts = request.Observation.Contacts.Count, up = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation).Y, speed = state.Speed, yaw = p.AngularVelocity.Y, lateral = N.Vector3.Dot(p.LinearVelocity, right), longitudinal = N.Vector3.Dot(p.LinearVelocity, forward), slip = state.Movement.PowerSlip, oilTicks = state.Movement.OilTicks, steering = state.Movement.SteeringAngle, surface = state.Movement.CurrentSurface.ToString(), grounded = state.Movement.Grounded, airSeconds = state.Movement.Air.Seconds, airInput = new[] { state.Movement.Air.Input.X, state.Movement.Air.Input.Y, state.Movement.Air.Input.Z }, crashSeconds = state.Movement.CrashSeconds, angular = new[] { p.AngularVelocity.X, p.AngularVelocity.Y, p.AngularVelocity.Z }, hp = state.Damage.CurrentHP });
+        _trace.Add(new { tick = state.Movement.Tick, position = new[] { p.Position.X, p.Position.Y, p.Position.Z }, velocity = new[] { p.LinearVelocity.X, p.LinearVelocity.Y, p.LinearVelocity.Z }, orientation = new[] { p.Orientation.X, p.Orientation.Y, p.Orientation.Z, p.Orientation.W }, compression = new[] { w.X, w.Y, w.Z, w.W }, support = new[] { request.Observation.Support.X, request.Observation.Support.Y, request.Observation.Support.Z }, contacts = request.Observation.Contacts.Count, up = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation).Y, speed = state.Speed, yaw = p.AngularVelocity.Y, lateral = N.Vector3.Dot(p.LinearVelocity, right), longitudinal = N.Vector3.Dot(p.LinearVelocity, forward), slip = state.Movement.PowerSlip, throttle = state.Movement.Throttle, oilTicks = state.Movement.OilTicks, steering = state.Movement.SteeringAngle, surface = state.Movement.CurrentSurface.ToString(), grounded = state.Movement.Grounded, airSeconds = state.Movement.Air.Seconds, airInput = new[] { state.Movement.Air.Input.X, state.Movement.Air.Input.Y, state.Movement.Air.Input.Z }, crashSeconds = state.Movement.CrashSeconds, angular = new[] { p.AngularVelocity.X, p.AngularVelocity.Y, p.AngularVelocity.Z }, hp = state.Damage.CurrentHP });
         Vector3 position = VehicleBody.ToGodot(p.Position);
         _camera.Position = position - VehicleBody.ToGodot(forward) * 10 + Vector3.Up * 5;
         _camera.LookAt(position + Vector3.Up * 0.5f);

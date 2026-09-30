@@ -17,10 +17,11 @@ internal sealed class AirControlTests
         Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
         Step(movement, grounded: true);
         Assert.That(movement.State.Air, Is.EqualTo(default(AirControlState)));
+        Vector3 takeoffSpin = movement.State.Physics.AngularVelocity;
         for (int i = 0; i < 59; i++) { Step(movement, throttle: 65535); }
-        Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
+        Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(takeoffSpin));
         Step(movement, throttle: 65535);
-        Assert.That(movement.State.Physics.AngularVelocity.X, Is.LessThan(0));
+        Assert.That(movement.State.Physics.AngularVelocity.X, Is.LessThan(takeoffSpin.X));
     }
 
     [TestCase(65535, 0, 0, false, -1, 0, 0)]

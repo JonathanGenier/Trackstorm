@@ -14,7 +14,8 @@ public sealed partial class TrophyTruckChecks
         {
             await Setup(network, $"rwd-{direction}-{entry}", new(0, VehicleDimensions.RideHeight, 0), N.Quaternion.Identity, new(0, 0, -entry));
             _pilot = (tick, _) => new(tick, (short)(32767 * direction), ushort.MaxValue, 0, 0, 0, 0);
-            await Frames(entry == 0 ? 480 : 60);
+            // Allow the approved slower wheel buildup before asserting full available lock.
+            await Frames(entry == 0 ? 480 : 120);
             var state = _world.GetVehicle(1);
             GD.Print($"{_case}: turn={_yawTravel:F3}, speed={state.Speed:F3}, yaw={state.Movement.Physics.AngularVelocity.Y:F3}, up={_minimumUp:F3}, travel={state.ObservedPhysics.Position.Length():F3}, wheel={state.Movement.SteeringAngle:F3}");
             Check(Math.Abs(state.Movement.SteeringAngle) > .89f && _minimumUp > .9f, _case + " full wheel range remains planted");

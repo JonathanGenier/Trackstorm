@@ -66,7 +66,12 @@ internal sealed class TrophyTruckTests
         var pose = new VehiclePhysicsState(Vector3.Zero, orientation, Vector3.Zero, Vector3.Zero);
         var input = new InputFrame(1, 0, ushort.MaxValue, 0, 0, 0, 0);
         var wheels = new WheelSupport(new Vector4(tuning.Gravity * normal.Y / tuning.WheelSpring));
-        VehicleState Drive(VehicleConfiguration c) => new VehicleMovement(c, pose).Step(input, pose, normal, surface: SurfaceType.Dirt, wheels: wheels);
+        VehicleState Drive(VehicleConfiguration c)
+        {
+            var movement = new VehicleMovement(c, pose);
+            movement.Restore(new(0, pose, true, false, 0, 0, throttle: 1));
+            return movement.Step(input, pose, normal, surface: SurfaceType.Dirt, wheels: wheels);
+        }
         var forward = Vector3.Transform(-Vector3.UnitZ, orientation);
         Assert.That(Vector3.Dot(Drive(tuning).Physics.LinearVelocity, forward), Is.GreaterThan(0.1f));
         Assert.That(Drive(tuning).LongitudinalAcceleration, Is.GreaterThan(Drive(tuning with { RearDriveGrip = 1 }).LongitudinalAcceleration));

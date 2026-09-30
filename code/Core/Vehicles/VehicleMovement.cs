@@ -130,8 +130,12 @@ public sealed class VehicleMovement
         float wheel = DrivingInputShaping.Approach(State.SteeringAngle, smoothedWheel, c.SteeringResponse, dt);
         float handbrakeTarget = driveEnabled && (input.Held & InputButtons.Drift) != 0 ? 1 : 0;
         float handbrake = driveEnabled ? DrivingInputShaping.Approach(State.Handbrake, handbrakeTarget, handbrakeTarget > State.Handbrake ? c.HandbrakeResponse : c.TractionRecovery, dt) : 0;
-        float throttle = driveEnabled ? input.Accelerate / 65535f : 0;
+        float pedal = driveEnabled ? input.Accelerate / 65535f : 0;
         float brake = driveEnabled ? input.Brake / 65535f : 0;
+        // Engine demand has one portable response state. Brakes/disable cut power immediately;
+        // aerial controls retain the raw pedals and their existing independent input response.
+        float throttleTime = pedal > State.Throttle ? c.ThrottleRiseTime : c.ThrottleFallTime;
+        float throttle = !driveEnabled || brake > 0 ? 0 : State.Throttle + (pedal - State.Throttle) * (1 - MathF.Exp(-dt / throttleTime));
         float longAcceleration = 0;
         float sideAcceleration = 0;
         float frontSlip = 0;
@@ -160,9 +164,10 @@ public sealed class VehicleMovement
             {
                 stopping = brake * c.Braking;
             }
-            else if (longitudinal < -engagementSpeed && throttle > 0)
+            else if (longitudinal < -engagementSpeed && pedal > 0)
             {
-                stopping = throttle * c.Braking;
+                // The accelerator acts as the service brake while reversing.
+                stopping = pedal * c.Braking;
             }
             else if (throttle > 0)
             {
@@ -225,7 +230,7 @@ public sealed class VehicleMovement
             float frontDemand = -frontSideSpeed * response * 0.5f;
             float rearDemand = -rearSideSpeed * response * 0.5f;
             float driveReserve = driveAcceleration != 0 && handbrakeTarget == 0 ? c.DriveTractionReserve : 0;
-            float brakeGrip = 1 + (c.BrakeGrip - 1) * (stopping > 0 ? Math.Max(throttle, brake) : 0);
+            float brakeGrip = 1 + (c.BrakeGrip - 1) * (stopping > 0 ? Math.Max(pedal, brake) : 0);
             float rearLongGrip = engine != 0 ? c.RearDriveGrip * (1 - c.SpinDriveLoss * powerSlip) : brakeGrip;
             float rearGrip = (1 - handbrake * (1 - c.HandbrakeGrip)) * (1 - powerSlip);
             var fl = Tire(frontDemand * frontLeftShare, frontLong * frontLeftShare, frontCapacity * frontLeftShare * profiles[0].Grip, driveReserve: driveReserve, longitudinalGrip: brakeGrip);
@@ -370,7 +375,7 @@ public sealed class VehicleMovement
             air = new AirControlState(seconds, Vector3.Zero, Vector3.Zero);
             if (driveEnabled && seconds + 0.000001f >= c.AirDelay)
             {
-                float pitch = InputAxis.Normalize(brake - throttle, c.AirDeadZone);
+                float pitch = InputAxis.Normalize(brake - pedal, c.AirDeadZone);
                 float turn = InputAxis.Normalize(steerIntent, c.AirDeadZone);
                 bool roll = (input.Held & InputButtons.AirRoll) != 0;
                 Vector3 target = new(pitch, roll ? 0 : -turn, roll ? -turn : 0);
@@ -399,7 +404,7 @@ public sealed class VehicleMovement
         }
         bool sliding = grounded && Math.Abs(lateral) > 1 && rearSlip > 0.35f;
         var physics = new VehiclePhysicsState(observed.Position, observed.Orientation, Limit(velocity, c.MaximumPhysicsSpeed), Limit(angular, c.MaximumAngularSpeed));
-        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oilTicks, boost, powerSlip, air, crashSeconds);
+        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oilTicks, boost, powerSlip, air, crashSeconds, throttle);
         return State;
     }
 

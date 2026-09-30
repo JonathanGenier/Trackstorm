@@ -86,8 +86,11 @@ remain guarded. Full-width dirt tabletops meet both ends, with mirrored rounded
 side slopes and localized collars joining the existing terrain. Visible deck
 panels share a continuous Blender-authored collision slab across their joints.
 
-A twenty-eight-metre collar follows the original bank's inward grade at all 916 rim
-sections and eases into the terrain. The original oval road and collision stay
+The terrain matches the original bank's inward grade at all 916 rim sections,
+flattens its initial descent with a 3 m exponential depth scale, then spreads
+the shallow return over 50 m. The existing 28 m blend of underlying hills is
+retained. This avoids the former cubic swale acting as a high-speed takeoff ramp.
+The jump/tabletop reservation is unchanged; dressing is rebaked on the new ground. The original oval road and collision stay
 unchanged. The old flat infield collider is replaced so it cannot fill the basins
 or compete with wheel support. The shared material field blends dirt into grass shoulders and identifies wet soil, rock and the designated Water basin. [Water interaction](water.md) adds a shared-field waterline and hazard. The separate [environment dressing layer](../../assets/maps/infield/DRESSING.md) places shared library rock formations, loose rubble, low vegetation and exterior fixtures while protecting routes and recovery shoulders.
 

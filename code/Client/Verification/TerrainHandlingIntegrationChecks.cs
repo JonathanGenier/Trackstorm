@@ -112,7 +112,8 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
         _throttle = ushort.MaxValue;
         _buttons = 0;
         _advance = true;
-        await Frames(15);
+        // Give the progressive engine demand half a second to build traction load.
+        await Frames(30);
         var state = _world.GetVehicle(1);
         Check(Math.Abs(state.Movement.Physics.AngularVelocity.Y) > 0.01f && state.Speed > 0.5f && state.Damage.CurrentHP == 1000,
             $"{network}: partial grass creates physical traction yaw {state.Movement.Physics.AngularVelocity.Y:F4} rad/s with continuing drive {state.Speed:F3} m/s");

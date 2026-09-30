@@ -235,7 +235,7 @@ public sealed partial class VehicleIntegrationChecks : Node
         float fastRadius = Numerics.Vector3.Distance(fast.First().Physics.Position, fast.Last().Physics.Position) / Math.Max(0.001f, fastYaw);
         GD.Print($"Cornering: low radius={lowRadius:F2}m; fast radius={fastRadius:F2}m; front slip={fast.Max(state => state.FrontSlip):F2}");
         GD.Print($"Steering onset: first wheel={low[0].SteeringAngle:F3}rad; yaw at 100ms={low[5].Physics.AngularVelocity.Y:F3}rad/s");
-        Check(low[0].SteeringAngle is > 0.02f and < 0.07f && Math.Abs(low[5].Physics.AngularVelocity.Y) > 0.1f, "progressive steering starts on the first fixed tick and produces physical yaw within 100ms");
+        Check(low[0].SteeringAngle is > 0.01f and < 0.03f && Math.Abs(low[5].Physics.AngularVelocity.Y) > 0.1f, "progressive steering starts on the first fixed tick and produces physical yaw within 100ms");
         Check(lowYaw > 0.15f && fastRadius > lowRadius * 1.5f, "fast entry runs a wider line than low-speed steering");
         Check(fast.Max(state => state.FrontSlip) > 0.1f, "high-speed steering has measurable front traction saturation");
         // A lane change requests about five degrees, independent of road speed.
@@ -306,7 +306,10 @@ public sealed partial class VehicleIntegrationChecks : Node
                     float yaw = Math.Abs(first.Physics.AngularVelocity.Y);
                     float finalSide = Math.Abs(Numerics.Vector3.Dot(states.Last().Physics.LinearVelocity, Numerics.Vector3.Transform(Numerics.Vector3.UnitX, states.Last().Physics.Orientation)));
                     GD.Print($"Power out: entry={speed}, held={heldTicks}, throttle delay={throttleDelay}, acceleration={first.LongitudinalAcceleration:F3}, side={side:F3}, yaw={yaw:F3}, recovery={first.Handbrake:F3}, final side={finalSide:F3}, peak speed={states.Max(state => state.CommandSpeed):F3}, peak yaw={states.Max(state => Math.Abs(state.Physics.AngularVelocity.Y)):F3}");
-                    Check(first.Grounded && first.LongitudinalAcceleration > 2 && first.Handbrake is > 0 and < 1, "first available powered tick accelerates during progressive handbrake recovery");
+                    // Residual rear braking/scrub can exceed the first tick's deliberately
+                    // small engine demand; require immediate demand, then useful net drive.
+                    Check(first.Grounded && first.Throttle > 0 && first.Handbrake is > 0 and < 1, "first available powered tick begins throttle buildup during progressive handbrake recovery");
+                    Check(states.Skip(powered).Take(15).Any(state => state.LongitudinalAcceleration > 2), "progressive throttle builds useful propulsion within a quarter second of release");
                     VehicleState before = states[powered - 1];
                     Check(Numerics.Vector3.Distance(first.Physics.LinearVelocity, before.Physics.LinearVelocity) < 0.5f && Math.Abs(first.Physics.AngularVelocity.Y - before.Physics.AngularVelocity.Y) < 0.3f, "propulsion changes momentum and yaw progressively without a snap");
                     if (speed == 16 && heldTicks == 45 && throttleDelay <= 0)
@@ -331,7 +334,7 @@ public sealed partial class VehicleIntegrationChecks : Node
 
         List<VehicleState> braking = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -12), 90, tick => Frame(tick, brake: tick <= 30 ? (ushort)65535 : (ushort)0, throttle: tick > 30 ? (ushort)65535 : (ushort)0));
         GD.Print($"Brake recovery: first drive={braking[30].LongitudinalAcceleration:F3}, before={braking[29].CommandSpeed:F3}, after={braking.Last().CommandSpeed:F3}");
-        Check(braking[30].LongitudinalAcceleration > 2 && braking.Last().CommandSpeed > braking[29].CommandSpeed + 5, "throttle immediately rebuilds speed after service braking");
+        Check(braking[30].Throttle > 0 && braking.Skip(30).Take(15).Any(state => state.LongitudinalAcceleration > 2) && braking.Last().CommandSpeed > braking[29].CommandSpeed + 5, "throttle builds useful drive within a quarter second after service braking and restores speed");
         await Screenshot("power-recovery");
     }
 

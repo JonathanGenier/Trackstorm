@@ -13,7 +13,7 @@ internal sealed class HandlingRecoveryTests
     {
         var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(3, 0, -15), Vector3.Zero);
         var movement = new VehicleMovement(new(), pose);
-        for (ulong tick = 1; tick <= 60; tick++)
+        for (ulong tick = 1; tick <= 180; tick++)
         {
             movement.Step(new(tick, 0, ushort.MaxValue, 0, 0, 0, 0), pose, Vector3.UnitY, surface: SurfaceType.Dirt);
         }
@@ -21,7 +21,7 @@ internal sealed class HandlingRecoveryTests
         Assert.That(powered, Is.InRange(0.15f, 0.22f));
         var restored = new VehicleMovement(new(), pose);
         restored.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(movement.State)));
-        for (ulong tick = 61; tick <= 121; tick++)
+        for (ulong tick = 181; tick <= 241; tick++)
         {
             float before = movement.State.PowerSlip;
             var input = new InputFrame(tick, 2000, 0, 0, 0, 0, 0);
@@ -40,6 +40,7 @@ internal sealed class HandlingRecoveryTests
         VehicleState Run(SurfaceType left, SurfaceType right)
         {
             var movement = new VehicleMovement(new(), pose);
+            movement.Restore(new(0, pose, true, false, 0, 0, throttle: 1));
             var wheels = new WheelSupport(new Vector4(9.81f / 30), left, right, left, right);
             return movement.Step(new(1, 0, ushort.MaxValue, 0, 0, 0, 0), pose, Vector3.UnitY, surface: SurfaceType.Asphalt, wheels: wheels);
         }

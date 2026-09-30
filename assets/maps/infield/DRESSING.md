@@ -40,8 +40,8 @@ instance. Neither operation rebuilds terrain or library assets.
   are slightly embedded. Existing terrain and gameplay geometry are unchanged.
 - Hard props retain imported static convex collision and surface identity. Rock
   scales vary uniformly; infrastructure stays at unit scale outside usable asphalt.
-- 147 rocks and 68 exterior fixtures reuse PackedScenes. 2,447 cover instances
-  share four meshes in 212 spatial MultiMesh batches. Batch origins sit at their
+- 157 rocks and 68 exterior fixtures reuse PackedScenes. 2,288 cover instances
+  share four meshes in 211 spatial MultiMesh batches. Batch origins sit at their
   32 m cell centers so distance culling uses the local area. Counts are stored on
   the baked root. There are no per-instance scripts or ground-cover colliders.
   The saved scene caches each of the four cover meshes once; re-bake after

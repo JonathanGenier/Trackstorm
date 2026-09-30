@@ -42,7 +42,10 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("vehicle.reverse_speed", 11d)]
     [TestCase("vehicle.grip", 26d)]
     [TestCase("vehicle.steering_angle", (double)0.9f)]
-    [TestCase("vehicle.steering_response", (double)1.8f)]
+    [TestCase("vehicle.steering_response", (double)0.95f)]
+    [TestCase("vehicle.steering_smoothing", (double)0.22f)]
+    [TestCase("vehicle.throttle_rise_time", (double)0.45f)]
+    [TestCase("vehicle.throttle_fall_time", (double)0.12f)]
     [TestCase("vehicle.wheelbase", (double)VehicleDimensions.Wheelbase)]
     [TestCase("vehicle.tire_friction", (double)1.9f)]
     [TestCase("vehicle.drive_traction_reserve", 0.550000011920929d)]
@@ -124,7 +127,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(190));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(192));
         Assert.That(defaults.Items.OilPasses, Is.EqualTo(2));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);

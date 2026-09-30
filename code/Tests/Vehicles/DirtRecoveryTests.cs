@@ -17,7 +17,8 @@ internal sealed class DirtRecoveryTests
     public void CountersteeringArrestsSlideYawWithoutInstantReversal(float speed)
     {
         var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(-speed * 0.7f, 0, -speed), new(0, -1.5f, 0));
-        var tuning = new VehicleConfiguration { Dirt = new(0.85f, 1.15f, 0.95f), DirtSteeringReserve = 0.65f };
+        // Isolate the unchanged recovery forces from the separately tested pedal/wheel buildup.
+        var tuning = new VehicleConfiguration { Dirt = new(0.85f, 1.15f, 0.95f), DirtSteeringReserve = 0.65f, SteeringResponse = 1.8f, SteeringSmoothing = 0.12f, ThrottleRiseTime = 0.01f };
         var assisted = Run(tuning, pose, SurfaceType.Dirt, -short.MaxValue, 45);
         var baseline = Run(tuning with { DirtSteeringReserve = 0, DirtRecovery = 0 }, pose, SurfaceType.Dirt, -short.MaxValue, 45);
         TestContext.WriteLine($"speed={speed}: yaw assisted={assisted.Physics.AngularVelocity.Y}, old={baseline.Physics.AngularVelocity.Y}");

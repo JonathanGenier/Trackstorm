@@ -40,7 +40,7 @@ internal sealed class TrophyTuningTests
             VehicleState Run(VehicleConfiguration configuration)
             {
                 var movement = new VehicleMovement(configuration, pose);
-                movement.Restore(new(0, pose, true, false, 0.6f, 0, landingIntensity: 1, crashSeconds: crash ? 2 : 0));
+                movement.Restore(new(0, pose, true, false, 0.6f, 0, landingIntensity: 1, crashSeconds: crash ? 2 : 0, throttle: 1));
                 return movement.Step(new InputFrame(1, 32767, scenario == 1 ? (ushort)0 : ushort.MaxValue, scenario == 1 ? ushort.MaxValue : (ushort)0, 0, 0, 0),
                     pose, Vector3.UnitY, surface: SurfaceType.Dirt, wheels: new WheelSupport(new Vector4(crash ? 0 : 0.7f)),
                     contacts: [new VehicleContact(Vector3.Zero, Vector3.UnitY, 0, 0)]);

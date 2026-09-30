@@ -39,7 +39,7 @@ internal sealed class VehicleMovementTests
         var configuration = new VehicleConfiguration { TicksPerSecond = 120, ForwardSpeed = 10, ReverseSpeed = 4, Acceleration = 6, Braking = 12, MaximumPhysicsSpeed = 20 };
         var movement = new VehicleMovement(configuration, new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero));
         GroundStep(movement, throttle: 65535);
-        Assert.That(-movement.State.Physics.LinearVelocity.Z, Is.InRange(0.01f, 0.05f));
+        Assert.That(-movement.State.Physics.LinearVelocity.Z, Is.GreaterThan(0).And.LessThan(0.01f), "Initial drive builds from idle rather than applying full engine demand.");
         for (int index = 0; index < 1800; index++)
         {
             GroundStep(movement, throttle: 65535);
@@ -78,8 +78,8 @@ internal sealed class VehicleMovementTests
         VehicleMovement high = Create(40);
         VehicleMovement analog = Create(2);
         GroundStep(low, steering: 32767);
-        Assert.That(low.State.SteeringAngle, Is.InRange(0.029f, 0.031f));
-        for (int index = 0; index < 120; index++)
+        Assert.That(low.State.SteeringAngle, Is.InRange(0.015f, 0.017f));
+        for (int index = 0; index < 180; index++)
         {
             low.Step(Frame(low.State.Tick + 1, steering: 32767), Create(2).State.Physics, Vector3.UnitY);
             high.Step(Frame(high.State.Tick + 1, steering: 32767), Create(40).State.Physics, Vector3.UnitY);
@@ -290,7 +290,7 @@ internal sealed class VehicleMovementTests
     {
         var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(5, 0, -speed), new Vector3(0, 0.7f, 0));
         var movement = new VehicleMovement(new(), body);
-        movement.Restore(new VehicleState(0, body, true, true, 0, 1));
+        movement.Restore(new VehicleState(0, body, true, true, 0, 1, throttle: 1));
         VehicleState held = movement.Step(Frame(1, throttle: 65535, drift: true), body, Vector3.UnitY);
         Assert.That(held.LongitudinalAcceleration, Is.LessThan(0));
         for (int index = 0; index < delay; index++)
@@ -321,7 +321,9 @@ internal sealed class VehicleMovementTests
         float previous = 0;
         foreach (ushort pedal in new ushort[] { 0, 500, 4000, 16000, 65535 })
         {
-            VehicleState state = new VehicleMovement(tuning, body).Step(Frame(1, throttle: reverse ? (ushort)0 : pedal, brake: reverse ? pedal : (ushort)0), body, Vector3.UnitY, surface: surface);
+            var movement = new VehicleMovement(tuning, body);
+            movement.Restore(new(0, body, true, false, 0, 0, throttle: pedal / 65535f));
+            VehicleState state = movement.Step(Frame(1, throttle: reverse ? (ushort)0 : pedal, brake: reverse ? pedal : (ushort)0), body, Vector3.UnitY, surface: surface);
             float drive = Math.Abs(state.LongitudinalAcceleration);
             float capacity = tuning.TireFriction * tuning.Gravity * tuning.ResolveSurface(surface).Grip / 2;
             float yaw = state.Physics.AngularVelocity.Y / MathF.Exp(-tuning.StabilityDamping / 60);

@@ -24,7 +24,7 @@ public sealed partial class OvalIntegrationChecks
             {
                 foreach ((float entry, short steering) in new (float, short)[] { (42, 700), (42, 1400), (42, 32767), (44.44f, 32767) })
                 {
-                    var corner = await HandlingProbe(network, center + (normal * VehicleDimensions.RideHeight), Basis.LookingAt(tangent * direction, normal), tangent * (entry * direction), 60, tick => new InputFrame(tick, (short)(-steering * direction), ushort.MaxValue, 0, 0, 0, 0));
+                    var corner = await HandlingProbe(network, center + (normal * VehicleDimensions.RideHeight), Basis.LookingAt(tangent * direction, normal), tangent * (entry * direction), steering == short.MaxValue ? 90 : 60, tick => new InputFrame(tick, (short)(-steering * direction), ushort.MaxValue, 0, 0, 0, 0));
                     var samples = corner.Skip(2).ToArray();
                     float slipAngle = samples.Max(state =>
                     {

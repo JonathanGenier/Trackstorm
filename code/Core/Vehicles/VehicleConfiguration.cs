@@ -36,6 +36,10 @@ public sealed record VehicleConfiguration
     public float Mass { get; init; } = 1400;
     /// <summary>Forward acceleration in metres per second squared.</summary>
     public float Acceleration { get; init; } = 55;
+    /// <summary>Seconds for engine demand to close 63 percent of an increasing pedal change.</summary>
+    public float ThrottleRiseTime { get; init; } = 0.45f;
+    /// <summary>Seconds for engine demand to close 63 percent of a decreasing pedal change.</summary>
+    public float ThrottleFallTime { get; init; } = 0.12f;
     /// <summary>Braking deceleration.</summary>
     public float Braking { get; init; } = 95;
     /// <summary>Engine demand sent to the front axle; the rear handbrake interrupts all engine drive.</summary>
@@ -61,9 +65,9 @@ public sealed record VehicleConfiguration
     /// <summary>Maximum wheel angle in radians at every speed.</summary>
     public float SteeringAngle { get; init; } = 0.9f;
     /// <summary>Wheel angle transition rate in radians per second.</summary>
-    public float SteeringResponse { get; init; } = 1.8f;
+    public float SteeringResponse { get; init; } = 0.95f;
     /// <summary>Time constant for progressive wheel corrections, independent of speed.</summary>
-    public float SteeringSmoothing { get; init; } = 0.12f;
+    public float SteeringSmoothing { get; init; } = 0.22f;
     /// <summary>Low/medium dirt corner authority multiplier; fades out by 28 m/s.</summary>
     public float DirtCornering { get; init; } = 1;
     /// <summary>Speed through which the extra dirt tire budget is fully available, m/s.</summary>
@@ -237,7 +241,8 @@ public sealed record VehicleConfiguration
         {
             throw new ArgumentException("Invalid air-control tuning.");
         }
-        if (!float.IsFinite(SteeringSmoothing) || SteeringSmoothing is < 0.01f or > 1 ||
+        if (new[] { ThrottleRiseTime, ThrottleFallTime }.Any(v => !float.IsFinite(v) || v is < 0.01f or > 3) ||
+            !float.IsFinite(SteeringSmoothing) || SteeringSmoothing is < 0.01f or > 1 ||
             !float.IsFinite(DirtSteeringReserve) || DirtSteeringReserve is < 0 or > 1 ||
             !float.IsFinite(DirtRecovery) || DirtRecovery is < 0 or > 10 ||
             !float.IsFinite(DirtPowerSlip) || DirtPowerSlip is < 0 or > 0.8f ||

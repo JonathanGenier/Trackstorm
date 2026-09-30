@@ -99,12 +99,20 @@ public sealed partial class TrophyTruckChecks : Node3D
                 GetTree().Quit();
                 return;
             }
+            if (OS.GetCmdlineUserArgs().Contains("--trophy-grass"))
+            {
+                foreach (bool network in new[] { false, true }) { await GrassTransitions(network); }
+                GD.Print($"Grass transition checks passed: {_assertions} assertions.");
+                GetTree().Quit();
+                return;
+            }
             foreach (bool network in new[] { false, true })
             {
                 if (!OS.GetCmdlineUserArgs().Contains("--trophy-dynamics"))
                 {
                     await Braking(network);
                     await TerrainTransitions(network);
+                    await GrassTransitions(network);
                 }
                 if (OS.GetCmdlineUserArgs().Contains("--trophy-polish")) { continue; }
                 await Driving(network);
@@ -338,7 +346,7 @@ public sealed partial class TrophyTruckChecks : Node3D
         await Finish();
     }
 
-    private async Task Setup(bool network, string name, N.Vector3 position, N.Quaternion orientation, N.Vector3 velocity = default, VehicleConfiguration? tuning = null, bool productionMap = false)
+    private async Task Setup(bool network, string name, N.Vector3 position, N.Quaternion orientation, N.Vector3 velocity = default, VehicleConfiguration? tuning = null, bool productionMap = false, bool alignSurface = false)
     {
         _minimumUp = 1;
         _case = (network ? "network-" : "native-") + name;
@@ -361,6 +369,16 @@ public sealed partial class TrophyTruckChecks : Node3D
             var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
             if (hit.Count == 0) { throw new InvalidOperationException("Missing terrain at fixture start"); }
             position.Y = hit["position"].AsVector3().Y + VehicleDimensions.RideHeight + 0.1f;
+            if (alignSurface)
+            {
+                Vector3 normal = hit["normal"].AsVector3();
+                Vector3 heading = VehicleBody.ToGodot(N.Vector3.Transform(-N.Vector3.UnitZ, orientation));
+                heading = (heading - normal * heading.Dot(normal)).Normalized();
+                var rotation = Basis.LookingAt(heading, normal).GetRotationQuaternion();
+                orientation = new(rotation.X, rotation.Y, rotation.Z, rotation.W);
+                position = VehicleBody.ToCore(hit["position"].AsVector3() + normal * VehicleDimensions.RideHeight);
+                velocity = VehicleBody.ToCore(heading) * velocity.Length();
+            }
         }
         _world = new(new(60));
         _trace.Clear(); _movementTrace.Clear(); _pairContactTicks = 0; _yawTravel = 0; _chassisContact = false; _rebound = 0;
