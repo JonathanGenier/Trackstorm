@@ -320,6 +320,7 @@ public sealed partial class ProxyMineIntegrationChecks : Node
             Check(_arenas.All(a => a.Driver.ItemState?.Mines.All(m => !m.IsPlacing) == true), "All peers observed both completed placements");
             _evidence.Add("Late join reconstructed an unfinished placement; two cars later placed mines simultaneously while the host drove under the production chase camera. Both completed and replicated without replaying pickup outcomes.");
             await OverlapAndCleanupTrial();
+            await CosmeticSustainTrial();
             var path = ProjectSettings.GlobalizePath("res://.godot/mine-checks");
             System.IO.Directory.CreateDirectory(path);
             System.IO.File.WriteAllLines(System.IO.Path.Combine(path, "evidence.txt"), _evidence);
@@ -389,6 +390,51 @@ public sealed partial class ProxyMineIntegrationChecks : Node
         Check(scars.All(scar => !GodotObject.IsInstanceValid(scar)), "Minute-long cosmetic scars free themselves");
         Check(_arenas.All(a => a.Driver.ItemState?.Mines.Count == 0), "All three peers removed detonated mines");
         _evidence.Add($"Two close overlapping authoritative impacts reached three peers; peak {peak} concurrent dust bursts, zero after 240 cleanup ticks. Two cosmetic scars remained, then expired at the 60-second lifetime.");
+    }
+
+    private async Task CosmeticSustainTrial()
+    {
+        // Feed committed-looking impact publications to an isolated presentation node.
+        // This stresses rendering ownership without changing any Mine authority or gameplay.
+        var host = _arenas[0].Driver.Host!;
+        var presentation = new ItemPresentation();
+        _arenas[0].AddChild(presentation);
+        ulong owner = host.Snapshot().Vehicles[0].State.VehicleId;
+        presentation.Apply(new ItemPublication(1, host.Snapshot(), [], [],
+            [new ItemEvent(1, owner, HeldItem.ProxyMine, new N.Vector3(50, 20.75f, 0), true)]));
+        await Frames(1);
+        Vector3 bankNormal = new(-Mathf.Sin(0.25f), Mathf.Cos(0.25f), 0);
+        var bankExplosion = Descendants(presentation).OfType<ProxyMineExplosion>().Single();
+        var bankWave = bankExplosion.GetChildren().OfType<MeshInstance3D>().First();
+        var bankScar = Descendants(presentation).OfType<ProxyMineScar>().Single();
+        Check(bankWave.GlobalBasis.Y.Dot(bankNormal) > 0.99f &&
+            bankScar.GlobalBasis.Y.Dot(bankNormal) > 0.99f,
+            "Pressure front and cosmetic scar follow native bank support");
+        for (int impact = 0; impact < 72; impact++)
+        {
+            var position = new N.Vector3((impact % 8 - 4) * 0.4f, 20.758f,
+                (impact / 8 - 4) * 0.4f);
+            presentation.Apply(new ItemPublication((ulong)impact + 2, host.Snapshot(), [], [],
+                [new ItemEvent((ulong)impact + 2, owner, HeldItem.ProxyMine, position, true)]));
+            await Frames(1);
+            Check(Descendants(presentation).OfType<ProxyMineExplosion>().Count() <= ItemAuthority.MaximumMines,
+                "Repeated impacts retain at most sixteen transient Mine effects");
+            Check(Descendants(presentation).OfType<ProxyMineScar>().Count() <= 64,
+                "Repeated impacts retain at most sixty-four cosmetic scars");
+        }
+        Check(Descendants(presentation).OfType<ProxyMineScar>().Count() == 64,
+            "Oldest cosmetic scars are replaced at the sixty-four mark cap");
+        for (int frame = 0; frame < 600; frame++) { await Frames(1); }
+        Check(!Descendants(presentation).OfType<ProxyMineExplosion>().Any(),
+            "Repeated transient effects free after ten seconds of continued runtime");
+        var scars = Descendants(presentation).OfType<ProxyMineScar>().ToArray();
+        foreach (var scar in scars) { scar._Process(ProxyMineScar.Duration); }
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        Check(!Descendants(presentation).OfType<ProxyMineScar>().Any(),
+            "Capped cosmetic scars free at their minute lifetime");
+        presentation.QueueFree();
+        _evidence.Add("Banked pressure front and scar followed native support. Isolated Client presentation stress: 73 sequential confirmed-impact publications, at most 16 live bursts and 64 scars, no bursts after 10 sustained runtime seconds; remaining scars expired at their scheduled 60-second age.");
     }
 
     private async Task Frames(int count)
