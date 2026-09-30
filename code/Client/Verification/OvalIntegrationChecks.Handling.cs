@@ -26,6 +26,15 @@ public sealed partial class OvalIntegrationChecks
                 {
                     var corner = await HandlingProbe(network, center + (normal * VehicleDimensions.RideHeight), Basis.LookingAt(tangent * direction, normal), tangent * (entry * direction), steering == short.MaxValue ? 90 : 60, tick => new InputFrame(tick, (short)(-steering * direction), ushort.MaxValue, 0, 0, 0, 0));
                     var samples = corner.Skip(2).ToArray();
+                    if (steering == short.MaxValue)
+                    {
+                        System.IO.File.WriteAllText(System.IO.Path.Combine(_output, $"bank-{network}-{direction}-{entry}.json"), System.Text.Json.JsonSerializer.Serialize(corner.Select(state => new {
+                            state.Tick, state.CommandSpeed, state.SteeringAngle, state.Grounded, state.CrashSeconds,
+                            speed = state.Physics.LinearVelocity.Length(), angular = state.Physics.AngularVelocity.Length(),
+                            up = System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitY, state.Physics.Orientation).Y,
+                            air = state.Air.Seconds
+                        })));
+                    }
                     float slipAngle = samples.Max(state =>
                     {
                         var forward = System.Numerics.Vector3.Transform(-System.Numerics.Vector3.UnitZ, state.Physics.Orientation);

@@ -1,19 +1,31 @@
 namespace Trackstorm.Core.Input;
 
-/// <summary>Progressive digital intent, applied before recording frames. Analog samples bypass this helper.</summary>
+/// <summary>Progressive digital intent, applied before recording frames. Analog steering uses a separate precision curve.</summary>
 public sealed record DrivingInputShaping
 {
     /// <summary>Approved airborne digital authority; ground precision must not slow aerial commands.</summary>
-    public static DrivingInputShaping Aerial { get; } = new() { ThrottleRise = 10, ThrottleRelease = 14, BrakeRise = 18, BrakeRelease = 18, SteeringRise = 20, SteeringReturn = 24, SteeringReversal = 30 };
+    public static DrivingInputShaping Aerial { get; } = new() { ThrottleRise = 10, ThrottleRelease = 14, BrakeRise = 18, BrakeRelease = 18, SteeringRise = 20, SteeringReturn = 24, SteeringReversal = 30, ControllerSteeringExponent = 1 };
 
     /// <summary>Rejects invalid digital response rates before configuration publication.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(ControllerSteeringExponent) || ControllerSteeringExponent is < 1 or > 4)
+        {
+            throw new ArgumentException("Controller steering exponent must be finite and between 1 and 4.");
+        }
         if (new[] { ThrottleRise, ThrottleRelease, BrakeRise, BrakeRelease, SteeringRise, SteeringReturn, SteeringReversal }.Any(value => !float.IsFinite(value) || value is < 0.1f or > 60))
         {
             throw new ArgumentException("Input response rates must be finite and between 0.1 and 60 per second.");
         }
     }
+
+    /// <summary>Ground stick precision exponent: one is linear, larger values soften small corrections without reducing full lock.</summary>
+    public float ControllerSteeringExponent { get; init; } = 2;
+
+    /// <summary>Shapes a normalized analog steering sample while preserving sign, center and full articulation.</summary>
+    /// <param name="value">Dead-zone-conditioned signed stick sample.</param>
+    /// <returns>Continuous steering intent.</returns>
+    public float ShapeControllerSteering(float value) => MathF.CopySign(MathF.Pow(Math.Clamp(Math.Abs(value), 0, 1), ControllerSteeringExponent), value);
 
     /// <summary>Throttle rise per second.</summary>
     public float ThrottleRise { get; init; } = 2.5f;

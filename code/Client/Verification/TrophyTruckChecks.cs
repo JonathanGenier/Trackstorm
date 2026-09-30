@@ -31,6 +31,7 @@ public sealed partial class TrophyTruckChecks : Node3D
     private float _minimumHeight;
     private float _minimumUp = 1;
     private readonly List<VehicleEffectRequest> _effects = new();
+    private readonly List<Resource> _fixtureResources = new();
     private readonly MatchResourceLoader _resources = new(Core.Sessions.MatchMap.OldMap);
 
     public override void _Ready() => CallDeferred(MethodName.Run);
@@ -83,6 +84,9 @@ public sealed partial class TrophyTruckChecks : Node3D
                 _resources.Advance();
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             }
+            // Keep the wake shader wrapper alive across repeated fixture destruction/reload.
+            // It is normally retained by live match vehicles; the stress harness removes all of them.
+            _fixtureResources.Add(MatchResourceLoader.LoadResource<Shader>("res://assets/effects/WaterWake.gdshader"));
             _output = ProjectSettings.GlobalizePath("res://.godot/ts-197/trophy");
             System.IO.Directory.CreateDirectory(_output);
             if (OS.GetCmdlineUserArgs().Contains("--trophy-rwd"))
@@ -140,7 +144,7 @@ public sealed partial class TrophyTruckChecks : Node3D
                     await Finish();
                 }
                 float equalMassTravel = 0;
-                foreach (var impact in new[] { ("rear-low", 8f, 0f, 1400f, 0f), ("rear-medium", 20f, 0f, 1400f, 0f), ("rear-fast", 30f, 0f, 1400f, 0f), ("head-on", 20f, -20f, 1400f, 0f), ("heavy-rear", 20f, 0f, 700f, 0f), ("glance", 20f, 0f, 1400f, 1.5f) })
+                foreach (var impact in new[] { ("rear-low", 8f, 0f, 3000f, 0f), ("rear-medium", 20f, 0f, 3000f, 0f), ("rear-fast", 30f, 0f, 3000f, 0f), ("head-on", 20f, -20f, 3000f, 0f), ("heavy-rear", 20f, 0f, 1500f, 0f), ("glance", 20f, 0f, 3000f, 1.5f) })
                 {
                     await Setup(network, impact.Item1, new(0, VehicleDimensions.RideHeight, 4), N.Quaternion.Identity, new(0, 0, -impact.Item2));
                     AddCar(network, 2, new(impact.Item5, VehicleDimensions.RideHeight, -4), N.Quaternion.Identity, new(0, 0, -impact.Item3), new() { Mass = impact.Item4 });
@@ -340,7 +344,10 @@ public sealed partial class TrophyTruckChecks : Node3D
         for (int cycle = 0; cycle < 4; cycle++)
         {
             _minimumUp = 1;
-            var effect = new DamageEffect(0, new(cycle % 2 == 0 ? 20000 : -20000, 0, 0), new(0, 4, 0));
+            // Establish the same deliberate rollover velocity across mass defaults;
+            // a fixed impulse now correctly may fail to overturn the heavier chassis.
+            float impulse = 20000 * new VehicleConfiguration().Mass / 1400;
+            var effect = new DamageEffect(0, new(cycle % 2 == 0 ? impulse : -impulse, 0, 0), new(0, 4, 0));
             var attribution = new DamageContext("verification", 0, $"roll-{cycle}");
             if (network) { _effects.Add(new(effect, attribution)); }
             else { _native[1].ApplyEffect(effect, attribution); }

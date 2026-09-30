@@ -54,4 +54,24 @@ internal sealed class ProgressiveHandlingTests
         Assert.That(GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(1, new(1, edited))).State.Configuration, Is.EqualTo(edited));
         Assert.That(DeveloperSettingsFile.Read(DeveloperSettingsFile.Read("", new()).Write(edited), new()).Configuration, Is.EqualTo(edited));
     }
+    [Test]
+    public void HeavierDefaultPreservesApprovedDriveBrakeAndSteeringForces()
+    {
+        var current = new VehicleConfiguration();
+        var previous = current with { Mass = 1400, Acceleration = 24, Braking = 45, ReverseAcceleration = 8, HandbrakeBraking = 30, Grip = 26 };
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(0, 0, -20), Vector3.Zero);
+        var heavier = new VehicleMovement(current, pose);
+        var approved = new VehicleMovement(previous, pose);
+        for (ulong tick = 1; tick <= 300; tick++)
+        {
+            var input = new InputFrame(tick, tick < 150 ? (short)8000 : (short)-8000,
+                tick < 100 ? ushort.MaxValue : (ushort)0, tick >= 200 ? ushort.MaxValue : (ushort)0,
+                tick is >= 100 and < 150 ? InputButtons.Drift : 0, 0, 0);
+            var a = heavier.Step(input, pose, Vector3.UnitY, surface: SurfaceType.Dirt);
+            var b = approved.Step(input, pose, Vector3.UnitY, surface: SurfaceType.Dirt);
+            Assert.That(Vector3.Distance(a.Physics.LinearVelocity, b.Physics.LinearVelocity), Is.LessThan(0.00001f));
+            Assert.That(Vector3.Distance(a.Physics.AngularVelocity, b.Physics.AngularVelocity), Is.LessThan(0.00001f));
+        }
+        Assert.That(current.Mass, Is.EqualTo(3000));
+    }
 }

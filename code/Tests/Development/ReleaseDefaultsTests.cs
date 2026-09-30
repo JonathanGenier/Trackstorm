@@ -32,15 +32,15 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("vehicle.air_input_response", (double)0.06f)]
     [TestCase("vehicle.air_dead_zone", (double)0.08f)]
     [TestCase("vehicle.support_normal_minimum", (double)0.55f)]
-    [TestCase("vehicle.mass", 1400d)]
-    [TestCase("vehicle.acceleration", 24d)]
+    [TestCase("vehicle.mass", 3000d)]
+    [TestCase("vehicle.acceleration", (double)(24 * (3000f / 1400)))]
     [TestCase("vehicle.front_drive_share", 0d)]
-    [TestCase("vehicle.braking", 45d)]
+    [TestCase("vehicle.braking", (double)(45 * (3000f / 1400)))]
     [TestCase("vehicle.stop_speed", 0.05000000074505806d)]
-    [TestCase("vehicle.reverse_acceleration", 8d)]
+    [TestCase("vehicle.reverse_acceleration", (double)(8 * (3000f / 1400)))]
     [TestCase("vehicle.forward_speed", 44.439998626708984d)]
     [TestCase("vehicle.reverse_speed", 11d)]
-    [TestCase("vehicle.grip", 26d)]
+    [TestCase("vehicle.grip", (double)(26 * (3000f / 1400)))]
     [TestCase("vehicle.steering_angle", (double)0.9f)]
     [TestCase("vehicle.steering_response", (double)0.95f)]
     [TestCase("vehicle.steering_smoothing", (double)0.3f)]
@@ -50,7 +50,7 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("vehicle.tire_friction", (double)1.9f)]
     [TestCase("vehicle.drive_traction_reserve", 0.550000011920929d)]
     [TestCase("vehicle.load_height", (double)(0.45f * VehicleDimensions.Scale))]
-    [TestCase("vehicle.handbrake_braking", 30d)]
+    [TestCase("vehicle.handbrake_braking", (double)(30 * (3000f / 1400)))]
     [TestCase("vehicle.handbrake_grip", 0.25d)]
     [TestCase("vehicle.handbrake_response", 2d)]
     [TestCase("vehicle.traction_recovery", 3d)]
@@ -127,7 +127,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(203));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(204));
         Assert.That(defaults.Items.OilPasses, Is.EqualTo(2));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);

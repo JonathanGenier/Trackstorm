@@ -72,4 +72,22 @@ internal sealed class DrivingInputShapingTests
         }
         Assert.That(steering, Is.EqualTo(-1).Within(0.00001f));
     }
+    /// <summary>Analog precision is continuous and symmetric; full stick and airborne authority are retained.</summary>
+    [Test]
+    public void ControllerCurvePreservesGranularityAndFullAuthority()
+    {
+        var tuning = new DrivingInputShaping();
+        foreach (float magnitude in new[] { 0f, 0.01f, 0.25f, 0.5f, 0.75f, 1f })
+        {
+            Assert.That(tuning.ShapeControllerSteering(magnitude), Is.EqualTo(magnitude * magnitude).Within(0.000001f));
+            Assert.That(tuning.ShapeControllerSteering(-magnitude), Is.EqualTo(-magnitude * magnitude).Within(0.000001f));
+            Assert.That(DrivingInputShaping.Aerial.ShapeControllerSteering(magnitude), Is.EqualTo(magnitude));
+        }
+        foreach (float invalid in new[] { float.NaN, float.PositiveInfinity, 0.99f, 4.01f })
+            Assert.Throws<ArgumentException>(() => (tuning with { ControllerSteeringExponent = invalid }).Validate());
+        var edits = new Dictionary<string, double> { ["input.controller_steering_exponent"] = 2.5 };
+        Assert.That(Trackstorm.Core.Development.GameplayOptions.TryApply(new(), edits, out var configured, out _), Is.True);
+        var state = new Trackstorm.Core.Development.GameplayConfigurationState(1, configured);
+        Assert.That(Trackstorm.Core.Development.GameplayConfigurationCodec.Decode(Trackstorm.Core.Development.GameplayConfigurationCodec.Encode(1, state)).State, Is.EqualTo(state));
+    }
 }

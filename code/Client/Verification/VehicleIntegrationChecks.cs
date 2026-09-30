@@ -401,8 +401,9 @@ public sealed partial class VehicleIntegrationChecks : Node
         await Screenshot("explosion");
         blast.AddRange(await ObserveTicks(168));
         GD.Print($"Blast check: max height={blast.Max(state => state.Physics.Position.Y):F2}, peak angular={blast.Max(state => state.Physics.AngularVelocity.Length()):F2}, end={blast.Last().Physics.Position}, HP={_arena.Player.DamageState.CurrentHP:F2}");
-        Check(_arena.Player.GlobalPosition.DistanceTo(start) > 3, "explosion translates the vehicle");
-        Check(blast.Max(state => state.Physics.AngularVelocity.Length()) > 1 && blast.Any(state => Math.Abs(state.Physics.Orientation.X) + Math.Abs(state.Physics.Orientation.Z) > 0.04f), "off-center explosion rotates the heavier chassis before suspension and released-axis damping settle it");
+        float impulseResponse = 1400 / _arena.Player.Configuration.Mass;
+        Check(_arena.Player.GlobalPosition.DistanceTo(start) > 3 * impulseResponse, "fixed explosion translates the vehicle with a mass-scaled minimum response");
+        Check(blast.Max(state => state.Physics.AngularVelocity.Length()) > impulseResponse && blast.Any(state => Math.Abs(state.Physics.Orientation.X) + Math.Abs(state.Physics.Orientation.Z) > 0.04f * impulseResponse), "off-center explosion rotates the heavier chassis before suspension and released-axis damping settle it");
         Check(blast.All(state => VehiclePhysicsState.IsFinite(state.Physics.Position) && state.CommandSpeed <= 65.001f && state.Physics.AngularVelocity.Length() <= 8.001f), "explosion response stays finite and bounded");
         Check(blast.TakeLast(30).Any(state => state.Grounded), "vehicle returns to supported movement after explosion");
         Check(_arena.Player.DamageState.CurrentHP is > 0 and < 100 && _arena.Player.FeedbackCueCount > cues, "explosion applies HP damage and submits visual/audio feedback");

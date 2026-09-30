@@ -174,6 +174,7 @@ internal sealed class PlayerInputAdapter
         }
 
         float analogSteering = active ? Bindings.Strength(InputAction.SteerRight, DeadZone, true) - Bindings.Strength(InputAction.SteerLeft, DeadZone, true) : 0;
+        analogSteering = Shaping.ShapeControllerSteering(analogSteering);
         // A deliberate stick correction takes ownership after the keys are released;
         // a long digital return tail must not mask the controller's finer target.
         if (analogSteering != 0 && Bindings.Strength(InputAction.SteerRight, DeadZone, false) == 0 && Bindings.Strength(InputAction.SteerLeft, DeadZone, false) == 0)

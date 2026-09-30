@@ -161,7 +161,8 @@ public sealed partial class AirControlIntegrationChecks : Node3D
                     ulong tick = _world.State.Tick + 1;
                     var input = new InputFrame(tick, 0, 0, 0, 0, 0, 0);
                     var observation = _native is not null ? _native.Capture(input).Observation : _network!.Observe(_world.GetVehicle(1));
-                    var result = _world.Step(input, [new VehicleStepRequest(1, input, observation, [new VehicleEffectRequest(new DamageEffect(0, new N.Vector3(0, 10000, 0), N.Vector3.Zero), new DamageContext("test", 0, "jump"))])])[0];
+                    // Preserve the launch velocity when the default body mass changes.
+                    var result = _world.Step(input, [new VehicleStepRequest(1, input, observation, [new VehicleEffectRequest(new DamageEffect(0, new N.Vector3(0, 10000 * new VehicleConfiguration().Mass / 1400, 0), N.Vector3.Zero), new DamageContext("test", 0, "jump"))])])[0];
                     if (_native is not null) { _native.Apply(result); } else { _network!.Apply(result.Snapshot); }
                     _advance = true; await Frames(240); _advance = false;
                     Require(_world.GetVehicle(1).Movement.Grounded, "repeated jump must land");

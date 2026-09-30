@@ -10,6 +10,7 @@ public static class GameplayOptions
         new("input.throttle_release", "Input", "Digital throttle release (/s)", false, c => c.Input.ThrottleRelease, (c, v) => c with { Input = c.Input with { ThrottleRelease = checked((float)v) } }),
         new("input.brake_rise", "Input", "Digital brake buildup (/s)", false, c => c.Input.BrakeRise, (c, v) => c with { Input = c.Input with { BrakeRise = checked((float)v) } }),
         new("input.brake_release", "Input", "Digital brake release (/s)", false, c => c.Input.BrakeRelease, (c, v) => c with { Input = c.Input with { BrakeRelease = checked((float)v) } }),
+        new("input.controller_steering_exponent", "Input", "Controller steering precision (1–4; higher is gentler)", false, c => c.Input.ControllerSteeringExponent, (c, v) => c with { Input = c.Input with { ControllerSteeringExponent = checked((float)v) } }),
         new("input.steering_rise", "Input", "Digital steering buildup (/s)", false, c => c.Input.SteeringRise, (c, v) => c with { Input = c.Input with { SteeringRise = checked((float)v) } }),
         new("input.steering_return", "Input", "Digital steering return (/s)", false, c => c.Input.SteeringReturn, (c, v) => c with { Input = c.Input with { SteeringReturn = checked((float)v) } }),
         new("input.steering_reversal", "Input", "Digital steering reversal (/s)", false, c => c.Input.SteeringReversal, (c, v) => c with { Input = c.Input with { SteeringReversal = checked((float)v) } }),

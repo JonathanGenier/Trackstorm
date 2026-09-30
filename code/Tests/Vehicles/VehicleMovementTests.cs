@@ -39,7 +39,7 @@ internal sealed class VehicleMovementTests
     [Test]
     public void Drive_UsesConfiguredRateAccelerationBrakingAndLimits()
     {
-        var configuration = new VehicleConfiguration { TicksPerSecond = 120, ForwardSpeed = 10, ReverseSpeed = 4, Acceleration = 6, Braking = 12, MaximumPhysicsSpeed = 20 };
+        var configuration = new VehicleConfiguration { Mass = 1400, TicksPerSecond = 120, ForwardSpeed = 10, ReverseSpeed = 4, Acceleration = 6, Braking = 12, MaximumPhysicsSpeed = 20 };
         var movement = new VehicleMovement(configuration, new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero));
         GroundStep(movement, throttle: 65535);
         Assert.That(-movement.State.Physics.LinearVelocity.Z, Is.GreaterThan(0).And.LessThan(0.01f), "Initial drive builds from idle rather than applying full engine demand.");
@@ -129,7 +129,7 @@ internal sealed class VehicleMovementTests
     {
         var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(8, 0, -20), new Vector3(0, 2, 0));
         var light = new VehicleMovement(new(), body);
-        var heavy = new VehicleMovement(new() { Mass = 1800 }, body);
+        var heavy = new VehicleMovement(new() { Mass = 6000 }, body);
         VehicleState a = light.Step(Frame(1, brake: 65535), body, Vector3.UnitY);
         VehicleState b = heavy.Step(Frame(1, brake: 65535), body, Vector3.UnitY);
         Assert.That(-b.Physics.LinearVelocity.Z, Is.GreaterThan(-a.Physics.LinearVelocity.Z));

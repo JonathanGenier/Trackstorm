@@ -35,15 +35,15 @@ public sealed record VehicleConfiguration
     /// <summary>Fixed frequency; independent of rendering.</summary>
     public int TicksPerSecond { get; init; } = 60;
     /// <summary>Body mass in kilograms.</summary>
-    public float Mass { get; init; } = 1400;
-    /// <summary>Forward acceleration in metres per second squared.</summary>
-    public float Acceleration { get; init; } = 24;
+    public float Mass { get; init; } = 3000;
+    /// <summary>Engine force expressed as acceleration at reference mass; calibrated with body mass to retain approved pacing.</summary>
+    public float Acceleration { get; init; } = 24 * (3000f / 1400);
     /// <summary>Seconds for engine demand to close 63 percent of an increasing pedal change.</summary>
     public float ThrottleRiseTime { get; init; } = 0.65f;
     /// <summary>Seconds for engine demand to close 63 percent of a decreasing pedal change.</summary>
     public float ThrottleFallTime { get; init; } = 0.12f;
     /// <summary>Braking deceleration.</summary>
-    public float Braking { get; init; } = 45;
+    public float Braking { get; init; } = 45 * (3000f / 1400);
     /// <summary>Engine demand sent to the front axle; the rear handbrake interrupts all engine drive.</summary>
     public float FrontDriveShare { get; init; } = 0;
     /// <summary>Driven rear tire longitudinal capacity multiplier; leaves lateral grip independent.</summary>
@@ -63,13 +63,13 @@ public sealed record VehicleConfiguration
     /// <summary>Residual opposing speed snapped to rest before reversing, in m/s.</summary>
     public float StopSpeed { get; init; } = 0.05f;
     /// <summary>Reverse acceleration.</summary>
-    public float ReverseAcceleration { get; init; } = 8;
+    public float ReverseAcceleration { get; init; } = 8 * (3000f / 1400);
     /// <summary>Normal forward drive limit in metres per second.</summary>
     public float ForwardSpeed { get; init; } = 44.44f;
     /// <summary>Reverse drive limit.</summary>
     public float ReverseSpeed { get; init; } = 11;
     /// <summary>Lateral grip response per second.</summary>
-    public float Grip { get; init; } = 26;
+    public float Grip { get; init; } = 26 * (3000f / 1400);
     /// <summary>Maximum wheel angle in radians at every speed.</summary>
     public float SteeringAngle { get; init; } = 0.9f;
     /// <summary>Wheel angle transition rate in radians per second.</summary>
@@ -107,7 +107,7 @@ public sealed record VehicleConfiguration
     /// <summary>Effective center-of-mass height for longitudinal/lateral load transfer.</summary>
     public float LoadHeight { get; init; } = 0.45f * VehicleDimensions.Scale;
     /// <summary>Rear braking deceleration at reference mass.</summary>
-    public float HandbrakeBraking { get; init; } = 30;
+    public float HandbrakeBraking { get; init; } = 30 * (3000f / 1400);
     /// <summary>Rear lateral grip fraction with the handbrake fully engaged.</summary>
     public float HandbrakeGrip { get; init; } = 0.25f;
     /// <summary>Handbrake application response per second.</summary>
