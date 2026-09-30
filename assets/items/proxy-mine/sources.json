@@ -1,0 +1,25 @@
+{
+  "asset": "Production Proxy Mine",
+  "author": "Original Trackstorm project art",
+  "tool": "Blender 5.2.2 LTS",
+  "source_url": null,
+  "license": "Project-original geometry and procedural textures; no third-party acquisition or license asserted",
+  "reference": "reference/ApprovedProxyMineConcept.png; built-in imagegen concept approved by user in TS-249 chat on 2026-09-29; reference only, no pixels in runtime asset",
+  "coordinates": "Metres. Blender Z up -> Godot Y up. Origin at unchanged collider centre.",
+  "audit": {
+    "triangles": 14861,
+    "mesh_nodes": 2,
+    "body_surfaces": 6,
+    "max_radial_m": 0.6487492918968201,
+    "min_z_m": -0.25,
+    "max_z_m": 0.3479999899864197,
+    "collision_nodes": 0
+  },
+  "sha256": {
+    "ProxyMine.glb": "6acd9822011d2d2c256dc00bac09c4f8a04e0f8dd21898ed13c919c211f14eb1",
+    "source\\ProxyMine.blend": "15d97c9d61ec8bfde2e97e8781b4f9dc6743458863914d840a1132263dc6c566",
+    "source\\BuildProxyMine.py": "287cddad3a06496ee89e30f096330180a7786280ab5c32c38305ac5daf77a929",
+    "Patina.png": "a94944bea62f9c9f9bb8e1b2c260e7dc5e85df2ec08c3a71bb8d299e6ae5d984",
+    "reference\\ApprovedProxyMineConcept.png": "17e746bf5ee88360ac5589579c297a8e613aaae01ede74f580db4a2d9e968a1c"
+  }
+}

@@ -11,6 +11,7 @@ internal sealed class MatchResourceLoader
         "res://assets/effects/BoostFlame.gdshader",
         "res://assets/effects/BoostThroat.gdshader",
         Vehicles.BoostExhaust.AssetPath,
+        Items.ProxyMineVisual.AssetPath,
         "res://assets/items/materials/DamageFlash.gdshader",
         "res://assets/audio/project/music/Welcome to the Carnage Circus Arena.mp3",
         "res://assets/audio/project/music/Welcome to the Carnage Circus Arena 2.mp3",
