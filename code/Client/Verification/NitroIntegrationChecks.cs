@@ -36,6 +36,33 @@ public sealed partial class NitroIntegrationChecks : Node
     private readonly HashSet<Vehicles.BoostExhaust> _depletionBursts = new();
     private readonly Dictionary<Vehicles.BoostExhaust, double> _inactiveSeconds = new();
     private readonly HashSet<Vehicles.BoostExhaust> _terminalActive = new();
+    private readonly HashSet<string> _deploymentCaptures = new();
+
+    public override async void _Process(double delta)
+    {
+        if (_done || _arenas.Count != 2) { return; }
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        if (_done) { return; }
+        try
+        {
+            foreach (var arena in _arenas)
+            foreach (var body in arena.Bodies.Values)
+            {
+                if (body.Rack.Boost.Source()?.Movement.Nitro.Active != true) { continue; }
+                Check(body.Rack.Progress >= .999f && body.Rack.Boost.Deployment >= .999f,
+                    "rendered thruster fully deployed whenever accepted thrust is active");
+            }
+            var slot = _arenas[0].Driver.Host?.Items.Slots.FirstOrDefault(slot => slot.Vehicle == 1);
+            if (slot?.Active.Item != HeldItem.Nitro) { return; }
+            string phase = slot.NitroDeploymentTicks switch { > 28 => "replace", > 9 => "rise", > 0 => "extend", _ => "ready" };
+            if (_deploymentCaptures.Add(phase))
+            {
+                Capture("deployment-" + phase + ".png");
+                GD.Print($"Deployment {phase}: remaining={slot.NitroDeploymentTicks} ticks; charge={slot.Active.NitroCharge:F2}%; thrust={_arenas[0].Driver.Host!.World.GetVehicle(1).Movement.Nitro.Active}.");
+            }
+        }
+        catch (Exception error) { GD.PrintErr(error); GetTree().Quit(1); }
+    }
 
     public override void _Ready()
     {
@@ -119,6 +146,11 @@ public sealed partial class NitroIntegrationChecks : Node
                 if (_stage is 8 or 9 && exhaust.DepletionBurst) { _depletionBursts.Add(exhaust); }
             }
             var host = _arenas[0].Driver.Host!;
+            foreach (var slot in host.Items.Slots.Where(slot => slot.NitroDeploymentTicks > 0))
+            {
+                Check(slot.Active.NitroCharge == 100, "deployment never consumes charge");
+                Check(!host.World.GetVehicle(slot.Vehicle).Movement.Nitro.Active, "deployment never produces thrust");
+            }
             switch (_stage)
             {
                 case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2):
@@ -129,7 +161,13 @@ public sealed partial class NitroIntegrationChecks : Node
                     PrepareRocketScenario();
                     _stage = 101; _boundary = _frames;
                     break;
-                case 101 when _frames - _boundary > 30:
+                case 101 when _frames - _boundary > ItemSlot.NitroDeploymentDurationTicks:
+                    _throttle = _rocketScenario == 2 ? ushort.MaxValue : (ushort)0;
+                    _reverse = _rocketScenario == 3 ? ushort.MaxValue : (ushort)0;
+                    Position(_rocketScenario == 1 ? 10 : 0, _rocketScenario >= 4 ? 100 : 21.4f);
+                    _stage = 104; _boundary = _frames;
+                    break;
+                case 104 when _frames - _boundary > 30:
                     _rocketStartSpeed = host.World.GetVehicle(1).Speed;
                     UseBoth();
                     _stage = 102; _boundary = _frames;
@@ -219,6 +257,7 @@ public sealed partial class NitroIntegrationChecks : Node
                     Check(_arenas[1].Driver.Match!.Players.All(p => p.CircusScore > 0), "remote score publication");
                     Check(host.World.Events.Entries.Count(e => e.Kind == "Exhausted" && e.Cause == "Nitro") == 2, "one disposal per grant");
                     Capture("exhausted-nitro.png");
+                    CheckDeploymentPublicationOrdering();
                     GD.Print("Nitro integration passed: " + string.Join("\n", _evidence));
                     _done = true; _boundary = _frames;
                     foreach (var arena in _arenas) { arena.QueueFree(); }
@@ -232,6 +271,38 @@ public sealed partial class NitroIntegrationChecks : Node
             foreach (var gateway in _gateways) { gateway.Dispose(); }
             GetTree().Quit(1);
         }
+    }
+
+    private void CheckDeploymentPublicationOrdering()
+    {
+        // Controlled channel-order regression on production nodes after driving:
+        // the previous capability's active movement must not skip a new deployment.
+        foreach (var arena in _arenas)
+        foreach (var body in arena.Bodies.Values)
+        {
+            var prior = body.Rack.Boost.Source()!;
+            var pose = prior.ObservedPhysics;
+            var oldActive = new VehicleSnapshot(prior.VehicleId, prior.LifeId,
+                new VehicleState(prior.Movement.Tick, pose, true, false, 0, 0, nitro: new NitroState(60, 18000, 1.4f, 1)), prior.Damage, pose);
+            body.Apply(oldActive);
+            body.Rack.Reset();
+            var inventory = new ItemSlot(prior.VehicleId, prior.LifeId, 999, HeldItem.Nitro)
+                { EngagedToken = 999, NitroDeploymentTicks = ItemSlot.NitroDeploymentDurationTicks };
+            ulong start = prior.Movement.Tick + 1;
+            body.Rack.Observe(prior.LifeId, true, inventory, [], start);
+            body.Rack._Process(.3);
+            float progress = body.Rack.Progress;
+            Check(progress is > 0 and < 1 && body.Rack.Boost.Deployment < .999f,
+                "previous active movement cannot bypass a newly selected thruster deployment");
+            body.Rack.Observe(prior.LifeId, true, inventory with { NitroDeploymentTicks = 35 }, [], start + 1);
+            Check(body.Rack.Progress >= progress, "delayed inventory cannot rewind the mechanical animation");
+            body.Apply(new VehicleSnapshot(prior.VehicleId, prior.LifeId,
+                new VehicleState(start + ItemSlot.NitroDeploymentDurationTicks, pose, true, false, 0, 0, nitro: new NitroState(60, 18000, 1.4f, 1)), prior.Damage, pose));
+            body.Rack._Process(0);
+            Check(body.Rack.Progress >= .999f && body.Rack.Boost.Deployment >= .999f,
+                "current active movement completes readiness despite a delayed final inventory publication");
+        }
+        _evidence.Add("Deployment channel ordering verified: old active snapshot cannot skip a new deployment; delayed publications cannot rewind it; current thrust resolves readiness.");
     }
 
     private void UseBoth()
@@ -267,9 +338,13 @@ public sealed partial class NitroIntegrationChecks : Node
     {
         var host = _arenas[0].Driver.Host!;
         foreach (ulong id in new ulong[] { 1, 2 }) { host.Items.RemovePlayer(id); }
+        foreach (ulong id in new ulong[] { 1, 2 })
+        {
+            Check(host.Items.Grant(host.World, id, HeldItem.Nitro), "rocket scenario Nitro grant");
+            Check(host.Items.Grant(host.World, id, HeldItem.Wrench), "rocket scenario second slot");
+        }
         _held = false;
-        _throttle = _rocketScenario == 2 ? ushort.MaxValue : (ushort)0;
-        _reverse = _rocketScenario == 3 ? ushort.MaxValue : (ushort)0;
+        _throttle = _reverse = 0;
         Check(host.TryConfigure(0, new Dictionary<string, double> { ["items.nitro_airborne_thrust_scale"] = _rocketScenario == 5 ? 0 : 1 }, out _), "airborne live tuning");
         Position(_rocketScenario == 1 ? 10 : 0, _rocketScenario >= 4 ? 100 : 21.4f);
     }

@@ -3,6 +3,10 @@ namespace Trackstorm.Core.Items;
 /// <summary>One player's two fixed held slots and selection in one vehicle life. Each grant token is match-unique.</summary>
 public sealed record ItemSlot(ulong Vehicle, ulong Life, ulong Token, HeldItem Item)
 {
+    /// <summary>Complete selected thruster deployment, including replacement, at 60 Hz (0.6 seconds).</summary>
+    public const int NitroDeploymentDurationTicks = 36;
+    /// <summary>Remaining authoritative deployment time for the selected Nitro; zero means ready.</summary>
+    public int NitroDeploymentTicks { get; init; }
     /// <summary>Unfired Salvo rounds in the first physical slot.</summary>
     public int SalvoShots { get; init; } = Item == HeldItem.Salvo ? 5 : 0;
     /// <summary>Unfired Salvo rounds in the second physical slot.</summary>
@@ -35,7 +39,7 @@ public sealed record ItemSlot(ulong Vehicle, ulong Life, ulong Token, HeldItem I
     public ulong SelectionRevision { get; init; }
     /// <summary>Capability for the currently selected slot, for existing item handlers.</summary>
     public ItemSlot Active => new(Vehicle, Life, ActiveSlot == 0 ? Token : SecondToken, ActiveSlot == 0 ? Item : SecondItem)
-    { NitroCharge = ActiveSlot == 0 ? NitroCharge : SecondNitroCharge, Ammo = ActiveSlot == 0 ? Ammo : SecondAmmo,
+    { NitroCharge = ActiveSlot == 0 ? NitroCharge : SecondNitroCharge, NitroDeploymentTicks = NitroDeploymentTicks, Ammo = ActiveSlot == 0 ? Ammo : SecondAmmo,
         SalvoShots = ActiveSlot == 0 ? SalvoShots : SecondSalvoShots,
         SalvoReadyTick = ActiveSlot == 0 ? SalvoReadyTick : SecondSalvoReadyTick };
     /// <summary>Whether acquisition must leave both held items untouched.</summary>

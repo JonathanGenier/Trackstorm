@@ -36,6 +36,18 @@ internal sealed partial class BoostExhaust : Node3D
 
     internal Func<VehicleSnapshot?> Source { get; init; } = () => null;
     internal bool Deploy { get; set; }
+    private float? _deploymentTimeline;
+    internal float? DeploymentTimeline
+    {
+        get => _deploymentTimeline;
+        set
+        {
+            _deploymentTimeline = value;
+            if (value is not float progress) { return; }
+            _progress = progress;
+            ApplyPose();
+        }
+    }
     internal float Deployment => _progress;
     internal bool FlameVisible => _flames.Any(flame => flame.Visible);
     internal bool SmokeEmitting => _smoke.Emitting;
@@ -109,7 +121,7 @@ internal sealed partial class BoostExhaust : Node3D
         bool ready = participating && Deploy;
         // Keep the outlet clear of the bay until the last combustion has finished.
         bool finishing = _burning || _tailTime > 0 || _depletionPending;
-        _progress = Mathf.MoveToward(_progress, ready || finishing ? 1 : 0, dt / .24f);
+        _progress = DeploymentTimeline ?? Mathf.MoveToward(_progress, ready || finishing ? 1 : 0, dt / .24f);
         ApplyPose();
         bool firing = active && ready && _progress >= .999f;
         // Each accepted activation primes locally; release discards any pending ignition.

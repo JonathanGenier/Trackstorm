@@ -18,7 +18,7 @@ public sealed partial class BoostExhaustChecks : Node3D
     private bool _capturePending;
     private int _capture;
     private bool _reseeded;
-    private readonly float[] _captureTimes = [.3f, .95f, 1.18f, 1.5f, 1.65f, 1.85f, 2.12f, 2.24f, 2.4f, 3, 4.5f, 6.04f, 6.20f, 6.36f, 6.6f, 6.76f, 6.94f, 7.15f, 7.85f, 8.2f, 9.9f, 10.2f, 10.6f, 13, 17, 21, 24.10f, 24.28f, 24.48f, 25];
+    private readonly float[] _captureTimes = [.3f, .8f, 1.02f, 1.5f, 1.65f, 1.85f, 2.12f, 2.24f, 2.4f, 3, 4.5f, 6.04f, 6.20f, 6.36f, 6.6f, 6.76f, 6.94f, 7.15f, 7.85f, 8.2f, 9.9f, 10.2f, 10.6f, 13, 17, 21, 24.10f, 24.28f, 24.48f, 25];
     private readonly string[] _captureNames = ["idle", "rack-rise", "deployment", "ready", "mechanical-detail", "intake-front", "priming", "fumes", "ignition", "sustain-a", "sustain-b", "release", "release-middle", "release-end", "ready-after-release", "short-prime", "prime-cancelled", "retract", "switched", "cancelled", "reignite", "reprime-during-decay", "rapid-reignite", "chase", "eight", "thirty-two", "depletion-burst", "depletion-decay", "depletion-end", "cutoff"];
     private float _releaseEnergy = 1;
     private float _lastClipTime;
@@ -75,7 +75,8 @@ public sealed partial class BoostExhaustChecks : Node3D
                 var item = _time < .5f || _time >= 24 ? Core.Items.HeldItem.None :
                     _time is >= 7 and < 8 ? Core.Items.HeldItem.Missile : Core.Items.HeldItem.Nitro;
                 _cars[i].Rack.Observe(state.LifeId, state.CanInteract,
-                    new Core.Items.ItemSlot(state.VehicleId, state.LifeId, item == Core.Items.HeldItem.Missile ? 1ul : 2ul, item), []);
+                    new Core.Items.ItemSlot(state.VehicleId, state.LifeId, item == Core.Items.HeldItem.Missile ? 1ul : 2ul, item)
+                    { NitroDeploymentTicks = item == Core.Items.HeldItem.Nitro ? Math.Clamp((int)MathF.Ceiling((.6f - (_time - (_time >= 8 ? 8 : .5f))) * 60), 0, Core.Items.ItemSlot.NitroDeploymentDurationTicks) : 0 }, []);
                 if (i == 0 && _time > 22 && !_reseeded)
                 {
                     _cars[i].Reseed(state);
