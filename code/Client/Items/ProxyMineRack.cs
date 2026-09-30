@@ -9,6 +9,7 @@ namespace Trackstorm.Client.Items;
 internal sealed partial class ProxyMineRack : Node3D
 {
     internal const string AssetPath = "res://assets/items/proxy-mine/ProxyMinePlacementArm.glb";
+    private const float ReturnSeconds = .23f;
     private static readonly Vector3 Shoulder = new(0, -.24f, -.25f);
     private static readonly Vector3 Stored = new(0, -.43f, -.27f);
     private static readonly Vector3 RackMine = new(0, .42f, 0);
@@ -46,7 +47,7 @@ internal sealed partial class ProxyMineRack : Node3D
         if (_placement is not null && placement is null)
         {
             _returnFrom = _wrist.Position;
-            _return = .70f;
+            _return = ReturnSeconds;
         }
         if (placement is not null)
         {
@@ -100,7 +101,7 @@ internal sealed partial class ProxyMineRack : Node3D
         else if (_return > 0)
         {
             _return = Math.Max(0, _return - (float)delta);
-            float t = 1 - _return / .70f;
+            float t = 1 - _return / ReturnSeconds;
             Vector3 clear = new(0, .20f, 1.35f);
             Vector3 wrist = t < .15f ? _returnFrom : t < .60f ? _returnFrom.Lerp(clear, Ease((t - .15f) / .45f)) : clear.Lerp(Stored, Ease((t - .60f) / .40f));
             Pose(wrist, 1 - Ease((t - .60f) / .40f), Ease(t / .15f));

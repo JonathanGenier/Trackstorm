@@ -13,9 +13,9 @@ public sealed record ProxyMineState(ulong Id, ulong Owner, Vector3 Position, Vec
     /// <summary>Fixed mine mass used to convert magnetic Newtons into acceleration.</summary>
     public const float Mass = 20;
     /// <summary>Rack preparation, pickup and lowering, in authoritative 60 Hz steps.</summary>
-    public const int PlacementDurationTicks = 180;
+    public const int PlacementDurationTicks = 60;
     /// <summary>Lowering must be retried after support disappears; a returning surface cannot cause a teleport-release.</summary>
-    public const int PlacementLoweringTicks = 50;
+    public const int PlacementLoweringTicks = 17;
     /// <summary>Maximum reach of the rack's two telescopic links, in metres.</summary>
     public const float PlacementReach = 3.5f;
     /// <summary>Raised Car rack shoulder relative to the authoritative vehicle origin.</summary>

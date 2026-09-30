@@ -105,7 +105,7 @@ public sealed partial class ProxyMineIntegrationChecks : Node
             Check(_frames - _boundary < (_stage == 1000 ? 6000 : 1200), $"Mine stage {_stage} timeout; mines={_arenas[0].Driver.Host?.Items.Mines.Count}");
             var host = _arenas[0].Driver.Host!;
             if (_stage == 1 && _frames % 9 == 0) { Capture($"arm-placement-{_frames - _boundary:D3}.png"); }
-            if (_stage == 1 && _frames - _boundary == 75) { AddPeer(); }
+            if (_stage == 1 && _frames - _boundary == ProxyMineState.PlacementDurationTicks / 3) { AddPeer(); }
             if (_stage == 1 && _arenas.Count == 3 && _arenas[2].Driver.ItemState?.Mines.Any(m => m.IsPlacing) == true)
             {
                 _midPlacementJoin = true;

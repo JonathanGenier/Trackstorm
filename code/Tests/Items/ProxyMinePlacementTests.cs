@@ -52,13 +52,14 @@ internal sealed class ProxyMinePlacementTests
     {
         var host = Start();
         host.JoinPlayer(10, 2);
-        for (int i = 0; i < 80; i++) { Tick(host); }
+        int halfway = ProxyMineState.PlacementDurationTicks / 2;
+        for (int i = 0; i < halfway; i++) { Tick(host); }
         var publication = new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], mines: host.Items.Mines);
         var decoded = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(new(publication, host.World.State.Match!, null, host.Configuration)));
         var restored = HostVehicleSession.Restore(decoded, host.CaptureAuthority(), 2);
         Assert.That(restored.Items.Mines, Is.EqualTo(host.Items.Mines));
         Assert.That(host.PrepareJoin(3, 2)!.Items.Mines, Is.EqualTo(host.Items.Mines));
-        for (int i = 80; i < ProxyMineState.PlacementDurationTicks + 1; i++) { Tick(host); Tick(restored); }
+        for (int i = halfway; i < ProxyMineState.PlacementDurationTicks + 1; i++) { Tick(host); Tick(restored); }
         Assert.That(restored.Items.Mines, Is.EqualTo(host.Items.Mines));
         Assert.That(restored.Items.Mines.Single().IsPlacing, Is.False);
         Assert.That(restored.Items.Events, Is.Empty, "recovery does not replay use");
@@ -94,7 +95,7 @@ internal sealed class ProxyMinePlacementTests
     {
         var host = Start(); Tick(host);
         var mine = host.Items.Mines.Single();
-        foreach (var invalid in new[] { mine with { PlacementTicks = -1 }, mine with { PlacementTicks = 181 },
+        foreach (var invalid in new[] { mine with { PlacementTicks = -1 }, mine with { PlacementTicks = ProxyMineState.PlacementDurationTicks + 1 },
             mine with { PlacementLife = 0 }, mine with { PlacementLife = 999 }, mine with { Velocity = Vector3.One }, mine with { SeatingTicks = 29 } })
         {
             Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], mines: [invalid]));
