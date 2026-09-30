@@ -7,8 +7,6 @@ namespace Trackstorm.Core.Tests.Vehicles;
 [TestFixture]
 internal sealed class BrakeReverseTests
 {
-    [TestCase(0.001f)]
-    [TestCase(0.04f)]
     [TestCase(0.5f)]
     [TestCase(27.78f)]
     [TestCase(44.44f)]
@@ -41,6 +39,25 @@ internal sealed class BrakeReverseTests
         Step(replay, 50000, InputButtons.Brake, InputButtons.Brake);
         Assert.That(replay.State, Is.EqualTo(movement.State));
         Assert.That(movement.State.Physics.LinearVelocity.Z, Is.GreaterThan(0));
+    }
+
+    [TestCase(-0.2f)]
+    [TestCase(0.2f)]
+    public void ReleasedStopAllowsNewReversePressDespiteSlopeCreep(float creep)
+    {
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(0, 0, -creep), Vector3.Zero);
+        var movement = new VehicleMovement(new(), pose);
+        movement.Restore(new(0, pose, true, false, 0, 0, brakeMode: BrakeMode.Stopping));
+        Step(movement, 65535);
+        Assert.That(movement.State.BrakeMode, Is.EqualTo(BrakeMode.Stopping));
+        Step(movement, 0);
+        // Gravity reintroduces creep between release and the next press.
+        var afterRelease = movement.State;
+        movement.Restore(new(afterRelease.Tick, pose, true, false, 0, 0, brakeMode: afterRelease.BrakeMode));
+        Step(movement, 65535, InputButtons.Brake, InputButtons.Brake);
+        Assert.That(movement.State.BrakeMode, Is.EqualTo(BrakeMode.Reversing));
+        for (int i = 0; i < 60; i++) { Step(movement, 65535); }
+        Assert.That(movement.State.Physics.LinearVelocity.Z, Is.GreaterThan(1));
     }
 
     [Test]

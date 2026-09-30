@@ -329,7 +329,7 @@ internal sealed class DeveloperConfigurationTests
     [TestCase("vehicle.load_height", 1.2)]
     [TestCase("vehicle.handbrake_braking", 3)]
     [TestCase("vehicle.handbrake_grip", 0.15)]
-    [TestCase("vehicle.handbrake_response", 2)]
+    [TestCase("vehicle.handbrake_response", 4)]
     [TestCase("vehicle.traction_recovery", 1)]
     [TestCase("vehicle.coast_drag", 2)]
     [TestCase("vehicle.reference_mass", 600)]

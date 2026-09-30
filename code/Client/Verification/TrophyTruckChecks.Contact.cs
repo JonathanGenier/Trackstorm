@@ -10,7 +10,7 @@ public sealed partial class TrophyTruckChecks
 {
     private async Task HighSpeedContact(bool network)
     {
-        foreach (float delay in new[] { 0.15f, 1f })
+        foreach (float delay in new[] { 0.15f, new VehicleConfiguration().AirDelay })
         foreach (bool gap in new[] { false, true })
         {
             var tuning = new VehicleConfiguration { AirDelay = delay };
@@ -44,7 +44,7 @@ public sealed partial class TrophyTruckChecks
             float air = samples.Max(s => s.Air.Seconds);
             int commanded = samples.Count(s => s.Air.Input != N.Vector3.Zero);
             GD.Print($"{_case}: maxAir={air:F3}, airCommandFrames={commanded}, minUp={minimumUp:F3}, maxY={samples.Max(s => s.Physics.Position.Y):F3}, crashTimer={samples.Max(s => s.CrashSeconds):F3}, maxPitchRate={samples.Max(s => Math.Abs(s.Physics.AngularVelocity.X)):F3}");
-            if (delay == 1)
+            if (delay == new VehicleConfiguration().AirDelay)
             {
                 Check(commanded == 0, _case + " brief loss never commands intentional aerial input");
                 Check(minimumUp > 0.9f && samples[^1].Grounded, _case + " stays wheel-down and regains support");

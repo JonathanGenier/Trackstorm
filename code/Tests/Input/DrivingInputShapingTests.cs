@@ -26,7 +26,7 @@ internal sealed class DrivingInputShapingTests
             input = DrivingInputShaping.Approach(input, -1, tuning.SteeringReversal, 1f / rate);
         }
 
-        Assert.That(input, Is.EqualTo(-1));
+        Assert.That(input, Is.EqualTo(-1).Within(0.00001f));
         for (int tick = 0; tick <= Math.Ceiling(rate / tuning.SteeringReturn); tick++)
         {
             input = DrivingInputShaping.Approach(input, 0, tuning.SteeringReturn, 1f / rate);
@@ -60,16 +60,16 @@ internal sealed class DrivingInputShapingTests
         {
             steering = DrivingInputShaping.Approach(steering, 1, tuning.SteeringRise, 1f / 60);
         }
-        Assert.That(steering, Is.InRange(0.049f, 0.051f));
-        for (int tick = 0; tick < 120; tick++)
+        Assert.That(steering, Is.InRange(0.044f, 0.046f));
+        for (int tick = 0; tick < 150; tick++)
         {
             steering = DrivingInputShaping.Approach(steering, 1, tuning.SteeringRise, 1f / 60);
         }
         Assert.That(steering, Is.EqualTo(1));
-        for (int tick = 0; tick < 180; tick++)
+        for (int tick = 0; tick < 210; tick++)
         {
             steering = DrivingInputShaping.Approach(steering, -1, steering > 0 ? tuning.SteeringReversal : tuning.SteeringRise, 1f / 60);
         }
-        Assert.That(steering, Is.EqualTo(-1));
+        Assert.That(steering, Is.EqualTo(-1).Within(0.00001f));
     }
 }

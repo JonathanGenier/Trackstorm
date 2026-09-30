@@ -20,15 +20,15 @@ public sealed record DrivingInputShaping
     /// <summary>Throttle release per second.</summary>
     public float ThrottleRelease { get; init; } = 4;
     /// <summary>Brake rise per second.</summary>
-    public float BrakeRise { get; init; } = 8;
+    public float BrakeRise { get; init; } = 3;
     /// <summary>Brake release per second.</summary>
     public float BrakeRelease { get; init; } = 10;
     /// <summary>Steering rise per second.</summary>
-    public float SteeringRise { get; init; } = 0.5f;
+    public float SteeringRise { get; init; } = 0.45f;
     /// <summary>Steering return per second.</summary>
-    public float SteeringReturn { get; init; } = 0.9f;
+    public float SteeringReturn { get; init; } = 0.8f;
     /// <summary>Steering reversal per second.</summary>
-    public float SteeringReversal { get; init; } = 1.1f;
+    public float SteeringReversal { get; init; } = 1f;
 
     /// <summary>Moves toward bounded intent without overshoot; finite rates and a fixed timestep are required.</summary>
     /// <param name="current">Previous shaped intent.</param>

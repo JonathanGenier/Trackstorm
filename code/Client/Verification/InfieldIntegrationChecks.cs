@@ -504,7 +504,9 @@ public sealed partial class InfieldIntegrationChecks : Node3D
         if (jump)
         {
             System.IO.File.WriteAllText(System.IO.Path.Combine(_output, name + "-suspension.json"), JsonSerializer.Serialize(suspensionSamples));
-            Check(_longestFlight >= 4 && _landing is not null && _vehicle.State.Grounded, $"{name}: real launch {_launch}, landing {_landing}, longest flight {_longestFlight / 60f:F2}s, peak origin {_peakHeight:F2}m, peak origin clearance {_peakClearance:F2}m, launch horizontal speed {_launchSpeed:F2}m/s, airborne horizontal travel {((_landing!.Value - _launch!.Value) with { Y = 0 }).Length():F2}m; recovered grounded.");
+            float airborneTravel = _landing is Vector3 landing && _launch is Vector3 launch
+                ? ((landing - launch) with { Y = 0 }).Length() : float.NaN;
+            Check(_longestFlight >= 4 && _launch is not null && _landing is not null && _vehicle.State.Grounded, $"{name}: real launch {_launch}, landing {_landing}, longest flight {_longestFlight / 60f:F2}s, peak origin {_peakHeight:F2}m, peak origin clearance {_peakClearance:F2}m, launch horizontal speed {_launchSpeed:F2}m/s, airborne horizontal travel {airborneTravel:F2}m; recovered grounded.");
             float landingDistance = Math.Abs(_landing!.Value.X - points[0].X);
             Check(landingDistance >= 42 && landingDistance <= 100 && _landing.Value.Y >= 5.4f, $"{name}: lands on raised dirt tabletop at corridor metre {landingDistance:F2}.");
         }

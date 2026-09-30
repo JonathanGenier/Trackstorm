@@ -101,7 +101,7 @@ internal sealed class AsphaltBaselineTests
         float heldSlip = movement.State.RearSlip;
         var released = movement.Step(new InputFrame(7, 0, ushort.MaxValue, 0, 0, 0, 0), body, Vector3.UnitY);
         Assert.That(released.Handbrake, Is.GreaterThan(0).And.LessThan(previous));
-        Assert.That(released.LongitudinalAcceleration, Is.GreaterThan(0));
+        Assert.That(released.LongitudinalAcceleration, Is.GreaterThan(-tuning.HandbrakeBraking * previous));
         for (ulong tick = 8; tick <= 30; tick++)
         {
             movement.Step(new InputFrame(tick, 0, 0, 0, 0, 0, 0), body, Vector3.UnitY);

@@ -11,7 +11,7 @@ internal sealed class HandlingRecoveryTests
     [Test]
     public void DirtPowerBuildsAndLiftRestoresGripProgressivelyAcrossRestore()
     {
-        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(3, 0, -15), Vector3.Zero);
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(3, 0, -6), Vector3.Zero);
         var movement = new VehicleMovement(new(), pose);
         for (ulong tick = 1; tick <= 180; tick++)
         {

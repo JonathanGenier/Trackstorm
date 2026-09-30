@@ -310,8 +310,8 @@ public sealed partial class VehicleIntegrationChecks : Node
                     GD.Print($"Power out: entry={speed}, held={heldTicks}, throttle delay={throttleDelay}, acceleration={first.LongitudinalAcceleration:F3}, side={side:F3}, yaw={yaw:F3}, recovery={first.Handbrake:F3}, final side={finalSide:F3}, peak speed={states.Max(state => state.CommandSpeed):F3}, peak yaw={states.Max(state => Math.Abs(state.Physics.AngularVelocity.Y)):F3}");
                     // Residual rear braking/scrub can exceed the first tick's deliberately
                     // small engine demand; require immediate demand, then useful net drive.
-                    Check(first.Grounded && first.Throttle > 0 && first.Handbrake is > 0 and < 1, "first available powered tick begins throttle buildup during progressive handbrake recovery");
-                    Check(states.Skip(powered).Take(15).Any(state => state.LongitudinalAcceleration > 2), "progressive throttle builds useful propulsion within a quarter second of release");
+                    Check(first.Grounded && first.Throttle > 0 && first.Handbrake is >= 0 and < 1, "first available powered tick begins throttle buildup during progressive handbrake recovery");
+                    Check(states.Skip(powered).Take(30).Any(state => state.LongitudinalAcceleration > 2), "progressive throttle builds useful propulsion within half a second of release");
                     VehicleState before = states[powered - 1];
                     Check(Numerics.Vector3.Distance(first.Physics.LinearVelocity, before.Physics.LinearVelocity) < 0.5f && Math.Abs(first.Physics.AngularVelocity.Y - before.Physics.AngularVelocity.Y) < 0.3f, "propulsion changes momentum and yaw progressively without a snap");
                     if (speed == 16 && heldTicks == 45 && throttleDelay <= 0)

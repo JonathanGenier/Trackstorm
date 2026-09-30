@@ -36,11 +36,11 @@ internal sealed class TrophyTuningTests
         {
             bool crash = scenario >= 2;
             var pose = new VehiclePhysicsState(Vector3.Zero, crash ? Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 2) : Quaternion.Identity,
-                new(4, scenario == 1 ? 1 : -1, -16), new(0, 0, scenario == 3 ? 2 : 0));
+                new(4, scenario == 1 ? 1 : -1, suffix == "spin_drive_loss" ? -6 : -16), new(0, 0, scenario == 3 ? 2 : 0));
             VehicleState Run(VehicleConfiguration configuration)
             {
                 var movement = new VehicleMovement(configuration, pose);
-                movement.Restore(new(0, pose, true, false, 0.6f, 0, landingIntensity: 1, crashSeconds: crash ? 2 : 0, throttle: 1));
+                movement.Restore(new(0, pose, true, false, 0.6f, 0, landingIntensity: 1, crashSeconds: crash ? 2 : 0, throttle: 1, powerSlip: suffix == "spin_drive_loss" ? 0.3f : 0));
                 return movement.Step(new InputFrame(1, 32767, scenario == 1 ? (ushort)0 : ushort.MaxValue, scenario == 1 ? ushort.MaxValue : (ushort)0, 0, 0, 0),
                     pose, Vector3.UnitY, surface: SurfaceType.Dirt, wheels: new WheelSupport(new Vector4(crash ? 0 : 0.7f)),
                     contacts: [new VehicleContact(Vector3.Zero, Vector3.UnitY, 0, 0)]);

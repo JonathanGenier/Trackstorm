@@ -72,7 +72,7 @@ public sealed partial class InputIntegrationChecks
                 int value = brake ? frame.Brake : frame.Accelerate;
                 Check(value >= previous, "digital pedal rises monotonically");
                 if (tick == 1) { Check(value > 0 && value < 10000, "first digital pedal sample is intermediate"); }
-                if (tick == 6) { Check(brake ? value > 50000 : value is > 15000 and < 18000, "brake commits faster than progressive throttle"); }
+                if (tick == 6) { Check(brake ? value is > 19000 and < 20500 : value is > 15000 and < 18000, "brake commits faster than progressive throttle"); }
                 previous = value;
             }
             Check(previous == 65535, "held pedal reaches full authority");

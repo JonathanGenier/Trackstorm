@@ -43,7 +43,7 @@ public sealed record VehicleConfiguration
     /// <summary>Seconds for engine demand to close 63 percent of a decreasing pedal change.</summary>
     public float ThrottleFallTime { get; init; } = 0.12f;
     /// <summary>Braking deceleration.</summary>
-    public float Braking { get; init; } = 95;
+    public float Braking { get; init; } = 45;
     /// <summary>Engine demand sent to the front axle; the rear handbrake interrupts all engine drive.</summary>
     public float FrontDriveShare { get; init; } = 0;
     /// <summary>Driven rear tire longitudinal capacity multiplier; leaves lateral grip independent.</summary>
@@ -52,6 +52,12 @@ public sealed record VehicleConfiguration
     public float BrakeGrip { get; init; } = 2;
     /// <summary>Rear lateral grip loss from excess torque and steering commitment.</summary>
     public float PowerOversteer { get; init; } = 0.8f;
+    /// <summary>Speed through which deliberate power breakaway retains full demand, in m/s.</summary>
+    public float PowerSlipFullSpeed { get; init; } = 8;
+    /// <summary>Speed where torque-induced rear grip loss fades to zero, in m/s; handbrake is independent.</summary>
+    public float PowerSlipFadeSpeed { get; init; } = 16.667f;
+    /// <summary>Forward creep accepted as effectively stopped on a new reverse press, in m/s.</summary>
+    public float ReverseEngagementSpeed { get; init; } = 0.35f;
     /// <summary>Longitudinal traction loss at full wheelspin.</summary>
     public float SpinDriveLoss { get; init; } = 0.7f;
     /// <summary>Residual opposing speed snapped to rest before reversing, in m/s.</summary>
@@ -69,7 +75,7 @@ public sealed record VehicleConfiguration
     /// <summary>Wheel angle transition rate in radians per second.</summary>
     public float SteeringResponse { get; init; } = 0.95f;
     /// <summary>Time constant for progressive wheel corrections, independent of speed.</summary>
-    public float SteeringSmoothing { get; init; } = 0.26f;
+    public float SteeringSmoothing { get; init; } = 0.3f;
     /// <summary>Low/medium dirt corner authority multiplier; fades out by 28 m/s.</summary>
     public float DirtCornering { get; init; } = 1;
     /// <summary>Speed through which the extra dirt tire budget is fully available, m/s.</summary>
@@ -105,7 +111,7 @@ public sealed record VehicleConfiguration
     /// <summary>Rear lateral grip fraction with the handbrake fully engaged.</summary>
     public float HandbrakeGrip { get; init; } = 0.25f;
     /// <summary>Handbrake application response per second.</summary>
-    public float HandbrakeResponse { get; init; } = 8;
+    public float HandbrakeResponse { get; init; } = 2;
     /// <summary>Handbrake release response per second, permitting gradual traction recovery.</summary>
     public float TractionRecovery { get; init; } = 3;
     /// <summary>Horizontal overspeed recovery in m/s² above the effective drive limit.</summary>
@@ -148,7 +154,7 @@ public sealed record VehicleConfiguration
     public float MaximumAngularSpeed { get; init; } = 8;
 
     /// <summary>Activation delay (s).</summary>
-    public float AirDelay { get; init; } = 1;
+    public float AirDelay { get; init; } = 0.5f;
     /// <summary>Pitch rate (rad/s).</summary>
     public float AirPitchRate { get; init; } = 2.52f;
     /// <summary>Yaw rate (rad/s).</summary>
@@ -211,6 +217,7 @@ public sealed record VehicleConfiguration
     public void Validate()
     {
         if (!float.IsFinite(AsphaltGrip) || AsphaltGrip is < 0 or > 100) { throw new ArgumentException("Invalid asphalt grip."); }
+        if (!float.IsFinite(PowerSlipFullSpeed) || !float.IsFinite(PowerSlipFadeSpeed) || PowerSlipFullSpeed < 0 || PowerSlipFadeSpeed <= PowerSlipFullSpeed || PowerSlipFadeSpeed > MaximumPhysicsSpeed || !float.IsFinite(ReverseEngagementSpeed) || ReverseEngagementSpeed is < 0 or > 1) { throw new ArgumentException("Invalid power-slip speed or reverse engagement tuning."); }
         if (!float.IsFinite(PowerOversteer) || PowerOversteer is < 0 or > .9f || !float.IsFinite(SpinDriveLoss) || SpinDriveLoss is < 0 or > .9f) { throw new ArgumentException("Invalid wheelspin tuning."); }
         if (!float.IsFinite(RearDriveGrip) || RearDriveGrip is < 0.1f or > 4 || !float.IsFinite(BrakeGrip) || BrakeGrip is < 0.1f or > 4) { throw new ArgumentException("Invalid longitudinal tire grip."); }
         if (!float.IsFinite(FrontDriveShare) || FrontDriveShare is < 0 or > 1)

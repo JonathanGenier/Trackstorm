@@ -175,7 +175,7 @@ public sealed partial class InputIntegrationChecks : Node
                 }
 
                 InputFrame frame = first;
-                for (ulong tick = 2; tick <= 121; tick++)
+                for (ulong tick = 2; tick <= 151; tick++)
                 {
                     frame = _player.Adapter.Capture(tick);
                 }
@@ -184,7 +184,7 @@ public sealed partial class InputIntegrationChecks : Node
                 SetPressed(pressed, false);
                 Send(pressed);
                 Check(_player.Adapter.Bindings.Strength(action, 0.15f) == 0, $"{action} releases");
-                for (ulong tick = 122; tick <= 241; tick++)
+                for (ulong tick = 152; tick <= 271; tick++)
                 {
                     _player.Adapter.Capture(tick);
                 }

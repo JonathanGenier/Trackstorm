@@ -142,8 +142,8 @@ public sealed class VehicleMovement
         else if ((input.Released & InputButtons.Brake) != 0) { brakeMode = BrakeMode.ReleaseTail; }
         if (grounded && brake > 0 && (brakeMode == BrakeMode.Ready || newBrakePress))
         {
-            // Ignore floating-point rest noise, not perceptible forward creep.
-            brakeMode = longitudinal > 0.0001f ? BrakeMode.Stopping : BrakeMode.Reversing;
+            // A new press accepts mild slope creep as a stop; a continuous stop remains latched.
+            brakeMode = longitudinal > c.ReverseEngagementSpeed ? BrakeMode.Stopping : BrakeMode.Reversing;
         }
         float longAcceleration = 0;
         float sideAcceleration = 0;
@@ -188,8 +188,8 @@ public sealed class VehicleMovement
             }
 
             stopping = Math.Min(stopping * forceScale, Math.Abs(longitudinal) / dt);
-            // Mechanical braking ends on release; the saved handbrake state still restores lateral grip progressively.
-            float brakeApplication = handbrakeTarget > 0 ? handbrake : 0;
+            // One progressive application controls rear braking, engine interruption and grip on hold/release.
+            float brakeApplication = handbrake;
             float handbrakeStop = Math.Min(c.HandbrakeBraking * brakeApplication * forceScale, Math.Max(0, (Math.Abs(longitudinal) / dt) - stopping));
             float frontLong = -Math.Sign(longitudinal) * stopping * c.FrontBrakeShare;
             float driveAcceleration = Math.Clamp(drive * forceScale, -Math.Max(0, c.ReverseSpeed + longitudinal) / dt, Math.Max(0, forwardSpeed - longitudinal) / dt);
@@ -228,7 +228,11 @@ public sealed class VehicleMovement
             // momentum-carrying power slide on entry; there is no donut mode or yaw impulse.
             float torqueRatio = Math.Abs(engine * (1 - c.FrontDriveShare)) / Math.Max(1, rearCapacity * driveModifier);
             float torqueSlip = c.PowerOversteer * throttle * throttle * Math.Abs(wheel) / c.SteeringAngle * Math.Clamp(torqueRatio - 1, 0, 1);
-            spinTarget = Math.Max(spinTarget, torqueSlip);
+            // Fade torque-induced breakaway with road speed, not longitudinal speed alone:
+            // a sideways slide must not re-enter the low-speed burnout envelope.
+            float speedBlend = Math.Clamp((steeringSpeed - c.PowerSlipFullSpeed) / (c.PowerSlipFadeSpeed - c.PowerSlipFullSpeed), 0, 1);
+            float powerBreakaway = 1 - speedBlend * speedBlend * (3 - 2 * speedBlend);
+            spinTarget = Math.Max(spinTarget, torqueSlip) * powerBreakaway;
             float spinRate = spinTarget > State.PowerSlip ? c.PowerSlipResponse : c.PowerSlipRecovery;
             powerSlip = State.PowerSlip + (spinTarget - State.PowerSlip) * (1 - MathF.Exp(-spinRate * dt));
             float yaw = Vector3.Dot(angular, tireNormal);
@@ -238,9 +242,9 @@ public sealed class VehicleMovement
             float response = Math.Min(c.Grip * forceScale, 1 / dt);
             float frontDemand = -frontSideSpeed * response * 0.5f;
             float rearDemand = -rearSideSpeed * response * 0.5f;
-            float driveReserve = driveAcceleration != 0 && handbrakeTarget == 0 ? c.DriveTractionReserve : 0;
+            float driveReserve = driveAcceleration != 0 ? c.DriveTractionReserve * (1 - handbrake) : 0;
             float brakeGrip = 1 + (c.BrakeGrip - 1) * (stopping > 0 ? Math.Max(pedal, brake) : 0);
-            float rearLongGrip = engine != 0 ? c.RearDriveGrip * (1 - c.SpinDriveLoss * powerSlip) : brakeGrip;
+            float rearLongGrip = rearLong * longitudinal >= 0 && engine != 0 ? c.RearDriveGrip * (1 - c.SpinDriveLoss * powerSlip) : brakeGrip;
             float rearGrip = (1 - handbrake * (1 - c.HandbrakeGrip)) * (1 - powerSlip);
             var fl = Tire(frontDemand * frontLeftShare, frontLong * frontLeftShare, frontCapacity * frontLeftShare * profiles[0].Grip, driveReserve: driveReserve, longitudinalGrip: brakeGrip);
             var fr = Tire(frontDemand * (1 - frontLeftShare), frontLong * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * profiles[1].Grip, driveReserve: driveReserve, longitudinalGrip: brakeGrip);

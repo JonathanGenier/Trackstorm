@@ -114,7 +114,7 @@ internal sealed class SurfaceHandlingTests
         Assert.That(comparison.Step(Frame(47, true), observed, Vector3.Zero, surface: SurfaceType.Mud), Is.EqualTo(flight));
         Assert.That(flight.CurrentSurface, Is.EqualTo(SurfaceType.Mud));
         Assert.That(flight.Grounded || flight.Drifting, Is.False);
-        Assert.That(flight.Handbrake, Is.EqualTo(1));
+        Assert.That(flight.Handbrake, Is.GreaterThan(beforeFlight.Handbrake).And.LessThan(1));
         Assert.That(movement.Step(Frame(48), observed, Vector3.UnitY).CurrentSurface, Is.EqualTo(SurfaceType.Concrete));
     }
 

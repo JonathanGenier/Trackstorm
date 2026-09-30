@@ -20,7 +20,7 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("environment.piece_speed", 6d)]
     [TestCase("environment.push_scale", (double)0.35f)]
     [TestCase("environment.velocity_retention", (double)0.9f)]
-    [TestCase("vehicle.air_delay", 1d)]
+    [TestCase("vehicle.air_delay", 0.5d)]
     [TestCase("vehicle.air_pitch_rate", (double)2.52f)]
     [TestCase("vehicle.air_yaw_rate", (double)2.16f)]
     [TestCase("vehicle.air_roll_rate", (double)3.24f)]
@@ -35,7 +35,7 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("vehicle.mass", 1400d)]
     [TestCase("vehicle.acceleration", 24d)]
     [TestCase("vehicle.front_drive_share", 0d)]
-    [TestCase("vehicle.braking", 95d)]
+    [TestCase("vehicle.braking", 45d)]
     [TestCase("vehicle.stop_speed", 0.05000000074505806d)]
     [TestCase("vehicle.reverse_acceleration", 8d)]
     [TestCase("vehicle.forward_speed", 44.439998626708984d)]
@@ -43,7 +43,7 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("vehicle.grip", 26d)]
     [TestCase("vehicle.steering_angle", (double)0.9f)]
     [TestCase("vehicle.steering_response", (double)0.95f)]
-    [TestCase("vehicle.steering_smoothing", (double)0.26f)]
+    [TestCase("vehicle.steering_smoothing", (double)0.3f)]
     [TestCase("vehicle.throttle_rise_time", (double)0.65f)]
     [TestCase("vehicle.throttle_fall_time", (double)0.12f)]
     [TestCase("vehicle.wheelbase", (double)VehicleDimensions.Wheelbase)]
@@ -52,7 +52,7 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("vehicle.load_height", (double)(0.45f * VehicleDimensions.Scale))]
     [TestCase("vehicle.handbrake_braking", 30d)]
     [TestCase("vehicle.handbrake_grip", 0.25d)]
-    [TestCase("vehicle.handbrake_response", 8d)]
+    [TestCase("vehicle.handbrake_response", 2d)]
     [TestCase("vehicle.traction_recovery", 3d)]
     [TestCase("vehicle.coast_drag", (double)0.28f)]
     [TestCase("vehicle.reference_mass", 900d)]
@@ -127,7 +127,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(200));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(203));
         Assert.That(defaults.Items.OilPasses, Is.EqualTo(2));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);

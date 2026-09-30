@@ -85,7 +85,7 @@ internal sealed class VehicleMovementTests
         VehicleMovement analog = Create(2);
         GroundStep(low, steering: 32767);
         Assert.That(low.State.SteeringAngle, Is.InRange(0.015f, 0.017f));
-        for (int index = 0; index < 180; index++)
+        for (int index = 0; index < 240; index++)
         {
             low.Step(Frame(low.State.Tick + 1, steering: 32767), Create(2).State.Physics, Vector3.UnitY);
             high.Step(Frame(high.State.Tick + 1, steering: 32767), Create(40).State.Physics, Vector3.UnitY);
@@ -285,7 +285,7 @@ internal sealed class VehicleMovementTests
         Assert.That(Math.Abs(held.State.LateralAcceleration), Is.GreaterThan(Math.Abs(locked.LateralAcceleration)));
     }
 
-    /// <summary>Release restores propulsion on the first tick while sideways momentum, yaw and grip recovery persist.</summary>
+    /// <summary>Release eases rear braking before propulsion resumes; momentum and grip remain continuous.</summary>
     /// <param name="speed">Forward entry speed.</param>
     /// <param name="delay">Ticks after release before throttle.</param>
     [TestCase(6f, 0)]
@@ -305,12 +305,14 @@ internal sealed class VehicleMovementTests
         }
 
         VehicleState released = movement.Step(Frame(movement.State.Tick + 1, throttle: 65535), body, Vector3.UnitY);
-        Assert.That(released.LongitudinalAcceleration, Is.GreaterThan(2));
-        Assert.That(-released.Physics.LinearVelocity.Z, Is.GreaterThan(speed));
+        Assert.That(released.LongitudinalAcceleration, Is.GreaterThan(held.LongitudinalAcceleration));
         Assert.That(released.Physics.LinearVelocity.X, Is.GreaterThan(4.5f));
         Assert.That(released.Physics.AngularVelocity.Y, Is.GreaterThan(0.5f));
         Assert.That(released.Handbrake, Is.InRange(0.3f, 0.99f));
         Assert.That(released.Drifting, Is.True);
+        for (int i = 0; i < 30; i++) { movement.Step(Frame(movement.State.Tick + 1, throttle: 65535), body, Vector3.UnitY); }
+        Assert.That(movement.State.Handbrake, Is.Zero);
+        Assert.That(movement.State.LongitudinalAcceleration, Is.GreaterThan(2));
     }
 
     /// <summary>Propulsion remains analog and bounded by the supported axle even with extreme lateral demand.</summary>

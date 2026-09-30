@@ -245,7 +245,7 @@ internal sealed class VehicleReplicationTests
         }
 
         Assert.That(prediction.State.Movement.Tick, Is.EqualTo(4), "Prediction advances before any acknowledgement, including the new held-stop state.");
-        Assert.That(prediction.State.Movement.BrakeMode, Is.EqualTo(BrakeMode.Stopping));
+        Assert.That(prediction.State.Movement.BrakeMode, Is.EqualTo(BrakeMode.Reversing));
         VehicleState expected = prediction.State.Movement;
         host.Receive(42, 99, prediction.History.GetRedundancy());
         host.Step(default, Observe);
