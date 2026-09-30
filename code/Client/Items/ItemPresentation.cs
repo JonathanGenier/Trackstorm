@@ -11,10 +11,12 @@ internal sealed partial class ItemPresentation : Node3D
     private readonly Dictionary<ulong, Node3D> _oil = new();
     private readonly Dictionary<ulong, Node3D> _missiles = new();
     private readonly List<(Node3D Node, float Age, float Lifetime)> _bursts = new();
+    private readonly List<ProxyMineExplosion> _mineExplosions = new();
 
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        _mineExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
         for (int i = _bursts.Count - 1; i >= 0; i--)
         {
             var burst = _bursts[i];
@@ -124,6 +126,20 @@ internal sealed partial class ItemPresentation : Node3D
 
         foreach (var outcome in state.Events)
         {
+            if (outcome.Item == HeldItem.ProxyMine && outcome.Impact)
+            {
+                _mineExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
+                // A burst replaces the oldest cosmetic effect when several accepted impacts arrive together.
+                if (_mineExplosions.Count == ItemAuthority.MaximumMines)
+                {
+                    _mineExplosions[0].QueueFree();
+                    _mineExplosions.RemoveAt(0);
+                }
+                var explosion = new ProxyMineExplosion { Position = VehicleBody.ToGodot(outcome.Position) };
+                AddChild(explosion);
+                _mineExplosions.Add(explosion);
+                continue;
+            }
             if (outcome.Item == HeldItem.MachineGun)
             {
                 if (outcome.Tracer) { Tracer(outcome); }
