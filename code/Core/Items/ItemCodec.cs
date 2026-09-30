@@ -155,6 +155,8 @@ public static class ItemCodec
             Vector(writer, mine.Velocity);
             Vector(writer, mine.Normal);
             writer.Write(mine.SeatingTicks);
+            writer.Write(mine.PlacementLife);
+            writer.Write(mine.PlacementTicks);
         }
         bool reuseOil = previous is not null && previous.World.Session == state.World.Session && previous.Revision < state.Revision && previous.Patches.SequenceEqual(state.Patches) && previous.OilContacts.SequenceEqual(state.OilContacts);
         writer.Write(reuseOil ? previous!.Revision : 0);
@@ -250,7 +252,8 @@ public static class ItemCodec
         var mines = new ProxyMineState[Count(reader, ItemAuthority.MaximumMines)];
         for (int i = 0; i < mines.Length; i++)
         {
-            mines[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), Vector(reader), reader.ReadInt32());
+            mines[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), Vector(reader), Vector(reader), Vector(reader), reader.ReadInt32())
+            { PlacementLife = reader.ReadUInt64(), PlacementTicks = reader.ReadInt32() };
         }
         ulong oilBaseline = reader.ReadUInt64();
         OilPatch[] patches;
@@ -311,7 +314,7 @@ public static class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 13, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 14, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
@@ -323,7 +326,7 @@ public static class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 13 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 14 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }

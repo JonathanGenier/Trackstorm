@@ -29,9 +29,9 @@ internal sealed class ProxyMineTests
     {
         var host = new HostVehicleSession(99);
         Grant(host);
-        Step(host);
+        PlaceFully(host);
         var installed = host.Items.Mines.Single();
-        for (int i = 0; i < 29; i++) { Step(host); }
+        for (int i = 0; i < 30; i++) { Step(host); }
         Assert.That(host.Items.Mines.Single().Position, Is.EqualTo(installed.Position));
         Step(host);
         var moving = host.Items.Mines.Single();
@@ -46,7 +46,7 @@ internal sealed class ProxyMineTests
     public void InstalledMineRemainsDormantAfterSeatingUntilAnInRangeVehiclePullsIt()
     {
         var host = new HostVehicleSession(99);
-        Grant(host); Step(host);
+        Grant(host); PlaceFully(host);
         var installed = host.Items.Mines.Single();
         VehicleObservation Distant(VehicleSnapshot state) => new(new VehiclePhysicsState(installed.Position + Vector3.UnitX * 40, Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY);
         for (int i = 0; i < 180; i++) { host.Step(default, Distant, moveMine: Move); }
@@ -66,9 +66,9 @@ internal sealed class ProxyMineTests
         Assert.That(host.Items.Slots.Single(), Is.EqualTo(slot));
         Assert.That(host.Items.Mines, Is.Empty);
         Assert.That(host.UseItem(0, 99, slot.Life, slot.Token), Is.True);
-        Step(host);
+        PlaceFully(host);
         Assert.That(host.UseItem(0, 99, slot.Life, slot.Token), Is.False);
-        for (int i = 1; i < ItemAuthority.MaximumMines; i++) { Grant(host); Step(host); }
+        for (int i = 1; i < ItemAuthority.MaximumMines; i++) { Grant(host); PlaceFully(host); }
         Grant(host);
         var capped = host.Items.Slots.Single();
         Step(host);
@@ -82,7 +82,7 @@ internal sealed class ProxyMineTests
         var host = new HostVehicleSession(99, new ItemConfiguration { MineDamage = 35 });
         host.JoinPlayer(10, 2);
         Grant(host);
-        Step(host);
+        PlaceFully(host);
         float hp = host.World.GetVehicle(2).Damage.CurrentHP;
         host.Step(default, Observe, moveMine: (_, candidate) => new(candidate, 2));
         Assert.That(host.Items.Mines, Is.Empty);
@@ -104,7 +104,7 @@ internal sealed class ProxyMineTests
     {
         var host = new HostVehicleSession(99, new ItemConfiguration { MineDamage = 10000 });
         Grant(host);
-        Step(host);
+        PlaceFully(host);
         float hp = host.World.GetVehicle(1).Damage.CurrentHP;
         host.Step(default, Observe, moveMine: (_, candidate) => new(candidate, 1));
         Assert.That(host.Items.Mines, Is.Empty);
@@ -118,7 +118,7 @@ internal sealed class ProxyMineTests
         var host = new HostVehicleSession(99);
         Grant(host);
         var slot = host.Items.Slots.Single();
-        Assert.Throws<ArgumentException>(() => host.Step(default, Observe, placeMine: Place, moveMine: (_, candidate) => new(candidate with { Position = new(float.NaN, 0, 0) })));
+        Assert.Throws<ArgumentException>(() => host.Step(default, Observe, placeMine: (s, p) => Place(s, p) with { Position = new(float.NaN, 0, 0) }, moveMine: Move));
         Assert.That(host.Items.Mines, Is.Empty);
         Assert.That(host.Items.Slots.Single(), Is.EqualTo(slot));
         var input = new InputFrame(1, 0, 0, 0, 0, 0, 0);
@@ -134,9 +134,10 @@ internal sealed class ProxyMineTests
         var host = new HostVehicleSession(99);
         host.JoinPlayer(10, 2);
         Grant(host);
+        PlaceFully(host);
         for (int i = 0; i < 45; i++) { Step(host); }
         Grant(host);
-        Step(host);
+        PlaceFully(host);
         var publication = new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], mines: host.Items.Mines);
         var checkpoint = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(new(publication, host.World.State.Match!, null, host.Configuration)));
         var restored = HostVehicleSession.Restore(checkpoint, host.CaptureAuthority(), 2);
@@ -171,8 +172,8 @@ internal sealed class ProxyMineTests
             matchConfiguration: new() { Mode = Trackstorm.Core.Matches.MatchMode.FirstToTarget, MinimumPlayers = 1, CountdownTicks = 1, KillTarget = 1 });
         host.JoinPlayer(10, 2);
         Step(host); Step(host);
-        Grant(host); Step(host);
-        Grant(host); Step(host);
+        Grant(host); PlaceFully(host);
+        Grant(host); PlaceFully(host);
         ulong first = host.Items.Mines[0].Id;
         host.Step(default, Observe, moveMine: (_, candidate) => new(candidate, candidate.Id == first ? 2ul : 0ul));
         Assert.That(host.World.State.Match!.Phase, Is.EqualTo(Trackstorm.Core.Matches.MatchPhase.Finished));
@@ -202,6 +203,10 @@ internal sealed class ProxyMineTests
         Assert.That(host.UseItem(0, 99, slot.Life, slot.Token), Is.True);
     }
     private static void Step(HostVehicleSession host) => host.Step(default, Observe, placeMine: Place, moveMine: Move);
+    private static void PlaceFully(HostVehicleSession host)
+    {
+        for (int i = 0; i < ProxyMineState.PlacementDurationTicks; i++) { Step(host); }
+    }
     private static ProxyMineMotion Move(ProxyMineState previous, ProxyMineState candidate) => new(candidate);
     private static ProxyMineState Place(ItemSlot slot, VehiclePhysicsState pose) => new(slot.Token, slot.Vehicle, pose.Position + Vector3.UnitZ * 4.5f, Vector3.Zero, Vector3.UnitY, 30);
     private static VehicleObservation Observe(VehicleSnapshot state) => new(state.Movement.Physics, Vector3.UnitY);

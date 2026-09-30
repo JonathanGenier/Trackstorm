@@ -18,6 +18,8 @@ internal sealed partial class CarRackPresentation : Node
     private bool _engaged;
     private float _useTime;
     private ulong _life;
+    private ProxyMineState? _placement;
+    private bool _mineReturning;
 
     internal required BoostExhaust Boost { get; init; }
 
@@ -34,7 +36,7 @@ internal sealed partial class CarRackPresentation : Node
     }
 
     /// <summary>Installs a fresh accepted publication, including remote inventories and recovery snapshots.</summary>
-    internal void Observe(ulong life, bool alive, ItemSlot? inventory, IEnumerable<ItemEvent> events)
+    internal void Observe(ulong life, bool alive, ItemSlot? inventory, IEnumerable<ItemEvent> events, ProxyMineState? placement = null)
     {
         if (_life != life || !alive)
         {
@@ -42,6 +44,9 @@ internal sealed partial class CarRackPresentation : Node
             _life = life;
         }
         if (!alive) { return; }
+        _mineReturning |= _placement is not null && placement is null;
+        _placement = placement;
+        if (_payload is Items.ProxyMineRack arm) { arm.Observe(placement); }
         if (inventory?.Life != life) { inventory = null; }
         ItemSlot? active = inventory?.Active;
         var outcome = events.LastOrDefault(e => e.Item != HeldItem.Nitro && (e.Item == HeldItem.MachineGun || !e.Impact) &&
@@ -77,6 +82,12 @@ internal sealed partial class CarRackPresentation : Node
         // never borrow the old model while its replacement is retracting.
         if (_usePending) { _desired = _useItem; }
         _previous = inventory;
+        if (_placement is not null || _mineReturning)
+        {
+            _desired = HeldItem.ProxyMine;
+            _usePending = false;
+            _replace = _mounted is not (HeldItem.None or HeldItem.ProxyMine);
+        }
     }
 
     internal void Reset()
@@ -88,6 +99,8 @@ internal sealed partial class CarRackPresentation : Node
         _desired = _mounted = HeldItem.None;
         _replace = _usePending = _engaged = false;
         _useTime = 0;
+        _placement = null;
+        _mineReturning = false;
     }
 
     public override void _Process(double delta)
@@ -110,6 +123,7 @@ internal sealed partial class CarRackPresentation : Node
             _payload = _mounted == HeldItem.Nitro ? Boost : Items.RackItemVisual.Create(_mounted);
             _payload.Visible = false;
             if (_mounted != HeldItem.Nitro) { _rack.AddChild(_payload); }
+            if (_payload is Items.ProxyMineRack arm) { arm.Observe(_placement); }
             _mechanism.Deployed = true;
         }
         else { _mechanism.Deployed = _desired != HeldItem.None; }
@@ -120,6 +134,22 @@ internal sealed partial class CarRackPresentation : Node
             {
                 // The underslung chamber clears the bay floor before becoming visible.
                 _payload.Visible = _mechanism.Progress > .72f;
+                return;
+            }
+            if (_payload is Items.ProxyMineRack mine)
+            {
+                if (_placement is not null)
+                {
+                    _mechanism.EnsureProgress((1 - (float)_placement.PlacementTicks / ProxyMineState.PlacementDurationTicks) / .30f);
+                }
+                mine.ShowStored = _previous?.Active.Item == HeldItem.ProxyMine;
+                _payload.Position = Vector3.Zero;
+                _payload.Visible = _mechanism.Progress > .92f;
+                if (_mineReturning && !mine.Returning)
+                {
+                    _mineReturning = false;
+                    _desired = _previous?.Active.Item ?? HeldItem.None;
+                }
                 return;
             }
             // Payload appears only above the compartment; scale in/out above clear height.

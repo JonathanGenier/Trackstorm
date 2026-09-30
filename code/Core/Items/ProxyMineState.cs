@@ -12,12 +12,30 @@ public sealed record ProxyMineState(ulong Id, ulong Owner, Vector3 Position, Vec
     public const float HalfHeight = 0.25f;
     /// <summary>Fixed mine mass used to convert magnetic Newtons into acceleration.</summary>
     public const float Mass = 20;
+    /// <summary>Rack preparation, pickup and lowering, in authoritative 60 Hz steps.</summary>
+    public const int PlacementDurationTicks = 180;
+    /// <summary>Lowering must be retried after support disappears; a returning surface cannot cause a teleport-release.</summary>
+    public const int PlacementLoweringTicks = 50;
+    /// <summary>Maximum reach of the rack's two telescopic links, in metres.</summary>
+    public const float PlacementReach = 3.5f;
+    /// <summary>Raised Car rack shoulder relative to the authoritative vehicle origin.</summary>
+    public static Vector3 PlacementShoulder => new(0, 1.10f, 1.595f);
+    /// <summary>Leveling wrist clearance above the mine's collision centre.</summary>
+    public const float WristHeight = .54f;
+    /// <summary>Life that owns the unfinished placement; zero once released to the match.</summary>
+    public ulong PlacementLife { get; init; }
+    /// <summary>Remaining arm travel; missing support holds the final lowering phase.</summary>
+    public int PlacementTicks { get; init; }
+    /// <summary>Carried mines reserve capacity but have no magnetic or contact behavior.</summary>
+    public bool IsPlacing => PlacementLife != 0;
 
     /// <summary>Rejects corrupt checkpoint or native-query state before commit.</summary>
     public void Validate()
     {
         if (Id == 0 || Owner == 0 || !VehiclePhysicsState.IsFinite(Position) || !VehiclePhysicsState.IsFinite(Velocity) ||
-            Velocity.Length() > 40.01f || !VehiclePhysicsState.IsFinite(Normal) || Math.Abs(Normal.LengthSquared() - 1) > 0.01f || SeatingTicks is < 0 or > 30)
+            Velocity.Length() > 40.01f || !VehiclePhysicsState.IsFinite(Normal) || Math.Abs(Normal.LengthSquared() - 1) > 0.01f || SeatingTicks is < 0 or > 30 ||
+            PlacementTicks is < 0 or > PlacementDurationTicks || (!IsPlacing && PlacementTicks != 0) ||
+            (IsPlacing && (Velocity != Vector3.Zero || SeatingTicks != 30)))
         {
             throw new ArgumentException("Invalid Proxy Mine state.");
         }

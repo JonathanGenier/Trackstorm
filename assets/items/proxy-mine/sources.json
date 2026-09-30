@@ -20,6 +20,29 @@
     "source\\ProxyMine.blend": "15d97c9d61ec8bfde2e97e8781b4f9dc6743458863914d840a1132263dc6c566",
     "source\\BuildProxyMine.py": "287cddad3a06496ee89e30f096330180a7786280ab5c32c38305ac5daf77a929",
     "Patina.png": "a94944bea62f9c9f9bb8e1b2c260e7dc5e85df2ec08c3a71bb8d299e6ae5d984",
-    "reference\\ApprovedProxyMineConcept.png": "17e746bf5ee88360ac5589579c297a8e613aaae01ede74f580db4a2d9e968a1c"
+    "reference\\ApprovedProxyMineConcept.png": "17e746bf5ee88360ac5589579c297a8e613aaae01ede74f580db4a2d9e968a1c",
+    "ProxyMinePlacementArm.glb": "1955f30460d67c2a0a0b8086809f343cf604e50cb539fdab7bec1a074273ef38",
+    "source/BuildPlacementArm.py": "db7a3b329435941b912ff883606921918498aadf98ac26d4927c6158d710d7eb",
+    "source/ProxyMinePlacementArm.blend": "18a2f27f037d4282e4c4d60af492acc615c77d8a76fac5914796b40da51a1f31",
+    "reference/ApprovedPlacementArmConcept.png": "4c84e9bd22cacbf235ee3d0d983983d7dc3873198c0487bee94ccf19162bdd38",
+    "ProxyMinePlacementArm_Arm forged gunmetal original patina.png": "5ce2174e1f0dc3eb3387e424da54ba4b8cf655075ce0ebb5cb4d4855fc467f72",
+    "ProxyMinePlacementArm_Arm ivory identification original patina.png": "8a84c764d4b53b8be4c2efd778315e91128a06d3ff04151f23fbd3828a9e61a6",
+    "ProxyMinePlacementArm_Arm machined steel original patina.png": "8b66ae9ec034f9883825fab3555e39322decbe26016ba07dd13728f621a9aaa3",
+    "ProxyMinePlacementArm_Arm oxblood enamel original patina.png": "ddfe94ec058f27250b21d5633182b234b3f812263917f32eb4d096af74e32a81",
+    "ProxyMinePlacementArm_Arm rubber and recess original patina.png": "698b0a51bbc177075c5f76588a8ec6b6b01a1c971a2ebbd7f532206c7ee1772d"
+  },
+  "placement_arm": {
+    "reference": "reference/ApprovedPlacementArmConcept.png; built-in imagegen sketch explicitly approved in TS-249 chat on 2026-09-29",
+    "builder": "source/BuildPlacementArm.py",
+    "collision_nodes": 0,
+    "materials": 5,
+    "export": "ProxyMinePlacementArm.glb",
+    "editable_meshes": 97,
+    "author": "Original Trackstorm project art",
+    "source": "source/ProxyMinePlacementArm.blend",
+    "textures": "Five original 256px procedural patina maps packed in Blender/GLB; Godot-extracted PNG derivatives retained",
+    "exported_rigid_meshes": 8,
+    "triangles": 15228,
+    "material_surfaces": 30
   }
 }

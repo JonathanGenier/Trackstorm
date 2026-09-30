@@ -9,13 +9,10 @@ internal static class RackItemVisual
     internal static Node3D Create(HeldItem item)
     {
         if (item == HeldItem.Nitro) { throw new ArgumentException("Nitro uses the rack's persistent Boost jet.", nameof(item)); }
+        if (item == HeldItem.ProxyMine) { return new ProxyMineRack { Name = "RackItem_ProxyMine" }; }
         var root = new Node3D { Name = "RackItem_" + item };
         var definition = ItemRegistry.Find(item) ?? throw new ArgumentOutOfRangeException(nameof(item));
-        if (item == HeldItem.ProxyMine)
-        {
-            root.AddChild(new ProxyMineVisual { Scale = Vector3.One * 0.55f, Position = new Vector3(0, 0.14f, 0) });
-        }
-        else if (item == HeldItem.Missile)
+        if (item == HeldItem.Missile)
         {
             Mesh mesh = Networking.MatchResourceLoader.LoadResource<Mesh>("res://assets/items/kenney/weapons/ammo_rocket.obj");
             Aabb bounds = mesh.GetAabb();

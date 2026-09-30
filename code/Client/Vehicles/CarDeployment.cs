@@ -23,6 +23,13 @@ internal sealed partial class CarDeployment : Node
     /// <summary>Current mechanical path position, zero closed and one raised.</summary>
     internal float Progress => _progress;
 
+    /// <summary>Reconstructs the minimum rack pose required by an accepted physical placement.</summary>
+    internal void EnsureProgress(float minimum)
+    {
+        _progress = Math.Max(_progress, Mathf.Clamp(minimum, 0, 1));
+        ApplyPose(_progress);
+    }
+
     /// <summary>Discards old-life animation memory at an authoritative lifecycle boundary.</summary>
     internal void ResetPose()
     {

@@ -64,12 +64,12 @@ internal sealed partial class ItemPresentation : Node3D
     /// <param name="state">Accepted authority state.</param>
     internal void Apply(ItemPublication state)
     {
-        foreach (ulong id in _mines.Keys.Except(state.Mines.Select(mine => mine.Id)).ToArray())
+        foreach (ulong id in _mines.Keys.Except(state.Mines.Where(mine => !mine.IsPlacing).Select(mine => mine.Id)).ToArray())
         {
             _mines[id].QueueFree();
             _mines.Remove(id);
         }
-        foreach (var mine in state.Mines)
+        foreach (var mine in state.Mines.Where(mine => !mine.IsPlacing))
         {
             if (!_mines.TryGetValue(mine.Id, out var node))
             {
