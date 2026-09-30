@@ -9,7 +9,8 @@ internal sealed class MatchResourceLoader
     private static readonly string[] Resources =
     [
         "res://assets/effects/BoostFlame.gdshader",
-        "res://assets/effects/ProxyMineFireball.gdshader",
+        Items.ProxyMineExplosion.FireballTexturePath,
+        Items.ProxyMineExplosion.PlumeTexturePath,
         "res://assets/effects/BoostThroat.gdshader",
         Vehicles.BoostExhaust.AssetPath,
         Items.ProxyMineVisual.AssetPath,
