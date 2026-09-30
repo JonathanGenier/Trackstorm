@@ -13,6 +13,7 @@ internal sealed partial class CarDeployment : Node
     private Node3D[] _lowerStages = [];
     private Node3D[] _upperStages = [];
     private float _progress;
+    private float? _timelineProgress;
     private static readonly VehicleConfiguration Defaults = new();
 
     internal Func<VehicleConfiguration?>? Configuration { get; init; }
@@ -22,6 +23,14 @@ internal sealed partial class CarDeployment : Node
 
     /// <summary>Current mechanical path position, zero closed and one raised.</summary>
     internal float Progress => _progress;
+
+    internal void SetTimelineProgress(float? progress)
+    {
+        _timelineProgress = progress;
+        if (progress is not float value) { return; }
+        _progress = Mathf.Clamp(value, 0, 1);
+        ApplyPose(_progress);
+    }
 
     /// <summary>Reconstructs the minimum rack pose required by an accepted physical placement.</summary>
     internal void EnsureProgress(float minimum)
@@ -34,6 +43,7 @@ internal sealed partial class CarDeployment : Node
     internal void ResetPose()
     {
         Deployed = false;
+        _timelineProgress = null;
         _progress = 0;
         ApplyPose(0);
     }
@@ -54,6 +64,7 @@ internal sealed partial class CarDeployment : Node
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        if (_timelineProgress.HasValue) { return; }
         VehicleConfiguration tuning = Configuration?.Invoke() ?? Defaults;
         float remaining = (float)delta;
         // Consume time up to the phase boundary first, then carry excess time into
