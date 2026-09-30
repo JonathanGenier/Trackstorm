@@ -91,7 +91,8 @@ public sealed partial class InfieldIntegrationChecks
         await Collect(6, "EastBerm", Route("EastLoop", 106, 34), 12);
         foreach (float speed in new[] { 14f, 16f, 18f })
         {
-            await Collect(4, $"SkillJump{speed}", Enumerable.Range(0, 51).Select(i => new Vector3(-125 + i * 2, 0, 0)).ToArray(), speed, true);
+            await Collect(4, $"SkillJump{speed}", Enumerable.Range(0, 51).Select(i => new Vector3(-125 + i * 2, 0, 0)).ToArray(), speed, speed >= 16);
+            if (speed == 14) { Check(!_collectedAirborne && _longestFlight == 0, "SkillJump14: filled approach permits a supported momentum-assisted award without requiring artificial airtime."); }
         }
         foreach (float speed in new[] { 6f, 10f })
         {

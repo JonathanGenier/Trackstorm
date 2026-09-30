@@ -141,7 +141,7 @@ internal sealed class DeveloperConfigurationTests
     [TestCase("vehicle.steering_response", 0.5)]
     [TestCase("vehicle.handbrake_braking", 2)]
     [TestCase("vehicle.handbrake_grip", 0.1)]
-    [TestCase("vehicle.handbrake_response", 1)]
+    [TestCase("vehicle.handbrake_response", 2)]
     [TestCase("vehicle.concrete.grip", 0.2)]
     [TestCase("vehicle.concrete.drag", 8)]
     [TestCase("vehicle.concrete.acceleration", 0.2)]

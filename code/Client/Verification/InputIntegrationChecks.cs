@@ -198,7 +198,7 @@ public sealed partial class InputIntegrationChecks : Node
         Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.TriggerRight, AxisValue = 0.575f });
         Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.TriggerLeft, AxisValue = 1 });
         InputFrame vehicle = _player.Adapter.Capture(3);
-        Check(Math.Abs(vehicle.Steering - 8192) <= 1 && Math.Abs(vehicle.Accelerate - 32768) <= 1 && vehicle.Brake == 65535, "Analog steering curve and direct pedals normalize and quantize");
+        Check(Math.Abs(vehicle.Steering - 6208) <= 1 && Math.Abs(vehicle.Accelerate - 32768) <= 1 && vehicle.Brake == 65535, "Analog steering curve and direct pedals normalize and quantize");
         Send(new InputEventKey { PhysicalKeycode = Key.Tab, Pressed = true });
         InputFrame press = _player.Adapter.Capture(4);
         InputFrame held = _player.Adapter.Capture(5);

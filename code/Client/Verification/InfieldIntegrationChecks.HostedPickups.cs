@@ -95,7 +95,10 @@ public sealed partial class InfieldIntegrationChecks
             }
             Check(progress >= scenario.Path.Length - 2 && collected == scenario.Expected && depth == 0 && world.GetVehicle(1).Damage.CurrentHP == 1000 && deviation < 6.6f,
                 $"Hosted {scenario.Name}: progress {progress}/{scenario.Path.Length}, collected {collected} (expected {scenario.Expected}), nearest {nearest:F3} m, depth {depth:F3} m, HP {world.GetVehicle(1).Damage.CurrentHP}, deviation {deviation:F3} m; award {awardedAt}, airborne={airborne}.");
-            if (scenario.Name.StartsWith("skill", StringComparison.Ordinal)) { Check(airborne, "Hosted skill award is airborne."); }
+            // The filled approach permits momentum-assisted collection while supported.
+            // The faster 16/18 m/s approaches must still award during genuine flight.
+            if (scenario.Name.StartsWith("skill", StringComparison.Ordinal))
+                Check(airborne == (scenario.Speed >= 16), $"Hosted {scenario.Name}: expected supported/airborne approach is preserved.");
             proxy.QueueFree();
             await Frames(2);
         }

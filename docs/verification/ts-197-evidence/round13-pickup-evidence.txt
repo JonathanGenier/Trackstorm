@@ -1,0 +1,43 @@
+PickupSkillJump14: supported initial pose.
+PickupSkillJump14: setup settles without damage at (-125, 1.1402423, 0).
+PickupSkillJump14: entire route driven using production physics/input; progress 49/51, position (-27.696455, 7.495193, -0.00047622842), velocity (14.003919, -0.00048439205, -0.0020157276); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+PickupSkillJump14: no collision damage (1000/1000); launch , landing , flight 0 frames.
+SkillJump14: authoritative award at (-75.365875, 8.007152, -0.00019489536), minimum distance 2.756 m, airborne=False, maximum immersion=0.000 m.
+SkillJump14: complete collection route remains dry.
+SkillJump14: filled approach permits a supported momentum-assisted award without requiring artificial airtime.
+PickupSkillJump16: supported initial pose.
+PickupSkillJump16: setup settles without damage at (-125, 1.1402423, 0).
+PickupSkillJump16: real launch (-75.83053, 8.423962, -0.00019830238), landing (-70.77275, 7.943631, -0.00036280134), longest flight 0.45s, peak origin 8.47m, peak origin clearance 2.12m, launch horizontal speed 12.47m/s, airborne horizontal travel 5.06m; recovered grounded.
+PickupSkillJump16: lands on raised dirt tabletop at corridor metre 54.23.
+PickupSkillJump16: entire route driven using production physics/input; progress 49/51, position (-27.477953, 7.4954286, 0.00047096048), velocity (15.998908, -0.0009804815, 0.0008322155); peak centerline error 0.99 m, unsupported frames 27, final HP 1000.
+PickupSkillJump16: no collision damage (1000/1000); launch (-75.83053, 8.423962, -0.00019830238), landing (-70.77275, 7.943631, -0.00036280134), flight 27 frames.
+SkillJump16: authoritative award at (-75.83053, 8.423962, -0.00019830238), minimum distance 2.195 m, airborne=True, maximum immersion=0.000 m.
+SkillJump16: complete collection route remains dry.
+SkillJump16: awarded during the intended airborne trajectory.
+PickupSkillJump18: supported initial pose.
+PickupSkillJump18: setup settles without damage at (-125, 1.1402423, 0).
+PickupSkillJump18: real launch (-76.93472, 8.569325, -0.00014287705), landing (-66.49261, 7.934835, -0.00039131616), longest flight 0.80s, peak origin 9.06m, peak origin clearance 2.71m, launch horizontal speed 13.81m/s, airborne horizontal travel 10.44m; recovered grounded.
+PickupSkillJump18: lands on raised dirt tabletop at corridor metre 58.51.
+PickupSkillJump18: entire route driven using production physics/input; progress 49/51, position (-27.610638, 7.4949937, -8.412045E-05), velocity (18.02501, -0.00062583387, -0.00058358425); peak centerline error 1.00 m, unsupported frames 48, final HP 1000.
+PickupSkillJump18: no collision damage (1000/1000); launch (-76.93472, 8.569325, -0.00014287705), landing (-66.49261, 7.934835, -0.00039131616), flight 48 frames.
+SkillJump18: authoritative award at (-76.23725, 8.720488, -0.00015897071), minimum distance 1.628 m, airborne=True, maximum immersion=0.000 m.
+SkillJump18: complete collection route remains dry.
+SkillJump18: awarded during the intended airborne trajectory.
+Ordinary tabletop crossing at 6 m/s cannot collect skill pickup; nearest 3.122 m exceeds three-metre radius.
+Ordinary tabletop crossing at 10 m/s cannot collect skill pickup; nearest 3.017 m exceeds three-metre radius.
+Underpass traversal cannot collect elevated skill pickup.
+Hosted easy-south: progress 18/20, collected True (expected True), nearest 1.810 m, depth 0.000 m, HP 1000, deviation 2.050 m; award (-72.56801, 1.60439, 51.734646), airborne=False.
+Hosted easy-north: progress 32/34, collected True (expected True), nearest 1.784 m, depth 0.000 m, HP 1000, deviation 1.052 m; award (67.98745, 2.2015486, -54.449387), airborne=False.
+Hosted underpass: progress 39/41, collected True (expected True), nearest 1.144 m, depth 0.000 m, HP 1000, deviation 0.750 m; award (2.4256533E-08, 1.14293, -2.6711168), airborne=False.
+Hosted water-edge: progress 39/41, collected True (expected True), nearest 1.114 m, depth 0.000 m, HP 1000, deviation 0.658 m; award (74.44821, 1.3401889, -42.994934), airborne=False.
+Hosted west-turn: progress 36/38, collected True (expected True), nearest 0.965 m, depth 0.000 m, HP 1000, deviation 1.132 m; award (-155.80365, 0.59756064, 12.304964), airborne=False.
+Hosted east-berm: progress 32/34, collected True (expected True), nearest 1.111 m, depth 0.000 m, HP 1000, deviation 1.066 m; award (128.17363, 0.8268467, 39.505283), airborne=False.
+Hosted skill-14: progress 39/41, collected True (expected True), nearest 2.778 m, depth 0.000 m, HP 1000, deviation 1.248 m; award (-75.28073, 7.9785213, -1.0679722E-05), airborne=False.
+Hosted skill-14: expected supported/airborne approach is preserved.
+Hosted skill-16: progress 39/41, collected True (expected True), nearest 2.247 m, depth 0.000 m, HP 1000, deviation 1.250 m; award (-75.951904, 8.372081, -4.516169E-06), airborne=True.
+Hosted skill-16: expected supported/airborne approach is preserved.
+Hosted skill-18: progress 39/41, collected True (expected True), nearest 1.681 m, depth 0.000 m, HP 1000, deviation 1.241 m; award (-76.13741, 8.699055, -0.00020554621), airborne=True.
+Hosted skill-18: expected supported/airborne approach is preserved.
+Hosted ordinary-crossing: progress 39/41, collected False (expected False), nearest 3.123 m, depth 0.000 m, HP 1000, deviation 1.874 m; award (0, 0, 0), airborne=False.
+Hosted ordinary-tabletop: progress 39/41, collected False (expected False), nearest 3.079 m, depth 0.000 m, HP 1000, deviation 3.462 m; award (0, 0, 0), airborne=False.
+Hosted underpass-exclusion: progress 39/41, collected False (expected False), nearest 74.608 m, depth 0.000 m, HP 1000, deviation 0.750 m; award (0, 0, 0), airborne=False.

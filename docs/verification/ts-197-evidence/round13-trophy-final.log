@@ -1,0 +1,649 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+native-brake-30-False: stop=0.300s distance=1.640m up=0.999
+native-brake-30-False brakes to rest without rollover
+native-brake-30-True: stop=0.300s distance=1.616m up=0.999
+native-brake-30-True brakes to rest without rollover
+native-brake-60-False: stop=0.600s distance=4.923m up=0.999
+native-brake-60-False brakes to rest without rollover
+native-brake-60-True: stop=0.583s distance=4.744m up=0.999
+native-brake-60-True brakes to rest without rollover
+native-brake-100-False: stop=0.983s distance=13.333m up=0.998
+native-brake-100-False brakes to rest without rollover
+native-brake-100-True: stop=0.950s distance=12.425m up=0.998
+native-brake-100-True brakes to rest without rollover
+native-brake-150-False: stop=1.467s distance=29.662m up=0.998
+native-brake-150-False brakes to rest without rollover
+native-brake-150-True: stop=1.533s distance=29.148m up=0.998
+native-brake-150-True brakes to rest without rollover
+native-terrain-west-18: compression=0.654 chassis=False rebound=0.000
+native-terrain-west-18 stays finite
+native-terrain-west-18 retains suspension travel without chassis impact
+native-terrain-west-30: compression=0.747 chassis=False rebound=0.000
+native-terrain-west-30 stays finite
+native-terrain-west-30 retains suspension travel without chassis impact
+native-terrain-west--11: compression=0.592 chassis=False rebound=0.000
+native-terrain-west--11 stays finite
+native-terrain-west--11 retains suspension travel without chassis impact
+native-terrain-east-18: compression=0.654 chassis=False rebound=0.000
+native-terrain-east-18 stays finite
+native-terrain-east-18 retains suspension travel without chassis impact
+native-terrain-east-30: compression=0.747 chassis=False rebound=0.000
+native-terrain-east-30 stays finite
+native-terrain-east-30 retains suspension travel without chassis impact
+native-terrain-east--11: compression=0.592 chassis=False rebound=0.000
+native-terrain-east--11 stays finite
+native-terrain-east--11 retains suspension travel without chassis impact
+native-terrain-side-18: compression=0.717 chassis=False rebound=0.000
+native-terrain-side-18 stays finite
+native-terrain-side-18 retains suspension travel without chassis impact
+native-terrain-side-30: compression=0.792 chassis=False rebound=0.000
+native-terrain-side-30 stays finite
+native-terrain-side-30 retains suspension travel without chassis impact
+native-terrain-side--11: compression=0.646 chassis=False rebound=0.000
+native-terrain-side--11 stays finite
+native-terrain-side--11 retains suspension travel without chassis impact
+native-terrain-oblique-18: compression=0.716 chassis=False rebound=0.000
+native-terrain-oblique-18 stays finite
+native-terrain-oblique-18 retains suspension travel without chassis impact
+native-terrain-oblique-30: compression=0.820 chassis=False rebound=0.000
+native-terrain-oblique-30 stays finite
+native-terrain-oblique-30 retains suspension travel without chassis impact
+native-terrain-oblique--11: compression=0.640 chassis=False rebound=0.000
+native-terrain-oblique--11 stays finite
+native-terrain-oblique--11 retains suspension travel without chassis impact
+native-terrain-downhill-18: compression=0.780 chassis=False rebound=0.000
+native-terrain-downhill-18 stays finite
+native-terrain-downhill-18 retains suspension travel without chassis impact
+native-terrain-downhill-30: compression=0.754 chassis=False rebound=0.000
+native-terrain-downhill-30 stays finite
+native-terrain-downhill-30 retains suspension travel without chassis impact
+native-terrain-downhill--11: compression=0.673 chassis=False rebound=0.000
+native-terrain-downhill--11 stays finite
+native-terrain-downhill--11 retains suspension travel without chassis impact
+native-grass-straight-in-shallow-1: max air=0.000s compression=0.566 min up=1.000 chassis=False
+native-grass-straight-in-shallow-1 crosses both production materials
+native-grass-straight-in-shallow-1 stays wheel-down without sustained transition launch
+native-grass-straight-in-shallow-1 does not invoke aerial/crash assistance
+native-grass-straight-in-sharp-1: max air=0.000s compression=0.527 min up=1.000 chassis=False
+native-grass-straight-in-sharp-1 crosses both production materials
+native-grass-straight-in-sharp-1 stays wheel-down without sustained transition launch
+native-grass-straight-in-sharp-1 does not invoke aerial/crash assistance
+native-grass-straight-out-shallow-1: max air=0.000s compression=0.501 min up=1.000 chassis=False
+native-grass-straight-out-shallow-1 crosses both production materials
+native-grass-straight-out-shallow-1 stays wheel-down without sustained transition launch
+native-grass-straight-out-shallow-1 does not invoke aerial/crash assistance
+native-grass-straight-out-sharp-1: max air=0.000s compression=0.500 min up=1.000 chassis=False
+native-grass-straight-out-sharp-1 crosses both production materials
+native-grass-straight-out-sharp-1 stays wheel-down without sustained transition launch
+native-grass-straight-out-sharp-1 does not invoke aerial/crash assistance
+native-grass-bank-turn-in-1: max air=0.000s compression=0.777 min up=0.960 chassis=False
+native-grass-bank-turn-in-1 crosses both production materials
+native-grass-bank-turn-in-1 stays wheel-down without sustained transition launch
+native-grass-bank-turn-in-1 does not invoke aerial/crash assistance
+native-grass-bank-turn-sharp-1: max air=0.000s compression=0.789 min up=0.964 chassis=False
+native-grass-bank-turn-sharp-1 crosses both production materials
+native-grass-bank-turn-sharp-1 stays wheel-down without sustained transition launch
+native-grass-bank-turn-sharp-1 does not invoke aerial/crash assistance
+native-grass-bank-out-1: max air=0.000s compression=0.976 min up=0.787 chassis=True
+native-grass-bank-out-1 crosses both production materials
+native-grass-bank-out-1 stays wheel-down without sustained transition launch
+native-grass-bank-out-1 does not invoke aerial/crash assistance
+native-grass-bank-descend-1: max air=0.000s compression=1.000 min up=0.886 chassis=True
+native-grass-bank-descend-1 crosses both production materials
+native-grass-bank-descend-1 stays wheel-down without sustained transition launch
+native-grass-bank-descend-1 does not invoke aerial/crash assistance
+native-grass-west-bank-turn-in-1: max air=0.000s compression=0.772 min up=0.961 chassis=False
+native-grass-west-bank-turn-in-1 crosses both production materials
+native-grass-west-bank-turn-in-1 stays wheel-down without sustained transition launch
+native-grass-west-bank-turn-in-1 does not invoke aerial/crash assistance
+native-grass-west-bank-turn-sharp-1: max air=0.000s compression=0.782 min up=0.966 chassis=False
+native-grass-west-bank-turn-sharp-1 crosses both production materials
+native-grass-west-bank-turn-sharp-1 stays wheel-down without sustained transition launch
+native-grass-west-bank-turn-sharp-1 does not invoke aerial/crash assistance
+native-grass-west-bank-out-1: max air=0.000s compression=0.977 min up=0.787 chassis=True
+native-grass-west-bank-out-1 crosses both production materials
+native-grass-west-bank-out-1 stays wheel-down without sustained transition launch
+native-grass-west-bank-out-1 does not invoke aerial/crash assistance
+native-grass-west-bank-descend-1: max air=0.000s compression=1.000 min up=0.883 chassis=True
+native-grass-west-bank-descend-1 crosses both production materials
+native-grass-west-bank-descend-1 stays wheel-down without sustained transition launch
+native-grass-west-bank-descend-1 does not invoke aerial/crash assistance
+native-grass-straight-in-shallow-2: max air=0.000s compression=0.566 min up=1.000 chassis=False
+native-grass-straight-in-shallow-2 crosses both production materials
+native-grass-straight-in-shallow-2 stays wheel-down without sustained transition launch
+native-grass-straight-in-shallow-2 does not invoke aerial/crash assistance
+native-grass-straight-in-sharp-2: max air=0.000s compression=0.527 min up=1.000 chassis=False
+native-grass-straight-in-sharp-2 crosses both production materials
+native-grass-straight-in-sharp-2 stays wheel-down without sustained transition launch
+native-grass-straight-in-sharp-2 does not invoke aerial/crash assistance
+native-grass-straight-out-shallow-2: max air=0.000s compression=0.501 min up=1.000 chassis=False
+native-grass-straight-out-shallow-2 crosses both production materials
+native-grass-straight-out-shallow-2 stays wheel-down without sustained transition launch
+native-grass-straight-out-shallow-2 does not invoke aerial/crash assistance
+native-grass-straight-out-sharp-2: max air=0.000s compression=0.500 min up=1.000 chassis=False
+native-grass-straight-out-sharp-2 crosses both production materials
+native-grass-straight-out-sharp-2 stays wheel-down without sustained transition launch
+native-grass-straight-out-sharp-2 does not invoke aerial/crash assistance
+native-grass-bank-turn-in-2: max air=0.000s compression=0.777 min up=0.960 chassis=False
+native-grass-bank-turn-in-2 crosses both production materials
+native-grass-bank-turn-in-2 stays wheel-down without sustained transition launch
+native-grass-bank-turn-in-2 does not invoke aerial/crash assistance
+native-grass-bank-turn-sharp-2: max air=0.000s compression=0.789 min up=0.964 chassis=False
+native-grass-bank-turn-sharp-2 crosses both production materials
+native-grass-bank-turn-sharp-2 stays wheel-down without sustained transition launch
+native-grass-bank-turn-sharp-2 does not invoke aerial/crash assistance
+native-grass-bank-out-2: max air=0.000s compression=0.976 min up=0.787 chassis=True
+native-grass-bank-out-2 crosses both production materials
+native-grass-bank-out-2 stays wheel-down without sustained transition launch
+native-grass-bank-out-2 does not invoke aerial/crash assistance
+native-grass-bank-descend-2: max air=0.000s compression=1.000 min up=0.886 chassis=True
+native-grass-bank-descend-2 crosses both production materials
+native-grass-bank-descend-2 stays wheel-down without sustained transition launch
+native-grass-bank-descend-2 does not invoke aerial/crash assistance
+native-grass-west-bank-turn-in-2: max air=0.000s compression=0.772 min up=0.961 chassis=False
+native-grass-west-bank-turn-in-2 crosses both production materials
+native-grass-west-bank-turn-in-2 stays wheel-down without sustained transition launch
+native-grass-west-bank-turn-in-2 does not invoke aerial/crash assistance
+native-grass-west-bank-turn-sharp-2: max air=0.000s compression=0.782 min up=0.966 chassis=False
+native-grass-west-bank-turn-sharp-2 crosses both production materials
+native-grass-west-bank-turn-sharp-2 stays wheel-down without sustained transition launch
+native-grass-west-bank-turn-sharp-2 does not invoke aerial/crash assistance
+native-grass-west-bank-out-2: max air=0.000s compression=0.977 min up=0.787 chassis=True
+native-grass-west-bank-out-2 crosses both production materials
+native-grass-west-bank-out-2 stays wheel-down without sustained transition launch
+native-grass-west-bank-out-2 does not invoke aerial/crash assistance
+native-grass-west-bank-descend-2: max air=0.000s compression=1.000 min up=0.883 chassis=True
+native-grass-west-bank-descend-2 crosses both production materials
+native-grass-west-bank-descend-2 stays wheel-down without sustained transition launch
+native-grass-west-bank-descend-2 does not invoke aerial/crash assistance
+native-driving builds through intermediate dirt speed instead of reaching 100 km/h immediately
+native-driving retains powerful acceleration past 100 km/h within four seconds on dirt
+native-driving responds to fast right steering
+native-driving opposite wheel input remains available as rear braking consumes momentum
+native-driving unpowered held rear lock settles rather than sustaining rotation at rest
+native-driving release recovers a powered line
+native-rwd--1-0: turn=30.944, speed=7.365, yaw=4.458, up=0.995, travel=1.454, wheel=-0.900
+native-rwd--1-0 full wheel range remains planted
+native-rwd--1-0 sustains multiple RWD donuts from rest
+native-rwd--1-0: release side=0.000, yaw=0.001, speed=19.837
+native-rwd--1-0 releases into aligned forward travel
+native-rwd--1-16: turn=6.723, speed=8.324, yaw=4.599, up=0.993, travel=10.183, wheel=-0.897
+native-rwd--1-16 full wheel range remains planted
+native-rwd--1-16: release side=0.000, yaw=0.001, speed=20.077
+native-rwd--1-16 releases into aligned forward travel
+native-rwd-1-0: turn=-30.944, speed=7.365, yaw=-4.458, up=0.995, travel=1.454, wheel=0.900
+native-rwd-1-0 full wheel range remains planted
+native-rwd-1-0 sustains multiple RWD donuts from rest
+native-rwd-1-0: release side=-0.000, yaw=-0.001, speed=19.837
+native-rwd-1-0 releases into aligned forward travel
+native-rwd-1-16: turn=-6.723, speed=8.324, yaw=-4.599, up=0.993, travel=10.183, wheel=0.897
+native-rwd-1-16 full wheel range remains planted
+native-rwd-1-16: release side=-0.000, yaw=-0.001, speed=20.077
+native-rwd-1-16 releases into aligned forward travel
+native-rwd-grade-30: uphill speed=16.135, height=9.635
+native-rwd-grade-30 accelerates uphill from rest using rear drive
+native-rwd-grade-40: uphill speed=11.767, height=8.354
+native-rwd-grade-40 accelerates uphill from rest using rear drive
+native-repeated-contact-1400: contact ticks=297, separation=5.056, vertical=0.011, angular=0.116, target travel=106.205
+native-repeated-contact-1400 exercises sustained/repeated physical car contact
+native-repeated-contact-1400 pushes the target without artificial separation
+native-repeated-contact-1400 avoids vertical/angular launch during sustained pushing
+native-repeated-contact-700: contact ticks=297, separation=5.055, vertical=0.015, angular=0.086, target travel=127.488
+native-repeated-contact-700 exercises sustained/repeated physical car contact
+native-repeated-contact-700 pushes the target without artificial separation
+native-repeated-contact-700 avoids vertical/angular launch during sustained pushing
+native-power-40-False: speed=11.772 yaw=-2.580 side=1.043
+native-power-40-False remains planted
+native-power-40-False straightens after release
+native-power-40-True carves at least 20% more heading within 0.75 seconds
+native-power-40-True: speed=10.930 yaw=-4.096 side=2.076
+native-power-40-True remains planted
+native-power-40-True straightens after release
+native-power-50-False: speed=13.124 yaw=-2.438 side=0.432
+native-power-50-False remains planted
+native-power-50-False straightens after release
+native-power-50-True carves at least 20% more heading within 0.75 seconds
+native-power-50-True: speed=11.497 yaw=-4.264 side=1.352
+native-power-50-True remains planted
+native-power-50-True straightens after release
+native-power-60-False: speed=14.569 yaw=-2.231 side=-0.306
+native-power-60-False remains planted
+native-power-60-False straightens after release
+native-power-60-True carves at least 20% more heading within 0.75 seconds
+native-power-60-True: speed=11.423 yaw=-4.389 side=0.338
+native-power-60-True remains planted
+native-power-60-True straightens after release
+native-tight-30: heading=4.647 speed=6.943
+native-tight-30 reverses direction tightly at low speed
+native-tight-30 retains full steering range and stays wheel-down
+native-tight-30 releases without sustained fishtailing
+native-tight-40: heading=5.086 speed=7.185
+native-tight-40 reverses direction tightly at low speed
+native-tight-40 retains full steering range and stays wheel-down
+native-tight-40 releases without sustained fishtailing
+native-tight-60: heading=5.577 speed=7.249
+native-tight-60 reverses direction tightly at low speed
+native-tight-60 retains full steering range and stays wheel-down
+native-tight-60 releases without sustained fishtailing
+native-tight-90: heading=5.602 speed=6.640
+native-tight-90 reverses direction tightly at low speed
+native-tight-90 retains full steering range and stays wheel-down
+native-tight-90 releases without sustained fishtailing
+native-tight-100: heading=5.125 speed=5.910
+native-tight-100 reverses direction tightly at low speed
+native-tight-100 retains full steering range and stays wheel-down
+native-tight-100 releases without sustained fishtailing
+native-tight-120: heading=3.618 speed=3.459
+native-tight-120 reverses direction tightly at low speed
+native-tight-120 retains full steering range and stays wheel-down
+native-tight-120 releases without sustained fishtailing
+native-tight-150: heading=1.905 speed=0.373
+native-tight-150 reverses direction tightly at low speed
+native-tight-150 retains full steering range and stays wheel-down
+native-tight-150 releases without sustained fishtailing
+native-hard-4: compression=0.626 minimum height=1.019
+native-hard-4 absorbs the drop without bottoming or chassis contact
+native-hard-4 settles back to wheel support
+native-hard-8: compression=0.703 minimum height=0.942
+native-hard-8 absorbs the drop without bottoming or chassis contact
+native-hard-8 settles back to wheel support
+native-hard-12: compression=0.767 minimum height=0.878
+native-hard-12 absorbs the drop without bottoming or chassis contact
+native-hard-12 settles back to wheel support
+native-partial--2.1-False: final up=1.000 height=1.145 rebound=0.437
+native-partial--2.1-False returns from diagonal bumper balance to its wheels
+native-partial--2.1-False dissipates chassis impact without a vertical launch
+native-partial--2.1-True: final up=1.000 height=1.144 rebound=0.437
+native-partial--2.1-True returns from diagonal bumper balance to its wheels
+native-partial--2.1-True dissipates chassis impact without a vertical launch
+native-partial--1.57-False: final up=1.000 height=1.145 rebound=0.034
+native-partial--1.57-False returns from diagonal bumper balance to its wheels
+native-partial--1.57-False dissipates chassis impact without a vertical launch
+native-partial--1.57-True: final up=1.000 height=1.145 rebound=0.029
+native-partial--1.57-True returns from diagonal bumper balance to its wheels
+native-partial--1.57-True dissipates chassis impact without a vertical launch
+native-partial-1.57-False: final up=1.000 height=1.145 rebound=0.019
+native-partial-1.57-False returns from diagonal bumper balance to its wheels
+native-partial-1.57-False dissipates chassis impact without a vertical launch
+native-partial-1.57-True: final up=1.000 height=1.145 rebound=0.024
+native-partial-1.57-True returns from diagonal bumper balance to its wheels
+native-partial-1.57-True dissipates chassis impact without a vertical launch
+native-partial-2.1-False: final up=1.000 height=1.145 rebound=0.009
+native-partial-2.1-False returns from diagonal bumper balance to its wheels
+native-partial-2.1-False dissipates chassis impact without a vertical launch
+native-partial-2.1-True: final up=1.000 height=1.145 rebound=0.020
+native-partial-2.1-True returns from diagonal bumper balance to its wheels
+native-partial-2.1-True dissipates chassis impact without a vertical launch
+native-repeated-rolls-0: lowest up=-0.253, final up=1.000, timer=0.000
+native-repeated-rolls repeats crash/recovery in the same life without a pose reset
+native-repeated-rolls-1: lowest up=-0.248, final up=1.000, timer=0.000
+native-repeated-rolls repeats crash/recovery in the same life without a pose reset
+native-repeated-rolls-2: lowest up=-0.283, final up=1.000, timer=0.000
+native-repeated-rolls repeats crash/recovery in the same life without a pose reset
+native-repeated-rolls-3: lowest up=-0.148, final up=1.000, timer=0.000
+native-repeated-rolls repeats crash/recovery in the same life without a pose reset
+native-wheels settles with bounded motion
+native-wheels returns to level wheel support
+native-wheels returns to ride height
+native-wheels avoids a chassis-contact vertical launch
+native-wheels: peak upward velocity after chassis contact=0.000
+native-two-wheel-roll settles with bounded motion
+native-two-wheel-roll gradually recovers after the crash
+native-two-wheel-roll avoids a chassis-contact vertical launch
+native-two-wheel-roll: peak upward velocity after chassis contact=0.000
+native-two-wheel-pitch settles with bounded motion
+native-two-wheel-pitch gradually recovers after the crash
+native-two-wheel-pitch avoids a chassis-contact vertical launch
+native-two-wheel-pitch: peak upward velocity after chassis contact=0.126
+native-side settles with bounded motion
+native-side gradually recovers after the crash
+native-side avoids a chassis-contact vertical launch
+native-side: peak upward velocity after chassis contact=0.161
+native-roof settles with bounded motion
+native-roof gradually recovers after the crash
+native-roof avoids a chassis-contact vertical launch
+native-roof: peak upward velocity after chassis contact=0.437
+native-bumper settles with bounded motion
+native-bumper avoids a chassis-contact vertical launch
+native-bumper: peak upward velocity after chassis contact=0.030
+native-trunk settles with bounded motion
+native-trunk avoids a chassis-contact vertical launch
+native-trunk: peak upward velocity after chassis contact=0.017
+native-rear-low does not add rebound speed
+native-rear-low displaces the target
+native-rear-medium does not add rebound speed
+native-rear-medium displaces the target
+native-rear-fast does not add rebound speed
+native-rear-fast displaces the target
+native-head-on does not add rebound speed
+native-head-on consumes opposed momentum
+native-heavy-rear does not add rebound speed
+native-heavy-rear displaces the target
+native-heavy-rear pushes a lighter target farther at the same impact speed
+native-glance does not add rebound speed
+native-glance displaces the target
+network-brake-30-False: stop=0.300s distance=1.737m up=0.999
+network-brake-30-False brakes to rest without rollover
+network-brake-30-True: stop=0.300s distance=1.712m up=0.999
+network-brake-30-True brakes to rest without rollover
+network-brake-60-False: stop=0.600s distance=5.182m up=0.999
+network-brake-60-False brakes to rest without rollover
+network-brake-60-True: stop=0.583s distance=5.001m up=0.999
+network-brake-60-True brakes to rest without rollover
+network-brake-100-False: stop=0.983s distance=13.780m up=0.998
+network-brake-100-False brakes to rest without rollover
+network-brake-100-True: stop=0.950s distance=12.852m up=0.998
+network-brake-100-True brakes to rest without rollover
+network-brake-150-False: stop=1.467s distance=30.342m up=0.998
+network-brake-150-False brakes to rest without rollover
+network-brake-150-True: stop=1.533s distance=29.780m up=0.998
+network-brake-150-True brakes to rest without rollover
+network-terrain-west-18: compression=0.656 chassis=False rebound=0.000
+network-terrain-west-18 stays finite
+network-terrain-west-18 retains suspension travel without chassis impact
+network-terrain-west-30: compression=0.750 chassis=False rebound=0.000
+network-terrain-west-30 stays finite
+network-terrain-west-30 retains suspension travel without chassis impact
+network-terrain-west--11: compression=0.593 chassis=False rebound=0.000
+network-terrain-west--11 stays finite
+network-terrain-west--11 retains suspension travel without chassis impact
+network-terrain-east-18: compression=0.656 chassis=False rebound=0.000
+network-terrain-east-18 stays finite
+network-terrain-east-18 retains suspension travel without chassis impact
+network-terrain-east-30: compression=0.750 chassis=False rebound=0.000
+network-terrain-east-30 stays finite
+network-terrain-east-30 retains suspension travel without chassis impact
+network-terrain-east--11: compression=0.593 chassis=False rebound=0.000
+network-terrain-east--11 stays finite
+network-terrain-east--11 retains suspension travel without chassis impact
+network-terrain-side-18: compression=0.717 chassis=False rebound=0.000
+network-terrain-side-18 stays finite
+network-terrain-side-18 retains suspension travel without chassis impact
+network-terrain-side-30: compression=0.793 chassis=False rebound=0.000
+network-terrain-side-30 stays finite
+network-terrain-side-30 retains suspension travel without chassis impact
+network-terrain-side--11: compression=0.646 chassis=False rebound=0.000
+network-terrain-side--11 stays finite
+network-terrain-side--11 retains suspension travel without chassis impact
+network-terrain-oblique-18: compression=0.718 chassis=False rebound=0.000
+network-terrain-oblique-18 stays finite
+network-terrain-oblique-18 retains suspension travel without chassis impact
+network-terrain-oblique-30: compression=0.821 chassis=False rebound=0.000
+network-terrain-oblique-30 stays finite
+network-terrain-oblique-30 retains suspension travel without chassis impact
+network-terrain-oblique--11: compression=0.641 chassis=False rebound=0.000
+network-terrain-oblique--11 stays finite
+network-terrain-oblique--11 retains suspension travel without chassis impact
+network-terrain-downhill-18: compression=0.777 chassis=False rebound=0.000
+network-terrain-downhill-18 stays finite
+network-terrain-downhill-18 retains suspension travel without chassis impact
+network-terrain-downhill-30: compression=0.753 chassis=False rebound=0.000
+network-terrain-downhill-30 stays finite
+network-terrain-downhill-30 retains suspension travel without chassis impact
+network-terrain-downhill--11: compression=0.675 chassis=False rebound=0.000
+network-terrain-downhill--11 stays finite
+network-terrain-downhill--11 retains suspension travel without chassis impact
+network-grass-straight-in-shallow-1: max air=0.000s compression=0.566 min up=1.000 chassis=False
+network-grass-straight-in-shallow-1 crosses both production materials
+network-grass-straight-in-shallow-1 stays wheel-down without sustained transition launch
+network-grass-straight-in-shallow-1 does not invoke aerial/crash assistance
+network-grass-straight-in-sharp-1: max air=0.000s compression=0.527 min up=1.000 chassis=False
+network-grass-straight-in-sharp-1 crosses both production materials
+network-grass-straight-in-sharp-1 stays wheel-down without sustained transition launch
+network-grass-straight-in-sharp-1 does not invoke aerial/crash assistance
+network-grass-straight-out-shallow-1: max air=0.000s compression=0.501 min up=1.000 chassis=False
+network-grass-straight-out-shallow-1 crosses both production materials
+network-grass-straight-out-shallow-1 stays wheel-down without sustained transition launch
+network-grass-straight-out-shallow-1 does not invoke aerial/crash assistance
+network-grass-straight-out-sharp-1: max air=0.000s compression=0.500 min up=1.000 chassis=False
+network-grass-straight-out-sharp-1 crosses both production materials
+network-grass-straight-out-sharp-1 stays wheel-down without sustained transition launch
+network-grass-straight-out-sharp-1 does not invoke aerial/crash assistance
+network-grass-bank-turn-in-1: max air=0.000s compression=0.777 min up=0.959 chassis=False
+network-grass-bank-turn-in-1 crosses both production materials
+network-grass-bank-turn-in-1 stays wheel-down without sustained transition launch
+network-grass-bank-turn-in-1 does not invoke aerial/crash assistance
+network-grass-bank-turn-sharp-1: max air=0.000s compression=0.790 min up=0.964 chassis=False
+network-grass-bank-turn-sharp-1 crosses both production materials
+network-grass-bank-turn-sharp-1 stays wheel-down without sustained transition launch
+network-grass-bank-turn-sharp-1 does not invoke aerial/crash assistance
+network-grass-bank-out-1: max air=0.000s compression=0.920 min up=0.834 chassis=True
+network-grass-bank-out-1 crosses both production materials
+network-grass-bank-out-1 stays wheel-down without sustained transition launch
+network-grass-bank-out-1 does not invoke aerial/crash assistance
+network-grass-bank-descend-1: max air=0.000s compression=0.956 min up=0.886 chassis=True
+network-grass-bank-descend-1 crosses both production materials
+network-grass-bank-descend-1 stays wheel-down without sustained transition launch
+network-grass-bank-descend-1 does not invoke aerial/crash assistance
+network-grass-west-bank-turn-in-1: max air=0.000s compression=0.775 min up=0.961 chassis=False
+network-grass-west-bank-turn-in-1 crosses both production materials
+network-grass-west-bank-turn-in-1 stays wheel-down without sustained transition launch
+network-grass-west-bank-turn-in-1 does not invoke aerial/crash assistance
+network-grass-west-bank-turn-sharp-1: max air=0.000s compression=0.783 min up=0.966 chassis=False
+network-grass-west-bank-turn-sharp-1 crosses both production materials
+network-grass-west-bank-turn-sharp-1 stays wheel-down without sustained transition launch
+network-grass-west-bank-turn-sharp-1 does not invoke aerial/crash assistance
+network-grass-west-bank-out-1: max air=0.000s compression=0.921 min up=0.834 chassis=True
+network-grass-west-bank-out-1 crosses both production materials
+network-grass-west-bank-out-1 stays wheel-down without sustained transition launch
+network-grass-west-bank-out-1 does not invoke aerial/crash assistance
+network-grass-west-bank-descend-1: max air=0.000s compression=0.956 min up=0.883 chassis=True
+network-grass-west-bank-descend-1 crosses both production materials
+network-grass-west-bank-descend-1 stays wheel-down without sustained transition launch
+network-grass-west-bank-descend-1 does not invoke aerial/crash assistance
+network-grass-straight-in-shallow-2: max air=0.000s compression=0.566 min up=1.000 chassis=False
+network-grass-straight-in-shallow-2 crosses both production materials
+network-grass-straight-in-shallow-2 stays wheel-down without sustained transition launch
+network-grass-straight-in-shallow-2 does not invoke aerial/crash assistance
+network-grass-straight-in-sharp-2: max air=0.000s compression=0.527 min up=1.000 chassis=False
+network-grass-straight-in-sharp-2 crosses both production materials
+network-grass-straight-in-sharp-2 stays wheel-down without sustained transition launch
+network-grass-straight-in-sharp-2 does not invoke aerial/crash assistance
+network-grass-straight-out-shallow-2: max air=0.000s compression=0.501 min up=1.000 chassis=False
+network-grass-straight-out-shallow-2 crosses both production materials
+network-grass-straight-out-shallow-2 stays wheel-down without sustained transition launch
+network-grass-straight-out-shallow-2 does not invoke aerial/crash assistance
+network-grass-straight-out-sharp-2: max air=0.000s compression=0.500 min up=1.000 chassis=False
+network-grass-straight-out-sharp-2 crosses both production materials
+network-grass-straight-out-sharp-2 stays wheel-down without sustained transition launch
+network-grass-straight-out-sharp-2 does not invoke aerial/crash assistance
+network-grass-bank-turn-in-2: max air=0.000s compression=0.777 min up=0.959 chassis=False
+network-grass-bank-turn-in-2 crosses both production materials
+network-grass-bank-turn-in-2 stays wheel-down without sustained transition launch
+network-grass-bank-turn-in-2 does not invoke aerial/crash assistance
+network-grass-bank-turn-sharp-2: max air=0.000s compression=0.790 min up=0.964 chassis=False
+network-grass-bank-turn-sharp-2 crosses both production materials
+network-grass-bank-turn-sharp-2 stays wheel-down without sustained transition launch
+network-grass-bank-turn-sharp-2 does not invoke aerial/crash assistance
+network-grass-bank-out-2: max air=0.000s compression=0.920 min up=0.834 chassis=True
+network-grass-bank-out-2 crosses both production materials
+network-grass-bank-out-2 stays wheel-down without sustained transition launch
+network-grass-bank-out-2 does not invoke aerial/crash assistance
+network-grass-bank-descend-2: max air=0.000s compression=0.956 min up=0.886 chassis=True
+network-grass-bank-descend-2 crosses both production materials
+network-grass-bank-descend-2 stays wheel-down without sustained transition launch
+network-grass-bank-descend-2 does not invoke aerial/crash assistance
+network-grass-west-bank-turn-in-2: max air=0.000s compression=0.775 min up=0.961 chassis=False
+network-grass-west-bank-turn-in-2 crosses both production materials
+network-grass-west-bank-turn-in-2 stays wheel-down without sustained transition launch
+network-grass-west-bank-turn-in-2 does not invoke aerial/crash assistance
+network-grass-west-bank-turn-sharp-2: max air=0.000s compression=0.783 min up=0.966 chassis=False
+network-grass-west-bank-turn-sharp-2 crosses both production materials
+network-grass-west-bank-turn-sharp-2 stays wheel-down without sustained transition launch
+network-grass-west-bank-turn-sharp-2 does not invoke aerial/crash assistance
+network-grass-west-bank-out-2: max air=0.000s compression=0.921 min up=0.834 chassis=True
+network-grass-west-bank-out-2 crosses both production materials
+network-grass-west-bank-out-2 stays wheel-down without sustained transition launch
+network-grass-west-bank-out-2 does not invoke aerial/crash assistance
+network-grass-west-bank-descend-2: max air=0.000s compression=0.956 min up=0.883 chassis=True
+network-grass-west-bank-descend-2 crosses both production materials
+network-grass-west-bank-descend-2 stays wheel-down without sustained transition launch
+network-grass-west-bank-descend-2 does not invoke aerial/crash assistance
+network-driving builds through intermediate dirt speed instead of reaching 100 km/h immediately
+network-driving retains powerful acceleration past 100 km/h within four seconds on dirt
+network-driving responds to fast right steering
+network-driving opposite wheel input remains available as rear braking consumes momentum
+network-driving unpowered held rear lock settles rather than sustaining rotation at rest
+network-driving release recovers a powered line
+network-rwd--1-0: turn=30.944, speed=7.365, yaw=4.458, up=0.995, travel=1.461, wheel=-0.900
+network-rwd--1-0 full wheel range remains planted
+network-rwd--1-0 sustains multiple RWD donuts from rest
+network-rwd--1-0: release side=0.000, yaw=0.001, speed=19.838
+network-rwd--1-0 releases into aligned forward travel
+network-rwd--1-16: turn=6.724, speed=8.323, yaw=4.599, up=0.993, travel=10.408, wheel=-0.897
+network-rwd--1-16 full wheel range remains planted
+network-rwd--1-16: release side=0.000, yaw=0.001, speed=20.080
+network-rwd--1-16 releases into aligned forward travel
+network-rwd-1-0: turn=-30.944, speed=7.365, yaw=-4.458, up=0.995, travel=1.461, wheel=0.900
+network-rwd-1-0 full wheel range remains planted
+network-rwd-1-0 sustains multiple RWD donuts from rest
+network-rwd-1-0: release side=-0.000, yaw=-0.001, speed=19.838
+network-rwd-1-0 releases into aligned forward travel
+network-rwd-1-16: turn=-6.724, speed=8.323, yaw=-4.599, up=0.993, travel=10.408, wheel=0.897
+network-rwd-1-16 full wheel range remains planted
+network-rwd-1-16: release side=-0.000, yaw=-0.001, speed=20.080
+network-rwd-1-16 releases into aligned forward travel
+network-rwd-grade-30: uphill speed=15.835, height=9.291
+network-rwd-grade-30 accelerates uphill from rest using rear drive
+network-rwd-grade-40: uphill speed=11.938, height=8.646
+network-rwd-grade-40 accelerates uphill from rest using rear drive
+network-repeated-contact-1400: contact ticks=298, separation=5.612, vertical=0.494, angular=0.086, target travel=105.033
+network-repeated-contact-1400 exercises sustained/repeated physical car contact
+network-repeated-contact-1400 pushes the target without artificial separation
+network-repeated-contact-1400 avoids vertical/angular launch during sustained pushing
+network-repeated-contact-700: contact ticks=298, separation=5.695, vertical=0.494, angular=0.053, target travel=126.131
+network-repeated-contact-700 exercises sustained/repeated physical car contact
+network-repeated-contact-700 pushes the target without artificial separation
+network-repeated-contact-700 avoids vertical/angular launch during sustained pushing
+network-power-40-False: speed=11.773 yaw=-2.579 side=1.042
+network-power-40-False remains planted
+network-power-40-False straightens after release
+network-power-40-True carves at least 20% more heading within 0.75 seconds
+network-power-40-True: speed=10.929 yaw=-4.096 side=2.077
+network-power-40-True remains planted
+network-power-40-True straightens after release
+network-power-50-False: speed=13.125 yaw=-2.438 side=0.433
+network-power-50-False remains planted
+network-power-50-False straightens after release
+network-power-50-True carves at least 20% more heading within 0.75 seconds
+network-power-50-True: speed=11.497 yaw=-4.264 side=1.356
+network-power-50-True remains planted
+network-power-50-True straightens after release
+network-power-60-False: speed=14.569 yaw=-2.232 side=-0.301
+network-power-60-False remains planted
+network-power-60-False straightens after release
+network-power-60-True carves at least 20% more heading within 0.75 seconds
+network-power-60-True: speed=11.425 yaw=-4.389 side=0.344
+network-power-60-True remains planted
+network-power-60-True straightens after release
+network-tight-30: heading=4.647 speed=6.943
+network-tight-30 reverses direction tightly at low speed
+network-tight-30 retains full steering range and stays wheel-down
+network-tight-30 releases without sustained fishtailing
+network-tight-40: heading=5.086 speed=7.185
+network-tight-40 reverses direction tightly at low speed
+network-tight-40 retains full steering range and stays wheel-down
+network-tight-40 releases without sustained fishtailing
+network-tight-60: heading=5.577 speed=7.250
+network-tight-60 reverses direction tightly at low speed
+network-tight-60 retains full steering range and stays wheel-down
+network-tight-60 releases without sustained fishtailing
+network-tight-90: heading=5.603 speed=6.643
+network-tight-90 reverses direction tightly at low speed
+network-tight-90 retains full steering range and stays wheel-down
+network-tight-90 releases without sustained fishtailing
+network-tight-100: heading=5.127 speed=5.916
+network-tight-100 reverses direction tightly at low speed
+network-tight-100 retains full steering range and stays wheel-down
+network-tight-100 releases without sustained fishtailing
+network-tight-120: heading=3.622 speed=3.466
+network-tight-120 reverses direction tightly at low speed
+network-tight-120 retains full steering range and stays wheel-down
+network-tight-120 releases without sustained fishtailing
+network-tight-150: heading=1.906 speed=0.373
+network-tight-150 reverses direction tightly at low speed
+network-tight-150 retains full steering range and stays wheel-down
+network-tight-150 releases without sustained fishtailing
+network-hard-4: compression=0.626 minimum height=1.019
+network-hard-4 absorbs the drop without bottoming or chassis contact
+network-hard-4 settles back to wheel support
+network-hard-8: compression=0.703 minimum height=0.942
+network-hard-8 absorbs the drop without bottoming or chassis contact
+network-hard-8 settles back to wheel support
+network-hard-12: compression=0.767 minimum height=0.878
+network-hard-12 absorbs the drop without bottoming or chassis contact
+network-hard-12 settles back to wheel support
+network-partial--2.1-False: final up=1.000 height=1.145 rebound=0.011
+network-partial--2.1-False returns from diagonal bumper balance to its wheels
+network-partial--2.1-False dissipates chassis impact without a vertical launch
+network-partial--2.1-True: final up=1.000 height=1.145 rebound=0.015
+network-partial--2.1-True returns from diagonal bumper balance to its wheels
+network-partial--2.1-True dissipates chassis impact without a vertical launch
+network-partial--1.57-False: final up=1.000 height=1.145 rebound=0.008
+network-partial--1.57-False returns from diagonal bumper balance to its wheels
+network-partial--1.57-False dissipates chassis impact without a vertical launch
+network-partial--1.57-True: final up=1.000 height=1.145 rebound=0.010
+network-partial--1.57-True returns from diagonal bumper balance to its wheels
+network-partial--1.57-True dissipates chassis impact without a vertical launch
+network-partial-1.57-False: final up=1.000 height=1.145 rebound=0.002
+network-partial-1.57-False returns from diagonal bumper balance to its wheels
+network-partial-1.57-False dissipates chassis impact without a vertical launch
+network-partial-1.57-True: final up=1.000 height=1.145 rebound=0.001
+network-partial-1.57-True returns from diagonal bumper balance to its wheels
+network-partial-1.57-True dissipates chassis impact without a vertical launch
+network-partial-2.1-False: final up=1.000 height=1.145 rebound=0.013
+network-partial-2.1-False returns from diagonal bumper balance to its wheels
+network-partial-2.1-False dissipates chassis impact without a vertical launch
+network-partial-2.1-True: final up=1.000 height=1.145 rebound=0.001
+network-partial-2.1-True returns from diagonal bumper balance to its wheels
+network-partial-2.1-True dissipates chassis impact without a vertical launch
+network-repeated-rolls-0: lowest up=-0.830, final up=1.000, timer=0.000
+network-repeated-rolls repeats crash/recovery in the same life without a pose reset
+network-repeated-rolls-1: lowest up=-0.970, final up=1.000, timer=0.000
+network-repeated-rolls repeats crash/recovery in the same life without a pose reset
+network-repeated-rolls-2: lowest up=-0.828, final up=1.000, timer=0.000
+network-repeated-rolls repeats crash/recovery in the same life without a pose reset
+network-repeated-rolls-3: lowest up=-0.999, final up=1.000, timer=0.000
+network-repeated-rolls repeats crash/recovery in the same life without a pose reset
+network-wheels settles with bounded motion
+network-wheels returns to level wheel support
+network-wheels returns to ride height
+network-wheels avoids a chassis-contact vertical launch
+network-wheels: peak upward velocity after chassis contact=0.000
+network-two-wheel-roll settles with bounded motion
+network-two-wheel-roll gradually recovers after the crash
+network-two-wheel-roll avoids a chassis-contact vertical launch
+network-two-wheel-roll: peak upward velocity after chassis contact=0.076
+network-two-wheel-pitch settles with bounded motion
+network-two-wheel-pitch gradually recovers after the crash
+network-two-wheel-pitch avoids a chassis-contact vertical launch
+network-two-wheel-pitch: peak upward velocity after chassis contact=0.003
+network-side settles with bounded motion
+network-side gradually recovers after the crash
+network-side avoids a chassis-contact vertical launch
+network-side: peak upward velocity after chassis contact=0.095
+network-roof settles with bounded motion
+network-roof gradually recovers after the crash
+network-roof avoids a chassis-contact vertical launch
+network-roof: peak upward velocity after chassis contact=0.127
+network-bumper settles with bounded motion
+network-bumper avoids a chassis-contact vertical launch
+network-bumper: peak upward velocity after chassis contact=0.003
+network-trunk settles with bounded motion
+network-trunk avoids a chassis-contact vertical launch
+network-trunk: peak upward velocity after chassis contact=0.006
+network-rear-low does not add rebound speed
+network-rear-low displaces the target
+network-rear-medium does not add rebound speed
+network-rear-medium displaces the target
+network-rear-fast does not add rebound speed
+network-rear-fast displaces the target
+network-head-on does not add rebound speed
+network-head-on consumes opposed momentum
+network-heavy-rear does not add rebound speed
+network-heavy-rear displaces the target
+network-heavy-rear pushes a lighter target farther at the same impact speed
+network-glance does not add rebound speed
+network-glance displaces the target
+Trophy truck integration passed: 458 assertions, both production adapters.

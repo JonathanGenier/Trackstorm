@@ -47,13 +47,13 @@ public sealed partial class InputIntegrationChecks
         for (ulong tick = 1; tick <= 90; tick++) { _player.Adapter.Capture(tick); }
         Send(new InputEventKey { PhysicalKeycode = Key.D, Pressed = false });
         Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = 0.575f });
-        Check(Math.Abs(_player.Adapter.Capture(0).Steering - 8192) <= 1, "analog half stick gives quarter intent and takes ownership over the released keyboard tail");
+        Check(Math.Abs(_player.Adapter.Capture(0).Steering - 6208) <= 1, "analog half stick gives fine curved intent and takes ownership over the released keyboard tail");
         Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = 0 });
         foreach (float stick in new[] { 0.16f, 0.25f, 0.5f, 0.75f, 1f, 0f, -0.16f, -0.25f, -0.5f, -0.75f, -1f, 1f, -1f, 0f })
         {
             Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = stick });
             float normalized = InputAxis.Normalize(stick, _player.Adapter.DeadZone);
-            float expected = MathF.CopySign(normalized * normalized, normalized);
+            float expected = MathF.CopySign(MathF.Pow(Math.Abs(normalized), 2.4f), normalized);
             Check(Math.Abs(_player.Adapter.Capture(0).Steering / 32767f - expected) < 0.00004f,
                 $"native stick {stick} preserves continuous curved steering {expected}, including center and reversals");
         }

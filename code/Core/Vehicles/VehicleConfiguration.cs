@@ -109,9 +109,9 @@ public sealed record VehicleConfiguration
     /// <summary>Rear braking deceleration at reference mass.</summary>
     public float HandbrakeBraking { get; init; } = 30 * (3000f / 1400);
     /// <summary>Rear lateral grip fraction with the handbrake fully engaged.</summary>
-    public float HandbrakeGrip { get; init; } = 0.25f;
+    public float HandbrakeGrip { get; init; } = 0.5f;
     /// <summary>Handbrake application response per second.</summary>
-    public float HandbrakeResponse { get; init; } = 2;
+    public float HandbrakeResponse { get; init; } = 1;
     /// <summary>Handbrake release response per second, permitting gradual traction recovery.</summary>
     public float TractionRecovery { get; init; } = 3;
     /// <summary>Horizontal overspeed recovery in m/s² above the effective drive limit.</summary>

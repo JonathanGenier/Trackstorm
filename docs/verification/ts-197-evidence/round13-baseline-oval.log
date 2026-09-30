@@ -1,0 +1,1 @@
+ERROR: System.InvalidOperationException: Practice 42 m/s bank turn, direction 1, steering 32767: slip angle 2.799 rad, angular speed 6.221 rad/s, rear slip 0.921, continuously supported, final speed 1.202 m/s.

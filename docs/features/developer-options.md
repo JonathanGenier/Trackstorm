@@ -444,9 +444,11 @@ Forward power buildup uses existing `vehicle.acceleration` (51.42857 at referenc
 
 Service braking uses `vehicle.braking` (96.42857 at reference mass) and digital buildup
 `input.brake_rise` (3/s); analog pedals retain direct pressure control. The existing
-`vehicle.handbrake_response` now defaults to 2/s (0.5 s to full application), while
+`vehicle.handbrake_response` now defaults to 1/s (1 s to full application), while
 `vehicle.traction_recovery` remains 3/s (about 0.333 s full release). Rear braking,
 traction release and engine interruption follow the same progressive state.
+`vehicle.handbrake_grip` retains 50% rear lateral grip at full application, giving
+more time to meter rotation without changing ordinary tire grip.
 
 Three additional controls use the same catalog and configuration v34:
 
@@ -463,7 +465,7 @@ remains latched even below the reverse tolerance.
 
 ### Controller steering precision and vehicle mass
 
-`input.controller_steering_exponent` defaults to 2, with finite bounds 1–4. After
+`input.controller_steering_exponent` defaults to 2.4, with finite bounds 1–4. After
 the analog dead zone, signed steering magnitude is raised to this exponent. One
 is linear; larger values give finer small corrections. Center and full stick
 remain exactly zero and full intent. This is independent of keyboard ramps,

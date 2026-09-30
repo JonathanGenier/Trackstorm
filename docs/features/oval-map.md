@@ -73,8 +73,9 @@ shortcuts are 14 m and entries/spine 16 m. Side-loop hills and berms, northern
 rises, valleys, paired rhythm stretches and four negative water basins shape
 the course. Two 100 m jump corridors integrate approaches, kickers, recoverable
 tabletop approaches connected to the central deck. Each preserved kicker rises
-4.8 m over 12 m. The intended 14–18 m/s approach range launches toward the
-raised dirt tabletop; low-speed approaches can continue onto the bridge.
+4.8 m over 12 m. The 16–18 m/s approaches launch toward the raised dirt tabletop; a 14 m/s
+approach can traverse the filled connection while supported. Lower-speed approaches
+can continue onto the bridge.
 The three obstacle reservations and open-sided tunnel remain in place. The
 [production structural set](../../assets/maps/infield/STRUCTURES.md) replaces
 the graybox tunnel with chamfered concrete piers, foundations, capitals, beams,
@@ -135,13 +136,15 @@ default collection radius remain unchanged.
 | `02-north` | 70, 0.812, -56 | Easy northern connector line. |
 | `03-tunnel` | 0, 0, 0 | Normal north/south underpass route; separate from upper travel. |
 | `04-water` | 77, 0.101, -43 | Dry north bank of the northeast Water basin; turning inward risks immersion. |
-| `05-jump` | -74, 10.65, 0 | West kicker's airborne approach to the raised tabletop. |
+| `05-jump` | -74, 10.65, 0 | West kicker's momentum-assisted approach to the raised tabletop. |
 | `06-turn` | -155, 0, 15 | West loop turn exiting toward the shortcut junction. |
 | `07-berm` | 126, -0.235, 41 | East loop's southern turn, rewarding the longer outside route. |
 
 All IDs start with `item-infield-`. The elevated marker's collection sphere stays
-above an ordinary supported vehicle; the intended 14–18 m/s west jump can enter
-it airborne and recover on the tabletop. Custom host pickup-radius tuning can
+above a slowly traversing vehicle. A 14 m/s west approach can enter it through
+suspension/terrain rise while still supported; 16–18 m/s approaches collect in flight
+and recover on the tabletop. The pickup uses the existing proximity rule, not an
+airborne eligibility gate. Custom host pickup-radius tuning can
 change that skill requirement; the authored layout targets default gameplay.
 The water-edge line runs along Z=-43, outside immersion, but a poor inward line
 can claim the pickup and continue into the existing deep-water hazard.

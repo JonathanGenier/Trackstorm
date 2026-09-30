@@ -35,14 +35,30 @@ internal sealed class ProgressiveHandlingTests
         var movement = new VehicleMovement(new(), pose);
         for (ulong tick = 1; tick <= 6; tick++) movement.Step(new(tick, 0, 0, 0, InputButtons.Drift, 0, 0), pose, Vector3.UnitY);
         var tap = movement.State;
-        for (ulong tick = 7; tick <= 36; tick++) movement.Step(new(tick, 0, 0, 0, InputButtons.Drift, 0, 0), pose, Vector3.UnitY);
+        for (ulong tick = 7; tick <= 66; tick++) movement.Step(new(tick, 0, 0, 0, InputButtons.Drift, 0, 0), pose, Vector3.UnitY);
         var held = movement.State;
-        Assert.That(tap.Handbrake, Is.InRange(0.19f, 0.21f));
+        Assert.That(tap.Handbrake, Is.InRange(0.09f, 0.11f));
         Assert.That(held.Handbrake, Is.EqualTo(1));
         Assert.That(held.LongitudinalAcceleration, Is.LessThan(tap.LongitudinalAcceleration));
-        var released = movement.Step(new(37, 0, 0, 0, 0, 0, 0), pose, Vector3.UnitY);
+        var released = movement.Step(new(67, 0, 0, 0, 0, 0, 0), pose, Vector3.UnitY);
         Assert.That(released.LongitudinalAcceleration, Is.GreaterThan(held.LongitudinalAcceleration).And.LessThan(0));
         Assert.That(released.Handbrake, Is.GreaterThan(0.9f).And.LessThan(1));
+    }
+
+    [TestCase(-20f)]
+    [TestCase(0f)]
+    [TestCase(20f)]
+    public void LockedRearUsesActualFrontContactVelocityThroughBroadside(float forwardSpeed)
+    {
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(-12, 0, -forwardSpeed), new(0, -3, 0));
+        VehicleState Drive(float reserve)
+        {
+            var movement = new VehicleMovement(new() { DirtSteeringReserve = reserve }, pose);
+            movement.Restore(new(0, pose, true, true, 0.8f, 1, SurfaceType.Dirt));
+            return movement.Step(new(1, 30000, 65535, 0, InputButtons.Drift, 0, 0), pose, Vector3.UnitY, surface: SurfaceType.Dirt);
+        }
+        // Powered line-following assistance must not inject extra torque into a locked-rear slide.
+        Assert.That(Drive(1), Is.EqualTo(Drive(0)));
     }
 
     [TestCase("power_slip_full_speed", 6d)]

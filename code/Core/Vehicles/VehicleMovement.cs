@@ -254,9 +254,11 @@ public sealed class VehicleMovement
             float slide = lateral * lateral / (0.16f * longitudinal * longitudinal + lateral * lateral + 4);
             float powerTurn = dirtCorner * throttle * Math.Abs(steerIntent);
             float steeringReserve = Math.Max(slide, Math.Max(Math.Min(1, powerTurn * 0.7f), handbrake * Math.Abs(steerIntent)));
-            // During deliberate rear lock, retain directional authority through a broadside
-            // slide. Ordinary forward/reverse steering still uses signed longitudinal speed.
-            float steeringTravel = longitudinal + (steeringSpeed - longitudinal) * handbrake;
+            // Rear-lock rotation uses the actual front contact velocity, including lateral
+            // motion and yaw. The powered dirt reserve must not keep steering from unsigned
+            // road speed after a handbrake slide has rotated past broadside.
+            steeringReserve *= 1 - handbrake;
+            float steeringTravel = longitudinal;
             float steeringDemand = steeringTravel * MathF.Tan(wheel) * response * 0.5f;
             if (driveEnabled && waterDepth == 0 && (!wheels.HasValue || frontTotal > 0))
             {

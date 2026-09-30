@@ -148,7 +148,7 @@ internal sealed class VehicleAuthorityTests
             original.Step(input, [Request(1, input, physics, contacts: tick == 44 ? [Contact(9, 2)] : null, effects: tick == 45 ? [Effect(5)] : null), Request(2, input, physics)]);
         }
 
-        Assert.That(original.GetVehicle(1).Movement.Handbrake, Is.EqualTo(1));
+        Assert.That(original.GetVehicle(1).Movement.Handbrake, Is.EqualTo(0.75f).Within(0.000001f));
         VehicleSnapshot[] decoded = original.State.Vehicles.Select(vehicle => VehicleSnapshotCodec.Decode(VehicleSnapshotCodec.Encode(vehicle))).ToArray();
         Assert.That(decoded[0].Effects.Single().Effect, Is.EqualTo(Effect(5).Effect));
         Assert.That(decoded[0].Effects.Single().Attribution, Is.EqualTo(Effect(5).Attribution));
