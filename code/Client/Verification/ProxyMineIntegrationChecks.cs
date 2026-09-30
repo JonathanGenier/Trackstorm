@@ -367,12 +367,16 @@ public sealed partial class ProxyMineIntegrationChecks : Node
             int active = Descendants(_arenas[0]).OfType<ProxyMineExplosion>().Count();
             peak = Math.Max(peak, active);
             Check(active <= ItemAuthority.MaximumMines, "Cosmetic Mine explosion pool stays bounded");
-            if (frame < 28 && frame % 2 == 0) { await CaptureDrawn($"overlap-{frame:D3}.png"); }
+            if ((frame < 28 && frame % 2 == 0) || frame == 40) { await CaptureDrawn($"overlap-{frame:D3}.png"); }
         }
         _arenas[0].Driver.ItemsReceived -= Observe;
         Check(impacts.Count == 2, "Two overlapping Mines each detonated once through authority");
         Check(peak >= 2, "Overlapping committed impacts created distinct visual effects");
-        await Frames(110);
+        for (int frame = 0; frame < 110; frame++)
+        {
+            await Frames(1);
+            if (frame is 20 or 50 or 80 or 109) { await CaptureDrawn($"overlap-tail-{frame:D3}.png"); }
+        }
         Check(!Descendants(_arenas[0]).OfType<ProxyMineExplosion>().Any(), "Mine explosions free themselves after their lifetime");
         Check(_arenas.All(a => a.Driver.ItemState?.Mines.Count == 0), "All three peers removed detonated mines");
         _evidence.Add($"Two close overlapping authoritative impacts reached three peers; peak {peak} concurrent explosion nodes, zero after 110 cleanup ticks.");
