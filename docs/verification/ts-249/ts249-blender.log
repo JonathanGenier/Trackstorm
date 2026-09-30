@@ -1,0 +1,21 @@
+C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\items\proxy-mine\source\BuildProxyMine.py:45: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m.use_nodes = True
+C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\items\proxy-mine\source\BuildProxyMine.py:69: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  beacon.use_nodes = True
+00:02.516  image.write      | ERROR OpenImageIO write failed: Could not open file "\.thumbnails\large\blender_33440_6d9c918c917050ef2c6cb61b8479e678.png.png"
+Extensions: writing cache failed ([WinError 183] Cannot create a file when that file already exists: 'C:\\Users\\j_gen\\AppData\\Roaming\\Blender Foundation\\Blender\\5.2\\extensions\\.cache').
+Info: Saved as "ProxyMine.blend"
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+20:08:28 | INFO: Starting glTF 2.0 export
+20:08:28 | INFO: Extracting primitive: Sealed lower hull.001
+20:08:28 | INFO: Primitives created: 6
+20:08:28 | INFO: Extracting primitive: Beacon.001
+20:08:28 | INFO: Primitives created: 1
+20:08:28 | INFO: Finished glTF 2.0 export in 0.07072591781616211 s
+
+PROXY_MINE_BOUNDS {"triangles": 14861, "mesh_nodes": 2, "body_surfaces": 6, "max_radial_m": 0.6487492918968201, "min_z_m": -0.25, "max_z_m": 0.3479999899864197, "collision_nodes": 0}
+PROXY_MINE_AUTHORING_COMPLETE {"triangles": 14861, "mesh_nodes": 2, "body_surfaces": 6, "max_radial_m": 0.6487492918968201, "min_z_m": -0.25, "max_z_m": 0.3479999899864197, "collision_nodes": 0}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

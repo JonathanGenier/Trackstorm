@@ -1,0 +1,38 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:25.19
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Obstruction: Wall approach / hold, min=5.911m, final=6.688m, max-step=0.217m
+Obstruction: Wall clears / recovery, min=6.688m, final=16.381m, max-step=0.215m
+Obstruction: Thin barrier / low orbit, min=5.665m, final=5.665m, max-step=0.000m
+Obstruction: Building corner orbit, min=4.414m, final=16.381m, max-step=1.448m
+Obstruction: Moving solid prop, min=6.177m, final=15.933m, max-step=0.192m
+Obstruction: Sloped terrain, min=9.376m, final=9.376m, max-step=0.000m
+Obstruction: Repeated boundary crossings, min=7.777m, final=7.812m, max-step=0.019m
+Obstruction: Shake beside wall, min=7.709m, final=7.777m, max-step=0.062m
+Obstruction: Life reset, min=7.777m, final=16.381m, max-step=8.605m
+Obstruction: Replacement reset, min=7.777m, final=16.381m, max-step=8.605m
+Obstruction: Resume reset, min=7.777m, final=16.381m, max-step=8.605m
+Obstruction: Scene reconstruction, min=7.777m, final=16.381m, max-step=8.605m
+Obstruction: Production yard wall, min=6.177m, final=6.177m, max-step=0.000m
+Obstruction: Production container, min=3.704m, final=3.930m, max-step=0.026m
+Obstruction: Production barrier, min=14.282m, final=16.381m, max-step=0.168m
+Obstruction: Production oval bank, min=3.139m, final=5.470m, max-step=0.054m
+Obstruction: Overlapping target recovery, min=16.381m, final=16.381m, max-step=0.000m
+Obstruction: Wide near plane, min=7.265m, final=7.265m, max-step=0.000m
+Obstruction: Cramped ceiling, min=1.082m, final=1.086m, max-step=0.007m
+Obstruction: Rolled chassis beside fence, min=5.500m, final=9.376m, max-step=0.285m
+Obstruction: Rollover framing recovery, min=9.937m, final=16.381m, max-step=0.474m
+Obstruction: Rolled chassis blocked left side, min=5.500m, final=9.440m, max-step=0.290m
+Obstruction: Rollover framing reset, min=16.381m, final=16.381m, max-step=0.000m
+Camera obstruction checks passed.
+Camera obstruction verification artifacts: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\camera-obstruction-checks\81a2cf17e7784de3b5c57d3c86f60e50

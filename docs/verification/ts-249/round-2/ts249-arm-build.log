@@ -1,0 +1,31 @@
+C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\items\proxy-mine\source\BuildPlacementArm.py:20: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m.use_nodes = True
+00:02.297  image.write      | ERROR OpenImageIO write failed: Could not open file "\.thumbnails\large\blender_1540_980e7f7d1feb591101c4f4021d289582.png.png"
+Extensions: writing cache failed ([WinError 183] Cannot create a file when that file already exists: 'C:\\Users\\j_gen\\AppData\\Roaming\\Blender Foundation\\Blender\\5.2\\extensions\\.cache').
+TS249_ARM_SOURCE 97 editable components
+Info: Saved as "ProxyMinePlacementArm.blend"
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+21:01:37 | INFO: Starting glTF 2.0 export
+21:01:37 | INFO: Extracting primitive: Cylinder.036
+21:01:37 | INFO: Primitives created: 5
+21:01:37 | INFO: Extracting primitive: Cylinder.044
+21:01:37 | INFO: Primitives created: 3
+21:01:37 | INFO: Extracting primitive: Cube
+21:01:37 | INFO: Primitives created: 3
+21:01:37 | INFO: Extracting primitive: Cylinder.022
+21:01:37 | INFO: Primitives created: 3
+21:01:37 | INFO: Extracting primitive: Cylinder.014
+21:01:37 | INFO: Primitives created: 5
+21:01:37 | INFO: Extracting primitive: Cube.030
+21:01:37 | INFO: Primitives created: 4
+21:01:37 | INFO: Extracting primitive: Cube.034
+21:01:37 | INFO: Primitives created: 4
+21:01:37 | INFO: Extracting primitive: Cube.027
+21:01:37 | INFO: Primitives created: 3
+21:01:37 | INFO: Finished glTF 2.0 export in 0.07451748847961426 s
+
+TS249_ARM_BUILT 8 editable components
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

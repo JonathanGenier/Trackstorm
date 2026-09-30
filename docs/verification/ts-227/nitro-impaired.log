@@ -1,0 +1,32 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Rocket scenario 0: start 0.00, forward 17.74 m/s; charge 79.67%; Circus zero.
+Rocket scenario 1: start 8.69, forward 24.25 m/s; charge 79.67%; Circus zero.
+Rocket scenario 2: start 6.02, forward 38.21 m/s; charge 79.67%; Circus zero.
+Rocket scenario 3: start 3.30, forward 4.22 m/s; charge 79.67%; Circus zero.
+Rocket scenario 4: start 0.00, forward 20.33 m/s; charge 79.67%; Circus zero.
+Rocket scenario 5: start 0.00, forward -0.00 m/s; charge 79.67%; Circus zero.
+Rocket scenarios complete; normal-drive and sustained-resource comparison begins.
+Normal drive settles at 44.44 m/s; both players request Nitro.
+Both peers sustain Nitro; charge drains while Wrench remains in the second slot.
+Boost reaches 62.22 m/s; released at 34.67% charge.
+Release recovery remains at 60.72 m/s with continuing authoritative overspeed awards.
+Recovery reaches normal speed and overspeed scoring stops; reuse begins with retained charge.
+Second activation drains the same grant tokens, followed by another release.
+System.InvalidOperationException: release/depletion finishes bounded flame and smoke emission on both peers
+   at Trackstorm.Client.Verification.NitroIntegrationChecks.Check(Boolean condition, String message) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\NitroIntegrationChecks.cs:line 326
+   at Trackstorm.Client.Verification.NitroIntegrationChecks.CheckExhaust(Boolean active) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\NitroIntegrationChecks.cs:line 305
+   at Trackstorm.Client.Verification.NitroIntegrationChecks._PhysicsProcess(Double delta) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\NitroIntegrationChecks.cs:line 183
+REPLICATION_TRAFFIC {"seconds":29.7261988,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":4215,"messages":3,"peak":1405},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":631639,"messages":665,"peak":994},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":302482,"messages":723,"peak":425},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":1409,"messages":4,"peak":463},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":375732,"messages":1176,"peak":463}]}
+REPLICATION_TRAFFIC {"seconds":29.453016,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":264,"messages":8,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":212326,"messages":1756,"peak":121}]}
+WARNING: 40 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)
+Exception: C:\Users\j_gen\Documents\Game Projects\Trackstorm\check-nitro.ps1:16
+Line |
+  16 |  … h 'Nitro integration passed:')) { throw 'Nitro integration failed.' }
+     |                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Nitro integration failed.
+
+

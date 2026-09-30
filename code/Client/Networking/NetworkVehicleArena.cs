@@ -134,7 +134,9 @@ internal sealed partial class NetworkVehicleArena : Node3D
                 {
                     body.Rack.Observe(state.LifeId, state.CanInteract,
                         publication.Slots.FirstOrDefault(slot => slot.Vehicle == state.VehicleId),
-                        publication.Events.Where(outcome => outcome.Owner == state.VehicleId));
+                        publication.Events.Where(outcome => outcome.Owner == state.VehicleId),
+                        publication.Mines.FirstOrDefault(mine => mine.Owner == state.VehicleId && mine.IsPlacing),
+                        publication.World.Tick);
                 }
             }
             _audio.ApplyVehicles(publication.World.Vehicles.Select(vehicle => vehicle.State));
@@ -486,7 +488,9 @@ internal sealed partial class NetworkVehicleArena : Node3D
             if (created)
             {
                 body.Rack.Observe(vehicle.State.LifeId, vehicle.State.CanInteract,
-                    _driver.ItemState?.Slots.FirstOrDefault(slot => slot.Vehicle == id), []);
+                    _driver.ItemState?.Slots.FirstOrDefault(slot => slot.Vehicle == id), [],
+                    _driver.ItemState?.Mines.FirstOrDefault(mine => mine.Owner == id && mine.IsPlacing),
+                    _driver.ItemState?.World.Tick ?? vehicle.State.Movement.Tick);
             }
         }
     }

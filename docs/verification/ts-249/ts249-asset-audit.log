@@ -1,0 +1,10 @@
+00:01.766  blend            | Read blend: "C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\items\proxy-mine\source\ProxyMine.blend"
+Extensions: writing cache failed ([WinError 183] Cannot create a file when that file already exists: 'C:\\Users\\j_gen\\AppData\\Roaming\\Blender Foundation\\Blender\\5.2\\extensions\\.cache').
+20:13:51 | INFO: Data are loaded, start creating Blender stuff
+20:13:51 | INFO: Blender create Mesh node Sealed lower hull.001
+20:13:51 | INFO: Blender create Mesh node Beacon.001
+20:13:51 | INFO: glTF import finished in 0.05s
+PROXY_MINE_INDEPENDENT_ASSET_AUDIT_PASS {"checksums": "all five match", "source_editable_meshes": 120, "source_modifiers_and_packed_textures": true, "glb_nodes": ["ArmoredBody", "BeaconLens"], "triangles": 14861, "radius": 0.6487492918968201, "bottom": -0.25, "top": 0.3479999899864197, "no_external_glb_dependencies": true, "no_colliders_or_animation": true}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

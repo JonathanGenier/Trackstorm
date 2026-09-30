@@ -1,0 +1,190 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.42
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Two native UDP peers ready
+Fixture configuration accepted
+Pickup Wrench
+Two occupied slots
+Wrench visible to owner and other peer
+Captured wrench-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Wrench
+Confirmed use/fire outcome for Wrench
+Depletion retracts and closes on both peers
+Use preserves second physical slot
+Captured wrench-after-use
+Pickup Missile
+Two occupied slots
+Missile visible to owner and other peer
+Captured missile-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Missile
+Confirmed use/fire outcome for Missile
+Depletion retracts and closes on both peers
+Use preserves second physical slot
+Captured missile-after-use
+Pickup Oil
+Two occupied slots
+Oil visible to owner and other peer
+Captured oil-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Oil
+Confirmed use/fire outcome for Oil
+Depletion retracts and closes on both peers
+Use preserves second physical slot
+Captured oil-after-use
+Pickup Nitro
+Two occupied slots
+Nitro visible to owner and other peer
+Selected Nitro is ready without ignition on both peers
+Captured nitro-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Nitro
+Confirmed use/fire outcome for Nitro
+Usable item stays deployed after release on both peers
+Released Nitro stays extended without thrust effects on both peers
+Use preserves second physical slot
+Captured nitro-after-use
+Pickup Proxy Mine
+Two occupied slots
+Proxy Mine visible to owner and other peer
+Captured proxy_mine-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Proxy Mine
+Confirmed use/fire outcome for Proxy Mine
+Depletion retracts and closes on both peers
+Use preserves second physical slot
+Captured proxy_mine-after-use
+Pickup Salvo
+Two occupied slots
+Salvo visible to owner and other peer
+Captured salvo-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Salvo
+Confirmed use/fire outcome for Salvo
+Usable item stays deployed after release on both peers
+Use preserves second physical slot
+Captured salvo-after-use
+Pickup Machine Gun
+Two occupied slots
+Machine Gun visible to owner and other peer
+Captured machine_gun-equipped
+Switch away
+Wrench selected on both peers
+Switch back
+Selected item re-deployed
+Use request accepted for Machine Gun
+Confirmed use/fire outcome for Machine Gun
+Usable item stays deployed after release on both peers
+Use preserves second physical slot
+Captured machine_gun-after-use
+Five-shot lifecycle grant
+Multi-shot rack deployed
+Select empty physical slot
+Empty selection stays stowed
+Empty slot does not reopen
+Return to usable slot
+Usable slot opens again
+Repeated shot accepted
+Confirmed remaining shots 4
+Both peers remain fully deployed between shots
+Repeated shot accepted
+Confirmed remaining shots 3
+Both peers remain fully deployed between shots
+Repeated shot accepted
+Confirmed remaining shots 2
+Both peers remain fully deployed between shots
+Repeated shot accepted
+Confirmed remaining shots 1
+Both peers remain fully deployed between shots
+Repeated shot accepted
+Confirmed remaining shots 0
+Final shot retracts both racks
+Depleted rack remains stowed
+Captured salvo-depleted
+Duplicate first grant
+Duplicate second grant
+Duplicate first selected
+Duplicate switch
+Duplicate switch retracts despite equal item type
+Duplicate second re-deployed
+Recovery reconstructs selected duplicate without use replay
+Death removes rack payload
+Respawn starts with closed empty rack
+New-life pickup
+New-life Nitro readies its rack-mounted jet
+Normal driving with deployed rack
+Captured driving-equipped
+Both UDP peers show coasting lamps
+Both UDP peers show moving brake lamps
+Captured network-braking
+Both UDP peers show reverse lamps from accepted movement
+Captured network-reversing
+Native proximity pickup fills selected slot
+Authoritative marker claim recorded
+Actual pickup deploys correct rack on both peers
+Captured proximity-pickup
+Rapid-use first slot
+Rapid-use second slot
+Rapid-use setup visible
+Immediate switch command
+Immediate switched use command
+Immediate switched use confirmed
+Consumed switched Wrench presented rather than old Salvo
+Rapid switched use closes coherently
+Rapid use preserves unselected Salvo
+Car rack integration passed: 150 checks; seven items, switching/use, duplicates, lifecycle and two UDP peers.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Two native UDP peers ready
+Fixture configuration accepted
+First consecutive mine granted
+Second consecutive mine granted
+First mine mounted on both peers
+First consecutive mine used
+First mine placement starts
+First mine releases
+Empty arms begin returning on both peers
+Select second mine during empty return
+Second mine selected
+Previous empty return remains unfinished at second use
+Second consecutive mine used
+Second authoritative placement starts
+Both peers receive second placement
+Second placement keeps the rack requested through a publication gap
+Second placement keeps the rack requested through a publication gap
+Captured second-mine-active
+Second mine stays mounted and visible through placement on both peers
+Second mine completes its full authoritative placement (frames 59, ticks 0, car <150, 21.644798, 35>)
+Rack returns and stows after second release
+Car rack consecutive mine passed: 21 checks on two UDP peers.

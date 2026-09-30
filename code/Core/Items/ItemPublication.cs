@@ -32,6 +32,8 @@ public sealed class ItemPublication
         }
         if (revision == 0 || inventory.Length > 8 || inventory.Select(slot => slot.Vehicle).Distinct().Count() != inventory.Length ||
             inventory.Any(slot => slot.ActiveSlot > 1 ||
+                slot.NitroDeploymentTicks is < 0 or > ItemSlot.NitroDeploymentDurationTicks ||
+                (slot.NitroDeploymentTicks != 0 && slot.Active.Item != HeldItem.Nitro) ||
                 !ValidAmmo(slot.Item, slot.Ammo) || !ValidAmmo(slot.SecondItem, slot.SecondAmmo) || !ValidCharge(slot.Item, slot.NitroCharge) || !ValidCharge(slot.SecondItem, slot.SecondNitroCharge) ||
                 !ValidSalvo(slot.Item, slot.SalvoShots, slot.SalvoReadyTick, world.Tick) ||
                 !ValidSalvo(slot.SecondItem, slot.SecondSalvoShots, slot.SecondSalvoReadyTick, world.Tick) ||
@@ -80,6 +82,8 @@ public sealed class ItemPublication
         var hazards = mines?.ToArray() ?? [];
         foreach (var mine in hazards) { mine.Validate(); }
         if (hazards.Length > ItemAuthority.MaximumMines || hazards.Select(mine => mine.Id).Distinct().Count() != hazards.Length ||
+            hazards.Where(mine => mine.IsPlacing).GroupBy(mine => mine.Owner).Any(group => group.Count() > 1) ||
+            hazards.Any(mine => mine.IsPlacing && !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == mine.Owner && vehicle.State.LifeId == mine.PlacementLife && vehicle.State.CanInteract)) ||
             hazards.Any(mine => projectiles.Any(p => p.Id == mine.Id) || oil.Any(p => p.Id == mine.Id) ||
                 inventory.Any(slot => (slot.Token == mine.Id && slot.Item != HeldItem.None) || (slot.SecondToken == mine.Id && slot.SecondItem != HeldItem.None))))
         { throw new ArgumentException("Invalid mine continuation."); }

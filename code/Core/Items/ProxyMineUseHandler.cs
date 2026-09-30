@@ -10,14 +10,25 @@ internal sealed class ProxyMineUseHandler : IItemUseHandler
         Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil, Dictionary<ulong, NitroState> boosts,
         List<ProxyMineState> mines, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine, Func<ulong> nextToken, Func<System.Numerics.Vector3, System.Numerics.Vector3?>? ground)
     {
-        if (mines.Count >= ItemAuthority.MaximumMines || placeMine?.Invoke(slot, pose) is not ProxyMineState mine) { return false; }
+        if (mines.Count >= ItemAuthority.MaximumMines || mines.Any(mine => mine.Owner == slot.Vehicle && mine.IsPlacing) ||
+            placeMine?.Invoke(slot, pose) is not ProxyMineState mine) { return false; }
+        ValidatePlacement(mine, slot, pose);
+        if (!Reachable(mine, pose)) { return false; }
+        mines.Add(mine with { PlacementLife = slot.Life, PlacementTicks = ProxyMineState.PlacementDurationTicks });
+        return true;
+    }
+
+    internal static void ValidatePlacement(ProxyMineState mine, ItemSlot slot, VehiclePhysicsState pose)
+    {
         mine.Validate();
-        if (mine.Id != slot.Token || mine.Owner != slot.Vehicle || mine.SeatingTicks != 30 || mine.Velocity != System.Numerics.Vector3.Zero ||
+        if (mine.IsPlacing || mine.Id != slot.Token || mine.Owner != slot.Vehicle || mine.SeatingTicks != 30 || mine.Velocity != System.Numerics.Vector3.Zero ||
             mine.Normal.Y < 0.55f || System.Numerics.Vector3.Distance(mine.Position, pose.Position) > 9)
         {
             throw new ArgumentException("Proxy Mine placement differs from the authorized use.");
         }
-        mines.Add(mine);
-        return true;
     }
+
+    internal static bool Reachable(ProxyMineState mine, VehiclePhysicsState pose) => System.Numerics.Vector3.Distance(
+        mine.Position + mine.Normal * ProxyMineState.WristHeight,
+        pose.Position + System.Numerics.Vector3.Transform(ProxyMineState.PlacementShoulder, pose.Orientation)) <= ProxyMineState.PlacementReach;
 }

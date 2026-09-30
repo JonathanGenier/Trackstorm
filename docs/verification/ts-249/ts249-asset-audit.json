@@ -1,0 +1,15 @@
+{
+  "checksums": "all five match",
+  "source_editable_meshes": 120,
+  "source_modifiers_and_packed_textures": true,
+  "glb_nodes": [
+    "ArmoredBody",
+    "BeaconLens"
+  ],
+  "triangles": 14861,
+  "radius": 0.6487492918968201,
+  "bottom": -0.25,
+  "top": 0.3479999899864197,
+  "no_external_glb_dependencies": true,
+  "no_colliders_or_animation": true
+}

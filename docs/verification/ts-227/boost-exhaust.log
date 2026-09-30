@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 610.78 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Laptop GPU
+
+Boost slow-frame cutoff passed: release and depletion expire across a 700 ms rendering hitch.
+Boost VFX checks passed: repeated release/reignite, 1/8/32 production network visuals, new life; 32-car frame p95=16.97 ms (60 FPS cap). Render captures in .godot/ts225-vfx.

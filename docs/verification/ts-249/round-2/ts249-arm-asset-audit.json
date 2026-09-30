@@ -1,0 +1,11 @@
+{
+  "sha256_checked": 14,
+  "editable_meshes": 97,
+  "packed_original_maps": 5,
+  "rigid_runtime_meshes": 8,
+  "triangles": 15228,
+  "material_surfaces": 30,
+  "no_external_dependencies": true,
+  "articulation_pivots_present": true,
+  "no_collision_names": true
+}

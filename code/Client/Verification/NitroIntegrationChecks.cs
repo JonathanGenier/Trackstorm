@@ -35,6 +35,35 @@ public sealed partial class NitroIntegrationChecks : Node
     private readonly List<string> _evidence = new();
     private readonly HashSet<Vehicles.BoostExhaust> _releaseTails = new();
     private readonly HashSet<Vehicles.BoostExhaust> _depletionBursts = new();
+    private readonly Dictionary<Vehicles.BoostExhaust, double> _inactiveSeconds = new();
+    private readonly HashSet<Vehicles.BoostExhaust> _terminalActive = new();
+    private readonly HashSet<string> _deploymentCaptures = new();
+
+    public override async void _Process(double delta)
+    {
+        if (_done || _arenas.Count != 2) { return; }
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        if (_done) { return; }
+        try
+        {
+            foreach (var arena in _arenas)
+            foreach (var body in arena.Bodies.Values)
+            {
+                if (body.Rack.Boost.Source()?.Movement.Nitro.Active != true) { continue; }
+                Check(body.Rack.Progress >= .999f && body.Rack.Boost.Deployment >= .999f,
+                    "rendered thruster fully deployed whenever accepted thrust is active");
+            }
+            var slot = _arenas[0].Driver.Host?.Items.Slots.FirstOrDefault(slot => slot.Vehicle == 1);
+            if (slot?.Active.Item != HeldItem.Nitro) { return; }
+            string phase = slot.NitroDeploymentTicks switch { > 28 => "replace", > 9 => "rise", > 0 => "extend", _ => "ready" };
+            if (_deploymentCaptures.Add(phase))
+            {
+                Capture("deployment-" + phase + ".png");
+                GD.Print($"Deployment {phase}: remaining={slot.NitroDeploymentTicks} ticks; charge={slot.Active.NitroCharge:F2}%; thrust={_arenas[0].Driver.Host!.World.GetVehicle(1).Movement.Nitro.Active}.");
+            }
+        }
+        catch (Exception error) { GD.PrintErr(error); GetTree().Quit(1); }
+    }
 
     public override void _Ready()
     {
@@ -72,10 +101,8 @@ public sealed partial class NitroIntegrationChecks : Node
         bank.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(120, 1, 5000) } });
         bank.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(120, 1, 5000) }, MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.32f, 0.34f, 0.36f) } });
         arena.AddChild(bank);
-        var camera = new Camera3D { Name = "NitroCamera", Position = new Vector3(15, 35, 23) };
-        arena.AddChild(camera);
-        camera.LookAt(new Vector3(0, 20, 2));
-        camera.MakeCurrent();
+        // Keep the production local chase camera current so this fixture exercises
+        // exhaust, wind wisps and FOV together on both independently owned peer views.
         _arenas.Add(arena);
     }
 
@@ -94,8 +121,24 @@ public sealed partial class NitroIntegrationChecks : Node
                 Check(arena.Driver.Failure.Length == 0, arena.Driver.Failure);
             }
             Check(_frames - _boundary < 1800, $"Nitro stage {_stage} timeout");
-            foreach (var exhaust in _arenas.SelectMany(a => a.Bodies.Values).Select(b => b.Rack.Boost))
+            foreach (var arena in _arenas)
+            foreach (var pair in arena.Bodies)
             {
+                var exhaust = pair.Value.Rack.Boost;
+                var accepted = arena.Driver.Latest?.Vehicles.SingleOrDefault(v => v.State.VehicleId == pair.Key)?.State;
+                // The unreliable inactive movement and reliable confirmed depletion
+                // can arrive separately. Give a newly confirmed terminal cue its own
+                // bounded .60-second tail, but never refresh the clock while it stays on.
+                _inactiveSeconds.TryGetValue(exhaust, out double inactive);
+                inactive = accepted is { CanInteract: true, Movement.Nitro.Active: true } ? 0 : inactive + delta;
+                if (exhaust.DepletionBurst && _terminalActive.Add(exhaust)) { inactive = 0; }
+                if (!exhaust.DepletionBurst) { _terminalActive.Remove(exhaust); }
+                _inactiveSeconds[exhaust] = inactive;
+                if (inactive > .75)
+                {
+                    Check(!exhaust.FlameVisible && !exhaust.SmokeEmitting && !exhaust.SparksEmitting,
+                        $"Boost emission stuck after {inactive:F3}s of inactive peer state");
+                }
                 if (_stage is 4 or 7 && exhaust.FlameEnergy is > .01f and < .95f)
                 {
                     Check(!exhaust.DepletionBurst, "ordinary release does not report exhaustion");
@@ -104,12 +147,10 @@ public sealed partial class NitroIntegrationChecks : Node
                 if (_stage is 8 or 9 && exhaust.DepletionBurst) { _depletionBursts.Add(exhaust); }
             }
             var host = _arenas[0].Driver.Host!;
-            if (host.World.State.Vehicles.Count > 0)
+            foreach (var slot in host.Items.Slots.Where(slot => slot.NitroDeploymentTicks > 0))
             {
-                var position = Vehicles.VehicleBody.ToGodot(host.World.GetVehicle(1).Movement.Physics.Position);
-                var camera = _arenas[0].GetNode<Camera3D>("NitroCamera");
-                camera.Position = position + new Vector3(9, 6, 13);
-                camera.LookAt(position);
+                Check(slot.Active.NitroCharge == 100, "deployment never consumes charge");
+                Check(!host.World.GetVehicle(slot.Vehicle).Movement.Nitro.Active, "deployment never produces thrust");
             }
             switch (_stage)
             {
@@ -121,7 +162,13 @@ public sealed partial class NitroIntegrationChecks : Node
                     PrepareRocketScenario();
                     _stage = 101; _boundary = _frames;
                     break;
-                case 101 when _frames - _boundary > 30:
+                case 101 when _frames - _boundary > ItemSlot.NitroDeploymentDurationTicks:
+                    _throttle = _rocketScenario == 2 ? ushort.MaxValue : (ushort)0;
+                    _reverse = _rocketScenario == 3 ? ushort.MaxValue : (ushort)0;
+                    Position(_rocketScenario == 1 ? 10 : 0, _rocketScenario >= 4 ? 100 : 21.4f);
+                    _stage = 104; _boundary = _frames;
+                    break;
+                case 104 when _frames - _boundary > 30:
                     _rocketStartSpeed = host.World.GetVehicle(1).Speed;
                     _rocketStartingScores = host.World.State.Match!.Players.Select(p => p.CircusScore).ToArray();
                     UseBoth();
@@ -152,6 +199,7 @@ public sealed partial class NitroIntegrationChecks : Node
                     Next("Both peers sustain Nitro; charge drains while Wrench remains in the second slot.");
                     break;
                 case 3 when _frames - _boundary > 180:
+                    CheckCameras(true);
                     _releaseSpeed = host.World.GetVehicle(1).Speed;
                     Check(_releaseSpeed > _baseline * 1.2f, $"boosted speed {_releaseSpeed}");
                     Check(_arenas[1].Driver.LocalState!.Speed > _baseline * 1.2f, "remote boost motion");
@@ -174,6 +222,7 @@ public sealed partial class NitroIntegrationChecks : Node
                     Next($"Release recovery remains at {recovering:0.00} m/s with continuing authoritative overspeed awards.");
                     break;
                 case 5 when _frames - _boundary > 360:
+                    CheckCameras(false);
                     Check(host.World.State.Vehicles.All(v => v.Speed <= host.Configuration.Configuration.Vehicle.ForwardSpeed + 0.01f), "recovery reaches normal speed");
                     Check(host.Items.Slots.Select(s => s.NitroCharge).SequenceEqual(_charges), "idle charge retained on both peers");
                     Check(!host.World.State.Match!.Awards.Any(a => a.Category == Core.Matches.CircusScoreCategory.Nitro), "no Nitro scoring at normal speed");
@@ -187,8 +236,8 @@ public sealed partial class NitroIntegrationChecks : Node
                     _held = false;
                     Next("Second activation drains the same grant tokens, followed by another release.");
                     break;
-                // The production release tail lasts 0.45 seconds after each peer observes
-                // release; allow impaired delivery plus presentation before checking cutoff.
+                // Allow publication/input transit plus the accepted .45-second tail;
+                // the per-view timer above independently bounds the actual VFX lifetime.
                 case 7 when _frames - _boundary > 60:
                     Check(host.World.State.Vehicles.All(v => !v.Movement.Nitro.Active), "second release");
                     CheckExhaust(false);
@@ -201,6 +250,7 @@ public sealed partial class NitroIntegrationChecks : Node
                     Next("Both Nitro resources reach zero and clear only their physical slots.");
                     break;
                 case 9 when _frames - _boundary > 60:
+                    CheckCameras(false, .025f);
                     CheckExhaust(false);
                     Check(_releaseTails.Count == 4, "both vehicles wind down on both peer views");
                     Check(_depletionBursts.Count == 4, "both vehicles signal confirmed exhaustion on both peer views");
@@ -209,6 +259,7 @@ public sealed partial class NitroIntegrationChecks : Node
                     Check(_arenas[1].Driver.Match!.Players.All(p => p.CircusScore > 0), "remote score publication");
                     Check(host.World.Events.Entries.Count(e => e.Kind == "Exhausted" && e.Cause == "Nitro") == 2, "one disposal per grant");
                     Capture("exhausted-nitro.png");
+                    CheckDeploymentPublicationOrdering();
                     GD.Print("Nitro integration passed: " + string.Join("\n", _evidence));
                     _done = true; _boundary = _frames;
                     foreach (var arena in _arenas) { arena.QueueFree(); }
@@ -222,6 +273,38 @@ public sealed partial class NitroIntegrationChecks : Node
             foreach (var gateway in _gateways) { gateway.Dispose(); }
             GetTree().Quit(1);
         }
+    }
+
+    private void CheckDeploymentPublicationOrdering()
+    {
+        // Controlled channel-order regression on production nodes after driving:
+        // the previous capability's active movement must not skip a new deployment.
+        foreach (var arena in _arenas)
+        foreach (var body in arena.Bodies.Values)
+        {
+            var prior = body.Rack.Boost.Source()!;
+            var pose = prior.ObservedPhysics;
+            var oldActive = new VehicleSnapshot(prior.VehicleId, prior.LifeId,
+                new VehicleState(prior.Movement.Tick, pose, true, false, 0, 0, nitro: new NitroState(60, 18000, 1.4f, 1)), prior.Damage, pose);
+            body.Apply(oldActive);
+            body.Rack.Reset();
+            var inventory = new ItemSlot(prior.VehicleId, prior.LifeId, 999, HeldItem.Nitro)
+                { EngagedToken = 999, NitroDeploymentTicks = ItemSlot.NitroDeploymentDurationTicks };
+            ulong start = prior.Movement.Tick + 1;
+            body.Rack.Observe(prior.LifeId, true, inventory, [], tick: start);
+            body.Rack._Process(.3);
+            float progress = body.Rack.Progress;
+            Check(progress is > 0 and < 1 && body.Rack.Boost.Deployment < .999f,
+                "previous active movement cannot bypass a newly selected thruster deployment");
+            body.Rack.Observe(prior.LifeId, true, inventory with { NitroDeploymentTicks = 35 }, [], tick: start + 1);
+            Check(body.Rack.Progress >= progress, "delayed inventory cannot rewind the mechanical animation");
+            body.Apply(new VehicleSnapshot(prior.VehicleId, prior.LifeId,
+                new VehicleState(start + ItemSlot.NitroDeploymentDurationTicks, pose, true, false, 0, 0, nitro: new NitroState(60, 18000, 1.4f, 1)), prior.Damage, pose));
+            body.Rack._Process(0);
+            Check(body.Rack.Progress >= .999f && body.Rack.Boost.Deployment >= .999f,
+                "current active movement completes readiness despite a delayed final inventory publication");
+        }
+        _evidence.Add("Deployment channel ordering verified: old active snapshot cannot skip a new deployment; delayed publications cannot rewind it; current thrust resolves readiness.");
     }
 
     private void UseBoth()
@@ -257,9 +340,13 @@ public sealed partial class NitroIntegrationChecks : Node
     {
         var host = _arenas[0].Driver.Host!;
         foreach (ulong id in new ulong[] { 1, 2 }) { host.Items.RemovePlayer(id); }
+        foreach (ulong id in new ulong[] { 1, 2 })
+        {
+            Check(host.Items.Grant(host.World, id, HeldItem.Nitro), "rocket scenario Nitro grant");
+            Check(host.Items.Grant(host.World, id, HeldItem.Wrench), "rocket scenario second slot");
+        }
         _held = false;
-        _throttle = _rocketScenario == 2 ? ushort.MaxValue : (ushort)0;
-        _reverse = _rocketScenario == 3 ? ushort.MaxValue : (ushort)0;
+        _throttle = _reverse = 0;
         Check(host.TryConfigure(0, new Dictionary<string, double> { ["items.nitro_airborne_thrust_scale"] = _rocketScenario == 5 ? 0 : 1 }, out _), "airborne live tuning");
         Position(_rocketScenario == 1 ? 10 : 0, _rocketScenario >= 4 ? 100 : 21.4f);
     }
@@ -319,6 +406,19 @@ public sealed partial class NitroIntegrationChecks : Node
             }
         }
         _evidence.Add($"Boost VFX {(active ? "activation" : "cutoff")} observed in native peer presentation state.");
+    }
+
+    private void CheckCameras(bool active, float cutoff = .005f)
+    {
+        foreach (var arena in _arenas)
+        {
+            var camera = arena.GetNode<Vehicles.VehicleChaseCamera>("ChaseCamera");
+            Check(camera.Current && camera.GlobalTransform.IsFinite(), "each peer owns a finite current chase camera");
+            Check(camera.Fov is >= 65 and <= 73.01f, "peer camera remains within presentation bounds");
+            Check(active ? camera.BoostMotion.PullBack > .5f : camera.BoostMotion.PullBack < cutoff,
+                active ? "both local peer cameras respond to sustained Boost" : "release/depletion returns both peer cameras toward normal despite overspeed");
+        }
+        _evidence.Add($"Integrated peer camera {(active ? "sustain" : "cutoff")} verified alongside authoritative Nitro and exhaust.");
     }
 
     private void Next(string text) { _evidence.Add(text); GD.Print(text); _stage++; _boundary = _frames; }

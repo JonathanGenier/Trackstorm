@@ -120,9 +120,11 @@ public sealed partial class VehicleIntegrationChecks : Node
         Check(!Descendants(localModel).Any(node => node is CollisionObject3D or CollisionShape3D or AnimationPlayer or AnimationTree), "Visual asset has no collision or animation layer.");
         var meshes = Descendants(localModel).OfType<MeshInstance3D>().ToArray();
         Check(meshes.Length > 10 && meshes.All(mesh => mesh.Mesh is not null), "Vehicle asset resolves all base and conversion meshes.");
-        // Stowed booster/flame meshes from the production rack are intentionally hidden
-        // and must not enlarge the displayed idle vehicle's body dimensions.
-        Aabb bounds = meshes.Where(mesh => mesh.IsVisibleInTree()).Select(mesh => (localModel.GlobalTransform.AffineInverse() * mesh.GlobalTransform) * mesh.GetAabb()).Aggregate((left, right) => left.Merge(right));
+        // The persistent rack payload includes hidden, elongated flame meshes. They
+        // are presentation, not part of the authored Car silhouette measured here.
+        var booster = Descendants(localModel).OfType<BoostExhaust>().Single();
+        Aabb bounds = meshes.Where(mesh => !booster.IsAncestorOf(mesh))
+            .Select(mesh => (localModel.GlobalTransform.AffineInverse() * mesh.GlobalTransform) * mesh.GetAabb()).Aggregate((left, right) => left.Merge(right));
         Check(bounds.Size.X is > 3.25f and < 3.5f && Math.Abs(bounds.Size.Z - 6.01536f) < .025f, $"Production Car retains its width and includes the refined front/rear overhangs: {bounds.Size}.");
         // This fixture has advanced only three ticks; compare against current observations,
         // not equilibrium or the formerly static tire mesh's baked rest position.
