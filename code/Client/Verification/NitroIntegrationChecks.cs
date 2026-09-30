@@ -289,12 +289,12 @@ public sealed partial class NitroIntegrationChecks : Node
             var inventory = new ItemSlot(prior.VehicleId, prior.LifeId, 999, HeldItem.Nitro)
                 { EngagedToken = 999, NitroDeploymentTicks = ItemSlot.NitroDeploymentDurationTicks };
             ulong start = prior.Movement.Tick + 1;
-            body.Rack.Observe(prior.LifeId, true, inventory, [], start);
+            body.Rack.Observe(prior.LifeId, true, inventory, [], tick: start);
             body.Rack._Process(.3);
             float progress = body.Rack.Progress;
             Check(progress is > 0 and < 1 && body.Rack.Boost.Deployment < .999f,
                 "previous active movement cannot bypass a newly selected thruster deployment");
-            body.Rack.Observe(prior.LifeId, true, inventory with { NitroDeploymentTicks = 35 }, [], start + 1);
+            body.Rack.Observe(prior.LifeId, true, inventory with { NitroDeploymentTicks = 35 }, [], tick: start + 1);
             Check(body.Rack.Progress >= progress, "delayed inventory cannot rewind the mechanical animation");
             body.Apply(new VehicleSnapshot(prior.VehicleId, prior.LifeId,
                 new VehicleState(start + ItemSlot.NitroDeploymentDurationTicks, pose, true, false, 0, 0, nitro: new NitroState(60, 18000, 1.4f, 1)), prior.Damage, pose));
