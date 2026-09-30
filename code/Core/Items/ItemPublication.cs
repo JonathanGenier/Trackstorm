@@ -80,6 +80,8 @@ public sealed class ItemPublication
         var hazards = mines?.ToArray() ?? [];
         foreach (var mine in hazards) { mine.Validate(); }
         if (hazards.Length > ItemAuthority.MaximumMines || hazards.Select(mine => mine.Id).Distinct().Count() != hazards.Length ||
+            hazards.Where(mine => mine.IsPlacing).GroupBy(mine => mine.Owner).Any(group => group.Count() > 1) ||
+            hazards.Any(mine => mine.IsPlacing && !world.Vehicles.Any(vehicle => vehicle.State.VehicleId == mine.Owner && vehicle.State.LifeId == mine.PlacementLife && vehicle.State.CanInteract)) ||
             hazards.Any(mine => projectiles.Any(p => p.Id == mine.Id) || oil.Any(p => p.Id == mine.Id) ||
                 inventory.Any(slot => (slot.Token == mine.Id && slot.Item != HeldItem.None) || (slot.SecondToken == mine.Id && slot.SecondItem != HeldItem.None))))
         { throw new ArgumentException("Invalid mine continuation."); }

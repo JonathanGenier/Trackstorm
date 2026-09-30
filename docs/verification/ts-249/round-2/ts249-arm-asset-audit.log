@@ -1,0 +1,16 @@
+00:01.734  blend            | Read blend: "C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\items\proxy-mine\source\ProxyMinePlacementArm.blend"
+Extensions: writing cache failed ([WinError 183] Cannot create a file when that file already exists: 'C:\\Users\\j_gen\\AppData\\Roaming\\Blender Foundation\\Blender\\5.2\\extensions\\.cache').
+21:11:36 | INFO: Data are loaded, start creating Blender stuff
+21:11:36 | INFO: Blender create Mesh node Cylinder.036
+21:11:36 | INFO: Blender create Mesh node Cylinder.044
+21:11:36 | INFO: Blender create Mesh node Cube
+21:11:36 | INFO: Blender create Mesh node Cylinder.022
+21:11:36 | INFO: Blender create Mesh node Cylinder.014
+21:11:36 | INFO: Blender create Mesh node Cube.030
+21:11:36 | INFO: Blender create Mesh node Cube.034
+21:11:37 | INFO: Blender create Mesh node Cube.027
+21:11:37 | INFO: glTF import finished in 0.06s
+TS249_ARM_ASSET_AUDIT_PASS {"sha256_checked": 14, "editable_meshes": 97, "packed_original_maps": 5, "rigid_runtime_meshes": 8, "triangles": 15228, "material_surfaces": 30, "no_external_dependencies": true, "articulation_pivots_present": true, "no_collision_names": true}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

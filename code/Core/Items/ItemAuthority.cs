@@ -98,6 +98,7 @@ public sealed class ItemAuthority
         bool changed = _slots.Remove(vehicle);
         changed |= _contacts.RemoveAll(contact => contact.Vehicle == vehicle) > 0;
         changed |= _missiles.RemoveAll(missile => missile.Owner == vehicle) > 0;
+        changed |= _mines.RemoveAll(mine => mine.Owner == vehicle && mine.IsPlacing) > 0;
         if (changed)
         {
             Revision++;
@@ -357,13 +358,33 @@ public sealed class ItemAuthority
         {
             if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { break; }
             var targets = requests.Where(request => world.GetVehicle(request.VehicleId).CanInteract && !request.Reset.HasValue).OrderBy(request => request.VehicleId).ToArray();
+            if (mine.IsPlacing)
+            {
+                var owner = targets.FirstOrDefault(request => request.VehicleId == mine.Owner && world.GetVehicle(request.VehicleId).LifeId == mine.PlacementLife);
+                if (owner is null) { continue; }
+                var slot = new ItemSlot(mine.Owner, mine.PlacementLife, mine.Id, HeldItem.ProxyMine);
+                var placed = placeMine?.Invoke(slot, owner.Observation.Physics);
+                int remaining = Math.Max(0, mine.PlacementTicks - 1);
+                if (placed is not null)
+                {
+                    ProxyMineUseHandler.ValidatePlacement(placed, slot, owner.Observation.Physics);
+                    if (!ProxyMineUseHandler.Reachable(placed, owner.Observation.Physics)) { placed = null; }
+                }
+                if (placed is not null)
+                {
+                    movingMines.Add(remaining == 0 ? placed : placed with { PlacementLife = mine.PlacementLife, PlacementTicks = remaining });
+                }
+                else { movingMines.Add(mine with { PlacementTicks = Math.Max(remaining, ProxyMineState.PlacementLoweringTicks) }); }
+                // Ground release is its own boundary. The existing seating/contact simulation starts next step.
+                continue;
+            }
             var nearest = targets.OrderBy(request => Vector3.DistanceSquared(mine.Position, request.Observation.Physics.Position)).FirstOrDefault();
             Vector3? target = nearest?.Observation.Physics.Position;
             if (moveMine is null) { movingMines.Add(mine); continue; }
             var candidate = mine.Advance(target, Configuration);
             var motion = moveMine(mine, candidate);
             motion.State.Validate();
-            if (motion.State.Id != mine.Id || motion.State.Owner != mine.Owner || motion.State.SeatingTicks != candidate.SeatingTicks ||
+            if (motion.State.IsPlacing || motion.State.Id != mine.Id || motion.State.Owner != mine.Owner || motion.State.SeatingTicks != candidate.SeatingTicks ||
                 Vector3.Distance(motion.State.Position, candidate.Position) > 2 ||
                 (motion.ContactVehicle != 0 && !requests.Any(request => request.VehicleId == motion.ContactVehicle)))
             { throw new ArgumentException("Invalid host mine motion observation."); }
@@ -460,6 +481,7 @@ public sealed class ItemAuthority
         }
 
         advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract));
+        movingMines.RemoveAll(mine => mine.IsPlacing && !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == mine.Owner && vehicle.LifeId == mine.PlacementLife && vehicle.CanInteract));
         if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { advanced.RemoveAll(missile => missile.Arc is not null); }
         bool reliableChanged = !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) ||
             !patches.SequenceEqual(_patches) || !contacts.SequenceEqual(_contacts) || journal.Count > 0 ||
