@@ -6,20 +6,14 @@ namespace Trackstorm.Client.Items;
 internal sealed partial class ProxyMineExplosion : Node3D
 {
     internal const string PlumeTexturePath = "res://assets/effects/ProxyMinePlume.png";
+    internal const string PressureWaveShaderPath = "res://assets/effects/ProxyMinePressureWave.gdshader";
     internal const float Duration = 3.8f;
 
-    private readonly StandardMaterial3D _ringMaterial = new()
+    private ShaderMaterial _waveMaterial = null!;
+    private readonly MeshInstance3D _wave = new()
     {
-        Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
-        ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
-        AlbedoColor = new Color(0.72f, 0.67f, 0.57f, 0),
-        CullMode = BaseMaterial3D.CullModeEnum.Disabled,
-    };
-    private readonly MeshInstance3D _ring = new()
-    {
-        Mesh = new TorusMesh { InnerRadius = 0.94f, OuterRadius = 1, Rings = 80, RingSegments = 8 },
+        Mesh = new PlaneMesh { Size = Vector2.One },
         CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
-        Position = new Vector3(0, 0.12f, 0),
     };
     private readonly StandardMaterial3D _plumeMaterial = new()
     {
@@ -37,19 +31,39 @@ internal sealed partial class ProxyMineExplosion : Node3D
 
     public override void _Ready()
     {
-        _ring.MaterialOverride = _ringMaterial;
-        AddChild(_ring);
+        _waveMaterial = new ShaderMaterial
+        {
+            Shader = Networking.MatchResourceLoader.LoadResource<Shader>(PressureWaveShaderPath),
+        };
+        _wave.MaterialOverride = _waveMaterial;
+        AddChild(_wave);
+        // The authoritative impact is at the Mine, which can sit above uneven terrain.
+        // Place the cosmetic front on the actual ground so it remains readable.
+        using (var ray = PhysicsRayQueryParameters3D.Create(GlobalPosition + Vector3.Up * 2,
+            GlobalPosition + Vector3.Down * 4, 1))
+        {
+            var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
+            if (hit.Count > 0)
+            {
+                Vector3 normal = hit["normal"].AsVector3().Normalized();
+                if (normal.Y >= 0.55f)
+                {
+                    _wave.GlobalPosition = hit["position"].AsVector3() + normal * 0.06f;
+                    _wave.Quaternion = new Quaternion(Vector3.Up, normal);
+                }
+            }
+        }
         _plumeMaterial.AlbedoTexture = Networking.MatchResourceLoader.LoadResource<Texture2D>(PlumeTexturePath);
         _plume.MaterialOverride = _plumeMaterial;
         AddChild(_plume);
 
         // A broad, heavy ground burst precedes the lighter dust that climbs and disperses.
-        AddChild(Dust(104, 1.7f, 3.2f, 6.2f, 0.38f, 0.85f,
-            new Color(0.35f, 0.28f, 0.21f, 0.55f), 74, new Vector3(0, -0.8f, 0), 0.34f));
-        AddChild(Dust(64, 2.5f, 1.2f, 2.4f, 0.48f, 1.05f,
-            new Color(0.39f, 0.35f, 0.29f, 0.31f), 86, new Vector3(0, 0.1f, 0), 0.42f));
-        var risingDust = Dust(96, 3.1f, 4.8f, 8.2f, 0.54f, 1.25f,
-            new Color(0.42f, 0.38f, 0.32f, 0.32f), 44, new Vector3(0, -1.1f, 0), 0.32f);
+        AddChild(Dust(104, 1.7f, 4.5f, 9.0f, 0.8f, 1.9f,
+            new Color(0.35f, 0.28f, 0.21f, 0.35f), 78, new Vector3(0, -0.8f, 0), 0.5f));
+        AddChild(Dust(64, 2.5f, 2.0f, 4.0f, 0.95f, 2.2f,
+            new Color(0.39f, 0.35f, 0.29f, 0.2f), 86, new Vector3(0, 0.1f, 0), 0.6f));
+        var risingDust = Dust(96, 3.1f, 7.0f, 13.0f, 1.1f, 2.8f,
+            new Color(0.42f, 0.38f, 0.32f, 0.2f), 50, new Vector3(0, -1.2f, 0), 0.5f);
         risingDust.Position = new Vector3(0, 0.3f, 0);
         AddChild(risingDust);
 
@@ -95,28 +109,28 @@ internal sealed partial class ProxyMineExplosion : Node3D
         _age += (float)delta;
         if (_age >= Duration) { QueueFree(); return; }
 
-        // The ring is a short cosmetic pressure cue; only the contacted car receives impulse.
+        // The diffuse ground front is cosmetic; only the contacted car receives impulse.
         float wave = Mathf.Clamp(_age / 0.54f, 0, 1);
         float radius = 0.35f + 5.9f * Mathf.SmoothStep(0, 1, wave);
-        _ring.Scale = new Vector3(radius, 0.16f, radius);
-        _ringMaterial.AlbedoColor = new Color(0.73f, 0.68f, 0.58f, 0.44f * (1 - wave));
-        _ring.Visible = wave < 1;
+        _wave.Scale = new Vector3(radius * 2.55f, 1, radius * 2.55f);
+        _waveMaterial.SetShaderParameter("opacity", 0.85f * (1 - wave));
+        _wave.Visible = wave < 1;
 
         // One large textured volume ties the near-ground dust to the higher particle cloud.
         float rise = Mathf.SmoothStep(0.1f, 2.25f, _age);
         float opacity = Mathf.SmoothStep(0.08f, 0.4f, _age) *
             (1 - Mathf.SmoothStep(1.85f, 3.45f, _age));
         _plume.Visible = opacity > 0.001f;
-        _plume.Scale = new Vector3(3.2f + 4.0f * rise, 2.3f + 2.5f * rise, 1);
-        _plume.Position = new Vector3(0, 0.95f + 4.45f * rise, 0);
-        _plumeMaterial.AlbedoColor = new Color(0.48f, 0.42f, 0.34f, 0.4f * opacity);
+        _plume.Scale = new Vector3(9.6f + 12.0f * rise, 6.9f + 7.5f * rise, 1);
+        _plume.Position = new Vector3(0, 2.85f + 13.35f * rise, 0);
+        _plumeMaterial.AlbedoColor = new Color(0.48f, 0.42f, 0.34f, 0.19f * opacity);
     }
 
     public override void _ExitTree()
     {
-        _ring.MaterialOverride = null;
+        _wave.MaterialOverride = null;
         _plume.MaterialOverride = null;
-        _ringMaterial.Dispose();
+        _waveMaterial.Dispose();
         _plumeMaterial.Dispose();
     }
 
@@ -141,7 +155,7 @@ internal sealed partial class ProxyMineExplosion : Node3D
             OneShot = true,
             Explosiveness = 0.9f,
             LocalCoords = false,
-            VisibilityAabb = new Aabb(new Vector3(-10, -2, -10), new Vector3(20, 17, 20)),
+            VisibilityAabb = new Aabb(new Vector3(-18, -2, -18), new Vector3(36, 30, 36)),
             ProcessMaterial = new ParticleProcessMaterial
             {
                 Direction = Vector3.Up,

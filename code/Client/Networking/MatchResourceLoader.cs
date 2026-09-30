@@ -10,6 +10,7 @@ internal sealed class MatchResourceLoader
     [
         "res://assets/effects/BoostFlame.gdshader",
         Items.ProxyMineExplosion.PlumeTexturePath,
+        Items.ProxyMineExplosion.PressureWaveShaderPath,
         Items.ProxyMineScar.ShaderPath,
         "res://assets/effects/BoostThroat.gdshader",
         Vehicles.BoostExhaust.AssetPath,
