@@ -27,7 +27,7 @@ internal sealed class DrivingInputShapingTests
         }
 
         Assert.That(input, Is.EqualTo(-1));
-        for (int tick = 0; tick <= rate; tick++)
+        for (int tick = 0; tick <= Math.Ceiling(rate / tuning.SteeringReturn); tick++)
         {
             input = DrivingInputShaping.Approach(input, 0, tuning.SteeringReturn, 1f / rate);
         }

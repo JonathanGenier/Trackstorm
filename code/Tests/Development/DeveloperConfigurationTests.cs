@@ -364,7 +364,7 @@ internal sealed class DeveloperConfigurationTests
             foreach (var host in new[] { baseline, tuned })
             {
                 var old = host.World.GetVehicle(1);
-                var movement = new VehicleState(0, physics, true, true, straight ? 0 : 0.1f, straight ? 0 : 0.7f, longitudinalAcceleration: straight ? 0 : 2, lateralAcceleration: straight ? 0 : 8);
+                var movement = new VehicleState(0, physics, true, true, straight ? 0 : 0.1f, straight ? 0 : 0.7f, longitudinalAcceleration: straight ? 0 : 2, lateralAcceleration: straight ? 0 : 8, throttle: key == "vehicle.drive_traction_reserve" ? 1 : 0);
                 host.World.Restore(new SimulationState(0, default, [new VehicleSnapshot(1, 1, movement, old.Damage, physics)], host.World.State.Match));
             }
 

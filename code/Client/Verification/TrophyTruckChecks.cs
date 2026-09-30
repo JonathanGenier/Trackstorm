@@ -230,7 +230,9 @@ public sealed partial class TrophyTruckChecks : Node3D
         await Setup(network, "driving", new(0, VehicleDimensions.RideHeight, 0), N.Quaternion.Identity);
         _pilot = (tick, _) => new(tick, 0, ushort.MaxValue, 0, 0, 0, 0);
         await Frames(120);
-        Check(_world.GetVehicle(1).Speed > 27.78f, _case + " reaches 100 km/h within two seconds on dirt");
+        Check(_world.GetVehicle(1).Speed is > 10 and < 27.78f, _case + " builds through intermediate dirt speed instead of reaching 100 km/h immediately");
+        await Frames(120);
+        Check(_world.GetVehicle(1).Speed > 27.78f, _case + " retains powerful acceleration past 100 km/h within four seconds on dirt");
         _pilot = (tick, _) => new(tick, 18000, 30000, 0, 0, 0, 0);
         await Frames(90);
         Check(_world.GetVehicle(1).Movement.Physics.AngularVelocity.Y < -0.15f, _case + " responds to fast right steering");

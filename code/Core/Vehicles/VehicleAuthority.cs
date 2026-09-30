@@ -141,7 +141,7 @@ internal sealed class VehicleAuthority
         var previous = Snapshot;
         var m = previous.Movement;
         int oilTicks = (int)MathF.Ceiling(m.OilTicks * movement.OilRecoverySeconds * movement.TicksPerSecond / (_movementConfiguration.OilRecoverySeconds * _movementConfiguration.TicksPerSecond));
-        var adjusted = new VehicleState(m.Tick, m.Physics, m.Grounded, m.Drifting, Math.Clamp(m.SteeringAngle, -movement.SteeringAngle, movement.SteeringAngle), m.Handbrake, m.CurrentSurface, m.FrontSlip, m.RearSlip, m.LongitudinalAcceleration, m.LateralAcceleration, m.LandingIntensity, m.Wheels, Math.Min(2400, oilTicks), m.Nitro, m.PowerSlip, m.Air, m.CrashSeconds, m.Throttle);
+        var adjusted = new VehicleState(m.Tick, m.Physics, m.Grounded, m.Drifting, Math.Clamp(m.SteeringAngle, -movement.SteeringAngle, movement.SteeringAngle), m.Handbrake, m.CurrentSurface, m.FrontSlip, m.RearSlip, m.LongitudinalAcceleration, m.LateralAcceleration, m.LandingIntensity, m.Wheels, Math.Min(2400, oilTicks), m.Nitro, m.PowerSlip, m.Air, m.CrashSeconds, m.Throttle, m.BrakeMode);
         var health = new VehicleDamageState(damage.MaxHP, previous.Damage.CurrentHP / previous.Damage.MaxHP * damage.MaxHP, previous.Damage.LastDamage, previous.Damage.LastCollisionTick);
         var result = new VehicleAuthority(previous.VehicleId, movement, damage, previous.ObservedPhysics);
         result.Commit(new VehicleSnapshot(previous.VehicleId, previous.LifeId, adjusted, health, previous.ObservedPhysics, previous.Effects, previous.Lifecycle, previous.RespawnAtTick, previous.Landing, previous.OutOfBounds));

@@ -211,7 +211,7 @@ internal sealed class DeveloperOptionsTests
 
         Assert.That(draft.IsDirty, Is.True);
         Assert.That(draft.Get("damage.max_hp"), Is.EqualTo("1000"));
-        Assert.That(draft.Get("vehicle.acceleration"), Is.EqualTo("55"));
+        Assert.That(draft.Get("vehicle.acceleration"), Is.EqualTo("24"));
         Assert.That(draft.Get("items.missile_speed"), Is.EqualTo("120"));
         Assert.That(host.Configuration, Is.EqualTo(before));
         Assert.That(store.Current, Is.EqualTo(before.Configuration));
@@ -330,7 +330,7 @@ internal sealed class DeveloperOptionsTests
 
     private static void AssertReleaseTuning(GameplayConfiguration configuration)
     {
-        Assert.That(configuration.Vehicle.Acceleration, Is.EqualTo(55));
+        Assert.That(configuration.Vehicle.Acceleration, Is.EqualTo(24));
         Assert.That(configuration.Vehicle.TireFriction, Is.EqualTo(1.9f));
         Assert.That(configuration.Vehicle.FrontDriveShare, Is.Zero);
         Assert.That(configuration.Damage.CollisionScale, Is.EqualTo(5));

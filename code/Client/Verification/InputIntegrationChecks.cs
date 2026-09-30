@@ -204,7 +204,7 @@ public sealed partial class InputIntegrationChecks : Node
         InputFrame held = _player.Adapter.Capture(5);
         Send(new InputEventKey { PhysicalKeycode = Key.Tab, Pressed = false });
         InputFrame release = _player.Adapter.Capture(6);
-        Check(press.Pressed == InputButtons.Leaderboard && held.Held == InputButtons.Leaderboard && held.Pressed == 0 && release.Released == InputButtons.Leaderboard, "Leaderboard press/hold/release");
+        Check(press.Pressed == InputButtons.Leaderboard && held.Held == (vehicle.Held | InputButtons.Leaderboard) && held.Pressed == 0 && release.Released == InputButtons.Leaderboard, "Leaderboard press/hold/release");
         foreach (InputFrame frame in new[] { press, held, release })
         {
             Check(frame.Steering == vehicle.Steering && frame.Accelerate == vehicle.Accelerate && frame.Brake == vehicle.Brake, "Leaderboard does not change vehicle axes");

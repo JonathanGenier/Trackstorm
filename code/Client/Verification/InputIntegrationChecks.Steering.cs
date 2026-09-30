@@ -10,6 +10,7 @@ public sealed partial class InputIntegrationChecks
     private void VerifySteeringPrecision()
     {
         VerifyPedalPrecision();
+        VerifyBrakeEdges();
         foreach (Key key in new[] { Key.A, Key.D })
         {
             _player.Adapter.Enabled = false;
@@ -86,6 +87,30 @@ public sealed partial class InputIntegrationChecks
             var neutral = _player.Adapter.Capture(33);
             Check((brake ? neutral.Brake : neutral.Accelerate) == 0, "released digital tail cannot reappear after analog release");
         }
+    }
+
+    private void VerifyBrakeEdges()
+    {
+        foreach (bool analog in new[] { false, true })
+        {
+            _player.Adapter.Enabled = false; _player.Adapter.Capture(0); _player.Adapter.Enabled = true;
+            void Pedal(bool down)
+            {
+                if (analog) { Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.TriggerLeft, AxisValue = down ? 0.575f : 0 }); }
+                else { Send(new InputEventKey { PhysicalKeycode = Key.S, Pressed = down }); }
+            }
+            Pedal(true);
+            var first = _player.Adapter.Capture(1);
+            Check((first.Pressed & InputButtons.Brake) != 0, "keyboard/partial analog brake records raw press independently of pedal ramp");
+            for (ulong tick = 2; tick <= 10; tick++) { _player.Adapter.Capture(tick); }
+            Pedal(false);
+            Pedal(true);
+            var repeated = _player.Adapter.Capture(11);
+            Check((repeated.Pressed & repeated.Released & repeated.Held & InputButtons.Brake) != 0, "quick release/repress survives within one capture for deliberate reverse");
+            Pedal(false);
+            _player.Adapter.Capture(12);
+        }
+        _player.Adapter.Enabled = false; _player.Adapter.Capture(0); _player.Adapter.Enabled = true;
     }
 
 }

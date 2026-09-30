@@ -21,10 +21,10 @@ internal sealed class ThrottleResponseTests
             movement.Step(new(tick, 0, 65535, 0, 0, 0, 0), Pose, Vector3.UnitY);
             Assert.That(movement.State.Throttle, Is.GreaterThan(before).And.LessThan(before + 0.04f));
         }
-        Assert.That(movement.State.Throttle, Is.InRange(0.65f, 0.68f));
+        Assert.That(movement.State.Throttle, Is.InRange(0.53f, 0.55f));
         var restored = new VehicleMovement(new(), Pose);
         restored.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(movement.State)));
-        for (ulong tick = 31; tick <= 240; tick++)
+        for (ulong tick = 31; tick <= 300; tick++)
         {
             ushort pedal = tick < 60 ? (ushort)0 : tick < 90 ? (ushort)20000 : ushort.MaxValue;
             var input = new Trackstorm.Core.Input.InputFrame(tick, 12000, pedal, 0, 0, 0, 0);

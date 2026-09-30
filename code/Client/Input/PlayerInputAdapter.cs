@@ -8,6 +8,7 @@ internal sealed class PlayerInputAdapter
     private static readonly (InputAction Action, InputButtons Button)[] DigitalActions =
     [
         (InputAction.Drift, InputButtons.Drift),
+        (InputAction.Brake, InputButtons.Brake),
         (InputAction.AirRoll, InputButtons.AirRoll),
         (InputAction.UseItem, InputButtons.UseItem),
         (InputAction.SwitchItem, InputButtons.SwitchItem),
@@ -140,7 +141,7 @@ internal sealed class PlayerInputAdapter
                     }
                 }
 
-                if (strength > 0.5f)
+                if (strength > (action == InputAction.Brake ? 0 : 0.5f))
                 {
                     held |= button;
                 }

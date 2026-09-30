@@ -78,7 +78,7 @@ Host-local schema 2 migrates the old default wheelbase, load height and suspensi
 
 | Gameplay key | Canonical owning property in the hosted preset | Release default |
 | --- | --- | --- |
-| `vehicle.acceleration` | `VehicleConfiguration.Acceleration` | 55 |
+| `vehicle.acceleration` | `VehicleConfiguration.Acceleration` | 24 |
 | `vehicle.stop_speed` | `VehicleConfiguration.StopSpeed` | 0.05f |
 | `vehicle.reverse_acceleration` | `VehicleConfiguration.ReverseAcceleration` | 8 |
 | `vehicle.forward_speed` | `VehicleConfiguration.ForwardSpeed` | 44.44f |
@@ -238,7 +238,7 @@ Nitro exposes `items.nitro_consumption_per_second`, `items.nitro_forward_thrust`
 
 The Dirt category exposes `vehicle.dirt_steering_reserve` (default 0.95, range 0–1) and `vehicle.dirt_recovery` (default 4/s, range 0–10/s). These control front-wheel authority during saturated slides and bounded slide-yaw recovery respectively; zero disables the corresponding contribution. They use the existing complete shared Apply/Cancel and authoritative Reset transaction, schema-two file defaults for missing keys, configuration version thirty-one, and resume/migration configuration boundary. `DirtRecoveryTests` checks isolation, recovery and continuation; `DeveloperConfigurationTests` checks each control's actual trajectory effect. No additional serialized vehicle memory is introduced.
 
-The Vehicle category exposes `vehicle.steering_smoothing` (0.22 seconds), `vehicle.dirt_power_slip` (0.22 maximum rear lateral grip reduction), `vehicle.power_slip_response` (2/s) and `vehicle.power_slip_recovery` (2.5/s). They use the same shared Apply/Reset, session state, reliable revision and checkpoint paths. Steering smoothing accepts 0.01–1 seconds, power slip 0–0.8, and the two rates 0.1–20/s. Braking defaults to 95 m/s² and grass grip to 1.9. [Vehicles](vehicles.md) owns the force and recovery semantics.
+The Vehicle category exposes `vehicle.steering_smoothing` (0.26 seconds), `vehicle.dirt_power_slip` (0.22 maximum rear lateral grip reduction), `vehicle.power_slip_response` (2/s) and `vehicle.power_slip_recovery` (2.5/s). They use the same shared Apply/Reset, session state, reliable revision and checkpoint paths. Steering smoothing accepts 0.01–1 seconds, power slip 0–0.8, and the two rates 0.1–20/s. Braking defaults to 95 m/s² and grass grip to 1.9. [Vehicles](vehicles.md) owns the force and recovery semantics.
 
 ## Surface tuning
 
@@ -287,7 +287,7 @@ The Air control category uses the same staged Apply/Cancel and immediate Reset, 
 `VehicleMovement` consumes the first eleven values through the existing authority and prediction paths; the last value also reaches both native adapters and wheel ray observations. No orientation target, leveling strength or redundant torque multiplier exists. `AirControlTests`, native `check-air-control.ps1`, and release-default coverage verify this mapping and continuation. Configuration version 32 carries the complete 200-key catalog; old layouts are rejected.
 ## Collision and destruction tuning
 
-Vehicle defaults target a 1400 kg arcade trophy truck: acceleration 55 and braking
+Vehicle defaults target a 1400 kg arcade trophy truck: acceleration 24 and braking
 95 m/s² at the retained 900 kg reference mass, with progressive steering and rear-lock
 handbrake tuning. `vehicle.front_drive_share` defaults to 0, range 0–1, and uses
 the existing complete validation, Apply/Reset, persistence and recovery boundary.
@@ -400,15 +400,15 @@ The following previously fixed values now use the same Configs draft, validation
 ### Rear-drive handling controls
 
 The Vehicle category exposes `vehicle.rear_drive_grip` (1.6, range 0.1–4),
-`vehicle.brake_grip` (1.5, 0.1–4), `vehicle.power_oversteer` (0.8, 0–0.9), and
+`vehicle.brake_grip` (2, 0.1–4), `vehicle.power_oversteer` (0.8, 0–0.9), and
 `vehicle.spin_drive_loss` (0.7, 0–0.9). The first two scale longitudinal tire
 capacity; the latter two govern steering/torque-induced rear grip loss through
 existing PowerSlip continuation. These use the same 200-value host-owned
-configuration, Apply/Reset, persistence, prediction and reliable version-30 codec.
-Steering rate is 0.95 rad/s, smoothing is 0.22 s, lateral response is 26/s;
+configuration, Apply/Reset, persistence, prediction and reliable version-32 codec.
+Steering rate is 0.95 rad/s, smoothing is 0.26 s, lateral response is 26/s;
 the full maximum wheel angle remains available at all speeds.
 
-The Vehicle category also exposes `vehicle.throttle_rise_time` (0.45 s) and
+The Vehicle category also exposes `vehicle.throttle_rise_time` (0.65 s) and
 `vehicle.throttle_fall_time` (0.12 s), each validated from 0.01–3 seconds.
 These are engine-demand time constants, independent of maximum engine force,
 steering angle, steering transition rate and chassis response. Braking/disabled
@@ -421,7 +421,7 @@ steering overrides are retained; Reset + Apply selects the new response defaults
 ### Digital controls and asphalt purchase
 
 The existing shared configuration includes `input.steering_rise` (0.5/s),
-`input.steering_return` (1/s) and `input.steering_reversal` (1.2/s), each finite
+`input.steering_return` (0.9/s) and `input.steering_reversal` (1.1/s), each finite
 in 0.1–60/s. `GameplayConfiguration.Input` is the existing `DrivingInputShaping`
 record, consumed by local capture before integer frames are recorded. The same group
 exposes `input.throttle_rise`/`input.throttle_release` (2.5/4 per second) and
@@ -437,3 +437,5 @@ ramps and supersede released keyboard tails. Brake tire purchase uses the existi
 controls default to 2 and 1.9. These scale supported tire capacity; no extra
 vertical force, steering-angle restriction or parallel settings store is used.
 Saved overrides remain authoritative until Reset/Apply.
+
+Forward power buildup uses existing `vehicle.acceleration` (24 at reference mass), `vehicle.throttle_rise_time` (0.65 seconds) and `vehicle.throttle_fall_time` (0.12 seconds). The forward cap remains 44.44 m/s. Deliberate reverse gating is an input/drive rule rather than a tunable alternative mode; it does not change braking force. No configuration keys or payload fields were added for this refinement.

@@ -30,4 +30,6 @@ public enum InputButtons : ushort
 	SwitchItem = 1024,
 	/// <summary>Hold to replace airborne yaw with roll.</summary>
 	AirRoll = 2048,
+	/// <summary>Unsmoothed brake intent edges; pedal strength remains the independent analog axis.</summary>
+	Brake = 4096,
 }

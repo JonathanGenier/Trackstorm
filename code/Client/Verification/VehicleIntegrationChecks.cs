@@ -331,7 +331,7 @@ public sealed partial class VehicleIntegrationChecks : Node
         {
             List<VehicleState> acceleration = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -speed), 90, tick => Frame(tick, throttle: 65535));
             GD.Print($"Acceleration: entry={speed}, final={acceleration.Last().CommandSpeed:F3}");
-            Check(acceleration.Take(6).Any(state => state.Grounded && state.LongitudinalAcceleration > 4) && acceleration.Last().CommandSpeed > speed + 8, "standing/low/cruising speed throttle produces immediate sustained acceleration");
+            Check(acceleration.Take(30).Any(state => state.Grounded && state.LongitudinalAcceleration > 4) && acceleration.Last().CommandSpeed > speed + 8, "standing/low/cruising speed throttle builds useful acceleration within half a second and sustains it");
         }
 
         List<VehicleState> braking = await RunDrive(new Vector3(-20, VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -12), 90, tick => Frame(tick, brake: tick <= 30 ? (ushort)65535 : (ushort)0, throttle: tick > 30 ? (ushort)65535 : (ushort)0));
@@ -365,7 +365,7 @@ public sealed partial class VehicleIntegrationChecks : Node
     {
         List<VehicleState> braking = await RunDrive(new Vector3(-25, VehicleDimensions.RideHeight, 20), new Vector3(0, 0, -12), 180, tick => Frame(tick, brake: 65535));
         GD.Print($"Brake check: end velocity={braking.Last().Physics.LinearVelocity}, distance={20 - braking.Min(state => state.Physics.Position.Z):F2}m");
-        Check(braking.First().Physics.LinearVelocity.Z < -10 && braking.Any(state => Math.Abs(state.Physics.LinearVelocity.Z) < 0.5f) && braking.Last().Physics.LinearVelocity.Z > 2, "native braking slows forward travel through rest before reversing");
+        Check(braking.First().Physics.LinearVelocity.Z < -10 && braking.Any(state => Math.Abs(state.Physics.LinearVelocity.Z) < 0.5f) && Math.Abs(braking.Last().Physics.LinearVelocity.Z) < 0.05f, "native braking holds rest until a separate reverse press");
         List<VehicleState> stationary = await RunDrive(new Vector3(-25, VehicleDimensions.RideHeight, 20), Vector3.Zero, 60, tick => Frame(tick, steering: 32767, drift: tick < 50));
         Check(stationary.All(state => !state.Drifting), "stationary handbrake cannot manufacture sliding");
         List<VehicleState> airborne = await RunDrive(new Vector3(-25, 8, 20), new Vector3(0, 15, -15), 30, tick => Frame(tick, steering: 32767, drift: tick < 20));
@@ -445,6 +445,13 @@ public sealed partial class VehicleIntegrationChecks : Node
             if (_arena.Player.Position.Z > 18)
             {
                 reversing = false;
+            }
+
+            // Forward braking now holds at zero until the driver releases and presses again.
+            if (reversing && _arena.Player.State.BrakeMode == BrakeMode.Stopping
+                && Math.Abs(_arena.Player.State.Physics.LinearVelocity.Z) < 0.0001f)
+            {
+                return Frame(tick);
             }
 
             return reversing ? Frame(tick, brake: 65535) : Frame(tick, throttle: 65535);

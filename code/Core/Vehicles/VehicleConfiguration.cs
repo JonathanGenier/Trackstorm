@@ -37,9 +37,9 @@ public sealed record VehicleConfiguration
     /// <summary>Body mass in kilograms.</summary>
     public float Mass { get; init; } = 1400;
     /// <summary>Forward acceleration in metres per second squared.</summary>
-    public float Acceleration { get; init; } = 55;
+    public float Acceleration { get; init; } = 24;
     /// <summary>Seconds for engine demand to close 63 percent of an increasing pedal change.</summary>
-    public float ThrottleRiseTime { get; init; } = 0.45f;
+    public float ThrottleRiseTime { get; init; } = 0.65f;
     /// <summary>Seconds for engine demand to close 63 percent of a decreasing pedal change.</summary>
     public float ThrottleFallTime { get; init; } = 0.12f;
     /// <summary>Braking deceleration.</summary>
@@ -69,7 +69,7 @@ public sealed record VehicleConfiguration
     /// <summary>Wheel angle transition rate in radians per second.</summary>
     public float SteeringResponse { get; init; } = 0.95f;
     /// <summary>Time constant for progressive wheel corrections, independent of speed.</summary>
-    public float SteeringSmoothing { get; init; } = 0.22f;
+    public float SteeringSmoothing { get; init; } = 0.26f;
     /// <summary>Low/medium dirt corner authority multiplier; fades out by 28 m/s.</summary>
     public float DirtCornering { get; init; } = 1;
     /// <summary>Speed through which the extra dirt tire budget is fully available, m/s.</summary>

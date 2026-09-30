@@ -27,6 +27,9 @@ internal sealed class VehicleMovementTests
             GroundStep(movement, brake: 65535);
         }
 
+        Assert.That(movement.State.Physics.LinearVelocity.Z, Is.EqualTo(0).Within(0.001));
+        GroundStep(movement);
+        for (int index = 0; index < 1800; index++) { GroundStep(movement, brake: 65535); }
         Assert.That(movement.State.Physics.LinearVelocity.Z, Is.EqualTo(11).Within(0.001));
         GroundStep(movement, throttle: 65535);
         Assert.That(movement.State.Physics.LinearVelocity.Z, Is.LessThan(11).And.GreaterThan(0));
@@ -53,6 +56,9 @@ internal sealed class VehicleMovementTests
             GroundStep(movement, brake: 65535);
         }
 
+        Assert.That(movement.State.Physics.LinearVelocity.Z, Is.EqualTo(0).Within(0.001));
+        GroundStep(movement);
+        for (int index = 0; index < 1800; index++) { GroundStep(movement, brake: 65535); }
         Assert.That(movement.State.Physics.LinearVelocity.Z, Is.EqualTo(4).Within(0.001));
     }
 

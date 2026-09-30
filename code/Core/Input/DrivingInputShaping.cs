@@ -26,9 +26,9 @@ public sealed record DrivingInputShaping
     /// <summary>Steering rise per second.</summary>
     public float SteeringRise { get; init; } = 0.5f;
     /// <summary>Steering return per second.</summary>
-    public float SteeringReturn { get; init; } = 1;
+    public float SteeringReturn { get; init; } = 0.9f;
     /// <summary>Steering reversal per second.</summary>
-    public float SteeringReversal { get; init; } = 1.2f;
+    public float SteeringReversal { get; init; } = 1.1f;
 
     /// <summary>Moves toward bounded intent without overshoot; finite rates and a fixed timestep are required.</summary>
     /// <param name="current">Previous shaped intent.</param>

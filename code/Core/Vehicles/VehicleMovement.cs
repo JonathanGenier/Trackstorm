@@ -136,6 +136,15 @@ public sealed class VehicleMovement
         // aerial controls retain the raw pedals and their existing independent input response.
         float throttleTime = pedal > State.Throttle ? c.ThrottleRiseTime : c.ThrottleFallTime;
         float throttle = !driveEnabled || brake > 0 ? 0 : State.Throttle + (pedal - State.Throttle) * (1 - MathF.Exp(-dt / throttleTime));
+        BrakeMode brakeMode = State.BrakeMode;
+        bool newBrakePress = (input.Pressed & input.Held & InputButtons.Brake) != 0;
+        if (!driveEnabled || brake == 0) { brakeMode = BrakeMode.Ready; }
+        else if ((input.Released & InputButtons.Brake) != 0) { brakeMode = BrakeMode.ReleaseTail; }
+        if (grounded && brake > 0 && (brakeMode == BrakeMode.Ready || newBrakePress))
+        {
+            // Ignore floating-point rest noise, not perceptible forward creep.
+            brakeMode = longitudinal > 0.0001f ? BrakeMode.Stopping : BrakeMode.Reversing;
+        }
         float longAcceleration = 0;
         float sideAcceleration = 0;
         float frontSlip = 0;
@@ -160,7 +169,7 @@ public sealed class VehicleMovement
             float engagementSpeed = c.StopSpeed + c.Braking * forceScale * dt;
             float drive = 0;
             float stopping = 0;
-            if (longitudinal > engagementSpeed && brake > 0)
+            if (brake > 0 && (brakeMode is BrakeMode.Stopping or BrakeMode.ReleaseTail || longitudinal > engagementSpeed))
             {
                 stopping = brake * c.Braking;
             }
@@ -173,7 +182,7 @@ public sealed class VehicleMovement
             {
                 drive = Math.Min(acceleration * throttle * driveModifier * Math.Clamp(1 - MathF.Pow(Math.Max(0, longitudinal) / forwardSpeed, 4), 0, 1), Math.Max(0, forwardSpeed - longitudinal) / dt);
             }
-            else if (brake > 0)
+            else if (brake > 0 && brakeMode == BrakeMode.Reversing)
             {
                 drive = -Math.Min(c.ReverseAcceleration * brake * driveModifier, Math.Max(0, c.ReverseSpeed + longitudinal) / dt);
             }
@@ -404,7 +413,7 @@ public sealed class VehicleMovement
         }
         bool sliding = grounded && Math.Abs(lateral) > 1 && rearSlip > 0.35f;
         var physics = new VehiclePhysicsState(observed.Position, observed.Orientation, Limit(velocity, c.MaximumPhysicsSpeed), Limit(angular, c.MaximumAngularSpeed));
-        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oilTicks, boost, powerSlip, air, crashSeconds, throttle);
+        State = new VehicleState(input.Tick, physics, grounded, sliding, wheel, handbrake, currentSurface, frontSlip, rearSlip, longAcceleration, sideAcceleration, landing, wheels ?? default, oilTicks, boost, powerSlip, air, crashSeconds, throttle, brakeMode);
         return State;
     }
 
