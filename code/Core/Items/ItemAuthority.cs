@@ -127,6 +127,10 @@ public sealed class ItemAuthority
         _slots[vehicle] = inventory.Item == HeldItem.None
             ? inventory with { Token = token, Item = item, NitroCharge = item == HeldItem.Nitro ? 100 : 0, SalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SalvoReadyTick = 0, Ammo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null }
             : inventory with { SecondToken = token, SecondItem = item, SecondNitroCharge = item == HeldItem.Nitro ? 100 : 0, SecondSalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SecondSalvoReadyTick = 0, SecondAmmo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null };
+        if (_slots[vehicle].Active is { Item: HeldItem.Nitro, Token: var selectedToken } && selectedToken == token)
+        {
+            _slots[vehicle] = _slots[vehicle] with { NitroDeploymentTicks = ItemSlot.NitroDeploymentDurationTicks };
+        }
         Revision++;
         ReliableRevision++;
         if (!pickup)
@@ -160,6 +164,10 @@ public sealed class ItemAuthority
         var inventory = _slots.GetValueOrDefault(vehicle) ?? new ItemSlot(vehicle, life, 0, HeldItem.None);
         if (inventory.Life != life || revision <= inventory.SelectionRevision) { return false; }
         _slots[vehicle] = inventory with { ActiveSlot = (byte)(inventory.ActiveSlot ^ ((revision - inventory.SelectionRevision) & 1)), SelectionRevision = revision, EngagedToken = 0 };
+        if (_slots[vehicle].ActiveSlot != inventory.ActiveSlot)
+        {
+            _slots[vehicle] = _slots[vehicle] with { NitroDeploymentTicks = _slots[vehicle].Active.Item == HeldItem.Nitro ? ItemSlot.NitroDeploymentDurationTicks : 0 };
+        }
         Revision++;
         ReliableRevision++;
         return true;
@@ -201,6 +209,10 @@ public sealed class ItemAuthority
             if (state is null || (!state.CanInteract && (world.Respawn?.ClearHeldItemOnDeath ?? true)) || state.LifeId != pair.Value.Life || requests.Any(request => request.VehicleId == pair.Key && request.Reset.HasValue))
             {
                 slots.Remove(pair.Key);
+            }
+            else if (pair.Value.NitroDeploymentTicks > 0 && state.CanInteract)
+            {
+                slots[pair.Key] = pair.Value with { NitroDeploymentTicks = pair.Value.NitroDeploymentTicks - 1 };
             }
         }
 
@@ -316,6 +328,9 @@ public sealed class ItemAuthority
                 if (remainingAmmo is null) { journal.Add(new RuntimeEvent { Category = EventCategory.Item, Kind = "Exhausted", Actor = slot.Vehicle, Cause = "MachineGun", Tick = input.Tick }); }
                 continue;
             }
+            // Deployment is committed with inventory, so delayed/replayed input and recovery
+            // cannot spend charge or apply thrust before the selected hardware is ready.
+            if (inventory.NitroDeploymentTicks > 0) { continue; }
             ItemRegistry.Find(HeldItem.Nitro)!.Handler!.Stage(slot, request.Observation.Physics, Configuration, missiles, repair, patches, placeOil, boosts, mines, placeMine, NextToken, ground);
             double remaining = Math.Max(0, slot.NitroCharge - Configuration.NitroConsumptionPerSecond / 60);
             if (remaining < 1e-9) { remaining = 0; }
@@ -457,7 +472,8 @@ public sealed class ItemAuthority
             }
             else if (state.LifeId != pair.Value.Life)
             {
-                slots[pair.Key] = pair.Value with { Life = state.LifeId, Token = pair.Value.Token == 0 ? 0 : NextToken(), SecondToken = pair.Value.SecondToken == 0 ? 0 : NextToken(), SelectionRevision = 0, EngagedToken = 0 };
+                slots[pair.Key] = pair.Value with { Life = state.LifeId, Token = pair.Value.Token == 0 ? 0 : NextToken(), SecondToken = pair.Value.SecondToken == 0 ? 0 : NextToken(), SelectionRevision = 0, EngagedToken = 0,
+                    NitroDeploymentTicks = pair.Value.Active.Item == HeldItem.Nitro ? ItemSlot.NitroDeploymentDurationTicks : 0 };
             }
         }
 
