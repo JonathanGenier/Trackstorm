@@ -7,7 +7,7 @@ internal sealed partial class ProxyMineExplosion : Node3D
 {
     internal const string FireballTexturePath = "res://assets/effects/ProxyMineFireball.png";
     internal const string PlumeTexturePath = "res://assets/effects/ProxyMinePlume.png";
-    internal const float Duration = 3.2f;
+    internal const float Duration = 4.2f;
 
     private readonly StandardMaterial3D _flashMaterial = new()
     {
@@ -109,7 +109,7 @@ internal sealed partial class ProxyMineExplosion : Node3D
         AddChild(Emitter("spark_01", 48, 0.58f, 4, 10, 0.045f, 0.13f,
             new Color(1, 0.65f, 0.19f), new Vector3(0, -9, 0)));
         // The rising card and particles occupy the fireball's volume during the crossfade.
-        _smokeStem = Emitter("smoke_01", 64, 2.45f, 2.25f, 3.2f, 0.44f, 0.86f,
+        _smokeStem = Emitter("smoke_01", 64, 3.25f, 2.25f, 3.2f, 0.44f, 0.86f,
             new Color(0.22f, 0.21f, 0.2f, 0.43f), new Vector3(0, 0.3f, 0));
         _smokeStem.Position = new Vector3(0, 0.35f, 0);
         _smokeStem.Emitting = false;
@@ -122,7 +122,7 @@ internal sealed partial class ProxyMineExplosion : Node3D
         SetSmokeFade(stemProcess);
         AddChild(_smokeStem);
 
-        _smokeCap = Emitter("smoke_01", 96, 2.45f, 1.7f, 2.5f, 0.68f, 1.25f,
+        _smokeCap = Emitter("smoke_01", 96, 3.25f, 1.7f, 2.5f, 0.68f, 1.25f,
             new Color(0.24f, 0.23f, 0.22f, 0.4f), new Vector3(0, 0.15f, 0));
         _smokeCap.Position = new Vector3(0, 2.3f, 0);
         _smokeCap.Emitting = false;
@@ -154,18 +154,18 @@ internal sealed partial class ProxyMineExplosion : Node3D
         _fireCard.Position = new Vector3(0, 1.05f + 0.45f * Mathf.SmoothStep(0.25f, 0.9f, _age), 0);
         _fireCardMaterial.AlbedoColor = new Color(1, 1, 1, fireFade);
 
-        float smokeRise = Mathf.SmoothStep(0.3f, 1.6f, _age);
+        float smokeRise = Mathf.SmoothStep(0.3f, 2.25f, _age);
         float smokeOpacity = Mathf.SmoothStep(0.29f, 0.83f, _age) *
-            (1 - Mathf.SmoothStep(1.55f, 2.62f, _age));
+            (1 - Mathf.SmoothStep(2.05f, 3.65f, _age));
         _smokeCard.Visible = smokeOpacity > 0.001f;
         _smokeCard.Scale = new Vector3(2.9f + 3.5f * smokeRise, 2.8f + 0.8f * smokeRise, 1);
-        _smokeCard.Position = new Vector3(0, 1.12f + 2.85f * smokeRise, 0);
+        _smokeCard.Position = new Vector3(0, 1.12f + 3.8f * smokeRise, 0);
         _smokeCardMaterial.AlbedoColor = new Color(0.39f, 0.37f, 0.35f, 0.62f * smokeOpacity);
         float columnOpacity = Mathf.SmoothStep(0.36f, 0.83f, _age) *
-            (1 - Mathf.SmoothStep(1.5f, 2.55f, _age));
+            (1 - Mathf.SmoothStep(1.9f, 3.45f, _age));
         _smokeColumnCard.Visible = columnOpacity > 0.001f;
-        _smokeColumnCard.Scale = new Vector3(1.8f + 0.65f * smokeRise, 2.8f + 2.1f * smokeRise, 1);
-        _smokeColumnCard.Position = new Vector3(0, 1.2f + 0.65f * smokeRise, 0);
+        _smokeColumnCard.Scale = new Vector3(1.8f + 0.65f * smokeRise, 2.8f + 3.0f * smokeRise, 1);
+        _smokeColumnCard.Position = new Vector3(0, 1.2f + 1.45f * smokeRise, 0);
         _smokeColumnMaterial.AlbedoColor = new Color(0.37f, 0.35f, 0.33f, 0.35f * columnOpacity);
         _light.LightEnergy = 3.6f * flash + fireFade * Mathf.Min(2.8f, fireGrowth * 2.8f);
 
