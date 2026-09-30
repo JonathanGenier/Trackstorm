@@ -25,7 +25,7 @@ internal sealed class GripPrecisionTests
     [Test]
     public void DigitalRatesAndAsphaltGripUseTheSharedConfigurationTransaction()
     {
-        var edits = new Dictionary<string, double> { ["input.steering_rise"] = 0.8, ["input.steering_return"] = 1.2, ["input.steering_reversal"] = 1.6, ["vehicle.asphalt_grip"] = 2.4 };
+        var edits = new Dictionary<string, double> { ["input.steering_rise"] = 0.8, ["input.steering_return"] = 1.2, ["input.steering_reversal"] = 1.6, ["vehicle.asphalt_grip"] = 2.4, ["input.throttle_rise"] = 2, ["input.throttle_release"] = 3, ["input.brake_rise"] = 8, ["input.brake_release"] = 9 };
         Assert.That(GameplayOptions.TryApply(new(), edits, out var tuned, out _), Is.True);
         Assert.That(GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(1, new(1, tuned))).State.Configuration, Is.EqualTo(tuned));
         foreach (string key in edits.Keys)

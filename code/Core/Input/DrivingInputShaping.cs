@@ -4,29 +4,31 @@ namespace Trackstorm.Core.Input;
 public sealed record DrivingInputShaping
 {
     /// <summary>Approved airborne digital authority; ground precision must not slow aerial commands.</summary>
-    public static DrivingInputShaping Aerial { get; } = new() { SteeringRise = 20, SteeringReturn = 24, SteeringReversal = 30 };
+    public static DrivingInputShaping Aerial { get; } = new() { ThrottleRise = 10, ThrottleRelease = 14, BrakeRise = 18, BrakeRelease = 18, SteeringRise = 20, SteeringReturn = 24, SteeringReversal = 30 };
 
     /// <summary>Rejects invalid digital response rates before configuration publication.</summary>
     public void Validate()
     {
-        if (new[] { ThrottleRise, ThrottleRelease, BrakeRise, SteeringRise, SteeringReturn, SteeringReversal }.Any(value => !float.IsFinite(value) || value is < 0.1f or > 60))
+        if (new[] { ThrottleRise, ThrottleRelease, BrakeRise, BrakeRelease, SteeringRise, SteeringReturn, SteeringReversal }.Any(value => !float.IsFinite(value) || value is < 0.1f or > 60))
         {
             throw new ArgumentException("Input response rates must be finite and between 0.1 and 60 per second.");
         }
     }
 
     /// <summary>Throttle rise per second.</summary>
-    public float ThrottleRise { get; init; } = 10;
+    public float ThrottleRise { get; init; } = 2.5f;
     /// <summary>Throttle release per second.</summary>
-    public float ThrottleRelease { get; init; } = 14;
+    public float ThrottleRelease { get; init; } = 4;
     /// <summary>Brake rise per second.</summary>
-    public float BrakeRise { get; init; } = 18;
+    public float BrakeRise { get; init; } = 8;
+    /// <summary>Brake release per second.</summary>
+    public float BrakeRelease { get; init; } = 10;
     /// <summary>Steering rise per second.</summary>
-    public float SteeringRise { get; init; } = 0.65f;
+    public float SteeringRise { get; init; } = 0.5f;
     /// <summary>Steering return per second.</summary>
-    public float SteeringReturn { get; init; } = 1.4f;
+    public float SteeringReturn { get; init; } = 1;
     /// <summary>Steering reversal per second.</summary>
-    public float SteeringReversal { get; init; } = 1.5f;
+    public float SteeringReversal { get; init; } = 1.2f;
 
     /// <summary>Moves toward bounded intent without overshoot; finite rates and a fixed timestep are required.</summary>
     /// <param name="current">Previous shaped intent.</param>

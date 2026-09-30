@@ -17,6 +17,20 @@ internal static class EnvironmentContact
         return normal;
     }
 
+    /// <summary>Uses the authored triangle face for driveable mesh contact, not a sweep's internal-edge separating axis.</summary>
+    internal static Vector3 SupportFaceNormal(PhysicsBody3D body, GodotObject? collider, Vector3 point, Vector3 normal)
+    {
+        if (normal.Y < 0.55f || collider is not Node terrain || !terrain.IsInGroup("landing_terrain")) { return normal; }
+        // The short vertical probe must hit the same collider at this contact. It cannot
+        // borrow a wheel normal from another surface or flatten an actual ramp/obstacle.
+        using var query = PhysicsRayQueryParameters3D.Create(point + Vector3.Up * 0.1f, point - Vector3.Up * 0.1f,
+            body.CollisionMask, new Godot.Collections.Array<Rid> { body.GetRid() });
+        using var hit = body.GetWorld3D().DirectSpaceState.IntersectRay(query);
+        if (hit.Count == 0 || hit["collider"].AsGodotObject() != collider) { return normal; }
+        Vector3 face = hit["normal"].AsVector3().Normalized();
+        return face.Y >= 0.55f && face.Dot(normal) >= 0.9f ? face : normal;
+    }
+
     internal static bool IsObstacle(GodotObject? collider, Vector3 normal) =>
         collider is StaticBody3D and not Networking.NetworkVehicleBody && normal.Y > -0.55f &&
         (normal.Y < 0.55f || (normal.Y < 0.95f && collider is not SurfaceBody && collider is Node node && !node.IsInGroup("landing_terrain")));

@@ -140,7 +140,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
             remaining = result.GetRemainder();
             for (int i = 0; i < result.GetCollisionCount(); i++)
             {
-                Vector3 normal = result.GetCollisionNormal(i).Normalized();
+                Vector3 normal = EnvironmentContact.SupportFaceNormal(this, result.GetCollider(i), result.GetCollisionPoint(i), result.GetCollisionNormal(i).Normalized());
                 if (EnvironmentContact.IsObstacle(result.GetCollider(i), normal))
                 {
                     normal = EnvironmentContact.ExposedNormal(this, transform.Origin, result.GetCollisionPoint(i), normal);

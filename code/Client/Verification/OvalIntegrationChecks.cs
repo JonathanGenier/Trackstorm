@@ -114,11 +114,19 @@ public sealed partial class OvalIntegrationChecks : Node3D
             _outer = sections.Select(section => ReadVector(section[1])).ToArray();
             _centers = _inner.Zip(_outer, (inner, outer) => (inner + outer) / 2).ToArray();
             await Frames(3);
+            if (OS.GetCmdlineUserArgs().Contains("--oval-bank-contact"))
+            {
+                await VerifyBankSeam();
+                GD.Print("Oval integration passed: reproduced bank-contact regression.");
+                GetTree().Quit();
+                return;
+            }
             VerifyGeometry();
             VerifyCollision();
             VerifyGrid();
             await CaptureViews();
             await VerifyDriving();
+            await VerifyBankSeam();
             await VerifyHandling();
             await VerifyContent();
             _advance = false;

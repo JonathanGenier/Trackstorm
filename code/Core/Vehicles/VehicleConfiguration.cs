@@ -12,7 +12,7 @@ public sealed record VehicleConfiguration
     /// <summary>Seconds of progressive lateral-grip recovery after the last supported Oil contact.</summary>
     public float OilRecoverySeconds { get; init; } = 0.5f;
     /// <summary>Asphalt tire capacity; neutral drag/drive retain approved power and coasting.</summary>
-    public float AsphaltGrip { get; init; } = 2;
+    public float AsphaltGrip { get; init; } = 3;
     /// <summary>Cast surface handling profile.</summary>
     public SurfaceModifiers Concrete { get; init; } = new(1.5f, 1, 0.98f);
     /// <summary>Compacted soil retains controllable drive with modest rolling resistance.</summary>
@@ -49,7 +49,7 @@ public sealed record VehicleConfiguration
     /// <summary>Driven rear tire longitudinal capacity multiplier; leaves lateral grip independent.</summary>
     public float RearDriveGrip { get; init; } = 1.6f;
     /// <summary>Service brake tire capacity multiplier at full pedal.</summary>
-    public float BrakeGrip { get; init; } = 1.5f;
+    public float BrakeGrip { get; init; } = 2;
     /// <summary>Rear lateral grip loss from excess torque and steering commitment.</summary>
     public float PowerOversteer { get; init; } = 0.8f;
     /// <summary>Longitudinal traction loss at full wheelspin.</summary>

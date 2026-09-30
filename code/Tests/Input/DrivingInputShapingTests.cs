@@ -27,7 +27,7 @@ internal sealed class DrivingInputShapingTests
         }
 
         Assert.That(input, Is.EqualTo(-1));
-        for (int tick = 0; tick < rate; tick++)
+        for (int tick = 0; tick <= rate; tick++)
         {
             input = DrivingInputShaping.Approach(input, 0, tuning.SteeringReturn, 1f / rate);
         }
@@ -42,7 +42,7 @@ internal sealed class DrivingInputShapingTests
         var tuning = new DrivingInputShaping();
         float throttle = DrivingInputShaping.Approach(0, 1, tuning.ThrottleRise, 1f / 60);
         float brake = DrivingInputShaping.Approach(0, 1, tuning.BrakeRise, 1f / 60);
-        Assert.That(throttle, Is.InRange(0.1f, 0.2f));
+        Assert.That(throttle, Is.InRange(0.03f, 0.06f));
         Assert.That(brake, Is.GreaterThan(throttle).And.LessThan(0.4f));
         Assert.Throws<ArgumentException>(() => DrivingInputShaping.Approach(0, 1, 0, 1f / 60));
         Assert.Throws<ArgumentException>(() => DrivingInputShaping.Approach(float.NaN, 1, 1, 1f / 60));
@@ -60,7 +60,7 @@ internal sealed class DrivingInputShapingTests
         {
             steering = DrivingInputShaping.Approach(steering, 1, tuning.SteeringRise, 1f / 60);
         }
-        Assert.That(steering, Is.InRange(0.06f, 0.07f));
+        Assert.That(steering, Is.InRange(0.049f, 0.051f));
         for (int tick = 0; tick < 120; tick++)
         {
             steering = DrivingInputShaping.Approach(steering, 1, tuning.SteeringRise, 1f / 60);
