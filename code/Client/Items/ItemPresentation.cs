@@ -11,10 +11,15 @@ internal sealed partial class ItemPresentation : Node3D
     private readonly Dictionary<ulong, Node3D> _oil = new();
     private readonly Dictionary<ulong, Node3D> _missiles = new();
     private readonly List<(Node3D Node, float Age, float Lifetime)> _bursts = new();
+    private readonly List<ProxyMineExplosion> _mineExplosions = new();
+    private readonly List<ProxyMineScar> _mineScars = new();
+    private const int MaximumMineScars = 64;
 
     /// <inheritdoc/>
     public override void _Process(double delta)
     {
+        _mineExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
+        _mineScars.RemoveAll(scar => !GodotObject.IsInstanceValid(scar) || scar.IsQueuedForDeletion());
         for (int i = _bursts.Count - 1; i >= 0; i--)
         {
             var burst = _bursts[i];
@@ -124,6 +129,21 @@ internal sealed partial class ItemPresentation : Node3D
 
         foreach (var outcome in state.Events)
         {
+            if (outcome.Item == HeldItem.ProxyMine && outcome.Impact)
+            {
+                _mineExplosions.RemoveAll(explosion => !GodotObject.IsInstanceValid(explosion) || explosion.IsQueuedForDeletion());
+                // A burst replaces the oldest cosmetic effect when several accepted impacts arrive together.
+                if (_mineExplosions.Count == ItemAuthority.MaximumMines)
+                {
+                    _mineExplosions[0].QueueFree();
+                    _mineExplosions.RemoveAt(0);
+                }
+                var explosion = new ProxyMineExplosion { Position = VehicleBody.ToGodot(outcome.Position) };
+                AddChild(explosion);
+                _mineExplosions.Add(explosion);
+                AddMineScar(VehicleBody.ToGodot(outcome.Position));
+                continue;
+            }
             if (outcome.Item == HeldItem.MachineGun)
             {
                 if (outcome.Tracer) { Tracer(outcome); }
@@ -147,6 +167,30 @@ internal sealed partial class ItemPresentation : Node3D
 
             _bursts.Add((burst, 0, outcome.Impact ? 1.3f : 0.5f));
         }
+    }
+
+    private void AddMineScar(Vector3 detonation)
+    {
+        using var ray = PhysicsRayQueryParameters3D.Create(detonation + Vector3.Up * 2,
+            detonation + Vector3.Down * 4, 1);
+        var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
+        if (hit.Count == 0) { return; }
+        Vector3 normal = hit["normal"].AsVector3().Normalized();
+        if (normal.Y < 0.55f) { return; }
+
+        _mineScars.RemoveAll(scar => !GodotObject.IsInstanceValid(scar) || scar.IsQueuedForDeletion());
+        if (_mineScars.Count == MaximumMineScars)
+        {
+            _mineScars[0].QueueFree();
+            _mineScars.RemoveAt(0);
+        }
+        var mark = new ProxyMineScar
+        {
+            Position = hit["position"].AsVector3() + normal * 0.025f,
+            Quaternion = new Quaternion(Vector3.Up, normal),
+        };
+        AddChild(mark);
+        _mineScars.Add(mark);
     }
 
     /// <summary>Moves only already-created representations; unreliable traffic cannot create an outcome.</summary>
