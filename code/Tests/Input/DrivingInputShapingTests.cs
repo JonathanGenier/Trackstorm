@@ -81,7 +81,6 @@ internal sealed class DrivingInputShapingTests
         {
             Assert.That(tuning.ShapeControllerSteering(magnitude), Is.EqualTo(MathF.Pow(magnitude, 3.5f)).Within(0.000001f));
             Assert.That(tuning.ShapeControllerSteering(-magnitude), Is.EqualTo(-MathF.Pow(magnitude, 3.5f)).Within(0.000001f));
-            Assert.That(DrivingInputShaping.Aerial.ShapeControllerSteering(magnitude), Is.EqualTo(magnitude));
         }
         foreach (float invalid in new[] { float.NaN, float.PositiveInfinity, 0.99f, 4.01f })
             Assert.Throws<ArgumentException>(() => (tuning with { ControllerSteeringExponent = invalid }).Validate());

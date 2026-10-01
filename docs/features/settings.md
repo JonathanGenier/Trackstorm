@@ -15,7 +15,9 @@ The Main Menu and joined Lobby each provide a **Settings** entry. The joined Lob
 | Camera shake | 100% | Gameplay page slider scales collision/damage camera feedback from 0â€“100%; zero disables it immediately. Follow, heading and inertia are unchanged. |
 | Show FPS / Show Ping | Both off | Independent flags update diagnostics visibility immediately. |
 | Invert steering | Off | Applies to the existing signed steering axis. |
-| Analog dead zone | 0.15 | Retained by the existing input/persistence system; not exposed as an additional Settings control. |
+| Controller Deadzone | 0.15 | Controls slider 0–0.95; stick neutral range before ground or aerial response. Existing valid saved values below 1 still load. |
+| Steering Sensitivity | 1.0 | Controls slider 0.1–3; ground controller gain after the precision curve. |
+| Aerial Sensitivity | 1.0 | Controls slider 0.1–3; independent linear controller pitch/yaw/roll gain while Air Control is held. |
 | Input bindings | Input-system defaults | Saved overrides restore physical keys, mouse buttons, gamepad buttons, signed axes, and exact gamepad device IDs. |
 
 Display changes use a 15-second preview. **Keep** commits the requested mode and window size; **Revert**, timeout, or closing the settings editor restores the last confirmed display preferences. Unconfirmed changes never enter the saved snapshot. Resolution selection is disabled in fullscreen because fullscreen uses the desktop mode. Headless runs retain the preferences but do not call native window APIs.
@@ -51,4 +53,6 @@ The diagnostics display consumes a fresh provider-neutral connection projection 
 
 [Feature index](README.md)
 
-Controls includes the held Air Roll action (Shift / left shoulder). It uses normal remapping, explicit unbinding and persistence; standalone Shift is accepted during physical-key capture. See [input](input.md).
+Controls separates controller tuning from button/key rebinding and explains Shift/LB activation, keyboard pitch/yaw/roll and LB+A roll. Air Control defaults to Shift/LB; Air Roll defaults to gamepad A. It uses normal remapping, explicit unbinding and persistence; standalone Shift is accepted during physical-key capture. See [input](input.md).
+
+`steeringSensitivity` and `aerialSensitivity` are optional version-one JSON fields. Missing, wrongly typed or nonfinite values default independently to 1; finite values clamp to 0.1–3. `deadZone` remains the existing field. All three apply immediately, save through the existing debounce/retry path, and survive restart. Restore default bindings leaves scalar tuning intact.

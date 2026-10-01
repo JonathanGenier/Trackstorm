@@ -22,10 +22,13 @@ public sealed class InputFrameCapture
     /// <param name="steering">Quantized signed steering.</param>
     /// <param name="accelerate">Quantized throttle.</param>
     /// <param name="brake">Quantized brake.</param>
+    /// <param name="airPitch">Signed aerial pitch.</param>
+    /// <param name="airYaw">Signed aerial yaw.</param>
+    /// <param name="airRoll">Signed aerial roll.</param>
     /// <returns>The frame with all pending edges.</returns>
-    public InputFrame Capture(ulong tick, short steering, ushort accelerate, ushort brake)
+    public InputFrame Capture(ulong tick, short steering, ushort accelerate, ushort brake, short airPitch = 0, short airYaw = 0, short airRoll = 0)
     {
-        var frame = new InputFrame(tick, steering, accelerate, brake, _held, _pressed, _released);
+        var frame = new InputFrame(tick, steering, accelerate, brake, _held, _pressed, _released, airPitch, airYaw, airRoll);
         _pressed = InputButtons.None;
         _released = InputButtons.None;
         return frame;

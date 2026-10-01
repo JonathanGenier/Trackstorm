@@ -8,6 +8,21 @@ namespace Trackstorm.Core.Tests.Settings;
 internal sealed class PlayerSettingsTests
 {
     /// <summary>Safe startup values match the documented settings contract.</summary>
+    [TestCase(0.1, 3.0)]
+    [TestCase(1.0, 0.1)]
+    [TestCase(3.0, 1.0)]
+    public void ControllerSettingsRoundTripIndependently(double ground, double air)
+    {
+        var original = new PlayerSettings { DeadZone = 0.4, SteeringSensitivity = ground, AerialSensitivity = air };
+        var restored = PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(original));
+        Assert.That(restored.SteeringSensitivity, Is.EqualTo(ground));
+        Assert.That(restored.AerialSensitivity, Is.EqualTo(air));
+        Assert.That(restored.DeadZone, Is.EqualTo(0.4));
+        Assert.That(PlayerSettingsJson.Deserialize("{\"steeringSensitivity\":99,\"aerialSensitivity\":-3}").SteeringSensitivity, Is.EqualTo(3));
+        Assert.That(PlayerSettingsJson.Deserialize("{\"steeringSensitivity\":99,\"aerialSensitivity\":-3}").AerialSensitivity, Is.EqualTo(0.1));
+        Assert.That(new PlayerSettings { AerialSensitivity = double.NaN }.AerialSensitivity, Is.EqualTo(1));
+    }
+
     [Test]
     public void Defaults_AreSafe()
     {
@@ -59,7 +74,7 @@ internal sealed class PlayerSettingsTests
     public void BindingDefaultsRevisionDistinguishesLegacySaves()
     {
         Assert.That(PlayerSettingsJson.Deserialize("{\"version\":1}").BindingDefaultsVersion, Is.Zero);
-        Assert.That(PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(new PlayerSettings())).BindingDefaultsVersion, Is.EqualTo(1));
+        Assert.That(PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(new PlayerSettings())).BindingDefaultsVersion, Is.EqualTo(2));
     }
 
     /// <summary>Malformed or unsupported documents restore defaults.</summary>

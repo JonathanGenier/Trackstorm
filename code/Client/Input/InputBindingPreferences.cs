@@ -26,7 +26,7 @@ internal static class InputBindingPreferences
     /// <returns>Snapshot containing current input preferences.</returns>
     public static PlayerSettings Capture(PlayerInputAdapter adapter, PlayerSettings settings)
     {
-        settings = settings with { InvertSteering = adapter.InvertSteering, DeadZone = adapter.DeadZone, BindingDefaultsVersion = 1 };
+        settings = settings with { InvertSteering = adapter.InvertSteering, DeadZone = adapter.DeadZone, SteeringSensitivity = adapter.SteeringSensitivity, AerialSensitivity = adapter.AerialSensitivity, BindingDefaultsVersion = 2 };
         foreach (InputAction action in Enum.GetValues<InputAction>())
         {
             InputEvent[] bindings = adapter.Bindings.CopyBindings(action);
@@ -53,6 +53,8 @@ internal static class InputBindingPreferences
     {
         adapter.InvertSteering = settings.InvertSteering;
         adapter.DeadZone = (float)settings.DeadZone;
+        adapter.SteeringSensitivity = (float)settings.SteeringSensitivity;
+        adapter.AerialSensitivity = (float)settings.AerialSensitivity;
         // Older saves captured every default as an override, even when only HUD settings changed.
         // Migrate only the intact old item/handbrake pair; any custom pair remains authoritative.
         bool legacyDrivingDefaults = settings.BindingDefaultsVersion == 0 && settings.Bindings.TryGetValue(InputAction.UseItem, out var item)
@@ -66,6 +68,9 @@ internal static class InputBindingPreferences
                 continue;
             }
 
+            // Migrate only exact previous defaults. Custom bindings and explicit
+            // unbinds remain authoritative; revision two makes migration one-shot.
+            if (settings.BindingDefaultsVersion < 2 && IsPreviousDefault(action, tokens)) { continue; }
             var events = new List<InputEvent>();
             try
             {
@@ -93,6 +98,18 @@ internal static class InputBindingPreferences
                 }
             }
         }
+    }
+
+    private static bool IsPreviousDefault(InputAction action, IReadOnlyList<string> tokens)
+    {
+        string[] expected = action switch
+        {
+            InputAction.UseItem => ["button:0:0", "mouse:1"],
+            InputAction.SwitchItem => ["button:0:14", "key:69"],
+            InputAction.AirRoll => ["button:0:9", $"key:{(long)Key.Shift}"],
+            _ => [],
+        };
+        return expected.Length > 0 && tokens.Order(StringComparer.Ordinal).SequenceEqual(expected.Order(StringComparer.Ordinal));
     }
 
     private static string Encode(InputEvent binding) => binding switch

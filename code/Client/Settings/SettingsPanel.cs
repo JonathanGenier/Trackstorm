@@ -177,6 +177,16 @@ internal sealed partial class SettingsPanel : CanvasLayer
         Toggle(column, "Show Ping", _settings.Current.ShowPing, value => _settings.Current with { ShowPing = value });
         column = Page(MenuPage.Controls);
         Toggle(column, "Invert steering axis", _settings.Current.InvertSteering, value => _settings.Current with { InvertSteering = value });
+        column.AddChild(new Label { Text = "Controller tuning" });
+        ControllerSlider(column, "Controller Deadzone", "ControllerDeadzone", _settings.Current.DeadZone, 0, 0.95, 0.01,
+            "Stick movement ignored near center. Ground and air use separate response curves.", value => _settings.Current with { DeadZone = value });
+        ControllerSlider(column, "Steering Sensitivity", "SteeringSensitivity", _settings.Current.SteeringSensitivity, 0.1, 3, 0.1,
+            "Ground steering response after the precision curve. Does not change aerial control.", value => _settings.Current with { SteeringSensitivity = value });
+        ControllerSlider(column, "Aerial Sensitivity", "AerialSensitivity", _settings.Current.AerialSensitivity, 0.1, 3, 0.1,
+            "Controller pitch, yaw and roll response while holding Air Control.", value => _settings.Current with { AerialSensitivity = value });
+        column.AddChild(new Label { Text = "Button / key bindings" });
+        var airHint = new Label { Text = "Hold Shift / LB for air control. Keyboard: W/S pitch, A/D roll, Q/E yaw. Controller: left stick pitch/yaw; hold A to roll.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        column.AddChild(airHint);
         _hint.Text = "Select a binding, then press a key or gamepad control. Shared bindings are allowed.";
         _hint.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         column.AddChild(_hint);
@@ -427,6 +437,17 @@ internal sealed partial class SettingsPanel : CanvasLayer
         control.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         row.AddChild(control);
         parent.AddChild(row);
+    }
+
+    private void ControllerSlider(VBoxContainer parent, string title, string name, double value, double minimum, double maximum, double step, string hint, Func<double, PlayerSettings> change)
+    {
+        var row = new HBoxContainer();
+        var slider = new HSlider { Name = name, MinValue = minimum, MaxValue = maximum, Step = step, Value = value, TooltipText = hint, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        var amount = new Label { Text = $"{value:0.00}", CustomMinimumSize = new Vector2(50, 0) };
+        slider.ValueChanged += current => { amount.Text = $"{current:0.00}"; _settings.UpdateSettings(change(current)); };
+        row.AddChild(slider);
+        row.AddChild(amount);
+        Row(parent, title, row);
     }
 
     private void Volume(VBoxContainer parent, string title, double value, Func<double, PlayerSettings> change)

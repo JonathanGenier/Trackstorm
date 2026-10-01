@@ -10,6 +10,7 @@ internal sealed class PlayerInputAdapter
         (InputAction.Drift, InputButtons.Drift),
         (InputAction.Brake, InputButtons.Brake),
         (InputAction.AirRoll, InputButtons.AirRoll),
+        (InputAction.AirControl, InputButtons.AirControl),
         (InputAction.UseItem, InputButtons.UseItem),
         (InputAction.SwitchItem, InputButtons.SwitchItem),
         (InputAction.Leaderboard, InputButtons.Leaderboard),
@@ -29,6 +30,7 @@ internal sealed class PlayerInputAdapter
     private float _steering;
     private bool _itemNeedsRelease;
     private bool _switchNeedsRelease;
+    private bool _suppressPendingSwitch;
     private bool _enabled = true;
     private bool _gameplaySuppressed;
     private bool _diagnosticSuppressed;
@@ -59,9 +61,21 @@ internal sealed class PlayerInputAdapter
     /// <summary>Inverts signed steering after resolving bindings and before quantization.</summary>
     public bool InvertSteering { get; set; }
 
+    private float _aerialSensitivity = 1;
+    /// <summary>Independent controller gain for aerial pitch, yaw and roll.</summary>
+    public float AerialSensitivity
+    {
+        get => _aerialSensitivity;
+        set
+        {
+            if (!float.IsFinite(value) || value is < 0.1f or > 3) { throw new ArgumentOutOfRangeException(nameof(value)); }
+            _aerialSensitivity = value;
+        }
+    }
+
     private float _steeringSensitivity = 1;
     /// <summary>Ground-only player controller gain after deadzone and precision shaping.
-    /// TS-269 owns its settings UI/persistence; aerial shaping retains independent authority.</summary>
+    /// Aerial input retains independent authority.</summary>
     public float SteeringSensitivity
     {
         get => _steeringSensitivity;
@@ -142,6 +156,14 @@ internal sealed class PlayerInputAdapter
                 float strength = Bindings.Strength(action, DeadZone);
                 if (action == InputAction.SwitchItem)
                 {
+                    // E is contextual yaw while the modifier is held. Require release
+                    // before a held yaw key may become a weapon-switch press.
+                    if (Bindings.Strength(InputAction.AirControl, DeadZone) > 0.5f &&
+                        strength > Bindings.Strength(action, DeadZone, excluding: InputAction.AirYawRight))
+                    {
+                        _switchNeedsRelease = true;
+                        _suppressPendingSwitch = true;
+                    }
                     _switchNeedsRelease &= strength > 0.5f;
                     if (_switchNeedsRelease) { continue; }
                 }
@@ -188,7 +210,7 @@ internal sealed class PlayerInputAdapter
 
         float analogSteering = active ? Bindings.Strength(InputAction.SteerRight, DeadZone, true) - Bindings.Strength(InputAction.SteerLeft, DeadZone, true) : 0;
         analogSteering = Math.Clamp(Shaping.ShapeControllerSteering(analogSteering) *
-            (Shaping == DrivingInputShaping.Aerial ? 1 : SteeringSensitivity), -1, 1);
+            SteeringSensitivity, -1, 1);
         // A deliberate stick correction takes ownership after the keys are released;
         // a long digital return tail must not mask the controller's finer target.
         if (analogSteering != 0 && Bindings.Strength(InputAction.SteerRight, DeadZone, false) == 0 && Bindings.Strength(InputAction.SteerLeft, DeadZone, false) == 0)
@@ -203,8 +225,36 @@ internal sealed class PlayerInputAdapter
             tick,
             InputAxis.QuantizeSteering(InputAxis.Normalize(Math.Abs(analogSteering) > Math.Abs(_steering) ? analogSteering : _steering, inverted: InvertSteering)),
             InputAxis.QuantizePedal(active ? Math.Max(_throttle, analogThrottle) : 0),
-            InputAxis.QuantizePedal(active ? Math.Max(_brake, analogBrake) : 0));
+            InputAxis.QuantizePedal(active ? Math.Max(_brake, analogBrake) : 0),
+            AirAxis(InputAction.AirPitchUp, InputAction.AirPitchDown, active),
+            AirAxis(InputAction.AirYawRight, InputAction.AirYawLeft, active, yaw: true),
+            AirAxis(InputAction.AirRollRight, InputAction.AirRollLeft, active, roll: true));
+        if (_switchNeedsRelease || _suppressPendingSwitch)
+        {
+            // A direction pressed just before Shift within this tick must not leak
+            // its accumulated weapon-switch edge into the aerial context.
+            frame = new InputFrame(frame.Tick, frame.Steering, frame.Accelerate, frame.Brake,
+                frame.Held, frame.Pressed & ~InputButtons.SwitchItem, frame.Released,
+                frame.AirPitch, frame.AirYaw, frame.AirRoll);
+        }
+        _suppressPendingSwitch = false;
         return active ? frame : new InputFrame(tick, 0, 0, 0, InputButtons.None, InputButtons.None, frame.Released);
+    }
+
+    private short AirAxis(InputAction positive, InputAction negative, bool active, bool yaw = false, bool roll = false)
+    {
+        if (!active || Bindings.Strength(InputAction.AirControl, DeadZone) <= 0.5f) { return 0; }
+        bool rollHeld = Bindings.Strength(InputAction.AirRoll, DeadZone) > 0.5f;
+        float digital = Bindings.Strength(positive, DeadZone, false) - Bindings.Strength(negative, DeadZone, false);
+        float analog = Bindings.Strength(positive, DeadZone, true) - Bindings.Strength(negative, DeadZone, true);
+        if (yaw && rollHeld) { analog = 0; }
+        if (roll && rollHeld)
+        {
+            analog += Bindings.Strength(InputAction.AirYawRight, DeadZone, true) - Bindings.Strength(InputAction.AirYawLeft, DeadZone, true);
+        }
+        analog = Math.Clamp(analog * AerialSensitivity, -1, 1);
+        float intent = Math.Abs(digital) >= Math.Abs(analog) ? digital : analog;
+        return InputAxis.QuantizeSteering(InputAxis.Normalize(intent, inverted: (yaw || roll) && InvertSteering));
     }
 
     private void SetControlState(ref bool state, bool value)

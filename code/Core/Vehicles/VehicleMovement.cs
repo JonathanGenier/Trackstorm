@@ -427,12 +427,9 @@ public sealed class VehicleMovement
         {
             float seconds = Math.Min(60, State.Air.Seconds + dt);
             air = new AirControlState(seconds, Vector3.Zero, Vector3.Zero);
-            if (driveEnabled && seconds + 0.000001f >= c.AirDelay)
+            if (driveEnabled && wheelCount == 0 && (input.Held & InputButtons.AirControl) != 0)
             {
-                float pitch = InputAxis.Normalize(brake - pedal, c.AirDeadZone);
-                float turn = InputAxis.Normalize(steerIntent, c.AirDeadZone);
-                bool roll = (input.Held & InputButtons.AirRoll) != 0;
-                Vector3 target = new(pitch, roll ? 0 : -turn, roll ? -turn : 0);
+                Vector3 target = new(input.AirPitch / 32767f, -input.AirYaw / 32767f, -input.AirRoll / 32767f);
                 Vector3 intent = Vector3.Lerp(State.Air.Input, target, 1 - MathF.Exp(-dt / c.AirInputResponse));
                 Vector3 stabilization = Vector3.Lerp(State.Air.Stabilization, Vector3.One - Vector3.Abs(target), 1 - MathF.Exp(-dt / c.AirStabilizationResponse));
                 Vector3 local = Vector3.Transform(angular, Quaternion.Conjugate(observed.Orientation));

@@ -20,7 +20,6 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("environment.piece_speed", 6d)]
     [TestCase("environment.push_scale", (double)0.35f)]
     [TestCase("environment.velocity_retention", (double)0.9f)]
-    [TestCase("vehicle.air_delay", 0.5d)]
     [TestCase("vehicle.air_pitch_rate", (double)2.52f)]
     [TestCase("vehicle.air_yaw_rate", (double)2.16f)]
     [TestCase("vehicle.air_roll_rate", (double)3.24f)]
@@ -30,7 +29,6 @@ internal sealed class ReleaseDefaultsTests
     [TestCase("vehicle.air_stabilization", 8d)]
     [TestCase("vehicle.air_stabilization_response", (double)0.08f)]
     [TestCase("vehicle.air_input_response", (double)0.06f)]
-    [TestCase("vehicle.air_dead_zone", (double)0.08f)]
     [TestCase("vehicle.support_normal_minimum", (double)0.55f)]
     [TestCase("vehicle.mass", 3000d)]
     [TestCase("vehicle.acceleration", (double)(24 * (3000f / 1400)))]
@@ -127,7 +125,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(213));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(211));
         Assert.That(defaults.Items.OilPasses, Is.EqualTo(2));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);

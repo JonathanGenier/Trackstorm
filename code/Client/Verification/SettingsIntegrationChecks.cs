@@ -115,6 +115,8 @@ public sealed partial class SettingsIntegrationChecks : Node
             ShowPing = false,
             InvertSteering = true,
             DeadZone = 0.25,
+            SteeringSensitivity = 2.3,
+            AerialSensitivity = 0.4,
         });
         using var key = new InputEventKey { PhysicalKeycode = Key.J };
         using var button = new InputEventJoypadButton { Device = 2, ButtonIndex = JoyButton.Y };
@@ -127,6 +129,7 @@ public sealed partial class SettingsIntegrationChecks : Node
     private void VerifyRestart()
     {
         PlayerSettings settings = _settings.Current;
+        Check(Math.Abs(_player.Adapter.SteeringSensitivity - 2.3f) < 0.001f && Math.Abs(_player.Adapter.AerialSensitivity - 0.4f) < 0.001f, "independent controller settings survive process restart and apply");
         Check(settings.CameraShakeIntensity == 0.35, "camera shake intensity survives process restart");
         Check(settings.MasterVolume == 0 && settings.MusicVolume == 0.25 && settings.SfxVolume == 0.75, "audio gains survive process restart");
         Check(settings.Fullscreen && settings.WindowWidth == 960 && settings.WindowHeight == 540, "display preferences survive process restart");
@@ -256,6 +259,22 @@ public sealed partial class SettingsIntegrationChecks : Node
         await ToSignal(GetTree().CreateTimer(0.4), SceneTreeTimer.SignalName.Timeout);
         Check(new PlayerSettingsStore(path).Load().CameraShakeIntensity == 0.35, "camera shake UI value persists after normal debounce");
         Press(panel, "Controls");
+        foreach (string name in new[] { "ControllerDeadzone", "SteeringSensitivity", "AerialSensitivity" })
+        {
+            var slider = Descendants(panel).OfType<HSlider>().Single(control => control.Name == name);
+            foreach (double value in new[] { slider.MinValue, (slider.MinValue + slider.MaxValue) / 2, slider.MaxValue })
+            {
+                slider.Value = value;
+                double actual = name == "ControllerDeadzone" ? _player.Adapter.DeadZone : name == "SteeringSensitivity" ? _player.Adapter.SteeringSensitivity : _player.Adapter.AerialSensitivity;
+                Check(Math.Abs(actual - slider.Value) < 0.0001, name + " applies immediately across UI range");
+            }
+        }
+        scroll.ScrollVertical = 0;
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        using (Image screenshot = GetViewport().GetTexture().GetImage()) { Check(screenshot.SavePng(path + ".controller.png") == Error.Ok, "controller tuning rendered"); }
+        Check(_settings.Flush(), "controller tuning UI persists");
+        var savedController = new PlayerSettingsStore(path).Load();
+        Check(Math.Abs(savedController.DeadZone - 0.95) < 0.0001 && savedController.SteeringSensitivity == 3 && savedController.AerialSensitivity == 3, "controller UI values persisted");
         Button bindingButton = Descendants(panel).OfType<Button>().Single(button => button.Name == "Binding_Accelerate");
         bindingButton.EmitSignal(BaseButton.SignalName.Pressed);
         SendKey(Key.J, true);

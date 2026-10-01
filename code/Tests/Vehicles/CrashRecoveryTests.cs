@@ -63,18 +63,18 @@ internal sealed class CrashRecoveryTests
         var movement = new VehicleMovement(new(), pose);
         var fresh = new VehicleMovement(new(), pose);
         var contact = new VehicleContact(new(0, -12, -18), Vector3.UnitY, 0, 0, true, new(0, 0, -2));
-        var input = new InputFrame(1, short.MaxValue, ushort.MaxValue, 0, InputButtons.AirRoll, 0, 0);
+        var input = new InputFrame(1, short.MaxValue, ushort.MaxValue, 0, InputButtons.AirControl, 0, 0, -32767, 0, 32767);
         var impact = movement.Step(input, pose, Vector3.UnitY, wheels: default(WheelSupport), contacts: [contact]);
         Assert.That(impact.CrashSeconds, Is.GreaterThan(0));
         for (ulong tick = 2; tick <= 90; tick++)
         {
-            input = new(tick, short.MaxValue, ushort.MaxValue, 0, InputButtons.AirRoll, 0, 0);
+            input = new(tick, short.MaxValue, ushort.MaxValue, 0, InputButtons.AirControl, 0, 0, -32767, 0, 32767);
             var state = movement.Step(input, pose, Vector3.Zero);
             Assert.That(state.Air.Input, Is.EqualTo(Vector3.Zero));
             Assert.That(state.Throttle, Is.Zero);
             Assert.That(state.Physics.AngularVelocity.X, Is.LessThan(0), "recovery preserves incoming flip direction");
         }
-        for (ulong tick = 1; tick <= 90; tick++) { fresh.Step(new(tick, short.MaxValue, ushort.MaxValue, 0, InputButtons.AirRoll, 0, 0), pose, Vector3.Zero); }
+        for (ulong tick = 1; tick <= 90; tick++) { fresh.Step(new(tick, short.MaxValue, ushort.MaxValue, 0, InputButtons.AirControl, 0, 0, -32767, 0, 32767), pose, Vector3.Zero); }
         Assert.That(fresh.State.Air.Input.Length(), Is.GreaterThan(1));
         var supported = movement.Step(new(91, short.MaxValue, ushort.MaxValue, 0, 0, 0, 0), pose, Vector3.UnitY, wheels: new(new(0, 0, 0.1f, 0)));
         Assert.That(supported.CrashSeconds, Is.Zero);
