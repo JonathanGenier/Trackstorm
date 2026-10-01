@@ -16,6 +16,7 @@ internal sealed class ItemRegistryTests
     [TestCase(HeldItem.Nitro)]
     [TestCase(HeldItem.ProxyMine)]
     [TestCase(HeldItem.Salvo)]
+    [TestCase(HeldItem.Tombstone)]
     public void SingleWeightedItemClaimsAndRoundTripsWithoutSecondAuthority(HeldItem item)
     {
         var tuning = new ItemSpawnConfiguration();
@@ -33,7 +34,7 @@ internal sealed class ItemRegistryTests
         ulong random = host.Spawns.RandomState;
         Assert.That(host.Spawns.TryPickup(host.World, PrototypeArena.Configuration.Items[0].Id, 1), Is.False);
         Assert.That(host.Spawns.RandomState, Is.EqualTo(random));
-        var publication = ItemCodec.DecodeState(ItemCodec.EncodeState(new(1, host.Snapshot(), host.Items.Slots, [], [], host.Spawns.States)));
+        var publication = ItemCodec.DecodeState(ItemCodec.EncodeState(new(1, host.Snapshot(), host.Items.Slots, [], [], host.Spawns.States, tombstones: host.Items.Tombstones)));
         Assert.That(publication.Slots.Single().Item, Is.EqualTo(item));
         Assert.That(publication.Spawns[0].Item, Is.EqualTo(item));
         Assert.That(publication.Spawns[0].Token, Is.EqualTo(publication.Slots.Single().Token));

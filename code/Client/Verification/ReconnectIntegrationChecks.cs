@@ -17,6 +17,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Real UDP and native Godot worlds exercising the production resume boundary with a trusted test identity.</summary>
 public sealed partial class ReconnectIntegrationChecks : Node
 {
+    private IReadOnlyList<TombstoneState> _tombstones = [];
     private readonly Dictionary<ulong, ItemPublication> _salvoBoundaries = new();
     private readonly List<ReplicationTrafficGateway> _gateways = new();
     private readonly List<SubViewport> _views = new();
@@ -186,6 +187,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
 
                 _resyncs++;
                 SalvoRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, _salvoBoundaries);
+                TombstoneRecoveryFixture.Verify(_arenas[1].Driver.ItemState!.Tombstones, _tombstones);
                 if (_resyncs <= 3)
                 {
                     Require(_arenas[1].Driver.ItemState!.Mines.Single().Id == _mine, "Mine identity restored exactly once.");
@@ -274,6 +276,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
         else if (_stage == 4 && _arenas[1].Driver.Prediction is not null && _arenas[1].Driver.Match?.Phase == Trackstorm.Core.Matches.MatchPhase.Active)
         {
             _categoryHistory = CategoryBalanceRecoveryFixture.Seed(_arenas[0]);
+            _tombstones = TombstoneRecoveryFixture.Seed(_arenas[0]);
             GD.Print("Category pickup history before reconnect: " + _categoryHistory);
             _oil = OilRecoveryFixture.Seed(_arenas[0]);
             EnvironmentRecoveryFixture.Seed(_arenas[0]);

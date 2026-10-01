@@ -17,7 +17,8 @@ public sealed class ItemPublication
     /// <param name="balances">Per-player current-match category history.</param>
     /// <param name="oilContacts">Current overlap latches; consumed passes are retained on each patch.</param>
     /// <param name="mines">Complete magnetic hazards.</param>
-    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null, IEnumerable<OilPatch>? patches = null, IEnumerable<OilContact>? oilContacts = null, IEnumerable<PlayerItemBalance>? balances = null, IEnumerable<ProxyMineState>? mines = null)
+    /// <param name="tombstones">Complete persistent Tombstone pools and lifecycle state.</param>
+    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null, IEnumerable<OilPatch>? patches = null, IEnumerable<OilContact>? oilContacts = null, IEnumerable<PlayerItemBalance>? balances = null, IEnumerable<ProxyMineState>? mines = null, IEnumerable<TombstoneState>? tombstones = null)
     {
         var inventory = slots.ToArray();
         var projectiles = missiles.ToArray();
@@ -87,6 +88,18 @@ public sealed class ItemPublication
             hazards.Any(mine => projectiles.Any(p => p.Id == mine.Id) || oil.Any(p => p.Id == mine.Id) ||
                 inventory.Any(slot => (slot.Token == mine.Id && slot.Item != HeldItem.None) || (slot.SecondToken == mine.Id && slot.SecondItem != HeldItem.None))))
         { throw new ArgumentException("Invalid mine continuation."); }
+        var walls = tombstones?.ToArray() ?? [];
+        foreach (var state in walls) { state.Validate(); }
+        var heldWalls = inventory.SelectMany(slot => new[] { slot, (slot with { ActiveSlot = 1 }).Active })
+            .Where(slot => slot.Item == HeldItem.Tombstone).ToArray();
+        if (walls.Length > ItemAuthority.MaximumTombstones || walls.Select(state => state.Id).Distinct().Count() != walls.Length ||
+            walls.Any(state => projectiles.Any(p => p.Id == state.Id) || oil.Any(p => p.Id == state.Id) || hazards.Any(p => p.Id == state.Id) ||
+                inventory.Any(slot => (slot.Token == state.Id && slot.Item != HeldItem.None && !(state.Attached && slot.Token == state.Token && slot.Item == HeldItem.Tombstone)) ||
+                                      (slot.SecondToken == state.Id && slot.SecondItem != HeldItem.None && !(state.Attached && slot.SecondToken == state.Token && slot.SecondItem == HeldItem.Tombstone)))) ||
+            walls.Any(state => state.Attached && !heldWalls.Any(slot => slot.Vehicle == state.Owner && slot.Life == state.Life && slot.Token == state.Token)) ||
+            heldWalls.Any(slot => walls.Count(state => state.Attached && state.Owner == slot.Vehicle && state.Life == slot.Life && state.Token == slot.Token) != 1))
+        { throw new ArgumentException("Invalid Tombstone ownership."); }
+        Tombstones = Array.AsReadOnly(walls);
         Mines = Array.AsReadOnly(hazards);
         Balances = Array.AsReadOnly(history);
         Patches = Array.AsReadOnly(oil);
@@ -123,6 +136,8 @@ public sealed class ItemPublication
     public IReadOnlyList<OilPatch> Patches { get; }
     /// <summary>Complete magnetic hazards, including velocity and initial seating timer.</summary>
     public IReadOnlyList<ProxyMineState> Mines { get; }
+    /// <summary>Complete live Tombstone identities, attachment/world state, health and duplicate-damage memory.</summary>
+    public IReadOnlyList<TombstoneState> Tombstones { get; }
     /// <summary>Per-life entry latches.</summary>
     public IReadOnlyList<OilContact> OilContacts { get; }
     /// <summary>Complete marker state and last claim.</summary>

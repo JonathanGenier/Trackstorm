@@ -189,3 +189,6 @@ Assert-True ($destructionPlan.ExtendedScripts -contains "check-migration.ps1") "
 $boundaryPlan = Get-FastCheckPlan -Paths @("code/Core/Arenas/ArenaBoundary.cs")
 Assert-True ($boundaryPlan.RuntimeScripts -contains "check-boundary.ps1") "Arena boundaries require native finite-fence and escape coverage."
 Assert-True ($boundaryPlan.ExtendedScripts -contains "check-death-respawn.ps1") "Arena boundaries require native multiplayer lifecycle coverage."
+
+$tombstonePlan = Get-FastCheckPlan -Paths @('code/Core/Items/TombstoneState.cs')
+Assert-True ($tombstonePlan.RuntimeScripts -contains 'check-tombstone.ps1') 'Tombstone changes route their native lifecycle harness.'
