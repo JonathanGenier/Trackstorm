@@ -11,12 +11,9 @@ internal sealed class TrophyTuningTests
 {
     [TestCase("rear_drive_grip", 1)]
     [TestCase("brake_grip", 1)]
-    [TestCase("power_oversteer", 0)]
-    [TestCase("spin_drive_loss", 0)]
     [TestCase("dirt_corner_full_speed", 16)]
     [TestCase("dirt_corner_fade_speed", 18)]
     [TestCase("dirt_corner_grip", 0)]
-    [TestCase("dirt_corner_power_slip", 0)]
     [TestCase("front_brake_share", 0.2)]
     [TestCase("wheel_deep_damping", 0)]
     [TestCase("landing_rebound_decay", 10)]
@@ -36,17 +33,14 @@ internal sealed class TrophyTuningTests
         {
             bool crash = scenario >= 2;
             var pose = new VehiclePhysicsState(Vector3.Zero, crash ? Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 2) : Quaternion.Identity,
-                new(4, scenario == 1 ? 1 : -1, suffix == "spin_drive_loss" ? -6 : -16), new(0, 0, scenario == 3 ? 3 : 0));
-            // Exercise torque breakaway with lightly loaded tires; deeply compressed
-            // suspension has enough purchase that this option should do nothing.
-            if (suffix == "power_oversteer" && !crash) { pose = new(Vector3.Zero, Quaternion.Identity, new(0, 0, -4), Vector3.Zero); }
+                new(4, scenario == 1 ? 1 : -1, -16), new(0, 0, scenario == 3 ? 3 : 0));
             VehicleState Run(VehicleConfiguration configuration)
             {
                 var movement = new VehicleMovement(configuration, pose);
-                movement.Restore(new(0, pose, true, false, 0.6f, 0, landingIntensity: 1, crashSeconds: crash ? 2 : 0, throttle: 1, powerSlip: suffix is "spin_drive_loss" or "power_oversteer" ? 0.3f : 0));
+                movement.Restore(new(0, pose, true, false, 0.6f, 0, landingIntensity: 1, crashSeconds: crash ? 2 : 0, throttle: 1));
                 return movement.Step(new InputFrame(1, 32767, scenario == 1 ? (ushort)0 : ushort.MaxValue, scenario == 1 ? ushort.MaxValue : (ushort)0, 0, 0, 0),
-                    pose, Vector3.UnitY, surface: suffix == "power_oversteer" ? SurfaceType.Asphalt : SurfaceType.Dirt,
-                    wheels: new WheelSupport(new Vector4(crash ? 0 : suffix == "power_oversteer" ? 0.1f : 0.7f)),
+                    pose, Vector3.UnitY, surface: SurfaceType.Dirt,
+                    wheels: new WheelSupport(new Vector4(crash ? 0 : 0.7f)),
                     contacts: [new VehicleContact(Vector3.Zero, Vector3.UnitY, 0, 0)]);
             }
             changed |= Run(defaults.Vehicle) != Run(edited.Vehicle);

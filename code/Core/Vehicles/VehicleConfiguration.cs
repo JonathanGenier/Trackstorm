@@ -50,11 +50,11 @@ public sealed record VehicleConfiguration
     public float RearDriveGrip { get; init; } = 1.6f;
     /// <summary>Service brake tire capacity multiplier at full pedal.</summary>
     public float BrakeGrip { get; init; } = 2;
-    /// <summary>Rear lateral grip loss from excess torque and steering commitment.</summary>
+    /// <summary>Retired automatic power-drift value retained for source compatibility; not used by movement or live tuning.</summary>
     public float PowerOversteer { get; init; } = 0.8f;
-    /// <summary>Speed through which deliberate power breakaway retains full demand, in m/s.</summary>
+    /// <summary>Retired automatic power-drift value retained for source compatibility; not used by movement or live tuning.</summary>
     public float PowerSlipFullSpeed { get; init; } = 8;
-    /// <summary>Speed where torque-induced rear grip loss fades to zero, in m/s; handbrake is independent.</summary>
+    /// <summary>Retired automatic power-drift value retained for source compatibility; not used by movement or live tuning.</summary>
     public float PowerSlipFadeSpeed { get; init; } = 16.667f;
     /// <summary>Forward creep accepted as effectively stopped on a new reverse press, in m/s.</summary>
     public float ReverseEngagementSpeed { get; init; } = 0.35f;
@@ -70,10 +70,28 @@ public sealed record VehicleConfiguration
     public float ReverseSpeed { get; init; } = 11;
     /// <summary>Lateral grip response per second.</summary>
     public float Grip { get; init; } = 26 * (3000f / 1400);
-    /// <summary>Maximum wheel angle in radians at every speed.</summary>
+    /// <summary>Maximum low-speed wheel angle in radians.</summary>
     public float SteeringAngle { get; init; } = 0.9f;
+    /// <summary>Road speed through which full wheel authority remains available, m/s.</summary>
+    public float SteeringFullSpeed { get; init; } = 8;
+    /// <summary>Road speed where the smooth steering-range reduction completes, m/s.</summary>
+    public float SteeringFadeSpeed { get; init; } = 35;
+    /// <summary>Fraction of low-speed wheel range available at/above the fade speed.</summary>
+    public float HighSpeedSteeringScale { get; init; } = 0.25f;
+
+    /// <summary>Usable ground wheel range at an observed contact-plane speed.</summary>
+    /// <param name="speed">Nonnegative road speed in m/s, including lateral travel.</param>
+    /// <returns>Smooth, bounded wheel-angle limit in radians.</returns>
+    public float SteeringLimit(float speed)
+    {
+        if (!float.IsFinite(speed) || speed < 0) { throw new ArgumentOutOfRangeException(nameof(speed)); }
+        float blend = Math.Clamp((speed - SteeringFullSpeed) / (SteeringFadeSpeed - SteeringFullSpeed), 0, 1);
+        return SteeringAngle * (1 + (HighSpeedSteeringScale - 1) * blend * blend * (3 - 2 * blend));
+    }
     /// <summary>Wheel angle transition rate in radians per second.</summary>
     public float SteeringResponse { get; init; } = 0.95f;
+    /// <summary>Wheel return toward an opposing player target, radians per second.</summary>
+    public float SteeringCounterResponse { get; init; } = 2.8f;
     /// <summary>Time constant for progressive wheel corrections, independent of speed.</summary>
     public float SteeringSmoothing { get; init; } = 0.3f;
     /// <summary>Low/medium dirt corner authority multiplier; fades out by 28 m/s.</summary>
@@ -84,17 +102,17 @@ public sealed record VehicleConfiguration
     public float DirtCornerFadeSpeed { get; init; } = 28;
     /// <summary>Extra tire capacity at full dirt corner commitment.</summary>
     public float DirtCornerGrip { get; init; } = 1.2f;
-    /// <summary>Extra power-slip demand at full dirt corner commitment.</summary>
+    /// <summary>Retired automatic power-drift value retained for source compatibility; not used by movement or live tuning.</summary>
     public float DirtCornerPowerSlip { get; init; } = 1.5f;
     /// <summary>Fraction of ordinary service braking assigned to the front axle.</summary>
     public float FrontBrakeShare { get; init; } = 0.65f;
-    /// <summary>Maximum dirt rear lateral grip loss under sustained power.</summary>
+    /// <summary>Retired automatic power-drift value retained for source compatibility; not used by movement or live tuning.</summary>
     public float DirtPowerSlip { get; init; } = 0.22f;
     /// <summary>Front dirt tire budget reserved for wheel direction during saturated slides.</summary>
     public float DirtSteeringReserve { get; init; } = 0.95f;
     /// <summary>Dirt slide yaw recovery response per second; zero disables the arcade assist.</summary>
     public float DirtRecovery { get; init; } = 4;
-    /// <summary>Wheelspin buildup rate per second.</summary>
+    /// <summary>Retired automatic power-drift value retained for source compatibility; not used by movement or live tuning.</summary>
     public float PowerSlipResponse { get; init; } = 2;
     /// <summary>Wheelspin recovery rate per second on throttle reduction.</summary>
     public float PowerSlipRecovery { get; init; } = 2.5f;
@@ -216,6 +234,12 @@ public sealed record VehicleConfiguration
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(SteeringFullSpeed) || !float.IsFinite(SteeringFadeSpeed) ||
+            SteeringFullSpeed < 0 || SteeringFadeSpeed <= SteeringFullSpeed || SteeringFadeSpeed > MaximumPhysicsSpeed ||
+            !float.IsFinite(HighSpeedSteeringScale) || HighSpeedSteeringScale is < 0.05f or > 1)
+        { throw new ArgumentException("Invalid speed-sensitive steering tuning."); }
+        if (!float.IsFinite(SteeringCounterResponse) || SteeringCounterResponse is < 0.1f or > 10)
+        { throw new ArgumentException("Invalid countersteering response."); }
         if (!float.IsFinite(AsphaltGrip) || AsphaltGrip is < 0 or > 100) { throw new ArgumentException("Invalid asphalt grip."); }
         if (!float.IsFinite(PowerSlipFullSpeed) || !float.IsFinite(PowerSlipFadeSpeed) || PowerSlipFullSpeed < 0 || PowerSlipFadeSpeed <= PowerSlipFullSpeed || PowerSlipFadeSpeed > MaximumPhysicsSpeed || !float.IsFinite(ReverseEngagementSpeed) || ReverseEngagementSpeed is < 0 or > 1) { throw new ArgumentException("Invalid power-slip speed or reverse engagement tuning."); }
         if (!float.IsFinite(PowerOversteer) || PowerOversteer is < 0 or > .9f || !float.IsFinite(SpinDriveLoss) || SpinDriveLoss is < 0 or > .9f) { throw new ArgumentException("Invalid wheelspin tuning."); }

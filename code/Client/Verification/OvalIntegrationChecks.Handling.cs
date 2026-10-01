@@ -24,12 +24,17 @@ public sealed partial class OvalIntegrationChecks
             {
                 foreach ((float entry, short steering) in new (float, short)[] { (42, 700), (42, 1400), (42, 32767), (44.44f, 32767) })
                 {
-                    var corner = await HandlingProbe(network, center + (normal * VehicleDimensions.RideHeight), Basis.LookingAt(tangent * direction, normal), tangent * (entry * direction), steering == short.MaxValue ? 240 : 60, tick => new InputFrame(tick, steering == short.MaxValue && tick > 90 ? (short)0 : (short)(-steering * direction), steering == short.MaxValue && tick > 90 ? (ushort)32767 : ushort.MaxValue, 0, 0, 0, 0));
+                    // End recovery before the faster exit reaches the opposite steep bank;
+                    // separate probes below cover those terrain crossings.
+                    var corner = await HandlingProbe(network, center + (normal * VehicleDimensions.RideHeight), Basis.LookingAt(tangent * direction, normal), tangent * (entry * direction), steering == short.MaxValue ? 180 : 60, tick => new InputFrame(tick,
+                        steering == short.MaxValue && tick > 90 ? tick <= 108 ? (short)(7000 * direction) : (short)0 : (short)(-steering * direction),
+                        ushort.MaxValue, 0, 0, 0, 0));
                     var samples = corner.Skip(2).Take(steering == short.MaxValue ? 88 : 58).ToArray();
                     if (steering == short.MaxValue)
                     {
                         System.IO.File.WriteAllText(System.IO.Path.Combine(_output, $"bank-{network}-{direction}-{entry}.json"), System.Text.Json.JsonSerializer.Serialize(corner.Select(state => new {
                             state.Tick, state.CommandSpeed, state.SteeringAngle, state.Grounded, state.CrashSeconds,
+                            position = new[] { state.Physics.Position.X, state.Physics.Position.Y, state.Physics.Position.Z }, surface = state.CurrentSurface.ToString(),
                             speed = state.Physics.LinearVelocity.Length(), angular = state.Physics.AngularVelocity.Length(),
                             up = System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitY, state.Physics.Orientation).Y,
                             air = state.Air.Seconds
@@ -45,15 +50,18 @@ public sealed partial class OvalIntegrationChecks
                     float rearSlip = samples.Max(state => state.RearSlip);
                     bool fullInput = steering == short.MaxValue;
                     var exit = corner[^1];
+                    float exitYaw = Math.Abs(System.Numerics.Vector3.Dot(exit.Physics.AngularVelocity, System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitY, exit.Physics.Orientation)));
                     float exitSide = Math.Abs(System.Numerics.Vector3.Dot(exit.Physics.LinearVelocity, System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, exit.Physics.Orientation)));
+                    // Recovery yaw excludes pitch/roll needed to follow the sculpted infield.
+                    // Terrain-normal stability is checked by the crossing probes below.
                     // Full lock deliberately exceeds available racing grip. Verify a supported,
-                    // dissipative turn and recovery, not the obsolete restricted-steering yaw cap.
-                    // At 1.5 seconds the approved wheel filter has not yet reached its final angle.
+                    // dissipative turn and recovery, with the speed-sensitive wheel range.
+                    // The wheel filter retains rate-bounded range changes as the vehicle slows.
                     bool stable = fullInput
-                        ? corner.Skip(2).All(state => state.Grounded && state.CrashSeconds == 0) && Math.Abs(samples[^1].SteeringAngle) > 0.88f && yaw < _vehicle.Configuration.MaximumAngularSpeed && samples[^1].CommandSpeed < entry && exit.CommandSpeed > 8 && exitSide < 1 && exit.Physics.AngularVelocity.Length() < 0.2f
+                        ? corner.Skip(2).All(state => state.Grounded && state.CrashSeconds == 0) && Math.Abs(samples[^1].SteeringAngle) > 0.2f && yaw < _vehicle.Configuration.MaximumAngularSpeed && samples[^1].CommandSpeed < entry && exit.CommandSpeed > 8 && exitSide < 1 && exitYaw < 0.2f
                         : slipAngle < 0.15f && yaw < 1.2f && rearSlip < 0.5f && samples.All(state => state.Grounded) && samples[^1].CommandSpeed > 40;
                     Check(stable,
-                        $"{(network ? "Network" : "Practice")} {entry} m/s bank turn, direction {direction}, steering {steering}: slip angle {slipAngle:F3} rad, angular speed {yaw:F3} rad/s, rear slip {rearSlip:F3}, continuously supported, final speed {samples[^1].CommandSpeed:F3} m/s; recovery speed {exit.CommandSpeed:F3}, side {exitSide:F3}, angular {exit.Physics.AngularVelocity.Length():F3}.");
+                        $"{(network ? "Network" : "Practice")} {entry} m/s bank turn, direction {direction}, steering {steering}: slip angle {slipAngle:F3} rad, angular speed {yaw:F3} rad/s, rear slip {rearSlip:F3}, continuously supported, final speed {samples[^1].CommandSpeed:F3} m/s; recovery speed {exit.CommandSpeed:F3}, side {exitSide:F3}, yaw {exitYaw:F3}.");
                 }
             }
         }

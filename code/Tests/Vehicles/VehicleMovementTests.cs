@@ -27,10 +27,7 @@ internal sealed class VehicleMovementTests
             GroundStep(movement, brake: 65535);
         }
 
-        Assert.That(movement.State.Physics.LinearVelocity.Z, Is.EqualTo(0).Within(0.001));
-        GroundStep(movement);
-        for (int index = 0; index < 1800; index++) { GroundStep(movement, brake: 65535); }
-        Assert.That(movement.State.Physics.LinearVelocity.Z, Is.EqualTo(11).Within(0.001));
+                Assert.That(movement.State.Physics.LinearVelocity.Z, Is.EqualTo(11).Within(0.001));
         GroundStep(movement, throttle: 65535);
         Assert.That(movement.State.Physics.LinearVelocity.Z, Is.LessThan(11).And.GreaterThan(0));
     }
@@ -39,7 +36,7 @@ internal sealed class VehicleMovementTests
     [Test]
     public void Drive_UsesConfiguredRateAccelerationBrakingAndLimits()
     {
-        var configuration = new VehicleConfiguration { Mass = 1400, TicksPerSecond = 120, ForwardSpeed = 10, ReverseSpeed = 4, Acceleration = 6, Braking = 12, MaximumPhysicsSpeed = 20 };
+        var configuration = new VehicleConfiguration { Mass = 1400, TicksPerSecond = 120, ForwardSpeed = 10, ReverseSpeed = 4, Acceleration = 6, Braking = 12, MaximumPhysicsSpeed = 20, SteeringFadeSpeed = 20 };
         var movement = new VehicleMovement(configuration, new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero));
         GroundStep(movement, throttle: 65535);
         Assert.That(-movement.State.Physics.LinearVelocity.Z, Is.GreaterThan(0).And.LessThan(0.01f), "Initial drive builds from idle rather than applying full engine demand.");
@@ -56,10 +53,7 @@ internal sealed class VehicleMovementTests
             GroundStep(movement, brake: 65535);
         }
 
-        Assert.That(movement.State.Physics.LinearVelocity.Z, Is.EqualTo(0).Within(0.001));
-        GroundStep(movement);
-        for (int index = 0; index < 1800; index++) { GroundStep(movement, brake: 65535); }
-        Assert.That(movement.State.Physics.LinearVelocity.Z, Is.EqualTo(4).Within(0.001));
+                Assert.That(movement.State.Physics.LinearVelocity.Z, Is.EqualTo(4).Within(0.001));
     }
 
     /// <summary>Authority-disabled vehicles retain gravity but ignore driving controls.</summary>
@@ -78,7 +72,7 @@ internal sealed class VehicleMovementTests
 
     /// <summary>Actual wheel commands are progressive, precise and retain full range at speed.</summary>
     [Test]
-    public void Steering_IsProgressiveWithFullRangeAtEverySpeed()
+    public void Steering_IsProgressiveWithReducedRangeAtHighSpeed()
     {
         VehicleMovement low = Create(2);
         VehicleMovement high = Create(40);
@@ -93,7 +87,7 @@ internal sealed class VehicleMovementTests
         }
 
         Assert.That(low.State.SteeringAngle, Is.EqualTo(low.Configuration.SteeringAngle).Within(0.0001f));
-        Assert.That(high.State.SteeringAngle, Is.EqualTo(low.State.SteeringAngle).Within(0.0001f));
+        Assert.That(high.State.SteeringAngle, Is.EqualTo(low.State.SteeringAngle * high.Configuration.HighSpeedSteeringScale).Within(0.0001f));
         Assert.That(analog.State.SteeringAngle, Is.EqualTo(low.State.SteeringAngle / 4).Within(0.0001f));
     }
 

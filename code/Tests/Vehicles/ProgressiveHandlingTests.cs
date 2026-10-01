@@ -9,7 +9,7 @@ namespace Trackstorm.Core.Tests.Vehicles;
 internal sealed class ProgressiveHandlingTests
 {
     [Test]
-    public void PowerBreakawayFadesWithRoadSpeedWithoutChangingWheelAuthority()
+    public void OrdinaryPoweredSteeringNeverBuildsAutomaticSlip()
     {
         VehicleState Drive(float speed)
         {
@@ -22,10 +22,10 @@ internal sealed class ProgressiveHandlingTests
         var low = Drive(6);
         var medium = Drive(12);
         var fast = Drive(20);
-        Assert.That(low.PowerSlip, Is.GreaterThan(0.3f));
-        Assert.That(medium.PowerSlip, Is.LessThan(low.PowerSlip));
+        Assert.That(low.PowerSlip, Is.Zero);
+        Assert.That(medium.PowerSlip, Is.Zero);
         Assert.That(fast.PowerSlip, Is.LessThan(0.001f));
-        Assert.That(fast.SteeringAngle, Is.EqualTo(low.SteeringAngle).Within(0.0001));
+        Assert.That(fast.SteeringAngle, Is.LessThan(low.SteeringAngle));
     }
 
     [Test]
@@ -61,8 +61,10 @@ internal sealed class ProgressiveHandlingTests
         Assert.That(Drive(1), Is.EqualTo(Drive(0)));
     }
 
-    [TestCase("power_slip_full_speed", 6d)]
-    [TestCase("power_slip_fade_speed", 20d)]
+    [TestCase("steering_full_speed", 6d)]
+    [TestCase("steering_fade_speed", 30d)]
+    [TestCase("high_speed_steering_scale", 0.3d)]
+    [TestCase("steering_counter_response", 3d)]
     [TestCase("reverse_engagement_speed", 0.5d)]
     public void NewControlsUseSharedConfigurationAndPersistence(string key, double value)
     {

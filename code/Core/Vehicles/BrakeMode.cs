@@ -1,13 +1,13 @@
 namespace Trackstorm.Core.Vehicles;
 
-/// <summary>Portable brake/reverse intent; service braking cannot become reverse until a new press.</summary>
+/// <summary>Portable brake/reverse intent; service braking continues through zero into reverse.</summary>
 public enum BrakeMode : byte
 {
     /// <summary>No remaining pedal demand; the next press chooses braking or reverse.</summary>
     Ready,
-    /// <summary>A forward stop is held until release.</summary>
+    /// <summary>Forward service braking; crossing rest permits reverse on the same hold.</summary>
     Stopping,
-    /// <summary>A deliberate press from rest/reverse permits reverse propulsion.</summary>
+    /// <summary>A press from rest or a continued forward stop permits reverse propulsion.</summary>
     Reversing,
     /// <summary>Physical release occurred but digital pedal decay still requests service braking.</summary>
     ReleaseTail,

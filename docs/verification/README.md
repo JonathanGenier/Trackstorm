@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Ground steering and removal of automatic power drift | [TS-268 verification evidence](ts-268.md) |
 | Rock collision hull cost, repeated contact and native multiplayer evidence | [TS-267 verification evidence](ts-267.md) |
 | Story verification | [TS-265 verification evidence](ts-265.md) |
 | Arcade trophy-truck handling, sustained-turn rear alignment, controller precision and runtime/multiplayer evidence | [TS-197 verification evidence](ts-197.md) |
