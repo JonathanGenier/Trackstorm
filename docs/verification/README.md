@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Distinct surface braking, deliberate slides, incline holding and runtime evidence | [TS-266 verification evidence](ts-266.md) |
 | Ground steering and removal of automatic power drift | [TS-268 verification evidence](ts-268.md) |
 | Rock collision hull cost, repeated contact and native multiplayer evidence | [TS-267 verification evidence](ts-267.md) |
 | Story verification | [TS-265 verification evidence](ts-265.md) |

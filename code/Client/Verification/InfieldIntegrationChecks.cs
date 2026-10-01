@@ -25,6 +25,7 @@ public sealed partial class InfieldIntegrationChecks : Node3D
     private int _airStreak;
     private int _longestFlight;
     private float _targetSpeed = 10;
+    private bool _horizontalSpeedTarget;
     private float _peakHeight;
     private float _peakClearance;
     private float _launchSpeed;
@@ -71,8 +72,13 @@ public sealed partial class InfieldIntegrationChecks : Node3D
             float angle = (forward with { Y = 0 }).SignedAngleTo(target, Vector3.Up);
             steering = (short)(Math.Clamp(-angle * 2.5f, -1, 1) * short.MaxValue);
             float targetSpeed = Math.Abs(angle) > 0.35f ? 6 : _targetSpeed;
-            throttle = _vehicle.LinearVelocity.Length() < targetSpeed ? (ushort)40000 : (ushort)0;
-            brake = _vehicle.LinearVelocity.Length() > targetSpeed + 1 ? (ushort)18000 : (ushort)0;
+            // Jump cases assert horizontal launch/travel. Counting ramp ascent as
+            // forward speed cuts power before reaching that requested launch speed.
+            float measuredSpeed = (_horizontalSpeedTarget ? _vehicle.LinearVelocity with { Y = 0 } : _vehicle.LinearVelocity).Length();
+            // The jump pilot must be able to request full power when the ramp load
+            // pulls it below target; a fixed 61% pedal is not a speed controller.
+            throttle = measuredSpeed < targetSpeed ? _horizontalSpeedTarget && measuredSpeed < targetSpeed - 0.5f ? ushort.MaxValue : (ushort)40000 : (ushort)0;
+            brake = measuredSpeed > targetSpeed + 1 ? (ushort)18000 : (ushort)0;
             _unsupported += _vehicle.State.Grounded ? 0 : 1;
             _airStreak = _vehicle.State.Grounded ? 0 : _airStreak + 1;
             _longestFlight = Math.Max(_longestFlight, _airStreak);
@@ -444,6 +450,7 @@ public sealed partial class InfieldIntegrationChecks : Node3D
         _airStreak = 0;
         _longestFlight = 0;
         _targetSpeed = speed;
+        _horizontalSpeedTarget = jump;
         _peakHeight = 0;
         _peakClearance = 0;
         _launchSpeed = 0;
@@ -467,7 +474,7 @@ public sealed partial class InfieldIntegrationChecks : Node3D
             {
                 var state = _vehicle.State;
                 var travel = state.Wheels.Compression;
-                suspensionSamples.Add(new { Frame = frame, state.Grounded, X = _vehicle.Position.X, Y = _vehicle.Position.Y, VerticalSpeed = _vehicle.LinearVelocity.Y, Compression = new[] { travel.X, travel.Y, travel.Z, travel.W }, PitchRollSpeed = new[] { _vehicle.AngularVelocity.X, _vehicle.AngularVelocity.Z } });
+                suspensionSamples.Add(new { Frame = frame, state.Grounded, X = _vehicle.Position.X, Y = _vehicle.Position.Y, HorizontalSpeed = (_vehicle.LinearVelocity with { Y = 0 }).Length(), VerticalSpeed = _vehicle.LinearVelocity.Y, Compression = new[] { travel.X, travel.Y, travel.Z, travel.W }, PitchRollSpeed = new[] { _vehicle.AngularVelocity.X, _vehicle.AngularVelocity.Z } });
             }
             if (_vehicle.DamageState.CurrentHP < _vehicle.DamageState.MaxHP)
             {

@@ -15,6 +15,7 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
     private NetworkVehicleBody? _network;
     private bool _advance;
     private ushort _throttle;
+    private ushort _brake;
     private short _steer;
     private InputButtons _buttons;
     private readonly List<string> _lines = new();
@@ -26,7 +27,7 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
     public override void _PhysicsProcess(double delta)
     {
         if (!_advance) { return; }
-        var input = new InputFrame(_world.State.Tick + 1, _steer, _throttle, 0, _buttons, 0, 0);
+        var input = new InputFrame(_world.State.Tick + 1, _steer, _throttle, _brake, _buttons, 0, 0);
         var request = _native is not null ? _native.Capture(input) : new VehicleStepRequest(1, input, _network!.Observe(_world.GetVehicle(1)));
         var result = _world.Step(input, new[] { request })[0];
         if (_native is not null) { _native.Apply(result); }
@@ -49,6 +50,7 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
 
             foreach (bool network in new[] { false, true })
             {
+                await SurfaceDriving(network);
                 var speeds = new Dictionary<SurfaceIdentity, float>();
                 foreach (var entry in new[] { (SurfaceIdentity.Asphalt, 20f), (SurfaceIdentity.Concrete, 20f), (SurfaceIdentity.Dirt, 20f), (SurfaceIdentity.Grass, 15f), (SurfaceIdentity.Mud, 12f), (SurfaceIdentity.DeepMud, 10f) })
                 {

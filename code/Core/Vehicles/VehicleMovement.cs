@@ -136,7 +136,10 @@ public sealed class VehicleMovement
         float lateral = Vector3.Dot(velocity, right);
         float steerIntent = driveEnabled ? input.Steering / 32767f : 0;
         float steeringSpeed = MathF.Sqrt(longitudinal * longitudinal + lateral * lateral);
-        float dirtCorner = grounded && currentSurface == SurfaceType.Dirt ? c.DirtCornering * Math.Clamp((c.DirtCornerFadeSpeed - steeringSpeed) / (c.DirtCornerFadeSpeed - c.DirtCornerFullSpeed), 0, 1) : 0;
+        bool holding = driveEnabled && grounded && waterDepth == 0 && wheelCount >= 2 &&
+            (input.Held & InputButtons.Drift) != 0 && steeringSpeed <= c.HandbrakeHoldSpeed;
+        float holdCapacity = 0;
+        float dirtCorner = grounded ? c.DirtCornering * Math.Clamp((c.DirtCornerFadeSpeed - steeringSpeed) / (c.DirtCornerFadeSpeed - c.DirtCornerFullSpeed), 0, 1) : 0;
         // Change the usable wheel range, never the body's heading or velocity. Air control
         // consumes the original frame independently of this ground-only speed envelope.
         float steeringLimit = grounded ? c.SteeringLimit(steeringSpeed) : c.SteeringAngle;
@@ -179,6 +182,7 @@ public sealed class VehicleMovement
             WheelSupport contact = wheels ?? default;
             SurfaceType[] materials = [contact.FrontLeft ?? surface, contact.FrontRight ?? surface, contact.RearLeft ?? surface, contact.RearRight ?? surface];
             SurfaceModifiers[] profiles = materials.Select(material => c.ResolveSurface(waterDepth > 0 ? SurfaceType.Water : material)).ToArray();
+            SurfaceBraking[] braking = materials.Select(material => c.ResolveBraking(waterDepth > 0 ? SurfaceType.Water : material)).ToArray();
             Vector4 compression = contact.Compression;
             float frontTotal = compression.X + compression.Y;
             float rearTotal = compression.Z + compression.W;
@@ -211,7 +215,7 @@ public sealed class VehicleMovement
 
             stopping = Math.Min(stopping * forceScale, Math.Abs(longitudinal) / dt);
             // One progressive application controls rear braking, engine interruption and grip on hold/release.
-            float brakeApplication = handbrake;
+            float brakeApplication = holding ? 1 : handbrake;
             float handbrakeStop = Math.Min(c.HandbrakeBraking * brakeApplication * forceScale, Math.Max(0, (Math.Abs(longitudinal) / dt) - stopping));
             float frontLong = -Math.Sign(longitudinal) * stopping * c.FrontBrakeShare;
             float driveAcceleration = Math.Clamp(drive * forceScale, -Math.Max(0, c.ReverseSpeed + longitudinal) / dt, Math.Max(0, forwardSpeed - longitudinal) / dt);
@@ -241,7 +245,8 @@ public sealed class VehicleMovement
             // Missing wheel forces already reduce normalLoad; do not discount their absence twice.
             // Arcade corner authority fades with speed. Extra tire capacity turns the travel
             // direction as well as the nose, so tight steering does not become a stationary spin.
-            float totalGrip = c.TireFriction * tireLoad * (1 + c.DirtCornerGrip * dirtCorner * Math.Abs(steerIntent));
+            float totalGrip = c.TireFriction * tireLoad;
+            float[] tireGrip = profiles.Select((profile, index) => profile.Grip * (waterDepth == 0 && materials[index] == SurfaceType.Dirt ? 1 + c.DirtCornerGrip * dirtCorner * Math.Abs(steerIntent) : 1)).ToArray();
             float oilGrip = 1 - c.OilGripReduction * Math.Clamp((float)oilTicks / recoveryTicks, 0, 1);
             float frontCapacity = totalGrip * frontLoad;
             float rearCapacity = totalGrip * (1 - frontLoad);
@@ -258,14 +263,25 @@ public sealed class VehicleMovement
             float driveReserve = driveAcceleration != 0 ? c.DriveTractionReserve * (1 - handbrake) : 0;
             float brakeGrip = 1 + (c.BrakeGrip - 1) * (stopping > 0 ? Math.Max(pedal, brake) : 0);
             float rearLongGrip = rearLong * longitudinal >= 0 && engine != 0 ? c.RearDriveGrip * (1 - c.SpinDriveLoss * powerSlip) : brakeGrip;
-            float rearGrip = (1 - handbrake * (1 - c.HandbrakeGrip)) * (1 - powerSlip);
-            var fl = Tire(frontDemand * frontLeftShare, frontLong * frontLeftShare, frontCapacity * frontLeftShare * profiles[0].Grip, driveReserve: driveReserve, longitudinalGrip: brakeGrip);
-            var fr = Tire(frontDemand * (1 - frontLeftShare), frontLong * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * profiles[1].Grip, driveReserve: driveReserve, longitudinalGrip: brakeGrip);
+            float service = stopping > 0 ? Math.Max(pedal, brake) : 0;
+            float LateralGrip(int index, bool rear)
+            {
+                if (holding) { return 1; }
+                float retained = rear ? braking[index].BrakeLateralGrip : MathF.Sqrt(braking[index].BrakeLateralGrip);
+                float serviceGrip = 1 - service * (1 - retained);
+                return serviceGrip * (rear ? (1 - handbrake * (1 - Math.Min(1, c.HandbrakeGrip * braking[index].HandbrakeLateralGrip))) * (1 - powerSlip) : 1);
+            }
+            float BrakeScale(int index, float demand) => demand * longitudinal < 0 ? braking[index].Deceleration : 1;
+            float flBrake = BrakeScale(0, frontLong), frBrake = BrakeScale(1, frontLong);
+            float rlBrake = BrakeScale(2, rearLong), rrBrake = BrakeScale(3, rearLong);
+            var fl = Tire(frontDemand * frontLeftShare, frontLong * frontLeftShare * flBrake, frontCapacity * frontLeftShare * tireGrip[0], LateralGrip(0, false), driveReserve, brakeGrip * flBrake);
+            var fr = Tire(frontDemand * (1 - frontLeftShare), frontLong * (1 - frontLeftShare) * frBrake, frontCapacity * (1 - frontLeftShare) * tireGrip[1], LateralGrip(1, false), driveReserve, brakeGrip * frBrake);
             // Reserve part of saturated front dirt traction for the filtered wheel direction.
             // This changes force allocation, not the surface's friction budget or drive demand.
             // Half authority near a 22-degree slide; the speed floor calms parking-speed input.
             float slide = lateral * lateral / (0.16f * longitudinal * longitudinal + lateral * lateral + 4);
-            float powerTurn = dirtCorner * throttle * Math.Abs(steerIntent);
+            float frontDirtShare = (materials[0] == SurfaceType.Dirt ? frontLeftShare : 0) + (materials[1] == SurfaceType.Dirt ? 1 - frontLeftShare : 0);
+            float powerTurn = dirtCorner * frontDirtShare * throttle * Math.Abs(steerIntent);
             float steeringReserve = Math.Max(slide, Math.Max(Math.Min(1, powerTurn * 0.7f), handbrake * Math.Abs(steerIntent)));
             // Rear-lock rotation uses the actual front contact velocity, including lateral
             // motion and yaw. The powered dirt reserve must not keep steering from unsigned
@@ -278,11 +294,20 @@ public sealed class VehicleMovement
             float steeringDemand = (steeringTravel * MathF.Sin(wheel) + yaw * halfAxle * MathF.Cos(wheel)) * response * 0.5f;
             if (driveEnabled && waterDepth == 0 && (!wheels.HasValue || frontTotal > 0))
             {
-                if (materials[0] == SurfaceType.Dirt) { fl = DirtFront(fl, frontLong * frontLeftShare, steeringDemand * frontLeftShare, frontCapacity * frontLeftShare * profiles[0].Grip, steeringReserve * c.DirtSteeringReserve); }
-                if (materials[1] == SurfaceType.Dirt) { fr = DirtFront(fr, frontLong * (1 - frontLeftShare), steeringDemand * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * profiles[1].Grip, steeringReserve * c.DirtSteeringReserve); }
+                // With the wheel centered, grass must spend its front purchase correcting
+                // lateral travel rather than reserving it for a direction nobody requested.
+                float grassCommitment = Math.Clamp(Math.Abs(wheel) / steeringLimit, 0, 1);
+                float Reserve(int index) => materials[index] == SurfaceType.Dirt ? c.DirtSteeringReserve : materials[index] == SurfaceType.Grass ? c.GrassSteeringReserve * grassCommitment : 0;
+                fl = SlideFront(fl, frontLong * frontLeftShare * flBrake, steeringDemand * frontLeftShare, frontCapacity * frontLeftShare * tireGrip[0], steeringReserve * Reserve(0), LateralGrip(0, false), brakeGrip * flBrake);
+                fr = SlideFront(fr, frontLong * (1 - frontLeftShare) * frBrake, steeringDemand * (1 - frontLeftShare), frontCapacity * (1 - frontLeftShare) * tireGrip[1], steeringReserve * Reserve(1), LateralGrip(1, false), brakeGrip * frBrake);
             }
-            var rl = Tire(rearDemand * rearLeftShare, rearLong * rearLeftShare, rearCapacity * rearLeftShare * profiles[2].Grip, rearGrip, driveReserve, rearLongGrip);
-            var rr = Tire(rearDemand * (1 - rearLeftShare), rearLong * (1 - rearLeftShare), rearCapacity * (1 - rearLeftShare) * profiles[3].Grip, rearGrip, driveReserve, rearLongGrip);
+            var rl = Tire(rearDemand * rearLeftShare, rearLong * rearLeftShare * rlBrake, rearCapacity * rearLeftShare * tireGrip[2], LateralGrip(2, true), driveReserve, rearLongGrip * rlBrake);
+            var rr = Tire(rearDemand * (1 - rearLeftShare), rearLong * (1 - rearLeftShare) * rrBrake, rearCapacity * (1 - rearLeftShare) * tireGrip[3], LateralGrip(3, true), driveReserve, rearLongGrip * rrBrake);
+            // Static friction acts in the support plane after gravity. Its impulse is bounded
+            // by supported tire load, surface purchase and the ordinary mechanical brake.
+            holdCapacity = Math.Min(c.HandbrakeBraking * forceScale,
+                (frontCapacity * (tireGrip[0] * frontLeftShare * braking[0].Deceleration + tireGrip[1] * (1 - frontLeftShare) * braking[1].Deceleration) +
+                rearCapacity * (tireGrip[2] * rearLeftShare * braking[2].Deceleration + tireGrip[3] * (1 - rearLeftShare) * braking[3].Deceleration)) * oilGrip);
             float frontForce = ((fl.Side + fr.Side) * wheelCos + (fl.Drive + fr.Drive) * wheelSin) * oilGrip;
             float rearForce = (rl.Side + rr.Side) * oilGrip;
             float frontDrive = (fl.Drive + fr.Drive) * wheelCos - (fl.Side + fr.Side) * wheelSin * oilGrip;
@@ -307,19 +332,21 @@ public sealed class VehicleMovement
             // Split material contact creates torque through the existing track-width lever arm.
             angular += tireNormal * (VehicleDimensions.WheelTrack / 2 * (fr.Drive + rr.Drive - fl.Drive - rl.Drive) / inertiaPerMass * dt);
             angular -= tireNormal * (Vector3.Dot(angular, tireNormal) * (1 - MathF.Exp(-c.StabilityDamping * dt)));
-            float frontDirt = waterDepth > 0 || (wheels.HasValue && frontTotal == 0) ? 0 : (materials[0] == SurfaceType.Dirt ? frontLeftShare : 0) + (materials[1] == SurfaceType.Dirt ? 1 - frontLeftShare : 0);
-            if (driveEnabled && frontDirt > 0 && c.DirtRecovery > 0 && tireLoad > 0)
+            float Recovery(int index) => materials[index] == SurfaceType.Dirt ? c.DirtRecovery : materials[index] == SurfaceType.Grass ? c.GrassRecovery : 0;
+            float recoveryRate = waterDepth > 0 || (wheels.HasValue && frontTotal == 0) ? 0 : Recovery(0) * frontLeftShare + Recovery(1) * (1 - frontLeftShare);
+            float recoveryGrip = (Recovery(0) > 0 ? tireGrip[0] * frontLeftShare * LateralGrip(0, false) : 0) + (Recovery(1) > 0 ? tireGrip[1] * (1 - frontLeftShare) * LateralGrip(1, false) : 0);
+            if (driveEnabled && !holding && recoveryRate > 0 && tireLoad > 0)
             {
                 // A bounded arcade correction arrests runaway yaw while retaining tire-driven
                 // translation and handbrake initiation. No heading, velocity or drift-mode snap.
-                float yawLimit = totalGrip * c.Dirt.Grip / Math.Max(steeringSpeed, 2);
+                float yawLimit = totalGrip * recoveryGrip / Math.Max(steeringSpeed, 2);
                 float intendedYaw = Math.Clamp(-steeringTravel * MathF.Tan(wheel) / c.Wheelbase, -yawLimit, yawLimit);
                 float currentYaw = Vector3.Dot(angular, tireNormal);
                 // Countersteering gets full recovery authority even while the rear is locked;
                 // only rotation already following the wheel retains the loose drift response.
                 float recovery = intendedYaw * currentYaw < 0 ? 1 : 1 - 0.75f * handbrake;
-                float correction = (intendedYaw - currentYaw) * (1 - MathF.Exp(-c.DirtRecovery * Math.Max(slide, powerTurn) * frontDirt * recovery * dt));
-                float authority = frontCapacity * oilGrip * c.Dirt.Grip * frontDirt * halfAxle / inertiaPerMass * dt;
+                float correction = (intendedYaw - currentYaw) * (1 - MathF.Exp(-recoveryRate * Math.Max(slide, powerTurn) * recovery * dt));
+                float authority = frontCapacity * oilGrip * recoveryGrip * halfAxle / inertiaPerMass * dt;
                 angular += tireNormal * Math.Clamp(correction, -authority, authority);
             }
         }
@@ -421,6 +448,15 @@ public sealed class VehicleMovement
         angular += suspensionTorque / (c.Wheelbase * c.Wheelbase / 3) * dt;
 
         velocity -= Vector3.UnitY * (c.Gravity * dt);
+        if (holding && holdCapacity > 0)
+        {
+            Vector3 tangent = velocity - groundNormal * Vector3.Dot(velocity, groundNormal);
+            float speed = tangent.Length();
+            if (speed > 0) { velocity -= tangent * Math.Min(1, holdCapacity * dt / speed); }
+            float yaw = Vector3.Dot(angular, groundNormal);
+            float holdTorque = holdCapacity * (c.Wheelbase / 2) / (c.Wheelbase * c.Wheelbase / 3);
+            angular -= groundNormal * Math.Clamp(yaw, -holdTorque * dt, holdTorque * dt);
+        }
         float landing = grounded && !State.Grounded ? Math.Clamp(-State.Physics.LinearVelocity.Y / 12, 0, 1) : Math.Max(0, State.LandingIntensity - (dt * c.LandingReboundDecay));
         // A clean landing dissipates the first compression/release cycle. Reuse the
         // portable landing envelope; ordinary ramp loading and airborne input are untouched.
@@ -457,16 +493,18 @@ public sealed class VehicleMovement
         }
         return velocity * MathF.Exp(-c.AirStabilization * stabilization * dt);
     }
-    private static (float Side, float Drive, float Slip) DirtFront((float Side, float Drive, float Slip) tire, float braking, float steering, float capacity, float reserve)
+    private static (float Side, float Drive, float Slip) SlideFront((float Side, float Drive, float Slip) tire, float braking, float steering, float capacity, float reserve, float lateralGrip, float longitudinalGrip)
     {
-        var directed = Tire(steering, braking, capacity);
-        float available = MathF.Sqrt(Math.Max(0, capacity * capacity - tire.Drive * tire.Drive));
+        if (reserve == 0 || longitudinalGrip <= 0) { return tire; }
+        var directed = Tire(steering, braking, capacity, lateralGrip, longitudinalGrip: longitudinalGrip);
+        float available = MathF.Sqrt(Math.Max(0, capacity * capacity - tire.Drive * tire.Drive / (longitudinalGrip * longitudinalGrip))) * lateralGrip;
         float side = tire.Side + (Math.Clamp(directed.Side, -available, available) - tire.Side) * reserve;
         return (side, tire.Drive, tire.Slip);
     }
 
     private static (float Side, float Drive, float Slip) Tire(float lateral, float longitudinal, float capacity, float lateralFraction = 1, float driveReserve = 0, float longitudinalGrip = 1)
     {
+        if (longitudinalGrip <= 0) { longitudinal = 0; longitudinalGrip = 1; }
         float longitudinalDemand = longitudinal / longitudinalGrip;
         float demand = MathF.Sqrt((lateral * lateral) + (longitudinalDemand * longitudinalDemand));
         if (demand < 0.00001f)

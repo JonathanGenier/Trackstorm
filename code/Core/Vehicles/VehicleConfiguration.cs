@@ -3,6 +3,7 @@ namespace Trackstorm.Core.Vehicles;
 /// <summary>Validated arcade tuning shared by local, replay, and future authority drivers.</summary>
 public sealed record VehicleConfiguration
 {
+    private static readonly SurfaceBraking NeutralBraking = new();
     /// <summary>Trunk mechanism speed relative to its original 0.72-second travel; independently tunable.</summary>
     public float TrunkDeploymentSpeed { get; init; } = 3;
     /// <summary>Rack mechanism speed relative to its original 0.88-second travel; independently tunable.</summary>
@@ -13,6 +14,18 @@ public sealed record VehicleConfiguration
     public float OilRecoverySeconds { get; init; } = 0.5f;
     /// <summary>Asphalt tire capacity; neutral drag/drive retain approved power and coasting.</summary>
     public float AsphaltGrip { get; init; } = 3;
+    /// <summary>Highest braking purchase and shortest deliberate rear-lock slide.</summary>
+    public SurfaceBraking AsphaltBraking { get; init; } = new() { BrakeLateralGrip = 0.9f };
+    /// <summary>Loose soil releases lateral purchase deliberately while retaining ordinary traction.</summary>
+    public SurfaceBraking DirtBraking { get; init; } = new() { Deceleration = 0.8f, BrakeLateralGrip = 0.55f, HandbrakeLateralGrip = 0.45f };
+    /// <summary>Grass retains normal purchase but releases strongly under deliberate braking.</summary>
+    public SurfaceBraking GrassBraking { get; init; } = new() { Deceleration = 0.6f, BrakeLateralGrip = 0.2f, HandbrakeLateralGrip = 0.16f };
+    /// <summary>Contact-plane speed below which held handbrake can engage static tire friction.</summary>
+    public float HandbrakeHoldSpeed { get; init; } = 0.5f;
+    /// <summary>Front grass traction allocation for steering during a slide.</summary>
+    public float GrassSteeringReserve { get; init; } = 0.65f;
+    /// <summary>Traction-bounded grass slide yaw recovery response per second.</summary>
+    public float GrassRecovery { get; init; } = 3;
     /// <summary>Cast surface handling profile.</summary>
     public SurfaceModifiers Concrete { get; init; } = new(1.5f, 1, 0.98f);
     /// <summary>Compacted soil retains controllable drive with modest rolling resistance.</summary>
@@ -101,7 +114,7 @@ public sealed record VehicleConfiguration
     /// <summary>Speed where extra dirt tire budget finishes fading; never limits wheel angle, m/s.</summary>
     public float DirtCornerFadeSpeed { get; init; } = 28;
     /// <summary>Extra tire capacity at full dirt corner commitment.</summary>
-    public float DirtCornerGrip { get; init; } = 1.2f;
+    public float DirtCornerGrip { get; init; } = 0.2f;
     /// <summary>Retired automatic power-drift value retained for source compatibility; not used by movement or live tuning.</summary>
     public float DirtCornerPowerSlip { get; init; } = 1.5f;
     /// <summary>Fraction of ordinary service braking assigned to the front axle.</summary>
@@ -231,9 +244,31 @@ public sealed record VehicleConfiguration
         _ => throw new ArgumentOutOfRangeException(nameof(surface)),
     };
 
+    /// <summary>Resolves deliberate braking without changing unrelated material behavior.</summary>
+    /// <param name="surface">Portable wheel material.</param>
+    /// <returns>Validated surface braking response.</returns>
+    public SurfaceBraking ResolveBraking(SurfaceType surface) => surface switch
+    {
+        SurfaceType.Asphalt => AsphaltBraking,
+        SurfaceType.Dirt => DirtBraking,
+        SurfaceType.Grass => GrassBraking,
+        SurfaceType.Concrete or SurfaceType.Mud or SurfaceType.DeepMud or SurfaceType.Water => NeutralBraking,
+        _ => throw new ArgumentOutOfRangeException(nameof(surface)),
+    };
+
     /// <summary>Rejects unsafe tuning before any state or native body is created.</summary>
     public void Validate()
     {
+        if (AsphaltBraking is null || DirtBraking is null || GrassBraking is null) { throw new ArgumentException("Missing surface braking profile."); }
+        AsphaltBraking.Validate();
+        DirtBraking.Validate();
+        GrassBraking.Validate();
+        if (!float.IsFinite(HandbrakeHoldSpeed) || HandbrakeHoldSpeed is < 0 or > 1 ||
+            !float.IsFinite(GrassSteeringReserve) || GrassSteeringReserve is < 0 or > 1 ||
+            !float.IsFinite(GrassRecovery) || GrassRecovery is < 0 or > 10)
+        {
+            throw new ArgumentException("Invalid stationary hold or grass recovery tuning.");
+        }
         if (!float.IsFinite(SteeringFullSpeed) || !float.IsFinite(SteeringFadeSpeed) ||
             SteeringFullSpeed < 0 || SteeringFadeSpeed <= SteeringFullSpeed || SteeringFadeSpeed > MaximumPhysicsSpeed ||
             !float.IsFinite(HighSpeedSteeringScale) || HighSpeedSteeringScale is < 0.05f or > 1)
