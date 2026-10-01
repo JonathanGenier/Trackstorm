@@ -57,7 +57,8 @@ internal sealed class LandingTests
         Assert.That(hp, Is.LessThan(100));
         Assert.That(Step(Quaternion.Identity, Contact(Vector3.UnitY)).Damage.CurrentHP, Is.EqualTo(hp));
         for (int i = 0; i < 12; i++) { Step(Quaternion.Identity); }
-        Assert.That(Step(Quaternion.Identity, Contact(Vector3.UnitY)).Damage.CurrentHP, Is.LessThan(hp));
+        Assert.That(Step(Quaternion.Identity, Contact(Vector3.UnitY)).Damage.CurrentHP, Is.EqualTo(hp));
+        Assert.That(Step(Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI), Contact(Vector3.UnitY)).Damage.CurrentHP, Is.LessThan(hp));
     }
 
     [TestCase(false, 0ul)]
@@ -103,12 +104,12 @@ internal sealed class LandingTests
     }
 
     [Test]
-    public void RecoveryExpiresAndDoesNotGrantPermanentTerrainImmunity()
+    public void TireLandingRemainsSafeAfterRecoveryExpires()
     {
         Step(Quaternion.Identity, Contact(Vector3.UnitY));
         for (int i = 0; i < 60; i++) { Step(Quaternion.Identity, support: Vector3.UnitY); }
         Assert.That(_world.GetVehicle(1).Landing.Phase, Is.EqualTo(LandingPhase.Driving));
-        Assert.That(Step(Quaternion.Identity, Contact(Vector3.UnitY), Vector3.UnitY).Damage.CurrentHP, Is.LessThan(100));
+        Assert.That(Step(Quaternion.Identity, Contact(Vector3.UnitY), Vector3.UnitY).Damage.CurrentHP, Is.EqualTo(100));
     }
 
     [Test]

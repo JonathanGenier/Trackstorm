@@ -1,0 +1,490 @@
+[
+  {
+    "case": "native-awkward",
+    "damageTicks": [
+      3,
+      26,
+      35,
+      94
+    ],
+    "finalHP": 868.93695,
+    "crashTicks": [
+      3,
+      183
+    ],
+    "finalUp": 1.0000002,
+    "finalWheels": 4,
+    "finalVelocity": [
+      -0.0009884263,
+      -2.8014183e-06,
+      -0.002060785
+    ],
+    "finalAngular": [
+      -4.4123653e-06,
+      -5.5303016e-08,
+      -3.029916e-06
+    ]
+  },
+  {
+    "case": "native-multi-flip",
+    "damageTicks": [
+      5,
+      25,
+      26,
+      53,
+      131
+    ],
+    "finalHP": 796.8759,
+    "crashTicks": [
+      5,
+      215
+    ],
+    "finalUp": 1,
+    "finalWheels": 4,
+    "finalVelocity": [
+      0.003734845,
+      -2.875924e-06,
+      -0.02860079
+    ],
+    "finalAngular": [
+      -9.73325e-08,
+      9.480655e-08,
+      5.1564857e-06
+    ]
+  },
+  {
+    "case": "native-nose-fast",
+    "damageTicks": [
+      6,
+      37
+    ],
+    "finalHP": 940.0458,
+    "crashTicks": [
+      6,
+      87
+    ],
+    "finalUp": 1.0000001,
+    "finalWheels": 4,
+    "finalVelocity": [
+      0.48650756,
+      2.771616e-06,
+      -3.7853532
+    ],
+    "finalAngular": [
+      -9.204577e-06,
+      -8.217868e-08,
+      -1.5194048e-06
+    ]
+  },
+  {
+    "case": "native-nose-slow",
+    "damageTicks": [
+      10
+    ],
+    "finalHP": 996.75,
+    "crashTicks": [
+      10,
+      76
+    ],
+    "finalUp": 1,
+    "finalWheels": 4,
+    "finalVelocity": [
+      -0.07902338,
+      2.9355288e-06,
+      0.8932261
+    ],
+    "finalAngular": [
+      -1.1343207e-06,
+      8.996324e-09,
+      -7.5074563e-06
+    ]
+  },
+  {
+    "case": "native-rear",
+    "damageTicks": [
+      6,
+      43
+    ],
+    "finalHP": 936.9376,
+    "crashTicks": [
+      6,
+      116
+    ],
+    "finalUp": 1,
+    "finalWheels": 4,
+    "finalVelocity": [
+      0.119015366,
+      2.861023e-06,
+      0.045975067
+    ],
+    "finalAngular": [
+      4.550083e-06,
+      -7.020252e-08,
+      -7.99841e-06
+    ]
+  },
+  {
+    "case": "native-roof-rest",
+    "damageTicks": [],
+    "finalHP": 1000,
+    "crashTicks": [
+      15,
+      142
+    ],
+    "finalUp": 1.0000001,
+    "finalWheels": 4,
+    "finalVelocity": [
+      0.00027119584,
+      -2.682209e-06,
+      -0.011750879
+    ],
+    "finalAngular": [
+      -1.7510796e-06,
+      -4.0128203e-08,
+      4.5535726e-06
+    ]
+  },
+  {
+    "case": "native-roof",
+    "damageTicks": [
+      11
+    ],
+    "finalHP": 975.8333,
+    "crashTicks": [
+      11,
+      140
+    ],
+    "finalUp": 1.0000002,
+    "finalWheels": 4,
+    "finalVelocity": [
+      0.0019368012,
+      -2.8163195e-06,
+      -0.02657469
+    ],
+    "finalAngular": [
+      7.8885614e-07,
+      -3.7133514e-08,
+      4.697411e-06
+    ]
+  },
+  {
+    "case": "native-side",
+    "damageTicks": [
+      13
+    ],
+    "finalHP": 969,
+    "crashTicks": [
+      13,
+      21
+    ],
+    "finalUp": 1,
+    "finalWheels": 4,
+    "finalVelocity": [
+      -0.62183756,
+      2.7567148e-06,
+      -1.9822068
+    ],
+    "finalAngular": [
+      -7.0565507e-06,
+      -4.7036913e-08,
+      5.2948594e-06
+    ]
+  },
+  {
+    "case": "native-wheels-13",
+    "damageTicks": [],
+    "finalHP": 1000,
+    "crashTicks": [],
+    "finalUp": 1,
+    "finalWheels": 4,
+    "finalVelocity": [
+      0,
+      3.0100346e-06,
+      -3.0188744
+    ],
+    "finalAngular": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "case": "native-wheels-25",
+    "damageTicks": [],
+    "finalHP": 1000,
+    "crashTicks": [],
+    "finalUp": 1,
+    "finalWheels": 4,
+    "finalVelocity": [
+      -1.0794102e-12,
+      -2.6673079e-06,
+      -3.6046221
+    ],
+    "finalAngular": [
+      1.2230015e-06,
+      0,
+      -3.6626602e-07
+    ]
+  },
+  {
+    "case": "native-wheels-45",
+    "damageTicks": [],
+    "finalHP": 1000,
+    "crashTicks": [],
+    "finalUp": 1,
+    "finalWheels": 4,
+    "finalVelocity": [
+      -1.6302153e-07,
+      3.6209822e-06,
+      -4.161798
+    ],
+    "finalAngular": [
+      1.5900333e-06,
+      -2.627499e-09,
+      -5.679004e-07
+    ]
+  },
+  {
+    "case": "network-awkward",
+    "damageTicks": [
+      1,
+      24,
+      35,
+      95
+    ],
+    "finalHP": 886.0391,
+    "crashTicks": [
+      1,
+      115
+    ],
+    "finalUp": 1.0000001,
+    "finalWheels": 4,
+    "finalVelocity": [
+      0.33961856,
+      2.8908253e-06,
+      -0.076646104
+    ],
+    "finalAngular": [
+      -0.00035653103,
+      -9.768899e-08,
+      0.00077246194
+    ]
+  },
+  {
+    "case": "network-multi-flip",
+    "damageTicks": [
+      3,
+      22,
+      23
+    ],
+    "finalHP": 910.2488,
+    "crashTicks": [
+      3,
+      115
+    ],
+    "finalUp": 0.9999999,
+    "finalWheels": 4,
+    "finalVelocity": [
+      0.04193338,
+      2.682209e-06,
+      -0.15490864
+    ],
+    "finalAngular": [
+      0.00090757647,
+      -7.201029e-08,
+      0.00036772573
+    ]
+  },
+  {
+    "case": "network-nose-fast",
+    "damageTicks": [
+      4,
+      36
+    ],
+    "finalHP": 941.56494,
+    "crashTicks": [
+      4,
+      87
+    ],
+    "finalUp": 0.9999999,
+    "finalWheels": 4,
+    "finalVelocity": [
+      -0.93598044,
+      2.875924e-06,
+      -3.03949
+    ],
+    "finalAngular": [
+      -0.0009634627,
+      -9.3065424e-08,
+      0.000121930454
+    ]
+  },
+  {
+    "case": "network-nose-slow",
+    "damageTicks": [
+      8
+    ],
+    "finalHP": 998.5833,
+    "crashTicks": [
+      8,
+      76
+    ],
+    "finalUp": 1,
+    "finalWheels": 4,
+    "finalVelocity": [
+      -0.0608212,
+      2.95043e-06,
+      0.72752947
+    ],
+    "finalAngular": [
+      0.0009712969,
+      2.8019768e-08,
+      -5.1449388e-06
+    ]
+  },
+  {
+    "case": "network-rear",
+    "damageTicks": [
+      4,
+      41
+    ],
+    "finalHP": 937.2759,
+    "crashTicks": [
+      4,
+      108
+    ],
+    "finalUp": 1,
+    "finalWheels": 4,
+    "finalVelocity": [
+      0.26025954,
+      -2.7120113e-06,
+      0.1780197
+    ],
+    "finalAngular": [
+      0.000724001,
+      -7.364345e-08,
+      -6.976655e-05
+    ]
+  },
+  {
+    "case": "network-roof-rest",
+    "damageTicks": [],
+    "finalHP": 1000,
+    "crashTicks": [
+      14,
+      116
+    ],
+    "finalUp": 1.0000001,
+    "finalWheels": 4,
+    "finalVelocity": [
+      -0.0020587367,
+      2.8461218e-06,
+      -0.08669224
+    ],
+    "finalAngular": [
+      9.195327e-05,
+      -5.5878356e-08,
+      0.0007715617
+    ]
+  },
+  {
+    "case": "network-roof",
+    "damageTicks": [
+      9
+    ],
+    "finalHP": 977.6667,
+    "crashTicks": [
+      9,
+      110
+    ],
+    "finalUp": 1.0000001,
+    "finalWheels": 4,
+    "finalVelocity": [
+      0.015474788,
+      2.6673079e-06,
+      -0.06761754
+    ],
+    "finalAngular": [
+      -6.276559e-05,
+      -5.472397e-08,
+      0.0006111869
+    ]
+  },
+  {
+    "case": "network-side",
+    "damageTicks": [
+      12
+    ],
+    "finalHP": 969.9167,
+    "crashTicks": [
+      12,
+      21
+    ],
+    "finalUp": 1,
+    "finalWheels": 4,
+    "finalVelocity": [
+      -0.58097476,
+      2.8312206e-06,
+      -2.1320322
+    ],
+    "finalAngular": [
+      0.00014569795,
+      -4.1095966e-08,
+      0.0007483382
+    ]
+  },
+  {
+    "case": "network-wheels-13",
+    "damageTicks": [],
+    "finalHP": 1000,
+    "crashTicks": [],
+    "finalUp": 1,
+    "finalWheels": 4,
+    "finalVelocity": [
+      0,
+      3.0100346e-06,
+      -3.0188744
+    ],
+    "finalAngular": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "case": "network-wheels-25",
+    "damageTicks": [],
+    "finalHP": 1000,
+    "crashTicks": [],
+    "finalUp": 1,
+    "finalWheels": 4,
+    "finalVelocity": [
+      0,
+      3.0100346e-06,
+      -3.6046221
+    ],
+    "finalAngular": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "case": "network-wheels-45",
+    "damageTicks": [],
+    "finalHP": 1000,
+    "crashTicks": [],
+    "finalUp": 1,
+    "finalWheels": 4,
+    "finalVelocity": [
+      0,
+      7.7039e-06,
+      -4.4262357
+    ],
+    "finalAngular": [
+      0,
+      0,
+      0
+    ]
+  }
+]

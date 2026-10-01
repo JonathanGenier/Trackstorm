@@ -63,6 +63,19 @@ public sealed class VehicleMovement
 
         int recoveryTicks = (int)MathF.Ceiling(Configuration.OilRecoverySeconds * Configuration.TicksPerSecond);
         int oilTicks = !driveEnabled ? 0 : oilContact ? recoveryTicks : Math.Max(0, State.OilTicks - 1);
+        int wheelCount = wheels.HasValue ? VehicleCrash.WheelCount(wheels) :
+            groundNormal.Y >= Configuration.SupportNormalMinimum && VehicleLanding.Landable(observed.Orientation, groundNormal) ? 4 : 0;
+        bool bodyContact = contacts is not null && contacts.Any(contact => !VehicleLanding.SafeContact(observed.Orientation, contact, wheels));
+        bool impact = contacts is not null && contacts.Any(contact => !VehicleLanding.SafeContact(observed.Orientation, contact, wheels) &&
+            VehicleCrash.Severity(contact, groundNormal, Configuration.Mass) > 4);
+        // The portable timer also latches the crash through unsupported bounces. A
+        // real wheel contact immediately returns control; body support alone cannot.
+        bool stranded = bodyContact && groundNormal.Y >= Configuration.SupportNormalMinimum &&
+            !VehicleLanding.Landable(observed.Orientation, groundNormal);
+        float crashSeconds = wheelCount > 0 ? 0 : State.CrashSeconds > 0 || impact || stranded
+            ? Math.Min(60, State.CrashSeconds + 1f / Configuration.TicksPerSecond) : 0;
+        bool crashing = crashSeconds > 0;
+        driveEnabled &= !crashing;
         nitro.Validate();
         bool usingNitro = (input.Held & InputButtons.UseItem) != 0 && !clearNitro;
         NitroState boost = !driveEnabled ? default : usingNitro && nitro.Active ? nitro :
@@ -332,18 +345,7 @@ public sealed class VehicleMovement
 
         if (boost.Recovering && roadSpeed <= forwardSpeed) { boost = default; }
 
-        // Chassis load response acts on the physical body, using the same forces that consume tire grip.
-        // Brief separation while rocking on a bumper must not restart the whole delay.
-        // No assistance is applied in flight; sustained flight or wheel-down attitude clears it.
-        float crashSeconds = up.Y < 0.65f ? Math.Max(0, State.CrashSeconds - 2 * dt) : 0;
-        int wheelCount = wheels is WheelSupport crashWheels
-            ? (crashWheels.Compression.X > 0 ? 1 : 0) + (crashWheels.Compression.Y > 0 ? 1 : 0) +
-              (crashWheels.Compression.Z > 0 ? 1 : 0) + (crashWheels.Compression.W > 0 ? 1 : 0)
-            : 0;
-        // Two supported wheels retain suspension/player recovery, including a steep bank.
-        bool wheelRecovery = wheelCount >= 2 && Vector3.Dot(up, groundNormal) > 0.35f;
-        bool badAttitude = grounded && !wheelRecovery && !VehicleLanding.Landable(observed.Orientation, groundNormal);
-        if (badAttitude && contacts is not null && contacts.Any(contact => contact.OtherVehicleId == 0 && contact.Normal.Y >= c.SupportNormalMinimum))
+        if (crashing && bodyContact && grounded)
         {
             // Body contact absorbs separation and sliding energy. Preserve rolling momentum
             // instead of arresting the crash and then rotating a stationary chassis upright.
@@ -353,24 +355,31 @@ public sealed class VehicleMovement
             velocity -= scraping * (1 - MathF.Exp(-c.CrashSlideDamping * dt));
             angular *= MathF.Exp(-c.CrashRollDamping * dt);
         }
-        if (driveEnabled && badAttitude)
+        if (crashing)
         {
-            crashSeconds = Math.Min(60, State.CrashSeconds + dt);
+            // Keep early high-energy flips. Gentle airborne decay replaces the much
+            // stronger released-player-axis damping for the duration of the crash.
+            if (!bodyContact) { angular *= MathF.Exp(-c.CrashRollDamping * 0.25f * dt); }
             if (crashSeconds >= c.CrashRecoveryDelay && c.CrashRecoveryRate > 0)
             {
-                Vector3 rolling = angular - groundNormal * Vector3.Dot(angular, groundNormal);
+                Vector3 recoveryUp = grounded ? groundNormal : Vector3.UnitY;
+                Vector3 rolling = angular - recoveryUp * Vector3.Dot(angular, recoveryUp);
                 // Continue the existing roll/flip, even past inversion. A stranded body has
                 // no momentum to preserve: choose the shortest tip, with a stable roof tie-break.
-                Vector3 axis = rolling.LengthSquared() > 0.0625f ? rolling : Vector3.Cross(up, groundNormal);
+                Vector3 axis = rolling.LengthSquared() > 0.0625f ? rolling : Vector3.Cross(up, recoveryUp);
                 if (axis.LengthSquared() < 0.01f) { axis = rocketForward; }
                 axis = Vector3.Normalize(axis);
                 // Build a rate floor over time: tiny per-step torque alone is canceled by
                 // resting roof contacts in the native solver. Orientation remains integrated.
                 float rate = c.CrashRecoveryRate * Math.Clamp((crashSeconds - c.CrashRecoveryDelay) / c.CrashRecoveryRamp, 0, 1);
-                angular += axis * Math.Max(0, rate - Vector3.Dot(angular, axis));
+                // Once facing the tires, let gravity/suspension catch the truck. Do
+                // not power a new flip or add linear/vertical recovery impulses.
+                if (Vector3.Dot(up, recoveryUp) < 0.65f)
+                {
+                    angular += axis * Math.Max(0, rate - Vector3.Dot(angular, axis));
+                }
             }
         }
-        else if (wheelRecovery) { crashSeconds = 0; }
         AirControlState air = default;
         if (grounded)
         {
@@ -387,7 +396,7 @@ public sealed class VehicleMovement
             Vector3 tiltVelocity = angular - (tireNormal * Vector3.Dot(angular, tireNormal));
             angular -= tiltVelocity * (1 - MathF.Exp(-c.SuspensionDamping * stability * dt));
         }
-        else
+        else if (!crashing)
         {
             float seconds = Math.Min(60, State.Air.Seconds + dt);
             air = new AirControlState(seconds, Vector3.Zero, Vector3.Zero);

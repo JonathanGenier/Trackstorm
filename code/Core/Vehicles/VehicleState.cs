@@ -70,7 +70,7 @@ public readonly record struct VehicleState
     public BrakeMode BrakeMode { get; }
     /// <summary>Filtered engine demand retained through replay; service braking cancels it immediately.</summary>
     public float Throttle { get; }
-    /// <summary>Settled bad-attitude time, retained through replay and reset on a new life.</summary>
+    /// <summary>Latched crash duration; positive disables driving until a wheel touches down. Retained through replay and cleared on a new life.</summary>
     public float CrashSeconds { get; }
     /// <summary>Remaining fixed steps of authoritative reduced tire grip.</summary>
     public int OilTicks { get; }

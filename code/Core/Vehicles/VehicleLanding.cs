@@ -15,8 +15,13 @@ internal static class VehicleLanding
     }
 
     internal static bool SafeContact(VehicleObservation observed, VehicleContact contact) =>
+        SafeContact(observed.Physics.Orientation, contact, observed.Wheels);
+
+    internal static bool SafeContact(Quaternion orientation, VehicleContact contact, WheelSupport? wheels = null) =>
         contact.Terrain && contact.OtherVehicleId == 0 && contact.LocalPosition.Y < -0.15f &&
-        Landable(observed.Physics.Orientation, contact.Normal);
+        (Landable(orientation, contact.Normal) || (VehicleCrash.WheelCount(wheels) > 0 &&
+            Math.Abs(contact.LocalPosition.Z) <= VehicleDimensions.Wheelbase / 2 + VehicleDimensions.WheelRadius &&
+            Vector3.Dot(Vector3.Transform(Vector3.UnitY, orientation), contact.Normal) > 0));
 
     internal static LandingState Step(LandingState previous, VehicleObservation observed)
     {
@@ -58,6 +63,8 @@ internal static class VehicleLanding
         return new(phase, unsupported, 0, stable);
     }
 
+    // Tire/underside landings remain safe before, during and after a crash, including
+    // bottom-out. Episode timing must never turn the same tire contact into damage.
     internal static bool Forgives(LandingState state, VehicleObservation observed, VehicleContact contact) =>
-        state.Phase is LandingPhase.Recovery or LandingPhase.Recovered && SafeContact(observed, contact);
+        SafeContact(observed, contact);
 }

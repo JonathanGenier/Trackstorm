@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Story verification | [TS-265 verification evidence](ts-265.md) |
 | Arcade trophy-truck handling, sustained-turn rear alignment, controller precision and runtime/multiplayer evidence | [TS-197 verification evidence](ts-197.md) |
 | Tombstone core health, authoritative lifecycle and recovery | [TS-216 verification evidence](ts-216.md) |
 | Proxy Mine integrated lifecycle, visual bounds and runtime critique | [TS-251 verification evidence](ts-251.md) |
