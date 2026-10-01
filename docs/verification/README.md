@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Proxy Mine integrated lifecycle, visual bounds and runtime critique | [TS-251 verification evidence](ts-251.md) |
 | Proxy Mine explosion VFX, overlap and cleanup | [TS-250 verification and Astra runtime critique](ts-250.md) |
 | Story verification | [TS-227 verification evidence](ts-227.md) |
 | Proxy Mine production model, rack arm and ground placement | [TS-249 verification evidence](ts-249.md) |

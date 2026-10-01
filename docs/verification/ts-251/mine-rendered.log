@@ -1,0 +1,39 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Mine support convergence passed: flat/banked/uneven normals, 1200 ticks each, finite unit normals and unchanged bank response.
+Two UDP peers ready; ordinary host Proxy Mine use requested.
+Mine installed on the real flat platform, with terrain clearance and seated timer.
+Initial seating remains exactly stable; late admission reconstructed the mine during arm placement.
+Late join reconstructed the persistent mine. Outer-radius force trial begins.
+Outer pull produced 0.114 m/s after ten native ticks.
+Mid pull produced 8.631 m/s after ten native ticks.
+Close pull produced 12.154 m/s; moving remote vehicle approaches for contact.
+Contact detonated once, applying 60 configured HP and 18000 N.s to the remote vehicle.
+Replicated removal/HP and native knockback passed; stationary target trial requested.
+Repeated host use magnetically reached a stationary vehicle and detonated without target movement.
+Surface 1: authoritative position <49.70502, 20.707, 4.4999995>, normal <-0.24740396, 0.9689124, 0>.
+Stable terrain seating captured; drive-over contact trial with attraction disabled.
+Bank drive-over passed; uneven terrain deployment requested.
+Surface 2: authoritative position <99.98462, 20.948303, 4.413402>, normal <-0.0046104, 0.9999893, 0.0004009278>.
+Stable terrain seating captured; drive-over contact trial with attraction disabled.
+Uneven terrain drive-over detonated and consumed the mine once; repeated remote use passed.
+Proxy Mine integration passed: Two UDP peers ready; ordinary host Proxy Mine use requested.
+Mine installed on the real flat platform, with terrain clearance and seated timer.
+Initial seating remains exactly stable; late admission reconstructed the mine during arm placement.
+Late join reconstructed the persistent mine. Outer-radius force trial begins.
+Outer pull produced 0.114 m/s after ten native ticks.
+Mid pull produced 8.631 m/s after ten native ticks.
+Close pull produced 12.154 m/s; moving remote vehicle approaches for contact.
+Contact detonated once, applying 60 configured HP and 18000 N.s to the remote vehicle.
+Repeated host use magnetically reached a stationary vehicle and detonated without target movement.
+Surface 1: authoritative position <49.70502, 20.707, 4.4999995>, normal <-0.24740396, 0.9689124, 0>.
+Stable terrain seating captured; drive-over contact trial with attraction disabled.
+Surface 2: authoritative position <99.98462, 20.948303, 4.413402>, normal <-0.0046104, 0.9999893, 0.0004009278>.
+Stable terrain seating captured; drive-over contact trial with attraction disabled.
+Uneven terrain drive-over detonated and consumed the mine once; repeated remote use passed.
+Item scoring verified: 2 rival hits, 60 points; host, remote and late-join publications agree.
+Sixteen ordinary deployments on three UDP peers; shared meshes, independent beacons and no imported collision. Production chase camera: 180 motion ticks, 2 distinct committed detonations, 14 surviving mines.
+Late join reconstructed an unfinished placement; two cars later placed mines simultaneously while the host drove under the production chase camera. Both completed and replicated without replaying pickup outcomes.
+Two close overlapping authoritative impacts reached three peers; peak 2 concurrent dust bursts, zero after 240 cleanup ticks. Two cosmetic scars remained, then expired at the 60-second lifetime.
+Banked pressure front and scar followed native support. Isolated Client presentation stress: 73 sequential confirmed-impact publications, at most 16 live bursts and 64 scars, no bursts after 10 sustained runtime seconds; remaining scars expired at their scheduled 60-second age.
