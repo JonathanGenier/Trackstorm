@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ROCK BoulderLow-3-0.0: depth=0.0018 overlaps=0 contacts=317 angular=0.057 step=0.183 avgMs=15.204 maxMs=65.597 end=<0.7586191, 1.1444862, 29.798986>
+ROCK BoulderLow-3-0.6: depth=0.0002 overlaps=0 contacts=341 angular=0.228 step=0.183 avgMs=15.096 maxMs=46.783 end=<15.967602, 1.144547, 25.282486>
+ROCK BoulderLow-3-1.2: depth=0.0002 overlaps=0 contacts=342 angular=0.201 step=0.183 avgMs=14.413 maxMs=42.599 end=<27.140316, 1.1445409, 13.036906>
+ROCK BoulderLow-3-1.8: depth=0.0002 overlaps=0 contacts=338 angular=0.172 step=0.183 avgMs=14.216 maxMs=100.056 end=<29.775267, 1.1444712, -6.714899>
+ROCK BoulderLow-3-2.4: depth=0.0002 overlaps=0 contacts=330 angular=0.301 step=0.183 avgMs=8.907 maxMs=28.061 end=<18.74136, 1.1443154, -23.783972>
+ROCK BoulderLow-3-3.0: depth=0.0002 overlaps=0 contacts=330 angular=0.181 step=0.183 avgMs=9.381 maxMs=48.319 end=<5.6025267, 1.1443795, -29.456427>
+ROCK BoulderLow-12-0.0: depth=0.0016 overlaps=0 contacts=353 angular=0.057 step=0.232 avgMs=16.429 maxMs=108.130 end=<0.7427965, 1.1444864, 29.803185>
+ROCK BoulderLow-12-0.6: depth=0.0002 overlaps=0 contacts=376 angular=0.057 step=0.230 avgMs=15.717 maxMs=43.673 end=<16.303625, 1.1445524, 25.055805>
+ROCK BoulderLow-12-1.2: depth=0.0002 overlaps=0 contacts=374 angular=0.323 step=0.228 avgMs=15.338 maxMs=42.312 end=<27.05772, 1.144546, 13.169887>
+ROCK BoulderLow-12-1.8: depth=0.0002 overlaps=0 contacts=370 angular=0.059 step=0.228 avgMs=15.217 maxMs=58.743 end=<29.745354, 1.1444706, -6.8444915>
+ROCK BoulderLow-12-2.4: depth=0.0002 overlaps=0 contacts=363 angular=0.244 step=0.230 avgMs=9.622 maxMs=31.676 end=<18.591515, 1.144316, -23.901957>
+ROCK BoulderLow-12-3.0: depth=0.0002 overlaps=0 contacts=363 angular=0.248 step=0.232 avgMs=10.483 maxMs=48.893 end=<5.6572723, 1.1443794, -29.445177>
+ROCK BoulderLow-35-0.0: depth=0.0002 overlaps=0 contacts=369 angular=0.206 step=0.586 avgMs=16.034 maxMs=76.695 end=<0.68256027, 1.1444862, 29.805498>

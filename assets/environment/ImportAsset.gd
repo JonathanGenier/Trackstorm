@@ -4,6 +4,14 @@ extends EditorScenePostImport
 
 func _post_import(scene: Node) -> Object:
 	var asset_name := get_source_file().get_file().get_basename()
+	# Rock source hulls retain erosion detail (129–171 vertices per stone).
+	# Bound native SAT contact work without changing art or merging separate stones.
+	# This is baked into the imported scene, never rebuilt during simulation/replay.
+	if asset_name in ["BoulderLow", "BoulderTall", "RockSlab", "RockCluster", "RockLedge"]:
+		for node in scene.find_children("*", "CollisionShape3D", true, false):
+			var shape := node.shape as ConvexPolygonShape3D
+			if shape != null:
+				node.shape = shape.get_debug_mesh().create_convex_shape(true, true)
 	for body in scene.find_children("*", "StaticBody3D", true, false):
 		body.collision_layer = 1
 		body.collision_mask = 1

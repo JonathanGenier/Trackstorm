@@ -28,6 +28,11 @@ foreach ($path in @('code/Core/Items/ItemSpawnAuthority.cs', 'code/Client/Verifi
     Assert-True ((Get-FastCheckPlan -Paths @($path)).RuntimeScripts -contains 'check-pickup-drive.ps1') 'Pickup authority and moving-crossing changes require production drive-through verification.'
 }
 Assert-True ((Get-FastCheckPlan -Paths @("assets/environment/ImportAsset.gd")).RuntimeScripts -contains "check-map-budget.ps1") "Map resource changes route native budget inventory."
+foreach ($path in @('assets/environment/ImportAsset.gd', 'code/Client/Verification/RockCollisionChecks.cs', 'check-rock-collision-network.ps1')) {
+    $rockPlan = Get-FastCheckPlan -Paths @($path)
+    Assert-True ($rockPlan.RuntimeScripts -contains 'check-rock-collisions.ps1') 'Rock changes require repeated native contact and separation checks.'
+    Assert-True ($rockPlan.ExtendedScripts -contains 'check-rock-collision-network.ps1') 'Rock changes require impaired UDP prediction verification.'
+}
 Assert-True ((Get-FastCheckPlan -Paths @("code/Client/Vehicles/TireFeedback.cs")).RuntimeScripts -contains "check-terrain-effects.ps1") "Surface feedback routes bounded native effects verification."
 Assert-True ((Get-FastCheckPlan -Paths @("code/Core/Development/EnvironmentPreset.cs")).RuntimeScripts -contains "check-developer-options.ps1") "Environment selection routes authoritative Configs verification."
 Assert-True ((Get-FastCheckPlan -Paths @("scenes/maps/infield_dressing.tscn")).RuntimeScripts -contains "check-dressing.ps1") "Production dressing routes native clearance verification."

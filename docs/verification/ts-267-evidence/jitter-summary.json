@@ -1,0 +1,542 @@
+[
+  {
+    "Case": "network-BoulderLow-12-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.0013536139904624753,
+    "MaxStepChange": 0.007423928235248687
+  },
+  {
+    "Case": "network-BoulderLow-12-1.2",
+    "Samples": 78,
+    "MeanStepChange": 0.0006266792786162321,
+    "MaxStepChange": 0.007134741425587521
+  },
+  {
+    "Case": "network-BoulderLow-12-2.4",
+    "Samples": 78,
+    "MeanStepChange": 0.0025208432237220635,
+    "MaxStepChange": 0.0076795753534940805
+  },
+  {
+    "Case": "network-BoulderLow-3-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.0004820046127237565,
+    "MaxStepChange": 0.007645912278861429
+  },
+  {
+    "Case": "network-BoulderLow-3-1.2",
+    "Samples": 78,
+    "MeanStepChange": 0.0008108250058087699,
+    "MaxStepChange": 0.00756178642914483
+  },
+  {
+    "Case": "network-BoulderLow-3-2.4",
+    "Samples": 78,
+    "MeanStepChange": 0.0014876407320711738,
+    "MaxStepChange": 0.007701503802505111
+  },
+  {
+    "Case": "network-BoulderLow-35-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.0009099537674026875,
+    "MaxStepChange": 0.007516848773362138
+  },
+  {
+    "Case": "network-BoulderLow-35-1.2",
+    "Samples": 78,
+    "MeanStepChange": 0.00032329117765733526,
+    "MaxStepChange": 0.0008949961899360946
+  },
+  {
+    "Case": "network-BoulderLow-35-2.4",
+    "Samples": 78,
+    "MeanStepChange": 0.0020167938819695397,
+    "MaxStepChange": 0.0075107812463150025
+  },
+  {
+    "Case": "network-BoulderTall-12-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.00025463618798825965,
+    "MaxStepChange": 0.0006340132433604285
+  },
+  {
+    "Case": "network-BoulderTall-12-1.2",
+    "Samples": 78,
+    "MeanStepChange": 0.00036926615997464425,
+    "MaxStepChange": 0.0010004835330978453
+  },
+  {
+    "Case": "network-BoulderTall-12-2.4",
+    "Samples": 78,
+    "MeanStepChange": 6.534819807549637E-05,
+    "MaxStepChange": 0.0001729434011464598
+  },
+  {
+    "Case": "network-BoulderTall-3-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.00024548845944398457,
+    "MaxStepChange": 0.0006168022928503074
+  },
+  {
+    "Case": "network-BoulderTall-3-1.2",
+    "Samples": 78,
+    "MeanStepChange": 0.0004943471235124385,
+    "MaxStepChange": 0.001094973871835357
+  },
+  {
+    "Case": "network-BoulderTall-3-2.4",
+    "Samples": 78,
+    "MeanStepChange": 7.704920691291557E-05,
+    "MaxStepChange": 0.0005035866261135172
+  },
+  {
+    "Case": "network-BoulderTall-35-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.00019602669277441547,
+    "MaxStepChange": 0.000611819903613376
+  },
+  {
+    "Case": "network-BoulderTall-35-1.2",
+    "Samples": 78,
+    "MeanStepChange": 0.0006179264103623061,
+    "MaxStepChange": 0.006998822770295992
+  },
+  {
+    "Case": "network-BoulderTall-35-2.4",
+    "Samples": 78,
+    "MeanStepChange": 7.960916829253002E-05,
+    "MaxStepChange": 0.00021381520058181815
+  },
+  {
+    "Case": "network-RockCluster-12-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.003195872445777004,
+    "MaxStepChange": 0.007516970080161335
+  },
+  {
+    "Case": "network-RockCluster-12-1.2",
+    "Samples": 78,
+    "MeanStepChange": 2.515702857015007E-06,
+    "MaxStepChange": 4.315089802554852E-06
+  },
+  {
+    "Case": "network-RockCluster-12-2.4",
+    "Samples": 78,
+    "MeanStepChange": 0.0012538126597077762,
+    "MaxStepChange": 0.007372261081920919
+  },
+  {
+    "Case": "network-RockCluster-3-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.0031528255927384644,
+    "MaxStepChange": 0.007596086717093319
+  },
+  {
+    "Case": "network-RockCluster-3-1.2",
+    "Samples": 78,
+    "MeanStepChange": 2.279419942580221E-06,
+    "MaxStepChange": 3.900000000210359E-06
+  },
+  {
+    "Case": "network-RockCluster-3-2.4",
+    "Samples": 78,
+    "MeanStepChange": 0.0011114944282783234,
+    "MaxStepChange": 0.006637543007016499
+  },
+  {
+    "Case": "network-RockCluster-35-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.002697770434639867,
+    "MaxStepChange": 0.007607680717702497
+  },
+  {
+    "Case": "network-RockCluster-35-1.2",
+    "Samples": 78,
+    "MeanStepChange": 0.00015281271844268439,
+    "MaxStepChange": 0.0005941963396048882
+  },
+  {
+    "Case": "network-RockCluster-35-2.4",
+    "Samples": 78,
+    "MeanStepChange": 0.0007426153649624606,
+    "MaxStepChange": 0.007325814044186785
+  },
+  {
+    "Case": "network-RockLedge-12-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.0003920925117632084,
+    "MaxStepChange": 0.0007782465739651982
+  },
+  {
+    "Case": "network-RockLedge-12-1.2",
+    "Samples": 78,
+    "MeanStepChange": 0.00011330898186669543,
+    "MaxStepChange": 0.00026182530435429766
+  },
+  {
+    "Case": "network-RockLedge-12-2.4",
+    "Samples": 78,
+    "MeanStepChange": 0.00038228132254775955,
+    "MaxStepChange": 0.0016613090501171692
+  },
+  {
+    "Case": "network-RockLedge-3-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.0005352928289071159,
+    "MaxStepChange": 0.0007887340881400453
+  },
+  {
+    "Case": "network-RockLedge-3-1.2",
+    "Samples": 78,
+    "MeanStepChange": 0.00012615455857073175,
+    "MaxStepChange": 0.00028914563804445737
+  },
+  {
+    "Case": "network-RockLedge-3-2.4",
+    "Samples": 73,
+    "MeanStepChange": 0.001158692815443249,
+    "MaxStepChange": 0.008065772656106994
+  },
+  {
+    "Case": "network-RockLedge-35-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.0003486464007096133,
+    "MaxStepChange": 0.0007838837874979129
+  },
+  {
+    "Case": "network-RockLedge-35-1.2",
+    "Samples": 78,
+    "MeanStepChange": 8.954601087438105E-05,
+    "MaxStepChange": 0.0001763959750100963
+  },
+  {
+    "Case": "network-RockLedge-35-2.4",
+    "Samples": 78,
+    "MeanStepChange": 3.3495783140048298E-06,
+    "MaxStepChange": 4.704253394388879E-06
+  },
+  {
+    "Case": "network-RockSlab-12-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.00033731323424022645,
+    "MaxStepChange": 0.0009442632705454242
+  },
+  {
+    "Case": "network-RockSlab-12-1.2",
+    "Samples": 78,
+    "MeanStepChange": 0.0005333081162332774,
+    "MaxStepChange": 0.0012852528817325051
+  },
+  {
+    "Case": "network-RockSlab-12-2.4",
+    "Samples": 78,
+    "MeanStepChange": 3.820111917700916E-06,
+    "MaxStepChange": 5.692099788256113E-06
+  },
+  {
+    "Case": "network-RockSlab-3-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.00026201152294924997,
+    "MaxStepChange": 0.0010851241195251697
+  },
+  {
+    "Case": "network-RockSlab-3-1.2",
+    "Samples": 78,
+    "MeanStepChange": 0.0006470299816299493,
+    "MaxStepChange": 0.0012657658788252735
+  },
+  {
+    "Case": "network-RockSlab-3-2.4",
+    "Samples": 78,
+    "MeanStepChange": 5.456921860499947E-06,
+    "MaxStepChange": 1.0556514576296956E-05
+  },
+  {
+    "Case": "network-RockSlab-35-0.0",
+    "Samples": 78,
+    "MeanStepChange": 0.00010731105601434465,
+    "MaxStepChange": 0.0006435391258841521
+  },
+  {
+    "Case": "network-RockSlab-35-1.2",
+    "Samples": 78,
+    "MeanStepChange": 0.000635021341907508,
+    "MaxStepChange": 0.0011718027735063913
+  },
+  {
+    "Case": "network-RockSlab-35-2.4",
+    "Samples": 78,
+    "MeanStepChange": 5.523763515234403E-05,
+    "MaxStepChange": 0.0005927073983004842
+  },
+  {
+    "Case": "practice-BoulderLow-12-0.0",
+    "Samples": 78,
+    "MeanStepChange": 4.241719774632979E-06,
+    "MaxStepChange": 5.8082032754294295E-06
+  },
+  {
+    "Case": "practice-BoulderLow-12-1.2",
+    "Samples": 78,
+    "MeanStepChange": 7.1879352538676964E-06,
+    "MaxStepChange": 9.124143795802786E-06
+  },
+  {
+    "Case": "practice-BoulderLow-12-2.4",
+    "Samples": 78,
+    "MeanStepChange": 7.067344203979436E-06,
+    "MaxStepChange": 8.37854402656325E-06
+  },
+  {
+    "Case": "practice-BoulderLow-3-0.0",
+    "Samples": 78,
+    "MeanStepChange": 4.385398406577134E-06,
+    "MaxStepChange": 6.121670232657786E-06
+  },
+  {
+    "Case": "practice-BoulderLow-3-1.2",
+    "Samples": 78,
+    "MeanStepChange": 7.235285282111846E-06,
+    "MaxStepChange": 9.379232377854134E-06
+  },
+  {
+    "Case": "practice-BoulderLow-3-2.4",
+    "Samples": 78,
+    "MeanStepChange": 1.6532436735292374E-06,
+    "MaxStepChange": 3.962322551225245E-06
+  },
+  {
+    "Case": "practice-BoulderLow-35-0.0",
+    "Samples": 78,
+    "MeanStepChange": 5.4292938148073084E-06,
+    "MaxStepChange": 0.0001602305701169577
+  },
+  {
+    "Case": "practice-BoulderLow-35-1.2",
+    "Samples": 78,
+    "MeanStepChange": 6.1574836270755095E-06,
+    "MaxStepChange": 7.261542536108276E-06
+  },
+  {
+    "Case": "practice-BoulderLow-35-2.4",
+    "Samples": 78,
+    "MeanStepChange": 1.7112847606237979E-06,
+    "MaxStepChange": 5.543464620538161E-06
+  },
+  {
+    "Case": "practice-BoulderTall-12-0.0",
+    "Samples": 78,
+    "MeanStepChange": 1.5641405807876039E-06,
+    "MaxStepChange": 3.767359287068607E-06
+  },
+  {
+    "Case": "practice-BoulderTall-12-1.2",
+    "Samples": 78,
+    "MeanStepChange": 1.8994384299512861E-06,
+    "MaxStepChange": 4.141255847826363E-06
+  },
+  {
+    "Case": "practice-BoulderTall-12-2.4",
+    "Samples": 78,
+    "MeanStepChange": 1.2125811117714242E-05,
+    "MaxStepChange": 0.0006238761495680462
+  },
+  {
+    "Case": "practice-BoulderTall-3-0.0",
+    "Samples": 78,
+    "MeanStepChange": 1.332268084523414E-06,
+    "MaxStepChange": 4.850616867958079E-06
+  },
+  {
+    "Case": "practice-BoulderTall-3-1.2",
+    "Samples": 78,
+    "MeanStepChange": 1.9455597896296917E-06,
+    "MaxStepChange": 4.295346319366185E-06
+  },
+  {
+    "Case": "practice-BoulderTall-3-2.4",
+    "Samples": 78,
+    "MeanStepChange": 2.313761076130309E-06,
+    "MaxStepChange": 5.811196090203825E-06
+  },
+  {
+    "Case": "practice-BoulderTall-35-0.0",
+    "Samples": 78,
+    "MeanStepChange": 8.56888118063622E-06,
+    "MaxStepChange": 4.156491616730252E-05
+  },
+  {
+    "Case": "practice-BoulderTall-35-1.2",
+    "Samples": 78,
+    "MeanStepChange": 5.429765849053453E-06,
+    "MaxStepChange": 2.1445046048232866E-05
+  },
+  {
+    "Case": "practice-BoulderTall-35-2.4",
+    "Samples": 78,
+    "MeanStepChange": 1.051841477129841E-06,
+    "MaxStepChange": 2.969848481596002E-06
+  },
+  {
+    "Case": "practice-RockCluster-12-0.0",
+    "Samples": 78,
+    "MeanStepChange": 1.7419563205858812E-05,
+    "MaxStepChange": 2.0882662665451772E-05
+  },
+  {
+    "Case": "practice-RockCluster-12-1.2",
+    "Samples": 78,
+    "MeanStepChange": 2.1035898662945045E-05,
+    "MaxStepChange": 0.001130800340466755
+  },
+  {
+    "Case": "practice-RockCluster-12-2.4",
+    "Samples": 78,
+    "MeanStepChange": 6.256141804251515E-05,
+    "MaxStepChange": 0.00034012268374815184
+  },
+  {
+    "Case": "practice-RockCluster-3-0.0",
+    "Samples": 78,
+    "MeanStepChange": 2.8391852551317788E-05,
+    "MaxStepChange": 0.0008540086988096856
+  },
+  {
+    "Case": "practice-RockCluster-3-1.2",
+    "Samples": 78,
+    "MeanStepChange": 1.1329573877185687E-05,
+    "MaxStepChange": 0.00034520220161512414
+  },
+  {
+    "Case": "practice-RockCluster-3-2.4",
+    "Samples": 78,
+    "MeanStepChange": 5.184971698444986E-05,
+    "MaxStepChange": 6.999835712340908E-05
+  },
+  {
+    "Case": "practice-RockCluster-35-0.0",
+    "Samples": 78,
+    "MeanStepChange": 1.6121544995690852E-06,
+    "MaxStepChange": 2.5788369467691624E-06
+  },
+  {
+    "Case": "practice-RockCluster-35-1.2",
+    "Samples": 78,
+    "MeanStepChange": 1.1132891972491305E-05,
+    "MaxStepChange": 0.00034165867470387047
+  },
+  {
+    "Case": "practice-RockCluster-35-2.4",
+    "Samples": 78,
+    "MeanStepChange": 3.09607122281962E-05,
+    "MaxStepChange": 0.0003275569721441304
+  },
+  {
+    "Case": "practice-RockLedge-12-0.0",
+    "Samples": 78,
+    "MeanStepChange": 1.9114236260998368E-06,
+    "MaxStepChange": 4.159033661406888E-06
+  },
+  {
+    "Case": "practice-RockLedge-12-1.2",
+    "Samples": 78,
+    "MeanStepChange": 3.2865021893977286E-06,
+    "MaxStepChange": 5.022947341819E-06
+  },
+  {
+    "Case": "practice-RockLedge-12-2.4",
+    "Samples": 78,
+    "MeanStepChange": 5.834104112764022E-06,
+    "MaxStepChange": 5.728088686504536E-05
+  },
+  {
+    "Case": "practice-RockLedge-3-0.0",
+    "Samples": 78,
+    "MeanStepChange": 7.032365821681727E-06,
+    "MaxStepChange": 0.0002835522811904856
+  },
+  {
+    "Case": "practice-RockLedge-3-1.2",
+    "Samples": 78,
+    "MeanStepChange": 2.415003492943944E-06,
+    "MaxStepChange": 4.05092581986739E-06
+  },
+  {
+    "Case": "practice-RockLedge-3-2.4",
+    "Samples": 78,
+    "MeanStepChange": 0.0002147228591963851,
+    "MaxStepChange": 0.005255961714091876
+  },
+  {
+    "Case": "practice-RockLedge-35-0.0",
+    "Samples": 78,
+    "MeanStepChange": 7.606951416034665E-07,
+    "MaxStepChange": 1.8171362072539749E-06
+  },
+  {
+    "Case": "practice-RockLedge-35-1.2",
+    "Samples": 78,
+    "MeanStepChange": 3.175141305123566E-05,
+    "MaxStepChange": 0.0006581778938854108
+  },
+  {
+    "Case": "practice-RockLedge-35-2.4",
+    "Samples": 78,
+    "MeanStepChange": 9.711828157495174E-06,
+    "MaxStepChange": 1.605428291836843E-05
+  },
+  {
+    "Case": "practice-RockSlab-12-0.0",
+    "Samples": 78,
+    "MeanStepChange": 2.7407550327883577E-06,
+    "MaxStepChange": 4.313571142179643E-06
+  },
+  {
+    "Case": "practice-RockSlab-12-1.2",
+    "Samples": 78,
+    "MeanStepChange": 1.959090445496759E-06,
+    "MaxStepChange": 3.8065732619599488E-06
+  },
+  {
+    "Case": "practice-RockSlab-12-2.4",
+    "Samples": 78,
+    "MeanStepChange": 0.0014878061915344584,
+    "MaxStepChange": 0.002888689266778262
+  },
+  {
+    "Case": "practice-RockSlab-3-0.0",
+    "Samples": 78,
+    "MeanStepChange": 5.1187473600028685E-06,
+    "MaxStepChange": 5.3248752097981186E-05
+  },
+  {
+    "Case": "practice-RockSlab-3-1.2",
+    "Samples": 78,
+    "MeanStepChange": 1.0848319069012677E-06,
+    "MaxStepChange": 2.2226110774479123E-06
+  },
+  {
+    "Case": "practice-RockSlab-3-2.4",
+    "Samples": 78,
+    "MeanStepChange": 0.00012217533747138707,
+    "MaxStepChange": 0.0010219184703292735
+  },
+  {
+    "Case": "practice-RockSlab-35-0.0",
+    "Samples": 78,
+    "MeanStepChange": 2.5775046358237974E-06,
+    "MaxStepChange": 4.522466583682086E-06
+  },
+  {
+    "Case": "practice-RockSlab-35-1.2",
+    "Samples": 78,
+    "MeanStepChange": 1.0307128923481503E-05,
+    "MaxStepChange": 0.0005369752787603905
+  },
+  {
+    "Case": "practice-RockSlab-35-2.4",
+    "Samples": 78,
+    "MeanStepChange": 0.001287182413531472,
+    "MaxStepChange": 0.0025193142559040054
+  }
+]

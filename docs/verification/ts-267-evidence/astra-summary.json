@@ -1,0 +1,26 @@
+[
+  {
+    "name": "network-RockCluster-12-0.0",
+    "contactFrames": 284,
+    "repeatContacts": 73,
+    "finalContacts": 0,
+    "deepest": 0.00016046416,
+    "overlaps": 0,
+    "peakStep": 0.22054483,
+    "peakAngular": 0.4396174,
+    "contactMeanMs": 4.4662953703703705,
+    "contactP95Ms": 8.5469
+  },
+  {
+    "name": "practice-RockCluster-12-0.0",
+    "contactFrames": 334,
+    "repeatContacts": 81,
+    "finalContacts": 0,
+    "deepest": 0.012995492,
+    "overlaps": 0,
+    "peakStep": 0.22220993,
+    "peakAngular": 0.5028463,
+    "contactMeanMs": 0.3209325842696629,
+    "contactP95Ms": 0.351
+  }
+]

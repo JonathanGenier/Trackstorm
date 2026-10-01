@@ -39,6 +39,11 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'RockCollision|rock_collision|check-rock-collision' -or $path -eq 'assets/environment/ImportAsset.gd') {
+            Add-Runtime 'check-rock-collisions.ps1'
+            Add-Extended 'check-rock-collision-network.ps1'
+            Add-Manual 'Observe direct/glancing rock impacts, held contact, repeated re-contact and reverse separation through practice and multiplayer.'
+        }
         if ($path -match 'CrashRecovery|VehicleCrash|TerrainCollision|crash_recovery|check-crash-recovery') {
             Add-Runtime 'check-crash-recovery.ps1'
             Add-Manual 'Observe nose, rear, roof, side, awkward and repeated tumbles, first-wheel control restoration, and extreme tire landings through both vehicle adapters.'

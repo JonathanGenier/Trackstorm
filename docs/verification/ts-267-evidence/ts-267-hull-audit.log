@@ -1,0 +1,12 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+BoulderLow part=0 vertices=145->32 inward_plane_deviation_m=0.07733005285263 outward_plane_deviation_m=0.00000005960464
+BoulderTall part=0 vertices=146->32 inward_plane_deviation_m=0.16647815704346 outward_plane_deviation_m=0.00000011920929
+RockSlab part=0 vertices=129->32 inward_plane_deviation_m=0.19631969928741 outward_plane_deviation_m=0.08179417252541
+RockCluster part=0 vertices=165->32 inward_plane_deviation_m=0.11012667417526 outward_plane_deviation_m=0.00000011920929
+RockCluster part=1 vertices=151->32 inward_plane_deviation_m=0.12942360341549 outward_plane_deviation_m=0.00001531839371
+RockCluster part=2 vertices=160->32 inward_plane_deviation_m=0.06841041147709 outward_plane_deviation_m=0.00005293264985
+RockLedge part=0 vertices=171->32 inward_plane_deviation_m=0.17142879962921 outward_plane_deviation_m=0.00000023841858
+RockLedge part=1 vertices=164->32 inward_plane_deviation_m=0.1763681769371 outward_plane_deviation_m=0.00000023841858
+RockLedge part=2 vertices=157->32 inward_plane_deviation_m=0.12788259983063 outward_plane_deviation_m=0.00000047683716
+RockLedge part=3 vertices=145->32 inward_plane_deviation_m=0.14077401161194 outward_plane_deviation_m=0.10029017925262
