@@ -107,6 +107,18 @@ public sealed partial class EnvironmentCollisionNetworkChecks : Node
                     Require(N.Vector3.Distance(remote.Movement.Physics.Position, vehicle.Movement.Physics.Position) < 0.2f, "settled contact boundary converges");
                 }
                 GD.Print($"Environment collision multiplayer passed: two native UDP peers, 30 ms delay / 5 ms jitter / 2% loss; scrape, crash and head-on vehicle damage agree; contact correction max={_contactCorrectionMaximum:F4}m (excludes deliberate new-life placement).");
+                PositionInverted(); _stage = 4; _boundary = _frames;
+            }
+            else if (_stage == 4 && _frames - _boundary > 600)
+            {
+                foreach (var vehicle in host.World.State.Vehicles)
+                {
+                    var remote = _arenas[1].Driver.Latest!.Vehicles.Single(v => v.State.VehicleId == vehicle.VehicleId).State;
+                    Require(N.Vector3.Transform(N.Vector3.UnitY, vehicle.Movement.Physics.Orientation).Y > 0.95f && vehicle.Movement.Grounded, "diagonally inverted host vehicle recovers to wheels");
+                    Require(N.Vector3.Transform(N.Vector3.UnitY, remote.Movement.Physics.Orientation).Y > 0.95f && remote.Movement.Grounded, "remote peer sees wheel-down recovery");
+                    Require(N.Vector3.Distance(remote.Movement.Physics.Position, vehicle.Movement.Physics.Position) < 0.2f, "recovered peer position converges");
+                }
+                GD.Print("Two impaired UDP peers: both partially inverted moving vehicles dissipate scraping and recover wheel-down; remote poses converge within 0.2m.");
                 _done = true;
                 _boundary = _frames;
                 foreach (var arena in _arenas) { arena.QueueFree(); }
@@ -142,6 +154,20 @@ public sealed partial class EnvironmentCollisionNetworkChecks : Node
                 N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitY, -direction * MathF.PI / 2), new(direction * 10, 0, 0), N.Vector3.Zero);
             _arenas[0].Bodies[vehicle.VehicleId].Apply(pose);
             return new VehicleSnapshot(vehicle.VehicleId, vehicle.LifeId + 1, new VehicleState(world.Tick, pose, true, false, 0, 0),
+                new VehicleDamageState(vehicle.Damage.MaxHP, vehicle.Damage.MaxHP, null, null), pose);
+        }), world.Match));
+    }
+
+    private void PositionInverted()
+    {
+        var host = _arenas[0].Driver.Host!;
+        var world = host.World.State;
+        host.World.Restore(new(world.Tick, world.LastInput, world.Vehicles.Select(vehicle =>
+        {
+            var pose = new VehiclePhysicsState(new(2, 23, vehicle.VehicleId == 1 ? 800 : 1000),
+                N.Quaternion.CreateFromYawPitchRoll(0, vehicle.VehicleId == 1 ? -2.1f : 2.1f, 0.3f), new(2, 0, -8), N.Vector3.Zero);
+            _arenas[0].Bodies[vehicle.VehicleId].Apply(pose);
+            return new VehicleSnapshot(vehicle.VehicleId, vehicle.LifeId + 1, new VehicleState(world.Tick, pose, false, false, 0, 0),
                 new VehicleDamageState(vehicle.Damage.MaxHP, vehicle.Damage.MaxHP, null, null), pose);
         }), world.Match));
     }

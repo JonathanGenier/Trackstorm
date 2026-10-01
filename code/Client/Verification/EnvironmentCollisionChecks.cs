@@ -165,7 +165,11 @@ public sealed partial class EnvironmentCollisionChecks : Node3D
             Vector3 target = outer[lookahead].MoveToward(inner[lookahead], 0.8f) - position;
             Vector3 forward = VehicleBody.ToGodot(N.Vector3.Transform(-N.Vector3.UnitZ, state.Orientation));
             float angle = new Vector3(forward.X, 0, forward.Z).SignedAngleTo(new(target.X, 0, target.Z), Vector3.Up);
-            var input = new InputFrame(world.State.Tick + 1, (short)(Math.Clamp(-angle * 3, -1, 1) * short.MaxValue), ushort.MaxValue, 0, 0, 0, 0);
+            // Request the path's physical wheel angle; normalized gains from the old
+            // speed-limited steering model oversteer with full wheel authority.
+            var tuning = new VehicleConfiguration();
+            float wheel = MathF.Atan(2 * tuning.Wheelbase * MathF.Sin(-angle) / Math.Max(1, new Vector2(target.X, target.Z).Length()));
+            var input = new InputFrame(world.State.Tick + 1, (short)(Math.Clamp(wheel / tuning.SteeringAngle, -1, 1) * short.MaxValue), ushort.MaxValue, 0, 0, 0, 0);
             var observation = network ? proxy!.Observe(world.GetVehicle(1)) : body!.Capture(input).Observation;
             if (observation.Contacts.Any(contact => contact.StaticObstacle)) { contacts++; }
             var result = world.Step(input, [new VehicleStepRequest(1, input, observation)])[0];

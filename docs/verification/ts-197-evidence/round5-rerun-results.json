@@ -1,0 +1,20 @@
+[
+  {
+    "check": "landing",
+    "error": "Landing integration failed; see .godot/landing-checks.",
+    "result": "FAIL"
+  },
+  {
+    "check": "environment-collisions",
+    "result": "PASS"
+  },
+  {
+    "check": "nitro",
+    "result": "PASS"
+  },
+  {
+    "check": "vehicle",
+    "error": "Vehicle checks failed at 30 render FPS.",
+    "result": "FAIL"
+  }
+]

@@ -19,6 +19,8 @@ public sealed record GameplayConfiguration
         Items = new() { ExplosionRadius = 12, MaximumDamage = 300 },
     };
 
+    /// <summary>Session tuning for digital driving intent before input-frame recording.</summary>
+    public Input.DrivingInputShaping Input { get; init; } = new();
     /// <summary>Existing vehicle and surface configuration.</summary>
     public VehicleConfiguration Vehicle { get; init; } = new();
     /// <summary>Existing health and collision configuration.</summary>
@@ -38,6 +40,8 @@ public sealed record GameplayConfiguration
         ArgumentNullException.ThrowIfNull(Destruction);
         Destruction.Validate();
         if (!Enum.IsDefined(Environment)) { throw new ArgumentException("Unknown environment preset."); }
+        ArgumentNullException.ThrowIfNull(Input);
+        Input.Validate();
         ArgumentNullException.ThrowIfNull(Vehicle);
         ArgumentNullException.ThrowIfNull(Damage);
         ArgumentNullException.ThrowIfNull(Items);

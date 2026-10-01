@@ -70,8 +70,11 @@ y = y * (1 - weight * smooth((s - 20)/10) * (1-smooth((s-85)/10))) + profile * w
 # Preserve the original junction datum before applying approved end fills.
 y *= smooth((np.maximum(np.abs(x)/28, np.abs(z)/23) - 1) / .4)
 
-# Match the bank's inward derivative at the exact rim, then ease into terrain
-# over twenty-eight metres. This shallow swale removes the old 35-degree grade break.
+# Match the bank's inward derivative, but flatten the descent near the rim.
+# The old cubic swale returned uphill at up to a third of the bank grade,
+# creating an unintended takeoff ramp at oval speed. Spread only that shallow
+# return over 50 m so its convex curvature remains driveable at 160 km/h.
+# Keep the original 28 m blend of the surrounding hills and the exact rim.
 distance = np.linalg.norm(points, axis=1) * 0
 bank_slope = np.zeros_like(x)
 for r in range(1, rings + 1):
@@ -82,7 +85,9 @@ for r in range(1, rings + 1):
     bank_slope[start:start+count] = road[:, 1] / np.linalg.norm(road[:, [0, 2]], axis=1) * np.sum(radial * road[:, [0, 2]] / np.linalg.norm(road[:, [0, 2]], axis=1)[:, None], axis=1)
 distance[0] = 100
 blend = smooth(distance/28)
-y = y * blend - bank_slope * distance * np.maximum(0, 1-distance/28)**2
+swale_depth_scale = 3.0
+swale_return_width = 50
+y = y * blend - bank_slope * swale_depth_scale * (1 - np.exp(-distance/swale_depth_scale)) * (1 - smooth(distance/swale_return_width))
 
 # Approved TS-76 tabletop connection. Preserve every takeoff-face vertex and
 # all terrain outside the two local end fills. Both lateral sides share the
@@ -170,7 +175,7 @@ for obj in bpy.context.scene.objects:
         obj.select_set(True)
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/'source/InfieldTerrain.blend'))
 bpy.ops.export_scene.gltf(filepath=str(ROOT/'infield_terrain.glb'), use_selection=True, export_format='GLB', export_yup=True, export_animations=False, export_extras=True)
-report = dict(units='metres', topology_sha256=hashlib.sha256((ROOT/'layout.json').read_bytes()).hexdigest(), vertices=len(vertices), triangles=len(faces), elevation_min_m=float(y.min()), elevation_max_m=float(y.max()), jump_target_speed_mps=16, basin_depth_m=1.8, boundary_vertices=count, transition_depth_m=28)
+report = dict(units='metres', topology_sha256=hashlib.sha256((ROOT/'layout.json').read_bytes()).hexdigest(), vertices=len(vertices), triangles=len(faces), elevation_min_m=float(y.min()), elevation_max_m=float(y.max()), jump_target_speed_mps=16, basin_depth_m=1.8, boundary_vertices=count, transition_depth_m=28, swale_depth_scale_m=swale_depth_scale, swale_return_width_m=swale_return_width)
 report['tabletop'] = dict(deck_height_m=deck_height, flat_half_width_m=11.25,
                          flat_outer_x_m=70, unchanged_kicker_lip_x_m=83,
                          symmetric_side_profile_to_z_m=23.25, blend_limit_z_m=28.25,

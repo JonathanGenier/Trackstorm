@@ -21,13 +21,13 @@ internal sealed class DrivingInputShapingTests
         }
 
         Assert.That(input, Is.EqualTo(1));
-        for (int tick = 0; tick < rate / 2; tick++)
+        for (int tick = 0; tick < rate * 2; tick++)
         {
             input = DrivingInputShaping.Approach(input, -1, tuning.SteeringReversal, 1f / rate);
         }
 
-        Assert.That(input, Is.EqualTo(-1));
-        for (int tick = 0; tick < rate / 2; tick++)
+        Assert.That(input, Is.EqualTo(-1).Within(0.00001f));
+        for (int tick = 0; tick <= Math.Ceiling(rate / tuning.SteeringReturn); tick++)
         {
             input = DrivingInputShaping.Approach(input, 0, tuning.SteeringReturn, 1f / rate);
         }
@@ -42,7 +42,7 @@ internal sealed class DrivingInputShapingTests
         var tuning = new DrivingInputShaping();
         float throttle = DrivingInputShaping.Approach(0, 1, tuning.ThrottleRise, 1f / 60);
         float brake = DrivingInputShaping.Approach(0, 1, tuning.BrakeRise, 1f / 60);
-        Assert.That(throttle, Is.InRange(0.1f, 0.2f));
+        Assert.That(throttle, Is.InRange(0.03f, 0.06f));
         Assert.That(brake, Is.GreaterThan(throttle).And.LessThan(0.4f));
         Assert.Throws<ArgumentException>(() => DrivingInputShaping.Approach(0, 1, 0, 1f / 60));
         Assert.Throws<ArgumentException>(() => DrivingInputShaping.Approach(float.NaN, 1, 1, 1f / 60));
@@ -50,23 +50,44 @@ internal sealed class DrivingInputShapingTests
         Assert.That(DrivingInputShaping.Approach(0, 100, 10, 1), Is.EqualTo(1));
     }
 
-    /// <summary>Digital intent reaches full steering in 50 ms and reverses within 100 ms.</summary>
+    /// <summary>Short digital presses retain fine intermediate targets; holding reaches the same full range.</summary>
     [Test]
-    public void SteeringRespondsWithinArcadeInputBudget()
+    public void SteeringTapsAreSmallAndHoldingRetainsFullRange()
     {
         var tuning = new DrivingInputShaping();
         float steering = 0;
-        for (int tick = 0; tick < 3; tick++)
+        for (int tick = 0; tick < 6; tick++)
         {
             steering = DrivingInputShaping.Approach(steering, 1, tuning.SteeringRise, 1f / 60);
         }
-
+        Assert.That(steering, Is.InRange(0.044f, 0.046f));
+        for (int tick = 0; tick < 150; tick++)
+        {
+            steering = DrivingInputShaping.Approach(steering, 1, tuning.SteeringRise, 1f / 60);
+        }
         Assert.That(steering, Is.EqualTo(1));
-        for (int tick = 0; tick < 6; tick++)
+        for (int tick = 0; tick < 210; tick++)
         {
             steering = DrivingInputShaping.Approach(steering, -1, steering > 0 ? tuning.SteeringReversal : tuning.SteeringRise, 1f / 60);
         }
-
-        Assert.That(steering, Is.EqualTo(-1));
+        Assert.That(steering, Is.EqualTo(-1).Within(0.00001f));
+    }
+    /// <summary>Analog precision is continuous and symmetric; full stick and airborne authority are retained.</summary>
+    [Test]
+    public void ControllerCurvePreservesGranularityAndFullAuthority()
+    {
+        var tuning = new DrivingInputShaping();
+        foreach (float magnitude in new[] { 0f, 0.01f, 0.25f, 0.5f, 0.75f, 1f })
+        {
+            Assert.That(tuning.ShapeControllerSteering(magnitude), Is.EqualTo(MathF.Pow(magnitude, 3.5f)).Within(0.000001f));
+            Assert.That(tuning.ShapeControllerSteering(-magnitude), Is.EqualTo(-MathF.Pow(magnitude, 3.5f)).Within(0.000001f));
+            Assert.That(DrivingInputShaping.Aerial.ShapeControllerSteering(magnitude), Is.EqualTo(magnitude));
+        }
+        foreach (float invalid in new[] { float.NaN, float.PositiveInfinity, 0.99f, 4.01f })
+            Assert.Throws<ArgumentException>(() => (tuning with { ControllerSteeringExponent = invalid }).Validate());
+        var edits = new Dictionary<string, double> { ["input.controller_steering_exponent"] = 2.5 };
+        Assert.That(Trackstorm.Core.Development.GameplayOptions.TryApply(new(), edits, out var configured, out _), Is.True);
+        var state = new Trackstorm.Core.Development.GameplayConfigurationState(1, configured);
+        Assert.That(Trackstorm.Core.Development.GameplayConfigurationCodec.Decode(Trackstorm.Core.Development.GameplayConfigurationCodec.Encode(1, state)).State, Is.EqualTo(state));
     }
 }

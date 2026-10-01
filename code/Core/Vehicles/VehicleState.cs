@@ -15,13 +15,16 @@ public readonly record struct VehicleState
     /// <param name="rearSlip">Rear traction saturation.</param>
     /// <param name="longitudinalAcceleration">Longitudinal tire acceleration.</param>
     /// <param name="lateralAcceleration">Lateral tire acceleration.</param>
-    /// <param name="landingIntensity">Landing feedback.</param>
+    /// <param name="landingIntensity">Landing feedback and clean-landing rebound envelope.</param>
     /// <param name="wheels">Per-wheel compression for presentation and replay diagnostics.</param>
     /// <param name="nitro">Complete temporary boost continuation.</param>
     /// <param name="powerSlip">Progressive rear wheelspin grip loss.</param>
     /// <param name="air">Complete airborne control continuation.</param>
+    /// <param name="crashSeconds">Supported slow-crash duration, decaying across brief contact gaps, for delayed recovery.</param>
+    /// <param name="throttle">Progressive engine demand, zero through one.</param>
+    /// <param name="brakeMode">Brake/reverse press continuation, retained through prediction.</param>
     /// <param name="oilTicks">Remaining temporary oil handling duration.</param>
-    public VehicleState(ulong tick, VehiclePhysicsState physics, bool grounded, bool drifting, float steeringAngle, float handbrake, SurfaceType currentSurface = SurfaceType.Concrete, float frontSlip = 0, float rearSlip = 0, float longitudinalAcceleration = 0, float lateralAcceleration = 0, float landingIntensity = 0, WheelSupport wheels = default, int oilTicks = 0, NitroState nitro = default, float powerSlip = 0, AirControlState air = default)
+    public VehicleState(ulong tick, VehiclePhysicsState physics, bool grounded, bool drifting, float steeringAngle, float handbrake, SurfaceType currentSurface = SurfaceType.Concrete, float frontSlip = 0, float rearSlip = 0, float longitudinalAcceleration = 0, float lateralAcceleration = 0, float landingIntensity = 0, WheelSupport wheels = default, int oilTicks = 0, NitroState nitro = default, float powerSlip = 0, AirControlState air = default, float crashSeconds = 0, float throttle = 0, BrakeMode brakeMode = BrakeMode.Ready)
     {
         _ = new VehiclePhysicsState(physics.Position, physics.Orientation, physics.LinearVelocity, physics.AngularVelocity);
         if (new[] { steeringAngle, handbrake, frontSlip, rearSlip, longitudinalAcceleration, lateralAcceleration, landingIntensity }.Any(value => !float.IsFinite(value)) || Math.Abs(steeringAngle) > 1 || handbrake is < 0 or > 1 || frontSlip is < 0 or > 1 || rearSlip is < 0 or > 1 || landingIntensity is < 0 or > 1 || Math.Abs(longitudinalAcceleration) > 1000 || Math.Abs(lateralAcceleration) > 1000)
@@ -31,6 +34,12 @@ public readonly record struct VehicleState
 
         if (oilTicks is < 0 or > 2400) { throw new ArgumentException("Invalid oil duration."); }
         if (!float.IsFinite(powerSlip) || powerSlip is < 0 or > 1) { throw new ArgumentException("Invalid power slip."); }
+        if (!float.IsFinite(crashSeconds) || crashSeconds is < 0 or > 60) { throw new ArgumentException("Invalid crash recovery duration."); }
+        if (!float.IsFinite(throttle) || throttle is < 0 or > 1) { throw new ArgumentException("Invalid throttle demand."); }
+        if (!Enum.IsDefined(brakeMode)) { throw new ArgumentOutOfRangeException(nameof(brakeMode)); }
+        BrakeMode = brakeMode;
+        Throttle = throttle;
+        CrashSeconds = crashSeconds;
         air.Validate();
         Air = air;
         PowerSlip = powerSlip;
@@ -57,6 +66,12 @@ public readonly record struct VehicleState
         Handbrake = handbrake;
     }
 
+    /// <summary>Brake/reverse continuation; default is ready for a new press.</summary>
+    public BrakeMode BrakeMode { get; }
+    /// <summary>Filtered engine demand retained through replay; service braking cancels it immediately.</summary>
+    public float Throttle { get; }
+    /// <summary>Settled bad-attitude time, retained through replay and reset on a new life.</summary>
+    public float CrashSeconds { get; }
     /// <summary>Remaining fixed steps of authoritative reduced tire grip.</summary>
     public int OilTicks { get; }
     /// <summary>Progressive rear wheelspin lateral grip loss retained through reconciliation.</summary>
@@ -87,13 +102,13 @@ public readonly record struct VehicleState
     public float LongitudinalAcceleration { get; }
     /// <summary>Signed tire acceleration across the chassis, in m/s squared.</summary>
     public float LateralAcceleration { get; }
-    /// <summary>Landing compression impulse intensity; decays after contact.</summary>
+    /// <summary>Portable landing feedback and clean-landing rebound envelope; decays after contact.</summary>
     public float LandingIntensity { get; }
     /// <summary>Individual spring compression in metres.</summary>
     public WheelSupport Wheels { get; }
     /// <summary>Total commanded velocity magnitude for physics diagnostics, not player travel telemetry.</summary>
     public float CommandSpeed => Physics.LinearVelocity.Length();
     /// <summary>Revalidates all portable state fields at aggregate boundaries.</summary>
-    public void Validate() => _ = new VehicleState(Tick, Physics, Grounded, Drifting, SteeringAngle, Handbrake, CurrentSurface, FrontSlip, RearSlip, LongitudinalAcceleration, LateralAcceleration, LandingIntensity, Wheels, OilTicks, Nitro, PowerSlip, Air);
+    public void Validate() => _ = new VehicleState(Tick, Physics, Grounded, Drifting, SteeringAngle, Handbrake, CurrentSurface, FrontSlip, RearSlip, LongitudinalAcceleration, LateralAcceleration, LandingIntensity, Wheels, OilTicks, Nitro, PowerSlip, Air, CrashSeconds, Throttle, BrakeMode);
 
 }

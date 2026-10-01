@@ -16,11 +16,11 @@
     77,
     -35
   ],
-  "geometry_before_sha256": "4c2803b02ff7577458dd1c20f16510cddff4d09b341ab6b4f256cf38e836ce5f",
-  "geometry_after_sha256": "4c2803b02ff7577458dd1c20f16510cddff4d09b341ab6b4f256cf38e836ce5f",
+  "geometry_before_sha256": "51fc9fe8cdb111727734d0cba919c6371a53a9c2ac11af28bfc631ce998fc993",
+  "geometry_after_sha256": "51fc9fe8cdb111727734d0cba919c6371a53a9c2ac11af28bfc631ce998fc993",
   "files": {
     "surface_field.png": "078862fc4d877a650351e45fd047c239924addd4142083c0c7d6b3bc5c6a6fe0",
-    "source/InfieldTerrain.blend": "ac68eb51a355908c991cd0afeb8268b1cffc57a5c06d2e1c889d8a32d2211888",
-    "infield_terrain.glb": "245183f48c034d7562b7b6dfadaadd3c3bc5f63eb064176f85b0f3b21aadff03"
+    "source/InfieldTerrain.blend": "5b14d4f670932b41ab05eb769ac98bccd2dc0de0c2c917458287805d0643a848",
+    "infield_terrain.glb": "d6152a4f1b9c174080cbe19645883ec5b9897ade2f91f0ef9e9bedb8d3d3a197"
   }
 }

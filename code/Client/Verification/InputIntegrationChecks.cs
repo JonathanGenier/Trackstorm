@@ -28,6 +28,7 @@ public sealed partial class InputIntegrationChecks : Node
             VerifyLegacyDefaults();
             GD.Print($"Connected physical gamepads before synthetic input: {Godot.Input.GetConnectedJoypads().Count}");
             VerifyEveryDefaultBinding();
+            VerifySteeringPrecision();
             VerifyAnalogAndIndependentLeaderboard();
             VerifyRemappingAndMultipleBindings();
             VerifyTapFocusAndTickCapture();
@@ -174,7 +175,7 @@ public sealed partial class InputIntegrationChecks : Node
                 }
 
                 InputFrame frame = first;
-                for (ulong tick = 2; tick <= 31; tick++)
+                for (ulong tick = 2; tick <= 151; tick++)
                 {
                     frame = _player.Adapter.Capture(tick);
                 }
@@ -183,7 +184,7 @@ public sealed partial class InputIntegrationChecks : Node
                 SetPressed(pressed, false);
                 Send(pressed);
                 Check(_player.Adapter.Bindings.Strength(action, 0.15f) == 0, $"{action} releases");
-                for (ulong tick = 32; tick <= 61; tick++)
+                for (ulong tick = 152; tick <= 271; tick++)
                 {
                     _player.Adapter.Capture(tick);
                 }
@@ -197,13 +198,13 @@ public sealed partial class InputIntegrationChecks : Node
         Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.TriggerRight, AxisValue = 0.575f });
         Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.TriggerLeft, AxisValue = 1 });
         InputFrame vehicle = _player.Adapter.Capture(3);
-        Check(Math.Abs(vehicle.Steering - 16384) <= 1 && Math.Abs(vehicle.Accelerate - 32768) <= 1 && vehicle.Brake == 65535, "Analog axes normalize and quantize");
+        Check(Math.Abs(vehicle.Steering - 2896) <= 1 && Math.Abs(vehicle.Accelerate - 32768) <= 1 && vehicle.Brake == 65535, "Analog steering curve and direct pedals normalize and quantize");
         Send(new InputEventKey { PhysicalKeycode = Key.Tab, Pressed = true });
         InputFrame press = _player.Adapter.Capture(4);
         InputFrame held = _player.Adapter.Capture(5);
         Send(new InputEventKey { PhysicalKeycode = Key.Tab, Pressed = false });
         InputFrame release = _player.Adapter.Capture(6);
-        Check(press.Pressed == InputButtons.Leaderboard && held.Held == InputButtons.Leaderboard && held.Pressed == 0 && release.Released == InputButtons.Leaderboard, "Leaderboard press/hold/release");
+        Check(press.Pressed == InputButtons.Leaderboard && held.Held == (vehicle.Held | InputButtons.Leaderboard) && held.Pressed == 0 && release.Released == InputButtons.Leaderboard, "Leaderboard press/hold/release");
         foreach (InputFrame frame in new[] { press, held, release })
         {
             Check(frame.Steering == vehicle.Steering && frame.Accelerate == vehicle.Accelerate && frame.Brake == vehicle.Brake, "Leaderboard does not change vehicle axes");

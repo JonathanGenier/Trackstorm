@@ -1,0 +1,47 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+native-rwd--1-0: turn=27.284, speed=6.522, yaw=3.670, up=0.996, travel=8.248, wheel=-0.900
+native-rwd--1-0 full wheel range remains planted
+native-rwd--1-0 sustains multiple RWD donuts from rest
+native-rwd--1-0: release side=0.000, yaw=0.000, speed=32.563
+native-rwd--1-0 releases into aligned forward travel
+native-rwd--1-16: turn=1.176, speed=19.977, yaw=2.171, up=0.998, travel=21.196, wheel=-0.899
+native-rwd--1-16 full wheel range remains planted
+native-rwd--1-16: release side=0.000, yaw=0.000, speed=33.069
+native-rwd--1-16 releases into aligned forward travel
+native-rwd-1-0: turn=-27.284, speed=6.522, yaw=-3.670, up=0.996, travel=8.248, wheel=0.900
+native-rwd-1-0 full wheel range remains planted
+native-rwd-1-0 sustains multiple RWD donuts from rest
+native-rwd-1-0: release side=-0.000, yaw=-0.000, speed=32.563
+native-rwd-1-0 releases into aligned forward travel
+native-rwd-1-16: turn=-1.176, speed=19.977, yaw=-2.171, up=0.998, travel=21.196, wheel=0.899
+native-rwd-1-16 full wheel range remains planted
+native-rwd-1-16: release side=-0.000, yaw=-0.000, speed=33.069
+native-rwd-1-16 releases into aligned forward travel
+native-rwd-grade-30: uphill speed=33.751, height=24.037
+native-rwd-grade-30 accelerates uphill from rest using rear drive
+native-rwd-grade-40: uphill speed=27.873, height=26.286
+native-rwd-grade-40 accelerates uphill from rest using rear drive
+network-rwd--1-0: turn=27.283, speed=6.522, yaw=3.670, up=0.996, travel=8.232, wheel=-0.900
+network-rwd--1-0 full wheel range remains planted
+network-rwd--1-0 sustains multiple RWD donuts from rest
+network-rwd--1-0: release side=0.000, yaw=0.000, speed=32.563
+network-rwd--1-0 releases into aligned forward travel
+network-rwd--1-16: turn=1.176, speed=19.976, yaw=2.172, up=0.998, travel=21.431, wheel=-0.899
+network-rwd--1-16 full wheel range remains planted
+network-rwd--1-16: release side=0.000, yaw=0.000, speed=33.067
+network-rwd--1-16 releases into aligned forward travel
+network-rwd-1-0: turn=-27.283, speed=6.522, yaw=-3.670, up=0.996, travel=8.232, wheel=0.900
+network-rwd-1-0 full wheel range remains planted
+network-rwd-1-0 sustains multiple RWD donuts from rest
+network-rwd-1-0: release side=-0.000, yaw=-0.000, speed=32.563
+network-rwd-1-0 releases into aligned forward travel
+network-rwd-1-16: turn=-1.176, speed=19.976, yaw=-2.172, up=0.998, travel=21.431, wheel=0.899
+network-rwd-1-16 full wheel range remains planted
+network-rwd-1-16: release side=-0.000, yaw=-0.000, speed=33.067
+network-rwd-1-16 releases into aligned forward travel
+network-rwd-grade-30: uphill speed=33.141, height=23.051
+network-rwd-grade-30 accelerates uphill from rest using rear drive
+network-rwd-grade-40: uphill speed=27.669, height=25.680
+network-rwd-grade-40 accelerates uphill from rest using rear drive
+RWD handling checks passed: 24 assertions.

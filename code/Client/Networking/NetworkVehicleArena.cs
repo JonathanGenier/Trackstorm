@@ -322,9 +322,16 @@ internal sealed partial class NetworkVehicleArena : Node3D
     internal void Advance(InputFrame input)
     {
         _audio.Initialize(_driver.LocalVehicleId);
+        Dictionary<ulong, VehicleObservation>? hostObservations = null;
         _driver.Advance(input, state =>
         {
-            VehicleObservation observation = _bodies[state.VehicleId].Observe(state);
+            VehicleObservation observation;
+            if (_driver.Host is { } host)
+            {
+                hostObservations ??= NetworkVehicleBody.ObserveBatch(_bodies, host.World.State.Vehicles);
+                observation = hostObservations[state.VehicleId];
+            }
+            else { observation = _bodies[state.VehicleId].Observe(state); }
             // Prediction replay must not replay already presented contact impulses.
             if (state.VehicleId == _driver.LocalVehicleId && (state.LifeId != _collisionLife || state.Movement.Tick > _collisionTick))
             {

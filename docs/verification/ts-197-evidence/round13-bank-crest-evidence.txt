@@ -1,0 +1,29 @@
+Practice 42 m/s bank turn, direction 1, steering 700: slip angle 0.009 rad, angular speed 0.385 rad/s, rear slip 0.001, continuously supported, final speed 42.638 m/s; recovery speed 42.638, side 0.248, angular 0.385.
+Practice 42 m/s bank turn, direction 1, steering 1400: slip angle 0.010 rad, angular speed 0.629 rad/s, rear slip 0.008, continuously supported, final speed 42.857 m/s; recovery speed 42.857, side 0.137, angular 0.629.
+Practice 42 m/s bank turn, direction 1, steering 32767: slip angle 2.799 rad, angular speed 6.221 rad/s, rear slip 0.921, continuously supported, final speed 1.202 m/s; recovery speed 11.536, side 0.298, angular 0.061.
+Practice 44.44 m/s bank turn, direction 1, steering 32767: slip angle 2.810 rad, angular speed 6.503 rad/s, rear slip 0.926, continuously supported, final speed 1.037 m/s; recovery speed 13.282, side 0.332, angular 0.100.
+Practice 42 m/s bank turn, direction -1, steering 700: slip angle 0.009 rad, angular speed 0.385 rad/s, rear slip 0.001, continuously supported, final speed 42.639 m/s; recovery speed 42.639, side 0.248, angular 0.384.
+Practice 42 m/s bank turn, direction -1, steering 1400: slip angle 0.010 rad, angular speed 0.629 rad/s, rear slip 0.008, continuously supported, final speed 42.857 m/s; recovery speed 42.857, side 0.137, angular 0.629.
+Practice 42 m/s bank turn, direction -1, steering 32767: slip angle 2.799 rad, angular speed 6.223 rad/s, rear slip 0.921, continuously supported, final speed 1.203 m/s; recovery speed 11.531, side 0.298, angular 0.061.
+Practice 44.44 m/s bank turn, direction -1, steering 32767: slip angle 2.810 rad, angular speed 6.505 rad/s, rear slip 0.926, continuously supported, final speed 1.037 m/s; recovery speed 13.277, side 0.332, angular 0.099.
+Network 42 m/s bank turn, direction 1, steering 700: slip angle 0.009 rad, angular speed 0.384 rad/s, rear slip 0.001, continuously supported, final speed 42.613 m/s; recovery speed 42.613, side 0.248, angular 0.384.
+Network 42 m/s bank turn, direction 1, steering 1400: slip angle 0.010 rad, angular speed 0.628 rad/s, rear slip 0.008, continuously supported, final speed 42.833 m/s; recovery speed 42.833, side 0.137, angular 0.628.
+Network 42 m/s bank turn, direction 1, steering 32767: slip angle 2.784 rad, angular speed 6.231 rad/s, rear slip 0.925, continuously supported, final speed 1.314 m/s; recovery speed 11.731, side 0.297, angular 0.064.
+Network 44.44 m/s bank turn, direction 1, steering 32767: slip angle 2.804 rad, angular speed 6.512 rad/s, rear slip 0.929, continuously supported, final speed 1.003 m/s; recovery speed 13.501, side 0.337, angular 0.118.
+Network 42 m/s bank turn, direction -1, steering 700: slip angle 0.009 rad, angular speed 0.384 rad/s, rear slip 0.001, continuously supported, final speed 42.613 m/s; recovery speed 42.613, side 0.248, angular 0.384.
+Network 42 m/s bank turn, direction -1, steering 1400: slip angle 0.010 rad, angular speed 0.628 rad/s, rear slip 0.008, continuously supported, final speed 42.833 m/s; recovery speed 42.833, side 0.137, angular 0.628.
+Network 42 m/s bank turn, direction -1, steering 32767: slip angle 2.784 rad, angular speed 6.233 rad/s, rear slip 0.925, continuously supported, final speed 1.317 m/s; recovery speed 11.716, side 0.297, angular 0.064.
+Network 44.44 m/s bank turn, direction -1, steering 32767: slip angle 2.804 rad, angular speed 6.511 rad/s, rear slip 0.928, continuously supported, final speed 1.002 m/s; recovery speed 13.508, side 0.337, angular 0.117.
+Bump fixture exposes its upward-facing 12 cm crest to production wheel queries.
+Practice 12 cm bump at 6 m/s: chassis rise 0.059 m, compression 0.609 m, settling 0.0005 m/s, unsupported 0.
+Practice 12 cm bump at 12 m/s: chassis rise 0.050 m, compression 0.605 m, settling 0.0008 m/s, unsupported 0.
+Practice 12 cm bump at 20 m/s: chassis rise 0.053 m, compression 0.595 m, settling 0.0007 m/s, unsupported 0.
+Practice 12 cm bump at 44.44 m/s: chassis rise 0.059 m, compression 0.614 m, settling 0.0004 m/s, unsupported 0.
+Network 12 cm bump at 6 m/s: chassis rise 0.061 m, compression 0.607 m, settling 0.0005 m/s, unsupported 0.
+Network 12 cm bump at 12 m/s: chassis rise 0.055 m, compression 0.600 m, settling 0.0008 m/s, unsupported 0.
+Network 12 cm bump at 20 m/s: chassis rise 0.057 m, compression 0.587 m, settling 0.0007 m/s, unsupported 0.
+Network 12 cm bump at 44.44 m/s: chassis rise 0.064 m, compression 0.603 m, settling 0.0005 m/s, unsupported 0.
+Practice eleven repeated 12 cm bumps: rise 0.093 m, heave 0.463 m/s, recovery 0.0001 m/s, unsupported 0.
+Network eleven repeated 12 cm bumps: rise 0.098 m, heave 0.458 m/s, recovery 0.0000 m/s, unsupported 0.
+Practice 12 cm one-wheel rounded obstacle: independent travel 0.119 m, body rise 0.001 m, continuous support.
+Network 12 cm one-wheel rounded obstacle: independent travel 0.112 m, body rise 0.014 m, continuous support.

@@ -1,0 +1,1550 @@
+[
+  {
+    "name": "dirt50-valid",
+    "command": {
+      "frames": 60,
+      "steer": 1,
+      "throttle": 1,
+      "brake": 0,
+      "spawn": [
+        0,
+        1.145,
+        0
+      ],
+      "yaw": 0,
+      "speed": 13.89,
+      "surface": "Dirt",
+      "id": "dirt50-valid1790704112229132600"
+    },
+    "frames": 60,
+    "maxCompression": 0.5869982,
+    "contactFrames": 0,
+    "minUp": 0.9979131,
+    "maxHeight": 1.157113,
+    "final": {
+      "tick": 360,
+      "position": [
+        11.175581,
+        1.157113,
+        -18.428276
+      ],
+      "velocity": [
+        23.377533,
+        0.0026387423,
+        -17.948233
+      ],
+      "orientation": [
+        0.0009368431,
+        -0.47749865,
+        0.03158282,
+        0.87806416
+      ],
+      "compression": [
+        0.48876917,
+        0.3994764,
+        0.57166743,
+        0.48237467
+      ],
+      "contacts": 0,
+      "up": 0.9980033,
+      "speed": 29.278952,
+      "yaw": -0.31029823,
+      "lateral": -2.3808794,
+      "longitudinal": 29.365532,
+      "slip": 0.2329388,
+      "oilTicks": 0,
+      "steering": 0.8999997,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0.00878609,
+        -0.31029823,
+        -0.0107705025
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "dirt50-exit",
+    "command": {
+      "frames": 150,
+      "steer": 0,
+      "throttle": 0.6,
+      "brake": 0,
+      "id": "dirt50-exit1790704113760901300"
+    },
+    "frames": 150,
+    "maxCompression": 0.57166743,
+    "contactFrames": 0,
+    "minUp": 0.9980033,
+    "maxHeight": 1.157162,
+    "final": {
+      "tick": 510,
+      "position": [
+        97.26823,
+        1.143762,
+        -53.057022
+      ],
+      "velocity": [
+        39.386448,
+        0.0006778538,
+        -14.229754
+      ],
+      "orientation": [
+        0.004040762,
+        -0.57454365,
+        0.0029107686,
+        0.8184589
+      ],
+      "compression": [
+        0.4883275,
+        0.48812902,
+        0.5142336,
+        0.514035
+      ],
+      "contacts": 0,
+      "up": 0.9999507,
+      "speed": 41.855686,
+      "yaw": -5.1905867e-05,
+      "lateral": -0.00031852722,
+      "longitudinal": 41.876072,
+      "slip": 0.07949679,
+      "oilTicks": 0,
+      "steering": 3.4642967e-18,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.0014290353,
+        -5.1905867e-05,
+        -0.0052483086
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "dirt40-tight",
+    "command": {
+      "frames": 75,
+      "steer": 1,
+      "throttle": 0.27,
+      "brake": 0,
+      "spawn": [
+        0,
+        1.145,
+        0
+      ],
+      "yaw": 0,
+      "speed": 11.11,
+      "surface": "Dirt",
+      "id": "dirt40-tight1790704156001487000"
+    },
+    "frames": 75,
+    "maxCompression": 0.5877477,
+    "contactFrames": 0,
+    "minUp": 0.9940351,
+    "maxHeight": 1.1590543,
+    "final": {
+      "tick": 585,
+      "position": [
+        13.057102,
+        1.1590543,
+        -2.5085466
+      ],
+      "velocity": [
+        8.007074,
+        0.005500421,
+        15.720287
+      ],
+      "orientation": [
+        0.052432004,
+        0.9767316,
+        -0.01525828,
+        -0.20739697
+      ],
+      "compression": [
+        0.5577823,
+        0.37911582,
+        0.5788678,
+        0.4002012
+      ],
+      "contacts": 0,
+      "up": 0.99403614,
+      "speed": 17.588905,
+      "yaw": -1.95878,
+      "lateral": -0.92982674,
+      "longitudinal": 17.61746,
+      "slip": 0.027569475,
+      "oilTicks": 0,
+      "steering": 0.89999986,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0.0024385322,
+        -1.95878,
+        0.0006732
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "drift60",
+    "command": {
+      "frames": 50,
+      "steer": -1,
+      "throttle": 1,
+      "brake": 0,
+      "handbrake": true,
+      "spawn": [
+        0,
+        1.145,
+        0
+      ],
+      "yaw": 0,
+      "speed": 16.67,
+      "id": "drift601790704157805947500"
+    },
+    "frames": 50,
+    "maxCompression": 0.5772772,
+    "contactFrames": 0,
+    "minUp": 0.99606466,
+    "maxHeight": 1.1454039,
+    "final": {
+      "tick": 635,
+      "position": [
+        -4.632693,
+        1.1454039,
+        -7.336232
+      ],
+      "velocity": [
+        -2.299891,
+        0.008856773,
+        0.7652563
+      ],
+      "orientation": [
+        -0.04065755,
+        0.96014756,
+        0.007891198,
+        -0.27640793
+      ],
+      "compression": [
+        0.41855252,
+        0.5536411,
+        0.43766522,
+        0.5727538
+      ],
+      "contacts": 0,
+      "up": 0.9965694,
+      "speed": 2.782253,
+      "yaw": 6.806952,
+      "lateral": 2.345823,
+      "longitudinal": -0.57393044,
+      "slip": 0.40397027,
+      "oilTicks": 0,
+      "steering": -0.899996,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.15390018,
+        6.806952,
+        -0.043006904
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "drift-exit",
+    "command": {
+      "frames": 180,
+      "steer": 0,
+      "throttle": 0.7,
+      "brake": 0,
+      "id": "drift-exit1790704159103620100"
+    },
+    "frames": 180,
+    "maxCompression": 0.5727538,
+    "contactFrames": 0,
+    "minUp": 0.9965694,
+    "maxHeight": 1.1457664,
+    "final": {
+      "tick": 815,
+      "position": [
+        26.95575,
+        1.1423997,
+        -48.100452
+      ],
+      "velocity": [
+        21.267046,
+        -0.00013189018,
+        -28.374266
+      ],
+      "orientation": [
+        0.013898198,
+        -0.3160459,
+        0.0046186983,
+        0.94863087
+      ],
+      "compression": [
+        0.4639851,
+        0.4640211,
+        0.5401988,
+        0.5402349
+      ],
+      "contacts": 0,
+      "up": 0.999571,
+      "speed": 35.321587,
+      "yaw": 2.9103261e-05,
+      "lateral": 0.00015068054,
+      "longitudinal": 35.444427,
+      "slip": 0.10796146,
+      "oilTicks": 0,
+      "steering": -8.326968e-22,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.0091113765,
+        2.9103261e-05,
+        -0.0067494414
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "gap160",
+    "command": {
+      "frames": 55,
+      "steer": 0,
+      "throttle": 1,
+      "brake": 0,
+      "spawn": [
+        0,
+        2.4,
+        0
+      ],
+      "yaw": 0,
+      "speed": 44.44,
+      "surface": "Asphalt",
+      "id": "gap1601790704162619398500"
+    },
+    "frames": 55,
+    "maxCompression": 0.4407704,
+    "contactFrames": 0,
+    "minUp": 1,
+    "maxHeight": 2.4,
+    "final": {
+      "tick": 870,
+      "position": [
+        0,
+        1.2042296,
+        -39.996
+      ],
+      "velocity": [
+        0,
+        -0.13363263,
+        -44.44
+      ],
+      "orientation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "compression": [
+        0.4407704,
+        0.4407704,
+        0.4407704,
+        0.4407704
+      ],
+      "contacts": 0,
+      "up": 1,
+      "speed": 44.44,
+      "yaw": 0,
+      "lateral": 0,
+      "longitudinal": 44.44,
+      "slip": 0,
+      "oilTicks": 0,
+      "steering": 0,
+      "surface": "Asphalt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "air-before-delay",
+    "command": {
+      "frames": 55,
+      "steer": 0.4,
+      "throttle": 0.5,
+      "brake": 0,
+      "spawn": [
+        0,
+        20,
+        0
+      ],
+      "yaw": 0,
+      "speed": 15,
+      "surface": "Dirt",
+      "id": "air-before-delay1790704179036439100"
+    },
+    "frames": 55,
+    "maxCompression": 0,
+    "contactFrames": 0,
+    "minUp": 1,
+    "maxHeight": 20,
+    "final": {
+      "tick": 925,
+      "position": [
+        0,
+        15.462479,
+        -13.5
+      ],
+      "velocity": [
+        0,
+        -10.083336,
+        -15
+      ],
+      "orientation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "compression": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contacts": 0,
+      "up": 1,
+      "speed": 15,
+      "yaw": 0,
+      "lateral": 0,
+      "longitudinal": 15,
+      "slip": 0,
+      "oilTicks": 0,
+      "steering": 0.3599779,
+      "surface": "Concrete",
+      "grounded": false,
+      "airSeconds": 0.91666645,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0,
+        0,
+        0
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "air-active",
+    "command": {
+      "frames": 30,
+      "steer": 0.4,
+      "throttle": 0.5,
+      "brake": 0,
+      "id": "air-active1790704180446257400"
+    },
+    "frames": 30,
+    "maxCompression": 0,
+    "contactFrames": 0,
+    "minUp": 0.91391164,
+    "maxHeight": 15.462479,
+    "final": {
+      "tick": 955,
+      "position": [
+        0.0131912725,
+        9.239515,
+        -20.844236
+      ],
+      "velocity": [
+        0,
+        -15.583338,
+        -15
+      ],
+      "orientation": [
+        -0.20747091,
+        -0.13554846,
+        -1.3804426e-05,
+        0.96880466
+      ],
+      "compression": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contacts": 0,
+      "up": 0.91391164,
+      "speed": 15,
+      "yaw": -0.75069886,
+      "lateral": -4.815749,
+      "longitudinal": 19.421995,
+      "slip": 0,
+      "oilTicks": 0,
+      "steering": 0.35997796,
+      "surface": "Concrete",
+      "grounded": false,
+      "airSeconds": 1.416666,
+      "airInput": [
+        -0.45618013,
+        -0.34754562,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -1.1495738,
+        -0.75069886,
+        -0.00015439415
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "air-release",
+    "command": {
+      "frames": 90,
+      "steer": 0,
+      "throttle": 0,
+      "brake": 0,
+      "id": "air-release1790704181439011800"
+    },
+    "frames": 90,
+    "maxCompression": 1,
+    "contactFrames": 4,
+    "minUp": 0.8426162,
+    "maxHeight": 9.239515,
+    "final": {
+      "tick": 1045,
+      "position": [
+        4.348643,
+        1.1495311,
+        -37.604855
+      ],
+      "velocity": [
+        4.0738482,
+        -0.011473849,
+        -7.9617467
+      ],
+      "orientation": [
+        0.0010138692,
+        -0.23428974,
+        0.0018265832,
+        0.9721646
+      ],
+      "compression": [
+        0.49429393,
+        0.48926985,
+        0.5016477,
+        0.49662375
+      ],
+      "contacts": 0,
+      "up": 0.99999124,
+      "speed": 8.991595,
+      "yaw": -4.196551e-05,
+      "lateral": -0.00034952164,
+      "longitudinal": 8.943401,
+      "slip": 0,
+      "oilTicks": 0,
+      "steering": 5.647394e-12,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.0012872996,
+        -4.196551e-05,
+        -0.015818184
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "roof-impact",
+    "command": {
+      "frames": 90,
+      "steer": 0,
+      "throttle": 0,
+      "brake": 0,
+      "spawn": [
+        0,
+        4,
+        0
+      ],
+      "yaw": 0,
+      "speed": 8,
+      "roll": 3.14159,
+      "id": "roof-impact1790704183447859400"
+    },
+    "frames": 90,
+    "maxCompression": 0,
+    "contactFrames": 44,
+    "minUp": -1,
+    "maxHeight": 4,
+    "final": {
+      "tick": 1135,
+      "position": [
+        -4.1530002e-05,
+        0.9456141,
+        -8.174191
+      ],
+      "velocity": [
+        0.0007601496,
+        -0.18337496,
+        -0.6887266
+      ],
+      "orientation": [
+        -3.2009048e-05,
+        9.628864e-08,
+        1,
+        0.00015662625
+      ],
+      "compression": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contacts": 4,
+      "up": -1,
+      "speed": 0.71540225,
+      "yaw": -0.00010068035,
+      "lateral": -0.00077350123,
+      "longitudinal": 0.68872666,
+      "slip": 0,
+      "oilTicks": 0,
+      "steering": 0,
+      "surface": "Concrete",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0.7333333,
+      "angular": [
+        -1.4160088e-05,
+        -0.00010068035,
+        5.443503e-05
+      ],
+      "hp": 977.8333
+    }
+  },
+  {
+    "name": "roof-recovery",
+    "command": {
+      "frames": 360,
+      "steer": 0,
+      "throttle": 0,
+      "brake": 0,
+      "id": "roof-recovery1790704185456039300"
+    },
+    "frames": 360,
+    "maxCompression": 0.69736665,
+    "contactFrames": 223,
+    "minUp": -1,
+    "maxHeight": 1.638024,
+    "final": {
+      "tick": 1495,
+      "position": [
+        2.8427527,
+        1.1452906,
+        -8.256968
+      ],
+      "velocity": [
+        1.3707995e-05,
+        -0.0006262213,
+        -0.0018393996
+      ],
+      "orientation": [
+        -1.780022e-07,
+        -0.003509885,
+        -1.355716e-06,
+        0.99999386
+      ],
+      "compression": [
+        0.49970758,
+        0.4997121,
+        0.49970663,
+        0.49971116
+      ],
+      "contacts": 0,
+      "up": 1,
+      "speed": 0.001849349,
+      "yaw": -8.1373037e-07,
+      "lateral": 7.9727215e-07,
+      "longitudinal": 0.0018394508,
+      "slip": 0,
+      "oilTicks": 0,
+      "steering": 0,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        1.05357e-06,
+        -8.1373037e-07,
+        1.561792e-05
+      ],
+      "hp": 977.8333
+    }
+  },
+  {
+    "name": "oval160-straight",
+    "command": {
+      "frames": 120,
+      "steer": 0,
+      "throttle": 1,
+      "brake": 0,
+      "spawn": [
+        -65,
+        1.145,
+        91
+      ],
+      "yaw": -1.570796,
+      "speed": 44.44,
+      "id": "oval160-straight1790704299571798400"
+    },
+    "frames": 120,
+    "maxCompression": 0.683626,
+    "contactFrames": 0,
+    "minUp": 0.9998338,
+    "maxHeight": 1.1600513,
+    "final": {
+      "tick": 480,
+      "position": [
+        23.2101,
+        1.1399962,
+        91.00713
+      ],
+      "velocity": [
+        44.478172,
+        0.007393509,
+        0.0051459097
+      ],
+      "orientation": [
+        -6.29077e-05,
+        -0.70714766,
+        -5.3980006e-05,
+        0.7070659
+      ],
+      "compression": [
+        0.5052291,
+        0.5052084,
+        0.5047991,
+        0.5047786
+      ],
+      "contacts": 0,
+      "up": 0.99999994,
+      "speed": 44.478172,
+      "yaw": -1.4690948e-09,
+      "lateral": -1.4295802e-07,
+      "longitudinal": 44.47817,
+      "slip": 0,
+      "oilTicks": 0,
+      "steering": 0,
+      "surface": "Asphalt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        4.8840688e-05,
+        -1.4690948e-09,
+        0.00041520392
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "oval160-bank",
+    "command": {
+      "frames": 90,
+      "steer": -0.035,
+      "throttle": 1,
+      "brake": 0,
+      "id": "oval160-bank1790704303101976200"
+    },
+    "frames": 90,
+    "maxCompression": 0.5683551,
+    "contactFrames": 0,
+    "minUp": 0.9987537,
+    "maxHeight": 1.1942478,
+    "final": {
+      "tick": 570,
+      "position": [
+        86.24348,
+        0.80648154,
+        75.99916
+      ],
+      "velocity": [
+        37.67831,
+        -1.2961626,
+        -21.927097
+      ],
+      "orientation": [
+        -0.0010865815,
+        -0.48762125,
+        -0.016593086,
+        0.8728969
+      ],
+      "compression": [
+        0.44343328,
+        0.4865204,
+        0.44367552,
+        0.5170268
+      ],
+      "contacts": 0,
+      "up": 0.999447,
+      "speed": 43.59891,
+      "yaw": 0.385137,
+      "lateral": 1.1088314,
+      "longitudinal": 43.596737,
+      "slip": 0.0628752,
+      "oilTicks": 0,
+      "steering": -0.031476784,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0.033850458,
+        0.385137,
+        -0.049372904
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "oval-bank-approach",
+    "command": {
+      "frames": 55,
+      "steer": 0,
+      "throttle": 1,
+      "brake": 0,
+      "spawn": [
+        30,
+        1.145,
+        91
+      ],
+      "yaw": -1.570796,
+      "speed": 44.44,
+      "id": "oval-bank-approach1790704329865716800"
+    },
+    "frames": 55,
+    "maxCompression": 0.58797145,
+    "contactFrames": 0,
+    "minUp": 0.9998778,
+    "maxHeight": 1.3604375,
+    "final": {
+      "tick": 625,
+      "position": [
+        69.98257,
+        1.3604375,
+        90.9925
+      ],
+      "velocity": [
+        44.375797,
+        1.1038516,
+        -0.039567914
+      ],
+      "orientation": [
+        0.0006795423,
+        -0.7070852,
+        0.0077906963,
+        0.7070852
+      ],
+      "compression": [
+        0.5494617,
+        0.58797145,
+        0.52053607,
+        0.54623485
+      ],
+      "contacts": 0,
+      "up": 0.9998778,
+      "speed": 44.380154,
+      "yaw": -3.425e-05,
+      "lateral": -0.031138511,
+      "longitudinal": 44.385845,
+      "slip": 0,
+      "oilTicks": 0,
+      "steering": 0,
+      "surface": "Asphalt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.07564856,
+        -3.425e-05,
+        0.067854404
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "oval-bank-follow",
+    "command": {
+      "frames": 90,
+      "steer": -0.022,
+      "throttle": 1,
+      "brake": 0,
+      "id": "oval-bank-follow1790704331569016000"
+    },
+    "frames": 90,
+    "maxCompression": 0.61913955,
+    "contactFrames": 0,
+    "minUp": 0.94403917,
+    "maxHeight": 2.5477736,
+    "final": {
+      "tick": 715,
+      "position": [
+        134.30127,
+        1.992213,
+        79.85933
+      ],
+      "velocity": [
+        41.01501,
+        -1.3576176,
+        -17.09538
+      ],
+      "orientation": [
+        -0.108883046,
+        -0.54435325,
+        0.12698382,
+        0.8220092
+      ],
+      "compression": [
+        0.41563272,
+        0.61913955,
+        0.4004445,
+        0.57297313
+      ],
+      "contacts": 0,
+      "up": 0.94403917,
+      "speed": 44.431824,
+      "yaw": 0.3441346,
+      "lateral": 0.114377975,
+      "longitudinal": 44.45355,
+      "slip": 0,
+      "oilTicks": 0,
+      "steering": -0.01977599,
+      "surface": "Asphalt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        -0.36478347,
+        0.3441346,
+        0.121270254
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "oval-bank-correct",
+    "command": {
+      "frames": 75,
+      "steer": -0.045,
+      "throttle": 1,
+      "brake": 0,
+      "id": "oval-bank-correct1790704345184581500"
+    },
+    "frames": 75,
+    "maxCompression": 0.6529569,
+    "contactFrames": 0,
+    "minUp": 0.8628477,
+    "maxHeight": 1.992213,
+    "final": {
+      "tick": 790,
+      "position": [
+        172.62717,
+        -1.0977006,
+        43.905136
+      ],
+      "velocity": [
+        16.473452,
+        -2.4189563,
+        -39.40865
+      ],
+      "orientation": [
+        -0.068136685,
+        -0.18219136,
+        0.146408,
+        0.9699116
+      ],
+      "compression": [
+        0.64926755,
+        0.5741037,
+        0.58067954,
+        0.5643852
+      ],
+      "contacts": 0,
+      "up": 0.9478442,
+      "speed": 42.732502,
+      "yaw": 0.6219961,
+      "lateral": 0.78503895,
+      "longitudinal": 42.767868,
+      "slip": 0,
+      "oilTicks": 0,
+      "steering": -0.040485848,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0.3074232,
+        0.6219961,
+        -0.47911492
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "oval-full-lock",
+    "command": {
+      "frames": 45,
+      "steer": -1,
+      "throttle": 1,
+      "brake": 0,
+      "id": "oval-full-lock1790704347189193600"
+    },
+    "frames": 45,
+    "maxCompression": 0.67954874,
+    "contactFrames": 0,
+    "minUp": 0.9478442,
+    "maxHeight": -0.7479932,
+    "final": {
+      "tick": 835,
+      "position": [
+        172.23051,
+        -0.7479932,
+        14.472157
+      ],
+      "velocity": [
+        -17.068623,
+        5.5527115,
+        -36.014263
+      ],
+      "orientation": [
+        0.046082634,
+        0.27802318,
+        -0.1036332,
+        0.95385516
+      ],
+      "compression": [
+        0.58399665,
+        0.59494627,
+        0.5564716,
+        0.5895959
+      ],
+      "contacts": 0,
+      "up": 0.9742731,
+      "speed": 39.905502,
+      "yaw": 0.6762394,
+      "lateral": 4.426716,
+      "longitudinal": 39.991802,
+      "slip": 0,
+      "oilTicks": 0,
+      "steering": -0.8999864,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0.10092564,
+        0.6762394,
+        -0.3470505
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "ramp-approach",
+    "command": {
+      "frames": 100,
+      "steer": 0,
+      "throttle": 0.5,
+      "brake": 0,
+      "spawn": [
+        -115,
+        1.145,
+        0
+      ],
+      "yaw": -1.570796,
+      "speed": 30,
+      "id": "ramp-approach1790704348585003800"
+    },
+    "frames": 100,
+    "maxCompression": 0.819155,
+    "contactFrames": 0,
+    "minUp": 0.82367116,
+    "maxHeight": 15.94162,
+    "final": {
+      "tick": 935,
+      "position": [
+        -64.35111,
+        15.94162,
+        0.0046311207
+      ],
+      "velocity": [
+        28.819506,
+        11.706863,
+        0.005123284
+      ],
+      "orientation": [
+        0.17250441,
+        -0.6858182,
+        0.17242783,
+        0.6856853
+      ],
+      "compression": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contacts": 0,
+      "up": 0.88102174,
+      "speed": 28.819506,
+      "yaw": -2.9367508e-05,
+      "lateral": -0.0011365158,
+      "longitudinal": 30.928846,
+      "slip": 0.012943715,
+      "oilTicks": 0,
+      "steering": 0,
+      "surface": "Dirt",
+      "grounded": false,
+      "airSeconds": 0.5333335,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        7.10209e-05,
+        -2.9367508e-05,
+        -0.20109181
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "ramp-release",
+    "command": {
+      "frames": 150,
+      "steer": 0,
+      "throttle": 0,
+      "brake": 0,
+      "id": "ramp-release1790704350914171800"
+    },
+    "frames": 150,
+    "maxCompression": 0,
+    "contactFrames": 0,
+    "minUp": 0.88102174,
+    "maxHeight": 22.086004,
+    "final": {
+      "tick": 1085,
+      "position": [
+        7.243887,
+        10.880034,
+        0.017361566
+      ],
+      "velocity": [
+        28.819506,
+        -15.793145,
+        0.005123284
+      ],
+      "orientation": [
+        0.12932889,
+        -0.6952668,
+        0.12923364,
+        0.69510925
+      ],
+      "compression": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "contacts": 0,
+      "up": 0.9331455,
+      "speed": 28.819506,
+      "yaw": -2.6077032e-08,
+      "lateral": 0.002254892,
+      "longitudinal": 21.215174,
+      "slip": 2.4987321e-05,
+      "oilTicks": 0,
+      "steering": 0,
+      "surface": "Dirt",
+      "grounded": false,
+      "airSeconds": 3.0333312,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        2.2351742e-08,
+        -2.6077032e-08,
+        -3.7252903e-08
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "ramp-landing",
+    "command": {
+      "frames": 150,
+      "steer": 0,
+      "throttle": 0,
+      "brake": 0,
+      "id": "ramp-landing1790704396419909700"
+    },
+    "frames": 150,
+    "maxCompression": 0.9369686,
+    "contactFrames": 0,
+    "minUp": 0.9331455,
+    "maxHeight": 10.880034,
+    "final": {
+      "tick": 1235,
+      "position": [
+        58.837646,
+        7.494865,
+        0.02777286
+      ],
+      "velocity": [
+        13.531881,
+        0.0001885891,
+        0.0027380663
+      ],
+      "orientation": [
+        -2.4389135e-05,
+        -0.70717835,
+        -2.4380934e-05,
+        0.70703524
+      ],
+      "compression": [
+        0.5002246,
+        0.5002246,
+        0.5000453,
+        0.5000453
+      ],
+      "contacts": 0,
+      "up": 1.0000001,
+      "speed": 13.604698,
+      "yaw": -5.0184358e-08,
+      "lateral": -1.2172386e-06,
+      "longitudinal": 13.531884,
+      "slip": 4.823702e-08,
+      "oilTicks": 0,
+      "steering": 0,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        6.8611946e-08,
+        -5.0184358e-08,
+        0.00017809572
+      ],
+      "hp": 1000
+    }
+  },
+  {
+    "name": "dirt60-power",
+    "command": {
+      "frames": 50,
+      "steer": 0.8,
+      "throttle": 0.7,
+      "brake": 0,
+      "spawn": [
+        20,
+        1.145,
+        48
+      ],
+      "yaw": 0,
+      "speed": 16.67,
+      "id": "dirt60-power1790704399720774100"
+    },
+    "frames": 50,
+    "maxCompression": 0.57927454,
+    "contactFrames": 3,
+    "minUp": 0.9985799,
+    "maxHeight": 1.1681148,
+    "final": {
+      "tick": 1285,
+      "position": [
+        22.004223,
+        1.1155806,
+        42.841934
+      ],
+      "velocity": [
+        7.6121845,
+        0.042170227,
+        -6.181553
+      ],
+      "orientation": [
+        0.002231987,
+        -0.36595485,
+        0.018837513,
+        0.9304393
+      ],
+      "compression": [
+        0.5325749,
+        0.47795892,
+        0.57927454,
+        0.524657
+      ],
+      "contacts": 0,
+      "up": 0.99928033,
+      "speed": 9.554833,
+      "yaw": -1.6099383,
+      "lateral": 1.359158,
+      "longitudinal": 9.709784,
+      "slip": 0,
+      "oilTicks": 0,
+      "steering": 0.71998173,
+      "surface": "Concrete",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0.0062344,
+        -1.6099383,
+        0.02267368
+      ],
+      "hp": 929.2234
+    }
+  },
+  {
+    "name": "dirt60-counter",
+    "command": {
+      "frames": 20,
+      "steer": -0.25,
+      "throttle": 0.5,
+      "brake": 0,
+      "id": "dirt60-counter1790704401417563200"
+    },
+    "frames": 20,
+    "maxCompression": 0.6776708,
+    "contactFrames": 0,
+    "minUp": 0.9992255,
+    "maxHeight": 1.198455,
+    "final": {
+      "tick": 1305,
+      "position": [
+        25.077475,
+        1.198455,
+        40.875725
+      ],
+      "velocity": [
+        11.097895,
+        0.1450401,
+        -6.886821
+      ],
+      "orientation": [
+        0.0006047588,
+        -0.5211873,
+        0.0043034,
+        0.8534313
+      ],
+      "compression": [
+        0.5230334,
+        0.50423384,
+        0.46353102,
+        0.45057535
+      ],
+      "contacts": 0,
+      "up": 0.9999623,
+      "speed": 12.877326,
+      "yaw": 0.084105365,
+      "lateral": -1.0572405,
+      "longitudinal": 13.018771,
+      "slip": 0.0066063963,
+      "oilTicks": 0,
+      "steering": -0.20459816,
+      "surface": "Dirt",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0.10524827,
+        0.084105365,
+        0.062487956
+      ],
+      "hp": 929.2234
+    }
+  },
+  {
+    "name": "dirt60-recover",
+    "command": {
+      "frames": 100,
+      "steer": 0,
+      "throttle": 0.5,
+      "brake": 0,
+      "id": "dirt60-recover1790704402583728500"
+    },
+    "frames": 100,
+    "maxCompression": 0.6145874,
+    "contactFrames": 0,
+    "minUp": 0.9945659,
+    "maxHeight": 2.7516322,
+    "final": {
+      "tick": 1405,
+      "position": [
+        54.447536,
+        2.3780112,
+        23.55942
+      ],
+      "velocity": [
+        23.20543,
+        -0.22323743,
+        -13.686138
+      ],
+      "orientation": [
+        0.0065694544,
+        -0.49603885,
+        0.0066717644,
+        0.86824983
+      ],
+      "compression": [
+        0.6145874,
+        0.37993586,
+        0.55850744,
+        0.43599248
+      ],
+      "contacts": 0,
+      "up": 0.99982464,
+      "speed": 26.834068,
+      "yaw": -0.04128677,
+      "lateral": -0.007416725,
+      "longitudinal": 26.932316,
+      "slip": 0.012895528,
+      "oilTicks": 0,
+      "steering": -1.7667126e-13,
+      "surface": "Grass",
+      "grounded": true,
+      "airSeconds": 0,
+      "airInput": [
+        0,
+        0,
+        0
+      ],
+      "crashSeconds": 0,
+      "angular": [
+        0.25844848,
+        -0.04128677,
+        -0.09897744
+      ],
+      "hp": 929.2234
+    }
+  }
+]

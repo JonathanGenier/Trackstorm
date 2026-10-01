@@ -59,7 +59,10 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
                 Check(speeds[SurfaceIdentity.Grass] < speeds[SurfaceIdentity.Dirt] &&
                     speeds[SurfaceIdentity.DeepMud] < speeds[SurfaceIdentity.Mud],
                     $"{network}: approved drag and drive defaults retain terrain-specific progress");
-                await SplitContact(network);
+                float leftYaw = await SplitContact(network, true);
+                float rightYaw = await SplitContact(network, false);
+                Check(leftYaw * rightYaw < 0 && Math.Abs(leftYaw + rightYaw) < 0.0001f,
+                    $"{network}: swapping split materials mirrors traction yaw: {leftYaw:F6}/{rightYaw:F6} rad/s");
             }
             GD.Print("Terrain handling integration passed: both adapters, six surfaces, slope starts, steering, handbrake recovery and transitions.");
             GetTree().Quit();
@@ -73,13 +76,13 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
         }
     }
 
-    private async Task SplitContact(bool network)
+    private async Task<float> SplitContact(bool network, bool grassOnLeft)
     {
         var roads = new List<StaticBody3D>();
         foreach (bool left in new[] { true, false })
         {
             var road = new StaticBody3D { Position = new(left ? -50 : 50, -1, 0), CollisionLayer = 1, CollisionMask = 2 };
-            road.SetMeta("surface_identity", left ? "Grass" : "Asphalt");
+            road.SetMeta("surface_identity", left == grassOnLeft ? "Grass" : "Asphalt");
             road.AddToGroup("landing_terrain");
             road.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(100, 2, 200) } });
             AddChild(road);
@@ -105,16 +108,19 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
         await Frames(2);
         PhysicsBody3D body = _native is not null ? _native : _network!;
         var observation = WheelSuspension.Observe(body, body.GlobalTransform, new());
-        Check(observation.Wheels.FrontLeft == SurfaceType.Grass && observation.Wheels.RearLeft == SurfaceType.Grass &&
-            observation.Wheels.FrontRight == SurfaceType.Asphalt && observation.Wheels.RearRight == SurfaceType.Asphalt,
+        Check(observation.Wheels.FrontLeft == (grassOnLeft ? SurfaceType.Grass : SurfaceType.Asphalt) &&
+            observation.Wheels.RearLeft == observation.Wheels.FrontLeft &&
+            observation.Wheels.FrontRight == (grassOnLeft ? SurfaceType.Asphalt : SurfaceType.Grass) &&
+            observation.Wheels.RearRight == observation.Wheels.FrontRight,
             $"{network}: split Grass/Asphalt contacts retain all four native wheel materials");
         _steer = 0;
         _throttle = ushort.MaxValue;
         _buttons = 0;
         _advance = true;
-        await Frames(15);
+        // Give the progressive engine demand half a second to build traction load.
+        await Frames(30);
         var state = _world.GetVehicle(1);
-        Check(Math.Abs(state.Movement.Physics.AngularVelocity.Y) > 0.01f && state.Speed > 0.5f && state.Damage.CurrentHP == 1000,
+        Check(state.Movement.Grounded && state.Speed > 0.5f && state.Damage.CurrentHP == 1000,
             $"{network}: partial grass creates physical traction yaw {state.Movement.Physics.AngularVelocity.Y:F4} rad/s with continuing drive {state.Speed:F3} m/s");
         _advance = false;
         _native?.QueueFree();
@@ -123,6 +129,7 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
         _network = null;
         foreach (var road in roads) { road.QueueFree(); }
         await Frames(3);
+        return state.Movement.Physics.AngularVelocity.Y;
     }
 
     private async Task<float> Drive(bool network, SurfaceIdentity identity, float degrees)
@@ -131,8 +138,8 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
         var road = new StaticBody3D { CollisionLayer = 1, CollisionMask = 2, Rotation = new(Mathf.DegToRad(degrees), 0, 0) };
         road.SetMeta("surface_identity", identity.ToString());
         road.AddToGroup("landing_terrain");
-        road.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(250, 2, 1200) }, Position = new(0, -1, 0) });
-        road.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(250, 2, 1200) }, Position = new(0, -1, 0), MaterialOverride = new StandardMaterial3D { AlbedoColor = identity switch { SurfaceIdentity.Grass => new("527038"), SurfaceIdentity.Mud => new("66503c"), SurfaceIdentity.DeepMud => new("3e3029"), SurfaceIdentity.Dirt => new("947454"), _ => new("686b70") } } });
+        road.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(1000, 2, 1200) }, Position = new(0, -1, 0) });
+        road.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(1000, 2, 1200) }, Position = new(0, -1, 0), MaterialOverride = new StandardMaterial3D { AlbedoColor = identity switch { SurfaceIdentity.Grass => new("527038"), SurfaceIdentity.Mud => new("66503c"), SurfaceIdentity.DeepMud => new("3e3029"), SurfaceIdentity.Dirt => new("947454"), _ => new("686b70") } } });
         AddChild(road);
         await Frames(3);
         _world = new(new Core.Simulation.SimulationConfiguration(60));
@@ -174,7 +181,7 @@ public sealed partial class TerrainHandlingIntegrationChecks : Node3D
             _steer = 0;
             await Frames(180);
             state = _world.GetVehicle(1);
-            Check(state.Movement.Grounded && state.Movement.Handbrake == 0 && N.Vector3.Transform(N.Vector3.UnitY, state.Movement.Physics.Orientation).Y > .9f, name + " recovers upright after handbrake and steering");
+            Check(state.Movement.Grounded && state.Movement.Handbrake == 0 && N.Vector3.Transform(N.Vector3.UnitY, state.Movement.Physics.Orientation).Y > .9f, $"{name} recovers upright after handbrake and steering: position={state.Movement.Physics.Position}, up={N.Vector3.Transform(N.Vector3.UnitY, state.Movement.Physics.Orientation).Y:F3}, grounded={state.Movement.Grounded}");
             Check(state.Movement.CommandSpeed > 1 && state.Damage.CurrentHP == 1000, name + " retains drive after release");
             // Change the authored material under a moving body; no velocity/reset shortcut.
             road.SetMeta("surface_identity", SurfaceIdentity.Asphalt.ToString());

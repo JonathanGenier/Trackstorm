@@ -1,0 +1,95 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+native-brake-30-False: stop=0.517s distance=2.419m up=1.000
+native-brake-30-False brakes to rest without rollover
+native-brake-30-True: stop=0.500s distance=2.319m up=0.999
+native-brake-30-True brakes to rest without rollover
+native-brake-60-False: stop=1.033s distance=8.600m up=0.999
+native-brake-60-False brakes to rest without rollover
+native-brake-60-True: stop=1.083s distance=8.432m up=0.999
+native-brake-60-True brakes to rest without rollover
+native-brake-100-False: stop=1.717s distance=23.392m up=0.999
+native-brake-100-False brakes to rest without rollover
+native-brake-100-True: stop=1.833s distance=20.490m up=0.999
+native-brake-100-True brakes to rest without rollover
+native-brake-150-False: stop=2.533s distance=51.525m up=0.999
+native-brake-150-False brakes to rest without rollover
+native-brake-150-True: stop=2.733s distance=45.879m up=0.999
+native-brake-150-True brakes to rest without rollover
+native-terrain-west-18: compression=0.773 chassis=False rebound=0.000
+native-terrain-west-18 stays finite
+native-terrain-west-30: compression=0.940 chassis=False rebound=0.000
+native-terrain-west-30 stays finite
+native-terrain-west--11: compression=0.643 chassis=False rebound=0.000
+native-terrain-west--11 stays finite
+native-terrain-east-18: compression=0.773 chassis=False rebound=0.000
+native-terrain-east-18 stays finite
+native-terrain-east-30: compression=0.940 chassis=False rebound=0.000
+native-terrain-east-30 stays finite
+native-terrain-east--11: compression=0.643 chassis=False rebound=0.000
+native-terrain-east--11 stays finite
+native-terrain-side-18: compression=0.832 chassis=False rebound=0.000
+native-terrain-side-18 stays finite
+native-terrain-side-30: compression=0.989 chassis=True rebound=11.181
+native-terrain-side-30 stays finite
+native-terrain-side--11: compression=0.727 chassis=False rebound=0.000
+native-terrain-side--11 stays finite
+native-terrain-oblique-18: compression=0.836 chassis=False rebound=0.000
+native-terrain-oblique-18 stays finite
+native-terrain-oblique-30: compression=0.965 chassis=True rebound=9.967
+native-terrain-oblique-30 stays finite
+native-terrain-oblique--11: compression=0.724 chassis=False rebound=0.000
+native-terrain-oblique--11 stays finite
+native-terrain-downhill-18: compression=0.918 chassis=False rebound=0.000
+native-terrain-downhill-18 stays finite
+native-terrain-downhill-30: compression=0.812 chassis=True rebound=0.052
+native-terrain-downhill-30 stays finite
+native-terrain-downhill--11: compression=0.799 chassis=False rebound=0.000
+native-terrain-downhill--11 stays finite
+network-brake-30-False: stop=0.517s distance=2.536m up=1.000
+network-brake-30-False brakes to rest without rollover
+network-brake-30-True: stop=0.500s distance=2.432m up=0.999
+network-brake-30-True brakes to rest without rollover
+network-brake-60-False: stop=1.033s distance=8.866m up=0.999
+network-brake-60-False brakes to rest without rollover
+network-brake-60-True: stop=1.083s distance=8.665m up=0.999
+network-brake-60-True brakes to rest without rollover
+network-brake-100-False: stop=1.717s distance=23.845m up=0.999
+network-brake-100-False brakes to rest without rollover
+network-brake-100-True: stop=1.833s distance=20.882m up=0.999
+network-brake-100-True brakes to rest without rollover
+network-brake-150-False: stop=2.533s distance=52.210m up=0.999
+network-brake-150-False brakes to rest without rollover
+network-brake-150-True: stop=2.733s distance=46.490m up=0.999
+network-brake-150-True brakes to rest without rollover
+network-terrain-west-18: compression=0.777 chassis=False rebound=0.000
+network-terrain-west-18 stays finite
+network-terrain-west-30: compression=0.949 chassis=False rebound=0.000
+network-terrain-west-30 stays finite
+network-terrain-west--11: compression=0.646 chassis=False rebound=0.000
+network-terrain-west--11 stays finite
+network-terrain-east-18: compression=0.777 chassis=False rebound=0.000
+network-terrain-east-18 stays finite
+network-terrain-east-30: compression=0.949 chassis=False rebound=0.000
+network-terrain-east-30 stays finite
+network-terrain-east--11: compression=0.646 chassis=False rebound=0.000
+network-terrain-east--11 stays finite
+network-terrain-side-18: compression=0.833 chassis=False rebound=0.000
+network-terrain-side-18 stays finite
+network-terrain-side-30: compression=0.970 chassis=True rebound=12.068
+network-terrain-side-30 stays finite
+network-terrain-side--11: compression=0.730 chassis=False rebound=0.000
+network-terrain-side--11 stays finite
+network-terrain-oblique-18: compression=0.844 chassis=False rebound=0.000
+network-terrain-oblique-18 stays finite
+network-terrain-oblique-30: compression=0.921 chassis=True rebound=10.604
+network-terrain-oblique-30 stays finite
+network-terrain-oblique--11: compression=0.726 chassis=False rebound=0.000
+network-terrain-oblique--11 stays finite
+network-terrain-downhill-18: compression=0.918 chassis=False rebound=0.000
+network-terrain-downhill-18 stays finite
+network-terrain-downhill-30: compression=0.813 chassis=True rebound=0.055
+network-terrain-downhill-30 stays finite
+network-terrain-downhill--11: compression=0.803 chassis=False rebound=0.000
+network-terrain-downhill--11 stays finite
+Trophy truck integration passed: 46 assertions, both production adapters.

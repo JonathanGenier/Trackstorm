@@ -148,7 +148,7 @@ internal sealed class VehicleAuthorityTests
             original.Step(input, [Request(1, input, physics, contacts: tick == 44 ? [Contact(9, 2)] : null, effects: tick == 45 ? [Effect(5)] : null), Request(2, input, physics)]);
         }
 
-        Assert.That(original.GetVehicle(1).Movement.Handbrake, Is.EqualTo(1));
+        Assert.That(original.GetVehicle(1).Movement.Handbrake, Is.EqualTo(0.75f).Within(0.000001f));
         VehicleSnapshot[] decoded = original.State.Vehicles.Select(vehicle => VehicleSnapshotCodec.Decode(VehicleSnapshotCodec.Encode(vehicle))).ToArray();
         Assert.That(decoded[0].Effects.Single().Effect, Is.EqualTo(Effect(5).Effect));
         Assert.That(decoded[0].Effects.Single().Attribution, Is.EqualTo(Effect(5).Attribution));
@@ -186,7 +186,7 @@ internal sealed class VehicleAuthorityTests
         SimulationState before = simulation.State;
         VehicleSnapshot first = simulation.GetVehicle(1);
         VehicleSnapshot second = simulation.GetVehicle(2);
-        var invalid = new VehicleSnapshot(2, 1, new VehicleState(0, second.Movement.Physics, true, true, 0.9f, 0), second.Damage, second.ObservedPhysics);
+        var invalid = new VehicleSnapshot(2, 1, new VehicleState(0, second.Movement.Physics, true, true, 1f, 0), second.Damage, second.ObservedPhysics);
         var changed = new VehicleSnapshot(1, 2, first.Movement, first.Damage, first.ObservedPhysics);
         Assert.Throws<ArgumentException>(() => simulation.Restore(new SimulationState(0, default, [changed, invalid])));
         Assert.That(simulation.State, Is.EqualTo(before));
@@ -203,7 +203,7 @@ internal sealed class VehicleAuthorityTests
         JsonObject json = JsonNode.Parse(Encoding.UTF8.GetString(bytes[1..]))!.AsObject();
         byte[] movement = Convert.FromBase64String(json["Movement"]!.GetValue<string>());
         Assert.That(movement.Length, Is.EqualTo(VehicleStateCodec.SerializedSize));
-        Assert.That(movement[0], Is.EqualTo(9));
+        Assert.That(movement[0], Is.EqualTo(12));
         Assert.That(VehicleSnapshotCodec.Encode(VehicleSnapshotCodec.Decode(bytes)), Is.EqualTo(bytes));
         byte[] wrongVersion = (byte[])bytes.Clone();
         wrongVersion[0] = 1;

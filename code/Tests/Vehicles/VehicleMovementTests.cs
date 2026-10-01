@@ -27,6 +27,9 @@ internal sealed class VehicleMovementTests
             GroundStep(movement, brake: 65535);
         }
 
+        Assert.That(movement.State.Physics.LinearVelocity.Z, Is.EqualTo(0).Within(0.001));
+        GroundStep(movement);
+        for (int index = 0; index < 1800; index++) { GroundStep(movement, brake: 65535); }
         Assert.That(movement.State.Physics.LinearVelocity.Z, Is.EqualTo(11).Within(0.001));
         GroundStep(movement, throttle: 65535);
         Assert.That(movement.State.Physics.LinearVelocity.Z, Is.LessThan(11).And.GreaterThan(0));
@@ -36,10 +39,10 @@ internal sealed class VehicleMovementTests
     [Test]
     public void Drive_UsesConfiguredRateAccelerationBrakingAndLimits()
     {
-        var configuration = new VehicleConfiguration { TicksPerSecond = 120, ForwardSpeed = 10, ReverseSpeed = 4, Acceleration = 6, Braking = 12, MaximumPhysicsSpeed = 20 };
+        var configuration = new VehicleConfiguration { Mass = 1400, TicksPerSecond = 120, ForwardSpeed = 10, ReverseSpeed = 4, Acceleration = 6, Braking = 12, MaximumPhysicsSpeed = 20 };
         var movement = new VehicleMovement(configuration, new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero));
         GroundStep(movement, throttle: 65535);
-        Assert.That(-movement.State.Physics.LinearVelocity.Z, Is.InRange(0.01f, 0.05f));
+        Assert.That(-movement.State.Physics.LinearVelocity.Z, Is.GreaterThan(0).And.LessThan(0.01f), "Initial drive builds from idle rather than applying full engine demand.");
         for (int index = 0; index < 1800; index++)
         {
             GroundStep(movement, throttle: 65535);
@@ -53,6 +56,9 @@ internal sealed class VehicleMovementTests
             GroundStep(movement, brake: 65535);
         }
 
+        Assert.That(movement.State.Physics.LinearVelocity.Z, Is.EqualTo(0).Within(0.001));
+        GroundStep(movement);
+        for (int index = 0; index < 1800; index++) { GroundStep(movement, brake: 65535); }
         Assert.That(movement.State.Physics.LinearVelocity.Z, Is.EqualTo(4).Within(0.001));
     }
 
@@ -62,7 +68,7 @@ internal sealed class VehicleMovementTests
     {
         VehicleMovement movement = Create();
         VehicleState state = movement.Step(Frame(1, throttle: 65535, steering: 32767, drift: true), movement.State.Physics, Vector3.UnitY, false);
-        Assert.That(state.Physics.LinearVelocity.Y, Is.EqualTo(-9.81f / 60).Within(0.000001));
+        Assert.That(state.Physics.LinearVelocity.Y, Is.EqualTo(-11f / 60).Within(0.000001));
         Assert.That(state.Physics.LinearVelocity.X, Is.Zero);
         Assert.That(state.Physics.LinearVelocity.Z, Is.Zero);
         Assert.That(state.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
@@ -70,24 +76,24 @@ internal sealed class VehicleMovementTests
         Assert.That(state.Handbrake, Is.Zero);
     }
 
-    /// <summary>Actual wheel commands are progressive, precise and calmer at speed.</summary>
+    /// <summary>Actual wheel commands are progressive, precise and retain full range at speed.</summary>
     [Test]
-    public void Steering_IsProgressiveAndSpeedSensitive()
+    public void Steering_IsProgressiveWithFullRangeAtEverySpeed()
     {
         VehicleMovement low = Create(2);
         VehicleMovement high = Create(40);
         VehicleMovement analog = Create(2);
         GroundStep(low, steering: 32767);
-        Assert.That(low.State.SteeringAngle, Is.InRange(0.035f, 0.045f));
-        for (int index = 0; index < 60; index++)
+        Assert.That(low.State.SteeringAngle, Is.InRange(0.015f, 0.017f));
+        for (int index = 0; index < 240; index++)
         {
             low.Step(Frame(low.State.Tick + 1, steering: 32767), Create(2).State.Physics, Vector3.UnitY);
             high.Step(Frame(high.State.Tick + 1, steering: 32767), Create(40).State.Physics, Vector3.UnitY);
             analog.Step(Frame(analog.State.Tick + 1, steering: 8192), Create(2).State.Physics, Vector3.UnitY);
         }
 
-        Assert.That(low.State.SteeringAngle, Is.GreaterThan(0.5f));
-        Assert.That(high.State.SteeringAngle, Is.LessThan(low.State.SteeringAngle / 3));
+        Assert.That(low.State.SteeringAngle, Is.EqualTo(low.Configuration.SteeringAngle).Within(0.0001f));
+        Assert.That(high.State.SteeringAngle, Is.EqualTo(low.State.SteeringAngle).Within(0.0001f));
         Assert.That(analog.State.SteeringAngle, Is.EqualTo(low.State.SteeringAngle / 4).Within(0.0001f));
     }
 
@@ -123,7 +129,7 @@ internal sealed class VehicleMovementTests
     {
         var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(8, 0, -20), new Vector3(0, 2, 0));
         var light = new VehicleMovement(new(), body);
-        var heavy = new VehicleMovement(new() { Mass = 1800 }, body);
+        var heavy = new VehicleMovement(new() { Mass = 6000 }, body);
         VehicleState a = light.Step(Frame(1, brake: 65535), body, Vector3.UnitY);
         VehicleState b = heavy.Step(Frame(1, brake: 65535), body, Vector3.UnitY);
         Assert.That(-b.Physics.LinearVelocity.Z, Is.GreaterThan(-a.Physics.LinearVelocity.Z));
@@ -175,10 +181,10 @@ internal sealed class VehicleMovementTests
         Assert.That(movement.State.Grounded, Is.True);
         movement.Step(Frame(2), movement.State.Physics, Vector3.Zero);
         Assert.That(movement.State.Grounded, Is.False);
-        Assert.That(movement.State.Physics.LinearVelocity.Y, Is.EqualTo(-9.81f / 30).Within(0.00001));
+        Assert.That(movement.State.Physics.LinearVelocity.Y, Is.EqualTo(-11f / 30).Within(0.00001));
         GroundStep(movement);
         Assert.That(movement.State.Grounded, Is.True);
-        Assert.That(movement.State.Physics.LinearVelocity.Y, Is.EqualTo(-9.81f / 60).Within(0.00001));
+        Assert.That(movement.State.Physics.LinearVelocity.Y, Is.EqualTo(-11f / 60).Within(0.00001));
     }
 
     /// <summary>Grip dissipates lateral motion; drifting retains more side slip.</summary>
@@ -279,7 +285,7 @@ internal sealed class VehicleMovementTests
         Assert.That(Math.Abs(held.State.LateralAcceleration), Is.GreaterThan(Math.Abs(locked.LateralAcceleration)));
     }
 
-    /// <summary>Release restores propulsion on the first tick while sideways momentum, yaw and grip recovery persist.</summary>
+    /// <summary>Release eases rear braking before propulsion resumes; momentum and grip remain continuous.</summary>
     /// <param name="speed">Forward entry speed.</param>
     /// <param name="delay">Ticks after release before throttle.</param>
     [TestCase(6f, 0)]
@@ -290,7 +296,7 @@ internal sealed class VehicleMovementTests
     {
         var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(5, 0, -speed), new Vector3(0, 0.7f, 0));
         var movement = new VehicleMovement(new(), body);
-        movement.Restore(new VehicleState(0, body, true, true, 0, 1));
+        movement.Restore(new VehicleState(0, body, true, true, 0, 1, throttle: 1));
         VehicleState held = movement.Step(Frame(1, throttle: 65535, drift: true), body, Vector3.UnitY);
         Assert.That(held.LongitudinalAcceleration, Is.LessThan(0));
         for (int index = 0; index < delay; index++)
@@ -299,12 +305,14 @@ internal sealed class VehicleMovementTests
         }
 
         VehicleState released = movement.Step(Frame(movement.State.Tick + 1, throttle: 65535), body, Vector3.UnitY);
-        Assert.That(released.LongitudinalAcceleration, Is.GreaterThan(2));
-        Assert.That(-released.Physics.LinearVelocity.Z, Is.GreaterThan(speed));
-        Assert.That(released.Physics.LinearVelocity.X, Is.GreaterThan(4.65f));
+        Assert.That(released.LongitudinalAcceleration, Is.GreaterThan(held.LongitudinalAcceleration));
+        Assert.That(released.Physics.LinearVelocity.X, Is.GreaterThan(4.5f));
         Assert.That(released.Physics.AngularVelocity.Y, Is.GreaterThan(0.5f));
         Assert.That(released.Handbrake, Is.InRange(0.3f, 0.99f));
         Assert.That(released.Drifting, Is.True);
+        for (int i = 0; i < 30; i++) { movement.Step(Frame(movement.State.Tick + 1, throttle: 65535), body, Vector3.UnitY); }
+        Assert.That(movement.State.Handbrake, Is.Zero);
+        Assert.That(movement.State.LongitudinalAcceleration, Is.GreaterThan(2));
     }
 
     /// <summary>Propulsion remains analog and bounded by the supported axle even with extreme lateral demand.</summary>
@@ -315,18 +323,21 @@ internal sealed class VehicleMovementTests
     [TestCase(SurfaceType.Concrete, true)]
     public void SlidingDriveRespectsPedalAndFrictionBudget(SurfaceType surface, bool reverse)
     {
-        var tuning = new VehicleConfiguration();
+        // Isolate rear propulsion so its friction budget can be reconstructed from total acceleration and yaw.
+        var tuning = new VehicleConfiguration { FrontDriveShare = 0 };
         var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(20, 0, reverse ? 5 : -5), Vector3.Zero);
         float previous = 0;
         foreach (ushort pedal in new ushort[] { 0, 500, 4000, 16000, 65535 })
         {
-            VehicleState state = new VehicleMovement(tuning, body).Step(Frame(1, throttle: reverse ? (ushort)0 : pedal, brake: reverse ? pedal : (ushort)0), body, Vector3.UnitY, surface: surface);
+            var movement = new VehicleMovement(tuning, body);
+            movement.Restore(new(0, body, true, false, 0, 0, throttle: pedal / 65535f));
+            VehicleState state = movement.Step(Frame(1, throttle: reverse ? (ushort)0 : pedal, brake: reverse ? pedal : (ushort)0), body, Vector3.UnitY, surface: surface);
             float drive = Math.Abs(state.LongitudinalAcceleration);
             float capacity = tuning.TireFriction * tuning.Gravity * tuning.ResolveSurface(surface).Grip / 2;
             float yaw = state.Physics.AngularVelocity.Y / MathF.Exp(-tuning.StabilityDamping / 60);
             float rearSide = (state.LateralAcceleration + (yaw * 60 * tuning.Wheelbase * 2 / 3)) / 2;
             Assert.That(drive, Is.GreaterThanOrEqualTo(previous));
-            Assert.That((drive * drive) + (rearSide * rearSide), Is.LessThanOrEqualTo((capacity * capacity) + 0.0001f));
+            Assert.That((drive * drive / (tuning.RearDriveGrip * tuning.RearDriveGrip)) + (rearSide * rearSide), Is.LessThanOrEqualTo((capacity * capacity) + 0.0001f));
             Assert.That(drive, Is.LessThanOrEqualTo((reverse ? tuning.ReverseAcceleration : tuning.Acceleration * tuning.ResolveSurface(surface).Acceleration) * pedal / 65535f));
             previous = drive;
         }
@@ -398,7 +409,7 @@ internal sealed class VehicleMovementTests
         Assert.That(movement.State.CommandSpeed, Is.InRange(2.5f, 3f));
     }
 
-    /// <summary>A raised wheel compresses the sprung body, then near-critical damping settles without pogo.</summary>
+    /// <summary>A raised wheel compresses the sprung body, then heavy damping settles without pogo.</summary>
     [Test]
     public void SuspensionAbsorbsBumpAndSettles()
     {
@@ -437,10 +448,10 @@ internal sealed class VehicleMovementTests
         }
 
         var baseline = new VehicleConfiguration();
-        Assert.That(Step(-1, baseline with { WheelDamping = 22 }), Is.GreaterThan(Step(-1, baseline)));
+        Assert.That(Step(-1, baseline with { WheelDamping = baseline.WheelDamping * 1.5f }), Is.GreaterThan(Step(-1, baseline)));
         Assert.That(Step(-1, baseline with { WheelReboundDamping = 30 }), Is.EqualTo(Step(-1, baseline)));
         Assert.That(Step(0.2f, baseline with { WheelReboundDamping = 30 }), Is.LessThan(Step(0.2f, baseline)));
-        Assert.That(Step(0.2f, baseline with { WheelDamping = 22 }), Is.EqualTo(Step(0.2f, baseline)));
+        Assert.That(Step(0.2f, baseline with { WheelDamping = baseline.WheelDamping * 1.5f }), Is.EqualTo(Step(0.2f, baseline)));
         Assert.That(Step(10, baseline), Is.EqualTo(10 - baseline.Gravity / 60).Within(0.00001f));
     }
 
@@ -451,10 +462,10 @@ internal sealed class VehicleMovementTests
         var tuning = new VehicleConfiguration();
         var body = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
         float Step(float compression, VehicleConfiguration config) => new VehicleMovement(config, body).Step(Frame(1), body, Vector3.UnitY, wheels: new WheelSupport(new Vector4(compression))).Physics.LinearVelocity.Y;
-        Assert.That(Step(0.3f, tuning with { WheelBumpSpring = 280 }), Is.EqualTo(Step(0.3f, tuning)));
+        Assert.That(Step(0.3f, tuning with { WheelBumpSpring = tuning.WheelBumpSpring * 1.5f }), Is.EqualTo(Step(0.3f, tuning)));
         Assert.That(Step(0.5f, tuning with { WheelBumpStart = 0.4f }), Is.GreaterThan(Step(0.5f, tuning)));
-        Assert.That(Step(0.7f, tuning with { WheelBumpSpring = 280 }), Is.GreaterThan(Step(0.7f, tuning)));
-        Assert.That(Step(1, tuning with { WheelBumpSpring = 10000 }), Is.LessThanOrEqualTo(5 * tuning.Gravity / 60 + 0.00001f));
+        Assert.That(Step(0.7f, tuning with { WheelBumpSpring = tuning.WheelBumpSpring * 1.5f }), Is.GreaterThan(Step(0.7f, tuning)));
+        Assert.That(Step(1, tuning with { WheelBumpSpring = 10000 }), Is.LessThanOrEqualTo(29 * tuning.Gravity / 60 + 0.00001f));
         Assert.That(Step(0, tuning), Is.EqualTo(-tuning.Gravity / 60));
     }
 

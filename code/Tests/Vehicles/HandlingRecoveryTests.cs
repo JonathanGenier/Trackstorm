@@ -11,9 +11,9 @@ internal sealed class HandlingRecoveryTests
     [Test]
     public void DirtPowerBuildsAndLiftRestoresGripProgressivelyAcrossRestore()
     {
-        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(3, 0, -15), Vector3.Zero);
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(3, 0, -6), Vector3.Zero);
         var movement = new VehicleMovement(new(), pose);
-        for (ulong tick = 1; tick <= 60; tick++)
+        for (ulong tick = 1; tick <= 180; tick++)
         {
             movement.Step(new(tick, 0, ushort.MaxValue, 0, 0, 0, 0), pose, Vector3.UnitY, surface: SurfaceType.Dirt);
         }
@@ -21,7 +21,7 @@ internal sealed class HandlingRecoveryTests
         Assert.That(powered, Is.InRange(0.15f, 0.22f));
         var restored = new VehicleMovement(new(), pose);
         restored.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(movement.State)));
-        for (ulong tick = 61; tick <= 121; tick++)
+        for (ulong tick = 181; tick <= 241; tick++)
         {
             float before = movement.State.PowerSlip;
             var input = new InputFrame(tick, 2000, 0, 0, 0, 0, 0);
@@ -40,6 +40,7 @@ internal sealed class HandlingRecoveryTests
         VehicleState Run(SurfaceType left, SurfaceType right)
         {
             var movement = new VehicleMovement(new(), pose);
+            movement.Restore(new(0, pose, true, false, 0, 0, throttle: 1));
             var wheels = new WheelSupport(new Vector4(9.81f / 30), left, right, left, right);
             return movement.Step(new(1, 0, ushort.MaxValue, 0, 0, 0, 0), pose, Vector3.UnitY, surface: SurfaceType.Asphalt, wheels: wheels);
         }
@@ -47,10 +48,10 @@ internal sealed class HandlingRecoveryTests
         var leftGrass = Run(SurfaceType.Grass, SurfaceType.Asphalt);
         var rightGrass = Run(SurfaceType.Asphalt, SurfaceType.Grass);
         var grass = Run(SurfaceType.Grass, SurfaceType.Grass);
-        Assert.That(leftGrass.LongitudinalAcceleration, Is.GreaterThan(asphalt.LongitudinalAcceleration).And.LessThan(grass.LongitudinalAcceleration));
-        Assert.That(leftGrass.Physics.AngularVelocity.Y, Is.LessThan(0));
+        Assert.That(leftGrass.LongitudinalAcceleration, Is.InRange(Math.Min(asphalt.LongitudinalAcceleration, grass.LongitudinalAcceleration), Math.Max(asphalt.LongitudinalAcceleration, grass.LongitudinalAcceleration)));
+        Assert.That(leftGrass.Physics.AngularVelocity.Y * (asphalt.LongitudinalAcceleration - grass.LongitudinalAcceleration), Is.GreaterThan(0));
         Assert.That(rightGrass.Physics.AngularVelocity.Y, Is.EqualTo(-leftGrass.Physics.AngularVelocity.Y).Within(0.00001));
-        Assert.That(asphalt.Physics.AngularVelocity.Y, Is.Zero);
+        Assert.That(asphalt.Physics.AngularVelocity.Y, Is.EqualTo(0).Within(0.00001));
     }
 
     [Test]
@@ -60,8 +61,9 @@ internal sealed class HandlingRecoveryTests
         var movement = new VehicleMovement(new(), pose);
         var first = movement.Step(new(1, 2000, 20000, 0, 0, 0, 0), pose, Vector3.UnitY, surface: SurfaceType.Dirt);
         var second = movement.Step(new(2, -2000, 20000, 0, 0, 0, 0), pose, Vector3.UnitY, surface: SurfaceType.Dirt);
-        Assert.That(Math.Abs(first.SteeringAngle), Is.LessThan(0.001f));
-        Assert.That(Math.Abs(second.SteeringAngle - first.SteeringAngle), Is.LessThan(0.002f));
+        float requested = 2000f / 32767 * movement.Configuration.SteeringAngle;
+        Assert.That(first.SteeringAngle, Is.InRange(0, requested));
+        Assert.That(Math.Abs(second.SteeringAngle - first.SteeringAngle), Is.LessThan(movement.Configuration.SteeringResponse / 60));
         Assert.That(first.Physics.AngularVelocity.Y, Is.GreaterThan(0));
         Assert.That(second.Physics.AngularVelocity.Y, Is.GreaterThan(0));
     }

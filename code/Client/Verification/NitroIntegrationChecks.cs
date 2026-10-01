@@ -27,6 +27,7 @@ public sealed partial class NitroIntegrationChecks : Node
     private int _rocketScenario;
     private float _rocketOnlySpeed;
     private float _rocketStartSpeed;
+    private double[] _rocketStartingScores = [];
     private readonly bool[] _press = new bool[2];
     private double[] _charges = [];
     private double[] _scores = [];
@@ -169,6 +170,7 @@ public sealed partial class NitroIntegrationChecks : Node
                     break;
                 case 104 when _frames - _boundary > 30:
                     _rocketStartSpeed = host.World.GetVehicle(1).Speed;
+                    _rocketStartingScores = host.World.State.Match!.Players.Select(p => p.CircusScore).ToArray();
                     UseBoth();
                     _stage = 102; _boundary = _frames;
                     break;
@@ -354,7 +356,9 @@ public sealed partial class NitroIntegrationChecks : Node
         var host = _arenas[0].Driver.Host!;
         float speed = -host.World.GetVehicle(1).Movement.Physics.LinearVelocity.Z;
         Check(host.Items.Slots.All(s => s.NitroCharge is > 50 and < 100), "activation-time consumption independent of pedals/support");
-        Check(host.World.State.Match!.Players.All(p => p.CircusScore == 0), "no points for thrust/airborne motion below normal top speed");
+        // A preceding powered scenario can cross normal top speed during release.
+        // Compare this scenario's score delta, retaining legitimate earlier points.
+        Check(host.World.State.Match!.Players.Select(p => p.CircusScore).SequenceEqual(_rocketStartingScores), "no new points for thrust/airborne motion below normal top speed");
         switch (_rocketScenario)
         {
             case 0: Check(_rocketStartSpeed < 0.1f && speed > 8, "Nitro launches from complete rest without throttle"); _rocketOnlySpeed = speed; break;
@@ -364,7 +368,7 @@ public sealed partial class NitroIntegrationChecks : Node
             case 4: Check(!host.World.GetVehicle(1).Movement.Grounded && speed > 8, "airborne rocket propels without wheels"); break;
             case 5: Check(!host.World.GetVehicle(1).Movement.Grounded && Math.Abs(speed) < 0.1f, "runtime zero airborne scale disables thrust while charge drains"); break;
         }
-        string line = $"Rocket scenario {_rocketScenario}: start {_rocketStartSpeed:0.00}, forward {speed:0.00} m/s; charge {host.Items.Slots[0].NitroCharge:0.00}%; Circus zero.";
+        string line = $"Rocket scenario {_rocketScenario}: start {_rocketStartSpeed:0.00}, forward {speed:0.00} m/s; charge {host.Items.Slots[0].NitroCharge:0.00}%; Circus unchanged.";
         _evidence.Add(line); GD.Print(line);
         Capture($"rocket-{_rocketScenario}.png");
     }

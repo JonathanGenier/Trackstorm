@@ -21,6 +21,9 @@ public sealed partial class PlayerInput : Node
     /// <summary>Composition supplies arena presence; menus and focus reuse the adapter's existing gates.</summary>
     internal Func<bool> GameplayAvailable { get; set; } = () => false;
 
+    /// <summary>Composition resolves accepted tuning and the existing airborne activation boundary.</summary>
+    internal Func<DrivingInputShaping>? ResolveShaping { get; set; }
+
     /// <inheritdoc/>
     public override void _Ready()
     {
@@ -55,6 +58,7 @@ public sealed partial class PlayerInput : Node
     /// <inheritdoc/>
     public override void _PhysicsProcess(double delta)
     {
+        if (ResolveShaping is not null) { Adapter.Shaping = ResolveShaping(); }
         LatestFrame = Adapter.Capture(checked(++_tick));
         FrameCaptured?.Invoke(LatestFrame);
         // Session advancement can enter or leave an arena during this callback.

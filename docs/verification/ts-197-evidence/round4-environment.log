@@ -1,0 +1,33 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+practice-scrape: contactTicks=170, speed=8.96, hp=1000.0, peakUp=0.00, peakAngular=0.13, position=<1000.66626, 1.1441967, -58.088795>
+practice-direct: contactTicks=90, speed=0.00, hp=900.0, peakUp=0.04, peakAngular=1.20, position=<999.35614, 1.1413841, 0.010809839>
+practice-oblique: contactTicks=111, speed=0.69, hp=903.1, peakUp=0.07, peakAngular=0.90, position=<999.9655, 1.1406124, -9.183238>
+practice-nitro-scrape: contactTicks=153, speed=62.03, hp=1000.0, peakUp=0.02, peakAngular=0.10, position=<1000.6752, 1.148134, -157.96765>
+practice-seams: contactTicks=170, speed=8.96, hp=1000.0, peakUp=0.00, peakAngular=0.13, position=<1000.6661, 1.1442138, -58.08791>
+practice-corner: contactTicks=170, speed=0.00, hp=914.6, peakUp=0.02, peakAngular=1.04, position=<1000.58655, 1.1433712, -31.386555>
+practice-nitro-corner: contactTicks=153, speed=0.00, hp=900.0, peakUp=1.15, peakAngular=1.21, position=<1000.5628, 1.1683698, -31.422834>
+practice-exit: contactTicks=4, speed=14.94, hp=1000.0, peakUp=0.00, peakAngular=0.11, position=<1004.1618, 1.1448638, -70.08907>
+practice-repeated-direct-0: contactTicks=90, speed=0.00, hp=900.0, peakUp=0.04, peakAngular=1.20, position=<999.35614, 1.1413841, 0.010809839>
+practice-repeated-direct-1: contactTicks=90, speed=0.00, hp=900.0, peakUp=0.04, peakAngular=1.20, position=<999.35614, 1.1413841, 0.010809839>
+practice-repeated-direct-2: contactTicks=90, speed=0.00, hp=900.0, peakUp=0.04, peakAngular=1.20, position=<999.35614, 1.1413841, 0.010809839>
+practice-rock: contactTicks=85, speed=0.00, hp=900.0, peakUp=0.00, peakAngular=0.57, position=<1000.0167, 1.2556096, -8.755752>
+practice-pillar: contactTicks=88, speed=0.00, hp=900.0, peakUp=0.02, peakAngular=1.10, position=<1006.3584, 1.1421262, -0.014862419>
+practice-pillar-offcenter: contactTicks=88, speed=0.00, hp=900.0, peakUp=0.02, peakAngular=1.20, position=<1006.40576, 1.1422608, 0.013519343>
+practice-oval: contactTicks=182, sections=380, speed=42.74, hp=1000.0, peakAngular=0.70, peakSupportSpeed=0.67
+network-scrape: contactTicks=171, speed=7.36, hp=1000.0, peakUp=0.00, peakAngular=0.17, position=<1000.44653, 1.1413583, -54.700333>
+network-direct: contactTicks=45, speed=0.00, hp=900.0, peakUp=0.00, peakAngular=1.20, position=<999.27783, 1.1446246, 0.0004929147>
+network-oblique: contactTicks=94, speed=0.10, hp=903.1, peakUp=0.02, peakAngular=1.08, position=<999.65063, 1.1411128, -6.953595>
+network-nitro-scrape: contactTicks=154, speed=62.04, hp=1000.0, peakUp=0.02, peakAngular=0.11, position=<1000.6093, 1.1459538, -157.60606>
+network-seams: contactTicks=171, speed=7.36, hp=1000.0, peakUp=0.00, peakAngular=0.17, position=<1000.44653, 1.1413583, -54.70053>
+network-corner: contactTicks=60, speed=0.00, hp=920.1, peakUp=0.01, peakAngular=1.03, position=<1000.4449, 1.1437951, -31.308088>
+network-nitro-corner: contactTicks=153, speed=0.00, hp=900.0, peakUp=0.02, peakAngular=1.23, position=<1000.45984, 1.1658795, -31.412567>
+network-exit: contactTicks=4, speed=14.90, hp=1000.0, peakUp=0.00, peakAngular=0.15, position=<1005.5787, 1.1448134, -69.79604>
+network-repeated-direct-0: contactTicks=45, speed=0.00, hp=900.0, peakUp=0.00, peakAngular=1.20, position=<999.27783, 1.1446246, 0.0004929147>
+network-repeated-direct-1: contactTicks=45, speed=0.00, hp=900.0, peakUp=0.00, peakAngular=1.20, position=<999.27783, 1.1446246, 0.0004929147>
+network-repeated-direct-2: contactTicks=45, speed=0.00, hp=900.0, peakUp=0.00, peakAngular=1.20, position=<999.27783, 1.1446246, 0.0004929147>
+network-rock: contactTicks=11, speed=0.00, hp=900.0, peakUp=0.00, peakAngular=0.20, position=<999.96783, 1.1456207, -8.062785>
+network-pillar: contactTicks=6, speed=0.00, hp=900.0, peakUp=0.07, peakAngular=1.15, position=<1006.3919, 1.1431521, 0.18514374>
+network-pillar-offcenter: contactTicks=21, speed=0.00, hp=900.0, peakUp=0.00, peakAngular=0.25, position=<1006.3932, 1.1444973, -4.9337505E-06>
+network-oval: contactTicks=197, sections=380, speed=43.71, hp=1000.0, peakAngular=0.56, peakSupportSpeed=0.51
+Environment collision checks: failures=0

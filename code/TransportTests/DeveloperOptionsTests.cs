@@ -121,13 +121,13 @@ internal sealed class DeveloperOptionsTests
         Assert.That(draft.TryGetEdits(out var unchanged, out _), Is.True);
         Assert.That(unchanged, Is.Empty, "Displayed float precision must not create phantom edits.");
         var friction = GameplayOptions.All.Single(option => option.Key == "vehicle.tire_friction");
-        draft.Set(friction.Key, "1.65");
+        draft.Set(friction.Key, "1.9");
         Assert.That(draft.IsDefault(friction), Is.True);
         Assert.That(draft.IsDirty, Is.False);
-        draft.Set(friction.Key, "1.66");
+        draft.Set(friction.Key, "1.91");
         Assert.That(draft.IsDefault(friction), Is.False);
         Assert.That(draft.IsDirty, Is.True);
-        draft.Set(friction.Key, "1.6500");
+        draft.Set(friction.Key, "1.9000");
         Assert.That(draft.IsDirty, Is.False, "Restoring a value clears unapplied changes.");
         draft.Set(friction.Key, "NaN");
         Assert.That(draft.IsDefault(friction), Is.False);
@@ -165,7 +165,7 @@ internal sealed class DeveloperOptionsTests
         var loaded = new DeveloperSettingsStore(_path).Current;
         Assert.That(loaded, Is.EqualTo(GameplayConfiguration.HostedDefaults with { Vehicle = GameplayConfiguration.HostedDefaults.Vehicle with { Acceleration = 7 } }));
         Assert.That(loaded.Vehicle.Acceleration, Is.EqualTo(7));
-        Assert.That(loaded.Vehicle.TireFriction, Is.EqualTo(1.65f));
+        Assert.That(loaded.Vehicle.TireFriction, Is.EqualTo(1.9f));
         Assert.That(loaded.Items.MaximumDamage, Is.EqualTo(300));
     }
 
@@ -211,7 +211,7 @@ internal sealed class DeveloperOptionsTests
 
         Assert.That(draft.IsDirty, Is.True);
         Assert.That(draft.Get("damage.max_hp"), Is.EqualTo("1000"));
-        Assert.That(draft.Get("vehicle.acceleration"), Is.EqualTo("16"));
+        Assert.That(draft.Get("vehicle.acceleration"), Is.EqualTo("51.42857"));
         Assert.That(draft.Get("items.missile_speed"), Is.EqualTo("120"));
         Assert.That(host.Configuration, Is.EqualTo(before));
         Assert.That(store.Current, Is.EqualTo(before.Configuration));
@@ -330,8 +330,9 @@ internal sealed class DeveloperOptionsTests
 
     private static void AssertReleaseTuning(GameplayConfiguration configuration)
     {
-        Assert.That(configuration.Vehicle.Acceleration, Is.EqualTo(16));
-        Assert.That(configuration.Vehicle.TireFriction, Is.EqualTo(1.65f));
+        Assert.That(configuration.Vehicle.Acceleration, Is.EqualTo(24 * (3000f / 1400)));
+        Assert.That(configuration.Vehicle.TireFriction, Is.EqualTo(1.9f));
+        Assert.That(configuration.Vehicle.FrontDriveShare, Is.Zero);
         Assert.That(configuration.Damage.CollisionScale, Is.EqualTo(5));
         Assert.That(configuration.Items.MissileSpeed, Is.EqualTo(120));
         Assert.That(configuration.Items.ExplosionRadius, Is.EqualTo(12));

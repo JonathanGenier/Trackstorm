@@ -1,0 +1,6 @@
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   174, Skipped:     0, Total:   174, Duration: 519 ms - Trackstorm.Core.Tests.dll (net10.0)

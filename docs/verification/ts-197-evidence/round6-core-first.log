@@ -1,0 +1,168 @@
+
+>> Core tests
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Trackstorm.Core.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\bin\Release\net10.0\Trackstorm.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed EachVehicleOptionChangesActualSimulationCommands("vehicle.stop_speed",0.4d) [47 ms]
+  Error Message:
+     vehicle.stop_speed must affect actual movement, not merely stored configuration.
+Assert.That(changed, Is.True)
+  Expected: True
+  But was:  False
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Development.DeveloperConfigurationTests.EachVehicleOptionChangesActualSimulationCommands(String key, Double value) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Development\DeveloperConfigurationTests.cs:line 381
+   at InvokeStub_DeveloperConfigurationTests.EachVehicleOptionChangesActualSimulationCommands(Object, Span`1)
+
+1)    at Trackstorm.Core.Tests.Development.DeveloperConfigurationTests.EachVehicleOptionChangesActualSimulationCommands(String key, Double value) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Development\DeveloperConfigurationTests.cs:line 381
+   at InvokeStub_DeveloperConfigurationTests.EachVehicleOptionChangesActualSimulationCommands(Object, Span`1)
+
+
+  Failed OilHasNoEntryYawAndRecoversProgressivelyWhilePreservingSteeringAndDrive [1 ms]
+  Error Message:
+     Assert.That(slippery.LongitudinalAcceleration, Is.EqualTo(baseline.LongitudinalAcceleration))
+  Expected: 14.2484283f
+  But was:  14.2021408f
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Items.OilTests.OilHasNoEntryYawAndRecoversProgressivelyWhilePreservingSteeringAndDrive() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Items\OilTests.cs:line 177
+
+1)    at Trackstorm.Core.Tests.Items.OilTests.OilHasNoEntryYawAndRecoversProgressivelyWhilePreservingSteeringAndDrive() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Items\OilTests.cs:line 177
+
+
+  Failed CustomTuning_ComposesCoastingAndTireGrip [1 ms]
+  Error Message:
+     Assert.That(-result.Physics.LinearVelocity.Z, Is.EqualTo(coastingSpeed).Within(0.00001f))
+  Expected: 17.8327808f +/- 9.99999975E-06f
+  But was:  17.8348522f
+  Off by:   -0.002071380615234375d
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Vehicles.SurfaceHandlingTests.CustomTuning_ComposesCoastingAndTireGrip() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\SurfaceHandlingTests.cs:line 87
+
+1)    at Trackstorm.Core.Tests.Vehicles.SurfaceHandlingTests.CustomTuning_ComposesCoastingAndTireGrip() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\SurfaceHandlingTests.cs:line 87
+
+
+  Failed FrontDriveImprovesClimbingAndUsesTheEstablishedConfigurationBoundary [1 ms]
+  Error Message:
+     Assert.That(Drive(tuning).LongitudinalAcceleration, Is.GreaterThan(Drive(tuning with { FrontDriveShare = 0 }).LongitudinalAcceleration))
+  Expected: greater than 17.1649494f
+  But was:  17.1649494f
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Vehicles.TrophyTruckTests.FrontDriveImprovesClimbingAndUsesTheEstablishedConfigurationBoundary() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\TrophyTruckTests.cs:line 72
+
+1)    at Trackstorm.Core.Tests.Vehicles.TrophyTruckTests.FrontDriveImprovesClimbingAndUsesTheEstablishedConfigurationBoundary() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\TrophyTruckTests.cs:line 72
+
+
+  Failed HandbrakePreservesFrontGripAndRecoversRearTraction [1 ms]
+  Error Message:
+     Assert.That(throttle.LongitudinalAcceleration, Is.EqualTo(locked.LongitudinalAcceleration))
+  Expected: -6.5318284f
+  But was:  -6.89729357f
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.HandbrakePreservesFrontGripAndRecoversRearTraction() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 269
+
+1)    at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.HandbrakePreservesFrontGripAndRecoversRearTraction() in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 269
+
+
+  Failed ReleasedHandbrakePowersThroughRemainingSlip(6.0f,0) [< 1 ms]
+  Error Message:
+     Assert.That(released.Physics.LinearVelocity.X, Is.GreaterThan(4.65f))
+  Expected: greater than 4.6500001f
+  But was:  4.64498281f
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.ReleasedHandbrakePowersThroughRemainingSlip(Single speed, Int32 delay) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 304
+
+1)    at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.ReleasedHandbrakePowersThroughRemainingSlip(Single speed, Int32 delay) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 304
+
+
+  Failed ReleasedHandbrakePowersThroughRemainingSlip(16.0f,0) [< 1 ms]
+  Error Message:
+     Assert.That(released.Physics.LinearVelocity.X, Is.GreaterThan(4.65f))
+  Expected: greater than 4.6500001f
+  But was:  4.64498281f
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.ReleasedHandbrakePowersThroughRemainingSlip(Single speed, Int32 delay) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 304
+   at InvokeStub_VehicleMovementTests.ReleasedHandbrakePowersThroughRemainingSlip(Object, Span`1)
+
+1)    at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.ReleasedHandbrakePowersThroughRemainingSlip(Single speed, Int32 delay) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 304
+   at InvokeStub_VehicleMovementTests.ReleasedHandbrakePowersThroughRemainingSlip(Object, Span`1)
+
+
+  Failed ReleasedHandbrakePowersThroughRemainingSlip(24.0f,0) [< 1 ms]
+  Error Message:
+     Assert.That(released.Physics.LinearVelocity.X, Is.GreaterThan(4.65f))
+  Expected: greater than 4.6500001f
+  But was:  4.64498281f
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.ReleasedHandbrakePowersThroughRemainingSlip(Single speed, Int32 delay) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 304
+   at InvokeStub_VehicleMovementTests.ReleasedHandbrakePowersThroughRemainingSlip(Object, Span`1)
+
+1)    at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.ReleasedHandbrakePowersThroughRemainingSlip(Single speed, Int32 delay) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 304
+   at InvokeStub_VehicleMovementTests.ReleasedHandbrakePowersThroughRemainingSlip(Object, Span`1)
+
+
+  Failed ReleasedHandbrakePowersThroughRemainingSlip(16.0f,6) [< 1 ms]
+  Error Message:
+     Assert.That(released.Physics.LinearVelocity.X, Is.GreaterThan(4.65f))
+  Expected: greater than 4.6500001f
+  But was:  4.63351679f
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.ReleasedHandbrakePowersThroughRemainingSlip(Single speed, Int32 delay) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 304
+   at InvokeStub_VehicleMovementTests.ReleasedHandbrakePowersThroughRemainingSlip(Object, Span`1)
+
+1)    at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.ReleasedHandbrakePowersThroughRemainingSlip(Single speed, Int32 delay) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 304
+   at InvokeStub_VehicleMovementTests.ReleasedHandbrakePowersThroughRemainingSlip(Object, Span`1)
+
+
+  Failed SlidingDriveRespectsPedalAndFrictionBudget(Concrete,False) [< 1 ms]
+  Error Message:
+     Assert.That((drive * drive) + (rearSide * rearSide), Is.LessThanOrEqualTo((capacity * capacity) + 0.0001f))
+  Expected: less than or equal to 245.705704f
+  But was:  245.748184f
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.SlidingDriveRespectsPedalAndFrictionBudget(SurfaceType surface, Boolean reverse) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 330
+
+1)    at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.SlidingDriveRespectsPedalAndFrictionBudget(SurfaceType surface, Boolean reverse) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 330
+
+
+  Failed SlidingDriveRespectsPedalAndFrictionBudget(Mud,False) [< 1 ms]
+  Error Message:
+     Assert.That((drive * drive) + (rearSide * rearSide), Is.LessThanOrEqualTo((capacity * capacity) + 0.0001f))
+  Expected: less than or equal to 39.3129997f
+  But was:  39.3449135f
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.SlidingDriveRespectsPedalAndFrictionBudget(SurfaceType surface, Boolean reverse) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 330
+   at InvokeStub_VehicleMovementTests.SlidingDriveRespectsPedalAndFrictionBudget(Object, Span`1)
+
+1)    at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.SlidingDriveRespectsPedalAndFrictionBudget(SurfaceType surface, Boolean reverse) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 330
+   at InvokeStub_VehicleMovementTests.SlidingDriveRespectsPedalAndFrictionBudget(Object, Span`1)
+
+
+  Failed SlidingDriveRespectsPedalAndFrictionBudget(Concrete,True) [< 1 ms]
+  Error Message:
+     Assert.That((drive * drive) + (rearSide * rearSide), Is.LessThanOrEqualTo((capacity * capacity) + 0.0001f))
+  Expected: less than or equal to 245.705704f
+  But was:  245.706482f
+
+  Stack Trace:
+     at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.SlidingDriveRespectsPedalAndFrictionBudget(SurfaceType surface, Boolean reverse) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 330
+   at InvokeStub_VehicleMovementTests.SlidingDriveRespectsPedalAndFrictionBudget(Object, Span`1)
+
+1)    at Trackstorm.Core.Tests.Vehicles.VehicleMovementTests.SlidingDriveRespectsPedalAndFrictionBudget(SurfaceType surface, Boolean reverse) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Tests\Vehicles\VehicleMovementTests.cs:line 330
+   at InvokeStub_VehicleMovementTests.SlidingDriveRespectsPedalAndFrictionBudget(Object, Span`1)
+
+
+
+Failed!  - Failed:    12, Passed:   939, Skipped:     0, Total:   951, Duration: 11 s - Trackstorm.Core.Tests.dll (net10.0)

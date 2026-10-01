@@ -244,7 +244,8 @@ internal sealed class VehicleReplicationTests
             prediction.Predict(frame, Observe);
         }
 
-        Assert.That(prediction.State.Movement.Physics.LinearVelocity.Z, Is.LessThan(0), "Prediction advances before any acknowledgement.");
+        Assert.That(prediction.State.Movement.Tick, Is.EqualTo(4), "Prediction advances before any acknowledgement, including the new held-stop state.");
+        Assert.That(prediction.State.Movement.BrakeMode, Is.EqualTo(BrakeMode.Reversing));
         VehicleState expected = prediction.State.Movement;
         host.Receive(42, 99, prediction.History.GetRedundancy());
         host.Step(default, Observe);
@@ -335,7 +336,7 @@ internal sealed class VehicleReplicationTests
         host.Step(Drive(), Observe);
         WorldSnapshot expected = host.Snapshot();
         byte[] bytes = VehicleNetworkCodec.EncodeSnapshot(expected);
-        Assert.That(bytes.Length, Is.EqualTo(1765));
+        Assert.That(bytes.Length, Is.EqualTo(1829));
         WorldSnapshot decoded = VehicleNetworkCodec.DecodeSnapshot(bytes);
         Assert.That(decoded.Tick, Is.EqualTo(expected.Tick));
         Assert.That(decoded.Session, Is.EqualTo(99));

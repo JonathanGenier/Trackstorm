@@ -1,0 +1,1 @@
+ERROR: System.InvalidOperationException: PickupSkillJump14: real launch , landing , longest flight 0.00s, peak origin 8.02m, peak origin clearance 1.67m, launch horizontal speed 0.00m/s, airborne horizontal travel NaNm; recovered grounded.

@@ -26,8 +26,15 @@ it does not require rerunning Blender or changing the retained source geometry.
 
 The mesh subdivides all 916 original oval inner-edge segments into 220 radial
 rings (201,521 vertices, 402,124 triangles). Its outside vertices exactly match
-the original boundary. A twenty-eight-metre collar follows the bank's inward grade
-and eases into the interior, producing shallow swales along the banked curves.
+the original boundary. The grass transition matches the bank's inward grade,
+then flattens with a 3 m exponential depth scale and a 50 m smooth return. The
+underlying hills retain their existing 28 m blend. The previous cubic swale
+returned uphill at up to one third of the bank grade, launching vehicles
+entering grass at oval speed. Only banked grass transition elevations change;
+X/Z positions, triangle indices, the asphalt, and jump/tabletop vertices remain
+identical. Re-bake `BuildDressing.gd` after import to place existing scenery
+against the revised ground. Very sharp high-speed crossings may still compress
+the suspension deeply; no vehicle force or global stabilization is added.
 The original foundation floor is hidden and its collider is removed from the
 active map, allowing negative terrain without competing floor contacts. The
 immutable oval asset and road collision remain retained unchanged.

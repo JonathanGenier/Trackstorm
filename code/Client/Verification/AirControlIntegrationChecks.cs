@@ -23,6 +23,8 @@ public sealed partial class AirControlIntegrationChecks : Node3D
     private N.Quaternion _released;
     private readonly List<string> _evidence = new();
     private string _output = "";
+    private readonly List<object> _trace = new();
+    private static int DelayExtension => (int)MathF.Round((new VehicleConfiguration().AirDelay - 0.15f) * 60);
 
     public override void _Ready() => CallDeferred(MethodName.Run);
 
@@ -32,7 +34,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
     {
         if (!_advance) { return; }
         _frame++;
-        bool held = _frame <= (_case == "sustained" ? 180 : 100);
+        bool held = _frame <= (_case == "sustained" ? 180 : 100) + DelayExtension;
         short steer = held && _case is "yaw" or "roll" or "combined" or "sustained" ? (short)32767 : (short)0;
         ushort throttle = held && _case is "pitch" or "combined" ? (ushort)65535 : (ushort)0;
         bool roll = _case is "roll" or "combined" or "sustained";
@@ -56,6 +58,11 @@ public sealed partial class AirControlIntegrationChecks : Node3D
         if (_native is not null) { _native.Apply(result); }
         else { _network!.Apply(result.Snapshot); }
         var state = result.Snapshot.Movement;
+        var p = state.Physics; var w = state.Wheels.Compression;
+        _trace.Add(new { frame = _frame, position = new[] { p.Position.X, p.Position.Y, p.Position.Z },
+            velocity = new[] { p.LinearVelocity.X, p.LinearVelocity.Y, p.LinearVelocity.Z },
+            up = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation).Y, state.Grounded,
+            compression = new[] { w.X, w.Y, w.Z, w.W }, contacts = request.Observation.Contacts.Count });
         if (state.Grounded && !previous.Grounded) { _landings++; }
         if (held)
         {
@@ -63,7 +70,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
             _rotation += speed / 60;
             _peak = Math.Max(_peak, speed);
         }
-        if (_frame == (_case == "sustained" ? 240 : 160)) { _released = state.Physics.Orientation; }
+        if (_frame == (_case == "sustained" ? 240 : 160) + DelayExtension) { _released = state.Physics.Orientation; }
         if (_camera is not null)
         {
             Vector3 position = VehicleBody.ToGodot(state.Physics.Position);
@@ -90,9 +97,10 @@ public sealed partial class AirControlIntegrationChecks : Node3D
             foreach (bool network in new[] { false, true })
             foreach (string scenario in new[] { "pitch", "yaw", "roll", "combined", "sustained", "crooked", "landing", "repeat", "correction", "heading" })
             {
+                if (OS.GetCmdlineUserArgs().Contains("--air-correction-only") && scenario != "correction") { continue; }
                 await Exercise(network, scenario);
             }
-            GD.Print("Air control integration passed: 20 production-adapter scenarios.");
+            GD.Print(OS.GetCmdlineUserArgs().Contains("--air-correction-only") ? "Air correction diagnostic passed: 2 production-adapter scenarios." : "Air control integration passed: 20 production-adapter scenarios.");
             GetTree().Quit();
         }
         catch (Exception exception)
@@ -103,6 +111,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
 
     private async Task Exercise(bool network, string scenario)
     {
+        _trace.Clear();
         _case = scenario; _frame = 0; _rotation = 0; _peak = 0; _landings = 0;
         _world = new(new Core.Simulation.SimulationConfiguration(60));
         bool landing = scenario is "landing" or "repeat" or "correction" or "heading";
@@ -128,8 +137,10 @@ public sealed partial class AirControlIntegrationChecks : Node3D
             _native.Initialize(_world); AddChild(_native);
         }
         await Frames(3); _advance = true;
-        await Frames(scenario == "sustained" ? 300 : 220); _advance = false;
+        // Retain the same active-input/release observation durations after the longer delay.
+        await Frames((scenario == "sustained" ? 300 : 220) + DelayExtension); _advance = false;
         var state = _world.GetVehicle(1).Movement;
+        System.IO.File.WriteAllText(System.IO.Path.Combine(_output, $"{(network ? "network" : "native")}-{scenario}.json"), System.Text.Json.JsonSerializer.Serialize(_trace));
         float drift = 2 * MathF.Acos(Math.Clamp(Math.Abs(N.Quaternion.Dot(_released, state.Physics.Orientation)), 0, 1));
         Log($"{(network ? "network" : "native")}-{scenario}: rotation={_rotation:F3} peak={_peak:F3} releaseSpeed={state.Physics.AngularVelocity.Length():F4} lateOrientationDrift={drift:F4} landings={_landings} grounded={state.Grounded} airSeconds={state.Air.Seconds:F3}");
         if (!landing)
@@ -142,6 +153,7 @@ public sealed partial class AirControlIntegrationChecks : Node3D
         else
         {
             Require(_landings > 0 && state.Grounded && state.Air == default, "landing must clear airborne continuation");
+            if (scenario == "correction") { Require(_landings == 1, "corrected four-wheel landing must not produce a second hop"); }
             if (scenario == "repeat")
             {
                 for (int jump = 0; jump < 3; jump++)
@@ -149,7 +161,8 @@ public sealed partial class AirControlIntegrationChecks : Node3D
                     ulong tick = _world.State.Tick + 1;
                     var input = new InputFrame(tick, 0, 0, 0, 0, 0, 0);
                     var observation = _native is not null ? _native.Capture(input).Observation : _network!.Observe(_world.GetVehicle(1));
-                    var result = _world.Step(input, [new VehicleStepRequest(1, input, observation, [new VehicleEffectRequest(new DamageEffect(0, new N.Vector3(0, 10000, 0), N.Vector3.Zero), new DamageContext("test", 0, "jump"))])])[0];
+                    // Preserve the launch velocity when the default body mass changes.
+                    var result = _world.Step(input, [new VehicleStepRequest(1, input, observation, [new VehicleEffectRequest(new DamageEffect(0, new N.Vector3(0, 10000 * new VehicleConfiguration().Mass / 1400, 0), N.Vector3.Zero), new DamageContext("test", 0, "jump"))])])[0];
                     if (_native is not null) { _native.Apply(result); } else { _network!.Apply(result.Snapshot); }
                     _advance = true; await Frames(240); _advance = false;
                     Require(_world.GetVehicle(1).Movement.Grounded, "repeated jump must land");

@@ -75,7 +75,7 @@ internal sealed class DeveloperConfigurationTests
         var file = DeveloperSettingsFile.Read(text);
         Assert.That(file.Configuration.Vehicle.ForwardSpeed, Is.EqualTo(35));
         Assert.That(file.Configuration.Damage.MaxHP, Is.EqualTo(250));
-        Assert.That(file.Configuration.Vehicle.Mass, Is.EqualTo(900));
+        Assert.That(file.Configuration.Vehicle.Mass, Is.EqualTo(new VehicleConfiguration().Mass));
         Assert.That(file.Configuration.Respawn.ClearHeldItemOnDeath, Is.False);
         Assert.That(file.RejectedRecords, Is.EqualTo(2));
         string written = file.Write(file.Configuration);
@@ -84,7 +84,7 @@ internal sealed class DeveloperConfigurationTests
         Assert.That(DeveloperSettingsFile.Read(written).Configuration, Is.EqualTo(file.Configuration));
         var future = DeveloperSettingsFile.Read("{\"schema\":999}\n{\"key\":\"vehicle.mass\",\"value\":500}");
         Assert.That(future.CanSave, Is.False);
-        Assert.That(future.Configuration.Vehicle.Mass, Is.EqualTo(900));
+        Assert.That(future.Configuration.Vehicle.Mass, Is.EqualTo(new VehicleConfiguration().Mass));
         Assert.Throws<InvalidOperationException>(() => future.Write(new()));
     }
 
@@ -141,7 +141,7 @@ internal sealed class DeveloperConfigurationTests
     [TestCase("vehicle.steering_response", 0.5)]
     [TestCase("vehicle.handbrake_braking", 2)]
     [TestCase("vehicle.handbrake_grip", 0.1)]
-    [TestCase("vehicle.handbrake_response", 1)]
+    [TestCase("vehicle.handbrake_response", 2)]
     [TestCase("vehicle.concrete.grip", 0.2)]
     [TestCase("vehicle.concrete.drag", 8)]
     [TestCase("vehicle.concrete.acceleration", 0.2)]
@@ -322,7 +322,6 @@ internal sealed class DeveloperConfigurationTests
     [TestCase("vehicle.reverse_speed", 4)]
     [TestCase("vehicle.grip", 3)]
     [TestCase("vehicle.steering_angle", 0.3)]
-    [TestCase("vehicle.steering_speed", 8)]
     [TestCase("vehicle.steering_response", 2)]
     [TestCase("vehicle.wheelbase", 1.3)]
     [TestCase("vehicle.tire_friction", 0.5)]
@@ -330,7 +329,7 @@ internal sealed class DeveloperConfigurationTests
     [TestCase("vehicle.load_height", 1.2)]
     [TestCase("vehicle.handbrake_braking", 3)]
     [TestCase("vehicle.handbrake_grip", 0.15)]
-    [TestCase("vehicle.handbrake_response", 2)]
+    [TestCase("vehicle.handbrake_response", 4)]
     [TestCase("vehicle.traction_recovery", 1)]
     [TestCase("vehicle.coast_drag", 2)]
     [TestCase("vehicle.reference_mass", 600)]
@@ -359,13 +358,13 @@ internal sealed class DeveloperConfigurationTests
             bool straight = scenario >= 18;
             if (straight)
             {
-                physics = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(0, 0, scenario % 2 == 0 ? -24 : 10), Vector3.Zero);
+                physics = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(0, 0, scenario == 19 ? -1.2f : scenario % 2 == 0 ? -24 : 10), Vector3.Zero);
             }
 
             foreach (var host in new[] { baseline, tuned })
             {
                 var old = host.World.GetVehicle(1);
-                var movement = new VehicleState(0, physics, true, true, straight ? 0 : 0.1f, straight ? 0 : 0.7f, longitudinalAcceleration: straight ? 0 : 2, lateralAcceleration: straight ? 0 : 8);
+                var movement = new VehicleState(0, physics, true, true, straight ? 0 : 0.1f, straight ? 0 : 0.7f, longitudinalAcceleration: straight ? 0 : 2, lateralAcceleration: straight ? 0 : 8, throttle: key == "vehicle.drive_traction_reserve" ? 1 : 0);
                 host.World.Restore(new SimulationState(0, default, [new VehicleSnapshot(1, 1, movement, old.Damage, physics)], host.World.State.Match));
             }
 

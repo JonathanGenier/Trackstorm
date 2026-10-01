@@ -8,6 +8,7 @@ internal sealed class PlayerInputAdapter
     private static readonly (InputAction Action, InputButtons Button)[] DigitalActions =
     [
         (InputAction.Drift, InputButtons.Drift),
+        (InputAction.Brake, InputButtons.Brake),
         (InputAction.AirRoll, InputButtons.AirRoll),
         (InputAction.UseItem, InputButtons.UseItem),
         (InputAction.SwitchItem, InputButtons.SwitchItem),
@@ -140,7 +141,7 @@ internal sealed class PlayerInputAdapter
                     }
                 }
 
-                if (strength > 0.5f)
+                if (strength > (action == InputAction.Brake ? 0 : 0.5f))
                 {
                     held |= button;
                 }
@@ -167,17 +168,28 @@ internal sealed class PlayerInputAdapter
             float brake = Bindings.Strength(InputAction.Brake, DeadZone, false);
             float steering = Bindings.Strength(InputAction.SteerRight, DeadZone, false) - Bindings.Strength(InputAction.SteerLeft, DeadZone, false);
             _throttle = DrivingInputShaping.Approach(_throttle, throttle, throttle > _throttle ? Shaping.ThrottleRise : Shaping.ThrottleRelease, CaptureInterval);
-            _brake = DrivingInputShaping.Approach(_brake, brake, Shaping.BrakeRise, CaptureInterval);
+            _brake = DrivingInputShaping.Approach(_brake, brake, brake > _brake ? Shaping.BrakeRise : Shaping.BrakeRelease, CaptureInterval);
             float steeringRate = steering == 0 ? Shaping.SteeringReturn : steering * _steering < 0 ? Shaping.SteeringReversal : Shaping.SteeringRise;
             _steering = DrivingInputShaping.Approach(_steering, steering, steeringRate, CaptureInterval);
         }
 
         float analogSteering = active ? Bindings.Strength(InputAction.SteerRight, DeadZone, true) - Bindings.Strength(InputAction.SteerLeft, DeadZone, true) : 0;
+        analogSteering = Shaping.ShapeControllerSteering(analogSteering);
+        // A deliberate stick correction takes ownership after the keys are released;
+        // a long digital return tail must not mask the controller's finer target.
+        if (analogSteering != 0 && Bindings.Strength(InputAction.SteerRight, DeadZone, false) == 0 && Bindings.Strength(InputAction.SteerLeft, DeadZone, false) == 0)
+        {
+            _steering = 0;
+        }
+        float analogThrottle = active ? Bindings.Strength(InputAction.Accelerate, DeadZone, true) : 0;
+        float analogBrake = active ? Bindings.Strength(InputAction.Brake, DeadZone, true) : 0;
+        if (analogThrottle > 0 && Bindings.Strength(InputAction.Accelerate, DeadZone, false) == 0) { _throttle = 0; }
+        if (analogBrake > 0 && Bindings.Strength(InputAction.Brake, DeadZone, false) == 0) { _brake = 0; }
         InputFrame frame = _capture.Capture(
             tick,
             InputAxis.QuantizeSteering(InputAxis.Normalize(Math.Abs(analogSteering) > Math.Abs(_steering) ? analogSteering : _steering, inverted: InvertSteering)),
-            InputAxis.QuantizePedal(active ? Math.Max(_throttle, Bindings.Strength(InputAction.Accelerate, DeadZone, true)) : 0),
-            InputAxis.QuantizePedal(active ? Math.Max(_brake, Bindings.Strength(InputAction.Brake, DeadZone, true)) : 0));
+            InputAxis.QuantizePedal(active ? Math.Max(_throttle, analogThrottle) : 0),
+            InputAxis.QuantizePedal(active ? Math.Max(_brake, analogBrake) : 0));
         return active ? frame : new InputFrame(tick, 0, 0, 0, InputButtons.None, InputButtons.None, frame.Released);
     }
 

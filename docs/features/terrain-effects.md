@@ -14,7 +14,7 @@ validates, commits and saves through the existing configuration path. Cancel and
 Reset retain their normal semantics. Stable identities are ClearBlue=0, Night=1,
 EmberSky=2, Apocalypse=3 and NeonSunset=4. Unknown/fractional identities reject the
 complete transaction. New saved files need no schema migration; missing keys use
-Clear Blue. The complete configuration wire layout is version 21 with 166 values.
+Clear Blue. The complete configuration wire layout is version 29 with 190 values.
 
 The accepted configuration travels through normal reliable revision ordering,
 admission, reconnect and host-migration checkpoints. Joined clients never use
@@ -39,6 +39,11 @@ normal ripples and broken shoreline treatment without moving vertices.
 
 Every practice/network vehicle owns a TireFeedback presentation node. At up to
 20 Hz it resolves individual native wheel contacts using SurfaceIdentityResolver.
+Sampling follows authored wheel-carrier global positions, including steering and
+suspension articulation, rather than the shorter physics axle geometry. Strip
+width comes from the corresponding rubber mesh's scaled AABB and existing
+width multipliers. Successive contact points determine the path through turns
+and lateral sliding. Water immersion uses the tire radius below that hub.
 Remote cars use their displayed pose and confirmed lifecycle; this cosmetic state
 is local and not network-authoritative. An independent authored-waterline sample
 permits wet feedback where the tire footprint is immersed without wheel support.
@@ -117,7 +122,7 @@ For each `surface` in `asphalt`, `concrete`, `dirt`, `grass`, `mud`,
 | --- | --- | --- |
 | `duration` | 1; 0.05–2 (persistent surfaces) | Multiplies base duration: dirt/grass/mud/deep-mud disturbance can each recover independently |
 | `duration` (Water) | 0.9 s; 0.1–3 | Absolute wake duration, independent of persistent mark lifetime |
-| `width` | 1; 0.1–3 | Multiplies the distinct surface's authored width |
+| `width` | 1; 0.1–3 | Multiplies tire rubber width for that surface |
 | `intensity` | 1; 0–2 | Multiplies the distinct surface's opacity and spray alpha |
 | `fade` | 1; 0.1–3 | Multiplies global fade fraction, capped to the full duration |
 | `density` | 1; 0–1 | Multiplies spacing/emission/spray density; zero disables that surface |

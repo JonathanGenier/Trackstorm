@@ -275,6 +275,14 @@ public sealed partial class SimulationBootstrap : Node
         settings.Initialize(playerInput.Adapter, SettingsPath ?? ProjectSettings.GlobalizePath("user://player-settings.json"));
         AddChild(settings);
         playerInput.GameplayAvailable = () => !_quitRequested && (_arena is not null || (_session?.Arena is not null && _session.Stage == ApplicationStage.GameLoop));
+        playerInput.ResolveShaping = () =>
+        {
+            var tuning = _session?.DeveloperConfiguration ?? Core.Development.GameplayConfiguration.HostedDefaults;
+            var movement = (_session?.Arena?.LocalState ?? _arena?.Player.Snapshot)?.Movement;
+            var vehicle = _arena?.Player.Configuration ?? tuning.Vehicle;
+            return movement is { Grounded: false } air && air.Air.Seconds + 1f / vehicle.TicksPerSecond + 0.000001f >= vehicle.AirDelay
+                ? DrivingInputShaping.Aerial : tuning.Input;
+        };
         playerInput.FrameCaptured += OnFrameCaptured;
         _playerInput = playerInput;
         _settings = settings;

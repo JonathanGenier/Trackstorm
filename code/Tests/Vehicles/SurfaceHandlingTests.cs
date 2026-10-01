@@ -75,7 +75,7 @@ internal sealed class SurfaceHandlingTests
             foreach (bool drift in new[] { false, true })
             {
                 var movement = new VehicleMovement(tuning, Physics());
-                var input = new InputFrame(1, 18000, 0, 0, drift ? InputButtons.Drift : InputButtons.None, InputButtons.None, InputButtons.None);
+                var input = new InputFrame(1, 0, 0, 0, drift ? InputButtons.Drift : InputButtons.None, InputButtons.None, InputButtons.None);
                 VehicleState result = movement.Step(input, Physics(new Vector3(5, 0, -18)), Vector3.UnitY, surface: surface);
                 float coastingSpeed = 18 * MathF.Exp(-tuning.CoastDrag * modifiers.Drag / tuning.TicksPerSecond);
                 if (drift)
@@ -100,22 +100,22 @@ internal sealed class SurfaceHandlingTests
     {
         var movement = new VehicleMovement(new(), Physics());
         VehiclePhysicsState observed = Physics(new Vector3(0, 0, -18));
-        for (ulong tick = 1; tick <= 45; tick++)
+        for (ulong tick = 1; tick <= 65; tick++)
         {
             movement.Step(Frame(tick, true), observed, Vector3.UnitY, surface: tick < 20 ? SurfaceType.Concrete : SurfaceType.Mud);
         }
 
         Assert.That(movement.State.Handbrake, Is.EqualTo(1));
-        Assert.That(movement.Step(Frame(46), observed, Vector3.UnitY, surface: SurfaceType.Mud).Handbrake, Is.InRange(0.9f, 0.99f));
+        Assert.That(movement.Step(Frame(66), observed, Vector3.UnitY, surface: SurfaceType.Mud).Handbrake, Is.InRange(0.9f, 0.99f));
         VehicleState beforeFlight = movement.State;
         var comparison = new VehicleMovement(new(), observed);
         comparison.Restore(beforeFlight);
-        VehicleState flight = movement.Step(Frame(47, true), observed, Vector3.Zero);
-        Assert.That(comparison.Step(Frame(47, true), observed, Vector3.Zero, surface: SurfaceType.Mud), Is.EqualTo(flight));
+        VehicleState flight = movement.Step(Frame(67, true), observed, Vector3.Zero);
+        Assert.That(comparison.Step(Frame(67, true), observed, Vector3.Zero, surface: SurfaceType.Mud), Is.EqualTo(flight));
         Assert.That(flight.CurrentSurface, Is.EqualTo(SurfaceType.Mud));
         Assert.That(flight.Grounded || flight.Drifting, Is.False);
-        Assert.That(flight.Handbrake, Is.EqualTo(1));
-        Assert.That(movement.Step(Frame(48), observed, Vector3.UnitY).CurrentSurface, Is.EqualTo(SurfaceType.Concrete));
+        Assert.That(flight.Handbrake, Is.GreaterThan(beforeFlight.Handbrake).And.LessThan(1));
+        Assert.That(movement.Step(Frame(68), observed, Vector3.UnitY).CurrentSurface, Is.EqualTo(SurfaceType.Concrete));
     }
 
     /// <summary>The real simulation commits, serializes and restores surface memory without a second movement path.</summary>

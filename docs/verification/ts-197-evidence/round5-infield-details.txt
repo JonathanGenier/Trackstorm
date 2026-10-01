@@ -1,0 +1,1711 @@
+Blender infield imports at identity metre scale.
+Original flat floor has no active visual or collision; negative basins are usable.
+Terrain was authored against the retained TS-74 topology manifest.
+Preserved basin (-57, 0, -29): negative terrain support { "position": (-57.0, -1.795714, -29.0), "normal": (0.004201, 0.999939, 0.010222), "face_index": 157994, "collider_id": 42630908014, "collider": StaticBody3D:<StaticBody3D#42630908014>, "shape": 0, "rid": RID(2632814952450) }.
+Preserved basin (77, 0, -35): negative terrain support { "position": (77.0, -1.795455, -35.0), "normal": (0.013839, 0.999868, 0.008476), "face_index": 201417, "collider_id": 42630908014, "collider": StaticBody3D:<StaticBody3D#42630908014>, "shape": 0, "rid": RID(2632814952450) }.
+Preserved basin (-85, 0, 28): negative terrain support { "position": (-85.0, -1.793176, 28.0), "normal": (-0.000698, 0.99996, -0.008958), "face_index": 202287, "collider_id": 42630908014, "collider": StaticBody3D:<StaticBody3D#42630908014>, "shape": 0, "rid": RID(2632814952450) }.
+Preserved basin (85, 0, 28): negative terrain support { "position": (85.0, -1.793235, 28.0), "normal": (0.000571, 0.999963, -0.008572), "face_index": 201110, "collider_id": 42630908014, "collider": StaticBody3D:<StaticBody3D#42630908014>, "shape": 0, "rid": RID(2632814952450) }.
+WestLoop: width 12.0 m versus 2.662 m vehicle width.
+EastLoop: width 12.0 m versus 2.662 m vehicle width.
+NorthLink: width 12.0 m versus 2.662 m vehicle width.
+WestShortcut: width 14.0 m versus 2.662 m vehicle width.
+EastShortcut: width 14.0 m versus 2.662 m vehicle width.
+NorthSouth: width 16.0 m versus 2.662 m vehicle width.
+SouthWestEntry: width 16.0 m versus 2.662 m vehicle width.
+SouthEastEntry: width 16.0 m versus 2.662 m vehicle width.
+NorthWestEntry: width 16.0 m versus 2.662 m vehicle width.
+NorthEastEntry: width 16.0 m versus 2.662 m vehicle width.
+Tunnel has 18 m clear north/south opening.
+Approved east/west crossing is open across the top deck.
+Imported tunnel roof has usable collision at 5.5 m clearance.
+Production Blender structures retain metre-scale identity transform.
+Inherited graybox tunnel meshes and child colliders are removed at import.
+Production structures import 44 static colliders, including one continuous deck road.
+InfieldStructures: layer 1, driving-deck classification True; supports/barriers remain obstacles.
+EastNorthCapital: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastNorthDrainInvert: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastNorthDrainLip1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastNorthDrainLip-1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastNorthFoundation: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastNorthPier: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastNorthRetainingWing: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastSouthCapital: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastSouthDrainInvert: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastSouthDrainLip1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastSouthDrainLip-1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastSouthFoundation: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastSouthPier: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastSouthRetainingWing: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestEdgeBeam1: layer 1, driving-deck classification True; supports/barriers remain obstacles.
+EastWestEdgeBeam-1: layer 1, driving-deck classification True; supports/barriers remain obstacles.
+EastWestParapet1_0: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet1_1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet1_2: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet1_3: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet1_4: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet-1_0: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet-1_1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet-1_2: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet-1_3: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+EastWestParapet-1_4: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+NorthSouthEdgeBeam1: layer 1, driving-deck classification True; supports/barriers remain obstacles.
+NorthSouthEdgeBeam-1: layer 1, driving-deck classification True; supports/barriers remain obstacles.
+TunnelSoffit: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestNorthCapital: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestNorthDrainInvert: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestNorthDrainLip1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestNorthDrainLip-1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestNorthFoundation: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestNorthPier: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestNorthRetainingWing: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestSouthCapital: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestSouthDrainInvert: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestSouthDrainLip1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestSouthDrainLip-1: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestSouthFoundation: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestSouthPier: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+WestSouthRetainingWing: layer 1, driving-deck classification False; supports/barriers remain obstacles.
+North/south clear at x=-8, y=0.3.
+North/south clear at x=-7, y=0.3.
+North/south clear at x=-6, y=0.3.
+North/south clear at x=-5, y=0.3.
+North/south clear at x=-4, y=0.3.
+North/south clear at x=-3, y=0.3.
+North/south clear at x=-2, y=0.3.
+North/south clear at x=-1, y=0.3.
+North/south clear at x=0, y=0.3.
+North/south clear at x=1, y=0.3.
+North/south clear at x=2, y=0.3.
+North/south clear at x=3, y=0.3.
+North/south clear at x=4, y=0.3.
+North/south clear at x=5, y=0.3.
+North/south clear at x=6, y=0.3.
+North/south clear at x=7, y=0.3.
+North/south clear at x=8, y=0.3.
+North/south clear at x=-8, y=2.
+North/south clear at x=-7, y=2.
+North/south clear at x=-6, y=2.
+North/south clear at x=-5, y=2.
+North/south clear at x=-4, y=2.
+North/south clear at x=-3, y=2.
+North/south clear at x=-2, y=2.
+North/south clear at x=-1, y=2.
+North/south clear at x=0, y=2.
+North/south clear at x=1, y=2.
+North/south clear at x=2, y=2.
+North/south clear at x=3, y=2.
+North/south clear at x=4, y=2.
+North/south clear at x=5, y=2.
+North/south clear at x=6, y=2.
+North/south clear at x=7, y=2.
+North/south clear at x=8, y=2.
+North/south clear at x=-8, y=5.45.
+North/south clear at x=-7, y=5.45.
+North/south clear at x=-6, y=5.45.
+North/south clear at x=-5, y=5.45.
+North/south clear at x=-4, y=5.45.
+North/south clear at x=-3, y=5.45.
+North/south clear at x=-2, y=5.45.
+North/south clear at x=-1, y=5.45.
+North/south clear at x=0, y=5.45.
+North/south clear at x=1, y=5.45.
+North/south clear at x=2, y=5.45.
+North/south clear at x=3, y=5.45.
+North/south clear at x=4, y=5.45.
+North/south clear at x=5, y=5.45.
+North/south clear at x=6, y=5.45.
+North/south clear at x=7, y=5.45.
+North/south clear at x=8, y=5.45.
+Pier (-10,-10) has front/back collision.
+Dirt meets deck at x=-12 without a gap.
+Retaining wing at (-10,-10) has solid collision.
+Drain invert at (-10,-10) has solid collision.
+Pier (-10,10) has front/back collision.
+Dirt meets deck at x=-12 without a gap.
+Retaining wing at (-10,10) has solid collision.
+Drain invert at (-10,10) has solid collision.
+Jump-facing end x=-10 has no blocking parapet.
+Deck parapet on z=-10 has solid collision.
+Pier (10,-10) has front/back collision.
+Dirt meets deck at x=12 without a gap.
+Retaining wing at (10,-10) has solid collision.
+Drain invert at (10,-10) has solid collision.
+Pier (10,10) has front/back collision.
+Dirt meets deck at x=12 without a gap.
+Retaining wing at (10,10) has solid collision.
+Drain invert at (10,10) has solid collision.
+Jump-facing end x=10 has no blocking parapet.
+Deck parapet on z=10 has solid collision.
+51 crossing-envelope rays verify retained north/south underpass clearance.
+Tabletop probe (-83,-5) has support.
+Tabletop probe (-82.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=0.25, z=-5, height=4.931, previous=4.780.
+Tabletop probe (-82.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=0.5, z=-5, height=5.054, previous=4.931.
+Tabletop probe (-82.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=0.75, z=-5, height=5.176, previous=5.054.
+Tabletop probe (-82,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=1, z=-5, height=5.300, previous=5.176.
+Tabletop probe (-81.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=1.25, z=-5, height=5.404, previous=5.300.
+Tabletop probe (-81.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=1.5, z=-5, height=5.506, previous=5.404.
+Tabletop probe (-81.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=1.75, z=-5, height=5.608, previous=5.506.
+Tabletop probe (-81,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=2, z=-5, height=5.701, previous=5.608.
+Tabletop probe (-80.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=2.25, z=-5, height=5.782, previous=5.701.
+Tabletop probe (-80.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=2.5, z=-5, height=5.862, previous=5.782.
+Tabletop probe (-80.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=2.75, z=-5, height=5.943, previous=5.862.
+Tabletop probe (-80,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=3, z=-5, height=6.003, previous=5.943.
+Tabletop probe (-79.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=3.25, z=-5, height=6.063, previous=6.003.
+Tabletop probe (-79.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=3.5, z=-5, height=6.122, previous=6.063.
+Tabletop probe (-79.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=3.75, z=-5, height=6.172, previous=6.122.
+Tabletop probe (-79,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=4, z=-5, height=6.210, previous=6.172.
+Tabletop probe (-78.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=4.25, z=-5, height=6.248, previous=6.210.
+Tabletop probe (-78.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=4.5, z=-5, height=6.286, previous=6.248.
+Tabletop probe (-78.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=4.75, z=-5, height=6.304, previous=6.286.
+Tabletop probe (-78,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=5, z=-5, height=6.320, previous=6.304.
+Tabletop probe (-77.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=5.25, z=-5, height=6.338, previous=6.320.
+Tabletop probe (-77.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=5.5, z=-5, height=6.347, previous=6.338.
+Tabletop probe (-77.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=5.75, z=-5, height=6.348, previous=6.347.
+Tabletop probe (-77,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=6, z=-5, height=6.349, previous=6.348.
+Tabletop probe (-76.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=6.25, z=-5, height=6.350, previous=6.349.
+Tabletop probe (-76.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=6.5, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-76.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=6.75, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-76,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=7, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-75.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=7.25, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-75.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=7.5, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-75.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=7.75, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-75,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=8, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-74.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=8.25, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-74.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=8.5, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-74.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=8.75, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-74,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=9, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-73.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=9.25, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-73.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=9.5, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-73.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=9.75, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-73,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=10, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-72.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=10.25, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-72.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=10.5, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-72.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=10.75, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-72,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=11, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-71.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=11.25, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-71.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=11.5, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-71.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=11.75, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-71,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=12, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-70.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=12.25, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-70.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=12.5, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-70.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=12.75, z=-5, height=6.350, previous=6.350.
+Tabletop probe (-70,-5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=13, z=-5, height=6.350, previous=6.350.
+Both kicker fills reach unchanged tabletop height.
+Tabletop probe (-83,0) has support.
+Tabletop probe (-82.75,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=0.25, z=0, height=4.913, previous=4.774.
+Tabletop probe (-82.5,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=0.5, z=0, height=5.051, previous=4.913.
+Tabletop probe (-82.25,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=0.75, z=0, height=5.182, previous=5.051.
+Tabletop probe (-82,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=1, z=0, height=5.293, previous=5.182.
+Tabletop probe (-81.75,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=1.25, z=0, height=5.403, previous=5.293.
+Tabletop probe (-81.5,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=1.5, z=0, height=5.513, previous=5.403.
+Tabletop probe (-81.25,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=1.75, z=0, height=5.607, previous=5.513.
+Tabletop probe (-81,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=2, z=0, height=5.696, previous=5.607.
+Tabletop probe (-80.75,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=2.25, z=0, height=5.785, previous=5.696.
+Tabletop probe (-80.5,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=2.5, z=0, height=5.867, previous=5.785.
+Tabletop probe (-80.25,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=2.75, z=0, height=5.935, previous=5.867.
+Tabletop probe (-80,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=3, z=0, height=6.003, previous=5.935.
+Tabletop probe (-79.75,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=3.25, z=0, height=6.071, previous=6.003.
+Tabletop probe (-79.5,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=3.5, z=0, height=6.120, previous=6.071.
+Tabletop probe (-79.25,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=3.75, z=0, height=6.167, previous=6.120.
+Tabletop probe (-79,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=4, z=0, height=6.214, previous=6.167.
+Tabletop probe (-78.75,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=4.25, z=0, height=6.252, previous=6.214.
+Tabletop probe (-78.5,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=4.5, z=0, height=6.278, previous=6.252.
+Tabletop probe (-78.25,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=4.75, z=0, height=6.304, previous=6.278.
+Tabletop probe (-78,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=5, z=0, height=6.330, previous=6.304.
+Tabletop probe (-77.75,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=5.25, z=0, height=6.336, previous=6.330.
+Tabletop probe (-77.5,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=5.5, z=0, height=6.342, previous=6.336.
+Tabletop probe (-77.25,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=5.75, z=0, height=6.347, previous=6.342.
+Tabletop probe (-77,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=6, z=0, height=6.350, previous=6.347.
+Tabletop probe (-76.75,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=6.25, z=0, height=6.350, previous=6.350.
+Tabletop probe (-76.5,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=6.5, z=0, height=6.350, previous=6.350.
+Tabletop probe (-76.25,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=6.75, z=0, height=6.350, previous=6.350.
+Tabletop probe (-76,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=7, z=0, height=6.350, previous=6.350.
+Tabletop probe (-75.75,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=7.25, z=0, height=6.350, previous=6.350.
+Tabletop probe (-75.5,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=7.5, z=0, height=6.350, previous=6.350.
+Tabletop probe (-75.25,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=7.75, z=0, height=6.350, previous=6.350.
+Tabletop probe (-75,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=8, z=0, height=6.350, previous=6.350.
+Tabletop probe (-74.75,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=8.25, z=0, height=6.350, previous=6.350.
+Tabletop probe (-74.5,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=8.5, z=0, height=6.350, previous=6.350.
+Tabletop probe (-74.25,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=8.75, z=0, height=6.350, previous=6.350.
+Tabletop probe (-74,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=9, z=0, height=6.350, previous=6.350.
+Tabletop probe (-73.75,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=9.25, z=0, height=6.350, previous=6.350.
+Tabletop probe (-73.5,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=9.5, z=0, height=6.350, previous=6.350.
+Tabletop probe (-73.25,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=9.75, z=0, height=6.350, previous=6.350.
+Tabletop probe (-73,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=10, z=0, height=6.350, previous=6.350.
+Tabletop probe (-72.75,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=10.25, z=0, height=6.350, previous=6.350.
+Tabletop probe (-72.5,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=10.5, z=0, height=6.350, previous=6.350.
+Tabletop probe (-72.25,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=10.75, z=0, height=6.350, previous=6.350.
+Tabletop probe (-72,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=11, z=0, height=6.350, previous=6.350.
+Tabletop probe (-71.75,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=11.25, z=0, height=6.350, previous=6.350.
+Tabletop probe (-71.5,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=11.5, z=0, height=6.350, previous=6.350.
+Tabletop probe (-71.25,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=11.75, z=0, height=6.350, previous=6.350.
+Tabletop probe (-71,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=12, z=0, height=6.350, previous=6.350.
+Tabletop probe (-70.75,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=12.25, z=0, height=6.350, previous=6.350.
+Tabletop probe (-70.5,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=12.5, z=0, height=6.350, previous=6.350.
+Tabletop probe (-70.25,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=12.75, z=0, height=6.350, previous=6.350.
+Tabletop probe (-70,0) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=13, z=0, height=6.350, previous=6.350.
+Both kicker fills reach unchanged tabletop height.
+Tabletop probe (-83,5) has support.
+Tabletop probe (-82.75,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=0.25, z=5, height=4.931, previous=4.781.
+Tabletop probe (-82.5,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=0.5, z=5, height=5.055, previous=4.931.
+Tabletop probe (-82.25,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=0.75, z=5, height=5.177, previous=5.055.
+Tabletop probe (-82,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=1, z=5, height=5.300, previous=5.177.
+Tabletop probe (-81.75,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=1.25, z=5, height=5.405, previous=5.300.
+Tabletop probe (-81.5,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=1.5, z=5, height=5.506, previous=5.405.
+Tabletop probe (-81.25,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=1.75, z=5, height=5.608, previous=5.506.
+Tabletop probe (-81,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=2, z=5, height=5.701, previous=5.608.
+Tabletop probe (-80.75,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=2.25, z=5, height=5.782, previous=5.701.
+Tabletop probe (-80.5,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=2.5, z=5, height=5.862, previous=5.782.
+Tabletop probe (-80.25,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=2.75, z=5, height=5.943, previous=5.862.
+Tabletop probe (-80,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=3, z=5, height=6.004, previous=5.943.
+Tabletop probe (-79.75,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=3.25, z=5, height=6.064, previous=6.004.
+Tabletop probe (-79.5,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=3.5, z=5, height=6.123, previous=6.064.
+Tabletop probe (-79.25,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=3.75, z=5, height=6.173, previous=6.123.
+Tabletop probe (-79,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=4, z=5, height=6.211, previous=6.173.
+Tabletop probe (-78.75,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=4.25, z=5, height=6.249, previous=6.211.
+Tabletop probe (-78.5,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=4.5, z=5, height=6.286, previous=6.249.
+Tabletop probe (-78.25,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=4.75, z=5, height=6.305, previous=6.286.
+Tabletop probe (-78,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=5, z=5, height=6.322, previous=6.305.
+Tabletop probe (-77.75,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=5.25, z=5, height=6.338, previous=6.322.
+Tabletop probe (-77.5,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=5.5, z=5, height=6.347, previous=6.338.
+Tabletop probe (-77.25,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=5.75, z=5, height=6.349, previous=6.347.
+Tabletop probe (-77,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=6, z=5, height=6.349, previous=6.349.
+Tabletop probe (-76.75,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=6.25, z=5, height=6.350, previous=6.349.
+Tabletop probe (-76.5,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=6.5, z=5, height=6.350, previous=6.350.
+Tabletop probe (-76.25,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=6.75, z=5, height=6.350, previous=6.350.
+Tabletop probe (-76,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=7, z=5, height=6.350, previous=6.350.
+Tabletop probe (-75.75,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=7.25, z=5, height=6.350, previous=6.350.
+Tabletop probe (-75.5,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=7.5, z=5, height=6.350, previous=6.350.
+Tabletop probe (-75.25,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=7.75, z=5, height=6.350, previous=6.350.
+Tabletop probe (-75,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=8, z=5, height=6.350, previous=6.350.
+Tabletop probe (-74.75,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=8.25, z=5, height=6.350, previous=6.350.
+Tabletop probe (-74.5,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=8.5, z=5, height=6.350, previous=6.350.
+Tabletop probe (-74.25,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=8.75, z=5, height=6.350, previous=6.350.
+Tabletop probe (-74,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=9, z=5, height=6.350, previous=6.350.
+Tabletop probe (-73.75,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=9.25, z=5, height=6.350, previous=6.350.
+Tabletop probe (-73.5,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=9.5, z=5, height=6.350, previous=6.350.
+Tabletop probe (-73.25,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=9.75, z=5, height=6.350, previous=6.350.
+Tabletop probe (-73,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=10, z=5, height=6.350, previous=6.350.
+Tabletop probe (-72.75,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=10.25, z=5, height=6.350, previous=6.350.
+Tabletop probe (-72.5,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=10.5, z=5, height=6.350, previous=6.350.
+Tabletop probe (-72.25,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=10.75, z=5, height=6.350, previous=6.350.
+Tabletop probe (-72,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=11, z=5, height=6.350, previous=6.350.
+Tabletop probe (-71.75,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=11.25, z=5, height=6.350, previous=6.350.
+Tabletop probe (-71.5,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=11.5, z=5, height=6.350, previous=6.350.
+Tabletop probe (-71.25,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=11.75, z=5, height=6.350, previous=6.350.
+Tabletop probe (-71,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=12, z=5, height=6.350, previous=6.350.
+Tabletop probe (-70.75,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=12.25, z=5, height=6.350, previous=6.350.
+Tabletop probe (-70.5,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=12.5, z=5, height=6.350, previous=6.350.
+Tabletop probe (-70.25,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=12.75, z=5, height=6.350, previous=6.350.
+Tabletop probe (-70,5) has support.
+Continuous kicker-to-tabletop fill: side=-1, d=13, z=5, height=6.350, previous=6.350.
+Both kicker fills reach unchanged tabletop height.
+Tabletop probe (83,-5) has support.
+Tabletop probe (82.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=0.25, z=-5, height=4.931, previous=4.781.
+Tabletop probe (82.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=0.5, z=-5, height=5.055, previous=4.931.
+Tabletop probe (82.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=0.75, z=-5, height=5.177, previous=5.055.
+Tabletop probe (82,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=1, z=-5, height=5.300, previous=5.177.
+Tabletop probe (81.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=1.25, z=-5, height=5.405, previous=5.300.
+Tabletop probe (81.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=1.5, z=-5, height=5.506, previous=5.405.
+Tabletop probe (81.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=1.75, z=-5, height=5.608, previous=5.506.
+Tabletop probe (81,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=2, z=-5, height=5.701, previous=5.608.
+Tabletop probe (80.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=2.25, z=-5, height=5.782, previous=5.701.
+Tabletop probe (80.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=2.5, z=-5, height=5.862, previous=5.782.
+Tabletop probe (80.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=2.75, z=-5, height=5.943, previous=5.862.
+Tabletop probe (80,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=3, z=-5, height=6.004, previous=5.943.
+Tabletop probe (79.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=3.25, z=-5, height=6.064, previous=6.004.
+Tabletop probe (79.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=3.5, z=-5, height=6.123, previous=6.064.
+Tabletop probe (79.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=3.75, z=-5, height=6.173, previous=6.123.
+Tabletop probe (79,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=4, z=-5, height=6.211, previous=6.173.
+Tabletop probe (78.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=4.25, z=-5, height=6.249, previous=6.211.
+Tabletop probe (78.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=4.5, z=-5, height=6.286, previous=6.249.
+Tabletop probe (78.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=4.75, z=-5, height=6.305, previous=6.286.
+Tabletop probe (78,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=5, z=-5, height=6.322, previous=6.305.
+Tabletop probe (77.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=5.25, z=-5, height=6.338, previous=6.322.
+Tabletop probe (77.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=5.5, z=-5, height=6.347, previous=6.338.
+Tabletop probe (77.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=5.75, z=-5, height=6.349, previous=6.347.
+Tabletop probe (77,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=6, z=-5, height=6.349, previous=6.349.
+Tabletop probe (76.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=6.25, z=-5, height=6.350, previous=6.349.
+Tabletop probe (76.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=6.5, z=-5, height=6.350, previous=6.350.
+Tabletop probe (76.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=6.75, z=-5, height=6.350, previous=6.350.
+Tabletop probe (76,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=7, z=-5, height=6.350, previous=6.350.
+Tabletop probe (75.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=7.25, z=-5, height=6.350, previous=6.350.
+Tabletop probe (75.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=7.5, z=-5, height=6.350, previous=6.350.
+Tabletop probe (75.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=7.75, z=-5, height=6.350, previous=6.350.
+Tabletop probe (75,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=8, z=-5, height=6.350, previous=6.350.
+Tabletop probe (74.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=8.25, z=-5, height=6.350, previous=6.350.
+Tabletop probe (74.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=8.5, z=-5, height=6.350, previous=6.350.
+Tabletop probe (74.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=8.75, z=-5, height=6.350, previous=6.350.
+Tabletop probe (74,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=9, z=-5, height=6.350, previous=6.350.
+Tabletop probe (73.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=9.25, z=-5, height=6.350, previous=6.350.
+Tabletop probe (73.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=9.5, z=-5, height=6.350, previous=6.350.
+Tabletop probe (73.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=9.75, z=-5, height=6.350, previous=6.350.
+Tabletop probe (73,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=10, z=-5, height=6.350, previous=6.350.
+Tabletop probe (72.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=10.25, z=-5, height=6.350, previous=6.350.
+Tabletop probe (72.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=10.5, z=-5, height=6.350, previous=6.350.
+Tabletop probe (72.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=10.75, z=-5, height=6.350, previous=6.350.
+Tabletop probe (72,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=11, z=-5, height=6.350, previous=6.350.
+Tabletop probe (71.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=11.25, z=-5, height=6.350, previous=6.350.
+Tabletop probe (71.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=11.5, z=-5, height=6.350, previous=6.350.
+Tabletop probe (71.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=11.75, z=-5, height=6.350, previous=6.350.
+Tabletop probe (71,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=12, z=-5, height=6.350, previous=6.350.
+Tabletop probe (70.75,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=12.25, z=-5, height=6.350, previous=6.350.
+Tabletop probe (70.5,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=12.5, z=-5, height=6.350, previous=6.350.
+Tabletop probe (70.25,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=12.75, z=-5, height=6.350, previous=6.350.
+Tabletop probe (70,-5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=13, z=-5, height=6.350, previous=6.350.
+Both kicker fills reach unchanged tabletop height.
+Tabletop probe (83,0) has support.
+Tabletop probe (82.75,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=0.25, z=0, height=4.913, previous=4.774.
+Tabletop probe (82.5,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=0.5, z=0, height=5.051, previous=4.913.
+Tabletop probe (82.25,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=0.75, z=0, height=5.182, previous=5.051.
+Tabletop probe (82,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=1, z=0, height=5.293, previous=5.182.
+Tabletop probe (81.75,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=1.25, z=0, height=5.403, previous=5.293.
+Tabletop probe (81.5,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=1.5, z=0, height=5.513, previous=5.403.
+Tabletop probe (81.25,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=1.75, z=0, height=5.607, previous=5.513.
+Tabletop probe (81,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=2, z=0, height=5.696, previous=5.607.
+Tabletop probe (80.75,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=2.25, z=0, height=5.785, previous=5.696.
+Tabletop probe (80.5,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=2.5, z=0, height=5.867, previous=5.785.
+Tabletop probe (80.25,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=2.75, z=0, height=5.935, previous=5.867.
+Tabletop probe (80,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=3, z=0, height=6.003, previous=5.935.
+Tabletop probe (79.75,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=3.25, z=0, height=6.071, previous=6.003.
+Tabletop probe (79.5,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=3.5, z=0, height=6.120, previous=6.071.
+Tabletop probe (79.25,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=3.75, z=0, height=6.167, previous=6.120.
+Tabletop probe (79,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=4, z=0, height=6.214, previous=6.167.
+Tabletop probe (78.75,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=4.25, z=0, height=6.252, previous=6.214.
+Tabletop probe (78.5,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=4.5, z=0, height=6.278, previous=6.252.
+Tabletop probe (78.25,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=4.75, z=0, height=6.304, previous=6.278.
+Tabletop probe (78,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=5, z=0, height=6.330, previous=6.304.
+Tabletop probe (77.75,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=5.25, z=0, height=6.336, previous=6.330.
+Tabletop probe (77.5,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=5.5, z=0, height=6.342, previous=6.336.
+Tabletop probe (77.25,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=5.75, z=0, height=6.347, previous=6.342.
+Tabletop probe (77,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=6, z=0, height=6.350, previous=6.347.
+Tabletop probe (76.75,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=6.25, z=0, height=6.350, previous=6.350.
+Tabletop probe (76.5,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=6.5, z=0, height=6.350, previous=6.350.
+Tabletop probe (76.25,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=6.75, z=0, height=6.350, previous=6.350.
+Tabletop probe (76,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=7, z=0, height=6.350, previous=6.350.
+Tabletop probe (75.75,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=7.25, z=0, height=6.350, previous=6.350.
+Tabletop probe (75.5,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=7.5, z=0, height=6.350, previous=6.350.
+Tabletop probe (75.25,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=7.75, z=0, height=6.350, previous=6.350.
+Tabletop probe (75,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=8, z=0, height=6.350, previous=6.350.
+Tabletop probe (74.75,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=8.25, z=0, height=6.350, previous=6.350.
+Tabletop probe (74.5,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=8.5, z=0, height=6.350, previous=6.350.
+Tabletop probe (74.25,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=8.75, z=0, height=6.350, previous=6.350.
+Tabletop probe (74,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=9, z=0, height=6.350, previous=6.350.
+Tabletop probe (73.75,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=9.25, z=0, height=6.350, previous=6.350.
+Tabletop probe (73.5,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=9.5, z=0, height=6.350, previous=6.350.
+Tabletop probe (73.25,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=9.75, z=0, height=6.350, previous=6.350.
+Tabletop probe (73,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=10, z=0, height=6.350, previous=6.350.
+Tabletop probe (72.75,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=10.25, z=0, height=6.350, previous=6.350.
+Tabletop probe (72.5,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=10.5, z=0, height=6.350, previous=6.350.
+Tabletop probe (72.25,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=10.75, z=0, height=6.350, previous=6.350.
+Tabletop probe (72,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=11, z=0, height=6.350, previous=6.350.
+Tabletop probe (71.75,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=11.25, z=0, height=6.350, previous=6.350.
+Tabletop probe (71.5,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=11.5, z=0, height=6.350, previous=6.350.
+Tabletop probe (71.25,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=11.75, z=0, height=6.350, previous=6.350.
+Tabletop probe (71,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=12, z=0, height=6.350, previous=6.350.
+Tabletop probe (70.75,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=12.25, z=0, height=6.350, previous=6.350.
+Tabletop probe (70.5,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=12.5, z=0, height=6.350, previous=6.350.
+Tabletop probe (70.25,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=12.75, z=0, height=6.350, previous=6.350.
+Tabletop probe (70,0) has support.
+Continuous kicker-to-tabletop fill: side=1, d=13, z=0, height=6.350, previous=6.350.
+Both kicker fills reach unchanged tabletop height.
+Tabletop probe (83,5) has support.
+Tabletop probe (82.75,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=0.25, z=5, height=4.931, previous=4.780.
+Tabletop probe (82.5,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=0.5, z=5, height=5.054, previous=4.931.
+Tabletop probe (82.25,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=0.75, z=5, height=5.176, previous=5.054.
+Tabletop probe (82,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=1, z=5, height=5.300, previous=5.176.
+Tabletop probe (81.75,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=1.25, z=5, height=5.404, previous=5.300.
+Tabletop probe (81.5,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=1.5, z=5, height=5.506, previous=5.404.
+Tabletop probe (81.25,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=1.75, z=5, height=5.608, previous=5.506.
+Tabletop probe (81,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=2, z=5, height=5.701, previous=5.608.
+Tabletop probe (80.75,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=2.25, z=5, height=5.782, previous=5.701.
+Tabletop probe (80.5,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=2.5, z=5, height=5.862, previous=5.782.
+Tabletop probe (80.25,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=2.75, z=5, height=5.943, previous=5.862.
+Tabletop probe (80,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=3, z=5, height=6.003, previous=5.943.
+Tabletop probe (79.75,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=3.25, z=5, height=6.063, previous=6.003.
+Tabletop probe (79.5,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=3.5, z=5, height=6.122, previous=6.063.
+Tabletop probe (79.25,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=3.75, z=5, height=6.172, previous=6.122.
+Tabletop probe (79,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=4, z=5, height=6.210, previous=6.172.
+Tabletop probe (78.75,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=4.25, z=5, height=6.248, previous=6.210.
+Tabletop probe (78.5,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=4.5, z=5, height=6.286, previous=6.248.
+Tabletop probe (78.25,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=4.75, z=5, height=6.304, previous=6.286.
+Tabletop probe (78,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=5, z=5, height=6.320, previous=6.304.
+Tabletop probe (77.75,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=5.25, z=5, height=6.338, previous=6.320.
+Tabletop probe (77.5,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=5.5, z=5, height=6.347, previous=6.338.
+Tabletop probe (77.25,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=5.75, z=5, height=6.348, previous=6.347.
+Tabletop probe (77,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=6, z=5, height=6.349, previous=6.348.
+Tabletop probe (76.75,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=6.25, z=5, height=6.350, previous=6.349.
+Tabletop probe (76.5,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=6.5, z=5, height=6.350, previous=6.350.
+Tabletop probe (76.25,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=6.75, z=5, height=6.350, previous=6.350.
+Tabletop probe (76,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=7, z=5, height=6.350, previous=6.350.
+Tabletop probe (75.75,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=7.25, z=5, height=6.350, previous=6.350.
+Tabletop probe (75.5,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=7.5, z=5, height=6.350, previous=6.350.
+Tabletop probe (75.25,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=7.75, z=5, height=6.350, previous=6.350.
+Tabletop probe (75,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=8, z=5, height=6.350, previous=6.350.
+Tabletop probe (74.75,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=8.25, z=5, height=6.350, previous=6.350.
+Tabletop probe (74.5,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=8.5, z=5, height=6.350, previous=6.350.
+Tabletop probe (74.25,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=8.75, z=5, height=6.350, previous=6.350.
+Tabletop probe (74,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=9, z=5, height=6.350, previous=6.350.
+Tabletop probe (73.75,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=9.25, z=5, height=6.350, previous=6.350.
+Tabletop probe (73.5,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=9.5, z=5, height=6.350, previous=6.350.
+Tabletop probe (73.25,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=9.75, z=5, height=6.350, previous=6.350.
+Tabletop probe (73,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=10, z=5, height=6.350, previous=6.350.
+Tabletop probe (72.75,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=10.25, z=5, height=6.350, previous=6.350.
+Tabletop probe (72.5,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=10.5, z=5, height=6.350, previous=6.350.
+Tabletop probe (72.25,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=10.75, z=5, height=6.350, previous=6.350.
+Tabletop probe (72,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=11, z=5, height=6.350, previous=6.350.
+Tabletop probe (71.75,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=11.25, z=5, height=6.350, previous=6.350.
+Tabletop probe (71.5,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=11.5, z=5, height=6.350, previous=6.350.
+Tabletop probe (71.25,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=11.75, z=5, height=6.350, previous=6.350.
+Tabletop probe (71,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=12, z=5, height=6.350, previous=6.350.
+Tabletop probe (70.75,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=12.25, z=5, height=6.350, previous=6.350.
+Tabletop probe (70.5,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=12.5, z=5, height=6.350, previous=6.350.
+Tabletop probe (70.25,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=12.75, z=5, height=6.350, previous=6.350.
+Tabletop probe (70,5) has support.
+Continuous kicker-to-tabletop fill: side=1, d=13, z=5, height=6.350, previous=6.350.
+Both kicker fills reach unchanged tabletop height.
+Tabletop probe (-15,-10) has support.
+Full-width tabletop at (-15,-10) matches unchanged 6.35 m deck.
+Tabletop probe (-15,-7) has support.
+Full-width tabletop at (-15,-7) matches unchanged 6.35 m deck.
+Tabletop probe (-15,0) has support.
+Full-width tabletop at (-15,0) matches unchanged 6.35 m deck.
+Tabletop probe (-15,7) has support.
+Full-width tabletop at (-15,7) matches unchanged 6.35 m deck.
+Tabletop probe (-15,10) has support.
+Full-width tabletop at (-15,10) matches unchanged 6.35 m deck.
+Tabletop probe (-15,14) has support.
+Tabletop probe (-15,-14) has support.
+Mirrored side slopes at x=-15, z=±14 match within imported mesh tolerance.
+Tabletop probe (-15,18) has support.
+Tabletop probe (-15,-18) has support.
+Mirrored side slopes at x=-15, z=±18 match within imported mesh tolerance.
+Tabletop probe (-15,22) has support.
+Tabletop probe (-15,-22) has support.
+Mirrored side slopes at x=-15, z=±22 match within imported mesh tolerance.
+Tabletop probe (-40,-10) has support.
+Full-width tabletop at (-40,-10) matches unchanged 6.35 m deck.
+Tabletop probe (-40,-7) has support.
+Full-width tabletop at (-40,-7) matches unchanged 6.35 m deck.
+Tabletop probe (-40,0) has support.
+Full-width tabletop at (-40,0) matches unchanged 6.35 m deck.
+Tabletop probe (-40,7) has support.
+Full-width tabletop at (-40,7) matches unchanged 6.35 m deck.
+Tabletop probe (-40,10) has support.
+Full-width tabletop at (-40,10) matches unchanged 6.35 m deck.
+Tabletop probe (-40,14) has support.
+Tabletop probe (-40,-14) has support.
+Mirrored side slopes at x=-40, z=±14 match within imported mesh tolerance.
+Tabletop probe (-40,18) has support.
+Tabletop probe (-40,-18) has support.
+Mirrored side slopes at x=-40, z=±18 match within imported mesh tolerance.
+Tabletop probe (-40,22) has support.
+Tabletop probe (-40,-22) has support.
+Mirrored side slopes at x=-40, z=±22 match within imported mesh tolerance.
+Tabletop probe (-65,-10) has support.
+Full-width tabletop at (-65,-10) matches unchanged 6.35 m deck.
+Tabletop probe (-65,-7) has support.
+Full-width tabletop at (-65,-7) matches unchanged 6.35 m deck.
+Tabletop probe (-65,0) has support.
+Full-width tabletop at (-65,0) matches unchanged 6.35 m deck.
+Tabletop probe (-65,7) has support.
+Full-width tabletop at (-65,7) matches unchanged 6.35 m deck.
+Tabletop probe (-65,10) has support.
+Full-width tabletop at (-65,10) matches unchanged 6.35 m deck.
+Tabletop probe (-65,14) has support.
+Tabletop probe (-65,-14) has support.
+Mirrored side slopes at x=-65, z=±14 match within imported mesh tolerance.
+Tabletop probe (-65,18) has support.
+Tabletop probe (-65,-18) has support.
+Mirrored side slopes at x=-65, z=±18 match within imported mesh tolerance.
+Tabletop probe (-65,22) has support.
+Tabletop probe (-65,-22) has support.
+Mirrored side slopes at x=-65, z=±22 match within imported mesh tolerance.
+Tabletop probe (15,-10) has support.
+Full-width tabletop at (15,-10) matches unchanged 6.35 m deck.
+Tabletop probe (15,-7) has support.
+Full-width tabletop at (15,-7) matches unchanged 6.35 m deck.
+Tabletop probe (15,0) has support.
+Full-width tabletop at (15,0) matches unchanged 6.35 m deck.
+Tabletop probe (15,7) has support.
+Full-width tabletop at (15,7) matches unchanged 6.35 m deck.
+Tabletop probe (15,10) has support.
+Full-width tabletop at (15,10) matches unchanged 6.35 m deck.
+Tabletop probe (15,14) has support.
+Tabletop probe (15,-14) has support.
+Mirrored side slopes at x=15, z=±14 match within imported mesh tolerance.
+Tabletop probe (15,18) has support.
+Tabletop probe (15,-18) has support.
+Mirrored side slopes at x=15, z=±18 match within imported mesh tolerance.
+Tabletop probe (15,22) has support.
+Tabletop probe (15,-22) has support.
+Mirrored side slopes at x=15, z=±22 match within imported mesh tolerance.
+Tabletop probe (40,-10) has support.
+Full-width tabletop at (40,-10) matches unchanged 6.35 m deck.
+Tabletop probe (40,-7) has support.
+Full-width tabletop at (40,-7) matches unchanged 6.35 m deck.
+Tabletop probe (40,0) has support.
+Full-width tabletop at (40,0) matches unchanged 6.35 m deck.
+Tabletop probe (40,7) has support.
+Full-width tabletop at (40,7) matches unchanged 6.35 m deck.
+Tabletop probe (40,10) has support.
+Full-width tabletop at (40,10) matches unchanged 6.35 m deck.
+Tabletop probe (40,14) has support.
+Tabletop probe (40,-14) has support.
+Mirrored side slopes at x=40, z=±14 match within imported mesh tolerance.
+Tabletop probe (40,18) has support.
+Tabletop probe (40,-18) has support.
+Mirrored side slopes at x=40, z=±18 match within imported mesh tolerance.
+Tabletop probe (40,22) has support.
+Tabletop probe (40,-22) has support.
+Mirrored side slopes at x=40, z=±22 match within imported mesh tolerance.
+Tabletop probe (65,-10) has support.
+Full-width tabletop at (65,-10) matches unchanged 6.35 m deck.
+Tabletop probe (65,-7) has support.
+Full-width tabletop at (65,-7) matches unchanged 6.35 m deck.
+Tabletop probe (65,0) has support.
+Full-width tabletop at (65,0) matches unchanged 6.35 m deck.
+Tabletop probe (65,7) has support.
+Full-width tabletop at (65,7) matches unchanged 6.35 m deck.
+Tabletop probe (65,10) has support.
+Full-width tabletop at (65,10) matches unchanged 6.35 m deck.
+Tabletop probe (65,14) has support.
+Tabletop probe (65,-14) has support.
+Mirrored side slopes at x=65, z=±14 match within imported mesh tolerance.
+Tabletop probe (65,18) has support.
+Tabletop probe (65,-18) has support.
+Mirrored side slopes at x=65, z=±18 match within imported mesh tolerance.
+Tabletop probe (65,22) has support.
+Tabletop probe (65,-22) has support.
+Mirrored side slopes at x=65, z=±22 match within imported mesh tolerance.
+Tabletop probe (-15,-8) has support.
+Tabletop probe (-14.75,-8) has support.
+Deck/earth seam support (-14.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14.5,-8) has support.
+Deck/earth seam support (-14.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14.25,-8) has support.
+Deck/earth seam support (-14.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14,-8) has support.
+Deck/earth seam support (-14,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.75,-8) has support.
+Deck/earth seam support (-13.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.5,-8) has support.
+Deck/earth seam support (-13.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.25,-8) has support.
+Deck/earth seam support (-13.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13,-8) has support.
+Deck/earth seam support (-13,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.75,-8) has support.
+Deck/earth seam support (-12.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.5,-8) has support.
+Deck/earth seam support (-12.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.25,-8) has support.
+Deck/earth seam support (-12.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12,-8) has support.
+Deck/earth seam support (-12,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.75,-8) has support.
+Deck/earth seam support (-11.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.5,-8) has support.
+Deck/earth seam support (-11.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.25,-8) has support.
+Deck/earth seam support (-11.25,-8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (-11,-8) has support.
+Deck/earth seam support (-11,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.75,-8) has support.
+Deck/earth seam support (-10.75,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.5,-8) has support.
+Deck/earth seam support (-10.5,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.25,-8) has support.
+Deck/earth seam support (-10.25,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10,-8) has support.
+Deck/earth seam support (-10,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.75,-8) has support.
+Deck/earth seam support (-9.75,-8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.5,-8) has support.
+Deck/earth seam support (-9.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.25,-8) has support.
+Deck/earth seam support (-9.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-9,-8) has support.
+Deck/earth seam support (-9,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.75,-8) has support.
+Deck/earth seam support (-8.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.5,-8) has support.
+Deck/earth seam support (-8.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.25,-8) has support.
+Deck/earth seam support (-8.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8,-8) has support.
+Deck/earth seam support (-8,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.75,-8) has support.
+Deck/earth seam support (-7.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.5,-8) has support.
+Deck/earth seam support (-7.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.25,-8) has support.
+Deck/earth seam support (-7.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7,-8) has support.
+Deck/earth seam support (-7,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.75,-8) has support.
+Deck/earth seam support (-6.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.5,-8) has support.
+Deck/earth seam support (-6.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.25,-8) has support.
+Deck/earth seam support (-6.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6,-8) has support.
+Deck/earth seam support (-6,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.75,-8) has support.
+Deck/earth seam support (-5.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.5,-8) has support.
+Deck/earth seam support (-5.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.25,-8) has support.
+Deck/earth seam support (-5.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5,-8) has support.
+Deck/earth seam support (-5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.75,-8) has support.
+Deck/earth seam support (-4.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.5,-8) has support.
+Deck/earth seam support (-4.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.25,-8) has support.
+Deck/earth seam support (-4.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4,-8) has support.
+Deck/earth seam support (-4,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.75,-8) has support.
+Deck/earth seam support (-3.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.5,-8) has support.
+Deck/earth seam support (-3.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.25,-8) has support.
+Deck/earth seam support (-3.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3,-8) has support.
+Deck/earth seam support (-3,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.75,-8) has support.
+Deck/earth seam support (-2.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.5,-8) has support.
+Deck/earth seam support (-2.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.25,-8) has support.
+Deck/earth seam support (-2.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2,-8) has support.
+Deck/earth seam support (-2,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.75,-8) has support.
+Deck/earth seam support (-1.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.5,-8) has support.
+Deck/earth seam support (-1.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.25,-8) has support.
+Deck/earth seam support (-1.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1,-8) has support.
+Deck/earth seam support (-1,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.75,-8) has support.
+Deck/earth seam support (-0.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.5,-8) has support.
+Deck/earth seam support (-0.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.25,-8) has support.
+Deck/earth seam support (-0.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0,-8) has support.
+Deck/earth seam support (0,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.25,-8) has support.
+Deck/earth seam support (0.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.5,-8) has support.
+Deck/earth seam support (0.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.75,-8) has support.
+Deck/earth seam support (0.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1,-8) has support.
+Deck/earth seam support (1,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.25,-8) has support.
+Deck/earth seam support (1.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.5,-8) has support.
+Deck/earth seam support (1.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.75,-8) has support.
+Deck/earth seam support (1.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2,-8) has support.
+Deck/earth seam support (2,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.25,-8) has support.
+Deck/earth seam support (2.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.5,-8) has support.
+Deck/earth seam support (2.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.75,-8) has support.
+Deck/earth seam support (2.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3,-8) has support.
+Deck/earth seam support (3,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.25,-8) has support.
+Deck/earth seam support (3.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.5,-8) has support.
+Deck/earth seam support (3.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.75,-8) has support.
+Deck/earth seam support (3.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4,-8) has support.
+Deck/earth seam support (4,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.25,-8) has support.
+Deck/earth seam support (4.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.5,-8) has support.
+Deck/earth seam support (4.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.75,-8) has support.
+Deck/earth seam support (4.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5,-8) has support.
+Deck/earth seam support (5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.25,-8) has support.
+Deck/earth seam support (5.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.5,-8) has support.
+Deck/earth seam support (5.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.75,-8) has support.
+Deck/earth seam support (5.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6,-8) has support.
+Deck/earth seam support (6,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.25,-8) has support.
+Deck/earth seam support (6.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.5,-8) has support.
+Deck/earth seam support (6.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.75,-8) has support.
+Deck/earth seam support (6.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7,-8) has support.
+Deck/earth seam support (7,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.25,-8) has support.
+Deck/earth seam support (7.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.5,-8) has support.
+Deck/earth seam support (7.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.75,-8) has support.
+Deck/earth seam support (7.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8,-8) has support.
+Deck/earth seam support (8,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.25,-8) has support.
+Deck/earth seam support (8.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.5,-8) has support.
+Deck/earth seam support (8.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.75,-8) has support.
+Deck/earth seam support (8.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9,-8) has support.
+Deck/earth seam support (9,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.25,-8) has support.
+Deck/earth seam support (9.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.5,-8) has support.
+Deck/earth seam support (9.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.75,-8) has support.
+Deck/earth seam support (9.75,-8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (10,-8) has support.
+Deck/earth seam support (10,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.25,-8) has support.
+Deck/earth seam support (10.25,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.5,-8) has support.
+Deck/earth seam support (10.5,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.75,-8) has support.
+Deck/earth seam support (10.75,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (11,-8) has support.
+Deck/earth seam support (11,-8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (11.25,-8) has support.
+Deck/earth seam support (11.25,-8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (11.5,-8) has support.
+Deck/earth seam support (11.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (11.75,-8) has support.
+Deck/earth seam support (11.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12,-8) has support.
+Deck/earth seam support (12,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.25,-8) has support.
+Deck/earth seam support (12.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.5,-8) has support.
+Deck/earth seam support (12.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.75,-8) has support.
+Deck/earth seam support (12.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13,-8) has support.
+Deck/earth seam support (13,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.25,-8) has support.
+Deck/earth seam support (13.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.5,-8) has support.
+Deck/earth seam support (13.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.75,-8) has support.
+Deck/earth seam support (13.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14,-8) has support.
+Deck/earth seam support (14,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.25,-8) has support.
+Deck/earth seam support (14.25,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.5,-8) has support.
+Deck/earth seam support (14.5,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.75,-8) has support.
+Deck/earth seam support (14.75,-8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (15,-8) has support.
+Deck/earth seam support (15,-8) height=6.350; retained shallow beam crown has no blocking step.
+Both upper ends open at z=-8.
+Tabletop probe (-15,0) has support.
+Tabletop probe (-14.75,0) has support.
+Deck/earth seam support (-14.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14.5,0) has support.
+Deck/earth seam support (-14.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14.25,0) has support.
+Deck/earth seam support (-14.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14,0) has support.
+Deck/earth seam support (-14,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.75,0) has support.
+Deck/earth seam support (-13.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.5,0) has support.
+Deck/earth seam support (-13.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.25,0) has support.
+Deck/earth seam support (-13.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13,0) has support.
+Deck/earth seam support (-13,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.75,0) has support.
+Deck/earth seam support (-12.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.5,0) has support.
+Deck/earth seam support (-12.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.25,0) has support.
+Deck/earth seam support (-12.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12,0) has support.
+Deck/earth seam support (-12,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.75,0) has support.
+Deck/earth seam support (-11.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.5,0) has support.
+Deck/earth seam support (-11.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.25,0) has support.
+Deck/earth seam support (-11.25,0) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (-11,0) has support.
+Deck/earth seam support (-11,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.75,0) has support.
+Deck/earth seam support (-10.75,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.5,0) has support.
+Deck/earth seam support (-10.5,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.25,0) has support.
+Deck/earth seam support (-10.25,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10,0) has support.
+Deck/earth seam support (-10,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.75,0) has support.
+Deck/earth seam support (-9.75,0) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.5,0) has support.
+Deck/earth seam support (-9.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.25,0) has support.
+Deck/earth seam support (-9.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-9,0) has support.
+Deck/earth seam support (-9,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.75,0) has support.
+Deck/earth seam support (-8.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.5,0) has support.
+Deck/earth seam support (-8.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.25,0) has support.
+Deck/earth seam support (-8.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8,0) has support.
+Deck/earth seam support (-8,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.75,0) has support.
+Deck/earth seam support (-7.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.5,0) has support.
+Deck/earth seam support (-7.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.25,0) has support.
+Deck/earth seam support (-7.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7,0) has support.
+Deck/earth seam support (-7,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.75,0) has support.
+Deck/earth seam support (-6.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.5,0) has support.
+Deck/earth seam support (-6.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.25,0) has support.
+Deck/earth seam support (-6.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6,0) has support.
+Deck/earth seam support (-6,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.75,0) has support.
+Deck/earth seam support (-5.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.5,0) has support.
+Deck/earth seam support (-5.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.25,0) has support.
+Deck/earth seam support (-5.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5,0) has support.
+Deck/earth seam support (-5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.75,0) has support.
+Deck/earth seam support (-4.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.5,0) has support.
+Deck/earth seam support (-4.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.25,0) has support.
+Deck/earth seam support (-4.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4,0) has support.
+Deck/earth seam support (-4,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.75,0) has support.
+Deck/earth seam support (-3.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.5,0) has support.
+Deck/earth seam support (-3.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.25,0) has support.
+Deck/earth seam support (-3.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3,0) has support.
+Deck/earth seam support (-3,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.75,0) has support.
+Deck/earth seam support (-2.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.5,0) has support.
+Deck/earth seam support (-2.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.25,0) has support.
+Deck/earth seam support (-2.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2,0) has support.
+Deck/earth seam support (-2,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.75,0) has support.
+Deck/earth seam support (-1.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.5,0) has support.
+Deck/earth seam support (-1.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.25,0) has support.
+Deck/earth seam support (-1.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1,0) has support.
+Deck/earth seam support (-1,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.75,0) has support.
+Deck/earth seam support (-0.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.5,0) has support.
+Deck/earth seam support (-0.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.25,0) has support.
+Deck/earth seam support (-0.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0,0) has support.
+Deck/earth seam support (0,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.25,0) has support.
+Deck/earth seam support (0.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.5,0) has support.
+Deck/earth seam support (0.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.75,0) has support.
+Deck/earth seam support (0.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1,0) has support.
+Deck/earth seam support (1,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.25,0) has support.
+Deck/earth seam support (1.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.5,0) has support.
+Deck/earth seam support (1.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.75,0) has support.
+Deck/earth seam support (1.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2,0) has support.
+Deck/earth seam support (2,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.25,0) has support.
+Deck/earth seam support (2.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.5,0) has support.
+Deck/earth seam support (2.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.75,0) has support.
+Deck/earth seam support (2.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3,0) has support.
+Deck/earth seam support (3,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.25,0) has support.
+Deck/earth seam support (3.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.5,0) has support.
+Deck/earth seam support (3.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.75,0) has support.
+Deck/earth seam support (3.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4,0) has support.
+Deck/earth seam support (4,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.25,0) has support.
+Deck/earth seam support (4.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.5,0) has support.
+Deck/earth seam support (4.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.75,0) has support.
+Deck/earth seam support (4.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5,0) has support.
+Deck/earth seam support (5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.25,0) has support.
+Deck/earth seam support (5.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.5,0) has support.
+Deck/earth seam support (5.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.75,0) has support.
+Deck/earth seam support (5.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6,0) has support.
+Deck/earth seam support (6,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.25,0) has support.
+Deck/earth seam support (6.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.5,0) has support.
+Deck/earth seam support (6.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.75,0) has support.
+Deck/earth seam support (6.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7,0) has support.
+Deck/earth seam support (7,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.25,0) has support.
+Deck/earth seam support (7.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.5,0) has support.
+Deck/earth seam support (7.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.75,0) has support.
+Deck/earth seam support (7.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8,0) has support.
+Deck/earth seam support (8,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.25,0) has support.
+Deck/earth seam support (8.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.5,0) has support.
+Deck/earth seam support (8.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.75,0) has support.
+Deck/earth seam support (8.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9,0) has support.
+Deck/earth seam support (9,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.25,0) has support.
+Deck/earth seam support (9.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.5,0) has support.
+Deck/earth seam support (9.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.75,0) has support.
+Deck/earth seam support (9.75,0) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (10,0) has support.
+Deck/earth seam support (10,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.25,0) has support.
+Deck/earth seam support (10.25,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.5,0) has support.
+Deck/earth seam support (10.5,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.75,0) has support.
+Deck/earth seam support (10.75,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (11,0) has support.
+Deck/earth seam support (11,0) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (11.25,0) has support.
+Deck/earth seam support (11.25,0) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (11.5,0) has support.
+Deck/earth seam support (11.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (11.75,0) has support.
+Deck/earth seam support (11.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12,0) has support.
+Deck/earth seam support (12,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.25,0) has support.
+Deck/earth seam support (12.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.5,0) has support.
+Deck/earth seam support (12.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.75,0) has support.
+Deck/earth seam support (12.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13,0) has support.
+Deck/earth seam support (13,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.25,0) has support.
+Deck/earth seam support (13.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.5,0) has support.
+Deck/earth seam support (13.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.75,0) has support.
+Deck/earth seam support (13.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14,0) has support.
+Deck/earth seam support (14,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.25,0) has support.
+Deck/earth seam support (14.25,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.5,0) has support.
+Deck/earth seam support (14.5,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.75,0) has support.
+Deck/earth seam support (14.75,0) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (15,0) has support.
+Deck/earth seam support (15,0) height=6.350; retained shallow beam crown has no blocking step.
+Both upper ends open at z=0.
+Tabletop probe (-15,8) has support.
+Tabletop probe (-14.75,8) has support.
+Deck/earth seam support (-14.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14.5,8) has support.
+Deck/earth seam support (-14.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14.25,8) has support.
+Deck/earth seam support (-14.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-14,8) has support.
+Deck/earth seam support (-14,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.75,8) has support.
+Deck/earth seam support (-13.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.5,8) has support.
+Deck/earth seam support (-13.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13.25,8) has support.
+Deck/earth seam support (-13.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-13,8) has support.
+Deck/earth seam support (-13,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.75,8) has support.
+Deck/earth seam support (-12.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.5,8) has support.
+Deck/earth seam support (-12.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12.25,8) has support.
+Deck/earth seam support (-12.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-12,8) has support.
+Deck/earth seam support (-12,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.75,8) has support.
+Deck/earth seam support (-11.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.5,8) has support.
+Deck/earth seam support (-11.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-11.25,8) has support.
+Deck/earth seam support (-11.25,8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (-11,8) has support.
+Deck/earth seam support (-11,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.75,8) has support.
+Deck/earth seam support (-10.75,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.5,8) has support.
+Deck/earth seam support (-10.5,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10.25,8) has support.
+Deck/earth seam support (-10.25,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-10,8) has support.
+Deck/earth seam support (-10,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.75,8) has support.
+Deck/earth seam support (-9.75,8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.5,8) has support.
+Deck/earth seam support (-9.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-9.25,8) has support.
+Deck/earth seam support (-9.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-9,8) has support.
+Deck/earth seam support (-9,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.75,8) has support.
+Deck/earth seam support (-8.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.5,8) has support.
+Deck/earth seam support (-8.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8.25,8) has support.
+Deck/earth seam support (-8.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-8,8) has support.
+Deck/earth seam support (-8,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.75,8) has support.
+Deck/earth seam support (-7.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.5,8) has support.
+Deck/earth seam support (-7.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7.25,8) has support.
+Deck/earth seam support (-7.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-7,8) has support.
+Deck/earth seam support (-7,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.75,8) has support.
+Deck/earth seam support (-6.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.5,8) has support.
+Deck/earth seam support (-6.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6.25,8) has support.
+Deck/earth seam support (-6.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-6,8) has support.
+Deck/earth seam support (-6,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.75,8) has support.
+Deck/earth seam support (-5.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.5,8) has support.
+Deck/earth seam support (-5.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5.25,8) has support.
+Deck/earth seam support (-5.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-5,8) has support.
+Deck/earth seam support (-5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.75,8) has support.
+Deck/earth seam support (-4.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.5,8) has support.
+Deck/earth seam support (-4.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4.25,8) has support.
+Deck/earth seam support (-4.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-4,8) has support.
+Deck/earth seam support (-4,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.75,8) has support.
+Deck/earth seam support (-3.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.5,8) has support.
+Deck/earth seam support (-3.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3.25,8) has support.
+Deck/earth seam support (-3.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-3,8) has support.
+Deck/earth seam support (-3,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.75,8) has support.
+Deck/earth seam support (-2.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.5,8) has support.
+Deck/earth seam support (-2.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2.25,8) has support.
+Deck/earth seam support (-2.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-2,8) has support.
+Deck/earth seam support (-2,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.75,8) has support.
+Deck/earth seam support (-1.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.5,8) has support.
+Deck/earth seam support (-1.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1.25,8) has support.
+Deck/earth seam support (-1.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-1,8) has support.
+Deck/earth seam support (-1,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.75,8) has support.
+Deck/earth seam support (-0.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.5,8) has support.
+Deck/earth seam support (-0.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (-0.25,8) has support.
+Deck/earth seam support (-0.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0,8) has support.
+Deck/earth seam support (0,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.25,8) has support.
+Deck/earth seam support (0.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.5,8) has support.
+Deck/earth seam support (0.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (0.75,8) has support.
+Deck/earth seam support (0.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1,8) has support.
+Deck/earth seam support (1,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.25,8) has support.
+Deck/earth seam support (1.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.5,8) has support.
+Deck/earth seam support (1.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (1.75,8) has support.
+Deck/earth seam support (1.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2,8) has support.
+Deck/earth seam support (2,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.25,8) has support.
+Deck/earth seam support (2.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.5,8) has support.
+Deck/earth seam support (2.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (2.75,8) has support.
+Deck/earth seam support (2.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3,8) has support.
+Deck/earth seam support (3,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.25,8) has support.
+Deck/earth seam support (3.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.5,8) has support.
+Deck/earth seam support (3.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (3.75,8) has support.
+Deck/earth seam support (3.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4,8) has support.
+Deck/earth seam support (4,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.25,8) has support.
+Deck/earth seam support (4.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.5,8) has support.
+Deck/earth seam support (4.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (4.75,8) has support.
+Deck/earth seam support (4.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5,8) has support.
+Deck/earth seam support (5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.25,8) has support.
+Deck/earth seam support (5.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.5,8) has support.
+Deck/earth seam support (5.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (5.75,8) has support.
+Deck/earth seam support (5.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6,8) has support.
+Deck/earth seam support (6,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.25,8) has support.
+Deck/earth seam support (6.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.5,8) has support.
+Deck/earth seam support (6.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (6.75,8) has support.
+Deck/earth seam support (6.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7,8) has support.
+Deck/earth seam support (7,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.25,8) has support.
+Deck/earth seam support (7.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.5,8) has support.
+Deck/earth seam support (7.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (7.75,8) has support.
+Deck/earth seam support (7.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8,8) has support.
+Deck/earth seam support (8,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.25,8) has support.
+Deck/earth seam support (8.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.5,8) has support.
+Deck/earth seam support (8.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (8.75,8) has support.
+Deck/earth seam support (8.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9,8) has support.
+Deck/earth seam support (9,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.25,8) has support.
+Deck/earth seam support (9.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.5,8) has support.
+Deck/earth seam support (9.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (9.75,8) has support.
+Deck/earth seam support (9.75,8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (10,8) has support.
+Deck/earth seam support (10,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.25,8) has support.
+Deck/earth seam support (10.25,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.5,8) has support.
+Deck/earth seam support (10.5,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (10.75,8) has support.
+Deck/earth seam support (10.75,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (11,8) has support.
+Deck/earth seam support (11,8) height=6.455; retained shallow beam crown has no blocking step.
+Tabletop probe (11.25,8) has support.
+Deck/earth seam support (11.25,8) height=6.395; retained shallow beam crown has no blocking step.
+Tabletop probe (11.5,8) has support.
+Deck/earth seam support (11.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (11.75,8) has support.
+Deck/earth seam support (11.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12,8) has support.
+Deck/earth seam support (12,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.25,8) has support.
+Deck/earth seam support (12.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.5,8) has support.
+Deck/earth seam support (12.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (12.75,8) has support.
+Deck/earth seam support (12.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13,8) has support.
+Deck/earth seam support (13,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.25,8) has support.
+Deck/earth seam support (13.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.5,8) has support.
+Deck/earth seam support (13.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (13.75,8) has support.
+Deck/earth seam support (13.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14,8) has support.
+Deck/earth seam support (14,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.25,8) has support.
+Deck/earth seam support (14.25,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.5,8) has support.
+Deck/earth seam support (14.5,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (14.75,8) has support.
+Deck/earth seam support (14.75,8) height=6.350; retained shallow beam crown has no blocking step.
+Tabletop probe (15,8) has support.
+Deck/earth seam support (15,8) height=6.350; retained shallow beam crown has no blocking step.
+Both upper ends open at z=8.
+Exactly seven infield singles extend the twenty oval locations.
+Baked map markers exactly match the seven-marker authoring scene.
+PickupEasySouth: supported initial pose.
+PickupEasySouth: setup settles without damage at (-91.86137, 0.7222865, 73.32391).
+PickupEasySouth: entire route driven using production physics/input; progress 18/20, position (-66.31061, 1.2990196, 48.880516), velocity (11.699442, -1.1365898, -7.9479556); peak centerline error 1.76 m, unsupported frames 0, final HP 1000.
+PickupEasySouth: no collision damage (1000/1000); launch , landing , flight 0 frames.
+EasySouth: authoritative award at (-71.96565, 1.5478953, 52.672096), minimum distance 1.190 m, airborne=False, maximum immersion=0.000 m.
+EasySouth: complete collection route remains dry.
+PickupEasyNorth: supported initial pose.
+PickupEasyNorth: setup settles without damage at (47.755646, 3.5093567, -51.153526).
+PickupEasyNorth: entire route driven using production physics/input; progress 32/34, position (111.42058, 1.1417488, -55.528053), velocity (14.023922, 0.0037021637, 0.7770886); peak centerline error 1.05 m, unsupported frames 0, final HP 1000.
+PickupEasyNorth: no collision damage (1000/1000); launch , landing , flight 0 frames.
+EasyNorth: authoritative award at (67.92313, 2.2231047, -54.472595), minimum distance 1.770 m, airborne=False, maximum immersion=0.000 m.
+EasyNorth: complete collection route remains dry.
+PickupUnderpass: supported initial pose.
+PickupUnderpass: setup settles without damage at (0, 1.1402422, -30).
+PickupUnderpass: entire route driven using production physics/input; progress 39/41, position (-3.2693977E-06, 1.1440269, 28.057112), velocity (-2.6636583E-06, 0.00014801323, 13.989621); peak centerline error 0.74 m, unsupported frames 0, final HP 1000.
+PickupUnderpass: no collision damage (1000/1000); launch , landing , flight 0 frames.
+Underpass: authoritative award at (9.323891E-08, 1.1430793, -2.6568952), minimum distance 1.146 m, airborne=False, maximum immersion=0.000 m.
+Underpass: complete collection route remains dry.
+PickupWaterEdge: supported initial pose.
+PickupWaterEdge: setup settles without damage at (52.243523, 2.5252388, -42.71402).
+PickupWaterEdge: entire route driven using production physics/input; progress 39/41, position (100.37898, 1.1422582, -43.000076), velocity (12.16656, 0.0032543242, 0.0006558713); peak centerline error 0.68 m, unsupported frames 0, final HP 1000.
+PickupWaterEdge: no collision damage (1000/1000); launch , landing , flight 0 frames.
+WaterEdge: authoritative award at (74.46342, 1.3382372, -42.969124), minimum distance 1.117 m, airborne=False, maximum immersion=0.000 m.
+WaterEdge: complete collection route remains dry.
+PickupWestTurn: supported initial pose.
+PickupWestTurn: setup settles without damage at (-164.16315, 3.2694726, -10.13869).
+PickupWestTurn: entire route driven using production physics/input; progress 36/38, position (-122.98728, 0.9308729, 42.42517), velocity (10.532178, 0.21039486, 6.1264396); peak centerline error 1.10 m, unsupported frames 0, final HP 1000.
+PickupWestTurn: no collision damage (1000/1000); launch , landing , flight 0 frames.
+WestTurn: authoritative award at (-155.67131, 1.1218771, 12.494673), minimum distance 1.354 m, airborne=False, maximum immersion=0.000 m.
+WestTurn: complete collection route remains dry.
+PickupEastBerm: supported initial pose.
+PickupEastBerm: setup settles without damage at (147.54115, 1.1402258, 23.963781).
+PickupEastBerm: entire route driven using production physics/input; progress 32/34, position (93.07208, 1.4984274, 49.498028), velocity (-11.875187, 1.4082022, 1.1718924); peak centerline error 1.04 m, unsupported frames 0, final HP 1000.
+PickupEastBerm: no collision damage (1000/1000); launch , landing , flight 0 frames.
+EastBerm: authoritative award at (128.16808, 0.8686728, 39.466446), minimum distance 1.149 m, airborne=False, maximum immersion=0.000 m.
+EastBerm: complete collection route remains dry.
+PickupSkillJump14: supported initial pose.
+PickupSkillJump14: setup settles without damage at (-125, 1.1402423, 0).
+PickupSkillJump14: real launch (-75.25511, 8.328833, 5.593502E-05), landing (-71.77863, 7.9251027, 2.0547126E-05), longest flight 0.33s, peak origin 8.33m, peak origin clearance 1.98m, launch horizontal speed 12.09m/s, airborne horizontal travel 3.48m; recovered grounded.
+PickupSkillJump14: lands on raised dirt tabletop at corridor metre 53.22.
+PickupSkillJump14: entire route driven using production physics/input; progress 49/51, position (-27.609697, 7.4945955, 4.7871566E-05), velocity (14.175688, -0.000991106, -0.0001101481); peak centerline error 1.00 m, unsupported frames 20, final HP 1000.
+PickupSkillJump14: no collision damage (1000/1000); launch (-75.25511, 8.328833, 5.593502E-05), landing (-71.77863, 7.9251027, 2.0547126E-05), flight 20 frames.
+SkillJump14: authoritative award at (-75.86876, 8.308784, 6.185801E-05), minimum distance 2.361 m, airborne=True, maximum immersion=0.000 m.
+SkillJump14: complete collection route remains dry.
+SkillJump14: awarded during the intended airborne trajectory.
+PickupSkillJump16: supported initial pose.
+PickupSkillJump16: setup settles without damage at (-125, 1.1402423, 0).
+PickupSkillJump16: real launch (-76.58064, 8.545116, 5.2607662E-05), landing (-67.686264, 7.9555025, -0.0001137296), longest flight 0.70s, peak origin 8.87m, peak origin clearance 2.52m, launch horizontal speed 13.53m/s, airborne horizontal travel 8.89m; recovered grounded.
+PickupSkillJump16: lands on raised dirt tabletop at corridor metre 57.31.
+PickupSkillJump16: entire route driven using production physics/input; progress 49/51, position (-27.57221, 7.4945936, 2.5535643E-05), velocity (15.945609, -0.00088998675, -3.5002427E-05); peak centerline error 1.00 m, unsupported frames 42, final HP 1000.
+PickupSkillJump16: no collision damage (1000/1000); launch (-76.58064, 8.545116, 5.2607662E-05), landing (-67.686264, 7.9555025, -0.0001137296), flight 42 frames.
+SkillJump16: authoritative award at (-76.124596, 8.628571, 4.3785367E-05), minimum distance 1.796 m, airborne=True, maximum immersion=0.000 m.
+SkillJump16: complete collection route remains dry.
+SkillJump16: awarded during the intended airborne trajectory.
+PickupSkillJump18: supported initial pose.
+PickupSkillJump18: setup settles without damage at (-125, 1.1402423, 0).
+PickupSkillJump18: real launch (-77.17307, 8.6441345, -9.1639035E-05), landing (-63.14261, 8.009403, -0.000647192), longest flight 0.98s, peak origin 9.55m, peak origin clearance 3.20m, launch horizontal speed 14.90m/s, airborne horizontal travel 14.03m; recovered grounded.
+PickupSkillJump18: lands on raised dirt tabletop at corridor metre 61.86.
+PickupSkillJump18: entire route driven using production physics/input; progress 49/51, position (-27.52431, 7.491629, -4.3586242E-05), velocity (18.130835, 0.0042016357, 5.7922975E-05); peak centerline error 1.00 m, unsupported frames 59, final HP 1000.
+PickupSkillJump18: no collision damage (1000/1000); launch (-77.17307, 8.6441345, -9.1639035E-05), landing (-63.14261, 8.009403, -0.000647192), flight 59 frames.
+SkillJump18: authoritative award at (-76.171165, 8.918021, -0.00013169309), minimum distance 1.298 m, airborne=True, maximum immersion=0.000 m.
+SkillJump18: complete collection route remains dry.
+SkillJump18: awarded during the intended airborne trajectory.
+PickupOrdinaryCrossing6: supported initial pose.
+PickupOrdinaryCrossing6: setup settles without damage at (-125, 1.1402423, 0).
+PickupOrdinaryCrossing6: entire route driven using production physics/input; progress 124/126, position (122.170746, 1.1441619, 4.4750162E-05), velocity (6.147685, -0.0003785044, -5.6467466E-05); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+PickupOrdinaryCrossing6: no collision damage (1000/1000); launch , landing , flight 0 frames.
+Ordinary tabletop crossing at 6 m/s cannot collect skill pickup; nearest 3.121 m exceeds three-metre radius.
+PickupOrdinaryCrossing10: supported initial pose.
+PickupOrdinaryCrossing10: setup settles without damage at (-125, 1.1402423, 0).
+PickupOrdinaryCrossing10: entire route driven using production physics/input; progress 124/126, position (122.22815, 1.1440513, 3.9799044E-05), velocity (10.16188, 9.9763274E-05, -3.788884E-05); peak centerline error 1.00 m, unsupported frames 0, final HP 1000.
+PickupOrdinaryCrossing10: no collision damage (1000/1000); launch , landing , flight 0 frames.
+Ordinary tabletop crossing at 10 m/s cannot collect skill pickup; nearest 3.011 m exceeds three-metre radius.
+PickupUnderpassExclusion: supported initial pose.
+PickupUnderpassExclusion: setup settles without damage at (0, 1.1402422, -30).
+PickupUnderpassExclusion: entire route driven using production physics/input; progress 39/41, position (-3.2693977E-06, 1.1440269, 28.057112), velocity (-2.6636583E-06, 0.00014801323, 13.989621); peak centerline error 0.74 m, unsupported frames 0, final HP 1000.
+PickupUnderpassExclusion: no collision damage (1000/1000); launch , landing , flight 0 frames.
+Underpass traversal cannot collect elevated skill pickup.
+Tabletop probe (77,-49) has support.
+Poor shoreline line collects then enters actual water: immersion 1.035 m at (77.02953, -0.08505744, -36.975723).
+Tabletop probe (-91.8311,72.8496) has support.
+Hosted easy-south: progress 18/20, collected True (expected True), nearest 1.183 m, depth 0.000 m, HP 1000, deviation 1.756 m; award (-72.04391, 1.5432993, 52.69214), airborne=False.
+Tabletop probe (47.8287,-51.2111) has support.
+Hosted easy-north: progress 32/34, collected True (expected True), nearest 1.773 m, depth 0.000 m, HP 1000, deviation 1.046 m; award (67.90653, 2.2243922, -54.466717), airborne=False.
+Tabletop probe (0,-30) has support.
+Hosted underpass: progress 39/41, collected True (expected True), nearest 1.146 m, depth 0.000 m, HP 1000, deviation 0.744 m; award (-1.225971E-07, 1.1430631, -2.6547735), airborne=False.
+Tabletop probe (52,-43) has support.
+Hosted water-edge: progress 39/41, collected True (expected True), nearest 1.114 m, depth 0.000 m, HP 1000, deviation 0.663 m; award (74.43396, 1.3392192, -42.966038), airborne=False.
+Tabletop probe (-164.0518,-10.887) has support.
+Hosted west-turn: progress 36/38, collected True (expected True), nearest 1.356 m, depth 0.000 m, HP 1000, deviation 1.121 m; award (-155.70708, 1.1206374, 12.425356), airborne=False.
+Tabletop probe (147.5421,23.9633) has support.
+Hosted east-berm: progress 32/34, collected True (expected True), nearest 1.148 m, depth 0.000 m, HP 1000, deviation 1.045 m; award (128.16919, 0.86890644, 39.468967), airborne=False.
+Tabletop probe (-125,0) has support.
+Hosted skill-14: progress 39/41, collected True (expected True), nearest 2.501 m, depth 0.000 m, HP 1000, deviation 1.248 m; award (-75.668915, 8.213184, 3.3866872E-05), airborne=False.

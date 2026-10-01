@@ -1,0 +1,27 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Rounded bump exposes its crest to production queries
+native-contact-bump-0.15: maxAir=0.000, airCommandFrames=0, minUp=1.000, maxY=1.203, crashTimer=0.000, maxPitchRate=0.075
+native-contact-gap-0.15: maxAir=0.300, airCommandFrames=10, minUp=0.946, maxY=2.400, crashTimer=0.000, maxPitchRate=2.363
+Rounded bump exposes its crest to production queries
+native-contact-bump-1: maxAir=0.000, airCommandFrames=0, minUp=1.000, maxY=1.203, crashTimer=0.000, maxPitchRate=0.075
+native-contact-bump-1 brief loss never commands intentional aerial input
+native-contact-bump-1 stays wheel-down and regains support
+native-contact-bump-1 does not trigger crash assistance
+native-contact-gap-1: maxAir=0.367, airCommandFrames=0, minUp=1.000, maxY=2.400, crashTimer=0.000, maxPitchRate=0.000
+native-contact-gap-1 brief loss never commands intentional aerial input
+native-contact-gap-1 stays wheel-down and regains support
+native-contact-gap-1 does not trigger crash assistance
+Rounded bump exposes its crest to production queries
+network-contact-bump-0.15: maxAir=0.000, airCommandFrames=0, minUp=1.000, maxY=1.203, crashTimer=0.000, maxPitchRate=0.076
+network-contact-gap-0.15: maxAir=0.300, airCommandFrames=10, minUp=0.946, maxY=2.400, crashTimer=0.000, maxPitchRate=2.363
+Rounded bump exposes its crest to production queries
+network-contact-bump-1: maxAir=0.000, airCommandFrames=0, minUp=1.000, maxY=1.203, crashTimer=0.000, maxPitchRate=0.076
+network-contact-bump-1 brief loss never commands intentional aerial input
+network-contact-bump-1 stays wheel-down and regains support
+network-contact-bump-1 does not trigger crash assistance
+network-contact-gap-1: maxAir=0.367, airCommandFrames=0, minUp=1.000, maxY=2.400, crashTimer=0.000, maxPitchRate=0.000
+network-contact-gap-1 brief loss never commands intentional aerial input
+network-contact-gap-1 stays wheel-down and regains support
+network-contact-gap-1 does not trigger crash assistance
+Trophy contact diagnostics passed: 16 assertions.

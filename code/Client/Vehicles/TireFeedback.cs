@@ -16,6 +16,8 @@ internal sealed partial class TireFeedback : Node3D
     private readonly Vector3?[] _previous = new Vector3?[4];
     private readonly SurfaceIdentity?[] _surfaces = new SurfaceIdentity?[4];
     private readonly GpuParticles3D[] _spray = new GpuParticles3D[4];
+    private readonly Node3D?[] _carriers = new Node3D?[4];
+    private readonly MeshInstance3D?[] _tires = new MeshInstance3D?[4];
 
     private MultiMesh _wakes = null!;
     private ShaderMaterial _wakeMaterial = null!;
@@ -118,11 +120,16 @@ internal sealed partial class TireFeedback : Node3D
         var space = GetWorld3D().DirectSpaceState;
         for (int wheel = 0; wheel < 4; wheel++)
         {
-            float z = (wheel < 2 ? -1 : 1) * source.Configuration.Wheelbase / 2;
-            float x = (wheel % 2 == 0 ? -1 : 1) * VehicleDimensions.WheelTrack / 2;
-            Vector3 origin = source.Pose * new Vector3(x, 0, z);
-            _ray.From = origin;
-            _ray.To = origin - source.Pose.Basis.Y * (source.Configuration.SuspensionLength + .08f);
+            // Presentation follows the authored tire, not the intentionally shorter
+            // physics wheelbase/track. Resolve lazily: network art is added after this node.
+            string corner = wheel switch { 0 => "FL", 1 => "FR", 2 => "RL", _ => "RR" };
+            _carriers[wheel] ??= GetParent().FindChild("WheelCarrier_" + corner, true, false) as Node3D;
+            _tires[wheel] ??= _carriers[wheel]?.FindChild($"WheelSpin_{corner}_Car_Rubber", true, false) as MeshInstance3D;
+            if (_carriers[wheel] is not { } carrier || _tires[wheel]?.Mesh is not { } tireMesh) { continue; }
+            Vector3 origin = carrier.GlobalPosition;
+            float tireWidth = tireMesh.GetAabb().Size.X * _tires[wheel]!.GlobalBasis.X.Length();
+            _ray.From = origin + source.Pose.Basis.Y * WheelPresentation.TireRadius;
+            _ray.To = origin - source.Pose.Basis.Y * (WheelPresentation.TireRadius + .12f);
             using var hit = space.IntersectRay(_ray);
             Vector3? waterPoint = FindWater(origin, waterTerrains);
             if (waterPoint is null && (hit.Count == 0 || hit["normal"].AsVector3().Y < .55f || !source.State.Movement.Grounded))
@@ -179,7 +186,7 @@ internal sealed partial class TireFeedback : Node3D
                     Vector3 forward = direction.Slide(normal).Normalized();
                     if (!forward.IsZeroApprox())
                     {
-                        var basis = new Basis(normal.Cross(forward).Normalized() * style.Width * _width * profile.Width, normal, forward * (length + .08f));
+                        var basis = new Basis(normal.Cross(forward).Normalized() * tireWidth * _width * profile.Width, normal, forward * (length + .08f));
                         float duration = _duration * profile.Duration;
                         _batch.Write(new Transform3D(basis, (point + previous) / 2 + normal * .018f),
                             new Color(style.Color, Math.Clamp(style.Color.A * _intensity * profile.Intensity, 0, 1)),
@@ -195,15 +202,15 @@ internal sealed partial class TireFeedback : Node3D
         }
     }
 
-    internal static (Color Color, float Width, float Roughness) Style(SurfaceIdentity? identity) => identity switch
+    internal static (Color Color, float Roughness) Style(SurfaceIdentity? identity) => identity switch
     {
-        SurfaceIdentity.Asphalt => (new Color(.016f, .018f, .02f, .72f), .26f, .9f),
-        SurfaceIdentity.Concrete => (new Color(.035f, .037f, .04f, .55f), .26f, .9f),
-        SurfaceIdentity.Dirt => (new Color(.12f, .075f, .035f, .65f), .3f, 1f),
-        SurfaceIdentity.Grass => (new Color(.24f, .15f, .065f, .85f), .34f, 1f),
-        SurfaceIdentity.Mud => (new Color(.038f, .024f, .012f, .8f), .34f, .5f),
-        SurfaceIdentity.DeepMud => (new Color(.022f, .014f, .008f, .94f), .43f, .32f),
-        _ => (Colors.Transparent, 0, 1),
+        SurfaceIdentity.Asphalt => (new Color(.016f, .018f, .02f, .72f), .9f),
+        SurfaceIdentity.Concrete => (new Color(.035f, .037f, .04f, .55f), .9f),
+        SurfaceIdentity.Dirt => (new Color(.12f, .075f, .035f, .65f), 1f),
+        SurfaceIdentity.Grass => (new Color(.24f, .15f, .065f, .85f), 1f),
+        SurfaceIdentity.Mud => (new Color(.038f, .024f, .012f, .8f), .5f),
+        SurfaceIdentity.DeepMud => (new Color(.022f, .014f, .008f, .94f), .32f),
+        _ => (Colors.Transparent, 1),
     };
 
     private Vector3? FindWater(Vector3 origin, Godot.Collections.Array<Node> waterTerrains)
@@ -215,7 +222,7 @@ internal sealed partial class TireFeedback : Node3D
             Vector3 local = terrain.ToLocal(origin);
             if (local.X < bounds.X || local.Z < bounds.Y || local.X > bounds.X + bounds.Z || local.Z > bounds.Y + bounds.W) { continue; }
             float level = terrain.ToGlobal(new Vector3(0, terrain.GetMeta("water_level").AsSingle(), 0)).Y;
-            if (origin.Y - VehicleDimensions.RideHeight > level + .05f || origin.Y < level - 2f) { continue; }
+            if (origin.Y - WheelPresentation.TireRadius > level + .05f || origin.Y < level - 2f) { continue; }
             if (SurfaceIdentityResolver.Resolve(terrain, origin) == SurfaceIdentity.Water) { return new Vector3(origin.X, level, origin.Z); }
         }
         return null;
