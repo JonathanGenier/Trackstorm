@@ -36,6 +36,11 @@ public sealed partial class CrashRecoveryChecks : Node3D
 
     public override void _Ready() => CallDeferred(MethodName.Run);
 
+    public override void _Process(double delta)
+    {
+        if (_running) { _network?.PresentLocal((float)delta); }
+    }
+
     public override void _PhysicsProcess(double delta)
     {
         if (!_running) { return; }

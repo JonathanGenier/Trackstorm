@@ -27,13 +27,13 @@ public static class VehicleSnapshotCodec
     }
 
     /// <summary>Rejects unknown versions, oversized/truncated payloads and invalid nested gameplay state.</summary>
-    /// <param name="bytes">One version-four aggregate envelope.</param>
+    /// <param name="bytes">One version-five aggregate envelope.</param>
     /// <returns>Validated vehicle state, independent of any native object.</returns>
     public static VehicleSnapshot Decode(ReadOnlySpan<byte> bytes)
     {
         if (bytes.Length is < 2 or > 65536 || bytes[0] != 5)
         {
-            throw new ArgumentException("Expected a bounded version-four vehicle aggregate.", nameof(bytes));
+            throw new ArgumentException("Expected a bounded version-five vehicle aggregate.", nameof(bytes));
         }
 
         try
