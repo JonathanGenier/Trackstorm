@@ -261,6 +261,7 @@ function Get-FastCheckPlan {
         }
 
         if ($path -match '(?i)Tombstone|tombstone_checks|check-tombstone') { Add-Runtime 'check-tombstone.ps1' }
+        if ($path -match '(?i)Tombstone|RearShield|rear.shield|ItemAuthority|NetworkVehicleBody|NetworkVehicleArena') { Add-Runtime 'check-rear-shield.ps1' }
         if ($path -match '(?i)MachineGun|machine_gun|check-machine-gun') { Add-Runtime 'check-machine-gun.ps1' }
 
         if ($path -match '(?i)ProxyMine|proxy-mine|check-mine|mine_checks') { Add-Runtime 'check-mine.ps1' }

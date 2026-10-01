@@ -46,7 +46,7 @@ internal sealed class HostedLootTests
             {
                 var checkpoint = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(new(
                     new ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, [], host.Spawns!.States,
-                        balances: host.Spawns.Balances), host.World.State.Match!, null, host.Configuration)));
+                        balances: host.Spawns.Balances, tombstones: host.Items.Tombstones), host.World.State.Match!, null, host.Configuration)));
                 host = HostVehicleSession.Restore(checkpoint, host.CaptureAuthority(), 1);
                 Assert.That(host.Spawns!.Configuration, Is.EqualTo(tuning.Spawns));
             }
@@ -70,7 +70,7 @@ internal sealed class HostedLootTests
             if (claim.Item == HeldItem.Nitro && firstNitro == 0) { firstNitro = i + 1; }
             host.Step(default, state => new(state.Movement.Physics, Vector3.UnitY));
             var publication = ItemCodec.DecodeState(ItemCodec.EncodeState(new(1, host.Snapshot(), host.Items.Slots,
-                host.Items.Missiles, [], host.Spawns.States, balances: host.Spawns.Balances)));
+                host.Items.Missiles, [], host.Spawns.States, balances: host.Spawns.Balances, tombstones: host.Items.Tombstones)));
             var granted = publication.Slots.Single();
             Assert.That(i % 2 == 0 ? granted.Item : granted.SecondItem, Is.EqualTo(claim.Item));
             if (claim.Item == HeldItem.Nitro)
@@ -80,6 +80,7 @@ internal sealed class HostedLootTests
         }
         Assert.That(counts[HeldItem.Nitro], Is.Positive, "Nitro must be reachable through normal hosted loot.");
         Assert.That(counts[HeldItem.Wrench], Is.Positive);
+        Assert.That(counts[HeldItem.Tombstone], Is.Positive, "Tombstone is available in the unmodified normal loot pool.");
         var balance = host.Spawns!.Balances.Single();
         Assert.That(balance.Counts[ItemCategory.Consumable], Is.EqualTo(32));
         Assert.That(balance.Counts[ItemCategory.Weapon], Is.EqualTo(64));

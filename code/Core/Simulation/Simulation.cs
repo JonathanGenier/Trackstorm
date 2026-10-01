@@ -40,6 +40,8 @@ public sealed class Simulation
     /// Gets the fixed-step configuration used by this simulation.
     /// </summary>
     public SimulationConfiguration Configuration { get; }
+    internal VehicleConfiguration MovementTuning(ulong id) => _vehicles[id].MovementConfiguration;
+    internal DamageConfiguration DamageTuning(ulong id) => _vehicles[id].DamageConfiguration;
     /// <summary>Committed diagnostic outcomes.</summary>
     public EventStream Events { get; set; } = new();
 

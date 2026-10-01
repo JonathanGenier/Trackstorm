@@ -12,7 +12,7 @@ internal sealed class TombstoneTests
     private static readonly VehiclePhysicsState Placement = new(new(4, 2, 8), Quaternion.CreateFromAxisAngle(Vector3.UnitY, 0.7f), Vector3.Zero, Vector3.Zero);
 
     [Test]
-    public void OnePoolSurvivesForwardTransitionsAndDestroysExactlyOnceWithoutVehicleDamage()
+    public void OnePoolSurvivesSelectionAndExistingWallRecoveryContractWithoutVehicleDamage()
     {
         var host = Start();
         Assert.That(host.Items.Grant(host.World, 1, HeldItem.Tombstone), Is.True);
@@ -22,7 +22,7 @@ internal sealed class TombstoneTests
         Assert.That(host.Items.DamageTombstone(host.World, original.Id, 1, 125, Hit)!.Amount, Is.EqualTo(125));
         Assert.That(host.Items.DamageTombstone(host.World, original.Id, 1, 125, Hit), Is.Null);
         Assert.That(host.Items.TransitionTombstone(host.World, original.Id, TombstoneStage.Held, TombstoneStage.WorldWall, Placement), Is.False);
-        Assert.That(host.Items.TransitionTombstone(host.World, original.Id, TombstoneStage.Held, TombstoneStage.RearShield), Is.True);
+        Assert.That(original.Stage, Is.EqualTo(TombstoneStage.RearShield));
         Assert.That(host.Items.Slots.Single().Item, Is.EqualTo(HeldItem.Tombstone));
         Assert.That(host.Items.TransitionTombstone(host.World, original.Id, TombstoneStage.Held, TombstoneStage.RearShield), Is.False);
         Assert.That(host.Items.Tombstones.Single().HP, Is.EqualTo(875));
@@ -89,12 +89,21 @@ internal sealed class TombstoneTests
         host.Items.Grant(host.World, 1, HeldItem.Tombstone);
         var state = host.Items.Tombstones.Single();
         host.Items.DamageTombstone(host.World, state.Id, 7, 325, Hit);
-        if (stage != TombstoneStage.Held) { host.Items.TransitionTombstone(host.World, state.Id, TombstoneStage.Held, TombstoneStage.RearShield); }
+        if (stage == TombstoneStage.Held) { host.Items.Switch(host.World, 1, state.Life, 1); }
         if (stage == TombstoneStage.WorldWall) { host.Items.TransitionTombstone(host.World, state.Id, TombstoneStage.RearShield, stage, Placement); }
         var items = ItemCodec.DecodeState(ItemCodec.EncodeState(Publication(host)));
         var checkpoint = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(new(items, host.World.State.Match!, null, host.Configuration)));
         var restored = HostVehicleSession.Restore(checkpoint, host.CaptureAuthority(), 1);
         Assert.That(restored.Items.Tombstones, Is.EqualTo(host.Items.Tombstones));
+        Assert.That(restored.Items.Tombstones.Single().Stage, Is.EqualTo(stage));
+        if (stage != TombstoneStage.WorldWall)
+        {
+            var slot = restored.Items.Slots.Single();
+            restored.Items.Switch(restored.World, 1, state.Life, slot.SelectionRevision + 1);
+            Assert.That(restored.Items.Tombstones.Single().Stage, Is.EqualTo(stage == TombstoneStage.Held ? TombstoneStage.RearShield : TombstoneStage.Held));
+            restored.Items.Switch(restored.World, 1, state.Life, slot.SelectionRevision + 2);
+            Assert.That(restored.Items.Tombstones, Is.EqualTo(host.Items.Tombstones));
+        }
         Assert.That(restored.Items.DamageTombstone(restored.World, state.Id, 7, 325, Hit), Is.Null);
         Assert.That(host.PrepareJoin(3, 2)!.Items.Tombstones, Is.EqualTo(host.Items.Tombstones));
         Assert.That(restored.Items.DamageTombstone(restored.World, state.Id, 8, 25, Hit)!.Amount, Is.EqualTo(25));
@@ -113,7 +122,6 @@ internal sealed class TombstoneTests
         host.Items.Grant(host.World, 1, HeldItem.Tombstone);
         var ids = host.Items.Tombstones.Select(state => state.Id).ToArray();
         host.Items.DamageTombstone(host.World, ids[0], 1, 400, Hit);
-        host.Items.TransitionTombstone(host.World, ids[0], TombstoneStage.Held, TombstoneStage.RearShield);
         host.Items.Step(host.World, new(host.World.State.Tick + 1, 0, 0, 0, 0, 0, 0), [new(1, new(host.World.State.Tick + 1, 0, 0, 0, 0, 0, 0), Observe(host.World.GetVehicle(1)), [new(new DamageEffect(1000, Vector3.Zero, Vector3.Zero), Hit)])], (_, _) => null);
         Assert.That(host.Items.Tombstones[0].HP, Is.EqualTo(600));
         host.Step(default, Observe);
@@ -131,7 +139,6 @@ internal sealed class TombstoneTests
         var host = Start();
         host.Items.Grant(host.World, 1, HeldItem.Tombstone);
         var wall = host.Items.Tombstones.Single();
-        host.Items.TransitionTombstone(host.World, wall.Id, TombstoneStage.Held, TombstoneStage.RearShield);
         host.Items.TransitionTombstone(host.World, wall.Id, TombstoneStage.RearShield, TombstoneStage.WorldWall, Placement);
         host.Items.Grant(host.World, 1, HeldItem.Tombstone);
         host.Items.Step(host.World, new(host.World.State.Tick + 1, 0, 0, 0, 0, 0, 0), [new(1, new(host.World.State.Tick + 1, 0, 0, 0, 0, 0, 0), Observe(host.World.GetVehicle(1)), [new(new DamageEffect(1000, Vector3.Zero, Vector3.Zero), Hit)])], (_, _) => null);
@@ -151,6 +158,7 @@ internal sealed class TombstoneTests
         foreach (var invalid in new[] { state with { HP = 1001 }, state with { HP = 0 }, state with { HP = float.NaN }, state with { HP = 999 }, state with { DamageSequence = 1 }, state with { Token = 999 }, state with { Life = 2 }, state with { Stage = (TombstoneStage)100 }, state with { Orientation = default } })
         { Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], tombstones: [invalid])); }
         Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], []));
+        Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], tombstones: [state with { Stage = TombstoneStage.Held }]));
         Assert.Throws<ArgumentException>(() => new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], tombstones: [state, state]));
         byte[] bytes = ItemCodec.EncodeState(Publication(host));
         Assert.Throws<ArgumentException>(() => ItemCodec.DecodeState(bytes.AsSpan(0, bytes.Length - 1)));
@@ -181,7 +189,6 @@ internal sealed class TombstoneTests
         {
             Assert.That(host.Items.Grant(host.World, 1, HeldItem.Tombstone), Is.True);
             ulong id = host.Items.Tombstones.Last().Id;
-            host.Items.TransitionTombstone(host.World, id, TombstoneStage.Held, TombstoneStage.RearShield);
             host.Items.TransitionTombstone(host.World, id, TombstoneStage.RearShield, TombstoneStage.WorldWall, Placement);
         }
         ulong token = host.Items.TokenHighWater;
@@ -199,7 +206,6 @@ internal sealed class TombstoneTests
         var host = Start();
         host.Items.Grant(host.World, 1, HeldItem.Tombstone);
         ulong wall = host.Items.Tombstones.Single().Id;
-        host.Items.TransitionTombstone(host.World, wall, TombstoneStage.Held, TombstoneStage.RearShield);
         host.Items.TransitionTombstone(host.World, wall, TombstoneStage.RearShield, TombstoneStage.WorldWall, Placement);
         host.Items.Grant(host.World, 1, HeldItem.Tombstone);
         host.Items.Grant(host.World, 1, HeldItem.Wrench);

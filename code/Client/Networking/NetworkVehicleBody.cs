@@ -1,6 +1,7 @@
 using Godot;
 using Trackstorm.Client.Vehicles;
 using Trackstorm.Core.Vehicles;
+using Trackstorm.Core.Items;
 using Numerics = System.Numerics;
 
 namespace Trackstorm.Client.Networking;
@@ -24,6 +25,9 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     internal CarRackPresentation Rack { get; private set; } = null!;
     private VehicleSnapshot? _feedbackState;
     private bool _lifeCorrectionPending;
+    private CollisionShape3D _rearCollision = null!;
+    private MeshInstance3D _rearVisual = null!;
+    internal bool HasRearShield { get; private set; }
     /// <summary>Host-assigned identity used only to attribute contact observations.</summary>
     internal ulong VehicleId { get; init; }
     /// <summary>Only authoritative forward steps may apply native prop impulses.</summary>
@@ -46,6 +50,13 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         _current = new(VehicleBody.ToCore(GlobalPosition), new Numerics.Quaternion(initialRotation.X, initialRotation.Y, initialRotation.Z, initialRotation.W), Numerics.Vector3.Zero, Numerics.Vector3.Zero);
         AddChild(VehicleVisual.CreateCollision());
         AddChild(_visual);
+        _rearCollision = new CollisionShape3D { Shape = new BoxShape3D { Size = VehicleBody.ToGodot(TombstoneGeometry.Size) },
+            Position = VehicleBody.ToGodot(TombstoneGeometry.Center), Disabled = true };
+        AddChild(_rearCollision);
+        _rearVisual = new MeshInstance3D { Mesh = new BoxMesh { Size = VehicleBody.ToGodot(TombstoneGeometry.Size) },
+            Position = VehicleBody.ToGodot(TombstoneGeometry.Center), Visible = false,
+            MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.3f, 0.36f, 0.4f), Metallic = 0.65f, Roughness = 0.7f } };
+        _visual.AddChild(_rearVisual);
         _visual.TopLevel = true;
         AddChild(new TireFeedback { Source = () => _feedbackState is { } state ? (VisualTransform, state, _configuration) : null });
         Color paint = Color.FromHsv((VehicleId * 0.13f) % 1, 0.7f, 0.9f);
@@ -80,6 +91,18 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     /// <summary>Uses the same accepted tuning as Core for suspension, inertia and impulse conversion.</summary>
     /// <param name="configuration">Validated effective gameplay tuning.</param>
     internal void ApplyConfiguration(VehicleConfiguration configuration) => _configuration = configuration;
+
+    /// <summary>Reconstructs temporary hardware from accepted state, independently of slot selection.</summary>
+    internal void ObserveTombstones(VehicleSnapshot vehicle, IEnumerable<TombstoneState> states)
+    {
+        HasRearShield = vehicle.CanInteract && states.Any(s => s.Owner == VehicleId && s.Life == vehicle.LifeId && s.Stage == TombstoneStage.RearShield);
+        _rearCollision.Disabled = !HasRearShield;
+        _rearVisual.Visible = HasRearShield;
+    }
+
+    // Weapon intersection is decided in Core against current candidate state. Excluding this
+    // reconstructable shape also prevents a same-step destroyed shield from masking the chassis.
+    internal void SetShieldQueryEnabled(bool enabled) => _rearCollision.Disabled = !enabled || !HasRearShield;
 
     /// <summary>Resolves the preceding Core command through bounded native sweep/slide queries.</summary>
     /// <returns>Solved numeric physics/support/contact observations for the next Core step.</returns>

@@ -30,19 +30,29 @@ internal sealed partial class VehicleNetworkDriverTests
         var initial = client.ItemState!;
         var stone = initial.Tombstones.Single();
         Assert.That(stone.HP, Is.EqualTo(1000));
-        Assert.That(authority.UseItem(ServerPeer, Session, stone.Life, stone.Token), Is.False, "deployment input belongs to the later Story");
+        Assert.That(stone.Stage, Is.EqualTo(TombstoneStage.RearShield));
+        Assert.That(authority.UseItem(ServerPeer, Session, stone.Life, stone.Token), Is.False);
         var forged = new ItemPublication(initial.Revision + 1, initial.World, initial.Slots, [], [], tombstones: [stone with { HP = 999, DamageSequence = 1 }]);
         hostWire.Receive(new(ServerPeer, ItemCodec.EncodeState(forged), TransportDelivery.Reliable));
         host.Advance(default, Observe); Transfer();
         Assert.That(authority.Items.Tombstones.Single().HP, Is.EqualTo(1000));
+        Assert.That(client.ItemState!.Tombstones.Single().Stage, Is.EqualTo(TombstoneStage.RearShield));
         Assert.That(host.RejectedPackets, Is.GreaterThan(0));
         int observed = 0;
         client.ItemsReceived += _ => observed++;
         authority.Items.DamageTombstone(authority.World, stone.Id, 1, 125, new DamageContext("world", 0, "test"));
-        authority.Items.TransitionTombstone(authority.World, stone.Id, TombstoneStage.Held, TombstoneStage.RearShield);
         host.Advance(default, Observe); Transfer();
         Assert.That(client.ItemState!.Tombstones.Single().HP, Is.EqualTo(875));
         Assert.That(client.ItemState.Tombstones.Single().Stage, Is.EqualTo(TombstoneStage.RearShield));
+        for (ulong revision = 1; revision <= 12; revision++)
+        {
+            Assert.That(authority.SwitchItem(ServerPeer, Session, stone.Life, revision), Is.True);
+            Assert.That(authority.SwitchItem(ServerPeer, Session, stone.Life, revision), Is.False);
+            host.Advance(default, Observe); Transfer();
+            Assert.That(client.ItemState!.Tombstones.Single(), Is.EqualTo(stone with { HP = 875, DamageSequence = 1,
+                Stage = revision % 2 == 0 ? TombstoneStage.RearShield : TombstoneStage.Held }));
+        }
+        observed = 1;
         byte[] duplicate = ItemCodec.EncodeState(client.ItemState);
         clientWire.Receive(new(ServerPeer, duplicate, TransportDelivery.Reliable));
         clientWire.Receive(new(123, ItemCodec.EncodeState(forged), TransportDelivery.Reliable));
