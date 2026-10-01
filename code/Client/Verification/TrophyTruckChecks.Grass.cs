@@ -25,7 +25,11 @@ public sealed partial class TrophyTruckChecks
         {
             await Setup(network, $"grass-{route.Item1}-{repetition}", route.Item2,
                 N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitY, route.Item3), new(0, 0, -44.44f), productionMap: true, alignSurface: true);
-            _pilot = (tick, _) => new(tick, (short)(route.Item4 * short.MaxValue), 45875, 0, 0, 0, 0);
+            // Keep this material-crossing pilot's physical wheel target as ground
+            // steering intent is now interpreted through the speed envelope.
+            var steeringTuning = new VehicleConfiguration();
+            _pilot = (tick, vehicleId) => new(tick, (short)(Math.Clamp(route.Item4 * steeringTuning.SteeringAngle /
+                steeringTuning.SteeringLimit(_world.GetVehicle(vehicleId).Speed), -1, 1) * short.MaxValue), 45875, 0, 0, 0, 0);
             await Frames(route.Item5);
             float flight = _movementTrace.Max(s => s.Air.Seconds);
             GD.Print($"{_case}: max air={flight:F3}s compression={_maximumCompression:F3} min up={_minimumUp:F3} chassis={_chassisContact}");

@@ -297,7 +297,7 @@ public sealed partial class VehicleIntegrationChecks : Node
                 {
                     int release = 12 + heldTicks;
                     int powered = release + Math.Max(0, throttleDelay);
-                    // Deliberate wheel input initiates the faster drift; available wheel range is speed-independent.
+                    // Deliberate wheel input initiates the faster drift; available wheel range follows the speed envelope.
                     List<VehicleState> states = await RunDrive(new Vector3(-20, 20 + VehicleDimensions.RideHeight, 25), new Vector3(0, 0, -speed), heldTicks == 45 ? 180 : 90, tick => Frame(
                         tick,
                         throttle: (int)tick > release + throttleDelay ? (ushort)65535 : (ushort)0,
@@ -365,7 +365,7 @@ public sealed partial class VehicleIntegrationChecks : Node
     {
         List<VehicleState> braking = await RunDrive(new Vector3(-25, VehicleDimensions.RideHeight, 20), new Vector3(0, 0, -12), 180, tick => Frame(tick, brake: 65535));
         GD.Print($"Brake check: end velocity={braking.Last().Physics.LinearVelocity}, distance={20 - braking.Min(state => state.Physics.Position.Z):F2}m");
-        Check(braking.First().Physics.LinearVelocity.Z < -10 && braking.Any(state => Math.Abs(state.Physics.LinearVelocity.Z) < 0.5f) && Math.Abs(braking.Last().Physics.LinearVelocity.Z) < 0.05f, "native braking holds rest until a separate reverse press");
+        Check(braking.First().Physics.LinearVelocity.Z < -10 && braking.Any(state => Math.Abs(state.Physics.LinearVelocity.Z) < 0.5f) && braking.Last().Physics.LinearVelocity.Z > 3, "continuous native braking crosses rest into reverse without another press");
         List<VehicleState> stationary = await RunDrive(new Vector3(-25, VehicleDimensions.RideHeight, 20), Vector3.Zero, 60, tick => Frame(tick, steering: 32767, drift: tick < 50));
         Check(stationary.All(state => !state.Drifting), "stationary handbrake cannot manufacture sliding");
         List<VehicleState> airborne = await RunDrive(new Vector3(-25, 8, 20), new Vector3(0, 15, -15), 30, tick => Frame(tick, steering: 32767, drift: tick < 20));
@@ -446,13 +446,6 @@ public sealed partial class VehicleIntegrationChecks : Node
             if (_arena.Player.Position.Z > 18)
             {
                 reversing = false;
-            }
-
-            // Forward braking now holds at zero until the driver releases and presses again.
-            if (reversing && _arena.Player.State.BrakeMode == BrakeMode.Stopping
-                && Math.Abs(_arena.Player.State.Physics.LinearVelocity.Z) < 0.0001f)
-            {
-                return Frame(tick);
             }
 
             return reversing ? Frame(tick, brake: 65535) : Frame(tick, throttle: 65535);

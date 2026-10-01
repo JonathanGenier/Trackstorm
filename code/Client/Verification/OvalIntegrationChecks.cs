@@ -77,9 +77,9 @@ public sealed partial class OvalIntegrationChecks : Node3D
             Vector3 forward = -_vehicle.GlobalBasis.Z;
             float angle = new Vector3(forward.X, 0, forward.Z).SignedAngleTo(new Vector3(target.X, 0, target.Z), Vector3.Up);
             // The test driver chooses a physical wheel angle from look-ahead curvature.
-            // Production input now exposes the full range instead of shrinking it at speed.
+            // Convert that physical target through the production speed envelope.
             float wheel = MathF.Atan(2 * _vehicle.Configuration.Wheelbase * MathF.Sin(-angle) / Math.Max(1, new Vector2(target.X, target.Z).Length()));
-            steering = (short)(Math.Clamp(wheel / _vehicle.Configuration.SteeringAngle, -1, 1) * short.MaxValue);
+            steering = (short)(Math.Clamp(wheel / _vehicle.Configuration.SteeringLimit(_vehicle.Snapshot.Speed), -1, 1) * short.MaxValue);
             throttle = ushort.MaxValue;
             _maximumSpeed = Math.Max(_maximumSpeed, _vehicle.Snapshot.Speed);
             _drivingFrames++;

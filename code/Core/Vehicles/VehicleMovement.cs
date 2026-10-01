@@ -137,10 +137,13 @@ public sealed class VehicleMovement
         float steerIntent = driveEnabled ? input.Steering / 32767f : 0;
         float steeringSpeed = MathF.Sqrt(longitudinal * longitudinal + lateral * lateral);
         float dirtCorner = grounded && currentSurface == SurfaceType.Dirt ? c.DirtCornering * Math.Clamp((c.DirtCornerFadeSpeed - steeringSpeed) / (c.DirtCornerFadeSpeed - c.DirtCornerFullSpeed), 0, 1) : 0;
-        // Input always retains the full wheel range. Tire forces/slip limit the resulting turn.
-        float smoothedWheel = State.SteeringAngle + (steerIntent * c.SteeringAngle - State.SteeringAngle) *
+        // Change the usable wheel range, never the body's heading or velocity. Air control
+        // consumes the original frame independently of this ground-only speed envelope.
+        float steeringLimit = grounded ? c.SteeringLimit(steeringSpeed) : c.SteeringAngle;
+        float smoothedWheel = State.SteeringAngle + (steerIntent * steeringLimit - State.SteeringAngle) *
             (1 - MathF.Exp(-dt / c.SteeringSmoothing));
-        float wheel = DrivingInputShaping.Approach(State.SteeringAngle, smoothedWheel, c.SteeringResponse, dt);
+        float wheelRate = State.SteeringAngle * steerIntent < 0 ? c.SteeringCounterResponse : c.SteeringResponse;
+        float wheel = DrivingInputShaping.Approach(State.SteeringAngle, smoothedWheel, wheelRate, dt);
         float handbrakeTarget = driveEnabled && (input.Held & InputButtons.Drift) != 0 ? 1 : 0;
         float handbrake = driveEnabled ? DrivingInputShaping.Approach(State.Handbrake, handbrakeTarget, handbrakeTarget > State.Handbrake ? c.HandbrakeResponse : c.TractionRecovery, dt) : 0;
         float pedal = driveEnabled ? input.Accelerate / 65535f : 0;
@@ -155,8 +158,16 @@ public sealed class VehicleMovement
         else if ((input.Released & InputButtons.Brake) != 0) { brakeMode = BrakeMode.ReleaseTail; }
         if (grounded && brake > 0 && (brakeMode == BrakeMode.Ready || newBrakePress))
         {
-            // A new press accepts mild slope creep as a stop; a continuous stop remains latched.
+            // A new press accepts mild slope creep as a stop.
             brakeMode = longitudinal > c.ReverseEngagementSpeed ? BrakeMode.Stopping : BrakeMode.Reversing;
+        }
+        // Native gravity can reintroduce forward creep after every braking solve.
+        // Engage within one available braking step, rather than waiting for an
+        // exact-zero observation that may never arrive on a downhill grade.
+        float reverseThreshold = c.StopSpeed + brake * c.Braking * c.ReferenceMass / c.Mass * dt;
+        if (grounded && brakeMode == BrakeMode.Stopping && longitudinal <= reverseThreshold)
+        {
+            brakeMode = BrakeMode.Reversing;
         }
         float longAcceleration = 0;
         float sideAcceleration = 0;
@@ -174,8 +185,6 @@ public sealed class VehicleMovement
             float frontLeftShare = frontTotal > 0 ? compression.X / frontTotal : 0.5f;
             float rearLeftShare = rearTotal > 0 ? compression.Z / rearTotal : 0.5f;
             float driveModifier = profiles[2].Acceleration * rearLeftShare + profiles[3].Acceleration * (1 - rearLeftShare);
-            float dirtShare = waterDepth > 0 ? 0 : (materials[2] == SurfaceType.Dirt ? rearLeftShare : 0) + (materials[3] == SurfaceType.Dirt ? 1 - rearLeftShare : 0);
-            float spinTarget = driveEnabled ? dirtShare * Math.Min(0.8f, c.DirtPowerSlip * (1 + c.DirtCornerPowerSlip * dirtCorner * Math.Abs(steerIntent))) * throttle * throttle : 0;
             // Engage drive within one braking step of rest. Requiring exact zero can trap a
             // vehicle in perpetual braking when gravity adds downhill velocity between ticks.
             float forceScale = c.ReferenceMass / c.Mass;
@@ -236,18 +245,9 @@ public sealed class VehicleMovement
             float oilGrip = 1 - c.OilGripReduction * Math.Clamp((float)oilTicks / recoveryTicks, 0, 1);
             float frontCapacity = totalGrip * frontLoad;
             float rearCapacity = totalGrip * (1 - frontLoad);
-            // Excess rear torque under committed steering consumes tire purchase.
-            // The same continuous demand produces a tight burnout from rest and a
-            // momentum-carrying power slide on entry; there is no donut mode or yaw impulse.
-            float torqueRatio = Math.Abs(engine * (1 - c.FrontDriveShare)) / Math.Max(1, rearCapacity * driveModifier);
-            float torqueSlip = c.PowerOversteer * throttle * throttle * Math.Abs(wheel) / c.SteeringAngle * Math.Clamp(torqueRatio - 1, 0, 1);
-            // Fade torque-induced breakaway with road speed, not longitudinal speed alone:
-            // a sideways slide must not re-enter the low-speed burnout envelope.
-            float speedBlend = Math.Clamp((steeringSpeed - c.PowerSlipFullSpeed) / (c.PowerSlipFadeSpeed - c.PowerSlipFullSpeed), 0, 1);
-            float powerBreakaway = 1 - speedBlend * speedBlend * (3 - 2 * speedBlend);
-            spinTarget = Math.Max(spinTarget, torqueSlip) * powerBreakaway;
-            float spinRate = spinTarget > State.PowerSlip ? c.PowerSlipResponse : c.PowerSlipRecovery;
-            powerSlip = State.PowerSlip + (spinTarget - State.PowerSlip) * (1 - MathF.Exp(-spinRate * dt));
+            // Ordinary throttle/steering never manufactures rear slip. Retained legacy
+            // slip decays through the portable recovery state; tire saturation below
+            // and the deliberate handbrake still determine physical traction loss.
             float yaw = Vector3.Dot(angular, tireNormal);
             float wheelSin = MathF.Sin(wheel), wheelCos = MathF.Cos(wheel);
             float frontSideSpeed = (lateral - yaw * halfAxle) * wheelCos - longitudinal * wheelSin;

@@ -9,16 +9,12 @@ namespace Trackstorm.Core.Tests.Vehicles;
 internal sealed class HandlingRecoveryTests
 {
     [Test]
-    public void DirtPowerBuildsAndLiftRestoresGripProgressivelyAcrossRestore()
+    public void LegacyPowerSlipDecaysProgressivelyAcrossRestore()
     {
         var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(3, 0, -6), Vector3.Zero);
         var movement = new VehicleMovement(new(), pose);
-        for (ulong tick = 1; tick <= 180; tick++)
-        {
-            movement.Step(new(tick, 0, ushort.MaxValue, 0, 0, 0, 0), pose, Vector3.UnitY, surface: SurfaceType.Dirt);
-        }
+        movement.Restore(new(180, pose, true, false, 0, 0, SurfaceType.Dirt, powerSlip: 0.22f));
         float powered = movement.State.PowerSlip;
-        Assert.That(powered, Is.InRange(0.15f, 0.22f));
         var restored = new VehicleMovement(new(), pose);
         restored.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(movement.State)));
         for (ulong tick = 181; tick <= 241; tick++)

@@ -29,11 +29,11 @@ public sealed partial class InputIntegrationChecks
                 if (tick == 6)
                 {
                     GD.Print($"Keyboard {key}, 100 ms: target={frame.Steering / 32767f:F4}, wheel={angle * 180 / MathF.PI:F3} degrees");
-                    Check(angle is > 0.005f and < 0.035f, "100 ms keyboard tap produces a usable angle below two degrees");
+                    Check(angle is > 0.001f and < 0.035f, "100 ms keyboard tap produces a usable angle below two degrees");
                 }
                 previous = angle;
             }
-            Check(previous > 0.899f, "holding a digital key still reaches unrestricted full lock");
+            Check(Math.Abs(previous - movement.Configuration.SteeringLimit(20)) < 0.001f, "holding a digital key reaches the speed-appropriate steering limit");
             Send(new InputEventKey { PhysicalKeycode = key, Pressed = false });
             for (ulong tick = 241; tick <= 420; tick++)
             {
@@ -75,6 +75,11 @@ public sealed partial class InputIntegrationChecks
             }
             Check(distinct.Count > 300, "near-center native sweep retains hundreds of distinct analog targets");
         }
+        _player.Adapter.SteeringSensitivity = 2;
+        Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = 0.575f });
+        Check(Math.Abs(_player.Adapter.Capture(0).Steering - 5792) <= 1, "ground sensitivity scales curved analog intent independently of keyboard");
+        Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = 1 });
+        Check(_player.Adapter.Capture(0).Steering == short.MaxValue, "sensitivity clamps full stick to full authority");
         _player.Adapter.Shaping = DrivingInputShaping.Aerial;
         Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = 0.575f });
         Check(Math.Abs(_player.Adapter.Capture(0).Steering - 16384) <= 1, "active aerial analog authority remains linear");
@@ -86,6 +91,7 @@ public sealed partial class InputIntegrationChecks
         Send(new InputEventKey { PhysicalKeycode = Key.D, Pressed = false });
         _player.Adapter.Enabled = false; _player.Adapter.Capture(0); _player.Adapter.Enabled = true;
         _player.Adapter.Shaping = new();
+        _player.Adapter.SteeringSensitivity = 1;
     }
     private void VerifyPedalPrecision()
     {

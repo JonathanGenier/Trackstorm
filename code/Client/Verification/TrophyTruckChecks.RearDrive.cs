@@ -18,7 +18,7 @@ public sealed partial class TrophyTruckChecks
             await Frames(entry == 0 ? 480 : 120);
             var state = _world.GetVehicle(1);
             GD.Print($"{_case}: turn={_yawTravel:F3}, speed={state.Speed:F3}, yaw={state.Movement.Physics.AngularVelocity.Y:F3}, up={_minimumUp:F3}, travel={state.ObservedPhysics.Position.Length():F3}, wheel={state.Movement.SteeringAngle:F3}");
-            Check(Math.Abs(state.Movement.SteeringAngle) > .89f && _minimumUp > .9f, _case + " full wheel range remains planted");
+            Check(Math.Abs(state.Movement.SteeringAngle) > .2f && _minimumUp > .9f, _case + " speed-sensitive wheel range remains planted");
             if (entry == 0) { Check(Math.Abs(_yawTravel) > MathF.Tau * 2, _case + " sustains multiple RWD donuts from rest"); }
             _pilot = (tick, _) => new(tick, 0, 25000, 0, 0, 0, 0);
             await Frames(180);

@@ -39,7 +39,7 @@ public sealed partial class HandlingPlaytest : Node3D
 
     public override void _Ready()
     {
-        _directory = ProjectSettings.GlobalizePath(OS.GetCmdlineUserArgs().Contains("--rock-playtest") ? "res://.godot/ts-267/playtest" : OS.GetCmdlineUserArgs().Contains("--oil-playtest") ? "res://.godot/ts-172/playtest" : OS.GetCmdlineUserArgs().Contains("--destructible-playtest") ? "res://.godot/ts-162/playtest" : "res://.godot/ts-160/playtest");
+        _directory = ProjectSettings.GlobalizePath(OS.GetCmdlineUserArgs().Contains("--steering-playtest") ? "res://.godot/ts-268/playtest" : OS.GetCmdlineUserArgs().Contains("--rock-playtest") ? "res://.godot/ts-267/playtest" : OS.GetCmdlineUserArgs().Contains("--oil-playtest") ? "res://.godot/ts-172/playtest" : OS.GetCmdlineUserArgs().Contains("--destructible-playtest") ? "res://.godot/ts-162/playtest" : "res://.godot/ts-160/playtest");
         System.IO.Directory.CreateDirectory(_directory);
         if (OS.GetCmdlineUserArgs().Contains("--handling-flat"))
         {
@@ -156,6 +156,7 @@ public sealed partial class HandlingPlaytest : Node3D
                     if (_body is not null) { _body.ResetBody(reset); } else { _pendingReset = reset; }
                 }
                 _physicalSteering = command.TryGetProperty("keyboard", out var keyboard) && keyboard.GetBoolean();
+                if (command.TryGetProperty("steeringSensitivity", out var sensitivity)) { _physical.SteeringSensitivity = sensitivity.GetSingle(); }
                 bool analog = command.TryGetProperty("analog", out var analogValue) && analogValue.GetBoolean();
                 using var left = new InputEventKey { PhysicalKeycode = Key.A, Pressed = _physicalSteering && _steer < 0 };
                 using var rightKey = new InputEventKey { PhysicalKeycode = Key.D, Pressed = _physicalSteering && _steer > 0 };

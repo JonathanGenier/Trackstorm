@@ -59,6 +59,19 @@ internal sealed class PlayerInputAdapter
     /// <summary>Inverts signed steering after resolving bindings and before quantization.</summary>
     public bool InvertSteering { get; set; }
 
+    private float _steeringSensitivity = 1;
+    /// <summary>Ground-only player controller gain after deadzone and precision shaping.
+    /// TS-269 owns its settings UI/persistence; aerial shaping retains independent authority.</summary>
+    public float SteeringSensitivity
+    {
+        get => _steeringSensitivity;
+        set
+        {
+            if (!float.IsFinite(value) || value is < 0.1f or > 3) { throw new ArgumentOutOfRangeException(nameof(value)); }
+            _steeringSensitivity = value;
+        }
+    }
+
     /// <summary>Analog dead zone; digital keys/buttons remain full strength.</summary>
     public float DeadZone
     {
@@ -174,7 +187,8 @@ internal sealed class PlayerInputAdapter
         }
 
         float analogSteering = active ? Bindings.Strength(InputAction.SteerRight, DeadZone, true) - Bindings.Strength(InputAction.SteerLeft, DeadZone, true) : 0;
-        analogSteering = Shaping.ShapeControllerSteering(analogSteering);
+        analogSteering = Math.Clamp(Shaping.ShapeControllerSteering(analogSteering) *
+            (Shaping == DrivingInputShaping.Aerial ? 1 : SteeringSensitivity), -1, 1);
         // A deliberate stick correction takes ownership after the keys are released;
         // a long digital return tail must not mask the controller's finer target.
         if (analogSteering != 0 && Bindings.Strength(InputAction.SteerRight, DeadZone, false) == 0 && Bindings.Strength(InputAction.SteerLeft, DeadZone, false) == 0)
