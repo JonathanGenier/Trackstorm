@@ -19,4 +19,6 @@ public enum HeldItem : byte
     Salvo = 6,
     /// <summary>Close-range sustained ballistic weapon.</summary>
     MachineGun = 7,
+    /// <summary>Persistent independently damageable shield/wall identity.</summary>
+    Tombstone = 8,
 }

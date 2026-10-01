@@ -84,6 +84,8 @@ internal sealed partial class CombatHud : CanvasLayer
         _secondSlot.Initialize(2, instrumentFont);
         foreach (var definition in ItemRegistry.All)
         {
+            // Tombstone's dedicated HUD artwork belongs to its later presentation Story.
+            if (definition.Identity == HeldItem.Tombstone) { continue; }
             Texture2D icon = Bootstrap.StartupController.LoadResource<Texture2D>($"res://assets/hud/{definition.PresentationKey}.svg");
             // Center visible art, rather than the unequal transparent padding of different SVGs.
             using Image pixels = icon.GetImage();
