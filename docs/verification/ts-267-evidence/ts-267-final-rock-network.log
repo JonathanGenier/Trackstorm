@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Rock UDP trial=0 speed=3 closest=5.168 meanStepMs=5.197 p95StepMs=14.941 maxCorrection=0.000
+Rock UDP trial=1 speed=3 closest=5.448 meanStepMs=4.708 p95StepMs=12.723 maxCorrection=0.000
+Rock UDP trial=2 speed=12 closest=5.178 meanStepMs=5.241 p95StepMs=16.136 maxCorrection=0.000
+Rock UDP trial=3 speed=12 closest=5.443 meanStepMs=4.322 p95StepMs=11.131 maxCorrection=0.000
+Rock UDP trial=4 speed=35 closest=5.250 meanStepMs=4.838 p95StepMs=13.616 maxCorrection=0.000
+Rock UDP trial=5 speed=35 closest=5.431 meanStepMs=4.483 p95StepMs=11.544 maxCorrection=0.000
+Rock collision multiplayer passed: two UDP worlds, 30ms delay/5ms jitter/2% loss, direct/offset impacts at 3/12/35m/s, repeated contact and reverse separation.

@@ -1,0 +1,10 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+ROCK network-BoulderLow-12-0.0: contacts=188 repeat=1 final=0 depth=0.0001 overlapFrames=0 angular=0.264 contactMeanMs=3.515 p95Ms=4.118
+ROCK network-BoulderLow-12-1.2: contacts=249 repeat=51 final=0 depth=0.0002 overlapFrames=0 angular=0.470 contactMeanMs=5.503 p95Ms=9.513
+ROCK network-BoulderLow-12-2.4: contacts=1 repeat=0 final=0 depth=0.0000 overlapFrames=0 angular=2.402 contactMeanMs=0.000 p95Ms=0.000
+ROCK practice-BoulderLow-12-0.0: contacts=218 repeat=3 final=0 depth=0.0103 overlapFrames=0 angular=0.284 contactMeanMs=0.349 p95Ms=0.395
+ROCK practice-BoulderLow-12-1.2: contacts=11 repeat=0 final=0 depth=0.0072 overlapFrames=0 angular=1.207 contactMeanMs=0.000 p95Ms=0.000
+ROCK practice-BoulderLow-12-2.4: contacts=3 repeat=0 final=0 depth=0.0069 overlapFrames=0 angular=1.355 contactMeanMs=0.000 p95Ms=0.000
+Rock collision checks: failures=0

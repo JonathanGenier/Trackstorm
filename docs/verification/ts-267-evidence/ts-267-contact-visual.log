@@ -1,0 +1,6 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 582.66 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce GTX 1070
+
+ROCK network-RockCluster-12-0.0: contacts=284 repeat=73 final=0 depth=0.0002 overlapFrames=0 angular=0.440 contactMeanMs=3.856 p95Ms=6.595
+ROCK practice-RockCluster-12-0.0: contacts=334 repeat=81 final=0 depth=0.0130 overlapFrames=0 angular=0.503 contactMeanMs=0.383 p95Ms=0.367
+Rock collision checks: failures=0

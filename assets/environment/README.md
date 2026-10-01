@@ -58,6 +58,11 @@ assets remain reusable; this refinement does not add production placements.
 `-convcolonly` meshes are explicit Blender sources, converted to simple static
 convex shapes by Godot. Rocks use individual stone hulls; the ledge uses one hull
 per stratum. The drain remains open because each lip and invert has its own hull.
+The rock-only import hook simplifies each authored hull to at most 32 vertices
+with Godot's single-hull convex simplifier. This strips costly erosion detail from
+native collision queries while preserving separate stones and the original
+Blender source. The native rock regression checks the imported vertex budget,
+contact stability and separation through both production vehicle adapters.
 Barriers and guardrails use simplified envelopes (rail gaps deliberately block
 vehicles). Tree collision covers only the lower trunk, not foliage; shrubs and
 grass have none. Pole collision covers its base and mast, not the elevated lamps.
@@ -65,7 +70,7 @@ Collision layer/mask 1 matches existing vehicles. No runtime-generated collision
 dynamic debris, per-instance scripts, destruction or gameplay rules are introduced.
 
 Committed `.glb.import` settings enable Godot's screen-space mesh LOD generation.
-The engine retains full source collision independently of rendered LOD. Small meshes
+The engine retains the imported collision independently of rendered LOD. Small meshes
 may retain their base topology when simplification cannot safely reduce them. Grass
 stops rendering at 65 m and casts no shadow; scrub stops at 120 m. Compatibility
 rendering uses a hard distance cutoff: blend placement into matching ground cover,
