@@ -181,6 +181,23 @@ public sealed partial class VehicleBody : RigidBody3D
         }
 
         var physics = Observe(body.Transform, body.LinearVelocity, body.AngularVelocity);
+        var bodyImpacts = contacts.Where(contact => TerrainCollision.IsBodyImpact(physics.Orientation, contact, suspension.Wheels)).ToArray();
+        if (bodyImpacts.Length > 0 && !contacts.Any(contact => contact.StaticObstacle || contact.OtherVehicleId != 0))
+        {
+            // Use the same inelastic contact response as replay sweeps. Native solving
+            // still supplies the nonpenetrating pose; its low-friction chassis response
+            // must not erase the incoming forward momentum's nose-over torque.
+            var incoming = new VehiclePhysicsState(physics.Position, physics.Orientation, incomingVelocity, incomingAngular);
+            var contact = bodyImpacts.OrderByDescending(c => -Numerics.Vector3.Dot(
+                incomingVelocity + Numerics.Vector3.Cross(incomingAngular, Numerics.Vector3.Transform(c.LocalPosition, physics.Orientation)), c.Normal)).First();
+            physics = TerrainCollision.Resolve(incoming, contact, Configuration);
+            Numerics.Vector3 velocity = physics.LinearVelocity;
+            foreach (var hit in contacts)
+            {
+                velocity += hit.Normal * Math.Max(0, -Numerics.Vector3.Dot(velocity, hit.Normal));
+            }
+            physics = new(physics.Position, physics.Orientation, velocity, physics.AngularVelocity);
+        }
         if (contacts.Any(contact => contact.StaticObstacle) && !contacts.Any(contact => contact.OtherVehicleId != 0))
         {
             var incoming = new VehiclePhysicsState(physics.Position, physics.Orientation, incomingVelocity, incomingAngular);

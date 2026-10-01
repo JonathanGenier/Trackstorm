@@ -49,7 +49,7 @@ public sealed partial class LandingIntegrationChecks : Node3D
         if (_tumble && !_kicked && _world.GetVehicle(1).Landing.Phase == LandingPhase.Recovered)
         {
             _kicked = true;
-            request = new VehicleStepRequest(1, input, request.Observation, [new VehicleEffectRequest(new DamageEffect(0, new N.Vector3(0, 12000, 0), new N.Vector3(0, 0, 3)), new DamageContext("test", 0, "recovery-tumble"))]);
+            request = new VehicleStepRequest(1, input, request.Observation, [new VehicleEffectRequest(new DamageEffect(0, new N.Vector3(18000, 6000, 0), new N.Vector3(0, 3, 0)), new DamageContext("test", 0, "recovery-tumble"))]);
         }
         var requests = new List<VehicleStepRequest> { request };
         if (_target is not null)

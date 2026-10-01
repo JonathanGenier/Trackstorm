@@ -178,12 +178,12 @@ public sealed record VehicleConfiguration
     /// <summary>Minimum ground normal Y.</summary>
     public float SupportNormalMinimum { get; init; } = 0.55f;
 
-    /// <summary>Body-supported crash seconds before bounded rolling assistance starts.</summary>
-    public float CrashRecoveryDelay { get; init; } = 1.25f;
+    /// <summary>Crash seconds before bounded rolling assistance starts.</summary>
+    public float CrashRecoveryDelay { get; init; } = 0.5f;
     /// <summary>Minimum assisted rolling rate in rad/s; zero disables assistance.</summary>
-    public float CrashRecoveryRate { get; init; } = 1.2f;
+    public float CrashRecoveryRate { get; init; } = 2;
     /// <summary>Seconds for the delayed rolling-rate floor to reach full strength.</summary>
-    public float CrashRecoveryRamp { get; init; } = 0.75f;
+    public float CrashRecoveryRamp { get; init; } = 0.35f;
     /// <summary>Body-supported crash tangential damping per second.</summary>
     public float CrashSlideDamping { get; init; } = 2;
     /// <summary>Body-supported crash angular damping per second.</summary>

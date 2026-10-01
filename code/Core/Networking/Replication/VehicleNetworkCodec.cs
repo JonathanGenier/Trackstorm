@@ -5,7 +5,7 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Networking.Replication;
 
-/// <summary>Version-thirteen binary gameplay messages with life-scoped inputs and authoritative lifecycle state.</summary>
+/// <summary>Version-fourteen binary gameplay messages with life-scoped inputs and authoritative lifecycle state.</summary>
 public static class VehicleNetworkCodec
 {
     /// <summary>Reliable session assignment message kind.</summary>
@@ -23,7 +23,7 @@ public static class VehicleNetworkCodec
     /// <param name="bytes">Complete transport payload.</param>
     public static byte Kind(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || bytes[0] != 0x54 || bytes[1] != 0x53 || bytes[2] != 13 || bytes[3] is < Welcome or > Props)
+        if (bytes.Length is < 4 or > MaximumBytes || bytes[0] != 0x54 || bytes[1] != 0x53 || bytes[2] != 14 || bytes[3] is < Welcome or > Props)
         {
             throw new ArgumentException("Invalid vehicle network header.");
         }
@@ -166,6 +166,7 @@ public static class VehicleNetworkCodec
             writer.Write(state.Landing.UnsupportedTicks);
             writer.Write(state.Landing.RecoveryTicks);
             writer.Write(state.Landing.StableTicks);
+            writer.Write(state.Landing.BodyContacts);
             writer.Write(vehicle.AcknowledgedInput);
             writer.Write(VehicleStateCodec.Encode(state.Movement));
             WriteVector(writer, state.ObservedPhysics.LinearVelocity);
@@ -230,7 +231,7 @@ public static class VehicleNetworkCodec
             var lifecycle = (VehicleLifecycle)reader.ReadByte();
             ulong? deadline = ReadFlag(reader) ? reader.ReadUInt64() : null;
             bool outOfBounds = ReadFlag(reader);
-            var landing = new LandingState((LandingPhase)reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
+            var landing = new LandingState((LandingPhase)reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
             uint ack = reader.ReadUInt32();
             VehicleState movement = VehicleStateCodec.Decode(reader.ReadBytes(VehicleStateCodec.SerializedSize));
             var observed = new VehiclePhysicsState(movement.Physics.Position, movement.Physics.Orientation, ReadVector(reader), ReadVector(reader));
@@ -265,7 +266,7 @@ public static class VehicleNetworkCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, new UTF8Encoding(false, true), true);
-        writer.Write(new byte[] { 0x54, 0x53, 13, kind });
+        writer.Write(new byte[] { 0x54, 0x53, 14, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {

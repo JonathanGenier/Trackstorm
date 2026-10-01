@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace Trackstorm.Core.Vehicles;
 
-/// <summary>Version-four complete aggregate envelope including authoritative lifecycle and deadline.</summary>
+/// <summary>Version-five complete aggregate envelope including authoritative lifecycle and body-contact continuation.</summary>
 public static class VehicleSnapshotCodec
 {
     private static readonly JsonSerializerOptions Options = new() { IncludeFields = true, MaxDepth = 16 };
@@ -21,7 +21,7 @@ public static class VehicleSnapshotCodec
         }
 
         byte[] bytes = new byte[json.Length + 1];
-        bytes[0] = 4;
+        bytes[0] = 5;
         json.CopyTo(bytes, 1);
         return bytes;
     }
@@ -31,7 +31,7 @@ public static class VehicleSnapshotCodec
     /// <returns>Validated vehicle state, independent of any native object.</returns>
     public static VehicleSnapshot Decode(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length is < 2 or > 65536 || bytes[0] != 4)
+        if (bytes.Length is < 2 or > 65536 || bytes[0] != 5)
         {
             throw new ArgumentException("Expected a bounded version-four vehicle aggregate.", nameof(bytes));
         }

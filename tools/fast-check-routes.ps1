@@ -39,6 +39,10 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'CrashRecovery|VehicleCrash|TerrainCollision|crash_recovery|check-crash-recovery') {
+            Add-Runtime 'check-crash-recovery.ps1'
+            Add-Manual 'Observe nose, rear, roof, side, awkward and repeated tumbles, first-wheel control restoration, and extreme tire landings through both vehicle adapters.'
+        }
         if ($path -match 'TrophyTruck|trophy_truck|check-trophy-truck|VehicleCollision|NetworkVehicleBody') {
             Add-Runtime 'check-trophy-truck.ps1'
         }

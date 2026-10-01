@@ -97,26 +97,27 @@ internal sealed class TrophyTruckTests
         var tuning = new VehicleConfiguration();
         var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI), Vector3.Zero, Vector3.Zero);
         var movement = new VehicleMovement(tuning, pose);
+        var contact = new VehicleContact(Vector3.Zero, Vector3.UnitY, 0, 0, true, Vector3.UnitY);
         for (ulong tick = 1; tick <= 120; tick++)
         {
             var input = new InputFrame(tick, 0, 0, 0, 0, 0, 0);
             var restored = new VehicleMovement(tuning, pose);
             restored.Restore(VehicleStateCodec.Decode(VehicleStateCodec.Encode(movement.State)));
-            var next = movement.Step(input, pose, Vector3.UnitY, wheels: default(WheelSupport));
-            Assert.That(restored.Step(input, pose, Vector3.UnitY, wheels: default(WheelSupport)), Is.EqualTo(next));
-            if (tick < 75) { Assert.That(next.Physics.AngularVelocity.Length(), Is.LessThan(0.00001f)); }
+            var next = movement.Step(input, pose, Vector3.UnitY, wheels: default(WheelSupport), contacts: [contact]);
+            Assert.That(restored.Step(input, pose, Vector3.UnitY, wheels: default(WheelSupport), contacts: [contact]), Is.EqualTo(next));
+            if (tick < tuning.CrashRecoveryDelay * 60) { Assert.That(next.Physics.AngularVelocity.Length(), Is.LessThan(0.00001f)); }
             pose = new(pose.Position, pose.Orientation, Vector3.Zero, next.Physics.AngularVelocity);
         }
         Assert.That(movement.State.Physics.AngularVelocity.Length(), Is.GreaterThan(1));
         pose = new(pose.Position, pose.Orientation, Vector3.Zero, Vector3.Zero);
         var airborne = movement.Step(new(121, 0, 0, 0, 0, 0, 0), pose, Vector3.Zero);
-        Assert.That(airborne.CrashSeconds, Is.InRange(1.9f, 2f));
-        Assert.That(airborne.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
+        Assert.That(airborne.CrashSeconds, Is.GreaterThan(2));
+        Assert.That(airborne.Physics.AngularVelocity.Length(), Is.GreaterThan(1));
         for (ulong tick = 122; tick <= 190; tick++)
         {
             movement.Step(new(tick, 0, 0, 0, 0, 0, 0), pose, Vector3.Zero);
         }
-        Assert.That(movement.State.CrashSeconds, Is.Zero, "sustained flight clears crash memory without rotating the body");
+        Assert.That(movement.State.CrashSeconds, Is.GreaterThan(3), "a crash remains latched until a tire touches down");
     }
 
     [Test]
@@ -173,7 +174,7 @@ internal sealed class TrophyTruckTests
         var movement = new VehicleMovement(new(), pose);
         movement.Restore(new(0, pose, true, false, 0, 0, crashSeconds: 2));
         var state = movement.Step(new(1, 0, 0, 0, 0, 0, 0), pose, Vector3.UnitY, wheels: default(WheelSupport));
-        Assert.That(state.Physics.AngularVelocity.Z, Is.InRange(0.6f, 1.2f), "continues the roll through inversion with a bounded rate");
+        Assert.That(state.Physics.AngularVelocity.Z, Is.InRange(0.6f, 2f), "continues the roll through inversion with a bounded rate");
         Assert.That(state.Physics.LinearVelocity.Y, Is.LessThanOrEqualTo(0));
     }
 
@@ -214,20 +215,24 @@ internal sealed class TrophyTruckTests
     }
 
     [Test]
-    public void CrashMemoryNeverOverridesGenuineAirborneInput()
+    public void CrashMemoryBlocksAirborneInputUntilWheelContact()
     {
         var pose = new VehiclePhysicsState(new(0, 20, 0), Quaternion.CreateFromAxisAngle(Vector3.UnitX, 2), Vector3.Zero, Vector3.Zero);
         var remembered = new VehicleMovement(new(), pose);
         remembered.Restore(new(0, pose, false, false, 0, 0, crashSeconds: 2));
-        var fresh = new VehicleMovement(new(), pose);
+        var neutral = new VehicleMovement(new(), pose);
+        neutral.Restore(remembered.State);
         for (ulong tick = 1; tick <= 60; tick++)
         {
             var input = new InputFrame(tick, short.MaxValue, ushort.MaxValue, 0, InputButtons.AirRoll, 0, 0);
             var a = remembered.Step(input, pose, Vector3.Zero);
-            var b = fresh.Step(input, pose, Vector3.Zero);
+            var b = neutral.Step(new(tick, 0, 0, 0, 0, 0, 0), pose, Vector3.Zero);
             Assert.That(a.Physics, Is.EqualTo(b.Physics));
             Assert.That(a.Air, Is.EqualTo(b.Air));
             pose = a.Physics;
         }
+        var supported = remembered.Step(new(61, short.MaxValue, ushort.MaxValue, 0, 0, 0, 0), pose, Vector3.UnitY, wheels: new(new(0.2f, 0, 0, 0)));
+        Assert.That(supported.CrashSeconds, Is.Zero);
+        Assert.That(supported.Throttle, Is.GreaterThan(0));
     }
 }

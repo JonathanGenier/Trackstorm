@@ -72,21 +72,29 @@ internal sealed class VehicleAuthority
 
         LandingState landing = request.Reset.HasValue ? default : VehicleLanding.Step(previous.Landing, observed);
         float severity = 0;
+        byte bodyContacts = 0;
         VehicleContact strongest = default;
         foreach (VehicleContact contact in observed.Contacts)
         {
             if (VehicleLanding.Forgives(landing, observed, contact)) { continue; }
-            float candidate = contact.StaticObstacle
-                ? EnvironmentCollision.Severity(contact.RelativeVelocity, EnvironmentCollision.ResponseNormal(contact.Normal, observed.Support))
-                : VehicleDamageMath.CollisionSeverity(contact.RelativeVelocity, contact.Normal, contact.Impulse, _movementConfiguration.Mass);
+            byte face = VehicleCrash.Face(observed.Physics.Orientation, contact);
+            // Terrain tumble impacts re-arm on separation or a new body face, rather
+            // than imposing the general vehicle/wall cooldown on an entire crash.
+            if (contact.Terrain)
+            {
+                bodyContacts |= face;
+                if ((previous.Landing.BodyContacts & face) != 0) { continue; }
+            }
+            float candidate = VehicleCrash.Severity(contact, observed.Support, _movementConfiguration.Mass);
             if (candidate > severity)
             {
                 severity = candidate;
                 strongest = contact;
             }
         }
+        landing = landing with { BodyContacts = bodyContacts };
 
-        if (severity > 0 && health.ApplyCollision(severity, new DamageContext("collision", strongest.OtherVehicleId, strongest.OtherVehicleId == 0 ? "world-or-prop" : "vehicle"), request.Input.Tick) is DamageEvent collision)
+        if (severity > 0 && health.ApplyCollision(severity, new DamageContext("collision", strongest.OtherVehicleId, strongest.OtherVehicleId == 0 ? "world-or-prop" : "vehicle"), request.Input.Tick, strongest.Terrain) is DamageEvent collision)
         {
             events.Add(collision);
         }

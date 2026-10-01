@@ -147,7 +147,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                 }
                 var other = result.GetCollider(i) as NetworkVehicleBody;
                 Vector3 point = result.GetCollisionPoint(i);
-                Vector3 relative = other is null ? velocity - result.GetColliderVelocity(i) :
+                Vector3 relative = other is null ? velocity + angular.Cross(point - transform.Origin) - result.GetColliderVelocity(i) :
                     incomingVelocity + incomingAngular.Cross(point - initialTransform.Origin) -
                     VehicleBody.ToGodot(other._current.LinearVelocity + Numerics.Vector3.Cross(other._current.AngularVelocity, VehicleBody.ToCore(point) - other._current.Position));
                 if (PushProps && result.GetCollider(i) is RigidBody3D prop && !prop.Freeze && pushed.Add(prop.GetInstanceId()))
@@ -167,6 +167,16 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                 {
                     support = normal;
                     surface = (result.GetCollider(i) as SurfaceBody)?.Surface ?? SurfaceType.Concrete;
+                }
+
+                if (TerrainCollision.IsBodyImpact(new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W), contacts[^1], snapshot.Movement.Wheels))
+                {
+                    var incoming = new VehiclePhysicsState(VehicleBody.ToCore(transform.Origin),
+                        new Numerics.Quaternion(orientation.X, orientation.Y, orientation.Z, orientation.W),
+                        VehicleBody.ToCore(velocity), VehicleBody.ToCore(angular));
+                    var resolved = TerrainCollision.Resolve(incoming, contacts[^1], _configuration);
+                    velocity = VehicleBody.ToGodot(resolved.LinearVelocity);
+                    angular = VehicleBody.ToGodot(resolved.AngularVelocity);
                 }
 
                 if (obstacle)
