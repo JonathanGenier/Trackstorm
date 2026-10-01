@@ -71,3 +71,9 @@ The infield and oval harnesses own wider route/collision continuity checks.
 [Vehicles](vehicles.md) · [Feature index](README.md)
 
 [Terrain effects](terrain-effects.md) resolves wheel contacts through this same identity system for visual tracks, dust, mud spray and water feedback. Visual detail never modifies the field or handling classification.
+
+## Braking response and detail import
+
+Each supported wheel resolves its own [braking response](vehicles.md#deliberate-surface-braking-and-stationary-handbrake) as well as normal handling. Mixed-material braking and Dirt corner capacity use those wheel identities, never the center diagnostic label. Asphalt, Dirt and Grass separate normal purchase from deliberate service-brake and handbrake release. Their existing material field, geometry and collision authoring remain sufficient; no map-coordinate exception or new mask is introduced.
+
+The oval `grass_variation.png` remains a mipmapped visual detail texture. Its explicit `detect_3d/compress_to=0` preference is preserved; the existing `compress/mode=2` VRAM import and generated S3TC remap remain consistent with the current asset. The preference does not change surface identification or convert the separate linear identity field. Native surface verification loads the detail through `Grass.tres`, checks usable mipmaps and validates the preference. Generated `.godot` payloads remain local.

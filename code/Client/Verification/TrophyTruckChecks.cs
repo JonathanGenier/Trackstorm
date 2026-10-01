@@ -252,6 +252,11 @@ public sealed partial class TrophyTruckChecks : Node3D
         Check(reversed.Movement.SteeringAngle < -0.1f && reversed.Speed < entrySpeed,
             _case + " opposite wheel input remains available as rear braking consumes momentum");
         await Frames(60);
+        GD.Print($"{_case}: two-second dirt rear-lock speed={_world.GetVehicle(1).Speed:F3}, yaw={_world.GetVehicle(1).Movement.Physics.AngularVelocity.Y:F3}");
+        // Dirt deliberately carries a longer moving slide than Asphalt. Wait for the
+        // bounded stop, then verify that holding the lock cannot sustain free rotation.
+        for (int frame = 0; frame < 240 && _world.GetVehicle(1).Speed >= 0.5f; frame++) { await Frames(1); }
+        await Frames(60);
         Check(_world.GetVehicle(1).Speed < 1 && Math.Abs(_world.GetVehicle(1).Movement.Physics.AngularVelocity.Y) < 0.3f,
             _case + " unpowered held rear lock settles rather than sustaining rotation at rest");
         _pilot = (tick, _) => new(tick, 0, 50000, 0, 0, 0, 0);

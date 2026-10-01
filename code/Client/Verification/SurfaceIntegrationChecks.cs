@@ -42,6 +42,17 @@ public sealed partial class SurfaceIntegrationChecks : Node3D
         {
             _output = ProjectSettings.GlobalizePath("res://.godot/surface-checks");
             System.IO.Directory.CreateDirectory(_output);
+            var grass = GD.Load<StandardMaterial3D>("res://assets/maps/oval/Grass.tres");
+            using (var detail = grass.DetailAlbedo.GetImage())
+            {
+                Check(detail.GetWidth() > 0 && detail.GetHeight() > 0 && detail.HasMipmaps(), "Grass variation detail imports with usable mipmaps");
+            }
+            using (var import = new ConfigFile())
+            {
+                Check(import.Load("res://assets/maps/oval/grass_variation.png.import") == Error.Ok &&
+                    import.GetValue("params", "detect_3d/compress_to").AsInt32() == 0,
+                    "Grass variation preserves the explicit 3D compression preference");
+            }
             var map = GD.Load<PackedScene>(Arenas.ActiveMap.ScenePath).Instantiate<Node3D>();
             AddChild(map);
             await Frames(3);

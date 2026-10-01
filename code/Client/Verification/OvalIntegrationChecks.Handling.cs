@@ -51,8 +51,16 @@ public sealed partial class OvalIntegrationChecks
                     bool fullInput = steering == short.MaxValue;
                     var exit = corner[^1];
                     float exitYaw = Math.Abs(System.Numerics.Vector3.Dot(exit.Physics.AngularVelocity, System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitY, exit.Physics.Orientation)));
-                    float exitSide = Math.Abs(System.Numerics.Vector3.Dot(exit.Physics.LinearVelocity, System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, exit.Physics.Orientation)));
+                    var exitPose = new Transform3D(new Basis(VehicleBody.ToGodot(exit.Physics.Orientation)), VehicleBody.ToGodot(exit.Physics.Position));
+                    Vector3 exitNormal = WheelSuspension.Observe(_vehicle, exitPose, _vehicle.Configuration).Normal;
+                    Check(!exitNormal.IsZeroApprox(), "Corner recovery retains native wheel support");
+                    Vector3 exitForward = -exitPose.Basis.Z;
+                    exitForward = (exitForward - exitNormal * exitForward.Dot(exitNormal)).Normalized();
+                    float exitSide = Math.Abs(VehicleBody.ToGodot(exit.Physics.LinearVelocity).Dot(exitForward.Cross(exitNormal).Normalized()));
+                    float bodySide = Math.Abs(System.Numerics.Vector3.Dot(exit.Physics.LinearVelocity, System.Numerics.Vector3.Transform(System.Numerics.Vector3.UnitX, exit.Physics.Orientation)));
                     // Recovery yaw excludes pitch/roll needed to follow the sculpted infield.
+                    // Lateral recovery uses the same support plane as Core tire forces;
+                    // chassis roll on a changing grade is not lateral tire sliding.
                     // Terrain-normal stability is checked by the crossing probes below.
                     // Full lock deliberately exceeds available racing grip. Verify a supported,
                     // dissipative turn and recovery, with the speed-sensitive wheel range.
@@ -61,7 +69,7 @@ public sealed partial class OvalIntegrationChecks
                         ? corner.Skip(2).All(state => state.Grounded && state.CrashSeconds == 0) && Math.Abs(samples[^1].SteeringAngle) > 0.2f && yaw < _vehicle.Configuration.MaximumAngularSpeed && samples[^1].CommandSpeed < entry && exit.CommandSpeed > 8 && exitSide < 1 && exitYaw < 0.2f
                         : slipAngle < 0.15f && yaw < 1.2f && rearSlip < 0.5f && samples.All(state => state.Grounded) && samples[^1].CommandSpeed > 40;
                     Check(stable,
-                        $"{(network ? "Network" : "Practice")} {entry} m/s bank turn, direction {direction}, steering {steering}: slip angle {slipAngle:F3} rad, angular speed {yaw:F3} rad/s, rear slip {rearSlip:F3}, continuously supported, final speed {samples[^1].CommandSpeed:F3} m/s; recovery speed {exit.CommandSpeed:F3}, side {exitSide:F3}, yaw {exitYaw:F3}.");
+                        $"{(network ? "Network" : "Practice")} {entry} m/s bank turn, direction {direction}, steering {steering}: slip angle {slipAngle:F3} rad, angular speed {yaw:F3} rad/s, rear slip {rearSlip:F3}, continuously supported, final speed {samples[^1].CommandSpeed:F3} m/s; recovery speed {exit.CommandSpeed:F3}, support-plane side {exitSide:F3} (body-axis {bodySide:F3}), yaw {exitYaw:F3}.");
                 }
             }
         }
