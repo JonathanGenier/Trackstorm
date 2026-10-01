@@ -30,20 +30,20 @@ internal sealed class ItemWeightTests
             Assert.That(balance.Counts[ItemCategory.Droppable], Is.EqualTo(10000));
             foreach (var item in pool)
             {
-                double expected = configuration.Weights[item.Identity] / (double)(pool.Length - 1 + firstWeight);
+                double expected = configuration.Weights[item.Identity] / (double)pool.Sum(definition => configuration.Weights[definition.Identity]);
                 Assert.That(counts[item.Identity] / (double)balance.Counts[category.Identity], Is.EqualTo(expected).Within(0.02), item.Key);
             }
         }
     }
 
     [Test]
-    public void EveryRegisteredWeightHasOneSharedConfigurationControlAndDefaultsToOne()
+    public void EveryRegisteredWeightHasOneSharedConfigurationControlAndRegistryDefault()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
         foreach (var item in ItemRegistry.All)
         {
             var option = GameplayOptions.All.Single(option => option.Key == $"spawns.{item.Key}_weight");
-            Assert.That(option.Read(defaults), Is.EqualTo(1));
+            Assert.That(option.Read(defaults), Is.EqualTo(item.DefaultWeight));
             Assert.That(GameplayOptions.TryApply(defaults, new Dictionary<string, double> { [option.Key] = 7 }, out var tuned, out _), Is.True);
             Assert.That(tuned.Spawns.Weights[item.Identity], Is.EqualTo(7));
             Assert.That(tuned.Spawns.CategoryWeights, Is.EqualTo(defaults.Spawns.CategoryWeights));

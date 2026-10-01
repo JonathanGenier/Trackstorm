@@ -20,7 +20,7 @@ internal static class OilRecoveryFixture
         OilContact[] contacts = [];
         var state = new ItemPublication(Math.Max(1, host.Items.Revision), host.Snapshot(),
             host.Items.Slots.Select(value => value.Vehicle == owner ? value with { Item = HeldItem.None } : value),
-            host.Items.Missiles, [], host.Spawns?.States, patches, contacts);
+            host.Items.Missiles, [], host.Spawns?.States, patches, contacts, tombstones: host.Items.Tombstones);
         host.Items.Restore(state, host.Items.Revision + 1, token + PatchCount - 1);
         return patch;
     }

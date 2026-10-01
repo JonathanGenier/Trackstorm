@@ -378,7 +378,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
             if (_publishedSpawnRevision != (Host.Spawns?.Revision ?? 0) || _publishedItemRevision != Host.Items.ReliableRevision || _rosterChanged)
             {
                 var previousItems = _rosterChanged ? null : ItemState;
-                ItemState = new ItemPublication(++_itemPublication, Latest, Host.Items.Slots, Host.Items.Missiles, Host.Items.Events, Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines);
+                ItemState = new ItemPublication(++_itemPublication, Latest, Host.Items.Slots, Host.Items.Missiles, Host.Items.Events, Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Tombstones);
                 byte[] items = ItemCodec.EncodeState(ItemState, previousItems);
                 foreach (ulong peer in _assigned)
                 {
@@ -736,7 +736,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
     {
         _lobby!.Authority!.RetainConfiguration(Host!.Configuration);
         WorldSnapshot world = Host!.Snapshot();
-        var items = new ItemPublication(Math.Max(1, _itemPublication), world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines);
+        var items = new ItemPublication(Math.Max(1, _itemPublication), world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Tombstones);
         var state = Host.World.State.Match!;
         var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode, activeStartedAtTick: state.ActiveStartedAtTick, durationTicks: state.DurationTicks, recoveryElapsedTicks: state.RecoveryElapsedTicks);
         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());
@@ -789,7 +789,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
     {
         _rosterChanged = true; // Resume establishes a new full Oil baseline before subsequent references.
         WorldSnapshot world = Host!.Snapshot();
-        var items = new ItemPublication(++_itemPublication, world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines);
+        var items = new ItemPublication(++_itemPublication, world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Tombstones);
         var state = Host.World.State.Match!;
         var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode, activeStartedAtTick: state.ActiveStartedAtTick, durationTicks: state.DurationTicks, recoveryElapsedTicks: state.RecoveryElapsedTicks);
         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());

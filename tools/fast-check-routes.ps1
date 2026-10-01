@@ -247,6 +247,7 @@ function Get-FastCheckPlan {
             Add-Manual 'Navigate the affected menu with mouse/keyboard/controller paths that are material to the change.'
         }
 
+        if ($path -match '(?i)Tombstone|tombstone_checks|check-tombstone') { Add-Runtime 'check-tombstone.ps1' }
         if ($path -match '(?i)MachineGun|machine_gun|check-machine-gun') { Add-Runtime 'check-machine-gun.ps1' }
 
         if ($path -match '(?i)ProxyMine|proxy-mine|check-mine|mine_checks') { Add-Runtime 'check-mine.ps1' }

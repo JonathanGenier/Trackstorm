@@ -6,7 +6,7 @@ using Trackstorm.Core.Vehicles;
 namespace Trackstorm.Core.Items;
 
 /// <summary>Host-owned inventory, use validation and projectile simulation, committed with the vehicle world.</summary>
-public sealed class ItemAuthority
+public sealed partial class ItemAuthority
 {
     /// <summary>Bounds simultaneous blast batches within the existing 16 KiB vehicle envelope.</summary>
     public const int MaximumProjectiles = 16;
@@ -58,7 +58,7 @@ public sealed class ItemAuthority
     /// <param name="token">Highest ever issued token in this match.</param>
     public void Restore(ItemPublication publication, ulong revision, ulong token)
     {
-        if (publication.Events.Count != 0 || publication.Mines.Any(mine => mine.Id > token) || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token || slot.SecondToken > token) ||
+        if (publication.Events.Count != 0 || publication.Tombstones.Any(state => state.Id > token || state.Token > token) || publication.Mines.Any(mine => mine.Id > token) || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token || slot.SecondToken > token) ||
             publication.Spawns.Any(spawn => spawn.Token > token) || publication.Missiles.Any(missile => missile.Id > token ||
                 !publication.World.Vehicles.Any(vehicle => vehicle.State.VehicleId == missile.Owner && vehicle.State.CanInteract)))
         {
@@ -77,6 +77,8 @@ public sealed class ItemAuthority
         _patches.AddRange(publication.Patches);
         _mines.Clear();
         _mines.AddRange(publication.Mines);
+        _tombstones.Clear();
+        _tombstones.AddRange(publication.Tombstones);
         _contacts.Clear();
         _contacts.AddRange(publication.OilContacts);
         _pending.Clear();
@@ -99,6 +101,7 @@ public sealed class ItemAuthority
         changed |= _contacts.RemoveAll(contact => contact.Vehicle == vehicle) > 0;
         changed |= _missiles.RemoveAll(missile => missile.Owner == vehicle) > 0;
         changed |= _mines.RemoveAll(mine => mine.Owner == vehicle && mine.IsPlacing) > 0;
+        changed |= _tombstones.RemoveAll(state => state.Owner == vehicle && state.Attached) > 0;
         if (changed)
         {
             Revision++;
@@ -116,6 +119,7 @@ public sealed class ItemAuthority
     {
         VehicleSnapshot? state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
         if (state is null || !state.CanInteract || ItemRegistry.Find(item) is null ||
+            (item == HeldItem.Tombstone && _tombstones.Count >= MaximumTombstones) ||
             (_slots.TryGetValue(vehicle, out var previous) && previous.Life == state.LifeId && previous.Full))
         {
             return false;
@@ -124,6 +128,7 @@ public sealed class ItemAuthority
         var inventory = _slots.GetValueOrDefault(vehicle);
         if (inventory is null || inventory.Life != state.LifeId) { inventory = new(vehicle, state.LifeId, 0, HeldItem.None); }
         ulong token = checked(++_token);
+        if (item == HeldItem.Tombstone) { _tombstones.Add(new(token, vehicle, state.LifeId, token, TombstoneStage.Held, TombstoneState.DefaultHP)); }
         _slots[vehicle] = inventory.Item == HeldItem.None
             ? inventory with { Token = token, Item = item, NitroCharge = item == HeldItem.Nitro ? 100 : 0, SalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SalvoReadyTick = 0, Ammo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null }
             : inventory with { SecondToken = token, SecondItem = item, SecondNitroCharge = item == HeldItem.Nitro ? 100 : 0, SecondSalvoShots = item == HeldItem.Salvo ? Configuration.SalvoCount : 0, SecondSalvoReadyTick = 0, SecondAmmo = item == HeldItem.MachineGun ? new(Configuration.MachineGunCapacity, Configuration.MachineGunCapacity) : null };
@@ -499,7 +504,8 @@ public sealed class ItemAuthority
         advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract));
         movingMines.RemoveAll(mine => mine.IsPlacing && !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == mine.Owner && vehicle.LifeId == mine.PlacementLife && vehicle.CanInteract));
         if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { advanced.RemoveAll(missile => missile.Arc is not null); }
-        bool reliableChanged = !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) ||
+        bool tombstonesChanged = ReconcileTombstones(world, slots);
+        bool reliableChanged = tombstonesChanged || !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) ||
             !patches.SequenceEqual(_patches) || !contacts.SequenceEqual(_contacts) || journal.Count > 0 ||
             !movingMines.SequenceEqual(_mines) || events.Count > 0 ||
             !_missiles.Select(missile => missile.Id).SequenceEqual(advanced.Select(missile => missile.Id));
