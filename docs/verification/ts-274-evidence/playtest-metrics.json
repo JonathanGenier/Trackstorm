@@ -1,0 +1,222 @@
+[
+  {
+    "name": "bank-impact",
+    "frames": 55,
+    "initial": [
+      0,
+      1.145,
+      0
+    ],
+    "final": [
+      6.708575,
+      1.1549122,
+      -0.00908963
+    ],
+    "minY": 1.1325114,
+    "maxY": 1.1549122,
+    "peakVerticalSpeed": 0.18333334,
+    "peakStep": 0.2350602630126715,
+    "contactFrames": 23,
+    "finalContacts": 2,
+    "finalHP": 948.86444,
+    "finalSpeed": 9.658312E-07
+  },
+  {
+    "name": "bank-pressure-turn",
+    "frames": 240,
+    "initial": [
+      6.709461,
+      1.1555339,
+      -0.009092456
+    ],
+    "final": [
+      6.7732377,
+      1.2132185,
+      -0.013376009
+    ],
+    "minY": 1.1555339,
+    "maxY": 1.2132733,
+    "peakVerticalSpeed": 0.12756187,
+    "peakStep": 0.0017410721550630383,
+    "contactFrames": 240,
+    "finalContacts": 3,
+    "finalHP": 948.86444,
+    "finalSpeed": 0.004923472
+  },
+  {
+    "name": "bank-recontact",
+    "frames": 180,
+    "initial": [
+      0.112945475,
+      1.1420586,
+      11.156215
+    ],
+    "final": [
+      4.6553535,
+      1.1582658,
+      33.502186
+    ],
+    "minY": 1.137893,
+    "maxY": 1.1582658,
+    "peakVerticalSpeed": 0.02282302,
+    "peakStep": 0.3897644659360969,
+    "contactFrames": 0,
+    "finalContacts": 0,
+    "finalHP": 948.86444,
+    "finalSpeed": 23.385859
+  },
+  {
+    "name": "bank-reverse",
+    "frames": 180,
+    "initial": [
+      6.773448,
+      1.2134287,
+      -0.013444735
+    ],
+    "final": [
+      -0.0064496547,
+      1.1420448,
+      11.040121
+    ],
+    "minY": 1.1420312,
+    "maxY": 1.2134287,
+    "peakVerticalSpeed": 0.12769438,
+    "peakStep": 0.16630500852460484,
+    "contactFrames": 1,
+    "finalContacts": 0,
+    "finalHP": 948.86444,
+    "finalSpeed": 9.978309
+  },
+  {
+    "name": "perimeter-impact",
+    "frames": 90,
+    "initial": [
+      0,
+      1.145,
+      91
+    ],
+    "final": [
+      2.662476E-05,
+      1.1427789,
+      97.35886
+    ],
+    "minY": 1.1325971,
+    "maxY": 1.145,
+    "peakVerticalSpeed": 0.18333334,
+    "peakStep": 0.5833440027868341,
+    "contactFrames": 38,
+    "finalContacts": 0,
+    "finalHP": 900,
+    "finalSpeed": 3.7873683E-11
+  },
+  {
+    "name": "perimeter-reverse",
+    "frames": 150,
+    "initial": [
+      2.662476E-05,
+      1.1428336,
+      97.35886
+    ],
+    "final": [
+      0.6656218,
+      1.1437559,
+      81.789825
+    ],
+    "minY": 1.1427823,
+    "maxY": 1.1444896,
+    "peakVerticalSpeed": 0.003200665,
+    "peakStep": 0.1833172944945786,
+    "contactFrames": 0,
+    "finalContacts": 0,
+    "finalHP": 900,
+    "finalSpeed": 10.9879875
+  },
+  {
+    "name": "pillar-impact",
+    "frames": 90,
+    "initial": [
+      0,
+      1.145,
+      -10
+    ],
+    "final": [
+      6.397382,
+      1.141511,
+      -9.83955
+    ],
+    "minY": 1.1327745,
+    "maxY": 1.145,
+    "peakVerticalSpeed": 0.18333334,
+    "peakStep": 0.5833414028224981,
+    "contactFrames": 7,
+    "finalContacts": 0,
+    "finalHP": 900,
+    "finalSpeed": 0.0019109526
+  },
+  {
+    "name": "pillar-reverse",
+    "frames": 160,
+    "initial": [
+      6.3973503,
+      1.1415932,
+      -9.83955
+    ],
+    "final": [
+      -6.593516,
+      1.1538461,
+      -7.8669333
+    ],
+    "minY": 1.1415932,
+    "maxY": 1.1538461,
+    "peakVerticalSpeed": 0.014782816,
+    "peakStep": 0.18042067070651863,
+    "contactFrames": 17,
+    "finalContacts": 4,
+    "finalHP": 865.7915,
+    "finalSpeed": 0.00015192229
+  },
+  {
+    "name": "rock-impact",
+    "frames": 120,
+    "initial": [
+      -43,
+      1.145,
+      78
+    ],
+    "final": [
+      -42.696476,
+      1.1424154,
+      60.5839
+    ],
+    "minY": 1.1203974,
+    "maxY": 1.145,
+    "peakVerticalSpeed": 0.5355759,
+    "peakStep": 0.24026400433583098,
+    "contactFrames": 1,
+    "finalContacts": 0,
+    "finalHP": 947.33435,
+    "finalSpeed": 13.863511
+  },
+  {
+    "name": "rock-reverse",
+    "frames": 180,
+    "initial": [
+      -42.68857,
+      1.1500784,
+      60.349842
+    ],
+    "final": [
+      -42.76624,
+      1.1304455,
+      63.52757
+    ],
+    "minY": 1.1174803,
+    "maxY": 1.1597015,
+    "peakVerticalSpeed": 0.30829513,
+    "peakStep": 0.23191683964492907,
+    "contactFrames": 0,
+    "finalContacts": 0,
+    "finalHP": 947.33435,
+    "finalSpeed": 8.417483
+  }
+]

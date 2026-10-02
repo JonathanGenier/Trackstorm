@@ -177,6 +177,24 @@ The native adapters expose the current [material identity](surfaces.md) through 
 
 ## Interactive handling verification
 
+`check-world-collisions.ps1` exercises the actual map's steep tunnel dirt face,
+bank neck and side slope, pillar, retaining wing, perimeter and intact rock through
+practice and hosted adapters at 3/12/35 m/s initial speed with front/corner/side
+orientations, pressure, reverse and re-contact. It records penetration, motion and
+contact processing cost under `.godot/world-collision-checks/`. Run the scene with
+`-- surface=bank-face adapter=network speed=12 angle=0 steer=1` for the sustained
+steering repro. `original-terrain` reconstructs the original dense collider only
+inside this verification fixture for a matched baseline comparison.
+
+`check-world-collision-network.ps1` exercises two real UDP worlds on the actual
+tunnel banks, with 30 ms latency, 5 ms jitter and 2% loss, at those three speeds.
+It checks ordinary reverse escape, host-owned damage convergence and native step
+cost. These are separate physics worlds in one process; the separate-process
+`check-network-vehicles.ps1` remains the integration check.
+
+The interactive scene accepts `--world-collision-playtest` for isolated output
+under `.godot/ts-274/playtest` and a camera low enough to inspect the underpass.
+
 The explicit verification scene `scenes/verification/handling_playtest.tscn` uses the production practice adapter on the real oval/infield map. Add `-- --handling-flat` for an isolated surface fixture. Atomically replace `.godot/ts-160/playtest/input.json` with a unique `id`, `frames` (1–600), normalized `steer`, `throttle`, `brake`, and optional `handbrake`. Add `-- --handling-network` to exercise the production hosted/prediction collision adapter in the same rendered scene. `--handling-host-seed` reads the existing host-local tuning without writing it; `--handling-round8` selects the preceding asphalt/brake defaults for comparison. Commands may select `keyboard` or `analog` to exercise actual synthetic native steering/pedal capture. Traces include recorded axes, observed versus commanded velocity and terrain-contact normals for launch diagnosis. Optional `spawn` (three coordinates), `yaw` (radians), and `speed` initialize a fixture; optional `surface` selects a flat-fixture material. Flat fixtures accept `grade` in degrees (±45); optional `pitch`/`roll` in radians and `verticalSpeed` set controlled initial drop poses. `airRoll` selects the existing air-roll input. Traces include orientation, vertical velocity, compression, uprightness and native contact count. The scene pauses between bounded input segments for observation, preserves commanded velocities on resume, and writes per-tick `trace.json` and rendered `view.png`. Run only one instance per workspace. This scene is never loaded by production gameplay. Segment-based observation does not establish physical-controller ergonomics or continuous human play.
 
 [Destructible environment](destructible-environment.md) adds match-owned staged rocks and cleared soft cover. Both native adapters consume the same Core state; version-three resume checkpoints and nested migration retain damage, stages, movement continuation and plant bits without replaying impacts. New matches restore authored state.
