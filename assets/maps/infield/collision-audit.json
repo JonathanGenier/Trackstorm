@@ -1,0 +1,15 @@
+{
+  "blender_version": "5.2.2 LTS",
+  "collision_resource": "TerrainCollision.res",
+  "collision_sha256": "59cb18e0a91c2a5da50756667f05955d656b0637cd00ae5b0b68fc2568d97dc5",
+  "collision_triangles": 40211.0,
+  "maximum_bidirectional_vertex_centroid_distance_m": 0.0397329814732075,
+  "maximum_boundary_distance_m": 0.00112133368384093,
+  "provenance": "Original Trackstorm terrain; no new third-party geometry. Visual/source geometry unchanged.",
+  "ratio": 0.100000001490116,
+  "render_sha256": "d6152a4f1b9c174080cbe19645883ec5b9897ade2f91f0ef9e9bedb8d3d3a197",
+  "render_source": "infield_terrain.glb",
+  "source": "source/InfieldTerrain.blend",
+  "source_sha256": "5b14d4f670932b41ab05eb769ac98bccd2dc0de0c2c917458287805d0643a848",
+  "source_triangles": 402124.0
+}

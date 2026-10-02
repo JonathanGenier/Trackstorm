@@ -180,6 +180,11 @@ function Get-FastCheckPlan {
         }
 
         # Vehicles, simulation and camera.
+        if ($path -match 'WorldCollision|world_collision|check-world-collision' -or $path -match '^assets/maps/infield/(BuildTerrainCollision|BakeTerrainCollision|TerrainCollision|collision-audit|ImportTerrain)') {
+            Add-Runtime 'check-world-collisions.ps1'
+            Add-Extended 'check-world-collision-network.ps1'
+            Add-Manual 'Playtest sustained steering into the tunnel dirt face, reverse/re-contact and inspect rendered bank, pillar, perimeter and rock impacts.'
+        }
         if ($path -match '^code/(Core|Client)/Vehicles/' -or $path -match 'EnvironmentCollision|environment_collision|check-environment-collision' -or $path -eq 'code/Client/Networking/NetworkVehicleBody.cs') {
             Add-Runtime 'check-environment-collisions.ps1'
             Add-Extended 'check-environment-collision-network.ps1'

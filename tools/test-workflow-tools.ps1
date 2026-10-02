@@ -48,6 +48,9 @@ Assert-True ($vehiclePlan.RuntimeScripts -contains "check-terrain-handling.ps1")
 Assert-True ($vehiclePlan.ManualScenarios.Count -gt 0) "Vehicle changes must preserve playtest guidance."
 
 $networkPlan = Get-FastCheckPlan -Paths @("code/Client/Networking/VehicleReplicator.cs")
+$worldCollisionPlan = Get-FastCheckPlan -Paths @("assets/maps/infield/TerrainCollision.res")
+Assert-True ($worldCollisionPlan.RuntimeScripts -contains "check-world-collisions.ps1") "Terrain collider changes route actual-map collision coverage."
+Assert-True ($worldCollisionPlan.ExtendedScripts -contains "check-world-collision-network.ps1") "Terrain collider changes route impaired bank-contact verification."
 Assert-True $networkPlan.TransportTests "Networking changes must route transport tests."
 Assert-True ($networkPlan.RuntimeScripts -contains "check-network-vehicles.ps1") "Networking changes must route network vehicle verification."
 
