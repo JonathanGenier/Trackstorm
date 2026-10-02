@@ -117,9 +117,13 @@ wall pose, HP or motion outcomes. Their reconstructed layer-32 colliders partici
 queries; authoritative Core box intersections own weapon blocking. Dimensions and mass travel
 with each wall, avoiding collider changes when live tuning changes after deployment.
 
-World-wall native bodies constrain pitch/roll torque on both initial reconstruction and
-authority recovery. Host terrain sampling aligns their bases to slopes and follows ground
+World-wall native bodies constrain pitch/roll torque until an accepted strong-impact
+tipping state releases it; reconstruction and authority recovery preserve that state. Host terrain sampling aligns their bases to slopes and follows ground
 height without changing horizontal heading. Contact yaw and ground movement remain free;
 the host publishes accepted poses and the Tombstone-specific shared contact momentum.
 Deployment clearance uses the deploying car's current observed native pose, restoring its
 query proxy afterward so a fast-moving car cannot block release with its previous pose.
+
+World-wall item protocol 19 carries the captured expiry deadline and tipping state. Expired
+or side-ground-broken walls leave the complete authoritative set, so late admission and
+reconnect cannot resurrect them or restart their timers.

@@ -13,6 +13,10 @@ public sealed record ItemConfiguration
     public float TombstoneMass { get; init; } = 250;
     /// <summary>Clearance behind the chassis before ground queries (m).</summary>
     public float TombstoneClearance { get; init; } = 1;
+    /// <summary>Lifetime captured on successful deployment, in simulation seconds.</summary>
+    public float TombstoneLifetimeSeconds { get; init; } = 120;
+    /// <summary>Impact impulse per wall mass that releases tipping, in metres per second.</summary>
+    public float TombstoneTipSpeed { get; init; } = 20;
     /// <summary>Individually fired shots per pickup.</summary>
     public int SalvoCount { get; init; } = 5;
     /// <summary>Minimum interval between presses accepted as shots, at 60 Hz.</summary>
@@ -104,7 +108,9 @@ public sealed record ItemConfiguration
             !float.IsFinite(TombstoneHeight) || TombstoneHeight is < 2 or > 6 ||
             !float.IsFinite(TombstoneDepth) || TombstoneDepth is < 0.3f or > 2 ||
             !float.IsFinite(TombstoneMass) || TombstoneMass is < 50 or > 2000 ||
-            !float.IsFinite(TombstoneClearance) || TombstoneClearance is < 0.5f or > 5)
+            !float.IsFinite(TombstoneClearance) || TombstoneClearance is < 0.5f or > 5 ||
+            !float.IsFinite(TombstoneLifetimeSeconds) || TombstoneLifetimeSeconds is < 1 or > 600 ||
+            !float.IsFinite(TombstoneTipSpeed) || TombstoneTipSpeed is < 1 or > 100)
         { throw new ArgumentException("Invalid Tombstone wall tuning."); }
         if (!double.IsFinite(SalvoCount) || SalvoCount < 1 || SalvoCount > 16) { throw new ArgumentException("Invalid salvo count."); }
         if (!double.IsFinite(SalvoIntervalTicks) || SalvoIntervalTicks < 1 || SalvoIntervalTicks > 60) { throw new ArgumentException("Invalid salvo interval_ticks."); }

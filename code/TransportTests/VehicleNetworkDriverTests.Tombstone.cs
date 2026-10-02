@@ -66,7 +66,7 @@ internal sealed partial class VehicleNetworkDriverTests
         hostWire.Receive(new(ServerPeer, use, TransportDelivery.Reliable));
         host.Advance(default, Observe); Transfer();
         Assert.That(client.ItemState.Tombstones.Single(), Is.EqualTo(stone with { HP = 875, DamageSequence = 1,
-            Stage = TombstoneStage.WorldWall, Life = 0, Token = 0, Position = new(0, 2, 10), LinearVelocity = new(2, 0, 0) }));
+            Stage = TombstoneStage.WorldWall, Life = 0, Token = 0, Position = new(0, 2, 10), LinearVelocity = new(2, 0, 0), ExpiresAtTick = host.Host!.World.State.Tick + 7200 }));
         Assert.That(client.ItemState.Slots.Single(s => s.Vehicle == 2).Item, Is.EqualTo(HeldItem.None));
         clientWire.Receive(new(ServerPeer, duplicate, TransportDelivery.Reliable));
         client.Advance(default, Observe);

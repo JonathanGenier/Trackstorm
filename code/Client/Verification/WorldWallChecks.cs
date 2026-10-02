@@ -25,11 +25,14 @@ public sealed partial class WorldWallChecks : Node
     private bool _done;
     private int _stressCount;
     private float _weaponHP;
-    private N.Quaternion _beforeTorque;
+    private N.Quaternion _beforeImpact;
     private StaticBody3D? _blocker;
     private readonly Dictionary<ulong, N.Vector3> _releasedFacing = new();
     private float? _impactSpeed;
     private N.Vector3 _groundStart;
+    private ulong _impactWall, _expiryWall, _expiryTick;
+    private bool _sawTipping;
+    private bool _sawFalling;
     private bool ProductionMap => OS.GetCmdlineUserArgs().Contains("--world-wall-production");
 
     public override void _Ready()
@@ -88,15 +91,10 @@ public sealed partial class WorldWallChecks : Node
         try
         {
             var host = _arenas[0].Driver.Host!;
-            foreach (var wall in host.Items.Tombstones.Where(s => !s.Attached))
+            foreach (var wall in host.Items.Tombstones.Where(s => !s.Attached && !s.Tipping))
             {
                 Check(N.Vector3.Transform(N.Vector3.UnitY, wall.Orientation).Y > 0.55f, "Wall remains standing throughout native motion and impacts");
                 Check(Math.Abs(wall.AngularVelocity.X) < 0.001f && Math.Abs(wall.AngularVelocity.Z) < 0.001f, "No pitch/roll velocity");
-            }
-            if (_stage == 4 && elapsed == 40)
-            {
-                var wall = host.Items.Tombstones.Last(); _beforeTorque = wall.Orientation;
-                _arenas[0].Walls.Bodies[wall.Id].ApplyTorqueImpulse(new(1000, 1000, 1000));
             }
             if (_stage == 6) { AimAtWall(); }
             if (_stage is 12 or 13 && elapsed == 15)
@@ -108,9 +106,9 @@ public sealed partial class WorldWallChecks : Node
             float incomingSpeed = _stage == 4 ? host.World.GetVehicle(2).Movement.Physics.LinearVelocity.Length() : 0;
             for (int i = 0; i < _arenas.Count; i++)
             {
-                bool use = (_stage == 2 && elapsed == 1) || (_stage == 14 && elapsed == 1 && i == 0) || (_stage == 6 && i == 0) || (_stage is 8 or 12 or 13 && elapsed == 15 && i == 0);
+                bool use = ((_stage == 2 || _stage == 18) && elapsed == 1) || (_stage == 14 && elapsed == 1 && i == 0) || (_stage == 6 && i == 0) || (_stage is 8 or 12 or 13 && elapsed == 15 && i == 0);
                 bool pressed = use && (elapsed == 1 || (_stage is 8 or 12 or 13 && elapsed == 15));
-                ushort throttle = ((_stage == 3 && (!ProductionMap || _scenario < 4)) || (_stage == 4 && i == 1)) ? ushort.MaxValue : (ushort)0;
+                ushort throttle = ((_stage == 3 && (!ProductionMap || _scenario < 4))) ? ushort.MaxValue : (ushort)0;
                 _arenas[i].Advance(new((ulong)_frame, 0, throttle, 0, use ? InputButtons.UseItem : 0, pressed ? InputButtons.UseItem : 0, 0));
                 Check(_arenas[i].Driver.Failure.Length == 0, _arenas[i].Driver.Failure);
             }
@@ -215,14 +213,15 @@ public sealed partial class WorldWallChecks : Node
                     Check(uphill.Position.Y > _groundStart.Y + 1, "Fast slide gains terrain elevation");
                     Record($"Fast uphill slide follows elevation: {_groundStart.Y:F2} -> {uphill.Position.Y:F2} m.");
                     RestWall();
-                    Position(2, uphill.Position + new N.Vector3(0, 0, 8), new(0, 0, -18));
+                    Position(2, uphill.Position + new N.Vector3(2, 0, 8), new(0, 0, -18));
+                    _beforeImpact = uphill.Orientation;
                     _pushStart = host.Items.Tombstones.Last().Position; Next(4); break;
                 case 4 when elapsed >= 90:
                     var pushed = host.Items.Tombstones.Last();
                     Check(N.Vector3.Distance(pushed.Position, _pushStart) > 0.25f, $"Other vehicle physically moves wall: start {_pushStart}, wall {pushed.Position}, vehicle {host.World.GetVehicle(2).ObservedPhysics.Position}, HP {pushed.HP}, frozen {_arenas[0].Walls.Bodies[pushed.Id].Freeze}");
                     Check(pushed.HP < 875, "Native wall contact damages its independent pool");
-                    Check(Math.Abs(N.Quaternion.Dot(pushed.Orientation, _beforeTorque)) < 0.999f, "Yaw remains free under native torque while tipping stays locked");
-                    Record($"Vehicle push moved wall {N.Vector3.Distance(pushed.Position, _pushStart):F2} m; HP {pushed.HP:F1}.");
+                    Check(Math.Abs(N.Quaternion.Dot(pushed.Orientation, _beforeImpact)) < 0.999f, "An off-centre vehicle hit rotates the wall without an artificial torque impulse");
+                    Record($"Off-centre vehicle hit moved wall {N.Vector3.Distance(pushed.Position, _pushStart):F2} m; heading changed {2 * MathF.Acos(Math.Clamp(Math.Abs(N.Quaternion.Dot(pushed.Orientation, _beforeImpact)), 0, 1)) * 180 / MathF.PI:F1} degrees; HP {pushed.HP:F1}.");
                     Position(2, new(120, 204, 60), N.Vector3.Zero);
                     Capture("pushed.png"); AddPeer(); Next(5); break;
                 case 5 when elapsed > 120 && _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 3):
@@ -264,8 +263,46 @@ public sealed partial class WorldWallChecks : Node
                     Check(host.Items.Tombstones.All(s => VehiclePhysicsState.IsFinite(s.Position) && VehiclePhysicsState.IsFinite(s.LinearVelocity)), "Finite sustained wall state");
                     VerifyBoundaries(); Capture("sixteen-walls.png");
                     Record("Sixteen walls deployed via ordinary use, then sustained for 600 physics frames across three UDP arenas.");
+                    var victim = host.Items.Tombstones.Last(); _impactWall = victim.Id;
+                    RestWall(flatWeaponTarget: true);
+                    Position(2, new(0, 201.7f, -50), new(0, 0, -40));
+                    var impactCamera = _arenas[0].GetNode<Camera3D>("WallCamera");
+                    impactCamera.Position = new(14, 208, -47); impactCamera.LookAt(new(0, 202, -60));
+                    Next(17); break;
+                case 17:
+                    var tipping = host.Items.Tombstones.FirstOrDefault(s => s.Id == _impactWall);
+                    if (tipping is { Tipping: true } && !_sawTipping)
+                    {
+                        _sawTipping = true; Capture("tipping.png");
+                        Record($"Hard native vehicle hit released tipping at {tipping.HP:F1} HP; angular speed {tipping.AngularVelocity.Length():F2} rad/s.");
+                    }
+                    if (tipping is { Tipping: true } && !_sawFalling && N.Vector3.Transform(N.Vector3.UnitY, tipping.Orientation).Y < 0.75f)
+                    { _sawFalling = true; Capture("falling.png"); }
+                    if (tipping is not null) { break; }
+                    Check(_sawTipping && _sawFalling, "Wall must visibly enter tipping before its ground break");
+                    Check(elapsed < 240, "Hard impact topples and breaks promptly");
+                    Record("Tipped wall broke on native side/ground contact and left the live set.");
+                    Capture("toppled-removed.png");
+                    Position(2, new(120, 204, 60), N.Vector3.Zero);
+                    Check(host.TryConfigure(0, new Dictionary<string, double> { ["items.tombstone_lifetime"] = 2 }, out _), "Configure short native expiry fixture");
+                    Position(1, new(0, 201.65f, 0), N.Vector3.Zero);
+                    Check(host.Items.Grant(host.World, 1, HeldItem.Tombstone), "Expiry fixture grant");
+                    _expiryWall = host.Items.Tombstones.Last().Id; Next(18); break;
+                case 18:
+                    var expiring = host.Items.Tombstones.Single(s => s.Id == _expiryWall);
+                    if (expiring.Attached) { break; }
+                    _expiryTick = expiring.ExpiresAtTick;
+                    Check(_expiryTick == host.World.State.Tick + 120, "Lifetime starts on deployment");
+                    Check(host.TryConfigure(0, new Dictionary<string, double> { ["items.tombstone_lifetime"] = 120 }, out _), "Retuning cannot restart captured expiry");
+                    Next(19); break;
+                case 19:
+                    Check(host.Items.Tombstones.Any(s => s.Id == _expiryWall) == (host.World.State.Tick < _expiryTick), "Expiry removes the wall at its exact captured deadline");
+                    if (host.World.State.Tick < _expiryTick + 60) { break; }
+                    Check(_arenas.All(a => !a.Walls.Bodies.ContainsKey(_expiryWall) && !a.Walls.Bodies.ContainsKey(_impactWall)), "Break and expiry remove every peer collider");
+                    VerifyBoundaries();
+                    Record("Configured native expiry fired at its exact captured deadline despite retuning; all three peer colliders removed.");
                     System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
-                    GD.Print("World wall integration passed: native deployment, motion, vehicle collision, damage, destruction, late join and UDP convergence.");
+                    GD.Print("World wall integration passed: native contact spin, tipping/breakage, expiry, deployment, motion, weapons, late join and UDP convergence.");
                     Finish(0); break;
             }
         }

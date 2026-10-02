@@ -118,7 +118,12 @@ This prevents checkpoint rollback and lease/election waits from restarting or gr
 The native migration harness checks that remaining ticks never increase and only the bounded recovery interval is deducted, alongside retained score/state assertions. Separate-device EOS and long Internet latency remain separate acceptance work.
 Movable [Tombstone walls](items.md#movable-tombstone-world-walls) retain their full committed
 pose, linear/angular velocity, captured dimensions/mass, HP and ordered damage/collision
-watermarks in item protocol 18 inside the existing checkpoint. Recovery installs that exact
+watermarks in item protocol 19 inside the existing checkpoint. Recovery installs that exact
 selected boundary, rather than the original deployment pose. The new host reconstructs its
 native rigid bodies and continues independently of former-owner life; replicas stay frozen.
 Native solver contact caches and cosmetic wing-expansion progress are not checkpoint state.
+
+Tombstone world-wall recovery retains the original absolute expiry deadline and whether
+a strong impact released tipping. The timer never restarts on recovery. A wall that expired
+while a player was disconnected is absent from the accepted live set and has no replica
+collider after resync; an attached shield has no deployed-wall timer.

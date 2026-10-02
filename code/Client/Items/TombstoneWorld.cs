@@ -32,7 +32,7 @@ internal sealed partial class TombstoneWorld : Node3D
         }
     }
 
-    internal VehiclePhysicsState? Observe(TombstoneState state) => _bodies.TryGetValue(state.Id, out var body) ? body.Observe() : null;
+    internal TombstoneObservation? Observe(TombstoneState state) => _bodies.TryGetValue(state.Id, out var body) ? body.ObserveWall() : null;
 
     internal VehiclePhysicsState? Place(VehiclePhysicsState vehicle, ItemConfiguration tuning, PhysicsBody3D owner)
     {

@@ -116,6 +116,8 @@ public static class GameplayOptions
         new("items.tombstone_depth", "Tombstone", "Wall depth (m)", false, c => c.Items.TombstoneDepth, (c, v) => c with { Items = c.Items with { TombstoneDepth = checked((float)v) } }),
         new("items.tombstone_mass", "Tombstone", "Wall mass (kg)", false, c => c.Items.TombstoneMass, (c, v) => c with { Items = c.Items with { TombstoneMass = checked((float)v) } }),
         new("items.tombstone_clearance", "Tombstone", "Rear clearance (m)", false, c => c.Items.TombstoneClearance, (c, v) => c with { Items = c.Items with { TombstoneClearance = checked((float)v) } }),
+        new("items.tombstone_lifetime", "Tombstone", "Deployed lifetime (s)", false, c => c.Items.TombstoneLifetimeSeconds, (c, v) => c with { Items = c.Items with { TombstoneLifetimeSeconds = checked((float)v) } }),
+        new("items.tombstone_tip_speed", "Tombstone", "Knock-over impulse / mass (m/s)", false, c => c.Items.TombstoneTipSpeed, (c, v) => c with { Items = c.Items with { TombstoneTipSpeed = checked((float)v) } }),
         new("items.mine_damage", "Proxy Mine", "MineDamage", false, c => c.Items.MineDamage, (c, v) => c with { Items = c.Items with { MineDamage = checked((float)v) } }),
         new("items.mine_attraction_radius", "Proxy Mine", "MineAttractionRadius", false, c => c.Items.MineAttractionRadius, (c, v) => c with { Items = c.Items with { MineAttractionRadius = checked((float)v) } }),
         new("items.mine_minimum_force", "Proxy Mine", "MineMinimumForce", false, c => c.Items.MineMinimumForce, (c, v) => c with { Items = c.Items with { MineMinimumForce = checked((float)v) } }),

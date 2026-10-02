@@ -187,7 +187,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
 
                 _resyncs++;
                 SalvoRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, _salvoBoundaries);
-                TombstoneRecoveryFixture.Verify(_arenas[1].Driver.ItemState!.Tombstones, _tombstones, _salvoBoundaries[world.Tick].Tombstones);
+                TombstoneRecoveryFixture.Verify(_arenas[1].Driver.ItemState!.Tombstones, _tombstones, _salvoBoundaries[world.Tick].Tombstones, world.Tick);
                 if (_resyncs <= 3)
                 {
                     Require(_arenas[1].Driver.ItemState!.Mines.Single().Id == _mine, "Mine identity restored exactly once.");

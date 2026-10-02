@@ -20,7 +20,7 @@ public sealed partial class ItemAuthority
         var state = _tombstones[index];
         if (state.Stage != expected || !AttachedOwnerCanInteract(world, state) ||
             !(expected == TombstoneStage.RearShield && next == TombstoneStage.WorldWall && placement is not null)) { return false; }
-        var candidate = state with { Stage = next, Life = 0, Token = 0, Position = placement.Value.Position, Orientation = placement.Value.Orientation, LinearVelocity = placement.Value.LinearVelocity, AngularVelocity = placement.Value.AngularVelocity };
+        var candidate = state with { Stage = next, Life = 0, Token = 0, Position = placement.Value.Position, Orientation = placement.Value.Orientation, LinearVelocity = placement.Value.LinearVelocity, AngularVelocity = placement.Value.AngularVelocity, ExpiresAtTick = checked(world.State.Tick + (ulong)MathF.Ceiling(Configuration.TombstoneLifetimeSeconds * 60)) };
         candidate.Validate();
         if (!candidate.Attached) { ClearTombstoneSlot(state); }
         _tombstones[index] = candidate;

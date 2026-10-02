@@ -24,6 +24,10 @@ public sealed record TombstoneState(ulong Id, ulong Owner, ulong Life, ulong Tok
     public Vector3 WallSize { get; init; } = new(6, 2.5f, 0.6f);
     /// <summary>Physical mass captured on deployment in kilograms.</summary>
     public float WallMass { get; init; } = 250;
+    /// <summary>Captured absolute simulation deadline; zero only while held or attached.</summary>
+    public ulong ExpiresAtTick { get; init; }
+    /// <summary>A strong impact released pitch/roll constraints; retained through recovery.</summary>
+    public bool Tipping { get; init; }
     /// <summary>Whether inventory/life ownership still applies.</summary>
     public bool Attached => Stage != TombstoneStage.WorldWall;
 
@@ -32,6 +36,7 @@ public sealed record TombstoneState(ulong Id, ulong Owner, ulong Life, ulong Tok
     {
         if (Id == 0 || Owner == 0 || !Enum.IsDefined(Stage) || !float.IsFinite(HP) || HP is <= 0 or > DefaultHP ||
             ((HP == DefaultHP) != (DamageSequence == 0)) || (LastCollisionTick.HasValue && DamageSequence == 0) ||
+            (Attached ? ExpiresAtTick != 0 || Tipping : ExpiresAtTick == 0) ||
             (Attached ? Life == 0 || Token == 0 || Position != Vector3.Zero || Orientation != Quaternion.Identity : Life != 0 || Token != 0) ||
             !VehiclePhysicsState.IsFinite(LinearVelocity) || !VehiclePhysicsState.IsFinite(AngularVelocity) ||
             (Attached && (LinearVelocity != Vector3.Zero || AngularVelocity != Vector3.Zero)) ||

@@ -35,7 +35,7 @@ internal sealed class WorldWallTests
         var wall = host.Items.Tombstones.Single();
         Assert.That(wall, Is.EqualTo(original with { Stage = TombstoneStage.WorldWall, Life = 0, Token = 0, HP = 679,
             DamageSequence = 7, Position = Placement.Position, Orientation = Placement.Orientation,
-            LinearVelocity = Placement.LinearVelocity, AngularVelocity = Placement.AngularVelocity }));
+            LinearVelocity = Placement.LinearVelocity, AngularVelocity = Placement.AngularVelocity, ExpiresAtTick = host.World.State.Tick + 7200 }));
         Assert.That(host.Items.Slots.Single(), Is.EqualTo(second ? slot with { SecondItem = HeldItem.None } : slot with { Item = HeldItem.None }));
         Assert.That(host.Items.RequestUse(host.World, 1, 1, original.Token), Is.False);
         host.Step(default, Observe, placeTombstone: (_, _, _) => Placement);
@@ -80,7 +80,7 @@ internal sealed class WorldWallTests
         var host = Start(); var wall = Deploy(host);
         host.Items.DamageTombstone(host.World, wall.Id, 11, 200, Hit);
         var moved = new VehiclePhysicsState(new(10, 3, 20), Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 0.4f), new(4, 0, 1), new(0, 2, 0));
-        host.Step(default, Observe, observeTombstone: _ => moved);
+        host.Step(default, Observe, observeTombstone: _ => new(moved));
         var state = host.Items.Tombstones.Single();
         Assert.That(state.Position, Is.EqualTo(moved.Position));
         Assert.That(state.HP, Is.EqualTo(800));
@@ -151,7 +151,8 @@ internal sealed class WorldWallTests
     public void WallContactSharesMomentumWithoutStoppingCarOrDuplicatingManifoldImpulse(bool duplicate)
     {
         var host = Start(); var wall = Deploy(host);
-        var contact = new VehicleContact(new(0, 0, -18), Vector3.UnitZ, 0, 0, tombstone: wall.Id);
+        var contact = new VehicleContact(new(0, 0, -18), Vector3.UnitZ, 0, 0,
+            localPosition: wall.Position - host.World.GetVehicle(1).ObservedPhysics.Position, tombstone: wall.Id);
         VehicleObservation Contact(VehicleSnapshot s) => new(new(s.ObservedPhysics.Position, Quaternion.Identity, Vector3.Zero, Vector3.Zero),
             Vector3.UnitY, duplicate ? [contact, contact] : [contact]);
         host.Step(default, Contact);
@@ -162,7 +163,7 @@ internal sealed class WorldWallTests
         Assert.That(pushed.HP, Is.LessThan(wall.HP));
         Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.LessThan(1000), "Normal collision damage remains");
         VehicleObservation MovingContact(VehicleSnapshot s) => new(new(s.ObservedPhysics.Position, Quaternion.Identity, Vector3.Zero, Vector3.Zero),
-            Vector3.UnitY, [new(Vector3.Zero, Vector3.UnitZ, 0, 0, tombstone: wall.Id)]);
+            Vector3.UnitY, [new(Vector3.Zero, Vector3.UnitZ, 0, 0, localPosition: wall.Position - s.ObservedPhysics.Position, tombstone: wall.Id)]);
         host.Step(default, MovingContact);
         Assert.That(host.World.GetVehicle(1).ObservedPhysics.LinearVelocity.Z, Is.EqualTo(expected).Within(0.0001f), "Co-moving contact does not stop the car again");
         Assert.That(host.Items.Tombstones.Single().LinearVelocity, Is.EqualTo(pushed.LinearVelocity));
@@ -202,6 +203,77 @@ internal sealed class WorldWallTests
         Assert.That(host.Items.Tombstones.Count(s => !s.Attached), Is.EqualTo(1));
         Assert.That(host.Items.Tombstones.Single(s => s.Owner == 2).Stage, Is.EqualTo(TombstoneStage.RearShield));
         Assert.That(host.Items.Slots.Single(s => s.Vehicle == 2).Item, Is.EqualTo(HeldItem.Tombstone));
+    }
+
+    [TestCase(-2f, false)]
+    [TestCase(2f, false)]
+    [TestCase(2f, true)]
+    public void OffCentreVehicleContactSpinsWallWithoutPrematureTipping(float offset, bool duplicate)
+    {
+        var host = Start(); var wall = Deploy(host);
+        Strike(host, wall, offset, 12, duplicate);
+        var pushed = host.Items.Tombstones.Single();
+        Assert.That(pushed.AngularVelocity.Y * offset, Is.GreaterThan(0.5f));
+        Assert.That(pushed.AngularVelocity.X, Is.Zero);
+        Assert.That(pushed.Tipping, Is.False);
+        Assert.That(pushed.HP, Is.LessThan(wall.HP));
+        if (duplicate)
+        {
+            var single = Start(); var singleWall = Deploy(single); Strike(single, singleWall, offset, 12, false);
+            Assert.That(pushed.AngularVelocity, Is.EqualTo(single.Items.Tombstones.Single().AngularVelocity));
+            Assert.That(pushed.LinearVelocity, Is.EqualTo(single.Items.Tombstones.Single().LinearVelocity));
+        }
+    }
+
+    [Test]
+    public void HardImpactReleasesTippingAndOnlySideGroundContactBreaksTheWall()
+    {
+        var host = Start(); var wall = Deploy(host); Strike(host, wall, 0, 35, false);
+        var tipped = host.Items.Tombstones.Single();
+        Assert.That(tipped.Tipping, Is.True);
+        Assert.That(Math.Abs(tipped.AngularVelocity.X), Is.GreaterThan(1));
+        var sideways = new VehiclePhysicsState(wall.Position, Quaternion.CreateFromAxisAngle(Vector3.UnitX, 1.5f), Vector3.Zero, Vector3.Zero);
+        host.Step(default, Observe, observeTombstone: _ => new(sideways));
+        Assert.That(host.Items.Tombstones, Has.Count.EqualTo(1), "Airborne tilt alone cannot break it");
+        var slope = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 0.3f);
+        host.Step(default, Observe, observeTombstone: _ => new(new(wall.Position, slope, Vector3.Zero, Vector3.Zero), Vector3.Transform(Vector3.UnitY, slope)));
+        Assert.That(host.Items.Tombstones, Has.Count.EqualTo(1), "Normal slope support is not a side impact");
+        host.Step(default, Observe, observeTombstone: _ => new(sideways, Vector3.UnitY));
+        Assert.That(host.Items.Tombstones, Is.Empty);
+        Assert.That(host.Items.DamageTombstone(host.World, wall.Id, 100, 1000, Hit), Is.Null, "Terminal break cannot repeat");
+    }
+
+    [Test]
+    public void RecoveryPreservesTippingAndOriginalExpiryDespiteRetuningOrNewInventory()
+    {
+        var host = Start();
+        Assert.That(host.TryConfigure(0, new Dictionary<string, double> { ["items.tombstone_lifetime"] = 1 }, out _), Is.True);
+        var wall = Deploy(host); Strike(host, wall, 0, 35, false);
+        Assert.That(host.Items.Grant(host.World, 1, HeldItem.Wrench), Is.True);
+        host.TryConfigure(0, new Dictionary<string, double> { ["items.tombstone_lifetime"] = 120 }, out _);
+        var publication = ItemCodec.DecodeState(ItemCodec.EncodeState(new(1, host.Snapshot(), host.Items.Slots, [], [], tombstones: host.Items.Tombstones)));
+        var checkpoint = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(new(publication, host.World.State.Match!, null, host.Configuration)));
+        var restored = HostVehicleSession.Restore(checkpoint, host.CaptureAuthority(), 1);
+        Assert.That(restored.Items.Tombstones.Single().ExpiresAtTick, Is.EqualTo(wall.ExpiresAtTick));
+        Assert.That(restored.Items.Tombstones.Single().Tipping, Is.True);
+        foreach (var session in new[] { host, restored })
+        {
+            while (session.World.State.Tick + 1 < wall.ExpiresAtTick) { session.Step(default, Observe); }
+            Assert.That(session.Items.Tombstones, Has.Count.EqualTo(1));
+            session.Step(default, Observe);
+            Assert.That(session.Items.Tombstones, Is.Empty);
+            Assert.That(session.Items.Slots.Single().Active.Item, Is.EqualTo(HeldItem.Wrench));
+            session.Step(default, Observe);
+            Assert.That(session.Items.Tombstones, Is.Empty);
+        }
+    }
+
+    private static void Strike(HostVehicleSession host, TombstoneState wall, float offset, float speed, bool duplicate)
+    {
+        var pose = new VehiclePhysicsState(wall.Position + new Vector3(0, -0.75f, 8), Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        var contact = new VehicleContact(new(0, 0, -speed), Vector3.UnitZ, 0, 0, localPosition: new(offset, 0, -7.7f), tombstone: wall.Id);
+        host.Step(default, _ => new(pose, Vector3.UnitY, duplicate ? [contact, contact] : [contact]),
+            observeTombstone: _ => new(new(wall.Position, wall.Orientation, Vector3.Zero, Vector3.Zero)));
     }
 
     private static TombstoneState Deploy(HostVehicleSession host)

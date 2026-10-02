@@ -13,6 +13,7 @@ public sealed partial class ItemAuthority
         private readonly Dictionary<ulong, ItemSlot> _slots;
         private readonly List<RuntimeEvent> _journal;
         private readonly ulong _tick;
+        private readonly ItemConfiguration _configuration;
         internal List<TombstoneState> States { get; }
 
         internal RearShieldBatch(ItemAuthority items, Simulation.Simulation world, IReadOnlyList<VehicleStepRequest> requests,
@@ -20,6 +21,16 @@ public sealed partial class ItemAuthority
         {
             States = new(items._tombstones);
             _world = world; _requests = requests; _slots = slots; _journal = journal; _tick = tick;
+            _configuration = items.Configuration;
+            if (world.State.Match is not { Phase: not Matches.MatchPhase.Active })
+            {
+                foreach (var wall in States.Where(s => !s.Attached && s.ExpiresAtTick <= tick).ToArray())
+                {
+                    States.Remove(wall);
+                    journal.Add(new RuntimeEvent { Category = EventCategory.Item, Kind = "Expired", Target = wall.Owner,
+                        Cause = "Tombstone", Context = wall.Id.ToString(System.Globalization.CultureInfo.InvariantCulture), Tick = tick });
+                }
+            }
         }
 
         private IEnumerable<TombstoneState> Active() => States.Where(s => _world.State.Match is not { Phase: not Matches.MatchPhase.Active } && s.Stage == TombstoneStage.RearShield &&
@@ -53,24 +64,32 @@ public sealed partial class ItemAuthority
             if (index < 0) { return false; }
             var candidate = States[index] with { Stage = TombstoneStage.WorldWall, Life = 0, Token = 0,
                 Position = pose.Position, Orientation = pose.Orientation, LinearVelocity = pose.LinearVelocity, AngularVelocity = pose.AngularVelocity,
-                WallSize = new(configuration.TombstoneWidth, configuration.TombstoneHeight, configuration.TombstoneDepth), WallMass = configuration.TombstoneMass };
+                WallSize = new(configuration.TombstoneWidth, configuration.TombstoneHeight, configuration.TombstoneDepth), WallMass = configuration.TombstoneMass,
+                ExpiresAtTick = checked(_tick + (ulong)MathF.Ceiling(configuration.TombstoneLifetimeSeconds * 60)) };
             candidate.Validate();
             if (States.Any(s => !s.Attached && TombstoneGeometry.Overlaps(candidate, s))) { return false; }
             States[index] = candidate;
             return true;
         }
 
-        internal void ObserveWalls(Func<TombstoneState, VehiclePhysicsState?>? observe)
+        internal void ObserveWalls(Func<TombstoneState, TombstoneObservation?>? observe)
         {
             if (observe is null || _world.State.Match is { Phase: not Matches.MatchPhase.Active }) { return; }
-            for (int i = 0; i < States.Count; i++)
+            for (int i = States.Count - 1; i >= 0; i--)
             {
                 var wall = States[i];
-                if (wall.Attached || observe(wall) is not { } pose) { continue; }
+                if (wall.Attached || observe(wall) is not { } observation) { continue; }
+                var pose = observation.Physics;
+                if (observation.GroundContactNormal is { } ground &&
+                    (!VehiclePhysicsState.IsFinite(ground) || Math.Abs(ground.LengthSquared() - 1) > 0.001f || ground.Y < 0.55f))
+                { throw new ArgumentException("Invalid wall ground contact."); }
                 var candidate = wall with { Position = pose.Position, Orientation = pose.Orientation,
                     LinearVelocity = pose.LinearVelocity, AngularVelocity = pose.AngularVelocity };
                 candidate.Validate();
                 States[i] = candidate;
+                if (wall.Tipping && observation.GroundContactNormal is { } support &&
+                    Vector3.Dot(Vector3.Transform(Vector3.UnitY, pose.Orientation), support) < 0.2f)
+                { Damage(wall.Id, wall.HP, new("world", 0, "toppled-wall")); }
             }
         }
 
@@ -182,16 +201,28 @@ public sealed partial class ItemAuthority
                     var contact = group.OrderBy(c => Vector3.Dot(c.RelativeVelocity, c.Normal)).First();
                     var normal = Vector3.Normalize(new Vector3(contact.Normal.X, 0, contact.Normal.Z));
                     float relative = Vector3.Dot(contact.RelativeVelocity, normal);
-                    float incoming = Vector3.Dot(wall.LinearVelocity, normal) + relative;
+                    var points = group.Select(c => observation.Physics.Position + Vector3.Transform(c.LocalPosition, observation.Physics.Orientation)).Distinct().ToArray();
+                    var arm = points.Aggregate(Vector3.Zero, (sum, p) => sum + p) / points.Length - wall.Position;
+                    float incoming = Vector3.Dot(wall.LinearVelocity + Vector3.Cross(wall.AngularVelocity, arm), normal) + relative;
                     if (incoming >= 0) { continue; }
                     yielded = true;
                     float mass = _world.MovementTuning(request.VehicleId).Mass;
                     float impulse = Math.Max(0, -relative) / (1 / mass + 1 / wall.WallMass);
+                    bool tipping = wall.Tipping || impulse / wall.WallMass >= _configuration.TombstoneTipSpeed;
+                    var torquePerImpulse = Vector3.Cross(arm, -normal);
+                    var localTorque = Vector3.Transform(torquePerImpulse, Quaternion.Conjugate(wall.Orientation));
+                    var size = wall.WallSize;
+                    var localResponse = new Vector3(localTorque.X / (size.Y * size.Y + size.Z * size.Z),
+                        localTorque.Y / (size.X * size.X + size.Z * size.Z), localTorque.Z / (size.X * size.X + size.Y * size.Y)) * (12 / wall.WallMass);
+                    var angularResponse = Vector3.Transform(localResponse, wall.Orientation);
+                    if (!tipping) { angularResponse = new(0, angularResponse.Y, 0); }
+                    impulse = Math.Max(0, -relative) / (1 / mass + 1 / wall.WallMass + Math.Max(0, Vector3.Dot(torquePerImpulse, angularResponse)));
+                    var angular = wall.AngularVelocity + angularResponse * impulse;
                     // A yielding wall shares normal momentum instead of retaining the
                     // generic sweep's stationary-obstacle stop. Keep its original contact
                     // observations for the existing damage and cooldown rules.
                     velocity += normal * (incoming + impulse / mass - Vector3.Dot(velocity, normal));
-                    States[index] = wall with { LinearVelocity = wall.LinearVelocity - normal * (impulse / wall.WallMass) };
+                    States[index] = wall with { LinearVelocity = wall.LinearVelocity - normal * (impulse / wall.WallMass), AngularVelocity = angular, Tipping = tipping };
                 }
                 if (!yielded) { continue; }
                 // Unrelated solid/vehicle contacts retain the normal motion already

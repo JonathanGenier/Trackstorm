@@ -204,7 +204,7 @@ three-panel visual expands over 0.2 seconds; the full collision envelope is acti
 Host Configs exposes `items.tombstone_width` (6 m), `height` (2.5 m), `depth` (0.6 m),
 `mass` (250 kg), and `clearance` (1 m behind the chassis envelope). Bounds are respectively
 3–12 m, 2–6 m, 0.3–2 m, 50–2000 kg, and 0.5–5 m. Dimensions and mass are captured at
-deployment, so later tuning cannot resize an installed collider. Configuration protocol 39
+deployment, so later tuning cannot resize an installed collider. Configuration protocol 40
 carries these values through the existing validation, publication and recovery path. These
 are operational defaults verified on flat/banked native fixtures, not final balance.
 
@@ -212,18 +212,36 @@ are operational defaults verified on flat/banked native fixtures, not final bala
 native solver; Core commits observed pose, linear/angular velocity and independent HP.
 Frozen replicas receive the complete accepted state. Vehicle collision queries include wall
 layer 32 and retain normal vehicle collision damage. For wall contacts only, Core shares
-horizontal normal momentum using the car and captured wall masses, so a car pushes the
+contact-normal momentum using the car and captured wall masses plus the wall box inertia, so a car pushes the
 wall while slowing instead of retaining the generic sweep's stationary-obstacle stop.
-Manifold points collapse per wall; unrelated blocking contacts keep their resolved motion.
+Distinct manifold points form one contact centroid per wall; the contact offset produces
+angular momentum as well as translation. Duplicate points cannot add duplicate torque.
+Unrelated blocking contacts keep their resolved motion.
 Car handling and the generic collision solver are unchanged. Writing an unchanged host
 observation back to the solver is skipped to preserve pending contact impulses.
-Walls use low friction (0.08) and linear damping (0.2). Native pitch/roll torque is constrained;
+Walls use low friction (0.08) and linear damping (0.2). Before a strong vehicle impact,
+native pitch/roll torque is constrained;
 terrain support controls their slope-relative orientation and height as they slide. Horizontal
 heading is preserved through ground alignment, while contact torque may rotate yaw freely.
 Unsupported or airborne walls retain gravity. A rigid base cannot bend around a crest: it
 rests above the highest sampled support, and placement requires all five supported samples.
 Walls collide with
-terrain/vehicles/other walls and survive the deployer's death, respawn or departure. Inactive authority freezes the bodies.
+terrain/vehicles/other walls and survive the deployer's death, respawn or departure until
+expiry/destruction. Inactive authority freezes the bodies.
+
+When a vehicle contact's impulse divided by wall mass reaches `items.tombstone_tip_speed`
+(default 20 m/s, range 1–100), Core permanently marks that wall as tipping. Its native
+pitch/roll locks and ground stabilization release, and the contact offset supplies physical
+angular momentum. Core destroys the remaining pool once native walkable-ground contact
+coincides with the wall up-axis falling below a 0.2 dot product with that contact normal
+(about 78.5 degrees from upright). Airborne tilt and ordinary slope alignment cannot alone
+break it. The normal destruction path removes its collider and records the terminal event.
+
+`items.tombstone_lifetime` defaults to 120 seconds (range 1–600). Successful deployment
+captures an absolute host simulation-tick deadline; retuning, owner death/departure and
+recovery cannot restart it. Expiry atomically removes the independent wall and records an
+Expired event without touching the former owner's new inventory. Held/rear shields have
+no deployment timer.
 
 Core oriented-box intersections stop Machine Gun, Missile and Salvo segments at the closest
 wall, comparing against native terrain/chassis hits. Native weapon queries omit layer 32 so
@@ -234,8 +252,8 @@ struck wall; strongest manifold severity damages it once, with the shared defaul
 cooldown on the independent pool. Lethal damage journals one destruction and removes the
 body through complete-state absence, without touching the former owner's new inventory.
 
-Item protocol 18 and nested checkpoints retain dimensions, mass, pose, both velocities,
-identity, HP and replay watermarks. Live motion uses the existing reliable item channel,
+Item protocol 19 and nested checkpoints retain dimensions, mass, pose, both velocities,
+identity, HP, expiry deadline, tipping state and replay watermarks. Live motion uses the existing reliable item channel,
 including its delayed-delivery limitations. Resume/migration rebuild native bodies from the
 selected boundary without replaying use or destruction. Native solver contact caches and
 cosmetic expansion progress are not serialized; recovered walls appear fully expanded.
@@ -248,8 +266,9 @@ native vehicle push with measured slowdown and damage, fresh third-peer admissio
 Machine Gun destruction, native Missile/Salvo impacts and exact publication-boundary comparisons. It also deploys sixteen
 walls through ordinary use and sustains their native state for 600 frames. Rendered runs
 capture expanded, pushed, destroyed and stress states. Every live wall is checked for upright
-orientation throughout the run; an applied native torque verifies yaw remains free while
-pitch/roll torque stays constrained. Missile/Salvo target fixtures reposition the surviving
+orientation before tipping throughout the run. An off-centre vehicle strike must rotate
+the wall without artificial torque. A hard native vehicle strike must tip it and break it
+on ground contact; a short configured lifetime verifies exact expiry and peer cleanup. Missile/Salvo target fixtures reposition the surviving
 wall onto level support after the motion test; they do not establish moving-target accuracy.
 Add `-ProductionMap` to exercise sixteen normal-use deployments at
 all eight oval grid spawns and the seven authored infield pickup areas, including impaired
