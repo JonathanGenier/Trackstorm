@@ -333,7 +333,7 @@ public sealed partial class MigrationIntegrationChecks : Node
             _arenas[survivor]!.Driver.Resynchronized += _ =>
             {
                 SalvoRecoveryFixture.Verify(_arenas[survivor]!.Driver.ItemState!, _salvoBoundaries);
-                TombstoneRecoveryFixture.Verify(_arenas[survivor]!.Driver.ItemState!.Tombstones, _tombstones);
+                TombstoneRecoveryFixture.Verify(_arenas[survivor]!.Driver.ItemState!.Tombstones, _tombstones, _salvoBoundaries[_arenas[survivor]!.Driver.ItemState!.World.Tick].Tombstones);
                 Require(_arenas[survivor]!.Driver.Inputs!.Pending.Count == 0, "No old pending input.");
                 Require(_arenas[survivor]!.Driver.History!.Snapshots.Count == 1, "Interpolation reseeded at one boundary.");
                 if (_players == 3)

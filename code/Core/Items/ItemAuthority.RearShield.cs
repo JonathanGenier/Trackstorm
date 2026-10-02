@@ -36,28 +36,84 @@ public sealed partial class ItemAuthority
                 if (TombstoneGeometry.Intersect(pose, start, end) is float fraction && (closest is null || fraction < closest.Value.Fraction))
                 { closest = (state, fraction); }
             }
+            if (onlyOwner == 0 && _world.State.Match is not { Phase: not Matches.MatchPhase.Active })
+            {
+                foreach (var wall in States.Where(s => !s.Attached).OrderBy(s => s.Id))
+                {
+                    if (TombstoneGeometry.Intersect(wall, start, end) is float fraction && (closest is null || fraction < closest.Value.Fraction))
+                    { closest = (wall, fraction); }
+                }
+            }
             return closest;
+        }
+
+        internal bool Deploy(ItemSlot slot, VehiclePhysicsState pose, ItemConfiguration configuration)
+        {
+            int index = States.FindIndex(s => s.Owner == slot.Vehicle && s.Token == slot.Token && s.Stage == TombstoneStage.RearShield);
+            if (index < 0) { return false; }
+            var candidate = States[index] with { Stage = TombstoneStage.WorldWall, Life = 0, Token = 0,
+                Position = pose.Position, Orientation = pose.Orientation, LinearVelocity = pose.LinearVelocity, AngularVelocity = pose.AngularVelocity,
+                WallSize = new(configuration.TombstoneWidth, configuration.TombstoneHeight, configuration.TombstoneDepth), WallMass = configuration.TombstoneMass };
+            candidate.Validate();
+            if (States.Any(s => !s.Attached && TombstoneGeometry.Overlaps(candidate, s))) { return false; }
+            States[index] = candidate;
+            return true;
+        }
+
+        internal void ObserveWalls(Func<TombstoneState, VehiclePhysicsState?>? observe)
+        {
+            if (observe is null || _world.State.Match is { Phase: not Matches.MatchPhase.Active }) { return; }
+            for (int i = 0; i < States.Count; i++)
+            {
+                var wall = States[i];
+                if (wall.Attached || observe(wall) is not { } pose) { continue; }
+                var candidate = wall with { Position = pose.Position, Orientation = pose.Orientation,
+                    LinearVelocity = pose.LinearVelocity, AngularVelocity = pose.AngularVelocity };
+                candidate.Validate();
+                States[i] = candidate;
+            }
+        }
+
+        internal void BlastWalls(ItemAuthority items, Vector3 center, MissileState missile)
+        {
+            foreach (var wall in States.Where(s => !s.Attached).ToArray())
+            {
+                var effect = items.Explosion(center, wall.Position, missile.Item);
+                Damage(wall.Id, effect.Damage, new(missile.Arc is null ? "missile" : "salvo", missile.Owner, "world-wall-blast"));
+                int index = States.FindIndex(s => s.Id == wall.Id);
+                if (index >= 0) { States[index] = States[index] with { LinearVelocity = States[index].LinearVelocity + effect.Impulse / wall.WallMass }; }
+            }
         }
 
         internal void Damage(ulong id, float amount, DamageContext context, bool collision = false)
         {
             int index = States.FindIndex(s => s.Id == id);
-            if (index < 0) { return; }
+            if (index < 0 || _world.State.Match is { Phase: not Matches.MatchPhase.Active }) { return; }
             var state = States[index];
             if (collision && state.LastCollisionTick is ulong previous &&
-                (_tick <= previous || _tick - previous < _world.DamageTuning(state.Owner).CollisionCooldownTicks)) { return; }
+                (_tick <= previous || _tick - previous < (state.Attached ? _world.DamageTuning(state.Owner).CollisionCooldownTicks : new DamageConfiguration().CollisionCooldownTicks))) { return; }
             var (updated, outcome) = EvaluateTombstoneDamage(state, checked(state.DamageSequence + 1), amount, context, _tick);
             if (outcome is null) { return; }
             if (updated is not null) { States[index] = collision ? updated with { LastCollisionTick = _tick } : updated; return; }
             States.RemoveAt(index);
-            var slot = _slots[state.Owner];
-            _slots[state.Owner] = slot.Token == state.Token ? slot with { Item = HeldItem.None } : slot with { SecondItem = HeldItem.None };
+            if (state.Attached && _slots.TryGetValue(state.Owner, out var slot))
+            { _slots[state.Owner] = slot.Token == state.Token ? slot with { Item = HeldItem.None } : slot with { SecondItem = HeldItem.None }; }
             _journal.Add(new RuntimeEvent { Category = EventCategory.Item, Kind = "Destroyed", Actor = context.InstigatorId,
                 Target = state.Owner, Cause = "Tombstone", Context = id.ToString(System.Globalization.CultureInfo.InvariantCulture), Tick = _tick });
         }
 
         internal Dictionary<ulong, VehicleObservation> Collisions()
         {
+            // Each native vehicle reports the struck wall ID. Collapse manifold points before damage.
+            foreach (var hits in _requests.Where(r => _world.GetVehicle(r.VehicleId).CanInteract && !r.Reset.HasValue)
+                .SelectMany(r => r.Observation.Contacts.Where(c => c.Tombstone != 0).Select(c => (Request: r, Contact: c))).GroupBy(h => h.Contact.Tombstone))
+            {
+                var strongestHit = hits.Select(h => (h.Request.VehicleId, Amount: VehicleDamageMath.CollisionDamage(
+                    VehicleDamageMath.CollisionSeverity(h.Contact.RelativeVelocity, h.Contact.Normal, h.Contact.Impulse, _world.MovementTuning(h.Request.VehicleId).Mass),
+                    _world.DamageTuning(h.Request.VehicleId)))).OrderByDescending(h => h.Amount).First();
+                if (States.Any(s => s.Id == hits.Key && !s.Attached))
+                { Damage(hits.Key, strongestHit.Amount, new("collision", strongestHit.VehicleId, "world-wall"), collision: true); }
+            }
             var shields = Active().OrderBy(s => s.Id).ToArray();
             if (shields.Length == 0) { return _requests.ToDictionary(r => r.VehicleId, r => r.Observation); }
             var observations = new Dictionary<ulong, VehicleObservation>();

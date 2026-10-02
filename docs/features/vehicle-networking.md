@@ -107,3 +107,9 @@ Air Roll travels as bit 2048 in the existing input frame. The version-eight move
 
 Brake-to-reverse continuation occupies two previously reserved movement flags (163-byte movement v12). Raw physical brake edges use input-mask bit 4096 without expanding the 21-byte frame. World protocol v14 rejects older peers. Snapshot/replay, retuning and recovery preserve the gate; no client-only reverse permission exists.
 [Tombstone rear shields](items.md#tombstone-rear-shield-and-persistent-health) use the existing reliable item publication and nested recovery boundary. Each peer reconstructs the same vehicle-local collision plate from accepted selected exposure/life/ownership, and renders it beneath the vehicle's interpolated transform. No shield transform stream or client-authored hit outcome is added; current host observations and Core geometry decide interception. Switching slots reliably exposes/stows the same pool and removes/restores its collider without use or HP reset. Complete item state includes the shield's ordered damage watermark and collision cooldown tick.
+
+Deployed [Tombstone world walls](items.md#movable-tombstone-world-walls) use the same complete
+reliable item channel for host-committed rigid-body poses and velocities. Clients never submit
+wall pose, HP or motion outcomes. Their reconstructed layer-32 colliders participate in vehicle
+queries; authoritative Core box intersections own weapon blocking. Dimensions and mass travel
+with each wall, avoiding collider changes when live tuning changes after deployment.

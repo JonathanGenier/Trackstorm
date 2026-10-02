@@ -26,7 +26,7 @@ internal sealed class RearShieldTests
 
     [TestCase(false)]
     [TestCase(true)]
-    public void SelectionCyclesPreserveExactSlotDamagedIdentityAndRejectUse(bool second)
+    public void SelectionCyclesPreserveExactSlotDamagedIdentityWithoutPlacementAdapter(bool second)
     {
         if (second) { _items.Grant(_world, 1, HeldItem.Wrench); }
         _items.Grant(_world, 1, HeldItem.Tombstone);
@@ -34,7 +34,7 @@ internal sealed class RearShieldTests
         var original = _items.Tombstones.Single();
         _items.DamageTombstone(_world, original.Id, 7, 123, Hit);
         var slot = _items.Slots.Single();
-        Assert.That(_items.RequestUse(_world, 1, 1, original.Token), Is.False);
+        Assert.That(_items.RequestUse(_world, 1, 1, original.Token), Is.True);
         Step();
         Assert.That(_items.Slots.Single(), Is.EqualTo(slot));
         Assert.That(_items.Tombstones.Single(), Is.EqualTo(original with { Stage = TombstoneStage.RearShield, HP = 877, DamageSequence = 7 }));

@@ -12,7 +12,7 @@ public sealed partial class ItemAuthority
     public IReadOnlyList<TombstoneState> Tombstones => _tombstones.ToArray();
 
     /// <summary>Host-only released-wall lifecycle seam retained for recovery fixtures and future deployment adapters.
-    /// Attached exposure is owned exclusively by slot selection; normal use cannot call this seam.</summary>
+    /// Attached exposure is owned exclusively by slot selection; normal use commits deployment through the item step transaction.</summary>
     public bool TransitionTombstone(Simulation.Simulation world, ulong id, TombstoneStage expected, TombstoneStage next, VehiclePhysicsState? placement = null)
     {
         int index = _tombstones.FindIndex(state => state.Id == id);
@@ -20,7 +20,7 @@ public sealed partial class ItemAuthority
         var state = _tombstones[index];
         if (state.Stage != expected || !AttachedOwnerCanInteract(world, state) ||
             !(expected == TombstoneStage.RearShield && next == TombstoneStage.WorldWall && placement is not null)) { return false; }
-        var candidate = state with { Stage = next, Life = 0, Token = 0, Position = placement.Value.Position, Orientation = placement.Value.Orientation };
+        var candidate = state with { Stage = next, Life = 0, Token = 0, Position = placement.Value.Position, Orientation = placement.Value.Orientation, LinearVelocity = placement.Value.LinearVelocity, AngularVelocity = placement.Value.AngularVelocity };
         candidate.Validate();
         if (!candidate.Attached) { ClearTombstoneSlot(state); }
         _tombstones[index] = candidate;

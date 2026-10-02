@@ -1,0 +1,248 @@
+using System.Net;
+using System.Net.Sockets;
+using Godot;
+using Trackstorm.Client.Networking;
+using Trackstorm.Core.Input;
+using Trackstorm.Core.Items;
+using Trackstorm.Core.Networking.Transport;
+using Trackstorm.Core.Vehicles;
+using N = System.Numerics;
+
+namespace Trackstorm.Client.Verification;
+
+/// <summary>Production UDP arenas exercise deployment, native rigid motion, weapons and late admission.</summary>
+public sealed partial class WorldWallChecks : Node
+{
+    private readonly List<GameNetworkingSocketsTransport> _wires = [];
+    private readonly List<NetworkVehicleArena> _arenas = [];
+    private readonly List<SubViewport> _views = [];
+    private readonly List<string> _evidence = [];
+    private readonly Dictionary<ulong, TombstoneState[]> _boundaries = new();
+    private string _endpoint = "", _output = "";
+    private int _frame, _stage, _boundary, _scenario;
+    private TombstoneState[] _seeds = [];
+    private N.Vector3 _pushStart;
+    private bool _done;
+    private int _stressCount;
+    private float _weaponHP;
+
+    public override void _Ready()
+    {
+        Engine.MaxFps = 60;
+        _output = ProjectSettings.GlobalizePath("res://.godot/world-wall-checks");
+        System.IO.Directory.CreateDirectory(_output);
+        using var socket = new UdpClient(new IPEndPoint(IPAddress.Loopback, 0));
+        _endpoint = $"127.0.0.1:{((IPEndPoint)socket.Client.LocalEndPoint!).Port}"; socket.Close();
+        AddPeer(); AddPeer();
+        _arenas[0].Driver.ItemsReceived += p => _boundaries[p.World.Tick] = p.Tombstones.ToArray();
+    }
+
+    private void AddPeer()
+    {
+        int index = _arenas.Count;
+        var wire = new GameNetworkingSocketsTransport(); ulong server = 0;
+        if (index == 0) { wire.Listen(TransportEndpoint.DirectIp(_endpoint)); }
+        else { server = wire.Connect(TransportEndpoint.DirectIp(_endpoint)); }
+        if (OS.GetCmdlineUserArgs().Contains("--world-wall-impaired")) { wire.ConfigureSimulation(new(30, 5, 2, 0, 0)); }
+        _wires.Add(wire);
+        var view = new SubViewport { Size = new(1280, 720), OwnWorld3D = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Always };
+        _views.Add(view);
+        if (index == 0) { var display = new SubViewportContainer(); AddChild(display); display.AddChild(view); }
+        else { AddChild(view); }
+        var arena = new NetworkVehicleArena { PrototypeMapForVerification = true };
+        arena.Initialize(wire, index == 0 ? 98ul : 0, server); view.AddChild(arena);
+        foreach (int slope in new[] { 0, 1 })
+        {
+            var floor = new StaticBody3D { Position = new(slope * 100, 200, 0), Rotation = new(0, 0, slope * 0.12f), CollisionLayer = 1 };
+            floor.AddToGroup("landing_terrain");
+            floor.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(70, 1, 150) } });
+            floor.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(70, 1, 150) }, MaterialOverride = new StandardMaterial3D { AlbedoColor = new(0.24f, 0.27f, 0.3f) } });
+            arena.AddChild(floor);
+        }
+        var camera = new Camera3D { Name = "WallCamera", Position = new(20, 214, 24) };
+        arena.AddChild(camera); camera.LookAt(new(6, 201, 3)); camera.MakeCurrent();
+        _arenas.Add(arena);
+    }
+
+    public override void _PhysicsProcess(double delta)
+    {
+        if (_done) { if (++_frame > _boundary + 10) { GetTree().Quit(_stage); } return; }
+        _frame++; int elapsed = _frame - _boundary;
+        try
+        {
+            var host = _arenas[0].Driver.Host!;
+            if (_stage == 6) { AimAtWall(); }
+            if (_stage is 12 or 13 && elapsed == 15)
+            {
+                var target = host.Items.Tombstones.Single();
+                Position(1, target.Position + new N.Vector3(0, 3, _stage == 12 ? 8 : 65), N.Vector3.Zero,
+                    _stage == 12 ? N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, -MathF.Atan2(3, 8)) : N.Quaternion.Identity);
+            }
+            for (int i = 0; i < _arenas.Count; i++)
+            {
+                bool use = (_stage == 2 && elapsed == 1) || (_stage == 6 && i == 0) || (_stage is 8 or 12 or 13 && elapsed == 15 && i == 0);
+                bool pressed = use && (elapsed == 1 || (_stage is 8 or 12 or 13 && elapsed == 15));
+                ushort throttle = (_stage == 3 || (_stage == 4 && i == 1)) ? ushort.MaxValue : (ushort)0;
+                _arenas[i].Advance(new((ulong)_frame, 0, throttle, 0, use ? InputButtons.UseItem : 0, pressed ? InputButtons.UseItem : 0, 0));
+                Check(_arenas[i].Driver.Failure.Length == 0, _arenas[i].Driver.Failure);
+            }
+            if (_stage == 6 && elapsed == 15) { Capture("firing.png"); }
+            _boundaries[host.World.State.Tick] = host.Items.Tombstones.ToArray();
+            Check(elapsed < 1500, $"Stage {_stage}, scenario {_scenario} timed out");
+            switch (_stage)
+            {
+                case 0 when _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2):
+                    Check(host.TryConfigure(0, new Dictionary<string, double> { ["match.countdown_ticks"] = 1, ["match.minimum_players"] = 1,
+                        ["items.machine_gun_spread"] = 0, ["items.machine_gun_fire_rate"] = 60, ["items.machine_gun_damage"] = 30 }, out _), "Configure fixture");
+                    Next(1); break;
+                case 1 when host.World.State.Match?.Phase == Core.Matches.MatchPhase.Active:
+                    Setup(); Next(10); break;
+                case 10 when elapsed > 50:
+                    Check(_arenas.All(a => a.Bodies.Values.All(b => b.HasRearShield)), "Selected shields visible before use");
+                    if (_scenario is 1 or 2)
+                    {
+                        foreach (var v in host.World.State.Vehicles) { Position(v.VehicleId, v.ObservedPhysics.Position, new(0, 0, _scenario == 1 ? -6 : 3)); }
+                    }
+                    Next(2); break;
+                case 2 when elapsed > 50:
+                    Check(host.Items.Tombstones.Count(s => !s.Attached) == 2, "One ordinary use per player deploys exactly two walls");
+                    foreach (var seed in _seeds)
+                    {
+                        var wall = host.Items.Tombstones.Single(s => s.Id == seed.Id);
+                        Check(wall.HP == 875 && wall.DamageSequence == 7, "Same damaged pool and watermark");
+                        Check(host.Items.Slots.Single(s => s.Vehicle == seed.Owner).Active.Item == HeldItem.None, "Exact slot clears");
+                        Check(!host.Items.RequestUse(host.World, seed.Owner, seed.Life, seed.Token), "Retired use capability rejects replay");
+                    }
+                    Check(_arenas.All(a => a.Walls.Bodies.Count == 2 && a.Bodies.Values.All(b => !b.HasRearShield)), "Native shield-to-world transition on both peers");
+                    _seeds = host.Items.Tombstones.ToArray(); Capture($"{_scenario}-expanded.png"); Next(3); break;
+                case 3 when elapsed >= 90:
+                    foreach (var wall in host.Items.Tombstones)
+                    { Check(N.Vector3.Distance(wall.Position, host.World.GetVehicle(wall.Owner).ObservedPhysics.Position) > 8, "Drive away leaves independent wall"); }
+                    Record($"Scenario {_scenario}: stationary/forward/reverse/banked deployment keeps identity, 875 HP, exact slot, independent native walls.");
+                    if (_scenario++ < 3)
+                    {
+                        foreach (var wall in host.Items.Tombstones.ToArray()) { host.Items.DamageTombstone(host.World, wall.Id, wall.DamageSequence + 1, 1000, new("world", 0, "fixture-reset")); }
+                        Next(1); break;
+                    }
+                    Position(2, host.Items.Tombstones.Last().Position + new N.Vector3(0, 0, 8), new(0, 0, -18));
+                    _pushStart = host.Items.Tombstones.Last().Position; Next(4); break;
+                case 4 when elapsed >= 90:
+                    var pushed = host.Items.Tombstones.Last();
+                    Check(N.Vector3.Distance(pushed.Position, _pushStart) > 0.25f, $"Other vehicle physically moves wall: start {_pushStart}, wall {pushed.Position}, vehicle {host.World.GetVehicle(2).ObservedPhysics.Position}, HP {pushed.HP}, frozen {_arenas[0].Walls.Bodies[pushed.Id].Freeze}");
+                    Check(pushed.HP < 875, "Native wall contact damages its independent pool");
+                    Record($"Vehicle push moved wall {N.Vector3.Distance(pushed.Position, _pushStart):F2} m; HP {pushed.HP:F1}.");
+                    Capture("pushed.png"); AddPeer(); Next(5); break;
+                case 5 when elapsed > 120 && _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 3):
+                    Check(_arenas.All(a => a.Walls.Bodies.Count == 2), "Fresh third peer reconstructs both native walls");
+                    VerifyBoundaries();
+                    Check(host.Items.Grant(host.World, 1, HeldItem.MachineGun), "Grant shooter weapon");
+                    Next(11); break;
+                case 11 when elapsed > 30:
+                    Next(6); break;
+                case 6 when elapsed >= 75:
+                    Check(host.Items.Tombstones.All(s => s.Id != _seeds[0].Id), "Sustained ordinary fire destroys only targeted wall");
+                    Check(host.Items.Tombstones.Count == 1, "Second wall survives independently");
+                    Record("Late join restored both walls; sustained native Machine Gun fire destroyed the targeted pool and removed its collider.");
+                    Capture("destroyed.png"); Next(7); break;
+                case 7 when elapsed > 300:
+                    VerifyBoundaries();
+                    Check(_arenas.All(a => a.Walls.Bodies.Count == 1), "Terminal removal converges and stays removed");
+                    Record("Three UDP peers retained the surviving movable wall through 300 further native physics frames.");
+                    host.Items.RemovePlayer(1);
+                    _weaponHP = host.Items.Tombstones.Single().HP;
+                    Check(host.Items.Grant(host.World, 1, HeldItem.Missile), "Native missile grant"); Next(12); break;
+                case 12 when elapsed > 90:
+                    Check(host.Items.Tombstones.Single().HP < _weaponHP, "Native Missile sweep/blast damages wall");
+                    Record($"Native Missile wall damage: {_weaponHP:F1} -> {host.Items.Tombstones.Single().HP:F1} HP.");
+                    host.Items.RemovePlayer(1); _weaponHP = host.Items.Tombstones.Single().HP;
+                    Check(host.Items.Grant(host.World, 1, HeldItem.Salvo), "Native Salvo grant"); Next(13); break;
+                case 13 when elapsed > 120:
+                    Check(host.Items.Tombstones.Single().HP < _weaponHP, "Native Salvo sweep/blast damages wall");
+                    Record($"Native Salvo wall damage: {_weaponHP:F1} -> {host.Items.Tombstones.Single().HP:F1} HP.");
+                    host.Items.RemovePlayer(1); StressGrant(); break;
+                case 8 when elapsed >= 30:
+                    Check(host.Items.Tombstones.Count(s => !s.Attached) == _stressCount + 1, "Stress use commits one independent wall");
+                    if (_stressCount < 15) { StressGrant(); }
+                    else { Next(9); }
+                    break;
+                case 9 when elapsed >= 600:
+                    Check(host.Items.Tombstones.Count == 16 && _arenas.All(a => a.Walls.Bodies.Count == 16), "Sixteen live native walls remain bounded and replicated");
+                    Check(host.Items.Tombstones.All(s => VehiclePhysicsState.IsFinite(s.Position) && VehiclePhysicsState.IsFinite(s.LinearVelocity)), "Finite sustained wall state");
+                    VerifyBoundaries(); Capture("sixteen-walls.png");
+                    Record("Sixteen walls deployed via ordinary use, then sustained for 600 physics frames across three UDP arenas.");
+                    System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
+                    GD.Print("World wall integration passed: native deployment, motion, vehicle collision, damage, destruction, late join and UDP convergence.");
+                    Finish(0); break;
+            }
+        }
+        catch (Exception error) { GD.PrintErr(error); Finish(1); }
+    }
+
+    private void Setup()
+    {
+        var host = _arenas[0].Driver.Host!;
+        for (ulong id = 1; id <= 2; id++)
+        {
+            host.Items.RemovePlayer(id);
+            Check(host.Items.Grant(host.World, id, HeldItem.Tombstone), "Ordinary Tombstone grant");
+            var stone = host.Items.Tombstones.Last(); host.Items.DamageTombstone(host.World, stone.Id, 7, 125, new("world", 0, "fixture"));
+            float x = (_scenario == 3 ? 100 : 0) + (id == 1 ? 0 : 12);
+            Position(id, new(x, 201.65f + (_scenario == 3 ? (x - 100) * 0.12f : 0), 0), new(0, 0, _scenario == 1 ? -6 : _scenario == 2 ? 3 : 0));
+        }
+        _seeds = host.Items.Tombstones.ToArray();
+        var camera = _arenas[0].GetNode<Camera3D>("WallCamera");
+        camera.Position = new((_scenario == 3 ? 100 : 0) + 20, 214, 24); camera.LookAt(new((_scenario == 3 ? 100 : 0) + 6, 201, 3));
+    }
+
+    private void Position(ulong id, N.Vector3 point, N.Vector3 velocity, N.Quaternion? heading = null)
+    {
+        var host = _arenas[0].Driver.Host!; var world = host.World.State;
+        var pose = new VehiclePhysicsState(point, heading ?? N.Quaternion.Identity, velocity, N.Vector3.Zero);
+        _arenas[0].Bodies[id].Apply(pose);
+        host.World.Restore(new(world.Tick, world.LastInput, world.Vehicles.Select(v => v.VehicleId != id ? v :
+            new VehicleSnapshot(v.VehicleId, v.LifeId, new VehicleState(world.Tick, pose, true, false, 0, 0), v.Damage, pose)), world.Match));
+    }
+
+    private void StressGrant()
+    {
+        var host = _arenas[0].Driver.Host!;
+        int index = _stressCount++;
+        if (index == 0)
+        {
+            var camera = _arenas[0].GetNode<Camera3D>("WallCamera");
+            camera.Position = new(35, 235, 28); camera.LookAt(new(0, 201, -24));
+        }
+        Position(1, new(-24 + (index % 5) * 11, 201.65f, -20 - (index / 5) * 10), N.Vector3.Zero);
+        Check(host.Items.Grant(host.World, 1, HeldItem.Tombstone), "Stress grant respects live bound");
+        Next(8);
+    }
+
+    private void AimAtWall()
+    {
+        var wall = _arenas[0].Driver.Host!.Items.Tombstones.FirstOrDefault(s => s.Id == _seeds[0].Id);
+        if (wall is not null) { Position(1, wall.Position + new N.Vector3(0, 0, 9), N.Vector3.Zero); }
+    }
+    private void VerifyBoundaries()
+    {
+        foreach (var arena in _arenas.Skip(1))
+        {
+            var p = arena.Driver.ItemState!;
+            Check(_boundaries.TryGetValue(p.World.Tick, out var expected) && p.Tombstones.SequenceEqual(expected), "Accepted peer wall publication equals exact committed host boundary");
+        }
+    }
+    private void Capture(string name)
+    {
+        if (DisplayServer.GetName() == "headless") { return; }
+        using var frame = _views[0].GetTexture().GetImage(); frame.SavePng(System.IO.Path.Combine(_output, name));
+    }
+    private void Record(string message) { _evidence.Add(message); GD.Print(message); }
+    private void Next(int stage) { _stage = stage; _boundary = _frame; }
+    private void Finish(int code)
+    {
+        _done = true;
+        foreach (var arena in _arenas) { arena.QueueFree(); }
+        foreach (var wire in _wires) { wire.Dispose(); }
+        _stage = code; _boundary = _frame;
+    }
+    private static void Check(bool condition, string message) { if (!condition) { throw new InvalidOperationException(message); } }
+}

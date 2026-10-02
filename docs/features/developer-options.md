@@ -489,3 +489,11 @@ The Asphalt, Dirt and Grass groups expose `vehicle.<surface>.braking` (0–2), `
 Grass also exposes `vehicle.grass_steering_reserve` (default 0.65, range 0–1) and `vehicle.grass_recovery` (3/s, range 0–10). The Vehicle group exposes `vehicle.handbrake_hold_speed` (0.5 m/s, range 0–1). Dirt's extra low-speed corner budget defaults to 0.2 and applies per supported Dirt wheel. See [surface braking](vehicles.md#deliberate-surface-braking-and-stationary-handbrake) for behavior and defaults.
 
 These twelve appended keys use the existing Apply/Cancel/Reset, host validation, saved-key fallback, reliable revision ordering and resume/migration configuration paths. The complete TC37 layout carries 213 values in 1725 bytes; TC36 is rejected. Old saved files missing the new keys inherit defaults, while explicit existing grip overrides remain effective until reset. Player controller settings remain outside this gameplay catalog.
+
+### Tombstone wall deployment
+
+The Tombstone category exposes width, height, depth, mass and rear clearance through
+`items.tombstone_*`. [Held items](items.md#movable-tombstone-world-walls) documents bounds,
+defaults and native clearance behavior. Dimensions and mass affect subsequent deployments;
+existing walls retain their captured physical values. Configuration protocol 38 includes
+these controls in complete replication and recovery.

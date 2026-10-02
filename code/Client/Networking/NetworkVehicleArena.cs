@@ -16,6 +16,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private readonly VehicleChaseCamera _camera = new() { Name = "ChaseCamera", Current = true, Fov = 65 };
     private readonly RemoteInterpolation _interpolation = new();
     private readonly Items.ItemPresentation _items = new();
+    internal Items.TombstoneWorld Walls { get; } = new();
     private readonly Items.SalvoMarker _salvoMarker = new();
     internal Items.SalvoMarker SalvoMarker => _salvoMarker;
     private readonly VehicleDestructionEffects _destruction = new();
@@ -99,6 +100,9 @@ internal sealed partial class NetworkVehicleArena : Node3D
         }
 
         AddChild(_items);
+        AddChild(Walls);
+        _driver.PlaceTombstone = Walls.Place;
+        _driver.ObserveTombstone = Walls.Observe;
         AddChild(_salvoMarker);
         AddChild(_destruction);
         AddChild(_audio);
@@ -125,6 +129,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.ItemsReceived += publication =>
         {
             _items.Apply(publication);
+            Walls.Apply(publication, _driver.Host is not null);
             foreach (var vehicle in publication.World.Vehicles)
             {
                 // A reliable item outcome can arrive behind a newer lifecycle snapshot.
@@ -292,6 +297,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.Resynchronized += snapshot =>
         {
             _camera.ResetFollow();
+            Walls.Apply(_driver.ItemState!, _driver.Host is not null, true);
             if (_driver.EnvironmentState is { } environment) { _destructibles?.Apply(environment, true); }
             _audio.ApplyVehicles(snapshot.Vehicles.Select(vehicle => vehicle.State), true);
             _audio.ApplyItems(_driver.ItemState!, true);
@@ -343,6 +349,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
 
             return observation;
         });
+        foreach (var wall in Walls.Bodies.Values) { wall.Freeze = _driver.Host is null || !_driver.IsActive || _driver.Match?.Phase != Core.Matches.MatchPhase.Active; }
         foreach (var prop in Props)
         {
             prop.Freeze = _driver.Host is null || !_driver.IsActive;

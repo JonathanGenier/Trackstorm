@@ -20,11 +20,34 @@ public static class TombstoneGeometry
 
     /// <summary>Closest segment intersection with the full oriented box, including starts inside it.</summary>
     public static float? Intersect(VehiclePhysicsState pose, Vector3 start, Vector3 end)
+        => IntersectBox(pose.Position + Vector3.Transform(Center, pose.Orientation), pose.Orientation, Size, start, end);
+
+    /// <summary>Tests a deployed wall's captured physical envelope.</summary>
+    public static float? Intersect(TombstoneState wall, Vector3 start, Vector3 end)
+        => IntersectBox(wall.Position, wall.Orientation, wall.WallSize, start, end);
+
+    /// <summary>Separating-axis test for deployment candidates, including two uses in one batch.</summary>
+    public static bool Overlaps(TombstoneState first, TombstoneState second)
     {
-        var inverse = Quaternion.Conjugate(pose.Orientation);
-        var origin = Vector3.Transform(start - pose.Position, inverse) - Center;
+        var a = new[] { Vector3.Transform(Vector3.UnitX, first.Orientation), Vector3.Transform(Vector3.UnitY, first.Orientation), Vector3.Transform(Vector3.UnitZ, first.Orientation) };
+        var b = new[] { Vector3.Transform(Vector3.UnitX, second.Orientation), Vector3.Transform(Vector3.UnitY, second.Orientation), Vector3.Transform(Vector3.UnitZ, second.Orientation) };
+        var axes = a.Concat(b).Concat(a.SelectMany(x => b.Select(y => Vector3.Cross(x, y))));
+        foreach (var axis in axes)
+        {
+            if (axis.LengthSquared() < 0.000001f) { continue; }
+            float Radius(Vector3[] basis, Vector3 size) => (Math.Abs(Vector3.Dot(axis, basis[0])) * size.X +
+                Math.Abs(Vector3.Dot(axis, basis[1])) * size.Y + Math.Abs(Vector3.Dot(axis, basis[2])) * size.Z) / 2;
+            if (Math.Abs(Vector3.Dot(second.Position - first.Position, axis)) >= Radius(a, first.WallSize) + Radius(b, second.WallSize)) { return false; }
+        }
+        return true;
+    }
+
+    private static float? IntersectBox(Vector3 center, Quaternion orientation, Vector3 size, Vector3 start, Vector3 end)
+    {
+        var inverse = Quaternion.Conjugate(orientation);
+        var origin = Vector3.Transform(start - center, inverse);
         var direction = Vector3.Transform(end - start, inverse);
-        var half = Size / 2;
+        var half = size / 2;
         float near = 0, far = 1;
         for (int axis = 0; axis < 3; axis++)
         {

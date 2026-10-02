@@ -3,6 +3,16 @@ namespace Trackstorm.Core.Items;
 /// <summary>Host-owned bounded tuning. Linear falloff reaches zero at the edge.</summary>
 public sealed record ItemConfiguration
 {
+    /// <summary>Expanded wall width, captured at deployment (m).</summary>
+    public float TombstoneWidth { get; init; } = 6;
+    /// <summary>Expanded wall height (m).</summary>
+    public float TombstoneHeight { get; init; } = 2.5f;
+    /// <summary>Expanded wall depth (m).</summary>
+    public float TombstoneDepth { get; init; } = 0.6f;
+    /// <summary>Deployed rigid-body mass (kg).</summary>
+    public float TombstoneMass { get; init; } = 250;
+    /// <summary>Clearance behind the chassis before ground queries (m).</summary>
+    public float TombstoneClearance { get; init; } = 1;
     /// <summary>Individually fired shots per pickup.</summary>
     public int SalvoCount { get; init; } = 5;
     /// <summary>Minimum interval between presses accepted as shots, at 60 Hz.</summary>
@@ -90,6 +100,12 @@ public sealed record ItemConfiguration
     /// <summary>Rejects nonfinite or excessive host configuration before simulation.</summary>
     public void Validate()
     {
+        if (!float.IsFinite(TombstoneWidth) || TombstoneWidth is < 3 or > 12 ||
+            !float.IsFinite(TombstoneHeight) || TombstoneHeight is < 2 or > 6 ||
+            !float.IsFinite(TombstoneDepth) || TombstoneDepth is < 0.3f or > 2 ||
+            !float.IsFinite(TombstoneMass) || TombstoneMass is < 50 or > 2000 ||
+            !float.IsFinite(TombstoneClearance) || TombstoneClearance is < 0.5f or > 5)
+        { throw new ArgumentException("Invalid Tombstone wall tuning."); }
         if (!double.IsFinite(SalvoCount) || SalvoCount < 1 || SalvoCount > 16) { throw new ArgumentException("Invalid salvo count."); }
         if (!double.IsFinite(SalvoIntervalTicks) || SalvoIntervalTicks < 1 || SalvoIntervalTicks > 60) { throw new ArgumentException("Invalid salvo interval_ticks."); }
         if (!double.IsFinite(SalvoRange) || SalvoRange < 25 || SalvoRange > 250) { throw new ArgumentException("Invalid salvo range."); }

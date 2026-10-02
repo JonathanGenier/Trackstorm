@@ -16,6 +16,14 @@ public sealed record TombstoneState(ulong Id, ulong Owner, ulong Life, ulong Tok
     public Vector3 Position { get; init; }
     /// <summary>Authoritative installed wall orientation; identity while attached.</summary>
     public Quaternion Orientation { get; init; } = Quaternion.Identity;
+    /// <summary>Committed host rigid-body continuation, retained through authority changes.</summary>
+    public Vector3 LinearVelocity { get; init; }
+    /// <summary>World-space angular velocity in radians per second.</summary>
+    public Vector3 AngularVelocity { get; init; }
+    /// <summary>Dimensions captured on deployment; live tuning never resizes an installed collider.</summary>
+    public Vector3 WallSize { get; init; } = new(6, 2.5f, 0.6f);
+    /// <summary>Physical mass captured on deployment in kilograms.</summary>
+    public float WallMass { get; init; } = 250;
     /// <summary>Whether inventory/life ownership still applies.</summary>
     public bool Attached => Stage != TombstoneStage.WorldWall;
 
@@ -25,6 +33,10 @@ public sealed record TombstoneState(ulong Id, ulong Owner, ulong Life, ulong Tok
         if (Id == 0 || Owner == 0 || !Enum.IsDefined(Stage) || !float.IsFinite(HP) || HP is <= 0 or > DefaultHP ||
             ((HP == DefaultHP) != (DamageSequence == 0)) || (LastCollisionTick.HasValue && DamageSequence == 0) ||
             (Attached ? Life == 0 || Token == 0 || Position != Vector3.Zero || Orientation != Quaternion.Identity : Life != 0 || Token != 0) ||
+            !VehiclePhysicsState.IsFinite(LinearVelocity) || !VehiclePhysicsState.IsFinite(AngularVelocity) ||
+            (Attached && (LinearVelocity != Vector3.Zero || AngularVelocity != Vector3.Zero)) ||
+            !VehiclePhysicsState.IsFinite(WallSize) || WallSize.X is < 3 or > 12 || WallSize.Y is < 2 or > 6 || WallSize.Z is < 0.3f or > 2 ||
+            !float.IsFinite(WallMass) || WallMass is < 50 or > 2000 ||
             !VehiclePhysicsState.IsFinite(Position) || !float.IsFinite(Orientation.X) || !float.IsFinite(Orientation.Y) ||
             !float.IsFinite(Orientation.Z) || !float.IsFinite(Orientation.W) || Math.Abs(Orientation.LengthSquared() - 1) > 0.001f)
         { throw new ArgumentException("Invalid Tombstone continuation."); }

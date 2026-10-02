@@ -116,3 +116,9 @@ Circus Active entry tick, duration and accumulated recovery debit travel in the 
 This prevents checkpoint rollback and lease/election waits from restarting or granting another duration. Receipt-based measurement does not estimate the packet's pre-receipt transit time; very small transport/clock rounding uncertainty remains, and stalled native scheduling is not a synchronized wall-clock benchmark. The existing bounded rollback/freshness and lease policies remain unchanged. A peer that has accepted Finished refuses an older Active migration checkpoint; absent a recoverable Finished checkpoint, recovery fails closed instead of changing final results.
 
 The native migration harness checks that remaining ticks never increase and only the bounded recovery interval is deducted, alongside retained score/state assertions. Separate-device EOS and long Internet latency remain separate acceptance work.
+Movable [Tombstone walls](items.md#movable-tombstone-world-walls) retain their full committed
+pose, linear/angular velocity, captured dimensions/mass, HP and ordered damage/collision
+watermarks in item protocol 18 inside the existing checkpoint. Recovery installs that exact
+selected boundary, rather than the original deployment pose. The new host reconstructs its
+native rigid bodies and continues independently of former-owner life; replicas stay frozen.
+Native solver contact caches and cosmetic wing-expansion progress are not checkpoint state.
