@@ -7,6 +7,23 @@ namespace Trackstorm.Core.Tests.Settings;
 [TestFixture]
 internal sealed class PlayerSettingsTests
 {
+    [Test]
+    public void DeviceSensitivitiesRoundTripAndLegacyControllerValuesStayIndependent()
+    {
+        var legacy = PlayerSettingsJson.Deserialize("{\"steeringSensitivity\":2.3,\"aerialSensitivity\":0.4}");
+        Assert.That(legacy.KeyboardSteeringSensitivity, Is.EqualTo(1));
+        Assert.That(legacy.KeyboardAerialSensitivity, Is.EqualTo(1));
+        var saved = legacy with { KeyboardSteeringSensitivity = 0.2, KeyboardAerialSensitivity = 0.7 };
+        var restored = PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(saved));
+        Assert.That(restored.SteeringSensitivity, Is.EqualTo(2.3));
+        Assert.That(restored.AerialSensitivity, Is.EqualTo(0.4));
+        Assert.That(restored.KeyboardSteeringSensitivity, Is.EqualTo(0.2));
+        Assert.That(restored.KeyboardAerialSensitivity, Is.EqualTo(0.7));
+        Assert.That((saved with { KeyboardSteeringSensitivity = double.NaN }).KeyboardSteeringSensitivity, Is.EqualTo(1));
+        Assert.That((saved with { KeyboardAerialSensitivity = 4 }).KeyboardAerialSensitivity, Is.EqualTo(1));
+        Assert.That((saved with { KeyboardAerialSensitivity = -1 }).KeyboardAerialSensitivity, Is.EqualTo(0.1));
+    }
+
     /// <summary>Safe startup values match the documented settings contract.</summary>
     [TestCase(0.1, 3.0)]
     [TestCase(1.0, 0.1)]

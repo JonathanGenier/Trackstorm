@@ -158,6 +158,8 @@ public sealed partial class HandlingPlaytest : Node3D
                 _physicalSteering = command.TryGetProperty("keyboard", out var keyboard) && keyboard.GetBoolean();
                 if (command.TryGetProperty("steeringSensitivity", out var sensitivity)) { _physical.SteeringSensitivity = sensitivity.GetSingle(); }
                 if (command.TryGetProperty("aerialSensitivity", out var aerialSensitivity)) { _physical.AerialSensitivity = aerialSensitivity.GetSingle(); }
+                if (command.TryGetProperty("keyboardSteeringSensitivity", out var keyboardSteering)) { _physical.KeyboardSteeringSensitivity = keyboardSteering.GetSingle(); }
+                if (command.TryGetProperty("keyboardAerialSensitivity", out var keyboardAerial)) { _physical.KeyboardAerialSensitivity = keyboardAerial.GetSingle(); }
                 if (command.TryGetProperty("deadzone", out var deadzone)) { _physical.DeadZone = deadzone.GetSingle(); }
                 bool airHeld = command.TryGetProperty("airControl", out var airControl) && airControl.GetBoolean();
                 bool rollHeld = command.TryGetProperty("controllerRoll", out var controllerRoll) && controllerRoll.GetBoolean();

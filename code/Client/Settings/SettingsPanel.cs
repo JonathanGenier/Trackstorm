@@ -180,10 +180,15 @@ internal sealed partial class SettingsPanel : CanvasLayer
         column.AddChild(new Label { Text = "Controller tuning" });
         ControllerSlider(column, "Controller Deadzone", "ControllerDeadzone", _settings.Current.DeadZone, 0, 0.95, 0.01,
             "Stick movement ignored near center. Ground and air use separate response curves.", value => _settings.Current with { DeadZone = value });
-        ControllerSlider(column, "Steering Sensitivity", "SteeringSensitivity", _settings.Current.SteeringSensitivity, 0.1, 3, 0.1,
+        ControllerSlider(column, "Controller Steering Sensitivity", "SteeringSensitivity", _settings.Current.SteeringSensitivity, 0.1, 3, 0.1,
             "Ground steering response after the precision curve. Does not change aerial control.", value => _settings.Current with { SteeringSensitivity = value });
-        ControllerSlider(column, "Aerial Sensitivity", "AerialSensitivity", _settings.Current.AerialSensitivity, 0.1, 3, 0.1,
+        ControllerSlider(column, "Controller Aerial Sensitivity", "AerialSensitivity", _settings.Current.AerialSensitivity, 0.1, 3, 0.1,
             "Controller pitch, yaw and roll response while holding Air Control.", value => _settings.Current with { AerialSensitivity = value });
+        column.AddChild(new Label { Text = "Keyboard / Mouse tuning" });
+        ControllerSlider(column, "Keyboard/Mouse Steering Sensitivity", "KeyboardSteeringSensitivity", _settings.Current.KeyboardSteeringSensitivity, 0.1, 3, 0.1,
+            "Keyboard/mouse steering buildup, return and reversal speed. Full steering range is retained.", value => _settings.Current with { KeyboardSteeringSensitivity = value });
+        ControllerSlider(column, "Keyboard/Mouse Aerial Sensitivity", "KeyboardAerialSensitivity", _settings.Current.KeyboardAerialSensitivity, 0.1, 1, 0.1,
+            "Keyboard/mouse pitch, yaw and roll strength. 1 gives full aerial rotation speed.", value => _settings.Current with { KeyboardAerialSensitivity = value });
         column.AddChild(new Label { Text = "Button / key bindings" });
         var airHint = new Label { Text = "Hold Shift / LB for air control. Keyboard: W/S pitch, A/D roll, Q/E yaw. Controller: left stick pitch/yaw; hold A to roll.", AutowrapMode = TextServer.AutowrapMode.WordSmart };
         column.AddChild(airHint);
@@ -447,7 +452,11 @@ internal sealed partial class SettingsPanel : CanvasLayer
         slider.ValueChanged += current => { amount.Text = $"{current:0.00}"; _settings.UpdateSettings(change(current)); };
         row.AddChild(slider);
         row.AddChild(amount);
-        Row(parent, title, row);
+        var tuningRow = new HBoxContainer();
+        tuningRow.AddChild(new Label { Text = title, CustomMinimumSize = new Vector2(240, 0), AutowrapMode = TextServer.AutowrapMode.WordSmart });
+        row.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        tuningRow.AddChild(row);
+        parent.AddChild(tuningRow);
     }
 
     private void Volume(VBoxContainer parent, string title, double value, Func<double, PlayerSettings> change)

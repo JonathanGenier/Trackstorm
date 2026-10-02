@@ -10,7 +10,7 @@ namespace Trackstorm.Core.Tests.Vehicles;
 internal sealed class AirControlTests
 {
     [Test]
-    public void FlightNeverGrantsIntentAndModifierReleasePreservesMomentum()
+    public void FlightNeverGrantsIntentAndModifierReleaseStopsSpin()
     {
         var movement = Create();
         for (ulong tick = 1; tick <= 180; tick++)
@@ -21,9 +21,10 @@ internal sealed class AirControlTests
         Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
         Step(movement, throttle: 65535);
         Assert.That(movement.State.Physics.AngularVelocity.X, Is.LessThan(0));
-        Vector3 spin = movement.State.Physics.AngularVelocity;
+        Vector3 travel = movement.State.Physics.LinearVelocity;
         movement.Step(new(movement.State.Tick + 1, 32767, 65535, 0, 0, 0, 0), movement.State.Physics, Vector3.Zero);
-        Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(spin));
+        Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
+        Assert.That(movement.State.Physics.LinearVelocity, Is.EqualTo(travel - Vector3.UnitY * movement.Configuration.Gravity / 60));
         Assert.That(movement.State.Air.Input, Is.EqualTo(Vector3.Zero));
     }
 
@@ -130,6 +131,31 @@ internal sealed class AirControlTests
             }
         }
     }
+    [TestCase(32767, 0, 0)]
+    [TestCase(0, 32767, 0)]
+    [TestCase(0, 0, 32767)]
+    public void ReleaseStopsEachAxisAfterSnapshotRestoreWithoutChangingTravel(int pitch, int yaw, int roll)
+    {
+        var movement = Create();
+        for (ulong tick = 1; tick <= 30; tick++)
+            movement.Step(new(tick, 0, 0, 0, InputButtons.AirControl, 0, 0, (short)pitch, (short)yaw, (short)roll), movement.State.Physics, Vector3.Zero);
+        var saved = VehicleStateCodec.Decode(VehicleStateCodec.Encode(movement.State));
+        var restored = Create(); restored.Restore(saved);
+        Assert.That(saved.Physics.AngularVelocity.Length(), Is.GreaterThan(0.5));
+        foreach (var subject in new[] { movement, restored })
+        {
+            subject.Step(new(31, 0, 0, 0, 0, 0, 0), saved.Physics, Vector3.Zero);
+            Assert.That(subject.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
+            Assert.That(subject.State.Physics.Orientation, Is.EqualTo(saved.Physics.Orientation));
+            Assert.That(subject.State.Physics.LinearVelocity, Is.EqualTo(saved.Physics.LinearVelocity - Vector3.UnitY * subject.Configuration.Gravity / 60));
+        }
+        Assert.That(restored.State, Is.EqualTo(movement.State));
+        var passive = Create();
+        var observation = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, new Vector3(1, 2, 3));
+        passive.Step(new(1, 0, 0, 0, 0, 0, 0), observation, Vector3.Zero);
+        Assert.That(passive.State.Physics.AngularVelocity, Is.EqualTo(observation.AngularVelocity), "passive airborne rotation remains physical");
+    }
+
     private static VehicleMovement Create(Quaternion? orientation = null) => new(new VehicleConfiguration(), new VehiclePhysicsState(Vector3.Zero, orientation ?? Quaternion.Identity, Vector3.Zero, Vector3.Zero));
 
     private static void Step(VehicleMovement movement, ushort throttle = 0, ushort brake = 0, short steering = 0, bool roll = false, bool grounded = false)

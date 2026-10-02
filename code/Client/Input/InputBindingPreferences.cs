@@ -26,7 +26,7 @@ internal static class InputBindingPreferences
     /// <returns>Snapshot containing current input preferences.</returns>
     public static PlayerSettings Capture(PlayerInputAdapter adapter, PlayerSettings settings)
     {
-        settings = settings with { InvertSteering = adapter.InvertSteering, DeadZone = adapter.DeadZone, SteeringSensitivity = adapter.SteeringSensitivity, AerialSensitivity = adapter.AerialSensitivity, BindingDefaultsVersion = 2 };
+        settings = settings with { InvertSteering = adapter.InvertSteering, DeadZone = adapter.DeadZone, SteeringSensitivity = adapter.SteeringSensitivity, AerialSensitivity = adapter.AerialSensitivity, KeyboardSteeringSensitivity = adapter.KeyboardSteeringSensitivity, KeyboardAerialSensitivity = adapter.KeyboardAerialSensitivity, BindingDefaultsVersion = 2 };
         foreach (InputAction action in Enum.GetValues<InputAction>())
         {
             InputEvent[] bindings = adapter.Bindings.CopyBindings(action);
@@ -55,6 +55,8 @@ internal static class InputBindingPreferences
         adapter.DeadZone = (float)settings.DeadZone;
         adapter.SteeringSensitivity = (float)settings.SteeringSensitivity;
         adapter.AerialSensitivity = (float)settings.AerialSensitivity;
+        adapter.KeyboardSteeringSensitivity = (float)settings.KeyboardSteeringSensitivity;
+        adapter.KeyboardAerialSensitivity = (float)settings.KeyboardAerialSensitivity;
         // Older saves captured every default as an override, even when only HUD settings changed.
         // Migrate only the intact old item/handbrake pair; any custom pair remains authoritative.
         bool legacyDrivingDefaults = settings.BindingDefaultsVersion == 0 && settings.Bindings.TryGetValue(InputAction.UseItem, out var item)

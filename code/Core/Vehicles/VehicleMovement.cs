@@ -427,6 +427,13 @@ public sealed class VehicleMovement
         {
             float seconds = Math.Min(60, State.Air.Seconds + dt);
             air = new AirControlState(seconds, Vector3.Zero, Vector3.Zero);
+            // Previous filtered intent/stabilization identifies an active aerial session,
+            // including a neutral held modifier. Cancel spin once on exit, not passive flight.
+            if (driveEnabled && wheelCount == 0 && (input.Held & InputButtons.AirControl) == 0 &&
+                (State.Air.Input != Vector3.Zero || State.Air.Stabilization != Vector3.Zero))
+            {
+                angular = Vector3.Zero;
+            }
             if (driveEnabled && wheelCount == 0 && (input.Held & InputButtons.AirControl) != 0)
             {
                 Vector3 target = new(input.AirPitch / 32767f, -input.AirYaw / 32767f, -input.AirRoll / 32767f);

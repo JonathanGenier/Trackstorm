@@ -5,6 +5,55 @@ namespace Trackstorm.Client.Verification;
 
 public sealed partial class InputIntegrationChecks
 {
+    private void VerifyDeviceSensitivity()
+    {
+        var adapter = _player.Adapter;
+        void KeyState(Key key, bool held) => Send(new InputEventKey { PhysicalKeycode = key, Pressed = held });
+        void Axis(float value) => Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = value });
+        void Reset() { adapter.Enabled = false; adapter.Capture(1); adapter.Enabled = true; }
+        short KeyboardSteer(float sensitivity, float controller, float deadzone)
+        {
+            Reset(); adapter.KeyboardSteeringSensitivity = sensitivity; adapter.SteeringSensitivity = controller; adapter.DeadZone = deadzone;
+            KeyState(Key.D, true); InputFrame frame = default;
+            for (ulong tick = 1; tick <= 12; tick++) frame = adapter.Capture(tick);
+            KeyState(Key.D, false); return frame.Steering;
+        }
+        short slow = KeyboardSteer(0.1f, 1, 0.15f), fast = KeyboardSteer(3, 1, 0.15f);
+        Check(fast > slow * 20, "keyboard steering sensitivity changes TS-268 ramp response");
+        Check(KeyboardSteer(3, 0.1f, 0.95f) == fast, "controller sensitivity/deadzone cannot change keyboard steering");
+        Reset(); Axis(0.6f); adapter.DeadZone = 0.15f; adapter.SteeringSensitivity = 1;
+        var controllerSteer = adapter.Capture(1).Steering;
+        adapter.KeyboardSteeringSensitivity = 0.1f;
+        Check(adapter.Capture(2).Steering == controllerSteer, "keyboard steering setting cannot change controller steering");
+        Axis(0); KeyState(Key.Shift, true);
+        foreach (var key in new[] { Key.W, Key.E, Key.D })
+        {
+            KeyState(key, true); adapter.KeyboardAerialSensitivity = 0.1f;
+            var low = adapter.Capture(1);
+            adapter.KeyboardAerialSensitivity = 1;
+            var high = adapter.Capture(2);
+            short Value(InputFrame frame) => key == Key.W ? frame.AirPitch : key == Key.E ? frame.AirYaw : frame.AirRoll;
+            Check(Math.Abs(Value(high)) > Math.Abs(Value(low)) * 9, "keyboard aerial sensitivity changes each axis");
+            adapter.AerialSensitivity = 0.1f; adapter.DeadZone = 0.95f;
+            Check(Value(adapter.Capture(3)) == Value(high), "controller aerial setting/deadzone cannot change keys");
+            KeyState(key, false);
+        }
+        KeyState(Key.Shift, false);
+        Send(new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.LeftShoulder, Pressed = true });
+        adapter.DeadZone = 0.15f; adapter.AerialSensitivity = 1; Axis(0.6f);
+        var controllerAir = adapter.Capture(1).AirYaw;
+        adapter.KeyboardAerialSensitivity = 0.1f;
+        Check(adapter.Capture(2).AirYaw == controllerAir, "keyboard aerial setting cannot change controller yaw");
+        Axis(0); Send(new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.LeftShoulder, Pressed = false });
+        // Device routing follows the physical binding, including remapped mouse/pad buttons.
+        using var mouse = new InputEventMouseButton { ButtonIndex = MouseButton.Left };
+        adapter.Bindings.Replace(InputAction.AirPitchUp, mouse);
+        KeyState(Key.Shift, true); Send(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true });
+        Check(Math.Abs(adapter.Capture(3).AirPitch / 32767f - 0.1f) < 0.0001f, "mouse binding uses keyboard/mouse aerial sensitivity");
+        Send(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false }); KeyState(Key.Shift, false);
+        adapter.Bindings.RestoreDefaults(); adapter.KeyboardAerialSensitivity = adapter.KeyboardSteeringSensitivity = adapter.AerialSensitivity = adapter.SteeringSensitivity = 1; adapter.DeadZone = 0.15f; Reset();
+    }
+
     private void VerifyDeliberateAirControl()
     {
         var adapter = _player.Adapter;
@@ -87,5 +136,6 @@ public sealed partial class InputIntegrationChecks
         adapter.GameplaySuppressed = false; adapter.Enabled = false;
         Check(adapter.Capture(19).AirPitch == 0, "focus loss clears aerial intent");
         Button(JoyButton.LeftShoulder, false); Axis(JoyAxis.LeftY, 0); adapter.Enabled = true; adapter.Capture(20);
+        VerifyDeviceSensitivity();
     }
 }

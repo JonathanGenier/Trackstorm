@@ -73,6 +73,30 @@ internal sealed class PlayerInputAdapter
         }
     }
 
+    private float _keyboardSteeringSensitivity = 1;
+    /// <summary>Keyboard/mouse steering rise, return and reversal rate multiplier.</summary>
+    public float KeyboardSteeringSensitivity
+    {
+        get => _keyboardSteeringSensitivity;
+        set
+        {
+            if (!float.IsFinite(value) || value is < 0.1f or > 3) { throw new ArgumentOutOfRangeException(nameof(value)); }
+            _keyboardSteeringSensitivity = value;
+        }
+    }
+
+    private float _keyboardAerialSensitivity = 1;
+    /// <summary>Keyboard/mouse aerial rate gain, independently bounded to full authority.</summary>
+    public float KeyboardAerialSensitivity
+    {
+        get => _keyboardAerialSensitivity;
+        set
+        {
+            if (!float.IsFinite(value) || value is < 0.1f or > 1) { throw new ArgumentOutOfRangeException(nameof(value)); }
+            _keyboardAerialSensitivity = value;
+        }
+    }
+
     private float _steeringSensitivity = 1;
     /// <summary>Ground-only player controller gain after deadzone and precision shaping.
     /// Aerial input retains independent authority.</summary>
@@ -201,19 +225,19 @@ internal sealed class PlayerInputAdapter
         {
             float throttle = Bindings.Strength(InputAction.Accelerate, DeadZone, false);
             float brake = Bindings.Strength(InputAction.Brake, DeadZone, false);
-            float steering = Bindings.Strength(InputAction.SteerRight, DeadZone, false) - Bindings.Strength(InputAction.SteerLeft, DeadZone, false);
+            float steering = Bindings.Strength(InputAction.SteerRight, DeadZone, controller: false) - Bindings.Strength(InputAction.SteerLeft, DeadZone, controller: false);
             _throttle = DrivingInputShaping.Approach(_throttle, throttle, throttle > _throttle ? Shaping.ThrottleRise : Shaping.ThrottleRelease, CaptureInterval);
             _brake = DrivingInputShaping.Approach(_brake, brake, brake > _brake ? Shaping.BrakeRise : Shaping.BrakeRelease, CaptureInterval);
             float steeringRate = steering == 0 ? Shaping.SteeringReturn : steering * _steering < 0 ? Shaping.SteeringReversal : Shaping.SteeringRise;
-            _steering = DrivingInputShaping.Approach(_steering, steering, steeringRate, CaptureInterval);
+            _steering = DrivingInputShaping.Approach(_steering, steering, steeringRate * KeyboardSteeringSensitivity, CaptureInterval);
         }
 
-        float analogSteering = active ? Bindings.Strength(InputAction.SteerRight, DeadZone, true) - Bindings.Strength(InputAction.SteerLeft, DeadZone, true) : 0;
+        float analogSteering = active ? Bindings.Strength(InputAction.SteerRight, DeadZone, controller: true) - Bindings.Strength(InputAction.SteerLeft, DeadZone, controller: true) : 0;
         analogSteering = Math.Clamp(Shaping.ShapeControllerSteering(analogSteering) *
             SteeringSensitivity, -1, 1);
         // A deliberate stick correction takes ownership after the keys are released;
         // a long digital return tail must not mask the controller's finer target.
-        if (analogSteering != 0 && Bindings.Strength(InputAction.SteerRight, DeadZone, false) == 0 && Bindings.Strength(InputAction.SteerLeft, DeadZone, false) == 0)
+        if (analogSteering != 0 && Bindings.Strength(InputAction.SteerRight, DeadZone, controller: false) == 0 && Bindings.Strength(InputAction.SteerLeft, DeadZone, controller: false) == 0)
         {
             _steering = 0;
         }
@@ -245,12 +269,12 @@ internal sealed class PlayerInputAdapter
     {
         if (!active || Bindings.Strength(InputAction.AirControl, DeadZone) <= 0.5f) { return 0; }
         bool rollHeld = Bindings.Strength(InputAction.AirRoll, DeadZone) > 0.5f;
-        float digital = Bindings.Strength(positive, DeadZone, false) - Bindings.Strength(negative, DeadZone, false);
-        float analog = Bindings.Strength(positive, DeadZone, true) - Bindings.Strength(negative, DeadZone, true);
+        float digital = (Bindings.Strength(positive, DeadZone, controller: false) - Bindings.Strength(negative, DeadZone, controller: false)) * KeyboardAerialSensitivity;
+        float analog = Bindings.Strength(positive, DeadZone, controller: true) - Bindings.Strength(negative, DeadZone, controller: true);
         if (yaw && rollHeld) { analog = 0; }
         if (roll && rollHeld)
         {
-            analog += Bindings.Strength(InputAction.AirYawRight, DeadZone, true) - Bindings.Strength(InputAction.AirYawLeft, DeadZone, true);
+            analog += Bindings.Strength(InputAction.AirYawRight, DeadZone, controller: true) - Bindings.Strength(InputAction.AirYawLeft, DeadZone, controller: true);
         }
         analog = Math.Clamp(analog * AerialSensitivity, -1, 1);
         float intent = Math.Abs(digital) >= Math.Abs(analog) ? digital : analog;

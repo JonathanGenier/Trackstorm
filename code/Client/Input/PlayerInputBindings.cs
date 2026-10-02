@@ -133,12 +133,14 @@ internal sealed class PlayerInputBindings : IDisposable
     /// <param name="analog">Optional analog/digital filter before intent shaping.</param>
     /// <param name="ignoreTextKeys">Keeps printable keys in a focused search editor; other input consumers retain normal bindings.</param>
     /// <param name="excluding">Optional contextual action whose shared physical bindings are excluded.</param>
+    /// <param name="controller">Optional device-family filter; includes both controller buttons and axes.</param>
     /// <returns>The strongest binding's normalized nonnegative value.</returns>
-    public float Strength(InputAction action, float deadZone, bool? analog = null, bool ignoreTextKeys = false, InputAction? excluding = null)
+    public float Strength(InputAction action, float deadZone, bool? analog = null, bool ignoreTextKeys = false, InputAction? excluding = null, bool? controller = null)
     {
         float strength = 0;
         foreach (InputEvent binding in _bindings[action])
         {
+            if (controller.HasValue && (binding is InputEventJoypadButton or InputEventJoypadMotion) != controller.Value) { continue; }
             if (excluding.HasValue && InputMap.ActionHasEvent(Name(excluding.Value), binding)) { continue; }
             if (ignoreTextKeys && binding is InputEventKey { PhysicalKeycode: >= Key.Space and < Key.Escape })
             {
