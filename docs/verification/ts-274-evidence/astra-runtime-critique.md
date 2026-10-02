@@ -1,6 +1,6 @@
 # Astra Runtime Critique — Story Round 1
 
-**TS-274 — Overall Score: 8.1 / 10**  
+**TS-274 — Overall Score: 8.1 / 10**
 **Quality Assessment: PASS (>=8.0)**
 
 Independent runtime assessment after final verification on `ts-274-pg`. The exercised collision behavior is predictable, stable under sustained pressure, and recoverable by reversing. The collision optimization materially improves the demonstrated bank-contact processing problem without an observed loss of impact consequences. This score evaluates the scoped runtime result; it does not certify that the user's exact original trapping episode has been reproduced and eliminated.

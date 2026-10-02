@@ -39,5 +39,3 @@ Line |
   15 |      throw 'Destructible environment checks failed; see .godot/destruc …
      |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      | Destructible environment checks failed; see .godot/destructible-checks.
-
-
