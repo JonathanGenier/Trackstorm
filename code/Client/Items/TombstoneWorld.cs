@@ -56,24 +56,14 @@ internal sealed partial class TombstoneWorld : Node3D
         if (back.LengthSquared() < 0.01f) { return null; }
         back = back.Normalized();
         var rear = VehicleBody.ToGodot(vehicle.Position) + back * (VehicleDimensions.Length / 2 + tuning.TombstoneClearance + tuning.TombstoneDepth / 2);
-        using var ray = PhysicsRayQueryParameters3D.Create(rear + Vector3.Up * 3, rear - Vector3.Up * 8, 1);
-        var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
-        if (hit.Count == 0 || hit["collider"].AsGodotObject() is not StaticBody3D) { return null; }
-        Vector3 normal = hit["normal"].AsVector3().Normalized();
-        if (normal.Y < 0.55f) { return null; }
-        Vector3 right = Vector3.Up.Cross(back).Normalized();
-        var basis = new Basis(right, Vector3.Up, back);
-        // Stand upright above the highest corner of the local support plane. Remaining
-        // terrain irregularities still go through the full expanded-box clearance query.
-        float rise = (tuning.TombstoneWidth * Math.Abs(normal.Dot(right)) + tuning.TombstoneDepth * Math.Abs(normal.Dot(back))) / (2 * normal.Y);
-        Vector3 center = hit["position"].AsVector3() + Vector3.Up * (rise + tuning.TombstoneHeight / 2 + 0.03f);
         using var shape = new BoxShape3D { Size = new(tuning.TombstoneWidth, tuning.TombstoneHeight, tuning.TombstoneDepth) };
+        if (TombstoneGround.Seat(GetWorld3D().DirectSpaceState, rear, back, shape.Size) is not { } seat) { return null; }
         using var query = new PhysicsShapeQueryParameters3D { Shape = shape, CollisionMask = 3 | 32, Margin = 0.01f };
         for (int attempt = 0; attempt <= 10; attempt++)
         {
-            query.Transform = new(basis, center + Vector3.Up * (attempt * 0.1f));
+            query.Transform = new(seat.Basis, seat.Origin + Vector3.Up * (attempt * 0.1f));
             if (GetWorld3D().DirectSpaceState.IntersectShape(query, 1).Count != 0) { continue; }
-            var rotation = basis.GetRotationQuaternion();
+            var rotation = seat.Basis.GetRotationQuaternion();
             return new(VehicleBody.ToCore(query.Transform.Origin), new(rotation.X, rotation.Y, rotation.Z, rotation.W),
                 new(vehicle.LinearVelocity.X, 0, vehicle.LinearVelocity.Z), System.Numerics.Vector3.Zero);
         }

@@ -10,6 +10,7 @@ internal sealed partial class TombstoneWallBody : RigidBody3D
 {
     private Node3D _wings = null!;
     private float _expansion = 1;
+    private Vector3 _size;
     private readonly List<(MeshInstance3D Mesh, int Side, float Center, float Width)> _panels = [];
     internal ulong Identity { get; private set; }
 
@@ -18,14 +19,15 @@ internal sealed partial class TombstoneWallBody : RigidBody3D
         Identity = state.Id;
         Name = $"Tombstone_{state.Id}";
         Mass = state.WallMass;
+        _size = VehicleBody.ToGodot(state.WallSize);
         CollisionLayer = 32;
         CollisionMask = 3 | 32;
         ContinuousCd = true;
         AxisLockAngularX = true;
         AxisLockAngularZ = true;
-        LinearDamp = 0.4f;
+        LinearDamp = 0.2f;
         AngularDamp = 1.5f;
-        PhysicsMaterialOverride = new PhysicsMaterial { Friction = 0.7f, Bounce = 0 };
+        PhysicsMaterialOverride = new PhysicsMaterial { Friction = 0.08f, Rough = false, Bounce = 0 };
         AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = VehicleBody.ToGodot(state.WallSize) } });
         _wings = new Node3D();
         AddChild(_wings);
@@ -59,6 +61,21 @@ internal sealed partial class TombstoneWallBody : RigidBody3D
         GlobalTransform = new(new Basis(VehicleBody.ToGodot(state.Orientation)), VehicleBody.ToGodot(state.Position));
         LinearVelocity = VehicleBody.ToGodot(state.LinearVelocity);
         AngularVelocity = VehicleBody.ToGodot(state.AngularVelocity);
+    }
+
+    public override void _IntegrateForces(PhysicsDirectBodyState3D state)
+    {
+        if (Freeze) { return; }
+        var pose = state.Transform;
+        if (TombstoneGround.Seat(state.GetSpaceState(), pose.Origin, pose.Basis.Z, _size) is not { } seat ||
+            Math.Abs(seat.Origin.Y - pose.Origin.Y) > 0.6f || state.LinearVelocity.Dot(seat.Basis.Y) > 2) { return; }
+        // Terrain owns pitch/roll; native contact torque may still change yaw. This
+        // follows the ground as the wall slides without letting gravity topple it.
+        state.Transform = seat;
+        var velocity = state.LinearVelocity;
+        velocity.Y = -(seat.Basis.Y.X * velocity.X + seat.Basis.Y.Z * velocity.Z) / seat.Basis.Y.Y;
+        state.LinearVelocity = velocity;
+        state.AngularVelocity = new(0, state.AngularVelocity.Y, 0);
     }
 
     public override void _Process(double delta)

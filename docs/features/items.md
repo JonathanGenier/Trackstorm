@@ -190,8 +190,9 @@ Attached Tombstones follow existing inventory policy: ordinary death/reset/perma
 ## Movable Tombstone world walls
 
 Normal use asks the host native adapter for rear ground and full expanded-box clearance. The
-adapter projects behind the current heading, seats an upright wall above the local support
-plane, and searches up to one metre upward for a clear box. Its clearance query synchronously
+adapter projects behind the current heading, samples the center and four footprint ends,
+and fits the standing wall to their support plane without changing its horizontal heading.
+It searches up to one metre upward for a clear box. Its clearance query synchronously
 places the deploying car's native proxy at the current observed pose, then restores it. This
 avoids rejecting fast forward deployment against the car's preceding-frame collider while
 still checking the actual chassis and other obstructions. A missing/steep support or blocked volume rejects that use
@@ -210,11 +211,18 @@ are operational defaults verified on flat/banked native fixtures, not final bala
 `TombstoneWorld` reconstructs one rigid body per accepted wall. Only the active host runs its
 native solver; Core commits observed pose, linear/angular velocity and independent HP.
 Frozen replicas receive the complete accepted state. Vehicle collision queries include wall
-layer 32 and retain existing native prop impulses and vehicle damage. Writing an unchanged
-host observation back to the solver is deliberately skipped to preserve pending contact
-impulses. Walls stay upright: native pitch and roll are constrained, while horizontal sliding
-and rotation about the vertical (yaw) axis remain free. Gravity allows terrain settling and
-height changes; the constraint does not pin the wall at a fixed elevation. Walls collide with
+layer 32 and retain normal vehicle collision damage. For wall contacts only, Core shares
+horizontal normal momentum using the car and captured wall masses, so a car pushes the
+wall while slowing instead of retaining the generic sweep's stationary-obstacle stop.
+Manifold points collapse per wall; unrelated blocking contacts keep their resolved motion.
+Car handling and the generic collision solver are unchanged. Writing an unchanged host
+observation back to the solver is skipped to preserve pending contact impulses.
+Walls use low friction (0.08) and linear damping (0.2). Native pitch/roll torque is constrained;
+terrain support controls their slope-relative orientation and height as they slide. Horizontal
+heading is preserved through ground alignment, while contact torque may rotate yaw freely.
+Unsupported or airborne walls retain gravity. A rigid base cannot bend around a crest: it
+rests above the highest sampled support, and placement requires all five supported samples.
+Walls collide with
 terrain/vehicles/other walls and survive the deployer's death, respawn or departure. Inactive authority freezes the bodies.
 
 Core oriented-box intersections stop Machine Gun, Missile and Salvo segments at the closest
@@ -235,12 +243,15 @@ cosmetic expansion progress are not serialized; recovered walls appear fully exp
 `check-world-wall.ps1 -GodotPath <exe> [-Impaired] [-Visual]` exercises two production UDP
 arenas, stationary/60 m/s forward/reverse/banked deployment of damaged shields, blocked-use
 retry with the same capability, retired-use rejection,
-drive-away independence, native vehicle push/damage, fresh third-peer admission, sustained
+drive-away independence, retained release facing, bank alignment/elevation following,
+native vehicle push with measured slowdown and damage, fresh third-peer admission, sustained
 Machine Gun destruction, native Missile/Salvo impacts and exact publication-boundary comparisons. It also deploys sixteen
 walls through ordinary use and sustains their native state for 600 frames. Rendered runs
 capture expanded, pushed, destroyed and stress states. Every live wall is checked for upright
 orientation throughout the run; an applied native torque verifies yaw remains free while
-pitch/roll stay locked. Add `-ProductionMap` to exercise sixteen normal-use deployments at
+pitch/roll torque stays constrained. Missile/Salvo target fixtures reposition the surviving
+wall onto level support after the motion test; they do not establish moving-target accuracy.
+Add `-ProductionMap` to exercise sixteen normal-use deployments at
 all eight oval grid spawns and the seven authored infield pickup areas, including impaired
 UDP convergence. That fixture suppresses pickup acquisition to isolate exact-slot assertions.
 `check-reconnect.ps1 -Tombstone` and

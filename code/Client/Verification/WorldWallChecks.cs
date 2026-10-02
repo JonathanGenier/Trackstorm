@@ -27,6 +27,9 @@ public sealed partial class WorldWallChecks : Node
     private float _weaponHP;
     private N.Quaternion _beforeTorque;
     private StaticBody3D? _blocker;
+    private readonly Dictionary<ulong, N.Vector3> _releasedFacing = new();
+    private float? _impactSpeed;
+    private N.Vector3 _groundStart;
     private bool ProductionMap => OS.GetCmdlineUserArgs().Contains("--world-wall-production");
 
     public override void _Ready()
@@ -37,7 +40,17 @@ public sealed partial class WorldWallChecks : Node
         using var socket = new UdpClient(new IPEndPoint(IPAddress.Loopback, 0));
         _endpoint = $"127.0.0.1:{((IPEndPoint)socket.Client.LocalEndPoint!).Port}"; socket.Close();
         AddPeer(); AddPeer();
-        _arenas[0].Driver.ItemsReceived += p => _boundaries[p.World.Tick] = p.Tombstones.ToArray();
+        _arenas[0].Driver.ItemsReceived += p =>
+        {
+            _boundaries[p.World.Tick] = p.Tombstones.ToArray();
+            foreach (var wall in p.Tombstones.Where(s => !s.Attached && !_releasedFacing.ContainsKey(s.Id)))
+            {
+                var vehicle = p.World.Vehicles.Single(v => v.State.VehicleId == wall.Owner).State;
+                var facing = HorizontalFacing(vehicle.ObservedPhysics.Orientation);
+                Check(N.Vector3.Dot(HorizontalFacing(wall.Orientation), facing) > 0.9999f, "Deployment preserves current vehicle heading");
+                _releasedFacing[wall.Id] = facing;
+            }
+        };
     }
 
     private void AddPeer()
@@ -59,8 +72,8 @@ public sealed partial class WorldWallChecks : Node
         {
             var floor = new StaticBody3D { Position = new(slope * 100, 200, 0), Rotation = new(0, 0, slope * 0.12f), CollisionLayer = 1 };
             floor.AddToGroup("landing_terrain");
-            floor.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(70, 1, 150) } });
-            floor.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(70, 1, 150) }, MaterialOverride = new StandardMaterial3D { AlbedoColor = new(0.24f, 0.27f, 0.3f) } });
+            floor.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(70, 1, 400) } });
+            floor.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new(70, 1, 400) }, MaterialOverride = new StandardMaterial3D { AlbedoColor = new(0.24f, 0.27f, 0.3f) } });
             arena.AddChild(floor);
         }
         var camera = new Camera3D { Name = "WallCamera", Position = new(20, 214, 24) };
@@ -77,7 +90,7 @@ public sealed partial class WorldWallChecks : Node
             var host = _arenas[0].Driver.Host!;
             foreach (var wall in host.Items.Tombstones.Where(s => !s.Attached))
             {
-                Check(N.Vector3.Transform(N.Vector3.UnitY, wall.Orientation).Y > 0.9999f, "Wall remains upright throughout native motion and impacts");
+                Check(N.Vector3.Transform(N.Vector3.UnitY, wall.Orientation).Y > 0.55f, "Wall remains standing throughout native motion and impacts");
                 Check(Math.Abs(wall.AngularVelocity.X) < 0.001f && Math.Abs(wall.AngularVelocity.Z) < 0.001f, "No pitch/roll velocity");
             }
             if (_stage == 4 && elapsed == 40)
@@ -92,6 +105,7 @@ public sealed partial class WorldWallChecks : Node
                 Position(1, target.Position + new N.Vector3(0, 3, _stage == 12 ? 8 : 65), N.Vector3.Zero,
                     _stage == 12 ? N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitX, -MathF.Atan2(3, 8)) : N.Quaternion.Identity);
             }
+            float incomingSpeed = _stage == 4 ? host.World.GetVehicle(2).Movement.Physics.LinearVelocity.Length() : 0;
             for (int i = 0; i < _arenas.Count; i++)
             {
                 bool use = (_stage == 2 && elapsed == 1) || (_stage == 14 && elapsed == 1 && i == 0) || (_stage == 6 && i == 0) || (_stage is 8 or 12 or 13 && elapsed == 15 && i == 0);
@@ -99,6 +113,12 @@ public sealed partial class WorldWallChecks : Node
                 ushort throttle = ((_stage == 3 && (!ProductionMap || _scenario < 4)) || (_stage == 4 && i == 1)) ? ushort.MaxValue : (ushort)0;
                 _arenas[i].Advance(new((ulong)_frame, 0, throttle, 0, use ? InputButtons.UseItem : 0, pressed ? InputButtons.UseItem : 0, 0));
                 Check(_arenas[i].Driver.Failure.Length == 0, _arenas[i].Driver.Failure);
+            }
+            if (_stage == 4 && _impactSpeed is null && host.Items.Tombstones.Last().HP < 875)
+            {
+                _impactSpeed = host.World.GetVehicle(2).ObservedPhysics.LinearVelocity.Length();
+                Check(_impactSpeed > incomingSpeed * 0.65f && _impactSpeed < incomingSpeed, $"Wall slows the car without stopping it: {incomingSpeed:F2} -> {_impactSpeed:F2} m/s");
+                Record($"First wall contact: car {incomingSpeed:F2} -> {_impactSpeed:F2} m/s, ordinary collision damage retained.");
             }
             if (_stage == 6 && elapsed == 15) { Capture("firing.png"); }
             _boundaries[host.World.State.Tick] = host.Items.Tombstones.ToArray();
@@ -145,6 +165,13 @@ public sealed partial class WorldWallChecks : Node
                         Check(wall.HP == 875 && wall.DamageSequence == 7, "Same damaged pool and watermark");
                         Check(host.Items.Slots.Single(s => s.Vehicle == seed.Owner).Active.Item == HeldItem.None, "Exact slot clears");
                         Check(!host.Items.RequestUse(host.World, seed.Owner, seed.Life, seed.Token), "Retired use capability rejects replay");
+                        if (_scenario is 0 or 3)
+                        { Check(N.Vector3.Dot(_releasedFacing[wall.Id], HorizontalFacing(wall.Orientation)) > 0.999f, "No spontaneous deployment yaw during settling"); }
+                        if (!ProductionMap && _scenario == 3)
+                        {
+                            var normal = new N.Vector3(-MathF.Sin(0.12f), MathF.Cos(0.12f), 0);
+                            Check(N.Vector3.Dot(normal, N.Vector3.Transform(N.Vector3.UnitY, wall.Orientation)) > 0.9999f, "Both ends follow the bank rather than one end floating");
+                        }
                     }
                     Check(_arenas.All(a => a.Walls.Bodies.Count == 2 && a.Bodies.Values.All(b => !b.HasRearShield)), "Native shield-to-world transition on both peers");
                     _seeds = host.Items.Tombstones.ToArray(); Capture($"{_scenario}-expanded.png"); Next(3); break;
@@ -168,7 +195,27 @@ public sealed partial class WorldWallChecks : Node
                         foreach (var wall in host.Items.Tombstones.ToArray()) { host.Items.DamageTombstone(host.World, wall.Id, wall.DamageSequence + 1, 1000, new("world", 0, "fixture-reset")); }
                         Next(1); break;
                     }
-                    Position(2, host.Items.Tombstones.Last().Position + new N.Vector3(0, 0, 8), new(0, 0, -18));
+                    var sliding = host.Items.Tombstones.Last(); _groundStart = sliding.Position;
+                    _arenas[0].Walls.Bodies[sliding.Id].ApplyCentralImpulse(new(-sliding.WallMass * 5, 0, 0));
+                    Next(15); break;
+                case 15 when elapsed >= 60:
+                    var grounded = host.Items.Tombstones.Last();
+                    Check(grounded.Position.X < _groundStart.X - 1 && grounded.Position.Y < _groundStart.Y - 0.1f, "Sliding wall follows changing ground elevation");
+                    Check(N.Vector3.Dot(new(-MathF.Sin(0.12f), MathF.Cos(0.12f), 0), N.Vector3.Transform(N.Vector3.UnitY, grounded.Orientation)) > 0.9999f, "Sliding wall stays aligned to the bank");
+                    Record($"Bank slide follows elevation: {_groundStart.Y:F2} -> {grounded.Position.Y:F2} m; both ends remain terrain-aligned.");
+                    RestWall();
+                    _groundStart = grounded.Position;
+                    _arenas[0].Walls.Bodies[grounded.Id].ApplyCentralImpulse(new(grounded.WallMass * 30, 0, 0));
+                    Next(16); break;
+                case 16:
+                    var uphill = host.Items.Tombstones.Last();
+                    float expectedHeight = _groundStart.Y + (uphill.Position.X - _groundStart.X) * MathF.Tan(0.12f);
+                    Check(Math.Abs(uphill.Position.Y - expectedHeight) < 0.03f, "Fast uphill slide follows support rather than being classified as airborne");
+                    if (elapsed < 30) { break; }
+                    Check(uphill.Position.Y > _groundStart.Y + 1, "Fast slide gains terrain elevation");
+                    Record($"Fast uphill slide follows elevation: {_groundStart.Y:F2} -> {uphill.Position.Y:F2} m.");
+                    RestWall();
+                    Position(2, uphill.Position + new N.Vector3(0, 0, 8), new(0, 0, -18));
                     _pushStart = host.Items.Tombstones.Last().Position; Next(4); break;
                 case 4 when elapsed >= 90:
                     var pushed = host.Items.Tombstones.Last();
@@ -176,6 +223,7 @@ public sealed partial class WorldWallChecks : Node
                     Check(pushed.HP < 875, "Native wall contact damages its independent pool");
                     Check(Math.Abs(N.Quaternion.Dot(pushed.Orientation, _beforeTorque)) < 0.999f, "Yaw remains free under native torque while tipping stays locked");
                     Record($"Vehicle push moved wall {N.Vector3.Distance(pushed.Position, _pushStart):F2} m; HP {pushed.HP:F1}.");
+                    Position(2, new(120, 204, 60), N.Vector3.Zero);
                     Capture("pushed.png"); AddPeer(); Next(5); break;
                 case 5 when elapsed > 120 && _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 3):
                     Check(_arenas.All(a => a.Walls.Bodies.Count == 2), "Fresh third peer reconstructs both native walls");
@@ -194,12 +242,13 @@ public sealed partial class WorldWallChecks : Node
                     Check(_arenas.All(a => a.Walls.Bodies.Count == 1), "Terminal removal converges and stays removed");
                     Record("Three UDP peers retained the surviving movable wall through 300 further native physics frames.");
                     host.Items.RemovePlayer(1);
+                    RestWall(flatWeaponTarget: true);
                     _weaponHP = host.Items.Tombstones.Single().HP;
                     Check(host.Items.Grant(host.World, 1, HeldItem.Missile), "Native missile grant"); Next(12); break;
                 case 12 when elapsed > 90:
                     Check(host.Items.Tombstones.Single().HP < _weaponHP, "Native Missile sweep/blast damages wall");
                     Record($"Native Missile wall damage: {_weaponHP:F1} -> {host.Items.Tombstones.Single().HP:F1} HP.");
-                    host.Items.RemovePlayer(1); _weaponHP = host.Items.Tombstones.Single().HP;
+                    host.Items.RemovePlayer(1); _weaponHP = host.Items.Tombstones.Single().HP; RestWall(flatWeaponTarget: true);
                     Check(host.Items.Grant(host.World, 1, HeldItem.Salvo), "Native Salvo grant"); Next(13); break;
                 case 13 when elapsed > 120:
                     Check(host.Items.Tombstones.Single().HP < _weaponHP, "Native Salvo sweep/blast damages wall");
@@ -292,6 +341,18 @@ public sealed partial class WorldWallChecks : Node
         using var frame = _views[0].GetTexture().GetImage(); frame.SavePng(System.IO.Path.Combine(_output, name));
     }
     private void Record(string message) { _evidence.Add(message); GD.Print(message); }
+    private void RestWall(bool flatWeaponTarget = false)
+    {
+        // Isolate later weapon aiming from the preceding movement test's travelling target.
+        var body = _arenas[0].Walls.Bodies[_arenas[0].Driver.Host!.Items.Tombstones.Last().Id];
+        if (flatWeaponTarget) { body.GlobalTransform = new(Basis.Identity, new(0, 201.765f, -60)); }
+        body.LinearVelocity = Vector3.Zero; body.AngularVelocity = Vector3.Zero; body.Sleeping = true;
+    }
+    private static N.Vector3 HorizontalFacing(N.Quaternion rotation)
+    {
+        var facing = N.Vector3.Transform(N.Vector3.UnitZ, rotation); facing.Y = 0;
+        return N.Vector3.Normalize(facing);
+    }
     private void Next(int stage) { _stage = stage; _boundary = _frame; }
     private void Finish(int code)
     {

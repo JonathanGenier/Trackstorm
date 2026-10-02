@@ -146,6 +146,38 @@ internal sealed class WorldWallTests
         Assert.That(host.Items.Tombstones.Single(), Is.EqualTo(hit), "No repeated blast on the next tick");
     }
 
+    [TestCase(false)]
+    [TestCase(true)]
+    public void WallContactSharesMomentumWithoutStoppingCarOrDuplicatingManifoldImpulse(bool duplicate)
+    {
+        var host = Start(); var wall = Deploy(host);
+        var contact = new VehicleContact(new(0, 0, -18), Vector3.UnitZ, 0, 0, tombstone: wall.Id);
+        VehicleObservation Contact(VehicleSnapshot s) => new(new(s.ObservedPhysics.Position, Quaternion.Identity, Vector3.Zero, Vector3.Zero),
+            Vector3.UnitY, duplicate ? [contact, contact] : [contact]);
+        host.Step(default, Contact);
+        var pushed = host.Items.Tombstones.Single();
+        float expected = -18 * host.World.MovementTuning(1).Mass / (host.World.MovementTuning(1).Mass + wall.WallMass);
+        Assert.That(host.World.GetVehicle(1).ObservedPhysics.LinearVelocity.Z, Is.EqualTo(expected).Within(0.0001f));
+        Assert.That(pushed.LinearVelocity.Z, Is.EqualTo(expected).Within(0.0001f));
+        Assert.That(pushed.HP, Is.LessThan(wall.HP));
+        Assert.That(host.World.GetVehicle(1).Damage.CurrentHP, Is.LessThan(1000), "Normal collision damage remains");
+        VehicleObservation MovingContact(VehicleSnapshot s) => new(new(s.ObservedPhysics.Position, Quaternion.Identity, Vector3.Zero, Vector3.Zero),
+            Vector3.UnitY, [new(Vector3.Zero, Vector3.UnitZ, 0, 0, tombstone: wall.Id)]);
+        host.Step(default, MovingContact);
+        Assert.That(host.World.GetVehicle(1).ObservedPhysics.LinearVelocity.Z, Is.EqualTo(expected).Within(0.0001f), "Co-moving contact does not stop the car again");
+        Assert.That(host.Items.Tombstones.Single().LinearVelocity, Is.EqualTo(pushed.LinearVelocity));
+    }
+
+    [Test]
+    public void WallPushCannotOverrideAnUnrelatedBlockingContact()
+    {
+        var host = Start(); var wall = Deploy(host);
+        VehicleObservation Contact(VehicleSnapshot s) => new(new(s.ObservedPhysics.Position, Quaternion.Identity, Vector3.Zero, Vector3.Zero), Vector3.UnitY,
+            [new(new(0, 0, -18), Vector3.UnitZ, 0, 0, tombstone: wall.Id), new(new(0, 0, -18), Vector3.UnitZ, 0, 0)]);
+        host.Step(default, Contact);
+        Assert.That(host.World.GetVehicle(1).ObservedPhysics.LinearVelocity, Is.EqualTo(Vector3.Zero));
+    }
+
     [Test]
     public void DeploymentCapturesValidatedPhysicalTuningAndRetuningCannotResizeExistingWalls()
     {

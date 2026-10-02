@@ -104,6 +104,7 @@ public sealed partial class ItemAuthority
 
         internal Dictionary<ulong, VehicleObservation> Collisions()
         {
+            var pushed = PushWalls();
             // Each native vehicle reports the struck wall ID. Collapse manifold points before damage.
             foreach (var hits in _requests.Where(r => _world.GetVehicle(r.VehicleId).CanInteract && !r.Reset.HasValue)
                 .SelectMany(r => r.Observation.Contacts.Where(c => c.Tombstone != 0).Select(c => (Request: r, Contact: c))).GroupBy(h => h.Contact.Tombstone))
@@ -115,13 +116,13 @@ public sealed partial class ItemAuthority
                 { Damage(hits.Key, strongestHit.Amount, new("collision", strongestHit.VehicleId, "world-wall"), collision: true); }
             }
             var shields = Active().OrderBy(s => s.Id).ToArray();
-            if (shields.Length == 0) { return _requests.ToDictionary(r => r.VehicleId, r => r.Observation); }
+            if (shields.Length == 0) { return pushed; }
             var observations = new Dictionary<ulong, VehicleObservation>();
             var strongest = new Dictionary<ulong, (float Amount, ulong Other)>();
             var blockedVehicleImpacts = new HashSet<(ulong Owner, ulong Other)>();
             foreach (var request in _requests)
             {
-                var observation = request.Observation;
+                var observation = pushed[request.VehicleId];
                 var remaining = new List<VehicleContact>();
                 foreach (var contact in observation.Contacts)
                 {
@@ -161,6 +162,49 @@ public sealed partial class ItemAuthority
             }
             foreach (var hit in strongest.OrderBy(p => p.Key))
             { Damage(hit.Key, hit.Value.Amount, new("collision", hit.Value.Other, "rear-shield"), collision: true); }
+            return observations;
+        }
+
+        private Dictionary<ulong, VehicleObservation> PushWalls()
+        {
+            var observations = _requests.ToDictionary(r => r.VehicleId, r => r.Observation);
+            if (_world.State.Match is { Phase: not Matches.MatchPhase.Active }) { return observations; }
+            foreach (var request in _requests.Where(r => !r.Reset.HasValue && _world.GetVehicle(r.VehicleId).CanInteract).OrderBy(r => r.VehicleId))
+            {
+                var observation = observations[request.VehicleId];
+                var velocity = observation.Physics.LinearVelocity;
+                bool yielded = false;
+                foreach (var group in observation.Contacts.Where(c => c.Tombstone != 0 && Math.Abs(c.Normal.Y) < 0.55f).GroupBy(c => c.Tombstone).OrderBy(g => g.Key))
+                {
+                    int index = States.FindIndex(s => s.Id == group.Key && !s.Attached);
+                    if (index < 0) { continue; }
+                    var wall = States[index];
+                    var contact = group.OrderBy(c => Vector3.Dot(c.RelativeVelocity, c.Normal)).First();
+                    var normal = Vector3.Normalize(new Vector3(contact.Normal.X, 0, contact.Normal.Z));
+                    float relative = Vector3.Dot(contact.RelativeVelocity, normal);
+                    float incoming = Vector3.Dot(wall.LinearVelocity, normal) + relative;
+                    if (incoming >= 0) { continue; }
+                    yielded = true;
+                    float mass = _world.MovementTuning(request.VehicleId).Mass;
+                    float impulse = Math.Max(0, -relative) / (1 / mass + 1 / wall.WallMass);
+                    // A yielding wall shares normal momentum instead of retaining the
+                    // generic sweep's stationary-obstacle stop. Keep its original contact
+                    // observations for the existing damage and cooldown rules.
+                    velocity += normal * (incoming + impulse / mass - Vector3.Dot(velocity, normal));
+                    States[index] = wall with { LinearVelocity = wall.LinearVelocity - normal * (impulse / wall.WallMass) };
+                }
+                if (!yielded) { continue; }
+                // Unrelated solid/vehicle contacts retain the normal motion already
+                // resolved by the ordinary solver in mixed manifolds.
+                foreach (var contact in observation.Contacts.Where(c => c.Tombstone == 0 && Math.Abs(c.Normal.Y) < 0.55f))
+                {
+                    float closing = Vector3.Dot(velocity - observation.Physics.LinearVelocity, contact.Normal);
+                    if (closing < 0) { velocity -= contact.Normal * closing; }
+                }
+                var pose = observation.Physics;
+                observations[request.VehicleId] = new(new(pose.Position, pose.Orientation, velocity, pose.AngularVelocity), observation.Support,
+                    observation.Contacts, observation.Surface, observation.Wheels, observation.TerrainSupport, observation.WaterDepth);
+            }
             return observations;
         }
     }
