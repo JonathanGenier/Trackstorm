@@ -10,6 +10,34 @@ namespace Trackstorm.Core.Tests.Items;
 [TestFixture]
 internal sealed class ItemRegistryTests
 {
+    [Test]
+    public void DefaultLootCanAcquireTombstoneWithoutCustomPoolOrGrant()
+    {
+        var tuning = new ItemSpawnConfiguration();
+        Assert.That(tuning.Weights[HeldItem.Tombstone], Is.EqualTo(1));
+        Assert.That(ItemRegistry.Find(HeldItem.Tombstone)!.DefaultWeight, Is.EqualTo(1));
+        // Exercise ordinary category balancing and weighted draws across fixed fresh seeds.
+        var acquired = new HashSet<HeldItem>();
+        for (int seed = 0; seed < 128 && !acquired.Contains(HeldItem.Tombstone); seed++)
+        {
+            var host = new HostVehicleSession(99);
+            host.RegisterSpawns(PrototypeArena.Configuration, tuning with { Seed = seed });
+            var state = host.World.GetVehicle(1);
+            var marker = PrototypeArena.Configuration.Items[0];
+            var pose = new VehiclePhysicsState(marker.Position, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+            host.World.Restore(new(host.World.State.Tick, default, [new VehicleSnapshot(1, state.LifeId,
+                new VehicleState(host.World.State.Tick, pose, false, false, 0, 0), state.Damage, pose)], host.World.State.Match));
+            Assert.That(host.Spawns!.TryPickup(host.World, marker.Id, 1), Is.True);
+            var slot = host.Items.Slots.Single();
+            acquired.Add(slot.Item);
+            if (slot.Item != HeldItem.Tombstone) { continue; }
+            Assert.That(host.Items.Tombstones.Single().Token, Is.EqualTo(slot.Token));
+            Assert.That(host.Items.Tombstones.Single().Stage, Is.EqualTo(TombstoneStage.RearShield));
+            Assert.That(host.Spawns.States[0].Item, Is.EqualTo(HeldItem.Tombstone));
+        }
+        Assert.That(acquired, Does.Contain(HeldItem.Tombstone));
+    }
+
     [TestCase(HeldItem.Wrench)]
     [TestCase(HeldItem.Missile)]
     [TestCase(HeldItem.Oil)]

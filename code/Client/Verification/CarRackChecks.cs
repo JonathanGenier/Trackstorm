@@ -147,6 +147,13 @@ public sealed partial class CarRackChecks : Node
                 Check(_arenas[1].Driver.RequestItemSwitch(), "Switch back");
                 await Until(() => AllPresent(item.Identity), "Selected item re-deployed");
                 int before = _events.Count;
+                if (item.Identity == HeldItem.Tombstone)
+                {
+                    Check(_arenas[1].Driver.RequestItemUse(), "Remote Tombstone use intent sent for authoritative rejection");
+                    await Frames(20);
+                    Check(_events.Count == before && AllPresent(HeldItem.Tombstone), "Use leaves selected armor and inventory intact without an outcome");
+                    continue;
+                }
                 Check(_arenas[1].Driver.RequestItemUse(), "Use request accepted for " + item.DisplayName);
                 await Frames(item.Sustained ? 45 : 12, item.Sustained ? InputButtons.UseItem : 0);
                 await Frames(1, 0, InputButtons.UseItem);
@@ -268,8 +275,9 @@ public sealed partial class CarRackChecks : Node
     }
 
     private bool AllPresent(HeldItem item) => _arenas.All(a => a.Bodies.TryGetValue(Shooter, out var body) &&
-        body.Rack.PresentedItem == item && body.Rack.Progress >= 0.999f &&
-        (item != HeldItem.Nitro || body.Rack.Boost.Deployment >= .999f));
+        (item == HeldItem.Tombstone ? body.HasRearShield && body.Rack.Progress == 0 :
+        body.Rack.PresentedItem == item && body.Rack.Progress >= 0.999f && !body.HasRearShield &&
+        (item != HeldItem.Nitro || body.Rack.Boost.Deployment >= .999f)));
     private IEnumerable<CarLighting> Lamps() => _arenas.Select(a => a.Bodies[Shooter].Rack.GetParent<Node3D>().GetChildren().OfType<CarLighting>().Single());
     private async Task Frames(int count, InputButtons held = 0, InputButtons released = 0, ushort throttle = 0, short steer = 0, ushort brake = 0)
     {

@@ -23,6 +23,7 @@ internal sealed class VehicleAuthority
     }
 
     internal VehicleConfiguration MovementConfiguration => _movementConfiguration;
+    internal DamageConfiguration DamageConfiguration => _damageConfiguration;
 
     /// <summary>Last committed aggregate.</summary>
     internal VehicleSnapshot Snapshot { get; private set; }

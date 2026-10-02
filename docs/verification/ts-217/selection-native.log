@@ -1,0 +1,27 @@
+  Determining projects to restore...
+  Restored C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\Trackstorm.Transport.Tests.csproj (in 157 ms).
+  Restored C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\Trackstorm.Client.csproj (in 156 ms).
+  3 of 5 projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Core.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Tests\bin\Debug\net10.0\Trackstorm.Core.Tests.dll
+  Trackstorm.Client -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\mono\temp\bin\Debug\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\TransportTests\bin\Debug\net10.0\Trackstorm.Transport.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.58
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Scenario 0: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 1: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 2: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 3: shield 900 -> 900, protected vehicle 1000 -> 910; other shield 900 HP.
+Scenario 4: shield 900 -> 900, protected vehicle 910 -> 820; other shield 900 HP.
+Scenario 5: shield 900 -> 900, protected vehicle 820 -> 730; other shield 900 HP.
+Scenario 6: shield 10 -> 0, protected vehicle 730 -> 651.25; other shield 900 HP.
+Scenario 7: shield 900 -> 823.21387, protected vehicle 651.25 -> 651.25; other shield 900 HP.
+Rear shield integration passed: selection/stow cycles without use, persistent damaged identity, native rays, moving fire, edge/front/side, destruction, collision and UDP replication.

@@ -20,7 +20,7 @@ public static class ItemRegistry
         new(HeldItem.ProxyMine, "proxy_mine", "Proxy Mine", 1, "ProxyMine", "WeaponPickup", null, "MissileImpact") { Category = ItemCategory.Droppable, DamageSource = "proxy-mine", Handler = new ProxyMineUseHandler(), ImpactVfx = "fire_01" },
         new(HeldItem.Salvo, "salvo", "Salvo", 1, "Salvo", "WeaponPickup", "MissileFire", "MissileImpact") { Category = ItemCategory.Weapon, DamageSource = "salvo", Handler = new SalvoUseHandler(), UseVfx = "spark_01", ImpactVfx = "fire_01" },
         new(HeldItem.MachineGun, "machine_gun", "Machine Gun", 1, "MachineGun", "WeaponPickup", null, null) { Category = ItemCategory.Weapon, DamageSource = "machine-gun", Sustained = true },
-        new(HeldItem.Tombstone, "tombstone", "Tombstone", 0, "Tombstone", "WeaponPickup", null, null) { Category = ItemCategory.Droppable },
+        new(HeldItem.Tombstone, "tombstone", "Tombstone", 1, "Tombstone", "WeaponPickup", null, null) { Category = ItemCategory.Droppable },
     ]);
 
     /// <summary>Returns a registered definition, or null for empty/unknown wire identities.</summary>

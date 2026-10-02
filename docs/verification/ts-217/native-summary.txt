@@ -1,0 +1,89 @@
+[ts217-check-car-rack.log]
+    0 Warning(s)
+    0 Error(s)
+Tombstone moves from rack to rear armor while retaining its slot on both peers
+Car rack integration passed: 142 checks; seven items, switching/use, duplicates, lifecycle and two UDP peers.
+Car rack consecutive mine passed: 20 checks on two UDP peers.
+[ts217-check-environment-collision-network.log]
+Environment collision multiplayer passed: two native UDP peers, 30 ms delay / 5 ms jitter / 2% loss; scrape, crash and head-on vehicle damage agree; contact correction max=1.0655m (excludes deliberate new-life placement).
+[ts217-check-environment-collisions.log]
+[ts217-check-items.log]
+Item integration passed: Eight native peers assigned and initialized.
+[ts217-check-landing.log]
+Landing integration passed: 64 scenarios. Evidence: C:/Users/j_gen/OneDrive/Documents/Game_Projects/Trackstorm/.godot/landing-checks
+[ts217-check-machine-gun.log]
+Machine gun integration passed: Two native UDP peers admitted; elevated isolated fixture separates weapon rays from map obstacles.
+[ts217-check-match.log]
+Match integration passed.
+[ts217-check-migration.log]
+Migration integration passed: 3 native UDP peers; intentional lobby host leave; former-host fresh join; active native match authority loss; sequential epochs; retained vehicles; prediction reset; item/spawn/match restore. Identity is a trusted test seam, not real EOS.
+[ts217-check-mine.log]
+Mine support convergence passed: flat/banked/uneven normals, 1200 ticks each, finite unit normals and unchanged bank response.
+Replicated removal/HP and native knockback passed; stationary target trial requested.
+Bank drive-over passed; uneven terrain deployment requested.
+Uneven terrain drive-over detonated and consumed the mine once; repeated remote use passed.
+Proxy Mine integration passed: Two UDP peers ready; ordinary host Proxy Mine use requested.
+Uneven terrain drive-over detonated and consumed the mine once; repeated remote use passed.
+[ts217-check-network-vehicles.log]
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose.
+Network vehicle integration passed.
+[ts217-check-nitro.log]
+Nitro integration passed: Rocket scenario 0: start 0.00, forward 17.74 m/s; charge 79.67%; Circus zero.
+[ts217-check-oil.log]
+Oil integration passed: Two native UDP peers ready; Oil requested through the normal held slot.
+[ts217-check-pickup-drive.log]
+Driver 0, case 0, closest 1.111 m, inventory Wrench/None: Wrench passed.
+Driver 0, case 1, closest 1.111 m, inventory Missile/None: Missile passed.
+Driver 0, case 2, closest 1.111 m, inventory Oil/None: Oil passed.
+Driver 0, case 3, closest 1.111 m, inventory Nitro/None: Nitro passed.
+Driver 0, case 4, closest 1.111 m, inventory ProxyMine/None: ProxyMine passed.
+Driver 0, case 5, closest 1.111 m, inventory Salvo/None: Salvo passed.
+Driver 0, case 6, closest 1.111 m, inventory MachineGun/None: MachineGun passed.
+Driver 0, case 7, closest 1.111 m, inventory Tombstone/None: Tombstone passed.
+Driver 0, case 8, closest 1.111 m, inventory Wrench/None: Wrench passed.
+Driver 0, case 9, closest 1.111 m, inventory Wrench/ProxyMine: ProxyMine passed.
+Driver 0, case 10, closest 1.111 m, inventory Wrench/ProxyMine: full rejection passed.
+Driver 0, case 11, closest 1.111 m, inventory Missile/ProxyMine: Missile passed.
+Driver 1, case 0, closest 1.109 m, inventory Wrench/None: Wrench passed.
+Driver 1, case 1, closest 1.109 m, inventory Missile/None: Missile passed.
+Driver 1, case 2, closest 1.109 m, inventory Oil/None: Oil passed.
+Driver 1, case 3, closest 1.109 m, inventory Nitro/None: Nitro passed.
+Driver 1, case 4, closest 1.109 m, inventory ProxyMine/None: ProxyMine passed.
+Driver 1, case 5, closest 1.109 m, inventory Salvo/None: Salvo passed.
+Driver 1, case 6, closest 1.109 m, inventory MachineGun/None: MachineGun passed.
+Driver 1, case 7, closest 1.108 m, inventory Tombstone/None: Tombstone passed.
+Driver 1, case 8, closest 1.108 m, inventory Wrench/None: Wrench passed.
+Driver 1, case 9, closest 1.108 m, inventory Wrench/ProxyMine: ProxyMine passed.
+Driver 1, case 10, closest 1.108 m, inventory Wrench/ProxyMine: full rejection passed.
+Driver 1, case 11, closest 1.108 m, inventory Missile/ProxyMine: Missile passed.
+Pickup drive passed: both application peers acquired every registered item, two sequential slots, full rejection and use/retry.
+Pickup motion attempts: 180/180.
+[ts217-check-rear-shield.log]
+Rear shield integration passed: deployment, native rays, moving fire, edge/front/side, destruction, collision and UDP replication.
+[ts217-check-salvo.log]
+Salvo integration passed: three peers, three salvos, banked marker privacy, 15 replicated impacts and multiple targets.
+[ts217-check-terrain-handling.log]
+Terrain handling integration passed: both adapters, six surfaces, slope starts, steering, handbrake recovery and transitions.
+[ts217-check-vehicle.log]
+    0 Warning(s)
+    0 Error(s)
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose, native life reset.
+Vehicle integration passed: 147 assertions.
+Live camera playtest passed: mouse orbit/smooth return, two-axis controller orbit/noisy-neutral return, displayed vehicle pose, native life reset.
+Vehicle integration passed: 147 assertions.
+[ts217-check-reconnect.log]
+Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8083; no historical events.
+Tombstone recovery verified: WorldWall/WorldWall at 700/600 HP, exact attachment/pose and damage watermark; no refill.
+Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
+Machine gun recovery verified: 299/800 rounds, phase 0.25, no historical shot.
+Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8113; no historical events.
+Tombstone recovery verified: WorldWall/WorldWall at 700/600 HP, exact attachment/pose and damage watermark; no refill.
+Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
+Machine gun recovery verified: 299/800 rounds, phase 0.25, no historical shot.
+Salvo recovery verified: exact three held shots, cooldown and two flying rounds at tick 8173; no historical events.
+Tombstone recovery verified: WorldWall/WorldWall at 700/600 HP, exact attachment/pose and damage watermark; no refill.
+Environment recovery verified: Stage 2 damage 17, final rock and persistent cleared plants.
+Machine gun recovery verified: 299/800 rounds, phase 0.25, no historical shot.
+Reconnect integration passed: immediate lobby removal/fresh admission, three arena resyncs including 125 seconds offline, native body reuse, prediction/interpolation reset, held-item/spawn/match continuity, dimmed retained standings, final results and new-generation reset over real UDP. EOS identity and initial scores are test seams.

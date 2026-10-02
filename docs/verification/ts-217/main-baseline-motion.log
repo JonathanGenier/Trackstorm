@@ -1,0 +1,42 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+WARNING: 'res://assets/items/proxy-mine/ProxyMine.glb': In external resource #0, invalid UID: 'uid://bo3koppii13ej' - using text path instead: 'res://assets/items/proxy-mine/ProxyMine_Recess patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMine.glb': In external resource #1, invalid UID: 'uid://udfym458wmbq' - using text path instead: 'res://assets/items/proxy-mine/ProxyMine_Gunmetal patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMine.glb': In external resource #2, invalid UID: 'uid://bgcqs6uemnaff' - using text path instead: 'res://assets/items/proxy-mine/ProxyMine_Worn steel patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMine.glb': In external resource #3, invalid UID: 'uid://l8te3invob5q' - using text path instead: 'res://assets/items/proxy-mine/ProxyMine_Circus oxblood patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMine.glb': In external resource #4, invalid UID: 'uid://cgo78aenexsmj' - using text path instead: 'res://assets/items/proxy-mine/ProxyMine_Magnet copper patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMine.glb': In external resource #5, invalid UID: 'uid://cty6av411x08q' - using text path instead: 'res://assets/items/proxy-mine/ProxyMine_Aged ivory patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMinePlacementArm.glb': In external resource #0, invalid UID: 'uid://doesk0r2qorgu' - using text path instead: 'res://assets/items/proxy-mine/ProxyMinePlacementArm_Arm machined steel original patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMinePlacementArm.glb': In external resource #1, invalid UID: 'uid://bsj3ysll8si47' - using text path instead: 'res://assets/items/proxy-mine/ProxyMinePlacementArm_Arm forged gunmetal original patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMinePlacementArm.glb': In external resource #2, invalid UID: 'uid://62j8iil5vcf1' - using text path instead: 'res://assets/items/proxy-mine/ProxyMinePlacementArm_Arm rubber and recess original patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMinePlacementArm.glb': In external resource #3, invalid UID: 'uid://200sca5lmhnh' - using text path instead: 'res://assets/items/proxy-mine/ProxyMinePlacementArm_Arm oxblood enamel original patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMinePlacementArm.glb': In external resource #4, invalid UID: 'uid://0lq6u4vtllac' - using text path instead: 'res://assets/items/proxy-mine/ProxyMinePlacementArm_Arm ivory identification original patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/maps/infield/infield_terrain.glb': In external resource #1, invalid UID: 'uid://bda4u6djjho3w' - using text path instead: 'res://assets/maps/infield/Water.gdshader'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/maps/infield/infield_terrain.glb': In external resource #2, invalid UID: 'uid://bo2mcm0snf272' - using text path instead: 'res://assets/maps/infield/surface_field.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+driver=0 speed=8 offset=0: 10/10
+driver=0 speed=8 offset=1.5: 10/10
+System.InvalidOperationException: Only geometrically valid crossings count in the reliability sample: driver=0 speed=8 offset=2.6729002, nearest 3.0505 m.
+   at Trackstorm.Client.Verification.PickupDriveChecks.Require(Boolean condition, String message) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts217-main-baseline\code\Client\Verification\PickupDriveChecks.cs:line 235
+   at Trackstorm.Client.Verification.PickupDriveChecks.AdvanceMotion(VehicleSnapshot before) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts217-main-baseline\code\Client\Verification\PickupDriveChecks.cs:line 187
+   at Trackstorm.Client.Verification.PickupDriveChecks._PhysicsProcess(Double delta) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts217-main-baseline\code\Client\Verification\PickupDriveChecks.cs:line 84
+WARNING: 39 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

@@ -1,0 +1,58 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Transport peer 1: Connecting; None;
+Transport peer 1: Connecting; None;
+Transport peer 1: Connected; None;
+Transport peer 1: Connected; None;
+WARNING: 'res://assets/items/proxy-mine/ProxyMine.glb': In external resource #0, invalid UID: 'uid://bo3koppii13ej' - using text path instead: 'res://assets/items/proxy-mine/ProxyMine_Recess patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMine.glb': In external resource #1, invalid UID: 'uid://udfym458wmbq' - using text path instead: 'res://assets/items/proxy-mine/ProxyMine_Gunmetal patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMine.glb': In external resource #2, invalid UID: 'uid://bgcqs6uemnaff' - using text path instead: 'res://assets/items/proxy-mine/ProxyMine_Worn steel patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMine.glb': In external resource #3, invalid UID: 'uid://l8te3invob5q' - using text path instead: 'res://assets/items/proxy-mine/ProxyMine_Circus oxblood patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMine.glb': In external resource #4, invalid UID: 'uid://cgo78aenexsmj' - using text path instead: 'res://assets/items/proxy-mine/ProxyMine_Magnet copper patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMine.glb': In external resource #5, invalid UID: 'uid://cty6av411x08q' - using text path instead: 'res://assets/items/proxy-mine/ProxyMine_Aged ivory patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMinePlacementArm.glb': In external resource #0, invalid UID: 'uid://doesk0r2qorgu' - using text path instead: 'res://assets/items/proxy-mine/ProxyMinePlacementArm_Arm machined steel original patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMinePlacementArm.glb': In external resource #1, invalid UID: 'uid://bsj3ysll8si47' - using text path instead: 'res://assets/items/proxy-mine/ProxyMinePlacementArm_Arm forged gunmetal original patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMinePlacementArm.glb': In external resource #2, invalid UID: 'uid://62j8iil5vcf1' - using text path instead: 'res://assets/items/proxy-mine/ProxyMinePlacementArm_Arm rubber and recess original patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMinePlacementArm.glb': In external resource #3, invalid UID: 'uid://200sca5lmhnh' - using text path instead: 'res://assets/items/proxy-mine/ProxyMinePlacementArm_Arm oxblood enamel original patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/items/proxy-mine/ProxyMinePlacementArm.glb': In external resource #4, invalid UID: 'uid://0lq6u4vtllac' - using text path instead: 'res://assets/items/proxy-mine/ProxyMinePlacementArm_Arm ivory identification original patina.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/maps/infield/infield_terrain.glb': In external resource #1, invalid UID: 'uid://bda4u6djjho3w' - using text path instead: 'res://assets/maps/infield/Water.gdshader'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+WARNING: 'res://assets/maps/infield/infield_terrain.glb': In external resource #2, invalid UID: 'uid://bo2mcm0snf272' - using text path instead: 'res://assets/maps/infield/surface_field.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+Driver 0, case 0, closest 1.197 m, inventory Wrench/None: Wrench passed.
+Driver 0, case 1, closest 1.197 m, inventory Missile/None: Missile passed.
+Driver 0, case 2, closest 1.197 m, inventory Oil/None: Oil passed.
+Driver 0, case 3, closest 1.197 m, inventory Nitro/None: Nitro passed.
+Driver 0, case 4, closest 1.197 m, inventory ProxyMine/None: ProxyMine passed.
+Driver 0, case 5, closest 1.197 m, inventory Salvo/None: Salvo passed.
+Driver 0, case 6, closest 1.197 m, inventory MachineGun/None: MachineGun passed.
+Driver 0, case 7, closest 1.197 m, inventory Tombstone/None: Tombstone passed.
+Driver 0, case 8, closest 1.197 m, inventory Wrench/None: Wrench passed.
+Driver 0, case 9, closest 1.197 m, inventory Wrench/ProxyMine: ProxyMine passed.
+Driver 0, case 10, closest 1.197 m, inventory Wrench/ProxyMine: full rejection passed.
+Driver 0, case 11, closest 1.197 m, inventory Missile/ProxyMine: Missile passed.
+Driver 1, case 0, closest 1.191 m, inventory Wrench/None: Wrench passed.
+Driver 1, case 1, closest 1.191 m, inventory Missile/None: Missile passed.
+Driver 1, case 2, closest 1.191 m, inventory Oil/None: Oil passed.
+Driver 1, case 3, closest 1.191 m, inventory Nitro/None: Nitro passed.
+Driver 1, case 4, closest 1.191 m, inventory ProxyMine/None: ProxyMine passed.
+Driver 1, case 5, closest 1.191 m, inventory Salvo/None: Salvo passed.
+Driver 1, case 6, closest 1.191 m, inventory MachineGun/None: MachineGun passed.
+Driver 1, case 7, closest 1.191 m, inventory Tombstone/None: Tombstone passed.
+Driver 1, case 8, closest 1.191 m, inventory Wrench/None: Wrench passed.
+Driver 1, case 9, closest 1.191 m, inventory Wrench/ProxyMine: ProxyMine passed.
+System.InvalidOperationException: Sequence contains no matching element
+   at System.Linq.ThrowHelper.ThrowNoMatchException()
+   at System.Linq.Enumerable.Single[TSource](IEnumerable`1 source, Func`2 predicate)
+   at Trackstorm.Client.Verification.PickupDriveChecks._PhysicsProcess(Double delta) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts217-main-baseline\code\Client\Verification\PickupDriveChecks.cs:line 112
