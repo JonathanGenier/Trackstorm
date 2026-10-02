@@ -28,7 +28,7 @@ Every accordion contains **Reset to Defaults** inside its body. Search matches l
 
 ## Authority and runtime application
 
-Core `GameplayConfiguration` composes the existing vehicle, digital-input shaping, damage, item, spawn, respawn and match records plus destruction tuning and the shared environment identity. `GameplayOptions` is the explicit 213-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
+Core `GameplayConfiguration` composes the existing vehicle, digital-input shaping, damage, item, spawn, respawn and match records plus destruction tuning and the shared environment identity. `GameplayOptions` is the explicit 211-key allowlist shared by the UI, persistence and wire codec. Each setter calls the existing owning validation through one complete candidate transaction. Local audio, graphics, bindings and display preferences never enter it. Core remains independent of Godot and storage.
 
 Live scalar tuning additionally rejects positive values below 0.0001: subnormal mass/axle lengths can overflow fixed-step divisions despite passing older positive-only checks. Zero remains allowed where the owning rule explicitly supports it. Collision/respawn timers are bounded to one hour and the simulation clock remains fixed at 60 Hz.
 
@@ -44,7 +44,7 @@ The version-one `TD` session configuration channel carries bounded catalog-index
 
 Complete session publications reach lobby clients and late arrivals even before an arena exists. Arena gameplay retains the existing configuration-before-world boundary below; the session replica is only a projection for lobby presentation and next-arena continuity. Recovery/migration uses the existing complete checkpoint and epoch reset, with no successor-local defaults reload.
 
-The reliable version-thirty-seven `TC` message carries arena generation, configuration revision and all 213 values (1725 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
+The reliable version-thirty-eight `TC` message carries arena generation, configuration revision and all 211 values (1709 bytes). Catalog order is part of this schema; additions/reordering require a version change. A client accepts configuration only from its established host over reliable delivery for the current arena. Lower revisions and conflicting duplicate revisions are rejected; identical duplicates are idempotent. The first complete revision-zero configuration may differ from canonical defaults because a host can start with persisted overrides.
 
 The host sends configuration before its reliable world boundary on admission or edits. Version-fourteen `TS` world snapshots include the configuration revision; clients reject world/item boundaries for a different revision, preventing mismatched simulation. Subsequent unreliable snapshots recover normal movement after an ordered tuning change. EOS lobby metadata does not store gameplay tuning. Discovery compatibility is `trackstorm-lobby-16`.
 
@@ -230,13 +230,13 @@ No editable drift boost, collision recoil or missile falloff setting exists beca
 
 The read-only [Event Log](event-log.md) records accepted tuning keys with old/new values, configuration revisions/rejections, Give Item and Force Start results, and practice reset/blast actions. F3 provides history and no mutation controls.
 
-Item spawn weights are generated from the shared item registry (spawns.wrench_weight, spawns.missile_weight, spawns.oil_weight, spawns.nitro_weight, spawns.proxy_mine_weight, spawns.salvo_weight, spawns.machine_gun_weight). Zero excludes an item; the complete pool must retain positive total weight. All seven default to one. Oil uses the normal deployment path; Nitro uses the normal activation path and retains its slot while already boosted. Oil grip, recovery duration, vehicle-pass budget and cleanup lifetime are editable in the Oil category; deployment has no global active-patch gate. The version-thirty-seven gameplay configuration payload includes the complete distribution in resume and migration checkpoints.
+Item spawn weights are generated from the shared item registry (spawns.wrench_weight, spawns.missile_weight, spawns.oil_weight, spawns.nitro_weight, spawns.proxy_mine_weight, spawns.salvo_weight, spawns.machine_gun_weight). Zero excludes an item; the complete pool must retain positive total weight. All seven default to one. Oil uses the normal deployment path; Nitro uses the normal activation path and retains its slot while already boosted. Oil grip, recovery duration, vehicle-pass budget and cleanup lifetime are editable in the Oil category; deployment has no global active-patch gate. The version-thirty-eight gameplay configuration payload includes the complete distribution in resume and migration checkpoints.
 
-Nitro exposes `items.nitro_consumption_per_second`, `items.nitro_forward_thrust`, `items.nitro_speed_multiplier`, `items.nitro_airborne_thrust_scale`, `vehicle.overspeed_deceleration`, and `match.nitro_points_per_second` through the existing catalog. Live edits affect subsequent authoritative intervals without refilling charge. Ordinary validation, persistence, version-thirty-seven configuration replication and recovery apply. See [Nitro](items.md#sustained-nitro-resource).
+Nitro exposes `items.nitro_consumption_per_second`, `items.nitro_forward_thrust`, `items.nitro_speed_multiplier`, `items.nitro_airborne_thrust_scale`, `vehicle.overspeed_deceleration`, and `match.nitro_points_per_second` through the existing catalog. Live edits affect subsequent authoritative intervals without refilling charge. Ordinary validation, persistence, version-thirty-eight configuration replication and recovery apply. See [Nitro](items.md#sustained-nitro-resource).
 
 ## Progressive handling controls
 
-The Dirt category exposes `vehicle.dirt_steering_reserve` (default 0.95, range 0–1) and `vehicle.dirt_recovery` (default 4/s, range 0–10/s). These control front-wheel authority during saturated slides and bounded slide-yaw recovery respectively; zero disables the corresponding contribution. They use the existing complete shared Apply/Cancel and authoritative Reset transaction, schema-two file defaults for missing keys, configuration version thirty-seven, and resume/migration configuration boundary. `DirtRecoveryTests` checks isolation, recovery and continuation; `DeveloperConfigurationTests` checks each control's actual trajectory effect. No additional serialized vehicle memory is introduced.
+The Dirt category exposes `vehicle.dirt_steering_reserve` (default 0.95, range 0–1) and `vehicle.dirt_recovery` (default 4/s, range 0–10/s). These control front-wheel authority during saturated slides and bounded slide-yaw recovery respectively; zero disables the corresponding contribution. They use the existing complete shared Apply/Cancel and authoritative Reset transaction, schema-two file defaults for missing keys, configuration version thirty-eight, and resume/migration configuration boundary. `DirtRecoveryTests` checks isolation, recovery and continuation; `DeveloperConfigurationTests` checks each control's actual trajectory effect. No additional serialized vehicle memory is introduced.
 
 The Vehicle category exposes `vehicle.steering_smoothing` (0.3 seconds; accepts 0.01–1). Automatic power-slip buildup controls are retired; current ground-steering tuning is documented below. [Vehicles](vehicles.md) owns force and recovery semantics.
 
@@ -244,14 +244,14 @@ The Vehicle category exposes `vehicle.steering_smoothing` (0.3 seconds; accepts 
 
 Concrete, Dirt, Grass, Mud and Deep Mud each expose Grip, Drag and Acceleration multipliers under their searchable category. Keys are `vehicle.concrete.*`, `vehicle.dirt.*`, `vehicle.grass.*`, `vehicle.mud.*` and `vehicle.deep_mud.*`, with suffixes `grip`, `drag`, `acceleration`. Each maps directly to the matching `VehicleConfiguration` record used by movement; [vehicles](vehicles.md#terrain-handling-profiles) owns default values and force semantics. Asphalt retains existing vehicle controls rather than a second surface authority. Host overrides may intentionally depart from the default ordering.
 
-Apply, Cancel, Reset, validation, host-local schema-two persistence, version-thirty-seven complete reliable configuration and existing resume/migration checkpoints carry all 213 values. New keys missing from saved files use canonical defaults. Old explicit Concrete/Mud overrides remain user tuning; Reset plus Apply selects the new defaults. No file migration silently overwrites those choices. The existing UI/UDP/persistence harness iterates all catalog controls; Core trajectory tests exercise every surface multiplier and checkpoint round trips.
+Apply, Cancel, Reset, validation, host-local schema-two persistence, version-thirty-eight complete reliable configuration and existing resume/migration checkpoints carry all 211 values. New keys missing from saved files use canonical defaults. Old explicit Concrete/Mud overrides remain user tuning; Reset plus Apply selects the new defaults. No file migration silently overwrites those choices. The existing UI/UDP/persistence harness iterates all catalog controls; Core trajectory tests exercise every surface multiplier and checkpoint round trips.
 The **Water** category adds five [water controls](water.md#gameplay-and-tuning) through the same authority, validation, persistence and recovery path. The complete configuration layout is described above.
 
 Item category target weights use the same Configs catalog and session replication path. See [per-player category credit](item-spawns.md#per-player-category-credit) for normalization, empty-category behavior and live tuning continuity.
 
 ## Proxy Mine tuning
 
-The six `items.mine_*` controls and registry-generated `spawns.proxy_mine_weight` use the same Configs draft/apply, host validation, shared session configuration, replication and recovery owners. The catalog contains 213 keys and uses gameplay configuration wire version thirty-seven. [Magnetic Proxy Mine](items.md#magnetic-proxy-mine) defines defaults, units, force curve and live-effect semantics. Invalid minimum/maximum force pairs reject the complete transaction. No presentation-only damage or force configuration exists.
+The six `items.mine_*` controls and registry-generated `spawns.proxy_mine_weight` use the same Configs draft/apply, host validation, shared session configuration, replication and recovery owners. The catalog contains 211 keys and uses gameplay configuration wire version thirty-eight. [Magnetic Proxy Mine](items.md#magnetic-proxy-mine) defines defaults, units, force curve and live-effect semantics. Invalid minimum/maximum force pairs reject the complete transaction. No presentation-only damage or force configuration exists.
 
 The [environment preset](terrain-effects.md) uses "environment.preset" in the same session configuration, revision and recovery boundary. Its identity is session-owned; Godot lighting values remain Client presentation.
 
@@ -275,23 +275,21 @@ The Air control category uses the same staged Apply/Cancel and immediate Reset, 
 
 | Key (`vehicle.` prefix) | Default | Unit / purpose |
 | --- | --- | --- |
-| `air_delay` | 1.0 | Continuous unsupported seconds before activation |
 | `air_pitch_rate` / `air_yaw_rate` / `air_roll_rate` | 2.52 / 2.16 / 3.24 | Full-input rad/s, also sets axis sensitivity |
 | `air_pitch_acceleration` / `air_yaw_acceleration` / `air_roll_acceleration` | 16 / 14 / 20 | Maximum angular change in rad/s² |
 | `air_stabilization` | 8 | Released-axis damping per second; zero disables it |
 | `air_stabilization_response` | 0.08 | Stabilization ramp time constant, seconds |
 | `air_input_response` | 0.06 | Command smoothing time constant, seconds |
-| `air_dead_zone` | 0.08 | Additional airborne logical-axis dead zone |
 | `support_normal_minimum` | 0.55 | Ground/wheel support minimum world-normal Y; range 0.55–1 |
 
-`VehicleMovement` consumes the first eleven values through the existing authority and prediction paths; the last value also reaches both native adapters and wheel ray observations. No orientation target, leveling strength or redundant torque multiplier exists. `AirControlTests`, native `check-air-control.ps1`, and release-default coverage verify this mapping and continuation. Configuration version 37 carries the complete 213-key catalog; old layouts are rejected.
+`VehicleMovement` consumes the first nine values through the existing authority and prediction paths; the last value also reaches both native adapters and wheel ray observations. No orientation target, leveling strength or redundant torque multiplier exists. `AirControlTests`, native `check-air-control.ps1`, and release-default coverage verify this mapping and continuation. Configuration version 38 carries the complete 211-key catalog; old layouts are rejected.
 ## Collision and destruction tuning
 
 Vehicle defaults target a 3000 kg arcade trophy truck: acceleration 24 and braking
 95 m/s² at the retained 900 kg reference mass, with progressive steering and rear-lock
 handbrake tuning. `vehicle.front_drive_share` defaults to 0, range 0–1, and uses
 the existing complete validation, Apply/Reset, persistence and recovery boundary.
-Configuration wire version 37 carries that key and the dirt-corner/crash-recovery controls (213 values). Existing saved overrides
+Configuration wire version 38 carries that key and the dirt-corner/crash-recovery controls (211 values). Existing saved overrides
 remain effective until reset. Suspension length, spring, compression/rebound damping
 and progressive bump controls continue through the same catalog; no separate tuning
 file or new airborne settings exist. `crash_rotation` and `crash_angular_limit` now
@@ -300,7 +298,7 @@ also bound network vehicle contact torque; zero angular limit suppresses added t
 Collision and Destruction use the existing shared Apply/Cancel and authoritative Reset, validation,
 session configuration, reliable revision and resume/migration boundary. New keys
 missing from saved files use production defaults; explicit overrides remain until
-Reset. Configuration wire version 37 carries all 213 keys.
+Reset. Configuration wire version 38 carries all 211 keys.
 
 | Key | Default | Range / unit |
 | --- | ---: | --- |
@@ -353,7 +351,7 @@ The Oil accordion contains four host-authoritative keys, using the ordinary stag
 | `items.oil_enemy_contacts` | 2 | 1–7 vehicle passes, including the owner |
 | `items.oil_lifetime_seconds` | 60 | 1–600 seconds |
 
-Grip edits affect subsequent movement; recovery-duration edits preserve the current recovery fraction with fixed-step rounding. New deployments capture pass budget and lifetime; changing settings never refreshes deadlines or refunds consumed passes. Every new supported entry counts, including the owner and the same vehicle after exit. Continuous overlap counts once; owner entry scores zero. The existing `items.oil_enemy_contacts` persistence key is retained to preserve saved tuning, but the UI now labels it "Vehicle passes before removal" and its meaning includes all vehicles. The obsolete `items.maximum_oil_patches` key has no gameplay effect; unknown persisted keys follow the existing preservation policy. The catalog has 213 keys in configuration protocol version 37.
+Grip edits affect subsequent movement; recovery-duration edits preserve the current recovery fraction with fixed-step rounding. New deployments capture pass budget and lifetime; changing settings never refreshes deadlines or refunds consumed passes. Every new supported entry counts, including the owner and the same vehicle after exit. Continuous overlap counts once; owner entry scores zero. The existing `items.oil_enemy_contacts` persistence key is retained to preserve saved tuning, but the UI now labels it "Vehicle passes before removal" and its meaning includes all vehicles. The obsolete `items.maximum_oil_patches` key has no gameplay effect; unknown persisted keys follow the existing preservation policy. The catalog has 211 keys in configuration protocol version 38.
 **Arena boundary** exposes `vehicle.oob.damage` (default 100, 0–10000 HP/s) through the same host-only transaction and persistence path. See [out-of-bounds damage](out-of-bounds.md).
 
 ## Car deployment
@@ -378,7 +376,7 @@ Low/medium Dirt corner strength (`vehicle.dirt_cornering`, 0–2), body-supporte
 
 ### TS-197 latest handling correction tuning
 
-The complete 213-key catalog uses wire version 37 (1725 bytes). `vehicle.steering_speed` remains a retired legacy key; the current speed envelope uses the explicit full/fade/scale controls below. Old saved unknown keys do not affect handling. Existing explicit `vehicle.air_delay` overrides are retained; Reset + Apply selects 0.5 seconds.
+The complete 211-key catalog uses wire version 38 (1709 bytes). `vehicle.steering_speed` remains a retired legacy key; the current speed envelope uses the explicit full/fade/scale controls below. Old saved unknown keys do not affect handling. Retired `vehicle.air_delay` and `vehicle.air_dead_zone` overrides are ignored. Intent comes only from held Air Control; player controller deadzone and sensitivity live in Controls.
 
 The following previously fixed values now use the same Configs draft, validation, persistence, host replication and authority/prediction path:
 
@@ -402,7 +400,7 @@ The Vehicle category exposes `vehicle.rear_drive_grip` (1.6, range 0.1–4),
 `vehicle.brake_grip` (2, 0.1–4), `vehicle.power_oversteer` (0.8, 0–0.9), and
 `vehicle.spin_drive_loss` (0.7, 0–0.9). The first two scale longitudinal tire
 capacity; the latter two govern steering/torque-induced rear grip loss through
-existing PowerSlip continuation. These use the same 213-value host-owned
+existing PowerSlip continuation. These use the same 211-value host-owned
 configuration, Apply/Reset, persistence, prediction and reliable version-34 codec.
 Steering rate is 0.95 rad/s, smoothing is 0.3 s, lateral response is 55.71429/s;
 the full maximum wheel angle remains available at all speeds.
@@ -478,7 +476,7 @@ Explicit saved overrides remain unchanged until Reset and Apply.
 
 ## Ground steering and retired power drift
 
-Configs exposes `vehicle.steering_full_speed` (8 m/s), `vehicle.steering_fade_speed` (35 m/s), `vehicle.high_speed_steering_scale` (0.25; range 0.05–1), and `vehicle.steering_counter_response` (2.8 rad/s; range 0.1–10). Full/fade speeds must be ordered, nonnegative and within the physics speed bound; invalid pairs reject the entire transaction. Existing wheel angle, steer-in response/filter, digital rise/return/reversal rates and controller precision exponent retain the shared catalog, persistence, reset and reliable replication owners. The TC schema is version 37 with 213 keys (1725 bytes).
+Configs exposes `vehicle.steering_full_speed` (8 m/s), `vehicle.steering_fade_speed` (35 m/s), `vehicle.high_speed_steering_scale` (0.25; range 0.05–1), and `vehicle.steering_counter_response` (2.8 rad/s; range 0.1–10). Full/fade speeds must be ordered, nonnegative and within the physics speed bound; invalid pairs reject the entire transaction. Existing wheel angle, steer-in response/filter, digital rise/return/reversal rates and controller precision exponent retain the shared catalog, persistence, reset and reliable replication owners. The TC schema is version 38 with 211 keys (1709 bytes).
 
 The automatic power-drift options `power_oversteer`, `power_slip_full_speed`, `power_slip_fade_speed`, `dirt_corner_power_slip`, `dirt_power_slip`, `power_slip_response`, `spin_drive_loss` and `power_slip_recovery` are retired from the live catalog (all formerly under `vehicle.`). Old host-local records remain preserved as unknown keys and cannot re-enable automatic power drift. Legacy configuration properties retain neutral round-trip defaults for source compatibility; only existing snapshot slip decay still reads recovery/drive-loss defaults. Surface-specific grip and handbrake tuning retain their separate controls. Player Controller Deadzone/Steering Sensitivity UI and persistence belong to TS-269, separate from these shared internal controls.
 
@@ -488,4 +486,4 @@ The Asphalt, Dirt and Grass groups expose `vehicle.<surface>.braking` (0–2), `
 
 Grass also exposes `vehicle.grass_steering_reserve` (default 0.65, range 0–1) and `vehicle.grass_recovery` (3/s, range 0–10). The Vehicle group exposes `vehicle.handbrake_hold_speed` (0.5 m/s, range 0–1). Dirt's extra low-speed corner budget defaults to 0.2 and applies per supported Dirt wheel. See [surface braking](vehicles.md#deliberate-surface-braking-and-stationary-handbrake) for behavior and defaults.
 
-These twelve appended keys use the existing Apply/Cancel/Reset, host validation, saved-key fallback, reliable revision ordering and resume/migration configuration paths. The complete TC37 layout carries 213 values in 1725 bytes; TC36 is rejected. Old saved files missing the new keys inherit defaults, while explicit existing grip overrides remain effective until reset. Player controller settings remain outside this gameplay catalog.
+These twelve appended keys use the existing Apply/Cancel/Reset, host validation, saved-key fallback, reliable revision ordering and resume/migration configuration paths. The complete TC38 layout carries 211 values in 1709 bytes; TC37 is rejected. Old saved files missing the new keys inherit defaults, while explicit existing grip overrides remain effective until reset. Player controller settings remain outside this gameplay catalog.

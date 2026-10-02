@@ -49,7 +49,7 @@ public sealed partial class CrashRecoveryChecks : Node3D
         // landing fixtures keep a neutral pilot to isolate successful tire landings.
         bool held = !_safe && _world.GetVehicle(1).Movement.CrashSeconds > 0;
         var input = new InputFrame(tick, held ? short.MaxValue : (short)0, held ? ushort.MaxValue : (ushort)0, 0,
-            held ? InputButtons.AirRoll | InputButtons.Drift : 0, 0, 0);
+            held ? InputButtons.AirControl | InputButtons.Drift : 0, 0, 0, held ? (short)-32767 : (short)0, 0, held ? (short)32767 : (short)0);
         var request = _native is not null ? _native.Capture(input) : new VehicleStepRequest(1, input, _network!.Observe(_world.GetVehicle(1)));
         var result = _world.Step(input, [request])[0];
         if (_native is not null) { _native.Apply(result); } else { _network!.Apply(result.Snapshot); }

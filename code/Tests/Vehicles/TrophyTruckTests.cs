@@ -224,7 +224,7 @@ internal sealed class TrophyTruckTests
         neutral.Restore(remembered.State);
         for (ulong tick = 1; tick <= 60; tick++)
         {
-            var input = new InputFrame(tick, short.MaxValue, ushort.MaxValue, 0, InputButtons.AirRoll, 0, 0);
+            var input = new InputFrame(tick, short.MaxValue, ushort.MaxValue, 0, InputButtons.AirControl, 0, 0, -32767, 0, 32767);
             var a = remembered.Step(input, pose, Vector3.Zero);
             var b = neutral.Step(new(tick, 0, 0, 0, 0, 0, 0), pose, Vector3.Zero);
             Assert.That(a.Physics, Is.EqualTo(b.Physics));

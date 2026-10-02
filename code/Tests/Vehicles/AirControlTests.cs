@@ -10,18 +10,37 @@ namespace Trackstorm.Core.Tests.Vehicles;
 internal sealed class AirControlTests
 {
     [Test]
-    public void DelayRequiresContinuousFlightAndLandingClearsContinuation()
+    public void FlightNeverGrantsIntentAndModifierReleaseStopsSpin()
     {
         var movement = Create();
-        for (int i = 0; i < 29; i++) { Step(movement, throttle: 65535); }
+        for (ulong tick = 1; tick <= 180; tick++)
+        {
+            var frame = new InputFrame(tick, 32767, 65535, 0, 0, 0, 0, -32767, 32767, 32767);
+            movement.Step(frame, movement.State.Physics, Vector3.Zero);
+        }
         Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
-        Step(movement, grounded: true);
-        Assert.That(movement.State.Air, Is.EqualTo(default(AirControlState)));
-        Vector3 takeoffSpin = movement.State.Physics.AngularVelocity;
-        for (int i = 0; i < 29; i++) { Step(movement, throttle: 65535); }
-        Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(takeoffSpin));
         Step(movement, throttle: 65535);
-        Assert.That(movement.State.Physics.AngularVelocity.X, Is.LessThan(takeoffSpin.X));
+        Assert.That(movement.State.Physics.AngularVelocity.X, Is.LessThan(0));
+        Vector3 travel = movement.State.Physics.LinearVelocity;
+        movement.Step(new(movement.State.Tick + 1, 32767, 65535, 0, 0, 0, 0), movement.State.Physics, Vector3.Zero);
+        Assert.That(movement.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
+        Assert.That(movement.State.Physics.LinearVelocity, Is.EqualTo(travel - Vector3.UnitY * movement.Configuration.Gravity / 60));
+        Assert.That(movement.State.Air.Input, Is.EqualTo(Vector3.Zero));
+    }
+
+    [Test]
+    public void HeldModifierDoesNotDisturbGroundDrivingOnAnySurface()
+    {
+        foreach (var surface in new[] { SurfaceType.Asphalt, SurfaceType.Dirt, SurfaceType.Grass })
+        {
+            var ordinary = Create(); var armed = Create();
+            for (ulong tick = 1; tick <= 120; tick++)
+            {
+                ordinary.Step(new(tick, 10000, 40000, 0, 0, 0, 0), ordinary.State.Physics, Vector3.UnitY, surface: surface);
+                armed.Step(new(tick, 10000, 40000, 0, InputButtons.AirControl, 0, 0, 32767, 32767, 32767), armed.State.Physics, Vector3.UnitY, surface: surface);
+                Assert.That(armed.State, Is.EqualTo(ordinary.State));
+            }
+        }
     }
 
     [TestCase(65535, 0, 0, false, -1, 0, 0)]
@@ -75,13 +94,13 @@ internal sealed class AirControlTests
     [Test]
     public void ConfigsRoundTripAndAirRollFramePreserveNewValues()
     {
-        Assert.That(GameplayOptions.TryApply(new(), new Dictionary<string, double> { ["vehicle.air_delay"] = 0.3, ["vehicle.air_roll_rate"] = 5 }, out var config, out _), Is.True);
+        Assert.That(GameplayOptions.TryApply(new(), new Dictionary<string, double> { ["vehicle.air_roll_rate"] = 5 }, out var config, out _), Is.True);
         var restored = GameplayConfigurationCodec.Decode(GameplayConfigurationCodec.Encode(1, new GameplayConfigurationState(1, config)));
         Assert.That(restored.State.Configuration, Is.EqualTo(config));
         var frame = new InputFrame(1, 123, 456, 789, InputButtons.AirRoll, InputButtons.AirRoll, 0);
         byte[] bytes = new byte[InputFrame.SerializedSize]; frame.Write(bytes);
         Assert.That(InputFrame.Read(bytes), Is.EqualTo(frame));
-        Assert.Throws<ArgumentException>(() => new VehicleConfiguration { AirDelay = float.NaN }.Validate());
+        Assert.Throws<ArgumentException>(() => new VehicleConfiguration { AirPitchRate = float.NaN }.Validate());
         Assert.Throws<ArgumentException>(() => new AirControlState(0, new Vector3(2), default).Validate());
     }
 
@@ -94,7 +113,7 @@ internal sealed class AirControlTests
         var prediction = new PredictedVehicle(host.Snapshot().Vehicles.Single());
         for (int i = 0; i < 80; i++)
         {
-            var frame = new InputFrame(0, 32767, 65535, 0, InputButtons.AirRoll, 0, 0);
+            var frame = new InputFrame(0, 32767, 65535, 0, InputButtons.AirControl, 0, 0, -32767, 0, 32767);
             prediction.Predict(frame, Flight);
             host.Step(frame, Flight);
             Assert.That(prediction.State.Movement, Is.EqualTo(host.World.GetVehicle(1).Movement));
@@ -112,11 +131,36 @@ internal sealed class AirControlTests
             }
         }
     }
+    [TestCase(32767, 0, 0)]
+    [TestCase(0, 32767, 0)]
+    [TestCase(0, 0, 32767)]
+    public void ReleaseStopsEachAxisAfterSnapshotRestoreWithoutChangingTravel(int pitch, int yaw, int roll)
+    {
+        var movement = Create();
+        for (ulong tick = 1; tick <= 30; tick++)
+            movement.Step(new(tick, 0, 0, 0, InputButtons.AirControl, 0, 0, (short)pitch, (short)yaw, (short)roll), movement.State.Physics, Vector3.Zero);
+        var saved = VehicleStateCodec.Decode(VehicleStateCodec.Encode(movement.State));
+        var restored = Create(); restored.Restore(saved);
+        Assert.That(saved.Physics.AngularVelocity.Length(), Is.GreaterThan(0.5));
+        foreach (var subject in new[] { movement, restored })
+        {
+            subject.Step(new(31, 0, 0, 0, 0, 0, 0), saved.Physics, Vector3.Zero);
+            Assert.That(subject.State.Physics.AngularVelocity, Is.EqualTo(Vector3.Zero));
+            Assert.That(subject.State.Physics.Orientation, Is.EqualTo(saved.Physics.Orientation));
+            Assert.That(subject.State.Physics.LinearVelocity, Is.EqualTo(saved.Physics.LinearVelocity - Vector3.UnitY * subject.Configuration.Gravity / 60));
+        }
+        Assert.That(restored.State, Is.EqualTo(movement.State));
+        var passive = Create();
+        var observation = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, new Vector3(1, 2, 3));
+        passive.Step(new(1, 0, 0, 0, 0, 0, 0), observation, Vector3.Zero);
+        Assert.That(passive.State.Physics.AngularVelocity, Is.EqualTo(observation.AngularVelocity), "passive airborne rotation remains physical");
+    }
+
     private static VehicleMovement Create(Quaternion? orientation = null) => new(new VehicleConfiguration(), new VehiclePhysicsState(Vector3.Zero, orientation ?? Quaternion.Identity, Vector3.Zero, Vector3.Zero));
 
     private static void Step(VehicleMovement movement, ushort throttle = 0, ushort brake = 0, short steering = 0, bool roll = false, bool grounded = false)
     {
-        var input = new InputFrame(movement.State.Tick + 1, steering, throttle, brake, roll ? InputButtons.AirRoll : 0, 0, 0);
+        var input = new InputFrame(movement.State.Tick + 1, steering, throttle, brake, InputButtons.AirControl, 0, 0, (short)((brake - throttle) / 65535f * 32767), roll ? (short)0 : steering, roll ? steering : (short)0);
         movement.Step(input, movement.State.Physics, grounded ? Vector3.UnitY : Vector3.Zero);
     }
 }

@@ -21,7 +21,7 @@ public sealed partial class PlayerInput : Node
     /// <summary>Composition supplies arena presence; menus and focus reuse the adapter's existing gates.</summary>
     internal Func<bool> GameplayAvailable { get; set; } = () => false;
 
-    /// <summary>Composition resolves accepted tuning and the existing airborne activation boundary.</summary>
+    /// <summary>Composition resolves accepted ground-input tuning.</summary>
     internal Func<DrivingInputShaping>? ResolveShaping { get; set; }
 
     /// <inheritdoc/>

@@ -29,6 +29,7 @@ public sealed partial class InputIntegrationChecks : Node
             GD.Print($"Connected physical gamepads before synthetic input: {Godot.Input.GetConnectedJoypads().Count}");
             VerifyEveryDefaultBinding();
             VerifySteeringPrecision();
+            VerifyDeliberateAirControl();
             VerifyAnalogAndIndependentLeaderboard();
             VerifyRemappingAndMultipleBindings();
             VerifyTapFocusAndTickCapture();
@@ -63,6 +64,7 @@ public sealed partial class InputIntegrationChecks : Node
         InputAction.Brake => frame.Brake == 65535,
         InputAction.SteerLeft => frame.Steering == -32767,
         InputAction.SteerRight => frame.Steering == 32767,
+        InputAction.AirControl => (frame.Held & InputButtons.AirControl) != 0,
         InputAction.AirRoll => (frame.Held & InputButtons.AirRoll) != 0,
         InputAction.SwitchItem => (frame.Held & InputButtons.SwitchItem) != 0,
         _ => (frame.Held & (InputButtons)(1 << ((int)action - (int)InputAction.Drift))) != 0,
@@ -117,7 +119,7 @@ public sealed partial class InputIntegrationChecks : Node
     private void VerifyRequiredDefaults()
     {
         Check(InputMap.ActionHasEvent(PlayerInputBindings.Name(InputAction.Drift), new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.B }), "B defaults to physical handbrake");
-        Check(InputMap.ActionHasEvent(PlayerInputBindings.Name(InputAction.UseItem), new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.A }), "A defaults to item use");
+        Check(InputMap.ActionHasEvent(PlayerInputBindings.Name(InputAction.UseItem), new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.Y }), "Y defaults to item use");
         Check(InputMap.ActionHasEvent(PlayerInputBindings.Name(InputAction.UseItem), new InputEventMouseButton { ButtonIndex = MouseButton.Left }), "LMB defaults to item use");
         Check(_player.Adapter.Bindings.FindConflicts(new InputEventMouseButton { ButtonIndex = MouseButton.Right }).Length == 0, "RMB remains reserved");
         Send(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true });
@@ -140,8 +142,20 @@ public sealed partial class InputIntegrationChecks : Node
             .WithBindings(InputAction.Drift, new[] { "key:32", "button:0:0" });
         InputBindingPreferences.Apply(_player.Adapter, legacy);
         var migrated = InputBindingPreferences.Capture(_player.Adapter, legacy);
-        Check(migrated.Bindings[InputAction.UseItem].Contains("mouse:1") && migrated.Bindings[InputAction.UseItem].Contains("button:0:0"), "old saved defaults migrate to LMB/A");
+        Check(migrated.Bindings[InputAction.UseItem].Contains("mouse:1") && migrated.Bindings[InputAction.UseItem].Contains("button:0:3"), "old saved defaults migrate to LMB/Y");
         Check(migrated.Bindings[InputAction.Drift].Contains("button:0:1"), "old saved handbrake defaults migrate to B");
+        var previous = new Trackstorm.Core.Settings.PlayerSettings { BindingDefaultsVersion = 1 }
+            .WithBindings(InputAction.UseItem, new[] { "mouse:1", "button:0:0" })
+            .WithBindings(InputAction.SwitchItem, new[] { "key:69", "button:0:14" })
+            .WithBindings(InputAction.AirRoll, new[] { $"key:{(long)Key.Shift}", "button:0:9" });
+        _player.Adapter.Bindings.RestoreDefaults();
+        InputBindingPreferences.Apply(_player.Adapter, previous);
+        var revised = InputBindingPreferences.Capture(_player.Adapter, previous);
+        Check(revised.BindingDefaultsVersion == 2 && revised.Bindings[InputAction.UseItem].Contains("button:0:3") && revised.Bindings[InputAction.SwitchItem].Contains("button:0:2") && revised.Bindings[InputAction.AirRoll].SequenceEqual(new[] { "button:0:0" }), "revision one exact defaults migrate to Y/X/A");
+        var deliberateOld = previous with { BindingDefaultsVersion = 2 };
+        InputBindingPreferences.Apply(_player.Adapter, deliberateOld);
+        Check(InputBindingPreferences.Capture(_player.Adapter, deliberateOld).Bindings[InputAction.UseItem].Contains("button:0:0"), "revision two deliberate old assignment is preserved");
+        _player.Adapter.Bindings.RestoreDefaults();
         var custom = legacy.WithBindings(InputAction.UseItem, new[] { "key:74" });
         InputBindingPreferences.Apply(_player.Adapter, custom);
         Check(InputBindingPreferences.Capture(_player.Adapter, custom).Bindings[InputAction.UseItem].SequenceEqual(new[] { "key:74" }), "custom item remap survives migration");
@@ -160,8 +174,9 @@ public sealed partial class InputIntegrationChecks : Node
     {
         foreach (InputAction action in Enum.GetValues<InputAction>())
         {
+            if (action >= InputAction.AirPitchDown) { continue; } // Contextual aerial mappings are exercised together below.
             var bindings = InputMap.ActionGetEvents(PlayerInputBindings.Name(action));
-            Check(bindings.Count == (action >= InputAction.CameraLeft && action <= InputAction.CameraDown ? 1 : 2), $"{action} has keyboard and gamepad defaults");
+            Check(bindings.Count == ((action >= InputAction.CameraLeft && action <= InputAction.CameraDown) || action == InputAction.AirRoll ? 1 : 2), $"{action} has keyboard and gamepad defaults");
             foreach (InputEvent binding in bindings)
             {
                 using var pressed = (InputEvent)binding.Duplicate();

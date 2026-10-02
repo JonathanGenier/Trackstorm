@@ -7,7 +7,39 @@ namespace Trackstorm.Core.Tests.Settings;
 [TestFixture]
 internal sealed class PlayerSettingsTests
 {
+    [Test]
+    public void DeviceSensitivitiesRoundTripAndLegacyControllerValuesStayIndependent()
+    {
+        var legacy = PlayerSettingsJson.Deserialize("{\"steeringSensitivity\":2.3,\"aerialSensitivity\":0.4}");
+        Assert.That(legacy.KeyboardSteeringSensitivity, Is.EqualTo(1));
+        Assert.That(legacy.KeyboardAerialSensitivity, Is.EqualTo(1));
+        var saved = legacy with { KeyboardSteeringSensitivity = 0.2, KeyboardAerialSensitivity = 0.7 };
+        var restored = PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(saved));
+        Assert.That(restored.SteeringSensitivity, Is.EqualTo(2.3));
+        Assert.That(restored.AerialSensitivity, Is.EqualTo(0.4));
+        Assert.That(restored.KeyboardSteeringSensitivity, Is.EqualTo(0.2));
+        Assert.That(restored.KeyboardAerialSensitivity, Is.EqualTo(0.7));
+        Assert.That((saved with { KeyboardSteeringSensitivity = double.NaN }).KeyboardSteeringSensitivity, Is.EqualTo(1));
+        Assert.That((saved with { KeyboardAerialSensitivity = 4 }).KeyboardAerialSensitivity, Is.EqualTo(1));
+        Assert.That((saved with { KeyboardAerialSensitivity = -1 }).KeyboardAerialSensitivity, Is.EqualTo(0.1));
+    }
+
     /// <summary>Safe startup values match the documented settings contract.</summary>
+    [TestCase(0.1, 3.0)]
+    [TestCase(1.0, 0.1)]
+    [TestCase(3.0, 1.0)]
+    public void ControllerSettingsRoundTripIndependently(double ground, double air)
+    {
+        var original = new PlayerSettings { DeadZone = 0.4, SteeringSensitivity = ground, AerialSensitivity = air };
+        var restored = PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(original));
+        Assert.That(restored.SteeringSensitivity, Is.EqualTo(ground));
+        Assert.That(restored.AerialSensitivity, Is.EqualTo(air));
+        Assert.That(restored.DeadZone, Is.EqualTo(0.4));
+        Assert.That(PlayerSettingsJson.Deserialize("{\"steeringSensitivity\":99,\"aerialSensitivity\":-3}").SteeringSensitivity, Is.EqualTo(3));
+        Assert.That(PlayerSettingsJson.Deserialize("{\"steeringSensitivity\":99,\"aerialSensitivity\":-3}").AerialSensitivity, Is.EqualTo(0.1));
+        Assert.That(new PlayerSettings { AerialSensitivity = double.NaN }.AerialSensitivity, Is.EqualTo(1));
+    }
+
     [Test]
     public void Defaults_AreSafe()
     {
@@ -59,7 +91,7 @@ internal sealed class PlayerSettingsTests
     public void BindingDefaultsRevisionDistinguishesLegacySaves()
     {
         Assert.That(PlayerSettingsJson.Deserialize("{\"version\":1}").BindingDefaultsVersion, Is.Zero);
-        Assert.That(PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(new PlayerSettings())).BindingDefaultsVersion, Is.EqualTo(1));
+        Assert.That(PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(new PlayerSettings())).BindingDefaultsVersion, Is.EqualTo(2));
     }
 
     /// <summary>Malformed or unsupported documents restore defaults.</summary>
