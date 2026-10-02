@@ -136,6 +136,7 @@ public sealed partial class ItemAuthority
         {
             _slots[vehicle] = _slots[vehicle] with { NitroDeploymentTicks = ItemSlot.NitroDeploymentDurationTicks };
         }
+        SynchronizeTombstoneSelection(_slots[vehicle]);
         Revision++;
         ReliableRevision++;
         if (!pickup)
@@ -173,6 +174,7 @@ public sealed partial class ItemAuthority
         {
             _slots[vehicle] = _slots[vehicle] with { NitroDeploymentTicks = _slots[vehicle].Active.Item == HeldItem.Nitro ? ItemSlot.NitroDeploymentDurationTicks : 0 };
         }
+        SynchronizeTombstoneSelection(_slots[vehicle]);
         Revision++;
         ReliableRevision++;
         return true;
@@ -207,6 +209,7 @@ public sealed partial class ItemAuthority
         var repair = new Dictionary<ulong, float>();
         var boosts = new Dictionary<ulong, NitroState>();
         var waiting = new Dictionary<ulong, (ulong Token, ulong Expires, uint? InputSequence)>();
+        var shields = new RearShieldBatch(this, world, requests, slots, journal, input.Tick);
         var effects = requests.ToDictionary(request => request.VehicleId, request => request.Effects.ToList());
         foreach (var pair in slots.ToArray())
         {
@@ -305,11 +308,18 @@ public sealed partial class ItemAuthority
                     Vector3 direction = MachineGunShot.Direction(slot.Token, ammo.Capacity - remainingRounds, pose.Orientation, Configuration.MachineGunSpread);
                     Vector3 end = pose.Position + direction * Configuration.MachineGunRange;
                     var hit = raycastWeapon(slot.Vehicle, pose.Position, end);
-                    if (hit is not null)
+                    if (hit is not null && (!float.IsFinite(hit.Fraction) || hit.Fraction is < 0 or > 1 || hit.Vehicle == slot.Vehicle ||
+                        (hit.Vehicle != 0 && !effects.ContainsKey(hit.Vehicle)))) { throw new ArgumentException("Invalid host weapon ray observation."); }
+                    var shieldHit = shields.Intersect(pose.Position, end, slot.Vehicle);
+                    if (shieldHit is { } blocked && (hit is null || blocked.Fraction <= hit.Fraction))
                     {
-                        if (!float.IsFinite(hit.Fraction) || hit.Fraction is < 0 or > 1 || hit.Vehicle == slot.Vehicle ||
-                            (hit.Vehicle != 0 && !effects.ContainsKey(hit.Vehicle)))
-                        { throw new ArgumentException("Invalid host weapon ray observation."); }
+                        float fade = MachineGunShot.Falloff(blocked.Fraction * Configuration.MachineGunRange, Configuration);
+                        shields.Damage(blocked.State.Id, Configuration.MachineGunDamage * fade, new("machine-gun", slot.Vehicle, "bullet"));
+                        end = Vector3.Lerp(pose.Position, end, blocked.Fraction);
+                        hit = new WeaponRayHit(blocked.Fraction, 0);
+                    }
+                    else if (hit is not null)
+                    {
                         end = Vector3.Lerp(pose.Position, end, hit.Fraction);
                         if (hit.Vehicle != 0 && world.GetVehicle(hit.Vehicle).CanInteract && !requests.Single(value => value.VehicleId == hit.Vehicle).Reset.HasValue)
                         {
@@ -414,7 +424,9 @@ public sealed partial class ItemAuthority
                 Vector3 outward = contact.Observation.Physics.Position - motion.State.Position;
                 outward.Y = Math.Max(0.7f, outward.Y);
                 var effect = new DamageEffect(Configuration.MineDamage, Vector3.Normalize(outward) * Configuration.MineKnockback, Vector3.Zero);
-                effects[contact.VehicleId].Add(new VehicleEffectRequest(effect, new DamageContext("proxy-mine", mine.Owner, "contact-detonation")));
+                var blocked = shields.Intersect(mine.Position, contact.Observation.Physics.Position, onlyOwner: contact.VehicleId);
+                if (blocked is { } shield) { shields.Damage(shield.State.Id, effect.Damage, new("proxy-mine", mine.Owner, "contact-detonation")); }
+                else { effects[contact.VehicleId].Add(new VehicleEffectRequest(effect, new DamageContext("proxy-mine", mine.Owner, "contact-detonation"))); }
                 events.Add(new ItemEvent(mine.Id, mine.Owner, HeldItem.ProxyMine, motion.State.Position, true));
             }
             else { movingMines.Add(motion.State); }
@@ -440,6 +452,10 @@ public sealed partial class ItemAuthority
 
             Vector3 end = missile.Arc is { } flight ? flight.At(flight.ElapsedTicks + 1) : missile.Position + (missile.Velocity / 60);
             float? hit = collide(missile, end);
+            if (hit is float nativeFraction && (!float.IsFinite(nativeFraction) || nativeFraction is < 0 or > 1)) { throw new ArgumentException("Invalid projectile collision fraction."); }
+            var directShield = shields.Intersect(missile.Position, end, missile.Owner);
+            if (directShield is { } direct && (hit is null || direct.Fraction <= hit)) { hit = direct.Fraction; }
+            else { directShield = null; }
             if (hit is null && missile.Arc is not null && missile.RemainingTicks == 1) { hit = 1; }
             if (hit is float fraction)
             {
@@ -455,7 +471,11 @@ public sealed partial class ItemAuthority
                     DamageEffect effect = Explosion(center, request.Observation.Physics.Position, missile.Item);
                     if (effect.Damage > 0 || effect.Impulse != Vector3.Zero)
                     {
-                        effects[request.VehicleId].Add(new VehicleEffectRequest(effect, new DamageContext(missile.Arc is null ? "missile" : "salvo", missile.Owner, missile.Arc is null ? "radial-explosion" : $"radial-explosion:{missile.Id}")));
+                        var context = new DamageContext(missile.Arc is null ? "missile" : "salvo", missile.Owner, missile.Arc is null ? "radial-explosion" : $"radial-explosion:{missile.Id}");
+                        var blocked = directShield is { } directHit && directHit.State.Owner == request.VehicleId
+                            ? directShield : shields.Intersect(center, request.Observation.Physics.Position, onlyOwner: request.VehicleId);
+                        if (blocked is { } shield) { shields.Damage(shield.State.Id, effect.Damage, context); }
+                        else { effects[request.VehicleId].Add(new VehicleEffectRequest(effect, context)); }
                     }
                 }
             }
@@ -467,7 +487,8 @@ public sealed partial class ItemAuthority
             }
         }
 
-        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, request.Observation, effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, oilVehicles.Contains(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro || !boosts.ContainsKey(request.VehicleId))).ToArray(), journal.Concat(events.Where(outcome => outcome.Item != HeldItem.MachineGun).Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray(), oilTriggers);
+        var observations = shields.Collisions();
+        world.Step(input, requests.Select(request => new VehicleStepRequest(request.VehicleId, request.Input, observations[request.VehicleId], effects[request.VehicleId], request.Reset, request.Repair + repair.GetValueOrDefault(request.VehicleId), repair.ContainsKey(request.VehicleId) ? "Wrench" : request.RepairCause, oilVehicles.Contains(request.VehicleId), boosts.GetValueOrDefault(request.VehicleId), request.ClearNitro || !boosts.ContainsKey(request.VehicleId))).ToArray(), journal.Concat(events.Where(outcome => outcome.Item != HeldItem.MachineGun).Select(outcome => new RuntimeEvent { Category = EventCategory.Item, Kind = outcome.Impact ? "Impact" : "Used", Actor = outcome.Owner, Cause = outcome.Item.ToString(), Tick = input.Tick })).ToArray(), oilTriggers);
         foreach (var pair in slots.ToArray())
         {
             VehicleSnapshot state = world.GetVehicle(pair.Key);
@@ -504,7 +525,10 @@ public sealed partial class ItemAuthority
         advanced.RemoveAll(missile => !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == missile.Owner && vehicle.CanInteract));
         movingMines.RemoveAll(mine => mine.IsPlacing && !world.State.Vehicles.Any(vehicle => vehicle.VehicleId == mine.Owner && vehicle.LifeId == mine.PlacementLife && vehicle.CanInteract));
         if (world.State.Match?.Phase == Matches.MatchPhase.Finished) { advanced.RemoveAll(missile => missile.Arc is not null); }
-        bool tombstonesChanged = ReconcileTombstones(world, slots);
+        bool tombstonesChanged = !_tombstones.SequenceEqual(shields.States);
+        _tombstones.Clear();
+        _tombstones.AddRange(shields.States);
+        tombstonesChanged |= ReconcileTombstones(world, slots);
         bool reliableChanged = tombstonesChanged || !slots.OrderBy(pair => pair.Key).SequenceEqual(_slots.OrderBy(pair => pair.Key)) ||
             !patches.SequenceEqual(_patches) || !contacts.SequenceEqual(_contacts) || journal.Count > 0 ||
             !movingMines.SequenceEqual(_mines) || events.Count > 0 ||

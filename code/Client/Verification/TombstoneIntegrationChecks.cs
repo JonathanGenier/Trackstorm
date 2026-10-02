@@ -11,7 +11,7 @@ using N = System.Numerics;
 
 namespace Trackstorm.Client.Verification;
 
-/// <summary>Real local UDP and production drivers exercise core contracts; physical deployment belongs to later Stories.</summary>
+/// <summary>Real local UDP and production drivers exercise persistent item contracts and damaged rear-shield recovery.</summary>
 public sealed partial class TombstoneIntegrationChecks : Node
 {
     private readonly List<GameNetworkingSocketsTransport> _gateways = new();
@@ -76,7 +76,7 @@ public sealed partial class TombstoneIntegrationChecks : Node
                     host.Items.DamageTombstone(host.World, _ids[2], 1, 50, Hit);
                     foreach (ulong id in new[] { _ids[0], _ids[2] })
                     {
-                        Check(host.Items.TransitionTombstone(host.World, id, TombstoneStage.Held, TombstoneStage.RearShield), "Rear shield contract.");
+                        Check(host.Items.Tombstones.Single(s => s.Id == id).Stage == TombstoneStage.RearShield, "Selected acquisition automatically exposes shield.");
                         Check(!host.Items.TransitionTombstone(host.World, id, TombstoneStage.Held, TombstoneStage.RearShield), "Duplicate transition has no effect.");
                     }
                     Check(host.Items.DamageTombstone(host.World, _ids[0], 1, 325, Hit) is null, "Duplicate hit has no effect.");
@@ -88,7 +88,7 @@ public sealed partial class TombstoneIntegrationChecks : Node
                     break;
                 case 2 when Converged():
                     Check(host.Items.Tombstones.Select(state => state.HP).SequenceEqual(new float[] { 675, 900, 950, 1000 }), "Independent pool replication.");
-                    foreach (ulong id in new[] { _ids[0], _ids[2] })
+                    foreach (ulong id in new[] { _ids[0] })
                     {
                         var pose = new VehiclePhysicsState(new((float)id * 5, 2, 30), N.Quaternion.Identity, N.Vector3.Zero, N.Vector3.Zero);
                         Check(host.Items.TransitionTombstone(host.World, id, TombstoneStage.RearShield, TombstoneStage.WorldWall, pose), "World wall contract.");
@@ -97,7 +97,7 @@ public sealed partial class TombstoneIntegrationChecks : Node
                     host.Items.DamageTombstone(host.World, _ids[0], 2, 125, Hit);
                     host.Items.DamageTombstone(host.World, _ids[2], 2, 50, Hit);
                     Check(host.World.State.Vehicles.All(vehicle => vehicle.Damage.CurrentHP == 1500), "Item damage never reduces vehicle health.");
-                    Next("World transitions release only their own slots; HP remains 550/900/900/1000, vehicles remain 1500 HP.");
+                    Next("World transition releases its slot; the second damaged rear shield retains its slot. HP 550/900/900/1000, vehicles 1500 HP.");
                     break;
                 case 3 when Converged():
                     var checkpoint = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(new(

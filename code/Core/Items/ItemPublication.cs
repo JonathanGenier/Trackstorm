@@ -89,7 +89,7 @@ public sealed class ItemPublication
                 inventory.Any(slot => (slot.Token == mine.Id && slot.Item != HeldItem.None) || (slot.SecondToken == mine.Id && slot.SecondItem != HeldItem.None))))
         { throw new ArgumentException("Invalid mine continuation."); }
         var walls = tombstones?.ToArray() ?? [];
-        foreach (var state in walls) { state.Validate(); }
+        foreach (var state in walls) { state.Validate(); if (state.LastCollisionTick > world.Tick) { throw new ArgumentException("Future Tombstone collision tick."); } }
         var heldWalls = inventory.SelectMany(slot => new[] { slot, (slot with { ActiveSlot = 1 }).Active })
             .Where(slot => slot.Item == HeldItem.Tombstone).ToArray();
         if (walls.Length > ItemAuthority.MaximumTombstones || walls.Select(state => state.Id).Distinct().Count() != walls.Length ||
@@ -99,6 +99,10 @@ public sealed class ItemPublication
             walls.Any(state => state.Attached && !heldWalls.Any(slot => slot.Vehicle == state.Owner && slot.Life == state.Life && slot.Token == state.Token)) ||
             heldWalls.Any(slot => walls.Count(state => state.Attached && state.Owner == slot.Vehicle && state.Life == slot.Life && state.Token == slot.Token) != 1))
         { throw new ArgumentException("Invalid Tombstone ownership."); }
+        if (walls.Any(state => state.Attached &&
+            (state.Stage == TombstoneStage.RearShield) != inventory.Any(slot => slot.Vehicle == state.Owner &&
+                slot.Active.Item == HeldItem.Tombstone && slot.Active.Token == state.Token)))
+        { throw new ArgumentException("Tombstone exposure must match selected ownership."); }
         Tombstones = Array.AsReadOnly(walls);
         Mines = Array.AsReadOnly(hazards);
         Balances = Array.AsReadOnly(history);
