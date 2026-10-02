@@ -113,3 +113,8 @@ reliable item channel for host-committed rigid-body poses and velocities. Client
 wall pose, HP or motion outcomes. Their reconstructed layer-32 colliders participate in vehicle
 queries; authoritative Core box intersections own weapon blocking. Dimensions and mass travel
 with each wall, avoiding collider changes when live tuning changes after deployment.
+
+World-wall native bodies constrain pitch/roll on both initial reconstruction and authority
+recovery. Yaw and ground movement remain free; the host publishes their accepted poses.
+Deployment clearance uses the deploying car's current observed native pose, restoring its
+query proxy afterward so a fast-moving car cannot block release with its previous pose.

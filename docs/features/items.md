@@ -190,16 +190,19 @@ Attached Tombstones follow existing inventory policy: ordinary death/reset/perma
 ## Movable Tombstone world walls
 
 Normal use asks the host native adapter for rear ground and full expanded-box clearance. The
-adapter projects behind the current heading, aligns the wall with support, and searches up to
-one metre upward for a clear box. A missing/steep support or blocked volume rejects that use
+adapter projects behind the current heading, seats an upright wall above the local support
+plane, and searches up to one metre upward for a clear box. Its clearance query synchronously
+places the deploying car's native proxy at the current observed pose, then restores it. This
+avoids rejecting fast forward deployment against the car's preceding-frame collider while
+still checking the actual chassis and other obstructions. A missing/steep support or blocked volume rejects that use
 without consuming the shield. Core also rejects overlapping wall candidates within the same batch, before either native body exists. Deployment retains the entity ID, exact HP, damage sequence and
-collision cooldown. It captures vehicle linear velocity, wall dimensions and mass; it does
+collision cooldown. It captures horizontal vehicle velocity, wall dimensions and mass; it does
 not retain an attachment or dependency on the former owner's vehicle life. The temporary
 three-panel visual expands over 0.2 seconds; the full collision envelope is active immediately.
 
 Host Configs exposes `items.tombstone_width` (6 m), `height` (2.5 m), `depth` (0.6 m),
 `mass` (250 kg), and `clearance` (1 m behind the chassis envelope). Bounds are respectively
-3–12 m, 2–6 m, 0.3–2 m, 50–2000 kg, and 0.5–5 m. Dimensions and mass are captured at
+3â€“12 m, 2â€“6 m, 0.3â€“2 m, 50â€“2000 kg, and 0.5â€“5 m. Dimensions and mass are captured at
 deployment, so later tuning cannot resize an installed collider. Configuration protocol 38
 carries these values through the existing validation, publication and recovery path. These
 are operational defaults verified on flat/banked native fixtures, not final balance.
@@ -209,8 +212,10 @@ native solver; Core commits observed pose, linear/angular velocity and independe
 Frozen replicas receive the complete accepted state. Vehicle collision queries include wall
 layer 32 and retain existing native prop impulses and vehicle damage. Writing an unchanged
 host observation back to the solver is deliberately skipped to preserve pending contact
-impulses. Walls can slide, rotate and topple, collide with terrain/vehicles/other walls, and
-survive the deployer's death, respawn or departure. Inactive authority freezes the bodies.
+impulses. Walls stay upright: native pitch and roll are constrained, while horizontal sliding
+and rotation about the vertical (yaw) axis remain free. Gravity allows terrain settling and
+height changes; the constraint does not pin the wall at a fixed elevation. Walls collide with
+terrain/vehicles/other walls and survive the deployer's death, respawn or departure. Inactive authority freezes the bodies.
 
 Core oriented-box intersections stop Machine Gun, Missile and Salvo segments at the closest
 wall, comparing against native terrain/chassis hits. Native weapon queries omit layer 32 so
@@ -228,11 +233,17 @@ selected boundary without replaying use or destruction. Native solver contact ca
 cosmetic expansion progress are not serialized; recovered walls appear fully expanded.
 
 `check-world-wall.ps1 -GodotPath <exe> [-Impaired] [-Visual]` exercises two production UDP
-arenas, stationary/forward/reverse/banked deployment of damaged shields, retired-use rejection,
+arenas, stationary/60 m/s forward/reverse/banked deployment of damaged shields, blocked-use
+retry with the same capability, retired-use rejection,
 drive-away independence, native vehicle push/damage, fresh third-peer admission, sustained
 Machine Gun destruction, native Missile/Salvo impacts and exact publication-boundary comparisons. It also deploys sixteen
 walls through ordinary use and sustains their native state for 600 frames. Rendered runs
-capture expanded, pushed, destroyed and stress states. `check-reconnect.ps1 -Tombstone` and
+capture expanded, pushed, destroyed and stress states. Every live wall is checked for upright
+orientation throughout the run; an applied native torque verifies yaw remains free while
+pitch/roll stay locked. Add `-ProductionMap` to exercise sixteen normal-use deployments at
+all eight oval grid spawns and the seven authored infield pickup areas, including impaired
+UDP convergence. That fixture suppresses pickup acquisition to isolate exact-slot assertions.
+`check-reconnect.ps1 -Tombstone` and
 `check-migration.ps1` compare complete retained wall state against the exact selected host
 boundary; deterministic tests additionally exercise Missile/Salvo wall damage and impulse.
 These fixtures do not establish Internet/EOS multi-PC performance, final art or balance.

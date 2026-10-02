@@ -60,7 +60,7 @@ internal sealed partial class VehicleNetworkDriverTests
         client.Advance(default, Observe);
         Assert.That(observed, Is.EqualTo(1));
         Assert.That(client.ItemState.Tombstones.Single().HP, Is.EqualTo(875));
-        host.PlaceTombstone = (_, _) => new(new(0, 2, 10), System.Numerics.Quaternion.Identity, new(2, 0, 0), System.Numerics.Vector3.Zero);
+        host.PlaceTombstone = (_, _, _) => new(new(0, 2, 10), System.Numerics.Quaternion.Identity, new(2, 0, 0), System.Numerics.Vector3.Zero);
         var use = ItemCodec.EncodeUse(Session, stone.Life, stone.Token);
         hostWire.Receive(new(ServerPeer, use, TransportDelivery.Reliable));
         hostWire.Receive(new(ServerPeer, use, TransportDelivery.Reliable));

@@ -187,7 +187,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
     /// <summary>Host-only ground projection for persistent oil deployment.</summary>
     internal Func<ItemSlot, VehiclePhysicsState, OilPatch?>? PlaceOil { get; set; }
     internal Func<System.Numerics.Vector3, System.Numerics.Vector3?>? ProjectSalvoGround { get; set; }
-    internal Func<VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? PlaceTombstone { get; set; }
+    internal Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? PlaceTombstone { get; set; }
     internal Func<TombstoneState, VehiclePhysicsState?>? ObserveTombstone { get; set; }
     internal Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? PlaceMine { get; set; }
     internal Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? MoveMine { get; set; }

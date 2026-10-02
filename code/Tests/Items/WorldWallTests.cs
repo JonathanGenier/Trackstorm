@@ -25,14 +25,20 @@ internal sealed class WorldWallTests
         var slot = host.Items.Slots.Single();
         Assert.That(host.Items.RequestUse(host.World, 1, 1, original.Token), Is.True);
         Assert.That(host.Items.RequestUse(host.World, 1, 1, original.Token), Is.False);
-        host.Step(default, Observe, placeTombstone: (_, _) => Placement);
+        host.Step(default, Observe, placeTombstone: (selected, _, _) =>
+        {
+            Assert.That(selected.Vehicle, Is.EqualTo(original.Owner));
+            Assert.That(selected.Token, Is.EqualTo(original.Token));
+            Assert.That(selected.Item, Is.EqualTo(HeldItem.Tombstone));
+            return Placement;
+        });
         var wall = host.Items.Tombstones.Single();
         Assert.That(wall, Is.EqualTo(original with { Stage = TombstoneStage.WorldWall, Life = 0, Token = 0, HP = 679,
             DamageSequence = 7, Position = Placement.Position, Orientation = Placement.Orientation,
             LinearVelocity = Placement.LinearVelocity, AngularVelocity = Placement.AngularVelocity }));
         Assert.That(host.Items.Slots.Single(), Is.EqualTo(second ? slot with { SecondItem = HeldItem.None } : slot with { Item = HeldItem.None }));
         Assert.That(host.Items.RequestUse(host.World, 1, 1, original.Token), Is.False);
-        host.Step(default, Observe, placeTombstone: (_, _) => Placement);
+        host.Step(default, Observe, placeTombstone: (_, _, _) => Placement);
         Assert.That(host.Items.Tombstones.Single(), Is.EqualTo(wall));
         Assert.That(host.Items.Events, Is.Empty);
     }
@@ -44,12 +50,12 @@ internal sealed class WorldWallTests
         var shield = host.Items.Tombstones.Single();
         host.Items.RequestUse(host.World, 1, 1, shield.Token);
         host.Items.Switch(host.World, 1, 1, 1);
-        host.Step(default, Observe, placeTombstone: (_, _) => Placement);
+        host.Step(default, Observe, placeTombstone: (_, _, _) => Placement);
         Assert.That(host.Items.Tombstones.Single().Stage, Is.EqualTo(TombstoneStage.Held));
         Assert.That(host.Items.RequestUse(host.World, 1, 1, shield.Token), Is.False);
         host.Items.Switch(host.World, 1, 1, 2);
         host.Items.RequestUse(host.World, 1, 1, shield.Token);
-        host.Step(default, Observe, placeTombstone: (_, _) => null);
+        host.Step(default, Observe, placeTombstone: (_, _, _) => null);
         Assert.That(host.Items.Tombstones.Single(), Is.EqualTo(shield));
         Assert.That(host.Items.Slots.Single().Item, Is.EqualTo(HeldItem.Tombstone));
     }
@@ -61,10 +67,10 @@ internal sealed class WorldWallTests
         var shield = host.Items.Tombstones.Single(); host.Items.RequestUse(host.World, 1, 1, shield.Token);
         var badTick = new InputFrame(host.World.State.Tick, 0, 0, 0, 0, 0, 0);
         Assert.Throws<ArgumentException>(() => host.Items.Step(host.World, badTick,
-            [new(1, badTick, Observe(host.World.GetVehicle(1)), [])], (_, _) => null, placeTombstone: (_, _) => Placement));
+            [new(1, badTick, Observe(host.World.GetVehicle(1)), [])], (_, _) => null, placeTombstone: (_, _, _) => Placement));
         Assert.That(host.Items.Tombstones.Single(), Is.EqualTo(shield));
         Assert.That(host.Items.Slots.Single().Item, Is.EqualTo(HeldItem.Tombstone));
-        host.Step(default, Observe, placeTombstone: (_, _) => Placement);
+        host.Step(default, Observe, placeTombstone: (_, _, _) => Placement);
         Assert.That(host.Items.Tombstones.Single().Stage, Is.EqualTo(TombstoneStage.WorldWall));
     }
 
@@ -160,7 +166,7 @@ internal sealed class WorldWallTests
         var host = Start(); host.Join(42);
         host.Items.Grant(host.World, 1, HeldItem.Tombstone); host.Items.Grant(host.World, 2, HeldItem.Tombstone);
         foreach (var slot in host.Items.Slots) { host.Items.RequestUse(host.World, slot.Vehicle, slot.Life, slot.Active.Token); }
-        host.Step(default, Observe, placeTombstone: (_, _) => Placement);
+        host.Step(default, Observe, placeTombstone: (_, _, _) => Placement);
         Assert.That(host.Items.Tombstones.Count(s => !s.Attached), Is.EqualTo(1));
         Assert.That(host.Items.Tombstones.Single(s => s.Owner == 2).Stage, Is.EqualTo(TombstoneStage.RearShield));
         Assert.That(host.Items.Slots.Single(s => s.Vehicle == 2).Item, Is.EqualTo(HeldItem.Tombstone));
@@ -171,7 +177,7 @@ internal sealed class WorldWallTests
         host.Items.Grant(host.World, 1, HeldItem.Tombstone);
         host.Items.RequestUse(host.World, 1, 1, host.Items.Slots.Single().Active.Token);
         var placement = new VehiclePhysicsState(Placement.Position + new Vector3(host.Items.Tombstones.Count(s => !s.Attached) * 10, 0, 0), Placement.Orientation, Placement.LinearVelocity, Placement.AngularVelocity);
-        host.Step(default, Observe, placeTombstone: (_, _) => placement);
+        host.Step(default, Observe, placeTombstone: (_, _, _) => placement);
         return host.Items.Tombstones.Last();
     }
     private static HostVehicleSession Start()

@@ -25,11 +25,14 @@ public sealed partial class WorldWallChecks : Node
     private bool _done;
     private int _stressCount;
     private float _weaponHP;
+    private N.Quaternion _beforeTorque;
+    private StaticBody3D? _blocker;
+    private bool ProductionMap => OS.GetCmdlineUserArgs().Contains("--world-wall-production");
 
     public override void _Ready()
     {
         Engine.MaxFps = 60;
-        _output = ProjectSettings.GlobalizePath("res://.godot/world-wall-checks");
+        _output = ProjectSettings.GlobalizePath(ProductionMap ? "res://.godot/world-wall-production-checks" : "res://.godot/world-wall-checks");
         System.IO.Directory.CreateDirectory(_output);
         using var socket = new UdpClient(new IPEndPoint(IPAddress.Loopback, 0));
         _endpoint = $"127.0.0.1:{((IPEndPoint)socket.Client.LocalEndPoint!).Port}"; socket.Close();
@@ -49,7 +52,8 @@ public sealed partial class WorldWallChecks : Node
         _views.Add(view);
         if (index == 0) { var display = new SubViewportContainer(); AddChild(display); display.AddChild(view); }
         else { AddChild(view); }
-        var arena = new NetworkVehicleArena { PrototypeMapForVerification = true };
+        // Keep map pickups from refilling a just-cleared slot during deployment assertions.
+        var arena = new NetworkVehicleArena { PrototypeMapForVerification = !ProductionMap, SpawnConfiguration = new() { PickupRadius = 0.01f } };
         arena.Initialize(wire, index == 0 ? 98ul : 0, server); view.AddChild(arena);
         foreach (int slope in new[] { 0, 1 })
         {
@@ -71,6 +75,16 @@ public sealed partial class WorldWallChecks : Node
         try
         {
             var host = _arenas[0].Driver.Host!;
+            foreach (var wall in host.Items.Tombstones.Where(s => !s.Attached))
+            {
+                Check(N.Vector3.Transform(N.Vector3.UnitY, wall.Orientation).Y > 0.9999f, "Wall remains upright throughout native motion and impacts");
+                Check(Math.Abs(wall.AngularVelocity.X) < 0.001f && Math.Abs(wall.AngularVelocity.Z) < 0.001f, "No pitch/roll velocity");
+            }
+            if (_stage == 4 && elapsed == 40)
+            {
+                var wall = host.Items.Tombstones.Last(); _beforeTorque = wall.Orientation;
+                _arenas[0].Walls.Bodies[wall.Id].ApplyTorqueImpulse(new(1000, 1000, 1000));
+            }
             if (_stage == 6) { AimAtWall(); }
             if (_stage is 12 or 13 && elapsed == 15)
             {
@@ -80,9 +94,9 @@ public sealed partial class WorldWallChecks : Node
             }
             for (int i = 0; i < _arenas.Count; i++)
             {
-                bool use = (_stage == 2 && elapsed == 1) || (_stage == 6 && i == 0) || (_stage is 8 or 12 or 13 && elapsed == 15 && i == 0);
+                bool use = (_stage == 2 && elapsed == 1) || (_stage == 14 && elapsed == 1 && i == 0) || (_stage == 6 && i == 0) || (_stage is 8 or 12 or 13 && elapsed == 15 && i == 0);
                 bool pressed = use && (elapsed == 1 || (_stage is 8 or 12 or 13 && elapsed == 15));
-                ushort throttle = (_stage == 3 || (_stage == 4 && i == 1)) ? ushort.MaxValue : (ushort)0;
+                ushort throttle = ((_stage == 3 && (!ProductionMap || _scenario < 4)) || (_stage == 4 && i == 1)) ? ushort.MaxValue : (ushort)0;
                 _arenas[i].Advance(new((ulong)_frame, 0, throttle, 0, use ? InputButtons.UseItem : 0, pressed ? InputButtons.UseItem : 0, 0));
                 Check(_arenas[i].Driver.Failure.Length == 0, _arenas[i].Driver.Failure);
             }
@@ -99,10 +113,29 @@ public sealed partial class WorldWallChecks : Node
                     Setup(); Next(10); break;
                 case 10 when elapsed > 50:
                     Check(_arenas.All(a => a.Bodies.Values.All(b => b.HasRearShield)), "Selected shields visible before use");
+                    foreach (var vehicle in host.World.State.Vehicles)
+                    { Check(_arenas[0].Walls.Place(vehicle.ObservedPhysics, host.Items.Configuration, _arenas[0].Bodies[vehicle.VehicleId]) is not null, $"Rear placement available at {vehicle.ObservedPhysics}"); }
                     if (_scenario is 1 or 2)
                     {
-                        foreach (var v in host.World.State.Vehicles) { Position(v.VehicleId, v.ObservedPhysics.Position, new(0, 0, _scenario == 1 ? -6 : 3)); }
+                        foreach (var v in host.World.State.Vehicles)
+                        { Position(v.VehicleId, v.ObservedPhysics.Position, N.Vector3.Transform(new(0, 0, _scenario == 1 ? -60 : 3), v.ObservedPhysics.Orientation), v.ObservedPhysics.Orientation); }
                     }
+                    if (_scenario == 0)
+                    {
+                        var pose = host.World.GetVehicle(1).ObservedPhysics;
+                        var back = Vehicles.VehicleBody.ToGodot(N.Vector3.Transform(N.Vector3.UnitZ, pose.Orientation)); back.Y = 0; back = back.Normalized();
+                        _blocker = new StaticBody3D { CollisionLayer = 1, Position = Vehicles.VehicleBody.ToGodot(pose.Position) + back * 4.4f + Vector3.Up * 2 };
+                        _blocker.Basis = new(Vector3.Up.Cross(back), Vector3.Up, back);
+                        _blocker.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(8, 6, 1) } });
+                        _arenas[0].AddChild(_blocker); Next(14);
+                    }
+                    else { Next(2); }
+                    break;
+                case 14 when elapsed > 30:
+                    Check(host.Items.Tombstones.SequenceEqual(_seeds), "Blocked normal use preserves exact identity, HP, slot capability and attached state");
+                    Check(_arenas[0].Walls.Bodies.Count == 0, "Blocked use creates no world collider");
+                    _blocker!.CollisionLayer = 0; _blocker.QueueFree(); _blocker = null;
+                    Record("Blocked normal use retained the shield; retry after clearing the obstruction uses the same capability.");
                     Next(2); break;
                 case 2 when elapsed > 50:
                     Check(host.Items.Tombstones.Count(s => !s.Attached) == 2, "One ordinary use per player deploys exactly two walls");
@@ -116,10 +149,21 @@ public sealed partial class WorldWallChecks : Node
                     Check(_arenas.All(a => a.Walls.Bodies.Count == 2 && a.Bodies.Values.All(b => !b.HasRearShield)), "Native shield-to-world transition on both peers");
                     _seeds = host.Items.Tombstones.ToArray(); Capture($"{_scenario}-expanded.png"); Next(3); break;
                 case 3 when elapsed >= 90:
-                    foreach (var wall in host.Items.Tombstones)
-                    { Check(N.Vector3.Distance(wall.Position, host.World.GetVehicle(wall.Owner).ObservedPhysics.Position) > 8, "Drive away leaves independent wall"); }
-                    Record($"Scenario {_scenario}: stationary/forward/reverse/banked deployment keeps identity, 875 HP, exact slot, independent native walls.");
-                    if (_scenario++ < 3)
+                    // Straight-line driving is valid on the grid/platforms. Infield pickup
+                    // areas include walls/water and do not imply a drivable forward corridor.
+                    if (!ProductionMap || _scenario < 4)
+                    {
+                        foreach (var wall in host.Items.Tombstones)
+                        { Check(N.Vector3.Distance(wall.Position, host.World.GetVehicle(wall.Owner).ObservedPhysics.Position) > 8, "Drive away leaves independent wall"); }
+                    }
+                    Record($"Scenario {_scenario}: {(ProductionMap ? "production map" : "flat/banked fixture")} deployment keeps identity, 875 HP, exact slot, independent upright native walls.");
+                    if (ProductionMap && _scenario == 7)
+                    {
+                        VerifyBoundaries(); System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
+                        GD.Print("World wall integration passed: sixteen one-use deployments on the production oval/infield with upright motion and exact UDP convergence.");
+                        Finish(0); break;
+                    }
+                    if (_scenario++ < (ProductionMap ? 7 : 3))
                     {
                         foreach (var wall in host.Items.Tombstones.ToArray()) { host.Items.DamageTombstone(host.World, wall.Id, wall.DamageSequence + 1, 1000, new("world", 0, "fixture-reset")); }
                         Next(1); break;
@@ -130,6 +174,7 @@ public sealed partial class WorldWallChecks : Node
                     var pushed = host.Items.Tombstones.Last();
                     Check(N.Vector3.Distance(pushed.Position, _pushStart) > 0.25f, $"Other vehicle physically moves wall: start {_pushStart}, wall {pushed.Position}, vehicle {host.World.GetVehicle(2).ObservedPhysics.Position}, HP {pushed.HP}, frozen {_arenas[0].Walls.Bodies[pushed.Id].Freeze}");
                     Check(pushed.HP < 875, "Native wall contact damages its independent pool");
+                    Check(Math.Abs(N.Quaternion.Dot(pushed.Orientation, _beforeTorque)) < 0.999f, "Yaw remains free under native torque while tipping stays locked");
                     Record($"Vehicle push moved wall {N.Vector3.Distance(pushed.Position, _pushStart):F2} m; HP {pushed.HP:F1}.");
                     Capture("pushed.png"); AddPeer(); Next(5); break;
                 case 5 when elapsed > 120 && _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 3):
@@ -188,10 +233,21 @@ public sealed partial class WorldWallChecks : Node
             var stone = host.Items.Tombstones.Last(); host.Items.DamageTombstone(host.World, stone.Id, 7, 125, new("world", 0, "fixture"));
             float x = (_scenario == 3 ? 100 : 0) + (id == 1 ? 0 : 12);
             Position(id, new(x, 201.65f + (_scenario == 3 ? (x - 100) * 0.12f : 0), 0), new(0, 0, _scenario == 1 ? -6 : _scenario == 2 ? 3 : 0));
+            if (ProductionMap)
+            {
+                var markers = _arenas[0].MapConfiguration.Items.Where(s => s.Id.StartsWith("item-infield-", StringComparison.Ordinal)).ToArray();
+                var spawn = _scenario < 4 ? _arenas[0].MapConfiguration.Players[_scenario * 2 + (int)id - 1] : markers[((_scenario - 4) * 2 + (int)id - 1) % markers.Length];
+                Position(id, spawn.Position + (_scenario < 4 ? N.Vector3.Zero : N.Vector3.UnitY * VehicleDimensions.RideHeight), N.Vector3.Zero, N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitY, spawn.Yaw));
+            }
         }
         _seeds = host.Items.Tombstones.ToArray();
         var camera = _arenas[0].GetNode<Camera3D>("WallCamera");
         camera.Position = new((_scenario == 3 ? 100 : 0) + 20, 214, 24); camera.LookAt(new((_scenario == 3 ? 100 : 0) + 6, 201, 3));
+        if (ProductionMap)
+        {
+            var point = Vehicles.VehicleBody.ToGodot(host.World.GetVehicle(1).ObservedPhysics.Position);
+            camera.Position = point + new Vector3(20, 14, 24); camera.LookAt(point);
+        }
     }
 
     private void Position(ulong id, N.Vector3 point, N.Vector3 velocity, N.Quaternion? heading = null)

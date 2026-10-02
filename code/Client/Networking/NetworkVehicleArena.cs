@@ -101,7 +101,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
 
         AddChild(_items);
         AddChild(Walls);
-        _driver.PlaceTombstone = Walls.Place;
+        _driver.PlaceTombstone = (slot, pose, tuning) => Walls.Place(pose, tuning, _bodies[slot.Vehicle]);
         _driver.ObserveTombstone = Walls.Observe;
         AddChild(_salvoMarker);
         AddChild(_destruction);

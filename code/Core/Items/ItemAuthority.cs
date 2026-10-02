@@ -193,7 +193,7 @@ public sealed partial class ItemAuthority
     /// <param name="ground">Host terrain projection at the fixed salvo range; missing terrain rejects use.</param>
     /// <param name="placeTombstone">Host-only native rear placement and clearance query.</param>
     /// <param name="observeTombstone">Host-only native wall motion observation.</param>
-    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeTombstone = null, Func<TombstoneState, VehiclePhysicsState?>? observeTombstone = null)
+    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeTombstone = null, Func<TombstoneState, VehiclePhysicsState?>? observeTombstone = null)
     {
         ulong token = _token;
         ulong NextToken() => checked(++token);
@@ -243,7 +243,7 @@ public sealed partial class ItemAuthority
             {
                 if (!request.Reset.HasValue && inventory.Active.Token == slot.Token &&
                     world.State.Match is not { Phase: not Matches.MatchPhase.Active } &&
-                    placeTombstone?.Invoke(request.Observation.Physics, Configuration) is { } placement &&
+                    placeTombstone?.Invoke(slot, request.Observation.Physics, Configuration) is { } placement &&
                     shields.Deploy(slot, placement, Configuration))
                 {
                     slots[pair.Key] = usedIndex == 0 ? inventory with { Item = HeldItem.None } : inventory with { SecondItem = HeldItem.None };

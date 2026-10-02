@@ -21,6 +21,8 @@ internal sealed partial class TombstoneWallBody : RigidBody3D
         CollisionLayer = 32;
         CollisionMask = 3 | 32;
         ContinuousCd = true;
+        AxisLockAngularX = true;
+        AxisLockAngularZ = true;
         LinearDamp = 0.4f;
         AngularDamp = 1.5f;
         PhysicsMaterialOverride = new PhysicsMaterial { Friction = 0.7f, Bounce = 0 };
