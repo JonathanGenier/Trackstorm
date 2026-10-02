@@ -278,10 +278,7 @@ public sealed partial class SimulationBootstrap : Node
         playerInput.ResolveShaping = () =>
         {
             var tuning = _session?.DeveloperConfiguration ?? Core.Development.GameplayConfiguration.HostedDefaults;
-            var movement = (_session?.Arena?.LocalState ?? _arena?.Player.Snapshot)?.Movement;
-            var vehicle = _arena?.Player.Configuration ?? tuning.Vehicle;
-            return movement is { Grounded: false } air && air.Air.Seconds + 1f / vehicle.TicksPerSecond + 0.000001f >= vehicle.AirDelay
-                ? DrivingInputShaping.Aerial : tuning.Input;
+            return tuning.Input;
         };
         playerInput.FrameCaptured += OnFrameCaptured;
         _playerInput = playerInput;
@@ -351,7 +348,7 @@ public sealed partial class SimulationBootstrap : Node
         if (_arena is not null)
         {
             // Device capture runs during loading; a newly created practice world owns a fresh clock.
-            _arena.Advance(new InputFrame(checked(_arena.Simulation.State.Tick + 1), input.Steering, input.Accelerate, input.Brake, input.Held, input.Pressed, input.Released));
+            _arena.Advance(new InputFrame(checked(_arena.Simulation.State.Tick + 1), input.Steering, input.Accelerate, input.Brake, input.Held, input.Pressed, input.Released, input.AirPitch, input.AirYaw, input.AirRoll));
         }
         _session?.Advance(input);
         _settingsPanel?.SetConnectionTelemetry(_session?.Diagnostics ?? default);

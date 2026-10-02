@@ -203,7 +203,7 @@ three-panel visual expands over 0.2 seconds; the full collision envelope is acti
 Host Configs exposes `items.tombstone_width` (6 m), `height` (2.5 m), `depth` (0.6 m),
 `mass` (250 kg), and `clearance` (1 m behind the chassis envelope). Bounds are respectively
 3–12 m, 2–6 m, 0.3–2 m, 50–2000 kg, and 0.5–5 m. Dimensions and mass are captured at
-deployment, so later tuning cannot resize an installed collider. Configuration protocol 38
+deployment, so later tuning cannot resize an installed collider. Configuration protocol 39
 carries these values through the existing validation, publication and recovery path. These
 are operational defaults verified on flat/banked native fixtures, not final balance.
 

@@ -233,7 +233,7 @@ internal sealed class VehicleAuthorityTests
     public void LegacyReplication_RejectsVehicleAggregates()
     {
         Assert.Throws<ArgumentException>(() => new SimulationStateMessage(Create().State));
-        Assert.That(SimulationStateMessage.SerializedSize, Is.EqualTo(22));
+        Assert.That(SimulationStateMessage.SerializedSize, Is.EqualTo(28));
     }
 
     /// <summary>HUD speed measures solved horizontal motion, including reverse and external sideways velocity.</summary>

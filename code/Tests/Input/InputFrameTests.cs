@@ -13,7 +13,7 @@ internal sealed class InputFrameTests
         var frame = new InputFrame(0x0807060504030201, -32767, 65535, 32768, InputButtons.Leaderboard, InputButtons.UseItem, InputButtons.Drift);
         byte[] bytes = new byte[InputFrame.SerializedSize];
         frame.Write(bytes);
-        byte[] expected = [1, 1, 2, 3, 4, 5, 6, 7, 8, 1, 128, 255, 255, 0, 128, 4, 0, 2, 0, 1, 0];
+        byte[] expected = [2, 1, 2, 3, 4, 5, 6, 7, 8, 1, 128, 255, 255, 0, 128, 4, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0];
         Assert.That(bytes, Is.EqualTo(expected));
         Assert.That(InputFrame.Read(bytes), Is.EqualTo(frame));
         Assert.That(InputFrame.Read(bytes).GetHashCode(), Is.EqualTo(frame.GetHashCode()));
@@ -24,7 +24,7 @@ internal sealed class InputFrameTests
     [Test]
     public void Serialization_RoundTripsBoundaryFrames()
     {
-        InputFrame[] frames = [default, new(ulong.MaxValue, 32767, 65535, 65535, (InputButtons)2047, (InputButtons)2047, (InputButtons)2047)];
+        InputFrame[] frames = [new(3, 123, 456, 789, InputButtons.AirControl, 0, 0, -32767, 32767, -23456), default, new(ulong.MaxValue, 32767, 65535, 65535, (InputButtons)2047, (InputButtons)2047, (InputButtons)2047)];
         foreach (InputFrame frame in frames)
         {
             byte[] bytes = new byte[InputFrame.SerializedSize];
@@ -42,7 +42,7 @@ internal sealed class InputFrameTests
         Assert.Throws<ArgumentException>(() => default(InputFrame).Write(new byte[20]));
         byte[] bytes = new byte[InputFrame.SerializedSize];
         Assert.Throws<ArgumentException>(() => InputFrame.Read(bytes));
-        bytes[0] = 1;
+        bytes[0] = 2;
         bytes[10] = 128;
         Assert.Throws<ArgumentOutOfRangeException>(() => InputFrame.Read(bytes));
         bytes[10] = 0;

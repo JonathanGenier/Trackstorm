@@ -80,6 +80,7 @@ public sealed partial class NetworkVehicleChecks : Node
         _stallBoundary = Value("--network-check-stall-boundary");
         _stallMilliseconds = int.Parse(Value("--network-check-stall-ms", "0"), System.Globalization.CultureInfo.InvariantCulture);
         _gateway = new ReplicationTrafficGateway();
+        _gateway.ConnectionChanged += change => GD.Print("NETWORK_CONNECTION " + JsonSerializer.Serialize(change));
         _gateway.ConfigureSimulation(new NetworkSimulation(int.Parse(Value("--network-check-latency", "0"), System.Globalization.CultureInfo.InvariantCulture), int.Parse(Value("--network-check-jitter", "0"), System.Globalization.CultureInfo.InvariantCulture), float.Parse(Value("--network-check-loss", "0"), System.Globalization.CultureInfo.InvariantCulture), 0, 0));
         ulong peer = 0;
         if (host.Length > 0)
@@ -176,6 +177,7 @@ public sealed partial class NetworkVehicleChecks : Node
             if (Time.GetTicksMsec() - _startupMilliseconds > 60000)
             {
                 _done = true;
+                GD.Print($"NETWORK_READINESS host={_host} listening={_gateway.IsListening} transport={_gateway.ConnectionState} peers={JsonSerializer.Serialize(_gateway.Connections)} roster={_largestRoster} local={driver.LocalState is not null} failure={driver.Failure}");
                 GD.PushError("Network vehicle participants did not become ready within 60 seconds.");
                 GetTree().Quit(1);
             }

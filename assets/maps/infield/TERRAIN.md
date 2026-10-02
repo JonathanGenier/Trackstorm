@@ -1,7 +1,8 @@
 # Infield terrain authoring
 
 `source/InfieldTerrain.blend` is the editable production terrain. Godot consumes
-`infield_terrain.glb`, including its imported static triangle collision. The
+`infield_terrain.glb` for rendering and the audited `TerrainCollision.res` for
+static collision, selected by `ImportTerrain.gd`. The
 retained `InfieldGraybox.blend`, `BuildInfield.py` and `layout.json` are the approved
 topology baseline. Their route coordinates and reservations are unchanged.
 
@@ -9,6 +10,9 @@ Regenerate with Blender 5.2.2, then import with Godot 4.7.2 .NET:
 
 ```powershell
 & $BlenderPath --background --python-exit-code 1 --python assets/maps/infield/BuildTerrain.py
+& $BlenderPath --background --python-exit-code 1 --python assets/maps/infield/BuildSurfaces.py
+& $BlenderPath --background --python-exit-code 1 --python assets/maps/infield/BuildTerrainCollision.py
+& $GodotPath --headless --path . --script assets/maps/infield/BakeTerrainCollision.gd
 & $GodotPath --headless --path . --editor --import
 & $GodotPath --path . --script assets/maps/oval/BuildOvalScene.gd
 ./check-infield.ps1 -GodotPath $GodotPath -Visual
@@ -19,6 +23,26 @@ Regeneration overwrites the terrain blend, GLB and terrain manifests. Preserve
 manual sculpting first. One unit is one metre; there is no runtime scale or
 procedural terrain generation. Position compression and automatic LODs are
 disabled in the tracked GLB import configuration.
+
+The collision-only bake reads the completed source without saving it, reduces
+402,124 render triangles to 40,211 collision triangles with Blender's collapse
+decimator, and packs a compressed native Godot resource. Full render tessellation
+caused long native convex sweeps on the steep tunnel dirt faces. Geometry and
+behavior elsewhere are covered by the actual-map collision and infield/oval
+regressions. Source, render and collision hashes and measured error are recorded
+in [collision-audit.json](collision-audit.json). Regenerate collision after any
+terrain geometry edit, then reimport the GLB to refresh the cached collider.
+For an existing cache after changing only the import hook, explicitly select
+Reimport for `infield_terrain.glb` in Godot. An ordinary `--import` scan may retain
+the prior scene when the source timestamp did not change. The world-collision
+harness rejects that stale collider instead of accepting a misleading run.
+
+The bake rejects a maximum bidirectional vertex/centroid distance of 4 cm or
+more, outer-boundary distance of 2 mm or more, or more than 40,500 triangles.
+These sampled bounds do not prove an exact continuous Hausdorff bound. Native
+rim, slope, route, jump and bank-contact checks remain required. `BuildSurfaces.py`
+still owns the unchanged rendered material/UV pipeline. No third-party geometry
+or runtime simplification is introduced.
 
 Changes to `ImportTerrain.gd` require explicit reimport of `infield_terrain.glb`
 when using an existing Godot cache. This applies the derived water-plane crop;

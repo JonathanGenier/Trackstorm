@@ -1,6 +1,6 @@
 @tool
 extends EditorScenePostImport
-## Bind one material field to rendering and collision identity without changing geometry.
+## Bind material identity and audited collision to the authored terrain.
 
 const WATER_LEVEL_METRES := -0.45
 
@@ -11,6 +11,10 @@ func _post_import(scene: Node) -> Object:
 		placeholder.free()
 	for body in scene.find_children("*", "StaticBody3D", true, false):
 		if str(body.get_parent().name).begins_with("InfieldTerrain"):
+			# The full render tessellation causes long convex sweep stalls at steep
+			# contacts. Bake/audit collision independently across the whole terrain.
+			for shape in body.find_children("*", "CollisionShape3D", true, false):
+				shape.shape = load("res://assets/maps/infield/TerrainCollision.res")
 			body.add_to_group("landing_terrain", true)
 			body.add_to_group("water_terrain", true)
 			body.set_meta("water_level", WATER_LEVEL_METRES)

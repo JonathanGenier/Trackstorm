@@ -184,8 +184,6 @@ public sealed record VehicleConfiguration
     /// <summary>Safety bound on angular velocity.</summary>
     public float MaximumAngularSpeed { get; init; } = 8;
 
-    /// <summary>Activation delay (s).</summary>
-    public float AirDelay { get; init; } = 0.5f;
     /// <summary>Pitch rate (rad/s).</summary>
     public float AirPitchRate { get; init; } = 2.52f;
     /// <summary>Yaw rate (rad/s).</summary>
@@ -204,8 +202,6 @@ public sealed record VehicleConfiguration
     public float AirStabilizationResponse { get; init; } = 0.08f;
     /// <summary>Input smoothing (s).</summary>
     public float AirInputResponse { get; init; } = 0.06f;
-    /// <summary>Air input dead zone.</summary>
-    public float AirDeadZone { get; init; } = 0.08f;
     /// <summary>Minimum ground normal Y.</summary>
     public float SupportNormalMinimum { get; init; } = 0.55f;
 
@@ -300,12 +296,10 @@ public sealed record VehicleConfiguration
         {
             throw new ArgumentException("Collision tuning requires wall drag 0–5/s, dissipation/rotation 0–1 and angular change 0–3 rad/s.");
         }
-        if (!float.IsFinite(AirDelay) || AirDelay is < 0 or > 2 ||
-            new[] { AirPitchRate, AirYawRate, AirRollRate }.Any(v => !float.IsFinite(v) || v is < 0 or > 8) ||
+        if (new[] { AirPitchRate, AirYawRate, AirRollRate }.Any(v => !float.IsFinite(v) || v is < 0 or > 8) ||
             new[] { AirPitchAcceleration, AirYawAcceleration, AirRollAcceleration }.Any(v => !float.IsFinite(v) || v is < 0.1f or > 60) ||
             new[] { AirInputResponse, AirStabilizationResponse }.Any(v => !float.IsFinite(v) || v is < 0.01f or > 1) ||
             !float.IsFinite(AirStabilization) || AirStabilization is < 0 or > 30 ||
-            !float.IsFinite(AirDeadZone) || AirDeadZone is < 0 or > 0.5f ||
             !float.IsFinite(SupportNormalMinimum) || SupportNormalMinimum is < 0.55f or > 1)
         {
             throw new ArgumentException("Invalid air-control tuning.");

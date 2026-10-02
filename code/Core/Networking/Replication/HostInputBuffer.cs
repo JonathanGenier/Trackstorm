@@ -106,6 +106,6 @@ public sealed class HostInputBuffer
         // short redundancy window used for loss recovery, then let physics coast.
         // Reusing controls longer creates authority-only acceleration during a frame stall.
         return _missingTicks > RedundancyWaitTicks ? new InputFrame(tick, 0, 0, 0, 0, 0, 0)
-            : new InputFrame(tick, _held.Steering, _held.Accelerate, _held.Brake, _held.Held, 0, 0);
+            : new InputFrame(tick, _held.Steering, _held.Accelerate, _held.Brake, _held.Held, 0, 0, _held.AirPitch, _held.AirYaw, _held.AirRoll);
     }
 }

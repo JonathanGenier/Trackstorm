@@ -10,11 +10,10 @@ public sealed partial class TrophyTruckChecks
 {
     private async Task HighSpeedContact(bool network)
     {
-        foreach (float delay in new[] { 0.15f, new VehicleConfiguration().AirDelay })
         foreach (bool gap in new[] { false, true })
         {
-            var tuning = new VehicleConfiguration { AirDelay = delay };
-            await Setup(network, $"contact-{(gap ? "gap" : "bump")}-{delay}",
+            var tuning = new VehicleConfiguration();
+            await Setup(network, $"contact-{(gap ? "gap" : "bump")}",
                 new(0, gap ? 2.4f : VehicleDimensions.RideHeight, 10), N.Quaternion.Identity, new(0, 0, -44.44f), tuning);
             _fixture.GetChildren().OfType<StaticBody3D>().Single(body => body is not Networking.NetworkVehicleBody).SetMeta("surface_identity", "Asphalt");
             if (!gap)
@@ -44,7 +43,6 @@ public sealed partial class TrophyTruckChecks
             float air = samples.Max(s => s.Air.Seconds);
             int commanded = samples.Count(s => s.Air.Input != N.Vector3.Zero);
             GD.Print($"{_case}: maxAir={air:F3}, airCommandFrames={commanded}, minUp={minimumUp:F3}, maxY={samples.Max(s => s.Physics.Position.Y):F3}, crashTimer={samples.Max(s => s.CrashSeconds):F3}, maxPitchRate={samples.Max(s => Math.Abs(s.Physics.AngularVelocity.X)):F3}");
-            if (delay == new VehicleConfiguration().AirDelay)
             {
                 Check(commanded == 0, _case + " brief loss never commands intentional aerial input");
                 Check(minimumUp > 0.9f && samples[^1].Grounded, _case + " stays wheel-down and regains support");

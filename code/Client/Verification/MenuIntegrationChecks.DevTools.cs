@@ -107,7 +107,7 @@ public sealed partial class MenuIntegrationChecks
             Godot.Input.FlushBufferedEvents();
             Check(GetViewport().GuiGetFocusOwner() == acceleration, "remapped analog menu navigation leaves editor");
             _devTools._Process(0.41);
-            Check(GetViewport().GuiGetFocusOwner() == numbers.Single(editor => editor.Name == "vehicle_braking"), "held logical direction repeats after menu delay");
+            Check(GetViewport().GuiGetFocusOwner() == numbers.Single(editor => editor.Name == "vehicle_throttle_rise_time"), "held logical direction repeats after menu delay");
             using var released = new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightY, AxisValue = 0 };
             Godot.Input.ParseInputEvent(released);
             Godot.Input.FlushBufferedEvents();

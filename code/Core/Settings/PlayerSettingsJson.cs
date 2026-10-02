@@ -28,6 +28,10 @@ public static class PlayerSettingsJson
             showPing = settings.ShowPing,
             invertSteering = settings.InvertSteering,
             deadZone = settings.DeadZone,
+            steeringSensitivity = settings.SteeringSensitivity,
+            aerialSensitivity = settings.AerialSensitivity,
+            keyboardSteeringSensitivity = settings.KeyboardSteeringSensitivity,
+            keyboardAerialSensitivity = settings.KeyboardAerialSensitivity,
             bindingDefaultsVersion = settings.BindingDefaultsVersion,
             bindings = settings.Bindings.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
         });
@@ -67,6 +71,10 @@ public static class PlayerSettingsJson
                 ShowPing = Boolean(root, "showPing"),
                 InvertSteering = Boolean(root, "invertSteering"),
                 DeadZone = Number(root, "deadZone", 0.15),
+                SteeringSensitivity = Number(root, "steeringSensitivity", 1),
+                AerialSensitivity = Number(root, "aerialSensitivity", 1),
+                KeyboardSteeringSensitivity = Number(root, "keyboardSteeringSensitivity", 1),
+                KeyboardAerialSensitivity = Number(root, "keyboardAerialSensitivity", 1),
                 BindingDefaultsVersion = Math.Max(0, Integer(root, "bindingDefaultsVersion", 0)),
             };
             if (root.TryGetProperty("bindings", out JsonElement bindings) && bindings.ValueKind == JsonValueKind.Object)
