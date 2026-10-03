@@ -1,0 +1,44 @@
+[
+  {
+    "label": "inner-baseline",
+    "frames": [
+      4,
+      54
+    ],
+    "meanObserveMs": 31.512952941176465,
+    "meanSweeps": 4.0,
+    "endPosition": [
+      2.7007418,
+      1.1430438,
+      16.824856
+    ]
+  },
+  {
+    "label": "tight-bounds",
+    "frames": [
+      4,
+      54
+    ],
+    "meanObserveMs": 9.42945098039216,
+    "meanSweeps": 4.0,
+    "endPosition": [
+      2.7007418,
+      1.1430438,
+      16.824856
+    ]
+  },
+  {
+    "label": "geometric-slide",
+    "frames": [
+      4,
+      54
+    ],
+    "meanObserveMs": 5.050896078431373,
+    "meanSweeps": 1.7647058823529411,
+    "endPosition": [
+      5.640343,
+      1.1453643,
+      12.083706
+    ]
+  }
+]

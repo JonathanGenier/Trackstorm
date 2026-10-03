@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+WORLD_UDP speed=3 steering=False contactRegionFrames=385 escape=6.454 meanMs=4.094 p95Ms=9.098 correction=0.000
+WORLD_UDP speed=12 steering=True contactRegionFrames=352 escape=4.717 meanMs=3.855 p95Ms=9.677 correction=0.297
+WORLD_UDP speed=35 steering=True contactRegionFrames=373 escape=4.675 meanMs=3.661 p95Ms=7.153 correction=0.318
+World collision multiplayer passed: actual tunnel banks, two UDP worlds, 30ms delay/5ms jitter/2% loss, 3/12/35m/s, sustained steering, reverse and re-contact.
+WARNING: 40 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)
+Exception: C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\check-world-collision-network.ps1:10
+Line |
+  10 |  … ayer passed')) { throw 'World collision multiplayer checks failed.' }
+     |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | World collision multiplayer checks failed.
