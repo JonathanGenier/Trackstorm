@@ -100,7 +100,7 @@ The optional `check-reconnect.ps1 -Tombstone` fixture retains a damaged rear shi
 
 Movable [Tombstone walls](items.md#movable-tombstone-world-walls) retain their full committed
 pose, linear/angular velocity, captured dimensions/mass, HP and ordered damage/collision
-watermarks in item protocol 19 inside the existing checkpoint. Recovery installs that exact
+watermarks in item protocol 20 inside the existing checkpoint. Recovery installs that exact
 selected boundary, rather than the original deployment pose. The new host reconstructs its
 native rigid bodies and continues independently of former-owner life; replicas stay frozen.
 Native solver contact caches and cosmetic wing-expansion progress are not checkpoint state.

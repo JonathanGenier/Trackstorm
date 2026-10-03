@@ -1,0 +1,41 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Three UDP peers initialized
+Host tuning applied
+Accepted square appears via remote aim requests
+Near-aim eligible rival receives disconnected brackets
+AIM_FORWARD clear=True ready=True yaw=0 pitch=-0.03810047
+Side mouse aim reaches authority with the original camera orbit limits
+Deployed rack remains fixed on all peers
+Observer receives accepted articulated aim
+Rear aim accepted
+Downward articulation cannot enter owner envelope
+Native stick fine/full turn separation: fine=0.122, full=2.200 rad
+Neutral stick restores the original chase view with a weapon selected
+Adjacent target retains compact accepted square
+Side-by-side car uses compact square with surrounding corners faded
+Alongside square remains onscreen on a chassis-safe accepted ray
+A camera ray blocked by the owner cannot mark the weapon ready
+Elevated rivals retain the square without overriding normal camera pitch limits
+Repeated fast crossings never steer the camera while RMB holds the view
+Vehicle drives while aiming
+Menu suppression clears marker immediately
+Item switch selects shared Missile foundation
+Native NOS granted
+Native high-speed weapon granted
+NOS request accepted
+Real sustained NOS accelerates the native vehicle
+Direct-fire aim resumes at high speed after selecting away from NOS
+Removal retires authoritative aim and local marker
+New life retires previous aiming capability
+Fresh weapon restores aiming before lethal damage
+Lethal damage and timed respawn fixture tuning accepted
+Other vehicle receives a real missile
+Real host missile use accepted
+Actual missile explosion kills the aiming vehicle
+Death carries authoritative missile attribution
+Actual death clears accepted aim and square
+Ordinary timed respawn creates a fresh living vehicle
+Respawn cannot retain a dead weapon's marker
+Weapon aiming integration passed: 36 checks; three native UDP peers.
+Weapon aiming artifacts: C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\aim-checks\a29240207bb4400581f2be6051203325

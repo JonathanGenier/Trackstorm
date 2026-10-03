@@ -1,4 +1,5 @@
 using Godot;
+using Trackstorm.Core.Items;
 using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Client.Vehicles;
@@ -20,12 +21,15 @@ public sealed partial class VehicleChaseCamera : Camera3D
     private Vector3 _anchor;
     private ulong _motionTick;
 
-    /// <summary>Horizontal chase distance in metres.</summary>
+    /// <summary>Horizontal chase distance behind the deployed weapon attachment in metres.</summary>
     [Export(PropertyHint.Range, "2,25,0.1")]
-    public float FollowDistance { get; set; } = 11 * VehicleDimensions.Scale;
-    /// <summary>Height above the damped anchor in metres.</summary>
-    [Export(PropertyHint.Range, "1,12,0.1")]
-    public float CameraHeight { get; set; } = 5 * VehicleDimensions.Scale;
+    public float FollowDistance { get; set; } = 6.4f;
+    /// <summary>Lens height above the deployed weapon attachment in metres.</summary>
+    [Export(PropertyHint.Range, "0,12,0.05")]
+    public float CameraHeight { get; set; } = 1.25f;
+    /// <summary>Downward viewing angle; the elevated boom keeps the weapon below the center cursor.</summary>
+    [Export(PropertyHint.Range, "0,30,0.1")]
+    public float ViewDownAngle { get; set; } = 3.5f;
     /// <summary>Position convergence rate per second.</summary>
     [Export(PropertyHint.Range, "0.1,30,0.1")]
     public float PositionDamping { get; set; } = 8;
@@ -68,6 +72,10 @@ public sealed partial class VehicleChaseCamera : Camera3D
     internal Input.PlayerInputAdapter? InputSource { get; set; }
     /// <summary>Local preferences supplied by composition; never replicated or read from disk here.</summary>
     internal Settings.PlayerSettingsController? SettingsSource { get; set; }
+    /// <summary>Enables local aiming input preferences; chase framing and recentering stay unchanged.</summary>
+    internal bool WeaponAiming { get; set; }
+    /// <summary>Local near-target friction; scales only deliberate input and never steers the camera.</summary>
+    internal Func<Vector2, Vector2, float, (float Mouse, float Stick)>? AimFriction { get; set; }
 
     private float ShakeIntensity => (float)(SettingsSource?.Current.CameraShakeIntensity ?? 1);
 
@@ -119,6 +127,10 @@ public sealed partial class VehicleChaseCamera : Camera3D
     internal void Follow(Transform3D pose, VehicleSnapshot state, float delta, Rid followedBody = default)
     {
         bool reset = !_initialized || state.VehicleId != _vehicle || state.LifeId != _life;
+        // Use the shared deployed attachment, not animated rack travel or accepted weapon
+        // rotation. Camera input drives weapon intent; following its rotation would feed back.
+        Basis pivotBasis = pose.Basis.IsFinite() ? pose.Basis : Basis.FromEuler(new Vector3(0, _heading, 0));
+        Vector3 pivot = pose.Origin + pivotBasis * VehicleBody.ToGodot(WeaponAim.Pivot);
         Vector3 forward = -pose.Basis.Z;
         // Retain heading for invalid, near-vertical or overturned orientations; never inherit chassis pitch or roll.
         float heading = pose.Basis.IsFinite() && pose.Basis.Y.Y > 0.15f && new Vector2(forward.X, forward.Z).LengthSquared() > 0.1f
@@ -131,7 +143,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
             InputSource?.ResetCameraMotion();
             _motion.Reset(state.ObservedPhysics.LinearVelocity);
             _motionTick = state.Movement.Tick;
-            _anchor = pose.Origin;
+            _anchor = pivot;
             _vehicle = state.VehicleId;
             _life = state.LifeId;
             _damageSequence = state.Damage.LastDamage?.Sequence ?? 0;
@@ -168,23 +180,27 @@ public sealed partial class VehicleChaseCamera : Camera3D
         _motion.Advance(delta, _heading, LongitudinalInertia, LateralInertia, SidewaysInertia, MaximumLongitudinalInertia, MaximumLateralInertia, PositionDamping, ShakeDecay);
         // Horizontal position follows the interpolated vehicle, with only bounded local inertia.
         // Vertical damping absorbs bumps; neither inertia nor shake changes the heading or aim.
-        _anchor = new Vector3(pose.Origin.X, Mathf.Lerp(_anchor.Y, pose.Origin.Y, ChaseCameraMotion.Blend(PositionDamping, delta)), pose.Origin.Z);
+        _anchor = new Vector3(pivot.X, Mathf.Lerp(_anchor.Y, pivot.Y, ChaseCameraMotion.Blend(PositionDamping, delta)), pivot.Z);
         Vector3 backward = new(MathF.Sin(_heading), 0, MathF.Cos(_heading));
         Vector3 right = new(MathF.Cos(_heading), 0, -MathF.Sin(_heading));
         float distance = Math.Max(2, FollowDistance);
-        float height = Math.Max(1, CameraHeight);
-        float basePitch = -MathF.Atan2(height - 0.5f, distance);
+        float height = Math.Max(0, CameraHeight);
+        float basePitch = -Mathf.DegToRad(Math.Clamp(ViewDownAngle, 0, 30));
         Vector2 mouse = InputSource?.ConsumeCameraMotion() ?? Vector2.Zero;
         Vector2 stick = InputSource is { CameraEnabled: true } source ? source.CameraIntent.LimitLength() : Vector2.Zero;
         if (!reset)
         {
-            _look.Advance(new(mouse.X, mouse.Y), InputSource?.MouseLookHeld == true, new(stick.X, stick.Y), delta, basePitch);
+            var friction = WeaponAiming ? AimFriction?.Invoke(mouse, stick, delta) ?? (1f, 1f) : (1f, 1f);
+            var preferences = SettingsSource?.Current;
+            _look.Advance(new(mouse.X, mouse.Y), InputSource?.MouseLookHeld == true, new(stick.X, stick.Y), delta, basePitch, WeaponAiming,
+                friction.Item1 * (WeaponAiming ? (float)(preferences?.MouseAimSensitivity ?? 1) : 1),
+                friction.Item2 * (WeaponAiming ? (float)(preferences?.StickAimSensitivity ?? 1) : 1), (float)(preferences?.StickAimCurve ?? 2));
         }
 
         GlobalBasis = Basis.FromEuler(new Vector3(basePitch + _look.Pitch, _heading + _look.Yaw, 0));
-        float radius = MathF.Sqrt(distance * distance + (height - 0.5f) * (height - 0.5f)) + _boost.PullBack;
+        Basis orbit = Basis.FromEuler(new Vector3(_look.Pitch, _heading + _look.Yaw, 0));
         System.Numerics.Vector2 shake = _motion.ShakeOffset * Math.Clamp(MaximumShakeMetres, 0, 0.65f) * ShakeIntensity;
-        Vector3 intent = _anchor + Vector3.Up * 0.5f + GlobalBasis.Z * radius
+        Vector3 intent = _anchor + orbit * new Vector3(0, height, distance) + GlobalBasis.Z * _boost.PullBack
             + backward * _motion.Offset.Y + right * _motion.Offset.X;
         Vector3 desired = intent + GlobalBasis.X * shake.X + GlobalBasis.Y * shake.Y;
         // Enclose the actual near-plane corners, including wide aspect ratios. Sweep after
@@ -193,16 +209,16 @@ public sealed partial class VehicleChaseCamera : Camera3D
         float aspect = viewport.X / Math.Max(1, viewport.Y);
         float half = Near * MathF.Tan(Mathf.DegToRad(Fov) * 0.5f);
         float planeRadius = MathF.Sqrt(Near * Near + half * half * (1 + (KeepAspect == KeepAspectEnum.Height ? aspect * aspect : 1 / (aspect * aspect))));
-        GlobalPosition = _obstruction.Resolve(GetWorld3D().DirectSpaceState, pose.Origin + Vector3.Up * 0.5f, desired, intent, Math.Max(0.25f, planeRadius + 0.05f), followedBody, delta, reset, pose.Basis.Y.Y < .65f);
+        GlobalPosition = _obstruction.Resolve(GetWorld3D().DirectSpaceState, pivot, desired, intent, Math.Max(0.25f, planeRadius + 0.05f), followedBody, delta, reset, pose.Basis.Y.Y < .65f);
         if (_obstruction.Reframed)
         {
-            LookAt(pose.Origin + Vector3.Up * .5f, Vector3.Up);
+            LookAt(pivot, Vector3.Up);
         }
         else if (_obstruction.Lift > 0.001f)
         {
             // Only the cramped-view lift changes pitch, keeping the car framed below the
             // raised lens. Orbit intent and the normal chase basis remain untouched.
-            Vector3 offset = GlobalPosition - (pose.Origin + Vector3.Up * 0.5f);
+            Vector3 offset = GlobalPosition - pivot;
             float horizontal = new Vector2(offset.X, offset.Z).Length();
             float pitchCorrection = MathF.Atan2(offset.Y, horizontal) - MathF.Atan2(offset.Y - _obstruction.Lift, horizontal);
             GlobalBasis = GlobalBasis.Rotated(GlobalBasis.X, -pitchCorrection);

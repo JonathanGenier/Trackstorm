@@ -20,6 +20,8 @@ The Main Menu and joined Lobby each provide a **Settings** entry. The joined Lob
 | Controller Aerial Sensitivity | 1.0 | Controls slider 0.1–3; independent linear controller pitch/yaw/roll gain while Air Control is held. |
 | Keyboard/Mouse Steering Sensitivity | 1.0 | Controls slider 0.1-3; scales existing keyboard/mouse steering ramp rates while retaining full range. |
 | Keyboard/Mouse Aerial Sensitivity | 1.0 | Controls slider 0.1-1; independent keyboard/mouse pitch/yaw/roll rate gain. |
+| Mouse / stick aim sensitivity | 1× each | Controls page independently scales armed camera input from 0.25–3×. |
+| Stick aim response curve | 2 | Controls page sets the radial exponent from 1–3 after the existing dead zone. |
 | Input bindings | Input-system defaults | Saved overrides restore physical keys, mouse buttons, gamepad buttons, signed axes, and exact gamepad device IDs. |
 
 Display changes use a 15-second preview. **Keep** commits the requested mode and window size; **Revert**, timeout, or closing the settings editor restores the last confirmed display preferences. Unconfirmed changes never enter the saved snapshot. Resolution selection is disabled in fullscreen because fullscreen uses the desktop mode. Headless runs retain the preferences but do not call native window APIs.

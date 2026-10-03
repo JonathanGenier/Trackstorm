@@ -104,6 +104,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         _driver.PlaceTombstone = (slot, pose, tuning) => Walls.Place(pose, tuning, _bodies[slot.Vehicle]);
         _driver.ObserveTombstone = Walls.Observe;
         AddChild(_salvoMarker);
+        InitializeAiming();
         AddChild(_destruction);
         AddChild(_audio);
         _driver.LifecycleReceived += snapshot => _audio.ApplyVehicles(snapshot.Vehicles.Select(vehicle => vehicle.State));
@@ -198,6 +199,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
             _driver.Match?.Phase is not (Core.Matches.MatchPhase.Finished or Core.Matches.MatchPhase.Waiting or Core.Matches.MatchPhase.Countdown), SalvoGround);
         if (ApplicationEntry && !_driver.EntryReady)
         {
+            ResetAiming();
             return;
         }
 
@@ -235,9 +237,13 @@ internal sealed partial class NetworkVehicleArena : Node3D
         {
             if (_driver.LocalState is VehicleSnapshot cameraState)
             {
+                PrepareAiming();
                 _camera.Follow(local.VisualTransform, cameraState, (float)delta, local.GetRid());
+                PresentAiming();
             }
+            else { ResetAiming(); }
         }
+        else { ResetAiming(); }
 
         foreach (var pair in _bodies)
         {
@@ -298,6 +304,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         {
             _camera.ResetFollow();
             Walls.Apply(_driver.ItemState!, _driver.Host is not null, true);
+            ResetAiming();
             if (_driver.EnvironmentState is { } environment) { _destructibles?.Apply(environment, true); }
             _audio.ApplyVehicles(snapshot.Vehicles.Select(vehicle => vehicle.State), true);
             _audio.ApplyItems(_driver.ItemState!, true);

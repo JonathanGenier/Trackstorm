@@ -2,6 +2,7 @@ using System.Text.Json;
 using Godot;
 using Trackstorm.Client.Vehicles;
 using Trackstorm.Core.Input;
+using Trackstorm.Core.Items;
 using Trackstorm.Core.Vehicles;
 using N = System.Numerics;
 
@@ -28,6 +29,7 @@ public sealed partial class BoostCameraPlaytest : Node3D
     private bool _manualBoost;
     private short _manualSteer;
     private int _rolloverFrames;
+    private int _reframedFrames;
     private float _minimumRolloverDistance = float.MaxValue;
     private readonly List<double> _rolloverFollowMs = new();
     private static readonly string[] Names = ["enter-sustain-exit", "repeated-use", "steering-traffic", "high-speed-no-boost", "airborne-boost", "short-cancelled-pulses", "simultaneous-boost"];
@@ -110,7 +112,8 @@ public sealed partial class BoostCameraPlaytest : Node3D
         if (state.Movement.Grounded) { _groundFrames++; } else { _airFrames++; }
         long followStart = System.Diagnostics.Stopwatch.GetTimestamp();
         _camera.Follow(_cars[0].GetGlobalTransformInterpolated(), state, (float)delta, _cars[0].GetRid());
-        if (_camera.RolloverFraming) _rolloverFollowMs.Add(System.Diagnostics.Stopwatch.GetElapsedTime(followStart).TotalMilliseconds);
+        bool rolled = _cars[0].GetGlobalTransformInterpolated().Basis.Y.Y < .65f;
+        if (rolled || _camera.RolloverFraming) _rolloverFollowMs.Add(System.Diagnostics.Stopwatch.GetElapsedTime(followStart).TotalMilliseconds);
         int phase = Math.Min(Names.Length - 1, (_frame - 1) / 360);
         _label.Text = $"TS-227 | {(_interactive ? "Interactive: Space Boost toggle, A/D steer, S center, R reset, Esc exit" : Names[phase])}\n{state.Speed * 3.6f:F0} km/h | Boost {state.Movement.Nitro.Active} | FOV {_camera.Fov:F1}";
         _trace.Add(new { frame = _frame, phase = Names[phase], speed = state.Speed, active = state.Movement.Nitro.Active,
@@ -124,12 +127,15 @@ public sealed partial class BoostCameraPlaytest : Node3D
         int localFrame = (_frame - 1) % 360;
         if (!_interactive)
         {
-            if (phase == 1 && _camera.RolloverFraming)
+            // The close rack boom can clear this bank without alternate framing.
+            // Require real rolled poses and lens clearance, not a particular fallback activation.
+            if (rolled || _camera.RolloverFraming)
             {
                 _rolloverFrames++;
-                float distance = _camera.GlobalPosition.DistanceTo(_cars[0].GetGlobalTransformInterpolated().Origin + Vector3.Up * .5f);
+                if (_camera.RolloverFraming) _reframedFrames++;
+                float distance = _camera.GlobalPosition.DistanceTo(_cars[0].GetGlobalTransformInterpolated() * VehicleBody.ToGodot(WeaponAim.Pivot));
                 _minimumRolloverDistance = Math.Min(_minimumRolloverDistance, distance);
-                if (distance < 5.4f) { Fail($"Rollover framing collapsed into the car: {distance}m."); return; }
+                if (_camera.RolloverFraming && distance < 5.4f) { Fail($"Rollover framing collapsed into the car: {distance}m."); return; }
             }
             // Check actual final lens volume against both the world and the followed
             // chassis; the production world sweep intentionally excludes that body.
@@ -181,7 +187,7 @@ public sealed partial class BoostCameraPlaytest : Node3D
         _done = true;
         System.IO.File.WriteAllText(System.IO.Path.Combine(_output, "trace.json"), JsonSerializer.Serialize(_trace));
         if (_boostFrames < 300 || _groundFrames < 300 || _airFrames < 30 || _simultaneousFrames < 60 || _shortPulseFrames < 40 || _rolloverFrames < 30)
-        { GD.PushError($"Fixture coverage missing: Boost {_boostFrames}, grounded {_groundFrames}, air {_airFrames}"); GetTree().Quit(1); return; }
+        { GD.PushError($"Fixture coverage missing: Boost {_boostFrames}, grounded {_groundFrames}, air {_airFrames}, simultaneous {_simultaneousFrames}, short pulse {_shortPulseFrames}, rolled {_rolloverFrames}"); GetTree().Quit(1); return; }
         var actual = _cars[0].Snapshot;
         var active = new VehicleSnapshot(actual.VehicleId, actual.LifeId, actual.Movement with { Nitro = new(60, 18000, 1.4f, 1) }, actual.Damage, actual.ObservedPhysics);
         Transform3D pose = _cars[0].GlobalTransform;
@@ -192,7 +198,7 @@ public sealed partial class BoostCameraPlaytest : Node3D
         if (_camera.Fov != 65 || _camera.BoostMotion.PullBack != 0) { throw new InvalidOperationException("Reseed retained historical Boost camera state."); }
         if (_cars[0].Snapshot != actual) { throw new InvalidOperationException("Camera changed authoritative vehicle state."); }
         GD.Print($"Boost camera playtest passed: native entry/sustain/exit, rapid re-engagement, cancelled short primes, three simultaneously boosting bodies, steering, unboosted speed, airborne launch; integrated cutoff, bounded camera, active reseed, unchanged snapshot. Boost frames {_boostFrames}, grounded {_groundFrames}, airborne {_airFrames}, simultaneous flame {_simultaneousFrames}, short pulse {_shortPulseFrames}. Visual quality requires observation.");
-        GD.Print($"Rollover framing: {_rolloverFrames} frames; minimum lens-to-pivot distance {_minimumRolloverDistance:F3}m; final lens volume clear of world and chassis throughout all scenarios.");
+        GD.Print($"Rolled/recovery coverage: {_rolloverFrames} frames ({_reframedFrames} alternate framing); minimum lens-to-rack distance {_minimumRolloverDistance:F3}m; final lens volume clear of world and chassis throughout all scenarios.");
         _rolloverFollowMs.Sort();
         GD.Print($"Rollover camera Follow CPU p95={_rolloverFollowMs[(int)(_rolloverFollowMs.Count * .95)]:F3}ms, max={_rolloverFollowMs[^1]:F3}ms; excludes render/GPU work.");
         GetTree().Quit();

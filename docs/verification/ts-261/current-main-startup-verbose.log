@@ -1,0 +1,80 @@
+WorkerThreadPool: 16 threads, 4 max low-priority.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+TextServer: Added interface "Dummy"
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+Using "default" pen tablet driver...
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+.NET: Initializing module...
+Found hostfxr: C:/Program Files/dotnet/host/fxr/10.0.12/hostfxr.dll
+.NET: hostfxr initialized
+.NET: GodotPlugins initialized
+CORE API HASH: 3677103882
+EDITOR API HASH: 1629494564
+SceneTreeFTI: traversal method DEFAULT
+Loaded system CA certificates
+Loading resource: res://scenes/main.tscn remapped: res://scenes/main.tscn
+Loading resource: res://code/Client/Bootstrap/SimulationBootstrap.cs remapped: res://code/Client/Bootstrap/SimulationBootstrap.cs
+Completed load for: 'res://code/Client/Bootstrap/SimulationBootstrap.cs' remapped 'res://code/Client/Bootstrap/SimulationBootstrap.cs' at thread -1
+Loading resource: res://code/Client/Input/PlayerInput.cs remapped: res://code/Client/Input/PlayerInput.cs
+Completed load for: 'res://code/Client/Input/PlayerInput.cs' remapped 'res://code/Client/Input/PlayerInput.cs' at thread -1
+Completed load for: 'res://scenes/main.tscn' remapped 'res://scenes/main.tscn' at thread -1
+Loading resource: res://code/Client/Bootstrap/StartupController.cs remapped: res://code/Client/Bootstrap/StartupController.cs
+Completed load for: 'res://code/Client/Bootstrap/StartupController.cs' remapped 'res://code/Client/Bootstrap/StartupController.cs' at thread -1
+Loading resource: res://assets/frontend/Splashscreen.ogv remapped: res://assets/frontend/Splashscreen.ogv
+Completed load for: 'res://assets/frontend/Splashscreen.ogv' remapped 'res://assets/frontend/Splashscreen.ogv' at thread 0
+Loading resource: res://assets/frontend/Menu no music.ogv remapped: res://assets/frontend/Menu no music.ogv
+Completed load for: 'res://assets/frontend/Menu no music.ogv' remapped 'res://assets/frontend/Menu no music.ogv' at thread 1
+Loading resource: res://assets/audio/project/music/Welcome to the Carnage Circus main menu.mp3 remapped: res://assets/audio/project/music/Welcome to the Carnage Circus main menu.mp3
+Loading resource: res://.godot/imported/Welcome to the Carnage Circus main menu.mp3-cd919710b65bc7eab931b239d10e57b3.mp3str remapped: res://.godot/imported/Welcome to the Carnage Circus main menu.mp3-cd919710b65bc7eab931b239d10e57b3.mp3str
+Completed load for: 'res://assets/audio/project/music/Welcome to the Carnage Circus main menu.mp3' remapped 'res://assets/audio/project/music/Welcome to the Carnage Circus main menu.mp3' at thread 2
+Loading resource: res://code/Client/Bootstrap/SplashScreen.cs remapped: res://code/Client/Bootstrap/SplashScreen.cs
+Completed load for: 'res://code/Client/Bootstrap/SplashScreen.cs' remapped 'res://code/Client/Bootstrap/SplashScreen.cs' at thread -1
+Loading resource: res://code/Client/Bootstrap/MenuShell.cs remapped: res://code/Client/Bootstrap/MenuShell.cs
+Completed load for: 'res://code/Client/Bootstrap/MenuShell.cs' remapped 'res://code/Client/Bootstrap/MenuShell.cs' at thread -1
+Loading resource: res://code/Client/Settings/PlayerSettingsController.cs remapped: res://code/Client/Settings/PlayerSettingsController.cs
+Completed load for: 'res://code/Client/Settings/PlayerSettingsController.cs' remapped 'res://code/Client/Settings/PlayerSettingsController.cs' at thread -1
+Loading resource: res://assets/frontend/main-menu/Header.png remapped: res://assets/frontend/main-menu/Header.png
+Loading resource: res://.godot/imported/Header.png-2972f68e6926b9e1c23476855a39706e.ctex remapped: res://.godot/imported/Header.png-2972f68e6926b9e1c23476855a39706e.ctex
+Completed load for: 'res://assets/frontend/main-menu/Header.png' remapped 'res://assets/frontend/main-menu/Header.png' at thread 3
+Loading resource: res://assets/frontend/main-menu/Plate.png remapped: res://assets/frontend/main-menu/Plate.png
+Loading resource: res://.godot/imported/Plate.png-ef8e8fa35a92ae52bc4a59df5dfc1f99.ctex remapped: res://.godot/imported/Plate.png-ef8e8fa35a92ae52bc4a59df5dfc1f99.ctex
+Completed load for: 'res://assets/frontend/main-menu/Plate.png' remapped 'res://assets/frontend/main-menu/Plate.png' at thread 4
+Loading resource: res://assets/frontend/main-menu/Icons.png remapped: res://assets/frontend/main-menu/Icons.png
+Loading resource: res://.godot/imported/Icons.png-88ed9450245072896d80bf15960133ed.ctex remapped: res://.godot/imported/Icons.png-88ed9450245072896d80bf15960133ed.ctex
+Completed load for: 'res://assets/frontend/main-menu/Icons.png' remapped 'res://assets/frontend/main-menu/Icons.png' at thread 5
+Loading resource: res://assets/frontend/main-menu/Chain.png remapped: res://assets/frontend/main-menu/Chain.png
+Loading resource: res://.godot/imported/Chain.png-74f25ed7eab8878a46b6188ba409051b.ctex remapped: res://.godot/imported/Chain.png-74f25ed7eab8878a46b6188ba409051b.ctex
+Completed load for: 'res://assets/frontend/main-menu/Chain.png' remapped 'res://assets/frontend/main-menu/Chain.png' at thread 6
+Loading resource: res://assets/frontend/main-menu/FlagRed.png remapped: res://assets/frontend/main-menu/FlagRed.png
+Loading resource: res://.godot/imported/FlagRed.png-ea9175393c6dc1b38e1d7c62ec7ede10.ctex remapped: res://.godot/imported/FlagRed.png-ea9175393c6dc1b38e1d7c62ec7ede10.ctex
+Completed load for: 'res://assets/frontend/main-menu/FlagRed.png' remapped 'res://assets/frontend/main-menu/FlagRed.png' at thread 7
+Loading resource: res://assets/frontend/main-menu/FlagCheckered.png remapped: res://assets/frontend/main-menu/FlagCheckered.png
+Loading resource: res://.godot/imported/FlagCheckered.png-c5ef8f7ca7bb84ba00f642e9070b49b5.ctex remapped: res://.godot/imported/FlagCheckered.png-c5ef8f7ca7bb84ba00f642e9070b49b5.ctex
+Completed load for: 'res://assets/frontend/main-menu/FlagCheckered.png' remapped 'res://assets/frontend/main-menu/FlagCheckered.png' at thread 8
+Loading resource: res://assets/frontend/main-menu/Plate.gdshader remapped: res://assets/frontend/main-menu/Plate.gdshader
+Completed load for: 'res://assets/frontend/main-menu/Plate.gdshader' remapped 'res://assets/frontend/main-menu/Plate.gdshader' at thread 9
+Loading resource: res://assets/frontend/main-menu/Fabric.gdshader remapped: res://assets/frontend/main-menu/Fabric.gdshader
+Completed load for: 'res://assets/frontend/main-menu/Fabric.gdshader' remapped 'res://assets/frontend/main-menu/Fabric.gdshader' at thread 10
+Loading resource: res://assets/frontend/play-menu/Fame.png remapped: res://assets/frontend/play-menu/Fame.png
+Loading resource: res://.godot/imported/Fame.png-1f51a27a52c9c8a6c2589cbafe3054b7.ctex remapped: res://.godot/imported/Fame.png-1f51a27a52c9c8a6c2589cbafe3054b7.ctex
+Completed load for: 'res://assets/frontend/play-menu/Fame.png' remapped 'res://assets/frontend/play-menu/Fame.png' at thread 11
+Loading resource: res://assets/frontend/play-menu/Flag.png remapped: res://assets/frontend/play-menu/Flag.png
+Loading resource: res://.godot/imported/Flag.png-f2625b0f430f957df2dff69aa1313871.ctex remapped: res://.godot/imported/Flag.png-f2625b0f430f957df2dff69aa1313871.ctex
+Completed load for: 'res://assets/frontend/play-menu/Flag.png' remapped 'res://assets/frontend/play-menu/Flag.png' at thread 12
+Loading resource: res://assets/frontend/play-menu/Host_button.png remapped: res://assets/frontend/play-menu/Host_button.png
+Loading resource: res://.godot/imported/Host_button.png-e3af27893794e4b94fed698fd5baed66.ctex remapped: res://.godot/imported/Host_button.png-e3af27893794e4b94fed698fd5baed66.ctex
+Completed load for: 'res://assets/frontend/play-menu/Host_button.png' remapped 'res://assets/frontend/play-menu/Host_button.png' at thread 13
+Unloading: Disposing tracked instances...
+Unloading: Finished disposing tracked instances.
+XR: Clearing primary interface
+XR: Removed interface "Native mobile"
+XR: Removed interface "OpenXR"
+Leaked instance: AudioStreamMP3:9223372071667500529 - Reference count: 1
+Leaked instance: AudioStreamPlaybackMP3:9223372071768163892 - Reference count: 1
+Leaked instance: RefCounted:9223372074368632378 - Reference count: 0
+Hint: Leaked instances typically happen when nodes are removed from the scene tree (with `remove_child()`) but not freed (with `free()` or `queue_free()`).
+Orphan StringName: Music (static: 0, total: 2)
+StringName: 1 unclaimed string names at exit.
+WARNING: 3 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)

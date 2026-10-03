@@ -252,6 +252,13 @@ public sealed class HostVehicleSession
         }
     }
 
+    /// <summary>Accepts camera direction through the existing item ownership and sender boundary.</summary>
+    public bool AimItem(ulong peer, ulong session, ulong life, ulong token, ulong selection, ulong sequence, System.Numerics.Vector3 direction)
+    {
+        ulong vehicle = peer == 0 ? HostPlayerId : _peers.TryGetValue(peer, out var entry) ? entry.Vehicle : 0;
+        return AllowsParticipation && session == SessionId && vehicle != 0 && Items.RequestAim(World, vehicle, life, token, selection, sequence, direction);
+    }
+
     /// <summary>Resolves a use request using actual sender ownership.</summary>
     /// <returns>Whether accepted for the next fixed step.</returns>
     /// <param name="peer">Transport sender; zero is the local host.</param>
@@ -480,7 +487,17 @@ public sealed class HostVehicleSession
         inputs.Add(HostPlayerId, hostInput);
         var previous = World.State.Vehicles.ToDictionary(state => state.VehicleId);
         var observations = World.State.Vehicles.Select(state => new VehicleStepRequest(state.VehicleId, inputs[state.VehicleId], observe(state))).ToArray();
-        Items.Step(World, hostInput, observations, collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground, raycastWeapon, placeTombstone, observeTombstone);
+        Action rollbackAim = Items.AimRollback();
+        try
+        {
+            Items.AdvanceAim(World, Configuration.Configuration.Vehicle, AllowsParticipation, observations);
+            Items.Step(World, hostInput, observations, collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground, raycastWeapon, placeTombstone, observeTombstone);
+        }
+        catch
+        {
+            rollbackAim();
+            throw;
+        }
         if (AllowsParticipation)
         {
             Environment?.Advance(tick, observations.Where(r => previous[r.VehicleId].CanInteract).ToArray(), Items.Events, Items, Configuration.Configuration.Destruction);

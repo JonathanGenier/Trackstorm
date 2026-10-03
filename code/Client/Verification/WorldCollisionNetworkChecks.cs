@@ -52,7 +52,9 @@ public sealed partial class WorldCollisionNetworkChecks : Node
 
     public override void _PhysicsProcess(double delta)
     {
-        if (_done) { return; }
+        // Match the other UDP fixtures: drain queued arena/audio teardown before
+        // exiting, otherwise native playback references survive engine shutdown.
+        if (_done) { if (++_frames > _boundary + 20) { GetTree().Quit(); } return; }
         try
         {
             _frames++;
@@ -85,7 +87,11 @@ public sealed partial class WorldCollisionNetworkChecks : Node
             }
             if (++_trial < 3) { Position(); return; }
             GD.Print("World collision multiplayer passed: actual tunnel banks, two UDP worlds, 30ms delay/5ms jitter/2% loss, 3/12/35m/s, sustained steering, reverse and re-contact.");
-            _done = true; GetTree().Quit();
+            _done = true; _boundary = _frames;
+            foreach (var arena in _arenas) { arena.QueueFree(); }
+            _arenas.Clear();
+            foreach (var gateway in _gateways) { gateway.Dispose(); }
+            _gateways.Clear();
         }
         catch (Exception exception) { _done = true; GD.PushError(exception.ToString()); GetTree().Quit(1); }
     }

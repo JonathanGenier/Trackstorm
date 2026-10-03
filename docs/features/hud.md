@@ -1,5 +1,7 @@
 # In-Match Combat HUD
 
+[Shared weapon aiming](weapon-aiming.md) adds a compact square fixed at the camera viewport center. Direct center-ray intersection with another living, visible car replaces it with four disconnected red/white corner brackets, including at close range. Looking away or hitting cover returns to the centered square. Accepted item aim supplies readiness color, while native camera queries supply the viewed target; neither brackets nor the square claim perfect firing alignment. The overlay clears on selection/lifecycle/suppression/resync boundaries and adds no HUD gameplay authority.
+
 ## Behavior and Layout
 
 Network starts add a temporary center-screen **5 → 4 → 3 → 2 → 1 → GO** overlay above the existing HUD. Outlined cream numerals, an amber ring/start lights and a mint GO provide contrast over the arena; each value settles with a brief scale animation. The accepted authoritative phase and world tick select the value. Animation time never authorizes gameplay. GO fades and clears within 0.75 seconds, leaving the permanent HUD in place. See [Game Loop](game-loop.md) for the full-roster synchronization gate and timing ownership.

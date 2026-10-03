@@ -9,6 +9,7 @@ namespace Trackstorm.Client.Networking;
 /// <summary>Synchronous Godot collision observation seam usable by both host steps and prediction replay.</summary>
 internal sealed partial class NetworkVehicleBody : StaticBody3D
 {
+    private VehicleMotionQuery _motionQuery = null!;
     /// <summary>Current native support material, independent of simulation handling.</summary>
     internal SurfaceIdentity? DetectedSurface { get; private set; }
 
@@ -48,11 +49,13 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         CollisionMask = 3 | 32;
         Quaternion initialRotation = GlobalBasis.GetRotationQuaternion().Normalized();
         _current = new(VehicleBody.ToCore(GlobalPosition), new Numerics.Quaternion(initialRotation.X, initialRotation.Y, initialRotation.Z, initialRotation.W), Numerics.Vector3.Zero, Numerics.Vector3.Zero);
-        AddChild(VehicleVisual.CreateCollision());
+        var chassis = VehicleVisual.CreateCollision();
+        AddChild(chassis);
         AddChild(_visual);
         _rearCollision = new CollisionShape3D { Shape = new BoxShape3D { Size = VehicleBody.ToGodot(TombstoneGeometry.Size) },
             Position = VehicleBody.ToGodot(TombstoneGeometry.Center), Disabled = true };
         AddChild(_rearCollision);
+        _motionQuery = new VehicleMotionQuery(this, chassis, _rearCollision);
         _rearVisual = new MeshInstance3D { Mesh = new BoxMesh { Size = VehicleBody.ToGodot(TombstoneGeometry.Size) },
             Position = VehicleBody.ToGodot(TombstoneGeometry.Center), Visible = false,
             MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.3f, 0.36f, 0.4f), Metallic = 0.65f, Roughness = 0.7f } };
@@ -74,6 +77,11 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     {
         _flash = Math.Max(0, _flash - ((float)delta * 5));
         _damageMaterial.SetShaderParameter("flash", _flash);
+    }
+
+    public override void _ExitTree()
+    {
+        _motionQuery?.Dispose();
     }
 
     /// <summary>Drives a shader parameter only from accepted health outcomes.</summary>
@@ -153,7 +161,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         {
             parameters.From = transform;
             parameters.Motion = remaining;
-            bool collided = PhysicsServer3D.BodyTestMotion(GetRid(), parameters, result);
+            bool collided = _motionQuery.Test(parameters, result);
             transform.Origin += collided ? result.GetTravel() : remaining;
             if (!collided)
             {
@@ -207,6 +215,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                     angular = VehicleBody.ToGodot(resolved.AngularVelocity);
                 }
 
+                Vector3 geometryNormal = normal;
                 if (obstacle)
                 {
                     normal = VehicleBody.ToGodot(EnvironmentCollision.ResponseNormal(VehicleBody.ToCore(normal), VehicleBody.ToCore(initialSupport)));
@@ -233,6 +242,14 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                 if (remaining.Dot(normal) < 0)
                 {
                     remaining = remaining.Slide(normal);
+                }
+                if (remaining.Dot(geometryNormal) < 0)
+                {
+                    // The anti-climb response normal controls momentum, but the
+                    // remaining sweep must also respect the actual surface plane.
+                    // Otherwise falling against a sloped obstacle repeatedly sweeps
+                    // downward into its widening face, exhausting all slide passes.
+                    remaining = remaining.Slide(geometryNormal);
                 }
             }
 

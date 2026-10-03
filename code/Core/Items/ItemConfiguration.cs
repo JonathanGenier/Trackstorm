@@ -17,6 +17,8 @@ public sealed record ItemConfiguration
     public float TombstoneLifetimeSeconds { get; init; } = 120;
     /// <summary>Impact impulse per wall mass that releases tipping, in metres per second.</summary>
     public float TombstoneTipSpeed { get; init; } = 20;
+    /// <summary>Shared direct-fire aiming rules.</summary>
+    public WeaponAimConfiguration Aim { get; init; } = new();
     /// <summary>Individually fired shots per pickup.</summary>
     public int SalvoCount { get; init; } = 5;
     /// <summary>Minimum interval between presses accepted as shots, at 60 Hz.</summary>
@@ -112,6 +114,8 @@ public sealed record ItemConfiguration
             !float.IsFinite(TombstoneLifetimeSeconds) || TombstoneLifetimeSeconds is < 1 or > 600 ||
             !float.IsFinite(TombstoneTipSpeed) || TombstoneTipSpeed is < 1 or > 100)
         { throw new ArgumentException("Invalid Tombstone wall tuning."); }
+        ArgumentNullException.ThrowIfNull(Aim);
+        Aim.Validate();
         if (!double.IsFinite(SalvoCount) || SalvoCount < 1 || SalvoCount > 16) { throw new ArgumentException("Invalid salvo count."); }
         if (!double.IsFinite(SalvoIntervalTicks) || SalvoIntervalTicks < 1 || SalvoIntervalTicks > 60) { throw new ArgumentException("Invalid salvo interval_ticks."); }
         if (!double.IsFinite(SalvoRange) || SalvoRange < 25 || SalvoRange > 250) { throw new ArgumentException("Invalid salvo range."); }

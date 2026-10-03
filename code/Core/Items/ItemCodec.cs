@@ -4,8 +4,8 @@ using Trackstorm.Core.Networking.Replication;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Bounded version-seventeen reliable item protocol. Requests carry no claimed player or outcome.</summary>
-public static class ItemCodec
+/// <summary>Bounded version-eighteen item protocol. Reliable outcomes and replaceable aim share existing item ownership.</summary>
+public static partial class ItemCodec
 {
     /// <summary>Accommodates the maximum lifetime-derived Oil set and its pass counts and overlap latches.</summary>
     public const int MaximumBytes = 64 * 1024 * 1024;
@@ -345,7 +345,7 @@ public static class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 19, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 20, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
@@ -357,7 +357,7 @@ public static class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 19 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 20 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }

@@ -1,0 +1,70 @@
+Three UDP peers initialized
+Host tuning applied
+Centered camera cursor appears alongside remote accepted aim
+Center-ray car intersection replaces square with disconnected brackets
+Camera intent stays at viewport center while car brackets are shown
+A near-axis miss returns to the small square without a target lock
+Small square is centered when aiming beside a rival
+Intervening native cover prevents car brackets
+Covered car leaves the small square at camera center
+Removing cover restores brackets on the directly intersected car
+Square remains centered immediately after mouse yaw and upward tilt under network impairment
+Looking away from a car removes its brackets immediately
+Cursor follows the new viewport center after resizing
+Side mouse aim reaches authority with the original camera orbit limits
+Deployed rack remains fixed on all peers
+Observer receives accepted articulated aim
+Remote mount yaw and payload pitch settle to accepted side aim on actual presentation nodes
+Rear aim accepted
+Remote mount yaw and payload pitch settle to accepted rear aim on actual presentation nodes
+Downward tilt and weapon self-clearance limits cannot displace the camera cursor
+Downward articulation cannot enter owner envelope
+Fine controller camera rotation retains a centered cursor
+Native stick fine/full turn separation: fine=0.109, full=2.200 rad
+Ordinary camera recentering retains a centered cursor
+Neutral stick restores the original chase view with a weapon selected
+Directly intersected close car receives brackets instead of a distance-based square fallback
+Directly intersected side-by-side car receives onscreen corner brackets
+Alongside camera cursor stays centered while the accepted weapon ray remains chassis-safe
+A camera ray blocked by the owner cannot mark the weapon ready
+Elevated rivals retain the square without overriding normal camera pitch limits
+Repeated fast crossings never steer the camera while RMB holds the view
+Crossing-car brackets surround the visible center-ray hit under interpolation (5 bracket frames, 0 misses)
+Host accepts probe friction mouse=0.08, stick=0.28
+Probe friction reaches the native client
+Host accepts probe friction mouse=0, stick=0
+Probe friction reaches the native client
+Small native mouse input toward a visible rival receives bounded default friction
+Fine native stick input toward a visible rival receives bounded default friction
+Moving away/full-stick/flick bypass matches zero friction (case 1)
+Moving away/full-stick/flick bypass matches zero friction (case 3)
+Moving away/full-stick/flick bypass matches zero friction (case 4)
+Moving away/full-stick/flick bypass matches zero friction (case 5)
+Host accepts probe friction mouse=0.08, stick=0.28
+Probe friction reaches the native client
+Eligibility transfers from the first right-hand rival to the second left-hand rival without a retained lock
+Removing both rivals from the cone releases small-input assistance
+Observer has accepted aim before packet blackout
+A bounded real UDP blackout expires accepted aim on shooter and observer
+Fresh accepted aim resumes after packet delivery recovers (not authenticated reconnect)
+Camera-intent cursor remains centered after transient packet recovery
+Vehicle drives while aiming (peak 21.10 m/s, travel 23.31 m)
+Menu suppression clears marker immediately
+Item switch selects shared Missile foundation
+Native NOS granted
+Native high-speed weapon granted
+NOS request accepted
+Real sustained NOS accelerates the native vehicle
+Direct-fire aim resumes at high speed after selecting away from NOS
+Removal retires authoritative aim and local marker
+New life retires previous aiming capability
+Fresh weapon restores aiming before lethal damage
+Lethal damage and timed respawn fixture tuning accepted
+Other vehicle receives a real missile
+Real host missile use accepted
+Actual missile explosion kills the aiming vehicle
+Death carries authoritative missile attribution
+Actual death immediately clears authoritative aim
+Confirmed client death clears the camera cursor before respawn
+Ordinary timed respawn creates a fresh living vehicle
+Respawn cannot retain a dead weapon's marker

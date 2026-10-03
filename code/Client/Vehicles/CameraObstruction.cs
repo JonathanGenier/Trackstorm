@@ -42,7 +42,8 @@ internal sealed class CameraObstruction : IDisposable
         float baseAllowed = AllowedDistance(space, ClearPivot(space, pivot), desired);
         // In a cramped view, a small raised pivot keeps the camera above the chassis.
         // Derive this from the unraised boom so clearing the wall cannot toggle the lift.
-        float desiredLift = Math.Clamp((5.5f - baseAllowed) / 3, 0, 1) * 1.8f;
+        float liftThreshold = Math.Min(5.5f, pivot.DistanceTo(desired) - .1f);
+        float desiredLift = Math.Clamp((liftThreshold - baseAllowed) / 3, 0, 1) * 1.8f;
         _lift = reset ? desiredLift : Mathf.Lerp(_lift, desiredLift, ChaseCameraMotion.Blend(desiredLift > _lift ? 12 : 5, delta));
         if (_lift > 0.001f)
         {
@@ -92,9 +93,12 @@ internal sealed class CameraObstruction : IDisposable
         // shortening that same blocked boom into the car: look along the free side
         // of the bank instead. Every alternate boom uses the same world-volume sweep.
         float normalDistance = pivot.DistanceTo(resolved);
-        if (!Reframed && (!rolled || normalDistance >= 5.5f)) return resolved;
+        float intendedDistance = pivot.DistanceTo(desired);
+        float crampedDistance = Math.Min(5.5f, intendedDistance * .85f);
+        float usefulDistance = Math.Min(6.5f, intendedDistance * .9f);
+        if (!Reframed && (!rolled || normalDistance >= crampedDistance)) return resolved;
         if (!Reframed) _framingDistance = normalDistance;
-        _framingClearTime = normalDistance > 7 ? _framingClearTime + delta : 0;
+        _framingClearTime = normalDistance > Math.Min(7, intendedDistance * .97f) ? _framingClearTime + delta : 0;
         Vector3 clear = ClearPivot(space, pivot);
         Vector3 boom = desired - pivot;
         float selected = _framingYaw;
@@ -115,7 +119,7 @@ internal sealed class CameraObstruction : IDisposable
         {
             Vector3 end = clear + boom.Rotated(Vector3.Up, candidate.Angle);
             float allowed = AllowedDistance(space, clear, end);
-            if (allowed < 6.5f) continue;
+            if (allowed < usefulDistance) continue;
             selected = candidate.Angle;
             found = true;
             break;
@@ -125,7 +129,7 @@ internal sealed class CameraObstruction : IDisposable
         Vector3 direction = boom.Rotated(Vector3.Up, blended);
         float distance = AllowedDistance(space, clear, clear + direction);
         // Never ease through a blocked intermediate angle into the chassis.
-        if (distance < 5.5f)
+        if (distance < crampedDistance)
         {
             blended = selected;
             direction = boom.Rotated(Vector3.Up, blended);
@@ -133,7 +137,7 @@ internal sealed class CameraObstruction : IDisposable
         }
         _framingYaw = blended;
         Reframed = true;
-        _framingDistance = Math.Min(distance, Math.Max(5.5f, Mathf.Lerp(_framingDistance, distance, ChaseCameraMotion.Blend(5, delta))));
+        _framingDistance = Math.Min(distance, Math.Max(crampedDistance, Mathf.Lerp(_framingDistance, distance, ChaseCameraMotion.Blend(5, delta))));
         if (_framingClearTime > .2f && Math.Abs(_framingYaw) < .01f && Math.Abs(_framingDistance - normalDistance) < .1f)
         {
             Reframed = false;

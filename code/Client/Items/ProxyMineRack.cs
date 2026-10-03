@@ -9,7 +9,7 @@ namespace Trackstorm.Client.Items;
 internal sealed partial class ProxyMineRack : Node3D
 {
     internal const string AssetPath = "res://assets/items/proxy-mine/ProxyMinePlacementArm.glb";
-    private const float ReturnSeconds = .23f;
+    private const float ReturnSeconds = ProxyMineState.ArmReturnSeconds;
     private static readonly Vector3 Shoulder = new(0, -.24f, -.25f);
     private static readonly Vector3 Stored = new(0, -.43f, -.27f);
     private static readonly Vector3 RackMine = new(0, .42f, 0);

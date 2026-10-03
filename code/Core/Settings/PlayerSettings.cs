@@ -12,6 +12,9 @@ public sealed record PlayerSettings
     private double _musicVolume = 1;
     private double _sfxVolume = 1;
     private double _cameraShakeIntensity = 1;
+    private double _mouseAimSensitivity = 1;
+    private double _stickAimSensitivity = 1;
+    private double _stickAimCurve = 2;
     private SpeedUnit _speedUnit;
     private int _windowWidth = 1280;
     private int _windowHeight = 720;
@@ -34,6 +37,12 @@ public sealed record PlayerSettings
 
     /// <summary>Local collision/damage camera feedback scale in [0,1]; zero disables shake.</summary>
     public double CameraShakeIntensity { get => _cameraShakeIntensity; init => _cameraShakeIntensity = double.IsFinite(value) ? Math.Clamp(value, 0, 1) : 1; }
+    /// <summary>Local direct-fire mouse sensitivity multiplier.</summary>
+    public double MouseAimSensitivity { get => _mouseAimSensitivity; init => _mouseAimSensitivity = double.IsFinite(value) ? Math.Clamp(value, .25, 3) : 1; }
+    /// <summary>Local direct-fire stick turn-speed multiplier.</summary>
+    public double StickAimSensitivity { get => _stickAimSensitivity; init => _stickAimSensitivity = double.IsFinite(value) ? Math.Clamp(value, .25, 3) : 1; }
+    /// <summary>Radial stick response exponent after the existing dead zone.</summary>
+    public double StickAimCurve { get => _stickAimCurve; init => _stickAimCurve = double.IsFinite(value) ? Math.Clamp(value, 1, 3) : 2; }
 
     /// <summary>Whether to request fullscreen; defaults to a recoverable window.</summary>
     public bool Fullscreen { get; init; }

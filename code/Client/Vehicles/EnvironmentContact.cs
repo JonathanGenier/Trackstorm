@@ -12,7 +12,7 @@ internal static class EnvironmentContact
         Vector3 direction = point - start;
         if (direction.LengthSquared() < 0.01f) { return normal; }
         using var query = PhysicsRayQueryParameters3D.Create(start, point + direction.Normalized() * 0.1f, body.CollisionMask, new Godot.Collections.Array<Rid> { body.GetRid() });
-        var hit = body.GetWorld3D().DirectSpaceState.IntersectRay(query);
+        using var hit = body.GetWorld3D().DirectSpaceState.IntersectRay(query);
         if (hit.Count > 0 && IsObstacle(hit["collider"].AsGodotObject(), hit["normal"].AsVector3())) { return hit["normal"].AsVector3().Normalized(); }
         return normal;
     }

@@ -11,6 +11,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Evidence | Reports |
 | --- | --- |
 | Story verification, terrain alignment, contact spin, tipping/breakage, expiry, vehicle-launch and sliding corrections | [TS-218 verification evidence](ts-218.md) |
+| Tunnel fall/scrape sweep cost, native query bounds and collision regressions | [TS-275 verification evidence](ts-275.md) |
 | TS-274 world collision stability | [Terrain bake, collision recovery and network verification](ts-274.md) |
 | Story verification | [TS-269 verification evidence](ts-269.md) |
 | Distinct surface braking, deliberate slides, incline holding and runtime evidence | [TS-266 verification evidence](ts-266.md) |
@@ -22,6 +23,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Tombstone core health, authoritative lifecycle and recovery | [TS-216 verification evidence](ts-216.md) |
 | Proxy Mine integrated lifecycle, visual bounds and runtime critique | [TS-251 verification evidence](ts-251.md) |
 | Proxy Mine explosion VFX, overlap and cleanup | [TS-250 verification and Astra runtime critique](ts-250.md) |
+| Story verification | [TS-261 verification evidence](ts-261.md) |
 | Story verification | [TS-227 verification evidence](ts-227.md) |
 | Proxy Mine production model, rack arm and ground placement | [TS-249 verification evidence](ts-249.md) |
 | Boost physical-slot HUD and approved worn-steel corner redesign | [TS-177 verification evidence](ts-177.md) |

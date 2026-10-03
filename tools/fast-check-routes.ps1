@@ -51,6 +51,10 @@ function Get-FastCheckPlan {
         if ($path -match 'TrophyTruck|trophy_truck|check-trophy-truck|VehicleCollision|NetworkVehicleBody') {
             Add-Runtime 'check-trophy-truck.ps1'
         }
+        if ($path -match 'WeaponAim|Aiming|weapon_aim|check-weapon-aim') {
+            Add-Runtime 'check-weapon-aim.ps1'
+            Add-Manual 'Inspect aiming while driving, close/airborne/crossing targets, mouse and physical controller feel, and impaired remote articulation with check-weapon-aim.ps1 -Visual -Impaired.'
+        }
         if ($path -match 'CarRack|RackItemVisual|car_rack|check-car-rack') {
             Add-Runtime 'check-car-rack.ps1'
             Add-Manual 'Inspect selected rack payloads, two-slot switching, sustained use and remote visibility.'
@@ -180,6 +184,10 @@ function Get-FastCheckPlan {
         }
 
         # Vehicles, simulation and camera.
+        if ($path -match 'TunnelScrape|tunnel_scrape|check-tunnel-scrape|VehicleMotionQuery' -or $path -eq 'code/Client/Networking/NetworkVehicleBody.cs') {
+            Add-Runtime 'check-tunnel-scrape.ps1'
+            Add-Manual 'Repeat the tunnel approach, airborne inner-bank fall and sustained scrape with camera shake disabled; inspect frame timing and recovery.'
+        }
         if ($path -match 'WorldCollision|world_collision|check-world-collision' -or $path -match '^assets/maps/infield/(BuildTerrainCollision|BakeTerrainCollision|TerrainCollision|collision-audit|ImportTerrain)') {
             Add-Runtime 'check-world-collisions.ps1'
             Add-Extended 'check-world-collision-network.ps1'
