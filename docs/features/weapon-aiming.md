@@ -2,7 +2,7 @@
 
 The shared direct-fire foundation serves Machine Gun and standard Missile. Salvo keeps its separate mechanics. The production Car's deployed rack stays fixed: its child mount yaws and the child payload pitches. Existing placeholder weapon artwork is retained.
 
-**Current integration boundary:** Machine Gun and Missile handlers still fire along their established forward direction. Connecting those handlers awaits the explicit TS-261/TS-262/TS-263 scope decision. The current square demonstrates the shared aiming foundation; it must not be presented as a verified live firing reticle or released in this unfinished state.
+**Current integration boundary:** Machine Gun and Missile handlers still fire along their established forward direction. Their weapon-specific camera-aim integration is separate from this shared foundation. The current square demonstrates the shared aiming foundation; it must not be presented as a verified live firing reticle or released in this unfinished state.
 
 ## Authority and lifecycle
 

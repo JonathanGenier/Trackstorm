@@ -246,8 +246,11 @@ public sealed partial class WeaponAimChecks : Node
             Require(_arenas[0].Driver.RequestItemUse(), "Real host missile use accepted");
             await Until(() => !host.World.GetVehicle(Shooter).CanInteract, "Actual missile explosion kills the aiming vehicle");
             Require(host.World.GetVehicle(Shooter).Damage.LastDamage?.Attribution.Source == "missile", "Death carries authoritative missile attribution");
-            await Frames(12);
-            Require(!host.Items.Aims.Any(aim => aim.Vehicle == Shooter) && !_arenas[1].AimOverlay.Marker.HasValue, "Actual death clears accepted aim and square");
+            Require(!host.Items.Aims.Any(aim => aim.Vehicle == Shooter), "Actual death immediately clears authoritative aim");
+            // Impaired delivery and render presentation need not complete in a fixed
+            // twelve physics frames. Observe confirmed client death before respawn.
+            await Until(() => _arenas[1].LocalState is { CanInteract: false } && !_arenas[1].AimOverlay.Marker.HasValue,
+                "Confirmed client death clears the camera cursor before respawn", 90);
             await Until(() => host.World.GetVehicle(Shooter).LifeId > lifeBeforeDeath && host.World.GetVehicle(Shooter).CanInteract, "Ordinary timed respawn creates a fresh living vehicle", 240);
             Require(!_arenas[1].AimOverlay.Marker.HasValue, "Respawn cannot retain a dead weapon's marker");
             System.IO.File.WriteAllLines(System.IO.Path.Combine(_output, "evidence.txt"), _evidence);
