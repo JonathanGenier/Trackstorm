@@ -133,4 +133,3 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Documentation and Jira instruction cleanup | [Migration, issue accounting and preservation audit](ts-56.md) |
 | TS-46 phase-specific disconnect correction | [Lobby fresh join and active-match retained resume](ts-46-disconnect-policy.md) |
 | TS-46 match-long reservation correction | [Ordinary-client retention, Return cleanup and remaining native gates](ts-46-match-reservations.md) |
-

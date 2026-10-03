@@ -247,6 +247,18 @@ public sealed partial class CameraIntegrationChecks : Node3D
             camera.ResetFollow(); camera.Follow(Transform3D.Identity, grounded, 1f / fps);
             Require(camera.AerialMotion.Amount == 0 && camera.AerialMotion.Pullback == 0, "Reseed clears aerial memory");
         }
+        settings.UpdateSettings(settings.Current with { CameraDistance = 1, CameraInertia = .5, CameraAerialPullback = 1 });
+        camera.ResetFollow();
+        // Unsupported crash snapshots deliberately carry no player air-control timer.
+        var crashPhysics = state.ObservedPhysics;
+        for (ulong tick = 1; tick <= 120; tick++)
+        {
+            var crash = new VehicleSnapshot(state.VehicleId, state.LifeId,
+                new VehicleState(state.Movement.Tick + tick, crashPhysics, false, false, 0, 0, crashSeconds: 1), state.Damage, crashPhysics);
+            camera.Follow(new Transform3D(Basis.Identity, Vector3.Up * 20), crash, 1f / 60);
+        }
+        Require(camera.AerialMotion.Pullback > 3.5f, "Unsupported crash tumble retains aerial framing without gameplay air-control memory");
+        camera.ResetFollow();
         camera.SettingsSource = null; settings.QueueFree();
         GD.Print("Camera framing settings passed: 81 rate/range combinations, brief hops, rising rotating flight, translation, aim direction, landing, live edits and reset.");
     }
