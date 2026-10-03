@@ -1,0 +1,1573 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+It was recognized that GdUnit4 is running in a test environment, therefore the GdUnit4 plugin will not be executed!
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+[   0% ] update_scripts_classes | Started Registering global classes... (863 steps)
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | 
+[   0% ] update_scripts_classes | CallBackValueProvider
+[   0% ] update_scripts_classes | DefaultValueProvider
+[   0% ] update_scripts_classes | GdAssertMessages
+[   0% ] update_scripts_classes | GdAssertReports
+[   0% ] update_scripts_classes | GdUnitArrayAssertImpl
+[   0% ] update_scripts_classes | GdUnitAssertImpl
+[   0% ] update_scripts_classes | GdUnitAssertions
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   1% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | 
+[   2% ] update_scripts_classes | ValueProvider
+[   2% ] update_scripts_classes | CmdArgumentParser
+[   2% ] update_scripts_classes | CmdCommand
+[   2% ] update_scripts_classes | CmdCommandHandler
+[   3% ] update_scripts_classes | CmdOption
+[   3% ] update_scripts_classes | CmdOptions
+[   3% ] update_scripts_classes | TestCaseAttribute
+[   3% ] update_scripts_classes | GdUnitBaseCommand
+[   3% ] update_scripts_classes | GdUnitCommandFileSystem
+[   3% ] update_scripts_classes | GdUnitCommandFileSystemDebugTests
+[   3% ] update_scripts_classes | GdUnitCommandFileSystemRunTests
+[   3% ] update_scripts_classes | GdUnitCommandHandler
+[   3% ] update_scripts_classes | GdUnitCommandInspectorDebugTests
+[   4% ] update_scripts_classes | GdUnitCommandInspectorRerunTestsUntilFailure
+[   4% ] update_scripts_classes | GdUnitCommandInspectorRunTests
+[   4% ] update_scripts_classes | GdUnitCommandInspectorTreeCollapse
+[   4% ] update_scripts_classes | GdUnitCommandInspectorTreeExpand
+[   4% ] update_scripts_classes | GdUnitCommandRunTestsOverall
+[   4% ] update_scripts_classes | GdUnitCommandScriptEditor
+[   4% ] update_scripts_classes | GdUnitCommandScriptEditorCreateTest
+[   4% ] update_scripts_classes | GdUnitCommandScriptEditorDebugTests
+[   4% ] update_scripts_classes | GdUnitCommandScriptEditorRunTests
+[   5% ] update_scripts_classes | GdUnitCommandStopTestSession
+[   5% ] update_scripts_classes | GdUnitCommandTestSession
+[   5% ] update_scripts_classes | GdUnitShortcut
+[   5% ] update_scripts_classes | GdUnitGUID
+[   5% ] update_scripts_classes | GdUnitTestCase
+[   5% ] update_scripts_classes | GdUnitTestDiscoverer
+[   5% ] update_scripts_classes | GdUnitTestDiscoverGuard
+[   5% ] update_scripts_classes | GdUnitTestDiscoverSink
+[   6% ] update_scripts_classes | GdUnitEvent
+[   6% ] update_scripts_classes | GdUnitInit
+[   6% ] update_scripts_classes | GdUnitStop
+[   6% ] update_scripts_classes | GdUnitEventTestDiscoverEnd
+[   6% ] update_scripts_classes | GdUnitEventTestDiscoverStart
+[   6% ] update_scripts_classes | GdUnitSessionClose
+[   6% ] update_scripts_classes | GdUnitSessionStart
+[   6% ] update_scripts_classes | GdUnitTestCaseFuzzedExecutionStage
+[   6% ] update_scripts_classes | GdUnitTestCaseFuzzedTestStage
+[   7% ] update_scripts_classes | GdUnitTestCaseSingleExecutionStage
+[   7% ] update_scripts_classes | GdUnitTestCaseSingleTestStage
+[   7% ] update_scripts_classes | GdUnitTestCaseAfterStage
+[   7% ] update_scripts_classes | GdUnitTestCaseBeforeStage
+[   7% ] update_scripts_classes | GdUnitTestCaseExecutionStage
+[   7% ] update_scripts_classes | GdUnitTestSuiteAfterStage
+[   7% ] update_scripts_classes | GdUnitTestSuiteBeforeStage
+[   7% ] update_scripts_classes | GdUnitTestSuiteExecutionStage
+[   7% ] update_scripts_classes | IGdUnitExecutionStage
+[   8% ] update_scripts_classes | GdUnitExecutionContext
+[   8% ] update_scripts_classes | GdUnitMemoryObserver
+[   8% ] update_scripts_classes | GdUnitProjectSettingsSnapshot
+[   8% ] update_scripts_classes | GdUnitTestReportCollector
+[   8% ] update_scripts_classes | GdUnitTestSuiteExecutor
+[   8% ] update_scripts_classes | GdUnitBaseReporterTestSessionHook
+[   8% ] update_scripts_classes | GdUnitHtmlReporterTestSessionHook
+[   8% ] update_scripts_classes | GdUnitTestSessionHook
+[   9% ] update_scripts_classes | GdUnitTestSessionHookService
+[   9% ] update_scripts_classes | GdUnitXMLReporterTestSessionHook
+[   9% ] update_scripts_classes | GdBuiltinConstants
+[   9% ] update_scripts_classes | GdCallableParameterSetResolver
+[   9% ] update_scripts_classes | GdInlineParameterSetResolver
+[   9% ] update_scripts_classes | GdParameterSetResolver
+[   9% ] update_scripts_classes | GdParameterSetResolverFactory
+[   9% ] update_scripts_classes | GdPropertyParameterSetResolver
+[   9% ] update_scripts_classes | GdClassDescriptor
+[  10% ] update_scripts_classes | GdDefaultValueDecoder
+[  10% ] update_scripts_classes | GdFunctionArgument
+[  10% ] update_scripts_classes | GdFunctionDescriptor
+[  10% ] update_scripts_classes | GdScriptParser
+[  10% ] update_scripts_classes | GdUnitExpressionRunner
+[  10% ] update_scripts_classes | GdUnitError
+[  10% ] update_scripts_classes | GdUnitReport
+[  10% ] update_scripts_classes | GdUnitScriptErrorCollector
+[  10% ] update_scripts_classes | GdUnitTestCIRunner
+[  11% ] update_scripts_classes | 
+[  11% ] update_scripts_classes | GdUnitTestSession
+[  11% ] update_scripts_classes | 
+[  11% ] update_scripts_classes | GdUnitTestSuiteDefaultTemplate
+[  11% ] update_scripts_classes | GdUnitTestSuiteTemplate
+[  11% ] update_scripts_classes | GdUnitThreadContext
+[  11% ] update_scripts_classes | GdUnitThreadManager
+[  11% ] update_scripts_classes | GdUnitCSIMessageWriter
+[  12% ] update_scripts_classes | GdUnitMessageWriter
+[  12% ] update_scripts_classes | GdUnitRichTextMessageWriter
+[  12% ] update_scripts_classes | _TestCase
+[  12% ] update_scripts_classes | GdArrayTools
+[  12% ] update_scripts_classes | GdDiffTool
+[  12% ] update_scripts_classes | GdObjects
+[  12% ] update_scripts_classes | GdUnit4Version
+[  12% ] update_scripts_classes | GdUnitFileAccess
+[  12% ] update_scripts_classes | GdUnitProperty
+[  13% ] update_scripts_classes | GdUnitResult
+[  13% ] update_scripts_classes | GdUnitRunnerConfig
+[  13% ] update_scripts_classes | GdUnitSceneRunnerImpl
+[  13% ] update_scripts_classes | GdUnitSettings
+[  13% ] update_scripts_classes | GdUnitSignalAwaiter
+[  13% ] update_scripts_classes | GdUnitSignalCollector
+[  13% ] update_scripts_classes | GdUnitSignals
+[  13% ] update_scripts_classes | GdUnitSingleton
+[  14% ] update_scripts_classes | GdUnitStackTrace
+[  14% ] update_scripts_classes | GdUnitStackTraceElement
+[  14% ] update_scripts_classes | GdUnitTestResourceLoader
+[  14% ] update_scripts_classes | GdUnitTestSuiteBuilder
+[  14% ] update_scripts_classes | GdUnitTestSuiteScanner
+[  14% ] update_scripts_classes | 
+[  14% ] update_scripts_classes | GodotVersionFixures
+[  14% ] update_scripts_classes | LocalTime
+[  14% ] update_scripts_classes | 
+[  15% ] update_scripts_classes | GdUnit4CSharpApiLoader
+[  15% ] update_scripts_classes | CallableDoubler
+[  15% ] update_scripts_classes | GdFunctionDoubler
+[  15% ] update_scripts_classes | GdUnitClassDoubler
+[  15% ] update_scripts_classes | GdUnitFunctionDoublerBuilder
+[  15% ] update_scripts_classes | GdUnitMockFunctionDoubler
+[  15% ] update_scripts_classes | GdUnitObjectInteractions
+[  15% ] update_scripts_classes | GdUnitObjectInteractionsVerifier
+[  15% ] update_scripts_classes | GdUnitSpyFunctionDoubler
+[  16% ] update_scripts_classes | GdUnitFuncValueExtractor
+[  16% ] update_scripts_classes | BoolFuzzer
+[  16% ] update_scripts_classes | FloatFuzzer
+[  16% ] update_scripts_classes | Fuzzer
+[  16% ] update_scripts_classes | IntFuzzer
+[  16% ] update_scripts_classes | StringFuzzer
+[  16% ] update_scripts_classes | Vector2Fuzzer
+[  16% ] update_scripts_classes | Vector3Fuzzer
+[  17% ] update_scripts_classes | AnyArgumentMatcher
+[  17% ] update_scripts_classes | AnyBuildInTypeArgumentMatcher
+[  17% ] update_scripts_classes | AnyClazzArgumentMatcher
+[  17% ] update_scripts_classes | ChainedArgumentMatcher
+[  17% ] update_scripts_classes | EqualsArgumentMatcher
+[  17% ] update_scripts_classes | GdUnitArgumentMatcher
+[  17% ] update_scripts_classes | GdUnitArgumentMatchers
+[  17% ] update_scripts_classes | GdUnitMock
+[  17% ] update_scripts_classes | GdUnitMockBuilder
+[  18% ] update_scripts_classes | DoubledMockClassSourceClassName
+[  18% ] update_scripts_classes | ErrorLogEntry
+[  18% ] update_scripts_classes | GdUnitMonitor
+[  18% ] update_scripts_classes | GdUnitOrphanNodeInfo
+[  18% ] update_scripts_classes | GdUnitOrphanNodesMonitor
+[  18% ] update_scripts_classes | GodotGdErrorMonitor
+[  18% ] update_scripts_classes | RPC
+[  18% ] update_scripts_classes | RPCClientConnect
+[  18% ] update_scripts_classes | RPCClientDisconnect
+[  19% ] update_scripts_classes | RPCGdUnitEvent
+[  19% ] update_scripts_classes | RPCMessage
+[  19% ] update_scripts_classes | 
+[  19% ] update_scripts_classes | GdUnitServerConstants
+[  19% ] update_scripts_classes | GdUnitTask
+[  19% ] update_scripts_classes | GdUnitTcpClient
+[  19% ] update_scripts_classes | GdUnitTcpNode
+[  19% ] update_scripts_classes | GdUnitTcpServer
+[  20% ] update_scripts_classes | GdUnitConsoleTestReporter
+[  20% ] update_scripts_classes | GdUnitByPathReport
+[  20% ] update_scripts_classes | GdUnitHtmlEncoder
+[  20% ] update_scripts_classes | GdUnitHtmlPatterns
+[  20% ] update_scripts_classes | GdUnitHtmlReportWriter
+[  20% ] update_scripts_classes | JUnitXmlReportWriter
+[  20% ] update_scripts_classes | XmlElement
+[  20% ] update_scripts_classes | GdUnitReportSummary
+[  20% ] update_scripts_classes | GdUnitReportWriter
+[  21% ] update_scripts_classes | GdUnitTestCaseReport
+[  21% ] update_scripts_classes | GdUnitTestReporter
+[  21% ] update_scripts_classes | GdUnitTestSuiteReport
+[  21% ] update_scripts_classes | GdUnitSpyBuilder
+[  21% ] update_scripts_classes | DoubledSpyClassSourceClassName
+[  21% ] update_scripts_classes | GdUnitContextMenuItem
+[  21% ] update_scripts_classes | 
+[  21% ] update_scripts_classes | GdUnitInspectorContextMenu
+[  21% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | GdUnitReportPanel
+[  22% ] update_scripts_classes | GdUnitInputCapture
+[  22% ] update_scripts_classes | 
+[  22% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | GdUnitEditorColorTheme
+[  23% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | GdUnitFonts
+[  23% ] update_scripts_classes | GdUnitInspecor
+[  23% ] update_scripts_classes | GdUnitInspectorTreeConstants
+[  23% ] update_scripts_classes | GdUnitScriptEditorControls
+[  23% ] update_scripts_classes | GdUnitUiTools
+[  23% ] update_scripts_classes | 
+[  24% ] update_scripts_classes | GdUnitPatch
+[  24% ] update_scripts_classes | GdUnitPatcher
+[  24% ] update_scripts_classes | 
+[  24% ] update_scripts_classes | 
+[  24% ] update_scripts_classes | 
+[  24% ] update_scripts_classes | Comparator
+[  24% ] update_scripts_classes | Fuzzers
+[  24% ] update_scripts_classes | GdUnitArrayAssert
+[  25% ] update_scripts_classes | GdUnitAssert
+[  25% ] update_scripts_classes | GdUnitAwaiter
+[  25% ] update_scripts_classes | GdUnitBoolAssert
+[  25% ] update_scripts_classes | GdUnitConstants
+[  25% ] update_scripts_classes | GdUnitDictionaryAssert
+[  25% ] update_scripts_classes | GdUnitFailureAssert
+[  25% ] update_scripts_classes | GdUnitFileAssert
+[  25% ] update_scripts_classes | GdUnitFloatAssert
+[  25% ] update_scripts_classes | GdUnitFuncAssert
+[  26% ] update_scripts_classes | GdUnitGodotErrorAssert
+[  26% ] update_scripts_classes | GdUnitIntAssert
+[  26% ] update_scripts_classes | GdUnitObjectAssert
+[  26% ] update_scripts_classes | GdUnitResultAssert
+[  26% ] update_scripts_classes | GdUnitSceneRunner
+[  26% ] update_scripts_classes | GdUnitSignalAssert
+[  26% ] update_scripts_classes | GdUnitStringAssert
+[  26% ] update_scripts_classes | GdUnitTestSuite
+[  26% ] update_scripts_classes | GdUnitTuple
+[  27% ] update_scripts_classes | GdUnitValueExtractor
+[  27% ] update_scripts_classes | GdUnitVectorAssert
+[  27% ] update_scripts_classes | 
+[  27% ] update_scripts_classes | TrackstormVersionPlugin
+[  27% ] update_scripts_classes | 
+[  27% ] update_scripts_classes | 
+[  27% ] update_scripts_classes | 
+[  27% ] update_scripts_classes | 
+[  28% ] update_scripts_classes | 
+[  28% ] update_scripts_classes | 
+[  28% ] update_scripts_classes | 
+[  28% ] update_scripts_classes | 
+[  28% ] update_scripts_classes | 
+[  28% ] update_scripts_classes | 
+[  28% ] update_scripts_classes | 
+[  28% ] update_scripts_classes | 
+[  28% ] update_scripts_classes | 
+[  29% ] update_scripts_classes | 
+[  29% ] update_scripts_classes | 
+[  29% ] update_scripts_classes | 
+[  29% ] update_scripts_classes | 
+[  29% ] update_scripts_classes | 
+[  29% ] update_scripts_classes | 
+[  29% ] update_scripts_classes | 
+[  29% ] update_scripts_classes | 
+[  29% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  31% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  32% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | 
+[  33% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  35% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  36% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  37% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  40% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | 
+[  41% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  42% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  44% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  45% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  48% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  49% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  50% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  51% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  54% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  55% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  57% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  58% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  59% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  61% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  62% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  63% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  64% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  66% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  67% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  68% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  70% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  71% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  72% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  74% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  75% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  77% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  79% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  80% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  81% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  83% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  85% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  87% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  88% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  89% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  90% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  92% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  93% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  94% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  95% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  96% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | 
+[  97% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  98% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | SimulationBootstrapTest
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | 
+[  99% ] update_scripts_classes | 
+[ DONE ] update_scripts_classes
+
+[   0% ] _update_scan_actions | Started Scanning actions... (154 steps)
+[   0% ] _update_scan_actions | touch-button.png
+[   0% ] _update_scan_actions | logo.png
+[   1% ] _update_scan_actions | border_bottom.png
+[   1% ] _update_scan_actions | border_top.png
+[   2% ] _update_scan_actions | dot1.png
+[   3% ] _update_scan_actions | dot2.png
+[   3% ] _update_scan_actions | embedded.png
+[   4% ] _update_scan_actions | horizontal-line2.png
+[   5% ] _update_scan_actions | colormap.png
+[   5% ] _update_scan_actions | building-a.glb
+[   6% ] _update_scan_actions | chimney-large.glb
+[   7% ] _update_scan_actions | shipping-container-a.glb
+[   7% ] _update_scan_actions | colormap.png
+[   8% ] _update_scan_actions | machine.glb
+[   9% ] _update_scan_actions | ramp.glb
+[   9% ] _update_scan_actions | asphalt_04_diff_1k.jpg
+[  10% ] _update_scan_actions | asphalt_04_nor_gl_1k.jpg
+[  10% ] _update_scan_actions | asphalt_04_rough_1k.jpg
+[  11% ] _update_scan_actions | Barrel_01_explosive_arm_1k.jpg
+[  12% ] _update_scan_actions | Barrel_01_explosive_diff_1k.jpg
+[  12% ] _update_scan_actions | Barrel_01_explosive_nor_gl_1k.jpg
+[  13% ] _update_scan_actions | Barrel_01_1k.gltf
+[  14% ] _update_scan_actions | concrete_diff_1k.jpg
+[  14% ] _update_scan_actions | concrete_nor_gl_1k.jpg
+[  15% ] _update_scan_actions | concrete_rough_1k.jpg
+[  16% ] _update_scan_actions | concrete_road_barrier_arm_1k.jpg
+[  16% ] _update_scan_actions | concrete_road_barrier_diff_1k.jpg
+[  17% ] _update_scan_actions | concrete_road_barrier_nor_gl_1k.jpg
+[  18% ] _update_scan_actions | concrete_road_barrier_1k.gltf
+[  18% ] _update_scan_actions | rusty_metal_05_diff_1k.jpg
+[  19% ] _update_scan_actions | rusty_metal_05_nor_gl_1k.jpg
+[  20% ] _update_scan_actions | rusty_metal_05_rough_1k.jpg
+[  20% ] _update_scan_actions | rusty_metal_sheet_diff_1k.jpg
+[  21% ] _update_scan_actions | rusty_metal_sheet_nor_gl_1k.jpg
+[  21% ] _update_scan_actions | rusty_metal_sheet_rough_1k.jpg
+[  22% ] _update_scan_actions | ambience.wav
+[  23% ] _update_scan_actions | death.wav
+[  23% ] _update_scan_actions | destruction.wav
+[  24% ] _update_scan_actions | end.wav
+[  25% ] _update_scan_actions | explosion.wav
+[  25% ] _update_scan_actions | fire.wav
+[  26% ] _update_scan_actions | high.wav
+[  27% ] _update_scan_actions | idle.wav
+[  27% ] _update_scan_actions | low.wav
+[  28% ] _update_scan_actions | skid.wav
+[  29% ] _update_scan_actions | impactMetal_heavy_000.ogg
+[  29% ] _update_scan_actions | impactMetal_light_000.ogg
+[  30% ] _update_scan_actions | impactMetal_medium_000.ogg
+[  30% ] _update_scan_actions | impactMetal_medium_001.ogg
+[  31% ] _update_scan_actions | confirmation_001.ogg
+[  32% ] _update_scan_actions | confirmation_002.ogg
+[  32% ] _update_scan_actions | confirmation_003.ogg
+[  33% ] _update_scan_actions | confirmation_004.ogg
+[  34% ] _update_scan_actions | tick_001.ogg
+[  34% ] _update_scan_actions | engineCircular_000.ogg
+[  35% ] _update_scan_actions | forceField_000.ogg
+[  36% ] _update_scan_actions | forceField_001.ogg
+[  36% ] _update_scan_actions | forceField_002.ogg
+[  37% ] _update_scan_actions | Welcome to the Carnage Circus Arena 2.mp3
+[  38% ] _update_scan_actions | Welcome to the Carnage Circus Arena 3.mp3
+[  38% ] _update_scan_actions | Welcome to the Carnage Circus Arena.mp3
+[  39% ] _update_scan_actions | Welcome to the Carnage Circus main menu.mp3
+[  40% ] _update_scan_actions | apply.svg
+[  40% ] _update_scan_actions | cancel.svg
+[  41% ] _update_scan_actions | close.svg
+[  41% ] _update_scan_actions | discard.svg
+[  42% ] _update_scan_actions | force-start.svg
+[  43% ] _update_scan_actions | reset.svg
+[  43% ] _update_scan_actions | stay.svg
+[  44% ] _update_scan_actions | ProxyMinePlume.png
+[  45% ] _update_scan_actions | Barrier3m.glb
+[  45% ] _update_scan_actions | BoulderLow.glb
+[  46% ] _update_scan_actions | BoulderTall.glb
+[  47% ] _update_scan_actions | DrainChannel2m.glb
+[  47% ] _update_scan_actions | DryGrassClump.glb
+[  48% ] _update_scan_actions | FirMature.glb
+[  49% ] _update_scan_actions | GrassClump.glb
+[  49% ] _update_scan_actions | Guardrail4m.glb
+[  50% ] _update_scan_actions | LightPole9m.glb
+[  50% ] _update_scan_actions | PineOpen.glb
+[  51% ] _update_scan_actions | RockCluster.glb
+[  52% ] _update_scan_actions | RockLedge.glb
+[  52% ] _update_scan_actions | RockSlab.glb
+[  53% ] _update_scan_actions | ScrubLow.glb
+[  54% ] _update_scan_actions | ScrubTall.glb
+[  54% ] _update_scan_actions | SpruceYoung.glb
+[  55% ] _update_scan_actions | StoneAlbedo.png
+[  56% ] _update_scan_actions | StoneNormal.png
+[  56% ] _update_scan_actions | CarnageCircus.png
+[  57% ] _update_scan_actions | NewMap.png
+[  58% ] _update_scan_actions | OldMap.png
+[  58% ] _update_scan_actions | Chain.png
+[  59% ] _update_scan_actions | FlagCheckered.png
+[  60% ] _update_scan_actions | FlagRed.png
+[  60% ] _update_scan_actions | Header.png
+[  61% ] _update_scan_actions | Icons.png
+[  61% ] _update_scan_actions | Plate.png
+[  62% ] _update_scan_actions | Back_button.png
+[  63% ] _update_scan_actions | Fame.png
+[  63% ] _update_scan_actions | Flag.png
+[  64% ] _update_scan_actions | Free_Play_Button.png
+[  65% ] _update_scan_actions | Host_button.png
+[  65% ] _update_scan_actions | CornerAssembly.png
+[  66% ] _update_scan_actions | Health.png
+[  67% ] _update_scan_actions | MachineGun.svg
+[  67% ] _update_scan_actions | Missile.svg
+[  68% ] _update_scan_actions | Nitro.svg
+[  69% ] _update_scan_actions | Oil.svg
+[  69% ] _update_scan_actions | ProxyMine.svg
+[  70% ] _update_scan_actions | Salvo.svg
+[  70% ] _update_scan_actions | Timer.png
+[  71% ] _update_scan_actions | Wrench.svg
+[  72% ] _update_scan_actions | fire_01.png
+[  72% ] _update_scan_actions | smoke_01.png
+[  73% ] _update_scan_actions | spark_01.png
+[  74% ] _update_scan_actions | ammo_rocket.obj
+[  74% ] _update_scan_actions | Patina.png
+[  75% ] _update_scan_actions | ProxyMine.glb
+[  76% ] _update_scan_actions | ProxyMinePlacementArm.glb
+[  76% ] _update_scan_actions | ProxyMinePlacementArm_Arm forged gunmetal original patina.png
+[  77% ] _update_scan_actions | ProxyMinePlacementArm_Arm ivory identification original patina.png
+[  78% ] _update_scan_actions | ProxyMinePlacementArm_Arm machined steel original patina.png
+[  78% ] _update_scan_actions | ProxyMinePlacementArm_Arm oxblood enamel original patina.png
+[  79% ] _update_scan_actions | ProxyMinePlacementArm_Arm rubber and recess original patina.png
+[  80% ] _update_scan_actions | ProxyMine_Aged ivory patina.png
+[  80% ] _update_scan_actions | ProxyMine_Circus oxblood patina.png
+[  81% ] _update_scan_actions | ProxyMine_Gunmetal patina.png
+[  81% ] _update_scan_actions | ProxyMine_Magnet copper patina.png
+[  82% ] _update_scan_actions | ProxyMine_Recess patina.png
+[  83% ] _update_scan_actions | ProxyMine_Worn steel patina.png
+[  83% ] _update_scan_actions | infield_graybox.glb
+[  84% ] _update_scan_actions | infield_graybox_Graybox topology palette.png
+[  85% ] _update_scan_actions | infield_structures.glb
+[  85% ] _update_scan_actions | infield_terrain.glb
+[  86% ] _update_scan_actions | layout_palette.png
+[  87% ] _update_scan_actions | surface_field.png
+[  87% ] _update_scan_actions | conifers.glb
+[  88% ] _update_scan_actions | grass_albedo.png
+[  89% ] _update_scan_actions | grass_normal.png
+[  89% ] _update_scan_actions | grass_variation.png
+[  90% ] _update_scan_actions | ground_macro.png
+[  90% ] _update_scan_actions | oval_foundation.glb
+[  91% ] _update_scan_actions | reference_vehicle.glb
+[  92% ] _update_scan_actions | BoostJet.glb
+[  92% ] _update_scan_actions | colormap.png
+[  93% ] _update_scan_actions | hatchback-sports.glb
+[  94% ] _update_scan_actions | rubberized_track_diff_1k.jpg
+[  94% ] _update_scan_actions | rubberized_track_nor_gl_1k.jpg
+[  95% ] _update_scan_actions | rubberized_track_rough_1k.jpg
+[  96% ] _update_scan_actions | rusty_painted_metal_diff_1k.jpg
+[  96% ] _update_scan_actions | rusty_painted_metal_nor_gl_1k.jpg
+[  97% ] _update_scan_actions | rusty_painted_metal_rough_1k.jpg
+[  98% ] _update_scan_actions | TrackstormCar.glb
+[  98% ] _update_scan_actions | WastelandVehicle.glb
+[ DONE ] _update_scan_actions
+
+[   0% ] reimport | Started (Re)Importing Assets (154 steps)
+[   0% ] reimport | Preparing files to reimport...
+[   0% ] reimport | Preparing files to reimport...
+[   1% ] reimport | Preparing files to reimport...
+[   1% ] reimport | Preparing files to reimport...
+[   2% ] reimport | Preparing files to reimport...
+[   3% ] reimport | Preparing files to reimport...
+[   3% ] reimport | Preparing files to reimport...
+[   4% ] reimport | Preparing files to reimport...
+[   5% ] reimport | Preparing files to reimport...
+[   5% ] reimport | Preparing files to reimport...
+[   6% ] reimport | Preparing files to reimport...
+[   7% ] reimport | Preparing files to reimport...
+[   7% ] reimport | Preparing files to reimport...
+[   8% ] reimport | Preparing files to reimport...
+[   9% ] reimport | Preparing files to reimport...
+[   9% ] reimport | Preparing files to reimport...
+[  10% ] reimport | Preparing files to reimport...
+[  10% ] reimport | Preparing files to reimport...
+[  11% ] reimport | Preparing files to reimport...
+[  12% ] reimport | Preparing files to reimport...
+[  12% ] reimport | Preparing files to reimport...
+[  13% ] reimport | Preparing files to reimport...
+[  14% ] reimport | Preparing files to reimport...
+[  14% ] reimport | Preparing files to reimport...
+[  15% ] reimport | Preparing files to reimport...
+[  16% ] reimport | Preparing files to reimport...
+[  16% ] reimport | Preparing files to reimport...
+[  17% ] reimport | Preparing files to reimport...
+[  18% ] reimport | Preparing files to reimport...
+[  18% ] reimport | Preparing files to reimport...
+[  19% ] reimport | Preparing files to reimport...
+[  20% ] reimport | Preparing files to reimport...
+[  20% ] reimport | Preparing files to reimport...
+[  21% ] reimport | Preparing files to reimport...
+[  21% ] reimport | Preparing files to reimport...
+[  22% ] reimport | Preparing files to reimport...
+[  23% ] reimport | Preparing files to reimport...
+[  23% ] reimport | Preparing files to reimport...
+[  24% ] reimport | Preparing files to reimport...
+[  25% ] reimport | Preparing files to reimport...
+[  25% ] reimport | Preparing files to reimport...
+[  26% ] reimport | Preparing files to reimport...
+[  27% ] reimport | Preparing files to reimport...
+[  27% ] reimport | Preparing files to reimport...
+[  28% ] reimport | Preparing files to reimport...
+[  29% ] reimport | Preparing files to reimport...
+[  29% ] reimport | Preparing files to reimport...
+[  30% ] reimport | Preparing files to reimport...
+[  30% ] reimport | Preparing files to reimport...
+[  31% ] reimport | Preparing files to reimport...
+[  32% ] reimport | Preparing files to reimport...
+[  32% ] reimport | Preparing files to reimport...
+[  33% ] reimport | Preparing files to reimport...
+[  34% ] reimport | Preparing files to reimport...
+[  34% ] reimport | Preparing files to reimport...
+[  35% ] reimport | Preparing files to reimport...
+[  36% ] reimport | Preparing files to reimport...
+[  36% ] reimport | Preparing files to reimport...
+[  37% ] reimport | Preparing files to reimport...
+[  38% ] reimport | Preparing files to reimport...
+[  38% ] reimport | Preparing files to reimport...
+[  39% ] reimport | Preparing files to reimport...
+[  40% ] reimport | Preparing files to reimport...
+[  40% ] reimport | Preparing files to reimport...
+[  41% ] reimport | Preparing files to reimport...
+[  41% ] reimport | Preparing files to reimport...
+[  42% ] reimport | Preparing files to reimport...
+[  43% ] reimport | Preparing files to reimport...
+[  43% ] reimport | Preparing files to reimport...
+[  44% ] reimport | Preparing files to reimport...
+[  45% ] reimport | Preparing files to reimport...
+[  45% ] reimport | Preparing files to reimport...
+[  46% ] reimport | Preparing files to reimport...
+[  47% ] reimport | Preparing files to reimport...
+[  47% ] reimport | Preparing files to reimport...
+[  48% ] reimport | Preparing files to reimport...
+[  49% ] reimport | Preparing files to reimport...
+[  49% ] reimport | Preparing files to reimport...
+[  50% ] reimport | Preparing files to reimport...
+[  50% ] reimport | Preparing files to reimport...
+[  51% ] reimport | Preparing files to reimport...
+[  52% ] reimport | Preparing files to reimport...
+[  52% ] reimport | Preparing files to reimport...
+[  53% ] reimport | Preparing files to reimport...
+[  54% ] reimport | Preparing files to reimport...
+[  54% ] reimport | Preparing files to reimport...
+[  55% ] reimport | Preparing files to reimport...
+[  56% ] reimport | Preparing files to reimport...
+[  56% ] reimport | Preparing files to reimport...
+[  57% ] reimport | Preparing files to reimport...
+[  58% ] reimport | Preparing files to reimport...
+[  58% ] reimport | Preparing files to reimport...
+[  59% ] reimport | Preparing files to reimport...
+[  60% ] reimport | Preparing files to reimport...
+[  60% ] reimport | Preparing files to reimport...
+[  61% ] reimport | Preparing files to reimport...
+[  61% ] reimport | Preparing files to reimport...
+[  62% ] reimport | Preparing files to reimport...
+[  63% ] reimport | Preparing files to reimport...
+[  63% ] reimport | Preparing files to reimport...
+[  64% ] reimport | Preparing files to reimport...
+[  65% ] reimport | Preparing files to reimport...
+[  65% ] reimport | Preparing files to reimport...
+[  66% ] reimport | Preparing files to reimport...
+[  67% ] reimport | Preparing files to reimport...
+[  67% ] reimport | Preparing files to reimport...
+[  68% ] reimport | Preparing files to reimport...
+[  69% ] reimport | Preparing files to reimport...
+[  69% ] reimport | Preparing files to reimport...
+[  70% ] reimport | Preparing files to reimport...
+[  70% ] reimport | Preparing files to reimport...
+[  71% ] reimport | Preparing files to reimport...
+[  72% ] reimport | Preparing files to reimport...
+[  72% ] reimport | Preparing files to reimport...
+[  73% ] reimport | Preparing files to reimport...
+[  74% ] reimport | Preparing files to reimport...
+[  74% ] reimport | Preparing files to reimport...
+[  75% ] reimport | Preparing files to reimport...
+[  76% ] reimport | Preparing files to reimport...
+[  76% ] reimport | Preparing files to reimport...
+[  77% ] reimport | Preparing files to reimport...
+[  78% ] reimport | Preparing files to reimport...
+[  78% ] reimport | Preparing files to reimport...
+[  79% ] reimport | Preparing files to reimport...
+[  80% ] reimport | Preparing files to reimport...
+[  80% ] reimport | Preparing files to reimport...
+[  81% ] reimport | Preparing files to reimport...
+[  81% ] reimport | Preparing files to reimport...
+[  82% ] reimport | Preparing files to reimport...
+[  83% ] reimport | Preparing files to reimport...
+[  83% ] reimport | Preparing files to reimport...
+[  84% ] reimport | Preparing files to reimport...
+[  85% ] reimport | Preparing files to reimport...
+[  85% ] reimport | Preparing files to reimport...
+[  86% ] reimport | Preparing files to reimport...
+[  87% ] reimport | Preparing files to reimport...
+[  87% ] reimport | Preparing files to reimport...
+[  88% ] reimport | Preparing files to reimport...
+[  89% ] reimport | Preparing files to reimport...
+[  89% ] reimport | Preparing files to reimport...
+[  90% ] reimport | Preparing files to reimport...
+[  90% ] reimport | Preparing files to reimport...
+[  91% ] reimport | Preparing files to reimport...
+[  92% ] reimport | Preparing files to reimport...
+[  92% ] reimport | Preparing files to reimport...
+[  93% ] reimport | Preparing files to reimport...
+[  94% ] reimport | Preparing files to reimport...
+[  94% ] reimport | Preparing files to reimport...
+[  95% ] reimport | Preparing files to reimport...
+[  96% ] reimport | Preparing files to reimport...
+[  96% ] reimport | Preparing files to reimport...
+[  97% ] reimport | Preparing files to reimport...
+[  98% ] reimport | Preparing files to reimport...
+[  98% ] reimport | Preparing files to reimport...
+[   0% ] reimport | Executing pre-reimport operations...
+[   0% ] preload_reimporting_scene | Started Preparing scenes for reload (1 steps)
+[   0% ] preload_reimporting_scene | Analyzing scene [empty]
+[  50% ] preload_reimporting_scene | Preparation done.
+[ DONE ] preload_reimporting_scene
+
+[   0% ] reimport | Welcome to the Carnage Circus main menu.mp3
+[   0% ] reimport | Welcome to the Carnage Circus Arena.mp3
+[   1% ] reimport | Welcome to the Carnage Circus Arena 3.mp3
+[   1% ] reimport | Welcome to the Carnage Circus Arena 2.mp3
+[   2% ] reimport | Welcome to the Carnage Circus main menu.mp3
+[   3% ] reimport | Welcome to the Carnage Circus Arena.mp3
+[   3% ] reimport | Welcome to the Carnage Circus Arena 3.mp3
+[   4% ] reimport | Welcome to the Carnage Circus Arena 2.mp3
+[   5% ] reimport | confirmation_001.ogg
+[   5% ] reimport | confirmation_002.ogg
+[   6% ] reimport | confirmation_003.ogg
+[   7% ] reimport | confirmation_004.ogg
+[   7% ] reimport | tick_001.ogg
+[   8% ] reimport | engineCircular_000.ogg
+[   9% ] reimport | forceField_000.ogg
+[   9% ] reimport | forceField_001.ogg
+[  10% ] reimport | forceField_002.ogg
+[  10% ] reimport | Welcome to the Carnage Circus main menu.mp3
+[  11% ] reimport | Welcome to the Carnage Circus Arena.mp3
+[  12% ] reimport | Welcome to the Carnage Circus Arena 3.mp3
+[  12% ] reimport | Welcome to the Carnage Circus Arena 2.mp3
+[  13% ] reimport | confirmation_001.ogg
+[  14% ] reimport | confirmation_002.ogg
+[  14% ] reimport | confirmation_003.ogg
+[  15% ] reimport | confirmation_004.ogg
+[  16% ] reimport | tick_001.ogg
+[  16% ] reimport | engineCircular_000.ogg
+[  17% ] reimport | forceField_000.ogg
+[  18% ] reimport | forceField_001.ogg
+[  18% ] reimport | forceField_002.ogg
+[  19% ] reimport | impactMetal_medium_001.ogg
+[  20% ] reimport | impactMetal_medium_000.ogg
+[  20% ] reimport | impactMetal_light_000.ogg
+[  21% ] reimport | impactMetal_heavy_000.ogg
+[  21% ] reimport | StoneAlbedo.png
+[  22% ] reimport | infield_graybox_Graybox topology palette.png
+[  23% ] reimport | StoneNormal.png
+[  23% ] reimport | CarnageCircus.png
+[  24% ] reimport | NewMap.png
+[  25% ] reimport | OldMap.png
+[  25% ] reimport | Chain.png
+[  26% ] reimport | FlagCheckered.png
+[  27% ] reimport | layout_palette.png
+[  27% ] reimport | surface_field.png
+[  28% ] reimport | grass_albedo.png
+[  29% ] reimport | grass_normal.png
+[  29% ] reimport | grass_variation.png
+[  30% ] reimport | ground_macro.png
+[  30% ] reimport | colormap.png
+[  31% ] reimport | rubberized_track_diff_1k.jpg
+[  32% ] reimport | ProxyMinePlume.png
+[  32% ] reimport | Timer.png
+[  33% ] reimport | Wrench.svg
+[  34% ] reimport | fire_01.png
+[  34% ] reimport | smoke_01.png
+[  35% ] reimport | spark_01.png
+[  36% ] reimport | Patina.png
+[  36% ] reimport | ProxyMine_Worn steel patina.png
+[  37% ] reimport | ProxyMinePlacementArm_Arm forged gunmetal original patina.png
+[  38% ] reimport | ProxyMinePlacementArm_Arm ivory identification original patina.png
+[  38% ] reimport | ProxyMinePlacementArm_Arm machined steel original patina.png
+[  39% ] reimport | ProxyMinePlacementArm_Arm oxblood enamel original patina.png
+[  40% ] reimport | ProxyMinePlacementArm_Arm rubber and recess original patina.png
+[  40% ] reimport | ProxyMine_Aged ivory patina.png
+[  41% ] reimport | ProxyMine_Circus oxblood patina.png
+[  41% ] reimport | ProxyMine_Gunmetal patina.png
+[  42% ] reimport | ProxyMine_Magnet copper patina.png
+[  43% ] reimport | ProxyMine_Recess patina.png
+[  43% ] reimport | FlagRed.png
+[  44% ] reimport | Header.png
+[  45% ] reimport | Icons.png
+[  45% ] reimport | Plate.png
+[  46% ] reimport | Back_button.png
+[  47% ] reimport | Fame.png
+[  47% ] reimport | Flag.png
+[  48% ] reimport | Free_Play_Button.png
+[  49% ] reimport | Host_button.png
+[  49% ] reimport | CornerAssembly.png
+[  50% ] reimport | Health.png
+[  50% ] reimport | MachineGun.svg
+[  51% ] reimport | Missile.svg
+[  52% ] reimport | Nitro.svg
+[  52% ] reimport | Oil.svg
+[  53% ] reimport | ProxyMine.svg
+[  54% ] reimport | Salvo.svg
+[  54% ] reimport | rusty_metal_05_diff_1k.jpg
+[  55% ] reimport | rubberized_track_nor_gl_1k.jpg
+[  56% ] reimport | concrete_road_barrier_nor_gl_1k.jpg
+[  56% ] reimport | concrete_road_barrier_diff_1k.jpg
+[  57% ] reimport | concrete_road_barrier_arm_1k.jpg
+[  58% ] reimport | concrete_rough_1k.jpg
+[  58% ] reimport | concrete_nor_gl_1k.jpg
+[  59% ] reimport | concrete_diff_1k.jpg
+[  60% ] reimport | rubberized_track_rough_1k.jpg
+[  60% ] reimport | Barrel_01_explosive_nor_gl_1k.jpg
+[  61% ] reimport | Barrel_01_explosive_diff_1k.jpg
+[  61% ] reimport | Barrel_01_explosive_arm_1k.jpg
+[  62% ] reimport | asphalt_04_rough_1k.jpg
+[  63% ] reimport | asphalt_04_nor_gl_1k.jpg
+[  63% ] reimport | asphalt_04_diff_1k.jpg
+[  64% ] reimport | rusty_painted_metal_diff_1k.jpg
+[  65% ] reimport | rusty_painted_metal_nor_gl_1k.jpg
+[  65% ] reimport | colormap.png
+[  66% ] reimport | rusty_painted_metal_rough_1k.jpg
+[  67% ] reimport | colormap.png
+[  67% ] reimport | horizontal-line2.png
+[  68% ] reimport | embedded.png
+[  69% ] reimport | dot2.png
+[  69% ] reimport | Welcome to the Carnage Circus main menu.mp3
+[  70% ] reimport | Welcome to the Carnage Circus Arena.mp3
+[  70% ] reimport | Welcome to the Carnage Circus Arena 3.mp3
+[  71% ] reimport | Welcome to the Carnage Circus Arena 2.mp3
+[  72% ] reimport | confirmation_001.ogg
+[  72% ] reimport | confirmation_002.ogg
+[  73% ] reimport | confirmation_003.ogg
+[  74% ] reimport | confirmation_004.ogg
+[  74% ] reimport | tick_001.ogg
+[  75% ] reimport | engineCircular_000.ogg
+[  76% ] reimport | ammo_rocket.obj
+[  76% ] reimport | infield_structures.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  77% ] reimport | infield_graybox.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  78% ] reimport | TrackstormCar.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  78% ] reimport | WastelandVehicle.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  79% ] reimport | oval_foundation.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  80% ] reimport | reference_vehicle.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  80% ] reimport | BoostJet.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  81% ] reimport | infield_terrain.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  81% ] reimport | hatchback-sports.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  82% ] reimport | conifers.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  83% ] reimport | building-a.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  83% ] reimport | chimney-large.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  84% ] reimport | shipping-container-a.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  85% ] reimport | machine.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  85% ] reimport | ramp.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  86% ] reimport | Barrel_01_1k.gltf
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  87% ] reimport | concrete_road_barrier_1k.gltf
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  87% ] reimport | Barrier3m.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  88% ] reimport | BoulderLow.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  89% ] reimport | BoulderTall.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  89% ] reimport | DrainChannel2m.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  90% ] reimport | DryGrassClump.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  90% ] reimport | FirMature.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  91% ] reimport | GrassClump.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  92% ] reimport | Guardrail4m.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  92% ] reimport | LightPole9m.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  93% ] reimport | PineOpen.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  94% ] reimport | RockCluster.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  94% ] reimport | RockLedge.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  95% ] reimport | RockSlab.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  96% ] reimport | ScrubLow.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  96% ] reimport | ScrubTall.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  97% ] reimport | SpruceYoung.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  98% ] reimport | ProxyMine.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  98% ] reimport | ProxyMinePlacementArm.glb
+[   0% ] import | Started Import Scene (104 steps)
+[   0% ] import | Importing Scene...
+[   1% ] import | Running Custom Script...
+[  99% ] import | Saving...
+[ DONE ] import
+
+[  99% ] reimport | Finalizing Asset Import...
+[ DONE ] reimport
+
+[   0% ] reimport | Started (Re)Importing Assets (154 steps)
+[   0% ] reimport | Executing post-reimport operations...
+[ DONE ] reimport
+
+[   0% ] loading_editor_layout | Started Loading editor (5 steps)
+[   0% ] loading_editor_layout | Loading editor layout...
+[  16% ] loading_editor_layout | Loading docks...
+[ DONE ] loading_editor_layout
+
+Godot import exit code: 0; diagnostics: .

@@ -1,0 +1,13 @@
+  Trackstorm.Core -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs(171,19): error CS0121: The call is ambiguous between the following methods or properties: 'Trackstorm.Client.Verification.WeaponAimChecks.AimAt(Godot.Vector3)' and 'Trackstorm.Client.Verification.WeaponAimChecks.AimAt(System.Func<Godot.Vector3>)' [C:\Users\j_gen\Documents\Game Projects\Trackstorm\Trackstorm.Client.csproj]
+C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs(176,58): error CS0121: The call is ambiguous between the following methods or properties: 'Trackstorm.Client.Verification.WeaponAimChecks.AimAt(Godot.Vector3)' and 'Trackstorm.Client.Verification.WeaponAimChecks.AimAt(System.Func<Godot.Vector3>)' [C:\Users\j_gen\Documents\Game Projects\Trackstorm\Trackstorm.Client.csproj]
+
+Build FAILED.
+
+C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs(171,19): error CS0121: The call is ambiguous between the following methods or properties: 'Trackstorm.Client.Verification.WeaponAimChecks.AimAt(Godot.Vector3)' and 'Trackstorm.Client.Verification.WeaponAimChecks.AimAt(System.Func<Godot.Vector3>)' [C:\Users\j_gen\Documents\Game Projects\Trackstorm\Trackstorm.Client.csproj]
+C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\WeaponAimChecks.cs(176,58): error CS0121: The call is ambiguous between the following methods or properties: 'Trackstorm.Client.Verification.WeaponAimChecks.AimAt(Godot.Vector3)' and 'Trackstorm.Client.Verification.WeaponAimChecks.AimAt(System.Func<Godot.Vector3>)' [C:\Users\j_gen\Documents\Game Projects\Trackstorm\Trackstorm.Client.csproj]
+    0 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:04.70

@@ -44,4 +44,6 @@ Core tests cover directional reach, rate/clearance, ownership, ordering, expiry,
 
 The fixture also exercises a real missile-attributed death and ordinary timed respawn after active aiming. Nitro must remain selected to boost; the existing two-slot system cannot simultaneously select a direct-fire weapon. Synthetic stick input does not establish physical-controller ergonomics, and same-machine UDP does not establish multi-device Internet behavior. See the [current verification report](../verification/ts-261.md) for observed results and limitations.
 
+Native response probes compare small toward-target mouse/stick input with default and disabled friction, check away/full-stick/flick bypass, transfer eligibility between rivals, and remove both candidates. A bounded UDP packet blackout checks accepted-aim expiry and fresh-sample recovery; it is distinct from authenticated reconnection. Close-target diagnostics record displayed/native target geometry and fixed-point drift so a fixture miss is not silently treated as a HUD failure or a pass.
+
 Related owners: [items](items.md), [camera](camera.md), [input](input.md), [HUD](hud.md), [networking](vehicle-networking.md).
