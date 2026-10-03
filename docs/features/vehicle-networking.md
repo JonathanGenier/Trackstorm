@@ -66,6 +66,8 @@ The existing Stats panel also shows constant-space local correction counters for
 
 ## Verification and Boundaries
 
+Selected-slot discard travels reliably through the existing item protocol, with sender, arena, life, exact grant capability and selection-watermark validation. The host deletes immediately on acceptance and publishes the existing complete inventory; clients render confirmation after delivery. Resume and migration retain the item deletion watermark and reject recovery before a confirmed discard. See [permanent discard](items.md#permanent-selected-slot-discard).
+
 Continuing Missile/Salvo motion has a separate bounded unreliable presentation sample; reliable item state owns projectile membership and every outcome. See [projectile publication](items.md#replaceable-projectile-motion). It does not feed vehicle prediction or authority. Pending-only Circus progress uses the [match publication cadence](matches.md#authority-and-lifecycle); committed scores and phases remain immediate/reliable. Full recovery boundaries and the 20 Hz vehicle snapshot cadence are unchanged.
 
 The traffic fixtures emit aggregate counters, never per-packet logs. `VehicleNetworkDriverTests.MeasureReplicationTraffic` reports reproducible ten-second application-payload totals for two/eight players and driving, Missile, Oil, Nitro and Circus activity, plus whole-driver allocation counts. Those allocation counts include simulation/prediction and are not isolated codec CPU or memory measurements. Selected native verification harnesses wrap GNS in `ReplicationTrafficGateway`, recording bounded per-peer/protocol/delivery byte, message and maximum-payload counters once at teardown. These totals include connection/chunk envelopes but exclude UDP/GNS headers and retransmissions; their wall duration covers the complete fixture, including setup and recovery.
@@ -136,6 +138,6 @@ the host publishes accepted poses and the Tombstone-specific shared contact mome
 Deployment clearance uses the deploying car's current observed native pose, restoring its
 query proxy afterward so a fast-moving car cannot block release with its previous pose.
 
-World-wall item protocol 20 carries the captured expiry deadline and tipping state. Expired
+World-wall item protocol 21 carries the captured expiry deadline and tipping state. Expired
 or side-ground-broken walls leave the complete authoritative set, so late admission and
 reconnect cannot resurrect them or restart their timers.

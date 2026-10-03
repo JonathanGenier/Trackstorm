@@ -170,6 +170,34 @@ public sealed partial class ItemIntegrationChecks : Node
                 _arenas[0].GrantItems(HeldItem.Missile);
                 _arenas[0].GrantItems(HeldItem.Wrench);
                 Next("Eight native peers assigned and initialized.");
+                _stage = 60;
+                break;
+            case 60 when _arenas.All(arena => arena.Driver.LocalItem?.Full == true):
+                foreach (var arena in _arenas)
+                {
+                    var frame = DiscardInput(arena == _arenas[1], switchSlot: true);
+                    arena.Advance(frame);
+                }
+                Next("Keyboard X/controller D-pad Left switch then discard the second physical slot on eight native UDP peers.");
+                break;
+            case 61 when _arenas.All(arena => arena.Driver.LocalItem is { Item: HeldItem.Missile, SecondItem: HeldItem.None, ActiveSlot: 1 }):
+                Require(host.Items.Missiles.Count == 0 && _events.All(events => events.Count == 0), "Discard spawns no projectile and never produces use feedback.");
+                Capture("discard-second-selected-empty.png");
+                foreach (var arena in _arenas)
+                {
+                    Require(!arena.Driver.RequestItemDiscard(), "Empty selected slot has no discard effect.");
+                    arena.Advance(DiscardInput(arena != _arenas[1], switchSlot: false));
+                    arena.Advance(DiscardInput(arena == _arenas[1], switchSlot: true));
+                }
+                Next("Empty/repeated discard is harmless; switch then discard first slot preserves empty second slot.");
+                break;
+            case 62 when _arenas.All(arena => arena.Driver.LocalItem is { Item: HeldItem.None, SecondItem: HeldItem.None, ActiveSlot: 0 }):
+                Require(host.Items.Missiles.Count == 0 && host.Items.Patches.Count == 0 && host.Items.Mines.Count == 0 && host.Items.Tombstones.Count == 0, "Discard never creates any world item.");
+                Require(_events.All(events => events.Count == 0), "Neither discard becomes an item use.");
+                Capture("discard-both-empty.png");
+                _arenas[0].GrantItems(HeldItem.Missile);
+                _arenas[0].GrantItems(HeldItem.Wrench);
+                Next("Both physical slots remain deleted on all eight peers; preparing existing item regression scenarios.");
                 _stage = 10;
                 break;
             case 10 when _arenas.All(arena => arena.Driver.LocalItem?.Full == true):
@@ -178,7 +206,7 @@ public sealed partial class ItemIntegrationChecks : Node
                     _input.Adapter.Enabled = true;
                     _input.Adapter.Observe();
                     using InputEvent press = arena == _arenas[1]
-                        ? new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.DpadRight, Pressed = true }
+                        ? new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.X, Pressed = true }
                         : new InputEventKey { PhysicalKeycode = Key.E, Pressed = true };
                     Godot.Input.ParseInputEvent(press);
                     Godot.Input.FlushBufferedEvents();
@@ -195,7 +223,7 @@ public sealed partial class ItemIntegrationChecks : Node
                     Require((_input.Adapter.Capture(0).Pressed & InputButtons.SwitchItem) == 0, "A switch tap sends one edge.");
                     Require(arena.Driver.RequestItemUse(), "Immediate use after switch targets the requested second-slot capability.");
                 }
-                Next("E and D-pad Right switch all eight players; immediate use selects Wrench in slot two.");
+                Next("E and controller X switch all eight players; immediate use selects Wrench in slot two.");
                 break;
             case 11 when _arenas.All(arena => arena.Driver.LocalItem is { Item: HeldItem.Missile, SecondItem: HeldItem.None, ActiveSlot: 1 }):
                 if (_selectionSeen == 0) { _selectionSeen = _elapsed; return; }
@@ -231,6 +259,15 @@ public sealed partial class ItemIntegrationChecks : Node
                 Next("Damaged Wrench outcomes match on all eight peers.");
                 break;
             case 5 when _arenas[1].Driver.LocalItem?.Token == _token && _elapsed - _started > 0.5:
+                if (_scenario == 1)
+                {
+                    // The settled suspension puts the vehicle-centre launch above a ground barrel.
+                    // Place the movable target across that actual ray immediately before firing.
+                    var prop = _arenas[0].Layout.Props[2];
+                    prop.GlobalPosition = new Vector3(8, 2.6f, -6);
+                    prop.LinearVelocity = prop.AngularVelocity = Vector3.Zero;
+                    prop.Sleeping = false;
+                }
                 ItemInput(true);
                 if (_scenario == 2)
                 {
@@ -270,7 +307,7 @@ public sealed partial class ItemIntegrationChecks : Node
                 }
                 else if (_scenario == 1)
                 {
-                    Require(_propPeakSpeed > 0.1f, "Explosion physically pushes movable prop.");
+                    Require(_propPeakSpeed > 0.1f, $"Explosion physically pushes movable prop: peak={_propPeakSpeed}, impact={impacts[0].Position}, prop={_arenas[0].Layout.Props[2].GlobalPosition}, frozen={_arenas[0].Layout.Props[2].Freeze}.");
                 }
 
                 Capture($"impact-{_scenario}.png");
@@ -309,7 +346,7 @@ public sealed partial class ItemIntegrationChecks : Node
         _input.Adapter.Enabled = true;
         _input.Adapter.Observe();
         using InputEvent input = _scenario == 1
-            ? new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.A, Pressed = pressed }
+            ? new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.Y, Pressed = pressed }
             : new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = pressed };
         Godot.Input.ParseInputEvent(input);
         Godot.Input.FlushBufferedEvents();

@@ -40,6 +40,8 @@ The selected map is retained in authoritative lobby state and migration checkpoi
 
 ## Complete Arena Resync
 
+Permanent selected-slot discard is retained in the same complete inventory and token boundary. Resume rejects a checkpoint whose `DiscardRevision` predates the currently confirmed deletion watermark. Empty physical slots remain empty, the other held slot retains its exact resource, and pending selection/use bookkeeping is cleared on installation. See [item discard](items.md#permanent-selected-slot-discard).
+
 After the lobby authorizes an arena rebind, the existing vehicle driver reconnects the new peer to the suspended vehicle and sends one reliable `TR` checkpoint. It composes the current codecs into a bounded complete message (64 MiB item boundary plus 64 KiB for the other records), using [acknowledged chunk transfer](transport.md#large-reliable-boundaries) when it exceeds a native packet: complete vehicle identity/life, tick and input acknowledgement, HP/damage memory, transform and linear/angular velocity, handling/surface state and pending physical effects; all held slots and grant tokens, including Machine Gun remaining rounds, acquisition capacity and firing phase; active missiles; all pickup states and absolute activation deadlines, per-player category credits/counts/last selection; complete match phase, countdown, target, scores (including banked Circus points and kill streak), winner and consumed-life/applied-damage watermarks; and current movable-prop poses/velocities when the native arena is attached.
 
 Version-three checkpoints also include the complete [host gameplay configuration and revision](developer-options.md), cross-validated against vehicle capacity, steering limits, world revision and match target. All components are decoded and cross-validated before installation. The client installs tuning before reconstructing prediction through `PredictedVehicle` at the host's current acknowledgement/tick, with no old pending inputs. The next input is acknowledgement + 1, and prediction advances from the checkpoint tick. Snapshot history is replaced with that one boundary. Remote interpolation cursor, native correction offsets, damage feedback and collision-feedback baselines are reseeded while existing native vehicle nodes retain their identities. Gameplay input stays suppressed until the complete checkpoint is installed and its authoritative Game Loop phase permits participation. Application clients acknowledge installation through the existing TE Synchronized control before the host accepts gameplay on the new binding. Countdown and Finished continue with neutral controls; neither local loading nor prediction time enables Active. Arena reconstruction after process restart uses the same checkpoint path.
@@ -100,7 +102,7 @@ The optional `check-reconnect.ps1 -Tombstone` fixture retains a damaged rear shi
 
 Movable [Tombstone walls](items.md#movable-tombstone-world-walls) retain their full committed
 pose, linear/angular velocity, captured dimensions/mass, HP and ordered damage/collision
-watermarks in item protocol 20 inside the existing checkpoint. Recovery installs that exact
+watermarks in item protocol 21 inside the existing checkpoint. Recovery installs that exact
 selected boundary, rather than the original deployment pose. The new host reconstructs its
 native rigid bodies and continues independently of former-owner life; replicas stay frozen.
 Native solver contact caches and cosmetic wing-expansion progress are not checkpoint state.

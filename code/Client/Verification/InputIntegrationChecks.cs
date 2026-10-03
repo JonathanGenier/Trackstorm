@@ -34,6 +34,7 @@ public sealed partial class InputIntegrationChecks : Node
             VerifyRemappingAndMultipleBindings();
             VerifyTapFocusAndTickCapture();
             VerifySwitchSuppression();
+            VerifyDiscard();
             _player.GameplayAvailable = () => true;
             _player._Process(0);
             if (DisplayServer.GetName() != "headless")
@@ -67,6 +68,7 @@ public sealed partial class InputIntegrationChecks : Node
         InputAction.AirControl => (frame.Held & InputButtons.AirControl) != 0,
         InputAction.AirRoll => (frame.Held & InputButtons.AirRoll) != 0,
         InputAction.SwitchItem => (frame.Held & InputButtons.SwitchItem) != 0,
+        InputAction.DiscardItem => (frame.Held & InputButtons.DiscardItem) != 0,
         _ => (frame.Held & (InputButtons)(1 << ((int)action - (int)InputAction.Drift))) != 0,
     };
 
@@ -174,7 +176,7 @@ public sealed partial class InputIntegrationChecks : Node
     {
         foreach (InputAction action in Enum.GetValues<InputAction>())
         {
-            if (action >= InputAction.AirPitchDown) { continue; } // Contextual aerial mappings are exercised together below.
+            if (action >= InputAction.AirPitchDown && action <= InputAction.AirRollRight) { continue; } // Contextual aerial mappings are exercised together below.
             var bindings = InputMap.ActionGetEvents(PlayerInputBindings.Name(action));
             Check(bindings.Count == ((action >= InputAction.CameraLeft && action <= InputAction.CameraDown) || action == InputAction.AirRoll ? 1 : 2), $"{action} has keyboard and gamepad defaults");
             foreach (InputEvent binding in bindings)
