@@ -12,6 +12,9 @@ public sealed record PlayerSettings
     private double _musicVolume = 1;
     private double _sfxVolume = 1;
     private double _cameraShakeIntensity = 1;
+    private double _cameraDistance = 1.15;
+    private double _cameraInertia = .5;
+    private double _cameraAerialPullback = 1;
     private double _mouseAimSensitivity = 1;
     private double _stickAimSensitivity = 1;
     private double _stickAimCurve = 2;
@@ -37,6 +40,12 @@ public sealed record PlayerSettings
 
     /// <summary>Local collision/damage camera feedback scale in [0,1]; zero disables shake.</summary>
     public double CameraShakeIntensity { get => _cameraShakeIntensity; init => _cameraShakeIntensity = double.IsFinite(value) ? Math.Clamp(value, 0, 1) : 1; }
+    /// <summary>Local chase framing multiplier, bounded to 1.15–1.5.</summary>
+    public double CameraDistance { get => _cameraDistance; init => _cameraDistance = double.IsFinite(value) ? Math.Clamp(value, 1.15, 1.5) : 1.15; }
+    /// <summary>Local bounded follow weight in [0,1]; zero disables positional inertia.</summary>
+    public double CameraInertia { get => _cameraInertia; init => _cameraInertia = double.IsFinite(value) ? Math.Clamp(value, 0, 1) : .5; }
+    /// <summary>Local aerial distance multiplier in [0,1.5]; zero disables aerial pullback.</summary>
+    public double CameraAerialPullback { get => _cameraAerialPullback; init => _cameraAerialPullback = double.IsFinite(value) ? Math.Clamp(value, 0, 1.5) : 1; }
     /// <summary>Local direct-fire mouse sensitivity multiplier.</summary>
     public double MouseAimSensitivity { get => _mouseAimSensitivity; init => _mouseAimSensitivity = double.IsFinite(value) ? Math.Clamp(value, .25, 3) : 1; }
     /// <summary>Local direct-fire stick turn-speed multiplier.</summary>

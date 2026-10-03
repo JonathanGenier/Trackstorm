@@ -11,6 +11,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     private readonly CameraFreeLook _look = new();
     private readonly CameraObstruction _obstruction = new();
     private readonly BoostCameraMotion _boost = new();
+    private readonly AerialCameraMotion _aerial = new();
     private CameraSpeedStreaks _streaks = null!;
     private float _baseFov;
     private bool _initialized;
@@ -20,6 +21,9 @@ public sealed partial class VehicleChaseCamera : Camera3D
     private float _heading;
     private Vector3 _anchor;
     private ulong _motionTick;
+    private float _distanceScale = 1.15f;
+    private float _airSeconds;
+    private bool _recoveringHeading;
 
     /// <summary>Horizontal chase distance behind the deployed weapon attachment in metres.</summary>
     [Export(PropertyHint.Range, "2,25,0.1")]
@@ -32,22 +36,22 @@ public sealed partial class VehicleChaseCamera : Camera3D
     public float ViewDownAngle { get; set; } = 3.5f;
     /// <summary>Position convergence rate per second.</summary>
     [Export(PropertyHint.Range, "0.1,30,0.1")]
-    public float PositionDamping { get; set; } = 8;
+    public float PositionDamping { get; set; } = 20;
     /// <summary>Rearward metres per forward acceleration in metres per second squared.</summary>
     [Export(PropertyHint.Range, "0,0.2,0.001")]
-    public float LongitudinalInertia { get; set; } = 0.045f;
+    public float LongitudinalInertia { get; set; } = 0.012f;
     /// <summary>Outside-turn metres per lateral acceleration.</summary>
     [Export(PropertyHint.Range, "0,0.1,0.001")]
-    public float LateralInertia { get; set; } = 0.025f;
+    public float LateralInertia { get; set; } = 0.007f;
     /// <summary>Additional lateral weight from actual sideways velocity, including drift.</summary>
     [Export(PropertyHint.Range, "0,0.1,0.001")]
-    public float SidewaysInertia { get; set; } = 0.015f;
+    public float SidewaysInertia { get; set; } = 0.004f;
     /// <summary>Maximum fore/aft inertia displacement in metres.</summary>
     [Export(PropertyHint.Range, "0,2,0.01")]
-    public float MaximumLongitudinalInertia { get; set; } = 0.7f;
+    public float MaximumLongitudinalInertia { get; set; } = 0.2f;
     /// <summary>Maximum lateral inertia displacement in metres.</summary>
     [Export(PropertyHint.Range, "0,1,0.01")]
-    public float MaximumLateralInertia { get; set; } = 0.4f;
+    public float MaximumLateralInertia { get; set; } = 0.12f;
     /// <summary>Bounded impact feedback gain.</summary>
     [Export(PropertyHint.Range, "0,1,0.01")]
     public float CollisionShakeStrength { get; set; } = 0.55f;
@@ -67,6 +71,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     /// <summary>Presentation diagnostics for runtime checks.</summary>
     internal ChaseCameraMotion Motion => _motion;
     internal BoostCameraMotion BoostMotion => _boost;
+    internal AerialCameraMotion AerialMotion => _aerial;
     internal bool RolloverFraming => _obstruction.Reframed;
     /// <summary>The existing local input owner; never a gameplay or replicated camera command.</summary>
     internal Input.PlayerInputAdapter? InputSource { get; set; }
@@ -84,6 +89,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     {
         _initialized = false;
         _boost.Reset();
+        _aerial.Reset();
         if (IsNodeReady()) { Fov = _baseFov; _streaks.Reset(); _streaks.Hide(); }
         _look.Reset();
         InputSource?.ResetCameraMotion();
@@ -127,6 +133,9 @@ public sealed partial class VehicleChaseCamera : Camera3D
     internal void Follow(Transform3D pose, VehicleSnapshot state, float delta, Rid followedBody = default)
     {
         bool reset = !_initialized || state.VehicleId != _vehicle || state.LifeId != _life;
+        var preferences = SettingsSource?.Current;
+        float inertia = (float)(preferences?.CameraInertia ?? .5) * 2;
+        float distanceScale = (float)(preferences?.CameraDistance ?? 1.15);
         // Use the shared deployed attachment, not animated rack travel or accepted weapon
         // rotation. Camera input drives weapon intent; following its rotation would feed back.
         Basis pivotBasis = pose.Basis.IsFinite() ? pose.Basis : Basis.FromEuler(new Vector3(0, _heading, 0));
@@ -139,10 +148,14 @@ public sealed partial class VehicleChaseCamera : Camera3D
         {
             _look.Reset();
             _boost.Reset();
+            _aerial.Reset();
+            _distanceScale = distanceScale;
             _streaks.Reset();
             InputSource?.ResetCameraMotion();
             _motion.Reset(state.ObservedPhysics.LinearVelocity);
             _motionTick = state.Movement.Tick;
+            _airSeconds = state.Movement.Grounded ? 0 : state.Movement.Air.Seconds;
+            _recoveringHeading = false;
             _anchor = pivot;
             _vehicle = state.VehicleId;
             _life = state.LifeId;
@@ -161,12 +174,40 @@ public sealed partial class VehicleChaseCamera : Camera3D
 
         if (state.Movement.Tick > _motionTick)
         {
-            _motion.ObserveVelocity(state.ObservedPhysics.LinearVelocity, (state.Movement.Tick - _motionTick) / (float)Engine.PhysicsTicksPerSecond);
+            float elapsed = (state.Movement.Tick - _motionTick) / (float)Engine.PhysicsTicksPerSecond;
+            _motion.ObserveVelocity(state.ObservedPhysics.LinearVelocity, elapsed);
+            // The gameplay air-control timer resets during a crash. Presentation still
+            // needs framing for an unsupported tumble, without counting repeated renders.
+            _airSeconds = state.Movement.Grounded ? 0 : Math.Min(60, _airSeconds + elapsed);
             _motionTick = state.Movement.Tick;
         }
 
-        // The displayed pose already includes practice/network interpolation. Do not add yaw lag.
-        _heading = heading;
+        // Keep a stable launch heading through flips instead of adopting the reversed
+        // projection halfway through a rotation. Normal supported driving remains immediate.
+        float airborneSeconds = Math.Max(_airSeconds, state.Movement.Air.Seconds);
+        bool flight = !state.Movement.Grounded && airborneSeconds > .12f;
+        if (flight) _recoveringHeading = true;
+        if (reset || !flight)
+        {
+            if (!reset && _recoveringHeading)
+            {
+                float difference = Mathf.AngleDifference(_heading, heading);
+                float step = 4.5f * Math.Max(0, delta);
+                // A bounded catch-up reaches a moving ground heading too; an exponential
+                // tail could retain aerial framing indefinitely through a sustained turn.
+                _heading += Math.Clamp(difference, -step, step);
+                _recoveringHeading = Math.Abs(Mathf.AngleDifference(_heading, heading)) > .001f;
+            }
+            else _heading = heading;
+        }
+        // Keep room and the stable pivot while recovering a backward landing. Closing
+        // the boom before yaw catches up would push the chassis toward the screen edge.
+        _aerial.Advance(reset ? 0 : delta, state.Movement.Grounded,
+            airborneSeconds, (float)(preferences?.CameraAerialPullback ?? 1), _recoveringHeading);
+        _distanceScale = Mathf.Lerp(_distanceScale, distanceScale, ChaseCameraMotion.Blend(8, delta));
+        // Rotation of the rack around the chassis must not swing the entire aerial view.
+        Vector3 levelPivot = pose.Origin + Basis.FromEuler(new Vector3(0, _heading, 0)) * VehicleBody.ToGodot(WeaponAim.Pivot);
+        pivot = pivot.Lerp(levelPivot, _aerial.Amount);
         if (state.CanInteract)
         {
             _boost.Advance(reset ? 0 : delta, state.Movement.Nitro.Active, state.Speed);
@@ -177,13 +218,15 @@ public sealed partial class VehicleChaseCamera : Camera3D
         {
             _motion.ClearShake();
         }
-        _motion.Advance(delta, _heading, LongitudinalInertia, LateralInertia, SidewaysInertia, MaximumLongitudinalInertia, MaximumLateralInertia, PositionDamping, ShakeDecay);
+        _motion.Advance(delta, _heading, LongitudinalInertia * inertia, LateralInertia * inertia, SidewaysInertia * inertia, MaximumLongitudinalInertia * inertia, MaximumLateralInertia * inertia, PositionDamping, ShakeDecay);
         // Horizontal position follows the interpolated vehicle, with only bounded local inertia.
         // Vertical damping absorbs bumps; neither inertia nor shake changes the heading or aim.
-        _anchor = new Vector3(pivot.X, Mathf.Lerp(_anchor.Y, pivot.Y, ChaseCameraMotion.Blend(PositionDamping, delta)), pivot.Z);
+        float vertical = Mathf.Lerp(_anchor.Y, pivot.Y, ChaseCameraMotion.Blend(PositionDamping, delta));
+        float maximumVerticalLag = Mathf.Lerp(.18f, .06f, _aerial.Amount) * inertia;
+        _anchor = new Vector3(pivot.X, Math.Clamp(vertical, pivot.Y - maximumVerticalLag, pivot.Y + maximumVerticalLag), pivot.Z);
         Vector3 backward = new(MathF.Sin(_heading), 0, MathF.Cos(_heading));
         Vector3 right = new(MathF.Cos(_heading), 0, -MathF.Sin(_heading));
-        float distance = Math.Max(2, FollowDistance);
+        float distance = Math.Max(2, FollowDistance) * _distanceScale + _aerial.Pullback;
         float height = Math.Max(0, CameraHeight);
         float basePitch = -Mathf.DegToRad(Math.Clamp(ViewDownAngle, 0, 30));
         Vector2 mouse = InputSource?.ConsumeCameraMotion() ?? Vector2.Zero;
@@ -191,7 +234,6 @@ public sealed partial class VehicleChaseCamera : Camera3D
         if (!reset)
         {
             var friction = WeaponAiming ? AimFriction?.Invoke(mouse, stick, delta) ?? (1f, 1f) : (1f, 1f);
-            var preferences = SettingsSource?.Current;
             _look.Advance(new(mouse.X, mouse.Y), InputSource?.MouseLookHeld == true, new(stick.X, stick.Y), delta, basePitch, WeaponAiming,
                 friction.Item1 * (WeaponAiming ? (float)(preferences?.MouseAimSensitivity ?? 1) : 1),
                 friction.Item2 * (WeaponAiming ? (float)(preferences?.StickAimSensitivity ?? 1) : 1), (float)(preferences?.StickAimCurve ?? 2));
