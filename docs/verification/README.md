@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Story verification | [TS-279 verification evidence](ts-279.md) |
 | Tunnel fall/scrape sweep cost, native query bounds and collision regressions | [TS-275 verification evidence](ts-275.md) |
 | TS-274 world collision stability | [Terrain bake, collision recovery and network verification](ts-274.md) |
 | Story verification | [TS-269 verification evidence](ts-269.md) |
@@ -132,3 +133,4 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Documentation and Jira instruction cleanup | [Migration, issue accounting and preservation audit](ts-56.md) |
 | TS-46 phase-specific disconnect correction | [Lobby fresh join and active-match retained resume](ts-46-disconnect-policy.md) |
 | TS-46 match-long reservation correction | [Ordinary-client retention, Return cleanup and remaining native gates](ts-46-match-reservations.md) |
+

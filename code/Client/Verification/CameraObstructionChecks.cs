@@ -221,7 +221,9 @@ public sealed partial class CameraObstructionChecks : Node3D
         _prop.Rotation = Vector3.Zero;
         _ceiling.Position = new Vector3(_phase == 18 ? 0 : 100, 3.2f, 0);
         _obstacle.Rotation = Vector3.Zero;
-        Vector3 size = _phase switch { 2 => new(20, 2, 0.15f), 3 => new(8, 12, 8), 4 => new(4, 8, 2), 5 => new(30, 1, 30), 6 => new(6, 12, 1), _ => new(40, 12, 1) };
+        // The thin barrier must intersect the close rack-height view after orbit,
+        // not merely its first-frame prediction before the native shape is synchronized.
+        Vector3 size = _phase switch { 2 => new(20, 4, 0.15f), 3 => new(8, 12, 8), 4 => new(4, 8, 2), 5 => new(30, 1, 30), 6 => new(6, 12, 1), _ => new(40, 12, 1) };
         _obstacle.GetNode<CollisionShape3D>("Shape").Shape = new BoxShape3D { Size = size };
         _obstacle.GetNode<MeshInstance3D>("Mesh").Mesh = new BoxMesh { Size = size };
         _obstacle.Position = _phase switch { 0 or 1 => new(0, 6, 16), 2 => new(0, 2, 6), 3 => new(-7, 6, 7), 5 => new(0, 4, 8), _ => new(0, 6, 8) };

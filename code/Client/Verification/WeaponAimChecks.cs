@@ -214,6 +214,21 @@ public sealed partial class WeaponAimChecks : Node
             float drivingDistance = new Vector2(drivingTravel.X, drivingTravel.Z).Length();
             // A later native obstacle can stop the car; measure the exercised motion rather than its final speed.
             Require(peakDrivingSpeed > 10 && drivingDistance > 10, $"Vehicle drives while aiming (peak {peakDrivingSpeed:0.00} m/s, travel {drivingDistance:0.00} m)");
+            Position(new(0, Ground + 25, 35), new(0, Ground, 0), new(6, Ground, 0));
+            Camera.ResetFollow();
+            Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
+            await Until(() => Camera.AerialMotion.Pullback > 2 && _arenas[1].LocalState is { Movement.Grounded: false }, "Airborne shooter opens wider camera framing");
+            Send(new InputEventMouseMotion { ScreenRelative = new(60, 30) });
+            await Frames(8);
+            RequireCentered("Airborne camera input retains the centered shared aiming cursor");
+            float airborneYaw = Camera.Rotation.Y;
+            await Frames(20);
+            Require(Math.Abs(Mathf.AngleDifference(airborneYaw, Camera.Rotation.Y)) < .01f, "Aerial pullback cannot drift held camera aim");
+            Require(host.Items.Aims.Any(aim => aim.Vehicle == Shooter) && _arenas[2].Driver.AcceptedAims.Any(aim => aim.Vehicle == Shooter), "Airborne desired aim reaches authority and the observer");
+            await Capture("07a-airborne-shooter");
+            await Frames(180);
+            Require(Camera.AerialMotion.Pullback < .1f, "Aiming survives landing and smooth chase recovery");
+            RequireCentered("Landing retains camera-relative aiming presentation");
             _input.Adapter.GameplaySuppressed = true; await Frames(3);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);

@@ -8,6 +8,27 @@ namespace Trackstorm.Core.Tests.Settings;
 internal sealed class PlayerSettingsTests
 {
     [Test]
+    public void CameraPreferencesAreCompatibleValidatedAndIndependent()
+    {
+        foreach (double value in new[] { -10d, 0, .5, 1, 1.5, 10, double.NaN, double.PositiveInfinity })
+        {
+            var settings = new PlayerSettings { CameraDistance = value, CameraInertia = value, CameraAerialPullback = value, ShowFps = true };
+            var saved = PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(settings));
+            Assert.That(saved.CameraDistance, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 1, 1.5) : 1));
+            Assert.That(saved.CameraInertia, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 0, 1) : .5));
+            Assert.That(saved.CameraAerialPullback, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 0, 1.5) : 1));
+            Assert.That(saved.ShowFps, Is.True);
+        }
+        foreach (string json in new[] { "{}", "{\"cameraDistance\":null,\"cameraInertia\":\"bad\",\"cameraAerialPullback\":1e999}" })
+        {
+            var settings = PlayerSettingsJson.Deserialize(json);
+            Assert.That(settings.CameraDistance, Is.EqualTo(1));
+            Assert.That(settings.CameraInertia, Is.EqualTo(.5));
+            Assert.That(settings.CameraAerialPullback, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
     public void DeviceSensitivitiesRoundTripAndLegacyControllerValuesStayIndependent()
     {
         var legacy = PlayerSettingsJson.Deserialize("{\"steeringSensitivity\":2.3,\"aerialSensitivity\":0.4}");

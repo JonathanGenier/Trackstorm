@@ -75,6 +75,7 @@ $cameraPlan = Get-FastCheckPlan -Paths @("code/Client/Vehicles/ChaseCamera.cs", 
 Assert-True ($cameraPlan.ManualScenarios.Count -gt 0) "Camera changes must preserve manual/playtest verification."
 Assert-True ($cameraPlan.RuntimeScripts -contains "check-vehicle.ps1") "Vehicle-mounted camera changes should retain vehicle integration verification."
 Assert-True ($cameraPlan.RuntimeScripts -contains "check-camera.ps1") "Camera changes run the native camera harness."
+Assert-True ($cameraPlan.RuntimeScripts -contains "check-camera-responsiveness.ps1") "Camera changes exercise native driving and aerial framing."
 Assert-True ($cameraPlan.RuntimeScripts -contains "check-camera-shake.ps1") "Camera changes run projected native impact verification."
 Assert-True ($cameraPlan.RuntimeScripts -contains "check-camera-obstruction.ps1") "Camera changes run native world obstruction verification."
 foreach ($path in @("scenes/verification/camera_obstruction_checks.tscn", "scenes/verification/camera_obstruction_drive.tscn", "check-camera-obstruction.ps1")) {
