@@ -60,6 +60,8 @@ EOS ownership may lag a committed gameplay migration indefinitely. The replaceme
 
 ## Restore and rebind
 
+Permanent item discard adds a monotonic watermark to the existing complete item boundary. A retained arena checkpoint must meet both the currently confirmed discard watermark and the greatest watermark in the retained copies. Older common checkpoints cannot resurrect a deleted held item. If no eligible common boundary survives that floor, migration fails closed; its normal coherent rollback remains available for other state. See [item discard](items.md#permanent-selected-slot-discard).
+
 1. Freeze gameplay and native prop progression while authority is uncertain.
 2. Reconnect the EOS star to the deterministic candidate, using authenticated membership and the retained subject map.
 3. Select the latest safe external checkpoint for a sole two-player survivor, or exchange digests and collect votes on the newest common boundary for a larger roster.

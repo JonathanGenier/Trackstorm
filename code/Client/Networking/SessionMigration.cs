@@ -92,6 +92,8 @@ internal sealed class SessionMigration
     internal Func<ulong>? ObservedTick { get; set; }
     /// <summary>Accepted match boundary; Finished may never be rolled back into Active.</summary>
     internal Func<Core.Matches.MatchState?>? ObservedMatch { get; set; }
+    /// <summary>Confirmed permanent-deletion floor; older checkpoints must fail closed.</summary>
+    internal Func<ulong>? ObservedDiscardRevision { get; set; }
     /// <summary>Time since the selected external checkpoint, measured locally with a monotonic clock.</summary>
     internal ulong MatchRecoveryTicks { get; private set; }
     /// <summary>Blocks input, commands and gameplay advancement during lost authority or agreement.</summary>
@@ -369,6 +371,8 @@ internal sealed class SessionMigration
     private bool Recoverable(RetainedCheckpoint retained)
     {
         var checkpoint = retained.State;
+        ulong discardFloor = Math.Max(ObservedDiscardRevision?.Invoke() ?? 0, _retained.Max(entry => entry.State.Arena?.Items.DiscardRevision ?? 0));
+        if (checkpoint.Arena is { } arena && arena.Items.DiscardRevision < discardFloor) { return false; }
         ulong tick = checkpoint.Arena?.Items.World.Tick ?? 0;
         if (ObservedMatch?.Invoke()?.Phase == Core.Matches.MatchPhase.Finished && checkpoint.Arena?.Match.Phase != Core.Matches.MatchPhase.Finished)
         {

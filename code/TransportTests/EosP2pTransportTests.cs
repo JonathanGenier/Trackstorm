@@ -547,6 +547,7 @@ internal sealed class EosP2pTransportTests
     [TestCase("corrupt")]
     [TestCase("wrong-epoch")]
     [TestCase("finished-observed")]
+    [TestCase("discard-observed")]
     public void TwoPlayerArenaRestoresLatestSafeCheckpoint(string boundary)
     {
         using var pair = new MigrationPair();
@@ -572,6 +573,7 @@ internal sealed class EosP2pTransportTests
         var vehicleDriver = new VehicleNetworkDriver(pair.Link.Client, 0, pair.Client.ServerPeer, pair.Client);
         pair.ReplaceClientVehicles(vehicleDriver);
         pair.Client.Migration!.ObservedTick = () => boundary == "stale" ? tick + 241 : boundary == "future" ? tick - 1 : tick;
+        if (boundary == "discard-observed") { pair.Client.Migration.ObservedDiscardRevision = () => 1; }
         if (boundary == "finished-observed")
         {
             pair.Client.Migration.ObservedMatch = () => new Core.Matches.MatchState(tick, 999, 5, Core.Matches.MatchPhase.Finished, null, 2,

@@ -51,6 +51,7 @@ Analog conditioning clamps finite samples to `[-1,1]`, maps magnitudes at or bel
 | Menu accept | Enter | A / bottom face button |
 | Menu cancel | Escape | B / right face button |
 | Switch active item | E | X / left face button |
+| Discard selected item | X | D-pad Left |
 | Pause | P | Start |
 | Camera intent | Hold RMB and move mouse | Right stick X/Y |
 
@@ -66,7 +67,7 @@ Analog dead zone defaults to `0.15` and accepts finite values in `[0,1)`. Digita
 
 ## Invariants, Interactions, and Intentional Limitations
 
-SwitchItem uses the same aggregate press-edge capture as UseItem. A short E/X tap survives between fixed ticks and holding does not repeat. Gameplay, diagnostics and focus suppression require releasing either action before another press can act, preventing a held switch input from switching inventory on close. Saved bindings remain intact; a missing SwitchItem override inherits the new defaults. Switch and use in the same frame select first, then submit the selected capability through the existing reliable item path.
+SwitchItem and DiscardItem use the same aggregate press-edge capture as UseItem. Short taps survive between fixed ticks and holding does not repeat. Gameplay, diagnostics and focus suppression require releasing these actions before another press can act. Saved bindings remain intact; missing overrides inherit their defaults, including X/D-pad Left for discard. DiscardItem uses bit 16384 in the existing 27-byte version-two frame. In a shared frame, switch selects first, discard deletes that selected capability, then use is submitted; a deleted capability cannot activate. The existing reliable item path owns all three commands, while HUD/rack ownership remains confirmed by authority.
 
 Network application sessions apply the [Game Loop participation gate](game-loop.md) after capture: synchronization and authoritative Active are both required for driving or item use. Countdown and Finished retain neutral command sequencing/prediction; the host independently enforces the same phase rule and clears pending controls. Logical menu/standings capture remains available. Local loading completion or a displayed countdown reaching zero cannot enable participation.
 

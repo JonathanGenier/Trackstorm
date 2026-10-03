@@ -8,7 +8,7 @@ public readonly record struct InputFrame
     /// <summary>Version byte, tick, six axes and three button masks, in little-endian order.</summary>
     public const int SerializedSize = 27;
 
-    private const InputButtons ValidButtons = (InputButtons)16383;
+    private const InputButtons ValidButtons = (InputButtons)32767;
 
     /// <summary>Creates a frame; a tap within one tick may set both pressed and released.</summary>
     /// <param name="tick">Caller-supplied simulation tick.</param>

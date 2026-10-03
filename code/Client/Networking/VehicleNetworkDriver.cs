@@ -114,6 +114,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
                 lobby.Migration.RestoreArena = RestoreMigration;
                 lobby.Migration.ObservedTick = GetObservedTick;
                 lobby.Migration.ObservedMatch = GetObservedMatch;
+                lobby.Migration.ObservedDiscardRevision = GetObservedDiscardRevision;
             }
 
             if (lobby.State?.Phase != SessionPhase.Arena)
@@ -321,6 +322,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
 
             RosterChanged?.Invoke(Host.Snapshot());
             if ((input.Pressed & InputButtons.SwitchItem) != 0) { RequestItemSwitch(); }
+            if ((input.Pressed & InputButtons.DiscardItem) != 0) { RequestItemDiscard(); }
             SubmitAim();
             if ((input.Pressed & InputButtons.UseItem) != 0)
             {
@@ -382,7 +384,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
             if (_publishedSpawnRevision != (Host.Spawns?.Revision ?? 0) || _publishedItemRevision != Host.Items.ReliableRevision || _rosterChanged)
             {
                 var previousItems = _rosterChanged ? null : ItemState;
-                ItemState = new ItemPublication(++_itemPublication, Latest, Host.Items.Slots, Host.Items.Missiles, Host.Items.Events, Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Tombstones);
+                ItemState = new ItemPublication(++_itemPublication, Latest, Host.Items.Slots, Host.Items.Missiles, Host.Items.Events, Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Tombstones, Host.Items.DiscardRevision);
                 byte[] items = ItemCodec.EncodeState(ItemState, previousItems);
                 foreach (ulong peer in _assigned)
                 {
@@ -432,6 +434,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
             }
 
             if ((input.Pressed & InputButtons.SwitchItem) != 0) { RequestItemSwitch(); }
+            if ((input.Pressed & InputButtons.DiscardItem) != 0) { RequestItemDiscard(); }
             SubmitAim();
             if ((input.Pressed & InputButtons.UseItem) != 0)
             {
@@ -509,18 +512,35 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         if (accepted) { _switchRevision = revision; }
         return accepted;
     }
+    /// <summary>Submits the selected capability for permanent deletion through the existing reliable item path.</summary>
+    internal bool RequestItemDiscard()
+    {
+        var inventory = RequestedInventory();
+        var slot = inventory?.Active;
+        if (!AllowsParticipation || LocalState?.CanInteract != true || slot is null || slot.Item == HeldItem.None) { return false; }
+        return Host is not null
+            ? Host.DiscardItem(0, _session, slot.Life, slot.Token, inventory!.SelectionRevision)
+            : Send(new TransportMessage(ServerPeer, ItemCodec.EncodeDiscard(_session, slot.Life, slot.Token, inventory!.SelectionRevision), TransportDelivery.Reliable));
+    }
+
+    private ItemSlot? RequestedInventory()
+    {
+        var inventory = LocalItem;
+        if (Host is null && inventory is not null && inventory.Life == _switchLife && _switchRevision > inventory.SelectionRevision)
+        {
+            inventory = inventory with { ActiveSlot = (byte)(inventory.ActiveSlot ^ ((_switchRevision - inventory.SelectionRevision) & 1)), SelectionRevision = _switchRevision };
+        }
+        return inventory;
+    }
+
     /// <summary>Submits the local slot capability reliably; never creates a predicted item effect.</summary>
     /// <returns>Whether queued locally or sent to the host.</returns>
     /// <param name="inputSequence">Originating captured frame when called from the remote input loop.</param>
     internal bool RequestItemUse(uint? inputSequence = null)
     {
-        ItemSlot? inventory = LocalItem;
+        ItemSlot? inventory = RequestedInventory();
         // Ordered reliable intent can use the requested slot before its confirmation arrives.
         // This chooses a known capability only; ownership and outcomes remain host-authoritative.
-        if (Host is null && inventory is not null && inventory.Life == _switchLife && _switchRevision > inventory.SelectionRevision)
-        {
-            inventory = inventory with { ActiveSlot = (byte)(inventory.ActiveSlot ^ ((_switchRevision - inventory.SelectionRevision) & 1)) };
-        }
         ItemSlot? slot = inventory?.Active;
         if (!AllowsParticipation || LocalState?.CanInteract != true || slot is null || slot.Item == HeldItem.None)
         {
@@ -681,6 +701,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
                 migration.RestoreArena = null;
                 migration.ObservedTick = null;
                 migration.ObservedMatch = null;
+                migration.ObservedDiscardRevision = null;
                 migration.MapConfiguration = null;
             }
         }
@@ -737,12 +758,13 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         return false;
     }
     private MatchState? GetObservedMatch() => Host?.World.State.Match ?? Match;
+    private ulong GetObservedDiscardRevision() => Host?.Items.DiscardRevision ?? ItemState?.DiscardRevision ?? 0;
 
     private (ResumeCheckpoint Arena, HostRestoreState Host) CaptureMigration()
     {
         _lobby!.Authority!.RetainConfiguration(Host!.Configuration);
         WorldSnapshot world = Host!.Snapshot();
-        var items = new ItemPublication(Math.Max(1, _itemPublication), world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Tombstones);
+        var items = new ItemPublication(Math.Max(1, _itemPublication), world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Tombstones, Host.Items.DiscardRevision);
         var state = Host.World.State.Match!;
         var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode, activeStartedAtTick: state.ActiveStartedAtTick, durationTicks: state.DurationTicks, recoveryElapsedTicks: state.RecoveryElapsedTicks);
         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());
@@ -755,6 +777,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         {
             return;
         }
+        if (checkpoint.Arena.Items.DiscardRevision < GetObservedDiscardRevision()) { throw new ArgumentException("Migration predates a confirmed discard."); }
 
         _assigned.Clear();
         _preparedJoins.Clear();
@@ -795,7 +818,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     {
         _rosterChanged = true; // Resume establishes a new full Oil baseline before subsequent references.
         WorldSnapshot world = Host!.Snapshot();
-        var items = new ItemPublication(++_itemPublication, world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Tombstones);
+        var items = new ItemPublication(++_itemPublication, world, Host.Items.Slots, Host.Items.Missiles, [], Host.Spawns?.States, Host.Items.Patches, Host.Items.OilContacts, Host.Spawns?.Balances, Host.Items.Mines, Host.Items.Tombstones, Host.Items.DiscardRevision);
         var state = Host.World.State.Match!;
         var match = new MatchState(state.Tick, state.Revision, state.KillTarget, state.Phase, state.CountdownAtTick, state.Winner, state.Players, mode: state.Mode, activeStartedAtTick: state.ActiveStartedAtTick, durationTicks: state.DurationTicks, recoveryElapsedTicks: state.RecoveryElapsedTicks);
         var props = ObserveProps is null ? null : new Trackstorm.Core.Arenas.ArenaPropSnapshot(_session, world.Tick, ObserveProps());
@@ -804,6 +827,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
 
     private void ApplyCheckpoint(ResumeCheckpoint checkpoint)
     {
+        if (checkpoint.Items.DiscardRevision < GetObservedDiscardRevision()) { throw new ArgumentException("Checkpoint predates a confirmed discard."); }
         if ((_arena?.Environment is null) != (checkpoint.Environment is null) ||
             (checkpoint.Environment is { } environment && (environment.Rocks.Count != _arena!.Environment!.Rocks.Count || environment.Plants.Count != _arena.Environment.Plants.Count)))
         {
@@ -1147,6 +1171,12 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
 
                 if (Host is not null)
                 {
+                    if (ItemCodec.IsDiscard(message.Payload.Span))
+                    {
+                        var discard = ItemCodec.DecodeDiscard(message.Payload.Span);
+                        if (!Host.DiscardItem(message.RemotePeerId, discard.Session, discard.Life, discard.Token, discard.Selection)) { RejectedPackets++; }
+                        return;
+                    }
                     if (ItemCodec.IsSwitch(message.Payload.Span))
                     {
                         var selection = ItemCodec.DecodeSwitch(message.Payload.Span);
@@ -1168,7 +1198,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
                 }
 
                 ItemPublication publication = ItemCodec.DecodeState(message.Payload.Span, ItemState);
-                if (!_receivedConfiguration || publication.World.Session != _session || publication.World.ConfigurationRevision != Configuration.Revision || publication.Revision <= (ItemState?.Revision ?? 0))
+                if (!_receivedConfiguration || publication.World.Session != _session || publication.World.ConfigurationRevision != Configuration.Revision || publication.Revision <= (ItemState?.Revision ?? 0) || publication.DiscardRevision < GetObservedDiscardRevision())
                 {
                     throw new ArgumentException("Stale item publication.");
                 }

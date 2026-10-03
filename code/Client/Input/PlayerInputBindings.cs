@@ -56,6 +56,7 @@ internal sealed class PlayerInputBindings : IDisposable
         Replace(InputAction.AirRollLeft, rollLeft);
         Replace(InputAction.AirRollRight, rollRight);
         Set(InputAction.SwitchItem, Key.E, Button(JoyButton.X, gamepadDevice));
+        Set(InputAction.DiscardItem, Key.X, Button(JoyButton.DpadLeft, gamepadDevice));
         Set(InputAction.Leaderboard, Key.Tab, Button(JoyButton.Back, gamepadDevice));
         Set(InputAction.MenuUp, Key.Up, Button(JoyButton.DpadUp, gamepadDevice));
         Set(InputAction.MenuDown, Key.Down, Button(JoyButton.DpadDown, gamepadDevice));
