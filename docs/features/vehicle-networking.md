@@ -101,7 +101,7 @@ The version-twelve movement payload is 163 bytes, including progressive engine d
 
 Landing episode state is host-owned. Prediction retains it alongside confirmed HP without independently advancing damage decisions. Both complete aggregate and compact world codecs carry its bounded phase/counters, so checkpoint restoration preserves recovery and crash continuation. See [terrain landing recovery](vehicles.md#terrain-landing-recovery).
 
-Surface handling uses the same native material query in practice, host observation and prediction replay. Core maps the material to Asphalt, Concrete, Dirt, Grass, Mud or Deep Mud; the existing movement payload carries that profile and retains it in flight. Existing Concrete/Mud numeric IDs remain unchanged. Per-wheel materials are fresh native observations; progressive power-slip memory is carried in the version-eight movement state. The complete version-thirty-nine tuning message includes Dirt/Grass/Deep Mud and Water controls to the existing configuration revision barrier and resume/migration path. Clients may request shared surface tuning through the host-validated DevTools channel; local diagnostic identity never replaces host observations.
+Surface handling uses the same native material query in practice, host observation and prediction replay. Core maps the material to Asphalt, Concrete, Dirt, Grass, Mud or Deep Mud; the existing movement payload carries that profile and retains it in flight. Existing Concrete/Mud numeric IDs remain unchanged. Per-wheel materials are fresh native observations; progressive power-slip memory is carried in the version-eight movement state. The complete version-forty-one tuning message includes Dirt/Grass/Deep Mud and Water controls to the existing configuration revision barrier and resume/migration path. Clients may request shared surface tuning through the host-validated DevTools channel; local diagnostic identity never replaces host observations.
 [Water interaction](water.md) shares native immersion observations between host and prediction. Only the host applies water HP loss; existing complete snapshots and checkpoints retain its damage and lifecycle consequences. Water adds five fields in configuration version 9 without adding vehicle snapshot bytes.
 
 Machine-gun requests reuse sustained item activation and originating-input sequence alignment. Only the host queries native closest-hit geometry and commits damage, impulse and discrete ammunition. Confirmed shot endpoints and tracer selection share reliable item publications, guarded by revision and authority epoch; there is no client hit-report protocol or separate ammo channel. This increases reliable publication traffic during sustained fire. See [machine gun](items.md#close-range-machine-gun).
@@ -113,6 +113,29 @@ Air Roll travels as bit 2048 in the existing input frame. The version-eight move
 
 Brake-to-reverse continuation occupies two previously reserved movement flags (163-byte movement v12). Raw physical brake edges use input-mask bit 4096 without expanding the 21-byte frame. World protocol v14 rejects older peers. Snapshot/replay, retuning and recovery preserve the gate; no client-only reverse permission exists.
 
-Input version two carries separate ground and aerial axes and a held Air Control bit. Host tick rebasing, bounded held-command bridging and prediction preserve those axes; ground input never implicitly grants airborne rotation. Gameplay configuration TC39 retires automatic air activation and the duplicate airborne deadzone.
+Input version two carries separate ground and aerial axes and a held Air Control bit. Host tick rebasing, bounded held-command bridging and prediction preserve those axes; ground input never implicitly grants airborne rotation. Gameplay configuration TC41 retires automatic air activation and the duplicate airborne deadzone.
 
 [Tombstone rear shields](items.md#tombstone-rear-shield-and-persistent-health) use the existing reliable item publication and nested recovery boundary. Each peer reconstructs the same vehicle-local collision plate from accepted selected exposure/life/ownership, and renders it beneath the vehicle's interpolated transform. No shield transform stream or client-authored hit outcome is added; current host observations and Core geometry decide interception. Switching slots reliably exposes/stows the same pool and removes/restores its collider without use or HP reset. Complete item state includes the shield's ordered damage watermark and collision cooldown tick.
+
+Deployed [Tombstone world walls](items.md#movable-tombstone-world-walls) use the same complete
+reliable item channel for host-committed rigid-body poses and velocities. Clients never submit
+wall pose, HP or motion outcomes. Their reconstructed layer-32 colliders participate in vehicle
+queries; authoritative Core box intersections own weapon blocking. Dimensions and mass travel
+with each wall, avoiding collider changes when live tuning changes after deployment.
+
+Tombstone contacts omit the fixed-prop angular kick; their existing Core response shares
+horizontal momentum. Their side normals are horizontal before native sweep/slide, preventing
+bank-aligned faces from adding lift during sustained pushes. Tipping colliders no longer block vehicles or wheel queries on either
+host or replicas, preventing the falling wall from lifting cars. Terrain contact still
+drives side-ground breakage, and Core weapon geometry remains active.
+
+World-wall native bodies constrain pitch/roll torque until an accepted strong-impact
+tipping state releases it; reconstruction and authority recovery preserve that state. Host terrain sampling aligns their bases to slopes and follows ground
+height without changing horizontal heading. Contact yaw and ground movement remain free;
+the host publishes accepted poses and the Tombstone-specific shared contact momentum.
+Deployment clearance uses the deploying car's current observed native pose, restoring its
+query proxy afterward so a fast-moving car cannot block release with its previous pose.
+
+World-wall item protocol 20 carries the captured expiry deadline and tipping state. Expired
+or side-ground-broken walls leave the complete authoritative set, so late admission and
+reconnect cannot resurrect them or restart their timers.

@@ -31,7 +31,7 @@ internal sealed partial class VehicleNetworkDriverTests
         var stone = initial.Tombstones.Single();
         Assert.That(stone.HP, Is.EqualTo(1000));
         Assert.That(stone.Stage, Is.EqualTo(TombstoneStage.RearShield));
-        Assert.That(authority.UseItem(ServerPeer, Session, stone.Life, stone.Token), Is.False);
+        Assert.That(authority.UseItem(ServerPeer, Session, stone.Life, stone.Token), Is.True);
         var forged = new ItemPublication(initial.Revision + 1, initial.World, initial.Slots, [], [], tombstones: [stone with { HP = 999, DamageSequence = 1 }]);
         hostWire.Receive(new(ServerPeer, ItemCodec.EncodeState(forged), TransportDelivery.Reliable));
         host.Advance(default, Observe); Transfer();
@@ -60,13 +60,24 @@ internal sealed partial class VehicleNetworkDriverTests
         client.Advance(default, Observe);
         Assert.That(observed, Is.EqualTo(1));
         Assert.That(client.ItemState.Tombstones.Single().HP, Is.EqualTo(875));
+        host.PlaceTombstone = (_, _, _) => new(new(0, 2, 10), System.Numerics.Quaternion.Identity, new(2, 0, 0), System.Numerics.Vector3.Zero);
+        var use = ItemCodec.EncodeUse(Session, stone.Life, stone.Token);
+        hostWire.Receive(new(ServerPeer, use, TransportDelivery.Reliable));
+        hostWire.Receive(new(ServerPeer, use, TransportDelivery.Reliable));
+        host.Advance(default, Observe); Transfer();
+        Assert.That(client.ItemState.Tombstones.Single(), Is.EqualTo(stone with { HP = 875, DamageSequence = 1,
+            Stage = TombstoneStage.WorldWall, Life = 0, Token = 0, Position = new(0, 2, 10), LinearVelocity = new(2, 0, 0), ExpiresAtTick = host.Host!.World.State.Tick + 7200 }));
+        Assert.That(client.ItemState.Slots.Single(s => s.Vehicle == 2).Item, Is.EqualTo(HeldItem.None));
+        clientWire.Receive(new(ServerPeer, duplicate, TransportDelivery.Reliable));
+        client.Advance(default, Observe);
+        Assert.That(client.ItemState.Tombstones.Single().Stage, Is.EqualTo(TombstoneStage.WorldWall), "Old shield publication cannot resurrect attachment");
         authority.Items.DamageTombstone(authority.World, stone.Id, 2, 1000, new DamageContext("world", 0, "test"));
         host.Advance(default, Observe); Transfer();
         Assert.That(client.ItemState.Tombstones, Is.Empty);
         Assert.That(client.ItemState.Slots.Single(s => s.Vehicle == 2).Item, Is.EqualTo(HeldItem.None));
         clientWire.Receive(new(ServerPeer, duplicate, TransportDelivery.Reliable));
         client.Advance(default, Observe);
-        Assert.That(observed, Is.EqualTo(2));
+        Assert.That(observed, Is.EqualTo(3));
         Assert.That(client.ItemState.Tombstones, Is.Empty);
     }
 }

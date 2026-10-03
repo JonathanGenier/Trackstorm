@@ -456,7 +456,9 @@ public sealed class HostVehicleSession
     /// <param name="placeMine">Host terrain installation query.</param>
     /// <param name="moveMine">Host sweep and contact query.</param>
     /// <param name="raycastWeapon">Host closest collision on an authoritative weapon ray.</param>
-    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null)
+    /// <param name="placeTombstone">Host-only native rear placement and clearance query.</param>
+    /// <param name="observeTombstone">Host-only native wall motion observation.</param>
+    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeTombstone = null, Func<TombstoneState, TombstoneObservation?>? observeTombstone = null)
     {
         _pickupStart = null;
         _pickupEnd = null;
@@ -489,7 +491,7 @@ public sealed class HostVehicleSession
         try
         {
             Items.AdvanceAim(World, Configuration.Configuration.Vehicle, AllowsParticipation, observations);
-            Items.Step(World, hostInput, observations, collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground, raycastWeapon);
+            Items.Step(World, hostInput, observations, collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground, raycastWeapon, placeTombstone, observeTombstone);
         }
         catch
         {

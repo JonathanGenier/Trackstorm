@@ -46,7 +46,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     public override void _Ready()
     {
         CollisionLayer = 2;
-        CollisionMask = 3;
+        CollisionMask = 3 | 32;
         Quaternion initialRotation = GlobalBasis.GetRotationQuaternion().Normalized();
         _current = new(VehicleBody.ToCore(GlobalPosition), new Numerics.Quaternion(initialRotation.X, initialRotation.Y, initialRotation.Z, initialRotation.W), Numerics.Vector3.Zero, Numerics.Vector3.Zero);
         var chassis = VehicleVisual.CreateCollision();
@@ -177,6 +177,11 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                     normal = EnvironmentContact.ExposedNormal(this, transform.Origin, result.GetCollisionPoint(i), normal);
                 }
                 var other = result.GetCollider(i) as NetworkVehicleBody;
+                var wall = result.GetCollider(i) as Items.TombstoneWallBody;
+                // A ground-aligned wall shares horizontal momentum in Core. Its
+                // banked side face must not turn a sustained push into lift.
+                if (wall is not null && Math.Abs(normal.Y) < _configuration.SupportNormalMinimum)
+                { normal = new Vector3(normal.X, 0, normal.Z).Normalized(); }
                 Vector3 point = result.GetCollisionPoint(i);
                 Vector3 relative = other is null ? velocity + angular.Cross(point - transform.Origin) - result.GetColliderVelocity(i) :
                     incomingVelocity + incomingAngular.Cross(point - initialTransform.Origin) -
@@ -193,7 +198,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                     initialSupport = WheelSuspension.Observe(this, initialTransform, _configuration).Normal;
                     sampledObstacleSupport = true;
                 }
-                contacts.Add(new VehicleContact(VehicleBody.ToCore(obstacle ? incomingVelocity : relative), VehicleBody.ToCore(normal), 0, other?.VehicleId ?? 0, result.GetCollider(i) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= _configuration.SupportNormalMinimum, VehicleBody.ToCore(transform.AffineInverse() * result.GetCollisionPoint(i)), obstacle, Arenas.DestructibleEnvironment.RockId(result.GetCollider(i))));
+                contacts.Add(new VehicleContact(VehicleBody.ToCore(obstacle ? incomingVelocity : relative), VehicleBody.ToCore(normal), 0, other?.VehicleId ?? 0, result.GetCollider(i) is Node terrain && terrain.IsInGroup("landing_terrain") && normal.Y >= _configuration.SupportNormalMinimum, VehicleBody.ToCore(transform.AffineInverse() * result.GetCollisionPoint(i)), obstacle, Arenas.DestructibleEnvironment.RockId(result.GetCollider(i)), (result.GetCollider(i) as Items.TombstoneWallBody)?.Identity ?? 0));
                 if (normal.Y >= _configuration.SupportNormalMinimum && !obstacle)
                 {
                     support = normal;
@@ -215,7 +220,9 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                 {
                     normal = VehicleBody.ToGodot(EnvironmentCollision.ResponseNormal(VehicleBody.ToCore(normal), VehicleBody.ToCore(initialSupport)));
                 }
-                else if (other is null && normal.Y < _configuration.SupportNormalMinimum)
+                // Tombstone's mass-sharing response owns its contact. Adding the
+                // fixed-prop lever-arm kick pitches the car into the ground.
+                else if (other is null && wall is null && normal.Y < _configuration.SupportNormalMinimum)
                 {
                     float closing = Math.Max(0, -relative.Dot(normal));
                     Vector3 deltaVelocity = normal * closing;
@@ -394,7 +401,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         }
 
         CollisionLayer = state.CanInteract ? 2u : 0u;
-        CollisionMask = state.CanInteract ? 3u : 0u;
+        CollisionMask = state.CanInteract ? 3u | 32u : 0u;
         _visual.Visible = state.CanInteract;
         PresentDamage(state.Damage);
     }

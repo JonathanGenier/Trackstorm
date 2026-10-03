@@ -11,6 +11,8 @@ internal sealed class ReleaseDefaultsTests
     /// <param name="key">Approved stable persistence key.</param>
     /// <param name="expected">Exact persisted numeric value, including float-to-double expansion.</param>
     [TestCase("spawns.tombstone_weight", 1d)]
+    [TestCase("items.tombstone_lifetime", 120d)]
+    [TestCase("items.tombstone_tip_speed", 20d)]
     [TestCase("vehicle.wall_drag", (double)0.18f)]
     [TestCase("vehicle.crash_dissipation", (double)0.95f)]
     [TestCase("vehicle.crash_rotation", (double)0.08f)]
@@ -126,7 +128,7 @@ internal sealed class ReleaseDefaultsTests
     public void ReleaseDefaultsValidateAndRoundTrip()
     {
         var defaults = GameplayConfiguration.HostedDefaults;
-        Assert.That(GameplayOptions.All.Count, Is.EqualTo(217));
+        Assert.That(GameplayOptions.All.Count, Is.EqualTo(224));
         Assert.That(defaults.Items.OilPasses, Is.EqualTo(2));
         Assert.DoesNotThrow(defaults.Validate);
         var file = DeveloperSettingsFile.Read(string.Empty, defaults);
