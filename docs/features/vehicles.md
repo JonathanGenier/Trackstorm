@@ -131,12 +131,18 @@ under [held items](items.md#tombstone-rear-shield-and-persistent-health).
 
 Mounted armor skims authored driveable ground instead of acting as a rear skid on
 slopes. The native adapter sweeps chassis and armor separately, excludes contacted
-driveable terrain from the armor query only, then chooses the earlier blocking
+authored terrain bodies from the armor query only, then chooses the earlier blocking
 result. The chassis retains its complete terrain response. Armor still collides
 with vehicles and solid obstacles; weapon cover and deployed-wall collision remain
 unchanged. Up to eight armor queries handle overlapping support bodies, retaining
 contact if that bound is exhausted. The low visual edge may briefly enter terrain
 at sharp slope transitions; no automatic shield lift or new suspension is applied.
+Armor filtering uses the support body's authored identity, regardless of the
+sweep normal: concave track edges can return lateral/downward separating axes.
+This exemption includes all faces of that terrain body, while distinct barrier
+and obstacle bodies keep their shield collision. The production track regression
+uses the committed concave mesh; `check-tombstone-presentation.ps1 -ProductionTrack`
+drives the actual west-bank join with two UDP peers.
 
 ## Player-controlled airborne rotation
 

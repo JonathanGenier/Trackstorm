@@ -1,6 +1,7 @@
 param(
     [Parameter(Mandatory)][string]$GodotPath,
     [switch]$Visual,
+    [switch]$ProductionTrack,
     [switch]$NoBuild
 )
 $ErrorActionPreference = 'Stop'
@@ -17,6 +18,7 @@ $run = 'check-' + [DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss')
 $inputPath = Join-Path $output 'input.json'
 if (Test-Path -LiteralPath $inputPath) { Remove-Item -LiteralPath $inputPath }
 $arguments = @('--path', ('"{0}"' -f $PSScriptRoot), 'res://scenes/verification/tombstone_playtest.tscn')
+if ($ProductionTrack) { $arguments += @('--', '--tombstone-production-track') }
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
 $process = Start-Process -FilePath (Resolve-Path -LiteralPath $GodotPath).Path -ArgumentList $arguments -PassThru -WindowStyle Hidden `
     -RedirectStandardOutput (Join-Path $output "$run.log") -RedirectStandardError (Join-Path $output "$run-errors.log")
@@ -51,6 +53,7 @@ function Assert([bool]$condition, [string]$message) {
     Write-Host "PASS: $message"
 }
 try {
+    if (-not $ProductionTrack) {
     $mounted = Command 'mounted' @{grant=$true;frames=120;camera=@(4,203.2,8);look=@(0,201.6,1.8)}
     $first = @($mounted.tombstones)[0].Id
     Assert (@($mounted.tombstones).Count -eq 1 -and $mounted.tombstones[0].Stage -eq 1) 'Selected acquisition presents rear shield.'
@@ -136,6 +139,20 @@ try {
     Assert ($crossed -and $peak -gt 209) 'Ordinary driving climbs, crests and descends the twenty-degree slope course.'
     $slopeDone = Command 'slope-stop' @{owner=2;brake=1;frames=40}
     Assert (@($slopeDone.remote | Where-Object Id -eq $slopeId)[0].HP -eq 1000) 'Remote peer retains the same undamaged mounted shield after slope traversal.'
+    }
+    else {
+    $trackReady = Command 'track-ready' @{owner=2;spawn=@(-182,1.8,0);yaw=1.5707963;grant=$true;frames=120;chase=$true}
+    $slopeId = @($trackReady.tombstones | Where-Object { $_.Owner -eq 2 -and $_.Stage -eq 1 })[0].Id
+    $crossed = $false
+    for ($phase=0; $phase -lt 24; $phase++) {
+        $track = Command "track-drive-$phase" @{owner=2;throttle=1;frames=30}
+        Assert (@($track.tombstones | Where-Object Id -eq $slopeId)[0].HP -eq 1000) "Production bank driving phase $phase preserves mounted shield HP."
+        if (@($track.vehicles | Where-Object id -eq 2)[0].pose.Position.X -lt -199) { $crossed=$true; break }
+    }
+    Assert $crossed 'Ordinary input crosses the production infield-to-track join and climbs the west bank.'
+    $trackStop = Command 'track-stop' @{owner=2;brake=1;frames=60}
+    Assert (@($trackStop.remote | Where-Object Id -eq $slopeId)[0].HP -eq 1000) 'Remote shield remains undamaged after production bank traversal.'
+    }
     Publish @{id="$run-quit";quit=$true}
     if (-not $process.WaitForExit(10000)) { throw 'Playtest did not exit.' }
     $errors = Get-Content -LiteralPath (Join-Path $output "$run-errors.log") -Raw

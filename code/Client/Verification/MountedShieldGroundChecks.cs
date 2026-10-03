@@ -12,6 +12,7 @@ public sealed partial class MountedShieldGroundChecks : Node3D
 {
     private NetworkVehicleBody _body = null!;
     private StaticBody3D _ground = null!, _obstacle = null!;
+    private StaticBody3D _track = null!;
     private int _frames;
 
     public override void _Ready()
@@ -20,6 +21,10 @@ public sealed partial class MountedShieldGroundChecks : Node3D
         _obstacle = Box(new(8, 5, .4f), new(30, 1, 3.7f), false);
         _body = new NetworkVehicleBody { VehicleId = 1 };
         AddChild(_body);
+        _track = new StaticBody3D { Position = new(0, 0, 500), CollisionLayer = 1 };
+        _track.AddToGroup("landing_terrain");
+        _track.AddChild(new CollisionShape3D { Shape = GD.Load<ConcavePolygonShape3D>("res://assets/maps/oval/TrackCollision.tres") });
+        AddChild(_track);
     }
 
     private StaticBody3D Box(Vector3 size, Vector3 position, bool terrain)
@@ -78,10 +83,45 @@ public sealed partial class MountedShieldGroundChecks : Node3D
             Check(wallHit.Contacts.Any(c => c.StaticObstacle && TombstoneGeometry.Contains(c.LocalPosition)), "Ground filtering lost a solid rear obstacle.");
             Check(wallHit.Contacts.All(c => !c.Terrain || !TombstoneGeometry.Contains(c.LocalPosition)), "Mixed obstacle contact reintroduced armor ground damage.");
             GD.Print($"Mounted shield ground passed: {cases} slope/pitch/roll/height comparisons; {previouslySnagged} old armor snags; {chassisContacts} retained chassis contacts; mixed ground/solid-obstacle protection.");
-            _body.Free(); _ground.Free(); _obstacle.Free();
+            CheckProductionTrack();
+            _body.Free(); _ground.Free(); _obstacle.Free(); _track.Free();
             GetTree().Quit();
         }
         catch (Exception error) { GD.PrintErr(error); GetTree().Quit(1); }
+    }
+
+    private void CheckProductionTrack()
+    {
+        var vertices = ((ConcavePolygonShape3D)_track.GetChild<CollisionShape3D>(0).Shape).Data;
+        int cases = 0, failures = 0;
+        for (int i = 0; i < vertices.Length; i += 600)
+        foreach (float yaw in new[] { 0f, 90f })
+        foreach (float pitch in new[] { -20f, 0, 20f })
+        foreach (float height in new[] { 1.15f, 1.6f })
+        {
+            var point = (vertices[i] + vertices[i + 1] + vertices[i + 2]) / 3 + _track.Position;
+            var basis = new Basis(Vector3.Up, Mathf.DegToRad(yaw)) * new Basis(Vector3.Right, Mathf.DegToRad(pitch));
+            var q = basis.GetRotationQuaternion();
+            var pose = new VehiclePhysicsState(VehicleBody.ToCore(point + Vector3.Up * height), new(q.X, q.Y, q.Z, q.W),
+                VehicleBody.ToCore(basis * new Vector3(0, -2, -12)), N.Vector3.Zero);
+            var snapshot = Snapshot(pose);
+            _body.Apply(pose);
+            _body.ObserveTombstones(snapshot, []);
+            var baseline = _body.Observe(snapshot);
+            _body.ObserveTombstones(snapshot, [new(1, 1, 1, 1, TombstoneStage.RearShield, 1000)]);
+            var shielded = _body.Observe(snapshot);
+            bool same = N.Vector3.Distance(baseline.Physics.Position, shielded.Physics.Position) < .001f &&
+                N.Vector3.Distance(baseline.Physics.LinearVelocity, shielded.Physics.LinearVelocity) < .001f &&
+                N.Vector3.Distance(baseline.Physics.AngularVelocity, shielded.Physics.AngularVelocity) < .001f;
+            if (!same || shielded.Contacts.Any(c => TombstoneGeometry.Contains(c.LocalPosition)))
+            {
+                failures++;
+                if (failures <= 5) { GD.Print($"Track snag triangle={i / 3}, point={point}, yaw/pitch/height={yaw}/{pitch}/{height}, contacts={System.Text.Json.JsonSerializer.Serialize(shielded.Contacts, new System.Text.Json.JsonSerializerOptions { IncludeFields = true })}"); }
+            }
+            cases++;
+        }
+        GD.Print($"Production track: {cases} native comparisons, {failures} mounted-armor failures.");
+        Check(failures == 0, "Mounted shield still catches production track triangles.");
     }
 
     private static VehicleSnapshot Snapshot(VehiclePhysicsState pose) => new(1, 1, new(1, pose, true, false, 0, 0), new(1000, 1000, null, null), pose);

@@ -46,7 +46,7 @@ public sealed partial class TombstonePlaytest : Node
             _views.Add(view);
             if (i == 0) { var display = new SubViewportContainer(); AddChild(display); display.AddChild(view); }
             else { AddChild(view); }
-            var arena = new NetworkVehicleArena { PrototypeMapForVerification = true, SpawnConfiguration = new() { PickupRadius = .01f } };
+            var arena = new NetworkVehicleArena { PrototypeMapForVerification = !OS.GetCmdlineUserArgs().Contains("--tombstone-production-track"), SpawnConfiguration = new() { PickupRadius = .01f } };
             arena.Initialize(wire, i == 0 ? 219ul : 0, server);
             view.AddChild(arena);
             var floor = new StaticBody3D { Position = new(0, 200, 0), CollisionLayer = 1 };

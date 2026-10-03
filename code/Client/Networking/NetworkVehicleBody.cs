@@ -203,9 +203,10 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                 for (int i = 0; i < result.GetCollisionCount(); i++)
                 {
                     var collider = result.GetCollider(i);
-                    var normal = EnvironmentContact.SupportFaceNormal(this, collider, result.GetCollisionPoint(i), result.GetCollisionNormal(i));
-                    if (normal.Y >= _configuration.SupportNormalMinimum &&
-                        (collider is SurfaceBody || collider is Node terrain && terrain.IsInGroup("landing_terrain")))
+                    // A concave road's internal triangle edges can report sideways or
+                    // downward separating axes. The authored support body identifies
+                    // skimmable terrain; the sweep normal cannot reliably do so.
+                    if (collider is SurfaceBody || collider is Node terrain && terrain.IsInGroup("landing_terrain"))
                     {
                         var rid = result.GetColliderRid(i);
                         if (!excluded.Contains(rid)) { excluded.Add(rid); }
