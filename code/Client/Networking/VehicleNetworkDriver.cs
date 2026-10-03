@@ -187,6 +187,8 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     /// <summary>Host-only ground projection for persistent oil deployment.</summary>
     internal Func<ItemSlot, VehiclePhysicsState, OilPatch?>? PlaceOil { get; set; }
     internal Func<System.Numerics.Vector3, System.Numerics.Vector3?>? ProjectSalvoGround { get; set; }
+    internal Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? PlaceTombstone { get; set; }
+    internal Func<TombstoneState, TombstoneObservation?>? ObserveTombstone { get; set; }
     internal Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? PlaceMine { get; set; }
     internal Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? MoveMine { get; set; }
     /// <summary>Latest complete reliable item state.</summary>
@@ -326,7 +328,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
             }
 
             var previousVehicles = Host.World.State.Vehicles;
-            Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine, ProjectSalvoGround, RaycastWeapon);
+            Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine, ProjectSalvoGround, RaycastWeapon, PlaceTombstone, ObserveTombstone);
             Host.CollectPickups();
             if (Host.Environment is { } environment)
             {

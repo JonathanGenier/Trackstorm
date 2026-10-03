@@ -164,6 +164,12 @@ public static partial class ItemCodec
             writer.Write(wall.Orientation.Y);
             writer.Write(wall.Orientation.Z);
             writer.Write(wall.Orientation.W);
+            Vector(writer, wall.LinearVelocity);
+            Vector(writer, wall.AngularVelocity);
+            Vector(writer, wall.WallSize);
+            writer.Write(wall.WallMass);
+            writer.Write(wall.ExpiresAtTick);
+            writer.Write(wall.Tipping);
         }
         writer.Write((byte)state.Mines.Count);
         foreach (var mine in state.Mines)
@@ -272,7 +278,7 @@ public static partial class ItemCodec
         for (int i = 0; i < tombstones.Length; i++)
         {
             tombstones[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), (TombstoneStage)reader.ReadByte(), reader.ReadSingle())
-            { DamageSequence = reader.ReadUInt64(), LastCollisionTick = reader.ReadBoolean() ? reader.ReadUInt64() : null, Position = Vector(reader), Orientation = new(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()) };
+            { DamageSequence = reader.ReadUInt64(), LastCollisionTick = reader.ReadBoolean() ? reader.ReadUInt64() : null, Position = Vector(reader), Orientation = new(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()), LinearVelocity = Vector(reader), AngularVelocity = Vector(reader), WallSize = Vector(reader), WallMass = reader.ReadSingle(), ExpiresAtTick = reader.ReadUInt64(), Tipping = reader.ReadBoolean() };
         }
         var mines = new ProxyMineState[Count(reader, ItemAuthority.MaximumMines)];
         for (int i = 0; i < mines.Length; i++)
@@ -339,7 +345,7 @@ public static partial class ItemCodec
     {
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream);
-        writer.Write(new byte[] { 0x54, 0x49, 18, kind });
+        writer.Write(new byte[] { 0x54, 0x49, 20, kind });
         encode(writer);
         if (stream.Length > MaximumBytes)
         {
@@ -351,7 +357,7 @@ public static partial class ItemCodec
 
     private static T Read<T>(ReadOnlySpan<byte> bytes, byte kind, Func<BinaryReader, T> decode)
     {
-        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 18 || bytes[3] != kind)
+        if (bytes.Length is < 4 or > MaximumBytes || !IsItem(bytes) || bytes[2] != 20 || bytes[3] != kind)
         {
             throw new ArgumentException("Invalid item header.");
         }

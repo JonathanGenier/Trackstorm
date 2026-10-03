@@ -14,7 +14,8 @@ public readonly record struct VehicleContact
     /// <param name="localPosition">Vehicle-local contact point.</param>
     /// <param name="staticObstacle">Immovable side contact, excluding support.</param>
     /// <param name="environmentRock">One-based native rock identity, zero otherwise.</param>
-    public VehicleContact(Vector3 relativeVelocity, Vector3 normal, float impulse, ulong otherVehicleId, bool terrain = false, Vector3 localPosition = default, bool staticObstacle = false, ushort environmentRock = 0)
+    /// <param name="tombstone">Struck deployed wall identity, zero otherwise.</param>
+    public VehicleContact(Vector3 relativeVelocity, Vector3 normal, float impulse, ulong otherVehicleId, bool terrain = false, Vector3 localPosition = default, bool staticObstacle = false, ushort environmentRock = 0, ulong tombstone = 0)
     {
         _ = VehicleDamageMath.CollisionSeverity(relativeVelocity, normal, impulse, 1);
         if (!VehiclePhysicsState.IsFinite(localPosition)) { throw new ArgumentException("Invalid contact position."); }
@@ -26,12 +27,15 @@ public readonly record struct VehicleContact
         OtherVehicleId = otherVehicleId;
         StaticObstacle = staticObstacle;
         EnvironmentRock = environmentRock;
+        Tombstone = tombstone;
     }
 
     /// <summary>Explicit driveable terrain identity; obstacles and vehicles are excluded.</summary>
     public bool Terrain { get; }
     /// <summary>One-based authored rock identity supplied by the native collider, zero otherwise.</summary>
     public ushort EnvironmentRock { get; }
+    /// <summary>Host-observed deployed wall identity; never supplied by player packets.</summary>
+    public ulong Tombstone { get; }
     /// <summary>Immovable side contact, excluding driveable support and movable bodies.</summary>
     public bool StaticObstacle { get; }
     /// <summary>Contact point relative to the vehicle origin in vehicle-local axes.</summary>

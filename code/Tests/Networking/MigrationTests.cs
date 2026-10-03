@@ -312,6 +312,7 @@ internal sealed class MigrationTests
         Assert.That(restored.Spawns!.RandomState, Is.EqualTo(host.Spawns.RandomState));
         Assert.That(restored.ItemSelectionRandom.Next(23), Is.EqualTo(host.ItemSelectionRandom.Next(23)), "The first generic authoritative draw after migration must continue exactly.");
         Assert.That(restored.Spawns!.States, Is.EqualTo(host.Spawns.States));
+        Assert.That(restored.Items.Tombstones, Is.EqualTo(host.Items.Tombstones));
         foreach (var authority in new[] { host, restored })
         {
             Place(authority, 2, "item-02");

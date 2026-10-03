@@ -97,3 +97,15 @@ Air-control delay, filtered input and stabilization ramps are included in the ne
 
 Circus timer state is part of the complete version-eight match publication: original Active entry tick, configured duration and recovery debit. Initial admission and retained-player resume install these with current world tick and score rows before participation. The existing HUD immediately projects remaining time from that authority rather than beginning a local ten-minute clock. Finished remains terminal with zero remaining time and the same detached Podium results. See [Game Loop time](game-loop.md#active-match-time).
 The optional `check-reconnect.ps1 -Tombstone` fixture retains a damaged rear shield in the host slot otherwise used by the Machine Gun fixture, alongside the existing partial Salvo. It exercises the same three authenticated test-identity resumes, including 125 seconds offline. Selected/stored stage, shield identity, HP, attachment capability and damage watermark restore through the existing item boundary; the default recovery fixture retains its original Machine Gun coverage.
+
+Movable [Tombstone walls](items.md#movable-tombstone-world-walls) retain their full committed
+pose, linear/angular velocity, captured dimensions/mass, HP and ordered damage/collision
+watermarks in item protocol 20 inside the existing checkpoint. Recovery installs that exact
+selected boundary, rather than the original deployment pose. The new host reconstructs its
+native rigid bodies and continues independently of former-owner life; replicas stay frozen.
+Native solver contact caches and cosmetic wing-expansion progress are not checkpoint state.
+
+Tombstone world-wall recovery retains the original absolute expiry deadline and whether
+a strong impact released tipping. The timer never restarts on recovery. A wall that expired
+while a player was disconnected is absent from the accepted live set and has no replica
+collider after resync; an attached shield has no deployed-wall timer.

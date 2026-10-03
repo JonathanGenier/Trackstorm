@@ -25,10 +25,13 @@ internal static class TombstoneRecoveryFixture
         return host.Items.Tombstones.TakeLast(2).ToArray();
     }
 
-    internal static void Verify(IReadOnlyList<TombstoneState> actual, IReadOnlyList<TombstoneState> expected)
+    internal static void Verify(IReadOnlyList<TombstoneState> actual, IReadOnlyList<TombstoneState> expected, IReadOnlyList<TombstoneState> boundary, ulong tick)
     {
-        if (expected.Count != 2 || expected.Any(state => !actual.Contains(state)))
+        bool Matches(TombstoneState seed) => !seed.Attached && seed.ExpiresAtTick <= tick
+            ? actual.All(state => state.Id != seed.Id)
+            : actual.Any(state => state.Id == seed.Id && state.HP == seed.HP && state.DamageSequence == seed.DamageSequence && state.Stage == seed.Stage && state.ExpiresAtTick == seed.ExpiresAtTick && state.Tipping == seed.Tipping);
+        if (expected.Count != 2 || expected.Any(seed => !Matches(seed)) || !actual.SequenceEqual(boundary))
         { throw new InvalidOperationException("Tombstone checkpoint lost health, lifecycle, pose or replay memory."); }
-        Godot.GD.Print($"Tombstone recovery verified: {string.Join('/', expected.Select(s => s.Stage))} at 700/600 HP, exact attachment/pose and damage watermark; no refill.");
+        Godot.GD.Print($"Tombstone recovery verified: {actual.Count} retained pools; {expected.Count(s => !s.Attached && s.ExpiresAtTick <= tick)} expired walls absent; exact HP, expiry, tipping, pose and damage watermark; no refill or timer restart.");
     }
 }

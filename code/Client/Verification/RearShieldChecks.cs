@@ -103,7 +103,6 @@ public sealed partial class RearShieldChecks : Node
                         foreach (var arena in _arenas) { Check(arena.Driver.RequestItemSwitch(), "Repeated switch"); }
                         Next(10); break;
                     }
-                    Check(!host.Items.RequestUse(host.World, 2, host.World.GetVehicle(2).LifeId, host.Items.Slots.Single(s => s.Vehicle == 2).Active.Token), "Use cannot deploy a wall");
                     Check(host.Items.Grant(host.World, 1, HeldItem.MachineGun), "Shooter second slot");
                     Check(_arenas[0].Driver.RequestItemSwitch(), "Select weapon and stow shooter shield");
                     Next(2); break;

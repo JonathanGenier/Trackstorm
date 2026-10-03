@@ -204,3 +204,5 @@ Assert-True ($boundaryPlan.ExtendedScripts -contains "check-death-respawn.ps1") 
 
 $tombstonePlan = Get-FastCheckPlan -Paths @('code/Core/Items/TombstoneState.cs')
 Assert-True ($tombstonePlan.RuntimeScripts -contains 'check-tombstone.ps1') 'Tombstone changes route their native lifecycle harness.'
+
+Assert-True ($tombstonePlan.RuntimeScripts -contains 'check-world-wall.ps1') 'Tombstone changes route movable wall verification.'

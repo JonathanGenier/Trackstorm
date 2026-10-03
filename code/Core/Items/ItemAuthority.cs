@@ -195,7 +195,9 @@ public sealed partial class ItemAuthority
     /// <param name="acknowledgedInputs">Host-consumed remote input sequences; never client-authored acknowledgements.</param>
     /// <param name="raycastWeapon">Host closest collision on an authoritative weapon ray.</param>
     /// <param name="ground">Host terrain projection at the fixed salvo range; missing terrain rejects use.</param>
-    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null)
+    /// <param name="placeTombstone">Host-only native rear placement and clearance query.</param>
+    /// <param name="observeTombstone">Host-only native wall motion observation.</param>
+    public void Step(Simulation.Simulation world, InputFrame input, IReadOnlyList<VehicleStepRequest> requests, Func<MissileState, Vector3, float?> collide, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, IReadOnlyDictionary<ulong, uint>? acknowledgedInputs = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeTombstone = null, Func<TombstoneState, TombstoneObservation?>? observeTombstone = null)
     {
         ulong token = _token;
         ulong NextToken() => checked(++token);
@@ -214,6 +216,7 @@ public sealed partial class ItemAuthority
         var boosts = new Dictionary<ulong, NitroState>();
         var waiting = new Dictionary<ulong, (ulong Token, ulong Expires, uint? InputSequence)>();
         var shields = new RearShieldBatch(this, world, requests, slots, journal, input.Tick);
+        shields.ObserveWalls(observeTombstone);
         var effects = requests.ToDictionary(request => request.VehicleId, request => request.Effects.ToList());
         foreach (var pair in slots.ToArray())
         {
@@ -240,6 +243,18 @@ public sealed partial class ItemAuthority
             ItemSlot slot = (inventory with { ActiveSlot = usedIndex }).Active;
             if (slot.Token != pair.Value.Token || slot.Item == HeldItem.None) { continue; }
             VehicleStepRequest request = requests.Single(value => value.VehicleId == pair.Key);
+            if (slot.Item == HeldItem.Tombstone)
+            {
+                if (!request.Reset.HasValue && inventory.Active.Token == slot.Token &&
+                    world.State.Match is not { Phase: not Matches.MatchPhase.Active } &&
+                    placeTombstone?.Invoke(slot, request.Observation.Physics, Configuration) is { } placement &&
+                    shields.Deploy(slot, placement, Configuration))
+                {
+                    slots[pair.Key] = usedIndex == 0 ? inventory with { Item = HeldItem.None } : inventory with { SecondItem = HeldItem.None };
+                    events.Add(new(slot.Token, slot.Vehicle, slot.Item, placement.Position, false));
+                }
+                continue;
+            }
             var handler = ItemRegistry.Find(slot.Item)?.Handler;
             if (ItemRegistry.Find(slot.Item)?.Sustained == true)
             {
@@ -470,13 +485,14 @@ public sealed partial class ItemAuthority
 
                 Vector3 center = Vector3.Lerp(missile.Position, end, fraction);
                 events.Add(new ItemEvent(missile.Id, missile.Owner, missile.Item, center, true));
+                shields.BlastWalls(this, center, missile);
                 foreach (VehicleStepRequest request in requests)
                 {
                     DamageEffect effect = Explosion(center, request.Observation.Physics.Position, missile.Item);
                     if (effect.Damage > 0 || effect.Impulse != Vector3.Zero)
                     {
                         var context = new DamageContext(missile.Arc is null ? "missile" : "salvo", missile.Owner, missile.Arc is null ? "radial-explosion" : $"radial-explosion:{missile.Id}");
-                        var blocked = directShield is { } directHit && directHit.State.Owner == request.VehicleId
+                        var blocked = directShield is { } directHit && directHit.State.Attached && directHit.State.Owner == request.VehicleId
                             ? directShield : shields.Intersect(center, request.Observation.Physics.Position, onlyOwner: request.VehicleId);
                         if (blocked is { } shield) { shields.Damage(shield.State.Id, effect.Damage, context); }
                         else { effects[request.VehicleId].Add(new VehicleEffectRequest(effect, context)); }

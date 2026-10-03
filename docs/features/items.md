@@ -16,7 +16,7 @@ The explosion linearly fades from 300 HP and 15,000 N·s at the center to zero a
 
 `ItemRegistry` is the single immutable roster in stable selection order. Each `ItemDefinition` connects the stable byte identity, behavior/tuning key, display and presentation identity, default within-category spawn weight, category identity, and audio/VFX hooks. `None` is only an empty-slot sentinel. Wrench, Missile, Oil, Nitro, Proxy Mine and Salvo use internal stateless handlers to stage effects into the existing authority transaction; Machine Gun uses the same authority transaction through its sustained short-range ray path. The vehicle world remains the sole repair/damage authority. Damaging definitions register their authoritative `DamageSource` identity for the shared [Circus item-damage conversion](matches.md#circus-combat-score); weapon handlers never award points. Nitro stages a boost intent into that transaction, and Oil stages placement there as well; there is no second inventory, spawn authority or item envelope.
 
-`ItemSpawnConfiguration.Weights` is an immutable map keyed by registered identities. Developer tuning keys are generated from registry keys and travel through the existing version-thirty-nine gameplay configuration codec. The item codec uses version eighteen; checkpoint envelopes compose these existing codecs without a parallel serialization path. Identical game versions remain required.
+`ItemSpawnConfiguration.Weights` is an immutable map keyed by registered identities. Developer tuning keys are generated from registry keys and travel through the existing version-forty-one gameplay configuration codec. The item codec uses version twenty; checkpoint envelopes compose these existing codecs without a parallel serialization path. Identical game versions remain required.
 
 Client HUD icons/names, use VFX and pickup/use audio resolve the registry metadata. Stats and structured events retain the shared item identity. Client assets and native effects remain Client-owned; Core has no Godot references. Oil and Nitro reuse the existing weapon pickup cue and have original project-created HUD silhouettes. Oil has reconstructable persistent world presentation; Nitro carries reconstructable active state on the existing vehicle boundary.
 
@@ -108,7 +108,7 @@ Defaults are 20 percentage points/second, 18,000 N forward rocket thrust, 1.4× 
 
 Releasing or exhausting Nitro immediately removes rocket thrust and the boosted cap. If horizontal speed remains above the normal cap, movement retains an inactive recovery continuation and removes only excess speed at the configured per-second rate, preserving horizontal direction and vertical motion. Ordinary braking/coasting can also slow the car. Recovery ends at the normal speed range; ordinary external impulses without a preceding Nitro episode retain their existing behavior. [Match scoring](matches.md#nitro-overspeed-scoring) awards actual authoritative overspeed, including this release interval, rather than held input or active-effect duration.
 
-Complete item publications/checkpoints carry both percentages, the engaged capability and the selected Nitro deployment countdown. Selection/acquisition starts 36 fixed ticks (0.60 seconds); no thrust or fuel consumption occurs while any remain. Holding an accepted use begins thrust at readiness; releasing during deployment cancels engagement without spending fuel. Deployment continues while selected, so already-deployed reuse is immediate. Switching away cancels the gate and switching back starts a fresh deployment. Recovery preserves the remaining ticks rather than restarting or bypassing them. Client reconstructs the same bounded mechanical sequence, including when inventory and movement arrive on separate channels. The existing 127-byte movement payload carries an upper bound on predicted remaining boost ticks plus force, cap multiplier and airborne fraction; it does not own charge. Release clears predicted boost immediately. A canonical zero-tick, zero-force/airborne-fraction and unit-speed-multiplier state denotes inactive momentum recovery; all-zero denotes no episode. Authority refreshes the budget from current charge while sustained. Version-seven movement, version-eighteen items and version-thirty-nine configuration reject old schemas without a parallel protocol. Exact game-version admission remains required.
+Complete item publications/checkpoints carry both percentages, the engaged capability and the selected Nitro deployment countdown. Selection/acquisition starts 36 fixed ticks (0.60 seconds); no thrust or fuel consumption occurs while any remain. Holding an accepted use begins thrust at readiness; releasing during deployment cancels engagement without spending fuel. Deployment continues while selected, so already-deployed reuse is immediate. Switching away cancels the gate and switching back starts a fresh deployment. Recovery preserves the remaining ticks rather than restarting or bypassing them. Client reconstructs the same bounded mechanical sequence, including when inventory and movement arrive on separate channels. The existing 127-byte movement payload carries an upper bound on predicted remaining boost ticks plus force, cap multiplier and airborne fraction; it does not own charge. Release clears predicted boost immediately. A canonical zero-tick, zero-force/airborne-fraction and unit-speed-multiplier state denotes inactive momentum recovery; all-zero denotes no episode. Authority refreshes the budget from current charge while sustained. Version-seven movement, version-twenty items and version-forty-one configuration reject old schemas without a parallel protocol. Exact game-version admission remains required.
 
 Death/new-life reset and Finished clear the vehicle effect; inventory follows the existing death-retention policy. Retained inventory transfers partial charge with its fresh life tokens and no engaged use. Resume and migration install the selected boundary without historical use or score replay, then neutral/rebound input determines whether use can continue. Epoch rollback retains its existing checkpoint semantics.
 
@@ -150,7 +150,7 @@ Each impact uses a ten-metre blast radius, 250 maximum HP damage and 3,500 N s i
 
 The local arena creates only its own circular marker. Selected Salvo and the owner's ongoing salvo display one guide at the current fixed-range forward aim point. It follows the car throughout the salvo rather than leaving rings at earlier launch targets. No marker identity, geometry or visibility is serialized. Both ring edges sample native static ground, follow height and surface normals, and offset slightly above the surface. Unsupported/discontinuous segments are omitted. The unshaded gold ring is designed for the normal chase camera. Remote inventories never create guides. Slot switching, death, Finished, loss of active session and teardown hide the applicable guide; recovery reconstructs it from local identity and current ownership/flight.
 
-Runtime keys `items.salvo_*` cover count (1–16), interval_ticks (1–60), range (25–250 m), launch_height (1–10 m), arc_height (1–60 m), speed (20–200 m/s), blast_radius (1–30 m), damage (0–1000 HP), falloff (0.25–4), impulse (0–50,000 N s), marker_scale (0.5–2 times blast radius), marker_width (0.1–2 m) and marker_lift (0.02–0.5 m). Ordinary Configs, persistence, host validation and configuration version-thirty-nine carry all values. Count is captured on acquisition; changing it does not refill held ammunition. Each shot captures its cooldown, current forward aim/range, launch height, speed and arc. A rejected shot retains the item and its remaining count. Flying rounds retain their arc; impact and marker properties use current tuning. Straight Missile behavior is unchanged.
+Runtime keys `items.salvo_*` cover count (1–16), interval_ticks (1–60), range (25–250 m), launch_height (1–10 m), arc_height (1–60 m), speed (20–200 m/s), blast_radius (1–30 m), damage (0–1000 HP), falloff (0.25–4), impulse (0–50,000 N s), marker_scale (0.5–2 times blast radius), marker_width (0.1–2 m) and marker_lift (0.02–0.5 m). Ordinary Configs, persistence, host validation and configuration version-forty-one carry all values. Count is captured on acquisition; changing it does not refill held ammunition. Each shot captures its cooldown, current forward aim/range, launch height, speed and arc. A rejected shot retains the item and its remaining count. Flying rounds retain their arc; impact and marker properties use current tuning. Straight Missile behavior is unchanged.
 
 Item protocol version eighteen carries remaining shots and absolute ready ticks in each physical slot alongside flying arcs and owner life. There are no scheduled automatic rounds. Each accepted shot retires its capability and assigns a fresh token to remaining ammunition, rejecting replayed use requests; this continuation does not emit another pickup sound. Allocation and consumption commit only after the world step succeeds. Resume/migration restore partial ammunition, cooldowns and flying rounds without replaying old events. Owner reset, death or permanent departure removes their rounds; disconnected retained players continue under the existing authority. Finished removes Salvo rounds, and new matches begin empty. Effects reuse existing licensed rocket/particle/audio assets; the HUD SVG is project-original.
 
@@ -167,19 +167,19 @@ Missile reuses the registered rocket mesh; Proxy Mine reuses its production Blen
 
 ## Tombstone rear shield and persistent health
 
-Slot selection atomically exposes the selected Tombstone as `RearShield` and stows unselected Tombstones as `Held`. Acquisition into the selected slot exposes it immediately; acquisition into the other slot stores it. No use press is required. Switching away removes rear protection and presents the newly selected item; switching back exposes the same identity with its existing HP and damage/collision watermarks. Both states reserve the physical slot. Use is rejected and produces no deployment or consumption; world-wall placement is separate scope.
+Slot selection atomically exposes the selected Tombstone as `RearShield` and stows unselected Tombstones as `Held`. Acquisition into the selected slot exposes it immediately; acquisition into the other slot stores it. No use press is required. Switching away removes rear protection and presents the newly selected item; switching back exposes the same identity with its existing HP and damage/collision watermarks. Both states reserve the physical slot. One normal use press while selected deploys that same pool as a world wall and immediately clears its exact physical slot. Switching away before the use commits stows it and cancels deployment; failed native placement retains the rear shield and capability for a later press.
 
 `TombstoneGeometry` defines a temporary box 1.5 m high, vehicle-width, and 0.35 m thick, centered at local `(0, 0.2, VehicleDimensions.Length / 2 + 0.25)`. It follows the complete authoritative orientation, including pitch/roll. Core tests segments against that oriented box using the current observation batch; native world/chassis hits still win when closer. Machine Gun rounds stop at the first shield. Missile/Salvo segments can impact it, and each radial target's center path is tested against its own shield before applying that target's unchanged radial damage. Proxy Mine contact paths likewise test the attached shield. An intercepted hit spends shield HP and suppresses that target's vehicle damage/weapon impulse, including the lethal shield hit; subsequent hits reach the now-exposed car. Other blast targets retain their ordinary damage. This is finite spatial cover, not a rear-angle immunity rule, and does not add general wall occlusion to explosions.
 
 Native contact points inside the armor envelope route the existing collision severity and host damage tuning to the shield. A collision reported by the striking car also reaches the stationary defender's shield. Multiple manifold/slide observations collapse to the strongest shield contact for the step, with the existing collision cooldown retained per pool through checkpoints. The attacking car keeps its own normal collision damage. Damage uses the same evaluator as `DamageTombstone`; candidate changes, destroyed-slot cleanup and the single destruction journal entry commit only after the vehicle step succeeds. Sequential world ticks, capability validation, per-entity ordered damage and collision cooldown prevent replay or manifold duplication. When both slots contain Tombstones, only the selected pool is exposed and receives intercepted damage; the other remains stored.
 
-Client reconstructs a box collision shape on the vehicle and a matching temporary metal plate under its interpolated visual transform. Core remains the hit authority. Native weapon queries temporarily omit that reconstructed shield shape so an earlier hit's same-step destruction cannot leave phantom cover; Core supplies the current candidate intersection. Accepted lifecycle/item state removes the shape on death, reset, destruction and permanent departure, and reinstalls it after retained recovery. The rack stops showing the selected payload once it is rear-mounted. Final deployment animation, model, VFX and damage balance remain separate work.
+Client reconstructs a box collision shape on the vehicle and a matching temporary metal plate under its interpolated visual transform. Core remains the hit authority. Native weapon queries temporarily omit that reconstructed shield shape so an earlier hit's same-step destruction cannot leave phantom cover; Core supplies the current candidate intersection. Accepted lifecycle/item state removes the shape on death, reset, destruction and permanent departure, and reinstalls it after retained recovery. The rack stops showing the selected payload once it is rear-mounted. World deployment uses the expanding temporary three-panel wall below; final production model, VFX and damage balance remain separate work.
 
 `check-rear-shield.ps1 -GodotPath <exe> [-Impaired] [-Visual]` runs two production arenas over real local UDP, with independent shields, repeated ordinary selection/stow input from both peers without use, stationary/moving fire, inner/outer rear-quarter edge shots, exposed side/front shots, shield destruction while driving, and a native vehicle collision into the rear plate. Temporary fixture poses isolate shot geometry; moving scenarios advance native physics. Rendered captures use a fixed observation camera. Impairment adds 30 ms outbound delay, 5 ms jitter and 2% loss. Core tests additionally cover rejected-batch atomicity, exact slot retention, collision cooldown restoration, rotated geometry and missile interception.
 
 Tombstone is registered as a Droppable (wire identity 8) in the existing two-slot inventory. Acquisition creates one match-unique live entity with **1000 HP**, independent of vehicle HP or vehicle-health tuning. Its normal default within-category spawn weight is **1**, using the existing registry-generated configuration and authoritative weighted pickup flow. Dedicated HUD art remains pending. Existing inventory names remain available; the HUD omits its pending icon.
 
-`ItemAuthority` owns the complete live Tombstone set, bounded at sixteen including stored/exposed items and released walls. Each pool retains its original entity ID, HP and ordered host-damage watermark. Immutable `TombstoneState` records carry attachment life/capability or the installed wall pose. Attached `Held <-> RearShield` state follows accepted slot selection; publications reject exposure that disagrees with ownership/selection. `TransitionTombstone` retains only the existing host-only `RearShield -> WorldWall` lifecycle seam for recovery fixtures and future adapters. Normal item-use input cannot invoke it. World-wall input, geometry/wing expansion, final models/VFX and final HUD/balance remain separate work.
+`ItemAuthority` owns the complete live Tombstone set, bounded at sixteen including stored/exposed items and released walls. Each pool retains its original entity ID, HP and ordered host-damage watermark. Immutable `TombstoneState` records carry attachment life/capability or the installed wall pose. Attached `Held <-> RearShield` state follows accepted slot selection; publications reject exposure that disagrees with ownership/selection. `TransitionTombstone` remains a host-only recovery fixture seam. Ordinary selected use stages `RearShield -> WorldWall` inside the same transaction as vehicle simulation, slot clearing and the use event. Rejected world steps commit none of those changes. Final models/VFX and final HUD/balance remain separate work.
 
 `DamageTombstone` accepts a positive finite host-observed amount and a monotonic sequence scoped to that persistent entity, using the shared `VehicleHealth` clamping and destruction semantics on an independent pool. It returns the actual `DamageEvent` without changing vehicle health, kill attribution or player scoring. Host adapters must allocate ordered damage-observation sequences; neither HP nor damage/transition outcomes are accepted in client packets. Duplicate/older sequences are ignored, including after recovery. At zero HP the entity leaves the complete live set, its attached slot clears and one committed Tombstone destruction event is recorded. Absence is the existing authoritative item-destruction representation; no dead pool is retained or resurrected. Further damage/transitions cannot recreate it. A later acquisition is a new entity with a fresh ID and pool.
 
@@ -188,3 +188,109 @@ Complete item protocol version eighteen publishes health, stage, entity ID, atta
 Attached Tombstones follow existing inventory policy: ordinary death/reset/permanent departure removes them, temporary disconnect retains them, and optional retained respawn changes life/capability while preserving ID, HP, stage and watermark. Released walls survive owner death/departure. Finished clears all live Tombstones and attached Tombstone slots; new matches start empty.
 
 `check-tombstone.ps1 -GodotPath <exe> [-Impaired]` runs production drivers over three real local UDP peers, exercising four independent pools, state/slot transitions, repeated damage/destruction, late admission and full authority restoration. Impairment is 30 ms outbound delay, 5 ms jitter and 2% native packet loss. The production reconnect fixture retains a damaged rear shield and world wall; migration retains two damaged world walls. These preserve exact ownership/pose and replay memory. The separate rear-shield harness exercises native blocking and temporary presentation; these checks do not establish remote EOS, independent-device performance or competitive balance.
+
+## Movable Tombstone world walls
+
+Normal use asks the host native adapter for rear ground and full expanded-box clearance. The
+adapter projects behind the current heading, samples the center and four footprint ends,
+and fits the standing wall to their support plane without changing its horizontal heading.
+It searches up to one metre upward for a clear box. Its clearance query synchronously
+places the deploying car's native proxy at the current observed pose, then restores it. This
+avoids rejecting fast forward deployment against the car's preceding-frame collider while
+still checking the actual chassis and other obstructions. A missing/steep support or blocked volume rejects that use
+without consuming the shield. Core also rejects overlapping wall candidates within the same batch, before either native body exists. Deployment retains the entity ID, exact HP, damage sequence and
+collision cooldown. It captures horizontal vehicle velocity, wall dimensions and mass; it does
+not retain an attachment or dependency on the former owner's vehicle life. The temporary
+three-panel visual expands over 0.2 seconds; the full collision envelope is active immediately.
+
+Host Configs exposes `items.tombstone_width` (6 m), `height` (2.5 m), `depth` (0.6 m),
+`mass` (250 kg), and `clearance` (1 m behind the chassis envelope). Bounds are respectively
+3–12 m, 2–6 m, 0.3–2 m, 50–2000 kg, and 0.5–5 m. Dimensions and mass are captured at
+deployment, so later tuning cannot resize an installed collider. Configuration protocol 41
+carries these values through the existing validation, publication and recovery path. These
+are operational defaults verified on flat/banked native fixtures, not final balance.
+
+`TombstoneWorld` reconstructs one rigid body per accepted wall. Only the active host runs its
+native solver; Core commits observed pose, linear/angular velocity and independent HP.
+Frozen replicas receive the complete accepted state. Vehicle collision queries include wall
+layer 32 and retain normal vehicle collision damage. For wall contacts only, Core shares
+contact-normal momentum using the car and captured wall masses plus the wall box inertia, so a car pushes the
+wall while slowing instead of retaining the generic sweep's stationary-obstacle stop.
+Distinct manifold points form one contact centroid per wall; the contact offset produces
+angular momentum as well as translation. Duplicate points cannot add duplicate torque.
+Unrelated blocking contacts keep their resolved motion. Tombstone contacts bypass the
+native adapter's additional fixed-prop pitch/roll kick: applying it before restoring shared
+horizontal momentum could drive the chassis into the floor and launch it through suspension.
+Native Tombstone side-contact normals use the same horizontal plane as that Core response,
+so a banked side face cannot turn a sustained push into vertical lift. Top contacts and
+terrain support retain their existing normals.
+General car handling, suspension, tuning and other collision responses are unchanged. Writing an unchanged host
+observation back to the solver is skipped to preserve pending contact impulses.
+Standing walls use friction 0.6 and linear damping 2 so they settle after an unpowered push rather
+than coasting across the arena. Their captured mass and contact momentum sharing remain
+unchanged, allowing a moving car to keep pushing them. Before a strong vehicle impact,
+native pitch/roll torque is constrained;
+terrain support controls their slope-relative orientation and height as they slide. Horizontal
+heading is preserved through ground alignment, while contact torque may rotate yaw freely.
+Unsupported or airborne walls retain gravity. A rigid base cannot bend around a crest: it
+rests above the highest sampled support, and placement requires all five supported samples.
+Walls collide with
+terrain/vehicles/other walls and survive the deployer's death, respawn or departure until
+expiry/destruction. Inactive authority freezes the bodies.
+
+When a vehicle contact's impulse divided by wall mass reaches `items.tombstone_tip_speed`
+(default 20 m/s, range 1–100), Core permanently marks that wall as tipping. Its native
+friction/damping return to 0.08/0.2 to preserve the fall and ground-contact response. Its
+pitch/roll locks and ground stabilization release, and the contact offset supplies physical
+angular momentum. A tipping wall leaves vehicle collision/query layers on every peer so its
+rotating face cannot become a ramp under the car or its wheel rays. It retains native terrain
+and standing-wall contact, and Core weapon intersections remain active until destruction.
+Core destroys the remaining pool once native walkable-ground contact
+coincides with the wall up-axis falling below a 0.2 dot product with that contact normal
+(about 78.5 degrees from upright). Airborne tilt and ordinary slope alignment cannot alone
+break it. The normal destruction path removes its collider and records the terminal event.
+
+`items.tombstone_lifetime` defaults to 120 seconds (range 1–600). Successful deployment
+captures an absolute host simulation-tick deadline; retuning, owner death/departure and
+recovery cannot restart it. Expiry atomically removes the independent wall and records an
+Expired event without touching the former owner's new inventory. Held/rear shields have
+no deployment timer.
+
+Core oriented-box intersections stop Machine Gun, Missile and Salvo segments at the closest
+wall, comparing against native terrain/chassis hits. Native weapon queries omit layer 32 so
+same-step destruction cannot leave phantom cover. Bullets damage the struck pool. Explosions
+damage/impulse each wall once independently of the number of vehicles in the blast; the
+existing non-occluded vehicle radial explosion rule is preserved. Vehicle contacts name the
+struck wall; strongest manifold severity damages it once, with the shared default collision
+cooldown on the independent pool. Lethal damage journals one destruction and removes the
+body through complete-state absence, without touching the former owner's new inventory.
+
+Item protocol 20 and nested checkpoints retain dimensions, mass, pose, both velocities,
+identity, HP, expiry deadline, tipping state and replay watermarks. Live motion uses the existing reliable item channel,
+including its delayed-delivery limitations. Resume/migration rebuild native bodies from the
+selected boundary without replaying use or destruction. Native solver contact caches and
+cosmetic expansion progress are not serialized; recovered walls appear fully expanded.
+
+`check-world-wall.ps1 -GodotPath <exe> [-Impaired] [-Visual]` exercises two production UDP
+arenas, stationary/60 m/s forward/reverse/banked deployment of damaged shields, blocked-use
+retry with the same capability, retired-use rejection,
+drive-away independence, retained release facing, bank alignment/elevation following,
+native vehicle push with measured slowdown and damage, bounded three-second unpowered coast
+after an 8 m/s push, fresh third-peer admission, sustained
+Machine Gun destruction, native Missile/Salvo impacts and exact publication-boundary comparisons. It also deploys sixteen
+walls through ordinary use and sustains their native state for 600 frames. Rendered runs
+capture expanded, pushed, destroyed and stress states. Every live wall is checked for upright
+orientation before tipping throughout the run. An off-centre vehicle strike must rotate
+the wall without artificial torque. A hard native vehicle strike must tip it and break it
+on ground contact. Ordinary banked contact and five hard strikes (host/remote, centred/offset,
+40/60 m/s setup speeds, reverse-facing and banked) measure support-relative car rise and
+upward speed; hard strikes continue for three seconds without resetting the car. A short
+configured lifetime verifies exact expiry and peer cleanup. Missile/Salvo target fixtures reposition the surviving
+wall onto level support after the motion test; they do not establish moving-target accuracy.
+Add `-ProductionMap` to exercise sixteen normal-use deployments at
+all eight oval grid spawns and the seven authored infield pickup areas, including impaired
+UDP convergence. That fixture suppresses pickup acquisition to isolate exact-slot assertions.
+`check-reconnect.ps1 -Tombstone` and
+`check-migration.ps1` compare complete retained wall state against the exact selected host
+boundary; deterministic tests additionally exercise Missile/Salvo wall damage and impulse.
+These fixtures do not establish Internet/EOS multi-PC performance, final art or balance.

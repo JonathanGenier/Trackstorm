@@ -273,6 +273,7 @@ function Get-FastCheckPlan {
             Add-Manual 'Navigate the affected menu with mouse/keyboard/controller paths that are material to the change.'
         }
 
+        if ($path -match '(?i)Tombstone|WorldWall|world.wall|ItemAuthority|NetworkVehicleBody|NetworkVehicleArena') { Add-Runtime 'check-world-wall.ps1'; Add-Manual 'Run check-world-wall.ps1 -ProductionMap -Impaired -Visual for production oval/infield deployment, then inspect upright sliding and yaw after vehicle impacts.' }
         if ($path -match '(?i)Tombstone|tombstone_checks|check-tombstone') { Add-Runtime 'check-tombstone.ps1' }
         if ($path -match '(?i)Tombstone|RearShield|rear.shield|ItemAuthority|NetworkVehicleBody|NetworkVehicleArena') { Add-Runtime 'check-rear-shield.ps1' }
         if ($path -match '(?i)MachineGun|machine_gun|check-machine-gun') { Add-Runtime 'check-machine-gun.ps1' }
