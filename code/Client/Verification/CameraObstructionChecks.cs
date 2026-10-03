@@ -131,8 +131,8 @@ public sealed partial class CameraObstructionChecks : Node3D
             _camera.Follow(pose, _state, dt, _followedBody.GetRid());
             Vector3 pivot = pose * VehicleBody.ToGodot(WeaponAim.Pivot);
             float distance = _camera.GlobalPosition.DistanceTo(pivot);
-            float chaseRadius = new Vector2(_camera.FollowDistance, _camera.CameraHeight).Length();
-            Vector3 viewBoom = Basis.FromEuler(new Vector3(Mathf.DegToRad(_camera.ViewDownAngle), 0, 0)) * new Vector3(0, _camera.CameraHeight, _camera.FollowDistance);
+            float chaseRadius = new Vector2(_camera.FollowDistance * 1.15f, _camera.CameraHeight).Length();
+            Vector3 viewBoom = Basis.FromEuler(new Vector3(Mathf.DegToRad(_camera.ViewDownAngle), 0, 0)) * new Vector3(0, _camera.CameraHeight, _camera.FollowDistance * 1.15f);
             float correction = _camera.GlobalPosition.DistanceTo(pivot + _camera.GlobalBasis * viewBoom);
             _maxCorrection = Math.Max(_maxCorrection, correction);
             // The one-frame orbit input can briefly anticipate the low barrier at

@@ -68,7 +68,7 @@ public static class PlayerSettingsJson
                 MusicVolume = Number(root, "musicVolume", 1),
                 SfxVolume = Number(root, "sfxVolume", 1),
                 CameraShakeIntensity = Number(root, "cameraShakeIntensity", 1),
-                CameraDistance = Number(root, "cameraDistance", 1),
+                CameraDistance = Number(root, "cameraDistance", 1.15),
                 CameraInertia = Number(root, "cameraInertia", .5),
                 CameraAerialPullback = Number(root, "cameraAerialPullback", 1),
                 MouseAimSensitivity = Number(root, "mouseAimSensitivity", 1),

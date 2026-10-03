@@ -13,7 +13,7 @@ The Main Menu and joined Lobby each provide a **Settings** entry. The joined Lob
 | Window resolution | 1280 Ã— 720 | The editor offers common sizes fitting the current screen; runtime sizing also bounds the window to the usable screen. |
 | Speed units | km/h | mph is a presentation conversion; simulation speeds remain metres per second. |
 | Camera shake | 100% | Gameplay page slider scales collision/damage camera feedback from 0â€“100%; zero disables it immediately. Follow, heading and inertia are unchanged. |
-| Chase distance | 1× | Gameplay slider 1–1.5× preserves the close 6.4 m baseline and allows a wider 9.6 m chase view. Live edits blend smoothly. |
+| Chase distance | 1.15× | Gameplay slider 1.15–1.5× gives a 7.36–9.6 m chase view. Older saved values below the minimum clamp to 1.15. Live edits blend smoothly. |
 | Camera inertia | 0.5 | Gameplay slider 0–1 scales restrained positional weight; zero removes it. No horizontal translation lag is added. |
 | Aerial pullback | 1× | Gameplay slider 0–1.5× adds up to 5.4 m during sustained flight. Zero disables the extra distance. |
 | Show FPS / Show Ping | Both off | Independent flags update diagnostics visibility immediately. |

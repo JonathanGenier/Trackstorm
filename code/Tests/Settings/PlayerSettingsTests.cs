@@ -14,7 +14,7 @@ internal sealed class PlayerSettingsTests
         {
             var settings = new PlayerSettings { CameraDistance = value, CameraInertia = value, CameraAerialPullback = value, ShowFps = true };
             var saved = PlayerSettingsJson.Deserialize(PlayerSettingsJson.Serialize(settings));
-            Assert.That(saved.CameraDistance, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 1, 1.5) : 1));
+            Assert.That(saved.CameraDistance, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 1.15, 1.5) : 1.15));
             Assert.That(saved.CameraInertia, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 0, 1) : .5));
             Assert.That(saved.CameraAerialPullback, Is.EqualTo(double.IsFinite(value) ? Math.Clamp(value, 0, 1.5) : 1));
             Assert.That(saved.ShowFps, Is.True);
@@ -22,7 +22,7 @@ internal sealed class PlayerSettingsTests
         foreach (string json in new[] { "{}", "{\"cameraDistance\":null,\"cameraInertia\":\"bad\",\"cameraAerialPullback\":1e999}" })
         {
             var settings = PlayerSettingsJson.Deserialize(json);
-            Assert.That(settings.CameraDistance, Is.EqualTo(1));
+            Assert.That(settings.CameraDistance, Is.EqualTo(1.15));
             Assert.That(settings.CameraInertia, Is.EqualTo(.5));
             Assert.That(settings.CameraAerialPullback, Is.EqualTo(1));
         }

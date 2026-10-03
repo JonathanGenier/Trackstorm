@@ -21,7 +21,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     private float _heading;
     private Vector3 _anchor;
     private ulong _motionTick;
-    private float _distanceScale = 1;
+    private float _distanceScale = 1.15f;
     private float _airSeconds;
     private bool _recoveringHeading;
 
@@ -135,7 +135,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
         bool reset = !_initialized || state.VehicleId != _vehicle || state.LifeId != _life;
         var preferences = SettingsSource?.Current;
         float inertia = (float)(preferences?.CameraInertia ?? .5) * 2;
-        float distanceScale = (float)(preferences?.CameraDistance ?? 1);
+        float distanceScale = (float)(preferences?.CameraDistance ?? 1.15);
         // Use the shared deployed attachment, not animated rack travel or accepted weapon
         // rotation. Camera input drives weapon intent; following its rotation would feed back.
         Basis pivotBasis = pose.Basis.IsFinite() ? pose.Basis : Basis.FromEuler(new Vector3(0, _heading, 0));
@@ -202,8 +202,8 @@ public sealed partial class VehicleChaseCamera : Camera3D
         }
         // Keep room and the stable pivot while recovering a backward landing. Closing
         // the boom before yaw catches up would push the chassis toward the screen edge.
-        _aerial.Advance(reset ? 0 : delta, state.Movement.Grounded && !_recoveringHeading,
-            _recoveringHeading ? Math.Max(.13f, airborneSeconds) : airborneSeconds, (float)(preferences?.CameraAerialPullback ?? 1));
+        _aerial.Advance(reset ? 0 : delta, state.Movement.Grounded,
+            airborneSeconds, (float)(preferences?.CameraAerialPullback ?? 1), _recoveringHeading);
         _distanceScale = Mathf.Lerp(_distanceScale, distanceScale, ChaseCameraMotion.Blend(8, delta));
         // Rotation of the rack around the chassis must not swing the entire aerial view.
         Vector3 levelPivot = pose.Origin + Basis.FromEuler(new Vector3(0, _heading, 0)) * VehicleBody.ToGodot(WeaponAim.Pivot);

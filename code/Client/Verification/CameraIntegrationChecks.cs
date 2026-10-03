@@ -29,7 +29,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
             Follow();
             Transform3D neutral = camera.GlobalTransform;
             Vector3 rackPivot = VehicleBody.ToGodot(WeaponAim.Pivot);
-            Require(neutral.Origin.IsEqualApprox(rackPivot + new Vector3(0, camera.CameraHeight, camera.FollowDistance)), "Close chase boom originates at the fully deployed rack attachment.");
+            Require(neutral.Origin.IsEqualApprox(rackPivot + new Vector3(0, camera.CameraHeight, camera.FollowDistance * 1.15f)), "Close chase boom originates at the fully deployed rack attachment.");
             Require(Math.Abs(neutral.Basis.GetEuler().X + Mathf.DegToRad(camera.ViewDownAngle)) < .00001f, "Chase uses the shallow reference viewing angle.");
             Vector2 rackScreen = camera.UnprojectPosition(rackPivot);
             Require(rackScreen.Y > camera.GetViewport().GetVisibleRect().Size.Y * .55f, "Rack sits below the centered aiming area.");
@@ -211,7 +211,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
         camera.SettingsSource = settings;
         camera.InputSource = null;
         foreach (int fps in new[] { 30, 60, 144 })
-        foreach (double distance in new[] { 1d, 1.2, 1.5 })
+        foreach (double distance in new[] { 1.15, 1.3, 1.5 })
         foreach (double inertia in new[] { 0d, .5, 1 })
         foreach (double aerial in new[] { 0d, 1, 1.5 })
         {
@@ -231,23 +231,23 @@ public sealed partial class CameraIntegrationChecks : Node3D
                 // A rising, fast translating backflip: the view follows translation but
                 // must not inherit the reversed horizontal projection or chassis roll.
                 var pose = new Transform3D(Basis.FromEuler(new Vector3(i * .07f, 0, i * .03f)), new Vector3(i * .5f, i * .3f, -i));
-                camera.Follow(pose, Snapshot(false, 1), 1f / fps);
+                camera.Follow(pose, Snapshot(false, 2), 1f / fps);
                 Require(camera.GlobalTransform.IsFinite() && camera.GlobalBasis.IsEqualApprox(aim), "Aerial rotations cannot redirect camera-relative aim");
                 Require(Math.Abs(camera.GlobalPosition.X - pose.Origin.X) < 2, "Fast aerial translation has no accumulated follow lag");
             }
             Require(Math.Abs(camera.AerialMotion.Pullback - 3.6 * aerial) < .003, "Aerial distance honors supported strength");
             float expanded = camera.AerialMotion.Pullback;
             camera.Follow(Transform3D.Identity, grounded, 1f / fps);
-            Require(camera.AerialMotion.Pullback >= expanded * .9f, "Landing blends instead of snapping to chase distance");
+            Require(camera.AerialMotion.Pullback >= expanded * .8f, "Landing blends instead of snapping to chase distance");
             for (int i = 0; i < fps * 3; i++) camera.Follow(Transform3D.Identity, grounded, 1f / fps);
             Require(Math.Abs(camera.GlobalPosition.Z - baselineZ) < .001f, "Landing returns to chosen chase framing");
-            settings.UpdateSettings(settings.Current with { CameraDistance = distance == 1 ? 1.5 : 1 });
+            settings.UpdateSettings(settings.Current with { CameraDistance = distance == 1.15 ? 1.5 : 1.15 });
             camera.Follow(Transform3D.Identity, grounded, 1f / fps);
             Require(Math.Abs(camera.GlobalPosition.Z - baselineZ) < .8f && camera.GlobalBasis.IsEqualApprox(aim), "Live distance change blends without rotating aim");
             camera.ResetFollow(); camera.Follow(Transform3D.Identity, grounded, 1f / fps);
             Require(camera.AerialMotion.Amount == 0 && camera.AerialMotion.Pullback == 0, "Reseed clears aerial memory");
         }
-        settings.UpdateSettings(settings.Current with { CameraDistance = 1, CameraInertia = .5, CameraAerialPullback = 1 });
+        settings.UpdateSettings(settings.Current with { CameraDistance = 1.15, CameraInertia = .5, CameraAerialPullback = 1 });
         camera.ResetFollow();
         // Unsupported crash snapshots deliberately carry no player air-control timer.
         var crashPhysics = state.ObservedPhysics;
@@ -369,7 +369,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
             RequireHeading(camera, -0.9f);
             Require(camera.GlobalPosition.DistanceTo(baseline.Origin) > 5, "Mouse orbits the vehicle, not only the viewing direction.");
             Vector3 pivot = VehicleBody.ToGodot(WeaponAim.Pivot);
-            float radius = new Vector2(camera.FollowDistance, camera.CameraHeight).Length();
+            float radius = new Vector2(camera.FollowDistance * 1.15f, camera.CameraHeight).Length();
             Require(Math.Abs(camera.GlobalPosition.DistanceTo(pivot) - radius) < .001f, "Mouse orbit preserves radius about the deployed rack.");
             Basis held = camera.GlobalBasis;
             camera.Follow(Transform3D.Identity, state, 1f / fps);

@@ -10,7 +10,7 @@ if (-not $NoBuild) {
 }
 $outputDirectory = Join-Path $PSScriptRoot ('.godot/ts-279/' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
-$arguments = @('--path', $PSScriptRoot, '--resolution', '1280x720', '--fixed-fps', '60', 'res://scenes/verification/camera_responsiveness_playtest.tscn', '--quit-after', '5500')
+$arguments = @('--path', $PSScriptRoot, '--resolution', '1280x720', '--fixed-fps', '60', 'res://scenes/verification/camera_responsiveness_playtest.tscn', '--quit-after', '6200')
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
 $arguments += @('--', "--camera-output=$outputDirectory")
 if ($Visual) { $arguments += '--camera-captures' }

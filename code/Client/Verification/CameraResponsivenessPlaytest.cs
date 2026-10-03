@@ -11,7 +11,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Repeatable native driving and aerial framing observation with real production cars.</summary>
 public sealed partial class CameraResponsivenessPlaytest : Node3D
 {
-    private static readonly string[] Phases = ["low-speed", "high-speed", "sharp-reversal", "handbrake-slide", "bumps", "short-hop", "jump", "front-flip", "barrel-roll", "backflip", "crash-recovery", "minimum-settings", "maximum-settings", "aerial-yaw-landing"];
+    private static readonly string[] Phases = ["low-speed", "high-speed", "sharp-reversal", "handbrake-slide", "bumps", "short-hop", "jump", "front-flip", "barrel-roll", "backflip", "crash-recovery", "minimum-settings", "maximum-settings", "aerial-yaw-landing", "small-jump", "repeated-hops"];
     private readonly List<VehicleBody> _cars = [];
     private readonly List<string> _trace = ["frame,phase,speed,grounded,air_seconds,up,pullback,inertia_x,inertia_z,camera_x,camera_y,camera_z"];
     private Core.Simulation.Simulation _world = null!;
@@ -27,6 +27,8 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
     private int _slidingFrames;
     private readonly HashSet<int> _inverted = [];
     private float _maximumPullback;
+    private int _smallJumpAirFrames;
+    private float _smallJumpPullback;
 
     public override void _Ready()
     {
@@ -64,11 +66,11 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
 
     private static VehiclePhysicsState Pose(int car, int phase)
     {
-        bool air = car == 0 && phase is >= 6 and <= 9 or >= 11;
+        bool air = car == 0 && phase is >= 6 and <= 9 or >= 11 and <= 13;
         float height = air ? 10 : phase == 5 && car == 0 ? 1.4f : 1.2f;
         float speed = phase == 0 ? 5 : phase == 1 ? 58 : 26;
         N.Quaternion rotation = phase == 10 && car == 0 ? N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, 2.8f) : N.Quaternion.Identity;
-        return new(new(car * 9 + (phase == 4 ? 0 : 30), height, 25), rotation, new(0, air ? 10 : 0, -speed), N.Vector3.Zero);
+        return new(new(car * 9 + (phase == 4 ? 0 : 30), height, 25), rotation, new(0, air ? 10 : car == 0 && phase >= 14 ? 4 : 0, -speed), N.Vector3.Zero);
     }
 
     public override void _PhysicsProcess(double delta)
@@ -81,9 +83,10 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
             if (phase >= Phases.Length) { Finish(); return; }
             if (local == 0)
             {
-                _settings.UpdateSettings(_settings.Current with { CameraDistance = phase == 12 ? 1.5 : 1, CameraInertia = phase == 11 ? 0 : phase == 12 ? 1 : .5, CameraAerialPullback = phase == 11 ? 0 : phase == 12 ? 1.5 : 1 });
+                _settings.UpdateSettings(_settings.Current with { CameraDistance = phase == 12 ? 1.5 : 1.15, CameraInertia = phase == 11 ? 0 : phase == 12 ? 1 : .5, CameraAerialPullback = phase == 11 ? 0 : phase == 12 ? 1.5 : 1 });
                 for (int i = 0; i < _cars.Count; i++) _cars[i].ResetBody(Pose(i, phase));
             }
+            if (phase == 15 && local % 90 == 0 && local > 0) _cars[0].ResetBody(Pose(0, phase));
             var requests = new List<VehicleStepRequest>();
             for (int i = 0; i < _cars.Count; i++)
             {
@@ -120,6 +123,11 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
             if (state.Movement.Drifting) _slidingFrames++;
             if (pose.Basis.Y.Y < -.5f) _inverted.Add(phase);
             _maximumPullback = Math.Max(_maximumPullback, _camera.AerialMotion.Pullback);
+            if (phase >= 14)
+            {
+                if (!state.Movement.Grounded) _smallJumpAirFrames++;
+                _smallJumpPullback = Math.Max(_smallJumpPullback, _camera.AerialMotion.Pullback);
+            }
             _label.Text = $"TS-279 | {Phases[phase]}\n{state.Speed * 3.6:F0} km/h | air {state.Movement.Air.Seconds:F2}s | pullback {_camera.AerialMotion.Pullback:F2}m\nDistance {_settings.Current.CameraDistance:F2} / inertia {_settings.Current.CameraInertia:F2} / aerial {_settings.Current.CameraAerialPullback:F2}";
             Vector3 p = _camera.GlobalPosition;
             _trace.Add(FormattableString.Invariant($"{_frame},{Phases[phase]},{state.Speed},{state.Movement.Grounded},{state.Movement.Air.Seconds},{pose.Basis.Y.Y},{_camera.AerialMotion.Pullback},{_camera.Motion.Offset.X},{_camera.Motion.Offset.Y},{p.X},{p.Y},{p.Z}"));
@@ -141,7 +149,9 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
         Require(_groundFrames > 300 && _airFrames > 300 && _slidingFrames > 30, "Ground, sustained air and real sliding exercised");
         Require(new[] { 7, 8, 9 }.All(_inverted.Contains), "Front flip, barrel roll and backflip reached inverted poses");
         Require(_maximumPullback > 5, "Maximum aerial setting exercised");
+        Require(_smallJumpAirFrames > 30 && _smallJumpPullback < .6f, "Native small jumps exercise airtime without a large zoom-out");
         GD.Print($"Camera responsiveness playtest passed: ground={_groundFrames}, air={_airFrames}, slide={_slidingFrames}, inverted={string.Join(',', _inverted)}, maxPullback={_maximumPullback:F3}m.");
+        GD.Print($"Small-jump framing: air={_smallJumpAirFrames}, maximum pullback={_smallJumpPullback:F3}m.");
         _done = true; GetTree().Quit();
     }
 

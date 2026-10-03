@@ -171,8 +171,8 @@ internal sealed partial class SettingsPanel : CanvasLayer
         units.Selected = (int)_settings.Current.SpeedUnit;
         units.ItemSelected += index => _settings.UpdateSettings(_settings.Current with { SpeedUnit = (SpeedUnit)index });
         Row(column, "Speed units", units);
-        ControllerSlider(column, "Chase distance", "CameraDistance", _settings.Current.CameraDistance, 1, 1.5, .05,
-            "Distance multiplier. 1 is the close aiming view; higher gives more space.", value => _settings.Current with { CameraDistance = value });
+        ControllerSlider(column, "Chase distance", "CameraDistance", _settings.Current.CameraDistance, 1.15, 1.5, .05,
+            "Distance multiplier. 1.15 is the default close aiming view; higher gives more space.", value => _settings.Current with { CameraDistance = value });
         ControllerSlider(column, "Camera inertia", "CameraInertia", _settings.Current.CameraInertia, 0, 1, .05,
             "0 gives immediate follow; higher adds a small amount of weight. Default: 0.50.", value => _settings.Current with { CameraInertia = value });
         ControllerSlider(column, "Aerial pullback", "CameraAerialPullback", _settings.Current.CameraAerialPullback, 0, 1.5, .05,
