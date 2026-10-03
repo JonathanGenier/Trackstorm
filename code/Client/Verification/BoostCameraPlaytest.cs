@@ -79,7 +79,14 @@ public sealed partial class BoostCameraPlaytest : Node3D
                 5 => frame is >= 60 and < 240 && frame % 24 < 8, 6 => frame is >= 60 and < 240, _ => false };
             if (frame == 0)
             {
-                for (int i = 0; i < _cars.Count; i++) { _cars[i].ResetBody(Pose(i, phase == 4, i == 0 || phase == 6 ? phase == 3 ? 58 : 24 : 8)); }
+                for (int i = 0; i < _cars.Count; i++)
+                {
+                    var spawn = Pose(i, phase == 4, i == 0 || phase == 6 ? phase == 3 ? 58 : 24 : 8);
+                    // Give all three simultaneous boosters a full straight before the
+                    // bank. A lead car crashing early does not exercise joint exhaust.
+                    if (phase == 6) spawn = new(new(-110 + i * 15, 1.3f, 96 + i * 3), spawn.Orientation, spawn.LinearVelocity, spawn.AngularVelocity);
+                    _cars[i].ResetBody(spawn);
+                }
             }
             var requests = new List<VehicleStepRequest>();
             for (int i = 0; i < _cars.Count; i++)
@@ -120,6 +127,8 @@ public sealed partial class BoostCameraPlaytest : Node3D
             grounded = state.Movement.Grounded, fov = _camera.Fov, pullback = _camera.BoostMotion.PullBack,
             streaks = _camera.BoostMotion.StreakStrength, flame = _exhausts[0].FlameEnergy,
             smoke = _exhausts[0].SmokeEmitting, hp = state.Damage.CurrentHP,
+            allFlames = _exhausts.Select(exhaust => exhaust.FlameVisible).ToArray(),
+            allBoosting = _cars.Select(car => car.Snapshot.Movement.Nitro.Active).ToArray(),
             reframed = _camera.RolloverFraming,
             camera = new[] { _camera.GlobalPosition.X, _camera.GlobalPosition.Y, _camera.GlobalPosition.Z },
             position = new[] { _cars[0].GlobalPosition.X, _cars[0].GlobalPosition.Y, _cars[0].GlobalPosition.Z },
