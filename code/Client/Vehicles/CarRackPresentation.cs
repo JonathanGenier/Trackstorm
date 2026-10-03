@@ -24,11 +24,16 @@ internal sealed partial class CarRackPresentation : Node
     private ulong _nitroReadyTick;
     private ProxyMineState? _placement;
     private bool _mineReturning;
+    private WeaponAimSolution? _aim;
 
     internal required BoostExhaust Boost { get; init; }
 
     internal HeldItem PresentedItem => _payload?.Visible == true ? _mounted : HeldItem.None;
     internal float Progress => _mechanism.Progress;
+    internal void ObserveAim(WeaponAimSolution? aim)
+    {
+        _aim = aim is not null && aim.Life == _life && aim.Token == _previous?.Active.Token ? aim : null;
+    }
 
     public override void _Ready()
     {
@@ -69,6 +74,7 @@ internal sealed partial class CarRackPresentation : Node
             (_previous is null || active.Item != _previous.Active.Item || (active.Token != _previous.Active.Token && !used));
         if (selection || acquired)
         {
+            _aim = null;
             _replacementStart = _mechanism.Progress;
             _replacementNozzle = Boost.Deployment;
             _replace = _mounted != HeldItem.None;
@@ -116,6 +122,7 @@ internal sealed partial class CarRackPresentation : Node
         _useTime = 0;
         _placement = null;
         _mineReturning = false;
+        _aim = null;
     }
 
     public override void _Process(double delta)
@@ -142,7 +149,7 @@ internal sealed partial class CarRackPresentation : Node
         else if (_mounted == HeldItem.None && _desired != HeldItem.None)
         {
             _mounted = _desired;
-            _payload = _mounted == HeldItem.Nitro ? Boost : Items.RackItemVisual.Create(_mounted);
+            _payload = _mounted == HeldItem.Nitro ? Boost : WeaponAim.Supports(_mounted) ? new Items.WeaponAimMount(_mounted) : Items.RackItemVisual.Create(_mounted);
             _payload.Visible = false;
             if (_mounted != HeldItem.Nitro) { _rack.AddChild(_payload); }
             if (_payload is Items.ProxyMineRack arm) { arm.Observe(_placement); }
@@ -178,7 +185,8 @@ internal sealed partial class CarRackPresentation : Node
             float reveal = Mathf.SmoothStep(0, 1, Mathf.Clamp((_mechanism.Progress - 0.92f) / 0.08f, 0, 1));
             _payload.Visible = reveal > 0;
             _payload.Scale = Vector3.One * Math.Max(0.001f, reveal);
-            _payload.Position = new Vector3(0, 0.17f, 0);
+            _payload.Position = new Vector3(0, _payload is Items.WeaponAimMount ? WeaponAim.Pivot.Y - 1.34f : 0.17f, 0);
+            if (_payload is Items.WeaponAimMount mount) { mount.Present(_replace || _mechanism.Progress < .999f ? null : _aim, (float)delta); }
             if (_usePending && _mounted == _useItem && !_replace && _mechanism.Progress >= 0.999f)
             {
                 _useTime = Math.Max(0, _useTime - (float)delta);

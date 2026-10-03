@@ -1,0 +1,11 @@
+  Trackstorm.Core -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Core\bin\Debug\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\j_gen\Documents\Game Projects\Trackstorm\third_party\eos\bin\Debug\net10.0\Epic.OnlineServices.dll
+C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Networking\NetworkVehicleArena.Aiming.cs(73,9): error CS1674: 'Array<Rid>': type used in a using statement must implement 'System.IDisposable'. [C:\Users\j_gen\Documents\Game Projects\Trackstorm\Trackstorm.Client.csproj]
+
+Build FAILED.
+
+C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Networking\NetworkVehicleArena.Aiming.cs(73,9): error CS1674: 'Array<Rid>': type used in a using statement must implement 'System.IDisposable'. [C:\Users\j_gen\Documents\Game Projects\Trackstorm\Trackstorm.Client.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:06.27

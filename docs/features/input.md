@@ -1,5 +1,7 @@
 # Player Input System
 
+Selected direct-fire camera input uses [shared weapon aiming](weapon-aiming.md). Existing dead zone/remapping precede the local radial stick response. Controls settings persist independent mouse/stick sensitivities and stick exponent. Mouse displacement stays direct; existing suppression discards aiming cues and intent.
+
 ## Purpose and Behavior
 
 Player input converts keyboard and one assigned gamepad into engine-independent, per-tick input suitable for vehicle gameplay and recorded replay. Logical controls include accelerate, brake/reverse, left/right steering, handbrake, use item, switch item, leaderboard, menu navigation, accept, cancel, and pause. The vehicle decides whether a brake request means braking or reversing; input does not implement vehicle rules.

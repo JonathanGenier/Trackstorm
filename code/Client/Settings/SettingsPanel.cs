@@ -176,6 +176,9 @@ internal sealed partial class SettingsPanel : CanvasLayer
         Toggle(column, "Show FPS", _settings.Current.ShowFps, value => _settings.Current with { ShowFps = value });
         Toggle(column, "Show Ping", _settings.Current.ShowPing, value => _settings.Current with { ShowPing = value });
         column = Page(MenuPage.Controls);
+        AimPreference(column, "Mouse aim sensitivity", _settings.Current.MouseAimSensitivity, .25, 3, value => _settings.Current with { MouseAimSensitivity = value });
+        AimPreference(column, "Stick aim sensitivity", _settings.Current.StickAimSensitivity, .25, 3, value => _settings.Current with { StickAimSensitivity = value });
+        AimPreference(column, "Stick aim response curve", _settings.Current.StickAimCurve, 1, 3, value => _settings.Current with { StickAimCurve = value });
         Toggle(column, "Invert steering axis", _settings.Current.InvertSteering, value => _settings.Current with { InvertSteering = value });
         _hint.Text = "Select a binding, then press a key or gamepad control. Shared bindings are allowed.";
         _hint.AutowrapMode = TextServer.AutowrapMode.WordSmart;
@@ -427,6 +430,13 @@ internal sealed partial class SettingsPanel : CanvasLayer
         control.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         row.AddChild(control);
         parent.AddChild(row);
+    }
+
+    private void AimPreference(VBoxContainer parent, string title, double value, double min, double max, Func<double, PlayerSettings> change)
+    {
+        var control = new SpinBox { MinValue = min, MaxValue = max, Step = .05, Value = value };
+        control.ValueChanged += next => _settings.UpdateSettings(change(next));
+        Row(parent, title, control);
     }
 
     private void Volume(VBoxContainer parent, string title, double value, Func<double, PlayerSettings> change)

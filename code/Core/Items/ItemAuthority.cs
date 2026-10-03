@@ -65,6 +65,7 @@ public sealed partial class ItemAuthority
             throw new ArgumentException("Invalid item authority continuation.");
         }
 
+        ResetAims();
         _slots.Clear();
         foreach (var slot in publication.Slots)
         {
@@ -90,13 +91,15 @@ public sealed partial class ItemAuthority
 
     /// <summary>Discards an uncommitted use when its transport owner is suspended.</summary>
     /// <param name="vehicle">Authoritative player identity.</param>
-    public void CancelPending(ulong vehicle) => _pending.Remove(vehicle);
+    public void CancelPending(ulong vehicle) { _pending.Remove(vehicle); ResetAim(vehicle); }
 
     /// <summary>Removes departed ownership before a checkpoint can observe an absent vehicle.</summary>
     /// <param name="vehicle">Finalized departing player.</param>
     public void RemovePlayer(ulong vehicle)
     {
         _pending.Remove(vehicle);
+        ResetAim(vehicle);
+        _aimDeployment.Remove(vehicle);
         bool changed = _slots.Remove(vehicle);
         changed |= _contacts.RemoveAll(contact => contact.Vehicle == vehicle) > 0;
         changed |= _missiles.RemoveAll(missile => missile.Owner == vehicle) > 0;
@@ -169,6 +172,7 @@ public sealed partial class ItemAuthority
         var inventory = _slots.GetValueOrDefault(vehicle) ?? new ItemSlot(vehicle, life, 0, HeldItem.None);
         if (inventory.Life != life || revision <= inventory.SelectionRevision) { return false; }
         _slots[vehicle] = inventory with { ActiveSlot = (byte)(inventory.ActiveSlot ^ ((revision - inventory.SelectionRevision) & 1)), SelectionRevision = revision, EngagedToken = 0 };
+        ResetAim(vehicle);
         if (_slots[vehicle].ActiveSlot != inventory.ActiveSlot)
         {
             _slots[vehicle] = _slots[vehicle] with { NitroDeploymentTicks = _slots[vehicle].Active.Item == HeldItem.Nitro ? ItemSlot.NitroDeploymentDurationTicks : 0 };
@@ -519,6 +523,12 @@ public sealed partial class ItemAuthority
         foreach (var pair in slots)
         {
             _slots.Add(pair.Key, pair.Value);
+        }
+        foreach (var aim in _aims.Values.ToArray())
+        {
+            var state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == aim.Vehicle);
+            if (state is not { CanInteract: true } || state.LifeId != aim.Life || !_slots.TryGetValue(aim.Vehicle, out var slot) ||
+                slot.Active.Token != aim.Token || !WeaponAim.Supports(slot.Active.Item)) { ResetAim(aim.Vehicle); }
         }
 
         foreach (var removed in missiles.Where(missile => !advanced.Any(value => value.Id == missile.Id) && !events.Any(value => value.Token == missile.Id && value.Impact)))

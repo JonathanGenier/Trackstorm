@@ -1,0 +1,11 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ERROR: System.InvalidOperationException: Held steering reaches full vehicle input
+   at Trackstorm.Client.Verification.CameraIntegrationChecks.Require(Boolean condition, String message) in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\CameraIntegrationChecks.cs:line 194
+   at Trackstorm.Client.Verification.CameraIntegrationChecks.Run() in C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\CameraIntegrationChecks.cs:line 50
+   at: void Trackstorm.Client.Verification.CameraIntegrationChecks.Run() (res://code/Client/Verification/CameraIntegrationChecks.cs:50)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.CameraIntegrationChecks.Run() (C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\CameraIntegrationChecks.cs:50)
+       [2] bool Trackstorm.Client.Verification.CameraIntegrationChecks.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Verification.CameraIntegrationChecks_ScriptMethods.generated.cs:56)
+       [3] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

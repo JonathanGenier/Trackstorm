@@ -14,6 +14,8 @@ public sealed record ProxyMineState(ulong Id, ulong Owner, Vector3 Position, Vec
     public const float Mass = 20;
     /// <summary>Rack preparation, pickup and lowering, in authoritative 60 Hz steps.</summary>
     public const int PlacementDurationTicks = 60;
+    /// <summary>Existing cosmetic arm return, reserved before a replacement weapon can be ready.</summary>
+    public const float ArmReturnSeconds = .23f;
     /// <summary>Lowering must be retried after support disappears; a returning surface cannot cause a teleport-release.</summary>
     public const int PlacementLoweringTicks = 17;
     /// <summary>Maximum reach of the rack's two telescopic links, in metres.</summary>

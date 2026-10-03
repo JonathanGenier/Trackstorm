@@ -51,6 +51,10 @@ function Get-FastCheckPlan {
         if ($path -match 'TrophyTruck|trophy_truck|check-trophy-truck|VehicleCollision|NetworkVehicleBody') {
             Add-Runtime 'check-trophy-truck.ps1'
         }
+        if ($path -match 'WeaponAim|Aiming|weapon_aim|check-weapon-aim') {
+            Add-Runtime 'check-weapon-aim.ps1'
+            Add-Manual 'Inspect aiming while driving, close/airborne/crossing targets, mouse and physical controller feel, and impaired remote articulation with check-weapon-aim.ps1 -Visual -Impaired.'
+        }
         if ($path -match 'CarRack|RackItemVisual|car_rack|check-car-rack') {
             Add-Runtime 'check-car-rack.ps1'
             Add-Manual 'Inspect selected rack payloads, two-slot switching, sustained use and remote visibility.'

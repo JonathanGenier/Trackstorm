@@ -11,7 +11,7 @@ using Trackstorm.Core.Vehicles;
 namespace Trackstorm.Client.Networking;
 
 /// <summary>Connects the transport's byte seam to Core authority/prediction at fixed tick boundaries.</summary>
-internal sealed class VehicleNetworkDriver : IDisposable
+internal sealed partial class VehicleNetworkDriver : IDisposable
 {
     private ulong _switchLife;
     private ulong _switchRevision;
@@ -319,6 +319,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
 
             RosterChanged?.Invoke(Host.Snapshot());
             if ((input.Pressed & InputButtons.SwitchItem) != 0) { RequestItemSwitch(); }
+            SubmitAim();
             if ((input.Pressed & InputButtons.UseItem) != 0)
             {
                 RequestItemUse();
@@ -342,6 +343,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
             }
 
             Latest = Host.Snapshot();
+            PublishAims();
             MatchState match = Host.World.State.Match!;
             if (_rosterChanged || (match.Revision != _publishedMatchRevision && ShouldPublishMatch(match)))
             {
@@ -428,6 +430,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
             }
 
             if ((input.Pressed & InputButtons.SwitchItem) != 0) { RequestItemSwitch(); }
+            SubmitAim();
             if ((input.Pressed & InputButtons.UseItem) != 0)
             {
                 RequestItemUse(inputs.NextSequence);
@@ -689,6 +692,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         Latest = null;
         _pendingSnapshot = null;
         ItemState = null;
+        ResetAiming();
         PropSnapshot = null;
         _inputs = null;
         _assigned.Clear();
@@ -830,6 +834,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
         _inputs = null;
         Latest = world;
         ItemState = checkpoint.Items;
+        ResetAiming();
         _projectileMotionTick = checkpoint.Items.World.Tick;
         _switchLife = _switchRevision = 0;
         Match = checkpoint.Match;
@@ -1132,6 +1137,7 @@ internal sealed class VehicleNetworkDriver : IDisposable
 
             if (ItemCodec.IsItem(message.Payload.Span))
             {
+                if (ItemCodec.IsAim(message.Payload.Span)) { ReceiveAim(message); return; }
                 if (message.Delivery != TransportDelivery.Reliable)
                 {
                     throw new ArgumentException("Items require reliable delivery.");
