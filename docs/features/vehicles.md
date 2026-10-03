@@ -120,14 +120,23 @@ The production Car is an original Blender-authored armored coupe with enlarged o
 The [Tombstone carriage](../../assets/items/tombstone/README.md) uses the rear rack socket pair
 and extends aft of the production wrap guards. The selected shield follows the full interpolated
 Car pose. A bolted saddle, twin boxed arms, hydraulic rams and four-jaw cradle carry
-the shield. The folded stack appears at half size once the deck clears and rides
-the rack through its lift. After the production rack rises, it travels aft, reaches full size, rolls
-upright, opens its two center halves and side wings, and draws forward into its rear
-position. Deselecting reverses that 0.95-second motion before allowing rack retraction;
+the shield. The folded stack appears at 0.42 scale once the deck clears and rides
+the rack through its lift. After the production rack rises, it travels aft, reaches full size, pitches
+upright, opens its two center halves, side wings and four horizontal hinges, and draws forward into its rear
+position. Deselecting reverses that 1.15-second motion before allowing rack retraction;
 an empty carriage also returns after world release. Three full-height physical
 panels match the rear plate and short wraparound side wings. Original vehicle geometry,
 wheel articulation and force laws remain unchanged. Shield/wall presentation is described
 under [held items](items.md#tombstone-rear-shield-and-persistent-health).
+
+Mounted armor skims authored driveable ground instead of acting as a rear skid on
+slopes. The native adapter sweeps chassis and armor separately, excludes contacted
+driveable terrain from the armor query only, then chooses the earlier blocking
+result. The chassis retains its complete terrain response. Armor still collides
+with vehicles and solid obstacles; weapon cover and deployed-wall collision remain
+unchanged. Up to eight armor queries handle overlapping support bodies, retaining
+contact if that bound is exhausted. The low visual edge may briefly enter terrain
+at sharp slope transitions; no automatic shield lift or new suspension is applied.
 
 ## Player-controlled airborne rotation
 

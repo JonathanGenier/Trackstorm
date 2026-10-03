@@ -56,6 +56,10 @@ center halves. Early use preserves the displayed pose, scale, center fold and
 wing/horizontal folds at world release; the empty carriage returns afterward. Protection and
 use remain immediate under existing authority. No authored mesh supplies collision: Core owns a rear
 panel and two side-panel boxes, and the deployed wall retains its native box.
+While mounted, the armor sweep skims contacted driveable terrain; the chassis
+retains its own ground collision. The low visual edge may enter a sharp slope
+transition briefly. Vehicle/obstacle armor contacts and deployed-wall collision
+remain active; see the [item contact contract](../../../docs/features/items.md#tombstone-rear-shield-and-persistent-health).
 
 The shader reconstructs wear per identity from accepted HP. Impact flash/sparks
 and short, non-colliding panel breakup (including the horizontal joints) are cosmetic. Shared meshes do not share

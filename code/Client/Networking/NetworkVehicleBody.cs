@@ -10,6 +10,7 @@ namespace Trackstorm.Client.Networking;
 internal sealed partial class NetworkVehicleBody : StaticBody3D
 {
     private VehicleMotionQuery _motionQuery = null!;
+    private VehicleMotionQuery _shieldMotionQuery = null!;
     /// <summary>Current native support material, independent of simulation handling.</summary>
     internal SurfaceIdentity? DetectedSurface { get; private set; }
 
@@ -65,7 +66,8 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         _rearCollisions = TombstoneGeometry.MountedBoxes.Select(box => new CollisionShape3D
         { Shape = new BoxShape3D { Size = VehicleBody.ToGodot(box.Size) }, Position = VehicleBody.ToGodot(box.Center), Disabled = true }).ToArray();
         foreach (var panel in _rearCollisions) { AddChild(panel); }
-        _motionQuery = new VehicleMotionQuery(this, [chassis, .. _rearCollisions]);
+        _motionQuery = new VehicleMotionQuery(this, chassis);
+        _shieldMotionQuery = new VehicleMotionQuery(this, _rearCollisions);
         _rearVisual = new Items.TombstoneVisual { Position = Items.TombstoneVisual.MountedCenter, Visible = false };
         _visual.AddChild(_rearVisual);
         _visual.TopLevel = true;
@@ -92,6 +94,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     public override void _ExitTree()
     {
         _motionQuery?.Dispose();
+        _shieldMotionQuery?.Dispose();
     }
 
     /// <summary>Drives a shader parameter only from accepted health outcomes.</summary>
@@ -183,6 +186,39 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     internal void SetShieldQueryEnabled(bool enabled)
     { foreach (var panel in _rearCollisions) { panel.Disabled = !enabled || !HasRearShield; } }
 
+    private bool TestShieldMotion(PhysicsTestMotionParameters3D parameters, PhysicsTestMotionResult3D result)
+    {
+        // Armor may skim authored driveable support without becoming a rear skid.
+        // Query the chassis separately so excluding terrain here never removes its
+        // ground response. Repeat the armor sweep to retain obstacles behind ground.
+        var original = parameters.ExcludeBodies;
+        var excluded = new Godot.Collections.Array<Rid>(original);
+        try
+        {
+            for (int pass = 0; pass < 8; pass++)
+            {
+                parameters.ExcludeBodies = excluded;
+                if (!_shieldMotionQuery.Test(parameters, result)) { return false; }
+                int before = excluded.Count;
+                for (int i = 0; i < result.GetCollisionCount(); i++)
+                {
+                    var collider = result.GetCollider(i);
+                    var normal = EnvironmentContact.SupportFaceNormal(this, collider, result.GetCollisionPoint(i), result.GetCollisionNormal(i));
+                    if (normal.Y >= _configuration.SupportNormalMinimum &&
+                        (collider is SurfaceBody || collider is Node terrain && terrain.IsInGroup("landing_terrain")))
+                    {
+                        var rid = result.GetColliderRid(i);
+                        if (!excluded.Contains(rid)) { excluded.Add(rid); }
+                    }
+                }
+                if (excluded.Count == before) { return true; }
+            }
+            // Retain contact if unusually dense overlapping support exhausts the bound.
+            return true;
+        }
+        finally { parameters.ExcludeBodies = original; }
+    }
+
     /// <summary>Resolves the preceding Core command through bounded native sweep/slide queries.</summary>
     /// <returns>Solved numeric physics/support/contact observations for the next Core step.</returns>
     /// <param name="snapshot">Complete pre-solver command boundary.</param>
@@ -227,12 +263,17 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         var pushed = new HashSet<ulong>();
         var contacts = new List<VehicleContact>();
         using var parameters = new PhysicsTestMotionParameters3D { Margin = 0.005f, MaxCollisions = 4, RecoveryAsCollision = true };
-        using var result = new PhysicsTestMotionResult3D();
+        using var chassisResult = new PhysicsTestMotionResult3D();
+        using var shieldResult = new PhysicsTestMotionResult3D();
         for (int slide = 0; slide < 4; slide++)
         {
             parameters.From = transform;
             parameters.Motion = remaining;
-            bool collided = _motionQuery.Test(parameters, result);
+            bool collided = _motionQuery.Test(parameters, chassisResult);
+            var result = chassisResult;
+            if (HasRearShield && TestShieldMotion(parameters, shieldResult) &&
+                (!collided || shieldResult.GetCollisionSafeFraction() < chassisResult.GetCollisionSafeFraction()))
+            { result = shieldResult; collided = true; }
             transform.Origin += collided ? result.GetTravel() : remaining;
             if (!collided)
             {

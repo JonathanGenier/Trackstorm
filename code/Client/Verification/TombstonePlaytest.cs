@@ -88,6 +88,7 @@ public sealed partial class TombstonePlaytest : Node
             if (_remaining > 0)
             {
                 _trace.Add(new { frame = _frame, tick = host.World.State.Tick,
+                    vehicles = host.World.State.Vehicles.Select(v => new { id = v.VehicleId, position = v.ObservedPhysics.Position, hp = v.Damage.CurrentHP }).ToArray(),
                     walls = _arenas[0].Walls.Bodies.Values.Select(b => new { id = b.Identity, expansion = b.Visual.Expansion, hp = b.Visual.PresentedHP, centerFold = b.Visual.CenterFold, horizontalFold = b.Visual.HorizontalFold }).ToArray(),
                     shields = _arenas[0].Bodies.Values.Select(b => new { id = b.VehicleId, shield = b.HasRearShield, rack = b.Rack.Progress,
                         mount = b.ShieldMountProgress, visible = b.ShieldVisible, centerFold = b.ShieldCenterFold, horizontalFold = b.ShieldHorizontalFold, scale = b.ShieldScale,
@@ -117,6 +118,7 @@ public sealed partial class TombstonePlaytest : Node
         if (id == _commandId) { return; }
         _commandId = id;
         if (command.TryGetProperty("quit", out var quit) && quit.GetBoolean()) { GetTree().Quit(); return; }
+        if (command.TryGetProperty("ramps", out var ramps) && ramps.GetBoolean()) { AddSlopeCourse(); }
         float Number(string key, float fallback = 0) => command.TryGetProperty(key, out var value) ? value.GetSingle() : fallback;
         Vector3 Point(JsonElement value) { var a = value.EnumerateArray().Select(v => v.GetSingle()).ToArray(); return new(a[0], a[1], a[2]); }
         var host = _arenas[0].Driver.Host!;
@@ -163,6 +165,35 @@ public sealed partial class TombstonePlaytest : Node
         _arenas[0].Bodies[id].Apply(pose);
         host.World.Restore(new(world.Tick, world.LastInput, world.Vehicles.Select(v => v.VehicleId != id ? v :
             new VehicleSnapshot(v.VehicleId, v.LifeId, new VehicleState(world.Tick, pose, true, false, 0, 0), v.Damage, pose)), world.Match));
+    }
+
+    private void AddSlopeCourse()
+    {
+        foreach (var arena in _arenas)
+        {
+            if (arena.HasNode("SlopeCourse")) { continue; }
+            var vertices = new List<Vector3>();
+            var profile = new[] { new Vector2(-8, 200.5f), new Vector2(-32, 209.2353f),
+                new Vector2(-48, 209.2353f), new Vector2(-72, 200.5f) };
+            for (int i = 1; i < profile.Length; i++)
+            {
+                var a = new Vector3(-8, profile[i - 1].Y, profile[i - 1].X);
+                var b = new Vector3(8, a.Y, a.Z);
+                var c = new Vector3(-8, profile[i].Y, profile[i].X);
+                var d = new Vector3(8, c.Y, c.Z);
+                vertices.AddRange([a, c, b, b, c, d]);
+            }
+            var course = new StaticBody3D { Name = "SlopeCourse", CollisionLayer = 1 };
+            course.AddToGroup("landing_terrain");
+            course.AddChild(new CollisionShape3D { Shape = new ConcavePolygonShape3D { Data = vertices.ToArray(), BackfaceCollision = true } });
+            using var surface = new SurfaceTool();
+            surface.Begin(Mesh.PrimitiveType.Triangles);
+            foreach (var vertex in vertices) { surface.AddVertex(vertex); }
+            surface.GenerateNormals();
+            course.AddChild(new MeshInstance3D { Mesh = surface.Commit(), MaterialOverride = new StandardMaterial3D
+                { AlbedoColor = new(.35f, .30f, .20f), CullMode = BaseMaterial3D.CullModeEnum.Disabled } });
+            arena.AddChild(course);
+        }
     }
 
     private static float ArticulationClearance(NetworkVehicleBody body)

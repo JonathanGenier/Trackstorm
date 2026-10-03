@@ -8,6 +8,9 @@ if (-not $NoBuild) {
     & "$PSScriptRoot/tools/check-fast.ps1" -Area Client
     if ($LASTEXITCODE -ne 0) { throw 'Tombstone presentation build failed.' }
 }
+$ground = & $GodotPath --headless --path $PSScriptRoot res://scenes/verification/mounted_shield_ground_checks.tscn 2>&1
+$ground | Write-Output
+if ($LASTEXITCODE -ne 0 -or $ground -match 'ERROR:|WARNING:|Exception' -or -not ($ground -match 'Mounted shield ground passed:')) { throw 'Mounted shield ground regression failed.' }
 $output = Join-Path $PSScriptRoot '.godot/ts-219/playtest'
 New-Item -ItemType Directory -Force $output | Out-Null
 $run = 'check-' + [DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss')
@@ -119,6 +122,20 @@ try {
     Assert ($earlyDone.trace[-1].shields[1].mount -eq 0 -and -not $earlyDone.trace[-1].shields[1].visible) 'Empty carriage returns cleanly after early deployment.'
     $clearances = @($mounted,$stowing,$stowed,$rackLift,$opening,$swing,$centerOpening,$ready,$rapidOut,$rapidIn,$stored,$selected,$repeat,$again,$landing,$drive,$nitro,$early,$earlyUse) | ForEach-Object { $_.trace.shields } | Where-Object visible | ForEach-Object articulationClearance
     Assert (($clearances | Measure-Object -Minimum).Minimum -gt .01) 'Mounted armor clears articulated rear tires and trunk lids during rack motion, landing, driving and steering.'
+    $park = Command 'slope-park-other' @{owner=1;spawn=@(25,201.7,0);frames=30}
+    $slopeReady = Command 'slope-ready' @{owner=2;ramps=$true;spawn=@(0,201.7,0);grant=$true;frames=120;chase=$true}
+    $slopeId = @($slopeReady.tombstones | Where-Object { $_.Owner -eq 2 -and $_.Stage -eq 1 })[0].Id
+    $peak = 0; $crossed = $false
+    for ($phase=0; $phase -lt 16; $phase++) {
+        $slope = Command "slope-drive-$phase" @{owner=2;throttle=.55;frames=60}
+        $positions = @($slope.trace.vehicles | Where-Object id -eq 2).position
+        $peak = [Math]::Max($peak, ($positions.Y | Measure-Object -Maximum).Maximum)
+        Assert (@($slope.tombstones | Where-Object Id -eq $slopeId)[0].HP -eq 1000) "Slope driving phase $phase preserves mounted shield HP."
+        if (@($slope.vehicles | Where-Object id -eq 2)[0].pose.Position.Z -lt -76) { $crossed=$true; break }
+    }
+    Assert ($crossed -and $peak -gt 209) 'Ordinary driving climbs, crests and descends the twenty-degree slope course.'
+    $slopeDone = Command 'slope-stop' @{owner=2;brake=1;frames=40}
+    Assert (@($slopeDone.remote | Where-Object Id -eq $slopeId)[0].HP -eq 1000) 'Remote peer retains the same undamaged mounted shield after slope traversal.'
     Publish @{id="$run-quit";quit=$true}
     if (-not $process.WaitForExit(10000)) { throw 'Playtest did not exit.' }
     $errors = Get-Content -LiteralPath (Join-Path $output "$run-errors.log") -Raw
