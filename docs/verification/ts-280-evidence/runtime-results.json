@@ -1,0 +1,310 @@
+[
+  {
+    "check": "destructible-environment",
+    "initialResult": "PASS",
+    "initialSeconds": 43.3,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-destructible-recheck.log",
+    "rechecked": true
+  },
+  {
+    "check": "repeated-collisions",
+    "initialResult": "PASS",
+    "initialSeconds": 44.8,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-repeated-collisions.log",
+    "rechecked": false
+  },
+  {
+    "check": "rock-collisions",
+    "initialResult": "PASS",
+    "initialSeconds": 141.9,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-rock-collisions.log",
+    "rechecked": false
+  },
+  {
+    "check": "rock-collision-network",
+    "initialResult": "PASS",
+    "initialSeconds": 72.1,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-rock-collision-network.log",
+    "rechecked": false
+  },
+  {
+    "check": "environment-collisions",
+    "initialResult": "PASS",
+    "initialSeconds": 10.3,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-environment-collisions.log",
+    "rechecked": false
+  },
+  {
+    "check": "following-contact-network",
+    "initialResult": "PASS",
+    "initialSeconds": 18.9,
+    "options": {
+      "NoBuild": true,
+      "Visual": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-following-contact-network.log",
+    "rechecked": false
+  },
+  {
+    "check": "environment-collision-network",
+    "initialResult": "PASS",
+    "initialSeconds": 21.3,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-environment-collision-network.log",
+    "rechecked": false
+  },
+  {
+    "check": "world-collisions",
+    "initialResult": "FAIL: World collision checks failed.",
+    "initialSeconds": 130.7,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-world-collisions-recheck.log",
+    "rechecked": true
+  },
+  {
+    "check": "world-collision-network",
+    "initialResult": "PASS",
+    "initialSeconds": 37.8,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-world-collision-network.log",
+    "rechecked": false
+  },
+  {
+    "check": "world-wall",
+    "initialResult": "PASS",
+    "initialSeconds": 69.0,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-world-wall.log",
+    "rechecked": false
+  },
+  {
+    "check": "tunnel-scrape",
+    "initialResult": "PASS",
+    "initialSeconds": 49.0,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-tunnel-scrape.log",
+    "rechecked": false
+  },
+  {
+    "check": "landing",
+    "initialResult": "PASS",
+    "initialSeconds": 14.9,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-landing.log",
+    "rechecked": false
+  },
+  {
+    "check": "crash-recovery",
+    "initialResult": "PASS",
+    "initialSeconds": 11.1,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-crash-recovery.log",
+    "rechecked": false
+  },
+  {
+    "check": "trophy-truck",
+    "initialResult": "FAIL: Trophy truck integration failed; see .godot/ts-197/trophy.",
+    "initialSeconds": 66.4,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-trophy-truck-recheck.log",
+    "rechecked": true
+  },
+  {
+    "check": "vehicle",
+    "initialResult": "PASS",
+    "initialSeconds": 45.0,
+    "options": {
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-vehicle.log",
+    "rechecked": false
+  },
+  {
+    "check": "terrain-handling",
+    "initialResult": "PASS",
+    "initialSeconds": 52.1,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-terrain-handling.log",
+    "rechecked": false
+  },
+  {
+    "check": "integrated-driving",
+    "initialResult": "PASS",
+    "initialSeconds": 79.7,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-integrated-driving.log",
+    "rechecked": false
+  },
+  {
+    "check": "rear-shield",
+    "initialResult": "PASS",
+    "initialSeconds": 58.0,
+    "options": {
+      "NoBuild": true,
+      "Impaired": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-rear-shield.log",
+    "rechecked": false
+  },
+  {
+    "check": "network-vehicles",
+    "initialResult": "PASS",
+    "initialSeconds": 34.6,
+    "options": {
+      "Loss": 2,
+      "Jitter": 5,
+      "Latency": 30,
+      "Players": 4,
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-network-vehicles.log",
+    "rechecked": false
+  },
+  {
+    "check": "reconnect",
+    "initialResult": "FAIL: Reconnect integration failed; inspect .godot/reconnect-checks/runtime.log.",
+    "initialSeconds": 141.5,
+    "options": {
+      "NoBuild": true,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-reconnect-recheck.log",
+    "rechecked": true
+  },
+  {
+    "check": "migration",
+    "initialResult": "PASS",
+    "initialSeconds": 15.8,
+    "options": {
+      "NoBuild": true,
+      "Players": 3,
+      "GodotPath": "C:/Users/orsin/OneDrive/Desktop/godot/Godot_v4.7.2-stable_mono_win64/Godot_v4.7.2-stable_mono_win64_console.exe"
+    },
+    "finalResult": "PASS",
+    "finalLog": "final-migration-recheck.log",
+    "rechecked": true
+  },
+  {
+    "check": "air-control",
+    "finalResult": "PASS",
+    "finalLog": "final-air-control.log",
+    "options": {
+      "Impaired": false,
+      "NoBuild": true,
+      "GodotPath": "<exe>"
+    }
+  },
+  {
+    "check": "arena",
+    "finalResult": "PASS",
+    "finalLog": "final-arena.log",
+    "options": {
+      "Impaired": false,
+      "NoBuild": true,
+      "GodotPath": "<exe>"
+    }
+  },
+  {
+    "check": "environment",
+    "finalResult": "PASS",
+    "finalLog": "final-environment.log",
+    "options": {
+      "Impaired": false,
+      "NoBuild": false,
+      "GodotPath": "<exe>"
+    }
+  },
+  {
+    "check": "pickup-drive",
+    "finalResult": "FAIL: grazing setup at 8 m/s, offset 2.6729002 m stayed 3.0506 m from the marker, outside the required 3 m test sphere; inventory portion passed.",
+    "finalLog": "final-pickup-drive.log",
+    "options": {
+      "Impaired": true,
+      "NoBuild": true,
+      "GodotPath": "<exe>"
+    }
+  },
+  {
+    "check": "migration-processes",
+    "finalResult": "PASS",
+    "finalLog": "final-migration-processes.log",
+    "options": {
+      "GodotPath": "<exe>",
+      "NoBuild": true,
+      "Players": 3
+    }
+  }
+]

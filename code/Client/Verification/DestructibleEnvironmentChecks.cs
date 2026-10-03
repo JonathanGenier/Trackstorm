@@ -30,7 +30,7 @@ public sealed partial class DestructibleEnvironmentChecks : Node3D
             var production = ActiveMap.Load();
             AddChild(production);
             var configuration = ActiveMap.ReadConfiguration(production);
-            Check(configuration.Environment is { RootCount: 147, Rocks.Count: 588, Plants.Count: 2447 }, "actual production rock/plant coverage");
+            Check(configuration.Environment is { RootCount: 157, Rocks.Count: 628, Plants.Count: 2288 }, "actual production rock/plant coverage");
             var productionView = new DestructibleEnvironment(production);
             var productionAuthority = new EnvironmentAuthority(configuration.Environment!);
             productionView.Apply(productionAuthority.Snapshot(1, 0), true);
@@ -80,7 +80,7 @@ public sealed partial class DestructibleEnvironmentChecks : Node3D
         var layout = DestructibleEnvironment.ReadLayout(fixture)!;
         var authority = new EnvironmentAuthority(layout);
         var initial = authority.Snapshot(1, 0).Rocks.ToArray();
-        initial[0] = new(stage == 3 ? layout.FinalStage(0) : stage, 0, 0, default, default);
+        initial[0] = new(stage == 3 ? layout.FinalStage(0) : stage, 0, 0, default, default, stage > 1 ? EnvironmentAuthority.DebrisLifetimeTicks : 0);
         authority.Restore(new(1, 0, initial, [false]));
         var presentation = new DestructibleEnvironment(fixture);
         presentation.Apply(authority.Snapshot(1, 0), true);
@@ -184,24 +184,27 @@ public sealed partial class DestructibleEnvironmentChecks : Node3D
         {
             Join(); Join(); await Frames(180);
             Check(arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2), "two native UDP peers admitted");
-            EnvironmentRecoveryFixture.Seed(arenas[0]); await Frames(90);
-            EnvironmentRecoveryFixture.Verify(arenas[1]);
+            var seeded = EnvironmentRecoveryFixture.Seed(arenas[0]); await Frames(90);
+            EnvironmentRecoveryFixture.Verify(arenas[1], seeded);
             Join(); await Frames(180);
             Check(arenas.All(a => a.Driver.Latest?.Vehicles.Count == 3), "late peer admitted");
-            EnvironmentRecoveryFixture.Verify(arenas[2]);
+            EnvironmentRecoveryFixture.Verify(arenas[2], seeded);
             var host = arenas[0].Driver.Host!;
             var current = host.Environment!.Snapshot(host.SessionId, host.World.State.Tick);
             var layout = arenas[0].MapConfiguration.Environment!;
             host.Environment.Restore(new(current.Session, current.Tick, current.Rocks.Select((_, i) =>
-                layout.InitialStages[i / 4 * 4] == 2 && i % 4 != 0 ? default : new EnvironmentRockState(layout.FinalStage(i), 0, 0, new((i % 4) * 0.6f, 0, 0), default)), current.Plants.Select(_ => true)));
-            await Frames(600);
+                layout.InitialStages[i / 4 * 4] == 2 && i % 4 != 0 ? default : new EnvironmentRockState(layout.FinalStage(i), 0, 0, new((i % 4) * 0.6f, 0, 0), default,
+                    layout.InitialStages[i / 4 * 4] == 2 ? 0 : current.Tick + EnvironmentAuthority.DebrisLifetimeTicks)), current.Plants.Select(_ => true)));
+            await Frames(690);
             foreach (var arena in arenas)
             {
                 var state = arena.Driver.EnvironmentState!;
                 Check(state.Rocks.Select((r, i) => r.Stage == 0 || r.Stage == arena.MapConfiguration.Environment!.FinalStage(i)).All(x => x) && state.Plants.All(p => p), "complete destruction converges and stays cleared under loss");
                 Check(arena.Map.FindChildren("*", "RigidBody3D", true, false).Count == 0, "no unbounded dynamic debris");
+                Check(state.Rocks.Select((r, i) => layout.InitialStages[i / 4 * 4] == 2 || r.Stage == 0).All(x => x), "destroyed roots expire on every peer");
+                Check(arena.Map.FindChildren("BrokenRock*", "MeshInstance3D", true, false).Count == layout.InitialStages.Count(s => s == 2), "expired piece nodes removed, authored small stones retained");
             }
-            GD.Print("Environment UDP convergence: three native worlds, late join, 30ms delay/5ms jitter/2% loss, all 147 rocks and 2447 plants, 600-tick sustained cleared state.");
+            GD.Print("Environment UDP convergence: three native worlds, late join, 30ms delay/5ms jitter/2% loss, all 157 rocks and 2288 plants; debris expired after 600 ticks and remained absent through 690 ticks.");
         }
         finally
         {

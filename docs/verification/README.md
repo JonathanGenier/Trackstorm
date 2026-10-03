@@ -10,6 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| Story verification | [TS-280 verification evidence](ts-280.md) |
 | Story verification, terrain alignment, contact spin, tipping/breakage, expiry, vehicle-launch and sliding corrections | [TS-218 verification evidence](ts-218.md) |
 | Tunnel fall/scrape sweep cost, native query bounds and collision regressions | [TS-275 verification evidence](ts-275.md) |
 | TS-274 world collision stability | [Terrain bake, collision recovery and network verification](ts-274.md) |

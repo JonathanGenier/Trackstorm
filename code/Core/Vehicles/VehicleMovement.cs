@@ -68,11 +68,19 @@ public sealed class VehicleMovement
         bool bodyContact = contacts is not null && contacts.Any(contact => !VehicleLanding.SafeContact(observed.Orientation, contact, wheels));
         bool impact = contacts is not null && contacts.Any(contact => !VehicleLanding.SafeContact(observed.Orientation, contact, wheels) &&
             VehicleCrash.Severity(contact, groundNormal, Configuration.Mass) > 4);
+        // A high-centred chassis can be upright yet have no useful tire support.
+        // Let the existing delayed physical roll recovery handle that rock contact
+        // instead of leaving an unloaded truck permanently balanced on bodywork.
+        Vector4 travel = wheels?.Compression ?? Vector4.One;
+        float drivenTravel = (travel.X + travel.Y) * Configuration.FrontDriveShare + (travel.Z + travel.W) * (1 - Configuration.FrontDriveShare);
+        bool rockStranded = (wheelCount < 2 || drivenTravel < 0.1f) && observed.LinearVelocity.LengthSquared() < 1 &&
+            contacts is not null && contacts.Any(contact => contact.EnvironmentRock != 0 &&
+                contact.LocalPosition.Y < -0.15f && contact.Normal.Y >= Configuration.SupportNormalMinimum);
         // The portable timer also latches the crash through unsupported bounces. A
-        // real wheel contact immediately returns control; body support alone cannot.
+        // useful wheel contact immediately returns control; stranded body support cannot.
         bool stranded = bodyContact && groundNormal.Y >= Configuration.SupportNormalMinimum &&
             !VehicleLanding.Landable(observed.Orientation, groundNormal);
-        float crashSeconds = wheelCount > 0 ? 0 : State.CrashSeconds > 0 || impact || stranded
+        float crashSeconds = wheelCount > 0 && !rockStranded ? 0 : State.CrashSeconds > 0 || impact || stranded || rockStranded
             ? Math.Min(60, State.CrashSeconds + 1f / Configuration.TicksPerSecond) : 0;
         bool crashing = crashSeconds > 0;
         driveEnabled &= !crashing;
@@ -399,9 +407,9 @@ public sealed class VehicleMovement
                 // Build a rate floor over time: tiny per-step torque alone is canceled by
                 // resting roof contacts in the native solver. Orientation remains integrated.
                 float rate = c.CrashRecoveryRate * Math.Clamp((crashSeconds - c.CrashRecoveryDelay) / c.CrashRecoveryRamp, 0, 1);
-                // Once facing the tires, let gravity/suspension catch the truck. Do
-                // not power a new flip or add linear/vertical recovery impulses.
-                if (Vector3.Dot(up, recoveryUp) < 0.65f)
+                // Once the tires can catch the truck, let gravity/suspension finish.
+                // High-centred rock contact still needs a tip; add no linear impulse.
+                if (Vector3.Dot(up, recoveryUp) < 0.65f || rockStranded)
                 {
                     angular += axis * Math.Max(0, rate - Vector3.Dot(angular, axis));
                 }

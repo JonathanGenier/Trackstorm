@@ -1,0 +1,56 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Repeated vehicle contact: frames=513, travelError=0.004115, speedChange=0.076719
+Repeated vehicle contact checks passed.
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ROCK network-RockCluster-3-0.0: contacts=118 repeat=0 final=0 depth=0.0000 overlapFrames=0 angular=0.057 contactMeanMs=6.612 p95Ms=14.437
+ROCK network-RockLedge-3-0.0: contacts=135 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=0.057 contactMeanMs=7.805 p95Ms=19.490
+ROCK network-BoulderTall-3-0.0: contacts=110 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=0.057 contactMeanMs=5.065 p95Ms=8.989
+ROCK network-RockSlab-3-0.0: contacts=99 repeat=0 final=0 depth=0.0001 overlapFrames=0 angular=0.057 contactMeanMs=4.550 p95Ms=7.200
+ROCK network-BoulderLow-3-0.0: contacts=73 repeat=0 final=0 depth=0.0000 overlapFrames=0 angular=0.088 contactMeanMs=4.716 p95Ms=6.855
+ROCK practice-RockCluster-3-0.0: contacts=121 repeat=0 final=0 depth=0.0024 overlapFrames=0 angular=0.057 contactMeanMs=0.468 p95Ms=0.424
+ROCK practice-RockLedge-3-0.0: contacts=132 repeat=0 final=0 depth=0.0003 overlapFrames=0 angular=0.057 contactMeanMs=0.297 p95Ms=0.367
+ROCK practice-BoulderTall-3-0.0: contacts=113 repeat=0 final=0 depth=0.0021 overlapFrames=0 angular=0.057 contactMeanMs=0.318 p95Ms=0.536
+ROCK practice-RockSlab-3-0.0: contacts=102 repeat=0 final=0 depth=0.0035 overlapFrames=0 angular=0.057 contactMeanMs=0.323 p95Ms=0.499
+ROCK practice-BoulderLow-3-0.0: contacts=77 repeat=0 final=0 depth=0.0004 overlapFrames=0 angular=0.089 contactMeanMs=0.312 p95Ms=0.423
+Rock collision checks: failures=0
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ROCK network-RockCluster-3-0.0: contacts=109 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=3.729 contactMeanMs=7.909 p95Ms=12.786
+ROCK network-RockLedge-3-0.0: contacts=207 repeat=0 final=30 depth=0.0001 overlapFrames=0 angular=3.329 contactMeanMs=3.960 p95Ms=5.842
+ROCK network-BoulderTall-3-0.0: contacts=258 repeat=17 final=30 depth=0.0001 overlapFrames=0 angular=3.077 contactMeanMs=4.375 p95Ms=6.743
+ROCK network-RockSlab-3-0.0: contacts=2 repeat=0 final=0 depth=0.0000 overlapFrames=0 angular=1.524 contactMeanMs=4.615 p95Ms=4.409
+ROCK network-BoulderLow-3-0.0: contacts=57 repeat=0 final=0 depth=0.0001 overlapFrames=0 angular=1.968 contactMeanMs=4.548 p95Ms=6.483
+ROCK practice-RockCluster-3-0.0: contacts=123 repeat=0 final=0 depth=0.0238 overlapFrames=1 angular=3.837 contactMeanMs=0.258 p95Ms=0.339
+ROCK practice-RockLedge-3-0.0: contacts=125 repeat=77 final=0 depth=0.0046 overlapFrames=0 angular=3.358 contactMeanMs=0.445 p95Ms=0.363
+ROCK practice-BoulderTall-3-0.0: contacts=224 repeat=26 final=30 depth=0.0140 overlapFrames=0 angular=2.627 contactMeanMs=0.305 p95Ms=0.453
+ROCK practice-RockSlab-3-0.0: contacts=2 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=1.467 contactMeanMs=0.468 p95Ms=0.240
+ROCK practice-BoulderLow-3-0.0: contacts=426 repeat=128 final=0 depth=0.0301 overlapFrames=1 angular=2.082 contactMeanMs=0.301 p95Ms=0.372
+Rock collision checks: failures=0
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ROCK network-RockCluster-3-0.0: contacts=150 repeat=0 final=0 depth=0.0000 overlapFrames=0 angular=0.057 contactMeanMs=7.901 p95Ms=16.487
+ROCK network-RockLedge-3-0.0: contacts=196 repeat=0 final=0 depth=0.0020 overlapFrames=0 angular=0.057 contactMeanMs=6.169 p95Ms=12.016
+ROCK network-BoulderTall-3-0.0: contacts=134 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=0.057 contactMeanMs=6.784 p95Ms=14.530
+ROCK network-RockSlab-3-0.0: contacts=118 repeat=0 final=0 depth=0.0000 overlapFrames=0 angular=0.057 contactMeanMs=4.564 p95Ms=6.886
+ROCK network-BoulderLow-3-0.0: contacts=85 repeat=0 final=0 depth=0.0001 overlapFrames=0 angular=0.077 contactMeanMs=4.216 p95Ms=6.280
+ROCK practice-RockCluster-3-0.0: contacts=151 repeat=0 final=0 depth=0.0005 overlapFrames=0 angular=0.057 contactMeanMs=0.283 p95Ms=0.414
+ROCK practice-RockLedge-3-0.0: contacts=200 repeat=0 final=0 depth=0.0054 overlapFrames=0 angular=0.057 contactMeanMs=0.430 p95Ms=0.552
+ROCK practice-BoulderTall-3-0.0: contacts=137 repeat=0 final=0 depth=0.0015 overlapFrames=0 angular=0.057 contactMeanMs=0.288 p95Ms=0.441
+ROCK practice-RockSlab-3-0.0: contacts=121 repeat=0 final=0 depth=0.0019 overlapFrames=0 angular=0.057 contactMeanMs=0.285 p95Ms=0.449
+ROCK practice-BoulderLow-3-0.0: contacts=91 repeat=0 final=0 depth=0.0006 overlapFrames=0 angular=0.080 contactMeanMs=0.319 p95Ms=0.425
+Rock collision checks: failures=0
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ROCK network-RockCluster-3-0.0: contacts=196 repeat=0 final=0 depth=0.0000 overlapFrames=0 angular=0.057 contactMeanMs=5.016 p95Ms=6.935
+ROCK network-RockLedge-3-0.0: contacts=196 repeat=0 final=0 depth=0.0001 overlapFrames=0 angular=0.057 contactMeanMs=4.745 p95Ms=6.760
+ROCK network-BoulderTall-3-0.0: contacts=196 repeat=0 final=0 depth=0.0005 overlapFrames=0 angular=0.057 contactMeanMs=3.963 p95Ms=5.596
+ROCK network-RockSlab-3-0.0: contacts=196 repeat=0 final=0 depth=0.0002 overlapFrames=0 angular=0.057 contactMeanMs=4.929 p95Ms=7.991
+ROCK network-BoulderLow-3-0.0: contacts=196 repeat=0 final=0 depth=0.0000 overlapFrames=0 angular=0.057 contactMeanMs=4.461 p95Ms=6.285
+ROCK practice-RockCluster-3-0.0: contacts=200 repeat=0 final=0 depth=0.0015 overlapFrames=0 angular=0.057 contactMeanMs=0.484 p95Ms=0.540
+ROCK practice-RockLedge-3-0.0: contacts=200 repeat=0 final=0 depth=0.0019 overlapFrames=0 angular=0.057 contactMeanMs=0.310 p95Ms=0.406
+ROCK practice-BoulderTall-3-0.0: contacts=200 repeat=0 final=0 depth=0.0025 overlapFrames=0 angular=0.057 contactMeanMs=0.304 p95Ms=0.454
+ROCK practice-RockSlab-3-0.0: contacts=200 repeat=0 final=0 depth=0.0022 overlapFrames=0 angular=0.057 contactMeanMs=0.273 p95Ms=0.458
+ROCK practice-BoulderLow-3-0.0: contacts=204 repeat=0 final=0 depth=0.0004 overlapFrames=0 angular=0.057 contactMeanMs=0.337 p95Ms=0.553
+Rock collision checks: failures=0

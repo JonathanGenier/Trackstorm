@@ -1,0 +1,257 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+practice-Asphalt-normal-0-0.00: sustained supported, upright, undamaged driving (up 0.9981)
+practice-Asphalt-normal-0-0.00: ordinary correction remains controlled, lateral 0.285 m/s
+practice-Asphalt-brake-0-0.00: sustained supported, upright, undamaged driving (up 0.9987)
+practice-Asphalt-slide-0-0.00: sustained supported, upright, undamaged driving (up 0.9975)
+practice-Asphalt-slide-0-0.00: countersteer then throttle recovers 34.347 m/s with yaw 0.0004
+practice-Asphalt-transitions-0-0.00: sustained supported, upright, undamaged driving (up 0.9992)
+practice-Asphalt-transitions-0-0.00: twenty material changes retain momentum, maximum step 0.2056 m/s, exit 42.412 m/s
+practice-Asphalt-hold--20-0.00: sustained supported, upright, undamaged driving (up 1.0000)
+practice-Asphalt-hold--20-0.00: settled ten-second hold drift 0.0000008 m, speed 0.0000000 m/s
+practice-Asphalt-hold--20-0.00: release restores driving
+practice-Asphalt-hold--20-1.57: sustained supported, upright, undamaged driving (up 1.0000)
+practice-Asphalt-hold--20-1.57: settled ten-second hold drift 0.0000009 m, speed 0.0000000 m/s
+practice-Asphalt-hold--20-1.57: release restores driving
+practice-Asphalt-hold-20-0.00: sustained supported, upright, undamaged driving (up 1.0000)
+practice-Asphalt-hold-20-0.00: settled ten-second hold drift 0.0000008 m, speed 0.0000000 m/s
+practice-Asphalt-hold-20-0.00: release restores driving
+practice-Asphalt-hold-20-1.57: sustained supported, upright, undamaged driving (up 1.0000)
+practice-Asphalt-hold-20-1.57: settled ten-second hold drift 0.0000011 m, speed 0.0000000 m/s
+practice-Asphalt-hold-20-1.57: release restores driving
+practice-Dirt-normal-0-0.00: sustained supported, upright, undamaged driving (up 0.9985)
+practice-Dirt-normal-0-0.00: ordinary correction remains controlled, lateral 0.286 m/s
+practice-Dirt-brake-0-0.00: sustained supported, upright, undamaged driving (up 0.9991)
+practice-Dirt-slide-0-0.00: sustained supported, upright, undamaged driving (up 0.9976)
+practice-Dirt-slide-0-0.00: countersteer then throttle recovers 30.896 m/s with yaw 0.0004
+practice-Dirt-transitions-0-0.00: sustained supported, upright, undamaged driving (up 0.9992)
+practice-Dirt-transitions-0-0.00: twenty material changes retain momentum, maximum step 0.2056 m/s, exit 42.412 m/s
+practice-Dirt-hold--20-0.00: sustained supported, upright, undamaged driving (up 1.0000)
+practice-Dirt-hold--20-0.00: settled ten-second hold drift 0.0000007 m, speed 0.0000000 m/s
+practice-Dirt-hold--20-0.00: release restores driving
+practice-Dirt-hold--20-1.57: sustained supported, upright, undamaged driving (up 1.0000)
+practice-Dirt-hold--20-1.57: settled ten-second hold drift 0.0000009 m, speed 0.0000000 m/s
+practice-Dirt-hold--20-1.57: release restores driving
+practice-Dirt-hold-20-0.00: sustained supported, upright, undamaged driving (up 1.0000)
+practice-Dirt-hold-20-0.00: settled ten-second hold drift 0.0000007 m, speed 0.0000000 m/s
+practice-Dirt-hold-20-0.00: release restores driving
+practice-Dirt-hold-20-1.57: sustained supported, upright, undamaged driving (up 1.0000)
+practice-Dirt-hold-20-1.57: settled ten-second hold drift 0.0000011 m, speed 0.0000000 m/s
+practice-Dirt-hold-20-1.57: release restores driving
+practice-Grass-normal-0-0.00: sustained supported, upright, undamaged driving (up 0.9985)
+practice-Grass-normal-0-0.00: ordinary correction remains controlled, lateral 0.297 m/s
+practice-Grass-brake-0-0.00: sustained supported, upright, undamaged driving (up 0.9995)
+practice-Grass-slide-0-0.00: sustained supported, upright, undamaged driving (up 0.9978)
+practice-Grass-slide-0-0.00: countersteer then throttle recovers 26.341 m/s with yaw 0.0003
+practice-Grass-transitions-0-0.00: sustained supported, upright, undamaged driving (up 0.9992)
+practice-Grass-transitions-0-0.00: twenty material changes retain momentum, maximum step 0.2056 m/s, exit 42.412 m/s
+practice-Grass-hold--20-0.00: sustained supported, upright, undamaged driving (up 1.0000)
+practice-Grass-hold--20-0.00: settled ten-second hold drift 0.0000007 m, speed 0.0000000 m/s
+practice-Grass-hold--20-0.00: release restores driving
+practice-Grass-hold--20-1.57: sustained supported, upright, undamaged driving (up 1.0000)
+practice-Grass-hold--20-1.57: settled ten-second hold drift 0.0000009 m, speed 0.0000000 m/s
+practice-Grass-hold--20-1.57: release restores driving
+practice-Grass-hold-20-0.00: sustained supported, upright, undamaged driving (up 1.0000)
+practice-Grass-hold-20-0.00: settled ten-second hold drift 0.0000007 m, speed 0.0000000 m/s
+practice-Grass-hold-20-0.00: release restores driving
+practice-Grass-hold-20-1.57: sustained supported, upright, undamaged driving (up 1.0000)
+practice-Grass-hold-20-1.57: settled ten-second hold drift 0.0000011 m, speed 0.0000000 m/s
+practice-Grass-hold-20-1.57: release restores driving
+False: all three surfaces retain confident normal driving: 40.59362, 37.467052, 32.33917 m/s
+False: Asphalt > Dirt > Grass braking, residual speed: 3.7831674, 6.9916964, 9.777349 m/s
+False: Grass > Dirt > Asphalt deliberate slide, peak lateral speed: 0.9877498, 2.9483054, 4.438836 m/s
+False: Grass > Dirt > Asphalt deliberate rotation, peak yaw: 2.1498568, 3.2534072, 3.8036757 rad/s
+practice-Asphalt-0 uses authored support profile
+practice-Asphalt-0: from rest progress 254.659 m, speed 44.424 m/s
+practice-Asphalt-0 traversable without damage
+practice-Asphalt-0 responds to steering
+practice-Asphalt-0 recovers upright after handbrake and steering: position=<77.232445, 1.1435634, -210.06061>, up=1.000, grounded=True
+practice-Asphalt-0 retains drive after release
+practice-Asphalt-0 returns to asphalt and accelerates continuously
+practice-Asphalt-20 uses authored support profile
+practice-Asphalt-20: from rest progress 212.534 m, speed 41.297 m/s
+practice-Asphalt-20 traversable without damage
+practice-Concrete-0 uses authored support profile
+practice-Concrete-0: from rest progress 250.625 m, speed 44.417 m/s
+practice-Concrete-0 traversable without damage
+practice-Concrete-0 responds to steering
+practice-Concrete-0 recovers upright after handbrake and steering: position=<145.86452, 1.1437541, -278.34528>, up=1.000, grounded=True
+practice-Concrete-0 retains drive after release
+practice-Concrete-0 returns to asphalt and accelerates continuously
+practice-Concrete-20 uses authored support profile
+practice-Concrete-20: from rest progress 204.447 m, speed 41.113 m/s
+practice-Concrete-20 traversable without damage
+practice-Dirt-0 uses authored support profile
+practice-Dirt-0: from rest progress 240.364 m, speed 42.957 m/s
+practice-Dirt-0 traversable without damage
+practice-Dirt-0 responds to steering
+practice-Dirt-0 recovers upright after handbrake and steering: position=<153.13481, 1.1440969, -262.15173>, up=1.000, grounded=True
+practice-Dirt-0 retains drive after release
+practice-Dirt-0 returns to asphalt and accelerates continuously
+practice-Dirt-20 uses authored support profile
+practice-Dirt-20: from rest progress 191.786 m, speed 39.157 m/s
+practice-Dirt-20 traversable without damage
+practice-Grass-0 uses authored support profile
+practice-Grass-0: from rest progress 219.027 m, speed 40.118 m/s
+practice-Grass-0 traversable without damage
+practice-Grass-0 responds to steering
+practice-Grass-0 recovers upright after handbrake and steering: position=<122.831795, 1.1437514, -228.02324>, up=1.000, grounded=True
+practice-Grass-0 retains drive after release
+practice-Grass-0 returns to asphalt and accelerates continuously
+practice-Grass-15 uses authored support profile
+practice-Grass-15: from rest progress 176.275 m, speed 36.503 m/s
+practice-Grass-15 traversable without damage
+practice-Mud-0 uses authored support profile
+practice-Mud-0: from rest progress 118.042 m, speed 21.557 m/s
+practice-Mud-0 traversable without damage
+practice-Mud-0 responds to steering
+practice-Mud-0 recovers upright after handbrake and steering: position=<65.866356, 1.1437907, -161.0027>, up=1.000, grounded=True
+practice-Mud-0 retains drive after release
+practice-Mud-0 returns to asphalt and accelerates continuously
+practice-Mud-12 uses authored support profile
+practice-Mud-12: from rest progress 86.115 m, speed 16.398 m/s
+practice-Mud-12 traversable without damage
+practice-DeepMud-0 uses authored support profile
+practice-DeepMud-0: from rest progress 49.393 m, speed 7.512 m/s
+practice-DeepMud-0 traversable without damage
+practice-DeepMud-0 responds to steering
+practice-DeepMud-0 recovers upright after handbrake and steering: position=<25.610113, 1.144181, -63.90685>, up=1.000, grounded=True
+practice-DeepMud-0 retains drive after release
+practice-DeepMud-0 returns to asphalt and accelerates continuously
+practice-DeepMud-10 uses authored support profile
+practice-DeepMud-10: from rest progress 36.564 m, speed 5.722 m/s
+practice-DeepMud-10 traversable without damage
+False: approved drag and drive defaults retain terrain-specific progress
+False: split Grass/Asphalt contacts retain all four native wheel materials
+False: partial grass creates physical traction yaw 0.0008 rad/s with continuing drive 2.116 m/s
+False: split Grass/Asphalt contacts retain all four native wheel materials
+False: partial grass creates physical traction yaw -0.0008 rad/s with continuing drive 2.116 m/s
+False: swapping split materials mirrors traction yaw: 0.000753/-0.000753 rad/s
+network-Asphalt-normal-0-0.00: sustained supported, upright, undamaged driving (up 0.9981)
+network-Asphalt-normal-0-0.00: ordinary correction remains controlled, lateral 0.284 m/s
+network-Asphalt-brake-0-0.00: sustained supported, upright, undamaged driving (up 0.9986)
+network-Asphalt-slide-0-0.00: sustained supported, upright, undamaged driving (up 0.9974)
+network-Asphalt-slide-0-0.00: countersteer then throttle recovers 34.347 m/s with yaw 0.0004
+network-Asphalt-transitions-0-0.00: sustained supported, upright, undamaged driving (up 0.9992)
+network-Asphalt-transitions-0-0.00: twenty material changes retain momentum, maximum step 0.2056 m/s, exit 42.412 m/s
+network-Asphalt-hold--20-0.00: sustained supported, upright, undamaged driving (up 1.0000)
+network-Asphalt-hold--20-0.00: settled ten-second hold drift 0.0000012 m, speed 0.0000000 m/s
+network-Asphalt-hold--20-0.00: release restores driving
+network-Asphalt-hold--20-1.57: sustained supported, upright, undamaged driving (up 1.0000)
+network-Asphalt-hold--20-1.57: settled ten-second hold drift 0.0000012 m, speed 0.0000000 m/s
+network-Asphalt-hold--20-1.57: release restores driving
+network-Asphalt-hold-20-0.00: sustained supported, upright, undamaged driving (up 1.0000)
+network-Asphalt-hold-20-0.00: settled ten-second hold drift 0.0000012 m, speed 0.0000000 m/s
+network-Asphalt-hold-20-0.00: release restores driving
+network-Asphalt-hold-20-1.57: sustained supported, upright, undamaged driving (up 1.0000)
+network-Asphalt-hold-20-1.57: settled ten-second hold drift 0.0000012 m, speed 0.0000000 m/s
+network-Asphalt-hold-20-1.57: release restores driving
+network-Dirt-normal-0-0.00: sustained supported, upright, undamaged driving (up 0.9985)
+network-Dirt-normal-0-0.00: ordinary correction remains controlled, lateral 0.285 m/s
+network-Dirt-brake-0-0.00: sustained supported, upright, undamaged driving (up 0.9990)
+network-Dirt-slide-0-0.00: sustained supported, upright, undamaged driving (up 0.9975)
+network-Dirt-slide-0-0.00: countersteer then throttle recovers 30.896 m/s with yaw 0.0004
+network-Dirt-transitions-0-0.00: sustained supported, upright, undamaged driving (up 0.9992)
+network-Dirt-transitions-0-0.00: twenty material changes retain momentum, maximum step 0.2056 m/s, exit 42.412 m/s
+network-Dirt-hold--20-0.00: sustained supported, upright, undamaged driving (up 1.0000)
+network-Dirt-hold--20-0.00: settled ten-second hold drift 0.0000012 m, speed 0.0000000 m/s
+network-Dirt-hold--20-0.00: release restores driving
+network-Dirt-hold--20-1.57: sustained supported, upright, undamaged driving (up 1.0000)
+network-Dirt-hold--20-1.57: settled ten-second hold drift 0.0000012 m, speed 0.0000000 m/s
+network-Dirt-hold--20-1.57: release restores driving
+network-Dirt-hold-20-0.00: sustained supported, upright, undamaged driving (up 1.0000)
+network-Dirt-hold-20-0.00: settled ten-second hold drift 0.0000012 m, speed 0.0000000 m/s
+network-Dirt-hold-20-0.00: release restores driving
+network-Dirt-hold-20-1.57: sustained supported, upright, undamaged driving (up 1.0000)
+network-Dirt-hold-20-1.57: settled ten-second hold drift 0.0000012 m, speed 0.0000000 m/s
+network-Dirt-hold-20-1.57: release restores driving
+network-Grass-normal-0-0.00: sustained supported, upright, undamaged driving (up 0.9985)
+network-Grass-normal-0-0.00: ordinary correction remains controlled, lateral 0.297 m/s
+network-Grass-brake-0-0.00: sustained supported, upright, undamaged driving (up 0.9994)
+network-Grass-slide-0-0.00: sustained supported, upright, undamaged driving (up 0.9978)
+network-Grass-slide-0-0.00: countersteer then throttle recovers 26.438 m/s with yaw 0.0003
+network-Grass-transitions-0-0.00: sustained supported, upright, undamaged driving (up 0.9992)
+network-Grass-transitions-0-0.00: twenty material changes retain momentum, maximum step 0.2056 m/s, exit 42.412 m/s
+network-Grass-hold--20-0.00: sustained supported, upright, undamaged driving (up 1.0000)
+network-Grass-hold--20-0.00: settled ten-second hold drift 0.0000012 m, speed 0.0000000 m/s
+network-Grass-hold--20-0.00: release restores driving
+network-Grass-hold--20-1.57: sustained supported, upright, undamaged driving (up 1.0000)
+network-Grass-hold--20-1.57: settled ten-second hold drift 0.0000012 m, speed 0.0000000 m/s
+network-Grass-hold--20-1.57: release restores driving
+network-Grass-hold-20-0.00: sustained supported, upright, undamaged driving (up 1.0000)
+network-Grass-hold-20-0.00: settled ten-second hold drift 0.0000012 m, speed 0.0000000 m/s
+network-Grass-hold-20-0.00: release restores driving
+network-Grass-hold-20-1.57: sustained supported, upright, undamaged driving (up 1.0000)
+network-Grass-hold-20-1.57: settled ten-second hold drift 0.0000012 m, speed 0.0000000 m/s
+network-Grass-hold-20-1.57: release restores driving
+True: all three surfaces retain confident normal driving: 40.596153, 37.46522, 32.32811 m/s
+True: Asphalt > Dirt > Grass braking, residual speed: 3.3326707, 6.6396093, 9.4894705 m/s
+True: Grass > Dirt > Asphalt deliberate slide, peak lateral speed: 0.9929104, 2.8682027, 4.369005 m/s
+True: Grass > Dirt > Asphalt deliberate rotation, peak yaw: 2.1355283, 3.2154093, 3.7705963 rad/s
+network-Asphalt-0 uses authored support profile
+network-Asphalt-0: from rest progress 254.659 m, speed 44.424 m/s
+network-Asphalt-0 traversable without damage
+network-Asphalt-0 responds to steering
+network-Asphalt-0 recovers upright after handbrake and steering: position=<77.23156, 1.143514, -210.05655>, up=1.000, grounded=True
+network-Asphalt-0 retains drive after release
+network-Asphalt-0 returns to asphalt and accelerates continuously
+network-Asphalt-20 uses authored support profile
+network-Asphalt-20: from rest progress 212.536 m, speed 41.296 m/s
+network-Asphalt-20 traversable without damage
+network-Concrete-0 uses authored support profile
+network-Concrete-0: from rest progress 250.625 m, speed 44.417 m/s
+network-Concrete-0 traversable without damage
+network-Concrete-0 responds to steering
+network-Concrete-0 recovers upright after handbrake and steering: position=<145.85692, 1.1437011, -278.3476>, up=1.000, grounded=True
+network-Concrete-0 retains drive after release
+network-Concrete-0 returns to asphalt and accelerates continuously
+network-Concrete-20 uses authored support profile
+network-Concrete-20: from rest progress 204.449 m, speed 41.113 m/s
+network-Concrete-20 traversable without damage
+network-Dirt-0 uses authored support profile
+network-Dirt-0: from rest progress 240.365 m, speed 42.957 m/s
+network-Dirt-0 traversable without damage
+network-Dirt-0 responds to steering
+network-Dirt-0 recovers upright after handbrake and steering: position=<153.134, 1.1440659, -262.14987>, up=1.000, grounded=True
+network-Dirt-0 retains drive after release
+network-Dirt-0 returns to asphalt and accelerates continuously
+network-Dirt-20 uses authored support profile
+network-Dirt-20: from rest progress 191.790 m, speed 39.157 m/s
+network-Dirt-20 traversable without damage
+network-Grass-0 uses authored support profile
+network-Grass-0: from rest progress 219.030 m, speed 40.118 m/s
+network-Grass-0 traversable without damage
+network-Grass-0 responds to steering
+network-Grass-0 recovers upright after handbrake and steering: position=<122.832016, 1.1437066, -228.0232>, up=1.000, grounded=True
+network-Grass-0 retains drive after release
+network-Grass-0 returns to asphalt and accelerates continuously
+network-Grass-15 uses authored support profile
+network-Grass-15: from rest progress 176.279 m, speed 36.503 m/s
+network-Grass-15 traversable without damage
+network-Mud-0 uses authored support profile
+network-Mud-0: from rest progress 118.039 m, speed 21.557 m/s
+network-Mud-0 traversable without damage
+network-Mud-0 responds to steering
+network-Mud-0 recovers upright after handbrake and steering: position=<65.87131, 1.1437879, -160.99678>, up=1.000, grounded=True
+network-Mud-0 retains drive after release
+network-Mud-0 returns to asphalt and accelerates continuously
+network-Mud-12 uses authored support profile
+network-Mud-12: from rest progress 86.106 m, speed 16.394 m/s
+network-Mud-12 traversable without damage
+network-DeepMud-0 uses authored support profile
+network-DeepMud-0: from rest progress 49.390 m, speed 7.511 m/s
+network-DeepMud-0 traversable without damage
+network-DeepMud-0 responds to steering
+network-DeepMud-0 recovers upright after handbrake and steering: position=<25.61315, 1.1441792, -63.901184>, up=1.000, grounded=True
+network-DeepMud-0 retains drive after release
+network-DeepMud-0 returns to asphalt and accelerates continuously
+network-DeepMud-10 uses authored support profile
+network-DeepMud-10: from rest progress 36.560 m, speed 5.720 m/s
+network-DeepMud-10 traversable without damage
+True: approved drag and drive defaults retain terrain-specific progress
+True: split Grass/Asphalt contacts retain all four native wheel materials
+True: partial grass creates physical traction yaw 0.0008 rad/s with continuing drive 2.116 m/s
+True: split Grass/Asphalt contacts retain all four native wheel materials
+True: partial grass creates physical traction yaw -0.0008 rad/s with continuing drive 2.116 m/s
+True: swapping split materials mirrors traction yaw: 0.000753/-0.000753 rad/s
+Terrain handling integration passed: both adapters, six surfaces, slope starts, steering, handbrake recovery and transitions.

@@ -91,6 +91,33 @@ internal sealed class RemoteInterpolationTests
         Assert.That(clock.BufferRecoveries, Is.Zero);
     }
 
+    [Test]
+    public void TouchingPresentationKeepsRelativeSeparationOnThePredictedTimeline()
+    {
+        var remote = Snapshot(100, 0).Vehicles[0].State;
+        var moving = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new(0, 0, -30), Vector3.Zero);
+        remote = new(remote.VehicleId, remote.LifeId, new VehicleState(100, moving, true, false, 0, 0), remote.Damage, moving);
+        var localPose = new VehiclePhysicsState(new(0, 0, 2.8f), Quaternion.Identity, moving.LinearVelocity, Vector3.Zero);
+        var local = new VehicleSnapshot(2, 1, new VehicleState(106, localPose, true, false, 0, 0), remote.Damage, localPose);
+        var buffered = new VehiclePhysicsState(new(0, 0, 3), Quaternion.Identity, moving.LinearVelocity, Vector3.Zero);
+        Vector3 visual = localPose.Position + new Vector3(0.1f, 0, 0.4f);
+        var shown = RemoteInterpolation.ContactPose(buffered, remote, local, visual);
+        Assert.That(Vector3.Distance(shown.Position, visual), Is.EqualTo(5.8f).Within(0.0001));
+        Assert.That(shown.Position.X, Is.EqualTo(visual.X).Within(0.0001));
+        var distantPose = new VehiclePhysicsState(new(30, 0, 0), Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        var distant = new VehicleSnapshot(2, 1, new VehicleState(106, distantPose, true, false, 0, 0), remote.Damage, distantPose);
+        Assert.That(RemoteInterpolation.ContactPose(buffered, remote, distant, distantPose.Position), Is.EqualTo(buffered));
+    }
+
+    [Test]
+    public void ProxyPredictionIsBoundedAndDoesNotRewindBeforeItsPublishedTick()
+    {
+        var remote = Snapshot(100, 10).Vehicles[0].State;
+        Assert.That(RemoteInterpolation.Predict(remote, 99), Is.EqualTo(remote.Movement.Physics));
+        Assert.That(RemoteInterpolation.Predict(remote, 1000), Is.EqualTo(RemoteInterpolation.Predict(remote, 124)));
+        Assert.That(RemoteInterpolation.Predict(remote, 106).Position.X, Is.EqualTo(11).Within(0.0001));
+    }
+
     private static WorldSnapshot Snapshot(ulong tick, float x, ulong life = 1)
     {
         var physics = new VehiclePhysicsState(new Vector3(x, 0, 0), Quaternion.CreateFromAxisAngle(Vector3.UnitY, x / 10), new Vector3(x, 0, 0), Vector3.Zero);

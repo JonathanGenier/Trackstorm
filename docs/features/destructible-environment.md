@@ -1,6 +1,6 @@
 # Destructible environment
 
-The production oval's 147 dressing rocks and 2,447 soft ground-cover instances
+The production oval's 157 dressing rocks and 2,288 soft ground-cover instances
 have match-owned destruction state. Structural terrain, bridge/tunnel, barriers,
 drains, poles and the unreachable exterior conifer forest remain authored geometry.
 The latter is non-interactive scenery outside containment, not reachable vegetation.
@@ -37,11 +37,19 @@ at most one stage per piece; excess damage does not skip a stage, and newly born
 pieces cannot receive that batch's damage. New committed weapon impacts remain
 effective during the vehicle-contact cooldown. Final rocks do not fracture again.
 
+The first fracture captures a host-owned deadline 600 simulation ticks (ten seconds)
+later. Every descendant keeps that same deadline; later hits and splits cannot
+extend it. At the deadline all resulting pieces become dormant before processing
+new impacts. Native views remove their meshes, wheel supports and weapon targets.
+Destroyed roots stay absent for the match, including admission, resume and migration;
+new-match/practice reset restores authored rocks. Naturally small authored stones
+that start in the movable stage are not destroyed debris and have no expiry timer.
+
 Broken rocks use controlled horizontal motion rather than free rigid bodies:
 at most sixteen move per step, speed is capped at 6 m/s, damping settles them,
 and displacement stays within eight metres of their authored origin. The native
 view projects the resulting position onto map support, excluding practice cars
-that share the terrain collision layer so pieces cannot ride on their roofs. There are at most 588
+that share the terrain collision layer so pieces cannot ride on their roofs. There are at most 628
 active visual pieces in production, with no free rigid-body debris, rock-to-rock
 collision chains or independent Client damage rules.
 Their shallow wheel-only collision envelope occupies layer 8. Chassis queries
@@ -66,11 +74,11 @@ explicit practice reset restore authored state.
 Stable identities follow authored scene-path and batch-instance order, with four
 consecutive piece identities per root. Matching
 builds provide the layout; peers cannot submit damage, stages or plant identities.
-The bounded version-two `TD` publication packs each piece's stage, accumulated damage, impact
-cooldown, horizontal offset and velocity, plus one bit per plant. It is at most
-30,231 bytes for the hard limit of 256 roots / 1,024 pieces and 4,096 plants.
-Dormant slots occupy one byte; active slots occupy 29. Production uses 5,033
-bytes initially and at most 17,381 bytes with every reserved slot active.
+The bounded version-three `TD` publication packs each piece's stage, accumulated damage, impact
+cooldown, captured expiry deadline, horizontal offset and velocity, plus one bit per plant. It is at most
+38,423 bytes for the hard limit of 256 roots / 1,024 pieces and 4,096 plants.
+Dormant slots occupy one byte; active slots occupy 37. Production uses 6,589
+bytes initially and at most 23,545 bytes with every reserved slot active.
 Changed states publish at up to 20 Hz; an unchanged complete state
 repeats once per second to recover dropped terminal updates. Current-host, match,
 epoch/generation and increasing-tick checks fence live updates.
@@ -90,8 +98,9 @@ plus a small/medium/large, low/medium/high speed and straight/angled impact matr
 then three UDP worlds with delayed/lost traffic, late admission and sustained
 cleared state. Core tests cover staged thresholds, duplicate ticks, cooldown,
 weapon transaction reuse, compact codec rejection, reset and authority restoration.
-The existing reconnect and migration harnesses seed exact damage and cleared
-plants to isolate recovery from separately exercised impact behavior.
+The existing reconnect and migration harnesses capture exact damage, the original
+expiry deadline and cleared plants. They require the same piece state before the
+deadline and absent debris afterward, including native views after a long outage.
 
 The explicit handling playtest accepts `--destructible-playtest`, writes evidence
 under `.godot/ts-162/playtest`, and adds an optional `blast: [x,y,z]` fixture command.

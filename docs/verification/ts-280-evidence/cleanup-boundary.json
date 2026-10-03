@@ -1,0 +1,143 @@
+[
+  {
+    "case": "cleanup-fracture",
+    "pieces": [
+      {
+        "Stage": 2,
+        "Damage": 0,
+        "size": 1.2301214,
+        "offset": [
+          -0.5174462,
+          0,
+          0.1966522
+        ]
+      },
+      {
+        "Stage": 2,
+        "Damage": 0,
+        "size": 1.2301214,
+        "offset": [
+          0.5174462,
+          0,
+          -0.1966522
+        ]
+      },
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "root": 4,
+    "tick": 2187
+  },
+  {
+    "case": "cleanup-599",
+    "pieces": [
+      {
+        "Stage": 2,
+        "Damage": 0,
+        "size": 1.2301214,
+        "offset": [
+          -0.5174462,
+          0,
+          0.1966522
+        ]
+      },
+      {
+        "Stage": 2,
+        "Damage": 0,
+        "size": 1.2301214,
+        "offset": [
+          0.5174462,
+          0,
+          -0.1966522
+        ]
+      },
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "root": 4,
+    "tick": 2786
+  },
+  {
+    "case": "cleanup-600",
+    "pieces": [
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "Stage": 0,
+        "Damage": 0,
+        "size": 0,
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "root": 4,
+    "tick": 2787
+  }
+]

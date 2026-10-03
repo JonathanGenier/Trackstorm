@@ -1,0 +1,53 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+native-pitch: rotation=4.892 peak=2.520 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+native-yaw: rotation=4.196 peak=2.160 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+native-roll: rotation=6.284 peak=3.240 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+native-combined: rotation=7.963 peak=4.105 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+native-sustained: rotation=10.604 peak=3.240 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=5.350
+native-crooked: rotation=0.643 peak=3.649 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+native-landing: rotation=0.000 peak=0.000 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+native-repeat: rotation=0.000 peak=0.000 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+native-repeat: 4 landing transitions
+native-correction: rotation=1.049 peak=3.311 releaseSpeed=0.0002 lateOrientationDrift=0.0026 landings=1 grounded=True airSeconds=0.000
+native-heading: rotation=1.200 peak=2.152 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+native-coast: rotation=0.000 peak=0.000 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+native-release-modifier: rotation=4.196 peak=2.160 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+native-device-key-pitch: rotation=4.892 peak=2.520 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-key-pitch: first release angular speed <0.001; attitude drift=0.00000; continued travel=48.64m
+native-device-key-yaw: rotation=4.196 peak=2.160 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-key-yaw: first release angular speed <0.001; attitude drift=0.00000; continued travel=48.64m
+native-device-key-roll: rotation=6.284 peak=3.240 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-key-roll: first release angular speed <0.001; attitude drift=0.00000; continued travel=48.64m
+native-device-pad-pitch: rotation=2.619 peak=1.334 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-pad-pitch: first release angular speed <0.001; attitude drift=0.00000; continued travel=48.64m
+native-device-pad-yaw: rotation=2.245 peak=1.144 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-pad-yaw: first release angular speed <0.001; attitude drift=0.00000; continued travel=48.64m
+native-device-pad-roll: rotation=3.367 peak=1.715 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-pad-roll: first release angular speed <0.001; attitude drift=0.00000; continued travel=48.64m
+network-pitch: rotation=4.892 peak=2.520 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+network-yaw: rotation=4.196 peak=2.160 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+network-roll: rotation=6.284 peak=3.240 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+network-combined: rotation=7.963 peak=4.105 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+network-sustained: rotation=10.604 peak=3.240 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=5.350
+network-crooked: rotation=0.643 peak=3.649 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+network-landing: rotation=0.000 peak=0.000 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+network-repeat: rotation=0.000 peak=0.000 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+network-repeat: 4 landing transitions
+network-correction: rotation=1.049 peak=3.311 releaseSpeed=0.0007 lateOrientationDrift=0.0021 landings=1 grounded=True airSeconds=0.000
+network-heading: rotation=1.200 peak=2.152 releaseSpeed=0.0001 lateOrientationDrift=0.0000 landings=1 grounded=True airSeconds=0.000
+network-coast: rotation=0.000 peak=0.000 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+network-release-modifier: rotation=4.196 peak=2.160 releaseSpeed=0.0000 lateOrientationDrift=0.0007 landings=0 grounded=False airSeconds=4.017
+network-device-key-pitch: rotation=4.892 peak=2.520 releaseSpeed=0.0000 lateOrientationDrift=0.0010 landings=0 grounded=False airSeconds=4.017
+device-key-pitch: first release angular speed <0.001; attitude drift=0.00098; continued travel=48.64m
+network-device-key-yaw: rotation=4.196 peak=2.160 releaseSpeed=0.0000 lateOrientationDrift=0.0007 landings=0 grounded=False airSeconds=4.017
+device-key-yaw: first release angular speed <0.001; attitude drift=0.00069; continued travel=48.64m
+network-device-key-roll: rotation=6.284 peak=3.240 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-key-roll: first release angular speed <0.001; attitude drift=0.00000; continued travel=48.64m
+network-device-pad-pitch: rotation=2.619 peak=1.334 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-pad-pitch: first release angular speed <0.001; attitude drift=0.00000; continued travel=48.64m
+network-device-pad-yaw: rotation=2.245 peak=1.144 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-pad-yaw: first release angular speed <0.001; attitude drift=0.00000; continued travel=48.64m
+network-device-pad-roll: rotation=3.367 peak=1.715 releaseSpeed=0.0000 lateOrientationDrift=0.0000 landings=0 grounded=False airSeconds=4.017
+device-pad-roll: first release angular speed <0.001; attitude drift=0.00000; continued travel=48.64m
+Air control integration passed: 36 production-adapter scenarios.

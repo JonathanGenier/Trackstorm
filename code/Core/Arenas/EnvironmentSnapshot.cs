@@ -12,7 +12,8 @@ public sealed class EnvironmentSnapshot
         var cleared = plants.ToArray();
         if (copy.Length > EnvironmentLayout.MaximumPieces || cleared.Length > 4096 || copy.Count(r => r.Velocity != default) > EnvironmentAuthority.MaximumMoving ||
             copy.Any(r => r.Stage > EnvironmentLayout.MaximumStage || !float.IsFinite(r.Damage) || r.Damage < 0 || r.Damage >= EnvironmentAuthority.Health(r.Stage) ||
-                (r.Stage == 0 && (r.Damage != 0 || r.ImpactReadyTick != 0 || r.Offset != default || r.Velocity != default)) || (r.ImpactReadyTick > tick && r.ImpactReadyTick - tick > 12) ||
+                (r.Stage == 0 && (r.Damage != 0 || r.ImpactReadyTick != 0 || r.Offset != default || r.Velocity != default || r.ExpiresAtTick != 0)) || (r.ImpactReadyTick > tick && r.ImpactReadyTick - tick > 12) ||
+                (r.ExpiresAtTick != 0 && (r.Stage < 2 || r.ExpiresAtTick <= tick || r.ExpiresAtTick - tick > EnvironmentAuthority.DebrisLifetimeTicks)) ||
                 !VehiclePhysicsState.IsFinite(r.Offset) || !VehiclePhysicsState.IsFinite(r.Velocity) ||
                 r.Offset.LengthSquared() > 64.001f || r.Velocity.LengthSquared() > 36.001f || r.Velocity.Y != 0 || r.Offset.Y != 0 ||
                 (r.Stage == 1 && (r.Offset != default || r.Velocity != default))))

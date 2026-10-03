@@ -1,0 +1,6 @@
+{"name":"astra-pressure","command":{"frames":540,"steer":0,"throttle":0.12,"brake":0,"id":"964b7e6046f24d9c90b358ff3ffc3608"}}
+{"name":"astra-approach","command":{"frames":300,"steer":0,"throttle":0.12,"brake":0,"spawn":[58.657337,1.2,-67.91336],"groundSpawn":true,"yaw":0,"speed":0,"id":"91640f1b73bb4df4bea26db5d237c761"}}
+{"command":{"frames":240,"steer":0,"throttle":0.12,"brake":0,"id":"9107507f3f514fe391d67a36b9039a17"},"name":"astra-held"}
+{"command":{"frames":150,"steer":0.15,"throttle":0,"brake":1,"id":"8d99e174b9664bb8bea944c13a041bbe"},"name":"astra-reverse"}
+{"name":"astra-drop","command":{"frames":50,"steer":0,"throttle":0,"brake":0,"spawn":[58.657337,8,-73.91336],"yaw":0,"speed":0,"verticalSpeed":-8,"id":"d818490b915f4951aa66dced01ab4f11"}}
+{"command":{"frames":360,"steer":0.2,"throttle":0.5,"brake":0,"id":"cbaf967bac324aff9e0d8f8f97bebcca"},"name":"astra-driveaway"}
