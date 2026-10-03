@@ -28,9 +28,9 @@ internal sealed partial class TombstoneWallBody : RigidBody3D
         MaxContactsReported = 8;
         AxisLockAngularX = true;
         AxisLockAngularZ = true;
-        LinearDamp = 0.2f;
+        LinearDamp = 2;
         AngularDamp = 1.5f;
-        PhysicsMaterialOverride = new PhysicsMaterial { Friction = 0.08f, Rough = false, Bounce = 0 };
+        PhysicsMaterialOverride = new PhysicsMaterial { Friction = 0.6f, Rough = false, Bounce = 0 };
         AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = VehicleBody.ToGodot(state.WallSize) } });
         _wings = new Node3D();
         AddChild(_wings);
@@ -60,6 +60,13 @@ internal sealed partial class TombstoneWallBody : RigidBody3D
     internal void Install(TombstoneState state, bool host)
     {
         if (Freeze == host) { Freeze = !host; _groundContact = null; }
+        if (_tipping != state.Tipping)
+        {
+            // Extra sliding resistance belongs to the standing wall. Preserve
+            // the established fall/ground-contact response once it is knocked over.
+            LinearDamp = state.Tipping ? 0.2f : 2;
+            PhysicsMaterialOverride!.Friction = state.Tipping ? 0.08f : 0.6f;
+        }
         _tipping = state.Tipping;
         // A collapsing wall must not become a ramp under the striking car or its
         // wheel rays. Keep native ground contact for authoritative side breakage.

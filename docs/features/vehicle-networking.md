@@ -118,7 +118,8 @@ queries; authoritative Core box intersections own weapon blocking. Dimensions an
 with each wall, avoiding collider changes when live tuning changes after deployment.
 
 Tombstone contacts omit the fixed-prop angular kick; their existing Core response shares
-horizontal momentum. Tipping colliders no longer block vehicles or wheel queries on either
+horizontal momentum. Their side normals are horizontal before native sweep/slide, preventing
+bank-aligned faces from adding lift during sustained pushes. Tipping colliders no longer block vehicles or wheel queries on either
 host or replicas, preventing the falling wall from lifting cars. Terrain contact still
 drives side-ground breakage, and Core weapon geometry remains active.
 

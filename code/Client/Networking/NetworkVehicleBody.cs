@@ -170,6 +170,10 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                 }
                 var other = result.GetCollider(i) as NetworkVehicleBody;
                 var wall = result.GetCollider(i) as Items.TombstoneWallBody;
+                // A ground-aligned wall shares horizontal momentum in Core. Its
+                // banked side face must not turn a sustained push into lift.
+                if (wall is not null && Math.Abs(normal.Y) < _configuration.SupportNormalMinimum)
+                { normal = new Vector3(normal.X, 0, normal.Z).Normalized(); }
                 Vector3 point = result.GetCollisionPoint(i);
                 Vector3 relative = other is null ? velocity + angular.Cross(point - transform.Origin) - result.GetColliderVelocity(i) :
                     incomingVelocity + incomingAngular.Cross(point - initialTransform.Origin) -

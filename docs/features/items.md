@@ -219,9 +219,14 @@ angular momentum as well as translation. Duplicate points cannot add duplicate t
 Unrelated blocking contacts keep their resolved motion. Tombstone contacts bypass the
 native adapter's additional fixed-prop pitch/roll kick: applying it before restoring shared
 horizontal momentum could drive the chassis into the floor and launch it through suspension.
+Native Tombstone side-contact normals use the same horizontal plane as that Core response,
+so a banked side face cannot turn a sustained push into vertical lift. Top contacts and
+terrain support retain their existing normals.
 General car handling, suspension, tuning and other collision responses are unchanged. Writing an unchanged host
 observation back to the solver is skipped to preserve pending contact impulses.
-Walls use low friction (0.08) and linear damping (0.2). Before a strong vehicle impact,
+Standing walls use friction 0.6 and linear damping 2 so they settle after an unpowered push rather
+than coasting across the arena. Their captured mass and contact momentum sharing remain
+unchanged, allowing a moving car to keep pushing them. Before a strong vehicle impact,
 native pitch/roll torque is constrained;
 terrain support controls their slope-relative orientation and height as they slide. Horizontal
 heading is preserved through ground alignment, while contact torque may rotate yaw freely.
@@ -233,6 +238,7 @@ expiry/destruction. Inactive authority freezes the bodies.
 
 When a vehicle contact's impulse divided by wall mass reaches `items.tombstone_tip_speed`
 (default 20 m/s, range 1–100), Core permanently marks that wall as tipping. Its native
+friction/damping return to 0.08/0.2 to preserve the fall and ground-contact response. Its
 pitch/roll locks and ground stabilization release, and the contact offset supplies physical
 angular momentum. A tipping wall leaves vehicle collision/query layers on every peer so its
 rotating face cannot become a ramp under the car or its wheel rays. It retains native terrain
@@ -267,7 +273,8 @@ cosmetic expansion progress are not serialized; recovered walls appear fully exp
 arenas, stationary/60 m/s forward/reverse/banked deployment of damaged shields, blocked-use
 retry with the same capability, retired-use rejection,
 drive-away independence, retained release facing, bank alignment/elevation following,
-native vehicle push with measured slowdown and damage, fresh third-peer admission, sustained
+native vehicle push with measured slowdown and damage, bounded three-second unpowered coast
+after an 8 m/s push, fresh third-peer admission, sustained
 Machine Gun destruction, native Missile/Salvo impacts and exact publication-boundary comparisons. It also deploys sixteen
 walls through ordinary use and sustains their native state for 600 frames. Rendered runs
 capture expanded, pushed, destroyed and stress states. Every live wall is checked for upright

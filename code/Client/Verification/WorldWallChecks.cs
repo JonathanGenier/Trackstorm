@@ -233,7 +233,18 @@ public sealed partial class WorldWallChecks : Node
                     Record($"Banked off-centre car peak support-relative rise {_peakCarRise:F2} m; upward speed {_peakCarUpSpeed:F2} m/s.");
                     Check(_peakCarRise < 0.75f && _peakCarUpSpeed < 3, "Ordinary wall contact must not launch the car off the bank");
                     Position(2, new(120, 204, 60), N.Vector3.Zero);
-                    Capture("pushed.png"); AddPeer(); Next(5); break;
+                    Capture("pushed.png"); AddPeer();
+                    RestWall(flatWeaponTarget: true);
+                    _groundStart = _arenas[0].Walls.Bodies[pushed.Id].Observe().Position;
+                    _arenas[0].Walls.Bodies[pushed.Id].ApplyCentralImpulse(new(0, 0, -pushed.WallMass * 8));
+                    Next(20); break;
+                case 20 when elapsed >= 180:
+                    var coasted = host.Items.Tombstones.Last();
+                    float coastDistance = N.Vector3.Distance(coasted.Position, _groundStart);
+                    Record($"Unpowered wall coast from 8 m/s: {coastDistance:F2} m travel; {coasted.LinearVelocity.Length():F2} m/s after three seconds.");
+                    Check(coastDistance > 0.5f && coastDistance < 5 && coasted.LinearVelocity.Length() < 0.5f,
+                        "Wall yields to a push but settles without prolonged sliding");
+                    Next(5); break;
                 case 5 when elapsed > 120 && _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 3):
                     Check(_arenas.All(a => a.Walls.Bodies.Count == 2), "Fresh third peer reconstructs both native walls");
                     VerifyBoundaries();
