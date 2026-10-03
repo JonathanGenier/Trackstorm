@@ -155,16 +155,18 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         _mountProgress = Mathf.MoveToward(_mountProgress, extend ? 1 : 0, delta / 1.15f);
         float t = _mountProgress;
         float Ease(float start, float end) => Mathf.SmoothStep(0, 1, Mathf.Clamp((t - start) / (end - start), 0, 1));
-        Vector3 parked = new(0, 1.59f, 1.195f);
+        // Center the folded geometry over the deck; its hinge origin is offset
+        // from the packed mesh bounds. Keep the wider stack inside the open lids.
+        Vector3 parked = new(0, 1.59f, 1.645f);
         if (Rack.TombstoneCarrier is { } carrier)
-        { parked = _rearVisual.GetParent<Node3D>().GlobalTransform.AffineInverse() * (carrier.GlobalTransform * new Vector3(0, .25f, -.65f)); }
+        { parked = _rearVisual.GetParent<Node3D>().GlobalTransform.AffineInverse() * (carrier.GlobalTransform * new Vector3(0, .25f, -.20f)); }
         Vector3 lifted = new(0, 2.60f, 4.9f);
         Vector3 aft = new(0, .25f, 4.9f);
         Vector3 position = t < .20f ? parked.Lerp(lifted, Ease(0, .20f)) :
             t < .32f ? lifted.Lerp(aft, Ease(.20f, .32f)) : aft.Lerp(Items.TombstoneVisual.MountedCenter, Ease(.87f, 1));
         // Keep the rack payload compact and visible through its lift. Restore
         // full size aft of the Car before the rigid center leaves start opening.
-        float size = Mathf.Lerp(.35f, 1, Ease(.20f, .32f));
+        float size = Mathf.Lerp(.42f, 1, Ease(.20f, .32f));
         _rearVisual.Transform = new(new Basis(Vector3.Right, -MathF.PI / 2 * (1 - Ease(.20f, .32f))).Scaled(Vector3.One * size), position);
         _rearVisual.SetFold(1 - Ease(.52f, .67f), 1 - Ease(.32f, .52f), 1 - Ease(.67f, .87f));
         _rearVisual.Visible = _shownShield is not null && (t > 0 || (Rack.TombstoneCarrier is not null && Rack.Progress >= .45f));

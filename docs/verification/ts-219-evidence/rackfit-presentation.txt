@@ -1,0 +1,36 @@
+PASS: Selected acquisition presents rear shield.
+PASS: Production rack reaches its raised mounting pose.
+PASS: Compact folded shield rides the extending rack on shields.
+PASS: Compact folded shield rides the extending rack on remoteShields.
+PASS: Selection unfolds progressively from the rack into the rear shield.
+PASS: The two center leaves hinge open at full constant size.
+PASS: All four horizontal hinges unfold at full size after the center opens.
+PASS: Both peers straighten the top and bottom rows into the full-height shield.
+PASS: Deselection visibly folds the shield while authority deselects immediately.
+PASS: Rack stays raised until the shield folds safely back.
+PASS: Folded shield and carriage stow with the closed deck.
+PASS: Host and remote peer finish the same selection animation.
+PASS: Rapid reselection settles into one coherent mounted shield on both peers.
+PASS: Second slot retains an independently stored Tombstone.
+PASS: Slot switching restores the original shield identity.
+PASS: Mounted health presentation follows accepted damage.
+PASS: Normal input deploys the original entity.
+PASS: Wing expansion is observed between folded and expanded poses.
+PASS: Expanded wall retains mounted damage.
+PASS: Host and remote input deploy independent simultaneous walls.
+PASS: Remote publication agrees on every live identity, stage and HP.
+PASS: Heavy damage leaves the other wall unchanged.
+PASS: Destroyed wall leaves the live authority set immediately.
+PASS: Destruction cleanup leaves the surviving wall intact.
+PASS: Non-colliding destruction visuals play and are released after their bounded lifetime.
+PASS: Stored shield deploys successfully after previous destruction.
+PASS: Reacquisition creates a new mounted shield after repeated use.
+PASS: Mounted presentation survives ordinary driving and steering.
+PASS: Switching to Boost finishes the shield return before replacing the rack payload.
+PASS: Use during selection deploys immediately through existing authority.
+PASS: Early release continues the captured center hinge fold into the world wall.
+PASS: Early release continues the captured horizontal fold without snapping the rows open.
+PASS: Empty carriage returns cleanly after early deployment.
+PASS: Mounted armor clears articulated rear tires and trunk lids during rack motion, landing, driving and steering.
+PASS: Runtime exits cleanly without errors, warnings or exceptions.
+Tombstone presentation passed. Evidence: C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\.godot\ts-219\playtest/check-20261003-195243*

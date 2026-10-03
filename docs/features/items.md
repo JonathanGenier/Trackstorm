@@ -215,7 +215,7 @@ center halves around a visible central hinge, unfolds the side wings, then opens
 all four horizontal hinges before pulling the shield into rear position. Center
 tops fold backward and wing tops forward to nest the rows. Deselection reverses
 this sequence and holds the rack open until the shield is nested. All panel
-folding keeps full constant size. Inventory packing stays at 0.35 scale during rack
+folding keeps full constant size. Inventory packing stays at 0.42 scale during rack
 rise and initial aft travel, reaching full size behind the Car before the center
 hinge opens; it does not represent exact mechanical packing. Accepted protection still
 starts/stops immediately with selection, and use is never delayed by animation.

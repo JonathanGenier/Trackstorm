@@ -47,8 +47,10 @@ and rides the rack out of the bay. After the rack rises, selection carries it af
 Car, pitches it upright, opens the two center halves and nested wings, unfolds all
 four top sections, and draws it into rear-guard position over 1.15 seconds.
 Deselection reverses that path before the rack lowers. All panel folding keeps full
-constant size. The packed stack stays at 0.35 scale through the lift and initial aft travel,
-then reaches full size behind the Car before the center hinge opens. This is
+constant size. The packed stack stays at 0.42 scale through the lift and initial aft travel,
+with its hinge origin at rack local `(0, .25, -.20)` to center the folded geometry
+over the deck while clearing the open lids. It
+reaches full size behind the Car before the center hinge opens. This is
 stylized inventory packing, not an exact mechanical simulation. Nested wings slide behind their
 center halves. Early use preserves the displayed pose, scale, center fold and
 wing/horizontal folds at world release; the empty carriage returns afterward. Protection and

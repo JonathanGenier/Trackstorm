@@ -54,7 +54,7 @@ try {
     Assert ($mounted.trace[-1].shields[0].rack -gt .99) 'Production rack reaches its raised mounting pose.'
     foreach ($peer in @('shields', 'remoteShields')) {
         $lifting = @($mounted.trace.$peer | Where-Object { $_.id -eq 1 -and $_.rack -ge .50 -and $_.rack -le .85 })
-        Assert ($lifting.Count -ge 5 -and @($lifting | Where-Object { -not $_.visible -or [Math]::Abs($_.scale - .35) -gt .001 -or $_.centerFold -lt .999 -or $_.horizontalFold -lt .999 }).Count -eq 0) "Compact folded shield rides the extending rack on $peer."
+        Assert ($lifting.Count -ge 5 -and @($lifting | Where-Object { -not $_.visible -or [Math]::Abs($_.scale - .42) -gt .001 -or $_.centerFold -lt .999 -or $_.horizontalFold -lt .999 }).Count -eq 0) "Compact folded shield rides the extending rack on $peer."
     }
     Assert (@($mounted.trace | Where-Object { $_.shields[0].mount -gt 0 -and $_.shields[0].mount -lt 1 }).Count -gt 10 -and $mounted.trace[-1].shields[0].mount -eq 1) 'Selection unfolds progressively from the rack into the rear shield.'
     $centerMotion=@($mounted.trace.shields | Where-Object { $_.visible -and $_.centerFold -gt .01 -and $_.centerFold -lt .99 })
@@ -67,7 +67,7 @@ try {
     Assert (@($stowing.trace | Where-Object { $_.shields[0].mount -gt 0 -and $_.shields[0].rack -lt .99 }).Count -eq 0) 'Rack stays raised until the shield folds safely back.'
     $stowed = Command 'stowed' @{frames=100}
     Assert (-not $stowed.trace[-1].shields[0].visible -and $stowed.trace[-1].shields[0].rack -eq 0) 'Folded shield and carriage stow with the closed deck.'
-    $rackLift = Command 'rack-lift' @{select=$true;frames=22;camera=@(5,204,6);look=@(0,202,1.2)}
+    $rackLift = Command 'rack-lift' @{select=$true;frames=22;camera=@(5,205,1);look=@(0,202.3,1.8)}
     $opening = Command 'opening' @{frames=17;camera=@(7,206,4);look=@(0,202.8,2)}
     $swing = Command 'swing' @{frames=12}
     $centerOpening = Command 'center-opening' @{frames=8;camera=@(6,204,11);look=@(0,202,4)}
