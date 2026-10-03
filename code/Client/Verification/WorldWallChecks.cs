@@ -33,6 +33,11 @@ public sealed partial class WorldWallChecks : Node
     private ulong _impactWall, _expiryWall, _expiryTick;
     private bool _sawTipping;
     private bool _sawFalling;
+    private bool _sawBreak;
+    private float _peakCarRise, _peakCarUpSpeed;
+    private N.Vector3 _ramStart, _ramNormal = N.Vector3.UnitY;
+    private int _ramCase;
+    private ulong RammingVehicle => _ramCase % 2 == 0 ? 2ul : 1ul;
     private bool ProductionMap => OS.GetCmdlineUserArgs().Contains("--world-wall-production");
 
     public override void _Ready()
@@ -118,6 +123,7 @@ public sealed partial class WorldWallChecks : Node
                 Check(_impactSpeed > incomingSpeed * 0.65f && _impactSpeed < incomingSpeed, $"Wall slows the car without stopping it: {incomingSpeed:F2} -> {_impactSpeed:F2} m/s");
                 Record($"First wall contact: car {incomingSpeed:F2} -> {_impactSpeed:F2} m/s, ordinary collision damage retained.");
             }
+            if (_stage == 4) { ObserveRam(host.World.GetVehicle(2).ObservedPhysics); }
             if (_stage == 6 && elapsed == 15) { Capture("firing.png"); }
             _boundaries[host.World.State.Tick] = host.Items.Tombstones.ToArray();
             Check(elapsed < 1500, $"Stage {_stage}, scenario {_scenario} timed out");
@@ -214,6 +220,8 @@ public sealed partial class WorldWallChecks : Node
                     Record($"Fast uphill slide follows elevation: {_groundStart.Y:F2} -> {uphill.Position.Y:F2} m.");
                     RestWall();
                     Position(2, uphill.Position + new N.Vector3(2, 0, 8), new(0, 0, -18));
+                    _ramStart = host.World.GetVehicle(2).ObservedPhysics.Position;
+                    _ramNormal = new(-MathF.Sin(0.12f), MathF.Cos(0.12f), 0);
                     _beforeImpact = uphill.Orientation;
                     _pushStart = host.Items.Tombstones.Last().Position; Next(4); break;
                 case 4 when elapsed >= 90:
@@ -222,6 +230,8 @@ public sealed partial class WorldWallChecks : Node
                     Check(pushed.HP < 875, "Native wall contact damages its independent pool");
                     Check(Math.Abs(N.Quaternion.Dot(pushed.Orientation, _beforeImpact)) < 0.999f, "An off-centre vehicle hit rotates the wall without an artificial torque impulse");
                     Record($"Off-centre vehicle hit moved wall {N.Vector3.Distance(pushed.Position, _pushStart):F2} m; heading changed {2 * MathF.Acos(Math.Clamp(Math.Abs(N.Quaternion.Dot(pushed.Orientation, _beforeImpact)), 0, 1)) * 180 / MathF.PI:F1} degrees; HP {pushed.HP:F1}.");
+                    Record($"Banked off-centre car peak support-relative rise {_peakCarRise:F2} m; upward speed {_peakCarUpSpeed:F2} m/s.");
+                    Check(_peakCarRise < 0.75f && _peakCarUpSpeed < 3, "Ordinary wall contact must not launch the car off the bank");
                     Position(2, new(120, 204, 60), N.Vector3.Zero);
                     Capture("pushed.png"); AddPeer(); Next(5); break;
                 case 5 when elapsed > 120 && _arenas.All(a => a.Driver.Latest?.Vehicles.Count == 3):
@@ -263,27 +273,34 @@ public sealed partial class WorldWallChecks : Node
                     Check(host.Items.Tombstones.All(s => VehiclePhysicsState.IsFinite(s.Position) && VehiclePhysicsState.IsFinite(s.LinearVelocity)), "Finite sustained wall state");
                     VerifyBoundaries(); Capture("sixteen-walls.png");
                     Record("Sixteen walls deployed via ordinary use, then sustained for 600 physics frames across three UDP arenas.");
-                    var victim = host.Items.Tombstones.Last(); _impactWall = victim.Id;
-                    RestWall(flatWeaponTarget: true);
-                    Position(2, new(0, 201.7f, -50), new(0, 0, -40));
-                    var impactCamera = _arenas[0].GetNode<Camera3D>("WallCamera");
-                    impactCamera.Position = new(14, 208, -47); impactCamera.LookAt(new(0, 202, -60));
-                    Next(17); break;
+                    BeginRam(); break;
                 case 17:
+                    var struckCar = host.World.GetVehicle(RammingVehicle).ObservedPhysics;
+                    ObserveRam(struckCar);
                     var tipping = host.Items.Tombstones.FirstOrDefault(s => s.Id == _impactWall);
                     if (tipping is { Tipping: true } && !_sawTipping)
                     {
-                        _sawTipping = true; Capture("tipping.png");
+                        _sawTipping = true; Capture($"tipping-{_ramCase}.png");
                         Record($"Hard native vehicle hit released tipping at {tipping.HP:F1} HP; angular speed {tipping.AngularVelocity.Length():F2} rad/s.");
                     }
                     if (tipping is { Tipping: true } && !_sawFalling && N.Vector3.Transform(N.Vector3.UnitY, tipping.Orientation).Y < 0.75f)
-                    { _sawFalling = true; Capture("falling.png"); }
+                    { _sawFalling = true; Capture($"falling-{_ramCase}.png"); }
                     if (tipping is not null) { break; }
                     Check(_sawTipping && _sawFalling, "Wall must visibly enter tipping before its ground break");
-                    Check(elapsed < 240, "Hard impact topples and breaks promptly");
-                    Record("Tipped wall broke on native side/ground contact and left the live set.");
-                    Capture("toppled-removed.png");
-                    Position(2, new(120, 204, 60), N.Vector3.Zero);
+                    if (!_sawBreak)
+                    {
+                        Check(elapsed < 240, "Hard impact topples and breaks promptly");
+                        _sawBreak = true;
+                        Record("Tipped wall broke on native side/ground contact and left the live set.");
+                    }
+                    if (elapsed < 180) { break; }
+                    Record($"Hard impact {_ramCase}, vehicle {RammingVehicle}: car peak rise {_peakCarRise:F2} m; peak upward speed {_peakCarUpSpeed:F2} m/s over three seconds.");
+                    Check(_peakCarRise < 0.75f && _peakCarUpSpeed < 3, "Ramming the wall must not launch the car");
+                    Check(struckCar.Position.Z < -65, "Car continues through the collapsed wall");
+                    Check(_arenas.All(a => !a.Walls.Bodies.ContainsKey(_impactWall)), "Toppled wall collider removed on all peers");
+                    Capture($"toppled-removed-{_ramCase}.png");
+                    Position(RammingVehicle, new(120, 204, 60), N.Vector3.Zero);
+                    if (++_ramCase < 5) { BeginRam(); break; }
                     Check(host.TryConfigure(0, new Dictionary<string, double> { ["items.tombstone_lifetime"] = 2 }, out _), "Configure short native expiry fixture");
                     Position(1, new(0, 201.65f, 0), N.Vector3.Zero);
                     Check(host.Items.Grant(host.World, 1, HeldItem.Tombstone), "Expiry fixture grant");
@@ -334,6 +351,32 @@ public sealed partial class WorldWallChecks : Node
             var point = Vehicles.VehicleBody.ToGodot(host.World.GetVehicle(1).ObservedPhysics.Position);
             camera.Position = point + new Vector3(20, 14, 24); camera.LookAt(point);
         }
+    }
+
+    private void BeginRam()
+    {
+        var host = _arenas[0].Driver.Host!;
+        _impactWall = host.Items.Tombstones.Last().Id;
+        RestWall(flatWeaponTarget: true);
+        _sawTipping = _sawFalling = _sawBreak = false;
+        _peakCarRise = _peakCarUpSpeed = 0;
+        bool banked = _ramCase == 4;
+        _ramNormal = banked ? new(-MathF.Sin(0.12f), MathF.Cos(0.12f), 0) : N.Vector3.UnitY;
+        _ramStart = new(banked ? 100 : _ramCase == 1 ? 2 : 0, 201.7f, -50);
+        if (banked)
+        { _arenas[0].Walls.Bodies[_impactWall].GlobalTransform = new(new Basis(Vector3.Back, 0.12f), new(100, 201.765f, -60)); }
+        Position(RammingVehicle, _ramStart, new(0, 0, _ramCase == 2 ? -60 : -40),
+            banked ? N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitZ, 0.12f) :
+            _ramCase == 3 ? N.Quaternion.CreateFromAxisAngle(N.Vector3.UnitY, MathF.PI) : N.Quaternion.Identity);
+        var camera = _arenas[0].GetNode<Camera3D>("WallCamera");
+        camera.Position = new((banked ? 100 : 0) + 14, 208, -47); camera.LookAt(new(banked ? 100 : 0, 202, -60));
+        Next(17);
+    }
+
+    private void ObserveRam(VehiclePhysicsState car)
+    {
+        _peakCarRise = Math.Max(_peakCarRise, N.Vector3.Dot(car.Position - _ramStart, _ramNormal));
+        _peakCarUpSpeed = Math.Max(_peakCarUpSpeed, N.Vector3.Dot(car.LinearVelocity, _ramNormal));
     }
 
     private void Position(ulong id, N.Vector3 point, N.Vector3 velocity, N.Quaternion? heading = null)

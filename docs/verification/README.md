@@ -10,7 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
-| Story verification, terrain alignment, contact spin, tipping/breakage and expiry | [TS-218 verification evidence](ts-218.md) |
+| Story verification, terrain alignment, contact spin, tipping/breakage, expiry and vehicle-launch correction | [TS-218 verification evidence](ts-218.md) |
 | TS-274 world collision stability | [Terrain bake, collision recovery and network verification](ts-274.md) |
 | Story verification | [TS-269 verification evidence](ts-269.md) |
 | Distinct surface braking, deliberate slides, incline holding and runtime evidence | [TS-266 verification evidence](ts-266.md) |

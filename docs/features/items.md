@@ -216,8 +216,10 @@ contact-normal momentum using the car and captured wall masses plus the wall box
 wall while slowing instead of retaining the generic sweep's stationary-obstacle stop.
 Distinct manifold points form one contact centroid per wall; the contact offset produces
 angular momentum as well as translation. Duplicate points cannot add duplicate torque.
-Unrelated blocking contacts keep their resolved motion.
-Car handling and the generic collision solver are unchanged. Writing an unchanged host
+Unrelated blocking contacts keep their resolved motion. Tombstone contacts bypass the
+native adapter's additional fixed-prop pitch/roll kick: applying it before restoring shared
+horizontal momentum could drive the chassis into the floor and launch it through suspension.
+General car handling, suspension, tuning and other collision responses are unchanged. Writing an unchanged host
 observation back to the solver is skipped to preserve pending contact impulses.
 Walls use low friction (0.08) and linear damping (0.2). Before a strong vehicle impact,
 native pitch/roll torque is constrained;
@@ -232,7 +234,10 @@ expiry/destruction. Inactive authority freezes the bodies.
 When a vehicle contact's impulse divided by wall mass reaches `items.tombstone_tip_speed`
 (default 20 m/s, range 1–100), Core permanently marks that wall as tipping. Its native
 pitch/roll locks and ground stabilization release, and the contact offset supplies physical
-angular momentum. Core destroys the remaining pool once native walkable-ground contact
+angular momentum. A tipping wall leaves vehicle collision/query layers on every peer so its
+rotating face cannot become a ramp under the car or its wheel rays. It retains native terrain
+and standing-wall contact, and Core weapon intersections remain active until destruction.
+Core destroys the remaining pool once native walkable-ground contact
 coincides with the wall up-axis falling below a 0.2 dot product with that contact normal
 (about 78.5 degrees from upright). Airborne tilt and ordinary slope alignment cannot alone
 break it. The normal destruction path removes its collider and records the terminal event.
@@ -268,7 +273,10 @@ walls through ordinary use and sustains their native state for 600 frames. Rende
 capture expanded, pushed, destroyed and stress states. Every live wall is checked for upright
 orientation before tipping throughout the run. An off-centre vehicle strike must rotate
 the wall without artificial torque. A hard native vehicle strike must tip it and break it
-on ground contact; a short configured lifetime verifies exact expiry and peer cleanup. Missile/Salvo target fixtures reposition the surviving
+on ground contact. Ordinary banked contact and five hard strikes (host/remote, centred/offset,
+40/60 m/s setup speeds, reverse-facing and banked) measure support-relative car rise and
+upward speed; hard strikes continue for three seconds without resetting the car. A short
+configured lifetime verifies exact expiry and peer cleanup. Missile/Salvo target fixtures reposition the surviving
 wall onto level support after the motion test; they do not establish moving-target accuracy.
 Add `-ProductionMap` to exercise sixteen normal-use deployments at
 all eight oval grid spawns and the seven authored infield pickup areas, including impaired

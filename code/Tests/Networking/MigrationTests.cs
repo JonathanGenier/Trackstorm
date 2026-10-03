@@ -305,13 +305,14 @@ internal sealed class MigrationTests
         Place(host, 1, "item-01");
         Assert.That(host.Spawns!.TryPickup(host.World, "item-01", 1), Is.True);
         _ = host.ItemSelectionRandom.Next(7);
-        var publication = new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], host.Spawns.States);
+        var publication = new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], host.Spawns.States, tombstones: host.Items.Tombstones);
         var restored = HostVehicleSession.Restore(new ResumeCheckpoint(publication, host.World.State.Match!, null, host.Configuration), host.CaptureAuthority(), 2);
         Assert.That(restored.Configuration, Is.EqualTo(host.Configuration));
         Assert.That(restored.Configuration.Configuration.Spawns.Seed, Is.EqualTo(matchSeed));
         Assert.That(restored.Spawns!.RandomState, Is.EqualTo(host.Spawns.RandomState));
         Assert.That(restored.ItemSelectionRandom.Next(23), Is.EqualTo(host.ItemSelectionRandom.Next(23)), "The first generic authoritative draw after migration must continue exactly.");
         Assert.That(restored.Spawns!.States, Is.EqualTo(host.Spawns.States));
+        Assert.That(restored.Items.Tombstones, Is.EqualTo(host.Items.Tombstones));
         foreach (var authority in new[] { host, restored })
         {
             Place(authority, 2, "item-02");

@@ -61,6 +61,10 @@ internal sealed partial class TombstoneWallBody : RigidBody3D
     {
         if (Freeze == host) { Freeze = !host; _groundContact = null; }
         _tipping = state.Tipping;
+        // A collapsing wall must not become a ramp under the striking car or its
+        // wheel rays. Keep native ground contact for authoritative side breakage.
+        CollisionLayer = _tipping ? 0u : 32u;
+        CollisionMask = _tipping ? 1u | 32u : 3u | 32u;
         AxisLockAngularX = !_tipping;
         AxisLockAngularZ = !_tipping;
         // The host has just observed this native body. Writing the same transform/velocity

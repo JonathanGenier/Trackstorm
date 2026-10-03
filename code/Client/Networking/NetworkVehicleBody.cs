@@ -169,6 +169,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                     normal = EnvironmentContact.ExposedNormal(this, transform.Origin, result.GetCollisionPoint(i), normal);
                 }
                 var other = result.GetCollider(i) as NetworkVehicleBody;
+                var wall = result.GetCollider(i) as Items.TombstoneWallBody;
                 Vector3 point = result.GetCollisionPoint(i);
                 Vector3 relative = other is null ? velocity + angular.Cross(point - transform.Origin) - result.GetColliderVelocity(i) :
                     incomingVelocity + incomingAngular.Cross(point - initialTransform.Origin) -
@@ -206,7 +207,9 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
                 {
                     normal = VehicleBody.ToGodot(EnvironmentCollision.ResponseNormal(VehicleBody.ToCore(normal), VehicleBody.ToCore(initialSupport)));
                 }
-                else if (other is null && normal.Y < _configuration.SupportNormalMinimum)
+                // Tombstone's mass-sharing response owns its contact. Adding the
+                // fixed-prop lever-arm kick pitches the car into the ground.
+                else if (other is null && wall is null && normal.Y < _configuration.SupportNormalMinimum)
                 {
                     float closing = Math.Max(0, -relative.Dot(normal));
                     Vector3 deltaVelocity = normal * closing;

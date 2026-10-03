@@ -117,6 +117,11 @@ wall pose, HP or motion outcomes. Their reconstructed layer-32 colliders partici
 queries; authoritative Core box intersections own weapon blocking. Dimensions and mass travel
 with each wall, avoiding collider changes when live tuning changes after deployment.
 
+Tombstone contacts omit the fixed-prop angular kick; their existing Core response shares
+horizontal momentum. Tipping colliders no longer block vehicles or wheel queries on either
+host or replicas, preventing the falling wall from lifting cars. Terrain contact still
+drives side-ground breakage, and Core weapon geometry remains active.
+
 World-wall native bodies constrain pitch/roll torque until an accepted strong-impact
 tipping state releases it; reconstruction and authority recovery preserve that state. Host terrain sampling aligns their bases to slopes and follows ground
 height without changing horizontal heading. Contact yaw and ground movement remain free;
