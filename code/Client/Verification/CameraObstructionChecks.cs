@@ -113,7 +113,9 @@ public sealed partial class CameraObstructionChecks : Node3D
                 }
             }
             if (_phase == 12) position = new Vector3(-500, VehicleDimensions.RideHeight, 44);
-            if (_phase == 13) position = new Vector3(-517, VehicleDimensions.RideHeight, -6);
+            // Place the rack close enough that the fixed-height upward boom crosses
+            // the container's top edge, rather than clearing this short obstacle.
+            if (_phase == 13) position = new Vector3(-517, VehicleDimensions.RideHeight, -5);
             if (_phase == 14) position = new Vector3(-500, VehicleDimensions.RideHeight, 12);
             if (_phase == 15) position = _bankPosition;
             if (_phase is 13 or 14 or 15)
@@ -132,8 +134,9 @@ public sealed partial class CameraObstructionChecks : Node3D
             Vector3 pivot = pose * VehicleBody.ToGodot(WeaponAim.Pivot);
             float distance = _camera.GlobalPosition.DistanceTo(pivot);
             float chaseRadius = new Vector2(_camera.FollowDistance * 1.15f, _camera.CameraHeight).Length();
-            Vector3 viewBoom = Basis.FromEuler(new Vector3(Mathf.DegToRad(_camera.ViewDownAngle), 0, 0)) * new Vector3(0, _camera.CameraHeight, _camera.FollowDistance * 1.15f);
-            float correction = _camera.GlobalPosition.DistanceTo(pivot + _camera.GlobalBasis * viewBoom);
+            float orbitPitch = Math.Min(0, _camera.Rotation.X + Mathf.DegToRad(_camera.ViewDownAngle));
+            Vector3 viewBoom = Basis.FromEuler(new Vector3(orbitPitch, _camera.Rotation.Y, 0)) * new Vector3(0, _camera.CameraHeight, _camera.FollowDistance * 1.15f);
+            float correction = _camera.GlobalPosition.DistanceTo(pivot + viewBoom);
             _maxCorrection = Math.Max(_maxCorrection, correction);
             // The one-frame orbit input can briefly anticipate the low barrier at
             // high render rates. Verify the settled clear path, not zero prediction.

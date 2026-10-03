@@ -240,9 +240,12 @@ public sealed partial class VehicleChaseCamera : Camera3D
         }
 
         GlobalBasis = Basis.FromEuler(new Vector3(basePitch + _look.Pitch, _heading + _look.Yaw, 0));
-        Basis orbit = Basis.FromEuler(new Vector3(_look.Pitch, _heading + _look.Yaw, 0));
+        // Looking up tilts the view without lowering the lens around the car.
+        // Downward look keeps the existing elevated orbit and obstruction path.
+        Basis orbit = Basis.FromEuler(new Vector3(Math.Min(0, _look.Pitch), _heading + _look.Yaw, 0));
+        Vector3 boostBoom = orbit * new Vector3(0, -MathF.Sin(basePitch), MathF.Cos(basePitch));
         System.Numerics.Vector2 shake = _motion.ShakeOffset * Math.Clamp(MaximumShakeMetres, 0, 0.65f) * ShakeIntensity;
-        Vector3 intent = _anchor + orbit * new Vector3(0, height, distance) + GlobalBasis.Z * _boost.PullBack
+        Vector3 intent = _anchor + orbit * new Vector3(0, height, distance) + boostBoom * _boost.PullBack
             + backward * _motion.Offset.Y + right * _motion.Offset.X;
         Vector3 desired = intent + GlobalBasis.X * shake.X + GlobalBasis.Y * shake.Y;
         // Enclose the actual near-plane corners, including wide aspect ratios. Sweep after

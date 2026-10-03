@@ -23,7 +23,7 @@ internal sealed class CameraFreeLook
             Vector2 shapedStick = weaponAiming ? stick * MathF.Pow(stick.Length(), stickCurve - 1) : stick;
             Vector2 movement = mouse * (0.003f * mouseScale) + (shapedStick * (2.2f * delta * stickScale));
             Yaw = MathF.IEEERemainder(Yaw - movement.X, MathF.Tau);
-            Pitch = Math.Clamp(Pitch - movement.Y, -MathF.PI * 17 / 36 - basePitch, -basePitch);
+            Pitch = Math.Clamp(Pitch - movement.Y, -MathF.PI * 17 / 36 - basePitch, MathF.PI * 17 / 36 - basePitch);
         }
         else
         {

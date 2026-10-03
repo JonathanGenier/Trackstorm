@@ -163,7 +163,10 @@ public sealed partial class WeaponAimChecks : Node
             Require(solution.Clear || !solution.Ready, "A camera ray blocked by the owner cannot mark the weapon ready");
             Position(new(0, Ground, 35), new(0, Ground + 10, 0), new(5, Ground, 0));
             _heldTargets = (new(0, Ground + 10, 0), new(5, Ground, 0));
+            // Let the impaired peer settle after staging before comparing lens height.
+            await Frames(60);
             Camera.ResetFollow(); await Frames(5);
+            float elevatedChaseHeight = Camera.GlobalPosition.Y - _arenas[1].Bodies[Shooter].VisualPosition.Y;
             await AimAt(_arenas[1].Bodies[1].VisualPosition + Vector3.Up);
             for (int i = 0; i < 60; i++)
             {
@@ -171,8 +174,14 @@ public sealed partial class WeaponAimChecks : Node
                 await Frames(1);
             }
             await AimAt(new(0, Ground + 11, 0)); await Capture("06c-airborne-target");
-            Require(Camera.Rotation.X <= .0001f && Camera.Rotation.X >= -MathF.PI * 17 / 36 - .0001f &&
-                _arenas[1].AimOverlay.Marker.HasValue, "Elevated rivals retain the square without overriding normal camera pitch limits");
+            Require(Camera.Rotation.X > .1f && Camera.Rotation.X <= MathF.PI * 17 / 36 + .0001f,
+                "Elevated rivals can be aimed at above the horizon");
+            Require(Camera.GlobalPosition.Y - _arenas[1].Bodies[Shooter].VisualPosition.Y >= elevatedChaseHeight - .15f,
+                "Upward aiming does not lower the grounded chase camera relative to the car");
+            RequireCentered("Upward aiming retains the centered shared aiming cue");
+            Require(_arenas[1].AimOverlay.Bounds is { } elevatedBounds && elevatedBounds.HasPoint(ViewCenter), "The upward camera ray actually intersects the elevated rival");
+            Require(host.Items.Aims.Any(aim => aim.Vehicle == Shooter && aim.Pitch > .1f) &&
+                _arenas[2].Driver.AcceptedAims.Any(aim => aim.Vehicle == Shooter && aim.Pitch > .1f), "Upward desired aim reaches authority and observer");
             _heldTargets = null;
             Position(new(0, Ground, 35), new(-8, Ground, 5), new(-3, Ground, 5));
             Camera.ResetFollow(); await Frames(5); await AimAt(new(0, Ground + 1, 5));
@@ -218,8 +227,9 @@ public sealed partial class WeaponAimChecks : Node
             Camera.ResetFollow();
             Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
             await Until(() => Camera.AerialMotion.Pullback > 2 && _arenas[1].LocalState is { Movement.Grounded: false }, "Airborne shooter opens wider camera framing");
-            Send(new InputEventMouseMotion { ScreenRelative = new(60, 30) });
+            Send(new InputEventMouseMotion { ScreenRelative = new(60, -90) });
             await Frames(8);
+            Require(Camera.Rotation.X > .1f, "Airborne shooter can aim above the horizon");
             RequireCentered("Airborne camera input retains the centered shared aiming cursor");
             float airborneYaw = Camera.Rotation.Y;
             await Frames(20);
