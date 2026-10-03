@@ -208,12 +208,14 @@ immediately. Captured dimensions scale the installed visual; configured sizes pr
 same silhouette rather than authoring a separate model for each tuning combination.
 
 Selected presentation now unfolds from a compact horizontal rack pose after the
-deck opens and rack rises. The 0.8-second carriage motion lifts aft, tips the plate
-upright, unfolds the side wings and pulls the shield into rear position. Deselection
-reverses this sequence and holds the rack open until the shield is nested. The compact
-inventory pose uses 0.28 scale; it does not represent exact full-size mechanical
-packing. Accepted protection still starts/stops immediately with selection, and use
-is never delayed by animation. Early use hands the current pose, size and wing fold
+deck opens and rack rises. The 0.95-second carriage motion carries a four-leaf stack
+aft, rolls it upright, opens the two center halves around a visible central hinge,
+unfolds the side wings and pulls the shield into rear position. Deselection reverses
+this sequence and holds the rack open until the shield is nested. Center and wing
+folding keep full constant size. Inventory packing uses 0.78-to-1 scale during rack
+rise; it does not represent exact mechanical packing. Accepted protection still
+starts/stops immediately with selection, and use is never delayed by animation.
+Early use hands the current pose, size, center fold and wing fold
 to the released wall; the empty carriage returns independently. Rapid switching,
 duplicate identities and remote publications share the same reconstructable path.
 

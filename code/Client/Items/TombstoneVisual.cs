@@ -11,6 +11,7 @@ internal sealed partial class TombstoneVisual : Node3D
     internal static readonly Vector3 MountedCenter = new(0, .25f, 3.25f);
     private Node3D _center = null!;
     private Node3D[] _wings = [];
+    private Node3D[] _panels = [];
     private readonly List<ShaderMaterial> _materials = [];
     private float _hp = TombstoneState.DefaultHP;
     private float _flash;
@@ -24,19 +25,24 @@ internal sealed partial class TombstoneVisual : Node3D
     private float _release;
     private float _fold;
     private float _releaseFold;
+    private float _centerFold;
+    private float _releaseCenterFold;
     private Vector3 _releaseScale = Vector3.One;
     private GpuParticles3D _sparks = null!;
 
     internal float Expansion => _expansion;
     internal float PresentedHP => _hp;
     internal float Fold => _fold;
-    internal void SetFold(float fold) { _fold = Mathf.Clamp(fold, 0, 1); Pose(); }
+    internal float CenterFold => _world ? _releaseCenterFold * Mathf.SmoothStep(0, 1, _release) : _centerFold;
+    internal void SetFold(float fold, float centerFold = 0)
+    { _fold = Mathf.Clamp(fold, 0, 1); _centerFold = Mathf.Clamp(centerFold, 0, 1); Pose(); }
 
     public override void _Ready()
     {
         var model = MatchResourceLoader.LoadResource<PackedScene>(AssetPath).Instantiate<Node3D>();
         AddChild(model);
         _center = (Node3D)model.FindChild("Center", true, false);
+        _panels = [(Node3D)model.FindChild("Center_L", true, false), (Node3D)model.FindChild("Center_R", true, false)];
         _wings = [ (Node3D)model.FindChild("Wing_L", true, false), (Node3D)model.FindChild("Wing_R", true, false) ];
         var shader = MatchResourceLoader.LoadResource<Shader>("res://assets/items/tombstone/Tombstone.gdshader");
         foreach (var mesh in model.FindChildren("*", "MeshInstance3D", true, false).Cast<MeshInstance3D>())
@@ -74,7 +80,7 @@ internal sealed partial class TombstoneVisual : Node3D
         foreach (var material in _materials) { material.SetShaderParameter("wear", 1 - _hp / TombstoneState.DefaultHP); }
     }
 
-    internal void SetWorld(Vector3 size, bool animate, Transform3D? from = null, float fold = 0)
+    internal void SetWorld(Vector3 size, bool animate, Transform3D? from = null, float fold = 0, float centerFold = 0)
     {
         _world = true;
         _size = size;
@@ -84,6 +90,7 @@ internal sealed partial class TombstoneVisual : Node3D
         _releaseRotation = Quaternion.Identity;
         _releaseScale = Vector3.One;
         _releaseFold = fold;
+        _releaseCenterFold = centerFold;
         if (animate && from is { } start)
         {
             _releaseOffset = GetParent<Node3D>().ToLocal(start.Origin);
@@ -134,11 +141,14 @@ internal sealed partial class TombstoneVisual : Node3D
         for (int i = 0; i < _wings.Length; i++)
         {
             int side = i == 0 ? -1 : 1;
+            float centerFold = _world ? _releaseCenterFold * Mathf.SmoothStep(0, 1, _release) : _centerFold;
+            _panels[i].Position = new(0, 0, .32f);
+            _panels[i].Rotation = new(0, -side * MathF.PI / 2 * centerFold, 0);
             // Open the forward-wrapping side panels outward to the same plane.
             float fold = _world ? _releaseFold * Mathf.SmoothStep(0, 1, _release) : _fold;
             // The folding hinge slides the nested wing behind the central plate,
             // avoiding coplanar overlapping armor in the compact rack pose.
-            _wings[i].Position = new(side * 1.85f, 0, -.4f * fold);
+            _wings[i].Position = new(side * 1.85f, 0, -.32f - .4f * fold);
             _wings[i].Rotation = new(0, side * MathF.PI / 2 * (1 + fold) * (1 - expansion), 0);
         }
         if (_world)

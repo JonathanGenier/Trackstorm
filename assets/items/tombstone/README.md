@@ -15,12 +15,17 @@ overwrites the generated master/exports; preserve manual refinements first.
 The production Car is never re-exported. `sources.json` records source/export hashes
 and the unchanged Car source hash.
 `source/BuildTombstoneMount.py` rebuilds only the reinforced carriage in the existing
-master and its GLB. The full authoring script invokes it as its final step; a
+master and its GLB. The full authoring script invokes it before splitting the center; a
 mount-only rebuild preserves the approved shield export byte for byte.
+`source/FoldTombstoneCenter.py` splits the painted center, caps its cut surfaces,
+adds the center hinge and exports the four-leaf shield without changing the carriage.
 
 Coordinates are metres, Blender +Y forward/+Z up, exported to Godot -Z forward/+Y
-up. The source timeline demonstrates folded frame 1 and expanded frame 32. Named
-rigid parts `Center`, `Wing_L` and `Wing_R` allow client-driven presentation. The
+up. The source timeline demonstrates folded frame 1, mounted frame 32 and expanded
+frame 60. Named rigid parts `Center_L`, `Center_R`, `Wing_L` and `Wing_R` allow
+client-driven presentation. Each wing is parented to its corresponding center half.
+The center halves share a visible vertical axle, alternating knuckles and solid
+hinge leaves, with an 18 mm seam through the original artwork. The
 central panel is 3.7 m wide and 2.5 m high; each 1.45 m wing wraps forward over the
 rear side when mounted and rotates 90 degrees outward to form the 6.6 m wall.
 Trim and lamps extend slightly beyond those nominal panel dimensions.
@@ -32,12 +37,13 @@ trunk/rack articulation. A bolted saddle supports twin boxed telescopic arms,
 hydraulic rams and a cross-braced, four-jaw shield cradle. Named rigid groups allow
 the carriage to follow the shield through selection and return.
 
-After the rack rises, selection raises the compact horizontal shield aft of the
-Car, tips it upright, unfolds its nested wings and draws it into rear-guard position
-over 0.8 seconds. Deselection reverses that path before the rack lowers. The compact
-inventory pose uses a stylized 0.28 scale, consistent with rack payload presentation;
-it is not a mechanically exact packing of the full-size central plate. Nested wings
-slide behind the center plate. Early use preserves the displayed pose, scale and
+After the rack rises, selection carries the horizontal four-leaf stack aft of the
+Car, rolls it upright, opens the two center halves, unfolds its nested wings and
+draws it into rear-guard position over 0.95 seconds. Deselection reverses that path
+before the rack lowers. The central and wing folding motion keeps full constant
+size. Inventory packing retains a stylized 0.78-to-1 scale during rack rise; it is
+not a mechanically exact packing simulation. Nested wings slide behind their
+center halves. Early use preserves the displayed pose, scale, center fold and
 wing fold at world release; the empty carriage returns afterward. Protection and
 use remain immediate under existing authority. No authored mesh supplies collision: Core owns a rear
 panel and two side-panel boxes, and the deployed wall retains its native box.
@@ -49,7 +55,7 @@ third-party runtime assets or dependencies were acquired.
 
 `source/AuditTombstone.py` checks closed outward shield/carriage meshes, expanded
 bounds and 61 world-release samples against the conservative production Car envelope. It checks
-the authored neutral pose; runtime checks cover integration and articulation.
+the authored frame-32 reference pose; runtime checks cover integration and articulation.
 Use `check-tombstone-presentation.ps1 -GodotPath <exe> -Visual` and the applicable
 item/vehicle checks. Actual results and limitations belong in
 `docs/verification/ts-219.md`.

@@ -120,10 +120,10 @@ The production Car is an original Blender-authored armored coupe with enlarged o
 The [Tombstone carriage](../../assets/items/tombstone/README.md) uses the rear rack socket pair
 and extends aft of the production wrap guards. The selected shield follows the full interpolated
 Car pose. A bolted saddle, twin boxed arms, hydraulic rams and four-jaw cradle carry
-the shield. After the production rack rises, the compact shield lifts aft, tips
-upright, unfolds and draws forward into its rear position. Deselecting reverses
-that 0.8-second motion before allowing rack retraction; an empty carriage also
-returns after world release. Three full-height physical
+the shield. After the production rack rises, a four-leaf stack travels aft, rolls
+upright, opens its two center halves and side wings, and draws forward into its rear
+position. Deselecting reverses that 0.95-second motion before allowing rack retraction;
+an empty carriage also returns after world release. Three full-height physical
 panels match the rear plate and short wraparound side wings. Original vehicle geometry,
 wheel articulation and force laws remain unchanged. Shield/wall presentation is described
 under [held items](items.md#tombstone-rear-shield-and-persistent-health).

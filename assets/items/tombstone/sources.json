@@ -8,8 +8,8 @@
   "concept": "reference/concepts-v4/carnage-circus.png; user-approved built-in imagegen reference, not a runtime texture",
   "no_car_geometry_exported": true,
   "sha256": {
-    "Tombstone.glb": "04dde50afa002448afd28d68eff26b7686a0c674257c6c8d846296b134329df1",
+    "Tombstone.glb": "3decd69c09e296f8914a7b0b2aadb425ae042dbca666915d5e0916cd4b49a6dd",
     "TombstoneRack.glb": "13ddbf689ca49a163ac325ee0d588fb044a3aef69bc7a8f16e0fa1bbe1929231",
-    "Tombstone.blend": "3826812149c979bec4e63cb376a188e2858e6a1440d1cef8428e43d57c0eb677"
+    "Tombstone.blend": "dabe9e899e0406f9b060a3db1d68531529ac55899960e3557d277b798f67542f"
   }
 }

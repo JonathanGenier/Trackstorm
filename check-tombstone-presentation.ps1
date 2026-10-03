@@ -53,14 +53,17 @@ try {
     Assert (@($mounted.tombstones).Count -eq 1 -and $mounted.tombstones[0].Stage -eq 1) 'Selected acquisition presents rear shield.'
     Assert ($mounted.trace[-1].shields[0].rack -gt .99) 'Production rack reaches its raised mounting pose.'
     Assert (@($mounted.trace | Where-Object { $_.shields[0].mount -gt 0 -and $_.shields[0].mount -lt 1 }).Count -gt 10 -and $mounted.trace[-1].shields[0].mount -eq 1) 'Selection unfolds progressively from the rack into the rear shield.'
-    $stowing = Command 'stowing' @{select=$true;frames=18;camera=@(6,204,-1);look=@(0,202,2)}
+    $centerMotion=@($mounted.trace.shields | Where-Object { $_.visible -and $_.centerFold -gt .01 -and $_.centerFold -lt .99 })
+    Assert ($centerMotion.Count -gt 5 -and @($centerMotion | Where-Object { [Math]::Abs($_.scale - 1) -gt .001 }).Count -eq 0) 'The two center leaves hinge open at full constant size.'
+    $stowing = Command 'stowing' @{select=$true;frames=30;camera=@(6,204,11);look=@(0,202,4)}
     Assert (-not $stowing.trace[-1].shields[0].shield -and $stowing.trace[-1].shields[0].visible -and $stowing.trace[-1].shields[0].mount -gt 0 -and $stowing.trace[-1].shields[0].mount -lt 1) 'Deselection visibly folds the shield while authority deselects immediately.'
     Assert (@($stowing.trace | Where-Object { $_.shields[0].mount -gt 0 -and $_.shields[0].rack -lt .99 }).Count -eq 0) 'Rack stays raised until the shield folds safely back.'
     $stowed = Command 'stowed' @{frames=100}
     Assert (-not $stowed.trace[-1].shields[0].visible -and $stowed.trace[-1].shields[0].rack -eq 0) 'Folded shield and carriage stow with the closed deck.'
-    $opening = Command 'opening' @{select=$true;frames=45}
+    $opening = Command 'opening' @{select=$true;frames=45;camera=@(7,206,4);look=@(0,202.8,2)}
     $swing = Command 'swing' @{frames=12}
-    $ready = Command 'ready' @{frames=90}
+    $centerOpening = Command 'center-opening' @{frames=8;camera=@(6,204,11);look=@(0,202,4)}
+    $ready = Command 'ready' @{frames=90;camera=@(6,204,-1);look=@(0,202,2)}
     Assert ($ready.trace[-1].shields[0].mount -eq 1 -and $ready.trace[-1].remoteShields[0].mount -eq 1) 'Host and remote peer finish the same selection animation.'
     $rapidOut = Command 'rapid-out' @{select=$true;frames=10}
     $rapidIn = Command 'rapid-in' @{select=$true;frames=190}
@@ -102,9 +105,10 @@ try {
     $early = Command 'early-selected' @{owner=2;spawn=@(18,201.7,-12);grant=$true;frames=40;camera=@(24,205,-5);look=@(18,202,-9)}
     $earlyUse = Command 'early-use' @{owner=2;use=$true;frames=12}
     Assert (@($earlyUse.tombstones | Where-Object { $_.Owner -eq 2 -and $_.Stage -eq 2 }).Count -eq 2) 'Use during selection deploys immediately through existing authority.'
+    Assert (@($earlyUse.trace.walls | Where-Object { $_.centerFold -gt .01 -and $_.centerFold -lt .99 }).Count -gt 0) 'Early release continues the captured center hinge fold into the world wall.'
     $earlyDone = Command 'early-finished' @{frames=100}
     Assert ($earlyDone.trace[-1].shields[1].mount -eq 0 -and -not $earlyDone.trace[-1].shields[1].visible) 'Empty carriage returns cleanly after early deployment.'
-    $clearances = @($mounted,$stowing,$stowed,$opening,$swing,$ready,$rapidOut,$rapidIn,$stored,$selected,$repeat,$again,$landing,$drive,$nitro,$early,$earlyUse) | ForEach-Object { $_.trace.shields } | Where-Object visible | ForEach-Object articulationClearance
+    $clearances = @($mounted,$stowing,$stowed,$opening,$swing,$centerOpening,$ready,$rapidOut,$rapidIn,$stored,$selected,$repeat,$again,$landing,$drive,$nitro,$early,$earlyUse) | ForEach-Object { $_.trace.shields } | Where-Object visible | ForEach-Object articulationClearance
     Assert (($clearances | Measure-Object -Minimum).Minimum -gt .01) 'Mounted armor clears articulated rear tires and trunk lids during rack motion, landing, driving and steering.'
     Publish @{id="$run-quit";quit=$true}
     if (-not $process.WaitForExit(10000)) { throw 'Playtest did not exit.' }

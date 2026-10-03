@@ -14,7 +14,7 @@ internal sealed partial class TombstoneWallBody : RigidBody3D
     private Vector3? _groundContact;
     internal ulong Identity { get; private set; }
 
-    internal void Initialize(TombstoneState state, bool host, bool animate, Transform3D? from = null, float fold = 0)
+    internal void Initialize(TombstoneState state, bool host, bool animate, Transform3D? from = null, float fold = 0, float centerFold = 0)
     {
         Identity = state.Id;
         Name = $"Tombstone_{state.Id}";
@@ -33,7 +33,7 @@ internal sealed partial class TombstoneWallBody : RigidBody3D
         Visual = new TombstoneVisual();
         AddChild(Visual);
         Install(state, host);
-        Visual.SetWorld(VehicleBody.ToGodot(state.WallSize), animate, from, fold);
+        Visual.SetWorld(VehicleBody.ToGodot(state.WallSize), animate, from, fold, centerFold);
     }
 
     internal VehiclePhysicsState Observe() => new(VehicleBody.ToCore(GlobalPosition),

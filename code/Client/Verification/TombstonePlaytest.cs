@@ -88,11 +88,11 @@ public sealed partial class TombstonePlaytest : Node
             if (_remaining > 0)
             {
                 _trace.Add(new { frame = _frame, tick = host.World.State.Tick,
-                    walls = _arenas[0].Walls.Bodies.Values.Select(b => new { id = b.Identity, expansion = b.Visual.Expansion, hp = b.Visual.PresentedHP }).ToArray(),
+                    walls = _arenas[0].Walls.Bodies.Values.Select(b => new { id = b.Identity, expansion = b.Visual.Expansion, hp = b.Visual.PresentedHP, centerFold = b.Visual.CenterFold }).ToArray(),
                     shields = _arenas[0].Bodies.Values.Select(b => new { id = b.VehicleId, shield = b.HasRearShield, rack = b.Rack.Progress,
-                        mount = b.ShieldMountProgress, visible = b.ShieldVisible,
+                        mount = b.ShieldMountProgress, visible = b.ShieldVisible, centerFold = b.ShieldCenterFold, scale = b.ShieldScale,
                         articulationClearance = b.ShieldVisible ? ArticulationClearance(b) : (float?)null }).ToArray(),
-                    remoteShields = _arenas[1].Bodies.Values.Select(b => new { id = b.VehicleId, mount = b.ShieldMountProgress, visible = b.ShieldVisible, rack = b.Rack.Progress }).ToArray() });
+                    remoteShields = _arenas[1].Bodies.Values.Select(b => new { id = b.VehicleId, mount = b.ShieldMountProgress, visible = b.ShieldVisible, rack = b.Rack.Progress, centerFold = b.ShieldCenterFold, scale = b.ShieldScale }).ToArray() });
                 if (--_remaining == 0) { Save(); }
             }
         }

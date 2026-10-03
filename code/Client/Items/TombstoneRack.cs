@@ -10,6 +10,7 @@ internal sealed partial class TombstoneRack : Node3D
     private readonly Dictionary<string, Node3D> _parts = new();
     private readonly Dictionary<Node3D, Transform3D> _fittings = new();
     internal Transform3D? Shield { get; set; }
+    internal float CenterFold { get; set; }
 
     public override void _Ready()
     {
@@ -31,7 +32,7 @@ internal sealed partial class TombstoneRack : Node3D
     {
         var cradle = _parts["Cradle"];
         var target = Shield ?? new Transform3D(new Basis(Vector3.Right, MathF.PI / 2).Scaled(Vector3.One * .28f), new(0, .35f, .10f));
-        cradle.Transform = target * new Transform3D(Basis.Identity, new(0, 0, -.185f));
+        cradle.Transform = target * new Transform3D(Basis.Identity, new(0, 0, Mathf.Lerp(-.185f, .32f, CenterFold)));
         foreach (var (side, x) in new[] { ("L", -.45f), ("R", .45f) })
         {
             Vector3 a = new(x, .22f, .30f);

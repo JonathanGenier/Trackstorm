@@ -33,7 +33,9 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     private float _mountProgress;
     internal float ShieldMountProgress => _mountProgress;
     internal bool ShieldVisible => _rearVisual.Visible;
-    internal (Transform3D Pose, float Fold) ShieldRelease => (_rearVisual.GlobalTransform, _rearVisual.Fold);
+    internal float ShieldCenterFold => _rearVisual.CenterFold;
+    internal float ShieldScale => _rearVisual.Scale.X;
+    internal (Transform3D Pose, float Fold, float CenterFold) ShieldRelease => (_rearVisual.GlobalTransform, _rearVisual.Fold, _rearVisual.CenterFold);
     private readonly List<Items.TombstoneVisual> _shieldDebris = [];
     internal bool HasRearShield { get; private set; }
     /// <summary>Host-assigned identity used only to attribute contact observations.</summary>
@@ -121,7 +123,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
             GetParent().AddChild(broken);
             broken.GlobalTransform = _rearVisual.GlobalTransform;
             broken.Observe(previous, true);
-            broken.SetFold(_rearVisual.Fold);
+            broken.SetFold(_rearVisual.Fold, _rearVisual.CenterFold);
             broken.BreakApart();
             _shieldDebris.Add(broken);
         }
@@ -149,25 +151,28 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     {
         bool extend = HasRearShield && _shownShield?.Id == _presentedShield?.Id &&
             Rack.TombstoneRequested && Rack.Progress >= .999f;
-        _mountProgress = Mathf.MoveToward(_mountProgress, extend ? 1 : 0, delta / .8f);
+        _mountProgress = Mathf.MoveToward(_mountProgress, extend ? 1 : 0, delta / .95f);
         float t = _mountProgress;
         float Ease(float start, float end) => Mathf.SmoothStep(0, 1, Mathf.Clamp((t - start) / (end - start), 0, 1));
-        Vector3 parked = new(0, 1.34f + .35f, 1.845f + .10f);
+        Vector3 parked = new(0, 2.60f, .60f);
         if (Rack.TombstoneCarrier is { } carrier)
-        { parked = _rearVisual.GetParent<Node3D>().GlobalTransform.AffineInverse() * (carrier.GlobalTransform * new Vector3(0, .35f, .10f)); }
-        Vector3 lifted = new(0, 2.4f, 4.6f);
+        { parked = _rearVisual.GetParent<Node3D>().GlobalTransform.AffineInverse() * (carrier.GlobalTransform * new Vector3(0, 1.26f, -1.245f)); }
+        Vector3 lifted = new(0, 2.60f, 4.6f);
         Vector3 aft = new(0, .25f, 4.6f);
         Vector3 position = t < .25f ? parked.Lerp(lifted, Ease(0, .25f)) :
-            t < .55f ? lifted.Lerp(aft, Ease(.25f, .55f)) : aft.Lerp(Items.TombstoneVisual.MountedCenter, Ease(.80f, 1));
-        // Compact inventory presentation follows the same rack convention as other
-        // payloads. Unfold at clear height/aft space before moving into the rear guard.
-        float size = Mathf.Lerp(.28f, 1, Ease(.25f, .55f));
-        _rearVisual.Transform = new(new Basis(Vector3.Right, MathF.PI / 2 * (1 - Ease(.25f, .55f))).Scaled(Vector3.One * size), position);
-        _rearVisual.SetFold(1 - Ease(.55f, .80f));
+            t < .40f ? lifted.Lerp(aft, Ease(.25f, .40f)) : aft.Lerp(Items.TombstoneVisual.MountedCenter, Ease(.87f, 1));
+        // The folded package reaches full scale on the rack. The four rigid
+        // leaves then unfold without growing, at safe clearance behind the Car.
+        float size = Mathf.Lerp(.78f, 1, Mathf.SmoothStep(.45f, 1, Rack.Progress));
+        _rearVisual.Transform = new(new Basis(Vector3.Back, MathF.PI / 2 * (1 - Ease(.25f, .40f))).Scaled(Vector3.One * size), position);
+        _rearVisual.SetFold(1 - Ease(.72f, .87f), 1 - Ease(.40f, .72f));
         _rearVisual.Visible = _shownShield is not null && (t > 0 || (Rack.TombstoneCarrier is not null && Rack.Progress > .92f));
         _rearVisual.SetProcess(_rearVisual.Visible);
         if (Rack.TombstoneCarrier is { } carriage)
-        { carriage.Shield = carriage.GlobalTransform.AffineInverse() * _rearVisual.GlobalTransform; }
+        {
+            carriage.Shield = carriage.GlobalTransform.AffineInverse() * _rearVisual.GlobalTransform;
+            carriage.CenterFold = _rearVisual.CenterFold;
+        }
     }
 
     // Weapon intersection is decided in Core against current candidate state. Excluding this

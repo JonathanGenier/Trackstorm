@@ -237,3 +237,4 @@ manifest={'author':'Original Trackstorm project work','tool':bpy.app.version_str
 print('TOMBSTONE_AUTHORING_COMPLETE',flush=True)
 import runpy
 runpy.run_path(str(ROOT/'source/BuildTombstoneMount.py'),run_name='__main__')
+runpy.run_path(str(ROOT/'source/FoldTombstoneCenter.py'),run_name='__main__')
