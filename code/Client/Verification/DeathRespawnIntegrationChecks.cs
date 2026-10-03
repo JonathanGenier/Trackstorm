@@ -28,6 +28,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
     private ulong _victim;
     private ulong _life;
     private ulong _deadline;
+    private ulong _discardedToken;
     private bool _finished;
     private int _cleanupFrames;
     private bool _captured;
@@ -175,6 +176,7 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
                 // Allow setup snapshots and inventory grants to reach every peer before launching.
                 if (_elapsed - _started > 0.4)
                 {
+                    Require(_arenas.All(arena => arena.Driver.ItemState!.DiscardRevision >= (ulong)(_cycle + 1) && arena.Driver.ItemState.Slots.Where(slot => slot.Vehicle == _victim).All(slot => slot.SecondItem == HeldItem.None)), "Discarded second slot replicates through native death, including an already-cleared inventory.");
                     if (!Water && !OutOfBounds && _cycle % 2 == 0)
                     {
                         Require(_arenas[2].Driver.RequestItemUse(), "Remote shooter submits its issued missile.");
@@ -244,8 +246,10 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
             case 4 when _elapsed - _started > 0.25:
                 // Capture after the renderer has presented the new life, before arranging the next scenario.
                 Capture($"respawn-{_cycle}.png");
+                Require(_arenas.All(arena => arena.Driver.ItemState!.Slots.All(slot => slot.Vehicle != _victim || slot.SecondItem == HeldItem.None)), "Discarded second slot cannot return on the new native life.");
+                Require(!host.Items.Discard(host.World, _victim, _life, _discardedToken, 1), "Old-life discard remains rejected after native respawn.");
                 if (OutOfBounds) Require(_simultaneousDeadPeers.Count == 8 && _simultaneousSpawnPeers.Count == 8, "Both OOB players died/respawned across all eight peers.");
-                string evidence = $"Cycle {_cycle + 1}: {Cause} death, all eight peers Dead/Respawning/Alive, respawn tick {_deadline}, reset physics/HP/items/VFX verified.";
+                string evidence = $"Cycle {_cycle + 1}: {Cause} death, all eight peers Dead/Respawning/Alive, respawn tick {_deadline}, reset physics/HP/items/VFX and permanent second-slot discard verified.";
                 _evidence.Add(evidence);
                 GD.Print(evidence);
                 if (++_cycle == 4)
@@ -298,6 +302,14 @@ public sealed partial class DeathRespawnIntegrationChecks : Node
         }).ToArray();
         host.World.Restore(new SimulationState(host.World.State.Tick, host.World.State.LastInput, states, host.World.State.Match));
         Require(host.Items.Grant(host.World, _victim, HeldItem.Wrench), "Victim holds an item before death.");
+        Require(host.Items.Grant(host.World, _victim, HeldItem.Missile), "Seed second physical slot for discard/respawn isolation.");
+        var inventory = host.Items.Slots.Single(slot => slot.Vehicle == _victim);
+        _discardedToken = inventory.SecondToken;
+        ulong selection = inventory.SelectionRevision + 1;
+        Require(host.Items.Switch(host.World, _victim, _life, selection), "Select second physical slot before death.");
+        Require(host.Items.Discard(host.World, _victim, _life, _discardedToken, selection), "Discard second physical slot before native death.");
+        Require(host.Items.Slots.Single(slot => slot.Vehicle == _victim).Item == HeldItem.Wrench, "Discard leaves first-slot Wrench untouched.");
+        Require(host.Items.Switch(host.World, _victim, _life, selection + 1), "Reselect retained first slot before death.");
         if (!Water && !OutOfBounds && _cycle % 2 == 0)
         {
             Require(host.Items.Grant(host.World, shooter, HeldItem.Missile), "Shooter receives a missile.");

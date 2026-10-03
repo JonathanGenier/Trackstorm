@@ -38,6 +38,8 @@ public sealed partial class ItemAuthority
     public ulong Revision { get; private set; }
     /// <summary>Reliable ownership/outcome revision; ordinary continuing projectile motion does not advance it.</summary>
     public ulong ReliableRevision { get; private set; }
+    /// <summary>Monotonic permanent-deletion boundary, preventing recovery before an observed discard.</summary>
+    public ulong DiscardRevision { get; private set; }
     /// <summary>Read-only detached inventory.</summary>
     public IReadOnlyList<ItemSlot> Slots => _slots.Values.OrderBy(slot => slot.Vehicle).ToArray();
     /// <summary>Read-only detached projectile state.</summary>
@@ -58,7 +60,7 @@ public sealed partial class ItemAuthority
     /// <param name="token">Highest ever issued token in this match.</param>
     public void Restore(ItemPublication publication, ulong revision, ulong token)
     {
-        if (publication.Events.Count != 0 || publication.Tombstones.Any(state => state.Id > token || state.Token > token) || publication.Mines.Any(mine => mine.Id > token) || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token || slot.SecondToken > token) ||
+        if (publication.DiscardRevision < DiscardRevision || publication.DiscardRevision > token || publication.DiscardRevision > revision || publication.Events.Count != 0 || publication.Tombstones.Any(state => state.Id > token || state.Token > token) || publication.Mines.Any(mine => mine.Id > token) || publication.Patches.Any(patch => patch.Id > token) || publication.Slots.Any(slot => slot.Token > token || slot.SecondToken > token) ||
             publication.Spawns.Any(spawn => spawn.Token > token) || publication.Missiles.Any(missile => missile.Id > token ||
                 !publication.World.Vehicles.Any(vehicle => vehicle.State.VehicleId == missile.Owner && vehicle.State.CanInteract)))
         {
@@ -86,6 +88,7 @@ public sealed partial class ItemAuthority
         Events = Array.Empty<ItemEvent>();
         Revision = revision;
         ReliableRevision = revision;
+        DiscardRevision = publication.DiscardRevision;
         _token = token;
     }
 
@@ -163,6 +166,32 @@ public sealed partial class ItemAuthority
         return state is not null && state.CanInteract && state.LifeId == life &&
             _slots.TryGetValue(vehicle, out var slot) && slot.Life == life && slot.Active.Token == token && ItemRegistry.Find(slot.Active.Item)?.CanUse == true &&
             _pending.TryAdd(vehicle, (token, checked(world.State.Tick + 15), inputSequence));
+    }
+
+    /// <summary>Permanently deletes only the selected capability at its observed selection boundary.</summary>
+    public bool Discard(Simulation.Simulation world, ulong vehicle, ulong life, ulong token, ulong selection)
+    {
+        var state = world.State.Vehicles.SingleOrDefault(value => value.VehicleId == vehicle);
+        if (state is null || !state.CanInteract || state.LifeId != life ||
+            !_slots.TryGetValue(vehicle, out var inventory) || inventory.Life != life ||
+            inventory.SelectionRevision != selection || inventory.Active.Token != token ||
+            inventory.Active.Item == HeldItem.None) { return false; }
+
+        var selected = inventory.Active;
+        ulong discardRevision = checked(DiscardRevision + 1);
+        _slots[vehicle] = inventory.ActiveSlot == 0
+            ? inventory with { Item = HeldItem.None, NitroCharge = 0, Ammo = null, SalvoShots = 0, SalvoReadyTick = 0, EngagedToken = inventory.EngagedToken == token ? 0 : inventory.EngagedToken, NitroDeploymentTicks = 0 }
+            : inventory with { SecondItem = HeldItem.None, SecondNitroCharge = 0, SecondAmmo = null, SecondSalvoShots = 0, SecondSalvoReadyTick = 0, EngagedToken = inventory.EngagedToken == token ? 0 : inventory.EngagedToken, NitroDeploymentTicks = 0 };
+        // Retain the retired grant token and match high-water mark, as on consumption.
+        // A pending use of the other physical slot keeps its original capability.
+        if (_pending.TryGetValue(vehicle, out var pending) && pending.Token == token) { _pending.Remove(vehicle); }
+        _tombstones.RemoveAll(wall => wall.Attached && wall.Owner == vehicle && wall.Token == token);
+        ResetAim(vehicle);
+        DiscardRevision = discardRevision;
+        Revision++;
+        ReliableRevision++;
+        world.Events.Record(EventCategory.Item, "Discarded", actor: vehicle, cause: selected.Item.ToString(), life: life, tick: world.State.Tick);
+        return true;
     }
 
     /// <summary>Switches the sender's selected slot once per ordered, life-scoped command.</summary>

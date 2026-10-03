@@ -13,6 +13,7 @@ internal sealed class PlayerInputAdapter
         (InputAction.AirControl, InputButtons.AirControl),
         (InputAction.UseItem, InputButtons.UseItem),
         (InputAction.SwitchItem, InputButtons.SwitchItem),
+        (InputAction.DiscardItem, InputButtons.DiscardItem),
         (InputAction.Leaderboard, InputButtons.Leaderboard),
         (InputAction.MenuUp, InputButtons.MenuUp),
         (InputAction.MenuDown, InputButtons.MenuDown),
@@ -30,6 +31,7 @@ internal sealed class PlayerInputAdapter
     private float _steering;
     private bool _itemNeedsRelease;
     private bool _switchNeedsRelease;
+    private bool _discardNeedsRelease;
     private bool _suppressPendingSwitch;
     private bool _enabled = true;
     private bool _gameplaySuppressed;
@@ -171,6 +173,7 @@ internal sealed class PlayerInputAdapter
         {
             _itemNeedsRelease = true;
             _switchNeedsRelease = true;
+            _discardNeedsRelease = true;
         }
 
         if (Enabled && !GameplaySuppressed && !DiagnosticSuppressed)
@@ -178,6 +181,11 @@ internal sealed class PlayerInputAdapter
             foreach ((InputAction action, InputButtons button) in DigitalActions)
             {
                 float strength = Bindings.Strength(action, DeadZone);
+                if (action == InputAction.DiscardItem)
+                {
+                    _discardNeedsRelease &= strength > 0.5f;
+                    if (_discardNeedsRelease) { continue; }
+                }
                 if (action == InputAction.SwitchItem)
                 {
                     // E is contextual yaw while the modifier is held. Require release

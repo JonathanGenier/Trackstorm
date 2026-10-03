@@ -279,6 +279,13 @@ public sealed class HostVehicleSession
         return accepted;
     }
 
+    /// <summary>Deletes a selected capability using the existing sender and participation authority.</summary>
+    public bool DiscardItem(ulong peer, ulong session, ulong life, ulong token, ulong selection)
+    {
+        ulong vehicle = peer == 0 ? HostPlayerId : _peers.TryGetValue(peer, out var entry) ? entry.Vehicle : 0;
+        return AllowsParticipation && session == SessionId && vehicle != 0 && Items.Discard(World, vehicle, life, token, selection);
+    }
+
     /// <summary>Resolves selection intent using the same sender and participation authority as use.</summary>
     public bool SwitchItem(ulong peer, ulong session, ulong life, ulong revision)
     {
@@ -302,7 +309,7 @@ public sealed class HostVehicleSession
         var vehicle = new VehicleSnapshot(player, 1, new VehicleState(World.State.Tick, spawn, false, false, 0, 0), new VehicleHealth(Configuration.Configuration.Damage).State, spawn);
         var current = Snapshot();
         var world = new WorldSnapshot(SessionId, current.Tick, current.Vehicles.Append(new ReplicatedVehicle(vehicle, 0)), Configuration.Revision);
-        var items = new ItemPublication(revision, world, Items.Slots, Items.Missiles, [], Spawns?.States, Items.Patches, Items.OilContacts, Spawns?.Balances, Items.Mines, Items.Tombstones);
+        var items = new ItemPublication(revision, world, Items.Slots, Items.Missiles, [], Spawns?.States, Items.Patches, Items.OilContacts, Spawns?.Balances, Items.Mines, Items.Tombstones, Items.DiscardRevision);
         var match = Matches.MatchAuthority.Join(World.State.Match!, current.Tick, player);
         return new ResumeCheckpoint(items, match, props, Configuration, Environment?.Snapshot(SessionId, World.State.Tick));
     }

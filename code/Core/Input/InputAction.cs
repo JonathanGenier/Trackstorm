@@ -57,4 +57,6 @@ public enum InputAction
     AirRollLeft,
     /// <summary>Aerial roll right.</summary>
     AirRollRight,
+    /// <summary>Permanently delete the selected held item.</summary>
+    DiscardItem,
 }

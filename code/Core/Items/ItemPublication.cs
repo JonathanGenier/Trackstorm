@@ -18,7 +18,8 @@ public sealed class ItemPublication
     /// <param name="oilContacts">Current overlap latches; consumed passes are retained on each patch.</param>
     /// <param name="mines">Complete magnetic hazards.</param>
     /// <param name="tombstones">Complete persistent Tombstone pools and lifecycle state.</param>
-    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null, IEnumerable<OilPatch>? patches = null, IEnumerable<OilContact>? oilContacts = null, IEnumerable<PlayerItemBalance>? balances = null, IEnumerable<ProxyMineState>? mines = null, IEnumerable<TombstoneState>? tombstones = null)
+    /// <param name="discardRevision">Permanent-deletion watermark retained by recovery boundaries.</param>
+    public ItemPublication(ulong revision, WorldSnapshot world, IEnumerable<ItemSlot> slots, IEnumerable<MissileState> missiles, IEnumerable<ItemEvent> events, IEnumerable<ItemSpawnState>? spawns = null, IEnumerable<OilPatch>? patches = null, IEnumerable<OilContact>? oilContacts = null, IEnumerable<PlayerItemBalance>? balances = null, IEnumerable<ProxyMineState>? mines = null, IEnumerable<TombstoneState>? tombstones = null, ulong discardRevision = 0)
     {
         var inventory = slots.ToArray();
         var projectiles = missiles.ToArray();
@@ -110,6 +111,7 @@ public sealed class ItemPublication
         OilContacts = Array.AsReadOnly(contacts);
         Spawns = Array.AsReadOnly(pickups);
         Revision = revision;
+        DiscardRevision = discardRevision;
         World = world;
         Slots = Array.AsReadOnly(inventory);
         Missiles = Array.AsReadOnly(projectiles);
@@ -149,6 +151,8 @@ public sealed class ItemPublication
 
     /// <summary>Monotonic delivery identity.</summary>
     public ulong Revision { get; }
+    /// <summary>Monotonic confirmed permanent-deletion boundary within this arena.</summary>
+    public ulong DiscardRevision { get; }
     /// <summary>Complete authoritative vehicle outcome.</summary>
     public WorldSnapshot World { get; }
     /// <summary>Both fixed slots and selection in one record per player.</summary>
