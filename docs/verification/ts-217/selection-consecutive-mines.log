@@ -1,0 +1,23 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Two native UDP peers ready
+Fixture configuration accepted
+First consecutive mine granted
+Second consecutive mine granted
+First mine mounted on both peers
+First consecutive mine used
+First mine placement starts
+First mine releases
+Empty arms begin returning on both peers
+Select second mine during empty return
+Second mine selected
+Previous empty return remains unfinished at second use
+Second consecutive mine used
+Second authoritative placement starts
+Both peers receive second placement
+Second placement keeps the rack requested through a publication gap
+Second placement keeps the rack requested through a publication gap
+Second mine stays mounted and visible through placement on both peers
+Second mine completes its full authoritative placement (frames 59, ticks 0, car <150, 21.64568, 35>)
+Rack returns and stows after second release
+Car rack consecutive mine passed: 20 checks on two UDP peers.

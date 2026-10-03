@@ -1,0 +1,5 @@
+{"name":"low-impact","frames":180,"final":[6.758451,1.2018611,-0.0012862446],"hp":995.3485,"contactFrames":152}
+{"name":"low-pressure","frames":180,"final":[6.768405,1.2115806,-0.00468304],"hp":995.3485,"contactFrames":180}
+{"name":"low-reverse","frames":80,"final":[3.0700133,1.1488785,-0.2700747],"hp":995.3485,"contactFrames":2}
+{"name":"repeat-impact","frames":180,"final":[6.758451,1.2018611,-0.0012862446],"hp":995.3485,"contactFrames":152}
+{"name":"repeat-reverse","frames":80,"final":[2.6036844,1.1484017,0.0053917235],"hp":995.3485,"contactFrames":2}

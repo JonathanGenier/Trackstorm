@@ -121,7 +121,7 @@ public sealed partial class OvalIntegrationChecks : Node3D
                 GetTree().Quit();
                 return;
             }
-            VerifyGeometry();
+            await VerifyGeometry();
             VerifyCollision();
             VerifyGrid();
             await CaptureViews();
@@ -182,7 +182,7 @@ public sealed partial class OvalIntegrationChecks : Node3D
         return (result["position"].AsVector3(), result["normal"].AsVector3(), result["collider"].AsGodotObject());
     }
 
-    private void VerifyGeometry()
+    private async Task VerifyGeometry()
     {
         Check(_map.Transform.IsEqualApprox(Transform3D.Identity), "Map root preserves metre scale and identity transform.");
         Node3D geometry = _map.GetNode<Node3D>("Geometry");
@@ -210,34 +210,7 @@ public sealed partial class OvalIntegrationChecks : Node3D
         Check(_inner.All(point => terrainVertices.Any(vertex => vertex.DistanceTo(point) < 0.0001f)), "Every original oval inner-edge vertex is retained in the terrain mesh within 0.1 mm float conversion tolerance.");
         var terrainShape = terrain.GetChildren().OfType<StaticBody3D>().Single().GetChildren().OfType<CollisionShape3D>().Single().Shape as ConcavePolygonShape3D;
         Check(terrainShape is not null, "Blender terrain has static concave collision.");
-        Vector3[] collisionFaces = terrainShape!.GetFaces();
-        // Godot reorders imported visual triangles and rounds their vertices.
-        // Compare the complete vertex sets spatially, not by importer index order.
-        static (int X, int Y, int Z) Cell(Vector3 point) => ((int)MathF.Floor(point.X * 1000), (int)MathF.Floor(point.Y * 1000), (int)MathF.Floor(point.Z * 1000));
-        var visualCells = terrainFaces.Distinct().GroupBy(Cell).ToDictionary(group => group.Key, group => group.ToArray());
-        float terrainError = 0;
-        foreach (Vector3 point in collisionFaces.Distinct())
-        {
-            var cell = Cell(point);
-            float nearest = float.MaxValue;
-            for (int dx = -1; dx <= 1; dx++)
-            {
-                for (int dy = -1; dy <= 1; dy++)
-                {
-                    for (int dz = -1; dz <= 1; dz++)
-                    {
-                        if (visualCells.TryGetValue((cell.X + dx, cell.Y + dy, cell.Z + dz), out Vector3[]? candidates))
-                        {
-                            nearest = Math.Min(nearest, candidates.Min(candidate => candidate.DistanceTo(point)));
-                        }
-                    }
-                }
-            }
-
-            terrainError = Math.Max(terrainError, nearest);
-        }
-
-        Check(collisionFaces.Length == terrainFaces.Length && terrainError < 0.001f, $"Blender terrain visual/collision correspondence: {terrainFaces.Length / 3} triangles, maximum nearest-vertex import rounding error {terrainError:F7} m (limit 1 mm).");
+        await VerifyTerrainBake(terrain, terrainShape!);
     }
 
     private void VerifyCollision()

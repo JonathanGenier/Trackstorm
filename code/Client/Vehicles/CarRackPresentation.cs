@@ -45,7 +45,7 @@ internal sealed partial class CarRackPresentation : Node
     }
 
     /// <summary>Installs a fresh accepted publication, including remote inventories and recovery snapshots.</summary>
-    internal void Observe(ulong life, bool alive, ItemSlot? inventory, IEnumerable<ItemEvent> events, ProxyMineState? placement = null, ulong tick = 0)
+    internal void Observe(ulong life, bool alive, ItemSlot? inventory, IEnumerable<ItemEvent> events, ProxyMineState? placement = null, ulong tick = 0, IEnumerable<TombstoneState>? tombstones = null)
     {
         if (_life != life || !alive)
         {
@@ -94,6 +94,8 @@ internal sealed partial class CarRackPresentation : Node
         // Even an immediate switch+use must display the consumed selected item,
         // never borrow the old model while its replacement is retracting.
         if (_usePending) { _desired = _useItem; }
+        if (active?.Item == HeldItem.Tombstone && tombstones?.Any(s => s.Token == active.Token && s.Stage == TombstoneStage.RearShield) == true)
+        { _desired = HeldItem.None; _usePending = false; }
         _previous = inventory;
         if (_placement is not null || _mineReturning)
         {

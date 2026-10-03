@@ -43,4 +43,18 @@ public enum InputAction
     SwitchItem,
     /// <summary>Hold to replace airborne yaw with roll.</summary>
     AirRoll,
+    /// <summary>Hold to enable deliberate aerial input.</summary>
+    AirControl,
+    /// <summary>Nose down while air control is held.</summary>
+    AirPitchDown,
+    /// <summary>Nose up while air control is held.</summary>
+    AirPitchUp,
+    /// <summary>Aerial yaw left.</summary>
+    AirYawLeft,
+    /// <summary>Aerial yaw right.</summary>
+    AirYawRight,
+    /// <summary>Aerial roll left.</summary>
+    AirRollLeft,
+    /// <summary>Aerial roll right.</summary>
+    AirRollRight,
 }

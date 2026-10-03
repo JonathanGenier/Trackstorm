@@ -19,6 +19,10 @@ public sealed record PlayerSettings
     private int _windowWidth = 1280;
     private int _windowHeight = 720;
     private double _deadZone = 0.15;
+    private double _steeringSensitivity = 1;
+    private double _aerialSensitivity = 1;
+    private double _keyboardSteeringSensitivity = 1;
+    private double _keyboardAerialSensitivity = 1;
     private IReadOnlyDictionary<InputAction, IReadOnlyList<string>> _bindings =
         new ReadOnlyDictionary<InputAction, IReadOnlyList<string>>(new Dictionary<InputAction, IReadOnlyList<string>>());
 
@@ -64,11 +68,17 @@ public sealed record PlayerSettings
     /// <summary>Analog neutral range; invalid values restore the input system's default.</summary>
     public double DeadZone { get => _deadZone; init => _deadZone = double.IsFinite(value) && value >= 0 && (float)value < 1 ? value : 0.15; }
 
+    /// <summary>Ground controller gain after precision shaping, bounded to 0.1–3.</summary>
+    public double SteeringSensitivity { get => _steeringSensitivity; init => _steeringSensitivity = Sensitivity(value); }
+
+    /// <summary>Independent aerial controller gain, bounded to 0.1–3.</summary>
+    public double AerialSensitivity { get => _aerialSensitivity; init => _aerialSensitivity = Sensitivity(value); }
+
     /// <summary>Opaque Client-owned binding tokens per logical action. Missing means defaults; empty means unbound.</summary>
     public IReadOnlyDictionary<InputAction, IReadOnlyList<string>> Bindings => _bindings;
 
     /// <summary>Client binding-default revision; zero identifies saves predating default migration tracking.</summary>
-    public int BindingDefaultsVersion { get; init; } = 1;
+    public int BindingDefaultsVersion { get; init; } = 2;
 
     /// <summary>Copies an override without exposing mutable collections or interpreting native binding tokens.</summary>
     /// <param name="action">Existing logical action.</param>
@@ -94,6 +104,14 @@ public sealed record PlayerSettings
         };
         return this with { _bindings = new ReadOnlyDictionary<InputAction, IReadOnlyList<string>>(bindings) };
     }
+
+    /// <summary>Keyboard/mouse steering ramp-rate multiplier in [0.1,3].</summary>
+    public double KeyboardSteeringSensitivity { get => _keyboardSteeringSensitivity; init => _keyboardSteeringSensitivity = Sensitivity(value); }
+
+    /// <summary>Keyboard/mouse aerial rate gain in [0.1,1]; one retains full authority.</summary>
+    public double KeyboardAerialSensitivity { get => _keyboardAerialSensitivity; init => _keyboardAerialSensitivity = double.IsFinite(value) ? Math.Clamp(value, 0.1, 1) : 1; }
+
+    private static double Sensitivity(double value) => double.IsFinite(value) ? Math.Clamp(value, 0.1, 3) : 1;
 
     private static double Volume(double value) => double.IsFinite(value) ? Math.Clamp(value, 0, 1) : 1;
 }

@@ -3,9 +3,6 @@ namespace Trackstorm.Core.Input;
 /// <summary>Progressive digital intent, applied before recording frames. Analog steering uses a separate precision curve.</summary>
 public sealed record DrivingInputShaping
 {
-    /// <summary>Approved airborne digital authority; ground precision must not slow aerial commands.</summary>
-    public static DrivingInputShaping Aerial { get; } = new() { ThrottleRise = 10, ThrottleRelease = 14, BrakeRise = 18, BrakeRelease = 18, SteeringRise = 20, SteeringReturn = 24, SteeringReversal = 30, ControllerSteeringExponent = 1 };
-
     /// <summary>Rejects invalid digital response rates before configuration publication.</summary>
     public void Validate()
     {

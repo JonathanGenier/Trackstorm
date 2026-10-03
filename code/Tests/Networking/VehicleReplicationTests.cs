@@ -156,12 +156,13 @@ internal sealed class VehicleReplicationTests
     public void StalledSenderStopsHeldControlsAfterRedundancyWindowAndResumesInOrder()
     {
         var host = new HostInputBuffer();
-        var drive = new InputFrame(0, 12000, ushort.MaxValue, 0, InputButtons.UseItem, InputButtons.UseItem, 0);
+        var drive = new InputFrame(0, 12000, ushort.MaxValue, 0, InputButtons.UseItem | InputButtons.AirControl, InputButtons.UseItem, 0, -12345, 23456, -32767);
         Assert.That(host.Receive([new(1, drive)]), Is.True);
         Assert.That(host.Consume(1).Pressed, Is.EqualTo(InputButtons.UseItem));
         for (ulong tick = 2; tick <= 4; tick++)
         {
             var held = host.Consume(tick);
+            Assert.That((held.AirPitch, held.AirYaw, held.AirRoll), Is.EqualTo((drive.AirPitch, drive.AirYaw, drive.AirRoll)));
             Assert.That(held.Accelerate, Is.EqualTo(ushort.MaxValue));
             Assert.That(held.Pressed, Is.EqualTo(InputButtons.None));
         }
@@ -358,7 +359,7 @@ internal sealed class VehicleReplicationTests
     public void ControlAndInputCodecRoundTrip()
     {
         Assert.That(VehicleNetworkCodec.DecodeWelcome(VehicleNetworkCodec.EncodeWelcome(99, 2)), Is.EqualTo((99ul, 2ul)));
-        SequencedInput[] inputs = [new(1, Drive(1234)), new(2, Drive(-321))];
+        SequencedInput[] inputs = [new(1, Drive(1234)), new(2, new InputFrame(8, -321, 123, 456, InputButtons.AirControl, 0, 0, -32767, 12345, 32767))];
         byte[] packet = VehicleNetworkCodec.EncodeInputs(99, inputs);
         var decoded = VehicleNetworkCodec.DecodeInputs(packet);
         Assert.That(decoded.Session, Is.EqualTo(99));

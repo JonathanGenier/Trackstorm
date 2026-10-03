@@ -26,7 +26,7 @@ internal sealed class SimulationStateMessageTests
             InputButtons.Drift);
         var message = new SimulationStateMessage(new SimulationState(input.Tick, input));
         byte[] bytes = new byte[SimulationStateMessage.SerializedSize];
-        byte[] expected = [1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 1, 128, 255, 255, 0, 128, 4, 0, 2, 0, 1, 0];
+        byte[] expected = [1, 2, 1, 2, 3, 4, 5, 6, 7, 8, 1, 128, 255, 255, 0, 128, 4, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0];
 
         message.Write(bytes);
         SimulationStateMessage decoded = SimulationStateMessage.Read(bytes);

@@ -30,11 +30,11 @@ After camera follow, the same center ray resolves native geometry for HUD inters
 
 ## Replication and tuning
 
-Item protocol version 17 adds replaceable aim kinds to the existing item path. Requests are exactly 56 bytes; publications carry generation, configuration revision, tick and at most eight solutions (29–557 bytes). Subtype bounds precede allocation. Existing connection/epoch fencing and host/generation/configuration/tick validation remain mandatory.
+Item protocol version 18 adds replaceable aim kinds to the existing item path. Requests are exactly 56 bytes; publications carry generation, configuration revision, tick and at most eight solutions (29–557 bytes). Subtype bounds precede allocation. Existing connection/epoch fencing and host/generation/configuration/tick validation remain mandatory.
 
 Requests/publications run at 20 Hz; authority advances at 60 Hz. Aim does not advance reliable item outcome revisions or resend complete world state. Empty sessions produce no continuing aim traffic. Retirement samples clear presentation, with a 300 ms local expiry covering lost samples/outages. Recovery starts without stale aim.
 
-Six host-validated **Configs → Weapon aiming** controls expose turn rate, pitch limits, assistance cone and per-device friction through the existing catalog. Configuration version 38 carries them through live replication and recovery. Local sensitivities stay outside synchronization.
+Six host-validated **Configs → Weapon aiming** controls expose turn rate, pitch limits, assistance cone and per-device friction through the existing catalog. Configuration version 39 carries them through live replication and recovery. Local sensitivities stay outside synchronization.
 
 ## Verification
 

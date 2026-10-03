@@ -1,0 +1,6 @@
+{"name":"bank-impact","frames":55,"final":[6.708575,1.1549122,-0.00908963],"hp":948.86444,"contactFrames":23}
+{"name":"bank-pressure-turn","frames":600,"final":[6.7683716,1.2129527,-0.02405622],"hp":948.86444,"contactFrames":600}
+{"name":"bank-reverse","frames":180,"final":[-0.012940317,1.1421008,11.02837],"hp":948.86444,"contactFrames":1}
+{"name":"bank-recontact","frames":180,"final":[4.638951,1.158286,33.492554],"hp":948.86444,"contactFrames":0}
+{"name":"bank-angle-fast","frames":180,"final":[6.3900204,1.1861633,-2.3980222],"hp":900,"contactFrames":158}
+{"name":"bank-angle-reverse","frames":180,"final":[-6.611504,1.5999986,4.3019433],"hp":886.1563,"contactFrames":5}

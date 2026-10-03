@@ -36,13 +36,13 @@ public sealed partial class LandingIntegrationChecks : Node3D
         ulong tick = _world.State.Tick + 1;
         // These high-angle fixtures previously relied on automatic airborne leveling.
         // Supply explicit pilot correction now; intentional air-roll holds its command.
-        ulong correctionStart = (ulong)Math.Ceiling(new VehicleConfiguration().AirDelay * 60) + 1;
+        ulong correctionStart = 31;
         bool correcting = tick >= correctionStart && tick < correctionStart + 8;
         bool rollCorrection = _case.EndsWith("-roll45", StringComparison.Ordinal) && correcting;
         bool pitchCorrection = _case.EndsWith("-pitch35", StringComparison.Ordinal) && correcting;
         bool airRoll = _case.EndsWith("-air-roll", StringComparison.Ordinal);
         var input = new InputFrame(tick, rollCorrection ? (short)-32767 : airRoll ? (short)32767 : (short)0,
-            pitchCorrection ? (ushort)65535 : (ushort)0, 0, rollCorrection || airRoll ? InputButtons.AirRoll : 0, 0, 0);
+            pitchCorrection ? (ushort)65535 : (ushort)0, 0, (_case.EndsWith("-roll45", StringComparison.Ordinal) || _case.EndsWith("-pitch35", StringComparison.Ordinal) || airRoll) ? InputButtons.AirControl : 0, 0, 0, pitchCorrection ? (short)-32767 : (short)0, 0, rollCorrection ? (short)-32767 : airRoll ? (short)32767 : (short)0);
         var request = _native is not null ? _native.Capture(input) : new VehicleStepRequest(1, input, _network!.Observe(_world.GetVehicle(1)));
         // Long-travel suspension may absorb the initial landing without a chassis contact.
         // Start from recovered support so the secondary impulse is not cancelled by the initial fall.
@@ -137,7 +137,7 @@ public sealed partial class LandingIntegrationChecks : Node3D
         Vector3 position = point + Vector3.Up * 8;
         Vector3 velocity = new(name is "yawed" or "spin" ? -_side * 8 : 0, -12, 0);
         // These two scenarios test a deliberate midair correction, so allow genuine
-        // airtime beyond the activation delay before the unchanged correction pulse.
+        // airtime for a deliberate correction pulse and held-modifier stabilization.
         bool corrected = name is "roll45" or "pitch35";
         if (corrected) { position = point + Vector3.Up * 20; velocity = Vector3.Zero; }
         Vector3 angular = name == "spin" ? Vector3.Up * 3 : Vector3.Zero;

@@ -39,7 +39,8 @@ public sealed partial class HandlingPlaytest : Node3D
 
     public override void _Ready()
     {
-        _directory = ProjectSettings.GlobalizePath(OS.GetCmdlineUserArgs().Contains("--surface-playtest") ? "res://.godot/ts-266/playtest" : OS.GetCmdlineUserArgs().Contains("--steering-playtest") ? "res://.godot/ts-268/playtest" : OS.GetCmdlineUserArgs().Contains("--rock-playtest") ? "res://.godot/ts-267/playtest" : OS.GetCmdlineUserArgs().Contains("--oil-playtest") ? "res://.godot/ts-172/playtest" : OS.GetCmdlineUserArgs().Contains("--destructible-playtest") ? "res://.godot/ts-162/playtest" : "res://.godot/ts-160/playtest");
+        _directory = ProjectSettings.GlobalizePath(OS.GetCmdlineUserArgs().Contains("--air-playtest") ? "res://.godot/ts-269/playtest" : OS.GetCmdlineUserArgs().Contains("--surface-playtest") ? "res://.godot/ts-266/playtest" : OS.GetCmdlineUserArgs().Contains("--steering-playtest") ? "res://.godot/ts-268/playtest" : OS.GetCmdlineUserArgs().Contains("--rock-playtest") ? "res://.godot/ts-267/playtest" : OS.GetCmdlineUserArgs().Contains("--oil-playtest") ? "res://.godot/ts-172/playtest" : OS.GetCmdlineUserArgs().Contains("--destructible-playtest") ? "res://.godot/ts-162/playtest" : "res://.godot/ts-160/playtest");
+        if (OS.GetCmdlineUserArgs().Contains("--world-collision-playtest")) { _directory = ProjectSettings.GlobalizePath("res://.godot/ts-274/playtest"); }
         System.IO.Directory.CreateDirectory(_directory);
         if (OS.GetCmdlineUserArgs().Contains("--handling-flat"))
         {
@@ -157,7 +158,22 @@ public sealed partial class HandlingPlaytest : Node3D
                 }
                 _physicalSteering = command.TryGetProperty("keyboard", out var keyboard) && keyboard.GetBoolean();
                 if (command.TryGetProperty("steeringSensitivity", out var sensitivity)) { _physical.SteeringSensitivity = sensitivity.GetSingle(); }
+                if (command.TryGetProperty("aerialSensitivity", out var aerialSensitivity)) { _physical.AerialSensitivity = aerialSensitivity.GetSingle(); }
+                if (command.TryGetProperty("keyboardSteeringSensitivity", out var keyboardSteering)) { _physical.KeyboardSteeringSensitivity = keyboardSteering.GetSingle(); }
+                if (command.TryGetProperty("keyboardAerialSensitivity", out var keyboardAerial)) { _physical.KeyboardAerialSensitivity = keyboardAerial.GetSingle(); }
+                if (command.TryGetProperty("deadzone", out var deadzone)) { _physical.DeadZone = deadzone.GetSingle(); }
+                bool airHeld = command.TryGetProperty("airControl", out var airControl) && airControl.GetBoolean();
+                bool rollHeld = command.TryGetProperty("controllerRoll", out var controllerRoll) && controllerRoll.GetBoolean();
                 bool analog = command.TryGetProperty("analog", out var analogValue) && analogValue.GetBoolean();
+                using var modifier = new InputEventKey { PhysicalKeycode = Key.Shift, Pressed = airHeld && !analog };
+                using var shoulder = new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.LeftShoulder, Pressed = airHeld && analog };
+                using var rollButton = new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.A, Pressed = rollHeld };
+                float airY = command.TryGetProperty("stickY", out var stickY) ? stickY.GetSingle() : 0;
+                float yawKey = command.TryGetProperty("yawKey", out var yawInput) ? yawInput.GetSingle() : 0;
+                using var pitchStick = new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftY, AxisValue = analog ? airY : 0 };
+                using var yawLeft = new InputEventKey { PhysicalKeycode = Key.Q, Pressed = !analog && yawKey < 0 };
+                using var yawRight = new InputEventKey { PhysicalKeycode = Key.E, Pressed = !analog && yawKey > 0 };
+                Godot.Input.ParseInputEvent(modifier); Godot.Input.ParseInputEvent(shoulder); Godot.Input.ParseInputEvent(rollButton); Godot.Input.ParseInputEvent(pitchStick); Godot.Input.ParseInputEvent(yawLeft); Godot.Input.ParseInputEvent(yawRight);
                 using var left = new InputEventKey { PhysicalKeycode = Key.A, Pressed = _physicalSteering && _steer < 0 };
                 using var rightKey = new InputEventKey { PhysicalKeycode = Key.D, Pressed = _physicalSteering && _steer > 0 };
                 using var accelerate = new InputEventKey { PhysicalKeycode = Key.W, Pressed = _physicalSteering && _throttle > 0 };
@@ -180,11 +196,9 @@ public sealed partial class HandlingPlaytest : Node3D
             }
         }
         if (_remaining <= 0) { return; }
-        var prior = _world.GetVehicle(1).Movement;
-        _physical.Shaping = !prior.Grounded && prior.Air.Seconds + 1f / 60 + 0.000001f >= _configuration.AirDelay || _baseline
-            ? DrivingInputShaping.Aerial : Core.Development.GameplayConfiguration.HostedDefaults.Input;
+        _physical.Shaping = Core.Development.GameplayConfiguration.HostedDefaults.Input;
         var captured = _physicalSteering ? _physical.Capture(_world.State.Tick + 1) : default;
-        var input = new InputFrame(_world.State.Tick + 1, _physicalSteering ? captured.Steering : _steer, _physicalSteering ? captured.Accelerate : _throttle, _physicalSteering ? captured.Brake : _brake, _buttons | captured.Held, captured.Pressed, captured.Released);
+        var input = new InputFrame(_world.State.Tick + 1, _physicalSteering ? captured.Steering : _steer, _physicalSteering ? captured.Accelerate : _throttle, _physicalSteering ? captured.Brake : _brake, _buttons | captured.Held, captured.Pressed, captured.Released, captured.AirPitch, captured.AirYaw, captured.AirRoll);
         var request = _body is not null ? _body.Capture(input) : new VehicleStepRequest(1, input, _network!.Observe(_world.GetVehicle(1)), reset: _pendingReset);
         _pendingReset = null;
         if (_oil?.Contains(request.Observation) == true)
@@ -205,6 +219,7 @@ public sealed partial class HandlingPlaytest : Node3D
         _trace.Add(new { tick = state.Movement.Tick, position = new[] { p.Position.X, p.Position.Y, p.Position.Z }, velocity = new[] { p.LinearVelocity.X, p.LinearVelocity.Y, p.LinearVelocity.Z }, orientation = new[] { p.Orientation.X, p.Orientation.Y, p.Orientation.Z, p.Orientation.W }, compression = new[] { w.X, w.Y, w.Z, w.W }, support = new[] { request.Observation.Support.X, request.Observation.Support.Y, request.Observation.Support.Z }, contacts = request.Observation.Contacts.Count, observedVelocity = new[] { request.Observation.Physics.LinearVelocity.X, request.Observation.Physics.LinearVelocity.Y, request.Observation.Physics.LinearVelocity.Z }, contactDetails = request.Observation.Contacts.Select(c => new { normal = new[] { c.Normal.X, c.Normal.Y, c.Normal.Z }, c.Impulse, c.Terrain, c.StaticObstacle }), longAcceleration = state.Movement.LongitudinalAcceleration, sideAcceleration = state.Movement.LateralAcceleration, up = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation).Y, speed = state.Speed, yaw = p.AngularVelocity.Y, lateral = N.Vector3.Dot(p.LinearVelocity, right), longitudinal = N.Vector3.Dot(p.LinearVelocity, forward), slip = state.Movement.PowerSlip, throttle = state.Movement.Throttle, oilTicks = state.Movement.OilTicks, steering = state.Movement.SteeringAngle, inputSteering = input.Steering, inputThrottle = input.Accelerate, inputBrake = input.Brake, brakeMode = state.Movement.BrakeMode.ToString(), handbrake = state.Movement.Handbrake, frontSlip = state.Movement.FrontSlip, rearSlip = state.Movement.RearSlip, surface = state.Movement.CurrentSurface.ToString(), grounded = state.Movement.Grounded, airSeconds = state.Movement.Air.Seconds, airInput = new[] { state.Movement.Air.Input.X, state.Movement.Air.Input.Y, state.Movement.Air.Input.Z }, crashSeconds = state.Movement.CrashSeconds, angular = new[] { p.AngularVelocity.X, p.AngularVelocity.Y, p.AngularVelocity.Z }, hp = state.Damage.CurrentHP });
         Vector3 position = VehicleBody.ToGodot(p.Position);
         _camera.Position = position - VehicleBody.ToGodot(forward) * 10 + Vector3.Up * 5;
+        if (OS.GetCmdlineUserArgs().Contains("--world-collision-playtest")) { _camera.Position = position - VehicleBody.ToGodot(forward) * 6 + VehicleBody.ToGodot(right) * 3 + Vector3.Up * 2; }
         _camera.LookAt(position + Vector3.Up * 0.5f);
         if (--_remaining == 0)
         {

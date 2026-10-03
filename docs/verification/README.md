@@ -10,11 +10,14 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
+| TS-274 world collision stability | [Terrain bake, collision recovery and network verification](ts-274.md) |
+| Story verification | [TS-269 verification evidence](ts-269.md) |
 | Distinct surface braking, deliberate slides, incline holding and runtime evidence | [TS-266 verification evidence](ts-266.md) |
 | Ground steering and removal of automatic power drift | [TS-268 verification evidence](ts-268.md) |
 | Rock collision hull cost, repeated contact and native multiplayer evidence | [TS-267 verification evidence](ts-267.md) |
 | Story verification | [TS-265 verification evidence](ts-265.md) |
 | Arcade trophy-truck handling, sustained-turn rear alignment, controller precision and runtime/multiplayer evidence | [TS-197 verification evidence](ts-197.md) |
+| Tombstone rear shield, spatial interception and damaged-shield recovery | [TS-217 verification evidence](ts-217.md) |
 | Tombstone core health, authoritative lifecycle and recovery | [TS-216 verification evidence](ts-216.md) |
 | Proxy Mine integrated lifecycle, visual bounds and runtime critique | [TS-251 verification evidence](ts-251.md) |
 | Proxy Mine explosion VFX, overlap and cleanup | [TS-250 verification and Astra runtime critique](ts-250.md) |

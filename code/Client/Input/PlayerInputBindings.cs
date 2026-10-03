@@ -42,10 +42,20 @@ internal sealed class PlayerInputBindings : IDisposable
         Set(InputAction.SteerRight, Key.D, Axis(JoyAxis.LeftX, 1, gamepadDevice));
         Set(InputAction.Drift, Key.Space, Button(JoyButton.B, gamepadDevice));
         using var mouse = new InputEventMouseButton { ButtonIndex = MouseButton.Left };
-        using var itemButton = Button(JoyButton.A, gamepadDevice);
+        using var itemButton = Button(JoyButton.Y, gamepadDevice);
         Replace(InputAction.UseItem, mouse, itemButton);
-        Set(InputAction.AirRoll, Key.Shift, Button(JoyButton.LeftShoulder, gamepadDevice));
-        Set(InputAction.SwitchItem, Key.E, Button(JoyButton.DpadRight, gamepadDevice));
+        Set(InputAction.AirControl, Key.Shift, Button(JoyButton.LeftShoulder, gamepadDevice));
+        using var rollModifier = Button(JoyButton.A, gamepadDevice);
+        Replace(InputAction.AirRoll, rollModifier);
+        Set(InputAction.AirPitchDown, Key.W, Axis(JoyAxis.LeftY, -1, gamepadDevice));
+        Set(InputAction.AirPitchUp, Key.S, Axis(JoyAxis.LeftY, 1, gamepadDevice));
+        Set(InputAction.AirYawLeft, Key.Q, Axis(JoyAxis.LeftX, -1, gamepadDevice));
+        Set(InputAction.AirYawRight, Key.E, Axis(JoyAxis.LeftX, 1, gamepadDevice));
+        using var rollLeft = new InputEventKey { PhysicalKeycode = Key.A };
+        using var rollRight = new InputEventKey { PhysicalKeycode = Key.D };
+        Replace(InputAction.AirRollLeft, rollLeft);
+        Replace(InputAction.AirRollRight, rollRight);
+        Set(InputAction.SwitchItem, Key.E, Button(JoyButton.X, gamepadDevice));
         Set(InputAction.Leaderboard, Key.Tab, Button(JoyButton.Back, gamepadDevice));
         Set(InputAction.MenuUp, Key.Up, Button(JoyButton.DpadUp, gamepadDevice));
         Set(InputAction.MenuDown, Key.Down, Button(JoyButton.DpadDown, gamepadDevice));
@@ -122,12 +132,16 @@ internal sealed class PlayerInputBindings : IDisposable
     /// <param name="deadZone">Neutral magnitude applied only to analog bindings.</param>
     /// <param name="analog">Optional analog/digital filter before intent shaping.</param>
     /// <param name="ignoreTextKeys">Keeps printable keys in a focused search editor; other input consumers retain normal bindings.</param>
+    /// <param name="excluding">Optional contextual action whose shared physical bindings are excluded.</param>
+    /// <param name="controller">Optional device-family filter; includes both controller buttons and axes.</param>
     /// <returns>The strongest binding's normalized nonnegative value.</returns>
-    public float Strength(InputAction action, float deadZone, bool? analog = null, bool ignoreTextKeys = false)
+    public float Strength(InputAction action, float deadZone, bool? analog = null, bool ignoreTextKeys = false, InputAction? excluding = null, bool? controller = null)
     {
         float strength = 0;
         foreach (InputEvent binding in _bindings[action])
         {
+            if (controller.HasValue && (binding is InputEventJoypadButton or InputEventJoypadMotion) != controller.Value) { continue; }
+            if (excluding.HasValue && InputMap.ActionHasEvent(Name(excluding.Value), binding)) { continue; }
             if (ignoreTextKeys && binding is InputEventKey { PhysicalKeycode: >= Key.Space and < Key.Escape })
             {
                 continue;

@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+WORLD_UDP speed=3 steering=False contactRegionFrames=382 escape=6.496 meanMs=6.672 p95Ms=15.998 correction=0.001
+WORLD_UDP speed=12 steering=True contactRegionFrames=349 escape=4.908 meanMs=16.389 p95Ms=52.592 correction=0.712
+ERROR: System.InvalidOperationException: two-world collision/prediction does not repeatedly stall a frame
+   at Trackstorm.Client.Verification.WorldCollisionNetworkChecks.Require(Boolean condition, String message) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WorldCollisionNetworkChecks.cs:line 114
+   at Trackstorm.Client.Verification.WorldCollisionNetworkChecks._PhysicsProcess(Double delta) in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WorldCollisionNetworkChecks.cs:line 79
+   at: void Trackstorm.Client.Verification.WorldCollisionNetworkChecks._PhysicsProcess(double) (res://code/Client/Verification/WorldCollisionNetworkChecks.cs:79)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.WorldCollisionNetworkChecks._PhysicsProcess(double) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\code\Client\Verification\WorldCollisionNetworkChecks.cs:79)
+       [2] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2648)
+       [3] bool Trackstorm.Client.Verification.WorldCollisionNetworkChecks.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Verification.WorldCollisionNetworkChecks_ScriptMethods.generated.cs:90)
+       [4] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

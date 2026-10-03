@@ -133,11 +133,12 @@ internal sealed partial class NetworkVehicleArena : Node3D
                 if (state.LifeId != vehicle.State.LifeId) { continue; }
                 if (_bodies.TryGetValue(state.VehicleId, out var body))
                 {
+                    body.ObserveTombstones(state, publication.Tombstones);
                     body.Rack.Observe(state.LifeId, state.CanInteract,
                         publication.Slots.FirstOrDefault(slot => slot.Vehicle == state.VehicleId),
                         publication.Events.Where(outcome => outcome.Owner == state.VehicleId),
                         publication.Mines.FirstOrDefault(mine => mine.Owner == state.VehicleId && mine.IsPlacing),
-                        publication.World.Tick);
+                        publication.World.Tick, publication.Tombstones);
                 }
             }
             _audio.ApplyVehicles(publication.World.Vehicles.Select(vehicle => vehicle.State));
@@ -437,7 +438,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         Vector3 finish = VehicleBody.ToGodot(end);
         using var ray = PhysicsRayQueryParameters3D.Create(start, finish, 3, exclude);
         ray.HitFromInside = true;
-        var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
+        var hit = QueryWithoutRearShields(ray);
         if (hit.Count == 0) { return null; }
         float fraction = Math.Clamp(start.DistanceTo(hit["position"].AsVector3()) / start.DistanceTo(finish), 0, 1);
         return new(fraction, (hit["collider"].AsGodotObject() as NetworkVehicleBody)?.VehicleId ?? 0);
@@ -455,8 +456,15 @@ internal sealed partial class NetworkVehicleArena : Node3D
         Vector3 finish = VehicleBody.ToGodot(end);
         using var ray = PhysicsRayQueryParameters3D.Create(start, finish, 3 | 16, exclude);
         ray.HitFromInside = true;
-        var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
+        var hit = QueryWithoutRearShields(ray);
         return hit.Count == 0 ? null : Math.Clamp(start.DistanceTo(hit["position"].AsVector3()) / start.DistanceTo(finish), 0, 1);
+    }
+
+    private Godot.Collections.Dictionary QueryWithoutRearShields(PhysicsRayQueryParameters3D ray)
+    {
+        foreach (var body in _bodies.Values) { body.SetShieldQueryEnabled(false); }
+        try { return GetWorld3D().DirectSpaceState.IntersectRay(ray); }
+        finally { foreach (var body in _bodies.Values) { body.SetShieldQueryEnabled(true); } }
     }
 
     private void SynchronizeBodies(WorldSnapshot snapshot)
@@ -492,12 +500,13 @@ internal sealed partial class NetworkVehicleArena : Node3D
             }
 
             body!.SynchronizeLifecycle(vehicle.State);
+            body.ObserveTombstones(vehicle.State, _driver.ItemState?.Tombstones ?? []);
             if (created)
             {
                 body.Rack.Observe(vehicle.State.LifeId, vehicle.State.CanInteract,
                     _driver.ItemState?.Slots.FirstOrDefault(slot => slot.Vehicle == id), [],
                     _driver.ItemState?.Mines.FirstOrDefault(mine => mine.Owner == id && mine.IsPlacing),
-                    _driver.ItemState?.World.Tick ?? vehicle.State.Movement.Tick);
+                    _driver.ItemState?.World.Tick ?? vehicle.State.Movement.Tick, _driver.ItemState?.Tombstones);
             }
         }
     }

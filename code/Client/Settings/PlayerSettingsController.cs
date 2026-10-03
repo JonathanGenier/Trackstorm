@@ -30,6 +30,10 @@ public sealed partial class PlayerSettingsController : Node
         Current = settings;
         _input.InvertSteering = settings.InvertSteering;
         _input.DeadZone = (float)settings.DeadZone;
+        _input.SteeringSensitivity = (float)settings.SteeringSensitivity;
+        _input.AerialSensitivity = (float)settings.AerialSensitivity;
+        _input.KeyboardSteeringSensitivity = (float)settings.KeyboardSteeringSensitivity;
+        _input.KeyboardAerialSensitivity = (float)settings.KeyboardAerialSensitivity;
         ApplyAudio();
         _saveDelay = 0.3;
         SaveStatus = "Saving…";

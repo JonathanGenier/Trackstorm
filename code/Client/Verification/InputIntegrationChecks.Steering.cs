@@ -80,17 +80,8 @@ public sealed partial class InputIntegrationChecks
         Check(Math.Abs(_player.Adapter.Capture(0).Steering - 5792) <= 1, "ground sensitivity scales curved analog intent independently of keyboard");
         Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = 1 });
         Check(_player.Adapter.Capture(0).Steering == short.MaxValue, "sensitivity clamps full stick to full authority");
-        _player.Adapter.Shaping = DrivingInputShaping.Aerial;
-        Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = 0.575f });
-        Check(Math.Abs(_player.Adapter.Capture(0).Steering - 16384) <= 1, "active aerial analog authority remains linear");
         Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.LeftX, AxisValue = 0 });
-        Send(new InputEventKey { PhysicalKeycode = Key.D, Pressed = true });
-        InputFrame air = default;
-        for (ulong tick = 1; tick <= 3; tick++) { air = _player.Adapter.Capture(tick); }
-        Check(air.Steering == short.MaxValue, "aerial digital authority retains its approved 50 ms buildup");
-        Send(new InputEventKey { PhysicalKeycode = Key.D, Pressed = false });
         _player.Adapter.Enabled = false; _player.Adapter.Capture(0); _player.Adapter.Enabled = true;
-        _player.Adapter.Shaping = new();
         _player.Adapter.SteeringSensitivity = 1;
     }
     private void VerifyPedalPrecision()

@@ -38,8 +38,13 @@ In particular, road width is measured **on the surface**, and the approximate
 banking rather than approximating it from art.
 
 The road's 10,992 triangles form one continuous static concave collision shape;
-the active infield uses the separate Blender terrain's 402,124-triangle imported
-static shape. The retained foundation floor is hidden and has no active collider.
+the active infield uses a separately baked 40,211-triangle static shape derived
+from its unchanged 402,124-triangle Blender render mesh. The collision bake audits
+both directions at vertices and face centroids against a 4 cm surface-distance
+limit and a 2 mm outer-seam limit. Reducing the dense radial tessellation prevents
+long convex motion-sweep stalls while steering against steep terrain. The bake
+applies across the entire terrain, including banks and basins; it adds no runtime
+location exception. The retained foundation floor is hidden and has no active collider.
 No runtime collision generation or solidified road undersides are added. The offline content bake adds the outer barrier and physical perimeter described below. Grid paint and the separate verification car have no map collision.
 Collision layer/mask 1 matches [vehicle queries](vehicles.md); unmarked static bodies retain the legacy Concrete handling profile. The shared [material identity system](surfaces.md) selects Core handling profiles.
 
@@ -113,9 +118,9 @@ written to `.godot/infield-checks/`.
 unique meshes/materials/textures, base triangle counts, LOD surfaces, spatial
 MultiMesh batches and static collision resources. It uses a real renderer and
 writes `.godot/map-budget-checks/inventory.json`. Instanced base-triangle totals
-are unculled inventory, not per-frame rendering cost. Terrain and road retain
-their exact collision and full-resolution visible geometry to preserve contact,
-rim and jump precision; decorative library meshes use native LODs and ground
+are unculled inventory, not per-frame rendering cost. Terrain retains its full
+visible geometry and audited collision bake; the road retains exact collision.
+Native route, rim and jump checks guard contact behavior. Decorative library meshes use native LODs and ground
 cover has local distance limits. No occlusion volumes are added to the open map.
 Rendered preset measurements and repeated feedback checks are described in
 [terrain effects](terrain-effects.md); multi-process physics timings remain in

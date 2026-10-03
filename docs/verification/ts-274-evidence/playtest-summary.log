@@ -1,0 +1,10 @@
+{"name":"bank-impact","frames":55,"final":[6.708575,1.1549122,-0.00908963],"hp":948.86444,"contactFrames":23}
+{"name":"bank-pressure-turn","frames":240,"final":[6.7732377,1.2132185,-0.013376009],"hp":948.86444,"contactFrames":240}
+{"name":"bank-reverse","frames":180,"final":[-0.0064496547,1.1420448,11.040121],"hp":948.86444,"contactFrames":1}
+{"name":"bank-recontact","frames":180,"final":[4.6553535,1.1582658,33.502186],"hp":948.86444,"contactFrames":0}
+{"name":"pillar-impact","frames":90,"final":[6.397382,1.141511,-9.83955],"hp":900,"contactFrames":7}
+{"name":"pillar-reverse","frames":160,"final":[-6.593516,1.1538461,-7.8669333],"hp":865.7915,"contactFrames":17}
+{"name":"perimeter-impact","frames":90,"final":[2.662476E-05,1.1427789,97.35886],"hp":900,"contactFrames":38}
+{"name":"perimeter-reverse","frames":150,"final":[0.6656218,1.1437559,81.789825],"hp":900,"contactFrames":0}
+{"name":"rock-impact","frames":120,"final":[-42.696476,1.1424154,60.5839],"hp":947.33435,"contactFrames":1}
+{"name":"rock-reverse","frames":180,"final":[-42.76624,1.1304455,63.52757],"hp":947.33435,"contactFrames":0}

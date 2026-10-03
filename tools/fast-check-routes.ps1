@@ -184,6 +184,11 @@ function Get-FastCheckPlan {
         }
 
         # Vehicles, simulation and camera.
+        if ($path -match 'WorldCollision|world_collision|check-world-collision' -or $path -match '^assets/maps/infield/(BuildTerrainCollision|BakeTerrainCollision|TerrainCollision|collision-audit|ImportTerrain)') {
+            Add-Runtime 'check-world-collisions.ps1'
+            Add-Extended 'check-world-collision-network.ps1'
+            Add-Manual 'Playtest sustained steering into the tunnel dirt face, reverse/re-contact and inspect rendered bank, pillar, perimeter and rock impacts.'
+        }
         if ($path -match '^code/(Core|Client)/Vehicles/' -or $path -match 'EnvironmentCollision|environment_collision|check-environment-collision' -or $path -eq 'code/Client/Networking/NetworkVehicleBody.cs') {
             Add-Runtime 'check-environment-collisions.ps1'
             Add-Extended 'check-environment-collision-network.ps1'
@@ -265,6 +270,7 @@ function Get-FastCheckPlan {
         }
 
         if ($path -match '(?i)Tombstone|tombstone_checks|check-tombstone') { Add-Runtime 'check-tombstone.ps1' }
+        if ($path -match '(?i)Tombstone|RearShield|rear.shield|ItemAuthority|NetworkVehicleBody|NetworkVehicleArena') { Add-Runtime 'check-rear-shield.ps1' }
         if ($path -match '(?i)MachineGun|machine_gun|check-machine-gun') { Add-Runtime 'check-machine-gun.ps1' }
 
         if ($path -match '(?i)ProxyMine|proxy-mine|check-mine|mine_checks') { Add-Runtime 'check-mine.ps1' }
