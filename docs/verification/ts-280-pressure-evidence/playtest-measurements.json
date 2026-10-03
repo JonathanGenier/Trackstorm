@@ -1,0 +1,102 @@
+[
+  {
+    "name": "pressure-final-large-held",
+    "range": 0.0024566999999999783,
+    "maxLift": 1.980000000001425E-05,
+    "firstVelocity": [
+      -0.008187587,
+      4.7817826E-05,
+      -0.0019721428
+    ],
+    "firstSteering": 0,
+    "finalSteering": 0,
+    "throttle": 0.9999815,
+    "firstContact": 1,
+    "lastContact": 1,
+    "firstPosition": [
+      102.63845,
+      1.1447265,
+      -35.66934
+    ],
+    "lastPosition": [
+      102.62244,
+      1.1425514,
+      -35.671165
+    ]
+  },
+  {
+    "name": "pressure-final-large-steer",
+    "range": 0.0007833999999999897,
+    "maxLift": 2.8600000000045256E-05,
+    "firstVelocity": [
+      0.056974676,
+      0.0013182312,
+      -0.05453902
+    ],
+    "firstSteering": 0.015833333,
+    "finalSteering": 0.8833842,
+    "throttle": 0.99999803,
+    "firstContact": 1,
+    "lastContact": 1,
+    "firstPosition": [
+      102.62138,
+      1.1425667,
+      -35.67127
+    ],
+    "lastPosition": [
+      102.64338,
+      1.1420617,
+      -35.671482
+    ]
+  },
+  {
+    "name": "pressure-final-large-reverse",
+    "range": 0.00343210000000016,
+    "maxLift": 6.640000000013302E-05,
+    "firstVelocity": [
+      -0.008013967,
+      0.0018320531,
+      0.08430495
+    ],
+    "firstSteering": 0.8675509,
+    "finalSteering": 0.4505966,
+    "throttle": 0,
+    "firstContact": 1,
+    "lastContact": 0,
+    "firstPosition": [
+      102.64226,
+      1.1420871,
+      -35.671646
+    ],
+    "lastPosition": [
+      104.80272,
+      1.1434295,
+      -29.154037
+    ]
+  },
+  {
+    "name": "pressure-final-oblique-steer",
+    "range": 0.3952104999999999,
+    "maxLift": 0.030980699999999972,
+    "firstVelocity": [
+      -0.03792824,
+      -0.010506913,
+      -0.019596683
+    ],
+    "firstSteering": 0.015833333,
+    "finalSteering": 0.89988804,
+    "throttle": 0.49623057,
+    "firstContact": 1,
+    "lastContact": 0,
+    "firstPosition": [
+      59.34367,
+      1.1148403,
+      -71.72186
+    ],
+    "lastPosition": [
+      62.500145,
+      1.3196696,
+      -74.78636
+    ]
+  }
+]

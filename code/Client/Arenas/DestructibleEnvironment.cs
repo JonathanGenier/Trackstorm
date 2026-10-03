@@ -26,7 +26,7 @@ internal sealed class DestructibleEnvironment
         _rocks = Rocks(map);
         _layout = ReadLayout(map)!;
         _plants = Plants(map);
-        _stages = new byte[_layout.Rocks.Count];
+        _stages = Enumerable.Repeat(byte.MaxValue, _layout.Rocks.Count).ToArray();
         _cleared = new bool[_plants.Length];
         _clearAt = new ulong[_plants.Length];
         _offsets = new System.Numerics.Vector3[_layout.Rocks.Count];
@@ -104,6 +104,12 @@ internal sealed class DestructibleEnvironment
                     piece.Visual.Visible = state.Stage > 1;
                     piece.Visual.GetNode<StaticBody3D>("WeaponTarget").CollisionLayer = state.Stage > 1 ? 16u : 0u;
                     piece.Support.CollisionLayer = state.Stage > 1 ? 8u : 0u;
+                    if (state.Stage < 2)
+                    {
+                        piece.Visual.QueueFree();
+                        piece.Support.QueueFree();
+                        _pieces.Remove(i);
+                    }
                 }
             }
             if (state.Stage < 2 || !changed) { continue; }

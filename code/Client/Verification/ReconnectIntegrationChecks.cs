@@ -32,6 +32,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
     private int _stage;
     private int _resyncs;
     private OilPatch? _oil;
+    private Core.Arenas.EnvironmentSnapshot? _environment;
     private ulong _mine;
     private ulong _player;
     private NetworkVehicleBody? _originalBody;
@@ -279,7 +280,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             _tombstones = TombstoneRecoveryFixture.Seed(_arenas[0], rearShield: OS.GetCmdlineUserArgs().Contains("--tombstone-recovery"));
             GD.Print("Category pickup history before reconnect: " + _categoryHistory);
             _oil = OilRecoveryFixture.Seed(_arenas[0]);
-            EnvironmentRecoveryFixture.Seed(_arenas[0]);
+            _environment = EnvironmentRecoveryFixture.Seed(_arenas[0]);
             _mine = ProxyMineRecoveryFixture.Seed(_arenas[0], _arenas);
             Require(_arenas[0].Driver.TryConfigure(new Dictionary<string, double> { ["match.nitro_points_per_second"] = 0 }, out _), "Disable overspeed score only in the retention fixture to preserve its fixed rank assertions.");
             NitroRecoveryFixture.Seed(_arenas[0], _player);
@@ -311,7 +312,7 @@ public sealed partial class ReconnectIntegrationChecks : Node
             RemoteVehicleTagChecks.Verify(_arenas[1], _client);
             Require(_arenas[0].Bodies[_player].GetNode<RemoteVehicleTag>("PlayerTag") == _originalTag, "Three reconnects retain exactly the same remote tag.");
             OilRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, _oil!);
-            EnvironmentRecoveryFixture.Verify(_arenas[1]);
+            EnvironmentRecoveryFixture.Verify(_arenas[1], _environment!);
             Require(_arenas[1].Driver.LocalItem is { Item: HeldItem.Nitro, NitroCharge: 37.5 }, "Returning player retains partial Nitro through match-long retention and three reconnects.");
             Require(_arenas[1].Driver.LocalItem is { SecondItem: HeldItem.Wrench, ActiveSlot: 1, SelectionRevision: 1 }, "Second slot and selection survive reconnect exactly.");
             if (!OS.GetCmdlineUserArgs().Contains("--tombstone-recovery")) { MachineGunRecoveryFixture.Verify(_arenas[1].Driver.ItemState!, 1); }

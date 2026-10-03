@@ -23,6 +23,7 @@ public sealed partial class RockCollisionNetworkChecks : Node
     private float _closest = float.MaxValue;
     private float _maximumCorrection;
     private bool _done;
+    private readonly Dictionary<ulong, List<float>> _pressureHeights = new();
 
     public override void _Ready()
     {
@@ -44,6 +45,9 @@ public sealed partial class RockCollisionNetworkChecks : Node
             {
                 var rock = GD.Load<PackedScene>("res://assets/environment/models/RockCluster.glb").Instantiate<Node3D>();
                 rock.Position = new(x, 20, 1200); rock.Scale = Vector3.One * 2; arena.AddChild(rock);
+                // Prototype worlds have no destructible authority; retain these
+                // intact fixtures while exercising the production rock contact path.
+                foreach (var collider in rock.FindChildren("*", "StaticBody3D", true, false).OfType<StaticBody3D>()) collider.SetMeta("environment_rock", 1);
             }
         }
         _arenas[1].Driver.LocalCorrected += _ =>
@@ -58,10 +62,11 @@ public sealed partial class RockCollisionNetworkChecks : Node
         try
         {
             _frames++;
-            Require(_frames < 4500, "rock UDP timeout");
+            Require(_frames < 5300, "rock UDP timeout");
             int elapsed = _frames - _boundary;
             bool drive = _trial >= 0 && (elapsed < 180 || elapsed is >= 240 and < 330 || elapsed is >= 390 and < 480);
             bool reverse = _trial >= 0 && (elapsed is >= 195 and < 240 || elapsed is >= 345 and < 390 || elapsed >= 495);
+            if (_trial == 6) { drive = elapsed < 420; reverse = elapsed >= 435; }
             var input = new InputFrame(0, 0, drive ? ushort.MaxValue : (ushort)0, reverse ? ushort.MaxValue : (ushort)0, 0, 0, 0);
             var watch = Stopwatch.StartNew();
             foreach (var arena in _arenas) { arena.Advance(input); Require(arena.Driver.Failure.Length == 0, arena.Driver.Failure); }
@@ -70,6 +75,14 @@ public sealed partial class RockCollisionNetworkChecks : Node
             if (!_arenas.All(a => a.Driver.Latest?.Vehicles.Count == 2)) return;
             if (_trial < 0) { _trial = 0; Position(); return; }
             var host = _arenas[0].Driver.Host!;
+            if (_trial == 6 && elapsed is >= 120 and < 420)
+            {
+                foreach (var vehicle in host.World.State.Vehicles)
+                {
+                    if (!_pressureHeights.TryGetValue(vehicle.VehicleId, out var heights)) { heights = new(); _pressureHeights.Add(vehicle.VehicleId, heights); }
+                    heights.Add(vehicle.Movement.Physics.Position.Y);
+                }
+            }
             foreach (var vehicle in host.World.State.Vehicles)
                 _closest = Math.Min(_closest, N.Vector3.Distance(vehicle.Movement.Physics.Position, new(vehicle.VehicleId == 1 ? -15 : 15, 21.145f, 1200)));
             if (elapsed < 705) return;
@@ -84,10 +97,21 @@ public sealed partial class RockCollisionNetworkChecks : Node
             double mean = _stepTimes.Average();
             double p95 = _stepTimes.Order().ElementAt((int)((_stepTimes.Count - 1) * 0.95));
             GD.Print($"Rock UDP trial={_trial} speed={Speed()} closest={_closest:F3} meanStepMs={mean:F3} p95StepMs={p95:F3} maxCorrection={_maximumCorrection:F3}");
+            if (_trial == 6)
+            {
+                foreach (var (id, heights) in _pressureHeights)
+                {
+                    float range = heights.Max() - heights.Min();
+                    float lift = heights.Zip(heights.Skip(1), (first, second) => second - first).Max();
+                    GD.Print($"Rock UDP stationary pressure vehicle={id} range={range:F6} peakLiftStep={lift:F6}");
+                    Require(heights.Count == 300 && range < 0.05f && lift < 0.005f, "stationary pressure settles without repeated lift");
+                }
+                Require(_pressureHeights.Count == 2, "both drivers exercised stationary rock pressure");
+            }
             Require(mean < 30, "two-world collision/prediction mean step budget");
             Require(p95 < 30, "sustained collision/prediction must not repeatedly stall a frame");
-            if (++_trial < 6) { Position(); return; }
-            GD.Print("Rock collision multiplayer passed: two UDP worlds, 30ms delay/5ms jitter/2% loss, direct/offset impacts at 3/12/35m/s, repeated contact and reverse separation.");
+            if (++_trial < 7) { Position(); return; }
+            GD.Print("Rock collision multiplayer passed: two UDP worlds, 30ms delay/5ms jitter/2% loss, direct/offset impacts at 3/12/35m/s, stationary throttle pressure, repeated contact and reverse separation.");
             _done = true;
             _boundary = _frames;
             foreach (var arena in _arenas) arena.QueueFree();
@@ -97,7 +121,7 @@ public sealed partial class RockCollisionNetworkChecks : Node
         catch (Exception exception) { _done = true; GD.PushError(exception.ToString()); GetTree().Quit(1); }
     }
 
-    private float Speed() => new[] { 3f, 12f, 35f }[_trial / 2];
+    private float Speed() => _trial == 6 ? 0 : new[] { 3f, 12f, 35f }[_trial / 2];
 
     private void Position()
     {
@@ -107,6 +131,13 @@ public sealed partial class RockCollisionNetworkChecks : Node
         {
             var pose = new VehiclePhysicsState(new((vehicle.VehicleId == 1 ? -15 : 15) + (_trial % 2 == 0 ? 0 : 2), 21.145f, 1210),
                 N.Quaternion.Identity, new(0, 0, -Speed()), N.Vector3.Zero);
+            if (_trial == 6)
+            {
+                using var query = new PhysicsTestMotionParameters3D { From = new(Basis.Identity, VehicleBody.ToGodot(pose.Position)), Motion = new(0, 0, -15), Margin = 0.005f };
+                using var hit = new PhysicsTestMotionResult3D();
+                Require(PhysicsServer3D.BodyTestMotion(_arenas[0].Bodies[vehicle.VehicleId].GetRid(), query, hit), "pressure setup reaches rock");
+                pose = new(pose.Position + VehicleBody.ToCore(hit.GetTravel()) + new N.Vector3(0, 0, 0.01f), pose.Orientation, N.Vector3.Zero, N.Vector3.Zero);
+            }
             _arenas[0].Bodies[vehicle.VehicleId].Apply(pose);
             return new VehicleSnapshot(vehicle.VehicleId, vehicle.LifeId + 1, new VehicleState(world.Tick, pose, true, false, 0, 0),
                 new VehicleDamageState(vehicle.Damage.MaxHP, vehicle.Damage.MaxHP, null, null), pose);

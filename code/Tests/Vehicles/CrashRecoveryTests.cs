@@ -10,6 +10,34 @@ namespace Trackstorm.Core.Tests.Vehicles;
 internal sealed class CrashRecoveryTests
 {
     [Test]
+    public void HighCentredRockUsesExistingDelayAndReturnsControlWithDrivenWheelSupport()
+    {
+        var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, Vector3.Zero, Vector3.Zero);
+        var configuration = new VehicleConfiguration();
+        var movement = new VehicleMovement(configuration, pose);
+        var withoutAssist = new VehicleMovement(configuration with { CrashRecoveryRate = 0 }, pose);
+        var rock = new VehicleContact(Vector3.Zero, Vector3.UnitY, 0, 0, localPosition: new(0, -0.6f, 0), environmentRock: 1);
+        for (ulong tick = 1; tick <= 90; tick++)
+        {
+            // A nearly unloaded rear ray flickers on and off while the front wheel
+            // supports the truck. It must not perpetually restart the recovery delay.
+            var wheels = new WheelSupport(new(0.65f, 0, 0, tick % 2 == 0 ? 0.002f : 0));
+            var state = movement.Step(new(tick, 0, ushort.MaxValue, 0, 0, 0, 0), pose, Vector3.UnitY, wheels: wheels, contacts: [rock]);
+            var unassisted = withoutAssist.Step(new(tick, 0, ushort.MaxValue, 0, 0, 0, 0), pose, Vector3.UnitY, wheels: wheels, contacts: [rock]);
+            if (tick < 30) Assert.That(state.Physics.AngularVelocity, Is.EqualTo(unassisted.Physics.AngularVelocity), "No immediate roll assist before the existing delay.");
+        }
+        Assert.That(movement.State.CrashSeconds, Is.GreaterThan(configuration.CrashRecoveryDelay));
+        Assert.That(movement.State.Physics.AngularVelocity.Length(), Is.GreaterThan(0.5f));
+        var restored = new VehicleMovement(configuration, pose); restored.Restore(movement.State);
+        var input = new InputFrame(91, 0, ushort.MaxValue, 0, 0, 0, 0);
+        var supported = new WheelSupport(new(0.5f, 0.5f, 0.5f, 0.5f));
+        var stateAfter = movement.Step(input, pose, Vector3.UnitY, wheels: supported, contacts: [rock]);
+        Assert.That(restored.Step(input, pose, Vector3.UnitY, wheels: supported, contacts: [rock]), Is.EqualTo(stateAfter));
+        Assert.That(stateAfter.CrashSeconds, Is.Zero);
+        Assert.That(stateAfter.Throttle, Is.GreaterThan(0));
+    }
+
+    [Test]
     public void SeparateRoofImpactsRearmInsideCooldownAndSurviveRestoration()
     {
         var world = new Trackstorm.Core.Simulation.Simulation(new(60));

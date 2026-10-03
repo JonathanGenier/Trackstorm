@@ -57,7 +57,7 @@ internal sealed class EnvironmentAuthorityTests
         Assert.That(authority.Snapshot(1, 26).Rocks[0].Stage, Is.EqualTo(3));
         for (ulong tick = 27; tick < 1000; tick++) { authority.Advance(tick, [Impact(40)], [], items); }
         Assert.That(authority.Snapshot(1, 999).Rocks, Has.Count.EqualTo(EnvironmentLayout.PiecesPerRock));
-        Assert.That(authority.Snapshot(1, 999).Rocks[0].Stage, Is.EqualTo(Layout.FinalStage(0)));
+        Assert.That(authority.Snapshot(1, 999).Rocks, Is.All.EqualTo(default(EnvironmentRockState)), "Destroyed pieces expire despite continued impacts.");
     }
 
     [Test]
@@ -115,7 +115,7 @@ internal sealed class EnvironmentAuthorityTests
             var snapshot = authority.Snapshot(1, tick);
             Assert.That(snapshot.Rocks.Count(r => r.Velocity != Vector3.Zero), Is.LessThanOrEqualTo(16));
             Assert.That(snapshot.Rocks.All(r => r.Offset.Length() <= 8.001f), Is.True);
-            Assert.That(EnvironmentCodec.Encode(snapshot).Length, Is.LessThanOrEqualTo(30231));
+            Assert.That(EnvironmentCodec.Encode(snapshot).Length, Is.LessThanOrEqualTo(EnvironmentCodec.MaximumBytes));
         }
     }
 
@@ -199,6 +199,45 @@ internal sealed class EnvironmentAuthorityTests
         var minimum = new EnvironmentAuthority(new([Vector3.Zero], [], [0.6f]));
         for (ulong tick = 1; tick < 60; tick++) { minimum.Advance(tick, [wheel], [], new()); }
         Assert.That(minimum.Snapshot(1, 60).Rocks.Count(r => r.Stage > 0), Is.EqualTo(1), "Near-minimum rocks do not manufacture more nearly identical pieces.");
+    }
+
+    [Test]
+    public void DebrisExpiresExactlyTenSecondsAfterFirstFractureAcrossRestoreAndFurtherSplits()
+    {
+        var authority = new EnvironmentAuthority(Layout);
+        var items = new ItemAuthority(new() { MaximumDamage = 300 });
+        authority.Advance(20, [], [new(1, 1, HeldItem.Missile, Vector3.Zero, true)], items);
+        authority.Advance(300, [], [new(2, 1, HeldItem.Salvo, Vector3.Zero, true)], items);
+        var state = authority.Snapshot(1, 300);
+        Assert.That(state.Rocks.Where(r => r.Stage > 0).Select(r => r.ExpiresAtTick), Is.All.EqualTo(620));
+        var replacement = new EnvironmentAuthority(Layout);
+        replacement.Restore(EnvironmentCodec.Decode(EnvironmentCodec.Encode(state)));
+        replacement.Advance(619, [], [], items);
+        Assert.That(replacement.Snapshot(1, 619).Rocks.Count(r => r.Stage > 0), Is.GreaterThan(0));
+        replacement.Advance(620, [Impact(40)], [new(3, 1, HeldItem.Missile, Vector3.Zero, true)], items);
+        var expired = replacement.Snapshot(1, 620);
+        Assert.That(expired.Rocks, Is.All.EqualTo(default(EnvironmentRockState)));
+        var lateJoin = new EnvironmentAuthority(Layout);
+        lateJoin.Restore(EnvironmentCodec.Decode(EnvironmentCodec.Encode(expired)));
+        lateJoin.Advance(2000, [Impact(40)], [], items);
+        Assert.That(lateJoin.Snapshot(1, 2000).Rocks, Is.All.EqualTo(default(EnvironmentRockState)));
+        Assert.That(new EnvironmentAuthority(Layout).Snapshot(2, 0).Rocks[0].Stage, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void DebrisDeadlineAndSplitConsistencyAreValidated()
+    {
+        Assert.Throws<ArgumentException>(() => new EnvironmentSnapshot(1, 10, [new(1, 0, 0, default, default, 20)], []));
+        Assert.Throws<ArgumentException>(() => new EnvironmentSnapshot(1, 10, [new(2, 0, 0, default, default, 10)], []));
+        Assert.Throws<ArgumentException>(() => new EnvironmentSnapshot(1, 10, [new(2, 0, 0, default, default, 611)], []));
+        var authority = new EnvironmentAuthority(Layout);
+        Assert.Throws<ArgumentException>(() => authority.Restore(new(1, 10,
+            [new(2, 0, 0, default, default, 600), new(2, 0, 0, default, default, 601), default, default], [false])));
+        Assert.Throws<ArgumentException>(() => authority.Restore(new(1, 10,
+            [default, new(2, 0, 0, default, default, 600), default, default], [false])));
+        var small = new EnvironmentAuthority(new([Vector3.Zero], [], [0.5f]));
+        small.Advance(1000, [], [], new());
+        Assert.That(small.Snapshot(1, 1000).Rocks[0].Stage, Is.EqualTo(2), "Authored small rocks are not destroyed debris.");
     }
 
     private static VehicleStepRequest Impact(float speed) => new(1, default,

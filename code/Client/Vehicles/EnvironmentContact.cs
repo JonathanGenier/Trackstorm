@@ -5,6 +5,10 @@ namespace Trackstorm.Client.Vehicles;
 /// <summary>Separates authored driveable support from static obstacle sides and bevels.</summary>
 internal static class EnvironmentContact
 {
+    /// <summary>Downward wheel rays may support on a rock's top slope without treating its side as a driving ramp.</summary>
+    internal static bool IsWheelSupport(GodotObject? collider, Vector3 normal) =>
+        !IsObstacle(collider, normal) || Arenas.DestructibleEnvironment.RockId(collider) != 0;
+
     /// <summary>Uses the exposed union surface instead of buried end caps at overlapping module seams.</summary>
     internal static Vector3 ExposedNormal(PhysicsBody3D body, Vector3 origin, Vector3 point, Vector3 normal)
     {

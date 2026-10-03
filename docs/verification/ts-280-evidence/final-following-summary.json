@@ -1,0 +1,9 @@
+{
+  "run": "final-following-network",
+  "samples": 529,
+  "maxCorrection": 0.14294934,
+  "p95Correction": 0.02978531,
+  "stopped": 0,
+  "backwards": 0,
+  "minimumVisualGap": 5.331421
+}

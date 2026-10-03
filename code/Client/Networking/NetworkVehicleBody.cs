@@ -347,9 +347,16 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         }
 
         _previous = _initialized && !correction ? _current : state;
-        _current = state;
         _initialized = true;
+        SetQueryPose(state);
+    }
+
+    /// <summary>Moves only the native collision proxy; used transiently for matching prediction ticks.</summary>
+    internal void SetQueryPose(VehiclePhysicsState state)
+    {
+        _current = state;
         GlobalTransform = new Transform3D(new Basis(VehicleBody.ToGodot(state.Orientation)), VehicleBody.ToGodot(state.Position));
+        ForceUpdateTransform();
         ConstantLinearVelocity = VehicleBody.ToGodot(state.LinearVelocity);
         ConstantAngularVelocity = VehicleBody.ToGodot(state.AngularVelocity);
     }

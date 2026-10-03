@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+FAIL: network-RockCluster-3-0.0 stable landing: height=4.140 up=1.000 vertical=0.000 angular=0.000 deltaSpeed=0.000
+ROCK network-RockCluster-3-0.0: contacts=682 repeat=180 final=30 depth=0.0002 overlapFrames=0 angular=0.000 contactMeanMs=4.006 p95Ms=5.088
+Rock collision checks: failures=1

@@ -75,6 +75,34 @@ Static obstacle severity uses pre-solver normal approach speed, weighted continu
 
 ### Static environment response
 
+Rock tops can supply downward wheel-ray support at the ordinary support-normal
+threshold while their side faces retain the anti-climb obstacle response. Chassis
+landings on a rock top retain the existing inelastic lever-arm response with the
+native chassis friction coefficient (0.15), rather than pinning the car without
+rotation. Slow bodywork contact above a rock can leave an upright car high-centred.
+The existing delayed crash-roll recovery also covers that case when fewer than two
+wheels support it or driven-axle weighted suspension travel is below 0.1 m. The
+condition requires speed below 1 m/s, an upward rock contact beneath the chassis,
+and uses the existing crash delay/rate/ramp and serialized `CrashSeconds`. Tiny
+flickering droop contacts cannot continually restart that delay. Useful wheel
+support clears recovery and restores driving. Ordinary terrain/vehicle contacts
+retain their existing first-wheel recovery behavior; no collision cooldown is added.
+
+After applying tire drive and thrust, Core prevents fresh drive from increasing
+inward velocity into an observed blocking rock side. It uses the existing
+support-plane response normal, preserving the adapter's already-solved momentum.
+Fresh throttle cannot repeatedly feed native bevel recovery and lift a stalled
+chassis. Engine demand and natural tire slip continue; reverse/tangential escape
+remains available. Gravity, suspension, landing recovery and supported rock tops
+keep their ordinary motion. The constraint uses current contacts only, with no
+timer or extra replicated state.
+
+`check-repeated-collisions.ps1` covers slow rock pressure, full throttle from rest
+immediately against five rock shapes with measured vertical settling, centred rock landings,
+close contact and deliberately shallow embedding through both adapters, plus
+sustained vehicle-pair momentum. `check-following-contact-network.ps1` exercises
+two following pairs across four native UDP worlds with delay, jitter and loss.
+
 Both native adapters call the pure `EnvironmentCollision` response. It removes inward velocity without restitution, applies exponential along-surface resistance at 0.18/s once per observation, progressively dissipates residual tangential crash motion as incidence becomes direct, and retains only bounded severity/lever-arm crash torque. Duplicate manifold contacts do not multiply drag or crash torque. A grounded side response lies in the support plane; obstacle bevels cannot convert along-road speed into a launch. Practice replaces the static solver's velocity contribution using the preceding command and retained effects while keeping the native solved pose. Network sweeps use the same projected normals and response before returning observations. There are no collision pose or heading snaps.
 
 `EnvironmentContact` distinguishes tagged driveable terrain and legacy `SurfaceBody` support from untagged obstacle bevels. Non-terrain obstacle faces with upward normal below 0.95 remain blocking sides rather than wheel ramps; flat tops, tagged terrain, suspension and landing recovery retain their support path. Short contact rays select exposed surfaces at overlapping module joins. The oval additionally uses a continuous collision perimeter without internal end caps. Practice native restitution is zero; friction remains 0.15 for other native contacts. Severe eccentric crashes retain bounded rotation, while shallow rubbing adds no torque.

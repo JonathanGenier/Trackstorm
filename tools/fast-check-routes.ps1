@@ -39,6 +39,11 @@ function Get-FastCheckPlan {
     })
 
     foreach ($path in $normalized) {
+        if ($path -match 'RepeatedVehicleContact|FollowingContactNetwork|repeated_vehicle_contact|following_contact_network|check-repeated-collisions|check-following-contact|NetworkVehicleBody|NetworkVehicleArena.cs|RemoteInterpolation|TerrainCollision|WheelSuspension|EnvironmentContact') {
+            Add-Runtime 'check-repeated-collisions.ps1'
+            Add-Extended 'check-following-contact-network.ps1'
+            Add-Manual 'Observe slow/repeated rock pressure, landing, debris expiry and closely following vehicle contact through the rendered native adapters.'
+        }
         if ($path -match 'RockCollision|rock_collision|check-rock-collision' -or $path -eq 'assets/environment/ImportAsset.gd') {
             Add-Runtime 'check-rock-collisions.ps1'
             Add-Extended 'check-rock-collision-network.ps1'

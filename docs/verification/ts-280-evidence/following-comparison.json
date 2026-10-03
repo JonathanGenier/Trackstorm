@@ -1,0 +1,22 @@
+[
+  {
+    "run": "baseline-following-network",
+    "samples": 529,
+    "maxCorrection": 8.424105,
+    "p95Correction": 1.9375772,
+    "stopped": 143,
+    "backwards": 4,
+    "minTravel": -8.950012,
+    "maxTravel": 6.890686
+  },
+  {
+    "run": "flushed-following-network",
+    "samples": 529,
+    "maxCorrection": 0.13306072,
+    "p95Correction": 0.033206135,
+    "stopped": 0,
+    "backwards": 0,
+    "minTravel": -0.7166748,
+    "maxTravel": -0.2541504
+  }
+]
