@@ -11,15 +11,15 @@ It was recognized that GdUnit4 is running in a test environment, therefore the G
 [ DONE ] first_scan_filesystem
 
 [   0% ] update_scripts_classes | Started Registering global classes... (9 steps)
-[   0% ] update_scripts_classes | 
-[  10% ] update_scripts_classes | 
-[  20% ] update_scripts_classes | 
-[  30% ] update_scripts_classes | 
-[  40% ] update_scripts_classes | 
-[  50% ] update_scripts_classes | 
-[  60% ] update_scripts_classes | 
-[  70% ] update_scripts_classes | 
-[  80% ] update_scripts_classes | 
+[   0% ] update_scripts_classes |
+[  10% ] update_scripts_classes |
+[  20% ] update_scripts_classes |
+[  30% ] update_scripts_classes |
+[  40% ] update_scripts_classes |
+[  50% ] update_scripts_classes |
+[  60% ] update_scripts_classes |
+[  70% ] update_scripts_classes |
+[  80% ] update_scripts_classes |
 [ DONE ] update_scripts_classes
 
 [   0% ] loading_editor_layout | Started Loading editor (5 steps)

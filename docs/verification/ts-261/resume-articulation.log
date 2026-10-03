@@ -21,5 +21,3 @@ Line |
   10 |  … culation passed:')) { throw 'Car articulation verification failed.' }
      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      | Car articulation verification failed.
-
-

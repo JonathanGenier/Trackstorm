@@ -2,7 +2,7 @@
 
 **Story:** TS-261 shared aiming foundation, including the approved close rack-pivot camera and centered cursor/direct-car corner treatment. **Reviewed:** 2026-10-02, `ts-261-jg`, current-main merge `c91a915` incorporating `6d62efa`, canonical version 0.2.22, with the final verification-fixture changes present. Comprehensive verification preceded this formal run. No production or fixture edits were made during the formal critique.
 
-**Overall Score: 8.1 / 10**  
+**Overall Score: 8.1 / 10**
 **Quality Assessment: PASS (>=8.0)**
 
 The exercised foundation is coherent and refined: camera intent remains predictable, the close framing leaves the targeting area above the payload, nearby cars receive clear disconnected corners, and authority, mount presentation and lifecycle retirement behave consistently under bounded packet impairment. No blocking in-scope runtime defect was observed during this formal run. This is a judgment of the approved foundation scope, not a completed weapon-combat or release-readiness verdict. The unresolved verification failures and limited human/network evidence below materially constrain confidence and prevent a stronger score.

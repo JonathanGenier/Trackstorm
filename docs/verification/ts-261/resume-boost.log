@@ -15,5 +15,3 @@ Line |
   23 |  … camera playtest passed:'))) { throw 'Boost camera playtest failed.' }
      |                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      | Boost camera playtest failed.
-
-
