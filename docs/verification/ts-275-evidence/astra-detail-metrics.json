@@ -1,0 +1,130 @@
+[
+  {
+    "name": "east-fall-1",
+    "frames": 20,
+    "contactFrames": 0,
+    "obsMean": 0.24910000000000004,
+    "obsP95": 0.272,
+    "obsMax": 0.3108,
+    "renderP95": 6.962,
+    "renderMax": 6.9642,
+    "finalPosition": [
+      -3.0997286,
+      5.2136116,
+      14.755105
+    ],
+    "finalHp": 1000
+  },
+  {
+    "name": "east-fall-2",
+    "frames": 20,
+    "contactFrames": 11,
+    "obsMean": 1.158915,
+    "obsP95": 2.2619,
+    "obsMax": 4.7809,
+    "renderP95": 6.9827,
+    "renderMax": 6.995,
+    "finalPosition": [
+      -7.1000996,
+      2.8323708,
+      14.867091
+    ],
+    "finalHp": 900
+  },
+  {
+    "name": "east-fall-3",
+    "frames": 20,
+    "contactFrames": 10,
+    "obsMean": 1.0409,
+    "obsP95": 1.9608,
+    "obsMax": 3.623,
+    "renderP95": 6.9604,
+    "renderMax": 6.9676,
+    "finalPosition": [
+      -6.1719365,
+      1.0988275,
+      15.034933
+    ],
+    "finalHp": 893.94507
+  },
+  {
+    "name": "east-fall-4",
+    "frames": 20,
+    "contactFrames": 0,
+    "obsMean": 0.377465,
+    "obsP95": 0.4029,
+    "obsMax": 0.4633,
+    "renderP95": 6.949,
+    "renderMax": 6.9606,
+    "finalPosition": [
+      -6.3556423,
+      1.1321751,
+      14.920549
+    ],
+    "finalHp": 893.94507
+  },
+  {
+    "name": "east-fall-5",
+    "frames": 20,
+    "contactFrames": 14,
+    "obsMean": 0.6790849999999998,
+    "obsP95": 0.963,
+    "obsMax": 1.3652,
+    "renderP95": 6.9644,
+    "renderMax": 7.0004,
+    "finalPosition": [
+      -6.581706,
+      1.1466761,
+      14.684513
+    ],
+    "finalHp": 893.94507
+  },
+  {
+    "name": "east-launch",
+    "frames": 55,
+    "contactFrames": 0,
+    "obsMean": 0.8280272727272728,
+    "obsP95": 0.9779,
+    "obsMax": 21.4965,
+    "renderP95": 6.9831,
+    "renderMax": 429.9408,
+    "finalPosition": [
+      6.2738514,
+      6.479767,
+      14.674806
+    ],
+    "finalHp": 1000
+  },
+  {
+    "name": "east-pressure",
+    "frames": 360,
+    "contactFrames": 328,
+    "obsMean": 1.2033844444444446,
+    "obsP95": 1.6626,
+    "obsMax": 14.2391,
+    "renderP95": 6.9955,
+    "renderMax": 21.8916,
+    "finalPosition": [
+      -6.7568884,
+      1.1481695,
+      12.445534
+    ],
+    "finalHp": 893.3212
+  },
+  {
+    "name": "east-reverse",
+    "frames": 180,
+    "contactFrames": 20,
+    "obsMean": 0.48090222222222234,
+    "obsP95": 0.8769,
+    "obsMax": 8.2368,
+    "renderP95": 6.9763,
+    "renderMax": 16.7236,
+    "finalPosition": [
+      7.0407257,
+      1.157957,
+      18.874037
+    ],
+    "finalHp": 858.06165
+  }
+]

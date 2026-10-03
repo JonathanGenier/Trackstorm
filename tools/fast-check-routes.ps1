@@ -180,6 +180,10 @@ function Get-FastCheckPlan {
         }
 
         # Vehicles, simulation and camera.
+        if ($path -match 'TunnelScrape|tunnel_scrape|check-tunnel-scrape|VehicleMotionQuery' -or $path -eq 'code/Client/Networking/NetworkVehicleBody.cs') {
+            Add-Runtime 'check-tunnel-scrape.ps1'
+            Add-Manual 'Repeat the tunnel approach, airborne inner-bank fall and sustained scrape with camera shake disabled; inspect frame timing and recovery.'
+        }
         if ($path -match 'WorldCollision|world_collision|check-world-collision' -or $path -match '^assets/maps/infield/(BuildTerrainCollision|BakeTerrainCollision|TerrainCollision|collision-audit|ImportTerrain)') {
             Add-Runtime 'check-world-collisions.ps1'
             Add-Extended 'check-world-collision-network.ps1'

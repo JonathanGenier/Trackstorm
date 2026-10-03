@@ -1,0 +1,944 @@
+[
+  {
+    "name": "approach--1-12--0.15-fall",
+    "frames": 100,
+    "contacts": 1,
+    "fallingContacts": 1,
+    "finalPosition": [
+      7.8498607,
+      1.1497034,
+      31.32429
+    ],
+    "finalHp": 1000,
+    "observationMs": {
+      "samples": 100,
+      "mean": 0.42011799999999994,
+      "p95": 0.4343,
+      "p99": 1.7401,
+      "maximum": 7.7089
+    },
+    "contactObservationMs": {
+      "samples": 1,
+      "mean": 1.7401,
+      "p95": 1.7401,
+      "p99": 1.7401,
+      "maximum": 1.7401
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 100,
+      "mean": 6.344307999999997,
+      "p95": 6.9801,
+      "p99": 7.0536,
+      "maximum": 7.1003
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 95,
+      "mean": 6.371301052631577,
+      "p95": 6.9801,
+      "p99": 7.0536,
+      "maximum": 7.1003
+    }
+  },
+  {
+    "name": "approach--1-12--0.15-press",
+    "frames": 180,
+    "contacts": 0,
+    "fallingContacts": 0,
+    "finalPosition": [
+      -21.522894,
+      10.901523,
+      6.3158503
+    ],
+    "finalHp": 1000,
+    "observationMs": {
+      "samples": 180,
+      "mean": 0.3407255555555556,
+      "p95": 0.4474,
+      "p99": 0.5465,
+      "maximum": 0.6242
+    },
+    "contactObservationMs": null,
+    "sampledRenderIntervalMs": {
+      "samples": 180,
+      "mean": 6.370966666666666,
+      "p95": 7.0088,
+      "p99": 7.0488,
+      "maximum": 7.0652
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 175,
+      "mean": 6.384225714285712,
+      "p95": 7.0088,
+      "p99": 7.0488,
+      "maximum": 7.0652
+    }
+  },
+  {
+    "name": "approach--1-12--0.15-reverse",
+    "frames": 180,
+    "contacts": 7,
+    "fallingContacts": 1,
+    "finalPosition": [
+      14.985534,
+      1.1677946,
+      -45.456406
+    ],
+    "finalHp": 1000,
+    "observationMs": {
+      "samples": 180,
+      "mean": 0.2532811111111112,
+      "p95": 0.3896,
+      "p99": 0.5858,
+      "maximum": 0.7232
+    },
+    "contactObservationMs": {
+      "samples": 7,
+      "mean": 0.5431,
+      "p95": 0.6811,
+      "p99": 0.6811,
+      "maximum": 0.7232
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 180,
+      "mean": 6.453136111111113,
+      "p95": 6.9939,
+      "p99": 7.02,
+      "maximum": 7.1024
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 175,
+      "mean": 6.470752000000002,
+      "p95": 6.9939,
+      "p99": 7.02,
+      "maximum": 7.1024
+    }
+  },
+  {
+    "name": "approach--1-12--0.15",
+    "frames": 55,
+    "contacts": 1,
+    "fallingContacts": 0,
+    "finalPosition": [
+      -17.313196,
+      5.832829,
+      16.266937
+    ],
+    "finalHp": 1000,
+    "observationMs": {
+      "samples": 55,
+      "mean": 0.6047818181818182,
+      "p95": 0.5637,
+      "p99": 1.1828,
+      "maximum": 8.1072
+    },
+    "contactObservationMs": {
+      "samples": 1,
+      "mean": 1.1828,
+      "p95": 1.1828,
+      "p99": 1.1828,
+      "maximum": 1.1828
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 55,
+      "mean": 6.481765454545454,
+      "p95": 6.9884,
+      "p99": 7.0104,
+      "maximum": 15.7453
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 50,
+      "mean": 6.522988000000001,
+      "p95": 6.9884,
+      "p99": 7.0104,
+      "maximum": 15.7453
+    }
+  },
+  {
+    "name": "approach--1-25-0-fall",
+    "frames": 100,
+    "contacts": 31,
+    "fallingContacts": 20,
+    "finalPosition": [
+      6.5860343,
+      1.1819304,
+      14.542508
+    ],
+    "finalHp": 895.73126,
+    "observationMs": {
+      "samples": 100,
+      "mean": 0.9232939999999998,
+      "p95": 2.7662,
+      "p99": 5.148,
+      "maximum": 6.5435
+    },
+    "contactObservationMs": {
+      "samples": 31,
+      "mean": 2.1716903225806448,
+      "p95": 2.9647,
+      "p99": 5.148,
+      "maximum": 6.5435
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 100,
+      "mean": 6.073719,
+      "p95": 7.0164,
+      "p99": 7.092,
+      "maximum": 7.5581
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 95,
+      "mean": 6.046493684210527,
+      "p95": 7.0161,
+      "p99": 7.0569,
+      "maximum": 7.092
+    }
+  },
+  {
+    "name": "approach--1-25-0-press",
+    "frames": 180,
+    "contacts": 180,
+    "fallingContacts": 0,
+    "finalPosition": [
+      6.5861645,
+      1.1724104,
+      14.326086
+    ],
+    "finalHp": 895.73126,
+    "observationMs": {
+      "samples": 180,
+      "mean": 0.9752666666666672,
+      "p95": 1.1108,
+      "p99": 1.2271,
+      "maximum": 10.5336
+    },
+    "contactObservationMs": {
+      "samples": 180,
+      "mean": 0.9752666666666672,
+      "p95": 1.1108,
+      "p99": 1.2271,
+      "maximum": 10.5336
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 180,
+      "mean": 6.069415555555554,
+      "p95": 6.9921,
+      "p99": 7.0419,
+      "maximum": 11.0455
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 175,
+      "mean": 6.067475428571428,
+      "p95": 6.9921,
+      "p99": 7.0419,
+      "maximum": 11.0455
+    }
+  },
+  {
+    "name": "approach--1-25-0-reverse",
+    "frames": 180,
+    "contacts": 1,
+    "fallingContacts": 0,
+    "finalPosition": [
+      -3.8024755,
+      1.1429847,
+      29.219652
+    ],
+    "finalHp": 895.73126,
+    "observationMs": {
+      "samples": 180,
+      "mean": 0.4038155555555554,
+      "p95": 0.4974,
+      "p99": 0.7382,
+      "maximum": 8.6274
+    },
+    "contactObservationMs": {
+      "samples": 1,
+      "mean": 0.8431,
+      "p95": 0.8431,
+      "p99": 0.8431,
+      "maximum": 0.8431
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 180,
+      "mean": 6.354815555555558,
+      "p95": 7.0089,
+      "p99": 7.0358,
+      "maximum": 7.045
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 175,
+      "mean": 6.36545085714286,
+      "p95": 7.0089,
+      "p99": 7.0358,
+      "maximum": 7.045
+    }
+  },
+  {
+    "name": "approach--1-25-0.15-fall",
+    "frames": 100,
+    "contacts": 97,
+    "fallingContacts": 0,
+    "finalPosition": [
+      -12.957251,
+      7.488209,
+      12.429648
+    ],
+    "finalHp": 900,
+    "observationMs": {
+      "samples": 100,
+      "mean": 2.8693320000000004,
+      "p95": 4.1021,
+      "p99": 4.3724,
+      "maximum": 9.9718
+    },
+    "contactObservationMs": {
+      "samples": 97,
+      "mean": 2.9392742268041236,
+      "p95": 4.1021,
+      "p99": 4.3724,
+      "maximum": 9.9718
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 100,
+      "mean": 5.009978999999999,
+      "p95": 6.988,
+      "p99": 9.5551,
+      "maximum": 9.6225
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 95,
+      "mean": 4.998287368421051,
+      "p95": 6.979,
+      "p99": 9.5551,
+      "maximum": 9.6225
+    }
+  },
+  {
+    "name": "approach--1-25-0.15-press",
+    "frames": 180,
+    "contacts": 180,
+    "fallingContacts": 0,
+    "finalPosition": [
+      -12.885271,
+      7.4837017,
+      12.56734
+    ],
+    "finalHp": 900,
+    "observationMs": {
+      "samples": 180,
+      "mean": 3.688661111111112,
+      "p95": 4.043,
+      "p99": 13.112,
+      "maximum": 14.2925
+    },
+    "contactObservationMs": {
+      "samples": 180,
+      "mean": 3.688661111111112,
+      "p95": 4.043,
+      "p99": 13.112,
+      "maximum": 14.2925
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 180,
+      "mean": 4.922076666666669,
+      "p95": 9.461,
+      "p99": 11.245,
+      "maximum": 21.3356
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 175,
+      "mean": 4.932524571428575,
+      "p95": 9.461,
+      "p99": 11.245,
+      "maximum": 21.3356
+    }
+  },
+  {
+    "name": "approach--1-25-0.15-reverse",
+    "frames": 180,
+    "contacts": 11,
+    "fallingContacts": 0,
+    "finalPosition": [
+      -26.74158,
+      1.3999262,
+      26.690172
+    ],
+    "finalHp": 900,
+    "observationMs": {
+      "samples": 180,
+      "mean": 0.623578888888889,
+      "p95": 1.8112,
+      "p99": 2.1684,
+      "maximum": 10.2221
+    },
+    "contactObservationMs": {
+      "samples": 11,
+      "mean": 2.0764727272727272,
+      "p95": 2.1684,
+      "p99": 2.1684,
+      "maximum": 3.5696
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 180,
+      "mean": 6.219275000000002,
+      "p95": 7.0214,
+      "p99": 7.0513,
+      "maximum": 7.0724
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 175,
+      "mean": 6.25834285714286,
+      "p95": 7.0214,
+      "p99": 7.0513,
+      "maximum": 7.0724
+    }
+  },
+  {
+    "name": "approach--1-25-0.15",
+    "frames": 55,
+    "contacts": 14,
+    "fallingContacts": 0,
+    "finalPosition": [
+      -13.140918,
+      7.4353757,
+      12.37278
+    ],
+    "finalHp": 900,
+    "observationMs": {
+      "samples": 55,
+      "mean": 0.9054509090909093,
+      "p95": 2.1358,
+      "p99": 2.7525,
+      "maximum": 3.0557
+    },
+    "contactObservationMs": {
+      "samples": 14,
+      "mean": 2.1049785714285716,
+      "p95": 2.7525,
+      "p99": 2.7525,
+      "maximum": 3.0557
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 55,
+      "mean": 6.069430909090909,
+      "p95": 7.0168,
+      "p99": 7.0212,
+      "maximum": 7.0232
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 50,
+      "mean": 6.050252,
+      "p95": 7.0168,
+      "p99": 7.0212,
+      "maximum": 7.0232
+    }
+  },
+  {
+    "name": "approach--1-25-0",
+    "frames": 55,
+    "contacts": 1,
+    "fallingContacts": 0,
+    "finalPosition": [
+      -6.2335806,
+      6.4783573,
+      14.665313
+    ],
+    "finalHp": 1000,
+    "observationMs": {
+      "samples": 55,
+      "mean": 0.4034563636363636,
+      "p95": 0.4858,
+      "p99": 0.487,
+      "maximum": 1.0098
+    },
+    "contactObservationMs": {
+      "samples": 1,
+      "mean": 1.0098,
+      "p95": 1.0098,
+      "p99": 1.0098,
+      "maximum": 1.0098
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 55,
+      "mean": 6.616561818181819,
+      "p95": 7.026,
+      "p99": 7.0289,
+      "maximum": 24.3879
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 50,
+      "mean": 6.6877640000000005,
+      "p95": 7.026,
+      "p99": 7.0289,
+      "maximum": 24.3879
+    }
+  },
+  {
+    "name": "approach-1-12-0.15-fall",
+    "frames": 100,
+    "contacts": 16,
+    "fallingContacts": 2,
+    "finalPosition": [
+      -5.7657375,
+      1.6526393,
+      17.387724
+    ],
+    "finalHp": 915.30365,
+    "observationMs": {
+      "samples": 100,
+      "mean": 0.449406,
+      "p95": 1.4475,
+      "p99": 1.8707,
+      "maximum": 2.5358
+    },
+    "contactObservationMs": {
+      "samples": 16,
+      "mean": 1.2010125,
+      "p95": 1.8707,
+      "p99": 1.8707,
+      "maximum": 2.5358
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 100,
+      "mean": 6.371387000000002,
+      "p95": 7.0071,
+      "p99": 7.0338,
+      "maximum": 9.5392
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 95,
+      "mean": 6.4016063157894765,
+      "p95": 7.0071,
+      "p99": 7.0338,
+      "maximum": 9.5392
+    }
+  },
+  {
+    "name": "approach-1-12-0.15-press",
+    "frames": 180,
+    "contacts": 135,
+    "fallingContacts": 0,
+    "finalPosition": [
+      -7.0257425,
+      1.1761768,
+      17.417486
+    ],
+    "finalHp": 908.63916,
+    "observationMs": {
+      "samples": 180,
+      "mean": 0.8399855555555555,
+      "p95": 1.175,
+      "p99": 1.2689,
+      "maximum": 1.3047
+    },
+    "contactObservationMs": {
+      "samples": 135,
+      "mean": 0.9997948148148147,
+      "p95": 1.1927,
+      "p99": 1.2689,
+      "maximum": 1.3047
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 180,
+      "mean": 6.135849444444438,
+      "p95": 7.0099,
+      "p99": 7.062,
+      "maximum": 17.9125
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 175,
+      "mean": 6.144153142857139,
+      "p95": 7.0099,
+      "p99": 7.062,
+      "maximum": 17.9125
+    }
+  },
+  {
+    "name": "approach-1-12-0.15-reverse",
+    "frames": 180,
+    "contacts": 23,
+    "fallingContacts": 0,
+    "finalPosition": [
+      6.788559,
+      1.141926,
+      12.512305
+    ],
+    "finalHp": 873.9437,
+    "observationMs": {
+      "samples": 180,
+      "mean": 0.470766111111111,
+      "p95": 1.0266,
+      "p99": 1.3071,
+      "maximum": 3.0188
+    },
+    "contactObservationMs": {
+      "samples": 23,
+      "mean": 1.1266130434782606,
+      "p95": 1.2543,
+      "p99": 1.3071,
+      "maximum": 3.0188
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 180,
+      "mean": 6.313207222222223,
+      "p95": 7.0225,
+      "p99": 7.7556,
+      "maximum": 10.2902
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 175,
+      "mean": 6.3025902857142855,
+      "p95": 6.999,
+      "p99": 7.0545,
+      "maximum": 10.2902
+    }
+  },
+  {
+    "name": "approach-1-12-0.15",
+    "frames": 55,
+    "contacts": 0,
+    "fallingContacts": 0,
+    "finalPosition": [
+      17.348593,
+      5.841699,
+      16.26066
+    ],
+    "finalHp": 1000,
+    "observationMs": {
+      "samples": 55,
+      "mean": 0.4326963636363636,
+      "p95": 0.5733,
+      "p99": 0.6058,
+      "maximum": 0.6184
+    },
+    "contactObservationMs": null,
+    "sampledRenderIntervalMs": {
+      "samples": 55,
+      "mean": 6.300694545454546,
+      "p95": 6.9828,
+      "p99": 7.0104,
+      "maximum": 7.0951
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 50,
+      "mean": 6.290376,
+      "p95": 6.9828,
+      "p99": 7.0104,
+      "maximum": 7.0951
+    }
+  },
+  {
+    "name": "approach-1-25--0.15-fall",
+    "frames": 100,
+    "contacts": 100,
+    "fallingContacts": 0,
+    "finalPosition": [
+      12.893624,
+      7.4834776,
+      12.539978
+    ],
+    "finalHp": 900,
+    "observationMs": {
+      "samples": 100,
+      "mean": 3.279166000000002,
+      "p95": 3.8378,
+      "p99": 10.7862,
+      "maximum": 12.8797
+    },
+    "contactObservationMs": {
+      "samples": 100,
+      "mean": 3.279166000000002,
+      "p95": 3.8378,
+      "p99": 10.7862,
+      "maximum": 12.8797
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 100,
+      "mean": 4.9437159999999984,
+      "p95": 7.0272,
+      "p99": 10.9645,
+      "maximum": 18.2115
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 95,
+      "mean": 4.95344,
+      "p95": 7.0272,
+      "p99": 10.9645,
+      "maximum": 18.2115
+    }
+  },
+  {
+    "name": "approach-1-25--0.15-press",
+    "frames": 180,
+    "contacts": 180,
+    "fallingContacts": 0,
+    "finalPosition": [
+      12.847684,
+      7.4807525,
+      12.668674
+    ],
+    "finalHp": 900,
+    "observationMs": {
+      "samples": 180,
+      "mean": 3.3408349999999998,
+      "p95": 3.8397,
+      "p99": 4.0772,
+      "maximum": 13.7082
+    },
+    "contactObservationMs": {
+      "samples": 180,
+      "mean": 3.3408349999999998,
+      "p95": 3.8397,
+      "p99": 4.0772,
+      "maximum": 13.7082
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 180,
+      "mean": 4.761945555555556,
+      "p95": 7.0011,
+      "p99": 9.6103,
+      "maximum": 21.2121
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 175,
+      "mean": 4.744448571428572,
+      "p95": 7.0011,
+      "p99": 9.6103,
+      "maximum": 21.2121
+    }
+  },
+  {
+    "name": "approach-1-25--0.15-reverse",
+    "frames": 180,
+    "contacts": 10,
+    "fallingContacts": 0,
+    "finalPosition": [
+      29.179878,
+      7.5098376,
+      4.562152
+    ],
+    "finalHp": 900,
+    "observationMs": {
+      "samples": 180,
+      "mean": 0.5810311111111113,
+      "p95": 1.775,
+      "p99": 2.0185,
+      "maximum": 8.1295
+    },
+    "contactObservationMs": {
+      "samples": 10,
+      "mean": 1.94926,
+      "p95": 2.0185,
+      "p99": 2.0185,
+      "maximum": 2.4782
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 180,
+      "mean": 6.242813333333339,
+      "p95": 6.9996,
+      "p99": 7.0233,
+      "maximum": 7.0435
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 175,
+      "mean": 6.273851428571432,
+      "p95": 6.9996,
+      "p99": 7.0233,
+      "maximum": 7.0435
+    }
+  },
+  {
+    "name": "approach-1-25--0.15",
+    "frames": 55,
+    "contacts": 15,
+    "fallingContacts": 0,
+    "finalPosition": [
+      13.047248,
+      7.4151287,
+      12.5148535
+    ],
+    "finalHp": 900,
+    "observationMs": {
+      "samples": 55,
+      "mean": 0.9859600000000003,
+      "p95": 2.2091,
+      "p99": 4.7774,
+      "maximum": 4.8866
+    },
+    "contactObservationMs": {
+      "samples": 15,
+      "mean": 2.3746533333333333,
+      "p95": 4.7774,
+      "p99": 4.7774,
+      "maximum": 4.8866
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 55,
+      "mean": 5.957036363636362,
+      "p95": 6.9839,
+      "p99": 6.9874,
+      "maximum": 7.0112
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 50,
+      "mean": 5.943453999999998,
+      "p95": 6.9839,
+      "p99": 6.9874,
+      "maximum": 7.0112
+    }
+  },
+  {
+    "name": "approach-1-25-0-fall",
+    "frames": 100,
+    "contacts": 35,
+    "fallingContacts": 21,
+    "finalPosition": [
+      -6.581706,
+      1.1466761,
+      14.684513
+    ],
+    "finalHp": 893.94507,
+    "observationMs": {
+      "samples": 100,
+      "mean": 0.8030049999999999,
+      "p95": 2.2281,
+      "p99": 4.1332,
+      "maximum": 5.7153
+    },
+    "contactObservationMs": {
+      "samples": 35,
+      "mean": 1.6041800000000002,
+      "p95": 3.5495,
+      "p99": 4.1332,
+      "maximum": 5.7153
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 100,
+      "mean": 6.293732,
+      "p95": 7.0143,
+      "p99": 16.3985,
+      "maximum": 20.6653
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 95,
+      "mean": 6.279377894736844,
+      "p95": 7.0143,
+      "p99": 16.3985,
+      "maximum": 20.6653
+    }
+  },
+  {
+    "name": "approach-1-25-0-press",
+    "frames": 180,
+    "contacts": 148,
+    "fallingContacts": 0,
+    "finalPosition": [
+      -6.8295994,
+      1.1436086,
+      12.57837
+    ],
+    "finalHp": 893.3212,
+    "observationMs": {
+      "samples": 180,
+      "mean": 1.2513916666666671,
+      "p95": 2.1746,
+      "p99": 3.6994,
+      "maximum": 13.1911
+    },
+    "contactObservationMs": {
+      "samples": 148,
+      "mean": 1.388105405405406,
+      "p95": 2.1746,
+      "p99": 3.6994,
+      "maximum": 13.1911
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 180,
+      "mean": 6.013375555555555,
+      "p95": 7.0516,
+      "p99": 8.3449,
+      "maximum": 25.8557
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 175,
+      "mean": 6.002846857142856,
+      "p95": 7.0516,
+      "p99": 8.3449,
+      "maximum": 25.8557
+    }
+  },
+  {
+    "name": "approach-1-25-0-reverse",
+    "frames": 180,
+    "contacts": 17,
+    "fallingContacts": 0,
+    "finalPosition": [
+      7.240514,
+      1.1623381,
+      19.938229
+    ],
+    "finalHp": 858.0846,
+    "observationMs": {
+      "samples": 180,
+      "mean": 0.490903888888889,
+      "p95": 1.0197,
+      "p99": 1.2017,
+      "maximum": 3.5936
+    },
+    "contactObservationMs": {
+      "samples": 17,
+      "mean": 1.0832176470588235,
+      "p95": 1.2017,
+      "p99": 1.2017,
+      "maximum": 1.9635
+    },
+    "sampledRenderIntervalMs": {
+      "samples": 180,
+      "mean": 6.274509444444445,
+      "p95": 7.0023,
+      "p99": 7.0487,
+      "maximum": 7.0845
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 175,
+      "mean": 6.282729714285715,
+      "p95": 7.0023,
+      "p99": 7.0487,
+      "maximum": 7.0845
+    }
+  },
+  {
+    "name": "approach-1-25-0",
+    "frames": 55,
+    "contacts": 0,
+    "fallingContacts": 0,
+    "finalPosition": [
+      6.2738514,
+      6.479767,
+      14.674806
+    ],
+    "finalHp": 1000,
+    "observationMs": {
+      "samples": 55,
+      "mean": 0.8047,
+      "p95": 0.6079,
+      "p99": 1.0887,
+      "maximum": 21.0176
+    },
+    "contactObservationMs": null,
+    "sampledRenderIntervalMs": {
+      "samples": 55,
+      "mean": 11.832272727272729,
+      "p95": 7.0117,
+      "p99": 14.5198,
+      "maximum": 407.1591
+    },
+    "sampledRenderIntervalAfterFirst5TicksMs": {
+      "samples": 50,
+      "mean": 13.015500000000001,
+      "p95": 7.0117,
+      "p99": 14.5198,
+      "maximum": 407.1591
+    }
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "cases": 72,
+  "hostedCases": 36,
+  "ticksPerCase": 420,
+  "maxCaseMeanMs": 2.873385294117648,
+  "maxCaseP95Ms": 5.3106,
+  "maxCaseP99Ms": 8.4843,
+  "maxContactMs": 29.2953,
+  "maxStepM": 0.45647475,
+  "contactFrames": 8881,
+  "contactFramesOver16ms": 31,
+  "contactFramesOver16msAfterSubtractingGc": 0,
+  "maxContactExcludingRecordedGcMs": 11.0397,
+  "queryOriginalMs": 60.944624999999995,
+  "queryBoundedMs": 16.713124999999998,
+  "queryRatio": 0.27423460231316543
+}

@@ -49,6 +49,10 @@ Assert-True ($vehiclePlan.ManualScenarios.Count -gt 0) "Vehicle changes must pre
 
 $networkPlan = Get-FastCheckPlan -Paths @("code/Client/Networking/VehicleReplicator.cs")
 $worldCollisionPlan = Get-FastCheckPlan -Paths @("assets/maps/infield/TerrainCollision.res")
+foreach ($path in @('code/Client/Vehicles/VehicleMotionQuery.cs', 'code/Client/Networking/NetworkVehicleBody.cs', 'scenes/verification/tunnel_scrape_probes.json', 'check-tunnel-scrape.ps1')) {
+    Assert-True ((Get-FastCheckPlan -Paths @($path)).RuntimeScripts -contains 'check-tunnel-scrape.ps1') 'Vehicle sweep changes require repeated tunnel fall/scrape and native query contract verification.'
+}
+
 Assert-True ($worldCollisionPlan.RuntimeScripts -contains "check-world-collisions.ps1") "Terrain collider changes route actual-map collision coverage."
 Assert-True ($worldCollisionPlan.ExtendedScripts -contains "check-world-collision-network.ps1") "Terrain collider changes route impaired bank-contact verification."
 Assert-True $networkPlan.TransportTests "Networking changes must route transport tests."
