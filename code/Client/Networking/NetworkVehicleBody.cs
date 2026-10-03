@@ -26,8 +26,10 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     internal CarRackPresentation Rack { get; private set; } = null!;
     private VehicleSnapshot? _feedbackState;
     private bool _lifeCorrectionPending;
-    private CollisionShape3D _rearCollision = null!;
-    private MeshInstance3D _rearVisual = null!;
+    private CollisionShape3D[] _rearCollisions = [];
+    private Items.TombstoneVisual _rearVisual = null!;
+    private TombstoneState? _presentedShield;
+    private readonly List<Items.TombstoneVisual> _shieldDebris = [];
     internal bool HasRearShield { get; private set; }
     /// <summary>Host-assigned identity used only to attribute contact observations.</summary>
     internal ulong VehicleId { get; init; }
@@ -52,13 +54,11 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         var chassis = VehicleVisual.CreateCollision();
         AddChild(chassis);
         AddChild(_visual);
-        _rearCollision = new CollisionShape3D { Shape = new BoxShape3D { Size = VehicleBody.ToGodot(TombstoneGeometry.Size) },
-            Position = VehicleBody.ToGodot(TombstoneGeometry.Center), Disabled = true };
-        AddChild(_rearCollision);
-        _motionQuery = new VehicleMotionQuery(this, chassis, _rearCollision);
-        _rearVisual = new MeshInstance3D { Mesh = new BoxMesh { Size = VehicleBody.ToGodot(TombstoneGeometry.Size) },
-            Position = VehicleBody.ToGodot(TombstoneGeometry.Center), Visible = false,
-            MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(0.3f, 0.36f, 0.4f), Metallic = 0.65f, Roughness = 0.7f } };
+        _rearCollisions = TombstoneGeometry.MountedBoxes.Select(box => new CollisionShape3D
+        { Shape = new BoxShape3D { Size = VehicleBody.ToGodot(box.Size) }, Position = VehicleBody.ToGodot(box.Center), Disabled = true }).ToArray();
+        foreach (var panel in _rearCollisions) { AddChild(panel); }
+        _motionQuery = new VehicleMotionQuery(this, [chassis, .. _rearCollisions]);
+        _rearVisual = new Items.TombstoneVisual { Position = Items.TombstoneVisual.MountedCenter, Visible = false };
         _visual.AddChild(_rearVisual);
         _visual.TopLevel = true;
         AddChild(new TireFeedback { Source = () => _feedbackState is { } state ? (VisualTransform, state, _configuration) : null });
@@ -100,17 +100,34 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     /// <param name="configuration">Validated effective gameplay tuning.</param>
     internal void ApplyConfiguration(VehicleConfiguration configuration) => _configuration = configuration;
 
-    /// <summary>Reconstructs temporary hardware from accepted state, independently of slot selection.</summary>
+    /// <summary>Reconstructs the production three-panel armor from accepted state.</summary>
     internal void ObserveTombstones(VehicleSnapshot vehicle, IEnumerable<TombstoneState> states)
     {
-        HasRearShield = vehicle.CanInteract && states.Any(s => s.Owner == VehicleId && s.Life == vehicle.LifeId && s.Stage == TombstoneStage.RearShield);
-        _rearCollision.Disabled = !HasRearShield;
+        var live = states.ToArray();
+        _shieldDebris.RemoveAll(v => !GodotObject.IsInstanceValid(v) || v.IsQueuedForDeletion());
+        var shield = vehicle.CanInteract ? live.FirstOrDefault(s => s.Owner == VehicleId && s.Life == vehicle.LifeId && s.Stage == TombstoneStage.RearShield) : null;
+        HasRearShield = shield is not null;
+        if (shield is not null) { _rearVisual.Observe(shield, _presentedShield?.Id != shield.Id); }
+        if (_presentedShield is { } previous && shield?.Id != previous.Id && vehicle.CanInteract && vehicle.LifeId == previous.Life &&
+            live.All(s => s.Id != previous.Id) && _shieldDebris.Count < 4)
+        {
+            var broken = new Items.TombstoneVisual();
+            GetParent().AddChild(broken);
+            broken.GlobalTransform = _rearVisual.GlobalTransform;
+            broken.Observe(previous, true);
+            broken.BreakApart();
+            _shieldDebris.Add(broken);
+        }
+        _presentedShield = shield;
+        foreach (var panel in _rearCollisions) { panel.Disabled = !HasRearShield; }
         _rearVisual.Visible = HasRearShield;
+        _rearVisual.SetProcess(HasRearShield);
     }
 
     // Weapon intersection is decided in Core against current candidate state. Excluding this
     // reconstructable shape also prevents a same-step destroyed shield from masking the chassis.
-    internal void SetShieldQueryEnabled(bool enabled) => _rearCollision.Disabled = !enabled || !HasRearShield;
+    internal void SetShieldQueryEnabled(bool enabled)
+    { foreach (var panel in _rearCollisions) { panel.Disabled = !enabled || !HasRearShield; } }
 
     /// <summary>Resolves the preceding Core command through bounded native sweep/slide queries.</summary>
     /// <returns>Solved numeric physics/support/contact observations for the next Core step.</returns>

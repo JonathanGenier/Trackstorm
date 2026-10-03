@@ -86,6 +86,12 @@ public sealed partial class ItemIntegrationChecks : Node
             var arena = new NetworkVehicleArena { PrototypeMapForVerification = true };
             arena.Initialize(gateway, index == 0 ? 88ul : 0, server);
             viewport.AddChild(arena);
+            // The production Car fires from its taller chassis center (~2 m).
+            // Use a tall movable target so this scenario actually intersects a prop.
+            var target = arena.Layout.Props[2];
+            target.GetChildren().OfType<CollisionShape3D>().Single().Shape = new BoxShape3D { Size = new(1.2f, 3, 1.2f) };
+            target.GetChildren().OfType<Node3D>().Single(child => child is not CollisionShape3D).Scale = new(1, 3 / 1.6f, 1);
+            target.Position = new(8, 1.5f, -6);
             _arenas.Add(arena);
             var hud = new Hud.CombatHud { Vehicle = () => arena.LocalState, Slot = () => arena.Driver.LocalItem };
             viewport.AddChild(hud);
@@ -178,7 +184,7 @@ public sealed partial class ItemIntegrationChecks : Node
                     _input.Adapter.Enabled = true;
                     _input.Adapter.Observe();
                     using InputEvent press = arena == _arenas[1]
-                        ? new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.DpadRight, Pressed = true }
+                        ? new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.X, Pressed = true }
                         : new InputEventKey { PhysicalKeycode = Key.E, Pressed = true };
                     Godot.Input.ParseInputEvent(press);
                     Godot.Input.FlushBufferedEvents();
@@ -195,7 +201,7 @@ public sealed partial class ItemIntegrationChecks : Node
                     Require((_input.Adapter.Capture(0).Pressed & InputButtons.SwitchItem) == 0, "A switch tap sends one edge.");
                     Require(arena.Driver.RequestItemUse(), "Immediate use after switch targets the requested second-slot capability.");
                 }
-                Next("E and D-pad Right switch all eight players; immediate use selects Wrench in slot two.");
+                Next("E and controller X switch all eight players; immediate use selects Wrench in slot two.");
                 break;
             case 11 when _arenas.All(arena => arena.Driver.LocalItem is { Item: HeldItem.Missile, SecondItem: HeldItem.None, ActiveSlot: 1 }):
                 if (_selectionSeen == 0) { _selectionSeen = _elapsed; return; }
@@ -270,7 +276,7 @@ public sealed partial class ItemIntegrationChecks : Node
                 }
                 else if (_scenario == 1)
                 {
-                    Require(_propPeakSpeed > 0.1f, "Explosion physically pushes movable prop.");
+                    Require(_propPeakSpeed > 0.1f, $"Explosion physically pushes movable prop: peak={_propPeakSpeed}, impact={impacts[0].Position}, prop={_arenas[0].Layout.Props[2].GlobalPosition}.");
                 }
 
                 Capture($"impact-{_scenario}.png");
@@ -309,7 +315,7 @@ public sealed partial class ItemIntegrationChecks : Node
         _input.Adapter.Enabled = true;
         _input.Adapter.Observe();
         using InputEvent input = _scenario == 1
-            ? new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.A, Pressed = pressed }
+            ? new InputEventJoypadButton { Device = 0, ButtonIndex = JoyButton.Y, Pressed = pressed }
             : new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = pressed };
         Godot.Input.ParseInputEvent(input);
         Godot.Input.FlushBufferedEvents();

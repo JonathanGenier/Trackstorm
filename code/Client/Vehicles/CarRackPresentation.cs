@@ -94,8 +94,7 @@ internal sealed partial class CarRackPresentation : Node
         // Even an immediate switch+use must display the consumed selected item,
         // never borrow the old model while its replacement is retracting.
         if (_usePending) { _desired = _useItem; }
-        if (active?.Item == HeldItem.Tombstone && tombstones?.Any(s => s.Token == active.Token && s.Stage == TombstoneStage.RearShield) == true)
-        { _desired = HeldItem.None; _usePending = false; }
+        if (_useItem == HeldItem.Tombstone) { _usePending = false; _desired = active?.Item ?? HeldItem.None; }
         _previous = inventory;
         if (_placement is not null || _mineReturning)
         {
@@ -187,7 +186,7 @@ internal sealed partial class CarRackPresentation : Node
             float reveal = Mathf.SmoothStep(0, 1, Mathf.Clamp((_mechanism.Progress - 0.92f) / 0.08f, 0, 1));
             _payload.Visible = reveal > 0;
             _payload.Scale = Vector3.One * Math.Max(0.001f, reveal);
-            _payload.Position = new Vector3(0, _payload is Items.WeaponAimMount ? WeaponAim.Pivot.Y - 1.34f : 0.17f, 0);
+            _payload.Position = new Vector3(0, _mounted == HeldItem.Tombstone ? 0 : _payload is Items.WeaponAimMount ? WeaponAim.Pivot.Y - 1.34f : 0.17f, 0);
             if (_payload is Items.WeaponAimMount mount) { mount.Present(_replace || _mechanism.Progress < .999f ? null : _aim, (float)delta); }
             if (_usePending && _mounted == _useItem && !_replace && _mechanism.Progress >= 0.999f)
             {

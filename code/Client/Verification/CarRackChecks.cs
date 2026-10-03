@@ -149,9 +149,11 @@ public sealed partial class CarRackChecks : Node
                 int before = _events.Count;
                 if (item.Identity == HeldItem.Tombstone)
                 {
-                    Check(_arenas[1].Driver.RequestItemUse(), "Remote Tombstone use intent sent for authoritative rejection");
-                    await Frames(20);
-                    Check(_events.Count == before && AllPresent(HeldItem.Tombstone), "Use leaves selected armor and inventory intact without an outcome");
+                    var shield = host.Items.Tombstones.Single(s => s.Owner == Shooter && s.Stage == TombstoneStage.RearShield);
+                    Check(_arenas[1].Driver.RequestItemUse(), "Remote Tombstone deployment request");
+                    await Until(() => _arenas.All(a => !a.Bodies[Shooter].HasRearShield && a.Bodies[Shooter].Rack.Progress == 0), "Deployment retracts the carriage on both peers");
+                    Check(_events.Count == before + 1 && host.Items.Tombstones.Any(s => s.Id == shield.Id && s.Stage == TombstoneStage.WorldWall && s.HP == shield.HP), "Use transfers the same shield and health to one world wall");
+                    Check(_arenas[1].Driver.LocalItem?.SecondItem == HeldItem.Wrench, "Tombstone use preserves the other physical slot");
                     continue;
                 }
                 Check(_arenas[1].Driver.RequestItemUse(), "Use request accepted for " + item.DisplayName);
@@ -275,7 +277,7 @@ public sealed partial class CarRackChecks : Node
     }
 
     private bool AllPresent(HeldItem item) => _arenas.All(a => a.Bodies.TryGetValue(Shooter, out var body) &&
-        (item == HeldItem.Tombstone ? body.HasRearShield && body.Rack.Progress == 0 :
+        (item == HeldItem.Tombstone ? body.HasRearShield && body.Rack.PresentedItem == item && body.Rack.Progress >= .999f :
         body.Rack.PresentedItem == item && body.Rack.Progress >= 0.999f && !body.HasRearShield &&
         (item != HeldItem.Nitro || body.Rack.Boost.Deployment >= .999f)));
     private IEnumerable<CarLighting> Lamps() => _arenas.Select(a => a.Bodies[Shooter].Rack.GetParent<Node3D>().GetChildren().OfType<CarLighting>().Single());

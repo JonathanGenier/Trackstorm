@@ -3,24 +3,43 @@ using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Core.Items;
 
-/// <summary>Temporary rear armor envelope shared by authoritative intersection and native reconstruction.</summary>
+/// <summary>Production rear and side armor shared by authoritative intersection and native reconstruction.</summary>
 public static class TombstoneGeometry
 {
     /// <summary>Vehicle-local center, behind the positive-Z bumper.</summary>
-    public static Vector3 Center => new(0, 0.2f, VehicleDimensions.Length / 2 + 0.25f);
+    public static Vector3 Center => new(0, 0.25f, 3.25f);
     /// <summary>Physical box dimensions in metres.</summary>
-    public static Vector3 Size => new(VehicleDimensions.Width, 1.5f, 0.35f);
+    public static Vector3 Size => new(3.7f, 2.5f, 0.28f);
+
+    /// <summary>Three physical panels leave the vehicle interior and exposed forward sides open.</summary>
+    public static IReadOnlyList<(Vector3 Center, Vector3 Size)> MountedBoxes { get; } = Array.AsReadOnly(new[]
+    {
+        (Center, Size),
+        (new Vector3(-1.85f, .25f, 2.525f), new Vector3(.28f, 2.5f, 1.45f)),
+        (new Vector3(1.85f, .25f, 2.525f), new Vector3(.28f, 2.5f, 1.45f)),
+    });
 
     /// <summary>Tests an actual local contact, with only native solver margin tolerance.</summary>
     public static bool Contains(Vector3 localPoint)
     {
-        var distance = Vector3.Abs(localPoint - Center);
-        return distance.X <= Size.X / 2 + 0.02f && distance.Y <= Size.Y / 2 + 0.02f && distance.Z <= Size.Z / 2 + 0.02f;
+        return MountedBoxes.Any(box =>
+        {
+            var distance = Vector3.Abs(localPoint - box.Center);
+            return distance.X <= box.Size.X / 2 + .02f && distance.Y <= box.Size.Y / 2 + .02f && distance.Z <= box.Size.Z / 2 + .02f;
+        });
     }
 
     /// <summary>Closest segment intersection with the full oriented box, including starts inside it.</summary>
     public static float? Intersect(VehiclePhysicsState pose, Vector3 start, Vector3 end)
-        => IntersectBox(pose.Position + Vector3.Transform(Center, pose.Orientation), pose.Orientation, Size, start, end);
+    {
+        float? nearest = null;
+        foreach (var box in MountedBoxes)
+        {
+            float? hit = IntersectBox(pose.Position + Vector3.Transform(box.Center, pose.Orientation), pose.Orientation, box.Size, start, end);
+            if (hit is { } fraction && (nearest is null || fraction < nearest)) { nearest = fraction; }
+        }
+        return nearest;
+    }
 
     /// <summary>Tests a deployed wall's captured physical envelope.</summary>
     public static float? Intersect(TombstoneState wall, Vector3 start, Vector3 end)

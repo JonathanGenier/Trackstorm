@@ -117,6 +117,13 @@ The production Car is an original Blender-authored armored coupe with enlarged o
 
 `check-car-articulation.ps1 -GodotPath <exe> [-Visual]` exercises native acceleration, steering, four-wheel rotation, landing compression/rebound, repeated deployment and reversal, stable mounts and separable lights. Rendered evidence and a per-tick trace are written to `.godot/ts259-round8/car`. The ordinary vehicle and network harnesses cover surrounding driving and presentation-root behavior. The physical hull remains the shared simplified sprung envelope, with raised bumper undersides and no solid wheel colliders; physics is not derived from decorative meshes.
 
+The [Tombstone carriage](../../assets/items/tombstone/README.md) uses the rear rack socket pair
+and extends aft of the production wrap guards. The selected shield follows the full interpolated
+Car pose; its carriage follows the existing open/lift/retract path. Three full-height physical
+panels match the rear plate and short wraparound side wings. Original vehicle geometry,
+wheel articulation and force laws remain unchanged. Shield/wall presentation is described
+under [held items](items.md#tombstone-rear-shield-and-persistent-health).
+
 ## Player-controlled airborne rotation
 
 Outside a latched crash, Core `VehicleMovement` uses body-axis angular-rate control only when the recorded Air Control modifier is held and the vehicle has no supported wheels. Becoming airborne or waiting in flight never grants player intent. Grounded driving remains unchanged even when the modifier and aerial axes are held. Releasing the modifier after active air control immediately zeros angular velocity on all axes, retaining the reached attitude without altering linear jump travel. Previously passive flight and latched crash recovery retain physical rotation; released-axis stabilization only runs with the modifier held. Shift/LB activation and independent recorded pitch/yaw/roll axes are described in [input](input.md).

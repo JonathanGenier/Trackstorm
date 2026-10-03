@@ -1,0 +1,15 @@
+{
+  "author": "Original Trackstorm project work",
+  "tool": "5.2.2 LTS",
+  "source": "source/Tombstone.blend",
+  "export": "Tombstone.glb",
+  "reference": "../../vehicles/source/TrackstormCar.blend",
+  "reference_sha256": "be3c808a8d32fd995e2eab1cce24f5bf7139e3b686108b3b2a1d786985c0fbee",
+  "concept": "reference/concepts-v4/carnage-circus.png; user-approved built-in imagegen reference, not a runtime texture",
+  "no_car_geometry_exported": true,
+  "sha256": {
+    "Tombstone.glb": "04dde50afa002448afd28d68eff26b7686a0c674257c6c8d846296b134329df1",
+    "TombstoneRack.glb": "9cf3b47df657cdf23322d54f56cd0e755a9d700b85686a03d3dca844eb773baa",
+    "Tombstone.blend": "c23745f39fb0e44794f73a08b03b00fade1dda7145cb75b40bd8b8a20c581de9"
+  }
+}

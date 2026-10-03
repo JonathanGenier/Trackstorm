@@ -79,6 +79,16 @@ The original material control field and UV pass are recorded in [surface-sources
 
 Proxy Mine's HUD SVG (`assets/hud/ProxyMine.svg`), production Blender body/beacon and underslung rack placement arm are original project-authored assets. The [authoring notes](assets/items/proxy-mine/README.md) and [manifest](assets/items/proxy-mine/sources.json) retain editable Blender masters, reproducible original geometry/patina, export hashes and approved built-in-imagegen concept references. Its impact reuses the already recorded Kenney smoke particles and arena audio. The built-in-imagegen smoke cutout is recorded with its hash in [effect artwork provenance](assets/effects/README.md); the cosmetic scar shader and debris geometry are project-authored. No new third-party asset or dependency was acquired.
 
+## Tombstone presentation
+
+Tombstone's [Blender shield/wall and rack carriage](assets/items/tombstone/README.md),
+editable source, damage shader and animation are original project work. Its
+[manifest](assets/items/tombstone/sources.json) records the unmodified production
+Car reference and exports. The approved Carnage Circus built-in-imagegen sketch
+and earlier alternatives are retained as design references, not runtime textures.
+Painted graphics, trim and lamps are original Blender-authored geometry. Impact sparks reuse the already recorded CC0 Kenney
+`spark_01`; no new third-party acquisition or runtime dependency is introduced.
+
 ## Runtime terrain effects
 
 The [Boost jet](assets/vehicles/boost/README.md), editable Blender source, flame mesh and runtime shaders are original Trackstorm work. [Its manifest](assets/vehicles/boost/sources.json) records source/export hashes, the linked unmodified production Car reference, and the user-approved built-in imagegen concept retained as design reference only. Smoke and sparks reuse the recorded CC0 Kenney `smoke_01` and `spark_01` textures. No new third-party asset or dependency is introduced. See [Boost exhaust](docs/features/boost-exhaust.md).

@@ -10,6 +10,10 @@ internal static class RackItemVisual
     {
         if (item == HeldItem.Nitro) { throw new ArgumentException("Nitro uses the rack's persistent Boost jet.", nameof(item)); }
         if (item == HeldItem.ProxyMine) { return new ProxyMineRack { Name = "RackItem_ProxyMine" }; }
+        if (item == HeldItem.Tombstone)
+        {
+            return Networking.MatchResourceLoader.LoadResource<PackedScene>("res://assets/items/tombstone/TombstoneRack.glb").Instantiate<Node3D>();
+        }
         var root = new Node3D { Name = "RackItem_" + item };
         var definition = ItemRegistry.Find(item) ?? throw new ArgumentOutOfRangeException(nameof(item));
         if (item == HeldItem.Missile)
