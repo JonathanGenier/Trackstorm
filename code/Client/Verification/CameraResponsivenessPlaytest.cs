@@ -11,7 +11,7 @@ namespace Trackstorm.Client.Verification;
 /// <summary>Repeatable native driving and aerial framing observation with real production cars.</summary>
 public sealed partial class CameraResponsivenessPlaytest : Node3D
 {
-    private static readonly string[] Phases = ["low-speed", "high-speed", "sharp-reversal", "handbrake-slide", "bumps", "short-hop", "jump", "front-flip", "barrel-roll", "backflip", "crash-recovery", "minimum-settings", "maximum-settings"];
+    private static readonly string[] Phases = ["low-speed", "high-speed", "sharp-reversal", "handbrake-slide", "bumps", "short-hop", "jump", "front-flip", "barrel-roll", "backflip", "crash-recovery", "minimum-settings", "maximum-settings", "aerial-yaw-landing"];
     private readonly List<VehicleBody> _cars = [];
     private readonly List<string> _trace = ["frame,phase,speed,grounded,air_seconds,up,pullback,inertia_x,inertia_z,camera_x,camera_y,camera_z"];
     private Core.Simulation.Simulation _world = null!;
@@ -88,10 +88,11 @@ public sealed partial class CameraResponsivenessPlaytest : Node3D
             for (int i = 0; i < _cars.Count; i++)
             {
                 short steer = i == 0 && phase is 2 or 3 ? (short)(local % 120 < 60 ? 28000 : -28000) : (short)0;
-                bool rotate = i == 0 && phase is >= 7 and <= 9 && local < 135;
+                bool rotate = i == 0 && (phase is >= 7 and <= 9 && local < 135 || phase == 13 && local < 90);
                 InputButtons buttons = rotate ? InputButtons.AirControl : i == 0 && phase == 3 && local < 160 ? InputButtons.Drift : 0;
                 var input = new InputFrame(_world.State.Tick + 1, steer, phase <= 4 ? ushort.MaxValue : (ushort)0, 0, buttons, 0, 0,
-                    airPitch: rotate && phase != 8 ? (short)(phase == 7 ? -32767 : 32767) : (short)0, airRoll: rotate && phase == 8 ? (short)32767 : (short)0);
+                    airPitch: rotate && phase is 7 or 9 ? (short)(phase == 7 ? -32767 : 32767) : (short)0,
+                    airYaw: rotate && phase == 13 ? (short)32767 : (short)0, airRoll: rotate && phase == 8 ? (short)32767 : (short)0);
                 requests.Add(_cars[i].Capture(input));
             }
             var result = _world.Step(requests[0].Input, requests);

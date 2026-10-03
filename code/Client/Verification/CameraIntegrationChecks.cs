@@ -258,6 +258,17 @@ public sealed partial class CameraIntegrationChecks : Node3D
             camera.Follow(new Transform3D(Basis.Identity, Vector3.Up * 20), crash, 1f / 60);
         }
         Require(camera.AerialMotion.Pullback > 3.5f, "Unsupported crash tumble retains aerial framing without gameplay air-control memory");
+        var backwardLanding = new Transform3D(Basis.FromEuler(new Vector3(0, MathF.PI, 0)), Vector3.Up * 20);
+        var supported = new VehicleSnapshot(state.VehicleId, state.LifeId,
+            new VehicleState(state.Movement.Tick + 121, crashPhysics, true, false, 0, 0), state.Damage, crashPhysics);
+        float previousYaw = camera.Rotation.Y;
+        for (int i = 0; i < 180; i++)
+        {
+            camera.Follow(backwardLanding, supported, 1f / 60);
+            Require(Math.Abs(Mathf.AngleDifference(previousYaw, camera.Rotation.Y)) <= 4.5f / 60 + .0001f, "Backward landing cannot snap the camera around the chassis");
+            previousYaw = camera.Rotation.Y;
+        }
+        RequireHeading(camera, MathF.PI);
         camera.ResetFollow();
         camera.SettingsSource = null; settings.QueueFree();
         GD.Print("Camera framing settings passed: 81 rate/range combinations, brief hops, rising rotating flight, translation, aim direction, landing, live edits and reset.");

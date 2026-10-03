@@ -23,6 +23,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
     private ulong _motionTick;
     private float _distanceScale = 1;
     private float _airSeconds;
+    private bool _recoveringHeading;
 
     /// <summary>Horizontal chase distance behind the deployed weapon attachment in metres.</summary>
     [Export(PropertyHint.Range, "2,25,0.1")]
@@ -154,6 +155,7 @@ public sealed partial class VehicleChaseCamera : Camera3D
             _motion.Reset(state.ObservedPhysics.LinearVelocity);
             _motionTick = state.Movement.Tick;
             _airSeconds = state.Movement.Grounded ? 0 : state.Movement.Air.Seconds;
+            _recoveringHeading = false;
             _anchor = pivot;
             _vehicle = state.VehicleId;
             _life = state.LifeId;
@@ -184,10 +186,17 @@ public sealed partial class VehicleChaseCamera : Camera3D
         // projection halfway through a rotation. Normal supported driving remains immediate.
         float airborneSeconds = Math.Max(_airSeconds, state.Movement.Air.Seconds);
         bool flight = !state.Movement.Grounded && airborneSeconds > .12f;
+        if (flight) _recoveringHeading = true;
         if (reset || !flight)
         {
-            _heading = !reset && _aerial.Amount > .01f
-                ? Mathf.LerpAngle(_heading, heading, ChaseCameraMotion.Blend(12, delta)) : heading;
+            if (!reset && _recoveringHeading)
+            {
+                float difference = Mathf.AngleDifference(_heading, heading);
+                float step = 4.5f * Math.Max(0, delta);
+                _heading += Math.Clamp(difference * ChaseCameraMotion.Blend(12, delta), -step, step);
+                _recoveringHeading = Math.Abs(Mathf.AngleDifference(_heading, heading)) > .001f;
+            }
+            else _heading = heading;
         }
         _aerial.Advance(reset ? 0 : delta, state.Movement.Grounded, airborneSeconds, (float)(preferences?.CameraAerialPullback ?? 1));
         _distanceScale = Mathf.Lerp(_distanceScale, distanceScale, ChaseCameraMotion.Blend(8, delta));

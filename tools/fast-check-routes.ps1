@@ -222,6 +222,7 @@ function Get-FastCheckPlan {
             $path -match 'Camera.*\.cs$' -or
             $path -eq 'scenes/verification/camera_checks.tscn' -or
             $path -eq 'scenes/verification/camera_shake_playtest.tscn' -or
+            $path -match 'camera_responsiveness|check-camera-responsiveness' -or
             $path -match '^scenes/verification/camera_obstruction_' -or
             $path -eq 'check-camera-obstruction.ps1' -or
             $path -eq 'check-camera-shake.ps1') {
