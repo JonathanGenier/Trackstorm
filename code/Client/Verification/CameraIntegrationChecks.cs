@@ -266,6 +266,8 @@ public sealed partial class CameraIntegrationChecks : Node3D
         {
             camera.Follow(backwardLanding, supported, 1f / 60);
             Require(Math.Abs(Mathf.AngleDifference(previousYaw, camera.Rotation.Y)) <= 4.5f / 60 + .0001f, "Backward landing cannot snap the camera around the chassis");
+            if (Math.Abs(Mathf.AngleDifference(camera.Rotation.Y, MathF.PI)) > .2f)
+                Require(camera.AerialMotion.Pullback > 3.5f, "Backward landing keeps wide framing until heading catches up");
             previousYaw = camera.Rotation.Y;
         }
         RequireHeading(camera, MathF.PI);

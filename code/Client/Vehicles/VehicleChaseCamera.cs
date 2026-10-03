@@ -193,12 +193,17 @@ public sealed partial class VehicleChaseCamera : Camera3D
             {
                 float difference = Mathf.AngleDifference(_heading, heading);
                 float step = 4.5f * Math.Max(0, delta);
-                _heading += Math.Clamp(difference * ChaseCameraMotion.Blend(12, delta), -step, step);
+                // A bounded catch-up reaches a moving ground heading too; an exponential
+                // tail could retain aerial framing indefinitely through a sustained turn.
+                _heading += Math.Clamp(difference, -step, step);
                 _recoveringHeading = Math.Abs(Mathf.AngleDifference(_heading, heading)) > .001f;
             }
             else _heading = heading;
         }
-        _aerial.Advance(reset ? 0 : delta, state.Movement.Grounded, airborneSeconds, (float)(preferences?.CameraAerialPullback ?? 1));
+        // Keep room and the stable pivot while recovering a backward landing. Closing
+        // the boom before yaw catches up would push the chassis toward the screen edge.
+        _aerial.Advance(reset ? 0 : delta, state.Movement.Grounded && !_recoveringHeading,
+            _recoveringHeading ? Math.Max(.13f, airborneSeconds) : airborneSeconds, (float)(preferences?.CameraAerialPullback ?? 1));
         _distanceScale = Mathf.Lerp(_distanceScale, distanceScale, ChaseCameraMotion.Blend(8, delta));
         // Rotation of the rack around the chassis must not swing the entire aerial view.
         Vector3 levelPivot = pose.Origin + Basis.FromEuler(new Vector3(0, _heading, 0)) * VehicleBody.ToGodot(WeaponAim.Pivot);
