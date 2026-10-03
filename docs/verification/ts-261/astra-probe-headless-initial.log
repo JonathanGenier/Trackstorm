@@ -1,0 +1,93 @@
+ERROR: Failed to open 'user://logs/godot2026-10-02T21.02.12.log'.
+   at: copy (core/io/dir_access.cpp:429)
+ERROR: Failed to open log file for writing: user://logs/godot.log
+   at: rotate_file (core/io/logger.cpp:169)
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+Three UDP peers initialized
+Host tuning applied
+Centered camera cursor appears alongside remote accepted aim
+AIM_AT requested=(0, 2.1501102, 0) firstTargetDrift=(0, -0.004789114, 0) requestedScreen=(640, 399.99548)
+Center-ray car intersection replaces square with disconnected brackets
+Camera intent stays at viewport center while car brackets are shown
+AIM_AT requested=(2.8, 1.495321, 0) firstTargetDrift=(0, -0.0002988577, 0) requestedScreen=(640.0032, 400.00052)
+A near-axis miss returns to the small square without a target lock
+Small square is centered when aiming beside a rival
+AIM_AT requested=(0, 2.1450222, 0) firstTargetDrift=(0, -2.0623207E-05, 0) requestedScreen=(639.9955, 399.9989)
+Intervening native cover prevents car brackets
+Covered car leaves the small square at camera center
+Removing cover restores brackets on the directly intersected car
+AIM_FORWARD clear=True ready=True yaw=-8.5119445E-06 pitch=-0.022578392
+Square remains centered immediately after mouse yaw and upward tilt under network impairment
+Looking away from a car removes its brackets immediately
+Cursor follows the new viewport center after resizing
+Side mouse aim reaches authority with the original camera orbit limits
+Deployed rack remains fixed on all peers
+Observer receives accepted articulated aim
+Rear aim accepted
+Downward tilt and weapon self-clearance limits cannot displace the camera cursor
+Downward articulation cannot enter owner envelope
+Fine controller camera rotation retains a centered cursor
+Native stick fine/full turn separation: fine=0.115, full=2.200 rad
+Ordinary camera recentering retains a centered cursor
+Neutral stick restores the original chase view with a weapon selected
+AIM_AT requested=(0, 2.4530501, 25) firstTargetDrift=(0, -0.38108623, 0) requestedScreen=(640, 399.00705)
+AIM_GEOMETRY close: lens=(0, 4.5801115, 43.162018) rotation=(-0.11894019, 0, 0) targetDisplayed=(0, 1.1538745, 25) targetNative=(0, 1.1526144, 25) targetScreen=(640, 412.09912) center=(640, 400) bounds=(573.02875, 382.3967), (133.9425, 113.24063)
+Directly intersected close car receives brackets instead of a distance-based square fallback
+AIM_AT requested=(-3.7, 2.4440596, 35) firstTargetDrift=(0, -0.3702978, 0) requestedScreen=(618.93567, 400.01965)
+Directly intersected side-by-side car receives onscreen corner brackets
+Alongside camera cursor stays centered while the accepted weapon ray remains chassis-safe
+A camera ray blocked by the owner cannot mark the weapon ready
+AIM_AT requested=(-3.7, 2.151422, 35) firstTargetDrift=(3.7, 10.498578, -35) requestedScreen=(620.19916, 400.63483)
+AIM_AT requested=(0, 12.65, 0) firstTargetDrift=(0, 0, 0) requestedScreen=(640.0318, 271.87518)
+Elevated rivals retain the square without overriding normal camera pitch limits
+AIM_AT requested=(0, 2.65, 5) firstTargetDrift=(-7.7341423, -10.43849, 4.917645) requestedScreen=(640, 399.41794)
+Repeated fast crossings never steer the camera while RMB holds the view
+Crossing-car brackets surround the visible center-ray hit under interpolation (12 bracket frames, 0 misses)
+Host accepts probe friction mouse=0.08, stick=0.28
+Probe friction reaches the native client
+Host accepts probe friction mouse=0, stick=0
+Probe friction reaches the native client
+AIM_RESPONSE case=0 default=0.0055760 zero=0.0060000 ratio=0.9293
+AIM_RESPONSE case=1 default=0.0060000 zero=0.0060000 ratio=1.0000
+AIM_RESPONSE case=2 default=0.0030572 zero=0.0040600 ratio=0.7530
+AIM_RESPONSE case=3 default=0.0040600 zero=0.0040600 ratio=1.0000
+AIM_RESPONSE case=4 default=0.0733333 zero=0.0733333 ratio=1.0000
+AIM_RESPONSE case=5 default=0.1200000 zero=0.1200000 ratio=1.0000
+Small native mouse input toward a visible rival receives bounded default friction
+Fine native stick input toward a visible rival receives bounded default friction
+Moving away/full-stick/flick bypass matches zero friction (case 1)
+Moving away/full-stick/flick bypass matches zero friction (case 3)
+Moving away/full-stick/flick bypass matches zero friction (case 4)
+Moving away/full-stick/flick bypass matches zero friction (case 5)
+Host accepts probe friction mouse=0.08, stick=0.28
+Probe friction reaches the native client
+Eligibility transfers from the first right-hand rival to the second left-hand rival without a retained lock
+Removing both rivals from the cone releases small-input assistance
+Observer has accepted aim before packet blackout
+A bounded real UDP blackout expires accepted aim on shooter and observer
+Fresh accepted aim resumes after packet delivery recovers (not authenticated reconnect)
+Camera-intent cursor remains centered after transient packet recovery
+Vehicle drives while aiming (peak 21.86 m/s, travel 23.27 m)
+Menu suppression clears marker immediately
+Item switch selects shared Missile foundation
+Native NOS granted
+Native high-speed weapon granted
+NOS request accepted
+Real sustained NOS accelerates the native vehicle
+Direct-fire aim resumes at high speed after selecting away from NOS
+Removal retires authoritative aim and local marker
+New life retires previous aiming capability
+Fresh weapon restores aiming before lethal damage
+Lethal damage and timed respawn fixture tuning accepted
+Other vehicle receives a real missile
+Real host missile use accepted
+Actual missile explosion kills the aiming vehicle
+Death carries authoritative missile attribution
+Actual death immediately clears authoritative aim
+Confirmed client death clears the camera cursor before respawn
+Ordinary timed respawn creates a fresh living vehicle
+Respawn cannot retain a dead weapon's marker
+Weapon aiming integration passed: 68 checks; three native UDP peers.

@@ -1,6 +1,7 @@
 using Godot;
 using Trackstorm.Client.Input;
 using Trackstorm.Client.Vehicles;
+using Trackstorm.Core.Items;
 using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Client.Verification;
@@ -128,10 +129,11 @@ public sealed partial class CameraObstructionChecks : Node3D
             _car.GlobalTransform = pose;
             _followedBody.GlobalTransform = pose;
             _camera.Follow(pose, _state, dt, _followedBody.GetRid());
-            Vector3 pivot = position + Vector3.Up * 0.5f;
+            Vector3 pivot = pose * VehicleBody.ToGodot(WeaponAim.Pivot);
             float distance = _camera.GlobalPosition.DistanceTo(pivot);
-            float chaseRadius = new Vector2(_camera.FollowDistance, _camera.CameraHeight - 0.5f).Length();
-            _maxCorrection = Math.Max(_maxCorrection, _camera.GlobalPosition.DistanceTo(pivot + _camera.GlobalBasis.Z * chaseRadius));
+            float chaseRadius = new Vector2(_camera.FollowDistance, _camera.CameraHeight).Length();
+            Vector3 viewBoom = Basis.FromEuler(new Vector3(Mathf.DegToRad(_camera.ViewDownAngle), 0, 0)) * new Vector3(0, _camera.CameraHeight, _camera.FollowDistance);
+            _maxCorrection = Math.Max(_maxCorrection, _camera.GlobalPosition.DistanceTo(pivot + _camera.GlobalBasis * viewBoom));
             float step = Math.Abs(distance - _previousDistance);
             _minDistance = Math.Min(_minDistance, distance);
             _maxStep = Math.Max(_maxStep, _frame > 2 ? step : 0);
@@ -149,7 +151,7 @@ public sealed partial class CameraObstructionChecks : Node3D
                 }
                 if (_phase is 20 or 22 && time > 2.8f)
                 {
-                    Require(!_camera.RolloverFraming && distance > 16, "Rollover recovery/reset restores ordinary chase");
+                    Require(!_camera.RolloverFraming && Math.Abs(distance - chaseRadius) < .1f, "Rollover recovery/reset restores ordinary chase");
                 }
             }
             if (_baseline)
@@ -174,16 +176,17 @@ public sealed partial class CameraObstructionChecks : Node3D
             Require(_camera.GlobalBasis.Y.Y > 0 && _camera.GlobalTransform.IsFinite(), "Finite level camera");
             if (_phase == 0 && time > 2.8f) Require(step < 0.001f, "Stationary wall must not jitter");
             if (_phase == 1 && time > 1.6f) Require(distance >= _previousDistance - 0.001f, "Clearing must recover monotonically");
-            if (_phase is >= 8 and <= 11 && time >= 1) Require(distance > 16, "Lifecycle boundary discards stale contraction immediately");
+            if (_phase is >= 8 and <= 11 && time >= 1) Require(Math.Abs(distance - chaseRadius) < .1f, "Lifecycle boundary discards stale contraction immediately");
             _frames.Add(new { phase = Names[_phase], time, distance, x = _camera.Position.X, y = _camera.Position.Y, z = _camera.Position.Z });
             _previousDistance = distance;
             _label.Text = $"TS-132 | {Names[_phase]}\nCamera distance {distance:0.00} m | {time:0.00}s | {_fps} FPS";
             if (time >= 3)
             {
-                Require(_phase != 1 || distance > 16.3f, "Returns to full chase distance");
+                Require(_phase != 1 || Math.Abs(distance - chaseRadius) < .1f, "Returns to full chase distance");
                 Require(_phase != 3 || _maxStep < 100f / _fps, $"Corner contraction must not jump several metres per frame: {_maxStep}");
-                Require(_phase is not (0 or 2 or 3 or 4 or 5 or 7) || _minDistance < 14, "Fixture must actually obstruct the camera");
-                Require(_phase is not (12 or 13 or 14 or 15 or 17) || _maxCorrection > 0.2f, "Production/near-plane fixture must actually correct the camera");
+                Require(_phase is not (0 or 2 or 3 or 4 or 5 or 7) || _minDistance < chaseRadius - .2f, "Fixture must actually obstruct the camera");
+                Require(_phase is not (12 or 13 or 15 or 17) || _maxCorrection > 0.2f, "Production/near-plane fixture must actually correct the camera");
+                Require(_phase != 14 || _maxCorrection < .05f, "Rack-height boom clears the low production barrier without spurious contraction");
                 _results.Add(new { phase = Names[_phase], minimumDistance = _minDistance, finalDistance = distance, maximumDistanceStep = _maxStep });
                 GD.Print($"Obstruction: {Names[_phase]}, min={_minDistance:F3}m, final={distance:F3}m, max-step={_maxStep:F3}m");
                 NextPhase();
@@ -221,7 +224,7 @@ public sealed partial class CameraObstructionChecks : Node3D
         Vector3 size = _phase switch { 2 => new(20, 2, 0.15f), 3 => new(8, 12, 8), 4 => new(4, 8, 2), 5 => new(30, 1, 30), 6 => new(6, 12, 1), _ => new(40, 12, 1) };
         _obstacle.GetNode<CollisionShape3D>("Shape").Shape = new BoxShape3D { Size = size };
         _obstacle.GetNode<MeshInstance3D>("Mesh").Mesh = new BoxMesh { Size = size };
-        _obstacle.Position = _phase switch { 0 or 1 => new(0, 6, 16), 2 => new(0, 1, 6), 3 => new(-7, 6, 7), 5 => new(0, 4, 8), _ => new(0, 6, 8) };
+        _obstacle.Position = _phase switch { 0 or 1 => new(0, 6, 16), 2 => new(0, 2, 6), 3 => new(-7, 6, 7), 5 => new(0, 4, 8), _ => new(0, 6, 8) };
         if (_phase == 5) _obstacle.Rotation = new Vector3(-0.55f, 0, 0);
         if (_phase == 18) _obstacle.Position = new Vector3(0, 6, 3);
         if (_phase >= 19) _obstacle.Position = new Vector3(0, 6, 3);

@@ -1,0 +1,26 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+Obstruction: Wall approach / hold, min=4.551m, final=4.615m, max-step=0.193m
+Obstruction: Wall clears / recovery, min=4.615m, final=6.521m, max-step=0.220m
+Obstruction: Thin barrier / low orbit, min=5.954m, final=6.521m, max-step=0.087m
+Obstruction: Building corner orbit, min=3.353m, final=6.521m, max-step=0.448m
+Obstruction: Moving solid prop, min=4.199m, final=6.519m, max-step=0.229m
+Obstruction: Sloped terrain, min=4.635m, final=4.635m, max-step=0.000m
+Obstruction: Repeated boundary crossings, min=5.473m, final=5.491m, max-step=0.023m
+Obstruction: Shake beside wall, min=5.410m, final=5.460m, max-step=0.100m
+Obstruction: Life reset, min=5.475m, final=6.521m, max-step=1.046m
+Obstruction: Replacement reset, min=5.475m, final=6.521m, max-step=1.046m
+Obstruction: Resume reset, min=5.475m, final=6.521m, max-step=1.046m
+Obstruction: Scene reconstruction, min=5.475m, final=6.521m, max-step=1.046m
+Obstruction: Production yard wall, min=4.223m, final=4.223m, max-step=0.000m
+Obstruction: Production container, min=2.192m, final=2.887m, max-step=0.185m
+Obstruction: Production barrier, min=6.521m, final=6.521m, max-step=0.000m
+Obstruction: Production oval bank, min=4.608m, final=6.520m, max-step=0.119m
+Obstruction: Overlapping target recovery, min=6.521m, final=6.521m, max-step=0.000m
+Obstruction: Wide near plane, min=5.045m, final=5.045m, max-step=0.000m
+Obstruction: Cramped ceiling, min=0.232m, final=0.232m, max-step=0.000m
+Obstruction: Rolled chassis beside fence, min=5.500m, final=6.521m, max-step=0.133m
+Obstruction: Rollover framing recovery, min=6.518m, final=6.521m, max-step=0.003m
+Obstruction: Rolled chassis blocked left side, min=5.562m, final=6.583m, max-step=0.133m
+Obstruction: Rollover framing reset, min=6.521m, final=6.521m, max-step=0.000m
+Camera obstruction checks passed.

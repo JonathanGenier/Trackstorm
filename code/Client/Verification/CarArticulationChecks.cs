@@ -27,6 +27,9 @@ public sealed partial class CarArticulationChecks : Node3D
             AddChild(_camera);
             _camera.MakeCurrent();
             _model = _arena.Player.GetNode<Node3D>("WastelandVehicle");
+            // This fixture drives the mechanical path directly; inventory integration
+            // has its own rack harness and must not overwrite these deployment commands.
+            _model.GetChildren().OfType<CarRackPresentation>().Single().SetProcess(false);
             string[] panels = ["BodyPanel_Hood", "BodyPanel_FrontFender_L", "BodyPanel_FrontFender_R",
                 "BodyPanel_Door_L", "BodyPanel_Door_R", "BodyPanel_RearQuarter_L", "BodyPanel_RearQuarter_R",
                 "TrunkHinge_L/TrunkLid_L", "TrunkHinge_R/TrunkLid_R"];

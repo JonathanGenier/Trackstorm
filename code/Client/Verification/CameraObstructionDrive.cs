@@ -2,6 +2,7 @@ using Godot;
 using Trackstorm.Client.Input;
 using Trackstorm.Client.Vehicles;
 using Trackstorm.Core.Input;
+using Trackstorm.Core.Items;
 using Trackstorm.Core.Vehicles;
 
 namespace Trackstorm.Client.Verification;
@@ -59,7 +60,8 @@ public sealed partial class CameraObstructionDrive : Node
             Transform3D pose = _arena.Player.GetGlobalTransformInterpolated();
             Vector3 position = pose.Origin;
             _reference.Follow(pose, _arena.Player.Snapshot, (float)delta, _arena.Player.GetRid());
-            float distance = _camera.GlobalPosition.DistanceTo(position + Vector3.Up * 0.5f);
+            float distance = _camera.GlobalPosition.DistanceTo(pose * VehicleBody.ToGodot(WeaponAim.Pivot));
+            float chaseRadius = new Vector2(_camera.FollowDistance, _camera.CameraHeight).Length();
             if (_time > 0.5f && _time < 10)
             {
                 _minimum = Math.Min(_minimum, distance);
@@ -81,8 +83,8 @@ public sealed partial class CameraObstructionDrive : Node
             if (_time is > 9 and < 10) Require(Math.Abs(yawOffset) < 0.01f, $"Native driving camera recenters to its no-input view after release: yaw={yawOffset}");
             if (!_reset && _time >= 10)
             {
-                Require(_minimum < 10 && _maximumZ > 30, "Real reverse input approaches the wall and contracts the camera");
-                Require(distance > 15, "Driving away clears the obstruction");
+                Require(_minimum < chaseRadius - .5f && _maximumZ > 30, "Real reverse input approaches the wall and contracts the camera");
+                Require(distance > chaseRadius - .5f, "Driving away clears the obstruction");
                 _life = _arena.Player.Snapshot.LifeId;
                 _arena.ResetVehicles();
                 _reset = true;
@@ -91,7 +93,7 @@ public sealed partial class CameraObstructionDrive : Node
             _frames.Add(new { time = _time, distance, position.X, position.Y, position.Z, life = _arena.Player.Snapshot.LifeId });
             if (_time >= 12)
             {
-                Require(_arena.Player.Snapshot.LifeId > _life && distance > 15, "Native life reset restores the normal chase");
+                Require(_arena.Player.Snapshot.LifeId > _life && distance > chaseRadius - .5f, "Native life reset restores the normal chase");
                 File.WriteAllText(_output + ".json", System.Text.Json.JsonSerializer.Serialize(_frames));
                 GD.Print($"Camera obstruction drive passed: native reverse/forward input, wall contraction {_minimum:F3}m, reached Z={_maximumZ:F3}, orbit/recenter, real life reset, final distance={distance:F3}m.");
                 SetProcess(false);

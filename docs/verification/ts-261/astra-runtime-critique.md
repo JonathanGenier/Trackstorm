@@ -1,0 +1,59 @@
+# Astra Runtime Critique — Story Round 1
+
+**Story:** TS-261 shared aiming foundation, including the approved close rack-pivot camera and centered cursor/direct-car corner treatment. **Reviewed:** 2026-10-02, `ts-261-jg`, current-main merge `c91a915` incorporating `6d62efa`, canonical version 0.2.22, with the final verification-fixture changes present. Comprehensive verification preceded this formal run. No production or fixture edits were made during the formal critique.
+
+**Overall Score: 8.1 / 10**
+**Quality Assessment: PASS (>=8.0)**
+
+The exercised foundation is coherent and refined: camera intent remains predictable, the close framing leaves the targeting area above the payload, nearby cars receive clear disconnected corners, and authority, mount presentation and lifecycle retirement behave consistently under bounded packet impairment. No blocking in-scope runtime defect was observed during this formal run. This is a judgment of the approved foundation scope, not a completed weapon-combat or release-readiness verdict. The unresolved verification failures and limited human/network evidence below materially constrain confidence and prevent a stronger score.
+
+## Category Scores
+
+| Material runtime category | Score | Observed basis |
+| --- | ---: | --- |
+| Runtime Functionality | 8.5 | Direct-hit versus miss/cover behavior, side/rear aim, clearance rejection, switching, removal, actual death and respawn all behaved coherently. |
+| Controls / Responsiveness | 8.2 | Native mouse/stick response separated precise input from fast turning; moving away and flick/full-stick input released friction. Synthetic input only. |
+| Camera | 8.3 | Close rack-relative composition, level horizon, centered cursor and orderly return to chase in chronological samples. Current native camera evidence also exercises armed/unarmed limits and resets. |
+| Visual Feedback / UI | 8.0 | Compact centered square and disconnected red/white corners are distinguishable at forward and adjacent distances; downward clearance restriction is visible as orange. Existing placeholder weapons remain the approved presentation boundary. |
+| Animation / Motion | 8.0 | Sampled yaw-mount settling and chase return show consistent continuity; actual observer yaw/pitch nodes reach accepted angles while the rack remains fixed. This is sampled motion, not a claim of continuous frame-by-frame play. |
+| Multiplayer / Runtime Integration | 8.2 | Three native UDP peers, impaired delivery, actual remote articulation, accepted-aim outage expiry/fresh recovery and lifecycle clearing worked. Internet play and active-aim authenticated reconnect remain unverified. |
+| Runtime Stability | 7.4 | The final aiming run completed cleanly, but separate articulation teardown errors, the short-startup baseline leak and incomplete extended Boost coverage remain unresolved. |
+
+The overall score is an integrated runtime judgment, not a reward for test count or a static engineering score. Human fun, controller comfort, audio quality and sustained performance are not scored without meaningful direct evidence.
+
+## What Was Exercised
+
+**VERIFIED — directly executed for this formal critique:** Godot 4.7.2 .NET, OpenGL Compatibility on the RTX 4070 Laptop GPU, production oval, three native UDP peers, effective render cap 30 FPS. Outbound impairment was 30 ms delay, 5 ms jitter and 2% loss, followed by a bounded 100% packet-blackout probe and recovery. The process exited 0, completed **70 behavior checks**, and the saved log contains no `ERROR:` or `WARNING:`. [Unfiltered runtime log](astra-runtime-rendered.log), [check evidence](astra-runtime-evidence.txt).
+
+```powershell
+& $Godot --path . res://scenes/verification/weapon_aim_checks.tscn `
+  --quit-after 6000 --max-fps 30 -- `
+  --aim-output=<workspace>/.godot/aim-checks/astra-formal-current `
+  --aim-impaired --aim-oval --aim-motion
+```
+
+- **VERIFIED:** Forward, side and rear input; upward camera limit and steep downward view; centered cursor through yaw, tilt, resize and recentering; direct forward/close/alongside car hits; near-axis misses; native intervening cover and removal. Opened and inspected the [forward framing](astra-01-forward-default.png), [near-miss square](astra-02a-near-miss-square.png), [close corners](astra-06-close-brackets.png), [alongside corners](astra-06b-alongside-brackets.png) and [restricted downward aim](astra-05-self-clearance.png). The payload remains below the ordinary center; the corner cue has no connecting box or fill.
+- **VERIFIED:** Native small mouse/fine-stick probes toward a visible rival with default versus zero friction produced response ratios **0.9293** and **0.7530**. Away, full-stick and flick probes each produced **1.0000**. Eligibility transferred from a right-hand rival to a left-hand rival, and removing both from the cone released assistance. These paired probes use real input events and an explicit fixed-delta production camera follow, isolating response from render timing; they do not measure physical-device ergonomics or human aiming accuracy.
+- **VERIFIED:** Two prescribed targets repeatedly crossed the view without steering the held camera. Five sampled bracket frames surrounded the actual center-ray hit, with zero misplaced bracket frames. This is a bounded crossing sample, not exhaustive target-motion coverage.
+- **VERIFIED:** The deployed rack remained fixed on all peers. Observer presentation nodes matched accepted side yaw/pitch `-1.5600103 / 0.0045341463` and rear `-3.1200104 / 0.013426956`. The observed local mount settled independently of the instantaneous mouse camera turn: [side start](astra-motion-side-turn-000.png), [side intermediate](astra-motion-side-turn-006.png), [side settled](astra-motion-side-turn-018.png); [rear start](astra-motion-rear-turn-000.png), [rear intermediate](astra-motion-rear-turn-018.png), [rear settled](astra-motion-rear-turn-066.png).
+- **VERIFIED:** Fine/full synthetic stick turns separated at **0.109 / 2.200 radians**. Opened all five chronological neutral-stick return samples: [0](astra-motion-stick-recenter-000.png), [6](astra-motion-stick-recenter-006.png), [12](astra-motion-stick-recenter-012.png), [18](astra-motion-stick-recenter-018.png), [24](astra-motion-stick-recenter-024.png). They show progressive return without a reversal or gross framing discontinuity, while the cursor stays centered. Suffixes identify fixture physics iterations; image capture adds rendering waits, so these are not precise wall-time measurements.
+- **VERIFIED:** Native driving reached **21.10 m/s**, with **23.31 m** travel. Real sustained Nitro accelerated the vehicle; selecting back to direct fire restored the intent cursor at retained speed. The [147 km/h capture](astra-09-high-speed-after-nos.png) shows an orange deployment-stage cue, not ready firing or simultaneous Nitro/direct-fire use. Missile selection, suppression, inventory removal and new-life invalidation were exercised. A real host missile killed the aiming vehicle; authority cleared immediately, confirmed client death cleared the cursor before ordinary timed respawn, and the fresh life retained no dead-weapon marker.
+- **VERIFIED:** Packet blackout expired accepted aim on shooter and observer; restored delivery supplied newer accepted samples. This exercises transient stale-presentation recovery while connections remain established, not authenticated reconnect.
+
+**VERIFIED BY CURRENT VERIFICATION RUNS; logs reviewed, not independently replayed in this formal run:** [camera/input](current-final-camera.log) covers RMB hold/release, horizon-to-85-degree limits, armed/unarmed equivalence, input boundaries and reset/recenter behavior at 30/60/144 FPS; [obstruction](current-final-obstruction.log) covers 23 native phases; [driving](current-final-driving.log) covers wall contraction/recovery and life reset. [Reconnect](current-final-reconnect.log) passed three native resyncs including 125 seconds offline, reused bodies and reset camera/interpolation/input history. Reconnect authentication is a test seam and the fixture does not directly exercise active direct-fire aim across that authenticated boundary.
+
+**INFERRED:** The combination of clean camera reset/resync evidence, aim expiry/recovery and fresh-life clearing supports coherent recovery integration. It does not establish physical-controller parity, human aim-assist feel or Internet behavior.
+
+## Runtime / Operational Limitations
+
+- **UNVERIFIED:** Physical controller ergonomics, prolonged human play, subjective assistance fairness/comfort, mouse-versus-controller human performance, multi-device Internet/EOS, exports, sustained frame-time behavior and exhaustive geometry/configuration combinations. Synthetic native input and same-machine UDP cannot establish these. No physical controller was used; no audio listening verdict is claimed.
+- **Scope boundary:** Machine Gun and Missile firing-handler integration remains with TS-262/TS-263. Their existing shots do not establish off-axis accepted-direction consumption, miss/hit parity or cursor-to-shot alignment. TS-261's marker communicates intent and restriction/readiness of its shared foundation. Salvo was not redesigned. The score does not approve release of unfinished weapon integration.
+- **Short startup: strict FAIL retained.** Branch and independently built unchanged current main `6d62efa` reproduce the leak; verbose output identifies the same MP3 stream, MP3 playback and RefCounted objects plus orphan Music name. Counts vary with shutdown timing. The exact-main comparison supports a baseline classification, not a clean smoke pass or a universal explanation of other failures. [Current-main verbose](current-main-startup-verbose.log), [branch verbose](resume-final-startup-verbose.log).
+- **Articulation: separate strict FAIL retained.** Its 203 behavior assertions passed, then shutdown reported **24 ObjectDB instances / 3 resources**. This was not reproduced against isolated current main and is not excused by the startup baseline. [Log](resume-articulation.log). No in-session aiming failure was observed in the clean formal run, but teardown robustness remains incomplete.
+- **Extended Boost camera: FAIL / incomplete coverage retained.** The run recorded 992 active-Boost, 2,401 grounded, 119 airborne, 56 short-pulse and 78 rolled frames, but **zero simultaneous flame frames**. Continuous lens clearance did not fail before the coverage gate; subsequent reseed/state-isolation checks did not run. [Log](resume-boost.log). This is not a complete Boost-regression pass, nor evidence that every multi-car exhaust presentation is correct.
+- **Earlier close-car assertion: unexplained failure retained.** [Initial headless run](resume-aim.log) failed; unchanged production then passed the rendered run. Later diagnostics measured roughly 0.381 m of target settling while the fixture aimed at a fixed point. Refreshing the fixture point removes that observed stale assumption, and current headless/rendered exact-hit assertions pass; it does not prove the original failure's cause. The formal close target projected at approximately `(640, 401.04)` against center `(640, 400)` and received the required corners. No production rule or exact direct-hit assertion was relaxed.
+- The restricted preliminary probe's log/certificate errors and temporary helper compile failure remain preserved separately. They were corrected before final verification and do not make the earlier attempts clean passes.
+
+## Stop
+
+Formal Story Round 1 is complete. **No blocking in-scope runtime defect was observed; no implementation or polish is authorized by this score.** Stop implementation at this verdict. Any new corrective work or another critique round requires explicit human instruction. Existing user authorization for completion documentation and delivery remains the coordinating agent's responsibility; this report does not authorize a merge.

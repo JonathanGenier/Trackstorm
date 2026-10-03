@@ -3,6 +3,8 @@ namespace Trackstorm.Core.Items;
 /// <summary>Host-owned bounded tuning. Linear falloff reaches zero at the edge.</summary>
 public sealed record ItemConfiguration
 {
+    /// <summary>Shared direct-fire aiming rules.</summary>
+    public WeaponAimConfiguration Aim { get; init; } = new();
     /// <summary>Individually fired shots per pickup.</summary>
     public int SalvoCount { get; init; } = 5;
     /// <summary>Minimum interval between presses accepted as shots, at 60 Hz.</summary>
@@ -90,6 +92,8 @@ public sealed record ItemConfiguration
     /// <summary>Rejects nonfinite or excessive host configuration before simulation.</summary>
     public void Validate()
     {
+        ArgumentNullException.ThrowIfNull(Aim);
+        Aim.Validate();
         if (!double.IsFinite(SalvoCount) || SalvoCount < 1 || SalvoCount > 16) { throw new ArgumentException("Invalid salvo count."); }
         if (!double.IsFinite(SalvoIntervalTicks) || SalvoIntervalTicks < 1 || SalvoIntervalTicks > 60) { throw new ArgumentException("Invalid salvo interval_ticks."); }
         if (!double.IsFinite(SalvoRange) || SalvoRange < 25 || SalvoRange > 250) { throw new ArgumentException("Invalid salvo range."); }

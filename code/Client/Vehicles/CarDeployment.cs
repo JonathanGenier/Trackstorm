@@ -66,20 +66,7 @@ internal sealed partial class CarDeployment : Node
     {
         if (_timelineProgress.HasValue) { return; }
         VehicleConfiguration tuning = Configuration?.Invoke() ?? Defaults;
-        float remaining = (float)delta;
-        // Consume time up to the phase boundary first, then carry excess time into
-        // the other phase. Retuning and reversal preserve the current mechanical pose.
-        bool trunk = Deployed ? _progress < 0.45f : _progress <= 0.45f;
-        float boundary = Deployed ? (trunk ? 0.45f : 1) : (trunk ? 0 : 0.45f);
-        float rate = (trunk ? tuning.TrunkDeploymentSpeed : tuning.RackDeploymentSpeed) / 1.6f;
-        float step = Math.Min(remaining, Math.Abs(boundary - _progress) / rate);
-        _progress = Mathf.MoveToward(_progress, boundary, step * rate);
-        remaining -= step;
-        if (remaining > 0)
-        {
-            rate = (trunk ? tuning.RackDeploymentSpeed : tuning.TrunkDeploymentSpeed) / 1.6f;
-            _progress = Mathf.MoveToward(_progress, Deployed ? 1 : 0, remaining * rate);
-        }
+        _progress = RackDeploymentPath.Advance(_progress, Deployed, Math.Max(0, (float)delta), tuning);
         ApplyPose(_progress);
     }
 

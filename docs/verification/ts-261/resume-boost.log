@@ -1,0 +1,17 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Fixture coverage missing: Boost 992, grounded 2401, air 119, simultaneous 0, short pulse 56, rolled 78
+   at: void Trackstorm.Client.Verification.BoostCameraPlaytest.Finish() (res://code/Client/Verification/BoostCameraPlaytest.cs:190)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Trackstorm.Client.Verification.BoostCameraPlaytest.Finish() (C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\BoostCameraPlaytest.cs:190)
+       [2] void Trackstorm.Client.Verification.BoostCameraPlaytest._PhysicsProcess(double) (C:\Users\j_gen\Documents\Game Projects\Trackstorm\code\Client\Verification\BoostCameraPlaytest.cs:75)
+       [3] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2648)
+       [4] bool Godot.Node3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node3D.cs:1127)
+       [5] bool Trackstorm.Client.Verification.BoostCameraPlaytest.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (C:\Users\j_gen\Documents\Game Projects\Trackstorm\.godot\mono\temp\obj\Debug\Godot.SourceGenerators\Godot.SourceGenerators.ScriptMethodsGenerator\Trackstorm.Client.Verification.BoostCameraPlaytest_ScriptMethods.generated.cs:100)
+       [6] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)
+Exception: C:\Users\j_gen\Documents\Game Projects\Trackstorm\check-boost-camera.ps1:23
+Line |
+  23 |  … camera playtest passed:'))) { throw 'Boost camera playtest failed.' }
+     |                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Boost camera playtest failed.
