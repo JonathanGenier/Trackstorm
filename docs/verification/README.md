@@ -10,7 +10,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 
 | Evidence | Reports |
 | --- | --- |
-| Responsive chase camera, aerial framing and local camera preferences | [TS-279 verification evidence](ts-279.md) |
+| Responsive chase camera, progressive aerial framing and local camera preferences | [TS-279 verification evidence](ts-279.md) |
 | Story verification, terrain alignment, contact spin, tipping/breakage, expiry, vehicle-launch and sliding corrections | [TS-218 verification evidence](ts-218.md) |
 | Tunnel fall/scrape sweep cost, native query bounds and collision regressions | [TS-275 verification evidence](ts-275.md) |
 | TS-274 world collision stability | [Terrain bake, collision recovery and network verification](ts-274.md) |
