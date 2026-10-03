@@ -173,7 +173,7 @@ Slot selection atomically exposes the selected Tombstone as `RearShield` and sto
 
 Native contact points inside the armor envelope route the existing collision severity and host damage tuning to the shield. A collision reported by the striking car also reaches the stationary defender's shield. Multiple manifold/slide observations collapse to the strongest shield contact for the step, with the existing collision cooldown retained per pool through checkpoints. The attacking car keeps its own normal collision damage. Damage uses the same evaluator as `DamageTombstone`; candidate changes, destroyed-slot cleanup and the single destruction journal entry commit only after the vehicle step succeeds. Sequential world ticks, capability validation, per-entity ordered damage and collision cooldown prevent replay or manifold duplication. When both slots contain Tombstones, only the selected pool is exposed and receives intercepted damage; the other remains stored.
 
-Client reconstructs those three native collision shapes and the Blender-authored Carnage Circus armor under the interpolated production Car transform. Crimson/ivory stripes, painted grin, welded chevron, brass stars, scraping shoes and caged amber lamps identify the same model mounted and deployed. Its wings wrap forward while mounted and rotate outward to a flat wall. A separate carriage attaches at the production rack's rear socket pair and appears above the open deck after the rack rises. Core remains the hit authority; presentation readiness adds no use delay. Native weapon queries temporarily omit all three reconstructed shield shapes so same-step destruction cannot leave phantom cover. Accepted lifecycle/item state removes them on death, reset, destruction and permanent departure, and reinstalls them after retained recovery. Bevels, lamps and the shallow peaked trim are cosmetic details on conservative panel boxes. [Tombstone asset notes](../../assets/items/tombstone/README.md) define editable source, pivots and clearances.
+Client reconstructs those three native collision shapes and the Blender-authored Carnage Circus armor under the interpolated production Car transform. Crimson/ivory stripes, painted grin, welded chevron, brass stars, scraping shoes and caged amber lamps identify the same model mounted and deployed. Its wings wrap forward while mounted and rotate outward to a flat wall. A separate carriage attaches at the production rack's rear socket pair and appears with the compact shield as the cleared rack starts lifting. Core remains the hit authority; presentation readiness adds no use delay. Native weapon queries temporarily omit all three reconstructed shield shapes so same-step destruction cannot leave phantom cover. Accepted lifecycle/item state removes them on death, reset, destruction and permanent departure, and reinstalls them after retained recovery. Bevels, lamps and the shallow peaked trim are cosmetic details on conservative panel boxes. [Tombstone asset notes](../../assets/items/tombstone/README.md) define editable source, pivots and clearances.
 
 `check-rear-shield.ps1 -GodotPath <exe> [-Impaired] [-Visual]` runs two production arenas over real local UDP, with independent shields, repeated ordinary selection/stow input from both peers without use, stationary/moving fire, inner/outer rear-quarter edge shots, exposed side/front shots, shield destruction while driving, and a native vehicle collision into the rear plate. Temporary fixture poses isolate shot geometry; moving scenarios advance native physics. Rendered captures use a fixed observation camera. Impairment adds 30 ms outbound delay, 5 ms jitter and 2% loss. Core tests additionally cover rejected-batch atomicity, exact slot retention, collision cooldown restoration, rotated geometry and missile interception.
 
@@ -207,16 +207,19 @@ open from 90 degrees to a flat wall over 0.42 seconds. The full collision envelo
 immediately. Captured dimensions scale the installed visual; configured sizes preserve the
 same silhouette rather than authoring a separate model for each tuning combination.
 
-Selected presentation reveals the half-size folded stack as soon as the deck clears,
-as the rack begins lifting. It rides the rack out of the bay. The subsequent 0.95-second carriage motion carries the four-leaf stack
-aft, rolls it upright, opens the two center halves around a visible central hinge,
-unfolds the side wings and pulls the shield into rear position. Deselection reverses
-this sequence and holds the rack open until the shield is nested. Center and wing
-folding keep full constant size. Inventory packing stays at 0.5 scale during rack
+Selected presentation reveals the compact folded stack as soon as the deck clears,
+as the rack begins lifting. It rides the rack out of the bay. Each center half and
+wing has a top and bottom section, forming eight sections in two rows. The subsequent
+1.15-second carriage motion carries the stack aft, pitches it upright, opens the two
+center halves around a visible central hinge, unfolds the side wings, then opens
+all four horizontal hinges before pulling the shield into rear position. Center
+tops fold backward and wing tops forward to nest the rows. Deselection reverses
+this sequence and holds the rack open until the shield is nested. All panel
+folding keeps full constant size. Inventory packing stays at 0.35 scale during rack
 rise and initial aft travel, reaching full size behind the Car before the center
 hinge opens; it does not represent exact mechanical packing. Accepted protection still
 starts/stops immediately with selection, and use is never delayed by animation.
-Early use hands the current pose, size, center fold and wing fold
+Early use hands the current pose, size, center fold, wing fold and horizontal fold
 to the released wall; the empty carriage returns independently. Rapid switching,
 duplicate identities and remote publications share the same reconstructable path.
 

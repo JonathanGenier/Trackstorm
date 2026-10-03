@@ -34,8 +34,9 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     internal float ShieldMountProgress => _mountProgress;
     internal bool ShieldVisible => _rearVisual.Visible;
     internal float ShieldCenterFold => _rearVisual.CenterFold;
+    internal float ShieldHorizontalFold => _rearVisual.HorizontalFold;
     internal float ShieldScale => _rearVisual.Scale.X;
-    internal (Transform3D Pose, float Fold, float CenterFold) ShieldRelease => (_rearVisual.GlobalTransform, _rearVisual.Fold, _rearVisual.CenterFold);
+    internal (Transform3D Pose, float Fold, float CenterFold, float HorizontalFold) ShieldRelease => (_rearVisual.GlobalTransform, _rearVisual.Fold, _rearVisual.CenterFold, _rearVisual.HorizontalFold);
     private readonly List<Items.TombstoneVisual> _shieldDebris = [];
     internal bool HasRearShield { get; private set; }
     /// <summary>Host-assigned identity used only to attribute contact observations.</summary>
@@ -123,7 +124,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
             GetParent().AddChild(broken);
             broken.GlobalTransform = _rearVisual.GlobalTransform;
             broken.Observe(previous, true);
-            broken.SetFold(_rearVisual.Fold, _rearVisual.CenterFold);
+            broken.SetFold(_rearVisual.Fold, _rearVisual.CenterFold, _rearVisual.HorizontalFold);
             broken.BreakApart();
             _shieldDebris.Add(broken);
         }
@@ -151,21 +152,21 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     {
         bool extend = HasRearShield && _shownShield?.Id == _presentedShield?.Id &&
             Rack.TombstoneRequested && Rack.Progress >= .999f;
-        _mountProgress = Mathf.MoveToward(_mountProgress, extend ? 1 : 0, delta / .95f);
+        _mountProgress = Mathf.MoveToward(_mountProgress, extend ? 1 : 0, delta / 1.15f);
         float t = _mountProgress;
         float Ease(float start, float end) => Mathf.SmoothStep(0, 1, Mathf.Clamp((t - start) / (end - start), 0, 1));
-        Vector3 parked = new(0, 2.04f, 1.195f);
+        Vector3 parked = new(0, 1.59f, 1.195f);
         if (Rack.TombstoneCarrier is { } carrier)
-        { parked = _rearVisual.GetParent<Node3D>().GlobalTransform.AffineInverse() * (carrier.GlobalTransform * new Vector3(0, .70f, -.65f)); }
-        Vector3 lifted = new(0, 2.60f, 4.6f);
-        Vector3 aft = new(0, .25f, 4.6f);
-        Vector3 position = t < .25f ? parked.Lerp(lifted, Ease(0, .25f)) :
-            t < .40f ? lifted.Lerp(aft, Ease(.25f, .40f)) : aft.Lerp(Items.TombstoneVisual.MountedCenter, Ease(.87f, 1));
+        { parked = _rearVisual.GetParent<Node3D>().GlobalTransform.AffineInverse() * (carrier.GlobalTransform * new Vector3(0, .25f, -.65f)); }
+        Vector3 lifted = new(0, 2.60f, 4.9f);
+        Vector3 aft = new(0, .25f, 4.9f);
+        Vector3 position = t < .20f ? parked.Lerp(lifted, Ease(0, .20f)) :
+            t < .32f ? lifted.Lerp(aft, Ease(.20f, .32f)) : aft.Lerp(Items.TombstoneVisual.MountedCenter, Ease(.87f, 1));
         // Keep the rack payload compact and visible through its lift. Restore
         // full size aft of the Car before the rigid center leaves start opening.
-        float size = Mathf.Lerp(.50f, 1, Ease(.25f, .40f));
-        _rearVisual.Transform = new(new Basis(Vector3.Back, MathF.PI / 2 * (1 - Ease(.25f, .40f))).Scaled(Vector3.One * size), position);
-        _rearVisual.SetFold(1 - Ease(.72f, .87f), 1 - Ease(.40f, .72f));
+        float size = Mathf.Lerp(.35f, 1, Ease(.20f, .32f));
+        _rearVisual.Transform = new(new Basis(Vector3.Right, -MathF.PI / 2 * (1 - Ease(.20f, .32f))).Scaled(Vector3.One * size), position);
+        _rearVisual.SetFold(1 - Ease(.52f, .67f), 1 - Ease(.32f, .52f), 1 - Ease(.67f, .87f));
         _rearVisual.Visible = _shownShield is not null && (t > 0 || (Rack.TombstoneCarrier is not null && Rack.Progress >= .45f));
         _rearVisual.SetProcess(_rearVisual.Visible);
         if (Rack.TombstoneCarrier is { } carriage)

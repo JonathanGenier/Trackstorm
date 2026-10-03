@@ -19,11 +19,16 @@ master and its GLB. The full authoring script invokes it before splitting the ce
 mount-only rebuild preserves the approved shield export byte for byte.
 `source/FoldTombstoneCenter.py` splits the painted center, caps its cut surfaces,
 adds the center hinge and exports the four-leaf shield without changing the carriage.
+`source/FoldTombstoneRows.py` then splits each column at its horizontal midpoint,
+caps the cut surfaces, and adds the eight top/bottom sections and their hinges.
 
 Coordinates are metres, Blender +Y forward/+Z up, exported to Godot -Z forward/+Y
-up. The source timeline demonstrates folded frame 1, mounted frame 32 and expanded
-frame 60. Named rigid parts `Center_L`, `Center_R`, `Wing_L` and `Wing_R` allow
-client-driven presentation. Each wing is parented to its corresponding center half.
+up. The source timeline demonstrates packed frame 1, horizontal-fold frame 20,
+mounted frame 32 and expanded frame 60. Named rigid columns `Center_L`, `Center_R`,
+`Wing_L` and `Wing_R` each contain `_Top` and `_Bottom` sections. Each wing is
+parented to its corresponding center half. The center tops fold backward and wing
+tops fold forward around visible horizontal pins, with a 16 mm seam through the
+artwork. Opposite fold directions let the rows nest with the folded wings.
 The center halves share a visible vertical axle, alternating knuckles and solid
 hinge leaves, with an 18 mm seam through the original artwork. The
 central panel is 3.7 m wide and 2.5 m high; each 1.45 m wing wraps forward over the
@@ -37,21 +42,21 @@ trunk/rack articulation. A bolted saddle supports twin boxed telescopic arms,
 hydraulic rams and a cross-braced, four-jaw shield cradle. Named rigid groups allow
 the carriage to follow the shield through selection and return.
 
-The half-size folded stack appears when the deck clears, as the rack begins lifting,
+The compact folded stack appears when the deck clears, as the rack begins lifting,
 and rides the rack out of the bay. After the rack rises, selection carries it aft of the
-Car, rolls it upright, opens the two center halves, unfolds its nested wings and
-draws it into rear-guard position over 0.95 seconds. Deselection reverses that path
-before the rack lowers. The central and wing folding motion keeps full constant
-size. The packed stack stays at 0.5 scale through the lift and initial aft travel,
+Car, pitches it upright, opens the two center halves and nested wings, unfolds all
+four top sections, and draws it into rear-guard position over 1.15 seconds.
+Deselection reverses that path before the rack lowers. All panel folding keeps full
+constant size. The packed stack stays at 0.35 scale through the lift and initial aft travel,
 then reaches full size behind the Car before the center hinge opens. This is
 stylized inventory packing, not an exact mechanical simulation. Nested wings slide behind their
 center halves. Early use preserves the displayed pose, scale, center fold and
-wing fold at world release; the empty carriage returns afterward. Protection and
+wing/horizontal folds at world release; the empty carriage returns afterward. Protection and
 use remain immediate under existing authority. No authored mesh supplies collision: Core owns a rear
 panel and two side-panel boxes, and the deployed wall retains its native box.
 
 The shader reconstructs wear per identity from accepted HP. Impact flash/sparks
-and short, non-colliding panel breakup are cosmetic. Shared meshes do not share
+and short, non-colliding panel breakup (including the horizontal joints) are cosmetic. Shared meshes do not share
 health or animation memory. Sparks reuse existing CC0 Kenney `spark_01`; no new
 third-party runtime assets or dependencies were acquired.
 

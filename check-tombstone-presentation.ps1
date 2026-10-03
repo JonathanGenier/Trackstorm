@@ -54,12 +54,15 @@ try {
     Assert ($mounted.trace[-1].shields[0].rack -gt .99) 'Production rack reaches its raised mounting pose.'
     foreach ($peer in @('shields', 'remoteShields')) {
         $lifting = @($mounted.trace.$peer | Where-Object { $_.id -eq 1 -and $_.rack -ge .50 -and $_.rack -le .85 })
-        Assert ($lifting.Count -ge 5 -and @($lifting | Where-Object { -not $_.visible -or [Math]::Abs($_.scale - .50) -gt .001 -or $_.centerFold -lt .999 }).Count -eq 0) "Compact folded shield rides the extending rack on $peer."
+        Assert ($lifting.Count -ge 5 -and @($lifting | Where-Object { -not $_.visible -or [Math]::Abs($_.scale - .35) -gt .001 -or $_.centerFold -lt .999 -or $_.horizontalFold -lt .999 }).Count -eq 0) "Compact folded shield rides the extending rack on $peer."
     }
     Assert (@($mounted.trace | Where-Object { $_.shields[0].mount -gt 0 -and $_.shields[0].mount -lt 1 }).Count -gt 10 -and $mounted.trace[-1].shields[0].mount -eq 1) 'Selection unfolds progressively from the rack into the rear shield.'
     $centerMotion=@($mounted.trace.shields | Where-Object { $_.visible -and $_.centerFold -gt .01 -and $_.centerFold -lt .99 })
     Assert ($centerMotion.Count -gt 5 -and @($centerMotion | Where-Object { [Math]::Abs($_.scale - 1) -gt .001 }).Count -eq 0) 'The two center leaves hinge open at full constant size.'
-    $stowing = Command 'stowing' @{select=$true;frames=30;camera=@(6,204,11);look=@(0,202,4)}
+    $rowMotion = @($mounted.trace.shields | Where-Object { $_.visible -and $_.horizontalFold -gt .01 -and $_.horizontalFold -lt .99 })
+    Assert ($rowMotion.Count -gt 5 -and @($rowMotion | Where-Object { [Math]::Abs($_.scale - 1) -gt .001 -or $_.centerFold -gt .001 }).Count -eq 0) 'All four horizontal hinges unfold at full size after the center opens.'
+    Assert ($mounted.trace[-1].shields[0].horizontalFold -eq 0 -and $mounted.trace[-1].remoteShields[0].horizontalFold -eq 0) 'Both peers straighten the top and bottom rows into the full-height shield.'
+    $stowing = Command 'stowing' @{select=$true;frames=16;camera=@(6,204,11);look=@(0,202,4)}
     Assert (-not $stowing.trace[-1].shields[0].shield -and $stowing.trace[-1].shields[0].visible -and $stowing.trace[-1].shields[0].mount -gt 0 -and $stowing.trace[-1].shields[0].mount -lt 1) 'Deselection visibly folds the shield while authority deselects immediately.'
     Assert (@($stowing.trace | Where-Object { $_.shields[0].mount -gt 0 -and $_.shields[0].rack -lt .99 }).Count -eq 0) 'Rack stays raised until the shield folds safely back.'
     $stowed = Command 'stowed' @{frames=100}
@@ -71,7 +74,7 @@ try {
     $ready = Command 'ready' @{frames=90;camera=@(6,204,-1);look=@(0,202,2)}
     Assert ($ready.trace[-1].shields[0].mount -eq 1 -and $ready.trace[-1].remoteShields[0].mount -eq 1) 'Host and remote peer finish the same selection animation.'
     $rapidOut = Command 'rapid-out' @{select=$true;frames=10}
-    $rapidIn = Command 'rapid-in' @{select=$true;frames=190}
+    $rapidIn = Command 'rapid-in' @{select=$true;frames=230}
     Assert ($rapidIn.trace[-1].shields[0].mount -eq 1 -and $rapidIn.trace[-1].remoteShields[0].mount -eq 1) 'Rapid reselection settles into one coherent mounted shield on both peers.'
     $stored = Command 'stored' @{grant=$true;select=$true;frames=90}
     Assert (@($stored.tombstones | Where-Object Stage -eq 0).Count -eq 1) 'Second slot retains an independently stored Tombstone.'
@@ -111,6 +114,7 @@ try {
     $earlyUse = Command 'early-use' @{owner=2;use=$true;frames=12}
     Assert (@($earlyUse.tombstones | Where-Object { $_.Owner -eq 2 -and $_.Stage -eq 2 }).Count -eq 2) 'Use during selection deploys immediately through existing authority.'
     Assert (@($earlyUse.trace.walls | Where-Object { $_.centerFold -gt .01 -and $_.centerFold -lt .99 }).Count -gt 0) 'Early release continues the captured center hinge fold into the world wall.'
+    Assert (@($earlyUse.trace.walls | Where-Object { $_.horizontalFold -gt .01 -and $_.horizontalFold -lt .99 }).Count -gt 0) 'Early release continues the captured horizontal fold without snapping the rows open.'
     $earlyDone = Command 'early-finished' @{frames=100}
     Assert ($earlyDone.trace[-1].shields[1].mount -eq 0 -and -not $earlyDone.trace[-1].shields[1].visible) 'Empty carriage returns cleanly after early deployment.'
     $clearances = @($mounted,$stowing,$stowed,$rackLift,$opening,$swing,$centerOpening,$ready,$rapidOut,$rapidIn,$stored,$selected,$repeat,$again,$landing,$drive,$nitro,$early,$earlyUse) | ForEach-Object { $_.trace.shields } | Where-Object visible | ForEach-Object articulationClearance

@@ -12,6 +12,7 @@ internal sealed partial class TombstoneVisual : Node3D
     private Node3D _center = null!;
     private Node3D[] _wings = [];
     private Node3D[] _panels = [];
+    private Node3D[] _tops = [];
     private readonly List<ShaderMaterial> _materials = [];
     private float _hp = TombstoneState.DefaultHP;
     private float _flash;
@@ -27,6 +28,8 @@ internal sealed partial class TombstoneVisual : Node3D
     private float _releaseFold;
     private float _centerFold;
     private float _releaseCenterFold;
+    private float _horizontalFold;
+    private float _releaseHorizontalFold;
     private Vector3 _releaseScale = Vector3.One;
     private GpuParticles3D _sparks = null!;
 
@@ -34,8 +37,14 @@ internal sealed partial class TombstoneVisual : Node3D
     internal float PresentedHP => _hp;
     internal float Fold => _fold;
     internal float CenterFold => _world ? _releaseCenterFold * Mathf.SmoothStep(0, 1, _release) : _centerFold;
-    internal void SetFold(float fold, float centerFold = 0)
-    { _fold = Mathf.Clamp(fold, 0, 1); _centerFold = Mathf.Clamp(centerFold, 0, 1); Pose(); }
+    internal float HorizontalFold => _world ? _releaseHorizontalFold * Mathf.SmoothStep(0, 1, _release) : _horizontalFold;
+    internal void SetFold(float fold, float centerFold = 0, float horizontalFold = 0)
+    {
+        _fold = Mathf.Clamp(fold, 0, 1);
+        _centerFold = Mathf.Clamp(centerFold, 0, 1);
+        _horizontalFold = Mathf.Clamp(horizontalFold, 0, 1);
+        Pose();
+    }
 
     public override void _Ready()
     {
@@ -44,6 +53,8 @@ internal sealed partial class TombstoneVisual : Node3D
         _center = (Node3D)model.FindChild("Center", true, false);
         _panels = [(Node3D)model.FindChild("Center_L", true, false), (Node3D)model.FindChild("Center_R", true, false)];
         _wings = [ (Node3D)model.FindChild("Wing_L", true, false), (Node3D)model.FindChild("Wing_R", true, false) ];
+        _tops = new[] { "Center_L_Top", "Center_R_Top", "Wing_L_Top", "Wing_R_Top" }
+            .Select(name => (Node3D)model.FindChild(name, true, false)).ToArray();
         var shader = MatchResourceLoader.LoadResource<Shader>("res://assets/items/tombstone/Tombstone.gdshader");
         foreach (var mesh in model.FindChildren("*", "MeshInstance3D", true, false).Cast<MeshInstance3D>())
         {
@@ -80,7 +91,7 @@ internal sealed partial class TombstoneVisual : Node3D
         foreach (var material in _materials) { material.SetShaderParameter("wear", 1 - _hp / TombstoneState.DefaultHP); }
     }
 
-    internal void SetWorld(Vector3 size, bool animate, Transform3D? from = null, float fold = 0, float centerFold = 0)
+    internal void SetWorld(Vector3 size, bool animate, Transform3D? from = null, float fold = 0, float centerFold = 0, float horizontalFold = 0)
     {
         _world = true;
         _size = size;
@@ -91,6 +102,7 @@ internal sealed partial class TombstoneVisual : Node3D
         _releaseScale = Vector3.One;
         _releaseFold = fold;
         _releaseCenterFold = centerFold;
+        _releaseHorizontalFold = horizontalFold;
         if (animate && from is { } start)
         {
             _releaseOffset = GetParent<Node3D>().ToLocal(start.Origin);
@@ -117,6 +129,8 @@ internal sealed partial class TombstoneVisual : Node3D
             _death += dt;
             if (_death >= .8f) { QueueFree(); return; }
             _center.Position += new Vector3(0, -2.5f * _death * dt, .3f * dt);
+            for (int i = 0; i < _tops.Length; i++)
+            { _tops[i].RotateX((i < 2 ? -1 : 1) * dt * 1.4f); }
             for (int i = 0; i < _wings.Length; i++)
             {
                 _wings[i].Position += new Vector3((i == 0 ? -1 : 1) * dt, -3 * _death * dt, dt * .5f);
@@ -148,9 +162,11 @@ internal sealed partial class TombstoneVisual : Node3D
             float fold = _world ? _releaseFold * Mathf.SmoothStep(0, 1, _release) : _fold;
             // The folding hinge slides the nested wing behind the central plate,
             // avoiding coplanar overlapping armor in the compact rack pose.
-            _wings[i].Position = new(side * 1.85f, 0, -.32f - .4f * fold);
+            _wings[i].Position = new(side * 1.85f, 0, -.32f - 1.2f * fold);
             _wings[i].Rotation = new(0, side * MathF.PI / 2 * (1 + fold) * (1 - expansion), 0);
         }
+        for (int i = 0; i < _tops.Length; i++)
+        { _tops[i].Rotation = new((i < 2 ? -1 : 1) * MathF.PI * HorizontalFold, 0, 0); }
         if (_world)
         {
             Scale = new Vector3(_size.X / 6.6f, _size.Y / 2.5f, _size.Z / .6f) * Vector3.One.Lerp(_releaseScale, Mathf.SmoothStep(0, 1, _release));
