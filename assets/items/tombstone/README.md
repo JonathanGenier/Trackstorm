@@ -37,12 +37,14 @@ trunk/rack articulation. A bolted saddle supports twin boxed telescopic arms,
 hydraulic rams and a cross-braced, four-jaw shield cradle. Named rigid groups allow
 the carriage to follow the shield through selection and return.
 
-After the rack rises, selection carries the horizontal four-leaf stack aft of the
+The half-size folded stack appears when the deck clears, as the rack begins lifting,
+and rides the rack out of the bay. After the rack rises, selection carries it aft of the
 Car, rolls it upright, opens the two center halves, unfolds its nested wings and
 draws it into rear-guard position over 0.95 seconds. Deselection reverses that path
 before the rack lowers. The central and wing folding motion keeps full constant
-size. Inventory packing retains a stylized 0.78-to-1 scale during rack rise; it is
-not a mechanically exact packing simulation. Nested wings slide behind their
+size. The packed stack stays at 0.5 scale through the lift and initial aft travel,
+then reaches full size behind the Car before the center hinge opens. This is
+stylized inventory packing, not an exact mechanical simulation. Nested wings slide behind their
 center halves. Early use preserves the displayed pose, scale, center fold and
 wing fold at world release; the empty carriage returns afterward. Protection and
 use remain immediate under existing authority. No authored mesh supplies collision: Core owns a rear

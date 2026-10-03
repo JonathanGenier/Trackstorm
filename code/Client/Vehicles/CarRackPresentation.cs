@@ -169,7 +169,7 @@ internal sealed partial class CarRackPresentation : Node
         {
             if (_payload is Items.TombstoneRack)
             {
-                _payload.Visible = _mechanism.Progress > .72f;
+                _payload.Visible = _mechanism.Progress >= .45f;
                 _payload.Scale = Vector3.One;
                 _payload.Position = Vector3.Zero;
                 return;

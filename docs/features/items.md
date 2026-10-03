@@ -207,13 +207,14 @@ open from 90 degrees to a flat wall over 0.42 seconds. The full collision envelo
 immediately. Captured dimensions scale the installed visual; configured sizes preserve the
 same silhouette rather than authoring a separate model for each tuning combination.
 
-Selected presentation now unfolds from a compact horizontal rack pose after the
-deck opens and rack rises. The 0.95-second carriage motion carries a four-leaf stack
+Selected presentation reveals the half-size folded stack as soon as the deck clears,
+as the rack begins lifting. It rides the rack out of the bay. The subsequent 0.95-second carriage motion carries the four-leaf stack
 aft, rolls it upright, opens the two center halves around a visible central hinge,
 unfolds the side wings and pulls the shield into rear position. Deselection reverses
 this sequence and holds the rack open until the shield is nested. Center and wing
-folding keep full constant size. Inventory packing uses 0.78-to-1 scale during rack
-rise; it does not represent exact mechanical packing. Accepted protection still
+folding keep full constant size. Inventory packing stays at 0.5 scale during rack
+rise and initial aft travel, reaching full size behind the Car before the center
+hinge opens; it does not represent exact mechanical packing. Accepted protection still
 starts/stops immediately with selection, and use is never delayed by animation.
 Early use hands the current pose, size, center fold and wing fold
 to the released wall; the empty carriage returns independently. Rapid switching,

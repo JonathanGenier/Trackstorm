@@ -120,7 +120,8 @@ The production Car is an original Blender-authored armored coupe with enlarged o
 The [Tombstone carriage](../../assets/items/tombstone/README.md) uses the rear rack socket pair
 and extends aft of the production wrap guards. The selected shield follows the full interpolated
 Car pose. A bolted saddle, twin boxed arms, hydraulic rams and four-jaw cradle carry
-the shield. After the production rack rises, a four-leaf stack travels aft, rolls
+the shield. The folded stack appears at half size once the deck clears and rides
+the rack through its lift. After the production rack rises, it travels aft, reaches full size, rolls
 upright, opens its two center halves and side wings, and draws forward into its rear
 position. Deselecting reverses that 0.95-second motion before allowing rack retraction;
 an empty carriage also returns after world release. Three full-height physical
