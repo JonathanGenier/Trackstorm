@@ -29,7 +29,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
             Follow();
             Transform3D neutral = camera.GlobalTransform;
             Vector3 rackPivot = VehicleBody.ToGodot(WeaponAim.Pivot);
-            Require(neutral.Origin.IsEqualApprox(rackPivot + new Vector3(0, camera.CameraHeight, camera.FollowDistance)), "Close chase boom originates at the fully deployed rack attachment.");
+            Require(neutral.Origin.IsEqualApprox(rackPivot + new Vector3(0, camera.CameraHeight, camera.FollowDistance * 1.15f)), "Close chase boom originates at the fully deployed rack attachment.");
             Require(Math.Abs(neutral.Basis.GetEuler().X + Mathf.DegToRad(camera.ViewDownAngle)) < .00001f, "Chase uses the shallow reference viewing angle.");
             Vector2 rackScreen = camera.UnprojectPosition(rackPivot);
             Require(rackScreen.Y > camera.GetViewport().GetVisibleRect().Size.Y * .55f, "Rack sits below the centered aiming area.");
@@ -105,7 +105,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
                 Follow();
             }
 
-            Require(camera.Position.Z > neutral.Origin.Z + 0.4f, "Acceleration extends distance smoothly");
+            Require(camera.Position.Z > neutral.Origin.Z + 0.1f && camera.Position.Z < neutral.Origin.Z + .21f, "Acceleration retains tight bounded weight");
             Require(camera.GlobalBasis.IsEqualApprox(fixedAim), "Acceleration does not change aim");
             camera.Motion.ObserveVelocity(System.Numerics.Vector3.Zero, 1);
             for (int i = 0; i < 120; i++)
@@ -113,14 +113,14 @@ public sealed partial class CameraIntegrationChecks : Node3D
                 Follow();
             }
 
-            Require(camera.Position.Z < neutral.Origin.Z - 0.4f, "Braking moves camera forward");
+            Require(camera.Position.Z < neutral.Origin.Z - 0.1f && camera.Position.Z > neutral.Origin.Z - .21f, "Braking retains tight bounded weight");
             camera.Motion.ObserveVelocity(new System.Numerics.Vector3(-10, 0, 0), 1);
             for (int i = 0; i < 120; i++)
             {
                 Follow();
             }
 
-            Require(camera.Position.X > 0.3f && camera.GlobalBasis.IsEqualApprox(fixedAim), "Left turn creates outside weight without yaw");
+            Require(camera.Position.X > 0.1f && camera.Position.X < .13f && camera.GlobalBasis.IsEqualApprox(fixedAim), "Left turn creates tight outside weight without yaw");
             float lateralBeforeTurn = camera.Motion.Offset.X;
             var turnedPose = new Transform3D(Basis.FromEuler(new Vector3(0, Mathf.Pi / 2, 0)), Vector3.Zero);
             camera.Follow(turnedPose, state, 1f / 60);
@@ -182,9 +182,11 @@ public sealed partial class CameraIntegrationChecks : Node3D
 
             VerifyFreeLook(camera, input, state);
             VerifyShakeSettings(camera, input, state);
+            VerifyFramingSettings(camera, input, state);
+            VerifyUpwardFraming(camera, input, state);
             camera.QueueFree();
             input.QueueFree();
-            GD.Print("Camera integration passed: armed/unarmed chase framing, horizon/85-degree tilt bounds, RMB orbit/hold/release, controller/dead-zone return, suppression, identity/life/reseed resets, 30/60/144 FPS, unchanged gameplay input, heading/inertia/feedback regressions.");
+            GD.Print("Camera integration passed: armed/unarmed chase framing, upward/downward 85-degree tilt bounds, fixed-height upward aim, RMB orbit/hold/release, controller/dead-zone return, suppression, identity/life/reseed resets, 30/60/144 FPS, unchanged gameplay input, heading/inertia/feedback regressions.");
             GetTree().Quit();
         }
         catch (Exception exception)
@@ -200,6 +202,79 @@ public sealed partial class CameraIntegrationChecks : Node3D
         {
             throw new InvalidOperationException(message);
         }
+    }
+
+    private void VerifyFramingSettings(VehicleChaseCamera camera, PlayerInput input, VehicleSnapshot state)
+    {
+        var settings = new Settings.PlayerSettingsController();
+        string path = ProjectSettings.GlobalizePath($"res://.godot/camera-checks/{Guid.NewGuid():N}.framing.json");
+        settings.Initialize(input.Adapter, path); AddChild(settings);
+        camera.SettingsSource = settings;
+        camera.InputSource = null;
+        foreach (int fps in new[] { 30, 60, 144 })
+        foreach (double distance in new[] { 1.15, 1.3, 1.5 })
+        foreach (double inertia in new[] { 0d, .5, 1 })
+        foreach (double aerial in new[] { 0d, 1, 1.5 })
+        {
+            settings.UpdateSettings(settings.Current with { CameraDistance = distance, CameraInertia = inertia, CameraAerialPullback = aerial, CameraShakeIntensity = 0 });
+            camera.ResetFollow();
+            var physics = state.ObservedPhysics;
+            VehicleSnapshot Snapshot(bool grounded, float seconds) => new(state.VehicleId, state.LifeId, new VehicleState(state.Movement.Tick, physics, grounded, false, 0, 0, air: new(seconds, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero)), state.Damage, physics);
+            var grounded = Snapshot(true, 0);
+            camera.Follow(Transform3D.Identity, grounded, 1f / fps);
+            float baselineZ = camera.GlobalPosition.Z;
+            Basis aim = camera.GlobalBasis;
+            Require(Math.Abs(baselineZ - WeaponAim.Pivot.Z - camera.FollowDistance * distance) < .0001, "Local chase distance applies at reset");
+            for (int i = 0; i < fps; i++) camera.Follow(Transform3D.Identity, Snapshot(false, .1f), 1f / fps);
+            Require(camera.AerialMotion.Pullback == 0, "Brief support loss cannot pump aerial distance");
+            for (int i = 0; i < fps * 2; i++)
+            {
+                // A rising, fast translating backflip: the view follows translation but
+                // must not inherit the reversed horizontal projection or chassis roll.
+                var pose = new Transform3D(Basis.FromEuler(new Vector3(i * .07f, 0, i * .03f)), new Vector3(i * .5f, i * .3f, -i));
+                camera.Follow(pose, Snapshot(false, 2), 1f / fps);
+                Require(camera.GlobalTransform.IsFinite() && camera.GlobalBasis.IsEqualApprox(aim), "Aerial rotations cannot redirect camera-relative aim");
+                Require(Math.Abs(camera.GlobalPosition.X - pose.Origin.X) < 2, "Fast aerial translation has no accumulated follow lag");
+            }
+            Require(Math.Abs(camera.AerialMotion.Pullback - 3.6 * aerial) < .003, "Aerial distance honors supported strength");
+            float expanded = camera.AerialMotion.Pullback;
+            camera.Follow(Transform3D.Identity, grounded, 1f / fps);
+            Require(camera.AerialMotion.Pullback >= expanded * .8f, "Landing blends instead of snapping to chase distance");
+            for (int i = 0; i < fps * 3; i++) camera.Follow(Transform3D.Identity, grounded, 1f / fps);
+            Require(Math.Abs(camera.GlobalPosition.Z - baselineZ) < .001f, "Landing returns to chosen chase framing");
+            settings.UpdateSettings(settings.Current with { CameraDistance = distance == 1.15 ? 1.5 : 1.15 });
+            camera.Follow(Transform3D.Identity, grounded, 1f / fps);
+            Require(Math.Abs(camera.GlobalPosition.Z - baselineZ) < .8f && camera.GlobalBasis.IsEqualApprox(aim), "Live distance change blends without rotating aim");
+            camera.ResetFollow(); camera.Follow(Transform3D.Identity, grounded, 1f / fps);
+            Require(camera.AerialMotion.Amount == 0 && camera.AerialMotion.Pullback == 0, "Reseed clears aerial memory");
+        }
+        settings.UpdateSettings(settings.Current with { CameraDistance = 1.15, CameraInertia = .5, CameraAerialPullback = 1 });
+        camera.ResetFollow();
+        // Unsupported crash snapshots deliberately carry no player air-control timer.
+        var crashPhysics = state.ObservedPhysics;
+        for (ulong tick = 1; tick <= 120; tick++)
+        {
+            var crash = new VehicleSnapshot(state.VehicleId, state.LifeId,
+                new VehicleState(state.Movement.Tick + tick, crashPhysics, false, false, 0, 0, crashSeconds: 1), state.Damage, crashPhysics);
+            camera.Follow(new Transform3D(Basis.Identity, Vector3.Up * 20), crash, 1f / 60);
+        }
+        Require(camera.AerialMotion.Pullback > 3.5f, "Unsupported crash tumble retains aerial framing without gameplay air-control memory");
+        var backwardLanding = new Transform3D(Basis.FromEuler(new Vector3(0, MathF.PI, 0)), Vector3.Up * 20);
+        var supported = new VehicleSnapshot(state.VehicleId, state.LifeId,
+            new VehicleState(state.Movement.Tick + 121, crashPhysics, true, false, 0, 0), state.Damage, crashPhysics);
+        float previousYaw = camera.Rotation.Y;
+        for (int i = 0; i < 180; i++)
+        {
+            camera.Follow(backwardLanding, supported, 1f / 60);
+            Require(Math.Abs(Mathf.AngleDifference(previousYaw, camera.Rotation.Y)) <= 4.5f / 60 + .0001f, "Backward landing cannot snap the camera around the chassis");
+            if (Math.Abs(Mathf.AngleDifference(camera.Rotation.Y, MathF.PI)) > .2f)
+                Require(camera.AerialMotion.Pullback > 3.5f, "Backward landing keeps wide framing until heading catches up");
+            previousYaw = camera.Rotation.Y;
+        }
+        RequireHeading(camera, MathF.PI);
+        camera.ResetFollow();
+        camera.SettingsSource = null; settings.QueueFree();
+        GD.Print("Camera framing settings passed: 81 rate/range combinations, brief hops, rising rotating flight, translation, aim direction, landing, live edits and reset.");
     }
 
     private void VerifyShakeSettings(VehicleChaseCamera camera, PlayerInput input, VehicleSnapshot state)
@@ -295,7 +370,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
             RequireHeading(camera, -0.9f);
             Require(camera.GlobalPosition.DistanceTo(baseline.Origin) > 5, "Mouse orbits the vehicle, not only the viewing direction.");
             Vector3 pivot = VehicleBody.ToGodot(WeaponAim.Pivot);
-            float radius = new Vector2(camera.FollowDistance, camera.CameraHeight).Length();
+            float radius = new Vector2(camera.FollowDistance * 1.15f, camera.CameraHeight).Length();
             Require(Math.Abs(camera.GlobalPosition.DistanceTo(pivot) - radius) < .001f, "Mouse orbit preserves radius about the deployed rack.");
             Basis held = camera.GlobalBasis;
             camera.Follow(Transform3D.Identity, state, 1f / fps);
@@ -321,11 +396,12 @@ public sealed partial class CameraIntegrationChecks : Node3D
 
             foreach (float direction in new[] { -1f, 1f })
             {
-                float expectedPitch = direction < 0 ? 0 : -85 * MathF.PI / 180;
+                float expectedPitch = -direction * 85 * MathF.PI / 180;
                 Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true });
                 Send(new InputEventMouseMotion { ScreenRelative = new Vector2(0, direction * 1000) });
                 camera.Follow(Transform3D.Identity, state, 1f / fps);
                 Require(Math.Abs(camera.Rotation.X - expectedPitch) < .00001f && camera.GlobalTransform.IsFinite(), "Mouse reaches the wider vertical limit without flipping.");
+                if (direction < 0) Require(camera.GlobalPosition.DistanceTo(baseline.Origin) < .001f, "Upward mouse aim tilts the view without lowering or moving the chase lens.");
                 Send(new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false });
                 for (int i = 0; i < fps * 3; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
                 Require(camera.GlobalTransform.IsEqualApprox(baseline), "Releasing RMB at either pitch limit restores the original chase view.");
@@ -333,6 +409,7 @@ public sealed partial class CameraIntegrationChecks : Node3D
                 Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightY, AxisValue = direction });
                 for (int i = 0; i < fps * 2; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
                 Require(Math.Abs(camera.Rotation.X - expectedPitch) < .00001f && camera.GlobalTransform.IsFinite(), "Camera stick reaches the same wider vertical limit without flipping.");
+                if (direction < 0) Require(camera.GlobalPosition.DistanceTo(baseline.Origin) < .001f, "Upward stick aim keeps the normal chase lens position.");
                 Send(new InputEventJoypadMotion { Device = 0, Axis = JoyAxis.RightY, AxisValue = 0 });
                 for (int i = 0; i < fps * 3; i++) camera.Follow(Transform3D.Identity, state, 1f / fps);
                 Require(camera.GlobalTransform.IsEqualApprox(baseline), "Neutral stick at either pitch limit restores the original chase view.");
@@ -366,6 +443,42 @@ public sealed partial class CameraIntegrationChecks : Node3D
             RequireHeading(camera, -0.3f);
         }
         camera.WeaponAiming = false;
+    }
+
+    private void VerifyUpwardFraming(VehicleChaseCamera camera, PlayerInput input, VehicleSnapshot state)
+    {
+        var reference = new VehicleChaseCamera(); AddChild(reference);
+        camera.InputSource = input.Adapter;
+        camera.WeaponAiming = true;
+        foreach (int fps in new[] { 30, 60, 144 })
+        foreach (bool airborne in new[] { false, true })
+        {
+            var physics = state.ObservedPhysics;
+            var snapshot = new VehicleSnapshot(state.VehicleId, state.LifeId,
+                new VehicleState(state.Movement.Tick, physics, !airborne, false, 0, 0,
+                    air: new(airborne ? 2 : 0, System.Numerics.Vector3.Zero, System.Numerics.Vector3.Zero)), state.Damage, physics);
+            var pose = new Transform3D(Basis.Identity, airborne ? Vector3.Up * 20 : Vector3.Zero);
+            camera.ResetFollow(); reference.ResetFollow();
+            for (int frame = 0; frame < fps * 3; frame++)
+            {
+                camera.Follow(pose, snapshot, 1f / fps); reference.Follow(pose, snapshot, 1f / fps);
+            }
+            // Include a decaying Boost boom: its offset must not descend with aim either.
+            camera.BoostMotion.Advance(1, true, 60); reference.BoostMotion.Advance(1, true, 60);
+            using var held = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true };
+            Godot.Input.ParseInputEvent(held); Godot.Input.FlushBufferedEvents();
+            for (int frame = 0; frame < fps * 2; frame++)
+            {
+                using var motion = new InputEventMouseMotion { ScreenRelative = new(0, -1000f / fps) };
+                Godot.Input.ParseInputEvent(motion); Godot.Input.FlushBufferedEvents();
+                camera.Follow(pose, snapshot, 1f / fps); reference.Follow(pose, snapshot, 1f / fps);
+                Require(camera.GlobalPosition.DistanceTo(reference.GlobalPosition) < .001f, "Upward aim preserves the chase lens position on ground/in air, including Boost recovery");
+            }
+            Require(camera.Rotation.X > 1.4f, "Upward view reaches high aerial targets");
+            using var release = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false };
+            Godot.Input.ParseInputEvent(release); Godot.Input.FlushBufferedEvents();
+        }
+        camera.WeaponAiming = false; camera.ResetFollow(); reference.QueueFree();
     }
 
     private static void RequireHeading(VehicleChaseCamera camera, float yaw)

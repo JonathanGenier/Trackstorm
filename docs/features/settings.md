@@ -13,6 +13,9 @@ The Main Menu and joined Lobby each provide a **Settings** entry. The joined Lob
 | Window resolution | 1280 Ã— 720 | The editor offers common sizes fitting the current screen; runtime sizing also bounds the window to the usable screen. |
 | Speed units | km/h | mph is a presentation conversion; simulation speeds remain metres per second. |
 | Camera shake | 100% | Gameplay page slider scales collision/damage camera feedback from 0â€“100%; zero disables it immediately. Follow, heading and inertia are unchanged. |
+| Chase distance | 1.15× | Gameplay slider 1.15–1.5× gives a 7.36–9.6 m chase view. Older saved values below the minimum clamp to 1.15. Live edits blend smoothly. |
+| Camera inertia | 0.5 | Gameplay slider 0–1 scales restrained positional weight; zero removes it. No horizontal translation lag is added. |
+| Aerial pullback | 1× | Gameplay slider 0–1.5× adds up to 5.4 m during sustained flight. Zero disables the extra distance. |
 | Show FPS / Show Ping | Both off | Independent flags update diagnostics visibility immediately. |
 | Invert steering | Off | Applies to the existing signed steering axis. |
 | Controller Deadzone | 0.15 | Controls slider 0–0.95; stick neutral range before ground or aerial response. Existing valid saved values below 1 still load. |
@@ -48,6 +51,8 @@ The local file is `user://player-settings.json`, under Godot's per-user applicat
 Absent, inaccessible, corrupt, oversized, or unsupported-version documents load safe defaults. Missing or incorrectly typed fields default independently, preserving unrelated valid preferences. Finite out-of-range volumes clamp. Unknown/removed action names are ignored; malformed binding overrides retain the complete default binding list for that action. An empty list intentionally means unbound. Documents are bounded to 256 KiB and depth 16, with at most 32 binding tokens per action and 128 characters per token. The supported editor-generated settings fit comfortably within these bounds. This is local persistence only, with no cloud, account, or network synchronization.
 
 ## Diagnostics and Integration Limits
+
+`cameraDistance`, `cameraInertia`, and `cameraAerialPullback` are optional version-one numbers, clamped respectively to [1,1.5], [0,1], and [0,1.5]. Missing, incorrectly typed or nonfinite values independently default to 1, 0.5, and 1. They use the same immediate controller snapshot, debounce, retry, close flush and restart path as other local preferences. The shared [camera](camera.md) supplies smooth transitions; neither host configuration nor gameplay/network state owns these values.
 
 `cameraShakeIntensity` is an optional version-one JSON number in [0,1]. Missing, wrongly typed or nonfinite values default to 1; finite out-of-range values clamp. The shared practice/network camera reads the current local controller snapshot supplied by application composition. It never reads the file, enters DevTools Configs or synchronizes to peers. Setting zero clears pending feedback without resetting inertia or contact cooldown; disabled damage sequences are still consumed, so re-enabling cannot replay them. See [camera](camera.md).
 
