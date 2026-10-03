@@ -88,7 +88,17 @@ flickering droop contacts cannot continually restart that delay. Useful wheel
 support clears recovery and restores driving. Ordinary terrain/vehicle contacts
 retain their existing first-wheel recovery behavior; no collision cooldown is added.
 
-`check-repeated-collisions.ps1` covers slow rock pressure, centred rock landings,
+After applying tire drive and thrust, Core prevents fresh drive from increasing
+inward velocity into an observed blocking rock side. It uses the existing
+support-plane response normal, preserving the adapter's already-solved momentum.
+Fresh throttle cannot repeatedly feed native bevel recovery and lift a stalled
+chassis. Engine demand and natural tire slip continue; reverse/tangential escape
+remains available. Gravity, suspension, landing recovery and supported rock tops
+keep their ordinary motion. The constraint uses current contacts only, with no
+timer or extra replicated state.
+
+`check-repeated-collisions.ps1` covers slow rock pressure, full throttle from rest
+immediately against five rock shapes with measured vertical settling, centred rock landings,
 close contact and deliberately shallow embedding through both adapters, plus
 sustained vehicle-pair momentum. `check-following-contact-network.ps1` exercises
 two following pairs across four native UDP worlds with delay, jitter and loss.

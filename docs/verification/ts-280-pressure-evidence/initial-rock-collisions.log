@@ -1,0 +1,101 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+FAIL: network-RockCluster-3-0.0 contact step budget: 8.960ms
+ROCK network-RockCluster-3-0.0: contacts=224 repeat=58 final=0 depth=0.0002 overlapFrames=0 angular=0.267 contactMeanMs=8.960 p95Ms=15.955
+FAIL: network-RockCluster-3-1.2 contact step budget: 12.717ms
+ROCK network-RockCluster-3-1.2: contacts=124 repeat=31 final=0 depth=0.0002 overlapFrames=0 angular=0.209 contactMeanMs=12.717 p95Ms=33.864
+ROCK network-RockCluster-3-2.4: contacts=214 repeat=58 final=0 depth=0.0002 overlapFrames=0 angular=0.294 contactMeanMs=7.432 p95Ms=13.877
+ROCK network-RockCluster-12-0.0: contacts=251 repeat=56 final=0 depth=0.0002 overlapFrames=0 angular=0.165 contactMeanMs=7.686 p95Ms=14.440
+ROCK network-RockCluster-12-1.2: contacts=176 repeat=31 final=0 depth=0.0002 overlapFrames=0 angular=0.364 contactMeanMs=7.593 p95Ms=14.584
+ROCK network-RockCluster-12-2.4: contacts=244 repeat=57 final=0 depth=0.0002 overlapFrames=0 angular=0.322 contactMeanMs=5.766 p95Ms=9.372
+ROCK network-RockCluster-35-0.0: contacts=256 repeat=55 final=0 depth=0.0002 overlapFrames=0 angular=1.162 contactMeanMs=7.574 p95Ms=13.440
+ROCK network-RockCluster-35-1.2: contacts=185 repeat=36 final=0 depth=0.0002 overlapFrames=0 angular=0.982 contactMeanMs=6.912 p95Ms=11.217
+ROCK network-RockCluster-35-2.4: contacts=268 repeat=61 final=0 depth=0.0002 overlapFrames=0 angular=1.201 contactMeanMs=6.592 p95Ms=11.414
+ROCK network-RockLedge-3-0.0: contacts=215 repeat=65 final=0 depth=0.0003 overlapFrames=0 angular=0.398 contactMeanMs=5.633 p95Ms=9.225
+ROCK network-RockLedge-3-1.2: contacts=176 repeat=44 final=0 depth=0.0002 overlapFrames=0 angular=0.251 contactMeanMs=6.864 p95Ms=12.828
+ROCK network-RockLedge-3-2.4: contacts=218 repeat=63 final=0 depth=0.0002 overlapFrames=0 angular=0.255 contactMeanMs=6.461 p95Ms=11.194
+ROCK network-RockLedge-12-0.0: contacts=258 repeat=63 final=0 depth=0.0002 overlapFrames=0 angular=0.612 contactMeanMs=5.773 p95Ms=8.766
+ROCK network-RockLedge-12-1.2: contacts=187 repeat=36 final=0 depth=0.0001 overlapFrames=0 angular=0.487 contactMeanMs=6.542 p95Ms=12.415
+ROCK network-RockLedge-12-2.4: contacts=229 repeat=66 final=0 depth=0.0002 overlapFrames=0 angular=0.405 contactMeanMs=7.491 p95Ms=14.736
+ROCK network-RockLedge-35-0.0: contacts=258 repeat=64 final=0 depth=0.0002 overlapFrames=0 angular=1.199 contactMeanMs=6.792 p95Ms=11.306
+ROCK network-RockLedge-35-1.2: contacts=198 repeat=46 final=0 depth=0.0002 overlapFrames=0 angular=1.202 contactMeanMs=7.079 p95Ms=14.481
+FAIL: network-RockLedge-35-2.4 contact step budget: 11.331ms
+ROCK network-RockLedge-35-2.4: contacts=201 repeat=51 final=0 depth=0.0002 overlapFrames=0 angular=1.055 contactMeanMs=11.331 p95Ms=21.177
+ROCK network-BoulderTall-3-0.0: contacts=222 repeat=61 final=0 depth=0.0002 overlapFrames=0 angular=0.208 contactMeanMs=7.361 p95Ms=14.789
+FAIL: network-BoulderTall-3-1.2 contact step budget: 8.418ms
+ROCK network-BoulderTall-3-1.2: contacts=234 repeat=69 final=0 depth=0.0001 overlapFrames=0 angular=0.193 contactMeanMs=8.418 p95Ms=15.085
+ROCK network-BoulderTall-3-2.4: contacts=206 repeat=50 final=0 depth=0.0002 overlapFrames=0 angular=0.327 contactMeanMs=7.938 p95Ms=13.941
+ROCK network-BoulderTall-12-0.0: contacts=239 repeat=59 final=0 depth=0.0002 overlapFrames=0 angular=0.300 contactMeanMs=6.158 p95Ms=11.329
+ROCK network-BoulderTall-12-1.2: contacts=260 repeat=68 final=0 depth=0.0001 overlapFrames=0 angular=0.517 contactMeanMs=6.625 p95Ms=10.966
+FAIL: network-BoulderTall-12-2.4 contact step budget: 8.252ms
+ROCK network-BoulderTall-12-2.4: contacts=227 repeat=50 final=0 depth=0.0002 overlapFrames=0 angular=0.480 contactMeanMs=8.252 p95Ms=15.137
+ROCK network-BoulderTall-35-0.0: contacts=259 repeat=60 final=0 depth=0.0002 overlapFrames=0 angular=0.721 contactMeanMs=5.760 p95Ms=10.659
+ROCK network-BoulderTall-35-1.2: contacts=275 repeat=69 final=0 depth=0.0002 overlapFrames=0 angular=0.728 contactMeanMs=6.723 p95Ms=11.531
+ROCK network-BoulderTall-35-2.4: contacts=239 repeat=49 final=0 depth=0.0002 overlapFrames=0 angular=1.205 contactMeanMs=6.443 p95Ms=11.384
+ROCK network-RockSlab-3-0.0: contacts=220 repeat=60 final=0 depth=0.0002 overlapFrames=0 angular=0.236 contactMeanMs=5.853 p95Ms=10.216
+ROCK network-RockSlab-3-1.2: contacts=236 repeat=64 final=0 depth=0.0002 overlapFrames=0 angular=0.288 contactMeanMs=6.779 p95Ms=9.935
+ROCK network-RockSlab-3-2.4: contacts=164 repeat=38 final=0 depth=0.0002 overlapFrames=0 angular=0.309 contactMeanMs=7.462 p95Ms=16.141
+ROCK network-RockSlab-12-0.0: contacts=253 repeat=63 final=0 depth=0.0002 overlapFrames=0 angular=0.397 contactMeanMs=6.589 p95Ms=11.770
+ROCK network-RockSlab-12-1.2: contacts=261 repeat=65 final=0 depth=0.0001 overlapFrames=0 angular=0.410 contactMeanMs=6.119 p95Ms=8.849
+ROCK network-RockSlab-12-2.4: contacts=184 repeat=38 final=0 depth=0.0002 overlapFrames=0 angular=0.450 contactMeanMs=7.352 p95Ms=14.037
+ROCK network-RockSlab-35-0.0: contacts=264 repeat=65 final=0 depth=0.0001 overlapFrames=0 angular=1.108 contactMeanMs=6.792 p95Ms=12.351
+ROCK network-RockSlab-35-1.2: contacts=267 repeat=64 final=0 depth=0.0001 overlapFrames=0 angular=1.082 contactMeanMs=5.568 p95Ms=9.428
+ROCK network-RockSlab-35-2.4: contacts=203 repeat=43 final=0 depth=0.0002 overlapFrames=0 angular=1.176 contactMeanMs=5.382 p95Ms=9.624
+ROCK network-BoulderLow-3-0.0: contacts=220 repeat=57 final=0 depth=0.0002 overlapFrames=0 angular=0.455 contactMeanMs=6.511 p95Ms=11.027
+ROCK network-BoulderLow-3-1.2: contacts=212 repeat=49 final=0 depth=0.0007 overlapFrames=0 angular=0.167 contactMeanMs=6.663 p95Ms=10.946
+ROCK network-BoulderLow-3-2.4: contacts=213 repeat=55 final=0 depth=0.0002 overlapFrames=0 angular=0.231 contactMeanMs=5.676 p95Ms=9.386
+ROCK network-BoulderLow-12-0.0: contacts=246 repeat=57 final=0 depth=0.0001 overlapFrames=0 angular=0.224 contactMeanMs=5.921 p95Ms=10.995
+ROCK network-BoulderLow-12-1.2: contacts=231 repeat=52 final=0 depth=0.0005 overlapFrames=0 angular=0.423 contactMeanMs=6.561 p95Ms=10.869
+ROCK network-BoulderLow-12-2.4: contacts=243 repeat=59 final=0 depth=0.0002 overlapFrames=0 angular=0.253 contactMeanMs=7.768 p95Ms=14.416
+FAIL: network-BoulderLow-35-0.0 contact step budget: 11.317ms
+ROCK network-BoulderLow-35-0.0: contacts=250 repeat=57 final=0 depth=0.0002 overlapFrames=0 angular=1.151 contactMeanMs=11.317 p95Ms=27.551
+FAIL: network-BoulderLow-35-1.2 contact step budget: 9.427ms
+ROCK network-BoulderLow-35-1.2: contacts=253 repeat=53 final=0 depth=0.0004 overlapFrames=0 angular=0.286 contactMeanMs=9.427 p95Ms=19.959
+FAIL: network-BoulderLow-35-2.4 contact step budget: 8.519ms
+ROCK network-BoulderLow-35-2.4: contacts=247 repeat=55 final=0 depth=0.0002 overlapFrames=0 angular=0.779 contactMeanMs=8.519 p95Ms=17.271
+ROCK practice-RockCluster-3-0.0: contacts=279 repeat=74 final=0 depth=0.0065 overlapFrames=0 angular=0.273 contactMeanMs=0.911 p95Ms=1.484
+ROCK practice-RockCluster-3-1.2: contacts=235 repeat=60 final=0 depth=0.0008 overlapFrames=0 angular=0.225 contactMeanMs=0.597 p95Ms=1.138
+ROCK practice-RockCluster-3-2.4: contacts=259 repeat=71 final=0 depth=0.0119 overlapFrames=0 angular=0.273 contactMeanMs=0.500 p95Ms=1.312
+ROCK practice-RockCluster-12-0.0: contacts=312 repeat=74 final=0 depth=0.0130 overlapFrames=0 angular=0.503 contactMeanMs=0.493 p95Ms=1.135
+ROCK practice-RockCluster-12-1.2: contacts=258 repeat=59 final=0 depth=0.0031 overlapFrames=0 angular=0.387 contactMeanMs=0.512 p95Ms=1.104
+ROCK practice-RockCluster-12-2.4: contacts=286 repeat=71 final=0 depth=0.0233 overlapFrames=1 angular=0.717 contactMeanMs=0.526 p95Ms=1.087
+ROCK practice-RockCluster-35-0.0: contacts=320 repeat=72 final=0 depth=0.0058 overlapFrames=0 angular=1.152 contactMeanMs=0.497 p95Ms=1.004
+ROCK practice-RockCluster-35-1.2: contacts=293 repeat=70 final=0 depth=0.0098 overlapFrames=0 angular=1.197 contactMeanMs=0.520 p95Ms=0.981
+ROCK practice-RockCluster-35-2.4: contacts=25 repeat=0 final=0 depth=0.0375 overlapFrames=1 angular=1.887 contactMeanMs=0.000 p95Ms=0.000
+ROCK practice-RockLedge-3-0.0: contacts=259 repeat=70 final=0 depth=0.0087 overlapFrames=0 angular=0.398 contactMeanMs=0.944 p95Ms=1.382
+ROCK practice-RockLedge-3-1.2: contacts=276 repeat=70 final=0 depth=0.0102 overlapFrames=0 angular=0.235 contactMeanMs=0.767 p95Ms=1.152
+ROCK practice-RockLedge-3-2.4: contacts=262 repeat=70 final=0 depth=0.0063 overlapFrames=0 angular=0.262 contactMeanMs=0.826 p95Ms=1.447
+ROCK practice-RockLedge-12-0.0: contacts=291 repeat=70 final=0 depth=0.0266 overlapFrames=1 angular=0.630 contactMeanMs=0.610 p95Ms=1.091
+ROCK practice-RockLedge-12-1.2: contacts=298 repeat=70 final=0 depth=0.0089 overlapFrames=0 angular=0.345 contactMeanMs=0.659 p95Ms=1.413
+ROCK practice-RockLedge-12-2.4: contacts=285 repeat=70 final=0 depth=0.0155 overlapFrames=0 angular=0.419 contactMeanMs=0.681 p95Ms=1.372
+ROCK practice-RockLedge-35-0.0: contacts=305 repeat=70 final=0 depth=0.0441 overlapFrames=2 angular=1.199 contactMeanMs=0.665 p95Ms=1.209
+ROCK practice-RockLedge-35-1.2: contacts=296 repeat=70 final=0 depth=0.0616 overlapFrames=2 angular=1.109 contactMeanMs=0.598 p95Ms=1.337
+ROCK practice-RockLedge-35-2.4: contacts=298 repeat=70 final=0 depth=0.0566 overlapFrames=1 angular=1.205 contactMeanMs=0.643 p95Ms=1.128
+ROCK practice-BoulderTall-3-0.0: contacts=257 repeat=70 final=0 depth=0.0202 overlapFrames=1 angular=0.261 contactMeanMs=0.657 p95Ms=1.248
+ROCK practice-BoulderTall-3-1.2: contacts=259 repeat=70 final=0 depth=0.0159 overlapFrames=0 angular=0.179 contactMeanMs=0.729 p95Ms=1.092
+ROCK practice-BoulderTall-3-2.4: contacts=257 repeat=70 final=0 depth=0.0151 overlapFrames=0 angular=0.341 contactMeanMs=0.797 p95Ms=1.230
+ROCK practice-BoulderTall-12-0.0: contacts=289 repeat=70 final=0 depth=0.0187 overlapFrames=0 angular=0.370 contactMeanMs=0.519 p95Ms=1.153
+ROCK practice-BoulderTall-12-1.2: contacts=289 repeat=70 final=0 depth=0.0246 overlapFrames=1 angular=0.304 contactMeanMs=0.632 p95Ms=1.072
+ROCK practice-BoulderTall-12-2.4: contacts=288 repeat=70 final=0 depth=0.0249 overlapFrames=1 angular=0.496 contactMeanMs=0.573 p95Ms=1.186
+ROCK practice-BoulderTall-35-0.0: contacts=304 repeat=70 final=0 depth=0.0512 overlapFrames=1 angular=1.057 contactMeanMs=0.886 p95Ms=1.105
+ROCK practice-BoulderTall-35-1.2: contacts=302 repeat=70 final=0 depth=0.0674 overlapFrames=1 angular=0.974 contactMeanMs=0.733 p95Ms=0.959
+ROCK practice-BoulderTall-35-2.4: contacts=304 repeat=70 final=0 depth=0.0108 overlapFrames=0 angular=1.206 contactMeanMs=0.644 p95Ms=1.232
+ROCK practice-RockSlab-3-0.0: contacts=251 repeat=70 final=0 depth=0.0049 overlapFrames=0 angular=0.244 contactMeanMs=0.886 p95Ms=1.171
+ROCK practice-RockSlab-3-1.2: contacts=254 repeat=70 final=0 depth=0.0042 overlapFrames=0 angular=0.295 contactMeanMs=0.695 p95Ms=0.528
+ROCK practice-RockSlab-3-2.4: contacts=249 repeat=70 final=0 depth=0.0055 overlapFrames=0 angular=0.326 contactMeanMs=1.298 p95Ms=2.830
+ROCK practice-RockSlab-12-0.0: contacts=285 repeat=70 final=0 depth=0.0085 overlapFrames=0 angular=0.399 contactMeanMs=0.498 p95Ms=1.191
+ROCK practice-RockSlab-12-1.2: contacts=286 repeat=70 final=0 depth=0.0074 overlapFrames=0 angular=0.438 contactMeanMs=0.536 p95Ms=1.020
+ROCK practice-RockSlab-12-2.4: contacts=284 repeat=70 final=0 depth=0.0264 overlapFrames=1 angular=0.485 contactMeanMs=0.440 p95Ms=0.583
+ROCK practice-RockSlab-35-0.0: contacts=301 repeat=70 final=0 depth=0.0121 overlapFrames=0 angular=1.149 contactMeanMs=0.452 p95Ms=1.324
+ROCK practice-RockSlab-35-1.2: contacts=300 repeat=70 final=0 depth=0.0097 overlapFrames=0 angular=1.176 contactMeanMs=0.492 p95Ms=1.216
+ROCK practice-RockSlab-35-2.4: contacts=311 repeat=71 final=0 depth=0.0296 overlapFrames=1 angular=1.198 contactMeanMs=0.579 p95Ms=1.387
+ROCK practice-BoulderLow-3-0.0: contacts=274 repeat=74 final=0 depth=0.0036 overlapFrames=0 angular=0.244 contactMeanMs=0.612 p95Ms=0.989
+ROCK practice-BoulderLow-3-1.2: contacts=286 repeat=74 final=0 depth=0.0035 overlapFrames=0 angular=0.305 contactMeanMs=0.857 p95Ms=1.086
+ROCK practice-BoulderLow-3-2.4: contacts=260 repeat=71 final=0 depth=0.0126 overlapFrames=0 angular=0.245 contactMeanMs=0.320 p95Ms=0.428
+ROCK practice-BoulderLow-12-0.0: contacts=309 repeat=74 final=0 depth=0.0039 overlapFrames=0 angular=0.250 contactMeanMs=0.480 p95Ms=0.750
+ROCK practice-BoulderLow-12-1.2: contacts=322 repeat=75 final=0 depth=0.0049 overlapFrames=0 angular=0.413 contactMeanMs=0.426 p95Ms=0.600
+ROCK practice-BoulderLow-12-2.4: contacts=284 repeat=71 final=0 depth=0.0064 overlapFrames=0 angular=0.476 contactMeanMs=0.641 p95Ms=0.890
+ROCK practice-BoulderLow-35-0.0: contacts=331 repeat=75 final=0 depth=0.0050 overlapFrames=0 angular=1.198 contactMeanMs=0.530 p95Ms=0.781
+ROCK practice-BoulderLow-35-1.2: contacts=348 repeat=79 final=0 depth=0.0137 overlapFrames=0 angular=1.021 contactMeanMs=0.517 p95Ms=0.780
+ROCK practice-BoulderLow-35-2.4: contacts=326 repeat=77 final=0 depth=0.0585 overlapFrames=2 angular=0.934 contactMeanMs=0.505 p95Ms=0.775
+Rock collision checks: failures=8

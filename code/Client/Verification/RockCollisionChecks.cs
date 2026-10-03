@@ -68,25 +68,27 @@ public sealed partial class RockCollisionChecks : Node3D
         var pose = new VehiclePhysicsState(N.Vector3.Transform(new(Number("offset", 0), Number("height", VehicleDimensions.RideHeight), Number("distance", 10)), rotation), rotation,
             N.Vector3.Transform(new(0, Number("vertical-speed", 0), -Number("initial-speed", speed)), rotation), N.Vector3.Zero);
         var damage = new DamageConfiguration { MaxHP = 100000, CollisionScale = 5 };
-        world.AddVehicle(1, new(), damage, pose);
+        var configuration = Option("tuning", "defaults") == "host"
+            ? new Development.DeveloperSettingsStore(ProjectSettings.GlobalizePath("user://developer-settings.jsonl")).LoadForHost().Vehicle : new VehicleConfiguration();
+        world.AddVehicle(1, configuration, damage, pose);
         VehicleBody? practice = null; NetworkVehicleBody? proxy = null;
-        if (network) { proxy = new() { VehicleId = 1 }; fixture.AddChild(proxy); proxy.Apply(world.GetVehicle(1)); }
+        if (network) { proxy = new() { VehicleId = 1 }; fixture.AddChild(proxy); proxy.ApplyConfiguration(configuration); proxy.Apply(world.GetVehicle(1)); }
         else
         {
-            practice = new() { Position = VehicleBody.ToGodot(pose.Position), Quaternion = VehicleBody.ToGodot(rotation), LinearVelocity = VehicleBody.ToGodot(pose.LinearVelocity), DamageConfiguration = damage };
+            practice = new() { Position = VehicleBody.ToGodot(pose.Position), Quaternion = VehicleBody.ToGodot(rotation), LinearVelocity = VehicleBody.ToGodot(pose.LinearVelocity), DamageConfiguration = damage, Configuration = configuration };
             practice.Initialize(world); fixture.AddChild(practice);
         }
         PhysicsBody3D body = (PhysicsBody3D?)practice ?? proxy!;
         float initialPenetration = 0;
         float initialRecovery = 0;
-        if (Number("embed", 0) > 0)
+        if (Number("embed", 0) > 0 || Number("approach-gap", 0) > 0)
         {
             await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
             Vector3 direction = VehicleBody.ToGodot(N.Vector3.Transform(-N.Vector3.UnitZ, rotation));
             using var entry = new PhysicsTestMotionParameters3D { From = body.GlobalTransform, Motion = direction * 15, Margin = 0.005f, MaxCollisions = 4, RecoveryAsCollision = true };
             using var entryHit = new PhysicsTestMotionResult3D();
             Check(PhysicsServer3D.BodyTestMotion(body.GetRid(), entry, entryHit), name + " embedded fixture reaches geometry");
-            Vector3 position = entry.From.Origin + entryHit.GetTravel() + direction * Number("embed", 0);
+            Vector3 position = entry.From.Origin + entryHit.GetTravel() + direction * (Number("embed", 0) - Number("approach-gap", 0));
             pose = new(VehicleBody.ToCore(position), rotation, N.Vector3.Zero, N.Vector3.Zero);
             world.Restore(new(0, default, [new VehicleSnapshot(1, 1, new VehicleState(0, pose, true, false, 0, 0), new(damage.MaxHP, damage.MaxHP, null, null), pose)]));
             var embedded = new Transform3D(new Basis(VehicleBody.ToGodot(rotation)), position);
@@ -102,7 +104,7 @@ public sealed partial class RockCollisionChecks : Node3D
                 initialRecovery = entryHit.GetTravel().Length();
                 for (int i = 0; i < entryHit.GetCollisionCount(); i++) initialPenetration = Math.Max(initialPenetration, entryHit.GetCollisionDepth(i));
             }
-            Check(initialRecovery > 0.01f, name + $" embedded fixture requires native recovery: travel={initialRecovery:F4}, residualDepth={initialPenetration:F4}");
+            if (Number("embed", 0) > 0) Check(initialRecovery > 0.01f, name + $" embedded fixture requires native recovery: travel={initialRecovery:F4}, residualDepth={initialPenetration:F4}");
         }
         var traces = new List<object>();
         var contactTimes = new List<double>();
@@ -110,16 +112,20 @@ public sealed partial class RockCollisionChecks : Node3D
         int contactFrames = 0, overlaps = 0, finalContacts = 0, repeatContacts = 0;
         float finalHeight = 0, finalUp = 0, finalVertical = 0, finalDistance = 0, finalAngular = 0;
         float settledSpeedChange = 0;
+        float pressureMinimum = float.PositiveInfinity, pressureMaximum = float.NegativeInfinity;
+        float pressureFirst = 0, pressureLast = 0, pressureTravel = 0, pressureLiftStep = 0;
         N.Vector3 previousVelocity = pose.LinearVelocity;
         using var query = new PhysicsTestMotionParameters3D { Margin = 0.001f, MaxCollisions = 16, RecoveryAsCollision = true };
         using var hit = new PhysicsTestMotionResult3D();
         int duration = (int)Number("frames", 705);
+        int holdFrames = (int)Number("hold", 0);
         for (int frame = 0; frame < duration; frame++)
         {
             await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
             bool drive = frame < 180 || frame is >= 240 and < 330 || frame is >= 390 and < 480;
             bool reverse = frame is >= 195 and < 240 || frame is >= 345 and < 390 || frame >= 495;
-            var input = new InputFrame(world.State.Tick + 1, 0, drive ? (ushort)(ushort.MaxValue * Number("throttle", 1)) : (ushort)0, reverse ? ushort.MaxValue : (ushort)0, 0, 0, 0);
+            if (holdFrames > 0) { drive = frame < holdFrames; reverse = frame >= holdFrames + 15; }
+            var input = new InputFrame(world.State.Tick + 1, (short)(short.MaxValue * Number("steer", 0)), drive ? (ushort)(ushort.MaxValue * Number("throttle", 1)) : (ushort)0, reverse ? ushort.MaxValue : (ushort)0, 0, 0, 0);
             var watch = Stopwatch.StartNew();
             var before = world.GetVehicle(1).Movement.Physics;
             var observation = network ? proxy!.Observe(world.GetVehicle(1)) : practice!.Capture(input).Observation;
@@ -135,6 +141,18 @@ public sealed partial class RockCollisionChecks : Node3D
             if (depth > 0.02f) overlaps++;
             deepest = Math.Max(deepest, depth);
             var p = observation.Physics;
+            if (holdFrames > 120 && frame >= 120 && frame < holdFrames)
+            {
+                if (frame == 120) { pressureFirst = p.Position.Y; }
+                else
+                {
+                    pressureTravel += Math.Abs(p.Position.Y - pressureLast);
+                    pressureLiftStep = Math.Max(pressureLiftStep, p.Position.Y - pressureLast);
+                }
+                pressureLast = p.Position.Y;
+                pressureMinimum = Math.Min(pressureMinimum, p.Position.Y);
+                pressureMaximum = Math.Max(pressureMaximum, p.Position.Y);
+            }
             finalHeight = p.Position.Y;
             finalUp = N.Vector3.Transform(N.Vector3.UnitY, p.Orientation).Y;
             finalVertical = Math.Abs(p.LinearVelocity.Y);
@@ -154,7 +172,11 @@ public sealed partial class RockCollisionChecks : Node3D
             }
             traces.Add(new { frame, x = p.Position.X, y = p.Position.Y, z = p.Position.Z, vx = p.LinearVelocity.X, vy = p.LinearVelocity.Y, vz = p.LinearVelocity.Z,
                 angular = p.AngularVelocity.Length(), up = finalUp, wheels = observation.Wheels?.Compression.ToString(),
+                support = observation.Support.ToString(), terrainSupport = observation.TerrainSupport.ToString(),
+                commandVy = result.Snapshot.Movement.Physics.LinearVelocity.Y, throttle = result.Snapshot.Movement.Throttle,
+                crashSeconds = result.Snapshot.Movement.CrashSeconds,
                 normals = observation.Contacts.Where(c => c.EnvironmentRock != 0).Select(c => c.Normal.ToString()).ToArray(),
+                rockContacts = observation.Contacts.Where(c => c.EnvironmentRock != 0).Select(c => new { normal = c.Normal.ToString(), local = c.LocalPosition.ToString(), c.StaticObstacle }).ToArray(),
                 depth, contacts, observeMs, stepMs = watch.Elapsed.TotalMilliseconds });
             if (_camera is not null && ((contacts > 0 && contactFrames == 1) || frame is 170 or 310 or 460 or 700))
             {
@@ -167,6 +189,16 @@ public sealed partial class RockCollisionChecks : Node3D
         }
         double contactMeanMs = contactTimes.Count == 0 ? 0 : contactTimes.Average();
         double contactP95Ms = contactTimes.Count == 0 ? 0 : contactTimes.Order().ElementAt((int)((contactTimes.Count - 1) * 0.95));
+        float pressureRange = holdFrames > 120 ? pressureMaximum - pressureMinimum : 0;
+        float pressureRepeatedTravel = pressureTravel - Math.Abs(pressureLast - pressureFirst);
+        if (Number("pressure-check", 0) > 0)
+        {
+            // These starts face a blocking side, without momentum to mount it.
+            // Allow millimetre native recovery; reject repeated centimetre hops
+            // and accumulated climbing during the five-second settled interval.
+            Check(holdFrames == 420 && pressureRange < 0.05f && pressureLiftStep < 0.005f && pressureRepeatedTravel < 0.1f,
+                name + $" settled rock pressure: range={pressureRange:F5}, liftStep={pressureLiftStep:F5}, repeatedTravel={pressureRepeatedTravel:F5}");
+        }
         Check(contactFrames > 0 || Number("offset", 0) != 0, name + " reaches rock");
         Check(overlaps < 5 && deepest < 0.1f, name + $" no persistent penetration: depth={deepest:F4}, frames={overlaps}");
         if (Number("height", VehicleDimensions.RideHeight) > 3)
@@ -180,7 +212,7 @@ public sealed partial class RockCollisionChecks : Node3D
         Check(peakStep < 1.2f && peakAngular <= 8.01f, name + " bounded correction/motion");
         // Wall-time measurements include OS scheduling; budget the mean, retain p95 evidence.
         Check(contactMeanMs < 8, name + $" contact step budget: {contactMeanMs:F3}ms");
-        _summaries.Add(new { name, initialPenetration, initialRecovery, contactFrames, repeatContacts, finalContacts, deepest, overlaps, peakStep, peakAngular, finalHeight, finalUp, finalVertical, finalDistance, finalAngular, settledSpeedChange, contactMeanMs, contactP95Ms });
+        _summaries.Add(new { name, initialPenetration, initialRecovery, contactFrames, repeatContacts, finalContacts, deepest, overlaps, peakStep, peakAngular, finalHeight, finalUp, finalVertical, finalDistance, finalAngular, settledSpeedChange, pressureRange, pressureLiftStep, pressureRepeatedTravel, contactMeanMs, contactP95Ms });
         GD.Print($"ROCK {name}: contacts={contactFrames} repeat={repeatContacts} final={finalContacts} depth={deepest:F4} overlapFrames={overlaps} angular={peakAngular:F3} contactMeanMs={contactMeanMs:F3} p95Ms={contactP95Ms:F3}");
         System.IO.File.WriteAllText(System.IO.Path.Combine(directory, name + ".json"), JsonSerializer.Serialize(traces));
         fixture.QueueFree();

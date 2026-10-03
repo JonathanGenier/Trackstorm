@@ -185,6 +185,7 @@ public sealed class VehicleMovement
         float frontSlip = 0;
         float rearSlip = 0;
         float powerSlip = State.PowerSlip * MathF.Exp(-c.PowerSlipRecovery * dt);
+        Vector3 collisionVelocity = velocity;
         if (grounded)
         {
             WheelSupport contact = wheels ?? default;
@@ -366,6 +367,18 @@ public sealed class VehicleMovement
             float thrust = boost.ForwardThrust / c.Mass * (grounded ? 1 : boost.AirborneThrustScale);
             float addition = Math.Min(thrust * dt, Math.Max(0, forwardSpeed - Vector3.Dot(velocity, rocketForward)));
             velocity += rocketForward * addition;
+        }
+
+        // Fresh drive must not push back into a blocked rock face every tick:
+        // native bevel recovery would repeatedly lift the otherwise stalled body.
+        // Preserve the adapter's solved momentum and the suspension/gravity below,
+        // including landing/recovery motion. Throttle and tire slip stay natural.
+        foreach (VehicleContact contact in contacts ?? Array.Empty<VehicleContact>())
+        {
+            if (contact.EnvironmentRock == 0 || !contact.StaticObstacle) { continue; }
+            Vector3 normal = EnvironmentCollision.ResponseNormal(contact.Normal, groundNormal);
+            float permitted = Math.Min(0, Vector3.Dot(collisionVelocity, normal));
+            velocity += normal * Math.Max(0, permitted - Vector3.Dot(velocity, normal));
         }
 
         // Remove only excess road speed at a bounded rate, preserving direction and vertical motion.

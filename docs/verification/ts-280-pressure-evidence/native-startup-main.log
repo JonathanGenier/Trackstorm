@@ -1,0 +1,32 @@
+  Determining projects to restore...
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\baseline-main\Trackstorm.Client.csproj (in 651 ms).
+  Restored C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\baseline-main\code\TransportTests\Trackstorm.Transport.Tests.csproj (in 696 ms).
+  2 of 4 projects are up-to-date for restore.
+  Trackstorm.Core -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\baseline-main\code\Core\bin\Release\net10.0\Trackstorm.Core.dll
+  Epic.OnlineServices -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\baseline-main\third_party\eos\bin\Release\net10.0\Epic.OnlineServices.dll
+  Trackstorm.Client -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\baseline-main\.godot\mono\temp\bin\Release\Trackstorm.Client.dll
+  Trackstorm.Transport.Tests -> C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\baseline-main\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\baseline-main\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\baseline-main\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Non-Explicit run
+CORRECTION tick=90; vehicle=7; error=0.1245; scheduleLag=0.0013; age=0.0006; pending=8; clientAck=56; authorityAck=60; hostTick=91; snapshotTick=87
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+startup max=0.1245m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=13
+players=8; outbound delay=30ms; jitter=10ms; loss=0%; corrections=1619; p99=0.0000m; max=0.1245m; snapshots/client=229; stale packets rejected
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed EightPlayerControlledSnapshotLossConverges [12 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 15.0596 Seconds

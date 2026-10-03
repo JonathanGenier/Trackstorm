@@ -1,0 +1,23 @@
+Test run for C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\baseline-main\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+NUnit Adapter 5.0.0.0: Test execution started
+Running selected tests in C:\Users\orsin\OneDrive\Desktop\ThanTrick\Trackstorm\.godot\ts-280\baseline-main\code\TransportTests\bin\Release\net10.0\Trackstorm.Transport.Tests.dll
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Non-Explicit run
+prediction-limited client ticks=0; during probe window plus 0.5s drain=0; elsewhere=0
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+delivered stale probes=60; controlled dropped snapshots=4; native loss is configured, not individually observable
+startup max=0.0613m; steady p99=0.0000m; steady max=0.0000m; steady >1cm=0; max pending at completion=13
+players=8; outbound delay=30ms; jitter=10ms; loss=0%; corrections=1615; p99=0.0000m; max=0.0613m; snapshots/client=231; stale packets rejected
+
+NUnit Adapter 5.0.0.0: Test execution complete
+  Passed EightPlayerControlledSnapshotLossConverges [12 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 12.8431 Seconds
