@@ -17,11 +17,22 @@ $arguments = @('--path', ('"{0}"' -f $PSScriptRoot), 'res://scenes/verification/
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
 $process = Start-Process -FilePath (Resolve-Path -LiteralPath $GodotPath).Path -ArgumentList $arguments -PassThru -WindowStyle Hidden `
     -RedirectStandardOutput (Join-Path $output "$run.log") -RedirectStandardError (Join-Path $output "$run-errors.log")
-function Command([string]$name, [hashtable]$values) {
-    $values.id = "$run-$name"
+function Publish([hashtable]$values) {
     $temporary = Join-Path $output 'input.next'
     $values | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $temporary
-    [System.IO.File]::Move($temporary, $inputPath, $true)
+    # Windows file scanners can briefly hold the destination despite the fixture's
+    # shared-delete reader. Retry only the atomic handoff, with a bounded deadline.
+    for ($attempt = 0; $attempt -lt 20; $attempt++) {
+        try { [System.IO.File]::Move($temporary, $inputPath, $true); return }
+        catch {
+            if ($attempt -eq 19) { throw }
+            Start-Sleep -Milliseconds 50
+        }
+    }
+}
+function Command([string]$name, [hashtable]$values) {
+    $values.id = "$run-$name"
+    Publish $values
     $result = Join-Path $output ($values.id + '.json')
     $deadline = [DateTime]::UtcNow.AddSeconds(35)
     while (-not (Test-Path -LiteralPath $result)) {
@@ -41,6 +52,19 @@ try {
     $first = @($mounted.tombstones)[0].Id
     Assert (@($mounted.tombstones).Count -eq 1 -and $mounted.tombstones[0].Stage -eq 1) 'Selected acquisition presents rear shield.'
     Assert ($mounted.trace[-1].shields[0].rack -gt .99) 'Production rack reaches its raised mounting pose.'
+    Assert (@($mounted.trace | Where-Object { $_.shields[0].mount -gt 0 -and $_.shields[0].mount -lt 1 }).Count -gt 10 -and $mounted.trace[-1].shields[0].mount -eq 1) 'Selection unfolds progressively from the rack into the rear shield.'
+    $stowing = Command 'stowing' @{select=$true;frames=18;camera=@(6,204,-1);look=@(0,202,2)}
+    Assert (-not $stowing.trace[-1].shields[0].shield -and $stowing.trace[-1].shields[0].visible -and $stowing.trace[-1].shields[0].mount -gt 0 -and $stowing.trace[-1].shields[0].mount -lt 1) 'Deselection visibly folds the shield while authority deselects immediately.'
+    Assert (@($stowing.trace | Where-Object { $_.shields[0].mount -gt 0 -and $_.shields[0].rack -lt .99 }).Count -eq 0) 'Rack stays raised until the shield folds safely back.'
+    $stowed = Command 'stowed' @{frames=100}
+    Assert (-not $stowed.trace[-1].shields[0].visible -and $stowed.trace[-1].shields[0].rack -eq 0) 'Folded shield and carriage stow with the closed deck.'
+    $opening = Command 'opening' @{select=$true;frames=45}
+    $swing = Command 'swing' @{frames=12}
+    $ready = Command 'ready' @{frames=90}
+    Assert ($ready.trace[-1].shields[0].mount -eq 1 -and $ready.trace[-1].remoteShields[0].mount -eq 1) 'Host and remote peer finish the same selection animation.'
+    $rapidOut = Command 'rapid-out' @{select=$true;frames=10}
+    $rapidIn = Command 'rapid-in' @{select=$true;frames=190}
+    Assert ($rapidIn.trace[-1].shields[0].mount -eq 1 -and $rapidIn.trace[-1].remoteShields[0].mount -eq 1) 'Rapid reselection settles into one coherent mounted shield on both peers.'
     $stored = Command 'stored' @{grant=$true;select=$true;frames=90}
     Assert (@($stored.tombstones | Where-Object Stage -eq 0).Count -eq 1) 'Second slot retains an independently stored Tombstone.'
     $selected = Command 'selected' @{select=$true;frames=90}
@@ -73,11 +97,16 @@ try {
     $landing = Command 'mounted-landing' @{spawn=@(-8,202.5,0);frames=60}
     $drive = Command 'mounted-driving' @{throttle=.7;steer=.25;frames=100}
     Assert (@($drive.tombstones | Where-Object Stage -eq 1).Count -eq 1) 'Mounted presentation survives ordinary driving and steering.'
-    $clearances = @($mounted,$stored,$selected,$repeat,$again,$landing,$drive) | ForEach-Object { $_.trace.shields } | Where-Object shield | ForEach-Object articulationClearance
+    $nitro = Command 'switch-to-nitro' @{grant=$true;item='Nitro';select=$true;frames=150}
+    Assert (-not $nitro.trace[-1].shields[0].visible -and $nitro.trace[-1].shields[0].mount -eq 0) 'Switching to Boost finishes the shield return before replacing the rack payload.'
+    $early = Command 'early-selected' @{owner=2;spawn=@(18,201.7,-12);grant=$true;frames=40;camera=@(24,205,-5);look=@(18,202,-9)}
+    $earlyUse = Command 'early-use' @{owner=2;use=$true;frames=12}
+    Assert (@($earlyUse.tombstones | Where-Object { $_.Owner -eq 2 -and $_.Stage -eq 2 }).Count -eq 2) 'Use during selection deploys immediately through existing authority.'
+    $earlyDone = Command 'early-finished' @{frames=100}
+    Assert ($earlyDone.trace[-1].shields[1].mount -eq 0 -and -not $earlyDone.trace[-1].shields[1].visible) 'Empty carriage returns cleanly after early deployment.'
+    $clearances = @($mounted,$stowing,$stowed,$opening,$swing,$ready,$rapidOut,$rapidIn,$stored,$selected,$repeat,$again,$landing,$drive,$nitro,$early,$earlyUse) | ForEach-Object { $_.trace.shields } | Where-Object visible | ForEach-Object articulationClearance
     Assert (($clearances | Measure-Object -Minimum).Minimum -gt .01) 'Mounted armor clears articulated rear tires and trunk lids during rack motion, landing, driving and steering.'
-    $temporary = Join-Path $output 'input.next'
-    @{id="$run-quit";quit=$true} | ConvertTo-Json | Set-Content -LiteralPath $temporary
-    [System.IO.File]::Move($temporary, $inputPath, $true)
+    Publish @{id="$run-quit";quit=$true}
     if (-not $process.WaitForExit(10000)) { throw 'Playtest did not exit.' }
     $errors = Get-Content -LiteralPath (Join-Path $output "$run-errors.log") -Raw
     Assert ($process.ExitCode -eq 0 -and -not ($errors -match 'ERROR:|WARNING:|Exception')) 'Runtime exits cleanly without errors, warnings or exceptions.'

@@ -12,7 +12,7 @@ internal static class RackItemVisual
         if (item == HeldItem.ProxyMine) { return new ProxyMineRack { Name = "RackItem_ProxyMine" }; }
         if (item == HeldItem.Tombstone)
         {
-            return Networking.MatchResourceLoader.LoadResource<PackedScene>("res://assets/items/tombstone/TombstoneRack.glb").Instantiate<Node3D>();
+            return new TombstoneRack();
         }
         var root = new Node3D { Name = "RackItem_" + item };
         var definition = ItemRegistry.Find(item) ?? throw new ArgumentOutOfRangeException(nameof(item));

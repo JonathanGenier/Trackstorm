@@ -207,6 +207,16 @@ open from 90 degrees to a flat wall over 0.42 seconds. The full collision envelo
 immediately. Captured dimensions scale the installed visual; configured sizes preserve the
 same silhouette rather than authoring a separate model for each tuning combination.
 
+Selected presentation now unfolds from a compact horizontal rack pose after the
+deck opens and rack rises. The 0.8-second carriage motion lifts aft, tips the plate
+upright, unfolds the side wings and pulls the shield into rear position. Deselection
+reverses this sequence and holds the rack open until the shield is nested. The compact
+inventory pose uses 0.28 scale; it does not represent exact full-size mechanical
+packing. Accepted protection still starts/stops immediately with selection, and use
+is never delayed by animation. Early use hands the current pose, size and wing fold
+to the released wall; the empty carriage returns independently. Rapid switching,
+duplicate identities and remote publications share the same reconstructable path.
+
 `TombstoneVisual` owns per-instance accepted-HP weathering, impact scars, a brief hit flash
 and bounded sparks. Switching stored identities reconstructs their current damage without
 replaying an old impact. Late admission and explicit reseeding install a fully expanded wall,

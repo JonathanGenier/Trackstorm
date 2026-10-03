@@ -90,7 +90,9 @@ public sealed partial class TombstonePlaytest : Node
                 _trace.Add(new { frame = _frame, tick = host.World.State.Tick,
                     walls = _arenas[0].Walls.Bodies.Values.Select(b => new { id = b.Identity, expansion = b.Visual.Expansion, hp = b.Visual.PresentedHP }).ToArray(),
                     shields = _arenas[0].Bodies.Values.Select(b => new { id = b.VehicleId, shield = b.HasRearShield, rack = b.Rack.Progress,
-                        articulationClearance = b.HasRearShield ? ArticulationClearance(b) : (float?)null }).ToArray() });
+                        mount = b.ShieldMountProgress, visible = b.ShieldVisible,
+                        articulationClearance = b.ShieldVisible ? ArticulationClearance(b) : (float?)null }).ToArray(),
+                    remoteShields = _arenas[1].Bodies.Values.Select(b => new { id = b.VehicleId, mount = b.ShieldMountProgress, visible = b.ShieldVisible, rack = b.Rack.Progress }).ToArray() });
                 if (--_remaining == 0) { Save(); }
             }
         }
@@ -125,7 +127,8 @@ public sealed partial class TombstonePlaytest : Node
             var p = Point(spawn);
             Place(owner, new(p.X, p.Y, p.Z), Number("yaw"));
         }
-        if (command.TryGetProperty("grant", out var grant) && grant.GetBoolean() && !host.Items.Grant(host.World, owner, HeldItem.Tombstone))
+        HeldItem granted = command.TryGetProperty("item", out var item) ? Enum.Parse<HeldItem>(item.GetString()!) : HeldItem.Tombstone;
+        if (command.TryGetProperty("grant", out var grant) && grant.GetBoolean() && !host.Items.Grant(host.World, owner, granted))
         { throw new InvalidOperationException("Fixture grant rejected; slots/live limit must be respected."); }
         if (command.TryGetProperty("damage", out var damage))
         {

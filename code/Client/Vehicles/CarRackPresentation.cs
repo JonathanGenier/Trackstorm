@@ -30,6 +30,9 @@ internal sealed partial class CarRackPresentation : Node
 
     internal HeldItem PresentedItem => _payload?.Visible == true ? _mounted : HeldItem.None;
     internal float Progress => _mechanism.Progress;
+    internal Func<bool>? TombstoneReturning { get; set; }
+    internal bool TombstoneRequested => _desired == HeldItem.Tombstone && !_replace;
+    internal Items.TombstoneRack? TombstoneCarrier => _payload as Items.TombstoneRack;
     internal void ObserveAim(WeaponAimSolution? aim)
     {
         _aim = aim is not null && aim.Life == _life && aim.Token == _previous?.Active.Token ? aim : null;
@@ -107,7 +110,7 @@ internal sealed partial class CarRackPresentation : Node
             float confirmedRemaining = inventory!.NitroDeploymentTicks / 60f;
             _nitroReadyTick = checked(tick + (ulong)inventory.NitroDeploymentTicks);
             _nitroRemaining = selection || acquired ? confirmedRemaining : Math.Min(_nitroRemaining, confirmedRemaining);
-            AnimateNitroDeployment(0);
+            if (TombstoneReturning?.Invoke() != true) { AnimateNitroDeployment(0); }
         }
     }
 
@@ -130,6 +133,10 @@ internal sealed partial class CarRackPresentation : Node
     {
         if (_desired == HeldItem.Nitro)
         {
+            // The wide shield must finish nesting before the Boost timeline can
+            // lower or replace its rack. This never delays authoritative Boost.
+            if (TombstoneReturning?.Invoke() == true)
+            { _mechanism.SetTimelineProgress(null); _mechanism.Deployed = true; return; }
             AnimateNitroDeployment(Math.Max(0, (float)delta));
             return;
         }
@@ -139,7 +146,7 @@ internal sealed partial class CarRackPresentation : Node
         if (_replace || (_desired != _mounted && _mounted != HeldItem.None))
         {
             // Nest the barrel before lowering the rack through the open deck.
-            _mechanism.Deployed = _mounted == HeldItem.Nitro && Boost.Deployment > 0;
+            _mechanism.Deployed = (_mounted == HeldItem.Nitro && Boost.Deployment > 0) || TombstoneReturning?.Invoke() == true;
             if (_mechanism.Progress <= 0)
             {
                 ClearPayload();
@@ -160,6 +167,13 @@ internal sealed partial class CarRackPresentation : Node
 
         if (_payload is not null)
         {
+            if (_payload is Items.TombstoneRack)
+            {
+                _payload.Visible = _mechanism.Progress > .72f;
+                _payload.Scale = Vector3.One;
+                _payload.Position = Vector3.Zero;
+                return;
+            }
             if (_mounted == HeldItem.Nitro)
             {
                 // The underslung chamber clears the bay floor before becoming visible.

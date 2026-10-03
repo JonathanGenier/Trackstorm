@@ -9,12 +9,14 @@ ROOT=Path(__file__).resolve().parents[1]
 bpy.ops.wm.open_mainfile(filepath=str(ROOT/'source/Tombstone.blend'))
 root=bpy.data.objects['Tombstone']
 objects=[o for o in root.children_recursive if o.type=='MESH']
-for obj in objects:
+mount=[o for o in bpy.data.objects['TombstoneRack'].children_recursive if o.type=='MESH']
+for obj in objects+mount:
     mesh=bmesh.new()
     mesh.from_mesh(obj.data)
     assert all(e.is_manifold for e in mesh.edges), obj.name+' is not closed'
     assert mesh.calc_volume(signed=True)>0, obj.name+' has inward volume'
     mesh.free()
+print('TOMBSTONE_MOUNT_MESH_PASS '+json.dumps({'closed_outward_meshes':len(mount)}),flush=True)
 car=bpy.data.collections['Production Car - linked fit reference']
 car_vertices=[o.matrix_world@v.co for o in car.objects if o.type=='MESH' for v in o.data.vertices]
 rear=max(-v.y for v in car_vertices)

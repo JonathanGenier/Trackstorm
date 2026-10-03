@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Deployment replace: remaining=30 ticks; charge=100.00%; thrust=False.
+Deployment rise: remaining=22 ticks; charge=100.00%; thrust=False.
+Deployment extend: remaining=9 ticks; charge=100.00%; thrust=False.
+Deployment ready: remaining=0 ticks; charge=100.00%; thrust=False.
+System.InvalidOperationException: Nitro launches from complete rest without throttle
+   at Trackstorm.Client.Verification.NitroIntegrationChecks.Check(Boolean condition, String message) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\NitroIntegrationChecks.cs:line 425
+   at Trackstorm.Client.Verification.NitroIntegrationChecks.VerifyRocketScenario() in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\NitroIntegrationChecks.cs:line 364
+   at Trackstorm.Client.Verification.NitroIntegrationChecks._PhysicsProcess(Double delta) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\NitroIntegrationChecks.cs:line 178
+REPLICATION_TRAFFIC {"seconds":2.8929204,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TC","delivery":"Reliable","bytes":3626,"messages":2,"peak":1813},{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":95954,"messages":99,"peak":1015},{"peer":1,"protocol":"TM","delivery":"Reliable","bytes":382,"messages":2,"peak":191},{"peer":1,"protocol":"TS","delivery":"Reliable","bytes":982,"messages":3,"peak":481},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":30222,"messages":92,"peak":481}]}
+REPLICATION_TRAFFIC {"seconds":2.6205633,"note":"Native-send application payloads including connection/chunk envelopes; excludes UDP/GNS overhead/retransmissions. Full harness lifecycle, not a steady-state window.","sent":[{"peer":1,"protocol":"TI","delivery":"Reliable","bytes":33,"messages":1,"peak":33},{"peer":1,"protocol":"TS","delivery":"Unreliable","bytes":18809,"messages":131,"peak":145}]}

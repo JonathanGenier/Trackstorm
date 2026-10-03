@@ -12,7 +12,7 @@ internal sealed partial class TombstoneWorld : Node3D
     private readonly Dictionary<ulong, Transform3D> _mounted = new();
     private readonly List<TombstoneVisual> _debris = [];
     internal IReadOnlyDictionary<ulong, TombstoneWallBody> Bodies => _bodies;
-    internal Func<ulong, Transform3D?>? MountedPose { get; set; }
+    internal Func<ulong, (Transform3D Pose, float Fold)?>? MountedPose { get; set; }
 
     internal void Apply(ItemPublication publication, bool host, bool reseed = false)
     {
@@ -42,7 +42,8 @@ internal sealed partial class TombstoneWorld : Node3D
             {
                 body = new(); AddChild(body);
                 bool animate = !reseed && _mounted.ContainsKey(wall.Id);
-                body.Initialize(wall, host, animate, animate ? MountedPose?.Invoke(wall.Owner) ?? _mounted[wall.Id] : null);
+                var release = animate ? MountedPose?.Invoke(wall.Owner) ?? (_mounted[wall.Id], 0f) : ((Transform3D Pose, float Fold)?)null;
+                body.Initialize(wall, host, animate, release?.Pose, release?.Fold ?? 0);
                 _bodies.Add(wall.Id, body);
             }
             else

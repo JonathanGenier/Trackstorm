@@ -102,7 +102,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
         AddChild(_items);
         AddChild(Walls);
         Walls.MountedPose = owner => _bodies.TryGetValue(owner, out var body)
-            ? body.VisualTransform * new Transform3D(Basis.Identity, Items.TombstoneVisual.MountedCenter) : null;
+            ? body.ShieldRelease : null;
         _driver.PlaceTombstone = (slot, pose, tuning) => Walls.Place(pose, tuning, _bodies[slot.Vehicle]);
         _driver.ObserveTombstone = Walls.Observe;
         AddChild(_salvoMarker);

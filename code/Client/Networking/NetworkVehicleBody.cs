@@ -29,6 +29,11 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     private CollisionShape3D[] _rearCollisions = [];
     private Items.TombstoneVisual _rearVisual = null!;
     private TombstoneState? _presentedShield;
+    private TombstoneState? _shownShield;
+    private float _mountProgress;
+    internal float ShieldMountProgress => _mountProgress;
+    internal bool ShieldVisible => _rearVisual.Visible;
+    internal (Transform3D Pose, float Fold) ShieldRelease => (_rearVisual.GlobalTransform, _rearVisual.Fold);
     private readonly List<Items.TombstoneVisual> _shieldDebris = [];
     internal bool HasRearShield { get; private set; }
     /// <summary>Host-assigned identity used only to attribute contact observations.</summary>
@@ -70,6 +75,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         _boost = new BoostExhaust { Source = () => _feedbackState };
         Rack = new CarRackPresentation { Boost = _boost };
         model.AddChild(Rack);
+        Rack.TombstoneReturning = () => _mountProgress > 0;
     }
 
     /// <inheritdoc/>
@@ -77,6 +83,7 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
     {
         _flash = Math.Max(0, _flash - ((float)delta * 5));
         _damageMaterial.SetShaderParameter("flash", _flash);
+        PresentShield(Math.Max(0, (float)delta));
     }
 
     public override void _ExitTree()
@@ -107,21 +114,60 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         _shieldDebris.RemoveAll(v => !GodotObject.IsInstanceValid(v) || v.IsQueuedForDeletion());
         var shield = vehicle.CanInteract ? live.FirstOrDefault(s => s.Owner == VehicleId && s.Life == vehicle.LifeId && s.Stage == TombstoneStage.RearShield) : null;
         HasRearShield = shield is not null;
-        if (shield is not null) { _rearVisual.Observe(shield, _presentedShield?.Id != shield.Id); }
         if (_presentedShield is { } previous && shield?.Id != previous.Id && vehicle.CanInteract && vehicle.LifeId == previous.Life &&
-            live.All(s => s.Id != previous.Id) && _shieldDebris.Count < 4)
+            live.All(s => s.Id != previous.Id) && _shieldDebris.Count < 4 && _rearVisual.Visible)
         {
             var broken = new Items.TombstoneVisual();
             GetParent().AddChild(broken);
             broken.GlobalTransform = _rearVisual.GlobalTransform;
             broken.Observe(previous, true);
+            broken.SetFold(_rearVisual.Fold);
             broken.BreakApart();
             _shieldDebris.Add(broken);
         }
         _presentedShield = shield;
+        bool retain = vehicle.CanInteract && _shownShield is { } shown && shown.Life == vehicle.LifeId &&
+            live.Any(s => s.Id == shown.Id && s.Attached);
+        if (!retain)
+        {
+            bool invalidLife = _shownShield is { } old && old.Life != vehicle.LifeId;
+            _shownShield = null;
+            _rearVisual.Visible = false;
+            // An empty carriage returns after release/destruction. Death/reseed
+            // discards the old pose together with the vehicle's rack lifecycle.
+            if (!vehicle.CanInteract || invalidLife) { _mountProgress = 0; }
+        }
+        if (shield is not null && (_shownShield?.Id == shield.Id || _mountProgress == 0))
+        {
+            _rearVisual.Observe(shield, _shownShield?.Id != shield.Id);
+            _shownShield = shield;
+        }
         foreach (var panel in _rearCollisions) { panel.Disabled = !HasRearShield; }
-        _rearVisual.Visible = HasRearShield;
-        _rearVisual.SetProcess(HasRearShield);
+    }
+
+    private void PresentShield(float delta)
+    {
+        bool extend = HasRearShield && _shownShield?.Id == _presentedShield?.Id &&
+            Rack.TombstoneRequested && Rack.Progress >= .999f;
+        _mountProgress = Mathf.MoveToward(_mountProgress, extend ? 1 : 0, delta / .8f);
+        float t = _mountProgress;
+        float Ease(float start, float end) => Mathf.SmoothStep(0, 1, Mathf.Clamp((t - start) / (end - start), 0, 1));
+        Vector3 parked = new(0, 1.34f + .35f, 1.845f + .10f);
+        if (Rack.TombstoneCarrier is { } carrier)
+        { parked = _rearVisual.GetParent<Node3D>().GlobalTransform.AffineInverse() * (carrier.GlobalTransform * new Vector3(0, .35f, .10f)); }
+        Vector3 lifted = new(0, 2.4f, 4.6f);
+        Vector3 aft = new(0, .25f, 4.6f);
+        Vector3 position = t < .25f ? parked.Lerp(lifted, Ease(0, .25f)) :
+            t < .55f ? lifted.Lerp(aft, Ease(.25f, .55f)) : aft.Lerp(Items.TombstoneVisual.MountedCenter, Ease(.80f, 1));
+        // Compact inventory presentation follows the same rack convention as other
+        // payloads. Unfold at clear height/aft space before moving into the rear guard.
+        float size = Mathf.Lerp(.28f, 1, Ease(.25f, .55f));
+        _rearVisual.Transform = new(new Basis(Vector3.Right, MathF.PI / 2 * (1 - Ease(.25f, .55f))).Scaled(Vector3.One * size), position);
+        _rearVisual.SetFold(1 - Ease(.55f, .80f));
+        _rearVisual.Visible = _shownShield is not null && (t > 0 || (Rack.TombstoneCarrier is not null && Rack.Progress > .92f));
+        _rearVisual.SetProcess(_rearVisual.Visible);
+        if (Rack.TombstoneCarrier is { } carriage)
+        { carriage.Shield = carriage.GlobalTransform.AffineInverse() * _rearVisual.GlobalTransform; }
     }
 
     // Weapon intersection is decided in Core against current candidate state. Excluding this

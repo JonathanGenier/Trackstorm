@@ -235,3 +235,5 @@ bpy.ops.export_scene.gltf(filepath=str(ROOT/'TombstoneRack.glb'),export_format='
 manifest={'author':'Original Trackstorm project work','tool':bpy.app.version_string,'source':'source/Tombstone.blend','export':'Tombstone.glb','reference':'../../vehicles/source/TrackstormCar.blend','reference_sha256':hashlib.sha256(CAR.read_bytes()).hexdigest(),'concept':'reference/concepts-v4/carnage-circus.png; user-approved built-in imagegen reference, not a runtime texture','no_car_geometry_exported':True,'sha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in [ROOT/'Tombstone.glb',ROOT/'TombstoneRack.glb',ROOT/'source/Tombstone.blend']}}
 (ROOT/'sources.json').write_text(json.dumps(manifest,indent=2)+'\n')
 print('TOMBSTONE_AUTHORING_COMPLETE',flush=True)
+import runpy
+runpy.run_path(str(ROOT/'source/BuildTombstoneMount.py'),run_name='__main__')

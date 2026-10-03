@@ -22,10 +22,15 @@ internal sealed partial class TombstoneVisual : Node3D
     private Vector3 _releaseOffset;
     private Quaternion _releaseRotation = Quaternion.Identity;
     private float _release;
+    private float _fold;
+    private float _releaseFold;
+    private Vector3 _releaseScale = Vector3.One;
     private GpuParticles3D _sparks = null!;
 
     internal float Expansion => _expansion;
     internal float PresentedHP => _hp;
+    internal float Fold => _fold;
+    internal void SetFold(float fold) { _fold = Mathf.Clamp(fold, 0, 1); Pose(); }
 
     public override void _Ready()
     {
@@ -69,7 +74,7 @@ internal sealed partial class TombstoneVisual : Node3D
         foreach (var material in _materials) { material.SetShaderParameter("wear", 1 - _hp / TombstoneState.DefaultHP); }
     }
 
-    internal void SetWorld(Vector3 size, bool animate, Transform3D? from = null)
+    internal void SetWorld(Vector3 size, bool animate, Transform3D? from = null, float fold = 0)
     {
         _world = true;
         _size = size;
@@ -77,10 +82,13 @@ internal sealed partial class TombstoneVisual : Node3D
         _release = 0;
         _releaseOffset = Vector3.Zero;
         _releaseRotation = Quaternion.Identity;
+        _releaseScale = Vector3.One;
+        _releaseFold = fold;
         if (animate && from is { } start)
         {
             _releaseOffset = GetParent<Node3D>().ToLocal(start.Origin);
-            _releaseRotation = GetParent<Node3D>().GlobalBasis.GetRotationQuaternion().Inverse() * start.Basis.GetRotationQuaternion();
+            _releaseRotation = GetParent<Node3D>().GlobalBasis.GetRotationQuaternion().Inverse() * start.Basis.Orthonormalized().GetRotationQuaternion();
+            _releaseScale = start.Basis.Scale;
             _release = 1;
         }
         Pose();
@@ -126,13 +134,16 @@ internal sealed partial class TombstoneVisual : Node3D
         for (int i = 0; i < _wings.Length; i++)
         {
             int side = i == 0 ? -1 : 1;
-            _wings[i].Position = new(side * 1.85f, 0, 0);
             // Open the forward-wrapping side panels outward to the same plane.
-            _wings[i].Rotation = new(0, side * MathF.PI / 2 * (1 - expansion), 0);
+            float fold = _world ? _releaseFold * Mathf.SmoothStep(0, 1, _release) : _fold;
+            // The folding hinge slides the nested wing behind the central plate,
+            // avoiding coplanar overlapping armor in the compact rack pose.
+            _wings[i].Position = new(side * 1.85f, 0, -.4f * fold);
+            _wings[i].Rotation = new(0, side * MathF.PI / 2 * (1 + fold) * (1 - expansion), 0);
         }
         if (_world)
         {
-            Scale = new(_size.X / 6.6f, _size.Y / 2.5f, _size.Z / .6f);
+            Scale = new Vector3(_size.X / 6.6f, _size.Y / 2.5f, _size.Z / .6f) * Vector3.One.Lerp(_releaseScale, Mathf.SmoothStep(0, 1, _release));
             Position = _releaseOffset * Mathf.SmoothStep(0, 1, _release);
             Quaternion = Quaternion.Identity.Slerp(_releaseRotation, Mathf.SmoothStep(0, 1, _release));
         }
