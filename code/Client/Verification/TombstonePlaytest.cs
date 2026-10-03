@@ -41,6 +41,7 @@ public sealed partial class TombstonePlaytest : Node
             ulong server = 0;
             if (i == 0) { wire.Listen(TransportEndpoint.DirectIp(endpoint)); }
             else { server = wire.Connect(TransportEndpoint.DirectIp(endpoint)); }
+            if (OS.GetCmdlineUserArgs().Contains("--tombstone-presentation-impaired")) { wire.ConfigureSimulation(new(30, 5, 2, 0, 0)); }
             _wires.Add(wire);
             var view = new SubViewport { Size = new(1440, 900), OwnWorld3D = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Always };
             _views.Add(view);
@@ -153,6 +154,7 @@ public sealed partial class TombstonePlaytest : Node
         _held = 0;
         if (command.TryGetProperty("use", out var use) && use.GetBoolean()) { _held |= InputButtons.UseItem; }
         if (command.TryGetProperty("select", out var select) && select.GetBoolean()) { _held |= InputButtons.SwitchItem; }
+        if (command.TryGetProperty("discard", out var discard) && discard.GetBoolean()) { _held |= InputButtons.DiscardItem; }
         _pressed = _held;
         _trace.Clear();
     }
@@ -245,6 +247,6 @@ public sealed partial class TombstonePlaytest : Node
     public override void _ExitTree()
     {
         foreach (var arena in _arenas) { if (GodotObject.IsInstanceValid(arena)) { arena.Free(); } }
-        foreach (var wire in _wires) { wire.Dispose(); }
+        foreach (var wire in _wires) { wire.ConfigureSimulation(new()); wire.Dispose(); }
     }
 }

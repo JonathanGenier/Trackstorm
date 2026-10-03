@@ -2,6 +2,7 @@ param(
     [Parameter(Mandatory)][string]$GodotPath,
     [switch]$Visual,
     [switch]$ProductionTrack,
+    [switch]$Impaired,
     [switch]$NoBuild
 )
 $ErrorActionPreference = 'Stop'
@@ -18,7 +19,10 @@ $run = 'check-' + [DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss')
 $inputPath = Join-Path $output 'input.json'
 if (Test-Path -LiteralPath $inputPath) { Remove-Item -LiteralPath $inputPath }
 $arguments = @('--path', ('"{0}"' -f $PSScriptRoot), 'res://scenes/verification/tombstone_playtest.tscn')
-if ($ProductionTrack) { $arguments += @('--', '--tombstone-production-track') }
+$userArguments = @()
+if ($ProductionTrack) { $userArguments += '--tombstone-production-track' }
+if ($Impaired) { $userArguments += '--tombstone-presentation-impaired' }
+if ($userArguments.Count -gt 0) { $arguments += @('--') + $userArguments }
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
 $process = Start-Process -FilePath (Resolve-Path -LiteralPath $GodotPath).Path -ArgumentList $arguments -PassThru -WindowStyle Hidden `
     -RedirectStandardOutput (Join-Path $output "$run.log") -RedirectStandardError (Join-Path $output "$run-errors.log")
@@ -118,12 +122,25 @@ try {
     Assert (-not $nitro.trace[-1].shields[0].visible -and $nitro.trace[-1].shields[0].mount -eq 0) 'Switching to Boost finishes the shield return before replacing the rack payload.'
     $early = Command 'early-selected' @{owner=2;spawn=@(18,201.7,-12);grant=$true;frames=40;camera=@(24,205,-5);look=@(18,202,-9)}
     $earlyUse = Command 'early-use' @{owner=2;use=$true;frames=12}
-    Assert (@($earlyUse.tombstones | Where-Object { $_.Owner -eq 2 -and $_.Stage -eq 2 }).Count -eq 2) 'Use during selection deploys immediately through existing authority.'
-    Assert (@($earlyUse.trace.walls | Where-Object { $_.centerFold -gt .01 -and $_.centerFold -lt .99 }).Count -gt 0) 'Early release continues the captured center hinge fold into the world wall.'
-    Assert (@($earlyUse.trace.walls | Where-Object { $_.horizontalFold -gt .01 -and $_.horizontalFold -lt .99 }).Count -gt 0) 'Early release continues the captured horizontal fold without snapping the rows open.'
-    $earlyDone = Command 'early-finished' @{frames=100}
-    Assert ($earlyDone.trace[-1].shields[1].mount -eq 0 -and -not $earlyDone.trace[-1].shields[1].visible) 'Empty carriage returns cleanly after early deployment.'
-    $clearances = @($mounted,$stowing,$stowed,$rackLift,$opening,$swing,$centerOpening,$ready,$rapidOut,$rapidIn,$stored,$selected,$repeat,$again,$landing,$drive,$nitro,$early,$earlyUse) | ForEach-Object { $_.trace.shields } | Where-Object visible | ForEach-Object articulationClearance
+    $queuedId = @($earlyUse.tombstones | Where-Object { $_.Owner -eq 2 -and $_.Stage -eq 1 })[0].Id
+    Assert (@($earlyUse.tombstones | Where-Object { $_.Owner -eq 2 -and $_.Stage -eq 2 }).Count -eq 1) 'Early use waits for unfolding without creating a world wall.'
+    $cancelled = Command 'queue-cancel' @{owner=2;select=$true;frames=140}
+    $reselected = Command 'queue-reselect' @{owner=2;select=$true;frames=160}
+    Assert (@($reselected.tombstones | Where-Object { $_.Id -eq $queuedId -and $_.Stage -eq 1 }).Count -eq 1) 'Switching away cancels the queued press; reselecting does not deploy it.'
+    $restowed = Command 'queue-restow' @{owner=2;select=$true;frames=140}
+    $together = Command 'queue-select-use' @{owner=2;select=$true;use=$true;frames=12}
+    Assert (@($together.tombstones | Where-Object { $_.Id -eq $queuedId -and $_.Stage -eq 1 }).Count -eq 1) 'Simultaneous select/use queues the intended shield through confirmed selection.'
+    $tapAgain = Command 'queue-repeat-tap' @{owner=2;use=$true;frames=8}
+    $earlyDone = Command 'early-finished' @{owner=2;frames=220}
+    $firstWall = @($earlyDone.trace | Where-Object { @($_.walls | Where-Object id -eq $queuedId).Count -gt 0 })[0]
+    Assert ($null -ne $firstWall -and @($earlyDone.trace | Where-Object { $_.frame -lt $firstWall.frame -and $_.remoteShields[1].mount -eq 1 }).Count -gt 0) 'The local remote-player shield finishes unfolding before its authoritative wall appears.'
+    Assert (@($earlyDone.tombstones | Where-Object { $_.Owner -eq 2 -and $_.Stage -eq 2 }).Count -eq 2) 'Repeated queued taps create exactly one additional wall.'
+    Assert ($earlyDone.trace[-1].shields[1].mount -eq 0 -and -not $earlyDone.trace[-1].shields[1].visible) 'Empty carriage returns cleanly after queued deployment.'
+    $discardReady = Command 'queue-discard-ready' @{owner=2;grant=$true;frames=12}
+    $discardQueued = Command 'queue-discard-use' @{owner=2;use=$true;frames=8}
+    $discarded = Command 'queue-discard' @{owner=2;discard=$true;frames=140}
+    Assert (@($discarded.tombstones | Where-Object Owner -eq 2).Count -eq 2) 'Discard removes a shield with queued use without deploying it.'
+    $clearances = @($mounted,$stowing,$stowed,$rackLift,$opening,$swing,$centerOpening,$ready,$rapidOut,$rapidIn,$stored,$selected,$repeat,$again,$landing,$drive,$nitro,$early,$earlyUse,$reselected,$together,$earlyDone) | ForEach-Object { $_.trace.shields } | Where-Object visible | ForEach-Object articulationClearance
     Assert (($clearances | Measure-Object -Minimum).Minimum -gt .01) 'Mounted armor clears articulated rear tires and trunk lids during rack motion, landing, driving and steering.'
     $park = Command 'slope-park-other' @{owner=1;spawn=@(25,201.7,0);frames=30}
     $slopeReady = Command 'slope-ready' @{owner=2;ramps=$true;spawn=@(0,201.7,0);grant=$true;frames=120;chase=$true}

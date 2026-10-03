@@ -181,6 +181,11 @@ internal sealed partial class NetworkVehicleBody : StaticBody3D
         }
     }
 
+    /// <summary>Releases a local queued use only after this exact accepted selection has fully unfolded.</summary>
+    internal bool CanDeployTombstone(ItemSlot inventory) => HasRearShield && _mountProgress == 1 &&
+        _shownShield?.Token == inventory.Active.Token && _shownShield.Life == inventory.Life &&
+        Rack.IsTombstoneSelection(inventory);
+
     // Weapon intersection is decided in Core against current candidate state. Excluding this
     // reconstructable shape also prevents a same-step destroyed shield from masking the chassis.
     internal void SetShieldQueryEnabled(bool enabled)

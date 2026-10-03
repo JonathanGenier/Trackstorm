@@ -32,6 +32,9 @@ internal sealed partial class CarRackPresentation : Node
     internal float Progress => _mechanism.Progress;
     internal Func<bool>? TombstoneReturning { get; set; }
     internal bool TombstoneRequested => _desired == HeldItem.Tombstone && !_replace;
+    internal bool IsTombstoneSelection(ItemSlot inventory) => TombstoneRequested && Progress >= .999f &&
+        _previous?.SelectionRevision == inventory.SelectionRevision && _previous.Active.Token == inventory.Active.Token &&
+        _previous.Life == inventory.Life;
     internal Items.TombstoneRack? TombstoneCarrier => _payload as Items.TombstoneRack;
     internal void ObserveAim(WeaponAimSolution? aim)
     {

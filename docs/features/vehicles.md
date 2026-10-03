@@ -129,6 +129,12 @@ panels match the rear plate and short wraparound side wings. Original vehicle ge
 wheel articulation and force laws remain unchanged. Shield/wall presentation is described
 under [held items](items.md#tombstone-rear-shield-and-persistent-health).
 
+A local early-use press waits for the exact selected shield to finish this path
+before requesting world deployment. Readiness includes the confirmed selection
+revision, capability and life, fully raised rack and completed mount motion;
+an old item's raised carriage cannot release the new request. The existing Core
+placement/consumption path remains authoritative.
+
 Mounted armor skims authored driveable ground instead of acting as a rear skid on
 slopes. The native adapter sweeps chassis and armor separately, excludes contacted
 authored terrain bodies from the armor query only, then chooses the earlier blocking

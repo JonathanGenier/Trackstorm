@@ -241,6 +241,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     /// <param name="observe">Synchronous native or deterministic test collision seam.</param>
     internal void Advance(InputFrame input, Func<VehicleSnapshot, VehicleObservation> observe)
     {
+        if (!AllowsParticipation) { _pendingTombstoneUse = null; }
         if (_disposed)
         {
             return;
@@ -263,6 +264,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
                 }
 
                 EntryContext = null;
+                _pendingTombstoneUse = null;
                 _awaitingCheckpoint = Host is null && (_awaitingCheckpoint || _lobby.Reconnecting || _lobby.NeedsArenaCheckpoint);
                 return;
             }
@@ -328,6 +330,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
             {
                 RequestItemUse();
             }
+            FlushTombstoneUse();
 
             var previousVehicles = Host.World.State.Vehicles;
             Host.Step(input, observe, CollideMissile, PlaceOil, PlaceMine, MoveMine, ProjectSalvoGround, RaycastWeapon, PlaceTombstone, ObserveTombstone);
@@ -440,6 +443,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
             {
                 RequestItemUse(inputs.NextSequence);
             }
+            FlushTombstoneUse(inputs.NextSequence);
 
             if (inputs.IsFull)
             {
@@ -503,6 +507,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     /// <summary>Sends ordered selection intent; presentation continues to use confirmed ownership.</summary>
     internal bool RequestItemSwitch()
     {
+        _pendingTombstoneUse = null;
         if (!AllowsParticipation || LocalState is not { CanInteract: true } state) { return false; }
         var inventory = LocalItem;
         if (_switchLife != state.LifeId) { _switchLife = state.LifeId; _switchRevision = 0; }
@@ -515,6 +520,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
     /// <summary>Submits the selected capability for permanent deletion through the existing reliable item path.</summary>
     internal bool RequestItemDiscard()
     {
+        _pendingTombstoneUse = null;
         var inventory = RequestedInventory();
         var slot = inventory?.Active;
         if (!AllowsParticipation || LocalState?.CanInteract != true || slot is null || slot.Item == HeldItem.None) { return false; }
@@ -546,6 +552,13 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         {
             return false;
         }
+
+        if (slot.Item == HeldItem.Tombstone && TombstoneReady?.Invoke(inventory!) == false)
+        {
+            _pendingTombstoneUse = (slot.Life, slot.Token, inventory!.SelectionRevision);
+            return true;
+        }
+        _pendingTombstoneUse = null;
 
         if (Host is not null)
         {
@@ -715,6 +728,8 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         Latest = null;
         _pendingSnapshot = null;
         ItemState = null;
+        _pendingTombstoneUse = null;
+        TombstoneReady = null;
         ResetAiming();
         PropSnapshot = null;
         _inputs = null;
@@ -863,6 +878,7 @@ internal sealed partial class VehicleNetworkDriver : IDisposable
         ResetAiming();
         _projectileMotionTick = checkpoint.Items.World.Tick;
         _switchLife = _switchRevision = 0;
+        _pendingTombstoneUse = null;
         Match = checkpoint.Match;
         PropSnapshot = checkpoint.Props;
         EnvironmentState = checkpoint.Environment;

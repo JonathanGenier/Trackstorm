@@ -52,9 +52,10 @@ with its hinge origin at rack local `(0, .25, -.20)` to center the folded geomet
 over the deck while clearing the open lids. It
 reaches full size behind the Car before the center hinge opens. This is
 stylized inventory packing, not an exact mechanical simulation. Nested wings slide behind their
-center halves. Early use preserves the displayed pose, scale, center fold and
-wing/horizontal folds at world release; the empty carriage returns afterward. Protection and
-use remain immediate under existing authority. No authored mesh supplies collision: Core owns a rear
+center halves. Early player use waits locally until the complete rack/unfold path
+finishes, then requests one authoritative world release; the empty carriage returns
+afterward. Switching away or discarding cancels the queued press. Protection remains
+immediate under existing authority. No authored mesh supplies collision: Core owns a rear
 panel and two side-panel boxes, and the deployed wall retains its native box.
 While mounted, the armor sweep skims contacted driveable terrain; the chassis
 retains its own ground collision. The low visual edge may enter a sharp slope

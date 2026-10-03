@@ -1,5 +1,13 @@
 # Host-Authoritative Vehicle Networking
 
+The production arena supplies local Tombstone presentation readiness to the
+driver. A use press during selection waits locally until the confirmed rack and
+shield finish unfolding, then follows the existing reliable capability-bound
+use path. Pending intent is scoped to life/token/selection and canceled on
+switch, discard, invalid ownership, inactive participation or checkpoint recovery.
+It adds no protocol field or authoritative timer; Core still validates deployment.
+See [held items](items.md#tombstone-rear-shield-and-persistent-health).
+
 [Weapon aiming](weapon-aiming.md) extends the existing item path with bounded 20 Hz replaceable desired-direction and accepted-articulation messages. Sender/life/token/selection validation stays in item authority; accepted samples check host, generation, configuration revision and tick. They do not advance movement prediction or reliable item outcome revisions. Transient aim resets on recovery.
 
 ## Ownership and Fixed Steps
