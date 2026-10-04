@@ -145,7 +145,7 @@ The production Car is an original Blender-authored armored coupe with enlarged o
 
 `check-car-articulation.ps1 -GodotPath <exe> [-Visual]` exercises native acceleration, steering, four-wheel rotation, landing compression/rebound, repeated deployment and reversal, stable mounts and separable lights. Rendered evidence and a per-tick trace are written to `.godot/ts259-round8/car`. The ordinary vehicle and network harnesses cover surrounding driving and presentation-root behavior. The physical hull remains the shared simplified sprung envelope, with raised bumper undersides and no solid wheel colliders; physics is not derived from decorative meshes.
 
-The [Shield carriage](../../assets/items/tombstone/README.md) uses the rear rack socket pair
+The [Shield carriage](../../assets/items/shield/README.md) uses the rear rack socket pair
 and extends aft of the production wrap guards. The selected shield follows the full interpolated
 Car pose. A bolted saddle, twin boxed arms, hydraulic rams and four-jaw cradle carry
 the shield. The folded stack appears at 0.42 scale once the deck clears and rides
@@ -175,7 +175,7 @@ Armor filtering uses the support body's authored identity, regardless of the
 sweep normal: concave track edges can return lateral/downward separating axes.
 This exemption includes all faces of that terrain body, while distinct barrier
 and obstacle bodies keep their shield collision. The production track regression
-uses the committed concave mesh; `check-tombstone-presentation.ps1 -ProductionTrack`
+uses the committed concave mesh; `check-shield-presentation.ps1 -ProductionTrack`
 drives the actual west-bank join with two UDP peers.
 
 ## Player-controlled airborne rotation

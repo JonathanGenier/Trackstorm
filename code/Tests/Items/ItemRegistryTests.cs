@@ -11,14 +11,14 @@ namespace Trackstorm.Core.Tests.Items;
 internal sealed class ItemRegistryTests
 {
     [Test]
-    public void DefaultLootCanAcquireTombstoneWithoutCustomPoolOrGrant()
+    public void DefaultLootCanAcquireShieldWithoutCustomPoolOrGrant()
     {
         var tuning = new ItemSpawnConfiguration();
-        Assert.That(tuning.Weights[HeldItem.Tombstone], Is.EqualTo(1));
-        Assert.That(ItemRegistry.Find(HeldItem.Tombstone)!.DefaultWeight, Is.EqualTo(1));
+        Assert.That(tuning.Weights[HeldItem.Shield], Is.EqualTo(1));
+        Assert.That(ItemRegistry.Find(HeldItem.Shield)!.DefaultWeight, Is.EqualTo(1));
         // Exercise ordinary category balancing and weighted draws across fixed fresh seeds.
         var acquired = new HashSet<HeldItem>();
-        for (int seed = 0; seed < 128 && !acquired.Contains(HeldItem.Tombstone); seed++)
+        for (int seed = 0; seed < 128 && !acquired.Contains(HeldItem.Shield); seed++)
         {
             var host = new HostVehicleSession(99);
             host.RegisterSpawns(PrototypeArena.Configuration, tuning with { Seed = seed });
@@ -30,12 +30,12 @@ internal sealed class ItemRegistryTests
             Assert.That(host.Spawns!.TryPickup(host.World, marker.Id, 1), Is.True);
             var slot = host.Items.Slots.Single();
             acquired.Add(slot.Item);
-            if (slot.Item != HeldItem.Tombstone) { continue; }
-            Assert.That(host.Items.Tombstones.Single().Token, Is.EqualTo(slot.Token));
-            Assert.That(host.Items.Tombstones.Single().Stage, Is.EqualTo(TombstoneStage.RearShield));
-            Assert.That(host.Spawns.States[0].Item, Is.EqualTo(HeldItem.Tombstone));
+            if (slot.Item != HeldItem.Shield) { continue; }
+            Assert.That(host.Items.Shields.Single().Token, Is.EqualTo(slot.Token));
+            Assert.That(host.Items.Shields.Single().Stage, Is.EqualTo(ShieldStage.RearShield));
+            Assert.That(host.Spawns.States[0].Item, Is.EqualTo(HeldItem.Shield));
         }
-        Assert.That(acquired, Does.Contain(HeldItem.Tombstone));
+        Assert.That(acquired, Does.Contain(HeldItem.Shield));
     }
 
     [TestCase(HeldItem.Wrench)]
@@ -44,7 +44,7 @@ internal sealed class ItemRegistryTests
     [TestCase(HeldItem.Nitro)]
     [TestCase(HeldItem.ProxyMine)]
     [TestCase(HeldItem.Salvo)]
-    [TestCase(HeldItem.Tombstone)]
+    [TestCase(HeldItem.Shield)]
     public void SingleWeightedItemClaimsAndRoundTripsWithoutSecondAuthority(HeldItem item)
     {
         var tuning = new ItemSpawnConfiguration();
@@ -62,7 +62,7 @@ internal sealed class ItemRegistryTests
         ulong random = host.Spawns.RandomState;
         Assert.That(host.Spawns.TryPickup(host.World, PrototypeArena.Configuration.Items[0].Id, 1), Is.False);
         Assert.That(host.Spawns.RandomState, Is.EqualTo(random));
-        var publication = ItemCodec.DecodeState(ItemCodec.EncodeState(new(1, host.Snapshot(), host.Items.Slots, [], [], host.Spawns.States, tombstones: host.Items.Tombstones)));
+        var publication = ItemCodec.DecodeState(ItemCodec.EncodeState(new(1, host.Snapshot(), host.Items.Slots, [], [], host.Spawns.States, shields: host.Items.Shields)));
         Assert.That(publication.Slots.Single().Item, Is.EqualTo(item));
         Assert.That(publication.Spawns[0].Item, Is.EqualTo(item));
         Assert.That(publication.Spawns[0].Token, Is.EqualTo(publication.Slots.Single().Token));

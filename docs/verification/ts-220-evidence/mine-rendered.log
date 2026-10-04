@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 591.86 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 4070 Ti
+
+Mine support convergence passed: flat/banked/uneven normals, 1200 ticks each, finite unit normals and unchanged bank response.
+Two UDP peers ready; ordinary host Proxy Mine use requested.
+Mine installed on the real flat platform, with terrain clearance and seated timer.
+Initial seating remains exactly stable; late admission reconstructed the mine during arm placement.
+Late join reconstructed the persistent mine. Outer-radius force trial begins.
+Outer pull produced 0.115 m/s after ten native ticks.
+Mid pull produced 8.625 m/s after ten native ticks.
+Close pull produced 12.065 m/s; moving remote vehicle approaches for contact.
+Contact detonated once, applying 60 configured HP and 18000 N.s to the remote vehicle.
+System.InvalidOperationException: native knockback motion
+   at Trackstorm.Client.Verification.ProxyMineIntegrationChecks.Check(Boolean condition, String message) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\ProxyMineIntegrationChecks.cs:line 557
+   at Trackstorm.Client.Verification.ProxyMineIntegrationChecks._PhysicsProcess(Double delta) in C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\code\Client\Verification\ProxyMineIntegrationChecks.cs:line 186

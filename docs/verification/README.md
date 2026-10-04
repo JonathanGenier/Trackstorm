@@ -4,6 +4,12 @@ This directory is excluded from Godot resource importing by `.gdignore`. Evidenc
 
 This directory records historical verification evidence for particular implementations, builds and review rounds. Its reports are not current policy, repository instructions, Jira requirements or substitutes for current verification. Earlier acceptance gaps and delivery decisions describe their recorded point in time; later reports or code may differ.
 
+TS-220 uses Shield in current implementation and descriptive documentation. Historical
+raw execution artifacts retain their exact original contents and paths; quoted commands
+and symbols in earlier reports retain their point-in-time spelling. These verified
+provenance exceptions are excluded from the canonical-name audit. Screenshots remain
+original captures. Terminology edits to descriptive prose do not represent new execution.
+
 Use [workflow](../workflow.md#verification) for current completion checks, Jira for assigned requirements, and the [feature index](../features/README.md) for current system behavior. Read a report only when its historical evidence is relevant.
 
 Every completed Jira Story must create or update `docs/verification/ts-<number>.md` using the Story number in lowercase filename form (for example, `TS-86` → `ts-86.md`) and add or update a useful entry in the table below. The report records only implementation and verification evidence actually produced for that Story, including material behavior/systems changed, commands/results actually run, applicable runtime/manual/native evidence, limitations, unresolved risks, and explicitly unverified areas. Never treat these reports as current requirements or infer that old test evidence remains valid after later changes.
@@ -11,7 +17,7 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Evidence | Reports |
 | --- | --- |
 | Story verification and sustained rock-pressure correction | [TS-280 verification evidence](ts-280.md) |
-
+| Shield repository rename, explicit migration boundaries and integrated native lifecycle/state validation | [TS-220 verification evidence](ts-220.md) |
 | Physical-slot Shield HP, armor-plate HUD, independence, clearing/reconstruction and native lifecycle verification | [TS-176 verification evidence](ts-176.md) |
 | Shield naming, Carnage Circus shield/wall, reinforced rack mount, queued deployment after eight-section unfolding, production-track skimming and multiplayer runtime evidence | [TS-219 verification evidence](ts-219.md) |
 | Permanent selected-slot discard, native input, reliable authority, recovery and respawn | [TS-277 verification evidence](ts-277.md) |
@@ -25,8 +31,8 @@ Every completed Jira Story must create or update `docs/verification/ts-<number>.
 | Rock collision hull cost, repeated contact and native multiplayer evidence | [TS-267 verification evidence](ts-267.md) |
 | Story verification | [TS-265 verification evidence](ts-265.md) |
 | Arcade trophy-truck handling, sustained-turn rear alignment, controller precision and runtime/multiplayer evidence | [TS-197 verification evidence](ts-197.md) |
-| Tombstone rear shield, spatial interception and damaged-shield recovery | [TS-217 verification evidence](ts-217.md) |
-| Tombstone core health, authoritative lifecycle and recovery | [TS-216 verification evidence](ts-216.md) |
+| Shield rear shield, spatial interception and damaged-shield recovery | [TS-217 verification evidence](ts-217.md) |
+| Shield core health, authoritative lifecycle and recovery | [TS-216 verification evidence](ts-216.md) |
 | Proxy Mine integrated lifecycle, visual bounds and runtime critique | [TS-251 verification evidence](ts-251.md) |
 | Proxy Mine explosion VFX, overlap and cleanup | [TS-250 verification and Astra runtime critique](ts-250.md) |
 | Story verification | [TS-261 verification evidence](ts-261.md) |

@@ -16,7 +16,7 @@ internal sealed partial class NetworkVehicleArena : Node3D
     private readonly VehicleChaseCamera _camera = new() { Name = "ChaseCamera", Current = true, Fov = 65 };
     private readonly RemoteInterpolation _interpolation = new();
     private readonly Items.ItemPresentation _items = new();
-    internal Items.TombstoneWorld Walls { get; } = new();
+    internal Items.ShieldWorld Walls { get; } = new();
     private readonly Items.SalvoMarker _salvoMarker = new();
     internal Items.SalvoMarker SalvoMarker => _salvoMarker;
     private readonly VehicleDestructionEffects _destruction = new();
@@ -103,9 +103,9 @@ internal sealed partial class NetworkVehicleArena : Node3D
         AddChild(Walls);
         Walls.MountedPose = owner => _bodies.TryGetValue(owner, out var body)
             ? body.ShieldRelease : null;
-        _driver.PlaceTombstone = (slot, pose, tuning) => Walls.Place(pose, tuning, _bodies[slot.Vehicle]);
-        _driver.TombstoneReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.CanDeployTombstone(inventory);
-        _driver.ObserveTombstone = Walls.Observe;
+        _driver.PlaceShield = (slot, pose, tuning) => Walls.Place(pose, tuning, _bodies[slot.Vehicle]);
+        _driver.ShieldReady = inventory => _bodies.TryGetValue(inventory.Vehicle, out var body) && body.CanDeployShield(inventory);
+        _driver.ObserveShield = Walls.Observe;
         AddChild(_salvoMarker);
         InitializeAiming();
         AddChild(_destruction);
@@ -141,12 +141,12 @@ internal sealed partial class NetworkVehicleArena : Node3D
                 if (state.LifeId != vehicle.State.LifeId) { continue; }
                 if (_bodies.TryGetValue(state.VehicleId, out var body))
                 {
-                    body.ObserveTombstones(state, publication.Tombstones);
+                    body.ObserveShields(state, publication.Shields);
                     body.Rack.Observe(state.LifeId, state.CanInteract,
                         publication.Slots.FirstOrDefault(slot => slot.Vehicle == state.VehicleId),
                         publication.Events.Where(outcome => outcome.Owner == state.VehicleId),
                         publication.Mines.FirstOrDefault(mine => mine.Owner == state.VehicleId && mine.IsPlacing),
-                        publication.World.Tick, publication.Tombstones);
+                        publication.World.Tick, publication.Shields);
                 }
             }
             _audio.ApplyVehicles(publication.World.Vehicles.Select(vehicle => vehicle.State));
@@ -540,13 +540,13 @@ internal sealed partial class NetworkVehicleArena : Node3D
             }
 
             body!.SynchronizeLifecycle(vehicle.State);
-            body.ObserveTombstones(vehicle.State, _driver.ItemState?.Tombstones ?? []);
+            body.ObserveShields(vehicle.State, _driver.ItemState?.Shields ?? []);
             if (created)
             {
                 body.Rack.Observe(vehicle.State.LifeId, vehicle.State.CanInteract,
                     _driver.ItemState?.Slots.FirstOrDefault(slot => slot.Vehicle == id), [],
                     _driver.ItemState?.Mines.FirstOrDefault(mine => mine.Owner == id && mine.IsPlacing),
-                    _driver.ItemState?.World.Tick ?? vehicle.State.Movement.Tick, _driver.ItemState?.Tombstones);
+                    _driver.ItemState?.World.Tick ?? vehicle.State.Movement.Tick, _driver.ItemState?.Shields);
             }
         }
     }

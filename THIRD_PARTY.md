@@ -79,11 +79,11 @@ The original material control field and UV pass are recorded in [surface-sources
 
 Proxy Mine's HUD SVG (`assets/hud/ProxyMine.svg`), production Blender body/beacon and underslung rack placement arm are original project-authored assets. The [authoring notes](assets/items/proxy-mine/README.md) and [manifest](assets/items/proxy-mine/sources.json) retain editable Blender masters, reproducible original geometry/patina, export hashes and approved built-in-imagegen concept references. Its impact reuses the already recorded Kenney smoke particles and arena audio. The built-in-imagegen smoke cutout is recorded with its hash in [effect artwork provenance](assets/effects/README.md); the cosmetic scar shader and debris geometry are project-authored. No new third-party asset or dependency was acquired.
 
-## Tombstone presentation
+## Shield presentation
 
-Tombstone's [Blender shield/wall and rack carriage](assets/items/tombstone/README.md),
+Shield's [Blender shield/wall and rack carriage](assets/items/shield/README.md),
 editable source, damage shader and animation are original project work. Its
-[manifest](assets/items/tombstone/sources.json) records the unmodified production
+[manifest](assets/items/shield/sources.json) records the unmodified production
 Car reference and exports. The approved Carnage Circus built-in-imagegen sketch
 and earlier alternatives are retained as design references, not runtime textures.
 Painted graphics, trim and lamps are original Blender-authored geometry. Impact sparks reuse the already recorded CC0 Kenney

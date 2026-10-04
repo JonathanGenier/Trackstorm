@@ -28,14 +28,14 @@ public sealed partial class HudIntegrationChecks : Node
             VehicleSnapshot state = arena.Player.Snapshot;
             Require(state.Damage.MaxHP == 1000, "Production practice capacity");
             ItemSlot? slot = null;
-            IReadOnlyList<TombstoneState> tombstones = [];
+            IReadOnlyList<ShieldState> shields = [];
             var input = new Input.PlayerInput();
             AddChild(input);
             input.SetPhysicsProcess(false);
             var settings = new Settings.PlayerSettingsController();
             settings.Initialize(input.Adapter, System.IO.Path.Combine(output, "settings.json"));
             AddChild(settings);
-            var hud = new CombatHud { Vehicle = () => state, Slot = () => slot, Tombstones = () => tombstones, Units = () => settings.Current.SpeedUnit };
+            var hud = new CombatHud { Vehicle = () => state, Slot = () => slot, Shields = () => shields, Units = () => settings.Current.SpeedUnit };
             viewport.AddChild(hud);
             var timerMatch = new Core.Matches.MatchState(180, 1, 5, Core.Matches.MatchPhase.Active, null, null,
                 [new Core.Matches.PlayerScore(1, 0, 0, 0, 0)], activeStartedAtTick: 180);
@@ -65,7 +65,7 @@ public sealed partial class HudIntegrationChecks : Node
             settings.UpdateSettings(settings.Current with { ShowFps = true, ShowPing = true });
             preferences.SetConnectionTelemetry(new(Networking.ConnectionDiagnosticState.Reconnecting, default));
             var pixels = new List<(int Health, int Speed)>();
-            foreach (var sample in new[] { (1000f, 200 / 3.6f, HeldItem.None), (500f, 100 / 3.6f, HeldItem.Wrench), (0f, 0f, HeldItem.None), (850f, 200 / 3.6f, HeldItem.Missile), (850f, 200 / 3.6f, HeldItem.Oil), (850f, 200 / 3.6f, HeldItem.Nitro), (850f, 200 / 3.6f, HeldItem.ProxyMine), (850f, 200 / 3.6f, HeldItem.Salvo), (850f, 200 / 3.6f, HeldItem.Tombstone) })
+            foreach (var sample in new[] { (1000f, 200 / 3.6f, HeldItem.None), (500f, 100 / 3.6f, HeldItem.Wrench), (0f, 0f, HeldItem.None), (850f, 200 / 3.6f, HeldItem.Missile), (850f, 200 / 3.6f, HeldItem.Oil), (850f, 200 / 3.6f, HeldItem.Nitro), (850f, 200 / 3.6f, HeldItem.ProxyMine), (850f, 200 / 3.6f, HeldItem.Salvo), (850f, 200 / 3.6f, HeldItem.Shield) })
             {
                 state = Sample(state, sample.Item1, sample.Item2);
                 slot = new ItemSlot(state.VehicleId, state.LifeId, 1, sample.Item3);
@@ -94,20 +94,20 @@ public sealed partial class HudIntegrationChecks : Node
                 using Image frame = viewport.GetTexture().GetImage();
                 Require(frame.SavePng(System.IO.Path.Combine(output, $"salvo-{shots}.png")) == Error.Ok, "Ammunition screenshot");
             }
-            slot = new ItemSlot(state.VehicleId, state.LifeId, 10, HeldItem.Tombstone)
-            { SecondToken = 20, SecondItem = HeldItem.Tombstone };
+            slot = new ItemSlot(state.VehicleId, state.LifeId, 10, HeldItem.Shield)
+            { SecondToken = 20, SecondItem = HeldItem.Shield };
             var shieldPixels = new List<int>();
             int? otherPixels = null;
             foreach (float hp in new[] { 1000f, 675f, 250f, 20f, 0.1f, 0f })
             {
-                tombstones = hp > 0 ? [new(100, state.VehicleId, state.LifeId, 10, TombstoneStage.RearShield, hp),
-                    new(200, state.VehicleId, state.LifeId, 20, TombstoneStage.Held, 900)] :
-                    [new(200, state.VehicleId, state.LifeId, 20, TombstoneStage.Held, 900)];
-                slot = slot with { Item = hp > 0 ? HeldItem.Tombstone : HeldItem.None };
+                shields = hp > 0 ? [new(100, state.VehicleId, state.LifeId, 10, ShieldStage.RearShield, hp),
+                    new(200, state.VehicleId, state.LifeId, 20, ShieldStage.Held, 900)] :
+                    [new(200, state.VehicleId, state.LifeId, 20, ShieldStage.Held, 900)];
+                slot = slot with { Item = hp > 0 ? HeldItem.Shield : HeldItem.None };
                 hud.Refresh();
                 CheckSlot(hud, "FirstSlot", hp > 0 ? "SHIELD" : "EMPTY", hp > 0 ? $"{Math.Ceiling(hp):0}" : null, true);
                 CheckSlot(hud, "SecondSlot", "SHIELD", "900", false);
-                Require(hud.Displayed!.SecondSlot.Resource!.Fraction == 0.9, "Other Tombstone retains its independent HP");
+                Require(hud.Displayed!.SecondSlot.Resource!.Fraction == 0.9, "Other Shield retains its independent HP");
                 Require(((Label)hud.FindChild("FirstSlot", true, false).FindChild("ResourceUnit", true, false)).Visible == (hp > 0), "HP legend clears with destruction");
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 using Image frame = viewport.GetTexture().GetImage();
@@ -120,9 +120,9 @@ public sealed partial class HudIntegrationChecks : Node
             }
             Require(shieldPixels[0] > shieldPixels[1] && shieldPixels[1] > shieldPixels[2] && shieldPixels[2] > shieldPixels[3] && shieldPixels[5] == 0,
                 "Rendered armor plates drain, warn at low HP and disappear on destruction");
-            slot = slot with { Item = HeldItem.Tombstone, ActiveSlot = 1 };
-            tombstones = [new(100, state.VehicleId, state.LifeId, 10, TombstoneStage.Held, 675),
-                new(200, state.VehicleId, state.LifeId, 20, TombstoneStage.RearShield, 123)];
+            slot = slot with { Item = HeldItem.Shield, ActiveSlot = 1 };
+            shields = [new(100, state.VehicleId, state.LifeId, 10, ShieldStage.Held, 675),
+                new(200, state.VehicleId, state.LifeId, 20, ShieldStage.RearShield, 123)];
             foreach (byte selection in new byte[] { 0, 1, 0, 1 })
             {
                 slot = slot with { ActiveSlot = selection };
@@ -145,7 +145,7 @@ public sealed partial class HudIntegrationChecks : Node
             state = alive; hud.Refresh();
             CheckSlot(hud, "FirstSlot", "SHIELD", "675", false);
             // Reconstruct a new native HUD from the accepted damaged checkpoint, with no presentation history.
-            var rebuilt = new CombatHud { Vehicle = () => state, Slot = () => slot, Tombstones = () => tombstones };
+            var rebuilt = new CombatHud { Vehicle = () => state, Slot = () => slot, Shields = () => shields };
             viewport.AddChild(rebuilt); rebuilt.Refresh();
             CheckSlot(rebuilt, "SecondSlot", "SHIELD", "123", true);
             rebuilt.QueueFree();

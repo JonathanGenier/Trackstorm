@@ -1,6 +1,6 @@
 # Astra Runtime Critique — Story Round 1
 
-Story: TS-176. Branch: `ts-176-jg`. Evaluated 2026-10-04 after the implementing agent reported comprehensive final verification complete. This review evaluates the rendered Tombstone durability HUD and exercised runtime integration; it does not assign engineering scores.
+Story: TS-176. Branch: `ts-176-jg`. Evaluated 2026-10-04 after the implementing agent reported comprehensive final verification complete. This review evaluates the rendered Shield durability HUD and exercised runtime integration; it does not assign engineering scores.
 
 **Overall Score: 8.3 / 10**
 

@@ -1,0 +1,4093 @@
+{
+  "id": "check-20261004-055120-wall-damage",
+  "tick": 1323,
+  "shields": [
+    {
+      "Id": 1,
+      "Owner": 1,
+      "Life": 0,
+      "Token": 0,
+      "Stage": 2,
+      "HP": 250,
+      "DamageSequence": 2,
+      "LastCollisionTick": null,
+      "Position": {
+        "X": 0,
+        "Y": 201.765,
+        "Z": 3.83
+      },
+      "Orientation": {
+        "IsIdentity": true,
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 1
+      },
+      "LinearVelocity": {
+        "X": 0,
+        "Y": -0,
+        "Z": 0
+      },
+      "AngularVelocity": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "WallSize": {
+        "X": 6.6,
+        "Y": 2.5,
+        "Z": 0.6
+      },
+      "WallMass": 250,
+      "ExpiresAtTick": 18982,
+      "Tipping": false,
+      "Attached": false
+    },
+    {
+      "Id": 2,
+      "Owner": 1,
+      "Life": 1,
+      "Token": 2,
+      "Stage": 0,
+      "HP": 1000,
+      "DamageSequence": 0,
+      "LastCollisionTick": null,
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Orientation": {
+        "IsIdentity": true,
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 1
+      },
+      "LinearVelocity": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "AngularVelocity": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "WallSize": {
+        "X": 6.6,
+        "Y": 2.5,
+        "Z": 0.6
+      },
+      "WallMass": 250,
+      "ExpiresAtTick": 0,
+      "Tipping": false,
+      "Attached": true
+    },
+    {
+      "Id": 3,
+      "Owner": 2,
+      "Life": 0,
+      "Token": 0,
+      "Stage": 2,
+      "HP": 1000,
+      "DamageSequence": 0,
+      "LastCollisionTick": null,
+      "Position": {
+        "X": 10,
+        "Y": 201.765,
+        "Z": 3.83
+      },
+      "Orientation": {
+        "IsIdentity": true,
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 1
+      },
+      "LinearVelocity": {
+        "X": 0,
+        "Y": -0,
+        "Z": 0
+      },
+      "AngularVelocity": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "WallSize": {
+        "X": 6.6,
+        "Y": 2.5,
+        "Z": 0.6
+      },
+      "WallMass": 250,
+      "ExpiresAtTick": 19184,
+      "Tipping": false,
+      "Attached": false
+    }
+  ],
+  "effects": 0,
+  "vehicles": [
+    {
+      "id": 1,
+      "pose": {
+        "Position": {
+          "X": 0,
+          "Y": 201.64519,
+          "Z": 0
+        },
+        "Orientation": {
+          "IsIdentity": true,
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "W": 1
+        },
+        "LinearVelocity": {
+          "X": 0,
+          "Y": -0.00034359097,
+          "Z": 0
+        },
+        "AngularVelocity": {
+          "X": 0,
+          "Y": 0,
+          "Z": 0
+        }
+      }
+    },
+    {
+      "id": 2,
+      "pose": {
+        "Position": {
+          "X": 10,
+          "Y": 201.64519,
+          "Z": 0
+        },
+        "Orientation": {
+          "IsIdentity": true,
+          "X": 0,
+          "Y": 0,
+          "Z": 0,
+          "W": 1
+        },
+        "LinearVelocity": {
+          "X": 0,
+          "Y": -0.00034359097,
+          "Z": 0
+        },
+        "AngularVelocity": {
+          "X": 0,
+          "Y": 0,
+          "Z": 0
+        }
+      }
+    }
+  ],
+  "remote": [
+    {
+      "Id": 1,
+      "Owner": 1,
+      "Life": 0,
+      "Token": 0,
+      "Stage": 2,
+      "HP": 250,
+      "DamageSequence": 2,
+      "LastCollisionTick": null,
+      "Position": {
+        "X": 0,
+        "Y": 201.765,
+        "Z": 3.83
+      },
+      "Orientation": {
+        "IsIdentity": true,
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 1
+      },
+      "LinearVelocity": {
+        "X": 0,
+        "Y": -0,
+        "Z": 0
+      },
+      "AngularVelocity": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "WallSize": {
+        "X": 6.6,
+        "Y": 2.5,
+        "Z": 0.6
+      },
+      "WallMass": 250,
+      "ExpiresAtTick": 18982,
+      "Tipping": false,
+      "Attached": false
+    },
+    {
+      "Id": 2,
+      "Owner": 1,
+      "Life": 1,
+      "Token": 2,
+      "Stage": 0,
+      "HP": 1000,
+      "DamageSequence": 0,
+      "LastCollisionTick": null,
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Orientation": {
+        "IsIdentity": true,
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 1
+      },
+      "LinearVelocity": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "AngularVelocity": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "WallSize": {
+        "X": 6.6,
+        "Y": 2.5,
+        "Z": 0.6
+      },
+      "WallMass": 250,
+      "ExpiresAtTick": 0,
+      "Tipping": false,
+      "Attached": true
+    },
+    {
+      "Id": 3,
+      "Owner": 2,
+      "Life": 0,
+      "Token": 0,
+      "Stage": 2,
+      "HP": 1000,
+      "DamageSequence": 0,
+      "LastCollisionTick": null,
+      "Position": {
+        "X": 10,
+        "Y": 201.765,
+        "Z": 3.83
+      },
+      "Orientation": {
+        "IsIdentity": true,
+        "X": 0,
+        "Y": 0,
+        "Z": 0,
+        "W": 1
+      },
+      "LinearVelocity": {
+        "X": 0,
+        "Y": -0,
+        "Z": 0
+      },
+      "AngularVelocity": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "WallSize": {
+        "X": 6.6,
+        "Y": 2.5,
+        "Z": 0.6
+      },
+      "WallMass": 250,
+      "ExpiresAtTick": 19184,
+      "Tipping": false,
+      "Attached": false
+    }
+  ],
+  "trace": [
+    {
+      "frame": 1279,
+      "tick": 1279,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0.23272748,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0.32650003,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1280,
+      "tick": 1280,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0.20145811,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0.29523066,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1281,
+      "tick": 1281,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0.17023562,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0.26400816,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1282,
+      "tick": 1282,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0.13845438,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0.23222691,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1283,
+      "tick": 1283,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0.10772313,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0.20149566,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1284,
+      "tick": 1284,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0.07648376,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0.17025629,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1285,
+      "tick": 1285,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0.045240633,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0.13901316,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1286,
+      "tick": 1286,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0.013991881,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0.10776441,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1287,
+      "tick": 1287,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0.076523155,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1288,
+      "tick": 1288,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0.045259405,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1289,
+      "tick": 1289,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0.01401628,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1290,
+      "tick": 1290,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1291,
+      "tick": 1291,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1292,
+      "tick": 1292,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1293,
+      "tick": 1293,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1294,
+      "tick": 1294,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1295,
+      "tick": 1295,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1296,
+      "tick": 1296,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1297,
+      "tick": 1297,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1298,
+      "tick": 1298,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1299,
+      "tick": 1299,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1300,
+      "tick": 1300,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1301,
+      "tick": 1301,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1302,
+      "tick": 1302,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1303,
+      "tick": 1303,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1304,
+      "tick": 1304,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1305,
+      "tick": 1305,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1306,
+      "tick": 1306,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1307,
+      "tick": 1307,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1308,
+      "tick": 1308,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1309,
+      "tick": 1309,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1310,
+      "tick": 1310,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1311,
+      "tick": 1311,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1312,
+      "tick": 1312,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1313,
+      "tick": 1313,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1314,
+      "tick": 1314,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1315,
+      "tick": 1315,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1316,
+      "tick": 1316,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1317,
+      "tick": 1317,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1318,
+      "tick": 1318,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1319,
+      "tick": 1319,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1320,
+      "tick": 1320,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1321,
+      "tick": 1321,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1322,
+      "tick": 1322,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    },
+    {
+      "frame": 1323,
+      "tick": 1323,
+      "vehicles": [
+        {
+          "id": 1,
+          "position": {
+            "X": 0,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        },
+        {
+          "id": 2,
+          "position": {
+            "X": 10,
+            "Y": 201.64519,
+            "Z": 0
+          },
+          "hp": 1000
+        }
+      ],
+      "walls": [
+        {
+          "id": 1,
+          "expansion": 1,
+          "hp": 250,
+          "centerFold": 0,
+          "horizontalFold": 0
+        },
+        {
+          "id": 3,
+          "expansion": 1,
+          "hp": 1000,
+          "centerFold": 0,
+          "horizontalFold": 0
+        }
+      ],
+      "shields": [
+        {
+          "id": 1,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        },
+        {
+          "id": 2,
+          "shield": false,
+          "rack": 0,
+          "mount": 0,
+          "visible": false,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42,
+          "articulationClearance": null
+        }
+      ],
+      "remoteShields": [
+        {
+          "id": 1,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        },
+        {
+          "id": 2,
+          "mount": 0,
+          "visible": false,
+          "rack": 0,
+          "centerFold": 1,
+          "horizontalFold": 1,
+          "scale": 0.42
+        }
+      ]
+    }
+  ]
+}

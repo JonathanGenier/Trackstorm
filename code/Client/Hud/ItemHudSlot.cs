@@ -60,10 +60,10 @@ internal sealed partial class ItemHudSlot : Control
         _icon.Visible = icon is not null;
         _resource.Visible = view.Resource is not null;
         _resource.Text = view.Resource?.Text ?? string.Empty;
-        bool shield = view.Item == HeldItem.Tombstone;
+        bool shield = view.Item == HeldItem.Shield;
         _resource.Size = new Vector2(54, shield ? 20 : 29);
         _resourceUnit.Visible = shield && view.Resource is not null;
-        bool damagedShield = view.Item == HeldItem.Tombstone && view.Resource?.Fraction <= 0.25;
+        bool damagedShield = view.Item == HeldItem.Shield && view.Resource?.Fraction <= 0.25;
         _resource.Modulate = damagedShield ? new Color("ff7852") : Colors.White;
         _icon.Modulate = damagedShield ? new Color("ff9a73") : Colors.White;
         QueueRedraw();
@@ -79,7 +79,7 @@ internal sealed partial class ItemHudSlot : Control
         }
 
         if (_view?.Resource?.Fraction is not double fraction) return;
-        if (_view.Item == HeldItem.Tombstone)
+        if (_view.Item == HeldItem.Shield)
         {
             DrawDurability(fraction);
             return;

@@ -61,7 +61,7 @@ internal sealed class EosUnreliableWindow(TimeProvider time)
         return payload;
     }
 
-    /// <summary>Expires incomplete messages even on idle polls; tombstones prevent late fragments from restarting them.</summary>
+    /// <summary>Expires incomplete messages even on idle polls; retired sequence entries prevent late fragments from restarting them.</summary>
     internal void Expire()
     {
         foreach (var entry in _entries)

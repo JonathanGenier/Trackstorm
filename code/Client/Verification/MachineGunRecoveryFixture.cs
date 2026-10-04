@@ -13,7 +13,7 @@ internal static class MachineGunRecoveryFixture
         var slots = host.Items.Slots.Select(slot => slot.Vehicle != player ? slot : slot.Item == HeldItem.MachineGun
             ? slot with { Ammo = new(299, 800, 0.25), EngagedToken = 0 }
             : slot with { SecondAmmo = new(299, 800, 0.25), EngagedToken = 0 });
-        host.Items.Restore(new(Math.Max(1, host.Items.Revision), host.Snapshot(), slots, host.Items.Missiles, [], host.Spawns?.States, host.Items.Patches, host.Items.OilContacts, host.Spawns?.Balances, host.Items.Mines, host.Items.Tombstones, host.Items.DiscardRevision), host.Items.Revision + 1, host.Items.TokenHighWater);
+        host.Items.Restore(new(Math.Max(1, host.Items.Revision), host.Snapshot(), slots, host.Items.Missiles, [], host.Spawns?.States, host.Items.Patches, host.Items.OilContacts, host.Spawns?.Balances, host.Items.Mines, host.Items.Shields, host.Items.DiscardRevision), host.Items.Revision + 1, host.Items.TokenHighWater);
     }
 
     internal static void Verify(ItemPublication state, ulong player)

@@ -1,0 +1,6 @@
+00:01.610  blend            | Read blend: "C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\items\shield\source\Shield.blend"
+Info: Read library: 'C:\Users\j_gen\OneDrive\Documents\Game_Projects\Trackstorm\assets\vehicles\source\TrackstormCar.blend', '//..\..\..\vehicles\source\TrackstormCar.blend', parent '<direct>'
+SHIELD_SOURCE_IDENTIFIERS_PASS {"data_blocks": 3320, "historical_identifiers": 0, "canonical_roots": ["Shield", "ShieldRack"]}
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

@@ -21,7 +21,7 @@ public sealed partial class RearShieldChecks : Node
     private float _vehicleHP, _shieldHP;
     private bool _done;
     private string _output = "";
-    private TombstoneState[] _cyclePools = [];
+    private ShieldState[] _cyclePools = [];
     private int _cycles;
 
     public override void _Ready()
@@ -85,19 +85,19 @@ public sealed partial class RearShieldChecks : Node
                     Next(5); break;
                 case 5 when host.World.State.Match?.Phase == Trackstorm.Core.Matches.MatchPhase.Active:
                     Setup(); break;
-                case 1 when host.Items.Tombstones.Count == 2 && host.Items.Tombstones.All(s => s.Stage == TombstoneStage.RearShield) &&
+                case 1 when host.Items.Shields.Count == 2 && host.Items.Shields.All(s => s.Stage == ShieldStage.RearShield) &&
                     _arenas.All(a => a.Bodies.Count == 2 && a.Bodies.Values.All(b => b.HasRearShield)):
-                    Check(host.Items.Tombstones.All(s => s.HP == (_scenario == 6 && s.Owner == 2 ? 10 : 900)), "Deployment preserves damaged pools");
-                    _cyclePools = host.Items.Tombstones.ToArray(); _cycles = 0;
+                    Check(host.Items.Shields.All(s => s.HP == (_scenario == 6 && s.Owner == 2 ? 10 : 900)), "Deployment preserves damaged pools");
+                    _cyclePools = host.Items.Shields.ToArray(); _cycles = 0;
                     foreach (var arena in _arenas) { Check(arena.Driver.RequestItemSwitch(), "Ordinary switch stows shield"); }
                     Next(10); break;
                 case 10 when elapsed > 30 && _arenas.All(a => a.Bodies.Values.All(b => !b.HasRearShield)):
-                    Check(host.Items.Tombstones.SequenceEqual(_cyclePools.Select(s => s with { Stage = TombstoneStage.Held })), "Stowing preserves both damaged identities");
+                    Check(host.Items.Shields.SequenceEqual(_cyclePools.Select(s => s with { Stage = ShieldStage.Held })), "Stowing preserves both damaged identities");
                     Capture($"{_scenario}-stored.png");
                     foreach (var arena in _arenas) { Check(arena.Driver.RequestItemSwitch(), "Ordinary switch exposes shield without use"); }
                     Next(11); break;
                 case 11 when elapsed > 30 && _arenas.All(a => a.Bodies.Values.All(b => b.HasRearShield)):
-                    Check(host.Items.Tombstones.SequenceEqual(_cyclePools), "Reselection restores exact pools");
+                    Check(host.Items.Shields.SequenceEqual(_cyclePools), "Reselection restores exact pools");
                     if (++_cycles < 3)
                     {
                         foreach (var arena in _arenas) { Check(arena.Driver.RequestItemSwitch(), "Repeated switch"); }
@@ -110,32 +110,32 @@ public sealed partial class RearShieldChecks : Node
                     Check(_arenas.All(a => !a.Bodies[1].HasRearShield && a.Bodies[2].HasRearShield), "Only selected shield has physical cover on both peers");
                     Position();
                     _vehicleHP = host.World.GetVehicle(2).Damage.CurrentHP;
-                    _shieldHP = host.Items.Tombstones.Single(s => s.Owner == 2).HP;
+                    _shieldHP = host.Items.Shields.Single(s => s.Owner == 2).HP;
                     Capture($"{_scenario}-deployed.png");
                     Next(3); break;
                 case 3 when elapsed >= (_scenario == 7 ? 90 : 40):
                     float vehicle = host.World.GetVehicle(2).Damage.CurrentHP;
-                    float shield = host.Items.Tombstones.SingleOrDefault(s => s.Owner == 2)?.HP ?? 0;
+                    float shield = host.Items.Shields.SingleOrDefault(s => s.Owner == 2)?.HP ?? 0;
                     bool blocked = _scenario is 0 or 1 or 2 or 7;
                     if (blocked) { Check(shield < _shieldHP && vehicle == _vehicleHP, $"Scenario {_scenario}: shield {shield}/{_shieldHP}, vehicle {vehicle}/{_vehicleHP}"); }
                     else if (_scenario == 6) { Check(shield == 0 && vehicle < _vehicleHP, "Destruction removes cover during driving and sustained fire"); }
                     else { Check(shield == _shieldHP && vehicle < _vehicleHP, $"Uncovered scenario {_scenario}: shield {shield}, vehicle {vehicle}"); }
-                    Check(host.Items.Tombstones.Single(s => s.Owner == 1).HP == 900, "Other vehicle shield remains independent");
+                    Check(host.Items.Shields.Single(s => s.Owner == 1).HP == 900, "Other vehicle shield remains independent");
                     _evidence.Add($"Scenario {_scenario}: shield {_shieldHP} -> {shield}, protected vehicle {_vehicleHP} -> {vehicle}; other shield 900 HP.");
                     GD.Print(_evidence.Last()); Capture($"{_scenario}-result.png"); Next(4); break;
                 case 4 when elapsed > 60:
-                    Check(_arenas.All(a => a.Driver.ItemState!.Tombstones.SequenceEqual(host.Items.Tombstones)), "Replicated pools converge");
-                    Check(_arenas.All(a => a.Bodies[2].HasRearShield == host.Items.Tombstones.Any(s => s.Owner == 2)), "Native shield removal converges");
-                    _cyclePools = host.Items.Tombstones.ToArray();
+                    Check(_arenas.All(a => a.Driver.ItemState!.Shields.SequenceEqual(host.Items.Shields)), "Replicated pools converge");
+                    Check(_arenas.All(a => a.Bodies[2].HasRearShield == host.Items.Shields.Any(s => s.Owner == 2)), "Native shield removal converges");
+                    _cyclePools = host.Items.Shields.ToArray();
                     Check(_arenas[1].Driver.RequestItemSwitch(), "Stow damaged or destroyed shield after impact");
                     Next(12); break;
                 case 12 when elapsed > 40 && _arenas.All(a => !a.Bodies[2].HasRearShield):
-                    Check(host.Items.Tombstones.SequenceEqual(_cyclePools.Select(s => s.Owner == 2 ? s with { Stage = TombstoneStage.Held } : s)), "Post-hit stow preserves damage");
+                    Check(host.Items.Shields.SequenceEqual(_cyclePools.Select(s => s.Owner == 2 ? s with { Stage = ShieldStage.Held } : s)), "Post-hit stow preserves damage");
                     Check(_arenas[1].Driver.RequestItemSwitch(), "Reselect damaged shield");
                     Next(13); break;
                 case 13 when elapsed > 40:
-                    Check(host.Items.Tombstones.SequenceEqual(_cyclePools), "Post-hit reselect preserves identity and HP or absence");
-                    Check(_arenas.All(a => a.Driver.ItemState!.Tombstones.SequenceEqual(_cyclePools)), "Selection recovery converges");
+                    Check(host.Items.Shields.SequenceEqual(_cyclePools), "Post-hit reselect preserves identity and HP or absence");
+                    Check(_arenas.All(a => a.Driver.ItemState!.Shields.SequenceEqual(_cyclePools)), "Selection recovery converges");
                     if (++_scenario < 8) { Setup(); }
                     else
                     {
@@ -167,9 +167,9 @@ public sealed partial class RearShieldChecks : Node
             // Scenario reset preserves the monotonic input boundary without reusing a stale toggle.
             ulong boundary = (previousSelection + 1) & ~1ul;
             if (boundary > 0) { host.Items.Switch(host.World, id, host.World.GetVehicle(id).LifeId, boundary); }
-            Check(host.Items.Grant(host.World, id, HeldItem.Tombstone), "Fixture shield grant");
-            var stone = host.Items.Tombstones.Single(s => s.Owner == id);
-            host.Items.DamageTombstone(host.World, stone.Id, 7, _scenario == 6 && id == 2 ? 990 : 100, new("world", 0, "fixture"));
+            Check(host.Items.Grant(host.World, id, HeldItem.Shield), "Fixture shield grant");
+            var shield = host.Items.Shields.Single(s => s.Owner == id);
+            host.Items.DamageShield(host.World, shield.Id, 7, _scenario == 6 && id == 2 ? 990 : 100, new("world", 0, "fixture"));
         }
         Position(); Next(1);
     }

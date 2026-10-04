@@ -148,7 +148,7 @@ internal sealed class CombatHudTests
             Assert.That(view.SecondItem, Is.EqualTo(HeldItem.Oil));
             Assert.That(view.ActiveSlot, Is.EqualTo(1));
             Assert.That(CombatHudView.From(initial, slot with { Vehicle = 2 }, 0).SecondItem, Is.EqualTo(HeldItem.None));
-            Assert.That(view.ItemName, Is.EqualTo(item == HeldItem.None ? "EMPTY" : item == HeldItem.Nitro ? "NITRO 100%" : item == HeldItem.ProxyMine ? "PROXY MINE" : item == HeldItem.MachineGun ? "MACHINE GUN 100%" : item == HeldItem.Salvo ? "SALVO 5" : item == HeldItem.Tombstone ? "SHIELD" : item.ToString().ToUpperInvariant()));
+            Assert.That(view.ItemName, Is.EqualTo(item == HeldItem.None ? "EMPTY" : item == HeldItem.Nitro ? "NITRO 100%" : item == HeldItem.ProxyMine ? "PROXY MINE" : item == HeldItem.MachineGun ? "MACHINE GUN 100%" : item == HeldItem.Salvo ? "SALVO 5" : item == HeldItem.Shield ? "SHIELD" : item.ToString().ToUpperInvariant()));
             Assert.That(view.Standing, Is.EqualTo("--"));
             Assert.That(view.Timer, Is.EqualTo("--:--"));
             Assert.That(view.HealthFill, Is.EqualTo(0.85));
@@ -214,12 +214,12 @@ internal sealed class CombatHudTests
     }
 
     [Test]
-    public void TombstoneDurabilityMatchesExactPhysicalCapabilityAndReconstructsWithoutRefilling()
+    public void ShieldDurabilityMatchesExactPhysicalCapabilityAndReconstructsWithoutRefilling()
     {
-        var inventory = new ItemSlot(1, 1, 10, HeldItem.Tombstone)
-        { SecondToken = 20, SecondItem = HeldItem.Tombstone };
-        TombstoneState[] pools = [new(100, 1, 1, 10, TombstoneStage.RearShield, 675),
-            new(200, 1, 1, 20, TombstoneStage.Held, 123.25f)];
+        var inventory = new ItemSlot(1, 1, 10, HeldItem.Shield)
+        { SecondToken = 20, SecondItem = HeldItem.Shield };
+        ShieldState[] pools = [new(100, 1, 1, 10, ShieldStage.RearShield, 675),
+            new(200, 1, 1, 20, ShieldStage.Held, 123.25f)];
         var vehicle = State(850, 1500, 10);
         var view = CombatHudView.From(vehicle, inventory, 0, pools);
         Assert.That(view.FirstSlot.Resource, Is.EqualTo(new ItemHudResource("675", 0.675)));
@@ -230,13 +230,13 @@ internal sealed class CombatHudTests
         Assert.That(damaged.FirstSlot.Resource, Is.EqualTo(new ItemHudResource("20", 0.02)));
         Assert.That(damaged.SecondSlot, Is.EqualTo(view.SecondSlot));
         var switched = CombatHudView.From(vehicle, inventory with { ActiveSlot = 1 }, 0,
-            [pools[0] with { Stage = TombstoneStage.Held }, pools[1] with { Stage = TombstoneStage.RearShield }]);
+            [pools[0] with { Stage = ShieldStage.Held }, pools[1] with { Stage = ShieldStage.RearShield }]);
         Assert.That(switched.FirstSlot, Is.EqualTo(damaged.FirstSlot));
         Assert.That(switched.SecondSlot, Is.EqualTo(damaged.SecondSlot));
         // A fresh projection represents admission/reconnection; no local damage history is required.
         Assert.That(CombatHudView.From(vehicle, inventory, 0, pools.ToArray()), Is.EqualTo(damaged));
         foreach (var stale in new[] { pools[0] with { Token = 99 }, pools[0] with { Life = 2 },
-            pools[0] with { Owner = 2 }, pools[0] with { Stage = TombstoneStage.WorldWall }, pools[0] with { HP = 0 } })
+            pools[0] with { Owner = 2 }, pools[0] with { Stage = ShieldStage.WorldWall }, pools[0] with { HP = 0 } })
         {
             var missing = CombatHudView.From(vehicle, inventory, 0, [stale, pools[1]]);
             Assert.That(missing.FirstSlot.Resource, Is.Null);

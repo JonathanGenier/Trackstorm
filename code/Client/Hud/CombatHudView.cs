@@ -38,16 +38,16 @@ internal sealed record CombatHudView(string Health, double HealthFill, string Sp
     /// <param name="state">Local vehicle boundary.</param>
     /// <param name="slot">Confirmed slot, if available.</param>
     /// <param name="unit">Local preference.</param>
-    /// <param name="tombstones">Accepted persistent pools accompanying confirmed inventory.</param>
+    /// <param name="shields">Accepted persistent pools accompanying confirmed inventory.</param>
     /// <returns>Detached presentation values.</returns>
-    internal static CombatHudView From(VehicleSnapshot state, ItemSlot? slot, SpeedUnit unit, IReadOnlyList<TombstoneState>? tombstones = null)
+    internal static CombatHudView From(VehicleSnapshot state, ItemSlot? slot, SpeedUnit unit, IReadOnlyList<ShieldState>? shields = null)
     {
         bool valid = state.CanInteract && slot?.Vehicle == state.VehicleId && slot.Life == state.LifeId;
         return new CombatHudView(FormatHealth(state.Damage.CurrentHP, state.Damage.MaxHP), NormalizeHealth(state.Damage.CurrentHP, state.Damage.MaxHP), ConvertSpeed(state.Speed, unit).ToString("0", CultureInfo.InvariantCulture), UnitSuffix(unit), NormalizeSpeed(state.Speed))
         {
             OutOfBounds = state.CanInteract && state.OutOfBounds,
-            FirstSlot = ItemHudSlotView.From(valid ? slot : null, false, tombstones),
-            SecondSlot = ItemHudSlotView.From(valid ? slot : null, true, tombstones),
+            FirstSlot = ItemHudSlotView.From(valid ? slot : null, false, shields),
+            SecondSlot = ItemHudSlotView.From(valid ? slot : null, true, shields),
             ActiveSlot = valid ? slot!.ActiveSlot : (byte)0,
         };
     }

@@ -10,9 +10,9 @@ internal sealed class ReleaseDefaultsTests
     /// <summary>Every persisted gameplay key maps to its exact approved canonical value.</summary>
     /// <param name="key">Approved stable persistence key.</param>
     /// <param name="expected">Exact persisted numeric value, including float-to-double expansion.</param>
-    [TestCase("spawns.tombstone_weight", 1d)]
-    [TestCase("items.tombstone_lifetime", 120d)]
-    [TestCase("items.tombstone_tip_speed", 20d)]
+    [TestCase("spawns.shield_weight", 1d)]
+    [TestCase("items.shield_lifetime", 120d)]
+    [TestCase("items.shield_tip_speed", 20d)]
     [TestCase("vehicle.wall_drag", (double)0.18f)]
     [TestCase("vehicle.crash_dissipation", (double)0.95f)]
     [TestCase("vehicle.crash_rotation", (double)0.08f)]

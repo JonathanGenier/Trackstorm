@@ -309,7 +309,7 @@ public sealed class HostVehicleSession
         var vehicle = new VehicleSnapshot(player, 1, new VehicleState(World.State.Tick, spawn, false, false, 0, 0), new VehicleHealth(Configuration.Configuration.Damage).State, spawn);
         var current = Snapshot();
         var world = new WorldSnapshot(SessionId, current.Tick, current.Vehicles.Append(new ReplicatedVehicle(vehicle, 0)), Configuration.Revision);
-        var items = new ItemPublication(revision, world, Items.Slots, Items.Missiles, [], Spawns?.States, Items.Patches, Items.OilContacts, Spawns?.Balances, Items.Mines, Items.Tombstones, Items.DiscardRevision);
+        var items = new ItemPublication(revision, world, Items.Slots, Items.Missiles, [], Spawns?.States, Items.Patches, Items.OilContacts, Spawns?.Balances, Items.Mines, Items.Shields, Items.DiscardRevision);
         var match = Matches.MatchAuthority.Join(World.State.Match!, current.Tick, player);
         return new ResumeCheckpoint(items, match, props, Configuration, Environment?.Snapshot(SessionId, World.State.Tick));
     }
@@ -463,9 +463,9 @@ public sealed class HostVehicleSession
     /// <param name="placeMine">Host terrain installation query.</param>
     /// <param name="moveMine">Host sweep and contact query.</param>
     /// <param name="raycastWeapon">Host closest collision on an authoritative weapon ray.</param>
-    /// <param name="placeTombstone">Host-only native rear placement and clearance query.</param>
-    /// <param name="observeTombstone">Host-only native wall motion observation.</param>
-    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeTombstone = null, Func<TombstoneState, TombstoneObservation?>? observeTombstone = null)
+    /// <param name="placeShield">Host-only native rear placement and clearance query.</param>
+    /// <param name="observeShield">Host-only native wall motion observation.</param>
+    public void Step(InputFrame local, Func<VehicleSnapshot, VehicleObservation> observe, Func<MissileState, Vector3, float?>? collide = null, Func<ItemSlot, VehiclePhysicsState, OilPatch?>? placeOil = null, Func<ItemSlot, VehiclePhysicsState, ProxyMineState?>? placeMine = null, Func<ProxyMineState, ProxyMineState, ProxyMineMotion>? moveMine = null, Func<Vector3, Vector3?>? ground = null, Func<ulong, Vector3, Vector3, WeaponRayHit?>? raycastWeapon = null, Func<ItemSlot, VehiclePhysicsState, ItemConfiguration, VehiclePhysicsState?>? placeShield = null, Func<ShieldState, ShieldObservation?>? observeShield = null)
     {
         _pickupStart = null;
         _pickupEnd = null;
@@ -498,7 +498,7 @@ public sealed class HostVehicleSession
         try
         {
             Items.AdvanceAim(World, Configuration.Configuration.Vehicle, AllowsParticipation, observations);
-            Items.Step(World, hostInput, observations, collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground, raycastWeapon, placeTombstone, observeTombstone);
+            Items.Step(World, hostInput, observations, collide ?? ((_, _) => null), placeOil, placeMine, moveMine, _peers.Values.ToDictionary(entry => entry.Vehicle, entry => entry.Inputs.LastAcknowledged), ground, raycastWeapon, placeShield, observeShield);
         }
         catch
         {

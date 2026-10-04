@@ -18,7 +18,7 @@ internal sealed class ItemDiscardTests
     [TestCase(0, HeldItem.Nitro)]
     [TestCase(1, HeldItem.MachineGun)]
     [TestCase(0, HeldItem.Salvo)]
-    [TestCase(1, HeldItem.Tombstone)]
+    [TestCase(1, HeldItem.Shield)]
     public void DeletesOnlySelectedPhysicalSlotImmediatelyAndCancelsItsUse(int index, HeldItem item)
     {
         var host = new HostVehicleSession(99);
@@ -26,7 +26,7 @@ internal sealed class ItemDiscardTests
         host.Items.Grant(host.World, 1, index == 1 ? item : HeldItem.Nitro);
         if (index == 1) { host.SwitchItem(0, 99, 1, 1); }
         var before = host.Items.Slots.Single();
-        var older = new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], tombstones: host.Items.Tombstones);
+        var older = new ItemPublication(1, host.Snapshot(), host.Items.Slots, [], [], shields: host.Items.Shields);
         var other = (before with { ActiveSlot = (byte)(1 - index) }).Active;
         host.UseItem(0, 99, 1, before.Active.Token);
         ulong revision = host.Items.ReliableRevision;
@@ -45,7 +45,7 @@ internal sealed class ItemDiscardTests
         Assert.That(host.Items.Missiles, Is.Empty);
         Assert.That(host.Items.Patches, Is.Empty);
         Assert.That(host.Items.Mines, Is.Empty);
-        Assert.That(host.Items.Tombstones, Is.Empty);
+        Assert.That(host.Items.Shields, Is.Empty);
         Assert.That(host.Items.Slots.Single().Active.Item, Is.EqualTo(HeldItem.None));
         Assert.That(host.Items.Grant(host.World, 1, HeldItem.Wrench), Is.True);
         Assert.That(host.DiscardItem(0, 99, 1, before.Active.Token, before.SelectionRevision), Is.False, "Delayed discard cannot delete a replacement.");
@@ -83,18 +83,18 @@ internal sealed class ItemDiscardTests
     {
         var host = new HostVehicleSession(99, respawnConfiguration: new() { DelayTicks = 1, ClearHeldItemOnDeath = clearOnDeath });
         host.Join(42);
-        host.Items.Grant(host.World, 2, HeldItem.Tombstone);
+        host.Items.Grant(host.World, 2, HeldItem.Shield);
         host.Items.Grant(host.World, 2, HeldItem.Nitro);
         var before = host.Items.Slots.Single();
         Assert.That(host.DiscardItem(42, 99, 1, before.Token, 0), Is.True);
         host.Suspend(42);
         var checkpoint = ResumeCheckpointCodec.Decode(ResumeCheckpointCodec.Encode(new ResumeCheckpoint(
-            new ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, [], tombstones: host.Items.Tombstones, discardRevision: host.Items.DiscardRevision), host.World.State.Match!, null, host.Configuration)));
+            new ItemPublication(1, host.Snapshot(), host.Items.Slots, host.Items.Missiles, [], shields: host.Items.Shields, discardRevision: host.Items.DiscardRevision), host.World.State.Match!, null, host.Configuration)));
         var restored = HostVehicleSession.Restore(checkpoint, host.CaptureAuthority(), 1);
         Assert.That(restored.ResumePlayer(43, 2), Is.True);
         Assert.That(restored.Items.Slots.Single().Item, Is.EqualTo(HeldItem.None));
         Assert.That(restored.Items.Slots.Single().SecondItem, Is.EqualTo(HeldItem.Nitro));
-        Assert.That(restored.Items.Tombstones, Is.Empty);
+        Assert.That(restored.Items.Shields, Is.Empty);
         Assert.That(restored.Items.DiscardRevision, Is.EqualTo(1));
         Assert.That(restored.DiscardItem(43, 99, 1, before.Token, 0), Is.False);
         var input = new InputFrame(restored.World.State.Tick + 1, 0, 0, 0, 0, 0, 0);
@@ -115,18 +115,18 @@ internal sealed class ItemDiscardTests
         var host = new HostVehicleSession(99, matchConfiguration: new() { MinimumPlayers = 1, CountdownTicks = 1 });
         host.Step(default, Observe); host.Step(default, Observe);
         host.Items.Grant(host.World, 1, HeldItem.MachineGun);
-        host.Items.Grant(host.World, 1, HeldItem.Tombstone);
+        host.Items.Grant(host.World, 1, HeldItem.Shield);
         var slot = host.Items.Slots.Single();
         host.UseItem(0, 99, slot.Life, slot.Token);
         var held = new InputFrame(1, 0, 0, 0, InputButtons.UseItem, InputButtons.UseItem, 0);
         host.Step(held, Observe, raycastWeapon: (_, _, _) => null);
         Assert.That(host.Items.Slots.Single().EngagedToken, Is.EqualTo(slot.Token));
         Assert.That(host.Items.Slots.Single().Ammo!.Remaining, Is.LessThan(slot.Ammo!.Remaining));
-        var other = host.Items.Tombstones.Single();
+        var other = host.Items.Shields.Single();
         Assert.That(host.DiscardItem(0, 99, slot.Life, slot.Token, 0), Is.True);
         host.Step(held, Observe);
         Assert.That(host.Items.Events, Is.Empty, "Held use cannot fire again after deletion.");
-        Assert.That(host.Items.Tombstones.Single(), Is.EqualTo(other));
+        Assert.That(host.Items.Shields.Single(), Is.EqualTo(other));
         Assert.That(host.Items.Slots.Single().SecondToken, Is.EqualTo(slot.SecondToken));
     }
 

@@ -1,7 +1,7 @@
 param (
     [Parameter(Mandatory)][string]$GodotPath,
     [switch]$Visual,
-    [switch]$Tombstone,
+    [switch]$Shield,
     [switch]$NoBuild
 )
 $ErrorActionPreference = 'Stop'
@@ -11,7 +11,7 @@ if (-not $NoBuild) {
 }
 $arguments = @('--path', $PSScriptRoot, 'res://scenes/verification/reconnect_checks.tscn')
 if (-not $Visual) { $arguments = @('--headless') + $arguments }
-if ($Tombstone) { $arguments += @('--', '--tombstone-recovery') }
+if ($Shield) { $arguments += @('--', '--shield-recovery') }
 $outputDirectory = Join-Path $PSScriptRoot '.godot/reconnect-checks'
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
 $log = & $GodotPath @arguments 2>&1
