@@ -213,6 +213,50 @@ internal sealed class CombatHudTests
         Assert.That(feedback.Project(death, 1, 2100)!.Rows, Is.Empty);
     }
 
+    [Test]
+    public void TombstoneDurabilityMatchesExactPhysicalCapabilityAndReconstructsWithoutRefilling()
+    {
+        var inventory = new ItemSlot(1, 1, 10, HeldItem.Tombstone)
+        { SecondToken = 20, SecondItem = HeldItem.Tombstone };
+        TombstoneState[] pools = [new(100, 1, 1, 10, TombstoneStage.RearShield, 675),
+            new(200, 1, 1, 20, TombstoneStage.Held, 123.25f)];
+        var vehicle = State(850, 1500, 10);
+        var view = CombatHudView.From(vehicle, inventory, 0, pools);
+        Assert.That(view.FirstSlot.Resource, Is.EqualTo(new ItemHudResource("675", 0.675)));
+        Assert.That(view.SecondSlot.Resource!.Text, Is.EqualTo("124"));
+        Assert.That(view.Health, Is.EqualTo("850/1500"));
+        pools = [pools[0] with { HP = 20 }, pools[1]];
+        var damaged = CombatHudView.From(vehicle, inventory, 0, pools);
+        Assert.That(damaged.FirstSlot.Resource, Is.EqualTo(new ItemHudResource("20", 0.02)));
+        Assert.That(damaged.SecondSlot, Is.EqualTo(view.SecondSlot));
+        var switched = CombatHudView.From(vehicle, inventory with { ActiveSlot = 1 }, 0,
+            [pools[0] with { Stage = TombstoneStage.Held }, pools[1] with { Stage = TombstoneStage.RearShield }]);
+        Assert.That(switched.FirstSlot, Is.EqualTo(damaged.FirstSlot));
+        Assert.That(switched.SecondSlot, Is.EqualTo(damaged.SecondSlot));
+        // A fresh projection represents admission/reconnection; no local damage history is required.
+        Assert.That(CombatHudView.From(vehicle, inventory, 0, pools.ToArray()), Is.EqualTo(damaged));
+        foreach (var stale in new[] { pools[0] with { Token = 99 }, pools[0] with { Life = 2 },
+            pools[0] with { Owner = 2 }, pools[0] with { Stage = TombstoneStage.WorldWall }, pools[0] with { HP = 0 } })
+        {
+            var missing = CombatHudView.From(vehicle, inventory, 0, [stale, pools[1]]);
+            Assert.That(missing.FirstSlot.Resource, Is.Null);
+            Assert.That(missing.SecondSlot, Is.EqualTo(view.SecondSlot));
+        }
+        foreach (HeldItem replacement in new[] { HeldItem.None, HeldItem.Wrench, HeldItem.Missile })
+            Assert.That(CombatHudView.From(vehicle, inventory with { Item = replacement }, 0, pools).FirstSlot.Resource, Is.Null);
+        Assert.That(CombatHudView.From(vehicle, inventory, 0, [pools[1]]).FirstSlot.Resource, Is.Null);
+        Assert.That(CombatHudView.From(State(0, 1500, 0), inventory, 0, pools).FirstSlot, Is.EqualTo(ItemHudSlotView.Empty));
+        Assert.That(CombatHudView.From(vehicle, inventory with { Life = 2 }, 0, pools).SecondSlot, Is.EqualTo(ItemHudSlotView.Empty));
+        Assert.That(CombatHudView.From(vehicle, null, 0, pools).FirstSlot, Is.EqualTo(ItemHudSlotView.Empty));
+        var respawned = new VehicleSnapshot(vehicle.VehicleId, 2, vehicle.Movement, vehicle.Damage, vehicle.ObservedPhysics);
+        var retained = inventory with { Life = 2, Token = 30, SecondToken = 40 };
+        var restored = CombatHudView.From(respawned, retained, 0,
+            [pools[0] with { Life = 2, Token = 30 }, pools[1] with { Life = 2, Token = 40 }]);
+        Assert.That(restored.FirstSlot, Is.EqualTo(damaged.FirstSlot));
+        Assert.That(restored.SecondSlot, Is.EqualTo(damaged.SecondSlot));
+        Assert.That(CombatHudView.From(respawned, retained, 0, pools).FirstSlot.Resource, Is.Null, "Old-life pool cannot bind after respawn.");
+    }
+
     private static VehicleSnapshot State(float hp, float max, float speed)
     {
         var pose = new VehiclePhysicsState(Vector3.Zero, Quaternion.Identity, new Vector3(speed, 0, 0), Vector3.Zero);
