@@ -1,0 +1,8 @@
+Scenario 0: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 1: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 2: shield 900 -> 810, protected vehicle 1000 -> 1000; other shield 900 HP.
+Scenario 3: shield 900 -> 900, protected vehicle 1000 -> 911.19385; other shield 900 HP.
+Scenario 4: shield 900 -> 900, protected vehicle 911.19385 -> 821.19385; other shield 900 HP.
+Scenario 5: shield 900 -> 900, protected vehicle 821.19385 -> 731.19385; other shield 900 HP.
+Scenario 6: shield 10 -> 0, protected vehicle 731.19385 -> 652.44385; other shield 900 HP.
+Scenario 7: shield 900 -> 822.76117, protected vehicle 652.44385 -> 652.44385; other shield 900 HP.

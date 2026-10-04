@@ -1,0 +1,37 @@
+{
+  "main_failed": 1,
+  "test_selection": "dotnet test code/TransportTests/Trackstorm.Transport.Tests.csproj -c Release --filter TestCategory=Native",
+  "story_failed": 0,
+  "same_machine": "Windows, local native GNS/UDP",
+  "story_passed": 15,
+  "baseline_commit": "aecca1550e4637e8319a2fbe1e4f988902eb0956",
+  "dotnet_sdk": "10.0.401",
+  "main_exit_code": 1,
+  "main_passed": 14,
+  "story_exit_code": 0,
+  "dependency_hashes": [
+    {
+      "story": "18172797478FB2A6883B1239E4EBA34B68CE4A772DA6A5C85DBA7E535D32D0D9",
+      "main": "18172797478FB2A6883B1239E4EBA34B68CE4A772DA6A5C85DBA7E535D32D0D9",
+      "file": "GameNetworkingSockets.dll"
+    },
+    {
+      "story": "9C498FE31C8DF1D9085DFA9C71C6D50EC6B569ACDB29F1DECB97BE105B6341DC",
+      "main": "9C498FE31C8DF1D9085DFA9C71C6D50EC6B569ACDB29F1DECB97BE105B6341DC",
+      "file": "EOSSDK-Win64-Shipping.dll"
+    }
+  ],
+  "test_source_hashes": [
+    {
+      "story": "5A16DC3EF8D25D108A1391C9CB18DA025E35598F7C06245D30D3C299C7A41DAF",
+      "main": "5A16DC3EF8D25D108A1391C9CB18DA025E35598F7C06245D30D3C299C7A41DAF",
+      "file": "NativeVehicleReplicationTests.cs"
+    },
+    {
+      "story": "EDBDF31D56F93B186D0193E5A88BFE1322CFD52243E2B807F80EA06F1B8BBF90",
+      "main": "EDBDF31D56F93B186D0193E5A88BFE1322CFD52243E2B807F80EA06F1B8BBF90",
+      "file": "NativeTransportTests.cs"
+    }
+  ],
+  "baseline_tracked_status": "clean"
+}

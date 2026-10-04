@@ -14,12 +14,12 @@ public sealed partial class ItemAuthority
         private readonly List<RuntimeEvent> _journal;
         private readonly ulong _tick;
         private readonly ItemConfiguration _configuration;
-        internal List<TombstoneState> States { get; }
+        internal List<ShieldState> States { get; }
 
         internal RearShieldBatch(ItemAuthority items, Simulation.Simulation world, IReadOnlyList<VehicleStepRequest> requests,
             Dictionary<ulong, ItemSlot> slots, List<RuntimeEvent> journal, ulong tick)
         {
-            States = new(items._tombstones);
+            States = new(items._shields);
             _world = world; _requests = requests; _slots = slots; _journal = journal; _tick = tick;
             _configuration = items.Configuration;
             if (world.State.Match is not { Phase: not Matches.MatchPhase.Active })
@@ -28,30 +28,30 @@ public sealed partial class ItemAuthority
                 {
                     States.Remove(wall);
                     journal.Add(new RuntimeEvent { Category = EventCategory.Item, Kind = "Expired", Target = wall.Owner,
-                        Cause = "Tombstone", Context = wall.Id.ToString(System.Globalization.CultureInfo.InvariantCulture), Tick = tick });
+                        Cause = "Shield", Context = wall.Id.ToString(System.Globalization.CultureInfo.InvariantCulture), Tick = tick });
                 }
             }
         }
 
-        private IEnumerable<TombstoneState> Active() => States.Where(s => _world.State.Match is not { Phase: not Matches.MatchPhase.Active } && s.Stage == TombstoneStage.RearShield &&
-            AttachedOwnerCanInteract(_world, s) && _slots.TryGetValue(s.Owner, out var slot) && slot.Active.Item == HeldItem.Tombstone && slot.Active.Token == s.Token &&
+        private IEnumerable<ShieldState> Active() => States.Where(s => _world.State.Match is not { Phase: not Matches.MatchPhase.Active } && s.Stage == ShieldStage.RearShield &&
+            AttachedOwnerCanInteract(_world, s) && _slots.TryGetValue(s.Owner, out var slot) && slot.Active.Item == HeldItem.Shield && slot.Active.Token == s.Token &&
             _requests.Any(r => r.VehicleId == s.Owner && !r.Reset.HasValue));
 
-        internal (TombstoneState State, float Fraction)? Intersect(Vector3 start, Vector3 end, ulong excludedOwner = 0, ulong onlyOwner = 0)
+        internal (ShieldState State, float Fraction)? Intersect(Vector3 start, Vector3 end, ulong excludedOwner = 0, ulong onlyOwner = 0)
         {
-            (TombstoneState State, float Fraction)? closest = null;
+            (ShieldState State, float Fraction)? closest = null;
             foreach (var state in Active().OrderBy(s => s.Id))
             {
                 if (state.Owner == excludedOwner || (onlyOwner != 0 && state.Owner != onlyOwner)) { continue; }
                 var pose = _requests.Single(r => r.VehicleId == state.Owner).Observation.Physics;
-                if (TombstoneGeometry.Intersect(pose, start, end) is float fraction && (closest is null || fraction < closest.Value.Fraction))
+                if (ShieldGeometry.Intersect(pose, start, end) is float fraction && (closest is null || fraction < closest.Value.Fraction))
                 { closest = (state, fraction); }
             }
             if (onlyOwner == 0 && _world.State.Match is not { Phase: not Matches.MatchPhase.Active })
             {
                 foreach (var wall in States.Where(s => !s.Attached).OrderBy(s => s.Id))
                 {
-                    if (TombstoneGeometry.Intersect(wall, start, end) is float fraction && (closest is null || fraction < closest.Value.Fraction))
+                    if (ShieldGeometry.Intersect(wall, start, end) is float fraction && (closest is null || fraction < closest.Value.Fraction))
                     { closest = (wall, fraction); }
                 }
             }
@@ -60,19 +60,19 @@ public sealed partial class ItemAuthority
 
         internal bool Deploy(ItemSlot slot, VehiclePhysicsState pose, ItemConfiguration configuration)
         {
-            int index = States.FindIndex(s => s.Owner == slot.Vehicle && s.Token == slot.Token && s.Stage == TombstoneStage.RearShield);
+            int index = States.FindIndex(s => s.Owner == slot.Vehicle && s.Token == slot.Token && s.Stage == ShieldStage.RearShield);
             if (index < 0) { return false; }
-            var candidate = States[index] with { Stage = TombstoneStage.WorldWall, Life = 0, Token = 0,
+            var candidate = States[index] with { Stage = ShieldStage.WorldWall, Life = 0, Token = 0,
                 Position = pose.Position, Orientation = pose.Orientation, LinearVelocity = pose.LinearVelocity, AngularVelocity = pose.AngularVelocity,
-                WallSize = new(configuration.TombstoneWidth, configuration.TombstoneHeight, configuration.TombstoneDepth), WallMass = configuration.TombstoneMass,
-                ExpiresAtTick = checked(_tick + (ulong)MathF.Ceiling(configuration.TombstoneLifetimeSeconds * 60)) };
+                WallSize = new(configuration.ShieldWidth, configuration.ShieldHeight, configuration.ShieldDepth), WallMass = configuration.ShieldMass,
+                ExpiresAtTick = checked(_tick + (ulong)MathF.Ceiling(configuration.ShieldLifetimeSeconds * 60)) };
             candidate.Validate();
-            if (States.Any(s => !s.Attached && TombstoneGeometry.Overlaps(candidate, s))) { return false; }
+            if (States.Any(s => !s.Attached && ShieldGeometry.Overlaps(candidate, s))) { return false; }
             States[index] = candidate;
             return true;
         }
 
-        internal void ObserveWalls(Func<TombstoneState, TombstoneObservation?>? observe)
+        internal void ObserveWalls(Func<ShieldState, ShieldObservation?>? observe)
         {
             if (observe is null || _world.State.Match is { Phase: not Matches.MatchPhase.Active }) { return; }
             for (int i = States.Count - 1; i >= 0; i--)
@@ -111,14 +111,14 @@ public sealed partial class ItemAuthority
             var state = States[index];
             if (collision && state.LastCollisionTick is ulong previous &&
                 (_tick <= previous || _tick - previous < (state.Attached ? _world.DamageTuning(state.Owner).CollisionCooldownTicks : new DamageConfiguration().CollisionCooldownTicks))) { return; }
-            var (updated, outcome) = EvaluateTombstoneDamage(state, checked(state.DamageSequence + 1), amount, context, _tick);
+            var (updated, outcome) = EvaluateShieldDamage(state, checked(state.DamageSequence + 1), amount, context, _tick);
             if (outcome is null) { return; }
             if (updated is not null) { States[index] = collision ? updated with { LastCollisionTick = _tick } : updated; return; }
             States.RemoveAt(index);
             if (state.Attached && _slots.TryGetValue(state.Owner, out var slot))
             { _slots[state.Owner] = slot.Token == state.Token ? slot with { Item = HeldItem.None } : slot with { SecondItem = HeldItem.None }; }
             _journal.Add(new RuntimeEvent { Category = EventCategory.Item, Kind = "Destroyed", Actor = context.InstigatorId,
-                Target = state.Owner, Cause = "Tombstone", Context = id.ToString(System.Globalization.CultureInfo.InvariantCulture), Tick = _tick });
+                Target = state.Owner, Cause = "Shield", Context = id.ToString(System.Globalization.CultureInfo.InvariantCulture), Tick = _tick });
         }
 
         internal Dictionary<ulong, VehicleObservation> Collisions()
@@ -126,7 +126,7 @@ public sealed partial class ItemAuthority
             var pushed = PushWalls();
             // Each native vehicle reports the struck wall ID. Collapse manifold points before damage.
             foreach (var hits in _requests.Where(r => _world.GetVehicle(r.VehicleId).CanInteract && !r.Reset.HasValue)
-                .SelectMany(r => r.Observation.Contacts.Where(c => c.Tombstone != 0).Select(c => (Request: r, Contact: c))).GroupBy(h => h.Contact.Tombstone))
+                .SelectMany(r => r.Observation.Contacts.Where(c => c.Shield != 0).Select(c => (Request: r, Contact: c))).GroupBy(h => h.Contact.Shield))
             {
                 var strongestHit = hits.Select(h => (h.Request.VehicleId, Amount: VehicleDamageMath.CollisionDamage(
                     VehicleDamageMath.CollisionSeverity(h.Contact.RelativeVelocity, h.Contact.Normal, h.Contact.Impulse, _world.MovementTuning(h.Request.VehicleId).Mass),
@@ -153,7 +153,7 @@ public sealed partial class ItemAuthority
                         if (shield.Owner != request.VehicleId && shield.Owner != contact.OtherVehicleId) { continue; }
                         var pose = _requests.Single(r => r.VehicleId == shield.Owner).Observation.Physics;
                         var local = Vector3.Transform(worldPoint - pose.Position, Quaternion.Conjugate(pose.Orientation));
-                        if (!TombstoneGeometry.Contains(local) || !received.Add(shield.Owner)) { continue; }
+                        if (!ShieldGeometry.Contains(local) || !received.Add(shield.Owner)) { continue; }
                         blocked |= shield.Owner == request.VehicleId;
                         ulong other = shield.Owner == request.VehicleId ? contact.OtherVehicleId : request.VehicleId;
                         if (other != 0) { blockedVehicleImpacts.Add((shield.Owner, other)); }
@@ -193,7 +193,7 @@ public sealed partial class ItemAuthority
                 var observation = observations[request.VehicleId];
                 var velocity = observation.Physics.LinearVelocity;
                 bool yielded = false;
-                foreach (var group in observation.Contacts.Where(c => c.Tombstone != 0 && Math.Abs(c.Normal.Y) < 0.55f).GroupBy(c => c.Tombstone).OrderBy(g => g.Key))
+                foreach (var group in observation.Contacts.Where(c => c.Shield != 0 && Math.Abs(c.Normal.Y) < 0.55f).GroupBy(c => c.Shield).OrderBy(g => g.Key))
                 {
                     int index = States.FindIndex(s => s.Id == group.Key && !s.Attached);
                     if (index < 0) { continue; }
@@ -208,7 +208,7 @@ public sealed partial class ItemAuthority
                     yielded = true;
                     float mass = _world.MovementTuning(request.VehicleId).Mass;
                     float impulse = Math.Max(0, -relative) / (1 / mass + 1 / wall.WallMass);
-                    bool tipping = wall.Tipping || impulse / wall.WallMass >= _configuration.TombstoneTipSpeed;
+                    bool tipping = wall.Tipping || impulse / wall.WallMass >= _configuration.ShieldTipSpeed;
                     var torquePerImpulse = Vector3.Cross(arm, -normal);
                     var localTorque = Vector3.Transform(torquePerImpulse, Quaternion.Conjugate(wall.Orientation));
                     var size = wall.WallSize;
@@ -227,7 +227,7 @@ public sealed partial class ItemAuthority
                 if (!yielded) { continue; }
                 // Unrelated solid/vehicle contacts retain the normal motion already
                 // resolved by the ordinary solver in mixed manifolds.
-                foreach (var contact in observation.Contacts.Where(c => c.Tombstone == 0 && Math.Abs(c.Normal.Y) < 0.55f))
+                foreach (var contact in observation.Contacts.Where(c => c.Shield == 0 && Math.Abs(c.Normal.Y) < 0.55f))
                 {
                     float closing = Vector3.Dot(velocity - observation.Physics.LinearVelocity, contact.Normal);
                     if (closing < 0) { velocity -= contact.Normal * closing; }

@@ -1,6 +1,6 @@
 > Superseded interaction/default assumptions. This records the earlier first-use implementation only; see the current TS-217 report for the approved selection-driven correction.
 
-# TS-217 — Tombstone Rear Shield Deployment verification
+# TS-217 — Shield Rear Shield Deployment verification
 
 Date: 2026-10-01. Branch: `ts-217-jg`. Jira TS-217 was read in full, including its empty child/comment lists and links. Completed dependency TS-216 and linked TS-218/TS-220 were read. Implementation began at current `origin/main` `aa1cc4c` (merged TS-216); main was fetched again before integrated verification with no divergence. Story version is `0.2.13` / export `0.2.13.0`.
 
@@ -16,7 +16,7 @@ Date: 2026-10-01. Branch: `ts-217-jg`. Jira TS-217 was read in full, including i
 ## Commands and deterministic evidence
 
 - `git fetch origin main`; `tools/sync-story-version.ps1`; `tools/check-version.ps1`: PASS, main synchronized, expected version `0.2.13`.
-- Targeted Core Tombstone/registry tests: 20 PASS. New `RearShieldTests`: 15 PASS, including both physical slots, HP/ID retention, duplicate use/damage, spatial rear/edge/front/side shots, rotated geometry, lethal blocking, missile impact uniqueness, rejected-batch rollback, stationary-defender collision routing, duplicate chassis/manifold suppression and codec/cooldown recovery.
+- Targeted Core Shield/registry tests: 20 PASS. New `RearShieldTests`: 15 PASS, including both physical slots, HP/ID retention, duplicate use/damage, spatial rear/edge/front/side shots, rotated geometry, lethal blocking, missile impact uniqueness, rejected-batch rollback, stationary-defender collision routing, duplicate chassis/manifold suppression and codec/cooldown recovery.
 - `tools/check-fast.ps1 -Area Core`: 956 PASS at that iteration; subsequent added two-slot test brings final Core total to 957.
 - `tools/check-fast.ps1 -Area Transport`: 412 PASS.
 - `check.ps1`: PASS, 957 Core tests and 412 non-native transport tests, Debug production and Release full-solution builds with warnings as errors. Version, workflow helper and media verification included. The automatic fast-check invocation reported no committed changes, so explicit areas were used; that no-op is not test evidence.
@@ -35,10 +35,10 @@ Godot `4.7.2.stable.mono.official.ed1daf0bf`, Windows, local real UDP. Rendered 
 - `check-tombstone.ps1 -NoBuild -Impaired`: PASS, three real UDP peers, four independent pools, damaged rear-shield late admission, full authority/checkpoint restoration, stale damage rejection and exactly-once destruction.
 - `check-reconnect.ps1` (default Machine Gun/Salvo fixture): PASS. `check-reconnect.ps1 -Tombstone`: PASS, three actual authenticated-test-identity resume cycles including 125 seconds offline. Damaged `WorldWall/RearShield` pools remain 700/600 HP with exact attachment/pose/watermark; native bodies are reused and prediction/interpolation reset. Production EOS identity is replaced by the established fixture identity.
 - `check-gdunit.ps1`: PASS, plugin import and one Client test case, zero errors/failures/orphans. Main-scene headless startup (`--quit-after 120`): exit 0, no diagnostics.
-- `check-car-rack.ps1`: PASS, full item catalog including Tombstone rear relocation and the consecutive-mine regression. `check-migration.ps1 -NoBuild`: PASS, three-peer authority succession and existing damaged wall recovery.
+- `check-car-rack.ps1`: PASS, full item catalog including Shield rear relocation and the consecutive-mine regression. `check-migration.ps1 -NoBuild`: PASS, three-peer authority succession and existing damaged wall recovery.
 - Existing native item, Machine Gun, Salvo and Proxy Mine regression harnesses: PASS. These exercise the surrounding weapon paths without new damage balance.
 - Additional routed native regressions PASS: `check-environment-collisions.ps1`, `check-landing.ps1`, `check-match.ps1`, `check-network-vehicles.ps1`, `check-nitro.ps1`, `check-oil.ps1`, `check-pickup-drive.ps1` (180/180 motion crossings), `check-terrain-handling.ps1`, `check-vehicle.ps1` (30/144 FPS replay), and `check-environment-collision-network.ps1` (30 ms delay / 5 ms jitter / 2% loss). These exercise surrounding systems and do not substitute for the shield-specific scenarios above.
-- Iteration findings: the initial reconnect fixture assumed Oil used slot 0, then attempted three retained item types in two slots; corrected fixture selection and added the explicit Tombstone variant. The old rack assertion expected every retained item to remain on the rack; its Tombstone assertion now requires rear armor and a stowed rack. Those failed iteration runs are not PASS evidence.
+- Iteration findings: the initial reconnect fixture assumed Oil used slot 0, then attempted three retained item types in two slots; corrected fixture selection and added the explicit Shield variant. The old rack assertion expected every retained item to remain on the rack; its Shield assertion now requires rear armor and a stowed rack. Those failed iteration runs are not PASS evidence.
 
 ## Assumptions, limits and explicitly unverified areas
 

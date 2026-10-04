@@ -38,7 +38,7 @@ internal sealed partial class CombatHud : CanvasLayer
     /// <summary>Confirmed inventory only; no predicted ownership.</summary>
     internal Func<ItemSlot?> Slot { get; set; } = () => null;
     /// <summary>Complete accepted persistent item state, shared with confirmed inventory.</summary>
-    internal Func<IReadOnlyList<TombstoneState>> Tombstones { get; set; } = () => Array.Empty<TombstoneState>();
+    internal Func<IReadOnlyList<ShieldState>> Shields { get; set; } = () => Array.Empty<ShieldState>();
     /// <summary>Local preference service supplies presentation units.</summary>
     internal Func<SpeedUnit> Units { get; set; } = () => SpeedUnit.KilometresPerHour;
     /// <summary>Shared match standings position; practice has no match ranking.</summary>
@@ -126,7 +126,7 @@ internal sealed partial class CombatHud : CanvasLayer
             return;
         }
 
-        CombatHudView view = CombatHudView.From(state, Slot(), Units(), Tombstones()) with { Standing = Position(), Timer = CombatHudView.FormatTimer(Match(), AuthoritativeTick()) };
+        CombatHudView view = CombatHudView.From(state, Slot(), Units(), Shields()) with { Standing = Position(), Timer = CombatHudView.FormatTimer(Match(), AuthoritativeTick()) };
         if (view != _displayed)
         {
             _displayed = view;

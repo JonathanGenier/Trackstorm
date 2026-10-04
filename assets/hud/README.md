@@ -16,4 +16,4 @@ Tool: built-in `image_gen.imagegen`, reference-guided precise-object edit, `tran
 
 Health.png and Timer.png remain in active use, together with the health/timer branches of Component.gdshader. Active thrust uses a slot-local cyan underline; it clears on release without removing remaining fuel.
 
-`Tombstone.svg` is original project-authored vector art: a wide armored plate with a central shield/skull crest. It acquires no external asset or font. Tombstone durability reuses `ItemHudSlot` with three pointed armor plates, fracture marks, sage steel fill, and orange low-HP warning, plus a whole HP value and HP legend. These are live native drawing/labels, never baked data.
+`Shield.svg` is original project-authored vector art: a wide armored plate with a central shield/skull crest. It acquires no external asset or font. Shield durability reuses `ItemHudSlot` with three pointed armor plates, fracture marks, sage steel fill, and orange low-HP warning, plus a whole HP value and HP legend. These are live native drawing/labels, never baked data.

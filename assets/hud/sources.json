@@ -30,7 +30,7 @@
   "compositionReference": "https://jonathangenier.atlassian.net/rest/api/3/attachment/content/10002",
   "originalWork": [
     "CornerAssembly.png is the current reference-derived blank chassis. CornerAssembly.gdshader draws live speed cells; ItemHudSlot draws selection and live optional resource bars.",
-    "Wrench.svg, Missile.svg, Oil.svg, Nitro.svg, Salvo.svg, ProxyMine.svg, MachineGun.svg and Tombstone.svg are project-created silhouettes. Nitro/MachineGun were refined against the approved corner-HUD concept; no external assets acquired.",
+    "Wrench.svg, Missile.svg, Oil.svg, Nitro.svg, Salvo.svg, ProxyMine.svg, MachineGun.svg and Shield.svg are project-created silhouettes. Nitro/MachineGun were refined against the approved corner-HUD concept; no external assets acquired.",
     "Component.gdshader preserves the source textures and masks example values at runtime."
   ]
 }

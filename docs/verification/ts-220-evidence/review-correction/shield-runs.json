@@ -1,0 +1,118 @@
+[
+  {
+    "seconds": 2.045255,
+    "exit_code": 0,
+    "script": "check-shield.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "check-shield.ps1",
+      "-GodotPath",
+      "C:\\Users\\j_gen\\OneDrive\\Documents\\Game_Projects\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Impaired"
+    ]
+  },
+  {
+    "seconds": 58.2715225,
+    "exit_code": 0,
+    "script": "check-rear-shield.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "check-rear-shield.ps1",
+      "-GodotPath",
+      "C:\\Users\\j_gen\\OneDrive\\Documents\\Game_Projects\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Impaired",
+      "-Visual"
+    ]
+  },
+  {
+    "seconds": 117.4623703,
+    "exit_code": 0,
+    "script": "check-world-wall.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "check-world-wall.ps1",
+      "-GodotPath",
+      "C:\\Users\\j_gen\\OneDrive\\Documents\\Game_Projects\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Visual"
+    ]
+  },
+  {
+    "seconds": 71.8863842,
+    "exit_code": 0,
+    "script": "check-shield-presentation.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "check-shield-presentation.ps1",
+      "-GodotPath",
+      "C:\\Users\\j_gen\\OneDrive\\Documents\\Game_Projects\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Impaired",
+      "-Visual"
+    ]
+  },
+  {
+    "seconds": 149.1957592,
+    "exit_code": 0,
+    "script": "check-reconnect.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "check-reconnect.ps1",
+      "-GodotPath",
+      "C:\\Users\\j_gen\\OneDrive\\Documents\\Game_Projects\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Shield",
+      "-Visual"
+    ]
+  },
+  {
+    "seconds": 10.8824305,
+    "exit_code": 0,
+    "script": "check-migration.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "check-migration.ps1",
+      "-GodotPath",
+      "C:\\Users\\j_gen\\OneDrive\\Documents\\Game_Projects\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Players",
+      "2"
+    ]
+  },
+  {
+    "seconds": 13.836794,
+    "exit_code": 0,
+    "script": "check-migration.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "check-migration.ps1",
+      "-GodotPath",
+      "C:\\Users\\j_gen\\OneDrive\\Documents\\Game_Projects\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild",
+      "-Players",
+      "3"
+    ]
+  },
+  {
+    "seconds": 15.8180713,
+    "exit_code": 0,
+    "script": "check-hud.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-File",
+      "check-hud.ps1",
+      "-GodotPath",
+      "C:\\Users\\j_gen\\OneDrive\\Documents\\Game_Projects\\Trackstorm\\.godot\\godot-ci\\4.7.2\\Godot_v4.7.2-stable_mono_win64\\Godot_v4.7.2-stable_mono_win64_console.exe",
+      "-NoBuild"
+    ]
+  }
+]

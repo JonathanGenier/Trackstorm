@@ -93,7 +93,7 @@ public sealed partial class ItemIntegrationChecks : Node
             target.GetChildren().OfType<Node3D>().Single(child => child is not CollisionShape3D).Scale = new(1, 3 / 1.6f, 1);
             target.Position = new(8, 1.5f, -6);
             _arenas.Add(arena);
-            var hud = new Hud.CombatHud { Vehicle = () => arena.LocalState, Slot = () => arena.Driver.LocalItem, Tombstones = () => arena.Driver.ItemState?.Tombstones ?? Array.Empty<TombstoneState>() };
+            var hud = new Hud.CombatHud { Vehicle = () => arena.LocalState, Slot = () => arena.Driver.LocalItem, Shields = () => arena.Driver.ItemState?.Shields ?? Array.Empty<ShieldState>() };
             viewport.AddChild(hud);
             _huds.Add(hud);
             var events = new List<ItemEvent>();
@@ -198,7 +198,7 @@ public sealed partial class ItemIntegrationChecks : Node
                 Next("Empty/repeated discard is harmless; switch then discard first slot preserves empty second slot.");
                 break;
             case 62 when _arenas.All(arena => arena.Driver.LocalItem is { Item: HeldItem.None, SecondItem: HeldItem.None, ActiveSlot: 0 }):
-                Require(host.Items.Missiles.Count == 0 && host.Items.Patches.Count == 0 && host.Items.Mines.Count == 0 && host.Items.Tombstones.Count == 0, "Discard never creates any world item.");
+                Require(host.Items.Missiles.Count == 0 && host.Items.Patches.Count == 0 && host.Items.Mines.Count == 0 && host.Items.Shields.Count == 0, "Discard never creates any world item.");
                 Require(_events.All(events => events.Count == 0), "Neither discard becomes an item use.");
                 Capture("discard-both-empty.png");
                 _arenas[0].GrantItems(HeldItem.Missile);

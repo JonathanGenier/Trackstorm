@@ -32,6 +32,7 @@ public sealed class DeveloperSettingsFile
         }
 
         var pending = new Dictionary<string, double>(StringComparer.Ordinal);
+        var canonicalKeys = new HashSet<string>(StringComparer.Ordinal);
         int loadedSchema = 0;
         foreach (string line in text.Split('\n', StringSplitOptions.RemoveEmptyEntries))
         {
@@ -53,6 +54,9 @@ public sealed class DeveloperSettingsFile
                 string key = record.RootElement.GetProperty("key").GetString() ?? throw new FormatException();
                 var value = record.RootElement.GetProperty("value");
                 key = key == "vehicle.top_speed" ? "vehicle.forward_speed" : key;
+                string canonicalKey = ConfigurationKeyMigration.CanonicalKey(key);
+                bool historicalKey = canonicalKey != key;
+                key = canonicalKey;
                 var option = GameplayOptions.All.SingleOrDefault(option => option.Key == key);
                 if (option is null)
                 {
@@ -60,7 +64,9 @@ public sealed class DeveloperSettingsFile
                 }
                 else if (value.ValueKind == JsonValueKind.Number && value.TryGetDouble(out double number) && double.IsFinite(number))
                 {
-                    pending[key] = number;
+                    // Explicit canonical records win over an alias regardless of file order.
+                    if (!historicalKey || !canonicalKeys.Contains(key)) { pending[key] = number; }
+                    if (!historicalKey) { canonicalKeys.Add(key); }
                 }
                 else if (option.Boolean && value.ValueKind is JsonValueKind.True or JsonValueKind.False)
                 {

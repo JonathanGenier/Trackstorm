@@ -1,6 +1,6 @@
 # Astra Runtime Critique — Story Round 1
 
-TS-217 — Tombstone Rear Shield Deployment. Independent Astra review, 2026-10-01, after integrated implementation verification. No implementation changes were made during this review.
+TS-217 — Shield Rear Shield Deployment. Independent Astra review, 2026-10-01, after integrated implementation verification. No implementation changes were made during this review.
 
 **Overall Score: 8.2 / 10**
 

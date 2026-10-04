@@ -169,8 +169,8 @@ public static partial class ItemCodec
             }
         }
 
-        writer.Write((byte)state.Tombstones.Count);
-        foreach (var wall in state.Tombstones)
+        writer.Write((byte)state.Shields.Count);
+        foreach (var wall in state.Shields)
         {
             writer.Write(wall.Id);
             writer.Write(wall.Owner);
@@ -297,10 +297,10 @@ public static partial class ItemCodec
             if (arcing) { missiles[i] = missiles[i] with { Arc = new(Vector(reader), Vector(reader), reader.ReadSingle(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadUInt64()) }; }
         }
 
-        var tombstones = new TombstoneState[Count(reader, ItemAuthority.MaximumTombstones)];
-        for (int i = 0; i < tombstones.Length; i++)
+        var shields = new ShieldState[Count(reader, ItemAuthority.MaximumShields)];
+        for (int i = 0; i < shields.Length; i++)
         {
-            tombstones[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), (TombstoneStage)reader.ReadByte(), reader.ReadSingle())
+            shields[i] = new(reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), reader.ReadUInt64(), (ShieldStage)reader.ReadByte(), reader.ReadSingle())
             { DamageSequence = reader.ReadUInt64(), LastCollisionTick = reader.ReadBoolean() ? reader.ReadUInt64() : null, Position = Vector(reader), Orientation = new(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()), LinearVelocity = Vector(reader), AngularVelocity = Vector(reader), WallSize = Vector(reader), WallMass = reader.ReadSingle(), ExpiresAtTick = reader.ReadUInt64(), Tipping = reader.ReadBoolean() };
         }
         var mines = new ProxyMineState[Count(reader, ItemAuthority.MaximumMines)];
@@ -361,7 +361,7 @@ public static partial class ItemCodec
             events[i] = new(token, owner, item, position, impact) { Origin = Vector(reader), Tracer = reader.ReadByte() switch { 0 => false, 1 => true, _ => throw new ArgumentException("Invalid tracer flag.") } };
         }
 
-        return new ItemPublication(revision, world, slots, missiles, events, spawns, patches, contacts, balances, mines, tombstones, discardRevision);
+        return new ItemPublication(revision, world, slots, missiles, events, spawns, patches, contacts, balances, mines, shields, discardRevision);
     });
 
     private static byte[] Write(byte kind, Action<BinaryWriter> encode)

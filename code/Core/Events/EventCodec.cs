@@ -43,6 +43,12 @@ public static class EventCodec
         {
             var entries = JsonSerializer.Deserialize<RuntimeEvent[]>(data[3..], new JsonSerializerOptions { MaxDepth = 4 }) ?? throw new ArgumentException("Missing events.");
             Validate(entries);
+            // Historical journal packets retain all outcome metadata; only the item cause is canonicalized.
+            for (int i = 0; i < entries.Length; i++)
+            {
+                if (entries[i].Category is EventCategory.Item or EventCategory.Developer && entries[i].Cause == "Tombstone")
+                { entries[i] = entries[i] with { Cause = "Shield" }; }
+            }
             return Array.AsReadOnly(entries);
         }
         catch (JsonException)

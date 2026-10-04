@@ -1,0 +1,275 @@
+{
+  "baseline_commit": "aecca1550e4637e8319a2fbe1e4f988902eb0956",
+  "raw_files_restored": [
+    {
+      "path": "docs/verification/ts-176-evidence/astra-tombstone.log",
+      "sha256": "0564eb06c1feb800949ffb248893020b13d63fea566b4685c7256ced5bcc713b"
+    },
+    {
+      "path": "docs/verification/ts-176-evidence/reconnect-final.log",
+      "sha256": "371d43204f339371866c582ca8815dd58307066407e09d25aaedcb60aa6b654e"
+    },
+    {
+      "path": "docs/verification/ts-176-evidence/tombstone.log",
+      "sha256": "cc85d353684b9adb4a078d8c50b865dddf6986de851842f9f8e74ddf3e6203f3"
+    },
+    {
+      "path": "docs/verification/ts-216/astra-tombstone-runtime.log",
+      "sha256": "f1faeb6fddb45493bbb9b3ed6a30572a70a8eea563ecaa4a26d25f9ca03598a9"
+    },
+    {
+      "path": "docs/verification/ts-216/initial-reconnect-failure.log",
+      "sha256": "10bc2ce8ed028db76510032c69e80ca24e531da60448d5157379210fa85a43ac"
+    },
+    {
+      "path": "docs/verification/ts-216/migration.log",
+      "sha256": "8fa27f6603f778817c469468571cd9865cf6acea0ce306f5ac7501e498cd2e90"
+    },
+    {
+      "path": "docs/verification/ts-216/reconnect.log",
+      "sha256": "cb05788dfc1eba8ff17435b509b8dd18819d17f5791fa07fd28a923e6bf3701c"
+    },
+    {
+      "path": "docs/verification/ts-216/targeted-tombstone-tests.log",
+      "sha256": "658aa414a518f616e9ddf32242d1c3cc24e721965b515a7551fa5c036d91fb0a"
+    },
+    {
+      "path": "docs/verification/ts-216/tombstone-baseline.log",
+      "sha256": "f1faeb6fddb45493bbb9b3ed6a30572a70a8eea563ecaa4a26d25f9ca03598a9"
+    },
+    {
+      "path": "docs/verification/ts-216/tombstone-impaired.log",
+      "sha256": "0f8a997855b028eda267d7699ebab5440d865cdd0f122d4f33732465db1eba35"
+    },
+    {
+      "path": "docs/verification/ts-217/astra-round-1-lifecycle.log",
+      "sha256": "331b51955d6407f34cf8b08625cbe62d4dffe0d303e6fcb31b291cede468fa23"
+    },
+    {
+      "path": "docs/verification/ts-217/astra-round-1-reconnect.log",
+      "sha256": "4238a69c2404545d805450192fde031db595422a30e889c3dbc9e6accf7c7cf3"
+    },
+    {
+      "path": "docs/verification/ts-217/astra-round-2-lifecycle.log",
+      "sha256": "331b51955d6407f34cf8b08625cbe62d4dffe0d303e6fcb31b291cede468fa23"
+    },
+    {
+      "path": "docs/verification/ts-217/astra-round-2-reconnect.log",
+      "sha256": "765a1b233a3f2764e7aa98cd779f8109491db0b63e497addad734e590656b0fe"
+    },
+    {
+      "path": "docs/verification/ts-217/main-baseline-pickup.log",
+      "sha256": "6b14a2f9970514582c48b0d23e4f94c6b001486c6323b4d063782dfa3f22b764"
+    },
+    {
+      "path": "docs/verification/ts-217/native-summary.txt",
+      "sha256": "012da16339354d73c98b0cc11173d57f8a6ef68b2af2d149b396e1b903721f60"
+    },
+    {
+      "path": "docs/verification/ts-217/reconnect-shield.log",
+      "sha256": "bf7ffa6e2dc501fcb95c2c46ac12f943013351ace99daa15b373ba71d511a312"
+    },
+    {
+      "path": "docs/verification/ts-217/selection-lifecycle.log",
+      "sha256": "183c422420567af73049e5612962a19e202d5e9a23bf09e40d5bed79e2f91ce0"
+    },
+    {
+      "path": "docs/verification/ts-217/selection-migration.log",
+      "sha256": "5ee5049904853af1b1781ecb844c286a4cf33b41d7494563f08c7f9f281b3793"
+    },
+    {
+      "path": "docs/verification/ts-217/selection-pickup.log",
+      "sha256": "971b3896a56d96e9ec16268b422b25c9be513911ffd769300f71cf7dd348209c"
+    },
+    {
+      "path": "docs/verification/ts-217/selection-rack.log",
+      "sha256": "ec96480bccd1f9449ba9128c5f16a35d19e09afab9a8740052bf0b59dea0d95a"
+    },
+    {
+      "path": "docs/verification/ts-217/selection-reconnect.log",
+      "sha256": "4b885fb9fab3cd86cedf99592ca0cbcefda9e728ac110bf584eefad1a12f35bb"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/followup-native-results.txt",
+      "sha256": "9992a2626762ab94b6f9901c0d9123beebdde070984b00ae09665471cae7be40"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/followup-presentation.txt",
+      "sha256": "bab8360c7e3e12b7753ba9e07af515c5a6262affce82db31d86a8b55acd529a6"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/followup-rack-initial.txt",
+      "sha256": "2c561b15c3579cb34baba86c42021a527a1fcd3c542eb7cdcf54b01f6dd4bd93"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/followup-rack-lift.json",
+      "sha256": "e079af14ed1c446016042e1a10c13940c8b34a958a72981c91a2618f92bf3049"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/horizontal-audit.txt",
+      "sha256": "933ce79c416104f48603f66a079e87d89f6a408c76a8c6a802788a68b4714450"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/horizontal-integrated-presentation.txt",
+      "sha256": "73c3505e5354904dfd9d785ceb94f385ba66ae3d0dec81850eed5b40e00bf140"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/horizontal-native-results.txt",
+      "sha256": "2c7c8b3cccc5bb89b48301196c08d331c63b2fa9b14c98b6dea5fbfd95667714"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/horizontal-presentation.txt",
+      "sha256": "59dd8a80bcf9c99a685471e2ef5f8737075e2e17381990ce491669ef474d5aaf"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/queue-impaired.txt",
+      "sha256": "b0cfe5025882b74b9cb7249902d7560a515e34b4b74b085266eea193ea574725"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/queue-lifecycle.txt",
+      "sha256": "32f49f5cce331e6275407fedfdf88f5750761c085c8c10c3f4cd538747e9e9bb"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/queue-migration.txt",
+      "sha256": "28a5d96ab913c7f1e6f2a26978dac73400252441f4810b12453ef25f0a08dcbc"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/queue-presentation.txt",
+      "sha256": "0ee70aee9342f73b3eeff440c735761114304c2aa138344c879a97813f146166"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/queue-reconnect.txt",
+      "sha256": "56b42f0f830f5f7986be41f71531b07a60e943a559c89e85ec8457e77d1b39d5"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/queue-track.txt",
+      "sha256": "938e068b0b4f0d6f952f1dfc445e1ddee555b37601c945863841a2e3936ab8ad"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/r2-final-presentation.txt",
+      "sha256": "582e069393abfd997f6918a44755c5d6fbe0ac5725d706ae9f570d324897736e"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/r2-presentation.txt",
+      "sha256": "96829487e8061aa8385eb58437a45c1a05e7ee7765cbc053136cd6ed141c8b4c"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/r3-astra-stdout.txt",
+      "sha256": "b2eb21fa7fdda77d4aacf08b11534e16c8231f7f7ff6ea28a1722c05b0a8cf52"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/r3-native-results.txt",
+      "sha256": "8a437ca23f666ee271ac5bb9af09881c3c18ea53e2389194f2e1a8ba17e075b6"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/r3-presentation.txt",
+      "sha256": "6f5127b93b3cdada4926cccbae8ab04bc20e01638457d847a5fc1ec353c3ac50"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/rackfit-presentation.txt",
+      "sha256": "76ccd3a755ddb4c7b79ddbb50d305040db27fa3c47bbc444497a1c839a5ecda6"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/rename-comprehensive.txt",
+      "sha256": "a28e8eb8daa9a967817d7af3d18f559808987e75afee1e032720343b8ff5bc7e"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/slope-lifecycle.txt",
+      "sha256": "cc4e8a592e51c77c010a7e1481dac7de4264e88dbf37ecef89e1b75bd0c703e8"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/slope-presentation.txt",
+      "sha256": "70c95ae34fe86a6ec1f4a42fd53a5cb0c024b6f2fa18561bf5a89dc4521d7215"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/track-before.txt",
+      "sha256": "5e2d21f4f2fe1f27633d4c6a14ee0053abb7c9a4f5fd88d1d9ec286867d0d52c"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/track-presentation.txt",
+      "sha256": "1461860449702720830a656e6ed785fb1707b5097b40cba8d34253d4c1e6b540"
+    },
+    {
+      "path": "docs/verification/ts-219-evidence/track-production.txt",
+      "sha256": "518a51f40e652297c5cf95d970227523c6cb5cff0fabd2514166a44f9c339f9d"
+    },
+    {
+      "path": "docs/verification/ts-261/current-final-reconnect.log",
+      "sha256": "bcde53ebccb4cfeb63fc862c82156484a902770ca98716fff451474394b44228"
+    },
+    {
+      "path": "docs/verification/ts-261/resume-rack.log",
+      "sha256": "52d375fba73ec44df42efcb92dceb85d4116f18faf48c7572b74298db9f7dae9"
+    },
+    {
+      "path": "docs/verification/ts-261/resume-reconnect.log",
+      "sha256": "c749d3d5f044dd5bbcf876bc495daf52980960e8eeb2bfc948f0eca8f7438093"
+    },
+    {
+      "path": "docs/verification/ts-274-evidence/final-check-transport.log",
+      "sha256": "4f2813dbb6c5cf1d9eac2548bf17d6e99393b479fa62d1131aeaabb76b8ff96b"
+    },
+    {
+      "path": "docs/verification/ts-275-evidence/native-summary-before-fixture-cleanup.json",
+      "sha256": "d5ad1466314d1a9a611fa99588291eba456d478e5b0d3e2adc9541363d25f8ee"
+    },
+    {
+      "path": "docs/verification/ts-275-evidence/tombstone.log",
+      "sha256": "24686e4411c2b2d4affdc7061718c398cc3eba4347bb3cfbad17216587b9a172"
+    },
+    {
+      "path": "docs/verification/ts-277/astra-migration-3.log",
+      "sha256": "44ea09fad72815d81c8b0605ea5bb085a04492c560c828c6c153b8e29f2e9f53"
+    },
+    {
+      "path": "docs/verification/ts-277/baseline-check-pickup-drive.log",
+      "sha256": "131d30bc274f8c7ec83bce3076bd20fd1c4cedffeb708757766cf0bd56ddee0e"
+    },
+    {
+      "path": "docs/verification/ts-277/baseline-migration-2.log",
+      "sha256": "9896ffaea69ce860282710eeec9cb0cc466cea13d7115b55e04c2cb1077a2ad3"
+    },
+    {
+      "path": "docs/verification/ts-277/check-migration-3.log",
+      "sha256": "daef455d5c27e047986e63ef4b7025f5905779d93f2d3f32219e85229e6770a0"
+    },
+    {
+      "path": "docs/verification/ts-277/check-migration.log",
+      "sha256": "a09d9366a44caf34a5da5bd2a9aca125ab5a451b39d0e9f947c57a01d9f80be4"
+    },
+    {
+      "path": "docs/verification/ts-277/check-pickup-drive.log",
+      "sha256": "fd1ae338e9152a2ebc713dbe3568efb60c9f42413bb242b07c17151adba1a268"
+    },
+    {
+      "path": "docs/verification/ts-277/check-reconnect.log",
+      "sha256": "aa4c8cb57f58e4b0afcfe801d1762e439f02d31eaa723e5b23b6a205d3ff34f3"
+    }
+  ],
+  "obsolete_renamed_copies_removed": [
+    "docs/verification/ts-176-evidence/astra-shield.log",
+    "docs/verification/ts-176-evidence/shield.log",
+    "docs/verification/ts-216/astra-shield-runtime.log",
+    "docs/verification/ts-216/shield-baseline.log",
+    "docs/verification/ts-216/shield-impaired.log",
+    "docs/verification/ts-216/targeted-shield-tests.log",
+    "docs/verification/ts-275-evidence/shield.log"
+  ],
+  "historical_reports_quoted_commands_symbols_or_links_restored": [
+    "docs/verification/ts-176-evidence/astra-runtime-critique.md",
+    "docs/verification/ts-176.md",
+    "docs/verification/ts-197.md",
+    "docs/verification/ts-216.md",
+    "docs/verification/ts-216/astra-runtime.md",
+    "docs/verification/ts-217.md",
+    "docs/verification/ts-217/astra-round-1.md",
+    "docs/verification/ts-217/astra-round-2.md",
+    "docs/verification/ts-217/initial-implementation.md",
+    "docs/verification/ts-218.md",
+    "docs/verification/ts-219-evidence/astra-runtime-critique-r2.md",
+    "docs/verification/ts-219-evidence/astra-runtime-critique-r3.md",
+    "docs/verification/ts-219-evidence/astra-runtime-critique.md",
+    "docs/verification/ts-219.md",
+    "docs/verification/ts-275.md"
+  ]
+}

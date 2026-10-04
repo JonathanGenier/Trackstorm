@@ -1,0 +1,44 @@
+[
+  {
+    "name": "hud-post-hud",
+    "script": "check-hud.ps1",
+    "arguments": [],
+    "seconds": 15.18,
+    "exit": 0
+  },
+  {
+    "name": "shield-post-hud",
+    "script": "check-shield.ps1",
+    "arguments": [
+      "-Impaired"
+    ],
+    "seconds": 2.03,
+    "exit": 0
+  },
+  {
+    "name": "items-post-hud",
+    "script": "check-items.ps1",
+    "arguments": [
+      "-Impaired",
+      "-Visual"
+    ],
+    "seconds": 10.05,
+    "exit": 0
+  },
+  {
+    "name": "death-post-hud",
+    "script": "check-death-respawn.ps1",
+    "arguments": [],
+    "seconds": 21.89,
+    "exit": 0
+  },
+  {
+    "name": "event-log-post-hud",
+    "script": "check-event-log.ps1",
+    "arguments": [
+      "-Visual"
+    ],
+    "seconds": 15.0,
+    "exit": 0
+  }
+]

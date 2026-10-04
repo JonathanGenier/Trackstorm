@@ -1,0 +1,250 @@
+[
+  {
+    "name": "shield-impaired",
+    "arguments": [
+      "-Impaired"
+    ],
+    "exit": 0,
+    "script": "check-shield.ps1",
+    "seconds": 1.59
+  },
+  {
+    "name": "rear-shield",
+    "arguments": [
+      "-Visual"
+    ],
+    "exit": 0,
+    "script": "check-rear-shield.ps1",
+    "seconds": 57.72
+  },
+  {
+    "name": "rear-shield-impaired",
+    "arguments": [
+      "-Impaired",
+      "-Visual"
+    ],
+    "exit": 0,
+    "script": "check-rear-shield.ps1",
+    "seconds": 58.24
+  },
+  {
+    "name": "world-wall",
+    "arguments": [
+      "-Visual"
+    ],
+    "exit": 0,
+    "script": "check-world-wall.ps1",
+    "seconds": 117.76
+  },
+  {
+    "name": "world-wall-production",
+    "arguments": [
+      "-ProductionMap",
+      "-Impaired",
+      "-Visual"
+    ],
+    "exit": 0,
+    "script": "check-world-wall.ps1",
+    "seconds": 39.38
+  },
+  {
+    "name": "shield-presentation",
+    "arguments": [
+      "-Visual"
+    ],
+    "exit": 0,
+    "script": "check-shield-presentation.ps1",
+    "seconds": 70.35
+  },
+  {
+    "name": "shield-presentation-impaired",
+    "arguments": [
+      "-Impaired",
+      "-Visual"
+    ],
+    "exit": 0,
+    "script": "check-shield-presentation.ps1",
+    "seconds": 69.63
+  },
+  {
+    "name": "shield-production-track",
+    "arguments": [
+      "-ProductionTrack",
+      "-Impaired",
+      "-Visual"
+    ],
+    "exit": 0,
+    "script": "check-shield-presentation.ps1",
+    "seconds": 15.1
+  },
+  {
+    "name": "reconnect-shield",
+    "arguments": [
+      "-Shield",
+      "-Visual"
+    ],
+    "exit": 0,
+    "script": "check-reconnect.ps1",
+    "seconds": 149.26
+  },
+  {
+    "arguments": [
+      "-Players",
+      "2"
+    ],
+    "script": "check-migration.ps1",
+    "seconds": 11.12,
+    "name": "migration-2",
+    "exit": 0
+  },
+  {
+    "arguments": [
+      "-Players",
+      "3"
+    ],
+    "script": "check-migration.ps1",
+    "seconds": 14.28,
+    "name": "migration-3",
+    "exit": 0
+  },
+  {
+    "script": "check-car-rack.ps1",
+    "seconds": 97.49,
+    "exit": 0,
+    "arguments": "-Visual",
+    "name": "car-rack"
+  },
+  {
+    "script": "check-developer-options.ps1",
+    "seconds": 64.72,
+    "exit": 0,
+    "arguments": null,
+    "name": "developer-options"
+  },
+  {
+    "script": "check-environment-collisions.ps1",
+    "seconds": 7.81,
+    "exit": 0,
+    "arguments": null,
+    "name": "environment-collisions"
+  },
+  {
+    "script": "check-event-log.ps1",
+    "seconds": 14.78,
+    "exit": 0,
+    "arguments": "-Visual",
+    "name": "event-log"
+  },
+  {
+    "name": "hud",
+    "seconds": 13.49,
+    "script": "check-hud.ps1",
+    "arguments": [],
+    "exit": 0
+  },
+  {
+    "name": "items",
+    "seconds": 6.3,
+    "script": "check-items.ps1",
+    "arguments": [],
+    "exit": 0
+  },
+  {
+    "name": "landing",
+    "seconds": 9.95,
+    "script": "check-landing.ps1",
+    "arguments": [],
+    "exit": 0
+  },
+  {
+    "name": "machine-gun",
+    "seconds": 38.84,
+    "script": "check-machine-gun.ps1",
+    "arguments": [],
+    "exit": 0
+  },
+  {
+    "name": "mine",
+    "seconds": 3.69,
+    "script": "check-mine.ps1",
+    "arguments": [],
+    "exit": 1
+  },
+  {
+    "script": "check-network-vehicles.ps1",
+    "seconds": 32.68,
+    "name": "network-vehicles",
+    "arguments": [],
+    "exit": 0
+  },
+  {
+    "script": "check-nitro.ps1",
+    "seconds": 3.65,
+    "name": "nitro",
+    "arguments": [],
+    "exit": 1
+  },
+  {
+    "script": "check-oil.ps1",
+    "seconds": 8.54,
+    "name": "oil",
+    "arguments": [],
+    "exit": 0
+  },
+  {
+    "script": "check-pickup-drive.ps1",
+    "seconds": 157.99,
+    "name": "pickup-drive",
+    "arguments": [],
+    "exit": 1
+  },
+  {
+    "script": "check-salvo.ps1",
+    "seconds": 9.44,
+    "name": "salvo",
+    "arguments": [],
+    "exit": 1
+  },
+  {
+    "script": "check-terrain-handling.ps1",
+    "seconds": 25.36,
+    "name": "terrain-handling",
+    "arguments": [],
+    "exit": 1
+  },
+  {
+    "script": "check-trophy-truck.ps1",
+    "seconds": 41.27,
+    "name": "trophy-truck",
+    "arguments": [],
+    "exit": 0
+  },
+  {
+    "script": "check-tunnel-scrape.ps1",
+    "seconds": 36.6,
+    "name": "tunnel-scrape",
+    "arguments": [],
+    "exit": 0
+  },
+  {
+    "script": "check-vehicle.ps1",
+    "seconds": 18.87,
+    "name": "vehicle",
+    "arguments": [],
+    "exit": 0
+  },
+  {
+    "script": "check-environment-collision-network.ps1",
+    "seconds": 21.16,
+    "name": "environment-collision-network",
+    "arguments": [],
+    "exit": 0
+  },
+  {
+    "script": "check-migration-processes.ps1",
+    "seconds": 15.0,
+    "name": "migration-processes",
+    "arguments": [],
+    "exit": 0
+  }
+]

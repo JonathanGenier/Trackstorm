@@ -206,8 +206,8 @@ $boundaryPlan = Get-FastCheckPlan -Paths @("code/Core/Arenas/ArenaBoundary.cs")
 Assert-True ($boundaryPlan.RuntimeScripts -contains "check-boundary.ps1") "Arena boundaries require native finite-fence and escape coverage."
 Assert-True ($boundaryPlan.ExtendedScripts -contains "check-death-respawn.ps1") "Arena boundaries require native multiplayer lifecycle coverage."
 
-$tombstonePlan = Get-FastCheckPlan -Paths @('code/Core/Items/TombstoneState.cs')
-Assert-True ($tombstonePlan.RuntimeScripts -contains 'check-tombstone.ps1') 'Tombstone changes route their native lifecycle harness.'
-Assert-True ($tombstonePlan.RuntimeScripts -contains 'check-tombstone-presentation.ps1') 'Tombstone changes route independent visual-state and repeated-use checks.'
+$shieldPlan = Get-FastCheckPlan -Paths @('code/Core/Items/ShieldState.cs')
+Assert-True ($shieldPlan.RuntimeScripts -contains 'check-shield.ps1') 'Shield changes route their native lifecycle harness.'
+Assert-True ($shieldPlan.RuntimeScripts -contains 'check-shield-presentation.ps1') 'Shield changes route independent visual-state and repeated-use checks.'
 
-Assert-True ($tombstonePlan.RuntimeScripts -contains 'check-world-wall.ps1') 'Tombstone changes route movable wall verification.'
+Assert-True ($shieldPlan.RuntimeScripts -contains 'check-world-wall.ps1') 'Shield changes route movable wall verification.'
