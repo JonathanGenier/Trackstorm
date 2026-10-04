@@ -1,12 +1,12 @@
 # Host-Authoritative Vehicle Networking
 
-The production arena supplies local Tombstone presentation readiness to the
+The production arena supplies local Shield presentation readiness to the
 driver. A use press during selection waits locally until the confirmed rack and
 shield finish unfolding, then follows the existing reliable capability-bound
 use path. Pending intent is scoped to life/token/selection and canceled on
 switch, discard, invalid ownership, inactive participation or checkpoint recovery.
 It adds no protocol field or authoritative timer; Core still validates deployment.
-See [held items](items.md#tombstone-rear-shield-and-persistent-health).
+See [held items](items.md#shield-rear-armor-and-persistent-health).
 
 [Weapon aiming](weapon-aiming.md) extends the existing item path with bounded 20 Hz replaceable desired-direction and accepted-articulation messages. Sender/life/token/selection validation stays in item authority; accepted samples check host, generation, configuration revision and tick. They do not advance movement prediction or reliable item outcome revisions. Transient aim resets on recovery.
 
@@ -125,15 +125,15 @@ Brake-to-reverse continuation occupies two previously reserved movement flags (1
 
 Input version two carries separate ground and aerial axes and a held Air Control bit. Host tick rebasing, bounded held-command bridging and prediction preserve those axes; ground input never implicitly grants airborne rotation. Gameplay configuration TC41 retires automatic air activation and the duplicate airborne deadzone.
 
-[Tombstone rear shields](items.md#tombstone-rear-shield-and-persistent-health) use the existing reliable item publication and nested recovery boundary. Each peer reconstructs the same vehicle-local collision plate from accepted selected exposure/life/ownership, and renders it beneath the vehicle's interpolated transform. No shield transform stream or client-authored hit outcome is added; current host observations and Core geometry decide interception. Switching slots reliably exposes/stows the same pool and removes/restores its collider without use or HP reset. Complete item state includes the shield's ordered damage watermark and collision cooldown tick.
+[Shield rear shields](items.md#shield-rear-armor-and-persistent-health) use the existing reliable item publication and nested recovery boundary. Each peer reconstructs the same vehicle-local collision plate from accepted selected exposure/life/ownership, and renders it beneath the vehicle's interpolated transform. No shield transform stream or client-authored hit outcome is added; current host observations and Core geometry decide interception. Switching slots reliably exposes/stows the same pool and removes/restores its collider without use or HP reset. Complete item state includes the shield's ordered damage watermark and collision cooldown tick.
 
-Deployed [Tombstone world walls](items.md#movable-tombstone-world-walls) use the same complete
+Deployed [Shield world walls](items.md#movable-shield-world-walls) use the same complete
 reliable item channel for host-committed rigid-body poses and velocities. Clients never submit
 wall pose, HP or motion outcomes. Their reconstructed layer-32 colliders participate in vehicle
 queries; authoritative Core box intersections own weapon blocking. Dimensions and mass travel
 with each wall, avoiding collider changes when live tuning changes after deployment.
 
-Tombstone contacts omit the fixed-prop angular kick; their existing Core response shares
+Shield contacts omit the fixed-prop angular kick; their existing Core response shares
 horizontal momentum. Their side normals are horizontal before native sweep/slide, preventing
 bank-aligned faces from adding lift during sustained pushes. Tipping colliders no longer block vehicles or wheel queries on either
 host or replicas, preventing the falling wall from lifting cars. Terrain contact still
@@ -142,7 +142,7 @@ drives side-ground breakage, and Core weapon geometry remains active.
 World-wall native bodies constrain pitch/roll torque until an accepted strong-impact
 tipping state releases it; reconstruction and authority recovery preserve that state. Host terrain sampling aligns their bases to slopes and follows ground
 height without changing horizontal heading. Contact yaw and ground movement remain free;
-the host publishes accepted poses and the Tombstone-specific shared contact momentum.
+the host publishes accepted poses and the Shield-specific shared contact momentum.
 Deployment clearance uses the deploying car's current observed native pose, restoring its
 query proxy afterward so a fast-moving car cannot block release with its previous pose.
 

@@ -490,12 +490,12 @@ Grass also exposes `vehicle.grass_steering_reserve` (default 0.65, range 0–1) 
 
 These twelve appended keys use the existing Apply/Cancel/Reset, host validation, saved-key fallback, reliable revision ordering and resume/migration configuration paths. The complete TC41 layout carries 224 values in 1813 bytes; older layouts are rejected. Old saved files missing the new keys inherit defaults, while explicit existing grip overrides remain effective until reset. Player controller settings remain outside this gameplay catalog.
 
-### Tombstone wall deployment
+### Shield wall deployment
 
-The Tombstone category exposes width, height, depth, mass and rear clearance through
-`items.tombstone_*`. [Held items](items.md#movable-tombstone-world-walls) documents bounds,
+The Shield category exposes width, height, depth, mass and rear clearance through
+`items.tombstone_*`. [Held items](items.md#movable-shield-world-walls) documents bounds,
 defaults and native clearance behavior. Dimensions and mass affect subsequent deployments;
 existing walls retain their captured physical values. Configuration protocol 41 includes
 these controls in complete replication and recovery.
 
-The Tombstone category also exposes `items.tombstone_lifetime` (120 seconds, range 1–600) and `items.tombstone_tip_speed` (20 m/s of impact impulse per wall mass, range 1–100). Lifetime is captured as an absolute simulation deadline at deployment; edits affect future deployments. The knock-over threshold applies to subsequent vehicle impacts. Both use the existing host validation, persistence, replication and recovery paths.
+The Shield category also exposes `items.tombstone_lifetime` (120 seconds, range 1–600) and `items.tombstone_tip_speed` (20 m/s of impact impulse per wall mass, range 1–100). Lifetime is captured as an absolute simulation deadline at deployment; edits affect future deployments. The knock-over threshold applies to subsequent vehicle impacts. Both use the existing host validation, persistence, replication and recovery paths.
