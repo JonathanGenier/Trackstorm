@@ -37,6 +37,8 @@ internal sealed partial class CombatHud : CanvasLayer
     internal Func<VehicleSnapshot?> Vehicle { get; set; } = () => null;
     /// <summary>Confirmed inventory only; no predicted ownership.</summary>
     internal Func<ItemSlot?> Slot { get; set; } = () => null;
+    /// <summary>Complete accepted persistent item state, shared with confirmed inventory.</summary>
+    internal Func<IReadOnlyList<TombstoneState>> Tombstones { get; set; } = () => Array.Empty<TombstoneState>();
     /// <summary>Local preference service supplies presentation units.</summary>
     internal Func<SpeedUnit> Units { get; set; } = () => SpeedUnit.KilometresPerHour;
     /// <summary>Shared match standings position; practice has no match ranking.</summary>
@@ -84,8 +86,6 @@ internal sealed partial class CombatHud : CanvasLayer
         _secondSlot.Initialize(2, instrumentFont);
         foreach (var definition in ItemRegistry.All)
         {
-            // Tombstone's dedicated HUD artwork belongs to its later presentation Story.
-            if (definition.Identity == HeldItem.Tombstone) { continue; }
             Texture2D icon = Bootstrap.StartupController.LoadResource<Texture2D>($"res://assets/hud/{definition.PresentationKey}.svg");
             // Center visible art, rather than the unequal transparent padding of different SVGs.
             using Image pixels = icon.GetImage();
@@ -126,7 +126,7 @@ internal sealed partial class CombatHud : CanvasLayer
             return;
         }
 
-        CombatHudView view = CombatHudView.From(state, Slot(), Units()) with { Standing = Position(), Timer = CombatHudView.FormatTimer(Match(), AuthoritativeTick()) };
+        CombatHudView view = CombatHudView.From(state, Slot(), Units(), Tombstones()) with { Standing = Position(), Timer = CombatHudView.FormatTimer(Match(), AuthoritativeTick()) };
         if (view != _displayed)
         {
             _displayed = view;

@@ -93,7 +93,7 @@ public sealed partial class ItemIntegrationChecks : Node
             target.GetChildren().OfType<Node3D>().Single(child => child is not CollisionShape3D).Scale = new(1, 3 / 1.6f, 1);
             target.Position = new(8, 1.5f, -6);
             _arenas.Add(arena);
-            var hud = new Hud.CombatHud { Vehicle = () => arena.LocalState, Slot = () => arena.Driver.LocalItem };
+            var hud = new Hud.CombatHud { Vehicle = () => arena.LocalState, Slot = () => arena.Driver.LocalItem, Tombstones = () => arena.Driver.ItemState?.Tombstones ?? Array.Empty<TombstoneState>() };
             viewport.AddChild(hud);
             _huds.Add(hud);
             var events = new List<ItemEvent>();
